@@ -1,0 +1,315 @@
+
+
+DoubleArray TimeStepClass::computeDerivativeXYDirection(DoubleArray gray){
+	ICoord center;
+	ICoord size = image.sizeInPixels();
+	DoubleArray newgray = DoubleArray(size);
+	double numr;
+	double numl;
+	for (DoubleArray::iterator i = gray.begin(); i !=gray.end(); ++i){
+		center = i.coord();
+		numr = 0;
+		numl = 0;
+		if ((pixelInBounds(center + ICoord(1,1)) == true) && (pixelInBounds(center + ICoord(-1,-1)) == true) && (pixelInBounds(center + ICoord(1,-1)) == true) && (pixelInBounds(center + ICoord(-1,1)) == true)){
+			numl = gray[center+ICoord(1,1)] + gray[center+ICoord(-1,-1)];
+			numr = gray[center+ICoord(1,-1)] + gray[center+ICoord(-1,1)];
+			
+		}
+		newgray[center] = (numl-numr)/4;
+		
+	}
+	return newgray;
+}
+
+
+
+#if self.step_type == Gaussian_step:
+#	self.actual_step_type = 'gaussian'
+#elif self.step_type == SmallGaussian_step:
+#	self.actual_step_type = 'smallgaussian'
+#elif self.step_type == Laplace_step:
+#	self.actual_step_type = 'laplace'
+#elif self.step_type == LargeLaplace_step:
+#	self.actual_step_type = 'largelaplace'
+#elif self.step_type == AntiGeometric_step:
+#	self.actual_step_type = 'antigeometric'
+#doTimeStep(image, self.time, self.actual_step_type)
+#regisimageteredclass.Registration(
+#    'SegmentationTimeStep',
+#    imagemodifier.ImageModifier,
+#    TimeStepClass,
+#   ordering=.1,
+#   params=[
+#  parameter.FloatParameter('time',1,tip='Time for differentiation.')
+#  ],
+#  tip="Take a time step on the image."
+#  ) 
+
+
+DoubleArray TimeStepClass::computeDerivativeYYDirection(DoubleArray gray){
+	ICoord center;
+	ICoord size = image.sizeInPixels();
+	DoubleArray newgray = DoubleArray(size);
+	double numr;
+	double numl;
+	for (DoubleArray::iterator i = gray.begin(); i !=gray.end(); ++i){
+		center = i.coord();
+		numr = 0;
+		numl = 0;
+		if (pixelInBounds(center + ICoord(0,1)) == true && (pixelInBounds(center + ICoord(0,-1)) == true)){
+			numr = gray[center + ICoord(0,1)];
+			numl = gray[center + ICoord(0,-1)];
+		}
+		newgray[center] = (numr +numl-2*gray[center]);
+
+	}
+	return newgray;
+}
+
+DoubleArray TimeStepClass::computeDerivativeXXDirection(DoubleArray gray){
+	ICoord center;
+	ICoord size = image.sizeInPixels();
+	DoubleArray newgray = DoubleArray(size);
+	double numr;
+	double numl;
+	for (DoubleArray::iterator i = gray.begin(); i !=gray.end(); ++i){
+		center = i.coord();
+		numr = 0;
+		numl = 0;
+		if (pixelInBounds(center + ICoord(1,0)) == true && (pixelInBounds(center + ICoord(-1,0)) == true)){
+			numr = gray[center + ICoord(1,0)];
+			numl = gray[center + ICoord(-1,0)];
+		}
+		newgray[center] = (numr +numl-2*gray[center]);
+	}
+	return newgray;
+}
+
+DoubleArray TimeStepClass::computeDerivativeYDirection(DoubleArray gray){
+	ICoord center;
+	ICoord size = image.sizeInPixels();
+	DoubleArray newgray = DoubleArray(size);
+	double num;
+	double numl;
+	double numr;
+	for (DoubleArray::iterator i = gray.begin(); i !=gray.end(); ++i){
+		center = i.coord();
+		numl = 0;
+		numr = 0;
+		num = 0;
+		if (pixelInBounds(center + ICoord(0,1)) == true && (pixelInBounds(center + ICoord(0,-1)) == true)){
+			numr = gray[center + ICoord(0,1)];
+			numl = gray[center + ICoord(0, -1)];
+		}	
+		newgray[center] = (numr - numl)/2;
+	}
+	return newgray;
+}
+
+DoubleArray TimeStepClass::computeDerivativeXDirection(DoubleArray gray){
+	ICoord center;
+	ICoord size = image.sizeInPixels();
+	DoubleArray newgray = DoubleArray(size);
+	double num;
+	double numl;
+	double numr;
+	for (DoubleArray::iterator i = gray.begin(); i !=gray.end(); ++i){
+		center = i.coord();
+		numl = 0;
+		numr = 0;
+		num = 0;
+		if (pixelInBounds(center + ICoord(1,0)) == true && (pixelInBounds(center + ICoord(-1,0)) == true)){
+			numr = gray[center + ICoord(1,0)];
+			numl = gray[center + ICoord(-1, 0)];
+		}	
+		newgray[center] = (numr - numl)/2;
+	}
+	return newgray;
+}
+
+/*
+Classifies each region by color. Assigns each region a different color so that it is easy to see where continuous regions lie. 
+Doesnt quite work. Some problems. Will fix later. 
+*/
+DoubleArray ClassifyClass::classifyRegions(DoubleArray olchanged){
+	ICoord size = olchanged.size();
+	DoubleArray newchanged = DoubleArray(size);
+	DoubleArray changed = DoubleArray(size);
+	/* if it is not classified, 0, if classified then 1 */
+	int maxSize = 7;
+	int currSize0 = 0;
+	int currSize1;
+	int oldSize0 = 0;
+	currSize0 = currSize0 + maxSize;
+	double changeColor = 0;
+	DoubleArray classified = DoubleArray(size);
+	int reachedEnd = 0;
+	for (DoubleArray::iterator i = olchanged.begin();i !=olchanged.end(); ++i){
+		olchanged[i.coord()] = (int)olchanged[i.coord()];
+	}
+	maxSize = 1456/size(1);
+	while (currSize0 <= size(0)-1){
+		currSize1 = size(1);
+		for (int i = oldSize0; i < currSize0; ++i){
+			for (int j = 0; j < currSize1; ++j){
+				ICoord curr = ICoord(i,j);
+				if (classified[curr] == 0){
+					cout << curr << std::endl;
+					cout << olchanged[curr] << " ";
+					if (pixelInBounds(curr + ICoord(-1,0), size))
+						cout << olchanged[curr + ICoord(-1,0)];
+					cout << std::endl;
+					classified[curr] = 1;
+					double currColor = olchanged[curr];
+					if (pixelInBounds(curr + ICoord(-1,0), size) && classified[curr + ICoord(-1,0)] == 1  && olchanged[curr + ICoord(-1,0)] == olchanged[curr])
+						changeColor = changed[curr + ICoord(-1,0)];
+					else if (pixelInBounds(curr + ICoord(-1,1), size) && classified[curr + ICoord(-1,1)] == 1  && olchanged[curr + ICoord(-1,1)] == olchanged[curr])
+						changeColor = changed[curr + ICoord(-1,1)];
+					else if (pixelInBounds(curr + ICoord(-1,-1), size) && classified[curr + ICoord(-1,-1)] == 1 && olchanged[curr + ICoord(-1,-1)] == olchanged[curr])
+						changeColor = changed[curr + ICoord(-1,-1)];
+					changed[curr] = changeColor;
+					changeNeighbors(curr, changed, currColor, changeColor, classified, currSize0, currSize1, olchanged);
+					changeColor = changeColor + .7;
+				}
+			}
+		}
+		oldSize0 = currSize0;
+		currSize0 = currSize0 + maxSize;
+		if (currSize0 > size(0) -1 && reachedEnd == 0){
+			currSize0 = size(0) - 1;
+ 			reachedEnd = 1;
+		}
+	}
+	fixWrongBorders(changed, olchanged);
+	newchanged = changed;
+	return newchanged;
+}
+
+
+/*
+Called by classifyRegions. For the coordinate given, changes all of the pixels around it that are of its same color to a specified color. 
+*/
+void ClassifyClass::changeNeighbors(ICoord coord, DoubleArray &changed, double curr, double changeTo, DoubleArray &classified, int maxi, int maxj, DoubleArray old_changed){
+	/* below */
+	ICoord size = changed.size();
+	ICoord r = coord + ICoord (0,1);
+	if ((pixelInBounds(r, size) == true) && (r(0) < maxi && r(1) < maxj) && (classified[r] == 0) && (old_changed[r] == curr)) {
+		if (pixelInBounds(r + ICoord(-1,0), size) && classified[r + ICoord(-1,0)] == 1  && old_changed[r + ICoord(-1,0)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,0)];
+		else if (pixelInBounds(r + ICoord(-1,1), size) && classified[r + ICoord(-1,1)] == 1  && old_changed[r + ICoord(-1,1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,1)];
+		else if (pixelInBounds(r + ICoord(-1,-1), size) && classified[r + ICoord(-1,-1)] == 1 && old_changed[r + ICoord(-1,-1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,-1)];
+		classified[r] = 1;
+		changed[r] = changeTo;
+		if (r(0) < maxi && r(1) < maxj){
+			changeNeighbors(r, changed, curr, changeTo, classified, maxi, maxj, old_changed);
+		}
+	}
+	/* above */
+	r = coord + ICoord (0,-1);
+	if ((pixelInBounds(r, size) == true) && (r(0) < maxi && r(1) < maxj) && (classified[r] == 0) && (old_changed[r] == curr)) {
+		if (pixelInBounds(r + ICoord(-1,0), size) && classified[r + ICoord(-1,0)] == 1  && old_changed[r + ICoord(-1,0)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,0)];
+		else if (pixelInBounds(r + ICoord(-1,1), size) && classified[r + ICoord(-1,1)] == 1  && old_changed[r + ICoord(-1,1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,1)];
+		else if (pixelInBounds(r + ICoord(-1,-1), size) && classified[r + ICoord(-1,-1)] == 1 && old_changed[r + ICoord(-1,-1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,-1)];
+		classified[r] = 1;
+		changed[r] = changeTo;
+		if (r(0) < maxi && r(1) < maxj){
+			changeNeighbors(r, changed, curr, changeTo, classified, maxi, maxj, old_changed);
+		}
+	}
+	/*left */
+	r = coord + ICoord (1,0);
+	if ((pixelInBounds(r, size) == true) && (r(0) < maxi && r(1) < maxj) && (classified[r] == 0) && (old_changed[r] == curr)) {
+		if (pixelInBounds(r + ICoord(-1,0), size) && classified[r + ICoord(-1,0)] == 1  && old_changed[r + ICoord(-1,0)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,0)];
+		else if (pixelInBounds(r + ICoord(-1,1), size) && classified[r + ICoord(-1,1)] == 1  && old_changed[r + ICoord(-1,1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,1)];
+		else if (pixelInBounds(r + ICoord(-1,-1), size) && classified[r + ICoord(-1,-1)] == 1 && old_changed[r + ICoord(-1,-1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,-1)];
+		classified[r] = 1;
+		changed[r] = changeTo;
+		if (r(0) < maxi && r(1) < maxj){
+			changeNeighbors(r, changed, curr, changeTo, classified, maxi, maxj, old_changed);
+		}
+	}
+	/* right */
+	r = coord + ICoord (-1,0);
+	if ((pixelInBounds(r, size) == true) && (r(0) < maxi && r(1) < maxj) && (classified[r] == 0) && (old_changed[r] == curr)) {
+		if (pixelInBounds(r + ICoord(-1,0), size) && classified[r + ICoord(-1,0)] == 1  && old_changed[r + ICoord(-1,0)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,0)];
+		else if (pixelInBounds(r + ICoord(-1,1), size) && classified[r + ICoord(-1,1)] == 1  && old_changed[r + ICoord(-1,1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,1)];
+		else if (pixelInBounds(r + ICoord(-1,-1), size) && classified[r + ICoord(-1,-1)] == 1 && old_changed[r + ICoord(-1,-1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,-1)];
+		classified[r] = 1;
+		changed[r] = changeTo;
+		if (r(0) < maxi && r(1) < maxj){
+			changeNeighbors(r, changed, curr, changeTo, classified, maxi, maxj, old_changed);
+		}
+	}
+	/*r = coord + ICoord (1,-1);
+	if ((image.pixelInBounds(&r) == true) && (r(0) < maxi && r(1) < maxj) && (classified[r] == 0) && (old_changed[r] == curr)) {
+		if (pixelInBounds(r + ICoord(-1,0)) && classified[r + ICoord(-1,0)] == 1  && old_changed[r + ICoord(-1,0)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,0)];
+		else if (pixelInBounds(r + ICoord(-1,1)) && classified[r + ICoord(-1,1)] == 1  && old_changed[r + ICoord(-1,1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,1)];
+		else if (pixelInBounds(r + ICoord(-1,-1)) && classified[r + ICoord(-1,-1)] == 1 && old_changed[r + ICoord(-1,-1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,-1)];
+		classified[r] = 1;
+		changed[r] = changeTo;
+		if (r(0) < maxi && r(1) < maxj){
+			changeNeighbors(r, changed, curr, changeTo, classified, maxi, maxj, old_changed);
+		}
+	}
+	
+	r = coord + ICoord (-1,-1);
+	if ((image.pixelInBounds(&r) == true) && (r(0) < maxi && r(1) < maxj) && (classified[r] == 0) && (old_changed[r] == curr)) {
+		if (pixelInBounds(r + ICoord(-1,0)) && classified[r + ICoord(-1,0)] == 1  && old_changed[r + ICoord(-1,0)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,0)];
+		else if (pixelInBounds(r + ICoord(-1,1)) && classified[r + ICoord(-1,1)] == 1  && old_changed[r + ICoord(-1,1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,1)];
+		else if (pixelInBounds(r + ICoord(-1,-1)) && classified[r + ICoord(-1,-1)] == 1 && old_changed[r + ICoord(-1,-1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,-1)];
+		classified[r] = 1;
+		changed[r] = changeTo;
+		if (r(0) < maxi && r(1) < maxj){
+			changeNeighbors(r, changed, curr, changeTo, classified, maxi, maxj, old_changed);
+		}
+	}
+	
+	r = coord + ICoord (-1,1);
+	if ((image.pixelInBounds(&r) == true) && (r(0) < maxi && r(1) < maxj) && (classified[r] == 0) && (old_changed[r] == curr)) {
+		if (pixelInBounds(r + ICoord(-1,0)) && classified[r + ICoord(-1,0)] == 1  && old_changed[r + ICoord(-1,0)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,0)];
+		else if (pixelInBounds(r + ICoord(-1,1)) && classified[r + ICoord(-1,1)] == 1  && old_changed[r + ICoord(-1,1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,1)];
+		else if (pixelInBounds(r + ICoord(-1,-1)) && classified[r + ICoord(-1,-1)] == 1 && old_changed[r + ICoord(-1,-1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,-1)];
+		classified[r] = 1;
+		changed[r] = changeTo;
+		if (r(0) < maxi && r(1) < maxj){
+			changeNeighbors(r, changed, curr, changeTo, classified, maxi, maxj, old_changed);
+		}
+	}
+	r = coord + ICoord (1,1);
+	if ((image.pixelInBounds(&r) == true) && (r(0) < maxi && r(1) < maxj) && (classified[r] == 0) && (old_changed[r] == curr)) {
+		if (pixelInBounds(r + ICoord(-1,0)) && classified[r + ICoord(-1,0)] == 1  && old_changed[r + ICoord(-1,0)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,0)];
+		else if (pixelInBounds(r + ICoord(-1,1)) && classified[r + ICoord(-1,1)] == 1  && old_changed[r + ICoord(-1,1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,1)];
+		else if (pixelInBounds(r + ICoord(-1,-1)) && classified[r + ICoord(-1,-1)] == 1 && old_changed[r + ICoord(-1,-1)] == old_changed[r])
+			changeTo = changed[r + ICoord(-1,-1)];
+		classified[r] = 1;
+		changed[r] = changeTo;
+		if (r(0) < maxi && r(1) < maxj){
+			changeNeighbors(r, changed, curr, changeTo, classified, maxi, maxj, old_changed);
+		}
+	}*/
+
+	
+}
+

@@ -1,0 +1,126 @@
+# -*- python -*-
+# $RCSfile: oofimage3d.spy,v $
+# $Revision: 1.4 $
+# $Author: langer $
+# $Date: 2010/12/04 03:50:04 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+
+from ooflib.SWIG.common import ooferror
+from ooflib.common import debug
+from ooflib.common import utils
+from ooflib.common import parallel_enable
+from ooflib.common import primitives
+from ooflib.common.IO import whoville
+import ooflib.common.microstructure
+from ooflib.image.imagecontext import *
+import os
+import string
+import imghdr
+
+
+def readImage(filepattern, **kwargs):
+    # We make the basename the name of the first
+    # image, we also use this in OOFImage3D to probe the image type
+    # using ImageMagick.
+    dirname = os.path.dirname(filepattern)
+    numfiles = utils.countmatches(filepattern, dirname, utils.matchvtkpattern)
+    if numfiles == 0:
+        raise ooferror.ErrUserError("No files match pattern: "+filepattern)
+    else:
+        items = os.listdir(dirname)
+        for item in items:
+            if utils.matchvtkpattern(filepattern, item):
+                basename = item
+        firstimagename = os.path.join(dirname, basename)
+        format = imghdr.what(firstimagename)
+
+        # vtk wants a file pattern with some string that includes
+        # integers.  The pattern must be sprintf style with '%i' where the
+        # integers belong.
+        pattern = string.replace(filepattern, "*", "%i")
+        image = OOFImage3D(os.path.basename(filepattern), format, pattern, numfiles)
+        # set physical size of image
+        pixelsize = image.sizeInPixels()
+        given_height = 'height' in kwargs
+        given_width = 'width' in kwargs
+        given_depth = 'depth' in kwargs
+##     if not (given_height or given_width or given_depth):
+##         width = float(pixelsize.x)
+##         height = float(pixelsize.y)
+##         depth = float(pixelsize.z)
+##     elif given_height and given_width and given_depth:
+##         width = float(kwargs['width'])
+##         height = float(kwargs['height'])
+##         depth = float(kwargs['depth'])
+##     else:
+##         #aspect = float(pixelsize.x)/pixelsize.y
+##         if given_width:
+##             width = float(kwargs['width'])
+##             height = width/aspect
+##         elif given_height:
+##             height = float(kwargs['height'])
+##             width = height*aspect
+        # for now, this works differently from the 2d version.  Any
+        # dimension not explicity set gets set to 1. TODO: figure out the
+        # aspect ratio stuff.  Should it just use the largest of the ones
+        # that are set?
+        if given_width:
+            width = float(kwargs['width'])
+        else:
+            width = float(pixelsize.x)
+        if given_height:
+            height = float(kwargs['height'])
+        else:
+            height = float(pixelsize.y)
+        if given_depth:
+            depth = float(kwargs['depth'])
+        else:
+            depth = float(pixelsize.z)
+
+        image.setSize(primitives.Point(width, height, depth))
+    
+        return image
+
+# TODO: much of this code is repeated from oofimage.spy, perhaps
+# should be consolidated?
+def _getTimeStamp_optional_args(self, *args):
+    return self._getTimeStamp()
+OOFImage3DPtr.getTimeStamp = _getTimeStamp_optional_args
+
+def getImage(imagename):
+    ## returns the actual image
+    ## imagename = microstructurename:image_name OR imagename = [microstructurename, image_name]
+    return imageContexts[imagename].getObject()
+
+def pushModification(imagename, image):
+    imageContexts[imagename].pushModification(image)
+
+def undoModification(imagename):
+    imageContexts[imagename].undoModification()
+
+def redoModification(imagename):
+    imageContexts[imagename].redoModification()
+
+def undoable(imagename):
+    return imageContexts[imagename].undoable()
+
+def redoable(imagename):
+    return imageContexts[imagename].redoable()
+
+
+# Super-cautious destructor for SWIG'd OOFImage class.
+# Works around a SWIG bug.
+
+def oofimage3d_ptr_del(self, destruct=oofimage3dc.delete_OOFImage3D):
+    if getattr(self, 'thisown', 0):
+        destruct(self)
+
+OOFImage3DPtr.__del__ = oofimage3d_ptr_del

@@ -1,0 +1,186 @@
+# -*- python -*-
+# $RCSfile: charge.spy,v $
+# $Revision: 1.2 $
+# $Author: reida $
+# $Date: 2012/03/28 18:43:33 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.
+
+
+# Very similar to the non-charged diffusion, but with Charge_Flux
+# instead of Atom_Flux, and Voltage instead of Concentration.  Also,
+# there is no "mobility" analog, and no surface property (yet?).
+
+from ooflib.common import runtimeflags
+
+from ooflib.common import utils
+from ooflib.common.IO import parameter
+from ooflib.engine import problem
+from ooflib.engine import propertyregistration
+from ooflib.SWIG.engine import symmmatrix
+
+from ooflib.engine.IO import interfaceparameters
+
+from ooflib.EXTENSIONS.diffusion import diff_problem
+
+
+PropertyRegistration = propertyregistration.PropertyRegistration
+
+## ISOTROPIC
+
+reg = PropertyRegistration(
+    'Migration:Charge:Isotropic',
+    IsoCurrent,
+    "ooflib.SWIG.EXTENSIONS.diffusion.charge",
+    ordering=98,
+    params=[parameter.FloatParameter('K',
+                                     1.0, tip=parameter.emptyTipString)],
+    propertyType="Current",
+    tip="Isotropic charge diffusion."
+    )
+
+reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
+             fields=[problem.Voltage],
+             time_derivs=[0])
+
+
+## TRICLINIC
+
+reg = PropertyRegistration(
+    'Migration:Charge:Anisotropic:Triclinic',
+    AnisoCurrent,
+    "ooflib.SWIG.EXTENSIONS.diffusion.charge",105,
+    [symmmatrix.TriclinicRank2TensorParameter(
+    'K',
+    symmmatrix.TriclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
+    tip=parameter.emptyTipString)],
+    propertyType="Current",
+    tip="Triclinic charge diffusion"
+    )
+
+reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
+             fields=[problem.Voltage],
+             time_derivs=[0])
+
+
+## MONOCLINIC
+
+reg = PropertyRegistration(
+    'Migration:Charge:Anisotropic:Monoclinic',
+    AnisoCurrent,
+    "ooflib.SWIG.EXTENSIONS.diffusion.charge",104,
+    [symmmatrix.MonoclinicRank2TensorParameter(
+    'K',
+    symmmatrix.MonoclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
+    tip=parameter.emptyTipString)],
+    propertyType="Current",
+    tip="Monoclinic charge diffusion."
+    )
+
+reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
+             fields=[problem.Voltage],
+             time_derivs=[0])
+
+
+## ORTHORHOMBIC
+
+reg = PropertyRegistration(
+    'Migration:Charge:Anisotropic:Orthorhombic',
+    AnisoCurrent,
+    "ooflib.SWIG.EXTENSIONS.diffusion.charge",103,
+    [symmmatrix.OrthorhombicRank2TensorParameter(
+    'K',
+    symmmatrix.OrthorhombicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
+    tip=parameter.emptyTipString)],
+    propertyType="Current",
+    tip="Orthorhombic charge diffusion."
+    )
+
+reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
+             fields=[problem.Voltage],
+             time_derivs=[0])
+
+
+## TETRAGONAL
+
+reg = PropertyRegistration(
+    'Migration:Charge:Anisotropic:Tetragonal',
+    AnisoCurrent,
+    "ooflib.SWIG.EXTENSIONS.diffusion.charge",101,
+    [symmmatrix.TetragonalRank2TensorParameter(
+    'K',
+    symmmatrix.TetragonalRank2Tensor(xx=1.0, zz=0.5),
+    tip=parameter.emptyTipString)],
+    propertyType="Current",
+    tip="Tetragonal charge diffusion."
+    )
+
+reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
+             fields=[problem.Voltage],
+             time_derivs=[0])
+
+
+## TRIGONAL
+
+reg = PropertyRegistration(
+    'Migration:Charge:Anisotropic:Trigonal',
+    AnisoCurrent,
+    "ooflib.SWIG.EXTENSIONS.diffusion.charge",102,
+    [symmmatrix.TrigonalRank2TensorParameter(
+    'K',
+    symmmatrix.TrigonalRank2Tensor(xx=1.0, zz=0.5),
+    tip=parameter.emptyTipString)],
+    propertyType="Current",
+    tip="Trigonal charge diffusion."
+    )
+
+reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
+             fields=[problem.Voltage],
+             time_derivs=[0])
+
+
+## HEXAGONAL
+
+reg = PropertyRegistration(
+    'Migration:Charge:Anisotropic:Hexagonal',
+    AnisoCurrent,
+    "ooflib.SWIG.EXTENSIONS.diffusion.charge",100,
+    [symmmatrix.HexagonalRank2TensorParameter(
+    'K',
+    symmmatrix.HexagonalRank2Tensor(xx=1.0, zz=0.5),
+    tip=parameter.emptyTipString)],
+    propertyType="Current",
+    tip="Hexagonal charge diffusion."
+    )
+
+reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
+             fields=[problem.Voltage],
+             time_derivs=[0])
+
+
+## CUBIC
+
+reg = PropertyRegistration(
+    'Migration:Charge:Anisotropic:Cubic',
+    AnisoCurrent,
+    "ooflib.SWIG.EXTENSIONS.diffusion.charge",99,
+    [symmmatrix.CubicRank2TensorParameter(
+            'K',
+            symmmatrix.CubicRank2Tensor(xx=1.0),
+            tip=parameter.emptyTipString)],
+    propertyType="Current",
+    tip="Cubic charge diffusion."
+)
+
+reg.fluxInfo(fluxes=[diff_problem.Charge_Flux],
+             fields=[problem.Voltage],
+             time_derivs=[0])
+
+
+

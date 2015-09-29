@@ -1,0 +1,78 @@
+// -*- text -*-
+// $RCSfile: quit.txt,v $
+// $Revision: 1.2 $
+// $Author: langer $
+// $Date: 2010/11/30 15:38:35 $
+
+/* This software was produced by NIST, an agency of the U.S. government,
+ * and by statute is not subject to copyright in the United States.
+ * Recipients of this software assume all responsibilities associated
+ * with its operation, modification and maintenance. However, to
+ * facilitate maintenance we ask that before distributing modified
+ * versions of this software, you first contact the authors at
+ * oof_manager@nist.gov. 
+ */
+
+
+The Shutdown Sequence
+
+GUI Mode
+
+Quit menuitem GUI callback and main window delete event callback are
+both common.IO.GUI.quit.queryQuit.
+  Displays "Save?" dialog.
+  If not cancelled, calls common.quit.cleanup,
+    passing common.IO.GUI.quit.shutdown as the 'shutdown' arg.
+
+Text Mode
+
+Menuitem callback is common.quit.quit.  
+  Querys user.
+  Calls common.quit.cleanup,
+    passing common.quit.shutdown as the 'shutdown' arg.
+
+
+Both Modes
+
+common.quit.cleanup
+   shuts down logging
+   calls common.quit.waitForThreads via subthread.execute_immortal
+      sends switchboard "shutdown" signal
+         caught only by gfxwindow which destroys its device and stops animations
+      calls subthread.miniThreadManager.quit
+         calls MiniThreadManager.stopAll
+            calls MiniThread.stop_it for all MiniThreads
+               calls ThreadState.cancelThread
+         calls ThreadManager.waitForAllThreads
+            calls MiniThread.join for all non-immortal MiniThreads
+      calls common.IO.threadmanager.threadManager.quit
+         calls Worker.stop for all workers
+            calls threadstate.impedeProgress
+              calls Progress::stop1 for all Progress objects
+	         sets Progress::stopped_, which is checked by Progress::stopped,
+                   which should be queried by long-running operations
+         calls Worker.join for all workers
+      runs the shutdown function on the main thread
+
+GUI Mode
+
+common.IO.GUI.quit.shutdown
+  gui.stop (common.IO.GUI.oofGUI.stop)
+    destroy layer editor
+    close gfx windows
+    destroy console
+    close activity viewer
+    destroy message windows
+    gtk.main_quit
+      calls guitop.setMainLoop(False) after exiting
+  gui.destroy
+  common.quit.shutdown
+
+Text Mode
+
+common.quit.shutdown
+  restore system excepthook
+  delete mainthreadstate
+  sys.exit
+
+

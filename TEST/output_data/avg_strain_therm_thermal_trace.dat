@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Trace(Thermal Strain)
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Trace(Thermal Strain)
+0.0, 0.05

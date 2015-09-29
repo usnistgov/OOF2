@@ -1,0 +1,7 @@
+# OOF version 2.0
+FileVersion(number=1.0, format='ascii')
+Property.Mechanical.Elasticity.Anisotropic.Cubic(name='instance', cijkl=CubicRank4TensorEnu(young=1.8000000000000007,poisson=0.20000000000000001,aniso=0.5))
+Property.Mechanical.Elasticity.Anisotropic.Cubic(name='instance_2', cijkl=CubicRank4TensorCij(c11=2.0000000000000009,c12=0.50000000000000022,c44=0.37500000000000017))
+Property.Mechanical.Elasticity.Anisotropic.Cubic(name='instance_3', cijkl=CubicRank4TensorLame(lmbda=0.50000000000000022,mu=0.5,aniso=0.5))
+Property.Mechanical.Elasticity.Anisotropic.Cubic(name='instance_4', cijkl=CubicRank4TensorBulkShear(bulk=0.83333333333333359,shear=0.5,aniso=0.29999999999999999))
+MaterialandType(name='cubics', properties=['Mechanical:Elasticity:Anisotropic:Cubic:instance_4', 'Mechanical:Elasticity:Anisotropic:Cubic:instance_3', 'Mechanical:Elasticity:Anisotropic:Cubic:instance_2', 'Mechanical:Elasticity:Anisotropic:Cubic:instance'], materialtype='bulk')

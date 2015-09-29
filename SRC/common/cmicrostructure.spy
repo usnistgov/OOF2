@@ -1,0 +1,23 @@
+# -*- python -*-
+# $RCSfile: cmicrostructure.spy,v $
+# $Revision: 1.3 $
+# $Author: langer $
+# $Date: 2014/09/27 21:40:18 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+# Need to over-ride the getGroup function's return, so that it wraps
+# the returned value properly.
+
+def CMicrostructurePtr_getGroup(self, *_args, **_kwargs):
+    val = apply( cmicrostructurec.CMicrostructure_getGroup,
+                 (self,) + _args, _kwargs )
+    return [PixelGroupPtr(val[0]), val[1]]
+
+CMicrostructurePtr.getGroup = CMicrostructurePtr_getGroup

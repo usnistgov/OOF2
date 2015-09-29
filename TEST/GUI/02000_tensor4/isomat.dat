@@ -1,0 +1,7 @@
+# OOF version 2.0
+FileVersion(number=1.0, format='ascii')
+Property.Mechanical.Elasticity.Isotropic(name='instance', cijkl=IsotropicRank4TensorCij(c11=3.0,c12=1.5))
+Property.Mechanical.Elasticity.Isotropic(name='instance_2', cijkl=IsotropicRank4TensorLame(lmbda=3,mu=0.75))
+Property.Mechanical.Elasticity.Isotropic(name='instance_3', cijkl=IsotropicRank4TensorEnu(young=2.1000000000000001,poisson=0.40000000000000002))
+Property.Mechanical.Elasticity.Isotropic(name='instance_4', cijkl=IsotropicRank4TensorBulkShear(bulk=3.5000000000000009,shear=1))
+MaterialandType(name='material', properties=['Mechanical:Elasticity:Isotropic:instance', 'Mechanical:Elasticity:Isotropic:instance_2', 'Mechanical:Elasticity:Isotropic:instance_3', 'Mechanical:Elasticity:Isotropic:instance_4'], materialtype='bulk')

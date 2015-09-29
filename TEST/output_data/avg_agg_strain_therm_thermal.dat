@@ -1,0 +1,13 @@
+# Operation: Average
+# Output: Thermal Strain
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Thermal Strain[xx]
+# 3. average of Thermal Strain[yy]
+# 4. average of Thermal Strain[zz]
+# 5. average of Thermal Strain[yz]
+# 6. average of Thermal Strain[xz]
+# 7. average of Thermal Strain[xy]
+0.0, 0.0166666666667, 0.0166666666667, 0.0166666666667, 0.0, 0.0, 0.0

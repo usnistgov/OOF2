@@ -1,0 +1,93 @@
+# -*- python -*-
+# $RCSfile: direction.spy,v $
+# $Revision: 1.2 $
+# $Author: langer $
+# $Date: 2012/02/28 22:24:57 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+# Wrappers  for   the  CDirection  classes,   so  that  they   can  be
+# ConvertibleRegisteredClasses.
+
+## TODO: Allow ConvertibleRegisteredClasses to be implemented in C++
+## and get rid of these wrappers.  See orientationmatrix.py for more
+## comments in a similar situation.
+
+from ooflib.common import debug
+from ooflib.common import registeredclass
+from ooflib.common.IO import parameter
+
+import math
+
+class Direction(registeredclass.ConvertibleRegisteredClass):
+    registry = []
+    def unitVector(self):
+        return self.cdirection.unitVector()
+
+class DirectionRegistration(registeredclass.ConvertibleRegistration):
+    def __init__(self, name, subclass, ordering,
+                 from_base, params=[], tip=None, discussion=None):
+        registeredclass.ConvertibleRegistration.__init__(
+            self, name,
+            Direction, subclass, ordering,
+            from_base=from_base,
+            params=params,
+            tip=tip, discussion=discussion)
+    def getParamValuesAsBase(self):
+        temp = self()
+        return temp.unitVector()
+
+class VectorDirection(Direction):
+    def __init__(self, x, y, z):
+        self.cdirection = CUnitVectorDirection(x, y, z)
+        self.x = x
+        self.y = y
+        self.z = z
+
+def _vector_from_base(self, base):
+    return [base.x(), base.y(), base.z()]
+
+DirectionRegistration(
+    'Vector',
+    VectorDirection,
+    1,
+    from_base=_vector_from_base,
+    params=[
+        parameter.FloatParameter(
+            'x', 0, tip="The x component of the direction."),
+        parameter.FloatParameter(
+            'y', 0, tip="The y component of the direction."),
+        parameter.FloatParameter(
+            'z', 0, tip="The z component of the direction.")],
+    tip="A direction in space in the form of a vector.  The vector will be normalized automatically."
+    )
+
+class AngleDirection(Direction):
+    def __init__(self, theta, phi):
+        self.cdirection = CAngleDirection(theta*math.pi/180, phi*math.pi/180)
+        self.theta = theta
+        self.phi = phi
+
+def _angle_from_base(self, base):
+    return [base.theta()*180/math.pi, base.phi()*180/math.pi]
+
+DirectionRegistration(
+    'Angles',
+    AngleDirection,
+    2,
+    from_base=_angle_from_base,
+    params=[
+        parameter.FloatRangeParameter(
+            'theta', (0, 180, 1), 0.0,
+            tip="Inclination from the z axis, in degrees."),
+        parameter.FloatRangeParameter(
+            'phi', (0, 360, 1), 0.0,
+            tip="Azimuth from the x axis, in degrees.")],
+    tip="A direction in space in the form of inclination and azimuth.")
+

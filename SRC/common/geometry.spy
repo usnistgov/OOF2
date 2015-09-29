@@ -1,0 +1,23 @@
+# -*- python -*-
+# $RCSfile: geometry.spy,v $
+# $Revision: 1.3 $
+# $Author: langer $
+# $Date: 2011/07/05 19:33:55 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+from ooflib.SWIG.common import config
+
+CRectanglePtr.__repr__ = lambda self:"CRectangle(Coord(%s, %s), Coord(%s, %s))"\
+                         % (self.xmin(), self.ymin(), self.xmax(), self.ymax())
+
+## if config.dimension() == 3:
+##     CRectangularPrismPtr.__repr__ = lambda self:"CRectangularPrism(Coord(%s, %s, %s), Coord(%s, %s, %s))"\
+##                          % (self.xmin(), self.ymin(), self.zmin(), self.xmax(), self.ymax(), self.zmax())
+

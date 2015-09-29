@@ -1,0 +1,219 @@
+# -*- python -*-
+# $RCSfile: diffusion.spy,v $
+# $Revision: 1.12 $
+# $Author: reida $
+# $Date: 2011/09/13 21:26:53 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.
+
+
+from ooflib.common import runtimeflags
+
+from ooflib.common import utils
+from ooflib.common.IO import parameter
+from ooflib.engine import problem
+from ooflib.engine import propertyregistration
+from ooflib.SWIG.engine import symmmatrix
+
+from ooflib.engine.IO import interfaceparameters
+
+from ooflib.EXTENSIONS.diffusion import diff_problem
+
+
+PropertyRegistration = propertyregistration.PropertyRegistration
+
+## ISOTROPIC
+
+reg = PropertyRegistration(
+    'Migration:Diffusivity:Isotropic',
+    IsoDiffusion,
+    "ooflib.SWIG.EXTENSIONS.diffusion.diffusion",
+    ordering=97,
+    params=[parameter.FloatParameter('D',
+                                     1.0, tip=parameter.emptyTipString)],
+    propertyType="Diffusivity",
+    tip="Isotropic diffusivity."
+    )
+
+reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
+             fields=[diff_problem.Concentration],
+             time_derivs=[0])
+
+
+## TRICLINIC
+
+reg = PropertyRegistration(
+    'Migration:Diffusivity:Anisotropic:Triclinic',
+    AnisoDiffusion,
+    "ooflib.SWIG.EXTENSIONS.diffusion.diffusion",105,
+    [symmmatrix.TriclinicRank2TensorParameter(
+    'D',
+    symmmatrix.TriclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
+    tip=parameter.emptyTipString)],
+    propertyType="Diffusivity",
+    tip="Triclinic diffusivity"
+    )
+
+reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
+             fields=[diff_problem.Concentration],
+             time_derivs=[0])
+
+
+## MONOCLINIC
+
+reg = PropertyRegistration(
+    'Migration:Diffusivity:Anisotropic:Monoclinic',
+    AnisoDiffusion,
+    "ooflib.SWIG.EXTENSIONS.diffusion.diffusion",104,
+    [symmmatrix.MonoclinicRank2TensorParameter(
+    'D',
+    symmmatrix.MonoclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
+    tip=parameter.emptyTipString)],
+    propertyType="Diffusivity",
+    tip="Monoclinic diffusivity."
+    )
+
+reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
+             fields=[diff_problem.Concentration],
+             time_derivs=[0])
+
+
+## ORTHORHOMBIC
+
+reg = PropertyRegistration(
+    'Migration:Diffusivity:Anisotropic:Orthorhombic',
+    AnisoDiffusion,
+    "ooflib.SWIG.EXTENSIONS.diffusion.diffusion",103,
+    [symmmatrix.OrthorhombicRank2TensorParameter(
+    'D',
+    symmmatrix.OrthorhombicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
+    tip=parameter.emptyTipString)],
+    propertyType="Diffusivity",
+    tip="Orthorhombic diffusivity."
+    )
+
+reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
+             fields=[diff_problem.Concentration],
+             time_derivs=[0])
+
+
+## TETRAGONAL
+
+reg = PropertyRegistration(
+    'Migration:Diffusivity:Anisotropic:Tetragonal',
+    AnisoDiffusion,
+    "ooflib.SWIG.EXTENSIONS.diffusion.diffusion",101,
+    [symmmatrix.TetragonalRank2TensorParameter(
+    'D',
+    symmmatrix.TetragonalRank2Tensor(xx=1.0, zz=0.5),
+    tip=parameter.emptyTipString)],
+    propertyType="Diffusivity",
+    tip="Tetragonal diffusivity."
+    )
+
+reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
+             fields=[diff_problem.Concentration],
+             time_derivs=[0])
+
+
+## TRIGONAL
+
+reg = PropertyRegistration(
+    'Migration:Diffusivity:Anisotropic:Trigonal',
+    AnisoDiffusion,
+    "ooflib.SWIG.EXTENSIONS.diffusion.diffusion",102,
+    [symmmatrix.TrigonalRank2TensorParameter(
+    'D',
+    symmmatrix.TrigonalRank2Tensor(xx=1.0, zz=0.5),
+    tip=parameter.emptyTipString)],
+    propertyType="Diffusivity",
+    tip="Trigonal diffusivity."
+    )
+
+reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
+             fields=[diff_problem.Concentration],
+             time_derivs=[0])
+
+
+## HEXAGONAL
+
+reg = PropertyRegistration(
+    'Migration:Diffusivity:Anisotropic:Hexagonal',
+    AnisoDiffusion,
+    "ooflib.SWIG.EXTENSIONS.diffusion.diffusion",100,
+    [symmmatrix.HexagonalRank2TensorParameter(
+    'D',
+    symmmatrix.HexagonalRank2Tensor(xx=1.0, zz=0.5),
+    tip=parameter.emptyTipString)],
+    propertyType="Diffusivity",
+    tip="Hexagonal diffusivity."
+    )
+
+reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
+             fields=[diff_problem.Concentration],
+             time_derivs=[0])
+
+
+## CUBIC
+
+reg = PropertyRegistration(
+    'Migration:Diffusivity:Anisotropic:Cubic',
+    AnisoDiffusion,
+    "ooflib.SWIG.EXTENSIONS.diffusion.diffusion",99,
+    [symmmatrix.CubicRank2TensorParameter(
+            'D',
+            symmmatrix.CubicRank2Tensor(xx=1.0),
+            tip=parameter.emptyTipString)],
+    propertyType="Diffusivity",
+    tip="Cubic diffusivity."
+)
+
+reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
+             fields=[diff_problem.Concentration],
+             time_derivs=[0])
+
+
+
+reg = PropertyRegistration(
+    'Migration:Mobility:Mobility',
+    Mobility,
+    "ooflib.SWIG.EXTENSIONS.diffusion.diffusion",101,
+    propertyType="Mobility",
+    tip="Mobility."
+    )
+
+
+reg.eqnInfo(equations=[diff_problem.AtomBalanceEquation],
+            fields=[diff_problem.Concentration],
+            time_derivs=[1])
+
+
+# Diffusion surface property.
+if runtimeflags.surface_mode:
+
+    reg = propertyregistration.PropertyRegistration(
+        'Migration:Interface:FluxJump', AtomFluxJumpTest,
+        "ooflib.SWIG.EXTENSIONS.diffusion.diffusion", 315,
+        [
+        parameter.FloatParameter('coef', 0.01, tip="value of the coefficient"),
+        ],
+        propertyType="_interfaces_flux_surfacetest",
+        interfaceCompatibility=interfaceparameters.COMPATIBILITY_INTERFACE_ONLY,
+        interfaceDiscontinuousFields=[diff_problem.Concentration],
+        tip="Testing, testing.")
+    
+  
+#     reg.fluxInfo(fluxes=[diff_problem.Atom_Flux],
+#                  fields=[diff_problem.Concentration],
+#                  time_derivs=[0])
+
+    reg.eqnInfo(equations=[diff_problem.AtomBalanceEquation],
+                fields=[diff_problem.Concentration],
+                time_derivs=[0])
+    

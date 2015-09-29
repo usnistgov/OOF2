@@ -1,0 +1,74 @@
+# $Author: lnz5 $
+# $Date: 2015/05/05 21:27:15 $
+
+This file contains information about building OOF2 on OS X with GCC.
+
+Summary
+-------
+
+  1. Build OOF2 using GCC.
+  2. Build ImageMagick++ using GCC.
+  3. Modify oof2's dynamic library link path to use previous built
+  ImageMagick++ library.
+
+Building Environment
+--------------------
+
+  Operation system: OS X 10.9.5
+  Compiler: GCC 4.7 and 4.9 (both of them work)
+
+Modifications 
+-------------
+
+  In order to build oof2 with GCC, following changes need to be made
+  in oof2 source code.
+
+  File: oof2-build
+  Modification: Set environment variables to build oof2 using GCC
+  Code:
+    os.environ["CC"] = "gcc"
+    os.environ["CXX"] = "g++"
+
+  File: setup.py
+  Modification: remove -faltivec option which is not supported by gcc
+  Changes:
+    + platform['blas_link_args'].extend(['-framework', 'Accelerate'])
+    - platform['blas_link_args'].extend(['-faltivec', '-framework', 'Accelerate'])
+
+  File: SRC/common/IO/GUI/canvasdot.c and SRC/common/IO/GUI/canvastriangle.c
+  Modifications:
+    1. Rename function parameter class to cls.
+    2. Explicitly convert function parameters' types (e.g. G_PARAM_READABLE,
+    0, etc.) to GParamFlags type.
+
+Build ImageMagick++
+-------------------
+
+  Version: ImageMagick-6.9.1-2
+
+  Commands:
+
+    $ ./configure CC=gcc CXX=g++ LDFLAGS='-L/opt/local/lib' --prefix=/Users/lnz5/local/ --enable-delegate-build --enable-shared --disable-static --with-modules
+
+    Explanation: -enable-delegate-build --enable-shared --disable-static
+    --with-modules options are used to enable delegaes of png, jpg etc.
+    formats' dynamic libraries.
+
+    $ make
+
+    $ make install
+
+Build OOF2
+----------
+
+  step 1. build oof2 command
+
+    $ ./oof2-build debug
+    
+  step 2. modify the dynamic library paths in liboof2image.dylib to link to
+  previous built ImageMagic++ library instead of the default one.
+
+    $ install_name_tool -change /opt/local/lib/libMagick++-6.Q16.5.dylib /Users/lnz5/local/lib/libMagick++-6.Q16.6.dylib ./liboof2image.dylib
+    $ install_name_tool -change /opt/local/lib/libMagickWand-6.Q16.2.dylib /Users/lnz5/local/lib/libMagickWand-6.Q16.2.dylib ./liboof2image.dylib
+    $ install_name_tool -change /opt/local/lib/libMagickCore-6.Q16.2.dylib /Users/lnz5/local/lib/libMagickCore-6.Q16.2.dylib ./liboof2image.dylib
+

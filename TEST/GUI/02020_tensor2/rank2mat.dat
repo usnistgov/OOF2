@@ -1,0 +1,9 @@
+# OOF version 2.0
+FileVersion(number=1.0, format='ascii')
+Property.Couplings.ThermalExpansion.Anisotropic.Cubic(name='', alpha=CubicRank2Tensor(xx=3.000000), T0=0.0)
+Property.Couplings.ThermalExpansion.Anisotropic.Hexagonal(name='', alpha=HexagonalRank2Tensor(xx=4.000000, zz=1.000000), T0=0.0)
+Property.Couplings.ThermalExpansion.Anisotropic.Monoclinic(name='', alpha=MonoclinicRank2Tensor(xx=2.000000, yy=4.000000, zz=45.000000, xz=3.000000), T0=0.0)
+Property.Couplings.ThermalExpansion.Anisotropic.Orthorhombic(name='', alpha=OrthorhombicRank2Tensor(xx=3.000000, yy=4.000000, zz=5.000000), T0=0.0)
+Property.Couplings.ThermalExpansion.Anisotropic.Triclinic(name='', alpha=TriclinicRank2Tensor(xx=2.000000,yy=6.000000,zz=8.000000,yz=7.000000,xz=5.000000,xy=34.000000), T0=0.0)
+Property.Couplings.ThermalExpansion.Anisotropic.Trigonal(name='', alpha=TrigonalRank2Tensor(xx=5.000000, zz=0.600000), T0=0.0)
+MaterialandType(name='material', properties=['Couplings:ThermalExpansion:Anisotropic:Cubic', 'Couplings:ThermalExpansion:Anisotropic:Hexagonal', 'Couplings:ThermalExpansion:Anisotropic:Trigonal', 'Couplings:ThermalExpansion:Anisotropic:Orthorhombic', 'Couplings:ThermalExpansion:Anisotropic:Monoclinic', 'Couplings:ThermalExpansion:Anisotropic:Triclinic'], materialtype='bulk')

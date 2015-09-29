@@ -1,0 +1,23 @@
+OOF.Microstructure.New(name='microstructure', width=1.0, height=1.0, width_in_pixels=10, height_in_pixels=10)
+OOF.Material.New(name='material')
+OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic(cijkl=IsotropicRank4TensorEnu(young=1,poisson=0.33333333333333331))
+OOF.Material.Add_property(name='material', property='Mechanical:Elasticity:Isotropic')
+OOF.Windows.Graphics.New()
+
+## Because this script is run as part of the test suite, there have
+## been an unknown number of graphics windows opened, so we can't
+## hard-code the name of the window. 
+from ooflib.common.IO import gfxmanager
+graphics_name = gfxmanager.gfxManager.windows[-1].name
+g_window_menu = OOF.__getattr__(graphics_name)
+
+OOF.LayerEditor.LayerSet.New(window=graphics_name)
+OOF.LayerEditor.LayerSet.DisplayedObject(category='Microstructure', object='microstructure')
+OOF.LayerEditor.LayerSet.Add_Method(method=MicrostructureMaterialDisplay(no_material=Gray(value=0.38095238095238093),no_color=RGBColor(red=0.0,green=0.0,blue=1.0)))
+OOF.LayerEditor.LayerSet.Send(window=graphics_name)
+OOF.LayerEditor.LayerSet.Send(window=graphics_name)
+g_window_menu.Settings.Zoom.Fill_Window()
+g_window_menu.Toolbox.Pixel_Select.Rectangle(source='microstructure', points=[Point(0.0326087,0.945652), Point(0.415217,0.0195652)], shift=0, ctrl=0)
+g_window_menu.Toolbox.Pixel_Select.Rectangle(source='microstructure', points=[Point(0.0282609,0.971739), Point(0.319565,0.0326087)], shift=0, ctrl=0)
+g_window_menu.Toolbox.Pixel_Select.Rectangle(source='microstructure', points=[Point(0.332609,0.341304), Point(1.03261,-0.00217391)], shift=1, ctrl=0)
+OOF.Material.Assign(material='material', microstructure='microstructure', pixels=selection)

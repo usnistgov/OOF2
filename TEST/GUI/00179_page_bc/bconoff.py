@@ -1,0 +1,8 @@
+OOF.File.Load.Data(filename='../../examples/cyallow.mesh')
+OOF.File.Load.Data(filename='../../examples/el_shape.mesh')
+OOF.Mesh.Boundary_Conditions.Disable(mesh='cyallow.png:skeleton:mesh', name='bc<3>')
+OOF.Mesh.Boundary_Conditions.Disable(mesh='el_shape.png:skeleton:mesh', name='bc')
+OOF.Mesh.Boundary_Conditions.Enable(mesh='cyallow.png:skeleton:mesh', name='bc<3>')
+OOF.Subproblem.Equation.Deactivate(subproblem='cyallow.png:skeleton:mesh:default', equation=Force_Balance)
+OOF.Mesh.Boundary_Conditions.Disable(mesh='cyallow.png:skeleton:mesh', name='bc<3>')
+OOF.Mesh.Boundary_Conditions.Enable(mesh='cyallow.png:skeleton:mesh', name='bc<3>')

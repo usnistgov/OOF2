@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Determinant(Stress)
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Determinant(Stress)
+0.0, 2.04684942433e-08

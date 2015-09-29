@@ -1,0 +1,81 @@
+# -*- python -*-
+# $RCSfile: diffusionRHS.spy,v $
+# $Revision: 1.4 $
+# $Author: langer $
+# $Date: 2014/09/27 21:41:34 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.  
+
+
+from oof2.common import cregisteredclass
+from oof2.common.IO import parameter
+
+cregisteredclass.registerCClass(DiffusionRHSPtr)
+DiffusionRHSPtr.tip = "Types of diffusions for the dI/dt."
+
+noDiffusion = cregisteredclass.Registration(
+    "NoDiffusion",
+    DiffusionRHSPtr,
+    NoDiffusion,
+    ordering=0,
+    params=[],
+    tip="No diffusion of the image will occur."
+    )
+
+antiGeometric = cregisteredclass.Registration(
+    "AntiGeometricTimeStep",
+    DiffusionRHSPtr,
+    AntiGeometric,
+    ordering=1,
+    params=[parameter.FloatParameter('time', .02,
+                                     tip='dx')]
+    )
+    
+Geometric = cregisteredclass.Registration(
+    "GeometricTimeStep",
+    DiffusionRHSPtr,
+    Geometric,
+    ordering=2,
+    params=[parameter.FloatParameter('time', .02,
+                                     tip='dx')]
+    )
+
+laplace = cregisteredclass.Registration(
+    "SecondOrderDerivativeTimeStep",
+    DiffusionRHSPtr,
+    Laplace,
+    ordering=3,
+    params=[parameter.FloatParameter('time', .02,
+                                     tip='dx')]
+    )
+largeLaplace = cregisteredclass.Registration(
+    "LargeMaskDerivativeTimeStep",
+    DiffusionRHSPtr,
+    LargeLaplace,
+    ordering=4,
+    params=[parameter.FloatParameter('time', .02,
+                                     tip='dx')]
+    )
+gaussian = cregisteredclass.Registration(
+    "GaussianBlur",
+    DiffusionRHSPtr,
+    Gaussian,
+    ordering=5,
+    params=[],
+    )
+    
+largeGaussian = cregisteredclass.Registration(
+    "LargeGaussianBlur",
+    DiffusionRHSPtr,
+    LargeGaussian,
+    ordering=6,
+    params=[],
+    )
+    
+

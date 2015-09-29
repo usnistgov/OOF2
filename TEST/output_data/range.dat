@@ -1,0 +1,11 @@
+# Operation: Range
+# Output: Temperature
+# Domain: EntireMesh
+# Sampling: GridSampleSet(x_points=10,y_points=10,show_x=True,show_y=True)
+# Columns:
+# 1. time
+# 2. X
+# 3. Y
+# 4. min Temperature
+# 5. maxTemperature
+0.0, 0, 1

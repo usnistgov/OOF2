@@ -1,0 +1,20 @@
+// -*- text -*-
+// $RCSfile: tasks_for_surf,v $
+// $Revision: 1.1 $
+// $Author: langer $
+// $Date: 2014/01/07 20:30:15 $
+
+Package oof2/oof3d for package managers (macports & apt, at least).
+
+Modify swig to get rid of deprecation warnings from char* -> string conversion.
+
+Various topics in image processing & segmentation.
+
+
+Things copied from todo_2010_11.txt:
+
+* Command for creating a data file that could be emailed to us when
+  users are reporting errors.  It would save the command log, message
+  window contents, microstructure/skeleton/mesh data files, and input
+  files in a temp directory, then tar and compress the directory and
+  ask the user to mail it to us as an attachment.

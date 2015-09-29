@@ -1,0 +1,124 @@
+# -*- python -*-
+# $RCSfile: compoundsubproblem.spy,v $
+# $Revision: 1.11 $
+# $Author: langer $
+# $Date: 2014/09/27 21:40:41 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+from ooflib.common import registeredclass
+from ooflib.common import debug
+from ooflib.engine import subproblemcontext
+from ooflib.engine import subproblemtype
+
+class BinaryCompoundSubProblem(subproblemtype.SubProblemType):
+    def __init__(self, one, another):
+        self.one = one
+        self.another = another
+    def get_dependencies(self):
+        return [self.one, self.another]
+    def create(self):
+        return self.cclass(
+            subproblemcontext.subproblems[self.one].getObject(),
+            subproblemcontext.subproblems[self.another].getObject())
+
+binarycompoundparams = [
+    subproblemcontext.SubProblemParameter(
+        'one', tip='The name of a subproblem.'),
+    subproblemcontext.SubProblemParameter(
+        'another', tip='The name of another subproblem.')]
+
+class UnionSubProblem(BinaryCompoundSubProblem):
+    cclass = CUnionSubProblem
+
+registeredclass.Registration(
+    "Union",
+    subproblemtype.SubProblemType,
+    UnionSubProblem,
+    ordering=4,
+    params=binarycompoundparams,
+    tip='Construct a Subproblem from the union of two previously defined Subproblems',
+    discussion="""<para>
+
+    Create a new &subproblem; from two existing &subproblems; in the
+    same &mesh;.  Any &elem; included in either of the two existing
+    &subproblems; will be included in the new one.
+    
+    </para>""")
+
+class IntersectionSubProblem(BinaryCompoundSubProblem):
+    cclass = CIntersectionSubProblem
+
+registeredclass.Registration(
+    "Intersection",
+    subproblemtype.SubProblemType,
+    IntersectionSubProblem,
+    ordering=4.1,
+    params=binarycompoundparams,
+    tip='Construct a Subproblem from the intersection of two previously defined Subproblems',
+    discussion="""<para>
+
+    Create a new &subproblem; from two existing &subproblems; in the
+    same &mesh;.  Any &elem; included in both of the two existing
+    &subproblems; will be included in the new one.
+    
+    </para>""")
+
+class XorSubProblem(BinaryCompoundSubProblem):
+    cclass = CXorSubProblem
+
+registeredclass.Registration(
+    "Xor",
+    subproblemtype.SubProblemType,
+    XorSubProblem,
+    ordering=4.2,
+    params=binarycompoundparams,
+    tip='Construct a Subproblem from the exclusive or of two previously defined Subproblems.',
+    discussion="""<para>
+
+    Create a new &subproblem; from two existing &subproblems; in the
+    same &mesh;.  Any &elem; included in just one of the two
+    existing &subproblems; will be included in the new one.
+    
+    </para>""")
+
+#######################################
+
+_old_init_ = CComplementSubProblem.__init__
+def _CComplementSubProblem___init__(self, subprob):
+    # Convert paths into subproblem objects
+    subprob_obj = subproblemcontext.subproblems[subprob].getObject()
+    _old_init_(self, subprob_obj)
+CComplementSubProblem.__init__ = _CComplementSubProblem___init__
+
+class ComplementSubProblem(subproblemtype.SubProblemType):
+    def __init__(self, complement_of):
+        self.complement_of = complement_of
+    def create(self):
+        return CComplementSubProblem(self.complement_of)
+    def get_dependencies(self):
+        return [self.complement_of]
+
+registeredclass.Registration(
+    "Complement",
+    subproblemtype.SubProblemType,
+    ComplementSubProblem,
+    ordering=5,
+    params=[subproblemcontext.SubProblemParameter('complement_of',
+                                             tip="The name of a subproblem")],
+    tip="Construct a Subproblem from the elements that aren't in another subproblem.",
+    discussion="""<para>
+
+    Create a new &subproblem; from the complement of an existing
+    &subproblem;.  All &mesh; &elems; that aren't in the given
+    &subproblem; will be in the new one.
+
+    </para>""")
+    
+            

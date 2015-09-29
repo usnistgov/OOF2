@@ -1,0 +1,51 @@
+// -*- text -*-
+// $RCSfile: todo_2010_01.txt,v $
+// $Revision: 1.1 $
+// $Author: langer $
+// $Date: 2014/07/07 20:31:04 $
+
+2D - short term, for version 2.1
+* Complete moving nonlinear properties to OOFEXTENSIONS, with documentation.
+* Non-linear SS22 code is complete, but is untested.
+* Add regression tests for static and time-dependent nonlinear problems.
+* Solutions of nonlinear plane flux equations.
+* Ramberg-Osgood plasticity, as an extension in the OOFEXTENSIONS CVS.
+* Static field initialization for non-linear time-dependent problems.
+* Update user documentation for time-dependence and non-linearity.
+* Review FruitProperty extension and instructions, make sure they're right.
+* Ensure all flux-type properties have a flux_value function, and
+    modify Material::find_fluxdata to use it.
+
+2D - longer term
+* Clean separation of the force and flux properties.
+* Plasticity & constraint equations.
+* Convert graphics from gnomecanvas to vtk/OpenGL.
+* Convert Skeleton to C++.
+* Some image segmentation and meshing algorithms.
+* Documentation of the algorithms and the code for nonlinearity.
+
+3D
+* Boundary conditions.
+* Automatic Skeleton construction.
+* Finish Skeleton modification operations.
+* Exact solution comparisions in regression tests.
+
+2D & 3D
+* Time dependent boundary conditions.  (For 2.1?)
+* Parallelize.
+* Comparisons to exact solution in regression tests.
+* Surface physics.  (For 2.1???)
+* Get rid of the layer editor window.
+* Image analysis for grain boundary detection.
+* Package for deb, fink, etc.  (For 2.1?)
+
+Other things that could be done at some point
+* Periodic flux boundary conditions, via Lagrange multipliers.
+* Plane-flux boundary equations with non-zero rhs.
+
+* Command for creating a data file that could be emailed to us when
+  users are reporting errors.  It would
+  save the command log, message window contents,
+  microstructure/skeleton/mesh data files, and input files in a temp
+  directory, then tar and compress the directory and ask the user to
+  mail it to us as an attachment.

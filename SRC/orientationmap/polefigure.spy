@@ -1,0 +1,144 @@
+# -*- python -*-
+# $RCSfile: polefigure.spy,v $
+# $Revision: 1.10 $
+# $Author: langer $
+# $Date: 2012/06/16 01:12:46 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+from ooflib.SWIG.common import direction
+from ooflib.SWIG.common import ooferror
+from ooflib.SWIG.engine import crystalsymmetry
+from ooflib.common import debug
+from ooflib.common import enum
+from ooflib.common import primitives
+from ooflib.common.IO import automatic
+from ooflib.common.IO import colormap
+from ooflib.common.IO import filenameparam
+from ooflib.common.IO import oofmenu
+from ooflib.common.IO import parameter
+from ooflib.common.IO import pixelgroupparam
+from ooflib.common.IO import placeholder
+from ooflib.common.IO import pdfoutput
+from ooflib.common.IO import whoville
+from ooflib.orientationmap import orientmapmenu
+import ooflib.common.microstructure
+
+def _makePoleFigure(menuitem, microstructure, pixels, symmetry,
+                    pole, nBins,
+                    min, max,
+                    colormap, filename):
+
+    # hemisphere==True means limit the plot to one hemisphere.  This
+    # was briefly a settable parameter until we learned that there are
+    # different ways of combining the hemispheres.  It's not clear
+    # what the best long term strategy is.
+    hemisphere = True           
+
+    mscontext = ooflib.common.microstructure.microStructures[microstructure]
+    ms = mscontext.getObject()
+    mscontext.begin_reading()
+    try:
+        pxls = placeholder.getPlaceHolderFromString(pixels)
+        if pxls == placeholder.every:
+            group = None        # hack. PoleFigure ctor assumes 0 ==> all
+        elif pxls == placeholder.selection:
+            group = ms.pixelselection.getSelectionAsGroup()
+        else:
+            group = ms.findGroup(pixels)
+            if group is None:
+                raise ooferror.ErrUserError("There is no group named %s!",
+                                            pixels)
+
+        # Compile the data
+        pfig = PoleFigure(ms, group, symmetry, pole.cdirection,
+                          nBins, hemisphere)
+        if pfig.nCounts() == 0:
+            raise ooferror.ErrUserError(
+                "No orientations detected!  Are Materials defined, "
+                "and do they have an Orientation property?")
+
+        if max == automatic.automatic:
+            dmax = pfig.maxValue()
+        else:
+            dmax = float(max)
+        if min == automatic.automatic:
+            dmin = pfig.minValue()
+        else:
+            dmin = float(min)
+        drange = dmax - dmin
+        if drange != 0:
+            factor = 1./drange
+        else:
+            factor = 1.
+        offset = -dmin*factor
+        binSize = pfig.getBinSize()
+
+        # Create the plot
+        pdfout = pdfoutput.PDFoutput(filename)
+        pdfout.set_colormap(colormap)
+        layer = pdfout.begin_layer()
+        for i in xrange(nBins):
+            for j in xrange(nBins):
+                if pfig.inside(i, j):
+                    val = pfig.getValue(i, j)
+                    pdfout.set_fillColor(offset + val*factor)
+                    pdfout.fill_polygon(
+                        primitives.Polygon(
+                            [primitives.Point(i*binSize, j*binSize),
+                             primitives.Point((i+1)*binSize, j*binSize),
+                             primitives.Point((i+1)*binSize, (j+1)*binSize),
+                             primitives.Point(i*binSize, (j+1)*binSize)]))
+        pdfout.end_layer()
+        pdfout.show()
+    finally:
+        mscontext.end_reading()
+
+orientmapmenu.orientmapmenu.addItem(
+    oofmenu.OOFMenuItem(
+        'Pole_Figure',
+        callback=_makePoleFigure,
+        ordering=100,
+        params=[
+            whoville.WhoParameter(
+                "microstructure", whoville.getClass('Microstructure'),
+                tip='The Microstructure from which to generate a pole figure.'),
+            pixelgroupparam.PixelAggregateParameter(
+                'pixels', value=placeholder.every.IDstring,
+                tip="Pixels to include in the pole figure."),
+            enum.EnumParameter(
+                "symmetry", crystalsymmetry.AnisoCrystalSymmetry,
+                tip="The crystal symmetry to assume for each pixel."
+                " All equivalent orientations will be included."),
+            parameter.ConvertibleRegisteredParameter(
+                "pole", direction.Direction, direction.AngleDirection(0, 0),
+                tip="The pole to plot."),
+            # parameter.BooleanParameter(
+            #     "hemisphere", True,
+            #     tip="Limit the plot to one hemisphere?"),
+            parameter.IntParameter(
+                "nBins", 30,
+                tip="The number of bins to use in the x and y directions"
+                " in the projected plot."
+                ),
+            parameter.AutoNumericParameter(
+                "min", 0,
+                tip="Minimum value to plot (MRD), or 'automatic'"),
+            parameter.AutoNumericParameter(
+                "max", automatic.automatic,
+                tip="Maximum value to plot (MRD), or 'automatic'"),
+            parameter.RegisteredParameter(
+                "colormap", colormap.ColorMap,
+                tip="How MRD values are converted to colors."),
+            filenameparam.WriteFileNameParameter(
+                "filename", ident="polefigure",
+                tip="The name of the pdf file to create.")
+            ]
+        )
+    )

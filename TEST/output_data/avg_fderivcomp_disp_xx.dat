@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: d(Displacement[x])/dx
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of d(Displacement[x])/dx
+0.0, 0.0666666666667

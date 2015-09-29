@@ -1,0 +1,59 @@
+
+  Notes on the design and implementation of the parallelization using OpenMP.
+
+  Currently, parallelized modules and functions include 
+
+  - making linear system (matrix construction) of a subproblem, and
+  - autogrouping image pixels by their colors.
+
+  The details of the implementation are described in subsequent sections.
+
+  Making Linear System Parallelization
+  ====================================
+
+  The linear system of a subproblem consists of several matrices (K, M, C and J)
+and vectors. During the process of making linear system, each element of the
+subproblem contributes to the matrices and vectors independently. Therefore, we
+can parallelize the process by having multiple threads work on multiple elements
+at the same time.
+  
+  The possible implementations can be lock-based or lock-free. The lock-based
+implementation makes sure exclusive access to shared matrices and vectors among
+multiple threads. The performance of lock-based implementation can be boosted by
+having small locking granularity - locks for each row of a matrix instead of one
+lock for a matrix, which reduces the possiblity of blocking other threads'
+access.
+
+  In order to make it "fully" parallel, we decided in favor of lock-free
+implemenation. The idea is that each thread works on their own copy of matrices
+and vectors, and at the end of making linear system, we merge them together. The
+merge process can also be parallel and lock-free by having multiple threads work
+on multiple different rows. The cons of lock-free implementation are that it
+uses more memory since each thread has a copy of row pointers of a matrix.
+
+  Unsurprisingly, there are several shared global variables read and written by
+elements of a subproblem during making linear system, including:
+
+  - shape function cache. sfcache in SRC/engine/shapefunction.[hC]
+  - degree of freedom if the subproblem has a nonlinear solver. dirty_dof_zone
+    in SRC/engine/csubproblem.[hC] and SRC/engine/freedom.C
+  - recurse flag in SRC/engine/Property.[hC]
+
+  As these variables do not use many memory space, each thread has its own copy
+of them. The detailed description about the implementation can be found in
+corresponding comments in source code.
+
+  The parallel code are mainly in SRC/engine/csubprobelm.[hC] and
+SRC/engine/linearizedsystem.[hC].
+
+  Autogrouping Image Pixels Parallelization
+  ========================================= 
+ 
+  The autogroup function in SRC/image/autogroupMP.C categorizes pixels of an
+image according to their color. At the end of grouping, pixels with the same
+color are organized in the list of the corresponding color. Considering that
+the number of pixels are much larger than the number of colors, having a lock
+on each color will dramatically decrease the performance of parallelization. As
+a result, we have multiple threads generate their own pixel lists and merge
+them at the end without locking.
+

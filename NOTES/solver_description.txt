@@ -1,0 +1,447 @@
+-*- text -*-
+# $RCSfile: solver_description.txt,v $
+# $Revision: 1.9 $
+# $Author: reida $
+# $Date: 2015/04/30 17:37:03 $
+
+
+  This file will contain a more detailed description of the OOF solution
+sequence, amounting to a design document for the OOF solution process.
+The goal is to simplify the integration of new functionality, starting
+with large-strain elasticity, then crystal visco-plasticity, then more
+complicated plasticity schemes, including strain-gradient methods and
+methods incorporating partial dislocations and twinning, and finally
+other forms of constitutive models featuring discontinuities and
+inequality constraints, such as occur in fracture, surface intersection,
+cohesive-zone models, and electrochemical boundary problems.
+
+
+
+
+  Starting State:
+  ---------------
+
+  There is a mesh, on which one or more subproblems have been
+defined.  Mesh elements have materials, and the subproblems have
+defined and active fields, and defined equations.
+
+  The fields have been initialized, and the user has selected
+a solver for each subproblem, as well as specified the order
+in which the subproblems are to be solved.  This all happens
+on the solver page.
+
+  The user may also have specified entries in the output
+schedule.  There is a known, specified end time, and optionally
+an initial step size, which might be the default or might have
+been provided by the user.
+
+  The solver objects have also been filled in via the "Set Solver"
+button (menu item in subproblemmenu.py).  Different solvers may be
+used for different subproblems.   For each solver, the user has 
+specified a time_stepper, a nonlinear_solver, a symmetric_solver,
+and an asymmetric_solver, possibibly explicitly through the "Advanced"
+solver dialog, or implicitly through the "Basic" dialog.
+
+  The solver mode (Advanced or Basic) is a container object which
+is an argument to the setSolver menu callback (in 
+engine/IO/solvermenu.py).  The menu callback machinery calls methods
+in this object to retreive the time stepper, nonlinear solver,
+symmetric solver, and asymmetric solver.
+
+  The time stepper is a subclass of timestepper.StepDriver.
+
+  The nonlinear solver is a subclass of nonlinearsolver.NonlinearSolverBase.
+
+  The symmetric and asymmetric solvers are subclasses of
+matrixmethod.MatrixMethod.  The paramter objects,
+SymmetricMatrixMethodParam and AsymmetricMatrixMethodParam, control
+which classes are allowed on the basis of symmetry of the underlying
+matrix, which is a different level than just classes, since
+unsymmetric solvers can solve symmetric matrices, but not vice versa.
+
+  Broad categories of StepDrivers are Static, Uniform, and Adaptive, as
+explained in timestepper.py.  Static steppers just equilibrate,
+Uniform steppers don't modify their time-step sizes, and Adaptive
+steppers can modify their time-step size to control accuracy.
+
+  StepDriver (defined in timestepper.py) objects contain TimeStepper
+objects within them, except the AdaptiveStepper, which contains a
+"QCTimeStepper" object.  The QC stands for "Quality Controlled".  This
+is a distinct class hierarchy (currently with only one level) from the
+TimeStepper class tree.  The TimeStepper objects take individual
+steps, and the StepDriver coordinates multiple steps.
+
+
+
+ 
+  Sequence of Operations:
+  -----------------------
+
+  The fundamental object on which the solution is computed
+is the MeshContext object, which is a Python container enclosing
+a C++ "FEMesh" object, and some additional metadata and caches.
+
+  For the solution, we care about the Funcnodes, which are
+the nodes that have associated equations and degrees of
+freedom.  The FEMesh has a list of these nodes, and some
+metadata for indexing into linearized system objects.
+There are also Elements, which have associated Funcnodes,
+and are the objects on which the field interpolation actually
+is done, through Funcnode shape functions.  Elements also
+have assocaited Guasspoint sets, which allow the spatial
+integrals to be done.
+
+
+  At the top-most conceptual level, there is an "evolve" function
+(in engine/evolve.py) which takes as arguments a mesh context 
+(this is a Python wrapper object containing a C++ FEMesh object,
+and some additional metadata and caches) and a target time.
+
+  Within the mesh context object, there are one or more subproblems,
+which are subsets of DoFs and equations, for which solutions are
+computed separately -- this separation comes from the user, and 
+is not guaranteed to be a clean geometric separation, or to 
+cleanly separate fields, or to have any particular property.
+
+  Subproblems have associated linearized-system objects,
+which are sets of matrics M, C, K, and a vector r, which 
+make up the various terms in the linearized time-dependent
+equation being solved.  
+
+  There is also a set of solution times, originating with
+the user, at which output data is desired.  
+
+  The principal outermost loop is over these solution times.
+For each solution time, evolve_to is called.  (engine/evolve.py)
+Evolve_to returns the reached time, delta, and a dictionary
+of linearized system objects.  Evolve_to takes as arguments
+the mesh context, the subproblem contexts, a progress bar
+object, and a dictionary of linearized systems.
+
+  Evolve_to is iterative and adaptive, in general, although
+the details depend on the behavior of the solver objects.
+
+  Evolve_to builds the linear system for all the subproblems.
+The DOF and equation mapping is done, along with BC applications,
+in each subproblem's make_linear_system routine.
+  Evolve_to initializes subproblems, and caches various useful values.
+It then enters the consistency loop, in which the problem is solved
+(by running linearity.step), the end values recorded, bcs expanded,
+and inequality constraints converted to equality constraints where
+violations have occurred.
+
+  After all the subproblems have been run, a consistency check
+is done to see if everybody made it to the target time, and if
+so, if everybody got the same set of values as last time. 
+When this is true, evolve_to exits.  As long as this is not
+true, evolve_to keeps iterating, possibly reducing the time-step
+size.
+
+
+
+Linear System Construction:
+---------------------------
+
+  The subproblem's make_linear_system routine is called with a
+time argument.  It's in csubproblem.C.
+
+  CSubProblem::make_linear_system:
+
+  It constructs a LinearizedSystem object of the appropriate
+size, and iterates over the elements in the subproblem, calling
+each element's make_linear_system routine with itself and
+a pointer to the linear system object.
+
+  The linear system is consolidated (duplicate indices are merged),
+and the pointer is returned.
+
+
+
+  Element::make_linear_system:
+
+  Calls mat->begin_element, then iterates over gauss points and,
+at each gauss point, calls material->make_linear_system.  By this
+time, we have the local DOF map, which is a std::vector<int>.
+
+  It then calls mat->end_element.
+
+
+
+  Material::make_linear_system:
+
+  Iterates over active fluxes.  For each flux, it builds a 
+SmallSystem object, which consists of three SmallMatrix objects, 
+one for each degree of time-dependence (0, 1, and 2).  Then,
+for all the properties which contribute to the active flux,
+calls property->flux_matrix, and then calls property->flux_offset.
+The SmallSystem object is then put in the fluxdata map,
+indexed by the flux iterator which is looping over active fluxes.
+
+  Then iterates over equations to make the direct contributions.
+For each equation, build another SmallSystem object, find all
+the properties from the eqnpropmap, and for each property,
+call force_matrix and force_offset to populate the equation 
+data object.
+
+  Then, within the equation loop, calls the equation's make_linear_system
+routine with the equation matrix (a SmallSystem object) and the
+fluxdata object.  The equation is responsible for filling in the
+master stiffness/damping/inertia matrices in the linear system.
+
+
+
+  Equation::make_linear_system
+
+  This routine is different for different equation classes.
+  The general task is to take the fluxdata and eqndata values
+in the passed-in SmallSystem objects, and map them into the master
+stiffness matrix.  For direct equation contributions, this is 
+straightforward.  For flux contributions to divergence equations,
+you have to multiply by the shape function dervative, include the 
+minus sign for the by-parts integration, and contract over the 
+spatial degrees of freedom.
+
+  The guass-point weight multiplication happens in here.
+
+  Pointwise constraint equations will just fill in the appropriate
+rows and columns, and not do the gauss-point weight multiplication,
+since they are not doing an integral.
+
+
+  The Actual Call Chain
+  ---------------------
+ 
+  ====================
+  EVOLVE: Iterates the system forward through the 
+    multiple "target times" at which output is desired. 
+  
+  Arguments are a mesh context and an end time.  Mesh context is
+    rich and stateful.
+
+  - meshctxt.solver_precompute
+  - meshctxt.setStatus
+  - meshctxt.cacheCurrentData
+  - meshctxt.outputSchedule.reset
+  
+  - subprobctxts.sort
+ 
+  - For each subproblem, subp.resetStats
+  - If not continuting, linsys_dict = initializeStaticFields
+  - If static, meshctxt.setStatus, meshctxt.setCurrentTime
+  - If continuing, set delta
+  - For each outputtime:
+      - Bounds-check on time, checks on delta.
+      - time, delta, linsys_dict = evolve_to( ... ) 
+      - Inspect results, check for failure, check conditional outputs.
+  - Clean-up of state data in meshctxt, subproblems.
+     
+  
+  ==================
+  EVOLVE_TO: Iterates the system forward to a single particular
+    target time at which output is desired.  Doesn't do it in one
+    jump, it knows about a "delta" that will work.
+  
+  Arguments are the mesh context, subproblem context set, time,
+    end time, time-step size, progress bar, and a dictionary
+    of linearized systems.
+
+  - Sanity checks on arguments, initialization of linearized system
+      dictionary if required.
+  - while time < enddtime, not stopped:
+    - Increment time by delta 
+    - For each subproblem:
+      - lsys = subprob.make_linear_sytsem
+      - subprob.startStep
+      - subprob.cacheConstraints
+    - while  stepno < max , step not failed, not stopped:
+      - For each subproblem:
+        - while newconstraints and not stopped:
+          - stepResult = subproblem.nonlinear_solver.step
+          - If stepResult is OK:
+            - Check that stepResult.linsys is not None.
+            - Put stepResult.linsys in linsysDict.
+            - subproblem.endStep.
+            - newconstraints = subproblem.applyConstraints
+      - Sanity check on subproblems all making it to the target time.
+          If they didn't, re-run the stepno loop with smaller target time.
+      - Check that all subproblems got the same answer as last time.
+          If they didn't re-run the stepno loop.
+      - For each subproblem (they're all complete and consistent here)
+        - set stepTaken (causes stepno loop to exit)
+        - Load the linsys into the dictionary
+        - subproblem.solverStats.stepTaken
+        - subproblem.moveOn
+        - subproblem.finalizeCosntraints
+    - If not stepTaken and not stopped (i.e. blew through max):
+        - Raise error. 
+    - If meshctxt.outputSchedule.isConditional(), _do_output.
+  - Exception handlers.
+  - If step was truncated, return a different delta.
+  - Return time, delta, dictionary of linearized systems.
+
+
+
+  Dispatch Sequence
+  -----------------
+
+  Important functionality is buried in the stepResult 
+assignment from the call to subproblem.nonlinear_solver.step,
+which is multiply dispatched.  The base nonlinear solver's "step"
+method calls the subproblem's time_stepper's nonlinearstep method,
+with "self" as the nonlinearMethod.  
+ 
+  The dispatch starts in the SubproblemContext object.  It has a 
+"solver_mode" property (not an attribute), which is either 
+BasicSolverMode or AdvancedSolverMode.  These mode objects support
+the "get" methods. The AdvancedSolverMode case is simplest, it just 
+assignes the time_stepper, nonlinear_solver, symmetric_solver,
+and asymmetric_solver from its init.  The BasicSolverMode has
+some indirection, it only assigns time_stepper and matrix_method,
+and uses them to dispatch through a "resolve" method to get
+the actual object.  These methods interrogate the subproblem
+and make decisions about what object is the right one to return.
+
+  The property retrieval methods ("_getWhatever") in the
+subproblem context do dispatch through that object's 
+_solver_mode attribute (which backs the solver_mode property,
+nb property has no leading underscore, attribute does).
+
+  So subproblem.nonlinear_solver is a dispatch operation,
+which runs subproblem._solver_mode.get_nonlinear_solver to
+retrieve the nonlinear solver object, which is a subclass of
+NonlinearSolverBase.  subproblem.nonlinear_solver.step() then
+calls this object's "step" method, of course.
+
+  This involves another layer of dispatch -- the NonlinearSolverBase
+subclass instance calls back to subprob.time_stepper.linearstep
+or .nonlinearstep, as appropriate, to execute the step, and this
+subprob.time_stepper retrieval triggers another round of dispatch
+through the solver_mode's get_time_stepper function.  The
+returned object is a subclass of either BasicStepDriver
+or StepDriver, for basic and advanced solver modes, respectively.
+
+  This is the object whose linearstep or nonlinearstep method
+is called.  StepDrivers are containers for actual steppers,
+and pass the call through.
+
+  Actual steppers have linearstep and nonlinearstep methods, and
+manage linearized-system data (MCKa data, in OOF parlance), taking
+as arguments some methods, which I think are matrix-solution 
+schemes, but I'm not sure.
+
+
+
+
+  Class Index
+  ------------
+
+  Nomenclature is historical.  At the top level of the menu,
+one assignes "solvers" to subproblems, but these objects
+are really drivers.  However, drivers contain lower-level
+solvers within themselves.  These are typically matrix solution
+methods (and are in matrixmethod.py), although they can be quite 
+sophisticated, as in the case of the NewtonSolver.  
+
+
+  Steppers and stepper drivers, from engine/timestepper.py:
+  --------------------------------------------------------
+
+  Drivers are containers for Steppers.
+  "Basic" drivers have simple UIs and inflexible defaults.  Subclasses
+  of "StepDriver" are "Advanced", in that they are acceptable to the
+  AdvancedStepDriverParameter.
+
+  Subclasses of registeredclass.RegisteredClass:
+  - StepDriver (implicitly advanced)
+    - AdaptiveDriver
+    - UniformDriver
+    - StaticDriver
+  - BasicStepDriver
+    - BasicStaticDriver
+    - BasicAdaptiveDriver
+    - BasicUniformDriver
+
+  - TimeStepper 
+    - LinearStepper
+    - NonlinearStepper
+      - ForwardEuler ( LinearStepper, FirstOrderStepper )
+      - GeneralizedEuler ( LinearStepper, FirstOrderStepper )
+        - CrankNicolson 
+        - Liniger
+        - Galerkin
+      - BackwardEuler ( LinaerStepper, FirstOrderStepper )
+      - _StaticStepper ( LinearStepper )
+      - RKBase ( LinearStepper, FirstOrderStepper )
+        - RK4
+        - RK2
+      - SS22 (LinaerStepper, SecondOrderStepper )
+    - QCTimeStepper
+       - RKF45
+       - TwoStep
+
+  Subclasses of parameter.RegisteredParameter:
+    - BasicStepDriverParameter
+    - AdvancedStepDriverParameter
+
+  Subclasses of object:
+  - NonStaticStepper 
+    - FirstOrderStepper
+    - SecondOrderStepper
+  - StepResult
+  - NLData
+    - (various data containers for steppers)
+
+  
+  Solvers, from engine/nonlinearsolver.py, and cnonlinearsolver.C/h
+  ------------------------------------------------------------------
+
+  There's some multiple inheritance here, solvers inherit from 
+  both C and Python classes.  Generally speaking the "core" Python
+  classes descend from C objects.
+
+  Subclasses of registeredclass.RegisteredClass:
+  - NonlinearSolverBase
+    - NoNonlinearSolver (nonlinearsolvercore.NoNLSolver)
+    - NonlinearSolver
+      - Newton (nonlinearsolvercore.Newton)
+      - Picard (nonlinearsolvercore.Picard)
+
+  Subclasses of CNonlinearSolver (from cnonlinearsolver.C/h),
+  present in nonlinearsolvercore.py.  Must have a "solve" method:
+  CNonlinaerSolver
+  - NoNLSolver
+  - NLSolver 
+    - Newton 
+    - Picard 
+
+
+  Matrix methods, from matrixmethod.py
+  ------------------------------------
+  These are divided up according to the mode, basic vs advanced.
+  There are also affiliated parameter classes, not described here.
+  There are also related parameter classes, omitted here.
+
+  Subclasses of registeredclass.RegisteredClass:
+  MatrixMethod
+  - PreconditionedMatrixMethod
+    - ConjugateGradient
+    - BiConjugateGradient
+    - StabilitzedBiConjugateGradient
+    - GeneralizedMinResidual
+  - DirectMatrixSolver
+  BasicMatrixMethod
+  - BasicDirect
+  - BasicIterative
+
+  
+  Subproblems also come in various types, but for now,
+we'll assume a single subproblem and focus on the interface.
+
+  Other important classes:  Flux, Equation, Field, although
+these hiearachies are pretty small.
+  
+  Also FuncNodes and Elements, although from the point
+of view of the solver, these are fairly simple container classes.
+ 
+  Properties -- basically map fields to fluxes, probably the
+most important class, but again, the interface is what matters.

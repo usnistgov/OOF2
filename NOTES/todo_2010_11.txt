@@ -1,0 +1,63 @@
+// -*- text -*-
+// $RCSfile: todo_2010_11.txt,v $
+// $Revision: 1.1 $
+// $Author: langer $
+// $Date: 2014/07/07 20:31:04 $
+
+2D - short term, for version 2.1
+* Update user documentation for time-dependence and non-linearity.
+* GUI and regression tests for all new features.
+* Review FruitProperty extension and instructions, make sure they're right.
+* Documentation of the algorithms and the code for nonlinearity.
+
+2D - longer term
+* Convert graphics from gnomecanvas to vtk/OpenGL.
+* Convert Skeleton to C++.
+ 
+3D - Critical Path to Alpha:
+* Test meshing with real microstructure data
+* Boundary conditions.
+* Test solving of real problems
+* Implement useful outputs / analysis
+* Complete 3D test suite
+* Move more code to C (reading and writing, eliminate huge typemaps)
+* Restore 2D functionality within new code base
+
+3D - Next Steps:
+* 3D Periodic skeletons
+* Open MP
+* More visualization modes
+* Systematic study of snapnodes (to optimize priorities, etc)
+* Automatic Skeleton construction.
+* Exact solution comparisions in regression tests.
+* Documentation
+* Cleanup
+* Merge!
+
+2D & 3D
+* Clean separation of the force and flux properties.
+* Plasticity & constraint equations.
+* Some image segmentation and meshing algorithms.
+* Parallelize
+     matrix construction
+     matrix solutions
+     implement Workers with OpenMP 3 instead of pthreads
+* Use a sparser representation for submatrices in the LinearizedSystem
+    class, in order to save a lot of memory.
+* Surface physics.
+* Get rid of the layer editor window.
+* Image analysis for grain boundary detection.
+* Package for deb, fink, macports etc.
+
+Other things that could/should be done at some point
+* Periodic flux boundary conditions, via Lagrange multipliers.
+* Plane-flux boundary equations with non-zero rhs.
+* Command for creating a data file that could be emailed to us when
+  users are reporting errors.  It would
+  save the command log, message window contents,
+  microstructure/skeleton/mesh data files, and input files in a temp
+  directory, then tar and compress the directory and ask the user to
+  mail it to us as an attachment.
+* Run the test suite in a temp directory, so that tests can be run
+  simultaneously on machines that share disks.
+

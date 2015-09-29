@@ -1,0 +1,58 @@
+# -*- python -*-
+# $RCSfile: surfacetest.spy,v $
+# $Revision: 1.9 $
+# $Author: langer $
+# $Date: 2010/12/16 19:03:59 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+from ooflib.common import runtimeflags
+
+from ooflib.engine import propertyregistration
+from ooflib.engine import problem
+from ooflib.common.IO import parameter
+
+from ooflib.engine.IO import interfaceparameters
+
+import types
+
+if runtimeflags.surface_mode:
+    reg = propertyregistration.PropertyRegistration(
+        'Mechanical:Interface:ForceTest', ForceSurfaceTest,
+        "ooflib.SWIG.engine.property.interfaces.surfacetest.surfacetest",314,
+        [
+        parameter.FloatParameter('coef', 0.01, tip="value of the coefficient"),
+        ],
+        
+        propertyType="_interfaces_force_surfacetest",
+        interfaceCompatibility=interfaceparameters.COMPATIBILITY_INTERFACE_ONLY,
+        interfaceDiscontinuousFields=[problem.Displacement],
+        tip='Nobody here but us chickens.')
+    
+    
+    reg.eqnInfo(equations=[problem.ForceBalanceEquation],
+                fields=[problem.Displacement],
+                time_derivs=[0])
+    
+    
+    reg = propertyregistration.PropertyRegistration(
+        'Mechanical:Interface:FluxTest', FluxSurfaceTest,
+        "ooflib.SWIG.engine.property.interfaces.surfacetest.surfacetest", 315,
+        [
+        parameter.FloatParameter('coef', 0.01, tip="value of the coefficient"),
+        ],
+        propertyType="_interfaces_flux_surfacetest",
+        interfaceCompatibility=interfaceparameters.COMPATIBILITY_INTERFACE_ONLY,
+        interfaceDiscontinuousFields=[problem.Displacement],
+        tip="Takes a lot of settin' gettin' eggs to hatch.")
+    
+    
+    reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Displacement],
+                 time_derivs=[0])
+

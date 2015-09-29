@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: SecondInvariant(Elastic Strain)
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of SecondInvariant(Elastic Strain)
+0.0, -0.00276387106164

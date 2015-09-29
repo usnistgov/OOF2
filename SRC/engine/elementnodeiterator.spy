@@ -1,0 +1,45 @@
+# -*- python -*-
+# $RCSfile: elementnodeiterator.spy,v $
+# $Revision: 1.3 $
+# $Author: langer $
+# $Date: 2014/09/27 21:40:44 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+def _ElementNodeIterator___getitem__(self, idx):
+    if self.end():
+        raise IndexError
+    ans = self.node()
+    self.increment()
+    return ans
+
+ElementNodeIteratorPtr.__getitem__ = _ElementNodeIterator___getitem__
+
+
+
+def _ElementFuncNodeIterator___getitem__(self, idx):
+    if self.end():
+        raise IndexError
+    ans = self.funcnode()
+    self.increment()
+    return ans
+
+ElementFuncNodeIteratorPtr.__getitem__ = _ElementFuncNodeIterator___getitem__
+
+
+
+def _ElementCornerNodeIterator___getitem__(self, idx):
+    if self.end():
+        raise IndexError
+    ans = self.node()
+    self.increment()
+    return ans
+
+ElementCornerNodeIteratorPtr.__getitem__ = _ElementCornerNodeIterator___getitem__
+

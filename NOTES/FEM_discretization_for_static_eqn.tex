@@ -1,0 +1,213 @@
+\documentclass[10pt,a4paper]{article}
+
+\bibliographystyle{plain}
+\usepackage{latexsym}
+\usepackage{algorithm,algorithmic}
+\usepackage{amssymb,amsthm}
+\usepackage{amsmath,amsfonts}
+\usepackage{mathrsfs}
+\usepackage{enumerate}
+\usepackage{graphicx,psfrag}
+\usepackage{comment}
+%\usepackage[notcite,notref]{showkeys}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{remark}{Remark}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem{assumption}{Assumption}[section]
+\newtheorem{definition}{{Definition}}[section]
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{question}{Question}
+
+
+\author{}
+\title{Finite Element Discretization of \\ the Static Linear PDE}
+
+\begin{document}
+
+\maketitle
+
+We derive the finite element (FE) discretization of the following equations:
+%
+\begin{equation}\label{E:PDE}
+\left\{
+\begin{array}{rcl}
+-\mathrm{div}(k(x)\nabla u(x)) + f(x) &=& 0 \ \ \mathrm{in}\ \Omega, \\
+u(x) &=& g(x) \ \mathrm{on} \ \ \Gamma_D \quad (\mathrm{Dirichet \ B.C.}), \\
+k(x) \frac{\partial u}{\partial n}(x) &=& h(x) 
+\ \mathrm{on} \ \ \Gamma_N \quad (\mathrm{Neumann \ B.C.}), \\
+u(x) &=& c+p(x) \ \ \mathrm{on} \ \Gamma_F \quad (\mathrm{Floating \ B.C.}),
+\end{array}
+\right.
+\end{equation}
+%
+where $u(x), c$ are unknown; 
+$f(x), g(x), h(x), p(x)$ are given known
+functions and the boundary of $\Omega$ is 
+$\partial\Omega = \Gamma_D \cup \Gamma_N \cup \Gamma_F$.\\
+The floating boundary condition implies 
+%
+\begin{equation}\label{E:balance-eqn}
+\int_{\Gamma_F} \sigma\cdot n 
+= \int_{\Gamma_F} k\frac{\partial u}{\partial n} = 0.
+\end{equation}
+%
+We write the weak form of \eqref{E:PDE} by multiplying 
+the first equation with a test function $\phi$.
+%
+\begin{align*}
+-&\int_\Omega \phi \mathrm{div}(k\nabla u) + \int_\Omega f\phi = 0, \\
+&\int_\Omega k\nabla\phi \nabla u + \int_{\partial\Omega} k\frac{\partial u}{\partial n} \phi +\int_\Omega f\phi = 0, \\
+&\int_\Omega k\nabla\phi \nabla u + \int_{\Gamma_D} k\frac{\partial u}{\partial n} \phi + \int_{\Gamma_N} k\frac{\partial u}{\partial n} \phi + \int_{\Gamma_F} k\frac{\partial u}{\partial n} \phi +\int_\Omega f\phi = 0, \\
+&\int_\Omega k\nabla\phi \nabla u + \int_{\Gamma_D} k\frac{\partial u}{\partial n} \phi  + \int_{\Gamma_F} k\frac{\partial u}{\partial n} \phi +\int_\Omega f\phi 
++ \int_{\Gamma_N} h \phi = 0.
+\end{align*}
+%
+We replace $u$ with a function $v$ satisfying $u = v + u_0$, 
+where $u_0$ is a function such that $u_0(x) = g(x) \ \mathrm{on} \ \Gamma_D$
+and $u_0(x) = p(x) \ \mathrm{on} \ \Gamma_F$. 
+We obtain the following equation
+%
+\begin{equation*}
+\int_\Omega k\nabla\phi \nabla v + \int_{\Gamma_D} k\frac{\partial u}{\partial n} \phi + \int_{\Gamma_F} k\frac{\partial u}{\partial n} \phi + \int_\Omega f\phi + \int_{\Gamma_N} h\phi + \int_\Omega k\nabla\phi \nabla u_0= 0,
+\end{equation*}
+%
+where the primary unknown is $v$ satisfying 
+$v(x) = 0 \ \mathrm{on} \ \Gamma_D$ and 
+$v(x) = c \ \mathrm{on} \ \Gamma_F$.
+
+
+To define a well-posed variational problem (and to formulate
+the FE discretization based on that), we choose two versions
+$\varphi$ and $\psi$ (both in $H^1(\Omega)$) of the test 
+functions $\phi$. The functions $\varphi$ satisfy $\varphi=0$ 
+on $\Gamma_D \cup \Gamma_F$. The functions $\psi$ satisfy
+$\psi=1$ on $\Gamma_F$, $\psi=0$ on $\Gamma_D$.
+This results in two equations:
+%
+\begin{align}
+\int_\Omega k\nabla\varphi \nabla v 
++ \underbrace{\int_{\Gamma_D} k\frac{\partial u}{\partial n} \varphi}_{\begin{array}{c} = 0 \\ (\varphi=0 \ \mathrm{on} \ \Gamma_D) \end{array}} 
++ \underbrace{\int_{\Gamma_F} k\frac{\partial u}{\partial n} \varphi}_{\begin{array}{c} = 0 \\ (\varphi=0 \ \mathrm{on} \ \Gamma_F) \end{array}}
++ \int_\Omega f\phi + \int_{\Gamma_N} h\varphi 
++ \int_\Omega k\nabla\varphi \nabla u_0 &= 0, \nonumber
+\\
+\int_\Omega k\nabla\psi \nabla v 
++ \underbrace{\int_{\Gamma_D} k\frac{\partial u}{\partial n} \psi}_{\begin{array}{c} = 0 \\ (\psi=0 \ \mathrm{on} \ \Gamma_D) \end{array}}
++ \underbrace{\int_{\Gamma_F} k\frac{\partial u}{\partial n} \psi}_{\begin{array}{c}= \int_{\Gamma_F} k\frac{\partial u}{\partial n} = 0 \\ 
+(\mathrm{by \ eqn \ \eqref{E:balance-eqn}}) \end{array}}
++ \int_\Omega f\psi + \int_{\Gamma_N} h\psi 
++ \int_\Omega k\nabla\psi \nabla u_0 &= 0, \nonumber
+\end{align}
+%
+or
+\begin{equation}\label{E:weak-form}
+\begin{aligned}
+\int_\Omega k\nabla\varphi \nabla v + \int_\Omega f\varphi 
++ \int_{\Gamma_N} h\varphi + \int_\Omega k\nabla\varphi \nabla u_0 &=& 0, \\
+\int_\Omega k\nabla\psi \nabla v + \int_\Omega f\psi + \int_{\Gamma_N} h\psi 
++ \int_\Omega k\nabla\psi \nabla u_0 &=& 0.
+\end{aligned}
+\end{equation}
+%
+To obtain the FE discretization, we choose a basis set 
+$\{\varphi_i\}^n_{i=1} \cup \{\Psi\}$ such that $\varphi=0$ 
+on $\Gamma_D \cup \Gamma_F$ and $\Psi=0$ on $\Gamma_D$,
+$\Psi=1$ on $\Gamma_F$. The basis function $\Psi$ can be
+defined by $\Psi = \sum^{n_F}_{l=1} \psi_l$ where 
+$\{\psi_l\}^{n_F}_{l=1}$ are the nodal basis functions
+on $\Gamma_F$. The FE solution for $v$ is given by
+\[
+v(x) \simeq v_j \varphi_j(x) + c \Psi(x).
+\]
+We use this and the interpolant 
+$u_0 \simeq g_j \varphi_j(x) + p_l \psi_l(x)$
+to write the discretized version of the integral equations
+\eqref{E:weak-form}.
+%
+\begin{align*}
+&v_j \int_\Omega k\nabla\varphi_i \nabla\varphi_j 
++ c \int_\Omega k\nabla\varphi_i \nabla\Psi
++ \int_\Omega f\varphi_i + \int_{\Gamma_N} h\varphi_i 
++ g_j \int_\Omega k\nabla\varphi_i \nabla\phi_j
++ p_l \int_\Omega k\nabla\varphi_i \nabla\psi_l = 0, 
+\\
+&v_j \int_\Omega k\nabla\Psi \nabla\varphi_j 
++ c \int_\Omega k\nabla\Psi \nabla\Psi
++ \int_\Omega f\Psi + \int_{\Gamma_N} h\Psi 
++ g_j \int_\Omega k\nabla\Psi \nabla\phi_j
++ p_l \int_\Omega k\nabla\Psi \nabla\psi_l = 0.
+\end{align*}
+%
+To write the corresponding linear system, we define the following 
+matrices and vectors
+%
+\begin{equation*}
+\begin{gathered}
+K_{ij} := \int_\Omega k\nabla\varphi_i\nabla\varphi_j, \qquad
+K^F_{il} := \int_\Omega k\nabla\varphi_i\nabla\psi_l, \\
+\widetilde{K}_{i} := \int_\Omega k\nabla\varphi_i\nabla\Psi
+= \sum^{n_F}_{l=1} K_{il} , \qquad
+\widetilde{K}^F_{l} := \int_\Omega k\nabla\Psi\nabla\psi_l
+= \sum^{n_F}_{l=1} K^F_{il}, \\
+\widetilde{\widetilde{K}} := \int_\Omega k\nabla\Psi\nabla\Psi 
+= \sum^{n_F}_{l_1=1}\sum^{n_F}_{l_2=1} \int_\Omega k\nabla\psi_{l_1}\nabla\psi_{l_2},\\
+f_i := \int_\Omega f\varphi_i, \quad h_i := \int_{\Gamma_N} h\varphi_i,
+\quad \widetilde{f} := \int_\Omega f\Psi, 
+\quad \widetilde{h} :=\int_{\Gamma_N} h\Psi.
+\end{gathered}
+\end{equation*}
+%
+Then the linear system is
+%
+\begin{align*}
+&K_{ij} v_j + \widetilde{K}_i c + f_i + h_i + K_{ij} g_j + K^F_{il} p_l = 0, \\
+&\widetilde{K}_j v_j + \widetilde{\widetilde{K}} c + \widetilde{f} + \widetilde{h} + \widetilde{K}_j g_j + \widetilde{K}^F_l p_l = 0, \\
+\end{align*}
+%
+or
+\begin{equation*}
+%
+\left( \begin{array}{cc}
+{\bf K} & {\bf \widetilde{K}} \\ {\bf K^T} & {\bf \widetilde{\widetilde{K}}}
+\end{array} \right)
+\left( \begin{array}{c}  {\bf v} \\ c  \end{array} \right)
++
+\left( \begin{array}{c}  {\bf f} \\ {\bf \widetilde{f}}  \end{array} \right)
++
+\left( \begin{array}{c}  {\bf h} \\ {\bf \widetilde{h}}  \end{array} \right)
++
+\left( \begin{array}{c}
+{\bf K^F} \\ ({\bf \widetilde{K}^F})^T
+\end{array} \right)
+\left( {\bf p} \right)
++
+\left( \begin{array}{c}  {\bf K} \\ {\bf \widetilde{K}}^T  \end{array} \right)
+\left( {\bf g} \right)
+= 0,
+%
+\end{equation*}
+%
+or
+%
+\begin{equation*}
+%
+\left( \begin{array}{cc}
+{\bf K} & {\bf \widetilde{K}} \\ {\bf K^T} & {\bf \widetilde{\widetilde{K}}}
+\end{array} \right)
+\left( \begin{array}{c}  {\bf v} \\ c  \end{array} \right)
++
+\left( \begin{array}{c}  {\bf f} \\ {\bf \widetilde{f}}  \end{array} \right)
++
+\left( \begin{array}{c}  {\bf h} \\ {\bf \widetilde{h}}  \end{array} \right)
++
+\left( \begin{array}{cc}
+{\bf K} & {\bf K^F} \\ {\bf \widetilde{K}}^T & ({\bf \widetilde{K}^F})^T
+\end{array} \right)
+\left( \begin{array}{c}  {\bf p} \\ {\bf g}  \end{array} \right)
+= 0.
+%
+\end{equation*}
+
+\end{document}

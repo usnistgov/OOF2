@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Trace(Piezoelectric Strain)
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Trace(Piezoelectric Strain)
+0.0, 5.17631245544e-22

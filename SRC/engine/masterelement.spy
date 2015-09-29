@@ -1,0 +1,130 @@
+# -*- python -*-
+# $RCSfile: masterelement.spy,v $
+# $Revision: 1.5 $
+# $Author: langer $
+# $Date: 2010/12/04 03:49:57 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+from ooflib.common import enum
+from ooflib.common import debug
+
+# Global function that gets the master element array from C and wraps
+# it in the right Python shadow object.  While doing so, it does some
+# precomputation in MasterElementPtr.__init__().
+
+_masterElementDict = {}
+
+def getMasterElementDict():
+    lst = masterElementList()
+    for me in lst:
+        me = MasterElementPtr(me)
+        if me.name() not in _masterElementDict:
+            _masterElementDict[me.name()] = me
+    return _masterElementDict
+
+# Export this function to restricted namespace.
+from ooflib.common import utils
+utils.OOFdefine('getMasterElementDict', getMasterElementDict)
+
+########################
+
+_masterElementEnumDict = {}
+_enumunsorted = {}
+
+def getMasterElementEnums():
+    # Create and update Enum classes for MasterElement types.  There
+    # is a separate enum class for each element geometry (number of
+    # sides).  This function returns a dictionary containing the
+    # classes, keyed by the number of sides of the elements.
+    edict = getMasterElementDict()
+    for name, el in edict.items():
+        try:
+            enumclass = _masterElementEnumDict[el.ncorners()]
+        except KeyError:
+            utils.OOFexec('from ooflib.common import enum')
+            utils.OOFexec('class Element%d(enum.EnumClass()):pass'%el.ncorners())
+            enumclass = utils.OOFeval('Element%d' % el.ncorners())
+            utils.OOFexec(
+                'Element%(corners)d.tip="%(corners)d cornered finite elements."'
+                % {'corners':el.ncorners()})
+            utils.OOFexec(              # nested triple quotes!
+                """Element%(corners)d.discussion=\"\"\"<para>Various kinds of
+                %(corners)d cornered finite elements.  Different types have
+                different numbers of function and mapping
+                nodes.</para>\"\"\"""" % {'corners':el.ncorners()})
+            _masterElementEnumDict[el.ncorners()] = enumclass
+            enumclass._sorted = 1
+        if name not in enumclass.names:
+            enum.addEnumName(enumclass, name, el.description())
+            enumclass._sorted = 0
+    for enumclass in _masterElementEnumDict.values():
+        if not enumclass._sorted:
+            enumclass.names.sort(melcompare)
+            enumclass._sorted = 1
+    return _masterElementEnumDict
+
+def getMasterElementGeometries():
+    keys = getMasterElementEnums().keys()
+    keys.sort()
+    return keys
+
+def getMasterElementEnumClasses():
+    # Returns a sorted list of the MasterElement enum classes.
+    return [_masterElementEnumDict[g] for g in getMasterElementGeometries()]
+
+def getMasterElementFromEnum(elementenum):
+    edict = getMasterElementDict()
+    return edict[elementenum.name]
+
+def getMasterElementsFromEnumClass(enumclass):
+    edict = getMasterElementDict()
+    return [edict[name] for name in enumclass.names]
+        
+
+def melcompare(a, b):
+    # MasterElement comparison function for determining the order in
+    # which the elements are listed in the UI.
+    edict = getMasterElementDict()
+    ela = edict[a]
+    elb = edict[b]
+    if ela.nnodes() < elb.nnodes(): return -1
+    if ela.nnodes() > elb.nnodes(): return 1
+    if ela.nmapnodes() < elb.nmapnodes(): return -1
+    if ela.nmapnodes() > elb.nmapnodes(): return 1
+    if ela.nfuncnodes() > elb.nfuncnodes(): return -1
+    if ela.nfuncnodes() < elb.nfuncnodes(): return 1
+    return 0
+
+########################
+
+# Make lists of nodes that have to be created -- these are in a
+# dictionary indexed by the edge number, plus a special entry indexed
+# by the string 'interior'.  Corner nodes are entirely omitted from
+# the indexing scheme because they're created automatically.
+
+def _MasterElementPtr___init__(self,this):
+    self.this = this
+    self.thisown = 0
+    self.protodic = {'interior':[]}
+    for i in range(self.nsides()):
+        self.protodic[i] = []
+    for i in range(self.nnodes()):
+        proto = self.get_protonode(i)
+        n = proto.nedges()              # number of edges this node is on
+        if n == 0:
+            self.protodic['interior'].append(proto)
+        elif n == 1:
+            edgeno = proto.getedge(0)
+            self.protodic[edgeno].append(proto)
+                
+MasterElementPtr.__init__ = _MasterElementPtr___init__
+
+from ooflib.SWIG.engine.element import ElementPtr
+from ooflib.SWIG.engine.mastercoord import MasterCoordPtr

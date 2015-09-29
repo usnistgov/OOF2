@@ -1,0 +1,91 @@
+# Modified from automatic creation by Kevin Butler (butler@byu.edu)
+# for Microsoft Visual C++ (11/22/96)
+#
+#######################################################################
+# $Header: /users/langer/FE/CVSoof/OOF2/OOFSWIG/Modules/makefile.msc,v 1.2 2014/06/26 16:04:46 lck Exp $
+# Simplified Wrapper and Interface Generator (SWIG)
+# 
+# Makefile for version 1.0 Final
+# Dave Beazley
+# August 1, 1996
+#
+# This makefile is now mostly constructed by ./configure.
+#
+# $Log: makefile.msc,v $
+# Revision 1.2  2014/06/26 16:04:46  lck
+# *** empty log message ***
+#
+# Revision 1.2  1999/08/17 03:31:30  beazley
+# Minor cleanup. Removed Perl4
+#
+# Revision 1.1.1.1  1999/02/28 02:00:50  beazley
+# Swig1.1
+#
+# Revision 1.1  1996/08/12 01:55:02  dmb
+# Initial revision
+#
+#######################################################################
+
+#.KEEP_STATE:
+
+!include <..\Win\make_win.in>
+
+
+srcdir = .
+
+# Set your C++ compiler here.   g++ works on most machines,
+# but you might have to change it depending on your installation.
+#
+#
+# Set the prefix below to indicate where you want SWIG to install its
+# files.   Normally this is /usr/local
+# 
+
+# Location of the SWIG library.  Is normally put in /usr/local/lib/swig_lib
+# The SWIG library contains configuration files and library modules
+# so you should install it someplace where it can be easily accessed.
+
+
+
+########################################################################
+# Normally, you shouldn't have to change anything below this point     #
+########################################################################
+
+
+
+WRAPOBJS = swigmain.obj  python.obj pycpp.obj debug.obj 
+WRAPSRCS = swigmain.cxx  python.cxx pycpp.cxx debug.cxx 
+WRAPHEADERS = ../Include/swig.h  python.h  debug.h \
+               wrap.h
+
+TARGET  = ..\swig.exe
+CFLAGS   = -Zi -nologo -DSWIG_LIB="\"$(SWIG_LIB)\"" -DSWIG_CC="\"$(CC)\""  -DMSDOS -DSTDC_HEADERS=1 -DHAVE_LIBDL=1 $(SWIG_OPTS)
+INCLUDE = -I../Include -I../SWIG -I$(STD_INC)
+LIBNAME = ..\libswig.lib
+LIBS    = $(LIBNAME)
+
+#
+# Rules for creation of a .obj file from .cxx
+.SUFFIXES: .cxx
+.cxx.obj: 
+	$(CC) $(INCLUDE) $(CFLAGS) -c -o $*.obj $<
+
+all:    $(TARGET) 
+
+$(TARGET): $(WRAPOBJS) $(WRAPHEADERS) $(LIBNAME)
+	$(CC)  -o $(TARGET) $(INCLUDE) $(WRAPOBJS) $(LIBS)
+
+swigmain.obj: swigmain.cxx 
+python.obj: python.cxx 
+pycpp.obj: pycpp.cxx
+
+
+Makefile:	$(srcdir)/Makefile.in ../config.status
+		(cd ..; CONFIG_FILES=Modules/Makefile $(SHELL) config.status)
+
+.PRECIOUS:	Makefile
+
+clean::
+	del *.obj 
+	del $(TARGET)
+

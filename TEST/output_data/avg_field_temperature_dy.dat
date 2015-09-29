@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: d(Temperature)/dy
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of d(Temperature)/dy
+0.0, 1.0

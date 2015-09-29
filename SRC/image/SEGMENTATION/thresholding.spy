@@ -1,0 +1,82 @@
+# -*- python -*-
+# $RCSfile: thresholding.spy,v $
+# $Revision: 1.7 $
+# $Author: langer $
+# $Date: 2014/09/27 21:41:36 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.  
+
+from oof2.common import cregisteredclass
+from oof2.common.IO import parameter
+from oof2.SWIG.image.SEGMENTATION import diffusionRHS
+
+cregisteredclass.registerCClass(ThresholdingPtr)
+ThresholdingPtr.tip = "Ways to threshold the image."
+
+nothresholding = cregisteredclass.Registration(
+    "NoThresholding",
+    ThresholdingPtr,
+    NoThresholding,
+    ordering=0,
+    params=[],
+    )
+
+canny = cregisteredclass.Registration(
+    "Canny",
+    ThresholdingPtr,
+    Canny,
+    ordering=1,
+    params=[parameter.FloatRangeParameter('LowerThreshold',(0,1,.01),value=.1,
+                                     tip='This is the threshold value necessary for an edge to continue.'),
+	parameter.FloatRangeParameter('UpperThreshold', (0,1,.01),value=.15,
+                                     tip='This is the threshold value necessary for an edge to start.')],
+    )
+
+regularthreshold = cregisteredclass.Registration(
+    "Threshold",
+    ThresholdingPtr,
+    RegularThresholding,
+    ordering=1,
+    params=[    parameter.RegisteredParameter('TypeOfDiffusion', diffusionRHS.DiffusionRHS,
+                                  tip = 'Choose the diffusion model to use'),
+				  parameter.IntParameter('NumTimesApplied', 1,
+                                   tip='Number of times for diffusion time step to be applied.'),
+				parameter.FloatRangeParameter('Threshold', (0,1,.01),value=.055,
+                                          tip="All changes above threshold will be colored white, the others black")],
+    )
+    
+regularthreshold = cregisteredclass.Registration(
+    "ExperimentalThreshold",
+    ThresholdingPtr,
+    OddThresholding,
+    ordering=1,
+    params=[    parameter.RegisteredParameter('TypeOfDiffusion', diffusionRHS.DiffusionRHS,
+                                  tip = 'Choose the diffusion model to use'),
+				parameter.FloatRangeParameter('Threshold', (0,1,.01),value=.055,
+                                          tip="The threshold for which to oversegment the image, and above which all changes will be part of borders")],
+    )
+
+regularthreshold = cregisteredclass.Registration(
+    "NewGabor",
+    ThresholdingPtr,
+    NewGabor,
+    ordering=1,
+    params=[       
+    parameter.IntParameter('LineThickness',  value=4, tip="a in pixels"),
+    parameter.IntParameter('LineLength',  value=8, tip="b in pixels"),
+    parameter.IntParameter('numAnglesApplied',value=6,
+                       tip="number of angles to apply the filter"),
+    parameter.IntParameter('Line_color', value=1,
+                        tip="Colors of the lines to detect. (2) Both white and dark lines. (1) Only white lines (0) Only black lines."),
+    parameter.FloatRangeParameter('LowerThreshold', (0,1,.01),value=.08,
+                                  tip="Lower threshold value between 0 and 1"),
+    parameter.FloatRangeParameter('UpperThreshold', (0,1,.01),value=.11,
+                                  tip="Higher threshold value between 0 and 1")],
+    )
+    

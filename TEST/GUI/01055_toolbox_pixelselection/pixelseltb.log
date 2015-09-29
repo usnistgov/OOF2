@@ -1,0 +1,6 @@
+OOF.Windows.Graphics.New()
+OOF.Microstructure.Create_From_ImageFile(filename='examples/small.ppm', microstructure_name='small.ppm', height=automatic, width=automatic)
+OOF.Graphics_1.Toolbox.Pixel_Select.Point(source='small.ppm:small.ppm', points=[Point(36.5,99.9117647059)], shift=0, ctrl=0)
+OOF.Graphics_1.Toolbox.Pixel_Select.Point(source='small.ppm:small.ppm', points=[Point(59.1470588235,68.2058823529)], shift=0, ctrl=0)
+OOF.Graphics_1.Layer.Select(n=0)
+OOF.Graphics_1.Layer.Delete(n=0)

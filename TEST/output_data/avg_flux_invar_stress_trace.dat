@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Trace(Stress)
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Trace(Stress)
+0.0, -0.0333333333333

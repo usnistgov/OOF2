@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Stress[yy]
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Stress[yy]
+0.0, -8.77831065216e-16

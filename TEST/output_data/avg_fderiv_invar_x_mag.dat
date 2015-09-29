@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Magnitude(d(Displacement)/dx)
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Magnitude(d(Displacement)/dx)
+0.0, 0.11191791764

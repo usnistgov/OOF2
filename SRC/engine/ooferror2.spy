@@ -1,0 +1,32 @@
+# -*- python -*-
+# $RCSfile: ooferror2.spy,v $
+# $Revision: 1.8 $
+# $Author: langer $
+# $Date: 2010/05/27 20:38:59 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+from ooflib.SWIG.common.ooferror import *
+
+registerErrorClass(ErrConvergenceFailure)
+registerErrorClass(ErrDuplicateField)
+registerErrorClass(ErrNoSuchField)
+registerErrorClass(ErrNoSuchProperty)
+registerErrorClass(ErrPropertyMissing)
+registerErrorClass(ErrRedundantProperty)
+registerErrorClass(ErrBadMaterial)
+registerErrorClass(ErrInvalidDestination)
+registerErrorClass(ErrTimeStepTooSmall)
+
+def _ErrBadMaterial_details(self):
+    from ooflib.engine import materialmanager
+    mat = materialmanager.getMaterial(self.materialName())
+    return "\n".join(mat.consistency_messages())
+
+ErrBadMaterialPtr.details = _ErrBadMaterial_details

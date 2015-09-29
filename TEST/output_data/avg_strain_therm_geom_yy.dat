@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Geometric Strain[yy]
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Geometric Strain[yy]
+0.0, 0.0666666666667

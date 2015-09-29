@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Voltage_z
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Voltage_z
+0.0, 0.1

@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: SecondInvariant(Stress)
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of SecondInvariant(Stress)
+0.0, 0.000881960155345

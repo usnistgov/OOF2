@@ -1,0 +1,10 @@
+# Operation: Average
+# Output: Heat_Flux
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Heat_Flux[x]
+# 3. average of Heat_Flux[y]
+# 4. average of Heat_Flux[z]
+0.0, -1.21615680489e-14, -1.0, 0.0

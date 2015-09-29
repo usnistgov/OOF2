@@ -1,0 +1,29 @@
+# Operation: Direct Output
+# Output: Displacement
+# Domain: SinglePoint(point=Point(1,0))
+# Sampling: SinglePointSampleSet(show_x=False,show_y=False)
+# Columns:
+# 1. Displacement[x]
+# 2. Displacement[y]
+# time: 0.0
+0.0, 0.0
+# time: 0.1
+-0.00308266626687, 0.0784590957278
+# time: 0.2
+-0.0123116594049, 0.15643446504
+# time: 0.3
+-0.0276300796023, 0.233445363856
+# time: 0.4
+-0.0489434837048, 0.309016994375
+# time: 0.5
+-0.0761204674887, 0.382683432365
+# time: 0.6
+-0.108993475812, 0.45399049974
+# time: 0.7
+-0.147359835646, 0.522498564716
+# time: 0.8
+-0.190983005625, 0.587785252292
+# time: 0.9
+-0.2395940344, 0.64944804833
+# time: 1.0
+-0.292893218813, 0.707106781187

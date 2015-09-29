@@ -1,0 +1,3 @@
+# OOF version 2.0
+FileVersion(number=1.0, format='ascii')
+Profile.New(name='arc', profile=ContinuumProfile(function='2.*x**2 + y**2',timeDerivative='0.0',timeDerivative2='0.0'))

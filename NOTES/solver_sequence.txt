@@ -1,0 +1,286 @@
+# -*- text -*-
+# $RCSfile: solver_sequence.txt,v $
+# $Revision: 1.2 $
+# $Author: langer $
+# $Date: 2014/07/07 20:34:22 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+
+
+  A description of the solution sequence, starting from a
+fully-constructed, well-posed problem, and including a description
+of the various indexing schemes, and with a view to implementing 
+constraint equations.
+
+
+  Fields:
+  =======
+
+  Fields are *defined* by the user in subproblem scope.  A defined
+field can have values, be initialized, and uses memory.  The
+menu-item code is in engine/IO/subproblemmenu.py.
+
+  The actual definition is by double-dispatch, via
+CSubProblem::define_field->Field::define->CSubProblem::do_define_field.
+
+  For each func-node in the subproblem, the DOFs corresponding to 
+the field are added by the addField method of the node's parent
+PointData class.  DOFs are created in *mesh* scope, and have
+a "native" indexing in this scope.
+
+ 
+  Fields are *activated* by the user in subproblem scope.  Active
+fields are solved for by the solvers.  The menu item code is 
+engine/IO/subproblemmenu.py.  
+
+  The activation is similar to field definition, it takes place
+by double-dispatch, via
+CSubProblem::activate_field->Field::activate->CSubProblem::do_activate_field,
+but this call chain ends in the CSubProblem, where the FieldData
+object's "active" flag is set for the subproblem.  The DOF
+is not modified.
+
+
+  Equations:
+  ==========
+
+  Equations are activated by users in subproblem scope.
+
+  There's no dispatch.  The menu item code in subproblemmenu.py calls 
+CSubProblem::activate_equation, which iterates over funcnodes in
+the subproblem and adds equations by calling the node's
+addEquation method, which is implemented in the parent
+PointData class.  Nodal equation objects are created in 
+*mesh* scope, and have "native" indices in this scope.
+
+
+  
+  Boundary conditions:
+  ====================
+
+  Boundary conditions live in mesh-context scope, and are
+constructed from their own "Boundary Conditions" page.  The 
+construction and editing menu items are defined in 
+SRC/engine/IO/boundarycondition.py.
+
+  Dirichlet boundary conditions assign particular values to
+the associated degrees of freedom, and make their associated
+conjugate equations dependent.  These conditions are implemented
+by selectively removing rows and columns from the master 
+stiffness matrix, and adding the part of this matrix which 
+multiplies the fixed degrees of freedom to the offset
+("right-hand side", which may not be on the right side.)
+
+  "Floating" boundary conditions are a special case of Dirichlet
+conditions.  These conditions aggregate many degrees of freedom,
+by summing the rows and columns of the master stiffness matrix
+and offset, and solving for a single free DOF.  The values of 
+the individual component degrees of freedom can then be deduced
+from the sum and the profile.
+
+  Neumann boundary conditions make direct contributions to the
+offset.  Point-wise Neumann boundary conditions ("Force" conditions)
+make direct contributions at notes, whereas segment-wise Neumann
+boundary conditions ("Neumann" conditions) perform integrals
+over the segments to determine what forces to apply at the nodes.
+
+
+ 
+  Properties:
+  ===========
+
+  Properties have associated registration objects, which are
+repositories of metadata about the property's relationship to
+fields, fluxes, and equations.
+  There are a couple of levels of hierarchy to the data, but
+the central idea is to track the field-dependence of the
+property's contributions to equations, fluxes, and
+constraint equations.
+  The objects which do this are PropertyStructureInfo objects,
+which are wrappers for dictionaries indexed by the equation,
+flux, or constraint, and value'd by PSInfo objects.
+  PSInfo objects are dictionaries keyed by fields, and
+value'd by PropertyFieldInfo objects.
+  PropertyFieldInfo objects are struct-like collections
+of flags indicating that the way in which the field contributes
+to the equation is (or is not) time_dependent (to some order),
+nonlinear (true/false), and involves time-derviatives (list).
+
+  These are set by calls to the fluxInfo and eqnInfo methods
+of the property registration object after its construction.
+ 
+  The information is used to decide which fluxes are active,
+and whether subproblems are in a solveable state.
+
+  Materials maintain a consistency state, which is updated
+whenever properties are added to or removed from the material.
+
+
+
+  Subproblems, Flux and Equation Activity:
+  ========================================
+
+  Equations are active on subproblems when they are activated
+by the user, as described above.  
+
+  Fluxes are activated as part of the equation activation process,
+through a dispatch mechanism through Equation::activate_fluxes, which
+calls CSubProblem::activate_flux.
+
+  
+
+  Solving:
+  ========
+
+  The "solve" button on the solver page invokes the 
+meshmenu.Solve menu item, which runs the "_solve" routine
+in engine/IO/meshmenu.py.
+  
+  Checks meshctxt.status.solvable, throws a descriptive error
+if the mesh is not solvable.
+  
+  meshctxt.status is a MeshStatus object from engine/meshstatus.py.
+It's set in meshctxt.setStatus, which is called from 
+meshctxt.skeletonChanged and meshctxt.refreshMaterials.
+
+  Unsolveability means that one or more of the subproblems has
+failed its "check_materials" test (for the refreshMaterials call), 
+or that it's out of sync with its skeleton (for skeletonChanged). 
+
+  The subproblem "check_materials" routine is in Python, and
+the code is in engine/csubproblem.spy.  It iterates over
+all the fluxes, and for each flux which is active, adds the 
+output of self.check_flux to the bad-materials set.  
+  If all the fluxes are OK, there will be nothing in the 
+bad-materials set.
+
+  The CSubProblem.check_flux code is also in csubproblem.spy,
+and iterates over all the materials in the subproblem.  
+For each material, if the material contributes to the flux,
+and the material is not self-consistent, it adds it to the
+returned list of materials.
+
+  The meshctxt.setStatus routine can override the 
+passed-in status object if there are other errors, which it detects
+by running subproblem.checkSolvability() over all the subproblems.
+
+  Then: 
+  meshctxt.restoreLatestData
+  meshctxt.solver_precompute()
+  evolve.evolve(meshctxt, endtime, stepsize, contining)
+
+   
+  precomputation:
+  ---------------
+
+  Meshcontext.solver_precompute just iterates over subproblem
+contexts, and calls their solver_precompute methods.
+
+  SubproblemContext.solver_precompute checks the solve flag,
+and checks solvability, and the contained subproblem passes
+these tests, calls precompute on the csubproblem object.
+
+  The solvability check is implemented in the subproblem context,
+in engine/subproblemcontext.py.  It's an all-up check of 
+things that might be wrong.  Aside from repeating the 
+check_materials and check_equations operations on the enclosed
+subproblem object, it also counts the equations and DOFs, and
+checks that the derivative order of the selected stepper is
+sufficient to solve the level of time-dependence of the 
+activated equations.
+
+
+  The subproblem context then calls the precompute method
+of the enclosed C subproblem object.
+
+  The subproblem context's solver_precompute then calls 
+conjugate.listofconjugatepairs.find_equation_mapping.
+
+  CSubProblem's precompute method is defined in the .spy file, and
+is written in Python.  It checks the precompute-required flag,
+and if it's set, iterates over the materials in the subproblem,
+and calls their precompute method, passing the subproblem as an
+argument.
+
+  Material::precompute is in the .spy file and is in Python.  It
+iterates over all of the properties, and caches their activity state
+by calling property.is_active.  It then calls the Property::precompute
+method.
+
+  Property.is_active is defined in the property.spy file.
+It checks computability, then for each flux and equation, 
+checks that the flux or equation is active in the subproblem.
+If *any* flux or equation contributed to by the property is
+active in the subproblem, then the property is active.
+
+  Property::precompute is a virtual method in the base Property
+class, and is used by individual property subclasses to 
+perform start-of-computation actions which don't depend on 
+which element is being integrated. 
+
+  Material::precompute builds the list of fluxes and equations
+which have contributions from active fields, using the property
+metadata contained in the property registration objects.
+
+
+  The subproblem context's solver_precompute then calls 
+conjugate.listofconjugatepairs.find_equation_mapping, and then 
+exits, returning control to the mesh context, which returns
+control to the menu item.
+
+
+  Time Evolution:
+  ---------------
+
+  The evolve routine is a stand-alone routine (i.e. not a method 
+of an object) in the module in SRC/engine/evolve.py.
+
+  This routine operats on a mesh, in mesh context scope.
+  
+  The inputs are a mesh context, a target end time, a step size 
+(in time units), and a flag indicating whether this is a continuation
+of a previous calculation.
+
+  The evolve routine establishes the order in which the subproblems
+will be solved (settable by the user on the solution page), and 
+then checks for static subproblems.  It generates initial solutions
+for these at the starting time.
+
+  Then, for each scheduled output time, it repeatedly calls
+evolve_to with the list of subproblems, getting back the 
+time reached and the suggested next time-step, until all
+subproblems have reached the scheduled output time, at which
+point it performs the output operation.
+
+  Evolve_to takes the mesh context, the subproblem contexts, the 
+time, the desired end-time, the time-step, and several flags
+as arguments.  
+
+  For each subproblem, it caches the DOF data, in case it needs
+to revert them.  It then calls make_linear_system on the 
+subproblem context.
+
+  Then, as long as there are new constraints and it hasn't been
+explicitly stopped, it calls the subproblem's outer_solver routine
+to take a step, getting back the achieved solution point and the
+recommended new step-size.
+  
+  After taking the step, it calls the subproblem's applyConstraints
+method to see if there are new constraint equations at this 
+solution point -- this method returns a Boolean indicating whether
+the constraints have changed.
+
+  Then there are various logistical operations to handle what to
+do if the subproblems didn't make it to the same time, mostly
+involving how to set up to go around again, and/or how to report 
+the situation to the caller.
+
+
+

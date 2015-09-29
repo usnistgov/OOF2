@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Magnitude(Heat_Flux)
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Magnitude(Heat_Flux)
+0.0, 1.0

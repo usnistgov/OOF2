@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Determinant(Elastic Strain)
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Determinant(Elastic Strain)
+0.0, -1.09323807378e-18

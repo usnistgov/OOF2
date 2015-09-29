@@ -1,0 +1,187 @@
+Notes of what I am doing, and things that I have found. Both for tracking my progress, and for a reference to myself.
+
+June 13
+-Got the LaPlace around each pixel in the image to work. Can take time steps and look at how the image looks with each step to see which pixels experience the largest change in time. Now will need to move on to characterizing each pixel. 
+
+June 14
+-Played with matricies. They are not working? Or I am not understanding what I am doing??? (didnt update on this day, so fuzzy on what I actually did)
+
+June 15
+-Figured out why matricies dont work currently (like they dont compile....):
+Reason: cannot figure out what to pass into GMRESSolver. It wants a Preconditioner but I have a ILU_Preconditioner and cannot figure out how to translate between the two. THe only solver that works without that is DirectSolver. That compiles, but when oof2 is set to run, it crashes because LinearSolver is not found.
+-Tried to do double integrals in x direction.... dont think I am doing this right. Played with it.... not working.... confused here. Need to ask questions about it.
+-Implemented function that after the image is segmented will look through it and find the different parts of the image (like sections). For now it isnt in some group of pixels, I just set the areas equal to a different color, so you can see that they are all indeed different sections. This will be useful in the end when organizing into sections. This would also be useful if using the article and charactarizing into different sections, and then grouping sections together (the very last part of the article). 
+-Plan for now: they always talk about classifying pixels either by when they change very fast, or when they change slowly but continuously(like very light borders). And then there is the type of pixel that goes down really quickly and then slowly goes up (if it is a speckle near a border that first gets blended in, but then the border change creeps over to it and makes it grow)
+
+June 18
+-Fixed the borders. Apparently they were all wrong. 
+-Deleted a bunch of code. Too much useless repeating of code and bad storing. 
+-Moved back to figuring out the matricies? Attemping to use small matrix to figure it out. Will work on it until the end of today, and if cannot figure out will ask about it tomorrow as soon as I get here. 
+-Found out why the matricies didnt work before. Now working on the previous matricies (using DirectSolver)4
+-Worked on trying the technique of recognizing both edges with fast increase, and the dimmer edges with the slow increase. Not working. Don't really know how to combat this problem. :\
+-Plan for tomorrow: Matricies. Figure out how the heck to use them. Period.
+
+June 19th
+-First worked a little bit more on categorizing pixels. The problem is the darker area... I understand that those get categorized when they are slowly increasing, but then so are little splotches. Tried to combat this by having any pixels that experience a decrease in intensity automatically not be considered borders. Makes things a little better.
+-Investigate boundaries that dont get noticed.
+-Found better values for what is considered a border and not. Don't know how to combat the expansion of borders. Maybe look at pixels around it and make it stop? But that might ward off corners?
+-Back to matricies. Well, they comHmmm... yeah, some of my projects are smaller. Some are kinda large, like the one I'm working on now. I do work on a team and all of us work on the same project. So, like, there is one very large project that we all work on, but we all work on different parts of it at the same time. Yeah I get assigned my smaller projects by the team leader or the development leader. I've had like 6ish? projects so far. Ohhh goodluck with your code, I'm sure you'll get everything done before end of summer. Did you figure out how everything works for your project? When are you going back to campus?pile, now how do I get them to give me data thats relevant and where do I put them. #1: read on matricies and differential equations, because I have forgotten everything about that except that matricies are used to solve differential equations. Now what?
+-Read on matricies. Still lost. Can't even figure out what matricies to apply it to. Combinations I have tried have not produced anything intelligible. I think where I got confused is when there was talk of using the smallmatrix, but that it is bad with huge numbers of pixels.... so am I usi(dx + dy)/2;ng it on the whole image or just on the spots... I thought this was to do with the differential equations and the change in value for each spot? :( Will ask about it first thing tomorrow.
+
+June 20th
+-Got matricies explained to me.
+-Work on storing in vector form, and what that means for finding the neighbors.
+-There is info in the book about this stuff
+-Working on matricies. Have a bunch of small functions working. Tomorrow will put them together to actually do tha equation?
+
+June 21st
+-Moving along on matricies.
+-Tried solver matricies, but cannot get the inverse of the big matrix to work. It is also very very slow. Made a much smaller image to work with, but this might be a proHmmm... yeah, some of my projects are smaller. Some are kinda large, like the one I'm working on now. I do work on a team and all of us work on the same project. So, like, there is one very large project that we all work on, but we all work on different parts of it at the same time. Yeah I get assigned my smaller projects by the team leader or the development leader. I've had like 6ish? projects so far. Ohhh goodluck with your code, I'm sure you'll get everything done before end of summer. Did you figure out how everything works for your project? When are you going back to campus?blem. 
+-So far, the image just becomes inversed and a lot lighter. Not quite sure why. Have not incorporated the diffusion constant and 1-stuff yet. 
+-Pre-lunch status: Got the matrix to correspond to where the neighbors are.... and now the image looks like chaos. Will tackle after lunch.
+-Didnt find good matrix operations (invert etc) in given libraries. Tried to write my own. Got suck on inversion.  
+
+June 22nd
+-Really quickly trying to implement the Canny algorithm. While I was working on inversion, I found that this is supposed to be best algorithm for edge detection, so implementing it really quick. The gradients arent working too well so far.
+-Was asked to show how the matrix is going. Going back to inverse problem. 
+-Changed the segment option so that you can choose how to compile it (which segmenting version). Now don't have to change code every time I want to switch what I am looking at. -When anything is done to the matrix, it freezes OOF.
+-Worked on caddy. Have calculated gradients and directions, and from looking at them they don't look bad, but when try to connect edges, it doesnt work.
+-Problem with matrix: takes too long, plus doesnt work yet. Trying to figure out how smallmatrix does the solve routine, so understand what I am passing into there. 
+
+June 25th
+-Got the menu to work. I think I understand python some now!
+-Have some sort of working version for Caddy algorithm. Works pretty well actually. Looks quite nice on large images. Can be improoved with fiddling with thresholds and directions. Also can implement another function that will look for two lines that are parallel to each other and borders and taking away one of them (or something of that sort)
+-The other algorithm just produces garbled values no matter what I try. I think I am lost. Will ask for help tomorrow. 
+
+June 26th
+-My main problem with the matrix solve function is how long it takes. It is impractical to have it take so long.
+-Fixed the region assignment thing. Turned out it had a stack overflow from too large of regions. Don't know how to fix that so much (since for the same color pixels, I tell it to check the ones around it until you check all neighbors). What I did was for the edges, if a pixel that borders the edge is set, then I set the edge. I know this is a temporary solution. For some reason I don't quite have the edges that are around the edges be registered.4
+
+June 27th 
+-Yay organization. 
+
+June 28th2.
+-Wrote despeckle method. It has several components: take out spare pixels, Take out small blocks, connect neighboring blocks.
+
+June 29th
+-Despeckle takes too long, yet it makes things work better (so you can oversegment an image, and then fix it through despeckle)
+Problems:
+-Find more efficient way to do despeckle
+-Why does caddy sometimes craHmmm... yeah, some of my projects are smaller. Some are kinda large, like the one I'm working on now. I do work on a team and all of us work on the same project. So, like, there is one very large project that we all work on, but we all work on different parts of it at the same time. Yeah I get assigned my smaller projects by the team leader or the development leader. I've had like 6ish? projects so far. Ohhh goodluck with your code, I'm sure you'll get everything done before end of summer. Did you figure out how everything works for your project? When are you going back to campus?sh? I think this is when overflow
+-Need to organize more. And make it all into swig calling it instead of c++.
+-Need to find some map or array or something class in C++ to store pixels in.
+
+July 2nd
+-After fidding, you can find edges of pretty much all images with playing with different thresholds, types of segmentations and types of blurring. 
+-Stored looked at points in stack so that less circling through the whole image for despecking - seems to make it faster. Though stack is depreciated. But not fast enough. 
+-Organize more. Need to create swig classes tomorrow. 
+
+July 3rd
+-Prepare some 'best cases' for each of the images I play with to show. Best cases usually happen with largelaplace. Very slow on big images. 
+-Found what was wrong with anti-geometric: power function, and subtracting instead of adding. Not it produces workable results. 
+
+July 5th
+-Anti geometric works. All of the work... but what now? They all sort of work. Need to find which way to do this. Go back to ways of classifying pixels. 
+-Canny still crashes. Hum.
+-Post lunch: ask what I should be doing. 
+
+July 6th
+-Made each of the operations a function. So each can be called separately by .spy file. 
+-Fixed classifying! Now it dHmmm... yeah, some of my projects are smaller. Some are kinda large, like the one I'm working on now. I do work on a team and all of us work on the same project. So, like, there is one very large project that we all work on, but we all work on different parts of it at the same time. Yeah I get assigned my smaller projects by the team leader or the development leader. I've had like 6ish? projects so far. Ohhh goodluck with your code, I'm sure you'll get everything done before end of summer. Did you figure out how everything works for your project? When are you going back to campus?oesnt segmentation fault because of overload! :) Yay! But it doesnt quite work. Not too important now so ignoring it. 
+-Looked at how my algorithms work in comparison to other edge detectors, and it works very well... which is sad, considering how many mistakes are made with this one. 
+-Make edges smaller? Try several different ways. None of them seel too promising so far. 
+
+July 9th
+-To Do list:
+1. Implement skeletonize to make pixel borders 1 pixel wide
+2. use burn algorithm to make regions
+3. pixel growing to get rid of edges
+4. registered classes instead of types
+5. 2nd order anti-geometric
+6. canny doesnt need to do timestep to start (user can do that beforehand)
+7. make masks instead of if statements
+8. some way to help user with thresholding
+9. make connecting pixels smarter
+
+July 11th
+-Classification system doesnt work-make it classify by regions
+-Showed everyone what I have so far and got suggestions
+--in canny, connect black lines
+--in canny, more angle possibilities,
+--ways to make everything into one function
+--check skeletonizing, it doesnt look right
+--need 'fixer' method. to draw the lines that didnt work
+--color images? maybe write different gray function, or do thresholding for all the colors, and combine at end.
+
+July 12th
+-Housekeeping of functions....
+-Part of fixer method written
+-Look for ways to do different gray scale - so far no different?
+-check skeletonizing-looks how it should... but it is wrong... huh?
+-try to change canny, didnt work, will try again later
+
+July 13th
+-yay organizing into more classes. make mask class. made skeletonize class. deleted loads of functions (put them into extrafunctions file). now program looks readable. 
+-have thresholding for gaussians
+
+July 16th
+-Worked on canny. Tried to make different angles or more angles. It doesnt make it any better. Less lines registered, and need to set the thresholds too high in order to get all the lines and then it doesnt work any better anyways.
+-Got the color images to work better! Different color filter .2, .5, .3. :) Yay!
+-Work on classification, on going backwards over the spots where looked at several different times. Right now crashing. :-\ Still not fixed. 
+
+July 17th
+-Swigging stuff. Swigged skeletonize. Tried to fix skeletonize, it still is funky. :\ Requested code looked over.
+-Reorganizing diffusion stuff and thresholding. Swigging doesnt work so far.
+-Switched all of the doublearray->image etc operations to the spy file. 
+-Need to start working on abstract.
+
+July 18th
+-Swigged the diffusion functions -> yay! Can choose which one you want to do.
+
+July 19th
+-Swigged everything. Now can choose what you want to do and it adapts. 
+-Added geometric diffusion.
+-Corrected the line drawing function so it draws the correct line from point a to b.
+-To be done:
+--Display just the change, not just the actual time step
+--Make things into different options (like menus, not all in one hump)
+--Fix skeletonize
+--Normalize the image to be from 0-1 pixel intensity every time it is edited. 
+
+
+July 20th
+-The menus that I should make
+--diffusion
+--diffusionChange
+--Skeletonize
+--Burn
+--Diffusion thresholding (with iterations)
+--Fix Borders
+--Canny Thresholding
+--Some combination of all those
+-Would be usefult o have a tag with oofimage that says whether it is a binary image or not. Gray out the unavailable options for image manipulations.
+
+July 23rd
+-Separated into separate functions.
+-Normalize all images, so thresholding done for 0-1 range always.
+-Skeletonize is okay, its me thats not. 
+-Wrote burn instead of classify. It works, and fast.
+-Changing around thresholding to be normalized from 0-1... not working for some reason. 
+
+July 24th
+-Problems with inheritance and doing thresholding. Keeps looking at the base class instead of the DiffusionRHS derived class. Can't figure out how to stop it. Made virtual functions and it still doesnt work. 
+
+July 25th
+-Make a go around way for the thresholding problem
+-Implement number of steps
+-Implement shrink
+-Implement expand
+-For skeletonizing, delete loose ends
+-Make better organization for everything. The binary stuff has BINARY infront of it.
+
+July 26th
+-Tried to make despecking more efficient, but can't figure out in what to store the points best. Ideal would be some sort of hash map. 
+
+July 27th
+-What if the image is inverted? :\
+-Start working on outline for talk.

@@ -1,0 +1,301 @@
+# -*- python -*-
+# $RCSfile: segmenter.spy,v $
+# $Revision: 1.20 $
+# $Author: langer $
+# $Date: 2014/09/27 21:41:36 $
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+from oof2.image import imagemodifier
+from oof2.common import registeredclass
+from oof2.common.IO import parameter
+from oof2.common import enum
+from oof2.SWIG.image import oofimage
+from oof2.SWIG.image.SEGMENTATION import skeletonize
+from oof2.SWIG.image.SEGMENTATION import diffusionRHS
+from oof2.SWIG.image.SEGMENTATION import thresholding
+from oof2.SWIG.image.SEGMENTATION import imageops
+from oof2.SWIG.image.SEGMENTATION import fixborders
+from oof2.SWIG.image.SEGMENTATION import classify
+
+   
+##########################################################################
+
+class ClassifyClass(imagemodifier.ImageModifier):
+    def __call__(self, image):	
+    	dbls=imageops.arrayFromImage(image)
+	cl = classify.ClassifyClass()
+	cl.burn(dbls);
+	imageops.setFromArray(image,dbls)
+	
+
+registeredclass.Registration(
+    'BINARYBurnImage',
+    imagemodifier.ImageModifier,
+    ClassifyClass,
+    ordering=.5,
+    params=[
+    ],
+    tip="Give each region of an image a different color."
+   )
+   
+
+#####################################
+   
+class SegmentationClass(imagemodifier.ImageModifier):
+    def __init__(self, PreliminaryDiffusion, TypeOfThresholding, MakeChangesToImageAfterThresholding, Skeletonization, ImageOverlay):
+	self.diffusion = PreliminaryDiffusion
+	self.thresholdtype = TypeOfThresholding
+	self.fix = MakeChangesToImageAfterThresholding
+	self.overlay = ImageOverlay
+	self.skel = Skeletonization
+    def __call__(self, image):
+	dbls=imageops.arrayFromImage(image)
+	d = self.diffusion.timestep(dbls)
+	final = self.thresholdtype.threshold(d)
+	final = self.fix.fix(final)
+	final = self.skel.skeletonize(final)
+	if self.overlay:
+		final = imageops.mountThresholdedImageOnOldImage(dbls, final)
+	imageops.setFromArray(image,final)
+
+registeredclass.Registration(
+    'CompleteSegmentation',
+    imagemodifier.ImageModifier,
+    SegmentationClass,
+    ordering=0,
+    params=[
+    parameter.RegisteredParameter('PreliminaryDiffusion',  diffusionRHS.DiffusionRHS,
+                                  tip = 'Choose the diffusion model to use'),
+    parameter.RegisteredParameter('TypeOfThresholding', thresholding.Thresholding, tip = 'Choose what way to threshold'),
+    parameter.RegisteredParameter('MakeChangesToImageAfterThresholding', fixborders.Fixing,
+                                  tip = 'chooose whether to fix problems or not'),
+    parameter.RegisteredParameter('Skeletonization', skeletonize.Skeletonizing, tip = 'Choose whether to skeletonize or not'),
+    parameter.BooleanParameter('ImageOverlay', 0,
+                                       tip='True to place the found edges drawn over the old image. False to not.')
+    ],
+    tip="Segment the image using several different techniques (not all need to be used at one time). "
+   )
+   
+#####################################
+   
+class ThresholdingClass(imagemodifier.ImageModifier):
+    def __init__(self, TypeOfThresholding):
+	self.thresholdtype = TypeOfThresholding
+    def __call__(self, image):
+	dbls=imageops.arrayFromImage(image)
+	final = self.thresholdtype.threshold(dbls)
+	imageops.setFromArray(image,final)
+
+registeredclass.Registration(
+    'Thresholding',
+    imagemodifier.ImageModifier,
+    ThresholdingClass,
+    ordering=.1,
+    params=[
+    parameter.RegisteredParameter('TypeOfThresholding', thresholding.Thresholding, tip = 'Choose what way to threshold')
+    ]
+   )
+   
+##########################################################################
+
+class FixClass(imagemodifier.ImageModifier):
+	def __init__(self, MinSizeOfClump, ConnectNeighbors):
+		self.clump = MinSizeOfClump
+		self.neighbors = ConnectNeighbors
+	def __call__(self, image):	
+		dbls=imageops.arrayFromImage(image)
+		fix = fixborders.FixBorders(self.clump, self.neighbors)
+		final = fix.fix(dbls);
+		imageops.setFromArray(image,final)
+	
+registeredclass.Registration(
+    'BINARYChangeBinaryImage',
+    imagemodifier.ImageModifier,
+    FixClass,
+    ordering=.5,
+    params=[
+		parameter.IntParameter('MinSizeOfClump', 8,
+                                     tip='minimum size of clump of pixels'),
+		parameter.BooleanParameter('ConnectNeighbors', 1, tip='to connect almost touching neighbors?')
+    ],
+    tip="Delete small clumps and connect neighbors in binary image. "
+)   
+
+##########################################################################
+
+class ThreshClass(imagemodifier.ImageModifier):
+	def __init__(self, TypeOfDiffusion, threshold):
+		self.rhs = TypeOfDiffusion
+		self.threshold = threshold
+	def __call__(self, image):
+		dbls=imageops.arrayFromImage(image)
+		dbls = self.rhs.change(dbls)
+		t = thresholding.RegularThresholding(self.rhs, 1, self.threshold)
+		dbls = t.parse(dbls)
+		imageops.setFromArray(image,dbls)
+	
+registeredclass.Registration(
+    'ThresholdingBasedOnChange',
+    imagemodifier.ImageModifier,
+    ThreshClass,
+    ordering=.1,
+    params=[
+    parameter.RegisteredParameter('TypeOfDiffusion', diffusionRHS.DiffusionRHS,
+                                  tip = 'Choose the diffusion model to use'),
+    parameter.FloatRangeParameter('threshold', (0,1,.01),value=.8,
+                                          tip="All changes above threshold will be colored white, the others black")
+    ],
+    tip="Segment based on change. If the change during the diffusion is larger than threshold, set to 1, else 0."
+)
+   
+#####################################
+   
+class ThinningClass(imagemodifier.ImageModifier):
+    def __init__(self, DeleteLooseEnds, ImplementDifferentSkeletonization):
+    	self.dele = DeleteLooseEnds
+	self.diff = ImplementDifferentSkeletonization
+    def __call__(self, image):
+	dbls=imageops.arrayFromImage(image)
+	skel = skeletonize.Skeletonize(self.dele, self.diff)
+	newgray = skel.skeletonize(dbls)
+	imageops.setFromArray(image,newgray)   
+
+registeredclass.Registration(
+    'BINARYSkeletonization',
+    imagemodifier.ImageModifier,
+    ThinningClass,
+    ordering=.5,
+    params=[parameter.BooleanParameter('DeleteLooseEnds', 1, tip='Deletes loose ends'),
+    		parameter.BooleanParameter('ImplementDifferentSkeletonization', 1, tip='Not sure which is better. ')
+    ],
+    tip="Thin lines through skeletonizing after the image is thresholded."
+   ) 
+    
+#####################################
+   
+class LineClass(imagemodifier.ImageModifier):
+    def __init__(self,XStart, YStart, XFinish, YFinish, color):
+    	self.xstart = XStart
+	self.ystart = YStart
+	self.xfinish = XFinish
+	self.yfinish = YFinish
+	self.color = color
+    def __call__(self, image):
+   	dbls=imageops.arrayFromImage(image)
+	imageops.drawFixerLines(dbls, self.xstart, self.ystart, self.xfinish, self.yfinish, self.color)
+	imageops.setFromArray(image,dbls)  
+
+registeredclass.Registration(
+    'BINARYDrawLineOnImage',
+    imagemodifier.ImageModifier,
+    LineClass,
+    ordering=.5,
+    params=[
+    parameter.IntParameter('XStart',1,tip='X coordinate of starting point of line'),
+    parameter.IntParameter('YStart',1,tip='Y coordinate of starting point of line'),
+    parameter.IntParameter('XFinish',1,tip='X coordinate of ending point of line'),
+    parameter.IntParameter('YFinish',1,tip='Y coordinate of ending point of line'),
+    parameter.IntParameter('color',1,tip='Color to shade the line. 0 is black, 1 is white.')
+    ],
+    tip="Draw lines to fix the thresholding that was not quite right. X and Y might need to be switched."
+   )
+    
+   
+#####################################
+   
+class ExpandClass(imagemodifier.ImageModifier):
+	def __init__(self, Range, Color):
+		self.Range = Range
+		self.col = Color
+	def __call__(self, image):
+		dbls=imageops.arrayFromImage(image)
+		imageops.expand(self.Range, dbls, self.col)
+		imageops.setFromArray(image,dbls)  
+
+registeredclass.Registration(
+    'BINARYExpand',
+    imagemodifier.ImageModifier,
+    ExpandClass,
+    ordering=.5,
+    params=[
+    parameter.IntParameter('Range',1,tip='Pixels to expand by'),
+    parameter.IntParameter('Color',1,tip='0 is black, 1 is white')
+    ],
+    tip="Expand given color by given range on each side.  "
+   )
+   
+#####################################
+   
+class ShrinkClass(imagemodifier.ImageModifier):
+	def __init__(self, Color):
+		self.col = Color
+	def __call__(self, image):
+		dbls=imageops.arrayFromImage(image)
+		imageops.shrink(dbls, self.col)
+		imageops.setFromArray(image,dbls)  
+
+registeredclass.Registration(
+    'BINARYShrink',
+    imagemodifier.ImageModifier,
+    ShrinkClass,
+    ordering=.5,
+    params=[
+    parameter.IntParameter('Color',1,tip='0 is black, 1 is white')
+    ],
+    tip="Shrink given color on each side. "
+   )
+
+##########################################################################
+
+class DClass(imagemodifier.ImageModifier):
+	def __init__(self, TypeOfDiffusion):
+		self.rhs = TypeOfDiffusion
+	def __call__(self, image):	
+		dbls=imageops.arrayFromImage(image)
+		newgray = self.rhs.timestep(dbls)
+		imageops.setFromArray(image,newgray)
+	
+registeredclass.Registration(
+    'Diffusion',
+    imagemodifier.ImageModifier,
+    DClass,
+    ordering=.1,
+    params=[
+    parameter.RegisteredParameter('TypeOfDiffusion', diffusionRHS.DiffusionRHS,
+                                  tip = 'Choose the diffusion model to use')
+    ],
+    tip="Take a time step. "
+)
+
+##########################################################################
+
+class DCClass(imagemodifier.ImageModifier):
+	def __init__(self, TypeOfDiffusion):
+		self.rhs = TypeOfDiffusion
+	def __call__(self, image):	
+		dbls=imageops.arrayFromImage(image)
+		newgray = self.rhs.change(dbls)
+		newgray = imageops.normalizeImage(newgray)
+		imageops.setFromArray(image,newgray)
+	
+registeredclass.Registration(
+    'DiffusionChange',
+    imagemodifier.ImageModifier,
+    DCClass,
+    ordering=.1,
+    params=[
+    parameter.RegisteredParameter('TypeOfDiffusion', diffusionRHS.DiffusionRHS,
+                                  tip = 'Choose the diffusion model to use')
+    ],
+    tip="View the change in the timestep (difference between original and diffused image). White is largest change up, black is largest change down. "
+)
+######################
+
+

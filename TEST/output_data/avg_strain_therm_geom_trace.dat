@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Trace(Geometric Strain)
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Trace(Geometric Strain)
+0.0, 0.133333333333

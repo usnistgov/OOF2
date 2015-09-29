@@ -1,0 +1,235 @@
+Eric Ma
+8/22/03
+
+Summary of what I have done this past summer:
+1. Wrote the base class for masks that can be applied to different
+images. It consists of an Array of some type that is defined in the
+constructor, and a function that applies the Array to an image that is
+passed in.
+
+2. Using the base class, derived classes were written for Real Gabor
+filters, Imaginary Gabor filters, and the "Modified" Gabor filter
+using Kanxin's idea.
+
+3. After writing the classes, the necessary functions for intermediate
+steps were written. These functions include threshold, converting an
+array of type Array<type> into an image, and other basic image
+manipulation functions.
+
+4. After these first functions and classes worked, they were tested
+with different scaling functions. The scale function fit the data
+into a given min and max and the different results from using the
+absolute value of values and not using the absolute values were
+compared. Finally, it was decided that using the absolute value
+function worked better, because it allowed both white and dark
+features to be picked up.
+
+5. When a reasonable amount of detail in the pictures was found by the
+program, the basic morphological closing function was written using the
+algorithm provided in the Digital Image Processing Book. A
+skeletonization algorithm was then written following the instructions
+of the Zhang-Suen algorithm. The final function needed, edge
+connection, was then written and tested. This algorithm follows the
+procedure described in Kanxin's report.
+
+6. The next step was to use the working process and test it's
+effectiveness on different images.
+
+  Test 1: One image used was one with a white circle in the middle,
+one white line passing through the bottom, and one black line passing
+through the top of the circle. The image had shading that went from
+dark to light (left to right), and had noise added to it. The regular
+Real Gabor filter seemed to just blur the image, leaving dark lines
+dark and white lines white (this was when the absolute value method
+wasn't used for scaling). When the absolute  value was used for
+scaling, a feature was detected at where the dark shade changed to a
+light shade, which was wrong. The Imaginary Gabor filter was able to
+detect only the "true" features, with some noise showing in the middle
+of the image. The actual lines were not detected, though, but the
+edges of the lines were, which was expected. The "modified" Gabor
+Filter produced similar results, except the actual line was detected. 
+
+  Test 2: Another image used was one where there were multiple regions
+of solid color, each with a different shade of gray. The lines
+separating the regions were white. When the Modified Real Gabor filter was
+used, all of the lines were detected (although some had much lower
+values), but an added "halo" was present on the inside of the edge of
+each region. For smaller regions, the halo from the sides would
+completely close after the morphological close was applied, and the
+feature would be lost. The Imaginary Gabor filter detected the edges
+of each region, which was where the color changed from white to
+gray. A large enough morphological closing number allowed the edges to
+merge and create the lines from the actual image and was pretty
+effective except for the problem with small features being lost. The
+"normal" Real Gabor filter again blurred the image, and didn't really
+make edge detection any easier.
+
+7. After these observations were made, a decision was made to improve
+the Real Gabor filter and the newer algorithm of the "modified" Gabor
+Filter. When the graph of the Real Gabor equation, the integral from
+negative infinity to positive infinity of the equation didn't equal
+zero, which was why different regions that were all solid gave
+different gabor values. To correct this problem, a shift was done to
+the equation. Originally, the equation for the mask values at a pt
+(x,y) in the mask is of the form:
+RG(x,y)=w(x,y)*f(x,y), where:
+w(x,y)=exp[-PI*(x'^2/a^2+y'^2/b^2)] and
+f(x,y)=cos[2*pi*omega*r*cos(theta-phi).
+If the equation is changed to RG(x,y)=w(x,y)*(f(x.y)-f'), where f' is
+some constant making the integral of RG 0, the value at a point (x,y)
+will be zero, or close to it, whenever there is no feature
+present. The gaussian envelope, w(x,y), is still used, so the function
+will still die down as the x value gets farther away from
+zero. Previously, subtracting a mean value from RG(x,y) was also
+tried, but one possible problem with it was that the ends of the new
+graph didn't converge. Using the other method, it can be determined
+that f'=maskSum/weightedArea. In this equation, maskSum is equal to
+the sum of all the points within the mask, and weightedArea is equal
+to the sum of all the w(x,y) values at every point within the
+mask. Both maskSum and weightedArea can be found when the normal Real
+Gabor values are still found. By storing the values of w(x,y) and
+f(x,y) in arrays the first time, the new values of the Gabor mask can
+be easily calculated the second time. 
+
+8. By applying the new mask to images, results were very similar to, if
+not better than, those of the other "modified" Gabor filter. One
+benifit of using this method was that the runtime was much faster than
+the other modification, because necessary values could be reused and
+stored in arrays. A consistent problem was still the halo present
+around solid features (they were present because they were "very
+negative" at the points around a line and treated as white
+lines/features when absolute values were taken).
+
+9. Using the new equation, another modification was made- including a
+new parameter that specified the color of the features that were to be
+detected. The choices of input for this parameter were white, black,
+and both colored features. If it was known that only white features were
+wanted, all negative values were "thrown away" and treated as
+zero. Conversely, if only black features were wanted, all positive
+values were treated as zero, and only the absolute values of the
+negative values were used. The new set of numbers were then scaled to
+fit between 0 and 1. For images with features of both colors, the
+image was searched for black features first, and then white, and the
+two resulting images were combined for a final image. For many of the
+test images, only one colored features were present, so the new
+parameter allowed one to focus only on the necessary
+locations. Choosing a proper threshold value was much easier because
+the noise that was previously treated as white features were no longer
+present to clutter the image. Images with both colored features also
+had stronger responses for each color, again easing the threshold
+step.
+
+Final Observations:
+
+The new modification to the Real Gabor filter was an improvement on
+the old modification because of lower run times. The addition of a new
+parameter allowed easier use by a user and detected features more
+easily. 
+When performing the different steps, good a and b values for the gabor
+filter must be chosen to differentiate true features from
+noise. Larger b values give straighter and longer lines more weight,
+while a is the width of the features/lines. 
+In order to use edge connection the best, testing different threshold
+values on the Gabor image must be done first, as it is much faster
+than the edge connection algorithm. When an optimal value is
+found, then use that value in the edge connection for a final result.
+   
+Even with the new color parameter, a halo is still present around
+lines if the features are both white and black.
+
+
+------------------------------------------------------------------------
+9/05
+
+After these initial observations were made, more experimentation was
+done and various other filters were compared together. In the summer
+of 2004, making a histogram out of filtered images was tested, but
+weren't found to be effective. Other common image processing
+techniques, such as the Sobel and Canny operators were also coded, but
+for microstructure images, they were useless as there was too much
+noise present. The other two filters tested are the Laplacian and
+Laplacian Gauss filters, as defined by various texts. Although none of
+these other filters worked as well as the new gabor function, the
+hysteresis threshold idea from the Canny operator was used. A
+description of how the hysteresis threshold works can be found in the
+file hysteresis.C or in the report. From tests, the hysteresis
+threshold has been shown to be much more effective than a normal
+threshold. Relatively high and low values can be chosen for the first
+and second thresholds, respectively, making it easier for a user to
+choose the desired edges. 
+
+The ultimate goal for these various functions is to combine them to
+create one complete function capable of detecting grain boundaries 
+with minimal user intervention, so some of the functions were put
+together. This year, the filter and threshold functions were combined
+into one function, called CompleteDetection (found in wrappers.py),
+allowing a user to choose which filter and threshold functions to
+use. Currently, all of the image filters tested, including all the
+Gabor masks,  are kept in the file imagefilter.py and derived from the
+class ImageFilter. These functions can only be accessedunder the
+CompleteDetection function in wrappers.py and must be used together
+with a one of the threshold functions. For testing purposes, these
+filters can be copied and derived from the ImageModifier class instead
+so that they will appear in the main image menu. Since the normal
+threshold function is a general image processing tool, it has 2
+copies, one for the main image menu and another for the
+CompleteDetection class. It may be desirable later to find a better
+way to program the function such that it can appear in both locations,
+but copying and pasting was the easiest to code. If other functions
+should be performed witht he filter and hysteresis functions, such as
+an edge-linking algorithm, then the function can easily be added to
+the CompleteDetection class.
+
+With just the gabor filter and hysteresis threshold, results have been
+good, but there are sometimes gaps in lines that are obvious to the
+eye. Kang-Xin's edge connection algorithm was programmed and is
+included in wrappers.py as ConnectEdges, but its results were very
+similar to those from a hysteresis threshold. On smaller images, the
+edge-linking algorithm works well, but when a full-sized
+microstructure is used, small gaps are still ignored. This year, a
+hough transform was experimented with to connect straight line
+gaps. A detailed description of the hough transform can be found in most
+image processing books. The functions for the hough transform are all
+in hough.C and hough.h. There are also comments in those files detailing
+problems/ideas not yet used. Rather than use a normal hough transform, we
+decided to apply the transform on small rectangles surrounding
+endpoints. So far, transforming an image into hough space works and
+the results can be viewed in a saved jpeg file. Picking the top X
+peaks, however, hasn't worked very well so transforming a hough point
+back into a desired line on the original image isn't yet
+possible. Another problem with turning a hough point back into a line
+is determining where the line starts and ends. Since the hough point
+describes a full line, it would span the full image rather than just
+the gap. 
+
+A recent article found in Computing in Science & Engineering,
+Anisotropic Nonlinear Filtering of Cellular Structures in Cryoelectron
+Tomography, presents another idea for reducing noise and possibly
+closing small gaps in the original image.  
+
+Under ~ericma/Articles are some articles that may be useful for
+research on image processing. There are also many different test images
+under ~ericma/Test_Images.
+
+Notes for manual:
+For the final complete detection, only the function NewGabor will be
+used, so the other options should be removed. Hysteresis threshold is
+also much better than normal threshold, so the normal threshold
+function should also be removed. 
+
+For NewGabor, there are 4 parameters:
+a: This specifies the width of edges in pixels.
+b: This parameter determines the importance of straight lines. A
+higher b value reduces amounts of noised added and gives longer
+boundaries stronger responses.
+numAngles: This determines the number of angles the filter should be
+oriented and applied to the image. Lines parallel to the orientation
+of the y-axis of the filter have the strongest signals, so a
+sufficiently large number of angles to rotate the filter is necessary
+to detect lines of all orientations. The suggested number is 4 or 6.
+
+For hysteresis threshold:
+T1: The higher parameter.
+T2: Lower threshold parameter.
+A description of how hysteresis works is included earlier, or in the
+hysteresis.C file.

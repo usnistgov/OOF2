@@ -1,0 +1,10 @@
+# Operation: Average
+# Output: Total_Polarization
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Total_Polarization[x]
+# 3. average of Total_Polarization[y]
+# 4. average of Total_Polarization[z]
+0.0, 0.0, 0.0, 0.1

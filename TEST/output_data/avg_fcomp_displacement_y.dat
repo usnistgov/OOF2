@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Displacement[y]
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Displacement[y]
+0.0, 0.0475734488071

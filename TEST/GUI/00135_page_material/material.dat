@@ -1,0 +1,4 @@
+# OOF version 2.0
+FileVersion(number=1.0, format='ascii')
+Property.Thermal.Conductivity.Anisotropic.Cubic(name='cubic_copy', kappa=CubicRank2Tensor(xx=123.000000))
+MaterialandType(name='another test', properties=['Thermal:Conductivity:Anisotropic:Cubic:cubic_copy'], materialtype='bulk')

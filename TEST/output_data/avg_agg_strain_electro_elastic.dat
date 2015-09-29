@@ -1,0 +1,13 @@
+# Operation: Average
+# Output: Elastic Strain
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Elastic Strain[xx]
+# 3. average of Elastic Strain[yy]
+# 4. average of Elastic Strain[zz]
+# 5. average of Elastic Strain[yz]
+# 6. average of Elastic Strain[xz]
+# 7. average of Elastic Strain[xy]
+0.0, -1.33035841729e-16, 1.30848633252e-15, -4.06510169629e-16, 1.82585813305e-16, 7.99680417371e-16, -2.43106079159e-16

@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Determinant(Geometric Strain)
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Determinant(Geometric Strain)
+0.0, -2.31931941393e-17

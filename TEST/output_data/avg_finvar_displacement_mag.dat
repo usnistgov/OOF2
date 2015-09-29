@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Magnitude(Displacement)
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Magnitude(Displacement)
+0.0, 0.0716907273855

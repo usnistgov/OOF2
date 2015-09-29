@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Trace(Elastic Strain)
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Trace(Elastic Strain)
+0.0, 7.68921051166e-16

@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Determinant(Piezoelectric Strain)
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Determinant(Piezoelectric Strain)
+0.0, -2.01427412707e-17

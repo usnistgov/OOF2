@@ -1,0 +1,210 @@
+-*- text -*-
+# $RCSfile: solver_sequence_td.txt,v $
+# $Revision: 1.2 $
+# $Author: langer $
+# $Date: 2014/07/07 20:34:23 $
+
+
+  The sequence of operations that happens when you press the 
+"Solve" button, on the time-dependent branch, which is now
+the main branch.
+
+  Starting State:
+  ---------------
+
+  There is a mesh, on which one or more subproblems have been
+defined.  Mesh elements have materials, and the subproblems have
+defined and active fields, and defined equations.
+
+  The fields have been initialized, and the user has selected
+a solver for each subproblem, as well as specified the order
+in which the subproblems are to be solved.  This all happens
+on the solver page.
+
+  The user may also have specified entries in the output
+schedule.  There is a known, specified end time, and optionally
+an initial step size, which might be the default or might have
+been provided by the user.
+
+  The solver objects have also been filled in via the "Set Solver"
+button (menu item in subproblemmenu.py).  Different solvers may be
+used for different subproblems.   For each solver, the user has 
+specified a time_stepper, a nonlinear_solver, a symmetric_solver,
+and an asymmetric_solver, possibibly explicitly through the "Advanced"
+solver dialog, or implicitly through the "Basic" dialog.
+
+  The solver mode (Advanced or Basic) is a container object which
+is an argument to the setSolver menu callback (in 
+engine/IO/solvermenu.py).  The menu callback machinery calls methods
+in this object to retreive the time stepper, nonlinear solver,
+symmetric solver, and asymmetric solver.
+
+  The time stepper is a subclass of timestepper.StepDriver.
+
+  The nonlinear solver is a subclass of nonlinearsolver.NonlinearSolverBase.
+
+  The symmetric and asymmetric solvers are subclasses of
+matrixmethod.MatrixMethod.  The paramter objects,
+SymmetricMatrixMethodParam and AsymmetricMatrixMethodParam, control
+which classes are allowed on the basis of symmetry of the underlying
+matrix, which is a different level than just classes, since
+unsymmetric solvers can solve symmetric matrices, but not vice versa.
+
+  Broad categories of StepDrivers are Static, Uniform, and Adaptive, as
+explained in timestepper.py.  Static steppers just equilibrate,
+Uniform steppers don't modify their time-step sizes, and Adaptive
+steppers can modify their time-step size to control accuracy.
+
+  StepDriver (defined in timestepper.py) objects contain TimeStepper
+objects within them, except the AdaptiveStepper, which contains a
+"QCTimeStepper" object.  The QC stands for "Quality Controlled".  This
+is a distinct class hierarchy (currently with only one level) from the
+TimeStepper class tree.  The TimeStepper objects take individual
+steps, and the StepDriver coordinates multiple steps.
+
+
+  What Actually Happens:
+  ----------------------
+
+  The solver button is on the Solver page, which is defined in
+SRC/engine/IO/GUI/solverPage.py.  Clicking it runs the Solve menu
+item from the Mesh menu, OOF.Mesh.Solve, whose arguments are just
+the mesh, the endtime, and the requested initial step size.
+
+  This menu item is defined in SRC/engine/IO/meshmenu.py, the 
+callback is _solve, towards the end of the file.
+
+  This function finds the mesh context, checks the mesh's
+status for solveability, and if it finds it solveable, 
+restores the most recent field data to the mesh, and then
+calls evolve.evolve.
+
+  The evolve function is in SRC/engine/evolve.py.
+
+  It first reads the start time from the mesh.
+
+  It then inspects various attributes to determine if the 
+problem it is solving is static or not, and if not, if 
+this is the continuation of an already-solved time-evolution
+problem.
+  
+  It then sets the mesh's status to "Solving" (which is an object...?)
+
+  Then it sorts the list of subproblems according to their
+solve order (which is a user-specified attribute).
+
+  Then, if it's not continuing, it initializes all the fields
+in all the subproblems.  For static problems, this basically
+means solving them.
+
+  InitializeStaticFields:
+
+  Solves the static part of the problem, including (for second-order
+time-dependent systems) deducing the starting values of the 
+first-order time derivative DOFs. 
+
+  Builds the linear system for each subproblem, and then 
+in a separate loop, calls the subproblem-scope InitializeStaticFields,
+passing in the appropriate linearized-system, increments time stamps,
+and loops until it achieves consistency, which is defined by 
+the DOFs being the same this time around as they were last time,
+in all of the subproblems.
+
+  Subproblemcontext.make_linear_system has all the BC stuff in it,
+this is where the maps get built.
+
+  For time-dependent problems, back in evolve.evolve: It then loops 
+over times at which outputs are scheduled, and calls "evolve_to"
+to try to get all the subproblems to the next scheduled output
+time.  Evolve_to reports how far it got, and suggests what a 
+good delta-T might be for next time around.  If the achieved
+time is not the desired scheduled-output time, then it loops
+around again to try to again to get to that time, possibly
+with a new delta.  
+
+  Evolve_to builds the linear system for all the subproblems.
+The DOF and equation mapping is done, along with BC applications,
+in each subproblem's make_linear_system routine.
+  Evolve_to initializes subproblems, and caches various useful values.
+It then enters the consistency loop, in which the problem is solved
+(by running linearity.step), the end values recorded, bcs expanded,
+and inequality constraints converted to equality constraints where
+violations have occurred.
+
+  After all the subproblems have been run, a consistency check
+is done to see if everybody made it to the target time, and if
+so, if everybody got the same set of values as last time. 
+When this is true, evolve_to exits.  As long as this is not
+true, evolve_to keeps iterating, possibly reducing the time-step
+size.
+
+
+
+Linear System Construction:
+---------------------------
+
+  The subproblem's make_linear_system routine is called with a
+time argument.  It's in csubproblem.C.
+
+  CSubProblem::make_linear_system:
+
+  It constructs a LinearizedSystem object of the appropriate
+size, and iterates over the elements in the subproblem, calling
+each element's make_linear_system routine with itself and
+a pointer to the linear system object.
+
+  The linear system is consolidated (duplicate indices are merged),
+and the pointer is returned.
+
+
+
+  Element::make_linear_system:
+
+  Calls mat->begin_element, then iterates over gauss points and,
+at each gauss point, calls material->make_linear_system.  By this
+time, we have the local DOF map, which is a std::vector<int>.
+
+  It then calls mat->end_element.
+
+
+
+  Material::make_linear_system:
+
+  Iterates over active fluxes.  For each flux, it builds a 
+SmallSystem object, which consists of three SmallMatrix objects, 
+one for each degree of time-dependence (0, 1, and 2).  Then,
+for all the properties which contribute to the active flux,
+calls property->flux_matrix, and then calls property->flux_offset.
+The SmallSystem object is then put in the fluxdata map,
+indexed by the flux iterator which is looping over active fluxes.
+
+  Then iterates over equations to make the direct contributions.
+For each equation, build another SmallSystem object, find all
+the properties from the eqnpropmap, and for each property,
+call force_matrix and force_offset to populate the equation 
+data object.
+
+  Then, within the equation loop, calls the equation's make_linear_system
+routine with the equation matrix (a SmallSystem object) and the
+fluxdata object.  The equation is responsible for filling in the
+master stiffness/damping/inertia matrices in the linear system.
+
+
+
+  Equation::make_linear_system
+
+  This routine is different for different equation classes.
+  The general task is to take the fluxdata and eqndata values
+in the passed-in SmallSystem objects, and map them into the master
+stiffness matrix.  For direct equation contributions, this is 
+straightforward.  For flux contributions to divergence equations,
+you have to multiply by the shape function dervative, include the 
+minus sign for the by-parts integration, and contract over the 
+spatial degrees of freedom.
+
+  The guass-point weight multiplication happens in here.
+
+  Pointwise constraint equations will just fill in the appropriate
+rows and columns, and not do the gauss-point weight multiplication,
+since they are not doing an integral.
+

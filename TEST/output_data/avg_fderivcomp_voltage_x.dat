@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: d(Voltage)/dx
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of d(Voltage)/dx
+0.0, -5.08273687294e-16

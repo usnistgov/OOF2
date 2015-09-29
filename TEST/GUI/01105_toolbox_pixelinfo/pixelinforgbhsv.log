@@ -1,0 +1,4 @@
+OOF.Windows.Graphics.New()
+OOF.Microstructure.Create_From_ImageFile(filename='examples/small.ppm', microstructure_name='small.ppm', height=automatic, width=automatic)
+OOF.Graphics_1.Toolbox.Pixel_Info.Query(x=20, y=71)
+OOF.Graphics_1.Toolbox.Pixel_Info.Query(x=114, y=81)
