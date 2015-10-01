@@ -1,0 +1,4 @@
+builddir-*/
+OOFSWIG/
+SRC/SWIG2D/
+*.pyc
