@@ -92,7 +92,7 @@ void GeneralNonlinearElasticityNoDeriv::static_flux_value(
 
   for (SymTensorIterator ij; !ij.end(); ++ij)
 
-    fluxdata->flux_vector_element( ij ) += stress( ij.row(), ij.col() );
+    fluxdata->flux_vector_element( ij ) -= stress( ij.row(), ij.col() );
 
 
 } // end of 'GeneralNonlinearElasticityNoDeriv::static_flux_value'
@@ -172,7 +172,7 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
 
       int k = kay.integer();
 
-      fluxmtx->stiffness_matrix_element( ij, displacement, kay, node ) +=
+      fluxmtx->stiffness_matrix_element( ij, displacement, kay, node ) -=
 	stressDeriv1(i,j,k) * shapeFuncVal +
 	stressDeriv2(i,j,k,0) * shapeFuncGrad0 +
 	stressDeriv2(i,j,k,1) * shapeFuncGrad1;
@@ -184,7 +184,7 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
 	  !kayo.end(); ++kayo) {
 	int ko = kayo.integer();
 
-	fluxmtx->stiffness_matrix_element( ij, disp_z_deriv, kayo, node ) +=
+	fluxmtx->stiffness_matrix_element( ij, disp_z_deriv, kayo, node ) -=
 	  stressDeriv2(i,j,ko,2) * shapeFuncVal;
       }
     }
@@ -199,7 +199,7 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
     for( ; !kay.end(); ++kay) { // loop over kth component of displacement
       int k = kay.integer();
 
-      fluxmtx->stiffness_matrix_element( ij, displacement, kay, node ) +=
+      fluxmtx->stiffness_matrix_element( ij, displacement, kay, node ) -=
     	             stressDeriv1(i,j,k) * shapeFuncVal +
    	             stressDeriv2(i,j,k,0) * shapeFuncGrad0 +
 	             stressDeriv2(i,j,k,1) * shapeFuncGrad1 +

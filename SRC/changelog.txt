@@ -1,3 +1,11 @@
+OOF2 2.1.13
+
+* Changed the sign of the force balance equation so that the stiffness
+  matrix is positive definite, so that it can be used with canned
+  solvers that expect it to be that way.  This has the unfortunate
+  effect of changing the sign of Neumann boundary conditions (applied
+  stresses) for elasticity problems.
+
 OOF2 2.1.12
 
 * Changed setup.py to allow C++11.

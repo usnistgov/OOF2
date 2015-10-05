@@ -39,7 +39,7 @@
 #     for ell in problem.Displacement.iterator(planarity.ALL_INDICES):
 #         for k in (0, 1):
 #             fluxdata.stiffness_matrix_element(
-#                 ij, problem.Displacement, ell, node) += cijkl[ij, k, l]*dsf[k]
+#                 ij, problem.Displacement, ell, node) -= cijkl[ij, k, l]*dsf[k]
 ## SmallSystem.stiffness_matrix_element will have to return some kind
 ## of helper object whose += can be defined.  Cijkl will have to have
 ## some kind of flexible indexing that can take mixtures of
@@ -77,7 +77,7 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
                     problem.Displacement,
                     ell,
                     nodeiterator,
-                    (cijkl[(ij.integer(), ell0.integer())]*dsf0
+                    -(cijkl[(ij.integer(), ell0.integer())]*dsf0
                      + cijkl[(ij.integer(), ell1.integer())]*dsf1)
                     )
                 ell.next()
@@ -88,7 +88,7 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
                     kl = fieldindex.SymTensorIndex(2, ell.integer)
                     fluxdata.add_stiffness_matrix_element(
                         ij, oop, kay, nodeiterator,
-                        cijkl[(ij.integer(), kl.integer())]*sf
+                        -cijkl[(ij.integer(), kl.integer())]*sf
                         )
                     kay.next()
             ij.next()

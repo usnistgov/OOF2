@@ -17,7 +17,7 @@ import memorycheck
 import math
 from UTILS import file_utils
 reference_file = file_utils.reference_file
-# file_utils.generate = True
+#file_utils.generate = True
 
 class SaveableMeshTest(unittest.TestCase):
     def saveAndLoad(self, filename):
@@ -541,7 +541,7 @@ class OOF_NewBCNonrectMixedEtc(SaveableMeshTest):
             condition=NeumannBC(
                 flux=Stress,
                 profile=[ConstantProfile(value=0.0),
-                         ConstantProfile(value=-0.05)],
+                         ConstantProfile(value=0.05)],
                 boundary='right',normal=True))
         OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=0.0)
         OOF.File.Load.Data(filename=reference_file("mesh_data", "eltest2.mesh"))
@@ -1803,7 +1803,7 @@ class OOF_ElasticPlaneStressPlaneStrainExact(SaveableMeshTest):
             analyzer=IntegrateBdyFlux(flux=Stress),
             destination=OutputStream(filename='test.dat', mode='w'))
         self.assert_(file_utils.compare_last('test.dat',
-                                             (0.0, 0.0740740741, 0.0)))
+                                             (0.0, -0.0740740741, 0.0)))
         OOF.Mesh.Analyze.Average(
             mesh='microstructure:skeleton:mesh',
             time=latest,
@@ -1814,7 +1814,7 @@ class OOF_ElasticPlaneStressPlaneStrainExact(SaveableMeshTest):
         self.assert_(file_utils.compare_last(
                 'test.dat',
                 (0.0,
-                 0.0740740740741, 0.0185185185185, 0.0185185185185,
+                 -0.0740740740741, -0.0185185185185, -0.0185185185185,
                  0.0, 0.0, 0.0)))
         file_utils.remove('test.dat')
 
@@ -1843,7 +1843,7 @@ class OOF_ElasticPlaneStressPlaneStrainExact(SaveableMeshTest):
             analyzer=IntegrateBdyFlux(flux=Stress),
             destination=OutputStream(filename='test.dat', mode='w'))
         self.assert_(file_utils.compare_last('test.dat',
-                                             (0.0, 0.0694444444, 0.0)))
+                                             (0.0, -0.0694444444, 0.0)))
         OOF.Mesh.Analyze.Average(
             mesh='microstructure:skeleton:mesh',
             time=latest,
@@ -1854,7 +1854,7 @@ class OOF_ElasticPlaneStressPlaneStrainExact(SaveableMeshTest):
         self.assert_(file_utils.compare_last(
                 'test.dat',
                 (0.0,
-                 0.0694444444444, 0.0138888889, 0.0,
+                 -0.0694444444444, -0.0138888889, 0.0,
                  0.0, 0.0, 0.0)))
         file_utils.remove('test.dat')
 
@@ -1923,7 +1923,7 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             mesh='microstructure:skeleton:mesh',
             condition=NeumannBC(
                 flux=Stress,
-                profile=[ConstantProfile(value=0.1),
+                profile=[ConstantProfile(value=-0.1),
                          ConstantProfile(value=0.0)],
                 boundary='right',
                 normal=False))
@@ -2931,11 +2931,25 @@ def run_tests():
         OOF_OutOfPlanePeriodicBC('Static')
         ]
 
-    # static_set = []
+    static_set = []
     # dynamic_set = [OOF_ThermalDiffusionTimeSteppers("SS22")]
     # dynamic_set = [OOF_StaticAndDynamic("SS22PlaneStrain")]
     # dynamic_set = [OOF_1x1ElasticDynamic("Dynamic")]
-    # dynamic_set=[OOF_ElasticTimeSteppers("SS22PlaneStressPlaneStrain")]
+    dynamic_set=[
+        # OOF_ElasticTimeSteppers("SS22PlaneStrain"),
+        # OOF_ElasticTimeSteppers("SS22PlaneStress"),
+        OOF_ElasticTimeSteppers("SS22PlaneStressPlaneStrain"),
+        OOF_ElasticTimeSteppers("CNPlaneStrainSaveRestore"),
+        OOF_ElasticTimeSteppers("CNPlaneStressSaveRestore"),
+        OOF_ElasticTimeSteppers("RK4PlaneStrain"),
+        OOF_ElasticTimeSteppers("RK4PlaneStress"),
+        OOF_ElasticTimeSteppers("RK2PlaneStrain"),
+        OOF_ElasticTimeSteppers("RK2PlaneStress"),
+        OOF_ElasticTimeSteppers("BEPlaneStrain"),
+        OOF_ElasticTimeSteppers("BEPlaneStress"),
+        OOF_ElasticTimeSteppers("ForwardEulerPlaneStrain"),
+        OOF_ElasticTimeSteppers("ForwardEulerPlaneStress"),
+    ]
 
     logan = unittest.TextTestRunner()
 

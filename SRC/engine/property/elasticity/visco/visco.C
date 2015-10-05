@@ -75,11 +75,11 @@ void ViscoElasticityProp::flux_matrix(const FEMesh *mesh,
       SymTensorIndex ell0(0, ell.integer());
       SymTensorIndex ell1(1, ell.integer());
 #if DIM==2
-      fluxmtx->damping_matrix_element(ij, displacement, ell, nu) +=
+      fluxmtx->damping_matrix_element(ij, displacement, ell, nu) -=
 	g_ijkl(ij, ell0)*dsf0 + g_ijkl(ij, ell1)*dsf1;
 #elif DIM==3
       SymTensorIndex ell2(2, ell.integer());
-      fluxmtx->damping_matrix_element(ij, displacement, ell, nu) +=
+      fluxmtx->damping_matrix_element(ij, displacement, ell, nu) -=
 	g_ijkl(ij, ell0)*dsf0 + g_ijkl(ij, ell1)*dsf1 + g_ijkl(ij, ell2)*dsf2;
 #endif
     }
@@ -91,7 +91,7 @@ void ViscoElasticityProp::flux_matrix(const FEMesh *mesh,
       for(IteratorP ell=oop->iterator(ALL_INDICES); !ell.end(); ++ell) {
 	double diag_factor = ( ell.integer()==2 ? 1.0 : 0.5);
 	fluxmtx->damping_matrix_element(ij, oop, ell, nu)
-	  += g_ijkl(ij, SymTensorIndex(2, ell.integer())) * sf * diag_factor;
+	  -= g_ijkl(ij, SymTensorIndex(2, ell.integer())) * sf * diag_factor;
       }
     }
 #endif
