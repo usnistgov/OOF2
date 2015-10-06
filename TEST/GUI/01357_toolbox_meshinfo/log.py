@@ -237,6 +237,8 @@ assert tests.dataWidgets('generic')
 setComboBox(findWidget('Mesh Data 1:ViewSource:output:Parameters:type:Chooser'), 'Elastic Strain')
 checkpoint Mesh_Data_1 data updated
 checkpoint Mesh_Data_1 data updated
+checkpoint Mesh_Data_1 data updated
+checkpoint_count("Mesh_Data_1 data updated")
 assert tests.dataWidgets('generic')
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
 canvasobj.emit('event', event(gtk.gdk.BUTTON_PRESS,x= 6.2413043478261e-01,y=-9.2543478260870e-01,state=0,window=findCanvasGdkWindow('Graphics_1')))
