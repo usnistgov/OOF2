@@ -4,7 +4,8 @@ OOF2 2.1.13
   matrix is positive definite, so that it can be used with canned
   solvers that expect it to be that way.  This has the unfortunate
   effect of changing the sign of Neumann boundary conditions (applied
-  stresses) for elasticity problems.
+  stresses) for elasticity problems and also changing the sign of all
+  the stress outputs.
 
 OOF2 2.1.12
 
