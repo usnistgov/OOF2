@@ -2931,25 +2931,10 @@ def run_tests():
         OOF_OutOfPlanePeriodicBC('Static')
         ]
 
-    static_set = []
+    # static_set = []
     # dynamic_set = [OOF_ThermalDiffusionTimeSteppers("SS22")]
     # dynamic_set = [OOF_StaticAndDynamic("SS22PlaneStrain")]
     # dynamic_set = [OOF_1x1ElasticDynamic("Dynamic")]
-    dynamic_set=[
-        # OOF_ElasticTimeSteppers("SS22PlaneStrain"),
-        # OOF_ElasticTimeSteppers("SS22PlaneStress"),
-        OOF_ElasticTimeSteppers("SS22PlaneStressPlaneStrain"),
-        OOF_ElasticTimeSteppers("CNPlaneStrainSaveRestore"),
-        OOF_ElasticTimeSteppers("CNPlaneStressSaveRestore"),
-        OOF_ElasticTimeSteppers("RK4PlaneStrain"),
-        OOF_ElasticTimeSteppers("RK4PlaneStress"),
-        OOF_ElasticTimeSteppers("RK2PlaneStrain"),
-        OOF_ElasticTimeSteppers("RK2PlaneStress"),
-        OOF_ElasticTimeSteppers("BEPlaneStrain"),
-        OOF_ElasticTimeSteppers("BEPlaneStress"),
-        OOF_ElasticTimeSteppers("ForwardEulerPlaneStrain"),
-        OOF_ElasticTimeSteppers("ForwardEulerPlaneStress"),
-    ]
 
     logan = unittest.TextTestRunner()
 

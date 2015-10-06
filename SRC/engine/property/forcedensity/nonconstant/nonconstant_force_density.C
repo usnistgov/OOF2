@@ -68,10 +68,10 @@ void NonconstantForceDensity::force_value(const FEMesh *mesh,
   nonconst_force_density( coord.x, coord.y, coord.z, time, force );
 #endif
 
-  eqndata->force_vector_element(0) += force[0];
-  eqndata->force_vector_element(1) += force[1];
+  eqndata->force_vector_element(0) -= force[0];
+  eqndata->force_vector_element(1) -= force[1];
 #if DIM==3
-  eqndata->force_vector_element(2) += force[2];
+  eqndata->force_vector_element(2) -= force[2];
 #endif
 }
 

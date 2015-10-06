@@ -12,7 +12,7 @@
 # 1. time
 # 2. normal(Stress)[x]
 # 3. normal(Stress)[y]
-0.0, -0.0666666666667, 0.0
+0.0, 0.0666666666667, 0.0
 
 # Average Displacement
 # Boundary: top
@@ -20,8 +20,8 @@
 # 1. time
 # 2. Displacement[x]
 # 3. Displacement[y]
-0.1, 0.05, 5.16159187352e-20
-0.2, 0.05, 1.93397730041e-19
+0.1, 0.05, 9.09174285582e-20
+0.2, 0.05, 3.35234349503e-19
 
 # Integrated Stress
 # Boundary: left
@@ -29,7 +29,7 @@
 # 1. time
 # 2. normal(Stress)[x]
 # 3. normal(Stress)[y]
-0.2, -0.0666666666667, 8.79659886132e-19
+0.2, 0.0666666666667, -2.20484205342e-18
 
 # Average Displacement
 # Boundary: top
@@ -37,8 +37,8 @@
 # 1. time
 # 2. Displacement[x]
 # 3. Displacement[y]
-0.3, 0.05, 3.53709225588e-19
-0.4, 0.05, 5.54119180878e-19
+0.3, 0.05, 4.13999284155e-19
+0.4, 0.05, -6.7131801247e-20
 
 # Integrated Stress
 # Boundary: left
@@ -46,7 +46,7 @@
 # 1. time
 # 2. normal(Stress)[x]
 # 3. normal(Stress)[y]
-0.4, -0.0666666666667, 1.82374420793e-18
+0.4, 0.0666666666667, -4.96658703437e-18
 
 # Average Displacement
 # Boundary: top
@@ -54,8 +54,8 @@
 # 1. time
 # 2. Displacement[x]
 # 3. Displacement[y]
-0.5, 0.05, 8.16560137409e-19
-0.6, 0.05, 1.12726416954e-18
+0.5, 0.05, -8.29023705843e-19
+0.6, 0.05, -1.30728676485e-18
 
 # Integrated Stress
 # Boundary: left
@@ -63,7 +63,7 @@
 # 1. time
 # 2. normal(Stress)[x]
 # 3. normal(Stress)[y]
-0.6, -0.0666666666667, 1.03746330824e-18
+0.6, 0.0666666666667, -2.50379452733e-18
 
 # Average Displacement
 # Boundary: top
@@ -71,8 +71,8 @@
 # 1. time
 # 2. Displacement[x]
 # 3. Displacement[y]
-0.7, 0.05, 1.6459888302e-18
-0.8, 0.05, 2.45584151228e-18
+0.7, 0.05, -1.31150763597e-18
+0.8, 0.05, -1.07208224433e-18
 
 # Integrated Stress
 # Boundary: left
@@ -80,7 +80,7 @@
 # 1. time
 # 2. normal(Stress)[x]
 # 3. normal(Stress)[y]
-0.8, -0.0666666666667, 1.54741549344e-19
+0.8, 0.0666666666667, 8.97906667487e-20
 
 # Average Displacement
 # Boundary: top
@@ -88,8 +88,8 @@
 # 1. time
 # 2. Displacement[x]
 # 3. Displacement[y]
-0.9, 0.05, 3.28136374817e-18
-1.0, 0.05, 3.99110747614e-18
+0.9, 0.05, -1.09685107259e-18
+1.0, 0.05, -1.58553360168e-18
 
 # Integrated Stress
 # Boundary: left
@@ -97,4 +97,4 @@
 # 1. time
 # 2. normal(Stress)[x]
 # 3. normal(Stress)[y]
-1.0, -0.0666666666667, 6.85174699955e-21
+1.0, 0.0666666666667, -4.12360852954e-18
