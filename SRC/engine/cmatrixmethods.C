@@ -30,6 +30,9 @@
 #include "engine/preconditioner.h"
 #include "engine/sparsemat.h"
 
+// lizhong
+#include <gperftools/profiler.h>
+
 // CG, BiCG, BiCGStab and GMRES are just wrappers for the IML++
 // template routines.  The wrappers are necessary because we can't
 // swig the templates.
@@ -43,7 +46,12 @@ void solveCG(const SparseMat &A, const DoubleVec &rhs,
 	    const PreconditionerBase &pc, int &maxiter, double &tolerance,
 	    DoubleVec &x)
 {
+  // lizhong
+  ProfilerStart("/users/lnz5/workspace/OOF2/TEST/BENCHMARK/profile");
   CG(A, x, rhs, pc, maxiter, tolerance);
+  ProfilerStop();
+
+  //CG(A, x, rhs, pc, maxiter, tolerance);
 }
 
 void solveBiCG(const SparseMat &A, const DoubleVec &rhs,

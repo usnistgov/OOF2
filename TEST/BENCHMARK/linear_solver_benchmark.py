@@ -137,44 +137,65 @@ def run_GMRES_Jacobi(matrix, rhs, solution, max_iterations, tolerance):
     solver = matrixmethod.GeneralizedMinResidual(pc, tolerance, max_iterations, krylov_dim)
     return solver.solveMatrix(matrix, rhs, solution)
 
-def run_preconditioner(precond, matrix, rhs):
+def run_preconditioner(nruns, precond, matrix, rhs):
+    if nruns < 1:
+        return
+
     print "[========== %s ==========]" %(precond.__name__)
-    st = time.time()
-    precond(matrix, rhs)
-    et = time.time() - st
-
-    RECORDS[precond.__name__].append([et])
-    print "%s seconds" %(et)
-
-def run_solver(solver, matrix, rhs, ref_solution, max_iterations, tolerance):
-    print "[========== %s ==========]" %(solver.__name__)
-    solution = doublevec.DoubleVec(rhs.size())
-
-    try:
+    for i in range(nruns):
         st = time.time()
-        nIters, residue = solver(matrix, rhs, solution, max_iterations, tolerance)
+        precond(matrix, rhs)
         et = time.time() - st
-    except ooferror2.ErrConvergenceFailure:
-        print "Failed to converge in %d steps" %max_iterations
-    else:
-        RECORDS[solver.__name__].append([nIters, residue, et])
-        print "%d iterations, %s residue, %s seconds" %(nIters, residue, et)
-        print "relative deviation from result: %e" %(
-            (solution - ref_solution).norm() / ref_solution.norm())
+        RECORDS[precond.__name__].append(et)
+
+   
+    size = len(RECORDS[precond.__name__])
+    if size > 0:
+        tot = 0.0
+        for t in RECORDS[precond.__name__]:
+            tot += t
+        print "%s seconds" %(tot / size)
+
+def run_solver(nruns, solver, matrix, rhs, ref_solution, max_iterations, tolerance):
+    if nruns < 1:
+        return
+
+    print "[========== %s ==========]" %(solver.__name__)
+
+    for i in range(nruns):
+        try:
+            solution = doublevec.DoubleVec(rhs.size())
+            st = time.time()
+            nIters, residue = solver(matrix, rhs, solution, max_iterations, tolerance)
+            et = time.time() - st
+        except ooferror2.ErrConvergenceFailure:
+            print "Failed to converge in %d steps" %max_iterations
+        else:
+            RECORDS[solver.__name__].append({ "iterations": nIters, "residue": residue, "time": et})
+            print "%d iterations, %s residue, %s seconds" %(nIters, residue, et)
+            print "relative deviation from result: %e" %(
+                (solution - ref_solution).norm() / ref_solution.norm())
+
+    size = len(RECORDS[solver.__name__])
+    if size > 0:
+        totTime = 0.0
+        totIter = 0
+        for r in RECORDS[solver.__name__]:
+            totTime += r["time"]
+            totIter += r["iterations"]
+        print "average iterations %d, average time %s seconds" %(totIter / size, totTime / size)
 
 def benchmark():
 
     print "Loading matrix and vectors ..."
 
-    #matA = loadMatrix("/users/lnz5/Documents/oof2/matrix_data/matrix_9486-9486_20151007-110836")
-    #vecRHS = loadVector("/users/lnz5/Documents/oof2/matrix_data/rhs_9486_20151007-110836_nosize")
-    #vecRef = loadVector("/users/lnz5/Documents/oof2/matrix_data/rst_9486_20151007-110836_nosize")
-    matA = loadMatrix("/users/lnz5/Documents/oof2/matrix_data/matrix_17748-17748_20151009-144711")
-    vecRHS = loadVector("/users/lnz5/Documents/oof2/matrix_data/rhs_17748_20151009-144711_nosize")
-    vecRef = loadVector("/users/lnz5/Documents/oof2/matrix_data/rst_17748_20151009-144711_nosize")
+    matA = loadMatrix("./data/matrix_17748-17748")
+    vecRHS = loadVector("./data/rhs_17748")
+    vecRef = loadVector("./data/rst_17748")
+
     tolerance = 1.e-13
-    max_iterations = 5000
-    benchmark_runs = 1
+    max_iterations = 10000
+    benchmark_runs = 3
 
     vecRHS = matA * vecRef
 
@@ -215,14 +236,10 @@ def benchmark():
         RECORDS[fn.__name__] = []    
 
     for pc in preconds:
-        for i in xrange(benchmark_runs):
-            run_preconditioner(pc, matA, vecRHS)
+        run_preconditioner(benchmark_runs, pc, matA, vecRHS)
 
     for fn in solvers:
-        for i in xrange(benchmark_runs):
-            run_solver(fn, matA, vecRHS, vecRef, max_iterations, tolerance)
-
-    print RECORDS
+        run_solver(benchmark_runs, fn, matA, vecRHS, vecRef, max_iterations, tolerance)
 
 if __name__ == "__main__":
     import sys
