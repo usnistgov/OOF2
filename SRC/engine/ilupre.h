@@ -33,7 +33,7 @@ public:
   virtual DoubleVec trans_solve(const DoubleVec &x) const;
 
   SparseMat unfactored() const;
-  SparseMat lower() const { return L; }
+  const SparseMat& lower() const { return L; }
   SparseMat upper() const { return UT.transpose(); }
 
   static const std::string classname_;

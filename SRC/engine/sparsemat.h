@@ -64,13 +64,13 @@ public:
   SparseMat(unsigned int nr, unsigned int nc);
   // Construct by extraction from an existing matrix.
   SparseMat(const SparseMat&, const DoFMap&, const DoFMap&);
-  SparseMat(const SparseMat&) = default;
+  SparseMat(const SparseMat&) = delete; // ban implicit copy
   SparseMat(SparseMat&&) = default; // move constructor
   SparseMat& operator=(const SparseMat&) = default;
   SparseMat& operator=(SparseMat&&) = default; // move assignment
   ~SparseMat() = default;
 
-  SparseMat clone() const;
+  SparseMat clone() const; // explicit copy of SparseMat
 
   // Matrix construction functions
 

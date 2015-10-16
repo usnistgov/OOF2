@@ -36,7 +36,7 @@ public:
   ICPreconditionerCore(SparseMat&);
 //   DoubleVec solve(DoubleVec&);
   SparseMat unfactored(); 
-  SparseMat lower();
+  const SparseMat& lower();
   SparseMat upper();
 };
 

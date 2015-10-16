@@ -517,7 +517,9 @@ SparseMat::solve_lower_triangle_trans_unitd(const DoubleVec &rhs,
 }
 
 SparseMat SparseMat::clone() const {
-  return *this;
+  SparseMat copy;
+  copy = *this;
+  return copy;
 }
 
 void SparseMat::tile(unsigned int i, unsigned int j,

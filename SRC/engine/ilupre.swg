@@ -36,7 +36,7 @@ public:
   ILUPreconditionerCore(SparseMat&);
   ~ILUPreconditionerCore();
   SparseMat unfactored(); 
-  SparseMat lower();
+  const SparseMat& lower();
   SparseMat upper();
 };
 
