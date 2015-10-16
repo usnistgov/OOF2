@@ -73,7 +73,6 @@ class ConjugateGradient(PreconditionedMatrixMethod):
         self.tolerance = tolerance
         self.max_iterations = max_iterations
     def solveMatrix(self, matrix, rhs, solution):
-        # lizhong
         if _check_symmetry:
             import sys
             if (matrix.nrows()!=matrix.ncols() or
@@ -89,40 +88,6 @@ class ConjugateGradient(PreconditionedMatrixMethod):
         return cmatrixmethods.solveCG(
             matrix, rhs, pc,
             self.max_iterations, self.tolerance, solution)
-
-# lizhong from
-'''
-        import logging
-        logger = logging.getLogger('root')
-        FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
-        logging.basicConfig(format=FORMAT)
-        logger.setLevel(logging.DEBUG)
-
-        import datetime
-        now = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        path = "/users/lnz5/Documents/oof2/matrix_data/"
-        fmat = open(path + "matrix_%d-%d_%s" %(matrix.nrows(), matrix.ncols(), now), "w")
-        frhs = open(path + "rhs_%d_%s" %(rhs.size(), now), "w")
-        fmat.write(str(matrix))
-        frhs.write(str(rhs.size()) + "\n" + str(rhs))
-            
-        logger.info("matrix num of nonezero elements %d" %matrix.nnonzeros())
-        logger.info("preconditioner type %s" %type(pc))
-
-        import timeit
-        start_time = timeit.default_timer()
-        rst = cmatrixmethods.solveCG(
-            matrix, rhs, pc, 
-            self.max_iterations, self.tolerance, solution)
-        elapsed = timeit.default_timer() - start_time
-        #logger.info("CG execution time %s seconds" %elapsed)
-
-        frst = open(path + "rst_%d_%s" %(solution.size(), now), "w")
-        frst.write(str(solution.size()) + "\n" + str(solution))
-        return rst 
-'''
-# lizhong end
-
 
 registeredclass.Registration(
     "CG",
