@@ -28,7 +28,7 @@ the software and should note the date and nature of any such
 change. Please explicitly acknowledge the National Institute of
 Standards and Technology as the source of the software.  To facilitate
 maintenance we ask that before distributing modified versions of this
-software, you first contact the authors at oof manager@nist.gov.
+software, you first contact the authors at oof_manager@nist.gov.
 
 The software is expressly provided "AS IS". NIST MAKES NO WARRANTY OF
 ANY KIND, EXPRESS, IMPLIED, IN FACT OR ARISING BY OPERATION OF LAW,
@@ -70,7 +70,7 @@ python setup.py install
 but please read the rest of this file before proceeding.
 
 If something goes wrong, your system adminstrator may be able to help
-you, or you can contact the oof developers at oof manager@nist.gov.
+you, or you can contact the oof developers at oof_manager@nist.gov.
 It's diagnostically useful to include all the output from setup.py.
 
 OOF2 has been built and tested on Linux (Debian, CentOS, Ubuntu, and,
