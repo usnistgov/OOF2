@@ -1,9 +1,3 @@
-// -*- C++ -*-
-// $RCSfile: doublevec.h,v $
-// $Revision: 1.1 $
-// $Author: langer $
-// $Date: 2012/02/28 18:39:38 $
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -13,33 +7,72 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef DOUBLEVEC_H
 #define DOUBLEVEC_H
 
-// DoubleVec is just a trivial wrapper for std::vector<double>.  It
-// allows std::vector<double> to be swigged, and allows debugging code
-// to be attached to methods that aren't easily accessible in the base
-// class.  
+#include <Eigen/SparseCore>
+#include <iostream>
+#include <string>
 
-#include <vector>
+class SparseMat;
 
-class DoubleVec: public std::vector<double> {
-#ifdef DEBUG
-private:
-  static long total;
-#endif // DEBUG
+class DoubleVec {
 public:
-  DoubleVec();
-  DoubleVec(int);
-  DoubleVec(int, double);
-  DoubleVec(const std::vector<double>&);
-  DoubleVec(const std::vector<double>::const_iterator&,
-	    const std::vector<double>::const_iterator&);
-  ~DoubleVec();
-  void resize(int n, double x=0);
-  double norm() const;
+  DoubleVec() = default;
+  DoubleVec(int size, double val=0) { data.setConstant(size, val); }
+  DoubleVec(const DoubleVec&) = default;
+  DoubleVec& operator=(const DoubleVec&) = default;
+  ~DoubleVec() = default;
+  
+  //TODO(lizhong): inline possible methods
+  
+  //TODO(lizhong): implement subscript operator
+
+  /* Vector property methods */
+
+  int size() const { return data.size(); }
+  void resize(int size, double val=0) { data.setConstant(size, val); }
+  void zero() { data.setZero(); }
+  void unit() { data.setOnes(); }
+
+  /* Arithmetic operations */
+
+  double norm() const { return data.norm(); }
+
+  // In-place operations, using no temporaries
+  DoubleVec& operator+=(const DoubleVec&);
+  DoubleVec& operator-=(const DoubleVec&);
+  DoubleVec& operator*=(double);
+  DoubleVec& operator/=(double);
+  void axpy(double alpha, const DoubleVec& x);
+  void scale(double alpha);
+  
+  // Non-in-place, which may return a temporary object.
+  DoubleVec operator+(const DoubleVec&);
+  DoubleVec operator-(const DoubleVec&);
+  DoubleVec operator*(double);
+  DoubleVec operator/(double);
+  friend DoubleVec operator*(double, const DoubleVec&);
+
+  // dot product
+  double dot(const DoubleVec&);
+  double operator*(const DoubleVec&);
+
+  /* Miscellaneous */
+
+  const std::string str() const;
+
+  friend SparseMat;
+  friend std::ostream& operator<<(std::ostream&, const DoubleVec&);
+  friend bool save_market_vec(const DoubleVec&, const std::string&);
+  friend bool load_market_vec(DoubleVec&, const std::string&);
+  friend bool save_vec(const DoubleVec&, const std::string&, int precision=13);
+  friend bool load_vec(DoubleVec&, const std::string&);
+
+private:
+  Eigen::VectorXd data; // N x 1 matrix
 };
+
+// TODO(lizhong): interators for doubelvec
 
 #endif // DOUBLEVEC_H
