@@ -15,7 +15,6 @@
 
 #include <oofconfig.h>
 
-#include "common/vectormath.h"
 #include "engine/edge.h"
 #include "engine/edgeset.h"
 #include "engine/element.h"

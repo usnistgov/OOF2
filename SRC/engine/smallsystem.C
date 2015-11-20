@@ -14,7 +14,6 @@
  */
 
 #include <oofconfig.h>
-#include "common/vectormath.h"
 #include "engine/smallsystem.h"
 #include <vector>
 

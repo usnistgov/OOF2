@@ -25,7 +25,6 @@
 #include "common/progress.h"
 #include "common/tostring.h"
 #include "common/trace.h"
-#include "common/vectormath.h"
 #include "engine/cconjugate.h"
 #include "engine/cnonlinearsolver.h"
 #include "engine/csubproblem.h"

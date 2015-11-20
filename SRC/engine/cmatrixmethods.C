@@ -20,7 +20,6 @@
 #include "common/doublevec.h"
 #include "common/printvec.h"	// for debugging
 #include "common/smallmatrix.h"
-#include "common/vectormath.h"	// needed when templates are expanded
 #include "engine/SparseLib++/bicg.h"
 #include "engine/SparseLib++/bicgstab.h"
 #include "engine/SparseLib++/cg.h"

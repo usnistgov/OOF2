@@ -24,7 +24,6 @@
 #include "common/printvec.h"
 #include "common/tostring.h"
 #include "common/trace.h"
-#include "common/vectormath.h"
 #include "engine/boundarycond.h"
 #include "engine/csubproblem.h"
 #include "engine/freedom.h"

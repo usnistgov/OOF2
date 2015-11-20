@@ -1,9 +1,3 @@
-// -*- C++ -*-
-// $RCSfile: bicg.h,v $
-// $Revision: 1.24 $
-// $Author: langer $
-// $Date: 2014/09/27 21:41:04 $
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -19,7 +13,6 @@
 #include <oofconfig.h>
 #include "common/progress.h" 
 #include "common/tostring.h"
-#include "common/vectormath.h"
 #include "engine/ooferror.h"
 
 //*****************************************************************

@@ -32,8 +32,7 @@ if not DIM_3:
         'pixelselectioncourier.C', 'pixelsetboundary.C', 'random.C',
         'sincos.C', 'swiglib.C', 'switchboard.C', 'threadstate.C',
         'timestamp.C', 'trace.C', 'pythonlock.C', 'progress.C',
-        'direction.C', 'doublevec.C', 'smallmatrix.C', 'vectormath.C',
-        'corientation.C',
+        'direction.C', 'doublevec.C', 'smallmatrix.C', 'corientation.C',
         ]
 
     swigfiles = [
@@ -80,7 +79,7 @@ if not DIM_3:
         'removeitem.h', 'sincos.h', 'swiglib.h', 'switchboard.h',
         'threadstate.h', 'timestamp.h', 'tostring.h', 'trace.h',
         'pythonlock.h', 'direction.h', 'doublevec.h', 'smallmatrix.h',
-        'vectormath.h', 'corientation.h',]
+        'corientation.h',]
 
 else:
 

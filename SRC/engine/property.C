@@ -20,7 +20,6 @@
 #include "common/pythonlock.h"
 #include "common/swiglib.h"
 #include "common/trace.h"
-#include "common/vectormath.h"
 #include "engine/IO/propertyoutput.h"
 #include "engine/cnonlinearsolver.h"
 #include "engine/csubproblem.h"

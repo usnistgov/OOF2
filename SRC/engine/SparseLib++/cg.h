@@ -18,7 +18,6 @@
 
 #include <oofconfig.h>
 #include "common/progress.h"
-#include "common/vectormath.h"
 #include "common/tostring.h"
 #include "engine/ooferror.h"
 

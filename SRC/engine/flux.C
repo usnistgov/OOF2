@@ -19,7 +19,6 @@
 #include "common/pythonlock.h"
 #include "common/smallmatrix.h"
 #include "common/trace.h"
-#include "common/vectormath.h"
 #include "engine/csubproblem.h"
 #include "engine/edge.h"
 #include "engine/element.h"

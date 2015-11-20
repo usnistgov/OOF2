@@ -15,7 +15,6 @@
 
 #include <oofconfig.h>
 
-#include "common/vectormath.h"
 #include "common/tostring.h"
 #include "engine/femesh.h"
 #include "engine/meshdatacache.h"
