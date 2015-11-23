@@ -13,6 +13,11 @@
 #include <fstream>
 #include "sparsemat.h"
 
+SparseMat::SparseMat(const SparseMat&, const DoFMap&, const DoFMap&) {
+  //TODO(lizhong)
+  // Construct by extraction from an existing matrix.
+}
+
 bool SparseMat::is_nonempty_row(unsigned int i) const {
     // If an index is out of range we just assume that it's
     // an empty row.
@@ -308,7 +313,8 @@ bool load_mat(SparseMat& mat, const std::string& filename) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-SparseMatIterator::SparseMatIterator(SparseMat& spmat)
+template<typename MT, typename VT>
+SparseMatIterator<MT, VT>::SparseMatIterator(SparseMat& spmat)
   : mat(spmat), in_idx(0), out_idx(0) {
      
   if (!mat.data.isCompressed()) {
@@ -326,29 +332,34 @@ SparseMatIterator::SparseMatIterator(SparseMat& spmat)
   }
 }
 
-int SparseMatIterator::row() const {
+template<typename MT, typename VT>
+int SparseMatIterator<MT, VT>::row() const {
   assert(!done());
   return SparseMat::ESMat::IsRowMajor ? out_idx : in_ptr[in_idx];  
 }
 
-int SparseMatIterator::col() const {
+template<typename MT, typename VT>
+int SparseMatIterator<MT, VT>::col() const {
   assert(!done());
   return SparseMat::ESMat::IsRowMajor ? in_ptr[in_idx] : out_idx;  
 }
 
-double& SparseMatIterator::value() const {
+template<typename MT, typename VT>
+VT& SparseMatIterator<MT, VT>::value() const {
   assert(!done());
   return val_ptr[in_idx];
 }
 
-bool SparseMatIterator::done() const {
+template<typename MT, typename VT>
+bool SparseMatIterator<MT, VT>::done() const {
   if (in_idx < mat.data.nonZeros()) {
     return false;   
   }
   return true;
 }
 
-SparseMatIterator& SparseMatIterator::operator++() {
+template<typename MT, typename VT>
+SparseMatIterator<MT, VT>& SparseMatIterator<MT, VT>::operator++() {
   int last = mat.data.nonZeros()-1;
   if (in_idx <= last) {
     in_idx += 1;
@@ -363,33 +374,49 @@ SparseMatIterator& SparseMatIterator::operator++() {
   return *this;
 }
 
-double& SparseMatIterator::operator*() const {
+template<typename MT, typename VT>
+VT& SparseMatIterator<MT, VT>::operator*() const {
   return value();
 }
 
-bool SparseMatIterator::operator==(const SparseMatIterator& other) const {
+template<typename MT, typename VT>
+bool SparseMatIterator<MT, VT>::operator==(const SparseMatIterator& other) const {
   return (&mat==&other.mat && in_idx==other.in_idx) ? true : false;
 }
 
-bool SparseMatIterator::operator!=(const SparseMatIterator& other) const {
-  return (&mat!=&other.mat || in_idx!=other.in_idx) ? true : false;
+template<typename MT, typename VT> 
+bool SparseMatIterator<MT, VT>::operator!=(const SparseMatIterator& other) const {
+  return (&mat==&other.mat && in_idx!=other.in_idx) ? true : false;
 }
 
-void SparseMatIterator::to_end() {
+template<typename MT, typename VT> 
+bool SparseMatIterator<MT, VT>::operator<(const SparseMatIterator& other) const {
+  return (&mat==&other.mat && in_idx<other.in_idx) ? true : false;
+}
+
+template<typename MT, typename VT>
+void SparseMatIterator<MT, VT>::to_end() {
+  // move this iterator to the end.
   in_idx = mat.data.nonZeros();
 }
 
-/*
-bool SparseMatIterator::operator<(const SparseMatIterator&) const;
-bool SparseMatIterator::operator>=(const SparseMatIterator&) const;
-bool SparseMatIterator::operator==(const SparseMatConstIterator&) const;
-bool SparseMatIterator::operator!=(const SparseMatConstIterator&) const;
-bool SparseMatIterator::operator<(const SparseMatConstIterator&) const;
-bool SparseMatIterator::operator>=(const SparseMatConstIterator&) const;
-*/
-
-std::ostream& operator<<(std::ostream& os, const SparseMatIterator& it) {
-  os << it.row() << " " << it.col() << " " << it.value();
-  return os;
+template<typename MT, typename VT>
+void SparseMatIterator<MT, VT>::print_indices() {
+  // print compressed matrix' internal arrays for debug purpose
+  for (int i = 0; i <= mat.data.nonZeros(); i++) {
+      std::cout << val_ptr[i] << ", ";
+  }
+  std::cout << std::endl;
+  for (int i = 0; i <= mat.data.nonZeros(); i++) {
+      std::cout << in_ptr[i] << ", ";
+  }
+  std::cout << std::endl;
+  for (int i = 0; i <= mat.data.outerSize(); i++) {
+      std::cout << out_ptr[i] << ", ";
+  }
+  std::cout << std::endl;
 }
 
+// Instantiate the SparseMatIterator template
+template class SparseMatIterator<SparseMat, double>;
+template class SparseMatIterator<SparseMat, const double>;

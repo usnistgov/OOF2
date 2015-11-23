@@ -16,7 +16,8 @@
 
 /* SparseMat class wraps Eigen's SparseMatrix */
 
-class SparseMatIterator;
+template<typename MT, typename VT> class SparseMatIterator;
+class DoFMap;
 
 class SparseMat {
 public:
@@ -25,7 +26,7 @@ public:
 
   SparseMat() = default;
   SparseMat(unsigned int nr, unsigned int nc) : data(nr, nc) {}
-  //SparseMat(const SparseMat&, const DoFMap&, const DoFMap&);
+  SparseMat(const SparseMat&, const DoFMap&, const DoFMap&);
   SparseMat(const SparseMat&) = default;
   SparseMat(SparseMat&&) = default; // move constructor
   SparseMat& operator=(const SparseMat&) = default;
@@ -86,20 +87,14 @@ public:
 
   /* Iterators */
 
-  friend class SparseMatIterator;
-  typedef SparseMatIterator iterator;
+  friend class SparseMatIterator<SparseMat, double>;
+  friend class SparseMatIterator<SparseMat, const double>;
+  typedef SparseMatIterator<SparseMat, double> iterator;
+  typedef SparseMatIterator<SparseMat, const double> const_iterator;
   iterator begin();
   iterator end();
-
-  /*
-  typedef SparseMatConstIterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
-
-  typedef SparseMatIterator iterator;
-  iterator begin();
-  iterator end();
-  */
 
   /* Debugging routines. */
 
@@ -117,7 +112,8 @@ public:
   const std::string str() const;
 
   friend std::ostream& operator<<(std::ostream&, const SparseMat&);
-  friend bool save_market_mat(const SparseMat& mat, const std::string& filename, int sym = 0);
+  friend bool save_market_mat(const SparseMat& mat,
+                              const std::string& filename, int sym = 0);
   friend bool load_market_mat(SparseMat& mat, const std::string& filename);
 
 private:
@@ -128,11 +124,10 @@ private:
 bool save_mat(const SparseMat& mat, const std::string& filename, int precision=13, int sym = 0);
 bool load_mat(SparseMat& mat, const std::string& filename);
 
-//TODO(lizhong): implement const iterator
-
+template<typename MT, typename VT>
 class SparseMatIterator {
 private:
-  SparseMat& mat;
+  MT& mat;
 
   // This iterator is implemented based on the storage scheme of compressed
   // sparse matricis (row or column major) in Eigen.
@@ -142,56 +137,38 @@ private:
   // - OuterStarts: stores for each column (resp. row) the index of the
   //                first non-zero in the previous two arrays.
 
-  double* val_ptr;    // pointer of the Values array
-  int* in_ptr;        // pointer of the InnerIndices array 
-  int* out_ptr;       // pointer of the OuterStarts array
-  int  in_idx;        // current index in the InnerIndices
-  int  out_idx;       // current index in the OuterIndeces
+  VT* val_ptr;     // pointer of the Values array
+  int* in_ptr;     // pointer of the InnerIndices array 
+  int* out_ptr;    // pointer of the OuterStarts array
+  int  in_idx;     // current index in the InnerIndices
+  int  out_idx;    // current index in the OuterIndeces
 
 public:
   SparseMatIterator(SparseMat&);
 
   int row() const;
   int col() const;
-  double& value() const;
+  VT& value() const;
   bool done() const;
 
   SparseMatIterator& operator++();
-  double& operator*() const;
+  VT& operator*() const;
 
   bool operator==(const SparseMatIterator&) const;
   bool operator!=(const SparseMatIterator&) const;
-
-  /*
   bool operator<(const SparseMatIterator&) const;
-  bool operator>=(const SparseMatIterator&) const;
-  bool operator==(const SparseMatConstIterator&) const;
-  bool operator!=(const SparseMatConstIterator&) const;
-  bool operator<(const SparseMatConstIterator&) const;
-  bool operator>=(const SparseMatConstIterator&) const;
-  */
+  //bool operator>=(const SparseMatIterator&) const;
 
   /* Debug */
 
-  // print the three compact arrays.
-  void print_indices() {
-    for (int i = 0; i <= mat.data.nonZeros(); i++) {
-        std::cout << val_ptr[i] << ", ";
-    }
-    std::cout << std::endl;
-    for (int i = 0; i <= mat.data.nonZeros(); i++) {
-        std::cout << in_ptr[i] << ", ";
-    }
-    std::cout << std::endl;
-    for (int i = 0; i <= mat.data.outerSize(); i++) {
-        std::cout << out_ptr[i] << ", ";
-    }
-    std::cout << std::endl;
-  }
+  void print_indices(); // print the three compact array.
 
   friend class SparseMat;
-  //friend class SparseMatConstIterator;
-  friend std::ostream& operator<<(std::ostream&, const SparseMatIterator&);
+  friend std::ostream& operator<<(std::ostream& os,
+    const SparseMatIterator<MT, VT>& it) {
+    os << it.row() << " " << it.col() << " " << it.value();
+    return os;
+  }
 
 private:
   void to_end();

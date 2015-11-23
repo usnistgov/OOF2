@@ -13,11 +13,12 @@
 %module sparsemat
 
 %include "std_string.i"
-%include "doublevec.i"
+%extern "doublevec.i"
 
 %{
 #define SWIG_FILE_WITH_INIT
-#include "sparsemat.h"
+#include "engine/sparsemat.h"
+#include "engine/dofmap.h"
 #include <string>
 #include <cstring>
 %} 
@@ -189,3 +190,4 @@ bool load_market_mat(SparseMat&, const std::string&);
 bool save_mat(const SparseMat&, const std::string&, int=13, int=0);
 bool load_mat(SparseMat&, const std::string&);
 
+#endif // SPARSEMAT_SWG
