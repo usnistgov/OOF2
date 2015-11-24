@@ -1,0 +1,85 @@
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+from ooflib.SWIG.common import doublevec
+import types
+
+def _sparsemat___size__(self):
+    return (self.nrows(), self.ncols())
+SparseMatPtr.size = _sparsemat___size__
+
+def _sparsemat___iadd__(self, other):
+    if isinstance(other, SparseMatPtr):
+        self.add(1.0, other)
+        return self
+    return NotImplemented
+SparseMatPtr.__iadd__ = _sparsemat___iadd__
+
+def _sparsemat___add__(self, other):
+    result = self.clone()
+    result += other
+    return result
+SparseMatPtr.__add__ = _sparsemat___add__
+
+def _sparsemat___isub__(self, other):
+    if isinstance(other, SparseMatPtr):
+        self.add(-1.0, other)
+        return self
+    return NotImplemented
+SparseMatPtr.__isub__ = _sparsemat___isub__
+
+def _sparsemat___sub__(self, other):
+    result = self.clone()
+    result -= other
+    return result
+SparseMatPtr.__sub__ = _sparsemat___sub__
+
+def _sparsemat___mul__(self, x):
+    if isinstance(x, SparseMatPtr):
+        return self.matrixmultiply(x)
+    if isinstance(x, doublevec.DoubleVecPtr):
+        result = doublevec.DoubleVec(self.nrows())
+        self.axpy(1.0, x, result)
+        return result
+    result = self.clone()
+    result *= x
+    return result
+SparseMatPtr.__mul__ = _sparsemat___mul__
+
+def _sparsemat___rmul__(self, x):
+    if isinstance(x, doublevec.DoubleVecPtr):
+        result = doublevec.DoubleVec(self.nrows())
+        self.axpy_trans(1.0, x, result)
+        return result
+    result = self.clone()
+    result *= x
+    return result
+SparseMatPtr.__rmul__ = _sparsemat___rmul__
+
+def _sparsemat___imul__(self, x):
+    import types
+    if type(x) is types.FloatType or type(x) is types.IntType:
+        self.scale(x)
+        return self
+    return NotImplemented
+SparseMatPtr.__imul__ = _sparsemat___imul__
+
+def _sparsemat___idiv__(self, x):
+    import types
+    if type(x) is types.FloatType or type(x) is types.IntType:
+        self.scale(1./x)
+        return self
+    return NotImplemented
+SparseMatPtr.__idiv__ = _sparsemat___idiv__
+
+def _sparsemat___div__(self, x):
+        result = self.clone()
+        result /= x
+        return result
+SparseMatPtr.__div__ = _sparsemat___div__
+

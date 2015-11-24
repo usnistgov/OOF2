@@ -11,6 +11,7 @@
 #define SPARSEMAT_H
 
 #include <oofconfig.h>
+#include "common/doublevec.h"
 #include <Eigen/SparseCore>
 #include <sstream>
 
@@ -67,6 +68,7 @@ public:
 
   SparseMat& operator+=(const SparseMat&);
   SparseMat& operator-=(const SparseMat&);
+  SparseMat operator*(double scalar) const;
   SparseMat operator*(const SparseMat&) const;
   DoubleVec operator*(const DoubleVec&) const;
 
@@ -85,12 +87,15 @@ public:
   void solve_upper_triangle(const DoubleVec&, DoubleVec&) const;
   void solve_upper_triangle_trans(const DoubleVec&, DoubleVec&) const;
 
+  void tile(int, int, const SparseMat&);
+
   /* Iterators */
 
+  // TODO(lizhong): Interator only works with compressed matrix?
   friend class SparseMatIterator<SparseMat, double>;
-  friend class SparseMatIterator<SparseMat, const double>;
+  friend class SparseMatIterator<const SparseMat, const double>;
   typedef SparseMatIterator<SparseMat, double> iterator;
-  typedef SparseMatIterator<SparseMat, const double> const_iterator;
+  typedef SparseMatIterator<const SparseMat, const double> const_iterator;
   iterator begin();
   iterator end();
   const_iterator begin() const;
@@ -121,7 +126,9 @@ private:
   ESMat data;
 };
 
-bool save_mat(const SparseMat& mat, const std::string& filename, int precision=13, int sym = 0);
+SparseMat identityMatrix(int);
+bool save_mat(const SparseMat& mat, const std::string& filename,
+              int precision=13, int sym = 0);
 bool load_mat(SparseMat& mat, const std::string& filename);
 
 template<typename MT, typename VT>
@@ -137,6 +144,10 @@ private:
   // - OuterStarts: stores for each column (resp. row) the index of the
   //                first non-zero in the previous two arrays.
 
+  // Note: Currently, in order to use this iterator, the reference sparese
+  // has to be compressed first.
+  // TODO(lizhong): make it work with uncompressed sparse matrix.
+
   VT* val_ptr;     // pointer of the Values array
   int* in_ptr;     // pointer of the InnerIndices array 
   int* out_ptr;    // pointer of the OuterStarts array
@@ -144,7 +155,7 @@ private:
   int  out_idx;    // current index in the OuterIndeces
 
 public:
-  SparseMatIterator(SparseMat&);
+  SparseMatIterator(MT&);
 
   int row() const;
   int col() const;

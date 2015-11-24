@@ -12,8 +12,7 @@
 
 %module sparsemat
 
-%include "std_string.i"
-%extern "doublevec.i"
+%include "engine/typemaps.swg"
 
 %{
 #define SWIG_FILE_WITH_INIT
@@ -23,17 +22,12 @@
 #include <cstring>
 %} 
 
-%pythoncode %{
-import types
-%}
+%pragma(python) include="engine/sparsemat.spy"
 
 class SparseMat {
 public:
-  SparseMat() = default;
-  SparseMat(unsigned int nr, unsigned int nc);
-  //SparseMat(const SparseMat&, const DoFMap&, const DoFMap&);
-  SparseMat(const SparseMat&) = default;
-  ~SparseMat() = default;
+  SparseMat(int nr, int nc);
+  ~SparseMat();
   SparseMat clone() const;
 
   // TODO(lizhong): inline possible methods
@@ -59,14 +53,6 @@ public:
   double norm() const;
   SparseMat transpose() const;
 
-  SparseMat& operator*=(double);
-  SparseMat& operator/=(double);
-
-  SparseMat& operator+=(const SparseMat&);
-  SparseMat& operator-=(const SparseMat&);
-  SparseMat operator*(const SparseMat&) const;
-  DoubleVec operator*(const DoubleVec&) const;
-
   SparseMat &add(double, const SparseMat&); // scale and add
   DoubleVec trans_mult(const DoubleVec&) const;
 
@@ -82,112 +68,30 @@ public:
   void solve_upper_triangle(const DoubleVec&, DoubleVec&) const;
   void solve_upper_triangle_trans(const DoubleVec&, DoubleVec&) const;
 
-  /* Iterators */
-
-  /*
-  typedef SparseMatConstIterator const_iterator;
-  const_iterator begin() const;
-  const_iterator end() const;
-
-  typedef SparseMatIterator iterator;
-  iterator begin();
-  iterator end();
-  */
-
   /* Debugging routines. */
 
   bool is_lower_triangular(bool diag) const;
   bool is_upper_triangular(bool diag) const;
   bool is_symmetric(double tolerance) const;
-  /*
-  bool unique_indices() const;
-  DoubleVec inefficient_get_column(unsigned int) const;
-  //void merge(const std::vector<SparseMat>& ms);
-  //void tile(unsigned int i, unsigned int j, const SparseMat &other);
-  */
 
   const std::string str() const;
 
-  %extend {
+  %addmethods {
     void scale(double a) { *self *= a; }
     SparseMat matrixmultiply(SparseMat &m) { return (*self)*m; }
 
-    %new const char* __repr__() {
-      std::string s = $self->str();
-      char* cs = new char[s.size()+1];
-      strcpy(cs, s.c_str());
-      return cs;
+    %new const std::string *__repr__() {
+      return new std::string((*self).str());
+    }
+
+    bool save(const char *filename) {
+      return save_mat(*self, std::string(filename));
+    }
+ 
+    bool load(const char *filename) {
+      return load_mat(*self, std::string(filename));
     }
   }
-
-  %pythoncode %{
-    def size(self):
-        return (self.nrows(), self.ncols())
-
-    def __iadd__(self, other):
-        if isinstance(other, SparseMat):
-            self.add(1.0, other)
-            return self
-        return NotImplemented
-    
-    def __add__(self, other):
-        result = self.clone()
-        result += other
-        return result
-    
-    def __isub__(self, other):
-        if isinstance(other, SparseMat):
-            self.add(-1.0, other)
-            return self
-        return NotImplemented
-    
-    def __sub__(self, other):
-        result = self.clone()
-        result -= other
-        return result
-    
-    def __mul__(self, x):
-        if isinstance(x, SparseMat):
-            return self.matrixmultiply(x)
-        if isinstance(x, DoubleVec):
-            result = DoubleVec(self.nrows())
-            self.axpy(1.0, x, result)
-            return result
-        result = self.clone()
-        result *= x
-        return result
-    
-    def __rmul__(self, x):
-        if isinstance(x, DoubleVec):
-            result = DoubleVec(self.nrows())
-            self.axpy_trans(1.0, x, result)
-            return result
-        result = self.clone()
-        result *= x
-        return result
-    
-    def __imul__(self, x):
-        if type(x) is types.FloatType or type(x) is types.IntType:
-            self.scale(x)
-            return self
-        return NotImplemented
-
-    def __idiv__(self, x):
-        if type(x) is types.FloatType or type(x) is types.IntType:
-            self.scale(1./x)
-            return self
-        return NotImplemented
-    
-    def __div__(self, x):
-        result = self.clone()
-        result /= x
-        return result
-  %}
 };
-
-bool save_market_mat(const SparseMat&, const std::string&, int=0);
-bool load_market_mat(SparseMat&, const std::string&);
-bool save_mat(const SparseMat&, const std::string&, int=13, int=0);
-bool load_mat(SparseMat&, const std::string&);
 
 #endif // SPARSEMAT_SWG

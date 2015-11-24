@@ -19,17 +19,17 @@ SparseMat::SparseMat(const SparseMat&, const DoFMap&, const DoFMap&) {
 }
 
 bool SparseMat::is_nonempty_row(unsigned int i) const {
-    // If an index is out of range we just assume that it's
-    // an empty row.
-    // TODO(lizhong)
-    return true;
+  // If an index is out of range we just assume that it's
+  // an empty row.
+  // TODO(lizhong)
+  return true;
 }
 
 bool SparseMat::is_nonempty_col(unsigned int i) const {
-    // If an index is out of range we just assume that it's
-    // an empty column.
-    // TODO(lizhong)
-    return true;
+  // If an index is out of range we just assume that it's
+  // an empty column.
+  // TODO(lizhong)
+  return true;
 }
 
 SparseMat SparseMat::lower() const {
@@ -63,7 +63,6 @@ SparseMat SparseMat::transpose() const {
 }
 
 SparseMat& SparseMat::operator*=(double scalar) {
-  // TODO(lizhong): investigate if it is inplace operation in Eigen
   data *= scalar;
   return *this;
 }
@@ -81,6 +80,12 @@ SparseMat& SparseMat::operator+=(const SparseMat& other) {
 SparseMat& SparseMat::operator-=(const SparseMat& other) {
   data -= other.data;
   return *this;
+}
+
+SparseMat SparseMat::operator*(double scalar) const {
+  SparseMat tmp;
+  tmp.data = data * scalar;
+  return tmp;
 }
 
 SparseMat SparseMat::operator*(const SparseMat& other) const {
@@ -161,12 +166,34 @@ void SparseMat::solve_upper_triangle_trans(const DoubleVec& rhs, DoubleVec& x) c
   x.data = data.triangularView<Eigen::Upper>().transpose().solve(rhs.data);
 }
 
+void SparseMat::tile(int i, int j, const SparseMat &other) {
+  // TODO(lizhong): improve the performance
+  // Add other to this, offset by i rows and j columns.
+  assert(i + other.nrows() <= nrows());
+  assert(j + other.ncols() <= ncols());
+  for(SparseMat::const_iterator kl = other.begin(); kl<other.end(); ++kl) {
+    int ii = kl.row() + i;
+    int jj = kl.col() + j;
+    insert(ii, jj, *kl);
+  }
+}
+
 SparseMat::iterator SparseMat::begin() {
   return iterator(*this);
 }
 
 SparseMat::iterator SparseMat::end() {
   iterator it(*this);
+  it.to_end();
+  return it;
+}
+
+SparseMat::const_iterator SparseMat::begin() const {
+  return const_iterator(*this);
+}
+
+SparseMat::const_iterator SparseMat::end() const {
+  const_iterator it(*this);
   it.to_end();
   return it;
 }
@@ -234,6 +261,15 @@ const std::string SparseMat::str() const {
   std::ostringstream os;
   os << *this;
   return os.str();
+}
+
+SparseMat identityMatrix(int size) {
+  // make an identity matrix
+  SparseMat mat(size, size);
+  mat.reserve(size);
+  for (int i = 0; i < size; ++i)
+    mat.insert(i, i, 1);
+  return mat;
 }
 
 std::ostream& operator<<(std::ostream& os, const SparseMat& smat) {
@@ -308,22 +344,19 @@ bool load_mat(SparseMat& mat, const std::string& filename) {
     mat.insert(r, c, val);
   }
 
+  // TODO(lizhong): is it necessary?
+  mat.make_compressed();
   return true;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 template<typename MT, typename VT>
-SparseMatIterator<MT, VT>::SparseMatIterator(SparseMat& spmat)
+SparseMatIterator<MT, VT>::SparseMatIterator(MT& spmat)
   : mat(spmat), in_idx(0), out_idx(0) {
-     
-  if (!mat.data.isCompressed()) {
-    mat.data.makeCompressed();
-  }
-
   val_ptr = mat.data.valuePtr();
-  in_ptr  = mat.data.innerIndexPtr();
-  out_ptr = mat.data.outerIndexPtr();
+  in_ptr  = (int*)mat.data.innerIndexPtr();
+  out_ptr = (int*)mat.data.outerIndexPtr();
 
   if (mat.data.nonZeros() > 0) {
     // move oud_idx to the first non-epmty row/column
@@ -419,4 +452,4 @@ void SparseMatIterator<MT, VT>::print_indices() {
 
 // Instantiate the SparseMatIterator template
 template class SparseMatIterator<SparseMat, double>;
-template class SparseMatIterator<SparseMat, const double>;
+template class SparseMatIterator<const SparseMat, const double>;
