@@ -15,8 +15,13 @@
 #include <string>
 
 class SparseMat;
+class SmallMatrix;
+template<typename VT, typename ET> class DoubleVecIterator;
 
 class DoubleVec {
+private:
+  Eigen::VectorXd data; // N x 1 matrix
+
 public:
   DoubleVec() = default;
   DoubleVec(int size, double val=0) { data.setConstant(size, val); }
@@ -26,14 +31,18 @@ public:
   
   //TODO(lizhong): inline possible methods
   
-  //TODO(lizhong): implement subscript operator
-
   /* Vector property methods */
-
+  
   int size() const { return data.size(); }
   void resize(int size, double val=0) { data.setConstant(size, val); }
   void zero() { data.setZero(); }
   void unit() { data.setOnes(); }
+  double& operator[](int index) { return data[index]; }
+  const double& operator[](int index) const { return data[index]; }
+  DoubleVec segment(int pos, int n) const;
+  DoubleVec subvec(int start, int end) const;
+
+  typedef int size_type;
 
   /* Arithmetic operations */
 
@@ -48,31 +57,70 @@ public:
   void scale(double alpha);
   
   // Non-in-place, which may return a temporary object.
-  DoubleVec operator+(const DoubleVec&);
-  DoubleVec operator-(const DoubleVec&);
-  DoubleVec operator*(double);
-  DoubleVec operator/(double);
+  DoubleVec operator+(const DoubleVec&) const;
+  DoubleVec operator-(const DoubleVec&) const;
+  DoubleVec operator*(double) const;
+  DoubleVec operator/(double) const;
   friend DoubleVec operator*(double, const DoubleVec&);
 
   // dot product
-  double dot(const DoubleVec&);
-  double operator*(const DoubleVec&);
+  double dot(const DoubleVec&) const;
+  double operator*(const DoubleVec&) const;
+
+  // TODO(lizhong): remove this in the future, currently, it is 
+  // only for compatibility with cg, bicg and etc. solvers.
+  friend double dot(const DoubleVec&, const DoubleVec&);
+
+  /* Iterators */
+
+  friend class DoubleVecIterator<DoubleVec, double>;
+  friend class DoubleVecIterator<const DoubleVec, const double>;
+  typedef DoubleVecIterator<DoubleVec, double> iterator;
+  typedef DoubleVecIterator<const DoubleVec, const double> const_iterator;
+  iterator begin();
+  iterator end();
+  const_iterator begin() const;
+  const_iterator end() const;
 
   /* Miscellaneous */
 
   const std::string str() const;
 
   friend SparseMat;
+  friend SmallMatrix;
   friend std::ostream& operator<<(std::ostream&, const DoubleVec&);
   friend bool save_market_vec(const DoubleVec&, const std::string&);
   friend bool load_market_vec(DoubleVec&, const std::string&);
   friend bool save_vec(const DoubleVec&, const std::string&, int precision=13);
   friend bool load_vec(DoubleVec&, const std::string&);
-
-private:
-  Eigen::VectorXd data; // N x 1 matrix
 };
 
-// TODO(lizhong): interators for doubelvec
+template<typename VT, typename ET>
+class DoubleVecIterator {
+private:
+  VT& vec;
+  int index;
+
+public:
+  DoubleVecIterator(VT& vec) : vec(vec), index(0) {}
+  
+  DoubleVecIterator& operator++();
+  ET& operator*();
+
+  bool operator==(const DoubleVecIterator&) const;
+  bool operator!=(const DoubleVecIterator&) const;
+  bool operator<(const DoubleVecIterator&) const;
+
+  bool done() const;
+
+  friend DoubleVec;
+  friend std::ostream& operator<<(std::ostream& os,
+    const DoubleVecIterator<VT, ET>& it) {
+    return os << *it;
+  }
+
+private:
+  void to_end() { index = vec.size(); }
+};
 
 #endif // DOUBLEVEC_H

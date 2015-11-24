@@ -8,9 +8,25 @@
  */
 
 #include <unsupported/Eigen/SparseExtra>
-#include "doublevec.h"
+#include "common/doublevec.h"
 #include <sstream>
 #include <fstream>
+
+DoubleVec DoubleVec::segment(int pos, int n) const {
+  // Extract the n coeffs in the range [pos : pos+n-1]
+  assert((pos+n-1) < data.size()); 
+  DoubleVec part;
+  part.data = data.segment(pos, n);
+  return part;
+} 
+
+DoubleVec DoubleVec::subvec(int start, int end) const {
+  // Extract the n coeffs in the range [start : end-1]
+  assert(start<end && end<=data.size());
+  DoubleVec part;
+  part.data = data.segment(start, end-start);
+  return part;
+}
 
 DoubleVec& DoubleVec::operator+=(const DoubleVec& other) {
   data += other.data; 
@@ -40,25 +56,25 @@ void DoubleVec::axpy(double alpha, const DoubleVec& x) {
   data += alpha * x.data;
 }
 
-DoubleVec DoubleVec::operator+(const DoubleVec& other) {
+DoubleVec DoubleVec::operator+(const DoubleVec& other) const {
   DoubleVec rst;
   rst.data = data + other.data;
   return rst;
 }
 
-DoubleVec DoubleVec::operator-(const DoubleVec& other) {
+DoubleVec DoubleVec::operator-(const DoubleVec& other) const {
   DoubleVec rst;
   rst.data = data - other.data;
   return rst;
 }
 
-DoubleVec DoubleVec::operator*(double alpha) {
+DoubleVec DoubleVec::operator*(double alpha) const {
   DoubleVec rst;
   rst.data = data * alpha;
   return rst;
 }
 
-DoubleVec DoubleVec::operator/(double alpha) {
+DoubleVec DoubleVec::operator/(double alpha) const {
   DoubleVec rst;
   rst.data = data / alpha;
   return rst;
@@ -71,12 +87,36 @@ DoubleVec operator*(double alpha, const DoubleVec& mat) {
   return rst;
 }
 
-double DoubleVec::dot(const DoubleVec& other) {
+double DoubleVec::dot(const DoubleVec& other) const {
   return data.dot(other.data); 
 }
 
-double DoubleVec::operator*(const DoubleVec& other) {
+double dot(const DoubleVec& x, const DoubleVec& y) {
+  return x.dot(y);
+}
+
+double DoubleVec::operator*(const DoubleVec& other) const {
   return data.dot(other.data); 
+}
+
+DoubleVec::iterator DoubleVec::begin() {
+  return iterator(*this);
+}
+
+DoubleVec::iterator DoubleVec::end() {
+  iterator it(*this);
+  it.to_end();
+  return it;
+}
+
+DoubleVec::const_iterator DoubleVec::begin() const {
+  return const_iterator(*this);
+}
+
+DoubleVec::const_iterator DoubleVec::end() const {
+  const_iterator it(*this);
+  it.to_end();
+  return it;
 }
 
 const std::string DoubleVec::str() const {
@@ -142,4 +182,43 @@ bool load_vec(DoubleVec& vec, const std::string& filename) {
 
   return true;
 }
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+template<typename VT, typename ET>
+DoubleVecIterator<VT, ET>& DoubleVecIterator<VT, ET>::operator++() {
+  assert(index + 1 <= vec.data.size());
+  index += 1;
+  return *this;
+}
+
+template<typename VT, typename ET>
+ET& DoubleVecIterator<VT, ET>::operator*() {
+  assert(!done());
+  return vec.data[index];
+}
+
+template<typename VT, typename ET>
+bool DoubleVecIterator<VT, ET>::operator==(const DoubleVecIterator& other) const {
+  return (&vec==&other.vec && index==other.index) ? true : false;
+}
+
+template<typename VT, typename ET>
+bool DoubleVecIterator<VT, ET>::operator!=(const DoubleVecIterator& other) const {
+  return (&vec==&other.vec && index!=other.index) ? true : false;
+}
+
+template<typename VT, typename ET>
+bool DoubleVecIterator<VT, ET>::operator<(const DoubleVecIterator& other) const {
+  return (&vec==&other.vec && index<other.index) ? true : false;
+}
+
+template<typename VT, typename ET>
+bool DoubleVecIterator<VT, ET>::done() const {
+  return index < vec.data.size() ? false : true;
+}
+
+// Instantiate the DoubleVecIterator template.
+template class DoubleVecIterator<DoubleVec, double>;
+template class DoubleVecIterator<const DoubleVec, const double>;
 
