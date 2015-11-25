@@ -45,6 +45,8 @@ private:
   const std::string label;
 public:
   DonePairs(const std::string &label) : label(label) {}
+  // TODO(lizhong)
+  /*
   void computed(const SparseMat::row_iterator &ij) {
     done.insert(IntPair(ij.row(), ij.col()));
   }
@@ -64,12 +66,15 @@ public:
 				+ "computed too soon",
 				__FILE__, __LINE__);
   }
+  */
 };
 #endif // DEBUG
 
 ICPreconditionerCore::ICPreconditionerCore(const SparseMat &A)
   : L(A.nrows(), A.ncols())
 {
+  // TODO(lizhong)
+  /*
   // Copy just the lower triangular part (including the diagonal).
   for(SparseMat::const_iterator ij=A.begin(); ij<A.end(); ++ij)
     if(ij.col() <= ij.row())
@@ -146,6 +151,7 @@ ICPreconditionerCore::ICPreconditionerCore(const SparseMat &A)
     lprs.computed(lastj);
 #endif // DEBUG
   } // end loop over rows
+  */
 }
 
 

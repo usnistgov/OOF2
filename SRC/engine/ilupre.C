@@ -42,6 +42,8 @@ private:
   const std::string label;
 public:
   DonePairs(const std::string &label) : label(label) {}
+  //TODO(lizhong)
+  /*
   void computed(const SparseMat::row_iterator &ij) {
     done.insert(IntPair(ij.row(), ij.col()));
   }
@@ -52,6 +54,7 @@ public:
 				__FILE__, __LINE__);
     }
   }
+  */
 };
 #endif // DEBUG
 
@@ -59,6 +62,8 @@ ILUPreconditionerCore::ILUPreconditionerCore(const SparseMat &A)
   : UT(A.nrows(), A.ncols()),
     L(A.nrows(), A.ncols())
 {
+  //TODO(lizhong)
+  /*
   // Copy A into L and UT
   for(SparseMat::const_iterator ij=A.begin(); ij<A.end(); ++ij)
     if(ij.col() < ij.row())
@@ -156,6 +161,7 @@ ILUPreconditionerCore::ILUPreconditionerCore(const SparseMat &A)
   UT.consolidate();
   assert(L.is_lower_triangular(false));
   assert(UT.is_lower_triangular(true));
+  */
 }
 
 ILUPreconditionerCore::~ILUPreconditionerCore() {}
@@ -185,6 +191,8 @@ DoubleVec ILUPreconditionerCore::trans_solve(const DoubleVec &x) const {
 // Multiply the factors together, for debugging and testing.
 
 SparseMat ILUPreconditionerCore::unfactored() const {
+  //TODO(lizhong)
+  /*
   SparseMat L2 = L.clone();
   // Since L doesn't store its diagonal, its value of nrows might be
   // wrong.  Use UT.nrows() instead.
@@ -192,4 +200,5 @@ SparseMat ILUPreconditionerCore::unfactored() const {
     L2.insert(i, i, 1.0);
   L2.consolidate();
   return L2*UT.transpose();
+  */
 }

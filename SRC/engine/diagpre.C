@@ -28,14 +28,11 @@ const std::string DiagPreconditionerCore::modulename_(
 DiagPreconditionerCore::DiagPreconditionerCore(const SparseMat &C)
   : diag_(C.nrows())
 {
-  for(unsigned int i=0; i<C.nrows(); i++) {
-    for(SparseMat::const_row_iterator ij=C.begin(i); ij<C.end(i); ++ij) {
-      if(ij.col() == i) {
-	if(*ij == 0.0)
-	  throw ErrSetupError("Zero element in diagonal preconditioner!");
-	diag_[i] = 1./(*ij);
-	break;
-      }
+  for (SparseMat::const_iterator it = C.begin(); it != C.end(); ++it) {
+    if (it.col() == it.row()) {
+      if (*it == 0.0)
+	    throw ErrSetupError("Zero element in diagonal preconditioner!");
+	  diag_[it.row()] = 1./(*it);
     }
   }
 }
@@ -43,7 +40,7 @@ DiagPreconditionerCore::DiagPreconditionerCore(const SparseMat &C)
 DoubleVec DiagPreconditionerCore::solve(const DoubleVec &x) const {
   DoubleVec y(x.size());
 
-  for(unsigned int i = 0; i < x.size(); i++)
+  for(int i = 0; i < x.size(); i++)
     y[i] = x[i] * diag_[i];
   
   return y;
