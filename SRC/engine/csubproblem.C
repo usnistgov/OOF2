@@ -1683,7 +1683,7 @@ DoubleVec *CSubProblem::zz_L2_weights(const Flux *fluks,
 				      const double &top)
 {
   DoubleVec *weights = new DoubleVec;
-  DoubleVec values;
+  vector<double> values;
 
   int dim = fluks->ndof();
   bool first = true;
@@ -1746,8 +1746,9 @@ DoubleVec *CSubProblem::zz_L2_weights(const Flux *fluks,
   double lower = min + (max-min)*bottom;
   double diff = upper - lower;
   double sum = upper + lower;
-  for(DoubleVec::size_type i=0; i<values.size(); i++)
-    weights->push_back(0.5*erf(M_E*(2*values[i]-sum)/diff)+0.5);
+  weights->resize(values.size());
+  for(int i=0; i<values.size(); i++)
+    (*weights)[i] = (0.5*erf(M_E*(2*values[i]-sum)/diff)+0.5);
   return weights;
 }
 

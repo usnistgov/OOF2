@@ -507,7 +507,7 @@ OutputVal *VectorFlux::contract(const FEMesh *mesh,
   const VectorOutputVal &valueRef =
     dynamic_cast<const VectorOutputVal&>(value.valueRef());
   Coord normal = egpt.normal();
-  DoubleVec normalvec(3);
+  std::vector<double> normalvec(3);
   normalvec[0] = normal(0);
   normalvec[1] = normal(1);
   normalvec[2] = 0.0;

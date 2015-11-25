@@ -17,32 +17,34 @@
 #define MESHDATACACHE_H
 
 #include <oofconfig.h>
-#include "common/doublevec.h"
 #include <map>
 #include <set>
+#include <vector>
+
+typedef std::vector<double> DVec;
 
 class FEMesh;
 
 class MeshDataCache {
 private:
-  DoubleVec times_;
-  DoubleVec interpolant;
+  DVec times_;
+  DVec interpolant;
 protected:
   FEMesh *mesh;
   void clear_times();
   void add_time(double);
   // latest stores original mesh dofs when cached data is installed
-  DoubleVec *latest;
+  DVec *latest;
   double latesttime;
   void saveLatest();
-  virtual DoubleVec &fetchOne(double) = 0;
+  virtual DVec &fetchOne(double) = 0;
   virtual bool checkTime(double) const = 0;
-  virtual DoubleVec *allTimes() const = 0;
+  virtual DVec *allTimes() const = 0;
 public:
   MeshDataCache(FEMesh *mesh) : mesh(mesh), latest(0) {}
   virtual ~MeshDataCache();
   void setMesh(FEMesh *mesh);
-  virtual const DoubleVec *times() const { return &times_; }
+  virtual const DVec *times() const { return &times_; }
   void restore(double);		// restore data to mesh, if needed
   bool interpolate(double);
   virtual void restoreLatest();
@@ -60,12 +62,12 @@ public:
 
 class MemoryDataCache : public MeshDataCache {
 private:
-  typedef std::map<double, DoubleVec> DataCache;
+  typedef std::map<double, DVec> DataCache;
   DataCache cache;
-  void storedofs(DoubleVec&); // get data from mesh
-  virtual DoubleVec &fetchOne(double);
+  void storedofs(DVec&); // get data from mesh
+  virtual DVec &fetchOne(double);
   virtual bool checkTime(double) const;
-  virtual DoubleVec *allTimes() const;
+  virtual DVec *allTimes() const;
 public:
   MemoryDataCache(FEMesh *mesh) : MeshDataCache(mesh) {}
   virtual void restore_(double);
@@ -84,12 +86,12 @@ private:
   static bool initialized;
   int cacheID;
   typedef std::map<double, std::string> FileDict;
-  DoubleVec localdata;
+  DVec localdata;
   FileDict fileDict; // maps ints to file names
   void clear_(bool force);
-  virtual DoubleVec &fetchOne(double);
+  virtual DVec &fetchOne(double);
   virtual bool checkTime(double) const;
-  virtual DoubleVec *allTimes() const;
+  virtual DVec *allTimes() const;
 public:
   DiskDataCache(FEMesh *mesh);
   ~DiskDataCache();

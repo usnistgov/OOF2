@@ -118,15 +118,16 @@ EdgeSetIterator EdgeSet::edge_iterator() const {
 EdgeSetIterator::EdgeSetIterator(const EdgeSet *b):  
   bdy(b), length(0.0), index_(0) {
 
-  cumulength_.reserve(bdy->edgelist.size());
+  cumulength_.resize(bdy->edgelist.size());
 
   // Loop over all the edges in the EdgeSet, and total up their
   // lengths.  At the end, cumulength[i] is the length of all the
   // previous edges up to but not including the edge indexed by i.
-  for (std::vector<BoundaryEdge*>::const_iterator i=bdy->edgelist.begin();
-       i!=bdy->edgelist.end(); ++i) {
-    cumulength_.push_back(length);
-    length += (*i)->lab_length();
+  int i = 0;
+  for (std::vector<BoundaryEdge*>::const_iterator it=bdy->edgelist.begin();
+       it!=bdy->edgelist.end(); ++it, ++i) {
+    cumulength_[i] = length;
+    length += (*it)->lab_length();
   }
 }
 

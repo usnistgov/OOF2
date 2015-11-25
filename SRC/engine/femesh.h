@@ -110,7 +110,7 @@ private:
   CMicrostructure * microstructure;
   RWLock *rwlock;
   static long globalFEMeshCount;
-  DoubleVec *dofvalues;
+  std::vector<double> *dofvalues;
   double time;		       // max time attained by all subproblems
   CSubProblem *currentSubProblem_;
 public:
