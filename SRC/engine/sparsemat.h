@@ -21,8 +21,11 @@ template<typename MT, typename VT> class SparseMatIterator;
 class DoFMap;
 
 class SparseMat {
-public:
+private:
   typedef Eigen::SparseMatrix<double, Eigen::RowMajor> ESMat;
+  ESMat data;   // Eigen's sparse matrix 
+
+public:
   typedef ESMat::InnerIterator InnerIter;
 
   SparseMat() = default;
@@ -120,10 +123,6 @@ public:
   friend bool save_market_mat(const SparseMat& mat,
                               const std::string& filename, int sym = 0);
   friend bool load_market_mat(SparseMat& mat, const std::string& filename);
-
-private:
-  // Eigen's sparse matrix 
-  ESMat data;
 };
 
 SparseMat identityMatrix(int);

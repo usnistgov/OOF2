@@ -7,15 +7,36 @@
  * oof_manager@nist.gov. 
  */
 
+#include "sparsemat.h"
+#include "engine/dofmap.h"
 #include <unsupported/Eigen/SparseExtra>
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include "sparsemat.h"
 
-SparseMat::SparseMat(const SparseMat&, const DoFMap&, const DoFMap&) {
-  //TODO(lizhong)
-  // Construct by extraction from an existing matrix.
+// Construct by extraction from an existing matrix.
+SparseMat::SparseMat(const SparseMat& source,
+                     const DoFMap& rowmap,
+                     const DoFMap& colmap) 
+  : data(rowmap.range(), colmap.range()) {
+
+  // rowmap[i] is the row of the submatrix corresponding to row i of mat. If
+  // rowmap[i] == -1, then row i should not be included in the submatrix. If
+  // rowmap[i] == rowmap[j], then rows i and j of mat are added together in the
+  // submatrix. Likewise for columns.
+
+  auto from = source.data; 
+  for (int k = 0; k < from.outerSize(); ++k) {
+    for (InnerIter it(from, k); it; ++it) {
+      int i = rowmap[it.row()];
+      if (i >= 0) {
+        int j = colmap[it.col()];
+        if (j >= 0)
+          insert(i, j, it.value());
+      }
+    }
+  }
+  make_compressed();
 }
 
 bool SparseMat::is_nonempty_row(unsigned int i) const {
