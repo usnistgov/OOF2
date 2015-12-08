@@ -26,8 +26,8 @@ protected:
   Eigen::MatrixXd data;
 public:
   SmallMatrix() : data(0, 0) {}
-  SmallMatrix(int size) : data(size, size) {}
-  SmallMatrix(int rows, int cols) : data(rows, cols) {}
+  SmallMatrix(int size);
+  SmallMatrix(int rows, int cols); 
   SmallMatrix(const SmallMatrix& other) : data(other.data) {}
   virtual ~SmallMatrix() {}
 
@@ -36,7 +36,7 @@ public:
   
   /* Matrix property methods */
 
-  void resize(int rows, int cols) { data.resize(rows, cols); }
+  void resize(int rows, int cols);
   int rows() const { return data.rows(); }
   int cols() const { return data.cols(); }
   void clear() { data.setZero(data.rows(), data.cols()); }
@@ -54,8 +54,8 @@ public:
   SmallMatrix operator*(const SmallMatrix&) const;
   DoubleVec operator*(const DoubleVec&) const;
 
-  // Transpose in-place.
-  void transpose();
+  void transpose();  // Transpose in-place.
+  double norm() { return data.norm(); }
 
   // The solve routine is fast, but corrupts the contents
   // of both the matrix and the passed-in rhs.  Matrix on which

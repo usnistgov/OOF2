@@ -10,6 +10,19 @@
 #include "common/smallmatrix.h"
 #include <string.h>
 
+SmallMatrix::SmallMatrix(int size) : data(size, size) {
+  data.setZero(size, size);
+}
+
+SmallMatrix::SmallMatrix(int rows, int cols) : data(rows, cols) {
+  data.setZero(rows, cols);
+}
+
+void SmallMatrix::resize(int rows, int cols) {
+  data.resize(rows, cols);
+  data.setZero(rows, cols);
+}
+
 double& SmallMatrix::operator()(int row, int col) {
   assert(row >= 0 && col >= 0 && row < data.rows() && col < data.cols());
   return data.coeffRef(row, col);
@@ -77,7 +90,7 @@ void SmallMatrix::transpose() {
 int SmallMatrix::solve(SmallMatrix &rhs) const {
   // This routine modifies the contents both of the "host" matrix
   // and the passed-in rhs.  
-  rhs.data = data.lu().solve(rhs.data);
+  rhs.data = data.fullPivLu().solve(rhs.data);
 
   //TODO(lizhong): remove return value
   return 0;
