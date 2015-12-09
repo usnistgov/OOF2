@@ -22,10 +22,17 @@ DoubleVec DoubleVec::segment(int pos, int n) const {
 
 DoubleVec DoubleVec::subvec(int start, int end) const {
   // Extract the n coeffs in the range [start : end-1]
-  assert(start<end && end<=data.size());
+  assert(start<=end && end<=data.size());
   DoubleVec part;
   part.data = data.segment(start, end-start);
   return part;
+}
+
+void DoubleVec::segment_copy(int toPos, const DoubleVec& other, int pos, int size) {
+  // Copy other's [pos, pos+size) to this [toPos, toPos+size)
+  assert(pos >= 0 && pos + size <= other.data.size());
+  assert(toPos >= 0 && toPos + size <= data.size());
+  data.segment(toPos, size) = other.data.segment(pos, size);
 }
 
 DoubleVec& DoubleVec::operator+=(const DoubleVec& other) {
@@ -149,7 +156,6 @@ bool save_vec(const DoubleVec& vec, const std::string& filename, int precision) 
   for (int i = 0; i < size; i++) {
     fs << vec.data[i] << std::endl;
   }
-
   return true;
 }
 

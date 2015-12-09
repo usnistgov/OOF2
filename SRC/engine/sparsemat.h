@@ -20,6 +20,8 @@
 template<typename MT, typename VT> class SparseMatIterator;
 class DoFMap;
 
+typedef Eigen::Triplet<double> Triplet;
+
 class SparseMat {
 private:
   typedef Eigen::SparseMatrix<double, Eigen::RowMajor> ESMat;
@@ -37,6 +39,7 @@ public:
   SparseMat& operator=(SparseMat&&) = default; // move assignment
   ~SparseMat() = default;
   SparseMat clone() const { return *this; }
+  void set_from_triplets(std::vector<Triplet>);
 
   // TODO(lizhong): inline possible methods
 
@@ -47,14 +50,14 @@ public:
   int nnonzeros() const { return data.nonZeros(); }
   void resize(int nr, int nc) { data.resize(nr, nc); }
   void reserve(int size) { data.reserve(size); }
-  void insert(int ir, int ic, double val) { data.insert(ir, ic) = val; }
+  void insert(int ir, int ic, double val) { data.coeffRef(ir, ic) += val; }
   bool empty() const { return data.nonZeros() == 0; }
   double coeff(int ir, int ic) { return data.coeff(ir, ic); }
   double& coeff_ref(int ir, int ic) { return data.coeffRef(ir, ic); }
   void make_compressed() { data.makeCompressed(); }
   bool is_compressed() { return data.isCompressed(); }
-  bool is_nonempty_row(unsigned int) const;
-  bool is_nonempty_col(unsigned int) const;
+  bool is_nonempty_row(int) const;
+  bool is_nonempty_col(int) const;
 
   SparseMat lower() const;
   SparseMat unit_lower() const;
@@ -171,7 +174,7 @@ public:
 
   /* Debug */
 
-  void print_indices(); // print the three compact array.
+  void print_indices() const; // print the three compact array.
 
   friend class SparseMat;
   friend std::ostream& operator<<(std::ostream& os,

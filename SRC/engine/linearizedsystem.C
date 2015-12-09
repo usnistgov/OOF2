@@ -1,9 +1,3 @@
-// -*- C++ -*-
-// $RCSfile: linearizedsystem.C,v $
-// $Revision: 1.66 $
-// $Author: lnz5 $
-// $Date: 2015/08/19 19:48:33 $
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -16,7 +10,6 @@
 #include <oofconfig.h>
 #include <iostream>
 #include <fstream>
-#include <string.h>		// for memcpy, memset, and memmove
 #include <vector>
 
 #include "common/lock.h"
@@ -277,7 +270,7 @@ void LinearizedSystem::insertK(int row, int col, double x) {
   else
     K_.insert(i, j, x);
 #else
-  K_.insert(i, j, x);
+  KTri_.emplace_back(i, j, x); 
 #endif
 }
 
@@ -292,7 +285,7 @@ void LinearizedSystem::insertC(int row, int col, double x) {
   else
     C_.insert(i, j, x);
 #else
-  C_.insert(i, j, x);
+  CTri_.emplace_back(i, j, x); 
 #endif
 }
 
@@ -307,7 +300,7 @@ void LinearizedSystem::insertM(int row, int col, double x) {
   else
     M_.insert(i, j, x);
 #else
-  M_.insert(i, j, x);
+  MTri_.emplace_back(i, j, x);
 #endif
 }
 
@@ -321,20 +314,27 @@ void LinearizedSystem::insertJ(int row, int col, double x) {
   else
     J_.insert(i, j, x);
 #else
-  J_.insert(i, j, x);
+    JTri_.emplace_back(i, j, x);
 #endif
 }
 
 void LinearizedSystem::consolidate() {
   // Called by CSubproblem::make_linear_system after matrices are
   // built.
-  // TODO(lizhong): remove this func
-  /*
-  M_.consolidate();
-  C_.consolidate();
-  J_.consolidate();
-  K_.consolidate();
-  */
+  M_.set_from_triplets(MTri_);
+  C_.set_from_triplets(CTri_);
+  J_.set_from_triplets(JTri_);
+  K_.set_from_triplets(KTri_);
+
+  // Deallocate the memory
+  MTri_.clear();
+  MTri_.shrink_to_fit();
+  CTri_.clear();
+  CTri_.shrink_to_fit();
+  JTri_.clear();
+  JTri_.shrink_to_fit();
+  KTri_.clear();
+  KTri_.shrink_to_fit();
 }
 
 void LinearizedSystem::insert_force_bndy_rhs(int row, double val) {
@@ -754,8 +754,8 @@ DoubleVec *LinearizedSystem::error_estimation_dofs_MCKd(
   unsigned int n0 = nonEmptyKColMap.range();
   unsigned int n = n2+n1+n0;
   DoubleVec *dofs = new DoubleVec(2*n2 + n1 + n0);
-  (void) memcpy(&(*dofs)[0], &(*unknowns)[0], n*sizeof(double));
-  (void) memcpy(&(*dofs)[n], &(*unknowns)[n], n2*sizeof(double));
+  (*dofs).segment_copy(0, *unknowns, 0, n);
+  (*dofs).segment_copy(n, *unknowns, n, n2);
   return dofs;
 }
 
@@ -834,24 +834,18 @@ void LinearizedSystem::set_unknowns_part(
 {
   if(which == 'M') {
     unsigned int n2 = n_unknowns_part('M');
-    assert(vals->size() == n2);
-    assert(dest->size() >= n2);
-    memcpy(&(*dest)[0], &(*vals)[0], n2*sizeof(double));
+    (*dest).segment_copy(0, *vals, 0, n2);
   }
   else if(which == 'C') {
     unsigned int n2 = n_unknowns_part('M');
     unsigned int n1 = n_unknowns_part('C');
-    assert(vals->size() == n1);
-    assert(dest->size() >= n1+n2);
-    memcpy(&(*dest)[n2], &(*vals)[0], n1*sizeof(double));
+    (*dest).segment_copy(n2, *vals, 0, n1);
   }
   else if(which == 'K') {
     unsigned int n2 = n_unknowns_part('M');
     unsigned int n1 = n_unknowns_part('C');
     unsigned int n0 = n_unknowns_part('K');
-    assert(vals->size() == n0);
-    assert(dest->size() >= n2+n1+n0);
-    memcpy(&(*dest)[n2+n1], &(*vals)[0], n0*sizeof(double));
+    (*dest).segment_copy(n2+n1, *vals, 0, n0);
   }
   else
     throw ErrProgrammingError("Bad map requested in set_unknowns_part",
@@ -879,18 +873,14 @@ void LinearizedSystem::set_fields_MCKd(const DoubleVec *src, DoubleVec *dest)
   const
 {
   unsigned int n = subp2MCKFieldMap.range();
-  assert(dest->size() >= n);
-  assert(src->size() >= n);
-  (void) memcpy(&(*dest)[0], &(*src)[0], n*sizeof(double));
+  (*dest).segment_copy(0, *src, 0, n);
 }
 
 void LinearizedSystem::set_derivs_MCKd(const DoubleVec *src, DoubleVec *dest)
   const
 {
   unsigned int n = subp2MCKFieldMap.range();
-  assert(dest->size()>=2*n);
-  assert(src->size()>=n);
-  (void) memcpy(&(*dest)[n], &(*src)[0], n*sizeof(double));
+  (*dest).segment_copy(n, *src, 0, n);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -930,9 +920,7 @@ void LinearizedSystem::set_derivs_part_MCKa(char which, const DoubleVec *src,
   unsigned int n2 = n_unknowns_part('M');
   unsigned int n1 = n_unknowns_part('C');
   unsigned int n0 = n_unknowns_part('K');
-  assert(dest->size() >= 2*n2+n1+n0);
-  assert(src->size() >= n2);
-  (void) memcpy(&(*dest)[n2+n1+n0], &(*src)[0], n2*sizeof(double));
+  (*dest).segment_copy(n2+n1+n0, *src, 0, n2);
 }
 
 void LinearizedSystem::set_derivs_part_MCKd(char which, const DoubleVec *src,
@@ -943,19 +931,13 @@ void LinearizedSystem::set_derivs_part_MCKd(char which, const DoubleVec *src,
   unsigned int n1 = n_unknowns_part('C');
   unsigned int n0 = n_unknowns_part('K');
   if(which == 'M') {
-    assert(dest->size() >= 2*n2+n1+n0);
-    assert(src->size() >= n2);
-    (void) memcpy(&(*dest)[n2+n1+n0], &(*src)[0], n2*sizeof(double));
+    (*dest).segment_copy(n2+n1+n0, *src, 0, n2);
   }
   else if(which == 'C') {
-    assert(dest->size() >= 2*n2+2*n1+n0);
-    assert(src->size() >= n1);
-    (void) memcpy(&(*dest)[2*n2+n1+n0], &(*src)[0], n1*sizeof(double));
+    (*dest).segment_copy(2*n2+n1+n0, *src, 0, n1);
   }
   else if(which == 'K') {
-    assert(dest->size() >= 2*(n2+n1+n0));
-    assert(src->size() >= n0);
-    (void) memcpy(&(*dest)[2*n2+2*n1+n0], &(*src)[0], n0*sizeof(double));
+    (*dest).segment_copy(2*n2+2*n1+n0, *src, 0, n0);
   }
   else
     throw ErrProgrammingError("Bad map requested in set_derivs_part_MCKd",
@@ -994,15 +976,11 @@ DoubleVec *LinearizedSystem::extract_MCa_dofs(const DoubleVec *v) const {
   unsigned int n1 = nonEmptyCColMap.range();
   unsigned int n0 = nonEmptyKColMap.range();
   assert(v->size() == 2*n2+n1+n0);
+  // TODO(lizhong): long run fails. Possible memory leak here.
   DoubleVec *mca = new DoubleVec(2*n2 + n1);
 
-  assert(mca->size() >= n2+n1);
-  assert(v->size() >= n2+n1);
-  (void) memcpy(&(*mca)[0], &(*v)[0], (n2+n1)*sizeof(double)); // M and C parts
-
-  assert(mca->size() >= 2*n2+n1);
-  assert(v->size() >= 2*n2+n1+n0);
-  (void) memcpy(&(*mca)[n2+n1], &(*v)[n2+n1+n0], n2*sizeof(double)); // a part
+  (*mca).segment_copy(0, *v, 0, n2+n1);
+  (*mca).segment_copy(n2+n1, *v, n2+n1+n0, n2);
   return mca;
 }
 
@@ -1016,12 +994,8 @@ void LinearizedSystem::inject_MCa_dofs(const DoubleVec *src, DoubleVec *dest)
   unsigned int n2 = nonEmptyMColMap.range();
   unsigned int n1 = nonEmptyCColMap.range();
   unsigned int n0 = nonEmptyKColMap.range();
-  assert(src->size() == 2*n2+n1);
-  assert(dest->size() == 2*n2+n1+n0);
-  (void) memcpy(&(*dest)[0], &(*src)[0], (n2+n1)*sizeof(double)); // M & C parts
-  assert(dest->size() >= 2*n2+n1+n0);
-  assert(src->size() >= 2*n2+n1);
-  (void) memcpy(&(*dest)[n2+n1+n0], &(*src)[n2+n1], n2*sizeof(double));
+  (*dest).segment_copy(0, *src, 0, n2+n1);
+  (*dest).segment_copy(n2+n1+n0, *src, n2+n1, n2);
 }
 
 // Convert an MCa vector to an MCKa vector by inserting 0s for the K part.
@@ -1033,15 +1007,13 @@ void LinearizedSystem::expand_MCa_dofs(DoubleVec *dofs) const {
   unsigned int n1 = nonEmptyCColMap.range();
   unsigned int n0 = nonEmptyKColMap.range();
   assert(dofs->size() == 2*n2+n1);
-  if(n0 > 0) {
-    dofs->resize(2*n2 + n1 + n0, 0.0);
-    // Move the aux dof values to the end.
-    assert( dofs->size() >= 2*n2+n1+n0);  // Duh, we just resized it...
-    (void) memmove(&(*dofs)[n2+n1+n0], &(*dofs)[n2+n1], n2*sizeof(double));
 
-    // Insert zeros.
-    assert(dofs->size() >= n2+n1+n0);
-    (void) memset(&(*dofs)[n2+n1], 0, n0*sizeof(double));
+  if(n0 > 0) {
+    // Move the aux dof values to the end.
+    DoubleVec cp = *dofs;
+    dofs->resize(2*n2 + n1 + n0, 0.0);
+    (*dofs).segment_copy(0, cp, 0, n2+n1);
+    (*dofs).segment_copy(n2+n1+n0, cp, n2+n1, n2);
   }
 }
 

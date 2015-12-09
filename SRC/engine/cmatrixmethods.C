@@ -84,13 +84,16 @@ void solveDirect(const SparseMat &A, const DoubleVec &rhs, DoubleVec &x) {
 
   // Copy vector rhs into 'matrix' rhs
   SmallMatrix small_r(rhs.size(), 1);
-  (void) memcpy(&small_r(0, 0), &rhs[0], rhs.size()*sizeof(double));
+  for (int i = 0; i < rhs.size(); ++i) {
+    small_r(i, 0) = rhs[i];
+  }
 
   // Solve.  SmallMatrix::solve will raise an exception if A is not
   // square or rhs is the wrong size.
   int rcode = small_m.solve(small_r);
-
-  (void) memcpy(&x[0], &small_r(0, 0), rhs.size()*sizeof(double));
+  for (int i = 0; i < rhs.size(); ++i) {
+    x[i] = small_r(i, 0);
+  }
 
   double r = 0.0;
   if(rcode == 0) {		// success

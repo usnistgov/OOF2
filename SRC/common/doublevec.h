@@ -41,6 +41,7 @@ public:
   const double& operator[](int index) const { return data[index]; }
   DoubleVec segment(int pos, int n) const;
   DoubleVec subvec(int start, int end) const;
+  void segment_copy(int, const DoubleVec&, int, int);
 
   typedef int size_type;
 

@@ -80,8 +80,8 @@ public:
     void scale(double a) { *self *= a; }
     SparseMat matrixmultiply(SparseMat &m) { return (*self)*m; }
 
-    %new const std::string *__repr__() {
-      return new std::string((*self).str());
+    const char* __repr__() {
+      return (*self).str().c_str();
     }
 
     bool save(const char *filename) {

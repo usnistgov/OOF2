@@ -20,17 +20,21 @@ SparseMat::SparseMat(const SparseMat& source,
                      const DoFMap& colmap) 
   : data(rowmap.range(), colmap.range()) {
 
-  // rowmap[i] is the row of the submatrix corresponding to row i of mat. If
-  // rowmap[i] == -1, then row i should not be included in the submatrix. If
-  // rowmap[i] == rowmap[j], then rows i and j of mat are added together in the
-  // submatrix. Likewise for columns.
+  // rowmap[i] is the row of the submatrix corresponding to row i of
+  // mat. If rowmap[i] == -1, then row i should not be included in the
+  // submatrix. If rowmap[i] == rowmap[j], then rows i and j of mat are
+  // added together in the submatrix. Likewise for columns.
 
   auto from = source.data; 
   for (int k = 0; k < from.outerSize(); ++k) {
     for (InnerIter it(from, k); it; ++it) {
+      assert(it.row() < rowmap.domain());
+      assert(it.col() < colmap.domain());
       int i = rowmap[it.row()];
+      assert(i < (int) rowmap.range());
       if (i >= 0) {
         int j = colmap[it.col()];
+        assert(j < (int) colmap.range() && j >= -1);
         if (j >= 0)
           insert(i, j, it.value());
       }
@@ -39,18 +43,24 @@ SparseMat::SparseMat(const SparseMat& source,
   make_compressed();
 }
 
-bool SparseMat::is_nonempty_row(unsigned int i) const {
-  // If an index is out of range we just assume that it's
-  // an empty row.
-  // TODO(lizhong)
-  return true;
+void SparseMat::set_from_triplets(std::vector<Triplet> tris) {
+  // Initialize this sparse matrix from treiplets like (row, col,
+  // value). For triplets having tha same row# and col#, add them
+  // together.
+  data.setFromTriplets(tris.begin(), tris.end(),
+    [] (const double& a, const double& b) { return a+b; });
 }
 
-bool SparseMat::is_nonempty_col(unsigned int i) const {
-  // If an index is out of range we just assume that it's
-  // an empty column.
-  // TODO(lizhong)
-  return true;
+bool SparseMat::is_nonempty_row(int i) const {
+  assert(i >=0 && i <= nrows());
+  Eigen::SparseVector<double> row = data.row(i);
+  return row.nonZeros() != 0 ? true : false;
+}
+
+bool SparseMat::is_nonempty_col(int i) const {
+  assert(i >= 0 && i <= ncols());
+  Eigen::SparseVector<double> col = data.col(i);
+  return col.nonZeros() != 0 ? true : false;
 }
 
 SparseMat SparseMat::lower() const {
@@ -192,10 +202,14 @@ void SparseMat::tile(int i, int j, const SparseMat &other) {
   // Add other to this, offset by i rows and j columns.
   assert(i + other.nrows() <= nrows());
   assert(j + other.ncols() <= ncols());
-  for(SparseMat::const_iterator kl = other.begin(); kl<other.end(); ++kl) {
-    int ii = kl.row() + i;
-    int jj = kl.col() + j;
-    insert(ii, jj, *kl);
+  
+  auto from = other.data;
+  for (int k = 0; k < from.outerSize(); ++k) {
+    for (InnerIter it(from, k); it; ++it) {
+      int ii = it.row() + i;
+      int jj = it.col() + j;
+      data.coeffRef(ii, jj) +=  it.value();
+    }
   }
 }
 
@@ -455,7 +469,7 @@ void SparseMatIterator<MT, VT>::to_end() {
 }
 
 template<typename MT, typename VT>
-void SparseMatIterator<MT, VT>::print_indices() {
+void SparseMatIterator<MT, VT>::print_indices() const {
   // print compressed matrix' internal arrays for debug purpose
   for (int i = 0; i <= mat.data.nonZeros(); i++) {
       std::cout << val_ptr[i] << ", ";

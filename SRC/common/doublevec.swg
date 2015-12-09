@@ -39,25 +39,23 @@ public:
 };
 
 %addmethods DoubleVec {
-  %new const std::string* __repr__() {
-     return new std::string((*self).str());
+  const char* __repr__() {
+    return (*self).str().c_str();
   }
 
-  // TODO(lizhong): is this function necessary?
-  //void copy_inplace(DoubleVec *x) {
-  //  self->data = x->data;
-  //}
+  void copy_inplace(DoubleVec *x) {
+    *self = *x;
+  }
 
   %new DoubleVec *clone() {
     return new DoubleVec(*self);
   }
 
-  // TODO(lizhong): is this function necessary?
   // Increment the entry at index i by the amount v.
   // Do not use this too much.
-  //void increment(int i, double v) {
-  //  self->data[i] += v;
-  //}
+  void increment(int i, double v) {
+    (*self)[i] += v;
+  }
 
   void save(const char *filename) {
     save_vec(*self, std::string(filename));
