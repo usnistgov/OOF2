@@ -337,14 +337,41 @@ bool save_mat(const SparseMat& mat, const std::string& filename, int precision, 
   fs.setf(std::ios::scientific, std::ios::floatfield);
   fs.precision(precision);
 
+  // save matrix row by row 
+
   fs << mat.nrows() << " " << mat.ncols() << " "
      << mat.nnonzeros() << std::endl;
-  // TODO(lizhong): use a const iterator here
+     
   auto& m = const_cast<SparseMat&>(mat);
-  for (auto it = m.begin(); it != m.end(); ++it) {
-    fs << it.row() << " " << it.col() << " "
-       << it.value() << std::endl;
+  if (ESMat::IsRowMajor) {
+    // TODO(lizhong): use a const iterator here
+    for (auto it = m.begin(); it != m.end(); ++it) {
+      fs << it.row() << " " << it.col() << " "
+         << it.value() << std::endl;
+    }
+  } else {
+    typedef std::tuple<int, int, double> Tri;
+    std::vector<Tri> coeffs;
+    coeffs.reserve(m.nnonzeros());
+    for (auto it = m.begin(); it != m.end(); ++it)
+      coeffs.emplace_back(it.row(), it.col(), it.value());
+
+    std::sort(coeffs.begin(), coeffs.end(),
+      [](const Tri& a, const Tri& b) -> bool {
+        if (std::get<0>(a) < std::get<0>(b))
+          return true;
+        else if (std::get<0>(a) == std::get<0>(b) &&
+          std::get<1>(a) < std::get<1>(b))
+          return true;
+        return false;
+      });
+
+    for (auto& tri : coeffs) {
+      fs << std::get<0>(tri) << " " << std::get<1>(tri) << " "
+         << std::get<2>(tri) << std::endl;
+    }
   }
+
 
   return true;
 }
@@ -403,13 +430,13 @@ SparseMatIterator<MT, VT>::SparseMatIterator(MT& spmat)
 template<typename MT, typename VT>
 int SparseMatIterator<MT, VT>::row() const {
   assert(!done());
-  return SparseMat::ESMat::IsRowMajor ? out_idx : in_ptr[in_idx];  
+  return ESMat::IsRowMajor ? out_idx : in_ptr[in_idx];  
 }
 
 template<typename MT, typename VT>
 int SparseMatIterator<MT, VT>::col() const {
   assert(!done());
-  return SparseMat::ESMat::IsRowMajor ? in_ptr[in_idx] : out_idx;  
+  return ESMat::IsRowMajor ? in_ptr[in_idx] : out_idx;  
 }
 
 template<typename MT, typename VT>
