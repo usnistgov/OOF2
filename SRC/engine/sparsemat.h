@@ -11,20 +11,23 @@
 #define SPARSEMAT_H
 
 #include <oofconfig.h>
-#include "common/doublevec.h"
-#include <Eigen/SparseCore>
 #include <sstream>
+#include <Eigen/SparseCore>
+#include "common/doublevec.h"
+
+class DoFMap;
+template<typename MT, typename VT> class SparseMatIterator;
+enum class Precond;
+template<typename Derived> class IterativeSolver;
+template<typename Derived> class DirectSolver;
+
+typedef Eigen::Triplet<double> Triplet;
+typedef Eigen::SparseMatrix<double, Eigen::ColMajor> ESMat;
 
 /* SparseMat class wraps Eigen's SparseMatrix */
 
-template<typename MT, typename VT> class SparseMatIterator;
-class DoFMap;
-
-typedef Eigen::Triplet<double> Triplet;
-
 class SparseMat {
 private:
-  typedef Eigen::SparseMatrix<double, Eigen::RowMajor> ESMat;
   ESMat data;   // Eigen's sparse matrix 
 
 public:
@@ -122,6 +125,8 @@ public:
 
   const std::string str() const;
 
+  template<typename Derived> friend class IterativeSolver;
+  template<typename Derived> friend class DirectSolver;
   friend std::ostream& operator<<(std::ostream&, const SparseMat&);
   friend bool save_market_mat(const SparseMat& mat,
                               const std::string& filename, int sym = 0);

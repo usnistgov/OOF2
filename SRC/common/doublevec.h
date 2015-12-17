@@ -10,13 +10,17 @@
 #ifndef DOUBLEVEC_H
 #define DOUBLEVEC_H
 
-#include <Eigen/SparseCore>
 #include <iostream>
 #include <string>
+#include <Eigen/SparseCore>
 
 class SparseMat;
 class SmallMatrix;
 template<typename VT, typename ET> class DoubleVecIterator;
+enum class Precond;
+template<typename Derived> class IterativeSolver;
+template<typename Derived> class DirectSolver;
+
 
 class DoubleVec {
 private:
@@ -89,6 +93,8 @@ public:
 
   friend SparseMat;
   friend SmallMatrix;
+  template<typename Derived> friend class IterativeSolver;
+  template<typename Derived> friend class DirectSolver;
   friend std::ostream& operator<<(std::ostream&, const DoubleVec&);
   friend bool save_market_vec(const DoubleVec&, const std::string&);
   friend bool load_market_vec(DoubleVec&, const std::string&);
