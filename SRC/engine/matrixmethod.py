@@ -14,7 +14,7 @@
 
 from ooflib.SWIG.engine import cmatrixmethods
 from ooflib.SWIG.engine import ooferror2
-from ooflib.SWIG.engine import preconditioner
+from ooflib.engine import preconditioner
 from ooflib.common import debug
 from ooflib.common import registeredclass
 from ooflib.common.IO import mainmenu
@@ -83,10 +83,8 @@ class ConjugateGradient(PreconditionedMatrixMethod):
 #         debug.fmsg("matrix=\n%s" % matrix)
 #         debug.fmsg("rhs=", rhs)
 
-        pc = self.preconditioner.create_preconditioner(matrix)
-
         return cmatrixmethods.solveCG(
-            matrix, rhs, pc,
+            matrix, rhs, self.preconditioner.pid,
             self.max_iterations, self.tolerance, solution)
 
 registeredclass.Registration(
@@ -98,7 +96,7 @@ registeredclass.Registration(
     params=[
         parameter.RegisteredParameter(
             "preconditioner",
-            preconditioner.PreconditionerPtr,
+            preconditioner.PreconditionerBase,
             tip="Black magic for making the matrix more easily solvable."),
         parameter.FloatParameter(
             "tolerance", 1.e-13,
@@ -130,9 +128,8 @@ class BiConjugateGradient(PreconditionedMatrixMethod):
         self.tolerance = tolerance
         self.max_iterations = max_iterations
     def solveMatrix(self, matrix, rhs, solution):
-        pc = self.preconditioner.create_preconditioner(matrix)
         return cmatrixmethods.solveBiCG(
-            matrix, rhs, pc,
+            matrix, rhs, self.preconditioner.pid,
             self.max_iterations, self.tolerance, solution)
 
 registeredclass.Registration(
@@ -144,7 +141,7 @@ registeredclass.Registration(
     params=[
         parameter.RegisteredParameter(
             "preconditioner",
-            preconditioner.PreconditionerPtr,
+            preconditioner.PreconditionerBase,
             tip="Black magic for making the matrix more easily solvable."),
         parameter.FloatParameter(
             "tolerance", 1.e-13,
@@ -164,9 +161,8 @@ class StabilizedBiConjugateGradient(PreconditionedMatrixMethod):
         self.tolerance = tolerance
         self.max_iterations = max_iterations
     def solveMatrix(self, matrix, rhs, solution):
-        pc = self.preconditioner.create_preconditioner(matrix)
         return cmatrixmethods.solveBiCGStab(
-            matrix, rhs, pc,
+            matrix, rhs, self.preconditioner.pid,
             self.max_iterations, self.tolerance, solution)
 
 registeredclass.Registration(
@@ -178,7 +174,7 @@ registeredclass.Registration(
     params=[
         parameter.RegisteredParameter(
             "preconditioner",
-            preconditioner.PreconditionerPtr,
+            preconditioner.PreconditionerBase,
             tip="Black magic for making the matrix more easily solvable."),
         parameter.FloatParameter(
             "tolerance", 1.e-13,
@@ -200,9 +196,8 @@ class GeneralizedMinResidual(PreconditionedMatrixMethod):
         self.max_iterations = max_iterations
         self.krylov_dimension = krylov_dimension
     def solveMatrix(self, matrix, rhs, solution):
-        pc = self.preconditioner.create_preconditioner(matrix)
         return cmatrixmethods.solveGMRes(
-            matrix, rhs, pc,
+            matrix, rhs, self.preconditioner.pid,
             self.max_iterations, self.krylov_dimension, self.tolerance,
             solution)
 
@@ -215,7 +210,7 @@ registeredclass.Registration(
     params=[
         parameter.RegisteredParameter(
             "preconditioner",
-            preconditioner.PreconditionerPtr,
+            preconditioner.PreconditionerBase,
             tip="Black magic for making the matrix more easily solvable."),
         parameter.FloatParameter(
             "tolerance", 1.e-13,

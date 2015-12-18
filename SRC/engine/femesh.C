@@ -44,7 +44,6 @@
 #include "engine/node.h"
 #include "engine/ooferror.h"
 #include "engine/outputval.h"
-#include "engine/preconditioner.h"
 #include "engine/property.h"
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

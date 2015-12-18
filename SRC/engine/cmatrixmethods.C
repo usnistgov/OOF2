@@ -11,23 +11,14 @@
 #include <iostream>
 
 #include "common/doublevec.h"
-#include "common/printvec.h"	// for debugging
 #include "common/smallmatrix.h"
-#include "engine/SparseLib++/bicg.h"
-#include "engine/SparseLib++/bicgstab.h"
-//#include "engine/SparseLib++/cg.h"
-#include "engine/SparseLib++/gmres.h"
 #include "engine/cmatrixmethods.h"
 #include "engine/ooferror.h"
-#include "engine/preconditioner.h"
 #include "engine/sparsemat.h"
 
-// TODO(lizhong)
 #include <Eigen/SparseCore>
 #include <Eigen/IterativeLinearSolvers>
 #include <typeinfo> // RTTI, temporary
-#include "engine/diagpre.h"
-#include "engine/ilupre.h"
 
 // TODO(lizhong): comment
 // CG, BiCG, BiCGStab and GMRES are just wrappers for the IML++
@@ -40,10 +31,10 @@
 // statistics can be accumulated by SolverStats.
 
 void solveCG(const SparseMat &A, const DoubleVec &rhs,
-	    const PreconditionerBase &pc, int &maxiter, double &tolerance,
+	    int precond_id, int &maxiter, double &tolerance,
 	    DoubleVec &x)
 {
-  if (typeid(pc) == typeid(UnconditionerCore)) {
+  if (precond_id == (int)Precond::Uncond){
     CG<Precond::Uncond> slv; 
     slv.set_max_iterations(maxiter);
     slv.set_tolerance(tolerance);
@@ -54,7 +45,7 @@ void solveCG(const SparseMat &A, const DoubleVec &rhs,
       throw std::string("CG failed to converge");
     }
   }
-  else if (typeid(pc) == typeid(DiagPreconditionerCore)) {
+  else if (precond_id == (int)Precond::Diag) {
     CG<Precond::Diag> slv; 
     slv.set_max_iterations(maxiter);
     slv.set_tolerance(tolerance);
@@ -66,7 +57,7 @@ void solveCG(const SparseMat &A, const DoubleVec &rhs,
       throw std::string("CG failed to converge");
     }
   }
-  else if (typeid(pc) == typeid(ILUPreconditionerCore)) {
+  else if (precond_id == (int)Precond::ILUT) {
     CG<Precond::ILUT> slv; 
     slv.set_max_iterations(maxiter);
     slv.set_tolerance(tolerance);
@@ -80,16 +71,26 @@ void solveCG(const SparseMat &A, const DoubleVec &rhs,
   }
   else {
     std::stringstream ss;
-    ss << "CG No preconditioner " << typeid(pc).name();
+    ss << "CG No preconditioner " << precond_id;
     throw ss.str();
   }
 }
 
 void solveBiCG(const SparseMat &A, const DoubleVec &rhs,
-	      const PreconditionerBase &pc, int &maxiter, double &tolerance,
+	      int precond_id, int &maxiter, double &tolerance,
 	      DoubleVec &x)
 {
-  if (typeid(pc) == typeid(UnconditionerCore)) {
+  //BiCG(A, x, rhs, pc, maxiter, tolerance);
+  solveBiCGStab(A, rhs, precond_id, maxiter, tolerance, x);
+}
+
+void solveBiCGStab(const SparseMat &A, const DoubleVec &rhs,
+		  int precond_id, int &maxiter, double &tolerance,
+		  DoubleVec &x)
+{
+  //BiCGSTAB(A, x, rhs, pc, maxiter, tolerance);
+
+  if (precond_id == (int)Precond::Uncond){
     BiCGStab<Precond::Uncond> slv; 
     slv.set_max_iterations(maxiter);
     slv.set_tolerance(tolerance);
@@ -100,7 +101,7 @@ void solveBiCG(const SparseMat &A, const DoubleVec &rhs,
       throw std::string("BiCG failed to converge");
     }
   }
-  else if (typeid(pc) == typeid(DiagPreconditionerCore)) {
+  else if (precond_id == (int)Precond::Diag) {
     BiCGStab<Precond::Diag> slv; 
     slv.set_max_iterations(maxiter);
     slv.set_tolerance(tolerance);
@@ -112,7 +113,7 @@ void solveBiCG(const SparseMat &A, const DoubleVec &rhs,
       throw std::string("BiCG failed to converge");
     }
   }
-  else if (typeid(pc) == typeid(ILUPreconditionerCore)) {
+  else if (precond_id == (int)Precond::ILUT) {
     BiCGStab<Precond::ILUT> slv; 
     slv.set_max_iterations(maxiter);
     slv.set_tolerance(tolerance);
@@ -126,26 +127,17 @@ void solveBiCG(const SparseMat &A, const DoubleVec &rhs,
   }
   else {
     std::stringstream ss;
-    ss << "BiCG No preconditioner " << typeid(pc).name();
+    ss << "BiCG No preconditioner " << precond_id;
     throw ss.str();
   }
-
-  //BiCG(A, x, rhs, pc, maxiter, tolerance);
-}
-
-void solveBiCGStab(const SparseMat &A, const DoubleVec &rhs,
-		  const PreconditionerBase &pc, int &maxiter, double &tolerance,
-		  DoubleVec &x)
-{
-  BiCGSTAB(A, x, rhs, pc, maxiter, tolerance);
 }
 
 void solveGMRes(const SparseMat &A, const DoubleVec &rhs,
-	       const PreconditionerBase &pc, int &maxiter, int krylov_dim,
+	       int precond_id, int &maxiter, int krylov_dim,
 	       double &tolerance, DoubleVec &x)
 {
-  SmallMatrix H(krylov_dim+1, krylov_dim+1);
-  GMRES(A, x, rhs, pc, H, krylov_dim, maxiter, tolerance);
+  //SmallMatrix H(krylov_dim+1, krylov_dim+1);
+  //GMRES(A, x, rhs, pc, H, krylov_dim, maxiter, tolerance);
 }
 
 void solveDirect(const SparseMat &A, const DoubleVec &rhs, DoubleVec &x) {

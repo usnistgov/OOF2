@@ -19,9 +19,7 @@
 #include <Eigen/SparseQR>
 #include "engine/sparsemat.h"
 
-class PreconditionerBase;
-
-enum class Precond {Uncond, Diag, ILUT};
+enum class Precond {Uncond=1, Diag=2, ILUT=3};
 
 template<Precond P> class CG;
 template<Precond P> class BiCGStab;
@@ -127,22 +125,21 @@ class SimplicialLLT : public DirectSolver<SimplicialLLT> {
 };
 
 void solveCG(const SparseMat&, const DoubleVec &rhs,
-	    const PreconditionerBase&, int &maxiter, double &tolerance,
-	    DoubleVec &x);
+  int precond_id, int &maxiter, double &tolerance,
+  DoubleVec &x);
 
 void solveBiCG(const SparseMat&, const DoubleVec &rhs,
-	      const PreconditionerBase&, int &maxiter, double &tolerance,
-	      DoubleVec &x);
+  int precond_id, int &maxiter, double &tolerance,
+  DoubleVec &x);
 
 void solveBiCGStab(const SparseMat&, const DoubleVec &rhs,
-		  const PreconditionerBase&, int &maxiter, double &tolerance,
-		  DoubleVec &x);
+  int precond_id, int &maxiter, double &tolerance,
+  DoubleVec &x);
 
 void solveGMRes(const SparseMat&, const DoubleVec &rhs,
-	       const PreconditionerBase&, int &maxiter, int krylov_dim,
-	       double &tolerance, DoubleVec &x);
+  int precond_id, int &maxiter, int krylov_dim,
+  double &tolerance, DoubleVec &x);
 
 void solveDirect(const SparseMat&, const DoubleVec &rhs, DoubleVec &x);
-
 
 #endif // CMATRIXMETHODS_H
