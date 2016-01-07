@@ -189,20 +189,15 @@ lamda1 = 1.2 ; lamda2 = 1.05
 du_ij[0][0] = lamda1 - 1.0 ; du_ij[1][1] = lamda2 - 1.0 ; du_ij[2][2] = lamda2 - 1.0
 
 delta_4 = delta_kron4()
-FG = calc_F(du_ij)
-E_lag = calc_E_lag(FG)
-cijkl = cmat(1.0,0.5)
-S = SPK_stress(cijkl,E_lag)
-dS_ddu = dS2PK_du_ij(cijkl,du_ij)
+FG = calc_F(du_ij)   # F at gausspoint.
+E_lag = calc_E_lag(FG) # Euler-Lagrange strain
+cijkl = cmat(1.0,0.5)  # Constitutive parameters
+S = SPK_stress(cijkl,E_lag) # 2nd PK stress.
+dS_ddu = dS2PK_du_ij(cijkl,du_ij) # 2nd PK derivatives.
 
-N = dSP1PK_du_ij(delta_4,FG,S,dS_ddu)
+N = dSP1PK_du_ij(delta_4,FG,S,dS_ddu) # 1st PK derviatives -- actual flux!
 
 print N
-
-
-
-
-
 
 
 

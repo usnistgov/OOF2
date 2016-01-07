@@ -330,7 +330,7 @@ class Flux:
     
 
 
-# TODO: Figure out the right fluxy structure.
+# TODO: Figure out the right flux structure..
 class Mesh:
     def __init__(self,xelements=5,yelements=5,zelements=5):
         self.nodelist = []
@@ -459,6 +459,7 @@ class Mesh:
                                                            g.zeta,
                                                            g.mu)
                                         dval = 0.0
+                                        e.flux.dukl(i,j,k,l,pos,
                                         # HERE Do the right thing.
                                         # for each DOF component,
                                         # for each derivative direction
