@@ -1,0 +1,7 @@
+
+  Workspace for prototyping large-strain stuff, and eventually 
+plasticity.  Original code is from the old math/plasticity
+directory in the OOF repo.
+
+  Needs the "smallmatrix" stuff to work as a Python extension,
+that's what the Makefile is about.
