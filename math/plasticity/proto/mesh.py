@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: plasticity.py,v $
-# $Revision: 1.26 $
-# $Author: snk6 $
-# $Date: 2015/01/22 14:21:14 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
@@ -459,7 +455,6 @@ class Mesh:
                                                            g.zeta,
                                                            g.mu)
                                         dval = 0.0
-                                        e.flux.dukl(i,j,k,l,pos,
                                         # HERE Do the right thing.
                                         # for each DOF component,
                                         # for each derivative direction
