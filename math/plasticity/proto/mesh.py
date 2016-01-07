@@ -15,7 +15,7 @@
 # focussing on the plasticity part.
 
 
-import math, sets, string, sys, getopt
+import math, sys, getopt
 
 import smallmatrix
 import position
@@ -35,7 +35,7 @@ class Node:
         self.position = pos
         self.dofs = []
         self.eqns = []
-        self.elements = sets.Set()
+        self.elements = set()
 
     def __repr__(self):
         return "Node(%d,%f,%f,%f)" % (self.index,
@@ -146,14 +146,14 @@ def dsf1d0(xi,zeta,mu):
     return +0.125*(zeta-1.0)*(mu+1.0)
 def dsf1d1(xi,zeta,mu):
     return +0.125*(xi-1.0)*(mu+1.0)
-def dfs1d2(xi,zeta,mu):
+def dsf1d2(xi,zeta,mu):
     return +0.125*(xi-1.0)*(zeta-1.0)
 
 def dsf2d0(xi,zeta,mu):
     return +0.125*(zeta+1.0)*(mu-1.0)
 def dsf2d1(xi,zeta,mu):
     return +0.125*(xi-1.0)*(mu-1.0)
-def dfs2d2(xi,zeta,mu):
+def dsf2d2(xi,zeta,mu):
     return +0.125*(xi-1.0)*(zeta+1.0) 
 
 def dsf3d0(xi,zeta,mu):
@@ -227,20 +227,29 @@ class Element:
     def __init__(self,idx,nodelist=[]):
         self.index = idx
         self.nodes = nodelist[:]
-        self.sfns = [sf0,sf1,sf2,sf3,qsf4,sf5,sf6,sf7]
-        self.dsfns = [[dsf0d0,dfs0d1,dsf0d2],
+        self.sfns = [sf0,sf1,sf2,sf3,sf4,sf5,sf6,sf7]
+        self.dsfns = [[dsf0d0,dsf0d1,dsf0d2],
                       [dsf1d0,dsf1d1,dsf1d2],
-                      [dfs2d0,dsf2d1,dsf2d2],
+                      [dsf2d0,dsf2d1,dsf2d2],
                       [dsf3d0,dsf3d1,dsf3d2],
-                      [dsf4d0,dfs4d1,dsf4d2],
+                      [dsf4d0,dsf4d1,dsf4d2],
                       [dsf5d0,dsf5d1,dsf5d2],
                       [dsf6d0,dsf6d1,dsf6d2],
                       [dsf7d0,dsf7d1,dsf7d2]]
         for n in self.nodes:
             n.add_element(self)
+        self.frommaster_cache = {}
+        self.dof_cache = {}
+        self.dofdx_cache = {}
+        self.dshapefn_cache = {}
     def __repr__(self):
         return "Element(%d,%s)" % (self.index, self.nodes)
-    # Evaluate a shape function at a master-space coordinate.
+    # Evaluate a shape function at a master-space coordinate
+    def clear_caches(self):
+        self.frommaster_cache = {}
+        self.dof_cache = {}
+        self.dofdx_cache = {}
+        self.dshapefn_cache = {}
     def shapefn(self,i,xi,zeta,mu):
         return self.sfns[i](xi,zeta,mu)
     # Derivative of shape function i wrt component j in master space.
@@ -248,26 +257,83 @@ class Element:
         return self.dsfns[i][j](xi,zeta,mu)
     # Reference-space derivative of the shape function i wrt ref component j.
     def dshapefn(self,i,j,xi,zeta,mu):
-        jmtx = self.jacobianmtx(xi,zeta,mu)
-        jinv = inverse3(jmtx)
+        try:
+            return self.dshapefn_cache[(i,j,xi,zeta,mu)]
+        except KeyError:
+            jmtx = self.jacobianmtx(xi,zeta,mu)
+            jinv = inverse3(jmtx)
 
-        dfdmaster = [ self.dsfns[i][0](xi,zeta,mu),
-                      self.dsfns[i][1](xi,zeta,mu),
-                      self.dsfns[i][2](xi,zeta,mu) ]
+            dfdmaster = [ self.dsfns[i][0](xi,zeta,mu),
+                          self.dsfns[i][1](xi,zeta,mu),
+                          self.dsfns[i][2](xi,zeta,mu) ]
 
-        dfdref = [ sum( jinv[ix][jx]*dfdmaster[jx] for jx in range(3) )
-                   for ix in range(3) ]
-        return dfdref[j]
-        
+            dfdref = [ sum( jinv[ix][jx]*dfdmaster[jx] for jx in range(3) )
+                       for ix in range(3) ]
+
+            self.dshapefn_cache[(i,0,xi,zeta,mu)] = dfdref[0]
+            self.dshapefn_cache[(i,1,xi,zeta,mu)] = dfdref[1]
+            self.dshapefn_cache[(i,2,xi,zeta,mu)] = dfdref[2]
+            
+            return dfdref[j]
+
+    # Evaluate an arbitrary DOF at a given master-space position.
+    # Always returns a list, even for scalar DOFs.
+    def dof(self,dofname,xi,zeta,mu):
+        try:
+            return self.dof_cache[(dofname,xi,zeta,mu)]
+        except KeyError:
+            res = None
+            for (ni,n) in enumerate(self.nodes):
+                sfval = self.shapefn(ni,xi,zeta,mu)
+                for dof in n.dofs:
+                    if dof.name == dofname:
+                        term = [sfval*x for x in dof.value]
+                        if res==None:
+                            res = term
+                        else:
+                            res = [sum(x) for x in zip(res,term)]
+            self.dof_cache[(dofname,xi,zeta,mu)]=res
+            return res
+
+    # Return the reference-state derivatives of a DOF at a given
+    # master-space position.  Always returns a list of lists, with the
+    # componentn of the derivative being the fastest-varying thing.
+    def dofdx(self,dofname,xi,zeta,mu):
+        try:
+            return self.dofdx_cache[(dofname,xi,zeta,mu)]
+        except KeyError:
+            res = None
+            for (ni,n) in enumerate(self.nodes):
+                dsf = [ self.dshapefn(ni,0,xi,zeta,mu),
+                        self.dshapefn(ni,1,xi,zeta,mu),
+                        self.dshapefn(ni,2,xi,zeta,mu) ]
+                for dof in n.dofs:
+                    if dof.name == dofname:
+                        term = [[ df*x for x in dof.value ] for df in dsf ]
+                        if res == None:
+                            res = term
+                        else:
+                            res = [[sum(y) for y in zip(x[0],x[1])]
+                                   for x in zip(res,term)]
+            self.dofdx_cache[(dofname,xi,zeta,mu)]=res
+            return res
+                        
     # The master-to-reference transformation.
     def frommaster(self,xi,zeta,mu):
-        xpos = sum( [self.sfns[i](xi,zeta,mu)*self.nodes[i].position.x
-                     for i in range(8)] )
-        ypos = sum( [self.sfns[i](xi,zeta,mu)*self.nodes[i].position.y
-                     for i in range(8)] )
-        zpos = sum( [self.sffns[i](xi,zeta,mu)*self.nodes[i].position.z
-                     for i in range(8)] )
-        return Position(xpos,ypos,zpos)
+        try:
+            return self.frommaster_cache[(xi,zeta,mu)]
+        except KeyError:
+            
+            xpos = sum( [self.sfns[i](xi,zeta,mu)*self.nodes[i].position.x
+                         for i in range(8)] )
+            ypos = sum( [self.sfns[i](xi,zeta,mu)*self.nodes[i].position.y
+                         for i in range(8)] )
+            zpos = sum( [self.sfns[i](xi,zeta,mu)*self.nodes[i].position.z
+                         for i in range(8)] )
+            res = Position(xpos,ypos,zpos)
+            self.frommaster_cache[(xi,zeta,mu)] = res
+            return res
+        
     # Jacobian of the master-to-reference transformation.
     def jacobianmtx(self,xi,zeta,mu):
         j11 = sum( [ self.dsfns[i][0](xi,zeta,mu)*self.nodes[i].position.x
@@ -323,14 +389,17 @@ class Flux:
         self.name = name
     def __repr__(self):
         return "Flux(%s)" % self.name
+    # Derivative wrt l-deriv of k-component of displacement field.
+    # Subclasses should override. Should take a ukl argument.
+    def dukl(self,k,l,position, dofval, dofderivs):
+        return [[ 0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
     
 
 
-# TODO: Figure out the right flux structure..
 class Mesh:
     def __init__(self,xelements=5,yelements=5,zelements=5):
         self.nodelist = []
-        self.ellist = []
+        self.elementlist = []
 
         # Boundaries to which rather primitive conditions can be
         # applied.
@@ -375,24 +444,21 @@ class Mesh:
                     np0 = (i*(zelements+1)+j)*(yelements+1)+k
                     np1 = ((i+1)*(zelements+1)+j)*(yelements+1)+k
                     np2 = (i*(zelements+1)+(j+1))*(yelements+1)+k
-                    np3 = ((i+1)*(zelemenets+1)+(j+1))*(yemenets+1)+k
+                    np3 = ((i+1)*(zelements+1)+(j+1))*(yelements+1)+k
                     
                     np4 = (i*(zelements+1)+j)*(yelements+1)+k+1
                     np5 = ((i+1)*(zelements+1)+j)*(yelements+1)+k+1
                     np6 = (i*(zelements+1)+(j+1))*(yelements+1)+k+1
-                    np7 = ((i+1)*(zelemenets+1)+(j+1))*(yemenets+1)+k+1
+                    np7 = ((i+1)*(zelements+1)+(j+1))*(yelements+1)+k+1
 
                     nodes = [self.nodelist[np0],self.nodelist[np1],
                              self.nodelist[np2],self.nodelist[np3],
                              self.nodelist[np4],self.nodelist[np5],
                              self.nodelist[np6],self.nodelist[np7]]
-                    self.ellist.append(Element(element_index,nodes))
+                    self.elementlist.append(Element(element_index,nodes))
                     element_index += 1
 
-    # Add a new field to be solved for.  For now, we just assume that
-    # there is a corresponding equation for each DOF, and that it has
-    # the same index.  Value, if supplied, must be a list, even for
-    # scalar DOFs.
+    # Add a new field to be solved for. 
     def addfield(self, name, size, value=None):
         mtxsize = sum( [d.size for d in self.doflist] )
         count = 0
@@ -405,12 +471,12 @@ class Mesh:
             self.doflist.append(newdof)
             count += 1
 
-    # Equations don't take values.
-    def addeqn(self, name, size):
+    # Equations don't take values. Yet.
+    def addeqn(self, name, size, flux):
         mtxsize = sum( [e.size for e in self.eqnlist] )
         count = 0
         for n in self.nodelist:
-            neweqn = Eqn(name, mtxsize+count*size,size)
+            neweqn = Eqn(name, mtxsize+count*size, size, flux)
             n.addeqn(neweqn)
             self.eqnlist.append(neweqn)
             count += 1
@@ -435,30 +501,28 @@ class Mesh:
         
     # Build the flux-divergence contributions to the stiffness matrix.
     # In OOF, individual properties do this, but this is not OOF, it
-    # is merely OOFoid.  It could eventually be OOFtacular.
-    def make_linear_system(self):
-        for e in self.ellist:
-            ndset = [(ii,e.nodes[ii]) for ii in range(len(e.nodes))]
-            for (rndx,rn) in ndset: # "Row" nodes.
+    # is merely OOFoid.  It could eventually be OOFtacular.  What it
+    # actually does is populate a dictionary indexed by (row,col)
+    # tuples.
+    def make_stiffness(self):
+        for e in self.elementlist:
+            print "Element...."
+            for (rndx,rn) in enumerate(e.nodes): # "Row" nodes.
                 for eq in rn.eqns:
                     for i in range(eq.size):
                         row = eq.index+i
-                        for (cndx,cn) in ndset:  # "Column" nodes.
+                        for (cndx,cn) in enumerate(e.nodes):  # "Column" nodes.
                             for df in cn.dofs:
                                 for j in range(df.size):
                                     col = df.index+j
                                     # Now we have (row,col) for the matrix.
                                     # Compute the integrand.
                                     val = 0.0
-                                    for g in e.gassupts():
-                                        pos = e.frommaster(g.xi,
-                                                           g.zeta,
-                                                           g.mu)
-                                        dval = 0.0
-                                        # HERE Do the right thing.
-                                        # for each DOF component,
-                                        # for each derivative direction
-                                        # compute flux divergence contrib...
+                                    for g in e.gausspts():
+                                        dval = self._flux_eval(
+                                            e, rndx, cndx, eq, i,
+                                            df, j, g)
+                                        # 
                                         dval *= g.weight
                                         dval *= e.jacobian(g.xi,g.zeta,g.mu)
                                         val += dval
@@ -468,124 +532,65 @@ class Mesh:
                                         self.matrix[(row,col)] = val
 
 
-                                    
+    def _flux_eval(self, element, rndx, cndx, eqn, eqcomp,
+                   dof, dofcomp, gpt):
+        # We are inside most of the matrix loops, including the
+        # gausspoint loop. Take the derivative.
+        # Rndx is the element's index of the shapefunction for the row.
+        # Cndx is the element's index of the shapefunction for the column.
+        # Eqn is the equation object, eqncomp the component.
+        # Dof is the ODF object, dofcomp the component.
+        # Gpt is the gausspoint, pos the reference-state position of it.
 
-    def elastic(self,cijkl):
-        for e in self.ellist:
-            ndset = [(ii,e.nodes[ii]) for ii in range(len(e.nodes))]
-            for (mudx,mu) in ndset:
-                for i in range(2): 
-                    row = mu.dofindex("Displacement")+i
-                    for (nudx,nu) in ndset:
-                        for k in range(2):
-                            col = nu.dofindex("Displacement")+k
-                            val = 0.0
-                            for g in e.gausspts():
-                                for j in range(2):
-                                    for l in range(2):
-                                        val-=cijkl[i][j][k][l]*e.dshapefn(mudx,j,g.xi,g.zeta)*e.dshapefn(nudx,l,g.xi,g.zeta)*g.weight*e.jacobian(g.xi,g.zeta)
-                            try:
-                                self.matrix[(row,col)]+=val
-                            except KeyError:
-                                self.matrix[(row,col)]=val
-                    # RHS contribution.
-                    val = 0.0
-                    for (nudx,nu) in ndset:
-                        pstrain = nu.auxel(e,"Plastic Strain")
-                        if pstrain is not None:
-                            for g in e.gausspts():
-                                for j in range(2): # Sum...
-                                    for k in range(3):
-                                        for l in range(3):
-                                            val+=cijkl[i][j][k][l]*pstrain.get(voigt[k][l])*e.shapefn(nudx,g.xi,g.zeta)*e.dshapefn(mudx,j,g.xi,g.zeta)*g.weight*e.jacobian(g.xi,g.zeta)
-                    try:
-                        self.rhs[row]+=val
-                    except KeyError:
-                        self.rhs[row]=val
+        pos = element.frommaster(gpt.xi,gpt.zeta,gpt.mu)
+        dofval = element.dof(dof.name, gpt.xi,gpt.zeta,gpt.mu)
+        dofderivs = element.dofdx(dof.name, gpt.xi,gpt.zeta,gpt.mu)
 
+        # In principle, we could check metadata here, to make sure
+        # that the flux we are calling contributes to the equation
+        # we're working on, and understands teh DOF we're passing in.
+        # However, for this prototype, all DOFs are displacement, and
+        # all equations are force-balance.
 
+        # Pre-compute the flux derivatives.
+        fluxdvs = [ eqn.flux.dukl(dofcomp,l,
+                                  pos,dofval,dofderivs) for l in range(3) ]
+        res = 0.0
+        
+        for j in range(3):
+            for l in range(3):
+                res -= element.dshapefn(rndx,j,gpt.xi,gpt.zeta,gpt.mu)*\
+                       fluxdvs[l][eqcomp][j]*\
+                       element.dshapefn(cndx,l,gpt.xi,gpt.zeta,gpt.mu)
+        return res
+            
+    
     # Function for computing the value of each of the equations for
     # the current degrees of freedom.  Needed by the Newton-Raphson
-    # solver, we think.
-    def phi(self,cijkl,yfunc):
+    # solver.  Just does a straightforward integral.
+    def phi(self):
         phi = {}
-        for e in self.ellist:
-            ndset = [(ii,e.nodes[ii]) for ii in range(len(e.nodes))]
-            for g in e.gausspts():
-
-                # Preliminary: Compute stress and pcp at this gauss point.
-
-                gstrain = [[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]]
-                epval = [[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]]
-                epival = [[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]]
-                pcpval = 0.0
-
-                for (mudx,mu) in ndset:
-                    disp = mu.dof("Displacement")
-                    for k in range(2):
-                        for l in range(2):
-                            gstrain[k][l] += 0.5*(disp.get(k)*e.dshapefn(mudx,l,g.xi,g.zeta)+disp.get(l)*e.dshapefn(mudx,k,g.xi,g.zeta))
-                    ep = mu.auxel(e,"Plastic Strain")
-                    if ep is not None:
-                        for k in range(3):
-                            for l in range(3):
-                                epval[k][l] += ep.get(voigt[k][l])*e.shapefn(mudx,g.xi,g.zeta)
-                    epi = mu.eldof(e,"Plastic Strain Increment")
-                    if epi is not None:
-                        for k in range(3):
-                            for l in range(3):
-                                epival[k][l] += epi.get(voigt[k][l])*e.shapefn(mudx,g.xi,g.zeta)
-                    pcp = mu.eldof(e,"Plastic Consistency Parameter")
-                    if pcp is not None:
-                        pcpval += pcp.get(0)*e.shapefn(mudx,g.xi,g.zeta)
-
-                # Now we have all the strains, we know what to do.
-                stress = [ [ sum([ sum([ cijkl[i][j][k][l]*(gstrain[k][l]-epval[k][l]-epival[k][l]) for l in range(3) ]) for k in range(3)]) for j in range(3) ] for i in range(3) ]
-
-                # At this point, stress, epival, and pcpval are all
-                # set for this gauss point.
-
-                for (mudx,mu) in ndset:
-                    
-                    # Elastic equations.
-                    for i in range(2):
-                        row = mu.dofindex("Displacement")+i
+        for e in self.elementlist:
+            for (mudx,mu) in enumerate(e.nodes):
+                for eq in mu.eqns:
+                    for i in range(eq.size):
+                        row = eq.index+i
                         val = 0.0
-                        for j in range(2):
-                            val -= e.dshapefn(mudx,j,g.xi,g.zeta)*stress[i][j]
-
-                        val *= g.weight*e.jacobian(g.xi,g.zeta)
+                        for g in e.gausspts():
+                            pos = e.frommaster(g.xi,g.zeta,g.mu)
+                            dval = self._flux_value(
+                                e, row, eq, i, g)
+                            dval *= g.weight
+                            dval *= e.jacobian(g.xi,g.zeta,g.mu)
+                            val += dval
                         try:
                             phi[row]+=val
                         except KeyError:
                             phi[row]=val
-                    
-                    # Plastic consistency paramter equation.
-                    pcp = mu.eldof(e,"Plastic Consistency Parameter")
-                    if pcp is not None:
-                        row = pcp.index
-                        val = e.shapefn(mudx,g.xi,g.zeta)*yfunc.yeeld(stress)
-                        val *= g.weight*e.jacobian(g.xi,g.zeta)
-                        try:
-                            phi[row]+=val
-                        except KeyError:
-                            phi[row]=val
-
-                    # Consistency criterion.
-                    epi = mu.eldof(e,"Plastic Strain Increment")
-                    if epi is not None:
-                        dy = yfunc.dyeeld(stress)
-                        for i in range(3):
-                            for j in range(i+1):
-                                row = epi.index+voigt[i][j]
-                                val = e.shapefn(mudx,g.xi,g.zeta)*(pcpval*dy[i][j] - epival[i][j])
-                                val *= g.weight*e.jacobian(g.xi,g.zeta)
-                                try:
-                                    phi[row]+=val
-                                except KeyError:
-                                    phi[row]=val
         return phi
 
+    def _flux_value(self, element, row, eqn, eqndx, gpt):
+        return 0.0
                                                     
     # Values are y offsets of the top and bottom boundaries, which are
     # assumed fixed to zero offset in the x direction.  If top is
@@ -694,30 +699,57 @@ class Mesh:
             print "Error in solving, return code is %d." % rr
 
 
+    # TODO: Draw displaced, draw strains, draw stresses?
     def draw(self):
-        import visual
-        frame = visual.frame()
-        outline = visual.curve(frame=frame,
-                               pos=[(0.0,0.0,0.0),(1.0,0.0,0.0),
-                                    (1.0,1.0,0.0),(0.0,1.0,0.0),
-                                    (0.0,0.0,0.0)],color=visual.color.red)
-        for e in self.ellist:
-            outline = []
-            for n in e.nodes:
-                for d in n.dofs:
-                    if d.name=="Displacement":
-                        outline.append( (n.position.x + d.value[0],
-                                         n.position.y + d.value[1],
-                                         0.0) )
-                        break
-                else:
-                    outline.append( (n.position.x, n.position.y,0.0) )
-            outline.append(outline[0])
-            visual.curve(frame=frame,pos=outline)
-        return frame
+        import mayavi.mlab as mlab
+        import numpy as np
 
+        # mlab.options.offscreen = True
+        fg = mlab.figure(bgcolor=(1,1,1))
+        fg.scene.disable_render = True
+        dotset = set()
+        segset = set()
+        segmap = [ [0,1],[1,3],[3,2],[2,0],[0,4],[1,5],[3,7],
+                   [2,6],[4,5],[5,7],[7,6],[6,4] ]
+        # The dotset is the set of all the dots.  The segset is the
+        # set of all segments, where we use a canonical ordering
+        # scheme in order to ensure uniqueness independent of node
+        # order.
+        for e in self.elementlist:
+            for n in e.nodes:
+                dotset.add(n.position)
+            for seq in segmap:
+                p1 = e.nodes[seq[0]].position
+                p2 = e.nodes[seq[1]].position
+                if p1 < p2:
+                    segset.add( (p1,p2) )
+                else:
+                    segset.add( (p2,p1) )
+                    
+        # Dots.
+        xs = np.array([p.x for p in dotset])
+        ys = np.array([p.y for p in dotset])
+        zs = np.array([p.z for p in dotset])
+        mlab.points3d(xs,ys,zs,figure=fg,color=(0,0,0),scale_factor=0.04)
+
+        # Segments. Drawing all these is very slow, there are
+        # apparently too damn many objects in the scene, even though
+        # there are only a few hundred.
+        for s in segset:
+            seqx = np.array( [s[0].x,s[1].x] )
+            seqy = np.array( [s[0].y,s[1].y] )
+            seqz = np.array( [s[0].z,s[1].z] )
+            mlab.plot3d( seqx, seqy, seqz, color=(0,0,0),
+                         figure=fg,tube_radius=None)
+        fg.scene.disable_render = False
+        mlab.show() # Blocking..
+        
 
     def dump_matrix(self,outfile):
+        # We sometimes want to diff matrices, which means we need to
+        # control the order of the indices, which is why we iterate
+        # over the possible index pairs, isntead of just dumping it
+        # out in dictionary order.
         mtxsize = sum( [d.size for d in self.doflist] )
         for i in range(mtxsize):
             for j in range(mtxsize):
@@ -731,6 +763,7 @@ class Mesh:
     # Routine for measuring how much force is exerted in the y
     # direction on the bottom boundary.  The bottom is chosen because,
     # in this rig, it always has a fixed boundary condition.
+    # TODO: WRONG for large-deformation.
     def measure_force(self,cijkl):
         # Use three guass-points per segment in the usual way.
         mpt = math.sqrt(3.0/5.0)
@@ -738,7 +771,7 @@ class Mesh:
         wts = [5.0/9.0, 8.0/9.0, 5.0/9.0]
         elcount = len(self.bottomnodes)-1
         force = 0.0
-        for e in self.ellist[:elcount]: # Bottom row of elements.
+        for e in self.elementlist[:elcount]: # Bottom row of elements.
             for (pt,wt) in zip(pts,wts):
                 strain = [[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]]
                 for (ndx,nd) in [(ii,e.nodes[ii]) for ii in
@@ -790,167 +823,6 @@ class Mesh:
         return force
 
 
-    def dump_data(self,cijkl,yld,dxpts=5,dypts=5):
-        dx = 2.0/float(dxpts)
-        dy = 2.0/float(dypts)
-        startx = -1.0+dx/2.0
-        starty = -1.0+dy/2.0
-        xevalpts = [ startx + i*dx for i in range(dxpts) ]
-        yevalpts = [ starty + i*dy for i in range(dypts) ]
-
-        ptset = [ (x,y) for x in xevalpts for y in yevalpts ]
-
-        for e in self.ellist:
-            ndset = [(ii,e.nodes[ii]) for ii in range(len(e.nodes))]
-            for p in ptset:
-                xi = p[0]
-                zeta = p[1]
-            
-                strain = [[0,0,0],[0,0,0],[0,0,0]]
-                pstrain = [[0,0,0],[0,0,0],[0,0,0]]
-                for (ndx,nd) in ndset:
-                    disp = nd.dof("Displacement")
-                    ux = disp.value[0]
-                    uy = disp.value[1]
-                    dstrain = [[
-                        ux*e.dshapefn(ndx,0,xi,zeta),
-                        0.5*(ux*e.dshapefn(ndx,1,xi,zeta) +
-                             uy*e.dshapefn(ndx,0,xi,zeta)),
-                        0.0],
-                               [
-                        0.5*(ux*e.dshapefn(ndx,1,xi,zeta) +
-                             uy*e.dshapefn(ndx,0,xi,zeta)),
-                        uy*e.dshapefn(ndx,1,xi,zeta),
-                        0.0],
-                               [0.0,0.0,0.0]]
-                    
-                    dptstrian = [[0,0,0],[0,0,0],[0,0,0]]
-                    sfst = nd.auxel(e,"Plastic Strain")
-                    if sfst is not None:
-                        sfval = e.shapefn(ndx,xi,zeta)
-                        dsfstrain = [ x*sfval for x in sfst.value ]
-                        
-                        dpstrain = [ [ dsfstrain[voigt[i][j]]
-                                       for j in range(3) ]
-                                     for i in range(3) ]
-                        
-                        
-                    pstrain = [ [ pstrain[i][j]+dpstrain[i][j]
-                                  for j in range(3) ]
-                                for i in range(3) ]
-                    strain = [ [ strain[i][j]+
-                                 dstrain[i][j]
-                                 for j in range(3) ]
-                               for i in range(3) ]
-                # Now we have the strain at this eval point -- get stress.
-                stress = [ [ sum( [ sum( [
-                    cijkl[i][j][k][l]*(strain[k][l]-pstrain[k][l])
-                    for l in range(3) ] )
-                                    for k in range(3) ] ) 
-                             for j in range(3) ]
-                           for i in range(3) ]
-                val = math.sqrt((3.0/2.0)*deviator(stress))
-                # val = sum( [ stress[i][i] for i in range(3) ] )
-                pt = e.frommaster(xi,zeta)
-                print 
-                print pt.x, pt.y, "Stress: ", stress
-                print pt.x, pt.y, "Strain: ", strain
-                print pt.x, pt.y, "Plastic: ", pstrain
-                
-    
-
-    def draw_stress(self,cijkl,dxpts=5,dypts=5):
-        import visual
-        frame = visual.frame()
-        outline = visual.curve(frame=frame,
-                               pos=[(0.0,0.0,0.0),(1.0,0.0,0.0),
-                                    (1.0,1.0,0.0),(0.0,1.0,0.0),
-                                    (0.0,0.0,0.0)],color=visual.color.red)
-        
-        dx = 2.0/float(dxpts)
-        dy = 2.0/float(dypts)
-        startx = -1.0+dx/2.0
-        starty = -1.0+dy/2.0
-        xevalpts = [ startx + i*dx for i in range(dxpts) ]
-        yevalpts = [ starty + i*dy for i in range(dypts) ]
-        
-        data = {}
-        for e in self.ellist:
-            ndset = [(ii,e.nodes[ii]) for ii in range(len(e.nodes))]
-            for xi in xevalpts:
-                for zeta in yevalpts:
-                    strain = [[0,0,0],[0,0,0],[0,0,0]]
-                    for (ndx,nd) in ndset:
-                        disp = nd.dof("Displacement")
-                        ux = disp.value[0]
-                        uy = disp.value[1]
-                        dstrain = [[
-                            ux*e.dshapefn(ndx,0,xi,zeta),
-                            0.5*(ux*e.dshapefn(ndx,1,xi,zeta) +
-                                 uy*e.dshapefn(ndx,0,xi,zeta)),
-                            0.0],
-                                   [
-                            0.5*(ux*e.dshapefn(ndx,1,xi,zeta) +
-                                 uy*e.dshapefn(ndx,0,xi,zeta)),
-                            uy*e.dshapefn(ndx,1,xi,zeta),
-                            0.0],
-                                   [0.0,0.0,0.0]]
-                        dsfstrain = [0,0,0,0,0,0]
-                        sfst = nd.auxel(e,"Plastic Strain")
-                        if sfst is not None:
-                            sfval = e.shapefn(ndx,xi,zeta)
-                            dsfstrain = [ x*sfval for x in sfst.value ]
-                            
-                        strain = [ [ strain[i][j]+
-                                     dstrain[i][j]-
-                                     dsfstrain[voigt[i][j]]
-                                     for j in range(3) ]
-                                   for i in range(3) ]
-                    # Now we have the strain at this eval point -- get stress.
-                    stress = [ [ sum( [ sum( [
-                        cijkl[i][j][k][l]*strain[k][l] for l in range(3) ] )
-                                        for k in range(3) ] ) 
-                                 for j in range(3) ]
-                               for i in range(3) ]
-                    val = math.sqrt((3.0/2.0)*deviator(stress))
-                    # val = sum( [ stress[i][i] for i in range(3) ] )
-                    pt = e.frommaster(xi,zeta)
-                    data[(pt.x,pt.y)]=val
-
-        # Go through the data and check out the scale.
-        vmax = None
-        vmin = None
-        vsum = 0.0
-        count = 0
-        for v in data.values():
-            vsum += v
-            count += 1
-            if vmax is None or v > vmax:
-                vmax = v
-            if vmin is None or v < vmin:
-                vmin = v
-        print "Min, max, avg: ", vmin, vmax, vsum/float(count)
-
-        # Actually draw stuff.  Assumes undistorted elements are
-        # square, which may not be a particularly robust assumption.
-
-        # realdx = 1.0/(math.sqrt(len(self.ellist))*dpts)
-        xels = len(self.bottomnodes)-1
-        yels = len(self.ellist)/xels
-        
-        realdx = 1.0/float(xels*dxpts)
-        realdy = 1.0/float(yels*dypts)
-
-        for (p,v) in data.items():
-            bdy = [ (p[0]-0.5*realdx,p[1]-0.5*realdy),
-                    (p[0]+0.5*realdx,p[1]-0.5*realdy),
-                    (p[0]+0.5*realdx,p[1]+0.5*realdy),
-                    (p[0]-0.5*realdx,p[1]+0.5*realdy)]
-            col = (v-vmin)/(vmax-vmin)
-            visual.convex(frame=frame,pos=bdy,color=(col,col,col))
-        return frame    
-            
-                    
 
 # Elastic constitutive bookkeeppiinngg.
 
@@ -980,52 +852,40 @@ def Cijkl(lmbda,mu):
 
           
 
-# Plastic utility function.
-def deviator(stress):
-    return sum(
-        [ sum( [ stress[i][j]**2 for j in range(3) ] )
-          for i in range(3) ] ) - \
-         (1.0/3.0)*(sum([ stress[i][i] for i in range(3)])**2)
-
-
-
 
 def go(size):
-    global m 
-    y = Yeeld(0.1)
-    c = Cijkl(0.5,0.25)
-    m = Mesh(xelements=size,yelements=size)
-    m.addfield("Displacement",2)
-    m.addauxelfield("Plastic Strain",6,[0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-    for x in range(36):
-        bcval = x*0.01
-        # bcval = 0.180+x*0.002
-        m.setbcs(bcval,0.0)
-        m.solve_plastic(c,y)
-        # m.dump_data(c,y)
-        # for e in m.ellist:
-        #     for n in e.nodes:
-        #         ep = n.auxel(e,"Plastic Strain")
-        #         print e.index, n.index, ep.value
-        f = m.measure_force(c)
-        print bcval,f
-        sys.stdout.flush()
+    pass # Collect $200?
 
-# For "default" isotropic elasticity and a yield stress of 0.1, and a
-# five-element mesh, elements begin to yield when the top boundary
-# displacement reaches 0.14, and by the time it gets to 0.20, the
-# whole system will yield.  At y=0.135, only the four corner elements
-# will yield -- this is a good place to start, probably.
+#
+# The general scheme is, you create a mesh, add a field, maybe add
+# some equations with associated fluxes, build the matrix and
+# right-hand side, which calls out to the flux objects for their
+# derivatives and values, and then solve.  You can write the solution
+# back into the mesh (for iterating, of course) using the Dof "set"
+# method.
+
 if __name__=="__main__":
-    size=5 # Default...
-    try:
-        opts, nonopts = getopt.getopt(sys.argv[1:],"s:")
-    except getopt.GetOptError:
-        print "Wrong/missing options, exiting."
-        sys.exit(2)
-    for o,a in opts:
-        if o=="-s":
-            size = int(a)
-    go(size)
+    m = Mesh() # Default size is 5x5x5.
+    m = Mesh(xelements=4,yelements=4,zelements=4)
+
+    f = Flux("Stress")
+    
+    m.addfield("Displacement",3)
+    m.addeqn("Force",3,f) # Last argument is the flux.
+
+    m.make_stiffness()
+    print "Made stiffness."
+    m.phi()
+    print "Made RHS."
+    
+    # try:
+    #     opts, nonopts = getopt.getopt(sys.argv[1:],"s:")
+    # except getopt.GetOptError:
+    #     print "Wrong/missing options, exiting."
+    #     sys.exit(2)
+    # for o,a in opts:
+    #     if o=="-s":
+    #         size = int(a)
+    # go(size)
 
     
