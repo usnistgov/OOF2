@@ -255,7 +255,8 @@ class Element:
     # Derivative of shape function i wrt component j in master space.
     def masterdshapefn(self,i,j,xi,zeta,mu):
         return self.dsfns[i][j](xi,zeta,mu)
-    # Reference-space derivative of the shape function i wrt ref component j.
+    # Reference-space derivative of the shape function i wrt ref
+    # component j.  It's a scalar, so cache-safe copying is not required.
     def dshapefn(self,i,j,xi,zeta,mu):
         try:
             return self.dshapefn_cache[(i,j,xi,zeta,mu)]
@@ -280,7 +281,7 @@ class Element:
     # Always returns a list, even for scalar DOFs.
     def dof(self,dofname,xi,zeta,mu):
         try:
-            return self.dof_cache[(dofname,xi,zeta,mu)]
+            return self.dof_cache[(dofname,xi,zeta,mu)][:]
         except KeyError:
             res = None
             for (ni,n) in enumerate(self.nodes):
@@ -293,14 +294,14 @@ class Element:
                         else:
                             res = [sum(x) for x in zip(res,term)]
             self.dof_cache[(dofname,xi,zeta,mu)]=res
-            return res
+            return res[:]
 
     # Return the reference-state derivatives of a DOF at a given
     # master-space position.  Always returns a list of lists, with the
     # componentn of the derivative being the fastest-varying thing.
     def dofdx(self,dofname,xi,zeta,mu):
         try:
-            return self.dofdx_cache[(dofname,xi,zeta,mu)]
+            return [x[:] for x in self.dofdx_cache[(dofname,xi,zeta,mu)]]
         except KeyError:
             res = None
             for (ni,n) in enumerate(self.nodes):
@@ -316,12 +317,12 @@ class Element:
                             res = [[sum(y) for y in zip(x[0],x[1])]
                                    for x in zip(res,term)]
             self.dofdx_cache[(dofname,xi,zeta,mu)]=res
-            return res
+            return [x[:] for x in res]
                         
     # The master-to-reference transformation.
     def frommaster(self,xi,zeta,mu):
         try:
-            return self.frommaster_cache[(xi,zeta,mu)]
+            return self.frommaster_cache[(xi,zeta,mu)].clone()
         except KeyError:
             
             xpos = sum( [self.sfns[i](xi,zeta,mu)*self.nodes[i].position.x
@@ -332,7 +333,7 @@ class Element:
                          for i in range(8)] )
             res = Position(xpos,ypos,zpos)
             self.frommaster_cache[(xi,zeta,mu)] = res
-            return res
+            return res.clone()
         
     # Jacobian of the master-to-reference transformation.
     def jacobianmtx(self,xi,zeta,mu):
@@ -458,6 +459,10 @@ class Mesh:
                     self.elementlist.append(Element(element_index,nodes))
                     element_index += 1
 
+    def clear_caches(self):
+        for e in self.elementlist:
+            e.clear_caches()
+            
     # Add a new field to be solved for. 
     def addfield(self, name, size, value=None):
         mtxsize = sum( [d.size for d in self.doflist] )
@@ -519,7 +524,7 @@ class Mesh:
                                     # Compute the integrand.
                                     val = 0.0
                                     for g in e.gausspts():
-                                        dval = self._flux_eval(
+                                        dval = self._flux_deriv(
                                             e, rndx, cndx, eq, i,
                                             df, j, g)
                                         # 
@@ -532,8 +537,8 @@ class Mesh:
                                         self.matrix[(row,col)] = val
 
 
-    def _flux_eval(self, element, rndx, cndx, eqn, eqcomp,
-                   dof, dofcomp, gpt):
+    def _flux_deriv(self, element, rndx, cndx, eqn, eqcomp,
+                    dof, dofcomp, gpt):
         # We are inside most of the matrix loops, including the
         # gausspoint loop. Take the derivative.
         # Rndx is the element's index of the shapefunction for the row.
@@ -578,7 +583,7 @@ class Mesh:
                         val = 0.0
                         for g in e.gausspts():
                             pos = e.frommaster(g.xi,g.zeta,g.mu)
-                            dval = self._flux_value(
+                            dval = self._flux_contrib(
                                 e, row, eq, i, g)
                             dval *= g.weight
                             dval *= e.jacobian(g.xi,g.zeta,g.mu)
@@ -589,7 +594,7 @@ class Mesh:
                             phi[row]=val
         return phi
 
-    def _flux_value(self, element, row, eqn, eqndx, gpt):
+    def _flux_contrib(self, element, row, eqn, eqndx, gpt):
         return 0.0
                                                     
     # Values are y offsets of the top and bottom boundaries, which are

@@ -27,7 +27,10 @@ class Position:
         self.x = x
         self.y = y
         self.z = z
-        
+
+    def clone(self):
+        return Position(x=self.x, y=self.y, z=self.z)
+    
     def __iadd__(self, other):
         self.x += other.x
         self.y += other.y
