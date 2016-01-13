@@ -382,21 +382,6 @@ class Element:
         return Element.gptable
 
 
-# A flux is a thing that has zero divergence in equilibrium.
-# Components of the divergence of the flux at a given node correspond
-# to Eqn objects.
-class Flux:
-    def __init__(self, name):
-        self.name = name
-    def __repr__(self):
-        return "Flux(%s)" % self.name
-    # Derivative wrt l-deriv of k-component of displacement field.
-    # Subclasses should override. Should take a ukl argument.
-    def dukl(self,k,l,position, dofval, dofderivs):
-        return [[ 0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
-    
-
-
 class Mesh:
     def __init__(self,xelements=5,yelements=5,zelements=5):
         self.nodelist = []
@@ -582,9 +567,8 @@ class Mesh:
                         row = eq.index+i
                         val = 0.0
                         for g in e.gausspts():
-                            pos = e.frommaster(g.xi,g.zeta,g.mu)
                             dval = self._flux_contrib(
-                                e, row, eq, i, g)
+                                e, mudx, eq, i, g)
                             dval *= g.weight
                             dval *= e.jacobian(g.xi,g.zeta,g.mu)
                             val += dval
@@ -594,12 +578,22 @@ class Mesh:
                             phi[row]=val
         return phi
 
-    def _flux_contrib(self, element, row, eqn, eqndx, gpt):
-        return 0.0
+    def _flux_contrib(self, element, rndx, eqn, eqndx, gpt):
+        pos = element.frommaster(gpt.xi,gpt.zeta,gpt.mu)
+
+        dofname = eqn.flux.fieldname # Assume there's only one, for now.
+        dofval = element.dof(dofname,gpt.xi,gpt.zeta,gpt.mu)
+        dofderivs = element.dofdx(dofname,gpt.xi,gpt.zeta,gpt.mu)
+        res = 0.0
+        for j in range(3):
+            res -= element.dshapefn(rndx,j,gpt.xi,gpt.zeta,gpt.mu)*\
+                   eqn.flux.value(eqndx,j,pos,dofval,dofderivs)
+        return res
                                                     
-    # Values are y offsets of the top and bottom boundaries, which are
-    # assumed fixed to zero offset in the x direction.  If top is
-    # None, then the top boundary is not fixed.
+    # Values are z offsets of the top and bottom boundaries, which are
+    # assumed fixed to zero offset in the x and y direction.  BCs can
+    # be set to None, in which case they are not fixed, but why woold
+    # you do that?
     def setbcs(self,top,bottom):
         self.topbc = top
         self.bottombc = bottom
@@ -613,7 +607,7 @@ class Mesh:
             for dof in node.alldofs():
                 add = False
                 if dof.name!="Displacement":
-                    add = True
+                    add = True # All non-displacement DOFs are free.
                 else: # dof.name *is* "Displacement"
                     if (not (node in self.topnodes) and \
                         not (node in self.bottomnodes)) \
@@ -621,7 +615,8 @@ class Mesh:
                              self.topbc is None):
                         add = True
                     else: # Fixed DOF, add to fixed-rhs list.
-                        fixed_rhs.append(0.0)
+                        fixed_rhs.append(0.0)  # X component.
+                        fixed_rhs.append(0.0)  # Y component.
                         if node in self.topnodes:
                             fixed_rhs.append(self.topbc)
                         else:
@@ -829,6 +824,36 @@ class Mesh:
 
 
 
+
+
+
+# A flux is a thing that has zero divergence in equilibrium.
+# Components of the divergence of the flux at a given node correspond
+# to Eqn objects.  Fluxes know what fields they depend on.
+class Flux:
+    def __init__(self, name, fieldname):
+        self.name = name
+        self.fieldname = fieldname
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__, self.name)
+    
+
+class CauchyStress(Flux):
+    def __init__(self,name,lmbda=0.5,mu=0.25):
+        Flux.__init__(self,name,"Displacement")
+        self.cijkl = Cijkl(lmbda,mu)
+    # For the Cauchy stress, derivative is very simple.
+    def dukl(self,k,l,position,dofval,dofderivs):
+        return [ [  0.5*(self.cijkl[i][j][k][l]+self.cijkl[i][j][l][k])
+                    for j in range(3) ] for i in range(3) ]
+
+    # Value is pretty simple too.
+    def value(self,i,j,pos,dofval,dofderivs):
+        return sum( sum( 0.5*self.cijkl[i][j][k][l]*
+                         (dofderivs[k][l]+dofderivs[l][k])
+                             for l in range(3)) for k in range(3))
+                 
+                 
 # Elastic constitutive bookkeeppiinngg.
 
 
@@ -870,10 +895,9 @@ def go(size):
 # method.
 
 if __name__=="__main__":
-    m = Mesh() # Default size is 5x5x5.
     m = Mesh(xelements=4,yelements=4,zelements=4)
 
-    f = Flux("Stress")
+    f = CauchyStress("Stress")
     
     m.addfield("Displacement",3)
     m.addeqn("Force",3,f) # Last argument is the flux.
@@ -882,6 +906,8 @@ if __name__=="__main__":
     print "Made stiffness."
     m.phi()
     print "Made RHS."
+
+    # m.dump_matrix(sys.stderr)
     
     # try:
     #     opts, nonopts = getopt.getopt(sys.argv[1:],"s:")
