@@ -10,15 +10,19 @@ class PreconditionerBase(registeredclass.RegisteredClass):
         return self.__class__.__name__
 
 class UnPreconditioner(PreconditionerBase):
+    name = "Un"
     pid = 1
 
 class JacobiPreconditioner(PreconditionerBase):
+    name = "Diag"
     pid = 2
 
 class ILUPreconditioner(PreconditionerBase):
+    name = "ILUT"
     pid = 3
 
 class ICPreconditioner(PreconditionerBase):
+    name = "IC"
     pid = 4
 
 registeredclass.Registration(

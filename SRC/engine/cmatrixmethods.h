@@ -17,6 +17,7 @@
 #include <Eigen/SparseCholesky>
 #include <Eigen/SparseLU>
 #include <Eigen/SparseQR>
+#include <Eigen/OrderingMethods>
 #include "engine/sparsemat.h"
 
 enum class Precond {Uncond=1, Diag=2, ILUT=3};
@@ -24,6 +25,9 @@ enum class Precond {Uncond=1, Diag=2, ILUT=3};
 template<Precond P> class CG;
 template<Precond P> class BiCGStab;
 class SimplicialLLT;
+class SimplicialLDLT;
+class SparseLU;
+class SparseQR;
 
 namespace internal {
 // Iterative solver traits
@@ -67,6 +71,18 @@ template<typename Derived> struct DirectSolverTrait;
 template<> struct DirectSolverTrait<SimplicialLLT> {
   typedef Eigen::SimplicialLLT<ESMat> Type;
 };
+
+template<> struct DirectSolverTrait<SimplicialLDLT> {
+  typedef Eigen::SimplicialLDLT<ESMat> Type;
+};
+
+template<> struct DirectSolverTrait<SparseLU> {
+  typedef Eigen::SparseLU<ESMat> Type;
+};
+
+template<> struct DirectSolverTrait<SparseQR> {
+  typedef Eigen::SparseQR<ESMat, Eigen::COLAMDOrdering<int>> Type;
+};
 } // end namespace internal
 
 // Iterative solvers
@@ -76,18 +92,44 @@ class IterativeSolver {
 private:
   typename internal::IterSolverTrait<Derived>::Type solver_;
 public:
-  void analyze_pattern(const SparseMat& m);
-  void factorize(const SparseMat& m);
-  void compute(const SparseMat& m);
-  DoubleVec solve(const DoubleVec& rhs);
-  DoubleVec solve(const SparseMat& m, const DoubleVec& rhs);
-  void set_max_iterations(int iters);
-  int max_iterations() const;
-  void set_tolerance(double tol);
-  double tolerance() const;
-  int iterations() const;
-  double error() const;
-  int info() const;
+  void analyze_pattern(const SparseMat& m) {
+    solver_.analyzePattern(m.data);
+  }
+
+  void factorize(const SparseMat& m) {
+    solver_.factorize(m.data);
+  }
+
+  void compute(const SparseMat& m) {
+    solver_.compute(m.data);
+  }
+
+  DoubleVec solve(const DoubleVec& rhs) {
+    DoubleVec x;
+    x.data = solver_.solve(rhs.data);
+    return x;
+  }
+
+  DoubleVec solve(const SparseMat& m, const DoubleVec& rhs) {
+    DoubleVec x;
+    solver_.compute(m.data);
+    x.data = solver_.solve(rhs.data);
+    return x;
+  }
+
+  void solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x) {
+    solver_.compute(m.data);
+    x.data = solver_.solve(rhs.data);
+  }
+
+  void set_max_iterations(int iters) { solver_.setMaxIterations(iters); }
+  int max_iterations() const { return solver_.maxIterations(); }
+  void set_tolerance(double tol) { solver_.setTolerance(tol); }
+  double tolerance() const { return solver_.tolerance(); }
+  int iterations() const { return solver_.iterations(); }
+  double error() const { return solver_.error(); }
+  // TODO(lizhong): return type
+  int info() const { return solver_.info(); }
 };
 
 template<Precond P>
@@ -112,16 +154,56 @@ template <typename Derived> class DirectSolver {
 protected:
   typename internal::DirectSolverTrait<Derived>::Type solver_;
 public:
-  void analyze_pattern(const SparseMat& m);
-  void factorize(const SparseMat& m);
-  void compute(const SparseMat& m);
-  DoubleVec solve(const DoubleVec& rhs);
-  DoubleVec solve(const SparseMat& m, const DoubleVec& rhs);
-  int info();
+  void analyze_pattern(const SparseMat& m) {
+    solver_.analyzePattern(m.data);
+  }
+
+  void factorize(const SparseMat& m) { 
+    solver_.factorize(m.data);
+  }
+
+  void compute(const SparseMat& m) {
+    solver_.compute(m.data);
+  }
+
+  DoubleVec solve(const DoubleVec& rhs) {
+    DoubleVec x;
+    x.data = solver_.solve(rhs.data);
+    return x;
+  }
+
+  DoubleVec solve(const SparseMat& m, const DoubleVec& rhs) {
+    DoubleVec x;
+    solver_.compute(m.data);
+    x.data = solver_.solve(rhs.data);
+    return x;
+  }
+
+  void solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x) {
+    solver_.compute(m.data);
+    x.data = solver_.solve(rhs.data);
+  }
+
+  int info() {
+    // TODO(lizhong): return type
+    return solver_.info();
+  }
 };
 
 class SimplicialLLT : public DirectSolver<SimplicialLLT> {
   friend class DirectSolver<SimplicialLLT>;
+};
+
+class SimplicialLDLT : public DirectSolver<SimplicialLDLT> {
+  friend class DirectSolver<SimplicialLDLT>;
+};
+
+class SparseLU : public DirectSolver<SparseLU> {
+  friend class DirectSolver<SparseLU>;
+};
+
+class SparseQR : public DirectSolver<SparseQR> {
+  friend class DirectSolver<SparseQR>;
 };
 
 void solveCG(const SparseMat&, const DoubleVec &rhs,
