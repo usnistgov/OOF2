@@ -93,7 +93,11 @@ class ConjugateGradient(PreconditionedMatrixMethod):
                 raise ooferror2.ErrPyProgrammingError(
                     "%dx%d CG matrix is not symmetric!" %
                     (matrix.nrows(), matrix.ncols()))
-        self.solver.solve(matrix, rhs, solution)
+        succ = self.solver.solve(matrix, rhs, solution)
+        if succ != cmatrixmethods.SUCCESS: 
+            if succ == cmatrixmethods.NOCONVERG:
+                raise ooferror2.ErrPyProgrammingError(
+                    "Iterative procedure did not converge")
         return self.solver.iterations(), self.solver.error()
 
 registeredclass.Registration(
@@ -177,7 +181,11 @@ class StabilizedBiConjugateGradient(PreconditionedMatrixMethod):
         self.solver.set_max_iterations(max_iterations)
         self.solver.set_tolerance(tolerance)
     def solveMatrix(self, matrix, rhs, solution):
-        self.solver.solve(matrix, rhs, solution)
+        succ = self.solver.solve(matrix, rhs, solution)
+        if succ != cmatrixmethods.SUCCESS: 
+            if succ == cmatrixmethods.NOCONVERG:
+                raise ooferror2.ErrPyProgrammingError(
+                    "Iterative procedure did not converge")
         return self.solver.iterations(), self.solver.error()
 
 registeredclass.Registration(
@@ -245,34 +253,60 @@ registeredclass.Registration(
 
 # Direct linear solvers 
 
-# TODO(lizhong): choose appropriate return values
-
 class SimplicialLLT(MatrixMethod):
     def __init__(self):
         self.solver = cmatrixmethods.SimplicialLLT()
     def solveMatrix(self, matrix, rhs, solution):
-        self.solver.solve(matrix, rhs, solution)
+        succ = self.solver.solve(matrix, rhs, solution)
+        if succ != cmatrixmethods.SUCCESS: 
+            if succ == cmatrixmethods.NUMERICAL:
+                raise ooferror2.ErrPyProgrammingError(
+                    "The provided data did not satisfy the prerequisites.")
+            elif succ == cmatrixmethods.INVALID_INPUT:
+                raise ooferror2.ErrPyProgrammingError(
+                    "The inputs are invalid, or the algorithm has been improperly called.")
         return (1, 0)
 
 class SimplicialLDLT(MatrixMethod):
     def __init__(self):
         self.solver = cmatrixmethods.SimplicialLDLT()
     def solveMatrix(self, matrix, rhs, solution):
-        self.solver.solve(matrix, rhs, solution)
+        succ = self.solver.solve(matrix, rhs, solution)
+        if succ != cmatrixmethods.SUCCESS: 
+            if succ == cmatrixmethods.NUMERICAL:
+                raise ooferror2.ErrPyProgrammingError(
+                    "The provided data did not satisfy the prerequisites.")
+            elif succ == cmatrixmethods.INVALID_INPUT:
+                raise ooferror2.ErrPyProgrammingError(
+                    "The inputs are invalid, or the algorithm has been improperly called.")
         return (1, 0)
 
 class SparseLU(MatrixMethod):
     def __init__(self):
         self.solver = cmatrixmethods.SparseLU()
     def solveMatrix(self, matrix, rhs, solution):
-        self.solver.solve(matrix, rhs, solution)
+        succ = self.solver.solve(matrix, rhs, solution)
+        if succ != cmatrixmethods.SUCCESS: 
+            if succ == cmatrixmethods.NUMERICAL:
+                raise ooferror2.ErrPyProgrammingError(
+                    "The provided data did not satisfy the prerequisites.")
+            elif succ == cmatrixmethods.INVALID_INPUT:
+                raise ooferror2.ErrPyProgrammingError(
+                    "The inputs are invalid, or the algorithm has been improperly called.")
         return (1, 0)
 
 class SparseQR(MatrixMethod):
     def __init__(self):
         self.solver = cmatrixmethods.SparseQR()
     def solveMatrix(self, matrix, rhs, solution):
-        self.solver.solve(matrix, rhs, solution)
+        succ = self.solver.solve(matrix, rhs, solution)
+        if succ != cmatrixmethods.SUCCESS: 
+            if succ == cmatrixmethods.NUMERICAL:
+                raise ooferror2.ErrPyProgrammingError(
+                    "The provided data did not satisfy the prerequisites.")
+            elif succ == cmatrixmethods.INVALID_INPUT:
+                raise ooferror2.ErrPyProgrammingError(
+                    "The inputs are invalid, or the algorithm has been improperly called.")
         return (1, 0)
 
 registeredclass.Registration(

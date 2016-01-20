@@ -22,6 +22,13 @@
 
 enum class Precond {Uncond=1, Diag=2, ILUT=3};
 
+enum Info {
+  SUCCESS = Eigen::Success,
+  NUMERICAL = Eigen::NumericalIssue,
+  NOCONVERG = Eigen::NoConvergence,
+  INVALID_INPUT = Eigen::InvalidInput
+};
+
 template<Precond P> class CG;
 template<Precond P> class BiCGStab;
 class SimplicialLLT;
@@ -117,9 +124,10 @@ public:
     return x;
   }
 
-  void solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x) {
+  int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x) {
     solver_.compute(m.data);
     x.data = solver_.solve(rhs.data);
+    return solver_.info();
   }
 
   void set_max_iterations(int iters) { solver_.setMaxIterations(iters); }
@@ -128,7 +136,6 @@ public:
   double tolerance() const { return solver_.tolerance(); }
   int iterations() const { return solver_.iterations(); }
   double error() const { return solver_.error(); }
-  // TODO(lizhong): return type
   int info() const { return solver_.info(); }
 };
 
@@ -179,13 +186,13 @@ public:
     return x;
   }
 
-  void solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x) {
+  int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x) {
     solver_.compute(m.data);
     x.data = solver_.solve(rhs.data);
+    return solver_.info();
   }
 
   int info() {
-    // TODO(lizhong): return type
     return solver_.info();
   }
 };

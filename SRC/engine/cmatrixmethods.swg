@@ -23,120 +23,117 @@ typedef BiCGStab<Precond::Diag> BiCGStab_Diag;
 typedef BiCGStab<Precond::ILUT> BiCGStab_ILUT;
 %}
 
+enum Info {
+  SUCCESS = Eigen::Success,
+  NUMERICAL = Eigen::NumericalIssue,
+  NOCONVERG = Eigen::NoConvergence,
+  INVALID_INPUT = Eigen::InvalidInput
+};
+
 class CG_Unpre{
 public:
   CG_Unpre();
   ~CG_Unpre();
-  void solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
+  int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
   void set_max_iterations(int iters);
   int max_iterations() const;
   void set_tolerance(double tol);
   double tolerance() const;
   int iterations() const;
   double error() const;
-  int info() const;
 };
 
 class CG_Diag {
 public:
   CG_Diag();
   ~CG_Diag();
-  void solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
+  int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
   void set_max_iterations(int iters);
   int max_iterations() const;
   void set_tolerance(double tol);
   double tolerance() const;
   int iterations() const;
   double error() const;
-  int info() const;
 };
 
 class CG_ILUT{
 public:
   CG_ILUT();
   ~CG_ILUT();
-  void solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
+  int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
   void set_max_iterations(int iters);
   int max_iterations() const;
   void set_tolerance(double tol);
   double tolerance() const;
   int iterations() const;
   double error() const;
-  int info() const;
 };
 
 class BiCGStab_Unpre {
 public:
   BiCGStab_Unpre();
   ~BiCGStab_Unpre();
-  void solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
+  int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
   void set_max_iterations(int iters);
   int max_iterations() const;
   void set_tolerance(double tol);
   double tolerance() const;
   int iterations() const;
   double error() const;
-  int info() const;
 };
 
 class BiCGStab_Diag {
 public:
   BiCGStab_Diag();
   ~BiCGStab_Diag();
-  void solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
+  int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
   void set_max_iterations(int iters);
   int max_iterations() const;
   void set_tolerance(double tol);
   double tolerance() const;
   int iterations() const;
   double error() const;
-  int info() const;
 };
 
 class BiCGStab_ILUT {
 public:
   BiCGStab_ILUT();
   ~BiCGStab_ILUT();
-  void solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
+  int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
   void set_max_iterations(int iters);
   int max_iterations() const;
   void set_tolerance(double tol);
   double tolerance() const;
   int iterations() const;
   double error() const;
-  int info() const;
 };
 
 class SimplicialLLT {
 public:
   SimplicialLLT();
   ~SimplicialLLT();
-  void solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
-  int info();
+  int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
 };
 
 class SimplicialLDLT {
 public:
   SimplicialLDLT();
   ~SimplicialLDLT();
-  void solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
-  int info();
+  int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
 };
 
 class SparseLU {
 public:
   SparseLU();
   ~SparseLU();
-  void solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
-  int info();
+  int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
 };
 
 class SparseQR {
 public:
   SparseQR();
   ~SparseQR();
-  void solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
-  int info();
+  int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
 };
 
 %typemap(python, argout) int INOUT {
