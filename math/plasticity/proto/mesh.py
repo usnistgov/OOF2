@@ -675,9 +675,9 @@ class Mesh:
     # has no other requirements.  Builds the Master Stiffness Matrix,
     # applies boundary conditions, and fills in the displacement DOFs
     # with the resulting solution.
-    def solve_elastic(self,cijkl):
+    def solve_linear(self):
         self.clear()
-        self.elastic(cijkl)
+        self.clear_caches()
         (a,c,br,sr) = self.linearsystem()
         nr = (c*br)*(-1.0)-sr # Sign.
 
@@ -760,70 +760,6 @@ class Mesh:
                 else:
                     print >> outfile,i,j,v
                     
-    # Routine for measuring how much force is exerted in the y
-    # direction on the bottom boundary.  The bottom is chosen because,
-    # in this rig, it always has a fixed boundary condition.
-    # TODO: WRONG for large-deformation.
-    def measure_force(self,cijkl):
-        # Use three guass-points per segment in the usual way.
-        mpt = math.sqrt(3.0/5.0)
-        pts = [-mpt, 0.0, mpt]
-        wts = [5.0/9.0, 8.0/9.0, 5.0/9.0]
-        elcount = len(self.bottomnodes)-1
-        force = 0.0
-        for e in self.elementlist[:elcount]: # Bottom row of elements.
-            for (pt,wt) in zip(pts,wts):
-                strain = [[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]]
-                for (ndx,nd) in [(ii,e.nodes[ii]) for ii in
-                                 range(len(e.nodes))]:
-                    disp = nd.dof("Displacement")
-                    ux = disp.value[0]
-                    uy = disp.value[1]
-                    dstrain = [[
-                        ux*e.dshapefn(ndx,0,pt,-1.0),
-                        0.5*(ux*e.dshapefn(ndx,1,pt,-1.0) +
-                             uy*e.dshapefn(ndx,0,pt,-1.0)),
-                        0.0],
-                               [
-                        0.5*(ux*e.dshapefn(ndx,1,pt,-1.0) +
-                             uy*e.dshapefn(ndx,0,pt,-1.0)),
-                        uy*e.dshapefn(ndx,1,pt,-1.0),
-                        0.0],
-                               [0.0,0.0,0.0]]
-                    dsfstrain = [0,0,0,0,0,0]
-                    sfst = nd.auxel(e,"Plastic Strain")
-                    if sfst is not None:
-                        sfval = e.shapefn(ndx,pt,-1.0)
-                        dsfstrain = [ x*sfval for x in sfst.value ]
-                        
-                    strain = [ [ strain[i][j]+
-                                 dstrain[i][j]-
-                                 dsfstrain[voigt[i][j]]
-                                 for j in range(3) ]
-                               for i in range(3) ]
-                # Now we have the complete strain at this eval point.
-                # Get the stress.
-                stress = [ [ sum( [ sum( [
-                    cijkl[i][j][k][l]*strain[k][l] for l in range(3) ] )
-                                    for k in range(3) ] ) 
-                             for j in range(3) ]
-                           for i in range(3) ]
-
-                # Relevant force component is the y component of the
-                # tensor contracted with a unit vector pointing in the
-                # y direction -- this is just the (1,1) component of
-                # the tensor.
-                force_inc = stress[1][1]
-                # print force_inc
-                # Last factor is the Jacobian. Since lower boundary is
-                # fixed, it's just the ratio of the lengths of the
-                # reference interval (2) to the length of the real
-                # interval, which is 1/elcount.
-                force += force_inc*wt*((1.0/elcount)/2.0)
-        return force
-
-
-
 
 
 
