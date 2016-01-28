@@ -893,5 +893,6 @@ if __name__=="__main__":
     # RHS?
     m.setbcs(0.1,0.0)
     m.solve_linear()
+    m.draw(displaced=True)
     
         
