@@ -49,10 +49,7 @@ class Node:
         return self.elements
 
     def alldofs(self):
-        res = self.dofs[:]
-        for v in self.eldofs.values():
-            res+=v
-        return res
+        return self.dofs[:]
 
     def adddof(self,dof):
         self.dofs.append(dof)
@@ -652,7 +649,7 @@ class Mesh:
         cmtx.clear()
         brhs.clear()
         srhs.clear()
-    
+
         for ((i,j),v) in self.matrix.items():
             if self.freedofs[i]>=0 and self.freedofs[j]>=0:
                 amtx[self.freedofs[i],self.freedofs[j]]=v
@@ -668,18 +665,17 @@ class Mesh:
                 srhs[self.freedofs[i],0]=v
 
         # System to solve is: amtx + cmtx.brhs = srhs
+        # return (amtx,cmtx,brhs,srhs)
         return (amtx,cmtx,brhs,srhs)
 
-
-    # Assumes the "Displacement" field has been added to the mesh, but
-    # has no other requirements.  Builds the Master Stiffness Matrix,
-    # applies boundary conditions, and fills in the displacement DOFs
-    # with the resulting solution.
+    # Assumes the "Displacement" field has been added to the mesh, and
+    # the appropriate equations, and that the big master stiffness
+    # matrix has been built amd the boundary conditions set.
     def solve_linear(self):
-        self.clear()
-        self.clear_caches()
+
         (a,c,br,sr) = self.linearsystem()
-        nr = (c*br)*(-1.0)-sr # Sign.
+
+        nr = (c*br)*(-1.0)-sr # Sign?
 
         if a.rows()!=0:
             rr = a.solve(nr)
@@ -775,7 +771,7 @@ class Flux:
     
 
 class CauchyStress(Flux):
-    def __init__(self,name,lmbda=0.5,mu=0.25):
+    def __init__(self,name,lmbda=1.0,mu=0.5):
         Flux.__init__(self,name,"Displacement")
         self.cijkl = Cijkl(lmbda,mu)
     # For the Cauchy stress, derivative is very simple.
@@ -839,20 +835,15 @@ if __name__=="__main__":
     m.addeqn("Force",3,f) # Last argument is the flux.
 
     m.make_stiffness()
-    print "Made stiffness."
-    m.phi()
-    print "Made RHS."
+    # RHS?
+    m.setbcs(0.1,0.0)
 
-    # m.dump_matrix(sys.stderr)
+    m.solve_linear()
     
-    # try:
-    #     opts, nonopts = getopt.getopt(sys.argv[1:],"s:")
-    # except getopt.GetOptError:
-    #     print "Wrong/missing options, exiting."
-    #     sys.exit(2)
-    # for o,a in opts:
-    #     if o=="-s":
-    #         size = int(a)
-    # go(size)
+                    
+    # print a
+    # print a.rows()
+    # print a.cols()
+    # m.solve_linear()
 
     
