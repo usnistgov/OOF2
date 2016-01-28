@@ -56,7 +56,8 @@ class Node:
 
     def addeqn(self,eqn):
         self.eqns.append(eqn)
-            
+
+    # Returns the *mesh* index of this DOF.
     def dofindex(self,dofname):
         for d in self.dofs:
             if d.name==dofname:
@@ -696,15 +697,22 @@ class Mesh:
 
 
     # TODO: Draw displaced, draw strains, draw stresses?
-    def draw(self):
+    def draw(self,displaced=False):
         import mayavi.mlab as mlab
         import numpy as np
 
         # mlab.options.offscreen = True
         fg = mlab.figure(bgcolor=(1,1,1))
         fg.scene.disable_render = True
+
+        # Undisplaced.
         dotset = set()
         segset = set()
+
+        # Displaced.
+        ddotset = set()
+        dsegset = set()
+        
         segmap = [ [0,1],[1,3],[3,2],[2,0],[0,4],[1,5],[3,7],
                    [2,6],[4,5],[5,7],[7,6],[6,4] ]
         # The dotset is the set of all the dots.  The segset is the
@@ -714,6 +722,13 @@ class Mesh:
         for e in self.elementlist:
             for n in e.nodes:
                 dotset.add(n.position)
+                if displaced:
+                    dpos = n.position
+                    disp_idx = n.dof("Displacement")
+                    disp_val = Position(disp_idx.value[0],
+                                        disp_idx.value[1],
+                                        disp_idx.value[2])
+                    ddotset.add(n.position+disp_val)
             for seq in segmap:
                 p1 = e.nodes[seq[0]].position
                 p2 = e.nodes[seq[1]].position
@@ -721,13 +736,33 @@ class Mesh:
                     segset.add( (p1,p2) )
                 else:
                     segset.add( (p2,p1) )
+                if displaced:
+                    p1dx = e.nodes[seq[0]].dof("Displacement")
+                    p2dx = e.nodes[seq[1]].dof("Displacement")
+                    p1dv = Position(p1dx.value[0],p1dx.value[1],p1dx.value[2])
+                    p2dv = Position(p2dx.value[0],p2dx.value[1],p2dx.value[2])
+                    p1d = p1+p1dv
+                    p2d = p2+p2dv
+                    if p1d < p2d:
+                        dsegset.add( (p1d,p2d) )
+                    else:
+                        dsegset.add( (p2d,p1d) )
+                        
                     
         # Dots.
         xs = np.array([p.x for p in dotset])
         ys = np.array([p.y for p in dotset])
         zs = np.array([p.z for p in dotset])
-        mlab.points3d(xs,ys,zs,figure=fg,color=(0,0,0),scale_factor=0.04)
+        mlab.points3d(xs,ys,zs,figure=fg,color=(0.5,0.5,0.5),
+                      scale_factor=0.04)
 
+        if displaced:
+            xs = np.array([p.x for p in ddotset])
+            ys = np.array([p.y for p in ddotset])
+            zs = np.array([p.z for p in ddotset])
+            mlab.points3d(xs,ys,zs,figure=fg,color=(0,0,0),
+                          scale_factor=0.04)
+            
         # Segments. Drawing all these is very slow, there are
         # apparently too damn many objects in the scene, even though
         # there are only a few hundred.
@@ -735,8 +770,18 @@ class Mesh:
             seqx = np.array( [s[0].x,s[1].x] )
             seqy = np.array( [s[0].y,s[1].y] )
             seqz = np.array( [s[0].z,s[1].z] )
-            mlab.plot3d( seqx, seqy, seqz, color=(0,0,0),
+            mlab.plot3d( seqx, seqy, seqz, color=(0.5,0.5,0.5),
                          figure=fg,tube_radius=None)
+
+        if displaced:
+            for s in dsegset:
+                seqx = np.array( [s[0].x,s[1].x] )
+                seqy = np.array( [s[0].y,s[1].y] )
+                seqz = np.array( [s[0].z,s[1].z] )
+                mlab.plot3d( seqx, seqy, seqz, color=(0,0,0),
+                             figure=fg,tube_radius=None)
+
+            
         fg.scene.disable_render = False
         mlab.show() # Blocking..
         
@@ -826,24 +871,27 @@ def go(size):
 # back into the mesh (for iterating, of course) using the Dof "set"
 # method.
 
+def displaced_drawing_test():
+    m = Mesh(xelements=4,yelements=4,zelements=4)
+    m.addfield("Displacement",3)
+    
+    for n in m.nodelist:
+        p = n.position
+        dp = [0,0,p.z*0.1]
+        df = n.dof("Displacement")
+        for i in range(3):
+            df.value[i]=dp[i]
+            
+    m.draw(displaced=True)
+    
 if __name__=="__main__":
     m = Mesh(xelements=4,yelements=4,zelements=4)
-
     f = CauchyStress("Stress")
-    
     m.addfield("Displacement",3)
     m.addeqn("Force",3,f) # Last argument is the flux.
-
     m.make_stiffness()
     # RHS?
     m.setbcs(0.1,0.0)
-
     m.solve_linear()
     
-                    
-    # print a
-    # print a.rows()
-    # print a.cols()
-    # m.solve_linear()
-
-    
+        
