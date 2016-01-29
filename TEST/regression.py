@@ -34,6 +34,7 @@ test_module_names = [
     "activearea_test",
     "microstructure_extra_test",
     "matrix_test",
+    "matrix_method_test",
     "skeleton_basic_test",
     "skeleton_select_test",
     "skeleton_bdy_test",

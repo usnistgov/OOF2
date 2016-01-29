@@ -138,6 +138,7 @@ bool save_mat(const SparseMat& mat, const std::string& filename,
               int precision=13, int sym = 0);
 bool load_mat(SparseMat& mat, const std::string& filename);
 
+// TODO(lizhong): guess value type from matrix type
 template<typename MT, typename VT>
 class SparseMatIterator {
 private:

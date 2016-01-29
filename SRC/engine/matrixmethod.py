@@ -136,7 +136,8 @@ mainmenu.debugmenu.addItem(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 
-## TODO(lizhong): remove this solver
+## Preserve this method for backward compitability, which actually
+## calls BiCGStab.
 class BiConjugateGradient(PreconditionedMatrixMethod):
     def __init__(self, preconditioner, tolerance, max_iterations):
         self.preconditioner = preconditioner
@@ -253,6 +254,22 @@ registeredclass.Registration(
 
 # Direct linear solvers 
 
+## Preserve this method for backward compitability, which actually
+## calls SparseLU. 
+class DirectMatrixSolver(MatrixMethod):
+    def __init__(self):
+        self.solver = cmatrixmethods.SparseLU()
+    def solveMatrix(self, matrix, rhs, solution):
+        succ = self.solver.solve(matrix, rhs, solution)
+        if succ != cmatrixmethods.SUCCESS: 
+            if succ == cmatrixmethods.NUMERICAL:
+                raise ooferror2.ErrPyProgrammingError(
+                    "The provided data did not satisfy the prerequisites.")
+            elif succ == cmatrixmethods.INVALID_INPUT:
+                raise ooferror2.ErrPyProgrammingError(
+                    "The inputs are invalid, or the algorithm has been improperly called.")
+        return (1, 0)
+
 class SimplicialLLT(MatrixMethod):
     def __init__(self):
         self.solver = cmatrixmethods.SimplicialLLT()
@@ -310,12 +327,20 @@ class SparseQR(MatrixMethod):
         return (1, 0)
 
 registeredclass.Registration(
+    "DirectMatrixSolver",
+    MatrixMethod,
+    DirectMatrixSolver,
+    ordering=204,
+    symmetricOnly=True,
+    tip="An obsolete matrix solver preserved for compitability.")
+
+registeredclass.Registration(
     "SimplicialLLT",
     MatrixMethod,
     SimplicialLLT,
     ordering=201,
     symmetricOnly=True,
-    tip="A direct sparse matrix solver using LLT Cholesky factorizations.")
+    tip="A direct sparse matrix solver using LLT Cholesky factorizations for sparse positive definite matrices.")
 
 registeredclass.Registration(
     "SimplicialLDLT",
@@ -323,7 +348,7 @@ registeredclass.Registration(
     SimplicialLDLT,
     ordering=200,
     symmetricOnly=True,
-    tip="A direct sparse matrix solver using LDLt Cholesky factorizations.  SimplicialLDLT is often preferable. Recommended for very sparse and not too large problems.")
+    tip="A direct sparse matrix solver using LDLt Cholesky factorizations for sparse positive definite matrices. Recommended for very sparse and not too large problems.")
 
 registeredclass.Registration(
     "SparseLU",

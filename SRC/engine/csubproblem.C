@@ -1683,7 +1683,7 @@ DoubleVec *CSubProblem::zz_L2_weights(const Flux *fluks,
 				      const double &top)
 {
   DoubleVec *weights = new DoubleVec;
-  vector<double> values;
+  std::vector<double> values;
 
   int dim = fluks->ndof();
   bool first = true;

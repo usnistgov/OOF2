@@ -65,7 +65,7 @@ bool SparseMat::is_nonempty_col(int i) const {
 
 SparseMat SparseMat::lower() const {
   SparseMat tmp;
-  tmp.data = data.triangularView<Eigen::UnitLower>();
+  tmp.data = data.triangularView<Eigen::Lower>();
   return tmp;
 }
 
@@ -371,8 +371,6 @@ bool save_mat(const SparseMat& mat, const std::string& filename, int precision, 
          << std::get<2>(tri) << std::endl;
     }
   }
-
-
   return true;
 }
 
