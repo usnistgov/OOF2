@@ -21,7 +21,7 @@ from UTILS.file_utils import reference_file
 # Flag that says whether to generate missing reference data files.
 # Should be false unless you really know what you're doing.
 ## TODO: Use file_utils instead.
-generate = False
+generate = True
 
 # If generate==True, compare_mesh saves the given mesh in a data file
 # for future comparison.  Otherwise it compares the mesh with the one
@@ -161,9 +161,7 @@ class OOF_Subproblem_Extra(unittest.TestCase):
             solver_mode=AdvancedSolverMode(
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
-                asymmetric_solver=GeneralizedMinResidual(
-                    preconditioner=ILUPreconditioner(),tolerance=1e-13,
-                    max_iterations=1000,krylov_dimension=100),
+                asymmetric_solver=SparseQR(),
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ILUPreconditioner(),tolerance=1.e-13,
                     max_iterations=1000)
@@ -292,10 +290,7 @@ class OOF_Subproblem_Extra(unittest.TestCase):
             solver_mode=AdvancedSolverMode(
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
-                asymmetric_solver=GeneralizedMinResidual(
-                    krylov_dimension=100,
-                    preconditioner=ILUPreconditioner(), tolerance=1.e-13,
-                    max_iterations=1000)))
+                asymmetric_solver=SparseQR()))
         OOF.Subproblem.Disable_Solution(
             subproblem='microstructure:skeleton:mesh:default')
         OOF.Subproblem.Enable_Solution(
@@ -344,10 +339,7 @@ class OOF_Subproblem_Extra(unittest.TestCase):
             solver_mode=AdvancedSolverMode(
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
-            asymmetric_solver=GeneralizedMinResidual(
-                    krylov_dimension=100,
-                    preconditioner=ILUPreconditioner(), tolerance=1.e-13,
-                    max_iterations=1000)))
+                asymmetric_solver=SparseQR()))
         OOF.Subproblem.Disable_Solution(
             subproblem='microstructure:skeleton:mesh:default')
         OOF.Subproblem.Enable_Solution(
@@ -395,10 +387,7 @@ class OOF_Subproblem_Extra(unittest.TestCase):
             solver_mode=AdvancedSolverMode(
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
-                asymmetric_solver=GeneralizedMinResidual(
-                    krylov_dimension=100,
-                    preconditioner=ILUPreconditioner(), tolerance=1.e-13,
-                    max_iterations=1000)))
+                asymmetric_solver=SparseLU()))
         OOF.Subproblem.Disable_Solution(
             subproblem='microstructure:skeleton:mesh:default')
         OOF.Subproblem.Enable_Solution(

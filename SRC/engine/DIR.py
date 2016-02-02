@@ -28,7 +28,7 @@ if HAVE_PETSC:
 
 cfiles = [
     'angle2color.C', 'bdyanalysis.C', 'boundarycond.C',
-    'cconjugate.C', 'celectricfield.C', 'cmatrixmethods.C',
+    'cconjugate.C', 'celectricfield.C', 
     'compoundsubproblem.C', 'contourcell.C',
     'cnonlinearsolver.C',
     'cscpatch.C', 'cskeleton.C', 'cstrain.C', 'csubproblem.C',

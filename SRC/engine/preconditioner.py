@@ -11,19 +11,16 @@ class PreconditionerBase(registeredclass.RegisteredClass):
 
 class UnPreconditioner(PreconditionerBase):
     name = "Un"
-    pid = 1
 
 class JacobiPreconditioner(PreconditionerBase):
     name = "Diag"
-    pid = 2
 
-class ILUPreconditioner(PreconditionerBase):
+class ILUTPreconditioner(PreconditionerBase):
     name = "ILUT"
-    pid = 3
 
-class ICPreconditioner(PreconditionerBase):
-    name = "IC"
-    pid = 4
+# ILU preconditioner actually points to ILUT preconditioner
+class ILUPreconditioner(PreconditionerBase):
+    name = "ILU"
 
 registeredclass.Registration(
     "Null",
@@ -31,8 +28,7 @@ registeredclass.Registration(
     UnPreconditioner,
     ordering=2000,
     params=[],
-    tip="Be bold (or foolhardy) and attempt to solve the mesh without a preconditioner",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/null_preconditioner.xml'))
+    tip="Be bold (or foolhardy) and attempt to solve the mesh without a preconditioner")
 
 registeredclass.Registration(
     "Jacobi",
@@ -40,16 +36,20 @@ registeredclass.Registration(
     JacobiPreconditioner,
     ordering=500,
     params=[],
-    tip="A light-weight preconditioner, that simply inverts the diagonal part of the matrix.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/jacobi_preconditioner.xml'))
+    tip="A light-weight preconditioner, that simply inverts the diagonal part of the matrix.")
+
+registeredclass.Registration(
+    "IncompleteLUT",
+    PreconditionerBase,
+    ILUTPreconditioner,
+    ordering=100,
+    params=[],
+    tip="Incomplete LU-factorization with dual thresholding.")
 
 registeredclass.Registration(
     "ILU",
     PreconditionerBase,
     ILUPreconditioner,
-    ordering=100,
+    ordering=101,
     params=[],
-    tip="Incomplete LU-factorization",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/ilu_preconditioner.xml')
-)
-
+    tip="ILU is not supported. It points to IncompleteLUT instead.") 

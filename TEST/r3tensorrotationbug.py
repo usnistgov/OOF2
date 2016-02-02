@@ -118,10 +118,7 @@ class R3TensorRotationBug(unittest.TestCase):
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000),
-                asymmetric_solver=GeneralizedMinResidual(
-                    preconditioner=ILUPreconditioner(),
-                    tolerance=1e-13,
-                    max_iterations=1000,krylov_dimension=100)))
+                asymmetric_solver=SparseLU()))
         OOF.Mesh.Solve(mesh='r3bug:skeleton:mesh', endtime=0.0)
         from ooflib.engine import materialmanager
         m = materialmanager.getMaterial('material')
@@ -144,10 +141,7 @@ class R3TensorRotationBug(unittest.TestCase):
             solver_mode=AdvancedSolverMode(
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
-                asymmetric_solver=GeneralizedMinResidual(
-                    preconditioner=ILUPreconditioner(),
-                    tolerance=1e-13,
-                    max_iterations=1000,krylov_dimension=100)))
+                asymmetric_solver=SparseLU()))
         OOF.Mesh.Solve(mesh='r3bug:skeleton:mesh', endtime=0.0)
         from ooflib.engine import materialmanager
         m = materialmanager.getMaterial('material')

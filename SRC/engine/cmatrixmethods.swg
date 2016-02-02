@@ -152,19 +152,4 @@ public:
   PyList_Append($target, PyFloat_FromDouble($source));
  }
 
-void solveCG(const SparseMat&, const DoubleVec&,
-  int, int INOUT, double INOUT, DoubleVec&);
-
-void solveBiCG(const SparseMat&, const DoubleVec&,
-  int, int INOUT, double INOUT, DoubleVec&);
-
-void solveBiCGStab(const SparseMat&, const DoubleVec&,
-  int, int INOUT, double INOUT, DoubleVec&);
-
-void solveGMRes(const SparseMat&, const DoubleVec&,
-  int, int INOUT, int, double INOUT, DoubleVec&);
-
-void solveDirect(const SparseMat&, const DoubleVec &rhs, DoubleVec &x);
-
-
 #endif

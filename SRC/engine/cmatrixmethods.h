@@ -213,22 +213,4 @@ class SparseQR : public DirectSolver<SparseQR> {
   friend class DirectSolver<SparseQR>;
 };
 
-void solveCG(const SparseMat&, const DoubleVec &rhs,
-  int precond_id, int &maxiter, double &tolerance,
-  DoubleVec &x);
-
-void solveBiCG(const SparseMat&, const DoubleVec &rhs,
-  int precond_id, int &maxiter, double &tolerance,
-  DoubleVec &x);
-
-void solveBiCGStab(const SparseMat&, const DoubleVec &rhs,
-  int precond_id, int &maxiter, double &tolerance,
-  DoubleVec &x);
-
-void solveGMRes(const SparseMat&, const DoubleVec &rhs,
-  int precond_id, int &maxiter, int krylov_dim,
-  double &tolerance, DoubleVec &x);
-
-void solveDirect(const SparseMat&, const DoubleVec &rhs, DoubleVec &x);
-
 #endif // CMATRIXMETHODS_H

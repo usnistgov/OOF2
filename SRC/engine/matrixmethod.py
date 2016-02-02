@@ -65,10 +65,12 @@ solver_map["CG"] = {}
 solver_map["CG"]["Un"] = cmatrixmethods.CG_Unpre
 solver_map["CG"]["Diag"] = cmatrixmethods.CG_Diag
 solver_map["CG"]["ILUT"] = cmatrixmethods.CG_ILUT
+solver_map["CG"]["ILU"] = cmatrixmethods.CG_ILUT
 solver_map["BiCGStab"] = {}
 solver_map["BiCGStab"]["Un"] = cmatrixmethods.BiCGStab_Unpre
 solver_map["BiCGStab"]["Diag"] = cmatrixmethods.BiCGStab_Diag
 solver_map["BiCGStab"]["ILUT"] = cmatrixmethods.BiCGStab_ILUT
+solver_map["BiCGStab"]["ILU"] = cmatrixmethods.BiCGStab_ILUT
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -133,43 +135,6 @@ mainmenu.debugmenu.addItem(
         help='Verify matrix symmetry before using Conjugate Gradient.',
         discussion="<para>For debugging.  Slow.</para>"))
 
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-
-## Preserve this method for backward compitability, which actually
-## calls BiCGStab.
-class BiConjugateGradient(PreconditionedMatrixMethod):
-    def __init__(self, preconditioner, tolerance, max_iterations):
-        self.preconditioner = preconditioner
-        self.tolerance = tolerance
-        self.max_iterations = max_iterations
-        self.solver = solver_map["BiCGStab"][preconditioner.name]()
-        self.solver.set_max_iterations(max_iterations)
-        self.solver.set_tolerance(tolerance)
-    def solveMatrix(self, matrix, rhs, solution):
-        self.solver.solve(matrix, rhs, solution)
-        return self.solver.iterations(), self.solver.error()
-
-registeredclass.Registration(
-    "BiCG",
-    MatrixMethod,
-    BiConjugateGradient,
-    ordering=2,
-    symmetricOnly=False,
-    params=[
-        parameter.RegisteredParameter(
-            "preconditioner",
-            preconditioner.PreconditionerBase,
-            tip="Black magic for making the matrix more easily solvable."),
-        parameter.FloatParameter(
-            "tolerance", 1.e-13,
-            tip="Largest acceptable relative error in the matrix solution."),
-        parameter.IntParameter(
-            "max_iterations", 1000,
-            tip="Maximum number of iterations to perform.")],
-    tip="Bi-conjugate gradient method for iteratively solving non-symmetric matrices.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/bicg.xml')
-)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -212,25 +177,18 @@ registeredclass.Registration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO(lizhong): replace this solver with Eigen's unsupported GMRes
-class GeneralizedMinResidual(PreconditionedMatrixMethod):
-    def __init__(self, preconditioner, tolerance, max_iterations,
-                 krylov_dimension):
-        self.preconditioner = preconditioner
-        self.tolerance = tolerance
-        self.max_iterations = max_iterations
-        self.krylov_dimension = krylov_dimension
-    def solveMatrix(self, matrix, rhs, solution):
-        return cmatrixmethods.solveGMRes(
-            matrix, rhs, self.preconditioner.pid,
-            self.max_iterations, self.krylov_dimension, self.tolerance,
-            solution)
+## Preserve this method for backward compitability, which actually
+## inherts BiCGStab.
+class BiConjugateGradient(StabilizedBiConjugateGradient):
+    def __init__(self, preconditioner, tolerance, max_iterations):
+        StabilizedBiConjugateGradient.__init__(
+            self, preconditioner, tolerance, max_iterations)
 
 registeredclass.Registration(
-    "GMRES",
+    "BiCG",
     MatrixMethod,
-    GeneralizedMinResidual,
-    ordering=3,
+    BiConjugateGradient,
+    ordering=2,
     symmetricOnly=False,
     params=[
         parameter.RegisteredParameter(
@@ -242,12 +200,9 @@ registeredclass.Registration(
             tip="Largest acceptable relative error in the matrix solution."),
         parameter.IntParameter(
             "max_iterations", 1000,
-            tip="Maximum number of iterations to perform."),
-        parameter.IntParameter(
-            "krylov_dimension", 100,
-            tip="Making the Krylov dimension bigger will improve convergence but use more memory.")],
-    tip="Generalized Minimal Residual method for iteratively solving non-symmetric matrices.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/gmres.xml')
+            tip="Maximum number of iterations to perform.")],
+    tip="Bi-conjugate gradient method for iteratively solving non-symmetric matrices.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/bicg.xml')
 )
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
