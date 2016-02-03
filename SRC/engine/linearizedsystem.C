@@ -266,9 +266,9 @@ void LinearizedSystem::insertK(int row, int col, double x) {
 
 #ifdef _OPENMP
   if (mkl_parallel)
-    K_mtd[omp_get_thread_num()].insert(i, j, x);
+    KTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
   else
-    K_.insert(i, j, x);
+    KTri_.emplace_back(i, j, x);
 #else
   KTri_.emplace_back(i, j, x); 
 #endif
@@ -281,9 +281,9 @@ void LinearizedSystem::insertC(int row, int col, double x) {
 
 #ifdef _OPENMP
   if (mkl_parallel)
-    C_mtd[omp_get_thread_num()].insert(i, j, x);
+    CTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
   else
-    C_.insert(i, j, x);
+    CTri_.emplace_back(i, j, x);
 #else
   CTri_.emplace_back(i, j, x); 
 #endif
@@ -296,9 +296,9 @@ void LinearizedSystem::insertM(int row, int col, double x) {
 
 #ifdef _OPENMP
   if (mkl_parallel)
-    M_mtd[omp_get_thread_num()].insert(i, j, x);
+    MTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
   else
-    M_.insert(i, j, x);
+    MTri_.emplace_back(i, j, x);
 #else
   MTri_.emplace_back(i, j, x);
 #endif
@@ -310,9 +310,9 @@ void LinearizedSystem::insertJ(int row, int col, double x) {
 
 #ifdef _OPENMP
   if (mkl_parallel)
-    J_mtd[omp_get_thread_num()].insert(i, j, x);
+    JTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
   else
-    J_.insert(i, j, x);
+    JTri_.emplace_back(i, j, x);
 #else
     JTri_.emplace_back(i, j, x);
 #endif
@@ -391,29 +391,22 @@ void LinearizedSystem::init_parallel_env(bool needJacobian,
   this->need_residual = needResidual;
   this->need_jacobian = needJacobian;
 
-  // For each OpenMP thread, make a copy of K, C, M, J matrices and 
-  // residual, body_rhs as well as force_bndy_rhs vectors
+  // For each OpenMP thread, creat a vector of coefficient
+  // triplets of K, C, M, J matrix, and a copy of residual,
+  // body_rhs as well as force_bndy_rhs vectors.
 
-  K_mtd.clear();
-  K_mtd.resize(ntds);
-  for (SparseMat& ki : K_mtd)
-    ki.resize(K_.nrows(), K_.ncols());
+  KTri_mtd.clear();
+  KTri_mtd.resize(ntds);
 
-  C_mtd.clear();
-  C_mtd.resize(ntds);
-  for (SparseMat& ci : C_mtd)
-    ci.resize(C_.nrows(), C_.ncols());
+  CTri_mtd.clear();
+  CTri_mtd.resize(ntds);
 
-  M_mtd.clear();
-  M_mtd.resize(ntds);
-  for (SparseMat& mi : M_mtd)
-    mi.resize(M_.nrows(), M_.ncols());
+  MTri_mtd.clear();
+  MTri_mtd.resize(ntds);
 
   if (need_jacobian) {
-    J_mtd.clear();
-    J_mtd.resize(ntds);
-    for (SparseMat& ji : J_mtd)
-      ji.resize(J_.nrows(), J_.ncols());
+    JTri_mtd.clear();
+    JTri_mtd.resize(ntds);
   }
 
   if (need_residual) {
@@ -438,31 +431,27 @@ void LinearizedSystem::init_parallel_env(bool needJacobian,
 
 void LinearizedSystem::tear_down_parallel_env() {
 
-  // Merge each thread's copy of matrices and vectors
-  // to original matrices and vectors.
-  // Also clean up threads' copies.
+  // Merge each thread's coefficient triplets and vectors
+  // to principal ones. Also clean up threads' copies.
   // This function is call from an OpenMP single region.
 
-  // TODO(lizhong): reimplement MKL
-  /*
-  K_.merge(K_mtd);
-  #pragma omp task
-  K_mtd.clear();
- 
-  C_.merge(C_mtd);
-  #pragma omp task
-  C_mtd.clear();
- 
-  M_.merge(M_mtd);
-  #pragma omp task
-  M_mtd.clear();
- 
-  if (need_jacobian) {
-    J_.merge(J_mtd);
-    #pragma omp task
-    J_mtd.clear();
-  }
- 
+  auto merge = [] (
+    std::vector<vector<Triplet>>& srcs,
+    std::vector<Triplet>& dest) {
+      int size = 0;
+      for (auto& s : srcs)
+        size += s.size();
+      for (auto& s : srcs)
+        dest.insert(dest.end(), s.begin(), s.end());
+    srcs.clear();
+  };
+
+  merge(KTri_mtd, KTri_);
+  merge(CTri_mtd, CTri_);
+  merge(MTri_mtd, MTri_);
+  if (need_jacobian)
+    merge(JTri_mtd, JTri_);
+
   if (need_residual) {
     #pragma omp parallel for
     for (size_t j = 0; j < residual.size(); ++j) {
@@ -486,10 +475,10 @@ void LinearizedSystem::tear_down_parallel_env() {
     for (DoubleVec& fi : force_bndy_mtd)
       force_bndy_rhs[j] += fi[j];
   }
+  #pragma omp task
   force_bndy_mtd.clear();
- 
+
   mkl_parallel = false;
-  */
 }
 #endif // _OPENMP
 

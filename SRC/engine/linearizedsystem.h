@@ -189,16 +189,15 @@ private:
   DoubleVec residual;
 
 #ifdef _OPENMP
-  // make-linear-system parallelization functions.
-  // Each thread has a copy of matrices (K, C, M, J) and
-  // vectors (residual, body_rhs, force_bndy_rhs) when
-  // make-linear-system is running in parallel.
+  // Variables for parallel matrix construction (or make-linear-system).
+  // Each thread has its own triplets of matrix coefficient and copies of
+  // linear system vectors; All the triplets and vectors of different
+  // threads are merged together at the end of parallel make-linear-system.
   
   // Those structures are initialized and torn down by
   // init_parallel_env() and tear_down_parallel_env() 
   // functions.
-  //std::vector<SparseMat> K_mtd, C_mtd, M_mtd, J_mtd;
-  std::vector<std::vector<Triplet> KTri_mtd, CTri_mtd, MTri_mtd, JTri_mtd; 
+  std::vector<std::vector<Triplet>> KTri_mtd, CTri_mtd, MTri_mtd, JTri_mtd; 
   std::vector<DoubleVec> residual_mtd, body_mtd, force_bndy_mtd;
 
   // A flag indicates if make_linear_system is running in parallel
@@ -374,9 +373,9 @@ public:
   void cleanmaps();
 
 #ifdef _OPENMP
-    // Make copies of matrices and vectors for each thread.
-  // It is called at the beginning of make_linear_system (
-  // CSubProblem::make_linear_system).
+  // Make copies of matrices and vectors for each thread.
+  // It is called at the beginning of make_linear_system
+  // (CSubProblem::make_linear_system).
   void init_parallel_env(bool needJacobian, bool needResidual);
 
   // Merge the copies of each thread to the orignals and
