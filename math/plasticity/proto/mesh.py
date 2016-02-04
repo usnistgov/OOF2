@@ -891,7 +891,7 @@ if __name__=="__main__":
     m.addeqn("Force",3,f) # Last argument is the flux.
     m.make_stiffness()
     # RHS?
-    m.setbcs(0.1,0.0)
+    m.setbcs(0.3,0.0)
     m.solve_linear()
     m.draw(displaced=True)
     
