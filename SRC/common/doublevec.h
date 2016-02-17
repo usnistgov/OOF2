@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <string>
-#include <Eigen/SparseCore>
+#include "Eigen/SparseCore"
 
 class SparseMat;
 class SmallMatrix;

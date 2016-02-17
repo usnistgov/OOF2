@@ -12,7 +12,7 @@
 
 #include <oofconfig.h>
 #include <sstream>
-#include <Eigen/SparseCore>
+#include "Eigen/SparseCore"
 #include "common/doublevec.h"
 
 class DoFMap;

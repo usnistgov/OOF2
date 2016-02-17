@@ -13,11 +13,11 @@
 #define CMATRIXMETHODS_H
 
 #include <oofconfig.h>
-#include <Eigen/IterativeLinearSolvers>
-#include <Eigen/SparseCholesky>
-#include <Eigen/SparseLU>
-#include <Eigen/SparseQR>
-#include <Eigen/OrderingMethods>
+#include "Eigen/IterativeLinearSolvers"
+#include "Eigen/SparseCholesky"
+#include "Eigen/SparseLU"
+#include "Eigen/SparseQR"
+#include "Eigen/OrderingMethods"
 #include "engine/sparsemat.h"
 
 enum class Precond {Uncond=1, Diag=2, ILUT=3};

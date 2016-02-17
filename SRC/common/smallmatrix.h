@@ -11,7 +11,7 @@
 #define SMALLMATRIX_H
 
 //#include <oofconfig.h>
-#include <Eigen/Dense>
+#include "Eigen/Dense"
 #include <iostream>
 
 #include "common/doublevec.h"
