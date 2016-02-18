@@ -379,6 +379,28 @@ class Element:
                                        wts[k]*wts[j]*wts[i]))
         return Element.gptable
 
+# The general scheme is, we have a set of equations we want to solve,
+# which are of the form E_i(c_j)+b_i = 0, where E_i is FE discretized
+# equation and component, and b_i is the externally-applied body
+# force, aka Neumann boundary condition, and the c_j variables are the
+# coefficients of the shape function expansion of the degree of
+# freedom field.  There is no a priori guarantee that E_i(c_j) does
+# not have a constant term in its expansion, but if it does, then it
+# is not reflected in b_i, which is only the externally-applied
+# forces.
+
+# There are a couple of solvers.  For the linear solver, we assume
+# that E_i(c_j) is purely linear, i.e. has no constant term, and no
+# higher-than-first order term.  In this case, the solution is to just
+# construct the matrix dE_i/dc_j, apply the boundary conditions, and
+# solve the resulting linear algebra problem for the unknowns.
+
+# There is also a nonlinear solver.  For this solver, we use a
+# Newton-Raphson technique.  Given an initial set of c_j, we
+# numerically compute all the E_i, as well as M_ij = dE_i/dc_j, then
+# compute an increment from M_ij.delta_c_j = -E_i, update the c_js,
+# and iterate until the residual is small enough.
+
 
 class Mesh:
     def __init__(self,xelements=5,yelements=5,zelements=5):
@@ -401,7 +423,8 @@ class Mesh:
         # Master stiffness matrix is a dictionary indexed by tuples of
         # integers, whose values are floating-point numbers.
         self.matrix = {}
-        self.rhs = {}
+        self.fbody = {}  # In principle, has Neumann BCs.
+        self.eqns = {} # Values of the equations, for nonlinear solver.
         
         node_index = 0
         for i in range(zelements+1):
@@ -471,7 +494,8 @@ class Mesh:
 
     def clear(self):
         self.matrix = {}
-        self.rhs = {}
+        self.fbody = {}
+        self.eqns = {}
         self.freedofs = []
 
 
@@ -555,9 +579,10 @@ class Mesh:
     
     # Function for computing the value of each of the equations for
     # the current degrees of freedom.  Needed by the Newton-Raphson
-    # solver.  Just does a straightforward integral.
-    def phi(self):
-        phi = {}
+    # solver.  Just does a straightforward integral.  Note that the
+    # value of the equation and the value of the flux are not the same
+    # thing.  Populates the self.eqns attribute.
+    def evaluate_eqns(self):
         for e in self.elementlist:
             for (mudx,mu) in enumerate(e.nodes):
                 for eq in mu.eqns:
@@ -571,12 +596,15 @@ class Mesh:
                             dval *= e.jacobian(g.xi,g.zeta,g.mu)
                             val += dval
                         try:
-                            phi[row]+=val
+                            self.eqns[row]+=val
                         except KeyError:
-                            phi[row]=val
-        return phi
+                            self.eqns[row]=val
 
     def _flux_contrib(self, element, rndx, eqn, eqndx, gpt):
+        # This is essentially the integrand function for the equation
+        # values. It assumes a divergence flux, and includes
+        # contributions from the derivative of the row shape function,
+        # and the negative sign from the integration by parts.
         pos = element.frommaster(gpt.xi,gpt.zeta,gpt.mu)
 
         dofname = eqn.flux.fieldname # Assume there's only one, for now.
@@ -598,12 +626,21 @@ class Mesh:
 
 
     def set_freedofs(self):
+        # Builds the self.freedofs vector, and returns some counts and
+        # lists. After this is done, the self.freedofs vector has, for
+        # each entry, an integer -- if the integer is positive or
+        # zero, then this DOF is free and the integer is the index.
+        # If the integer is negative, then this DOF is fixed, and the
+        # absolute value of the integer is one more than the index, so
+        # that -1 is the fixed DOF with index 0, for instance.  The
+        # fixed_rhs vector has the actual numerical values of the
+        # fixed DOFs, using the self.freedofs indexing scheme.
         mtxsize = sum( [d.size for d in self.doflist] )
         self.freedofs = [-1]*mtxsize
         fixed_rhs = []
         for node in self.nodelist:
             for dof in node.alldofs():
-                add = False
+                add = False # Add to free DOF list?
                 if dof.name!="Displacement":
                     add = True # All non-displacement DOFs are free.
                 else: # dof.name *is* "Displacement"
@@ -637,19 +674,24 @@ class Mesh:
 
 
     def linearsystem(self):
-        # Populates Smallmatrix objects from the dictionary.  BC's
-        # live here.
+        # Populates Smallmatrix objects from the self.matrix and
+        # self.fbody and self.eqns dictionaries.  BC's are implemented
+        # here. Note that it's OK for the self.eqns dictionary to be
+        # empty, it just means that the eqvs vector will be all zeros.
+
         (free_count, fixed_count, fixed_rhs) = self.set_freedofs()
-        
+
         amtx = SmallMatrix(free_count,free_count)
         cmtx = SmallMatrix(free_count,-(fixed_count+1))
-        brhs = SmallMatrix(len(fixed_rhs),1)
-        srhs = SmallMatrix(free_count,1)
-
+        brhs = SmallMatrix(len(fixed_rhs),1)  # Boundary RHS.
+        frhs = SmallMatrix(free_count,1)      # Body forces.
+        eqvs = SmallMatrix(free_count,1)  # Equation values.
+        
         amtx.clear()
         cmtx.clear()
         brhs.clear()
         srhs.clear()
+        eqvs.clear()
 
         for ((i,j),v) in self.matrix.items():
             if self.freedofs[i]>=0 and self.freedofs[j]>=0:
@@ -661,22 +703,29 @@ class Mesh:
         for i in range(len(fixed_rhs)):
             brhs[i,0]=fixed_rhs[i]
 
-        for (i,v) in self.rhs.items():
+        for (i,v) in self.fbody.items():
             if self.freedofs[i]>=0:
-                srhs[self.freedofs[i],0]=v
+                frhs[self.freedofs[i],0]=v
 
-        # System to solve is: amtx + cmtx.brhs = srhs
-        # return (amtx,cmtx,brhs,srhs)
-        return (amtx,cmtx,brhs,srhs)
+        # TODO: We're assuming conjugacy here, which may not be wise.
+        for (i,v) in self.eqns.items():
+            if self.freedofs[i]>=0:
+                eqvs[self.freedovs[i],0]=v
+                
+        return (amtx,cmtx,brhs,frhs,eqvs)
 
+    
     # Assumes the "Displacement" field has been added to the mesh, and
-    # the appropriate equations, and that the big master stiffness
-    # matrix has been built amd the boundary conditions set.
+    # the appropriate equations and the bcs are set. Builds the big
+    # master stiffness matrix.
     def solve_linear(self):
+        self.make_stiffness()
+        
+        (a,c,br,fr,eq) = self.linearsystem()
+        # We don't use eq in the linear case.
 
-        (a,c,br,sr) = self.linearsystem()
-
-        nr = (c*br)*(-1.0)-sr # Sign?
+        # Sign.  Solver solves Ax=b, not Ax+b=0.
+        nr = (c*br)*(-1.0)-fr # Fr is zero if no Neumann BCs.
 
         if a.rows()!=0:
             rr = a.solve(nr)
@@ -693,10 +742,47 @@ class Mesh:
                         else:
                             d.set(k,br[-(ref+1),0])
         else:
-            print "Error in solving, return code is %d." % rr
+            Oops("Error in linear solver, return code is %d." % rr)
 
 
-    # TODO: Draw displaced, draw strains, draw stresses?
+    # Assumes the "Displacement" field has been added to the system,
+    # and that the big master matrix of derivatives of equations with
+    # respect to the coefficients has been built, and that self.eqns
+    # equation values have been set.
+    def solve_nonlinear(self):
+        self.make_stiffness()
+        self.evaluate_eqns()
+        
+        (a,c,br,fr,eq) = self.linearsystem()
+
+        nr = (c*br)*(-1.0)-fr-eq
+
+        if a.rows()!=0:
+            rr = a.solve(nr)
+        else:
+            Oops("Zero rows in the A matrix, very odd...")
+
+        if rr==0:
+            mag = 0.0
+            for n in self.nodelist:
+                for d in n.alldofs():
+                    for k in range(d.size):
+                        ref = self.freedofs[d.index+k]
+                        if ref >= 0:
+                            v = nr[ref,0]
+                            mag += v*v
+                            d.add(k,v)
+                        else:
+                            d.set(k,br[-(ref+1),0]) # Should be redundant.
+        else:
+            Oops("Error in nonlinear solver, return code is %d." % rr)
+        
+        return math.sqrt(mag) # Size of the increment. *Not* the residual.
+        
+        
+        
+    
+    # TODO: Draw strains, draw stresses?
     def draw(self,displaced=False):
         import mayavi.mlab as mlab
         import numpy as np
@@ -889,8 +975,6 @@ if __name__=="__main__":
     f = CauchyStress("Stress")
     m.addfield("Displacement",3)
     m.addeqn("Force",3,f) # Last argument is the flux.
-    m.make_stiffness()
-    # RHS?
     m.setbcs(0.3,0.0)
     m.solve_linear()
     m.draw(displaced=True)
