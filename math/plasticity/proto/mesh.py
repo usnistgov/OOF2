@@ -690,7 +690,7 @@ class Mesh:
         amtx.clear()
         cmtx.clear()
         brhs.clear()
-        srhs.clear()
+        frhs.clear()
         eqvs.clear()
 
         for ((i,j),v) in self.matrix.items():
@@ -710,7 +710,7 @@ class Mesh:
         # TODO: We're assuming conjugacy here, which may not be wise.
         for (i,v) in self.eqns.items():
             if self.freedofs[i]>=0:
-                eqvs[self.freedovs[i],0]=v
+                eqvs[self.freedofs[i],0]=v
                 
         return (amtx,cmtx,brhs,frhs,eqvs)
 
@@ -976,7 +976,8 @@ if __name__=="__main__":
     m.addfield("Displacement",3)
     m.addeqn("Force",3,f) # Last argument is the flux.
     m.setbcs(0.3,0.0)
-    m.solve_linear()
+    # m.solve_linear()
+    m.solve_nonlinear()
     m.draw(displaced=True)
     
         
