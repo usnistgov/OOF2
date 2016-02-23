@@ -43,7 +43,7 @@ SparseMat::SparseMat(const SparseMat& source,
   make_compressed();
 }
 
-void SparseMat::set_from_triplets(std::vector<Triplet> tris) {
+void SparseMat::set_from_triplets(std::vector<Triplet>& tris) {
   // Initialize this sparse matrix from treiplets like (row, col,
   // value). For triplets having tha same row# and col#, add them
   // together.
@@ -386,7 +386,6 @@ bool load_mat(SparseMat& mat, const std::string& filename) {
     if (line[0] != '#')
       break;
   }
-
   // extract matrix size info
   int nr, nc, nnz;
   std::stringstream ss;
@@ -394,18 +393,17 @@ bool load_mat(SparseMat& mat, const std::string& filename) {
   ss >> nr >> nc >> nnz;
 
   mat.resize(nr, nc);
-  mat.reserve(nnz);
-  
+
   // read matrix elements
+  std::vector<Triplet> trips(nnz); 
   int r, c;
   double val;
   for (int i = 0; i < nnz; i++) {
     fs >> r >> c >> val;
-    mat.insert(r, c, val);
+    trips.emplace_back(r, c, val);
   }
 
-  // TODO(lizhong): is it necessary?
-  mat.make_compressed();
+  mat.set_from_triplets(trips);
   return true;
 }
 

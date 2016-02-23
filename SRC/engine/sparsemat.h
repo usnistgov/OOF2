@@ -42,7 +42,7 @@ public:
   SparseMat& operator=(SparseMat&&) = default; // move assignment
   ~SparseMat() = default;
   SparseMat clone() const { return *this; }
-  void set_from_triplets(std::vector<Triplet>);
+  void set_from_triplets(std::vector<Triplet>&);
 
   // TODO(lizhong): inline possible methods
 
