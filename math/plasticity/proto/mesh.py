@@ -188,7 +188,41 @@ def dsf7d1(xi,zeta,mu):
     return +0.125*(xi+1.0)*(mu+1.0)
 def dsf7d2(xi,zeta,mu):
     return +0.125*(xi+1.0)*(zeta+1.0)
-      
+
+
+# Shape functions for faces.  Clockwise around the face.
+
+def fsf0(xi,zeta):
+    return  0.25*(xi-1.0)*(zeta-1.0)
+def fsf1(xi,zeta):
+    return -0.25*(xi-1.0)*(zeta+1.0)
+def fsf2(xi,zeta):
+    return  0.25*(xi+1.0)*(zeta+1.0)
+def fsf3(xi,zeta):
+    return -0.25*(xi+1.0)*(zeta-1.0)
+
+# Master-space derivatives, in-plane only of course.
+
+def dfsf0d0(xi,zeta):
+    return 0.25*(zeta-1.0)
+def dfsf0d1(xi,zeta):
+    return 0.25*(xi-1.0)
+
+def dfsf1d0(xi,zeta):
+    return -0.25*(zeta+1.0)
+def dfsf1d1(xi,zeta):
+    return -0.25*(xi-1.0)
+
+def dfsf2d0(xi,zeta):
+    return 0.25*(zeta+1.0)
+def dfsf2d1(xi,zeta):
+    return 0.25*(xi+1.0)
+
+def dfsf3d0(xi,zeta):
+    return -0.25*(zeta-1.0)
+def dfsf3d1(xi,zeta):
+    return -0.25*(xi+1.0)
+
 
 class GaussPoint:
     def __init__(self,xi,zeta,mu,weight):
@@ -379,6 +413,76 @@ class Element:
                                        wts[k]*wts[j]*wts[i]))
         return Element.gptable
 
+
+
+class Face:
+    gptable = []
+    def __init__(self,idx,element,nodelist=[]):
+        self.index = idx
+        self.element = element
+        self.nodes = nodelist[:]
+        self.sfns = [fsf0,fsf1,fsf2,fsf3]
+        self.dsfns = [[dfsf0d0,dfsf0d1],[dfsf1d0,dfsf1d1],
+                      [dfsf2d0,dfsf2d1],[dfsf3d0,dfsf3d1]]
+        # Nodes probably don't need to know their faces.
+    def __repr__(self):
+        return "Face(%d,%s)" % (self.index,self.nodes)
+    def shapefn(self,i,xi,zeta,mu):  # Discard mu.
+        return self.sfns[i](xi,zeta)
+    def maserdshapefn(self,i,j,xi,zeta,mu): # Discard mu
+        return self.dsfns[i][j](xi,zeta)
+    # As with elements, the reference-space derivative at the
+    # master-space coordinate.  Discard mu.
+    def dshapefn(self,i,j,xi,zeta,mu):
+        pass
+    def frommaster(self,xi,zeta,mu):
+        xpos = sum( [self.sfns[i](xi,zeta)*self.nodes[i].position.x
+                     for i in range(4)] )
+        ypos = sum( [self.sfns[i](xi,zeta)*self.nodes[i].position.y
+                     for i in range(4)] )
+        zpos = sum( [self.sfns[i](xi,zeta)*self.nodes[i].position.z
+                     for i in range(4)] )
+        res = Position(xpos,ypos,zpos)
+        return res
+
+    def jacobian(self,xi,zeta,mu):
+        [[m11,m12],[m21,m22],[m31,m32]] = self.jacobianmtx(xi,zeta,mu)
+        cross = [m21*m32-m31*m22,m31*m12-m11*m32,m11*m22-m21*m12]
+        return math.sqrt(cross[0]*cross[0]+
+                         cross[1]*cross[1]+
+                         cross[2]*cross[2])
+
+    def jacobianmtx(self,xi,zeta,mu):
+        j11 = sum( [self.dsfns[i][0](xi,zeta)*self.nodes[i].position.x
+                    for i in range(4)])
+        j12 = sum( [self.dsfns[i][1](xi,zeta)*self.nodes[i].position.x
+                    for i in range(4)])
+
+        j21 = sum( [self.dsfns[i][0](xi,zeta)*self.nodes[i].position.y
+                    for i in range(4)])
+        j22 = sum( [self.dsfns[i][1](xi,zeta)*self.nodes[i].position.y
+                    for i in range(4)])
+
+        j31 = sum( [self.dsfns[i][0](xi,zeta)*self.nodes[i].position.z
+                    for i in range(4)])
+        j32 = sum( [self.dsfns[i][1](xi,zeta)*self.nodes[i].position.z
+                    for i in range(4)])
+        return [[j11,j12],[j21,j22],[j31,j32]]
+           
+    def gausspts(self):
+        if not Face.gptable:
+            mpt = math.sqrt(1.0/3.0)
+            pts = [-mpt,mpt]
+            wts = [1.0,1.0]
+            n = len(pts)
+            for i in range(n):
+                for j in range(n):
+                    Face.gptable.append(GaussPoint(pts[i],pts[j],0.0,
+                                                   wts[i]*wts[j]))
+        return Face.gptable
+        
+    
+    
 # The general scheme is, we have a set of equations we want to solve,
 # which are of the form E_i(c_j)+b_i = 0, where E_i is FE discretized
 # equation and component, and b_i is the externally-applied body
@@ -779,6 +883,25 @@ class Mesh:
         
         return math.sqrt(mag) # Size of the increment. *Not* the residual.
         
+
+    def measure_force(self):
+        # Scheme: Evaluate the fluxes on the bottom surface, doing an
+        # integral elementwise.  Somewhat clumsy, includes hard-coded
+        # 2d gausspoints and 2d Jacobians and stuff.
+
+        # Group all the bottom nodes by elements, and construct face
+        # objects, then do the integrals
+        efaces = {}
+        for bn in self.bottomnodes:
+            for e in bn.elements:
+                try:
+                    efaces[e].append(bn)
+                except KeyError:
+                    efaces[e] = [bn]
+
+        for e,bn in efaces.item():
+            for n in bn:
+                print n
         
         
     
@@ -969,6 +1092,25 @@ def displaced_drawing_test():
             df.value[i]=dp[i]
             
     m.draw(displaced=True)
+
+
+def face_integration_test():
+    n1 = Node(0,Position(2.0,2.0,0.0))
+    n2 = Node(1,Position(3.0,3.0,0.0))
+    n3 = Node(2,Position(2.0,4.0,0.0))
+    n4 = Node(3,Position(1.0,3.0,0.0))
+    f = Face(0,None,[n1,n2,n3,n4])
+    
+    # See if we can get the right area.
+    res = 0.0
+    for g in f.gausspts():
+        res += g.weight*f.jacobian(g.xi,g.zeta,g.mu)
+    return res
+    
+
+# if __name__=="__main__":
+#     res = face_integration_test()
+#     print res
     
 if __name__=="__main__":
     m = Mesh(xelements=4,yelements=4,zelements=4)
@@ -976,8 +1118,9 @@ if __name__=="__main__":
     m.addfield("Displacement",3)
     m.addeqn("Force",3,f) # Last argument is the flux.
     m.setbcs(0.3,0.0)
-    # m.solve_linear()
-    m.solve_nonlinear()
-    m.draw(displaced=True)
+    m.solve_linear()
+    m.measure_force()
+    # m.solve_nonlinear()
+    # m.draw(displaced=True)
     
         
