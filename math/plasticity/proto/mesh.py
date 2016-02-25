@@ -903,7 +903,7 @@ class Mesh:
         res = [0.0,0.0,0.0]
         for f in self.bottomfaces:
             for g in f.gausspts():
-                jw = f.jacobian(g.xi,g.zeta.g.mu)*g.weight
+                jw = f.jacobian(g.xi,g.zeta,g.mu)*g.weight
                 dofval = f.element.dof("Displacement",
                                        g.xi,g.zeta,-1.0)
                 dofderivs = f.element.dofdx("Displacement",
@@ -1127,9 +1127,11 @@ if __name__=="__main__":
     f = CauchyStress("Stress")
     m.addfield("Displacement",3)
     m.addeqn("Force",3,f) # Last argument is the flux.
-    m.setbcs(0.3,0.0)
+    m.setbcs(0.1,0.0)
     m.solve_linear()
-#     m.measure_force()
+    force_val = m.measure_force(f)
+    print force_val
+    
 #     # m.solve_nonlinear()
 #     # m.draw(displaced=True)
     
