@@ -1131,7 +1131,7 @@ if __name__=="__main__":
     m.solve_linear()
     force_val = m.measure_force(f)
     print force_val
-    
+
 #     # m.solve_nonlinear()
 #     # m.draw(displaced=True)
     

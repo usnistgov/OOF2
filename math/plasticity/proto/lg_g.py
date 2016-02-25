@@ -252,6 +252,10 @@ def dS2PK_du_ij(cijkl,UG):
 
 ###### drivative of 1PK stress to gradient of displacement #########
 def dSP1PK_du_ij(delta_4,FG,S,dS_ddu):
+    # delta_4 is 4-way Kroenecker delta.
+    # FG is deformation gradient at this gausspoint.
+    # S is 2nd PK stress.
+    # dS_ddu is derivative of S wrt displacement.
 
     dP_ddu = [[[[0. for i in range(3)] for j in range(3)] for k in range(3)] for l in range(3)] 
 
