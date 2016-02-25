@@ -429,7 +429,7 @@ class Face:
         return "Face(%d,%s)" % (self.index,self.nodes)
     def shapefn(self,i,xi,zeta,mu):  # Discard mu.
         return self.sfns[i](xi,zeta)
-    def maserdshapefn(self,i,j,xi,zeta,mu): # Discard mu
+    def masterdshapefn(self,i,j,xi,zeta,mu): # Discard mu
         return self.dsfns[i][j](xi,zeta)
     # As with elements, the reference-space derivative at the
     # master-space coordinate.  Discard mu.
@@ -515,6 +515,7 @@ class Mesh:
         # applied.
         self.topnodes = []
         self.bottomnodes = []
+        self.bottomfaces = [] 
 
         dx = 1.0/xelements
         dy = 1.0/yelements
@@ -549,6 +550,7 @@ class Mesh:
         
 
         element_index = 0
+        face_index = 0
         for i in range(zelements):
             for j in range(yelements):
                 for k in range(xelements):
@@ -566,9 +568,16 @@ class Mesh:
                              self.nodelist[np2],self.nodelist[np3],
                              self.nodelist[np4],self.nodelist[np5],
                              self.nodelist[np6],self.nodelist[np7]]
-                    self.elementlist.append(Element(element_index,nodes))
+                    el = Element(element_index,nodes)
+                    self.elementlist.append(el)
                     element_index += 1
 
+                    if i==0: # Element is on the bottom face.
+                        fc = Face(face_index,el,[nodes[0],nodes[2],
+                                                 nodes[6],nodes[4]])
+                        self.bottomfaces.append(fc)
+                        face_index += 1
+                        
     def clear_caches(self):
         for e in self.elementlist:
             e.clear_caches()
@@ -884,25 +893,30 @@ class Mesh:
         return math.sqrt(mag) # Size of the increment. *Not* the residual.
         
 
-    def measure_force(self):
+    def measure_force(self,flux):
         # Scheme: Evaluate the fluxes on the bottom surface, doing an
-        # integral elementwise.  Somewhat clumsy, includes hard-coded
-        # 2d gausspoints and 2d Jacobians and stuff.
-
-        # Group all the bottom nodes by elements, and construct face
-        # objects, then do the integrals
-        efaces = {}
-        for bn in self.bottomnodes:
-            for e in bn.elements:
-                try:
-                    efaces[e].append(bn)
-                except KeyError:
-                    efaces[e] = [bn]
-
-        for e,bn in efaces.item():
-            for n in bn:
-                print n
-        
+        # integral elementwise.  This routine is kind of specialized,
+        # and includes a hard-coded DOF name and hard-coded knowledge
+        # of the relationship between face and element master
+        # coordinates.  It also knows its on the bottom, and can just
+        # pick out the z component of the stress.
+        res = [0.0,0.0,0.0]
+        for f in self.bottomfaces:
+            for g in f.gausspts():
+                jw = f.jacobian(g.xi,g.zeta.g.mu)*g.weight
+                dofval = f.element.dof("Displacement",
+                                       g.xi,g.zeta,-1.0)
+                dofderivs = f.element.dofdx("Displacement",
+                                            g.xi,g.zeta,-1.0)
+                # Only want the z components.  The "None" argument is
+                # for the position, we don't care for now.
+                fvec = [ flux.value(i,2,None,dofval,dofderivs)
+                         for i in range(3) ]
+                res[0]+=fvec[0]*jw
+                res[1]+=fvec[1]*jw
+                res[2]+=fvec[2]*jw
+        return res
+                
         
     
     # TODO: Draw strains, draw stresses?
@@ -1105,13 +1119,9 @@ def face_integration_test():
     res = 0.0
     for g in f.gausspts():
         res += g.weight*f.jacobian(g.xi,g.zeta,g.mu)
-    return res
+    return res # Should be 2.0.
     
 
-# if __name__=="__main__":
-#     res = face_integration_test()
-#     print res
-    
 if __name__=="__main__":
     m = Mesh(xelements=4,yelements=4,zelements=4)
     f = CauchyStress("Stress")
@@ -1119,8 +1129,8 @@ if __name__=="__main__":
     m.addeqn("Force",3,f) # Last argument is the flux.
     m.setbcs(0.3,0.0)
     m.solve_linear()
-    m.measure_force()
-    # m.solve_nonlinear()
-    # m.draw(displaced=True)
+#     m.measure_force()
+#     # m.solve_nonlinear()
+#     # m.draw(displaced=True)
     
         
