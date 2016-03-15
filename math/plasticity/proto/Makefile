@@ -1,7 +1,7 @@
-all: smallmatrix.so
+all: smallmatrixc.so
 .PHONY: all
 
-smallmatrix.so: smallmatrix.o smallmatrixcmodule.o
+smallmatrixc.so: smallmatrix.o smallmatrixcmodule.o
 	g++ smallmatrixcmodule.o smallmatrix.o -llapack -lblas -shared -o smallmatrixc.so
 
 SWIGEXEC=/usr/local/bin/swig
