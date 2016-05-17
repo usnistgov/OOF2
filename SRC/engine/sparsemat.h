@@ -100,7 +100,7 @@ public:
 
   /* Iterators */
 
-  // TODO(lizhong): Interator only works with compressed matrix?
+  // TODO(lizhong): Iterator only works with compressed matrix?
   friend class SparseMatIterator<SparseMat, double>;
   friend class SparseMatIterator<const SparseMat, const double>;
   typedef SparseMatIterator<SparseMat, double> iterator;
@@ -128,15 +128,16 @@ public:
   template<typename Derived> friend class IterativeSolver;
   template<typename Derived> friend class DirectSolver;
   friend std::ostream& operator<<(std::ostream&, const SparseMat&);
-  friend bool save_market_mat(const SparseMat& mat,
-                              const std::string& filename, int sym = 0);
   friend bool load_market_mat(SparseMat& mat, const std::string& filename);
+  friend bool save_market_mat(const SparseMat&, const std::string&, int);
 };
 
 SparseMat identityMatrix(int);
 bool save_mat(const SparseMat& mat, const std::string& filename,
               int precision=13, int sym = 0);
 bool load_mat(SparseMat& mat, const std::string& filename);
+bool save_market_mat(const SparseMat& mat, const std::string& filename,
+		     int sym = 0);
 
 // TODO(lizhong): guess value type from matrix type
 template<typename MT, typename VT>
@@ -145,7 +146,7 @@ private:
   MT& mat;
 
   // This iterator is implemented based on the storage scheme of compressed
-  // sparse matricis (row or column major) in Eigen.
+  // sparse matrices (row or column major) in Eigen.
   // The compressed sparse matrix consist of three compact arrays:
   // - Values: stores the coefficient values of the non-zeros.
   // - InnerIndices: stores the row (resp. column) indices of the non-zeros.

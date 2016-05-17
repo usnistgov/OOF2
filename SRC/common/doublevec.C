@@ -145,7 +145,8 @@ bool load_market_vec(DoubleVec& vec, const std::string& filename) {
   return Eigen::loadMarketVector(vec.data, filename);
 }
 
-bool save_vec(const DoubleVec& vec, const std::string& filename, int precision) {
+bool save_vec(const DoubleVec& vec, const std::string& filename) {
+  int precision = 13;
   std::ofstream fs(filename); 
   // floatfield set to scientific
   fs.setf(std::ios::scientific, std::ios::floatfield);

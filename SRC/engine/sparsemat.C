@@ -327,7 +327,7 @@ bool load_market_mat(SparseMat& mat, const std::string& filename) {
 }
 
 bool save_mat(const SparseMat& mat, const std::string& filename, int precision, int sym) {
-  //TODO(lizhong): support sysmmetric matrix
+  //TODO(lizhong): support symmetric matrix
 
   // Note: matrix needs to be compressed
 

@@ -98,7 +98,7 @@ public:
   friend std::ostream& operator<<(std::ostream&, const DoubleVec&);
   friend bool save_market_vec(const DoubleVec&, const std::string&);
   friend bool load_market_vec(DoubleVec&, const std::string&);
-  friend bool save_vec(const DoubleVec&, const std::string&, int precision=13);
+  friend bool save_vec(const DoubleVec&, const std::string&);
   friend bool load_vec(DoubleVec&, const std::string&);
 };
 
