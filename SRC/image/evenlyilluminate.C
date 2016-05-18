@@ -79,4 +79,5 @@ void OOFImage::evenly_illuminate(int windowsize) {
     }
     lastPixel = center;
   }
+  imageChanged();
 }
