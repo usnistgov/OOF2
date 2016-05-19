@@ -1041,8 +1041,6 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
 	// element lies within the outer loop of the pixel set
 	// boundary and encloses the inner loop.  If the element is
 	// completely homogeneous, it'll be handled below.
-	std::cerr << "categoryAreas: No intersections on this element.  dA="
-		  << 2.0*area() << std::endl;
 	accum_area += 2.0*area();
       }
     }
