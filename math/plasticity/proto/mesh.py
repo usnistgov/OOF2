@@ -330,7 +330,7 @@ class Element:
 
     # Return the reference-state derivatives of a DOF at a given
     # master-space position.  Always returns a list of lists, with the
-    # componentn of the derivative being the fastest-varying thing.
+    # component of the derivative being the fastest-varying thing.
     def dofdx(self,dofname,xi,zeta,mu):
         try:
             return [x[:] for x in self.dofdx_cache[(dofname,xi,zeta,mu)]]
@@ -503,7 +503,9 @@ class Face:
 # Newton-Raphson technique.  Given an initial set of c_j, we
 # numerically compute all the E_i, as well as M_ij = dE_i/dc_j, then
 # compute an increment from M_ij.delta_c_j = -E_i, update the c_js,
-# and iterate until the residual is small enough.
+# and iterate until either the increment is small enough, the
+# residual is small enough, or the allowed iteration count is
+# exceeded.
 
 
 class Mesh:
@@ -718,6 +720,7 @@ class Mesh:
         # values. It assumes a divergence flux, and includes
         # contributions from the derivative of the row shape function,
         # and the negative sign from the integration by parts.
+
         pos = element.frommaster(gpt.xi,gpt.zeta,gpt.mu)
 
         dofname = eqn.flux.fieldname # Assume there's only one, for now.
@@ -732,11 +735,23 @@ class Mesh:
     # Values are z offsets of the top and bottom boundaries, which are
     # assumed fixed to zero offset in the x and y direction.  BCs can
     # be set to None, in which case they are not fixed, but why woold
-    # you do that?
+    # you do that?  The field must already be added before you do
+    # this.
     def setbcs(self,top,bottom):
         self.topbc = top
         self.bottombc = bottom
-
+        if self.topbc is not None:
+            for n in self.topnodes:
+                d = n.dofs[0] # Assume only displacement exists.
+                d.set(0,0)
+                d.set(1,0)
+                d.set(2,self.topbc)
+        if self.bottombc is not None:
+            for n in self.bottomnodes:
+                d = n.dofs[0] # Assume only displacement exists.
+                d.set(0,0)
+                d.set(1,0)
+                d.set(2,self.bottombc)
 
     def set_freedofs(self):
         # Builds the self.freedofs vector, and returns some counts and
@@ -853,22 +868,54 @@ class Mesh:
                         if ref >= 0:
                             d.set(k,nr[ref,0])
                         else:
-                            d.set(k,br[-(ref+1),0])
+                            d.set(k,br[-(ref+1),0])  # Should be redundant.
         else:
             Oops("Error in linear solver, return code is %d." % rr)
 
 
-    # Assumes the "Displacement" field has been added to the system,
-    # and that the big master matrix of derivatives of equations with
-    # respect to the coefficients has been built, and that self.eqns
-    # equation values have been set.
-    def solve_nonlinear(self):
-        self.make_stiffness()
-        self.evaluate_eqns()
-        
-        (a,c,br,fr,eq) = self.linearsystem()
+    # Arguments are the residual tolerance, the increment tolerance,
+    # and the maximum number of iterations.  Setting any of these to
+    # None means they'll be ignored.
+    def solve_nonlinear(self, eps_r, eps_dx, max_count):
 
-        nr = (c*br)*(-1.0)-fr-eq
+        icount = 0
+
+        while 1:
+            self.clear()
+            self.clear_caches()
+            self.make_stiffness()
+            self.evaluate_eqns()
+            (a,c,br,fr,eq) = self.linearsystem()
+
+            # nr = (c*br)*(-1.0)-fr-eq
+            nr = (fr+eq)*(-1.0)
+
+            rmag = math.sqrt(sum( nr[i,0]*nr[i,0] for i in range(nr.rows()) )) 
+            print "Starting nonlinear iteration, rmag is %f." % rmag
+            
+            # If there's a residual criterion, and it's satsified, success.
+            if eps_r is not None and math.fabs(rmag)<eps_r:
+                return icount
+
+            # If another iteration would exceed the count, fail.
+            if icount is not None and icount >= max_count:
+                raise Oops("Iteration count %d reached in nonlinear solver."
+                           % max_count)
+
+            xmag = self.iterate_nonlinear(a,nr,br)
+            icount += 1
+
+            print "Completing nonlinear iteration, xmag is %f." % xmag
+            
+            # If there's an increment criterion and it's met, success!
+            if eps_dx is not None and math.fabs(xmag)<eps_dx:
+                return icount
+            
+
+    # Performs a single Newton-Raphson iteration, updates the free
+    # DOFs in the mesh, and returns the un-normalized L2 norm of the
+    # increment vector.
+    def iterate_nonlinear(self,a,nr,br):
 
         if a.rows()!=0:
             rr = a.solve(nr)
@@ -1123,16 +1170,19 @@ def face_integration_test():
     
 
 if __name__=="__main__":
-    m = Mesh(xelements=4,yelements=4,zelements=4)
+    m = Mesh(xelements=2,yelements=2,zelements=2)
     f = CauchyStress("Stress")
     m.addfield("Displacement",3)
     m.addeqn("Force",3,f) # Last argument is the flux.
     m.setbcs(0.1,0.0)
-    m.solve_linear()
+
+    # m.solve_linear()
+
+    try:
+        m.solve_nonlinear(None,None,3)
+    except Oops, o:
+        print "Got exception, ", o
     force_val = m.measure_force(f)
     print force_val
 
-#     # m.solve_nonlinear()
-#     # m.draw(displaced=True)
-    
-        
+    # m.draw(displaced=True)
