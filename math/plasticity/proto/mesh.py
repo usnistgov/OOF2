@@ -547,7 +547,7 @@ class Mesh:
                     
         # The node indexing is such that the node with position
         # x = a*dx, y = b*dy, z = c*dz is in the node list at
-        # list position (c*(zelements+1)+b)*(yelements+1)+a
+        # list position (c*(xelements+1)+b)*(yelements+1)+a
                     
         
 
@@ -556,16 +556,18 @@ class Mesh:
         for i in range(zelements):
             for j in range(yelements):
                 for k in range(xelements):
-                    np0 = (i*(zelements+1)+j)*(yelements+1)+k
-                    np1 = ((i+1)*(zelements+1)+j)*(yelements+1)+k
-                    np2 = (i*(zelements+1)+(j+1))*(yelements+1)+k
-                    np3 = ((i+1)*(zelements+1)+(j+1))*(yelements+1)+k
+                    np0 = (i*(xelements+1)+j)*(yelements+1)+k
+                    np1 = ((i+1)*(xelements+1)+j)*(yelements+1)+k
+                    np2 = (i*(xelements+1)+(j+1))*(yelements+1)+k
+                    np3 = ((i+1)*(xelements+1)+(j+1))*(yelements+1)+k
                     
-                    np4 = (i*(zelements+1)+j)*(yelements+1)+k+1
-                    np5 = ((i+1)*(zelements+1)+j)*(yelements+1)+k+1
-                    np6 = (i*(zelements+1)+(j+1))*(yelements+1)+k+1
-                    np7 = ((i+1)*(zelements+1)+(j+1))*(yelements+1)+k+1
+                    np4 = (i*(xelements+1)+j)*(yelements+1)+k+1
+                    np5 = ((i+1)*(xelements+1)+j)*(yelements+1)+k+1
+                    np6 = (i*(xelements+1)+(j+1))*(yelements+1)+k+1
+                    np7 = ((i+1)*(xelements+1)+(j+1))*(yelements+1)+k+1
 
+                    print len(self.nodelist)
+                    print np0,np1,np2,np3,np4,np5,np6,np7
                     nodes = [self.nodelist[np0],self.nodelist[np1],
                              self.nodelist[np2],self.nodelist[np3],
                              self.nodelist[np4],self.nodelist[np5],
@@ -1176,7 +1178,7 @@ def face_integration_test():
     
 
 if __name__=="__main__":
-    m = Mesh(xelements=2,yelements=2,zelements=2)
+    m = Mesh(xelements=1,yelements=1,zelements=2)
     f = CauchyStress("Stress")
     m.addfield("Displacement",3)
     m.addeqn("Force",3,f) # Last argument is the flux.
