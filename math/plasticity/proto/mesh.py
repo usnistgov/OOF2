@@ -880,19 +880,23 @@ class Mesh:
 
         icount = 0
 
+        # TODO: The semantics of self.linearsystem() are stupid, we
+        # should probably restrict it to the matrix stuff, and have a
+        # separate function for the equations.  Maybe the Mesh's
+        # evaluate_eqns method should just return a Smallmatrix.
         while 1:
             self.clear()
             self.clear_caches()
-            self.make_stiffness()
+            # self.make_stiffness()
             self.evaluate_eqns()
             (a,c,br,fr,eq) = self.linearsystem()
 
             # nr = (c*br)*(-1.0)-fr-eq
-            nr = (fr+eq)*(-1.0)
+            nr = eq*(-1.0)
 
             rmag = math.sqrt(sum( nr[i,0]*nr[i,0] for i in range(nr.rows()) )) 
             print "Starting nonlinear iteration, rmag is %f." % rmag
-            
+
             # If there's a residual criterion, and it's satsified, success.
             if eps_r is not None and math.fabs(rmag)<eps_r:
                 return icount
@@ -902,6 +906,11 @@ class Mesh:
                 raise Oops("Iteration count %d reached in nonlinear solver."
                            % max_count)
 
+            # We are actually going to do this.  Build and extract the
+            # matrix.
+            self.make_stiffness()
+            (a,c,br,fr,eq) = self.linearsystem()
+            
             xmag = self.iterate_nonlinear(a,nr,br)
             icount += 1
 
@@ -1129,9 +1138,6 @@ def Cijkl(lmbda,mu):
 
           
 
-
-def go(size):
-    pass # Collect $200?
 
 #
 # The general scheme is, you create a mesh, add a field, maybe add
