@@ -1,8 +1,12 @@
 all: smallmatrixc.so
 .PHONY: all
 
-smallmatrixc.so: smallmatrix.o smallmatrixcmodule.o
+smallmatrixc.so: smallmatrix.o smallmatrixcmodule.o 
+ifdef ANACONDA_LIBS
+	g++ smallmatrixcmodule.o smallmatrix.o -L$(ANACONDA_LIBS) -lopenblas -shared -o smallmatrixc.so
+else
 	g++ smallmatrixcmodule.o smallmatrix.o -llapack -lblas -shared -o smallmatrixc.so
+endif
 
 SWIGEXEC=/usr/local/bin/swig
 SWIGLIB=/usr/local/lib/swig_lib 
