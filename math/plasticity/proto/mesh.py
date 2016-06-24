@@ -883,10 +883,6 @@ class Mesh:
 
         icount = 0
 
-        # TODO: The semantics of self.linearsystem() are stupid, we
-        # should probably restrict it to the matrix stuff, and have a
-        # separate function for the equations.  Maybe the Mesh's
-        # evaluate_eqns method should just return a Smallmatrix.
         while 1:
             self.clear()
             self.clear_caches()
