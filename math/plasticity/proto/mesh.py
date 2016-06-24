@@ -717,6 +717,15 @@ class Mesh:
                         except KeyError:
                             self.eqns[row]=val
 
+        # Build the Smallmatrix version of it.  Assumes conjugacy.
+        # Also, call to set_freedofs is duplicated in linearsystem.
+        (free_count,fixed_count, fixed_rhs) = self.set_freedofs()
+        eqvs = SmallMatrix(free_count,1)
+        for (i,v) in self.eqns.items():
+            if self.freedofs[i]>0:
+                eqvs[self.freedofs[i],0]=v
+        return eqvs
+        
     def _flux_contrib(self, element, rndx, eqn, eqndx, gpt):
         # This is essentially the integrand function for the equation
         # values. It assumes a divergence flux, and includes
@@ -815,13 +824,11 @@ class Mesh:
         cmtx = SmallMatrix(free_count,-(fixed_count+1))
         brhs = SmallMatrix(len(fixed_rhs),1)  # Boundary RHS.
         frhs = SmallMatrix(free_count,1)      # Body forces.
-        eqvs = SmallMatrix(free_count,1)  # Equation values.
         
         amtx.clear()
         cmtx.clear()
         brhs.clear()
         frhs.clear()
-        eqvs.clear()
 
         for ((i,j),v) in self.matrix.items():
             if self.freedofs[i]>=0 and self.freedofs[j]>=0:
@@ -837,12 +844,7 @@ class Mesh:
             if self.freedofs[i]>=0:
                 frhs[self.freedofs[i],0]=v
 
-        # TODO: We're assuming conjugacy here, which may not be wise.
-        for (i,v) in self.eqns.items():
-            if self.freedofs[i]>=0:
-                eqvs[self.freedofs[i],0]=v
-                
-        return (amtx,cmtx,brhs,frhs,eqvs)
+        return (amtx,cmtx,brhs,frhs)
 
     
     # Assumes the "Displacement" field has been added to the mesh, and
@@ -851,8 +853,7 @@ class Mesh:
     def solve_linear(self):
         self.make_stiffness()
         
-        (a,c,br,fr,eq) = self.linearsystem()
-        # We don't use eq in the linear case.
+        (a,c,br,fr) = self.linearsystem()
 
         # Sign.  Solver solves Ax=b, not Ax+b=0.
         nr = (c*br)*(-1.0)-fr # Fr is zero if no Neumann BCs.
@@ -890,8 +891,7 @@ class Mesh:
             self.clear()
             self.clear_caches()
             # self.make_stiffness()
-            self.evaluate_eqns()
-            (a,c,br,fr,eq) = self.linearsystem()
+            eq = self.evaluate_eqns()
 
             # nr = (c*br)*(-1.0)-fr-eq
             nr = eq*(-1.0)
@@ -911,7 +911,7 @@ class Mesh:
             # We are actually going to do this.  Build and extract the
             # matrix.
             self.make_stiffness()
-            (a,c,br,fr,eq) = self.linearsystem()
+            (a,c,br,fr) = self.linearsystem()
             
             xmag = self.iterate_nonlinear(a,nr,br)
             icount += 1
