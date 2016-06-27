@@ -873,7 +873,7 @@ class Mesh:
                         else:
                             d.set(k,br[-(ref+1),0])  # Should be redundant.
         else:
-            Oops("Error in linear solver, return code is %d." % rr)
+            raise Oops("Error in linear solver, return code is %d." % rr)
 
 
     # Arguments are the residual tolerance, the increment tolerance,
@@ -927,7 +927,7 @@ class Mesh:
         if a.rows()!=0:
             rr = a.solve(nr)
         else:
-            Oops("Zero rows in the A matrix, very odd...")
+            raise Oops("Zero rows in the A matrix, very odd...")
 
         if rr==0:
             mag = 0.0
@@ -942,7 +942,7 @@ class Mesh:
                         else:
                             d.set(k,br[-(ref+1),0]) # Should be redundant.
         else:
-            Oops("Error in nonlinear solver, return code is %d." % rr)
+            raise Oops("Error in nonlinear solver, return code is %d." % rr)
         
         return math.sqrt(mag) # Size of the increment. *Not* the residual.
         
@@ -1107,7 +1107,100 @@ class CauchyStress(Flux):
                          (dofderivs[k][l]+dofderivs[l][k])
                              for l in range(3)) for k in range(3))
                  
-                 
+
+
+class RambergOsgood(Flux):
+    # Ramberg-Osgood defines the strain as an analytic function of the
+    # stress, which is not in general invertible.
+    def __init__(self,name,lmbda=1.0,mu=0.5,alpha=1.0,s0=0.1,n=7):
+        Flux.__init__(self.name,"Displacement")
+        cij = Cij(lmbda,mu)
+        c11 = cij[0][0]
+        c12 = cij[0][1]
+        self.A = 1.0/(c11-c12)
+        self.B = c12/((c11-c12)*(c11+2.0*c12))
+        self.alpha = alpha # Amplitude.
+        self.s0 = s0       # Reference stress.
+        self.n = n         # Exponent.
+        self.tol = 1.0e-9  # Tolerance for the NR inversion.
+    def _residual(self,stress,strain):
+        # Zero when stress and strain are on the RO curve.
+        # Stress and strain are 3x3 Python arrays
+        sijsij = sum[ sum[ stress[i][j]**2 for j in range(3) ]
+                      for i in range(3) ]
+        tr = sum[ stress[i][i] for i in range(3) ]
+        q = math.sqrt((3.0/2.0)*(sijsij-tr*tr/3.0))
+        ro = (3.0*self.alpha/2.0)*((q/self.s0)**(self.n-1))
+        .
+        res = [ [ (self.A+r0)*stress[i][j]-strain[i][j]
+                  for j in range(3) ] for i in range(3) ]
+        for i in range(3):
+            res[i][i] -= (self.B+(ro/3.0))*tr
+        return res
+    def _derivs_wrt_stress(self,stress,strain):
+        # Matrix of derivatives of the residual wrt *stress*
+        # components. Result is a four-index object.
+        tr = sum(stress[i][i] for i in range(3))
+        #
+        dvtr = [ [ x for x in row ] for row in stress ]
+        dvtr[0][0]-=tr/3.0
+        dvtr[1][1]-=tr/3.0
+        dvtr[2][2]-=tr/3.0
+        #
+        sijsij = sum(sum( x*x for x in row) for row in stress)
+        v = (3.0/2.0)*(sijsij-tr*tr/3.0)
+        q = math.sqrt(v)
+        #
+        dvds = [ [ 3.0*x for x in row ] for row in stress]
+        dvds[0][0]-=tr
+        dvds[1][1]-=tr
+        dvds[2][2]-=tr
+        #
+        dqds = [[ (0.5/math.sqrt(v))*x for x in row] for row in dvds]
+        #
+        t2=(3.0*self.alpha/2.0)*((q/self.s0)**(self.n-1))
+        #
+        res = [ [ [ [ (3.0/2.0)*self.alpha*dvtr[i][j]*(self.n-1.0)*
+                       (1.0/(self.s0**(self.n-1)))*(q**self.n-2)*dqds[k][l]
+                       for l in range(3) ] for k in range(3) ]
+                    for j in range(3) ] for i in range(3) ]
+        for i in range(3):
+            for k in range(3):
+                res[i][k][i][k] += self.A+t2
+                res[i][i][k][k] -= self.B+t2/3.0
+        return res
+    def _stress(self,strain):
+        # Start with a zero initial guess. Be smarter later on.
+        wrk = [ [0.0]*3 ] *3
+        inc = 1.0
+        while inc > self.tol:
+            resid = self._residual(stress,strain)
+            dfijdskl = self._derivs_wrt_stress(stress,strain)
+            rmtx = smallmatrix.SmallMatrix(9,1)
+            dfmtx = smallmatrix.SmallMatrix(9,9)
+            rmtx.clear()
+            dfmtx.clear()
+            for i in range(3):
+                for j in range(3):
+                    rmtx[i+j*3,0] = -resid[i][j]
+                    for k in range(3):
+                        for l in range(3):
+                            dfmtx[i+j*3,k+l*3]=dfijdskl[i][j][k][l]
+            rr = dfmtx.solve(rmtx)
+            if rr==0:
+                inc = 0.0
+                for i in range(3):
+                    for j in range(3):
+                        dlta = rmtx[i+j*3,0]
+                        wrk[i][j]+=dlta
+                        inc+=wrk*wrk
+            else:
+                raise Oops("Matrix failure in RO flux.")
+    def dukl(self,k,l,pos,dofval,dofderivs):
+        pass
+    def value(self,i,j,pos,dofval,dofderivs):
+        pass
+    
 # Elastic constitutive bookkeeppiinngg.
 
 
