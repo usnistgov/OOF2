@@ -566,8 +566,6 @@ class Mesh:
                     np6 = (i*(xelements+1)+(j+1))*(yelements+1)+k+1
                     np7 = ((i+1)*(xelements+1)+(j+1))*(yelements+1)+k+1
 
-                    print len(self.nodelist)
-                    print np0,np1,np2,np3,np4,np5,np6,np7
                     nodes = [self.nodelist[np0],self.nodelist[np1],
                              self.nodelist[np2],self.nodelist[np3],
                              self.nodelist[np4],self.nodelist[np5],
@@ -1126,12 +1124,11 @@ class RambergOsgood(Flux):
     def _residual(self,stress,strain):
         # Zero when stress and strain are on the RO curve.
         # Stress and strain are 3x3 Python arrays
-        sijsij = sum[ sum[ stress[i][j]**2 for j in range(3) ]
-                      for i in range(3) ]
-        tr = sum[ stress[i][i] for i in range(3) ]
+        sijsij = sum( sum( stress[i][j]**2 for j in range(3) )
+                      for i in range(3) )
+        tr = sum( stress[i][i] for i in range(3) )
         q = math.sqrt((3.0/2.0)*(sijsij-tr*tr/3.0))
         ro = (3.0*self.alpha/2.0)*((q/self.s0)**(self.n-1))
-        .
         res = [ [ (self.A+r0)*stress[i][j]-strain[i][j]
                   for j in range(3) ] for i in range(3) ]
         for i in range(3):
@@ -1267,7 +1264,7 @@ def face_integration_test():
     
 
 if __name__=="__main__":
-    m = Mesh(xelements=1,yelements=1,zelements=2)
+    m = Mesh(xelements=3,yelements=3,zelements=3)
     f = CauchyStress("Stress")
     m.addfield("Displacement",3)
     m.addeqn("Force",3,f) # Last argument is the flux.
