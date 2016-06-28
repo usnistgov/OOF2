@@ -1121,6 +1121,11 @@ class RambergOsgood(Flux):
         self.s0 = s0       # Reference stress.
         self.n = n         # Exponent.
         self.tol = 1.0e-7  # Tolerance for the NR inversion.
+        #
+        self.clear_caches()
+    def clear_caches(self):
+        self.dukl_cache = {}
+        self.stress_cache = {}
     def _residual(self,stress,strain):
         # Zero when stress and strain are on the RO curve.
         # Stress and strain are 3x3 Python arrays
@@ -1167,70 +1172,84 @@ class RambergOsgood(Flux):
                 res[i][i][k][k] -= self.B+ro/3.0
         return res
     def _stress(self,strain):
-        # Start with a copy of the strain. Be smarter later on.
-        wrk = [ [ x for x in row ] for row in strain ]
-        inc = 1.0
-        count = 0 
-        while inc > self.tol:
-            resid = self._residual(wrk,strain)
-            dfijdskl = self._derivs_wrt_stress(wrk,strain)
-            rmtx = smallmatrix.SmallMatrix(9,1)
-            dfmtx = smallmatrix.SmallMatrix(9,9)
-            rmtx.clear()
-            dfmtx.clear()
-            for i in range(3):
-                for j in range(3):
-                    rmtx[i+j*3,0] = -resid[i][j]
-                    for k in range(3):
-                        for l in range(3):
-                            dfmtx[i*3+j,k*3+l]=dfijdskl[i][j][k][l]
-            rr = dfmtx.solve(rmtx)
-            if rr==0:
-                inc = 0.0
+        cache_index = tuple( [ tuple(x) for x in strain ] )
+        try:
+            return self.stress_cache[cache_index]
+        except KeyError:
+            # Start with a copy of the strain. Be smarter later on.
+            wrk = [ [ x for x in row ] for row in strain ]
+            inc = 1.0
+            count = 0 
+            while inc > self.tol:
+                resid = self._residual(wrk,strain)
+                dfijdskl = self._derivs_wrt_stress(wrk,strain)
+                rmtx = smallmatrix.SmallMatrix(9,1)
+                dfmtx = smallmatrix.SmallMatrix(9,9)
+                rmtx.clear()
+                dfmtx.clear()
                 for i in range(3):
                     for j in range(3):
-                        dlta = rmtx[i*3+j,0]
-                        wrk[i][j]+=dlta
-                        inc+=dlta*dlta
-            else:
-                raise Oops("Matrix failure in RO flux.")
-            count += 1
-            # print "Iteration %d, increment is %f." % (count,inc)
-            if count>100:
-                raise Oops("Debug overflow in RO stress.")
-        return wrk
+                        rmtx[i+j*3,0] = -resid[i][j]
+                        for k in range(3):
+                            for l in range(3):
+                                dfmtx[i*3+j,k*3+l]=dfijdskl[i][j][k][l]
+                rr = dfmtx.solve(rmtx)
+                if rr==0:
+                    inc = 0.0
+                    for i in range(3):
+                        for j in range(3):
+                            dlta = rmtx[i*3+j,0]
+                            wrk[i][j]+=dlta
+                            inc+=dlta*dlta
+                else:
+                    raise Oops("Matrix failure in RO flux.")
+                count += 1
+                # print "Iteration %d, increment is %f." % (count,inc)
+                if count>100:
+                    raise Oops("Debug overflow in RO stress.")
+            self.stress_cache[cache_index] = wrk
+            return wrk
+
     #
     # TODO: These are going to be slow. Use caches and cleverness to
     # fix them later on.
     def dukl(self,k,l,pos,dofval,dofderivs):
-        strain = [ [ 0.5*(dofderivs[i][j]+dofderivs[j][i])
-                     for j in range(3) ]
-                   for i in range(3) ] 
-        stress = self._stress(strain)
-        deijdskl = self._derivs_wrt_stress(stress,strain)
-        deds = smallmatrix.SmallMatrix(9,9)
-        deds.clear()
-        for ix in range(3):
-            for jx in range(3):
-                for kx in range(3):
-                    for lx in range(3):
-                        deds[ix*3+jx,kx*3+lx] = deijdskl[ix][jx][kx][lx]
-        dsde = smallmatrix.SmallMatrix(9,9)
-        dsde.clear()
-        for i in range(9):
-            dsde[i,i]=1.0
-        rr = deds.solve(dsde) # Invert
-        if rr==0:
-            dsijdekl = [ [ [ [ dsde[ix*3+jx,kx*3+lx] for lx in range(3) ]
-                             for kx in range(3) ]
-                           for jx in range(3) ]
-                         for ix in range(3) ]
-            return [ [ 0.5*(dsijdekl[ix][jx][k][l]+dsijdekl[ix][jx][l][k])
-                       for jx in range(3) ]
-                     for ix in range(3) ]
-        else:
-            raise Oops("Matrix exception in Ramberg-Osgood dukl.")
-        
+        cache_index = tuple( [ tuple(x) for x in dofderivs ] )
+        try:
+            dsijdukl = self.dukl_cache[cache_index]
+        except KeyError:
+            strain = [ [ 0.5*(dofderivs[i][j]+dofderivs[j][i])
+                         for j in range(3) ]
+                       for i in range(3) ] 
+            stress = self._stress(strain)
+            deijdskl = self._derivs_wrt_stress(stress,strain)
+            deds = smallmatrix.SmallMatrix(9,9)
+            deds.clear()
+            for ix in range(3):
+                for jx in range(3):
+                    for kx in range(3):
+                        for lx in range(3):
+                            deds[ix*3+jx,kx*3+lx] = deijdskl[ix][jx][kx][lx]
+            dsde = smallmatrix.SmallMatrix(9,9)
+            dsde.clear()
+            for i in range(9):
+                dsde[i,i]=1.0
+            rr = deds.solve(dsde) # Invert
+            if rr==0:
+                # Convert from strain to dofs here.
+                dsijdukl = [ [ [ [ 0.5*(dsde[ix*3+jx,kx*3+lx]+
+                                        dsde[ix*3+jx,lx*3+kx])
+                                   for lx in range(3) ]
+                                 for kx in range(3) ]
+                               for jx in range(3) ]
+                             for ix in range(3) ]
+                self.dukl_cache[cache_index] = dsijdukl
+            else:
+                raise Oops("Matrix exception in Ramberg-Osgood dukl.")
+        # At this point, dsijdukl is a valid four-index object.
+        return [ [ dsijdukl[ix][jx][k][l] for jx in range(3) ]
+                 for ix in range(3) ]
+            
     def value(self,i,j,pos,dofval,dofderivs):
         strain = [ [ 0.5*(dofderivs[ix][jx]+dofderivs[jx][ix])
                      for jx in range(3) ]
