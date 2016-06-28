@@ -1111,7 +1111,7 @@ class RambergOsgood(Flux):
     # Ramberg-Osgood defines the strain as an analytic function of the
     # stress, which is not in general invertible.
     def __init__(self,name,lmbda=1.0,mu=0.5,alpha=1.0,s0=0.1,n=7):
-        Flux.__init__(self.name,"Displacement")
+        Flux.__init__(self,name,"Displacement")
         cij = Cij(lmbda,mu)
         c11 = cij[0][0]
         c12 = cij[0][1]
@@ -1120,7 +1120,7 @@ class RambergOsgood(Flux):
         self.alpha = alpha # Amplitude.
         self.s0 = s0       # Reference stress.
         self.n = n         # Exponent.
-        self.tol = 1.0e-9  # Tolerance for the NR inversion.
+        self.tol = 1.0e-7  # Tolerance for the NR inversion.
     def _residual(self,stress,strain):
         # Zero when stress and strain are on the RO curve.
         # Stress and strain are 3x3 Python arrays
@@ -1129,7 +1129,7 @@ class RambergOsgood(Flux):
         tr = sum( stress[i][i] for i in range(3) )
         q = math.sqrt((3.0/2.0)*(sijsij-tr*tr/3.0))
         ro = (3.0*self.alpha/2.0)*((q/self.s0)**(self.n-1))
-        res = [ [ (self.A+r0)*stress[i][j]-strain[i][j]
+        res = [ [ (self.A+ro)*stress[i][j]-strain[i][j]
                   for j in range(3) ] for i in range(3) ]
         for i in range(3):
             res[i][i] -= (self.B+(ro/3.0))*tr
@@ -1155,24 +1155,25 @@ class RambergOsgood(Flux):
         #
         dqds = [[ (0.5/math.sqrt(v))*x for x in row] for row in dvds]
         #
-        t2=(3.0*self.alpha/2.0)*((q/self.s0)**(self.n-1))
+        ro=(3.0*self.alpha/2.0)*((q/self.s0)**(self.n-1))
         #
         res = [ [ [ [ (3.0/2.0)*self.alpha*dvtr[i][j]*(self.n-1.0)*
-                       (1.0/(self.s0**(self.n-1)))*(q**self.n-2)*dqds[k][l]
+                       (1.0/(self.s0**(self.n-1)))*(q**(self.n-2))*dqds[k][l]
                        for l in range(3) ] for k in range(3) ]
                     for j in range(3) ] for i in range(3) ]
         for i in range(3):
             for k in range(3):
-                res[i][k][i][k] += self.A+t2
-                res[i][i][k][k] -= self.B+t2/3.0
+                res[i][k][i][k] += self.A+ro
+                res[i][i][k][k] -= self.B+ro/3.0
         return res
     def _stress(self,strain):
-        # Start with a zero initial guess. Be smarter later on.
-        wrk = [ [0.0]*3 ] *3
+        # Start with a copy of the strain. Be smarter later on.
+        wrk = [ [ x for x in row ] for row in strain ]
         inc = 1.0
+        count = 0 
         while inc > self.tol:
-            resid = self._residual(stress,strain)
-            dfijdskl = self._derivs_wrt_stress(stress,strain)
+            resid = self._residual(wrk,strain)
+            dfijdskl = self._derivs_wrt_stress(wrk,strain)
             rmtx = smallmatrix.SmallMatrix(9,1)
             dfmtx = smallmatrix.SmallMatrix(9,9)
             rmtx.clear()
@@ -1182,17 +1183,22 @@ class RambergOsgood(Flux):
                     rmtx[i+j*3,0] = -resid[i][j]
                     for k in range(3):
                         for l in range(3):
-                            dfmtx[i+j*3,k+l*3]=dfijdskl[i][j][k][l]
+                            dfmtx[i*3+j,k*3+l]=dfijdskl[i][j][k][l]
             rr = dfmtx.solve(rmtx)
             if rr==0:
                 inc = 0.0
                 for i in range(3):
                     for j in range(3):
-                        dlta = rmtx[i+j*3,0]
+                        dlta = rmtx[i*3+j,0]
                         wrk[i][j]+=dlta
-                        inc+=wrk*wrk
+                        inc+=dlta*dlta
             else:
                 raise Oops("Matrix failure in RO flux.")
+            count += 1
+            print "Iteration %d, increment is %f." % (count,inc)
+            if count>100:
+                raise Oops("Debug overflow in RO stress.")
+        return wrk
     def dukl(self,k,l,pos,dofval,dofderivs):
         pass
     def value(self,i,j,pos,dofval,dofderivs):
@@ -1261,8 +1267,27 @@ def face_integration_test():
     for g in f.gausspts():
         res += g.weight*f.jacobian(g.xi,g.zeta,g.mu)
     return res # Should be 2.0.
-    
 
+def rotest():
+    ro = RambergOsgood("RO") # Defaults.
+    sigma_1 = [[0.0, 0.05, 0.0],
+               [0.05, 0.0, 0.0],
+               [0.0, 0.0, 0.0]]
+
+    
+    strain = [[0.0]*3]*3
+    eps_1 = ro._residual(sigma_1,strain)
+
+    # Now reproduce the stress from this strain.
+    test = ro._stress(eps_1)
+
+    print sigma_1
+    print test
+
+
+# if __name__=="__main__":
+#     rotest()
+    
 if __name__=="__main__":
     m = Mesh(xelements=3,yelements=3,zelements=3)
     f = CauchyStress("Stress")
