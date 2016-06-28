@@ -1158,7 +1158,10 @@ class RambergOsgood(Flux):
         dvds[1][1]-=tr
         dvds[2][2]-=tr
         #
-        dqds = [[ (0.5/math.sqrt(v))*x for x in row] for row in dvds]
+        if v > 0.0:
+            dqds = [[ (0.5/math.sqrt(v))*x for x in row] for row in dvds]
+        else:
+            dqds = [ [ 0.0 ]*3 ] *3
         #
         ro=(3.0*self.alpha/2.0)*((q/self.s0)**(self.n-1))
         #
@@ -1362,7 +1365,8 @@ def rotest():
 
 if __name__=="__main__":
     m = Mesh(xelements=3,yelements=3,zelements=3)
-    f = CauchyStress("Stress")
+    # f = CauchyStress("Stress")
+    f = RambergOsgood("Nonlinear!")
     m.addfield("Displacement",3)
     m.addeqn("Force",3,f) # Last argument is the flux.
     m.setbcs(0.1,0.0)
@@ -1370,7 +1374,7 @@ if __name__=="__main__":
     # m.solve_linear()
 
     try:
-        m.solve_nonlinear(None,None,3)
+        m.solve_nonlinear(None,None,5)
     except Oops, o:
         print "Got exception, ", o
     force_val = m.measure_force(f)
