@@ -1195,14 +1195,48 @@ class RambergOsgood(Flux):
             else:
                 raise Oops("Matrix failure in RO flux.")
             count += 1
-            print "Iteration %d, increment is %f." % (count,inc)
+            # print "Iteration %d, increment is %f." % (count,inc)
             if count>100:
                 raise Oops("Debug overflow in RO stress.")
         return wrk
+    #
+    # TODO: These are going to be slow. Use caches and cleverness to
+    # fix them later on.
     def dukl(self,k,l,pos,dofval,dofderivs):
-        pass
+        strain = [ [ 0.5*(dofderivs[i][j]+dofderivs[j][i])
+                     for j in range(3) ]
+                   for i in range(3) ] 
+        stress = self._stress(strain)
+        deijdskl = self._derivs_wrt_stress(stress,strain)
+        deds = smallmatrix.SmallMatrix(9,9)
+        deds.clear()
+        for ix in range(3):
+            for jx in range(3):
+                for kx in range(3):
+                    for lx in range(3):
+                        deds[ix*3+jx,kx*3+lx] = deijdskl[ix][jx][kx][lx]
+        dsde = smallmatrix.SmallMatrix(9,9)
+        dsde.clear()
+        for i in range(9):
+            dsde[i,i]=1.0
+        rr = deds.solve(dsde) # Invert
+        if rr==0:
+            dsijdekl = [ [ [ [ dsde[ix*3+jx,kx*3+lx] for lx in range(3) ]
+                             for kx in range(3) ]
+                           for jx in range(3) ]
+                         for ix in range(3) ]
+            return [ [ 0.5*(dsijdekl[ix][jx][k][l]+dsijdekl[ix][jx][l][k])
+                       for jx in range(3) ]
+                     for ix in range(3) ]
+        else:
+            raise Oops("Matrix exception in Ramberg-Osgood dukl.")
+        
     def value(self,i,j,pos,dofval,dofderivs):
-        pass
+        strain = [ [ 0.5*(dofderivs[ix][jx]+dofderivs[jx][ix])
+                     for jx in range(3) ]
+                   for ix in range(3) ]
+        stress = self._stress(strain)
+        return stress[i][j]
     
 # Elastic constitutive bookkeeppiinngg.
 
@@ -1268,26 +1302,45 @@ def face_integration_test():
         res += g.weight*f.jacobian(g.xi,g.zeta,g.mu)
     return res # Should be 2.0.
 
+
+def rotest_iterate(ro,du,cpi,cpj):
+    # Ro is the property, du is a starting displacement derivative
+    # field, and component is a tuple of integers indicating which
+    # "direction" to take the derivative.a
+    delta = 0.0005
+    #
+    delta_du = [ [ 0.0 for j in range(3) ] for i in range(3) ]
+    delta_du[cpi][cpj] += delta
+    #
+    du2 = [ [ du[i][j] +delta_du[i][j] for j in range(3) ] for i in range(3) ]
+    #
+    # The scheme is to compute stress(du), stress(du2), and
+    # stress(du)+delta-du*dstress(du)/du, and compare.
+    stss_1 = ro.value(cpi,cpj,None,None,du)
+    stss_2 = ro.value(cpi,cpj,None,None,du2)
+    
+    # We want the derivative of stress[i][j], and we want all k,l
+    # components of it.
+    dukl = [ [ ro.dukl(cpk,cpl,None,None,du)[cpi][cpj]
+               for cpl in range(3) ] for cpk in range(3)]
+    stss_2a = stss_1+sum(sum(dukl[k][l]*delta_du[k][l]
+                             for l in range(3)) for k in range(3))
+    print stss_1,stss_2,stss_2a
+    print (stss_2-stss_2a)/stss_2
+    
 def rotest():
-    ro = RambergOsgood("RO") # Defaults.
-    sigma_1 = [[0.0, 0.05, 0.0],
-               [0.05, 0.0, 0.0],
-               [0.0, 0.0, 0.0]]
-
+    # It's safe to pass in None for the pos and dofval arguments to
+    # the RO value and dukl routines, because those arguments are
+    # ignored.
+    ro = RambergOsgood("RO") # Use defaults.
+    du1 = [[0.5, 0.3,0.5],[0.1,0.0,0.1],[0.0,0.0,0.0]]
+    delta = 0.001
+    for cpi in range(3):
+        for cpj in range(3):
+            rotest_iterate(ro,du1,cpi,cpj)
     
-    strain = [[0.0]*3]*3
-    eps_1 = ro._residual(sigma_1,strain)
-
-    # Now reproduce the stress from this strain.
-    test = ro._stress(eps_1)
-
-    print sigma_1
-    print test
 
 
-# if __name__=="__main__":
-#     rotest()
-    
 if __name__=="__main__":
     m = Mesh(xelements=3,yelements=3,zelements=3)
     f = CauchyStress("Stress")
