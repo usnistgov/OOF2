@@ -16,9 +16,12 @@
 
 
 import math, sys, getopt
-
+import matplotlib.pyplot as plt
+#from pylab import *
 import smallmatrix
 import position
+
+
 
 class Oops:
     def __init__(self, message):
@@ -86,6 +89,7 @@ class Dof:
         self.value[idx] = v
     def add(self,idx,v):
         self.value[idx] += v
+
     def get(self,idx):
         return self.value[idx]
     def __repr__(self):
@@ -231,7 +235,7 @@ class GaussPoint:
         self.mu = mu
         self.weight = weight
     def __repr__(self):
-        return "GaussPoint(%g,%g,%g,%g)" % (self.xi, self.zeta,
+        return "GaussPoint(%g,%g,%g,%g)" % (seqnself.xi, self.zeta,
                                             self.mu, self.weight)
 
 # Utility function, closed form of the determinant of a 3x3 matrix.
@@ -299,13 +303,19 @@ class Element:
             dfdmaster = [ self.dsfns[i][0](xi,zeta,mu),
                           self.dsfns[i][1](xi,zeta,mu),
                           self.dsfns[i][2](xi,zeta,mu) ]
+            
+            
 
             dfdref = [ sum( jinv[ix][jx]*dfdmaster[jx] for jx in range(3) )
                        for ix in range(3) ]
 
+
             self.dshapefn_cache[(i,0,xi,zeta,mu)] = dfdref[0]
             self.dshapefn_cache[(i,1,xi,zeta,mu)] = dfdref[1]
             self.dshapefn_cache[(i,2,xi,zeta,mu)] = dfdref[2]
+
+
+
             
             return dfdref[j]
 
@@ -330,26 +340,27 @@ class Element:
 
     # Return the reference-state derivatives of a DOF at a given
     # master-space position.  Always returns a list of lists, with the
-    # component of the derivative being the fastest-varying thing.
+    # componentn of the derivative being the fastest-varying thing.
     def dofdx(self,dofname,xi,zeta,mu):
-        try:
-            return [x[:] for x in self.dofdx_cache[(dofname,xi,zeta,mu)]]
-        except KeyError:
-            res = None
-            for (ni,n) in enumerate(self.nodes):
-                dsf = [ self.dshapefn(ni,0,xi,zeta,mu),
-                        self.dshapefn(ni,1,xi,zeta,mu),
-                        self.dshapefn(ni,2,xi,zeta,mu) ]
-                for dof in n.dofs:
-                    if dof.name == dofname:
-                        term = [[ df*x for x in dof.value ] for df in dsf ]
-                        if res == None:
-                            res = term
-                        else:
-                            res = [[sum(y) for y in zip(x[0],x[1])]
-                                   for x in zip(res,term)]
-            self.dofdx_cache[(dofname,xi,zeta,mu)]=res
-            return [x[:] for x in res]
+
+##        try:
+##            return [x[:] for x in self.dofdx_cache[(dofname,xi,zeta,mu)]]
+##        except KeyError:
+        res = None
+        for (ni,n) in enumerate(self.nodes):
+            dsf = [ self.dshapefn(ni,0,xi,zeta,mu),
+                    self.dshapefn(ni,1,xi,zeta,mu),
+                    self.dshapefn(ni,2,xi,zeta,mu) ]
+            for dof in n.dofs:
+                if dof.name == dofname:
+                    term = [[ df*x for x in dof.value ] for df in dsf ]
+                    if res == None:
+                        res = term
+                    else:
+                        res = [[sum(y) for y in zip(x[0],x[1])]
+                               for x in zip(res,term)]
+        self.dofdx_cache[(dofname,xi,zeta,mu)]=res
+        return [x[:] for x in res]
                         
     # The master-to-reference transformation.
     def frommaster(self,xi,zeta,mu):
@@ -395,6 +406,7 @@ class Element:
     def jacobian(self,xi,zeta,mu):
         return det3(self.jacobianmtx(xi,zeta,mu))
     
+    
     # Return the relevant gausspoints, once they're computed.
     def gausspts(self):
         if not Element.gptable:
@@ -412,6 +424,40 @@ class Element:
                             GaussPoint(pts[k],pts[j],pts[i],
                                        wts[k]*wts[j]*wts[i]))
         return Element.gptable
+
+################################ added by Shahriyar #################
+    # Jacobian of the master-to-reference transformation.
+    def jacobianmtxdef(self,xi,zeta,mu):
+
+        j11 = j12 = j13 = j21 = j22 = j23= j31 = j32 = j33 = 0.0
+
+        j11 = sum( [ self.dsfns[i][0](xi,zeta,mu)*(self.nodes[i].position.x
+                     + self.nodes[i].dofs[0].value[0]) for i in range(8)] )
+        j12 = sum( [ self.dsfns[i][1](xi,zeta,mu)*(self.nodes[i].position.x
+                     + self.nodes[i].dofs[0].value[0]) for i in range(8)] )
+        j13 = sum( [ self.dsfns[i][2](xi,zeta,mu)*(self.nodes[i].position.x
+                     + self.nodes[i].dofs[0].value[0]) for i in range(8)] )
+
+        j21 = sum( [ self.dsfns[i][0](xi,zeta,mu)*(self.nodes[i].position.y
+                     + self.nodes[i].dofs[0].value[1]) for i in range(8)] )
+        j22 = sum( [ self.dsfns[i][1](xi,zeta,mu)*(self.nodes[i].position.y
+                     + self.nodes[i].dofs[0].value[1]) for i in range(8)] )
+        j23 = sum( [ self.dsfns[i][2](xi,zeta,mu)*(self.nodes[i].position.y
+                     + self.nodes[i].dofs[0].value[1]) for i in range(8)] )
+
+        j31 = sum( [ self.dsfns[i][0](xi,zeta,mu)*(self.nodes[i].position.z
+                     + self.nodes[i].dofs[0].value[2]) for i in range(8)] )
+        j32 = sum( [ self.dsfns[i][1](xi,zeta,mu)*(self.nodes[i].position.z
+                     + self.nodes[i].dofs[0].value[2]) for i in range(8)] )
+        j33 = sum( [ self.dsfns[i][2](xi,zeta,mu)*(self.nodes[i].position.z
+                     + self.nodes[i].dofs[0].value[2]) for i in range(8)] )
+
+        return [ [ j11, j12, j13], [j21, j22, j23], [j31, j32, j33] ]
+    # Scalar Jacobian, aka determinant.
+    def jacobiandef(self,xi,zeta,mu):
+        return det3(self.jacobianmtxdef(xi,zeta,mu))
+
+#####################################################################
 
 
 
@@ -503,13 +549,11 @@ class Face:
 # Newton-Raphson technique.  Given an initial set of c_j, we
 # numerically compute all the E_i, as well as M_ij = dE_i/dc_j, then
 # compute an increment from M_ij.delta_c_j = -E_i, update the c_js,
-# and iterate until either the increment is small enough, the
-# residual is small enough, or the allowed iteration count is
-# exceeded.
+# and iterate until the residual is small enough.
 
 
 class Mesh:
-    def __init__(self,xelements=5,yelements=5,zelements=5):
+    def __init__(self,xelements=1,yelements=1,zelements=1):
         self.nodelist = []
         self.elementlist = []
 
@@ -547,7 +591,7 @@ class Mesh:
                     
         # The node indexing is such that the node with position
         # x = a*dx, y = b*dy, z = c*dz is in the node list at
-        # list position (c*(xelements+1)+b)*(yelements+1)+a
+        # list position (c*(zelements+1)+b)*(yelements+1)+a
                     
         
 
@@ -556,15 +600,15 @@ class Mesh:
         for i in range(zelements):
             for j in range(yelements):
                 for k in range(xelements):
-                    np0 = (i*(xelements+1)+j)*(yelements+1)+k
-                    np1 = ((i+1)*(xelements+1)+j)*(yelements+1)+k
-                    np2 = (i*(xelements+1)+(j+1))*(yelements+1)+k
-                    np3 = ((i+1)*(xelements+1)+(j+1))*(yelements+1)+k
+                    np0 = (i*(zelements+1)+j)*(yelements+1)+k
+                    np1 = ((i+1)*(zelements+1)+j)*(yelements+1)+k
+                    np2 = (i*(zelements+1)+(j+1))*(yelements+1)+k
+                    np3 = ((i+1)*(zelements+1)+(j+1))*(yelements+1)+k
                     
-                    np4 = (i*(xelements+1)+j)*(yelements+1)+k+1
-                    np5 = ((i+1)*(xelements+1)+j)*(yelements+1)+k+1
-                    np6 = (i*(xelements+1)+(j+1))*(yelements+1)+k+1
-                    np7 = ((i+1)*(xelements+1)+(j+1))*(yelements+1)+k+1
+                    np4 = (i*(zelements+1)+j)*(yelements+1)+k+1
+                    np5 = ((i+1)*(zelements+1)+j)*(yelements+1)+k+1
+                    np6 = (i*(zelements+1)+(j+1))*(yelements+1)+k+1
+                    np7 = ((i+1)*(zelements+1)+(j+1))*(yelements+1)+k+1
 
                     nodes = [self.nodelist[np0],self.nodelist[np1],
                              self.nodelist[np2],self.nodelist[np3],
@@ -605,6 +649,7 @@ class Mesh:
             neweqn = Eqn(name, mtxsize+count*size, size, flux)
             n.addeqn(neweqn)
             self.eqnlist.append(neweqn)
+
             count += 1
 
     def clear(self):
@@ -631,6 +676,7 @@ class Mesh:
     # is merely OOFoid.  It could eventually be OOFtacular.  What it
     # actually does is populate a dictionary indexed by (row,col)
     # tuples.
+    
     def make_stiffness(self):
         for e in self.elementlist:
             print "Element...."
@@ -649,7 +695,7 @@ class Mesh:
                                         dval = self._flux_deriv(
                                             e, rndx, cndx, eq, i,
                                             df, j, g)
-                                        # 
+
                                         dval *= g.weight
                                         dval *= e.jacobian(g.xi,g.zeta,g.mu)
                                         val += dval
@@ -668,6 +714,7 @@ class Mesh:
         # Eqn is the equation object, eqncomp the component.
         # Dof is the ODF object, dofcomp the component.
         # Gpt is the gausspoint, pos the reference-state position of it.
+
 
         pos = element.frommaster(gpt.xi,gpt.zeta,gpt.mu)
         dofval = element.dof(dof.name, gpt.xi,gpt.zeta,gpt.mu)
@@ -689,6 +736,7 @@ class Mesh:
                 res -= element.dshapefn(rndx,j,gpt.xi,gpt.zeta,gpt.mu)*\
                        fluxdvs[l][eqcomp][j]*\
                        element.dshapefn(cndx,l,gpt.xi,gpt.zeta,gpt.mu)
+
         return res
             
     
@@ -715,22 +763,15 @@ class Mesh:
                         except KeyError:
                             self.eqns[row]=val
 
-        # Build the Smallmatrix version of it.  Assumes conjugacy.
-        # Also, call to set_freedofs is duplicated in linearsystem.
-        (free_count,fixed_count, fixed_rhs) = self.set_freedofs()
-        eqvs = SmallMatrix(free_count,1)
-        for (i,v) in self.eqns.items():
-            if self.freedofs[i]>0:
-                eqvs[self.freedofs[i],0]=v
-        return eqvs
-        
     def _flux_contrib(self, element, rndx, eqn, eqndx, gpt):
         # This is essentially the integrand function for the equation
         # values. It assumes a divergence flux, and includes
         # contributions from the derivative of the row shape function,
         # and the negative sign from the integration by parts.
-
         pos = element.frommaster(gpt.xi,gpt.zeta,gpt.mu)
+
+        
+#        print element.nodes[0].dofs[0].value
 
         dofname = eqn.flux.fieldname # Assume there's only one, for now.
         dofval = element.dof(dofname,gpt.xi,gpt.zeta,gpt.mu)
@@ -739,28 +780,18 @@ class Mesh:
         for j in range(3):
             res -= element.dshapefn(rndx,j,gpt.xi,gpt.zeta,gpt.mu)*\
                    eqn.flux.value(eqndx,j,pos,dofval,dofderivs)
+#            print eqndx,j,pos,eqn.flux.value(eqndx,j,pos,dofval,dofderivs)
+#        raw_input()
         return res
                                                     
     # Values are z offsets of the top and bottom boundaries, which are
     # assumed fixed to zero offset in the x and y direction.  BCs can
     # be set to None, in which case they are not fixed, but why woold
-    # you do that?  The field must already be added before you do
-    # this.
+    # you do that?
     def setbcs(self,top,bottom):
         self.topbc = top
         self.bottombc = bottom
-        if self.topbc is not None:
-            for n in self.topnodes:
-                d = n.dofs[0] # Assume only displacement exists.
-                d.set(0,0)
-                d.set(1,0)
-                d.set(2,self.topbc)
-        if self.bottombc is not None:
-            for n in self.bottomnodes:
-                d = n.dofs[0] # Assume only displacement exists.
-                d.set(0,0)
-                d.set(1,0)
-                d.set(2,self.bottombc)
+
 
     def set_freedofs(self):
         # Builds the self.freedofs vector, and returns some counts and
@@ -822,15 +853,20 @@ class Mesh:
         cmtx = SmallMatrix(free_count,-(fixed_count+1))
         brhs = SmallMatrix(len(fixed_rhs),1)  # Boundary RHS.
         frhs = SmallMatrix(free_count,1)      # Body forces.
+        eqvs = SmallMatrix(free_count,1)  # Equation values.
+
         
         amtx.clear()
         cmtx.clear()
         brhs.clear()
         frhs.clear()
+        eqvs.clear()
+
 
         for ((i,j),v) in self.matrix.items():
             if self.freedofs[i]>=0 and self.freedofs[j]>=0:
                 amtx[self.freedofs[i],self.freedofs[j]]=v
+            
             else:
                 if self.freedofs[i]>=0 and self.freedofs[j]<0:
                     cmtx[self.freedofs[i],-(self.freedofs[j]+1)]=v
@@ -842,7 +878,12 @@ class Mesh:
             if self.freedofs[i]>=0:
                 frhs[self.freedofs[i],0]=v
 
-        return (amtx,cmtx,brhs,frhs)
+        # TODO: We're assuming conjugacy here, which may not be wise.
+        for (i,v) in self.eqns.items():
+            if self.freedofs[i]>=0:
+                eqvs[self.freedofs[i],0]=-v  #shahriyar has put minus
+                
+        return (amtx,cmtx,brhs,frhs,eqvs)
 
     
     # Assumes the "Displacement" field has been added to the mesh, and
@@ -850,17 +891,20 @@ class Mesh:
     # master stiffness matrix.
     def solve_linear(self):
         self.make_stiffness()
-        
-        (a,c,br,fr) = self.linearsystem()
+       
+        (a,c,br,fr,eq) = self.linearsystem()
+        # We don't use eq in the linear case.
 
         # Sign.  Solver solves Ax=b, not Ax+b=0.
         nr = (c*br)*(-1.0)-fr # Fr is zero if no Neumann BCs.
 
+
         if a.rows()!=0:
             rr = a.solve(nr)
         else:
-            rr = 0 # Degenerate case, set to "solved". 
+            rr = 0 # Degenerate case, set to "solved".
 
+        
         if rr==0:
             for n in self.nodelist:
                 for d in n.alldofs():
@@ -869,63 +913,33 @@ class Mesh:
                         if ref >= 0:
                             d.set(k,nr[ref,0])
                         else:
-                            d.set(k,br[-(ref+1),0])  # Should be redundant.
+                            d.set(k,br[-(ref+1),0])
+                            
         else:
-            raise Oops("Error in linear solver, return code is %d." % rr)
+            Oops("Error in linear solver, return code is %d." % rr)
 
 
-    # Arguments are the residual tolerance, the increment tolerance,
-    # and the maximum number of iterations.  Setting any of these to
-    # None means they'll be ignored.
-    def solve_nonlinear(self, eps_r, eps_dx, max_count):
+    # Assumes the "Displacement" field has been added to the system,
+    # and that the big master matrix of derivatives of equations with
+    # respect to the coefficients has been built, and that self.eqns
+    # equation values have been set.
+    def solve_nonlinear(self):
 
-        icount = 0
+#        self.make_stiffness()
+#        self.evaluate_eqns()
+        
+        (a,c,br,fr,eq) = self.linearsystem()
 
-        while 1:
-            self.clear()
-            self.clear_caches()
-            # self.make_stiffness()
-            eq = self.evaluate_eqns()
+##        for i in range(81):
+##            print eq[i,0]
+##        raw_input()
 
-            # nr = (c*br)*(-1.0)-fr-eq
-            nr = eq*(-1.0)
-
-            rmag = math.sqrt(sum( nr[i,0]*nr[i,0] for i in range(nr.rows()) )) 
-            print "Starting nonlinear iteration, rmag is %f." % rmag
-
-            # If there's a residual criterion, and it's satsified, success.
-            if eps_r is not None and math.fabs(rmag)<eps_r:
-                return icount
-
-            # If another iteration would exceed the count, fail.
-            if icount is not None and icount >= max_count:
-                raise Oops("Iteration count %d reached in nonlinear solver."
-                           % max_count)
-
-            # We are actually going to do this.  Build and extract the
-            # matrix.
-            self.make_stiffness()
-            (a,c,br,fr) = self.linearsystem()
-            
-            xmag = self.iterate_nonlinear(a,nr,br)
-            icount += 1
-
-            print "Completing nonlinear iteration, xmag is %f." % xmag
-            
-            # If there's an increment criterion and it's met, success!
-            if eps_dx is not None and math.fabs(xmag)<eps_dx:
-                return icount
-            
-
-    # Performs a single Newton-Raphson iteration, updates the free
-    # DOFs in the mesh, and returns the un-normalized L2 norm of the
-    # increment vector.
-    def iterate_nonlinear(self,a,nr,br):
+        nr = (c*br)*(-1.0)-fr+eq
 
         if a.rows()!=0:
             rr = a.solve(nr)
         else:
-            raise Oops("Zero rows in the A matrix, very odd...")
+            Oops("Zero rows in the A matrix, very odd...")
 
         if rr==0:
             mag = 0.0
@@ -938,11 +952,341 @@ class Mesh:
                             mag += v*v
                             d.add(k,v)
                         else:
-                            d.set(k,br[-(ref+1),0]) # Should be redundant.
+###                            d.set(k,br[-(ref+1),0]) # Should be redundant.
+                            d.add(k,br[-(ref+1),0]) # added by shahriyar
+
         else:
-            raise Oops("Error in nonlinear solver, return code is %d." % rr)
+            Oops("Error in nonlinear solver, return code is %d." % rr)
+            
+############        self.evaluate_eqns()
+
+#--------- start convergence loop -----------------------
+
+        iconv = 0
+        nconv = 3
+        ratio_norm = 1.0e10
+        magiter = [0.0 for i in range(nconv)]
+        while (iconv <= nconv-1 and abs(ratio_norm) >= 1.0e-9):
+            if iconv > 0:
+                self.matrix = {}
+                self.make_stiffness()
+
+
+                (a,c,br,fr,eq) = self.linearsystem()
+
+                nr = eq
+
+                if a.rows()!=0:
+                    rr = a.solve(nr)
+                else:
+                    Oops("Zero rows in the A matrix, very odd...")
+
+                if rr==0:
+                    for n in self.nodelist:
+                        for d in n.alldofs():
+                            for k in range(d.size):
+                                ref = self.freedofs[d.index+k]
+                                if ref >= 0:
+                                    v = nr[ref,0]
+                                    magiter[iconv] += v*v
+                                    d.add(k,v)
+
+
+                else:
+                    Oops("Error in nonlinear solver, return code is %d." % rr)
+
+
+            self.evaluate_eqns()
+
+##
+##            (a,c,br,fr,eq) = self.linearsystem()
+
+            
+            
+
+            ratio_norm = 0.0
+
+            gf_nod = unb_nod = 0.0
+
+
+            for (i,v) in self.eqns.items():
+                gf_nod += v*v
+
+
+            for (i,v) in self.eqns.items():
+                if self.freedofs[i]>=0:
+                    unb_nod += v*v
+
+             
+            norm_gs = math.sqrt(gf_nod)
+            norm_us = math.sqrt(unb_nod)
+
+
+            ratio_norm = norm_us/norm_gs
+
+            print iconv,norm_us,ratio_norm
+#            raw_input()
+
+            iconv += 1
+
+            
+#--------- end convergence loop -----------------------
+
         
         return math.sqrt(mag) # Size of the increment. *Not* the residual.
+
+
+###################### post-proccesing ###########################
+    def evaluate_ss(self):
+
+        valstrain = 0.0 ; valstress = 0.0 ; vol = 0.0
+        for e in m.elementlist:
+            for g in e.gausspts():
+                dvalstrain = self.CastressTstrain(e,g)[0]
+                dvalstress = self.CastressTstrain(e,g)[1]
+
+                dvalstrain *= e.jacobiandef(g.xi,g.zeta,g.mu)
+                dvalstress *= e.jacobiandef(g.xi,g.zeta,g.mu)
+
+                vol += e.jacobiandef(g.xi,g.zeta,g.mu)
+
+                valstrain += dvalstrain
+                valstress += dvalstress
+
+        vol_T_strain = valstrain/vol
+        vol_C_stress = valstress/vol
+
+        return vol_T_strain,vol_C_stress
+
+
+    def CastressTstrain(self, element,gpt):
+        pos = element.frommaster(gpt.xi,gpt.zeta,gpt.mu)
+        dofderivs = element.dofdx("Displacement", gpt.xi,gpt.zeta,gpt.mu)
+        CaT = self.Cavalue(dofderivs)
+        T_Strain = CaT[0] ; C_Stress = CaT[1]  
+
+
+        return T_Strain,C_Stress
+
+    
+    def Cavalue(self,dofderivs):
+        
+        cijkl = Cijkl(lmbda = 1.0,mu = 0.5)
+
+        FG = self.calc_F(dofderivs)            # F at gausspoint
+        E_lag = self.calc_E_lag(FG)[0]            # Euler-Lagrange strain
+        RCGDT = self.true_strain(self.calc_E_lag(FG)[1])
+        S = self.SPK_stress(E_lag,cijkl)             # 2nd PK stress
+        Ca = self.Ca_stress(FG,S)             # Cauchy Stress stress
+
+        return RCGDT[2][2],Ca[2][2]
+
+#################### Calculate deformation gradient #############@###########
+    def calc_F(self,du_ij):
+    
+        delta_ij = [[0.0 for i in range(3)] for j in range(3)]
+        delta_ij[0][0] = delta_ij[1][1] = delta_ij[2][2] = 1.0
+
+        FG = [[0. for ii in range(3)] for jj in range(3)]
+    
+### Fij = dxi/dXj = &ij + dui/dXj ###
+        for i in range(3):
+            for j in range(3):
+                FG[i][j] = delta_ij[i][j] + du_ij[i][j]
+
+        return FG
+#################### End of calculation of deformation gradient #############
+
+###################### calculation of Lagrangian strain #####################
+    def calc_E_lag(self,Fe):
+        
+        Iden = [[0. for i in range(3)] for j in range(3)]
+        Iden[0][0] = Iden[1][1] = Iden[2][2] = 1.0
+
+        C = [[0. for i in range(3)] for j in range(3)]
+        E_lag = [[0. for i in range(3)] for j in range(3)]
+
+        FeT = zip(*Fe)
+## C: right Cauchy-Green deformation tensor ###########
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    C[i][j] += FeT[i][k]*Fe[k][j]
+#### Lagrangian strain tensor E=0.5(C-I)############               
+        for i in range(3):
+            for j in range(3):
+                E_lag[i][j] = 0.5*(C[i][j]-Iden[i][j])
+
+        return E_lag,C
+#################### End of calculation of Lagrangian strain #################
+
+################ Calculation of logarithmic strain #############
+    def true_strain(self,a):
+        v = [[0.0 for i in range(3)] for j in range(3)]
+        beta = [0.0 for i in range(3)]
+        
+        p1 = a[0][1]**2 + a[0][2]**2 + a[1][2]**2
+
+        if p1 < 1.0e-10:
+            for ivec in range(3):
+                beta[ivec] = a[ivec][ivec]
+                v[ivec][ivec] = 1.0
+        elif p1 >= 1.0e-10:
+
+            q = 0.0
+            for i in range(3):
+                q += a[i][i]
+            q = q/3.0
+            Iden = [[0.0 for i in range(3)] for j in range(3)]
+            Iden[0][0] = Iden[1][1] = Iden[2][2] = 1.0
+            tmp1 = [[0.0 for i in range(3)] for j in range(3)]
+            tmp2 = [[0.0 for i in range(3)] for j in range(3)]
+
+            for i in range(3):
+                for j in range(3):
+                    tmp1[i][j] = a[i][j]-q*Iden[i][j]
+
+            for i in range(3):
+                for j in range(3):
+                    for k in range(3):
+                        tmp2[i][j] += tmp1[i][k]*tmp1[k][j]
+                    tmp2[i][j] = tmp2[i][j]/6.0
+            p = 0.0
+            for i in range(3):
+                p += tmp2[i][i]
+            p = math.sqrt(p)
+
+            b = [[0.0 for i in range(3)] for j in range(3)]
+            for i in range(3):
+                for j in range(3):
+                    b[i][j] = tmp1[i][j]/p
+           
+            det_b = b[0][0]*b[1][1]*b[2][2]-b[0][0]*b[1][2]*b[2][1]-b[1][0]*b[0][1]\
+                      *b[2][2]+b[1][0]*b[0][2]*b[2][1]+b[2][0]*b[0][1]*b[1][2]-b[2][0]\
+                      *b[0][2]*b[1][1]
+            r = det_b/2.0
+            if r <= -1.0:
+                phi = math.pi/3.0
+            elif r >= 1.0:
+                phi = 0.0
+            elif r > -1.0 and r < 1.0:
+               phi = math.acos(r)/3.0
+           
+
+            beta[0] = q + 2.0 * p * math.cos(phi)
+            beta[1] = q + 2.0 * p * math.cos(phi + (2.0*math.pi/3.0))
+            beta[2] = 3.0 * q - beta[0] - beta[1]
+
+            tmp3 = [[0.0 for i in range(3)] for j in range(3)]
+
+            for ivec in range(3):
+                for i in range(3):
+                    for j in range(3):
+                        tmp3[i][j] = a[i][j]-beta[ivec]*Iden[i][j]
+
+                if tmp3[2][2] != 0.0:
+                    alpha1 = 1.0
+                    alpha21 = -tmp3[1][0]+(tmp3[1][2]*tmp3[2][0]/tmp3[2][2])
+                    alpha22 = tmp3[1][1]-(tmp3[1][2]*tmp3[2][1]/tmp3[2][2])
+                    alpha2 = alpha21/alpha22
+                    alpha3 = (-tmp3[2][0]/tmp3[2][2])-(tmp3[2][1]/tmp3[2][2])*alpha2
+                if tmp3[2][2] == 0.0 and tmp3[2][1] != 0.0:
+                    alpha1 = 1.0
+                    alpha2 = -tmp3[2][0]/tmp3[2][1]
+                    if tmp3[1][2] != 0.0:
+                        alpha3 = (tmp3[1][0]-tmp3[1][1]*alpha2)/tmp3[1][2]
+                    elif tmp3[1][2] == 0.0 and tmp3[0][2] != 0.0:
+                        alpha3 = (tmp3[0][0]-tmp3[0][1]*alpha2)/tmp3[1][2]
+                    elif tmp3[1][2] == 0.0 and tmp3[0][2] == 0.0:
+                        alpha3 = 0.0
+
+                if tmp3[2][2] == 0.0 and tmp3[2][1] == 0.0 and tmp3[2][1] != 0.0:
+                    alpha1 = 0.0
+                    if tmp3[1][2] != 0.0:
+                        alpha2 = 1.0            
+                        alpha3 = -tmp3[1][1]/tmp3[1][2]
+                    elif tmp3[1][2] == 0.0 and tmp3[0][2] != 0.0:
+                        alpha2 = 0.0            
+                        alpha3 = 1.0
+
+                alpha = math.sqrt(alpha1**2+alpha2**2+alpha3**2)
+                alpha1 = alpha1/alpha ; alpha2 = alpha2/alpha ; alpha3 = alpha3/alpha
+                v[ivec][0] = alpha1 ; v[ivec][1] = alpha2 ; v[ivec][2] = alpha3
+
+        strain = [[0.0 for i in range(3)] for j in range(3)]
+
+        tmpv1 = [[0.0 for i in range(3)] for j in range(3)]
+        tmpv2 = [[0.0 for i in range(3)] for j in range(3)]
+        tmpv3 = [[0.0 for i in range(3)] for j in range(3)]
+
+        for i in range(3):
+            for j in range(3):
+                tmpv1[i][j] = v[0][i]*v[0][j]
+                
+        for i in range(3):
+            for j in range(3):
+                tmpv2[i][j] = v[1][i]*v[1][j]
+
+        for i in range(3):
+            for j in range(3):
+                tmpv3[i][j] = v[2][i]*v[2][j]
+        for i in range(3):
+            for j in range(3):
+                strain[i][j] = 0.0
+                strain[i][j] = 0.5*math.log(beta[0])*tmpv1[i][j]+\
+                               0.5*math.log(beta[1])*tmpv2[i][j]+\
+                               0.5*math.log(beta[2])*tmpv3[i][j]
+
+        return strain            
+
+################ end of calculation of logarithmic strain ######
+
+
+####################### Calculate the 2PK stress  ############################
+    def SPK_stress(self,E_lag,cijkl):
+        
+        S = [[0. for ii in range(3)] for jj in range(3)]
+                    
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    for l in range(3):
+                        S[i][j] += cijkl[i][j][k][l]*E_lag[k][l]
+
+        return S
+################### End of Calculation the 2PK stress #########################
+####################### Calculate the 1PK stress  ############################
+    def Ca_stress(self,Fe,S):
+        
+        Cauchy = [[0. for ii in range(3)] for jj in range(3)]
+
+        det_F_e=(Fe[0][0]*Fe[1][1]*Fe[2][2]\
+                -Fe[0][0]*Fe[1][2]*Fe[2][1]-Fe[1][0]*Fe[0][1]*Fe[2][2]\
+                 +Fe[1][0]*Fe[0][2]*Fe[2][1]+Fe[2][0]*Fe[0][1]*Fe[1][2]\
+                 -Fe[2][0]*Fe[0][2]*Fe[1][1])
+
+        FeT = zip(*Fe)
+
+        TMP = [[0. for ii in range(3)] for jj in range(3)]
+
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    TMP[i][j] += S[i][k]*FeT[k][j]
+                    
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    Cauchy[i][j] += (Fe[i][k]*TMP[k][j])/det_F_e
+
+        return Cauchy
+################### End of Calculation the 1PK stress #########################
+
+##################################################################
+                 
+
+
+
         
 
     def measure_force(self,flux):
@@ -1094,172 +1438,185 @@ class CauchyStress(Flux):
     def __init__(self,name,lmbda=1.0,mu=0.5):
         Flux.__init__(self,name,"Displacement")
         self.cijkl = Cijkl(lmbda,mu)
+        self.dukl_cache = {}
     # For the Cauchy stress, derivative is very simple.
     def dukl(self,k,l,position,dofval,dofderivs):
-        return [ [  0.5*(self.cijkl[i][j][k][l]+self.cijkl[i][j][l][k])
-                    for j in range(3) ] for i in range(3) ]
-
-    # Value is pretty simple too.
-    def value(self,i,j,pos,dofval,dofderivs):
-        return sum( sum( 0.5*self.cijkl[i][j][k][l]*
-                         (dofderivs[k][l]+dofderivs[l][k])
-                             for l in range(3)) for k in range(3))
-                 
-
-
-class RambergOsgood(Flux):
-    # Ramberg-Osgood defines the strain as an analytic function of the
-    # stress, which is not in general invertible.
-    def __init__(self,name,lmbda=1.0,mu=0.5,alpha=1.0,s0=0.1,n=7):
-        Flux.__init__(self,name,"Displacement")
-        cij = Cij(lmbda,mu)
-        c11 = cij[0][0]
-        c12 = cij[0][1]
-        self.A = 1.0/(c11-c12)
-        self.B = c12/((c11-c12)*(c11+2.0*c12))
-        self.alpha = alpha # Amplitude.
-        self.s0 = s0       # Reference stress.
-        self.n = n         # Exponent.
-        self.tol = 1.0e-8  # Tolerance for the NR inversion.
-        #
-        self.clear_caches()
-    def clear_caches(self):
-        self.dukl_cache = {}
-        self.stress_cache = {}
-    def _residual(self,stress,strain):
-        # Zero when stress and strain are on the RO curve.
-        # Stress and strain are 3x3 Python arrays
-        sijsij = sum( sum( stress[i][j]**2 for j in range(3) )
-                      for i in range(3) )
-        tr = sum( stress[i][i] for i in range(3) )
-        q = math.sqrt((3.0/2.0)*(sijsij-tr*tr/3.0))
-        ro = (3.0*self.alpha/2.0)*((q/self.s0)**(self.n-1))
-        res = [ [ (self.A+ro)*stress[i][j]-strain[i][j]
-                  for j in range(3) ] for i in range(3) ]
-        for i in range(3):
-            res[i][i] -= (self.B+(ro/3.0))*tr
-        return res
-    def _derivs_wrt_stress(self,stress,strain):
-        # Matrix of derivatives of the residual wrt *stress*
-        # components. Result is a four-index object.
-        tr = sum(stress[i][i] for i in range(3))
-        #
-        dvtr = [ [ x for x in row ] for row in stress ]
-        dvtr[0][0]-=tr/3.0
-        dvtr[1][1]-=tr/3.0
-        dvtr[2][2]-=tr/3.0
-        #
-        sijsij = sum(sum( x*x for x in row) for row in stress)
-        v = (3.0/2.0)*(sijsij-tr*tr/3.0)
-        q = math.sqrt(v)
-        #
-        dvds = [ [ 3.0*x for x in row ] for row in stress]
-        dvds[0][0]-=tr
-        dvds[1][1]-=tr
-        dvds[2][2]-=tr
-        #
-        if v > 0.0:
-            dqds = [[ (0.5/math.sqrt(v))*x for x in row] for row in dvds]
-        else:
-            dqds = [ [ 0.0 ]*3 ] *3 # Never written to, this is safe.
-        #
-        ro=(3.0*self.alpha/2.0)*((q/self.s0)**(self.n-1))
-        #
-        res = [ [ [ [ (3.0/2.0)*self.alpha*dvtr[i][j]*(self.n-1.0)*
-                       (1.0/(self.s0**(self.n-1)))*(q**(self.n-2))*dqds[k][l]
-                       for l in range(3) ] for k in range(3) ]
-                    for j in range(3) ] for i in range(3) ]
-        for i in range(3):
-            for k in range(3):
-                res[i][k][i][k] += self.A+ro
-                res[i][i][k][k] -= self.B+ro/3.0
-        return res
-    def _stress(self,strain):
-        cache_index = tuple( [ tuple(x) for x in strain ] )
+        cache_index = (position,)+tuple(dofval)+tuple([tuple(x) for x in dofderivs])
         try:
-            return self.stress_cache[cache_index]
+            N = self.dukl_cache[cache_index]
+            TMP = [[0.0 for ii in range(3)] for jj in range(3) ]
+            for i in range(3):
+                for j in range(3):
+                    TMP[i][j] = N[i][j][k][l]
+            return TMP
         except KeyError:
-            # Start with a copy of the strain. Be smarter later on.
-            wrk = [ [ x for x in row ] for row in strain ]
-            inc = 1.0
-            count = 0 
-            while inc > self.tol:
-                resid = self._residual(wrk,strain)
-                dfijdskl = self._derivs_wrt_stress(wrk,strain)
-                rmtx = smallmatrix.SmallMatrix(9,1)
-                dfmtx = smallmatrix.SmallMatrix(9,9)
-                rmtx.clear()
-                dfmtx.clear()
-                for i in range(3):
-                    for j in range(3):
-                        rmtx[i+j*3,0] = -resid[i][j]
-                        for k in range(3):
-                            for l in range(3):
-                                dfmtx[i*3+j,k*3+l]=dfijdskl[i][j][k][l]
-                rr = dfmtx.solve(rmtx)
-                if rr==0:
-                    inc = 0.0
-                    for i in range(3):
-                        for j in range(3):
-                            dlta = rmtx[i*3+j,0]
-                            wrk[i][j]+=dlta
-                            inc+=dlta*dlta
-                else:
-                    raise Oops("Matrix failure in RO flux.")
-                count += 1
-                # print "Iteration %d, increment is %f." % (count,inc)
-                if count>100:
-                    raise Oops("Debug overflow in RO stress.")
-            self.stress_cache[cache_index] = wrk
-            return wrk
-
-    #
-    # TODO: These are going to be slow. Use caches and cleverness to
-    # fix them later on.
-    def dukl(self,k,l,pos,dofval,dofderivs):
-        cache_index = tuple( [ tuple(x) for x in dofderivs ] )
-        try:
-            dsijdukl = self.dukl_cache[cache_index]
-        except KeyError:
-            strain = [ [ 0.5*(dofderivs[i][j]+dofderivs[j][i])
-                         for j in range(3) ]
-                       for i in range(3) ] 
-            stress = self._stress(strain)
-            deijdskl = self._derivs_wrt_stress(stress,strain)
-            deds = smallmatrix.SmallMatrix(9,9)
-            deds.clear()
-            for ix in range(3):
-                for jx in range(3):
-                    for kx in range(3):
-                        for lx in range(3):
-                            deds[ix*3+jx,kx*3+lx] = deijdskl[ix][jx][kx][lx]
-            dsde = smallmatrix.SmallMatrix(9,9)
-            dsde.clear()
-            for i in range(9):
-                dsde[i,i]=1.0
-            rr = deds.solve(dsde) # Invert
-            if rr==0:
-                # Convert from strain to dofs here.
-                dsijdukl = [ [ [ [ 0.5*(dsde[ix*3+jx,kx*3+lx]+
-                                        dsde[ix*3+jx,lx*3+kx])
-                                   for lx in range(3) ]
-                                 for kx in range(3) ]
-                               for jx in range(3) ]
-                             for ix in range(3) ]
-                self.dukl_cache[cache_index] = dsijdukl
-            else:
-                raise Oops("Matrix exception in Ramberg-Osgood dukl.")
-        # At this point, dsijdukl is a valid four-index object.
-        return [ [ dsijdukl[ix][jx][k][l] for jx in range(3) ]
-                 for ix in range(3) ]
-            
-    def value(self,i,j,pos,dofval,dofderivs):
-        strain = [ [ 0.5*(dofderivs[ix][jx]+dofderivs[jx][ix])
-                     for jx in range(3) ]
-                   for ix in range(3) ]
-        stress = self._stress(strain)
-        return stress[i][j]
+            FG = self.calc_F(dofderivs)            # F at gausspoint
+            E_lag = self.calc_E_lag(FG)            # Euler-Lagrange strain
+            S = self.SPK_stress(E_lag)             # 2nd PK stress
+            dS_ddu = self.dS2PK_du_ij(dofderivs)      # 2nd PK derivatives.
+            delta_4 = self.delta_kron4()
+            N = self.dSP1PK_du_ij(delta_4,FG,S,dS_ddu) # 1st PK derviatives -- actual flux!
+            self.dukl_cache[cache_index] = N
+            TMP = [[0.0 for ii in range(3)] for jj in range(3)]
+            for i in range(3):
+                for j in range(3):
+                    TMP[i][j] = N[i][j][k][l]
+        
+            return TMP
+                
+#        return [ [  0.5*(self.cijkl[i][j][k][l]+self.cijkl[i][j][l][k])
+#                    for j in range(3) ] for i in range(3) ]
+#################### Calculate deformation gradient #############@###########
+    def calc_F(self,du_ij):
     
+        delta_ij = [[0.0 for i in range(3)] for j in range(3)]
+        delta_ij[0][0] = delta_ij[1][1] = delta_ij[2][2] = 1.0
+
+        FG = [[0. for ii in range(3)] for jj in range(3)]
+    
+### Fij = dxi/dXj = &ij + dui/dXj ###
+        for i in range(3):
+            for j in range(3):
+                FG[i][j] = delta_ij[i][j] + du_ij[i][j]
+
+        return FG
+#################### End of calculation of deformation gradient #############
+
+###################### calculation of Lagrangian strain #####################
+    def calc_E_lag(self,Fe):
+        
+        Iden = [[0. for i in range(3)] for j in range(3)]
+        Iden[0][0] = Iden[1][1] = Iden[2][2] = 1.0
+
+        C = [[0. for i in range(3)] for j in range(3)]
+        E_lag = [[0. for i in range(3)] for j in range(3)]
+
+        FeT = zip(*Fe)
+## C: right Cauchy-Green deformation tensor ###########
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    C[i][j] += FeT[i][k]*Fe[k][j]
+#### Lagrangian strain tensor E=0.5(C-I)############               
+        for i in range(3):
+            for j in range(3):
+                E_lag[i][j] = 0.5*(C[i][j]-Iden[i][j])
+
+        return E_lag
+#################### End of calculation of Lagrangian strain #################
+
+####################### Calculate the 2PK stress  ############################
+    def SPK_stress(self,E_lag):
+        
+        S = [[0. for ii in range(3)] for jj in range(3)]
+                    
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    for l in range(3):
+                        S[i][j] += self.cijkl[i][j][k][l]*E_lag[k][l]
+
+        return S
+################### End of Calculation the 2PK stress #########################
+
+###### drivative of 2PK stress to gradient of displacement #########
+    def dS2PK_du_ij(self,du_ij):
+        delta_kron = [[0. for ii in range(3)] for jj in range(3)]
+        delta_kron[0][0] = delta_kron[1][1]= delta_kron[2][2] = 1.0
+
+        dS_ddu = [[[[0. for i in range(3)] for j in range(3)] for k in range(3)] for l in range(3)] 
+
+
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    for l in range(3):
+                        dS_ddu[i][j][k][l] = 0.5*(self.cijkl[i][j][k][l] + self.cijkl[i][j][l][k])
+                        for n in range(3):
+                            dS_ddu[i][j][k][l] += 0.5*self.cijkl[i][j][l][n]*du_ij[k][n]
+                        for m in range(3):
+                            dS_ddu[i][j][k][l] += 0.5*self.cijkl[i][j][m][l]*du_ij[k][m]
+
+        return dS_ddu
+
+######################### Forth order Kronecker Delta ##########################
+    def delta_kron4(self):
+        delta_kron = [[0. for ii in range(3)] for jj in range(3)]
+        delta_kron[0][0] = delta_kron[1][1]= delta_kron[2][2] = 1.0
+
+        delta_kron4d = [[[[0. for i in range(3)] for j in range(3)] for k in range(3)] for l in range(3)] 
+
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    for l in range(3):
+                        delta_kron4d[i][j][k][l] = delta_kron[i][k]*delta_kron[j][l]
+
+
+        return delta_kron4d
+####################### End of Forth order Kronecker Delta #####################
+
+###### drivative of 1PK stress to gradient of displacement #########
+    def dSP1PK_du_ij(self,delta_4,FG,S,dS_ddu):
+        delta_kron = [[0. for ii in range(3)] for jj in range(3)]
+        delta_kron[0][0] = delta_kron[1][1]= delta_kron[2][2] = 1.0
+
+        dP_ddu = [[[[0. for i in range(3)] for j in range(3)] for k in range(3)] for l in range(3)] 
+        TMP = [[[[0. for i in range(3)] for j in range(3)] for k in range(3)] for l in range(3)] 
+
+
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    for l in range(3):
+                        dP_ddu[i][j][k][l] = delta_kron[i][k]*S[l][j]
+
+                        
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    for l in range(3):
+                        for m in range(3):
+                            dP_ddu[i][j][k][l] += FG[i][m]*dS_ddu[m][j][k][l]
+                        
+                            
+
+        return dP_ddu
+    
+
+#### End of drivative of 1PK stress to gradient of displacement ######
+
+
+
+
+    # Value is pretty simple too.    
+    def value(self,i,j,pos,dofval,dofderivs):
+
+        FG = self.calc_F(dofderivs)            # F at gausspoint
+        E_lag = self.calc_E_lag(FG)            # Euler-Lagrange strain
+        S = self.SPK_stress(E_lag)             # 2nd PK stress
+        P = self.FPK_stress(FG,S)             # 1st PK stress
+
+        return P[j][i]
+                
+#        return sum( sum( 0.5*self.cijkl[i][j][k][l]*
+#                         (dofderivs[k][l]+dofderivs[l][k])
+#                             for l in range(3)) for k in range(3))
+
+####################### Calculate the 1PK stress  ############################
+    def FPK_stress(self,FG,S):
+        
+        P = [[0. for ii in range(3)] for jj in range(3)]
+                    
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    P[i][j] += FG[i][k]*S[k][j]
+
+        return P
+################### End of Calculation the 1PK stress #########################
+
+                 
 # Elastic constitutive bookkeeppiinngg.
 
 
@@ -1289,6 +1646,21 @@ def Cijkl(lmbda,mu):
           
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+def go(size):
+    pass # Collect $200?
+
 #
 # The general scheme is, you create a mesh, add a field, maybe add
 # some equations with associated fluxes, build the matrix and
@@ -1298,7 +1670,7 @@ def Cijkl(lmbda,mu):
 # method.
 
 def displaced_drawing_test():
-    m = Mesh(xelements=4,yelements=4,zelements=4)
+    m = Mesh(xelements=1,yelements=1,zelements=1)
     m.addfield("Displacement",3)
     
     for n in m.nodelist:
@@ -1323,61 +1695,74 @@ def face_integration_test():
     for g in f.gausspts():
         res += g.weight*f.jacobian(g.xi,g.zeta,g.mu)
     return res # Should be 2.0.
-
-
-def rotest_iterate(ro,du,cpi,cpj):
-    # Ro is the property, du is a starting displacement derivative
-    # field, and component is a tuple of integers indicating which
-    # "direction" to take the derivative.a
-    delta = 0.0005
-    #
-    delta_du = [ [ 0.0 for j in range(3) ] for i in range(3) ]
-    delta_du[cpi][cpj] += delta
-    #
-    du2 = [ [ du[i][j] +delta_du[i][j] for j in range(3) ] for i in range(3) ]
-    #
-    # The scheme is to compute stress(du), stress(du2), and
-    # stress(du)+delta-du*dstress(du)/du, and compare.
-    stss_1 = ro.value(cpi,cpj,None,None,du)
-    stss_2 = ro.value(cpi,cpj,None,None,du2)
     
-    # We want the derivative of stress[i][j], and we want all k,l
-    # components of it.
-    dukl = [ [ ro.dukl(cpk,cpl,None,None,du)[cpi][cpj]
-               for cpl in range(3) ] for cpk in range(3)]
-    stss_2a = stss_1+sum(sum(dukl[k][l]*delta_du[k][l]
-                             for l in range(3)) for k in range(3))
-    print stss_1,stss_2,stss_2a
-    print (stss_2-stss_2a)/stss_2
-    
-def rotest():
-    # It's safe to pass in None for the pos and dofval arguments to
-    # the RO value and dukl routines, because those arguments are
-    # ignored.
-    ro = RambergOsgood("RO") # Use defaults.
-    du1 = [[0.1, 0.3,0.5],[0.1,0.0,0.1],[0.0,0.0,0.5]]
-    delta = 0.001
-    for cpi in range(3):
-        for cpj in range(3):
-            rotest_iterate(ro,du1,cpi,cpj)
-    
-
 
 if __name__=="__main__":
-    m = Mesh(xelements=4,yelements=4,zelements=4)
-    # f = CauchyStress("Stress")
-    f = RambergOsgood("Nonlinear!",alpha=0.05)
+    m = Mesh(xelements=2,yelements=2,zelements=2)
+    f = CauchyStress("Stress")
     m.addfield("Displacement",3)
     m.addeqn("Force",3,f) # Last argument is the flux.
-    m.setbcs(0.1,0.0)
 
-    # m.solve_linear()
 
-    try:
-        m.solve_nonlinear(None,None,5)
-    except Oops, o:
-        print "Got exception, ", o
-    force_val = m.measure_force(f)
-    print force_val
+    for i in m.nodelist:
+        print i.eqns[0].flux.value
+        print i.dofs[0].value
 
-    # m.draw(displaced=True)
+    nstep = 20
+    m.make_stiffness()
+
+
+    SS0 = m.evaluate_ss()
+    x = [] ; y = []
+    x.append(SS0[0]) ; y.append(SS0[1])
+
+
+    ssy = open('py.22','w')
+
+    ssy.write("%f   %f" % (SS0[0],SS0[1]))
+    ssy.write('\n')
+
+    for istep in range(nstep):
+
+    
+        m.setbcs(-0.01,0.0)
+        m.solve_nonlinear()
+
+        SS = m.evaluate_ss()
+        x.append(abs(SS[0])) ; y.append(SS[1])
+
+        ssy.write("%f   %f" % (abs(SS[0]),SS[1]))
+        ssy.write('\n')
+
+    ssy.close()
+
+    plt.plot(x,y)
+    plt.ylabel('Stress(MPa)')
+    plt.xlabel('Strain')
+
+    plt.show()
+
+
+
+##        for e in m.elementlist:
+##            for g in e.gausspts():
+##                print e.jacobiandef(g.xi,g.zeta,g.mu)
+
+#    m.solve_linear()
+#    force_val = m.measure_force(f)
+
+#     # m.solve_nonlinear()
+#    m.draw(displaced=True)
+#    
+        
+##    for n in m.nodelist:
+##        print n.index,0,n.position.x+n.dofs[0].value[0]
+##        print n.index,1,n.position.y+n.dofs[0].value[1]
+##        print n.index,2,n.position.z+n.dofs[0].value[2]
+
+
+
+
+
+
+        
