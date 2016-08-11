@@ -20,6 +20,8 @@ import math, sys, getopt
 import smallmatrix
 import position
 
+import flux
+
 class Oops:
     def __init__(self, message):
         self.message = message
@@ -1079,217 +1081,7 @@ class Mesh:
 
 
 
-# A flux is a thing that has zero divergence in equilibrium.
-# Components of the divergence of the flux at a given node correspond
-# to Eqn objects.  Fluxes know what fields they depend on.
-class Flux:
-    def __init__(self, name, fieldname):
-        self.name = name
-        self.fieldname = fieldname
-    def __repr__(self):
-        return "%s(%s)" % (self.__class__.__name__, self.name)
-    
 
-class CauchyStress(Flux):
-    def __init__(self,name,lmbda=1.0,mu=0.5):
-        Flux.__init__(self,name,"Displacement")
-        self.cijkl = Cijkl(lmbda,mu)
-    # For the Cauchy stress, derivative is very simple.
-    def dukl(self,k,l,position,dofval,dofderivs):
-        return [ [  0.5*(self.cijkl[i][j][k][l]+self.cijkl[i][j][l][k])
-                    for j in range(3) ] for i in range(3) ]
-
-    # Value is pretty simple too.
-    def value(self,i,j,pos,dofval,dofderivs):
-        return sum( sum( 0.5*self.cijkl[i][j][k][l]*
-                         (dofderivs[k][l]+dofderivs[l][k])
-                             for l in range(3)) for k in range(3))
-                 
-
-
-class RambergOsgood(Flux):
-    # Ramberg-Osgood defines the strain as an analytic function of the
-    # stress, which is not in general invertible.
-    def __init__(self,name,lmbda=1.0,mu=0.5,alpha=1.0,s0=0.1,n=7):
-        Flux.__init__(self,name,"Displacement")
-        cij = Cij(lmbda,mu)
-        c11 = cij[0][0]
-        c12 = cij[0][1]
-        self.A = 1.0/(c11-c12)
-        self.B = c12/((c11-c12)*(c11+2.0*c12))
-        self.alpha = alpha # Amplitude.
-        self.s0 = s0       # Reference stress.
-        self.n = n         # Exponent.
-        self.tol = 1.0e-8  # Tolerance for the NR inversion.
-        #
-        self.clear_caches()
-    def clear_caches(self):
-        self.dukl_cache = {}
-        self.stress_cache = {}
-    def _residual(self,stress,strain):
-        # Zero when stress and strain are on the RO curve.
-        # Stress and strain are 3x3 Python arrays
-        sijsij = sum( sum( stress[i][j]**2 for j in range(3) )
-                      for i in range(3) )
-        tr = sum( stress[i][i] for i in range(3) )
-        q = math.sqrt((3.0/2.0)*(sijsij-tr*tr/3.0))
-        ro = (3.0*self.alpha/2.0)*((q/self.s0)**(self.n-1))
-        res = [ [ (self.A+ro)*stress[i][j]-strain[i][j]
-                  for j in range(3) ] for i in range(3) ]
-        for i in range(3):
-            res[i][i] -= (self.B+(ro/3.0))*tr
-        return res
-    def _derivs_wrt_stress(self,stress,strain):
-        # Matrix of derivatives of the residual wrt *stress*
-        # components. Result is a four-index object.
-        tr = sum(stress[i][i] for i in range(3))
-        #
-        dvtr = [ [ x for x in row ] for row in stress ]
-        dvtr[0][0]-=tr/3.0
-        dvtr[1][1]-=tr/3.0
-        dvtr[2][2]-=tr/3.0
-        #
-        sijsij = sum(sum( x*x for x in row) for row in stress)
-        v = (3.0/2.0)*(sijsij-tr*tr/3.0)
-        q = math.sqrt(v)
-        #
-        dvds = [ [ 3.0*x for x in row ] for row in stress]
-        dvds[0][0]-=tr
-        dvds[1][1]-=tr
-        dvds[2][2]-=tr
-        #
-        if v > 0.0:
-            dqds = [[ (0.5/math.sqrt(v))*x for x in row] for row in dvds]
-        else:
-            dqds = [ [ 0.0 ]*3 ] *3 # Never written to, this is safe.
-        #
-        ro=(3.0*self.alpha/2.0)*((q/self.s0)**(self.n-1))
-        #
-        res = [ [ [ [ (3.0/2.0)*self.alpha*dvtr[i][j]*(self.n-1.0)*
-                       (1.0/(self.s0**(self.n-1)))*(q**(self.n-2))*dqds[k][l]
-                       for l in range(3) ] for k in range(3) ]
-                    for j in range(3) ] for i in range(3) ]
-        for i in range(3):
-            for k in range(3):
-                res[i][k][i][k] += self.A+ro
-                res[i][i][k][k] -= self.B+ro/3.0
-        return res
-    def _stress(self,strain):
-        cache_index = tuple( [ tuple(x) for x in strain ] )
-        try:
-            return self.stress_cache[cache_index]
-        except KeyError:
-            # Start with a copy of the strain. Be smarter later on.
-            wrk = [ [ x for x in row ] for row in strain ]
-            inc = 1.0
-            count = 0 
-            while inc > self.tol:
-                resid = self._residual(wrk,strain)
-                dfijdskl = self._derivs_wrt_stress(wrk,strain)
-                rmtx = smallmatrix.SmallMatrix(9,1)
-                dfmtx = smallmatrix.SmallMatrix(9,9)
-                rmtx.clear()
-                dfmtx.clear()
-                for i in range(3):
-                    for j in range(3):
-                        rmtx[i+j*3,0] = -resid[i][j]
-                        for k in range(3):
-                            for l in range(3):
-                                dfmtx[i*3+j,k*3+l]=dfijdskl[i][j][k][l]
-                rr = dfmtx.solve(rmtx)
-                if rr==0:
-                    inc = 0.0
-                    for i in range(3):
-                        for j in range(3):
-                            dlta = rmtx[i*3+j,0]
-                            wrk[i][j]+=dlta
-                            inc+=dlta*dlta
-                else:
-                    raise Oops("Matrix failure in RO flux.")
-                count += 1
-                # print "Iteration %d, increment is %f." % (count,inc)
-                if count>100:
-                    raise Oops("Debug overflow in RO stress.")
-            self.stress_cache[cache_index] = wrk
-            return wrk
-
-    #
-    # TODO: These are going to be slow. Use caches and cleverness to
-    # fix them later on.
-    def dukl(self,k,l,pos,dofval,dofderivs):
-        cache_index = tuple( [ tuple(x) for x in dofderivs ] )
-        try:
-            dsijdukl = self.dukl_cache[cache_index]
-        except KeyError:
-            strain = [ [ 0.5*(dofderivs[i][j]+dofderivs[j][i])
-                         for j in range(3) ]
-                       for i in range(3) ] 
-            stress = self._stress(strain)
-            deijdskl = self._derivs_wrt_stress(stress,strain)
-            deds = smallmatrix.SmallMatrix(9,9)
-            deds.clear()
-            for ix in range(3):
-                for jx in range(3):
-                    for kx in range(3):
-                        for lx in range(3):
-                            deds[ix*3+jx,kx*3+lx] = deijdskl[ix][jx][kx][lx]
-            dsde = smallmatrix.SmallMatrix(9,9)
-            dsde.clear()
-            for i in range(9):
-                dsde[i,i]=1.0
-            rr = deds.solve(dsde) # Invert
-            if rr==0:
-                # Convert from strain to dofs here.
-                dsijdukl = [ [ [ [ 0.5*(dsde[ix*3+jx,kx*3+lx]+
-                                        dsde[ix*3+jx,lx*3+kx])
-                                   for lx in range(3) ]
-                                 for kx in range(3) ]
-                               for jx in range(3) ]
-                             for ix in range(3) ]
-                self.dukl_cache[cache_index] = dsijdukl
-            else:
-                raise Oops("Matrix exception in Ramberg-Osgood dukl.")
-        # At this point, dsijdukl is a valid four-index object.
-        return [ [ dsijdukl[ix][jx][k][l] for jx in range(3) ]
-                 for ix in range(3) ]
-            
-    def value(self,i,j,pos,dofval,dofderivs):
-        strain = [ [ 0.5*(dofderivs[ix][jx]+dofderivs[jx][ix])
-                     for jx in range(3) ]
-                   for ix in range(3) ]
-        stress = self._stress(strain)
-        return stress[i][j]
-    
-# Elastic constitutive bookkeeppiinngg.
-
-
-voigt = [[0,5,4],
-         [5,1,3],
-         [4,3,2]]
-
-
-def Cij(lmbda,mu):
-    # Canonical: lmbda=0.5, mu=0.25, gives c11=1.0,c12=0.5.
-    c11 = lmbda + 2.0*mu
-    c12 = lmbda
-    c44 = 0.5*(c11-c12)
-    return [[c11, c12, c12, 0.0, 0.0, 0.0],
-            [c12, c11, c12, 0.0, 0.0, 0.0],
-            [c12, c12, c11, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, c44, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, c44, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, c44]]
-
-
-def Cijkl(lmbda,mu):
-    cij = Cij(lmbda,mu)
-    return [ [ [ [ cij[voigt[i][j]][voigt[k][l]] for l in range(3) ]
-                  for k in range(3) ] for j in range(3) ] for i in range(3) ]
-
-          
-
-
-#
 # The general scheme is, you create a mesh, add a field, maybe add
 # some equations with associated fluxes, build the matrix and
 # right-hand side, which calls out to the flux objects for their
@@ -1366,7 +1158,7 @@ def rotest():
 if __name__=="__main__":
     m = Mesh(xelements=4,yelements=4,zelements=4)
     # f = CauchyStress("Stress")
-    f = RambergOsgood("Nonlinear!",alpha=0.05)
+    f = flux.RambergOsgood("Nonlinear!",alpha=0.05)
     m.addfield("Displacement",3)
     m.addeqn("Force",3,f) # Last argument is the flux.
     m.setbcs(0.1,0.0)
