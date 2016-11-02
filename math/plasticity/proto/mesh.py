@@ -106,7 +106,7 @@ class Eqn:
                                      self.size, self.flux.name)
         
 
-# Hexahedral eight-node shape functions.  Coords are xi, eta, mu..
+# Hexahedral eight-node shape functions.  Coords are xi, zeta, mu..
 # Master space is (-1 -> 1) in these axes.  Normalization is so
 # that the nodal value is 1.
 
@@ -302,7 +302,8 @@ class Element:
                           self.dsfns[i][1](xi,zeta,mu),
                           self.dsfns[i][2](xi,zeta,mu) ]
 
-            dfdref = [ sum( jinv[ix][jx]*dfdmaster[jx] for jx in range(3) )
+            # Use the transpose of the inverse.
+            dfdref = [ sum( jinv[jx][ix]*dfdmaster[jx] for jx in range(3) )
                        for ix in range(3) ]
 
             self.dshapefn_cache[(i,0,xi,zeta,mu)] = dfdref[0]
@@ -1080,8 +1081,10 @@ class Mesh:
                     
 
 
-
-
+# For time-dependence:
+                    
+        
+                 
 # The general scheme is, you create a mesh, add a field, maybe add
 # some equations with associated fluxes, build the matrix and
 # right-hand side, which calls out to the flux objects for their

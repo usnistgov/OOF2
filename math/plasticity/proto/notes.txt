@@ -5,3 +5,33 @@ directory in the OOF repo.
 
   Needs the "smallmatrix" stuff to work as a Python extension,
 that's what the Makefile is about.
+
+
+  ----------
+
+  Broke out the Flux classes, to simplfy the code.  Incorporated
+SK's 1st PK flux class as a subclass of Flux, with the dukl
+and value methods, and a bunch of other stuff.  It seems to work.
+Also the RO flux is in there, which still has a weird unsymmetric
+character to it -- when you do the "obvious" tension test, the
+integrated transverse force components on the bottom boundary
+are small, four orders of magnitude smaller than the z-axis
+force, but not as much smaller as I expect -- they should be
+strictly zero, so I'd expect numerical noise, like 10^-12  for
+these values.
+
+  -------------
+
+  Time-dependence -- decided against sub-classing the mesh to 
+do the time-dependence, because it complicates things too much, 
+there are too many static assumptions in the base class.
+
+  For plasticity, we're not going to have any viscosity flux, so there's
+no point in building the C matrix in the prototype code, although we'll
+want to think carefully about this for the OOF case.  For the prototype,
+we can just write our own time-stepper, and do whatever introspection
+is needed on the matrix in order to get the objects we require, and 
+to add in the velocity field.  The right class will may arise naturally
+from this effort. 
+
+
