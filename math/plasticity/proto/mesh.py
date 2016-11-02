@@ -1081,10 +1081,7 @@ class Mesh:
                     
 
 
-# For time-dependence:
-                    
-        
-                 
+
 # The general scheme is, you create a mesh, add a field, maybe add
 # some equations with associated fluxes, build the matrix and
 # right-hand side, which calls out to the flux objects for their
