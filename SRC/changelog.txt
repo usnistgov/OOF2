@@ -7,6 +7,9 @@ OOF2 2.1.13
   stresses) for elasticity problems and also changing the sign of all
   the stress outputs.
 
+* Removed a stray debugging line that was printing "No intersections
+  on this element..."
+
 OOF2 2.1.12
 
 * Changed setup.py to allow C++11.
