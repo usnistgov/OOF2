@@ -56,38 +56,31 @@ private:
 
 
 class TransitionPointIterator {
-
 private:
   const CMicrostructure *MS;
   const std::vector<ICoord> *pixels;
   std::vector<ICoord>::const_iterator pixel;
-  Coord p0, p1, delta, currentTransPoint;
+  Coord p0, p1, currentTransPoint;
   ICoord diff, prevpixel;
   int cat, prevcat;
+  bool infiniteSlope;
   double slope, invslope, x0, y0, x, y;
-#if DIM==3
-  double slopez, invslopez, z0, z;
-#endif
-  bool found, localfound;
 
 public:
   TransitionPointIterator(const CMicrostructure*, const Coord&, const Coord&); 
   TransitionPointIterator(const CMicrostructure*, const Coord&, const Coord&,
 			  const std::vector<ICoord>*); 
-  ~TransitionPointIterator() {delete pixels;}; 
+  ~TransitionPointIterator();
   void begin(); 
-  bool infiniteSlope() { return (delta(0)==0); };
   void operator++();
-  Coord current() {//cout << "D " << currentTransPoint << endl; 
-    return currentTransPoint;};
-  bool end() {return (pixel>=pixels->end() && localfound==false);};
-  bool isfound() {return found;};
-  int numPixels() {return pixels->size();};
-  int getPrevcat() { return prevcat; };
+  Coord current() const { return currentTransPoint; }
+  bool end() const { return pixel>=pixels->end(); }
+  int numPixels() const { return pixels->size(); }
+  int getPrevcat() const { return prevcat; }
   // The first and last points of the segment.
-  Coord first();
-  Coord last();
-  double getNormDelta() { return sqrt(norm2(delta)); };
+  Coord first() const;
+  Coord last() const;
+  double getNormDelta() const;
 };
 
 

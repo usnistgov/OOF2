@@ -66,9 +66,6 @@ class SnapEdgeMarkings(refine.EdgeMarkings):
         #Get a transition point starting from each end.
         transpt0 = self.newSkelMS.transitionPointWithPoints_unbiased(n0pt,n1pt)
         transpt1 = self.newSkelMS.transitionPointWithPoints_unbiased(n1pt,n0pt)
-        debug.fmsg("transpt0=", transpt0)
-        debug.fmsg("transpt1=", transpt1)
-
         if transpt0 and transpt1:
             #Check if the transition points are identical or too close together
             #Steve doesn't like this, unless self.maxdelta2==0.
@@ -221,7 +218,6 @@ class SnapEdgeMarkings(refine.EdgeMarkings):
                         ## are more than 2, it ignores the ones in the middle.
                         transptnodelist = [self.newSkeleton.newNodeFromPoint(pt)
                                            for pt in self.getTransitionPoints(n0pt, n1pt)]
-                        debug.fmsg("transptnodelist=", transptnodelist, [p.position() for p in transptnodelist])
                         self.newEdgeNodes[key] = transptnodelist
 
                 if len(transptnodelist)==2:

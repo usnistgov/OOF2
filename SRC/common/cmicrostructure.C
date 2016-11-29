@@ -153,21 +153,13 @@ int CMicrostructure::nGroups() const {
 // Convert a Coord in the physical space to pixel coordinates (without
 // rounding to the nearest integer).
 Coord CMicrostructure::physical2Pixel(const Coord &pt) const {
-#if DIM == 2
   return Coord(pt(0)/delta_(0), pt(1)/delta_(1));
-#elif DIM == 3
-  return Coord(pt(0)/delta_(0), pt(1)/delta_(1), pt(2)/delta_(2));
-#endif
 }
 
 // Return the physical space coordinates of the lower-left corner of a
 // pixel.
 Coord CMicrostructure::pixel2Physical(const ICoord &pxl) const {
-#if DIM == 2
   return Coord(pxl(0)*delta_(0), pxl(1)*delta_(1));
-#elif DIM == 3
-  return Coord(pxl(0)*delta_(0), pxl(1)*delta_(1), pxl(2)*delta_(2));
-#endif
 }
 
 // Return the physical space coordinates of a given non-integer
@@ -193,16 +185,7 @@ ICoord CMicrostructure::pixelFromPoint(const Coord &pt) const {
     --yy;
   if(yy < 0.0)
     yy = 0.0;
-#if DIM == 2
   return ICoord(xx, yy);
-#elif DIM == 3
-  int zz = (int) floor(p(2));
-  if(zz >= pxlsize_(2))
-    --zz;
-  if(zz < 0.0)
-    zz = 0.0;
-  return ICoord(xx, yy, zz);
-#endif
 }
 
 bool CMicrostructure::contains(const ICoord &ip) const {
@@ -572,13 +555,8 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
   // Coordinates of pixels containing the endpoints (integer).  Note
   // that we *don't* use CMicrostructure::pixelFromPoint() here,
   // because we have to treat the pixel boundary cases differently.
-#if DIM==2
   ICoord ip0((int) floor(p0(0)), (int) floor(p0(1)));
   ICoord ip1((int) floor(p1(0)), (int) floor(p1(1)));
-#elif DIM==3
-  ICoord ip0((int) floor(p0(0)), (int) floor(p0(1)), (int) floor(p0(2)));
-  ICoord ip1((int) floor(p1(0)), (int) floor(p1(1)), (int) floor(p1(2)));
-#endif
 
   // If an endpoint lies exactly on a pixel boundary, then the correct
   // choice for the pixel "containing" the endpoint depends on which
@@ -592,12 +570,6 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
     ip0(1) -= 1;
   if(ip1(1) == p1(1) && ip0(1) < ip1(1))
     ip1(1) -= 1;
-#if DIM==3
-  if(ip0(2) == p0(2) && ip1(2) < ip0(2))
-    ip0(2) -= 1;
-  if(ip1(2) == p1(2) && ip0(2) < ip1(2))
-    ip1(2) -= 1;
-#endif
 
   // Round off error may have put a point out of bounds.  Fix it.
   if(ip0(0) == pxlsize_(0)) ip0(0) -= 1;
@@ -608,12 +580,6 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
   if(ip0(1) < 0) ip0(1) = 0;
   if(ip1(0) < 0) ip1(0) = 0;
   if(ip1(1) < 0) ip1(1) = 0;
-#if DIM==3
-  if(ip0(2) == pxlsize_(2)) ip0(2) -= 1;
-  if(ip1(2) == pxlsize_(2)) ip1(2) -= 1;
-  if(ip0(2) < 0) ip0(2) = 0;
-  if(ip1(2) < 0) ip1(2) = 0;
-#endif
 
   // For vertical and horizontal segments that exactly lie along
   // the pixel boundaries, we need to pick a right row or column of pixels.
@@ -632,7 +598,6 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
 
 
   vertical_horizontal=false;
-#if DIM==2
   // This assumes we are traversing an element in counter clockwise
   // order, which we can only do in 2D.  Here, we are trying to get
   // the pixels that lie on the inside of the element.  We'll have to
@@ -650,24 +615,6 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
     if(ip1(0) >= 1) ip1(0) -= 1;
     vertical_horizontal=true;
   }
-#elif DIM==3 
-  //TODO 3D: Figure out how what conditions to use to get the inside.
-  // We need to pass in information about which direction to perturb
-  // in.  This needs to be chosen carefully, using element data such
-  // that this direction is not along a plane.
-//   // Horizontal
-//   if ((p0(1) == p1(1) && p0(1) == ip0(1))) {
-//     vertical_horizontal=true;
-//   }
-//   // Vertical 
-//   if ((p0(0) == p1(0) && p0(0) == ip0(0))) {
-//     vertical_horizontal=true;
-//   }
-//   // The other Horizontal
-//   if ((p0(2) == p1(2) && p0(2) == ip0(2))) {
-//     vertical_horizontal=true;
-//   }
-#endif
 
   // For vertical and horizontal segments on skeleton(microstructure)
   // edges, all that matters is that the chosen pixels aren't outside
@@ -684,17 +631,9 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
     ip0(1) = maxy - 1;
     ip1(1) = maxy - 1;
   }
-#if DIM==3
-  int maxz = pxlsize_(2);
-  if(ip0(2) == maxz && ip1(2) == maxz) {
-    ip0(2) = maxz - 1;
-    ip1(2) = maxz - 1;
-  }
-#endif
 
   ICoord id = ip1 - ip0;	// distance between pixel endpoints
 
-#if DIM==2
   if(id(0) == 0 && id(1) == 0) { // segment is entirely within one pixel
     return new std::vector<ICoord>(1, ip0);
   }
@@ -792,237 +731,6 @@ std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
   if(pixels->back() != ip1)
     pixels->push_back(ip1);
   return pixels;
-
-#elif DIM==3
-
-  if(id(0) == 0 && id(1) == 0 && id(2) == 0) { // segment is entirely within one pixel
-    return new std::vector<ICoord>(1, ip0);
-  }
-
-  ICoord start, increment;
-  int npix = 0;
-  bool line = false, plane = false;
-  int i = -1, j = -1, k = -1;
-  if(id(0) == 0 && id(2) == 0) {	
-    // Segment is contained within a single y-column of pixels.
-    i = 1;
-    j = 2;
-    k = 0;
-    line = true;
-  }
-
-  if(id(1) == 0 && id(2) == 0) {	
-    // Segment is contained within a single x-row of pixels.
-    i = 0;
-    j = 1;
-    k = 2;
-    line = true;
-  }
-
-  if(id(0) == 0 && id(1) == 0) {	
-    // Segment is contained within a single z-column of pixels.
-    i = 2;
-    j = 0;
-    k = 1;
-    line = true;
-  }
-
-  if(line) {
-    npix = abs(id(i)) + 1;
-    start(i) = (ip0(i) < ip1(i)) ? ip0(i) : ip1(i);
-    start(j) = ip0(j);
-    start(k) = ip0(k);
-    increment(i) = 1;
-    increment(j) = increment(k) = 0;
-    std::vector<ICoord> *pixels = new std::vector<ICoord>(npix);
-    for(int i=0; i<npix; i++) 
-      (*pixels)[i] = start+increment*i;
-    return pixels;
-  }
-
-  double slope = 0;
-  int x = 0, y = 0, z = 0, lasty = 0;
-  double x0 = 0, y0 = 0;
-
-  // swap p0 and p1 if they are not in the right order.  Making a huge
-  // if condition so we don't have to repeat these few lines of code
-  // 6 times.
-  if( ( id(2) == 0 &&
-	// z-plane with bigger x-range
-	(( abs(id(0)) >= abs(id(1)) && ip0(0) > ip1(0) ) || 
-	 // z-plane with bigger y-range
-	 ( abs(id(1)) > abs(id(0)) && ip0(1) > ip1(1) )) ) 
-      ||
-      ( id(1) == 0 &&
-	// y-plane with bigger z-range
-	(( abs(id(2)) >= abs(id(0)) && ip0(2) > ip1(2) ) || 
-	 // y-plane with bigger x-range
-	 ( abs(id(0)) > abs(id(2)) && ip0(0) > ip1(0) )) )
-      || 
-      ( id(0) == 0 &&
-	// x-plane with bigger z-range
-	(( abs(id(2)) >= abs(id(1)) && ip0(2) > ip1(2) ) || 
-	 // x-plane with bigger y-range
-	 ( abs(id(1)) > abs(id(2)) && ip0(1) > ip1(1) )) )
-      ) {
-    ICoord itemp(ip1);
-    ip1 = ip0;
-    ip0 = itemp;
-    Coord temp(p1);
-    p1 = p0;
-    p0 = temp;
-  }
-
-  if(id(2) == 0) {
-    // segment is in a z-plane
-    k = 2;
-    z = ip0(2);
-    if(abs(id(0)) >= abs(id(1))) {
-      // loop over x
-      i = 0;
-      j = 1;
-    }
-    else {
-      i = 1;
-      j = 0;
-    }
-    plane = true;
-  }
-  if(id(1) == 0) {
-    // segment is in a y-plane
-    k = 1;
-    z = ip0(1);
-    if(abs(id(2)) >= abs(id(0))) {
-      // loop over z
-      i = 2;
-      j = 0;
-    }
-    else {
-      i = 0;
-      j = 2;
-    }
-    plane = true;
-  }
-  if(id(0) == 0) {
-    // segment is in an x-plane
-    k = 0;
-    z = ip0(0);
-    if(abs(id(2)) >= abs(id(1))) {
-      // loop over z
-      i = 2;
-      j = 1;
-    }
-    else {
-      i = 1;
-      j = 2;
-    }
-    plane = true;
-  }
-  
-  // for simplicity, i and x indicate the coordinate we are looping
-  // over, j and y indicate the other varying coord, and k and z refer
-  // to the fixed coord.
-  if(plane) {
-    x0 = p0(i);
-    y0 = p0(j);
-    slope = (p1(j) - y0)/(p1(i) - x0);    
-    std::vector<ICoord> *pixels = new std::vector<ICoord>;
-    pixels->reserve(2*abs(id(i))); // biggest possible size
-    pixels->push_back(ip0);
-    // Iterate over columns of pixels.  Compute the y intercepts at
-    // the boundaries between the columns (ie, integer values of x).
-    // Whenever the integer part of the y intercept changes, we need
-    // to include an extra pixel (at the new y value) in the previous
-    // column.
-    lasty = ip0(j);	// previous integer part of y intercept
-    for(x = ip0(i)+1; x <= ip1(i); ++x) {
-      y = int(floor(y0 + slope*(x-x0)));
-      if(y >= 0 && y < maxy) {
-	if(y != lasty) {
-	  ICoord vox1;
-	  vox1(i) = x-1;
-	  vox1(j) = y;
-	  vox1(k) = z;
-	  pixels->push_back(vox1);
-	}
-	ICoord vox2;
-	vox2(i) = x;
-	vox2(j) = y;
-	vox2(k) = z;
-	pixels->push_back(vox2);
-      }
-      lasty = y;
-    }    
-    // The last pixel may not have been included yet, if there's one
-    // more y intercept change to come, so make sure it's included.
-    if(pixels->back() != ip1)
-      pixels->push_back(ip1);
-    return pixels;
-  }
-
-  // if we haven't returned by now, then the segment varies in all 3
-  // coords. 
-  int max = 0;
-  for(int c = 0; c < 3; ++c) {
-    if(abs(id(c)) > max) {
-      max = id(c);
-      i = c;
-      if(abs(id( (c+1) % 3)) > abs(id( (c+2) % 3))) {
-	j = (c+1) % 3;
-	k = (c+2) % 3;
-      }
-      else {
-	j = (c+2) % 3;
-	k = (c+1) % 3;
-      }
-    }
-  }
-
-  x0 = p0(i);
-  y0 = p0(j);
-  int z0 = p0(k);
-  slope = (p1(j) - y0)/(p1(i) - x0);  
-  double slopez = (p1(k) - z0)/(p1(i) - x0);
-  std::vector<ICoord> *pixels = new std::vector<ICoord>;
-  pixels->reserve(2*abs(id(i))); // biggest possible size
-  pixels->push_back(ip0);
-  // Iterate over columns of pixels.  Compute the y intercepts at
-  // the boundaries between the columns (ie, integer values of x).
-  // Whenever the integer part of the y intercept changes, we need
-  // to include an extra pixel (at the new y value) in the previous
-  // column.
-  lasty = ip0(j);	// previous integer part of y intercept
-  int lastz = ip0(k);
-  for(x = ip0(i)+1; x <= ip1(i); ++x) {
-    y = int(floor(y0 + slope*(x-x0)));
-    z = int(floor(z0 + slopez*(x-x0)));
-    if(y >= 0 && y < maxy) {
-      if(y != lasty || z != lastz) {
-	ICoord vox1;
-	vox1(i) = x-1;
-	vox1(j) = y;
-	vox1(k) = z;
-	pixels->push_back(vox1);
-      }
-      ICoord vox2;
-      vox2(i) = x;
-      vox2(j) = y;
-      vox2(k) = z;
-      pixels->push_back(vox2);
-    }
-    lasty = y;
-    lastz = z;
-  }    
-  // The last pixel may not have been included yet, if there's one
-  // more y intercept change to come, so make sure it's included.
-  if(pixels->back() != ip1)
-    pixels->push_back(ip1);
-  return pixels;
-  
-
-  
-#endif
-
 }
 
 static const ICoord east(1, 0);
@@ -1199,36 +907,37 @@ bool CMicrostructure::transitionPointClosest(const Coord &c0, const Coord &c1,
 					     TransitionPointIterator &tpIterator,
 					     Coord *result) const
 {
-
-  std::vector<Coord> *transitions = new std::vector<Coord>;
-  bool found = false;
+  std::vector<Coord> transitions;
   for(tpIterator.begin(); !tpIterator.end(); ++tpIterator) {
-    found = true;
-    transitions->push_back( pixel2Physical(tpIterator.current()) );
+    transitions.push_back( pixel2Physical(tpIterator.current()) );
   }
 
+  // std::cerr << "transitionPointClosest: transitions=";
+  // for(Coord &t : transitions)
+  //   std::cerr << t << " ";
+  // std::cerr << std::endl;
+  
   // Now, we need to sort them out to find the closest
-  int tsize = transitions->size();
-  if( found && tsize>0){ 
-    if(tsize == 1)
-      *result = Coord((*transitions)[0]);
+  int tsize = transitions.size();
+  if(tsize > 0) { 
+    if(tsize == 1) {
+      *result = transitions[0];
+    }
     else {
-      double min, dist;
       int theone = 0;
-      min = norm2((*transitions)[0] - c0);
+      double min = norm2(transitions[0] - c0);
       for(int i=1; i<tsize; i++) {
-	dist = norm2((*transitions)[i] - c0);
+	double dist = norm2(transitions[i] - c0);
 	if(dist < min) {
 	  min = dist;
 	  theone = i;
 	}
       }
-      *result = Coord((*transitions)[theone]);
+      *result = transitions[theone];
     }
+    return true;
   }
-  delete transitions;
-  
-  return found;
+  return false;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -1337,6 +1046,11 @@ double CMicrostructure::edgeHomogeneityCat(const Coord &c0, const Coord &c1, int
 //This version of transitionPointWithPoints looks at the pixels on both
 //sides of the directed line segment c0-c1 if the segment is vertical
 //or horizontal and lies at a pixel boundary.
+
+// Microstructure::transitionPointWithPoints_unbiased calls this
+// method and returns point if this method returns true, or None if it
+// returns false.
+
 bool
 CMicrostructure::transitionPointWithPoints_unbiased(const Coord *c0,
 						    const Coord *c1,
@@ -1344,36 +1058,29 @@ CMicrostructure::transitionPointWithPoints_unbiased(const Coord *c0,
 {
   Coord cleft,cright;
   bool bleft, bright, bverticalhorizontal;
-  std::cerr << "transitionPointWithPoints_unbiased: c0=" << *c0 << " c1=" << *c1
-	    << std::endl;
   
-  const std::vector<ICoord> *pixels = segmentPixels(*c0, *c1, bverticalhorizontal);
+  const std::vector<ICoord> *pixels = segmentPixels(*c0, *c1,
+						    bverticalhorizontal);
   
-  std::cerr << "transitionPointWithPoints_unbiased: pixels=";
-  for(ICoord p : *pixels)
-    std::cerr << " " << p;
-  std::cerr << std::endl;
-      
-  // The TransitionPointIterator destructor deletes the pixels vector.
+  // The TransitionPointIterator destructor deletes "pixels".
   TransitionPointIterator tpIterator1(this, *c0, *c1, pixels);
 
   // TODO: If segmentPixels returns pixels in order along the line,
   // why do we need to search with transitionPointClosest? Can't we
   // just use the first or last transition point?
   
-  bleft = transitionPointClosest(*c0, *c1, tpIterator1, &cleft);  
-  if(bverticalhorizontal)
-    {
-      const std::vector<ICoord> *pixelsright = segmentPixels(*c1, *c0, bverticalhorizontal);
-      TransitionPointIterator tpIterator2(this, *c0, *c1, pixelsright);
-      bright = transitionPointClosest(*c0, *c1, tpIterator2, &cright);
-    }
-  else
-    {
-      bright=false;
-    }
+  bleft = transitionPointClosest(*c0, *c1, tpIterator1, &cleft);
+  if(bverticalhorizontal) {
+    const std::vector<ICoord> *pixelsright =
+      segmentPixels(*c1, *c0, bverticalhorizontal);
+    TransitionPointIterator tpIterator2(this, *c0, *c1, pixelsright);
+    bright = transitionPointClosest(*c0, *c1, tpIterator2, &cright);
+  }
+  else {			// not bverticalhorizontal
+    bright=false;
+  }
   if(bleft && bright) {	     //Pick the one closest to the endpoint c0
-    if(norm2(*c0-cleft)<norm2(*c0-cright)) {
+    if(norm2(*c0-cleft) < norm2(*c0-cright)) {
       *point=cleft;
     }
     else {
@@ -1385,22 +1092,30 @@ CMicrostructure::transitionPointWithPoints_unbiased(const Coord *c0,
     *point=cright;
     return true;
   }
-  else {
-    //This may be garbage
+  else if(bleft) {
     *point=cleft;
-    return bleft;
+    return true;
   }
+  return false;			// neither bright or bleft is true
 }
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// The arguments to TransitionPointIterator are Coords in physical
+// units, but internally it works with Coords in pixel units, and it
+// also returns (via TransitionPointIterator::current) a Coord in
+// pixel units.
 
 TransitionPointIterator::TransitionPointIterator(
 			const CMicrostructure *microstructure,
-			const Coord &c0, const Coord &c1) 
+			const Coord &c0, const Coord &c1)
+  : MS(microstructure),
+    p0(microstructure->physical2Pixel(c0)),
+    p1(microstructure->physical2Pixel(c1))//,
+    // localfound(false)
 {
-  MS = microstructure;
   bool dummy;
   pixels = MS->segmentPixels(c0,c1,dummy);
-  p0 = MS->physical2Pixel(c0);
-  p1 = MS->physical2Pixel(c1);
   begin();
 }
 
@@ -1408,135 +1123,73 @@ TransitionPointIterator::TransitionPointIterator(
 			const CMicrostructure *microstructure,
 			const Coord &c0, const Coord &c1, 
 			const std::vector<ICoord> *pxls) 
+  : MS(microstructure),
+    pixels(pxls),
+    p0(microstructure->physical2Pixel(c0)),
+    p1(microstructure->physical2Pixel(c1))//,
+    // localfound(false)
 {
-  MS = microstructure;
-  pixels = pxls;
-  p0 = MS->physical2Pixel(c0);
-  p1 = MS->physical2Pixel(c1);
   begin();
 }
 
-void TransitionPointIterator::begin()
-{
+TransitionPointIterator::~TransitionPointIterator() {
+  delete pixels;
+}
+
+double TransitionPointIterator::getNormDelta() const {
+  return sqrt(norm2(p0 - p1));
+}
+
+void TransitionPointIterator::begin() {
   pixel = pixels->begin();
   cat = MS->category(*pixel);
   prevcat = cat;
   prevpixel = *pixel;
   ++pixel;
-  currentTransPoint = Coord(0,0);
-  delta = p1-p0;
-  //cout << "infiniteSlope? " << infiniteSlope() << endl;
-  if(!infiniteSlope()) {
+  currentTransPoint = Coord(-123.,-123.);
+  Coord delta = p1-p0;
+  infiniteSlope = (delta(0) == 0);
+  if(!infiniteSlope) {
     x0 = p0(0);
     y0 = p0(1);
     slope = delta(1)/delta(0);
     invslope = 1./slope;
-#if DIM==3
-    z0 = p0(2);
-    slopez = delta(2)/delta(0);
-    invslopez = 1./slopez;
-#endif
   }
-#if DIM==3
-  else if (delta(1)!=0 && delta(2)!=0){
-    y0 = p0(1);
-    z0 = p0(2);
-    slope = delta(2)/delta(1);
-    invslope = 1./slope;
-  }
-#endif
-  found = false;
+  // found = false;
   // find the first transition point, if there is one
   this->operator++();
 }
 
-void TransitionPointIterator::operator++() 
-{
-  localfound = false;
+void TransitionPointIterator::operator++() {
+  // localfound = false;
   prevcat = cat;
-  for( ; pixel<pixels->end() && !localfound; ++pixel) {
+  for( ; pixel<pixels->end() /*&& !localfound*/; ++pixel) {
     cat = MS->category(*pixel);
     if(cat != prevcat) {
-      localfound = true;
-      found = true;
-      if(infiniteSlope()) {
-	//cout << "B " << *pixel << cat << " " << prevcat << endl;
-#if DIM == 2
+      // localfound = true;
+      // found = true;
+      if(infiniteSlope) {
 	currentTransPoint = Coord(p0(0), (*pixel)(1));
-#elif DIM == 3
-	if (delta(1) == 0)
-	  currentTransPoint = Coord(p0(0), p0(1), (*pixel)(2));
-	else if (delta(2) == 0)
-	  currentTransPoint = Coord(p0(0), (*pixel)(1), p0(2));
-	else {
-	  diff = *pixel - prevpixel;
-	  if(diff(1) == -1) { // moving down, take bottom edge of last point
-	    y = prevpixel(1);
-	    z = z0 + (y-y0)*slope;
-	  }
-	  else if(diff(1) == 1) {	 // moving up, take top edge of last point
-	    y = prevpixel(1) + 1.0;
-	    z = z0 + (y-y0)*slope;
-	  }
-	  else if(diff(2) == 1) {	// moving back, take back edge of last point
-	    z = prevpixel(2) + 1.0;
-	    y = y0 + (z-z0)*invslope;
-	  }
-	  else if(diff(2) == -1) { // moving left, take left edge of last point
-	    z = prevpixel(2);
-	    y = y0 + (z-z0)*invslope;
-	  }
-	  currentTransPoint = Coord(p0(0), y, z);
-	}
-#endif
-	//cout << "C " << currentTransPoint << endl;
       }
-      else {
-	// cout << "A " <<  *pixel << prevpixel << endl;
+      else {	      // not infiniteSlope
 	diff = *pixel - prevpixel;
 	if(diff(0) == 1) {	// moving right, take right edge of last point
 	  x = prevpixel(0) + 1.0;
 	  y = y0 + (x-x0)*slope;
-#if DIM == 3
-	  z = z0 + (x-x0)*slopez;
-#endif
 	}
 	else if(diff(0) == -1) { // moving left, take left edge of last point
 	  x = prevpixel(0);
 	  y = y0 + (x-x0)*slope;
-#if DIM == 3
-	  z = z0 + (x-x0)*slopez;
-#endif
 	}
 	else if(diff(1) == -1) { // moving down, take bottom edge of last point
 	  y = prevpixel(1);
 	  x = x0 + (y-y0)*invslope;
-#if DIM == 3
-	  z = z0 + (x-x0)*slopez;
-#endif
 	}
 	else if(diff(1) == 1) {	 // moving up, take top edge of last point
 	  y = prevpixel(1) + 1.0;
 	  x = x0 + (y-y0)*invslope;
-#if DIM == 3
-	  z = z0 + (x-x0)*slopez;
-#endif
 	}
-#if DIM == 2
 	currentTransPoint = Coord(x,y);
-#elif DIM == 3
-	else if(diff(2) == 1) {  // moving back, take back edge of last point
-	  z = prevpixel(2) + 1.0;
-	  x = x0 + (z-z0)*invslopez;
-	  y = y0 + (x-x0)*slope;
-	}
-	else {                   // moving forwards, take front edge of last point
-	  z = prevpixel(2);
-	  x = x0 + (z-z0)*invslopez;
-	  y = y0 + (x-x0)*slope;
-	}
-	currentTransPoint = Coord(x,y,z);
-#endif
       }
       //prevcat = cat;
     }
@@ -1545,27 +1198,19 @@ void TransitionPointIterator::operator++()
 }
 
 
-Coord TransitionPointIterator::first() {
+Coord TransitionPointIterator::first() const {
   ICoord pix(*pixels->begin());
   if(pix(0) <= p0(0) && pix(0)+1 >= p0(0) &&
-     pix(1) <= p0(1) && pix(1)+1 >= p0(1)
-#if DIM==3
-     && pix(2) <= p0(1) && pix(2)+1 >= p0(2)
-#endif
-     )
+     pix(1) <= p0(1) && pix(1)+1 >= p0(1))
     return p0;
   else 
     return p1;
 }	
       
-Coord TransitionPointIterator::last() {
+Coord TransitionPointIterator::last() const {
   ICoord pix(*pixels->begin());
   if(pix(0) <= p0(0) && pix(0)+1 >= p0(0) &&
-     pix(1) <= p0(1) && pix(1)+1 >= p0(1)
-#if DIM==3
-     && pix(2) <= p0(1) && pix(2)+1 >= p0(2)
-#endif
-     )
+     pix(1) <= p0(1) && pix(1)+1 >= p0(1))
     return p1;
   else 
     return p0;
