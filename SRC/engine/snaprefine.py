@@ -25,6 +25,7 @@
 # each edge is marked.
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.engine import ooferror2
 from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import parallel_enable
@@ -65,6 +66,8 @@ class SnapEdgeMarkings(refine.EdgeMarkings):
         #Get a transition point starting from each end.
         transpt0 = self.newSkelMS.transitionPointWithPoints_unbiased(n0pt,n1pt)
         transpt1 = self.newSkelMS.transitionPointWithPoints_unbiased(n1pt,n0pt)
+        debug.fmsg("transpt0=", transpt0)
+        debug.fmsg("transpt1=", transpt1)
 
         if transpt0 and transpt1:
             #Check if the transition points are identical or too close together
@@ -214,18 +217,20 @@ class SnapEdgeMarkings(refine.EdgeMarkings):
                             transptnodelist = []
                         ############## End Periodic Skeleton Node Construction ###################
                     else:
-                        #print "non periodic case"
+                        ## getTransitionPoints returns 0, 1, or 2 points.  If there
+                        ## are more than 2, it ignores the ones in the middle.
                         transptnodelist = [self.newSkeleton.newNodeFromPoint(pt)
                                            for pt in self.getTransitionPoints(n0pt, n1pt)]
+                        debug.fmsg("transptnodelist=", transptnodelist, [p.position() for p in transptnodelist])
                         self.newEdgeNodes[key] = transptnodelist
 
                 if len(transptnodelist)==2:
                     transpt0 = transptnodelist[0].position()
                     transpt1 = transptnodelist[1].position()
-                    #Order of the arguments to edgeHomogeneityCat are significant.
-                    #If the edge n0pt-n1pt is horizontal or vertical and lies at
-                    #a pixel boundary, then we want the function to use the pixels
-                    #lying within the element in its calculations.
+                    # Order of the arguments to edgeHomogeneityCat is significant.
+                    # If the edge n0pt-n1pt is horizontal or vertical and lies at
+                    # a pixel boundary, then we want the function to use the pixels
+                    # lying within the element in its calculations.
                     homog0, cat0 = self.newSkelMS.edgeHomogeneityCat(n0pt,transpt0)
                     homog1, cat1 = self.newSkelMS.edgeHomogeneityCat(transpt0,transpt1)
                     homog2, cat2 = self.newSkelMS.edgeHomogeneityCat(transpt1,n1pt)
@@ -323,8 +328,18 @@ class SnapRefine(refine.Refine):
                 newElements = self.rules[signature].apply(
                     oldElement, signature_info, cats,
                     edgenodes, newSkeleton, maxdelta2)
+                if debug.debug():
+                    for el in newElements:
+                        if el.illegal():
+                            debug.fmsg("oldElement=", oldElement)
+                            debug.fmsg([n.position() for n in oldElement.nodes])
+                            debug.fmsg("newElement=", el)
+                            debug.fmsg([n.position() for n in el.nodes])
+                            debug.fmsg("signature=", signature)
+                            debug.fmsg("rule=", self.rules[signature])
+                            raise ooferror2.ErrPyProgrammingError(
+                                "Illegal element created by SnapRefine")
             else:
-
                 newElements = snaprefinemethod.unrefinedelement(
                     oldElement, signature_info, newSkeleton)
 

@@ -556,6 +556,12 @@ void CMicrostructure::recategorize() {
 // Return a list (vector) of pixels underlying a segment.  It's the
 // responsibility of the caller to delete the vector.
 
+// TODO: segmentPixels should just return a std::vector, not a
+// std::vector*, using the C++11 move constructor in std::vector.
+// Then TransitionPointIterator could store a std::vector instead of a
+// std::vector* too.  Or is the iterator copied a lot?  Then it
+// shouldn't store the vector.
+
 std::vector<ICoord> *CMicrostructure::segmentPixels(const Coord &c0,
 						    const Coord &c1,
 						    bool &vertical_horizontal) const
@@ -1338,9 +1344,23 @@ CMicrostructure::transitionPointWithPoints_unbiased(const Coord *c0,
 {
   Coord cleft,cright;
   bool bleft, bright, bverticalhorizontal;
+  std::cerr << "transitionPointWithPoints_unbiased: c0=" << *c0 << " c1=" << *c1
+	    << std::endl;
   
   const std::vector<ICoord> *pixels = segmentPixels(*c0, *c1, bverticalhorizontal);
+  
+  std::cerr << "transitionPointWithPoints_unbiased: pixels=";
+  for(ICoord p : *pixels)
+    std::cerr << " " << p;
+  std::cerr << std::endl;
+      
+  // The TransitionPointIterator destructor deletes the pixels vector.
   TransitionPointIterator tpIterator1(this, *c0, *c1, pixels);
+
+  // TODO: If segmentPixels returns pixels in order along the line,
+  // why do we need to search with transitionPointClosest? Can't we
+  // just use the first or last transition point?
+  
   bleft = transitionPointClosest(*c0, *c1, tpIterator1, &cleft);  
   if(bverticalhorizontal)
     {
