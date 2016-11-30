@@ -10,6 +10,10 @@ OOF2 2.1.13
 * Removed a stray debugging line that was printing "No intersections
   on this element..."
 
+* Fixed a bug that was sometimes causing SnapRefine to create illegal
+  elements and also sometimes computing segment homogeneities
+  incorrectly.
+
 OOF2 2.1.12
 
 * Changed setup.py to allow C++11.

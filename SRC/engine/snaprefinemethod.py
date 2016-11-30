@@ -686,16 +686,13 @@ if config.dimension() == 2:
 
     def rule1000(element, rotation, cats, edgenodes, newSkeleton, maxdelta2):
         n0, n1, n2, n3 = baseNodes(element, rotation)
-        debug.fmsg("nodes=", (n0, n1, n2, n3))
         rcats=[cats[(i+rotation)%4] for i in range(4)]
-        debug.fmsg("cats=", cats, "rcats=", rcats)
         A=rcats[0][0]
         B=rcats[0][1]
         C=rcats[1][0]
         D=rcats[2][0]
         E=rcats[3][0]
         na = edgenodes[rotation][0]
-        debug.fmsg("na=", na, na.position())
         if B!=C and C==D and D!=E and E==A:
             return (
                 newSkeleton.newElement(nodes=[n0, na, n3], parents=[element]),

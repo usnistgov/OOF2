@@ -66,6 +66,7 @@ class SnapEdgeMarkings(refine.EdgeMarkings):
         #Get a transition point starting from each end.
         transpt0 = self.newSkelMS.transitionPointWithPoints_unbiased(n0pt,n1pt)
         transpt1 = self.newSkelMS.transitionPointWithPoints_unbiased(n1pt,n0pt)
+        # debug.fmsg("transpt0=", transpt0, "transpt1=", transpt1);
         if transpt0 and transpt1:
             #Check if the transition points are identical or too close together
             #Steve doesn't like this, unless self.maxdelta2==0.
@@ -183,7 +184,7 @@ class SnapEdgeMarkings(refine.EdgeMarkings):
                     partners=node0.getPartnerPair(node1)
                     #It can happen that partners contains the same two nodes (node1,node0)!
                     if partners and node0!=partners[1]:
-                        ############## Begin Periodic Skeleton Node Construction ###################
+    ############## Begin Periodic Skeleton Node Construction ###################
                         partnerKey = skeletonnode.canonical_order(partners[0], partners[1])
                         #If the edge nodes have periodic partners, then find the transition
                         #points on the current edge and the partner edge. Get the pair of
@@ -212,37 +213,49 @@ class SnapEdgeMarkings(refine.EdgeMarkings):
                             self.newEdgeNodes[key]=[]
                             self.newEdgeNodes[partnerKey]=[]
                             transptnodelist = []
-                        ############## End Periodic Skeleton Node Construction ###################
+    ############## End Periodic Skeleton Node Construction ###################
                     else:
-                        ## getTransitionPoints returns 0, 1, or 2 points.  If there
-                        ## are more than 2, it ignores the ones in the middle.
-                        transptnodelist = [self.newSkeleton.newNodeFromPoint(pt)
-                                           for pt in self.getTransitionPoints(n0pt, n1pt)]
+                        ## getTransitionPoints returns 0, 1, or 2
+                        ## points.  If there are more than 2, it
+                        ## ignores the ones in the middle.
+                        tpts = self.getTransitionPoints(n0pt, n1pt)
+                        # debug.fmsg("n0pt=", n0pt, "n1pt=", n1pt)
+                        # debug.fmsg("tpts=", tpts)
+                        transptnodelist = [
+                            self.newSkeleton.newNodeFromPoint(p) for p in tpts]
                         self.newEdgeNodes[key] = transptnodelist
 
                 if len(transptnodelist)==2:
                     transpt0 = transptnodelist[0].position()
                     transpt1 = transptnodelist[1].position()
-                    # Order of the arguments to edgeHomogeneityCat is significant.
-                    # If the edge n0pt-n1pt is horizontal or vertical and lies at
-                    # a pixel boundary, then we want the function to use the pixels
-                    # lying within the element in its calculations.
-                    homog0, cat0 = self.newSkelMS.edgeHomogeneityCat(n0pt,transpt0)
-                    homog1, cat1 = self.newSkelMS.edgeHomogeneityCat(transpt0,transpt1)
-                    homog2, cat2 = self.newSkelMS.edgeHomogeneityCat(transpt1,n1pt)
+                    # Order of the arguments to edgeHomogeneityCat is
+                    # significant.  If the edge n0pt-n1pt is
+                    # horizontal or vertical and lies at a pixel
+                    # boundary, then we want the function to use the
+                    # pixels lying within the element in its
+                    # calculations.
+                    homog0, cat0 = self.newSkelMS.edgeHomogeneityCat(
+                        n0pt,transpt0)
+                    homog1, cat1 = self.newSkelMS.edgeHomogeneityCat(
+                        transpt0,transpt1)
+                    homog2, cat2 = self.newSkelMS.edgeHomogeneityCat(
+                        transpt1,n1pt)
                     marks.append(2)
                     cats.append((cat0,cat1,cat2))
                     transpts.append(transptnodelist)
                 elif len(transptnodelist)==1:
                     transpt = transptnodelist[0].position()
-                    homog0, cat0 = self.newSkelMS.edgeHomogeneityCat(n0pt,transpt)
-                    homog1, cat1 = self.newSkelMS.edgeHomogeneityCat(transpt,n1pt)
+                    homog0, cat0 = self.newSkelMS.edgeHomogeneityCat(
+                        n0pt,transpt)
+                    homog1, cat1 = self.newSkelMS.edgeHomogeneityCat(
+                        transpt,n1pt)
                     marks.append(1)
                     cats.append((cat0,cat1))
                     transpts.append(transptnodelist)
                 else:
                     marks.append(0)
-                    homogedge,catedge=self.newSkelMS.edgeHomogeneityCat(n0pt,n1pt)
+                    homogedge,catedge=self.newSkelMS.edgeHomogeneityCat(
+                        n0pt,n1pt)
                     cats.append((catedge,))
                     transpts.append([])
             else:

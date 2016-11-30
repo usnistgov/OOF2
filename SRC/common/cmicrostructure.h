@@ -61,10 +61,10 @@ private:
   const std::vector<ICoord> *pixels;
   std::vector<ICoord>::const_iterator pixel;
   Coord p0, p1, currentTransPoint;
-  ICoord diff, prevpixel;
-  int cat, prevcat;
+  ICoord prevpixel;
+  int prevcat;
   bool infiniteSlope;
-  double slope, invslope, x0, y0, x, y;
+  double slope, invslope, x0, y0; 
 
 public:
   TransitionPointIterator(const CMicrostructure*, const Coord&, const Coord&); 
