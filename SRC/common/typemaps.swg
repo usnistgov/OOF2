@@ -798,6 +798,7 @@ using std::string;
    module-specific names. */
 
 %typemap(python, argout) Coord *cskel_OutPoint {
+  // typemap(python, argout) Coord *cskel_OutPoint
   // Get the Point class
   static PyObject *PointClass = 0;
   if(!PointClass) {
@@ -813,6 +814,7 @@ using std::string;
   PyObject *xyargs = Py_BuildValue("ddd", (*$source)(0), (*$source)(1), (*$source)(2));
 #endif
   PyObject *point = PyObject_CallObject(PointClass, xyargs);
+
   Py_XDECREF(xyargs);
   if(!$target) {
     // Nothing else is being returned. Just return the Point.
