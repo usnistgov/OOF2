@@ -49,84 +49,84 @@ class IterativeMethods(unittest.TestCase):
         pc = preconditioner.UnPreconditioner()
         solver = matrixmethod.ConjugateGradient(pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def CG_ILU(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.ILUPreconditioner()
         solver = matrixmethod.ConjugateGradient(pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
 
     def CG_ILUT(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.ILUTPreconditioner()
         solver = matrixmethod.ConjugateGradient(pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def CG_Jacobi(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.JacobiPreconditioner()
         solver = matrixmethod.ConjugateGradient(pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def BiCGStab(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.UnPreconditioner()
         solver = matrixmethod.StabilizedBiConjugateGradient(pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def BiCGStab_ILU(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.ILUPreconditioner()
         solver = matrixmethod.StabilizedBiConjugateGradient(pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def BiCGStab_ILUT(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.ILUTPreconditioner()
         solver = matrixmethod.StabilizedBiConjugateGradient(pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
 
     def BiCGStab_Jacobi(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.JacobiPreconditioner()
         solver = matrixmethod.StabilizedBiConjugateGradient(pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
 
     def BiCG(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.UnPreconditioner()
         solver = matrixmethod.BiConjugateGradient(pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def BiCG_ILU(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.ILUPreconditioner()
         solver = matrixmethod.BiConjugateGradient(pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def BiCG_ILUT(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.ILUTPreconditioner()
         solver = matrixmethod.BiConjugateGradient(pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
 
     def BiCG_Jacobi(self):
         solution = doublevec.DoubleVec(0)
         pc = preconditioner.JacobiPreconditioner()
         solver = matrixmethod.BiConjugateGradient(pc, self.tolerance, self.max_iterations)
         solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
 class DirectMethods(unittest.TestCase):
     def setUp(self):
@@ -146,25 +146,25 @@ class DirectMethods(unittest.TestCase):
         solution = doublevec.DoubleVec(0)
         solver = matrixmethod.SimplicialLLT()
         succ = solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def SimplicialLDLT(self):
         solution = doublevec.DoubleVec(0)
         solver = matrixmethod.SimplicialLDLT()
         succ = solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def SparseLU(self):
         solution = doublevec.DoubleVec(0)
         solver = matrixmethod.SparseLU()
         succ = solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
     
     def SparseQR(self):
         solution = doublevec.DoubleVec(0)
         solver = matrixmethod.SparseQR()
         succ = solver.solveMatrix(self.matrix, self.rhs, solution)
-        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 10)
+        self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
 
 def run_tests():
 
