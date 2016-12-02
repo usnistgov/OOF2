@@ -61,8 +61,7 @@ private:
   const std::vector<ICoord> *pixels;
   std::vector<ICoord>::const_iterator pixel;
   Coord p0, p1, currentTransPoint;
-  ICoord prevpixel;
-  int prevcat;
+  int prevcat, nextcat;
   bool infiniteSlope;
   double slope, invslope, x0, y0; 
 
@@ -77,6 +76,7 @@ public:
   bool end() const { return pixel>=pixels->end(); }
   int numPixels() const { return pixels->size(); }
   int getPrevcat() const { return prevcat; }
+  int getNextcat() const { return nextcat; }
   // The first and last points of the segment.
   Coord first() const;
   Coord last() const;

@@ -999,20 +999,42 @@ double CMicrostructure::edgeHomogeneity(const Coord &c0, const Coord &c1) const
   std::vector<double> lengths(nCategories(), 0.0);
   Coord prevpt = tpIterator.first();
   Coord finalpt = tpIterator.last();
+  double normdelta = tpIterator.getNormDelta();
+// #ifdef DEBUG
+//   std::cerr << "edgeHomogeneity: c0=" << c0 << " c1=" << c1 << " -------"
+// 	    << std::endl;
+//   std::cerr << "edgeHomogeneity: startpt=" << prevpt << " finalpt=" << finalpt
+// 	    << std::endl;
+// #endif // DEBUG
+
   for( ; !tpIterator.end(); ++tpIterator) {
-    lengths[tpIterator.getPrevcat()] += sqrt(norm2(tpIterator.current() - prevpt));
+// #ifdef DEBUG
+//     double dl = sqrt(norm2(tpIterator.current() - prevpt));
+//     std::cerr << "edgeHomogeneity: subsegment " << prevpt << " "
+// 	      << tpIterator.current() << " dl=" << dl/normdelta
+// 	      << " cat=" << tpIterator.getPrevcat() << std::endl;
+// #endif // DEBUG
+    lengths[tpIterator.getPrevcat()] += sqrt(norm2(tpIterator.current() -
+						   prevpt));
     prevpt = tpIterator.current();
   }
-  lengths[tpIterator.getPrevcat()] += sqrt(norm2(finalpt - prevpt));
+  
+// #ifdef DEBUG
+//   double dl = sqrt(norm2(finalpt-prevpt));
+//   std::cerr << "edgeHomogeneity: final subsegment: " << prevpt << " "
+// 	    << finalpt << " dl=" << dl/normdelta
+// 	    << " cat=" << tpIterator.getNextcat() << std::endl;
+// #endif // DEBUG
+  lengths[tpIterator.getNextcat()] += sqrt(norm2(finalpt - prevpt));
 
   double max = 0.0;
   for(std::vector<double>::size_type i=0; i<lengths.size(); i++) {
     if(max < lengths[i])
       max = lengths[i];
   }
-
-  double normdelta = tpIterator.getNormDelta();
-
+// #ifdef DEBUG
+//   std::cerr << "edgeHomogeneity: homogeneity=" << max/normdelta << std::endl;
+// #endif // DEBUG
   return max/normdelta;
 }
 
@@ -1183,13 +1205,26 @@ double TransitionPointIterator::getNormDelta() const {
 }
 
 void TransitionPointIterator::begin() {
+// #ifdef DEBUG
+//   std::cerr << "TransitionPointIterator::begin: pixels=" << *pixels
+// 	    << std::endl;
+//   std::cerr << "TransitionPointIterator::begin: categories=";
+//   for(ICoord p : *pixels)
+//     std::cerr << " " << MS->category(p);
+//   std::cerr << std::endl;
+// #endif // DEBUG
   pixel = pixels->begin();
-  prevcat = MS->category(*pixel);
-  prevpixel = *pixel;
-  ++pixel;
+  // prevcat and nextcat are the pixel categories just before and
+  // after the current transition point.  nextcat needs to be
+  // initialized here because it's used to set prevcat in operator++.
+  nextcat = MS->category(*pixel);
   currentTransPoint = Coord(-123.,-123.); // will be reset by operator++
-  Coord delta = p1-p0;
+  Coord delta = p1 - p0;
   infiniteSlope = (delta(0) == 0);
+  // TODO: This probably doesn't behave well if the slope is very
+  // large but not infinite.  We could swap the x and y values if the
+  // slope is greater than one and never have to deal with large
+  // slopes.
   if(!infiniteSlope) {
     x0 = p0(0);
     y0 = p0(1);
@@ -1201,31 +1236,30 @@ void TransitionPointIterator::begin() {
 }
 
 void TransitionPointIterator::operator++() {
-  bool found = false;
-  for( ; pixel<pixels->end() && !found; ++pixel) {
-    int cat = MS->category(*pixel);
-    if(cat != prevcat) {
-      found = true;
+  if(pixel == pixels->end())
+    return;
+  prevcat = nextcat;
+  ICoord prevpixel = *pixel;
+  pixel++;
+// #ifdef DEBUG
+//   std::cerr << "TransitionPointIterator::operator++: before loop, prevpixel="
+// 	    << prevpixel << " pixel=" << *pixel << " prevcat=" << prevcat
+// 	    << std::endl;
+// #endif // DEBUG
+  while(pixel != pixels->end()) {
+    nextcat = MS->category(*pixel);
+// #ifdef DEBUG
+//     std::cerr << "TransitionPointIterator::operator++: top of loop, prevpixel="
+// 	      << prevpixel << " pixel=" << *pixel
+// 	      << " prevcat=" << prevcat << " nextcat=" << nextcat << std::endl;
+// #endif // DEBUG
+    if(nextcat != prevcat) {
+      // Found a transition
       if(infiniteSlope) {
 	currentTransPoint = Coord(p0(0), (*pixel)(1));
       }
-      else {	      // not infiniteSlope
+      else {
 	ICoord diff = *pixel - prevpixel;
-#ifdef DEBUG
-	if(!(diff == ICoord(0,1) || diff == ICoord(0,-1) ||
-	     diff == ICoord(1,0) || diff == ICoord(-1,0)))
-	  {
-	    std::cerr << "TransitionPointIterator::operator++: pixels=";
-	    for(ICoord p : *pixels)
-	      std::cerr << " " << p;
-	    std::cerr << std::endl;
-	    std::cerr << "TransitionPointIterator::operator++: prevpixel="
-		      << prevpixel << " pixel=" << *pixel << std::endl;
-	    throw ErrProgrammingError(
-			      "TransitionPointIterator::operator++ failed!",
-			      __FILE__, __LINE__);
-	  }
-#endif // DEBUG
 	if(diff(0) == 1) {	// moving right, take right edge of last point
 	  double x = prevpixel(0) + 1.0;
 	  currentTransPoint = Coord(x, y0 + (x-x0)*slope);
@@ -1242,11 +1276,17 @@ void TransitionPointIterator::operator++() {
 	  double y = prevpixel(1) + 1.0;
 	  currentTransPoint = Coord(x0 + (y-y0)*invslope, y);
 	}
+	else {
+	  throw ErrProgrammingError(
+			    "Failure in TransitionPointIterator::operator++!",
+			    __FILE__, __LINE__);
+	}
       }	// end if not infiniteSlope
-      prevcat = cat;
-    } // end if cat != prevcat
+      return;
+    } // end if a transition was found
     prevpixel = *pixel;
-  } // end loop over pixels
+    ++pixel;
+  } // end while pixel != pixels.end()
 }
 
 
