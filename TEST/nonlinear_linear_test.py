@@ -499,7 +499,7 @@ class OOF_NLPlaneStress(unittest.TestCase):
             destination=OutputStream(filename='test.dat', mode='w'))
         self.assert_(file_utils.compare_last(
                 'test.dat',
-                (0.0, -0.075, -0.025, 0.0, 0.0, 0.0, 0.0)))
+                (0.0, 0.075, 0.025, 0.0, 0.0, 0.0, 0.0)))
         file_utils.remove('test.dat')
 
         # Check that the out-of-plane displacement derivative at the
@@ -777,7 +777,6 @@ def run_tests():
     test_set = [
         ## RKLinear just generates the reference files for the rest of
         ## the LinearDiffusion tests.  It should come first.
-
         OOF_LinearDiffusion("RKlinear"),
         OOF_LinearDiffusion("CN"),
         OOF_LinearDiffusion("SS22"),
@@ -793,6 +792,9 @@ def run_tests():
         OOF_NLPlaneStress2("NonlinearSS22")
         ]
     
+    #test_set = [OOF_NLPlaneStress2("LinearCN")]
+    # test_set = [OOF_NLPlaneStress("Small")]
+
     logan = unittest.TextTestRunner()
     for t in test_set:
         print >> sys.stderr,  "\n *** Running test: %s\n" % t.id()
