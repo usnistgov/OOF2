@@ -7,6 +7,10 @@ OOF2 2.1.13
   stresses) for elasticity problems and also changing the sign of all
   the stress outputs.
 
+* Hacked the Flux classes so that the sign changes in the force
+  balance equation are invisible to the user.  Neumann BCs and stress
+  outputs have the same signs they always have had.
+
 * Removed a stray debugging line that was printing "No intersections
   on this element..."
 
