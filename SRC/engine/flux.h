@@ -57,6 +57,7 @@ private:
   static const std::string modulename_;
   const std::string name_;
   int index_;
+  bool negate_;
 protected:
   // Eqnlist made protected so that the boundary_integral methods of
   // the derived classes can see it.
@@ -66,6 +67,7 @@ protected:
   int divdim;			// number of components in divergence
 public:
   Flux(const std::string &name, int dimension, int divdim);
+  Flux(const std::string &name, int dimension, int divdim, bool negate);
   virtual ~Flux() {}
   static std::vector<Flux*> &allfluxes();
   static Flux *getFlux(const std::string &name);
@@ -127,6 +129,15 @@ public:
   virtual void local_boundary(const BoundaryEdge*, EdgeNodeIterator&,
 			      const EdgeGaussPoint&, const FluxNormal *,
 			      DoubleVec&) const = 0;
+
+  // When we started using Eigen's matrix solvers, we
+  // learned that we had been constructing *negative* definite
+  // matrices for the force balance equation.  The previous CG solver
+  // worked with them, but Eigen didn't.  Changing the sign of the
+  // force balance equation fixed the problem, but required changing
+  // the sign of the Stress.  The "negate" flag is used to make this
+  // sign change invisible to users.
+  bool negate() const { return negate_; }
 
   friend bool operator==(const Flux&, const Flux&);
   friend bool operator!=(const Flux&, const Flux&);
@@ -205,8 +216,8 @@ private:
 public:
   static std::vector< std::vector<int> > build_contraction_map();
   static std::vector<int> build_outofplane_map();
-  SymmetricTensorFlux(const std::string &name)
-    : Flux(name, SYMTEN_FLUX_DIM, SYMTEN_DIV_DIM)
+  SymmetricTensorFlux(const std::string &name, bool negate)
+    : Flux(name, SYMTEN_FLUX_DIM, SYMTEN_DIV_DIM, negate)
   {}
   virtual ~SymmetricTensorFlux() {}
   virtual const std::string &classname() const;

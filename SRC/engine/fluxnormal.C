@@ -28,6 +28,11 @@ double VectorFluxNormal::operator[](int n) const {
     return 0.0;  // Throw a range error or something.
 }
 
+FluxNormal &VectorFluxNormal::operator*=(double d) {
+  val_ *= d;
+  return *this;
+}
+
 double SymTensorFluxNormal::operator[](int n) const {
   switch(n) {
   case 0: 
@@ -51,3 +56,10 @@ void SymTensorFluxNormal::transform(const Coord &n) {
   x=n(0)*normal_frame_x-n(1)*normal_frame_y;
   y=n(0)*normal_frame_y+n(1)*normal_frame_x;
 }
+
+FluxNormal &SymTensorFluxNormal::operator*=(double d) {
+  x *= d;
+  y *= d;
+  return *this;
+}
+  

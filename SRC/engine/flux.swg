@@ -60,7 +60,7 @@ public:
 
 class SymmetricTensorFlux : public Flux {
 public:
-  SymmetricTensorFlux(char *name);
+  SymmetricTensorFlux(char *name, bool negate);
 };
 
 Flux *getFluxByIndex(int);
