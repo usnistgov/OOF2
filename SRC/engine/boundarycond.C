@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: boundarycond.C,v $
-// $Revision: 1.51 $
-// $Author: reida $
-// $Date: 2011/02/09 19:24:46 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

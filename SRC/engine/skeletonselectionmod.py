@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: skeletonselectionmod.py,v $
-# $Revision: 1.84 $
-# $Author: langer $
-# $Date: 2013/11/07 20:51:11 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

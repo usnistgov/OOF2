@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: fileselector.py,v $
-# $Revision: 1.46 $
-# $Author: langer $
-# $Date: 2010/12/13 21:52:10 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

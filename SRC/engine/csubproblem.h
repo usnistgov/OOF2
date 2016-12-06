@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: csubproblem.h,v $
-// $Revision: 1.51 $
-// $Author: lnz5 $
-// $Date: 2015/07/17 17:52:56 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

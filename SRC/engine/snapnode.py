@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: snapnode.py,v $
-# $Revision: 1.78 $
-# $Author: langer $
-# $Date: 2015/07/14 21:39:36 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

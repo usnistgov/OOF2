@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: aniso_test.py,v $
-# $Revision: 1.11 $
-# $Author: langer $
-# $Date: 2011/01/12 22:28:14 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

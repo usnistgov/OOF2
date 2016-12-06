@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: gfxwindow3d.py,v $
-# $Revision: 1.11 $
-# $Author: vrc $
-# $Date: 2010/08/05 21:23:33 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

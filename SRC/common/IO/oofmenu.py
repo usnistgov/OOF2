@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: oofmenu.py,v $
-# $Revision: 1.144 $
-# $Author: langer $
-# $Date: 2011/06/01 14:48:53 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

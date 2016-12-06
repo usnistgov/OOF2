@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: oofcanvas.C,v $
-// $Revision: 1.130 $
-// $Author: reida $
-// $Date: 2014/05/01 21:06:53 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: guilogger.py,v $
-# $Revision: 1.29 $
-# $Author: langer $
-# $Date: 2014/05/06 18:15:24 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

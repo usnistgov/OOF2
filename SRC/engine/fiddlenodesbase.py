@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: fiddlenodesbase.py,v $
-# $Revision: 1.84 $
-# $Author: langer $
-# $Date: 2015/07/14 21:39:36 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

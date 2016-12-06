@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: distname.py,v $
-# $Revision: 1.1 $
-# $Author: langer $
-# $Date: 2014/07/07 21:24:23 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

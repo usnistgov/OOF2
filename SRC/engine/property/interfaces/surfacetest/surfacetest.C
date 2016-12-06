@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: surfacetest.C,v $
-// $Revision: 1.5 $
-// $Author: reida $
-// $Date: 2011/08/11 21:40:36 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

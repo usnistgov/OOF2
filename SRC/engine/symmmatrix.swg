@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: symmmatrix.swg,v $
-// $Revision: 1.32 $
-// $Author: langer $
-// $Date: 2014/09/27 21:40:57 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

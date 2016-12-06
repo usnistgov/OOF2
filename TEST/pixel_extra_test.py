@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: pixel_extra_test.py,v $
-# $Revision: 1.8 $
-# $Author: langer $
-# $Date: 2011/03/17 21:12:42 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

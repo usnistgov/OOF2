@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: mergetriangles.py,v $
-# $Revision: 1.29 $
-# $Author: langer $
-# $Date: 2010/12/04 03:49:57 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

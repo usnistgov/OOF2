@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: general_nonlinear_elasticity.swg,v $
-// $Revision: 1.4 $
-// $Author: gdogan $
-// $Date: 2010/12/06 17:31:56 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: adaptivemeshrefinement.py,v $
-# $Revision: 1.38 $
-# $Author: langer $
-# $Date: 2014/09/27 21:40:39 $
 
 OBSOLETE
 

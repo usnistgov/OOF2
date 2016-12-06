@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: microstructuremenu.py,v $
-# $Revision: 1.77 $
-# $Author: langer $
-# $Date: 2011/09/22 15:13:53 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

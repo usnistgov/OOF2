@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: heatconductivity.swg,v $
-// $Revision: 1.26 $
-// $Author: langer $
-// $Date: 2010/09/24 15:04:43 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

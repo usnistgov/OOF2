@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: skeletonIO.py,v $
-# $Revision: 1.87 $
-# $Author: langer $
-# $Date: 2015/09/24 20:43:52 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

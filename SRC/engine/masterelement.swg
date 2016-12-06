@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: masterelement.swg,v $
-// $Revision: 1.41 $
-// $Author: langer $
-// $Date: 2014/09/27 21:40:47 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

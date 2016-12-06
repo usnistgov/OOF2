@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: utils.py,v $
-# $Revision: 1.84 $
-# $Author: langer $
-# $Date: 2012/03/08 19:48:46 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

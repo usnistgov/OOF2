@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: regclassfactory.py,v $
-# $Revision: 1.60 $
-# $Author: langer $
-# $Date: 2014/01/27 22:04:12 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

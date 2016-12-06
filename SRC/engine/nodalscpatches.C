@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: nodalscpatches.C,v $
-// $Revision: 1.5 $
-// $Author: langer $
-// $Date: 2014/09/27 21:40:48 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

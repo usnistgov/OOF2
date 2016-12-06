@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: forcedensity.h,v $
-// $Revision: 1.20 $
-// $Author: langer $
-// $Date: 2010/11/08 22:05:17 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

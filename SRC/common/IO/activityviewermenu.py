@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: activityviewermenu.py,v $
-# $Revision: 1.5 $
-# $Author: langer $
-# $Date: 2011/02/01 22:26:13 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

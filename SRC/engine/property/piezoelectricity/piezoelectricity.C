@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: piezoelectricity.C,v $
-// $Revision: 1.59 $
-// $Author: langer $
-// $Date: 2012/02/28 18:39:45 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

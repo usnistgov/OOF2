@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: skeleton_periodic_test.py,v $
-# $Revision: 1.19 $
-# $Author: langer $
-# $Date: 2015/07/17 19:25:32 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: parameterwidgets.py,v $
-# $Revision: 1.163 $
-# $Author: langer $
-# $Date: 2012/03/05 22:20:15 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

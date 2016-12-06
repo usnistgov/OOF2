@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: stressfreestrain.h,v $
-// $Revision: 1.13 $
-// $Author: langer $
-// $Date: 2010/11/09 03:32:12 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

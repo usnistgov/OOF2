@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: linearizedsystem.swg,v $
-// $Revision: 1.34 $
-// $Author: langer $
-// $Date: 2012/02/28 18:39:42 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: cijkl.C,v $
-// $Revision: 1.16 $
-// $Author: langer $
-// $Date: 2012/02/28 18:39:44 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: meshmod.py,v $
-# $Revision: 1.23 $
-# $Author: langer $
-# $Date: 2011/04/29 20:22:42 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

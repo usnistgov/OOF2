@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: solvermenuIPC.py,v $
-# $Revision: 1.6 $
-# $Author: langer $
-# $Date: 2014/09/27 21:41:00 $
 
 OBSOLETE
 

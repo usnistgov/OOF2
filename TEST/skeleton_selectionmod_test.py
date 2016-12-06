@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: skeleton_selectionmod_test.py,v $
-# $Revision: 1.9 $
-# $Author: langer $
-# $Date: 2010/12/02 21:09:27 $
 
 # Test suite for skeleton selection and group commands, not including
 # boundary commands, which are tested separately.  

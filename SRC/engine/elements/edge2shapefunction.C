@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: edge2shapefunction.C,v $
-// $Revision: 1.4 $
-// $Author: langer $
-// $Date: 2010/12/06 04:11:48 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

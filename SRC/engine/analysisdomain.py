@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: analysisdomain.py,v $
-# $Revision: 1.53 $
-# $Author: langer $
-# $Date: 2013/12/05 20:38:18 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

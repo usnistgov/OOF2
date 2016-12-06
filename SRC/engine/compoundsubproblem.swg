@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: compoundsubproblem.swg,v $
-// $Revision: 1.6 $
-// $Author: langer $
-// $Date: 2010/11/15 22:02:44 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

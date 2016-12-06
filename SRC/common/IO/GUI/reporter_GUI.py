@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: reporter_GUI.py,v $
-# $Revision: 1.92 $
-# $Author: langer $
-# $Date: 2010/06/29 15:04:45 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

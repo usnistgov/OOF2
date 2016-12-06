@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: rank3tensorwidgets.py,v $
-# $Revision: 1.25 $
-# $Author: langer $
-# $Date: 2010/12/07 02:20:17 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: boundarycondPage.py,v $
-# $Revision: 1.116 $
-# $Author: langer $
-# $Date: 2011/06/06 20:42:01 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

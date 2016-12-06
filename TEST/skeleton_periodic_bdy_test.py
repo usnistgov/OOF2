@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: skeleton_periodic_bdy_test.py,v $
-# $Revision: 1.8 $
-# $Author: langer $
-# $Date: 2011/01/12 22:28:16 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

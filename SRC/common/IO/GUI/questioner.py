@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: questioner.py,v $
-# $Revision: 1.30 $
-# $Author: langer $
-# $Date: 2009/12/14 20:37:22 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

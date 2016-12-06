@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: pixelinfoGUI.py,v $
-# $Revision: 1.44 $
-# $Author: langer $
-# $Date: 2010/03/25 20:45:50 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

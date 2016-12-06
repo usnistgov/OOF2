@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: subproblem_test_extra.py,v $
-# $Revision: 1.27 $
-# $Author: langer $
-# $Date: 2011/04/29 20:25:55 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: nonlinear_timedependent_tests.py,v $
-# $Revision: 1.9 $
-# $Author: langer $
-# $Date: 2011/01/07 20:54:46 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

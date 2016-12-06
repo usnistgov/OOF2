@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: skeleton.py,v $
-# $Revision: 1.380 $
-# $Author: reida $
-# $Date: 2014/10/09 14:36:57 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

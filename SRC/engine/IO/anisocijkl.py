@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: anisocijkl.py,v $
-# $Revision: 1.49 $
-# $Author: langer $
-# $Date: 2011/08/11 19:08:17 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

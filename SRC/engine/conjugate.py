@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: conjugate.py,v $
-# $Revision: 1.27 $
-# $Author: langer $
-# $Date: 2015/09/24 20:43:51 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

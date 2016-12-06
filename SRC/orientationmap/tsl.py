@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: tsl.py,v $
-# $Revision: 1.24 $
-# $Author: langer $
-# $Date: 2012/03/07 16:27:34 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

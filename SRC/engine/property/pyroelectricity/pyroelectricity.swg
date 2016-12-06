@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: pyroelectricity.swg,v $
-// $Revision: 1.6 $
-// $Author: gdogan $
-// $Date: 2010/04/02 22:19:51 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: whowidget.py,v $
-# $Revision: 1.51 $
-# $Author: langer $
-# $Date: 2010/03/25 20:45:51 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

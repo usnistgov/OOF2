@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: rationalize.py,v $
-# $Revision: 1.90 $
-# $Author: reida $
-# $Date: 2014/10/09 14:36:56 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

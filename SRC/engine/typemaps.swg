@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: typemaps.swg,v $
-// $Revision: 1.53 $
-// $Author: lck $
-// $Date: 2014/06/25 19:38:09 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

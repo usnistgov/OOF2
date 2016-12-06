@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: lock.swg,v $
-// $Revision: 1.19 $
-// $Author: langer $
-// $Date: 2011/03/30 14:32:49 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

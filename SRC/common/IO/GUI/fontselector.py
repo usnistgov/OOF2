@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: fontselector.py,v $
-# $Revision: 1.6 $
-# $Author: langer $
-# $Date: 2014/09/27 21:40:34 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

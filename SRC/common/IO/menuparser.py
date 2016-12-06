@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: menuparser.py,v $
-# $Revision: 1.24 $
-# $Author: langer $
-# $Date: 2009/12/23 21:43:07 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: nonconstant_heat_source.swg,v $
-// $Revision: 1.3 $
-// $Author: langer $
-// $Date: 2010/11/08 16:04:20 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

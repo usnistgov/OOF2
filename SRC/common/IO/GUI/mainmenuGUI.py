@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: mainmenuGUI.py,v $
-# $Revision: 1.48 $
-# $Author: langer $
-# $Date: 2010/05/28 02:52:20 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

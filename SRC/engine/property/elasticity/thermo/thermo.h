@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: thermo.h,v $
-// $Revision: 1.14 $
-// $Author: langer $
-// $Date: 2010/12/07 21:57:09 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

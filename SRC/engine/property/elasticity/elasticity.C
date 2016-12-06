@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: elasticity.C,v $
-// $Revision: 1.68 $
-// $Author: langer $
-// $Date: 2011/07/14 21:19:32 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

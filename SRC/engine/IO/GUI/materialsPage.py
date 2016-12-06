@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: materialsPage.py,v $
-# $Revision: 1.122 $
-# $Author: reida $
-# $Date: 2011/02/23 19:11:44 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: iso.C,v $
-// $Revision: 1.20 $
-// $Author: langer $
-// $Date: 2010/12/07 21:57:08 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: initialize.py,v $
-# $Revision: 1.147 $
-# $Author: langer $
-# $Date: 2011/04/28 19:52:57 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: random.C,v $
-// $Revision: 1.4 $
-// $Author: langer $
-// $Date: 2011/10/12 21:15:51 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

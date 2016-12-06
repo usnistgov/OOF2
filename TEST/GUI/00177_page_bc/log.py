@@ -1,9 +1,5 @@
 checkpoint toplevel widget mapped OOF2 Activity Viewer
 # -*- python -*-
-# $RCSfile: log.py,v $
-# $Revision: 1.14 $
-# $Author: langer $
-# $Date: 2014/09/27 21:42:00 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: progressGUI.C,v $
-// $Revision: 1.8 $
-// $Author: langer $
-// $Date: 2011/07/12 21:20:13 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

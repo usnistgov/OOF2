@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: femesh.C,v $
-// $Revision: 1.210 $
-// $Author: langer $
-// $Date: 2012/02/28 18:39:41 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

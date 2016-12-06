@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: nonlinear_force_density.swg,v $
-// $Revision: 1.4 $
-// $Author: gdogan $
-// $Date: 2010/12/06 17:31:57 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: smallsystem.C,v $
-// $Revision: 1.21 $
-// $Author: lnz5 $
-// $Date: 2015/08/19 20:12:04 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

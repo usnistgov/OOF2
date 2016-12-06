@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: clipimage3d.swg,v $
-// $Revision: 1.3 $
-// $Author: langer $
-// $Date: 2014/09/27 21:40:41 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

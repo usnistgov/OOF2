@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: mainthread.py,v $
-# $Revision: 1.13 $
-# $Author: langer $
-# $Date: 2009/12/16 15:59:24 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

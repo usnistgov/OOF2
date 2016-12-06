@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: subproblemcontext.py,v $
-# $Revision: 1.159 $
-# $Author: reida $
-# $Date: 2014/10/09 14:36:59 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

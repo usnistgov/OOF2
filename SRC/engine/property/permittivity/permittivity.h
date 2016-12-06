@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: permittivity.h,v $
-// $Revision: 1.26 $
-// $Author: langer $
-// $Date: 2010/12/14 14:08:00 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

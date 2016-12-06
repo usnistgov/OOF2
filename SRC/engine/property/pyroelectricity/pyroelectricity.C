@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: pyroelectricity.C,v $
-// $Revision: 1.25 $
-// $Author: langer $
-// $Date: 2011/07/14 21:19:32 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

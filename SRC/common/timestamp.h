@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: timestamp.h,v $
-// $Revision: 1.14 $
-// $Author: langer $
-// $Date: 2011/01/07 19:36:07 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

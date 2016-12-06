@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: pixelPage.py,v $
-# $Revision: 1.43 $
-# $Author: langer $
-# $Date: 2010/06/02 20:25:30 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

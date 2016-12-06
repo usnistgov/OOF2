@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: meshparamwidgets.py,v $
-# $Revision: 1.82 $
-# $Author: langer $
-# $Date: 2010/12/05 05:06:21 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: propertyhdr.swg,v $
-// $Revision: 1.8 $
-// $Author: langer $
-// $Date: 2009/12/29 20:58:31 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

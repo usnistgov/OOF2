@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: pixelselection.py,v $
-# $Revision: 1.30 $
-# $Author: langer $
-# $Date: 2012/04/18 18:19:21 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

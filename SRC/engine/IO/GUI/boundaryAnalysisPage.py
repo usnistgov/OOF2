@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: boundaryAnalysisPage.py,v $
-# $Revision: 1.35 $
-# $Author: langer $
-# $Date: 2011/04/08 17:58:51 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

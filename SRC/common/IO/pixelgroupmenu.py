@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: pixelgroupmenu.py,v $
-# $Revision: 1.61 $
-# $Author: reida $
-# $Date: 2011/04/29 13:39:57 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

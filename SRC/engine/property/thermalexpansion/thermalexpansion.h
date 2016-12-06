@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: thermalexpansion.h,v $
-// $Revision: 1.38 $
-// $Author: langer $
-// $Date: 2010/12/14 14:08:01 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

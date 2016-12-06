@@ -1,8 +1,4 @@
 /// -*- C++ -*-
-// $RCSfile: smalltensor.h,v $
-// $Revision: 1.1 $
-// $Author: gdogan $
-// $Date: 2010/10/01 17:37:13 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: aniso.C,v $
-// $Revision: 1.21 $
-// $Author: langer $
-// $Date: 2011/06/30 19:28:46 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: isocijkl.py,v $
-# $Revision: 1.33 $
-# $Author: langer $
-# $Date: 2014/09/27 21:40:58 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

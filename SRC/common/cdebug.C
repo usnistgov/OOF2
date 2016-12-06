@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: cdebug.C,v $
-// $Revision: 1.26 $
-// $Author: langer $
-// $Date: 2013/02/19 19:50:02 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

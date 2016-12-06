@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: newimageGUI.py,v $
-# $Revision: 1.19 $
-# $Author: langer $
-# $Date: 2010/12/13 21:52:13 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: console.py,v $
-# $Revision: 1.39 $
-# $Author: reida $
-# $Date: 2010/04/22 13:55:01 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

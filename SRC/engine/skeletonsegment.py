@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: skeletonsegment.py,v $
-# $Revision: 1.53 $
-# $Author: langer $
-# $Date: 2013/03/19 19:22:03 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

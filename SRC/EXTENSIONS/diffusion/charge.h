@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: charge.h,v $
-// $Revision: 1.2 $
-// $Author: reida $
-// $Date: 2012/03/26 20:54:17 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

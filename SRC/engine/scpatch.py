@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: scpatch.py,v $
-# $Revision: 1.16 $
-# $Author: langer $
-# $Date: 2010/12/08 23:07:55 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: nodalequation.h,v $
-// $Revision: 1.18 $
-// $Author: langer $
-// $Date: 2011/03/04 22:00:27 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

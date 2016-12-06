@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: element.C,v $
-// $Revision: 1.130 $
-// $Author: lnz5 $
-// $Date: 2015/07/17 17:52:57 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

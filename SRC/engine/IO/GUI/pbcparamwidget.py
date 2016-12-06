@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: pbcparamwidget.py,v $
-# $Revision: 1.4 $
-# $Author: langer $
-# $Date: 2014/09/27 21:41:01 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

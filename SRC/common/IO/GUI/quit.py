@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: quit.py,v $
-# $Revision: 1.41 $
-# $Author: langer $
-# $Date: 2010/03/05 21:56:09 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

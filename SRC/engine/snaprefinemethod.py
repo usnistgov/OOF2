@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: snaprefinemethod.py,v $
-# $Author: langer $
-# $Date: 2010/12/09 01:08:41 $
-# $Revision: 1.12 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

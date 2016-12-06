@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: outputval.h,v $
-// $Revision: 1.29 $
-// $Author: langer $
-// $Date: 2010/12/17 22:46:03 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

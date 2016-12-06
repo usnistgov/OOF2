@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: fluxnormal.C,v $
-// $Revision: 1.5 $
-// $Author: langer $
-// $Date: 2011/01/19 16:03:55 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: skeletongroupmenu.py,v $
-# $Revision: 1.47 $
-# $Author: langer $
-# $Date: 2011/07/05 19:33:59 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: elasticity.swg,v $
-// $Revision: 1.14 $
-// $Author: langer $
-// $Date: 2009/12/30 21:36:06 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

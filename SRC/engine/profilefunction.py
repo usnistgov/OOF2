@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: profilefunction.py,v $
-# $Revision: 1.23 $
-# $Author: langer $
-# $Date: 2010/12/10 21:31:53 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

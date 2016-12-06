@@ -1,7 +1,3 @@
-# $RCSfile: activeareaPage.py,v $
-# $Revision: 1.35 $
-# $Author: langer $
-# $Date: 2010/06/02 20:25:29 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

@@ -1,7 +1,3 @@
-# $RCSfile: oof.py,v $
-# $Revision: 1.222 $
-# $Author: langer $
-# $Date: 2011/11/14 19:57:22 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

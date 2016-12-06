@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: oof2setuputils.py,v $
-# $Revision: 1.20 $
-# $Author: langer $
-# $Date: 2015/09/24 20:43:46 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

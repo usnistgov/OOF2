@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: masterelement.C,v $
-// $Revision: 1.50 $
-// $Author: reida $
-// $Date: 2011/09/13 21:26:54 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

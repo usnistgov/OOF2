@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: ccolor.C,v $
-// $Revision: 1.26 $
-// $Author: lnz5 $
-// $Date: 2015/05/01 15:32:07 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

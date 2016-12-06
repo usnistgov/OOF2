@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: scriptloader.py,v $
-# $Revision: 1.22 $
-# $Author: langer $
-# $Date: 2010/03/08 16:32:26 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

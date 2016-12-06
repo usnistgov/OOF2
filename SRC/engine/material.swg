@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: material.swg,v $
-// $Revision: 1.52 $
-// $Author: langer $
-// $Date: 2010/11/10 22:34:13 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: relaxation.py,v $
-# $Revision: 1.71 $
-# $Author: langer $
-# $Date: 2011/03/22 14:59:09 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

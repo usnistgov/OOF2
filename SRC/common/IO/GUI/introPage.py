@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: introPage.py,v $
-# $Revision: 1.20 $
-# $Author: langer $
-# $Date: 2015/09/25 18:52:14 $
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.

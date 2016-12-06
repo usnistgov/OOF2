@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: meshiterator.h,v $
-// $Revision: 1.10 $
-// $Author: reida $
-// $Date: 2011/08/11 21:40:35 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

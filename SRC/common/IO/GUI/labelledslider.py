@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: labelledslider.py,v $
-# $Revision: 1.31 $
-# $Author: langer $
-# $Date: 2011/04/13 21:25:05 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

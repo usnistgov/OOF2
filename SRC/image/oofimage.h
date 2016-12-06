@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: oofimage.h,v $
-// $Revision: 1.58 $
-// $Author: langer $
-// $Date: 2011/07/14 21:19:33 $
 
 
 /* This software was produced by NIST, an agency of the U.S. government,

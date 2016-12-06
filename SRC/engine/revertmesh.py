@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: revertmesh.py,v $
-# $Revision: 1.17 $
-# $Author: langer $
-# $Date: 2009/07/06 20:55:54 $
 
 OBSOLETE
 

@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: edgeswap.py,v $
-# $Revision: 1.39 $
-# $Author: langer $
-# $Date: 2010/12/06 04:11:47 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

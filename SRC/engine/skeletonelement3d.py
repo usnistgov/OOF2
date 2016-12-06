@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: skeletonelement3d.py,v $
-# $Revision: 1.14 $
-# $Author: langer $
-# $Date: 2014/09/27 21:40:56 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

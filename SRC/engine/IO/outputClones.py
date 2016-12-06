@@ -1,8 +1,4 @@
 # -*- python -*-
-# $RCSfile: outputClones.py,v $
-# $Revision: 1.86 $
-# $Author: langer $
-# $Date: 2011/07/12 21:20:14 $
 
 
 # This software was produced by NIST, an agency of the U.S. government,

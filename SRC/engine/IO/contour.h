@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: contour.h,v $
-// $Revision: 1.12 $
-// $Author: langer $
-// $Date: 2011/07/16 03:08:54 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.

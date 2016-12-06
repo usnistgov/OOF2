@@ -1,8 +1,4 @@
 // -*- C++ -*-
-// $RCSfile: nonlinear_heat_source.C,v $
-// $Revision: 1.8 $
-// $Author: reida $
-// $Date: 2011/09/02 14:53:00 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
