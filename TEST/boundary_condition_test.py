@@ -20,6 +20,12 @@ import unittest, os
 import memorycheck
 from UTILS.file_utils import reference_file
 
+# Flag that says whether to generate missing reference data files for
+# the Modify tests.  Should be false unless you really know what
+# you're doing.  New reference files won't be generated unless the old
+# one is removed first, though.
+generate = True
+
 class OOF_BCTest(unittest.TestCase):
     def setUp(self):
         global femesh, cskeleton, cmicrostructure
@@ -41,8 +47,16 @@ class OOF_BCTest(unittest.TestCase):
                     max_iterations=1000)))
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
                        endtime=0.0)
-        OOF.File.Load.Data(filename=reference_file("bc_data",
-                                                 "simple_solution_test"))
+        fname = reference_file("bc_data", "simple_solution_test")
+        if generate and not os.path.exists(fname):
+            OOF.Microstructure.Rename(microstructure="bc_test",
+                                      name="saved_data")
+            OOF.File.Save.Mesh(filename=fname,
+                               mode="w", format="ascii",
+                               mesh="saved_data:skeleton:mesh")
+            OOF.Microstructure.Rename(microstructure="saved_data",
+                                      name="bc_test")
+        OOF.File.Load.Data(filename=fname)
         from ooflib.engine import mesh
         saved = mesh.meshes["saved_data:skeleton:mesh"]
         damned = mesh.meshes["bc_test:skeleton:mesh"]
@@ -68,7 +82,17 @@ class OOF_BCTest(unittest.TestCase):
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
                        endtime=0.0)
 
-        OOF.File.Load.Data(filename=reference_file("bc_data", "periodic_1"))
+        fname = reference_file("bc_data", "periodic_1")
+        if generate and not os.path.exists(fname):
+            OOF.Microstructure.Rename(microstructure="bc_test",
+                                      name="periodic_1")
+            OOF.File.Save.Mesh(filename=fname,
+                               mode="w", format="ascii",
+                               mesh="periodic_1:skeleton:mesh")
+            OOF.Microstructure.Rename(microstructure="periodic_1",
+                                      name="bc_test")
+
+        OOF.File.Load.Data(filename=fname)
         from ooflib.engine import mesh
         saved = mesh.meshes["periodic_1:skeleton:mesh"]
         damned = mesh.meshes["bc_test:skeleton:mesh"]
@@ -100,7 +124,17 @@ class OOF_BCTest(unittest.TestCase):
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
                        endtime=0.0)
 
-        OOF.File.Load.Data(filename=reference_file("bc_data", "periodic_2"))
+        fname = reference_file("bc_data", "periodic_2")
+        if generate and not os.path.exists(fname):
+            OOF.Microstructure.Rename(microstructure="bc_test",
+                                      name="periodic_2")
+            OOF.File.Save.Mesh(filename=fname,
+                               mode="w", format="ascii",
+                               mesh="periodic_2:skeleton:mesh")
+            OOF.Microstructure.Rename(microstructure="periodic_2",
+                                      name="bc_test")
+
+        OOF.File.Load.Data(filename=fname)
         from ooflib.engine import mesh
         saved = mesh.meshes["periodic_2:skeleton:mesh"]
         damned = mesh.meshes["bc_test:skeleton:mesh"]
@@ -135,7 +169,17 @@ class OOF_BCTest(unittest.TestCase):
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
                        endtime=0.0)
         
-        OOF.File.Load.Data(filename=reference_file("bc_data", "twofloats"))
+        fname = reference_file("bc_data", "twofloats")
+        if generate and not os.path.exists(fname):
+            OOF.Microstructure.Rename(microstructure="bc_test",
+                                      name="twofloats")
+            OOF.File.Save.Mesh(filename=fname,
+                               mode="w", format="ascii",
+                               mesh="twofloats:skeleton:mesh")
+            OOF.Microstructure.Rename(microstructure="twofloats",
+                                      name="bc_test")
+
+        OOF.File.Load.Data(filename=fname)
         from ooflib.engine import mesh
         saved = mesh.meshes["twofloats:skeleton:mesh"]
         damned = mesh.meshes["bc_test:skeleton:mesh"]
@@ -182,8 +226,17 @@ class OOF_BCTest(unittest.TestCase):
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
                        endtime=0.0)
 
-        
-        OOF.File.Load.Data(filename=reference_file("bc_data", "floatloop"))
+        fname = reference_file("bc_data", "floatloop")
+        if generate and not os.path.exists(fname):
+            OOF.Microstructure.Rename(microstructure="bc_test",
+                                      name="floatloop")
+            OOF.File.Save.Mesh(filename=fname,
+                               mode="w", format="ascii",
+                               mesh="floatloop:skeleton:mesh")
+            OOF.Microstructure.Rename(microstructure="floatloop",
+                                      name="bc_test")
+
+        OOF.File.Load.Data(filename=fname)
         from ooflib.engine import mesh
         saved = mesh.meshes["floatloop:skeleton:mesh"]
         damned = mesh.meshes["bc_test:skeleton:mesh"]
@@ -376,7 +429,17 @@ class OOF_BCTest(unittest.TestCase):
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
                        endtime=0.0)
 
-        OOF.File.Load.Data(filename=reference_file("bc_data", "fixedfloatloop"))
+        fname = reference_file("bc_data", "fixedfloatloop")
+        if generate and not os.path.exists(fname):
+            OOF.Microstructure.Rename(microstructure="bc_test",
+                                      name="fixedfloatloop")
+            OOF.File.Save.Mesh(filename=fname,
+                               mode="w", format="ascii",
+                               mesh="fixedfloatloop:skeleton:mesh")
+            OOF.Microstructure.Rename(microstructure="fixedfloatloop",
+                                      name="bc_test")
+
+        OOF.File.Load.Data(filename=fname)
         from ooflib.engine import mesh
         saved = mesh.meshes["fixedfloatloop:skeleton:mesh"]
         damned = mesh.meshes["bc_test:skeleton:mesh"]

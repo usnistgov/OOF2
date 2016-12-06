@@ -1,9 +1,3 @@
-// -*- C++ -*-
-// $RCSfile: linearizedsystem.C,v $
-// $Revision: 1.66 $
-// $Author: lnz5 $
-// $Date: 2015/08/19 19:48:33 $
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -16,7 +10,6 @@
 #include <oofconfig.h>
 #include <iostream>
 #include <fstream>
-#include <string.h>		// for memcpy, memset, and memmove
 #include <vector>
 
 #include "common/lock.h"
@@ -24,7 +17,6 @@
 #include "common/printvec.h"
 #include "common/tostring.h"
 #include "common/trace.h"
-#include "common/vectormath.h"
 #include "engine/boundarycond.h"
 #include "engine/csubproblem.h"
 #include "engine/freedom.h"
@@ -232,17 +224,14 @@ void LinearizedSystem::resetFFlags(const Field &field, const Field &tdfield,
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 void LinearizedSystem::clearForceBndyRhs() {
-  force_bndy_rhs.clear();
   force_bndy_rhs.resize(subproblem->mesh2subpEqnMap.range(), 0.0);
 }
 
 void LinearizedSystem::clearBodyRhs() {
-  body_rhs.clear();
   body_rhs.resize(subproblem->mesh2subpEqnMap.range(), 0.0);
 }
 
 void LinearizedSystem::clearResidual() {
-  residual.clear();
   residual.resize(subproblem->mesh2subpEqnMap.range(), 0.0);
 }
 
@@ -277,11 +266,11 @@ void LinearizedSystem::insertK(int row, int col, double x) {
 
 #ifdef _OPENMP
   if (mkl_parallel)
-    K_mtd[omp_get_thread_num()].insert(i, j, x);
+    KTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
   else
-    K_.insert(i, j, x);
+    KTri_.emplace_back(i, j, x);
 #else
-  K_.insert(i, j, x);
+  KTri_.emplace_back(i, j, x); 
 #endif
 }
 
@@ -292,11 +281,11 @@ void LinearizedSystem::insertC(int row, int col, double x) {
 
 #ifdef _OPENMP
   if (mkl_parallel)
-    C_mtd[omp_get_thread_num()].insert(i, j, x);
+    CTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
   else
-    C_.insert(i, j, x);
+    CTri_.emplace_back(i, j, x);
 #else
-  C_.insert(i, j, x);
+  CTri_.emplace_back(i, j, x); 
 #endif
 }
 
@@ -307,11 +296,11 @@ void LinearizedSystem::insertM(int row, int col, double x) {
 
 #ifdef _OPENMP
   if (mkl_parallel)
-    M_mtd[omp_get_thread_num()].insert(i, j, x);
+    MTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
   else
-    M_.insert(i, j, x);
+    MTri_.emplace_back(i, j, x);
 #else
-  M_.insert(i, j, x);
+  MTri_.emplace_back(i, j, x);
 #endif
 }
 
@@ -321,21 +310,31 @@ void LinearizedSystem::insertJ(int row, int col, double x) {
 
 #ifdef _OPENMP
   if (mkl_parallel)
-    J_mtd[omp_get_thread_num()].insert(i, j, x);
+    JTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
   else
-    J_.insert(i, j, x);
+    JTri_.emplace_back(i, j, x);
 #else
-  J_.insert(i, j, x);
+    JTri_.emplace_back(i, j, x);
 #endif
 }
 
 void LinearizedSystem::consolidate() {
   // Called by CSubproblem::make_linear_system after matrices are
   // built.
-  M_.consolidate();
-  C_.consolidate();
-  J_.consolidate();
-  K_.consolidate();
+  M_.set_from_triplets(MTri_);
+  C_.set_from_triplets(CTri_);
+  J_.set_from_triplets(JTri_);
+  K_.set_from_triplets(KTri_);
+
+  // Deallocate the memory
+  MTri_.clear();
+  MTri_.shrink_to_fit();
+  CTri_.clear();
+  CTri_.shrink_to_fit();
+  JTri_.clear();
+  JTri_.shrink_to_fit();
+  KTri_.clear();
+  KTri_.shrink_to_fit();
 }
 
 void LinearizedSystem::insert_force_bndy_rhs(int row, double val) {
@@ -392,29 +391,22 @@ void LinearizedSystem::init_parallel_env(bool needJacobian,
   this->need_residual = needResidual;
   this->need_jacobian = needJacobian;
 
-  // For each OpenMP thread, make a copy of K, C, M, J matrices and 
-  // residual, body_rhs as well as force_bndy_rhs vectors
+  // For each OpenMP thread, creat a vector of coefficient
+  // triplets of K, C, M, J matrix, and a copy of residual,
+  // body_rhs as well as force_bndy_rhs vectors.
 
-  K_mtd.clear();
-  K_mtd.resize(ntds);
-  for (SparseMat& ki : K_mtd)
-    ki.resize(K_.nrows(), K_.ncols());
+  KTri_mtd.clear();
+  KTri_mtd.resize(ntds);
 
-  C_mtd.clear();
-  C_mtd.resize(ntds);
-  for (SparseMat& ci : C_mtd)
-    ci.resize(C_.nrows(), C_.ncols());
+  CTri_mtd.clear();
+  CTri_mtd.resize(ntds);
 
-  M_mtd.clear();
-  M_mtd.resize(ntds);
-  for (SparseMat& mi : M_mtd)
-    mi.resize(M_.nrows(), M_.ncols());
+  MTri_mtd.clear();
+  MTri_mtd.resize(ntds);
 
   if (need_jacobian) {
-    J_mtd.clear();
-    J_mtd.resize(ntds);
-    for (SparseMat& ji : J_mtd)
-      ji.resize(J_.nrows(), J_.ncols());
+    JTri_mtd.clear();
+    JTri_mtd.resize(ntds);
   }
 
   if (need_residual) {
@@ -439,29 +431,27 @@ void LinearizedSystem::init_parallel_env(bool needJacobian,
 
 void LinearizedSystem::tear_down_parallel_env() {
 
-  // Merge each thread's copy of matrices and vectors
-  // to original matrices and vectors.
-  // Also clean up threads' copies.
+  // Merge each thread's coefficient triplets and vectors
+  // to principal ones. Also clean up threads' copies.
   // This function is call from an OpenMP single region.
 
-  K_.merge(K_mtd);
-  #pragma omp task
-  K_mtd.clear();
- 
-  C_.merge(C_mtd);
-  #pragma omp task
-  C_mtd.clear();
- 
-  M_.merge(M_mtd);
-  #pragma omp task
-  M_mtd.clear();
- 
-  if (need_jacobian) {
-    J_.merge(J_mtd);
-    #pragma omp task
-    J_mtd.clear();
-  }
- 
+  auto merge = [] (
+    std::vector<vector<Triplet>>& srcs,
+    std::vector<Triplet>& dest) {
+      int size = 0;
+      for (auto& s : srcs)
+        size += s.size();
+      for (auto& s : srcs)
+        dest.insert(dest.end(), s.begin(), s.end());
+    srcs.clear();
+  };
+
+  merge(KTri_mtd, KTri_);
+  merge(CTri_mtd, CTri_);
+  merge(MTri_mtd, MTri_);
+  if (need_jacobian)
+    merge(JTri_mtd, JTri_);
+
   if (need_residual) {
     #pragma omp parallel for
     for (size_t j = 0; j < residual.size(); ++j) {
@@ -485,8 +475,9 @@ void LinearizedSystem::tear_down_parallel_env() {
     for (DoubleVec& fi : force_bndy_mtd)
       force_bndy_rhs[j] += fi[j];
   }
+  #pragma omp task
   force_bndy_mtd.clear();
- 
+
   mkl_parallel = false;
 }
 #endif // _OPENMP
@@ -752,8 +743,8 @@ DoubleVec *LinearizedSystem::error_estimation_dofs_MCKd(
   unsigned int n0 = nonEmptyKColMap.range();
   unsigned int n = n2+n1+n0;
   DoubleVec *dofs = new DoubleVec(2*n2 + n1 + n0);
-  (void) memcpy(&(*dofs)[0], &(*unknowns)[0], n*sizeof(double));
-  (void) memcpy(&(*dofs)[n], &(*unknowns)[n], n2*sizeof(double));
+  (*dofs).segment_copy(0, *unknowns, 0, n);
+  (*dofs).segment_copy(n, *unknowns, n, n2);
   return dofs;
 }
 
@@ -807,18 +798,20 @@ DoubleVec *LinearizedSystem::get_unknowns_part(
 {
   if(which == 'M') {
     unsigned int n2 = n_unknowns_part('M');
-    return new DoubleVec(src->begin(), src->begin()+n2);
+    // TODO(lizhong): optimize to reduce the copies.
+    // This pattern is also used at other places in this file.
+    return new DoubleVec(src->subvec(0, n2));
   }
   else if(which == 'C') {
     unsigned int n2 = n_unknowns_part('M');
     unsigned int n1 = n_unknowns_part('C');
-    return new DoubleVec(src->begin()+n2, src->begin()+n2+n1);
+    return new DoubleVec(src->subvec(n2, n2+n1));
   }
   else if(which == 'K') {
     unsigned int n2 = n_unknowns_part('M');
     unsigned int n1 = n_unknowns_part('C');
     unsigned int n0 = n_unknowns_part('K');
-    return new DoubleVec(src->begin()+n2+n1, src->begin()+n2+n1+n0);
+    return new DoubleVec(src->subvec(n2+n1, n2+n1+n0));
   }
   throw ErrProgrammingError("Bad map requested in get_unknowns_part",
 			    __FILE__, __LINE__);
@@ -830,24 +823,18 @@ void LinearizedSystem::set_unknowns_part(
 {
   if(which == 'M') {
     unsigned int n2 = n_unknowns_part('M');
-    assert(vals->size() == n2);
-    assert(dest->size() >= n2);
-    memcpy(&(*dest)[0], &(*vals)[0], n2*sizeof(double));
+    (*dest).segment_copy(0, *vals, 0, n2);
   }
   else if(which == 'C') {
     unsigned int n2 = n_unknowns_part('M');
     unsigned int n1 = n_unknowns_part('C');
-    assert(vals->size() == n1);
-    assert(dest->size() >= n1+n2);
-    memcpy(&(*dest)[n2], &(*vals)[0], n1*sizeof(double));
+    (*dest).segment_copy(n2, *vals, 0, n1);
   }
   else if(which == 'K') {
     unsigned int n2 = n_unknowns_part('M');
     unsigned int n1 = n_unknowns_part('C');
     unsigned int n0 = n_unknowns_part('K');
-    assert(vals->size() == n0);
-    assert(dest->size() >= n2+n1+n0);
-    memcpy(&(*dest)[n2+n1], &(*vals)[0], n0*sizeof(double));
+    (*dest).segment_copy(n2+n1, *vals, 0, n0);
   }
   else
     throw ErrProgrammingError("Bad map requested in set_unknowns_part",
@@ -863,30 +850,26 @@ unsigned int LinearizedSystem::n_unknowns_part(char which) const {
 
 DoubleVec *LinearizedSystem::get_derivs_MCKd(const DoubleVec *src) const {
   unsigned int n = subp2MCKFieldMap.range();
-  return new DoubleVec(src->begin()+n, src->end());
+  return new DoubleVec(src->subvec(n, src->size()));
 }
 
 DoubleVec *LinearizedSystem::get_fields_MCKd(const DoubleVec *src) const {
   unsigned int n = subp2MCKFieldMap.range();
-  return new DoubleVec(src->begin(), src->begin()+n);
+  return new DoubleVec(src->subvec(0, n));
 }
 
 void LinearizedSystem::set_fields_MCKd(const DoubleVec *src, DoubleVec *dest)
   const
 {
   unsigned int n = subp2MCKFieldMap.range();
-  assert(dest->size() >= n);
-  assert(src->size() >= n);
-  (void) memcpy(&(*dest)[0], &(*src)[0], n*sizeof(double));
+  (*dest).segment_copy(0, *src, 0, n);
 }
 
 void LinearizedSystem::set_derivs_MCKd(const DoubleVec *src, DoubleVec *dest)
   const
 {
   unsigned int n = subp2MCKFieldMap.range();
-  assert(dest->size()>=2*n);
-  assert(src->size()>=n);
-  (void) memcpy(&(*dest)[n], &(*src)[0], n*sizeof(double));
+  (*dest).segment_copy(n, *src, 0, n);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -899,7 +882,7 @@ DoubleVec *LinearizedSystem::get_derivs_part_MCKa(char which,
   unsigned int n2 = n_unknowns_part('M');
   unsigned int n1 = n_unknowns_part('C');
   unsigned int n0 = n_unknowns_part('K');
-  return new DoubleVec(src->begin()+n2+n1+n0, src->end());
+  return new DoubleVec(src->subvec(n2+n1+n0, src->size()));
 }
 
 DoubleVec *LinearizedSystem::get_derivs_part_MCKd(char which,
@@ -909,11 +892,11 @@ DoubleVec *LinearizedSystem::get_derivs_part_MCKd(char which,
   unsigned int n1 = n_unknowns_part('C');
   unsigned int n0 = n_unknowns_part('K');
   if(which == 'M')
-    return new DoubleVec(src->begin()+n2+n1+n0, src->begin()+2*n2+n1+n0);
+    return new DoubleVec(src->subvec(n2+n1+n0, 2*n2+n1+n0));
   else if(which == 'C')
-    return new DoubleVec(src->begin()+2*n2+n1+n0, src->begin()+2*n2+2*n1+n0);
+    return new DoubleVec(src->subvec(2*n2+n1+n0, 2*n2+2*n1+n0));
   else if(which == 'K')
-    return new DoubleVec(src->begin()+2*n2+2*n1+n0, src->end());
+    return new DoubleVec(src->subvec(2*n2+2*n1+n0, src->size()));
   throw ErrProgrammingError("Bad map requested in get_derivs_part_MCKd",
 			    __FILE__, __LINE__);
 }
@@ -926,9 +909,7 @@ void LinearizedSystem::set_derivs_part_MCKa(char which, const DoubleVec *src,
   unsigned int n2 = n_unknowns_part('M');
   unsigned int n1 = n_unknowns_part('C');
   unsigned int n0 = n_unknowns_part('K');
-  assert(dest->size() >= 2*n2+n1+n0);
-  assert(src->size() >= n2);
-  (void) memcpy(&(*dest)[n2+n1+n0], &(*src)[0], n2*sizeof(double));
+  (*dest).segment_copy(n2+n1+n0, *src, 0, n2);
 }
 
 void LinearizedSystem::set_derivs_part_MCKd(char which, const DoubleVec *src,
@@ -939,19 +920,13 @@ void LinearizedSystem::set_derivs_part_MCKd(char which, const DoubleVec *src,
   unsigned int n1 = n_unknowns_part('C');
   unsigned int n0 = n_unknowns_part('K');
   if(which == 'M') {
-    assert(dest->size() >= 2*n2+n1+n0);
-    assert(src->size() >= n2);
-    (void) memcpy(&(*dest)[n2+n1+n0], &(*src)[0], n2*sizeof(double));
+    (*dest).segment_copy(n2+n1+n0, *src, 0, n2);
   }
   else if(which == 'C') {
-    assert(dest->size() >= 2*n2+2*n1+n0);
-    assert(src->size() >= n1);
-    (void) memcpy(&(*dest)[2*n2+n1+n0], &(*src)[0], n1*sizeof(double));
+    (*dest).segment_copy(2*n2+n1+n0, *src, 0, n1);
   }
   else if(which == 'K') {
-    assert(dest->size() >= 2*(n2+n1+n0));
-    assert(src->size() >= n0);
-    (void) memcpy(&(*dest)[2*n2+2*n1+n0], &(*src)[0], n0*sizeof(double));
+    (*dest).segment_copy(2*n2+2*n1+n0, *src, 0, n0);
   }
   else
     throw ErrProgrammingError("Bad map requested in set_derivs_part_MCKd",
@@ -990,15 +965,11 @@ DoubleVec *LinearizedSystem::extract_MCa_dofs(const DoubleVec *v) const {
   unsigned int n1 = nonEmptyCColMap.range();
   unsigned int n0 = nonEmptyKColMap.range();
   assert(v->size() == 2*n2+n1+n0);
+  // TODO(lizhong): long run fails. Possible memory leak here.
   DoubleVec *mca = new DoubleVec(2*n2 + n1);
 
-  assert(mca->size() >= n2+n1);
-  assert(v->size() >= n2+n1);
-  (void) memcpy(&(*mca)[0], &(*v)[0], (n2+n1)*sizeof(double)); // M and C parts
-
-  assert(mca->size() >= 2*n2+n1);
-  assert(v->size() >= 2*n2+n1+n0);
-  (void) memcpy(&(*mca)[n2+n1], &(*v)[n2+n1+n0], n2*sizeof(double)); // a part
+  (*mca).segment_copy(0, *v, 0, n2+n1);
+  (*mca).segment_copy(n2+n1, *v, n2+n1+n0, n2);
   return mca;
 }
 
@@ -1012,12 +983,8 @@ void LinearizedSystem::inject_MCa_dofs(const DoubleVec *src, DoubleVec *dest)
   unsigned int n2 = nonEmptyMColMap.range();
   unsigned int n1 = nonEmptyCColMap.range();
   unsigned int n0 = nonEmptyKColMap.range();
-  assert(src->size() == 2*n2+n1);
-  assert(dest->size() == 2*n2+n1+n0);
-  (void) memcpy(&(*dest)[0], &(*src)[0], (n2+n1)*sizeof(double)); // M & C parts
-  assert(dest->size() >= 2*n2+n1+n0);
-  assert(src->size() >= 2*n2+n1);
-  (void) memcpy(&(*dest)[n2+n1+n0], &(*src)[n2+n1], n2*sizeof(double));
+  (*dest).segment_copy(0, *src, 0, n2+n1);
+  (*dest).segment_copy(n2+n1+n0, *src, n2+n1, n2);
 }
 
 // Convert an MCa vector to an MCKa vector by inserting 0s for the K part.
@@ -1029,15 +996,13 @@ void LinearizedSystem::expand_MCa_dofs(DoubleVec *dofs) const {
   unsigned int n1 = nonEmptyCColMap.range();
   unsigned int n0 = nonEmptyKColMap.range();
   assert(dofs->size() == 2*n2+n1);
-  if(n0 > 0) {
-    dofs->resize(2*n2 + n1 + n0, 0.0);
-    // Move the aux dof values to the end.
-    assert( dofs->size() >= 2*n2+n1+n0);  // Duh, we just resized it...
-    (void) memmove(&(*dofs)[n2+n1+n0], &(*dofs)[n2+n1], n2*sizeof(double));
 
-    // Insert zeros.
-    assert(dofs->size() >= n2+n1+n0);
-    (void) memset(&(*dofs)[n2+n1], 0, n0*sizeof(double));
+  if(n0 > 0) {
+    // Move the aux dof values to the end.
+    DoubleVec cp = *dofs;
+    dofs->resize(2*n2 + n1 + n0, 0.0);
+    (*dofs).segment_copy(0, cp, 0, n2+n1);
+    (*dofs).segment_copy(n2+n1+n0, cp, n2+n1, n2);
   }
 }
 
@@ -1164,7 +1129,6 @@ SparseMat LinearizedSystem::C_MCKa() const {
   Cf.tile(n2+n1+n0, n2, C21);
   Cf.tile(n2+n1+n0, n2+n1+n0, M22);
 
-  Cf.consolidate();
   return Cf;
 }
 
@@ -1189,7 +1153,7 @@ SparseMat LinearizedSystem::K_MCKa() const {
   SparseMat C12 = C_submatrix('C', 'M');
   SparseMat C22 = C_submatrix('M', 'M');
 
-  Kf.tile(0, n2+n1+n0, -1*identityMatrix(n2));
+  Kf.tile(0, n2+n1+n0, identityMatrix(n2)*(-1));
   Kf.tile(n2, 0, K12);
   Kf.tile(n2, n2, K11);
   Kf.tile(n2, n2+n1, K10);
@@ -1202,7 +1166,6 @@ SparseMat LinearizedSystem::K_MCKa() const {
   Kf.tile(n2+n1+n0, n2+n1, K20);
   Kf.tile(n2+n1+n0, n2+n1+n0, C22);
 
-  Kf.consolidate();
   return Kf;
 }
 
@@ -1228,7 +1191,7 @@ SparseMat LinearizedSystem::J_MCKa() const {
   SparseMat C12 = C_submatrix('C', 'M');
   SparseMat C22 = C_submatrix('M', 'M');
 
-  Jf.tile(0, n2+n1+n0, -1*identityMatrix(n2));
+  Jf.tile(0, n2+n1+n0, identityMatrix(n2)*(-1));
   Jf.tile(n2, 0, J12);
   Jf.tile(n2, n2, J11);
   Jf.tile(n2, n2+n1, J10);
@@ -1241,7 +1204,6 @@ SparseMat LinearizedSystem::J_MCKa() const {
   Jf.tile(n2+n1+n0, n2+n1, J20);
   Jf.tile(n2+n1+n0, n2+n1+n0, C22);
 
-  Jf.consolidate();
   return Jf;
 }
 
@@ -1275,7 +1237,6 @@ SparseMat LinearizedSystem::C_MCa() const {
     SparseMat M22 = M_submatrix('M', 'M');
     Cf.tile(n2+n1, n2+n1, M22);
   }
-  Cf.consolidate();
   return Cf;
 }
 
@@ -1287,7 +1248,7 @@ SparseMat LinearizedSystem::K_MCa() const {
 
   SparseMat Kf(2*n2+n1, 2*n2+n1+n0);
 
-  Kf.tile(0, n2+n1+n0, -1.0*identityMatrix(n2));
+  Kf.tile(0, n2+n1+n0, identityMatrix(n2)*(-1.0));
   {
     SparseMat K12 = K_submatrix('C', 'M');
     Kf.tile(n2, 0, K12);
@@ -1320,7 +1281,6 @@ SparseMat LinearizedSystem::K_MCa() const {
     SparseMat C22 = C_submatrix('M', 'M');
     Kf.tile(n2+n1, n2+n1+n0, C22);
   }
-  Kf.consolidate();
   return Kf;
 }
 
@@ -1346,7 +1306,6 @@ void LinearizedSystem::find_fix_bndy_rhs(const DoubleVec *dofvalues) {
   // profile_rhs() is only called *after* find_fix_bndy_rhs(), so
   // clearing fix_bndy_rhs here is ok.  profile_rhs() adds to
   // fix_bndy_rhs but doesn't clear it.
-  fix_bndy_rhs.clear();
   fix_bndy_rhs.resize(subp2indepEqnMap.range(), 0.0);
 
   // K times vector of fixed field values.
@@ -1504,7 +1463,7 @@ DoubleVec *LinearizedSystem::static_residual_MCKa(const DoubleVec *unknowns)
     DoubleVec *derivs = get_derivs_part_MCKa('M', unknowns);
     SparseMat C22 = C_submatrix('M', 'M');
     SparseMat C12 = C_submatrix('C', 'M');
-    CC.tile(0, 0, -1.0*identityMatrix(m2));
+    CC.tile(0, 0, identityMatrix(m2)*(-1.0));
     CC.tile(m2, 0, C12);
     CC.tile(m2+m1+m0, 0, C22);
     CC.axpy(1.0, *derivs, *resid);
@@ -1537,7 +1496,7 @@ DoubleVec *LinearizedSystem::static_residual_MCa(const DoubleVec *unknowns)
     DoubleVec *derivs = get_derivs_part_MCKa('M', unknowns);
     SparseMat C22 = C_submatrix('M', 'M');
     SparseMat C12 = C_submatrix('C', 'M');
-    CC.tile(0, 0, -1.0*identityMatrix(m2));
+    CC.tile(0, 0, identityMatrix(m2)*(-1.0));
     CC.tile(m2, 0, C12);
     CC.tile(m2+m1, 0, C22);
     CC.axpy(1.0, *derivs, *resid);
@@ -1711,9 +1670,7 @@ int LinearizedSystem::getSubproblemEqnIndex(const FuncNode *node,
 void LinearizedSystem::initDirichletDerivatives() {
   int nfixed = subp2fixedFieldMap.range();
   tdDirichlet = false;
-  dirichlet1.clear();
   dirichlet1.resize(nfixed, 0.0);
-  dirichlet2.clear();
   dirichlet2.resize(nfixed, 0.0);
 }
 

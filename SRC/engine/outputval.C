@@ -15,7 +15,6 @@
 
 #include <oofconfig.h>
 
-#include "common/doublevec.h"
 #include "engine/fieldindex.h"
 #include "engine/outputval.h"
 #include <math.h>
@@ -91,12 +90,8 @@ double &ScalarOutputVal::operator[](const IndexP&) {
   return val;
 }
 
-DoubleVec *ScalarOutputVal::value_list() const {
-  return new DoubleVec(1, val);
-  // DoubleVec *res = new DoubleVec(0);
-  // res->reserve(1);
-  // res->push_back(val);
-  // return res;
+std::vector<double> *ScalarOutputVal::value_list() const {
+  return new std::vector<double>(1, val);
 }
 
 
@@ -155,18 +150,17 @@ VectorOutputVal::VectorOutputVal(const VectorOutputVal &other)
   (void) memcpy(data, other.data, size_*sizeof(double));
 }
 
-VectorOutputVal::VectorOutputVal(const DoubleVec &vec)
+VectorOutputVal::VectorOutputVal(const std::vector<double> &vec)
   : size_(vec.size()),
     data(new double[vec.size()])
 {
   (void) memcpy(data, &vec[0], size_*sizeof(double));
 }
 
-DoubleVec *VectorOutputVal::value_list() const {
-  DoubleVec *res = new DoubleVec(0);
-  res->reserve(size_);
+std::vector<double> *VectorOutputVal::value_list() const {
+  std::vector<double> *res = new std::vector<double>(size_);
   for(unsigned int i=0;i<size_;i++)
-    res->push_back(data[i]);
+    (*res)[i] = data[i];
   return res;
 }
 
@@ -185,7 +179,7 @@ OutputVal *VectorOutputVal::one() const {
   return won;
 }
 
-double VectorOutputVal::dot(const DoubleVec &other) const {
+double VectorOutputVal::dot(const std::vector<double> &other) const {
   assert(size() == other.size());
   double sum = 0;
   for(unsigned int i=0; i<size(); i++)

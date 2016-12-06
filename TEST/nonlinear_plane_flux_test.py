@@ -368,11 +368,11 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
                 time_stepper=StaticDriver(),
                 nonlinear_solver=test_solver,
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=JacobiPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000),
                 asymmetric_solver=BiConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=JacobiPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
 
@@ -700,12 +700,9 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
             solver_mode=AdvancedSolverMode(
                 time_stepper=StaticDriver(),
                 nonlinear_solver=test_solver,
-                symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
-                    tolerance=1e-13,
-                    max_iterations=1000),
+                symmetric_solver=SparseLU(),
                 asymmetric_solver=BiConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=JacobiPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
 

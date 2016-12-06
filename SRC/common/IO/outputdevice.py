@@ -138,6 +138,9 @@ class OutputDevice:
         # 'stringimage()' which returns a string of the form expected
         # by GdkImlibImage.  The 'size' argument to draw_image is
         # (width, height) in physical units.
+        ## TODO: Comment about stringimage appears to be wrong.  It
+        ## needs fillstringimage(), which fills a given StringImage
+        ## object.
         self.unsupported("draw_image")
 
     def draw_shaped_image(self, image, offset, size, shapecolor):

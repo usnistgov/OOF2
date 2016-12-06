@@ -20,7 +20,6 @@
 #include "common/pythonlock.h"
 #include "common/swiglib.h"
 #include "common/trace.h"
-#include "common/vectormath.h"
 #include "engine/IO/propertyoutput.h"
 #include "engine/cnonlinearsolver.h"
 #include "engine/csubproblem.h"
@@ -319,8 +318,8 @@ void FluxProperty::flux_matrix(const FEMesh *mesh, const Element *element,
 	  fluxdata->stiffness_matrix_element( fluxcomp, field, fieldcomp, node )
 	    += fluxVec1[ fluxcomp.integer() ];
 
-	zero( fluxdata0.fluxVector() );
-	zero( fluxdata1.fluxVector() );
+	  fluxdata0.fluxVector().zero();
+	  fluxdata1.fluxVector().zero();
       } // loop over field components
     } // end if (node.hasfield())
   } // loop over all fields
@@ -478,8 +477,8 @@ void EqnProperty::force_deriv_matrix(const FEMesh *mesh, const Element *element,
 	  eqndata->force_deriv_matrix_element( eqncomp, field, fieldcomp, node )
 	    += forceVec1[ eqncomp.integer() ];
 
-	zero( eqndata0.forceVector() );
-	zero( eqndata1.forceVector() );
+	eqndata0.forceVector().zero();
+	eqndata1.forceVector().zero();
       } // loop over field components
     } // end if (node.hasfield())
   } // loop over all fields

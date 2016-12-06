@@ -16,7 +16,6 @@
 #include <oofconfig.h>
 
 #include "common/doublevec.h"
-#include "common/vectormath.h"
 #include "engine/recoveredflux.h"
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

@@ -118,7 +118,7 @@ public:
     for(int i=0;i<6;i++)
       data[i] = sqrt(data[i]);
   }
-  virtual DoubleVec *value_list() const;
+  virtual std::vector<double>* value_list() const;
 
   OutputVal &operator*=(double x) {
     dirtyeigs_ = true;

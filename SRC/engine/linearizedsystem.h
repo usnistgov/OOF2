@@ -1,9 +1,3 @@
-// -*- C++ -*-
-// $RCSfile: linearizedsystem.h,v $
-// $Revision: 1.42 $
-// $Author: lnz5 $
-// $Date: 2015/07/17 17:53:01 $
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -98,6 +92,11 @@ private:
   SparseMat K_indfree_, C_indfree_, M_indfree_, J_indfree_;
   SparseMat K_indfixed_, M_indfixed_, C_indfixed_;
 
+  // Using vector of triplets (row, col, value) during the construction
+  // of matrices. Because SparseMat is in compressed row/column storage
+  // format which is not efficient for matrix construction (make linaer
+  // system).
+  std::vector<Triplet> KTri_, CTri_, MTri_, JTri_;
 
   // Each map level operates on the output from the previous level.
   // The domain of level x is the range of level x-1.
@@ -190,15 +189,15 @@ private:
   DoubleVec residual;
 
 #ifdef _OPENMP
-  // make-linear-system parallelization functions.
-  // Each thread has a copy of matrices (K, C, M, J) and
-  // vectors (residual, body_rhs, force_bndy_rhs) when
-  // make-linear-system is running in parallel.
+  // Variables for parallel matrix construction (or make-linear-system).
+  // Each thread has its own triplets of matrix coefficient and copies of
+  // linear system vectors; All the triplets and vectors of different
+  // threads are merged together at the end of parallel make-linear-system.
   
   // Those structures are initialized and torn down by
   // init_parallel_env() and tear_down_parallel_env() 
   // functions.
-  std::vector<SparseMat> K_mtd, C_mtd, M_mtd, J_mtd;
+  std::vector<std::vector<Triplet>> KTri_mtd, CTri_mtd, MTri_mtd, JTri_mtd; 
   std::vector<DoubleVec> residual_mtd, body_mtd, force_bndy_mtd;
 
   // A flag indicates if make_linear_system is running in parallel
@@ -374,9 +373,9 @@ public:
   void cleanmaps();
 
 #ifdef _OPENMP
-    // Make copies of matrices and vectors for each thread.
-  // It is called at the beginning of make_linear_system (
-  // CSubProblem::make_linear_system).
+  // Make copies of matrices and vectors for each thread.
+  // It is called at the beginning of make_linear_system
+  // (CSubProblem::make_linear_system).
   void init_parallel_env(bool needJacobian, bool needResidual);
 
   // Merge the copies of each thread to the orignals and

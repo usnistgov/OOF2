@@ -21,7 +21,6 @@ from ooflib.SWIG.engine import equation
 from ooflib.SWIG.engine import field
 from ooflib.SWIG.engine import masterelement
 from ooflib.SWIG.engine import material
-from ooflib.SWIG.engine import preconditioner
 from ooflib.SWIG.engine.property.elasticity.iso import iso
 from ooflib.SWIG.engine.property.skeletonrelaxationrate \
     import skeletonrelaxationrate
@@ -39,6 +38,7 @@ from ooflib.engine import materialmanager
 from ooflib.engine import matrixmethod
 from ooflib.engine import profile
 from ooflib.engine import propertyregistration
+from ooflib.engine import preconditioner
 from ooflib.engine import solvermode
 from ooflib.engine import skeletonmodifier
 from ooflib.engine import staticstep

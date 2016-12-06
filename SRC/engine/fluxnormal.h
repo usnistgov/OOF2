@@ -63,6 +63,7 @@ public:
   // Re-evaluate using the input "coord" object as the x axis,
   // and preserving handedness.  
   virtual void transform(const Coord &frame) {};
+  virtual FluxNormal &operator*=(double) = 0;
 };
 
 class VectorFluxNormal: public FluxNormal {
@@ -75,6 +76,7 @@ public:
   double value() const { return val_; }
   double &value() { return val_; }
   virtual double operator[](int) const;
+  virtual FluxNormal &operator*=(double);
 };
 
 class SymTensorFluxNormal: public FluxNormal {
@@ -86,6 +88,7 @@ public:
   virtual ~SymTensorFluxNormal() {}
   virtual double operator[](int) const;
   virtual void transform(const Coord &frame);
+  virtual FluxNormal &operator*=(double);
 };
 
 #endif

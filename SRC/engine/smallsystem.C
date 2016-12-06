@@ -14,7 +14,6 @@
  */
 
 #include <oofconfig.h>
-#include "common/vectormath.h"
 #include "engine/smallsystem.h"
 #include <vector>
 
@@ -37,9 +36,9 @@ void SmallSystem::reset() {
   cMatrix.clear();
   kMatrix.clear();
   dfMatrix.clear();
-  zero(fluxVector_);
-  zero(forceVector_);
-  zero(offsetVector_);
+  fluxVector_.zero();
+  forceVector_.zero();
+  offsetVector_.zero();
   m_clean = true;
   c_clean = true;
   k_clean = true;
@@ -380,7 +379,7 @@ SmallSparseMatrix::SmallSparseMatrix(int r, int c)
 {}
 
 double &SmallSparseMatrix::operator()(int row, int col) {
-  nonzero_[row*ncols+col] = true;
+  nonzero_[row*cols()+col] = true;
   return SmallMatrix::operator()(row, col);
 }
 
@@ -389,7 +388,7 @@ const double &SmallSparseMatrix::operator()(int row, int col) const {
 }
 
 bool SmallSparseMatrix::nonzero(int row, int col) const {
-  return nonzero_[row*ncols + col];
+  return nonzero_[row*cols() + col];
 }
 
 void SmallSparseMatrix::operator+=(const SmallSparseMatrix &other) {

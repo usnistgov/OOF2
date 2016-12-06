@@ -488,14 +488,13 @@ OutputValue *newSymTensorOutputValue() {
   return new OutputValue(new SymmMatrix3());
 }
 
-DoubleVec *SymmMatrix3::value_list() const {
-  DoubleVec *res = new DoubleVec(0);
-  res->reserve(6);
-  res->push_back(m[0][0]);  // Voigt order. 
-  res->push_back(m[1][1]);
-  res->push_back(m[2][2]);
-  res->push_back(m[2][1]);
-  res->push_back(m[2][0]);
-  res->push_back(m[1][0]);
+std::vector<double>* SymmMatrix3::value_list() const {
+  std::vector<double> *res = new std::vector<double>(6);
+  (*res)[0] = m[0][0];  // Voigt order. 
+  (*res)[1] = m[1][1];
+  (*res)[2] = m[2][2];
+  (*res)[3] = m[2][1];
+  (*res)[4] = m[2][0];
+  (*res)[5] = m[1][0];
   return res;
 }

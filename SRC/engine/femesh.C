@@ -44,7 +44,6 @@
 #include "engine/node.h"
 #include "engine/ooferror.h"
 #include "engine/outputval.h"
-#include "engine/preconditioner.h"
 #include "engine/property.h"
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -55,7 +54,7 @@ static SLock globalFEMeshCountLock;
 FEMesh::FEMesh(CMicrostructure * mc)
   : microstructure(mc),
     rwlock(0),
-    dofvalues(new DoubleVec),
+    dofvalues(new vector<double>),
     time(0.0),
     currentSubProblem_(0),
     ncount(0),			// used as a Node ID only

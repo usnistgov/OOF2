@@ -18,7 +18,6 @@
 #include "common/doublevec.h"
 #include "common/printvec.h"
 #include "common/smallmatrix.h"
-#include "common/vectormath.h"
 #include "engine/cscpatch.h"
 #include "engine/csubproblem.h"
 #include "engine/element.h"

@@ -5,17 +5,10 @@
 
 # Run "oof2-build <version> to build the version named <version>.
 # Valid values for version are listed in the build_types tuple below.
-# If version is "devel", it must be followed by an integer devel
-# level.
 
 # Optional arguments can appear after the version name.  Any arguments
 # beginning with '--' will be inserted into the setup.py 'build'
-# argument list.  The following shorthand arguments are also accepted,
-# for backwards compatibility with the old bash version of this
-# script:
-#  'mpi'   is the same as '--enable-mpi'
-#  'petsc' is the same as '--enable-petsc'
-#  'oim'   is the same as '--enable-orientationmap'
+# argument list.
 
 # The stow directory name is constructed from the build version, the
 # git branch name (if any) and the local directory name.  This allows
@@ -25,6 +18,7 @@
 
 # In addition, the 'pg' argument turns on profiling in the C++ code.
 # It won't work unless you're using a python that was built with -pg.
+# 'gperf' turns on the google profiling tools.
 
 # Set the following environment variables:
 
@@ -34,8 +28,8 @@
 #  Set your PATH to include $OOFINSTALL/bin.
 
 #  Set your PYTHONPATH to include
-#  $OOFINSTALL/lib/python2.3/site-packages
-#  Change 2.3 to 2.4 (or whatever) as appropriate.  You can do that like this:
+#  $OOFINSTALL/lib/python2.7/site-packages
+#  Change 2.7 to 2.6 (or whatever) as appropriate.  You can do that like this:
 #  setenv PYTHONPATH {$OOFINSTALL}/lib/python`python -c 'import sys; print "%d.%d"%sys.version_info[:2]'`/site-packages
 
 #  Set your LD_LIBRARY_PATH to include $OOFINSTALL/lib.  This isn't
@@ -53,6 +47,7 @@ pyversion = string.join(map(str, sys.version_info[:2]),".")
 # To make it possible to build OOF2 on different git branches, the
 # output for the branches needs to go into distinct directories.  We
 # derive the directory names from the git branch name.
+
 proc = subprocess.Popen(['git', 'symbolic-ref', '--short', 'HEAD'],
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 stdoutdata, stderrdata = proc.communicate()
@@ -70,7 +65,7 @@ localdir = os.path.split(os.getcwd())[1]
 if localdir.startswith('OOF2'):
     localdir = localdir[4:]
 
-build_types = ('dist', 'devel', 'debug', 'profile', 'dist3d', 'debug3d', 'profile3d')
+build_types = ('dist', 'devel', 'debug', 'profile')
 
 if len(sys.argv) < 2:
     print "You must provide a build type"
@@ -98,18 +93,10 @@ if build_type == 'devel':
     build_args.append("--enable-devel="+sys.argv.pop(0))
 elif build_type == 'debug':
     build_args.append("--debug")
-elif build_type == 'dist3d':
-    build_args.append("--3D")
 elif build_type == 'profile':
     build_args.append("--debug")
     os.putenv('CFLAGS', '-g -fno-inline')
-elif build_type == 'debug3d':
-    build_args.append("--3D")
     build_args.append("--debug")
-elif build_type == 'profile3d':
-    build_args.append("--3D")
-    build_args.append("--debug")
-    os.putenv('CFLAGS', '-g -fno-inline')
 
 if sys.platform[:6] == 'netbsd':
     build_args.append('--library-dirs=/usr/pkg/lib')
@@ -122,22 +109,20 @@ while sys.argv:
             mp = True
     elif arg == 'seg':
         build_args.append('--enable-segmentation')
-    elif arg == 'mpi':
-        build_args.append('--enable-mpi')
     elif arg == 'mp':
         build_args.append('--enable-openmp')
         mp = True
-    elif arg == 'petsc':
-        build_args.append('--enable-petsc')
     elif arg == 'pg':
         os.putenv('CFLAGS', '-pg')
     elif arg == 'efence':
         build_args.append('--library-dirs=/opt/local/lib')
         build_args.append('--libraries=efence')
     elif arg == 'gperf':
-        # Google performance tools (profiler) and tcmalloc
-        os.putenv('CFLAGS', '-I/users/lnz5/loc/include')
-        os.putenv('LDFLAGS', '-lprofiler -ltcmalloc')
+        # Google performance tools (profiler)
+        # os.putenv('CFLAGS', '-I/users/lnz5/loc/include')
+        # TODO: Why use putenv?
+        os.putenv('LDFLAGS', '-lprofiler')
+        #build_args.append('--libraries=profiler')
 
 # Where to put everything?
 installdir = os.getenv("OOFINSTALL")
@@ -155,10 +140,7 @@ else:
     stowsubdir = "-".join(["oof2", branchtag, build_type, pyversion])
 if mp:
     stowsubdir += '-mp'
-if build_type in ['dist3d', 'debug3d', 'profile3d']:
-    laststowfile = os.path.join(stowdir, '.last_oof3d_install')
-else:
-    laststowfile = os.path.join(stowdir, '.last_oof_install')
+laststowfile = os.path.join(stowdir, '.last_oof_install')
 startdir = os.getcwd()
 
 # Move builddir to build

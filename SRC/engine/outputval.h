@@ -23,8 +23,8 @@
 
 #include <iostream>
 #include <math.h>
+#include <vector>
 
-class DoubleVec;
 class IndexP;
 class IteratorP;
 
@@ -60,7 +60,7 @@ public:
   virtual void component_pow(int) = 0;
   virtual void component_square() = 0;
   virtual void component_sqrt() = 0;
-  virtual DoubleVec *value_list() const = 0;
+  virtual std::vector<double> *value_list() const = 0;
   virtual double magnitude() const = 0;
   // IO ops.
   virtual void print(std::ostream&) const = 0;
@@ -113,7 +113,7 @@ public:
   virtual void component_sqrt() {
     val = sqrt(val);
   }
-  virtual DoubleVec *value_list() const;
+  virtual std::vector<double> *value_list() const;
   virtual double magnitude() const { return fabs(val); }
   double value() const { return val; }
   double &value() { return val; }
@@ -139,7 +139,7 @@ private:
 public:
   VectorOutputVal(int n);
   VectorOutputVal(const VectorOutputVal&);
-  VectorOutputVal(const DoubleVec&);
+  VectorOutputVal(const std::vector<double>&);
   virtual ~VectorOutputVal() { delete [] data; }
   virtual unsigned int dim() const { return size_; }
   virtual OutputVal *clone() const;
@@ -180,9 +180,9 @@ public:
       data[i] = sqrt(data[i]);
   }
 
-  double dot(const DoubleVec&) const;
+  double dot(const std::vector<double>&) const;
 
-  virtual DoubleVec *value_list() const;
+  virtual std::vector<double> *value_list() const;
   double operator[](int i) const { return data[i]; }
   double &operator[](int i) { return data[i]; }
   virtual double operator[](const IndexP &p) const;
