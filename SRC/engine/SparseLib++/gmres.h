@@ -44,6 +44,12 @@
 
 #include <math.h> 
 
+template < class Real >
+Real 
+abs(Real x)
+{
+  return (x > 0 ? x : -x);
+}
 
 template<class Real> 
 void GeneratePlaneRotation(Real &dx, Real &dy, Real &cs, Real &sn)
@@ -88,14 +94,6 @@ Update(Vector &x, int k, Matrix &h, Vector &s, Vector v[])
 
   for (int j = 0; j <= k; j++)
     x += v[j] * y[j];
-}
-
-
-template < class Real >
-Real 
-abs(Real x)
-{
-  return (x > 0 ? x : -x);
 }
 
 
