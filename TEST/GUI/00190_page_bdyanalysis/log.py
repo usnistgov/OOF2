@@ -515,27 +515,27 @@ findWidget('OOF2:Boundary Analysis Page:Pane:frame').size_allocate(gtk.gdk.Recta
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
 #checkpoint_count("Graphics_1 Mesh Info sensitized")
-assert tests.msgFloat(0, 0, -0.0062016590418835175)
+assert tests.msgFloat(0, 0, 0.0062016590418835175)
 # Analysis complete on top boundary.
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path((2,))
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
 # Analysis complete on right boundary.
-assert tests.msgFloat(0, -0.087825528898592839, 0)
+assert tests.msgFloat(0, 0.087825528898592839, 0)
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path((3,))
 tree=findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList')
 column = tree.get_column(0)
 tree.row_activated((2,), column)
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
 # Analysis complete on left boundary.
-assert tests.msgFloat(0, 0.087825528898597807, 0)
+assert tests.msgFloat(0, -0.087825528898597807, 0)
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path((1,))
 tree=findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList')
 column = tree.get_column(0)
 tree.row_activated((3,), column)
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
 # Analysis complete on bottom boundary.
-assert tests.msgFloat(0, 0, 0.0062016590418854916)
+assert tests.msgFloat(0, 0, -0.0062016590418854916)
 findWidget('OOF2').resize(684, 482)
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Materials')
 checkpoint page installed Materials
@@ -587,14 +587,14 @@ column = tree.get_column(0)
 tree.row_activated((1,), column)
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
 # Analysis complete on right boundary.
-assert tests.msgFloat(0, -0.066666666666669996, 0)
+assert tests.msgFloat(0, 0.066666666666669996, 0)
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path((3,))
 tree=findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList')
 column = tree.get_column(0)
 tree.row_activated((2,), column)
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
 # Analysis complete on left boundary.
-assert tests.msgFloat(0, 0.06666666666666736, 0)
+assert tests.msgFloat(0, -0.06666666666666736, 0)
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path((1,))
 tree=findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList')
 column = tree.get_column(0)

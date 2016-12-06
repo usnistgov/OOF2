@@ -224,7 +224,7 @@ findWidget('Mesh Data 1').resize(509, 353)
 
 # Element query.
 assert findWidget('Mesh Data 1:ViewSource').get_expanded()
-assert tests.gtkMultiTextCompare({'xx':'-0.00746209','xy':'-0.0010901','xz':'0','yy':'-0.0705959','yz':'0','zz':'-0.00226641'},'Mesh Data 1:Data')
+assert tests.gtkMultiTextCompare({'xx':'0.00746209','xy':'0.0010901','xz':'0','yy':'0.0705959','yz':'0','zz':'0.00226641'},'Mesh Data 1:Data', tolerance=1.e-8)
 assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','x':'45.2347','y':'86.6034'},'Mesh Data 1:ViewSource')
 assert not findWidget('Mesh Data 1:Freeze:Space').get_active()
 assert tests.is_sensitive('Mesh Data 1:Close')
@@ -233,7 +233,7 @@ findWidget('Mesh Data 1:ViewSource').set_expanded(0)
 
 # Source contracted, data unchanged.
 assert not findWidget('Mesh Data 1:ViewSource').get_expanded()
-assert tests.gtkMultiTextCompare({'xx':'-0.00746209','xy':'-0.0010901','xz':'0','yy':'-0.0705959','yz':'0','zz':'-0.00226641'},'Mesh Data 1:Data')
+assert tests.gtkMultiTextCompare({'xx':'0.00746209','xy':'0.0010901','xz':'0','yy':'0.0705959','yz':'0','zz':'0.00226641'},'Mesh Data 1:Data', tolerance=1.e-8)
 assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','x':'45.2347','y':'86.6034'},'Mesh Data 1:ViewSource')
 assert not findWidget('Mesh Data 1:Freeze:Space').get_active()
 assert tests.is_sensitive('Mesh Data 1:Close')
@@ -251,7 +251,7 @@ findWidget('OOF2 Graphics 1:Pane0').set_position(280)
 
 # New query, data changed, source still contracted.
 assert not findWidget('Mesh Data 1:ViewSource').get_expanded()
-assert tests.gtkMultiTextCompare({'xx':'-0.00545599','xy':'-0.00151804','xz':'0','yy':'-0.0798437','yz':'0','zz':'-0.00161732'},'Mesh Data 1:Data')
+assert tests.gtkMultiTextCompare({'xx':'0.00545599','xy':'0.00151804','xz':'0','yy':'0.0798437','yz':'0','zz':'0.00161732'},'Mesh Data 1:Data', tolerance=1.e-8)
 assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','x':'67.2282','y':'48.5409'},'Mesh Data 1:ViewSource')
 assert not findWidget('Mesh Data 1:Freeze:Space').get_active()
 assert tests.is_sensitive('Mesh Data 1:Close')
@@ -260,7 +260,7 @@ findWidget('Mesh Data 1:ViewSource').set_expanded(1)
 
 # Source re-expanded.
 assert findWidget('Mesh Data 1:ViewSource').get_expanded()
-assert tests.gtkMultiTextCompare({'xx':'-0.00545599','xy':'-0.00151804','xz':'0','yy':'-0.0798437','yz':'0','zz':'-0.00161732'},'Mesh Data 1:Data')
+assert tests.gtkMultiTextCompare({'xx':'0.00545599','xy':'0.00151804','xz':'0','yy':'0.0798437','yz':'0','zz':'0.00161732'},'Mesh Data 1:Data', tolerance=1.e-8)
 assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','x':'67.2282','y':'48.5409'},'Mesh Data 1:ViewSource')
 assert not findWidget('Mesh Data 1:Freeze:Space').get_active()
 assert tests.is_sensitive('Mesh Data 1:Close')
