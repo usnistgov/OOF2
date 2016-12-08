@@ -117,11 +117,10 @@ try:
     # the oof version number: oof2-version or oof3d-version
     distdir = distname.distname + "-" + version
     # Use --quiet so that stderr is empty if the command succeeds.
-    cmd = ['git', 'clone', '--quiet', 'giturl', distdir]
-    cmd.extend([giturl, tempdir])
+    cmd = ['git', 'clone', '--quiet', giturl, distdir]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdoutdata, stderrdata = proc.communicate()
-    if stderrdata:
+    if proc.returncode != 0:
         print "*** Failed to clone git repository!", stderrdata.strip()
         sys.exit(1)
 
@@ -130,8 +129,8 @@ try:
 
     import localexclusions
     
-    # Set the version number in oofversion.py.
-    sedcmd = 's/version_from_make_dist = \"[0-9]*\.[0-9]*\.[0-9]*\""/version_from_make_dist=\"%s\"/' % version
+    # Set the version number in setup.py and SRC/common/oofversion.py.
+    sedcmd = 's/version_from_make_dist = \\\"[0-9]*\.[0-9]*\.[0-9]*\\\"/version_from_make_dist = \\\"%s\\\"/' % version
     tmpfile, tmpfilename = tempfile.mkstemp(dir=tempdir)
     run_cmd('sed "%s" setup.py > %s' % (sedcmd, tmpfilename))
     print >> sys.stderr, "Moving", tmpfilename, "to setup.py"
@@ -148,14 +147,18 @@ try:
     timefile.close()
 
     
-    # Make the MANIFEST file. 
-
-    # If we don't provide a MANIFEST, or let distutils build it from a
-    # MANIFEST.in template, then it tries to include the swig output files
-    # since they're contained in setup.py's packages list.  But those
-    # files don't exist in git, so the distutils sdist command will fail.
-    # We have to construct an explicit list of files to include, which is
-    # everything that's in git except for the files listed below:
+    # Make the MANIFEST file after moving back up to the temp directory.
+    os.chdir(tempdir)
+    
+    # Make the MANIFEST file.  If we don't provide a MANIFEST, or let
+    # distutils build it from a MANIFEST.in template, then it tries to
+    # include the swig output files since they're contained in
+    # setup.py's packages list.  But those files don't exist in git,
+    # so the distutils sdist command will fail.  We have to construct
+    # an explicit list of files to include, which is everything that's
+    # in git except for the files listed below.  Then, after
+    # constructing the list of files ourselves, there's no need to use
+    # distutils to build the package at all.
 
     globalExcludeDirs = [
         ".git"
@@ -165,6 +168,7 @@ try:
         "math", 
         "NOTES", 
         "3DSandbox",
+        "SRC/DOC",
         "SRC/TEST-DATA", "SRC/TEST-SRC",
         "SRC/common/EXTRA",
         "SRC/engine/EXTRA",
@@ -202,12 +206,13 @@ try:
                     fname not in excludeDirs):
                     getFiles(fname, manifest)
 
-    manifest = open("MANIFEST", "w")
+    manifest = open(os.path.join(distdir, "MANIFEST"), "w")
     getFiles(distdir, manifest)   
     manifest.close()
 
     # Check all the modifications into git, and tag with the version number.
-    run_cmd("git add SRC/common/oofversion.py package_date MANIFEST")
+    os.chdir(distdir)
+    run_cmd("git add SRC/common/oofversion.py setup.py package_date MANIFEST")
     commit_msg = ("Building " + distname.distname + " release version " +
                   version)
     if comment:
@@ -224,9 +229,10 @@ try:
         print >> sys.stderr, '*** git push origin master'
     
     # Build the distribution.
+    os.chdir(tempdir)
     distfilename = distdir + ".tar.gz"
     print >> sys.stderr, "Distribution file is", distfilename
-    run_cmd("tar -T MANIFEST -czf", distfilename)
+    run_cmd("tar -T %s/MANIFEST -czf" % distdir, distfilename)
     print >> sys.stderr, "Moving", distfilename, "to", startdir
     os.rename(distfilename, os.path.join(startdir, distfilename))
 
