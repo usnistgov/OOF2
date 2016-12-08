@@ -55,6 +55,7 @@ help                      print this
 cvsmodule = 'OOF2'
 
 def run_cmd(*args):
+    ## TODO: Change to use subprocess.Popen instead of os.system.
     cmd = ' '.join(args)
     print >> sys.stderr, cmd
     status = os.system(cmd)
@@ -212,21 +213,38 @@ try:
 
     # Check all the modifications into git, and tag with the version number.
     os.chdir(distdir)
-    run_cmd("git add SRC/common/oofversion.py setup.py package_date MANIFEST")
+    run_cmd("git add SRC/common/oofversion.py setup.py")
     commit_msg = ("Building " + distname.distname + " release version " +
                   version)
     if comment:
         commit_msg += " -- " + comment
+    tag = distname.distname + "-" + version
+    if comment:
+        oldtag = tag
+        comment.replace(' ', '-')
+        tag += "--" + comment
+        # Check and/or fix the tag if it's not legal
+        proc = subprocess.Popen(['git', 'check-ref-format', '--normalize',
+                                 '--allow-onelevel', '"'+tag+'"'],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdoutdata, stderrdata = proc.communicate()
+        if proc.returncode == 0:    # success
+            tag = stdoutdata
+        else:
+            print >> sys.stderr, "Failed to convert '%s' to a legal tag." % tag
+            print >> sys.stderr, "Using '%s' instead." % oldtag
+            tag = oldtag
+    
 
     if not dryrun:
         run_cmd('git commit -m "%s"' % commit_msg)
-        run_cmd('git tag "release-' + version + '"')
-        run_cmd('git push origin master')
+        run_cmd('git tag', tag)
+        run_cmd('git push origin', tag)
     else:
         print >> sys.stderr, "Dry run! Not running:"
         print >> sys.stderr, '*** git commit -m "%s"' % commit_msg
-        print >> sys.stderr, '*** git tag "release-' + version + '"'
-        print >> sys.stderr, '*** git push origin master'
+        print >> sys.stderr, '*** git tag', tag
+        print >> sys.stderr, '*** git push origin', tag
     
     # Build the distribution.
     os.chdir(tempdir)
