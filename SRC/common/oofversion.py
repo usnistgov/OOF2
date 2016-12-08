@@ -10,11 +10,17 @@
 
 ## The value assigned to 'version' here is modified by a sed command
 ## in the make_distutils_dist script when an oof distribution is
-## packaged.  The value in the original must be the same as the value
-## that the script is looking for, so don't edit this file without
-## editing the script.
+## packaged.  The command sed command changes the regular expression
+## [0-9]*\.[0-9]*\.[0-9]* to the new version number.  The regular
+## expression is intended to match the *old* version number, which it
+## will as long as the old version number is of the form
+## "digits.digits.digits".
 
-version = "(unreleased)"
+# The make_dist script edits the following line when a distribution is
+# built. Don't change it by hand.
+version_from_make_dist = "0.0.0"
+
+version = version_from_make_dist
 
 # This version tag is presented to the user on the intro page, and is
 # also the reply to the "--version" command-line switch.  It might be

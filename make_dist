@@ -10,36 +10,43 @@
 
 
 # Script for building a distribution of OOF2 using python distutils.
-# Takes care of cvs and distutils stuff, and sets the version number
+# Takes care of git and distutils stuff, and sets the version number
 # in the packaged source code.
+
+# This script assumes that the version to be packaged is the HEAD of
+# the master branch on github.  The previous cvs versions of this
+# script allowed a release to be built from any cvs branch.  If we
+# want the oof version number to be stored in the committed versions
+# of setup.py and oofversion.py, however, then we can only set the oof
+# version number on one branch.  If we released from different branch,
+# we'd get a conflict if and when the branch was later merged into
+# master.  This wasn't so much of a problem in cvs, because the
+# repository was private, and so it didn't matter if the branch number
+# was never set in the committed files.
 
 # The options are:
 #    --version     a string of nonpunctuation characters and dots (required)
 #    --comment     a string containing no dots (optional)
-#    --branch      a cvs branch tag (optional)
 
 import getopt
 import os
 import os.path
 import shutil
+import subprocess
 import sys
 import tempfile
 import time
 
-options = ['version=', 'comment=', 'branch=', 'dryrun', 'help', 'noclean',
-           'notag']
+options = ['version=', 'comment=', 'dryrun', 'help', 'noclean']
 
 def state_options_and_quit():
     print >> sys.stderr,  \
 """Options are:
 version=<version number>  version number can contain numbers, letters, and dots
-comment=<comment>         comment cannot contain dots or spaces 
-branch=<cvs tag>          build from the given branch, not the cvs head
-  comment and branch are optional, version is required.
+comment=<comment>         optional comment, cannot contain dots or spaces 
 
 Debugging options are:
 noclean                   don't remove temp directory
-notag                     don't tag files
 dryrun                    don't actually do anything in distutils
 help                      print this
 """
@@ -60,7 +67,6 @@ comment = None
 branch = None
 dryrun = False
 noclean = False
-notag = False
 dimension = 2
 
 try:
@@ -74,12 +80,10 @@ for opt in optlist:
         version = opt[1]
     elif opt[0] == '--comment':
         comment = opt[1]
-    elif opt[0] == '--branch':
-        branch = opt[1]
     elif opt[0] == '--noclean':
         noclean = True
-    elif opt[0] == '--notag':
-        notag = True
+    elif opt[0] == '--dryrun':
+        dryrun = True
     elif opt[0] == '--help':
         state_options_and_quit()
 
@@ -87,58 +91,54 @@ print >> sys.stderr, "Building OOF2 distribution named", version
 
 startdir = os.getcwd()
 
-# Find the name of the CVS Root.
-cvsrootfile = file(os.path.join('CVS','Root'), 'r')
-cvsroot = cvsrootfile.readline().strip()
+# Are we building oof2 or oof3d? This info is stored in
+# distname.distname.  We get this from the directory in which
+# make_dist is being run.
+import distname
 
 # Create a temp directory.
-tempdir = tempfile.mkdtemp(prefix='oof2-tempdir-'+version+'-')
+tempdir = tempfile.mkdtemp(prefix='oof-tempdir-'+version+'-')
 print >> sys.stderr, "Using temp directory", tempdir
 
-# cd to the temp directory
-os.chdir(tempdir)
-
 try:
-    # Check out a copy of OOF2 in the temp directory
-    cmd = ['cvs -d', cvsroot, 'checkout -P']
-    if branch:
-        cmd.extend(['-r', branch])
-    cmd.append(cvsmodule)
-    run_cmd(*cmd)
+    # Get the git repository location
+    proc = subprocess.Popen(['git', 'remote', 'get-url', 'origin'],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdoutdata, stderrdata = proc.communicate()
+    if stderrdata:
+        print "*** Failed to get git repository!", stderrdata.strip()
+        sys.exit(1)
+    giturl = stdoutdata.strip()
 
-    # Clean out unwanted leftover empty directories.  (This shouldn't be
-    # necessary since we're using the "-P" flag with "cvs checkout", but
-    # it seems not to be working, at least on OS X.)
-    run_cmd('cvs update -P')
+    # cd to the temp directory
+    os.chdir(tempdir)
 
-    os.chdir(cvsmodule)
+    # Clone the git repository into a directory whose name is given by
+    # the oof version number: oof2-version or oof3d-version
+    distdir = distname.distname + "-" + version
+    # Use --quiet so that stderr is empty if the command succeeds.
+    cmd = ['git', 'clone', '--quiet', 'giturl', distdir]
+    cmd.extend([giturl, tempdir])
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdoutdata, stderrdata = proc.communicate()
+    if stderrdata:
+        print "*** Failed to clone git repository!", stderrdata.strip()
+        sys.exit(1)
 
-    # Get version-dependent information
+    # cd to the cloned source code directory
+    os.chdir(distdir)
+
     import localexclusions
-    import distname
-
-    # Create a cvs tag for the distribution, and tag the files.  This is
-    # slow, so use --notag if just testing the script, but don't use
-    # --notag when creating an actual distribution.
-    if not notag:
-        if comment:
-            tag = "package-" + version + "--" + comment
-        else:
-            tag = "package-" + version
-        tag = tag.replace('.', '-')
-        tag = tag.replace(' ', '-')
-        if branch:
-            run_cmd('cvs tag -c -r', branch, tag)
-        else:
-            run_cmd('cvs tag -c', tag)
-
-    # Set the version number
+    
+    # Set the version number in oofversion.py.
+    sedcmd = 's/version_from_make_dist = \"[0-9]*\.[0-9]*\.[0-9]*\""/version_from_make_dist=\"%s\"/' % version
     tmpfile, tmpfilename = tempfile.mkstemp(dir=tempdir)
-    run_cmd('sed "s?unreleased?%s?" setup.py > %s' % (version, tmpfilename))
+    run_cmd('sed "%s" setup.py > %s' % (sedcmd, tmpfilename))
     print >> sys.stderr, "Moving", tmpfilename, "to setup.py"
     os.rename(tmpfilename, 'setup.py')
-    run_cmd('sed "s?(unreleased)?%s?" SRC/common/oofversion.py > %s'
-            % (version, tmpfilename))
+    run_cmd('sed "%s" SRC/common/oofversion.py > %s' % (sedcmd, tmpfilename))
+    # run_cmd('sed "s/[0-9]*\.[0-9]*\.[0-9]*\./%s/" SRC/common/oofversion.py > %s'
+    #         % (version, tmpfilename))
     print >> sys.stderr, "Moving", tmpfilename, "to SRC/common/oofversion.py"
     os.rename(tmpfilename, 'SRC/common/oofversion.py')
 
@@ -147,26 +147,18 @@ try:
     print >> timefile, time.ctime()
     timefile.close()
 
-    os.chdir(tempdir)
-
-    # Change the name of the top directory to "oof2-version" or
-    # "oof3d-version", which ever is appropriate.
-
-    distdir = distname.distname + "-" + version
-    os.rename(cvsmodule, distdir)
-
+    
     # Make the MANIFEST file. 
 
-    # If we don't provide an MANIFEST, or let distutils build it from a
+    # If we don't provide a MANIFEST, or let distutils build it from a
     # MANIFEST.in template, then it tries to include the swig output files
     # since they're contained in setup.py's packages list.  But those
-    # files don't exist in cvs, so the distutils sdist command will fail.
+    # files don't exist in git, so the distutils sdist command will fail.
     # We have to construct an explicit list of files to include, which is
-    # everything that's in cvs except for the files listed below:
-
+    # everything that's in git except for the files listed below:
 
     globalExcludeDirs = [
-        "CVS"
+        ".git"
     ] + localexclusions.globalExcludeDirs
 
     excludeDirs = [
@@ -181,7 +173,7 @@ try:
     ] + localexclusions.excludeDirs
 
     globalExcludeFiles = [
-        ".cvsignore"
+        ".gitignore"
     ] + localexclusions.globalExcludeFiles
 
     excludeFiles = [
@@ -214,8 +206,24 @@ try:
     getFiles(distdir, manifest)   
     manifest.close()
 
-    # Build the distribution.
+    # Check all the modifications into git, and tag with the version number.
+    run_cmd("git add SRC/common/oofversion.py package_date MANIFEST")
+    commit_msg = ("Building " + distname.distname + " release version " +
+                  version)
+    if comment:
+        commit_msg += " -- " + comment
 
+    if not dryrun:
+        run_cmd('git commit -m "%s"' % commit_msg)
+        run_cmd('git tag "release-' + version + '"')
+        run_cmd('git push origin master')
+    else:
+        print >> sys.stderr, "Dry run! Not running:"
+        print >> sys.stderr, '*** git commit -m "%s"' % commit_msg
+        print >> sys.stderr, '*** git tag "release-' + version + '"'
+        print >> sys.stderr, '*** git push origin master'
+    
+    # Build the distribution.
     distfilename = distdir + ".tar.gz"
     print >> sys.stderr, "Distribution file is", distfilename
     run_cmd("tar -T MANIFEST -czf", distfilename)
