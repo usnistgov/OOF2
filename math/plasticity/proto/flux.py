@@ -24,21 +24,55 @@ class FluxException:
 SmallMatrix = smallmatrix.SmallMatrix
 
 
+class Orientation:
+    def __init__(self, phi, theta, omega):
+        self.rotation = self._euler_rot(phi,theta,omega)
+    def _euler_rot(self,phi,theta,omega):
+        # Cut and paste from where it is now...
+        const_pi = math.acos(-1.0)
+      
+        phi = phi*const_pi/180.0
+        theta = theta*const_pi/180.0
+        omega = omega*const_pi/180.0
+            
+        sp = math.sin(phi)                      
+        cp = math.cos(phi)                     
+        st = math.sin(theta)                     
+        ct = math.cos(theta)                    
+        so = math.sin(omega)                    
+        co = math.cos(omega)
+
+        qrot = [[0.0 for i in range(3)] for j in range(3)]
+
+        qrot[0][0] = co*cp-so*sp*ct
+        qrot[1][0] = co*sp+so*ct*cp   
+        qrot[2][0] = so*st   
+        qrot[0][1] = -so*cp-sp*co*ct 
+        qrot[1][1] = -so*sp+ct*co*cp
+        qrot[2][1] = co*st
+        qrot[0][2] = sp*st       
+        qrot[1][2] = -st*cp       
+        qrot[2][2] = ct
+
+        return qrot
+
 # A flux is a thing that has zero divergence in equilibrium.
 # Components of the divergence of the flux at a given node correspond
 # to Eqn objects.  Fluxes know what fields they depend on.
 class Flux:
-    def __init__(self, name, fieldname):
+    def __init__(self, name, fieldname, dim):
         self.name = name
         self.fieldname = fieldname
+        self.dim = dim
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.name)
     
 
 class CauchyStress(Flux):
     def __init__(self,name,lmbda=1.0,mu=0.5):
-        Flux.__init__(self,name,"Displacement")
-        self.cijkl = Cijkl(lmbda,mu)
+        Flux.__init__(self,name,"Displacement",9) # Dimensionality.
+        self.cijkl = None
+        self.global_cijkl = Cijkl(lmbda,mu)
     # For the Cauchy stress, derivative is very simple.
     def dukl(self,k,l,position,dofval,dofderivs):
         return [ [  0.5*(self.cijkl[i][j][k][l]+self.cijkl[i][j][l][k])
@@ -49,7 +83,23 @@ class CauchyStress(Flux):
         return sum( sum( 0.5*self.cijkl[i][j][k][l]*
                          (dofderivs[k][l]+dofderivs[l][k])
                              for l in range(3)) for k in range(3))
-
+    def rotate(self,qrot):
+        C_mat = [[[[0.0 for i in range(3)] for j in range(3) ]
+                  for k in range(3)] for l in range(3)]
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    for l in range(3):
+                        # Whew...
+                        for m in range(3):
+                            for n in range(3):
+                                for o in range(3):
+                                    for p in range(3):
+                                        C_mat[i][j][k][l] += qrot[i][m]*
+                                        qrot[j][n]*qrot[k][o]*qrot[l][p]*
+                                        self.global_cijkl[m][n][o][p]
+        self.cijkl = C_mat
+    
 
 
 
@@ -59,7 +109,7 @@ class CauchyStress(Flux):
 
 class Pk1Stress(Flux):
     def __init__(self,name,lmbda=1.0,mu=0.5):
-        Flux.__init__(self,name,"Displacement")
+        Flux.__init__(self,name,"Displacement",9)
         self.cijkl = Cijkl(lmbda,mu)
         self.dukl_cache = {}
     # For the Cauchy stress, derivative is very simple.
@@ -264,7 +314,7 @@ class RambergOsgood(Flux):
     # Ramberg-Osgood defines the strain as an analytic function of the
     # stress, which is not in general invertible.
     def __init__(self,name,lmbda=1.0,mu=0.5,alpha=1.0,s0=0.1,n=7):
-        Flux.__init__(self,name,"Displacement")
+        Flux.__init__(self,name,"Displacement", 9) # Dimensionality.
         cij = Cij(lmbda,mu)
         c11 = cij[0][0]
         c12 = cij[0][1]
