@@ -110,18 +110,15 @@ void segfault(int delay) {
 }
 
 void throwException() {
-  // Using gcc 4.4 (from fink) and Python 2.4, this line causes an
-  // error because __LINE__ is somehow not defined correctly.  A print
-  // statement that simply prints __LINE__ also crashes.  The Python
-  // version is presumably relevant because it affects the compiler
-  // options used by setup.py, but I could not replicate the problem
-  // with a small test file.  Since gcc 4.4 is new and Python 2.4 is
-  // old, perhaps we can ignore this issue.  There is no problem with
-  // Python 2.5 or 2.6 and gcc 4.4, nor with Python 2.4 and gcc 4.0.
-  // gcc 4.3 will not compile OOF2 with Python 2.4, but compiles and
-  // runs correctly with Python 2.5.
-  //  std::cerr << "throwException: __LINE__=" << __LINE__ << std::endl;
-    throw ErrProgrammingError("Somebody made a mistake!", __FILE__, __LINE__);
+  // The third argument ErrProgrammingError is usually __LINE__, but
+  // in this case that's dangerous, because editing anything in this
+  // file above here might change __LINE__ here, and that would cause
+  // tests that expect a certain error text to fail.  Since this
+  // routine is only used to test error handling, we use a fixed
+  // integer value instead of __LINE__.  The value is the one that was
+  // in the test files at the time that this glitch was
+  // discovered. (See TEST/GUI/04100/log.py, for example.)
+  throw ErrProgrammingError("Somebody made a mistake!", __FILE__, 124);
 }
 
 // A C++ function that can be called from Python, and which calls a

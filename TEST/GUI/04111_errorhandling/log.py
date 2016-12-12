@@ -15,7 +15,7 @@ checkpoint OOF.File.Load.Script
 checkpoint OOF.File.LoadStartUp.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(592, 160)
-assert generics.errorMsg("ErrProgrammingError: Somebody made a mistake!\n(./SRC/common/cdebug.C:128)\n\nErrUserError: Script 'TEST_DATA/errorcmd.py' raised an ErrProgrammingError exception\n\nErrUserError: Script 'TEST_DATA/nestederror.py' raised an ErrUserError exception")
+assert generics.errorMsg("ErrProgrammingError: Somebody made a mistake!\n(./SRC/common/cdebug.C:124)\n\nErrUserError: Script 'TEST_DATA/errorcmd.py' raised an ErrProgrammingError exception\n\nErrUserError: Script 'TEST_DATA/nestederror.py' raised an ErrUserError exception")
 findWidget('Error:gtk-ok').clicked()
 assert utils.OOFeval('teststring') == 'ok' and utils.OOFeval('anothertest') == 'ok'
 findMenu(findWidget('OOF2:MenuBar'), 'File:Load:Script').activate()
@@ -35,7 +35,7 @@ checkpoint OOF.File.Load.Script
 checkpoint OOF.File.Load.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(592, 160)
-assert generics.errorMsg("ErrProgrammingError: Somebody made a mistake!\n(./SRC/common/cdebug.C:128)\n\nErrUserError: Script 'TEST_DATA/errorcmd.py' raised an ErrProgrammingError exception\n\nErrUserError: Script 'TEST_DATA/nestederror.py' raised an ErrUserError exception")
+assert generics.errorMsg("ErrProgrammingError: Somebody made a mistake!\n(./SRC/common/cdebug.C:124)\n\nErrUserError: Script 'TEST_DATA/errorcmd.py' raised an ErrProgrammingError exception\n\nErrUserError: Script 'TEST_DATA/nestederror.py' raised an ErrUserError exception")
 findWidget('Error:gtk-ok').clicked()
 assert utils.OOFeval('teststring') == 'ok' and utils.OOFeval('anothertest') == 'ok'
 findMenu(findWidget('OOF2:MenuBar'), 'File:Quit').activate()
