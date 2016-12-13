@@ -35,7 +35,7 @@ class Node:
     def __init__(self,idx,pos):
         self.index = idx
         self.position = pos
-        self.dofs = []
+        self.fields = []
         self.eqns = []
         self.elements = set()
 
@@ -50,27 +50,27 @@ class Node:
     def get_elements(self):
         return self.elements
 
-    def alldofs(self):
-        return self.dofs[:]
+    def allfields(self):
+        return self.fields[:]
 
-    def ndofs(self):
-        return len(self.dofs)
+    def nfields(self):
+        return len(self.fields)
 
-    def adddof(self,dof):
-        self.dofs.append(dof)
+    def addfield(self,field):
+        self.fields.append(field)
 
     def addeqn(self,eqn):
         self.eqns.append(eqn)
 
     # Returns the *mesh* index of this DOF.
-    def dofindex(self,dofname):
-        for d in self.dofs:
-            if d.name==dofname:
+    def fieldindex(self,fieldname):
+        for d in self.fields:
+            if d.name==fieldname:
                 return d.index
 
-    def dof(self,dofname):
-        for d in self.dofs:
-            if d.name==dofname:
+    def field(self,fieldname):
+        for d in self.fields:
+            if d.name==fieldname:
                 return d
 
     def eqn(self,eqnname):
@@ -79,9 +79,10 @@ class Node:
                 return e
 
 # This is a combination of the field and dof functionality in OOF.
-# The index is the starting index for this DOF in the master stiffness
-# matrix, and the size is the number of slots it uses.
-class Dof:
+# The index is the starting index for this field in the master stiffness
+# matrix, and the size is the number of slots it uses.  There is
+# one of these objects per node.
+class Field:
     def __init__(self, name, index, size):
         self.name = name
         self.index = index
@@ -94,7 +95,7 @@ class Dof:
     def get(self,idx):
         return self.value[idx]
     def __repr__(self):
-        return "Dof(%s,%d,%d)" % (self.name, self.index, self.size)
+        return "Field(%s,%d,%d)" % (self.name, self.index, self.size)
 
 # Equation object.  Indexing as for Dofs.  Indexing is really all it
 # does.
@@ -102,13 +103,14 @@ class Eqn:
     def __init__(self, name, index, size, flux):
         self.name = name
         self.index = index
-        self.size = s
+        self.size = size
         self.flux = flux
     def __repr__(self):
         return "Eqn(%s,%d,%d,%s)" % (self.name, self.index, 
                                      self.size, self.flux.name)
-    def make_stiffness(self, element, gausspt, flux_vector,
-                       flux_dofderivs):
+    def make_linear_system(self, element, gausspt, flux_vector,
+                           flux_dofderivs):
+        pass
         # Figure out the global row
         # For each column of flux_dofderivs, figure out global column
         # Multiply flux by shape function derivs
@@ -286,8 +288,8 @@ class Element:
         for n in self.nodes:
             n.add_element(self)
         self.frommaster_cache = {}
-        self.dof_cache = {}
-        self.dofdx_cache = {}
+        self.f_cache = {}
+        self.fdx_cache = {}
         self.dshapefn_cache = {}
         self.material = None
     def __repr__(self):
@@ -295,8 +297,8 @@ class Element:
     # Evaluate a shape function at a master-space coordinate
     def clear_caches(self):
         self.frommaster_cache = {}
-        self.dof_cache = {}
-        self.dofdx_cache = {}
+        self.f_cache = {}
+        self.fdx_cache = {}
         self.dshapefn_cache = {}
     def shapefn(self,i,xi,zeta,mu):
         return self.sfns[i](xi,zeta,mu)
@@ -326,53 +328,53 @@ class Element:
             
             return dfdref[j]
 
-    # Get number of degrees of freedom.
-    def ndofs(self):
-        doftotal = 0
+    # Get number of fields.
+    def nfields(self):
+        ftotal = 0
         for n in self.nodes:
-            doftotal += n.ndofs()
-        return doftotal
+            ftotal += n.fields()
+        return ftotal
             
-    # Evaluate an arbitrary DOF at a given master-space position.
-    # Always returns a list, even for scalar DOFs.
-    def dof(self,dofname,xi,zeta,mu):
+    # Evaluate an arbitrary field at a given master-space position.
+    # Always returns a list, even for scalar fields.
+    def field(self,fname,xi,zeta,mu):
         try:
-            return self.dof_cache[(dofname,xi,zeta,mu)][:]
+            return self.f_cache[(fname,xi,zeta,mu)][:]
         except KeyError:
             res = None
             for (ni,n) in enumerate(self.nodes):
                 sfval = self.shapefn(ni,xi,zeta,mu)
-                for dof in n.dofs:
-                    if dof.name == dofname:
-                        term = [sfval*x for x in dof.value]
+                for f in n.fields:
+                    if f.name == fname:
+                        term = [sfval*x for x in f.value]
                         if res==None:
                             res = term
                         else:
                             res = [sum(x) for x in zip(res,term)]
-            self.dof_cache[(dofname,xi,zeta,mu)]=res
+            self.f_cache[(fname,xi,zeta,mu)]=res
             return res[:]
 
-    # Return the reference-state derivatives of a DOF at a given
+    # Return the reference-state derivatives of a field at a given
     # master-space position.  Always returns a list of lists, with the
     # component of the derivative being the fastest-varying thing.
-    def dofdx(self,dofname,xi,zeta,mu):
+    def fielddx(self,dofname,xi,zeta,mu):
         try:
-            return [x[:] for x in self.dofdx_cache[(dofname,xi,zeta,mu)]]
+            return [x[:] for x in self.fdx_cache[(dofname,xi,zeta,mu)]]
         except KeyError:
             res = None
             for (ni,n) in enumerate(self.nodes):
                 dsf = [ self.dshapefn(ni,0,xi,zeta,mu),
                         self.dshapefn(ni,1,xi,zeta,mu),
                         self.dshapefn(ni,2,xi,zeta,mu) ]
-                for dof in n.dofs:
-                    if dof.name == dofname:
-                        term = [[ df*x for x in dof.value ] for df in dsf ]
+                for f in n.fields:
+                    if f.name == dofname:
+                        term = [[ df*x for x in f.value ] for df in dsf ]
                         if res == None:
                             res = term
                         else:
                             res = [[sum(y) for y in zip(x[0],x[1])]
                                    for x in zip(res,term)]
-            self.dofdx_cache[(dofname,xi,zeta,mu)]=res
+            self.fdx_cache[(dofname,xi,zeta,mu)]=res
             return [x[:] for x in res]
                         
     # The master-to-reference transformation.
@@ -554,7 +556,7 @@ class Mesh:
         dy = 1.0/yelements
         dz = 1.0/zelements
         
-        self.doflist = []
+        self.fieldlist = []
         self.eqnlist = []
         self.freedofs = [] # Index list, doesn't actually contain dofs.
         
@@ -622,15 +624,15 @@ class Mesh:
         
     # Add a new field to be solved for. 
     def addfield(self, name, size, value=None):
-        mtxsize = sum( [d.size for d in self.doflist] )
+        mtxsize = sum( [d.size for d in self.fieldlist] )
         count = 0
         for n in self.nodelist:
-            newdof = Dof(name, mtxsize+count*size, size)
+            newf = Field(name, mtxsize+count*size, size)
             if value is not None:
                 for i in range(len(value)):
-                    newdof.set(i,value[i])
-            n.adddof(newdof)
-            self.doflist.append(newdof)
+                    newf.set(i,value[i])
+            n.addfield(newf)
+            self.fieldlist.append(newf)
             count += 1
 
     # Equations don't take values. Yet.
@@ -655,10 +657,10 @@ class Mesh:
     # fields.
     def reset(self):
         self.clear()
-        self.doflist = []
+        self.fieldlist = []
         self.eqnlist = []
         for n in self.nodelist:
-            n.dofs = []
+            n.fields = []
 
     # Build the flux-divergence contributions to the stiffness matrix.
     # In OOF, individual properties do this, but this is not OOF, it
@@ -675,6 +677,7 @@ class Mesh:
     # is merely OOFoid.  It could eventually be OOFtacular.  What it
     # actually does is populate a dictionary indexed by (row,col)
     # tuples.
+
     def make_stiffness(self):
         for e in self.elementlist:
             print "Element...."
@@ -683,7 +686,7 @@ class Mesh:
                     for i in range(eq.size):
                         row = eq.index+i
                         for (cndx,cn) in enumerate(e.nodes):  # "Column" nodes.
-                            for df in cn.dofs:
+                            for df in cn.fields:
                                 for j in range(df.size):
                                     col = df.index+j
                                     # Now we have (row,col) for the matrix.
@@ -704,18 +707,18 @@ class Mesh:
 
 
     def _flux_deriv(self, element, rndx, cndx, eqn, eqcomp,
-                    dof, dofcomp, gpt):
+                    field, fieldcomp, gpt):
         # We are inside most of the matrix loops, including the
         # gausspoint loop. Take the derivative.
         # Rndx is the element's index of the shapefunction for the row.
         # Cndx is the element's index of the shapefunction for the column.
         # Eqn is the equation object, eqncomp the component.
-        # Dof is the ODF object, dofcomp the component.
+        # Field is the field object, fcomp the component.
         # Gpt is the gausspoint, pos the reference-state position of it.
 
         pos = element.frommaster(gpt.xi,gpt.zeta,gpt.mu)
-        dofval = element.dof(dof.name, gpt.xi,gpt.zeta,gpt.mu)
-        dofderivs = element.dofdx(dof.name, gpt.xi,gpt.zeta,gpt.mu)
+        fval = element.field(field.name, gpt.xi,gpt.zeta,gpt.mu)
+        fderivs = element.fielddx(field.name, gpt.xi,gpt.zeta,gpt.mu)
 
         # In principle, we could check metadata here, to make sure
         # that the flux we are calling contributes to the equation
@@ -724,8 +727,8 @@ class Mesh:
         # all equations are force-balance.
 
         # Pre-compute the flux derivatives.
-        fluxdvs = [ eqn.flux.dukl(dofcomp,l,
-                                  pos,dofval,dofderivs) for l in range(3) ]
+        fluxdvs = [ eqn.flux.dukl(fieldcomp,l,
+                                  pos,fval,fderivs) for l in range(3) ]
         res = 0.0
         
         for j in range(3):
@@ -776,13 +779,13 @@ class Mesh:
 
         pos = element.frommaster(gpt.xi,gpt.zeta,gpt.mu)
 
-        dofname = eqn.flux.fieldname # Assume there's only one, for now.
-        dofval = element.dof(dofname,gpt.xi,gpt.zeta,gpt.mu)
-        dofderivs = element.dofdx(dofname,gpt.xi,gpt.zeta,gpt.mu)
+        fname = eqn.flux.fieldname # Assume there's only one, for now.
+        fval = element.field(fname,gpt.xi,gpt.zeta,gpt.mu)
+        fderivs = element.fielddx(fname,gpt.xi,gpt.zeta,gpt.mu)
         res = 0.0
         for j in range(3):
             res -= element.dshapefn(rndx,j,gpt.xi,gpt.zeta,gpt.mu)*\
-                   eqn.flux.value(eqndx,j,pos,dofval,dofderivs)
+                   eqn.flux.value(eqndx,j,pos,fval,fderivs)
         return res
                                                     
     # Values are z offsets of the top and bottom boundaries, which are
@@ -795,13 +798,13 @@ class Mesh:
         self.bottombc = bottom
         if self.topbc is not None:
             for n in self.topnodes:
-                d = n.dofs[0] # Assume only displacement exists.
+                d = n.fields[0] # Assume only displacement exists.
                 d.set(0,0)
                 d.set(1,0)
                 d.set(2,self.topbc)
         if self.bottombc is not None:
             for n in self.bottomnodes:
-                d = n.dofs[0] # Assume only displacement exists.
+                d = n.fields[0] # Assume only displacement exists.
                 d.set(0,0)
                 d.set(1,0)
                 d.set(2,self.bottombc)
@@ -816,15 +819,15 @@ class Mesh:
         # that -1 is the fixed DOF with index 0, for instance.  The
         # fixed_rhs vector has the actual numerical values of the
         # fixed DOFs, using the self.freedofs indexing scheme.
-        mtxsize = sum( [d.size for d in self.doflist] )
+        mtxsize = sum( [d.size for d in self.fieldlist] )
         self.freedofs = [-1]*mtxsize
         fixed_rhs = []
         for node in self.nodelist:
-            for dof in node.alldofs():
+            for f in node.allfields():
                 add = False # Add to free DOF list?
-                if dof.name!="Displacement":
+                if f.name!="Displacement":
                     add = True # All non-displacement DOFs are free.
-                else: # dof.name *is* "Displacement"
+                else: # f.name *is* "Displacement"
                     if (not (node in self.topnodes) and \
                         not (node in self.bottomnodes)) \
                         or ( (node in self.topnodes) and \
@@ -838,7 +841,7 @@ class Mesh:
                         else:
                             fixed_rhs.append(self.bottombc)
                 if add:
-                    for k in range(dof.index, dof.index+dof.size):
+                    for k in range(f.index, f.index+f.size):
                         self.freedofs[k]=k
         # So now we have the list, compress it.
         free_count = 0
@@ -907,7 +910,7 @@ class Mesh:
 
         if rr==0:
             for n in self.nodelist:
-                for d in n.alldofs():
+                for d in n.allfields():
                     for k in range(d.size):
                         ref = self.freedofs[d.index+k]
                         if ref >= 0:
@@ -974,7 +977,7 @@ class Mesh:
         if rr==0:
             mag = 0.0
             for n in self.nodelist:
-                for d in n.alldofs():
+                for d in n.allfields():
                     for k in range(d.size):
                         ref = self.freedofs[d.index+k]
                         if ref >= 0:
@@ -1000,13 +1003,13 @@ class Mesh:
         for f in self.bottomfaces:
             for g in f.gausspts():
                 jw = f.jacobian(g.xi,g.zeta,g.mu)*g.weight
-                dofval = f.element.dof("Displacement",
+                fval = f.element.field("Displacement",
                                        g.xi,g.zeta,-1.0)
-                dofderivs = f.element.dofdx("Displacement",
+                fderivs = f.element.fielddx("Displacement",
                                             g.xi,g.zeta,-1.0)
                 # Only want the z components.  The "None" argument is
                 # for the position, we don't care for now.
-                fvec = [ flux.value(i,2,None,dofval,dofderivs)
+                fvec = [ flux.value(i,2,None,fval,fderivs)
                          for i in range(3) ]
                 res[0]+=fvec[0]*jw
                 res[1]+=fvec[1]*jw
@@ -1043,7 +1046,7 @@ class Mesh:
                 dotset.add(n.position)
                 if displaced:
                     dpos = n.position
-                    disp_idx = n.dof("Displacement")
+                    disp_idx = n.field("Displacement")
                     disp_val = Position(disp_idx.value[0],
                                         disp_idx.value[1],
                                         disp_idx.value[2])
@@ -1137,7 +1140,7 @@ def displaced_drawing_test():
     for n in m.nodelist:
         p = n.position
         dp = [0,0,p.z*0.1]
-        df = n.dof("Displacement")
+        df = n.field("Displacement")
         for i in range(3):
             df.value[i]=dp[i]
             
@@ -1219,20 +1222,20 @@ class Material:
         # TODO: Look at the flux class, clear up "offset" vs "value".
         flux_vector = [0.0]*rows
         #
-        flux_dofderivs = [ [0.0]*cols for i in range(rows)]
+        flux_fderivs = [ [0.0]*cols for i in range(rows)]
         #
         # Missing: Mapping between the dofs which index the columns of
         # the flux_dofderivs matrix, and the global stiffness matrix
         # dof indices.  The equation will need this.
-        self.flux.flux_matrix(element, gausspt, flux_vector, flux_dofderivs)
-        self.flux.flux_offset(element, gausspt, flux_vector, flux_dofderivs)
+        self.flux.flux_matrix(element, gausspt, flux_vector, flux_fderivs)
+        self.flux.flux_offset(element, gausspt, flux_vector, flux_fderivs)
         # Or maybe flux value instead of offset?  Figure this out.
         #
         # TODO: Should the element do these loops? Or the equation?
         for nd in element.nodes:
             for eqn in nd.eqns:
-                eqn.make_stiffness(element, gausspt, flux_vector,
-                                   flux_dofderivs)
+                eqn.make_linear_system(element, gausspt, flux_vector,
+                                       flux_fderivs)
                 
         
         

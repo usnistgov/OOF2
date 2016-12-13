@@ -66,6 +66,38 @@ class Flux:
         self.dim = dim
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.name)
+    def flux_matrix(self, element, gausspt, flux_vector, flux_fderivs):
+        # Populate the flux matrix, whose rows are components of the flux,
+        # and columns are field components for this element.
+        col_offset = 0
+        for (cndx,cn) in enumerate(element.nodes):
+            f_offset = 0
+            for f in cn.fields:
+                fval = element.field(f.name,gausspt.xi,
+                                     gausspt.zeta,gausspt.mu)
+                fderivs = element.fielddx(f.name,gausspt.xi,
+                                          gausspt.zeta,gausspt.mu)
+                for comp in range(f.size):
+                    local_cdx = col_offset+f_offset+comp
+                    for l in range(3):
+                        dsfn = element.dshapefn(cndx,l,
+                                                gausspt.xi,
+                                                gausspt.zeta,
+                                                gausspt.mu)
+                        dukl = self.dukl(comp,l,None,
+                                         fval,fderivs)
+                        for flux_comp in range(self.dim):
+                            flux_fderivs[flux_comp][local_cdx] += \
+                                    dukl[t_row[flux_comp]][t_col[flux_comp]]*\
+                                    dsfn
+                    # Do stuff
+                f_offset +=f.size
+            col_offset += f_offset
+                
+    def flux_vector(self, element, gausspt, flux_vector, flux_dofderivs):
+        # Populate the flux vector, which is the value of this flux
+        # at the current guasspoint and fields.
+        pass
     
 
 class CauchyStress(Flux):
@@ -74,14 +106,14 @@ class CauchyStress(Flux):
         self.cijkl = None
         self.global_cijkl = Cijkl(lmbda,mu)
     # For the Cauchy stress, derivative is very simple.
-    def dukl(self,k,l,position,dofval,dofderivs):
+    def dukl(self,k,l,position,fval,fderivs):
         return [ [  0.5*(self.cijkl[i][j][k][l]+self.cijkl[i][j][l][k])
                     for j in range(3) ] for i in range(3) ]
 
     # Value is pretty simple too.
-    def value(self,i,j,pos,dofval,dofderivs):
+    def value(self,i,j,pos,fval,fderivs):
         return sum( sum( 0.5*self.cijkl[i][j][k][l]*
-                         (dofderivs[k][l]+dofderivs[l][k])
+                         (fderivs[k][l]+fderivs[l][k])
                              for l in range(3)) for k in range(3))
     def rotate(self,qrot):
         C_mat = [[[[0.0 for i in range(3)] for j in range(3) ]
@@ -95,8 +127,8 @@ class CauchyStress(Flux):
                             for n in range(3):
                                 for o in range(3):
                                     for p in range(3):
-                                        C_mat[i][j][k][l] += qrot[i][m]*
-                                        qrot[j][n]*qrot[k][o]*qrot[l][p]*
+                                        C_mat[i][j][k][l] += qrot[i][m]*\
+                                        qrot[j][n]*qrot[k][o]*qrot[l][p]*\
                                         self.global_cijkl[m][n][o][p]
         self.cijkl = C_mat
     
@@ -113,9 +145,9 @@ class Pk1Stress(Flux):
         self.cijkl = Cijkl(lmbda,mu)
         self.dukl_cache = {}
     # For the Cauchy stress, derivative is very simple.
-    def dukl(self,k,l,position,dofval,dofderivs):
-        cache_index = (position,)+tuple(dofval)+tuple([tuple(x) for
-                                                       x in dofderivs])
+    def dukl(self,k,l,position,fval,fderivs):
+        cache_index = (position,)+tuple(fval)+tuple([tuple(x) for
+                                                     x in fderivs])
         try:
             N = self.dukl_cache[cache_index]
             TMP = [[0.0 for ii in range(3)] for jj in range(3) ]
@@ -124,10 +156,10 @@ class Pk1Stress(Flux):
                     TMP[i][j] = N[i][j][k][l]
             return TMP
         except KeyError:
-            FG = self.calc_F(dofderivs)            # F at gausspoint
+            FG = self.calc_F(fderivs)            # F at gausspoint
             E_lag = self.calc_E_lag(FG)            # Euler-Lagrange strain
             S = self.SPK_stress(E_lag)             # 2nd PK stress
-            dS_ddu = self.dS2PK_du_ij(dofderivs)      # 2nd PK derivatives.
+            dS_ddu = self.dS2PK_du_ij(fderivs)      # 2nd PK derivatives.
             delta_4 = self.delta_kron4()
             N = self.dSP1PK_du_ij(delta_4,FG,S,dS_ddu) # 1st PK derviatives
                                                        # -- actual flux!
@@ -276,9 +308,9 @@ class Pk1Stress(Flux):
 
 
     # Value is pretty simple too.    
-    def value(self,i,j,pos,dofval,dofderivs):
+    def value(self,i,j,pos,fval,fderivs):
 
-        FG = self.calc_F(dofderivs)            # F at gausspoint
+        FG = self.calc_F(fderivs)            # F at gausspoint
         E_lag = self.calc_E_lag(FG)            # Euler-Lagrange strain
         S = self.SPK_stress(E_lag)             # 2nd PK stress
         P = self.FPK_stress(FG,S)             # 1st PK stress
@@ -419,12 +451,12 @@ class RambergOsgood(Flux):
     #
     # TODO: These are going to be slow. Use caches and cleverness to
     # fix them later on.
-    def dukl(self,k,l,pos,dofval,dofderivs):
-        cache_index = tuple( [ tuple(x) for x in dofderivs ] )
+    def dukl(self,k,l,pos,fval,fderivs):
+        cache_index = tuple( [ tuple(x) for x in fderivs ] )
         try:
             dsijdukl = self.dukl_cache[cache_index]
         except KeyError:
-            strain = [ [ 0.5*(dofderivs[i][j]+dofderivs[j][i])
+            strain = [ [ 0.5*(fderivs[i][j]+fderivs[j][i])
                          for j in range(3) ]
                        for i in range(3) ] 
             stress = self._stress(strain)
@@ -456,8 +488,8 @@ class RambergOsgood(Flux):
         return [ [ dsijdukl[ix][jx][k][l] for jx in range(3) ]
                  for ix in range(3) ]
             
-    def value(self,i,j,pos,dofval,dofderivs):
-        strain = [ [ 0.5*(dofderivs[ix][jx]+dofderivs[jx][ix])
+    def value(self,i,j,pos,fval,fderivs):
+        strain = [ [ 0.5*(fderivs[ix][jx]+fderivs[jx][ix])
                      for jx in range(3) ]
                    for ix in range(3) ]
         stress = self._stress(strain)
@@ -470,6 +502,8 @@ voigt = [[0,5,4],
          [5,1,3],
          [4,3,2]]
 
+tensor_row = [0,1,2,1,0,0,1,2,2]
+tensor_col = [0,1,2,2,2,1,0,0,1]
 
 def Cij(lmbda,mu):
     # Canonical: lmbda=0.5, mu=0.25, gives c11=1.0,c12=0.5.
@@ -488,5 +522,3 @@ def Cijkl(lmbda,mu):
     cij = Cij(lmbda,mu)
     return [ [ [ [ cij[voigt[i][j]][voigt[k][l]] for l in range(3) ]
                   for k in range(3) ] for j in range(3) ] for i in range(3) ]
-
-          
