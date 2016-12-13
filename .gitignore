@@ -7,6 +7,7 @@
 SRC/SWIG2D/*
 build/
 builddir-*
+OOFSWIG/BUILD/
 OOFSWIG/Makefile
 OOFSWIG/*/Makefile
 OOFSWIG/Makefile.template
