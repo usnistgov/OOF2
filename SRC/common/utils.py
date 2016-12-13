@@ -9,11 +9,16 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+print "utils.py: importing lock"
 from ooflib.SWIG.common import lock
+print "utils.py: Imported lock"
 from ooflib.common import debug
+print "utils.py: imported debug"
 import string
 import sys
 import types
+
+debug.fmsg("Imported")
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 

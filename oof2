@@ -23,6 +23,7 @@ import os
 
 # need to set path so that it imports the oof package that we want
 import oof2
+print "Imported oof2"
 sys.path.append(os.path.dirname(oof2.__file__))
 
 # All user input is evaluated in this environment, so first import
@@ -34,7 +35,9 @@ from math import *
 # even try loading any other oof code (not even the debug module)
 # before here!
 
+print "Importing oof"
 from ooflib.common import oof
+print "Calling oof.run()"
 oof.run()
 
 sys.exit()

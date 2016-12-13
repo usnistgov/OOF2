@@ -9,6 +9,8 @@
 
 import sys, os, types, string, random, code
 
+print "oof.py: Imported sys, etc"
+
 # g++ code won't correctly resolve dynamic casts in shared libraries
 # unless RTLD_GLOBAL is set when the library is loaded.  See
 # http://gcc.gnu.org/faq.html#dso.  This must be done before any other
@@ -17,19 +19,24 @@ try:
     sys.setdlopenflags(0x101)          # RTLD_GLOBAL (0x100) | RTLD_LAZY (0x001)
 except AttributeError:
     pass
+print "oof.py: set dlopen flags"
 
 # The following calls initialize elements of the C++/Python interface,
 # and must done before anything else that might call OOF C++ code.
 # threadstate.py must be imported on the main thread before it's
 # imported on any other thread.
+print "oof.py: importing threadstate"
 from ooflib.SWIG.common import threadstate
+print "oof.py: imported threadstate"
 # switchboard is used for communication between modules
 import ooflib.SWIG.common.switchboard
+print "oof.py: imported switchboard"
 
 # utils must be imported next because it inserts some code into
 # __builtins__.
 from ooflib.common import utils
 
+print "oof.py: Imported utils"
 
 # These can be imported in any order.
 from ooflib.SWIG.common import config
@@ -49,7 +56,9 @@ from ooflib.common import thread_enable
 from ooflib.common.IO import automatic
 from ooflib.common.IO import reporter
 from ooflib.common.IO import progressbar
-            
+
+print "oof.py: finished bulk imports"
+
 ########################################
 
 # Option processing:
@@ -597,6 +606,8 @@ def start_sockets_Back_End():
 def run(no_interp=None):
     global _rank
     global startupfiles
+
+    print "oof.py: run()"
 
     process_inline_options()  # execute well-formed oof options
 
