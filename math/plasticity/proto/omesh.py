@@ -56,6 +56,12 @@ class Node:
     def nfields(self):
         return len(self.fields)
 
+    def nfieldcomps(self):
+        res = 0
+        for f in self.fields:
+            res += f.size
+        return res
+    
     def addfield(self,field):
         self.fields.append(field)
 
@@ -108,17 +114,29 @@ class Eqn:
     def __repr__(self):
         return "Eqn(%s,%d,%d,%s)" % (self.name, self.index, 
                                      self.size, self.flux.name)
-    def make_linear_system(self, element, gausspt, flux_vector,
-                           flux_dofderivs):
-        pass
-        # Figure out the global row
-        # For each column of flux_dofderivs, figure out global column
-        # Multiply flux by shape function derivs
-        # Multiply by gauss point weight and element Jacobian
-        # MINUS SIGN!!! We are integrating by parts here....
-        # Insert this info into the global stiffness matrix.
-        # TODO: Figure out how to access the global stiffness matrix.
-        
+    def make_linear_system(self, mesh, element, ndx, gpt, flux_vector,
+                           flux_dofderivs,fmap):
+        for fxcomp in range(self.flux.dim):
+            row = self.index+flux.t_row[fxcomp]
+            j = flux.t_col[fxcomp]
+            res = element.dshapefn(ndx,j,gpt.xi,gpt.zeta,gpt.mu)
+            res *= (-1.0)*element.jacobian(gpt.xi,gpt.zeta,gpt.mu)*gpt.weight
+
+            eqval = res*flux_vector[fxcomp]
+            try:
+                mesh.eqns[row] += eqval
+            except KeyError:
+                mesh.eqns[row] = eqval
+            for fxcol in range(len(fmap)):
+                col = fmap[fxcol]
+                res *= flux_dofderivs[fxcomp][fxcol]
+                try:
+                    mesh.matrix[(row,col)] += res
+                except KeyError:
+                    mesh.matrix[(row,col)] = res
+
+                    
+
         
 
 # Hexahedral eight-node shape functions.  Coords are xi, zeta, mu..
@@ -328,11 +346,11 @@ class Element:
             
             return dfdref[j]
 
-    # Get number of fields.
-    def nfields(self):
+    # Get number of field components.
+    def nfieldcomps(self):
         ftotal = 0
         for n in self.nodes:
-            ftotal += n.fields()
+            ftotal += n.nfieldcomps()
         return ftotal
             
     # Evaluate an arbitrary field at a given master-space position.
@@ -441,11 +459,11 @@ class Element:
 
     def addmaterial(self,mtl):
         self.material = mtl
-    def make_linear_system(self):
+    def make_linear_system(self, mesh):
         print "Element...."
         self.material.begin_element(self)
-        for g in gausspts():
-            self.material.make_linear_system(self,g) # Element and gausspt.
+        for g in self.gausspts():
+            self.material.make_linear_system(mesh, self, g) 
         self.material.end_element(self)
 
 class Face:
@@ -666,10 +684,15 @@ class Mesh:
     # In OOF, individual properties do this, but this is not OOF, it
     # is merely OOFoid.  It could eventually be OOFtacular.  What it
     # actually does is populate a dictionary indexed by (row,col)
-    # tuples.
+    # tuples.  Note that this process populates the mesh's .matrix and
+    # .eqns objects with the appropriate data, suitable for
+    # Newton-Raphson iteration.  You may still want to evaluate the
+    # equations separately to check convergence, and having done so,
+    # might not want this process to do it again, because it's
+    # redundant. Optimize this later.
     def new_make_stiffness(self):
         for e in self.elementlist:
-            e.make_linear_system()
+            e.make_linear_system(self)
         
         
     # Build the flux-divergence contributions to the stiffness matrix.
@@ -1214,9 +1237,13 @@ class Material:
         pass
     def end_element(self,element):
         pass
-    def make_linear_system(self, element, gausspt):
+    def make_linear_system(self, mesh, element, gausspt):
+        #
+        # This routine populates the self.matrix and self.eqn objects
+        # in the mesh, so they'd better be cleared before you start.
+        
         # Iterate over fluxes, but there's only one.
-        cols = element.ndofs()
+        cols = element.nfieldcomps()
         rows = self.flux.dim
         #
         # TODO: Look at the flux class, clear up "offset" vs "value".
@@ -1224,23 +1251,21 @@ class Material:
         #
         flux_fderivs = [ [0.0]*cols for i in range(rows)]
         #
-        # Missing: Mapping between the dofs which index the columns of
-        # the flux_dofderivs matrix, and the global stiffness matrix
-        # dof indices.  The equation will need this.
-        self.flux.flux_matrix(element, gausspt, flux_vector, flux_fderivs)
-        self.flux.flux_offset(element, gausspt, flux_vector, flux_fderivs)
-        # Or maybe flux value instead of offset?  Figure this out.
-        #
-        # TODO: Should the element do these loops? Or the equation?
-        for nd in element.nodes:
-            for eqn in nd.eqns:
-                eqn.make_linear_system(element, gausspt, flux_vector,
-                                       flux_fderivs)
-                
-        
-        
-        
+        fmap = [0]*cols # Map from local to global columns.
+        # Fmap is the mapping from local flux matrix columns to the
+        # global stiffness matrix columns, and gets populated by
+        # the flux_matrix call.
 
+        self.flux.flux_matrix(element, gausspt, flux_vector,
+                              flux_fderivs, fmap)
+        self.flux.flux_vector(element, gausspt, flux_vector, flux_fderivs)
+        #
+        for (ndx,nd) in enumerate(element.nodes):
+            for eqn in nd.eqns:
+                eqn.make_linear_system(mesh, element, ndx, gausspt,
+                                       flux_vector, flux_fderivs, fmap)
+
+                
 if __name__=="__main__":
     m = Mesh(xelements=4,yelements=4,zelements=4)
     # f = CauchyStress("Stress")
@@ -1257,11 +1282,23 @@ if __name__=="__main__":
 
     # m.solve_linear()
 
-    try:
-        m.solve_nonlinear(None,None,5)
-    except Oops, o:
-        print "Got exception, ", o
-    force_val = m.measure_force(f)
-    print force_val
+    m.clear()
+    m.clear_caches()
+
+    m.new_make_stiffness()
+
+    print m.matrix
+    
+    m.clear()
+    m.clear_caches()
+    m.make_stiffness()
+
+    print m.matrix
+    # try:
+    #     m.solve_nonlinear(None,None,5)
+    # except Oops, o:
+    #     print "Got exception, ", o
+    # force_val = m.measure_force(f)
+    # print force_val
 
     # m.draw(displaced=True)

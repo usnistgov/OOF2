@@ -66,38 +66,51 @@ class Flux:
         self.dim = dim
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.name)
-    def flux_matrix(self, element, gausspt, flux_vector, flux_fderivs):
+    # fmap is the map from local flux matrix columns to global columns.
+    def flux_matrix(self, element, gausspt, flux_vector, flux_fderivs, fmap):
         # Populate the flux matrix, whose rows are components of the flux,
         # and columns are field components for this element.
         col_offset = 0
         for (cndx,cn) in enumerate(element.nodes):
             f_offset = 0
-            for f in cn.fields:
+            for f in cn.fields: # Displacement only, for now.
                 fval = element.field(f.name,gausspt.xi,
                                      gausspt.zeta,gausspt.mu)
                 fderivs = element.fielddx(f.name,gausspt.xi,
                                           gausspt.zeta,gausspt.mu)
                 for comp in range(f.size):
                     local_cdx = col_offset+f_offset+comp
+                    fmap[local_cdx] = f.index+comp
                     for l in range(3):
                         dsfn = element.dshapefn(cndx,l,
                                                 gausspt.xi,
                                                 gausspt.zeta,
                                                 gausspt.mu)
+                        # Assumes fval and fderivs are displacement.
                         dukl = self.dukl(comp,l,None,
                                          fval,fderivs)
                         for flux_comp in range(self.dim):
                             flux_fderivs[flux_comp][local_cdx] += \
                                     dukl[t_row[flux_comp]][t_col[flux_comp]]*\
                                     dsfn
-                    # Do stuff
                 f_offset +=f.size
             col_offset += f_offset
                 
     def flux_vector(self, element, gausspt, flux_vector, flux_dofderivs):
         # Populate the flux vector, which is the value of this flux
         # at the current guasspoint and fields.
-        pass
+        #
+        # We know that our fluxes only depend on displacement.
+        # This is specialized to this case differently than the flux_matrix
+        # code above.
+        fval = element.field("Displacement",gausspt.xi,
+                             gausspt.zeta,gausspt.mu)
+        fderivs = element.fielddx("Displacement",gausspt.xi,
+                                  gausspt.zeta,gausspt.mu)
+        for flux_comp in range(self.dim):
+            i = t_row[flux_comp]
+            j = t_col[flux_comp]
+            flux_vector[flux_comp] += self.value(i,j,None,fval,fderivs)
     
 
 class CauchyStress(Flux):
@@ -502,8 +515,8 @@ voigt = [[0,5,4],
          [5,1,3],
          [4,3,2]]
 
-tensor_row = [0,1,2,1,0,0,1,2,2]
-tensor_col = [0,1,2,2,2,1,0,0,1]
+t_row = [0,1,2,1,0,0,1,2,2]
+t_col = [0,1,2,2,2,1,0,0,1]
 
 def Cij(lmbda,mu):
     # Canonical: lmbda=0.5, mu=0.25, gives c11=1.0,c12=0.5.
