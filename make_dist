@@ -9,9 +9,8 @@
 # oof_manager@nist.gov. 
 
 
-# Script for building a distribution of OOF2 using python distutils.
-# Takes care of git and distutils stuff, and sets the version number
-# in the packaged source code.
+# Script for building a distribution of OOF2.  Takes care of git
+# stuff, and sets the version number in the packaged source code.
 
 # This script assumes that the version to be packaged is the HEAD of
 # the master branch on github.  The previous cvs versions of this
@@ -37,7 +36,24 @@ import sys
 import tempfile
 import time
 
-options = ['version=', 'comment=', 'dryrun', 'help', 'noclean']
+def run_cmd(*args, **kwargs):
+    proc = subprocess.Popen(args, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    stdoutdata, stderrdata = proc.communicate()
+    successcode = kwargs.get("successcode", 0)
+    if proc.returncode != successcode:
+        print >> sys.stderr, "run_cmd failed!", stderrdata
+        sys.exit(proc.returncode)
+    # ## TODO: Change to use subprocess.Popen instead of os.system.
+    # cmd = ' '.join(args)
+    # print >> sys.stderr, cmd
+    # status = os.system(cmd)
+    # if status != 0:
+    #     print >> sys.stderr, "make_dist failed."
+    #     sys.exit(status)
+
+
+options = ['version=', 'comment=', 'dryrun', 'help', 'noclean', 'branch']
 
 def state_options_and_quit():
     print >> sys.stderr,  \
@@ -46,22 +62,14 @@ version=<version number>  version number can contain numbers, letters, and dots
 comment=<comment>         optional comment, cannot contain dots or spaces 
 
 Debugging options are:
-noclean                   don't remove temp directory
-dryrun                    don't actually do anything in distutils
-help                      print this
+noclean              Don't remove temp directory
+dryrun               Don't actually commit, tag, or push in git
+branch=<branchname>  Use branch, not master.  Implies --dryrun and --noclean
+help                 Print this
 """
     sys.exit()
 
 cvsmodule = 'OOF2'
-
-def run_cmd(*args):
-    ## TODO: Change to use subprocess.Popen instead of os.system.
-    cmd = ' '.join(args)
-    print >> sys.stderr, cmd
-    status = os.system(cmd)
-    if status != 0:
-        print >> sys.stderr, "make_dist failed."
-        sys.exit(status)
 
 version = None
 comment = None
@@ -85,6 +93,10 @@ for opt in optlist:
         noclean = True
     elif opt[0] == '--dryrun':
         dryrun = True
+    elif opt[0] == '--branch':
+        branch = opt[1]
+        dryrun = True
+        noclean = True
     elif opt[0] == '--help':
         state_options_and_quit()
 
@@ -117,12 +129,15 @@ try:
     # Clone the git repository into a directory whose name is given by
     # the oof version number: oof2-version or oof3d-version
     distdir = distname.distname + "-" + version
-    # Use --quiet so that stderr is empty if the command succeeds.
-    cmd = ['git', 'clone', '--quiet', giturl, distdir]
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdoutdata, stderrdata = proc.communicate()
-    if proc.returncode != 0:
-        print "*** Failed to clone git repository!", stderrdata.strip()
+    # # Use --quiet so that stderr is empty if the command succeeds.
+    # cmd = ['git', 'clone', '--quiet', giturl, distdir]
+    if branch is None:
+        cmd = ['git', 'clone', giturl, distdir]
+    else:
+        cmd = ['git', 'clone', '--branch', branch, giturl distdir]
+    if subprocess.call(cmd) != 0:
+        print >> sys.stderr, "*** Failed to clone git repository!", \
+            stderrdata.strip()
         sys.exit(1)
 
     # cd to the cloned source code directory
@@ -133,10 +148,20 @@ try:
     # Set the version number in setup.py and SRC/common/oofversion.py.
     sedcmd = 's/version_from_make_dist = \\\"[0-9]*\.[0-9]*\.[0-9]*\\\"/version_from_make_dist = \\\"%s\\\"/' % version
     tmpfile, tmpfilename = tempfile.mkstemp(dir=tempdir)
-    run_cmd('sed "%s" setup.py > %s' % (sedcmd, tmpfilename))
+    # run_cmd('sed "%s" setup.py > %s' % (sedcmd, tmpfilename))
+    if subprocess.call(["sed", sedcmd, "setup.py"], stdout=tmpfile) != 0:
+        print >> sys.stderr, "sed failed!"
+        sys.exit(proc.returncode)
+    tmpfile.close()
     print >> sys.stderr, "Moving", tmpfilename, "to setup.py"
     os.rename(tmpfilename, 'setup.py')
-    run_cmd('sed "%s" SRC/common/oofversion.py > %s' % (sedcmd, tmpfilename))
+
+    tmpfile, tmpfilename = tempfile.mkstemp(dir=tempdir)
+    if subprocess.call(['sed', sedcmd, 'SRC/common/oofversion.py'],
+                       stdout=tmpfile) != 0:
+        print >> sys.stderr, "sed failed!"
+        sys.exit(proc.returncode)
+    tmpfile.close()
     # run_cmd('sed "s/[0-9]*\.[0-9]*\.[0-9]*\./%s/" SRC/common/oofversion.py > %s'
     #         % (version, tmpfilename))
     print >> sys.stderr, "Moving", tmpfilename, "to SRC/common/oofversion.py"
