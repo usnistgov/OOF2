@@ -36,23 +36,13 @@ import sys
 import tempfile
 import time
 
-def run_cmd(*args, **kwargs):
-    proc = subprocess.Popen(args, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
-    stdoutdata, stderrdata = proc.communicate()
-    successcode = kwargs.get("successcode", 0)
-    if proc.returncode != successcode:
-        print >> sys.stderr, "run_cmd failed!", stderrdata
-        sys.exit(proc.returncode)
-    # ## TODO: Change to use subprocess.Popen instead of os.system.
-    # cmd = ' '.join(args)
-    # print >> sys.stderr, cmd
-    # status = os.system(cmd)
-    # if status != 0:
-    #     print >> sys.stderr, "make_dist failed."
-    #     sys.exit(status)
 
-
+def osCall(*args):
+    print >> sys.stderr, "--->", ' '.join(args)
+    status = subprocess.call(args)
+    if status != 0:
+        sys.exit(status)
+        
 options = ['version=', 'comment=', 'dryrun', 'help', 'noclean', 'branch=']
 
 def state_options_and_quit():
@@ -135,11 +125,7 @@ try:
         cmd = ['git', 'clone', giturl, distdir]
     else:
         cmd = ['git', 'clone', '--branch', branch, giturl, distdir]
-    status = subprocess.call(cmd)
-    if status != 0:
-        print >> sys.stderr, "*** Failed to clone git repository! ***"
-        print >> sys.stderr, " cmd=", cmd
-        sys.exit(status)
+    osCall(*cmd)
 
     # cd to the cloned source code directory
     os.chdir(distdir)
@@ -149,9 +135,7 @@ try:
     # Set the version number in setup.py and SRC/common/oofversion.py.
     sedcmd = 's/version_from_make_dist = \\\"(unreleased)\\\"/version_from_make_dist = \\\"%s\\\"/' % version
     tmpfile, tmpfilename = tempfile.mkstemp(dir=tempdir)
-    # run_cmd('sed "%s" setup.py > %s' % (sedcmd, tmpfilename))
     if subprocess.call(["sed", sedcmd, "setup.py"], stdout=tmpfile) != 0:
-        print >> sys.stderr, "sed failed!"
         sys.exit(proc.returncode)
     os.close(tmpfile)
     print >> sys.stderr, "Moving", tmpfilename, "to setup.py"
@@ -160,11 +144,8 @@ try:
     tmpfile, tmpfilename = tempfile.mkstemp(dir=tempdir)
     if subprocess.call(['sed', sedcmd, 'SRC/common/oofversion.py'],
                        stdout=tmpfile) != 0:
-        print >> sys.stderr, "sed failed!"
         sys.exit(proc.returncode)
     os.close(tmpfile)
-    # run_cmd('sed "s/[0-9]*\.[0-9]*\.[0-9]*\./%s/" SRC/common/oofversion.py > %s'
-    #         % (version, tmpfilename))
     print >> sys.stderr, "Moving", tmpfilename, "to SRC/common/oofversion.py"
     os.rename(tmpfilename, 'SRC/common/oofversion.py')
 
@@ -241,11 +222,7 @@ try:
     # to use git.
     print >> sys.stderr, "Changing directory to", distdir
     os.chdir(distdir)
-    status = subprocess.call(
-        ['git', 'add', 'SRC/common/oofversion.py', 'setup.py'])
-    if status != 0:
-        print >> sys.stderr, "*** git add failed! ***"
-        sys.exit(status)
+    osCall('git', 'add', 'SRC/common/oofversion.py', 'setup.py')
         
     commit_msg = ("Building " + distname.distname + " release version " +
                   version)
@@ -269,14 +246,14 @@ try:
             tag = oldtag
     
     if not dryrun:
-        run_cmd('git commit -m "%s"' % commit_msg)
-        run_cmd('git tag', tag)
-        run_cmd('git push origin', tag)
+        osCall('git', 'commit', '-m', commit_msg)
+        osCall('git', 'tag')
+        osCall('git', 'push', 'origin', tag)
     else:
         print >> sys.stderr, "Dry run! Not running:"
         print >> sys.stderr, '*** git commit -m "%s"' % commit_msg
         print >> sys.stderr, '*** git tag', tag
-        print >> sys.stderr, '*** git push origin %s<---' % tag
+        print >> sys.stderr, '*** git push origin %s' % tag
     
     # Build the distribution.
     os.chdir(tempdir)
@@ -285,11 +262,12 @@ try:
 
     
     cmd = ['tar', '-T', os.path.join(distdir, 'MANIFEST'), '-czf', distfilename]
-    print >> sys.stderr, ' '.join(cmd)
-    status = subprocess.call(cmd)
-    if status != 0:
-        print >> sys.stderr, "tar failed!"
-        sys.exit(status)
+    osCall(*cmd)
+    # print >> sys.stderr, ' '.join(cmd)
+    # status = subprocess.call(cmd)
+    # if status != 0:
+    #     print >> sys.stderr, "tar failed!"
+    #     sys.exit(status)
     print >> sys.stderr, "Moving", distfilename, "to", startdir
     os.rename(distfilename, os.path.join(startdir, distfilename))
 
