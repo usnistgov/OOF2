@@ -53,7 +53,7 @@ def run_cmd(*args, **kwargs):
     #     sys.exit(status)
 
 
-options = ['version=', 'comment=', 'dryrun', 'help', 'noclean', 'branch']
+options = ['version=', 'comment=', 'dryrun', 'help', 'noclean', 'branch=']
 
 def state_options_and_quit():
     print >> sys.stderr,  \
@@ -134,11 +134,12 @@ try:
     if branch is None:
         cmd = ['git', 'clone', giturl, distdir]
     else:
-        cmd = ['git', 'clone', '--branch', branch, giturl distdir]
-    if subprocess.call(cmd) != 0:
-        print >> sys.stderr, "*** Failed to clone git repository!", \
-            stderrdata.strip()
-        sys.exit(1)
+        cmd = ['git', 'clone', '--branch', branch, giturl, distdir]
+    status = subprocess.call(cmd)
+    if status != 0:
+        print >> sys.stderr, "*** Failed to clone git repository! ***"
+        print >> sys.stderr, " cmd=", cmd
+        sys.exit(status)
 
     # cd to the cloned source code directory
     os.chdir(distdir)
@@ -146,13 +147,13 @@ try:
     import localexclusions
     
     # Set the version number in setup.py and SRC/common/oofversion.py.
-    sedcmd = 's/version_from_make_dist = \\\"[0-9]*\.[0-9]*\.[0-9]*\\\"/version_from_make_dist = \\\"%s\\\"/' % version
+    sedcmd = 's/version_from_make_dist = \\\"(unreleased)\\\"/version_from_make_dist = \\\"%s\\\"/' % version
     tmpfile, tmpfilename = tempfile.mkstemp(dir=tempdir)
     # run_cmd('sed "%s" setup.py > %s' % (sedcmd, tmpfilename))
     if subprocess.call(["sed", sedcmd, "setup.py"], stdout=tmpfile) != 0:
         print >> sys.stderr, "sed failed!"
         sys.exit(proc.returncode)
-    tmpfile.close()
+    os.close(tmpfile)
     print >> sys.stderr, "Moving", tmpfilename, "to setup.py"
     os.rename(tmpfilename, 'setup.py')
 
@@ -161,7 +162,7 @@ try:
                        stdout=tmpfile) != 0:
         print >> sys.stderr, "sed failed!"
         sys.exit(proc.returncode)
-    tmpfile.close()
+    os.close(tmpfile)
     # run_cmd('sed "s/[0-9]*\.[0-9]*\.[0-9]*\./%s/" SRC/common/oofversion.py > %s'
     #         % (version, tmpfilename))
     print >> sys.stderr, "Moving", tmpfilename, "to SRC/common/oofversion.py"
@@ -173,19 +174,18 @@ try:
     timefile.close()
 
     
-    # Make the MANIFEST file after moving back up to the temp directory.
+    # Make the MANIFEST file after moving back up to the temp
+    # directory.  Moving up to the temp directory means that the path
+    # names in the file will all start with "oof2-version/", which is
+    # nice and modular.
+
+    # We aren't using distutils to automatically create a MANIFEST
+    # file because it wants to include the swig output files.  Once
+    # we've built the file ourselves, there's really no need to use
+    # distutils here at all.
+    
     os.chdir(tempdir)
     
-    # Make the MANIFEST file.  If we don't provide a MANIFEST, or let
-    # distutils build it from a MANIFEST.in template, then it tries to
-    # include the swig output files since they're contained in
-    # setup.py's packages list.  But those files don't exist in git,
-    # so the distutils sdist command will fail.  We have to construct
-    # an explicit list of files to include, which is everything that's
-    # in git except for the files listed below.  Then, after
-    # constructing the list of files ourselves, there's no need to use
-    # distutils to build the package at all.
-
     globalExcludeDirs = [
         ".git"
     ] + localexclusions.globalExcludeDirs
@@ -236,9 +236,17 @@ try:
     getFiles(distdir, manifest)   
     manifest.close()
 
-    # Check all the modifications into git, and tag with the version number.
+    # Check all the modifications into git, and tag with the version
+    # number.  It's necessary to go back to the distribution directory
+    # to use git.
+    print >> sys.stderr, "Changing directory to", distdir
     os.chdir(distdir)
-    run_cmd("git add SRC/common/oofversion.py setup.py")
+    status = subprocess.call(
+        ['git', 'add', 'SRC/common/oofversion.py', 'setup.py'])
+    if status != 0:
+        print >> sys.stderr, "*** git add failed! ***"
+        sys.exit(status)
+        
     commit_msg = ("Building " + distname.distname + " release version " +
                   version)
     if comment:
@@ -254,13 +262,12 @@ try:
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdoutdata, stderrdata = proc.communicate()
         if proc.returncode == 0:    # success
-            tag = stdoutdata
+            tag = stdoutdata.strip()
         else:
             print >> sys.stderr, "Failed to convert '%s' to a legal tag." % tag
             print >> sys.stderr, "Using '%s' instead." % oldtag
             tag = oldtag
     
-
     if not dryrun:
         run_cmd('git commit -m "%s"' % commit_msg)
         run_cmd('git tag', tag)
@@ -269,13 +276,20 @@ try:
         print >> sys.stderr, "Dry run! Not running:"
         print >> sys.stderr, '*** git commit -m "%s"' % commit_msg
         print >> sys.stderr, '*** git tag', tag
-        print >> sys.stderr, '*** git push origin', tag
+        print >> sys.stderr, '*** git push origin %s<---' % tag
     
     # Build the distribution.
     os.chdir(tempdir)
     distfilename = distdir + ".tar.gz"
     print >> sys.stderr, "Distribution file is", distfilename
-    run_cmd("tar -T %s/MANIFEST -czf" % distdir, distfilename)
+
+    
+    cmd = ['tar', '-T', os.path.join(distdir, 'MANIFEST'), '-czf', distfilename]
+    print >> sys.stderr, ' '.join(cmd)
+    status = subprocess.call(cmd)
+    if status != 0:
+        print >> sys.stderr, "tar failed!"
+        sys.exit(status)
     print >> sys.stderr, "Moving", distfilename, "to", startdir
     os.rename(distfilename, os.path.join(startdir, distfilename))
 

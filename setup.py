@@ -46,7 +46,7 @@ except ImportError:
 
 # The make_dist script edits the following line when a distribution is
 # built.  Don't change it by hand.
-version_from_make_dist = "0.0.0"
+version_from_make_dist = "(unreleased)"
 
 # will need to add vtk
 
