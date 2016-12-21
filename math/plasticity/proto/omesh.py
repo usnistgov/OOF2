@@ -129,11 +129,11 @@ class Eqn:
                 mesh.eqns[row] = eqval
             for fxcol in range(len(fmap)):
                 col = fmap[fxcol]
-                res *= flux_dofderivs[fxcomp][fxcol]
+                cres = res * flux_dofderivs[fxcomp][fxcol]
                 try:
-                    mesh.matrix[(row,col)] += res
+                    mesh.matrix[(row,col)] += cres
                 except KeyError:
-                    mesh.matrix[(row,col)] = res
+                    mesh.matrix[(row,col)] = cres
 
                     
 
