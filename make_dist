@@ -233,26 +233,28 @@ try:
         oldtag = tag
         comment.replace(' ', '-')
         tag += "--" + comment
-        # Check and/or fix the tag if it's not legal
-        proc = subprocess.Popen(['git', 'check-ref-format', '--normalize',
-                                 '--allow-onelevel', '"'+tag+'"'],
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdoutdata, stderrdata = proc.communicate()
-        if proc.returncode == 0:    # success
-            tag = stdoutdata.strip()
-        else:
-            print >> sys.stderr, "Failed to convert '%s' to a legal tag." % tag
-            print >> sys.stderr, "Using '%s' instead." % oldtag
-            tag = oldtag
+    # Check and/or fix the tag if it's not legal
+    proc = subprocess.Popen(['git', 'check-ref-format', '--normalize',
+                             '--allow-onelevel', tag],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdoutdata, stderrdata = proc.communicate()
+    if proc.returncode == 0:    # success
+        tag = stdoutdata.strip()
+    else:
+        print >> sys.stderr, "Failed to convert '%s' to a legal tag." % tag
+        print >> sys.stderr, "Using '%s' instead." % oldtag
+        tag = oldtag
     
     if not dryrun:
         osCall('git', 'commit', '-m', commit_msg)
-        osCall('git', 'tag')
+        osCall('git', 'tag', tag)
+        osCall('git', 'push', 'origin')        
         osCall('git', 'push', 'origin', tag)
     else:
         print >> sys.stderr, "Dry run! Not running:"
         print >> sys.stderr, '*** git commit -m "%s"' % commit_msg
         print >> sys.stderr, '*** git tag', tag
+        print >> sys.stderr, '*** git push origin'
         print >> sys.stderr, '*** git push origin %s' % tag
     
     # Build the distribution.
