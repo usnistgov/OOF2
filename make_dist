@@ -48,14 +48,15 @@ options = ['version=', 'comment=', 'dryrun', 'help', 'noclean', 'branch=']
 def state_options_and_quit():
     print >> sys.stderr,  \
 """Options are:
-version=<version number>  version number can contain numbers, letters, and dots
-comment=<comment>         optional comment, cannot contain dots or spaces 
+--version=<version number> Version number.
+--comment=<comment>        Optional comment, cannot contain dots or spaces 
 
 Debugging options are:
-noclean              Don't remove temp directory
-dryrun               Don't actually commit, tag, or push in git
-branch=<branchname>  Use branch, not master.  Implies --dryrun and --noclean
-help                 Print this
+--noclean              Don't remove temp directory
+--dryrun               Don't actually commit, tag, or push in git
+--branch=<branchname>  Use branch, not master.  Implies --dryrun and --noclean
+                       Real distributions are always made without --branch.
+--help                 Print this
 """
     sys.exit()
 
