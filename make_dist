@@ -9,8 +9,8 @@
 # oof_manager@nist.gov. 
 
 
-# Script for building a distribution of OOF2.  Takes care of git
-# stuff, and sets the version number in the packaged source code.
+# Script for building a distribution of OOF2 or OOF3D.  Takes care of
+# git stuff, and sets the version number in the packaged source code.
 
 # This script assumes that the version to be packaged is the HEAD of
 # the master branch on github.  The previous cvs versions of this
@@ -59,8 +59,6 @@ help                 Print this
 """
     sys.exit()
 
-cvsmodule = 'OOF2'
-
 version = None
 comment = None
 branch = None
@@ -90,14 +88,16 @@ for opt in optlist:
     elif opt[0] == '--help':
         state_options_and_quit()
 
-print >> sys.stderr, "Building OOF2 distribution named", version
-
 startdir = os.getcwd()
 
 # Are we building oof2 or oof3d? This info is stored in
 # distname.distname.  We get this from the directory in which
 # make_dist is being run.
 import distname
+
+print >> sys.stderr, \
+    "Building", distname.distname, "distribution named", version
+
 
 # Create a temp directory.
 tempdir = tempfile.mkdtemp(prefix='oof-tempdir-'+version+'-')
@@ -133,7 +133,10 @@ try:
     import localexclusions
     
     # Set the version number in setup.py and SRC/common/oofversion.py.
-    sedcmd = 's/version_from_make_dist = \\\"(unreleased)\\\"/version_from_make_dist = \\\"%s\\\"/' % version
+    # The sed command finds a line beginning with
+    # "version_from_make_dist" and replaces everything after the
+    # equals sign with a string containing the version number.
+    sedcmd = '/^version_from_make_dist/s/=.*/= \\\"%s\\\"/' % version
     tmpfile, tmpfilename = tempfile.mkstemp(dir=tempdir)
     if subprocess.call(["sed", sedcmd, "setup.py"], stdout=tmpfile) != 0:
         sys.exit(proc.returncode)
@@ -157,8 +160,8 @@ try:
     
     # Make the MANIFEST file after moving back up to the temp
     # directory.  Moving up to the temp directory means that the path
-    # names in the file will all start with "oof2-version/", which is
-    # nice and modular.
+    # names in the file will all start with "oof{2,3d}-version/",
+    # which is nice and modular.
 
     # We aren't using distutils to automatically create a MANIFEST
     # file because it wants to include the swig output files.  Once
@@ -233,27 +236,28 @@ try:
         oldtag = tag
         comment.replace(' ', '-')
         tag += "--" + comment
-        # Check and/or fix the tag if it's not legal
-        proc = subprocess.Popen(['git', 'check-ref-format', '--normalize',
-                                 '--allow-onelevel', tag],
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdoutdata, stderrdata = proc.communicate()
-        if proc.returncode == 0:    # success
-            tag = stdoutdata.strip()
-            print >> sys.stderr, "tag is -->", tag, "<--"
-        else:
-            print >> sys.stderr, "Failed to convert '%s' to a legal tag." % tag
-            print >> sys.stderr, "Using '%s' instead." % oldtag
-            tag = oldtag
+    # Check and/or fix the tag if it's not legal
+    proc = subprocess.Popen(['git', 'check-ref-format', '--normalize',
+                             '--allow-onelevel', tag],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdoutdata, stderrdata = proc.communicate()
+    if proc.returncode == 0:    # success
+        tag = stdoutdata.strip()
+    else:
+        print >> sys.stderr, "Failed to convert '%s' to a legal tag." % tag
+        print >> sys.stderr, "Using '%s' instead." % oldtag
+        tag = oldtag
     
     if not dryrun:
         osCall('git', 'commit', '-m', commit_msg)
         osCall('git', 'tag', tag)
+        osCall('git', 'push', 'origin')        
         osCall('git', 'push', 'origin', tag)
     else:
         print >> sys.stderr, "Dry run! Not running:"
         print >> sys.stderr, '*** git commit -m %s' % commit_msg
         print >> sys.stderr, '*** git tag', tag
+        print >> sys.stderr, '*** git push origin'
         print >> sys.stderr, '*** git push origin %s' % tag
     
     # Build the distribution.
@@ -282,6 +286,6 @@ finally:
 
 print >> sys.stderr, "Done.", distfilename, "is ready."
 print >> sys.stderr, \
-"""To publish it, copy it to WEBPAGES/oof2/source and edit
-WEBPAGES/oof2/index.html.  Remember to check that the README file in
-WEBPAGES/oof2/source is up to date."""
+"""To publish it, copy it to WEBPAGES/%(dist)s/source and edit
+WEBPAGES/%(dist)s/index.html.  Remember to check that the README file in
+WEBPAGES/%(dist)s/source is up to date.""" % {'dist':distname.distname}
