@@ -133,7 +133,10 @@ try:
     import localexclusions
     
     # Set the version number in setup.py and SRC/common/oofversion.py.
-    sedcmd = 's/version_from_make_dist = \\\"(unreleased)\\\"/version_from_make_dist = \\\"%s\\\"/' % version
+    # The sed command finds a line beginning with
+    # "version_from_make_dist" and replaces everything after the
+    # equals sign with a string containing the version number.
+    sedcmd = 's/^version_from_make_dist/s/=.*/= \\\"%s\\\"' % version
     tmpfile, tmpfilename = tempfile.mkstemp(dir=tempdir)
     if subprocess.call(["sed", sedcmd, "setup.py"], stdout=tmpfile) != 0:
         sys.exit(proc.returncode)
