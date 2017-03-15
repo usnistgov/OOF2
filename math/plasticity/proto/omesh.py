@@ -21,6 +21,11 @@ import smallmatrix
 import position
 
 import flux
+from flux import CauchyStress
+from flux import Orientation
+
+import umat
+from umat import umat
 
 class Oops:
     def __init__(self, message):
@@ -115,27 +120,56 @@ class Eqn:
         return "Eqn(%s,%d,%d,%s)" % (self.name, self.index, 
                                      self.size, self.flux.name)
     def make_linear_system(self, mesh, element, ndx, gpt, flux_vector,
-                           flux_dofderivs,fmap):
+                           flux_dofderivs,fmap,flux_dofderivsg):
+        jvec = [0,0,0,1,1,1,2,2,2]
         for fxcomp in range(self.flux.dim):
             row = self.index+flux.t_row[fxcomp]
             j = flux.t_col[fxcomp]
+            
             res = element.dshapefn(ndx,j,gpt.xi,gpt.zeta,gpt.mu)
-            res *= (-1.0)*element.jacobian(gpt.xi,gpt.zeta,gpt.mu)*gpt.weight
+            
+            res *= (-1.0)*element.jacobiandef(gpt.xi,gpt.zeta,gpt.mu)*gpt.weight
 
+
+######### eqval is the equation value to calculate the residual stresses
             eqval = res*flux_vector[fxcomp]
             try:
                 mesh.eqns[row] += eqval
+                
             except KeyError:
                 mesh.eqns[row] = eqval
             for fxcol in range(len(fmap)):
                 col = fmap[fxcol]
                 cres = res * flux_dofderivs[fxcomp][fxcol]
+
                 try:
                     mesh.matrix[(row,col)] += cres
+                    
                 except KeyError:
                     mesh.matrix[(row,col)] = cres
 
-                    
+
+
+        for fxcomp in range(self.flux.dim):
+            
+            rowg = self.index+flux.t_colg[fxcomp]
+            jg = flux.t_rowg[fxcomp]
+
+
+            resg = element.dshapefn(ndx,jg,gpt.xi,gpt.zeta,gpt.mu)
+            
+
+            resg *= (-1.0)*element.jacobiandef(gpt.xi,gpt.zeta,gpt.mu)*gpt.weight
+
+
+            for fxcol in range(len(fmap)):
+                col = fmap[fxcol]
+                cresg = resg * flux_dofderivsg[fxcomp][fxcol]
+
+                mesh.matrix[(rowg,col)] += cresg
+
+
+
 
         
 
@@ -329,22 +363,57 @@ class Element:
         try:
             return self.dshapefn_cache[(i,j,xi,zeta,mu)]
         except KeyError:
-            jmtx = self.jacobianmtx(xi,zeta,mu)
+
+
+#####            jmtx = self.jacobianmtx(xi,zeta,mu)
+    ################### added by shahriyar ####################
+            jmtx = self.jacobianmtxdef(xi,zeta,mu)
+    ################### added by shahriyar ####################
             jinv = inverse3(jmtx)
 
             dfdmaster = [ self.dsfns[i][0](xi,zeta,mu),
                           self.dsfns[i][1](xi,zeta,mu),
                           self.dsfns[i][2](xi,zeta,mu) ]
+            
 
-            # Use the transpose of the inverse.
-            dfdref = [ sum( jinv[jx][ix]*dfdmaster[jx] for jx in range(3) )
+            dfdref = [ sum( jinv[ix][jx]*dfdmaster[jx] for jx in range(3) )
                        for ix in range(3) ]
+
+
 
             self.dshapefn_cache[(i,0,xi,zeta,mu)] = dfdref[0]
             self.dshapefn_cache[(i,1,xi,zeta,mu)] = dfdref[1]
             self.dshapefn_cache[(i,2,xi,zeta,mu)] = dfdref[2]
+
+
+
+
             
             return dfdref[j]
+
+#******************************shahriyar**********************************************
+    def dshapefnRef(self,xi,zeta,mu):
+        jmtx = self.jacobianmtx(xi,zeta,mu)
+        jinv = inverse3(jmtx)
+
+        dfdreft = []
+        
+        for i in range(8):
+            dfdmaster = [ self.dsfns[i][0](xi,zeta,mu),
+                          self.dsfns[i][1](xi,zeta,mu),
+                          self.dsfns[i][2](xi,zeta,mu) ]
+            
+
+            dfdref = [ sum( jinv[ix][jx]*dfdmaster[jx] for jx in range(3) )
+                       for ix in range(3) ]
+
+            dfdreft.append(dfdref)
+
+        
+        return dfdreft
+#**************************************************************************
+
+
 
     # Get number of field components.
     def nfieldcomps(self):
@@ -381,9 +450,11 @@ class Element:
         except KeyError:
             res = None
             for (ni,n) in enumerate(self.nodes):
+                
                 dsf = [ self.dshapefn(ni,0,xi,zeta,mu),
                         self.dshapefn(ni,1,xi,zeta,mu),
                         self.dshapefn(ni,2,xi,zeta,mu) ]
+                
                 for f in n.fields:
                     if f.name == dofname:
                         term = [[ df*x for x in f.value ] for df in dsf ]
@@ -393,6 +464,7 @@ class Element:
                             res = [[sum(y) for y in zip(x[0],x[1])]
                                    for x in zip(res,term)]
             self.fdx_cache[(dofname,xi,zeta,mu)]=res
+             
             return [x[:] for x in res]
                         
     # The master-to-reference transformation.
@@ -433,8 +505,46 @@ class Element:
                      for i in range(8)] )
         j33 = sum( [ self.dsfns[i][2](xi,zeta,mu)*self.nodes[i].position.z
                      for i in range(8)] )
+        
+        return [ [ j11, j21, j31], [j12, j22, j32], [j13, j23, j33] ]
 
-        return [ [ j11, j12, j13], [j21, j22, j23], [j31, j32, j33] ]
+#        return [ [ j11, j12, j13], [j21, j22, j23], [j31, j32, j33] ]
+
+################################ added by Shahriyar #################
+    # Jacobian of the master-to-reference transformation.
+    def jacobianmtxdef(self,xi,zeta,mu):
+
+        j11 = j12 = j13 = j21 = j22 = j23= j31 = j32 = j33 = 0.0
+
+        j11 = sum( [ self.dsfns[i][0](xi,zeta,mu)*(self.nodes[i].position.x
+                     + self.nodes[i].fields[0].value[0]) for i in range(8)] )
+        j12 = sum( [ self.dsfns[i][1](xi,zeta,mu)*(self.nodes[i].position.x
+                     + self.nodes[i].fields[0].value[0]) for i in range(8)] )
+        j13 = sum( [ self.dsfns[i][2](xi,zeta,mu)*(self.nodes[i].position.x
+                     + self.nodes[i].fields[0].value[0]) for i in range(8)] )
+
+        j21 = sum( [ self.dsfns[i][0](xi,zeta,mu)*(self.nodes[i].position.y
+                     + self.nodes[i].fields[0].value[1]) for i in range(8)] )
+        j22 = sum( [ self.dsfns[i][1](xi,zeta,mu)*(self.nodes[i].position.y
+                     + self.nodes[i].fields[0].value[1]) for i in range(8)] )
+        j23 = sum( [ self.dsfns[i][2](xi,zeta,mu)*(self.nodes[i].position.y
+                     + self.nodes[i].fields[0].value[1]) for i in range(8)] )
+
+        j31 = sum( [ self.dsfns[i][0](xi,zeta,mu)*(self.nodes[i].position.z
+                     + self.nodes[i].fields[0].value[2]) for i in range(8)] )
+        j32 = sum( [ self.dsfns[i][1](xi,zeta,mu)*(self.nodes[i].position.z
+                     + self.nodes[i].fields[0].value[2]) for i in range(8)] )
+        j33 = sum( [ self.dsfns[i][2](xi,zeta,mu)*(self.nodes[i].position.z
+                     + self.nodes[i].fields[0].value[2]) for i in range(8)] )
+
+#        return [ [ j11, j12, j13], [j21, j22, j23], [j31, j32, j33] ]
+        return [ [ j11, j21, j31], [j12, j22, j32], [j13, j23, j33] ]
+
+#------------------ added by shahriyar -----------------
+    def jacobiandef(self,xi,zeta,mu):
+        return det3(self.jacobianmtxdef(xi,zeta,mu))
+#------------------ added by shahriyar -----------------
+
     # Scalar Jacobian, aka determinant.
     def jacobian(self,xi,zeta,mu):
         return det3(self.jacobianmtx(xi,zeta,mu))
@@ -452,9 +562,14 @@ class Element:
             for i in range(n):
                 for j in range(n):
                     for k in range(n):
+##                        Element.gptable.append(
+##                            GaussPoint(pts[k],pts[j],pts[i],
+##                                       wts[k]*wts[j]*wts[i]))
+
                         Element.gptable.append(
-                            GaussPoint(pts[k],pts[j],pts[i],
+                            GaussPoint(pts[i],pts[j],pts[k],
                                        wts[k]*wts[j]*wts[i]))
+                        
         return Element.gptable
 
     def addmaterial(self,mtl):
@@ -580,6 +695,10 @@ class Mesh:
         
         # Master stiffness matrix is a dictionary indexed by tuples of
         # integers, whose values are floating-point numbers.
+
+        self.matrixg = {}
+
+        
         self.matrix = {}
         self.fbody = {}  # In principle, has Neumann BCs.
         self.eqns = {} # Values of the equations, for nonlinear solver.
@@ -664,6 +783,8 @@ class Mesh:
             count += 1
 
     def clear(self):
+        self.matrixg = {}
+        
         self.matrix = {}
         self.fbody = {}
         self.eqns = {}
@@ -693,6 +814,7 @@ class Mesh:
     def new_make_stiffness(self):
         for e in self.elementlist:
             e.make_linear_system(self)
+
         
         
     # Build the flux-divergence contributions to the stiffness matrix.
@@ -832,6 +954,11 @@ class Mesh:
                 d.set(1,0)
                 d.set(2,self.bottombc)
 
+    def new_setbcs(self,top,bottom):
+        self.topbc = top
+        self.bottombc = bottom
+
+
     def set_freedofs(self):
         # Builds the self.freedofs vector, and returns some counts and
         # lists. After this is done, the self.freedofs vector has, for
@@ -913,6 +1040,53 @@ class Mesh:
                 frhs[self.freedofs[i],0]=v
 
         return (amtx,cmtx,brhs,frhs)
+
+#----------------- added by shahriyar ----------------------
+    def new_linearsystem(self):
+        # Populates Smallmatrix objects from the self.matrix and
+        # self.fbody and self.eqns dictionaries.  BC's are implemented
+        # here. Note that it's OK for the self.eqns dictionary to be
+        # empty, it just means that the eqvs vector will be all zeros.
+        (free_count, fixed_count, fixed_rhs) = self.set_freedofs()
+
+        amtx = SmallMatrix(free_count,free_count)
+        cmtx = SmallMatrix(free_count,-(fixed_count+1))
+        brhs = SmallMatrix(len(fixed_rhs),1)  # Boundary RHS.
+        frhs = SmallMatrix(free_count,1)      # Body forces.
+        eqvs = SmallMatrix(free_count,1)  # Equation values.
+
+        
+        amtx.clear()
+        cmtx.clear()
+        brhs.clear()
+        frhs.clear()
+        eqvs.clear()
+
+
+        for ((i,j),v) in self.matrix.items():
+            if self.freedofs[i]>=0 and self.freedofs[j]>=0:
+                amtx[self.freedofs[i],self.freedofs[j]]=v
+            
+            else:
+                if self.freedofs[i]>=0 and self.freedofs[j]<0:
+                    cmtx[self.freedofs[i],-(self.freedofs[j]+1)]=v
+
+        for i in range(len(fixed_rhs)):
+            brhs[i,0]=fixed_rhs[i]
+
+        for (i,v) in self.fbody.items():
+            if self.freedofs[i]>=0:
+                frhs[self.freedofs[i],0]=v
+
+        # TODO: We're assuming conjugacy here, which may not be wise.
+        for (i,v) in self.eqns.items():
+            if self.freedofs[i]>=0:
+                eqvs[self.freedofs[i],0]=-v  #shahriyar has put minus
+                
+        return (amtx,cmtx,brhs,frhs,eqvs)
+
+#----------------- added by shahriyar ----------------------
+
 
     
     # Assumes the "Displacement" field has been added to the mesh, and
@@ -1014,6 +1188,130 @@ class Mesh:
         
         return math.sqrt(mag) # Size of the increment. *Not* the residual.
         
+
+
+#------------ nol-linear solver added by Shahriyar -------------------
+    def new_solve_nonlinear(self):
+        (a,c,br,fr,eq) = self.new_linearsystem()
+
+
+        nr = (c*br)*(-1.0)-fr+eq
+
+        
+        if a.rows()!=0:
+            rr = a.solve(nr)
+        else:
+            Oops("Zero rows in the A matrix, very odd...")
+
+
+        if rr==0:
+            mag = 0.0
+            for n in self.nodelist:
+                for d in n.allfields():
+                    for k in range(d.size):
+                        ref = self.freedofs[d.index+k]
+                        if ref >= 0:
+                            v = nr[ref,0]
+                            mag += v*v
+                            d.add(k,v)
+                        else:
+###                            d.set(k,br[-(ref+1),0]) # Should be redundant.
+                            d.add(k,br[-(ref+1),0]) # added by shahriyar
+
+        else:
+            Oops("Error in nonlinear solver, return code is %d." % rr)
+##        for n in self.nodelist:
+##            print n.index,0,n.fields[0].value[0]
+##            print n.index,1,n.fields[0].value[1]
+##            print n.index,2,n.fields[0].value[2]
+##
+##        raw_input()
+
+ 
+#--------- start convergence loop -----------------------
+
+        iconv = 0
+        nconv = 2
+        ratio_norm = 1.0e10
+        magiter = [0.0 for i in range(nconv)]
+        while (iconv <= nconv-1 and abs(ratio_norm) >= 1.0e-9):
+            if iconv > 0:
+
+                (a,c,br,fr,eq) = self.new_linearsystem()
+
+                nr = eq
+
+                if a.rows()!=0:
+                    rr = a.solve(nr)
+                else:
+                    Oops("Zero rows in the A matrix, very odd...")
+
+                if rr==0:
+                    for n in self.nodelist:
+                        for d in n.allfields():
+                            for k in range(d.size):
+                                ref = self.freedofs[d.index+k]
+                                if ref >= 0:
+                                    v = nr[ref,0]
+                                    magiter[iconv] += v*v
+                                    d.add(k,v)
+
+
+                else:
+                    Oops("Error in nonlinear solver, return code is %d." % rr)
+
+            self.clear_caches()
+            self.eqns = {}
+#            self.evaluate_eqns()
+
+            self.matrix = {}
+            self.clear_caches()
+            self.new_make_stiffness()            
+
+
+
+            ratio_norm = 0.0
+
+            gf_nod = unb_nod = 0.0
+
+
+            for (i,v) in self.eqns.items():
+                gf_nod += v*v
+
+
+            for (i,v) in self.eqns.items():
+                if self.freedofs[i]>=0:
+                    unb_nod += v*v
+
+             
+            norm_gs = math.sqrt(gf_nod)
+            norm_us = math.sqrt(unb_nod)
+
+
+            ratio_norm = norm_us/norm_gs
+
+            print iconv,norm_us,ratio_norm
+
+            iconv += 1
+
+            
+#--------- end convergence loop -----------------------
+
+        
+        return math.sqrt(mag) # Size of the increment. *Not* the residual.
+#---------------------- added by sShahriyar ----------------------------
+
+
+
+
+
+
+
+
+
+
+
+
 
     def measure_force(self,flux):
         # Scheme: Evaluate the fluxes on the bottom surface, doing an
@@ -1226,13 +1524,16 @@ class Material:
     def __init__(self, name, flux=None, orientation=None):
         self.name = name
         self.flux = flux
-        self.orientation = orientation
+        if orientation is not None:
+            orientation = Orientation(0.0,0.0,0.0)#35.0,45.0)
+        self.orientation = orientation      
     def get_flux(self):
         return self.flux
     def precompute(self):
-        if self.orientation is not None:
+        if self.orientation is not None:        
             omx = self.orientation.rotation
-            self.flux.rotate(omtx)
+            self.flux.rotate(omx)
+
     def begin_element(self,element):
         pass
     def end_element(self,element):
@@ -1241,59 +1542,127 @@ class Material:
         #
         # This routine populates the self.matrix and self.eqn objects
         # in the mesh, so they'd better be cleared before you start.
+
+#**************************** shahriyar **************************************
+        # umat is called at this point to calculate and return elasto-plastic modulus
+        # (Dep) and cauchy stresses (Castress) which are need to make stiffness matrix. The elasto-plastic
+        # modulus is used to make the material part of stiffness matrix while the
+        # Cauchy stresses mkae the geometric part of the stiffness matrix.
         
+        Dep = [[[[0.0 for i in range(3)] for j in range(3) ]
+                  for k in range(3)] for l in range(3)]
+        CaStress = [[0.0 for i in range(3)] for j in range(3)]
+
+        XYZ = [[0.0 for i in range(3)] for j in range(8)]
+        xyz = [[0.0 for i in range(3)] for j in range(8)]
+
+        for (rrndx,rrn) in enumerate(element.nodes):
+            XYZ[rrndx][0] = rrn.position.x
+            XYZ[rrndx][1] = rrn.position.y
+            XYZ[rrndx][2] = rrn.position.z
+
+            xyz[rrndx][0] = rrn.position.x + rrn.fields[0].value[0]
+            xyz[rrndx][1] = rrn.position.y + rrn.fields[0].value[1]
+            xyz[rrndx][2] = rrn.position.z + rrn.fields[0].value[2]
+
+        SHP = element.dshapefnRef(gausspt.xi,gausspt.zeta,gausspt.mu)
+        
+        FG = calc_F(xyz,SHP)            # F at gausspoint
+
+        umat(element,gausspt,Dep,CaStress,self.flux.cijkl,FG)
+#*****************************************************************************        
         # Iterate over fluxes, but there's only one.
         cols = element.nfieldcomps()
         rows = self.flux.dim
+        
         #
         # TODO: Look at the flux class, clear up "offset" vs "value".
         flux_vector = [0.0]*rows
         #
         flux_fderivs = [ [0.0]*cols for i in range(rows)]
+        flux_fderivsg = [ [0.0]*cols for i in range(rows)]
+        
         #
         fmap = [0]*cols # Map from local to global columns.
         # Fmap is the mapping from local flux matrix columns to the
         # global stiffness matrix columns, and gets populated by
         # the flux_matrix call.
-
+        
         self.flux.flux_matrix(element, gausspt, flux_vector,
-                              flux_fderivs, fmap)
-        self.flux.flux_vector(element, gausspt, flux_vector, flux_fderivs)
+                              flux_fderivs, fmap,Dep,CaStress,flux_fderivsg)
+
+        t_row = [0,1,2,1,0,0,1,2,2]
+        t_col = [0,1,2,2,2,1,0,0,1]
+
+        for flux_comp in range(len(flux_fderivs)):
+            flux_vector[flux_comp] = CaStress[t_row[flux_comp]][t_col[flux_comp]]
+
+#        self.flux.flux_vector(element, gausspt, flux_vector, flux_fderivs)
         #
         for (ndx,nd) in enumerate(element.nodes):
             for eqn in nd.eqns:
                 eqn.make_linear_system(mesh, element, ndx, gausspt,
-                                       flux_vector, flux_fderivs, fmap)
+                                       flux_vector, flux_fderivs,fmap,flux_fderivsg)
+############## shahriyar #################
+def calc_F(cord,SHP):
+
+    dxt_dx0 = 0.0 ; dxt_dy0 = 0.0 ; dxt_dz0 = 0.0
+    dyt_dx0 = 0.0 ; dyt_dy0 = 0.0 ; dyt_dz0 = 0.0
+    dzt_dx0 = 0.0 ; dzt_dy0 = 0.0 ; dzt_dz0 = 0.0
+    for i in range(8):
+        dxt_dx0 += SHP[i][0]*cord[i][0]
+        dxt_dy0 += SHP[i][1]*cord[i][0]
+        dxt_dz0 += SHP[i][2]*cord[i][0]
+        
+        dyt_dx0 += SHP[i][0]*cord[i][1]
+        dyt_dy0 += SHP[i][1]*cord[i][1]
+        dyt_dz0 += SHP[i][2]*cord[i][1]
+
+        dzt_dx0 += SHP[i][0]*cord[i][2]
+        dzt_dy0 += SHP[i][1]*cord[i][2]
+        dzt_dz0 += SHP[i][2]*cord[i][2]
+ 
+    FG = [[0. for ii in range(3)] for jj in range(3)]
+    FG[0][0] = dxt_dx0 ; FG[0][1] = dxt_dy0 ; FG[0][2] = dxt_dz0
+    FG[1][0] = dyt_dx0 ; FG[1][1] = dyt_dy0 ; FG[1][2] = dyt_dz0
+    FG[2][0] = dzt_dx0 ; FG[2][1] = dzt_dy0 ; FG[2][2] = dzt_dz0
+
+    return FG
+############## shahriyar #################
 
                 
 if __name__=="__main__":
-    m = Mesh(xelements=4,yelements=4,zelements=4)
-    # f = CauchyStress("Stress")
-    f = flux.RambergOsgood("Nonlinear!",alpha=0.05)
+    m = Mesh(xelements=2,yelements=2,zelements=2)
+#    f = flux.CauchyStress("Stress")
+    f = CauchyStress("Stress") #Cachystress is imported here
 
-    mtl = Material("Stuff",f,None) # TODO: Add orientation.
+#    f = flux.RambergOsgood("Nonlinear!",alpha=0.05)
+#    mtl = Material("Stuff",f,None) # TODO: Add orientation.    
+
+    mtl = Material("Stuff",f,0) # TODO: Add orientation.
     mtl.precompute() 
 
     m.addmaterial(mtl)
     
     m.addfield("Displacement",3)
     m.addeqn("Force",3,f) # Last argument is the flux.
-    m.setbcs(0.1,0.0)
+##############    m.setbcs(0.1,0.0)
 
     # m.solve_linear()
 
     m.clear()
     m.clear_caches()
 
-    m.new_make_stiffness()
+#    m.new_make_stiffness()
 
-    print m.matrix
-    
-    m.clear()
-    m.clear_caches()
-    m.make_stiffness()
-
-    print m.matrix
+##    print m.matrix
+##    raw_input()
+##    
+##    m.clear()
+##    m.clear_caches()
+##    m.make_stiffness()
+##
+##    print m.matrix
     # try:
     #     m.solve_nonlinear(None,None,5)
     # except Oops, o:
@@ -1302,3 +1671,44 @@ if __name__=="__main__":
     # print force_val
 
     # m.draw(displaced=True)
+
+    nstep = 2
+    m.new_make_stiffness()
+
+
+
+##    SS0 = m.evaluate_ss()
+##    x = [] ; y = []
+##    x.append(SS0[0]) ; y.append(SS0[1])
+
+
+##    ssy = open('py.22','w')
+
+##    ssy.write("%f   %f" % (SS0[0],SS0[1]))
+##    ssy.write('\n')
+
+    for istep in range(nstep):
+
+    
+        m.new_setbcs(0.05,0.0)
+        m.new_solve_nonlinear()
+
+
+##        for n in m.nodelist:
+##            print n.index,0,n.dofs[0].value[0]
+##            print n.index,1,n.dofs[0].value[1]
+##            print n.index,2,n.dofs[0].value[2]
+##        raw_input()
+
+
+
+
+##        SS = m.evaluate_ss()
+##        print SS
+##        x.append(abs(SS[0])) ; y.append(SS[1])
+##
+##        ssy.write("%f   %f" % (abs(SS[0]),SS[1]))
+##        ssy.write('\n')
+##
+##    ssy.close()
+##    
