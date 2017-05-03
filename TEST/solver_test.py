@@ -13,7 +13,7 @@ import memorycheck
 import math
 from UTILS import file_utils
 reference_file = file_utils.reference_file
-#file_utils.generate = True
+file_utils.generate = True
 
 class SaveableMeshTest(unittest.TestCase):
     def saveAndLoad(self, filename):
@@ -1124,7 +1124,8 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
                     tolerance=1.e-13,
                     max_iterations=1000),
                 asymmetric_solver=BiConjugateGradient(
-                    preconditioner=ILUPreconditioner(),tolerance=1e-13,
+                    preconditioner=ILUPreconditioner(),
+                    tolerance=1e-13,
                     max_iterations=1000)
                 )
             )
@@ -2697,6 +2698,10 @@ class OOF_StaticAndDynamic(OOF_ElasticTimeSteppers):
                 symmetric_solver=ConjugateGradient(
                     preconditioner=ILUPreconditioner(),
                     tolerance=1e-13,
+                    max_iterations=1000),
+                asymmetric_solver=BiConjugateGradient(
+                    preconditioner=ILUPreconditioner(),
+                    tolerance=1e-13,
                     max_iterations=1000)
                 )
             )
@@ -2718,6 +2723,185 @@ class OOF_StaticAndDynamic(OOF_ElasticTimeSteppers):
         file_utils.remove('testt.dat')
 
         self.saveAndLoad("static-dynamic-inplane")
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Add an uncoupled thermal field to the elastic problem.
+
+class OOF_ThermalElasticTimeSteppers(OOF_ElasticTimeSteppers):
+    def setUp(self):
+        OOF_ElasticTimeSteppers.setUp(self)
+        # Hack.  Most of the code below here in setUp was copied from
+        # OOF_ThermalDiffusionTimeSteppers.setUp.
+
+        OOF.Material.Add_property(
+            name='material', property='Thermal:Conductivity:Isotropic')
+        OOF.Material.Add_property(
+            name='material',
+            property='Thermal:HeatCapacity:ConstantHeatCapacity')
+        OOF.Material.Assign(
+            material='material', microstructure='microstructure', pixels=all)
+        OOF.Subproblem.Field.Define(
+            subproblem='microstructure:skeleton:mesh:default',
+            field=Temperature)
+        OOF.Subproblem.Field.Activate(
+            subproblem='microstructure:skeleton:mesh:default',
+            field=Temperature)
+        OOF.Mesh.Field.In_Plane(
+            mesh='microstructure:skeleton:mesh', field=Temperature)
+        OOF.Subproblem.Equation.Activate(
+            subproblem='microstructure:skeleton:mesh:default',
+            equation=Heat_Eqn)
+        OOF.Mesh.Boundary_Conditions.New(
+            name='bc',
+            mesh='microstructure:skeleton:mesh',
+            condition=DirichletBC(
+                field=Temperature,field_component='',
+                equation=Heat_Eqn,eqn_component='',
+                profile=ConstantProfile(value=2),boundary='left'))
+        OOF.Mesh.Boundary_Conditions.New(
+            name='bc<2>',
+            mesh='microstructure:skeleton:mesh',
+            condition=DirichletBC(
+                field=Temperature,field_component='',
+                equation=Heat_Eqn,eqn_component='',
+                profile=ConstantProfile(value=1),boundary='right'))
+        OOF.Mesh.Set_Field_Initializer(
+            mesh='microstructure:skeleton:mesh',
+            field=Temperature,
+            initializer=ConstScalarFieldInit(value=4))
+        OOF.Mesh.Apply_Field_Initializers_at_Time(
+            mesh='microstructure:skeleton:mesh', time=0.0)
+        OOF.Mesh.Scheduled_Output.New(
+            mesh='microstructure:skeleton:mesh',
+            name=AutomaticName('Average Temperature on top'),
+            output=BoundaryAnalysis(operation=AverageField(field=Temperature),
+                                    boundary='top'))
+        OOF.Mesh.Scheduled_Output.Schedule.Set(
+            mesh='microstructure:skeleton:mesh',
+            output=AutomaticName('Average Temperature on top'),
+            scheduletype=AbsoluteOutputSchedule(),
+            schedule=Periodic(delay=0.0,interval=0.05*shortening))
+        OOF.Mesh.Scheduled_Output.Destination.Set(
+            mesh='microstructure:skeleton:mesh',
+            output=AutomaticName('Average Temperature on top'),
+            destination=OutputStream(filename='testT.dat',mode='w'))
+
+        OOF.Mesh.Field.In_Plane(
+            mesh='microstructure:skeleton:mesh', field=Temperature)
+        OOF.Mesh.Field.In_Plane(
+            mesh='microstructure:skeleton:mesh', field=Displacement)
+
+    # Turn off the elastic problem to generate reference data for the
+    # thermal problem.
+    @memorycheck.check("microstructure")
+    def SS22ThermalOnly(self):
+        OOF.Subproblem.Field.Undefine(
+            subproblem='microstructure:skeleton:mesh:default',
+            field=Displacement)
+        OOF.Subproblem.Equation.Deactivate(
+            subproblem='microstructure:skeleton:mesh:default',
+            equation=Force_Balance)
+        OOF.Subproblem.Set_Solver(
+            subproblem='microstructure:skeleton:mesh:default',
+            solver_mode=AdvancedSolverMode(
+                time_stepper=AdaptiveDriver(
+                    initialstep=0,
+                    tolerance=0.00001,
+                    minstep=1.0e-05,
+                    errorscaling=AbsoluteErrorScaling(),
+                    stepper=TwoStep(
+                        singlestep=SS22(theta1=0.5,theta2=0.5))),
+                nonlinear_solver=NoNonlinearSolver(),
+                symmetric_solver=ConjugateGradient(
+                    preconditioner=ILUPreconditioner(),
+                    tolerance=1e-13,
+                    max_iterations=1000)
+                )
+            )
+        OOF.Mesh.Solve(
+            mesh='microstructure:skeleton:mesh',
+            endtime=3.0*shortening)
+        self.assert_(file_utils.fp_file_compare(
+            'testT.dat',
+            os.path.join('mesh_data',
+                         'avgtemp_inplane_uncoupled'+suffix+'.dat'),
+            1.e-6))
+        file_utils.remove('testT.dat')
+
+    def solveAndCheck(self):
+        OOF.Mesh.Solve(
+            mesh='microstructure:skeleton:mesh',
+            endtime=3.0*shortening)
+        # This is the same elastic problem used in
+        # OOF_ElasticTimeSteppers, so we can compare to its output
+        # files.  The numerical error will be different, so we have to
+        # use a slightly larger tolerance.
+        self.assert_(file_utils.fp_file_compare(
+            'test.dat',
+            os.path.join('mesh_data',
+                         'avgdisp_planestrain'+suffix+'.dat'),
+            1.e-5))
+        self.assert_(file_utils.fp_file_compare(
+            'testz.dat',
+            os.path.join('mesh_data',
+                         'stress_planestrain'+suffix+'.dat'),
+            1.e-5))
+        self.assert_(file_utils.fp_file_compare(
+            'testT.dat',
+            os.path.join('mesh_data',
+                         'avgtemp_inplane_uncoupled'+suffix+'.dat'),
+            1.e-5))
+        file_utils.remove('test.dat')
+        file_utils.remove('testz.dat')
+        file_utils.remove('testT.dat')
+
+    @memorycheck.check("microstructure")
+    def SS22(self):
+        OOF.Subproblem.Set_Solver(
+            subproblem='microstructure:skeleton:mesh:default',
+            solver_mode=AdvancedSolverMode(
+                time_stepper=AdaptiveDriver(
+                    initialstep=0,
+                    tolerance=0.00001,
+                    minstep=1.0e-05,
+                    errorscaling=AbsoluteErrorScaling(),
+                    stepper=TwoStep(
+                        singlestep=SS22(theta1=0.5,theta2=0.5))),
+                nonlinear_solver=NoNonlinearSolver(),
+                symmetric_solver=ConjugateGradient(
+                    preconditioner=ILUPreconditioner(),
+                    tolerance=1e-13,
+                    max_iterations=1000)
+                )
+            )
+        self.solveAndCheck()
+
+    @memorycheck.check("microstructure")
+    def CN(self):
+        OOF.Subproblem.Set_Solver(
+            subproblem='microstructure:skeleton:mesh:default',
+            solver_mode=AdvancedSolverMode(
+                time_stepper=AdaptiveDriver(
+                    initialstep=0,
+                    tolerance=0.00001,
+                    minstep=1.0e-05,
+                    errorscaling=AbsoluteErrorScaling(),
+                    stepper=TwoStep(singlestep=CrankNicolson())),
+                nonlinear_solver=NoNonlinearSolver(),
+                symmetric_solver=ConjugateGradient(
+                    preconditioner=ILUPreconditioner(),
+                    tolerance=1e-13,
+                    max_iterations=1000),
+                asymmetric_solver=BiConjugateGradient(
+                    preconditioner=ILUPreconditioner(),
+                    tolerance=1.e-13,
+                    max_iterations=1000)
+                )
+            )
+        self.solveAndCheck()
+
+        
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -2918,6 +3102,10 @@ def run_tests():
         OOF_AnisoElasticDynamic("AnisoPlaneStrain"),
         OOF_AnisoElasticDynamic("AnisoPlaneStress"),
 
+        OOF_ThermalElasticTimeSteppers("SS22ThermalOnly"),
+        OOF_ThermalElasticTimeSteppers("SS22"),
+        OOF_ThermalElasticTimeSteppers("CN")
+
         ## TODO: Figure out why OOF_StaticAndDynamic fails
         ## intermittently on OS X.
         #OOF_StaticAndDynamic("SS22PlaneStrain")
@@ -2928,9 +3116,10 @@ def run_tests():
         ]
 
     # static_set = []
-    # dynamic_set = [OOF_ThermalDiffusionTimeSteppers("SS22")]
+    # #dynamic_set = [OOF_ElasticTimeSteppers("SS22PlaneStrain")]
     # dynamic_set = [OOF_StaticAndDynamic("SS22PlaneStrain")]
-    # dynamic_set = [OOF_1x1ElasticDynamic("Dynamic")]
+    # # dynamic_set = [OOF_1x1ElasticDynamic("Dynamic")]
+    # oop_periodic_set = []
 
     logan = unittest.TextTestRunner()
 

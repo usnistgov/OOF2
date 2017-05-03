@@ -31,7 +31,3 @@ std::ostream &operator<<(std::ostream &os, const FieldEqnData &fe) {
   return os;
 }
 
-template <> int FEWrapper<Field>::counter = 0;
-template <> int FEWrapper<Equation>::counter = 0;
-
-

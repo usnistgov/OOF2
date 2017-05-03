@@ -112,3 +112,20 @@ void PointData::removeEquation(FEMesh *mesh, const Equation &eqn) {
 bool PointData::hasEquation(const Equation &eqn) const {
   return equationset.contains(&eqn);
 }
+
+
+std::ostream &operator<<(std::ostream &os, const PointData::FieldSet &fset) {
+  std::map<int, const Field*> fmap;
+  for(int f=0; f<countFields(); f++) {
+    Field *field = getFieldByIndex(f);
+    if(fset.contains(field)) {
+      fmap[fset.offset(field)] = field;
+    }
+  }
+  os << "Offsets and Fields: " << std::endl;
+  for(auto &iter : fmap) {
+    os << "   " << iter.first << "-" << (iter.first + iter.second->ndof() - 1)
+       << "\t " << *iter.second << std::endl;
+  }
+  return os;
+}

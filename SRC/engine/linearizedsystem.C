@@ -638,13 +638,16 @@ void LinearizedSystem::build_MCK_maps() {
   // if(not once) {
   //   once = true;
   //   dumpMaps();
-  // }
+  //   dumpFields("");
+    // }
 } // end build_MCK_maps
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 void LinearizedSystem::dumpMaps(const std::string &filename) const {
   if(filename.size() > 0) {
+    std::cerr << "LinearizedSystem::dumpMaps: writing " << filename
+	      << std::endl;
     ofstream os(filename.c_str());
     do_dumpMaps(os);
     os.close();
@@ -693,6 +696,32 @@ void LinearizedSystem::do_dumpMaps(ostream &os) const {
   os << "       subp2MCKDerivMasterMap=" << subp2MCKDerivMasterMap
 	    << std::endl;
   os << "LinearizedSystem::dumpMaps: done -----" << std::endl;
+}
+
+void LinearizedSystem::dumpFields(const std::string &filename) const {
+  if(filename.size() > 0) {
+    std::cerr << "LinearizedSystem::dumpFields: writing " << filename
+	      << std::endl;
+    ofstream os(filename.c_str());
+    do_dumpFields(os);
+    os.close();
+  }
+  else {
+    std::cerr << "LinearizedSystem::dumpFields:" << std::endl;
+    do_dumpFields(std::cerr);
+  }
+}
+
+void LinearizedSystem::do_dumpFields(ostream &os) const {
+  std::set<int> fieldsets;
+  for(FuncNodeIterator iter=subproblem->funcnode_iterator();!iter.end();++iter)
+    {
+      FuncNode *node = iter.node();
+      if(fieldsets.find(node->fieldSetID()) == fieldsets.end()) {
+	fieldsets.insert(node->fieldSetID());
+	os << " " << node->fieldset << std::endl;
+      }
+    }
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

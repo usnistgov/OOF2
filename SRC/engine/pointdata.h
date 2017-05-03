@@ -58,5 +58,6 @@ public:
 
 };
 
+std::ostream &operator<<(std::ostream&, const PointData::FieldSet&);
   
 #endif

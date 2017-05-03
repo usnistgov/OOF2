@@ -44,20 +44,19 @@ void DoFMap::identity(unsigned int len) {
 }
 
 int DoFMap::add(unsigned int n) { 
-  // If n<0, an auxiliary equation is being added.
 #ifdef DEBUG
-  if(n >= domain() ||n < 0) {
+  if(n >= domain()) {
     std::cerr << "DoFMap::add: n=" << n << " domain=" << domain() << std::endl;
   }
 #endif // DEBUG
-  assert(n < domain() and n >= 0);
+  assert(n < domain());
   assert(map_[n] == -1);
   map_[n] = range_;
   return range_++;
 }
 
 int DoFMap::operator[](unsigned int n) const {
-  assert(0 <= n && n < domain());
+  assert(n < domain());
   return map_[n];
 }
 
@@ -298,6 +297,10 @@ DoFMap concat(const DoFMap &mapA, const DoFMap &mapB) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+// translateDomain is used by LinearizedSystem::build_MCK_maps to
+// create the maps that operate on the time derivative DoFs.  The
+// "trans" argument in that case is the dof2Deriv map.
+
 DoFMap DoFMap::translateDomain(unsigned int n,
 			       const DoFMap::TranslationMap &trans)
   const
@@ -310,10 +313,10 @@ DoFMap DoFMap::translateDomain(unsigned int n,
       DoFMap::TranslationMap::const_iterator j=trans.find(i);
       if(j != trans.end())
 	newmap.map_[(*j).second] = map_[i];
-      else {
-	throw ErrProgrammingError("Map translation failure",
-				  __FILE__, __LINE__);
-      }
+      // This used to throw an ErrProgrammingError if i wasn't found
+      // in the map.  That was incorrect.  If time derivative fields
+      // exist for some DoFs but not others, then there will be DoFs
+      // that aren't in trans.
     }
   }
   return newmap;
