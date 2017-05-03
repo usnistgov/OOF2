@@ -815,6 +815,25 @@ class oof_build_shlib(build_shlib.build_shlib, oof_build_xxxx):
         raise errors.DistutilsExecError("can't link blas!")
 
     def check_tcmalloc(self):
+
+        # TODO: We should be modifying the compiler args as well as
+        # the link args when using tcmalloc with gcc.  From tcmalloc's
+        # github page:
+        ## NOTE: When compiling with programs with gcc, that you plan
+        ## to link with libtcmalloc, it's safest to pass in the flags
+        ## -fno-builtin-malloc -fno-builtin-calloc
+        ## -fno-builtin-realloc -fno-builtin-free when compiling.  gcc
+        ## makes some optimizations assuming it is using its own,
+        ## built-in malloc; that assumption obviously isn't true with
+        ## tcmalloc.  In practice, we haven't seen any problems with
+        ## this, but the expected risk is highest for users who
+        ## register their own malloc hooks with tcmalloc (using
+        ## gperftools/malloc_hook.h). The risk is lowest for folks who
+        ## use tcmalloc_minimal (or, of course, who pass in the above
+        ## flags :-) ).
+        
+        if NO_TCMALLOC:
+            return ([], [])
         # Check to see if tcmalloc is available.
         print "Looking for tcmalloc..."
         # First, try pkg-config.  Not all distros include a .pc file
@@ -1045,7 +1064,7 @@ def get_global_args():
 
     global HAVE_MPI, HAVE_OPENMP, HAVE_PETSC, DEVEL, NO_GUI, \
         ENABLE_SEGMENTATION, \
-        DIM_3, DATADIR, DOCDIR, OOFNAME, SWIGDIR, NANOHUB
+        DIM_3, DATADIR, DOCDIR, OOFNAME, SWIGDIR, NANOHUB, NO_TCMALLOC
     HAVE_MPI = _get_oof_arg('--enable-mpi')
     HAVE_PETSC = _get_oof_arg('--enable-petsc')
     DEVEL = _get_oof_arg('--enable-devel')
@@ -1054,6 +1073,7 @@ def get_global_args():
     DIM_3 = _get_oof_arg('--3D')
     NANOHUB = _get_oof_arg('--nanoHUB')
     HAVE_OPENMP = _get_oof_arg('--enable-openmp')
+    NO_TCMALLOC = _get_oof_arg('--disable-tcmalloc')
 
     # The following determine some secondary installation directories.
     # They will be created within the main installation directory
