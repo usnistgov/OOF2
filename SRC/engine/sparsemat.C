@@ -11,8 +11,12 @@
 #include "engine/dofmap.h"
 #include <unsupported/Eigen/SparseExtra>
 #include <iostream>
-#include <sstream>
 #include <fstream>
+#ifndef HAVE_SSTREAM
+#include <strstream.h
+#else
+#include <sstream>
+#endif // HAVE_SSTREAM
 
 // Construct by extraction from an existing matrix.
 SparseMat::SparseMat(const SparseMat& source,
@@ -45,7 +49,7 @@ SparseMat::SparseMat(const SparseMat& source,
 
 void SparseMat::set_from_triplets(std::vector<Triplet>& tris) {
   // Initialize this sparse matrix from treiplets like (row, col,
-  // value). For triplets having tha same row# and col#, add them
+  // value). For triplets having the same row# and col#, add them
   // together.
   data.setFromTriplets(tris.begin(), tris.end(),
     [] (const double& a, const double& b) { return a+b; });
@@ -165,7 +169,7 @@ void SparseMat::solve_lower_triangle(const DoubleVec& rhs, DoubleVec& x) const {
 void SparseMat::solve_lower_triangle_unitd(const DoubleVec& rhs, DoubleVec& x) const {
   // Solve a lower triangular matrix assuming that the diagonal
   // elements are 1.0.  rhs and x can be the same vector.
-  assert(is_lower_triangular(false));
+  assert(is_lower_triangular(false)); // false ==> no diagonal elements allowed
   x.data = data.triangularView<Eigen::UnitLower>().solve(rhs.data);
 }
 
@@ -179,7 +183,7 @@ void SparseMat::solve_lower_triangle_trans(const DoubleVec& rhs, DoubleVec& x) c
 void SparseMat::solve_lower_triangle_trans_unitd(const DoubleVec& rhs, DoubleVec& x) const {
   // Solve a lower triangular matrix assuming that the diagonal
   // elements are 1.0.  rhs and x can be the same vector.
-  assert(is_lower_triangular(false));
+  assert(is_lower_triangular(false)); // false ==> no diagonal elements allowed
   x.data = data.triangularView<Eigen::UnitLower>().transpose().solve(rhs.data);
 }
 
@@ -244,8 +248,9 @@ bool SparseMat::is_lower_triangular(bool diag) const {
   else { // no diagonal elements allowed
     for (int k = 0; k < data.outerSize(); ++k) {
       for (InnerIter it(data, k); it; ++it) 
-        if (it.row() <= it.col())
+        if (it.row() <= it.col()) {
           return false;
+	}
     }
   }
   return true;
@@ -395,7 +400,8 @@ bool load_mat(SparseMat& mat, const std::string& filename) {
   mat.resize(nr, nc);
 
   // read matrix elements
-  std::vector<Triplet> trips(nnz); 
+  std::vector<Triplet> trips;
+  trips.reserve(nnz);
   int r, c;
   double val;
   for (int i = 0; i < nnz; i++) {

@@ -1270,7 +1270,7 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
 # OOF_ThermalDiffusionTimeSteppers, except that it's plane-flux.
 ## TODO: Find a neater way to do this, instead of copying the whole
 ## test class.  The reason that it's not easy is that the tolerances
-## are different than in Solver7.
+## are different.
 
 class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
     def setUp(self):
