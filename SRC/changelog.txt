@@ -1,3 +1,9 @@
+OOF2 2.1.14
+
+* Fixed a bug that could cause spurious error messages when solving
+  time-dependent problems involving both thermal diffusion and
+  elasticity. 
+
 OOF2 2.1.13
 
 * Changed the sign of the force balance equation so that the stiffness
