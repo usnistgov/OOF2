@@ -13,7 +13,7 @@ import memorycheck
 import math
 from UTILS import file_utils
 reference_file = file_utils.reference_file
-file_utils.generate = True
+file_utils.generate = False
 
 class SaveableMeshTest(unittest.TestCase):
     def saveAndLoad(self, filename):
@@ -967,7 +967,7 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
             solver_mode=AdvancedSolverMode(
                 time_stepper=AdaptiveDriver(
                     initialstep=0.001,
-                    tolerance=tol,
+                    tolerance=1.e-6,
                     minstep=1e-5,
                     errorscaling=AbsoluteErrorScaling(),
                     stepper=TwoStep(singlestep=CrankNicolson())),
@@ -1012,12 +1012,16 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
 
     @memorycheck.check('microstructure')
     def RK4direct(self):
+        if file_utils.generate:
+            tol = 1.e-8
+        else:
+            tol = 1.e-6
         OOF.Subproblem.Set_Solver(
             subproblem='microstructure:skeleton:mesh:default',
             solver_mode=AdvancedSolverMode(
                 time_stepper=AdaptiveDriver(
                     initialstep=0.001,
-                    tolerance=1e-6,
+                    tolerance=tol,
                     minstep=1e-5,
                     errorscaling=AbsoluteErrorScaling(),
                     stepper=TwoStep(singlestep=RK4())),
@@ -1389,16 +1393,12 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
 
     @memorycheck.check('microstructure')
     def CNdirect(self):
-        if file_utils.generate:
-            tol = 1.e-8
-        else:
-            tol = 1.e-6
         OOF.Subproblem.Set_Solver(
             subproblem='microstructure:skeleton:mesh:default',
             solver_mode=AdvancedSolverMode(
                 time_stepper=AdaptiveDriver(
                     initialstep=0.001,
-                    tolerance=tol,
+                    tolerance=1.e-6,
                     minstep=1e-5,
                     errorscaling=AbsoluteErrorScaling(),
                     stepper=TwoStep(singlestep=CrankNicolson())),
@@ -1443,12 +1443,16 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
 
     @memorycheck.check('microstructure')
     def RK4direct(self):
+        if file_utils.generate:
+            tol = 1.e-8
+        else:
+            tol = 1.e-6
         OOF.Subproblem.Set_Solver(
             subproblem='microstructure:skeleton:mesh:default',
             solver_mode=AdvancedSolverMode(
                 time_stepper=AdaptiveDriver(
                     initialstep=0.001,
-                    tolerance=1e-4,
+                    tolerance=tol,
                     minstep=1e-6,
                     errorscaling=AbsoluteErrorScaling(),
                     stepper=TwoStep(singlestep=RK4())),
@@ -3054,14 +3058,14 @@ def run_tests():
         OOF_NonstaticThenStatic("Solve"),
 
         # In "generate" mode,
-        # OOF_ThermalDiffusionTimeSteppers("CNdirect") provides the
+        # OOF_ThermalDiffusionTimeSteppers("RK4direct") provides the
         # reference data for the rest of
         # OOF_ThermalDiffusionTimeSteppers, so it must precede the
         # rest of OOF_ThermalDiffusionTimeSteppers in this list.
+        OOF_ThermalDiffusionTimeSteppers("RK4direct"),
         OOF_ThermalDiffusionTimeSteppers("CNdirect"),
         OOF_ThermalDiffusionTimeSteppers("SS22directSaveRestore"),
         OOF_ThermalDiffusionTimeSteppers("BEdirect"),
-        OOF_ThermalDiffusionTimeSteppers("RK4direct"),
         OOF_ThermalDiffusionTimeSteppers("RK2direct"),
         OOF_ThermalDiffusionTimeSteppers("SS22"),
         OOF_ThermalDiffusionTimeSteppers("CN"),
@@ -3070,9 +3074,10 @@ def run_tests():
         OOF_ThermalDiffusionTimeSteppers("BE"),
         OOF_ThermalDiffusionTimeSteppers("CNdouble"),
 
+        ## In generate mode, RK4direct must come first.
+        OOF_ThermalDiffusionTSPlaneFlux("RK4direct"),
         OOF_ThermalDiffusionTSPlaneFlux("CNdirect"),
         OOF_ThermalDiffusionTSPlaneFlux("BEdirect"),
-        OOF_ThermalDiffusionTSPlaneFlux("RK4direct"),
         OOF_ThermalDiffusionTSPlaneFlux("RK2direct"),
         OOF_ThermalDiffusionTSPlaneFlux("CNSaveRestore"),
         OOF_ThermalDiffusionTSPlaneFlux("RK4"),
@@ -3104,11 +3109,11 @@ def run_tests():
 
         OOF_ThermalElasticTimeSteppers("SS22ThermalOnly"),
         OOF_ThermalElasticTimeSteppers("SS22"),
-        OOF_ThermalElasticTimeSteppers("CN")
+        OOF_ThermalElasticTimeSteppers("CN"),
 
         ## TODO: Figure out why OOF_StaticAndDynamic fails
         ## intermittently on OS X.
-        #OOF_StaticAndDynamic("SS22PlaneStrain")
+        OOF_StaticAndDynamic("SS22PlaneStrain")
         ]
 
     oop_periodic_set = [
@@ -3116,10 +3121,12 @@ def run_tests():
         ]
 
     # static_set = []
-    # #dynamic_set = [OOF_ElasticTimeSteppers("SS22PlaneStrain")]
-    # dynamic_set = [OOF_StaticAndDynamic("SS22PlaneStrain")]
-    # # dynamic_set = [OOF_1x1ElasticDynamic("Dynamic")]
     # oop_periodic_set = []
+    # #dynamic_set = [OOF_ElasticTimeSteppers("SS22PlaneStrain")]
+    # #dynamic_set = [OOF_StaticAndDynamic("SS22PlaneStrain")]
+    # dynamic_set = [OOF_ThermalDiffusionTSPlaneFlux("CNdirect")]
+    # dynamic_set = [OOF_ThermalDiffusionTSPlaneFlux("RK4direct"),
+    #                OOF_ThermalDiffusionTimeSteppers("RK4direct")]
 
     logan = unittest.TextTestRunner()
 
