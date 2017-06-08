@@ -6,7 +6,11 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
+
+## TODO: This tutorial needs to be updated.  The second solution fails
+## to converge, presumably because of changes in the solvers when we
+## switched to Eigen.
 
 from ooflib.tutorials import tutorial
 TutoringItem = tutorial.TutoringItem
