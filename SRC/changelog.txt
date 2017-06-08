@@ -2,7 +2,9 @@ OOF2 2.1.14
 
 * Fixed a bug that could cause spurious error messages when solving
   time-dependent problems involving both thermal diffusion and
-  elasticity. 
+  elasticity.
+
+* Fixed a bug in Fix Illegal Elements.
 
 OOF2 2.1.13
 
