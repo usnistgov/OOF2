@@ -8,10 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-## TODO: This tutorial needs to be updated.  The second solution fails
-## to converge, presumably because of changes in the solvers when we
-## switched to Eigen.
-
 from ooflib.tutorials import tutorial
 TutoringItem = tutorial.TutoringItem
 TutorialClass = tutorial.TutorialClass
@@ -205,7 +201,10 @@ TutorialClass(
     problem to get an improved solution.
 
     Go to the BOLD(Solver) page.  BOLD(Solve) the problem again with
-    the refined mesh.
+    the refined mesh.  If you get an convergence error, edit the
+    BOLD(Solver) and switch the BOLD(symmetric_solver) to BOLD(BiCG),
+    which seems to work better here, or increase the tolerance of
+    BOLD(CG) to 1.e-08.
     """,
     signal = "mesh solved"
     ),
