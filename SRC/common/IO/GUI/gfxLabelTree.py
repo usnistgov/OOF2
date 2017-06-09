@@ -235,10 +235,11 @@ class GfxLabelTree:
     def deleteCB(self, node):
         # node is a LabelTreeNode object
         debug.mainthreadTest()
-        iter = self.lt2treeiter[node]
-        self.treestore.remove(iter)
-        del self.lt2treeiter[node]
-        self.autoSelect()
+        if not node.secret():
+            iter = self.lt2treeiter[node]
+            self.treestore.remove(iter)
+            del self.lt2treeiter[node]
+            self.autoSelect()
 
     def renameCB(self, node):
         debug.mainthreadTest()

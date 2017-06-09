@@ -236,63 +236,72 @@ class Relax(skeletonmodifier.SkeletonModifier):
         before = skeleton.energyTotal(self.alpha)
         self.count = 0
 
-        while self.goodToGo(skeleton) and not prog.stopped():
-            ## femesh is created and properties are assigned
-            mesh = self.create_mesh(context) # mesh context object
+        try:
 
-            ## define displacement field
-            self.define_fields(mesh)
-            ## activate the mechanical balance equation
-            self.activate_equations(mesh)
-            mesh.changed("Relaxing")
-            ## constrain the nodes on the boundaries to only slide
-            ## along the edge
-            self.set_boundary_conditions(mesh)
+            while self.goodToGo(skeleton) and not prog.stopped():
+                # TODO: Why do we create a new mesh for each
+                # iteration?  Can't we update the positions of the
+                # nodes and re-use the mesh?
+                ## femesh is created and properties are assigned
+                mesh = self.create_mesh(context) # mesh context object
 
-            # solve linear system.
-            self.coreProcess(mesh, mesh.get_default_subproblem())
-            if prog.stopped():
-                break
+                ## define displacement field
+                self.define_fields(mesh)
+                ## activate the mechanical balance equation
+                self.activate_equations(mesh)
+                mesh.changed("Relaxing")
+                ## constrain the nodes on the boundaries to only slide
+                ## along the edge
+                self.set_boundary_conditions(mesh)
 
-            # Update positions of nodes in the Skeleton
-            context.begin_writing()
-            try:
-                self.update_node_positions(skeleton, mesh)
-            finally:
-                context.end_writing()
+                # solve linear system.
+                self.coreProcess(mesh, mesh.get_default_subproblem())
+                if prog.stopped():
+                    break
 
-            mesh.lockAndDelete()
+                # Update positions of nodes in the Skeleton.  If this
+                # creates illegal elements, the iteration will stop.
+                # Illegality is checked by goodToGo().
+                context.begin_writing()
+                try:
+                    self.update_node_positions(skeleton, mesh)
+                finally:
+                    context.end_writing()
 
-            switchboard.notify("skeleton nodes moved", context)
-            switchboard.notify("redraw")
+                mesh.lockAndDelete()
 
-            self.updateIteration() ## update iteration manager machinery
-            prog.setFraction(1.0*self.count/self.iterations)
-            prog.setMessage("%d/%d iterations" % (self.count, self.iterations))
+                switchboard.notify("skeleton nodes moved", context)
+                switchboard.notify("redraw")
 
-        prog.finish()
+                self.updateIteration() ## update iteration manager machinery
+                prog.setFraction(1.0*self.count/self.iterations)
+                prog.setMessage("%d/%d iterations" %
+                                (self.count, self.iterations))
 
-        ## calculate total energy improvement, if any.
-        after = skeleton.energyTotal(self.alpha)
-        if before:
-            rate = 100.0*(before-after)/before
-        else:
-            rate = 0.0
-        diffE = after - before
-        reporter.report("Relaxation complete: deltaE = %10.4e (%6.3f%%)"
-                        % (diffE, rate))
+            prog.finish()
 
-        if config.dimension() == 2:
-            del self.topBoundaryCondition
-            del self.leftBoundaryCondition
-            del self.bottomBoundaryCondition
-            del self.rightBoundaryCondition
+            ## calculate total energy improvement, if any.
+            after = skeleton.energyTotal(self.alpha)
+            if before:
+                rate = 100.0*(before-after)/before
+            else:
+                rate = 0.0
+            diffE = after - before
+            reporter.report("Relaxation complete: deltaE = %10.4e (%6.3f%%)"
+                            % (diffE, rate))
 
-        materialmanager.materialmanager.delete_prop(self.stiffness.name())
-        materialmanager.materialmanager.delete_prop(self.skelRelRate.name())
-        propertyregistration.AllProperties.delete(self.stiffness.name())
-        propertyregistration.AllProperties.delete(self.skelRelRate.name())
-        materialmanager.materialmanager.delete_secret(self.materialName)
+        finally:
+            if config.dimension() == 2:
+                del self.topBoundaryCondition
+                del self.leftBoundaryCondition
+                del self.bottomBoundaryCondition
+                del self.rightBoundaryCondition
+
+            materialmanager.materialmanager.delete_prop(self.stiffness.name())
+            materialmanager.materialmanager.delete_prop(self.skelRelRate.name())
+            propertyregistration.AllProperties.delete(self.stiffness.name())
+            propertyregistration.AllProperties.delete(self.skelRelRate.name())
+            materialmanager.materialmanager.delete_secret(self.materialName)
 
     def coreProcess(self, meshctxt, subp):
         subp.solver_mode = solvermode.AdvancedSolverMode(

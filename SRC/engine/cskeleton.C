@@ -510,18 +510,6 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
 {
   // std::cerr << std::endl << "categoryAreas: new Element" << std::endl;
 
-  // TODO: See if doing this check is too slow.  We used to just use
-  // "assert(!illegal())", but that didn't catch errors when the
-  // regression tests weren't run in DEBUG mode.
-  if(illegal()) {
-    std::cerr << "Illegal element:";
-    for(int i=0; i<nodes.size(); i++)
-      std::cerr << " " << nodes[i]->position();
-    std::cerr << std::endl;
-    throw ErrProgrammingError("Illegal element in categoryAreas!", __FILE__,
-			      __LINE__);
-  }
-
   // nCategories() recomputes categories & boundaries if needed.
   unsigned int ncat = ms.nCategories();
   // std::cerr << "categoryAreas: nCategories=" << n << std::endl;
@@ -1064,8 +1052,10 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
   // Check that the area of the element is equal to the sum of the
   // areas of the categories.  This check used to raise an exception
   // if it failed.  That made the gui tests fail, which they shouldn't
-  // have, because this function can legitimately be called on illegal
-  // elements.  So now, if the sum doesn't equal the area, this
+  // have, because if a Skeleton contains illegal elements, it can
+  // also contain legal elements that have nodes outside the
+  // Microstructure, which will cause the area sum to be incomplete.
+  // So now, if the sum doesn't equal the area, this
   // function returns a null result and doesn't raise an exception.
   bool ok = true;
 #ifdef DEBUG
@@ -1087,7 +1077,7 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
   ok = fabs(frac) < CSKELETON_PIXELBDY_AREA_TOL;
   if(!ok) {
     std::cerr << "categoryAreas: Error! sum=" << sum << " area=" << area()
-    	      << " fraction=" << fabs(frac) << std::endl;
+	      << " fraction=" << fabs(frac) << std::endl;
   }
   // else
   //   std::cerr << "categoryAreas: consistency check passed." << std::endl;
@@ -1208,9 +1198,14 @@ void CSkeletonElement::findHomogeneityAndDominantPixel(
 HomogeneityData CSkeletonElement::c_homogeneity(const CMicrostructure &ms)
   const
 {
+  if(illegal())
+    return HomogeneityData(0, UNKNOWN_CATEGORY);
   const DoubleVec *areas = categoryAreas(ms);
-  if(!areas)			// element is illegal
-    return HomogeneityData(0, 0);
+  if(!areas) {
+    // Element is not illegal, but has parts outside of the
+    // Microstructure because some *other* element is illegal. 
+    return HomogeneityData(0, UNKNOWN_CATEGORY);
+  }
   int category = 0;
   double maxarea=0.0;
   for(DoubleVec::size_type i=0;i<areas->size();++i) {

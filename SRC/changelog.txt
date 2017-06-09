@@ -4,7 +4,12 @@ OOF2 2.1.14
   time-dependent problems involving both thermal diffusion and
   elasticity.
 
+* Fixed bugs that were raising spurious error messages in Relax.
+
 * Fixed a bug in Fix Illegal Elements.
+
+* Fixed a bug that caused crashes during illegal Skeleton node moves
+  in debug mode.
 
 OOF2 2.1.13
 
