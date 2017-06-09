@@ -124,6 +124,8 @@ public:
 						   this->homog_energy); }
 };
 
+#define UNKNOWN_CATEGORY -1
+
 #if DIM == 3
 typedef std::multimap<double, VoxelBdyIntersection> CellEdgeMap;
 typedef std::vector<CellEdgeMap> CellEdge;

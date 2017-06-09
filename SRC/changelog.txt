@@ -4,6 +4,8 @@ OOF2 2.1.14
   time-dependent problems involving both thermal diffusion and
   elasticity.
 
+* Fixed bugs that were raising spurious error messages in Relax.
+
 * Fixed a bug in Fix Illegal Elements.
 
 OOF2 2.1.13

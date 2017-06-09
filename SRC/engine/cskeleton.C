@@ -510,18 +510,6 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
 {
   // std::cerr << std::endl << "categoryAreas: new Element" << std::endl;
 
-  // TODO: See if doing this check is too slow.  We used to just use
-  // "assert(!illegal())", but that didn't catch errors when the
-  // regression tests weren't run in DEBUG mode.
-  if(illegal()) {
-    std::cerr << "Illegal element:";
-    for(int i=0; i<nodes.size(); i++)
-      std::cerr << " " << nodes[i]->position();
-    std::cerr << std::endl;
-    throw ErrProgrammingError("Illegal element in categoryAreas!", __FILE__,
-			      __LINE__);
-  }
-
   // nCategories() recomputes categories & boundaries if needed.
   unsigned int ncat = ms.nCategories();
   // std::cerr << "categoryAreas: nCategories=" << n << std::endl;
@@ -1208,9 +1196,11 @@ void CSkeletonElement::findHomogeneityAndDominantPixel(
 HomogeneityData CSkeletonElement::c_homogeneity(const CMicrostructure &ms)
   const
 {
+  if(illegal())
+    return HomogeneityData(0, UNKNOWN_CATEGORY);
   const DoubleVec *areas = categoryAreas(ms);
-  if(!areas)			// element is illegal
-    return HomogeneityData(0, 0);
+  // if(!areas)			// element is illegal
+  //   return HomogeneityData(0, 0);
   int category = 0;
   double maxarea=0.0;
   for(DoubleVec::size_type i=0;i<areas->size();++i) {
