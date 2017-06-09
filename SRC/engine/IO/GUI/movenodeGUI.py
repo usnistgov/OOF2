@@ -551,12 +551,12 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
             homogeneity = 0.0
             shapeenergy = 0.0
             for element in neighbors:
-                if not illegal:
-                    if element.illegal():
-                        illegal = True
-                    else:
-                        homogeneity += element.homogeneity(skeleton.MS)
-                        shapeenergy += element.energyShape()
+                if element.illegal():
+                    illegal = True
+                    break
+                else:
+                    homogeneity += element.homogeneity(skeleton.MS)
+                    shapeenergy += element.energyShape()
             self.node().moveBack()
         finally:
             skelctxt.end_writing()
