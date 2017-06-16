@@ -115,6 +115,7 @@ def evolve(meshctxt, endtime):
                         [subp.time_stepper.initial_stepsize(t1-starttime)
                          for subp in subprobctxts])
                 try:
+                    debug.fmsg("Calling evolve_to, endtime=", t1)
                     time, delta, linsys_dict = evolve_to(
                         meshctxt, subprobctxts,
                         time=time, endtime=t1, delta=delta, prog=prog,
@@ -247,7 +248,6 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
         # nextStepEstimate function raises an ErrTimeStepTooSmall
         # exception if the step size is too small.
         while time < endtime and not prog.stopped():
-
             # Choose the time step.  If no delta is provide, just to
             # up to endtime.  If delta is provided, go up to the
             # smaller of time+delta and endtime, unless time+delta is
@@ -296,7 +296,6 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
             while (stepno < maxconsistencysteps
                    and not (stepTaken or prog.stopped())):
                 stepno += 1
-                
                 mintime = None  # lowest time attained by any subproblem
                 mindelta = None # smallest recommended delta for any subp.
                 for subproblem in subprobctxts:
@@ -340,7 +339,7 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
                             unknowns=subproblem.get_unknowns(lsClone),
                             endtime=targettime)
 
-                        ## debug.fmsg("time=", targettime)
+                        # debug.fmsg("time=", targettime)
                         # debug.fmsg("endValues=", stepResult.endValues)
                         if stepResult.ok:
                             # endStep() sets subproblem.endValues
@@ -428,7 +427,7 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
         meshctxt.setStatus(meshstatus.Failed("Solution interrupted."))
         raise
     except ooferror2.ErrErrorPtr, err:
-        debug.fmsg("Caught an ErrError")
+        debug.fmsg("Caught an ErrError:", err)
         meshctxt.setStatus(meshstatus.Failed(err.summary()))
         raise
     except Exception, exc:

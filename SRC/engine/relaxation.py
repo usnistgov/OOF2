@@ -42,6 +42,9 @@ from ooflib.engine.IO import isocijkl
 from ooflib.engine.IO import meshmenu
 import ooflib.engine.mesh
 
+from ooflib.engine import timestepper
+from ooflib.engine import euler
+from ooflib.SWIG.engine.property.damping import damping
 
 class Relax(skeletonmodifier.SkeletonModifier):
 
@@ -66,6 +69,11 @@ class Relax(skeletonmodifier.SkeletonModifier):
         relaxPropReg.getParameter("gamma").value = self.gamma
         relaxPropReg.getParameter("alpha").value = self.alpha
         self.skelRelRate = relaxPropReg()
+
+        dampingPropReg = damping.reg.named_copy("__damping%d__" % threadno,
+                                                secret=True)
+        dampingPropReg.getParameter("damping").value = 1.0
+        self.damping = dampingPropReg()
         # gamma_parameter = \
         #     skeletonrelaxationrate.SkeletonRelaxationRateTensor.getParameter(
         #     'gamma')
@@ -77,7 +85,8 @@ class Relax(skeletonmodifier.SkeletonModifier):
         # self.skelRelRate = skeletonrelaxationrate.SkeletonRelaxationRateTensor()
         materialmanager.materialmanager.add_prop(self.materialName,
                                                  self.skelRelRate.name())
-
+        materialmanager.materialmanager.add_prop(self.materialName,
+                                                 self.damping.name())
 
         # isotropic elasticity
         stiffnessPropReg = iso.IsotropicElasticity.named_copy(
@@ -278,8 +287,6 @@ class Relax(skeletonmodifier.SkeletonModifier):
                 prog.setMessage("%d/%d iterations" %
                                 (self.count, self.iterations))
 
-            prog.finish()
-
             ## calculate total energy improvement, if any.
             after = skeleton.energyTotal(self.alpha)
             if before:
@@ -291,6 +298,8 @@ class Relax(skeletonmodifier.SkeletonModifier):
                             % (diffE, rate))
 
         finally:
+            prog.finish()
+
             if config.dimension() == 2:
                 del self.topBoundaryCondition
                 del self.leftBoundaryCondition
@@ -305,7 +314,9 @@ class Relax(skeletonmodifier.SkeletonModifier):
 
     def coreProcess(self, meshctxt, subp):
         subp.solver_mode = solvermode.AdvancedSolverMode(
-            time_stepper=staticstep.StaticDriver(),
+            # time_stepper=staticstep.StaticDriver(),
+            time_stepper=timestepper.UniformDriver(stepper=euler.ForwardEuler(),
+                                                   stepsize=1.0),
             nonlinear_solver=nonlinearsolver.NoNonlinearSolver(),
             symmetric_solver=matrixmethod.ConjugateGradient(
                 preconditioner.ILUPreconditioner(),
@@ -321,7 +332,8 @@ class Relax(skeletonmodifier.SkeletonModifier):
         meshctxt.begin_writing()
         try:
             try:
-                evolve.evolve(meshctxt, 0.0)
+                # evolve.evolve(meshctxt, 0.0)
+                evolve.evolve(meshctxt, 1.0)
             except:
                 # TODO: Be more explicit about what exceptions
                 # should be handled here, to distinguish actual

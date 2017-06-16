@@ -38,11 +38,15 @@ void IsotropicDampingProp::first_time_deriv_matrix(
   const
 {
   double shapeFuncVal = eni.shapefunction(mpos);
-  for(IteratorP ell = displacement->iterator(IN_PLANE); !ell.end(); ++ell) {
-    for(IteratorP eqncomp = eqn->iterator(); !eqncomp.end(); ++eqncomp) {
-      eqndata->damping_matrix_element(eqncomp, displacement, ell, eni)
-	+= coeff * shapeFuncVal;
-    }
+  // for(IteratorP ell = displacement->iterator(IN_PLANE); !ell.end(); ++ell) {
+  //   for(IteratorP eqncomp = eqn->iterator(); !eqncomp.end(); ++eqncomp) {
+  //     eqndata->damping_matrix_element(eqncomp, displacement, ell, eni)
+  // 	+= coeff * shapeFuncVal;
+  //   }
+  // }
+  for(IteratorP component=eqn->iterator(); !component.end(); ++component) {
+    eqndata->damping_matrix_element(component, displacement, component, eni)
+      += coeff * shapeFuncVal;
   }
 }
 
