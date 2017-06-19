@@ -1,0 +1,62 @@
+ 
+  For the prototype Python code:
+
+  The classes are:
+
+  Arithmetic-enabled data containers:
+  -----------------------------------
+
+ - Position, convience class for doing arithmetic on 
+     three-vectors.
+
+ - SmallMatrix, from the OOF C++ code, includes several 
+     convenience methods, plus a "solve" method, which calls
+     the BLAS DGESV method.
+
+
+  Constitutive classes
+  ---------------------
+
+ - Flux: Base class for mapping fields to fluxes.
+     Has abstract methods flux_matrix and flux_vector, which
+     populate passed-in data containers according to the 
+     constitutive mapping of sub-classes, as embodied in their
+     "dukl" method.
+
+ - Orientation: Data container object for Euler angles,
+      also knows how to build a rotation matrix.
+ 
+ - CauchyStress:, subclass of Flux, mostly consists of the
+     a dukl method, along with a flux evaluator and rotator --
+     this is essentially a life-support system for the Cijkl.
+
+  
+  FE Infrastructure classes 
+  -------------------------
+
+  - Mesh: Top-level class, the main thing that "client" code
+      has to talk to.  Hard-coded to do regular hexahedral 
+      meshes, but can have any number of elements per side.
+      Also hard-coded to work on the unit cube.
+    Creates nodes and elements based on input dimensions. 
+    Has methods to generate the master stiffness matrix,
+      and is the root of the "make_linaer_system" call-chain
+      and the solve_nonlinear method, which implements 
+      Newton-Raphson.
+
+  - Element: Encloses a region of space, and can provide a 
+      list of gausspoints and weights that allow element \
+      containers to do integrals  over the element. 
+    Also knows about shape functions, and embodies the 
+      correspondence between shape functions and nodes, 
+      which are used together to map from master space to
+      reference space, and with degrees of freedom, to 
+      map from reference space to current space.
+
+  - Node: A point in space where DOFs and equations can be
+      evaluated.  A node has a fixed position in reference
+      space, and is a container for instances of DOFs and
+      equations. 
+
+  - GaussPoint: Has a master-space coordinate and a weight,
+      lives inside elements.
