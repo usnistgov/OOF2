@@ -50,7 +50,7 @@ static SLock globalFEMeshCountLock;
 FEMesh::FEMesh(CMicrostructure * mc)
   : microstructure(mc),
     rwlock(0),
-    dofvalues(new vector<double>),
+    dofvalues(0), // Will be set by MeshDataCache when it's created in Mesh ctor
     time(0.0),
     currentSubProblem_(0),
     ncount(0),			// used as a Node ID only
@@ -63,6 +63,7 @@ FEMesh::FEMesh(CMicrostructure * mc)
 }
 
 FEMesh::~FEMesh() {
+  cerr << "FEMesh::dtor" << std::endl;
   for(std::vector<NodalEquation*>::size_type i=0; i<nodaleqn.size(); i++)
     delete nodaleqn[i];
   
@@ -76,8 +77,8 @@ FEMesh::~FEMesh() {
     delete element[i];
   for(std::vector<InterfaceElement*>::size_type i=0; i<edgement.size(); ++i)
     delete edgement[i];
-  delete dofvalues;
 
+  // dofvalues is owned by the MeshDataCache, so don't delete it. 
   // We do not own rwlock, so don't delete it.
 
   // Clear mesh-specific property data, if any
@@ -98,6 +99,7 @@ FEMesh::~FEMesh() {
   globalFEMeshCountLock.acquire();
   --globalFEMeshCount;
   globalFEMeshCountLock.release();
+  cerr << "FEMesh::dtor: done" << std::endl;
 }
 
 const std::string &FEMesh::classname() const {

@@ -32,6 +32,7 @@ from ooflib.engine import fieldinit
 from ooflib.engine import nonlinearsolver
 from ooflib.engine import materialmanager
 from ooflib.engine import matrixmethod
+from ooflib.engine import meshstatus
 from ooflib.engine import profile
 from ooflib.engine import propertyregistration
 from ooflib.engine import preconditioner
@@ -122,13 +123,13 @@ class Relax(skeletonmodifier.SkeletonModifier):
         skel = context.getObject()
         ## returns a Mesh (Who) object
         self.meshname = context.path() + ":__internal_mesh__"
-        #Interface branch, pass skeleton path to femesh
         femesh = skel.femesh(edict, self.set_fakematerial, context.path())
         meshcontext = ooflib.engine.mesh.meshes.add(
             self.meshname, femesh,
             parent=context,
             skeleton=skel, elementdict=edict)
         meshcontext.createDefaultSubProblem()
+        meshcontext.setStatus(meshstatus.Unsolved("New dummy mesh"))
 
         return meshcontext
 

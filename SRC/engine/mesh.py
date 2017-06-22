@@ -332,6 +332,7 @@ class Mesh(whoville.Who):
             return '---'
 
     def destroy(self):
+        debug.fmsg("datacache.size=", self.datacache.size())
         global meshes
         for bc in self.bdyconditions.values():
             if not bc.subordinate:
@@ -341,8 +342,11 @@ class Mesh(whoville.Who):
         self.bdyconditions = {}
         self.getObject().destroy()
         # Remove from the enclosing WhoClass.  This nulls out parent's "._obj".
+        debug.fmsg("removing from path, datacache.size=", self.datacache.size())
         meshes.remove(self.path())
+        debug.fmsg("clearing datacache")
         self.datacache.clear()
+        debug.fmsg("done")
 
     def lockAndDelete(self):
         self.reserve()
@@ -356,9 +360,12 @@ class Mesh(whoville.Who):
                 subproblem.begin_writing()
                 subproblem.destroy()
                 subproblem.end_writing()
+            debug.fmsg("Deleted subproblems")
             self.begin_writing()
             try:
+                debug.fmsg("Calling destroy")
                 self.destroy()
+                debug.fmsg("Back from destroy")
             finally:
                 self.end_writing()
         finally:

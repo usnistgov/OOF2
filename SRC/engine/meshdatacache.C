@@ -23,6 +23,13 @@
 #include <unistd.h>		// for mkstemp, unlink, access
 extern int errno;
 
+MeshDataCache::MeshDataCache(FEMesh *mesh)
+  : mesh(mesh),
+    latest(new DVec(0))
+{
+  
+}
+
 MeshDataCache::~MeshDataCache() {
   restoreLatest();
 }
@@ -359,7 +366,7 @@ DVec& DiskDataCache::fetchOne(double time) {
   }
   fclose(file);
   return localdata;
-}
+} // end DiskDataCache::fetchOne
 
 void DiskDataCache::restore_(double time) {
   (void) fetchOne(time);	// loads localdata
