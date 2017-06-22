@@ -43,6 +43,7 @@ elif config.dimension() == 3:
 from ooflib.engine import subproblemcontext
 from ooflib.engine.IO import meshparameters
 from ooflib.engine.IO import skeletonIO
+from ooflib.engine.IO import subproblemmenu
 
 
 if parallel_enable.enabled():
@@ -1487,19 +1488,19 @@ def _copyAllSolvers(menuitem, source, target):
     solvers = {}
     try:
         for subp in sourceMesh.subproblems():
-            solvers[subp.name()] = subp.solver_mode.clone()
+            if subp.solver_mode is not None:
+                solvers[subp.name()] = subp.solver_mode.clone()
     finally:
         sourceMesh.end_reading()
     meshpath = targetMesh.path()
     for name, solver in solvers.items():
         subppath = meshpath + ":" + name
-        debug.fmsg("subppath=", subppath)
         try:
             targetsubp = ooflib.engine.subproblemcontext.subproblems[subppath]
         except KeyError:
             pass
         else:
-            _setSolver(menuitem, subppath, solver)
+            subproblemmenu.setSolver(menuitem, subppath, solver)
 
 OOF.Mesh.addItem(oofmenu.OOFMenuItem(
         'Copy_All_Solvers',

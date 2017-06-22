@@ -11,6 +11,8 @@ OOF2 2.1.14
 * Fixed a bug that caused crashes during illegal Skeleton node moves
   in debug mode.
 
+* Fixed Copy_All_Solvers.
+
 OOF2 2.1.13
 
 * Changed the sign of the force balance equation so that the stiffness

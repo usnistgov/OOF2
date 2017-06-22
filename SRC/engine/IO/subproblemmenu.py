@@ -839,7 +839,7 @@ subproblemMenu.addItem(oofmenu.OOFMenuItem(
 
 ################
 
-def _setSolver(menuitem, subproblem, solver_mode):
+def setSolver(menuitem, subproblem, solver_mode):
     subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
     subpctxt.begin_writing()
     try:
@@ -854,7 +854,7 @@ def _setSolver(menuitem, subproblem, solver_mode):
 
 subproblemMenu.addItem(oofmenu.OOFMenuItem(
         'Set_Solver',
-        callback=_setSolver,
+        callback=setSolver,
         threadable=oofmenu.THREADABLE,
         params=[
             whoville.WhoParameter('subproblem',
