@@ -359,7 +359,8 @@ bool PyPropertyMethods::py_constant_in_space(PyObject *referent,
   try {
     if(!PyObject_HasAttrString(referent, (char*) "constant_in_space")) {
       releasePyLock(pystate);
-      return prop->Property::constant_in_space();
+      throw ErrUserError("constant_in_space method is missing from Property "
+			 + prop->name());
     }
     PyObject *func = PyObject_GetAttrString(referent,
 					    (char*) "constant_in_space_wrap");
@@ -497,8 +498,9 @@ int PyPhysicalPropertyMethods::py_integration_order(
   PyGILState_STATE pystate = acquirePyLock();
   try {
     if(!PyObject_HasAttrString(referent, (char*) "integration_order")) {
-	throw ErrUserError("integration_order method is missing from Property " 
-			   + prop->name());
+      releasePyLock(pystate);
+      throw ErrUserError("integration_order method is missing from Property " 
+			 + prop->name());
     }
     PyObject *func = PyObject_GetAttrString(referent,
 					    (char*) "integration_order_wrap");
