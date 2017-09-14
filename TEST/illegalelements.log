@@ -1,2 +1,0 @@
-OOF.File.LoadStartUp.Data(filename='illegal0.skel')
-OOF.Skeleton.Modify(skeleton='F1_OOF2_BW.jpeg:skeleton', modifier=SnapRefine(targets=CheckHomogeneity(threshold=0.6),criterion=Unconditionally(),min_distance=0.1))
