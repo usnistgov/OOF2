@@ -15,6 +15,8 @@ OOF2 2.1.14
 
 * Fixed a bug that was causing OOF2 to fail to load when built with gcc 7.
 
+* This line is a trivial change for testing the new make_dist script.
+
 OOF2 2.1.13
 
 * Changed the sign of the force balance equation so that the stiffness
