@@ -247,6 +247,8 @@ int FEWrapper<TYPE>::listed(const TYPE *const obj) const {
   return datalist[obj->index()].listed;
 }
 
+template <class TYPE> int FEWrapper<TYPE>::counter = 0;
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // FieldEqnList is the only part of this mechanism that should be used
@@ -388,7 +390,7 @@ int FieldEqnList<TYPE>::listed(const TYPE *const obj) const {
   return data->listed(obj);
 }
 
-template<class TYPE>
+template <class TYPE>
 int FieldEqnList<TYPE>::offset(const TYPE *const obj) const {
   return data->offset(obj);
 }

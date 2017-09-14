@@ -24,14 +24,13 @@ class FixIllegal(skeletonmodifier.SkeletonModifier):
         # vigilante doesn't really need a properCopy!
         skel = oldskeleton.deputyCopy()
         skel.activate()
-        suckers = skel.illegalElements()
+        suckers = skel.illegalElements() # a list
         # illegalset holds the elements to be checked.  It is
         # initially set to the illegal elements in the unmodified
-        # skeleton, but new element can be added to it if moving one
+        # skeleton, but new elements can be added to it if moving one
         # node fixes two elements and breaks one.
-        illegalset = set()
-        for el in suckers:
-            illegalset.add(el)
+        # illegalset = set()
+        illegalset = {el for el in suckers}
         random.shuffle(suckers)
         nguilty = len(suckers)
 
@@ -102,11 +101,10 @@ class FixIllegal(skeletonmodifier.SkeletonModifier):
                 estillguilty = e in still_guilty
                 ewasguilty = e in illegalset
                 if ewasguilty and not estillguilty:
-                    del illegalset[e]
+                    illegalset.remove(e)
                 elif estillguilty and not ewasguilty:
                     suckers.append(e)
                     illegalset.add(e)
-
                 
 #########################
 

@@ -16,6 +16,11 @@
 ## TODO: Allow Field dependent boundary conditions.  Will need a way
 ## to evaluate a Field at a point in an XYStrFunction.
 
+## TODO: Boundary conditions should automatically choose the canonical
+## equation and equation component for their field and field
+## component.  Perhaps there should be an advanced mode that lets
+## users choose the non-obvious pairings.
+
 from ooflib.SWIG.engine import equation
 from ooflib.SWIG.engine import ooferror2
 from ooflib.SWIG.common import switchboard

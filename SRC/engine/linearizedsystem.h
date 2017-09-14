@@ -87,7 +87,7 @@ private:
 
   // Matrices stored in subproblem index order.
   SparseMat K_, C_, M_, J_;
-  // The free and independent parts of the matrices.  These are
+  // The free and independent parts of the matrices.
   // TODO MAP OPT: these should be SparseSubMats
   SparseMat K_indfree_, C_indfree_, M_indfree_, J_indfree_;
   SparseMat K_indfixed_, M_indfixed_, C_indfixed_;
@@ -395,8 +395,11 @@ public:
   void dumpAll(const std::string &filename, double time,
 	       const std::string &comment) const;
 
+  void dumpFields(const std::string&) const;
+
 private:
   void do_dumpMaps(std::ostream&) const;
+  void do_dumpFields(std::ostream&) const;
 };
 
 int get_globalLinSysCount();

@@ -20,6 +20,8 @@
 #include "Eigen/OrderingMethods"
 #include "engine/sparsemat.h"
 
+// TODO: Add progress bars for Eigen solvers, somehow.
+
 enum class Precond {Uncond=1, Diag=2, ILUT=3};
 
 enum Info {

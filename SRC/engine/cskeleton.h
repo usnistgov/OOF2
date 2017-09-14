@@ -104,18 +104,22 @@ long get_globalNodeCount();
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+#define UNKNOWN_CATEGORY -1
+
 class HomogeneityData {
 private:
   double homogeneity;
   int dominantpixel;
   double homog_energy;
   // This is the "clone" constructor.
-  HomogeneityData(double hom, int cat, double nrg) : homogeneity(hom),
-						     dominantpixel(cat),
-						     homog_energy(nrg) {}
+  HomogeneityData(double hom, int cat, double nrg)
+    : homogeneity(hom), dominantpixel(cat), homog_energy(nrg)
+  {}
 public:
   HomogeneityData(double hom, int cat);
-  HomogeneityData() : homogeneity(0), dominantpixel(0), homog_energy(0) {}
+  HomogeneityData()
+    : homogeneity(0), dominantpixel(UNKNOWN_CATEGORY), homog_energy(0)
+  {}
   double get_homogeneity() const { return homogeneity; }
   int get_dominantpixel() const { return dominantpixel; }
   double get_energy() const { return homog_energy; }
@@ -160,16 +164,10 @@ public:
   double perimeterSquared() const;
   double edgeLength(int) const;
   double edgeLengthSquared(int) const;
-#if DIM==2
+
   double cosCornerAngle(int) const;
   double cosCornerAngleSquared(int) const;
   double getRealAngle(int) const;
-#elif DIM==3
-  virtual double cosCornerAngle(int, int) const = 0;
-  virtual double cosCornerAngleSquared(int, int) const = 0;
-  virtual double solidCornerAngle(int) const = 0;
-  virtual double cosDihedralAngle(int, int) const = 0;
-#endif
   Coord frommaster(MasterCoord *mc, int rotation) const; // convert master coord
   Coord center() const;		// average position of nodes
   CRectangle bbox() const;

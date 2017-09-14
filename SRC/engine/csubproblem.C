@@ -513,7 +513,7 @@ void CSubProblem::mapFields() {
   int n = mesh->ndof();
   mesh2subpDoFMap.reset(n);
   mesh2subpEqnMap.reset(n);
-  fieldLooper(&CSubProblem::mapField, this);
+  fieldLooper(&CSubProblem::mapField, this); // calls mapField for all Fields
 }
 
 void CSubProblem::mapField(void *data,

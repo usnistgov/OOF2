@@ -229,9 +229,6 @@ class OOF_Skeleton(unittest.TestCase):
                 for (startfile, compfile, kwargs) in mods:
                     self.doModify(r, startfile, compfile, kwargs)
 
-            
-        
-
     @memorycheck.check("skeltest")
     def Undo(self):
         from ooflib.engine import skeletoncontext
@@ -554,18 +551,17 @@ def build_mod_args():
           "min_distance" : 1.0,
           }
          )
+        ],
+        "Fix Illegal Elements" :
+        [
+            ("illegal_skeleton", "illegal_fixed", {})
         ]
         }
     # skel_modify_args = { 
-    #     "Relax" :
-    #         [
-    #         ("modbase", "relax",
-    #          { "alpha" : 0.5,
-    #            "gamma" : 0.5,
-    #            "iterations" : 1
-    #            }
-    #          )
-    #         ]
+    #     "Fix Illegal Elements" :
+    #     [
+    #         ("illegal_skeleton", "illegal_fixed", {})
+    #     ]
     #     }
     
 # Routine to do regression-type testing on the items in this file.

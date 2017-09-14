@@ -13,7 +13,7 @@
 
 ## TODO: A C++ Property that gets a reference to this Property via
 ## cross_reference and expects to be able to call this Property's
-## cijkl() method will be sorely dissappointed, because from C++ this
+## cijkl() method will be sorely disappointed, because from C++ this
 ## just looks like a PyFluxProperty, which doesn't have a cijkl
 ## method.  Fix this somehow.
 
