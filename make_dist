@@ -227,7 +227,6 @@ try:
     # Push the modifications to the server, unless this is just a dry
     # run.
     if not dryrun:
-        print >> sys.stderr, "****** Running", cmd
         osCall(*cmd)
     else:
         print >> sys.stderr, "Dry run! Not running:"
