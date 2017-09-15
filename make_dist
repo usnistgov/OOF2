@@ -89,6 +89,8 @@ for opt in optlist:
     elif opt[0] == '--help':
         state_options_and_quit()
 
+assert version is not None
+
 startdir = os.getcwd()
 
 # Are we building oof2 or oof3d? This info is stored in
@@ -115,6 +117,7 @@ try:
     giturl = stdoutdata.strip()
 
     # cd to the temp directory
+    print >> sys.stderr, "Changing directory to", tempdir
     os.chdir(tempdir)
 
     # Clone the git repository into a directory whose name is given by
@@ -129,6 +132,7 @@ try:
     osCall(*cmd)
 
     # cd to the cloned source code directory
+    print >> sys.stderr, "Changing directory to", distdir
     os.chdir(distdir)
 
     # Construct the commit message and new branch name (aka tag)
@@ -200,16 +204,49 @@ try:
     print >> sys.stderr, "Moving", tmpfilename, "to SRC/common/oofversion.py"
     os.rename(tmpfilename, 'SRC/common/oofversion.py')
 
+    # Check all the modifications into git, and tag with the version
+    # number.  It's necessary to go back to the distribution directory
+    # to use git.
+    osCall('git', 'add', 'SRC/common/oofversion.py', 'setup.py')
+
+    cmd = ['git', 'commit', '--allow-empty', '-m', commit_msg]
+    print >> sys.stderr, '--->', ' '.join(cmd)
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdoutdata, stderrdata = proc.communicate()
+    if proc.returncode != 0:
+        print >> sys.stderr, "Back from commit, status=", proc.returncode
+        print >> sys.stderr, "stdoutdata=", stdoutdata
+        print >> sys.stderr, "stderrdata=", stderrdata
+        sys.exit(0)
+
+    if not newbranch:
+        cmd = ['git', 'push', 'origin', tag]
+    else:
+        cmd = ['git', 'push', '--set-upstream', 'origin', tag]
+
+    # Push the modifications to the server, unless this is just a dry
+    # run.
+    if not dryrun:
+        print >> sys.stderr, "****** Running", cmd
+        osCall(*cmd)
+    else:
+        print >> sys.stderr, "Dry run! Not running:"
+        print >> sys.stderr, " ".join(cmd)
+
+    # The distribution includes two files, MANIFEST and package_date,
+    # that aren't in git, and are therefore constructed only now that
+    # all the git manipulations are complete.
+        
     # Make a timestamp file for the distribution.
     timefile = file("package_date", "w")
     print >> timefile, time.ctime()
     timefile.close()
-
     
     # Make the MANIFEST file after moving back up to the temp
     # directory.  Moving up to the temp directory means that the path
     # names in the file will all start with "oof{2,3d}-version/",
     # which is nice and modular.
+    os.chdir(tempdir)
 
     # We aren't using distutils to automatically create a MANIFEST
     # file because it wants to include the swig output files.  Once
@@ -217,8 +254,8 @@ try:
     # distutils here at all.
 
     import localexclusions
-    
-    os.chdir(tempdir)
+
+    print >> sys.stderr, "Changing directory to", tempdir
     
     globalExcludeDirs = [
         ".git"
@@ -266,33 +303,13 @@ try:
                     fname not in excludeDirs):
                     getFiles(fname, manifest)
 
+    print >> sys.stderr, "Building MANIFEST"
     manifest = open(os.path.join(distdir, "MANIFEST"), "w")
     getFiles(distdir, manifest)   
     manifest.close()
 
-    # Check all the modifications into git, and tag with the version
-    # number.  It's necessary to go back to the distribution directory
-    # to use git.
-    print >> sys.stderr, "Changing directory to", distdir
-    os.chdir(distdir)
-    osCall('git', 'add', 'SRC/common/oofversion.py', 'setup.py')
-    osCall('git', 'commit', '-m', commit_msg)
-
-    if not newbranch:
-        cmd = ['git', 'push', 'origin', tag]
-    else:
-        cmd = ['git', 'push', '--set-upstream', 'origin', tag]
-
-    # Push the modifications to the server, unless this is just a dry
-    # run.
-    if not dryrun:
-        osCall(*cmd)
-    else:
-        print >> sys.stderr, "Dry run! Not running:"
-        print >> sys.stderr, " ".join(cmd)
     
     # Build the distribution.
-    os.chdir(tempdir)
     distfilename = distdir + ".tar.gz"
     print >> sys.stderr, "Distribution file is", distfilename
 
