@@ -1,3 +1,7 @@
+OOF2 2.1.15
+
+* Fixed a problem with displaying images on macOS in some situations.
+
 OOF2 2.1.14
 
 * Fixed a bug that could cause spurious error messages when solving
@@ -13,7 +17,8 @@ OOF2 2.1.14
 
 * Fixed Copy_All_Solvers.
 
-* Fixed a bug that was causing OOF2 to fail to load when built with gcc 7.
+* Fixed a bug that was causing OOF2 to fail to load when built with
+  gcc 7.
 
 OOF2 2.1.13
 

@@ -35,7 +35,7 @@ OOFImage::OOFImage(const std::string &name, const std::string &filename)
   // This problem seems to be fixed, so we use simpler one-step
   // process here.
   try {
-    image = Magick::Image(filename);
+    image.read(filename);
   }
   catch (Magick::Exception &error) {
     // Magick::Exceptions have to be converted into OOF2
@@ -49,6 +49,7 @@ OOFImage::OOFImage(const std::string &name, const std::string &filename)
   }
   image.flip();		// real coordinates don't start at the top
   setup();
+  imageChanged();
 }
 
 OOFImage::OOFImage(const std::string &name)
@@ -182,14 +183,19 @@ const std::string *OOFImage::comment() const {
 
 void OOFImage::imageChanged() {
   ++timestamp;			// marks image as changed
+  image.modifyImage();
 }
 
 void OOFImage::fillstringimage(StringImage *stringimage) const {
   // Convert image into a string suitable for constructing a gdk pixbuf.
+  Magick::PixelPacket *pixpax =
+    const_cast<OOFImage*>(this)->image.getPixels(0, 0, sizeInPixels_(0),
+						 sizeInPixels_(0));
   for(int j=0; j<sizeInPixels_(1); j++) {
     for(int i=0; i<sizeInPixels_(0); i++) {
+      const Magick::PixelPacket *pp = pixpax + i + j*sizeInPixels_(0);
+      CColor color(pp->red*scale, pp->green*scale, pp->blue*scale);
       ICoord where(i,j);
-      CColor color = (*this)[where];
       stringimage->set(&where, &color);
     }
   }
@@ -212,8 +218,8 @@ const CColor OOFImage::operator[](const ICoord &c) const {
   try {
     Magick::Color color = image.pixelColor(c(0), c(1));
     return CColor(color.redQuantum()*scale,
-		  color.greenQuantum()*scale,
-		  color.blueQuantum()*scale);
+    		  color.greenQuantum()*scale,
+    		  color.blueQuantum()*scale);
   }
   catch (Magick::Exception &e) {
     throw ImageMagickError(e.what());
@@ -228,6 +234,7 @@ void OOFImage::set(const ICoord &c, const CColor &color) {
   try {
     Magick::ColorRGB culler(color.getRed(), color.getGreen(), color.getBlue());
     image.pixelColor(c(0), c(1), culler);
+    // Do not call imageChanged() here.  Call it once, after all calls to set().
   }
   catch (Magick::Exception &e) {
     throw ImageMagickError(e.what());
@@ -274,7 +281,7 @@ Array<bool> OOFImage::convert(bool (*f)(const CColor&)) const {
 void OOFImage::set(const Array<double> &array, CColor (*f)(double)) {
   for(Array<double>::const_iterator i=array.begin(); i!=array.end(); ++i) 
     set(i.coord(), (*f)(array[i]));
-	imageChanged();
+  imageChanged();
 }
 
 void OOFImage::set(const Array<int> &array, CColor (*f)(int)) {

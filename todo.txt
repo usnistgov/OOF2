@@ -4,3 +4,5 @@ This file is for high-priority or long-range TODOs for which a comment
 in the code is insufficient for some reason.
 
 Add an OutputDestination that saves objects to a given Python array.
+
+Upgrade to gtk+3 and use libcairo instead of libgnomecanvas.
