@@ -81,7 +81,12 @@ class GfxSettings:
     longlayernames = 0                   # Use long form of layer reprs.
     listall = 0                          # are all layers to be listed?
     autoreorder = 1                      # automatically reorder layers?
-    antialias = 0
+    # The default value of antialias is 1 because the quartz
+    # canvas doesn't display un-antialiased images.
+    ## TODO: Find out if we're using x11 or quartz, and set
+    ## antialias=1 only if using quartz.  Or upgrade to gtk3/libcairo
+    ## and hope that the problem doesn't occur there.
+    antialias = 1
     if config.dimension() == 2:
         aspectratio = 5                      # Aspect ratio of the contourmap.
         contourmap_markersize = 2            # Size in pixels of contourmap marker.
