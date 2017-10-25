@@ -190,7 +190,7 @@ void OOFImage::fillstringimage(StringImage *stringimage) const {
   // Convert image into a string suitable for constructing a gdk pixbuf.
   Magick::PixelPacket *pixpax =
     const_cast<OOFImage*>(this)->image.getPixels(0, 0, sizeInPixels_(0),
-						 sizeInPixels_(0));
+						 sizeInPixels_(1));
   for(int j=0; j<sizeInPixels_(1); j++) {
     for(int i=0; i<sizeInPixels_(0); i++) {
       const Magick::PixelPacket *pp = pixpax + i + j*sizeInPixels_(0);
