@@ -795,6 +795,8 @@ class ParameterDialog(widgetscope.WidgetScope):
         self.parameters = parameters
         self.dialog = gtklogger.Dialog(parent=parentwindow,
                                        flags=gtk.DIALOG_MODAL)
+        self.dialog.set_keep_above(True)
+        
         try:
             title = kwargs['title']
         except KeyError:
