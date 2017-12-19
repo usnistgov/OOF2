@@ -173,12 +173,13 @@ try:
     # it's missing.  It has to be rebuilt if the python version has
     # changed, but the setup.py script won't notice that.
     fnames = glob.glob(os.path.join('build', 'script*', oofname))
-    if len(fnames) != 1:
+    if len(fnames) > 1:
         print "Expected to find one script named", oofname, "but found",\
             len(fnames), "!"
         sys.exit()
-    print "Removing", fnames[0]
-    os.remove(fnames[0])
+    elif len(fnames) == 1:
+        print "Removing", fnames[0]
+        os.remove(fnames[0])
 
     build_cmd = "python setup.py build %s install --prefix=%s" \
                 % (string.join(build_args),
