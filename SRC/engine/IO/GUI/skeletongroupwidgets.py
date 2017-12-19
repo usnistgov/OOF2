@@ -31,8 +31,8 @@ from ooflib.engine.IO.GUI import bdymodparamwidget
 # other examples could include "all", "none", and possibly others.
 
 class SkeletonGroupWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, groups=[], defaults=utils.OrderedSet(), scope=None,
-                 name=None):
+    def __init__(self, param, groups=[], defaults=utils.OrderedSet(),
+                 scope=None, name=None):
         self.defaults = defaults
         self.widget = chooser.ChooserWidget(groups, self.selectCB,
                                             name=name)
@@ -46,6 +46,8 @@ class SkeletonGroupWidget(parameterwidgets.ParameterWidget):
         self.sbcallbacks = [switchboard.requestCallbackMain(self.skelmeshwidget,
                                                             self.skelwidgetCB)]
         self.update()
+        if param.value is not None:
+            self.set_value(param.value)
         self.sbcallbacks += [
             switchboard.requestCallbackMain("groupset member added",
                                             self.grpCB),
@@ -57,6 +59,8 @@ class SkeletonGroupWidget(parameterwidgets.ParameterWidget):
 
     def get_value(self):
         return self.widget.get_value()
+    def set_value(self, groupname):
+        self.widget.set_state(groupname)
 
     def selectCB(self, gtkobj, result):
         self.widgetChanged(self.widget.nChoices() > 0, interactive=1)
@@ -96,7 +100,8 @@ segmenter = {}
 
 class NodeGroupWidget(SkeletonGroupWidget):
     def __init__(self, param, groups=[], scope=None, name=None):
-        SkeletonGroupWidget.__init__(self, groups, scope=scope, name=name)
+        SkeletonGroupWidget.__init__(self, param, groups, scope=scope,
+                                     name=name)
 
     def redraw(self, skeletoncontext):
         if skeletoncontext:
@@ -114,7 +119,7 @@ skeletongroupparams.NodeGroupParameter.makeWidget = _makeNodeGroupWidget
 class NodeAggregateWidget(SkeletonAggregateWidget, NodeGroupWidget):
     def __init__(self, param, groups=[], scope=None, name=None):
         SkeletonGroupWidget.__init__(
-            self, groups,
+            self, param, groups,
             defaults=utils.OrderedSet(
                 [placeholder.selection.IDstring]),
             scope=scope, name=name)
@@ -130,7 +135,8 @@ segmenter[NodeAggregateWidget]=boundarybuilder.segments_from_node_aggregate
 
 class SegmentGroupWidget(SkeletonGroupWidget):
     def __init__(self, param, groups=[], scope=None, name=None):
-        SkeletonGroupWidget.__init__(self, groups, scope=scope, name=name)
+        SkeletonGroupWidget.__init__(self, param, groups, scope=scope,
+                                     name=name)
 
     def redraw(self, skeletoncontext):
         if skeletoncontext:
@@ -149,7 +155,7 @@ skeletongroupparams.SegmentGroupParameter.makeWidget = _makeSegmentGroupWidget
 class SegmentAggregateWidget(SkeletonAggregateWidget, SegmentGroupWidget):
     def __init__(self, param, groups=[], scope=None, name=None):
         SkeletonGroupWidget.__init__(
-            self, groups,
+            self, param, groups,
             defaults=utils.OrderedSet(
                 [placeholder.selection.IDstring]),
             scope=scope, name=name)
@@ -182,7 +188,7 @@ segmenter[SegmentAggregateWidget]=boundarybuilder.segments_from_seg_aggregate
 class BdyModSegmentAggregateWidget(SegmentAggregateWidget, SegmentGroupWidget):
     def __init__(self, param, groups=[], scope=None, name=None):
         SkeletonGroupWidget.__init__(
-            self, groups,
+            self, param, groups,
             defaults=utils.OrderedSet(
                 [placeholder.selection.IDstring]),
             scope=scope, name=name)
@@ -225,7 +231,8 @@ segmenter[BdyModSegmentAggregateWidget] = \
 
 class ElementGroupWidget(SkeletonGroupWidget):
     def __init__(self, param, groups=[], scope=None, name=None):
-        SkeletonGroupWidget.__init__(self, groups, defaults=utils.OrderedSet(),
+        SkeletonGroupWidget.__init__(self, param, groups,
+                                     defaults=utils.OrderedSet(),
                                      scope=scope, name=name)
 
     def redraw(self, skeletoncontext):
@@ -243,7 +250,7 @@ skeletongroupparams.ElementGroupParameter.makeWidget = _makeElementGroupWidget
 class ElementAggregateWidget(SkeletonAggregateWidget, ElementGroupWidget):
     def __init__(self, param, groups=[], scope=None, name=None):
         SkeletonGroupWidget.__init__(
-            self, groups,
+            self, param, groups,
             defaults=utils.OrderedSet(
                 [placeholder.selection.IDstring]),
             scope=scope, name=name)
