@@ -2,6 +2,9 @@ OOF2 2.1.15
 
 * Fixed a problem with displaying images on macOS in some situations.
 
+* Fixed a bug in the widgets for choosing Skeleton groups when used as
+  command arguments.
+
 OOF2 2.1.14
 
 * Fixed a bug that could cause spurious error messages when solving

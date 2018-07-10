@@ -18,7 +18,6 @@
 %extern "common/cmicrostructure.swg"
 %extern "common/lock.swg"
 %extern "common/timestamp.swg"
-%extern "engine/doublevec.swg"
 %extern "engine/element.swg"
 %extern "engine/field.swg"
 %extern "engine/node.swg"
