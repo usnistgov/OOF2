@@ -1,4 +1,3 @@
-
 // -*- C++ -*-
 
 /* This software was produced by NIST, an agency of the U.S. government,
