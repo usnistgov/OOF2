@@ -647,9 +647,23 @@ typedef int Py_ssize_t;
     def clean_dependencies(self):
         global _dependencies_checked
         if not _dependencies_checked:
-            depdict = self.find_dependencies()
+            # Read dependencies from a file unless MAKEDEPEND has been
+            # defined by providing the --makedepend command line
+            # option, or if the file doesn't exist.
+            depfilename = os.path.join(self.build_temp, 'depend')
+            if not MAKEDEPEND and os.path.exists(depfilename):
+                locals = {}
+                print "Loading dependencies from", depfilename
+                execfile(depfilename, globals(), locals)
+                depdict = locals['depdict']
+            else:
+                depdict = self.find_dependencies()
+                print "Saving dependencies in", depfilename
+                depfile = open(depfilename, "w")
+                print >> depfile, "depdict=", depdict
+                depfile.close()
             self.clean_targets(depdict)
-            _dependencies_checked = 1
+            _dependencies_checked = True
 
 
 # This does the swigging.
@@ -1063,7 +1077,7 @@ def get_global_args():
     # hasn't been called yet.
 
     global HAVE_MPI, HAVE_OPENMP, HAVE_PETSC, DEVEL, NO_GUI, \
-        ENABLE_SEGMENTATION, \
+        ENABLE_SEGMENTATION, MAKEDEPEND, \
         DIM_3, DATADIR, DOCDIR, OOFNAME, SWIGDIR, NANOHUB, NO_TCMALLOC
     HAVE_MPI = _get_oof_arg('--enable-mpi')
     HAVE_PETSC = _get_oof_arg('--enable-petsc')
@@ -1071,6 +1085,7 @@ def get_global_args():
     NO_GUI = _get_oof_arg('--disable-gui')
     ENABLE_SEGMENTATION = _get_oof_arg('--enable-segmentation')
     DIM_3 = _get_oof_arg('--3D')
+    MAKEDEPEND = _get_oof_arg('--makedepend')
     NANOHUB = _get_oof_arg('--nanoHUB')
     HAVE_OPENMP = _get_oof_arg('--enable-openmp')
     NO_TCMALLOC = _get_oof_arg('--disable-tcmalloc')
