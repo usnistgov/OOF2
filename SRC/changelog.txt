@@ -1,6 +1,7 @@
 OOF2 2.1.15
 
-* Fixed a problem with displaying images on macOS in some situations.
+* Fixed a problem with displaying images in some situations, due to
+  changes in the ImageMagick library.
 
 * Fixed a bug in the widgets for choosing Skeleton groups when used as
   command arguments.
