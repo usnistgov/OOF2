@@ -98,10 +98,14 @@ void OOFImage::setup() {
   }
   
   // Scale factor for converting ImageMagick rgb values to floats in
-  // [0,1].  Using "Magick::MaxRGB" doesn't work (TODO: wtf?), so we
-  // have to use "using namespace Magick" to get access to MaxRGB.
+  // [0,1].  Using "Magick::QuantumRange" doesn't work (TODO: wtf?),
+  // so we have to use "using namespace Magick" to get access to
+  // QuantumRange.
+  // TODO: Report ImageMagick bug.  QuantumRange is a macro defined as
+  // ((Quantum) 65535) in ImageMagick-6/magick/magick-type.h, but
+  // Quantum isn't defined outside of the Magick namespace.
   using namespace Magick;
-  scale = 1./MaxRGB;
+  scale = 1./QuantumRange;
 }
 
 
@@ -215,10 +219,19 @@ std::vector<unsigned short> *OOFImage::getPixels() {
 
 const CColor OOFImage::operator[](const ICoord &c) const {
   try {
-    Magick::Color color = image.pixelColor(c(0), c(1));
-    return CColor(color.redQuantum()*scale,
-    		  color.greenQuantum()*scale,
-    		  color.blueQuantum()*scale);
+    Magick::Pixels view(*const_cast<Magick::Image*>(&image));
+    const Magick::PixelPacket *pixels = view.getConst(c(0), c(1), 1, 1);
+    CColor color(pixels->red*scale, pixels->green*scale, pixels->blue*scale);
+    return color;
+
+    // It would be simpler to use Magick::Image::pixelColor, except
+    // that it doesn't work (July 2018).  It works on macOS when using
+    // quartz, but not x11.  It doesn't work on Linux.
+    
+    // Magick::Color color = image.pixelColor(c(0), c(1));
+    // return CColor(color.redQuantum()*scale,
+    // 		  color.greenQuantum()*scale,
+    // 		  color.blueQuantum()*scale);
   }
   catch (Magick::Exception &e) {
     throw ImageMagickError(e.what());
@@ -232,6 +245,8 @@ const CColor OOFImage::operator[](const ICoord &c) const {
 void OOFImage::set(const ICoord &c, const CColor &color) {
   try {
     Magick::ColorRGB culler(color.getRed(), color.getGreen(), color.getBlue());
+    // This seems to work, although pixelColor doesn't always work for
+    // retrieving colors.  See comment in operator[], above.
     image.pixelColor(c(0), c(1), culler);
     // Do not call imageChanged() here.  Call it once, after all calls to set().
   }
