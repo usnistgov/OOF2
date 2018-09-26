@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -206,17 +207,22 @@ ET& DoubleVecIterator<VT, ET>::operator*() {
 }
 
 template<typename VT, typename ET>
-bool DoubleVecIterator<VT, ET>::operator==(const DoubleVecIterator& other) const {
-  return (&vec==&other.vec && index==other.index) ? true : false;
+bool DoubleVecIterator<VT, ET>::operator==(const DoubleVecIterator& other) const
+{
+ // TODO: Is there some subtle reason that this line isn't simply
+ // return &vec==&other.vec && index==other.index;  ?
+ return (&vec==&other.vec && index==other.index) ? true : false;
 }
 
 template<typename VT, typename ET>
-bool DoubleVecIterator<VT, ET>::operator!=(const DoubleVecIterator& other) const {
+bool DoubleVecIterator<VT, ET>::operator!=(const DoubleVecIterator& other) const
+{
   return (&vec==&other.vec && index!=other.index) ? true : false;
 }
 
 template<typename VT, typename ET>
-bool DoubleVecIterator<VT, ET>::operator<(const DoubleVecIterator& other) const {
+bool DoubleVecIterator<VT, ET>::operator<(const DoubleVecIterator& other) const
+{
   return (&vec==&other.vec && index<other.index) ? true : false;
 }
 

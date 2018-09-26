@@ -19,7 +19,7 @@
 //class Cijkl;
 
 // The "SmallMatrix" class is a general (i.e. not symmetric or
-// positive-definite or anything) real-valued dendse matrix.
+// positive-definite or anything) real-valued dense matrix.
 
 class SmallMatrix {
 protected:

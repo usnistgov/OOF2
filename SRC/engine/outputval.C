@@ -155,6 +155,7 @@ VectorOutputVal::VectorOutputVal(const std::vector<double> &vec)
 
 std::vector<double> *VectorOutputVal::value_list() const {
   std::vector<double> *res = new std::vector<double>(size_);
+  // TODO: Use memcpy?
   for(unsigned int i=0;i<size_;i++)
     (*res)[i] = data[i];
   return res;

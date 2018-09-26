@@ -178,6 +178,7 @@ void LinearizedSystem::fieldLooper(
 #endif // DIM==2
     }
   }
+  delete fields;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
