@@ -30,6 +30,7 @@
 %extern "common/ooferror.swg"
 %extern "common/abstractimage.swg"
 %extern "common/IO/stringimage.swg"
+%extern "common/cmicrostructure.swg"
 
 %extern "common/doublearray.swg"
 %pragma(python) code="from ooflib.SWIG.common.doublearray import DoubleArrayPtr"
@@ -40,6 +41,7 @@
 %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 %pragma(python) code="from ooflib.SWIG.common.ooferror import ErrErrorPtr"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
+%pragma(python) code="from ooflib.SWIG.common.cmicrostructure import CMicrostructurePtr"
 
 class OOFImage : public AbstractImage {
 public:

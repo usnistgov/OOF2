@@ -505,7 +505,8 @@ CRectangle CSkeletonElement::bbox() const {
 // this vector is equal to the area of the corresponding
 // microstructure category which is within this element.
 
-const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
+const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms,
+						  bool verbose)
   const
 {
   // std::cerr << std::endl << "categoryAreas: new Element" << std::endl;
@@ -517,10 +518,12 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
   bool areas_zero = true;
   int nn = nodes.size();
 
-  // std::cerr << "categoryAreas: Nodes: " << std::endl;
-  // for(int di=0; di<nn; ++di) {
-  //   std::cerr << "   " << nodes[di]->position() << std::endl;
-  // }
+  if(verbose) {
+    std::cerr << "categoryAreas: Nodes: " << std::endl;
+    for(int di=0; di<nn; ++di) {
+      std::cerr << "   " << nodes[di]->position() << std::endl;
+    }
+  }
     
   // Build up element data for easy passage to intersection-finder.
   //   std::vector<Coord> element_points(nn);
@@ -550,6 +553,9 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
     }
   }
   assert(element_perturb != Coord(0.0,0.0));
+  if(verbose)
+    std::cerr << "CSkeletonElement::categoryAreas: element_perturb="
+	      << element_perturb << std::endl;
 
   // Get all the category boundaries.
   const std::vector<PixelSetBoundary*> &bdys = ms.getCategoryBdys();
@@ -558,8 +564,9 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
 
   for(std::vector<PixelSetBoundary>::size_type i=0; i<bdys.size(); i++) {
 
-    // std::cerr << "categoryAreas: Examining a new category, " << i
-    // 	      << " rep. pxl " << ms.getRepresentativePixel(i) << std::endl;
+    if(verbose)
+      std::cerr << "categoryAreas: Examining a new category, " << i
+		<< " rep. pxl " << ms.getRepresentativePixel(i) << std::endl;
     double accum_area = 0.0;
     const std::vector<PixelBdyLoop*> &loops = bdys[i]->get_loops();
    
@@ -579,12 +586,14 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
 	pbl!=loops.end(); ++pbl)
       {
 	const PixelBdyLoop &loop = *(*pbl);
-	// std::cerr << "categoryAreas: loop=" << loop << std::endl;
+	if(verbose)
+	  std::cerr << "categoryAreas: loop=" << loop << std::endl;
 
 	// Skip this loop if its bounding box doesn't intersect the
 	// element's bounding box.
 	if(!bbox().intersects(loop.bbox())) {
-	  // std::cerr << "categoryAreas: no bbox intersection" << std::endl;
+	  if(verbose)
+	    std::cerr << "categoryAreas: no bbox intersection" << std::endl;
 	  continue;
 	}
 
@@ -601,17 +610,19 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
 	  const Coord pbs_start = loop.coord(k);
 	  const Coord pbs_end = loop.next_coord(k);
 	  bool pbs_end_inside = interior(pbs_end, element_perturb);
-	  // std::cerr << "categoryAreas: pbs_start= " << pbs_start
-	  // 	    << " interior=" << pbs_start_inside << std::endl
-	  // 	    << "               pbs_end  = " << pbs_end
-	  // 	    << " interior=" << pbs_end_inside << std::endl;
-	    
+	  if(verbose)
+	    std::cerr << "categoryAreas: pbs_start= " << pbs_start
+		      << " interior=" << pbs_start_inside << std::endl
+		      << "               pbs_end  = " << pbs_end
+		      << " interior=" << pbs_end_inside << std::endl;
+	  
 	  if (pbs_start_inside && pbs_end_inside) {
 	    // Pixel boundary segment is wholly interior, add the area.
 	    // This is ok because the element is guaranteed to be
 	    // convex.
-	    // std::cerr << "categoryAreas: pbs wholly interior, dA="
-	    // 	      << pbs_start % pbs_end << std::endl;
+	    if(verbose)
+	       std::cerr << "categoryAreas: pbs wholly interior, dA="
+			 << pbs_start % pbs_end << std::endl;
 	    accum_area += pbs_start % pbs_end;
 	  }
 	  // If start and end are hetero-interior, so to speak, then
@@ -619,9 +630,9 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
 	  else if (pbs_start_inside != pbs_end_inside) {
 	    int seg = loop.find_one_intersection(k, element_points, nn,
 						 pbs_end_inside, pbi);
-	    
-	    // std::cerr << "categoryAreas: one intersection at "
-	    // 	      << pbi.location << std::endl;
+	    if(verbose)
+	       std::cerr << "categoryAreas: one intersection at "
+			 << pbi.location << std::endl;
 	      
 	    double f = norm2(pbi.location - element_points[seg]);
 	    pbi.set_element_data(seg,f);
@@ -631,13 +642,15 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
 	      
 	    // Accumulate the area of the interior portion.
 	    if (pbs_start_inside) {
-	      // std::cerr << "categoryAreas: in->out, dA="
-	      // 	  << loop.coord(k) % pbi.location << std::endl;
+	      if(verbose)
+		 std::cerr << "categoryAreas: in->out, dA="
+			   << loop.coord(k) % pbi.location << std::endl;
 	      accum_area += pbs_start % pbi.location;
 	    }
 	    else {
-	      // std::cerr << "categoryAreas: out->in, dA="
-	      // 	  << pbi.location % loop.next_coord(k) << std::endl;
+	      if(verbose)
+		 std::cerr << "categoryAreas: out->in, dA="
+			   << pbi.location % loop.next_coord(k) << std::endl;
 	      accum_area += pbi.location % pbs_end;
 	    }
 	  } // end if bdy segment has exactly one endpoint inside
@@ -650,15 +663,17 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
 						      element_perturb);
 
 	  if (!no_isecs) {
-	    // std::cerr << "categoryAreas: two intersections" << std::endl;
+	    if(verbose)
+	       std::cerr << "categoryAreas: two intersections" << std::endl;
 	    // We know there have to be two intersections, find them.
 	    PixelBdyIntersection isec0, isec1;
 
 	    // Entry first.
 	    int s1 = loop.find_one_intersection(k, element_points, nn,
 						true, isec0);
-	    // std::cerr << "categoryAreas:    isec0=" << isec0.location
-	    // 	      << std::endl;
+	    if(verbose)
+	      std::cerr << "categoryAreas:    isec0=" << isec0.location
+			<< std::endl;
 	    double f =  norm2(isec0.location - element_points[s1]);
 	    isec0.set_element_data(s1, f);
 	    eledgedata[s1].insert(ElEdgeDatum(f, isec0));
@@ -666,8 +681,9 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
 	    // Then find the exit.
 	    int s2 = loop.find_one_intersection(k, element_points, nn,
 						false, isec1);
-	    // std::cerr << "categoryAreas:    isec1=" << isec1.location
-	    // 	      << std::endl;
+	    if(verbose)
+	       std::cerr << "categoryAreas:    isec1=" << isec1.location
+			 << std::endl;
 	    f = norm2(isec1.location - element_points[s2]);
 	    isec1.set_element_data(s2, f);
 	    eledgedata[s2].insert(ElEdgeDatum(f, isec1));
@@ -681,7 +697,8 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
 	    // If two intersections coincide, they should annihilate.
 	    if (d1==d2) {
 	      if (isec0.entry != isec1.entry) {
-		// std::cerr << "categoryAreas:    Annihilation." << std::endl;
+		if(verbose)
+		  std::cerr << "categoryAreas:    Annihilation." << std::endl;
 		delete_isec(isec0, eledgedata);
 		delete_isec(isec1, eledgedata);
 	      }
@@ -709,15 +726,17 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
 		coordisecs.insert(CoordIsecDatum(one.location, one));
 		coordisecs.insert(CoordIsecDatum(two.location, two));
 		accum_area += one.location % two.location;
-		// std::cerr << "categoryAreas:   dA="
-		// 	  << one.location % two.location << std::endl;
+		if(verbose)
+		   std::cerr << "categoryAreas:   dA="
+			     << one.location % two.location << std::endl;
 	      }
 	      // Pathological case -- if they're in the topologically
 	      // disallowed order, it must be because of roundoff, and
 	      // so they must be within roundoff of each other.
 	      // Remove them.
 	      else {
-		// std::cerr << "categoryAreas:   wrong order" << std::endl;
+		if(verbose)
+		  std::cerr << "categoryAreas:   wrong order" << std::endl;
 		delete_isec(one, eledgedata);
 		delete_isec(two, eledgedata);
 	      }
@@ -734,15 +753,17 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
     
 
     // Debugging -- list all intersections.
-    // std::cerr << "categoryAreas: Pre-annihilation, all intersections: " 
-    // 	      << std::endl;
-    // for(int ni = 0; ni<nn; ++ni) {
-    //   for(ElEdgeMap::iterator there = eledgedata[ni].begin();
-    //  	  there!=eledgedata[ni].end(); ++there)
-    // 	{
-    // 	  std::cerr << "   Intersection: " << (*there).second << std::endl;
-    // 	}
-    // }
+    if(verbose) {
+      std::cerr << "categoryAreas: Pre-annihilation, all intersections: " 
+		<< std::endl;
+      for(int ni = 0; ni<nn; ++ni) {
+	for(ElEdgeMap::iterator there = eledgedata[ni].begin();
+	    there!=eledgedata[ni].end(); ++there)
+	  {
+	    std::cerr << "   Intersection: " << (*there).second << std::endl;
+	  }
+      }
+    }
     
 
     // At this point, we have accumulated all the area contributions
@@ -763,12 +784,14 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
     // so we rationalize them here.
 
     // Debugging
-    // std::cerr << "categoryArea: coordisecs" << std::endl;
-    // for(CoordIsec::iterator x=coordisecs.begin(); x!=coordisecs.end(); ++x) {
-    //   Coord key = (*x).first;
-    //   std::cerr << "    " << key << " (" << coordisecs.count(key) << ") "
-    // 		<< (*x).second << std::endl;
-    // }
+    if(verbose) {
+      std::cerr << "categoryArea: coordisecs" << std::endl;
+      for(CoordIsec::iterator x=coordisecs.begin(); x!=coordisecs.end(); ++x) {
+	Coord key = (*x).first;
+	std::cerr << "    " << key << " (" << coordisecs.count(key) << ") "
+		  << (*x).second << std::endl;
+      }
+    }
 
     CoordIsec::iterator x = coordisecs.begin();
     while(x != coordisecs.end()) {
@@ -838,7 +861,8 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
     // below might see them in the wrong order, and get confused about
     // the sequence of entries and exits.
 
-    // std::cerr << "categoryAreas: starting coincidence check" << std::endl;
+    if(verbose)
+      std::cerr << "categoryAreas: starting coincidence check" << std::endl;
     for(int ni=0; ni<nn; ni++) { // loop over edges
       // loop over intersections on this edge
       ElEdgeMap::iterator ii = eledgedata[ni].begin();
@@ -896,22 +920,25 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
     for(int n=0; n<nn; n++) {	// loop over element edges
       icount += eledgedata[n].size();
     }
-    // std::cerr << "categoryAreas: icount=" << icount << std::endl;
+    if(verbose)
+      std::cerr << "categoryAreas: icount=" << icount << std::endl;
     if (icount > 0) {
 
-      // // Debugging -- review all intersections.
-      // std::cerr << "categoryAreas: All intersections: " << std::endl;
-      // for(int ni = 0; ni<nn; ++ni) {
-      // 	std::cerr << "   Edge " << ni << std::endl;
-      //  	for(ElEdgeMap::iterator there = eledgedata[ni].begin();
-      //    	    there!=eledgedata[ni].end(); ++there)
-      // 	  {
-      // 	    std::cerr << "       " << (*there).second << " df="
-      // 		      << ((*there).second.get_element_fraction() -
-      // 			  (*eledgedata[ni].begin()).second.get_element_fraction())
-      // 		      << std::endl;
-      // 	  }
-      // }
+      // Debugging -- review all intersections.
+      if(verbose) {
+	std::cerr << "categoryAreas: All intersections: " << std::endl;
+	for(int ni = 0; ni<nn; ++ni) {
+	  std::cerr << "   Edge " << ni << std::endl;
+	  for(ElEdgeMap::iterator there = eledgedata[ni].begin();
+	      there!=eledgedata[ni].end(); ++there)
+	    {
+	      std::cerr << "       " << (*there).second << " df="
+			<< ((*there).second.get_element_fraction() -
+			    (*eledgedata[ni].begin()).second.get_element_fraction())
+			<< std::endl;
+	    }
+	}
+      }
       
       Coord starting_point;
       Coord last_exit;  // to Brooklyn
@@ -1014,7 +1041,9 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
 	
       }	// end while !done
     } // end if icount > 0
-    else { 
+    else {
+      if(verbose)
+	std::cerr << "categoryAreas: no intersections" << std::endl;
       // If there are no intersections, we either need to add all of
       // the element boundary, or none of it.  If the area so far is
       // negative, we need all of it.  Actually, we need 2x it,
@@ -1044,7 +1073,8 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
   // because, for a homogeneous element, round-off will not put it
   // into a different category.  This may end up being slow.
   if (areas_zero) {
-    // std::cerr << "categoryAreas: all areas are zero" << std::endl;
+    if(verbose)
+      std::cerr << "categoryAreas: all areas are zero" << std::endl;
     int cat = ms.category(center());
     (*result)[cat] = area();
   }
@@ -1140,18 +1170,21 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-double CSkeletonElement::homogeneity(const CMicrostructure &ms) const {
-  findHomogeneityAndDominantPixel(ms);
+double CSkeletonElement::homogeneity(const CMicrostructure &ms, bool verbose)
+  const
+{
+  findHomogeneityAndDominantPixel(ms, verbose);
   return homogeneityData.value().get_homogeneity();
 }
 
-int CSkeletonElement::dominantPixel(const CMicrostructure &ms) const {
-  findHomogeneityAndDominantPixel(ms);
+int CSkeletonElement::dominantPixel(const CMicrostructure &ms,
+				    bool verbose) const {
+  findHomogeneityAndDominantPixel(ms, verbose);
   return homogeneityData.value().get_dominantpixel();
 };
 
 double CSkeletonElement::energyHomogeneity(const CMicrostructure &ms) const {
-  findHomogeneityAndDominantPixel(ms);
+  findHomogeneityAndDominantPixel(ms, /*verbose=*/ false);
   return homogeneityData.value().get_energy();
 };
 
@@ -1176,8 +1209,8 @@ void CSkeletonElement::setHomogeneous(int dompxl) {
   homogeneityData.set_value(hd);
 }
 
-void CSkeletonElement::findHomogeneityAndDominantPixel(
-						       const CMicrostructure &ms)
+void CSkeletonElement::findHomogeneityAndDominantPixel(const CMicrostructure &ms,
+						       bool verbose)
   const
 {
   // Only recompute if the microstructure has changed or nodes have moved
@@ -1190,21 +1223,28 @@ void CSkeletonElement::findHomogeneityAndDominantPixel(
     if(uptodate)
       return;
   }
-  homogeneityData.set_value(c_homogeneity(ms)); // recompute
+  homogeneityData.set_value(c_homogeneity(ms, verbose)); // recompute
 }
 
 // Find the homogeneity of the current element.  Element is assumed to
 // be legal -- categoryAreas will throw an exception if it isn't.
-HomogeneityData CSkeletonElement::c_homogeneity(const CMicrostructure &ms)
+HomogeneityData CSkeletonElement::c_homogeneity(const CMicrostructure &ms,
+						bool verbose)
   const
 {
   if(illegal())
     return HomogeneityData(0, UNKNOWN_CATEGORY);
-  const DoubleVec *areas = categoryAreas(ms);
+  const DoubleVec *areas = categoryAreas(ms, verbose);
   if(!areas) {
     // Element is not illegal, but has parts outside of the
     // Microstructure because some *other* element is illegal. 
     return HomogeneityData(0, UNKNOWN_CATEGORY);
+  }
+  if(verbose) {
+    std::cerr << "CSkeletonElement::c_homogeneity: areas=";
+    for(double a : *areas)
+      std::cerr << " " << a;
+    std::cerr << std::endl;
   }
   int category = 0;
   double maxarea=0.0;
@@ -1218,6 +1258,13 @@ HomogeneityData CSkeletonElement::c_homogeneity(const CMicrostructure &ms)
   double homogeneity = maxarea/area();
   delete areas;
   if (homogeneity>1.0) homogeneity=1.0;
+
+  if(verbose) {
+    std::cerr << "CSkeletonElement::c_homogeneity: nodes=";
+    for(CSkeletonNode *n : nodes)
+      std::cerr << " " << n->position();
+    std::cerr << " homogeneity=" << homogeneity << std::endl;
+  }
   return HomogeneityData(homogeneity, category);
 }
 

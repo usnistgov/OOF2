@@ -42,7 +42,8 @@ bool PixelGroupSubProblemPredicate::operator()(const FEMesh *mesh,
   if(pixelgroup == 0) {
     pixelgroup = microstructure->findGroup(groupname);
   }
-  int dompxl = element->get_skeleton_element()->dominantPixel(*microstructure);
+  int dompxl = element->get_skeleton_element()->dominantPixel(*microstructure,
+							      false);
   ICoord where = microstructure->getRepresentativePixel(dompxl);
   return pixelGroupQueryPixel(*microstructure, where, pixelgroup);
 }

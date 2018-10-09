@@ -1166,7 +1166,8 @@ class ElementByPixelGroup(ElementSelectionModifier):
         skel = skeleton.getObject()
         pxlgrp = ms.findGroup(self.group)
         for element in skel.element_iterator():
-            where = ms.getRepresentativePixel(element.dominantPixel(skel.MS))
+            where = ms.getRepresentativePixel(
+                element.dominantPixel(skel.MS, element.getIndex()==7))
             grpnames = pixelgroup.pixelGroupNames(ms, where)
             if self.group in grpnames:
                 selected.append(element)

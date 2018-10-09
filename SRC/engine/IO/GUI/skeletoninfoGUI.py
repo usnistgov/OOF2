@@ -298,11 +298,13 @@ class ElementMode(SkeletonInfoMode):
                 earea = "%s" % element.volume()
 
             if not element.illegal():
-                domCat = element.dominantPixel(skeleton.MS)
+                verbose = element.getIndex() == 7
+                domCat = element.dominantPixel(skeleton.MS, verbose)
+                debug.fmsg("domCat=", domCat)
                 repPix = skeleton.MS.getRepresentativePixel(domCat)
                 pixGrp = pixelgroup.pixelGroupNames(skeleton.MS, repPix)
                 pixgrps = string.join(pixGrp, ", ")
-                ehom = "%f" % element.homogeneity(skeleton.MS)
+                ehom = "%f" % element.homogeneity(skeleton.MS, verbose)
                 eshape = "%f" % element.energyShape()
 
                 mat = element.material(container.context)

@@ -42,7 +42,11 @@ Progress::Progress(const std::string &nm, ThreadState *ts)
 }
 
 Progress::~Progress() {
-  // std::cerr << "Progress:dtor: " << name_ << " " << this << std::endl;
+#ifdef DEBUG
+  if(started_ and not finished_) {
+    std::cerr << "Progress:dtor: " << name_ << " " << this << std::endl;
+  }
+#endif // DEBUG
   assert(not (started_ and not finished_));
   KeyHolder kh(lock, verboseLocks);
   disconnectBar(progressbar);

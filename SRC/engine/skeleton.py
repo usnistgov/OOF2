@@ -259,7 +259,7 @@ class QuadSkeleton(SkeletonGeometry):
                     #instead of skeleton boundaries, comment or remove
                     #the following line.
                     self.addGridSegmentsToBoundaries(skel, i, j, m, n)
-                    el.findHomogeneityAndDominantPixel(skel.MS)
+                    el.findHomogeneityAndDominantPixel(skel.MS, False)
 
                     if prog.stopped():
                         return None
@@ -380,8 +380,8 @@ class TriSkeleton(SkeletonGeometry):
                     #the following line.
                     self.addGridSegmentsToBoundaries(skel,i,j,m,n)
 
-                    el1.findHomogeneityAndDominantPixel(skel.MS)
-                    el2.findHomogeneityAndDominantPixel(skel.MS)
+                    el1.findHomogeneityAndDominantPixel(skel.MS, el1.getIndex()==7)
+                    el2.findHomogeneityAndDominantPixel(skel.MS, el2.getIndex()==7)
 
                     if prog.stopped():
                         return None
@@ -453,7 +453,7 @@ class SkeletonBase:
         illegalcount = 0
         for e in self.elements:
             if not e.illegal():
-                homogIndex += e.area()*e.homogeneity(self.MS)
+                homogIndex += e.area()*e.homogeneity(self.MS, False)
             else:
                 illegalcount += 1
                 

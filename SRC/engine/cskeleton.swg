@@ -118,11 +118,11 @@ public:
   bool illegal();
   bool interior(Coord *Point);
   %new ICoordVec *underlying_pixels(CMicrostructure);
-  double homogeneity(CMicrostructure);
-  int dominantPixel(CMicrostructure);
+  double homogeneity(CMicrostructure, bool);
+  int dominantPixel(CMicrostructure, bool);
   void copyHomogeneity(CSkeletonElement);
   double energyHomogeneity(CMicrostructure&);
-  void findHomogeneityAndDominantPixel(CMicrostructure&);
+  void findHomogeneityAndDominantPixel(CMicrostructure&, bool);
   void revertHomogeneity();
   HomogeneityData getHomogeneityData();
   void setHomogeneityData(HomogeneityData);

@@ -158,6 +158,11 @@ class Microstructure(cmicrostructure.CMicrostructure):
         return [imageclass[self.name()+':'+name[0]]
                 for name in imageclass.keys(base=self.name())]
 
+    # So that gfxwindow.topmost('Microstructure', 'Image'),getMicrostructure()
+    # works if topmost() returns a Microstructure
+    def getMicrostructure(self):
+        return self
+
     # Many of these small utility functions are duplicated in C++ in
     # CMicrostructure.  That's intentional.
     

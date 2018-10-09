@@ -6,3 +6,9 @@ in the code is insufficient for some reason.
 Add an OutputDestination that saves objects to a given Python array.
 
 Upgrade to gtk+3 and use libcairo instead of libgnomecanvas.
+
+Allow the Remove Material button in the Element Group operations pane
+on the Skeleton Selection page to remove the material from an element
+to which a material has been only implicitly assigned.  Currently,
+attempting to do that raises a KeyError.
+

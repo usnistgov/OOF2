@@ -69,7 +69,7 @@ class SkeletonElementBase:
         if lastmaterial is not None:
             return lastmaterial
         ms = skeletonctxt.getObject().MS
-        dominantpixel = self.dominantPixel(ms)
+        dominantpixel = self.dominantPixel(ms, self.getIndex()==7)
         if dominantpixel is not None:
             return material.getMaterialFromCategory(ms, dominantpixel)
 

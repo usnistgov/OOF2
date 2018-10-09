@@ -153,6 +153,8 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
             msOrImage = self.gfxwindow().topmost('Microstructure', 'Image')
             if where is not None and msOrImage is not None:
+                debug.fmsg("category=",
+                           self.findMicrostructure().categoryFromPoint(where))
                 self.xtext.set_text(`where.x`)
                 self.ytext.set_text(`where.y`)
                 size = msOrImage.sizeInPixels() # might be ICoord or iPoint

@@ -179,7 +179,8 @@ public:
   virtual bool interior(const Coord*) const = 0; // is the given point inside?
 private:
   bool interior(const Coord&, const Coord&) const; 
-  HomogeneityData c_homogeneity(const CMicrostructure&) const; // see below
+  HomogeneityData c_homogeneity(const CMicrostructure&, bool)
+    const; // see below
   mutable CachedValue<HomogeneityData> homogeneityData;	// see below
 public:
   virtual double area() const = 0;
@@ -190,7 +191,7 @@ public:
   virtual const std::vector<ICoord> *underlying_pixels(const CMicrostructure&)
     const = 0;
 #if DIM==2
-  const DoubleVec *categoryAreas(const CMicrostructure&) const;
+  const DoubleVec *categoryAreas(const CMicrostructure&, bool) const;
 #elif DIM==3
   // helper objects for categoryVolumes
   static vtkCutter *edgeExtractor;
@@ -253,11 +254,11 @@ public:
   // computes it.  It shouldn't be necessary to call either one of
   // them explicitly, except to get things started during Skeleton
   // construction.
-  void findHomogeneityAndDominantPixel(const CMicrostructure&) const;
+  void findHomogeneityAndDominantPixel(const CMicrostructure&, bool) const;
   // homogeneity(), dominantPixel(), and energyHomogeneity() are the
   // programmer friendly API.  They recompute values only if necessary.
-  double homogeneity(const CMicrostructure&) const;
-  int dominantPixel(const CMicrostructure&) const;
+  double homogeneity(const CMicrostructure&, bool) const;
+  int dominantPixel(const CMicrostructure&, bool) const;
   double energyHomogeneity(const CMicrostructure&) const;
   // revertHomogeneity returns the cached values to their previous
   // state, saved at the last call to homogeneityData.set_value().
