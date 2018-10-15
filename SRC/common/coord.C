@@ -130,15 +130,15 @@ bool operator<(const ICoord &a, const ICoord &b) {
 
 //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
 
-double CoordSegment::area(const Coord &ctr) const {
-  // Avoid constructing new objects...
-	// TODO: how will this be used in 3D???
-  return (start.x-ctr.x)*(end.y-ctr.y) - (start.y-ctr.y)*(end.x-ctr.x);
-}
+// double CoordSegment::area(const Coord &ctr) const {
+//   // Avoid constructing new objects...
+// 	// TODO: how will this be used in 3D???
+//   return (start.x-ctr.x)*(end.y-ctr.y) - (start.y-ctr.y)*(end.x-ctr.x);
+// }
 
-bool CoordSegment::operator<(const CoordSegment &other) const {
-  if (other.start < start) return true;
-  if (start < other.start) return false;
-  if (other.end < end) return true;
-  return false;
-}
+// bool CoordSegment::operator<(const CoordSegment &other) const {
+//   if (other.start < start) return true;
+//   if (start < other.start) return false;
+//   if (other.end < end) return true;
+//   return false;
+// }

@@ -128,9 +128,11 @@ inline Coord operator*(double x, const Coord &a) {
 
 #if DIM==2
 
-inline double cross(const Coord &c1, const Coord &c2)
+template <class COORD1, class COORD2>
+inline double cross(const COORD1 &c1, const COORD2 &c2)
 {
-  return c1.x*c2.y - c1.y*c2.x;
+  // return c1.x*c2.y - c1.y*c2.x;
+  return c1(0)*c2(1) - c1(1)*c2(0);
 }
 
 inline bool operator==(const Coord &a, const Coord &b) {
@@ -332,18 +334,18 @@ bool operator<(const ICoord &a, const ICoord &b);
 
 //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
 
-// Utility segment class -- contains a directed pair of points,
-// and can compute the area it sweeps out relative to some
-// other point.
-class CoordSegment {
-private:
-  Coord start, end;
-public:
-  CoordSegment() {}
-  CoordSegment(Coord p1, Coord p2) : start(p1), end(p2) {}
-  double area(const Coord &) const;
-  bool operator<(const CoordSegment &) const;
-};
+// // Utility segment class -- contains a directed pair of points,
+// // and can compute the area it sweeps out relative to some
+// // other point.
+// class CoordSegment {
+// private:
+//   Coord start, end;
+// public:
+//   CoordSegment() {}
+//   CoordSegment(Coord p1, Coord p2) : start(p1), end(p2) {}
+//   double area(const Coord &) const;
+//   bool operator<(const CoordSegment &) const;
+// };
 
 
 

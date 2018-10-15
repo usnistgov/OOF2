@@ -349,7 +349,8 @@ void CMicrostructure::categorize() const {
       // representativePixels.push_back(i.coord());
       representativePixels.push_back(where);
 
-      PixelSetBoundary *psb = new PixelSetBoundary(this);
+      // TODO: Set nbinsx and nbinsy in the PixelSetBoundary ctor properly.
+      PixelSetBoundary *psb = new PixelSetBoundary(this, 1, 1);
       psb->add_pixel(where);
       categoryBdys.push_back(psb);
 

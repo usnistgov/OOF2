@@ -40,36 +40,36 @@ const unsigned char CSkeletonNode::unpinned_ = 4;
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// Set of perturbation directions for moving nodes.  This is a set of
-// nonhorizontal, nonvertical unit vectors which are candidate
-// directions for perturbing nodes when searching for intersections
-// with pixel-boundary segments.  The exclusion of the i=0 case is
-// deliberate.  Nodes are perturbed so that they won't lie directly on
-// top of pixel boundaries, which complicates the intersection finding
-// code.
+// // Set of perturbation directions for moving nodes.  This is a set of
+// // nonhorizontal, nonvertical unit vectors which are candidate
+// // directions for perturbing nodes when searching for intersections
+// // with pixel-boundary segments.  The exclusion of the i=0 case is
+// // deliberate.  Nodes are perturbed so that they won't lie directly on
+// // top of pixel boundaries, which complicates the intersection finding
+// // code.
 
-// This should be prime, and greater than one more than the number of
-// sides of the most-sided possible element.
-#define NODE_PERTURB_DIRECTIONS 7
+// // This should be prime, and greater than one more than the number of
+// // sides of the most-sided possible element.
+// #define NODE_PERTURB_DIRECTIONS 7
 
 
-// node_perturbations() returns a Coord* instead of a
-// std::vector<Coord> because it's just a little bit faster.  It's
-// used in a context (in categoryAreas()) where speed is important.
+// // node_perturbations() returns a Coord* instead of a
+// // std::vector<Coord> because it's just a little bit faster.  It's
+// // used in a context (in categoryAreas()) where speed is important.
 
-static const Coord* node_perturbations() {
-  static Coord *perturbation_list = 0;
-  if(!perturbation_list) {
-    // This shows up as a memory leak in valgrind.  It's not, really.
-    perturbation_list = new Coord[NODE_PERTURB_DIRECTIONS-1];
-    double delta = 2.0*M_PI/((double) NODE_PERTURB_DIRECTIONS);
-    for(int i=1; i<NODE_PERTURB_DIRECTIONS; i++) {
-      double angle = i*delta;
-      perturbation_list[i-1] = Coord(cos(angle), sin(angle));
-    }
-  }
-  return perturbation_list;
-}
+// static const Coord* node_perturbations() {
+//   static Coord *perturbation_list = 0;
+//   if(!perturbation_list) {
+//     // This shows up as a memory leak in valgrind.  It's not, really.
+//     perturbation_list = new Coord[NODE_PERTURB_DIRECTIONS-1];
+//     double delta = 2.0*M_PI/((double) NODE_PERTURB_DIRECTIONS);
+//     for(int i=1; i<NODE_PERTURB_DIRECTIONS; i++) {
+//       double angle = i*delta;
+//       perturbation_list[i-1] = Coord(cos(angle), sin(angle));
+//     }
+//   }
+//   return perturbation_list;
+// }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -331,37 +331,37 @@ Coord CSkeletonElement::frommaster(MasterCoord *mc, int rotation) const {
 
 // CategoryArea calculation, and related infrastructure.
 
-typedef std::multimap<double, PixelBdyIntersection> ElEdgeMap;
-typedef std::vector<ElEdgeMap> ElEdge;
-typedef std::pair<double, PixelBdyIntersection> ElEdgeDatum;
+// typedef std::multimap<double, PixelBdyIntersection> ElEdgeMap;
+// typedef std::vector<ElEdgeMap> ElEdge;
+// typedef std::pair<double, PixelBdyIntersection> ElEdgeDatum;
 
 
-typedef std::multimap<Coord, PixelBdyIntersection> CoordIsec;
-typedef std::pair<Coord, PixelBdyIntersection> CoordIsecDatum;
+// typedef std::multimap<Coord, PixelBdyIntersection> CoordIsec;
+// typedef std::pair<Coord, PixelBdyIntersection> CoordIsecDatum;
 
-// Utility function for deleting an intersection from one of the
-// ordered lists of intersections.  Intersections have sufficient data
-// to locate themselves in these lists.
-void delete_isec(const PixelBdyIntersection &pbi,
-		 ElEdge &eledge) {
-  int ni = pbi.get_element_node_index();
-  double fr = pbi.get_element_fraction();
+// // Utility function for deleting an intersection from one of the
+// // ordered lists of intersections.  Intersections have sufficient data
+// // to locate themselves in these lists.
+// void delete_isec(const PixelBdyIntersection &pbi,
+// 		 ElEdge &eledge) {
+//   int ni = pbi.get_element_node_index();
+//   double fr = pbi.get_element_fraction();
   
-  int count = eledge[ni].count(fr);
-  if (count==1) {
-    eledge[ni].erase(fr);
-  }
-  else {
-    ElEdgeMap::iterator emi = eledge[ni].lower_bound(fr);
-    for(int i=0; i<count; ++emi, ++i) {
-      if (((*emi).second.location==pbi.location) && 
-	  ((*emi).second.entry==pbi.entry) ) {
-	eledge[ni].erase(emi);
-	break;
-      }
-    }
-  }
-}
+//   int count = eledge[ni].count(fr);
+//   if (count==1) {
+//     eledge[ni].erase(fr);
+//   }
+//   else {
+//     ElEdgeMap::iterator emi = eledge[ni].lower_bound(fr);
+//     for(int i=0; i<count; ++emi, ++i) {
+//       if (((*emi).second.location==pbi.location) && 
+// 	  ((*emi).second.entry==pbi.entry) ) {
+// 	eledge[ni].erase(emi);
+// 	break;
+//       }
+//     }
+//   }
+// }
 
 //================
 
@@ -504,6 +504,35 @@ CRectangle CSkeletonElement::bbox() const {
 // badly formed that the areas aren't computable).  Each double in
 // this vector is equal to the area of the corresponding
 // microstructure category which is within this element.
+
+const DoubleVec *CSkeletonElement::categoryAreas(const CMicrostructure &ms)
+  const
+{
+  // nCategories recomputes categories and boundaries if needed.
+  unsigned int ncat = ms.nCategories();
+  DoubleVec *result = new DoubleVec(ncat);
+  int nn = nodes.size();
+
+  // Get positions of nodes in pixel coordinates.
+  Coord element_points[nn];
+  for(unsigned int i=0; i<nn; i++)
+    element_points[i] = ms.physical2Pixel(nodes[i]->position());
+  // Create list of lines that will be used to clip the pixel set boundaries.
+  LineList edges;
+  edges.reserve(nn);
+  for(unsigned int i=0; i<nn; i++) {
+    edges.push_back(Line(nodes[i]->position(), nodes[(i+1)%nn]->position()));
+  }
+  // Get all the pixel set boundaries.
+  const std::vector<PixelSetBoundary*> &bdys = ms.getCategoryBdys();
+  
+  for(int cat=0; cat<ncat; cat++) {
+    (*result)[cat] += bdys[cat]->clippedArea(edges);
+  }
+  return result;
+}
+
+#ifdef OLD_CATEGORY_AREAS
 
 const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
   const
@@ -1097,7 +1126,7 @@ const DoubleVec * CSkeletonElement::categoryAreas(const CMicrostructure &ms)
   }
   return result;  // Caller must de-allocate this vector.
 } // end of CSkeletonElement::categoryAreas
-
+#endif // OLD_CATEGORY_AREAS
 
 // OBSOLETE.  Not yet removed, because it may be the only caller of
 // some of the other routines, and they may need to be removed also.

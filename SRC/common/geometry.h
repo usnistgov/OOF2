@@ -146,6 +146,9 @@ public:
   CRectangle(const Coord &a, const Coord &b)
     : CRectangle_<double, Coord>(a,b)
   {}
+  CRectangle(const ICoord &a, const ICoord &b)
+    : CRectangle_<double, Coord>(Coord(a(0), a(1)), Coord(b(0), b(1)))
+  {}
   friend std::ostream& operator<<(std::ostream &os, const CRectangle &rect) {
     os << "CRectangle(" << rect.lowleft << ", " << rect.upright << ")";
     return os;
