@@ -37,64 +37,58 @@ typedef std::vector<Line> LineList;
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-template <class VTYPE, class CTYPE>
-class PixelBdyLoop_ {
-private:
+template <class CTYPE, class RTYPE>
+class PxlBdyLoopBase {
+protected:
   std::vector<CTYPE> loop;
-  CRectangle_<VTYPE, CTYPE> *bounds;
+  RTYPE *bounds;
+  void pop_back() { loop.pop_back(); }
+  void prepend(PxlBdyLoopBase<CTYPE, RTYPE> &);
 public:
-  PixelBdyLoop_() : bounds(nullptr) {}
-  ~PixelBdyLoop_() { delete bounds; }
-};
-
-class PixelBdyLoop {
-private:
-  std::vector<ICoord> loop;
-  ICRectangle *bounds;		// computed by clean, in physical coords
-public:
-  PixelBdyLoop();
-  ~PixelBdyLoop();
-  void add_point(const ICoord&);
-  void clean(const CMicrostructure*);
-  bool closed() const;
-  const ICRectangle &bbox() const { return *bounds; }
+  PxlBdyLoopBase() : bounds(nullptr) {}
+  PxlBdyLoopBase(const std::vector<CTYPE>&, const RTYPE*);
+  virtual ~PxlBdyLoopBase() { delete bounds; }
   unsigned int size() const { return loop.size(); }
-  // const std::vector<ICoord> &segments() const { return loop; }
-  // ICoord operator[](unsigned int k) const { return loop[k]; }
-
+  const RTYPE *bbox() const { return bounds; }
+  const std::vector<CTYPE> &getLoop() const { return loop; }
+  // clippedArea returns the area of the polygon formed by clipping
+  // with all of the given lines.
+  double clippedArea(LineList::const_iterator, LineList::const_iterator) const;
+  double areaInPixelUnits() const;
   // clip() returns a set of new loops that include the points to the
   // left of the line (not just the segment) going from line.first to
   // line.second, which are Coords.  Usually called by clippedArea().
   std::vector<ClippedPixelBdyLoop*> clip(const Line&) const;
 
-  // clippedArea returns the area of the polygon formed by clipping
-  // with all of the given lines.
-  double clippedArea(const LineList&) const;
+  virtual ClippedPixelBdyLoop *clone() const = 0;
+};
 
-  double areaInPixelUnits() const;
+class PixelBdyLoop : public PxlBdyLoopBase<ICoord, ICRectangle> {
+public:
+  void add_point(const ICoord&);
+  void clean(const CMicrostructure*);
+  bool closed() const;
+  // const std::vector<ICoord> &segments() const { return loop; }
+  // ICoord operator[](unsigned int k) const { return loop[k]; }
 
-   friend std::ostream& operator<<(std::ostream&, const PixelBdyLoop&);
+  virtual ClippedPixelBdyLoop *clone() const;
+
+  friend std::ostream& operator<<(std::ostream&, const PixelBdyLoop&);
   friend class PixelSetBoundary; // for debugging
 };
 
 // ClippedPixelBdyLoop is like PixelBdyLoop, except that it uses floating
 // point coordinates and is only constructed by clipping a PixelBdyLoop.
-class ClippedPixelBdyLoop {
-private:
-  std::vector<Coord> loop;
-  CRectangle *bounds;
+class ClippedPixelBdyLoop : public PxlBdyLoopBase<Coord, CRectangle> {
 public:
   ClippedPixelBdyLoop();
-  ClippedPixelBdyLoop(const PixelBdyLoop*);
-  ClippedPixelBdyLoop(ClippedPixelBdyLoop&&); // Move constructor
-  ~ClippedPixelBdyLoop();
-  const CRectangle &bbox() const { return *bounds; }
+  ClippedPixelBdyLoop(const ClippedPixelBdyLoop*);
+  // ClippedPixelBdyLoop(ClippedPixelBdyLoop&&); // Move constructor
+  virtual ClippedPixelBdyLoop *clone() const;
   Coord operator[](unsigned int k) const { return loop[k]; }
-  std::vector<ClippedPixelBdyLoop*> clip(const Line&);
-  double areaInPixelUnits() const;
-  unsigned int size() const { return loop.size(); }
   void add(const Coord&);
   void add(const ICoord&);
+  void prepend(const ClippedPixelBdyLoop*);
   void clear();
   friend std::ostream& operator<<(std::ostream&, const ClippedPixelBdyLoop&);
 };

@@ -198,27 +198,30 @@ public:
 
   // functions with DIM dependent prototypes
 	//#if DIM == 2
-	ICoord(int x0, int x1) { x[0] = x0; x[1] = x1; } //Keep available for now
+  ICoord(int x0, int x1) { x[0] = x0; x[1] = x1; } //Keep available for now
 #if DIM==3
-	ICoord(int x0, int x1, int x2) { x[0] = x0; x[1] = x1; x[2] = x2; }
+  ICoord(int x0, int x1, int x2) { x[0] = x0; x[1] = x1; x[2] = x2; }
 #endif
 
-	ICoord() { for(int i=0; i<DIM; i++) x[i]=0; } //x[0] = x[1] = 0; }
+  ICoord() { for(int i=0; i<DIM; i++) x[i]=0; } //x[0] = x[1] = 0; }
   inline int operator()(int i) const { return x[i]; }
   inline int &operator()(int i) { return x[i]; }
   ICoord &operator+=(const ICoord &c) {
-		for(int i=0; i<DIM; i++)
-			x[i] += c(i);
+    // TODO: Expand this loop.
+    for(int i=0; i<DIM; i++)
+      x[i] += c(i);
     return *this;
   }
   ICoord &operator-=(const ICoord &c) {
-		for(int i=0; i<DIM; i++)	
-			x[i] -= c(i);
+    // TODO: Expand this loop.
+    for(int i=0; i<DIM; i++)	
+      x[i] -= c(i);
     return *this;
   }
   ICoord &operator*=(int y) {
-		for(int i=0; i<DIM; i++)	
-			x[i] *= y;
+    // TODO: Expand this loop.
+    for(int i=0; i<DIM; i++)	
+      x[i] *= y;
     return *this;
   }
   friend bool operator==(const ICoord&, const ICoord&);
@@ -261,8 +264,8 @@ inline Coord operator+(const ICoord &b, const Coord &a) {
   return result;
 }
 
-inline Coord operator-(const ICoord &b, const Coord &a) {
-  Coord result(a);
+inline Coord operator-(const ICoord &a, const Coord &b) {
+  Coord result(a(0), a(1));
   result -= b;
   return result;
 }

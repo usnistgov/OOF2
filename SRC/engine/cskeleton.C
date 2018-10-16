@@ -502,8 +502,8 @@ CRectangle CSkeletonElement::bbox() const {
 
 // Returns a vector of doubles (or a null pointer if the element is so
 // badly formed that the areas aren't computable).  Each double in
-// this vector is equal to the area of the corresponding
-// microstructure category which is within this element.
+// this vector is equal to the area (in pixel units) of the
+// corresponding microstructure category which is within this element.
 
 const DoubleVec *CSkeletonElement::categoryAreas(const CMicrostructure &ms)
   const
@@ -518,17 +518,32 @@ const DoubleVec *CSkeletonElement::categoryAreas(const CMicrostructure &ms)
   for(unsigned int i=0; i<nn; i++)
     element_points[i] = ms.physical2Pixel(nodes[i]->position());
   // Create list of lines that will be used to clip the pixel set boundaries.
-  LineList edges;
-  edges.reserve(nn);
+  LineList edges(nn);
+  std::vector<Coord> npos(nn);	// node positions in pixel coordinates
+  for(unsigned int i=0; i<nn; i++)
+    npos[i] = ms.physical2Pixel(nodes[i]->position());
   for(unsigned int i=0; i<nn; i++) {
-    edges.push_back(Line(nodes[i]->position(), nodes[(i+1)%nn]->position()));
+    edges[i] = Line(npos[i], npos[(i+1)%nn]);
   }
   // Get all the pixel set boundaries.
   const std::vector<PixelSetBoundary*> &bdys = ms.getCategoryBdys();
   
   for(int cat=0; cat<ncat; cat++) {
+// #ifdef DEBUG
+//     std::cerr << "CSkeletonElement::categoryAreas: category=" << cat << "------"
+// 	      << std::endl;
+//     std::cerr << "CSkeletonElement::categoryAreas: element=";
+//     for(const CSkeletonNode *node : nodes)
+//       std::cerr << " " << node->position();
+//     std::cerr << std::endl;
+// #endif // DEBUG
     (*result)[cat] += bdys[cat]->clippedArea(edges);
   }
+// #ifdef DEBUG
+//   std::cerr << "CSkeletonElement::categoryAreas: result=";
+//   for(int cat=0; cat<ncat; cat++) std::cerr << " " << (*result)[cat];
+//   std::cerr << std::endl;
+// #endif // DEBUG
   return result;
 }
 
@@ -1237,6 +1252,13 @@ HomogeneityData CSkeletonElement::c_homogeneity(const CMicrostructure &ms)
   }
   int category = 0;
   double maxarea=0.0;
+
+// #ifdef DEBUG
+//   std::cerr << "CSkeletonElement::c_homogeneity: areas=";
+//   for(double a : *areas) std::cerr << " " << a;
+//   std::cerr << std::endl;
+// #endif // DEBUG
+  
   for(DoubleVec::size_type i=0;i<areas->size();++i) {
     double area = (*areas)[i];
     if(area > maxarea) {
@@ -1244,6 +1266,12 @@ HomogeneityData CSkeletonElement::c_homogeneity(const CMicrostructure &ms)
       category = i;
     }
   }
+
+// #ifdef DEBUG
+//   std::cerr << "CSkeletonElement::c_homogeneity: maxarea=" << maxarea
+// 	    << " total=" << area()
+// 	    << std::endl;
+// #endif // DEBUG
   double homogeneity = maxarea/area();
   delete areas;
   if (homogeneity>1.0) homogeneity=1.0;
