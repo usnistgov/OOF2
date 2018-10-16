@@ -87,6 +87,8 @@ private:
   Coord delta_;			// physical size of a pixel
   TimeStamp timestamp;
 
+  unsigned int nbinsx, nbinsy; 	// number of bins for PixelSetBoundaries
+
   static long globalMicrostructureCount; // for testing
 
   // List of pixel groups defined on this microstructure.
@@ -159,6 +161,8 @@ public:
   bool contains(const ICoord&) const;
   TimeStamp &getTimeStamp();
   const TimeStamp &getTimeStamp() const;
+
+  void setPSBbins(int, int);
 
   void setCurrentActiveArea(ActiveArea *aa) { activearea = aa; }
   const ActiveArea *getActiveArea() const { return activearea; }

@@ -127,6 +127,7 @@ public:
   int nCategories();
   int category(ICoord *iPoint);
   void recategorize();
+  void setPSBbins(int, int);
   bool is_categorized();
   ArrayInt *getCategoryMap();
   %new ArrayInt *getCategoryMapRO();

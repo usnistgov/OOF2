@@ -123,7 +123,7 @@ double PixelSetBoundary::clippedArea(const LineList &lines) const {
   return area * pxlsize.x * pxlsize.y;
 }
 
-// ------------
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 PixelSetSubBoundary::~PixelSetSubBoundary() {
   for(std::vector<PixelBdyLoop*>::iterator i=loopset.begin(); i<loopset.end();
@@ -275,13 +275,8 @@ PixelBdyLoop *PixelSetSubBoundary::find_loop(CoordMap &cm) {
 
 double PixelSetSubBoundary::clippedArea(const LineList &lines) const {
   double area = 0.0;
-  // std::cerr << "PixelSetSubBoundary::clippedArea: nloops=" << loopset.size()
-  // 	    << std::endl;
   for(PixelBdyLoop *loop : loopset) {
-    // std::cerr << "PixelSetSubBoundary::clippedArea: loop=" << loop;
-    // std::cerr << " " << *loop << std::endl;
     area += loop->clippedArea(lines.begin(), lines.end());
-    // std::cerr << "PixelSetSubBoundary::clippedArea: area=" << area << std::endl;
   }
   return area;
 }
