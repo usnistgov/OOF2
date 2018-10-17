@@ -41,6 +41,8 @@ def osCall(*args):
     print >> sys.stderr, "--->", ' '.join(args)
     status = subprocess.call(args)
     if status != 0:
+        print >> sys.stderr, "Failed to execute", ' '.join(args)
+        print >> sys.stderr, "Aborting!"
         sys.exit(status)
         
 options = ['version=', 'comment=', 'dryrun', 'help', 'noclean', 'branch=']
@@ -157,7 +159,6 @@ try:
         print >> sys.stderr, "Using '%s' instead." % oldtag
         tag = oldtag
     
-    
     # Create a branch for the release.
 
     # First see if the branch already exists.  "git ls-remote" returns
@@ -171,7 +172,7 @@ try:
     else:
         # The branch already exists.  Check it out, and merge the
         # current master into it.  There *should* be no conflicts in
-        # the merge, since nobod
+        # the merge, since nobod [y finished writing this comment!]
         newbranch = False
         osCall('git', 'checkout', tag)
         print >> sys.stderr, "Merging master branch into", tag
@@ -307,21 +308,15 @@ try:
     getFiles(distdir, manifest)   
     manifest.close()
 
-    
     # Build the distribution.
     distfilename = distdir + ".tar.gz"
     print >> sys.stderr, "Distribution file is", distfilename
 
-    
     cmd = ['tar', '-T', os.path.join(distdir, 'MANIFEST'), '-czf', distfilename]
     osCall(*cmd)
-    # print >> sys.stderr, ' '.join(cmd)
-    # status = subprocess.call(cmd)
-    # if status != 0:
-    #     print >> sys.stderr, "tar failed!"
-    #     sys.exit(status)
     print >> sys.stderr, "Moving", distfilename, "to", startdir
-    os.rename(distfilename, os.path.join(startdir, distfilename))
+    finaldistfilename = os.path.join(startdir, distfilename)
+    os.rename(distfilename, finaldistfilename)
 
 finally:
     if not noclean:
@@ -336,3 +331,6 @@ print >> sys.stderr, \
 """To publish it, copy it to WEBPAGES/%(dist)s/source and edit
 WEBPAGES/%(dist)s/index.html.  Remember to check that the README file in
 WEBPAGES/%(dist)s/source is up to date.""" % {'dist':distname.distname}
+osCall("openssl", "dgst", "-md5", finaldistfilename)
+osCall("openssl", "dgst", "-rmd160", finaldistfilename)
+osCall("openssl", "dgst", "-sha256", finaldistfilename)
