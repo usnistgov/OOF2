@@ -26,12 +26,58 @@ static const ICoord iUp(0, 1);
 static const ICoord iLeft(-1, 0);
 static const ICoord iDown(0, -1);
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// A PixelSetBoundary is a bunch of line segments that form the
+// perimeter of a bunch of pixels.  It's used when computing the
+// intersection of a pixel set and a finite element.  There are two
+// things that it has to do:
+//  (1) be able to construct itself efficiently from a set of pixels.
+//  (2) be able to compute the area of its intersection with a convex
+//  polygon.
+
+// A PixelSetBoundary is stored as a bunch of loops, each defined by a
+// set of segments.  Since it's a loop, only the start points of the
+// segments are stored.
+
+// The intersection area is computed by clipping each loop with the
+// lines that define the sides of the intersecting element.  The sides
+// are handled one at a time.  Clipping a loop with one line produces
+// a new loop, which is clipped by the next line.  Treating the
+// element sides as infinite lines and clipping with each in turn only
+// works because the element is convex.
+
+// The initial loops in the PixelSetBoundary are instances of
+// PixelBdyLoop, which stores its segment ends as ICoords (in the
+// pixel coordinate system).  Using ICoords makes the construction of
+// loops from pixels robust.  The clipped loops are
+// ClippedPixelBdyLoop instances, using Coords because the clipped
+// points aren't generally at integer coordinates.  These never need
+// to be stored.
+
+// Clipping a loop by a line entails finding which points are to be
+// retained (those on the left side of the clipping line).  New points
+// are created by interpolating along the loop segments that cross the
+// clipping line.  This creates a set of loop fragments that can be
+// closed along the clipping line.  Each fragment is joined
+// independently of the others.  The result isn't necessarily the
+// simplest way to construct the clipped loop -- there may be
+// counterdirected segments along the clipping line that partially
+// cancel each other out.  However the area of the set of loops will
+// be correct, and that's what we care about.  The big advantage of
+// this method is that it doesn't require us to determine the order of
+// intersection points along the element perimeter.  Round-off error
+// in that calculation was what caused errors in the previous version
+// of CSkeletonElement::categoryAreas().  Like r3d, this method is
+// robust to round-off error.
+
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Some geometric utilities
 
-// Is the point, pt, to the left of the line, Line?
+// Is the given point to the left of the given line?
+
 template <class COORD>
 bool leftside(const COORD &pt, const Line &line) {
   return cross(line.second - line.first, pt - line.first) > 0.0;
@@ -45,14 +91,7 @@ Coord intersection(const Coord &a0, const Coord &a1,
 		   const Coord &b0, const Coord &b1)
 {
   double denom = cross(a1-a0, b1-b0);
-#ifdef DEBUG
-  if(denom == 0) {
-    std::cerr << "intersection: denom==0! a0=" << a0 << " a1=" << a1
-	      << " b0=" << b0 << " b1=" << b1
-	      << std::endl;
-  }
-#endif // DEBUG
-  assert(denom != 0); 		// because they're known to intersect
+  assert(denom != 0); // because the segment and line are known to intersect
   double alpha = cross(b0-a0, b1-b0)/denom;
   if(alpha < 0.0)
     return a0;
@@ -61,11 +100,13 @@ Coord intersection(const Coord &a0, const Coord &a1,
   return a0 + alpha*(a1-a0);
 }
 
+// This version takes ICoord arguments for the segment.
+
 Coord intersection(const ICoord &a0, const ICoord &a1,
 		   const Coord &b0, const Coord &b1)
 {
   double denom = cross(a1-a0, b1-b0);
-  assert(denom != 0); 		// because they're known to intersect
+  assert(denom != 0); // because the segment and line are known to intersect
   double alpha = cross(b0-a0, b1-b0)/denom;
   if(alpha < 0.0)
     return Coord(a0(0), a0(1));
@@ -107,13 +148,6 @@ double PixelSetBoundary::clippedArea(const LineList &lines) const {
   for(const Line &line : lines)
     assert(line.first != line.second);
 #endif // DEBUG
-// #ifdef DEBUG
-//   std::cerr << "PixelSetBoundary::clippedArea: lines=";
-//   for(const Line &line : lines)
-//     std::cerr << " (" << line.first << "," << line.second << ")";
-//   std::cerr << std::endl;
-// #endif // DEBUG
-  
   double area = 0.0;
   for(const PixelSetSubBoundary &subbdy : subBdys) {
     area += subbdy.clippedArea(lines);
@@ -281,7 +315,6 @@ double PixelSetSubBoundary::clippedArea(const LineList &lines) const {
   return area;
 }
 
-
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 template <class CTYPE, class RTYPE>
@@ -309,20 +342,11 @@ double PxlBdyLoopBase<CTYPE, RTYPE>::clippedArea(
     return areaInPixelUnits();
   }
   std::vector<ClippedPixelBdyLoop*> newloops = clip(*startlines);
-// #ifdef DEBUG
-//   std::cerr << "PxlBdyLoopBase::clippedArea: line=(" << startlines->first
-// 	    << "," << startlines->second << ")"
-// 	    << ": " << newloops.size() << " new loops=" << std::endl;
-//   for(const ClippedPixelBdyLoop *loop : newloops)
-//     std::cerr << "  new loop " << *loop << std::endl;
-// #endif // DEBUG
   double area = 0.0;
   for(ClippedPixelBdyLoop *newloop : newloops) {
     area += newloop->clippedArea(startlines+1, endlines);
     delete newloop;
   }
-  // std::cerr << "PxlBdyLoopBase::clippedArea: returning area=" << area
-  // 	    << std::endl;
   return area;
 }
 
@@ -335,11 +359,6 @@ double PxlBdyLoopBase<CTYPE, RTYPE>::areaInPixelUnits() const {
   for(unsigned int i=2; i<loop.size(); i++) {
     sum += cross(loop[i-1]-pt0, loop[i]-pt0);
   }
-// #ifdef DEBUG
-//   std::cerr << "PxlBdyLoopBase::areaInPixelUnits: loop=";
-//   for(const CTYPE &pt : loop) std::cerr << " " << pt;
-//   std::cerr << " area=" << 0.5*sum << std::endl;  
-// #endif // DEBUG
   return 0.5*sum;
 }
 
@@ -349,9 +368,6 @@ std::vector<ClippedPixelBdyLoop*> PxlBdyLoopBase<CTYPE, RTYPE>::clip(
   const
 {
   assert(line.first != line.second);
-  // std::cerr << "PxlBdyLoopBase::clip: line=(" << line.first << ", "
-  // 	    << line.second << ")" << std::endl;
-  // std::cerr << "PxlBdyLoopBase::clip: bbox=" << *bounds << std::endl;
   // Return the loops formed by clipping by the given line.
   std::vector<ClippedPixelBdyLoop*> newloops;
   // Is the loop's bounding box entirely on one side of the line?
@@ -360,7 +376,6 @@ std::vector<ClippedPixelBdyLoop*> PxlBdyLoopBase<CTYPE, RTYPE>::clip(
     if(leftside((*bounds)[i], line))
       nbbleft++;
   }
-  // std::cerr << "PxlBdyLoopBase::clip: nbbleft=" << nbbleft << std::endl;
   // If nleft==0, all of the pixels are to the right of the line (or
   // on it), and there's nothing to do.  Return an empty vector of
   // loops.
@@ -377,20 +392,15 @@ std::vector<ClippedPixelBdyLoop*> PxlBdyLoopBase<CTYPE, RTYPE>::clip(
     std::vector<bool> keep(n, false);
     for(unsigned int i=0; i<n; i++) {
       keep[i] = leftside(loop[i], line);
-      // std::cerr << "PxlBdyLoopBase::clip:    " << loop[i]
-      // 		<< " keep=" << keep[i] << std::endl;
     }
 
     unsigned int curpt = 0;
     unsigned int prevpt = n-1;
     ClippedPixelBdyLoop *curloop = nullptr;
     while(curpt < n) {
-      // std::cerr << " PxlBdyLoopBase::clip: top of loop, curpt=" << curpt
-      // 		<< std::endl;
       if(curloop==nullptr) {
 	if(keep[curpt]) {
 	  // Start a new loop
-	  // std::cerr << "PxlBdyLoopBase::clip: new pixel loop!" << std::endl;
 	  curloop = new ClippedPixelBdyLoop();
 	  newloops.push_back(curloop);
 	  if(!keep[prevpt]) {
@@ -402,13 +412,11 @@ std::vector<ClippedPixelBdyLoop*> PxlBdyLoopBase<CTYPE, RTYPE>::clip(
       }
       else if(keep[prevpt] && !keep[curpt]) {
 	// End the current loop
-	// std::cerr << "PxlBdyLoopBase::clip: ending pixel loop" << std::endl;
 	curloop->add(intersection(loop[prevpt], loop[curpt],
 				  line.first, line.second));
 	curloop = nullptr;
       }
       else if(keep[curpt]) {
-	// std::cerr << "PxlBdyLoopBase::clip: continuing pixel loop="<< std::endl;
 	assert(curloop != nullptr);
 	curloop->add(loop[curpt]);
       }
@@ -422,7 +430,6 @@ std::vector<ClippedPixelBdyLoop*> PxlBdyLoopBase<CTYPE, RTYPE>::clip(
     // point between the last and first points on the old loop.
     if(curloop) {
       if(keep[0]) {
-	// std::cerr << "PxlBdyLoopBase::clip: closing loop" << std::endl;
 	if(newloops[0] != curloop) {
 	  newloops[0]->prepend(curloop);
 	  delete curloop;
@@ -431,7 +438,6 @@ std::vector<ClippedPixelBdyLoop*> PxlBdyLoopBase<CTYPE, RTYPE>::clip(
 	}
       }
       else {	       // not keeping the first point in the old loop.
-	// std::cerr << "PxlBdyLoopBase:: ending last loop" << std::endl;
 	curloop->add(intersection(loop.back(), loop.front(),
 				  line.first, line.second));
       }
@@ -530,7 +536,6 @@ void ClippedPixelBdyLoop::clear() {
 }
 
 void ClippedPixelBdyLoop::add(const Coord &pt) {
-  // std::cerr << "ClippedPixelBdyLoop::add: pt=" << pt << std::endl;
   if(!bounds)
     bounds = new CRectangle(pt, pt);
   else
@@ -543,12 +548,9 @@ void ClippedPixelBdyLoop::add(const ICoord &pt) {
 }
 
 void ClippedPixelBdyLoop::prepend(const ClippedPixelBdyLoop *other) {
-  // std::cerr << "ClippedPixelBdyLoop::prepend:  this=" << *this << std::endl;
-  // std::cerr << "ClippedPixelBdyLoop::prepend: other=" << *other << std::endl;
   loop.insert(loop.begin(), other->loop.begin(), other->loop.end());
   for(const Coord &pt : other->getLoop())
     bounds->swallow(pt);
-  // std::cerr << "ClippedPixelBdyLoop::prepend: after=" << *this << std::endl;
 }
 
 

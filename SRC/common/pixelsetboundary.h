@@ -68,9 +68,6 @@ public:
   void add_point(const ICoord&);
   void clean(const CMicrostructure*);
   bool closed() const;
-  // const std::vector<ICoord> &segments() const { return loop; }
-  // ICoord operator[](unsigned int k) const { return loop[k]; }
-
   virtual ClippedPixelBdyLoop *clone() const;
 
   friend std::ostream& operator<<(std::ostream&, const PixelBdyLoop&);
@@ -109,7 +106,6 @@ private:
 public:
   ~PixelSetSubBoundary();
   void add_pixel(const ICoord&);
-  // const std::vector<PixelBdyLoop*> &get_loops() const { return loopset; }
 
   friend std::ostream& operator<<(std::ostream &, const PixelSetBoundary&);
   friend class PixelBdyLoop;

@@ -1,4 +1,8 @@
-OOF2 2.1.15
+OOF2 2.1.16
+
+* New robust calculation of element/pixel intersection areas.
+
+OOF2 2.1.15  (Packaged but not actually released?)
 
 * Fixed a problem with displaying images in some situations, due to
   changes in the ImageMagick library.

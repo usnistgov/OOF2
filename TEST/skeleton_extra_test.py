@@ -428,8 +428,52 @@ class OOF_Skeleton_CyclicBoundary(unittest.TestCase):
                                    "skeleton_save"))
         os.remove("skeleton_save")
 
+# Test for a situation in which CSkeletonElement::categoryAreas
+# failed.  This test fails for OOF2 versions earlier than 2.1.16.
 
-
+class OOF_Skeleton_CategoryBug(unittest.TestCase):
+    def setUp(self):
+        global skeletoncontext
+        from ooflib.engine import skeletoncontext
+        OOF.Microstructure.Create_From_ImageFile(
+            filename=reference_file("skeleton_data", "diamond.png"),
+            microstructure_name='diamond.png',
+            height=automatic, width=automatic)
+        OOF.Windows.Graphics.New()
+        OOF.Graphics_1.Toolbox.Pixel_Select.Color(
+            source='diamond.png:diamond.png',
+            range=DeltaRGB(delta_red=0,delta_green=0,delta_blue=0),
+            points=[Point(296.328384279,196.611353712)], shift=0, ctrl=0)
+        OOF.PixelGroup.New(
+            name='diamond', microstructure='diamond.png')
+        OOF.PixelGroup.AddSelection(
+            microstructure='diamond.png', group='diamond')
+        OOF.Material.New(
+            name='material', material_type='bulk')
+        OOF.Material.Assign(
+            material='material', microstructure='diamond.png', pixels='diamond')
+        OOF.Skeleton.New(
+            name='skeleton', microstructure='diamond.png',
+            x_elements=6, y_elements=6,
+            skeleton_geometry=TriSkeleton(
+                arrangement='moderate',
+                left_right_periodicity=False,top_bottom_periodicity=False))
+    def tearDown(self):
+        OOF.Graphics_1.File.Close()
+        OOF.Material.Delete(name="material")
+    @memorycheck.check("diamond.png")
+    def CheckGroup(self):
+        OOF.ElementSelection.Select_by_Pixel_Group(
+            skeleton='diamond.png:skeleton', group='diamond')
+        skelctxt = skeletoncontext.skeletonContexts['diamond.png:skeleton']
+        e_selection = skelctxt.elementselection
+        self.assertEqual(e_selection.size(), 36)
+        elements = [e.index for e in e_selection.retrieve()]
+        # The incorrect code also selects element number 7.
+        self.assertEqual(elements,
+                         [5, 6, 15, 16, 17, 18, 19, 20, 25, 26, 27, 28, 29,
+                          30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43, 44,
+                          45, 46, 51, 52, 53, 54, 55, 56, 65, 66])
 def run_tests():
 
     test_set = [
@@ -439,15 +483,10 @@ def run_tests():
         OOF_Skeleton_Extra("Commutativity"),
         OOF_Skeleton_Extra("SelectionStateBug"),
         OOF_Skeleton_Extra("SelectSegmentPixels"),
-        OOF_Skeleton_Extra("SelectElementPixels")
-        ]
-
-    test_set += [
-        OOF_Skeleton_SmallBuffer("Bufferbug")
-        ]
-
-    test_set += [
-        OOF_Skeleton_CyclicBoundary("CycleSave")
+        OOF_Skeleton_Extra("SelectElementPixels"),
+        OOF_Skeleton_SmallBuffer("Bufferbug"),
+        OOF_Skeleton_CyclicBoundary("CycleSave"),
+        OOF_Skeleton_CategoryBug("CheckGroup")
         ]
 
     logan = unittest.TextTestRunner()
