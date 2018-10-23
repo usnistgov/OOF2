@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -6,6 +8,8 @@
  * versions of this software, you first contact the authors at
  * oof_manager@nist.gov. 
  */
+
+#include <oofconfig.h>
 
 #include "common/smallmatrix.h"
 #include <string.h>
@@ -103,8 +107,21 @@ int SmallMatrix::symmetric_invert() {
   return 0;
 }
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
+SmallMatrix3x3::SmallMatrix3x3(double a00, double a01, double a02,
+			       double a10, double a11, double a12,
+			       double a20, double a21, double a22)
+  : SmallMatrix(3, 3)
+{
+  data <<
+    a00, a01, a02,
+    a10, a11, a12,
+    a20, a21, a22;
+}
+
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 std::ostream& operator<<(std::ostream &os, const SmallMatrix& mat) {
   for(int i=0; i<mat.rows(); i++) {

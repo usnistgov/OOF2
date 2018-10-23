@@ -9,5 +9,21 @@
  * oof_manager@nist.gov. 
  */
 
+#ifndef LATTICESYSTEM_SWG
+#define LATTICESYSTEM_SWG
+
+%module latticesystem
+%include "common/typemaps.swg"
+
+%{
 #include <oofconfig.h>
+#include "common/latticesystem.h"
+%}
+
+class LatticeSystem {
+};
+
+LatticeSystem *getLatticeSystem(char *name);
+
+#endif // LATTICESYSTEM_SWG
 

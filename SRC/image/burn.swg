@@ -22,13 +22,13 @@
 
 class OOFImage;
 
-class Burner {
-public:
-  bool next_nearest;
-//   %new ICoordVec *burn(OOFImage, ICoord *iPoint);
-};
+// class Burner {
+// public:
+//   bool next_nearest;
+// //   %new ICoordVec *burn(OOFImage, ICoord *iPoint);
+// };
 
-class BasicBurner : public Burner {
+class BasicBurner { // : public Burner {
 public:
   BasicBurner(double lcl, double glbl, bool useL2, bool nn);
 };

@@ -12,6 +12,7 @@
 #include <oofconfig.h>
 
 #include "common/corientation.h"
+#include "common/latticesystem.h"
 #include "common/sincos.h"
 #include "common/smallmatrix.h"
 #include <math.h>
@@ -65,6 +66,35 @@ COrientAxis COrientation::axis() const {
 COrientRodrigues COrientation::rodrigues() const {
   return COrientRodrigues(rotation());
 }
+
+double COrientation::misorientation(const COrientation &other,
+				    const LatticeSystem &lattice)
+  const
+{
+  // The misorientation between two orientations is the angular part
+  // of the axis-angle representation of the "difference" between the
+  // orientations.  The difference is the product of one orientation
+  // and the inverse of the other.
+  SmallMatrix transp(rotation());
+  transp.transpose();
+  SmallMatrix diff = other.rotation() * transp;
+
+  // When the crystal symmetry allows multiple equivalent
+  // orientations, we need to measure the difference between one
+  // orientation and all possible equivalent versions of the other,
+  // and return the minumum misorientation.
+  const std::vector<const SmallMatrix3x3> &latticerotations(lattice.matrices());
+  double minangle = std::numeric_limits<double>::max();
+  for(const SmallMatrix3x3 &latrot : latticerotations) {
+    COrientAxis axisrot(latrot * diff);
+    double angle = fabs(axisrot.angle());
+    if(angle < minangle)
+      minangle = angle;
+  }
+  return minangle;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 
 COrientABG::COrientABG(const SmallMatrix &matrix) {

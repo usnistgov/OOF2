@@ -18,47 +18,27 @@
 #include "common/boolarray.h"
 #include <vector>
 class ICoord;
-#if DIM==2
 class OOFImage;
-#elif DIM==3
-class OOFImage3D;
-#endif
 
+template <class BURNABLE, class IMAGE>
 class Burner {
 public:
   bool next_nearest;		// parameter
   Burner(bool nn) : next_nearest(nn) {};
   virtual ~Burner() {};
-
-#if DIM==2
-  void burn(const OOFImage&, const ICoord*, BoolArray&);
-#elif DIM==3
-  void burn(const OOFImage3D&, const ICoord*, BoolArray&);
-#endif
-
-  virtual bool spread(const CColor &from, const CColor &to) const = 0;
+  void burn(const IMAGE&, const ICoord*, BoolArray&);
+  virtual bool spread(const BURNABLE &from, const BURNABLE &to) const = 0;
 protected:
   CColor startcolor;
 private:
-
-#if DIM==2
-  void burn_nbrs(const OOFImage&, std::vector<ICoord>&,
+  void burn_nbrs(const IMAGE&, std::vector<ICoord>&,
 		 BoolArray&, int&, const ICoord&);
-
-#elif DIM==3
-  void burn_nbrs(const OOFImage3D&, std::vector<ICoord>&,
-		 BoolArray&, int&, const ICoord&);
-#endif
 
   // List of directions to neighbors. There is one static instance of
   // this class.
   class Nbr {
   private:
-#if DIM==2
     ICoord nbr[8];
-#elif DIM==3
-    ICoord nbr[18];
-#endif
     Nbr();			// loads the directions into the array.
     const ICoord &operator[](int x) const { return nbr[x]; }
     friend class Burner;
@@ -66,7 +46,7 @@ private:
   static Nbr neighbor;
 };
 
-class BasicBurner : public Burner {
+class BasicBurner : public Burner<CColor, OOFImage> {
 public:
   double local_flammability;
   double global_flammability;
