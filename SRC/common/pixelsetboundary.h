@@ -54,6 +54,7 @@ protected:
 public:
   PxlBdyLoopBase() : bounds(nullptr) {}
   PxlBdyLoopBase(const std::vector<CTYPE>&, const RTYPE*);
+
   virtual ~PxlBdyLoopBase() { delete bounds; }
   unsigned int size() const { return loop.size(); }
   const RTYPE *bbox() const { return bounds; }
