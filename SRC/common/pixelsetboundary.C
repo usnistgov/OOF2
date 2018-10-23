@@ -55,21 +55,21 @@ static const ICoord iDown(0, -1);
 // points aren't generally at integer coordinates.  These never need
 // to be stored.
 
-// Clipping a loop by a line entails finding which points are to be
-// retained (those on the left side of the clipping line).  New points
-// are created by interpolating along the loop segments that cross the
-// clipping line.  This creates a set of loop fragments that can be
-// closed along the clipping line.  Each fragment is joined
-// independently of the others.  The result isn't necessarily the
-// simplest way to construct the clipped loop -- there may be
-// counterdirected segments along the clipping line that partially
-// cancel each other out.  However the area of the set of loops will
-// be correct, and that's what we care about.  The big advantage of
-// this method is that it doesn't require us to determine the order of
-// intersection points along the element perimeter.  Round-off error
-// in that calculation was what caused errors in the previous version
-// of CSkeletonElement::categoryAreas().  Like r3d, this method is
-// robust to round-off error.
+// // Clipping a loop by a line entails finding which points are to be
+// // retained (those on the left side of the clipping line).  New points
+// // are created by interpolating along the loop segments that cross the
+// // clipping line.  This creates a set of loop fragments that can be
+// // closed along the clipping line.  Each fragment is joined
+// // independently of the others.  The result isn't necessarily the
+// // simplest way to construct the clipped loop -- there may be
+// // counterdirected segments along the clipping line that partially
+// // cancel each other out.  However the area of the set of loops will
+// // be correct, and that's what we care about.  The big advantage of
+// // this method is that it doesn't require us to determine the order of
+// // intersection points along the element perimeter.  Round-off error
+// // in that calculation was what caused errors in the previous version
+// // of CSkeletonElement::categoryAreas().  Like r3d, this method is
+// // robust to round-off error.
 
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -150,7 +150,9 @@ double PixelSetBoundary::clippedArea(const LineList &lines) const {
 #endif // DEBUG
   double area = 0.0;
   for(const PixelSetSubBoundary &subbdy : subBdys) {
+    // std::cerr <<"PixelSetBoundary::clippedArea: calling subbdy" << std::endl;
     area += subbdy.clippedArea(lines);
+    // std::cerr << "PixelSetBoundary::clippedArea: area=" << area << std::endl;
   }
   // Convert back to physical units
   Coord pxlsize = microstructure->sizeOfPixels();
@@ -310,7 +312,10 @@ PixelBdyLoop *PixelSetSubBoundary::find_loop(CoordMap &cm) {
 double PixelSetSubBoundary::clippedArea(const LineList &lines) const {
   double area = 0.0;
   for(PixelBdyLoop *loop : loopset) {
-    area += loop->clippedArea(lines.begin(), lines.end());
+    // std::cerr << "PixelSetSubBoundary::clippedArea: loop=" << loop
+    // 	      << " " << *loop << std::endl;
+    area += loop->clippedArea(lines);
+    // std::cerr << "PixelSetSubBoundary::clippedArea: area=" << area << std::endl;
   }
   return area;
 }
@@ -328,26 +333,48 @@ PxlBdyLoopBase<CTYPE, RTYPE>::PxlBdyLoopBase(const std::vector<CTYPE> &oloop,
 }
 
 template <class CTYPE, class RTYPE>
-double PxlBdyLoopBase<CTYPE, RTYPE>::clippedArea(
-				  LineList::const_iterator startlines,
-				  LineList::const_iterator endlines)
-  const
+double PxlBdyLoopBase<CTYPE, RTYPE>::clippedArea(const LineList &lines) const
 {
   // If there are no clipping lines, return the area of the loop.  If
   // there are lines, clip with the first one, creating new loops, and
   // call clippedArea() on those loops with the remaining lines.
-  // std::cerr << "PxlBdyLoopBase::clippedArea:" << std::endl;
-  if(startlines == endlines) {
-    // std::cerr << "PxlBdyLoopBase::clippedArea: no lines!" << std::endl;
-    return areaInPixelUnits();
+  std::cerr << "PxlBdyLoopBase::clippedArea: -----" << std::endl;
+  std::cerr << "PxlBdyLoopBase::clippedArea: loop=" << getLoop() << std::endl;
+  assert(!lines.empty());
+  const PBLBase *curloop = this;
+  for(const Line &line : lines) {
+    if(curloop == nullptr) {
+      return 0.0;
+    }
+    // TODO: Use move constructor have clip return the object, not
+    // ptr.  Then this line would be curloop=curloop->clip(line).
+    ClippedPixelBdyLoop *newloop = curloop->clip(line);
+    if(newloop == nullptr)
+      std::cerr << "PxlBdyLoopBase::clippedArea: newloop=0x0" << std::endl;
+    else {
+      std::cerr << "PxlBdyLoopBase::clippedArea: newloop=" << newloop
+		<< " size=" << newloop->size();
+      std::cerr << " " << newloop->getLoop() << std::endl;
+    }
+    if(curloop != this) delete curloop;
+    curloop = newloop;
   }
-  std::vector<ClippedPixelBdyLoop*> newloops = clip(*startlines);
-  double area = 0.0;
-  for(ClippedPixelBdyLoop *newloop : newloops) {
-    area += newloop->clippedArea(startlines+1, endlines);
-    delete newloop;
-  }
-  return area;
+  double airier = 0.0;
+  if(curloop != nullptr)
+    airier = curloop->areaInPixelUnits();
+  if(curloop != this)
+    delete curloop;
+  std::cerr << "PxlBdyLoopBase::clippedArea: done, airier=" << airier
+	    << std::endl;
+  return airier;
+  
+  // std::vector<ClippedPixelBdyLoop*> newloops = clip(*startlines);
+  // double area = 0.0;
+  // for(ClippedPixelBdyLoop *newloop : newloops) {
+  //   area += newloop->clippedArea(startlines+1, endlines);
+  //   delete newloop;
+  // }
+  // return area;
 }
 
 template <class CTYPE, class RTYPE>
@@ -363,98 +390,120 @@ double PxlBdyLoopBase<CTYPE, RTYPE>::areaInPixelUnits() const {
 }
 
 template <class CTYPE, class RTYPE>
-std::vector<ClippedPixelBdyLoop*> PxlBdyLoopBase<CTYPE, RTYPE>::clip(
-						     const Line &line)
+ClippedPixelBdyLoop *PxlBdyLoopBase<CTYPE, RTYPE>::clip(const Line &line)
   const
 {
-  assert(line.first != line.second);
   // Return the loops formed by clipping by the given line.
-  std::vector<ClippedPixelBdyLoop*> newloops;
+
+  std::cerr << "PxlBdyLoopBase::clip: line= " << line.first << " " << line.second
+  	    << std::endl;
+  assert(line.first != line.second);
   // Is the loop's bounding box entirely on one side of the line?
   unsigned int nbbleft = 0;
   for(unsigned int i=0; i<4; i++) {
     if(leftside((*bounds)[i], line))
       nbbleft++;
   }
-  // If nleft==0, all of the pixels are to the right of the line (or
+  std::cerr << "PxlBdyLoopBase::clip: nbbleft=" << nbbleft << std::endl;
+  
+  // If nbbleft==0, all of the pixels are to the right of the line (or
   // on it), and there's nothing to do.  Return an empty vector of
   // loops.
+  if(nbbleft == 0) {
+    std::cerr << "PxlBdyLoopBase::clip: returning null" << std::endl;
+    return nullptr;
+  }
   if(nbbleft == 4) {
     // All of the pixels are to the left of the line, so they're all
     // retained. Don't do anything other than to convert the
     // PixelBdyLoop to a ClippedPixelBdyLoop.
-    // TODO: Figure out a way to avoid copying here.
-    newloops.push_back(clone());
+    std::cerr << "PxlBdyLoopBase::clip: returning clone" << std::endl;
+    return new ClippedPixelBdyLoop(this);
   }
-  else if(nbbleft != 0) {
-    // Actually clip.
-    unsigned int n = size();
-    std::vector<bool> keep(n, false);
-    for(unsigned int i=0; i<n; i++) {
-      keep[i] = leftside(loop[i], line);
-    }
 
-    unsigned int curpt = 0;
-    unsigned int prevpt = n-1;
-    ClippedPixelBdyLoop *curloop = nullptr;
-    while(curpt < n) {
-      if(curloop==nullptr) {
-	if(keep[curpt]) {
-	  // Start a new loop
-	  curloop = new ClippedPixelBdyLoop();
-	  newloops.push_back(curloop);
-	  if(!keep[prevpt]) {
-	    curloop->add(intersection(loop[prevpt], loop[curpt],
-				      line.first, line.second));
-	  }
-	  curloop->add(loop[curpt]);
-	}
-      }
-      else if(keep[prevpt] && !keep[curpt]) {
-	// End the current loop
-	curloop->add(intersection(loop[prevpt], loop[curpt],
+  // The line cuts through the loop's bounding box. Actually clip the
+  // loop.
+  unsigned int n = size();
+  ClippedPixelBdyLoop *newloop = new ClippedPixelBdyLoop();
+  bool keepprev = leftside(loop.back(), line);
+  unsigned int iprev = n - 1;
+  for(unsigned int i=0; i<n; i++) {
+    bool keepthis = leftside(loop[i], line);
+    if(keepthis) {
+      if(!keepprev) {
+	newloop->add(intersection(loop[iprev], loop[i],
 				  line.first, line.second));
-	curloop = nullptr;
       }
-      else if(keep[curpt]) {
-	assert(curloop != nullptr);
-	curloop->add(loop[curpt]);
-      }
-      ++curpt;
-      prevpt = curpt-1;
-    } // end loop over points in the old loop
-    
-    // If we get to the end of the list of points in the old loop but
-    // haven't ended the current new loop, either the current new loop
-    // is part of the first new loop, or the current loop ends on a
-    // point between the last and first points on the old loop.
-    if(curloop) {
-      if(keep[0]) {
-	if(newloops[0] != curloop) {
-	  newloops[0]->prepend(curloop);
-	  delete curloop;
-	  curloop = nullptr;
-	  newloops.pop_back();
-	}
-      }
-      else {	       // not keeping the first point in the old loop.
-	curloop->add(intersection(loop.back(), loop.front(),
+      newloop->add(loop[i]);
+    }
+    else {			// !keepthis
+      if(keepprev) {
+	newloop->add(intersection(loop[iprev], loop[i],
 				  line.first, line.second));
       }
     }
-  }
-  
-  return newloops;
+    keepprev = keepthis;
+    iprev = i;
+  } // end loop over points i
+
+  return newloop;
+
+    // std::vector<bool> keep(n, false);
+    // for(unsigned int i=0; i<n; i++) {
+    //   keep[i] = leftside(loop[i], line);
+    // }
+
+    // unsigned int curpt = 0;
+    // unsigned int prevpt = n-1;
+    // ClippedPixelBdyLoop *curloop = nullptr;
+    // while(curpt < n) {
+    //   if(curloop==nullptr) {
+    // 	if(keep[curpt]) {
+    // 	  // Start a new loop
+    // 	  curloop = new ClippedPixelBdyLoop();
+    // 	  newloops.push_back(curloop);
+    // 	  if(!keep[prevpt]) {
+    // 	    curloop->add(intersection(loop[prevpt], loop[curpt],
+    // 				      line.first, line.second));
+    // 	  }
+    // 	  curloop->add(loop[curpt]);
+    // 	}
+    //   }
+    //   else if(keep[prevpt] && !keep[curpt]) {
+    // 	// End the current loop
+    // 	curloop->add(intersection(loop[prevpt], loop[curpt],
+    // 				  line.first, line.second));
+    // 	curloop = nullptr;
+    //   }
+    //   else if(keep[curpt]) {
+    // 	assert(curloop != nullptr);
+    // 	curloop->add(loop[curpt]);
+    //   }
+    //   ++curpt;
+    //   prevpt = curpt-1;
+    // } // end loop over points in the old loop
+    
+    // // If we get to the end of the list of points in the old loop but
+    // // haven't ended the current new loop, either the current new loop
+    // // is part of the first new loop, or the current loop ends on a
+    // // point between the last and first points on the old loop.
+    // if(curloop) {
+    //   if(keep[0]) {
+    // 	if(newloops[0] != curloop) {
+    // 	  newloops[0]->prepend(curloop);
+    // 	  delete curloop;
+    // 	  curloop = nullptr;
+    // 	  newloops.pop_back();
+    // 	}
+    //   }
+    //   else {	       // not keeping the first point in the old loop.
+    // 	curloop->add(intersection(loop.back(), loop.front(),
+    // 				  line.first, line.second));
+    //   }
+    // }
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-ClippedPixelBdyLoop *PixelBdyLoop::clone() const {
-  ClippedPixelBdyLoop *newloop = new ClippedPixelBdyLoop();
-  for(const ICoord ipt : loop)
-    newloop->add(ipt);
-  return newloop;
-}
 
 void PixelBdyLoop::add_point(const ICoord &pbs) {
   loop.push_back(pbs);
@@ -512,22 +561,19 @@ ClippedPixelBdyLoop::ClippedPixelBdyLoop()
   : PxlBdyLoopBase<Coord, CRectangle>()
 {}
 
-ClippedPixelBdyLoop::ClippedPixelBdyLoop(const ClippedPixelBdyLoop *otherloop)
+ClippedPixelBdyLoop::ClippedPixelBdyLoop(
+			 const PxlBdyLoopBase<Coord, CRectangle> *otherloop)
   : PxlBdyLoopBase<Coord, CRectangle>(otherloop->getLoop(), otherloop->bbox())
 {
 }
 
-ClippedPixelBdyLoop *ClippedPixelBdyLoop::clone() const {
-  return new ClippedPixelBdyLoop(this);
+ClippedPixelBdyLoop::ClippedPixelBdyLoop(
+			 const PxlBdyLoopBase<ICoord, ICRectangle> *otherloop) {
+  loop.reserve(otherloop->size());
+  for(const ICoord ipt : otherloop->getLoop()) {
+    add(ipt);			// converts from ICoord to Coord
+  }
 }
-
-// ClippedPixelBdyLoop::ClippedPixelBdyLoop(ClippedPixelBdyLoop &&other)
-//   : loop(std::move(other.loop))
-// {
-//   CRectangle *temp = other.bounds;
-//   other.bounds = bounds;
-//   bounds = temp;
-// }
 
 void ClippedPixelBdyLoop::clear() {
   delete bounds;
@@ -547,11 +593,11 @@ void ClippedPixelBdyLoop::add(const ICoord &pt) {
   add(Coord(pt(0), pt(1)));
 }
 
-void ClippedPixelBdyLoop::prepend(const ClippedPixelBdyLoop *other) {
-  loop.insert(loop.begin(), other->loop.begin(), other->loop.end());
-  for(const Coord &pt : other->getLoop())
-    bounds->swallow(pt);
-}
+// void ClippedPixelBdyLoop::prepend(const ClippedPixelBdyLoop *other) {
+//   loop.insert(loop.begin(), other->loop.begin(), other->loop.end());
+//   for(const Coord &pt : other->getLoop())
+//     bounds->swallow(pt);
+// }
 
 
 std::ostream &operator<<(std::ostream &os, const ClippedPixelBdyLoop &pbl) {

@@ -332,14 +332,14 @@ DoubleVec CSkeletonElement::categoryAreas(const CMicrostructure &ms) const
   const std::vector<PixelSetBoundary*> &bdys = ms.getCategoryBdys();
   
   for(int cat=0; cat<ncat; cat++) {
-// #ifdef DEBUG
-//     std::cerr << "CSkeletonElement::categoryAreas: category=" << cat << "------"
-// 	      << std::endl;
-//     std::cerr << "CSkeletonElement::categoryAreas: element=";
-//     for(const CSkeletonNode *node : nodes)
-//       std::cerr << " " << node->position();
-//     std::cerr << std::endl;
-// #endif // DEBUG
+#ifdef DEBUG
+    std::cerr << "CSkeletonElement::categoryAreas: category=" << cat << "------"
+	      << std::endl;
+    std::cerr << "CSkeletonElement::categoryAreas: element=";
+    for(const CSkeletonNode *node : nodes)
+      std::cerr << " " << node->position();
+    std::cerr << std::endl;
+#endif // DEBUG
     result[cat] += bdys[cat]->clippedArea(edges);
   }
 // #ifdef DEBUG

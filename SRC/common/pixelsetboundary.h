@@ -37,13 +37,20 @@ typedef std::vector<Line> LineList;
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+class PBLBase {
+public:
+  virtual ~PBLBase() {}
+  virtual ClippedPixelBdyLoop *clip(const Line&) const = 0;
+  virtual double areaInPixelUnits() const = 0;
+};
+
 template <class CTYPE, class RTYPE>
-class PxlBdyLoopBase {
+class PxlBdyLoopBase : public PBLBase {
 protected:
   std::vector<CTYPE> loop;
   RTYPE *bounds;
   void pop_back() { loop.pop_back(); }
-  void prepend(PxlBdyLoopBase<CTYPE, RTYPE> &);
+  // void prepend(PxlBdyLoopBase<CTYPE, RTYPE> &);
 public:
   PxlBdyLoopBase() : bounds(nullptr) {}
   PxlBdyLoopBase(const std::vector<CTYPE>&, const RTYPE*);
@@ -53,14 +60,14 @@ public:
   const std::vector<CTYPE> &getLoop() const { return loop; }
   // clippedArea returns the area of the polygon formed by clipping
   // with all of the given lines.
-  double clippedArea(LineList::const_iterator, LineList::const_iterator) const;
-  double areaInPixelUnits() const;
-  // clip() returns a set of new loops that include the points to the
-  // left of the line (not just the segment) going from line.first to
+  double clippedArea(const LineList&) const;
+  virtual double areaInPixelUnits() const;
+  // clip() returns a new loop that includes the points to the left of
+  // the line (not just the segment) going from line.first to
   // line.second, which are Coords.  Usually called by clippedArea().
-  std::vector<ClippedPixelBdyLoop*> clip(const Line&) const;
-
-  virtual ClippedPixelBdyLoop *clone() const = 0;
+  // The new loop may contain degenerate or collinear antiparallel
+  // segments.
+  virtual ClippedPixelBdyLoop *clip(const Line&) const;
 };
 
 class PixelBdyLoop : public PxlBdyLoopBase<ICoord, ICRectangle> {
@@ -68,7 +75,6 @@ public:
   void add_point(const ICoord&);
   void clean(const CMicrostructure*);
   bool closed() const;
-  virtual ClippedPixelBdyLoop *clone() const;
 
   friend std::ostream& operator<<(std::ostream&, const PixelBdyLoop&);
   friend class PixelSetBoundary; // for debugging
@@ -79,13 +85,13 @@ public:
 class ClippedPixelBdyLoop : public PxlBdyLoopBase<Coord, CRectangle> {
 public:
   ClippedPixelBdyLoop();
-  ClippedPixelBdyLoop(const ClippedPixelBdyLoop*);
+  ClippedPixelBdyLoop(const PxlBdyLoopBase<ICoord, ICRectangle>*);
+  ClippedPixelBdyLoop(const PxlBdyLoopBase<Coord, CRectangle>*);
   // ClippedPixelBdyLoop(ClippedPixelBdyLoop&&); // Move constructor
-  virtual ClippedPixelBdyLoop *clone() const;
   Coord operator[](unsigned int k) const { return loop[k]; }
   void add(const Coord&);
   void add(const ICoord&);
-  void prepend(const ClippedPixelBdyLoop*);
+  // void prepend(const ClippedPixelBdyLoop*);
   void clear();
   friend std::ostream& operator<<(std::ostream&, const ClippedPixelBdyLoop&);
 };
