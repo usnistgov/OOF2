@@ -28,7 +28,7 @@ class PixelSetSubBoundary;
 
 class CMicrostructure;
 
-// Special classes for keeping track of the boundaries of pixel sets.
+// Classes for keeping track of the boundaries of pixel sets.
 
 typedef std::pair<Coord, Coord> Line;
 typedef std::set<ICoord> SegSet;
@@ -40,7 +40,7 @@ typedef std::vector<Line> LineList;
 class PBLBase {
 public:
   virtual ~PBLBase() {}
-  virtual ClippedPixelBdyLoop *clip(const Line&) const = 0;
+  virtual ClippedPixelBdyLoop clip(const Line&) const = 0;
   virtual double areaInPixelUnits() const = 0;
 };
 
@@ -50,25 +50,23 @@ protected:
   std::vector<CTYPE> loop;
   RTYPE *bounds;
   void pop_back() { loop.pop_back(); }
-  // void prepend(PxlBdyLoopBase<CTYPE, RTYPE> &);
 public:
   PxlBdyLoopBase() : bounds(nullptr) {}
   PxlBdyLoopBase(const std::vector<CTYPE>&, const RTYPE*);
-
+  PxlBdyLoopBase(const PxlBdyLoopBase<CTYPE, RTYPE>&);
+  PxlBdyLoopBase(PxlBdyLoopBase<CTYPE, RTYPE>&&);
+  PxlBdyLoopBase<CTYPE, RTYPE> &operator=(const PxlBdyLoopBase<CTYPE, RTYPE>&);
   virtual ~PxlBdyLoopBase() { delete bounds; }
   unsigned int size() const { return loop.size(); }
   const RTYPE *bbox() const { return bounds; }
   const std::vector<CTYPE> &getLoop() const { return loop; }
-  // clippedArea returns the area of the polygon formed by clipping
-  // with all of the given lines.
-  double clippedArea(const LineList&) const;
   virtual double areaInPixelUnits() const;
   // clip() returns a new loop that includes the points to the left of
   // the line (not just the segment) going from line.first to
   // line.second, which are Coords.  Usually called by clippedArea().
   // The new loop may contain degenerate or collinear antiparallel
   // segments.
-  virtual ClippedPixelBdyLoop *clip(const Line&) const;
+  virtual ClippedPixelBdyLoop clip(const Line&) const;
 };
 
 class PixelBdyLoop : public PxlBdyLoopBase<ICoord, ICRectangle> {
@@ -76,7 +74,9 @@ public:
   void add_point(const ICoord&);
   void clean(const CMicrostructure*);
   bool closed() const;
-
+  // clippedArea returns the area of the polygon formed by clipping
+  // with all of the given lines.
+  double clippedArea(const LineList&) const;
   friend std::ostream& operator<<(std::ostream&, const PixelBdyLoop&);
   friend class PixelSetBoundary; // for debugging
 };
@@ -88,17 +88,29 @@ public:
   ClippedPixelBdyLoop();
   ClippedPixelBdyLoop(const PxlBdyLoopBase<ICoord, ICRectangle>*);
   ClippedPixelBdyLoop(const PxlBdyLoopBase<Coord, CRectangle>*);
-  // ClippedPixelBdyLoop(ClippedPixelBdyLoop&&); // Move constructor
+  ClippedPixelBdyLoop(const ClippedPixelBdyLoop&);
+  ClippedPixelBdyLoop(ClippedPixelBdyLoop&&);
+  ClippedPixelBdyLoop &operator=(const ClippedPixelBdyLoop&);
   Coord operator[](unsigned int k) const { return loop[k]; }
   void add(const Coord&);
   void add(const ICoord&);
-  // void prepend(const ClippedPixelBdyLoop*);
   void clear();
   friend std::ostream& operator<<(std::ostream&, const ClippedPixelBdyLoop&);
 };
 
 std::ostream& operator<<(std::ostream&, const PixelBdyLoop&);
 std::ostream& operator<<(std::ostream&, const ClippedPixelBdyLoop&);
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// A PixelSetBoundary is a collection of PixelSetSubBoundarys, with
+// each subboundary covering a different part of the image.  The idea
+// is that the clipping algorithm will only look at subboundaries that
+// intersect an elements bounding box and won't spend time clipping
+// regions that are far from the element.  This optimization was
+// crucial in OOF3D, but appears not to be required in OOF2, so each
+// PixelSetBoundary currently has just one PixelSetSubBoundary, which
+// covers the entire image.
 
 class PixelSetSubBoundary {
 private:
