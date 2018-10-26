@@ -1,0 +1,2 @@
+OOF.File.LoadStartUp.Data(filename='circles.skel')
+OOF.Skeleton.Modify(skeleton='microstructure:skeleton', modifier=Anneal(targets=AllNodes(),criterion=AverageEnergy(alpha=0.3),T=0.0,delta=1.0,iteration=FixedIteration(iterations=50)))

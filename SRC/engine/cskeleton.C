@@ -340,7 +340,7 @@ DoubleVec CSkeletonElement::categoryAreas(const CMicrostructure &ms) const
 //       std::cerr << " " << node->position();
 //     std::cerr << std::endl;
 // #endif // DEBUG
-    result[cat] += bdys[cat]->clippedArea(edges);
+    result[cat] += bdys[cat]->clippedArea(edges, bbox());
   }
 // #ifdef DEBUG
 //   std::cerr << "CSkeletonElement::categoryAreas: result=";

@@ -814,7 +814,14 @@ class Skeleton(SkeletonBase):
         self.timestamp = timestamp.TimeStamp()
         self.left_right_periodicity = left_right_periodicity
         self.top_bottom_periodicity = top_bottom_periodicity
-        
+
+        # Recalculate the bin size for the pixel set boundaries.
+        ## TODO: Set this in a more sensible way.  Currently the
+        ## values are just determined by OOF.Skeleton.SetPSBbins,
+        ## which sets global values.
+        self.MS.setPSBbins(nPSBbinsx, nPSBbinsy);
+
+
         # When elements and nodes are deleted from the mesh, they
         # aren't immediately removed from the lists in the Skeleton.
         # They're only removed when cleanUp() is called.  washMe
@@ -2994,3 +3001,13 @@ class ProvisionalMerges(ProvisionalChanges):
         for pair in self.pairs:
             pair[0].makeSibling(pair[1])
         ProvisionalChanges.accept(self, skeleton)
+
+#############
+
+nPSBbinsx = 1
+nPSBbinsy = 1
+
+def setPSBbins(nx, ny):
+    global nPSBbinsx, nPSBbinsy
+    nPSBbinsx = nx
+    nPSBbinsy = ny

@@ -82,7 +82,8 @@ public:
     if(point(1) < ymin() || point(1) >= ymax()) return false;
     return true;
   }
-  bool intersects(const CRectangle_<VTYPE, CTYPE> &other) const {
+  template <class VTYPE2, class CTYPE2>
+  bool intersects(const CRectangle_<VTYPE2, CTYPE2> &other) const {
     if(upright(0) < other.lowleft(0)) return false;
     if(upright(1) < other.lowleft(1)) return false;
     if(lowleft(0) > other.upright(0)) return false;
@@ -118,6 +119,8 @@ public:
 
   virtual std::ostream &print(std::ostream&) const = 0;
 
+  // All CRectangle_s are friends.
+  template <typename VTYPE2, typename CTYPE2> friend class CRectangle_;
 };
 
 template <class VTYPE, class CTYPE>

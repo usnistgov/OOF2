@@ -319,6 +319,8 @@ typedef std::map<const std::vector<PixelAttribute*>, int,
 // within the CMicrostructure class, because this function (and the
 // lock) is private.
 void CMicrostructure::categorize() const {
+  std::cerr << "CMicrostructure::categorize: nbins=" << nbinsx << ", "
+	    << nbinsy << std::endl;
   groups_attributes_lock.read_acquire();
   CatMap catmap(ltAttributes);	// maps lists of groups to categories
   representativePixels.resize(0);
@@ -380,9 +382,10 @@ void CMicrostructure::categorize() const {
 
   // Find the boundaries.
   for(std::vector<PixelSetBoundary*>::iterator i = categoryBdys.begin();
-      i!=categoryBdys.end(); ++i ) {
-    (*i)->find_boundary();
-  }
+      i!=categoryBdys.end(); ++i )
+    {
+      (*i)->find_boundary();
+    }
  categorized = true;
  groups_attributes_lock.read_release();
 } // end CMicrostructure::categorize()

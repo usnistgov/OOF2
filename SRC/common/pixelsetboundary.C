@@ -88,8 +88,11 @@ static const ICoord iDown(0, -1);
 
 // Is the given point to the left of the given line?
 
+int countleft = 0;		// debugging
+
 template <class COORD>
 bool leftside(const COORD &pt, const Line &line) {
+  ++countleft;			// debugging
   return cross(line.second - line.first, pt - line.first) > 0.0;
 }
 
@@ -131,15 +134,14 @@ PixelSetBoundary::PixelSetBoundary(const CMicrostructure* ms, int nx, int ny)
   :  subBdys(nx*ny),
      microstructure(ms),
      nbinsx(nx), nbinsy(ny)
-{
-}
+{}
 
 void PixelSetBoundary::add_pixel(const ICoord &px) {
   // Find which bin the pixel contributes to.
   ICoord mssize = microstructure->sizeInPixels();
-  int ix = (px(0)/mssize(0))*nbinsx;
+  int ix = (px(0)/(double) mssize(0))*nbinsx;
   if(ix >= nbinsx) ix = nbinsx-1;
-  int iy = (px(1)/mssize(1))*nbinsy;
+  int iy = (px(1)/(double) mssize(1))*nbinsy;
   if(iy >= nbinsy) ix = nbinsy-1;
   // Add to the bin.
   subBdys[iy*nbinsx + ix].add_pixel(px);
@@ -153,14 +155,17 @@ void PixelSetBoundary::find_boundary() {
     psb.find_boundary(microstructure);
 }
 
-double PixelSetBoundary::clippedArea(const LineList &lines) const {
+double PixelSetBoundary::clippedArea(const LineList &lines,
+				     const CRectangle &bbox)
+  const
+{
 #ifdef DEBUG
   for(const Line &line : lines)
     assert(line.first != line.second);
 #endif // DEBUG
   double area = 0.0;
   for(const PixelSetSubBoundary &subbdy : subBdys) {
-    area += subbdy.clippedArea(lines);
+    area += subbdy.clippedArea(lines, bbox);
   }
   // Convert back to physical units
   Coord pxlsize = microstructure->sizeOfPixels();
@@ -317,10 +322,13 @@ PixelBdyLoop *PixelSetSubBoundary::find_loop(CoordMap &cm) {
   return loop;
 }
 
-double PixelSetSubBoundary::clippedArea(const LineList &lines) const {
+double PixelSetSubBoundary::clippedArea(const LineList &lines,
+					const CRectangle &bbox)
+  const
+{
   double area = 0.0;
   for(PixelBdyLoop *loop : loopset) {
-    area += loop->clippedArea(lines);
+    area += loop->clippedArea(lines, bbox);
   }
   return area;
 }
@@ -369,11 +377,16 @@ PxlBdyLoopBase<CTYPE, RTYPE> &PxlBdyLoopBase<CTYPE, RTYPE>::operator=(
   return *this;
 }
 
-double PixelBdyLoop::clippedArea(const LineList &lines) const {
+double PixelBdyLoop::clippedArea(const LineList &lines, const CRectangle &bbox)
+  const
+{
   // If there are no clipping lines, return the area of the loop.  If
   // there are lines, clip with the first one, creating new loops, and
   // call clippedArea() on those loops with the remaining lines.
   assert(!lines.empty());
+  assert(bounds != nullptr);
+  if(!bbox.intersects(*bounds))
+    return 0.0;
   ClippedPixelBdyLoop curloop(clip(lines[0]));
   for(unsigned int i=1; i<lines.size(); i++) {
     if(curloop.size() == 0) {
@@ -574,13 +587,6 @@ void ClippedPixelBdyLoop::add(const Coord &pt) {
 void ClippedPixelBdyLoop::add(const ICoord &pt) {
   add(Coord(pt(0), pt(1)));
 }
-
-// void ClippedPixelBdyLoop::prepend(const ClippedPixelBdyLoop *other) {
-//   loop.insert(loop.begin(), other->loop.begin(), other->loop.end());
-//   for(const Coord &pt : other->getLoop())
-//     bounds->swallow(pt);
-// }
-
 
 std::ostream &operator<<(std::ostream &os, const ClippedPixelBdyLoop &pbl) {
   return os << "ClippedPixelBdyLoop(" << pbl.loop << ")";

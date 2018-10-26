@@ -75,8 +75,9 @@ public:
   void clean(const CMicrostructure*);
   bool closed() const;
   // clippedArea returns the area of the polygon formed by clipping
-  // with all of the given lines.
-  double clippedArea(const LineList&) const;
+  // with all of the given lines.  The CRectangle is the polygon's
+  // bounding box.
+  double clippedArea(const LineList&, const CRectangle&) const;
   friend std::ostream& operator<<(std::ostream&, const PixelBdyLoop&);
   friend class PixelSetBoundary; // for debugging
 };
@@ -121,7 +122,7 @@ private:
   std::vector<PixelBdyLoop*> loopset;
   PixelBdyLoop *find_loop(CoordMap&);
   void find_boundary(const CMicrostructure*);
-  double clippedArea(const LineList&) const;
+  double clippedArea(const LineList&, const CRectangle &bbox) const;
 public:
   ~PixelSetSubBoundary();
   void add_pixel(const ICoord&);
@@ -147,13 +148,13 @@ public:
   void add_pixel(const ICoord&);
   void find_boundary();
 
-  double clippedArea(const LineList&) const;
+  double clippedArea(const LineList&, const CRectangle&) const;
   double area() const;
 };
 
 
 // For debugging....
 std::ostream& operator<<(std::ostream &, const PixelSetBoundary &);
-
+extern int countleft;
 
 #endif // PIXELSETBOUNDARY_H
