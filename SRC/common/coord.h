@@ -37,50 +37,41 @@ public:
 };
 
 class Coord: public Position {
+private:
+  double x[2];
 public:
-	// DIM dependent
-  Coord(double x0, double y0) : x(x0), y(y0) {} // For now, leave this so we can compile as we update everything else
-#if DIM == 2
-  double x, y;
-  Coord() : x(0.0), y(0.0) {}
-  inline double operator()(int i) const {return (i==0? x : y); }
-  inline double &operator()(int i) { return (i==0? x : y); }
-  inline Coord &operator+=(const Coord &c) { x+=c.x; y+=c.y; return *this; }
-  inline Coord &operator-=(const Coord &c) { x-=c.x; y-=c.y; return *this; }
-  Coord &operator*=(double f) { x*=f; y*=f; return *this; }
-  Coord &operator/=(double f) { x/=f; y/=f; return *this; }
-#elif DIM == 3
-  double x, y, z;
-  Coord() : x(0.0), y(0.0), z(0.0) {}
-  Coord(double x0, double y0, double z0) : x(x0), y(y0), z(z0) {}
-  inline double operator()(int i) const {
-		switch(i) {
-		case 0:
-			return x;
-		case 1:
-			return y;
-		default:
-			return z;
-		}
-	}
-  inline double &operator()(int i) { 
-		switch(i) {
-		case 0:
-			return x;
-		case 1:
-			return y;
-		default:
-			return z;
-		}
-	}
-  inline Coord &operator+=(const Coord &c) { x+=c.x; y+=c.y; z+=c.z; return *this; }
-  inline Coord &operator-=(const Coord &c) { x-=c.x; y-=c.y; z-=c.z; return *this; }
-  Coord &operator*=(double f) { x*=f; y*=f; z*=f; return *this; }
-  Coord &operator/=(double f) { x/=f; y/=f; z/=f; return *this; }
-	void writePointer(double pt[3]) { pt[0]=x; pt[1]=y; pt[2]=z; }
-#endif
-
-	// DIM independent
+  Coord() : x{0.0, 0.0} {}
+  Coord(double x0, double x1) { x[0] = x0; x[1] = x1; }
+  // TODO: Remove operator().  Use operator[] instead.
+  inline double operator()(int i) const { return x[i]; }
+  inline double &operator()(int i) { return x[i]; }
+  inline double operator[](int i) const {
+    assert(i==0 || i==1);
+    return x[i];
+  }
+  inline double &operator[](int i) {
+    assert(i==0 || i==1);
+    return x[i];
+  }
+  inline Coord &operator+=(const Coord &c) {
+    x[0]+=c[0];
+    x[1]+=c[1];
+    return *this;
+  }
+  inline Coord &operator-=(const Coord &c) {
+    x[0]-=c[0];
+    x[1]-=c[1];
+    return *this;
+  }
+  Coord &operator*=(double f) {
+    x[0]*=f;
+    x[1]*=f;
+    return *this; }
+  Coord &operator/=(double f) {
+    x[0]/=f;
+    x[1]/=f;
+    return *this;
+  }
   Coord &operator+=(const ICoord&);
   Coord &operator-=(const ICoord&);
   virtual ~Coord() {}
@@ -89,13 +80,9 @@ public:
 
 
 inline bool operator<(const Coord &a, const Coord &b) {
-  if(a.x < b.x) return true;
-  if(a.x > b.x) return false;
-  if(a.y < b.y) return true;
-#if DIM == 3
-	if(a.y > b.y) return false;
-	if(a.z < b.z) return true;
-#endif
+  if(a[0] < b[0]) return true;
+  if(a[0] > b[0]) return false;
+  if(a[1] < b[1]) return true;
   return false;
 }
 
@@ -126,60 +113,29 @@ inline Coord operator*(double x, const Coord &a) {
   return b;
 }
 
-#if DIM==2
-
 template <class COORD1, class COORD2>
 inline double cross(const COORD1 &c1, const COORD2 &c2)
 {
   // return c1.x*c2.y - c1.y*c2.x;
-  return c1(0)*c2(1) - c1(1)*c2(0);
+  return c1[0]*c2[1] - c1[1]*c2[0];
 }
 
 inline bool operator==(const Coord &a, const Coord &b) {
-  return a.x == b.x && a.y == b.y;
+  return a[0] == b[0] && a[1] == b[1];
 }
 
 inline bool operator!=(const Coord &a, const Coord &b) {
-  return a.x != b.x || a.y != b.y;
+  return a[0] != b[0] || a[1] != b[1];
 }
 
 inline double dot(const Coord &c1, const Coord &c2) {
-  return c1.x*c2.x + c1.y*c2.y;
+  return c1[0]*c2[0] + c1[1]*c2[1];
 }
 
 inline double operator%(const Coord &c1, const Coord &c2)
 {
   return(cross(c1,c2));
 }
-
-#elif DIM==3
-
-inline double dot(const Coord &c1, const Coord &c2) {
-  return c1.x*c2.x + c1.y*c2.y + c1.z*c2.z;
-}
-
-inline Coord cross(const Coord &c1, const Coord &c2)
-{
-	Coord temp((c1.y*c2.z-c1.z*c2.y),
-		   (c1.z*c2.x-c1.x*c2.z),
-		   (c1.x*c2.y-c1.y*c2.x));
-	return temp;
-}
-
-inline bool operator==(const Coord &a, const Coord &b) {
-  return a.x == b.x && a.y == b.y && a.z == b.z;
-}
-
-inline bool operator!=(const Coord &a, const Coord &b) {
-  return a.x != b.x || a.y != b.y || a.z != b.z;
-}
-
-inline Coord operator%(const Coord &c1, const Coord &c2)
-{
-  return(cross(c1,c2));
-}
-
-#endif
 
 inline double norm2(const Coord &c) {
   return dot(c, c);
@@ -195,40 +151,30 @@ protected:
   int x[DIM];
 public:
   virtual ~ICoord() {}
-
-  // functions with DIM dependent prototypes
-	//#if DIM == 2
-  ICoord(int x0, int x1) { x[0] = x0; x[1] = x1; } //Keep available for now
-#if DIM==3
-  ICoord(int x0, int x1, int x2) { x[0] = x0; x[1] = x1; x[2] = x2; }
-#endif
-
-  ICoord() { for(int i=0; i<DIM; i++) x[i]=0; } //x[0] = x[1] = 0; }
+  ICoord(int x0, int x1) { x[0] = x0; x[1] = x1; }
+  ICoord() { x[0] = 0; x[1] = 0; }
+  // TODO: Remove operator().  Use operator[] instead.
   inline int operator()(int i) const { return x[i]; }
   inline int &operator()(int i) { return x[i]; }
+  inline int operator[](int i) const { return x[i]; }
+  inline int &operator[](int i) { return x[i]; }
   ICoord &operator+=(const ICoord &c) {
-    // TODO: Expand this loop.
-    for(int i=0; i<DIM; i++)
-      x[i] += c(i);
+    x[0] += c[0];
+    x[1] += c[1];
     return *this;
   }
   ICoord &operator-=(const ICoord &c) {
-    // TODO: Expand this loop.
-    for(int i=0; i<DIM; i++)	
-      x[i] -= c(i);
+    x[0] -= c[0];
+    x[1] -= c[1];
     return *this;
   }
   ICoord &operator*=(int y) {
-    // TODO: Expand this loop.
-    for(int i=0; i<DIM; i++)	
-      x[i] *= y;
+    x[0] *= y;
+    x[1] *= y;
     return *this;
   }
   friend bool operator==(const ICoord&, const ICoord&);
   friend bool operator!=(const ICoord&, const ICoord&);
-#if DIM==3
-	void writePointer(double pt[3]) { pt[0]=(double)x[0]; pt[1]=(double)x[1]; pt[2]=(double)x[2]; }
-#endif
 };
 
 std::ostream &operator<<(std::ostream&, const ICoord&);
@@ -277,82 +223,40 @@ inline ICoord operator*(const ICoord &a, int x) {
 }
 
 inline Coord operator*(const ICoord &a, double x) {
-#if DIM == 2
   Coord b(a(0), a(1));
-#elif DIM == 3
-	Coord b(a(0), a(1), a(2));
-#endif
   b *= x;
   return b;
 }
 
-#if DIM == 2
 inline bool operator==(const ICoord &a, const ICoord &b) {
-	return a.x[0] == b.x[0] && a.x[1] == b.x[1];
+  return a[0] == b[0] && a[1] == b[1];
 }
 
 inline bool operator!=(const ICoord &a, const ICoord &b) {
-	return a.x[0] != b.x[0] || a.x[1] != b.x[1];
+  return a[0] != b[0] || a[1] != b[1];
 }
 
 inline bool operator!=(const ICoord &a, const Coord &b) {
-	return a(0) != b.x || a(1) != b.y;
+  return a[0] != b[0] || a[1] != b[1];
 }
-
-#elif DIM == 3
-inline bool operator==(const ICoord &a, const ICoord &b) {
-	return a.x[0] == b.x[0] && a.x[1] == b.x[1] && a.x[2] == b.x[2];
-}
-
-inline bool operator!=(const ICoord &a, const ICoord &b) {
-	return a.x[0] != b.x[0] || a.x[1] != b.x[1] || a.x[2] != b.x[2];
-}
-
-inline bool operator!=(const ICoord &a, const Coord &b) {
-	return a(0) != b.x || a(1) != b.y || a(2) != b.z;
-}
-#endif
 
 inline int dot(const ICoord &c1, const ICoord &c2) {
-	int dotproduct = 0;
-	for(int i=0; i<DIM; i++)	
-		dotproduct += c1(i)*c2(i);
-	return dotproduct;
+  return c1[0]*c2[0] + c1[1]*c2[1];
 }
 
 inline double dot(const Coord &c1, const ICoord &c2) {
-	double dotproduct = 0;
-	for(int i=0; i<DIM; i++)	
-		dotproduct += c1(i)*(double)c2(i);
-	return dotproduct;
+  return c1[0]*c2[0] + c1[1]*c2[1];
 }
 
 inline int norm2(const ICoord &c) {
   return dot(c, c);
 }
 
-bool operator<(const ICoord &a, const ICoord &b);
-
-
-
-//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
-
-// // Utility segment class -- contains a directed pair of points,
-// // and can compute the area it sweeps out relative to some
-// // other point.
-// class CoordSegment {
-// private:
-//   Coord start, end;
-// public:
-//   CoordSegment() {}
-//   CoordSegment(Coord p1, Coord p2) : start(p1), end(p2) {}
-//   double area(const Coord &) const;
-//   bool operator<(const CoordSegment &) const;
-// };
-
-
-
-
-
+inline bool operator<(const ICoord &a, const ICoord &b) {
+  if(a[0] < b[0]) return true;
+  if(a[0] > b[0]) return false;
+  if(a[1] < b[1]) return true;
+  return false;
+}
 
 #endif // COORD_H

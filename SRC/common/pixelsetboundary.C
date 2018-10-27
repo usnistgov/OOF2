@@ -169,7 +169,7 @@ double PixelSetBoundary::clippedArea(const LineList &lines,
   }
   // Convert back to physical units
   Coord pxlsize = microstructure->sizeOfPixels();
-  return area * pxlsize.x * pxlsize.y;
+  return area * pxlsize[0] * pxlsize[1];
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -454,6 +454,7 @@ ClippedPixelBdyLoop PxlBdyLoopBase<CTYPE, RTYPE>::clip(const Line &line)
   bool keepprev = leftside(loop.back(), line);
   unsigned int iprev = n - 1;
   ClippedPixelBdyLoop newloop;
+  newloop.reserve(loop.size());
   for(unsigned int i=0; i<n; i++) {
     bool keepthis = leftside(loop[i], line);
     if(keepthis) {

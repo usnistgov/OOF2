@@ -66,9 +66,9 @@ void NonlinearHeatSourceNoDeriv::force_value(const FEMesh *mesh,
   coord = element->from_master( pt );
 
 #if DIM==2
-  sourceVal = nonlin_heat_source( coord.x, coord.y, 0.0, time, fieldVal );
+  sourceVal = nonlin_heat_source( coord[0], coord[1], 0.0, time, fieldVal );
 #elif DIM==3
-  sourceVal = nonlin_heat_source( coord.x, coord.y, coord.z, time, fieldVal );
+  sourceVal = nonlin_heat_source( coord[0], coord[1], coord.z, time, fieldVal );
 #endif
 
   eqndata->force_vector_element(0) = -sourceVal;
@@ -102,10 +102,10 @@ void NonlinearHeatSource::force_deriv_matrix(const FEMesh   *mesh,
   coord = element->from_master( point );
 
 #if DIM==2
-  funcDerivVal = nonlin_heat_source_deriv_wrt_temperature( coord.x, coord.y, 0.0,
+  funcDerivVal = nonlin_heat_source_deriv_wrt_temperature( coord[0], coord[1], 0.0,
 							   time, fieldVal );
 #elif DIM==3
-  funcDerivVal = nonlin_heat_source_deriv_wrt_temperature( coord.x, coord.y, coord.z,
+  funcDerivVal = nonlin_heat_source_deriv_wrt_temperature( coord[0], coord[1], coord.z,
 							   time, fieldVal );
 #endif
 

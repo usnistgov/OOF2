@@ -60,6 +60,7 @@ public:
   unsigned int size() const { return loop.size(); }
   const RTYPE *bbox() const { return bounds; }
   const std::vector<CTYPE> &getLoop() const { return loop; }
+  void reserve(int n) { loop.reserve(n); }
   virtual double areaInPixelUnits() const;
   // clip() returns a new loop that includes the points to the left of
   // the line (not just the segment) going from line.first to

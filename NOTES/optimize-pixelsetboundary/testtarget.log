@@ -1,7 +1,7 @@
-filename='targets90.jpg'
-skelsize=4
-iterations=100
-nbins=1
+filename='targets22s.jpg'
+skelsize=10
+iterations=30
+nbins=8
 OOF.Settings.Random_Seed(seed=31415)
 OOF.Microstructure.Create_From_ImageFile(filename=filename, microstructure_name='microstructure', height=automatic, width=automatic)
 OOF.Image.AutoGroup(image='microstructure:'+filename, name_template='%c')

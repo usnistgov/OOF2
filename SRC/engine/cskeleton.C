@@ -88,9 +88,9 @@ bool CSkeletonNode::moveTo(const Coord *pos) {
   lastposition_ = position_;
   position_ = *pos;
   if(!movable_x()) 
-    position_.x = lastposition_.x;
+    position_[0] = lastposition_[0];
   if(!movable_y())
-    position_.y = lastposition_.y;
+    position_[1] = lastposition_[1];
   if(position_ != lastposition_) {
     ++nodemoved;
     return true;
@@ -100,8 +100,8 @@ bool CSkeletonNode::moveTo(const Coord *pos) {
 
 
 bool CSkeletonNode::canMoveTo(const Coord *pos) const {
-  return ((movable_x() || position_.x == pos->x) &&
-	  (movable_y() || position_.y == pos->y));
+  return ((movable_x() || position_[0] == (*pos)[0]) &&
+	  (movable_y() || position_[1] == (*pos)[1]));
 }
 
 
@@ -118,9 +118,9 @@ bool CSkeletonNode::moveBy(const Coord *shift) {
   Coord target = position_ + *shift;
   position_ = target;
   if(!movable_x())
-    position_.x = lastposition_.x;
+    position_[0] = lastposition_[0];
   if(!movable_y())
-    position_.y = lastposition_.y;
+    position_[1] = lastposition_[1];
   if(position_ != lastposition_) {
     ++nodemoved;
     return true;
@@ -140,9 +140,9 @@ bool CSkeletonNode::canMergeWith(const CSkeletonNode *other) const {
   if(!xmovable && !ymovable)
     return false;
   else if(!xmovable && ymovable)
-    return position_.x == other->position_.x;
+    return position_[0] == other->position_[0];
   else if(xmovable && !ymovable)
-    return position_.y == other->position_.y;
+    return position_[1] == other->position_[1];
   return true;
 }
 

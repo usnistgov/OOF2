@@ -95,16 +95,16 @@ void SimpleTension::force_value(const FEMesh *mesh,
   int ndi=0;
   for(CleverPtr<ElementFuncNodeIterator> efi(element->funcnode_iterator());
       !efi->end(); ++*efi) {
-    u[ndi].x = ((*disp)(efi->funcnode(),0))->value(mesh);
-    u[ndi].y = ((*disp)(efi->funcnode(),1))->value(mesh);
+    u[ndi][0] = ((*disp)(efi->funcnode(),0))->value(mesh);
+    u[ndi][1] = ((*disp)(efi->funcnode(),1))->value(mesh);
     dphi[ndi] = efi->masterderiv(0,pt);
     ++ndi;
   }
   
   Coord dstrn(delta_r);
   for(int i=0;i<nnodes;++i) {
-    dstrn.x += u[i].x*dphi[i];
-    dstrn.y += u[i].y*dphi[i];
+    dstrn[0] += u[i][0]*dphi[i];
+    dstrn[1] += u[i][1]*dphi[i];
   }
   
   double normalization= 1.0/sqrt(dot(dstrn,dstrn));

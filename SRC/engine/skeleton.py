@@ -821,7 +821,6 @@ class Skeleton(SkeletonBase):
         ## which sets global values.
         self.MS.setPSBbins(nPSBbinsx, nPSBbinsy);
 
-
         # When elements and nodes are deleted from the mesh, they
         # aren't immediately removed from the lists in the Skeleton.
         # They're only removed when cleanUp() is called.  washMe

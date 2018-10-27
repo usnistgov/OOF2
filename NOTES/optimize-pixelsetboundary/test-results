@@ -167,11 +167,11 @@ features about the same size as targets7s.jpg
 
 targets22s.jpg, 318x292 pixels
 just a scaled down version of targets22.jpg
-4x4    1x1    100   2.36    42686934
+4x4    1x1    100   2.36    42686934  (2.05 after reserving space in loop)
        2x2    	    2.34    30071735
        4x4	    2.34    22644521
        6x6	    2.35    18756696
-       8x8	    2.34    17134520
+       8x8	    2.34    17134520  (2.04 after reserving space)
       10x10	    2.34    16772682
       15x15	    2.64    15247251
       20x20	    2.93    16389922
@@ -181,9 +181,9 @@ just a scaled down version of targets22.jpg
        2x2     	    2.95    37440424
        4x4	    2.95    23080486
        5x5	    2.95    19602088
-       6x6	    2.65    17056283  repeat: 2.96, 2.97, 2.96
+       6x6	    2.65    17056283  repeat: 2.96 2.97 2.96
        7x7	    2.95    15366681
-       8x8	    2.95    14133665
+       8x8	    2.95    14133665  (2.65 after reserving space)
       10x10	    2.95    13513748
       15x15	    3.25    10648606
       20x20	    3.27    10585097
@@ -196,7 +196,7 @@ features are about as big as in targets7.jpg
        2x2    	    3.57    72742391
        4x4	    3.56    54118519
        5x5	    3.25    47930714
-       6x6	    3.25    43596814  repeat: 3.25, 3.26, 3.26
+       6x6	    3.25    43596814  repeat: 3.25 3.26 3.26
        7x7	    3.26    41667468
        8x8	    3.54    37539498
       10x10	    3.56    35351772
@@ -210,8 +210,50 @@ features are about as big as in targets7.jpg
        4x4	    3.88    61701522
        6x6	    3.87    43861517
        8x8	    3.87    34418977
-      10x10	    3.87    30344824
+      10x10	    3.87    30344824  (3.57 after reserving space in loop)
       12x12	    3.85    25518149
       15x15	    3.87    22718761  repeat: 3.86
-      20x20	    4.17    20397692
+      20x20	    4.17    20397692  (3.87 after reserving space in loop)
       50x50	    6.89    21867464
+
+targets90.jpg, 613x584 pixels
+features are half the linear size as those in targets22.jpg
+4x4    1x1    100   5.36    11443070
+       2x2    	    4.76    73979463
+       4x4	    4.46    57550101
+       6x6	    4.46    55310211
+       8x8	    4.47    48576623
+      10x10	    4.46    46337301
+      12x12	    4.75    43415702  repeat: 4.76 4.46 4.77
+      15x15	    4.76    41501972
+      20x20	    5.36    40313507
+      50x50	    8.40    53032635
+
+10x10  1x1     30   5.97   171995823  (5.08 after reserving space in loop)
+       2x2     	    4.78    83384435
+       4x4	    4.48    54585810
+       6x6	    4.48    45072237
+       8x8	    4.46    37841402
+      10x10	    4.48    31547115  (3.87 after reserving space in loop)
+      12x12	    4.46    30971894  repeat: 4.47 4.46 4.76
+      15x15	    4.47    27981636  repeat: 4.46 4.48 4.78
+      16x16	    4.76    27278993  repeat: 4.47 4.78 4.76
+      17x17	    4.79    26418590
+      20x20	    4.80    24547004
+      50x50	    7.21    25792423 (no change after reserving)
+
+
+Changing Coord so that it stores values as double x[2] instead of
+separate .x and .y, so that operator[] doesn't require an "if" makes
+clipping much faster! 
+
+Conclusions:
+
+Running time is noticeably worse if the bin size is too large or too
+small, but the minimum is quite broad.
+
+A bin size that is roughly equal to the element size is always within
+the broad mininum.
+
+Set the bin size equal to the average element size, and change it only
+if the average element size changes by a lot.
