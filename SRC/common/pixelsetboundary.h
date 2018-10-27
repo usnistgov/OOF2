@@ -68,6 +68,9 @@ public:
   // The new loop may contain degenerate or collinear antiparallel
   // segments.
   virtual ClippedPixelBdyLoop clip(const Line&) const;
+
+  friend std::ostream operator<<(std::ostream&,
+				 const PxlBdyLoopBase<CTYPE, RTYPE>&);
 };
 
 class PixelBdyLoop : public PxlBdyLoopBase<ICoord, ICRectangle> {

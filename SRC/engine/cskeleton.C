@@ -316,10 +316,6 @@ DoubleVec CSkeletonElement::categoryAreas(const CMicrostructure &ms) const
   DoubleVec result(ncat);
   int nn = nodes.size();
 
-  // Get positions of nodes in pixel coordinates.
-  Coord element_points[nn];
-  for(unsigned int i=0; i<nn; i++)
-    element_points[i] = ms.physical2Pixel(nodes[i]->position());
   // Create list of lines that will be used to clip the pixel set boundaries.
   LineList edges(nn);
   std::vector<Coord> npos(nn);	// node positions in pixel coordinates
@@ -328,6 +324,10 @@ DoubleVec CSkeletonElement::categoryAreas(const CMicrostructure &ms) const
   for(unsigned int i=0; i<nn; i++) {
     edges[i] = Line(npos[i], npos[(i+1)%nn]);
   }
+  // Get element bounding box in pixel coordinates
+  CRectangle pbbox(npos[0], npos[1]);
+  for(unsigned int i=2; i<nn; i++)
+    pbbox.swallow(npos[i]);
   // Get all the pixel set boundaries.
   const std::vector<PixelSetBoundary*> &bdys = ms.getCategoryBdys();
   
@@ -340,7 +340,7 @@ DoubleVec CSkeletonElement::categoryAreas(const CMicrostructure &ms) const
 //       std::cerr << " " << node->position();
 //     std::cerr << std::endl;
 // #endif // DEBUG
-    result[cat] += bdys[cat]->clippedArea(edges, bbox());
+    result[cat] += bdys[cat]->clippedArea(edges, pbbox);
   }
 // #ifdef DEBUG
 //   std::cerr << "CSkeletonElement::categoryAreas: result=";
@@ -423,7 +423,7 @@ HomogeneityData CSkeletonElement::c_homogeneity(const CMicrostructure &ms)
 
 // #ifdef DEBUG
 //   std::cerr << "CSkeletonElement::c_homogeneity: areas=";
-//   for(double a : *areas) std::cerr << " " << a;
+//   for(double a : areas) std::cerr << " " << a;
 //   std::cerr << std::endl;
 // #endif // DEBUG
   

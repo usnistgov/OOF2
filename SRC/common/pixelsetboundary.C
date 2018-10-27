@@ -134,7 +134,8 @@ PixelSetBoundary::PixelSetBoundary(const CMicrostructure* ms, int nx, int ny)
   :  subBdys(nx*ny),
      microstructure(ms),
      nbinsx(nx), nbinsy(ny)
-{}
+{
+}
 
 void PixelSetBoundary::add_pixel(const ICoord &px) {
   // Find which bin the pixel contributes to.
@@ -385,8 +386,9 @@ double PixelBdyLoop::clippedArea(const LineList &lines, const CRectangle &bbox)
   // call clippedArea() on those loops with the remaining lines.
   assert(!lines.empty());
   assert(bounds != nullptr);
-  if(!bbox.intersects(*bounds))
+  if(!bbox.intersects(*bounds)) {
     return 0.0;
+  }
   ClippedPixelBdyLoop curloop(clip(lines[0]));
   for(unsigned int i=1; i<lines.size(); i++) {
     if(curloop.size() == 0) {
@@ -481,6 +483,14 @@ ClippedPixelBdyLoop PxlBdyLoopBase<CTYPE, RTYPE>::clip(const Line &line)
   } // end loop over points i
 
   return newloop;
+}
+
+template <class CTYPE, class RTYPE>
+std::ostream &operator<<(std::ostream &os,
+			 const PxlBdyLoopBase<CTYPE, RTYPE> &pbl)
+{
+  os << pbl.data;
+  return os;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
