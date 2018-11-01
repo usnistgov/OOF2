@@ -49,6 +49,7 @@
 // out		ICoord		ICoord -> iPoint
 // out		ICoordVec*	std::vector<ICoord>* -> [iPoint]
 // out		IntVec*		std::vector<int>* -> [Int]
+// out          IntPair        std::pair<int, int> -> (int, int)
 // out		ShortVec*	std::vector<unsigned short>* -> [Int]
 // out		PointVec*	std::vector<Coord>* -> [Point]
 // out          Progress*       Progress* -> derived classes
@@ -99,6 +100,7 @@ typedef std::vector<double> DoubleList;
 typedef std::vector<int> IntVec;
 typedef std::vector<std::string> StringVec;
 typedef std::vector<unsigned short> ShortVec;
+typedef std::pair<int, int> IntPair;
 using std::string;
 %}
 
@@ -301,6 +303,16 @@ using std::string;
   }
   $target = &argh;
 }
+
+%typemap(python, out) IntPair* {
+  // typemap(python, out) IntPair
+  $target = Py_BuildValue("ii", $source->first, $source->second);
+}
+
+%typemap(python, newfree) IntPair* {
+  // typemap(python, newfree) IntPair*
+  delete $source;
+ }
 
 // This is an example of the Right Way To Do Copy-Out Typemaps:
 // The wrapped function should return a pointer to a vector of 

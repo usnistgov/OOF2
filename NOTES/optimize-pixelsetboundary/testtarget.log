@@ -1,7 +1,7 @@
-filename='targets22s.jpg'
+filename='targets22.jpg'
 skelsize=10
 iterations=30
-nbins=8
+#nbins=50
 OOF.Settings.Random_Seed(seed=31415)
 OOF.Microstructure.Create_From_ImageFile(filename=filename, microstructure_name='microstructure', height=automatic, width=automatic)
 OOF.Image.AutoGroup(image='microstructure:'+filename, name_template='%c')
@@ -12,7 +12,7 @@ OOF.PixelGroup.AddSelection(microstructure='microstructure', group='black')
 OOF.PixelGroup.New(name='white', microstructure='microstructure')
 OOF.PixelSelection.Color_Range(microstructure='microstructure', image='microstructure:'+filename, reference=Gray(value=1.0), range=DeltaGray(delta_gray=0.0793651))
 OOF.PixelGroup.AddSelection(microstructure='microstructure', group='white')
-OOF.Skeleton.SetPSBbins(nx=nbins,ny=nbins)
+#OOF.Skeleton.SetPSBbins(nx=nbins,ny=nbins)
 OOF.Skeleton.New(name='skeleton', microstructure='microstructure', x_elements=skelsize, y_elements=skelsize, skeleton_geometry=TriSkeleton(arrangement='moderate',left_right_periodicity=False,top_bottom_periodicity=False))
 import timeit
 print "%12.3g seconds" % timeit.timeit(

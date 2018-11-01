@@ -163,6 +163,7 @@ public:
   const TimeStamp &getTimeStamp() const;
 
   void setPSBbins(int, int);
+  std::pair<int, int> *getPSBbins() const;
 
   void setCurrentActiveArea(ActiveArea *aa) { activearea = aa; }
   const ActiveArea *getActiveArea() const { return activearea; }

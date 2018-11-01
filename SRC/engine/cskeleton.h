@@ -125,6 +125,7 @@ public:
   Coord frommaster(MasterCoord *mc, int rotation) const; // convert master coord
   Coord center() const;		// average position of nodes
   CRectangle bbox() const;
+  Coord size() const;
   virtual bool interior(const Coord*) const = 0; // is the given point inside?
 private:
   HomogeneityData c_homogeneity(const CMicrostructure&) const; // see below

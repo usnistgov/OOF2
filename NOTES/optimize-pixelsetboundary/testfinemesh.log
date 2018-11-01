@@ -1,0 +1,58 @@
+# -*- python -*-
+skelfile = 'finemesh.skel'
+skelfile = 'sizedistribution2.skel'
+iterations = 30
+nbins = 15
+#nbins = automatic
+OOF.Settings.Random_Seed(seed=31415)
+OOF.Skeleton.SetPSBbins(nx=nbins,ny=nbins)
+OOF.File.LoadStartUp.Data(filename=skelfile)
+import timeit
+print "%12.3g seconds" % timeit.timeit(
+    stmt="OOF.Skeleton.Modify(skeleton='small.ppm:skeleton', modifier=Anneal(targets=AllNodes(),criterion=AverageEnergy(alpha=0.3),T=0.0,delta=1.0,iteration=FixedIteration(iterations=iterations)))",
+    setup="from __main__ import OOF, Anneal, AllNodes, AverageEnergy, FixedIteration, iterations",
+    number=1)		
+
+# Running on stevens:  oof2 --script testfinemesh.log --batch
+# finemesh.skel, 30 iterations
+# nbins        time
+#   1           6.29
+#   2           5.69
+#   4           5.98
+#   8           6.28
+#  10           6.58
+#  15           7.19
+#  17           7.48
+#  17           7.50  automatic.  Far from optimal
+#  20           8.40
+#  30          11.1
+
+# Automatic choice is far from optimal.
+
+# sizedistribution.skel, 100 iterations
+# small.ppm, 4x4 skeleton refined multiple times on left edge.
+# Refinement didn't use homogeneity at all.
+#   1           5.67
+#   2           5.07
+#   4           5.08
+#   6           5.07
+#   8           5.37
+#   8x12        5.38  automatic.  Not too bad.
+#  10           5.68
+#  15           6.28
+#  20           6.90
+#  30           8.40
+
+# sizedistribution2.skel, 30 iterations.
+# One more trisection of elements on left edge.
+#   1           5.68
+#   2           5.08
+#   3           5.09
+#   4           4.77, 4.78
+#   5           5.08
+#   6           5.06
+#   8           5.09
+#  10           5.10
+#  15           5.67
+#  24x37        7.48, 7.21  automatic.  Far from optimal.
+

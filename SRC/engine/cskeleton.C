@@ -303,6 +303,11 @@ CRectangle CSkeletonElement::bbox() const {
   return bounds;
 }
 
+Coord CSkeletonElement::size() const {
+  CRectangle bb(bbox());
+  return bb.upperright() - bb.lowerleft();
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Returns a vector of doubles.  Each double in this vector is equal

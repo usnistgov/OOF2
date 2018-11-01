@@ -319,8 +319,8 @@ typedef std::map<const std::vector<PixelAttribute*>, int,
 // within the CMicrostructure class, because this function (and the
 // lock) is private.
 void CMicrostructure::categorize() const {
-  std::cerr << "CMicrostructure::categorize: nbins=" << nbinsx << ", "
-	    << nbinsy << std::endl;
+  std::cerr << "CMicrostructure::categorize: nbinsx=" << nbinsx
+	    << " nbinsy=" << nbinsy << std::endl;
   groups_attributes_lock.read_acquire();
   CatMap catmap(ltAttributes);	// maps lists of groups to categories
   representativePixels.resize(0);
@@ -532,11 +532,33 @@ void CMicrostructure::recategorize() {
 }
 
 void CMicrostructure::setPSBbins(int nx, int ny) {
-  if(nx != nbinsx || ny != nbinsy) {
-    nbinsx = nx;
-    nbinsy = ny;
-    recategorize();
-  }
+  std::cerr << "CMicrostructure::setPSBbins: requested bin numbers "
+	    << nx << " " << ny << std::endl;
+  assert(nx > 0 && ny > 0);
+  // 1/MAX_BIN_FACTOR is the minimum number of pixels on an edge of a bin.
+#define MAX_BIN_FACTOR 0.25
+  // The bins aren't recomputed if the fractional change from the previous
+  // setting is between 1-MIN_BIN_DELTA and 1+MIN_BIN_DELTA.
+#define MIN_BIN_DELTA 0.33
+  int maxxbins = pxlsize_[0]*MAX_BIN_FACTOR;
+  int maxybins = pxlsize_[1]*MAX_BIN_FACTOR;
+  nx = min(nx, maxxbins);
+  ny = min(ny, maxybins);
+  if(nx < nbinsx*(1-MIN_BIN_DELTA) || nx > nbinsx*(1+MIN_BIN_DELTA) ||
+     ny < nbinsy*(1-MIN_BIN_DELTA) || ny > nbinsy*(1+MIN_BIN_DELTA))
+    {
+      nbinsx = nx;
+      nbinsy = ny;
+      std::cerr << "CMicrostructure::setPSBbins: new bin numbers "
+		<< nx << " " << ny << std::endl;
+      recategorize();
+    }
+}
+
+std::pair<int, int> *CMicrostructure::getPSBbins() const {
+  // SWIG requires a pointer.  If we just return the std::pair, SWIG
+  // allocates a copy and doesn't delete it.
+  return new std::pair<int, int>(nbinsx, nbinsy);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

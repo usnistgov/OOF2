@@ -525,10 +525,13 @@ class FiddleNodes:
             # coreProcess.
             self.coreProcess(context)
             self.updateIteration(prog)
+            skeleton.updateGeometry()
+            switchboard.notify("skeleton homogeneity changed", context.path())
 
             if prog.stopped():
                 break
 
+        
         switchboard.notify("skeleton nodes moved", context)
         if prog.stopped():
             self.targets.cleanUp()
