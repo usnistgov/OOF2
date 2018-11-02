@@ -34,7 +34,7 @@ typedef std::vector<const EdgeNodeDistance*> vecdist;
    edgeset.spy.  See additional comments there. */
 %typemap(python,out) vecdist * {
   vecdist::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   char _ptemp[128];
   for(std::vector<const EdgeNodeDistance*>::size_type i=0; i<sz ;i++)

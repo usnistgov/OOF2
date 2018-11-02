@@ -75,7 +75,7 @@ typedef std::vector<GaussPoint*> GaussPointVec;
     pyOne = PyInt_FromLong(1);
   }
   GaussPointVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   char _ptemp[128];
   for(std::vector<GaussPoint*>::size_type i=0; i<sz; i++) {
@@ -117,7 +117,7 @@ typedef std::vector<GaussPoint*> GaussPointVec;
     pyOne = PyInt_FromLong(1);
   }
   MasterCoordVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   char _ptemp[128];
   for(std::vector<MasterCoord*>::size_type i=0; i<sz; i++) {
@@ -259,7 +259,7 @@ typedef std::vector<GaussPoint*> GaussPointVec;
     pyOne = PyInt_FromLong(1);
   }
   SymmMatrix3StarVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   char _ptemp[128];
   for(std::vector<SymmMatrix3*>::size_type i=0; i<sz; i++) {
@@ -380,7 +380,7 @@ typedef std::vector<GaussPoint*> GaussPointVec;
     if(!getField) return 0;
   }
   CompoundFieldVec::size_type sz = $source->size();
-  assert((int) sz >= PY_SSIZE_T_MIN && (int) sz <= PY_SSIZE_T_MAX);
+  // assert((int) sz >= PY_SSIZE_T_MIN && (int) sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   for(std::vector<CompoundField*>::size_type i=0; i<sz; i++) {
     PyObject *arg = Py_BuildValue("(s)", (*$source)[i]->name().c_str() );
@@ -410,7 +410,7 @@ typedef std::vector<GaussPoint*> GaussPointVec;
 %typemap(python, out) EquationVec * {
   // typemap(python, out) EquationVec*
   EquationVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   for(std::vector<Equation*>::size_type i=0; i<sz; i++) {
     // pythonObject() returns a new reference and PyList_SET_ITEM steals it.
@@ -443,7 +443,7 @@ typedef std::vector<GaussPoint*> GaussPointVec;
 %typemap(python, out) FluxVec * {
   // typemap(python, out) FluxVec*
   FluxVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   for(FluxVec::size_type i=0; i<sz; i++) {
     PyObject *flux = (*$source)[i]->pythonObject();
@@ -478,7 +478,7 @@ typedef std::vector<GaussPoint*> GaussPointVec;
     pyOne = PyInt_FromLong(1);
   }
   EdgeVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   char _ptemp[128];
   for(std::vector<Edge*>::size_type i=0; i<sz; i++) {
@@ -514,7 +514,7 @@ typedef std::vector<GaussPoint*> GaussPointVec;
     pyOne = PyInt_FromLong(1);
   }
   OutputValueVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   for(OutputValueVec::size_type i=0; i<sz; i++) {
     // Don't use valuePtr() or valueRef() here, because the OutputVals
@@ -604,7 +604,7 @@ typedef std::vector<GaussPoint*> GaussPointVec;
     Py_XINCREF(getMaterial);
   }
   MaterialVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   for(std::vector<const Material*>::size_type i=0; i<$source->size(); i++) {
     PyObject *name = Py_BuildValue("(s)", (*$source)[i]->name().c_str());

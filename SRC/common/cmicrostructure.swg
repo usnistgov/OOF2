@@ -35,8 +35,8 @@ typedef Array<int> ArrayInt;
    // typemap(python, out) ArrayInt*
   int h = $source->height();
   int w = $source->width();
-  assert(h >= PY_SSIZE_T_MIN && h <= PY_SSIZE_T_MAX);
-  assert(w >= PY_SSIZE_T_MIN && w <= PY_SSIZE_T_MAX);
+  // assert(h >= PY_SSIZE_T_MIN && h <= PY_SSIZE_T_MAX);
+  // assert(w >= PY_SSIZE_T_MIN && w <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) h);
 #ifndef DIM_3
   for(int j=0; j<h; j++) {
@@ -49,7 +49,7 @@ typedef Array<int> ArrayInt;
   }
 #else
   int d = $source->depth();
-  assert(d >= PY_SSIZE_T_MIN && d <= PY_SSIZE_T_MAX);
+  // assert(d >= PY_SSIZE_T_MIN && d <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) h);
   for(int k=0; k<h; k++) {
     PyObject *slice = PyList_New((Py_ssize_t) w);
