@@ -547,7 +547,7 @@ static MaterialAttributeRegistration *matattrreg;
 
 // MatMap counts how many times each Material is used in the
 // Microstructure.
-typedef std::map<const Material*, int, ltidobject> MatMap;
+typedef std::map<const Material*, int, ltidobject<Material>> MatMap;
 
 class MaterialAttributeGlobalData : public PixelAttributeGlobalData {
 public:
