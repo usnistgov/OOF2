@@ -250,14 +250,14 @@ public:
       return CTYPE(uprightfront(0), uprightfront(1), lowleftback(2));
     case 3:
       return CTYPE(lowleftback(0), uprightfront(1), lowleftback(2));
-		case 4:
+    case 4:
       return uprightfront;
     case 5:
       return CTYPE(lowleftback(0), uprightfront(1), uprightfront(2));
-		case 6:
-			return CTYPE(lowleftback(0), lowleftback(1), uprightfront(2));
-		case 7:
-			return CTYPE(uprightfront(0), lowleftback(1), uprightfront(2));
+    case 6:
+      return CTYPE(lowleftback(0), lowleftback(1), uprightfront(2));
+    case 7:
+      return CTYPE(uprightfront(0), lowleftback(1), uprightfront(2));
     };
     throw ErrBadIndex(i, __FILE__, __LINE__);
   }
@@ -343,8 +343,11 @@ public:
   ICRectangularPrism(const ICoord &a, const ICoord &b)
     : CRectangularPrism_<int, ICoord>(a,b)
   {}
-  friend std::ostream& operator<<(std::ostream &os, const ICRectangularPrism &rect) {
-    os << "ICRectangularPrism(" << rect.lowleftback << ", " << rect.uprightfront << ")";
+  friend std::ostream& operator<<(std::ostream &os,
+				  const ICRectangularPrism &rect)
+  {
+    os << "ICRectangularPrism(" << rect.lowleftback << ", "
+       << rect.uprightfront << ")";
     return os;
   }
   virtual std::ostream &print(std::ostream &os) const {
