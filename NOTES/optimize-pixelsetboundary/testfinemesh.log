@@ -1,8 +1,8 @@
 # -*- python -*-
 skelfile = 'finemesh.skel'
-skelfile = 'sizedistribution2.skel'
+#skelfile = 'sizedistribution2.skel'
 iterations = 30
-nbins = 15
+nbins = 7
 #nbins = automatic
 OOF.Settings.Random_Seed(seed=31415)
 OOF.Skeleton.SetPSBbins(nx=nbins,ny=nbins)

@@ -127,8 +127,11 @@ private:
   PixelBdyLoop *find_loop(CoordMap&);
   void find_boundary(const CMicrostructure*);
   double clippedArea(const LineList&, const CRectangle &bbox) const;
+  ICRectangle bounds;
 public:
+  PixelSetSubBoundary() {} 
   ~PixelSetSubBoundary();
+  void set_bounds(ICRectangle bbox) { bounds = bbox; }
   void add_pixel(const ICoord&);
 
   friend std::ostream& operator<<(std::ostream &, const PixelSetBoundary&);
@@ -142,13 +145,18 @@ public:
 // call the "find_boundary" method, which finds all the loops and
 // assigns them to the "loopset" member.
 
+typedef std::vector<unsigned int> BinNumbers;
+
 class PixelSetBoundary {
 private:
   std::vector<PixelSetSubBoundary> subBdys;
   const CMicrostructure *microstructure;
   const int nbinsx, nbinsy;
+  BinNumbers xBinNumbers;
+  BinNumbers yBinNumbers;
 public:
-  PixelSetBoundary(const CMicrostructure*, int nbinsx, int nbinsy);
+  PixelSetBoundary(const CMicrostructure*,
+		   unsigned int nbinsx, unsigned int nbinsy);
   void add_pixel(const ICoord&);
   void find_boundary();
 

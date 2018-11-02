@@ -130,20 +130,110 @@ Coord intersection(const ICoord &a0, const ICoord &a1,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-PixelSetBoundary::PixelSetBoundary(const CMicrostructure* ms, int nx, int ny)
-  :  subBdys(nx*ny),
-     microstructure(ms),
-     nbinsx(nx), nbinsy(ny)
+PixelSetBoundary::PixelSetBoundary(const CMicrostructure* ms,
+				   unsigned int nx, unsigned int ny)
+  : subBdys(nx*ny),
+    microstructure(ms),
+    nbinsx(nx), nbinsy(ny)
 {
+  // std::cerr << "PixelSetBoundary::ctor" << std::endl;
+  // A PixelSetBoundary is divided into PixelSetSubBoundaries, which
+  // together cover the whole Microstructure.
+  subBdys.reserve(nx*ny);
+  // Construct lookup tables that quickly convert pixel coordinates to
+  // bin (subboundary) numbers.  At the same time, find the bounding
+  // box for each bin.  We're doing this the dumb way by looping over
+  // all the integer values of x and y so that we don't have to think
+  // about what happens if the Microstructure size isn't an integer
+  // multiple of number of bins in either direction.
+  ICoord mssize = microstructure->sizeInPixels();
+  std::vector<unsigned int> maxx(nbinsx, 0); // max x value in bin
+  unsigned int xsize = mssize[0];
+  xBinNumbers.resize(xsize);
+  unsigned int lastxbin = 0;
+  double xfactor = nbinsx/(float) mssize[0];
+  for(unsigned int x=0; x<xsize; x++) {
+    unsigned int bin = x*xfactor;
+    if(bin == nbinsx) --bin;
+    if(bin > 0 && bin != lastxbin) {
+      maxx[bin-1] = x-1;
+    }
+    xBinNumbers[x] = bin;
+    lastxbin = bin;
+  }
+  maxx[nbinsx-1] = mssize[0] - 1;
+  // std::cerr << "PixelSetBoundary::ctor: xBinNumbers=" << xBinNumbers
+  //  	    << std::endl;
+  // std::cerr << "PixelSetBoundary::ctor: maxx=" << maxx << std::endl;
+
+  std::vector<unsigned int> maxy(nbinsy, 0); // max y value in bin
+  unsigned int ysize = mssize[1];
+  yBinNumbers.resize(ysize);
+  unsigned int lastybin = 0;
+  double yfactor = nbinsy/(float) mssize[1];
+  for(unsigned int y=0; y<ysize; y++) {
+    unsigned int bin = y*yfactor;
+    if(bin == nbinsy) --bin;
+    if(bin > 0 && bin != lastybin) {
+      maxy[bin-1] = y - 1;
+    }
+    yBinNumbers[y] = bin;
+    lastybin = bin;
+  }
+  maxy[nbinsy-1] = mssize[1] - 1;
+  // std::cerr << "PixelSetBoundary::ctor: yBinNumbers=" << yBinNumbers
+  //  	    << std::endl;
+  // std::cerr << "PixelSetBoundary::ctor: maxy=" << maxy << std::endl;
+
+  // Set the bounding box in each subboundary
+  for(unsigned int iy=0; iy<nbinsy; iy++) {
+    const int ymin = iy == 0 ? 0 : (maxy[iy-1] + 1);
+    const int ymax = maxy[iy];
+    for(unsigned int ix=0; ix<nbinsx; ix++) {
+      const int xmin = ix == 0 ? 0 : (maxx[ix-1] + 1);
+      const int xmax = maxx[ix];
+      subBdys[iy*nbinsx + ix].set_bounds(ICRectangle(ICoord(xmin, ymin),
+						     ICoord(xmax, ymax)));
+      // std::cerr << "PixelSetBoundary::ctor: created subboundary "
+      // 		<< ICoord(xmin, ymin) << " " << ICoord(xmax, ymax)
+      // 		<< std::endl;
+    }
+  }
+  // std::cerr << "PixelSetBoundary::ctor: done" << std::endl;
+
+  // double binsizex = mssize[0]/nx;
+  // double binsizey = mssize[1]/ny;
+  // for(unsigned int iy=0; iy<nbinsy; iy++) {
+  //   for(unsigned int ix=0; ix<nbinsx; ix++) {
+
+  //     // NO.  If mssize is not divisible by binsize, there are pixels
+  //     // left over.  Create maps ix=>binx, iy=>biny and use lookup
+  //     // instead of arithmetic in add_pixel?  Compute bounds for each
+  //     // subbdy from the loop bounds within it.
+  //     int xmin = ix*binsizex;
+  //     int xmax = (ix+1)*binsizex -1;
+  //     int ymin = iy*binsizey;
+  //     int ymax = (iy+1)*binsizey - 1;
+  //     // if(xmax > mssize[0]) xmax = mssize[0];
+  //     // if(ymax > mssize[1]) ymax = mssize[1];
+  //     ICoord c0(xmin, ymin);
+  //     ICoord c1(xmax, ymax);
+  //     subBdys.emplace_back(ICRectangle(c0, c1));
+  //     std::cerr << "PixelSetBoundary::ctor: created subboundary "
+  // 		<< c0 << " " << c1 << std::endl;
+  //   }
+  // }
 }
 
 void PixelSetBoundary::add_pixel(const ICoord &px) {
   // Find which bin the pixel contributes to.
-  ICoord mssize = microstructure->sizeInPixels();
-  int ix = (px(0)/(double) mssize(0))*nbinsx;
-  if(ix >= nbinsx) ix = nbinsx-1;
-  int iy = (px(1)/(double) mssize(1))*nbinsy;
-  if(iy >= nbinsy) ix = nbinsy-1;
+  unsigned int ix = xBinNumbers[px[0]];
+  unsigned int iy = yBinNumbers[px[1]];
+  // ICoord mssize = microstructure->sizeInPixels();
+  // int ix = (px(0)/(double) mssize(0))*nbinsx;
+  // if(ix >= nbinsx) ix = nbinsx-1;
+  // int iy = (px(1)/(double) mssize(1))*nbinsy;
+  // if(iy >= nbinsy) ix = nbinsy-1;
   // Add to the bin.
   subBdys[iy*nbinsx + ix].add_pixel(px);
 }
@@ -166,7 +256,8 @@ double PixelSetBoundary::clippedArea(const LineList &lines,
 #endif // DEBUG
   double area = 0.0;
   for(const PixelSetSubBoundary &subbdy : subBdys) {
-    area += subbdy.clippedArea(lines, bbox);
+    if(bbox.intersects(subbdy.bounds))
+      area += subbdy.clippedArea(lines, bbox);
   }
   // Convert back to physical units
   Coord pxlsize = microstructure->sizeOfPixels();
