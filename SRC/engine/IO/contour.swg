@@ -31,7 +31,7 @@
 %typemap(python, out) ContourCoordVec* {
   // Convert a vector of ContourCoord*s to a list of swigged ContourCoordPtrs.
   ContourCoordVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   char _ptemp[128];
   for(std::vector<ContourCoord*>::size_type i=0; i<sz; i++) {
@@ -45,13 +45,13 @@
   // MasterCoord*'s) to a list of lists of MasterCoords.
   char _ptemp[128];
   CurveVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
 //   std::cerr << "CurveVec typemap: size=" << $source->size() << std::endl;
   for(std::vector<CCurve>::size_type i=0; i<sz; i++) {
     CCurve &curve = (*$source)[i];
-    assert((int)curve.size() >= PY_SSIZE_T_MIN && 
-	   (int)curve.size() <= PY_SSIZE_T_MAX);
+    // assert((int)curve.size() >= PY_SSIZE_T_MIN && 
+    // 	   (int)curve.size() <= PY_SSIZE_T_MAX);
     PyObject *coordlist = PyList_New((Py_ssize_t) curve.size());
     PyList_SET_ITEM($target, (Py_ssize_t) i, coordlist);
     for(CCurve::size_type j=0; j<curve.size(); j++) {

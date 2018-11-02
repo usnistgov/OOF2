@@ -210,7 +210,7 @@ using std::string;
 %typemap(python, out) DoubleList* {
   // typemap(python, out) DoubleList*
   DoubleList::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   for(DoubleList::size_type i=0; i<sz; i++)
     PyList_SET_ITEM($target, (Py_ssize_t) i, PyFloat_FromDouble((*$source)[i]));
@@ -242,7 +242,7 @@ using std::string;
 %typemap(python, out) IntVec* {
   // typemap(python, out) IntVec*
   IntVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   for(IntVec::size_type i=0; i<sz; i++)
     PyList_SET_ITEM($target, (Py_ssize_t) i, PyInt_FromLong((*$source)[i]));
@@ -273,7 +273,7 @@ using std::string;
 %typemap(python, out) ShortVec* {
   // typemap(python, out) ShortVec*
   ShortVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   for(ShortVec::size_type i=0; i<sz; i++) {
     PyList_SET_ITEM($target, (Py_ssize_t) i, PyInt_FromLong((*$source)[i]));
@@ -311,7 +311,7 @@ using std::string;
 
 %typemap(python,out) CoordVec* {
   CoordVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <=PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <=PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   char _ptemp[128];
   for(std::vector<Coord*>::size_type i=0; i<$source->size();i++) {
@@ -390,7 +390,7 @@ using std::string;
 %typemap(python, out) PointVec* {
   // typemap(python, out) PointVec*
   PointVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz < PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz < PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   static PyObject *PointClass = 0;
   if(!PointClass) {
@@ -452,7 +452,7 @@ using std::string;
 %typemap(python, out) ICoordVec* {
   // typemap(python, out) ICoordVec*
   ICoordVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   static PyObject *iPointClass = 0;
   if(!iPointClass) {
@@ -526,7 +526,7 @@ using std::string;
 %typemap(python, out) StringVec* {
   // typemap(python, out) StringVec*
   StringVec::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   for(StringVec::size_type i=0; i<sz; i++) {
     PyObject *str = PyString_FromString((*$source)[i].c_str());
