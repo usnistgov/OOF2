@@ -100,7 +100,7 @@ private:
   Property(const Property&);	// prohibited
 
   // Various subproblem-dependent flags are cached in these maps:
-  typedef std::map<const CSubProblem*, bool, ltidobject> SubProblemFlagCache;
+  typedef std::map<const CSubProblem*, bool, ltidobject<CSubProblem>> SubProblemFlagCache;
   SubProblemFlagCache activity;
   SubProblemFlagCache computability;
   SubProblemFlagCache nonlinearity;
