@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <set>
 #include <vector>
 
 template <class VEC>
@@ -37,6 +38,20 @@ std::ostream &operator<<(std::ostream &os, const std::vector<TYPE> &vec) {
     for(unsigned int i=1; i<vec.size(); i++)
       os << " " << vec[i];
     os << std::setprecision(prec);
+  }
+  return os;
+}
+
+template <class TYPE>
+std::ostream &operator<<(std::ostream &os, const std::set<TYPE> &set) {
+  if(!set.empty()) {
+    bool first = true;
+    for(auto &x : set) {
+      if(!first)
+	os << " ";
+      os << x;
+      first = false;
+    }
   }
   return os;
 }

@@ -211,7 +211,6 @@ class SkeletonContext(whoville.WhoDoUndo):
         del self.segmentgroups
 
     def pushModification(self, skeleton):
-        self.recomputePixelSetBoundaryBins(skeleton)
         old = self.getObject()
         skeleton.activate()
         # Call the parent pushModification without emitting the "who
@@ -294,37 +293,10 @@ class SkeletonContext(whoville.WhoDoUndo):
         self.next_indices = self._obj.getIndexBase()
         self.unSyncMeshes()
 
-    def recomputePixelSetBoundaryBins(self, newskel):
-        # Set the bin size to the average element size, times a fudge
-        # factor.  Using the square root of the area to get the
-        # element size doesn't work well, since it makes it look like
-        # a triangular element spans less distance than a quad element
-        # of the same linear size.  Use the average x and y dimensions
-        # of the elements instead, although this is slower to compute.
-        global nPSBbinsx, nPSBbinsy
-        fudge = 1.5
-        nel = newskel.nelements()
-        ms = self.getMicrostructure()
-        if nPSBbinsx != 0 and nPSBbinsy != 0:
-            ms.setPSBbins(nPSBbinsx, nPSBbinsy)
-            return
-        mssize = ms.size()
-        avgelsize = newskel.averageElementSize() # is None if skel not yet built
-        if avgelsize:
-            nbinsx = int(round(mssize[0]/avgelsize[0]/fudge))
-            nbinsy = int(round(mssize[1]/avgelsize[1]/fudge))
-            if nbinsx < 1: nbinsx = 1
-            if nbinsy < 1: nbinsy = 1
-        else:
-            nbinsx = nbinsy = 1
-        ms.setPSBbins(nbinsx, nbinsy)
-
-        
     # Extra operations during WhoDoUndo undo and redo.  If either the
     # old object or the new one is a DeputySkeleton, the positions of
     # the nodes must be updated.  Also, the number of edges/nodes in
     # the current boundary can be changed.
-    
     
     def undoHookFn(self, oldskel, newskel):
         newskel.activate()
@@ -837,15 +809,4 @@ def extractSkeletonPath(somepath):
         return somepath
     return pathlist[0]+':'+pathlist[1]
 
-#####################
 
-# For finding the best values for the PSB bin size.  If these are
-# non-zero, they're used instead of the computed values.
-
-nPSBbinsx = 0
-nPSBbinsy = 0
-
-def setPSBbins(nx, ny):
-    global nPSBbinsx, nPSBbinsy
-    nPSBbinsx = nx
-    nPSBbinsy = ny

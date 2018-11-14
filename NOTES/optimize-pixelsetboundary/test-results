@@ -270,3 +270,21 @@ beneficial for large nbins, but not detrimental.
 
 Set the bin size equal to the average element size, and change it only
 if the average element size changes by a lot.
+
+--------
+
+Repeating testtarget.log after switching to hierarchical tiling.
+% oof2--sc testtarget.log --unthreaded --batch
+
+Skel iters factor minsize | #levels maxsubdiv times
+targets7.jpg
+4x4  100   0.5    10         3      4    1.27, 1.30, 1.28
+           0.5     1         3      4    1.28
+	   0.5   100         3      4    1.27
+	   0.5	 200	     2	    2	 1.31, 1.34
+	   0.5   400	     1	    1	 1.49, 1.52, 1.48
+
+10x10 30   0.5     1         3      8    1.35, 1.33
+           0.5    10	     3	    8	 1.33
+	   0.5	  50	     3	    8    1.36
+	   0.5   100	     2	    4	 1.39, 1.39

@@ -13,6 +13,7 @@ from ooflib.SWIG.common import config
 from ooflib.SWIG.common import activearea
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import ooferror
+from ooflib.SWIG.common import pixelsetboundary
 # if config.dimension() == 2:
 #     from ooflib.SWIG.image import oofimage
 # else:
@@ -294,3 +295,88 @@ _fixmenu()
     
 switchboard.requestCallback(('new who', 'Microstructure'), _fixmenu)
 switchboard.requestCallback(('remove who', 'Microstructure'), _fixmenu)
+
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Set parameters used when computing element homogeneity.
+
+saveTilingFactor = None
+saveMinTileScale = None
+saveFixedSubdivision = None
+
+def setHomogParams(menuitem, factor, minimumTileSize, fixedSubdivision):
+    if factor >= 1.0 or factor <= 0.0:
+        raise ooferror.ErrUserError("factor must be strictly between 0 and 1.")
+
+    global saveTilingFactor, saveMinTileScale, saveFixedSubdivision
+    saveTilingFactor = pixelsetboundary.cvar.tilingfactor
+    saveMinTileScale = pixelsetboundary.cvar.mintilescale
+    saveFixedSubdivision = pixelsetboundary.cvar.fixed_subdivision
+    
+    pixelsetboundary.cvar.tilingfactor = factor
+    pixelsetboundary.cvar.mintilescale = minimumTileSize
+    if fixedSubdivision is automatic.automatic:
+        pixelsetboundary.cvar.fixed_subdivision = 0
+    else:
+        pixelsetboundary.cvar.fixed_subdivision = fixedSubdivision
+
+def resetHomogParams(menuitem):
+    global saveTilingFactor, saveMinTileScale, saveFixedSubdivision
+    pixelsetboundary.cvar.tilingfactor = saveTilingFactor
+    pixelsetboundary.cvar.mintilescale = saveMinTileScale
+    pixelsetboundary.cvar.fixed_subdivision = saveFixedSubdivision
+    
+
+micromenu.addItem(oofmenu.OOFMenuItem(
+    'SetHomogeneityParameters',
+    callback=setHomogParams,
+    ordering=1000,
+    secret=1,
+    params=[
+        parameter.FloatRangeParameter(
+            'factor', range=(0.0, 1.0, 0.01), default=0.5,
+            tip='Refinement factor for hierarchical tiles'),
+        parameter.IntParameter(
+            'minimumTileSize', default=6,
+            tip='Minimum tile size, in pixel units'),
+        parameter.AutoIntParameter(
+            'fixedSubdivision', default=automatic.automatic,
+            tip='Fixed number of subdivisions')
+
+    ],
+    help="Set parameters for calculating element homogeneity."))
+
+micromenu.addItem(oofmenu.OOFMenuItem(
+    'ResetHomogeneityParameters',
+    callback=resetHomogParams,
+    ordering=1001,
+    secret=1,
+    help="Reset parameters for calculating element homogeneity."))
+    
+
+# Force recategorization of pixels.  Used when testing.
+
+def recategorize(menuitem, microstructure):
+    ms = ooflib.common.microstructure.microStructures[microstructure]
+    ms.getObject().recategorize()
+
+micromenu.addItem(oofmenu.OOFMenuItem(
+    'Recategorize',
+    callback=recategorize,
+    secret=1,
+    params=[whoville.WhoParameter('microstructure',
+                                  ooflib.common.microstructure.microStructures,
+                                  tip=parameter.emptyTipString)],
+    help="Force pixel recategorization. Used in regression tests."
+    ))
+
+
+def printHomogeneityStats(menuitem):
+    pixelsetboundary.printHomogStats()
+
+micromenu.addItem(oofmenu.OOFMenuItem(
+    'PrintHomogeneityStats',
+    callback=printHomogeneityStats,
+    ordering=1001,
+    help='Print useful information for testing and debugging'))

@@ -17,7 +17,8 @@
 class ClippedPixelBdyLoop;
 class PixelBdyLoop;
 class PixelSetBoundary;
-class PixelSetSubBoundary;
+class PSBTile;
+class PSBTiling;
 
 #include <map>
 #include <set>
@@ -36,6 +37,8 @@ typedef std::multimap<ICoord, ICoord> CoordMap; // start point, direction
 typedef std::vector<Line> LineList;
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Base class for pixel boundary loops.
 
 class PBLBase {
 public:
@@ -73,6 +76,8 @@ public:
 				 const PxlBdyLoopBase<CTYPE, RTYPE>&);
 };
 
+// Pixel Boundary Loops with integer coordinates.
+
 class PixelBdyLoop : public PxlBdyLoopBase<ICoord, ICRectangle> {
 public:
   void add_point(const ICoord&);
@@ -108,16 +113,17 @@ std::ostream& operator<<(std::ostream&, const ClippedPixelBdyLoop&);
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// A PixelSetBoundary is a collection of PixelSetSubBoundarys, with
-// each subboundary covering a different part of the image.  The idea
-// is that the clipping algorithm will only look at subboundaries that
-// intersect an elements bounding box and won't spend time clipping
-// regions that are far from the element.  This optimization was
-// crucial in OOF3D, but appears not to be required in OOF2, so each
-// PixelSetBoundary currently has just one PixelSetSubBoundary, which
-// covers the entire image.
+// A PixelSetBoundary is a collection of PSBTiles, with each tile
+// covering a different part of the image.  The idea is that the
+// clipping algorithm will only look at tiles that intersect an
+// element's bounding box and won't spend time clipping regions that
+// are far from the element.
 
-class PixelSetSubBoundary {
+// TileNumbers[x] is the index of the tile containing pixel x.
+typedef std::vector<unsigned int> TileNumbers;
+
+
+class PSBTile {
 private:
   SegSet segmentsLR;		// segments going from left to right
   SegSet segmentsRL;		// ... right to left
@@ -127,16 +133,47 @@ private:
   PixelBdyLoop *find_loop(CoordMap&);
   void find_boundary(const CMicrostructure*);
   double clippedArea(const LineList&, const CRectangle &bbox) const;
+  // A pixel is in the tile if its lower left corner is in the
+  // bounding box.
   ICRectangle bounds;
 public:
-  PixelSetSubBoundary() {} 
-  ~PixelSetSubBoundary();
+  PSBTile(ICRectangle&&);
+  ~PSBTile();
   void set_bounds(ICRectangle bbox) { bounds = bbox; }
   void add_pixel(const ICoord&);
+  void add_segmentL(const ICoord &pos);
+  void add_segmentR(const ICoord &pos);
+  void add_segmentD(const ICoord &pos);
+  void add_segmentU(const ICoord &pos);
+  void add_perimeter(const CMicrostructure*, int);
 
-  friend std::ostream& operator<<(std::ostream &, const PixelSetBoundary&);
-  friend class PixelBdyLoop;
-  friend class PixelSetBoundary;
+  PSBTiling *subdivide(const CMicrostructure*, int cat,
+		       unsigned int nx, unsigned int ny) const;
+
+  friend std::ostream& operator<<(std::ostream &, const PSBTile&);
+  friend class PSBTiling;
+};
+
+class PSBTiling {
+private:
+  std::vector<PSBTile*> tiles;
+  const CMicrostructure *microstructure;
+  const unsigned int nxtiles, nytiles;
+  TileNumbers xTileNumbers;
+  TileNumbers yTileNumbers;
+public:
+  PSBTiling(const CMicrostructure*, unsigned int nx, unsigned int ny);
+  ~PSBTiling();
+  void add_pixel(const ICoord&);
+  void find_boundary();
+  double clippedArea(const LineList&, const CRectangle&) const;
+  ICoord size() const { return ICoord(nxtiles, nytiles); }
+  double area() const;
+
+  // Used when constructing a tiling from the loops in another tiling.
+  PSBTiling *subdivide(int, unsigned int, unsigned int) const;
+  void add_segments(const std::vector<ICoord>&);
+  void add_tile_perimeters(int);
 };
 
 // Pixel set boundary knows its microstructure.  The way this works
@@ -145,24 +182,27 @@ public:
 // call the "find_boundary" method, which finds all the loops and
 // assigns them to the "loopset" member.
 
-typedef std::vector<unsigned int> BinNumbers;
-
 class PixelSetBoundary {
 private:
-  std::vector<PixelSetSubBoundary> subBdys;
+  std::vector<PSBTiling*> tilings;
   const CMicrostructure *microstructure;
-  const int nbinsx, nbinsy;
-  BinNumbers xBinNumbers;
-  BinNumbers yBinNumbers;
+  double scale0;      // scale of entire microstructure in pixel units
+  ICoord mssize;
 public:
-  PixelSetBoundary(const CMicrostructure*,
-		   unsigned int nbinsx, unsigned int nbinsy);
+  PixelSetBoundary(const CMicrostructure *ms);
+  ~PixelSetBoundary();
   void add_pixel(const ICoord&);
   void find_boundary();
 
-  double clippedArea(const LineList&, const CRectangle&) const;
+  double clippedArea(int, const LineList&, const CRectangle&);
   double area() const;
 };
+
+// For setting and testing the hierarchical tiling scheme.
+void printHomogStats();
+extern double tilingfactor;
+extern int mintilescale;
+extern int fixed_subdivision;
 
 
 // For debugging....

@@ -41,8 +41,7 @@ if not DIM_3:
         'pixelselectioncourier.swg', 'switchboard.swg',
         'threadstate.swg', 'timestamp.swg', 'trace.swg', 'progress.swg',
         'guitop.swg', 'identification.swg', 'direction.swg', 'doublevec.swg',
-        'smallmatrix.swg', 'corientation.swg',
-        ]
+        'smallmatrix.swg', 'corientation.swg', 'pixelsetboundary.swg']
 
     pyfiles = [ 
         'activeareamod.py', 'backEnd.py', 'color.py', 'cregisteredclass.py',

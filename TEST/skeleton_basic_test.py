@@ -22,6 +22,26 @@ import unittest, os
 import memorycheck
 from UTILS.file_utils import reference_file
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+def getHomogIndex(msname, skelname, factor=0.5, minimumTileSize=5, bins=0):
+    ms = getMicrostructure(msname)
+    # If bins is non-zero, factor and minimumTileSize aren't used.  If
+    # bins is zero, factor and minimumTileSize are used to create the
+    # hierarchical tiling of pixel set boundaries.
+    OOF.Microstructure.SetHomogeneityParameters(
+        factor=factor, minimumTileSize=minimumTileSize,
+        fixedSubdivision=bins)
+    OOF.Microstructure.Recategorize(microstructure=msname)
+    skelctxt = skeletoncontext.skeletonContexts[msname + ":" +skelname]
+    homog = skelctxt.getObject().getHomogeneityIndex()
+    # Reset the homogeneity parameters to keep this test from
+    # affecting the results of future tests.
+    OOF.Microstructure.ResetHomogeneityParameters()
+    return homog
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class OOF_Skeleton(unittest.TestCase):
     def setUp(self):
         global skeletoncontext
@@ -177,6 +197,56 @@ class OOF_Skeleton(unittest.TestCase):
         self.assertEqual(skel.nnodes(), 81)
         self.assertEqual(skel.nelements(), 64)
         self.assert_(skel.sanity_check())
+
+    @memorycheck.check("skeltest")
+    def Homogeneity(self):
+        # Check that different binning schemes give the same
+        # homogeneity.
+        # Create a uniform NxN skeleton for each N in skelsizes
+        skelsizes = (1, 2, 4, 10, 20)
+        # Test each skeleton with an MxM tiling for each M in ntiles.
+        ntiles = (2, 5, 10, 20, 100)
+        # Skeleton geometries to test
+        geometries = (QuadSkeleton(top_bottom_periodicity=False,
+                                   left_right_periodicity=False),
+                      TriSkeleton(arrangement='moderate',
+                                  top_bottom_periodicity=False,
+                                  left_right_periodicity=False))
+        for geometry in geometries:
+            for skelsize in skelsizes:
+                OOF.Skeleton.New(
+                    name='htest', microstructure='skeltest',
+                    x_elements=skelsize, y_elements=skelsize,
+                    skeleton_geometry=geometry)
+                h0 = getHomogIndex("skeltest", "htest", bins=1)
+                print >> sys.stderr, "   bins=0, h=", h0
+                for nbins in ntiles:
+                    h = getHomogIndex("skeltest", "htest", bins=nbins)
+                    print >> sys.stderr, "   bins=", nbins, "h=", h, "delta=", \
+                        h-h0
+                    self.assertAlmostEqual(h, h0, 10)
+                OOF.Skeleton.Delete(skeleton="skeltest:htest")
+    #     self.testHomogeneityUniform(
+    #         TriSkeleton(arrangement='moderate',
+    #                     top_bottom_periodicity=False,
+    #                     left_right_periodicity=False),
+    #         skelsizes, ntiles)
+
+    # def testHomogeneityUniform(self, skelgeom, skelsizes, ntiles):
+    #     for skelsize in skelsizes:
+    #         OOF.Skeleton.New(
+    #             name="htest", microstructure="skeltest",
+    #             x_elements=skelsize, y_elements=skelsize,
+    #             skeleton_geometry=skelgeom)
+    #         h0 = getHomogIndex("skeltest", "htest", bins=1)
+    #         print >> sys.stderr, "Homogeneity Check: skelsize=", skelsize
+    #         print >> sys.stderr, "  bins=0, h=", h0
+    #         for bins in ntiles:
+    #             h = getHomogIndex("skeltest", "htest", bins=bins)
+    #             print >> sys.stderr, "  bins=", bins, "h=", h, "delta=", h-h0
+    #             self.assertAlmostEqual(h, h0, 10);
+    #         OOF.Skeleton.Delete(skeleton="skeltest:htest")
+                    
         
     @memorycheck.check("skeltest")
     def doModify(self, registration, startfile, compfile, kwargs):
@@ -367,6 +437,30 @@ class OOF_Skeleton_Special(unittest.TestCase):
             el = skel.getElement(eidx)
             homog = el.homogeneity(ms)
             self.assertAlmostEqual(homog, 0.5, 6)
+
+    @memorycheck.check("mess")
+    def MessyHomogeneity(self):
+        # Check that different binning schemes give the same
+        # homogeneity on a very inhomogeneous skeleton.
+        OOF.File.Load.Data(
+            filename=reference_file("skeleton_data", 'messyskel.dat'))
+        ntiles = (2, 3, 4, 5, 10, 20, 50, 100)
+        h0 = getHomogIndex("mess", "skeleton", bins=1)
+        for nt in ntiles:
+            h = getHomogIndex("mess", "skeleton", bins=nt)
+            print >> sys.stderr, "  nt=", nt, "h=", h, "delta=", h-h0
+            self.assertAlmostEqual(h0, h, 2)
+        # Check with automatic, hierarchical tiling
+        factors = (0.1, 0.5, 0.7, 0.9)
+        minTiles = (2, 5, 10, 20, 50, 100)
+        for minTile in minTiles:
+            for factor in factors:
+                h = getHomogIndex("mess", "skeleton", factor=factor,
+                                  minimumTileSize=minTile, bins=0)
+                print >> sys.stderr, "  factor=", factor, "minTile=", minTile, \
+                    "h=", h, "delta=", h-h0
+                self.assertAlmostEqual(h0, h, 2)
+
         
 # Data for the skeleton modifier tests.  This is a dictionary indexed by
 # skeleton modifier name, and for each modifier, there is a set of
@@ -556,13 +650,19 @@ def build_mod_args():
         [
             ("illegal_skeleton", "illegal_fixed", {})
         ]
-        }
-    # skel_modify_args = { 
-    #     "Fix Illegal Elements" :
-    #     [
-    #         ("illegal_skeleton", "illegal_fixed", {})
-    #     ]
-    #     }
+    }
+
+    # skel_modify_args = {
+    #     "Relax" :
+    #         [
+    #         ("modbase", "relax",
+    #          { "alpha" : 0.5,
+    #            "gamma" : 0.5,
+    #            "iterations" : 1
+    #            }
+    #          )
+    #         ],
+    # }
     
 # Routine to do regression-type testing on the items in this file.
 # Tests must be run in the order they appear in the list.  This
@@ -583,6 +683,7 @@ def run_tests():
         OOF_Skeleton("Rename"),
         OOF_Skeleton("Save"),
         OOF_Skeleton("Load"),
+        OOF_Skeleton("Homogeneity"),
         OOF_Skeleton("Modify"),
         OOF_Skeleton("Undo"),
         OOF_Skeleton("Redo")
@@ -592,12 +693,15 @@ def run_tests():
         OOF_Skeleton_Special("MS_Delete"),
         OOF_Skeleton_Special("RoundOff"),
         OOF_Skeleton_Special("CheckerBoard"),
+        OOF_Skeleton_Special("MessyHomogeneity"),
         ]
 
     test_set = skel_set + special_set
 
-    #test_set = [OOF_Skeleton("Modify")]
-    #test_set = [OOF_Skeleton_Special("CheckerBoard")]
+    # test_set = [OOF_Skeleton("Modify")]
+    # test_set = [OOF_Skeleton_Special("MessyHomogeneity")]
+    # test_set = [OOF_Skeleton("Homogeneity"),
+    #             OOF_Skeleton("Modify")]
     
     logan = unittest.TextTestRunner()
     for t in test_set:

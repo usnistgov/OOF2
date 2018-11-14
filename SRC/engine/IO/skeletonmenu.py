@@ -575,30 +575,5 @@ _fixmenu()
 
 switchboard.requestCallback(('new who', 'Skeleton'), _fixmenu)
 switchboard.requestCallback(('remove who', 'Skeleton'), _fixmenu)
-
-#####################
-
-## This command is here to help determine how to set the number of
-## bins used by the PixelSetBoundary when computing element
-## homogeneity.  It presumably depends somehow on the element
-## skeleton geometry.
-
-def setPSBbins(menuitem, nx, ny):
-    debug.fmsg("nx=", nx, nx.__class__)
-    if nx == automatic.automatic or ny == automatic.automatic:
-        skeletoncontext.setPSBbins(0, 0)
-    else:
-        skeletoncontext.setPSBbins(nx, ny)
-
-skeletonmenu.addItem(oofmenu.OOFMenuItem(
-    'SetPSBbins',
-    callback=setPSBbins,
-    ordering=1000,
-    params=[
-        AutoIntParameter('nx', value=automatic.automatic,
-                         tip="No. of PixelSetBoundary bins to use in x"),
-        AutoIntParameter('ny', value=automatic.automatic,
-                         tip="No. of PixelSetBoundary bins to use in x")
-        ],
-    help="Set the number of PixelSetBoundary bins to use."))
     
+

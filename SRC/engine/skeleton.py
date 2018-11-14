@@ -2778,9 +2778,8 @@ def initialSkeleton(name, ms, nx, ny, skeleton_geometry):
     skel = skeleton_geometry(nx, ny, ms)
     if skel is not None:
         mscontext = microstructure.microStructures[ms.name()]
-        ctxt = skeletoncontext.skeletonContexts.add([ms.name(), name],
-                                                    skel, parent=mscontext)
-        ctxt.recomputePixelSetBoundaryBins(skel)
+        skeletoncontext.skeletonContexts.add([ms.name(), name],
+                                             skel, parent=mscontext)
     return skel
 
 # Parallel initial skeleton
