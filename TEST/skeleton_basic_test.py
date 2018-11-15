@@ -435,7 +435,7 @@ class OOF_Skeleton_Special(unittest.TestCase):
         ms = skelctxt.getMicrostructure()
         for eidx in range(18):
             el = skel.getElement(eidx)
-            homog = el.homogeneity(ms)
+            homog = el.homogeneity(ms, False)
             self.assertAlmostEqual(homog, 0.5, 6)
 
     @memorycheck.check("mess")
