@@ -302,7 +302,9 @@ class ElementMode(SkeletonInfoMode):
                 repPix = skeleton.MS.getRepresentativePixel(domCat)
                 pixGrp = pixelgroup.pixelGroupNames(skeleton.MS, repPix)
                 pixgrps = string.join(pixGrp, ", ")
-                ehom = "%f" % element.homogeneity(skeleton.MS)
+                # Change False to True in this line to get verbose
+                # output from the homogeneity calculation.
+                ehom = "%f" % element.homogeneity(skeleton.MS, False)
                 eshape = "%f" % element.energyShape()
 
                 mat = element.material(container.context)

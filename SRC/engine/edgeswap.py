@@ -165,7 +165,7 @@ if config.dimension() == 2:
 
         # If source elements are 100 % homogeneous with the same dominant pixel,
         # resulting elements will be so.
-        if tri0.homogeneity(skel.MS)==1. and tri1.homogeneity(skel.MS)==1. and \
+        if tri0.homogeneity(skel.MS,False)==1. and tri1.homogeneity(skel.MS, False)==1. and \
            tri0.dominantPixel(skel.MS)==tri1.dominantPixel(skel.MS):
             A.copyHomogeneity(tri0)
             B.copyHomogeneity(tri0)
@@ -225,7 +225,7 @@ if config.dimension() == 2:
 
         # If source elements are 100 % homogeneous with the same dominant pixel,
         # resulting elements will be so.
-        if tri.homogeneity(skel.MS)==1. and quad.homogeneity(skel.MS)==1. and \
+        if tri.homogeneity(skel.MS, False)==1. and quad.homogeneity(skel.MS, False)==1. and \
            tri.dominantPixel(skel.MS)==quad.dominantPixel(skel.MS):
             A.copyHomogeneity(tri)
             B.copyHomogeneity(tri)
@@ -323,7 +323,7 @@ if config.dimension() == 2:
 
         # If source elements are 100 % homogeneous with the same dominant pixel,
         # resulting elements will be so.
-        if quad0.homogeneity(skel.MS)==1. and quad1.homogeneity(skel.MS)==1. and \
+        if quad0.homogeneity(skel.MS, False)==1. and quad1.homogeneity(skel.MS, False)==1. and \
            quad0.dominantPixel(skel.MS)==quad1.dominantPixel(skel.MS):
             A.copyHomogeneity(quad0)
             B.copyHomogeneity(quad0)
@@ -356,7 +356,7 @@ elif config.dimension() == 3:
         unsharedNode2 = [n for n in tet2.nodes if n not in sn][0]
         change = skeleton.ProvisionalChanges(skel)
         change.removeElements(tet1,tet2)
-        uniform = (tet1.homogeneity(skel.MS)==1. and tet2.homogeneity(skel.MS)==1. and \
+        uniform = (tet1.homogeneity(skel.MS, False)==1. and tet2.homogeneity(skel.MS, False)==1. and \
                        tet1.dominantPixel(skel.MS)==tet2.dominantPixel(skel.MS))
         for face in faceToNodeMap:
             nodes = [tet2.nodes[i] for i in face]

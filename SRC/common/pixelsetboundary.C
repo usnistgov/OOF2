@@ -175,6 +175,7 @@ PSBTiling::PSBTiling(const CMicrostructure* ms,
     microstructure(ms),
     nxtiles(nx), nytiles(ny)
 {
+  // std::cerr << "PSBTiling::ctor: nx=" << nx << " ny=" << ny << std::endl;
   // A PSBTiling is divided into PSBTiles, which together cover
   // the whole Microstructure.
   ICoord mssize = microstructure->sizeInPixels();
@@ -200,8 +201,11 @@ PSBTiling::PSBTiling(const CMicrostructure* ms,
       // The argument to the PSBTile constructor is the bounding box
       // of the tile.  A pixel is in the tile if its lower left corner
       // is in the bounding box.
-      tiles[iy*nxtiles + ix] = new PSBTile(ICRectangle(ICoord(xmin, ymin),
-						       ICoord(xmax, ymax)));
+      int which = iy*nxtiles + ix;
+      tiles[which] = new PSBTile(ICRectangle(ICoord(xmin, ymin),
+					     ICoord(xmax, ymax)));
+      // std::cerr << "PSBTiling::ctor:  tile #" << which << " " << ix << " "
+      // 		<< iy << " " << *tiles[which] << std::endl;
     }
   }
 }
@@ -285,7 +289,8 @@ void PSBTiling::find_boundary() {
   }
 }
 
-double PSBTiling::clippedArea(const LineList &lines, const CRectangle &bbox)
+double PSBTiling::clippedArea(const LineList &lines, const CRectangle &bbox,
+			      bool verbose)
   const
 {
 #ifdef DEBUG
@@ -296,14 +301,26 @@ double PSBTiling::clippedArea(const LineList &lines, const CRectangle &bbox)
   // Convert element bbox (already in pixel coords) to integers
   unsigned int xmin = int(floor(bbox.lowerleft()[0]));
   unsigned int xmax = int(floor(bbox.upperright()[0]));
-  if(xmax >= nxtiles) --xmax;
+  if(xmax >= microstructure->sizeInPixels()[0]) --xmax;
   unsigned int ymin = int(floor(bbox.lowerleft()[1]));
   unsigned int ymax = int(floor(bbox.upperright()[1]));
-  if(ymax >= nytiles) --ymax;
-  
+  if(ymax >= microstructure->sizeInPixels()[1]) --ymax;
+
+#ifdef DEBUG
+  if(verbose) {
+    std::cerr << "PSBTiling::clippedArea: bbox=" << bbox << std::endl;
+    std::cerr << "PSBTiling::clippedArea: x range " << xmin << " " << xmax
+	      << " yrange " << ymin << " " << ymax << std::endl;
+  }
+#endif // DEBUG
   double area = 0.0;
   for(unsigned int iy=yTileNumbers[ymin]; iy<=yTileNumbers[ymax]; iy++) {
     for(unsigned int ix=xTileNumbers[xmin]; ix<=xTileNumbers[xmax]; ix++) {
+#ifdef DEBUG
+      if(verbose)
+	std::cerr << "PSBTiling::clippedArea: using tile " << ix << " " << iy
+		  << " " << *tiles[iy*nxtiles + ix] << std::endl;
+#endif // DEBUG
       area += tiles[iy*nxtiles + ix]->clippedArea(lines, bbox);
     }
   }
@@ -920,7 +937,8 @@ int fixed_subdivision = 0;
 
 double PixelSetBoundary::clippedArea(int cat,
 				     const LineList &lines,
-				     const CRectangle &bbox)
+				     const CRectangle &bbox,
+				     bool verbose)
 {
   // clippedArea is not const because it may create a new tiling.
   PSBTiling *tiling = nullptr;
@@ -936,6 +954,11 @@ double PixelSetBoundary::clippedArea(int cat,
     assert(n >= 0);
     if(n >= tilings.size())
       tilings.resize(n+1, nullptr);
+#ifdef DEBUG
+    if(verbose)
+      std::cerr << "PixelSetBoundary::clippedArea: tiling size=" << n
+		<< std::endl;
+#endif // DEBUG
     if(tilings[n] == nullptr) {
       unsigned int nx = floor(pow(tilingfactor, -n));
       if(nx > maxSubdivisions) maxSubdivisions = nx;
@@ -948,6 +971,10 @@ double PixelSetBoundary::clippedArea(int cat,
   else if(fixed_subdivision == 1) {
     // The number of subdivisions is fixed, at the trivial value.  The
     // trivial tiling has already been created.
+#ifdef DEBUG
+    std::cerr << "PixelSetBoundary::clippedArea: using trivial tiling"
+	      << std::endl;
+#endif // DEBUG
     tiling = tilings[0];
   }
   else {
@@ -963,8 +990,12 @@ double PixelSetBoundary::clippedArea(int cat,
 					      fixed_subdivision));
     }
     tiling = tilings[1];
+#ifdef DEBUG
+    std::cerr << "PixelSetBoundary::clippedArea: using fixed tiling "
+	      << fixed_subdivision << std::endl;
+#endif // DEBUG
   }
-  return tiling->clippedArea(lines, bbox);
+  return tiling->clippedArea(lines, bbox, verbose);
 }
 
 

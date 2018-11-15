@@ -350,7 +350,7 @@ class SnapRefine(refine.Refine):
 
             # If the old element's homogeneity is 1, it's safe to say that
             # new elements' homogeneities are 1.
-            if oldElement.homogeneity(skeleton.MS) == 1.0:
+            if oldElement.homogeneity(skeleton.MS, False) == 1.0:
                 for el in newElements:
                     el.copyHomogeneity(oldElement)
 

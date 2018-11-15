@@ -785,7 +785,7 @@ def _query_elem_group(menuitem, skeleton, group):
     homog = 0.0
     for element in members:
         area += element.area()
-        homog += element.homogeneity(skelc.getObject().MS)
+        homog += element.homogeneity(skelc.getObject().MS, False)
     if len(members):
         homog /= len(members)
     plural="s"*(len(members)!=1)

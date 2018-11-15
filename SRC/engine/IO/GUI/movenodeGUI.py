@@ -391,7 +391,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                     self.shapeenergy0 = 0.0
                     for element in self.nbrelements:
                         if not element.illegal():
-                            self.homogeneity0 += element.homogeneity(skel.MS)
+                            self.homogeneity0 += element.homogeneity(skel.MS, False)
                             self.shapeenergy0 += element.energyShape()
                     # Create rubberband
                     points = [n.position() for n in self.nbrnodes]
@@ -429,7 +429,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                         # Evaluating homogeneity and shape energy is
                         # safe, because the Skeleton's read lock was
                         # acquired when the mouse went down.
-                        homogeneity += element.homogeneity(skeleton.MS)
+                        homogeneity += element.homogeneity(skeleton.MS, False)
                         shapeenergy += element.energyShape()
                     homogtext = "%-11.4g" % (homogeneity-self.homogeneity0)
                     shapetext = "%-11.4g" % (shapeenergy-self.shapeenergy0)
@@ -542,7 +542,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
             for element in neighbors:
                 if element.illegal():
                     continue
-                homogeneity0 += element.homogeneity(skeleton.MS)
+                homogeneity0 += element.homogeneity(skeleton.MS, False)
                 shapeenergy0 += element.energyShape()
 
             # Energy after node move
@@ -555,7 +555,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                     illegal = True
                     break
                 else:
-                    homogeneity += element.homogeneity(skeleton.MS)
+                    homogeneity += element.homogeneity(skeleton.MS, False)
                     shapeenergy += element.energyShape()
             self.node().moveBack()
         finally:

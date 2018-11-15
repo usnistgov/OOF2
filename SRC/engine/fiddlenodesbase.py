@@ -406,7 +406,7 @@ class FiddleHeterogeneousElements(FiddleNodesTargets):
         nodedict = {}
         skel = context.getObject()
         for element in skel.activeElements():
-            if element.homogeneity(skel.MS) < self.threshold:
+            if element.homogeneity(skel.MS, False) < self.threshold:
                 for node in element.nodes:
                     nodedict[node] = 1
         return [n for n in nodedict if n.movable()]

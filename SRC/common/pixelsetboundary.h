@@ -166,7 +166,7 @@ public:
   ~PSBTiling();
   void add_pixel(const ICoord&);
   void find_boundary();
-  double clippedArea(const LineList&, const CRectangle&) const;
+  double clippedArea(const LineList&, const CRectangle&, bool) const;
   ICoord size() const { return ICoord(nxtiles, nytiles); }
   double area() const;
 
@@ -194,7 +194,7 @@ public:
   void add_pixel(const ICoord&);
   void find_boundary();
 
-  double clippedArea(int, const LineList&, const CRectangle&);
+  double clippedArea(int, const LineList&, const CRectangle&, bool);
   double area() const;
 };
 
