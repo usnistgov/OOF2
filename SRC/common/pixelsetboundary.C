@@ -201,11 +201,11 @@ PSBTiling::PSBTiling(const CMicrostructure* ms,
       // The argument to the PSBTile constructor is the bounding box
       // of the tile.  A pixel is in the tile if its lower left corner
       // is in the bounding box.
-      int which = iy*nxtiles + ix;
-      tiles[which] = new PSBTile(ICRectangle(ICoord(xmin, ymin),
-					     ICoord(xmax, ymax)));
-      // std::cerr << "PSBTiling::ctor:  tile #" << which << " " << ix << " "
-      // 		<< iy << " " << *tiles[which] << std::endl;
+      tiles[tileIndex(ix, iy)] = new PSBTile(ICRectangle(ICoord(xmin, ymin),
+							 ICoord(xmax, ymax)));
+      // std::cerr << "PSBTiling::ctor:  tile #" << tileIndex(ix, iy)
+      // 		<< " " << ix << " " << iy << " " << *tiles[tileIndex(ix, iy)]
+      // 		<< std::endl;
     }
   }
 }
@@ -215,12 +215,27 @@ PSBTiling::~PSBTiling() {
     delete tile;
 }
 
+unsigned int PSBTiling::tileIndex(unsigned int ix, unsigned int iy) const {
+  // When trying to compute the homogeneity of an element that has one
+  // or more nodes outside the microstructure, ix or iy can be larger
+  // than nxtiles or nytiles.  In that case, the correct thing to do
+  // is to truncate them, so that only the part of the element inside
+  // the microstructure is used.  Illegal elements with inverted
+  // geometries don't make it to this point because
+  // CSkeletonElement::c_homogeneity checks for that case.
+  if(ix >= nxtiles)
+    ix = nxtiles-1;
+  if(iy >= nytiles)
+    iy = nytiles-1;
+  return iy*nxtiles + ix;
+}
+
 void PSBTiling::add_pixel(const ICoord &px) {
   // Find which bin the pixel contributes to.
   unsigned int ix = xTileNumbers[px[0]];
   unsigned int iy = yTileNumbers[px[1]];
   // Add to the bin.
-  tiles[iy*nxtiles + ix]->add_pixel(px);
+  tiles[tileIndex(ix, iy)]->add_pixel(px);
 }
 
 void PSBTiling::add_segments(const std::vector<ICoord> &loop) {
@@ -242,7 +257,7 @@ void PSBTiling::add_segments(const std::vector<ICoord> &loop) {
 	// starting point of the segment.
 	unsigned int ix = xTileNumbers[x-1];
 	unsigned int iy = yTileNumbers[p0[1]-1];
-	tiles[iy*nxtiles + ix]->add_segmentL(ICoord(x, p0[1]));
+	tiles[tileIndex(ix, iy)]->add_segmentL(ICoord(x, p0[1]));
       }
     }
     else if(p0[0] < p1[0]) {	// left to right
@@ -250,7 +265,7 @@ void PSBTiling::add_segments(const std::vector<ICoord> &loop) {
 	// The pixel is above and to the right of the segment's start.
 	unsigned int ix = xTileNumbers[x];
 	unsigned int iy = yTileNumbers[p0[1]];
-	tiles[iy*nxtiles + ix]->add_segmentR(ICoord(x, p0[1]));
+	tiles[tileIndex(ix, iy)]->add_segmentR(ICoord(x, p0[1]));
       }
     }
     else if(p0[1] > p1[1]) {	// up to down
@@ -258,7 +273,7 @@ void PSBTiling::add_segments(const std::vector<ICoord> &loop) {
 	// The pixel is to the right and below the segment's start.
 	unsigned int ix = xTileNumbers[p0[0]];
 	unsigned int iy = yTileNumbers[y-1];
-	tiles[iy*nxtiles + ix]->add_segmentD(ICoord(p0[0], y));
+	tiles[tileIndex(ix, iy)]->add_segmentD(ICoord(p0[0], y));
       }
     }
     else {			// down to up
@@ -267,7 +282,7 @@ void PSBTiling::add_segments(const std::vector<ICoord> &loop) {
 	// The pixel is to the left and above the segment's start.
 	unsigned int ix = xTileNumbers[p0[0]-1];
 	unsigned int iy = yTileNumbers[y];
-	tiles[iy*nxtiles + ix]->add_segmentU(ICoord(p0[0], y));
+	tiles[tileIndex(ix, iy)]->add_segmentU(ICoord(p0[0], y));
       }
     }
 
@@ -319,9 +334,9 @@ double PSBTiling::clippedArea(const LineList &lines, const CRectangle &bbox,
 #ifdef DEBUG
       if(verbose)
 	std::cerr << "PSBTiling::clippedArea: using tile " << ix << " " << iy
-		  << " " << *tiles[iy*nxtiles + ix] << std::endl;
+		  << " " << *tiles[tileIndex(ix, iy)] << std::endl;
 #endif // DEBUG
-      area += tiles[iy*nxtiles + ix]->clippedArea(lines, bbox);
+      area += tiles[tileIndex(ix, iy)]->clippedArea(lines, bbox);
     }
   }
   // Convert back to physical units
@@ -940,7 +955,9 @@ double PixelSetBoundary::clippedArea(int cat,
 				     const CRectangle &bbox,
 				     bool verbose)
 {
-  // clippedArea is not const because it may create a new tiling.
+  // PixelSetBoundary::clippedArea() decides which PSBTiling to use,
+  // and calls the tiling's clippedArea() method.  It may have to
+  // create a new tiling, which is why it's not const.
   PSBTiling *tiling = nullptr;
   // bbox is the bounding box of the element whose homogeneity is
   // being computed.  Look for a tiling on the same scale.

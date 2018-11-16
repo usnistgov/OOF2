@@ -161,6 +161,7 @@ private:
   const unsigned int nxtiles, nytiles;
   TileNumbers xTileNumbers;
   TileNumbers yTileNumbers;
+  unsigned int tileIndex(unsigned int, unsigned int) const;
 public:
   PSBTiling(const CMicrostructure*, unsigned int nx, unsigned int ny);
   ~PSBTiling();
