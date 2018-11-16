@@ -26,11 +26,11 @@ static const ICoord iUp(0, 1);
 static const ICoord iLeft(-1, 0);
 static const ICoord iDown(0, -1);
 
-// Tilings are created at scales that are factors of TILINGFACTOR.
-// TILINGFACTOR must be strictly between 0 and 1.
+// Tilings are created at scales that are factors of tilingfactor.
+// tilingfactor must be strictly between 0 and 1.
 double tilingfactor = 0.5;
 
-// MINTILESCALE is the minumum allowed tile size, in pixel units
+// mintilescale is the minumum allowed tile size, in pixel units
 int mintilescale = 10;
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -89,6 +89,26 @@ int mintilescale = 10;
 // CSkeletonElement::categoryAreas().  Like r3d, this method is robust
 // to round-off error.
 
+// Constructing loops that span the whole microstructure is
+// inefficient, because a lot of time can be spent clipping segments
+// that are far from the element, especially because the algorithm
+// works with one element side at a time.  There's no point working
+// hard to clip segments that cross a side when the new segments will
+// be completely removed when the next element side is considered.  We
+// divide the microstructure up into a set of non-overlapping "tiles"
+// and construct a separate set of loops in each tile.  Then the
+// homogeneity calculation only needs to consider those tiles that
+// intersect the element's bounding.  This speeds up the calculation
+// immensely but only if the tile size is comparable to the element
+// size: if the tiles are too small too many of them have to be used,
+// and if they're too large, they don't serve the purpose of
+// eliminating segments from consideration.  However, constructing the
+// tiles is relatively fast, and one set of tiles can be used for many
+// elements, and tiles don't have to be recomputed unless the
+// microstructure is recategorized, so it's possible to construct many
+// sets of tiles at different scales, and use the appropriately sized
+// tiling for every element.
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Some geometric utilities
@@ -139,7 +159,7 @@ Coord intersection(const ICoord &a0, const ICoord &a1,
 
 // Utility function used by PSBTiling constructor
 
-static void getTileIndices(int mssize, int ntiles,
+static void getTileIndices(int mssize, unsigned int ntiles,
 			   TileNumbers &tileNumbers,
 			   std::vector<unsigned int> &maxes)
 {
@@ -227,7 +247,9 @@ unsigned int PSBTiling::tileIndex(unsigned int ix, unsigned int iy) const {
     ix = nxtiles-1;
   if(iy >= nytiles)
     iy = nytiles-1;
-  return iy*nxtiles + ix;
+  unsigned int idx = iy*nxtiles + ix;
+  assert(idx < tiles.size());
+  return idx;
 }
 
 void PSBTiling::add_pixel(const ICoord &px) {
@@ -314,15 +336,22 @@ double PSBTiling::clippedArea(const LineList &lines, const CRectangle &bbox,
 #endif // DEBUG
   // Find which PSBTiles to use.
   // Convert element bbox (already in pixel coords) to integers
-  unsigned int xmin = int(floor(bbox.lowerleft()[0]));
-  unsigned int xmax = int(floor(bbox.upperright()[0]));
-  if(xmax >= microstructure->sizeInPixels()[0]) --xmax;
-  unsigned int ymin = int(floor(bbox.lowerleft()[1]));
-  unsigned int ymax = int(floor(bbox.upperright()[1]));
-  if(ymax >= microstructure->sizeInPixels()[1]) --ymax;
+  int xmin = int(floor(bbox.lowerleft()[0]));
+  int xmax = int(floor(bbox.upperright()[0]));
+  int ymin = int(floor(bbox.lowerleft()[1]));
+  int ymax = int(floor(bbox.upperright()[1]));
+  // Truncate the bbox to the area of the microstructure.  Nodes
+  // outside the microstructure (in illegal Skeletons) or exactly on
+  // its the top or right edges can lead to out-of-bounds bin numbers.
+  int xsize = microstructure->sizeInPixels()[0];
+  int ysize = microstructure->sizeInPixels()[1];
+  if(xmax >= xsize) xmax = xsize - 1;
+  if(ymax >= ysize) ymax = ysize - 1;
+  if(xmin < 0) xmin = 0;
+  if(ymin < 0) ymin = 0;
 
 #ifdef DEBUG
-  if(verbose) {
+    if(verbose) {
     std::cerr << "PSBTiling::clippedArea: bbox=" << bbox << std::endl;
     std::cerr << "PSBTiling::clippedArea: x range " << xmin << " " << xmax
 	      << " yrange " << ymin << " " << ymax << std::endl;
@@ -911,7 +940,7 @@ std::ostream &operator<<(std::ostream &os, const ClippedPixelBdyLoop &pbl) {
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Stats retained for debugging and optimization
-static int maxSubdivisions = 1;
+static unsigned int maxSubdivisions = 1;
 static std::set<int> subDivisions({1});
 static int minScale = std::numeric_limits<int>::max();
 
