@@ -255,12 +255,12 @@ void AtomFluxJumpTest::begin_element(const CSubProblem *sp,
   span = ie->get_left_span();
   increment = span[1]->position()-span[0]->position();
   increment /= sqrt(norm2(increment));
-  left_normal = Coord(-increment.y,increment.x);
+  left_normal = Coord(-increment[1],increment[0]);
   
   span = ie->get_right_span();
   increment = span[1]->position()-span[0]->position();
   increment /= sqrt(norm2(increment));
-  right_normal = Coord(increment.y,-increment.x);
+  right_normal = Coord(increment[1],-increment[0]);
 
   e->setDataByName(new CoordElementData("left normal", left_normal));
   e->setDataByName(new CoordElementData("right normal", right_normal));

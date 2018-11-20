@@ -249,21 +249,6 @@ class SkeletonContext(whoville.WhoDoUndo):
 
         self.bdytimestamp.increment()
 
-        # Recalculate the bin size for the pixel set boundaries.
-        ## TODO: The ability to change the number of bins used to
-        ## calculate PixelSetBoundarys is provided here because it was
-        ## important in OOF3D to set a bin size that was comparable to
-        ## the element size.  Early tests imply that it's not crucial
-        ## in 2D, except that the number of bins shouldn't be too big.
-        ## Annealing a skeleton on a 200x200 pixel microstructure was
-        ## insensitive to the number of bins unless bin size was
-        ## comparable to the pixel size.  Using one big bin was as
-        ## efficient as using 49, but using 10000 was not.  Perhaps
-        ## the ability to set the bin size should be removed, and the
-        ## PixelSetBoundary and PixelSetSubBoundary classes should be
-        ## merged.
-        self.getMicrostructure().setPSBbins(1, 1);
-
         # This call's activity used to be done by the "'who changed',
         # 'Skeleton'" switchboard signal, but this signal was getting
         # into a race condition with callbacks for "new who", leading
@@ -312,7 +297,6 @@ class SkeletonContext(whoville.WhoDoUndo):
     # old object or the new one is a DeputySkeleton, the positions of
     # the nodes must be updated.  Also, the number of edges/nodes in
     # the current boundary can be changed.
-    
     
     def undoHookFn(self, oldskel, newskel):
         newskel.activate()
@@ -824,3 +808,5 @@ def extractSkeletonPath(somepath):
         #Shouldn't happen
         return somepath
     return pathlist[0]+':'+pathlist[1]
+
+

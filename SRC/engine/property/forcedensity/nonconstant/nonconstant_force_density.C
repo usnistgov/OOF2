@@ -32,11 +32,7 @@
 NonconstantForceDensity::NonconstantForceDensity(PyObject *reg, const std::string &nm)
   : EqnProperty(nm,reg)
 {
-#if DIM==2
   displacement = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));
-#elif DIM==3
-  displacement = dynamic_cast<ThreeVectorField*>(Field::getField("Displacement"));
-#endif
   stress_flux  = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }
 
@@ -58,11 +54,7 @@ void NonconstantForceDensity::force_value(const FEMesh *mesh,
   Coord  coord = element->from_master( masterpos );
   DoubleVec force(3);
 
-#if DIM==2
-  nonconst_force_density( coord.x, coord.y, 0.0, time, force );
-#elif DIM==3
-  nonconst_force_density( coord.x, coord.y, coord.z, time, force );
-#endif
+  nonconst_force_density( coord[0], coord[1], 0.0, time, force );
 
   eqndata->force_vector_element(0) -= force[0];
   eqndata->force_vector_element(1) -= force[1];

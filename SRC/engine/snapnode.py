@@ -109,7 +109,7 @@ class SnapHeterogenous(SnapNodeTargets):
         skel = context.getObject()
         elements = []
         for elem in skel.element_iterator():
-            if elem.homogeneity(skel.MS) < self.threshold:
+            if elem.homogeneity(skel.MS, False) < self.threshold:
                 elements.append(elem)
         return elements
 
@@ -228,7 +228,7 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
             stored_tps = {}  # keyed by node pair
             nel = len(elements)
             for i, element in enumerate(elements):
-                if element.homogeneity(skel.MS) == 1.0:
+                if element.homogeneity(skel.MS, False) == 1.0:
                     continue  # no need to even look at it!
                 if element.active(oldskeleton):
                     #nnodes = element.nnodes()

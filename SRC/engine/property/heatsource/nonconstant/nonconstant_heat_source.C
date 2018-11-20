@@ -51,9 +51,9 @@ void NonconstantHeatSource::force_value(const FEMesh *mesh, const Element *eleme
   Coord coord = element->from_master( masterpos );
 
 #if DIM==2
-  eqndata->force_vector_element(0) -= nonconst_heat_source( coord.x, coord.y, 0.0, time );
+  eqndata->force_vector_element(0) -= nonconst_heat_source( coord[0], coord[1], 0.0, time );
 #elif DIM==3
-  eqndata->force_vector_element(0) -= nonconst_heat_source( coord.x, coord.y, coord.z, time );
+  eqndata->force_vector_element(0) -= nonconst_heat_source( coord[0], coord[1], coord.z, time );
 #endif
 }
 

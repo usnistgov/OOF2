@@ -1,0 +1,9 @@
+OOF.Microstructure.Create_From_ImageFile(filename='BinaryExampleBigger.jpg', microstructure_name='BinaryExample.jpg', height=automatic, width=automatic)
+OOF.Windows.Graphics.New()
+OOF.Graphics_1.Toolbox.Pixel_Select.Color(source='BinaryExample.jpg:BinaryExampleBigger.jpg', range=DeltaGray(delta_gray=0.31746), points=[Point(110.482969432,177.816812227)], shift=0, ctrl=0)
+OOF.PixelGroup.New(name='pixelgroup', microstructure='BinaryExample.jpg')
+OOF.PixelGroup.AddSelection(microstructure='BinaryExample.jpg', group='pixelgroup')
+nbins = 20
+OOF.Skeleton.SetPSBbins(nx=nbins, ny=nbins)
+OOF.Skeleton.New(name='skeleton', microstructure='BinaryExample.jpg', x_elements=10, y_elements=7, skeleton_geometry=TriSkeleton(arrangement='moderate',left_right_periodicity=False,top_bottom_periodicity=False))
+OOF.Skeleton.Modify(skeleton='BinaryExample.jpg:skeleton', modifier=Anneal(targets=AllNodes(),criterion=AverageEnergy(alpha=0.3),T=0.0,delta=1.0,iteration=FixedIteration(iterations=200)))

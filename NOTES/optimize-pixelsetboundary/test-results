@@ -1,0 +1,290 @@
+
+
+annealtest2.log 50 iterations
+time oof2 --sc annealtest2.log --batch
+Using new robust clipping w/ move constructor for loops, AND using bbox.
+13.0 secs              1x1 subbdys
+13.2                   2x2
+12.6                   4x4
+12.9                   6x6
+13.8                  10x10
+24.1                  40x40
+26.19 secs        Using 2.1.16  (robust clipping w/ multiple loop clipping)
+18.97 secs        Using 2.1.15  (non-robust clipping)
+
+time oof2 --sc binarytest.log --batch
+200 iterations, more complicated image, 10x7 triangular skeleton
+14.8      1x1
+11.6      2x2
+10.7      4x4
+10.7      6x6
+11.1     10x10
+13.4     20x20
+
+Same, but 20x14 triangular skeleton, 50 iterations
+14.4      1x1
+11.0      2x2
+9.9       4x4
+9.7       6x6
+10.0     10x10
+11.7     21x20
+
+Tiled image 2x2 -- same size features, but more of them.  10x7
+skeleton, 200 iterations
+Image created by tiling & reflecting image from binarytest.log.
+28.4      1x1
+16.6      2x2
+13.9      4x4
+13.5      6x6
+13.7      8x8
+14.3     10x10
+16.4     20x20
+ 
+
+Tiled image 2x2 -- same size features, but more of them.  20x14
+skeleton, 50 iterations
+19.3      1x1
+15.3      2x2
+12.7      4x4
+12.0      6x6
+12.2      8x8
+12.4     10x10
+14.0     20x20
+
+Back to original image in binarytest.log, but blown up by factor of 2.
+Same number of pixels as in tiled image, but same number of features
+as in original image.  10x7 skeleton, 200 iterations
+17.2      1x1
+13.5      2x2
+12.7      4x4
+12.2      6x6
+12.5      8x8
+12.9     10x10
+15.1     20x20
+
+-------------
+
+More systematically:
+Running testtarget.log.
+Timing just the Anneal step using the timeit module.
+"dist" build.
+Running on iolanthe.
+
+Using images derived from targets.graffle: a bullseye pattern repeated
+in a rough hexagonal pattern.
+
+countleft is the number of times the leftside() function was called
+time2 is after changing Coord to use array of doubles and preallocating loops
+
+Skel   Bins   iter  time    countleft  time2
+targets7.jpg, 648x584 pixels
+4x4    1x1    100   2.65    69024344   2.35
+       2x2          2.34    48477119   2.05
+       4x4          2.34    29226602   2.04
+       6x6          2.34    26101149   2.05
+       8x8          2.34    21029326   2.04
+      10x10         2.34    19338466   2.05
+      15x15         2.64    16457097   2.35
+      20x20         2.96    17345053   2.65
+      50x50         5.37    32228750   5.35,5.06
+
+10x10  1x1     30   3.87   110828446   3.26
+       2x2          3.25    64671657   2.97
+       4x4          2.95    32977983   2.66
+       6x6          2.96    23782673   2.67
+       8x8          2.96    18527982   2.67
+      10x10         2.97    16177572   2.65
+      15x15         2.95    12374444   2.97,2.96
+      20x20         3.25    11352060   3.26
+      50x50         5.68    16040782   5.07
+
+targets7s.jpg, 324x292 pixels
+just a scaled down version of targets7.jpg
+4x4    1x1    100   2.05    31675519
+       2x2          1.73    22559700
+       4x4          1.73    14295731
+       6x6          1.73    12788126
+       8x8          1.74    10867845
+      10x10         2.05    10282808
+      15x15         2.04     9888734
+      20x20         2.35    11300597
+      50x50         4.77    26152413
+
+10x10  1x1     30   2.97    53041110
+       2x2          2.66    31293379
+       4x4          2.34    16510615
+       6x6          2.36    12257025
+       8x8          2.36     9829092
+      10x10         2.65     9004312
+      15x15         2.65     7613268
+      20x20         2.96     7637149
+      50x50         5.39    13497991
+
+targets7b.jpg, 1296x1168 pixels
+just a scaled up version of targets7.jpg
+4x4    1x1    100   2.94    81019843
+       2x2          2.65    57167483
+       4x4          2.65    33836938
+       6x6          2.65    30905318
+       8x8          2.66    24466352
+      10x10         2.65    22751865
+      12x12	    2.65    21094292
+      15x15         2.95    19265758
+      20x20         3.26    19737679
+      50x50         6.26    35960394
+
+10x10  1x1     30   4.19   124894621
+       2x2     	    3.56    73890387
+       4x4	    2.96    37552360
+       6x6	    2.96    27142518
+       8x8	    2.96    20927743
+      10x10	    2.95    18510018
+      12x12	    2.96    15577527
+      15x15	    3.26    14035587
+      20x20	    3.27    12673339
+      50x50	    5.69    17464949
+
+targets22.jpg, 636x584 pixels 
+finer details than targets7.jpg (22 targets vs 7), roughly the same # of pixels
+features about the same size as targets7s.jpg
+4x4    1x1    100   3.84   102796640
+       2x2          3.24    62221452
+       4x4          2.95    45148804
+       6x6          2.94    35965813
+       8x8          3.25    31091917
+      10x10         3.24    31091917
+      15x15         3.25    24912164
+      20x20         3.55    24439694
+      50x50         6.28    38393064
+     100x100       14.8     90519572
+
+10x10  1x1     30   5.06   171217493
+       2x2          4.16    85883164
+       4x4          3.56    51144235
+       6x6          3.55    36037856
+       8x8          3.57    28535552
+      10x10         3.57    25582694
+      15x15         3.86    18929559
+      20x20         3.87    17396863
+      50x50         6.57    19397956
+
+targets22s.jpg, 318x292 pixels
+just a scaled down version of targets22.jpg
+4x4    1x1    100   2.36    42686934   2.05
+       2x2    	    2.34    30071735
+       4x4	    2.34    22644521
+       6x6	    2.35    18756696
+       8x8	    2.34    17134520   2.04
+      10x10	    2.34    16772682
+      15x15	    2.64    15247251
+      20x20	    2.93    16389922
+      50x50	    5.65    32067556
+
+10x10  1x1     30   3.55    64890116
+       2x2     	    2.95    37440424
+       4x4	    2.95    23080486
+       5x5	    2.95    19602088
+       6x6	    2.65    17056283
+            repeat: 2.96 2.97 2.96
+       7x7	    2.95    15366681
+       8x8	    2.95    14133665   2.65
+      10x10	    2.95    13513748
+      15x15	    3.25    10648606
+      20x20	    3.27    10585097
+      50x50	    5.69    15133390
+
+targets22b.jpg, 1272x1168 pixels
+just a scaled up version of targets22.jpg
+features are about as big as in targets7.jpg
+4x4    1x1    100   4.16   110918695
+       2x2    	    3.57    72742391
+       4x4	    3.56    54118519
+       5x5	    3.25    47930714
+       6x6	    3.25    43596814
+            repeat: 3.25 3.26 3.26
+       7x7	    3.26    41667468
+       8x8	    3.54    37539498
+      10x10	    3.56    35351772
+      12x12	    3.56    31582294
+      15x15	    3.86    29823226
+      20x20	    4.16    28819162
+      50x50	    7.17    43501567
+
+10x10  1x1     30   5.39   182534035
+       2x2     	    4.46   102839828
+       4x4	    3.88    61701522
+       6x6	    3.87    43861517
+       8x8	    3.87    34418977
+      10x10	    3.87    30344824   3.57
+      12x12	    3.85    25518149
+      15x15	    3.87    22718761
+            repeat: 3.86
+      20x20	    4.17    20397692   3.87
+      50x50	    6.89    21867464
+
+targets90.jpg, 613x584 pixels
+features are half the linear size as those in targets22.jpg
+4x4    1x1    100   5.36    11443070
+       2x2    	    4.76    73979463
+       4x4	    4.46    57550101
+       6x6	    4.46    55310211
+       8x8	    4.47    48576623
+      10x10	    4.46    46337301
+      12x12	    4.75    43415702
+            repeat: 4.76 4.46 4.77
+      15x15	    4.76    41501972
+      20x20	    5.36    40313507
+      50x50	    8.40    53032635
+
+10x10  1x1     30   5.97   171995823   5.08
+       2x2     	    4.78    83384435
+       4x4	    4.48    54585810
+       6x6	    4.48    45072237
+       8x8	    4.46    37841402
+      10x10	    4.48    31547115   3.87
+      12x12	    4.46    30971894
+            repeat: 4.47 4.46 4.76
+      15x15	    4.47    27981636
+            repeat: 4.46 4.48 4.78
+      16x16	    4.76    27278993
+            repeat: 4.47 4.78 4.76
+      17x17	    4.79    26418590
+      20x20	    4.80    24547004
+      50x50	    7.21    25792423   7.21
+
+
+Changing Coord so that it stores values as double x[2] instead of
+separate .x and .y, so that operator[] doesn't require an "if" makes
+clipping much faster! 
+
+Conclusions:
+
+Running time is noticeably worse if the bin size is too large or too
+small, but the minimum is quite broad.
+
+A bin size that is roughly equal to the element size is always within
+the broad mininum.
+
+More bins means smaller loops, so preallocating the loops is less
+beneficial for large nbins, but not detrimental.
+
+Set the bin size equal to the average element size, and change it only
+if the average element size changes by a lot.
+
+--------
+
+Repeating testtarget.log after switching to hierarchical tiling.
+% oof2--sc testtarget.log --unthreaded --batch
+
+Skel iters factor minsize | #levels maxsubdiv times
+targets7.jpg
+4x4  100   0.5    10         3      4    1.27, 1.30, 1.28
+           0.5     1         3      4    1.28
+	   0.5   100         3      4    1.27
+	   0.5	 200	     2	    2	 1.31, 1.34
+	   0.5   400	     1	    1	 1.49, 1.52, 1.48
+
+10x10 30   0.5     1         3      8    1.35, 1.33
+           0.5    10	     3	    8	 1.33
+	   0.5	  50	     3	    8    1.36
+	   0.5   100	     2	    4	 1.39, 1.39

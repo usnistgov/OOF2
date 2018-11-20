@@ -46,10 +46,8 @@ GeneralNonlinearElasticityNoDeriv::GeneralNonlinearElasticityNoDeriv(PyObject *r
 
 int GeneralNonlinearElasticityNoDeriv::integration_order(const CSubProblem *subp,
 							 const Element *el) const {
-#if DIM==2
   if(displacement->in_plane(subp))
     return el->dshapefun_degree();
-#endif
   return el->shapefun_degree();
 }
 
@@ -77,11 +75,7 @@ void GeneralNonlinearElasticityNoDeriv::static_flux_value(
 
   Coord coord = element->from_master( pt );
 
-#if DIM==2
-  nonlin_stress( coord.x, coord.y, 0.0, time, dispVec, dispGrad, stress );
-#elif DIM==3
-  nonlin_stress( coord.x, coord.y, coord.z, time, dispVec, dispGrad, stress );
-#endif
+  nonlin_stress( coord[0], coord[1], 0.0, time, dispVec, dispGrad, stress );
 
 
   // now we can plug in the flux element values to fluxdata
@@ -127,21 +121,11 @@ void GeneralNonlinearElasticity::flux_matrix(const FEMesh *mesh,
   Coord coord = element->from_master( pt );
 
   // the derivative of the stress flux mapping w.r.t. displacement field
-#if DIM==2
-  nonlin_stress_deriv_wrt_displacement( coord.x, coord.y, 0.0, time,
+  nonlin_stress_deriv_wrt_displacement( coord[0], coord[1], 0.0, time,
 					dispVec, dispGrad, stressDeriv1 );
-#elif DIM==3
-  nonlin_stress_deriv_wrt_displacement( coord.x, coord.y, coord.z, time,
-					dispVec, dispGrad, stressDeriv1 );
-#endif
   // the derivative of the stress flux mapping w.r.t. displacement gradient
-#if DIM==2
-  nonlin_stress_deriv_wrt_displacement_gradient( coord.x, coord.y, 0.0, time,
+  nonlin_stress_deriv_wrt_displacement_gradient( coord[0], coord[1], 0.0, time,
 						 dispVec, dispGrad, stressDeriv2 );
-#elif DIM==3
-  nonlin_stress_deriv_wrt_displacement_gradient( coord.x, coord.y, coord.z, time,
-						 dispVec, dispGrad, stressDeriv2 );
-#endif
 
 
   // evaluate the shape function and its gradient at the given node j

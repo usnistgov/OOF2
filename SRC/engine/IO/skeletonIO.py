@@ -181,6 +181,7 @@ def _loadElements(menuitem, skeleton, nodes):
     for nodelist in nodes:
         skeleton.loadElement(*nodelist)
     skelcontext.getTimeStamp(None).increment()
+    skeleton.updateGeometry()
     if config.dimension() == 2:
         skelcontext.updateGroupsAndSelections()
     switchboard.notify(('who changed', 'Skeleton'), skelcontext)

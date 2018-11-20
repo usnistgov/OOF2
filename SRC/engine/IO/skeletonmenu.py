@@ -44,6 +44,7 @@ import sys
 OOF = mainmenu.OOF
 RegisteredParameter = parameter.RegisteredParameter
 IntParameter = parameter.IntParameter
+AutoIntParameter = parameter.AutoIntParameter
 WhoParameter = whoville.WhoParameter
 microStructures = microstructure.microStructures
 SkeletonModifier = skeletonmodifier.SkeletonModifier
@@ -77,60 +78,58 @@ def skeletonNameResolver(param, startname):
 
 ######################
 
-if config.dimension() == 2:
+def _skeleton_from_mstructure(menuitem, name, microstructure, x_elements,
+                               y_elements, skeleton_geometry):
+    if parallel_enable.enabled():  # PARALLEL
+        skeleton.initialSkeletonParallel(name, microstructure,
+                                         x_elements, y_elements,
+                                         skeleton_geometry)
+    else:
+        ms = microStructures[microstructure].getObject()
+        skel = skeleton.initialSkeleton(name, ms,
+                                        x_elements, y_elements,
+                                        skeleton_geometry)
+    switchboard.notify("redraw")
 
-    def _skeleton_from_mstructure(menuitem, name, microstructure, x_elements,
-                                   y_elements, skeleton_geometry):
-        if parallel_enable.enabled():  # PARALLEL
-            skeleton.initialSkeletonParallel(name, microstructure,
-                                             x_elements, y_elements,
-                                             skeleton_geometry)
-        else:
-            ms = microStructures[microstructure].getObject()
-            skel = skeleton.initialSkeleton(name, ms,
-                                            x_elements, y_elements,
-                                            skeleton_geometry)
-        switchboard.notify("redraw")
+skelparams=parameter.ParameterGroup(
+    AutoWhoNameParameter('name', value=automatic.automatic,
+                         resolver=skeletonNameResolver,
+                         tip="Name of the new skeleton."),
+    WhoParameter('microstructure', microStructures,
+                 tip=parameter.emptyTipString),
+    IntParameter('x_elements', 4, tip="No. of elements in the x-direction."),
+    IntParameter('y_elements', 4, tip="No. of elements in the y-direction."),
+    RegisteredParameter('skeleton_geometry', skeleton.SkeletonGeometry,
+                        skeleton.QuadSkeleton(),
+                        tip="The shape of the elements."))
 
-    skelparams=parameter.ParameterGroup(
-        AutoWhoNameParameter('name', value=automatic.automatic,
-                             resolver=skeletonNameResolver,
-                             tip="Name of the new skeleton."),
-        WhoParameter('microstructure', microStructures,
-                     tip=parameter.emptyTipString),
-        IntParameter('x_elements', 4, tip="No. of elements in the x-direction."),
-        IntParameter('y_elements', 4, tip="No. of elements in the y-direction."),
-        RegisteredParameter('skeleton_geometry', skeleton.SkeletonGeometry,
-                            skeleton.QuadSkeleton(),
-                            tip="The shape of the elements."))
+# elif config.dimension() == 3:
 
-elif config.dimension() == 3:
+#     def _skeleton_from_mstructure(menuitem, name, microstructure, x_elements,
+#                                    y_elements, z_elements, skeleton_geometry):
+#         if parallel_enable.enabled():  # PARALLEL
+#             skeleton.initialSkeletonParallel(name, microstructure,
+#                                              x_elements, y_elements,
+#                                              z_elements, skeleton_geometry)
+#         else:
+#             ms = microStructures[microstructure].getObject()
+#             skel = skeleton.initialSkeleton(name, ms,
+#                                             x_elements, y_elements, z_elements,
+#                                             skeleton_geometry)
+#         switchboard.notify("redraw")
 
-    def _skeleton_from_mstructure(menuitem, name, microstructure, x_elements,
-                                   y_elements, z_elements, skeleton_geometry):
-        if parallel_enable.enabled():  # PARALLEL
-            skeleton.initialSkeletonParallel(name, microstructure,
-                                             x_elements, y_elements,
-                                             z_elements, skeleton_geometry)
-        else:
-            ms = microStructures[microstructure].getObject()
-            skel = skeleton.initialSkeleton(name, ms,
-                                            x_elements, y_elements, z_elements,
-                                            skeleton_geometry)
-        switchboard.notify("redraw")
-
-    skelparams=parameter.ParameterGroup(
-        AutoWhoNameParameter('name', value=automatic.automatic,
-                             resolver=skeletonNameResolver,
-                             tip="Name of the new skeleton."),
-        WhoParameter('microstructure', microStructures,
-                     tip=parameter.emptyTipString),
-        IntParameter('x_elements', 4, tip="No. of elements in the x-direction."),
-        IntParameter('y_elements', 4, tip="No. of elements in the y-direction."),
-        IntParameter('z_elements', 4, tip="No. of elements in the z-direction."),
-        RegisteredParameter('skeleton_geometry', skeleton.SkeletonGeometry,
-                            skeleton.TetraSkeleton(),
-                            tip="The shape of the elements."))
+#     skelparams=parameter.ParameterGroup(
+#         AutoWhoNameParameter('name', value=automatic.automatic,
+#                              resolver=skeletonNameResolver,
+#                              tip="Name of the new skeleton."),
+#         WhoParameter('microstructure', microStructures,
+#                      tip=parameter.emptyTipString),
+#         IntParameter('x_elements', 4, tip="No. of elements in the x-direction."),
+#         IntParameter('y_elements', 4, tip="No. of elements in the y-direction."),
+#         IntParameter('z_elements', 4, tip="No. of elements in the z-direction."),
+#         RegisteredParameter('skeleton_geometry', skeleton.SkeletonGeometry,
+#                             skeleton.TetraSkeleton(),
+#                             tip="The shape of the elements."))
 
 skeletonmenu.addItem(oofmenu.OOFMenuItem(
     'New',
@@ -148,34 +147,35 @@ def _simple_skeleton_from_ms(menuitem, name, microstructure, skeleton_geometry):
     ms = microStructures[microstructure].getObject()
     x_elements = ms.sizeInPixels()[0]
     y_elements = ms.sizeInPixels()[1]
-    if config.dimension() == 2:
-        skel = skeleton.simpleSkeleton(name, ms, x_elements, y_elements,
+    # if config.dimension() == 2:
+    skel = skeleton.simpleSkeleton(name, ms, x_elements, y_elements,
                                    skeleton_geometry)
-    elif config.dimension() == 3:
-        z_elements = ms.sizeInPixels()[2]
-        skel = skeleton.simpleSkeleton(name, ms, x_elements, y_elements,
-                                       z_elements, skeleton_geometry) 
+    # elif config.dimension() == 3:
+    #     z_elements = ms.sizeInPixels()[2]
+    #     skel = skeleton.simpleSkeleton(name, ms, x_elements, y_elements,
+    #                                    z_elements, skeleton_geometry) 
     switchboard.notify("redraw")
 
-if config.dimension() == 2:
-    simpleparams=parameter.ParameterGroup(
-        AutoWhoNameParameter('name', value=automatic.automatic,
-                             resolver=skeletonNameResolver,
-                             tip="Name of the simple skeleton."),
-        WhoParameter('microstructure', microStructures,
-                     tip=parameter.emptyTipString),
-        RegisteredParameter('skeleton_geometry', skeleton.SkeletonGeometry, skeleton.QuadSkeleton(),
-                  tip="Geometry of elements, quadrilateral or triangle."))
+# if config.dimension() == 2:
+simpleparams=parameter.ParameterGroup(
+    AutoWhoNameParameter('name', value=automatic.automatic,
+                         resolver=skeletonNameResolver,
+                         tip="Name of the simple skeleton."),
+    WhoParameter('microstructure', microStructures,
+                 tip=parameter.emptyTipString),
+    RegisteredParameter('skeleton_geometry', skeleton.SkeletonGeometry,
+                        skeleton.QuadSkeleton(),
+                        tip="Geometry of elements, quadrilateral or triangle."))
 
-elif config.dimension() == 3:
-    simpleparams=parameter.ParameterGroup(
-        AutoWhoNameParameter('name', value=automatic.automatic,
-                             resolver=skeletonNameResolver,
-                             tip="Name of the simple skeleton."),
-        WhoParameter('microstructure', microStructures,
-                     tip=parameter.emptyTipString),
-        RegisteredParameter('skeleton_geometry', skeleton.SkeletonGeometry, skeleton.TetraSkeleton(),
-                  tip="Geometry of elements (currently the only choice is Tetra)."))
+# elif config.dimension() == 3:
+#     simpleparams=parameter.ParameterGroup(
+#         AutoWhoNameParameter('name', value=automatic.automatic,
+#                              resolver=skeletonNameResolver,
+#                              tip="Name of the simple skeleton."),
+#         WhoParameter('microstructure', microStructures,
+#                      tip=parameter.emptyTipString),
+#         RegisteredParameter('skeleton_geometry', skeleton.SkeletonGeometry, skeleton.TetraSkeleton(),
+#                   tip="Geometry of elements (currently the only choice is Tetra)."))
 
     
 
@@ -361,6 +361,7 @@ def _modify(menuitem, skeleton, modifier):
         # calls to READ or REDRAW that may make use of
         # begin/end_reading(). See anneal.py for an example.
         modifier.postProcess(context) # parallelize for each modifier
+        skel.updateGeometry() # force recalculation of homogeneity, etc
 
         end_nnodes = context.getObject().nnodes()
         end_nelems = context.getObject().nelements()
@@ -574,4 +575,5 @@ _fixmenu()
 
 switchboard.requestCallback(('new who', 'Skeleton'), _fixmenu)
 switchboard.requestCallback(('remove who', 'Skeleton'), _fixmenu)
+    
 

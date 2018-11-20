@@ -26,6 +26,13 @@ static const ICoord iUp(0, 1);
 static const ICoord iLeft(-1, 0);
 static const ICoord iDown(0, -1);
 
+// Tilings are created at scales that are factors of tilingfactor.
+// tilingfactor must be strictly between 0 and 1.
+double tilingfactor = 0.5;
+
+// mintilescale is the minumum allowed tile size, in pixel units
+int mintilescale = 10;
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // A PixelSetBoundary is a bunch of line segments that form the
@@ -45,32 +52,62 @@ static const ICoord iDown(0, -1);
 // are handled one at a time.  Clipping a loop with one line produces
 // a new loop, which is clipped by the next line.  Treating the
 // element sides as infinite lines and clipping with each in turn only
-// works because the element is convex.
+// works because the element is assumed to be convex.
 
 // The initial loops in the PixelSetBoundary are instances of
 // PixelBdyLoop, which stores its segment ends as ICoords (in the
 // pixel coordinate system).  Using ICoords makes the construction of
-// loops from pixels robust.  The clipped loops are
+// loops from pixels robust.  On the other hand, the clipped loops are
 // ClippedPixelBdyLoop instances, using Coords because the clipped
-// points aren't generally at integer coordinates.  These never need
-// to be stored.
+// points aren't generally at integer coordinates.
 
 // Clipping a loop by a line entails finding which points are to be
 // retained (those on the left side of the clipping line).  New points
 // are created by interpolating along the loop segments that cross the
-// clipping line.  This creates a set of loop fragments that can be
-// closed along the clipping line.  Each fragment is joined
-// independently of the others.  The result isn't necessarily the
-// simplest way to construct the clipped loop -- there may be
-// counterdirected segments along the clipping line that partially
-// cancel each other out.  However the area of the set of loops will
-// be correct, and that's what we care about.  The big advantage of
-// this method is that it doesn't require us to determine the order of
-// intersection points along the element perimeter.  Round-off error
-// in that calculation was what caused errors in the previous version
-// of CSkeletonElement::categoryAreas().  Like r3d, this method is
-// robust to round-off error.
+// clipping line.  New points created when the pixel loop leaves the
+// clipping region (crosses the line from left to right) are connected
+// to the last point in the clipping region and directly to the next
+// new point, which is created when the pixel loop re-enters the
+// clipping region (crosses the line from right to left).  The line
+// connecting the two new points is a segment of the clipping line.
+// The resulting loop may contain multiple overlapping collinear
+// segments along the clipping line, but they will go in both
+// directions and cancel each other out, and their net contribution to
+// the loop area will be correct.
 
+// A fundamental difference between this method and the earlier
+// methods that we tried is that this one works with one element edge
+// at a time, and only has to decide which points are on which side of
+// a line, not which points are inside the element.  As such, there's
+// never any ambiguity about how new points should be connected.  The
+// only possible connection is along the clipping line.
+
+// The big advantage of this method is that it doesn't require us to
+// determine the order of intersection points along the element
+// perimeter.  Round-off error in that calculation was what caused
+// errors in the previous version of
+// CSkeletonElement::categoryAreas().  Like r3d, this method is robust
+// to round-off error.
+
+// Constructing loops that span the whole microstructure is
+// inefficient, because a lot of time can be spent clipping segments
+// that are far from the element, especially because the algorithm
+// works with one element side at a time.  There's no point working
+// hard to clip segments that cross a side when the new segments will
+// be completely removed when the next element side is considered.  We
+// divide the microstructure up into a set of non-overlapping "tiles"
+// and construct a separate set of loops in each tile.  Then the
+// homogeneity calculation only needs to consider those tiles that
+// intersect the element's bounding.  This speeds up the calculation
+// immensely but only if the tile size is comparable to the element
+// size: if the tiles are too small too many of them have to be used,
+// and if they're too large, they don't serve the purpose of
+// eliminating segments from consideration.  However, constructing the
+// tiles is relatively fast, and one set of tiles can be used for many
+// elements, and tiles don't have to be recomputed unless the
+// microstructure is recategorized, so it's possible to construct many
+// sets of tiles at different scales, and use the appropriately sized
+// tiling for every element.
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -78,8 +115,11 @@ static const ICoord iDown(0, -1);
 
 // Is the given point to the left of the given line?
 
+int countleft = 0;		// debugging
+
 template <class COORD>
 bool leftside(const COORD &pt, const Line &line) {
+  ++countleft;			// debugging
   return cross(line.second - line.first, pt - line.first) > 0.0;
 }
 
@@ -117,57 +157,262 @@ Coord intersection(const ICoord &a0, const ICoord &a1,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-PixelSetBoundary::PixelSetBoundary(const CMicrostructure* ms, int nx, int ny)
-  :  subBdys(nx*ny),
-     microstructure(ms),
-     nbinsx(nx), nbinsy(ny)
+// Utility function used by PSBTiling constructor
+
+static void getTileIndices(int mssize, unsigned int ntiles,
+			   TileNumbers &tileNumbers,
+			   std::vector<unsigned int> &maxes)
 {
+  // Get the tile number for each pixel, and the max pixel index for
+  // each tile.  The x and y directions are done separately.  This
+  // routine does one direction at a time.
+
+  // TODO: Cache results.  PSBTiles don't need their own copies of the
+  // results, and this routine will be called multiple times with the
+  // same mssize and ntiles args.
+  unsigned int lasttile = 0;
+  double factor = ntiles/(float) mssize;
+  // Do this the dumb way by looping over integer pixel coordinates so
+  // we don't have to think about what happens if the Microstructure
+  // size isn't an integer multiple of the number of tiles.
+  for(unsigned int pxl=0; pxl<mssize; pxl++) {
+    unsigned int tile = pxl*factor;
+    if(tile == ntiles) --tile;
+    if(tile > 0 && tile != lasttile) {
+      maxes[tile-1] = pxl-1;
+    }
+    tileNumbers[pxl] = tile;
+    lasttile = tile;
+  }
+  maxes[ntiles-1] = mssize - 1;
 }
 
-void PixelSetBoundary::add_pixel(const ICoord &px) {
-  // Find which bin the pixel contributes to.
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+PSBTiling::PSBTiling(const CMicrostructure* ms,
+		     unsigned int nx, unsigned int ny)
+  : tiles(nx*ny, nullptr),
+    microstructure(ms),
+    nxtiles(nx), nytiles(ny)
+{
+  // std::cerr << "PSBTiling::ctor: nx=" << nx << " ny=" << ny << std::endl;
+  // A PSBTiling is divided into PSBTiles, which together cover
+  // the whole Microstructure.
   ICoord mssize = microstructure->sizeInPixels();
-  int ix = (px(0)/mssize(0))*nbinsx;
-  if(ix >= nbinsx) ix = nbinsx-1;
-  int iy = (px(1)/mssize(1))*nbinsy;
-  if(iy >= nbinsy) ix = nbinsy-1;
+  tiles.reserve(nx*ny);
+
+  // Construct lookup tables that quickly convert pixel coordinates to
+  // tile numbers.  At the same time, find the bounding box for each
+  // bin. 
+  std::vector<unsigned int> maxx(nxtiles, 0);
+  std::vector<unsigned int> maxy(nytiles, 0);
+  xTileNumbers.resize(mssize[0], 0);
+  yTileNumbers.resize(mssize[1], 0);
+  getTileIndices(mssize[0], nx, xTileNumbers, maxx);
+  getTileIndices(mssize[1], ny, yTileNumbers, maxy);
+  
+  // Create the tiles. 
+  for(unsigned int iy=0; iy<nytiles; iy++) {
+    const int ymin = iy == 0 ? 0 : (maxy[iy-1] + 1);
+    const int ymax = maxy[iy];
+    for(unsigned int ix=0; ix<nxtiles; ix++) {
+      const int xmin = ix == 0 ? 0 : (maxx[ix-1] + 1);
+      const int xmax = maxx[ix];
+      // The argument to the PSBTile constructor is the bounding box
+      // of the tile.  A pixel is in the tile if its lower left corner
+      // is in the bounding box.
+      tiles[tileIndex(ix, iy)] = new PSBTile(ICRectangle(ICoord(xmin, ymin),
+							 ICoord(xmax, ymax)));
+      // std::cerr << "PSBTiling::ctor:  tile #" << tileIndex(ix, iy)
+      // 		<< " " << ix << " " << iy << " " << *tiles[tileIndex(ix, iy)]
+      // 		<< std::endl;
+    }
+  }
+}
+
+PSBTiling::~PSBTiling() {
+  for(PSBTile *tile : tiles)
+    delete tile;
+}
+
+unsigned int PSBTiling::tileIndex(unsigned int ix, unsigned int iy) const {
+  // When trying to compute the homogeneity of an element that has one
+  // or more nodes outside the microstructure, ix or iy can be larger
+  // than nxtiles or nytiles.  In that case, the correct thing to do
+  // is to truncate them, so that only the part of the element inside
+  // the microstructure is used.  Illegal elements with inverted
+  // geometries don't make it to this point because
+  // CSkeletonElement::c_homogeneity checks for that case.
+  if(ix >= nxtiles)
+    ix = nxtiles-1;
+  if(iy >= nytiles)
+    iy = nytiles-1;
+  unsigned int idx = iy*nxtiles + ix;
+  assert(idx < tiles.size());
+  return idx;
+}
+
+void PSBTiling::add_pixel(const ICoord &px) {
+  // Find which bin the pixel contributes to.
+  unsigned int ix = xTileNumbers[px[0]];
+  unsigned int iy = yTileNumbers[px[1]];
   // Add to the bin.
-  subBdys[iy*nbinsx + ix].add_pixel(px);
+  tiles[tileIndex(ix, iy)]->add_pixel(px);
+}
+
+void PSBTiling::add_segments(const std::vector<ICoord> &loop) {
+  assert(loop.size() >= 4);	// must be a real loop
+  unsigned int iprev = loop.size() - 1;
+  for(unsigned int i=0; i<loop.size(); i++) {
+    // End points of this segment
+    ICoord p0 = loop[iprev];
+    ICoord p1 = loop[i];
+    // Find which direction the segment goes.
+    if(p0[0] > p1[0]) {		// segment goes from right to left
+      // Add each unit leg of each segment separately.  TODO: Find
+      // where segments cross from one tile to another and add longer
+      // segments.
+      for(unsigned int x=p0[0]; x>p1[0]; x--) {
+	// Which tile the segment belongs in is determined by which
+	// pixel is responsible for the segment.  This segment goes to
+	// the left, so the pixel is below and to the left of the
+	// starting point of the segment.
+	unsigned int ix = xTileNumbers[x-1];
+	unsigned int iy = yTileNumbers[p0[1]-1];
+	tiles[tileIndex(ix, iy)]->add_segmentL(ICoord(x, p0[1]));
+      }
+    }
+    else if(p0[0] < p1[0]) {	// left to right
+      for(unsigned int x=p0[0]; x<p1[0]; x++) {
+	// The pixel is above and to the right of the segment's start.
+	unsigned int ix = xTileNumbers[x];
+	unsigned int iy = yTileNumbers[p0[1]];
+	tiles[tileIndex(ix, iy)]->add_segmentR(ICoord(x, p0[1]));
+      }
+    }
+    else if(p0[1] > p1[1]) {	// up to down
+      for(unsigned int y=p0[1]; y>p1[1]; y--) {
+	// The pixel is to the right and below the segment's start.
+	unsigned int ix = xTileNumbers[p0[0]];
+	unsigned int iy = yTileNumbers[y-1];
+	tiles[tileIndex(ix, iy)]->add_segmentD(ICoord(p0[0], y));
+      }
+    }
+    else {			// down to up
+      assert(p0[1] < p1[1]);
+      for(unsigned int y=p0[1]; y<p1[1]; y++) {
+	// The pixel is to the left and above the segment's start.
+	unsigned int ix = xTileNumbers[p0[0]-1];
+	unsigned int iy = yTileNumbers[y];
+	tiles[tileIndex(ix, iy)]->add_segmentU(ICoord(p0[0], y));
+      }
+    }
+
+    iprev = i;
+  } // end loop over points i
+}
+
+void PSBTiling::add_tile_perimeters(int cat) {
+  for(PSBTile *tile : tiles)
+    tile->add_perimeter(microstructure, cat);
 }
 
 // find_boundary is called by CMicrostructure::categorize() after it
 // has called add_pixel for each pixel in the microstructure.
 
-void PixelSetBoundary::find_boundary() {
-  for(PixelSetSubBoundary &psb : subBdys)
-    psb.find_boundary(microstructure);
+void PSBTiling::find_boundary() {
+  for(PSBTile *tile : tiles) {
+    tile->find_boundary(microstructure);
+  }
 }
 
-double PixelSetBoundary::clippedArea(const LineList &lines) const {
+double PSBTiling::clippedArea(const LineList &lines, const CRectangle &bbox,
+			      bool verbose)
+  const
+{
 #ifdef DEBUG
   for(const Line &line : lines)
     assert(line.first != line.second);
 #endif // DEBUG
+  // Find which PSBTiles to use.
+  // Convert element bbox (already in pixel coords) to integers
+  int xmin = int(floor(bbox.lowerleft()[0]));
+  int xmax = int(floor(bbox.upperright()[0]));
+  int ymin = int(floor(bbox.lowerleft()[1]));
+  int ymax = int(floor(bbox.upperright()[1]));
+  // Truncate the bbox to the area of the microstructure.  Nodes
+  // outside the microstructure (in illegal Skeletons) or exactly on
+  // its the top or right edges can lead to out-of-bounds bin numbers.
+  int xsize = microstructure->sizeInPixels()[0];
+  int ysize = microstructure->sizeInPixels()[1];
+  if(xmax >= xsize) xmax = xsize - 1;
+  if(ymax >= ysize) ymax = ysize - 1;
+  if(xmin < 0) xmin = 0;
+  if(ymin < 0) ymin = 0;
+
+#ifdef DEBUG
+    if(verbose) {
+    std::cerr << "PSBTiling::clippedArea: bbox=" << bbox << std::endl;
+    std::cerr << "PSBTiling::clippedArea: x range " << xmin << " " << xmax
+	      << " yrange " << ymin << " " << ymax << std::endl;
+  }
+#endif // DEBUG
   double area = 0.0;
-  for(const PixelSetSubBoundary &subbdy : subBdys) {
-    area += subbdy.clippedArea(lines);
+  for(unsigned int iy=yTileNumbers[ymin]; iy<=yTileNumbers[ymax]; iy++) {
+    for(unsigned int ix=xTileNumbers[xmin]; ix<=xTileNumbers[xmax]; ix++) {
+#ifdef DEBUG
+      if(verbose)
+	std::cerr << "PSBTiling::clippedArea: using tile " << ix << " " << iy
+		  << " " << *tiles[tileIndex(ix, iy)] << std::endl;
+#endif // DEBUG
+      area += tiles[tileIndex(ix, iy)]->clippedArea(lines, bbox);
+    }
   }
   // Convert back to physical units
   Coord pxlsize = microstructure->sizeOfPixels();
-  return area * pxlsize.x * pxlsize.y;
+  return area * pxlsize[0] * pxlsize[1];
+}
+
+PSBTiling *PSBTiling::subdivide(int cat, unsigned int nx, unsigned int ny)
+  const
+{
+  assert(tiles.size() == 1);
+  return tiles[0]->subdivide(microstructure, cat, nx, ny);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-PixelSetSubBoundary::~PixelSetSubBoundary() {
+
+std::ostream &operator<<(std::ostream &os, const CoordMap &cm) {
+  os << "{";
+  for(auto &i : cm)
+    os << i.first << ":" << i.second << ", ";
+  os << "}";
+  return os;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+PSBTile::PSBTile(ICRectangle &&bbox)
+  : bounds(std::move(bbox))
+{}
+
+
+PSBTile::~PSBTile() {
   for(std::vector<PixelBdyLoop*>::iterator i=loopset.begin(); i<loopset.end();
       ++i)
     delete *i;
 }
 
+std::ostream &operator<<(std::ostream &os, const PSBTile &tile) {
+  os << "PSBTile(" << tile.bounds.lowerleft() << ", "
+     << tile.bounds.upperright() << ")";
+  return os;
+}
+
 // Add the boundary segments for this pixel to the map of all pixel
 // segments.
-void PixelSetSubBoundary::add_pixel(const ICoord &px) {
+void PSBTile::add_pixel(const ICoord &px) {
   // Pixel boundary segments are actually just stored as ICoords,
   // which are the left or bottom endpoint of the segment.  The
   // direction of the segment is implied by which SegSet it's in.
@@ -206,16 +451,46 @@ void PixelSetSubBoundary::add_pixel(const ICoord &px) {
     segmentsUD.erase(old);
 }
 
+// The add_segmentX routines are called when this tile is being built
+// while subdividing a larger tile. There won't be opposing segments,
+// so the segments are added to the SegSets without checking.  The
+// segmentsXX arrays store the left or bottom endpoints of the
+// segments, but the arguments to the add_segmentX routines are the
+// starting points of the segments.
+
+void PSBTile::add_segmentL(const ICoord &px) {
+  assert(segmentsRL.count(px+iLeft)==0);
+  segmentsRL.insert(px+iLeft);
+}
+
+void PSBTile::add_segmentR(const ICoord &px) {
+  assert(segmentsLR.count(px) == 0);
+  segmentsLR.insert(px);
+}
+
+void PSBTile::add_segmentU(const ICoord &px) {
+  assert(segmentsDU.count(px) == 0);
+  segmentsDU.insert(px);
+}
+
+void PSBTile::add_segmentD(const ICoord &px) {
+  assert(segmentsUD.count(px+iDown) == 0);
+  segmentsUD.insert(px+iDown);
+}
+
 
 typedef std::pair<ICoord, ICoord> DirectedSeg; // start point, direction
 
-void PixelSetSubBoundary::find_boundary(const CMicrostructure *microstructure) {
+void PSBTile::find_boundary(const CMicrostructure *microstructure) {
+  if(segmentsLR.empty() && segmentsRL.empty() &&
+     segmentsUD.empty() && segmentsDU.empty())
+    return;
   CoordMap cm;
   // After all calls to add_pixel(), the remaining segments are all
   // boundary segments.  Put them in a more convenient map for making
   // connections.  The map key is the starting point of the segment,
   // and the stored value is a pair (DirectedSeg) containing the
-  // segment's direction and the pointer to the segment itself.
+  // segment's direction and the starting point of the segment.
   for(SegSet::iterator i=segmentsLR.begin(); i!=segmentsLR.end(); ++i)
     cm.insert(DirectedSeg(*i, iRight));
   for(SegSet::iterator i=segmentsDU.begin(); i!=segmentsDU.end(); ++i)
@@ -252,7 +527,7 @@ typedef std::pair<CoordMap::iterator, CoordMap::iterator> CoordMapRange;
 // Removes the relevant segments from the cm, also, which is why it's
 // a reference and not const.
 
-PixelBdyLoop *PixelSetSubBoundary::find_loop(CoordMap &cm) {
+PixelBdyLoop *PSBTile::find_loop(CoordMap &cm) {
   PixelBdyLoop *loop = new PixelBdyLoop();
   assert(!cm.empty());
   CoordMap::iterator current = cm.begin();
@@ -307,12 +582,90 @@ PixelBdyLoop *PixelSetSubBoundary::find_loop(CoordMap &cm) {
   return loop;
 }
 
-double PixelSetSubBoundary::clippedArea(const LineList &lines) const {
+double PSBTile::clippedArea(const LineList &lines, const CRectangle &bbox)
+  const
+{
   double area = 0.0;
   for(PixelBdyLoop *loop : loopset) {
-    area += loop->clippedArea(lines.begin(), lines.end());
+    area += loop->clippedArea(lines, bbox);
   }
   return area;
+}
+
+PSBTiling *PSBTile::subdivide(const CMicrostructure *ms, int cat,
+			      unsigned int nx, unsigned int ny)
+  const
+{
+  // Create a new tiling by subdividing this one.  It's assumed that
+  // this tile covers the whole Microstructure.
+  PSBTiling *newtiling = new PSBTiling(ms, nx, ny);
+  // Loop over loops in this tiling and add their segments to the new
+  // tiling.
+  for(const PixelBdyLoop *loop: loopset) {
+    newtiling->add_segments(loop->getLoop());
+  }
+  // Each new tile may need to add segments along its boundary.
+  newtiling->add_tile_perimeters(cat);
+  // Consolidate segments into loops.
+  newtiling->find_boundary();
+  return newtiling;
+}
+
+void PSBTile::add_perimeter(const CMicrostructure *ms, int cat) {
+  // When subdividing a tiling, edges of the tile that aren't part of
+  // loops in the tiling may form parts of loops in the new tiling.
+  // Add a segment along the perimeter if the pixels on both sides of
+  // the segment are in the Pixel Boundary Set's category.  If only
+  // one pixel is in the category or if the segment is on the edge
+  // of the entire Microstructure, the segment will already have been
+  // included as part of a loop in the original tiling.
+  unsigned int ix=0;
+  unsigned int iy=0;
+ // Bottom edge of bounding box
+  iy = bounds.ymin();
+  if(iy > 0) {
+    // (ix, iy) is the bottom left corner of the pixel that's in the tile.
+    // The pixel inside the tile is (ix, iy).
+    // The pixel outside the tile is (ix, iy-1).
+    for(unsigned int ix=bounds.xmin(); ix<=bounds.xmax(); ix++) {
+      if(ms->category(ix, iy-1) == cat && ms->category(ix, iy) == cat)
+	add_segmentR(ICoord(ix, iy));
+    }
+  }
+  // Right edge of bounding box
+  ix = bounds.xmax() + 1;
+  if(ix < ms->sizeInPixels()[0]) {
+    // (ix, iy) is the bottom *right* corner of the pixel that's in
+    // the tile.
+    // The pixel inside the tile is (ix-1, iy).
+    // The pixel outside the tile is (ix, iy).
+    for(unsigned int iy=bounds.ymin(); iy<=bounds.ymax(); iy++) {
+      if(ms->category(ix, iy) == cat && ms->category(ix-1, iy) == cat) {
+	add_segmentU(ICoord(ix, iy));
+      }
+    }
+  }
+  // Top edge of bounding box
+  iy = bounds.ymax() + 1;
+  if(iy < ms->sizeInPixels()[1]) {
+    // (ix, iy) is the top right corner of the pixel that's in the tile.
+    // The pixel inside the tile is (ix-1, iy-1).
+    // The pixel outside the tile is (ix-1, iy).
+    for(unsigned int ix=bounds.xmax()+1; ix>bounds.xmin(); ix--) {
+      if(ms->category(ix-1, iy) == cat && ms->category(ix-1, iy-1) == cat)
+	add_segmentL(ICoord(ix, iy));
+    }
+  }
+  // Left edge of bounding box
+  ix = bounds.xmin();
+  if(ix > 0) {
+    // (ix, iy) is the top left corner of the pixel that's in the tile.
+    // The pixel outside the tile is (ix-1, iy-1).
+    for(unsigned int iy=bounds.ymax()+1; iy>bounds.ymin(); iy--) {
+      if(ms->category(ix-1, iy-1) == cat && ms->category(ix, iy-1) == cat)
+	add_segmentD(ICoord(ix, iy));
+    }
+  }
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -328,26 +681,57 @@ PxlBdyLoopBase<CTYPE, RTYPE>::PxlBdyLoopBase(const std::vector<CTYPE> &oloop,
 }
 
 template <class CTYPE, class RTYPE>
-double PxlBdyLoopBase<CTYPE, RTYPE>::clippedArea(
-				  LineList::const_iterator startlines,
-				  LineList::const_iterator endlines)
+PxlBdyLoopBase<CTYPE, RTYPE>::PxlBdyLoopBase(
+				     const PxlBdyLoopBase<CTYPE, RTYPE> &other)
+  : loop(other.loop)
+{
+  if(other.bounds)
+    bounds = new RTYPE(*other.bounds);
+  else
+    bounds = nullptr;
+}
+
+template <class CTYPE, class RTYPE>
+PxlBdyLoopBase<CTYPE, RTYPE>::PxlBdyLoopBase(
+				     PxlBdyLoopBase<CTYPE, RTYPE> &&other)
+  : loop(std::move(other.loop)),
+    bounds(other.bounds)
+{
+  other.bounds = nullptr;
+}
+
+template <class CTYPE, class RTYPE>
+PxlBdyLoopBase<CTYPE, RTYPE> &PxlBdyLoopBase<CTYPE, RTYPE>::operator=(
+				      const PxlBdyLoopBase<CTYPE, RTYPE> &other)
+{
+  loop = other.loop;
+  if(other.bounds)
+    bounds = new RTYPE(*other.bounds);
+  else
+    bounds = nullptr;
+  return *this;
+}
+
+double PixelBdyLoop::clippedArea(const LineList &lines, const CRectangle &bbox)
   const
 {
   // If there are no clipping lines, return the area of the loop.  If
   // there are lines, clip with the first one, creating new loops, and
   // call clippedArea() on those loops with the remaining lines.
-  // std::cerr << "PxlBdyLoopBase::clippedArea:" << std::endl;
-  if(startlines == endlines) {
-    // std::cerr << "PxlBdyLoopBase::clippedArea: no lines!" << std::endl;
-    return areaInPixelUnits();
+  assert(!lines.empty());
+  assert(bounds != nullptr);
+  if(!bbox.intersects(*bounds)) {
+    return 0.0;
   }
-  std::vector<ClippedPixelBdyLoop*> newloops = clip(*startlines);
-  double area = 0.0;
-  for(ClippedPixelBdyLoop *newloop : newloops) {
-    area += newloop->clippedArea(startlines+1, endlines);
-    delete newloop;
+  ClippedPixelBdyLoop curloop(clip(lines[0]));
+  for(unsigned int i=1; i<lines.size(); i++) {
+    if(curloop.size() == 0) {
+      return 0.0;
+    }
+    ClippedPixelBdyLoop newloop = curloop.clip(lines[i]);
+    curloop = newloop;
   }
-  return area;
+  return curloop.areaInPixelUnits();
 }
 
 template <class CTYPE, class RTYPE>
@@ -363,98 +747,87 @@ double PxlBdyLoopBase<CTYPE, RTYPE>::areaInPixelUnits() const {
 }
 
 template <class CTYPE, class RTYPE>
-std::vector<ClippedPixelBdyLoop*> PxlBdyLoopBase<CTYPE, RTYPE>::clip(
-						     const Line &line)
+ClippedPixelBdyLoop PxlBdyLoopBase<CTYPE, RTYPE>::clip(const Line &line)
   const
 {
+  // Return the loop formed by clipping by the given line.
+
   assert(line.first != line.second);
-  // Return the loops formed by clipping by the given line.
-  std::vector<ClippedPixelBdyLoop*> newloops;
-  // Is the loop's bounding box entirely on one side of the line?
+  // If the loop is empty, its bounding box won't be set, so check
+  // that first.
+  if(loop.empty()) {
+    return ClippedPixelBdyLoop(); // empty loop
+  }
+
+  // Count the number of bounding box corners to the left of the
+  // clipping line.
   unsigned int nbbleft = 0;
   for(unsigned int i=0; i<4; i++) {
     if(leftside((*bounds)[i], line))
       nbbleft++;
   }
-  // If nleft==0, all of the pixels are to the right of the line (or
-  // on it), and there's nothing to do.  Return an empty vector of
-  // loops.
+  
+  // If nbbleft==0, all of the pixels are to the right of the line (or
+  // on it), and the entire loop is clipped away.  Return an empty
+  // loop.
+  if(nbbleft == 0) {
+    return ClippedPixelBdyLoop(); // empty loop
+  }
   if(nbbleft == 4) {
     // All of the pixels are to the left of the line, so they're all
     // retained. Don't do anything other than to convert the
     // PixelBdyLoop to a ClippedPixelBdyLoop.
-    // TODO: Figure out a way to avoid copying here.
-    newloops.push_back(clone());
-  }
-  else if(nbbleft != 0) {
-    // Actually clip.
-    unsigned int n = size();
-    std::vector<bool> keep(n, false);
-    for(unsigned int i=0; i<n; i++) {
-      keep[i] = leftside(loop[i], line);
-    }
 
-    unsigned int curpt = 0;
-    unsigned int prevpt = n-1;
-    ClippedPixelBdyLoop *curloop = nullptr;
-    while(curpt < n) {
-      if(curloop==nullptr) {
-	if(keep[curpt]) {
-	  // Start a new loop
-	  curloop = new ClippedPixelBdyLoop();
-	  newloops.push_back(curloop);
-	  if(!keep[prevpt]) {
-	    curloop->add(intersection(loop[prevpt], loop[curpt],
-				      line.first, line.second));
-	  }
-	  curloop->add(loop[curpt]);
-	}
-      }
-      else if(keep[prevpt] && !keep[curpt]) {
-	// End the current loop
-	curloop->add(intersection(loop[prevpt], loop[curpt],
+    // TODO: Avoid a copy here by by returning *this if the derived
+    // class is ClippedPixelBdyLoop, and returning
+    // ClippedPixelBdyLoop(this) if the derived class is PixelBdyLoop.
+    return ClippedPixelBdyLoop(this);
+  }
+
+  // The line cuts through the loop's bounding box. Actually clip the
+  // loop.
+  unsigned int n = size();
+  bool keepprev = leftside(loop.back(), line);
+  unsigned int iprev = n - 1;
+  ClippedPixelBdyLoop newloop;
+  newloop.reserve(loop.size());
+  for(unsigned int i=0; i<n; i++) {
+    bool keepthis = leftside(loop[i], line);
+    if(keepthis) {
+      if(!keepprev) {
+	// We're keeping this point, but not the previous one, so add
+	// the point where the previous segment intersects the
+	// clipping line.
+	newloop.add(intersection(loop[iprev], loop[i],
 				  line.first, line.second));
-	curloop = nullptr;
       }
-      else if(keep[curpt]) {
-	assert(curloop != nullptr);
-	curloop->add(loop[curpt]);
-      }
-      ++curpt;
-      prevpt = curpt-1;
-    } // end loop over points in the old loop
-    
-    // If we get to the end of the list of points in the old loop but
-    // haven't ended the current new loop, either the current new loop
-    // is part of the first new loop, or the current loop ends on a
-    // point between the last and first points on the old loop.
-    if(curloop) {
-      if(keep[0]) {
-	if(newloops[0] != curloop) {
-	  newloops[0]->prepend(curloop);
-	  delete curloop;
-	  curloop = nullptr;
-	  newloops.pop_back();
-	}
-      }
-      else {	       // not keeping the first point in the old loop.
-	curloop->add(intersection(loop.back(), loop.front(),
+      newloop.add(loop[i]);	// keep this point
+    }
+    else {			// !keepthis
+      if(keepprev) {
+	// We kept the previous point but we're not keeping this one,
+	// so add the point where the previous segment intersects the
+	// clipping line.
+	newloop.add(intersection(loop[iprev], loop[i],
 				  line.first, line.second));
       }
     }
-  }
-  
-  return newloops;
+    keepprev = keepthis;
+    iprev = i;
+  } // end loop over points i
+
+  return newloop;
+} // end PxlBdyLoopBase<>::clip
+
+template <class CTYPE, class RTYPE>
+std::ostream &operator<<(std::ostream &os,
+			 const PxlBdyLoopBase<CTYPE, RTYPE> &pbl)
+{
+  os << pbl.data;
+  return os;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-ClippedPixelBdyLoop *PixelBdyLoop::clone() const {
-  ClippedPixelBdyLoop *newloop = new ClippedPixelBdyLoop();
-  for(const ICoord ipt : loop)
-    newloop->add(ipt);
-  return newloop;
-}
 
 void PixelBdyLoop::add_point(const ICoord &pbs) {
   loop.push_back(pbs);
@@ -512,22 +885,35 @@ ClippedPixelBdyLoop::ClippedPixelBdyLoop()
   : PxlBdyLoopBase<Coord, CRectangle>()
 {}
 
-ClippedPixelBdyLoop::ClippedPixelBdyLoop(const ClippedPixelBdyLoop *otherloop)
+ClippedPixelBdyLoop::ClippedPixelBdyLoop(
+			 const PxlBdyLoopBase<Coord, CRectangle> *otherloop)
   : PxlBdyLoopBase<Coord, CRectangle>(otherloop->getLoop(), otherloop->bbox())
 {
 }
 
-ClippedPixelBdyLoop *ClippedPixelBdyLoop::clone() const {
-  return new ClippedPixelBdyLoop(this);
+ClippedPixelBdyLoop::ClippedPixelBdyLoop(
+			 const PxlBdyLoopBase<ICoord, ICRectangle> *otherloop) {
+  loop.reserve(otherloop->size());
+  for(const ICoord ipt : otherloop->getLoop()) {
+    add(ipt);			// converts from ICoord to Coord
+  }
 }
 
-// ClippedPixelBdyLoop::ClippedPixelBdyLoop(ClippedPixelBdyLoop &&other)
-//   : loop(std::move(other.loop))
-// {
-//   CRectangle *temp = other.bounds;
-//   other.bounds = bounds;
-//   bounds = temp;
-// }
+ClippedPixelBdyLoop::ClippedPixelBdyLoop(const ClippedPixelBdyLoop &other)
+  : PxlBdyLoopBase<Coord, CRectangle>(other)
+{
+}
+
+ClippedPixelBdyLoop::ClippedPixelBdyLoop(ClippedPixelBdyLoop &&other)
+  : PxlBdyLoopBase<Coord, CRectangle>(std::move(other))
+{}
+
+ClippedPixelBdyLoop &ClippedPixelBdyLoop::operator=(
+					    const ClippedPixelBdyLoop &other)
+{
+  this->PxlBdyLoopBase::operator=(other);
+  return *this;
+}
 
 void ClippedPixelBdyLoop::clear() {
   delete bounds;
@@ -547,13 +933,123 @@ void ClippedPixelBdyLoop::add(const ICoord &pt) {
   add(Coord(pt(0), pt(1)));
 }
 
-void ClippedPixelBdyLoop::prepend(const ClippedPixelBdyLoop *other) {
-  loop.insert(loop.begin(), other->loop.begin(), other->loop.end());
-  for(const Coord &pt : other->getLoop())
-    bounds->swallow(pt);
+std::ostream &operator<<(std::ostream &os, const ClippedPixelBdyLoop &pbl) {
+  return os << "ClippedPixelBdyLoop(" << pbl.loop << ")";
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Stats retained for debugging and optimization
+static unsigned int maxSubdivisions = 1;
+static std::set<int> subDivisions({1});
+static int minScale = std::numeric_limits<int>::max();
+
+PixelSetBoundary::PixelSetBoundary(const CMicrostructure *ms)
+  : microstructure(ms),
+    mssize(ms->sizeInPixels())
+{
+  // Create the topmost, trivial 1x1, tiling
+  scale0 = 0.5*(mssize[0] + mssize[1]);
+  minScale = scale0;
+  tilings.push_back(new PSBTiling(microstructure, 1, 1));
+}
+
+PixelSetBoundary::~PixelSetBoundary() {
+  for(PSBTiling *tiling : tilings)
+    delete tiling;
+}
+
+void PixelSetBoundary::add_pixel(const ICoord &pxl) {
+  // All pixels must be added before calling find_boundary, which must
+  // be called before nontrivial tilings are created.
+  assert(tilings.size() == 1);
+  tilings[0]->add_pixel(pxl);
+}
+
+void PixelSetBoundary::find_boundary() {
+  // find_boundary assembles the individual segments from the pixel
+  // edges into loops.  It should only be called on the topmost level
+  // of the tiling hierarchy.  Lower levels derive their loops from
+  // the top level loops.
+  assert(tilings.size() == 1);
+  tilings[0]->find_boundary();
+}
+
+// Setting fixed_subdivision to something non-zero fixes the number of
+// subdivisions on the x and y axes to that value.
+int fixed_subdivision = 0;
+
+double PixelSetBoundary::clippedArea(int cat,
+				     const LineList &lines,
+				     const CRectangle &bbox,
+				     bool verbose)
+{
+  // PixelSetBoundary::clippedArea() decides which PSBTiling to use,
+  // and calls the tiling's clippedArea() method.  It may have to
+  // create a new tiling, which is why it's not const.
+  PSBTiling *tiling = nullptr;
+  // bbox is the bounding box of the element whose homogeneity is
+  // being computed.  Look for a tiling on the same scale.
+  if(fixed_subdivision == 0) {
+    double scale = 0.5*(bbox.height() + bbox.width());
+    if(scale < mintilescale)
+      scale = mintilescale;
+    if(scale > scale0)
+      scale = scale0;
+    int n = floor(log(scale/scale0)/log(tilingfactor));
+    assert(n >= 0);
+    if(n >= tilings.size())
+      tilings.resize(n+1, nullptr);
+#ifdef DEBUG
+    if(verbose)
+      std::cerr << "PixelSetBoundary::clippedArea: tiling size=" << n
+		<< std::endl;
+#endif // DEBUG
+    if(tilings[n] == nullptr) {
+      unsigned int nx = floor(pow(tilingfactor, -n));
+      if(nx > maxSubdivisions) maxSubdivisions = nx;
+      if(scale < minScale) minScale = scale;
+      subDivisions.insert(nx);
+      tilings[n] = tilings[0]->subdivide(cat, nx, nx); // TODO: make ny!=nx ?
+    }
+    tiling = tilings[n];
+  }
+  else if(fixed_subdivision == 1) {
+    // The number of subdivisions is fixed, at the trivial value.  The
+    // trivial tiling has already been created.
+#ifdef DEBUG
+    std::cerr << "PixelSetBoundary::clippedArea: using trivial tiling"
+	      << std::endl;
+#endif // DEBUG
+    tiling = tilings[0];
+  }
+  else {
+    // The subdivisions are fixed, at some value other than 1.  Create
+    // the tiling if necessary.
+    assert(tilings.size() == 1 || tilings.size() == 2);
+    if(tilings.size() == 1) {
+      // Need to create the fixed_subdivision tiling
+      maxSubdivisions = fixed_subdivision;
+      minScale = scale0/fixed_subdivision;
+      subDivisions.insert(fixed_subdivision);
+      tilings.push_back(tilings[0]->subdivide(cat, fixed_subdivision,
+					      fixed_subdivision));
+    }
+    tiling = tilings[1];
+#ifdef DEBUG
+    std::cerr << "PixelSetBoundary::clippedArea: using fixed tiling "
+	      << fixed_subdivision << std::endl;
+#endif // DEBUG
+  }
+  return tiling->clippedArea(lines, bbox, verbose);
 }
 
 
-std::ostream &operator<<(std::ostream &os, const ClippedPixelBdyLoop &pbl) {
-  return os << "ClippedPixelBdyLoop(" << pbl.loop << ")";
+void printHomogStats() {
+  std::cerr << "printHomogStats: "
+	    << " #levels=" << subDivisions.size()
+	    << " maxSubdivisions=" << maxSubdivisions
+	    << " subDivisions=(" << subDivisions << ")"
+	    << " minScale=" << minScale
+	    << std::endl;
 }

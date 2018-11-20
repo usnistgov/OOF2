@@ -125,16 +125,17 @@ public:
   Coord frommaster(MasterCoord *mc, int rotation) const; // convert master coord
   Coord center() const;		// average position of nodes
   CRectangle bbox() const;
+  Coord size() const;
   virtual bool interior(const Coord*) const = 0; // is the given point inside?
 private:
-  HomogeneityData c_homogeneity(const CMicrostructure&) const; // see below
+  HomogeneityData c_homogeneity(const CMicrostructure&, bool) const; //see below
   mutable CachedValue<HomogeneityData> homogeneityData;	// see below
 public:
   virtual double area() const = 0;
   virtual bool illegal() const = 0;
   virtual const std::vector<ICoord> *underlying_pixels(const CMicrostructure&)
     const = 0;
-  DoubleVec categoryAreas(const CMicrostructure&) const;
+  DoubleVec categoryAreas(const CMicrostructure&, bool) const;
 
   // Homogeneity and dominant pixel information is cached so that it
   // isn't calculated more often than necessary.
@@ -143,10 +144,10 @@ public:
   // computes it.  It shouldn't be necessary to call either one of
   // them explicitly, except to get things started during Skeleton
   // construction.
-  void findHomogeneityAndDominantPixel(const CMicrostructure&) const;
+  void findHomogeneityAndDominantPixel(const CMicrostructure&, bool) const;
   // homogeneity(), dominantPixel(), and energyHomogeneity() are the
   // programmer friendly API.  They recompute values only if necessary.
-  double homogeneity(const CMicrostructure&) const;
+  double homogeneity(const CMicrostructure&, bool) const;
   int dominantPixel(const CMicrostructure&) const;
   double energyHomogeneity(const CMicrostructure&) const;
   // revertHomogeneity returns the cached values to their previous

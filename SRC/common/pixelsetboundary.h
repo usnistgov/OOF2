@@ -17,7 +17,8 @@
 class ClippedPixelBdyLoop;
 class PixelBdyLoop;
 class PixelSetBoundary;
-class PixelSetSubBoundary;
+class PSBTile;
+class PSBTiling;
 
 #include <map>
 #include <set>
@@ -28,7 +29,7 @@ class PixelSetSubBoundary;
 
 class CMicrostructure;
 
-// Special classes for keeping track of the boundaries of pixel sets.
+// Classes for keeping track of the boundaries of pixel sets.
 
 typedef std::pair<Coord, Coord> Line;
 typedef std::set<ICoord> SegSet;
@@ -37,39 +38,55 @@ typedef std::vector<Line> LineList;
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+// Base class for pixel boundary loops.
+
+class PBLBase {
+public:
+  virtual ~PBLBase() {}
+  virtual ClippedPixelBdyLoop clip(const Line&) const = 0;
+  virtual double areaInPixelUnits() const = 0;
+};
+
 template <class CTYPE, class RTYPE>
-class PxlBdyLoopBase {
+class PxlBdyLoopBase : public PBLBase {
 protected:
   std::vector<CTYPE> loop;
   RTYPE *bounds;
   void pop_back() { loop.pop_back(); }
-  void prepend(PxlBdyLoopBase<CTYPE, RTYPE> &);
 public:
   PxlBdyLoopBase() : bounds(nullptr) {}
   PxlBdyLoopBase(const std::vector<CTYPE>&, const RTYPE*);
+  PxlBdyLoopBase(const PxlBdyLoopBase<CTYPE, RTYPE>&);
+  PxlBdyLoopBase(PxlBdyLoopBase<CTYPE, RTYPE>&&);
+  PxlBdyLoopBase<CTYPE, RTYPE> &operator=(const PxlBdyLoopBase<CTYPE, RTYPE>&);
   virtual ~PxlBdyLoopBase() { delete bounds; }
   unsigned int size() const { return loop.size(); }
   const RTYPE *bbox() const { return bounds; }
   const std::vector<CTYPE> &getLoop() const { return loop; }
-  // clippedArea returns the area of the polygon formed by clipping
-  // with all of the given lines.
-  double clippedArea(LineList::const_iterator, LineList::const_iterator) const;
-  double areaInPixelUnits() const;
-  // clip() returns a set of new loops that include the points to the
-  // left of the line (not just the segment) going from line.first to
+  void reserve(int n) { loop.reserve(n); }
+  virtual double areaInPixelUnits() const;
+  // clip() returns a new loop that includes the points to the left of
+  // the line (not just the segment) going from line.first to
   // line.second, which are Coords.  Usually called by clippedArea().
-  std::vector<ClippedPixelBdyLoop*> clip(const Line&) const;
+  // The new loop may contain degenerate or collinear antiparallel
+  // segments.
+  virtual ClippedPixelBdyLoop clip(const Line&) const;
 
-  virtual ClippedPixelBdyLoop *clone() const = 0;
+  friend std::ostream operator<<(std::ostream&,
+				 const PxlBdyLoopBase<CTYPE, RTYPE>&);
 };
+
+// Pixel Boundary Loops with integer coordinates.
 
 class PixelBdyLoop : public PxlBdyLoopBase<ICoord, ICRectangle> {
 public:
   void add_point(const ICoord&);
   void clean(const CMicrostructure*);
   bool closed() const;
-  virtual ClippedPixelBdyLoop *clone() const;
-
+  // clippedArea returns the area of the polygon formed by clipping
+  // with all of the given lines.  The CRectangle is the polygon's
+  // bounding box.
+  double clippedArea(const LineList&, const CRectangle&) const;
   friend std::ostream& operator<<(std::ostream&, const PixelBdyLoop&);
   friend class PixelSetBoundary; // for debugging
 };
@@ -79,13 +96,14 @@ public:
 class ClippedPixelBdyLoop : public PxlBdyLoopBase<Coord, CRectangle> {
 public:
   ClippedPixelBdyLoop();
-  ClippedPixelBdyLoop(const ClippedPixelBdyLoop*);
-  // ClippedPixelBdyLoop(ClippedPixelBdyLoop&&); // Move constructor
-  virtual ClippedPixelBdyLoop *clone() const;
+  ClippedPixelBdyLoop(const PxlBdyLoopBase<ICoord, ICRectangle>*);
+  ClippedPixelBdyLoop(const PxlBdyLoopBase<Coord, CRectangle>*);
+  ClippedPixelBdyLoop(const ClippedPixelBdyLoop&);
+  ClippedPixelBdyLoop(ClippedPixelBdyLoop&&);
+  ClippedPixelBdyLoop &operator=(const ClippedPixelBdyLoop&);
   Coord operator[](unsigned int k) const { return loop[k]; }
   void add(const Coord&);
   void add(const ICoord&);
-  void prepend(const ClippedPixelBdyLoop*);
   void clear();
   friend std::ostream& operator<<(std::ostream&, const ClippedPixelBdyLoop&);
 };
@@ -93,7 +111,19 @@ public:
 std::ostream& operator<<(std::ostream&, const PixelBdyLoop&);
 std::ostream& operator<<(std::ostream&, const ClippedPixelBdyLoop&);
 
-class PixelSetSubBoundary {
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// A PixelSetBoundary is a collection of PSBTiles, with each tile
+// covering a different part of the image.  The idea is that the
+// clipping algorithm will only look at tiles that intersect an
+// element's bounding box and won't spend time clipping regions that
+// are far from the element.
+
+// TileNumbers[x] is the index of the tile containing pixel x.
+typedef std::vector<unsigned int> TileNumbers;
+
+
+class PSBTile {
 private:
   SegSet segmentsLR;		// segments going from left to right
   SegSet segmentsRL;		// ... right to left
@@ -102,14 +132,49 @@ private:
   std::vector<PixelBdyLoop*> loopset;
   PixelBdyLoop *find_loop(CoordMap&);
   void find_boundary(const CMicrostructure*);
-  double clippedArea(const LineList&) const;
+  double clippedArea(const LineList&, const CRectangle &bbox) const;
+  // A pixel is in the tile if its lower left corner is in the
+  // bounding box.
+  ICRectangle bounds;
 public:
-  ~PixelSetSubBoundary();
+  PSBTile(ICRectangle&&);
+  ~PSBTile();
+  void set_bounds(ICRectangle bbox) { bounds = bbox; }
   void add_pixel(const ICoord&);
+  void add_segmentL(const ICoord &pos);
+  void add_segmentR(const ICoord &pos);
+  void add_segmentD(const ICoord &pos);
+  void add_segmentU(const ICoord &pos);
+  void add_perimeter(const CMicrostructure*, int);
 
-  friend std::ostream& operator<<(std::ostream &, const PixelSetBoundary&);
-  friend class PixelBdyLoop;
-  friend class PixelSetBoundary;
+  PSBTiling *subdivide(const CMicrostructure*, int cat,
+		       unsigned int nx, unsigned int ny) const;
+
+  friend std::ostream& operator<<(std::ostream &, const PSBTile&);
+  friend class PSBTiling;
+};
+
+class PSBTiling {
+private:
+  std::vector<PSBTile*> tiles;
+  const CMicrostructure *microstructure;
+  const unsigned int nxtiles, nytiles;
+  TileNumbers xTileNumbers;
+  TileNumbers yTileNumbers;
+  unsigned int tileIndex(unsigned int, unsigned int) const;
+public:
+  PSBTiling(const CMicrostructure*, unsigned int nx, unsigned int ny);
+  ~PSBTiling();
+  void add_pixel(const ICoord&);
+  void find_boundary();
+  double clippedArea(const LineList&, const CRectangle&, bool) const;
+  ICoord size() const { return ICoord(nxtiles, nytiles); }
+  double area() const;
+
+  // Used when constructing a tiling from the loops in another tiling.
+  PSBTiling *subdivide(int, unsigned int, unsigned int) const;
+  void add_segments(const std::vector<ICoord>&);
+  void add_tile_perimeters(int);
 };
 
 // Pixel set boundary knows its microstructure.  The way this works
@@ -120,21 +185,29 @@ public:
 
 class PixelSetBoundary {
 private:
-  std::vector<PixelSetSubBoundary> subBdys;
+  std::vector<PSBTiling*> tilings;
   const CMicrostructure *microstructure;
-  const int nbinsx, nbinsy;
+  double scale0;      // scale of entire microstructure in pixel units
+  ICoord mssize;
 public:
-  PixelSetBoundary(const CMicrostructure*, int nbinsx, int nbinsy);
+  PixelSetBoundary(const CMicrostructure *ms);
+  ~PixelSetBoundary();
   void add_pixel(const ICoord&);
   void find_boundary();
 
-  double clippedArea(const LineList&) const;
+  double clippedArea(int, const LineList&, const CRectangle&, bool);
   double area() const;
 };
+
+// For setting and testing the hierarchical tiling scheme.
+void printHomogStats();
+extern double tilingfactor;
+extern int mintilescale;
+extern int fixed_subdivision;
 
 
 // For debugging....
 std::ostream& operator<<(std::ostream &, const PixelSetBoundary &);
-
+extern int countleft;
 
 #endif // PIXELSETBOUNDARY_H

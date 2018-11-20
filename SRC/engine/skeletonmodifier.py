@@ -105,7 +105,7 @@ class HeterogeneousElements(SkelModTargets):
     def __call__(self, skeleton, context, copy=None):
         elements = []
         for element in skeleton.elements:
-            if element.homogeneity(skeleton.MS) < self.threshold:
+            if element.homogeneity(skeleton.MS, False) < self.threshold:
                 elements.append(element)
         if copy:
             return elements[:]
@@ -220,7 +220,7 @@ class LimitedSkelModCriterion(SkelModCriterion):
         shape_before = {}
         shape_after = {}
         for el in change.elBefore():
-            homog_before[el] = el.homogeneity(skel.MS)
+            homog_before[el] = el.homogeneity(skel.MS, False)
             shape_before[el] = el.energyShape()
         change.makeNodeMove(skel)
         for el in change.elAfter():
@@ -231,7 +231,7 @@ class LimitedSkelModCriterion(SkelModCriterion):
             except KeyError:
                 homogeneity = el.getHomogeneityData()
                 skel.cachedHomogeneities[key] = homogeneity            
-            homog_after[el] = el.homogeneity(skel.MS)
+            homog_after[el] = el.homogeneity(skel.MS, False)
             shape_after[el] = el.energyShape()
         change.moveNodeBack(skel)
         # In parallel-mode, changes from other processes also need

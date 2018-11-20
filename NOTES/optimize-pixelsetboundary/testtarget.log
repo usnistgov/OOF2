@@ -1,0 +1,30 @@
+filename='targets7.jpg'
+skelsize=10
+iterations=30
+factor=0.5
+minsize=50
+OOF.Microstructure.SetHomogeneityParameters(
+    factor=factor,
+    minimumTileSize=minsize,
+    fixedSubdivision=4)
+#nbins=10
+OOF.Settings.Random_Seed(seed=31415)
+OOF.Microstructure.Create_From_ImageFile(filename=filename, microstructure_name='microstructure', height=automatic, width=automatic)
+OOF.Image.AutoGroup(image='microstructure:'+filename, name_template='%c')
+OOF.PixelGroup.DeleteAll(microstructure='microstructure')
+OOF.PixelSelection.Color_Range(microstructure='microstructure', image='microstructure:'+filename, reference=Gray(value=0.0), range=DeltaGray(delta_gray=0.0793651))
+OOF.PixelGroup.New(name='black', microstructure='microstructure')
+OOF.PixelGroup.AddSelection(microstructure='microstructure', group='black')
+OOF.PixelGroup.New(name='white', microstructure='microstructure')
+OOF.PixelSelection.Color_Range(microstructure='microstructure', image='microstructure:'+filename, reference=Gray(value=1.0), range=DeltaGray(delta_gray=0.0793651))
+OOF.PixelGroup.AddSelection(microstructure='microstructure', group='white')
+#OOF.Skeleton.SetPSBbins(nx=nbins,ny=nbins)
+OOF.Skeleton.New(name='skeleton', microstructure='microstructure', x_elements=skelsize, y_elements=skelsize, skeleton_geometry=TriSkeleton(arrangement='moderate',left_right_periodicity=False,top_bottom_periodicity=False))
+import timeit
+print "%12.3g seconds" % timeit.timeit(
+    stmt="OOF.Skeleton.Modify(skeleton='microstructure:skeleton', modifier=Anneal(targets=AllNodes(),criterion=AverageEnergy(alpha=0.3),T=0.0,delta=1.0,iteration=FixedIteration(iterations=iterations)))",
+    setup="from __main__ import OOF, Anneal, AllNodes, AverageEnergy, FixedIteration, iterations",
+    number=1)		
+#from ooflib.SWIG.common.cdebug import cvar
+#print "countleft=", cvar.countleft
+OOF.Microstructure.PrintHomogeneityStats()

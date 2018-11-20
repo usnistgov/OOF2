@@ -259,7 +259,7 @@ class QuadSkeleton(SkeletonGeometry):
                     #instead of skeleton boundaries, comment or remove
                     #the following line.
                     self.addGridSegmentsToBoundaries(skel, i, j, m, n)
-                    el.findHomogeneityAndDominantPixel(skel.MS)
+                    el.findHomogeneityAndDominantPixel(skel.MS, False)
 
                     if prog.stopped():
                         return None
@@ -380,8 +380,8 @@ class TriSkeleton(SkeletonGeometry):
                     #the following line.
                     self.addGridSegmentsToBoundaries(skel,i,j,m,n)
 
-                    el1.findHomogeneityAndDominantPixel(skel.MS)
-                    el2.findHomogeneityAndDominantPixel(skel.MS)
+                    el1.findHomogeneityAndDominantPixel(skel.MS, False)
+                    el2.findHomogeneityAndDominantPixel(skel.MS, False)
 
                     if prog.stopped():
                         return None
@@ -423,28 +423,35 @@ Registration(
 class SkeletonBase:
     def __init__(self):
         self._illegal = 0
-        # Appears in the Skeleton Page
-        self.homogeneityIndex = None
-        self.illegalCount = None
-        
-        # Keep track of when the skeleton geometry last changed, and
-        # when the homogeneity index was last updated.  Geometry
-        # changes happen when new elements are added to the skeleton,
-        # or when they are detected in the
-        # findHomogeneityandDominantPixel routine of member skeleton
-        # elements.
+
+        # A note on TimeStamps: there used to be more of them here,
+        # but they were unnecessary: most_recent_geometry_change was
+        # incremented by SkeletonBase.updateGeometry, which was called
+        # only when new elements were added, and
+        # illegal_count_computation_time was incremented by
+        # SkeletonBase.getIllegalCount.  Once a Skeleton is
+        # constructed, it is never changed (although it may be
+        # replaced) those time stamps were meaningless.
+
+        # On the other hand, it is necessary to keep track of when the
+        # homogeneiety was last computed.  The homogeneity can change
+        # when the materials change in the Microstructure, so it might
+        # have to be computed more than once, with different results,
+        # on the same Skeleton.
         self.homogeneity_index_computation_time = timestamp.TimeStamp()
+        self.updateGeometry()
+
+    def updateGeometry(self):
+        # Force things to be recomputed.  This is called at the end of
+        # Skeleton construction, after elements are added. 
+        self.homogeneityIndex = None
         self.homogeneity_index_computation_time.backdate()
-        self.most_recent_geometry_change = timestamp.TimeStamp()
-        self.illegal_count_computation_time = timestamp.TimeStamp()
-        self.illegal_count_computation_time.backdate()
+        self.illegalCount = None
+        self.avgElSize = None
 
     def destroy(self):
         pass
 
-    def updateGeometry(self):
-        self.most_recent_geometry_change.increment()
-        
     def setHomogeneityIndex(self):
         # Tempting though it may be, do not lock the MS here.  This
         # can be called with the skeleton already locked, which
@@ -453,7 +460,7 @@ class SkeletonBase:
         illegalcount = 0
         for e in self.elements:
             if not e.illegal():
-                homogIndex += e.area()*e.homogeneity(self.MS)
+                homogIndex += e.area()*e.homogeneity(self.MS, False)
             else:
                 illegalcount += 1
                 
@@ -462,29 +469,32 @@ class SkeletonBase:
         self.illegalCount = illegalcount
         self.homogeneityIndex = homogIndex
         self.homogeneity_index_computation_time.increment()
-        self.illegal_count_computation_time.increment()
 
     def getIllegalCount(self):
-        if self.illegalCount is None or (self.illegal_count_computation_time
-                                         < self.most_recent_geometry_change):
+        if self.illegalCount is None and self.elements:
             illegalCount = 0
             for e in self.elements:
                 if e.illegal():
                     illegalCount += 1
             self.illegalCount = illegalCount
-            self.illegal_count_computation_time.increment()
         return self.illegalCount
 
     def getIllegalElements(self):
         return [e for e in self.elements if e.illegal()]
     
     def getHomogeneityIndex(self):
-        if (self.homogeneity_index_computation_time < self.MS.getTimeStamp()
-            or self.homogeneity_index_computation_time <
-            self.most_recent_geometry_change):
+        if (self.homogeneity_index_computation_time < self.MS.getTimeStamp()):
             self.setHomogeneityIndex()
         return self.homogeneityIndex
 
+    def averageElementSize(self):
+        if self.elements and self.avgElSize is None:
+            some = primitives.Point(0., 0.)
+            for e in self.elements:
+                some = some + e.size()
+            self.avgElSize = some/len(self.elements)
+        return self.avgElSize
+    
     # Utility function, finds all the intersections of passed-in
     # segment (a primitives.Segment object) with the passed-in
     # skeleton element.  Needs the skeleton object in order to extract
@@ -814,7 +824,7 @@ class Skeleton(SkeletonBase):
         self.timestamp = timestamp.TimeStamp()
         self.left_right_periodicity = left_right_periodicity
         self.top_bottom_periodicity = top_bottom_periodicity
-        
+
         # When elements and nodes are deleted from the mesh, they
         # aren't immediately removed from the lists in the Skeleton.
         # They're only removed when cleanUp() is called.  washMe
@@ -1059,8 +1069,6 @@ class Skeleton(SkeletonBase):
             segment = self.fetchSegment(lastnode, node)
             segment.addElement(el)
             lastnode = node
-
-        self.updateGeometry()
 
         if parallel_enable.enabled():
             self.elem_index_dict[el.index] = self.elem_index_count
@@ -1423,7 +1431,7 @@ class Skeleton(SkeletonBase):
         node.moveBack()
         for partner in node.getPartners():
             partner.moveBack()
-
+        
     def getMovedNodes(self):
         return {}
 
@@ -2994,3 +3002,4 @@ class ProvisionalMerges(ProvisionalChanges):
         for pair in self.pairs:
             pair[0].makeSibling(pair[1])
         ProvisionalChanges.accept(self, skeleton)
+

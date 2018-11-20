@@ -896,7 +896,7 @@ class ElementHomogeneity(ElementSelectionModifier):
         selected = []
         skel = skeleton.getObject()
         for element in skel.element_iterator():
-            if element.homogeneity(skel.MS) < self.threshold:
+            if element.homogeneity(skel.MS, False) < self.threshold:
                 selected.append(element)
         selection.start()
         selection.clear()

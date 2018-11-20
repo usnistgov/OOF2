@@ -39,7 +39,7 @@ public:
 
 %typemap(python,out) MasterElementList* {
   MasterElementList::size_type sz = $source->size();
-  assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
   char _ptemp[128];
   for(std::vector<MasterElement*>::size_type i=0; i<sz; i++) {

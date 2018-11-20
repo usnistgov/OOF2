@@ -1,0 +1,2 @@
+OOF.File.LoadStartUp.Data(filename='circles.skel')
+OOF.Windows.Graphics.New()

@@ -43,10 +43,8 @@ NonlinearHeatConductivityNoDeriv::NonlinearHeatConductivityNoDeriv(
 int NonlinearHeatConductivityNoDeriv::integration_order(const CSubProblem *subp,
 							const Element *el) const
 {
-#if DIM==2
   if(temperature->in_plane(subp))
     return el->dshapefun_degree();
-#endif
   return el->shapefun_degree();
 }
 
@@ -74,7 +72,6 @@ void NonlinearHeatConductivityNoDeriv::static_flux_value(
     fieldGradient[i] = outputVal[0];
   }
 
-#if DIM==2
   // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane
   // field
   if ( !temperature->in_plane(mesh) ){
@@ -82,20 +79,14 @@ void NonlinearHeatConductivityNoDeriv::static_flux_value(
 				 mesh, *temperature->out_of_plane(), pt );
     fieldGradient[2] = outputVal[0];
   }
-#endif
 
   // evaluate the value of the flux with the given pt, time and
   // temperature field
 
   Coord coord = element->from_master( pt );
 
-#if DIM==2
-  nonlin_heat_flux( coord.x, coord.y, 0.0, time,
+  nonlin_heat_flux( coord[0], coord[1], 0.0, time,
 		    fieldValue, fieldGradient, fluxVector );
-#elif DIM==3
-  nonlin_heat_flux( coord.x, coord.y, coord.z, time,
-		    fieldValue, fieldGradient, fluxVector );
-#endif
 
   // add the heat flux contribution to the small system 'fluxdata',
   // which will later be added to the global div_flux vector
@@ -134,7 +125,6 @@ void NonlinearHeatConductivity::flux_matrix(const FEMesh  *mesh,
     fieldGradient[i] = outputVal[0];
   }
 
-#if DIM==2
   // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane
   // field
   if(!temperature->in_plane(mesh)) {
@@ -142,7 +132,6 @@ void NonlinearHeatConductivity::flux_matrix(const FEMesh  *mesh,
 				 mesh, *temperature->out_of_plane(), pt );
     fieldGradient[2] = outputVal[0];
   }
-#endif
 
   // evaluate the value of the flux derivatives with the given pt,
   // time, temperature etc
@@ -150,23 +139,12 @@ void NonlinearHeatConductivity::flux_matrix(const FEMesh  *mesh,
   Coord coord = element->from_master( pt );
 
   // the derivative of the heat flux mapping w.r.t. temperature
-#if DIM==2
-  nonlin_heat_flux_deriv_wrt_temperature( coord.x, coord.y, 0.0, time,
+  nonlin_heat_flux_deriv_wrt_temperature( coord[0], coord[1], 0.0, time,
 				  fieldValue, fieldGradient, fluxDerivVec );
-#elif DIM==3
-  nonlin_heat_flux_deriv_wrt_temperature( coord.x, coord.y, coord.z, time,
-				  fieldValue, fieldGradient, fluxDerivVec );
-#endif
 
   // the derivative of the heat flux mapping w.r.t. temperature gradient
-#if DIM==2
-  nonlin_heat_flux_deriv_wrt_temperature_gradient( coord.x, coord.y, 0.0, time,
+  nonlin_heat_flux_deriv_wrt_temperature_gradient( coord[0], coord[1], 0.0, time,
 				   fieldValue, fieldGradient, fluxDerivMtx );
-#elif DIM==3
-  nonlin_heat_flux_deriv_wrt_temperature_gradient(
-				  coord.x, coord.y, coord.z, time,
-				  fieldValue, fieldGradient, fluxDerivMtx );
-#endif
 
   // evaluate the shape function and its gradient of given node j at given pt
 
@@ -174,9 +152,6 @@ void NonlinearHeatConductivity::flux_matrix(const FEMesh  *mesh,
   shapeFuncVal     = j.shapefunction( pt );
   shapeFuncGrad[0] = j.dshapefunction( 0, pt );
   shapeFuncGrad[1] = j.dshapefunction( 1, pt );
-#if DIM==3
-  shapeFuncGrad[2] = j.dshapefunction( 2, pt );
-#endif
 
 
   // Loop over flux components.  Loop over all components, even if
@@ -184,7 +159,6 @@ void NonlinearHeatConductivity::flux_matrix(const FEMesh  *mesh,
   // the flux matrix are used to construct the constraint equation.
   for (VectorFieldIterator i; !i.end(); ++i)
   {
-#if DIM==2
     // in-plane temperature gradient contributions
     fluxdata->stiffness_matrix_element( i, temperature, j )
 
@@ -196,14 +170,6 @@ void NonlinearHeatConductivity::flux_matrix(const FEMesh  *mesh,
       fluxdata->stiffness_matrix_element( i, temperature->out_of_plane(), j )
 	+= fluxDerivMtx( i.integer(), 2 ) * shapeFuncVal;
 
-#elif DIM==3
-    fluxdata->stiffness_matrix_element( i, temperature, j )
-
-               += fluxDerivVec[ i.integer() ] * shapeFuncVal +
-                  fluxDerivMtx( i.integer(), 0 ) * shapeFuncGrad[0] +
-                  fluxDerivMtx( i.integer(), 1 ) * shapeFuncGrad[1] +
-                  fluxDerivMtx( i.integer(), 2 ) * shapeFuncGrad[2];
-#endif
   }
 
 } // end of 'NonlinearHeatConductivity::flux_matrix'

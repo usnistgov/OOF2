@@ -120,6 +120,7 @@ class MicrostructurePlugIn(PixelInfoPlugIn):
             mscntxt = ooflib.common.microstructure.getMSContextFromMS(
                 microstructure)
             msname = microstructure.name()
+            #debug.fmsg("category=", microstructure.category(where))
             mscntxt.begin_reading()
             try:
                 names = pixelgroup.pixelGroupNames(microstructure, where)

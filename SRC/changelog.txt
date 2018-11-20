@@ -1,3 +1,7 @@
+OOF2 2.1.17
+
+* Significant speed up of the element/pixel intersection code.
+
 OOF2 2.1.16
 
 * New robust calculation of element/pixel intersection areas.

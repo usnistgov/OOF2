@@ -46,7 +46,6 @@ CMicrostructure::CMicrostructure(const std::string &name,
 				 const ICoord *isz, const Coord *sz) 
   : pxlsize_(*isz),
     size_(*sz),
-    nbinsx(1), nbinsy(1),
     attributeMap(nAttributes()),
     attributeGlobalData(nAttributes()),
     categorized(false),
@@ -350,7 +349,7 @@ void CMicrostructure::categorize() const {
       // representativePixels.push_back(i.coord());
       representativePixels.push_back(where);
 
-      PixelSetBoundary *psb = new PixelSetBoundary(this, nbinsx, nbinsy);
+      PixelSetBoundary *psb = new PixelSetBoundary(this);
       psb->add_pixel(where);
       categoryBdys.push_back(psb);
 
@@ -380,9 +379,10 @@ void CMicrostructure::categorize() const {
 
   // Find the boundaries.
   for(std::vector<PixelSetBoundary*>::iterator i = categoryBdys.begin();
-      i!=categoryBdys.end(); ++i ) {
-    (*i)->find_boundary();
-  }
+      i!=categoryBdys.end(); ++i )
+    {
+      (*i)->find_boundary();
+    }
  categorized = true;
  groups_attributes_lock.read_release();
 } // end CMicrostructure::categorize()
@@ -526,14 +526,6 @@ void CMicrostructure::recategorize() {
   ++timestamp;
   category_lock.release();
   // std::cerr << "Release." << std::endl;
-}
-
-void CMicrostructure::setPSBbins(int nx, int ny) {
-  if(nx != nbinsx || ny != nbinsy) {
-    nbinsx = nx;
-    nbinsy = ny;
-    recategorize();
-  }
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

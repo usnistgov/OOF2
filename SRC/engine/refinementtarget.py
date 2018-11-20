@@ -137,7 +137,7 @@ class CheckHomogeneity(RefinementTarget):
         elements = skeleton.activeElements()
         n = len(elements)
         for i, element in enumerate(elements):
-            if element.homogeneity(skeleton.MS) < self.threshold and \
+            if element.homogeneity(skeleton.MS, False) < self.threshold and \
                criterion(skeleton, element):
                 self.markElement(element, divisions, markedEdges)
             if prog.stopped() :

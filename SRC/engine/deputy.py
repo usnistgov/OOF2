@@ -278,7 +278,7 @@ class DeputyProvisionalChanges:
                     homogeneity = deputy.cachedHomogeneities[key]
                     el.setHomogeneityData(homogeneity)
                 except KeyError:
-                    el.findHomogeneityAndDominantPixel(deputy.MS);
+                    el.findHomogeneityAndDominantPixel(deputy.MS, False);
                     homogeneity = el.getHomogeneityData()
                     deputy.cachedHomogeneities[key] = homogeneity
                 newE += el.energyTotal(deputy, alpha)

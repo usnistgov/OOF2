@@ -88,9 +88,9 @@ bool CSkeletonNode::moveTo(const Coord *pos) {
   lastposition_ = position_;
   position_ = *pos;
   if(!movable_x()) 
-    position_.x = lastposition_.x;
+    position_[0] = lastposition_[0];
   if(!movable_y())
-    position_.y = lastposition_.y;
+    position_[1] = lastposition_[1];
   if(position_ != lastposition_) {
     ++nodemoved;
     return true;
@@ -100,8 +100,8 @@ bool CSkeletonNode::moveTo(const Coord *pos) {
 
 
 bool CSkeletonNode::canMoveTo(const Coord *pos) const {
-  return ((movable_x() || position_.x == pos->x) &&
-	  (movable_y() || position_.y == pos->y));
+  return ((movable_x() || position_[0] == (*pos)[0]) &&
+	  (movable_y() || position_[1] == (*pos)[1]));
 }
 
 
@@ -118,9 +118,9 @@ bool CSkeletonNode::moveBy(const Coord *shift) {
   Coord target = position_ + *shift;
   position_ = target;
   if(!movable_x())
-    position_.x = lastposition_.x;
+    position_[0] = lastposition_[0];
   if(!movable_y())
-    position_.y = lastposition_.y;
+    position_[1] = lastposition_[1];
   if(position_ != lastposition_) {
     ++nodemoved;
     return true;
@@ -140,9 +140,9 @@ bool CSkeletonNode::canMergeWith(const CSkeletonNode *other) const {
   if(!xmovable && !ymovable)
     return false;
   else if(!xmovable && ymovable)
-    return position_.x == other->position_.x;
+    return position_[0] == other->position_[0];
   else if(xmovable && !ymovable)
-    return position_.y == other->position_.y;
+    return position_[1] == other->position_[1];
   return true;
 }
 
@@ -303,23 +303,26 @@ CRectangle CSkeletonElement::bbox() const {
   return bounds;
 }
 
+Coord CSkeletonElement::size() const {
+  CRectangle bb(bbox());
+  return bb.upperright() - bb.lowerleft();
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Returns a vector of doubles.  Each double in this vector is equal
 // to the area (in pixel units) of the corresponding microstructure
 // category which is within this element.
 
-DoubleVec CSkeletonElement::categoryAreas(const CMicrostructure &ms) const
+DoubleVec CSkeletonElement::categoryAreas(const CMicrostructure &ms,
+					  bool verbose)
+  const
 {
   // nCategories recomputes categories and boundaries if needed.
   unsigned int ncat = ms.nCategories();
   DoubleVec result(ncat);
   int nn = nodes.size();
 
-  // Get positions of nodes in pixel coordinates.
-  Coord element_points[nn];
-  for(unsigned int i=0; i<nn; i++)
-    element_points[i] = ms.physical2Pixel(nodes[i]->position());
   // Create list of lines that will be used to clip the pixel set boundaries.
   LineList edges(nn);
   std::vector<Coord> npos(nn);	// node positions in pixel coordinates
@@ -328,19 +331,29 @@ DoubleVec CSkeletonElement::categoryAreas(const CMicrostructure &ms) const
   for(unsigned int i=0; i<nn; i++) {
     edges[i] = Line(npos[i], npos[(i+1)%nn]);
   }
+  // Get element bounding box in pixel coordinates
+  CRectangle pbbox(npos[0], npos[1]);
+  for(unsigned int i=2; i<nn; i++)
+    pbbox.swallow(npos[i]);
   // Get all the pixel set boundaries.
   const std::vector<PixelSetBoundary*> &bdys = ms.getCategoryBdys();
   
   for(int cat=0; cat<ncat; cat++) {
-// #ifdef DEBUG
-//     std::cerr << "CSkeletonElement::categoryAreas: category=" << cat << "------"
-// 	      << std::endl;
-//     std::cerr << "CSkeletonElement::categoryAreas: element=";
-//     for(const CSkeletonNode *node : nodes)
-//       std::cerr << " " << node->position();
-//     std::cerr << std::endl;
-// #endif // DEBUG
-    result[cat] += bdys[cat]->clippedArea(edges);
+#ifdef DEBUG
+    if(verbose) {
+      std::cerr << "CSkeletonElement::categoryAreas: category=" << cat << "------"
+		<< std::endl;
+      std::cerr << "CSkeletonElement::categoryAreas: element=";
+      for(const CSkeletonNode *node : nodes)
+	std::cerr << " " << node->position();
+      std::cerr << " pixel coords:";
+      for(Coord &pt : npos)
+	std::cerr << " " << pt;
+      std::cerr << std::endl;
+
+    }
+#endif // DEBUG
+    result[cat] += bdys[cat]->clippedArea(cat, edges, pbbox, verbose);
   }
 // #ifdef DEBUG
 //   std::cerr << "CSkeletonElement::categoryAreas: result=";
@@ -352,18 +365,21 @@ DoubleVec CSkeletonElement::categoryAreas(const CMicrostructure &ms) const
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-double CSkeletonElement::homogeneity(const CMicrostructure &ms) const {
-  findHomogeneityAndDominantPixel(ms);
+double CSkeletonElement::homogeneity(const CMicrostructure &ms,
+				     bool verbose)
+  const
+{
+  findHomogeneityAndDominantPixel(ms, verbose);
   return homogeneityData.value().get_homogeneity();
 }
 
 int CSkeletonElement::dominantPixel(const CMicrostructure &ms) const {
-  findHomogeneityAndDominantPixel(ms);
+  findHomogeneityAndDominantPixel(ms, false);
   return homogeneityData.value().get_dominantpixel();
 };
 
 double CSkeletonElement::energyHomogeneity(const CMicrostructure &ms) const {
-  findHomogeneityAndDominantPixel(ms);
+  findHomogeneityAndDominantPixel(ms, false);
   return homogeneityData.value().get_energy();
 };
 
@@ -389,11 +405,13 @@ void CSkeletonElement::setHomogeneous(int dompxl) {
 }
 
 void CSkeletonElement::findHomogeneityAndDominantPixel(
-						       const CMicrostructure &ms)
+					       const CMicrostructure &ms,
+					       bool verbose)
   const
 {
-  // Only recompute if the microstructure has changed or nodes have moved
-  if(homogeneityData.timestamp() > ms.getTimeStamp()) {
+  // Only recompute if the microstructure has changed or nodes have
+  // moved, or if verbose.
+  if(!verbose && homogeneityData.timestamp() > ms.getTimeStamp()) {
     bool uptodate = true;
     for(int i=0; i<nnodes() && uptodate; i++) {
       if(homogeneityData.timestamp() < nodes[i]->nodemoved) 
@@ -402,17 +420,18 @@ void CSkeletonElement::findHomogeneityAndDominantPixel(
     if(uptodate)
       return;
   }
-  homogeneityData.set_value(c_homogeneity(ms)); // recompute
+  homogeneityData.set_value(c_homogeneity(ms, verbose)); // recompute
 }
 
 // Find the homogeneity of the current element.  Element is assumed to
 // be legal -- categoryAreas will throw an exception if it isn't.
-HomogeneityData CSkeletonElement::c_homogeneity(const CMicrostructure &ms)
+HomogeneityData CSkeletonElement::c_homogeneity(const CMicrostructure &ms,
+						bool verbose)
   const
 {
   if(illegal())
     return HomogeneityData(0, UNKNOWN_CATEGORY);
-  const DoubleVec areas(categoryAreas(ms));
+  const DoubleVec areas(categoryAreas(ms, verbose));
   // if(!areas) {
   //   // Element is not illegal, but has parts outside of the
   //   // Microstructure because some *other* element is illegal. 
@@ -421,11 +440,13 @@ HomogeneityData CSkeletonElement::c_homogeneity(const CMicrostructure &ms)
   int category = 0;
   double maxarea=0.0;
 
-// #ifdef DEBUG
-//   std::cerr << "CSkeletonElement::c_homogeneity: areas=";
-//   for(double a : *areas) std::cerr << " " << a;
-//   std::cerr << std::endl;
-// #endif // DEBUG
+#ifdef DEBUG
+  if(verbose) {
+    std::cerr << "CSkeletonElement::c_homogeneity: areas=";
+    for(double a : areas) std::cerr << " " << a;
+    std::cerr << std::endl;
+  }
+#endif // DEBUG
   
   for(DoubleVec::size_type i=0; i<areas.size(); ++i) {
     double area = areas[i];

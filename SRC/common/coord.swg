@@ -26,11 +26,7 @@ class Position {
   
 class Coord : public Position {
 public:
-#ifndef DIM_3
   Coord(double x1, double x2);
-#else
-  Coord(double x1, double x2, double x3);
-#endif
   ~Coord();
 };
 
@@ -55,11 +51,7 @@ public:
 
 class ICoord {
 public:
-#ifndef DIM_3
   ICoord(int x, int y);
-#else
-	ICoord(int x, int y, int z);
-#endif
 };
 
 %addmethods ICoord {
