@@ -83,7 +83,7 @@ double COrientation::misorientation(const COrientation &other,
   // orientations, we need to measure the difference between one
   // orientation and all possible equivalent versions of the other,
   // and return the minumum misorientation.
-  const std::vector<const SmallMatrix3x3> &latticerotations(lattice.matrices());
+  const std::vector<SmallMatrix3x3> &latticerotations(lattice.matrices());
   double minangle = std::numeric_limits<double>::max();
   for(const SmallMatrix3x3 &latrot : latticerotations) {
     COrientAxis axisrot(latrot * diff);

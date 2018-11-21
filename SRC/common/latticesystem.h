@@ -19,14 +19,14 @@
 
 class LatticeSystem {
 protected:
-  const std::vector<const SmallMatrix3x3> matrices_;
+  const std::vector<SmallMatrix3x3> matrices_;
   const std::string name_;
 public:
   LatticeSystem(const std::string&,
-		std::initializer_list<const SmallMatrix3x3>);
+		std::initializer_list<SmallMatrix3x3>);
   ~LatticeSystem() {}
   int size() const { return matrices_.size(); }
-  virtual const std::vector<const SmallMatrix3x3> &matrices() const {
+  virtual const std::vector<SmallMatrix3x3> &matrices() const {
     return matrices_;
   }
 };

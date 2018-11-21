@@ -18,7 +18,7 @@ typedef std::map<std::string, const LatticeSystem*> LatMap;
 static LatMap lattices_;
 
 LatticeSystem::LatticeSystem(const std::string &name,
-			     std::initializer_list<const SmallMatrix3x3> matlist)
+			     std::initializer_list<SmallMatrix3x3> matlist)
   : matrices_(matlist),
     name_(name)
 {
