@@ -9,6 +9,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import latticesystem
+from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.orientationmap import orientmapdata
 from ooflib.common import debug
 from ooflib.common import pixelselectionmethod
@@ -26,6 +27,9 @@ class OrientationBurn(pixelselectionmethod.SelectionMethod):
     def select(self, immidge, points, selector):
         ms = immidge.getMicrostructure()
         orientationmap = orientmapdata.getOrientationMap(ms)
+        if orientationmap is None:
+            raise ooferror.ErrUserError(
+                "The Microstructure has no orientation map.")
         startpt = ms.pixelFromPoint(points[0])
         selectionctxt = ms.pixelselection.getObject()
         if selectionctxt.checkpixel(startpt):

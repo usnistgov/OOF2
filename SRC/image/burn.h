@@ -24,8 +24,8 @@ class OOFImage;
 
 class BurnerBase {
 protected:
-  // List of directions to neighbors. There is one static instance of
-  // this class.
+  // Nbr holds a list of directions to neighbors. There is one static
+  // instance of this class.
   class Nbr {
   private:
     ICoord nbr[8];
@@ -40,13 +40,14 @@ protected:
 template <class BURNABLE, class IMAGE>
 class Burner : public BurnerBase {
 public:
-  bool next_nearest;		// parameter
-  Burner(bool nn) : next_nearest(nn) {};
+  Burner(bool nn) : next_nearest(nn), activeArea(nullptr) {};
   virtual ~Burner() {};
   void burn(const IMAGE&, const ICoord*, BoolArray&);
   virtual bool spread(const BURNABLE &from, const BURNABLE &to) const = 0;
 protected:
+  bool next_nearest;		// parameter
   BURNABLE startvalue;
+  const ActiveArea *activeArea;
 private:
   void burn_nbrs(const IMAGE&, std::vector<ICoord>&,
 		 BoolArray&, int&, const ICoord&);
@@ -60,6 +61,7 @@ void Burner<BURNABLE, IMAGE>::burn(const IMAGE &image, const ICoord *spark,
   // Initialize the data structures.
   int nburnt = 0;
   startvalue = image[spark];
+  activeArea = image.getCMicrostructure()->getActiveArea();
   std::vector<ICoord> activesites; // sites whose neighbors have to be checked
   activesites.reserve(image.sizeInPixels()(0)*image.sizeInPixels()(1));
 
@@ -71,8 +73,7 @@ void Burner<BURNABLE, IMAGE>::burn(const IMAGE &image, const ICoord *spark,
   while(activesites.size() > 0) {
     // Remove the last site in the active list, burn its neighbors,
     // and add them to the list.
-    int n = activesites.size() - 1; 
-    const ICoord here = activesites[n];
+    const ICoord here = activesites.back();
     activesites.pop_back();
     burn_nbrs(image, activesites, burned, nburnt, here);
   }
@@ -84,17 +85,20 @@ void Burner<BURNABLE, IMAGE>::burn_nbrs(const IMAGE &image,
 				 BoolArray &burned, int &nburnt,
 				 const ICoord &here) {
   // Burn neighboring pixels and put them in the active list.
-  const ActiveArea *aa = image.getCMicrostructure()->getActiveArea();
+  // const ActiveArea *aa = microstructure->getActiveArea();
   int nbrmax = (next_nearest? 8 : 4);
   BURNABLE thiscolor(image[here]);
   for(int i=0; i<nbrmax; i++) {
     ICoord target = here + neighbor[i];
-    if(aa->isActive(&target) && burned.contains(target) && !burned[target]
-       && spread(thiscolor, image[target])) {
-      burned[target] = true;
-      nburnt++;
-      activesites.push_back(target);
-    }
+    if(activeArea->isActive(&target)
+       && burned.contains(target)
+       && !burned[target]
+       && spread(thiscolor, image[target]))
+      {
+	burned[target] = true;
+	nburnt++;
+	activesites.push_back(target);
+      }
   }
 };
 
