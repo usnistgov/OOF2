@@ -24,7 +24,6 @@ class OrientationBurn(pixelselectionmethod.SelectionMethod):
         self.lattice_system = lattice_system
         self.next_nearest = next_nearest
     def select(self, immidge, points, selector):
-        debug.fmsg("immidge=", immidge, immidge.__class__)
         ms = immidge.getMicrostructure()
         orientationmap = orientmapdata.getOrientationMap(ms)
         startpt = ms.pixelFromPoint(points[0])
@@ -34,7 +33,6 @@ class OrientationBurn(pixelselectionmethod.SelectionMethod):
                                   self.global_flammability*math.pi/180.,
                                   self.lattice_system.string(),
                                   self.next_nearest)
-            debug.fmsg("startpt=", startpt)
             selector(OrientBurnSelection(ms, b, orientationmap, startpt))
 
 pixelselectionmethod.PixelSelectionRegistration(

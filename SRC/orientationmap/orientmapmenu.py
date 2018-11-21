@@ -95,6 +95,7 @@ def _loadOrientationMap(menuitem, filename, reader, microstructure):
         # microstructure's name allows it to be found by the
         # OrientationMapProp Property in C++.
         orientmapdata.registerOrientMap(microstructure, data)
+        data.setMicrostructure(mscontext.getObject())
         # Storing it as a Python Microstructure plug-in allows the
         # data to be found by Python (and keeps a live reference to
         # it, so we don't have to transfer ownership to C++).  All of
@@ -172,6 +173,7 @@ def _createMSFromOrientationMapFile(menuitem, filename, reader, microstructure):
     mscontext.begin_writing()
     try:
         orientmapdata.registerOrientMap(microstructure, data)
+        data.setMicrostructure(mscontext.getObject())
         orientmapplugin = ms.getPlugIn('OrientationMap')
         orientmapplugin.set_data(data, filename)
         orientmapplugin.timestamp.increment()

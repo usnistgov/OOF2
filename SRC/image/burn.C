@@ -11,7 +11,6 @@
 
 #include <oofconfig.h>
 
-#include "common/activearea.h"
 #include "common/boolarray.h"
 #include "common/ccolor.h"
 #include "common/cmicrostructure.h"
@@ -19,58 +18,11 @@
 #include "image/oofimage.h"
 #include <vector>
 
-template <class BURNABLE, class IMAGE>
-void Burner<BURNABLE, IMAGE>::burn(const IMAGE &image, const ICoord *spark,
-				   BoolArray &burned)
-{
-  // Initialize the data structures.
-  int nburnt = 0;
-  startvalue = image[spark];
-  std::vector<ICoord> activesites; // sites whose neighbors have to be checked
-  activesites.reserve(image.sizeInPixels()(0)*image.sizeInPixels()(1));
-
-  // burn the first pixel
-  burned[*spark] = true;
-  nburnt++;
-  activesites.push_back(*spark);
-
-  while(activesites.size() > 0) {
-    // Remove the last site in the active list, burn its neighbors,
-    // and add them to the list.
-    int n = activesites.size() - 1;
-    const ICoord here = activesites[n];
-    activesites.pop_back();
-    burn_nbrs(image, activesites, burned, nburnt, here);
-  }
-}
-
-template <class BURNABLE, class IMAGE>
-void Burner<BURNABLE, IMAGE>::burn_nbrs(const IMAGE &image,
-				 std::vector<ICoord> &activesites,
-				 BoolArray &burned, int &nburnt,
-				 const ICoord &here) {
-  // Burn neighboring pixels and put them in the active list.
-  const ActiveArea *aa = image.getCMicrostructure()->getActiveArea();
-  int nbrmax = (next_nearest? 8 : 4);
-  BURNABLE thiscolor(image[here]);
-  for(int i=0; i<nbrmax; i++) {
-    ICoord target = here + neighbor[i];
-    if(aa->isActive(&target) && burned.contains(target) && !burned[target]
-       && spread(thiscolor, image[target])) {
-      burned[target] = true;
-      nburnt++;
-      activesites.push_back(target);
-    }
-  }
-};
-
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-template <class BURNABLE, class IMAGE>
-typename Burner<BURNABLE, IMAGE>::Nbr Burner<BURNABLE, IMAGE>::neighbor;
+BurnerBase::Nbr BurnerBase::neighbor;
 
-template <class BURNABLE, class IMAGE>
-Burner<BURNABLE, IMAGE>::Nbr::Nbr() {
+BurnerBase::Nbr::Nbr() {
   // don't change the order here without changing Burner::burn_nbrs(),
   // or the nearest neighbor/next nearest neighbor distinction will be
   // screwed up.
