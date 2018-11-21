@@ -25,7 +25,7 @@ void Burner<BURNABLE, IMAGE>::burn(const IMAGE &image, const ICoord *spark,
 {
   // Initialize the data structures.
   int nburnt = 0;
-  startcolor = image[spark];
+  startvalue = image[spark];
   std::vector<ICoord> activesites; // sites whose neighbors have to be checked
   activesites.reserve(image.sizeInPixels()(0)*image.sizeInPixels()(1));
 
@@ -95,13 +95,13 @@ template class Burner<CColor, OOFImage>;
 bool BasicBurner::spread(const CColor &from, const CColor &to) const {
   if(useL2norm) {
     double local_dist = L2dist2(from, to);
-    double global_dist = L2dist2(startcolor, to);
+    double global_dist = L2dist2(startvalue, to);
     return local_dist < local_flammability*local_flammability &&
       global_dist < global_flammability*global_flammability;
   }
   else {
     double local_dist = L1dist(from, to);
-    double global_dist = L1dist(startcolor, to);
+    double global_dist = L1dist(startvalue, to);
     return local_dist < local_flammability && global_dist < global_flammability;
   }
 }

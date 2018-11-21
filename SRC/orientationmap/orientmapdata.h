@@ -60,6 +60,7 @@ public:
 
   const COrientABG &angle(const ICoord *pt) const { return angles[*pt]; }
   const COrientABG &angle(const ICoord pt) const { return angles[pt]; }
+  const COrientABG &operator[](const ICoord pt) const { return angles[pt]; }
   void fillstringimage(StringImage*, const Angle2Color&) const;
   OOFImage *createImage(const std::string&, const Angle2Color&) const;
   friend class COrientMapReader;
@@ -70,7 +71,7 @@ void registerOrientMap(const std::string&, OrientMap*);
 void removeOrientMap(const std::string&);
 OrientMap *getOrientMap(const std::string&);
 
-// OrientMapImage is used when displaying an OrientaionMap object in
+// OrientMapImage is used when displaying an OrientationMap object in
 // the graphics window.
 
 class OrientMapImage : public AbstractImage {

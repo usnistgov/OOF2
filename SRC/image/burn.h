@@ -29,7 +29,7 @@ public:
   void burn(const IMAGE&, const ICoord*, BoolArray&);
   virtual bool spread(const BURNABLE &from, const BURNABLE &to) const = 0;
 protected:
-  CColor startcolor;
+  BURNABLE startvalue;
 private:
   void burn_nbrs(const IMAGE&, std::vector<ICoord>&,
 		 BoolArray&, int&, const ICoord&);

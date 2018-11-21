@@ -19,6 +19,7 @@
 #include <oofconfig.h>
 #include "common/latticesystem.h"
 %}
+%pragma(python) include="latticesystem.spy"
 
 class LatticeSystem {
 };

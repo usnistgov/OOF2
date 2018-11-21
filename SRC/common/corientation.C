@@ -75,8 +75,8 @@ double COrientation::misorientation(const COrientation &other,
   // of the axis-angle representation of the "difference" between the
   // orientations.  The difference is the product of one orientation
   // and the inverse of the other.
-  SmallMatrix transp(rotation());
-  transp.transpose();
+  SmallMatrix transp(rotation()); // copy the matrix
+  transp.transpose();		  // and transpose it
   SmallMatrix diff = other.rotation() * transp;
 
   // When the crystal symmetry allows multiple equivalent

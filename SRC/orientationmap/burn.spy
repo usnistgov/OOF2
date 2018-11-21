@@ -1,0 +1,63 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+from ooflib.SWIG.common import latticesystem
+from ooflib.SWIG.orientationmap import orientmapdata
+from ooflib.common import debug
+from ooflib.common import pixelselectionmethod
+from ooflib.common.IO import parameter
+
+import math
+
+class OrientationBurn(pixelselectionmethod.SelectionMethod):
+    def __init__(self, local_flammability, global_flammability,
+                 lattice_system, next_nearest):
+        self.local_flammability = local_flammability
+        self.global_flammability = global_flammability
+        self.lattice_system = lattice_system
+        self.next_nearest = next_nearest
+    def select(self, immidge, points, selector):
+        debug.fmsg("immidge=", immidge, immidge.__class__)
+        ms = immidge.getMicrostructure()
+        orientationmap = orientmapdata.getOrientationMap(ms)
+        startpt = ms.pixelFromPoint(points[0])
+        selectionctxt = ms.pixelselection.getObject()
+        if selectionctxt.checkpixel(startpt):
+            b = OrientationBurner(self.local_flammability*math.pi/180.,
+                                  self.global_flammability*math.pi/180.,
+                                  self.lattice_system.string(),
+                                  self.next_nearest)
+            debug.fmsg("startpt=", startpt)
+            selector(OrientBurnSelection(ms, b, orientationmap, startpt))
+
+pixelselectionmethod.PixelSelectionRegistration(
+    'OrientationBurn',
+    OrientationBurn,
+    ordering=1.1,
+    params=[
+        parameter.FloatRangeParameter(
+            'local_flammability',
+            range=(0, 180., 0.1), value=10,
+            tip="Maximum misorientation angle, in degrees, between neighboring pixels, across which a burn will extend."),
+        parameter.FloatRangeParameter(
+            'global_flammability',
+            range=(0, 180., 0.1), value=10,
+            tip="Misorientation, in degrees measured from initial point, beyond which a burn will not spread."),
+        latticesystem.LatticeSystemParam(
+            'lattice_system',
+            tip="Lattice symmetry"),
+        parameter.BooleanParameter(
+            'next_nearest', value=False,
+            tip="Burn next-nearest neighbors?")
+        ],
+    whoclasses=['Microstructure', 'Image'],
+    events=['up'],
+    tip='Select a contiguous set of similarly oriented pixels, using a forest fire algorithm on an orientation map.')
+    

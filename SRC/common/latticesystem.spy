@@ -23,5 +23,6 @@ class LatticeSystemName(enum.EnumClass(
         
 class LatticeSystemParam(enum.EnumParameter):
     def __init__(self, name, value=None, default=None, tip=None):
-        enum.EnumParameter(name, LatticeSystemName, value, default, tip)
+        enum.EnumParameter.__init__(self, name, LatticeSystemName, value,
+                                    default, tip)
 

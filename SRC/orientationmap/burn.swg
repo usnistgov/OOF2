@@ -9,23 +9,30 @@
  * oof_manager@nist.gov. 
  */
 
-#ifndef BURN_SWG
-#define BURN_SWG
+#ifndef ORIENT_BURN_SWG
+#define ORIENT_BURN_SWG
 
 %module burn
 %include "common/typemaps.swg"
+%extern "common/pixelselectioncourier.swg"
+
+%pragma(python) code="from ooflib.SWIG.common.pixelselectioncourier import PixelSelectionCourierPtr"
 
 %{
-#include "image/burn.h"
+#include "orientationmap/burn.h"
 %}
 %pragma(python) include="burn.spy"
 
-   //class OOFImage;
-
-class BasicBurner { // : public Burner {
+class OrientationBurner {
 public:
-  BasicBurner(double lcl, double glbl, bool useL2, bool nn);
+  OrientationBurner(double, double, char*, bool);
 };
 
+class OrientBurnSelection : public PixelSelectionCourier {
+public:
+  OrientBurnSelection(CMicrostructure*, OrientationBurner*, OrientMap*,
+		      ICoord *iPoint);
+  ~OrientBurnSelection();
+};
 
-#endif // BURN_SWG
+#endif // ORIENT_BURN_SWG
