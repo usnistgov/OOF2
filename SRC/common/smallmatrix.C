@@ -124,10 +124,24 @@ SmallMatrix3x3::SmallMatrix3x3(double a00, double a01, double a02,
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 std::ostream& operator<<(std::ostream &os, const SmallMatrix& mat) {
+  // for(int i=0; i<mat.rows(); i++) {
+  //   for(int j=0; j<mat.cols(); j++) 
+  //     os << " " << mat(i,j);
+  //   os << std::endl;
+  // }
+
+  os << "[";
   for(int i=0; i<mat.rows(); i++) {
-    for(int j=0; j<mat.cols(); j++) 
-      os << " " << mat(i,j);
-    os << std::endl;
+    if(i > 0)
+      os << ", ";
+    os << "[";
+    for(int j=0; j<mat.cols(); j++) {
+      if(j > 0)
+	os << ", ";
+      os << mat(i, j);
+    }
+    os << "]";
   }
+  os << "]";
   return os;
 }

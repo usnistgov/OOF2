@@ -31,6 +31,7 @@ public:
   COrientXYZ XYZ();
   COrientAxis axis();
   COrientRodrigues rodrigues();
+  double misorientation(COrientation&, char*);
 
   %addmethods {
     bool __eq__(COrientation *other) {

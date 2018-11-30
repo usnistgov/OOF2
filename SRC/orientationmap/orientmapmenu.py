@@ -8,6 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+from ooflib.SWIG.common import latticesystem
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import angle2color
@@ -24,6 +25,7 @@ from ooflib.common.IO import reporter
 from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
+from ooflib.engine.IO import orientationmatrix
 from ooflib.image.IO import imagemenu
 import ooflib.common.microstructure
 import os
@@ -250,6 +252,34 @@ orientmapmenu.addItem(oofmenu.OOFMenuItem(
     help="Convert an Orientation Map into an Image, so that pixel selection tools will work on it.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/orientationmap/menu/image.xml')
     ))
+    
+
+################
+
+def _misorientation(menutitem, orientation1, orientation2, lattice_system):
+    # Orientation.misorientation(), defined in
+    # engine/IO/orientationmatrix.py, returns an angle in degrees. It
+    # calls COrientation.misorientation(), which returns an angle in
+    # radians.
+    misor = orientation1.misorientation(orientation2, lattice_system.string())
+    reporter.report("misorientation=", misor)
+
+mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem(
+    'Misorientation_Calculator',
+    callback=_misorientation,
+    ordering=100,
+    params=[
+        parameter.RegisteredParameter('orientation1',
+                                      orientationmatrix.Orientation,
+                                      tip="An orientation"),
+        parameter.RegisteredParameter('orientation2',
+                                      orientationmatrix.Orientation,
+                                      tip="Another orientation"),
+        latticesystem.LatticeSystemParam('lattice_system',
+                                         tip="Lattice symmetry")
+        ],
+    help="Print the misorientation (in degrees) between two orientations in thegiven lattice system."))
+    
     
 
 ################

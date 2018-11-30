@@ -24,6 +24,7 @@
 
 # TODO: Move this file to common/IO or common?
 
+from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common import registeredclass
 from ooflib.common import utils
@@ -54,6 +55,10 @@ class Orientation(registeredclass.ConvertibleRegisteredClass):
         return not self==other
     def to_base(self):
         return self.corient
+
+    def misorientation(self, other, lattice_system):
+        return math.degrees(self.corient.misorientation(other.corient,
+                                                        lattice_system))
 
     tip = "The orientation of a three dimensional object."
 
@@ -252,11 +257,16 @@ OrientationRegistration(
 
 class Quaternion(Orientation):
     def __init__(self, e0, e1, e2, e3):
-        self.e0 = e0
-        self.e1 = e1
-        self.e2 = e2
-        self.e3 = e3
-        self.corient = corientation.COrientQuaternion(e0, e1, e2, e3)
+        # Make sure it's normalized.
+        norm = math.sqrt(e0*e0 + e1*e1 + e2*e2 + e3*e3)
+        if norm == 0.0:
+            raise ooferror.ErrUserError("Quaternion cannot be normalized!")
+        self.e0 = e0/norm
+        self.e1 = e1/norm
+        self.e2 = e2/norm
+        self.e3 = e3/norm
+        self.corient = corientation.COrientQuaternion(
+            self.e0, self.e1, self.e2, self.e3)
     @staticmethod
     def radians2Degrees(e0, e1, e2, e3):
         return e0, e1, e2, e3
@@ -280,7 +290,7 @@ OrientationRegistration(
     params=[FloatParameter('e0', 0.0, tip="Cosine of half the rotation angle.",),
             FloatParameter('e1', 0.0, tip="Rotation axis x-component times sine of half the rotation angle."),
             FloatParameter('e2', 0.0, tip="Rotation axis y-component times sine of half the rotation angle."),
-            FloatParameter('e3', 0.0, tip="Rotation axis z-component times sine of half the rotation angle.")],
+            FloatParameter('e3', 1.0, tip="Rotation axis z-component times sine of half the rotation angle.")],
     tip="The Quaternion representation for 3D orientations.  e0 is the cosine of the half-angle of the rotation, and e1 through e3 are the x, y, and z components of the rotation axis times the sine of the half-angle.  The rotation brings the crystal axes into coincidence with the lab axes.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/quaternion.xml')
     )

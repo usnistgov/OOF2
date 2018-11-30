@@ -58,6 +58,7 @@ public:
 
   void transpose();  // Transpose in-place.
   double norm() { return data.norm(); }
+  double determinant() const { return data.determinant(); }
 
   // The solve routine is fast, but corrupts the contents
   // of both the matrix and the passed-in rhs.  Matrix on which

@@ -11,7 +11,6 @@
 from ooflib.SWIG.image import pixelselectioncourieri
 from ooflib.common import debug
 from ooflib.common import enum
-#from ooflib.common import primitives
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
