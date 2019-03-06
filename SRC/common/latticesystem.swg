@@ -21,10 +21,29 @@
 %}
 %pragma(python) include="latticesystem.spy"
 
-class LatticeSystem {
+class LatticeSymmetry {
 };
 
-LatticeSystem *getLatticeSystem(char *name);
+
+%typemap(python, in) SmallMatrix *ThreeByThreeFloats (SmallMatrix mat) {
+  // typemap(python, in) SmallMatrix *ThreeByThreeFloats
+  // Convert [[x00, x01, x02],[x10, x11, x12], [x20, x21, x22]] to SmallMatrix
+  mat.resize(3, 3);
+  for(unsigned int row=0; row<3; row++)  {
+    PyObject *pyrow = PyList_GET_ITEM($source, (Py_ssize_t) row);
+    for(unsigned int col=0; col<3; col++) {
+      PyObject *pyval = PyList_GET_ITEM(pyrow, (Py_ssize_t) col);
+      mat(row, col) = PyFloat_AsDouble(pyval);
+      Py_XDECREF(pyval);
+    }
+    Py_XDECREF(pyrow);
+  }
+  $target = &mat;
+}
+
+void addLatticeSymmetryMatrix(char*, SmallMatrix *ThreeByThreeFloats);
+
+LatticeSymmetry *getLatticeSymmetry(char *schoenflies);
 
 #endif // LATTICESYSTEM_SWG
 

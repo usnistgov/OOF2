@@ -21,7 +21,7 @@ OrientationBurner::OrientationBurner(double lcl, double glbl,
     : Burner(nn),
       local_flammability(lcl),
       global_flammability(glbl),
-      lattice(getLatticeSystem(ls))
+      lattice(getLatticeSymmetry(ls))
   {}
 
 bool OrientationBurner::spread(const COrientABG &from, const COrientABG &to)

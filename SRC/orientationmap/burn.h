@@ -23,7 +23,7 @@ class OrientationBurner : public Burner<COrientABG, OrientMap> {
  public:
   double local_flammability;
   double global_flammability;
-  const LatticeSystem *lattice;
+  const LatticeSymmetry *lattice;
   OrientationBurner(double lcl, double glbl, const std::string &ls, bool nn);
   virtual bool spread(const COrientABG &from, const COrientABG &to) const;
 };

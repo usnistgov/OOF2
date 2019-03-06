@@ -68,7 +68,7 @@ COrientRodrigues COrientation::rodrigues() const {
 }
 
 double COrientation::misorientation(const COrientation &other,
-				    const LatticeSystem &lattice)
+				    const LatticeSymmetry &lattice)
   const
 {
   // The misorientation between two orientations is the angular part
@@ -96,12 +96,12 @@ double COrientation::misorientation(const COrientation &other,
   // orientations, we need to measure the difference between one
   // orientation and all possible equivalent versions of the other,
   // and return the minumum misorientation.
-  const std::vector<SmallMatrix3x3> &latticerotations(lattice.matrices());
+  const std::vector<SmallMatrix> &latticerotations(lattice.matrices());
   double minangle = std::numeric_limits<double>::max();
 #ifdef DEBUG
-  const SmallMatrix3x3 *bestrot = nullptr;
+  const SmallMatrix *bestrot = nullptr;
 #endif // DEBUG
-  for(const SmallMatrix3x3 &latrot : latticerotations) {
+  for(const SmallMatrix &latrot : latticerotations) {
     COrientAxis axisrot(latrot * diff);
     double angle = fabs(axisrot.angle());
     std::cerr << "COrientation::misorientation: latrot=" << latrot
@@ -126,7 +126,8 @@ double COrientation::misorientation(const COrientation &other,
 				    const std::string &lattice)
   const
 {
-  return misorientation(other, *getLatticeSystem(lattice));
+  // "lattice" is a Schoenflies symbol
+  return misorientation(other, *getLatticeSymmetry(lattice));
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

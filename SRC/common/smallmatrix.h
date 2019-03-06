@@ -77,12 +77,12 @@ public:
   void msub(const SmallMatrix& other) { data -= other.data; }
 };
 
-class SmallMatrix3x3 : public SmallMatrix {
-public:
-  SmallMatrix3x3(double a00, double a01, double a02,
-		 double a10, double a11, double a12,
-		 double a20, double a21, double a22);
-};
+// class SmallMatrix3x3 : public SmallMatrix {
+// public:
+//   SmallMatrix3x3(double a00, double a01, double a02,
+// 		 double a10, double a11, double a12,
+// 		 double a20, double a21, double a22);
+// };
 
 std::ostream &operator<<(std::ostream&, const SmallMatrix&);
 

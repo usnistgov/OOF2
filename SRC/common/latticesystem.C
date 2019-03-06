@@ -15,6 +15,33 @@
 #include "common/ooferror.h"
 #include <map>
 
+typedef std::map<std::string, LatticeSymmetry> LatticeSymmetryMap;
+
+static LatticeSymmetryMap symMap;
+
+void addLatticeSymmetryMatrix(const std::string &symbol,
+			      const SmallMatrix *matrix)
+{
+  // Find the Schoenflies map for the given lattice system.
+  LatticeSymmetryMap::iterator iter = symMap.find(symbol);
+  if(iter == symMap.end()) {
+    // std::cerr << "addLatticeSymmetryMatrix: adding symbol " << symbol
+    // 	      << std::endl;
+     auto insert = symMap.emplace(symbol, LatticeSymmetry{});
+     iter = insert.first;
+  }
+  LatticeSymmetry &ls = iter->second;
+  ls.addMatrix(matrix);
+}
+
+const LatticeSymmetry *getLatticeSymmetry(const std::string &symbol) {
+  LatticeSymmetryMap::const_iterator iter = symMap.find(symbol);
+  assert(iter != symMap.end());
+  return &iter->second;
+}
+
+
+#ifdef OLD
 static std::map<std::string, const LatticeSystem*> lattices_;
 
 #ifdef DEBUG
@@ -315,3 +342,4 @@ static const TrigonalLatticeSystem trigonal;
 static const RhombohedralLatticeSystem rhombohedral;
 static const HexagonalLatticeSystem hexagonal;
 static const CubicLatticeSystem cubic;
+#endif // OLD

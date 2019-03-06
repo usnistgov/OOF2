@@ -28,7 +28,7 @@ class COrientRodrigues;
 #include <iostream>
 
 class SmallMatrix;
-class LatticeSystem;
+class LatticeSymmetry;
 
 class COrientation {
 private:
@@ -54,7 +54,7 @@ public:
   virtual COrientAxis axis() const;
   virtual COrientRodrigues rodrigues() const;
 
-  double misorientation(const COrientation&, const LatticeSystem&) const;
+  double misorientation(const COrientation&, const LatticeSymmetry&) const;
   double misorientation(const COrientation&, const std::string&) const;
 
   virtual void print(std::ostream&) const = 0;

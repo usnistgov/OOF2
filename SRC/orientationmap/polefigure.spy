@@ -8,8 +8,11 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+print "polefigure.spy: importing direction"
 from ooflib.SWIG.common import direction
+print "polefigure.spy: importing ooferror"
 from ooflib.SWIG.common import ooferror
+print "polefigure.spy: importing crystalsymmetry"
 from ooflib.SWIG.engine import crystalsymmetry
 from ooflib.common import debug
 from ooflib.common import enum
@@ -23,8 +26,12 @@ from ooflib.common.IO import pixelgroupparam
 from ooflib.common.IO import placeholder
 from ooflib.common.IO import pdfoutput
 from ooflib.common.IO import whoville
+print "polefigure.spy: importing orientmapmenu"
 from ooflib.orientationmap import orientmapmenu
+print "polefigure.spy: imported orientmapmenu"
 import ooflib.common.microstructure
+
+print "polefigure.spy: imported stuff"
 
 def _makePoleFigure(menuitem, microstructure, pixels, symmetry,
                     pole, nBins,
@@ -138,3 +145,5 @@ orientmapmenu.orientmapmenu.addItem(
             ]
         )
     )
+
+print "polefigure.spy: done"

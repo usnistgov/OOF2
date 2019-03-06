@@ -6,9 +6,11 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
+print "orientmapmenu.py"
 from ooflib.SWIG.common import latticesystem
+print "orientmapmenu.py: imported latticesystem"
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import angle2color
@@ -303,3 +305,5 @@ switchboard.requestCallback(('new who', 'Microstructure'),
                             _sensitize)
 switchboard.requestCallback(('remove who', 'Microstructure'),
                             _sensitize)
+
+print "orientmapmenu.py: done"
