@@ -22,13 +22,12 @@ static LatticeSymmetryMap symMap;
 void addLatticeSymmetryMatrix(const std::string &symbol,
 			      const SmallMatrix *matrix)
 {
-  // Find the Schoenflies map for the given lattice system.
   LatticeSymmetryMap::iterator iter = symMap.find(symbol);
   if(iter == symMap.end()) {
-    // std::cerr << "addLatticeSymmetryMatrix: adding symbol " << symbol
-    // 	      << std::endl;
-     auto insert = symMap.emplace(symbol, LatticeSymmetry{});
-     iter = insert.first;
+    std::cerr << "addLatticeSymmetryMatrix: adding symbol " << symbol
+     	      << std::endl;
+    auto insert = symMap.emplace(symbol, LatticeSymmetry{});
+    iter = insert.first;
   }
   LatticeSymmetry &ls = iter->second;
   ls.addMatrix(matrix);

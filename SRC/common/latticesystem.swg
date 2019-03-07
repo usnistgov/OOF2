@@ -34,9 +34,7 @@ class LatticeSymmetry {
     for(unsigned int col=0; col<3; col++) {
       PyObject *pyval = PyList_GET_ITEM(pyrow, (Py_ssize_t) col);
       mat(row, col) = PyFloat_AsDouble(pyval);
-      Py_XDECREF(pyval);
     }
-    Py_XDECREF(pyrow);
   }
   $target = &mat;
 }

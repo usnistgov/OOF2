@@ -8,9 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-print "burn.spy"
 from ooflib.SWIG.common import latticesystem
-print "burn.spy: imported latticesystem"
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.orientationmap import orientmapdata
 from ooflib.common import debug
@@ -64,5 +62,3 @@ pixelselectionmethod.PixelSelectionRegistration(
     whoclasses=['Microstructure', 'Image'],
     events=['up'],
     tip='Select a contiguous set of similarly oriented pixels, using a forest fire algorithm on an orientation map.')
-    
-print "burn.spy: done"

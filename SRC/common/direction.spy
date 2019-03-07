@@ -15,8 +15,6 @@
 ## and get rid of these wrappers.  See orientationmatrix.py for more
 ## comments in a similar situation.
 
-print "direction.spy"
-
 from ooflib.common import debug
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter

@@ -8,8 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-print "orientationmap/initialize.py: start"
-
 from ooflib.SWIG.common import config
 from ooflib.common import debug
 
@@ -23,9 +21,5 @@ import ooflib.orientationmap.hkl
 import ooflib.orientationmap.tsl
 import ooflib.orientationmap.genericreader
 
-print "orientationmap/initialize.py: importing burn"
 import ooflib.SWIG.orientationmap.burn
-print "orientationmap/initialize.py: importing polefigure"
 import ooflib.SWIG.orientationmap.polefigure
-
-print "orientationmap/initialize.py: done"
