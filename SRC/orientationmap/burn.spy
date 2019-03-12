@@ -19,10 +19,10 @@ import math
 
 class OrientationBurn(pixelselectionmethod.SelectionMethod):
     def __init__(self, local_flammability, global_flammability,
-                 lattice_system, next_nearest):
+                 lattice_symmetry, next_nearest):
         self.local_flammability = local_flammability
         self.global_flammability = global_flammability
-        self.lattice_system = lattice_system
+        self.lattice_symmetry = lattice_symmetry
         self.next_nearest = next_nearest
     def select(self, immidge, points, selector):
         ms = immidge.getMicrostructure()
@@ -35,7 +35,7 @@ class OrientationBurn(pixelselectionmethod.SelectionMethod):
         if selectionctxt.checkpixel(startpt):
             b = OrientationBurner(self.local_flammability*math.pi/180.,
                                   self.global_flammability*math.pi/180.,
-                                  self.lattice_system.string(),
+                                  self.lattice_symmetry.schoenflies(),
                                   self.next_nearest)
             selector(OrientBurnSelection(ms, b, orientationmap, startpt))
 
@@ -52,8 +52,8 @@ pixelselectionmethod.PixelSelectionRegistration(
             'global_flammability',
             range=(0, 180., 0.1), value=10,
             tip="Misorientation, in degrees measured from initial point, beyond which a burn will not spread."),
-        latticesystem.LatticeSystemParam(
-            'lattice_system',
+        latticesystem.LatticeSymmetryParameter(
+            'lattice_symmetry',
             tip="Lattice symmetry"),
         parameter.BooleanParameter(
             'next_nearest', value=False,

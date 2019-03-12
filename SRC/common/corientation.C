@@ -79,18 +79,18 @@ double COrientation::misorientation(const COrientation &other,
   transp.transpose();		  // and transpose it
   SmallMatrix diff = other.rotation() * transp;
 
-#ifdef DEBUG
-  std::cerr << "COrientation::misorientation:  this=" << axis()
-	    << " " << rotation() << std::endl;
-  std::cerr << "COrientation::misorientation: other=" << other.axis()
-	    << " " << other.rotation()
-	    << std::endl;
-  std::cerr << "COrientation::misorientation:  diff=" << diff
-  	    << " det=" << diff.determinant() << std::endl;
-  COrientABG abg(diff);
-  std::cerr << "COrientation::misorientation: diff=" << abg << std::endl
-  	    << "                                  =" << abg.axis() << std::endl;
-#endif // DEBUG
+// #ifdef DEBUG
+//   std::cerr << "COrientation::misorientation:  this=" << axis()
+// 	    << " " << rotation() << std::endl;
+//   std::cerr << "COrientation::misorientation: other=" << other.axis()
+// 	    << " " << other.rotation()
+// 	    << std::endl;
+//   std::cerr << "COrientation::misorientation:  diff=" << diff
+//   	    << " det=" << diff.determinant() << std::endl;
+//   COrientABG abg(diff);
+//   std::cerr << "COrientation::misorientation: diff=" << abg << std::endl
+//   	    << "                                  =" << abg.axis() << std::endl;
+// #endif // DEBUG
   
   // When the crystal symmetry allows multiple equivalent
   // orientations, we need to measure the difference between one
@@ -98,27 +98,27 @@ double COrientation::misorientation(const COrientation &other,
   // and return the minumum misorientation.
   const std::vector<SmallMatrix> &latticerotations(lattice.matrices());
   double minangle = std::numeric_limits<double>::max();
-#ifdef DEBUG
-  const SmallMatrix *bestrot = nullptr;
-#endif // DEBUG
+// #ifdef DEBUG
+//   const SmallMatrix *bestrot = nullptr;
+// #endif // DEBUG
   for(const SmallMatrix &latrot : latticerotations) {
     COrientAxis axisrot(latrot * diff);
     double angle = fabs(axisrot.angle());
-    std::cerr << "COrientation::misorientation: latrot=" << latrot
-	      << " " << COrientAxis(latrot)
-	      << " " << COrientAxis(latrot).rotation()
-	      << "\t misorient. angle=" << angle*180/M_PI << std::endl;
+    // std::cerr << "COrientation::misorientation: latrot=" << latrot
+    // 	      << " " << COrientAxis(latrot)
+    // 	      << " " << COrientAxis(latrot).rotation()
+    // 	      << "\t misorient. angle=" << angle*180/M_PI << std::endl;
     if(fabs(angle) < fabs(minangle)) {
       minangle = angle;
-#ifdef DEBUG
-      bestrot = &latrot;
-#endif // DEBUG
+// #ifdef DEBUG
+//       bestrot = &latrot;
+// #endif // DEBUG
     }
   }
-#ifdef DEBUG
-  std::cerr << "COrientation::misorientation: minangle=" << minangle
-	    << " lattice rotation=" << *bestrot << std::endl;
-#endif // DEBUG
+// #ifdef DEBUG
+//   std::cerr << "COrientation::misorientation: minangle=" << minangle
+// 	    << " lattice rotation=" << *bestrot << std::endl;
+// #endif // DEBUG
   return minangle;
 }
 

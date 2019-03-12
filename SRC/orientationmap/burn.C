@@ -17,11 +17,11 @@
 template class Burner<COrientABG, OrientMap>;
 
 OrientationBurner::OrientationBurner(double lcl, double glbl,
-				     const std::string &ls, bool nn)
+				     const std::string &schoenflies, bool nn)
     : Burner(nn),
       local_flammability(lcl),
       global_flammability(glbl),
-      lattice(getLatticeSymmetry(ls))
+      lattice(getLatticeSymmetry(schoenflies)) 
   {}
 
 bool OrientationBurner::spread(const COrientABG &from, const COrientABG &to)
