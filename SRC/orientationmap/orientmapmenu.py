@@ -279,7 +279,6 @@ mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem(
         latticesystem.LatticeSymmetryParameter(
             'lattice_symmetry',
             value=latticesystem.SpaceGroup(1),
-            default=latticesystem.SpaceGroup(1),
             tip="Lattice symmetry")
         ],
     help="Print the misorientation (in degrees) between two orientations in thegiven lattice system."))
