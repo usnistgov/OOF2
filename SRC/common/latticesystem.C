@@ -22,14 +22,18 @@ static LatticeSymmetryMap symMap;
 void addLatticeSymmetryMatrix(const std::string &symbol,
 			      const SmallMatrix *matrix)
 {
+  if(matrix->determinant() < 0)
+    return;
   LatticeSymmetryMap::iterator iter = symMap.find(symbol);
   if(iter == symMap.end()) {
-    std::cerr << "addLatticeSymmetryMatrix: adding symbol " << symbol
-     	      << std::endl;
+    // std::cerr << "addLatticeSymmetryMatrix: adding symbol " << symbol
+    //  	      << std::endl;
     auto insert = symMap.emplace(symbol, LatticeSymmetry{});
     iter = insert.first;
   }
   LatticeSymmetry &ls = iter->second;
+  // std::cerr << "addLatticeSymmetryMatrix: " << symbol << " "
+  // 	    << *matrix << " det=" << matrix->determinant() << std::endl;
   ls.addMatrix(matrix);
 }
 

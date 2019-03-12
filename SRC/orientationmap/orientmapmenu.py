@@ -256,12 +256,13 @@ orientmapmenu.addItem(oofmenu.OOFMenuItem(
 
 ################
 
-def _misorientation(menutitem, orientation1, orientation2, lattice_system):
+def _misorientation(menutitem, orientation1, orientation2, lattice_symmetry):
     # Orientation.misorientation(), defined in
     # engine/IO/orientationmatrix.py, returns an angle in degrees. It
     # calls COrientation.misorientation(), which returns an angle in
     # radians.
-    misor = orientation1.misorientation(orientation2, lattice_system.string())
+    misor = orientation1.misorientation(orientation2,
+                                        lattice_symmetry.schoenflies())
     reporter.report("misorientation=", misor)
 
 mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem(
@@ -275,8 +276,11 @@ mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem(
         parameter.RegisteredParameter('orientation2',
                                       orientationmatrix.Orientation,
                                       tip="Another orientation"),
-        latticesystem.LatticeSystemParam('lattice_system',
-                                         tip="Lattice symmetry")
+        latticesystem.LatticeSymmetryParameter(
+            'lattice_symmetry',
+            value=latticesystem.SpaceGroup(1),
+            default=latticesystem.SpaceGroup(1),
+            tip="Lattice symmetry")
         ],
     help="Print the misorientation (in degrees) between two orientations in thegiven lattice system."))
     
