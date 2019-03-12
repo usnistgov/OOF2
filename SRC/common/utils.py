@@ -381,10 +381,17 @@ def format(line, width):
 # ensures that the objects are returned in the order in which they
 # were added.
 
+
+# The optional constructor argument is a list (not a dict!) of (key,
+# value) pairs, in the order in which they should appear in the OrderedDict.
+
 class OrderedDict(dict):
-    def __init__(self):
+    def __init__(self, items=None):
         dict.__init__(self)
         self._keys = []
+        if items:
+            for key, val in items:
+                self.__setitem__(key, val)
     def __setitem__(self, key, value):
         dict.__setitem__(self, key, value)
         if key not in self._keys:
