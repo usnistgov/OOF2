@@ -51,6 +51,12 @@ class LatticeSystemParam(enum.EnumParameter):
 #   Subscript("\(.*?\)", "\(.?*\)")  =>  "\1\2"
 # Add "data = \" line, and line feeds for readability.
 
+
+# Some groups have alternative names.  I've elected to keep the names
+# used by the xcore package, so some of the names used by Mathematica
+# have to be changed.
+#  S6 => C3i
+
 from math import sqrt
 
 # Improper rotation matrices with negative determinants are eliminated
@@ -159,7 +165,7 @@ data = \
       [[[1, 0, 0], [0, 1, 0], [0, 0, 1]], 
        [[-1/2., -sqrt(3)/2., 0], [sqrt(3)/2., -1/2., 0], [0, 0, 1]], 
        [[-1/2., sqrt(3)/2., 0], [-sqrt(3)/2., -1/2., 0], [0, 0, 1]]]], 
-     ["Trigonal", "S6",
+     ["Trigonal", "C3i",  # "S6"
       [[[1, 0, 0], [0, 1, 0], [0, 0, 1]], 
        [[-1/2., -sqrt(3)/2., 0], [sqrt(3)/2., -1/2., 0], [0, 0, 1]], 
        [[-1/2., sqrt(3)/2., 0], [-sqrt(3)/2., -1/2., 0], [0, 0, 1]], 
