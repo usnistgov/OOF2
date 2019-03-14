@@ -114,6 +114,11 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
             plugin.close()
         self.plugins = []
 
+    def findPlugIn(self, plugInClass):
+        for plugin in self.plugins:
+            if isinstance(plugin, plugInClass):
+                return plugin
+
     def acceptEvent(self, eventtype):
         return eventtype == 'up'
 
