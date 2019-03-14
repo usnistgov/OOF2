@@ -31,7 +31,7 @@ import ooflib.common.microstructure
 #   * A function clear() that's called when the clear button is pressed.
 
 # Here's a nearly useless baseclass:
-class PixelInfoPlugIn:
+class PixelInfoGUIPlugIn:
     def __init__(self, toolbox):
         self.toolbox = toolbox
     def close(self):
@@ -58,12 +58,12 @@ def registerPlugInClass(plugin):
 
 ####################################
 
-class MicrostructurePlugIn(PixelInfoPlugIn):
+class MicrostructurePlugIn(PixelInfoGUIPlugIn):
     ordering = 2
     nrows = 2
     def __init__(self, toolbox, table, row):
         debug.mainthreadTest()
-        PixelInfoPlugIn.__init__(self, toolbox)
+        PixelInfoGUIPlugIn.__init__(self, toolbox)
         label = gtk.Label('microstructure=')
         label.set_alignment(1.0, 0.5)
         table.attach(label, 0,1, row,row+1, xpadding=5, xoptions=gtk.FILL)
@@ -104,7 +104,7 @@ class MicrostructurePlugIn(PixelInfoPlugIn):
 
     def close(self):
         map(switchboard.removeCallback, self.sbcallbacks)
-        PixelInfoPlugIn.close(self)
+        PixelInfoGUIPlugIn.close(self)
 
     def clear(self):
         debug.mainthreadTest()

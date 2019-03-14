@@ -18,16 +18,16 @@ elif config.dimension() == 3:
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
-from ooflib.common.IO.GUI import pixelinfoplugin
+from ooflib.common.IO.GUI import pixelinfoGUIplugin
 from ooflib.common.IO.GUI import tooltips
 import gtk
 
-class ImagePlugIn(pixelinfoplugin.PixelInfoPlugIn):
+class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
     ordering = 1
     nrows = 5
     def __init__(self, toolbox, table, row):
         debug.mainthreadTest()
-        pixelinfoplugin.PixelInfoPlugIn.__init__(self, toolbox)
+        pixelinfoGUIplugin.PixelInfoGUIPlugIn.__init__(self, toolbox)
 
         # Colorv is set by "update" and "nonsense", it can be None (no
         # color), -1 (Nonsense), or a color.Color object.
@@ -187,5 +187,5 @@ class ImagePlugIn(pixelinfoplugin.PixelInfoPlugIn):
         self.text3.set_text('???')
 
 
-pixelinfoplugin.registerPlugInClass(ImagePlugIn)
+pixelinfoGUIplugin.registerPlugInClass(ImagePlugIn)
 

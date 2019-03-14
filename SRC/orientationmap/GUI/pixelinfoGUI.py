@@ -16,18 +16,18 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import fixedwidthtext
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import pixelinfoGUI
-from ooflib.common.IO.GUI import pixelinfoplugin
+from ooflib.common.IO.GUI import pixelinfoGUIplugin
 from ooflib.common.IO.GUI import tooltips
 from ooflib.engine.IO import orientationmatrix
 import gtk
 import math
 
-class OrientMapPixelInfoPlugIn(pixelinfoplugin.PixelInfoPlugIn):
+class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
     ordering = 4
     nrows = 1
     def __init__(self, toolbox, table, row):
         debug.mainthreadTest()
-        pixelinfoplugin.PixelInfoPlugIn.__init__(self, toolbox)
+        pixelinfoGUIplugin.PixelInfoGUIPlugIn.__init__(self, toolbox)
 
         self.label = gtk.Label('orientation=')
         self.label.set_alignment(1.0, 0.5)
@@ -74,7 +74,7 @@ class OrientMapPixelInfoPlugIn(pixelinfoplugin.PixelInfoPlugIn):
                                                               
     def close(self):
         map(switchboard.removeCallback, self.sbcbs)
-        pixelinfoplugin.PixelInfoPlugIn.close(self)
+        pixelinfoGUIplugin.PixelInfoGUIPlugIn.close(self)
 
     def materialchanged(self, *args, **kwargs):
         # Generic switchboard callback, called when materials or
@@ -138,17 +138,17 @@ class OrientMapPixelInfoPlugIn(pixelinfoplugin.PixelInfoPlugIn):
         self.set_mode("text")
         self.text.set_text("???")
                 
-pixelinfoplugin.registerPlugInClass(OrientMapPixelInfoPlugIn)
+pixelinfoGUIplugin.registerPlugInClass(OrientMapPixelInfoPlugIn)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class MisorientationPixelInfoPlugIn(pixelinfoplugin.PixelInfoPlugIn):
+class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
     ordering=5
     nrows = 4 # title, reference orientation + set button, lattice
               # widget, misorientation output
     def __init__(self, toolbox, table, row):
         debug.mainthreadTest()
-        pixelinfoplugin.PixelInfoPlugIn.__init__(self, toolbox)
+        pixelinfoGUIplugin.PixelInfoGUIPlugIn.__init__(self, toolbox)
         self.refOrient = None   # the current reference orientation
         self.sbcbs = []         # switchboard callbacks
 
@@ -236,7 +236,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoplugin.PixelInfoPlugIn):
 
     def close(self):
         map(switchboard.removeCallback, self.sbcbs)
-        pixelinfoplugin.PixelInfoPlugIn.close(self)
+        pixelinfoGUIplugin.PixelInfoGUIPlugIn.close(self)
 
     def clear(self):
         debug.fmsg("refOrient =", self.refOrient)
@@ -304,4 +304,4 @@ class MisorientationPixelInfoPlugIn(pixelinfoplugin.PixelInfoPlugIn):
     def materialchanged(self, *args, **kwargs):
         self.updateMisorientation()
 
-pixelinfoplugin.registerPlugInClass(MisorientationPixelInfoPlugIn)
+pixelinfoGUIplugin.registerPlugInClass(MisorientationPixelInfoPlugIn)
