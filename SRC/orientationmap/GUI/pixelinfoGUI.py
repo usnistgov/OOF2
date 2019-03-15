@@ -8,7 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.SWIG.common import latticesystem
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.orientationmap import orientmapdata
 from ooflib.common import debug
@@ -19,6 +18,7 @@ from ooflib.common.IO.GUI import pixelinfoGUI
 from ooflib.common.IO.GUI import pixelinfoGUIplugin
 from ooflib.common.IO.GUI import tooltips
 from ooflib.engine.IO import orientationmatrix
+from ooflib.orientationmap import pixelinfoplugin
 import gtk
 import math
 
@@ -138,8 +138,6 @@ class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.set_mode("text")
         self.text.set_text("???")
                 
-pixelinfoGUIplugin.registerPlugInClass(OrientMapPixelInfoPlugIn)
-
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
@@ -174,9 +172,8 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.refBox = gtk.VBox()
         vbox.pack_start(self.refBox, fill=1, expand=0)
         
-        self.refParam = parameter.ConvertibleRegisteredParameter(
-            'reference', orientationmatrix.Orientation)
-        self.refWidget = self.refParam.makeWidget() # RegisteredClassFactory
+        refParam = self.getMenu().Set_Reference.get_arg("orientation")
+        self.refWidget = refParam.makeWidget() # RegisteredClassFactory
         self.refWidget.makeReadOnly()
 
         self.refText = fixedwidthtext.FixedWidthTextView()
@@ -204,8 +201,8 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         label = gtk.Label("symmetry=")
         label.set_alignment(1.0, 0.5)
         table.attach(label, 0,1, row+2,row+3, xpadding=0, xoptions=gtk.FILL)
-        self.symParam = latticesystem.LatticeSymmetryParameter('symmetry')
-        self.symWidget = self.symParam.makeWidget()
+        symParam = self.getMenu().Set_Symmetry.get_arg('symmetry')
+        self.symWidget = symParam.makeWidget()
         gtklogger.setWidgetName(self.symWidget.gtk, "Symmetry")
         table.attach(self.symWidget.gtk, 1,2, row+2,row+3, xpadding=5,
                      xoptions=gtk.EXPAND|gtk.FILL)
@@ -217,9 +214,14 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.misorientationText.set_editable(0)
         table.attach(self.misorientationText, 1,2, row+3,row+4,
                      xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-
         self.sbcbs = [
+            # Changing the lattice symmetry requires an immediate
+            # update of the misorientation.  Connecting to the widget
+            # via the switchboard catches all changes, not just
+            # changes to the top chooser widget.
             switchboard.requestCallbackMain(self.symWidget, self.symChanged),
+            # Messages indicating that the Microstructure has changed
+            # in some possibly relevant way:
             switchboard.requestCallbackMain('OrientationMap changed',
                                             self.materialchanged),
             switchboard.requestCallbackMain(
@@ -230,36 +232,71 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
                                             self.materialchanged),
             switchboard.requestCallbackMain('prop_removed_from_material',
                                             self.materialchanged),
+            # Messages sent from the non-gui part of the toolbox:
+            switchboard.requestCallbackMain("set reference orientation",
+                                            self.setReference),
+            switchboard.requestCallbackMain("set misorientation symmetry",
+                                            self.setSymmetry)
             ]
 
         self.sensitize()
+
+    def getNonGUIPlugIn(self):
+        return self.getNonGUIToolbox().findPlugIn(
+            pixelinfoplugin.MisorientationPlugIn)
+    def getNonGUIToolbox(self):
+        return self.toolbox.gfxwindow().getToolboxByName("Pixel_Info")
+    def getMenu(self):
+        return self.getNonGUIToolbox().menu.Misorientation
 
     def close(self):
         map(switchboard.removeCallback, self.sbcbs)
         pixelinfoGUIplugin.PixelInfoGUIPlugIn.close(self)
 
     def clear(self):
-        debug.fmsg("refOrient =", self.refOrient)
-        wasNone = self.refOrient is None
-        self.refOrient = None
-        if not wasNone:
+        self.getNonGUIPlugIn().clear()
+        if self.refOrient is not None:
             self.refBox.remove(self.refWidget.gtk)
             self.refBox.pack_start(self.refText, expand=0, fill=0)
+        self.refOrient = None
         self.updateMisorientation()
-
+        
     def nonsense(self):
         self.updateMisorientation()
 
-    def sensitize(self):
-        ok = (self.getOrientation() is not None and
-              self.symParam.value is not None)
-        self.setButton.set_sensitive(ok)
-            
+    def update(self, point):
+        # This will do the right thing only if the
+        # OrientMapPixelInfoPlugIn has been updated first, which is
+        # will be if it was created first.
+        self.updateMisorientation()
 
+    def sensitize(self):
+        self.setButton.set_sensitive(self.getOrientation() is not None)
+
+    def setButtonCB(self, button):
+        # gtk callback for "Set Reference Orientation" button
+        menuitem = self.getMenu().Set_Reference
+        menuitem.callWithDefaults(orientation=self.getOrientation())
+
+    def setReference(self, gfxwindow):
+        # switchboard callback for "set reference orientation"
+        if gfxwindow is not self.toolbox.gfxwindow():
+            return
+        # If there was no reference orientation displayed before, we
+        # have to install the orientation widget and remove the text widget.
+        if self.refOrient is None:
+            self.refBox.remove(self.refText)
+            self.refBox.pack_start(self.refWidget.gtk, expand=0, fill=0)
+        nonguitoolbox = self.getNonGUIToolbox()
+        plugin = nonguitoolbox.findPlugIn(pixelinfoplugin.MisorientationPlugIn)
+        self.refOrient = plugin.referenceOrientation
+        self.refWidget.set(self.refOrient, interactive=False)
+        assert self.refOrient is not None
+        self.updateMisorientation()
+            
     def updateMisorientation(self):
         orient = self.getOrientation()
-        # reference = self.refParam.value
-        symmetry = self.symParam.value
+        symmetry = self.getNonGUIPlugIn().symmetry
         if (orient is None or symmetry is None or self.refOrient is None):
             self.misorientationText.set_text('???')
         else:
@@ -268,40 +305,44 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
             self.misorientationText.set_text(`misorientation`)
         self.sensitize()
 
-    def update(self, point):
-        # This will do the right thing only if the
-        # OrientMapPixelInfoPlugIn has been updated first, which is
-        # will be if it was created first.
-        self.updateMisorientation()
-
     def getOrientation(self):
-        oplugin = self.toolbox.findPlugIn(OrientMapPixelInfoPlugIn)
+        # The orientation (the one that's being compared to the
+        # reference orientation) is the one currently chosen in the
+        # OrientMapPixelInfoPlugIn.
+        oplugin = self.toolbox.findGUIPlugIn(OrientMapPixelInfoPlugIn)
         if oplugin is None:
             return
         return oplugin.getOrientation()
 
-    def setButtonCB(self, button):
-        # gtk callback for "Set Reference Orientation" button
-        wasNone = self.refOrient is None
-        self.refOrient = self.getOrientation()
-        if self.refOrient is not None:
-            # self.refParam.value = orient
-            self.refWidget.set(self.refOrient, interactive=False)
-            self.updateMisorientation()
-            if wasNone:
-                self.refBox.remove(self.refText)
-                self.refBox.pack_start(self.refWidget.gtk, expand=0, fill=0)
+    def symChanged(self, interactive):
+        # Switchboard callback for changes in the state of the
+        # symmetry widget.
 
-    def symChanged(self, *args, **kwargs): # sb callback for symmetry widget
-        self.symParam.value = self.symWidget.get_value()
+        # Checking 'interactive' here suppresses an infinite loop.
+        # The menu item sets the value of the widget, which calls this
+        # callback. 'interactive' is false if this callback is called
+        # via that sequence.
+        if interactive:
+            menuitem = self.getMenu().Set_Symmetry
+            menuitem.callWithDefaults(symmetry=self.symWidget.get_value())
+
+    def setSymmetry(self, gfxwindow):
+        # switchboard callback for "set misorientation symmetry",
+        # which is issued by the menu command.
+        if gfxwindow is not self.toolbox.gfxwindow():
+            return
+        self.symWidget.set(self.getNonGUIPlugIn().symmetry, interactive=False)
         self.updateMisorientation()
-
-    def refChanged(self, *args, **kwargs):
-        # self.refParam.value = self.refWidget.get_value()
-        self.refOrient = self.refWidget.get_value()
-        self.updateMisorientation()
-
+        
     def materialchanged(self, *args, **kwargs):
+        debug.fmsg()
         self.updateMisorientation()
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# The OrientMapPixelInfoPlugIn must be created before the
+# MisorientationPixelInfoPlugIn in each graphics window, so it must be
+# registered first here.
+
+pixelinfoGUIplugin.registerPlugInClass(OrientMapPixelInfoPlugIn)
 pixelinfoGUIplugin.registerPlugInClass(MisorientationPixelInfoPlugIn)

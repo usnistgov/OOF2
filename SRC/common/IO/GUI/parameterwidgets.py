@@ -75,10 +75,7 @@ class ParameterWidget:
     # changes.  widgetChanged issues a switchboard call when the
     # validity changes.  The "interactive" flag is used to indicate
     # non-programmatic changes -- some widgets need to do extra
-    # consistency work in that case.  TODO LATER: Apparently the only
-    # such widget is in the LayerEditorGUI, so this mechanism is not
-    # very general.  This may be due to missed opportunities to use
-    # it, or it may be that it's not as useful as we thought.
+    # consistency work in that case, or suppress callback loops.
     def widgetChanged(self, validity, interactive):
         if self._valid and not validity:
             self._valid = 0

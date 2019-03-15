@@ -30,6 +30,8 @@ import ooflib.common.microstructure
 #   * A function nonsense() that's called when the mouse click isn't sensible.
 #   * A function clear() that's called when the clear button is pressed.
 
+## TODO: Use a metaclass instead of registerPlugInClass.  See pixelinfo.py.
+
 # Here's a nearly useless baseclass:
 class PixelInfoGUIPlugIn:
     def __init__(self, toolbox):
@@ -54,7 +56,7 @@ def pluginsorter(a,b):
 def registerPlugInClass(plugin):
     plugInClasses.append(plugin)
     plugInClasses.sort(pluginsorter)
-    switchboard.notify('new pixelinfo plugin')
+    switchboard.notify('new pixelinfo GUI plugin')
 
 ####################################
 

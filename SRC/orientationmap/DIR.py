@@ -22,7 +22,7 @@ swigfiles = [
 pyfiles = [
     'hkl.py', 'tsl.py', 'genericreader.py', 
     'initialize.py', 'orientmapdisplay.py',
-    'orientmapmenu.py', 'orientmapIO.py']
+    'orientmapmenu.py', 'orientmapIO.py', 'pixelinfoplugin.py']
 
 swigpyfiles = [
     'orientmapdata.spy', 'orientmapproperty.spy', 'polefigure.spy', 'burn.spy']

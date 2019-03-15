@@ -78,7 +78,7 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.sbcallbacks = [
             switchboard.requestCallbackMain(pixelinfotoolbox,
                                             self.update),
-            switchboard.requestCallbackMain('new pixelinfo plugin',
+            switchboard.requestCallbackMain('new pixelinfo GUI plugin',
                                             self.buildGUI),
             switchboard.requestCallbackMain((self.gfxwindow(),
                                              'layers changed'), self.update)
@@ -113,7 +113,7 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
             plugin.close()
         self.plugins = []
 
-    def findPlugIn(self, plugInClass):
+    def findGUIPlugIn(self, plugInClass):
         for plugin in self.plugins:
             if isinstance(plugin, plugInClass):
                 return plugin
