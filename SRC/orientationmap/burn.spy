@@ -17,6 +17,12 @@ from ooflib.common.IO import parameter
 
 import math
 
+## TODO: This method should be suppressed in the Pixel Selection
+## Toolbox if the microstructure has no orientation map.  The best way
+## to do that might be to make OrientationMap a WhoClass, and treat it
+## like an Image.  Then the 'whoclasses' entry in the Registration
+## would do what we need here.
+
 class OrientationBurn(pixelselectionmethod.SelectionMethod):
     def __init__(self, local_flammability, global_flammability,
                  lattice_symmetry, next_nearest):
