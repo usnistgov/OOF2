@@ -126,7 +126,21 @@ class Property(unittest.TestCase):
                                                      property=ppath)
 
                         # Read the saved Property, and check that the
-                        # modified parameter values have been restored.
+                        # modified parameter values have been
+                        # restored.  [This test assumes that the
+                        # binary values of the parameters are
+                        # *exactly* representable in ascii.  This
+                        # failed for Quaternion Orientation parameters
+                        # when the Quaternion constructor started
+                        # enforcing normalization.  The correct
+                        # solution would be to use assertAlmostEqual
+                        # here, but that's not easy to do with
+                        # non-numerical parameter.  Instead, we're
+                        # just using a particular Quaternion that
+                        # doesn't cause digitization error.  This
+                        # isn't an elegant solution, but as Andrew
+                        # said, "We're still ashamed of it, so it's
+                        # ok."]
                         OOF.File.Load.Data(filename="prop_save_test")
                         for param in p.object.params:
                             self.assertEqual(param.value, argdict[param.name])
@@ -646,7 +660,8 @@ def build_parametrize_dict():
           {'angles': X(phi=0.2, theta=0.1, psi=0.3)},
           {'angles': XYZ(phi=0.3, theta=0.2, psi=0.1)},
           {'angles': Axis(angle=0.4, x=0.1, y=0.2, z=1.0)},
-          {'angles': Quaternion(e0=1.0, e1=0.1, e2=0.3, e3=0.4)},
+          # See comment about Quaternions in Parametrize, above.
+          {'angles': Quaternion(e0=1.0, e1=0.2, e2=0.3, e3=0.4)},
           {'angles': Rodrigues(r1=0.1, r2=0.2, r3=0.3)},
           {'angles': Bunge(phi1=0.1, theta=0.2, phi2=0.3)} ],
 

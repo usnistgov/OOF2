@@ -2,6 +2,8 @@ OOF2 2.1.17
 
 * Significant speed up of the element/pixel intersection code.
 
+* Fixed a bug in the Quaternion class in some limiting cases.
+
 OOF2 2.1.16
 
 * New robust calculation of element/pixel intersection areas.

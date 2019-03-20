@@ -125,6 +125,9 @@ class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         if self.current_mode == "widget":
             return self.widget.get_value()
 
+    def getLocation(self):
+        return self.toolbox.currentPixel()
+    
     def widgetcb(self, *args, **kwargs):
         self.param.value = self.widget.get_value()
 
@@ -176,18 +179,44 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.refWidget = refParam.makeWidget() # RegisteredClassFactory
         self.refWidget.makeReadOnly()
 
+        # A table displaying the x, y coords of the reference point.
+        # TODO: Should the coordinates be editable directly?  It would
+        # require a separate button to indicate that the user is done
+        # editing.
+        self.refPointTable = gtk.Table(rows=2, columns=2)
+        xlabel = gtk.Label("x=")
+        xlabel.set_alignment(1.0, 0.5)
+        self.refPointTable.attach(xlabel, 0,1, 0,1, xpadding=3, ypadding=0,
+                                  xoptions=gtk.FILL)
+        self.xtext = gtk.Entry()
+        gtklogger.setWidgetName(self.xtext, 'X')
+        self.xtext.set_editable(False)
+        self.refPointTable.attach(self.xtext, 1,2, 0,1, xpadding=3, ypadding=0,
+                                  xoptions=gtk.FILL|gtk.EXPAND)
+        ylabel = gtk.Label("y=")
+        ylabel.set_alignment(1.0, 0.5)
+        self.refPointTable.attach(ylabel, 0,1, 1,2, xpadding=3, ypadding=0,
+                                  xoptions=gtk.FILL)
+        self.ytext = gtk.Entry()
+        gtklogger.setWidgetName(self.ytext, 'Y')
+        self.ytext.set_editable(False)
+        self.refPointTable.attach(self.ytext, 1,2, 1,2, xpadding=3, ypadding=0,
+                                  xoptions=gtk.FILL|gtk.EXPAND)
+
+        # Text displayed instead of the reference orientation and
+        # location when no reference has been selected.
         self.refText = fixedwidthtext.FixedWidthTextView()
         self.refText.set_wrap_mode(gtk.WRAP_WORD)
         self.refText.set_editable(False)
         self.refText.set_cursor_visible(False)
         self.refText.get_buffer().set_text(
-            'Select a pixel and click "Set Reference Orientation" to make it the reference.')
+            'Select a pixel and click "Set Reference Point" to make it the reference.')
         self.refBox.pack_start(self.refText, expand=0, fill=0)
 
         # The "Set Reference" button copies the orientation from the
         # OrientMapPixelInfoPlugIn to the reference widget in this
         # plug-in.
-        self.setButton = gtk.Button("Set Reference Orientation")
+        self.setButton = gtk.Button("Set Reference Point")
         gtklogger.setWidgetName(self.setButton, "Set")
         align = gtk.Alignment(xalign=0.5)
         align.add(self.setButton)
@@ -257,6 +286,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.getNonGUIPlugIn().clear()
         if self.refOrient is not None:
             self.refBox.remove(self.refWidget.gtk)
+            self.refBox.remove(self.refPointTable)
             self.refBox.pack_start(self.refText, expand=0, fill=0)
         self.refOrient = None
         self.updateMisorientation()
@@ -266,36 +296,43 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
 
     def update(self, point):
         # This will do the right thing only if the
-        # OrientMapPixelInfoPlugIn has been updated first, which is
-        # will be if it was created first.
+        # OrientMapPixelInfoPlugIn has been updated first,
+        # which it will be if it was created first.
         self.updateMisorientation()
 
     def sensitize(self):
-        self.setButton.set_sensitive(self.getOrientation() is not None)
+        self.setButton.set_sensitive(self.getOrientPlugInData()[0] is not None)
 
     def setButtonCB(self, button):
         # gtk callback for "Set Reference Orientation" button
         menuitem = self.getMenu().Set_Reference
-        menuitem.callWithDefaults(orientation=self.getOrientation())
+        orientation, location = self.getOrientPlugInData()
+        menuitem.callWithDefaults(point=location, orientation=orientation)
 
     def setReference(self, gfxwindow):
         # switchboard callback for "set reference orientation"
         if gfxwindow is not self.toolbox.gfxwindow():
             return
-        # If there was no reference orientation displayed before, we
-        # have to install the orientation widget and remove the text widget.
-        if self.refOrient is None:
-            self.refBox.remove(self.refText)
-            self.refBox.pack_start(self.refWidget.gtk, expand=0, fill=0)
         nonguitoolbox = self.getNonGUIToolbox()
         plugin = nonguitoolbox.findPlugIn(pixelinfoplugin.MisorientationPlugIn)
+        switchModes = self.refOrient is None
         self.refOrient = plugin.referenceOrientation
+        self.refPoint = plugin.referencePoint
         self.refWidget.set(self.refOrient, interactive=False)
+        self.xtext.set_text(`self.refPoint.x`)
+        self.ytext.set_text(`self.refPoint.y`)
+        # If there was no reference orientation displayed before, we
+        # have to install the orientation widget and remove the text widget.
+        if switchModes: # ie, the OLD refOrient is None
+            self.refBox.remove(self.refText)
+            self.refBox.pack_start(self.refWidget.gtk, expand=0, fill=0)
+            self.refBox.pack_start(self.refPointTable, expand=1, fill=1)
+            self.refPointTable.show_all()
         assert self.refOrient is not None
         self.updateMisorientation()
             
     def updateMisorientation(self):
-        orient = self.getOrientation()
+        orient, location = self.getOrientPlugInData()
         symmetry = self.getNonGUIPlugIn().symmetry
         if (orient is None or symmetry is None or self.refOrient is None):
             self.misorientationText.set_text('???')
@@ -305,14 +342,14 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
             self.misorientationText.set_text(`misorientation`)
         self.sensitize()
 
-    def getOrientation(self):
+    def getOrientPlugInData(self):
         # The orientation (the one that's being compared to the
         # reference orientation) is the one currently chosen in the
         # OrientMapPixelInfoPlugIn.
         oplugin = self.toolbox.findGUIPlugIn(OrientMapPixelInfoPlugIn)
         if oplugin is None:
             return
-        return oplugin.getOrientation()
+        return oplugin.getOrientation(), oplugin.getLocation()
 
     def symChanged(self, interactive):
         # Switchboard callback for changes in the state of the
@@ -335,7 +372,6 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.updateMisorientation()
         
     def materialchanged(self, *args, **kwargs):
-        debug.fmsg()
         self.updateMisorientation()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
