@@ -1018,8 +1018,9 @@ double PixelSetBoundary::clippedArea(int cat,
     // The number of subdivisions is fixed, at the trivial value.  The
     // trivial tiling has already been created.
 #ifdef DEBUG
-    std::cerr << "PixelSetBoundary::clippedArea: using trivial tiling"
-	      << std::endl;
+    if(verbose)
+      std::cerr << "PixelSetBoundary::clippedArea: using trivial tiling"
+		<< std::endl;
 #endif // DEBUG
     tiling = tilings[0];
   }
@@ -1037,8 +1038,9 @@ double PixelSetBoundary::clippedArea(int cat,
     }
     tiling = tilings[1];
 #ifdef DEBUG
-    std::cerr << "PixelSetBoundary::clippedArea: using fixed tiling "
-	      << fixed_subdivision << std::endl;
+    if(verbose)
+      std::cerr << "PixelSetBoundary::clippedArea: using fixed tiling "
+		<< fixed_subdivision << std::endl;
 #endif // DEBUG
   }
   return tiling->clippedArea(lines, bbox, verbose);
