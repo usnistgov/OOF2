@@ -52,7 +52,7 @@ class SkeletonSelectable:
 
     # Comparison operators.  These are slightly strange, but there's a
     # good reason.  The __eq__ comparison is used to check for
-    # duplicatesin lists, in particular the parent and child lists.
+    # duplicates in lists, in particular the parent and child lists.
     # In the scenario where there is already an un-done skeleton on
     # the stack, being overwritten by a new skeleton, there is the
     # possibility of index duplication.  In this case, the addition of
@@ -60,7 +60,7 @@ class SkeletonSelectable:
     # equally.  You want an __eq__ operator in general so that
     # equality comparisons will be fast -- so, compare object IDs.
     # The __lt__ and __cmp__ operators are different, they are used
-    # for ordering objects in uniquelists, in paritcular in the
+    # for ordering objects in uniquelists, in particular in the
     # "group" objects.  In this case, you *do* want to order by index,
     # because you want the ordering to be repeatable over different
     # runs or architectures.  So, in that case, use index comparison.
