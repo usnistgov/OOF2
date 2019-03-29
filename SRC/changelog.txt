@@ -4,6 +4,9 @@ OOF2 2.1.17
 
 * Fixed a bug in the Quaternion class in some limiting cases.
 
+* Added OrientationBurn, which selects sets of contiguous pixels if
+  their orientation mismatch is smaller than a given threshold.
+
 OOF2 2.1.16
 
 * New robust calculation of element/pixel intersection areas.

@@ -12,3 +12,6 @@ on the Skeleton Selection page to remove the material from an element
 to which a material has been only implicitly assigned.  Currently,
 attempting to do that raises a KeyError.
 
+Floating periodic boundary conditions.  For example, a system with
+thermal expansion and periodic boundary conditions should be able to
+expand as a whole.
