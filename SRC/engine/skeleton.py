@@ -1782,100 +1782,136 @@ class Skeleton(SkeletonBase):
 
     def sanity_check(self):
         sane = True
-        for element in self.elements:
-            if element.illegal():
-                reporter.report("illegal element", element.index,
-                                [n.position() for n in element.nodes])
-                sane = False
-            for node in element.nodes:
-                if node not in self.nodes:
-                    reporter.report("element", element.index, "contains a node",
-                                    node.index, "not in the skeleton")
+        prog = progress.getProgress("Sanity Check", progress.DEFINITE)
+        try:
+            for i, element in enumerate(self.elements):
+                prog.setMessage("elements %d/%d" % (i, self.nelements()))
+                prog.setFraction(float(i)/self.nelements())
+                if prog.stopped():
+                    return
+                if element.illegal():
+                    reporter.report("illegal element", element.index,
+                                    [n.position() for n in element.nodes])
                     sane = False
-                if element not in node.aperiodicNeighborElements():
-                    reporter.report("inconsistent neighborNodes for node",
-                                    node.index, " and element", element.index)
+                for node in element.nodes:
+                    if node not in self.nodes:
+                        reporter.report(
+                            "element", element.index, "contains a node",
+                            node.index, "not in the skeleton")
+                        sane = False
+                    if element not in node.aperiodicNeighborElements():
+                        reporter.report(
+                            "inconsistent neighborNodes for node",
+                            node.index, " and element", element.index)
+                        sane = False
+                segs = element.getSegments(self)
+                if None in segs:
+                    reporter.report("Element", element.index,
+                                    "is missing a segment")
                     sane = False
-            segs = element.getSegments(self)
-            if None in segs:
-                reporter.report("Element", element.index,
-                                "is missing a segment")
-                sane = False
-        for node in self.nodes:
-            for element in node.aperiodicNeighborElements():
-                if element not in self.elements:
-                    reporter.report("node", node.index, "contains an element",
-                                    element.index, "not in the skeleton")
+            for i, node in enumerate(self.nodes):
+                prog.setMessage("nodes %d/%d" % (i, self.nnodes()))
+                prog.setFraction(float(i)/self.nnodes())
+                if prog.stopped():
+                    return
+                for element in node.aperiodicNeighborElements():
+                    if element not in self.elements:
+                        reporter.report(
+                            "node", node.index, "contains an element",
+                            element.index, "not in the skeleton")
+                        sane = False
+                if not node.aperiodicNeighborElements():
+                    reporter.report("Node", node.index, "at", node.position(),
+                                    "has no elements!")
                     sane = False
-            if not node.aperiodicNeighborElements():
-                reporter.report("Node", node.index, "at", node.position(),
-                                "has no elements!")
-                sane = False
-            # Check that nodes on periodic boundaries have partners
-            x = node.position().x
-            y = node.position().y
-            xmax = self.MS.size().x
-            ymax = self.MS.size().y
-            if self.left_right_periodicity and (x == 0.0 or x == xmax):
-                p = node.getDirectedPartner('x')
-                if not p or ((x == 0.0 and p.position().x != xmax) or
-                             (x ==  xmax and p.position().x != 0.0)):
-                    reporter.report(node.__class__.__name__, node.index,
-                                    "at", node.position(),
-                                    "has no periodic partner in x")
-                    reporter.report("   partners are at",
-                                    [(ptnr.position(), ptnr.index)
-                                     for ptnr in node.getPartners()])
+                    # Check that nodes on periodic boundaries have partners
+                x = node.position().x
+                y = node.position().y
+                xmax = self.MS.size().x
+                ymax = self.MS.size().y
+                if self.left_right_periodicity and (x == 0.0 or x == xmax):
+                    p = node.getDirectedPartner('x')
+                    if not p or ((x == 0.0 and p.position().x != xmax) or
+                                 (x ==  xmax and p.position().x != 0.0)):
+                        reporter.report(node.__class__.__name__, node.index,
+                                        "at", node.position(),
+                                        "has no periodic partner in x")
+                        reporter.report("   partners are at",
+                                        [(ptnr.position(), ptnr.index)
+                                         for ptnr in node.getPartners()])
+                        sane = False
+                if self.top_bottom_periodicity and (y == 0.0 or y == ymax):
+                    p = node.getDirectedPartner('y')
+                    if not p or ((y == 0.0 and p.position().y != ymax) or
+                                 (y == ymax and p.position().y != 0.0)):
+                        reporter.report(node.__class__.__name__, node.index,
+                                        "at", node.position(),
+                                        "has no periodic partner in y")
+                        reporter.report("   partners are at",
+                                        [(ptnr.position(), ptnr.index)
+                                         for ptnr in node.getPartners()])
+                        reporter.report(
+                            [ptnr.position()-primitives.Point(x, ymax)
+                             for ptnr in node.getPartners()])
+                        sane = False
+                        # Check self consistency of partner lists
+                for partner in node.getPartners():
+                    if node not in partner.getPartners():
+                        reporter.report("Inconsistent partner lists for",
+                                        node.__class__.__name__, node.index,
+                                        "at", node.position(), "and",
+                                        partner.__class__.__name__, partner.index,
+                                        "at", partner.position())
+
+                        sane = False
+            nsegs = len(self.segments)
+            for i, segment in enumerate(self.segments.values()):
+                prog.setMessage("segments %d/%d" % (i, nsegs))
+                prog.setFraction(float(i)/nsegs)
+                if prog.stopped():
+                    return
+                elements = segment.getElements()
+                if len(elements) > 2:
+                    reporter.report(
+                        "segment", [n.index for n in segment.nodes()], 
+                        "has too many elements:", [el.index for el in elements])
                     sane = False
-            if self.top_bottom_periodicity and (y == 0.0 or y == ymax):
-                p = node.getDirectedPartner('y')
-                if not p or ((y == 0.0 and p.position().y != ymax) or
-                             (y == ymax and p.position().y != 0.0)):
-                    reporter.report(node.__class__.__name__, node.index,
-                                    "at", node.position(),
-                                    "has no periodic partner in y")
-                    reporter.report("   partners are at",
-                                    [(ptnr.position(), ptnr.index)
-                                     for ptnr in node.getPartners()])
-                    reporter.report([ptnr.position()-primitives.Point(x, ymax)
-                                     for ptnr in node.getPartners()])
+                for element in elements:
+                    if element not in self.elements:
+                        reporter.report("segment",
+                                        [n.index for n in segment.nodes()],
+                                        "contains an element", element.index, 
+                                        "not in the skeleton")
+                        sane = False
+                for node in segment.nodes():
+                    if node not in self.nodes:
+                        reporter.report("segment",
+                                        [n.index for n in segment.nodes()], 
+                                        "contains a node", node.index,
+                                        "not in the skeleton")
+                        sane = False
+            nbdys = len(self.edgeboundaries)
+            for i, bdyname in enumerate(self.edgeboundaries):
+                prog.setMessage("edge boundaries %d/%d" % (i, nbdys))
+                prog.setFraction(float(i)/nbdys)
+                if prog.stopped():
+                    return
+                bdy = self.edgeboundaries[bdyname]
+                try:
+                    bdy.sequence()
+                except skeletonsegment.SequenceError, err:
+                    reporter.report(err)
+                    reporter.report("boundary", bdyname, "cannot be sequenced")
                     sane = False
-            # Check self consistency of partner lists
-            for partner in node.getPartners():
-                if node not in partner.getPartners():
-                    reporter.report("Inconsistent partner lists for",
-                                    node.__class__.__name__, node.index,
-                                    "at", node.position(), "and",
-                                    partner.__class__.__name__, partner.index,
-                                    "at", partner.position())
-            
-                    sane = False
-        for segment in self.segments.values():
-            elements = segment.getElements()
-            if len(elements) > 2:
-                reporter.report("segment", [n.index for n in segment.nodes()], 
-                                "has too many elements:",
-                                [el.index for el in elements])
-                sane = False
-            for element in elements:
-                if element not in self.elements:
-                    reporter.report("segment",
-                                    [n.index for n in segment.nodes()],
-                                    "contains an element", element.index, 
-                                    "not in the skeleton")
-                    sane = False
-            for node in segment.nodes():
-                if node not in self.nodes:
-                    reporter.report("segment",
-                                    [n.index for n in segment.nodes()], 
-                                    "contains a node", node.index,
-                                    "not in the skeleton")
-                    sane = False
-            
-        if sane:
-            reporter.report("*** Skeleton Sanity Check passed. ***")
-        else:
-            reporter.report("*** Skeleton sanity check failed. ***")
+        finally:
+            prog.finish()
+            if prog.stopped():
+                reporter.report("*** Skeleton Sanity Check interrupted. ***")
+        if not prog.stopped():
+            if sane:
+                reporter.report("*** Skeleton Sanity Check passed. ***")
+            else:
+                reporter.report("*** Skeleton sanity check failed. ***")
         return sane
 
                 
@@ -2842,7 +2878,15 @@ class ProvisionalChanges:
         # relationships may be made for the corresponding segments.
         self.substitutions.append([old, new])
 
-    def substituteSegment(self, old, new):  # "new" has to be a list
+    def substituteSegment(self, old, new):
+        # "old" is a SkeletonSegment.
+        # "new" is a list of pairs of nodes, *not* SkeletonSegments.
+        # Segments shouldn't be created until ProvisionalChanges are
+        # accepted.
+        # Call substituteSegment() to ensure parent-child
+        # relationships are maintained when one segment is replaced by
+        # one or more segments from something other than simple
+        # substitution of one element for another.
         self.seg_subs[old] = new
 
     def moveNode(self, node, position, mobility=(1,1)):
@@ -2942,7 +2986,7 @@ class ProvisionalChanges:
         # actual elements replace their predecessors in the
         # ProvisionalChanges object, so that they're available to the
         # calling routine.
-        ## TODO: Remove argument and use self.skeleton instead?        
+        ## TODO: Remove argument and use self.skeleton instead?
         self.inserted = [element.accept(skeleton) for element in self.inserted]
         for mvnode in self.movednodes:
             mvnode.node.moveTo(mvnode.position)
@@ -2955,6 +2999,7 @@ class ProvisionalChanges:
             pair[1] = newelement
             oldsegments = old.getSegments(skeleton)
             newsegments = newelement.getSegments(skeleton)
+            assert len(oldsegments) == len(newsegments)
             for oldseg, newseg in zip(oldsegments, newsegments):
                 for parent in oldseg.getParents():
                     newseg.add_parent(parent)
@@ -2965,7 +3010,8 @@ class ProvisionalChanges:
             skeleton.removeElements(old)
         for old in self.seg_subs:
             new_segs = self.seg_subs[old]
-            for new in new_segs:
+            for node0, node1 in new_segs:
+                new = skeleton.getSegment(node0, node1)
                 for parent in old.getParents():
                     new.add_parent(parent)
                     parent.add_child(new)

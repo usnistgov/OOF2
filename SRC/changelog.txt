@@ -2,6 +2,9 @@ OOF2 2.1.17
 
 * Significant speed up of the element/pixel intersection code.
 
+* Fixed a bug in the Skeleton Rationalize method that could create bad
+  boundaries in periodic Skeletons.
+
 OOF2 2.1.16
 
 * New robust calculation of element/pixel intersection areas.

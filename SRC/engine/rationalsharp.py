@@ -22,16 +22,10 @@ import math
 ProvisionalTriangle = skeletonelement.ProvisionalTriangle
 ProvisionalQuad = skeletonelement.ProvisionalQuad
 
+# Collapse or split a triangle with angles that are too acute or too
+# obtuse.
+
 class RemoveBadTriangle(rationalize.Rationalizer):
-    #
-    #             C
-    #            /|
-    #           / |  If an interior angle A-C-B is too small,
-    #          /  |  it's better to remove this triangle.
-    #         /   |  
-    #        /____|  This case involves a "merging" process.
-    #        A    B  (merging of two nodes, A and B)
-    #
     def __init__(self, acute_angle, obtuse_angle):
         self.acute_angle = acute_angle
         self.obtuse_angle = obtuse_angle
@@ -42,25 +36,26 @@ class RemoveBadTriangle(rationalize.Rationalizer):
         if element.nnodes() == 4:
             return []
         
-        obtuse_angle = None
-        acuteCheck = None
+        # Get indices of nodes with angles outside the permitted ranges.
+        obtuse_angle = None     # There's at most one
+        acute_angles = []       # There may be two
         for i in range(3):
-            if element.cosCornerAngle(i) <= self.obtuse:
+            coscorner = element.cosCornerAngle(i)
+            if coscorner <= self.obtuse:
                 obtuse_angle = i
-        for i in range(3):
-            if element.cosCornerAngle(i) >= self.acute:
-                acuteCheck = i
-                break
+            if coscorner >= self.acute:
+                acute_angles.append(i)
 
-        # See if there is any violation ....
-        if obtuse_angle is None and acuteCheck is None:
-            return []
+        if obtuse_angle is None and not acute_angles:
+            return []           # No violation
 
-        # Let's fix them.
-        if obtuse_angle is None:
-            obtuse_angle = element.getBiggestAngle()
-        acute_angles = [(obtuse_angle+1)%3, (obtuse_angle+2)%3]
-        return self.fix(skel, element, obtuse_angle, acute_angles)
+        changes = []
+        if obtuse_angle is not None:
+            changes.extend(_obtuseHandler(skel, element, obtuse_angle))
+        if acute_angles:
+            for angle in acute_angles:
+                changes.extend(_acuteHandler(skel, element, angle))
+        return changes
 
     def fixAll(self, skel, element):
         if element.nnodes() == 4:
@@ -74,12 +69,20 @@ class RemoveBadTriangle(rationalize.Rationalizer):
                 + _acuteHandler(skel, element, acute_angles[0])
                 + _acuteHandler(skel, element, acute_angles[1]))
 
-def _acuteHandler(skel, element, index):
-    # Merge the two nodes opposite the sharp angle.
-    node0 = element.nodes[(index+1)%3]
-    node1 = element.nodes[(index+2)%3]
-    return [skel.mergeNodePairs((node0, node1)),
-            skel.mergeNodePairs((node1, node0))]
+def _acuteHandler(skel, element, indexC):
+    #
+    #             C
+    #            /|
+    #           / |  If an interior angle A-C-B is too small,
+    #          /  |  it's better to remove this triangle.
+    #         /   |  
+    #        /____|  This case involves a "merging" process.
+    #        A    B  (merging of two nodes, A and B)
+    #
+    nodeA = element.nodes[(indexC+1)%3]
+    nodeB = element.nodes[(indexC+2)%3]
+    return [skel.mergeNodePairs((nodeA, nodeB)),
+            skel.mergeNodePairs((nodeB, nodeA))]
 
 def _obtuseHandler(skel, element, index):
     # A obtuse triangle. What we do depends on what kind of element
@@ -321,14 +324,14 @@ def triTriSplit(skel, anchor, itchy, scratchy, tri1, tri2):
     #
     #          /|\              / \
     #         / | \            /   \
-    #        /  |  \          /     \   If tri1.dominantPixel is the same as
-    #       /tri|tri\   ===> /_______\  from tri2.dominantPixel ...
+    #        /  |  \          /     \   If tri1.dominantPixel is the same 
+    #       /tri|tri\   ===> /_______\  as tri2.dominantPixel ...
     #       \ 1 | 2 /        \       /
     #        \  |  /          \     /
     #         \ | /            \   /
     #          \|/              \ /
     #                            
-
+    
     # If itchy and scratchy are pinned, the process should be aborted
     if itchy.pinned() and scratchy.pinned():
         return []
@@ -376,6 +379,13 @@ def triTriSplit(skel, anchor, itchy, scratchy, tri1, tri2):
                 ProvisionalTriangle([anchor2, itchy2, t0], parents=parents))
             change0.addNode(newanchor)
             change0.addNode(anchor2)
+
+            change0.substituteSegment(skel.getSegment(itchy, scratchy),
+                                      [(newanchor, itchy),
+                                       (newanchor, scratchy)])
+            change0.substituteSegment(skel.getSegment(itchy2, scratchy2),
+                                      [(anchor2, itchy2),
+                                       (anchor2, scratchy2)])
         changes.append(change0)
 
     if not periodic:
@@ -414,8 +424,8 @@ def triNoneSplit(skel, anchor, itchy, scratchy, tri):
                               itchy.movable_y() or scratchy.movable_y()))
     change.removeElements(tri)
     change.substituteSegment(skel.getSegment(itchy,scratchy),
-                             [skel.getSegment(anchor,itchy),
-                              skel.getSegment(anchor,scratchy)])
+                             [(anchor,itchy),
+                              (anchor,scratchy)])
     return [change]
 
 #########################################################
