@@ -283,20 +283,15 @@ class SkeletonElement(SkeletonElementBase,
         return index
     
     def getAnglesList(self):
-#         list = []
-#         for i in range(self.nnodes()):
-#             list.append(self.cosCornerAngle(i))
-#         return list
         return [self.cosCornerAngle(i) for i in range(self.nnodes())]
     
-    
     def getBiggestAngle(self):
-        list = self.getAnglesList()
-        maxAngle = list[0]  # cosine of the angle
+        anglist = self.getAnglesList()
+        maxAngle = anglist[0]  # cosine of the angle
         index = 0
         for i in range(1, self.nnodes()):
-            if list[i] < maxAngle:
-                maxAngle = list[i]
+            if anglist[i] < maxAngle:
+                maxAngle = anglist[i]
                 index = i
         return index
 
