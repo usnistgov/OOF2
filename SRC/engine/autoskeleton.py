@@ -39,6 +39,7 @@ if config.dimension() == 2:
                       maxscale, minscale, units, threshold):
         # Run the actual callback in the main namespace, so that it can
         # use menu and registeredclass names trivially.
+        ## TODO: Why is the progress bar title showing up as "Thread-XX"?
         prog = progress.getProgress(menuitem.name, progress.DEFINITE)
         utils.OOFrun(_autoSkeletonMain, prog, name, microstructure,
                      left_right_periodicity, top_bottom_periodicity,
@@ -80,21 +81,13 @@ def _autoSkeletonMain(prog, name, microstructure,
         n1 = size/minscale
     else:    # A fraction of the x and y dimensions of the microstructure
         n = 1.0/maxscale
-        n0 = [n for i in range(config.dimension())]
-        n1 = [n for i in range(config.dimension())]
-#         nx0 = 1.0/maxscale
-#         ny0 = nx0
-#         nx1 = 1.0/minscale
-#         ny1 = nx1
+        n0 = [1./maxscale]*config.dimension()
+        n1 = [1./minscale]*config.dimension()
 
     n0 = [max(n0[i],1) for i in range(config.dimension())]
-    #nx0 = max(nx0, 1)
-    #ny0 = max(ny0, 1)
     
-    nrefine = int(math.ceil(max([math.log(n1[i]/n0[i])/math.log(2) for i in range(config.dimension())])))
-    #nrefine_x = math.log(nx1/nx0)/math.log(2)
-    #nrefine_y = math.log(ny1/ny0)/math.log(2)
-    #nrefine = int(math.ceil(max(nrefine_x, nrefine_y)))
+    nrefine = int(math.ceil(max([math.log(n1[i]/n0[i])/math.log(2)
+                                 for i in range(config.dimension())])))
 
     # Magic number -- total number of lines executed is the number of
     # refines plus the "New", the "SnapRefine", the two rationalize
