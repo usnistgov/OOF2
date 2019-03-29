@@ -290,11 +290,6 @@ class AverageEnergy(SkelModCriterion):
                 change.removeAddedNodes(skel)
         return bestchange
 
-    # For rationalize ... has to go eventually
-    def addSubstitute(self, elements, newel):
-        elements.append(newel)
-        return  1
-    
 registeredclass.Registration(
     'Average Energy',
     SkelModCriterion,
@@ -330,11 +325,6 @@ registeredclass.Registration(
 #            if change is not None and change is not bestchange:
 #                change.removeAddedNodes(skel)
 #        return bestchange
-
-    # For rationalize ... has to go eventually
-#    def addSubstitute(self, elements, newel):
-#        elements.append(newel)
-#        return  1    
 
 #registeredclass.Registration(
 #    'Average Energy Best Of',
@@ -373,10 +363,6 @@ class Unconditional(SkelModCriterion):
                 change.removeAddedNodes(skel)
         return bestchange
 
-    # For rationalize ... has to go eventually
-    def addSubstitute(self, elements, newel):
-        return 0
-    
 registeredclass.Registration(
     'Unconditional', SkelModCriterion,
     Unconditional,
@@ -406,11 +392,6 @@ class LimitedAverageEnergy(LimitedSkelModCriterion):
                 change.removeAddedNodes(skel)
         return bestchange
 
-    # For rationalize ... has to go eventually
-    def addSubstitute(self, elements, newel):
-        elements.append(newel)
-        return  1
-    
 registeredclass.Registration(
     'Limited Average Energy',
     SkelModCriterion,
@@ -457,10 +438,6 @@ class LimitedUnconditional(LimitedSkelModCriterion):
                 change.removeAddedNodes(skel)
         return bestchange
     
-    # For rationalize ... has to go eventually
-    def addSubstitute(self, elements, newel):
-        return 0
-
 registeredclass.Registration(
     'Limited Unconditional', SkelModCriterion,
     LimitedUnconditional,
