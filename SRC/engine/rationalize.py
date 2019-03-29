@@ -51,12 +51,13 @@ class Rationalizer(registeredclass.RegisteredClass):
         elements = targets(skel, context, copy=1)
         random.shuffle(elements)
         executed_action = self.getRegistration().gerund
-        processed = {}
+        processed = set()
         count = 0
         done = 0  # No. of rationalized elements
-        nel = len(elements)  # No. of elements in the list
-        for element in elements:
-            count += 1  # The i-th element being processed ... for progress bar
+        nel = len(elements)  # No. of elements to be considered
+        while elements:
+            element = elements.pop()
+            count += 1  # No. of elements that have been considered
             if element not in processed and element.active(skel):
                 # fixer is either self.findAndFix or self.fixAll. They
                 # return a list of ProvisionalChanges objects, from
@@ -69,7 +70,7 @@ class Rationalizer(registeredclass.RegisteredClass):
                     # elements to actual elements.
                     bestchange.accept(skel)
                     for elephant in bestchange.removed:
-                        processed[elephant] = 1
+                        processed.add(elephant)
                     for oldel, newel in bestchange.substitutions:
                         # If an unprocessed element has been replaced,
                         # its replacement still has to be processed.
@@ -80,14 +81,12 @@ class Rationalizer(registeredclass.RegisteredClass):
                         # "Limited Unconditional", it doesn't add subs to
                         # the list.
                         if oldel not in processed:
-                            processed[oldel] = 1
-                            if criterion.addSubstitute(elements, newel):
-                                nel += 1
+                            processed.add(oldel)
 
             if prog.stopped():
                 break
             else:
-                prog.setFraction(1.0*count/nel)
+                prog.setFraction(float(count)/nel)
                 prog.setMessage(executed_action + " %d/%d" % (count, nel))
         skel.cleanUp()
         
@@ -132,15 +131,17 @@ class RationalizeMethod(registeredclass.RegisteredClass):
 class AutomaticRationalization(RationalizeMethod):
     def rationalize(self, skel, context, targets, criterion):
         prog = progress.getProgress("Rationalize", progress.DEFINITE)
-        for ratreg in Rationalizer.registry:
-            # Create a Rationalizer from a Registration.  Since fixAll
-            # doesn't use the Rationalizer's parameters, just use the
-            # default values.
-            ratmethod = ratreg()
-            ratmethod(skel, context, targets, criterion, ratmethod.fixAll)
-            if prog.stopped():
-                break
-        prog.finish()
+        try:
+            for ratreg in Rationalizer.registry:
+                # Create a Rationalizer from a Registration.  Since fixAll
+                # doesn't use the Rationalizer's parameters, just use the
+                # default values.
+                ratmethod = ratreg()
+                ratmethod(skel, context, targets, criterion, ratmethod.fixAll)
+                if prog.stopped():
+                    break
+        finally:
+            prog.finish()
     
 registeredclass.Registration(
     'Automatic', RationalizeMethod, AutomaticRationalization, ordering=1,
@@ -153,12 +154,14 @@ class SpecificRationalization(RationalizeMethod):
         self.rationalizers = rationalizers
     def rationalize(self, skel, context, targets, criterion):
         prog = progress.getProgress("Rationalize", progress.DEFINITE)
-        for rationalizer in self.rationalizers:
-            rationalizer(skel, context, targets, criterion,
-                         rationalizer.findAndFix)
-            if prog.stopped(): 
-                break
-        prog.finish()
+        try:
+            for rationalizer in self.rationalizers:
+                rationalizer(skel, context, targets, criterion,
+                             rationalizer.findAndFix)
+                if prog.stopped(): 
+                    break
+        finally:
+            prog.finish()
 
 registeredclass.Registration(
     'Specified', RationalizeMethod, SpecificRationalization, ordering=0,
@@ -182,9 +185,6 @@ class Rationalize(skeletonmodifier.SkeletonModifier):
     def apply(self, oldskeleton, context):
         skel = oldskeleton.properCopy(skeletonpath=context.path())
         self.method.rationalize(skel, context, self.targets, self.criterion)
-        if config.dimension() == 3:
-            skel.rebuildSkellines()
-            skel.rebuildSkelGrid()
         skel.cleanUp()
         return skel
 
