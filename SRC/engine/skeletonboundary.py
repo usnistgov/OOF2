@@ -158,8 +158,11 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
     # segments (parents for MAP_UP, children for MAP_DOWN) with
     # respect to first skeleton.  Caller is also responsible for
     # issuing the "new_boundaries" signal.
+    # Called by Skeleton.mapBoundary, which is called by
+    # SkeletonContext.pushModification.
     def map(self, skeleton, new_skeleton,
             direction=MAP_DOWN, exterior=None, local=1):
+
         old_bdy = self.boundaryset[skeleton]
         
         if old_bdy._sequenceable==1: # TODO: use a boolean
@@ -198,7 +201,6 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
                 m = e.segment.getParents()[0].map()
                 map_start = m.target
                 map_end = m.source
-                
 
             if len(map_start)==1:
                 # One-to-many case -- Sequence and edge-ify.
@@ -310,9 +312,9 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
     
 
 class ExteriorSkelContextEdgeBoundary(SkelContextEdgeBoundary):
-    # Exterior version needs to restrict itself to new segments
-    # which have only one element.  Set the flag in the base
-    # class and call it.
+    # Exterior version needs to restrict itself to new segments which
+    # have only one element.  Call the base class method with
+    # exterior=1.
     def map(self, skeleton, new_skeleton, direction=MAP_DOWN, local=1):
         SkelContextEdgeBoundary.map(self, skeleton, new_skeleton,
                                     direction=direction,
