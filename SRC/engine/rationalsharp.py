@@ -233,6 +233,8 @@ def triQuadSplit(skel, anchor, itchy, scratchy, tri, quad):
                 ProvisionalTriangle([anchorQ, itchyQ, q0], parents=parents),
                 ProvisionalTriangle([anchorQ, q0, q1], parents=parents),
                 ProvisionalTriangle([anchorQ, q1, scratchyQ], parents=parents))
+            triquadsubsegs(change0, skel, newanchor, anchorQ, itchy, itchyQ,
+                           scratchy, scratchyQ)
 
             newanchor, anchorQ, elsubs = triquadhelper(skel, tri, anchor,
                                                        midpoint, midpointQ)
@@ -246,6 +248,8 @@ def triQuadSplit(skel, anchor, itchy, scratchy, tri, quad):
                 ProvisionalQuad([anchorQ, itchyQ, q0, q1], parents=parents),
                 ProvisionalTriangle([anchorQ, q1, scratchyQ], parents=parents)
                 )
+            triquadsubsegs(change1, skel, newanchor, anchorQ, itchy, itchyQ,
+                           scratchy, scratchyQ)
 
             newanchor, anchorQ, elsubs = triquadhelper(skel, tri, anchor,
                                                        midpoint, midpointQ)
@@ -259,6 +263,8 @@ def triQuadSplit(skel, anchor, itchy, scratchy, tri, quad):
                 ProvisionalTriangle([anchorQ, itchyQ, q0], parents=parents),
                 ProvisionalQuad([anchorQ, q0, q1, scratchyQ], parents=parents)
                 )
+            triquadsubsegs(change2, skel, newanchor, anchorQ, itchy, itchyQ,
+                           scratchy, scratchyQ)
             
         changes.extend([change0, change1, change2])
 
@@ -292,7 +298,7 @@ def triQuadSplit(skel, anchor, itchy, scratchy, tri, quad):
     
     return changes
 
-# Helper function that contains code repeated in TriQuadRationalize
+# Helper functions that contain code repeated in TriQuadRationalize
 # for periodic skeletons.  The code has to be repeated because the
 # nodes and elements used in a ProvisionalChanges object can't be
 # shared with other ProvisionalChanges objects.
@@ -305,7 +311,13 @@ def triquadhelper(skel, tri, anchor, midpoint, midpointQ):
               for el in anchor.aperiodicNeighborElements()
               if el is not tri]
     return newanchor, anchorQ, elsubs
-    
+
+def triquadsubsegs(change, skel, anchor, anchorQ, itchy, itchyQ, scratchy,
+                   scratchyQ):
+    change.substituteSegment(skel.getSegment(itchy, scratchy),
+                             [(anchor, itchy), (anchor, scratchy)])
+    change.substituteSegment(skel.getSegment(itchyQ, scratchyQ),
+                             [(anchorQ, itchyQ), (anchorQ, scratchyQ)])
 
 ###########################################################################
 
@@ -437,11 +449,14 @@ registeredclass.Registration(
     gerund = 'removing bad triangles',
     ordering=20000,                     # do this last!
     params=[
-    parameter.FloatRangeParameter('acute_angle', (0.0, 45.0, 0.5),
-                                  value = 15.0,
-                                  tip = 'Minimum acceptable acute interior angle, in degrees'),
-    parameter.FloatRangeParameter('obtuse_angle', (90.0, 180.0, 1.0),
-                                  value = 150.0,
-                                  tip = 'Maximum acceptable obtuse interior angle, in degrees')],
+    parameter.FloatRangeParameter(
+        'acute_angle', (0.0, 45.0, 0.5),
+        value = 15.0,
+        tip = 'Minimum acceptable acute interior angle, in degrees'),
+    parameter.FloatRangeParameter(
+        'obtuse_angle', (90.0, 180.0, 1.0),
+        value = 150.0,
+        tip = 'Maximum acceptable obtuse interior angle, in degrees')],
     tip = 'Remove triangles with extreme interior angles.',
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/ration_sharp.xml'))
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/ration_sharp.xml')
+)

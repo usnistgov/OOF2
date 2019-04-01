@@ -2853,6 +2853,22 @@ class ProvisionalChanges:
         self.cachedDeltaE = None        # Energy difference
         self.before = None              # Elements before the change
         self.after = None               # Elements after the change
+
+    def __repr__(self):
+        s = self.__class__.__name__ + "("
+        if self.removed:
+            s += "\n    removed=" + `self.removed`
+        if self.inserted:
+            s += "\n    inserted=" + `self.inserted`
+        if self.substitutions:
+            s += "\n    substitutions=" + `self.substitutions`
+        if self.seg_subs:
+            s += "\n    seg_subs=" + `self.seg_subs`
+        if self.movednodes:
+            s += "\n    movednodes=" + `self.movednodes`
+        s += ")"
+        return s
+    
     def removeAddedNodes(self, skeleton):
         # redefined by subclasses that add nodes
         pass

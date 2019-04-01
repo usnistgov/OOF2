@@ -82,6 +82,11 @@ class Rationalizer(registeredclass.RegisteredClass):
                         # the list.
                         if oldel not in processed:
                             processed.add(oldel)
+                            nel += 1
+                        elements.append(newel)
+                    for newel in bestchange.inserted:
+                        elements.append(newel)
+                        nel += 1
 
             if prog.stopped():
                 break
