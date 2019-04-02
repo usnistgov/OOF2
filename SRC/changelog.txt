@@ -4,7 +4,13 @@ OOF2 2.1.17
 
 * Fixed a bug in the Skeleton Rationalize method that could create bad
   boundaries in periodic Skeletons.
+
 * Fixed a bug in the Quaternion class in some limiting cases.
+
+* Added tools in the Pixel Selection page and Pixel Selection toolbox
+  for selecting pixels with a range of orientations, if the
+  Microstructure has an orientation map.  A "range of orientations" is
+  defined by a lattice symmetry and a maximum misorientation. 
 
 * Added OrientationBurn, which selects sets of contiguous pixels if
   their orientation mismatch is smaller than a given threshold.
