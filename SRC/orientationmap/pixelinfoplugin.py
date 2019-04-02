@@ -47,8 +47,6 @@ class MisorientationPlugIn(pixelinfo.PixelInfoPlugIn):
                 params=[latticesystem.LatticeSymmetryParameter('symmetry')],
                 help="Set lattice symmetry used when comparing orientations"))
         self.symmetry = symcmd.get_arg('symmetry').value
-        debug.fmsg("Initialized symmetry to", self.symmetry)
-
 
     def setReference(self, menuitem, point, orientation):
         self.referencePoint = point
