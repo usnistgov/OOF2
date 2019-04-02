@@ -30,8 +30,10 @@ import ooflib.common.microstructure
 #   * A function nonsense() that's called when the mouse click isn't sensible.
 #   * A function clear() that's called when the clear button is pressed.
 
+## TODO: Use a metaclass instead of registerPlugInClass.  See pixelinfo.py.
+
 # Here's a nearly useless baseclass:
-class PixelInfoPlugIn:
+class PixelInfoGUIPlugIn:
     def __init__(self, toolbox):
         self.toolbox = toolbox
     def close(self):
@@ -54,16 +56,16 @@ def pluginsorter(a,b):
 def registerPlugInClass(plugin):
     plugInClasses.append(plugin)
     plugInClasses.sort(pluginsorter)
-    switchboard.notify('new pixelinfo plugin')
+    switchboard.notify('new pixelinfo GUI plugin')
 
 ####################################
 
-class MicrostructurePlugIn(PixelInfoPlugIn):
+class MicrostructurePlugIn(PixelInfoGUIPlugIn):
     ordering = 2
     nrows = 2
     def __init__(self, toolbox, table, row):
         debug.mainthreadTest()
-        PixelInfoPlugIn.__init__(self, toolbox)
+        PixelInfoGUIPlugIn.__init__(self, toolbox)
         label = gtk.Label('microstructure=')
         label.set_alignment(1.0, 0.5)
         table.attach(label, 0,1, row,row+1, xpadding=5, xoptions=gtk.FILL)
@@ -104,7 +106,7 @@ class MicrostructurePlugIn(PixelInfoPlugIn):
 
     def close(self):
         map(switchboard.removeCallback, self.sbcallbacks)
-        PixelInfoPlugIn.close(self)
+        PixelInfoGUIPlugIn.close(self)
 
     def clear(self):
         debug.mainthreadTest()

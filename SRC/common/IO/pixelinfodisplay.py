@@ -31,11 +31,13 @@ class PixelInfoDisplay(display.DisplayMethod):
 
     def draw(self, gfxwindow, device):
         toolbox = gfxwindow.getToolboxByName("Pixel_Info")
-        pixel = toolbox.currentPixel()
-        if pixel is not None:
-            microstructure = toolbox.findMicrostructure()
-            if microstructure is not None:
+        microstructure = toolbox.findMicrostructure()
+        if microstructure is not None:
+            pixel = toolbox.currentPixel()
+            if pixel is not None:
                 self.drawPixel(device, pixel, microstructure)
+                for plugIn in toolbox.plugIns:
+                    plugIn.draw(self, device, pixel, microstructure)
 
 #      n3_______________n2 ((i+1)*dx, (j+1)*dy)
 #       |               |
@@ -48,26 +50,26 @@ class PixelInfoDisplay(display.DisplayMethod):
 #       |               |
 #       n0------dx------n1
 # (i*dx, j*dy)
+
+    def getNodes(self, pixel, microstructure):
+        dx = microstructure.sizeOfPixels()[0]
+        dy = microstructure.sizeOfPixels()[1]
+        i = pixel.x
+        j = pixel.y
+        n0 = primitives.Point(i*dx, j*dy)
+        n1 = primitives.Point((i+1)*dx, j*dy)
+        n2 = primitives.Point((i+1)*dx, (j+1)*dy)
+        n3 = primitives.Point(i*dx, (j+1)*dy)
+        return n0, n1, n2, n3
+            
     def drawPixel(self, device, pixel, microstructure):
-        if config.dimension() == 2:
-            dx = microstructure.sizeOfPixels()[0]
-            dy = microstructure.sizeOfPixels()[1]
-            i = pixel.x
-            j = pixel.y
-            n0 = primitives.Point(i*dx, j*dy)
-            n1 = primitives.Point((i+1)*dx, j*dy)
-            n2 = primitives.Point((i+1)*dx, (j+1)*dy)
-            n3 = primitives.Point(i*dx, (j+1)*dy)
-            device.set_lineColor(self.color)
-            device.set_lineWidth(self.line_width)
-            device.draw_segment(primitives.Segment(n0, n1))
-            device.draw_segment(primitives.Segment(n1, n2))
-            device.draw_segment(primitives.Segment(n2, n3))
-            device.draw_segment(primitives.Segment(n3, n0))
-        elif config.dimension() == 3:
-            device.set_lineColor(self.color)
-            device.set_lineWidth(self.line_width)
-            device.draw_voxel(pixel)
+        n0, n1, n2, n3 = self.getNodes(pixel, microstructure)
+        device.set_lineColor(self.color)
+        device.set_lineWidth(self.line_width)
+        device.draw_segment(primitives.Segment(n0, n1))
+        device.draw_segment(primitives.Segment(n1, n2))
+        device.draw_segment(primitives.Segment(n2, n3))
+        device.draw_segment(primitives.Segment(n3, n0))
 
     def getTimeStamp(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Pixel_Info")

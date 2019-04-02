@@ -14,21 +14,24 @@ clib = 'oof2orientmap'
 clib_order = 10
 
 cfiles = [
-    'orientmapdata.C', 'orientmapproperty.C', 'polefigure.C']
+    'orientmapdata.C', 'orientmapproperty.C', 'polefigure.C', 'burn.C',
+    'pixelselectioncouriero.C']
 
 swigfiles = [
-    'orientmapdata.swg', 'orientmapproperty.swg', 'polefigure.swg']
+    'orientmapdata.swg', 'orientmapproperty.swg', 'polefigure.swg', 'burn.swg',
+    'pixelselectioncouriero.swg']
 
 pyfiles = [
     'hkl.py', 'tsl.py', 'genericreader.py', 
-    'initialize.py', 'orientmapdisplay.py',
-    'orientmapmenu.py', 'orientmapIO.py']
+    'initialize.py', 'orientmapdisplay.py', 'pixelselectionmod.py',
+    'orientmapmenu.py', 'orientmapIO.py', 'pixelinfoplugin.py']
 
 swigpyfiles = [
-    'orientmapdata.spy', 'orientmapproperty.spy', 'polefigure.spy']
+    'orientmapdata.spy', 'orientmapproperty.spy', 'polefigure.spy', 'burn.spy']
 
 hfiles = [
-    'orientmapdata.h', 'orientmapproperty.h', 'polefigure.h']
+    'orientmapdata.h', 'orientmapproperty.h', 'polefigure.h', 'burn.h',
+    'pixelselectioncouriero.h']
 
 def set_clib_flags(c_lib):
     import oof2setuputils

@@ -4,6 +4,10 @@ OOF2 2.1.17
 
 * Fixed a bug in the Skeleton Rationalize method that could create bad
   boundaries in periodic Skeletons.
+* Fixed a bug in the Quaternion class in some limiting cases.
+
+* Added OrientationBurn, which selects sets of contiguous pixels if
+  their orientation mismatch is smaller than a given threshold.
 
 OOF2 2.1.16
 

@@ -13,14 +13,9 @@
 
 #include "common/cmicrostructure.h"
 #include "image/pixelselectioncourieri.h"
-#if DIM==2
 #include "image/oofimage.h"
-#elif DIM==3
-#include "image/oofimage3d.h"
-#endif
 #include "image/burn.h"
 
-#if DIM==2
 ColorSelection::ColorSelection(const CMicrostructure *ms, OOFImage *immidge,
 			       const CColor *color,
 			       const ColorDifference *diff)
@@ -30,18 +25,6 @@ ColorSelection::ColorSelection(const CMicrostructure *ms, OOFImage *immidge,
     diff(diff->clone()),
     selected(ms->sizeInPixels(), false),
     sel_iter(selected.begin()) {}
-#elif DIM==3
-ColorSelection::ColorSelection(const CMicrostructure *ms, OOFImage3D *immidge,
-			       const CColor *color,
-			       const ColorDifference *diff)
-  : PixelSelectionCourier(ms),
-    image(immidge),
-    color(color->clone()),
-    diff(diff->clone()),
-    selected(ms->sizeInPixels(), false),
-    sel_iter(selected.begin()) {}
-#endif
-
 
 ColorSelection::~ColorSelection() {
   delete color;
@@ -76,7 +59,6 @@ void ColorSelection::print(std::ostream &os) const {
 
 //////////
 
-#if DIM==2
 BurnSelection::BurnSelection(const CMicrostructure *ms,
 			     BasicBurner *burner, OOFImage *immidge,
 			     const ICoord *pt)
@@ -85,18 +67,8 @@ BurnSelection::BurnSelection(const CMicrostructure *ms,
     image(immidge),
     spark(*pt),
     selected(ms->sizeInPixels(), false),
-    sel_iter(selected.begin()) {}
-#elif DIM==3
-BurnSelection::BurnSelection(const CMicrostructure *ms,
-			     BasicBurner *burner, OOFImage3D *immidge,
-			     const ICoord *pt)
-  : PixelSelectionCourier(ms),
-    burner(burner),
-    image(immidge),
-    spark(*pt),
-    selected(ms->sizeInPixels(), false),
-    sel_iter(selected.begin()) {}
-#endif
+    sel_iter(selected.begin())
+{}
 
 void BurnSelection::start() {
   burner->burn(*image, &spark, selected);  // get the pixel array

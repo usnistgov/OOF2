@@ -94,7 +94,7 @@ findWidget('OOF2 Graphics 1:Pane0').set_position(283)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(259)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(717)
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
-assert tests.methodListCheck(["Point", "Brush", "Rectangle", "Circle", "Ellipse"])
+assert tests.methodListCheck(["Point", "Brush", "Rectangle", "Circle", "Ellipse", "Orientation", "OrientationBurn"])
 assert tests.methodCheck("Point")
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.6500000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 5.3000000000000e+00)
@@ -122,7 +122,7 @@ checkpoint selection info updated
 checkpoint selection info updated
 checkpoint OOF.Graphics_1.Layer.Hide
 checkpoint contourmap info updated for Graphics_1
-assert tests.methodListCheck(["Point", "Brush", "Rectangle", "Circle", "Ellipse", "Color", "Burn"])
+assert tests.methodListCheck(["Point", "Brush", "Rectangle", "Circle", "Ellipse", "Color", "Burn", "OrientationBurn"])
 assert tests.methodCheck("Point")
 setComboBox(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Chooser'), 'Burn')
 assert tests.methodCheck("Burn")
@@ -161,7 +161,7 @@ findWidget('OOF2 Graphics 1:Pane0').set_position(283)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(259)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(717)
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
-assert tests.methodListCheck(["Point", "Brush", "Rectangle", "Circle", "Ellipse"])
+assert tests.methodListCheck(["Point", "Brush", "Rectangle", "Circle", "Ellipse", "Orientation", "OrientationBurn"])
 assert tests.methodCheck("Point")
 findMenu(findWidget('OOF2:MenuBar'), 'File:Save:Python_Log').activate()
 checkpoint toplevel widget mapped Dialog-Python_Log

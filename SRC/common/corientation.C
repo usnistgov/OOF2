@@ -12,6 +12,7 @@
 #include <oofconfig.h>
 
 #include "common/corientation.h"
+#include "common/latticesystem.h"
 #include "common/sincos.h"
 #include "common/smallmatrix.h"
 #include <math.h>
@@ -65,6 +66,71 @@ COrientAxis COrientation::axis() const {
 COrientRodrigues COrientation::rodrigues() const {
   return COrientRodrigues(rotation());
 }
+
+double COrientation::misorientation(const COrientation &other,
+				    const LatticeSymmetry &lattice)
+  const
+{
+  // The misorientation between two orientations is the angular part
+  // of the axis-angle representation of the "difference" between the
+  // orientations.  The difference is the product of one orientation
+  // and the inverse of the other.
+  SmallMatrix transp(rotation()); // copy the matrix
+  transp.transpose();		  // and transpose it
+  SmallMatrix diff = other.rotation() * transp;
+
+// #ifdef DEBUG
+//   std::cerr << "COrientation::misorientation:  this=" << axis()
+// 	    << " " << rotation() << std::endl;
+//   std::cerr << "COrientation::misorientation: other=" << other.axis()
+// 	    << " " << other.rotation()
+// 	    << std::endl;
+//   std::cerr << "COrientation::misorientation:  diff=" << diff
+//   	    << " det=" << diff.determinant() << std::endl;
+//   COrientABG abg(diff);
+//   std::cerr << "COrientation::misorientation: diff=" << abg << std::endl
+//   	    << "                                  =" << abg.axis() << std::endl;
+// #endif // DEBUG
+  
+  // When the crystal symmetry allows multiple equivalent
+  // orientations, we need to measure the difference between one
+  // orientation and all possible equivalent versions of the other,
+  // and return the minumum misorientation.
+  const std::vector<SmallMatrix> &latticerotations(lattice.matrices());
+  double minangle = std::numeric_limits<double>::max();
+// #ifdef DEBUG
+//   const SmallMatrix *bestrot = nullptr;
+// #endif // DEBUG
+  for(const SmallMatrix &latrot : latticerotations) {
+    COrientAxis axisrot(latrot * diff);
+    double angle = fabs(axisrot.angle());
+    // std::cerr << "COrientation::misorientation: latrot=" << latrot
+    // 	      << " " << COrientAxis(latrot)
+    // 	      << " " << COrientAxis(latrot).rotation()
+    // 	      << "\t misorient. angle=" << angle*180/M_PI << std::endl;
+    if(fabs(angle) < fabs(minangle)) {
+      minangle = angle;
+// #ifdef DEBUG
+//       bestrot = &latrot;
+// #endif // DEBUG
+    }
+  }
+// #ifdef DEBUG
+//   std::cerr << "COrientation::misorientation: minangle=" << minangle
+// 	    << " lattice rotation=" << *bestrot << std::endl;
+// #endif // DEBUG
+  return minangle;
+}
+
+double COrientation::misorientation(const COrientation &other,
+				    const std::string &lattice)
+  const
+{
+  // "lattice" is a Schoenflies symbol
+  return misorientation(other, *getLatticeSymmetry(lattice));
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 
 COrientABG::COrientABG(const SmallMatrix &matrix) {
@@ -125,8 +191,8 @@ bool COrientABG::operator!=(const COrientABG &other) const {
 }
 
 void COrientABG::print(std::ostream &os) const {
-  os << "COrientABG(alpha=" << alpha() << ", beta=" << beta()
-     << ", gamma=" << gamma() << ")";
+  os << "COrientABG(alpha=" << alpha()*180/M_PI << ", beta=" << beta()*180/M_PI
+     << ", gamma=" << gamma()*180/M_PI << ")";
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -177,105 +243,104 @@ SmallMatrix *COrientBunge::rotation_() const {
 }
 
 void COrientBunge::print(std::ostream &os) const {
-  os << "COrientBunge(phi1=" << phi1() << ", theta=" << theta()
-     << ", phi2=" << phi2() << ")";
+  os << "COrientBunge(phi1=" << phi1()*180/M_PI
+     << ", theta=" << theta()*180/M_PI
+     << ", phi2=" << phi2()*180/M_PI << ")";
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 COrientQuaternion::COrientQuaternion(double e0, double e1,
-				       double e2, double e3)
-    : e0_(e0), e1_(e1), e2_(e2), e3_(e3)
+				     double e2, double e3)
 {
+  q[0] = e0;
+  q[1] = e1;
+  q[2] = e2;
+  q[3] = e3;
   // Un-normalized quaternions are probably dangerous, they
   // result in all the entries in the matrix being too large by a
   // factor of the normalization squared, which means the deduced
   // cosine from the "corner" entry will be wrong.  So, normalize.
-  double norm2 = e0*e0 + e1*e1 + e2*e2 + e3*e3;
-  if(norm2==0.0) { // Presume the user meant "no rotation".
-    e0_ = 1.0;
-    e1_ = 0.0;
-    e2_ = 0.0;
-    e3_ = 0.0;
+  double n2 = norm2();
+  if(n2==0.0) { // Presume the user meant "no rotation".
+    q[0] = 1.0;
+    for(unsigned int i=1; i<4; i++)
+      q[i] = 0.0;
   }
   else {
-    double norm = 1./sqrt(norm2);
-    e0_ *= norm; 
-    e1_ *= norm;
-    e2_ *= norm;
-    e3_ *= norm;
+    double norm = 1./sqrt(n2);
+    for(unsigned int i=0; i<4; i++)
+      q[i] *= norm;
   }
 }
 
 COrientQuaternion::COrientQuaternion(const SmallMatrix &matrix) {
-  double e0e1 = (matrix(1,2)-matrix(2,1))*0.25;
-  double e0e2 = (matrix(2,0)-matrix(0,2))*0.25;
-  double e0e3 = (matrix(0,1)-matrix(1,0))*0.25;
-  
-  double e1e2 = (matrix(0,1)+matrix(1,0))*0.25;
-  double e1e3 = (matrix(0,2)+matrix(2,0))*0.25;
-  double e2e3 = (matrix(1,2)+matrix(2,1))*0.25;
-  double e0e0 = (matrix(0,0)+matrix(1,1)+matrix(2,2)+1.0)*0.25;
+  // See https://en.wikipedia.org/wiki/Rotation_matrix#Quaternion
+  double t = matrix(0,0) + matrix(1,1) + matrix(2,2);
+  if(t > 0) {
+    double r = sqrt(1 + t);
+    double s = 1/(2*r);
+    q[0] = r/2.;
+    q[1] = (matrix(1,2) - matrix(2,1))*s;
+    q[2] = (matrix(2,0) - matrix(0,2))*s;
+    q[3] = (matrix(0,1) - matrix(1,0))*s;
+  } // end if t > 0
+  else {
+    // If the trace is negative (near -1, actually) we could be
+    // dividing by something small in the expression above, so don't
+    // do that.  This version is copied from
+    // http://www.gamasutra.com/view/feature/131686/rotating_objects_using_quaternions.php
+    // and implements the algorithm suggested in the wikipedia
+    // article.
+    int i = 0; 		
+    if(matrix(1,1) > matrix(0,0)) i = 1;
+    if(matrix(2,2) > matrix(i,i)) i = 2;
+    int j = (i+1) % 3;
+    int k = (j+1) % 3;
+    double s = sqrt(1. + matrix(i,i) - matrix(j,j) - matrix(k,k));
+    q[i] = 0.5*s;
+    if(s != 0)
+      s = 0.5/s;
+    q[3] = (matrix(k,j) - matrix(j,k))*s;
+    q[j] = (matrix(j,i) + matrix(i,j))*s;
+    q[k] = (matrix(k,i) + matrix(i,k))*s;
+  }
+}
 
-  // The unstated fourth equation is the normalization
-  // condition, e0^2+e1^2+e2^2+e3^2 == 1.
-  // Possible cases: if e1, e2, and e3 are all zero, then
-  // sin(phi/2) has to be zero, and if the angle is zero
-  // then the axis doesn't matter.
-    
-  // If e0 is zero, then cos(phi/2) is 0, phi is +/- pi.
-  // sin(phi/2) = 1, and there's an ambiguity in the
-  // axis direction - 180 degree rotations about plus or minus
-  // axis is of course the same..
-  if(e0e0 == 0.0) {
-    double e1e1 = -(matrix(1,1)+matrix(2,2))*0.5;
-    double e2e2 = -(matrix(0,0)+matrix(2,2))*0.5;
-    double e3e3 = -(matrix(0,0)+matrix(1,1))*0.5;
-    
-    e0_ = 0.0;
-    if(e3e3 != 0.0) {
-      e3_ = sqrt(e3e3);
-      e2_ = e2e3/e3_;
-      e1_ = e1e3/e3_;
-    }
-    else if(e2e2 != 0.0) {
-      e2_ = sqrt(e2e2);
-      e3_ = e2e3/e2_;
-      e1_ = e1e2/e2_;
-    }
-    else {
-      // If e0 is zero, one of these has to be nonzero.
-      e1_ = sqrt(e1e1);
-      e3_ = e1e3/e1_;
-      e2_ = e1e2/e1_;
-    }
-  }
-  else {			// e0e0 != 0
-    // If e0^2 is nonzero, we can assume a positive e0, restricting
-    // the angle phi to -pi -> pi.
-    e0_ = sqrt(e0e0);
-    e1_ = e0e1/e0_;
-    e2_ = e0e2/e0_;
-    e3_ = e0e3/e0_;
-  }
+double COrientQuaternion::norm2() const {
+  double sum = 0;
+  for(unsigned int i=0; i<4; i++)
+    sum += q[i]*q[i];
+  return sum;
 }
 
 SmallMatrix *COrientQuaternion::rotation_() const {
   SmallMatrix *matrix = new SmallMatrix(3,3);
 
-  (*matrix)(0,0) = e0_*e0_ + e1_*e1_ - e2_*e2_ - e3_*e3_;
-  (*matrix)(0,1) = 2.0*(e1_*e2_+e0_*e3_);
-  (*matrix)(0,2) = 2.0*(e1_*e3_-e0_*e2_);
+  double q0 = q[0];
+  double q1 = q[1];
+  double q2 = q[2];
+  double q3 = q[3];
 
-  (*matrix)(1,0) = 2.0*(e1_*e2_-e0_*e3_);
-  (*matrix)(1,1) = e0_*e0_ - e1_*e1_ + e2_*e2_ - e3_*e3_;
-  (*matrix)(1,2) = 2.0*(e2_*e3_+e0_*e1_);
+  (*matrix)(0,0) = q0*q0 + q1*q1 - q2*q2 - q3*q3;
+  (*matrix)(0,1) = 2.0*(q1*q2 + q0*q3);
+  (*matrix)(0,2) = 2.0*(q1*q3 - q0*q2);
 
-  (*matrix)(2,0) = 2.0*(e1_*e3_+e0_*e2_);
-  (*matrix)(2,1) = 2.0*(e2_*e3_-e0_*e1_);
-  (*matrix)(2,2) = e0_*e0_ - e1_*e1_ - e2_*e2_ + e3_*e3_;
+  (*matrix)(1,0) = 2.0*(q1*q2 - q0*q3);
+  (*matrix)(1,1) = q0*q0 - q1*q1 + q2*q2 - q3*q3;
+  (*matrix)(1,2) = 2.0*(q2*q3 + q0*q1);
+
+  (*matrix)(2,0) = 2.0*(q1*q3 + q0*q2);
+  (*matrix)(2,1) = 2.0*(q2*q3 - q0*q1);
+  (*matrix)(2,2) = q0*q0 - q1*q1 - q2*q2 + q3*q3;
 
   return matrix;
+}
+
+COrientAxis COrientQuaternion::axis() const {
+  double vnorm = sqrt(q[1]*q[1] + q[2]*q[2] + q[3]*q[3]); // norm of vector part
+  double angle = 2*atan2(vnorm, q[0]);
+  return COrientAxis(angle, q[1]/vnorm, q[2]/vnorm, q[3]/vnorm);
 }
 
 void COrientQuaternion::print(std::ostream &os) const {
@@ -336,8 +401,8 @@ SmallMatrix *COrientX::rotation_() const {
 };
 
 void COrientX::print(std::ostream &os) const {
-  os << "COrientX(phi=" << phi() << ", theta=" << theta() << ", psi=" << psi()
-     << ")";
+  os << "COrientX(phi=" << phi()*180/M_PI << ", theta=" << theta()*180/M_PI
+     << ", psi=" << psi()*180/M_PI << ")";
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -395,17 +460,24 @@ SmallMatrix *COrientXYZ::rotation_() const {
 }
 
 void COrientXYZ::print(std::ostream &os) const {
-  os << "COrientXYZ(phi=" << phi() << ", theta=" << theta()
-     << ", psi=" << psi() << ")";
+  os << "COrientXYZ(phi=" << phi()*180/M_PI << ", theta=" << theta()*180/M_PI
+     << ", psi=" << psi()*180/M_PI << ")";
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 COrientAxis::COrientAxis(const SmallMatrix &matrix) {
   COrientQuaternion quat(matrix);
+// #ifdef DEBUG
+//   if(quat.norm2() != 1)
+//     std::cerr << "COrientAxis::ctor: |quat|=" << quat.norm2() << std::endl;
+// #endif // DEBUG
   double sin_half_theta = sqrt(quat.e1()*quat.e1()+quat.e2()*quat.e2()+
 			     quat.e3()*quat.e3());
-  double cos_half_theta = sqrt(quat.e0()*quat.e0());
+  double cos_half_theta = quat.e0();
+  // std::cerr << "COrientAxis::ctor: quat=" << quat
+  // 	    << " s=" << sin_half_theta << " c=" << cos_half_theta
+  // 	    << std::endl;
 
   angle_ = 2.0*atan2(sin_half_theta, cos_half_theta);
   // Assume z-axis in the absence of clues.
@@ -423,23 +495,22 @@ COrientAxis::COrientAxis(const SmallMatrix &matrix) {
 }
 
 SmallMatrix *COrientAxis::rotation_() const {
-  // Convert to Quaternions. It's easy.
+  return quaternion().rotation_();
+}
+
+COrientQuaternion COrientAxis::quaternion() const {
   double cos_half_theta, sin_half_theta;
   sincos(0.5*angle_, sin_half_theta, cos_half_theta);
   double norm2 = x_*x_ + y_*y_ + z_*z_;
-  if(norm2 == 0.0) {
-    // Assume z-axis in the absence of clues
-    return COrientQuaternion(cos_half_theta,
-			     0.0, 0.0, sin_half_theta).rotation_();
-  }
+  assert(norm2 != 0.0);
   double factor = sin_half_theta/sqrt(norm2);
-  return COrientQuaternion(cos_half_theta,
-			   x_*factor, y_*factor, z_*factor).rotation_();
+  return COrientQuaternion(cos_half_theta, x_*factor, y_*factor, z_*factor);
+			   
 }
 
 void COrientAxis::print(std::ostream &os) const {
-  os << "COrientAxis(angle=" << angle() << ", x=" << x() << ", y=" << y()
-     << ", z=" << z() << ")";
+  os << "COrientAxis(angle=" << angle()*180/M_PI
+     << ", x=" << x() << ", y=" << y() << ", z=" << z() << ")";
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

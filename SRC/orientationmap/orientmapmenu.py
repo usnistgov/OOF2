@@ -6,8 +6,9 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
+from ooflib.SWIG.common import latticesystem
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import angle2color
@@ -24,6 +25,7 @@ from ooflib.common.IO import reporter
 from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
+from ooflib.engine.IO import orientationmatrix
 from ooflib.image.IO import imagemenu
 import ooflib.common.microstructure
 import os
@@ -95,6 +97,7 @@ def _loadOrientationMap(menuitem, filename, reader, microstructure):
         # microstructure's name allows it to be found by the
         # OrientationMapProp Property in C++.
         orientmapdata.registerOrientMap(microstructure, data)
+        data.setMicrostructure(mscontext.getObject())
         # Storing it as a Python Microstructure plug-in allows the
         # data to be found by Python (and keeps a live reference to
         # it, so we don't have to transfer ownership to C++).  All of
@@ -172,6 +175,7 @@ def _createMSFromOrientationMapFile(menuitem, filename, reader, microstructure):
     mscontext.begin_writing()
     try:
         orientmapdata.registerOrientMap(microstructure, data)
+        data.setMicrostructure(mscontext.getObject())
         orientmapplugin = ms.getPlugIn('OrientationMap')
         orientmapplugin.set_data(data, filename)
         orientmapplugin.timestamp.increment()
@@ -248,6 +252,37 @@ orientmapmenu.addItem(oofmenu.OOFMenuItem(
     help="Convert an Orientation Map into an Image, so that pixel selection tools will work on it.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/orientationmap/menu/image.xml')
     ))
+    
+
+################
+
+def _misorientation(menutitem, orientation1, orientation2, lattice_symmetry):
+    # Orientation.misorientation(), defined in
+    # engine/IO/orientationmatrix.py, returns an angle in degrees. It
+    # calls COrientation.misorientation(), which returns an angle in
+    # radians.
+    misor = orientation1.misorientation(orientation2,
+                                        lattice_symmetry.schoenflies())
+    reporter.report("misorientation=", misor)
+
+mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem(
+    'Misorientation_Calculator',
+    callback=_misorientation,
+    ordering=100,
+    params=[
+        parameter.RegisteredParameter('orientation1',
+                                      orientationmatrix.Orientation,
+                                      tip="An orientation"),
+        parameter.RegisteredParameter('orientation2',
+                                      orientationmatrix.Orientation,
+                                      tip="Another orientation"),
+        latticesystem.LatticeSymmetryParameter(
+            'lattice_symmetry',
+            value=latticesystem.SpaceGroup(1),
+            tip="Lattice symmetry")
+        ],
+    help="Print the misorientation (in degrees) between two orientations in thegiven lattice system."))
+    
     
 
 ################

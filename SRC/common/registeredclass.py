@@ -211,7 +211,7 @@ class ConvertibleRegistration(Registration):
         self.setDefaultParams(self.from_base(self, base))
             
     def __repr__(self):
-        t = "%s('%s', subclass=%s, ordering=%s, params=%s."
+        t = "%s('%s', subclass=%s, ordering=%s, params=%s)"
         return t % (self.__class__.__name__,
                     self.name(), self.subclass.__name__,
                     `self.ordering`, `self.params`)

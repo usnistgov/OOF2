@@ -41,6 +41,8 @@ public:
   ICoord pixelFromPoint(Coord *Point);
   bool pixelInBounds(ICoord *iPoint);
   OOFImage *createImage(char *, Angle2Color&);
+  void setMicrostructure(CMicrostructure*);
+  CMicrostructure *getCMicrostructure();
 };
 
 class COrientMapReader {

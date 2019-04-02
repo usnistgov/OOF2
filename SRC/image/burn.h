@@ -14,59 +14,97 @@
 #ifndef BURN_H
 #define BURN_H
 
+#include "common/activearea.h"
 #include "common/ccolor.h"
 #include "common/boolarray.h"
 #include <vector>
 class ICoord;
-#if DIM==2
 class OOFImage;
-#elif DIM==3
-class OOFImage3D;
-#endif
 
-class Burner {
-public:
-  bool next_nearest;		// parameter
-  Burner(bool nn) : next_nearest(nn) {};
-  virtual ~Burner() {};
 
-#if DIM==2
-  void burn(const OOFImage&, const ICoord*, BoolArray&);
-#elif DIM==3
-  void burn(const OOFImage3D&, const ICoord*, BoolArray&);
-#endif
-
-  virtual bool spread(const CColor &from, const CColor &to) const = 0;
+class BurnerBase {
 protected:
-  CColor startcolor;
-private:
-
-#if DIM==2
-  void burn_nbrs(const OOFImage&, std::vector<ICoord>&,
-		 BoolArray&, int&, const ICoord&);
-
-#elif DIM==3
-  void burn_nbrs(const OOFImage3D&, std::vector<ICoord>&,
-		 BoolArray&, int&, const ICoord&);
-#endif
-
-  // List of directions to neighbors. There is one static instance of
-  // this class.
+  // Nbr holds a list of directions to neighbors. There is one static
+  // instance of this class.
   class Nbr {
   private:
-#if DIM==2
     ICoord nbr[8];
-#elif DIM==3
-    ICoord nbr[18];
-#endif
     Nbr();			// loads the directions into the array.
     const ICoord &operator[](int x) const { return nbr[x]; }
-    friend class Burner;
+    friend class BurnerBase;
+    template <typename BURNABLE, typename IMAGE> friend class Burner;
   };
   static Nbr neighbor;
 };
 
-class BasicBurner : public Burner {
+template <class BURNABLE, class IMAGE>
+class Burner : public BurnerBase {
+public:
+  Burner(bool nn) : next_nearest(nn), activeArea(nullptr) {};
+  virtual ~Burner() {};
+  void burn(const IMAGE&, const ICoord*, BoolArray&);
+  virtual bool spread(const BURNABLE &from, const BURNABLE &to) const = 0;
+protected:
+  bool next_nearest;		// parameter
+  BURNABLE startvalue;
+  const ActiveArea *activeArea;
+private:
+  void burn_nbrs(const IMAGE&, std::vector<ICoord>&,
+		 BoolArray&, int&, const ICoord&);
+
+};
+
+template <class BURNABLE, class IMAGE>
+void Burner<BURNABLE, IMAGE>::burn(const IMAGE &image, const ICoord *spark,
+				   BoolArray &burned)
+{
+  // Initialize the data structures.
+  int nburnt = 0;
+  startvalue = image[spark];
+  activeArea = image.getCMicrostructure()->getActiveArea();
+  std::vector<ICoord> activesites; // sites whose neighbors have to be checked
+  activesites.reserve(image.sizeInPixels()(0)*image.sizeInPixels()(1));
+
+  // burn the first pixel
+  burned[*spark] = true;
+  nburnt++;
+  activesites.push_back(*spark);
+
+  while(activesites.size() > 0) {
+    // Remove the last site in the active list, burn its neighbors,
+    // and add them to the list.
+    const ICoord here = activesites.back();
+    activesites.pop_back();
+    burn_nbrs(image, activesites, burned, nburnt, here);
+  }
+}
+
+template <class BURNABLE, class IMAGE>
+void Burner<BURNABLE, IMAGE>::burn_nbrs(const IMAGE &image,
+				 std::vector<ICoord> &activesites,
+				 BoolArray &burned, int &nburnt,
+				 const ICoord &here) {
+  // Burn neighboring pixels and put them in the active list.
+  // const ActiveArea *aa = microstructure->getActiveArea();
+  int nbrmax = (next_nearest? 8 : 4);
+  BURNABLE thiscolor(image[here]);
+  for(int i=0; i<nbrmax; i++) {
+    ICoord target = here + neighbor[i];
+    if(activeArea->isActive(&target)
+       && burned.contains(target)
+       && !burned[target]
+       && spread(thiscolor, image[target]))
+      {
+	burned[target] = true;
+	nburnt++;
+	activesites.push_back(target);
+      }
+  }
+};
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+class BasicBurner : public Burner<CColor, OOFImage> {
 public:
   double local_flammability;
   double global_flammability;

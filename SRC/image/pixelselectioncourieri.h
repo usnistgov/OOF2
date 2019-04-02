@@ -15,11 +15,7 @@
 #define PIXELSELECTIONCOURIERI_H
 
 #include "common/pixelselectioncourier.h"
-#if DIM==2
 class OOFImage;
-#elif DIM==3
-class OOFImage3D;
-#endif
 class CColor;
 class ColorDifference;
 class BasicBurner;
@@ -27,24 +23,15 @@ class BasicBurner;
 // Color Difference 
 class ColorSelection : public PixelSelectionCourier {
 private:
-#if DIM==2
   OOFImage *image;
-#elif DIM==3
-	OOFImage3D *image;
-#endif
   const CColor *color;
   const ColorDifference *diff;
   BoolArray selected;
   BoolArray::iterator sel_iter;
   void advance();
 public:
-#if DIM==2
   ColorSelection(const CMicrostructure *ms, OOFImage *immidge,
 		 const CColor *color, const ColorDifference *diff);
-#elif DIM==3
-  ColorSelection(const CMicrostructure *ms, OOFImage3D *immidge,
-		 const CColor *color, const ColorDifference *diff);
-#endif
   virtual ~ColorSelection();
   virtual void start();
   virtual ICoord currentPoint() const;
@@ -56,23 +43,14 @@ public:
 class BurnSelection : public PixelSelectionCourier {
 private:
   BasicBurner *burner;
-#if DIM==2
   OOFImage *image;
-#elif DIM==3
-	OOFImage3D *image;
-#endif
   const ICoord spark;
   BoolArray selected;
   BoolArray::iterator sel_iter;
   void advance();
 public:
-#if DIM==2
   BurnSelection(const CMicrostructure *ms,
 		BasicBurner *burner, OOFImage *immidge, const ICoord *pt);
-#elif DIM==3
-  BurnSelection(const CMicrostructure *ms,
-		BasicBurner *burner, OOFImage3D *immidge, const ICoord *pt);
-#endif
   virtual ~BurnSelection() {}
   virtual void start();
   virtual ICoord currentPoint() const;

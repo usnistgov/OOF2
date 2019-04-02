@@ -65,7 +65,8 @@ OrientMap *getOrientMap(const std::string &name) {
 
 OrientMap::OrientMap(const ICoord *pxlsize, const Coord *size)
   : angles(*pxlsize, COrientABG(0.0 ,0.0, 0.0)),
-    size_(*size)
+    size_(*size),
+    microstructure(nullptr)
 {}
 
 OrientMap::~OrientMap() {

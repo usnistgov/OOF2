@@ -13,15 +13,15 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import material
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
-from ooflib.common.IO.GUI import pixelinfoplugin
+from ooflib.common.IO.GUI import pixelinfoGUIplugin
 import gtk
 
-class MaterialPlugIn(pixelinfoplugin.PixelInfoPlugIn):
+class MaterialPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
     ordering = 3
     nrows = 1
     def __init__(self, toolbox, table, row):
         debug.mainthreadTest()
-        pixelinfoplugin.PixelInfoPlugIn.__init__(self, toolbox)
+        pixelinfoGUIplugin.PixelInfoGUIPlugIn.__init__(self, toolbox)
 
         label=gtk.Label('material=')
         label.set_alignment(1.0, 0.5)
@@ -37,7 +37,7 @@ class MaterialPlugIn(pixelinfoplugin.PixelInfoPlugIn):
 
     def close(self):
         switchboard.removeCallback(self.sbcb)
-        pixelinfoplugin.PixelInfoPlugIn.close(self)
+        pixelinfoGUIplugin.PixelInfoGUIPlugIn.close(self)
 
     def update(self, where):
         debug.mainthreadTest()
@@ -61,4 +61,4 @@ class MaterialPlugIn(pixelinfoplugin.PixelInfoPlugIn):
         if ms is self.toolbox.findMicrostructure():
             self.update(self.toolbox.currentPixel())
 
-pixelinfoplugin.registerPlugInClass(MaterialPlugIn)
+pixelinfoGUIplugin.registerPlugInClass(MaterialPlugIn)

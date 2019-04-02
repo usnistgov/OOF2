@@ -1785,10 +1785,8 @@ class Skeleton(SkeletonBase):
         prog = progress.getProgress("Sanity Check", progress.DEFINITE)
         try:
             for i, element in enumerate(self.elements):
-                prog.setMessage("elements %d/%d" % (i, self.nelements()))
-                prog.setFraction(float(i)/self.nelements())
                 if prog.stopped():
-                    return
+                    return False
                 if element.illegal():
                     reporter.report("illegal element", element.index,
                                     [n.position() for n in element.nodes])
@@ -1813,7 +1811,7 @@ class Skeleton(SkeletonBase):
                 prog.setMessage("nodes %d/%d" % (i, self.nnodes()))
                 prog.setFraction(float(i)/self.nnodes())
                 if prog.stopped():
-                    return
+                    return False
                 for element in node.aperiodicNeighborElements():
                     if element not in self.elements:
                         reporter.report(
@@ -1824,7 +1822,7 @@ class Skeleton(SkeletonBase):
                     reporter.report("Node", node.index, "at", node.position(),
                                     "has no elements!")
                     sane = False
-                    # Check that nodes on periodic boundaries have partners
+                # Check that nodes on periodic boundaries have partners
                 x = node.position().x
                 y = node.position().y
                 xmax = self.MS.size().x
@@ -1854,14 +1852,15 @@ class Skeleton(SkeletonBase):
                             [ptnr.position()-primitives.Point(x, ymax)
                              for ptnr in node.getPartners()])
                         sane = False
-                        # Check self consistency of partner lists
+                # Check self consistency of partner lists
                 for partner in node.getPartners():
                     if node not in partner.getPartners():
-                        reporter.report("Inconsistent partner lists for",
-                                        node.__class__.__name__, node.index,
-                                        "at", node.position(), "and",
-                                        partner.__class__.__name__, partner.index,
-                                        "at", partner.position())
+                        reporter.report(
+                            "Inconsistent partner lists for",
+                            node.__class__.__name__, node.index,
+                            "at", node.position(), "and",
+                            partner.__class__.__name__,
+                            partner.index, "at", partner.position())
 
                         sane = False
             nsegs = len(self.segments)
@@ -1869,7 +1868,7 @@ class Skeleton(SkeletonBase):
                 prog.setMessage("segments %d/%d" % (i, nsegs))
                 prog.setFraction(float(i)/nsegs)
                 if prog.stopped():
-                    return
+                    return False
                 elements = segment.getElements()
                 if len(elements) > 2:
                     reporter.report(
@@ -1878,17 +1877,17 @@ class Skeleton(SkeletonBase):
                     sane = False
                 for element in elements:
                     if element not in self.elements:
-                        reporter.report("segment",
-                                        [n.index for n in segment.nodes()],
-                                        "contains an element", element.index, 
-                                        "not in the skeleton")
+                        reporter.report(
+                            "segment", [n.index for n in segment.nodes()],
+                            "contains an element", element.index, 
+                            "not in the skeleton")
                         sane = False
                 for node in segment.nodes():
                     if node not in self.nodes:
-                        reporter.report("segment",
-                                        [n.index for n in segment.nodes()], 
-                                        "contains a node", node.index,
-                                        "not in the skeleton")
+                        reporter.report(
+                            "segment", [n.index for n in segment.nodes()], 
+                            "contains a node", node.index,
+                            "not in the skeleton")
                         sane = False
             nbdys = len(self.edgeboundaries)
             for i, bdyname in enumerate(self.edgeboundaries):

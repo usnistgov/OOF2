@@ -28,6 +28,7 @@ class COrientRodrigues;
 #include <iostream>
 
 class SmallMatrix;
+class LatticeSymmetry;
 
 class COrientation {
 private:
@@ -52,6 +53,9 @@ public:
   virtual COrientXYZ XYZ() const;
   virtual COrientAxis axis() const;
   virtual COrientRodrigues rodrigues() const;
+
+  double misorientation(const COrientation&, const LatticeSymmetry&) const;
+  double misorientation(const COrientation&, const std::string&) const;
 
   virtual void print(std::ostream&) const = 0;
 };
@@ -100,16 +104,18 @@ public:
 
 class COrientQuaternion : public COrientation {
 private:
-  double e0_, e1_, e2_, e3_;
+  double q[4];
 public:
   COrientQuaternion(double e0, double e1, double e2, double e3);
   COrientQuaternion(const SmallMatrix&);
   virtual SmallMatrix *rotation_() const;
   virtual COrientQuaternion quaternion() const { return *this; }
-  double e0() const { return e0_; }
-  double e1() const { return e1_; }
-  double e2() const { return e2_; }
-  double e3() const { return e3_; }
+  virtual COrientAxis axis() const;
+  double e0() const { return q[0]; }
+  double e1() const { return q[1]; }
+  double e2() const { return q[2]; }
+  double e3() const { return q[3]; }
+  double norm2() const;
   virtual void print(std::ostream&) const;
 };
 
@@ -161,6 +167,7 @@ public:
   COrientAxis(const SmallMatrix&);
   virtual SmallMatrix *rotation_() const;
   virtual COrientAxis axis() const { return *this; }
+  virtual COrientQuaternion quaternion() const;
   double angle() const { return angle_; }
   double x() const { return x_; }
   double y() const { return y_; }

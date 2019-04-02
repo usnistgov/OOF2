@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -10,7 +12,7 @@
 #ifndef SMALLMATRIX_H
 #define SMALLMATRIX_H
 
-//#include <oofconfig.h>
+#include <oofconfig.h>
 #include "Eigen/Dense"
 #include <iostream>
 
@@ -56,6 +58,7 @@ public:
 
   void transpose();  // Transpose in-place.
   double norm() { return data.norm(); }
+  double determinant() const { return data.determinant(); }
 
   // The solve routine is fast, but corrupts the contents
   // of both the matrix and the passed-in rhs.  Matrix on which
@@ -73,6 +76,13 @@ public:
   void madd(const SmallMatrix& other) { data += other.data; }
   void msub(const SmallMatrix& other) { data -= other.data; }
 };
+
+// class SmallMatrix3x3 : public SmallMatrix {
+// public:
+//   SmallMatrix3x3(double a00, double a01, double a02,
+// 		 double a10, double a11, double a12,
+// 		 double a20, double a21, double a22);
+// };
 
 std::ostream &operator<<(std::ostream&, const SmallMatrix&);
 

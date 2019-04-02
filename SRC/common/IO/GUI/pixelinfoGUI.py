@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -21,7 +20,7 @@ from ooflib.common.IO import pixelinfo
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import mousehandler
-from ooflib.common.IO.GUI import pixelinfoplugin
+from ooflib.common.IO.GUI import pixelinfoGUIplugin
 from ooflib.common.IO.GUI import toolboxGUI
 import gtk
 import ooflib.common.microstructure
@@ -79,7 +78,7 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.sbcallbacks = [
             switchboard.requestCallbackMain(pixelinfotoolbox,
                                             self.update),
-            switchboard.requestCallbackMain('new pixelinfo plugin',
+            switchboard.requestCallbackMain('new pixelinfo GUI plugin',
                                             self.buildGUI),
             switchboard.requestCallbackMain((self.gfxwindow(),
                                              'layers changed'), self.update)
@@ -90,7 +89,7 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.table.resize(rows=4, columns=2)
         row = 4
         self.plugins = []
-        for pluginclass in pixelinfoplugin.plugInClasses:
+        for pluginclass in pixelinfoGUIplugin.plugInClasses:
             self.table.resize(row + 1 + pluginclass.nrows, 2)
             # A gtk or pygtk bug requires xpadding to be set
             # explicitly if ypadding is set here.
@@ -113,6 +112,11 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         for plugin in self.plugins:
             plugin.close()
         self.plugins = []
+
+    def findGUIPlugIn(self, plugInClass):
+        for plugin in self.plugins:
+            if isinstance(plugin, plugInClass):
+                return plugin
 
     def acceptEvent(self, eventtype):
         return eventtype == 'up'

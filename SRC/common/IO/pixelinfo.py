@@ -12,22 +12,68 @@
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import timestamp
+from ooflib.common import debug
 from ooflib.common import toolbox
 from ooflib.common import primitives
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
 
+## TODO:  Remove obsolete 3D stuff
 
-# Despite the name "PixelInfoToolbox", this class works for both 2D
-# and 3D
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Plug-in classes can add new menu items.  To be useful they probably
+# should correspond to a PixelInfoGUIPlugIn that invokes the menu
+# items.  They should be derived from PixelInfoPlugin, and re-define
+# makeMenu.
+
+# Subclasses of PixelInfoPlugIn to instantiate in each toolbox instance
+plugInClasses = []       
+
+# The meta class for PixelInfoPlugIn takes care of listing each
+# subclass in plugInClasses, and notifies existing graphics windows of
+# the plug in, in case the windows already exist when the plugin is
+# loaded.
+
+class PixelInfoPlugInMetaClass(type):
+    def __init__(cls, name, bases, dict):
+        super(PixelInfoPlugInMetaClass, cls).__init__(name, bases, dict)
+        plugInClasses.append(cls)
+        switchboard.notify("new pixel info plugin", cls)
+
+class PixelInfoPlugIn(object):
+    __metaclass__ = PixelInfoPlugInMetaClass
+    def __init__(self, toolbox):
+        self.toolbox = toolbox
+    def makeMenu(self, menu):
+        # The argument is the toolbox's menu, to which new commands
+        # should be added.
+        pass
+    def draw(self, displaymethod, device, pixel, microstructure):
+        # Define this for any plug-in that wants to draw something on
+        # the canvas.  PixelInfoDisplay.draw() calls each plug-in's
+        # draw() method.  The displaymethod argument is the
+        # PixelInfoDisplay.  The pixel argument is the current pixel
+        # of the PixelInfoToolbox, which may or may not be the pixel
+        # that the plug-in wants to draw.
+        pass
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class PixelInfoToolbox(toolbox.Toolbox):
     def __init__(self, gfxwindow):
         self.point = None               # location of last query
         self.timestamp = timestamp.TimeStamp()
         toolbox.Toolbox.__init__(self, "Pixel_Info", gfxwindow)
-        
+
+        self.plugIns = [plugInClass(self) for plugInClass in plugInClasses]
+
+        self.sbcallbacks = [
+            switchboard.requestCallback("new pixelinfo plugin",
+                                        self.newPlugIn)
+            ]
+
     def makeMenu(self, menu):
         self.menu = menu
         if config.dimension() == 2:
@@ -65,6 +111,22 @@ class PixelInfoToolbox(toolbox.Toolbox):
             effect if the GUI is not running.
             </para>"""
             ))
+
+        for plugin in self.plugIns:
+            plugin.makeMenu(menu)
+
+    def close(self):
+        map(switchboard.removeCallback, self.sbcallbacks)
+        toolbox.Toolbox.close(self)
+
+    def newPlugIn(self, pluginClass):
+        debug.fmsg("Creating", pluginClass, "in", self)
+        self.plugIns.append(pluginClass(self))
+
+    def findPlugIn(self, pluginClass):
+        for plugin in self.plugIns:
+            if isinstance(plugin, pluginClass):
+                return plugin
 
     def queryPixel(self, menuitem, x, y, z=0): # menu callback
         self.timestamp.increment()

@@ -11,7 +11,6 @@
 from ooflib.SWIG.image import pixelselectioncourieri
 from ooflib.common import debug
 from ooflib.common import enum
-from ooflib.common import primitives
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
@@ -47,21 +46,25 @@ class Burn(pixelselectionmethod.SelectionMethod):
             selector(BurnSelection(ms, b, immidge.getObject(), startpt))
 
 
-burnSelectorRegistration = pixelselectionmethod.PixelSelectionRegistration(
+pixelselectionmethod.PixelSelectionRegistration(
     'Burn',
     Burn,
     ordering=1.0,
     params=[
-    parameter.FloatRangeParameter('local_flammability',
-                                  range=(0, 1, 0.001), value=0.1,
-                                  tip='Maximum difference in neighboring pixel values across which a burn will extend.'),
-    parameter.FloatRangeParameter('global_flammability',
-                                  range=(0, 1, 0.001), value=0.2,
-                                  tip='Difference from initial pixel value beyond which a burn will not spread.'),
-    enum.EnumParameter('color_space_norm', ColorNorm, value=L1,
-                       tip="How to compute the difference between two colors in RGB space."),
-    parameter.BooleanParameter('next_nearest', value=0,
-                               tip="Burn next-nearest neighbors?")],
+    parameter.FloatRangeParameter(
+        'local_flammability',
+        range=(0, 1, 0.001), value=0.1,
+        tip='Maximum difference in neighboring pixel values across which a burn will extend.'),
+    parameter.FloatRangeParameter(
+        'global_flammability',
+        range=(0, 1, 0.001), value=0.2,
+        tip='Difference from initial pixel value beyond which a burn will not spread.'),
+    enum.EnumParameter(
+        'color_space_norm', ColorNorm, value=L1,
+        tip="How to compute the difference between two colors in RGB space."),
+    parameter.BooleanParameter(
+        'next_nearest', value=0,
+        tip="Burn next-nearest neighbors?")],
     events=['up'],
     whoclasses=['Image'],
     tip="Select a contiguous set of similar pixels, using a forest fire algorithm.",
