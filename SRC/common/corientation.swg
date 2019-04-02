@@ -17,6 +17,7 @@
 
 %{
 #include "common/corientation.h"
+#include "common/tostring.h"
 %}
 
 %pragma(python) include="corientation.spy"
@@ -40,6 +41,9 @@ public:
     bool __ne__(COrientation *other) {
       return self->abg() != other->abg();
     }
+    %new const string *__repr__() {
+      return new std::string(to_string(*self));
+    }
   }
 };
 
@@ -54,6 +58,9 @@ public:
     COrientABG __neg__() {
       return -(*self);
     }
+    %new const string *__repr__() {
+      return new std::string(to_string(*self));
+    }
   }
 };
 
@@ -64,6 +71,11 @@ public:
   double phi1();
   double theta();
   double phi2();
+  %addmethods {
+    %new const string *__repr__() {
+      return new std::string(to_string(*self));
+    }
+  }
 };
 
 class COrientQuaternion : public COrientation {
@@ -74,6 +86,11 @@ public:
   double e1() const;
   double e2() const;
   double e3() const;
+  %addmethods {
+    %new const string *__repr__() {
+      return new std::string(to_string(*self));
+    }
+  }
 };
 
 class COrientX : public COrientation {
@@ -83,6 +100,11 @@ public:
   double phi();
   double theta();
   double psi();
+  %addmethods {
+    %new const string *__repr__() {
+      return new std::string(to_string(*self));
+    }
+  }
 };
 
 class COrientXYZ : public COrientation {
@@ -92,6 +114,11 @@ public:
   double phi();
   double theta();
   double psi();
+  %addmethods {
+    %new const string *__repr__() {
+      return new std::string(to_string(*self));
+    }
+  }
 };
 
 class COrientAxis : public COrientation {
@@ -102,6 +129,11 @@ public:
   double x();
   double y();
   double z();
+  %addmethods {
+    %new const string *__repr__() {
+      return new std::string(to_string(*self));
+    }
+  }
 };
 
 class COrientRodrigues : public COrientation {
@@ -111,6 +143,11 @@ public:
   double r1();
   double r2();
   double r3();
+  %addmethods {
+    %new const string *__repr__() {
+      return new std::string(to_string(*self));
+    }
+  }
 };
 
 

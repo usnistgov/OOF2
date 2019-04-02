@@ -48,7 +48,7 @@ class OrientationBurn(pixelselectionmethod.SelectionMethod):
 pixelselectionmethod.PixelSelectionRegistration(
     'OrientationBurn',
     OrientationBurn,
-    ordering=1.1,
+    ordering=1.11,
     params=[
         parameter.FloatRangeParameter(
             'local_flammability',
@@ -60,7 +60,7 @@ pixelselectionmethod.PixelSelectionRegistration(
             tip="Misorientation, in degrees measured from initial point, beyond which a burn will not spread."),
         latticesystem.LatticeSymmetryParameter(
             'lattice_symmetry',
-            tip="Lattice symmetry"),
+            tip="Assume that the material at each point has this symmetry, making some orientations equivalent."),
         parameter.BooleanParameter(
             'next_nearest', value=False,
             tip="Burn next-nearest neighbors?")

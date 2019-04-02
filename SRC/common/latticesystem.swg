@@ -41,7 +41,5 @@ class LatticeSymmetry {
 
 void addLatticeSymmetryMatrix(char*, SmallMatrix *ThreeByThreeFloats);
 
-//LatticeSymmetry *getLatticeSymmetry(char *schoenflies);
-
 #endif // LATTICESYSTEM_SWG
 

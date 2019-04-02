@@ -25,7 +25,8 @@ OrientationSelection::OrientationSelection(const OrientMap *ormap,
     symmetry(getLatticeSymmetry(schoenflies)),
     misorientation(M_PI*misor/180.),
     orientmap(ormap)
-{}
+{
+}
 
 OrientationSelection::~OrientationSelection() {
   // delete orientation;		// WHO OWNS THIS?

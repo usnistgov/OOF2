@@ -191,8 +191,8 @@ bool COrientABG::operator!=(const COrientABG &other) const {
 }
 
 void COrientABG::print(std::ostream &os) const {
-  os << "COrientABG(alpha=" << alpha() << ", beta=" << beta()
-     << ", gamma=" << gamma() << ")";
+  os << "COrientABG(alpha=" << alpha()*180/M_PI << ", beta=" << beta()*180/M_PI
+     << ", gamma=" << gamma()*180/M_PI << ")";
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -243,8 +243,9 @@ SmallMatrix *COrientBunge::rotation_() const {
 }
 
 void COrientBunge::print(std::ostream &os) const {
-  os << "COrientBunge(phi1=" << phi1() << ", theta=" << theta()
-     << ", phi2=" << phi2() << ")";
+  os << "COrientBunge(phi1=" << phi1()*180/M_PI
+     << ", theta=" << theta()*180/M_PI
+     << ", phi2=" << phi2()*180/M_PI << ")";
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -400,8 +401,8 @@ SmallMatrix *COrientX::rotation_() const {
 };
 
 void COrientX::print(std::ostream &os) const {
-  os << "COrientX(phi=" << phi() << ", theta=" << theta() << ", psi=" << psi()
-     << ")";
+  os << "COrientX(phi=" << phi()*180/M_PI << ", theta=" << theta()*180/M_PI
+     << ", psi=" << psi()*180/M_PI << ")";
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -459,8 +460,8 @@ SmallMatrix *COrientXYZ::rotation_() const {
 }
 
 void COrientXYZ::print(std::ostream &os) const {
-  os << "COrientXYZ(phi=" << phi() << ", theta=" << theta()
-     << ", psi=" << psi() << ")";
+  os << "COrientXYZ(phi=" << phi()*180/M_PI << ", theta=" << theta()*180/M_PI
+     << ", psi=" << psi()*180/M_PI << ")";
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -508,8 +509,8 @@ COrientQuaternion COrientAxis::quaternion() const {
 }
 
 void COrientAxis::print(std::ostream &os) const {
-  os << "COrientAxis(angle=" << angle() << ", x=" << x() << ", y=" << y()
-     << ", z=" << z() << ")";
+  os << "COrientAxis(angle=" << angle()*180/M_PI
+     << ", x=" << x() << ", y=" << y() << ", z=" << z() << ")";
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
