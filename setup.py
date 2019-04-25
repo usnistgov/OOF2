@@ -350,11 +350,11 @@ def _find_pkgs(pkglist, dirname, subdirs):
 
 ##########
 
-def swig_clibs(dry_run, force, with_swig=None):
+def swig_clibs(dry_run, force, debug, build_temp, with_swig=None):
     # First make sure that swig has been built.
     if with_swig is None:
         swigsrcdir = os.path.abspath('OOFSWIG')
-        swigbuilddir = os.path.join(swigsrcdir, 'BUILD')
+        swigbuilddir = os.path.join(os.path.abspath(build_temp), 'swig-build')
         if not os.path.exists(swigbuilddir):
             os.mkdir(swigbuilddir)
         swigexec = os.path.join(swigbuilddir, 'bin', 'swig')
@@ -365,7 +365,12 @@ def swig_clibs(dry_run, force, with_swig=None):
                 % (swigsrcdir, swigbuilddir))
             if status:
                 sys.exit(status)
+    else:
+        swigexec = with_swig
     srcdir = os.path.abspath('SRC')
+    extra_args = platform['extra_swig_args']
+    if debug:
+        extra_args.append('-DDEBUG')
     for clib in allCLibs.values():
         for swigfile in clib.dirdata['swigfiles']:
             # run_swig requires a src dir and an input file path
@@ -377,7 +382,7 @@ def swig_clibs(dry_run, force, with_swig=None):
                      cext=SWIGCFILEEXT,
                      include_dirs = ['SRC'],
                      dry_run=dry_run,
-                     extra_args=platform['extra_swig_args'],
+                     extra_args=extra_args,
                      force=force,
                      with_swig=swigexec,
                      DIM_3=DIM_3
@@ -548,7 +553,8 @@ typedef int Py_ssize_t;
                 ## all be outside of our directory hierarchy, so we
                 ## just ignore any dependency that doesn't begin with
                 ## "SRC/".
-                if source.startswith('SRC/'):
+                if (source.startswith('SRC/') or
+                    source.startswith(self.build_temp)):
                     depdict.setdefault(realtarget, []).append(source)
 
         # .C and.py files in the SWIG directory depend on those in the
@@ -581,7 +587,8 @@ typedef int Py_ssize_t;
             targetpy = os.path.normpath(
                 os.path.join(swigroot, targetbase + '.py'))
             for source in files[1:]:
-                if source.startswith('SRC/'):
+                if (source.startswith('SRC/') or
+                    source.startswith(self.build_temp)):
                     depdict.setdefault(targetc, []).append(source)
                     depdict.setdefault(targetpy,[]).append(source)
 
@@ -694,7 +701,8 @@ class oof_build_ext(build_ext.build_ext, oof_build_xxxx):
         # Run makedepend
         self.clean_dependencies()
         # Generate swigged .C and .py files
-        swig_clibs(self.dry_run, self.force, self.with_swig)
+        swig_clibs(self.dry_run, self.force, self.debug, self.build_temp,
+                   self.with_swig)
                                           
         # Build the swig extensions by calling the distutils base
         # class function
