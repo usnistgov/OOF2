@@ -353,6 +353,15 @@ def _find_pkgs(pkglist, dirname, subdirs):
 def swig_clibs(dry_run, force, debug, build_temp, with_swig=None):
     # First make sure that swig has been built.
     if with_swig is None:
+        ## TODO 3.1: swig is installed inside the distutils
+        ## build/temp* directory to avoid conflicts if oof is being
+        ## built for multiple architectures on a shared file system.
+        ## However, swig's .o file and other intermediate files
+        ## (parser.cxx, parser.h, config.log, Makefiles, etc) are
+        ## still in OOFSWIG/SWIG.  They'll have to be removed manually
+        ## before building on a different architecture.  It would be
+        ## better if they were in build/temp* too, but that might
+        ## require modifying the Makefile.
         swigsrcdir = os.path.abspath('OOFSWIG')
         swigbuilddir = os.path.join(os.path.abspath(build_temp), 'swig-build')
         if not os.path.exists(swigbuilddir):
