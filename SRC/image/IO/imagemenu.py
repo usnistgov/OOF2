@@ -389,6 +389,7 @@ def createGrains(menuitem, method, next_nearest, name_template):
     # CPixelDifferentiator and a reference to the
     # MicrostructureContext
     mscontext = method.microstructure
+    ms = mscontext.getObject()
     prog = progress.getProgress("AutoGrain", progress.DEFINITE)
     prog.setMessage("Creating grains...")
     mscontext.begin_writing()
