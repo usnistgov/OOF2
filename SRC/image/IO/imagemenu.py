@@ -14,10 +14,8 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import progress
 from ooflib.SWIG.image import autogroupMP
-if config.dimension() == 2:
-    from ooflib.SWIG.image import oofimage
-elif config.dimension() == 3:
-    from ooflib.SWIG.image import oofimage3d as oofimage
+from ooflib.SWIG.image import autograin
+from ooflib.SWIG.image import oofimage
 from ooflib.common import debug
 from ooflib.common import labeltree
 from ooflib.common import parallel_enable
@@ -384,6 +382,45 @@ imagemenu.addItem(oofmenu.OOFMenuItem(
     help='Create a pixel group for each color in the image.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/image/menu/autogroup.xml')
     ))
+
+
+def createGrains(menuitem, method, next_nearest, name_template):
+    # method is a PixelDifferentiator, containing a
+    # CPixelDifferentiator and a reference to the
+    # MicrostructureContext
+    mscontext = method.microstructure
+    prog = progress.getProgress("AutoGrain", progress.DEFINITE)
+    prog.setMessage("Creating grains...")
+    mscontext.begin_writing()
+    try:
+        newgrpname = autograin.autograin(
+            mscontext.getObject(), method.cobj, next_nearest, name_template)
+    finally:
+        prog.finish()
+        mscontext.end_writing()
+
+    switchboard.notify('redraw')
+    if not prog.stopped():
+        if newgrpname:
+            switchboard.notify("new pixel group", ms.findGroup(newgrpname))
+        switchboard.notify("changed pixel groups", ms.name())
+        
+imagemenu.addItem(oofmenu.OOFMenuItem(
+    'AutoGrain',
+    callback=createGrains,
+    params=[
+        autograin.PixelDifferentiatorParameter("method"),
+        parameter.BooleanParameter(
+            "next_nearest", value=True,
+            tip="Burn next nearest neighbors?"),
+        parameter.StringParameter(
+            "name_template",
+            value="grain%n",
+            tip="Name for pixel groups.  %n is replaced by a number."),
+            ],
+    threadable=oofmenu.THREADABLE,
+    help="Create a pixel group for each grain in the image or EBSD map by repeating the Burn algorithm."
+))
 
 
 ###############################

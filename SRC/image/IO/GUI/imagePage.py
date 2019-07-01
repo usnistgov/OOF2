@@ -105,12 +105,15 @@ class ImagePage(oofGUI.MainPage):
         gtklogger.setWidgetName(self.autogroupbutton, 'Group')
         gtklogger.connect(self.autogroupbutton, 'clicked', self.autogroupCB)
         centerbox.pack_start(self.autogroupbutton, expand=1, fill=1, padding=2)
-        if config.dimension() == 2:
-            tooltips.set_tooltip_text(self.autogroupbutton,
+        tooltips.set_tooltip_text(self.autogroupbutton,
                 "Create a pixel group in the current image's microstructure for each color pixel in the image.")
-        elif config.dimension() == 3:
-            tooltips.set_tooltip_text(self.autogroupbutton,
-                "Create a voxel group in the current image's microstructure for each color voxel in the image.")
+
+        self.autograinbutton = gtk.Button('Grain...')
+        gtklogger.setWidgetName(self.autograinbutton, 'Grain')
+        gtklogger.connect(self.autograinbutton, 'clicked', self.autograinCB)
+        centerbox.pack_start(self.autograinbutton, expand=1, fill=1, padding=2)
+        tooltips.set_tooltip_text(self.autograinbutton,
+                  "Create a pixel group in the current image's microstructure for each contiguous set of similar pixels in the image.")
 
         mainpane = gtk.HPaned()
         gtklogger.setWidgetName(mainpane, 'Pane')
@@ -377,7 +380,16 @@ class ImagePage(oofGUI.MainPage):
         params = [p for p in menuitem.params if p.name != 'image']
         if parameterwidgets.getParameters(title='AutoGroup', *params):
             menuitem.callWithDefaults(image=self.imagewidget.get_value())
-##        mainmenu.OOF.Image.AutoGroup(image=self.imagewidget.get_value())
+
+    ## TODO: AutoGrain doesn't really belong on the Image page because
+    ## it can work on EBSD data too.  Also, as written here it doesn't
+    ## use the current Image from the Image page.
+    def autograinCB(self, button):
+        menuitem = mainmenu.OOF.Image.AutoGrain
+        if parameterwidgets.getParameters(title="AutoGrain", *menuitem.params):
+            menuitem.callWithDefaults()
+
+
         
 ImagePage()
 

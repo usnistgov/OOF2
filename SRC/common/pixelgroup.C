@@ -157,8 +157,12 @@ void PixelGroup::add(const std::vector<ICoord> *pixels) {
 }
 
 void PixelGroup::addWithoutCheck(const std::vector<ICoord> *pixels) {
+  std::cerr << "PixelGroup::addWithoutCheck: npix=" << pixels->size()
+	    << std::endl;
   PixelSet::addWithoutCheck(pixels);
   // Update grouplists in microstructure
+  std::cerr << "PixelGroup::addWithoutCheck: updating group lists"
+	    << std::endl;
   Array<PixelAttribute*> &groupMap = reg->map(microstructure);
   for(std::vector<ICoord>::const_iterator i=pixels->begin(); i<pixels->end();
       ++i)
@@ -166,7 +170,9 @@ void PixelGroup::addWithoutCheck(const std::vector<ICoord> *pixels) {
       GroupList *list = dynamic_cast<GroupList*>(groupMap[*i]);
       list->add(this);
     }
+  std::cerr << "PixelGroup::addWithoutCheck: calling recategorize" << std::endl;
   microstructure->recategorize();
+  std::cerr << "PixelGroup::addWithoutCheck: done" << std::endl;
 }
 
 void PixelSet::add(const ICoord &pixel) {

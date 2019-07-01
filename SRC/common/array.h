@@ -648,14 +648,31 @@ public:
   {
     memset(data, 0, nrows*ncols*sizeof(TYPE));
   }
+  SimpleArray2D(const ICoord &size)
+    : nrows(size[1]),
+      ncols(size[0]),
+      data(new TYPE(size[0]*size[1]))
+  {
+    memset(data, 0, nrows*ncols*sizeof(TYPE));
+  }
   ~SimpleArray2D() {
     delete [] data;
   }
-  TYPE &operator()(int i, int j) {
+  TYPE &operator()(int i, int j) { // loop over y faster ?!
     return data[j + i*ncols];
   }
   const TYPE& operator()(int i, int j) const {
     return data[j + i*ncols];
+  }
+  TYPE &operator[](const ICoord &pt) {
+    return data[pt[1] + pt[0]*ncols];
+  }
+  const TYPE &operator[](const ICoord &pt) const {
+    return data[pt[1] + pt[0]*ncols];
+  }
+  bool contains(const ICoord &pt) const {
+    return (pt[0] >= 0 && pt[0] < ncols &&
+	    pt[1] >= 0 && pt[1] < nrows);
   }
 };
 
