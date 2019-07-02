@@ -388,17 +388,17 @@ def createGrains(menuitem, method, next_nearest, name_template):
     # method is a PixelDifferentiator, containing a
     # CPixelDifferentiator and a reference to the
     # MicrostructureContext
-    mscontext = method.microstructure
-    ms = mscontext.getObject()
+    ms = method.mscontext.getObject()
     prog = progress.getProgress("AutoGrain", progress.DEFINITE)
     prog.setMessage("Creating grains...")
-    mscontext.begin_writing()
+    method.mscontext.begin_writing()
     try:
         newgrpname = autograin.autograin(
-            mscontext.getObject(), method.cobj, next_nearest, name_template)
+            method.mscontext.getObject(), method.cobj,
+            next_nearest, name_template)
     finally:
         prog.finish()
-        mscontext.end_writing()
+        method.mscontext.end_writing()
 
     switchboard.notify('redraw')
     if not prog.stopped():

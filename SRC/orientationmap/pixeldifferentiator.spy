@@ -1,0 +1,56 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.
+
+from ooflib.SWIG.common import latticesystem
+from ooflib.SWIG.image import autograin
+from ooflib.SWIG.orientationmap import orientmapdata
+from ooflib.common import registeredclass
+from ooflib.common.IO import parameter
+from ooflib.common.IO import whoville
+
+class OrientationDifferentiator(autograin.PixelDifferentiator):
+    def __init__(self, microstructure, local_flammability,
+                 global_flammability, lattice_symmetry):
+        self.microstructure = microstructure
+        self.local_flammability = local_flammability
+        self.global_flammability = global_flammability
+        self.lattice_symmetry = lattice_symmetry
+        ms = whoville.getClass('Microstructure')[microstructure]
+        autograin.PixelDifferentiator.__init__(
+            self,
+            ms,
+            COrientationDifferentiator(
+                orientmapdata.getOrientationMap(ms.getObject()),
+                local_flammability, global_flammability,
+                lattice_symmetry.schoenflies()))
+
+reg = registeredclass.Registration(
+    'Orientation',
+    autograin.PixelDifferentiator,
+    OrientationDifferentiator,
+    ordering=2,
+    params=[
+        whoville.WhoParameter(
+            'microstructure', whoville.getClass('Microstructure'),
+            tip='Use the orientation map in this Microstructure'),
+        parameter.FloatRangeParameter(
+            'local_flammability',
+            range=(0, 180., 0.1), value=10,
+            tip="Maximum misorientation angle, in degrees, between neighboring pixels across which a burn will extend."),
+        parameter.FloatRangeParameter(
+            'global_flammability',
+            range=(0., 180., 0.1), value=10,
+            tip="Misorientation, in degrees measured from initial point, beyond which a burn will not spread."),
+        latticesystem.LatticeSymmetryParameter(
+            'lattice_symmetry',
+            tip="Assume that the material at each point has this symmetry, making some orientations equivalent.")
+    ],
+    tip="Create pixel groups for grains by applying the Burn algorithm to an orientation map."
+    )

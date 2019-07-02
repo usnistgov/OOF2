@@ -1,0 +1,38 @@
+// -*- C++ -*-
+
+/* This software was produced by NIST, an agency of the U.S. government,
+ * and by statute is not subject to copyright in the United States.
+ * Recipients of this software assume all responsibilities associated
+ * with its operation, modification and maintenance. However, to
+ * facilitate maintenance we ask that before distributing modified
+ * versions of this software, you first contact the authors at
+ * oof_manager@nist.gov. 
+ */
+
+#include "orientationmap/pixeldifferentiator.h"
+#include "orientationmap/orientmapdata.h"
+#include "common/latticesystem.h"
+
+COrientationDifferentiator::COrientationDifferentiator(
+					       const OrientMap *om,
+					       double lf,
+					       double gf,
+					       const std::string &schoenflies)
+  : orientmap(om),
+    local_flammability(lf),
+    global_flammability(gf),
+    lattice(getLatticeSymmetry(schoenflies))
+{}
+
+bool COrientationDifferentiator::operator()(const ICoord &target,
+					    const ICoord &local_reference,
+					    const ICoord &global_reference)
+  const
+{
+  const COrientABG &tgt = orientmap->angle(target);
+  const COrientABG &lcl = orientmap->angle(local_reference);
+  const COrientABG &gbl = orientmap->angle(global_reference);
+  return (tgt.misorientation(lcl, *lattice) < local_flammability &&
+	  tgt.misorientation(gbl, *lattice) < global_flammability);
+}
+    

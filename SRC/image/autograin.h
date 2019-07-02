@@ -38,7 +38,6 @@ private:
   bool useL2norm;
 public:
   CColorDifferentiator(const OOFImage *image, double lf, double gf, bool l2);
-  ~CColorDifferentiator();
   virtual bool operator()(const ICoord&, const ICoord&, const ICoord&) const;
 };
 
