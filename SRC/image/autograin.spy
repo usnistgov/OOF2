@@ -18,8 +18,8 @@ from ooflib.SWIG.image import burn
 
 class PixelDifferentiator(registeredclass.RegisteredClass):
     registry = []
-    def __init__(self, microstructure, cdifferentiator):
-        self.microstructure = microstructure # MicrostructureContext
+    def __init__(self, mscontext, cdifferentiator):
+        self.mscontext = mscontext # MicrostructureContext
         self.cobj = cdifferentiator
 
 class ColorDifferentiator(PixelDifferentiator):

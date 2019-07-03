@@ -12,6 +12,7 @@
 #include "orientationmap/pixeldifferentiator.h"
 #include "orientationmap/orientmapdata.h"
 #include "common/latticesystem.h"
+#include <math.h>
 
 COrientationDifferentiator::COrientationDifferentiator(
 					       const OrientMap *om,
@@ -32,7 +33,8 @@ bool COrientationDifferentiator::operator()(const ICoord &target,
   const COrientABG &tgt = orientmap->angle(target);
   const COrientABG &lcl = orientmap->angle(local_reference);
   const COrientABG &gbl = orientmap->angle(global_reference);
-  return (tgt.misorientation(lcl, *lattice) < local_flammability &&
-	  tgt.misorientation(gbl, *lattice) < global_flammability);
+  double degrees = 180./M_PI;
+  return (degrees*tgt.misorientation(lcl, *lattice) < local_flammability &&
+	  degrees*tgt.misorientation(gbl, *lattice) < global_flammability);
 }
     
