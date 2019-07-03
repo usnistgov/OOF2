@@ -14,15 +14,13 @@ from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
 
-from ooflib.SWIG.image import burn
+from ooflib.SWIG.common import burn
 
-class PixelDifferentiator(registeredclass.RegisteredClass):
-    registry = []
-    def __init__(self, mscontext, cdifferentiator):
-        self.mscontext = mscontext # MicrostructureContext
-        self.cobj = cdifferentiator
+## TODO: When old burn is rewritten to use ColorDifferentiator, move
+## ColorNorm definitions to this file.
+from ooflib.SWIG.image import burn as burni
 
-class ColorDifferentiator(PixelDifferentiator):
+class ColorDifferentiator(burn.PixelDifferentiator):
     def __init__(self, image, local_flammability, global_flammability,
                  color_space_norm):
         self.image = image      # path 
@@ -30,7 +28,7 @@ class ColorDifferentiator(PixelDifferentiator):
         self.global_flammability = global_flammability
         self.color_space_norm = color_space_norm
         immidge = whoville.getClass('Image')[image]
-        PixelDifferentiator.__init__(
+        burn.PixelDifferentiator.__init__(
             self,
             immidge.getParent(),
             CColorDifferentiator(immidge.getObject(), local_flammability,
@@ -39,7 +37,7 @@ class ColorDifferentiator(PixelDifferentiator):
         
 registeredclass.Registration(
     'Color',
-    PixelDifferentiator,
+    burn.PixelDifferentiator,
     ColorDifferentiator,
     ordering=1,
     params=[
@@ -55,7 +53,7 @@ registeredclass.Registration(
             range=(0, 1, 0.001), value=0.2,
             tip="Difference from initial pixel color beyond which a burn will not spread."),
         enum.EnumParameter(
-            'color_space_norm', burn.ColorNorm, value=burn.L1,
+            'color_space_norm', burni.ColorNorm, value=burni.L1,
             tip="How to compute the difference between two colors in RGB space.")
         ],
     tip="Create pixel groups for grains by applying the Burn algorithm to an image until all pixels are in a group."
@@ -68,8 +66,3 @@ registeredclass.Registration(
 
 
 
-class PixelDifferentiatorParameter(parameter.RegisteredParameter):
-    def __init__(self, name, value=None, default=None, tip=None):
-        parameter.RegisteredParameter.__init__(
-            self, name, PixelDifferentiator,
-            value=value, default=default, tip=tip)

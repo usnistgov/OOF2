@@ -21,6 +21,7 @@ import ooflib.image.IO.imageIO
 import ooflib.image.IO.imagemenu
 import ooflib.image.pixelselectionmethod
 import ooflib.image.pixelselectionmod
+import ooflib.SWIG.image.autograin
 
 if parallel_enable.enabled():
     import ooflib.image.IO.oofimageIPC

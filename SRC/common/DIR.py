@@ -29,7 +29,7 @@ if not DIM_3:
         'sincos.C', 'swiglib.C', 'switchboard.C', 'threadstate.C',
         'timestamp.C', 'trace.C', 'pythonlock.C', 'progress.C',
         'direction.C', 'doublevec.C', 'smallmatrix.C', 'corientation.C',
-        'latticesystem.C'
+        'latticesystem.C', 'burn.C'
         ]
 
     swigfiles = [
@@ -43,7 +43,7 @@ if not DIM_3:
         'threadstate.swg', 'timestamp.swg', 'trace.swg', 'progress.swg',
         'guitop.swg', 'identification.swg', 'direction.swg', 'doublevec.swg',
         'smallmatrix.swg', 'corientation.swg', 'latticesystem.swg',
-        'pixelsetboundary.swg'
+        'pixelsetboundary.swg', 'burn.swg'
         ]
 
     pyfiles = [ 
@@ -64,7 +64,7 @@ if not DIM_3:
         'cdebug.spy', 'brushstyle.spy', 'pixelattribute.spy', 'guitop.spy',
         'activearea.spy', 'lock.spy', 'cmicrostructure.spy', 'doublevec.spy',
         'smallmatrix.spy',  'corientation.spy', 'direction.spy',
-        'latticesystem.spy']
+        'latticesystem.spy', 'burn.spy']
 
 
     hfiles = [
@@ -78,7 +78,7 @@ if not DIM_3:
         'removeitem.h', 'sincos.h', 'swiglib.h', 'switchboard.h',
         'threadstate.h', 'timestamp.h', 'tostring.h', 'trace.h',
         'pythonlock.h', 'direction.h', 'doublevec.h', 'smallmatrix.h',
-        'corientation.h','latticesystem.h']
+        'corientation.h','latticesystem.h', 'burn.h']
 
 else:
 

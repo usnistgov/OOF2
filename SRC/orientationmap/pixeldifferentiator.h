@@ -12,7 +12,7 @@
 #ifndef PIXELDIFFORIENT_H
 #define PIXELDIFFORIENT_H
 
-#include "image/autograin.h"
+#include "common/burn.h"
 
 class OrientMap;
 class LatticeSymmetry;

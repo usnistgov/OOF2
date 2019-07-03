@@ -9,12 +9,12 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+from ooflib.SWIG.common import burn
 from ooflib.SWIG.common import config
-from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import progress
+from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.image import autogroupMP
-from ooflib.SWIG.image import autograin
 from ooflib.SWIG.image import oofimage
 from ooflib.common import debug
 from ooflib.common import labeltree
@@ -393,7 +393,7 @@ def createGrains(menuitem, method, next_nearest, name_template):
     prog.setMessage("Creating grains...")
     method.mscontext.begin_writing()
     try:
-        newgrpname = autograin.autograin(
+        newgrpname = burn.autograin(
             method.mscontext.getObject(), method.cobj,
             next_nearest, name_template)
     finally:
@@ -410,7 +410,7 @@ imagemenu.addItem(oofmenu.OOFMenuItem(
     'AutoGrain',
     callback=createGrains,
     params=[
-        autograin.PixelDifferentiatorParameter("method"),
+        burn.PixelDifferentiatorParameter("method"),
         parameter.BooleanParameter(
             "next_nearest", value=True,
             tip="Burn next nearest neighbors?"),

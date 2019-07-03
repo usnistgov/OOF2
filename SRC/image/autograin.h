@@ -16,17 +16,9 @@
 #include <vector>
 
 #include "common/array.h"
+#include "common/burn.h"
 
-class ActiveArea;
-class CMicrostructure;
-class ICoord;
 class OOFImage;
-
-class CPixelDifferentiator {
-public:
-  virtual ~CPixelDifferentiator() {}
-  virtual bool operator()(const ICoord&, const ICoord&, const ICoord&) const=0;
-};
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -40,17 +32,5 @@ public:
   CColorDifferentiator(const OOFImage *image, double lf, double gf, bool l2);
   virtual bool operator()(const ICoord&, const ICoord&, const ICoord&) const;
 };
-
-std::vector<ICoord> burn(CMicrostructure*,
-			 const CPixelDifferentiator&,
-			 bool,
-			 const ICoord&,
-			 const ActiveArea*,
-			 SimpleArray2D<bool>&);
-
-const std::string *autograin(CMicrostructure*,
-			     const CPixelDifferentiator*,
-			     bool,
-			     const std::string&);
 
 #endif // AUTOGRAIN_H

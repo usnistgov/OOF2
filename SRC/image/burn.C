@@ -9,6 +9,8 @@
  * oof_manager@nist.gov. 
  */
 
+// OLD BURN MACHINERY
+
 #include <oofconfig.h>
 
 #include "common/boolarray.h"

@@ -20,16 +20,16 @@
 #include "image/autograin.h"
 #include "image/oofimage.h"
 %}
-%pragma(python) include="image/autograin.spy"
 
-class CPixelDifferentiator {};
+%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiatorPtr"
+
+%pragma(python) include="image/autograin.spy"
+%extern "common/burn.swg"
 
 class CColorDifferentiator : public CPixelDifferentiator {
 public:
   CColorDifferentiator(OOFImage*, double, double, bool);
 };
 
-const string *autograin(CMicrostructure*, CPixelDifferentiator*,
-			bool, char*);
 
 #endif // AUTOGRAIN_SWG

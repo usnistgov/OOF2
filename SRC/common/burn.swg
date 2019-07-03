@@ -9,27 +9,21 @@
  * oof_manager@nist.gov. 
  */
 
-#ifndef PIXELDIFFORIENT_SWG
-#define PIXELDIFFORIENT_SWG
+#ifndef BURNCOMMON_SWG
+#define BURNCOMMON_SWG
 
-%module pixeldifforient
+%module autograin
 %include "common/typemaps.swg"
 
 %{
 #include "common/burn.h"
-#include "orientationmap/orientmapdata.h"
-#include "orientationmap/pixeldifferentiator.h"
+#include "common/cmicrostructure.h"
 %}
+%pragma(python) include="common/burn.spy"
 
-%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiatorPtr"
+class CPixelDifferentiator {};
 
-%pragma(python) include="orientationmap/pixeldifferentiator.spy"
-%extern "common/burn.swg"
-   
-class COrientationDifferentiator : public CPixelDifferentiator {
-public:
-  COrientationDifferentiator(OrientMap*, double, double, char*);
-};
+const string *autograin(CMicrostructure*, CPixelDifferentiator*,
+			bool, char*);
 
-
-#endif // PIXELDIFFORIENT_SWG
+#endif // BURNCOMMON_SWG

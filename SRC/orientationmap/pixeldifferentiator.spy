@@ -9,13 +9,13 @@
 # oof_manager@nist.gov.
 
 from ooflib.SWIG.common import latticesystem
-from ooflib.SWIG.image import autograin
+from ooflib.SWIG.common import burn
 from ooflib.SWIG.orientationmap import orientmapdata
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
 
-class OrientationDifferentiator(autograin.PixelDifferentiator):
+class OrientationDifferentiator(burn.PixelDifferentiator):
     def __init__(self, microstructure, local_flammability,
                  global_flammability, lattice_symmetry):
         self.microstructure = microstructure
@@ -23,7 +23,7 @@ class OrientationDifferentiator(autograin.PixelDifferentiator):
         self.global_flammability = global_flammability
         self.lattice_symmetry = lattice_symmetry
         ms = whoville.getClass('Microstructure')[microstructure]
-        autograin.PixelDifferentiator.__init__(
+        burn.PixelDifferentiator.__init__(
             self,
             ms,
             COrientationDifferentiator(
@@ -33,7 +33,7 @@ class OrientationDifferentiator(autograin.PixelDifferentiator):
 
 reg = registeredclass.Registration(
     'Orientation',
-    autograin.PixelDifferentiator,
+    burn.PixelDifferentiator,
     OrientationDifferentiator,
     ordering=2,
     params=[
