@@ -16,17 +16,17 @@ subdirs = ['IO']
 if ENABLE_SEGMENTATION:
     subdirs.append('SEGMENTATION')
 
-cfiles = ['oofimage.C', 'burn.C', 'evenlyilluminate.C',
+cfiles = ['oofimage.C', 'evenlyilluminate.C',
           'pixelselectioncourieri.C', 'autogroupMP.C',
           'autograin.C']
 
 swigfiles = ['oofimage.swg', 'pixelselectioncourieri.swg',
              'autogroupMP.swg', 'autograin.swg']
 
-swigpyfiles = ['oofimage.spy', 'burn.spy', 'autograin.spy']
+swigpyfiles = ['oofimage.spy', 'autograin.spy']
 
 
-hfiles = ['oofimage.h', 'burn.h', 'pixelselectioncourieri.h',
+hfiles = ['oofimage.h', 'pixelselectioncourieri.h',
           'autogroupMP.h', 'autograin.h']
 
 pyfiles = ['initialize.py', 'pixelselectionmethod.py',
