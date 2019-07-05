@@ -11,12 +11,12 @@
 
 #include <oofconfig.h>
 
+#include "common/burn.h"
 #include "common/cmicrostructure.h"
 #include "image/pixelselectioncourieri.h"
 #include "image/oofimage.h"
-#include "image/burn.h"
 
-ColorSelection::ColorSelection(const CMicrostructure *ms, OOFImage *immidge,
+ColorSelection::ColorSelection(CMicrostructure *ms, OOFImage *immidge,
 			       const CColor *color,
 			       const ColorDifference *diff)
   : PixelSelectionCourier(ms),
@@ -59,37 +59,35 @@ void ColorSelection::print(std::ostream &os) const {
 
 //////////
 
-BurnSelection::BurnSelection(const CMicrostructure *ms,
-			     BasicBurner *burner, OOFImage *immidge,
-			     const ICoord *pt)
+
+BurnSelection::BurnSelection(CMicrostructure *ms,
+			     const CPixelDifferentiator *pixdiff,
+			     const ICoord *pt,
+			     bool next_nearest)
   : PixelSelectionCourier(ms),
-    burner(burner),
-    image(immidge),
+    pixdiff(pixdiff),
     spark(*pt),
-    selected(ms->sizeInPixels(), false),
-    sel_iter(selected.begin())
-{}
+    next_nearest(next_nearest)
+{
+  sel_iter = selected.begin();
+}
 
 void BurnSelection::start() {
-  burner->burn(*image, &spark, selected);  // get the pixel array
-  if (!*sel_iter) next();
+  SimpleArray2D<bool> alreadyDone(ms->sizeInPixels());
+  selected = burn(ms, pixdiff, next_nearest, spark,
+		  ms->getActiveArea(),
+		  alreadyDone);
+  sel_iter = selected.begin();
+  done_ = (sel_iter == selected.end());
 }
 
 ICoord BurnSelection::currentPoint() const {
-  return sel_iter.coord();
-}
-
-void BurnSelection::advance() {
-  if(sel_iter.done()) // if it's at the end of pixel array
-    done_ = true;
-  else
-    ++sel_iter;
+  return *sel_iter;
 }
 
 void BurnSelection::next() {
-  advance();
-  while(!*sel_iter && !done_) 
-    advance();
+  ++sel_iter;
+  done_ = (sel_iter == selected.end());
 }
 
 void BurnSelection::print(std::ostream &os) const {

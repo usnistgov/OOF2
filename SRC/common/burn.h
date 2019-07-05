@@ -30,7 +30,7 @@ public:
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 std::vector<ICoord> burn(CMicrostructure*,
-			 const CPixelDifferentiator&,
+			 const CPixelDifferentiator*,
 			 bool,
 			 const ICoord&,
 			 const ActiveArea*,

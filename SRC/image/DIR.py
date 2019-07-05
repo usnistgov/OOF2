@@ -20,7 +20,7 @@ cfiles = ['oofimage.C', 'burn.C', 'evenlyilluminate.C',
           'pixelselectioncourieri.C', 'autogroupMP.C',
           'autograin.C']
 
-swigfiles = ['oofimage.swg', 'burn.swg', 'pixelselectioncourieri.swg',
+swigfiles = ['oofimage.swg', 'pixelselectioncourieri.swg',
              'autogroupMP.swg', 'autograin.swg']
 
 swigpyfiles = ['oofimage.spy', 'burn.spy', 'autograin.spy']

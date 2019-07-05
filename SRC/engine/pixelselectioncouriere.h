@@ -31,7 +31,7 @@ private:
   const std::vector<ICoord> *selected;
   std::vector<ICoord>::const_iterator sel_iter;
 public:
-  ElementSelection(const CMicrostructure *ms,
+  ElementSelection(CMicrostructure *ms,
 		   const CSkeletonElement *element);
   virtual ~ElementSelection();
   virtual void start();
@@ -47,7 +47,7 @@ private:
   const std::vector<ICoord> *selected;
   std::vector<ICoord>::const_iterator sel_iter;
 public:
-  SegmentSelection(const CMicrostructure *ms,
+  SegmentSelection(CMicrostructure *ms,
 		   const Coord *n0, const Coord *n1);
   virtual ~SegmentSelection();
   virtual void start();
@@ -61,7 +61,7 @@ private:
   Array<PixelAttribute*>::const_iterator iter;
   Array<PixelAttribute*>::const_iterator iterend;
 public:
-  MaterialSelectionBase(const CMicrostructure*);
+  MaterialSelectionBase(CMicrostructure*);
   virtual void start();
   virtual ICoord currentPoint() const;
   virtual void next();
@@ -73,21 +73,21 @@ class MaterialSelection : public MaterialSelectionBase {
 private:
   const Material *material;
 public:
-  MaterialSelection(const CMicrostructure*, const Material*);
+  MaterialSelection(CMicrostructure*, const Material*);
   virtual bool ok(const Material*) const;
   virtual void print(std::ostream&) const;
 };
 
 class AnyMaterialSelection : public MaterialSelectionBase  {
 public:
-  AnyMaterialSelection(const CMicrostructure*);
+  AnyMaterialSelection(CMicrostructure*);
   virtual bool ok(const Material*) const;
   virtual void print(std::ostream&) const;
 };
 
 class NoMaterialSelection : public MaterialSelectionBase {
 public:
-  NoMaterialSelection(const CMicrostructure*);
+  NoMaterialSelection(CMicrostructure*);
   virtual bool ok(const Material*) const;
   virtual void print(std::ostream&) const;
 };

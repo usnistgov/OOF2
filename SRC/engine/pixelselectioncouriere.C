@@ -18,7 +18,7 @@
 #include "engine/pixelselectioncouriere.h"
 #include "engine/material.h"
 
-ElementSelection::ElementSelection(const CMicrostructure *ms,
+ElementSelection::ElementSelection(CMicrostructure *ms,
 				   const CSkeletonElement *element)
   : PixelSelectionCourier(ms),
     element(element),
@@ -50,7 +50,7 @@ void ElementSelection::print(std::ostream &os) const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-SegmentSelection::SegmentSelection(const CMicrostructure *ms,
+SegmentSelection::SegmentSelection(CMicrostructure *ms,
 				   const Coord *n0, const Coord *n1)
   : PixelSelectionCourier(ms),
     n0(*n0),
@@ -84,7 +84,7 @@ void SegmentSelection::print(std::ostream &os) const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-MaterialSelectionBase::MaterialSelectionBase(const CMicrostructure *ms)
+MaterialSelectionBase::MaterialSelectionBase(CMicrostructure *ms)
   : PixelSelectionCourier(ms)
 {
   const Array<PixelAttribute*> &mmap = getConstMaterialMap(ms);
@@ -110,7 +110,7 @@ void MaterialSelectionBase::next() {
   done_ = iter==iterend;
 }
 
-MaterialSelection::MaterialSelection(const CMicrostructure *ms,
+MaterialSelection::MaterialSelection(CMicrostructure *ms,
 				     const Material *mat)
   : MaterialSelectionBase(ms),
     material(mat)
@@ -124,7 +124,7 @@ void MaterialSelection::print(std::ostream &os) const {
   os << "MaterialSelection(" << material->name() << ")";
 }
 
-AnyMaterialSelection::AnyMaterialSelection(const CMicrostructure *ms)
+AnyMaterialSelection::AnyMaterialSelection(CMicrostructure *ms)
   : MaterialSelectionBase(ms)
 {}
 
@@ -136,7 +136,7 @@ void AnyMaterialSelection::print(std::ostream &os) const {
   os << "AnyMaterialSelection()";
 }
 
-NoMaterialSelection::NoMaterialSelection(const CMicrostructure *ms)
+NoMaterialSelection::NoMaterialSelection(CMicrostructure *ms)
   : MaterialSelectionBase(ms)
 {}
 

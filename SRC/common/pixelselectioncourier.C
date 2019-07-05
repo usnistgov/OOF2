@@ -21,7 +21,7 @@
 #include <iostream>
 #include <iomanip>
 
-PixelSelectionCourier::PixelSelectionCourier(const CMicrostructure *ms)
+PixelSelectionCourier::PixelSelectionCourier(CMicrostructure *ms)
   : ms(ms),
     done_(false)
  {}
@@ -32,7 +32,7 @@ ICoord PixelSelectionCourier::pixelFromPoint(const Coord &pt) const {
 
 //////////
 
-PointSelection::PointSelection(const CMicrostructure *ms, const Coord *mp)
+PointSelection::PointSelection(CMicrostructure *ms, const Coord *mp)
   : PixelSelectionCourier(ms),
     mousepoint(*mp) {}
 
@@ -46,7 +46,7 @@ void PointSelection::next() {
 
 //////////
 #if DIM==2
-BrushSelection::BrushSelection(const CMicrostructure *ms, BrushStyle *brush,
+BrushSelection::BrushSelection(CMicrostructure *ms, BrushStyle *brush,
 			       const std::vector<Coord> *points)
   : PixelSelectionCourier(ms),
     brush(brush),
@@ -90,7 +90,7 @@ void BrushSelection::next() {
 
 ///////////
 
-RectangleSelection::RectangleSelection(const CMicrostructure *ms,
+RectangleSelection::RectangleSelection(CMicrostructure *ms,
 				       const Coord *ll, const Coord *ur)
   : PixelSelectionCourier(ms),
     ll(pixelFromPoint(*ll)),
@@ -118,7 +118,7 @@ void RectangleSelection::next() {
 
 //////////
 
-CircleSelection::CircleSelection(const CMicrostructure *ms,
+CircleSelection::CircleSelection(CMicrostructure *ms,
 				 const Coord *c, const double r,
 				 const Coord *ll, const Coord *ur)
   : PixelSelectionCourier(ms),
@@ -164,7 +164,7 @@ void CircleSelection::next() {
 
 //////////
 
-EllipseSelection::EllipseSelection(const CMicrostructure *ms,
+EllipseSelection::EllipseSelection(CMicrostructure *ms,
 				   const Coord *ll, const Coord *ur)
   : PixelSelectionCourier(ms),
     ll(pixelFromPoint(*ll)),
@@ -209,7 +209,7 @@ void EllipseSelection::next() {
 
 //////////
 
-GroupSelection::GroupSelection(const CMicrostructure *ms,
+GroupSelection::GroupSelection(CMicrostructure *ms,
 			       const PixelSet *group)
   : PixelSelectionCourier(ms),
     pgroup(group)
@@ -235,7 +235,7 @@ void GroupSelection::next() {
 
 /////////
 
-IntersectSelection::IntersectSelection(const CMicrostructure *ms,
+IntersectSelection::IntersectSelection(CMicrostructure *ms,
 				       const PixelSet *selpix,
 				       const PixelSet *grppix)
   : PixelSelectionCourier(ms),
@@ -282,7 +282,7 @@ void IntersectSelection::next() {
 
 
 #ifndef DIM_3
-DespeckleSelection::DespeckleSelection(const CMicrostructure *ms,
+DespeckleSelection::DespeckleSelection(CMicrostructure *ms,
 				       const PixelSet *group,
 				       const int neighbors)  
   : PixelSelectionCourier(ms),
@@ -315,7 +315,7 @@ void DespeckleSelection::next() {
 
 /////////
 
-ElkcepsedSelection::ElkcepsedSelection(const CMicrostructure *ms,
+ElkcepsedSelection::ElkcepsedSelection(CMicrostructure *ms,
 				       const PixelSet *group,
 				       const int neighbors)  
   : PixelSelectionCourier(ms),
@@ -348,7 +348,7 @@ void ElkcepsedSelection::next() {
 
 //////////
 
-ExpandSelection::ExpandSelection(const CMicrostructure *ms,
+ExpandSelection::ExpandSelection(CMicrostructure *ms,
 				 const PixelSet *group,
 				 const double radius)  
   : PixelSelectionCourier(ms),
@@ -381,7 +381,7 @@ void ExpandSelection::next() {
 
 //////////
 
-ShrinkSelection::ShrinkSelection(const CMicrostructure *ms,
+ShrinkSelection::ShrinkSelection(CMicrostructure *ms,
 				 const PixelSet *group,
 				 const double radius)  
   : PixelSelectionCourier(ms),

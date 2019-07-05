@@ -25,25 +25,21 @@
 #include "image/pixelselectioncourieri.h"
 #include "common/ccolor.h"
 #include "common/colordifference.h"
+#include "common/burn.h"
 %}
 
+%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiatorPtr"
+%extern "common/burn.swg"
+   
 class ColorSelection : public PixelSelectionCourier {
 public:
-#ifndef DIM_3
   ColorSelection(CMicrostructure*, OOFImage*, CColor*, ColorDifference*);
-#else
-  ColorSelection(CMicrostructure*, OOFImage3D*, CColor*, ColorDifference*);
-#endif
   ~ColorSelection();
 };
 
 class BurnSelection : public PixelSelectionCourier {
 public:
-#ifndef DIM_3
-  BurnSelection(CMicrostructure*, BasicBurner*, OOFImage*, ICoord *iPoint);
-#else
-  BurnSelection(CMicrostructure*, BasicBurner*, OOFImage3D*, ICoord *iPoint);
-#endif
+  BurnSelection(CMicrostructure*, CPixelDifferentiator*, ICoord *iPoint, bool);
   ~BurnSelection();
 };
 
