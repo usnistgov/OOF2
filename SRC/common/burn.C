@@ -78,7 +78,7 @@ std::vector<ICoord> burn(CMicrostructure *ms,
     const ICoord here = activeSites.back();
     activeSites.pop_back();
 
-    // Loop over neighbors
+    // Loop over neighbors of the current point.
     for(unsigned int i=0; i< nnbrs; i++) {
       ICoord target = here + neighbor[i]; // candidate for burning
       if(activeArea->isActive(target)
