@@ -9,8 +9,8 @@
  * oof_manager@nist.gov. 
  */
 
-#ifndef AUTOGRAIN_H
-#define AUTOGRAIN_H
+#ifndef PIXELDIFFERENTIATORI_H
+#define PIXELDIFFERENTIATORI_H
 
 #include <oofconfig.h>
 #include <vector>
@@ -33,4 +33,4 @@ public:
   virtual bool operator()(const ICoord&, const ICoord&, const ICoord&) const;
 };
 
-#endif // AUTOGRAIN_H
+#endif // PIXELDIFFERENTIATORI_H

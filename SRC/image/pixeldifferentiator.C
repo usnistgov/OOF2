@@ -14,12 +14,11 @@
 #include "common/burn.h"
 #include "common/ccolor.h"
 #include "image/oofimage.h"
-#include "image/autograin.h"
+#include "image/pixeldifferentiator.h"
 
 #include <set>
 #include <algorithm>
 
-// TODO: Rename image/autograin.* to image/colordifferentiatior.*
 
 CColorDifferentiator::CColorDifferentiator(const OOFImage *image,
 					   double lf, double gf, bool l2)

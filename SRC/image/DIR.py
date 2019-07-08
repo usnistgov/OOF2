@@ -18,16 +18,16 @@ if ENABLE_SEGMENTATION:
 
 cfiles = ['oofimage.C', 'evenlyilluminate.C',
           'pixelselectioncourieri.C', 'autogroupMP.C',
-          'autograin.C']
+          'pixeldifferentiator.C']
 
 swigfiles = ['oofimage.swg', 'pixelselectioncourieri.swg',
-             'autogroupMP.swg', 'autograin.swg']
+             'autogroupMP.swg', 'pixeldifferentiator.swg']
 
-swigpyfiles = ['oofimage.spy', 'autograin.spy']
+swigpyfiles = ['oofimage.spy', 'pixeldifferentiator.spy']
 
 
 hfiles = ['oofimage.h', 'pixelselectioncourieri.h',
-          'autogroupMP.h', 'autograin.h']
+          'autogroupMP.h', 'pixeldifferentiator.h']
 
 pyfiles = ['initialize.py', 'pixelselectionmethod.py',
            'pixelselectionmod.py', 'imagemodifier.py']

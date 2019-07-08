@@ -9,21 +9,21 @@
  * oof_manager@nist.gov. 
  */
 
-#ifndef AUTOGRAIN_SWG
-#define AUTOGRAIN_SWG
+#ifndef PIXELDIFFERENTIATORI_SWG
+#define PIXELDIFFERENTIATORI_SWG
 
-%module autograin
+%module pixeldifferentiator
 %include "common/typemaps.swg"
 
 %{
 #include "common/cmicrostructure.h"
-#include "image/autograin.h"
+#include "image/pixeldifferentiator.h"
 #include "image/oofimage.h"
 %}
 
 %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiatorPtr"
 
-%pragma(python) include="image/autograin.spy"
+%pragma(python) include="image/pixeldifferentiator.spy"
 %extern "common/burn.swg"
 
 class CColorDifferentiator : public CPixelDifferentiator {
@@ -32,4 +32,4 @@ public:
 };
 
 
-#endif // AUTOGRAIN_SWG
+#endif // PIXELDIFFERENTIATORI_SWG

@@ -9,7 +9,7 @@
 # oof_manager@nist.gov.
 
 
-from ooflib.SWIG.image import autograin
+from ooflib.SWIG.image import pixeldifferentiator
 from ooflib.SWIG.image import pixelselectioncourieri
 from ooflib.common import enum
 from ooflib.common import pixelselectionmethod
@@ -62,10 +62,11 @@ class Burn(pixelselectionmethod.SelectionMethod):
         ms = immidge.getMicrostructure()
         startpt = ms.pixelFromPoint(points[0])
         if immidge.getSelectionContext().getObject().checkpixel(startpt):
-            cd = autograin.ColorDifferentiator(immidge.path(),
-                                     self.local_flammability,
-                                     self.global_flammability,
-                                     self.color_space_norm=="L2")
+            cd = pixeldifferentiator.ColorDifferentiator(
+                immidge.path(),
+                self.local_flammability,
+                self.global_flammability,
+                self.color_space_norm=="L2")
             selector(BurnSelection(ms, cd.cobj, startpt, self.next_nearest))
             # b = BasicBurner(self.local_flammability, self.global_flammability,
             #                 self.color_space_norm==L2, self.next_nearest)
@@ -86,7 +87,8 @@ pixelselectionmethod.PixelSelectionRegistration(
         range=(0, 1, 0.001), value=0.2,
         tip='Difference from initial pixel value beyond which a burn will not spread.'),
     enum.EnumParameter(
-        'color_space_norm', autograin.ColorNorm, value=autograin.L1,
+        'color_space_norm', pixeldifferentiator.ColorNorm,
+        value=pixeldifferentiator.L1,
         tip="How to compute the difference between two colors in RGB space."),
     parameter.BooleanParameter(
         'next_nearest', value=0,
