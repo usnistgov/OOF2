@@ -50,6 +50,7 @@ registeredclass.Registration(
     burn.PixelDifferentiator,
     ColorDifferentiator3,
     ordering=1,
+    contiguities=("Nearest neighbor", "Next-nearest neighbor"),
     params=[
         whoville.WhoParameter(
             'image', whoville.getClass('Image'),
@@ -89,6 +90,7 @@ registeredclass.Registration(
     burn.PixelDifferentiator,
     ColorDifferentiator2,
     ordering=1.1,
+    contiguities=("Disconnected",),
     params=[
         whoville.WhoParameter(
             'image', whoville.getClass('Image'),

@@ -25,6 +25,7 @@ import ooflib.common.IO.GUI.colorparamwidgets
 import ooflib.common.IO.GUI.pixelgroupwidget
 import ooflib.common.IO.GUI.whowidget
 import ooflib.common.IO.GUI.displaymethodwidget
+import ooflib.common.IO.GUI.pixeldifferentiatorwidget
 
 import ooflib.common.IO.GUI.oofGUI
 import ooflib.common.IO.GUI.reporter_GUI
@@ -43,16 +44,10 @@ import ooflib.common.IO.GUI.layereditorGUI
 
 import ooflib.SWIG.common.IO.GUI.progressGUI
 
-if config.dimension() == 2:
-    import ooflib.common.IO.GUI.gfxwindow
-    import ooflib.common.IO.GUI.viewertoolboxGUI
-    import ooflib.common.IO.GUI.pixelinfoGUI
-    import ooflib.SWIG.common.IO.GUI.gfxbrushstyle
-
-else:
-    import ooflib.common.IO.GUI.viewertoolbox3dGUI
-    import ooflib.common.IO.GUI.voxelinfoGUI
-    import ooflib.common.IO.GUI.gfxwindow3d
+import ooflib.common.IO.GUI.gfxwindow
+import ooflib.common.IO.GUI.viewertoolboxGUI
+import ooflib.common.IO.GUI.pixelinfoGUI
+import ooflib.SWIG.common.IO.GUI.gfxbrushstyle
 
 
 

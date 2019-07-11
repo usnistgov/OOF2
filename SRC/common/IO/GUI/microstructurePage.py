@@ -618,9 +618,13 @@ class MicrostructurePage(oofGUI.MainPage):
         # usual way, because the WhoParams aren't direct parameters
         # of this menu item, and the WhoWidgets are inside
         # PixelDifferentiator RCFs.
+        # scopedata key,value pairs are passed to WidgetScope.setData().
+        # WidgetScope.findData() searches its own data and that of its parents.
         scopedata = {'whoclass': ('Microstructure', self.currentMSName())}
         
-        if parameterwidgets.getParameters(title="Autogroup",# data=scopedata,
+        if parameterwidgets.getParameters(title="Autogroup",
+                                          scope=self,
+                                          data=scopedata,
                                           *menuitem.params):
             menuitem.callWithDefaults()
 

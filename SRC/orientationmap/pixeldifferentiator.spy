@@ -38,6 +38,7 @@ registeredclass.Registration(
     burn.PixelDifferentiator,
     OrientationDifferentiator3,
     ordering=2,
+    contiguities=("Nearest neighbor", "Next-nearest neighbor"),
     params=[
         whoville.WhoParameter(
             'microstructure', whoville.getClass('Microstructure'),
@@ -75,6 +76,7 @@ registeredclass.Registration(
     burn.PixelDifferentiator,
     OrientationDifferentiator2,
     ordering=2.1,
+    contiguities=("Disconnected",),
     params=[
         whoville.WhoParameter(
             'microstructure', whoville.getClass('Microstructure'),
