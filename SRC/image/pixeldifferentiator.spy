@@ -30,7 +30,7 @@ utils.OOFdefine('ColorNorm', ColorNorm)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class ColorDifferentiator(burn.PixelDifferentiator):
+class ColorDifferentiator3(burn.PixelDifferentiator):
     def __init__(self, image, local_flammability, global_flammability,
                  color_space_norm):
         self.image = image      # path 
@@ -41,14 +41,14 @@ class ColorDifferentiator(burn.PixelDifferentiator):
         burn.PixelDifferentiator.__init__(
             self,
             immidge.getParent(),
-            CColorDifferentiator(immidge.getObject(), local_flammability,
+            CColorDifferentiator3(immidge.getObject(), local_flammability,
                                  global_flammability,
                                  color_space_norm=="L2"))
         
 registeredclass.Registration(
     'Color',
     burn.PixelDifferentiator,
-    ColorDifferentiator,
+    ColorDifferentiator3,
     ordering=1,
     params=[
         whoville.WhoParameter(
@@ -66,10 +66,45 @@ registeredclass.Registration(
             'color_space_norm', ColorNorm, value=L1,
             tip="How to compute the difference between two colors in RGB space.")
         ],
-    tip="Create pixel groups for grains by applying the Burn algorithm to an image until all pixels are in a group."
+    tip="Create pixel groups containing similarly colored contiguous"
+    " pixels (as in the Burn method.  All pixels will be grouped."
 )
         
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+class ColorDifferentiator2(burn.PixelDifferentiator):
+    def __init__(self, image, color_delta, color_space_norm):
+        self.image = image
+        self.color_delta = color_delta
+        self.color_space_norm = color_space_norm
+        immidge = whoville.getClass('Image')[image]
+        burn.PixelDifferentiator.__init__(
+            self,
+            immidge.getParent(),
+            CColorDifferentiator2(immidge.getObject(), color_delta,
+                                  color_space_norm=="L2"))
+
+registeredclass.Registration(
+    'Color2',
+    burn.PixelDifferentiator,
+    ColorDifferentiator2,
+    ordering=1.1,
+    params=[
+        whoville.WhoParameter(
+            'image', whoville.getClass('Image'),
+            tip="Group pixels in this image"),
+        parameter.FloatRangeParameter(
+            'color_delta',
+            range=(0, 1, 0.001), value=0.1,
+            tip="Maximum difference in color between the initial,"
+            " randomly chosen pixel and other pixels in the group."),
+        enum.EnumParameter(
+            'color_space_norm', ColorNorm, value=L1,
+            tip="How to compute the difference between two colors in RGB space.")
+        ],
+    tip="Create pixel groups containing similarly colored pixels,"
+    " without regard to location.  All pixels will be grouped."
+)
 
         
     

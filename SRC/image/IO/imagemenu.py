@@ -341,6 +341,14 @@ imagemenu.addItem(oofmenu.OOFMenuItem(
 
 ################################
 
+## This AutoGroup command has been made obsolete by the more flexible
+## AutoGroup command in the PixelGroup menu.  That one works with
+## Orientations as well as colors, and can optionally create separate
+## groups for discontiguous sets of pixels.  This one is probably
+## faster, but it also probably doesn't matter.  The GUI button for
+## this command may go away, but the command itself should remain so
+## as not to break scripts.
+
 def createPixelGroups(menuitem, image, name_template):
     if name_template is None:
         name_template = '%c'            # pre-2.0.4 behavior
@@ -386,7 +394,7 @@ imagemenu.addItem(oofmenu.OOFMenuItem(
 
 def createGrains(menuitem, method, next_nearest, name_template):
     # method is a PixelDifferentiator, containing a
-    # CPixelDifferentiator and a reference to the
+    # CPixelDifferentiator3 and a reference to the
     # MicrostructureContext
     ms = method.mscontext.getObject()
     prog = progress.getProgress("AutoGrain", progress.DEFINITE)

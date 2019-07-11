@@ -22,15 +22,26 @@ class OOFImage;
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-class CColorDifferentiator : public CPixelDifferentiator {
+class CColorDifferentiator3 : public CPixelDifferentiator3 {
 private:
   const OOFImage *image;
   double local_flammability;
   double global_flammability;
   bool useL2norm;
 public:
-  CColorDifferentiator(const OOFImage *image, double lf, double gf, bool l2);
+  CColorDifferentiator3(const OOFImage *image, double lf, double gf, bool l2);
   virtual bool operator()(const ICoord&, const ICoord&, const ICoord&) const;
 };
+
+class CColorDifferentiator2 : public CPixelDifferentiator2 {
+private:
+  const OOFImage *image;
+  double color_delta;
+  bool useL2norm;
+public:
+  CColorDifferentiator2(const OOFImage *image, double cd, bool l2);
+  virtual bool operator()(const ICoord&, const ICoord&) const;
+};
+
 
 #endif // PIXELDIFFERENTIATORI_H

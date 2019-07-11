@@ -61,7 +61,7 @@ void ColorSelection::print(std::ostream &os) const {
 
 
 BurnSelection::BurnSelection(CMicrostructure *ms,
-			     const CPixelDifferentiator *pixdiff,
+			     const CPixelDifferentiator3 *pixdiff,
 			     const ICoord *pt,
 			     bool next_nearest)
   : PixelSelectionCourier(ms),

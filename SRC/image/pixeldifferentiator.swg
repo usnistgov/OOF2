@@ -21,14 +21,20 @@
 #include "image/oofimage.h"
 %}
 
-%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiatorPtr"
+%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
+%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator2Ptr"
 
 %pragma(python) include="image/pixeldifferentiator.spy"
 %extern "common/burn.swg"
 
-class CColorDifferentiator : public CPixelDifferentiator {
+class CColorDifferentiator3 : public CPixelDifferentiator3 {
 public:
-  CColorDifferentiator(OOFImage*, double, double, bool);
+  CColorDifferentiator3(OOFImage*, double, double, bool);
+};
+
+class CColorDifferentiator2 : public CPixelDifferentiator2 {
+public:
+  CColorDifferentiator2(OOFImage*, double, bool);
 };
 
 

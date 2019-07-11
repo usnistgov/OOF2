@@ -18,7 +18,7 @@
 class OOFImage;
 class CColor;
 class ColorDifference;
-class CPixelDifferentiator;
+class CPixelDifferentiator3;
 
 // Color Difference 
 class ColorSelection : public PixelSelectionCourier {
@@ -42,14 +42,14 @@ public:
 // Burn
 class BurnSelection : public PixelSelectionCourier {
 private:
-  const CPixelDifferentiator *pixdiff;
+  const CPixelDifferentiator3 *pixdiff;
   const ICoord spark;
   bool next_nearest;
   std::vector<ICoord> selected;
   std::vector<ICoord>::const_iterator sel_iter;
 public:
   BurnSelection(CMicrostructure*,
-		const CPixelDifferentiator*,
+		const CPixelDifferentiator3*,
 		const ICoord*,
 		bool);
   virtual ~BurnSelection() {}

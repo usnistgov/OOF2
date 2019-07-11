@@ -10,14 +10,18 @@
 
 # Menu commands for manipulating PixelGroups
 
-from ooflib.SWIG.common import ooferror
+from ooflib.SWIG.common import burn
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import pixelgroup
+from ooflib.SWIG.common import progress
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
-from ooflib.common import primitives
+from ooflib.common import enum
 from ooflib.common import parallel_enable
+from ooflib.common import primitives
 from ooflib.common import runtimeflags
+from ooflib.common import utils
 from ooflib.common.IO import automatic
 from ooflib.common.IO import microstructureIO
 from ooflib.common.IO import parameter
@@ -104,6 +108,64 @@ pixgrpmenu.addItem(OOFMenuItem(
     appended, for some integer <userinput>x</userinput>.
 
     </para>"""))
+
+##########################
+
+class Contiguity(enum.EnumClass(
+        ('Disconnected', "Groups are not made of contiguous pixels"),
+        ('Nearest neighbor', "Groups .. "),
+        ('Next-nearest neighbor', "...."))):
+    tip="Whether the groups will be formed from connected or disconnected sets of pixels."
+    
+## TODO: Add a min_size argument and don't create groups smaller than that.
+
+def autoPixelGroup(menuitem, differentiator, contiguity, name_template, clear):
+    ms = differentiator.mscontext.getObject()
+    prog = progress.getProgress('AutoGroup', progress.DEFINITE)
+    prog.setMessage("Grouping pixels...")
+    differentiator.mscontext.begin_writing()
+    newgrpname = None
+    try:
+        if contiguity=='Disconnected':
+            # Each group contains all pixels that meet the criterion,
+            # whether or not they're contiguous with the other pixels
+            # in the group.
+            newgrpname = burn.autogroups(ms, differentiator.cobj,
+                                         name_template, clear)
+        else:
+            # Create connected groups.
+            next_nearest = (contiguity == 'Next-nearest neighbor')
+            newgrpname = burn.autograin(ms, differentiator.cobj,
+                                        next_nearest, name_template, clear)
+    finally:
+        prog.finish()
+        differentiator.mscontext.end_writing()
+    if newgrpname:
+        switchboard.notify("new pixel group", ms.findGroup(newgrpname))
+    switchboard.notify("changed pixel groups", ms.name())
+    switchboard.notify("redraw")
+
+pixgrpmenu.addItem(OOFMenuItem(
+    "AutoGroup",
+    callback=autoPixelGroup,
+    params=[
+        enum.EnumParameter(
+            'contiguity', Contiguity, value='Disconnected',
+            tip="Whether the groups will be formed from connected"
+            " or disconnected sets of pixels."),
+        burn.PixelDifferentiatorParameter(
+            'differentiator',
+            tip="How to group pixels"),
+        parameter.StringParameter(
+            "name_template", value="grain_%n",
+            tip="Name for the new pixel groups. '%n' will be replaced by a number."),
+        parameter.BooleanParameter(
+            "clear", value=True,
+            tip="Clear pre-existing groups before adding pixels to them."
+            "This will NOT clear groups to which no pixels are being added.")
+    ],
+    help="Put all pixels into pixel groups, sorted by color or orientation"
+))
 
 ##########################
 

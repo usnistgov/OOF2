@@ -155,11 +155,12 @@ class MicrostructurePage(oofGUI.MainPage):
         hbox.pack_start(frame)
         grparea = gtk.VBox()
         frame.add(grparea)
+
         # only one of grplist and grpmsg is visible at a time
         self.grplist = chooser.ScrolledChooserListWidget( # list of pixel groups
             callback=self.listItemChosen, name="GroupList")
         grparea.add(self.grplist.gtk)
-        self.grpmsg = gtk.Label()       # helpful message when there are no grps
+        self.grpmsg = gtk.Label() # helpful message when there are no grps
         grparea.add(self.grpmsg)
 
         self.newgroupbutton = gtk.Button('New...')
@@ -169,6 +170,16 @@ class MicrostructurePage(oofGUI.MainPage):
         tooltips.set_tooltip_text(self.newgroupbutton,
             "Create a new empty %s group in the current microstructure."
             % pixstring)
+
+        self.autogroupbutton = gtk.Button('Auto...')
+        gtklogger.setWidgetName(self.autogroupbutton, "Auto")
+        vbox.pack_start(self.autogroupbutton, expand=0, fill=0)
+        gtklogger.connect(self.autogroupbutton, 'clicked',
+                          self.autoGroupButtonCB)
+        tooltips.set_tooltip_text(
+            self.autogroupbutton,
+            "Automatically create groups for all pixels"
+            " in the current microstructure.")
 
         self.renamegroupbutton = gtk.Button('Rename...')
         gtklogger.setWidgetName(self.renamegroupbutton, "Rename")
@@ -463,6 +474,7 @@ class MicrostructurePage(oofGUI.MainPage):
         self.savebutton.set_sensitive(ms_available)
 
         self.newgroupbutton.set_sensitive(ms_available)
+        self.autogroupbutton.set_sensitive(ms_available)
         self.renamegroupbutton.set_sensitive(grp_selected)
         self.copygroupbutton.set_sensitive(grp_selected)
         self.delgroupbutton.set_sensitive(grp_selected)
@@ -591,6 +603,26 @@ class MicrostructurePage(oofGUI.MainPage):
         if parameterwidgets.getParameters(nameparam,
                                           title='Create new %s group'%pixstring):
             menuitem.callWithDefaults(microstructure=self.currentMSName())
+
+    def autoGroupButtonCB(self, button):
+        menuitem = mainmenu.OOF.PixelGroup.AutoGroup
+
+        # TODO: The WhoWidgets created here for the PixelDifferentiator
+        # argument should only list Images and OrientationMaps for the
+        # current Microstructure.
+
+        # Use WidgetScope setData/findData to tell the WhoWidgets in
+        # the params that the Microstructure has to be the current
+        # Microstructure.  We can't just set a Microstructure
+        # parameter and exclude its widget from the dialog in the
+        # usual way, because the WhoParams aren't direct parameters
+        # of this menu item, and the WhoWidgets are inside
+        # PixelDifferentiator RCFs.
+        scopedata = {'whoclass': ('Microstructure', self.currentMSName())}
+        
+        if parameterwidgets.getParameters(title="Autogroup",# data=scopedata,
+                                          *menuitem.params):
+            menuitem.callWithDefaults()
 
     def renameGroupButtonCB(self, button):
         menuitem = mainmenu.OOF.PixelGroup.Rename

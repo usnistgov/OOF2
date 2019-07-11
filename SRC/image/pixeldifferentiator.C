@@ -20,15 +20,15 @@
 #include <algorithm>
 
 
-CColorDifferentiator::CColorDifferentiator(const OOFImage *image,
-					   double lf, double gf, bool l2)
+CColorDifferentiator3::CColorDifferentiator3(const OOFImage *image,
+					     double lf, double gf, bool l2)
   : image(image),
     local_flammability(lf),
     global_flammability(gf),
     useL2norm(l2)
 {}
 
-bool CColorDifferentiator::operator()(const ICoord &target,
+bool CColorDifferentiator3::operator()(const ICoord &target,
 				      const ICoord &local_reference,
 				      const ICoord &global_reference)
   const
@@ -50,3 +50,28 @@ bool CColorDifferentiator::operator()(const ICoord &target,
   }
 }
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+CColorDifferentiator2::CColorDifferentiator2(const OOFImage *image,
+					     double cd, bool l2)
+  : image(image),
+    color_delta(cd),
+    useL2norm(l2)
+{}
+
+bool CColorDifferentiator2::operator()(const ICoord &target,
+				       const ICoord &reference)
+  const
+{
+  const CColor trgt = (*image)[target];
+  const CColor rfrnc = (*image)[reference];
+
+  if(useL2norm) {
+    double dist = L2dist2(trgt, rfrnc);
+    return dist < color_delta*color_delta;
+  }
+  else {
+    double dist = L1dist(trgt, rfrnc);
+    return dist < color_delta;
+  }
+}

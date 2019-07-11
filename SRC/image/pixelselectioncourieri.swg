@@ -15,10 +15,11 @@
 %module pixelselectioncourieri
 
 %include "common/typemaps.swg"
-%extern "common/pixelselectioncourier.swg"
+%extern "common/burn.swg"
 %extern "common/ccolor.swg"
 %extern "common/colordifference.swg"
-
+%extern "common/pixelselectioncourier.swg"
+%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
 %pragma(python) code="from ooflib.SWIG.common.pixelselectioncourier import PixelSelectionCourierPtr"
 
 %{
@@ -27,9 +28,6 @@
 #include "common/colordifference.h"
 #include "common/burn.h"
 %}
-
-%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiatorPtr"
-%extern "common/burn.swg"
    
 class ColorSelection : public PixelSelectionCourier {
 public:
@@ -39,7 +37,7 @@ public:
 
 class BurnSelection : public PixelSelectionCourier {
 public:
-  BurnSelection(CMicrostructure*, CPixelDifferentiator*, ICoord *iPoint, bool);
+  BurnSelection(CMicrostructure*, CPixelDifferentiator3*, ICoord *iPoint, bool);
   ~BurnSelection();
 };
 

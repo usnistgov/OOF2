@@ -21,14 +21,20 @@
 #include "orientationmap/pixeldifferentiator.h"
 %}
 
-%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiatorPtr"
+%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
+%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator2Ptr"   
 
 %pragma(python) include="orientationmap/pixeldifferentiator.spy"
 %extern "common/burn.swg"
    
-class COrientationDifferentiator : public CPixelDifferentiator {
+class COrientationDifferentiator3 : public CPixelDifferentiator3 {
 public:
-  COrientationDifferentiator(OrientMap*, double, double, char*);
+  COrientationDifferentiator3(OrientMap*, double, double, char*);
+};
+
+class COrientationDifferentiator2 : public CPixelDifferentiator2 {
+public:
+  COrientationDifferentiator2(OrientMap*, double, char*);
 };
 
 

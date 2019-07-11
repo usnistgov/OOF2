@@ -14,7 +14,7 @@
 #include "common/latticesystem.h"
 #include <math.h>
 
-COrientationDifferentiator::COrientationDifferentiator(
+COrientationDifferentiator3::COrientationDifferentiator3(
 					       const OrientMap *om,
 					       double lf,
 					       double gf,
@@ -25,7 +25,7 @@ COrientationDifferentiator::COrientationDifferentiator(
     lattice(getLatticeSymmetry(schoenflies))
 {}
 
-bool COrientationDifferentiator::operator()(const ICoord &target,
+bool COrientationDifferentiator3::operator()(const ICoord &target,
 					    const ICoord &local_reference,
 					    const ICoord &global_reference)
   const
@@ -36,5 +36,26 @@ bool COrientationDifferentiator::operator()(const ICoord &target,
   double degrees = 180./M_PI;
   return (degrees*tgt.misorientation(lcl, *lattice) < local_flammability &&
 	  degrees*tgt.misorientation(gbl, *lattice) < global_flammability);
+}
+    
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+COrientationDifferentiator2::COrientationDifferentiator2(
+					       const OrientMap *om,
+					       double gf,
+					       const std::string &schoenflies)
+  : orientmap(om),
+    misorientation(gf),
+    lattice(getLatticeSymmetry(schoenflies))
+{}
+
+bool COrientationDifferentiator2::operator()(const ICoord &target,
+					    const ICoord &global_reference)
+  const
+{
+  const COrientABG &tgt = orientmap->angle(target);
+  const COrientABG &gbl = orientmap->angle(global_reference);
+  double degrees = 180./M_PI;
+  return (degrees*tgt.misorientation(gbl, *lattice) < misorientation);
 }
     

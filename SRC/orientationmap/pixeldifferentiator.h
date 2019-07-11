@@ -17,16 +17,26 @@
 class OrientMap;
 class LatticeSymmetry;
 
-class COrientationDifferentiator : public CPixelDifferentiator {
+class COrientationDifferentiator3 : public CPixelDifferentiator3 {
 private:
   const OrientMap *orientmap;
   double local_flammability;
   double global_flammability;
   const LatticeSymmetry *lattice;
 public:
-  COrientationDifferentiator(const OrientMap*, double, double,
+  COrientationDifferentiator3(const OrientMap*, double, double,
 			     const std::string&);
   virtual bool operator()(const ICoord&, const ICoord&, const ICoord&) const;  
+};
+
+class COrientationDifferentiator2 : public CPixelDifferentiator2 {
+private:
+  const OrientMap *orientmap;
+  double misorientation;
+  const LatticeSymmetry *lattice;
+public:
+  COrientationDifferentiator2(const OrientMap*, double, const std::string&);
+  virtual bool operator()(const ICoord&, const ICoord&) const;  
 };
 
 #endif // PIXELDIFFORIENT_H

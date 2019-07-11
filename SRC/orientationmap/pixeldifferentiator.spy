@@ -17,39 +17,39 @@ from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
 
-class OrientationDifferentiator(burn.PixelDifferentiator):
-    def __init__(self, microstructure, local_flammability,
-                 global_flammability, lattice_symmetry):
+class OrientationDifferentiator3(burn.PixelDifferentiator):
+    def __init__(self, microstructure, local_misorientation,
+                 global_misorientation, lattice_symmetry):
         self.microstructure = microstructure
-        self.local_flammability = local_flammability
-        self.global_flammability = global_flammability
+        self.local_misorientation = local_misorientation
+        self.global_misorientation = global_misorientation
         self.lattice_symmetry = lattice_symmetry
         ms = whoville.getClass('Microstructure')[microstructure]
         burn.PixelDifferentiator.__init__(
             self,
             ms,
-            COrientationDifferentiator(
+            COrientationDifferentiator3(
                 orientmapdata.getOrientationMap(ms.getObject()),
-                local_flammability, global_flammability,
+                local_misorientation, global_misorientation,
                 lattice_symmetry.schoenflies()))
 
-reg = registeredclass.Registration(
+registeredclass.Registration(
     'Orientation',
     burn.PixelDifferentiator,
-    OrientationDifferentiator,
+    OrientationDifferentiator3,
     ordering=2,
     params=[
         whoville.WhoParameter(
             'microstructure', whoville.getClass('Microstructure'),
             tip='Use the orientation map in this Microstructure'),
         parameter.FloatRangeParameter(
-            'local_flammability',
+            'local_misorientation',
             range=(0, 180., 0.1), value=10,
-            tip="Maximum misorientation angle, in degrees, between neighboring pixels across which a burn will extend."),
+            tip="Maximum misorientation angle, in degrees, between neighboring pixels across which a selection will extend."),
         parameter.FloatRangeParameter(
-            'global_flammability',
+            'global_misorientation',
             range=(0., 180., 0.1), value=10,
-            tip="Misorientation, in degrees measured from initial point, beyond which a burn will not spread."),
+            tip="Misorientation, in degrees measured from initial point, beyond which a selection will not spread."),
         latticesystem.LatticeSymmetryParameter(
             'lattice_symmetry',
             tip="Assume that the material at each point has this symmetry, making some orientations equivalent.")
@@ -57,3 +57,37 @@ reg = registeredclass.Registration(
     tip="Create pixel groups for grains by applying the Burn algorithm to an orientation map."
     )
 
+class OrientationDifferentiator2(burn.PixelDifferentiator):
+    def __init__(self, microstructure, misorientation, lattice_symmetry):
+        self.microstructure = microstructure
+        self.misorientation = misorientation
+        self.lattice_symmetry = lattice_symmetry
+        ms = whoville.getClass('Microstructure')[microstructure]
+        burn.PixelDifferentiator.__init__(
+            self,
+            ms,
+            COrientationDifferentiator2(
+                orientmapdata.getOrientationMap(ms.getObject()),
+                misorientation, lattice_symmetry.schoenflies()))
+
+registeredclass.Registration(
+    'Orientation2',
+    burn.PixelDifferentiator,
+    OrientationDifferentiator2,
+    ordering=2.1,
+    params=[
+        whoville.WhoParameter(
+            'microstructure', whoville.getClass('Microstructure'),
+            tip='Use the orientation map in this Microstructure'),
+        parameter.FloatRangeParameter(
+            'misorientation',
+            range=(0., 180., 0.1), value=10,
+            tip="Maximum misorientation between the initial,"
+            " randomly chosen pixel and the other pixels in a group."),
+        latticesystem.LatticeSymmetryParameter(
+            'lattice_symmetry',
+            tip="Assume that the material at each point has this symmetry, making some orientations equivalent.")
+        ],
+    tip="Create pixel groups containing similarly oriented pixels,"
+    " without regard to location. All pixels will be grouped."
+)

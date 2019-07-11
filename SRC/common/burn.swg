@@ -21,9 +21,12 @@
 %}
 %pragma(python) include="common/burn.spy"
 
-class CPixelDifferentiator {};
+class CPixelDifferentiator3 {};
+class CPixelDifferentiator2 {};
 
-const string *autograin(CMicrostructure*, CPixelDifferentiator*,
-			bool, char*);
+const string *autograin(CMicrostructure*, CPixelDifferentiator3*,
+			bool, char*, bool);
+
+const string *autogroups(CMicrostructure*, CPixelDifferentiator2*, char*, bool);
 
 #endif // BURNCOMMON_SWG
