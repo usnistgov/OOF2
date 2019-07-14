@@ -606,7 +606,6 @@ class MicrostructurePage(oofGUI.MainPage):
 
     def autoGroupButtonCB(self, button):
         menuitem = mainmenu.OOF.PixelGroup.AutoGroup
-
         # TODO: The WhoWidgets created here for the PixelDifferentiator
         # argument should only list Images and OrientationMaps for the
         # current Microstructure.
@@ -620,7 +619,7 @@ class MicrostructurePage(oofGUI.MainPage):
         # PixelDifferentiator RCFs.
         # scopedata key,value pairs are passed to WidgetScope.setData().
         # WidgetScope.findData() searches its own data and that of its parents.
-        scopedata = {'whoclass': ('Microstructure', self.currentMSName())}
+        scopedata = {'fixed whoclass': ('Microstructure', self.currentMSName())}
         
         if parameterwidgets.getParameters(title="Autogroup",
                                           scope=self,
