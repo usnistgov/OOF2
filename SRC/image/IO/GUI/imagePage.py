@@ -106,7 +106,7 @@ class ImagePage(oofGUI.MainPage):
         gtklogger.connect(self.autogroupbutton, 'clicked', self.autogroupCB)
         centerbox.pack_start(self.autogroupbutton, expand=1, fill=1, padding=2)
         tooltips.set_tooltip_text(self.autogroupbutton,
-                "Create a pixel group in the current image's microstructure for each color pixel in the image.")
+                "Create a pixel group in the current image's microstructure for each color pixel in the image.  The 'Auto' button on the Microstructure page is more powerful version of this.")
 
         mainpane = gtk.HPaned()
         gtklogger.setWidgetName(mainpane, 'Pane')
