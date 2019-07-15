@@ -31,18 +31,18 @@ utils.OOFdefine('ColorNorm', ColorNorm)
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class ColorDifferentiator3(burn.PixelDifferentiator):
-    def __init__(self, image, local_flammability, global_flammability,
+    def __init__(self, image, local_color_delta, global_color_delta,
                  color_space_norm):
         self.image = image      # path 
-        self.local_flammability = local_flammability
-        self.global_flammability = global_flammability
+        self.local_color_delta = local_color_delta
+        self.global_color_delta = global_color_delta
         self.color_space_norm = color_space_norm
         immidge = whoville.getClass('Image')[image]
         burn.PixelDifferentiator.__init__(
             self,
             immidge.getParent(),
-            CColorDifferentiator3(immidge.getObject(), local_flammability,
-                                 global_flammability,
+            CColorDifferentiator3(immidge.getObject(), local_color_delta,
+                                 global_color_delta,
                                  color_space_norm=="L2"))
         
 registeredclass.Registration(
@@ -56,11 +56,11 @@ registeredclass.Registration(
             'image', whoville.getClass('Image'),
             tip="Find grains in this image"),
         parameter.FloatRangeParameter(
-            'local_flammability',
+            'local_color_delta',
             range=(0, 1, 0.001), value=0.1,
             tip="Maximum difference in neighboring pixel colors across which a burn will extend."),
         parameter.FloatRangeParameter(
-            'global_flammability',
+            'global_color_delta',
             range=(0, 1, 0.001), value=0.2,
             tip="Difference from initial pixel color beyond which a burn will not spread."),
         enum.EnumParameter(
@@ -86,7 +86,7 @@ class ColorDifferentiator2(burn.PixelDifferentiator):
                                   color_space_norm=="L2"))
 
 registeredclass.Registration(
-    'Color2',
+    'Color',
     burn.PixelDifferentiator,
     ColorDifferentiator2,
     ordering=1.1,

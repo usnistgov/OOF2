@@ -72,7 +72,7 @@ class OrientationDifferentiator2(burn.PixelDifferentiator):
                 misorientation, lattice_symmetry.schoenflies()))
 
 registeredclass.Registration(
-    'Orientation2',
+    'Orientation',
     burn.PixelDifferentiator,
     OrientationDifferentiator2,
     ordering=2.1,

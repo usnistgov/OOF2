@@ -606,10 +606,6 @@ class MicrostructurePage(oofGUI.MainPage):
 
     def autoGroupButtonCB(self, button):
         menuitem = mainmenu.OOF.PixelGroup.AutoGroup
-        # TODO: The WhoWidgets created here for the PixelDifferentiator
-        # argument should only list Images and OrientationMaps for the
-        # current Microstructure.
-
         # Use WidgetScope setData/findData to tell the WhoWidgets in
         # the params that the Microstructure has to be the current
         # Microstructure.  We can't just set a Microstructure
