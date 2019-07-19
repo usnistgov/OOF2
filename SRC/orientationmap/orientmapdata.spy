@@ -96,6 +96,9 @@ microstructure.registerMicrostructurePlugIn(OrientMapPlugIn, "OrientationMap")
 def getOrientationMap(ms):
     return ms.getPlugIn('OrientationMap').data
 
+def hasOrientationMap(ms):
+    return ms.hasPlugIn('OrientationMap')
+
 def getOrientationMapTimestamp(ms):
     return ms.getPlugIn('OrientationMap').timestamp
 

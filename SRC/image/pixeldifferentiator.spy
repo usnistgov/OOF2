@@ -9,6 +9,7 @@
 # oof_manager@nist.gov.
 
 from ooflib.SWIG.common import burn
+from ooflib.SWIG.common import statgroups
 from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import registeredclass
@@ -74,7 +75,7 @@ registeredclass.Registration(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class ColorDifferentiator2(burn.PixelDifferentiator):
-    def __init__(self, image, color_delta, color_space_norm):
+    def __init__(self, image, color_delta):
         self.image = image
         self.color_delta = color_delta
         self.color_space_norm = color_space_norm
@@ -100,15 +101,45 @@ registeredclass.Registration(
             range=(0, 1, 0.001), value=0.1,
             tip="Maximum difference in color between the initial,"
             " randomly chosen pixel and other pixels in the group."),
-        enum.EnumParameter(
-            'color_space_norm', ColorNorm, value=L1,
-            tip="How to compute the difference between two colors in RGB space.")
         ],
     tip="Create pixel groups containing similarly colored pixels,"
     " without regard to location.  All pixels will be grouped."
 )
 
-        
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+
+## TODO: Allow user to specify the color space norm?
+
+class ColorGrouper(statgroups.PixelGrouper):
+    def __init__(self, image, sigma0):
+        self.image = image
+        self.sigma0 = sigma0
+        immidge = whoville.getClass('Image')[image]
+        statgroups.PixelGrouper.__init__(
+            self,
+            immidge.getParent(),
+            ColorPixelDistFactory(immidge.getObject(), sigma0))
+
+registeredclass.Registration(
+    'Color',
+    statgroups.PixelGrouper,
+    ColorGrouper,
+    ordering=1,
+    params=[
+        whoville.WhoParameter(
+            'image', whoville.getClass('Image'),
+            tip="Base groups on the colors in this image"),
+        parameter.FloatParameter(
+            'sigma0', value=0.002,
+            tip="Standard deviation in RGB values to assume for initial distributions")
+    ],
+    tip="Group pixels by examining RGB distributions.")
+    
+            
+            
+            
+    
     
 
 

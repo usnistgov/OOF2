@@ -15,6 +15,7 @@ from ooflib.SWIG.common import config
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import pixelgroup
 from ooflib.SWIG.common import progress
+from ooflib.SWIG.common import statgroups
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import enum
@@ -119,6 +120,8 @@ class Contiguity(enum.EnumClass(
     
 ## TODO: Add a min_size argument and don't create groups smaller than that.
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 def autoPixelGroup(menuitem, differentiator, contiguity, name_template, clear):
     ms = differentiator.mscontext.getObject()
     prog = progress.getProgress('AutoGroup', progress.DEFINITE)
@@ -158,14 +161,75 @@ pixgrpmenu.addItem(OOFMenuItem(
             tip="How to group pixels"),
         parameter.StringParameter(
             "name_template", value="grain_%n",
-            tip="Name for the new pixel groups. '%n' will be replaced by a number."),
+            tip="Name for the new pixel groups."
+            " '%n' will be replaced by an integer."),
         parameter.BooleanParameter(
             "clear", value=True,
             tip="Clear pre-existing groups before adding pixels to them."
-            "This will NOT clear groups to which no pixels are being added.")
+            " This will NOT clear groups to which no pixels are being added.")
     ],
     help="Put all pixels into pixel groups, sorted by color or orientation"
 ))
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# AutoGroup2 uses a statistical method to create groups.  Each group
+# is assumed to contain a distribution of pixel values.  A pixel value
+# is compared to the mean and deviation each existing group, and the
+# pixel added to the group to which it's the fewest deviations from
+# the mean.  If it's not close enough to any group, a new group is
+# created.  Adding a pixel to a group changes the group's mean and
+# deviation.  If two groups get close to one another, they are merged.
+
+def autoPixelGroup2(menuitem, grouper, delta, gamma, name_template, clear):
+    ms = grouper.mscontext.getObject()
+    prog = progress.getProgress('AutoGroup', progress.DEFINITE)
+    prog.setMessage('Grouping pixels...')
+    grouper.mscontext.begin_writing()
+    newgrpname = None
+    try:
+        newgrpname = statgroups.statgroups(ms, grouper.cobj, delta, gamma,
+                                           name_template, clear);
+    finally:
+        prog.finish()
+        grouper.mscontext.end_writing()
+    if newgrpname:
+        switchboard.notify("new pixel group", ms.findGroup(newgrpname))
+    switchboard.notify("changed pixel groups", ms.name())
+    switchboard.notify("redraw")
+
+pixgrpmenu.addItem(OOFMenuItem(
+    "AutoGroup2",
+    callback=autoPixelGroup2,
+    params=[
+        statgroups.PixelGrouperParameter(
+            'grouper',
+            tip="How to group pixels"),
+        parameter.FloatParameter(
+            'delta', value=2.0,
+            tip="Pixels within this many deviations of a group"
+            " will be added to the group."),
+        parameter.FloatParameter(
+            'gamma',
+            value=2.0,
+            tip="Groups within this many deviations of each other"
+            " will be merged"),
+        parameter.StringParameter(
+            "name_template",
+            value="group_%n",
+            tip="Name for the new pixel groups."
+            " '%n' will be replaced by an integer"),
+        parameter.BooleanParameter(
+            "clear", value=True,
+            tip="Clear pre-existing groups before adding pixels to them."
+            " This will NOT clean groups to which no pixels are being added.")
+        ],
+    help="Put all pixels into pixel groups, sorted by color or orientation."
+))
+
+        
+        
+            
 
 ##########################
 

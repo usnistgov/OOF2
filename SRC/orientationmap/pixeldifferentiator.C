@@ -59,3 +59,13 @@ bool COrientationDifferentiator2::operator()(const ICoord &target,
   return (degrees*tgt.misorientation(gbl, *lattice) < misorientation);
 }
     
+double COrientationDifferentiator2::distance2(const ICoord &p0,
+					      const ICoord &p1)
+  const
+{
+  const COrientABG &o0 = orientmap->angle(p0);
+  const COrientABG &o1 = orientmap->angle(p1);
+  double degrees = 180./M_PI;
+  double misor = degrees*o0.misorientation(o1, *lattice);
+  return misor*misor;
+}

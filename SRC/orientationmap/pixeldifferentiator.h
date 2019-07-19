@@ -36,7 +36,8 @@ private:
   const LatticeSymmetry *lattice;
 public:
   COrientationDifferentiator2(const OrientMap*, double, const std::string&);
-  virtual bool operator()(const ICoord&, const ICoord&) const;  
+  virtual bool operator()(const ICoord&, const ICoord&) const;
+  virtual double distance2(const ICoord&, const ICoord&) const;
 };
 
 #endif // PIXELDIFFORIENT_H

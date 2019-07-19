@@ -20,6 +20,7 @@
 #include <stdlib.h>		// for abs()
 #include <vector>
 
+#include "common/activearea.h"
 #include "common/cmicrostructure.h"
 #include "common/coord.h"
 #include "common/geometry.h"
@@ -27,6 +28,7 @@
 #include "common/printvec.h"
 #include "common/pixelattribute.h"
 #include "common/pixelsetboundary.h"
+#include "common/random.h"
 
 using namespace std;
 
@@ -188,6 +190,20 @@ bool CMicrostructure::contains(const ICoord &ip) const {
   if ((ip(0)>=0 && ip(0)<pxlsize_(0)) && (ip(1)>=0 && ip(1)<pxlsize_(1)))
     return true;
   return false;
+}
+
+std::vector<ICoord> CMicrostructure::shuffledPix() const {
+  std::vector<ICoord> pix;
+  pix.reserve(pxlsize_(0)*pxlsize_(1));
+  for(unsigned int i=0; i<pxlsize_(0); i++)
+    for(unsigned int j=0; j<pxlsize_(1); j++) {
+      ICoord p(i, j);
+      if(activearea->isActive(p))
+	pix.push_back(p);
+    }
+  OOFRandomNumberGenerator r;
+  oofshuffle(pix.begin(), pix.end(), r);
+  return pix;
 }
 
 PixelGroup *CMicrostructure::findGroup(const std::string &name) const {

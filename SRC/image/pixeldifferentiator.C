@@ -13,11 +13,13 @@
 
 #include "common/burn.h"
 #include "common/ccolor.h"
+#include "common/tostring.h"
 #include "image/oofimage.h"
 #include "image/pixeldifferentiator.h"
 
 #include <set>
 #include <algorithm>
+#include <math.h>
 
 
 CColorDifferentiator3::CColorDifferentiator3(const OOFImage *image,
@@ -65,13 +67,136 @@ bool CColorDifferentiator2::operator()(const ICoord &target,
 {
   const CColor trgt = (*image)[target];
   const CColor rfrnc = (*image)[reference];
+  return distance2(target, reference) < color_delta*color_delta;
+}
 
+double CColorDifferentiator2::distance2(const ICoord &p0, const ICoord &p1)
+  const
+{
+  const CColor c0 = (*image)[p0];
+  const CColor c1 = (*image)[p1];
   if(useL2norm) {
-    double dist = L2dist2(trgt, rfrnc);
-    return dist < color_delta*color_delta;
+    return L2dist2(c0, c1);
   }
   else {
-    double dist = L1dist(trgt, rfrnc);
-    return dist < color_delta;
+    double d = L1dist(c0, c1);
+    return d*d;
   }
+}
+					 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// TODO: Allow user to specify the color space norm?  If we do that,
+// do we also have to include the off diagonal terms in the variance
+// to make it consistent?  Is this implementation already
+// inconsistent?
+
+ColorPixelDistribution::ColorPixelDistribution(const ICoord &pixel,
+					       const OOFImage *image,
+					       double sigma0)
+  : var0(sigma0*sigma0),
+    image(image)
+{
+  CColor col = (*image)[pixel];
+  pxls.push_back(pixel);
+  mean[0] = col.getRed();
+  mean[1] = col.getGreen();
+  mean[2] = col.getBlue();
+  sumsq[0] = col.getRed()*col.getRed();
+  sumsq[1] = col.getGreen()*col.getGreen();
+  sumsq[2] = col.getBlue()*col.getBlue();
+  variance[0] = var0;
+  variance[1] = var0;
+  variance[2] = var0;
+}
+
+void ColorPixelDistribution::add(const ICoord &pixel) {
+  pxls.push_back(pixel);
+  CColor col = (*image)[pixel];
+  int n = pxls.size();
+  mean[0] = ((n-1)*mean[0] + col.getRed())/n;
+  mean[1] = ((n-1)*mean[1] + col.getGreen())/n;
+  mean[2] = ((n-1)*mean[2] + col.getBlue())/n;
+  sumsq[0] += col.getRed()*col.getRed();
+  sumsq[1] += col.getGreen()*col.getGreen();
+  sumsq[2] += col.getBlue()*col.getBlue();
+  findVariance();
+}
+
+void ColorPixelDistribution::merge(const PixelDistribution *othr) {
+  unsigned int nOld = npts();
+  
+  const ColorPixelDistribution *other =
+    dynamic_cast<const ColorPixelDistribution*>(othr);
+
+  pxls.insert(pxls.begin(), other->pxls.begin(), other->pxls.end());
+  unsigned int nNew = npts();
+
+  for(unsigned int i=0; i<3; i++) {
+    mean[i] = (nOld*mean[i] + other->npts()*other->mean[i])/nNew;
+    sumsq[i] += other->sumsq[i];
+  }
+  findVariance();
+}
+
+void ColorPixelDistribution::findVariance() {
+  unsigned int n = npts();
+  for(unsigned int i=0; i<3; i++) {
+    variance[i] = sumsq[i]/n - mean[i]*mean[i];
+    if(variance[i] <= std::numeric_limits<double>::epsilon())
+      variance[i] = var0;
+  }
+}
+
+double ColorPixelDistribution::deviation2(const ICoord &pixel)
+  const
+{
+  CColor color = (*image)[pixel];
+  double delta[3];
+  delta[0] = color.getRed() - mean[0];
+  delta[1] = color.getGreen() - mean[1];
+  delta[2] = color.getBlue() - mean[2];
+  return (delta[0]*delta[0]/variance[0] +
+	  delta[1]*delta[1]/variance[1] +
+	  delta[2]*delta[2]/variance[2]);
+}
+
+double ColorPixelDistribution::deviation2(const PixelDistribution *othr)
+  const
+{
+  const ColorPixelDistribution *other =
+    dynamic_cast<const ColorPixelDistribution*>(othr);
+  double delta[3];
+  delta[0] = other->mean[0] - mean[0];
+  delta[1] = other->mean[1] - mean[1];
+  delta[2] = other->mean[2] - mean[2];  
+  return (delta[0]*delta[0]/variance[0] +
+	  delta[1]*delta[1]/variance[1] +
+	  delta[2]*delta[2]/variance[2]);
+}
+  
+#ifdef DEBUG
+
+std::string ColorPixelDistribution::stats() const {
+  return "[" + to_string(mean[0]) + "," + to_string(mean[1]) + ","
+    + to_string(mean[2]) 
+    + "] +/- ["
+    + to_string(sqrt(variance[0])) + "," + to_string(sqrt(variance[1])) + ","
+    +  to_string(sqrt(variance[2])) + "]"
+    + "  sumsq=[" + to_string(sumsq[0]) + "," + to_string(sumsq[1]) +"," + to_string(sumsq[2]) + "]" + " n=" + to_string(npts())
+    ;
+}
+
+std::string ColorPixelDistribution::value(const ICoord &pixel) const {
+  return to_string((*image)[pixel]);
+}
+
+#endif // DEBUG
+
+
+
+PixelDistribution *ColorPixelDistFactory::newDistribution(const ICoord &pixel)
+  const
+{
+  return new ColorPixelDistribution(pixel, image, sigma0);
 }

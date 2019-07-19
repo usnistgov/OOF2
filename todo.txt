@@ -15,3 +15,10 @@ attempting to do that raises a KeyError.
 Floating periodic boundary conditions.  For example, a system with
 thermal expansion and periodic boundary conditions should be able to
 expand as a whole.
+
+For Adam C.:
+Material property outputs
+    Orientation at a point
+    C_ijkl in various reference frames
+Multiple outputs in one file, from Analysis page, not scheduled output.
+    eg, x y stress strain orientation, all in one row

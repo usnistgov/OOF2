@@ -79,46 +79,20 @@ double COrientation::misorientation(const COrientation &other,
   transp.transpose();		  // and transpose it
   SmallMatrix diff = other.rotation() * transp;
 
-// #ifdef DEBUG
-//   std::cerr << "COrientation::misorientation:  this=" << axis()
-// 	    << " " << rotation() << std::endl;
-//   std::cerr << "COrientation::misorientation: other=" << other.axis()
-// 	    << " " << other.rotation()
-// 	    << std::endl;
-//   std::cerr << "COrientation::misorientation:  diff=" << diff
-//   	    << " det=" << diff.determinant() << std::endl;
-//   COrientABG abg(diff);
-//   std::cerr << "COrientation::misorientation: diff=" << abg << std::endl
-//   	    << "                                  =" << abg.axis() << std::endl;
-// #endif // DEBUG
-  
   // When the crystal symmetry allows multiple equivalent
   // orientations, we need to measure the difference between one
   // orientation and all possible equivalent versions of the other,
   // and return the minumum misorientation.
   const std::vector<SmallMatrix> &latticerotations(lattice.matrices());
   double minangle = std::numeric_limits<double>::max();
-// #ifdef DEBUG
-//   const SmallMatrix *bestrot = nullptr;
-// #endif // DEBUG
+
   for(const SmallMatrix &latrot : latticerotations) {
     COrientAxis axisrot(latrot * diff);
     double angle = fabs(axisrot.angle());
-    // std::cerr << "COrientation::misorientation: latrot=" << latrot
-    // 	      << " " << COrientAxis(latrot)
-    // 	      << " " << COrientAxis(latrot).rotation()
-    // 	      << "\t misorient. angle=" << angle*180/M_PI << std::endl;
-    if(fabs(angle) < fabs(minangle)) {
+    if(angle < minangle) {
       minangle = angle;
-// #ifdef DEBUG
-//       bestrot = &latrot;
-// #endif // DEBUG
     }
   }
-// #ifdef DEBUG
-//   std::cerr << "COrientation::misorientation: minangle=" << minangle
-// 	    << " lattice rotation=" << *bestrot << std::endl;
-// #endif // DEBUG
   return minangle;
 }
 
@@ -128,6 +102,65 @@ double COrientation::misorientation(const COrientation &other,
 {
   // "lattice" is a Schoenflies symbol
   return misorientation(other, *getLatticeSymmetry(lattice));
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Find the weighted average of this orientation and the given
+// orientation.  Call this orientation O0 and define the rotation R by
+// O1 = R*O0.  Write R as a COrientAxis, R=A(X, theta) where X is the
+// axis.  Then if alpha is the relative weight (alpha=0 ==> O0,
+// alpha=1 ==> O1), the weighted average is A(X, alpha*theta)*O0.
+
+COrientAxis COrientation::weightedAverage(double w0, double w1,
+					  const COrientation &orient1)
+  const
+{
+  return weightedAverage(w0, w1, orient1.rotation());
+}
+
+COrientAxis COrientation::weightedAverage(double w0, double w1,
+					  const SmallMatrix &m1)
+  const
+{
+  assert(w0 + w1 > 0.0);
+  const SmallMatrix &m0 = rotation(); // not a copy
+  SmallMatrix m1t(m1);		      // copy
+  m1t.transpose();		      // in-place transpose
+  COrientAxis r(m0*m1t);
+  COrientAxis partial(r.angle()*w1/(w0+w1), r.x(), r.y(), r.z());
+  return COrientAxis(partial.rotation()*m0);
+}
+
+// If lattice symmetry needs to be taken into account, first choose
+// the equivalent O1 that is closest to O0.
+// If L*O1 = R*O0 for a lattice symmetry L, R = L*O1*O0^T
+
+COrientAxis COrientation::weightedAverage(double w0, double w1,
+					  const COrientation &orient1,
+					  const LatticeSymmetry &lattice)
+  const
+{
+  // Find the equivalent orient1 that's closest to this.  The
+  // equivalents are L*orient1 for L in the set of lattice symmetry
+  // rotations.
+  SmallMatrix m0t = rotation();	// copy of matrix for this orientation
+  m0t.transpose();
+  SmallMatrix m1 = orient1.rotation(); // matrix for orient1
+  SmallMatrix diff = m1*m0t;	// O1 * O0^T in matrix form
+  
+  const std::vector<SmallMatrix> &latticerotations(lattice.matrices());
+  double minangle = std::numeric_limits<double>::max();
+  int closest = -1;
+  for(int i=0; i<latticerotations.size(); i++) {
+    COrientAxis axisrot(latticerotations[i]*diff); // L * O1 * O0^T
+    double angle = fabs(axisrot.angle());
+    if(angle < minangle) {
+      minangle = angle;
+      closest = i;
+    }
+  }
+  return weightedAverage(w0, w1, latticerotations[closest]*m1);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

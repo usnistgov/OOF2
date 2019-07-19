@@ -95,24 +95,24 @@ std::vector<ICoord> burn(CMicrostructure *ms,
   return burned;
 }
 
-#include <random>
-
-std::vector<ICoord> shufflePix(const ICoord &mssize,
-			       const ActiveArea *activeArea)
-{
-  std::vector<ICoord> shuffledPix;
-  shuffledPix.reserve(mssize[0]*mssize[1]);
-  for(unsigned int i=0; i<mssize[0]; i++)
-    for(unsigned int j=0; j<mssize[1]; j++) {
-      ICoord pix(i, j);
-      if(activeArea->isActive(pix)) {
-	shuffledPix.push_back(pix);
-      }
-    }
-  OOFRandomNumberGenerator r;
-  oofshuffle(shuffledPix.begin(), shuffledPix.end(), r);
-  return shuffledPix;
-}
+// #include <random>
+// // TODO: This should be a CMicrostructure method.
+// std::vector<ICoord> shufflePix(const ICoord &mssize,
+// 			       const ActiveArea *activeArea)
+// {
+//   std::vector<ICoord> shuffledPix;
+//   shuffledPix.reserve(mssize[0]*mssize[1]);
+//   for(unsigned int i=0; i<mssize[0]; i++)
+//     for(unsigned int j=0; j<mssize[1]; j++) {
+//       ICoord pix(i, j);
+//       if(activeArea->isActive(pix)) {
+// 	shuffledPix.push_back(pix);
+//       }
+//     }
+//   OOFRandomNumberGenerator r;
+//   oofshuffle(shuffledPix.begin(), shuffledPix.end(), r);
+//   return shuffledPix;
+// }
 
 const std::string *autograin(CMicrostructure *ms,
 			     const CPixelDifferentiator3 *pixdiff,
@@ -133,7 +133,7 @@ const std::string *autograin(CMicrostructure *ms,
 
   // shuffledPix is a list of all possible starting points for the
   // burn algorithm.  It's randomized to prevent bias.
-  std::vector<ICoord> shuffledPix = shufflePix(mssize, activeArea);
+  std::vector<ICoord> shuffledPix = ms->shuffledPix();
   
   std::string groupname;
   
@@ -204,7 +204,7 @@ const std::string *autogroups(CMicrostructure *ms,
   Progress *progress =
     dynamic_cast<DefiniteProgress*>(findProgress("AutoGroup"));
 
-  std::vector<ICoord> shuffledPix = shufflePix(mssize, activeArea);
+  std::vector<ICoord> shuffledPix = ms->shuffledPix();
 
   // List of (seed, pixellist) pairs.  A seed is the first pixel in a
   // group.  pixellist is the pixels in the group, all of which are
@@ -252,3 +252,4 @@ const std::string *autogroups(CMicrostructure *ms,
   }
   return new std::string(groupname);
 }
+

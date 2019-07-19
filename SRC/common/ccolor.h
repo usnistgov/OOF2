@@ -67,6 +67,8 @@ public:
   virtual void fade(double factor);
   virtual void dim(double factor);
 
+  CColor weightedAverage(double w0, double w1, const CColor&) const;
+
   virtual bool operator<(const CColor &) const;
 
   virtual void operator=(const CColor &);

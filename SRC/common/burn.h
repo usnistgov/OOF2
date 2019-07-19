@@ -42,7 +42,10 @@ public:
   virtual ~CPixelDifferentiator2() {}
   // The first ICoord is the pixel being considered for selection.
   // The second is the pixel where the burn started.
-  virtual bool operator()(const ICoord&, const ICoord&) const=0;
+  virtual bool operator()(const ICoord&, const ICoord&) const = 0;
+  // distance2 is the square of the distance between the pixel values
+  // in pixel value space (color, orientation, etc).
+  virtual double distance2(const ICoord&, const ICoord&) const = 0;
 };
 
 

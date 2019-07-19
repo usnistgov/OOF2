@@ -160,6 +160,8 @@ public:
   TimeStamp &getTimeStamp();
   const TimeStamp &getTimeStamp() const;
 
+  std::vector<ICoord> shuffledPix() const;
+
   void setPSBbins(int, int);
   std::pair<int, int> *getPSBbins() const;
 

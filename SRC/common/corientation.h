@@ -57,6 +57,11 @@ public:
   double misorientation(const COrientation&, const LatticeSymmetry&) const;
   double misorientation(const COrientation&, const std::string&) const;
 
+  COrientAxis weightedAverage(double, double, const COrientation&) const;
+  COrientAxis weightedAverage(double, double, const SmallMatrix&) const;
+  COrientAxis weightedAverage(double, double, const COrientation&,
+			      const LatticeSymmetry&) const;
+
   virtual void print(std::ostream&) const = 0;
 };
 

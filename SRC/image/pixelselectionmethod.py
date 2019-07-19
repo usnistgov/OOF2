@@ -62,7 +62,7 @@ class Burn(pixelselectionmethod.SelectionMethod):
         ms = immidge.getMicrostructure()
         startpt = ms.pixelFromPoint(points[0])
         if immidge.getSelectionContext().getObject().checkpixel(startpt):
-            cd = pixeldifferentiator.ColorDifferentiator(
+            cd = pixeldifferentiator.ColorDifferentiator3(
                 immidge.path(),
                 self.local_flammability,
                 self.global_flammability,

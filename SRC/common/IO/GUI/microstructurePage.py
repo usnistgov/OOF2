@@ -181,6 +181,16 @@ class MicrostructurePage(oofGUI.MainPage):
             "Automatically create groups for all pixels"
             " in the current microstructure.")
 
+        self.autogroup2button = gtk.Button('Auto2...')
+        gtklogger.setWidgetName(self.autogroup2button, "Auto2")
+        vbox.pack_start(self.autogroup2button, expand=0, fill=0)
+        gtklogger.connect(self.autogroup2button, 'clicked',
+                          self.autoGroup2ButtonCB)
+        tooltips.set_tooltip_text(
+            self.autogroup2button,
+            "Automatically create groups for all pixels"
+            " in the current microstructure with a statistical method.")
+
         self.renamegroupbutton = gtk.Button('Rename...')
         gtklogger.setWidgetName(self.renamegroupbutton, "Rename")
         vbox.pack_start(self.renamegroupbutton, expand=0, fill=0)
@@ -475,6 +485,7 @@ class MicrostructurePage(oofGUI.MainPage):
 
         self.newgroupbutton.set_sensitive(ms_available)
         self.autogroupbutton.set_sensitive(ms_available)
+        self.autogroup2button.set_sensitive(ms_available)
         self.renamegroupbutton.set_sensitive(grp_selected)
         self.copygroupbutton.set_sensitive(grp_selected)
         self.delgroupbutton.set_sensitive(grp_selected)
@@ -621,6 +632,13 @@ class MicrostructurePage(oofGUI.MainPage):
                                           scope=self,
                                           data=scopedata,
                                           *menuitem.params):
+            menuitem.callWithDefaults()
+
+    def autoGroup2ButtonCB(self, button):
+        menuitem = mainmenu.OOF.PixelGroup.AutoGroup2
+        scopedata = {'fixed whoclass': ('Microstructure', self.currentMSName())}
+        if parameterwidgets.getParameters(title="AutoGroup2", scope=self,
+                                          data=scopedata, *menuitem.params):
             menuitem.callWithDefaults()
 
     def renameGroupButtonCB(self, button):
