@@ -99,7 +99,7 @@ discussion:   A longer helpful string.  It should be a series of xml
 
 params:	      A list of Parameters that are provided as arguments to
               the non-GUI callback function.  The Parameter class is
-              defined in commmon.IO.parameter.  The callback will be
+              defined in common.IO.parameter.  The callback will be
               called with additional keyword arguments, one for each
               parameter, using Parameter.name and Parameter.value for
               the key and value.  [default value = []]
