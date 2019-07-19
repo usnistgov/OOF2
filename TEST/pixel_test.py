@@ -263,9 +263,9 @@ class Direct_Pixel_Selection(unittest.TestCase):
 # Query
 
 # Pixel group creation/manipulation -- assume that selections are
-# possible.  Also should test the autogroup from the image menu.
-# These tests use the "small.ppm" image, which autogroups reasonably
-# cleanly, rather than the more difficult image_test.ppm.
+# possible.  These tests use the "small.ppm" image, which autogroups
+# reasonably cleanly, rather than the more difficult image_test.ppm.
+
 class Pixel_Groups(unittest.TestCase):
     def setUp(self):
         global microstructure
@@ -280,43 +280,6 @@ class Pixel_Groups(unittest.TestCase):
             height=automatic, width=automatic)
         OOF.Windows.Graphics.New()
 
-    @memorycheck.check("small.ppm")
-    def AutoGroup(self):
-        from ooflib.common import color
-        def colordiff(c1,c2):
-            return (c1.red-c2.red)**2 + \
-                   (c1.green-c2.green)**2 + \
-                   (c1.blue-c2.blue)**2
-        # Dictionary of nearest pure colors and sizes of the
-        # corresponding groups, which will not have exactly this
-        # color, but will be closer to it than to any other color (in
-        # colordiff measure).
-        expected_sizes = {color.magenta : 2404,
-                          color.RGBColor(1.0,1.0,1.0) : 4781,
-                          color.RGBColor(0.0,0.0,0.0) : 2585,
-                          color.blue : 2947,
-                          color.green : 4795,
-                          color.cyan : 1001,
-                          color.yellow : 3617,
-                          color.red : 370 }
-
-        OOF.Image.AutoGroup(image="small.ppm:small.ppm")
-        ms = microstructure.getMicrostructure("small.ppm")
-        groups = ms.groupNames()
-        self.assertEqual(len(groups), 8)
-        for name in groups:
-#             rgb = eval(name)
-            rgb = color.rgb_from_hex(name)
-            key = None
-            diff = None
-            for c in expected_sizes.keys():
-                cdiff = colordiff(rgb,c)
-                if (diff is None) or (cdiff < diff):
-                    key = c
-                    diff = cdiff
-            self.assertEqual(len(ms.findGroup(name)), expected_sizes[key])
-        
-                            
     @memorycheck.check("small.ppm")
     def New(self):
         OOF.PixelGroup.New(name="test", microstructure="small.ppm")
@@ -415,6 +378,43 @@ class Pixel_Groups(unittest.TestCase):
         self.assertEqual(ms.nGroups(), 1)
         self.assert_( not "test" in ms.groupNames())
         
+    @memorycheck.check("small.ppm")
+    def AutoGroup(self):
+        from ooflib.common import color
+        def colordiff(c1,c2):
+            return (c1.red-c2.red)**2 + \
+                   (c1.green-c2.green)**2 + \
+                   (c1.blue-c2.blue)**2
+        # Dictionary of nearest pure colors and sizes of the
+        # corresponding groups, which will not have exactly this
+        # color, but will be closer to it than to any other color (in
+        # colordiff measure).
+        expected_sizes = {color.magenta : 2404,
+                          color.RGBColor(1.0,1.0,1.0) : 4781,
+                          color.RGBColor(0.0,0.0,0.0) : 2585,
+                          color.blue : 2947,
+                          color.green : 4795,
+                          color.cyan : 1001,
+                          color.yellow : 3617,
+                          color.red : 370 }
+
+        OOF.Image.AutoGroup(image="small.ppm:small.ppm")
+        ms = microstructure.getMicrostructure("small.ppm")
+        groups = ms.groupNames()
+        self.assertEqual(len(groups), 8)
+        for name in groups:
+#             rgb = eval(name)
+            rgb = color.rgb_from_hex(name)
+            key = None
+            diff = None
+            for c in expected_sizes.keys():
+                cdiff = colordiff(rgb,c)
+                if (diff is None) or (cdiff < diff):
+                    key = c
+                    diff = cdiff
+            self.assertEqual(len(ms.findGroup(name)), expected_sizes[key])
+        
+                            
 
     # Meshable may be better tested at skel-mod time.
     # Query is just weird -- writes to stdout!
@@ -666,7 +666,6 @@ class Selection_Modify(unittest.TestCase):
             range=DeltaRGB(delta_red=1.0,delta_green=0.0,delta_blue=1.0))
         self.assertEqual(ps.getObject().len(), 8306)
            
-
 
     # Element and segment ops can't be tested until skeletons exist.
 
