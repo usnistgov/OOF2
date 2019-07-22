@@ -133,7 +133,6 @@ class PixelInfoToolbox(toolbox.Toolbox):
             self.point = primitives.iPoint(x, y)
         elif config.dimension() == 3:
             self.point = primitives.iPoint(x, y, z)
-        switchboard.verbose(None, True)
         switchboard.notify(self)        # caught by GUI toolbox
         switchboard.notify('redraw')
 
