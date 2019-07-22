@@ -16,6 +16,8 @@
 #include "common/progress.h"
 #include "common/statgroups.h"
 
+#include <algorithm>
+
 
 // TODO: Auto-despeckling of groups at end of statgroups.
 

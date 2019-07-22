@@ -421,10 +421,10 @@ void GroupList::sort() const {
   for(std::vector<PixelGroup*>::iterator i=data.begin(); i<data.end(); ++i) {
     if((*i)->is_defunct())
       defunctgroups.push_back(i);
-      // i = data.erase(i);
   }
-  for(unsigned int j=0; j<defunctgroups.size(); j++)
+  for(int j=defunctgroups.size()-1; j>=0; j--) {
     data.erase(defunctgroups[j]);
+  }
   // sort the remainder
   std::sort(data.begin(), data.end(), groupsorter);
   // remove duplicates
