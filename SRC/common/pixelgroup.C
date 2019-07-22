@@ -502,13 +502,19 @@ void GroupList::print(std::ostream &os) const {
 std::vector<std::string> *pixelGroupNames(const CMicrostructure *microstructure,
 					  const ICoord *where)
 {
+  std::cerr << "pixelGroupNames: microstructure=" << microstructure
+	    << " where=" << *where << std::endl;
   Array<PixelAttribute*> groupMap = reg->map(microstructure);
+  std::cerr << "pixelGroupNames: got groupMap" << std::endl;
   GroupList *list = dynamic_cast<GroupList*>(groupMap[*where]);
+  std::cerr << "pixelGroupNames: list=" << list << " " << *list << std::endl;
   const std::vector<PixelGroup*> &groups = list->members();
+  std::cerr << "pixelGroupNames: got " <<groups.size()<< " groups" << std::endl;
   std::vector<std::string> *roster = new std::vector<std::string>;
   roster->reserve(groups.size());
   for(std::vector<PixelGroup*>::size_type i=0; i<groups.size(); i++)
     roster->push_back(groups[i]->name());
+  std::cerr << "pixelGroupNames: done" << std::endl;
   return roster;
 }
 

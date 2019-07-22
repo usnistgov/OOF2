@@ -16,6 +16,13 @@
 #include "common/progress.h"
 #include "common/statgroups.h"
 
+
+// TODO: Auto-despeckling of groups at end of statgroups.
+
+// TODO: StatBurn -- add neighboring pixels if they're within n
+// deviations of the mean of the burned region.  Update the mean and
+// deviation as pixels are added.
+
 struct SortDists {
   bool operator()(const PixelDistribution *a, const PixelDistribution *b) {
     return a->npts() > b->npts();
@@ -41,7 +48,7 @@ const std::string *statgroups(CMicrostructure *microstructure,
   ICoord mssize(microstructure->sizeInPixels());
   Progress *progress =
     dynamic_cast<DefiniteProgress*>(findProgress("AutoGroup"));
-  unsigned int prog = 0;
+  unsigned int nChecked = 0;
 
   const std::vector<ICoord> shuffledPix = microstructure->shuffledPix();
   unsigned int npix = shuffledPix.size();
@@ -132,9 +139,11 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	
       } while(modifiedDist != nullptr);	// end do
       
-    } // end appropriate group was found
-    progress->setMessage(to_string(prog) + "/" + to_string(npix) + " pixels");
-    progress->setFraction(double(prog++)/npix);
+    } // end if an appropriate group was found
+    progress->setMessage(
+	 to_string(nChecked) + "/" + to_string(npix) + " pixels, "
+	 + to_string(pixelDists.size()) + " groups");
+    progress->setFraction(double(nChecked++)/npix);
   } // end loop over pixels
 
   std::sort(pixelDists.begin(), pixelDists.end(), SortDists());

@@ -120,7 +120,6 @@ class PixelInfoToolbox(toolbox.Toolbox):
         toolbox.Toolbox.close(self)
 
     def newPlugIn(self, pluginClass):
-        debug.fmsg("Creating", pluginClass, "in", self)
         self.plugIns.append(pluginClass(self))
 
     def findPlugIn(self, pluginClass):
@@ -134,6 +133,7 @@ class PixelInfoToolbox(toolbox.Toolbox):
             self.point = primitives.iPoint(x, y)
         elif config.dimension() == 3:
             self.point = primitives.iPoint(x, y, z)
+        switchboard.verbose(None, True)
         switchboard.notify(self)        # caught by GUI toolbox
         switchboard.notify('redraw')
 
