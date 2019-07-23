@@ -14,9 +14,12 @@
 #include "common/cmicrostructure.h"
 #include "common/coord.h"
 #include "common/progress.h"
+#include "common/random.h"
 #include "common/statgroups.h"
 
 #include <algorithm>
+#include <map>
+#include <set>
 
 
 // TODO: Auto-despeckling of groups at end of statgroups.
@@ -31,10 +34,60 @@ struct SortDists {
   }
 };
 
+void PixelDistribution::remove_noupdate(const ICoord &pxl) {
+  // TODO: Use a std::set instead of a std::vector?
+  auto iter = std::find(pxls.begin(), pxls.end(), pxl);
+  assert(iter != pxls.end());
+  pxls.erase(iter);
+}
+
+static const ICoord directions[] = {ICoord(-1,-1), ICoord(-1,0), ICoord(-1, 1),
+				    ICoord(0, -1), ICoord(0, 1),
+				    ICoord(1, -1), ICoord(1, 0), ICoord(1, 1)};
+
+// Given a pixel, count the number of neighboring pixels in each
+// PixelDistribution.
+std::map<PixelDistribution*, int> countNeighbors(
+				 SimpleArray2D<PixelDistribution*> &dists,
+				 const ICoord &pt)
+{
+  std::map<PixelDistribution*, int> counts;
+  for(const ICoord &dir : directions) {
+    ICoord nbr = pt + dir;
+    if(dists.contains(nbr))	// if nbr is in bounds
+      counts[dists[nbr]] += 1;
+  }
+  return counts;
+}
+
+// Given a bunch of PixelDistributions, return an array saying which
+// distribution a pixel is in, if the distribution contains more then
+// minsize pixels.
+
+SimpleArray2D<PixelDistribution*> getDistArray(
+		       const ICoord &mssize,
+		       const std::vector<PixelDistribution*> &pixelDists,
+		       int minsize)
+{
+  SimpleArray2D<PixelDistribution*> dists(mssize);
+  for(PixelDistribution *pixdist : pixelDists) {
+    if(pixdist->npts() >= minsize) {
+      for(const ICoord &pt : pixdist->pixels()) {
+	dists[pt] = pixdist;
+      }
+    }
+  }
+  return dists;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 const std::string *statgroups(CMicrostructure *microstructure,
 			      const PixelDistributionFactory *factory,
 			      double delta,
 			      double gamma,
+			      int despeckle,
+			      int minsize,
 			      const std::string &name_template, bool clear)
 {
   // This is sort of like autogroups, but statistical.  It assumes
@@ -54,7 +107,6 @@ const std::string *statgroups(CMicrostructure *microstructure,
 
   const std::vector<ICoord> shuffledPix = microstructure->shuffledPix();
   unsigned int npix = shuffledPix.size();
-  // std::cerr << "statgroups: npix=" << npix << std::endl;
 
   std::vector<PixelDistribution*> pixelDists;
   
@@ -76,19 +128,10 @@ const std::string *statgroups(CMicrostructure *microstructure,
       // through the loop, or the pixel value is too far from existing
       // groups.  Create a new group.
       pixelDists.push_back(factory->newDistribution(p));
-      // std::cerr << "statgroups: new group at " << p
-      // 		<< " val=" << pixelDists.back()->value(p)
-      // 		<< " dist=" << pixelDists.back() << " "
-      // 		<< pixelDists.back()->stats()
-      // 		<< std::endl;
     }
     else {
       // An appropriate group was found.  Add the pixel to it.
       bestDist->add(p);
-      // std::cerr << "statgroups: added " << p << " " << bestDist->value(p)
-      // 		<< " to " << bestDist << " "
-      // 		<< "sigma=" << sqrt(bestSigma2) << " new dist="
-      // 		<< bestDist->stats() << std::endl;
       // TODO: Adding a pixel might have reduced the group's
       // deviation.  Is it possible that other pixels should now be
       // ejected from the group?
@@ -130,9 +173,6 @@ const std::string *statgroups(CMicrostructure *microstructure,
 				modifiedDist);
 	  assert(iter != pixelDists.end());
 	  pixelDists.erase(iter);
-	  // std::cerr << "statgroups: merged " << modifiedDist << " into "
-	  // 	    << distBest
-	  // 	    << " " << distBest->stats() << std::endl;
 	  delete modifiedDist;
 	  modifiedDist = distBest;
 	}
@@ -148,32 +188,218 @@ const std::string *statgroups(CMicrostructure *microstructure,
     progress->setFraction(double(nChecked++)/npix);
   } // end loop over pixels
 
+  // -----------
+
+  if(minsize > 0) {
+    // Get rid of distributions containing fewer than minsize pixels
+    // by attaching them to neighboring distributions.
+
+    Progress *prog2 =
+      dynamic_cast<DefiniteProgress*>(getProgress("Merging small groups",
+    						  DEFINITE));
+    try {
+      // dists[x] is the PixelDistribution containing ICoord x if it's
+      // not in one of the small distributions. 
+      SimpleArray2D<PixelDistribution*> dists =
+	getDistArray(mssize, pixelDists, minsize);
+
+      // Get the pixels immediately neighboring the big distributions.
+      // Those pixels are in the small distributions.  Also compute
+      // the total size of the small distributions, ntodo.
+      std::vector<ICoord> bdyPixels;
+      int ntodo = 0;
+      DummyDistribution dummyDist; // marks the bdy pixels in dists.
+      for(PixelDistribution *pixDist : pixelDists) {
+	if(pixDist->npts() < minsize) {
+	  ntodo += pixDist->npts();
+	  for(const ICoord &pt : pixDist->pixels()) {
+	    for(const ICoord &dir : directions) {
+	      ICoord nbr = pt + dir;
+	      if(microstructure->contains(nbr) && dists[nbr] != nullptr) {
+		bdyPixels.push_back(pt);
+		// The boundary pixels are marked with &dummyDist in
+		// dists.  This distinguishes them from pixels that
+		// haven't yet been added to bdyPixels, which are
+		// still 0 in dists.
+		dists[pt] = &dummyDist;
+		break;
+	      }
+	    } // end loop over neighbor directions
+	  }   // end loop over pixels in the small distribution
+
+	  // Clear the small distribution so no group will be made from
+	  // it.
+	  pixDist->clear_noupdate();
+	
+	} // end if it's a small distribution
+      }	  // end loop over all distributions
+
+      // Randomize the neighboring pixels.
+      OOFRandomNumberGenerator r;
+      oofshuffle(bdyPixels.begin(), bdyPixels.end(), r);
+
+      // For each pixel in bdyPixels, examine which big distributions it
+      // is next to. If it's next to only one, add it to that
+      // distribution. If it's next to more than one, add it to the one
+      // that its value is closest to, statistically.  Remove the pixel
+      // from bdyPixels and add its neighbors, if they're not already in
+      // it and aren't already in a big group.
+      int ndone = 0;
+      while(!bdyPixels.empty()) {
+	if(prog2->stopped())
+	  break;
+	ICoord pxl = bdyPixels.back();
+	bdyPixels.pop_back();
+	// Get the neighboring distributions
+	std::map<PixelDistribution*, int> counts = countNeighbors(dists, pxl);
+	int nMost = 0;
+	std::set<PixelDistribution*> mostDists; // may be more than one!
+	for(auto iter=counts.begin(); iter!=counts.end(); ++iter) {
+	  if(iter->first != &dummyDist) {
+	    if(iter->second > nMost) {
+	      mostDists.clear();
+	      mostDists.insert(iter->first);
+	      nMost = iter->second;
+	    } 
+	    else if(iter->second == nMost) {
+	      mostDists.insert(iter->first);
+	    }
+	  } // end if not the dummy distribution
+	}   // end loop over distributions of neighbor pixels
+	assert(!mostDists.empty());
+	
+	PixelDistribution *bestDist = nullptr;
+	if(mostDists.size() == 1) {
+	  // It there's only one neighboring distribution, use it.
+	  bestDist = *mostDists.begin();
+	}
+	else {
+	  // More than one distribution has the same number of
+	  // neighbors. Choose the one that the pixel fits best.
+	  double bestVariance = std::numeric_limits<double>::max();
+	  for(PixelDistribution *pixDist : mostDists) {
+	    if(pixDist != &dummyDist) { // dummyDist marks pxls in bdyPixels
+	      double var = pixDist->deviation2(pxl);
+	      if(var < bestVariance) {
+		bestVariance = var;
+		bestDist = pixDist;
+	      }
+	    }
+	  }
+	}
+	// Add the pixel to the best neighboring distribution
+	bestDist->add(pxl);
+	dists[pxl] = bestDist;
+	// If the newly added pixel has neighbors that aren't in
+	// distributions, add them to the list of pixels to be examined.
+	for(const ICoord &dir : directions) {
+	  ICoord nbr = pxl + dir;
+	  if(microstructure->contains(nbr) && dists[nbr] == nullptr) {
+	    bdyPixels.push_back(nbr);
+	    dists[nbr] = &dummyDist;
+	  }
+	}
+	prog2->setMessage(to_string(ndone) + "/" + to_string(ntodo));
+	prog2->setFraction(ndone/(double) ntodo);
+	ndone++;
+      }	// end while bdyPixels is not empty
+    }
+    catch (...) {
+      prog2->finish();
+      throw;
+    }
+    prog2->finish();
+  } // end if minsize > 0
+  
+  // -----------
+
+  if(despeckle > 0) {
+    IndefiniteProgress *despprog =
+      dynamic_cast<IndefiniteProgress*>(getProgress("Despeckling", INDEFINITE));
+    try {
+      // Make an array indicating which PixelDistribution contains each pixel.
+      SimpleArray2D<PixelDistribution*> dists =
+	getDistArray(mssize, pixelDists, 0);
+
+      bool didSomething;
+      do {
+	// TODO: This is very inefficient.  After the first pass it's
+	// only necessary to examine the neighbors of the points that
+	// were modified in the first pass.
+	didSomething = false;
+	// Loop over pixels in random order
+	const std::vector<ICoord> shuffledPix = microstructure->shuffledPix();
+	for(const ICoord &pixel : shuffledPix) {
+	  // Count which groups neighbor this pixel
+	  despprog->pulse();
+	  PixelDistribution *thisDist = dists[pixel];
+	  std::map<PixelDistribution*, int> counts =
+	    countNeighbors(dists, pixel);
+	  int nMost = 0;
+	  PixelDistribution *mostDist = nullptr;
+	  for(auto iter = counts.begin(); iter!=counts.end(); ++iter) {
+	    if(iter->second > nMost) {
+	      mostDist = iter->first;
+	      nMost = iter->second;
+	    }
+	  }
+	  if(nMost >= despeckle && mostDist != thisDist) {
+	    // Move this pixel into mostDist.
+	    mostDist->add_noupdate(pixel);
+	    thisDist->remove_noupdate(pixel);
+	    dists[pixel] = mostDist;
+	    didSomething = true;
+	  }
+	}	// end loop over pixels
+      } while(didSomething);
+    }
+    catch (...) {
+      despprog->finish();
+      throw;
+    }
+    despprog->finish();
+  } // end if despeckle
+
+  // -----------
+  
+  // Sort the groups from largest to smallest before naming them.
   std::sort(pixelDists.begin(), pixelDists.end(), SortDists());
+  // How many groups are non-empty?
+  int nonEmpty = 0;
+  for(PixelDistribution *pixDist : pixelDists) {
+    if(pixDist->npts() == 0)
+      break;
+    nonEmpty++;
+  }
+  assert(nonEmpty > 0);
 
   // Create a real PixelGroup for each PixelDistribution, and delete
   // the PixelDistributions.
   std::string groupname;	// name of last group created
   int groupNo = 0;
-  int maxDigits = to_string(pixelDists.size()-1).size(); // for padding with 0
+  int maxDigits = to_string(nonEmpty-1).size(); // for padding with 0
   for(PixelDistribution *pd : pixelDists) {
-    // Create the name for the group by replacing '%n' in the template
-    // with a number.  Pad the number with 0's on the left so that the
-    // groups appear in numerical order in the GUI (which sorts them
-    // alphabetically).
-    groupname = name_template;
-    std::string::size_type pos = groupname.find("%n", 0);
-    if(pos != std::string::npos) {
-      std::string g = to_string(groupNo++);
-      int nzeros = maxDigits - g.size();
-      groupname = groupname.replace(pos, 2, std::string(nzeros, '0') + g);
-    }
-    bool newness = false;
-    PixelGroup *grp = microstructure->getGroup(groupname, &newness);
-    if(clear)
-      grp->clear();
-    grp->addWithoutCheck(&pd->pixels());
+    if(pd->npts() > 0) {
+      // Create the name for the group by replacing '%n' in the
+      // template with a number.  Pad the number with 0's on the left
+      // so that the groups appear in numerical order in the GUI
+      // (which sorts them alphabetically).
+      groupname = name_template;
+      std::string::size_type pos = groupname.find("%n", 0);
+      if(pos != std::string::npos) {
+	std::string g = to_string(groupNo++);
+	int nzeros = maxDigits - g.size();
+	groupname = groupname.replace(pos, 2, std::string(nzeros, '0') + g);
+      }
+      bool newness = false;
+      PixelGroup *grp = microstructure->getGroup(groupname, &newness);
+      if(clear)
+	grp->clear();
+      grp->addWithoutCheck(&pd->pixels());
+    } // end if PixelDistribution is not empty
     delete pd;
   }
-
   return new std::string(groupname);
 }
+
+

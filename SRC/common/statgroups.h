@@ -49,7 +49,7 @@ class ICoord;
 class PixelDistribution {
 protected:
   // mean and deviation aren't stored here because we don't know their types.
-  std::vector<ICoord> pxls;
+  std::vector<ICoord> pxls;	// TODO: Use std::set for easy removal?
 public:
   PixelDistribution() {}
   virtual ~PixelDistribution() {}
@@ -57,6 +57,10 @@ public:
 
   // Add a pixel and update the mean and variance.
   virtual void add(const ICoord&) = 0;
+  // Add without updating the mean and variance
+  void add_noupdate(const ICoord &pt) { pxls.push_back(pt); }
+  void remove_noupdate(const ICoord &pt);
+  void clear_noupdate() { pxls.clear(); }
 
   // How many deviations squared from the mean is the value at the
   // given point?
@@ -77,13 +81,38 @@ public:
 #endif // DEBUG
 };
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 class PixelDistributionFactory {
 public:
   virtual ~PixelDistributionFactory() {}
   virtual PixelDistribution *newDistribution(const ICoord&) const = 0;
 };
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 const std::string *statgroups(CMicrostructure*, const PixelDistributionFactory*,
-			      double, double, const std::string&, bool);
+			      double, double,
+			      int despeckle,
+			      int minsize,
+			      const std::string&, bool);
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// DummyDistribution is used as a placeholder in lists of
+// PixelDistribution.
+
+class DummyDistribution : public PixelDistribution {
+public:
+  DummyDistribution() {}
+  virtual void add(const ICoord&) {}
+  virtual double deviation2(const ICoord&) const { return 0.0; }
+  virtual double deviation2(const PixelDistribution*) const { return 0.0; }
+  virtual void merge(const PixelDistribution*) {}
+#ifdef DEBUG
+  virtual std::string stats() const { return "dummy"; }
+  virtual std::string value(const ICoord&) const { return "dummy value"; }
+#endif // DEBUG
+};
 
 #endif // STATGROUPS_H
