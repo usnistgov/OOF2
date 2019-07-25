@@ -75,7 +75,7 @@ registeredclass.Registration(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class ColorDifferentiator2(burn.PixelDifferentiator):
-    def __init__(self, image, color_delta):
+    def __init__(self, image, color_delta, color_space_norm):
         self.image = image
         self.color_delta = color_delta
         self.color_space_norm = color_space_norm
@@ -101,6 +101,10 @@ registeredclass.Registration(
             range=(0, 1, 0.001), value=0.1,
             tip="Maximum difference in color between the initial,"
             " randomly chosen pixel and other pixels in the group."),
+        enum.EnumParameter(
+            'color_space_norm', ColorNorm, value=L1,
+            tip="How to compute the difference between two colors in RGB space."
+            )
         ],
     tip="Create pixel groups containing similarly colored pixels,"
     " without regard to location.  All pixels will be grouped."

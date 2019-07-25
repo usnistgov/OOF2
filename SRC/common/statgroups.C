@@ -22,7 +22,9 @@
 #include <set>
 
 
-// TODO: Auto-despeckling of groups at end of statgroups.
+static const ICoord directions[] = {ICoord(-1,-1), ICoord(-1,0), ICoord(-1, 1),
+				    ICoord(0, -1), ICoord(0, 1),
+				    ICoord(1, -1), ICoord(1, 0), ICoord(1, 1)};
 
 // TODO: StatBurn -- add neighboring pixels if they're within n
 // deviations of the mean of the burned region.  Update the mean and
@@ -41,9 +43,41 @@ void PixelDistribution::remove_noupdate(const ICoord &pxl) {
   pxls.erase(iter);
 }
 
-static const ICoord directions[] = {ICoord(-1,-1), ICoord(-1,0), ICoord(-1, 1),
-				    ICoord(0, -1), ICoord(0, 1),
-				    ICoord(1, -1), ICoord(1, 0), ICoord(1, 1)};
+std::vector<std::set<ICoord>> PixelDistribution::contiguousPixels() const {
+  // Split the pixels in the PixelDistribution into contiguous sets.
+  std::vector<std::set<ICoord>> sets;
+  
+  std::set<ICoord> sourcePixels(pxls.begin(), pxls.end());
+  while(!sourcePixels.empty()) {
+    std::vector<ICoord> activeSites; // pixels being considered for inclusion
+    std::set<ICoord> targetPixels;   // pixels already included
+
+    // Pick a starting point
+    auto iter = sourcePixels.begin();
+    activeSites.push_back(*iter);
+    sourcePixels.erase(iter);
+    
+    while(!activeSites.empty()) {
+      ICoord active = activeSites.back();
+      activeSites.pop_back();
+      targetPixels.insert(active);
+      for(const ICoord &dir : directions) {
+	ICoord nbr = active + dir;
+	if(sourcePixels.count(nbr) == 1) {
+	  // Neighboring pixel is in the source set
+	  activeSites.push_back(nbr); // make neighbor active
+	  sourcePixels.erase(nbr); // don't make it active again later
+	}
+      }
+    } // end while there are active sites
+    sets.emplace_back(std::move(targetPixels));
+    
+  } // end loop over source pixels
+
+  return sets;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Given a pixel, count the number of neighboring pixels in each
 // PixelDistribution.
@@ -58,6 +92,15 @@ std::map<PixelDistribution*, int> countNeighbors(
       counts[dists[nbr]] += 1;
   }
   return counts;
+}
+
+bool isBdyPixel(SimpleArray2D<PixelDistribution*> &dists, const ICoord &pt) {
+  for(const ICoord &dir : directions) {
+    ICoord nbr = pt + dir;
+    if(dists.contains(nbr) && dists[nbr] != dists[pt])
+      return true;
+  }
+  return false;
 }
 
 // Given a bunch of PixelDistributions, return an array saying which
@@ -86,7 +129,7 @@ const std::string *statgroups(CMicrostructure *microstructure,
 			      const PixelDistributionFactory *factory,
 			      double delta,
 			      double gamma,
-			      int despeckle,
+			      // int despeckle,
 			      int minsize,
 			      const std::string &name_template, bool clear)
 {
@@ -187,6 +230,22 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	 + to_string(pixelDists.size()) + " groups");
     progress->setFraction(double(nChecked++)/npix);
   } // end loop over pixels
+
+  // -----------
+
+  // Split PixelDistributions into contiguous regions, and make each
+  // of them into a PixelDistribution.
+
+  std::vector<PixelDistribution*> pixelDists2;
+  for(PixelDistribution *pixDist : pixelDists) {
+    std::vector<std::set<ICoord>> pixSets = pixDist->contiguousPixels();
+    for(auto &pixset : pixSets) {
+      PixelDistribution *pixDist2 = pixDist->clone(pixset);
+      pixelDists2.push_back(pixDist2);
+    }
+    delete pixDist;
+  }
+  pixelDists = pixelDists2;
 
   // -----------
 
@@ -313,52 +372,112 @@ const std::string *statgroups(CMicrostructure *microstructure,
   
   // -----------
 
-  if(despeckle > 0) {
-    IndefiniteProgress *despprog =
-      dynamic_cast<IndefiniteProgress*>(getProgress("Despeckling", INDEFINITE));
-    try {
-      // Make an array indicating which PixelDistribution contains each pixel.
-      SimpleArray2D<PixelDistribution*> dists =
-	getDistArray(mssize, pixelDists, 0);
+// #ifdef DESPECKLE
+//   if(despeckle > 0) {
+//     IndefiniteProgress *despprog =
+//       dynamic_cast<IndefiniteProgress*>(getProgress("Despeckling", INDEFINITE));
+//     try {
+//       // Make an array indicating which PixelDistribution contains each pixel.
+//       SimpleArray2D<PixelDistribution*> dists =
+// 	getDistArray(mssize, pixelDists, 0);
 
-      bool didSomething;
-      do {
-	// TODO: This is very inefficient.  After the first pass it's
-	// only necessary to examine the neighbors of the points that
-	// were modified in the first pass.
-	didSomething = false;
-	// Loop over pixels in random order
-	const std::vector<ICoord> shuffledPix = microstructure->shuffledPix();
-	for(const ICoord &pixel : shuffledPix) {
-	  // Count which groups neighbor this pixel
-	  despprog->pulse();
-	  PixelDistribution *thisDist = dists[pixel];
-	  std::map<PixelDistribution*, int> counts =
-	    countNeighbors(dists, pixel);
-	  int nMost = 0;
-	  PixelDistribution *mostDist = nullptr;
-	  for(auto iter = counts.begin(); iter!=counts.end(); ++iter) {
-	    if(iter->second > nMost) {
-	      mostDist = iter->first;
-	      nMost = iter->second;
-	    }
-	  }
-	  if(nMost >= despeckle && mostDist != thisDist) {
-	    // Move this pixel into mostDist.
-	    mostDist->add_noupdate(pixel);
-	    thisDist->remove_noupdate(pixel);
-	    dists[pixel] = mostDist;
-	    didSomething = true;
-	  }
-	}	// end loop over pixels
-      } while(didSomething);
-    }
-    catch (...) {
-      despprog->finish();
-      throw;
-    }
-    despprog->finish();
-  } // end if despeckle
+//       // Make a list of pixels that differ from their neighbors
+//       std::vector<ICoord> bdyPixels;
+//       for(int i=0; i<mssize[0]; i++) {
+// 	for(int j=0; j<mssize[1]; j++) {
+// 	  ICoord pt(i,j);
+// 	  if(isBdyPixel(dists, pt)) {
+// 	    bdyPixels.push_back(pt);
+// 	  }
+// 	}
+//       }
+//       shuffleVector(bdyPixels);
+//       std::set<ICoord> examinedPixels;
+
+//       int ntodo = bdyPixels.size();
+      
+//       while(!bdyPixels.empty()) {
+// 	// Get a pixel from the list of pixels to check
+// 	ICoord pxl = bdyPixels.back();
+// 	bdyPixels.pop();
+// 	examinedPixels.insert(pxl);
+
+// 	// See which PixelDistributions the pixel's neighbors are in
+// 	std::set<PixelDistribution*> mostDists; // most common nbr dist
+// 	int nMost = 0;
+// 	std::map<PixelDistribution*, int> nbrs = countNeighbors(dists, pxl);
+// 	for(auto iter=nbrs.begin(); iter!=nbrs.end(); ++iter) {
+// 	  if(iter->second > nMost) {
+// 	    mostDists.clear();
+// 	    mostDists.insert(iter->first);
+// 	    nMost = iter->second;
+// 	  }
+// 	  else if(iter->second == nMost) {
+// 	    mostDists.insert(iter->first);
+// 	  }
+// 	} // end loop over neighbors of pxl
+
+// 	// If there are more than 'despeckle' neighbors in a different
+// 	// PixelDistribution, switch the pixel to that distribution.
+// 	// If there is more than one candidate PixelDistribution, pick
+// 	// the one that the pixel fits best.
+// 	if(mostDists.size() == 1) {
+// 	  auto iter = mostDists.begin();
+// 	  if(iter->second >= despeckle && iter->first != dists[pxl]) {
+// 	    // Move the pixel from the old group (dists[pxl]) to the
+// 	    // new group (iter->first).
+// 	    dists[pxl]->remove(pxl);
+// 	    iter->first->add(pxl);
+// 	    dists[pxl] = iter->first;
+// 	    // Put the neighboring pixels in bdyPixels so that they'll
+// 	    // be examined too, unless they've already been examined
+// 	    // or are already in bdyPixels.
+// 	  }
+// 	}
+//       }
+      
+
+//       // bool didSomething;
+//       // do {
+//       // 	// TODO: This is very inefficient.  After the first pass it's
+//       // 	// only necessary to examine the neighbors of the points that
+//       // 	// were modified in the first pass.  BETTER: start by making a
+//       // 	// list of pixels that differ from one or more neighbors, and
+//       // 	// work from that.
+//       // 	didSomething = false;
+//       // 	// Loop over pixels in random order
+//       // 	const std::vector<ICoord> shuffledPix = microstructure->shuffledPix();
+//       // 	for(const ICoord &pixel : shuffledPix) {
+//       // 	  // Count which groups neighbor this pixel
+//       // 	  despprog->pulse();
+//       // 	  PixelDistribution *thisDist = dists[pixel];
+//       // 	  std::map<PixelDistribution*, int> counts =
+//       // 	    countNeighbors(dists, pixel);
+//       // 	  int nMost = 0;
+//       // 	  PixelDistribution *mostDist = nullptr;
+//       // 	  for(auto iter = counts.begin(); iter!=counts.end(); ++iter) {
+//       // 	    if(iter->second > nMost) {
+//       // 	      mostDist = iter->first;
+//       // 	      nMost = iter->second;
+//       // 	    }
+//       // 	  }
+//       // 	  if(nMost >= despeckle && mostDist != thisDist) {
+//       // 	    // Move this pixel into mostDist.
+//       // 	    mostDist->add_noupdate(pixel);
+//       // 	    thisDist->remove_noupdate(pixel);
+//       // 	    dists[pixel] = mostDist;
+//       // 	    didSomething = true;
+//       // 	  }
+//       // 	}	// end loop over pixels
+//       // } while(didSomething);
+//     }
+//     catch (...) {
+//       despprog->finish();
+//       throw;
+//     }
+//     despprog->finish();
+//   } // end if despeckle
+// #endif // DESPECKLE
 
   // -----------
   

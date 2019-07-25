@@ -14,6 +14,7 @@
 
 #include <oofconfig.h>
 
+#include <set>
 #include <vector>
 
 class CMicrostructure;
@@ -57,6 +58,7 @@ public:
 
   // Add a pixel and update the mean and variance.
   virtual void add(const ICoord&) = 0;
+  virtual void remove(const ICoord&) = 0;
   // Add without updating the mean and variance
   void add_noupdate(const ICoord &pt) { pxls.push_back(pt); }
   void remove_noupdate(const ICoord &pt);
@@ -73,7 +75,13 @@ public:
   // Merge the given group PixelDistribution into this one. 
   virtual void merge(const PixelDistribution*) = 0;
 
+  // Make a new PixelDistribution of the same subclass using the given
+  // set of pixels.
+  virtual PixelDistribution *clone(const std::set<ICoord>&) const = 0;
+
   const std::vector<ICoord> &pixels() const { return pxls; }
+
+  std::vector<std::set<ICoord>> contiguousPixels() const;
 
 #ifdef DEBUG
   virtual std::string stats() const = 0;
@@ -93,7 +101,6 @@ public:
 
 const std::string *statgroups(CMicrostructure*, const PixelDistributionFactory*,
 			      double, double,
-			      int despeckle,
 			      int minsize,
 			      const std::string&, bool);
 
@@ -106,9 +113,13 @@ class DummyDistribution : public PixelDistribution {
 public:
   DummyDistribution() {}
   virtual void add(const ICoord&) {}
+  virtual void remove(const ICoord&) {}
   virtual double deviation2(const ICoord&) const { return 0.0; }
   virtual double deviation2(const PixelDistribution*) const { return 0.0; }
   virtual void merge(const PixelDistribution*) {}
+  PixelDistribution *clone(const std::set<ICoord>&) const { 
+    return new DummyDistribution(); 
+  }
 #ifdef DEBUG
   virtual std::string stats() const { return "dummy"; }
   virtual std::string value(const ICoord&) const { return "dummy value"; }

@@ -28,7 +28,6 @@ const string *statgroups(CMicrostructure*,
 			 PixelDistributionFactory*,
 			 double, double,
 			 int,
-			 int,
 			 char*, bool);
 
 #endif // STATGROUPS_SWG

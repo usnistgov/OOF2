@@ -201,8 +201,7 @@ std::vector<ICoord> CMicrostructure::shuffledPix() const {
       if(activearea->isActive(p))
 	pix.push_back(p);
     }
-  OOFRandomNumberGenerator r;
-  oofshuffle(pix.begin(), pix.end(), r);
+  shuffleVector(pix);
   return pix;
 }
 

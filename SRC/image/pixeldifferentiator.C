@@ -110,16 +110,69 @@ ColorPixelDistribution::ColorPixelDistribution(const ICoord &pixel,
   variance[2] = var0;
 }
 
+// Initialize with a whole bunch of pixels.
+ColorPixelDistribution::ColorPixelDistribution(const std::set<ICoord> &pixels,
+					       const OOFImage *image,
+					       double sigma0)
+  : mean{0.0, 0.0, 0.0},
+    sumsq{0.0, 0.0, 0.0},
+    var0(sigma0*sigma0),
+    image(image)
+{
+  pxls.insert(pxls.begin(), pixels.begin(), pixels.end());
+  for(const ICoord &pixel : pxls) {
+    CColor col = (*image)[pixel];
+    mean[0] += col.getRed();
+    mean[1] += col.getGreen();
+    mean[2] += col.getBlue();
+    sumsq[0] += col.getRed()*col.getRed();
+    sumsq[1] += col.getGreen()*col.getGreen();
+    sumsq[2] += col.getBlue()*col.getBlue();
+  }
+  mean[0] /= npts();
+  mean[1] /= npts();
+  mean[2] /= npts();
+
+  findVariance();
+}
+
+PixelDistribution *ColorPixelDistribution::clone(
+					 const std::set<ICoord> &pxls)
+  const
+{
+  ColorPixelDistribution *newpd = new ColorPixelDistribution(pxls, image,
+							     sqrt(var0));
+  return newpd;
+}
+
 void ColorPixelDistribution::add(const ICoord &pixel) {
+  int oldN = pxls.size();
   pxls.push_back(pixel);
   CColor col = (*image)[pixel];
-  int n = pxls.size();
-  mean[0] = ((n-1)*mean[0] + col.getRed())/n;
-  mean[1] = ((n-1)*mean[1] + col.getGreen())/n;
-  mean[2] = ((n-1)*mean[2] + col.getBlue())/n;
+  int newN = pxls.size();
+  mean[0] = (oldN*mean[0] + col.getRed())/newN;
+  mean[1] = (oldN*mean[1] + col.getGreen())/newN;
+  mean[2] = (oldN*mean[2] + col.getBlue())/newN;
   sumsq[0] += col.getRed()*col.getRed();
   sumsq[1] += col.getGreen()*col.getGreen();
   sumsq[2] += col.getBlue()*col.getBlue();
+  findVariance();
+}
+
+void ColorPixelDistribution::remove(const ICoord &pixel) {
+  auto iter = std::find(pxls.begin(), pxls.end(), pixel);
+  if(iter == pxls.end())
+    return;
+  int oldN = pxls.size();
+  pxls.erase(iter);
+  int newN = pxls.size();
+  CColor col = (*image)[pixel];
+  mean[0] = (oldN*mean[0] - col.getRed())/newN;
+  mean[1] = (oldN*mean[1] - col.getGreen())/newN;
+  mean[2] = (oldN*mean[2] - col.getBlue())/newN;
+  sumsq[0] -= col.getRed()*col.getRed();
+  sumsq[1] -= col.getGreen()*col.getGreen();
+  sumsq[2] -= col.getBlue()*col.getBlue();
   findVariance();
 }
 

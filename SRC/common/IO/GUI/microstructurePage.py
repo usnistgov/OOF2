@@ -140,6 +140,9 @@ class MicrostructurePage(oofGUI.MainPage):
         scroll.add(self.infoarea)
         
         ########
+        
+        ## TODO: PixelGroup buttons should be desensitized when
+        ## Microstructure is busy.
 
         self.grouplock = lock.Lock()
         groupframe = gtk.Frame('%s Groups'%Pixstring)

@@ -200,10 +200,11 @@ const std::string *autogroups(CMicrostructure *ms,
 			      const std::string &name_template, bool clear)
 {
   ICoord mssize(ms->sizeInPixels());
-  const ActiveArea *activeArea = ms->getActiveArea();
   Progress *progress =
     dynamic_cast<DefiniteProgress*>(findProgress("AutoGroup"));
 
+  // shuffledPix contains the coordinates of all of the active pixels
+  // in random order.
   std::vector<ICoord> shuffledPix = ms->shuffledPix();
 
   // List of (seed, pixellist) pairs.  A seed is the first pixel in a

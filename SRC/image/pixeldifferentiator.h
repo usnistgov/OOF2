@@ -58,7 +58,10 @@ protected:
   void findVariance();
 public:
   ColorPixelDistribution(const ICoord&, const OOFImage*, double);
+  ColorPixelDistribution(const std::set<ICoord>&, const OOFImage*, double);
+  PixelDistribution *clone(const std::set<ICoord>&) const;
   virtual void add(const ICoord&);
+  virtual void remove(const ICoord&);
   virtual void merge(const PixelDistribution*);
   virtual double deviation2(const ICoord&) const;
   virtual double deviation2(const PixelDistribution*) const;

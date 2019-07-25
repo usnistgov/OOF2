@@ -53,4 +53,10 @@ void oofshuffle(_RandomAccessIterator __first, _RandomAccessIterator __last,
 
 std::vector<int> *randomInts(int);
 
+template <class TYPE>
+void shuffleVector(std::vector<TYPE> &vec) {
+  OOFRandomNumberGenerator r;
+  oofshuffle(vec.begin(), vec.end(), r);
+}
+
 #endif	// RANDOM_H

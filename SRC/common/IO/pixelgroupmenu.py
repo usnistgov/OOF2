@@ -181,7 +181,7 @@ pixgrpmenu.addItem(OOFMenuItem(
 # created.  Adding a pixel to a group changes the group's mean and
 # deviation.  If two groups get close to one another, they are merged.
 
-def autoPixelGroup2(menuitem, grouper, delta, gamma, despeckle, minsize,
+def autoPixelGroup2(menuitem, grouper, delta, gamma, minsize,
                     name_template, clear):
     ms = grouper.mscontext.getObject()
     prog = progress.getProgress('AutoGroup', progress.DEFINITE)
@@ -190,7 +190,7 @@ def autoPixelGroup2(menuitem, grouper, delta, gamma, despeckle, minsize,
     newgrpname = None
     try:
         newgrpname = statgroups.statgroups(ms, grouper.cobj, delta, gamma,
-                                           despeckle, minsize,
+                                           minsize,
                                            name_template, clear);
     finally:
         prog.finish()
@@ -216,11 +216,11 @@ pixgrpmenu.addItem(OOFMenuItem(
             value=2.0,
             tip="Groups within this many deviations of each other"
             " will be merged"),
-        parameter.IntRangeParameter(
-            'despeckle', (0,8), 8,
-            tip="Pixels with more than this many neighbors in a group"
-            " will also be put in that group.  Set despeckle=0 to skip."
-            " Useful values are 5 through 8."),
+        # parameter.IntRangeParameter(
+        #     'despeckle', (0,8), 8,
+        #     tip="Pixels with more than this many neighbors in a group"
+        #     " will also be put in that group.  Set despeckle=0 to skip."
+        #     " Useful values are 5 through 8."),
         parameter.IntParameter(
             'minsize', value=0,
             tip="Don't create groups smaller than this number of pixels."
