@@ -159,22 +159,22 @@ void ColorPixelDistribution::add(const ICoord &pixel) {
   findVariance();
 }
 
-void ColorPixelDistribution::remove(const ICoord &pixel) {
-  auto iter = std::find(pxls.begin(), pxls.end(), pixel);
-  if(iter == pxls.end())
-    return;
-  int oldN = pxls.size();
-  pxls.erase(iter);
-  int newN = pxls.size();
-  CColor col = (*image)[pixel];
-  mean[0] = (oldN*mean[0] - col.getRed())/newN;
-  mean[1] = (oldN*mean[1] - col.getGreen())/newN;
-  mean[2] = (oldN*mean[2] - col.getBlue())/newN;
-  sumsq[0] -= col.getRed()*col.getRed();
-  sumsq[1] -= col.getGreen()*col.getGreen();
-  sumsq[2] -= col.getBlue()*col.getBlue();
-  findVariance();
-}
+// void ColorPixelDistribution::remove(const ICoord &pixel) {
+//   auto iter = std::find(pxls.begin(), pxls.end(), pixel);
+//   if(iter == pxls.end())
+//     return;
+//   int oldN = pxls.size();
+//   pxls.erase(iter);
+//   int newN = pxls.size();
+//   CColor col = (*image)[pixel];
+//   mean[0] = (oldN*mean[0] - col.getRed())/newN;
+//   mean[1] = (oldN*mean[1] - col.getGreen())/newN;
+//   mean[2] = (oldN*mean[2] - col.getBlue())/newN;
+//   sumsq[0] -= col.getRed()*col.getRed();
+//   sumsq[1] -= col.getGreen()*col.getGreen();
+//   sumsq[2] -= col.getBlue()*col.getBlue();
+//   findVariance();
+// }
 
 void ColorPixelDistribution::merge(const PixelDistribution *othr) {
   unsigned int nOld = npts();

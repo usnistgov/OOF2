@@ -58,10 +58,10 @@ public:
 
   // Add a pixel and update the mean and variance.
   virtual void add(const ICoord&) = 0;
-  virtual void remove(const ICoord&) = 0;
+  // virtual void remove(const ICoord&) = 0;
   // Add without updating the mean and variance
   void add_noupdate(const ICoord &pt) { pxls.push_back(pt); }
-  void remove_noupdate(const ICoord &pt);
+  // void remove_noupdate(const ICoord &pt);
   void clear_noupdate() { pxls.clear(); }
 
   // How many deviations squared from the mean is the value at the
@@ -113,7 +113,7 @@ class DummyDistribution : public PixelDistribution {
 public:
   DummyDistribution() {}
   virtual void add(const ICoord&) {}
-  virtual void remove(const ICoord&) {}
+  // virtual void remove(const ICoord&) {}
   virtual double deviation2(const ICoord&) const { return 0.0; }
   virtual double deviation2(const PixelDistribution*) const { return 0.0; }
   virtual void merge(const PixelDistribution*) {}
