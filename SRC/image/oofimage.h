@@ -96,6 +96,11 @@ public:
   void set(const ICoord&, const CColor&);
   void imageChanged();		// call this when done setting pixels.
 
+  // When reading multiple pixels, use getBulkPixels once, followed by
+  // many calls to getColor.  This is not thread safe.
+  const Magick::PixelPacket *getBulkPixels() const;
+  CColor getColor(const ICoord &c, const Magick::PixelPacket*) const;
+
   // Convert to an Array of doubles.  f is a function that takes a
   // CColor and returns a double.
   Array<double> convert(double (*f)(const CColor&)) const;

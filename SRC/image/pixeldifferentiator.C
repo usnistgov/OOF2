@@ -27,7 +27,8 @@ CColorDifferentiator3::CColorDifferentiator3(const OOFImage *image,
   : image(image),
     local_flammability(lf),
     global_flammability(gf),
-    useL2norm(l2)
+    useL2norm(l2),
+    rawpixels(image->getBulkPixels())
 {}
 
 bool CColorDifferentiator3::operator()(const ICoord &target,
@@ -35,9 +36,9 @@ bool CColorDifferentiator3::operator()(const ICoord &target,
 				      const ICoord &global_reference)
   const
 {
-  const CColor trgt = (*image)[target];
-  const CColor lcl = (*image)[local_reference];
-  const CColor glbl = (*image)[global_reference];
+  const CColor trgt = image->getColor(target, rawpixels);
+  const CColor lcl = image->getColor(local_reference, rawpixels); 
+  const CColor glbl = image->getColor(global_reference, rawpixels);
   
   if(useL2norm) {
     double local_dist = L2dist2(trgt, lcl);
@@ -58,23 +59,24 @@ CColorDifferentiator2::CColorDifferentiator2(const OOFImage *image,
 					     double cd, bool l2)
   : image(image),
     color_delta(cd),
-    useL2norm(l2)
+    useL2norm(l2),
+    rawpixels(image->getBulkPixels())
 {}
 
 bool CColorDifferentiator2::operator()(const ICoord &target,
 				       const ICoord &reference)
   const
 {
-  const CColor trgt = (*image)[target];
-  const CColor rfrnc = (*image)[reference];
+  const CColor trgt = image->getColor(target, rawpixels);
+  const CColor rfrnc = image->getColor(reference, rawpixels); 
   return distance2(target, reference) < color_delta*color_delta;
 }
 
 double CColorDifferentiator2::distance2(const ICoord &p0, const ICoord &p1)
   const
 {
-  const CColor c0 = (*image)[p0];
-  const CColor c1 = (*image)[p1];
+  const CColor c0 = image->getColor(p0, rawpixels);
+  const CColor c1 = image->getColor(p1, rawpixels);
   if(useL2norm) {
     return L2dist2(c0, c1);
   }
@@ -95,9 +97,10 @@ ColorPixelDistribution::ColorPixelDistribution(const ICoord &pixel,
 					       const OOFImage *image,
 					       double sigma0)
   : var0(sigma0*sigma0),
-    image(image)
+    image(image),
+    rawpixels(image->getBulkPixels())
 {
-  CColor col = (*image)[pixel];
+  CColor col = image->getColor(pixel, rawpixels);
   pxls.push_back(pixel);
   mean[0] = col.getRed();
   mean[1] = col.getGreen();
@@ -117,11 +120,12 @@ ColorPixelDistribution::ColorPixelDistribution(const std::set<ICoord> &pixels,
   : mean{0.0, 0.0, 0.0},
     sumsq{0.0, 0.0, 0.0},
     var0(sigma0*sigma0),
-    image(image)
+    image(image),
+    rawpixels(image->getBulkPixels())
 {
   pxls.insert(pxls.begin(), pixels.begin(), pixels.end());
   for(const ICoord &pixel : pxls) {
-    CColor col = (*image)[pixel];
+    CColor col = image->getColor(pixel, rawpixels);
     mean[0] += col.getRed();
     mean[1] += col.getGreen();
     mean[2] += col.getBlue();
@@ -148,7 +152,7 @@ PixelDistribution *ColorPixelDistribution::clone(
 void ColorPixelDistribution::add(const ICoord &pixel) {
   int oldN = pxls.size();
   pxls.push_back(pixel);
-  CColor col = (*image)[pixel];
+  CColor col = image->getColor(pixel, rawpixels);
   int newN = pxls.size();
   mean[0] = (oldN*mean[0] + col.getRed())/newN;
   mean[1] = (oldN*mean[1] + col.getGreen())/newN;
@@ -204,7 +208,8 @@ void ColorPixelDistribution::findVariance() {
 double ColorPixelDistribution::deviation2(const ICoord &pixel)
   const
 {
-  CColor color = (*image)[pixel];
+  // CColor color = (*image)[pixel];
+  CColor color = image->getColor(pixel, rawpixels);
   double delta[3];
   delta[0] = color.getRed() - mean[0];
   delta[1] = color.getGreen() - mean[1];
@@ -241,7 +246,7 @@ std::string ColorPixelDistribution::stats() const {
 }
 
 std::string ColorPixelDistribution::value(const ICoord &pixel) const {
-  return to_string((*image)[pixel]);
+  return to_string(image->getColor(pixel, rawpixels));
 }
 
 #endif // DEBUG

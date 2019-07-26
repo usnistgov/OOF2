@@ -86,8 +86,9 @@ std::map<PixelDistribution*, int> countNeighbors(
   std::map<PixelDistribution*, int> counts;
   for(const ICoord &dir : directions) {
     ICoord nbr = pt + dir;
-    if(dists.contains(nbr))	// if nbr is in bounds
-      counts[dists[nbr]] += 1;
+    // If nbr is within the array bounds and the array is non-null there
+    if(dists.contains(nbr) && dists[nbr] != nullptr)
+	counts[dists[nbr]] += 1;
   }
   return counts;
 }
@@ -146,8 +147,6 @@ const std::string *statgroups(CMicrostructure *microstructure,
   // of two groups are within gamma deviations of one another, the
   // groups are merged.
 
-  std::cerr << "statgroups:" << std::endl;
-
   ICoord mssize(microstructure->sizeInPixels());
   Progress *progress =
     dynamic_cast<DefiniteProgress*>(findProgress("AutoGroup"));
@@ -165,6 +164,10 @@ const std::string *statgroups(CMicrostructure *microstructure,
     }
     
     // Find the existing pixel group that this pixel fits best.
+
+    // TODO: Use a hash table.  When there are a lot of groups in a
+    // large image this is very slow.  Hash table will have to be
+    // implemented in the PixelDistribution subclasses.
     double bestSigma2 = std::numeric_limits<double>::max();
     PixelDistribution *bestDist = nullptr;
     for(PixelDistribution *pd : pixelDists) {
@@ -259,8 +262,6 @@ const std::string *statgroups(CMicrostructure *microstructure,
   // -----------
 
   if(minsize > 0) {
-    std::cerr << "statgroups: merging small groups" << std::endl;
-    
     // Get rid of distributions containing fewer than minsize pixels
     // by attaching them to neighboring distributions.
 
@@ -280,9 +281,11 @@ const std::string *statgroups(CMicrostructure *microstructure,
       int ntodo = 0;
       int nSmallGroups = 0;
       DummyDistribution bdyPixelMarker; // marks the bdy pixels in dists.
-      std::cerr << "statgroups: &bdyPixelMarker=" << &bdyPixelMarker
-		<< std::endl;
+      int g = 0;
       for(PixelDistribution *pixDist : pixelDists) {
+	prog2->setMessage("Checking group " + to_string(++g) + "/" +
+			  to_string(pixelDists.size()));
+	prog2->setFraction(g/(double) pixelDists.size());
 	if(pixDist->npts() < minsize) {
 	  ntodo += pixDist->npts();
 	  nSmallGroups++;
@@ -311,10 +314,6 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	} // end if it's a small distribution
       }	  // end loop over all distributions
 
-      std::cerr << "statgroups: removing " << nSmallGroups
-		<< " small groups, containing " << ntodo << " pixels."
-		<< std::endl;
-
       // Randomize the neighboring pixels.
       OOFRandomNumberGenerator r;
       oofshuffle(bdyPixels.begin(), bdyPixels.end(), r);
@@ -329,6 +328,9 @@ const std::string *statgroups(CMicrostructure *microstructure,
       while(!bdyPixels.empty()) {
 	if(prog2->stopped())
 	  break;
+	prog2->setMessage("Checking pixel " + to_string(ndone) + "/" +
+			  to_string(ntodo));
+	prog2->setFraction(ndone/(double) ntodo);
 	ICoord pxl = bdyPixels.back();
 	bdyPixels.pop_back();
 	// Get the PixelDistributions that contain neighbors of pxl.
@@ -350,16 +352,6 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	    }
 	  } // end if not the bdyPixelMarker distribution
 	}   // end loop over distributions of neighbor pixels
-#ifdef DEBUG
-	if(mostDists.empty()) {
-	  std::cerr << "statgroups: mostDists is empty!" << std::endl;
-	  std::cerr << " counts:";
-	  for(auto iter=counts.begin(); iter!=counts.end(); ++iter)
-	    std::cerr << " (" << iter->first << ", " << iter->second
-		      << ")";
-	  std::cerr << std::endl;
-	}
-#endif // DEBUG
 	assert(!mostDists.empty());
 	
 	PixelDistribution *bestDist = nullptr;
@@ -379,6 +371,7 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	    }
 	  }
 	}
+	assert(bestDist != nullptr);
 	// Add the pixel to the best neighboring distribution
 	bestDist->add(pxl);
 	dists[pxl] = bestDist;
@@ -405,8 +398,6 @@ const std::string *statgroups(CMicrostructure *microstructure,
   
   // -----------
 
-  std::cerr << "statgroups: sorting groups" << std::endl;
-  
   // Sort the groups from largest to smallest before naming them.
   std::sort(pixelDists.begin(), pixelDists.end(), SortDists());
   // How many groups are non-empty?
@@ -444,7 +435,6 @@ const std::string *statgroups(CMicrostructure *microstructure,
     } // end if PixelDistribution is not empty
     delete pd;
   }
-  std::cerr << "statgroups: done" << std::endl;
   return new std::string(groupname);
 }
 

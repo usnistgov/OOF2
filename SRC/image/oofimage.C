@@ -238,6 +238,21 @@ const CColor OOFImage::operator[](const ICoord &c) const {
   }
 }
 
+// When reading multiple pixels, use getBulkPixels once, followed by
+// many calls to getColor.  This is not thread safe.
+
+const Magick::PixelPacket *OOFImage::getBulkPixels() const {
+  Magick::Pixels view(*const_cast<Magick::Image*>(&image));
+  return view.getConst(0,0, sizeInPixels_(0), sizeInPixels_(1));
+}
+
+CColor OOFImage::getColor(const ICoord &pt, const Magick::PixelPacket *pixels)
+  const
+{
+  const Magick::PixelPacket &pp = pixels[pt(0) + sizeInPixels_(0)*pt(1)];
+  return CColor(pp.red*scale, pp.green*scale, pp.blue*scale);
+}
+
 // TODO OPT?: It may be useful to have "block-set" routines which use the
 // ImageMagick PixelPacket routine to set many pixels together.  This
 // is alleged to be much faster.  See the OOFImage copy constructor
