@@ -11,7 +11,6 @@
 
 #include <oofconfig.h>
 
-#include "common/burn.h"
 #include "common/ccolor.h"
 #include "common/tostring.h"
 #include "image/oofimage.h"
@@ -28,7 +27,7 @@ CColorDifferentiator3::CColorDifferentiator3(const OOFImage *image,
     local_flammability(lf),
     global_flammability(gf),
     useL2norm(l2),
-    rawpixels(image->getBulkPixels())
+    rawpixels(image->pixelPacket())
 {}
 
 bool CColorDifferentiator3::operator()(const ICoord &target,
@@ -60,7 +59,7 @@ CColorDifferentiator2::CColorDifferentiator2(const OOFImage *image,
   : image(image),
     color_delta(cd),
     useL2norm(l2),
-    rawpixels(image->getBulkPixels())
+    rawpixels(image->pixelPacket())
 {}
 
 bool CColorDifferentiator2::operator()(const ICoord &target,
@@ -98,7 +97,7 @@ ColorPixelDistribution::ColorPixelDistribution(const ICoord &pixel,
 					       double sigma0)
   : var0(sigma0*sigma0),
     image(image),
-    rawpixels(image->getBulkPixels())
+    rawpixels(image->pixelPacket())
 {
   CColor col = image->getColor(pixel, rawpixels);
   pxls.push_back(pixel);
@@ -121,7 +120,7 @@ ColorPixelDistribution::ColorPixelDistribution(const std::set<ICoord> &pixels,
     sumsq{0.0, 0.0, 0.0},
     var0(sigma0*sigma0),
     image(image),
-    rawpixels(image->getBulkPixels())
+    rawpixels(image->pixelPacket())
 {
   pxls.insert(pxls.begin(), pixels.begin(), pixels.end());
   for(const ICoord &pixel : pxls) {
@@ -186,7 +185,7 @@ void ColorPixelDistribution::merge(const PixelDistribution *othr) {
   const ColorPixelDistribution *other =
     dynamic_cast<const ColorPixelDistribution*>(othr);
 
-  pxls.insert(pxls.begin(), other->pxls.begin(), other->pxls.end());
+  pxls.insert(pxls.end(), other->pxls.begin(), other->pxls.end());
   unsigned int nNew = npts();
 
   for(unsigned int i=0; i<3; i++) {

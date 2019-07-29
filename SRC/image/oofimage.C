@@ -238,13 +238,8 @@ const CColor OOFImage::operator[](const ICoord &c) const {
   }
 }
 
-// When reading multiple pixels, use getBulkPixels once, followed by
-// many calls to getColor.  This is not thread safe.
-
-const Magick::PixelPacket *OOFImage::getBulkPixels() const {
-  Magick::Pixels view(*const_cast<Magick::Image*>(&image));
-  return view.getConst(0,0, sizeInPixels_(0), sizeInPixels_(1));
-}
+// To get multiple pixel values, call this many times, passing in the
+// PixelPacket from a single call to OOFImage::pixelPacket().
 
 CColor OOFImage::getColor(const ICoord &pt, const Magick::PixelPacket *pixels)
   const

@@ -175,11 +175,19 @@ pixgrpmenu.addItem(OOFMenuItem(
 
 # AutoGroup2 uses a statistical method to create groups.  Each group
 # is assumed to contain a distribution of pixel values.  A pixel value
-# is compared to the mean and deviation each existing group, and the
-# pixel added to the group to which it's the fewest deviations from
-# the mean.  If it's not close enough to any group, a new group is
-# created.  Adding a pixel to a group changes the group's mean and
+# is compared to the mean and deviation of each existing group, and
+# the pixel added to the group to which it's the fewest deviations
+# from the mean.  If it's not close enough to any group, a new group
+# is created.  Adding a pixel to a group changes the group's mean and
 # deviation.  If two groups get close to one another, they are merged.
+
+# After all pixels have been added to groups, each group is split into
+# disconnected regions.  Regions containing fewer than minsize pixels
+# are merged into adjacent groups, pixel by pixel.  If a pixel is
+# adjacent to more than one group, its put into the group with more
+# neighbors.  If the pixel is adjacent to the same number of neighbors
+# in more than one group, it's put into the group with the closest
+# mean.
 
 def autoPixelGroup2(menuitem, grouper, delta, gamma, minsize,
                     name_template, clear):
@@ -216,16 +224,11 @@ pixgrpmenu.addItem(OOFMenuItem(
             value=2.0,
             tip="Groups within this many deviations of each other"
             " will be merged"),
-        # parameter.IntRangeParameter(
-        #     'despeckle', (0,8), 8,
-        #     tip="Pixels with more than this many neighbors in a group"
-        #     " will also be put in that group.  Set despeckle=0 to skip."
-        #     " Useful values are 5 through 8."),
         parameter.IntParameter(
             'minsize', value=0,
-            tip="Don't create groups smaller than this number of pixels."
-            " Instead, assign pixels to the nearest large group."
-            "  Set minsize=0 to skip."),
+            tip="Don't create groups or isolated parts of groups with fewer"
+            " than this many pixels.  Instead, assign pixels to the nearest"
+            " large group.  Set minsize=0 to skip this step."),
         parameter.StringParameter(
             "name_template",
             value="group_%n",
@@ -234,7 +237,7 @@ pixgrpmenu.addItem(OOFMenuItem(
         parameter.BooleanParameter(
             "clear", value=True,
             tip="Clear pre-existing groups before adding pixels to them."
-            " This will NOT clean groups to which no pixels are being added.")
+            " This will NOT clear groups to which no pixels are being added.")
         ],
     help="Put all pixels into pixel groups, sorted by color or orientation."
 ))

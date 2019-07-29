@@ -11,11 +11,17 @@
 from ooflib.SWIG.common import burn
 from ooflib.SWIG.common import latticesystem
 from ooflib.SWIG.common import ooferror
+from ooflib.SWIG.common import statgroups
 from ooflib.SWIG.orientationmap import orientmapdata
 from ooflib.common import debug
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
+
+latticeparameter = latticesystem.LatticeSymmetryParameter(
+    'lattice_symmetry',
+    tip="Assume that the material at each point has this symmetry,"
+    " making some orientations equivalent.")
 
 class OrientationDifferentiator3(burn.PixelDifferentiator):
     def __init__(self, microstructure, local_misorientation,
@@ -86,10 +92,41 @@ registeredclass.Registration(
             range=(0., 180., 0.1), value=10,
             tip="Maximum misorientation between the initial,"
             " randomly chosen pixel and the other pixels in a group."),
-        latticesystem.LatticeSymmetryParameter(
-            'lattice_symmetry',
-            tip="Assume that the material at each point has this symmetry, making some orientations equivalent.")
+        latticeparameter,
         ],
     tip="Create pixel groups containing similarly oriented pixels,"
     " without regard to location. All pixels will be grouped."
 )
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class OrientationGrouper(statgroups.PixelGrouper):
+    def __init__(self, microstructure, sigma0, lattice_symmetry):
+        self.microstructure = microstructure
+        self.sigma0 = sigma0
+        self.lattice_symmetry = lattice_symmetry
+        ms = whoville.getClass('Microstructure')[microstructure]
+        statgroups.PixelGrouper.__init__(
+            self,
+            ms, 
+            OrientationPixelDistFactory(
+                orientmapdata.getOrientationMap(ms.getObject()),
+                sigma0, lattice_symmetry.schoenflies()))
+
+
+registeredclass.Registration(
+    'Orientation',
+    statgroups.PixelGrouper,
+    OrientationGrouper,
+    ordering=2,
+    params=[
+        whoville.WhoParameter(
+            'microstructure', whoville.getClass('Microstructure'),
+            tip='Use the orientation map in this Microstructure'),
+        parameter.FloatParameter(
+            'sigma0', value=1.0,
+            tip="Standard deviation (in degrees) to use for"
+            " initial distributions"),
+        latticeparameter
+        ],
+    tip="Group pixels by examining orientation distributions.")
