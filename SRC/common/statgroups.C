@@ -139,6 +139,7 @@ const std::string *statgroups(CMicrostructure *microstructure,
 			      double delta,
 			      double gamma,
 			      int minsize,
+			      bool contiguous,
 			      const std::string &name_template, bool clear)
 {
   // This is sort of like autogroups, but statistical.  It assumes
@@ -150,6 +151,8 @@ const std::string *statgroups(CMicrostructure *microstructure,
   // deviation of the group are updated.  If after updating, the means
   // of two groups are within gamma deviations of one another, the
   // groups are merged.
+
+  // TODO: This routine is too long.  Break it up.
   
   Progress *progress =
     dynamic_cast<DefiniteProgress*>(findProgress("AutoGroup"));
@@ -249,8 +252,17 @@ const std::string *statgroups(CMicrostructure *microstructure,
 		   + to_string(pixelDists.size()) + " groups");
       progress->setFraction(double(nChecked++)/npix);
     } // end loop over pixels
+
+    // At this point, every pixel is in a PixelDistribution containing
+    // similar pixels.  The pixels in each PixelDistribution do not
+    // necessarily form a contiguous set.
   
-  
+    // -----------
+
+    // If we want only contiguous groups, or if we want to eliminate
+    // small groups (or small disconnected regions of large groups) we
+    // have to split the PixelDistributions into contiguous pieces.
+    
 // #ifdef DEBUG
 //     std::cerr << "statgroups: before splitting, PixelDistributions are:" 
 // 	      << std::endl;
@@ -260,25 +272,42 @@ const std::string *statgroups(CMicrostructure *microstructure,
 //     }
 // #endif // DEBUG
 
-    // -----------
+    if(contiguous || minsize > 0) {
+      // Rebuild the PixelDistributions in pixelDists and store the
+      // new ones in pixelDists2.
+      std::vector<PixelDistribution*> pixelDists2;
+      for(PixelDistribution *pixDist : pixelDists) {
+	std::vector<std::set<ICoord>> pixSets = pixDist->contiguousPixels();
 
-    // Split PixelDistributions into contiguous regions, and make each
-    // of them into a PixelDistribution.
+	// If we do want discontiguous groups, merge the larger pieces
+	// back together, leaving the small ones out so that they can
+	// be merged into a nearby group in the minsize step, next.
+	if(!contiguous) {
+	  std::set<ICoord> bigSet;
+	  for(std::set<ICoord> &pixset : pixSets) {
+	    if(pixset.size() >= minsize) {
+	      bigSet.insert(pixset.begin(), pixset.end());
+	      pixset.clear();
+	    }
+	  }
+	  if(!bigSet.empty())
+	    pixSets.push_back(bigSet);
+	}
+	
+	for(auto &pixset : pixSets) {
+	  if(!pixset.empty()) {
+	    PixelDistribution *pixDist2 = pixDist->clone(pixset);
+	    pixelDists2.push_back(pixDist2);
+	  }
+	}
+      }	// end loop over PixelDistributions, pixelDists
 
-    std::vector<PixelDistribution*> pixelDists2;
-    for(PixelDistribution *pixDist : pixelDists) {
-      std::vector<std::set<ICoord>> pixSets = pixDist->contiguousPixels();
-      // TODO: If disjoint groups were not requested, merge the large
-      // sets together before creating PixelDistributions.  Leave the
-      // small ones alone so that they can be eliminated in the minsize
-      // step.
-      for(auto &pixset : pixSets) {
-	PixelDistribution *pixDist2 = pixDist->clone(pixset);
-	pixelDists2.push_back(pixDist2);
-      }
-      delete pixDist;
-    }
-    pixelDists = pixelDists2;
+      // Delete the old PixelDistributions and use the new ones from
+      // now on.
+      cleanUp_(pixelDists);
+      pixelDists = pixelDists2;
+
+    } // end if contiguous or minsize > 0
 
 // #ifdef DEBUG
 //     std::cerr << "statgroups: after splitting, PixelDistributions are:" 

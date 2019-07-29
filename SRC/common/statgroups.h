@@ -102,6 +102,7 @@ public:
 const std::string *statgroups(CMicrostructure*, const PixelDistributionFactory*,
 			      double, double,
 			      int minsize,
+			      bool,
 			      const std::string&,
 			      bool);
 

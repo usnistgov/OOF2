@@ -27,7 +27,7 @@ class PixelDistributionFactory {};
 const string *statgroups(CMicrostructure*,
 			 PixelDistributionFactory*,
 			 double, double,
-			 int,
+			 int, bool,
 			 char*, bool);
 
 #endif // STATGROUPS_SWG

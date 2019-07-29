@@ -189,7 +189,7 @@ pixgrpmenu.addItem(OOFMenuItem(
 # in more than one group, it's put into the group with the closest
 # mean.
 
-def autoPixelGroup2(menuitem, grouper, delta, gamma, minsize,
+def autoPixelGroup2(menuitem, grouper, delta, gamma, minsize, contiguous,
                     name_template, clear):
     ms = grouper.mscontext.getObject()
     prog = progress.getProgress('AutoGroup', progress.DEFINITE)
@@ -199,6 +199,7 @@ def autoPixelGroup2(menuitem, grouper, delta, gamma, minsize,
     try:
         newgrpname = statgroups.statgroups(ms, grouper.cobj, delta, gamma,
                                            minsize,
+                                           contiguous,
                                            name_template, clear);
     finally:
         prog.finish()
@@ -229,6 +230,10 @@ pixgrpmenu.addItem(OOFMenuItem(
             tip="Don't create groups or isolated parts of groups with fewer"
             " than this many pixels.  Instead, assign pixels to the nearest"
             " large group.  Set minsize=0 to skip this step."),
+        parameter.BooleanParameter(
+            'contiguous', value=True,
+            tip="Create only contiguous groups.  Similar pixels that aren't"
+            " connected to one another will be put into separate groups."),
         parameter.StringParameter(
             "name_template",
             value="group_%n",
