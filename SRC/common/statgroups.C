@@ -132,11 +132,12 @@ static void cleanUp_(std::vector<PixelDistribution*> &dists) {
   dists.clear();
 }
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 const std::string *statgroups(CMicrostructure *microstructure,
 			      const PixelDistributionFactory *factory,
 			      double delta,
 			      double gamma,
-			      // int despeckle,
 			      int minsize,
 			      const std::string &name_template, bool clear)
 {
@@ -155,7 +156,8 @@ const std::string *statgroups(CMicrostructure *microstructure,
 
   std::vector<PixelDistribution*> pixelDists;
   std::string groupname;	// name of last group created
-  
+  DummyDistribution bdyPixelMarker; // marks the bdy pixels in dists.
+
   try {
     ICoord mssize(microstructure->sizeInPixels());
     const std::vector<ICoord> shuffledPix = microstructure->shuffledPix();
@@ -249,14 +251,14 @@ const std::string *statgroups(CMicrostructure *microstructure,
     } // end loop over pixels
   
   
-#ifdef DEBUG
-    std::cerr << "statgroups: before splitting, PixelDistributions are:" 
-	      << std::endl;
-    for(const PixelDistribution *pd : pixelDists) {
-      std::cerr << "    " << pd << " n=" << pd->npts() << " mean="
-		<< pd->stats() << std::endl;
-    }
-#endif // DEBUG
+// #ifdef DEBUG
+//     std::cerr << "statgroups: before splitting, PixelDistributions are:" 
+// 	      << std::endl;
+//     for(const PixelDistribution *pd : pixelDists) {
+//       std::cerr << "    " << pd << " n=" << pd->npts() << " mean="
+// 		<< pd->stats() << std::endl;
+//     }
+// #endif // DEBUG
 
     // -----------
 
@@ -278,14 +280,14 @@ const std::string *statgroups(CMicrostructure *microstructure,
     }
     pixelDists = pixelDists2;
 
-#ifdef DEBUG
-    std::cerr << "statgroups: after splitting, PixelDistributions are:" 
-	      << std::endl;
-    for(const PixelDistribution *pd : pixelDists) {
-      std::cerr << "    " << pd << " n=" << pd->npts() << " mean="
-		<< pd->stats() << std::endl;
-    }
-#endif // DEBUG
+// #ifdef DEBUG
+//     std::cerr << "statgroups: after splitting, PixelDistributions are:" 
+// 	      << std::endl;
+//     for(const PixelDistribution *pd : pixelDists) {
+//       std::cerr << "    " << pd << " n=" << pd->npts() << " mean="
+// 		<< pd->stats() << std::endl;
+//     }
+// #endif // DEBUG
 
     // -----------
   
@@ -320,9 +322,6 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	std::vector<ICoord> bdyPixels;
 	int ntodo = 0;
 	int nSmallGroups = 0;
-	DummyDistribution bdyPixelMarker; // marks the bdy pixels in dists.
-	std::cerr << "statgroups: bdyPixelMarker=" << &bdyPixelMarker
-		  << std::endl;
 	int g = 0;
 	for(PixelDistribution *pixDist : pixelDists) {
 	  prog2->setMessage("Checking group " + to_string(++g) + "/" +
@@ -377,17 +376,17 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	  bdyPixels.pop_back();
 	  // Get the PixelDistributions that contain neighbors of pxl.
 	  std::map<PixelDistribution*, int> counts = countNeighbors(dists, pxl);
-#ifdef DEBUG
-	  std::cerr << "statgroups: counts=" << std::endl;
-	  for(auto iter=counts.begin(); iter!=counts.end(); ++iter) {
-	    std::cerr << "statgroups:    ";
-	    if(iter->first == &bdyPixelMarker)
-	      std::cerr << "bdy";
-	    else
-	      std::cerr << iter->first;
-	    std::cerr << ", " << iter->second << std::endl;
-	  }
-#endif // DEBUG
+// #ifdef DEBUG
+// 	  std::cerr << "statgroups: counts=" << std::endl;
+// 	  for(auto iter=counts.begin(); iter!=counts.end(); ++iter) {
+// 	    std::cerr << "statgroups:    ";
+// 	    if(iter->first == &bdyPixelMarker)
+// 	      std::cerr << "bdy";
+// 	    else
+// 	      std::cerr << iter->first;
+// 	    std::cerr << ", " << iter->second << std::endl;
+// 	  }
+// #endif // DEBUG
 	
 	  // mostDists contains the PixelDistributions containing the
 	  // most pixels neighboring pxl.  There may be more than one
@@ -425,7 +424,6 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	      }
 	    }
 	  }
-	  std::cerr << "statgroups: bestDist=" << bestDist << std::endl;
 	  assert(bestDist != nullptr && bestDist != &bdyPixelMarker);
 	  // Add the pixel to the best neighboring distribution
 	  bestDist->add(pxl);
@@ -487,7 +485,6 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	  grp->clear();
 	grp->addWithoutCheck(&pd->pixels());
       } // end if PixelDistribution is not empty
-      delete pd;
     }
   } // end try
   catch (...) {
