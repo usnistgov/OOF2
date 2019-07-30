@@ -172,7 +172,10 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	cleanUp_(pixelDists);
 	return new std::string("");
       }
-    
+
+      // std::cerr << "statgroups: pixel=" << pixel << " *************" 
+      // 		<< std::endl;
+      
       // Find the existing pixel group that this pixel fits best.
 
       // TODO: Use a hash table.  When there are a lot of groups in a
@@ -187,16 +190,22 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	  bestDist = pd;
 	}
       }
+
+      // std::cerr << "statgroups: bestDist=" << bestDist << std::endl;
     
       if(bestDist == nullptr || bestSigma2 > delta*delta) {
 	// No suitable group was found.  This may be the first pass
 	// through the loop, or the pixel value is too far from existing
 	// groups.  Create a new group.
 	pixelDists.push_back(factory->newDistribution(pixel));
+	// std::cerr << "statgroups: new distribution " << pixelDists.back()
+	// 	  << " " << pixelDists.back()->stats() << std::endl;
       }
       else {
 	// An appropriate group was found.  Add the pixel to it.
 	bestDist->add(pixel);
+	// std::cerr << "statgroups: added to dist " << bestDist
+	// 	  << " " << bestDist->stats() << std::endl;
 
 	// Adding the pixel changed the group's mean and
 	// deviation. Check to see if this distribution should now be

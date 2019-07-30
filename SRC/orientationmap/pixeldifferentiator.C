@@ -135,10 +135,14 @@ void OrientationPixelDistribution::findVariance() {
   }
   double degrees = 180./M_PI;
   variance *= degrees*degrees/npts();
+  if(variance < var0)
+    variance = var0;
 }
 
 void OrientationPixelDistribution::add(const ICoord &pt) {
-  mean = mean.weightedAverage(npts(), 1.0, orientmap->angle(pt), *lattice);
+  COrientAxis orient = orientmap->angle(pt).axis();
+  if(orient != mean)
+    mean = mean.weightedAverage(npts(), 1.0, orient, *lattice);
   pxls.push_back(pt);
   findVariance();
 }
@@ -148,13 +152,18 @@ void OrientationPixelDistribution::merge(const PixelDistribution *othr) {
   const OrientationPixelDistribution *other =
     dynamic_cast<const OrientationPixelDistribution*>(othr);
   pxls.insert(pxls.end(), other->pxls.begin(), other->pxls.end());
-  mean = mean.weightedAverage(nOld, other->npts(), other->mean, *lattice);
+  if(other->mean != mean)
+    mean = mean.weightedAverage(nOld, other->npts(), other->mean, *lattice);
   findVariance();
 }
 
 double OrientationPixelDistribution::deviation2(const ICoord &pt) const {
   double misorient = mean.misorientation(orientmap->angle(pt), *lattice) *
     180./M_PI;
+  // std::cerr << "OrientationPixelDistribution::deviation2: this=" << this
+  // 	    << " mean=" << mean
+  // 	    << " value=" << orientmap->angle(pt).axis()
+  // 	    << " misorientation=" << misorient << std::endl;
   return misorient*misorient;
 }
 

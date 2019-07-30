@@ -177,6 +177,8 @@ public:
   double x() const { return x_; }
   double y() const { return y_; }
   double z() const { return z_; }
+  bool operator==(const COrientAxis&) const;
+  bool operator!=(const COrientAxis&) const;
   virtual void print(std::ostream&) const;
 };
 

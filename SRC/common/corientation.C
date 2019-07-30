@@ -75,6 +75,15 @@ double COrientation::misorientation(const COrientation &other,
   // of the axis-angle representation of the "difference" between the
   // orientations.  The difference is the product of one orientation
   // and the inverse of the other.
+
+  // If the two angles are identical, be sure to return exactly 0.
+  // This is important when autogrouping EBSD data that may already
+  // have had noise removed from it.  Compare the angle/axis form of
+  // the orientations because that's what the autogroup machinery
+  // uses, so it involves less calculation here.
+  if(axis() == other.axis())
+    return 0.0;
+
   SmallMatrix transp(rotation()); // copy the matrix
   transp.transpose();		  // and transpose it
   SmallMatrix diff = other.rotation() * transp;
@@ -220,7 +229,7 @@ bool COrientABG::operator==(const COrientABG &other) const {
 }
 
 bool COrientABG::operator!=(const COrientABG &other) const {
-  return alpha_!=other.alpha_ or beta_!=other.beta_ or gamma_!=other.gamma_;
+  return alpha_!=other.alpha_ || beta_!=other.beta_ || gamma_!=other.gamma_;
 }
 
 void COrientABG::print(std::ostream &os) const {
@@ -538,7 +547,14 @@ COrientQuaternion COrientAxis::quaternion() const {
   assert(norm2 != 0.0);
   double factor = sin_half_theta/sqrt(norm2);
   return COrientQuaternion(cos_half_theta, x_*factor, y_*factor, z_*factor);
-			   
+}
+
+bool COrientAxis::operator==(const COrientAxis &other) const {
+  return angle_==other.angle_ && x_==other.x_ && y_==other.y_ && z_==other.z_;
+}
+
+bool COrientAxis::operator!=(const COrientAxis &other) const {
+  return angle_!=other.angle_ || x_!=other.x_ || y_!=other.y_ || z_!=other.z_;
 }
 
 void COrientAxis::print(std::ostream &os) const {
