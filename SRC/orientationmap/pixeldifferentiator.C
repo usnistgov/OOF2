@@ -141,6 +141,13 @@ void OrientationPixelDistribution::findVariance() {
 
 void OrientationPixelDistribution::add(const ICoord &pt) {
   COrientAxis orient = orientmap->angle(pt).axis();
+  // TODO: It might be better, although slower, to use
+  // if(orient.misorientation(mean)==0) here, since that could take
+  // symmetry into account.  But the test is important when the data
+  // in an EBSD map is piecewise constant, and it would be odd for
+  // someone to go to the effort of making piecewise constant and
+  // *not* also map the orientations back into the same sector of
+  // orientation space.
   if(orient != mean)
     mean = mean.weightedAverage(npts(), 1.0, orient, *lattice);
   pxls.push_back(pt);
