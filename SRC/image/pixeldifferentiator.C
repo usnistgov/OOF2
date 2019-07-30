@@ -151,14 +151,28 @@ PixelDistribution *ColorPixelDistribution::clone(
 void ColorPixelDistribution::add(const ICoord &pixel) {
   int oldN = pxls.size();
   pxls.push_back(pixel);
-  CColor col = image->getColor(pixel, rawpixels);
   int newN = pxls.size();
-  mean[0] = (oldN*mean[0] + col.getRed())/newN;
-  mean[1] = (oldN*mean[1] + col.getGreen())/newN;
-  mean[2] = (oldN*mean[2] + col.getBlue())/newN;
-  sumsq[0] += col.getRed()*col.getRed();
-  sumsq[1] += col.getGreen()*col.getGreen();
-  sumsq[2] += col.getBlue()*col.getBlue();
+
+  CColor col = image->getColor(pixel, rawpixels);
+  double r = col.getRed();
+  double g = col.getGreen();
+  double b = col.getBlue();
+
+  // If the color being added is exactly equal to the mean, don't
+  // recompute the mean.  Recomputing it might introduce numerical
+  // error, which can make autogrouping fail on an image which has
+  // already been segmented (so that the pixel values are piecewise
+  // constant).
+  if(mean[0] != r)
+    mean[0] = (oldN*mean[0] + r)/newN;
+  if(mean[1] != g)
+    mean[1] = (oldN*mean[1] + g)/newN;
+  if(mean[2] != b)
+    mean[2] = (oldN*mean[2] + b)/newN;
+  
+  sumsq[0] += r*r;
+  sumsq[1] += g*g;
+  sumsq[2] += b*b;
   findVariance();
 }
 
@@ -189,7 +203,10 @@ void ColorPixelDistribution::merge(const PixelDistribution *othr) {
   unsigned int nNew = npts();
 
   for(unsigned int i=0; i<3; i++) {
-    mean[i] = (nOld*mean[i] + other->npts()*other->mean[i])/nNew;
+    // See comment in ColorPixelDistribution::add about avoiding
+    // numerical error.
+    if(mean[i] != other->mean[i])
+      mean[i] = (nOld*mean[i] + other->npts()*other->mean[i])/nNew;
     sumsq[i] += other->sumsq[i];
   }
   findVariance();
@@ -199,7 +216,7 @@ void ColorPixelDistribution::findVariance() {
   unsigned int n = npts();
   for(unsigned int i=0; i<3; i++) {
     variance[i] = sumsq[i]/n - mean[i]*mean[i];
-    if(variance[i] <= std::numeric_limits<double>::epsilon())
+    if(variance[i] < var0)
       variance[i] = var0;
   }
 }
@@ -207,12 +224,12 @@ void ColorPixelDistribution::findVariance() {
 double ColorPixelDistribution::deviation2(const ICoord &pixel)
   const
 {
-  // CColor color = (*image)[pixel];
   CColor color = image->getColor(pixel, rawpixels);
   double delta[3];
   delta[0] = color.getRed() - mean[0];
   delta[1] = color.getGreen() - mean[1];
   delta[2] = color.getBlue() - mean[2];
+  assert(variance[0]!=0 && variance[1]!=0 && variance[2]!=0);  
   return (delta[0]*delta[0]/variance[0] +
 	  delta[1]*delta[1]/variance[1] +
 	  delta[2]*delta[2]/variance[2]);
@@ -226,21 +243,26 @@ double ColorPixelDistribution::deviation2(const PixelDistribution *othr)
   double delta[3];
   delta[0] = other->mean[0] - mean[0];
   delta[1] = other->mean[1] - mean[1];
-  delta[2] = other->mean[2] - mean[2];  
-  return (delta[0]*delta[0]/variance[0] +
+  delta[2] = other->mean[2] - mean[2];
+  assert(variance[0]!=0 && variance[1]!=0 && variance[2]!=0);
+  double devs = (delta[0]*delta[0]/variance[0] +
 	  delta[1]*delta[1]/variance[1] +
 	  delta[2]*delta[2]/variance[2]);
+  // std::cerr << "ColorPixelDistribution::deviation2: this=" << stats()
+  // 	    << "\tother=" << other->stats() << "\tdeviations=" << devs
+  // 	    << std::endl;
+  return devs;
 }
   
 #ifdef DEBUG
 
 std::string ColorPixelDistribution::stats() const {
-  return "[" + to_string(mean[0]) + "," + to_string(mean[1]) + ","
-    + to_string(mean[2]) 
+  return "[" + to_string(mean[0], 20) + ", " + to_string(mean[1], 20) + ", "
+    + to_string(mean[2], 20) 
     + "] +/- ["
     + to_string(sqrt(variance[0])) + "," + to_string(sqrt(variance[1])) + ","
     +  to_string(sqrt(variance[2])) + "]"
-    + "  sumsq=[" + to_string(sumsq[0]) + "," + to_string(sumsq[1]) +"," + to_string(sumsq[2]) + "]" + " n=" + to_string(npts())
+    //    + "  sumsq=[" + to_string(sumsq[0]) + "," + to_string(sumsq[1]) +"," + to_string(sumsq[2]) + "]" + " n=" + to_string(npts())
     ;
 }
 

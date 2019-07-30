@@ -167,7 +167,7 @@ const std::string *statgroups(CMicrostructure *microstructure,
     unsigned int npix = shuffledPix.size();
     unsigned int nChecked = 0;
 
-    for(const ICoord p : shuffledPix) { // Loop over all pixels
+    for(const ICoord pixel : shuffledPix) { // Loop over all pixels
       if(progress->stopped()) {
 	cleanUp_(pixelDists);
 	return new std::string("");
@@ -181,7 +181,7 @@ const std::string *statgroups(CMicrostructure *microstructure,
       double bestSigma2 = std::numeric_limits<double>::max();
       PixelDistribution *bestDist = nullptr;
       for(PixelDistribution *pd : pixelDists) {
-	double s2 = pd->deviation2(p);
+	double s2 = pd->deviation2(pixel);
 	if(s2 < bestSigma2) {
 	  bestSigma2 = s2;
 	  bestDist = pd;
@@ -192,19 +192,19 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	// No suitable group was found.  This may be the first pass
 	// through the loop, or the pixel value is too far from existing
 	// groups.  Create a new group.
-	pixelDists.push_back(factory->newDistribution(p));
+	pixelDists.push_back(factory->newDistribution(pixel));
       }
       else {
 	// An appropriate group was found.  Add the pixel to it.
-	bestDist->add(p);
-	// TODO: Adding a pixel might have reduced the group's
-	// deviation.  Is it possible that other pixels should now be
-	// ejected from the group?
-      
+	bestDist->add(pixel);
+
 	// Adding the pixel changed the group's mean and
 	// deviation. Check to see if this distribution should now be
 	// merged with another one. If it should, keep checking for more
 	// mergers with the newly modified group.
+	// TODO: Adding a pixel might have reduced the group's
+	// deviation.  Is it possible that other pixels should now be
+	// ejected from the group?
 
 	PixelDistribution *modifiedDist = bestDist; // recently modified group
 	do {
@@ -221,7 +221,7 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	      double dev1 = pd->deviation2(modifiedDist);
 	      double dev2 = modifiedDist->deviation2(pd);
 	      double mindev = dev1 < dev2 ? dev1 : dev2;
-	      if(mindev < sigma2Best) {
+	      if(mindev <= sigma2Best) {
 		sigma2Best = mindev;
 		distBest = pd;
 	      }
@@ -513,6 +513,11 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	if(clear)
 	  grp->clear();
 	grp->addWithoutCheck(&pd->pixels());
+
+// #ifdef DEBUG
+// 	std::cerr << "statgroups: " << groupname << " n=" << pd->npts()
+// 		  << " " << pd->stats() << std::endl;
+// #endif // DEBUG
       } // end if PixelDistribution is not empty
     }
   } // end try
