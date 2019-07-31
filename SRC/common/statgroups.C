@@ -134,6 +134,54 @@ static void cleanUp_(std::vector<PixelDistribution*> &dists) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+// This is sort of like autogroups, but statistical.  It assumes that
+// groups are formed from distributions of pixel values, stored in
+// PixelDistribution objects, consisting of a set of pixels (ICoords)
+// and information about the mean and variance of the pixel values.
+// There are different subclasses of PixelDistribution for different
+// types of pixel values (eg, color or orientation).  If a pixel value
+// is within delta standard deviations of the mean value of an
+// existing distribution, it is added to the distribution.  If it's
+// within delta deviations of more than one distribution, it's added
+// to the most compatible group (measured in terms of number of
+// deviations from the mean).  After adding a pixel, the mean and
+// deviation of the distribution are updated.  If after updating, the
+// means of two distributions are within gamma deviations of one
+// another, the distributions are merged.
+// 
+// After the initial distributions are formed, each is split into its
+// connected components -- sets of contiguous pixels. If any
+// contiguous set contains fewer than minsize pixels, it's absorbed
+// into the neighboring distributions (those with more than minsize
+// pixels).  Pixels in the small sets that neighbor the large
+// distribution are put into the most compatible neighboring
+// distribution, creating new neighbors of that distribution,
+// repeating until all pixels in the small set are absorbed.
+
+// If the caller does not want to force groups to be formed from
+// contiguous pixels, the large pixel sets that were split off from
+// each PixelDistribution are merged back into one PixelDistribution
+// before the small sets are absorbed.  Forcing groups to be made of
+// contiguous pixels produces results sort of like a repeated
+// application of the Burn method, which selects sets of contiguous
+// similar pixels.  Not requiring contiguity is like repeatedly
+// selecting all pixels with a given color.
+
+// At the end, a PixelGroup is created for each PixelDistribution and
+// stored in the Microstructure.
+
+// The arguments are:
+//   microstructure:   the microstructure
+//   factory:  creates the right type of PixelDistribution
+//   delta: pixels w/in this many deviations are added to a group
+//   gamma: groups with means w/in this many deviations are merged
+//   minsize: groups smaller than this are merged with neighboring groups
+//   contiguous: true==> each resulting group will be contiguous,
+//               false==> resulting groups may have disjoint regions
+//   name_template: Name for the new groups.  "%n" will be replaced by a number.
+//   clear: whether or not to remove pixels from a pre-existing group before
+//          adding the new ones.
+
 const std::string *statgroups(CMicrostructure *microstructure,
 			      const PixelDistributionFactory *factory,
 			      double delta,
@@ -142,16 +190,6 @@ const std::string *statgroups(CMicrostructure *microstructure,
 			      bool contiguous,
 			      const std::string &name_template, bool clear)
 {
-  // This is sort of like autogroups, but statistical.  It assumes
-  // that groups are formed from gaussian distributions of pixel
-  // values.  If a pixel value is within delta standard deviations of
-  // the mean value of an existing group, it is added to the group.
-  // If it's within delta deviations of more than one group, it's
-  // added to the closest group.  After adding a pixel, the mean and
-  // deviation of the group are updated.  If after updating, the means
-  // of two groups are within gamma deviations of one another, the
-  // groups are merged.
-
   // TODO: This routine is too long.  Break it up.
   
   Progress *progress =

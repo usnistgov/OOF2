@@ -23,10 +23,14 @@
 #include <set>
 #include <algorithm>
 
-// This is yet another refactoring of the algorithm in image/burn.h.
-// If this is done correctly, that file should be able to use this
-// one.
-
+// Select a bunch of pixels by starting with one, and spreading
+// outwards like a forest fire.  The selection spreads from one pixel
+// to one of its neighbors if the difference between the pixel and the
+// neighbor isn't too large, and if the difference between the
+// original pixel where the fire started and the neighbor isn't too
+// large.  What "too large" means and how the differences are computed
+// is determined by the CPixelDifferentiator3 subclass that's passed
+// in as an argument.
 
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -95,162 +99,4 @@ std::vector<ICoord> burn(CMicrostructure *ms,
   return burned;
 }
 
-// #include <random>
-// // TODO: This should be a CMicrostructure method.
-// std::vector<ICoord> shufflePix(const ICoord &mssize,
-// 			       const ActiveArea *activeArea)
-// {
-//   std::vector<ICoord> shuffledPix;
-//   shuffledPix.reserve(mssize[0]*mssize[1]);
-//   for(unsigned int i=0; i<mssize[0]; i++)
-//     for(unsigned int j=0; j<mssize[1]; j++) {
-//       ICoord pix(i, j);
-//       if(activeArea->isActive(pix)) {
-// 	shuffledPix.push_back(pix);
-//       }
-//     }
-//   OOFRandomNumberGenerator r;
-//   oofshuffle(shuffledPix.begin(), shuffledPix.end(), r);
-//   return shuffledPix;
-// }
-
-const std::string *autograin(CMicrostructure *ms,
-			     const CPixelDifferentiator3 *pixdiff,
-			     bool next_nearest,
-			     const std::string &name_template,
-			     bool clear)
-{
-  ICoord mssize(ms->sizeInPixels());
-  const ActiveArea *activeArea = ms->getActiveArea();
-
-  Progress *progress =
-    dynamic_cast<DefiniteProgress*>(findProgress("AutoGroup"));
-  
-  // alreadyDone[pixel] is true if the pixel is already in a grain
-  SimpleArray2D<bool> alreadyDone(mssize);
-  int ngroups = 0;		// number of pixel groups created
-  int npix = 0;			// number of pixels checked
-
-  // shuffledPix is a list of all possible starting points for the
-  // burn algorithm.  It's randomized to prevent bias.
-  std::vector<ICoord> shuffledPix = ms->shuffledPix();
-  
-  std::string groupname;
-  
-  for(const ICoord seed : shuffledPix) {
-    if(progress->stopped())
-      break;
-    if(!alreadyDone[seed]) {
-      std::vector<ICoord> grain = burn(ms, pixdiff, next_nearest,
-				       seed, activeArea, alreadyDone);
-      assert(grain.size() > 0);
-      npix += grain.size();
-      
-      // Construct a name for the pixel group
-      groupname = name_template;
-      std::string::size_type pos = groupname.find("%n", 0);
-      if(pos != std::string::npos)
-	groupname = groupname.replace(pos, 2, to_string(ngroups));
-      ngroups++;
-      
-      // TODO: Sort groups by size from largest to smallest before
-      // naming them?  This will require doing all burns and storing
-      // the results before creating any groups. Or name them first,
-      // but keep track of sizes and names, and rename them later.
-
-      // Create the pixel group
-      bool newness = false;
-      PixelGroup *grp = ms->getGroup(groupname, &newness);
-      // Add pixels to the group. No need to check the active area --
-      // we only burned active pixels.
-      if(clear)
-	grp->clear();
-      grp->addWithoutCheck(&grain);
-
-      progress->setFraction(float(npix)/(mssize[0]*mssize[1]));
-    } // end if seed hasn't already been put in a group
-  }   // end loop over seed pixels
-
-  if(!progress->stopped())
-    return new std::string(groupname);
-  return new std::string("");
-} // end autograin()
-
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// autogroups() is like autograin(), but it doesn't require pixels to
-// be contiguous.  It's not really a burn algorithm, but is similar
-// enough to maybe belong in the same file.  It's called "autogroups"
-// because "autogroup" is used in image/autogroupMP.C.
-
-// When creating non-contiguous groups, the PixelDifferentiator only
-// takes two arguments, the current pixel and the group's seed pixel.
-// It can't use the same PixelDifferentiator as autograin() and burn()
-// because there's no meaning to the local_flammability.
-
-// We need separate registered PixelDifferentiator classes for
-// autograin() and autogroups().  The RCF for PixelDifferentiator will
-// look for a Contiguity widget and use it to decide which
-// PixelDifferentiators to display.  It'll need a subclass of RCF with
-// an overridden includeRegistration method.
-
-const std::string *autogroups(CMicrostructure *ms,
-			      const CPixelDifferentiator2 *pixdiff,
-			      const std::string &name_template, bool clear)
-{
-  ICoord mssize(ms->sizeInPixels());
-  Progress *progress =
-    dynamic_cast<DefiniteProgress*>(findProgress("AutoGroup"));
-
-  // shuffledPix contains the coordinates of all of the active pixels
-  // in random order.
-  std::vector<ICoord> shuffledPix = ms->shuffledPix();
-
-  // List of (seed, pixellist) pairs.  A seed is the first pixel in a
-  // group.  pixellist is the pixels in the group, all of which are
-  // similar to the seed.
-  std::vector<std::pair<ICoord, std::vector<ICoord>>> groups;
-  
-  for(unsigned int i=0; i<shuffledPix.size(); i++) { // Loop over all pixels
-    if(progress->stopped()) {
-      return new std::string("");
-    }
-    const ICoord &pxl = shuffledPix[i];
-    // See if this pixel is similar to a pixel that was already used
-    // to start a group.
-    bool foundgroup = false;
-    for(unsigned int g=0; g<groups.size(); g++) {
-      if((*pixdiff)(pxl, groups[g].first)) {
-	groups[g].second.push_back(pxl);
-	foundgroup = true;
-	break;
-      }
-    }
-    if(!foundgroup) {
-      // Start a new group with this pixel.
-      groups.emplace_back(pxl, std::vector<ICoord>(1, pxl));
-    }
-    progress->setFraction(float(i)/(mssize[0]*mssize[1]));
-  }
-
-  std::string groupname;	// name of most recently created group
-  
-  // Create groups in the Microstructure and put the pixels in them.
-  // TODO: Is it better to put the pixels in the groups as they're
-  // found, in the previous loop?
-  // TODO: Sort groups by size from largest to smallest?
-  for(unsigned int g=0; g<groups.size(); g++) {
-    groupname = name_template;
-    std::string::size_type pos = groupname.find("%n", 0);
-    if(pos != std::string::npos)
-      groupname = groupname.replace(pos, 2, to_string(g));
-    bool newness = false;
-    PixelGroup *grp = ms->getGroup(groupname, &newness);
-    if(clear) 
-      grp->clear();
-    grp->addWithoutCheck(&groups[g].second);
-  }
-  return new std::string(groupname);
-}
 

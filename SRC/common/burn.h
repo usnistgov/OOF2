@@ -35,7 +35,12 @@ public:
 };
 
 // CPixelDifferentiator2 is used for burn-like algorithms that don't
-// use a local comparison.
+// use a local comparison.  
+
+// CPixelDifferentiator2 was added for use in an auto-grouping method
+// (in burn.C) that was replaced by statgroups.C.  It's not currently
+// used elsewhere, but it *could* be used by ColorSelection in
+// image/pixelselectioncourieri.C, for example.
 
 class CPixelDifferentiator2 {
 public:
@@ -66,21 +71,5 @@ std::vector<ICoord> burn(CMicrostructure *ms,
 			 const ActiveArea *activeArea,
 			 SimpleArray2D<bool> &alreadyDone);
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// autograin() uses burn() to put every pixel in a pixel group by
-// picking a random seed, starting a burn, grouping all the burned
-// pixels, and repeating until all pixels in the CMicrostructure's
-// ActiveArea have been burned.
-
-const std::string *autograin(CMicrostructure*,
-			     const CPixelDifferentiator3*,
-			     bool next_nearest,
-			     const std::string &group_name_template, bool);
-
-// autogroups() is like autoburn(), but it groups non-contiguous pixels.
-const std::string *autogroups(CMicrostructure*,
-			      const CPixelDifferentiator2*,
-			      const std::string&, bool);
 
 #endif // BURNCOMMON_H

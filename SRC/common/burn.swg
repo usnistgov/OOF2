@@ -24,9 +24,4 @@
 class CPixelDifferentiator3 {};
 class CPixelDifferentiator2 {};
 
-const string *autograin(CMicrostructure*, CPixelDifferentiator3*,
-			bool, char*, bool);
-
-const string *autogroups(CMicrostructure*, CPixelDifferentiator2*, char*, bool);
-
 #endif // BURNCOMMON_SWG

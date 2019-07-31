@@ -110,70 +110,9 @@ pixgrpmenu.addItem(OOFMenuItem(
 
     </para>"""))
 
-##########################
-
-class Contiguity(enum.EnumClass(
-        ('Disconnected', "Groups are not made of contiguous pixels"),
-        ('Nearest neighbor', "Groups .. "),
-        ('Next-nearest neighbor', "...."))):
-    tip="Whether the groups will be formed from connected or disconnected sets of pixels."
-    
-## TODO: Add a min_size argument and don't create groups smaller than that.
-
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def autoPixelGroup(menuitem, differentiator, contiguity, name_template, clear):
-    ms = differentiator.mscontext.getObject()
-    prog = progress.getProgress('AutoGroup', progress.DEFINITE)
-    prog.setMessage("Grouping pixels...")
-    differentiator.mscontext.begin_writing()
-    newgrpname = None
-    try:
-        if contiguity=='Disconnected':
-            # Each group contains all pixels that meet the criterion,
-            # whether or not they're contiguous with the other pixels
-            # in the group.
-            newgrpname = burn.autogroups(ms, differentiator.cobj,
-                                         name_template, clear)
-        else:
-            # Create connected groups.
-            next_nearest = (contiguity == 'Next-nearest neighbor')
-            newgrpname = burn.autograin(ms, differentiator.cobj,
-                                        next_nearest, name_template, clear)
-    finally:
-        prog.finish()
-        differentiator.mscontext.end_writing()
-    if newgrpname:
-        switchboard.notify("new pixel group", ms.findGroup(newgrpname))
-    switchboard.notify("changed pixel groups", ms.name())
-    switchboard.notify("redraw")
-
-pixgrpmenu.addItem(OOFMenuItem(
-    "AutoGroup",
-    callback=autoPixelGroup,
-    params=[
-        enum.EnumParameter(
-            'contiguity', Contiguity, value='Disconnected',
-            tip="Whether the groups will be formed from connected"
-            " or disconnected sets of pixels."),
-        burn.PixelDifferentiatorParameter(
-            'differentiator',
-            tip="How to group pixels"),
-        parameter.StringParameter(
-            "name_template", value="grain_%n",
-            tip="Name for the new pixel groups."
-            " '%n' will be replaced by an integer."),
-        parameter.BooleanParameter(
-            "clear", value=True,
-            tip="Clear pre-existing groups before adding pixels to them."
-            " This will NOT clear groups to which no pixels are being added.")
-    ],
-    help="Put all pixels into pixel groups, sorted by color or orientation"
-))
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-# AutoGroup2 uses a statistical method to create groups.  Each group
+# AutoGroup uses a statistical method to create groups.  Each group
 # is assumed to contain a distribution of pixel values.  A pixel value
 # is compared to the mean and deviation of each existing group, and
 # the pixel added to the group to which it's the fewest deviations
@@ -189,9 +128,11 @@ pixgrpmenu.addItem(OOFMenuItem(
 # in more than one group, it's put into the group with the closest
 # mean.
 
-def autoPixelGroup2(menuitem, grouper, delta, gamma, minsize, contiguous,
-                    name_template, clear):
+def autoPixelGroup(menuitem, grouper, delta, gamma, minsize, contiguous,
+                   name_template, clear):
     ms = grouper.mscontext.getObject()
+    if "%n" not in name_template:
+        name_template = name_template + "%n"
     prog = progress.getProgress('AutoGroup', progress.DEFINITE)
     prog.setMessage('Grouping pixels...')
     grouper.mscontext.begin_writing()
@@ -210,8 +151,8 @@ def autoPixelGroup2(menuitem, grouper, delta, gamma, minsize, contiguous,
     switchboard.notify("redraw")
 
 pixgrpmenu.addItem(OOFMenuItem(
-    "AutoGroup2",
-    callback=autoPixelGroup2,
+    "AutoGroup",
+    callback=autoPixelGroup,
     params=[
         statgroups.PixelGrouperParameter(
             'grouper',

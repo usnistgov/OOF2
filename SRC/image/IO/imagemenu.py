@@ -392,46 +392,6 @@ imagemenu.addItem(oofmenu.OOFMenuItem(
     ))
 
 
-def createGrains(menuitem, method, next_nearest, name_template):
-    # method is a PixelDifferentiator, containing a
-    # CPixelDifferentiator3 and a reference to the
-    # MicrostructureContext
-    ms = method.mscontext.getObject()
-    prog = progress.getProgress("AutoGrain", progress.DEFINITE)
-    prog.setMessage("Creating grains...")
-    method.mscontext.begin_writing()
-    try:
-        newgrpname = burn.autograin(
-            method.mscontext.getObject(), method.cobj,
-            next_nearest, name_template)
-    finally:
-        prog.finish()
-        method.mscontext.end_writing()
-
-    switchboard.notify('redraw')
-    if not prog.stopped():
-        if newgrpname:
-            switchboard.notify("new pixel group", ms.findGroup(newgrpname))
-        switchboard.notify("changed pixel groups", ms.name())
-        
-imagemenu.addItem(oofmenu.OOFMenuItem(
-    'AutoGrain',
-    callback=createGrains,
-    params=[
-        burn.PixelDifferentiatorParameter("method"),
-        parameter.BooleanParameter(
-            "next_nearest", value=True,
-            tip="Burn next nearest neighbors?"),
-        parameter.StringParameter(
-            "name_template",
-            value="grain%n",
-            tip="Name for pixel groups.  %n is replaced by a number."),
-            ],
-    threadable=oofmenu.THREADABLE,
-    help="Create a pixel group for each grain in the image or EBSD map by repeating the Burn algorithm."
-))
-
-
 ###############################
 
 # Create a Microstructure from an existing Image.  Since the Image

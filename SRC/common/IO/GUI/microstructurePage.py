@@ -182,16 +182,6 @@ class MicrostructurePage(oofGUI.MainPage):
         tooltips.set_tooltip_text(
             self.autogroupbutton,
             "Automatically create groups for all pixels"
-            " in the current microstructure.")
-
-        self.autogroup2button = gtk.Button('Auto2...')
-        gtklogger.setWidgetName(self.autogroup2button, "Auto2")
-        vbox.pack_start(self.autogroup2button, expand=0, fill=0)
-        gtklogger.connect(self.autogroup2button, 'clicked',
-                          self.autoGroup2ButtonCB)
-        tooltips.set_tooltip_text(
-            self.autogroup2button,
-            "Automatically create groups for all pixels"
             " in the current microstructure with a statistical method.")
 
         self.renamegroupbutton = gtk.Button('Rename...')
@@ -463,6 +453,11 @@ class MicrostructurePage(oofGUI.MainPage):
         ngrps = 0
         msctxt = self.currentMScontext()
         if msctxt:
+            # TODO: This is incorrect.  Don't call begin_reading here.
+            # The ms may be doing some long calculation, and the
+            # buttons should be desensitized because of it.  Calling
+            # begin_reading will lock and prevent densensitization
+            # until after the calculation is done!
             msctxt.begin_reading()
             try:
                 ms = msctxt.getObject()
@@ -488,7 +483,6 @@ class MicrostructurePage(oofGUI.MainPage):
 
         self.newgroupbutton.set_sensitive(ms_available)
         self.autogroupbutton.set_sensitive(ms_available)
-        self.autogroup2button.set_sensitive(ms_available)
         self.renamegroupbutton.set_sensitive(grp_selected)
         self.copygroupbutton.set_sensitive(grp_selected)
         self.delgroupbutton.set_sensitive(grp_selected)
@@ -619,28 +613,18 @@ class MicrostructurePage(oofGUI.MainPage):
             menuitem.callWithDefaults(microstructure=self.currentMSName())
 
     def autoGroupButtonCB(self, button):
-        menuitem = mainmenu.OOF.PixelGroup.AutoGroup
         # Use WidgetScope setData/findData to tell the WhoWidgets in
         # the params that the Microstructure has to be the current
         # Microstructure.  We can't just set a Microstructure
         # parameter and exclude its widget from the dialog in the
         # usual way, because the WhoParams aren't direct parameters
         # of this menu item, and the WhoWidgets are inside
-        # PixelDifferentiator RCFs.
+        # PixelDistributionFactory RCFs.
         # scopedata key,value pairs are passed to WidgetScope.setData().
         # WidgetScope.findData() searches its own data and that of its parents.
+        menuitem = mainmenu.OOF.PixelGroup.AutoGroup
         scopedata = {'fixed whoclass': ('Microstructure', self.currentMSName())}
-        
-        if parameterwidgets.getParameters(title="Autogroup",
-                                          scope=self,
-                                          data=scopedata,
-                                          *menuitem.params):
-            menuitem.callWithDefaults()
-
-    def autoGroup2ButtonCB(self, button):
-        menuitem = mainmenu.OOF.PixelGroup.AutoGroup2
-        scopedata = {'fixed whoclass': ('Microstructure', self.currentMSName())}
-        if parameterwidgets.getParameters(title="AutoGroup2", scope=self,
+        if parameterwidgets.getParameters(title="AutoGroup", scope=self,
                                           data=scopedata, *menuitem.params):
             menuitem.callWithDefaults()
 
