@@ -11,6 +11,7 @@
 
 #include <oofconfig.h>
 
+#include "common/activearea.h"
 #include "common/cmicrostructure.h"
 #include "common/coord.h"
 #include "common/progress.h"
@@ -201,6 +202,7 @@ const std::string *statgroups(CMicrostructure *microstructure,
 
   try {
     ICoord mssize(microstructure->sizeInPixels());
+    const ActiveArea *activeArea = microstructure->getActiveArea();
     const std::vector<ICoord> shuffledPix = microstructure->shuffledPix();
     unsigned int npix = shuffledPix.size();
     unsigned int nChecked = 0;
@@ -410,6 +412,7 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	      for(const ICoord &dir : directions) {
 		ICoord nbr = pt + dir;
 		if(microstructure->contains(nbr)
+		   && activeArea->isActive(nbr)
 		   && dists[nbr] != nullptr
 		   && dists[nbr] != &bdyPixelMarker)
 		  {
@@ -508,10 +511,13 @@ const std::string *statgroups(CMicrostructure *microstructure,
 	  // distributions, add them to the list of pixels to be examined.
 	  for(const ICoord &dir : directions) {
 	    ICoord nbr = pxl + dir;
-	    if(microstructure->contains(nbr) && dists[nbr] == nullptr) {
-	      bdyPixels.push_back(nbr);
-	      dists[nbr] = &bdyPixelMarker;
-	    }
+	    if(microstructure->contains(nbr) && 
+	       dists[nbr] == nullptr &&
+	       activeArea->isActive(nbr))
+	      {
+		bdyPixels.push_back(nbr);
+		dists[nbr] = &bdyPixelMarker;
+	      }
 	  }
 	  prog2->setMessage(to_string(ndone) + "/" + to_string(ntodo));
 	  prog2->setFraction(ndone/(double) ntodo);
