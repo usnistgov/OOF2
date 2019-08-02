@@ -1,3 +1,9 @@
+OOF2 2.1.18
+
+* Added OOF.PixelGroup.AutoGroup, which puts every pixel into a group
+  according to either its color or orientation, even in the presence
+  of noise.
+
 OOF2 2.1.17
 
 * Significant speed up of the element/pixel intersection code.

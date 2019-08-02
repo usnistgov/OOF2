@@ -138,7 +138,24 @@ registeredclass.Registration(
             'sigma0', value=0.002,
             tip="Standard deviation in RGB values to assume for initial distributions")
     ],
-    tip="Group pixels by examining RGB distributions.")
+    tip="Group pixels by examining RGB distributions.",
+
+    discussion="""
+    <para> This is used by <xref
+    linkend="MenuItem-OOF.PixelGroup.AutoGroup"/> to automatically
+    create &pixelgroups; based on pixel color.  Given two pixels, it
+    computes the distance between them by treating their RGB values as
+    coordinates in a 3D Euclidean space. </para>
+
+    <para> <varname>sigma0</varname> is the initial standard deviation
+    assigned to a group containing a single pixel.  It sets the scale
+    for how far apart colors have to be in RGB space in order to
+    considered to be significantly different.  Using a small
+    <varname>sigma0</varname> will lead to many small pixel groups
+    with little color variation within each group.  Using a large
+    <varname>sigma0</varname> will lead to fewer pixel groups with
+    more variation within each group.  </para> """
+)
     
             
             

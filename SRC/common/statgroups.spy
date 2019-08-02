@@ -18,6 +18,13 @@ class PixelGrouper(registeredclass.RegisteredClass):
         self.mscontext = mscontext
         # grouper is a swigged PixelDistributionFactory object.
         self.cobj = grouper
+    tip="The criterion used to compare pixels."
+    discussion="""<para>
+    <classname>PixelGrouper</classname> is used by <xref
+    linkend="MenuItem-OOF.PixelGroup.AutoGroup"/>, where it computes the
+    difference between pixel values and the mean and deviation of sets
+    of pixel values.
+    </para>"""
 
 class PixelGrouperParameter(parameter.RegisteredParameter):
     def __init__(self, name, value=None, default=None, tip=None):

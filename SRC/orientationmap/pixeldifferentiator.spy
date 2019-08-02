@@ -129,4 +129,30 @@ registeredclass.Registration(
             " initial distributions"),
         latticeparameter
         ],
-    tip="Group pixels by examining orientation distributions.")
+    tip="Group pixels by examining orientation distributions.",
+    discussion="""
+
+    <para> This is used by <xref
+    linkend="MenuItem-OOF.PixelGroup.AutoGroup"/> to automatically
+    create &pixelgroups; based on an <link
+    linkend="Section-Concepts-Microstructure-OrientationMap">orientation
+    map</link>.  Given two pixels, it uses the <link
+    linkend="Section-Concepts-Microstructure-Misorientation">
+    misorientation</link> of their orientations as the distance
+    between them in orientation space. </para>
+
+    <para> <varname>sigma0</varname> is the initial standard deviation
+    assigned to a group containing a single pixel.  It sets the scale
+    for how far apart two orientations have to be in order to
+    considered to be significantly different.  Using a small
+    <varname>sigma0</varname> will lead to many small pixel groups
+    with little orientation variation within each group.  Using a
+    large <varname>sigma0</varname> will lead to fewer pixel groups
+    with more variation within each group.  </para>
+    
+    <para><varname>lattice_symmetry</varname> is the <link
+    linkend="RegisteredClass-LatticeSymmetry">crystal symmetry</link>
+    used when computing misorientations. </para>
+
+ """
+)

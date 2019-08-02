@@ -128,6 +128,10 @@ pixgrpmenu.addItem(OOFMenuItem(
 # in more than one group, it's put into the group with the closest
 # mean.
 
+# The standard deviation, sigma0, to be used for a group containing a
+# single pixel is set in the PixelGrouperParameter, not in AutoGroup,
+# because its default value depends on which PixelGrouper is selected.
+
 def autoPixelGroup(menuitem, grouper, delta, gamma, minsize, contiguous,
                    name_template, clear):
     ms = grouper.mscontext.getObject()
@@ -156,16 +160,17 @@ pixgrpmenu.addItem(OOFMenuItem(
     params=[
         statgroups.PixelGrouperParameter(
             'grouper',
-            tip="How to group pixels"),
+            tip="Which pixel values to use, and how to compute"
+            " the difference between them."),
         parameter.FloatParameter(
             'delta', value=2.0,
-            tip="Pixels within this many deviations of a group"
+            tip="Pixels within this many standard deviations of a group"
             " will be added to the group."),
         parameter.FloatParameter(
             'gamma',
             value=2.0,
-            tip="Groups within this many deviations of each other"
-            " will be merged"),
+            tip="Groups within this many standard deviations of each other"
+            " will be merged."),
         parameter.IntParameter(
             'minsize', value=0,
             tip="Don't create groups or isolated parts of groups with fewer"
@@ -179,13 +184,14 @@ pixgrpmenu.addItem(OOFMenuItem(
             "name_template",
             value="group_%n",
             tip="Name for the new pixel groups."
-            " '%n' will be replaced by an integer"),
+            " '%n' will be replaced by an integer."),
         parameter.BooleanParameter(
             "clear", value=True,
             tip="Clear pre-existing groups before adding pixels to them."
             " This will NOT clear groups to which no pixels are being added.")
         ],
-    help="Put all pixels into pixel groups, sorted by color or orientation."
+    help="Put all pixels into pixel groups, sorted by color or orientation.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/autogroup.xml')
 ))
 
         
