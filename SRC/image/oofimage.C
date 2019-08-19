@@ -106,6 +106,26 @@ void OOFImage::setup() {
   // Quantum isn't defined outside of the Magick namespace.
   using namespace Magick;
   scale = 1./QuantumRange;
+//   #ifdef DEBUG
+//     {
+//       std::map<CColor, int> histogram;
+//       const Magick::PixelPacket *pixels = pixelPacket();
+//       for(int i=0; i<sizeInPixels_(0); i++)
+// 	for(int j=0; j<sizeInPixels_(1); j++) {
+// 	  ICoord pt(i,j);
+// 	  CColor color = getColor(pt, pixels);
+// 	  auto iter = histogram.find(color);
+// 	  if(iter == histogram.end())
+// 	    histogram[color] = 1;
+// 	  else
+// 	    iter->second += 1;
+// 	}
+//       for(auto iter=histogram.begin(); iter!=histogram.end(); ++iter) {
+// 	std::cerr << "OOFImage::ctor: " << iter->first << " " << iter->second
+// 		  << std::endl;
+//       }
+//     }
+// #endif // DEBUG
 }
 
 
@@ -236,6 +256,16 @@ const CColor OOFImage::operator[](const ICoord &c) const {
   catch (Magick::Exception &e) {
     throw ImageMagickError(e.what());
   }
+}
+
+// To get multiple pixel values, call this many times, passing in the
+// PixelPacket from a single call to OOFImage::pixelPacket().
+
+CColor OOFImage::getColor(const ICoord &pt, const Magick::PixelPacket *pixels)
+  const
+{
+  const Magick::PixelPacket &pp = pixels[pt(0) + sizeInPixels_(0)*pt(1)];
+  return CColor(pp.red*scale, pp.green*scale, pp.blue*scale);
 }
 
 // TODO OPT?: It may be useful to have "block-set" routines which use the

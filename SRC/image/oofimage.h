@@ -72,9 +72,6 @@ public:
   bool pixelInBounds(const ICoord*) const;
   const std::string *comment() const;
   
-  // (Temporarily?) exposed ImageMagick guts.
-  const Magick::PixelPacket *pixelPacket() const;
-
 
   void setMicrostructure(CMicrostructure *ms) { microstructure = ms; }
   CMicrostructure *getCMicrostructure() const { return microstructure; }
@@ -95,6 +92,12 @@ public:
   // use operator[] to set values.  Use this instead:
   void set(const ICoord&, const CColor&);
   void imageChanged();		// call this when done setting pixels.
+
+  // When reading multiple pixels, call getColor repeatedly, passing
+  // in the result of a single call to pixelPacket().  This is not
+  // thread safe.
+  const Magick::PixelPacket *pixelPacket() const;
+  CColor getColor(const ICoord &c, const Magick::PixelPacket*) const;
 
   // Convert to an Array of doubles.  f is a function that takes a
   // CColor and returns a double.
