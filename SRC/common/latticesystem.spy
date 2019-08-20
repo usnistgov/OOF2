@@ -445,25 +445,17 @@ for (latticeSystem, schoenflies, matrices) in data:
 # The table was generated using the xcore package from
 # https://github.com/stefsmeets/xcore and the following script:
 #    import xcore
-#    print "spacePointDict = utils.OrderedDcit(["
+#    print "spacePointDict = utils.OrderedDict(["
 #    for i in range(1, 231):
 #        spgrp = xcore.SpaceGroup(`i`)
 #        print "    (%d, ('%s', '%s'))," % (spgrp.number, spgrp.point_group,
 #                                           spgrp.schoenflies.split('^')[0])
 #    print "])"
 
-# The point group names from xcore in some cases differ from the ones on
-# the wikipedia page (https://en.wikipedia.org/wiki/List_of_space_groups).
-# Apparently there are short versions of the names of some groups.
-#
-# space     Schoen-  short      long
-# groups    flies    pt grp     pt grp
-#
-# 47-74     D2h      mmm       2/m 2/m 2/m
-# 123-142   D4h      4/mmm     4/m 2/m 2/m
-# 162-167   D3d      -3m       -3 2/m
-# 200-206   Th       m3        2/m -3
-# 221-230   Oh       m-3m      4/m -3 2/m
+# Either xcore uses "m3" instead of "m-3" as the international symbol
+# for Schoenflies "Th", or I made an error in transcribing.  In any
+# case the various wikipedia pages use "m-3" ($m\bar3$), which is what
+# I've included below.
 
 space2PointDict = utils.OrderedDict([
     (1,  ('1', 'C1')),
