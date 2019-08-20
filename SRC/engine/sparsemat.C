@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -12,11 +14,6 @@
 #include <unsupported/Eigen/SparseExtra>
 #include <iostream>
 #include <fstream>
-#ifndef HAVE_SSTREAM
-#include <strstream.h
-#else
-#include <sstream>
-#endif // HAVE_SSTREAM
 
 // Construct by extraction from an existing matrix.
 SparseMat::SparseMat(const SparseMat& source,
