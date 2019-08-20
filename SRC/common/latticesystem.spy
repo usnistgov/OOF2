@@ -13,6 +13,7 @@ from ooflib.common import enum
 from ooflib.common import registeredclass
 from ooflib.common import utils
 from ooflib.common.IO import parameter
+from ooflib.common.IO import xmlmenudump
 
 class LatticeSystemName(enum.EnumClass(
         'Cubic',
@@ -664,13 +665,13 @@ space2PointDict = utils.OrderedDict([
     (197,  ('23', 'T')),
     (198,  ('23', 'T')),
     (199,  ('23', 'T')),
-    (200,  ('m3', 'Th')),
-    (201,  ('m3', 'Th')),
-    (202,  ('m3', 'Th')),
-    (203,  ('m3', 'Th')),
-    (204,  ('m3', 'Th')),
-    (205,  ('m3', 'Th')),
-    (206,  ('m3', 'Th')),
+    (200,  ('m-3', 'Th')),
+    (201,  ('m-3', 'Th')),
+    (202,  ('m-3', 'Th')),
+    (203,  ('m-3', 'Th')),
+    (204,  ('m-3', 'Th')),
+    (205,  ('m-3', 'Th')),
+    (206,  ('m-3', 'Th')),
     (207,  ('432', 'O')),
     (208,  ('432', 'O')),
     (209,  ('432', 'O')),
@@ -735,6 +736,8 @@ schoenfliesSymbols = schoen2SpaceDict.keys()
 class LatticeSymmetry(registeredclass.ConvertibleRegisteredClass):
     registry = []
     tip = 'Various ways of specifying lattice symmetry (ie point groups).'
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/common/reg/latticesymmetry.xml')
 
 class LatticeSymmetryRegistration(registeredclass.ConvertibleRegistration):
     def __init__(self, name, subclass, ordering,
@@ -751,7 +754,14 @@ class LatticeSymmetryRegistration(registeredclass.ConvertibleRegistration):
 # et al).
 
 class InternationalName(enum.EnumClass(*internationalGroupNames)):
-    pass
+    tip="The short International (Hermann-Mauguin) name for a point group."
+    discussion="""
+<para>
+
+Names allowed by <xref linkend="RegisteredClass-International"/>.  See
+  <ulink
+  url="https://en.wikipedia.org/wiki/Crystallographic_point_group#The_correspondence_between_different_notations"
+  role="external">Wikipedia</ulink> for details.</para> """
 
 def internationalFromSpaceGroup(n):
     return InternationalName(space2PointDict[n][0])
@@ -778,7 +788,10 @@ LatticeSymmetryRegistration(
     ordering = 2,
     from_base = _international_from_base,
     to_base = _international_to_base,
-    params = [enum.EnumParameter('name', InternationalName)]
+    params = [enum.EnumParameter('name', InternationalName,
+                                 tip="Name of the point group.")],
+    tip="Use international notation to specify lattice symmetry.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/international.xml')
 )
     
     
@@ -808,7 +821,9 @@ LatticeSymmetryRegistration(
     from_base = _space_from_base,
     to_base = _space_to_base,
     params = [parameter.IntRangeParameter("number", (1, 230),
-                                          tip="Space group number.")]
+                                          tip="Space group number.")],
+    tip="Use the space group number to specify lattice symmetry.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/spacegroup.xml')
 )
     
 #=--=##=--=##=--=##=--=#
@@ -816,8 +831,13 @@ LatticeSymmetryRegistration(
 # Representation by the Schoenflies symbol
 
 class SchoenfliesName(enum.EnumClass(*schoenfliesSymbols)):
-    pass
-
+    tip="The Schoenflies name for a point group."
+    discussion="""
+<para>Names allowed by <xref linkend="RegisteredClass-Schoenflies"/>. See
+<ulink
+  url="https://en.wikipedia.org/wiki/Crystallographic_point_group#The_correspondence_between_different_notations"
+  role="external">Wikipedia</ulink> for details.</para> """
+    
 def schoenfliesFromSpaceGroup(n):
     return SchoenfliesName(space2PointDict[n][1])
 
@@ -846,7 +866,10 @@ LatticeSymmetryRegistration(
     ordering = 1,
     from_base = _schoenflies_from_base,
     to_base = _schoenflies_to_base,
-    params = [enum.EnumParameter('symbol', SchoenfliesName)],
+    params = [enum.EnumParameter('symbol', SchoenfliesName,
+                                 tip="Name of the point group.")],
+    tip="Use Schoenflies notation to specify the lattice symmetry.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/schoenflies.xml')
 )
 
 #=--=##=--=##=--=##=--=#
