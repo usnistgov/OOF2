@@ -164,13 +164,13 @@ pixgrpmenu.addItem(OOFMenuItem(
             " the difference between them."),
         parameter.FloatParameter(
             'delta', value=2.0,
-            tip="Pixels within this many standard deviations of a group"
+            tip="Pixels within this many standard deviations of a group's mean"
             " will be added to the group."),
         parameter.FloatParameter(
             'gamma',
             value=2.0,
-            tip="Groups within this many standard deviations of each other"
-            " will be merged."),
+            tip="Groups within this many standard deviations of each other's"
+            " means will be merged."),
         parameter.IntParameter(
             'minsize', value=0,
             tip="Don't create groups or isolated parts of groups with fewer"
