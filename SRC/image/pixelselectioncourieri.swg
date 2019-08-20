@@ -15,35 +15,29 @@
 %module pixelselectioncourieri
 
 %include "common/typemaps.swg"
-%extern "common/pixelselectioncourier.swg"
+%extern "common/burn.swg"
 %extern "common/ccolor.swg"
 %extern "common/colordifference.swg"
-
+%extern "common/pixelselectioncourier.swg"
+%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
 %pragma(python) code="from ooflib.SWIG.common.pixelselectioncourier import PixelSelectionCourierPtr"
 
 %{
 #include "image/pixelselectioncourieri.h"
 #include "common/ccolor.h"
 #include "common/colordifference.h"
+#include "common/burn.h"
 %}
-
+   
 class ColorSelection : public PixelSelectionCourier {
 public:
-#ifndef DIM_3
   ColorSelection(CMicrostructure*, OOFImage*, CColor*, ColorDifference*);
-#else
-  ColorSelection(CMicrostructure*, OOFImage3D*, CColor*, ColorDifference*);
-#endif
   ~ColorSelection();
 };
 
 class BurnSelection : public PixelSelectionCourier {
 public:
-#ifndef DIM_3
-  BurnSelection(CMicrostructure*, BasicBurner*, OOFImage*, ICoord *iPoint);
-#else
-  BurnSelection(CMicrostructure*, BasicBurner*, OOFImage3D*, ICoord *iPoint);
-#endif
+  BurnSelection(CMicrostructure*, CPixelDifferentiator3*, ICoord *iPoint, bool);
   ~BurnSelection();
 };
 

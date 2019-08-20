@@ -33,11 +33,11 @@ class CSkeletonElement;
 
 class PixelSelectionCourier {
 protected:
-  const CMicrostructure *ms;
+  CMicrostructure *ms;
   ICoord pixelFromPoint(const Coord&) const;
   bool done_;
 public:
-  PixelSelectionCourier(const CMicrostructure *ms);
+  PixelSelectionCourier(CMicrostructure *ms);
   virtual ~PixelSelectionCourier() {}
   virtual void start() = 0;
   virtual ICoord currentPoint() const = 0;
@@ -51,7 +51,7 @@ class PointSelection : public PixelSelectionCourier {
 private:
   const Coord mousepoint;
 public:
-  PointSelection(const CMicrostructure *ms, const Coord *mp);
+  PointSelection(CMicrostructure *ms, const Coord *mp);
   virtual ~PointSelection() {}
   virtual void start() {}
   virtual ICoord currentPoint() const;
@@ -72,7 +72,7 @@ private:
   ICoord offset;
   void advance();
 public:
-  BrushSelection(const CMicrostructure *ms, BrushStyle *brush,
+  BrushSelection(CMicrostructure *ms, BrushStyle *brush,
 		 const std::vector<Coord> *points);
   virtual ~BrushSelection() {}
   virtual void start();
@@ -89,7 +89,7 @@ private:
   const ICoord ur;
   ICoord currentpt;
 public:
-  RectangleSelection(const CMicrostructure *ms,
+  RectangleSelection(CMicrostructure *ms,
 		     const Coord *ll, const Coord *ur);
   virtual ~RectangleSelection() {}
   virtual void start();
@@ -109,7 +109,7 @@ private:
   bool interior();
   void advance();
 public:
-  CircleSelection(const CMicrostructure *ms,
+  CircleSelection(CMicrostructure *ms,
 		  const Coord *c, const double r,
 		  const Coord *ll, const Coord *ur);
   virtual ~CircleSelection() {}
@@ -131,7 +131,7 @@ private:
   bool interior();
   void advance();
 public:
-  EllipseSelection(const CMicrostructure *ms,
+  EllipseSelection(CMicrostructure *ms,
 		   const Coord *ll, const Coord *ur);
   virtual ~EllipseSelection() {}
   virtual void start();
@@ -146,7 +146,7 @@ private:
   const PixelSet *pgroup;
   std::vector<ICoord>::const_iterator pxl_iter;
 public:
-  GroupSelection(const CMicrostructure *ms, const PixelSet *group);
+  GroupSelection(CMicrostructure *ms, const PixelSet *group);
   virtual ~GroupSelection() {}
   virtual void start();
   virtual ICoord currentPoint() const;
@@ -163,7 +163,7 @@ private:
   std::vector<ICoord>::const_iterator grp_iter;
   void advance();
 public:
-  IntersectSelection(const CMicrostructure *ms,
+  IntersectSelection(CMicrostructure *ms,
 		     const PixelSet *selpix,
 		     const PixelSet *grppix);
   virtual ~IntersectSelection() {}
@@ -183,7 +183,7 @@ private:
   BoolArray::iterator sel_iter;
   void advance();
 public:
-  DespeckleSelection(const CMicrostructure *ms, const PixelSet *group,
+  DespeckleSelection(CMicrostructure *ms, const PixelSet *group,
 		     const int neighbors);
   virtual ~DespeckleSelection() {}
   virtual void start();
@@ -201,7 +201,7 @@ private:
   BoolArray::iterator sel_iter;
   void advance();
 public:
-  ElkcepsedSelection(const CMicrostructure *ms, const PixelSet *group,
+  ElkcepsedSelection(CMicrostructure *ms, const PixelSet *group,
 		     const int neighbors);
   virtual ~ElkcepsedSelection() {}
   virtual void start();
@@ -219,7 +219,7 @@ private:
   BoolArray::iterator sel_iter;
   void advance();
 public:
-  ExpandSelection(const CMicrostructure *ms, const PixelSet *group,
+  ExpandSelection(CMicrostructure *ms, const PixelSet *group,
 		  const double radius);
   ~ExpandSelection() {}
   virtual void start();
@@ -237,7 +237,7 @@ private:
   BoolArray::iterator sel_iter;
   void advance();
 public:
-  ShrinkSelection(const CMicrostructure *ms, const PixelSet *group,
+  ShrinkSelection(CMicrostructure *ms, const PixelSet *group,
 		  const double radius);
   virtual ~ShrinkSelection() {}
   virtual void start();

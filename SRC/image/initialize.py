@@ -11,7 +11,6 @@
 from ooflib.common import parallel_enable
 from ooflib.common import utils
 from ooflib.SWIG.common import config
-import ooflib.SWIG.image.burn
 if config.dimension() == 2:
     import ooflib.SWIG.image.oofimage
 else:

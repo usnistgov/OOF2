@@ -120,7 +120,6 @@ class PixelInfoToolbox(toolbox.Toolbox):
         toolbox.Toolbox.close(self)
 
     def newPlugIn(self, pluginClass):
-        debug.fmsg("Creating", pluginClass, "in", self)
         self.plugIns.append(pluginClass(self))
 
     def findPlugIn(self, pluginClass):

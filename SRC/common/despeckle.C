@@ -38,15 +38,11 @@ static int Nnbrs(const ICoord &pxl, const BoolArray &sel) {
   return howmany;
 }
 
-// Is a pixel active and unselected?  OOF2 doesn't have active and
-// inactive pixels yet, but it will, and they'll have to be checked
-// here.
-static inline bool actunsel(const ICoord &pxl, const BoolArray &sel) {
-  return !sel[pxl]; // && active(pxl);
+static inline bool isUnselected(const ICoord &pxl, const BoolArray &sel) {
+  return !sel[pxl];
 }
 
-// Ditto, for selected pixels.
-static inline bool actsel(const ICoord &pxl, const BoolArray &sel) {
+static inline bool isSelected(const ICoord &pxl, const BoolArray &sel) {
   return sel[pxl];
 }
 
@@ -59,18 +55,18 @@ static void addnbrs_unsel(const ICoord &pxl, const BoolArray &sel,
   int h = sel.height() - 1;
   int x = pxl(0);
   int y = pxl(1);
-  if(x > 0) if(actunsel(pxl-east, sel)) grp.add(pxl-east);
-  if(x < w) if(actunsel(pxl+east, sel)) grp.add(pxl+east);
-  if(y > 0) if(actunsel(pxl-north, sel)) grp.add(pxl-north);
-  if(y < h) if(actunsel(pxl+north, sel)) grp.add(pxl+north);
+  if(x > 0) if(isUnselected(pxl-east, sel)) grp.add(pxl-east);
+  if(x < w) if(isUnselected(pxl+east, sel)) grp.add(pxl+east);
+  if(y > 0) if(isUnselected(pxl-north, sel)) grp.add(pxl-north);
+  if(y < h) if(isUnselected(pxl+north, sel)) grp.add(pxl+north);
   if(x > 0 && y > 0)
-    if(actunsel(pxl-northeast, sel)) grp.add(pxl-northeast);
+    if(isUnselected(pxl-northeast, sel)) grp.add(pxl-northeast);
   if(x < w && y < h)
-    if(actunsel(pxl+northeast, sel)) grp.add(pxl+northeast);
+    if(isUnselected(pxl+northeast, sel)) grp.add(pxl+northeast);
   if(x < w && y > 0)
-    if(actunsel(pxl-northwest, sel)) grp.add(pxl-northwest);
+    if(isUnselected(pxl-northwest, sel)) grp.add(pxl-northwest);
   if(x > 0 && y < h)
-    if(actunsel(pxl+northwest, sel)) grp.add(pxl+northwest);
+    if(isUnselected(pxl+northwest, sel)) grp.add(pxl+northwest);
 }
 
 static void addnbrs_sel(const ICoord &pxl, const BoolArray &sel,
@@ -80,18 +76,18 @@ static void addnbrs_sel(const ICoord &pxl, const BoolArray &sel,
   int h = sel.height() - 1;
   int x = pxl(0);
   int y = pxl(1);
-  if(x > 0) if(actsel(pxl-east, sel)) grp.add(pxl-east);
-  if(x < w) if(actsel(pxl+east, sel)) grp.add(pxl+east);
-  if(y > 0) if(actsel(pxl-north, sel)) grp.add(pxl-north);
-  if(y < h) if(actsel(pxl+north, sel)) grp.add(pxl+north);
+  if(x > 0) if(isSelected(pxl-east, sel)) grp.add(pxl-east);
+  if(x < w) if(isSelected(pxl+east, sel)) grp.add(pxl+east);
+  if(y > 0) if(isSelected(pxl-north, sel)) grp.add(pxl-north);
+  if(y < h) if(isSelected(pxl+north, sel)) grp.add(pxl+north);
   if(x > 0 && y > 0)
-    if(actsel(pxl-northeast, sel)) grp.add(pxl-northeast);
+    if(isSelected(pxl-northeast, sel)) grp.add(pxl-northeast);
   if(x < w && y < h)
-    if(actsel(pxl+northeast, sel)) grp.add(pxl+northeast);
+    if(isSelected(pxl+northeast, sel)) grp.add(pxl+northeast);
   if(x < w && y > 0)
-    if(actsel(pxl-northwest, sel)) grp.add(pxl-northwest);
+    if(isSelected(pxl-northwest, sel)) grp.add(pxl-northwest);
   if(x > 0 && y < h)
-    if(actsel(pxl+northwest, sel)) grp.add(pxl+northwest);
+    if(isSelected(pxl+northwest, sel)) grp.add(pxl+northwest);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

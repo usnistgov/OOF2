@@ -280,6 +280,17 @@ class WhoParameterWidgetBase(parameterwidgets.ParameterWidget,
         debug.mainthreadTest()
         widgetscope.WidgetScope.__init__(self, scope)
         self.whowidget = self.makeSubWidgets(whoclass, value, condition, sort)
+        
+        # If the WidgetScope contains 'fixed whoclass' data, then the
+        # given class and its parent classes aren't allowed to be
+        # changed. Make their widgets insensitive.
+        try:
+            fixedname, fixedwho = scope.findData('fixed whoclass')
+        except:
+            fixed = 0
+        else:
+            fixed = [w.name() for w in whoclass.hierarchy()].index(fixedname)
+        
         # Put the WhoWidget's components into a box.
         depth = len(self.whowidget.gtk)
         frame = gtk.Frame()
@@ -289,9 +300,11 @@ class WhoParameterWidgetBase(parameterwidgets.ParameterWidget,
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name)
         for d in range(depth):
             vbox.pack_start(self.whowidget.gtk[d], expand=0, fill=0)
+            if d <= fixed:
+                self.whowidget.gtk[d].set_sensitive(False)
         self.wwcallback = switchboard.requestCallbackMain(self.whowidget,
                                                           self.widgetCB)
-        self.widgetCB(0)
+        self.widgetCB(False)
     def set_value(self, value):
         self.whowidget.set_value(value)
     def get_value(self):

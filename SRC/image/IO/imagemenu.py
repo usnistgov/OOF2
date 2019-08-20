@@ -9,15 +9,13 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+from ooflib.SWIG.common import burn
 from ooflib.SWIG.common import config
-from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import progress
+from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.image import autogroupMP
-if config.dimension() == 2:
-    from ooflib.SWIG.image import oofimage
-elif config.dimension() == 3:
-    from ooflib.SWIG.image import oofimage3d as oofimage
+from ooflib.SWIG.image import oofimage
 from ooflib.common import debug
 from ooflib.common import labeltree
 from ooflib.common import parallel_enable
@@ -342,6 +340,14 @@ imagemenu.addItem(oofmenu.OOFMenuItem(
     ))
 
 ################################
+
+## This AutoGroup command has been made obsolete by the more flexible
+## AutoGroup command in the PixelGroup menu.  That one works with
+## Orientations as well as colors, and can optionally create separate
+## groups for discontiguous sets of pixels.  This one is probably
+## faster, but it also probably doesn't matter.  The GUI button for
+## this command may go away, but the command itself should remain so
+## as not to break scripts.
 
 def createPixelGroups(menuitem, image, name_template):
     if name_template is None:

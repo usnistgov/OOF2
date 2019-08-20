@@ -727,6 +727,7 @@ class WhoParameter(parameter.Parameter):
         # WhoClass.
         if not (type(x) == StringType and 
                 labeltree.makePath(x) in self.whoclass.keys()):
+            debug.fmsg("Unexpected WhoParameter value:", x, type(x))
             raise TypeError("Expected the name of a %s instance."
                             % self.whoclass)
     def __repr__(self):

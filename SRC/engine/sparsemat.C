@@ -14,11 +14,6 @@
 #include <unsupported/Eigen/SparseExtra>
 #include <iostream>
 #include <fstream>
-// #ifndef HAVE_SSTREAM
-// #include <strstream.h>
-// #else
-// #include <sstream>
-// #endif // HAVE_SSTREAM
 
 // Construct by extraction from an existing matrix.
 SparseMat::SparseMat(const SparseMat& source,

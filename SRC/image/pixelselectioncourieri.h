@@ -18,7 +18,7 @@
 class OOFImage;
 class CColor;
 class ColorDifference;
-class BasicBurner;
+class CPixelDifferentiator3;
 
 // Color Difference 
 class ColorSelection : public PixelSelectionCourier {
@@ -30,7 +30,7 @@ private:
   BoolArray::iterator sel_iter;
   void advance();
 public:
-  ColorSelection(const CMicrostructure *ms, OOFImage *immidge,
+  ColorSelection(CMicrostructure *ms, OOFImage *immidge,
 		 const CColor *color, const ColorDifference *diff);
   virtual ~ColorSelection();
   virtual void start();
@@ -42,15 +42,16 @@ public:
 // Burn
 class BurnSelection : public PixelSelectionCourier {
 private:
-  BasicBurner *burner;
-  OOFImage *image;
+  const CPixelDifferentiator3 *pixdiff;
   const ICoord spark;
-  BoolArray selected;
-  BoolArray::iterator sel_iter;
-  void advance();
+  bool next_nearest;
+  std::vector<ICoord> selected;
+  std::vector<ICoord>::const_iterator sel_iter;
 public:
-  BurnSelection(const CMicrostructure *ms,
-		BasicBurner *burner, OOFImage *immidge, const ICoord *pt);
+  BurnSelection(CMicrostructure*,
+		const CPixelDifferentiator3*,
+		const ICoord*,
+		bool);
   virtual ~BurnSelection() {}
   virtual void start();
   virtual ICoord currentPoint() const;

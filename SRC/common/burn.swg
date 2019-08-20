@@ -9,23 +9,19 @@
  * oof_manager@nist.gov. 
  */
 
-#ifndef BURN_SWG
-#define BURN_SWG
+#ifndef BURNCOMMON_SWG
+#define BURNCOMMON_SWG
 
-%module burn
+%module autograin
 %include "common/typemaps.swg"
 
 %{
-#include "image/burn.h"
+#include "common/burn.h"
+#include "common/cmicrostructure.h"
 %}
-%pragma(python) include="burn.spy"
+%pragma(python) include="common/burn.spy"
 
-   //class OOFImage;
+class CPixelDifferentiator3 {};
+class CPixelDifferentiator2 {};
 
-class BasicBurner { // : public Burner {
-public:
-  BasicBurner(double lcl, double glbl, bool useL2, bool nn);
-};
-
-
-#endif // BURN_SWG
+#endif // BURNCOMMON_SWG

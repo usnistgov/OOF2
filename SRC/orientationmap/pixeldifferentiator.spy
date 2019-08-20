@@ -1,0 +1,158 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.
+
+from ooflib.SWIG.common import burn
+from ooflib.SWIG.common import latticesystem
+from ooflib.SWIG.common import ooferror
+from ooflib.SWIG.common import statgroups
+from ooflib.SWIG.orientationmap import orientmapdata
+from ooflib.common import debug
+from ooflib.common import registeredclass
+from ooflib.common.IO import parameter
+from ooflib.common.IO import whoville
+
+latticeparameter = latticesystem.LatticeSymmetryParameter(
+    'lattice_symmetry',
+    tip="Assume that the material at each point has this symmetry,"
+    " making some orientations equivalent.")
+
+class OrientationDifferentiator3(burn.PixelDifferentiator):
+    def __init__(self, microstructure, local_misorientation,
+                 global_misorientation, lattice_symmetry):
+        self.microstructure = microstructure
+        self.local_misorientation = local_misorientation
+        self.global_misorientation = global_misorientation
+        self.lattice_symmetry = lattice_symmetry
+        ms = whoville.getClass('Microstructure')[microstructure]
+        burn.PixelDifferentiator.__init__(
+            self,
+            ms,
+            COrientationDifferentiator3(
+                orientmapdata.getOrientationMap(ms.getObject()),
+                local_misorientation, global_misorientation,
+                lattice_symmetry.schoenflies()))
+
+registeredclass.Registration(
+    'Orientation',
+    burn.PixelDifferentiator,
+    OrientationDifferentiator3,
+    ordering=2,
+    contiguities=("Nearest neighbor", "Next-nearest neighbor"),
+    params=[
+        whoville.WhoParameter(
+            'microstructure', whoville.getClass('Microstructure'),
+            tip='Use the orientation map in this Microstructure'),
+        parameter.FloatRangeParameter(
+            'local_misorientation',
+            range=(0, 180., 0.1), value=10,
+            tip="Maximum misorientation angle, in degrees, between neighboring pixels across which a selection will extend."),
+        parameter.FloatRangeParameter(
+            'global_misorientation',
+            range=(0., 180., 0.1), value=10,
+            tip="Misorientation, in degrees measured from initial point, beyond which a selection will not spread."),
+        latticesystem.LatticeSymmetryParameter(
+            'lattice_symmetry',
+            tip="Assume that the material at each point has this symmetry, making some orientations equivalent.")
+    ],
+    tip="Create pixel groups for grains by applying the Burn algorithm to an orientation map."
+    )
+
+class OrientationDifferentiator2(burn.PixelDifferentiator):
+    def __init__(self, microstructure, misorientation, lattice_symmetry):
+        self.microstructure = microstructure
+        self.misorientation = misorientation
+        self.lattice_symmetry = lattice_symmetry
+        ms = whoville.getClass('Microstructure')[microstructure]
+        burn.PixelDifferentiator.__init__(
+            self,
+            ms,
+            COrientationDifferentiator2(
+                orientmapdata.getOrientationMap(ms.getObject()),
+                misorientation, lattice_symmetry.schoenflies()))
+
+registeredclass.Registration(
+    'Orientation',
+    burn.PixelDifferentiator,
+    OrientationDifferentiator2,
+    ordering=2.1,
+    contiguities=("Disconnected",),
+    params=[
+        whoville.WhoParameter(
+            'microstructure', whoville.getClass('Microstructure'),
+            tip='Use the orientation map in this Microstructure'),
+        parameter.FloatRangeParameter(
+            'misorientation',
+            range=(0., 180., 0.1), value=10,
+            tip="Maximum misorientation between the initial,"
+            " randomly chosen pixel and the other pixels in a group."),
+        latticeparameter,
+        ],
+    tip="Create pixel groups containing similarly oriented pixels,"
+    " without regard to location. All pixels will be grouped."
+)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class OrientationGrouper(statgroups.PixelGrouper):
+    def __init__(self, microstructure, sigma0, lattice_symmetry):
+        self.microstructure = microstructure
+        self.sigma0 = sigma0
+        self.lattice_symmetry = lattice_symmetry
+        ms = whoville.getClass('Microstructure')[microstructure]
+        statgroups.PixelGrouper.__init__(
+            self,
+            ms, 
+            OrientationPixelDistFactory(
+                orientmapdata.getOrientationMap(ms.getObject()),
+                sigma0, lattice_symmetry.schoenflies()))
+
+
+registeredclass.Registration(
+    'Orientation',
+    statgroups.PixelGrouper,
+    OrientationGrouper,
+    ordering=2,
+    params=[
+        whoville.WhoParameter(
+            'microstructure', whoville.getClass('Microstructure'),
+            tip='Use the orientation map in this Microstructure'),
+        parameter.FloatParameter(
+            'sigma0', value=1.0,
+            tip="Standard deviation (in degrees) to use for"
+            " initial distributions"),
+        latticeparameter
+        ],
+    tip="Group pixels by examining orientation distributions.",
+    discussion="""
+
+    <para> This is used by <xref
+    linkend="MenuItem-OOF.PixelGroup.AutoGroup"/> to automatically
+    create &pixelgroups; based on an <link
+    linkend="Section-Concepts-Microstructure-OrientationMap">orientation
+    map</link>.  Given two pixels, it uses the <link
+    linkend="Section-Concepts-Microstructure-Misorientation">
+    misorientation</link> of their orientations as the distance
+    between them in orientation space. </para>
+
+    <para> <varname>sigma0</varname> is the initial standard deviation
+    assigned to a group containing a single pixel.  It sets the scale
+    for how far apart two orientations have to be in order to
+    considered to be significantly different.  Using a small
+    <varname>sigma0</varname> will lead to many small pixel groups
+    with little orientation variation within each group.  Using a
+    large <varname>sigma0</varname> will lead to fewer pixel groups
+    with more variation within each group.  </para>
+    
+    <para><varname>lattice_symmetry</varname> is the <link
+    linkend="RegisteredClass-LatticeSymmetry">crystal symmetry</link>
+    used when computing misorientations. </para>
+
+ """
+)

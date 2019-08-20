@@ -49,6 +49,7 @@ pyfiles = [
     'oof_mainiteration.py',
     'parameterwidgets.py',
     'pixelPage.py',
+    'pixeldifferentiatorwidget.py',
     'pixelgroupwidget.py',
     'pixelinfoGUI.py',
     'pixelselecttoolboxGUI.py',

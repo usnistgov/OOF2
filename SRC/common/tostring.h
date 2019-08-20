@@ -17,6 +17,7 @@
 #define TOSTRING_H
 
 #include <string>
+#include <iomanip>
 
 // convert anything to a string
 
@@ -37,6 +38,13 @@ template <class TYPE>
 std::string to_string(const TYPE &x) {
   std::ostringstream os;
   os << x;
+  return os.str();
+}
+
+template <class TYPE> 
+std::string to_string(const TYPE &x, int precision) {
+  std::ostringstream os;
+  os << std::setprecision(20) << x;
   return os.str();
 }
 

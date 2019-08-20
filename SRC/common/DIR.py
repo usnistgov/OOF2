@@ -29,8 +29,8 @@ if not DIM_3:
         'sincos.C', 'swiglib.C', 'switchboard.C', 'threadstate.C',
         'timestamp.C', 'trace.C', 'pythonlock.C', 'progress.C',
         'direction.C', 'doublevec.C', 'smallmatrix.C', 'corientation.C',
-        'latticesystem.C'
-        ]
+        'latticesystem.C', 'burn.C', 'statgroups.C'
+    ]
 
     swigfiles = [
         'abstractimage.swg', 'activearea.swg', 'argv.swg',
@@ -43,8 +43,8 @@ if not DIM_3:
         'threadstate.swg', 'timestamp.swg', 'trace.swg', 'progress.swg',
         'guitop.swg', 'identification.swg', 'direction.swg', 'doublevec.swg',
         'smallmatrix.swg', 'corientation.swg', 'latticesystem.swg',
-        'pixelsetboundary.swg'
-        ]
+        'pixelsetboundary.swg', 'burn.swg', 'statgroups.swg'
+    ]
 
     pyfiles = [ 
         'activeareamod.py', 'backEnd.py', 'color.py', 'cregisteredclass.py',
@@ -56,7 +56,8 @@ if not DIM_3:
         'pixelselectionmethod.py', 'pixelselectionmod.py', 'primitives.py',
         'quit.py', 'registeredclass.py', 'ringbuffer.py', 'strfunction.py',
         'subthread.py', 'thread_enable.py', 'timer.py', 'toolbox.py',
-        'utils.py', 'version.py', 'worker.py', 'runtimeflags.py']
+        'utils.py', 'version.py', 'worker.py', 'runtimeflags.py'
+    ]
 
     swigpyfiles = [
         'ooferror.spy', 'colordifference.spy', 'coord.spy', 'geometry.spy',
@@ -64,7 +65,8 @@ if not DIM_3:
         'cdebug.spy', 'brushstyle.spy', 'pixelattribute.spy', 'guitop.spy',
         'activearea.spy', 'lock.spy', 'cmicrostructure.spy', 'doublevec.spy',
         'smallmatrix.spy',  'corientation.spy', 'direction.spy',
-        'latticesystem.spy']
+        'latticesystem.spy', 'burn.spy', 'statgroups.spy'
+    ]
 
 
     hfiles = [
@@ -78,7 +80,8 @@ if not DIM_3:
         'removeitem.h', 'sincos.h', 'swiglib.h', 'switchboard.h',
         'threadstate.h', 'timestamp.h', 'tostring.h', 'trace.h',
         'pythonlock.h', 'direction.h', 'doublevec.h', 'smallmatrix.h',
-        'corientation.h','latticesystem.h']
+        'corientation.h','latticesystem.h', 'burn.h', 'statgroups.h'
+    ]
 
 else:
 

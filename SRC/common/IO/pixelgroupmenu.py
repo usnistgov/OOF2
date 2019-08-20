@@ -10,14 +10,19 @@
 
 # Menu commands for manipulating PixelGroups
 
-from ooflib.SWIG.common import ooferror
+from ooflib.SWIG.common import burn
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import pixelgroup
+from ooflib.SWIG.common import progress
+from ooflib.SWIG.common import statgroups
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
-from ooflib.common import primitives
+from ooflib.common import enum
 from ooflib.common import parallel_enable
+from ooflib.common import primitives
 from ooflib.common import runtimeflags
+from ooflib.common import utils
 from ooflib.common.IO import automatic
 from ooflib.common.IO import microstructureIO
 from ooflib.common.IO import parameter
@@ -104,6 +109,94 @@ pixgrpmenu.addItem(OOFMenuItem(
     appended, for some integer <userinput>x</userinput>.
 
     </para>"""))
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# AutoGroup uses a statistical method to create groups.  Each group
+# is assumed to contain a distribution of pixel values.  A pixel value
+# is compared to the mean and deviation of each existing group, and
+# the pixel added to the group to which it's the fewest deviations
+# from the mean.  If it's not close enough to any group, a new group
+# is created.  Adding a pixel to a group changes the group's mean and
+# deviation.  If two groups get close to one another, they are merged.
+
+# After all pixels have been added to groups, each group is split into
+# disconnected regions.  Regions containing fewer than minsize pixels
+# are merged into adjacent groups, pixel by pixel.  If a pixel is
+# adjacent to more than one group, its put into the group with more
+# neighbors.  If the pixel is adjacent to the same number of neighbors
+# in more than one group, it's put into the group with the closest
+# mean.
+
+# The standard deviation, sigma0, to be used for a group containing a
+# single pixel is set in the PixelGrouperParameter, not in AutoGroup,
+# because its default value depends on which PixelGrouper is selected.
+
+def autoPixelGroup(menuitem, grouper, delta, gamma, minsize, contiguous,
+                   name_template, clear):
+    ms = grouper.mscontext.getObject()
+    if "%n" not in name_template:
+        name_template = name_template + "%n"
+    prog = progress.getProgress('AutoGroup', progress.DEFINITE)
+    prog.setMessage('Grouping pixels...')
+    grouper.mscontext.begin_writing()
+    newgrpname = None
+    try:
+        newgrpname = statgroups.statgroups(ms, grouper.cobj, delta, gamma,
+                                           minsize,
+                                           contiguous,
+                                           name_template, clear);
+    finally:
+        prog.finish()
+        grouper.mscontext.end_writing()
+    if newgrpname:
+        switchboard.notify("new pixel group", ms.findGroup(newgrpname))
+    switchboard.notify("changed pixel groups", ms.name())
+    switchboard.notify("redraw")
+
+pixgrpmenu.addItem(OOFMenuItem(
+    "AutoGroup",
+    callback=autoPixelGroup,
+    params=[
+        statgroups.PixelGrouperParameter(
+            'grouper',
+            tip="Which pixel values to use, and how to compute"
+            " the difference between them."),
+        parameter.FloatParameter(
+            'delta', value=2.0,
+            tip="Pixels within this many standard deviations of a group's mean"
+            " will be added to the group."),
+        parameter.FloatParameter(
+            'gamma',
+            value=2.0,
+            tip="Groups within this many standard deviations of each other's"
+            " means will be merged."),
+        parameter.IntParameter(
+            'minsize', value=0,
+            tip="Don't create groups or isolated parts of groups with fewer"
+            " than this many pixels.  Instead, assign pixels to the nearest"
+            " large group.  Set minsize=0 to skip this step."),
+        parameter.BooleanParameter(
+            'contiguous', value=True,
+            tip="Create only contiguous groups.  Similar pixels that aren't"
+            " connected to one another will be put into separate groups."),
+        parameter.StringParameter(
+            "name_template",
+            value="group_%n",
+            tip="Name for the new pixel groups."
+            " '%n' will be replaced by an integer."),
+        parameter.BooleanParameter(
+            "clear", value=True,
+            tip="Clear pre-existing groups before adding pixels to them."
+            " This will NOT clear groups to which no pixels are being added.")
+        ],
+    help="Put all pixels into pixel groups, sorted by color or orientation.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/autogroup.xml')
+))
+
+        
+        
+            
 
 ##########################
 

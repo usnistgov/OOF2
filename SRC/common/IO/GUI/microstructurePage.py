@@ -140,6 +140,9 @@ class MicrostructurePage(oofGUI.MainPage):
         scroll.add(self.infoarea)
         
         ########
+        
+        ## TODO: PixelGroup buttons should be desensitized when
+        ## Microstructure is busy.
 
         self.grouplock = lock.Lock()
         groupframe = gtk.Frame('%s Groups'%Pixstring)
@@ -155,11 +158,12 @@ class MicrostructurePage(oofGUI.MainPage):
         hbox.pack_start(frame)
         grparea = gtk.VBox()
         frame.add(grparea)
+
         # only one of grplist and grpmsg is visible at a time
         self.grplist = chooser.ScrolledChooserListWidget( # list of pixel groups
             callback=self.listItemChosen, name="GroupList")
         grparea.add(self.grplist.gtk)
-        self.grpmsg = gtk.Label()       # helpful message when there are no grps
+        self.grpmsg = gtk.Label() # helpful message when there are no grps
         grparea.add(self.grpmsg)
 
         self.newgroupbutton = gtk.Button('New...')
@@ -169,6 +173,16 @@ class MicrostructurePage(oofGUI.MainPage):
         tooltips.set_tooltip_text(self.newgroupbutton,
             "Create a new empty %s group in the current microstructure."
             % pixstring)
+
+        self.autogroupbutton = gtk.Button('Auto...')
+        gtklogger.setWidgetName(self.autogroupbutton, "Auto")
+        vbox.pack_start(self.autogroupbutton, expand=0, fill=0)
+        gtklogger.connect(self.autogroupbutton, 'clicked',
+                          self.autoGroupButtonCB)
+        tooltips.set_tooltip_text(
+            self.autogroupbutton,
+            "Automatically create groups for all pixels"
+            " in the current microstructure with a statistical method.")
 
         self.renamegroupbutton = gtk.Button('Rename...')
         gtklogger.setWidgetName(self.renamegroupbutton, "Rename")
@@ -439,6 +453,11 @@ class MicrostructurePage(oofGUI.MainPage):
         ngrps = 0
         msctxt = self.currentMScontext()
         if msctxt:
+            # TODO: This is incorrect.  Don't call begin_reading here.
+            # The ms may be doing some long calculation, and the
+            # buttons should be desensitized because of it.  Calling
+            # begin_reading will lock and prevent densensitization
+            # until after the calculation is done!
             msctxt.begin_reading()
             try:
                 ms = msctxt.getObject()
@@ -463,6 +482,7 @@ class MicrostructurePage(oofGUI.MainPage):
         self.savebutton.set_sensitive(ms_available)
 
         self.newgroupbutton.set_sensitive(ms_available)
+        self.autogroupbutton.set_sensitive(ms_available)
         self.renamegroupbutton.set_sensitive(grp_selected)
         self.copygroupbutton.set_sensitive(grp_selected)
         self.delgroupbutton.set_sensitive(grp_selected)
@@ -591,6 +611,22 @@ class MicrostructurePage(oofGUI.MainPage):
         if parameterwidgets.getParameters(nameparam,
                                           title='Create new %s group'%pixstring):
             menuitem.callWithDefaults(microstructure=self.currentMSName())
+
+    def autoGroupButtonCB(self, button):
+        # Use WidgetScope setData/findData to tell the WhoWidgets in
+        # the params that the Microstructure has to be the current
+        # Microstructure.  We can't just set a Microstructure
+        # parameter and exclude its widget from the dialog in the
+        # usual way, because the WhoParams aren't direct parameters
+        # of this menu item, and the WhoWidgets are inside
+        # PixelDistributionFactory RCFs.
+        # scopedata key,value pairs are passed to WidgetScope.setData().
+        # WidgetScope.findData() searches its own data and that of its parents.
+        menuitem = mainmenu.OOF.PixelGroup.AutoGroup
+        scopedata = {'fixed whoclass': ('Microstructure', self.currentMSName())}
+        if parameterwidgets.getParameters(title="AutoGroup", scope=self,
+                                          data=scopedata, *menuitem.params):
+            menuitem.callWithDefaults()
 
     def renameGroupButtonCB(self, button):
         menuitem = mainmenu.OOF.PixelGroup.Rename

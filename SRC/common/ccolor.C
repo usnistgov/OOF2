@@ -215,6 +215,9 @@ bool CColor::compare(const CColor &c1, double tol) const {
 // L1dist and L2dist2 operate in RGB-space.
 
 double L1dist(const CColor &c1, const CColor &c2) {
+  // TODO: Is this factor of 1/3 correct?  Without it, the difference
+  // of two gray values would be unintuitive, but it's not standard
+  // for the general L1 norm.
   return ((fabs(c1.getRed() - c2.getRed()) +
 	   fabs(c1.getGreen() - c2.getGreen()) +
 	   fabs(c1.getBlue() - c2.getBlue()))/3.0);
@@ -257,6 +260,18 @@ std::string CColor::name() const {
   char buffer[8];
   sprintf(buffer, "#%02x%02x%02x", r, g, b);
   return std::string(buffer);
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+CColor CColor::weightedAverage(double w0, double w1, const CColor &color1) const
+{
+  double u0 = w0/(w0 + w1);
+  double u1 = w1/(w0 + w1);
+  return CColor(u0*red_ + u1*color1.red_,
+		u0*green_ + u1*color1.green_,
+		u0*blue_ + u1*color1.blue_);
+		
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

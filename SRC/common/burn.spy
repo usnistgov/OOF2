@@ -1,0 +1,25 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.
+
+from ooflib.common import debug
+from ooflib.common import registeredclass
+from ooflib.common.IO import parameter
+
+class PixelDifferentiator(registeredclass.RegisteredClass):
+    registry = []
+    def __init__(self, mscontext, cdifferentiator):
+        self.mscontext = mscontext # MicrostructureContext
+        self.cobj = cdifferentiator
+
+class PixelDifferentiatorParameter(parameter.RegisteredParameter):
+    def __init__(self, name, value=None, default=None, tip=None):
+        parameter.RegisteredParameter.__init__(
+            self, name, PixelDifferentiator,
+            value=value, default=default, tip=tip)

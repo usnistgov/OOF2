@@ -641,22 +641,51 @@ private:
   int ncols;
   TYPE *data;
 public:
-  SimpleArray2D(int rows, int cols)
-    : nrows(rows),
-      ncols(cols),
-      data(new TYPE[rows*cols])
+  SimpleArray2D(int width, int height)
+    : nrows(height),
+      ncols(width),
+      data(new TYPE[width*height])
   {
     memset(data, 0, nrows*ncols*sizeof(TYPE));
+  }
+  SimpleArray2D(const ICoord &size) // size is ICoord(width, height)
+    : nrows(size[1]),
+      ncols(size[0]),
+      data(new TYPE[size[0]*size[1]])
+  {
+    memset(data, 0, nrows*ncols*sizeof(TYPE));
+  }
+  SimpleArray2D(SimpleArray2D &&other)
+    : nrows(other.nrows),
+      ncols(other.ncols)
+  {
+    TYPE *temp = data;
+    data = other.data;
+    other.data = temp;
   }
   ~SimpleArray2D() {
     delete [] data;
   }
-  TYPE &operator()(int i, int j) {
-    return data[j + i*ncols];
+  TYPE &operator()(int i, int j) { 
+    assert(0<=i && i<ncols && 0<=j && j<nrows);
+    return data[i + j*ncols];
   }
   const TYPE& operator()(int i, int j) const {
-    return data[j + i*ncols];
+    assert(0<=i && i<ncols && 0<=j && j<nrows);
+    return data[i + j*ncols];
+  }
+  TYPE &operator[](const ICoord &pt) {
+    assert(contains(pt));
+    return data[pt[0] + pt[1]*ncols];
+  }
+  const TYPE &operator[](const ICoord &pt) const {
+    assert(contains(pt));
+    return data[pt[0] + pt[1]*ncols];
+  }
+  bool contains(const ICoord &pt) const {
+    return (pt[0] >= 0 && pt[0] < ncols &&
+	    pt[1] >= 0 && pt[1] < nrows);
   }
 };
 
-#endif
+#endif	// ARRAY_H

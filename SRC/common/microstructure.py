@@ -141,6 +141,9 @@ class Microstructure(cmicrostructure.CMicrostructure):
     def getPlugIn(self, name):
         return self.plugins[name]
 
+    def hasPlugIn(self, name):
+        return name in self.plugins
+
     def addImage(self, image):
         switchboard.notify('images changed in microstructure')
 

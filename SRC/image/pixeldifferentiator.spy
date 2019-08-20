@@ -1,0 +1,167 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.
+
+from ooflib.SWIG.common import burn
+from ooflib.SWIG.common import statgroups
+from ooflib.common import debug
+from ooflib.common import enum
+from ooflib.common import registeredclass
+from ooflib.common import utils
+from ooflib.common.IO import parameter
+from ooflib.common.IO import whoville
+from ooflib.common.IO import xmlmenudump
+
+class ColorNorm(enum.EnumClass(
+    ('L1', 'The sum of the absolute values of the RGB differences.'),
+    ('L2',
+     'The square root of the sum of the squares of the RGB differences.'))):
+    tip="Ways of measuring the difference between two colors."
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/enum/colornorm.xml')
+    
+L1 = ColorNorm('L1')
+L2 = ColorNorm('L2')
+utils.OOFdefine('ColorNorm', ColorNorm)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class ColorDifferentiator3(burn.PixelDifferentiator):
+    def __init__(self, image, local_color_delta, global_color_delta,
+                 color_space_norm):
+        self.image = image      # path 
+        self.local_color_delta = local_color_delta
+        self.global_color_delta = global_color_delta
+        self.color_space_norm = color_space_norm
+        immidge = whoville.getClass('Image')[image]
+        burn.PixelDifferentiator.__init__(
+            self,
+            immidge.getParent(),
+            CColorDifferentiator3(immidge.getObject(), local_color_delta,
+                                 global_color_delta,
+                                 color_space_norm=="L2"))
+        
+registeredclass.Registration(
+    'Color',
+    burn.PixelDifferentiator,
+    ColorDifferentiator3,
+    ordering=1,
+    contiguities=("Nearest neighbor", "Next-nearest neighbor"),
+    params=[
+        whoville.WhoParameter(
+            'image', whoville.getClass('Image'),
+            tip="Find grains in this image"),
+        parameter.FloatRangeParameter(
+            'local_color_delta',
+            range=(0, 1, 0.001), value=0.1,
+            tip="Maximum difference in neighboring pixel colors across which a burn will extend."),
+        parameter.FloatRangeParameter(
+            'global_color_delta',
+            range=(0, 1, 0.001), value=0.2,
+            tip="Difference from initial pixel color beyond which a burn will not spread."),
+        enum.EnumParameter(
+            'color_space_norm', ColorNorm, value=L1,
+            tip="How to compute the difference between two colors in RGB space.")
+        ],
+    tip="Create pixel groups containing similarly colored contiguous"
+    " pixels (as in the Burn method.  All pixels will be grouped."
+)
+        
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class ColorDifferentiator2(burn.PixelDifferentiator):
+    def __init__(self, image, color_delta, color_space_norm):
+        self.image = image
+        self.color_delta = color_delta
+        self.color_space_norm = color_space_norm
+        immidge = whoville.getClass('Image')[image]
+        burn.PixelDifferentiator.__init__(
+            self,
+            immidge.getParent(),
+            CColorDifferentiator2(immidge.getObject(), color_delta,
+                                  color_space_norm=="L2"))
+
+registeredclass.Registration(
+    'Color',
+    burn.PixelDifferentiator,
+    ColorDifferentiator2,
+    ordering=1.1,
+    contiguities=("Disconnected",),
+    params=[
+        whoville.WhoParameter(
+            'image', whoville.getClass('Image'),
+            tip="Group pixels in this image"),
+        parameter.FloatRangeParameter(
+            'color_delta',
+            range=(0, 1, 0.001), value=0.1,
+            tip="Maximum difference in color between the initial,"
+            " randomly chosen pixel and other pixels in the group."),
+        enum.EnumParameter(
+            'color_space_norm', ColorNorm, value=L1,
+            tip="How to compute the difference between two colors in RGB space."
+            )
+        ],
+    tip="Create pixel groups containing similarly colored pixels,"
+    " without regard to location.  All pixels will be grouped."
+)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+
+## TODO: Allow user to specify the color space norm?
+
+class ColorGrouper(statgroups.PixelGrouper):
+    def __init__(self, image, sigma0):
+        self.image = image
+        self.sigma0 = sigma0
+        immidge = whoville.getClass('Image')[image]
+        statgroups.PixelGrouper.__init__(
+            self,
+            immidge.getParent(),
+            ColorPixelDistFactory(immidge.getObject(), sigma0))
+
+registeredclass.Registration(
+    'Color',
+    statgroups.PixelGrouper,
+    ColorGrouper,
+    ordering=1,
+    params=[
+        whoville.WhoParameter(
+            'image', whoville.getClass('Image'),
+            tip="Base groups on the colors in this image"),
+        parameter.FloatParameter(
+            'sigma0', value=0.002,
+            tip="Standard deviation in RGB values to assume for initial distributions")
+    ],
+    tip="Group pixels by examining RGB distributions.",
+
+    discussion="""
+    <para> This is used by <xref
+    linkend="MenuItem-OOF.PixelGroup.AutoGroup"/> to automatically
+    create &pixelgroups; based on pixel color.  Given two pixels, it
+    computes the distance between them by treating their RGB values as
+    coordinates in a 3D Euclidean space. </para>
+
+    <para> <varname>sigma0</varname> is the initial standard deviation
+    assigned to a group containing a single pixel.  It sets the scale
+    for how far apart colors have to be in RGB space in order to
+    considered to be significantly different.  Using a small
+    <varname>sigma0</varname> will lead to many small pixel groups
+    with little color variation within each group.  Using a large
+    <varname>sigma0</varname> will lead to fewer pixel groups with
+    more variation within each group.  </para> """
+)
+    
+            
+            
+            
+    
+    
+
+
+
