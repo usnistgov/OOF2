@@ -782,6 +782,8 @@ COrientation *orientationFactory(const std::string *name) {
     return new COrientAxis(0.0, 0.0, 0.0, 0.0);
   if(*name == "Rodrigues")
     return new COrientRodrigues(0.0, 0.0, 0.0);
+  if(*name == "Bunge")
+    return new COrientBunge(0.0, 0.0, 0.0);
   throw ErrProgrammingError("Unrecognized COrientation type! " + *name,
 			    __FILE__, __LINE__);
 }

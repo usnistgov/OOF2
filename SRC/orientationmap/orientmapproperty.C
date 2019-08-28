@@ -13,6 +13,7 @@
 
 #include "common/cmicrostructure.h"
 #include "engine/corientation.h"
+#include "engine/IO/propertyoutput.h"
 #include "engine/element.h"
 #include "engine/femesh.h"
 #include "engine/mastercoord.h"
@@ -64,6 +65,21 @@ const COrientation *OrientationMapProp::orientation(const FEMesh *mesh,
   // 	    << " ornt= " << ornt << " " << *ornt << std::endl;
   // return ornt;
   return &meshdata->odata->angle(pxl);
+}
+
+void OrientationMapProp::output(const FEMesh *mesh,
+				const Element *element,
+				const PropertyOutput *output,
+				const MasterPosition &pos,
+				OutputVal *data)
+  const
+{
+  const std::string &outputname = output->name();
+  if(outputname == "Orientation") {
+    COrientation *odata = dynamic_cast<COrientation*>(data);
+    const std::string *fmt = output->getEnumParam("format");
+    odata->copy(orientation(mesh, element, pos));
+  }
 }
 
 const COrientation *OrientationMapProp::orientation() const {
