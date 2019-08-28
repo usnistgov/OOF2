@@ -23,12 +23,12 @@
 %extern "common/coord.swg"
 %extern "common/IO/stringimage.swg"
 %extern "engine/angle2color.swg"
-%extern "common/corientation.swg"
+%extern "engine/corientation.swg"
 %extern "image/oofimage.swg"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
 %pragma(python) code="from ooflib.SWIG.common.coord import CoordPtr"
 %pragma(python) code="from ooflib.SWIG.common.coord import ICoordPtr"
-%pragma(python) code="from ooflib.SWIG.common.corientation import COrientABGPtr"
+%pragma(python) code="from ooflib.SWIG.engine.corientation import COrientABGPtr"
 %pragma(python) code="from ooflib.SWIG.image.oofimage import OOFImagePtr"
 
 class OrientMap {

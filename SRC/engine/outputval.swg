@@ -54,6 +54,10 @@ public:
   }
 };
 
+class NonArithmeticOutputVal : public OutputVal {
+
+};
+
 class ScalarOutputVal : public OutputVal {
 public:
   ScalarOutputVal(double);
@@ -116,6 +120,8 @@ public:
     }
   }
 };
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 class OutputValue {
 public:

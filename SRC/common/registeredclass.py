@@ -207,7 +207,8 @@ class ConvertibleRegistration(Registration):
         ## them from ConvertibleRegistration.to_base...
         
         ## TODO: Remove the 1st arg from from_base?
-        # 'base' is the list of parameters for the base constructor (?)
+        # 'base' is an instance of the base subclass of the
+        # ConvertibleRegisteredClass.
         self.setDefaultParams(self.from_base(self, base))
             
     def __repr__(self):
@@ -265,6 +266,18 @@ class RegisteredClass(object):
 
     def getDefaultParams(self):
         return self.getRegistration().params
+
+    @staticmethod
+    def getRegistrationForSubclass(subclass):
+        for reg in subclass.registry:
+            if reg.subclass is subclass:
+                return reg
+    @classmethod
+    def getRegistrationForName(cls, name):
+        for reg in cls.registry:
+            if reg.name() == name:
+                return reg
+            
 
     # clone() defined like this can be dangerous, if subclasses
     # contain have parameters that are themselves registered

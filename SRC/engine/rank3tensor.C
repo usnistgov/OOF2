@@ -11,9 +11,9 @@
  */
 #include <oofconfig.h>
 
-#include "common/corientation.h"
 #include "common/doublevec.h"
 #include "common/ooferror.h"
+#include "engine/corientation.h"
 #include "engine/fieldindex.h"
 #include "engine/ooferror.h"
 #include "engine/property/elasticity/cijkl.h"

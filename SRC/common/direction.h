@@ -23,7 +23,6 @@ class CAngleDirection;
 
 #include "common/doublevec.h"
 
-class COrientation;
 class SmallMatrix;
 
 class CDirection {

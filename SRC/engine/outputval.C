@@ -12,6 +12,7 @@
 #include <oofconfig.h>
 
 #include "engine/fieldindex.h"
+#include "engine/ooferror.h"
 #include "engine/outputval.h"
 #include <math.h>
 #include <string.h>		// for memcpy
@@ -261,4 +262,81 @@ void VectorOutputVal::print(std::ostream &os) const {
     os << ", " << data[i];
   }
   os << ")";
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// As a first pass at separating OutputVals into ones that can do
+// arithmetic and ones that can't, the NonArithmeticOutputVal class
+// just raises exceptions if it's asked to do arithmetic.
+
+OutputVal *NonArithmeticOutputVal::one() const {
+  throw ErrProgrammingError("Attempt to call NonArithmeticOutputVal::one",
+			    __FILE__, __LINE__);
+}
+
+OutputVal &NonArithmeticOutputVal::operator+=(const OutputVal&) {
+   throw ErrProgrammingError(
+		     "Attempt to call NonArithmeticOutputVal::operator+=",
+		     __FILE__, __LINE__);
+}
+
+OutputVal &NonArithmeticOutputVal::operator-=(const OutputVal&) {
+   throw ErrProgrammingError(
+		     "Attempt to call NonArithmeticOutputVal::operator-=",
+		     __FILE__, __LINE__);
+}
+
+OutputVal &NonArithmeticOutputVal::operator*=(double) {
+   throw ErrProgrammingError(
+		     "Attempt to call NonArithmeticOutputVal::operator*=",
+		     __FILE__, __LINE__);
+}
+
+void NonArithmeticOutputVal::component_pow(int) {
+   throw ErrProgrammingError(
+		     "Attempt to call NonArithmeticOutputVal::component_pow",
+		     __FILE__, __LINE__);
+}
+
+void NonArithmeticOutputVal::component_square() {
+   throw ErrProgrammingError(
+	     "Attempt to call NonArithmeticOutputVal::component_square",
+	     __FILE__, __LINE__);
+}
+
+void NonArithmeticOutputVal::component_sqrt() {
+   throw ErrProgrammingError(
+		     "Attempt to call NonArithmeticOutputVal::component_sqrt",
+		     __FILE__, __LINE__);
+}
+
+double NonArithmeticOutputVal::magnitude() const {
+   throw ErrProgrammingError(
+		     "Attempt to call NonArithmeticOutputVal::magnitude",
+		     __FILE__, __LINE__);
+}
+
+double NonArithmeticOutputVal::operator[](const IndexP&) const {
+  throw ErrProgrammingError(
+	      "Attempt to call NonArithmeticOutputVal::operator[] const",
+	      __FILE__, __LINE__);
+}
+
+double &NonArithmeticOutputVal::operator[](const IndexP&) {
+  throw ErrProgrammingError(
+		      "Attempt to call NonArithmeticOutputVal::operator[]",
+		      __FILE__, __LINE__);
+}
+
+IndexP NonArithmeticOutputVal::getIndex(const std::string&) const {
+  throw ErrProgrammingError(
+		      "Attempt to call NonArithmeticOutputVal::getIndex",
+		      __FILE__, __LINE__);
+}
+
+IteratorP NonArithmeticOutputVal::getIterator() const {
+  throw ErrProgrammingError(
+		      "Attempt to call NonArithmeticOutputVal::getIterator",
+		      __FILE__, __LINE__);
 }

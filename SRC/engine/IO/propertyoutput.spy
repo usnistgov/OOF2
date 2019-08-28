@@ -12,6 +12,7 @@
 from ooflib.SWIG.engine import outputval
 from ooflib.SWIG.engine import symmmatrix
 from ooflib.common import debug
+from ooflib.common import enum
 from ooflib.common import utils
 from ooflib.engine.IO import output
 from ooflib.engine.IO import outputClones
@@ -166,3 +167,44 @@ class ThreeVectorPropertyOutputRegistration(PORegBase):
             compout.aliasParam('field:'+param.name, param.name)
         output.defineScalarOutput(name+":Component", compout, ordering=ordering)
         
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+from ooflib.engine.IO import orientationmatrix
+from ooflib.SWIG.engine import corientation
+
+def _orientation_instancefn(self):
+    fmt = self.findParam("format").value
+    reg = orientationmatrix.getRegistrationForName(fmt)
+    debug.fmsg("reg=", reg)
+    return reg()
+
+def _orientation_column_names(self):
+    fmt = self.findParam("format").value
+    reg = orientationmatrix.Orientation.getRegistrationForName(fmt)
+    if reg:
+        return [p.name for p in reg.params]
+
+def _orientation_srepr(self):
+    fmt = self.findParam("format").value # an Enum
+    return fmt.name
+
+class OrientationPropertyOutputRegistration(PORegBase):
+    def __init__(self, name, parameters=[], ordering=0,
+                 tip=None, discussion=None):
+        param = enum.EnumParameter(
+            "format",
+            orientationmatrix.OrientationEnum,
+            tip="How to print the orientation.")
+        PropertyOutputRegistration.__init__(
+            self, name, OrientationPropertyOutputInit())
+        op = output.Output(name=name,
+                           callback=self.opfunc,
+                           otype=corientation.COrientationPtr,
+                           instancefn=_orientation_instancefn,
+                           srepr=_orientation_srepr,
+                           column_names=_orientation_column_names,
+                           params=[param] + parameters,
+                           tip=tip, discussion=discussion)
+        output.defineAggregateOutput(name, op, ordering=ordering)
+                           

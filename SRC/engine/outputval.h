@@ -35,6 +35,11 @@ class IteratorP;
 // templated subclasses would still have to be swigged separately, so
 // there wouldn't be much effort saved.
 
+// TODO: We need to have two abstract subclasses of OutputVal, one for
+// quantities on which arithmetic can be performed (fields, fluxes,
+// etc), and one for quantities on which arithmetic doesn't make sense
+// (Orientations, non-numeric material properties, etc).
+
 class OutputVal : public PythonExportable<OutputVal> {
 protected:
   static std::string modulename_;
@@ -65,6 +70,26 @@ public:
   virtual IndexP getIndex(const std::string&) const = 0;
   virtual IteratorP getIterator() const = 0;
   friend class OutputValue;
+};
+
+// NonArithmeticOutputVal raises exceptions for the things that
+// non-numerical OuputVals can't compute.  The correct class hierarchy
+// won't require these methods to be defined.
+
+class NonArithmeticOutputVal : public OutputVal {
+public:
+  virtual OutputVal *one() const;
+  virtual OutputVal &operator+=(const OutputVal&);
+  virtual OutputVal &operator-=(const OutputVal&);
+  virtual OutputVal &operator*=(double);
+  virtual void component_pow(int);
+  virtual void component_square();
+  virtual void component_sqrt();
+  virtual double magnitude() const;
+  virtual double operator[](const IndexP&) const;
+  virtual double &operator[](const IndexP&);
+  virtual IndexP getIndex(const std::string&) const;
+  virtual IteratorP getIterator() const;
 };
 
 std::ostream &operator<<(std::ostream &, const OutputVal&);

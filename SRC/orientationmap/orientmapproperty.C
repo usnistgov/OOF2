@@ -12,7 +12,7 @@
 #include <oofconfig.h>
 
 #include "common/cmicrostructure.h"
-#include "common/corientation.h"
+#include "engine/corientation.h"
 #include "engine/element.h"
 #include "engine/femesh.h"
 #include "engine/mastercoord.h"

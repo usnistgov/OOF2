@@ -14,6 +14,7 @@
 
 #include "common/cmicrostructure.h"
 #include "common/trace.h"
+#include "engine/IO/propertyoutput.h"
 #include "engine/material.h"
 #include "engine/property/orientation/orientation.h"
 #include "engine/symmmatrix.h"
@@ -36,6 +37,21 @@ const COrientation *OrientationProp::orientation(const CMicrostructure*,
 						 const ICoord &) const
 {
   return orient;
+}
+
+void OrientationProp::output(const FEMesh *mesh,
+			     const Element *element,
+			     const PropertyOutput *output,
+			     const MasterPosition &pos,
+			     OutputVal *data)
+  const
+{
+  const std::string &outputname = output->name();
+  if(outputname == "Orientation") {
+    COrientation *odata = dynamic_cast<COrientation*>(data);
+    const std::string *fmt = output->getEnumParam("format");
+    odata->copy(orient);
+  }
 }
 
 // From the comments in eulerangle.C:

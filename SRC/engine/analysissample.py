@@ -634,7 +634,8 @@ class ElementSegmentSampleSet(SampleSet):
 
     def integrate(self, domain, output, power=1):
         result = []
-        one = output.instancefn(output).one()
+        if power==0:            # OutputVal.one might not be defined
+            one = output.instancefn(output).one()
         for s in self.sample_list:
             start = s.segment.start()
             end = s.segment.end()

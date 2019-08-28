@@ -14,7 +14,7 @@
 #ifndef ORIENTATION_H
 #define ORIENTATION_H
 
-#include "common/corientation.h"
+#include "engine/corientation.h"
 #include "engine/property.h"
 #include <string>
 
@@ -50,6 +50,8 @@ public:
   virtual const COrientation *orientation(const CMicrostructure*, const ICoord&)
     const;
   virtual bool constant_in_space() const { return true; }
+  virtual void output(const FEMesh*, const Element*, const PropertyOutput*,
+		      const MasterPosition&, OutputVal*) const;
 };
 
 #endif

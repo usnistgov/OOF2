@@ -14,14 +14,9 @@
 #include "common/direction.h"
 #include "common/ooferror.h"
 #include "common/smallmatrix.h"
-#include "common/corientation.h"
 #include "common/doublevec.h"
 
 #include <math.h>
-
-// CUnitVectorDirection Direction::rotate(const COrientation &orientation) const {
-//   return rotate(orientation.rotation());
-// }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

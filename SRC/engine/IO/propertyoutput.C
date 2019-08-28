@@ -14,6 +14,7 @@
 #include "common/printvec.h"	// for debugging
 #include "common/pythonlock.h"
 #include "engine/IO/propertyoutput.h"
+#include "engine/corientation.h"
 #include "engine/element.h"
 #include "engine/femesh.h"
 #include "engine/material.h"
@@ -276,4 +277,14 @@ OutputVal *SymmMatrix3PropertyOutputInit::operator()(const PropertyOutput*,
 						     const MasterCoord&) const
 {
   return new SymmMatrix3();
+}
+
+OutputVal *OrientationPropertyOutputInit::operator()(
+					     const PropertyOutput *output,
+					     const FEMesh*,
+					     const Element*,
+					     const MasterCoord&) const
+{
+  const std::string *fmt = output->getEnumParam("format");
+  return orientationFactory(fmt);
 }

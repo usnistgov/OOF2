@@ -19,7 +19,6 @@
 %include "engine/propertyhdr.swg"
 %extern "engine/property/elasticity/cijkl.swg"
 %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
-%pragma(python) include="elasticity.spy"
 
 class Elasticity : public Property {
 public:

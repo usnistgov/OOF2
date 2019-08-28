@@ -11,10 +11,11 @@
 
 #include <oofconfig.h>
 
-#include "common/corientation.h"
 #include "common/latticesystem.h"
 #include "common/sincos.h"
 #include "common/smallmatrix.h"
+#include "engine/corientation.h"
+#include "engine/ooferror.h"
 #include <math.h>
 
 COrientation::COrientation()
@@ -614,4 +615,173 @@ void COrientRodrigues::print(std::ostream &os) const {
 std::ostream &operator<<(std::ostream &os, const COrientation &orient) {
   orient.print(os);
   return os;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Stuff added to make COrientations usable as OutputVals.
+
+const std::string &COrientation::modulename() const {
+  static const std::string nm = "ooflib.SWIG.engine.corientation";
+  return nm;
+}
+
+// -----------
+
+const std::string &COrientABG::classname() const {
+  static const std::string nm("COrientABG");
+  return nm;
+}
+
+OutputVal *COrientABG::clone() const {
+  return new COrientABG(*this); 
+}
+
+OutputVal *COrientABG::zero() const {
+  return new COrientABG(0., 0., 0.);
+}
+
+std::vector<double> *COrientABG::value_list() const {
+  return new std::vector<double>({alpha_, beta_, gamma_});
+}
+
+// ---------
+
+const std::string &COrientBunge::classname() const {
+  static const std::string nm("COrientBunge");
+  return nm;
+}
+
+OutputVal *COrientBunge::clone() const {
+  return new COrientBunge(*this);
+};
+
+OutputVal *COrientBunge::zero() const {
+  return new COrientBunge(0., 0., 0.);
+}
+
+std::vector<double> *COrientBunge::value_list() const {
+  return new std::vector<double>({phi1_, theta_, phi2_});
+}
+
+// ---------
+
+const std::string &COrientQuaternion::classname() const {
+  static const std::string nm("COrientQuaternion");
+  return nm;
+}
+
+OutputVal *COrientQuaternion::clone() const {
+  return new COrientQuaternion(*this);
+};
+
+OutputVal *COrientQuaternion::zero() const {
+  return new COrientQuaternion(0., 0., 0., 0.); 
+}
+
+std::vector<double> *COrientQuaternion::value_list() const {
+  return new std::vector<double>{q[0], q[1], q[2], q[3]};
+}
+
+// ---------
+
+const std::string &COrientX::classname() const {
+  static const std::string nm("COrientX");
+  return nm;
+}
+
+OutputVal *COrientX::clone() const {
+  return new COrientX(*this);
+};
+
+OutputVal *COrientX::zero() const {
+  return new COrientX(0., 0., 0.);
+}
+
+std::vector<double> *COrientX::value_list() const {
+  return new std::vector<double>({phi_, theta_, psi_});
+}
+
+// ---------
+
+const std::string &COrientXYZ::classname() const {
+  static const std::string nm("COrientXYZ");
+  return nm;
+}
+
+OutputVal *COrientXYZ::clone() const {
+  return new COrientXYZ(*this);
+};
+
+OutputVal *COrientXYZ::zero() const {
+  return new COrientXYZ(0., 0., 0.);
+}
+
+std::vector<double> *COrientXYZ::value_list() const {
+  return new std::vector<double>({phi_, theta_, psi_});
+}
+
+// ---------
+
+const std::string &COrientAxis::classname() const {
+  static const std::string nm("COrientAxis");
+  return nm;
+}
+
+OutputVal *COrientAxis::clone() const {
+  return new COrientAxis(*this);
+};
+
+OutputVal *COrientAxis::zero() const {
+  return new COrientAxis(0., 0., 0., 0.);
+}
+
+std::vector<double> *COrientAxis::value_list() const {
+  return new std::vector<double>({angle_, x_, y_, z_});
+}
+
+// ---------
+
+const std::string &COrientRodrigues::classname() const {
+  static const std::string nm("COrientRodrigues");
+  return nm;
+}
+
+OutputVal *COrientRodrigues::clone() const {
+  return new COrientRodrigues(*this);
+};
+
+OutputVal *COrientRodrigues::zero() const {
+  return new COrientRodrigues(0., 0., 0.);
+}
+
+std::vector<double> *COrientRodrigues::value_list() const {
+  return new std::vector<double>({r1_, r2_, r3_});
+}
+
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// TODO: Is there a way to do this automatically, without having to
+// list each Corientation subclass here?  This is called by
+// OrientationPropertyOutputInit to create an OutputVal of the correct
+// type before computing an Output.
+
+COrientation *orientationFactory(const std::string *name) {
+  // The names used here are the names used in the
+  // OrientationRegistrations in engine/IO/orientationmatrix.py.
+  if(*name == "Abg")
+    return new COrientABG(0.0, 0.0, 0.0);
+  if(*name == "X")
+    return new COrientX(0.0, 0.0, 0.0);
+  if(*name == "XYZ")
+    return new COrientXYZ(0.0, 0.0, 0.0);
+  if(*name == "Quaternion")
+    return new COrientQuaternion(0.0, 0.0, 0.0, 0.0);
+  if(*name == "Axis")
+    return new COrientAxis(0.0, 0.0, 0.0, 0.0);
+  if(*name == "Rodrigues")
+    return new COrientRodrigues(0.0, 0.0, 0.0);
+  throw ErrProgrammingError("Unrecognized COrientation type! " + *name,
+			    __FILE__, __LINE__);
 }

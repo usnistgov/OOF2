@@ -19,7 +19,7 @@ class COrientMapReader;
 
 #include "common/abstractimage.h"
 #include "common/array.h"
-#include "common/corientation.h"
+#include "engine/corientation.h"
 #include "image/oofimage.h"
 #include <string>
 #include <vector>

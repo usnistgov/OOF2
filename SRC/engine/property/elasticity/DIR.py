@@ -17,6 +17,6 @@ subdirs   = ['aniso', 'iso', 'thermo', 'visco', 'nonlinear', 'largestrain']
 cfiles    = ['cijkl.C', 'elasticity.C']
 hfiles    = ['cijkl.h', 'elasticity.h']
 swigfiles = ['cijkl.swg', 'elasticity.swg']
-swigpyfiles   = ['cijkl.spy', 'elasticity.spy']
+swigpyfiles   = ['cijkl.spy']
 pyfiles = ['pyelasticity.py']
 

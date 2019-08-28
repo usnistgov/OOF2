@@ -16,16 +16,16 @@
 %module orientation
 %include "common/typemaps.swg"
 %{
-#include "engine/property/orientation/orientation.h"
-#include "common/corientation.h"
 #include "common/swiglib.h"
+#include "engine/corientation.h"
+#include "engine/property/orientation/orientation.h"
 %}
 %include "engine/propertyhdr.swg"
-%extern "common/corientation.swg"
+%extern "engine/corientation.swg"
 
 
 %pragma(python) include="engine/property/orientation/orientation.spy"
-%pragma(python) code="from ooflib.SWIG.common.corientation import COrientationPtr"
+%pragma(python) code="from ooflib.SWIG.engine.corientation import COrientationPtr"
 
 
 // Typemap for converting a convertible registered Orientation gizmo
@@ -34,7 +34,6 @@
 // Orientation object.
 
 %typemap(python,in) COrientation * {
-  COrientABG *euler;
   PyObject *py_orient = PyObject_GetAttrString($source,"corient");
   SWIG_GetPtrObj(py_orient, (void **)(&$target), "_COrientation");
 }

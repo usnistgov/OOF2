@@ -14,15 +14,17 @@
 
 %module corientation
 %include "common/typemaps.swg"
+%extern "engine/outputval.swg"
 
 %{
-#include "common/corientation.h"
+#include "engine/corientation.h"
 #include "common/tostring.h"
 %}
 
 %pragma(python) include="corientation.spy"
+%pragma(python) code="from ooflib.SWIG.engine.outputval import NonArithmeticOutputValPtr"
 
-class COrientation {
+class COrientation : public NonArithmeticOutputVal {
 public:
   ~COrientation();
   COrientABG abg();

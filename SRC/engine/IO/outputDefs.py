@@ -202,3 +202,8 @@ propertyoutput.ScalarPropertyOutputRegistration(
       Different values of <varname>etype</varname> include different
       contributions to the energy.</para>"""
     )
+
+propertyoutput.OrientationPropertyOutputRegistration(
+    "Orientation",
+    ordering=4,
+    tip="Compute the orientation at each point.")

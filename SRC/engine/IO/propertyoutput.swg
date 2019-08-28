@@ -46,6 +46,11 @@ public:
   SymmMatrix3PropertyOutputInit();
 };
 
+class OrientationPropertyOutputInit : public PropertyOutputInit {
+public:
+  OrientationPropertyOutputInit();
+};
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 class PropertyOutput {

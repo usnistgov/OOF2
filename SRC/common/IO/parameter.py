@@ -1006,14 +1006,17 @@ class RegisteredListParameter(RegisteredParameter):
 # an instance of a subclass.
 
 class MetaRegisteredParameter(Parameter):
-    def __init__(self, name, reg, value=None, default=None, tip=None):
+    def __init__(self, name, regclass, value=None, default=None, tip=None):
         # MetaRegisteredParameter requires its class to use the
         # PrintableClass metaclass.
-        assert(reg.__metaclass__ is utils.PrintableClass)
+        assert(regclass.__metaclass__ is utils.PrintableClass)
 
-        self.registry = reg.registry
-        self.reg = reg
+        self.registry = regclass.registry
+        self.reg = regclass
         Parameter.__init__(self, name, value, default, tip)
+    def clone(self):
+        return self.__class__(self.name, self.reg,
+                              self.value, self.default, self.tip)
     def set(self, value):
         # value can either be a subclass or the Registration for a
         # subclass, because it's the Registrations that are defined in

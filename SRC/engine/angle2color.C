@@ -18,8 +18,8 @@
 // to the other.
 
 #include "common/ccolor.h"
-#include "common/corientation.h"
 #include "engine/angle2color.h"
+#include "engine/corientation.h"
 #include <math.h>
 
 CColor Bunge2RGB::operator()(const COrientation &angle) const {

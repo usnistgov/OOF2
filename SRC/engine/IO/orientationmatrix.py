@@ -22,15 +22,14 @@
 
 # TODO: Use Convertible CRegisteredClasses instead.
 
-# TODO: Move this file to common/IO or common?
-
 from ooflib.SWIG.common import ooferror
+from ooflib.SWIG.engine import corientation
 from ooflib.common import debug
+from ooflib.common import enum
 from ooflib.common import registeredclass
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
-from ooflib.SWIG.common import corientation
 import math
 
 FloatParameter = parameter.FloatParameter
@@ -93,7 +92,13 @@ class Orientation(registeredclass.ConvertibleRegisteredClass):
         args = reg.from_base(reg, newabg)
         reg.setDefaultParams(args)
         return reg()
-        
+
+# Enum class for choosing an orientation representation, generated
+# automatically by the registrations for the Orientation subclasses.
+# This allows a subclass to be passeed in to C++.
+
+class OrientationEnum(enum.EnumClass()):
+    tip="Various ways to specify an Orientation"
 
 # Registration object hosts the "call points" for to_base
 # routines.  These are used by the GUI when switching types.
@@ -108,9 +113,10 @@ class OrientationRegistration(registeredclass.ConvertibleRegistration):
             to_base=to_base,
             params=params,
             tip=tip, discussion=discussion)
+        enum.addEnumName(OrientationEnum, name, help=tip)
 
 ## The base representation for the ConvertibleRegisteredClass
-## mechansim (which is not the same thing as the base class) is the
+## mechanism (which is not the same thing as the base class) is the
 ## Abg subclass.  corient_to_base converts any COrientation subclass
 ## to an Abg object.
 

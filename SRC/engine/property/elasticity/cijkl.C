@@ -14,10 +14,10 @@
 
 
 #include "cijkl.h"
-#include "common/corientation.h"
 #include "common/doublevec.h"
 #include "common/tostring.h"
 #include "common/trace.h"
+#include "engine/corientation.h"
 #include "engine/fieldindex.h"
 #include "engine/ooferror.h"
 #include <iostream>

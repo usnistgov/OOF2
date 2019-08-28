@@ -12,8 +12,8 @@
 #include <oofconfig.h>
 #include <math.h>
 
-#include "common/corientation.h"
 #include "common/latticesystem.h"
+#include "engine/corientation.h"
 #include "orientationmap/pixelselectioncouriero.h"
 
 OrientationSelection::OrientationSelection(const OrientMap *ormap,

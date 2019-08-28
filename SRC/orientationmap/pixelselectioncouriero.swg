@@ -21,8 +21,8 @@
 
 
 %{
+#include "engine/corientation.h"
 #include "orientationmap/pixelselectioncouriero.h"
-#include "common/corientation.h"
 %}
 
 class OrientationSelection : public PixelSelectionCourier {

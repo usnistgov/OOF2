@@ -15,7 +15,7 @@
 #include "common/array.h"
 #include "common/burn.h"
 #include "common/statgroups.h"
-#include "common/corientation.h"
+#include "engine/corientation.h"
 
 class OrientMap;
 class LatticeSymmetry;

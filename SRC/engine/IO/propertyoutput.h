@@ -62,6 +62,12 @@ public:
 			const Element*, const MasterCoord&) const;
 };
 
+class OrientationPropertyOutputInit : public PropertyOutputInit {
+public:
+  OutputVal *operator()(const PropertyOutput*, const FEMesh*,
+			const Element*, const MasterCoord&) const;
+};
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 class PropertyOutput {
