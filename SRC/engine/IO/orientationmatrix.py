@@ -34,6 +34,8 @@ import math
 
 FloatParameter = parameter.FloatParameter
 FloatRangeParameter = parameter.FloatRangeParameter
+AngleRangeParameter = parameter.AngleRangeParameter
+
 
 # TODO: Do the *_from_base functions need to check the type of their
 # argument?  Some of them, before COrientation, used to accept either
@@ -156,11 +158,11 @@ OrientationRegistration(
     1,
     from_base=_abg_from_base,
     to_base=_abg_to_base,
-    params=[FloatRangeParameter('alpha', (0, 180., 0.1), 0.0, ## 'c-axis tilt'
+    params=[AngleRangeParameter('alpha', (0, 180., 0.1), 0.0, ## 'c-axis tilt'
                           tip='second rotation, about the y-axis, in degrees.'),
-            FloatRangeParameter('beta', (-180., 180., 0.1), 0.0, ##  c-axis rot.
+            AngleRangeParameter('beta', (-180., 180., 0.1), 0.0, ##  c-axis rot.
                           tip='first rotation, about the z-axis, in degrees.'),
-            FloatRangeParameter('gamma', (-180., 180., 0.1), 0.0, ## z-axis rot
+            AngleRangeParameter('gamma', (-180., 180., 0.1), 0.0, ## z-axis rot
                           tip='third rotation, about the z-axis, in degrees.')],
     tip='Euler angles (alpha, beta, gamma) are applied: first beta about the z axis, then alpha about the y, and finally gamma about z. This operation brings the crystal axes into coincidence with the lab axes.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/abg.xml')
@@ -197,11 +199,11 @@ OrientationRegistration(
     2,
     from_base=_x_from_base,
     to_base=_x_to_base,
-    params=[FloatRangeParameter('phi', (-180., 180., 0.1), 0.0,
+    params=[AngleRangeParameter('phi', (-180., 180., 0.1), 0.0,
                               tip="First rotation, about z axis, in degrees."),
-            FloatRangeParameter('theta', (0., 180., 0.1), 0.0,
+            AngleRangeParameter('theta', (0., 180., 0.1), 0.0,
                               tip="Second rotation, about x axis, in degrees."),
-            FloatRangeParameter('psi', (-180., 180., 0.1), 0.0,
+            AngleRangeParameter('psi', (-180., 180., 0.1), 0.0,
                               tip="Third rotation, about z axis, in degrees.")],
     tip="Goldstein's X convention for 3D orientations, using rotations which bring the crystal axes into coincidence with the lab axes, in the order z, x, z.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/x.xml')
@@ -237,11 +239,11 @@ OrientationRegistration(
     'XYZ', XYZ, 3,
     from_base=_xyz_from_base,
     to_base=_xyz_to_base,
-    params=[FloatRangeParameter('phi', (-180., 180., 0.1), 0.0,
+    params=[AngleRangeParameter('phi', (-180., 180., 0.1), 0.0,
                             tip="Initial rotation about x axis, in degrees."),
-            FloatRangeParameter('theta', (0., 180., 0.1), 0.0,
+            AngleRangeParameter('theta', (0., 180., 0.1), 0.0,
                             tip="Second rotation, about y axis, in degrees."),
-            FloatRangeParameter('psi', (-180., 180., 0.1), 0.0,
+            AngleRangeParameter('psi', (-180., 180., 0.1), 0.0,
                             tip="Third rotation, about z axis, in degrees.")],
     tip='The "aerodynamic" XYZ convention for specifying an orientation.  Rotation by phi about x, then theta about y, then psi about z, brings the crystal axes into coincidence with the lab axes.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/xyz.xml')
@@ -339,7 +341,7 @@ OrientationRegistration(
     4,
     from_base=_axis_from_base,
     to_base=_axis_to_base,
-    params=[FloatRangeParameter('angle', (-180., 180., 0.1), 0.0,
+    params=[AngleRangeParameter('angle', (-180., 180., 0.1), 0.0,
                                 tip='Rotation angle, in degrees.'),
             FloatParameter('x', 0.0, tip='x component of rotation axis.'),
             FloatParameter('y', 0.0, tip='y component of rotation axis.'),
@@ -421,11 +423,11 @@ OrientationRegistration(
     'Bunge', Bunge, 7,
     from_base=_bunge_from_base,
     to_base=_bunge_to_base,
-    params=[FloatRangeParameter('phi1', (-180., 180., 0.1), 0.0,
+    params=[AngleRangeParameter('phi1', (-180., 180., 0.1), 0.0,
                              tip="First rotation, about z axis, in degrees."),
-            FloatRangeParameter('theta', (0., 180., 0.1), 0.0,
+            AngleRangeParameter('theta', (0., 180., 0.1), 0.0,
                              tip="Second rotation, about x axis, in degrees."),
-            FloatRangeParameter('phi2', (-180., 180, 0.1), 0.0,
+            AngleRangeParameter('phi2', (-180., 180, 0.1), 0.0,
                              tip="Third rotation, about z axis, in degrees.")],
     tip="Bunge angles for defining a rotation which operates on the lab axes, bringing them into coincidence with the crystal axes, in the order z, x, z.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/bunge.xml') )
