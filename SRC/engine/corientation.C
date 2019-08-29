@@ -626,6 +626,8 @@ const std::string &COrientation::modulename() const {
   return nm;
 }
 
+static double degrees = 180./M_PI;
+
 // -----------
 
 const std::string &COrientABG::classname() const {
@@ -642,7 +644,8 @@ OutputVal *COrientABG::zero() const {
 }
 
 std::vector<double> *COrientABG::value_list() const {
-  return new std::vector<double>({alpha_, beta_, gamma_});
+  return new std::vector<double>(
+			 {degrees*alpha_, degrees*beta_, degrees*gamma_});
 }
 
 // ---------
@@ -661,7 +664,8 @@ OutputVal *COrientBunge::zero() const {
 }
 
 std::vector<double> *COrientBunge::value_list() const {
-  return new std::vector<double>({phi1_, theta_, phi2_});
+  return new std::vector<double>(
+			 {degrees*phi1_, degrees*theta_, degrees*phi2_});
 }
 
 // ---------
@@ -699,7 +703,7 @@ OutputVal *COrientX::zero() const {
 }
 
 std::vector<double> *COrientX::value_list() const {
-  return new std::vector<double>({phi_, theta_, psi_});
+  return new std::vector<double>({degrees*phi_, degrees*theta_, degrees*psi_});
 }
 
 // ---------
@@ -718,7 +722,7 @@ OutputVal *COrientXYZ::zero() const {
 }
 
 std::vector<double> *COrientXYZ::value_list() const {
-  return new std::vector<double>({phi_, theta_, psi_});
+  return new std::vector<double>({degrees*phi_, degrees*theta_, degrees*psi_});
 }
 
 // ---------
@@ -737,7 +741,7 @@ OutputVal *COrientAxis::zero() const {
 }
 
 std::vector<double> *COrientAxis::value_list() const {
-  return new std::vector<double>({angle_, x_, y_, z_});
+  return new std::vector<double>({degrees*angle_, x_, y_, z_});
 }
 
 // ---------
