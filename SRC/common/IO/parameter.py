@@ -40,6 +40,7 @@ from ooflib.common import utils
 from ooflib.common.IO import automatic
 from ooflib.common.IO.typename import typename
 from types import *
+import math
 import string
 import struct
 
@@ -370,7 +371,49 @@ class FloatRangeParameter(_RangeParameter):
     def valueDesc(self):
         return "A real number in the range [%d, %d]." % \
                (self.range[0], self.range[1])
-        
+
+# AngleRangeParameter is a FloatRangeParameter, but it tries to make
+# its value fit its range by adding or subtracting multiples of 2*pi.
+# It can work in either radians or degrees by setting units="degrees"
+# or units="radians" in the constructor.  The default is degrees.
+
+class AngleRangeParameter(FloatRangeParameter):
+    structfmt = ">d"
+    structsize = struct.calcsize(structfmt)
+    def __init__(self, name, range, value=None, units="degrees",
+                 default=None, tip=None):
+        if units == "degrees":
+            self.circle = 360.
+        elif units == "radians":
+            self.circle = 2*math.pi
+        else:
+            raise ooferror.ErrPyProgrammingError(
+                "Bad units in AngleRangeParameter")
+        # range must be a tuple (min, max, step)
+        _RangeParameter.__init__(self, name, range, [FloatType, IntType],
+                                 value, default, tip)
+    def set(self, value):
+        if value is not None:
+            if type(value) not in self.types:
+                raise ParameterMismatch('Got ' + `value` + ' for Parameter '
+                                        + self.name)
+            if self.range[0] > value:
+                old = value
+                n = math.ceil((self.range[0] - value)/self.circle)
+                value += n*self.circle
+                debug.fmsg("Corrected", old, "to", value)
+            elif value > self.range[1]:
+                old = value
+                n = math.ceil((value - self.range[1])/self.circle)
+                value -= n*self.circle
+                debug.fmsg("Corrected", old, "to", value)
+            if self.range[0] <= value <= self.range[1]:
+                self._value = value
+                self.timestamp.increment()
+            else:
+                raise ValueError('Parameter value out of range for '
+                                 + self.name)
+            
 # Parameter class that can take a float or an integer,
 # or the special value "automatic". 
 class AutoNumericParameter(Parameter):

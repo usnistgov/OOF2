@@ -25,6 +25,7 @@ from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import widgetscope
 from types import *
 import gtk
+import math
 import string
 
 ############################
@@ -445,6 +446,65 @@ class FloatRangeWidget(labelledslider.FloatLabelledSlider, ParameterWidget):
 def _FloatRange_makeWidget(self, scope=None):
     return FloatRangeWidget(self, scope=scope, name=self.name)
 parameter.FloatRangeParameter.makeWidget = _FloatRange_makeWidget
+
+########
+
+# The AngleRangeWidget is used to set an angle variable.  If the
+# allowed range of the variable covers a full circle, values outside
+# of the nominal range should be mapped back inside it by adding or
+# subtracting multiples of 2*pi or 360, instead of clipping to the
+# numerical limits of the range.  The clipper used by the
+# LabelledSlider needs to know if the range is given in degrees or
+# radians, so we need an extra class to store the units.
+
+class _AngleClipper(object):
+    def __init__(self, vmin, vmax, circle):
+        self.vmin = vmin
+        self.vmax = vmax
+        self.circle = circle    # either 360 or 2*pi
+    def clip(self, val):
+        if self.vmin > val:
+            n = math.ceil((self.vmin - val)/self.circle)
+            val += n*self.circle
+        elif val > self.vmax:
+            n = math.ceil((val - self.vmax)/self.circle)
+            val -= n*self.circle
+        if val < self.vmin or val > self.vmax:
+            raise ValueError("Parameter value out of range: val=" + `val`
+                             + " range=[" + `self.vmin` + ", " + `self.vmax`
+                             + "]")
+        return val
+
+class _ClipperFactory(object):
+    def __init__(self, circle):
+        self.circle = circle    # either 360 or 2*pi
+    def __call__(self, vmin, vmax):
+        return _AngleClipper(vmin, vmax, self.circle)
+
+class AngleRangeWidget(labelledslider.FloatLabelledSlider, ParameterWidget):
+    def __init__(self, param, scope=None, name=None):
+        if param.value is not None:
+            val = param.value
+        else:
+            val = param.range[0]
+        labelledslider.FloatLabelledSlider.__init__(
+            self, val,
+            vmin=param.range[0],
+            vmax=param.range[1],
+            step=param.range[2],
+            callback=self.sliderCB,
+            clipperclass=_ClipperFactory(param.circle))
+        ParameterWidget.__init__(self, self.gtk, scope=scope, name=name)
+        self.widgetChanged(1, interactive=0)
+        
+    def sliderCB(self, slider, val):
+        self.widgetChanged(1, interactive=1)
+
+def _AngleRange_makeWidget(self, scope):
+    return AngleRangeWidget(self, scope=scope, name=self.name)
+
+parameter.AngleRangeParameter.makeWidget = _AngleRange_makeWidget
+        
 
 ##############################################
 
