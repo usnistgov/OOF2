@@ -195,10 +195,9 @@ class GenericReader(orientmapdata.OrientMapReader):
         # The number of angle components to read is the number of
         # parameters in the Registration for the selected Orientation
         # subclass.
-        for reg in orientationmatrix.Orientation.registry:
-            if reg.subclass == self.angle_type:
-                nAngleComps = len(reg.params)
-                break
+        reg = orientationmatrix.Orientation.getRegistrationForSubclass(
+            self.angle_type)
+        nAngleComps = len(reg.params)
 
         xycol0 = self.xy_column - 1   # UI uses fortran indexing
         xycol1 = xycol0 + 2           # TODO: Are there 3D EBSD files?
