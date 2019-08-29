@@ -285,6 +285,9 @@ OutputVal *OrientationPropertyOutputInit::operator()(
 					     const Element*,
 					     const MasterCoord&) const
 {
+  // Initialize the output with a COrientation in the desired format.
+  // In the Properties' output() methods, the orientation will be
+  // copied into the object created here, and converted if necessary.
   const std::string *fmt = output->getEnumParam("format");
   return orientationFactory(fmt);
 }
