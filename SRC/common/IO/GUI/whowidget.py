@@ -56,9 +56,24 @@ class WhoWidgetBase:
 
         if scope:
             scope.addWidget(self)
+
+        # If the WidgetScope contains 'fixed whoclass' data, then the
+        # given class and its parent classes aren't allowed to be
+        # changed. Make their widgets insensitive.  The data's key is
+        # "fixed whoclass", and its value is a tuple,
+        # (WhoClass name, colon separated who path).
+        try:
+            fixedname, fixedwho = scope.findData('fixed whoclass')
+        except:
+            self.fixeddepth = -1
+        else:
+            self.fixeddepth = \
+                [w.name() for w in whoclass.hierarchy()].index(fixedname)
+        if self.fixeddepth >= 0:
+            value = fixedwho
+
         self.callback = callback
         depth = len(whoclass.hierarchy())
-        # self.proxycheck = gtk.CheckButton()
         self.proxy_names = []
         self.widgets = [None]*depth
         self.gtk = [None]*depth
@@ -150,6 +165,12 @@ class WhoWidgetBase:
                 self.gtk[d].set_sensitive(names != [])
         # end for d in range(depth)
 
+        if self.fixeddepth >= 0:
+            depth = len(self.gtk)
+            for d in range(min(self.fixeddepth+1, len(self.gtk))):
+                self.gtk[d].set_sensitive(False)
+
+        
         # The state of other widgets may depend on the state of this
         # one.  If so, they can use the WidgetScope mechanism to find
         # this widget and listen for the following switchboard
@@ -281,16 +302,6 @@ class WhoParameterWidgetBase(parameterwidgets.ParameterWidget,
         widgetscope.WidgetScope.__init__(self, scope)
         self.whowidget = self.makeSubWidgets(whoclass, value, condition, sort)
         
-        # If the WidgetScope contains 'fixed whoclass' data, then the
-        # given class and its parent classes aren't allowed to be
-        # changed. Make their widgets insensitive.
-        try:
-            fixedname, fixedwho = scope.findData('fixed whoclass')
-        except:
-            fixed = 0
-        else:
-            fixed = [w.name() for w in whoclass.hierarchy()].index(fixedname)
-        
         # Put the WhoWidget's components into a box.
         depth = len(self.whowidget.gtk)
         frame = gtk.Frame()
@@ -300,8 +311,7 @@ class WhoParameterWidgetBase(parameterwidgets.ParameterWidget,
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name)
         for d in range(depth):
             vbox.pack_start(self.whowidget.gtk[d], expand=0, fill=0)
-            if d <= fixed:
-                self.whowidget.gtk[d].set_sensitive(False)
+
         self.wwcallback = switchboard.requestCallbackMain(self.whowidget,
                                                           self.widgetCB)
         self.widgetCB(False)
