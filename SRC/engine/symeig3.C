@@ -22,8 +22,6 @@
 #include "engine/eigenvalues.h"
 #include "engine/symeig3.h"
 
-static const double thirdtwopi = 2*M_PI/3;
-
 template <class MATRIX>
 void swaprows(MATRIX &m, int i, int j) {
   for(int k=0; k<3; k++) {
@@ -243,6 +241,7 @@ void eigensystem(const MATRIX &mat,
 
 template <class MATRIX>
 void getEigenvalues(const MATRIX &mat, EigenValues &eig) {
+  static const double thirdtwopi = 2*M_PI/3;
   double a00 = mat(0,0);
   double a01 = mat(0,1);
   double a02 = mat(0,2);
