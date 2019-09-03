@@ -122,8 +122,8 @@ SWIG = 'swig'                           # must be swig 1.1 build 883
 SWIGARGS = ["-shadow", "-dnone", "-python", "-c++", "-c"]
 
 def run_swig(srcdir, swigfile, destdir, cext="_.C", include_dirs=[],
-             dry_run=False, force=False, extra_args=[],
-             with_swig=None, DIM_3=0):
+             dry_run=False, force=False, with_swig=None, extra_args=[],
+             DIM_3=0):
 
     # srcdir is a directory.  swigfile is the name of the input swig
     # file, specfied *relative* to srcdir.  The output files will go

@@ -75,10 +75,11 @@ class SharedLibrary(build_shlib.SharedLibrary):
 # oof2config.
 
 def run_swig(srcdir, swigfile, destdir,
-             cext="_wrap.C", include_dirs=[], dry_run=False, force=False):
+             cext="_wrap.C", include_dirs=[], dry_run=False, force=False,
+             with_swig=None):
     return oof2setuputils.run_swig(srcdir, swigfile, destdir, cext,
                                    include_dirs + oof2config.swig_include,
-                                   dry_run, force)
+                                   dry_run, force, with_swig)
 
 
 
@@ -86,10 +87,11 @@ def run_swig(srcdir, swigfile, destdir,
 # Extension object.  kwargs can contain any arguments allowed by Extension.
 
 def get_swig_ext(srcdir, srcfile, destdir, cext="_wrap.C", include_dirs=[],
-                 libraries=[], dry_run=False, force=False, **kwargs):
+                 libraries=[], dry_run=False, force=False,
+                 with_swig=None, **kwargs):
 
     swigstatus = run_swig(srcdir, srcfile, destdir, cext, include_dirs,
-                     dry_run, force)
+                          dry_run, force, with_swig)
 
     # convert the swig output directory to a package name
     outdir = swigstatus['outdir']       # is an abspath
