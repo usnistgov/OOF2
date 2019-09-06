@@ -36,12 +36,13 @@ class VectorFieldBase;
 #include <string>
 #include <vector>
 
+class ArithmeticOutputValue;
 class CSubProblem;
 class ElementFuncNodeIterator;
 class FEMesh;
 class FuncNode;
-class PointData;
 class OutputValue;
+class PointData;
 class Property;
 
 // There is one Field for each physical field.  There should be only
@@ -170,11 +171,13 @@ public:
     return operator()(n, i.integer());
   }
 
-  virtual OutputValue newOutputValue() const = 0;
+  virtual ArithmeticOutputValue newOutputValue() const = 0;
 
-  virtual OutputValue output(const FEMesh*, const ElementFuncNodeIterator&)
+  virtual ArithmeticOutputValue output(const FEMesh*,
+				       const ElementFuncNodeIterator&)
     const = 0;
-  virtual OutputValue output(const FEMesh*, const PointData&) const = 0;
+  virtual ArithmeticOutputValue output(const FEMesh*, const PointData&)
+    const = 0;
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*) = 0;
 
@@ -298,10 +301,10 @@ public:
   }
   virtual DegreeOfFreedom *operator()(const ElementFuncNodeIterator&, int)
     const;
-  virtual OutputValue newOutputValue() const;
-  virtual OutputValue output(const FEMesh*, const ElementFuncNodeIterator&)
-    const;
-  virtual OutputValue output(const FEMesh*, const PointData&) const;
+  virtual ArithmeticOutputValue newOutputValue() const;
+  virtual ArithmeticOutputValue output(const FEMesh*,
+				       const ElementFuncNodeIterator&) const;
+  virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
 
@@ -335,10 +338,10 @@ public:
   }
   virtual DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
 				      int component) const;
-  virtual OutputValue newOutputValue() const;
-  virtual OutputValue output(const FEMesh*, const ElementFuncNodeIterator&)
-    const;
-  virtual OutputValue output(const FEMesh*, const PointData&) const;
+  virtual ArithmeticOutputValue newOutputValue() const;
+  virtual ArithmeticOutputValue output(const FEMesh*,
+				       const ElementFuncNodeIterator&) const;
+  virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
   virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
@@ -374,10 +377,10 @@ public:
   }
   virtual DegreeOfFreedom *operator()(const ElementFuncNodeIterator&,
 				      int component) const;
-  virtual OutputValue newOutputValue() const;
-  virtual OutputValue output(const FEMesh*, const ElementFuncNodeIterator&)
-    const;
-  virtual OutputValue output(const FEMesh*, const PointData&) const;
+  virtual ArithmeticOutputValue newOutputValue() const;
+  virtual ArithmeticOutputValue output(const FEMesh*,
+				       const ElementFuncNodeIterator&) const;
+  virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
   virtual IteratorP iterator(Planarity=ALL_INDICES/*irrelevant*/) const;
@@ -421,10 +424,10 @@ public:
 			      SymTensorIterator&) const;
   DegreeOfFreedom *operator()(const PointData&, 
 			      SymTensorIterator&) const;
-  virtual OutputValue newOutputValue() const;
-  virtual OutputValue output(const FEMesh*, 
+  virtual ArithmeticOutputValue newOutputValue() const;
+  virtual ArithmeticOutputValue output(const FEMesh*, 
 			     const ElementFuncNodeIterator&) const;
-  virtual OutputValue output(const FEMesh*, const PointData&) const;
+  virtual ArithmeticOutputValue output(const FEMesh*, const PointData&) const;
   virtual void setValueFromOutputValue(FEMesh*, const PointData&,
 				       const OutputValue*);
   virtual IteratorP iterator(Planarity) const;

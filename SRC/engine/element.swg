@@ -121,11 +121,11 @@ public:
   void refreshMaterial(PyObject *skeletoncontext);
 
   OutputValue outputField(FEMesh*, Field&, MasterPosition&);
-  %new OutputValueVec *outputFields(FEMesh*, Field&, MasterCoordVec*);
-  %new OutputValueVec *outputFieldDerivs(FEMesh*, Field&, SpaceIndex*,
+  %new ArithmeticOutputValueVec *outputFields(FEMesh*, Field&, MasterCoordVec*);
+  %new ArithmeticOutputValueVec *outputFieldDerivs(FEMesh*, Field&, SpaceIndex*,
 					 MasterCoordVec*);
   // OutputValue outputFlux(FEMesh*, Flux&, MasterPosition&);
-  %new OutputValueVec *outputFluxes(FEMesh*, Flux&, MasterCoordVec*);
+  %new ArithmeticOutputValueVec *outputFluxes(FEMesh*, Flux&, MasterCoordVec*);
 
 //   void begin_material_computation(FEMesh*);
 //   void end_material_computation(FEMesh*);

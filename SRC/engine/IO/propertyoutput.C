@@ -36,6 +36,13 @@
 // PropertyOutputContribution class?  Each subclass will have to have
 // a singleton instance which will be swigged.
 
+const std::string PropertyOutput::modulename_(
+			      "ooflib.SWIG.engine.IO.propertyoutput");
+const std::string ArithmeticPropertyOutput::classname_(
+				       "ArithmeticPropertyOutput");
+const std::string NonArithmeticPropertyOutput::classname_(
+					  "NonArithmeticPropertyOutput");
+
 std::vector<PropertyOutputRegistration*> &
 PropertyOutputRegistration::allPropertyOutputRegs()
 {
@@ -91,12 +98,14 @@ PropertyOutput::~PropertyOutput() {
   releasePyLock(pystate);
 }
 
-std::vector<OutputValue> *
-PropertyOutput::evaluate(FEMesh *mesh, Element *element,
-			 const PropertyOutputInit *init, 
-			 const std::vector<MasterCoord*> *mc)
+std::vector<NonArithmeticOutputValue> *
+NonArithmeticPropertyOutput::evaluate(
+			      FEMesh *mesh, Element *element,
+			      const NonArithmeticPropertyOutputInit *init, 
+			      const std::vector<MasterCoord*> *mc)
 {
-  std::vector<OutputValue> *results = new std::vector<OutputValue>;
+  std::vector<NonArithmeticOutputValue> *results =
+    new std::vector<NonArithmeticOutputValue>;
   results->reserve(mc->size());
   const Material *material = element->material();
   if(material) {
@@ -106,7 +115,7 @@ PropertyOutput::evaluate(FEMesh *mesh, Element *element,
     for(std::vector<MasterCoord*>::const_iterator i=mc->begin(); i!=mc->end();
 	++i)
       {
-	OutputVal *data((*init)(this, mesh, element, **i));
+	NonArithmeticOutputVal *data((*init)(this, mesh, element, **i));
 	// Loop over properties that contribute to this output.
 	for(std::vector<Property*>::size_type p=0; p<props.size(); p++) {
 	  // *Don't* check for active properties here; just loop over
@@ -115,7 +124,7 @@ PropertyOutput::evaluate(FEMesh *mesh, Element *element,
 	  // here.
 	  props[p]->output(mesh, element, this, **i, data); // adds to data
 	}	// end loop over Properties
-	results->push_back(OutputValue(data));
+	results->push_back(NonArithmeticOutputValue(data));
       
       } // end loop over points
 //     material->end_element(mesh, element);
@@ -123,10 +132,88 @@ PropertyOutput::evaluate(FEMesh *mesh, Element *element,
   else {			// no material!
     for(std::vector<MasterCoord*>::const_iterator i=mc->begin(); i!=mc->end();
 	++i)
-      results->push_back(OutputValue((*init)(this, mesh, element, **i)));
+      results->push_back(
+		 NonArithmeticOutputValue((*init)(this, mesh, element, **i)));
   }
   return results;
 }
+
+std::vector<ArithmeticOutputValue> *
+ArithmeticPropertyOutput::evaluate(FEMesh *mesh, Element *element,
+				   const ArithmeticPropertyOutputInit *init, 
+				   const std::vector<MasterCoord*> *mc)
+{
+  std::vector<ArithmeticOutputValue> *results =
+    new std::vector<ArithmeticOutputValue>;
+  results->reserve(mc->size());
+  const Material *material = element->material();
+  if(material) {
+    const std::vector<Property*> &props = material->outputProperties(this);
+//     material->begin_element(mesh, element);
+    // Loop over points within the element.
+    for(std::vector<MasterCoord*>::const_iterator i=mc->begin(); i!=mc->end();
+	++i)
+      {
+	ArithmeticOutputVal *data((*init)(this, mesh, element, **i));
+	// Loop over properties that contribute to this output.
+	for(std::vector<Property*>::size_type p=0; p<props.size(); p++) {
+	  // *Don't* check for active properties here; just loop over
+	  // all of them.  Properties are active or inactive on
+	  // SubProblems, not FEMeshes, and we don't have a SubProblem
+	  // here.
+	  props[p]->output(mesh, element, this, **i, data); // adds to data
+	}	// end loop over Properties
+	results->push_back(ArithmeticOutputValue(data));
+      
+      } // end loop over points
+//     material->end_element(mesh, element);
+  }
+  else {			// no material!
+    for(std::vector<MasterCoord*>::const_iterator i=mc->begin(); i!=mc->end();
+	++i)
+      results->push_back(
+		 ArithmeticOutputValue((*init)(this, mesh, element, **i)));
+  }
+  return results;
+}
+
+// std::vector<OutputValue> *
+// NonArithmeticPropertyOutput::evaluate(FEMesh *mesh, Element *element,
+// 				   const NonArithmeticPropertyOutputInit *init, 
+// 				   const std::vector<MasterCoord*> *mc)
+// {
+//   std::vector<OutputValue> *results =
+//     new std::vector<OutputValue>;
+//   results->reserve(mc->size());
+//   const Material *material = element->material();
+//   if(material) {
+//     const std::vector<Property*> &props = material->outputProperties(this);
+// //     material->begin_element(mesh, element);
+//     // Loop over points within the element.
+//     for(std::vector<MasterCoord*>::const_iterator i=mc->begin(); i!=mc->end();
+// 	++i)
+//       {
+// 	OutputVal *data((*init)(this, mesh, element, **i));
+// 	// Loop over properties that contribute to this output.
+// 	for(std::vector<Property*>::size_type p=0; p<props.size(); p++) {
+// 	  // *Don't* check for active properties here; just loop over
+// 	  // all of them.  Properties are active or inactive on
+// 	  // SubProblems, not FEMeshes, and we don't have a SubProblem
+// 	  // here.
+// 	  props[p]->output(mesh, element, this, **i, data); // adds to data
+// 	}	// end loop over Properties
+// 	results->push_back(OutputValue(data));
+      
+//       } // end loop over points
+// //     material->end_element(mesh, element);
+//   }
+//   else {			// no material!
+//     for(std::vector<MasterCoord*>::const_iterator i=mc->begin(); i!=mc->end();
+// 	++i)
+//       results->push_back(OutputValue((*init)(this, mesh, element, **i)));
+//   }
+//   return results;
+// }
 
 double PropertyOutput::getFloatParam(const char *name) const {
   double x;
@@ -240,54 +327,72 @@ const std::string *PropertyOutput::getRegisteredParamName(const char *name)
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// Initializers for PropertyOutputs of various types.  These
-// initialize the output to zero, which is usually what's wanted.
-// Other initializer classes can compute other property-independent
-// quantities. 
+const std::string PropertyOutputInit::modulename_(
+				 "ooflib.SWIG.engine.IO.propertyoutput");
+const std::string ArithmeticPropertyOutputInit::classname_(
+					   "ArithmeticPropertyOutputInit");
+const std::string NonArithmeticPropertyOutputInit::classname_(
+					   "NonArithmeticPropertyOutputInit");
 
-OutputVal *ScalarPropertyOutputInit::operator()(const PropertyOutput*,
-						const FEMesh*,
-						const Element*,
-						const MasterCoord&) const
+
+// The instantiate() methods are called in PORegBase.opfunc to create
+// a PropertyOutput before passing it to the elements for evaluation.
+// (PORegBase is a Python class derived from
+// PropertyOutputRegistration.)
+
+PropertyOutput *ArithmeticPropertyOutputInit::instantiate(
+						  const std::string &name,
+						  PyObject *params)
+  const
+{
+  return new ArithmeticPropertyOutput(name, params);
+}
+
+PropertyOutput *NonArithmeticPropertyOutputInit::instantiate(
+						     const std::string &name,
+						     PyObject *params)
+  const
+{
+  return new NonArithmeticPropertyOutput(name, params);
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Initializers for PropertyOutputs of various types.  The
+// initializers are called by PropertyOutput::evaluate at each
+// evaluation point before looping over the Properties.
+
+// These initialize the output to zero, which is usually what's
+// wanted.  Other initializer classes can compute other
+// property-independent quantities.
+
+ScalarOutputVal *ScalarPropertyOutputInit::operator()(
+					  const ArithmeticPropertyOutput*,
+					  const FEMesh*,
+					  const Element*,
+					  const MasterCoord&) const
 {
   return new ScalarOutputVal(0.0);
 
 }
 
-OutputVal *TwoVectorPropertyOutputInit::operator()(const PropertyOutput*,
-						   const FEMesh*,
-						   const Element*,
-						   const MasterCoord&) const
-{
-  return new VectorOutputVal(2);
-}
-
-OutputVal *ThreeVectorPropertyOutputInit::operator()(const PropertyOutput*,
-						     const FEMesh*,
-						     const Element*,
-						     const MasterCoord&) const
-{
-  return new VectorOutputVal(3);
-}
-
-OutputVal *SymmMatrix3PropertyOutputInit::operator()(const PropertyOutput*,
-						     const FEMesh*,
-						     const Element*,
-						     const MasterCoord&) const
-{
-  return new SymmMatrix3();
-}
-
-OutputVal *OrientationPropertyOutputInit::operator()(
-					     const PropertyOutput *output,
+VectorOutputVal *TwoVectorPropertyOutputInit::operator()(
+					     const ArithmeticPropertyOutput*,
 					     const FEMesh*,
 					     const Element*,
 					     const MasterCoord&) const
 {
-  // Initialize the output with a COrientation in the desired format.
-  // In the Properties' output() methods, the orientation will be
-  // copied into the object created here, and converted if necessary.
-  const std::string *fmt = output->getEnumParam("format");
-  return orientationFactory(fmt);
+  return new VectorOutputVal(2);
 }
+
+VectorOutputVal *ThreeVectorPropertyOutputInit::operator()(
+					       const ArithmeticPropertyOutput*,
+					       const FEMesh*,
+					       const Element*,
+					       const MasterCoord&) const
+{
+  return new VectorOutputVal(3);
+}
+

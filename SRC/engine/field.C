@@ -162,7 +162,8 @@ void CompoundField::registerProperty(Property *prop) const {
 
 // position of a given component in the dof lists in the nodes
 
-int Field::localindex(const PointData *node, const FieldIndex &component) const {
+int Field::localindex(const PointData *node, const FieldIndex &component) const
+{
   // offset() will raise ErrNoSuchField if this field isn't defined at the node.
   return node->fieldset.offset(this) + component.integer();
 }
@@ -304,26 +305,29 @@ DegreeOfFreedom *ScalarFieldBase::operator()(const ElementFuncNodeIterator &ei,
   return operator()(ei.funcnode());
 }
 
-OutputValue ScalarFieldBase::newOutputValue() const {
-  return OutputValue(new ScalarOutputVal(0.));
+ArithmeticOutputValue ScalarFieldBase::newOutputValue() const {
+  return ArithmeticOutputValue(new ScalarOutputVal(0.));
 }
 
-OutputValue ScalarFieldBase::output(const FEMesh *mesh, const PointData &node)
+ArithmeticOutputValue ScalarFieldBase::output(const FEMesh *mesh,
+					      const PointData &node)
   const
 {
   if(node.hasField(*this))
-    return OutputValue(new ScalarOutputVal(operator()(node)->value(mesh)));
+    return ArithmeticOutputValue(
+			 new ScalarOutputVal(operator()(node)->value(mesh)));
   else
-    return OutputValue(new ScalarOutputVal(0.0));
+    return ArithmeticOutputValue(new ScalarOutputVal(0.0));
 }
 
-OutputValue ScalarFieldBase::output(const FEMesh *mesh, 
+ArithmeticOutputValue ScalarFieldBase::output(const FEMesh *mesh, 
 				    const ElementFuncNodeIterator &node) const
 {
   if(node.hasField(*this))
-    return OutputValue(new ScalarOutputVal(operator()(node)->value(mesh)));
+    return ArithmeticOutputValue(
+			 new ScalarOutputVal(operator()(node)->value(mesh)));
   else
-    return OutputValue(new ScalarOutputVal(0.0));
+    return ArithmeticOutputValue(new ScalarOutputVal(0.0));
 }
 
 void ScalarFieldBase::setValueFromOutputValue(FEMesh *mesh, 
@@ -389,15 +393,16 @@ TwoVectorFieldBase::operator()(const ElementFuncNodeIterator &ei, int comp)
   return operator()(ei.funcnode(), comp);
 }
 
-OutputValue TwoVectorFieldBase::newOutputValue() const {
-  return OutputValue(new VectorOutputVal(2));
+ArithmeticOutputValue TwoVectorFieldBase::newOutputValue() const {
+  return ArithmeticOutputValue(new VectorOutputVal(2));
 }
 
-OutputValue TwoVectorFieldBase::output(const FEMesh *mesh, const PointData &node)
+ArithmeticOutputValue TwoVectorFieldBase::output(const FEMesh *mesh,
+						 const PointData &node)
   const
 {
   VectorOutputVal *vov = new VectorOutputVal(2);
-  OutputValue ov(vov);
+  ArithmeticOutputValue ov(vov);
   if(node.hasField(*this)) {
     (*vov)[0] = operator()(node, 0)->value(mesh);
     (*vov)[1] = operator()(node, 1)->value(mesh);
@@ -405,12 +410,12 @@ OutputValue TwoVectorFieldBase::output(const FEMesh *mesh, const PointData &node
   return ov;
 }
 
-OutputValue TwoVectorFieldBase::output(const FEMesh *mesh, 
+ArithmeticOutputValue TwoVectorFieldBase::output(const FEMesh *mesh, 
 				       const ElementFuncNodeIterator &node)
   const 
 {
   VectorOutputVal *vov = new VectorOutputVal(2);
-  OutputValue ov(vov);
+  ArithmeticOutputValue ov(vov);
   if(node.hasField(*this)) {
     (*vov)[0] = operator()(node, 0)->value(mesh);
     (*vov)[1] = operator()(node, 1)->value(mesh);
@@ -418,9 +423,10 @@ OutputValue TwoVectorFieldBase::output(const FEMesh *mesh,
   return ov;
 }
 
-void TwoVectorFieldBase::setValueFromOutputValue(FEMesh *mesh,
-						 const PointData &node,
-						 const OutputValue *ov)
+void TwoVectorFieldBase::setValueFromOutputValue(
+					 FEMesh *mesh,
+					 const PointData &node,
+					 const OutputValue *ov)
 {
   assert(node.hasField(*this));
   const VectorOutputVal &vov = 
@@ -492,33 +498,34 @@ DegreeOfFreedom *VectorFieldBase::operator()(const ElementFuncNodeIterator &ei,
   return operator()(ei.funcnode(), comp);
 }
 
-OutputValue VectorFieldBase::newOutputValue() const {
-  return OutputValue(new VectorOutputVal(dim));
+ArithmeticOutputValue VectorFieldBase::newOutputValue() const {
+  return ArithmeticOutputValue(new VectorOutputVal(dim));
 }
 
-OutputValue VectorFieldBase::output(const FEMesh *mesh, const PointData &node)
+ArithmeticOutputValue VectorFieldBase::output(const FEMesh *mesh,
+					      const PointData &node)
   const 
 {
   VectorOutputVal *vov = new VectorOutputVal(dim);
-  OutputValue ov(vov);
+  ArithmeticOutputValue ov(vov);
   if(node.hasField(*this))
     for(int i=0; i<dim; i++)
       (*vov)[i] = operator()(node, i)->value(mesh);
   return ov;
 }
 
-OutputValue VectorFieldBase::output(const FEMesh *mesh, 
+ArithmeticOutputValue VectorFieldBase::output(const FEMesh *mesh, 
 				    const ElementFuncNodeIterator &node) const
 {
   VectorOutputVal *vov = new VectorOutputVal(dim);
-  OutputValue ov(vov);
+  ArithmeticOutputValue ov(vov);
   if(node.hasField(*this))
     for(int i=0; i<dim; i++)
       (*vov)[i] = operator()(node, i)->value(mesh);
   return ov;
 }
 
-void VectorFieldBase::setValueFromOutputValue(FEMesh  *mesh,
+void VectorFieldBase::setValueFromOutputValue(FEMesh *mesh,
 					      const PointData &node,
 					      const OutputValue *ov)
 {
@@ -626,15 +633,15 @@ DegreeOfFreedom *SymmetricTensorField::operator()
   return this->operator()(&pd, sti.integer());
 }
 
-OutputValue SymmetricTensorField::newOutputValue() const {
-  return OutputValue(new SymmMatrix3());
+ArithmeticOutputValue SymmetricTensorField::newOutputValue() const {
+  return ArithmeticOutputValue(new SymmMatrix3());
 }
 
-OutputValue SymmetricTensorField::output(const FEMesh *mesh,
+ArithmeticOutputValue SymmetricTensorField::output(const FEMesh *mesh,
 					 const PointData &pd) const 
 {
   SymmMatrix3 *oval = new SymmMatrix3();
-  OutputValue ov(oval);
+  ArithmeticOutputValue ov(oval);
   if(pd.hasField(*this)) {
     for(SymTensorIterator i=SymTensorIterator(0); 
 	!i.end(); ++i)
@@ -644,12 +651,12 @@ OutputValue SymmetricTensorField::output(const FEMesh *mesh,
 }
 
 
-OutputValue 
+ArithmeticOutputValue 
 SymmetricTensorField::output(const FEMesh *mesh,
 			     const ElementFuncNodeIterator &pd) const 
 {
   SymmMatrix3 *oval = new SymmMatrix3();
-  OutputValue ov(oval);
+  ArithmeticOutputValue ov(oval);
   if(pd.hasField(*this)) {
     for(SymTensorIterator i=SymTensorIterator(0); 
 	!i.end(); ++i)
@@ -659,8 +666,9 @@ SymmetricTensorField::output(const FEMesh *mesh,
 }
 
 
-void SymmetricTensorField::setValueFromOutputValue
-(FEMesh* m, const PointData &pd, const OutputValue *v) 
+void SymmetricTensorField::setValueFromOutputValue(FEMesh* m,
+						   const PointData &pd,
+						   const OutputValue *v) 
 {  
   assert(pd.hasField(*this));
   const SymmMatrix3 &sym_v = 

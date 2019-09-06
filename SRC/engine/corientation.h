@@ -23,6 +23,9 @@ class COrientXYZ;
 class COrientAxis;
 class COrientRodrigues;
 
+// NO, I don't know why outputval.h is in engine but propertyoutput.h
+// is in engine/IO.
+#include "engine/IO/propertyoutput.h"
 #include "engine/outputval.h"
 
 #include <vector>
@@ -33,12 +36,15 @@ class SmallMatrix;
 class LatticeSymmetry;
 
 class COrientation : public NonArithmeticOutputVal {
-private:
+protected:
   mutable SmallMatrix *cachedrot;
+  void copyMatrix(const COrientation&);
 public:
   COrientation();
   COrientation(const COrientation&);
   virtual ~COrientation();
+
+  virtual const COrientation &operator=(const OutputVal&) = 0;
 
   // As used by the Cijkl's "transform" method, these matrices
   // yield lab-frame vectors when right-multiplied by crystal-frame vectors.
@@ -55,9 +61,6 @@ public:
   virtual COrientXYZ XYZ() const;
   virtual COrientAxis axis() const;
   virtual COrientRodrigues rodrigues() const;
-
-  // Conversion in the other direction
-  virtual void copy(const COrientation*) = 0;
 
   double misorientation(const COrientation&, const LatticeSymmetry&) const;
   double misorientation(const COrientation&, const std::string&) const;
@@ -83,7 +86,7 @@ public:
   COrientABG(const SmallMatrix&);
   // Default constructor is needed so that an array of these can be created.
   COrientABG() : alpha_(0.0), beta_(0.0), gamma_(0.0) {}
-  virtual void copy(const COrientation *other) { *this = other->abg(); }
+  const COrientABG &operator=(const OutputVal&);
   virtual SmallMatrix *rotation_() const;
   virtual COrientABG abg() const { return *this; }
   // COrientABG has special status among the COrientation subclasses,
@@ -102,8 +105,8 @@ public:
   // Methods required by OutputVal
   virtual const std::string &classname() const;
   virtual unsigned int dim() const { return 3; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual COrientABG *clone() const;
+  virtual COrientABG *zero() const;
   virtual std::vector<double> *value_list() const;
 };
 
@@ -115,7 +118,7 @@ public:
     : phi1_(phi1), theta_(theta), phi2_(phi2)
   {}
   COrientBunge(const SmallMatrix&);
-  virtual void copy(const COrientation *other) { *this = other->bunge(); }
+  virtual const COrientBunge &operator=(const OutputVal&);
   virtual SmallMatrix *rotation_() const;
   virtual COrientBunge bunge() const { return *this; }
   double phi1() const { return phi1_; }
@@ -126,8 +129,8 @@ public:
   // Methods required by OutputVal
   virtual const std::string &classname() const;
   virtual unsigned int dim() const { return 3; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual COrientBunge *clone() const;
+  virtual COrientBunge *zero() const;
   virtual std::vector<double> *value_list() const;
 };
 
@@ -137,7 +140,7 @@ private:
 public:
   COrientQuaternion(double e0, double e1, double e2, double e3);
   COrientQuaternion(const SmallMatrix&);
-  virtual void copy(const COrientation *other) { *this = other->quaternion(); }
+  virtual const COrientQuaternion &operator=(const OutputVal&);
   virtual SmallMatrix *rotation_() const;
   virtual COrientQuaternion quaternion() const { return *this; }
   virtual COrientAxis axis() const;
@@ -151,8 +154,8 @@ public:
   // Methods required by OutputVal
   virtual const std::string &classname() const;
   virtual unsigned int dim() const { return 4; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual COrientQuaternion *clone() const;
+  virtual COrientQuaternion *zero() const;
   virtual std::vector<double> *value_list() const;
 };
 
@@ -167,9 +170,9 @@ public:
     : phi_(phi), theta_(theta), psi_(psi)
   {}
   COrientX(const SmallMatrix&);
-  virtual void copy(const COrientation *other) { *this = other->X(); }
+  virtual const COrientX &operator=(const OutputVal&);
   virtual SmallMatrix *rotation_() const;
-  virtual COrientX x() const { return *this; }
+  virtual COrientX X() const { return *this; }
   double phi() const { return phi_; }
   double theta() const { return theta_; }
   double psi() const { return psi_; }
@@ -178,8 +181,8 @@ public:
   // Methods required by OutputVal
   virtual const std::string &classname() const;
   virtual unsigned int dim() const { return 3; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual COrientX *clone() const;
+  virtual COrientX *zero() const;
   virtual std::vector<double> *value_list() const;
 };
 
@@ -194,9 +197,9 @@ public:
     : phi_(phi), theta_(theta), psi_(psi)
   {}
   COrientXYZ(const SmallMatrix&);
-  virtual void copy(const COrientation *other) { *this = other->XYZ(); }
+  virtual const COrientXYZ &operator=(const OutputVal&);
   virtual SmallMatrix *rotation_() const;
-  virtual COrientXYZ xyz() const { return *this; }
+  virtual COrientXYZ XYZ() const { return *this; }
   double phi() const { return phi_; }
   double theta() const { return theta_; }
   double psi() const { return psi_; }
@@ -205,8 +208,8 @@ public:
   // Methods required by OutputVal
   virtual const std::string &classname() const;
   virtual unsigned int dim() const { return 3; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual COrientXYZ *clone() const;
+  virtual COrientXYZ *zero() const;
   virtual std::vector<double> *value_list() const;
 };
 
@@ -218,7 +221,7 @@ public:
     : angle_(angle), x_(x), y_(y), z_(z)
   {}
   COrientAxis(const SmallMatrix&);
-  virtual void copy(const COrientation *other) { *this = other->axis(); }
+  virtual const COrientAxis &operator=(const OutputVal&);
   virtual SmallMatrix *rotation_() const;
   virtual COrientAxis axis() const { return *this; }
   virtual COrientQuaternion quaternion() const;
@@ -233,8 +236,8 @@ public:
   // Methods required by OutputVal
   virtual const std::string &classname() const;
   virtual unsigned int dim() const { return 4; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual COrientAxis *clone() const;
+  virtual COrientAxis *zero() const;
   virtual std::vector<double> *value_list() const;
 };
 
@@ -251,7 +254,7 @@ public:
     : r1_(r1), r2_(r2), r3_(r3)
   {}
   COrientRodrigues(const SmallMatrix&);
-  virtual void copy(const COrientation *other) { *this = other->rodrigues(); }
+  virtual const COrientRodrigues &operator=(const OutputVal&);
   virtual SmallMatrix *rotation_() const;
   virtual COrientRodrigues rodrigues() const { return *this; }
   double r1() const { return r1_; }
@@ -262,13 +265,22 @@ public:
   // Methods required by OutputVal
   virtual const std::string &classname() const;
   virtual unsigned int dim() const { return 3; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual COrientRodrigues *clone() const;
+  virtual COrientRodrigues *zero() const;
   virtual std::vector<double> *value_list() const;
 };
 
 std::ostream &operator<<(std::ostream&, const COrientation&);
 
 COrientation *orientationFactory(const std::string*);
+
+class OrientationPropertyOutputInit : public NonArithmeticPropertyOutputInit {
+public:
+  COrientation *operator()(const NonArithmeticPropertyOutput*,
+			   const FEMesh*,
+			   const Element*, const MasterCoord&) const;
+};
+
+
 
 #endif // CORIENTATION_H

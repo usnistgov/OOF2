@@ -25,10 +25,10 @@
 #include <vector>
 
 // Helper function for integrating the flux through a boundary.
-OutputValue integrateFlux(const FEMesh *mesh, const Flux *flux,
-			  const EdgeSet *es)
+ArithmeticOutputValue integrateFlux(const FEMesh *mesh, const Flux *flux,
+				    const EdgeSet *es)
 {
-  OutputVal *resultptr = 0;
+  ArithmeticOutputVal *resultptr = 0;
   for(EdgeSetIterator esi=es->edge_iterator(); !esi.end(); ++esi) {
     BoundaryEdge *bdy_edge = esi.edge();
     const Element *el = bdy_edge->el;
@@ -39,19 +39,20 @@ OutputValue integrateFlux(const FEMesh *mesh, const Flux *flux,
 	*resultptr *= egpt.weight();
       }
       else {
-	OutputVal *r = flux->contract( mesh, el, egpt );
+	ArithmeticOutputVal *r = flux->contract( mesh, el, egpt );
 	*r *= egpt.weight();
 	*resultptr += *r;
 	delete r;
       }
     }
   }
-  return OutputValue(resultptr);
+  return ArithmeticOutputValue(resultptr);
 }
 
-OutputValue averageField(const FEMesh *m, const Field *field, const EdgeSet *es)
+ArithmeticOutputValue averageField(const FEMesh *m, const Field *field,
+				   const EdgeSet *es)
 {
-  OutputValue result(field->newOutputValue());
+  ArithmeticOutputValue result(field->newOutputValue());
   double weight = 0.0;
   for(EdgeSetIterator esi=es->edge_iterator(); !esi.end(); ++esi) {
     BoundaryEdge *bdy_edge = esi.edge();

@@ -17,73 +17,92 @@
 #include <Python.h>
 
 class PropertyOutput;
-class PropertyOutputInit;
+class ArithmeticPropertyOutput;
+class ArithmeticPropertyOutputInit;
+class NonArithmeticPropertyOutput;
+class NonArithmeticPropertyOutputInit;
 
 #include "common/pythonexportable.h"
+#include "engine/outputval.h"
 #include <string>
 #include <vector>
 
+class ArithmeticOutputVal;
+class ArithmeticOutputValue;
+class NonArithmeticOutputVal;
 class Element;
 class FEMesh;
 class MasterCoord;
-class OutputVal;
-class OutputValue;
 class Property;
 
-
-class PropertyOutputInit {
+class PropertyOutputInit : public PythonExportable<PropertyOutputInit> {
+private:
+  static const std::string modulename_;
 public:
   virtual ~PropertyOutputInit() {}
-  virtual OutputVal *operator()(const PropertyOutput*, const FEMesh*,
-				const Element*, const MasterCoord&) const = 0;
+  virtual const std::string &modulename() const { return modulename_; }
+  virtual PropertyOutput *instantiate(const std::string&, PyObject*) const = 0;
 };
 
-class ScalarPropertyOutputInit : public PropertyOutputInit {
+class ArithmeticPropertyOutputInit : public PropertyOutputInit {
+private:
+  static const std::string classname_; 
 public:
-  OutputVal *operator()(const PropertyOutput*, const FEMesh*,
-			const Element*, const MasterCoord&) const;
+  virtual const std::string &classname() const { return classname_; }
+  virtual PropertyOutput *instantiate(const std::string&, PyObject*) const;
+  virtual ArithmeticOutputVal *operator()(const ArithmeticPropertyOutput*,
+					  const FEMesh*, const Element*,
+					  const MasterCoord&) const = 0;
 };
 
-class TwoVectorPropertyOutputInit : public PropertyOutputInit {
+class NonArithmeticPropertyOutputInit : public PropertyOutputInit {
+private:
+  static const std::string classname_; 
 public:
-  OutputVal *operator()(const PropertyOutput*, const FEMesh*,
-			const Element*, const MasterCoord&) const;
-};
-
-class ThreeVectorPropertyOutputInit : public PropertyOutputInit {
-public:
-  OutputVal *operator()(const PropertyOutput*, const FEMesh*,
-			const Element*, const MasterCoord&) const;
-};
-
-class SymmMatrix3PropertyOutputInit : public PropertyOutputInit {
-public:
-  OutputVal *operator()(const PropertyOutput*, const FEMesh*,
-			const Element*, const MasterCoord&) const;
-};
-
-class OrientationPropertyOutputInit : public PropertyOutputInit {
-public:
-  OutputVal *operator()(const PropertyOutput*, const FEMesh*,
-			const Element*, const MasterCoord&) const;
+  virtual const std::string &classname() const { return classname_; }
+  virtual PropertyOutput *instantiate(const std::string&, PyObject*) const;
+  virtual NonArithmeticOutputVal *operator()(const NonArithmeticPropertyOutput*,
+					     const FEMesh*, const Element*,
+					     const MasterCoord&) const = 0;
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-class PropertyOutput {
+class ScalarPropertyOutputInit : public ArithmeticPropertyOutputInit {
+public:
+  ScalarOutputVal *operator()(const ArithmeticPropertyOutput*,
+				  const FEMesh*,
+				  const Element*, const MasterCoord&) const;
+};
+
+class TwoVectorPropertyOutputInit : public ArithmeticPropertyOutputInit {
+public:
+  VectorOutputVal *operator()(const ArithmeticPropertyOutput*,
+				  const FEMesh*,
+				  const Element*, const MasterCoord&) const;
+};
+
+class ThreeVectorPropertyOutputInit : public ArithmeticPropertyOutputInit {
+public:
+  VectorOutputVal *operator()(const ArithmeticPropertyOutput*,
+				  const FEMesh*,
+				  const Element*, const MasterCoord&) const;
+};
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+class PropertyOutput : public PythonExportable<PropertyOutput> {
 private:
   const std::string name_;
   PyObject* params_;
   const int index_;
+  static const std::string modulename_;
 public:
   PropertyOutput(const std::string &name, PyObject *params);
   virtual ~PropertyOutput();
   const std::string &name() const { return name_; }
+  virtual const std::string &modulename() const { return modulename_; }
   int index() const { return index_; }
-  std::vector<OutputValue> *evaluate(FEMesh*, Element*,
-				     const PropertyOutputInit*,
-				     const std::vector<MasterCoord*>*);
-
   // These functions retrieve the values of the Python parameters
   // defined in the PropertyOutputRegistration.  The 'name' argument
   // is the name of the parameter.  It's a char* because that's what
@@ -95,10 +114,38 @@ public:
   const std::string *getRegisteredParamName(const char *name) const;
 };
 
+class ArithmeticPropertyOutput : public PropertyOutput {
+private:
+  static const std::string classname_;
+public:
+  ArithmeticPropertyOutput(const std::string &name, PyObject *params)
+    : PropertyOutput(name, params)
+  {}
+  virtual const std::string &classname() const { return classname_; }
+  std::vector<ArithmeticOutputValue> *evaluate(
+			       FEMesh*, Element*,
+			       const ArithmeticPropertyOutputInit*,
+			       const std::vector<MasterCoord*>*);
+};
+
+class NonArithmeticPropertyOutput : public PropertyOutput {
+private:
+  static const std::string classname_;
+public:
+  NonArithmeticPropertyOutput(const std::string &name, PyObject *params)
+    : PropertyOutput(name, params)
+  {}
+  virtual const std::string &classname() const { return classname_; }
+  std::vector<NonArithmeticOutputValue> *evaluate(
+			     FEMesh*, Element*,
+			     const NonArithmeticPropertyOutputInit*,
+			     const std::vector<MasterCoord*>*);
+};
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // The bare PropertyOutputRegistration defined here should not be used
-// directly.  propertyoutput.spy defines some Python classes derived
+// directly.  propertyoutputreg.py defines some Python classes derived
 // from PropertyOutputRegistration that should be used instead.  Those
 // do useful things like create actual Output objects of the correct
 // type, and handle the registration's parameters.
@@ -115,7 +162,7 @@ public:
   const std::string &name() const { return name_; }
   int index() const { return index_; }
   PropertyOutput *instantiate(PyObject *params) const {
-    return new PropertyOutput(name(), params);
+    return initializer_->instantiate(name_, params);
   }
   const PropertyOutputInit *initializer() const { return initializer_; }
 
@@ -123,7 +170,6 @@ public:
   friend int nPropertyOutputRegistrations();
 };
 
-// gcc 4.1.0 by default does not see friend functions declared in classes
 PropertyOutputRegistration *getPropertyOutputReg(const std::string&);
 int nPropertyOutputRegistrations();
 

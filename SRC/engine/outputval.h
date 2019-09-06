@@ -35,11 +35,6 @@ class IteratorP;
 // templated subclasses would still have to be swigged separately, so
 // there wouldn't be much effort saved.
 
-// TODO: We need to have two abstract subclasses of OutputVal, one for
-// quantities on which arithmetic can be performed (fields, fluxes,
-// etc), and one for quantities on which arithmetic doesn't make sense
-// (Orientations, non-numeric material properties, etc).
-
 class OutputVal : public PythonExportable<OutputVal> {
 protected:
   static std::string modulename_;
@@ -47,77 +42,69 @@ protected:
 public:
   OutputVal();
   virtual ~OutputVal();
+  virtual const OutputVal &operator=(const OutputVal&) = 0;
   virtual unsigned int dim() const = 0;
   virtual OutputVal *clone() const = 0;
   virtual OutputVal *zero() const = 0;
-  virtual OutputVal *one() const = 0;
   virtual const std::string &modulename() const { return modulename_; }
-  virtual double operator[](const IndexP&) const = 0;
-  virtual double &operator[](const IndexP&) = 0;
-  virtual OutputVal &operator+=(const OutputVal&) = 0;
-  virtual OutputVal &operator-=(const OutputVal&) = 0;
-  virtual OutputVal &operator*=(double) = 0;
+  // IO ops.
+  virtual std::vector<double> *value_list() const = 0;
+  virtual void print(std::ostream&) const = 0;
+
+  friend class OutputValue;
+};
+
+class ArithmeticOutputVal : public OutputVal {
+public:
+  virtual ArithmeticOutputVal *one() const = 0;
+  virtual ArithmeticOutputVal &operator+=(const ArithmeticOutputVal&) = 0;
+  virtual ArithmeticOutputVal &operator-=(const ArithmeticOutputVal&) = 0;
+  virtual ArithmeticOutputVal &operator*=(double) = 0;
   // Component-wise operations.
   virtual void component_pow(int) = 0;
   virtual void component_square() = 0;
   virtual void component_sqrt() = 0;
-  virtual std::vector<double> *value_list() const = 0;
   virtual double magnitude() const = 0;
-  // IO ops.
-  virtual void print(std::ostream&) const = 0;
+  virtual double operator[](const IndexP&) const = 0;
+  virtual double &operator[](const IndexP&) = 0;
   // getIndex converts the string representation of a component index
   // into an IndexP object that can be used to extract a component.
   virtual IndexP getIndex(const std::string&) const = 0;
   virtual IteratorP getIterator() const = 0;
-  friend class OutputValue;
-};
 
-// NonArithmeticOutputVal raises exceptions for the things that
-// non-numerical OuputVals can't compute.  The correct class hierarchy
-// won't require these methods to be defined.
+};
 
 class NonArithmeticOutputVal : public OutputVal {
 public:
-  virtual OutputVal *one() const;
-  virtual OutputVal &operator+=(const OutputVal&);
-  virtual OutputVal &operator-=(const OutputVal&);
-  virtual OutputVal &operator*=(double);
-  virtual void component_pow(int);
-  virtual void component_square();
-  virtual void component_sqrt();
-  virtual double magnitude() const;
-  virtual double operator[](const IndexP&) const;
-  virtual double &operator[](const IndexP&);
-  virtual IndexP getIndex(const std::string&) const;
-  virtual IteratorP getIterator() const;
 };
 
 std::ostream &operator<<(std::ostream &, const OutputVal&);
 
-class ScalarOutputVal : public OutputVal {
+class ScalarOutputVal : public ArithmeticOutputVal {
 private:
   static std::string classname_;
   double val;
 public:
   ScalarOutputVal(double x) : val(x) {}
+  virtual const ScalarOutputVal &operator=(const OutputVal&);
   virtual unsigned int dim() const { return 1; }
-  virtual OutputVal *clone() const { return new ScalarOutputVal(val); }
-  virtual OutputVal *zero() const { return new ScalarOutputVal(0.0); }
-  virtual OutputVal *one() const { return new ScalarOutputVal(1.0); }
+  virtual ScalarOutputVal *clone() const { return new ScalarOutputVal(val); }
+  virtual ScalarOutputVal *zero() const { return new ScalarOutputVal(0.0); }
+  virtual ScalarOutputVal *one() const { return new ScalarOutputVal(1.0); }
   virtual const std::string &classname() const { return classname_; }
-  virtual OutputVal &operator+=(const OutputVal &other) {
+  virtual ArithmeticOutputVal &operator+=(const ArithmeticOutputVal &other) {
     const ScalarOutputVal &another =
       dynamic_cast<const ScalarOutputVal&>(other);
     val += another.val;
     return *this;
   }
-  virtual OutputVal &operator-=(const OutputVal &other) {
+  virtual ArithmeticOutputVal &operator-=(const ArithmeticOutputVal &other) {
     const ScalarOutputVal &another =
       dynamic_cast<const ScalarOutputVal&>(other);
     val -= another.val;
     return *this;
   }
-  virtual OutputVal &operator*=(double a) {
+  virtual ArithmeticOutputVal &operator*=(double a) {
     val *= a;
     return *this;
   }
@@ -152,7 +139,7 @@ ScalarOutputVal operator*(const ScalarOutputVal&, double);
 ScalarOutputVal operator*(double, const ScalarOutputVal&);
 ScalarOutputVal operator/(ScalarOutputVal&, double);
 
-class VectorOutputVal : public OutputVal {
+class VectorOutputVal : public ArithmeticOutputVal {
 private:
   unsigned int size_;
   double *data;
@@ -162,27 +149,28 @@ public:
   VectorOutputVal(const VectorOutputVal&);
   VectorOutputVal(const std::vector<double>&);
   virtual ~VectorOutputVal() { delete [] data; }
+  virtual const VectorOutputVal &operator=(const OutputVal &);
   virtual unsigned int dim() const { return size_; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
-  virtual OutputVal *one() const;
+  virtual VectorOutputVal *clone() const;
+  virtual VectorOutputVal *zero() const;
+  virtual VectorOutputVal *one() const;
   virtual const std::string &classname() const { return classname_; }
   unsigned int size() const { return size_; }
-  virtual OutputVal &operator+=(const OutputVal &other) {
+  virtual ArithmeticOutputVal &operator+=(const ArithmeticOutputVal &other) {
     const VectorOutputVal &another = 
       dynamic_cast<const VectorOutputVal&>(other);
     for(unsigned int i=0; i<size_; i++)
       data[i] += another.data[i];
     return *this;
   }
-  virtual OutputVal &operator-=(const OutputVal &other) {
+  virtual ArithmeticOutputVal &operator-=(const ArithmeticOutputVal &other) {
     const VectorOutputVal &another = 
       dynamic_cast<const VectorOutputVal&>(other);
     for(unsigned int i=0; i<size_; i++)
       data[i] -= another.data[i];
     return *this;
   }
-  virtual OutputVal &operator*=(double a) {
+  virtual ArithmeticOutputVal &operator*=(double a) {
     for(unsigned int i=0; i<size_; i++)
       data[i] *= a;
     return *this;
@@ -229,13 +217,13 @@ VectorOutputVal operator/(VectorOutputVal&, double);
 // when the reference count goes to zero.
 
 class OutputValue {
-private:
+protected:
   OutputVal *val;
 public:
   OutputValue() {}  // Dummy constructor
   OutputValue(OutputVal*);
   OutputValue(const OutputValue&);
-  ~OutputValue();
+  virtual ~OutputValue();
 
   unsigned int dim() const { return val->dim(); }
 
@@ -251,29 +239,41 @@ public:
   // function's responsibility to see that the copy is deleted.
   OutputVal *valueClone() const { return val->clone(); }
 
-  const OutputValue &operator+=(const OutputValue &other) {
-    *val += *other.val;
-    return *this;
-  }
-  const OutputValue &operator-=(const OutputValue &other) {
-    *val -= *other.val;
-    return *this;
-  }
-  const OutputValue &operator *=(double x) {
-    *val *= x;
-    return *this;
-  }
-  double operator[](const IndexP &p) const { return (*val)[p]; }
-  double &operator[](const IndexP &p) { return (*val)[p]; }
   int nrefcount() { return (*val).refcount; } // for debugging
   friend std::ostream &operator<<(std::ostream&, const OutputValue&);
 };
 
-OutputValue operator*(double x, const OutputValue &ov);
-OutputValue operator*(const OutputValue &ov, double x);
-OutputValue operator/(const OutputValue &ov, double x);
-OutputValue operator+(const OutputValue &a, const OutputValue &b);
-OutputValue operator-(const OutputValue &a, const OutputValue &b);
+class NonArithmeticOutputValue : public OutputValue {
+  // This class doesn't do anything that's not already in OutputValue,
+  // but all the other ArithmeticOutput* classes have a corresponding
+  // NonArithmeticOutput* class, so this one should also.
+public:
+  NonArithmeticOutputValue() {}
+  // NonArithmeticOutputValue(const NonArithmeticOutputVal&);
+  NonArithmeticOutputValue(NonArithmeticOutputVal*);
+};
+
+class ArithmeticOutputValue : public OutputValue {
+public:
+  ArithmeticOutputValue() {}
+  ArithmeticOutputValue(ArithmeticOutputVal*);
+  // ArithmeticOutputValue(const ArithmeticOutputValue&);
+  // ~ArithmeticOutputValue();
+  
+  const ArithmeticOutputValue &operator+=(const ArithmeticOutputValue &other);
+  const ArithmeticOutputValue &operator-=(const ArithmeticOutputValue &other);
+  const ArithmeticOutputValue &operator *=(double x);
+  double operator[](const IndexP &p) const;
+  double &operator[](const IndexP &p);
+};
+
+ArithmeticOutputValue operator*(double x, const ArithmeticOutputValue &ov);
+ArithmeticOutputValue operator*(const ArithmeticOutputValue &ov, double x);
+ArithmeticOutputValue operator/(const ArithmeticOutputValue &ov, double x);
+ArithmeticOutputValue operator+(const ArithmeticOutputValue &a,
+				const ArithmeticOutputValue &b);
+ArithmeticOutputValue operator-(const ArithmeticOutputValue &a,
+				const ArithmeticOutputValue &b);
 
 std::ostream &operator<<(std::ostream&, const OutputValue&);
 

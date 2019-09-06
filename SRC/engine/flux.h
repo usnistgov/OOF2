@@ -40,8 +40,8 @@ class GaussPoint;
 class IteratorP;
 class LinearizedSystem;
 class MasterPosition;
-class OutputVal;
-class OutputValue;
+class ArithmeticOutputVal;
+class ArithmeticOutputValue;
 class SmallMatrix;
 class SmallSystem;
 
@@ -101,15 +101,15 @@ public:
   // hand side.  This returns a 'new'd object.
   SmallSystem *initializeSystem(const Element*) const;
 
-  virtual OutputVal *contract(const FEMesh*, const Element*,
-			      const EdgeGaussPoint&) const = 0;
+  virtual ArithmeticOutputVal *contract(const FEMesh*, const Element*,
+					const EdgeGaussPoint&) const = 0;
 
   DoubleVec *evaluate(const FEMesh*, const Element*, const MasterPosition&)
     const;
 
-  OutputValue output(const FEMesh*, const Element*, const MasterPosition&)
-    const;
-  virtual OutputValue newOutputValue() const = 0;
+  ArithmeticOutputValue output(const FEMesh*, const Element*,
+			       const MasterPosition&) const;
+  virtual ArithmeticOutputValue newOutputValue() const = 0;
 
   int eqn_integration_order(const CSubProblem*, const Element*) const;
 
@@ -182,9 +182,9 @@ public:
   virtual IndexP divergence_componenttype() const;
   virtual IndexP divergence_getIndex(const std::string&) const;
 
-  virtual OutputVal *contract(const FEMesh*, const Element*,
-			      const EdgeGaussPoint&) const;
-  virtual OutputValue newOutputValue() const;
+  virtual ArithmeticOutputVal *contract(const FEMesh*, const Element*,
+					 const EdgeGaussPoint&) const;
+  virtual ArithmeticOutputValue newOutputValue() const;
 
   virtual FluxNormal *BCCallback(const Coord&,
 				 double,
@@ -225,10 +225,10 @@ public:
 			      const FluxNormal *,
 			      DoubleVec&) const;
 
-  virtual OutputVal *contract(const FEMesh*, const Element*,
+  virtual ArithmeticOutputVal *contract(const FEMesh*, const Element*,
 			      const EdgeGaussPoint&) const;
 
-  virtual OutputValue newOutputValue() const;
+  virtual ArithmeticOutputValue newOutputValue() const;
 
   virtual IteratorP iterator(Planarity) const;
   virtual IteratorP divergence_iterator() const;

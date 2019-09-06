@@ -70,7 +70,8 @@ void IonDiffusion::static_flux_value(const FEMesh  *mesh,
   // Find the concentration value at this point.  Should really be
   // done in a begin_point hook, if there is one?
   
-  OutputValue conc_value = element->outputField( mesh, *concentration, pt);
+  ArithmeticOutputValue conc_value =
+    element->outputField( mesh, *concentration, pt);
   double c = conc_value[0];
 
   const SymmMatrix3 cndct( diffusion->conductivitytensor( mesh, element, pt));
@@ -80,14 +81,14 @@ void IonDiffusion::static_flux_value(const FEMesh  *mesh,
   if (*flux == *charge_flux ) {
     // For charge flux, the relevant gradient is the concentration.
     for (SpaceIndex i=0; i<DIM; ++i) {
-      OutputValue ov = element->outputFieldDeriv(mesh, *concentration, &i, pt);
+      ArithmeticOutputValue ov =
+	element->outputFieldDeriv(mesh, *concentration, &i, pt);
       fieldGradient[i] = ov[0];
     }
 #if DIM==2 
     if (!concentration->in_plane(mesh) ) {
-      OutputValue ov = element->outputField(mesh, 
-					    *concentration->out_of_plane(),
-					    pt);
+      ArithmeticOutputValue ov =
+	element->outputField(mesh, *concentration->out_of_plane(), pt);
       fieldGradient[2] = ov[0];
     }
 #endif
@@ -101,14 +102,14 @@ void IonDiffusion::static_flux_value(const FEMesh  *mesh,
   else if (*flux == *atom_flux ) {
     // For atom flux, the dependent field gradient is the voltage.
     for (SpaceIndex i=0; i<DIM; ++i) {
-      OutputValue ov = element->outputFieldDeriv(mesh, *voltage, &i, pt);
+      ArithmeticOutputValue ov =
+	element->outputFieldDeriv(mesh, *voltage, &i, pt);
       fieldGradient[i] = ov[0];
     }
 #if DIM==2 
     if (!voltage->in_plane(mesh) ) {
-      OutputValue ov = element->outputField(mesh, 
-					    *concentration->out_of_plane(),
-					    pt);
+      ArithmeticOutputValue ov =
+	element->outputField(mesh, *concentration->out_of_plane(), pt);
       fieldGradient[2] = ov[0];
     }
 #endif
@@ -156,7 +157,7 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
 
   // Same preliminaries as the flux-value case, find concentration
   // field value and conductivity tensor.
-  OutputValue conc_value = el->outputField( mesh, *concentration, pt);
+  ArithmeticOutputValue conc_value = el->outputField( mesh, *concentration, pt);
   double c = conc_value[0];
   const SymmMatrix3 cndct(diffusion->conductivitytensor( mesh, el, pt));
   std::vector<double> fieldGradient(3);
@@ -165,14 +166,14 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
 
     // Still need to collect values of the concentration gradient.
     for (SpaceIndex i=0; i<DIM; ++i) {
-      OutputValue ov = el->outputFieldDeriv(mesh, *concentration, &i, pt);
+      ArithmeticOutputValue ov =
+	el->outputFieldDeriv(mesh, *concentration, &i, pt);
       fieldGradient[i] = ov[0];
     }
 #if DIM==2 
     if (!concentration->in_plane(mesh) ) {
-      OutputValue ov = el->outputField(mesh, 
-				       *concentration->out_of_plane(),
-				       pt);
+      ArithmeticOutputValue ov =
+	el->outputField(mesh, *concentration->out_of_plane(), pt);
       fieldGradient[2] = ov[0];
     }
 #endif
@@ -209,14 +210,13 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
     
     // For the atom_flux case, need the voltage derivatives.
     for (SpaceIndex i=0; i<DIM; ++i) {
-      OutputValue ov = el->outputFieldDeriv(mesh, *voltage, &i, pt);
+      ArithmeticOutputValue ov = el->outputFieldDeriv(mesh, *voltage, &i, pt);
       fieldGradient[i] = ov[0];
     }
 #if DIM==2 
     if (!voltage->in_plane(mesh) ) {
-      OutputValue ov = el->outputField(mesh, 
-					    *voltage->out_of_plane(),
-					    pt);
+      ArithmeticOutputValue ov =
+	el->outputField(mesh, *voltage->out_of_plane(), pt);
       fieldGradient[2] = ov[0];
     }
 #endif

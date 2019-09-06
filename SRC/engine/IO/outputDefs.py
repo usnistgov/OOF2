@@ -18,13 +18,13 @@ from ooflib.SWIG.engine import field
 from ooflib.SWIG.engine import flux
 from ooflib.SWIG.engine import outputval
 from ooflib.SWIG.engine import planarity
-from ooflib.SWIG.engine.IO import propertyoutput
 from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import primitives
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import problem
+from ooflib.engine.IO import propertyoutputreg
 from ooflib.engine.IO import output
 from ooflib.engine.IO import outputClones
 
@@ -190,7 +190,7 @@ def _Energy_shortrepr(self):
 # ScalarPropertyOutputRegistration places the output in both the
 # ScalarOutput and AggregateOutput trees.
 
-propertyoutput.ScalarPropertyOutputRegistration(
+propertyoutputreg.ScalarPropertyOutputRegistration(
     "Energy",
     parameters=[enum.EnumParameter("etype", EnergyType, default="Total",
                                   tip='The type of energy to compute.')],
@@ -203,7 +203,7 @@ propertyoutput.ScalarPropertyOutputRegistration(
       contributions to the energy.</para>"""
     )
 
-propertyoutput.OrientationPropertyOutputRegistration(
+propertyoutputreg.OrientationPropertyOutputRegistration(
     "Orientation",
     ordering=4,
     tip="Compute the orientation at each point.")

@@ -61,7 +61,7 @@ void HeatConductivity::static_flux_value(const FEMesh  *mesh,
   DoubleVec fieldGradient(3);
 
   for (SpaceIndex i=0; i<DIM; ++i){
-    OutputValue outputVal = 
+    ArithmeticOutputValue outputVal = 
       element->outputFieldDeriv( mesh, *temperature, &i, pt );
     fieldGradient[i] = outputVal[0];
   }
@@ -69,7 +69,7 @@ void HeatConductivity::static_flux_value(const FEMesh  *mesh,
 #if DIM==2
   // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane field
   if ( !temperature->in_plane(mesh) ){
-    OutputValue outputVal = 
+    ArithmeticOutputValue outputVal = 
       element->outputField( mesh, *temperature->out_of_plane(), pt );
     fieldGradient[2] = outputVal[0];
   }

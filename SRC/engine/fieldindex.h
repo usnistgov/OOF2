@@ -27,7 +27,6 @@
 // 'FieldFluxEquationOrOtherIndexableObjectIndex' is too long.
 
 class FieldIterator;
-class OutputValue;
 
 class FieldIndex {
 public:
@@ -383,6 +382,5 @@ public:
 };
 
 IteratorP *getSymTensorIterator(Planarity);
-OutputValue *newSymTensorOutputValue();
 
 #endif // FIELDINDEX_H

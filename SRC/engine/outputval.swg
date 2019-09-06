@@ -37,16 +37,24 @@
 class OutputVal {
 public:
   ~OutputVal();
-  IndexP getIndex(char *);
-  IteratorP getIterator();
   int dim();
   %new OutputVal *clone();
   %new OutputVal *zero();
+  %new DoubleList *value_list();
+};
+
+class NonArithmeticOutputVal : public OutputVal {
+public:
+};
+
+class ArithmeticOutputVal : public OutputVal {
+public:
+  IndexP getIndex(char *);
+  IteratorP getIterator();
   %new OutputVal *one();
   void component_pow(int);
   void component_square();
   void component_sqrt();
-  %new DoubleList *value_list();
   %addmethods {
     double __getitem__(const IndexP &i) const {
       return (*self)[i];
@@ -54,11 +62,7 @@ public:
   }
 };
 
-class NonArithmeticOutputVal : public OutputVal {
-
-};
-
-class ScalarOutputVal : public OutputVal {
+class ScalarOutputVal : public ArithmeticOutputVal {
 public:
   ScalarOutputVal(double);
   double value();
@@ -86,7 +90,7 @@ public:
   }
 };
 
-class VectorOutputVal : public OutputVal {
+class VectorOutputVal : public ArithmeticOutputVal {
 public:
   int size();
   VectorOutputVal(int);
@@ -130,11 +134,18 @@ public:
   OutputValue(const OutputValue&);
   int dim();
   %new OutputVal *valueClone();
+};
+
+class NonArithmeticOutputValue : public OutputValue {
+};
+
+class ArithmeticOutputValue : public OutputValue {
+public:
   %addmethods {
      double __getitem__(const IndexP &i) const {
        return (*self)[i];
      }
-     void _add(const OutputValue &other) {
+     void _add(const ArithmeticOutputValue &other) {
        (*self) += other;
      }
      void _mul(double other) {

@@ -40,6 +40,15 @@ const SmallMatrix &COrientation::rotation() const {
   return *cachedrot;
 }
 
+void COrientation::copyMatrix(const COrientation &other) {
+  delete cachedrot;
+  if(other.cachedrot != nullptr)
+    cachedrot = new SmallMatrix(*other.cachedrot);
+  else {
+    cachedrot = nullptr;
+  }
+}
+
 COrientABG COrientation::abg() const {
     return COrientABG(rotation()); 
 }
@@ -206,6 +215,15 @@ COrientABG::COrientABG(const SmallMatrix &matrix) {
   gamma_ = atan2(sing, cosg);
 }
 
+const COrientABG &COrientABG::operator=(const OutputVal &other) {
+  const COrientABG othr(dynamic_cast<const COrientation&>(other).abg());
+  alpha_ = othr.alpha();
+  beta_ = othr.beta();
+  gamma_ = othr.gamma();
+  copyMatrix(othr);
+  return *this;
+}
+
 SmallMatrix *COrientABG::rotation_() const {
   double cosa, sina, cosb, sinb, cosg, sing;
   sincos(alpha_, sina, cosa);
@@ -264,6 +282,15 @@ COrientBunge::COrientBunge(const SmallMatrix &matrix) {
   theta_ = atan2(sinth, costh);
   phi2_ = atan2(sinph2, cosph2);
 };
+
+const COrientBunge &COrientBunge::operator=(const OutputVal &other) {
+  const COrientBunge othr(dynamic_cast<const COrientation&>(other).bunge());
+  phi1_ = othr.phi1();
+  theta_ = othr.theta();
+  phi2_ = othr.phi2();
+  copyMatrix(othr);
+  return *this;
+}
 
 SmallMatrix *COrientBunge::rotation_() const {
   double sinph1, cosph1, sinph2, cosph2, sinth, costh;
@@ -350,6 +377,15 @@ COrientQuaternion::COrientQuaternion(const SmallMatrix &matrix) {
   }
 }
 
+const COrientQuaternion &COrientQuaternion::operator=(const OutputVal &other) {
+  const COrientQuaternion othr(
+			dynamic_cast<const COrientation&>(other).quaternion());
+  for(unsigned int i=0; i<4; i++)
+    q[i] = othr.q[i];
+  copyMatrix(othr);
+  return *this;
+}
+
 double COrientQuaternion::norm2() const {
   double sum = 0;
   for(unsigned int i=0; i<4; i++)
@@ -420,6 +456,15 @@ COrientX::COrientX(const SmallMatrix &matrix) {
   psi_ = atan2(sinps, cosps);
 }
 
+const COrientX &COrientX::operator=(const OutputVal &other) {
+  const COrientX othr(dynamic_cast<const COrientation&>(other).X());
+  phi_ = othr.phi();
+  theta_ = othr.theta();
+  psi_ = othr.psi();
+  copyMatrix(othr);
+  return *this;
+}
+
 SmallMatrix *COrientX::rotation_() const {
   double sinph, cosph, sinps, cosps, sinth, costh;
   sincos(phi_, sinph, cosph);
@@ -477,6 +522,15 @@ COrientXYZ::COrientXYZ(const SmallMatrix &matrix) {
   phi_ = atan2(sinph, cosph);
   theta_ = atan2(sinth, costh);
   psi_ = atan2(sinps, cosps);
+}
+
+const COrientXYZ &COrientXYZ::operator=(const OutputVal &other) {
+  const COrientXYZ othr(dynamic_cast<const COrientation&>(other).XYZ());
+  phi_ = othr.phi();
+  theta_ = othr.theta();
+  psi_ = othr.psi();
+  copyMatrix(othr);
+  return *this;
 }
 
 SmallMatrix *COrientXYZ::rotation_() const {
@@ -537,6 +591,16 @@ COrientAxis::COrientAxis(const SmallMatrix &matrix) {
   }
 }
 
+const COrientAxis &COrientAxis::operator=(const OutputVal &other) {
+  const COrientAxis othr(dynamic_cast<const COrientation&>(other).axis());
+  angle_ = othr.angle();
+  x_ = othr.x();
+  y_ = othr.y();
+  z_ = othr.z();
+  copyMatrix(othr);
+  return *this;
+}
+
 SmallMatrix *COrientAxis::rotation_() const {
   return quaternion().rotation_();
 }
@@ -595,6 +659,16 @@ COrientRodrigues::COrientRodrigues(const SmallMatrix &matrix) {
   // Crystals". Acta Cryst. (1991) A47, 780-789
 }
 
+const COrientRodrigues &COrientRodrigues::operator=(const OutputVal &other) {
+  const COrientRodrigues othr(
+		      dynamic_cast<const COrientation&>(other).rodrigues());
+  r1_ = othr.r1_;
+  r2_ = othr.r2_;
+  r3_ = othr.r3_;
+  copyMatrix(othr);
+  return *this;
+}
+
 SmallMatrix *COrientRodrigues::rotation_() const {
   double mag2 = r1_*r1_ + r2_*r2_ + r3_*r3_;
   double q0 = 1./sqrt(1.0 + mag2);
@@ -635,11 +709,11 @@ const std::string &COrientABG::classname() const {
   return nm;
 }
 
-OutputVal *COrientABG::clone() const {
+COrientABG *COrientABG::clone() const {
   return new COrientABG(*this); 
 }
 
-OutputVal *COrientABG::zero() const {
+COrientABG *COrientABG::zero() const {
   return new COrientABG(0., 0., 0.);
 }
 
@@ -655,11 +729,11 @@ const std::string &COrientBunge::classname() const {
   return nm;
 }
 
-OutputVal *COrientBunge::clone() const {
+COrientBunge *COrientBunge::clone() const {
   return new COrientBunge(*this);
 };
 
-OutputVal *COrientBunge::zero() const {
+COrientBunge *COrientBunge::zero() const {
   return new COrientBunge(0., 0., 0.);
 }
 
@@ -675,11 +749,11 @@ const std::string &COrientQuaternion::classname() const {
   return nm;
 }
 
-OutputVal *COrientQuaternion::clone() const {
+COrientQuaternion *COrientQuaternion::clone() const {
   return new COrientQuaternion(*this);
 };
 
-OutputVal *COrientQuaternion::zero() const {
+COrientQuaternion *COrientQuaternion::zero() const {
   return new COrientQuaternion(0., 0., 0., 0.); 
 }
 
@@ -694,11 +768,11 @@ const std::string &COrientX::classname() const {
   return nm;
 }
 
-OutputVal *COrientX::clone() const {
+COrientX *COrientX::clone() const {
   return new COrientX(*this);
 };
 
-OutputVal *COrientX::zero() const {
+COrientX *COrientX::zero() const {
   return new COrientX(0., 0., 0.);
 }
 
@@ -713,11 +787,11 @@ const std::string &COrientXYZ::classname() const {
   return nm;
 }
 
-OutputVal *COrientXYZ::clone() const {
+COrientXYZ *COrientXYZ::clone() const {
   return new COrientXYZ(*this);
 };
 
-OutputVal *COrientXYZ::zero() const {
+COrientXYZ *COrientXYZ::zero() const {
   return new COrientXYZ(0., 0., 0.);
 }
 
@@ -732,11 +806,11 @@ const std::string &COrientAxis::classname() const {
   return nm;
 }
 
-OutputVal *COrientAxis::clone() const {
+COrientAxis *COrientAxis::clone() const {
   return new COrientAxis(*this);
 };
 
-OutputVal *COrientAxis::zero() const {
+COrientAxis *COrientAxis::zero() const {
   return new COrientAxis(0., 0., 0., 0.);
 }
 
@@ -751,11 +825,11 @@ const std::string &COrientRodrigues::classname() const {
   return nm;
 }
 
-OutputVal *COrientRodrigues::clone() const {
+COrientRodrigues *COrientRodrigues::clone() const {
   return new COrientRodrigues(*this);
 };
 
-OutputVal *COrientRodrigues::zero() const {
+COrientRodrigues *COrientRodrigues::zero() const {
   return new COrientRodrigues(0., 0., 0.);
 }
 
@@ -767,7 +841,7 @@ std::vector<double> *COrientRodrigues::value_list() const {
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // TODO: Is there a way to do this automatically, without having to
-// list each Corientation subclass here?  This is called by
+// list each COrientation subclass here?  This is called by
 // OrientationPropertyOutputInit to create an OutputVal of the correct
 // type before computing an Output.
 
@@ -791,3 +865,18 @@ COrientation *orientationFactory(const std::string *name) {
   throw ErrProgrammingError("Unrecognized COrientation type! " + *name,
 			    __FILE__, __LINE__);
 }
+
+COrientation *OrientationPropertyOutputInit::operator()(
+				     const NonArithmeticPropertyOutput *output,
+				     const FEMesh*,
+				     const Element*,
+				     const MasterCoord&) const
+{
+  // Initialize the output with a COrientation in the desired format.
+  // In the Properties' output() methods, the orientation will be
+  // copied into the object created here, and converted if necessary.
+  const std::string *fmt = output->getEnumParam("format");
+  return orientationFactory(fmt);
+}
+
+

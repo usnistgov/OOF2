@@ -20,7 +20,7 @@
 class DoubleVec;
 class Flux;
 class Material;
-class OutputValue;
+class ArithmeticOutputValue;
 class RecoveredFlux;
 
 typedef std::vector<RecoveredFlux*> RFVec;
@@ -38,7 +38,7 @@ public:
   int mat_index(const Material*) const;
   int flux_index(const Flux*) const;
   void add_flux_value(const Material*, const Flux*, DoubleVec*);
-  OutputValue get_flux_output(const Material*, const Flux*);
+  ArithmeticOutputValue get_flux_output(const Material*, const Flux*);
   double get_flux_component(const Material*, const Flux*, const int&);
 };
 

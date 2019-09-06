@@ -249,6 +249,12 @@ void SymmMatrix::copy(double **smd) {	// copy data from another data array
   (void) memcpy(&m[0][0], &smd[0][0], sz*sizeof(double));
 }
 
+const SymmMatrix3 &SymmMatrix3::operator=(const OutputVal &other) {
+  const SymmMatrix3 &othr = dynamic_cast<const SymmMatrix3&>(other);
+  *this = othr;
+  return *this;
+}
+
 void SymmMatrix::resize(unsigned int n) {
   if(n == nrows) return;
   free();
@@ -300,7 +306,7 @@ OutputVal *SymmMatrix3::zero() const {
   return new SymmMatrix3();
 }
 
-OutputVal *SymmMatrix3::one() const {
+SymmMatrix3 *SymmMatrix3::one() const {
   return new SymmMatrix3(1.0, 1.0, 1.0, 1.0, 1.0, 1.0);
 }
 
@@ -480,8 +486,8 @@ IteratorP SymmMatrix3::getIterator() const {
   return IteratorP(new SymTensorIterator());
 }
 
-OutputValue *newSymTensorOutputValue() {
-  return new OutputValue(new SymmMatrix3());
+ArithmeticOutputValue *newSymTensorOutputValue() {
+  return new ArithmeticOutputValue(new SymmMatrix3());
 }
 
 std::vector<double>* SymmMatrix3::value_list() const {
@@ -494,3 +500,13 @@ std::vector<double>* SymmMatrix3::value_list() const {
   (*res)[5] = m[1][0];
   return res;
 }
+
+SymmMatrix3 *SymmMatrix3PropertyOutputInit::operator()(
+					       const ArithmeticPropertyOutput*,
+					       const FEMesh*,
+					       const Element*,
+					       const MasterCoord&) const
+{
+  return new SymmMatrix3();
+}
+

@@ -21,24 +21,26 @@ cfiles = ['contour.C', 'propertyoutput.C']
 
 swigfiles = ['contour.swg', 'propertyoutput.swg']
 
-pyfiles = ['analyze.py', 'analyzemenu.py', 'anisocijkl.py',
-'boundaryconditionmenu.py', 'boundarymenu.py', 'contourdisplay.py',
-'displaymethods.py', 'elementselectdisplay.py', 'isocijkl.py',
-'materialmenu.py', 'meshIO.py', 'meshbdymenu.py', 'meshcsdisplay.py',
-'meshcsparams.py', 'meshcstoolbox.py', 'meshinfo.py',
-'meshinfodisplay.py', 'meshmenu.py', 'meshparameters.py',
-'microstructuredisplay.py', 'movenode.py', 'movenodedisplay.py',
-'nodeselectdisplay.py', 'orientationmatrix.py', 'outputClones.py',
-'outputDefs.py', 'pbcparams.py', 'pinnodes.py', 'pinnodesdisplay.py',
-'propertymenu.py', 'segmentselectdisplay.py', 'skeletonIO.py',
-'skeletonbdydisplay.py', 'skeletongroupmenu.py',
-'skeletongroupparams.py', 'skeletoninfo.py', 'skeletoninfodisplay.py',
-'skeletonmenu.py', 'skeletonselectiontoolbox.py',
-'skeletonselectmenu.py',
-'pinnodesmenu.py', 'materialparameter.py', 'centerfilldisplay.py',
-'subproblemmenu.py', 'xmloutputs.py', 'output.py',
-'scheduledoutput.py', 'outputdestination.py', 'scheduledoutputmenu.py',
-'interfaceparameters.py', 'interfacemenu.py'] #Interface branch
+pyfiles = [ 'analyze.py', 'analyzemenu.py', 'anisocijkl.py',
+            'boundaryconditionmenu.py', 'boundarymenu.py',
+            'centerfilldisplay.py', 'contourdisplay.py', 'displaymethods.py',
+            'elementselectdisplay.py', 'interfacemenu.py',
+            'interfaceparameters.py', 'isocijkl.py', 'materialmenu.py',
+            'materialparameter.py', 'meshIO.py', 'meshbdymenu.py',
+            'meshcsdisplay.py', 'meshcsparams.py', 'meshcstoolbox.py',
+            'meshinfo.py', 'meshinfodisplay.py', 'meshmenu.py',
+            'meshparameters.py', 'microstructuredisplay.py', 'movenode.py',
+            'movenodedisplay.py', 'nodeselectdisplay.py',
+            'orientationmatrix.py', 'output.py', 'outputClones.py',
+            'outputDefs.py', 'outputdestination.py', 'pbcparams.py',
+            'pinnodes.py', 'pinnodesdisplay.py', 'pinnodesmenu.py',
+            'propertymenu.py', 'propertyoutputreg.py', 'scheduledoutput.py',
+            'scheduledoutputmenu.py', 'segmentselectdisplay.py',
+            'skeletonIO.py', 'skeletonbdydisplay.py', 'skeletongroupmenu.py',
+            'skeletongroupparams.py', 'skeletoninfo.py',
+            'skeletoninfodisplay.py', 'skeletonmenu.py',
+            'skeletonselectiontoolbox.py', 'skeletonselectmenu.py',
+            'subproblemmenu.py', 'xmloutputs.py', ]
 
 swigpyfiles = ['contour.spy', 'propertyoutput.spy']
 
@@ -52,6 +54,7 @@ if DIM_3:
 
 
 if HAVE_MPI:
-    pyfiles.extend(['boundaryconditionIPC.py', 'meshIPC.py', 'propertymenuIPC.py',
+    pyfiles.extend(['boundaryconditionIPC.py', 'meshIPC.py',
+                    'propertymenuIPC.py',
                     'skeletonIPC.py', 'materialmenuIPC.py', 'solvermenuIPC.py',
                     'subproblemIPC.py'])

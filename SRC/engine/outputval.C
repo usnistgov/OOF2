@@ -39,32 +39,81 @@ OutputValue::~OutputValue() {
   }
 }
 
-OutputValue operator*(double x, const OutputValue &ov) {
-  OutputValue result(ov);
+ArithmeticOutputValue::ArithmeticOutputValue(ArithmeticOutputVal *v)
+  : OutputValue(v)
+{}
+
+NonArithmeticOutputValue::NonArithmeticOutputValue(NonArithmeticOutputVal *v)
+  : OutputValue(v)
+{}
+
+const ArithmeticOutputValue &ArithmeticOutputValue::operator+=(
+				       const ArithmeticOutputValue &other)
+{
+  ArithmeticOutputVal *thisval = dynamic_cast<ArithmeticOutputVal*>(val);
+  const ArithmeticOutputVal *thatval =
+    dynamic_cast<const ArithmeticOutputVal*>(other.val);
+  *thisval += *thatval;
+  return *this;
+}
+
+const ArithmeticOutputValue &ArithmeticOutputValue::operator-=(
+				       const ArithmeticOutputValue &other)
+{
+  ArithmeticOutputVal *thisval = dynamic_cast<ArithmeticOutputVal*>(val);
+  const ArithmeticOutputVal *thatval =
+    dynamic_cast<const ArithmeticOutputVal*>(other.val);
+  *thisval -= *thatval;
+  return *this;
+}
+
+const ArithmeticOutputValue &ArithmeticOutputValue::operator *=(double x) {
+  ArithmeticOutputVal *thisval = dynamic_cast<ArithmeticOutputVal*>(val);
+  *thisval *= x;
+  return *this;
+}
+
+double ArithmeticOutputValue::operator[](const IndexP &p) const {
+  const ArithmeticOutputVal *thisval =
+    dynamic_cast<const ArithmeticOutputVal*>(val);
+  return (*thisval)[p];
+}
+
+double &ArithmeticOutputValue::operator[](const IndexP &p) {
+  ArithmeticOutputVal *thisval = dynamic_cast<ArithmeticOutputVal*>(val);
+  return (*thisval)[p];
+}
+
+ArithmeticOutputValue operator*(double x, const ArithmeticOutputValue &ov) {
+  ArithmeticOutputValue result(ov);
   result *= x;
   return result;
 }
 
-OutputValue operator*(const OutputValue &ov, double x) {
-  OutputValue result(ov);
+ArithmeticOutputValue operator*(const ArithmeticOutputValue &ov, double x) {
+  ArithmeticOutputValue result(ov);
   result *= x;
   return result;
 }
 
-OutputValue operator/(const OutputValue &ov, double x) {
-  OutputValue result(ov);
+ArithmeticOutputValue operator/(const ArithmeticOutputValue &ov, double x) {
+  ArithmeticOutputValue result(ov);
   result *= 1./x;
   return result;
 }
 
-OutputValue operator+(const OutputValue &a, const OutputValue &b) {
-  OutputValue result(a);
+ArithmeticOutputValue operator+(const ArithmeticOutputValue &a,
+				const ArithmeticOutputValue &b)
+{
+  ArithmeticOutputValue result(a);
   result += b;
   return result;
 }
 
-OutputValue operator-(const OutputValue &a, const OutputValue &b) {
-  OutputValue result(a);
+ArithmeticOutputValue operator-(const ArithmeticOutputValue &a,
+				const ArithmeticOutputValue &b)
+{
+  ArithmeticOutputValue result(a);
   result -= b;
   return result;
 }
@@ -78,6 +127,11 @@ OutputVal::OutputVal() : refcount(0) {}
 OutputVal::~OutputVal() {}
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+const ScalarOutputVal &ScalarOutputVal::operator=(const OutputVal &other) {
+  val = dynamic_cast<const ScalarOutputVal&>(other).val;
+  return *this;
+}
 
 double ScalarOutputVal::operator[](const IndexP&) const {
   return val;
@@ -154,6 +208,15 @@ VectorOutputVal::VectorOutputVal(const std::vector<double> &vec)
   (void) memcpy(data, &vec[0], size_*sizeof(double));
 }
 
+const VectorOutputVal &VectorOutputVal::operator=(const OutputVal &other) {
+  const VectorOutputVal &othr = dynamic_cast<const VectorOutputVal&>(other);
+  delete [] data;
+  size_ = othr.size();
+  data = new double[size_];
+  (void) memcpy(data, othr.data, size_*sizeof(double));
+  return *this;
+}
+
 std::vector<double> *VectorOutputVal::value_list() const {
   std::vector<double> *res = new std::vector<double>(size_);
   // TODO: Use memcpy?
@@ -162,15 +225,15 @@ std::vector<double> *VectorOutputVal::value_list() const {
   return res;
 }
 
-OutputVal *VectorOutputVal::clone() const {
+VectorOutputVal *VectorOutputVal::clone() const {
   return new VectorOutputVal(*this);
 }
 
-OutputVal *VectorOutputVal::zero() const {
+VectorOutputVal *VectorOutputVal::zero() const {
   return new VectorOutputVal(size());
 }
 
-OutputVal *VectorOutputVal::one() const {
+VectorOutputVal *VectorOutputVal::one() const {
   VectorOutputVal *won = new VectorOutputVal(size());
   for(unsigned int i=0; i<size(); i++)
     won->data[i] = 1.0;
@@ -266,77 +329,11 @@ void VectorOutputVal::print(std::ostream &os) const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// As a first pass at separating OutputVals into ones that can do
-// arithmetic and ones that can't, the NonArithmeticOutputVal class
-// just raises exceptions if it's asked to do arithmetic.
+// For debugging
 
-OutputVal *NonArithmeticOutputVal::one() const {
-  throw ErrProgrammingError("Attempt to call NonArithmeticOutputVal::one",
-			    __FILE__, __LINE__);
-}
-
-OutputVal &NonArithmeticOutputVal::operator+=(const OutputVal&) {
-   throw ErrProgrammingError(
-		     "Attempt to call NonArithmeticOutputVal::operator+=",
-		     __FILE__, __LINE__);
-}
-
-OutputVal &NonArithmeticOutputVal::operator-=(const OutputVal&) {
-   throw ErrProgrammingError(
-		     "Attempt to call NonArithmeticOutputVal::operator-=",
-		     __FILE__, __LINE__);
-}
-
-OutputVal &NonArithmeticOutputVal::operator*=(double) {
-   throw ErrProgrammingError(
-		     "Attempt to call NonArithmeticOutputVal::operator*=",
-		     __FILE__, __LINE__);
-}
-
-void NonArithmeticOutputVal::component_pow(int) {
-   throw ErrProgrammingError(
-		     "Attempt to call NonArithmeticOutputVal::component_pow",
-		     __FILE__, __LINE__);
-}
-
-void NonArithmeticOutputVal::component_square() {
-   throw ErrProgrammingError(
-	     "Attempt to call NonArithmeticOutputVal::component_square",
-	     __FILE__, __LINE__);
-}
-
-void NonArithmeticOutputVal::component_sqrt() {
-   throw ErrProgrammingError(
-		     "Attempt to call NonArithmeticOutputVal::component_sqrt",
-		     __FILE__, __LINE__);
-}
-
-double NonArithmeticOutputVal::magnitude() const {
-   throw ErrProgrammingError(
-		     "Attempt to call NonArithmeticOutputVal::magnitude",
-		     __FILE__, __LINE__);
-}
-
-double NonArithmeticOutputVal::operator[](const IndexP&) const {
-  throw ErrProgrammingError(
-	      "Attempt to call NonArithmeticOutputVal::operator[] const",
-	      __FILE__, __LINE__);
-}
-
-double &NonArithmeticOutputVal::operator[](const IndexP&) {
-  throw ErrProgrammingError(
-		      "Attempt to call NonArithmeticOutputVal::operator[]",
-		      __FILE__, __LINE__);
-}
-
-IndexP NonArithmeticOutputVal::getIndex(const std::string&) const {
-  throw ErrProgrammingError(
-		      "Attempt to call NonArithmeticOutputVal::getIndex",
-		      __FILE__, __LINE__);
-}
-
-IteratorP NonArithmeticOutputVal::getIterator() const {
-  throw ErrProgrammingError(
-		      "Attempt to call NonArithmeticOutputVal::getIterator",
-		      __FILE__, __LINE__);
-}
+// const OutputVal &OutputVal::operator=(const OutputVal &other) {
+//   std::cerr << "***** OutputVal::operator=: this=" << *this << std::endl;
+//   std::cerr << "                           other=" << other << std::endl;
+//   abort();
+//   return *this;
+// }

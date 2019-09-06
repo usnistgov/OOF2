@@ -49,9 +49,7 @@ void OrientationProp::output(const FEMesh *mesh,
   const std::string &outputname = output->name();
   if(outputname == "Orientation") {
     COrientation *odata = dynamic_cast<COrientation*>(data);
-    // COrientation::copy is a virtual function, so the result of the
-    // copy is a COrientation instance of the same subclass as odata.
-    odata->copy(orient);
+    *odata = *orient;
   }
 }
 
