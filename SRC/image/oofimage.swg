@@ -41,6 +41,8 @@
 %pragma(python) code="from ooflib.SWIG.common.ooferror import ErrErrorPtr"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
 
+
+
 class OOFImage : public AbstractImage {
 public:
   OOFImage(char *name, char *filename);
@@ -80,7 +82,8 @@ public:
   void evenly_illuminate(int);
   
   bool compare(OOFImage&, double);
-  virtual void fillstringimage(StringImage*) const; 
+  virtual void fillstringimage(StringImage*) const;
+  %new PixelAccessor *pixels();
 
   // getTimeStamp is redefined in oofimage.spy so that it can have optional args
   %name(_getTimeStamp) TimeStamp *getTimeStamp();
@@ -89,6 +92,11 @@ public:
       return (*self)[iPoint];
     }
   }
+};
+
+class PixelAccessor {
+public:
+  CColor color(int, int);
 };
 
 %new OOFImage *newImageFromData(char *name, ICoord *iPoint, ShortVec*);

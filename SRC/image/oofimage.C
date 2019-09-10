@@ -285,6 +285,24 @@ void OOFImage::set(const ICoord &c, const CColor &color) {
   }
 }
 
+// PixelAccessor wraps up the PixelPacket for easy use, eg from
+// Python.
+
+PixelAccessor::PixelAccessor(const OOFImage *image)
+  : size(image->sizeInPixels()),
+    scale(image->scale),
+    pixpax(image->pixelPacket())
+{}
+
+CColor PixelAccessor::color(int i, int j) const {
+  const Magick::PixelPacket &pp = pixpax[i + size(0)*j];
+  return CColor(pp.red*scale, pp.green*scale, pp.blue*scale);
+}
+
+PixelAccessor *OOFImage::pixels() const {
+  return new PixelAccessor(this);
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Conversion to and from arrays of double, int, or bool.  This is not

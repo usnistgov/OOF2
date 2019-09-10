@@ -15,6 +15,9 @@
 #ifndef OOFIMAGE_H
 #define OOFIMAGE_H
 
+class OOFImage;
+class PixelAccessor;
+
 #include <Python.h>
 #include "common/abstractimage.h"
 #include "common/array.h"
@@ -110,8 +113,8 @@ public:
   void set(const Array<int> &array, CColor (*f)(int));
   void set(const Array<bool> &array, CColor (*f)(bool));
 
-  virtual void fillstringimage(StringImage*) const; 
-
+  virtual void fillstringimage(StringImage*) const;
+  
   OOFImage *clone(const std::string &name) const;
 
   void getColorPoints(const CColor &reference,
@@ -143,6 +146,19 @@ public:
 
   void gray();
   void evenly_illuminate(int windowsize);
+
+  friend class PixelAccessor;
+  PixelAccessor *pixels() const;
+};
+
+class PixelAccessor {
+private:
+  const ICoord size;
+  double scale;
+  const Magick::PixelPacket *pixpax;
+public:
+  PixelAccessor(const OOFImage*);
+  CColor color(int, int) const;
 };
 
 OOFImage *newImageFromData(const std::string &name,
