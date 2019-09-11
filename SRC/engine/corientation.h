@@ -39,12 +39,19 @@ class COrientation : public NonArithmeticOutputVal {
 protected:
   mutable SmallMatrix *cachedrot;
   void copyMatrix(const COrientation&);
+  virtual const COrientation &copyFrom(const COrientation&) = 0;
 public:
   COrientation();
   COrientation(const COrientation&);
   virtual ~COrientation();
 
-  virtual const COrientation &operator=(const OutputVal&) = 0;
+  virtual const COrientation &operator=(const OutputVal &ov) {
+    return operator=(dynamic_cast<const COrientation&>(ov));
+  }
+  virtual const COrientation &operator=(const COrientation &other) {
+    copyFrom(other);
+    return *this;
+  }
 
   // As used by the Cijkl's "transform" method, these matrices
   // yield lab-frame vectors when right-multiplied by crystal-frame vectors.
@@ -79,6 +86,8 @@ public:
 class COrientABG : public COrientation {
 private:
   double alpha_, beta_, gamma_;
+protected:
+  const COrientation &copyFrom(const COrientation&);
 public:
   COrientABG(double alpha, double beta, double gamma)
     : alpha_(alpha), beta_(beta), gamma_(gamma)
@@ -86,7 +95,7 @@ public:
   COrientABG(const SmallMatrix&);
   // Default constructor is needed so that an array of these can be created.
   COrientABG() : alpha_(0.0), beta_(0.0), gamma_(0.0) {}
-  const COrientABG &operator=(const OutputVal&);
+  
   virtual SmallMatrix *rotation_() const;
   virtual COrientABG abg() const { return *this; }
   // COrientABG has special status among the COrientation subclasses,
@@ -113,12 +122,13 @@ public:
 class COrientBunge : public COrientation {
 private:
   double phi1_, theta_, phi2_;
+protected:
+  const COrientation &copyFrom(const COrientation&);
 public:
   COrientBunge(double phi1, double theta, double phi2)
     : phi1_(phi1), theta_(theta), phi2_(phi2)
   {}
   COrientBunge(const SmallMatrix&);
-  virtual const COrientBunge &operator=(const OutputVal&);
   virtual SmallMatrix *rotation_() const;
   virtual COrientBunge bunge() const { return *this; }
   double phi1() const { return phi1_; }
@@ -137,10 +147,11 @@ public:
 class COrientQuaternion : public COrientation {
 private:
   double q[4];
+protected:
+  const COrientation &copyFrom(const COrientation&);
 public:
   COrientQuaternion(double e0, double e1, double e2, double e3);
   COrientQuaternion(const SmallMatrix&);
-  virtual const COrientQuaternion &operator=(const OutputVal&);
   virtual SmallMatrix *rotation_() const;
   virtual COrientQuaternion quaternion() const { return *this; }
   virtual COrientAxis axis() const;
@@ -165,12 +176,13 @@ public:
 class COrientX : public COrientation {
 private:
   double phi_, theta_, psi_;
+protected:
+  const COrientation &copyFrom(const COrientation&);
 public:
   COrientX(double phi, double theta, double psi)
     : phi_(phi), theta_(theta), psi_(psi)
   {}
   COrientX(const SmallMatrix&);
-  virtual const COrientX &operator=(const OutputVal&);
   virtual SmallMatrix *rotation_() const;
   virtual COrientX X() const { return *this; }
   double phi() const { return phi_; }
@@ -192,12 +204,13 @@ public:
 class COrientXYZ : public COrientation {
 private:
   double phi_, theta_, psi_;
+protected:
+  const COrientation &copyFrom(const COrientation&);
 public:
   COrientXYZ(double phi, double theta, double psi)
     : phi_(phi), theta_(theta), psi_(psi)
   {}
   COrientXYZ(const SmallMatrix&);
-  virtual const COrientXYZ &operator=(const OutputVal&);
   virtual SmallMatrix *rotation_() const;
   virtual COrientXYZ XYZ() const { return *this; }
   double phi() const { return phi_; }
@@ -216,12 +229,13 @@ public:
 class COrientAxis : public COrientation {
 private:
   double angle_, x_, y_, z_;
+protected:
+  const COrientation &copyFrom(const COrientation&);
 public:
   COrientAxis(double angle, double x, double y, double z)
     : angle_(angle), x_(x), y_(y), z_(z)
   {}
   COrientAxis(const SmallMatrix&);
-  virtual const COrientAxis &operator=(const OutputVal&);
   virtual SmallMatrix *rotation_() const;
   virtual COrientAxis axis() const { return *this; }
   virtual COrientQuaternion quaternion() const;
@@ -249,12 +263,13 @@ public:
 class COrientRodrigues : public COrientation {
 private:
   double r1_, r2_, r3_;
+protected:
+  const COrientation &copyFrom(const COrientation&);
 public:
   COrientRodrigues(double r1, double r2, double r3)
     : r1_(r1), r2_(r2), r3_(r3)
   {}
   COrientRodrigues(const SmallMatrix&);
-  virtual const COrientRodrigues &operator=(const OutputVal&);
   virtual SmallMatrix *rotation_() const;
   virtual COrientRodrigues rodrigues() const { return *this; }
   double r1() const { return r1_; }

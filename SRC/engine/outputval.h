@@ -36,6 +36,8 @@ class IteratorP;
 // there wouldn't be much effort saved.
 
 class OutputVal : public PythonExportable<OutputVal> {
+private:
+  OutputVal(const OutputVal&) = delete;
 protected:
   static std::string modulename_;
   int refcount;
@@ -85,7 +87,10 @@ private:
   static std::string classname_;
   double val;
 public:
+  ScalarOutputVal() : val(0.0) {}
   ScalarOutputVal(double x) : val(x) {}
+  ScalarOutputVal(const ScalarOutputVal &a) : val(a.val) {}
+  const ScalarOutputVal &operator=(const ScalarOutputVal&);
   virtual const ScalarOutputVal &operator=(const OutputVal&);
   virtual unsigned int dim() const { return 1; }
   virtual ScalarOutputVal *clone() const { return new ScalarOutputVal(val); }
@@ -145,11 +150,13 @@ private:
   double *data;
   static std::string classname_;
 public:
+  VectorOutputVal();
   VectorOutputVal(int n);
   VectorOutputVal(const VectorOutputVal&);
   VectorOutputVal(const std::vector<double>&);
   virtual ~VectorOutputVal() { delete [] data; }
-  virtual const VectorOutputVal &operator=(const OutputVal &);
+  virtual const VectorOutputVal &operator=(const OutputVal&);
+  const VectorOutputVal &operator=(const VectorOutputVal&);
   virtual unsigned int dim() const { return size_; }
   virtual VectorOutputVal *clone() const;
   virtual VectorOutputVal *zero() const;

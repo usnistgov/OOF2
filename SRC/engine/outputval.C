@@ -129,7 +129,13 @@ OutputVal::~OutputVal() {}
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 const ScalarOutputVal &ScalarOutputVal::operator=(const OutputVal &other) {
-  val = dynamic_cast<const ScalarOutputVal&>(other).val;
+  *this = dynamic_cast<const ScalarOutputVal&>(other);
+  return *this;
+}
+
+const ScalarOutputVal &ScalarOutputVal::operator=(const ScalarOutputVal &other)
+{
+  val = other.val;
   return *this;
 }
 
@@ -186,6 +192,11 @@ ScalarOutputVal operator/(const ScalarOutputVal &a, double b) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+VectorOutputVal::VectorOutputVal()
+  : size_(0),
+    data(nullptr)
+{}
+
 VectorOutputVal::VectorOutputVal(int n)
   : size_(n),
     data(new double[n])
@@ -209,11 +220,16 @@ VectorOutputVal::VectorOutputVal(const std::vector<double> &vec)
 }
 
 const VectorOutputVal &VectorOutputVal::operator=(const OutputVal &other) {
-  const VectorOutputVal &othr = dynamic_cast<const VectorOutputVal&>(other);
+  *this = dynamic_cast<const VectorOutputVal&>(other);
+  return *this;
+}
+
+const VectorOutputVal &VectorOutputVal::operator=(const VectorOutputVal &other)
+{
   delete [] data;
-  size_ = othr.size();
+  size_ = other.size();
   data = new double[size_];
-  (void) memcpy(data, othr.data, size_*sizeof(double));
+  (void) memcpy(data, other.data, size_*sizeof(double));
   return *this;
 }
 

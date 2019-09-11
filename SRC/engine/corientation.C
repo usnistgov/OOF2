@@ -215,8 +215,8 @@ COrientABG::COrientABG(const SmallMatrix &matrix) {
   gamma_ = atan2(sing, cosg);
 }
 
-const COrientABG &COrientABG::operator=(const OutputVal &other) {
-  const COrientABG othr(dynamic_cast<const COrientation&>(other).abg());
+const COrientation &COrientABG::copyFrom(const COrientation &other) {
+  const COrientABG othr(other.abg());
   alpha_ = othr.alpha();
   beta_ = othr.beta();
   gamma_ = othr.gamma();
@@ -283,8 +283,8 @@ COrientBunge::COrientBunge(const SmallMatrix &matrix) {
   phi2_ = atan2(sinph2, cosph2);
 };
 
-const COrientBunge &COrientBunge::operator=(const OutputVal &other) {
-  const COrientBunge othr(dynamic_cast<const COrientation&>(other).bunge());
+const COrientation &COrientBunge::copyFrom(const COrientation &other) {
+  const COrientBunge othr(other.bunge());
   phi1_ = othr.phi1();
   theta_ = othr.theta();
   phi2_ = othr.phi2();
@@ -377,9 +377,8 @@ COrientQuaternion::COrientQuaternion(const SmallMatrix &matrix) {
   }
 }
 
-const COrientQuaternion &COrientQuaternion::operator=(const OutputVal &other) {
-  const COrientQuaternion othr(
-			dynamic_cast<const COrientation&>(other).quaternion());
+const COrientation &COrientQuaternion::copyFrom(const COrientation &other) {
+  const COrientQuaternion othr(other.quaternion());
   for(unsigned int i=0; i<4; i++)
     q[i] = othr.q[i];
   copyMatrix(othr);
@@ -456,8 +455,8 @@ COrientX::COrientX(const SmallMatrix &matrix) {
   psi_ = atan2(sinps, cosps);
 }
 
-const COrientX &COrientX::operator=(const OutputVal &other) {
-  const COrientX othr(dynamic_cast<const COrientation&>(other).X());
+const COrientation &COrientX::copyFrom(const COrientation &other) {
+  const COrientX othr(other.X());
   phi_ = othr.phi();
   theta_ = othr.theta();
   psi_ = othr.psi();
@@ -524,8 +523,8 @@ COrientXYZ::COrientXYZ(const SmallMatrix &matrix) {
   psi_ = atan2(sinps, cosps);
 }
 
-const COrientXYZ &COrientXYZ::operator=(const OutputVal &other) {
-  const COrientXYZ othr(dynamic_cast<const COrientation&>(other).XYZ());
+const COrientation &COrientXYZ::copyFrom(const COrientation &other) {
+  const COrientXYZ othr(other.XYZ());
   phi_ = othr.phi();
   theta_ = othr.theta();
   psi_ = othr.psi();
@@ -591,8 +590,8 @@ COrientAxis::COrientAxis(const SmallMatrix &matrix) {
   }
 }
 
-const COrientAxis &COrientAxis::operator=(const OutputVal &other) {
-  const COrientAxis othr(dynamic_cast<const COrientation&>(other).axis());
+const COrientation &COrientAxis::copyFrom(const COrientation &other) {
+  const COrientAxis othr(other.axis());
   angle_ = othr.angle();
   x_ = othr.x();
   y_ = othr.y();
@@ -659,9 +658,8 @@ COrientRodrigues::COrientRodrigues(const SmallMatrix &matrix) {
   // Crystals". Acta Cryst. (1991) A47, 780-789
 }
 
-const COrientRodrigues &COrientRodrigues::operator=(const OutputVal &other) {
-  const COrientRodrigues othr(
-		      dynamic_cast<const COrientation&>(other).rodrigues());
+const COrientation &COrientRodrigues::copyFrom(const COrientation &other) {
+  const COrientRodrigues othr(other.rodrigues());
   r1_ = othr.r1_;
   r2_ = othr.r2_;
   r3_ = othr.r3_;

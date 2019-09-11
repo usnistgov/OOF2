@@ -27,6 +27,7 @@
 %extern "engine/fieldindex.swg"
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
 %pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import ArithmeticPropertyOutputInit"
+%pragma(python) code="from ooflib.SWIG.engine.outputval import OutputValuePtr"
 
 class SymmMatrix {
 public:
