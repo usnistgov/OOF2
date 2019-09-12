@@ -100,7 +100,7 @@ OOFImagePtr.__del__ = oofimage_ptr_del
 
 # Convert an OOFImage into a numpy array.
 
-from numpy import array
+import numpy
 
 def _OOFImage_numpy(self):
     accessor = self.pixels()
@@ -111,7 +111,7 @@ def _OOFImage_numpy(self):
     for j in range(nrows):
         rowcolors = [accessor.color(i,j) for i in range(ncols)]
         colors.append([(c.red, c.green, c.blue, 1.0) for c in rowcolors])
-    return array(colors)
+    return numpy.array(colors)
 
 OOFImage.numpy = _OOFImage_numpy
             

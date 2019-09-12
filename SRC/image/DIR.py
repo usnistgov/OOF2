@@ -30,7 +30,8 @@ hfiles = ['oofimage.h', 'pixelselectioncourieri.h',
           'autogroupMP.h', 'pixeldifferentiator.h']
 
 pyfiles = ['initialize.py', 'pixelselectionmethod.py',
-           'pixelselectionmod.py', 'imagemodifier.py']
+           'pixelselectionmod.py', 'imagemodifier.py',
+           'segmentation.py']
 
 
 

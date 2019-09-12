@@ -101,12 +101,19 @@ class ImagePage(oofGUI.MainPage):
         tooltips.set_tooltip_text(self.savebutton,'Save the current image to a file.')
         centerbox.pack_start(self.savebutton, expand=1, fill=1)
 
+        # TODO: Merge autogroup with segment
         self.autogroupbutton = gtk.Button('Group...')
         gtklogger.setWidgetName(self.autogroupbutton, 'Group')
         gtklogger.connect(self.autogroupbutton, 'clicked', self.autogroupCB)
         centerbox.pack_start(self.autogroupbutton, expand=1, fill=1, padding=2)
         tooltips.set_tooltip_text(self.autogroupbutton,
                 "Create a pixel group in the current image's microstructure for each color pixel in the image.  The 'Auto' button on the Microstructure page is more powerful version of this.")
+
+        self.segmentbutton = gtk.Button("Segment...")
+        gtklogger.setWidgetName(self.segmentbutton, "Segment")
+        gtklogger.connect(self.segmentbutton, 'clicked', self.segmentCB)
+        centerbox.pack_start(self.segmentbutton, expand=1, fill=1, padding=2)
+        
 
         mainpane = gtk.HPaned()
         gtklogger.setWidgetName(mainpane, 'Pane')
@@ -374,6 +381,12 @@ class ImagePage(oofGUI.MainPage):
         if parameterwidgets.getParameters(title='AutoGroup', *params):
             menuitem.callWithDefaults(image=self.imagewidget.get_value())
 
+    def segmentCB(self,button):
+        menuitem = mainmenu.OOF.Image.Segment
+        params = [p for p in menuitem.params if p.name != 'image']
+        if parameterwidgets.getParameters(title='Segment Image', *params):
+            menuitem.callWithDefaults(image=self.imagewidget.get_value())
+            
         
 ImagePage()
 
