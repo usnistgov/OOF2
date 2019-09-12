@@ -155,7 +155,7 @@ IsoHeatConductivity::IsoHeatConductivity(PyObject *reg,
 {
 }
 
-void IsoHeatConductivity::precompute(FEMesh *mesh) {
+void IsoHeatConductivity::precompute(const FEMesh *mesh) {
   HeatConductivity::precompute(mesh);
   conductivitytensor_(0,0) = conductivitytensor_(1,1)
     = conductivitytensor_(2,2) = kappa_;
@@ -191,7 +191,7 @@ void AnisoHeatConductivity::cross_reference(Material *mat) {
   }
 }
 
-void AnisoHeatConductivity::precompute(FEMesh *mesh) {
+void AnisoHeatConductivity::precompute(const FEMesh *mesh) {
   HeatConductivity::precompute(mesh);
   if(orientation && orientation->constant_in_space())
     conductivitytensor_ = kappa_.transform(orientation->orientation());

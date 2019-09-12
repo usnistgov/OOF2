@@ -45,7 +45,7 @@ public:
 
   virtual void cross_reference(Material*) = 0;
   virtual void output(const FEMesh*, const Element*, const PropertyOutput*,
-		      const MasterPosition&, OutputVal*) const;
+		      const MasterPosition&, OutputVal*);
   virtual const SymmMatrix3 permittivityTensor(const FEMesh *mesh,
 						const Element *element,
 						const MasterPosition&x)
@@ -63,7 +63,7 @@ public:
   IsoDielectricPermittivity(PyObject *registry,
 		      const std::string &name, double epsilon);
   virtual void cross_reference(Material*) {}
-  virtual void precompute(FEMesh*);
+  virtual void precompute(const FEMesh*);
   virtual const SymmMatrix3 permittivityTensor(const FEMesh *mesh,
 					       const Element *element,
 					       const MasterPosition&x) const
@@ -80,7 +80,7 @@ public:
 			    const std::string &name,
 			    SymmMatrix3 *epsilon);
   virtual void cross_reference(Material*); // finds Orientation
-  virtual void precompute(FEMesh*);
+  virtual void precompute(const FEMesh*);
   virtual const SymmMatrix3 permittivityTensor(const FEMesh *mesh,
 					       const Element *element,
 					       const MasterPosition &x) const;

@@ -83,7 +83,7 @@ void PyroElectricity::cross_reference(Material *mat) {
   }
 }
 
-void PyroElectricity::precompute(FEMesh*) {
+void PyroElectricity::precompute(const FEMesh*) {
   modulus_ok = false;
   if(orientation!=0) {
     if(orientation->constant_in_space())
@@ -208,10 +208,9 @@ void PyroElectricity::output(const FEMesh *mesh,
 			     const PropertyOutput *output,
 			     const MasterPosition &pos,
 			     OutputVal *data)
-  const
-// Compute our contribution to the energy.
 {
   if((output->name())=="Energy") {
+    // Compute our contribution to the energy.
     const std::string *etype = output->getEnumParam("etype");
     if(*etype=="Total") {
       ScalarOutputVal *edata = dynamic_cast<ScalarOutputVal*>(data);

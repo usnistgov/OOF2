@@ -82,6 +82,10 @@ public:
 
 std::ostream &operator<<(std::ostream &, const OutputVal&);
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Subclasses of ArithmeticOutputVal
+
 class ScalarOutputVal : public ArithmeticOutputVal {
 private:
   static std::string classname_;
@@ -215,6 +219,32 @@ VectorOutputVal operator*(const VectorOutputVal&, double);
 VectorOutputVal operator*(double, const VectorOutputVal&);
 VectorOutputVal operator/(VectorOutputVal&, double);
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Subclasses of NonArithmeticOutputVal
+
+class ListOutputVal : public NonArithmeticOutputVal {
+private:
+  unsigned int size_;
+  double *data;
+  static std::string classname_;
+public:
+  ListOutputVal();
+  ListOutputVal(unsigned int n);
+  ListOutputVal(const ListOutputVal&);
+  ListOutputVal(const std::vector<double>&);
+  virtual ~ListOutputVal();
+  virtual const std::string &classname() const { return classname_; }  
+  virtual const ListOutputVal &operator=(const OutputVal&);
+  const ListOutputVal &operator=(const ListOutputVal&);
+  virtual unsigned int dim() const { return size_; }
+  unsigned int size() const { return size_; }  
+  virtual ListOutputVal *zero() const;
+  virtual ListOutputVal *clone() const;
+  virtual std::vector<double> *value_list() const;
+  virtual void print(std::ostream&) const;
+};
+
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -288,5 +318,7 @@ std::ostream &operator<<(std::ostream&, const OutputValue&);
 // (each property contributing its part).  Instead, the Fluxes should
 // be used.  e += Flux*Grad Field.  Need a better abstract way of
 // defining Energies.
+
+
 
 #endif // OUTPUTVAL_H

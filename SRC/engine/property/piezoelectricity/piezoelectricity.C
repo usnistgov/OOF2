@@ -55,7 +55,7 @@ PiezoElectricity::PiezoElectricity(PyObject *reg,
 }
 
 
-void PiezoElectricity::precompute(FEMesh*) {}
+void PiezoElectricity::precompute(const FEMesh*) {}
 
 int PiezoElectricity::integration_order(const CSubProblem *subproblem,
 					const Element *el) const {
@@ -143,7 +143,6 @@ void PiezoElectricity::output(const FEMesh *mesh,
 			      const PropertyOutput *output,
 			      const MasterPosition &pos,
 			      OutputVal *data)
-  const
 {
   const std::string &outputname = output->name();
   if(outputname == "Strain") {
@@ -212,7 +211,7 @@ void IsotropicPiezoElectricity::cross_reference(Material *mat) {
   }
 }
 
-void IsotropicPiezoElectricity::precompute(FEMesh *mesh) {
+void IsotropicPiezoElectricity::precompute(const FEMesh *mesh) {
   PiezoElectricity::precompute(mesh);
   _dijkLab(0,0,0) = _dijkLab(1,1,1)
     = _dijkLab(2,2,2) = _dijkValue;
@@ -241,7 +240,7 @@ void AnisotropicPiezoElectricity::cross_reference(Material *mat) {
   }
 }
 
-void AnisotropicPiezoElectricity::precompute(FEMesh*) {
+void AnisotropicPiezoElectricity::precompute(const FEMesh*) {
   if(orientation && orientation->constant_in_space())
     _dijkLab = _dijkValue.transform(orientation->orientation());
 }

@@ -58,7 +58,7 @@ class CAnisoLargeStrainElasticity
 {
 private:
   const OrientationPropBase *orientation;
-  virtual void precompute(FEMesh*);
+  virtual void precompute(const FEMesh*);
   virtual void cross_reference(Material*);
   Cijkl crystal_cijkl_;
   Cijkl lab_cijkl;

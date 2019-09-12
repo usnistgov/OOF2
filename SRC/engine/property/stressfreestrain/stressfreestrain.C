@@ -76,7 +76,7 @@ void IsotropicStressFreeStrain::cross_reference(Material *mat) {
   }
 }
 
-void IsotropicStressFreeStrain::precompute(FEMesh *mesh) {
+void IsotropicStressFreeStrain::precompute(const FEMesh *mesh) {
   StressFreeStrain::precompute(mesh);
   stressfreestrain_(0,0) = stressfreestrain_(1,1) = stressfreestrain_(2,2) = e_;
 }
@@ -102,7 +102,7 @@ void AnisotropicStressFreeStrain::cross_reference(Material *mat) {
   }
 }
 
-void AnisotropicStressFreeStrain::precompute(FEMesh*) {
+void AnisotropicStressFreeStrain::precompute(const FEMesh*) {
   if(orientation && orientation->constant_in_space())
     stressfreestrain_ = e_.transform(orientation->orientation());
 }
@@ -123,7 +123,6 @@ void StressFreeStrain::output(const FEMesh *mesh,
 			      const PropertyOutput *output,
 			      const MasterPosition &pos,
 			      OutputVal *data)
-  const
 {
   // Mostly copied from ThermalExpansion::output
   const std::string &outputname = output->name();

@@ -23,3 +23,17 @@ CIsoElasticityProp::CIsoElasticityProp(PyObject *registration,
 {
 }
 
+void CIsoElasticityProp::output(const FEMesh *mesh,
+			      const Element *element,
+			      const PropertyOutput *output,
+			      const MasterPosition &pos,
+			      OutputVal *data)
+{
+  const std::string &outputname = output->name();
+  if(outputname == "Elastic Modulus") {
+    const std::string *frame = output->getEnumParam("frame"); // Lab or Crystal
+    const Cijkl modulus = cijkl(mesh, element, pos);
+    ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
+  }
+  Elasticity::output(mesh, element, output, pos, data);
+}

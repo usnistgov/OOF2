@@ -37,7 +37,7 @@ public:
   virtual void precompute(FEMesh*);
   virtual void clear_mesh_data(FEMesh*, void*) const;
   virtual void output(const FEMesh*, const Element*, const PropertyOutput*,
-		      const MasterPosition&, OutputVal*) const;
+		      const MasterPosition&, OutputVal*);
 };
 
 #endif // ORIENTMAPPROPERTY_H

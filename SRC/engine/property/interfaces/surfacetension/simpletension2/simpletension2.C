@@ -397,6 +397,5 @@ void SimpleTension2::flux_offset(const FEMesh*, const Element*,
 
 void SimpleTension2::output(const FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*)
-    const
 {
 }

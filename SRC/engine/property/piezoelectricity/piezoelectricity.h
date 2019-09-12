@@ -55,7 +55,7 @@ public:
 		   const std::string &nm);
   virtual ~PiezoElectricity() {}
   virtual void cross_reference(Material*) = 0;
-  virtual void precompute(FEMesh*);
+  virtual void precompute(const FEMesh*);
 
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,
@@ -64,7 +64,7 @@ public:
 
 
   virtual void output(const FEMesh*, const Element*, const PropertyOutput*,
-		      const MasterPosition&, OutputVal*) const;
+		      const MasterPosition&, OutputVal*);
 
   virtual bool constant_in_space() const { return true; }
   virtual int integration_order(const CSubProblem*, const Element*) const;
@@ -86,7 +86,7 @@ public:
 			    const std::string &name,
 			    double d);
   virtual void cross_reference(Material*);
-  virtual void precompute(FEMesh*);
+  virtual void precompute(const FEMesh*);
   virtual const Rank3Tensor dijk(const FEMesh*, const Element*,
 				 const MasterPosition&) const
   {
@@ -103,7 +103,7 @@ public:
 			      const std::string &nm,
 			      Rank3Tensor *piezoTensor);
   virtual void cross_reference(Material*); // finds Orientation
-  virtual void precompute(FEMesh*);
+  virtual void precompute(const FEMesh*);
   virtual const Rank3Tensor dijk(const FEMesh*, const Element*,
 				 const MasterPosition&) const;
   // Argument-free retrieval function for the modulus -- used by the

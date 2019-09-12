@@ -32,7 +32,7 @@ void CAnisoElasticity::cross_reference(Material *mat) {
   }
 }
 
-void CAnisoElasticity::precompute(FEMesh *mesh) {
+void CAnisoElasticity::precompute(const FEMesh *mesh) {
   Elasticity::precompute(mesh);
   // This assumes/requires that the rotation matrix output by
   // orientation->eulerangle() multiplies a crystal-coordinate vector
@@ -53,4 +53,22 @@ const Cijkl CAnisoElasticity::cijkl(const FEMesh *mesh, const Element *el,
 
 const Cijkl &CAnisoElasticity::crystal_cijkl() const {
   return crystal_cijkl_;
+}
+
+void CAnisoElasticity::output(const FEMesh *mesh,
+			      const Element *element,
+			      const PropertyOutput *output,
+			      const MasterPosition &pos,
+			      OutputVal *data)
+{
+  const std::string &outputname = output->name();
+  if(outputname == "Elastic Modulus") {
+    const std::string *frame = output->getEnumParam("frame"); // Lab or Crystal
+    const Cijkl modulus = cijkl(mesh, element, pos);
+    if(*frame == "Lab") {
+      precompute(mesh);
+      // TODO: Finish this
+    }
+  }
+  Elasticity::output(mesh, element, output, pos, data);
 }

@@ -39,7 +39,7 @@ public:
   // A "py_" prefix was added to these method names to keep the clang
   // compiler from complaining about hidden overloaded virtual
   // functions.
-  virtual void py_precompute(PyObject*, Property*, FEMesh*);
+  virtual void py_precompute(PyObject*, Property*, const FEMesh*);
   virtual void py_cross_reference(PyObject*, Property*, Material*);
   virtual void py_begin_element(PyObject*, Property*, const CSubProblem*,
 				const Element*);
@@ -48,7 +48,7 @@ public:
   virtual void py_post_process(PyObject*, const Property*, 
 			       CSubProblem *, const Element*) const;
   virtual bool py_constant_in_space(PyObject*, const Property*) const;
-  virtual void py_output(PyObject*, const Property*, const FEMesh*,
+  virtual void py_output(PyObject*, Property*, const FEMesh*,
 			 const Element*,
 			 const PropertyOutput*,
 			 const MasterPosition&, OutputVal*) const;
@@ -93,7 +93,7 @@ public:
   // TODO: The clang compiler on OS X Lion emits lots of warnings
   // about hidden overloaded virtual functions here.  Find out if the
   // warnings have to be taken seriously.
-  virtual void precompute(FEMesh *m) {
+  virtual void precompute(const FEMesh *m) {
     PyPropertyMethods::py_precompute(referent_, this, m);
   }
   virtual void cross_reference(Material *m) { 
@@ -117,7 +117,8 @@ public:
   }
   virtual void output(const FEMesh *m, const Element *e, 
 		      const PropertyOutput *po,
-		      const MasterPosition &p, OutputVal *ov) const {
+		      const MasterPosition &p, OutputVal *ov)
+  {
     PyPropertyMethods::py_output(referent_, this, m, e, po, p, ov);
   }
   virtual int integration_order(const CSubProblem *sb, const Element *e) const {
@@ -164,7 +165,7 @@ public:
 				       const ElementFuncNodeIterator&,
 				       const MasterPosition&,
 					double time, SmallSystem*) const;
-  virtual void precompute(FEMesh *m) {
+  virtual void precompute(const FEMesh *m) {
     PyPropertyMethods::py_precompute(referent_, this, m);
   }
   virtual void cross_reference(Material *m) { 
@@ -184,7 +185,8 @@ public:
   }
   virtual void output(const FEMesh *m, const Element *e, 
 		      const PropertyOutput *po,
-		      const MasterPosition &p, OutputVal *ov) const {
+		      const MasterPosition &p, OutputVal *ov)
+  {
     PyPropertyMethods::py_output(referent_, this, m, e, po, p, ov);
   }
   virtual int integration_order(const CSubProblem *sb, const Element *e) const {

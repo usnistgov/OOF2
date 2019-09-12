@@ -160,7 +160,7 @@ public:
   virtual void cross_reference(Material*) {}
 
   // compute things that don't depend on Element
-  virtual void precompute(FEMesh*) {}
+  virtual void precompute(const FEMesh*) {}
 
   virtual bool constant_in_space() const = 0;
 
@@ -190,7 +190,7 @@ public:
   // Output function.
   virtual void output(const FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*)
-    const { return; }
+    { return; }
 
   virtual bool is_symmetric_K(const CSubProblem*) const;
   virtual bool is_symmetric_C(const CSubProblem*) const;

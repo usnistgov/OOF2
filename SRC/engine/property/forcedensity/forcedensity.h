@@ -44,7 +44,7 @@ public:
   ForceDensity(PyObject *reg, const std::string &name, double x, double y, double z);
 #endif
   virtual ~ForceDensity() {}
-  virtual void precompute(FEMesh*);
+  virtual void precompute(const FEMesh*);
   virtual void force_value(const FEMesh*, const Element*, const Equation*,
 			   const MasterPosition&, double time, SmallSystem*) const;
   virtual int integration_order(const CSubProblem*, const Element*) const;

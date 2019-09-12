@@ -23,7 +23,7 @@ IsotropicDampingProp::IsotropicDampingProp(PyObject *registration,
     coeff(coeff)
 {}
 
-void IsotropicDampingProp::precompute(FEMesh *mesh) {
+void IsotropicDampingProp::precompute(const FEMesh *mesh) {
   displacement = Field::getField("Displacement");
 }
 

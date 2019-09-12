@@ -22,7 +22,7 @@ MassDensityProp::MassDensityProp(PyObject *registration,
   : EqnProperty(name, registration), rho_(rho)
 {}
 
-void MassDensityProp::precompute(FEMesh *mesh) {
+void MassDensityProp::precompute(const FEMesh *mesh) {
   disp = Field::getField("Displacement");
 }
 

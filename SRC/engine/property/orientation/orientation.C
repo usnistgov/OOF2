@@ -44,7 +44,6 @@ void OrientationProp::output(const FEMesh *mesh,
 			     const PropertyOutput *output,
 			     const MasterPosition &pos,
 			     OutputVal *data)
-  const
 {
   const std::string &outputname = output->name();
   if(outputname == "Orientation") {

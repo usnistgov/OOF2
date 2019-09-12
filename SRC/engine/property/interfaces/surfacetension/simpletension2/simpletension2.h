@@ -41,8 +41,7 @@ public:
 			   const MasterPosition&, double time, SmallSystem*)
     const;
   virtual void output(const FEMesh*, const Element*, const PropertyOutput*,
-		      const MasterPosition&, OutputVal*)
-    const;
+		      const MasterPosition&, OutputVal*);
 };
 
 #endif

@@ -105,7 +105,6 @@ void DielectricPermittivity::output(const FEMesh *mesh,
 				    const PropertyOutput *output,
 				    const MasterPosition &pos,
 				    OutputVal *data)
-  const
 {
   const std::string &outputname = output->name();
   if(outputname == "Energy") {
@@ -135,7 +134,7 @@ IsoDielectricPermittivity::IsoDielectricPermittivity(PyObject *reg,
 {
 }
 
-void IsoDielectricPermittivity::precompute(FEMesh *mesh) {
+void IsoDielectricPermittivity::precompute(const FEMesh *mesh) {
   DielectricPermittivity::precompute(mesh);
   permittivitytensor_(0,0) = permittivitytensor_(1,1)
     = permittivitytensor_(2,2) = epsilon_;
@@ -163,7 +162,7 @@ void AnisoDielectricPermittivity::cross_reference(Material *mat) {
   }
 }
 
-void AnisoDielectricPermittivity::precompute(FEMesh *mesh) {
+void AnisoDielectricPermittivity::precompute(const FEMesh *mesh) {
   DielectricPermittivity::precompute(mesh);
   Trace("AnisoDielectricPermittivity::precompute");
   if(orientation && orientation->constant_in_space())

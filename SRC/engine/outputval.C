@@ -216,7 +216,7 @@ VectorOutputVal::VectorOutputVal(const std::vector<double> &vec)
   : size_(vec.size()),
     data(new double[vec.size()])
 {
-  (void) memcpy(data, &vec[0], size_*sizeof(double));
+  (void) memcpy(data, vec.data(), size_*sizeof(double));
 }
 
 const VectorOutputVal &VectorOutputVal::operator=(const OutputVal &other) {
@@ -235,9 +235,7 @@ const VectorOutputVal &VectorOutputVal::operator=(const VectorOutputVal &other)
 
 std::vector<double> *VectorOutputVal::value_list() const {
   std::vector<double> *res = new std::vector<double>(size_);
-  // TODO: Use memcpy?
-  for(unsigned int i=0;i<size_;i++)
-    (*res)[i] = data[i];
+  (void) memcpy(res->data(), data, size_*sizeof(double));
   return res;
 }
 
@@ -322,6 +320,69 @@ VectorOutputVal operator/(const VectorOutputVal &a, double b) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+std::string ListOutputVal::classname_("ListOutputVal");
+
+ListOutputVal::ListOutputVal()
+  : size_(0),
+    data(nullptr)
+{}
+
+ListOutputVal::ListOutputVal(unsigned int n)
+  : size_(n),
+    data(new double[n])
+{
+  for(unsigned int i=0; i<size_; i++)
+    data[i] = 0.0;
+}
+
+ListOutputVal::ListOutputVal(const ListOutputVal &other)
+  : size_(other.size()),
+    data(new double[other.size()])
+{
+  (void) memcpy(data, other.data, size_*sizeof(double));
+}
+
+ListOutputVal::ListOutputVal(const std::vector<double> &vec)
+  : size_(vec.size()),
+    data(new double[size_])
+{
+  (void) memcpy(data, vec.data(), size_*sizeof(double));
+}
+
+ListOutputVal::~ListOutputVal() {
+  delete [] data;
+}
+
+const ListOutputVal &ListOutputVal::operator=(const OutputVal &other) {
+  *this = dynamic_cast<const ListOutputVal&>(other);
+  return *this;
+}
+
+const ListOutputVal &ListOutputVal::operator=(const ListOutputVal &other) {
+  delete [] data;
+  size_ = other.size();
+  data = new double[size_];
+  (void) memcpy(data, other.data, size_*sizeof(double));
+  return *this;
+}
+
+ListOutputVal *ListOutputVal::zero() const {
+  return new ListOutputVal(size_);
+}
+
+ListOutputVal *ListOutputVal::clone() const {
+  return new ListOutputVal(*this);
+}
+
+
+std::vector<double> *ListOutputVal::value_list() const {
+  std::vector<double> *res = new std::vector<double>(size_);
+  memcpy(res->data(), data, size_*sizeof(data));
+  return res;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 std::ostream &operator<<(std::ostream &os, const OutputVal &ov) {
   ov.print(os);
   return os;
@@ -336,9 +397,22 @@ void ScalarOutputVal::print(std::ostream &os) const {
 }
 
 void VectorOutputVal::print(std::ostream &os) const {
-  os << "VectorOutputVal(" << data[0];
-  for(unsigned int i=1; i<size_; i++) {
-    os << ", " << data[i];
+  os << "VectorOutputVal(";
+  if(size_ > 0) {
+     os << data[0];
+     for(unsigned int i=1; i<size_; i++) {
+       os << ", " << data[i];
+     }
+  }
+  os << ")";
+}
+
+void ListOutputVal::print(std::ostream &os) const {
+  os << "ListOutputVal(";
+  if(size_ > 0) {
+    os << data[0];
+    for(unsigned int i=1; i<size_; i++)
+      os << ", " << data[i];
   }
   os << ")";
 }

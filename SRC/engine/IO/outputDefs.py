@@ -203,7 +203,24 @@ propertyoutputreg.ScalarPropertyOutputRegistration(
       contributions to the energy.</para>"""
     )
 
+#-----------
+
 propertyoutputreg.OrientationPropertyOutputRegistration(
     "Orientation",
     ordering=4,
     tip="Compute the orientation at each point.")
+
+#-----------
+
+class ReferenceFrame(enum.EnumClass(
+        ("Lab", "The laboratory reference frame"),
+        ("Crystal", "The crystal reference frame")
+        )):
+    tip="Evaluate quantities in the lab or crystal reference frame."
+
+
+def _ReferenceFrame_shortrepr(self):
+    ftype = self.findParam("frame").value
+    return ftype.string() + " Frame"
+
+#propertyoutputreg.ModulusPropertyOutputRegistration( ... );

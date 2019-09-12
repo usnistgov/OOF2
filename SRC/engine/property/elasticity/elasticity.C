@@ -41,7 +41,7 @@ Elasticity::Elasticity(const std::string &nm, PyObject *registration)
   stress_flux = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }
 
-void Elasticity::precompute(FEMesh*) {
+void Elasticity::precompute(const FEMesh*) {
 }
 
 int Elasticity::integration_order(const CSubProblem *subp,
@@ -167,7 +167,6 @@ void Elasticity::output(const FEMesh *mesh,
 			const PropertyOutput *output,
 			const MasterPosition &pos,
 			OutputVal *data)
-  const
 {
   const std::string &outputname = output->name();
   if(outputname == "Energy") {
@@ -176,8 +175,7 @@ void Elasticity::output(const FEMesh *mesh,
     // the ScalarPropertyOutputRegistration for "Energy" was created.
     const std::string *etype = output->getEnumParam("etype");
     if(*etype == "Total" || *etype == "Elastic") {
-      ScalarOutputVal *edata =
-	dynamic_cast<ScalarOutputVal*>(data);
+      ScalarOutputVal *edata = dynamic_cast<ScalarOutputVal*>(data);
       SymmMatrix3 strain;
       const Cijkl modulus = cijkl(mesh, element, pos);
       geometricStrain(mesh, element, pos, &strain);

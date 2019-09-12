@@ -36,7 +36,7 @@ NonconstantForceDensity::NonconstantForceDensity(PyObject *reg, const std::strin
   stress_flux  = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }
 
-void NonconstantForceDensity::precompute(FEMesh*) {
+void NonconstantForceDensity::precompute(const FEMesh*) {
 }
 
 int NonconstantForceDensity::integration_order(const CSubProblem*, const Element *el) const

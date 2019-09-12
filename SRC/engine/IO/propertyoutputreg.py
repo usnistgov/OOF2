@@ -198,3 +198,15 @@ class OrientationPropertyOutputRegistration(propertyoutput.PORegBase):
                            tip=tip, discussion=discussion)
         output.defineAggregateOutput(name, op, ordering=ordering)
                            
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# ModulusPropertyOutputs need to have a "components" parameter that
+# lists the components to be printed and a "frame" parameter that says
+# whether the components should be printed in the lab frame or the
+# crystal frame.  The type of the "components" parameter depends on
+# the type of the modulus.
+
+class ModulusPropertyOutputRegistration(propertyoutput.PORegBase):
+    def __init__(self, name, initializer=None, parameters=[], ordering=1,
+                 tip=None, discussion=None):
+        pass

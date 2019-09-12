@@ -46,7 +46,7 @@ public:
 			   double time, SmallSystem*) const;
 
   virtual void output(const FEMesh*, const Element*, const PropertyOutput*,
-		      const MasterPosition&, OutputVal*) const;
+		      const MasterPosition&, OutputVal*);
 
   virtual int integration_order(const CSubProblem*, const Element*) const;
 };
@@ -57,7 +57,7 @@ public:
 		       const std::string &name,
 		       double e);
   virtual void cross_reference(Material*);
-  virtual void precompute(FEMesh*);
+  virtual void precompute(const FEMesh*);
   virtual const SymmMatrix3 stressfreestrain(const FEMesh*, const Element*,
 					     const MasterPosition&) const
   {
@@ -73,7 +73,7 @@ public:
 			 const std::string &nm,
 			 SymmMatrix3 *e);
   virtual void cross_reference(Material*);
-  virtual void precompute(FEMesh*);
+  virtual void precompute(const FEMesh*);
   virtual const SymmMatrix3 stressfreestrain(const FEMesh*, const Element*,
 					     const MasterPosition&) const;
 private:

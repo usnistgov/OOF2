@@ -51,7 +51,7 @@ public:
     const;
   virtual bool constant_in_space() const { return true; }
   virtual void output(const FEMesh*, const Element*, const PropertyOutput*,
-		      const MasterPosition&, OutputVal*) const;
+		      const MasterPosition&, OutputVal*);
 };
 
 #endif
