@@ -112,6 +112,7 @@ public:
   const std::string *getStringParam(const char *name) const;
   const std::string *getEnumParam(const char *name) const;
   const std::string *getRegisteredParamName(const char *name) const;
+  std::vector<const std::string> getListOfStringsParam(const char *name) const;
 };
 
 class ArithmeticPropertyOutput : public PropertyOutput {

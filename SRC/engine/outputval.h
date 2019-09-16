@@ -241,6 +241,8 @@ public:
   unsigned int size() const { return size_; }  
   virtual ListOutputVal *zero() const;
   virtual ListOutputVal *clone() const;
+  double &operator[](int i) { return data[i]; }
+  double operator[](int i) const { return data[i]; }
   virtual std::vector<double> *value_list() const;
   virtual void print(std::ostream&) const;
 };

@@ -215,6 +215,11 @@ ArithmeticPropertyOutput::evaluate(FEMesh *mesh, Element *element,
 //   return results;
 // }
 
+// TODO: With all the locking and calling to Python, these getXXXParam
+// methods are sure to be slow.  They're called by the PropertyOutputs
+// at every output point.  The parameter values should be somehow
+// cached in C++.
+
 double PropertyOutput::getFloatParam(const char *name) const {
   double x;
   PyGILState_STATE pystate = acquirePyLock();
@@ -252,6 +257,37 @@ int PropertyOutput::getIntParam(const char *name) const {
   releasePyLock(pystate);
   return x;
 }
+
+std::vector<const std::string>
+PropertyOutput::getListOfStringsParam(const char *name) const {
+  std::vector<const std::string> x;
+  PyGILState_STATE pystate = acquirePyLock();
+  try {
+    // params_ is a dictionary
+    PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
+    if(!obj)
+      pythonErrorRelay();
+    // obj is a Python list or tuple
+    Py_ssize_t n = PySequence_Size(obj);
+    assert(n >= 0);
+    for(Py_ssize_t i=0; i<n; i++) {
+      PyObject *item = PySequence_GetItem(obj, i);
+      if(!item)
+	pythonErrorRelay();
+      x.emplace_back(PyString_AsString(item));
+      Py_XDECREF(item);
+    }
+    Py_XDECREF(obj);
+  }
+  catch(...) {
+    releasePyLock(pystate);
+    throw;
+  }
+  releasePyLock(pystate);
+  return x;
+}
+
+// TODO: These getParam methods should just return strings, not pointers.
 
 const std::string *PropertyOutput::getStringParam(const char *name) const {
   std::string *x = new std::string;
