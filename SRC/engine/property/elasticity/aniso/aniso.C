@@ -32,7 +32,7 @@ void CAnisoElasticity::cross_reference(Material *mat) {
   }
 }
 
-void CAnisoElasticity::precompute(const FEMesh *mesh) {
+void CAnisoElasticity::precompute(FEMesh *mesh) {
   Elasticity::precompute(mesh);
   // This assumes/requires that the rotation matrix output by
   // orientation->eulerangle() multiplies a crystal-coordinate vector
@@ -55,7 +55,21 @@ const Cijkl &CAnisoElasticity::crystal_cijkl() const {
   return crystal_cijkl_;
 }
 
-void CAnisoElasticity::output(const FEMesh *mesh,
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+static void output_cijkl(const Cijkl &cijkl, ListOutputVal *listdata,
+			const std::vector<const std::string> &idxstrs)
+{
+  // Helper for outputting components of Cijkl
+  for(unsigned int i=0; i<idxstrs.size(); i++) {
+    std::string voigtpair = idxstrs[i]; // "ab" for a,b in 1-6
+    SymTensorIndex idx0(int(voigtpair[0]-'0'));
+    SymTensorIndex idx1(int(voigtpair[1]-'0'));
+    (*listdata)[i] = cijkl(idx0, idx1);
+  }
+}
+
+void CAnisoElasticity::output(FEMesh *mesh,
 			      const Element *element,
 			      const PropertyOutput *output,
 			      const MasterPosition &pos,
@@ -63,12 +77,22 @@ void CAnisoElasticity::output(const FEMesh *mesh,
 {
   const std::string &outputname = output->name();
   if(outputname == "Elastic Modulus") {
+    ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
+    std::vector<const std::string> idxstrs =
+      output->getListOfStringsParam("indices");
+    assert(idxstrs.size() <= listdata->size());
     const std::string *frame = output->getEnumParam("frame"); // Lab or Crystal
-    const Cijkl modulus = cijkl(mesh, element, pos);
+    
     if(*frame == "Lab") {
+      // TODO: Use a timestamp and only precompute when necessary.
       precompute(mesh);
-      // TODO: Finish this
+      output_cijkl(cijkl(mesh, element, pos), listdata, idxstrs);
+    }
+    else {
+      assert(*frame == "Crystal");
+      output_cijkl(crystal_cijkl(), listdata, idxstrs);
     }
   }
   Elasticity::output(mesh, element, output, pos, data);
 }
+

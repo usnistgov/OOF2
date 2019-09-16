@@ -83,7 +83,7 @@ void PyroElectricity::cross_reference(Material *mat) {
   }
 }
 
-void PyroElectricity::precompute(const FEMesh*) {
+void PyroElectricity::precompute(FEMesh*) {
   modulus_ok = false;
   if(orientation!=0) {
     if(orientation->constant_in_space())
@@ -203,7 +203,7 @@ void PyroElectricity::flux_offset(const FEMesh *mesh,
 
 
 
-void PyroElectricity::output(const FEMesh *mesh,
+void PyroElectricity::output(FEMesh *mesh,
 			     const Element *element,
 			     const PropertyOutput *output,
 			     const MasterPosition &pos,

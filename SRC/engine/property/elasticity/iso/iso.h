@@ -35,7 +35,7 @@ protected:
   {
     return c_ijkl;
   }
-  virtual void output(const FEMesh*, const Element*, const PropertyOutput*,
+  virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);
 };
 

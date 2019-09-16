@@ -26,7 +26,7 @@ private:
 public:
   HeatCapacityProp(PyObject*, const std::string&, double);
   virtual ~HeatCapacityProp() {}
-  virtual void precompute(const FEMesh*);
+  virtual void precompute(FEMesh*);
   virtual void first_time_deriv_matrix(const FEMesh*,
 				       const Element*,
 				       const Equation*,

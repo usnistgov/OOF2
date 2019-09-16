@@ -272,7 +272,7 @@ void CAnisoLargeStrainElasticity::cross_reference(Material *mat) {
   }
 }
 
-void CAnisoLargeStrainElasticity::precompute(const FEMesh *mesh) {
+void CAnisoLargeStrainElasticity::precompute(FEMesh *mesh) {
   Elasticity::precompute(mesh);
   if(orientation && orientation->constant_in_space())
     lab_cijkl = crystal_cijkl().transform(orientation->orientation());

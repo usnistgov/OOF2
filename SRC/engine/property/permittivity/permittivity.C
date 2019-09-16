@@ -100,7 +100,7 @@ void DielectricPermittivity::flux_matrix(const FEMesh *mesh,
 }
 
 
-void DielectricPermittivity::output(const FEMesh *mesh,
+void DielectricPermittivity::output(FEMesh *mesh,
 				    const Element *element,
 				    const PropertyOutput *output,
 				    const MasterPosition &pos,
@@ -134,7 +134,7 @@ IsoDielectricPermittivity::IsoDielectricPermittivity(PyObject *reg,
 {
 }
 
-void IsoDielectricPermittivity::precompute(const FEMesh *mesh) {
+void IsoDielectricPermittivity::precompute(FEMesh *mesh) {
   DielectricPermittivity::precompute(mesh);
   permittivitytensor_(0,0) = permittivitytensor_(1,1)
     = permittivitytensor_(2,2) = epsilon_;
@@ -162,7 +162,7 @@ void AnisoDielectricPermittivity::cross_reference(Material *mat) {
   }
 }
 
-void AnisoDielectricPermittivity::precompute(const FEMesh *mesh) {
+void AnisoDielectricPermittivity::precompute(FEMesh *mesh) {
   DielectricPermittivity::precompute(mesh);
   Trace("AnisoDielectricPermittivity::precompute");
   if(orientation && orientation->constant_in_space())

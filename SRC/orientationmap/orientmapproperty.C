@@ -67,7 +67,7 @@ const COrientation *OrientationMapProp::orientation(const FEMesh *mesh,
   return &meshdata->odata->angle(pxl);
 }
 
-void OrientationMapProp::output(const FEMesh *mesh,
+void OrientationMapProp::output(FEMesh *mesh,
 				const Element *element,
 				const PropertyOutput *output,
 				const MasterPosition &pos,

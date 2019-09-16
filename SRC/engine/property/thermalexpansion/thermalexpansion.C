@@ -39,7 +39,7 @@ ThermalExpansion::ThermalExpansion(PyObject *reg,
 }
 
 
-void ThermalExpansion::precompute(const FEMesh*) {}
+void ThermalExpansion::precompute(FEMesh*) {}
 
 int ThermalExpansion::integration_order(const CSubProblem*,
 					const Element *el) const {
@@ -130,7 +130,7 @@ AnisotropicThermalExpansion::expansiontensor(const FEMesh *mesh,
   return alpha_.transform(orientation->orientation(mesh, elem, pos));
 }
 
-void ThermalExpansion::output(const FEMesh *mesh,
+void ThermalExpansion::output(FEMesh *mesh,
 			      const Element *element,
 			      const PropertyOutput *output,
 			      const MasterPosition &pos,
@@ -216,7 +216,7 @@ void IsotropicThermalExpansion::cross_reference(Material *mat) {
   }
 }
 
-void IsotropicThermalExpansion::precompute(const FEMesh *mesh) {
+void IsotropicThermalExpansion::precompute(FEMesh *mesh) {
   ThermalExpansion::precompute(mesh);
   expansiontensor_(0,0) = expansiontensor_(1,1) = expansiontensor_(2,2)
     = alpha_;
@@ -245,7 +245,7 @@ void AnisotropicThermalExpansion::cross_reference(Material *mat) {
   }
 }
 
-void AnisotropicThermalExpansion::precompute(const FEMesh*) {
+void AnisotropicThermalExpansion::precompute(FEMesh*) {
   if(orientation && orientation->constant_in_space())
     expansiontensor_ = alpha_.transform(orientation->orientation());
 }

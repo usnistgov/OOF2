@@ -26,7 +26,7 @@ HeatCapacityProp::HeatCapacityProp(PyObject *registration,
   : EqnProperty(name, registration), cv_(cv)
 {}
 
-void HeatCapacityProp::precompute(const FEMesh *mesh) {
+void HeatCapacityProp::precompute(FEMesh *mesh) {
   temperature = Field::getField("Temperature");
 }
 

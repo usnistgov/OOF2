@@ -49,7 +49,7 @@ ForceDensity::ForceDensity(PyObject *reg, const std::string &nm,
 }
 #endif
 
-void ForceDensity::precompute(const FEMesh*) {}
+void ForceDensity::precompute(FEMesh*) {}
 
 int ForceDensity::integration_order(const CSubProblem*, const Element *el) const
 {

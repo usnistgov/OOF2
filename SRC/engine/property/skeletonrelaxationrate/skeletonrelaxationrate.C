@@ -52,7 +52,7 @@ void SkeletonRelaxationRate::cross_reference(Material *mat) {
   }
 }
 
-void SkeletonRelaxationRate::precompute(const FEMesh*) {}
+void SkeletonRelaxationRate::precompute(FEMesh*) {}
 
 int SkeletonRelaxationRate::integration_order(const CSubProblem *mesh,
 					      const Element *el) const

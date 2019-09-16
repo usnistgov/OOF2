@@ -47,7 +47,7 @@ public:
 		   double t0);
   virtual ~ThermalExpansion() {}
   virtual void cross_reference(Material*) = 0;
-  virtual void precompute(const FEMesh*);
+  virtual void precompute(FEMesh*);
   virtual bool constant_in_space() const { return true; }
 
   virtual void flux_matrix(const FEMesh*, const Element*,
@@ -57,7 +57,7 @@ public:
   virtual void flux_offset(const FEMesh*, const Element*,
 			   const Flux*, const MasterPosition&,
 			   double time, SmallSystem*) const;
-  virtual void output(const FEMesh*, const Element*, const PropertyOutput*,
+  virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);
 
   virtual int integration_order(const CSubProblem*, const Element*) const;
@@ -76,7 +76,7 @@ public:
 			    double alpha,
 			    double t0);
   virtual void cross_reference(Material*);
-  virtual void precompute(const FEMesh*);
+  virtual void precompute(FEMesh*);
   virtual const SymmMatrix3 expansiontensor(const FEMesh*, const Element*,
 					     const MasterPosition&) const;
 private:
@@ -89,7 +89,7 @@ public:
 			      const std::string &nm,
 			      SymmMatrix3 *alpha, double t0);
   virtual void cross_reference(Material*); // finds Orientation
-  virtual void precompute(const FEMesh*);
+  virtual void precompute(FEMesh*);
   virtual const SymmMatrix3 expansiontensor(const FEMesh*, const Element*,
 					     const MasterPosition&) const;
 private:

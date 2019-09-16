@@ -38,11 +38,11 @@ public:
   virtual const Cijkl cijkl(const FEMesh*, const Element*,
 			    const MasterPosition&) const;
   virtual const Cijkl &crystal_cijkl() const;
-  virtual void output(const FEMesh*, const Element*, const PropertyOutput*,
+  virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);
 private:
   const OrientationPropBase *orientation;
-  virtual void precompute(const FEMesh*);
+  virtual void precompute(FEMesh*);
   virtual void cross_reference(Material*);
   Cijkl crystal_cijkl_;
   Cijkl lab_cijkl;

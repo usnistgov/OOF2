@@ -41,7 +41,7 @@ NonlinearForceDensityNoDeriv::NonlinearForceDensityNoDeriv(PyObject *reg, const 
   stress_flux  = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }
 
-void NonlinearForceDensityNoDeriv::precompute(const FEMesh*) {
+void NonlinearForceDensityNoDeriv::precompute(FEMesh*) {
 }
 
 int NonlinearForceDensityNoDeriv::integration_order(const CSubProblem*, const Element *el) const

@@ -47,7 +47,7 @@ public:
 		       double gamma, double alpha);
   virtual ~SkeletonRelaxationRate() {}
   virtual void cross_reference(Material*);
-  virtual void precompute(const FEMesh*);
+  virtual void precompute(FEMesh*);
 
   virtual void flux_offset(const FEMesh*, const Element*,
 			   const Flux*, const MasterPosition&,

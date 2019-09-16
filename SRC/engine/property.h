@@ -159,8 +159,10 @@ public:
   // it's unsuccessful.
   virtual void cross_reference(Material*) {}
 
-  // compute things that don't depend on Element
-  virtual void precompute(const FEMesh*) {}
+  // compute things that don't depend on Element.  The argument is
+  // non-const so that FEMesh::set_property_data can be used.
+  // TODO: Some properties redefine a trivial precompute(). Why?  Delete it.
+  virtual void precompute(FEMesh*) {}
 
   virtual bool constant_in_space() const = 0;
 
@@ -188,7 +190,7 @@ public:
 
 
   // Output function.
-  virtual void output(const FEMesh*, const Element*, const PropertyOutput*,
+  virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*)
     { return; }
 

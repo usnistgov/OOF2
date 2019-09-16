@@ -69,7 +69,7 @@ public:
 		  std::string *ctype);
   virtual ~PyroElectricity() {}
   virtual void cross_reference(Material*);
-  virtual void precompute(const FEMesh*);
+  virtual void precompute(FEMesh*);
 
   virtual void flux_matrix(const FEMesh*, const Element*,
 			   const ElementFuncNodeIterator&,
@@ -81,7 +81,7 @@ public:
 			   const Flux*, const MasterPosition&,
 			   double time, SmallSystem *) const;
 
-  virtual void output(const FEMesh*, const Element*, const PropertyOutput*,
+  virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);
 
   virtual bool constant_in_space() const { return true; }

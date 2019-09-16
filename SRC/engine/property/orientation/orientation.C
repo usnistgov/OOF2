@@ -39,7 +39,7 @@ const COrientation *OrientationProp::orientation(const CMicrostructure*,
   return orient;
 }
 
-void OrientationProp::output(const FEMesh *mesh,
+void OrientationProp::output(FEMesh *mesh,
 			     const Element *element,
 			     const PropertyOutput *output,
 			     const MasterPosition &pos,

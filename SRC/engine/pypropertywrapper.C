@@ -41,7 +41,7 @@ PyPropertyMethods::~PyPropertyMethods() {
 //=\\=//=\\=//
 
 void PyPropertyMethods::py_precompute(PyObject *referent, Property *prop,
-				      const FEMesh *mesh)
+				      FEMesh *mesh)
 {
   char _mesh_temp[128];
   PyGILState_STATE pystate = acquirePyLock();
@@ -295,7 +295,7 @@ void PyPropertyMethods::py_post_process(PyObject *referent,
 // returned.
 
 void PyPropertyMethods::py_output(PyObject *referent, Property *prop,
-			       const FEMesh *mesh, const Element *el,
+			       FEMesh *mesh, const Element *el,
 			       const PropertyOutput *propout,
 			       const MasterPosition &pos,
 			       OutputVal *oval)

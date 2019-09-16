@@ -76,7 +76,7 @@ void IsotropicStressFreeStrain::cross_reference(Material *mat) {
   }
 }
 
-void IsotropicStressFreeStrain::precompute(const FEMesh *mesh) {
+void IsotropicStressFreeStrain::precompute(FEMesh *mesh) {
   StressFreeStrain::precompute(mesh);
   stressfreestrain_(0,0) = stressfreestrain_(1,1) = stressfreestrain_(2,2) = e_;
 }
@@ -102,7 +102,7 @@ void AnisotropicStressFreeStrain::cross_reference(Material *mat) {
   }
 }
 
-void AnisotropicStressFreeStrain::precompute(const FEMesh*) {
+void AnisotropicStressFreeStrain::precompute(FEMesh*) {
   if(orientation && orientation->constant_in_space())
     stressfreestrain_ = e_.transform(orientation->orientation());
 }
@@ -118,7 +118,7 @@ AnisotropicStressFreeStrain::stressfreestrain(const FEMesh *mesh,
   return e_.transform(orientation->orientation(mesh, elem, pos));
 }
 
-void StressFreeStrain::output(const FEMesh *mesh,
+void StressFreeStrain::output(FEMesh *mesh,
 			      const Element *element,
 			      const PropertyOutput *output,
 			      const MasterPosition &pos,
