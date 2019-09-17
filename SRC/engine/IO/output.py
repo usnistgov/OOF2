@@ -41,7 +41,8 @@ class Output(object):
                  discussion=parameter.emptyTipString,
                  srepr=None,
                  instancefn=None, column_names=None,
-                 parent=None):
+                 parent=None,
+                 **kwargs):
         # otype is the type of the output.
 
         # inputs is a list of Parameters specifying the names and
@@ -91,6 +92,8 @@ class Output(object):
 
         if srepr is not None:
             self.srepr = srepr      # short repr
+
+        self.__dict__.update(kwargs)
 
         # 'instancefn' is a function that returns an instance of the
         # OutputVal subclass that this Output will produce.  If it's

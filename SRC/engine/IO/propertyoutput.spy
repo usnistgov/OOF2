@@ -21,10 +21,9 @@ class PORegBase(PropertyOutputRegistration):
     def opfunc(self, mesh, elements, coords, **params):
         po = self.instantiate(params)
         mesh.precompute_all_subproblems()
-        initializer = self.initializer()
+        initializer = self.initializer() # returns PropertyOutputInit* from reg
         results = []
         for element, ecoords, in zip(elements, coords):
-            mat = element.material()
             mesh.begin_all_subproblems(element)
             results.extend(po.evaluate(mesh, element, initializer, ecoords))
             mesh.end_all_subproblems(element)

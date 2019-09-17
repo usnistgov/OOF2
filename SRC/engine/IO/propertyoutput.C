@@ -408,7 +408,8 @@ ScalarOutputVal *ScalarPropertyOutputInit::operator()(
 					  const ArithmeticPropertyOutput*,
 					  const FEMesh*,
 					  const Element*,
-					  const MasterCoord&) const
+					  const MasterCoord&)
+  const
 {
   return new ScalarOutputVal(0.0);
 
@@ -418,7 +419,8 @@ VectorOutputVal *TwoVectorPropertyOutputInit::operator()(
 					     const ArithmeticPropertyOutput*,
 					     const FEMesh*,
 					     const Element*,
-					     const MasterCoord&) const
+					     const MasterCoord&)
+  const
 {
   return new VectorOutputVal(2);
 }
@@ -427,8 +429,27 @@ VectorOutputVal *ThreeVectorPropertyOutputInit::operator()(
 					       const ArithmeticPropertyOutput*,
 					       const FEMesh*,
 					       const Element*,
-					       const MasterCoord&) const
+					       const MasterCoord&)
+  const
 {
   return new VectorOutputVal(3);
 }
 
+ListOutputVal *ListOutputInit::operator()(
+				  const NonArithmeticPropertyOutput *op,
+				  const FEMesh*,
+				  const Element*,
+				  const MasterCoord&)
+  const
+{
+  // Need to get the size of the OutputVal.  The info is in the
+  // parameters for the NonArithmeticPropertyOutput, but we don't the
+  // name of the parameter or how to extract the size from it.
+
+  // Do we need both PropertyOutputInits and Output.instancefn?  Use
+  // instancefn to get a single initialized instance at the beginning
+  // of the calculation, and clone it at each evaluation point.  Then
+  // it can be created by the registration when opfunc is called.
+  
+  return new ListOutputVal(n);
+}

@@ -218,9 +218,27 @@ class ReferenceFrame(enum.EnumClass(
         )):
     tip="Evaluate quantities in the lab or crystal reference frame."
 
+class VoigtPairListParameter(parameter.ListOfStringsParameter):
+    def checker(self, x):
+        if not isinstance(x, (ListType, TupleType)):
+            parameter.raiseTypeError(type(x), "list of Voigt index pairs")
+        for s in x:
+            if not (isinstance(s, StringType) and len(s)==2 and
+                    s[0] in "123456" and s[1] in "123456"):
+                parameter.raiseTypeError("list of %s" % typename(type(s)),
+                                         "list of Voigt index pairs")
+    def valueDesc(self):
+        return "A list of character strings of the form 'XY'" \
+            " where X and Y are digits from 1 to 6."
+            
 
-def _ReferenceFrame_shortrepr(self):
-    ftype = self.findParam("frame").value
-    return ftype.string() + " Frame"
+propertyoutputreg.ModulusPropertyOutputRegistration(
+    name="Elastic Modulus",
+    symbol="C",
+    parameters=[
+        VoigtPairListParameter("components"),
+        enum.EnumParameter("frame", ReferenceFrame, default="Crystal",
+                           tip="Report the modulus in this reference frame.")
+    ],
+    ordering=10)
 
-#propertyoutputreg.ModulusPropertyOutputRegistration( ... );

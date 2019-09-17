@@ -35,6 +35,16 @@ class FEMesh;
 class MasterCoord;
 class Property;
 
+// PropertyOutputInit subclasses have an instantiate method that
+// creates a new instance of a PropertyOutput subclass that is passed
+// to the elements for evaluation.  instantiate() is called from
+// PORegBase.opfunc in propertyoutput.spy.
+
+// PropertyOutputInit subclasses also have an operator() that creates
+// a new instance of an OutputVal subclass.  It's called from
+// PropertyOutput::evaluate at each evaluation point before calling
+// all the Properties' output() methods.
+
 class PropertyOutputInit : public PythonExportable<PropertyOutputInit> {
 private:
   static const std::string modulename_;
@@ -46,6 +56,7 @@ public:
 
 class ArithmeticPropertyOutputInit : public PropertyOutputInit {
 private:
+  // Why is classname_ defined here and not in the derived classes?
   static const std::string classname_; 
 public:
   virtual const std::string &classname() const { return classname_; }
@@ -87,6 +98,13 @@ public:
   VectorOutputVal *operator()(const ArithmeticPropertyOutput*,
 				  const FEMesh*,
 				  const Element*, const MasterCoord&) const;
+};
+
+class ListOutputInit : public NonArithmeticPropertyOutputInit {
+public:
+  ListOutputVal *operator()(const NonArithmeticPropertyOutput*,
+			    const FEMesh*,
+			    const Element*, const MasterCoord&) const;
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

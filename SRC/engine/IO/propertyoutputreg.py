@@ -107,7 +107,7 @@ class SymmMatrix3PropertyOutputRegistration(propertyoutput.PORegBase):
                  srepr=None, tip=None, discussion=None):
         propertyoutput.PropertyOutputRegistration.__init__(
             self, name,
-            initializer or propertyoutput.SymmMatrix3PropertyOutputInit())
+            initializer or symmmatrix.SymmMatrix3PropertyOutputInit())
         op = output.Output(name=name,
                            callback=self.opfunc,
                            otype=outputval.OutputValPtr,
@@ -206,7 +206,32 @@ class OrientationPropertyOutputRegistration(propertyoutput.PORegBase):
 # crystal frame.  The type of the "components" parameter depends on
 # the type of the modulus.
 
+def _modulus_instance_fn(self):
+    listarg = self.findParam("components").value
+    return outputval.ListOutputVal(len(listarg))
+
+def _modulus_srepr(self):
+    listarg = self.findParam("components").value
+    return "%s(%s)" % (self.name, str(listarg)[1:-1])
+
+def _modulus_column_names(self):
+    listarg = self.findParam("components").value
+    return ["%s_%s"%(self.symbol, component) for component in listarg]
+
 class ModulusPropertyOutputRegistration(propertyoutput.PORegBase):
-    def __init__(self, name, initializer=None, parameters=[], ordering=1,
-                 tip=None, discussion=None):
-        pass
+    def __init__(self, name, symbol, initializer=None, parameters=[],
+                 ordering=1, tip=None, discussion=None):
+        propertyoutput.PropertyOutputRegistration.__init__(
+            self, name,
+            initializer or propertyoutput.ListOutputInit())
+        op = output.Output(name=name,
+                           callback=self.opfunc,
+                           otype=outputval.ListOutputValPtr,
+                           instancefn=_modulus_instance_fn,
+                           srepr=_modulus_srepr,
+                           column_names=_modulus_column_names,
+                           params=parameters,
+                           tip=tip, discussion=discussion,
+                           symbol=symbol # C for elastic modulus, etc. For srepr
+        )
+        output.defineAggregateOutput(name, op, ordering=ordering)
