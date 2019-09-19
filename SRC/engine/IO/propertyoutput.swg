@@ -32,26 +32,47 @@
 
 %pragma(python) include="engine/IO/propertyoutput.spy"
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// OutputVal initializers
+
+class PropertyOutputValInit {
+public:
+  ~PropertyOutputValInit();
+};
+
+class DefaultPropertyOutputValInit : public PropertyOutputValInit {
+public:
+  DefaultPropertyOutputValInit(OutputVal*);
+};
+
 // PropertyOutput initializers
 
 class PropertyOutputInit {};
-class ArithmeticPropertyOutputInit : public PropertyOutputInit {};
-class NonArithmeticPropertyOutputInit : public PropertyOutputInit {};
-
-class ScalarPropertyOutputInit : public ArithmeticPropertyOutputInit {
+class ArithmeticPropertyOutputInit : public PropertyOutputInit {
 public:
-  ScalarPropertyOutputInit();
+  ArithmeticPropertyOutputInit();
 };
 
-class TwoVectorPropertyOutputInit : public ArithmeticPropertyOutputInit {
+class NonArithmeticPropertyOutputInit : public PropertyOutputInit {
 public:
-  TwoVectorPropertyOutputInit();
+  NonArithmeticPropertyOutputInit();
 };
 
-class ThreeVectorPropertyOutputInit : public ArithmeticPropertyOutputInit {
-public:
-  ThreeVectorPropertyOutputInit();
-};
+// class ScalarPropertyOutputInit : public ArithmeticPropertyOutputInit {
+// public:
+//   ScalarPropertyOutputInit();
+// };
+
+// class TwoVectorPropertyOutputInit : public ArithmeticPropertyOutputInit {
+// public:
+//   TwoVectorPropertyOutputInit();
+// };
+
+// class ThreeVectorPropertyOutputInit : public ArithmeticPropertyOutputInit {
+// public:
+//   ThreeVectorPropertyOutputInit();
+// };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -61,6 +82,7 @@ public:
   const string &name();
   double getFloatParam(char*);
   int getIntParam(char*);
+  void setInitializer(PropertyOutputValInit*);
   %new const string *getStringParam(char*);
   %new const string *getEnumParam(char*);
   %new const string *getRegisteredParamName(char*);
@@ -70,7 +92,6 @@ class ArithmeticPropertyOutput : public PropertyOutput {
 public:
   %new ArithmeticOutputValueVec *evaluate(
 				  FEMesh*, Element*,
-				  ArithmeticPropertyOutputInit*,
 				  MasterCoordVec*);
 };
 
@@ -78,17 +99,18 @@ class NonArithmeticPropertyOutput : public PropertyOutput {
 public:
   %new NonArithmeticOutputValueVec *evaluate(
 				  FEMesh*, Element*,
-				  NonArithmeticPropertyOutputInit*,
 				  MasterCoordVec*);
 };
 
 class PropertyOutputRegistration {
 public:
-  PropertyOutputRegistration(char*, PropertyOutputInit*);
+  PropertyOutputRegistration(char*);
   ~PropertyOutputRegistration();
   const string &name();
-  const PropertyOutputInit *initializer();
-  %new PropertyOutput *instantiate(PyObject*);
+  %new PropertyOutput *instantiateArithmetic(char*, PyObject*);
+  %new PropertyOutput *instantiateNonArithmetic(char*, PyObject*);
+  // const PropertyOutputInit *initializer();
+  //%new PropertyOutput *instantiate(char*, PyObject*);
 };
 
 

@@ -125,6 +125,12 @@ public:
   }
 };
 
+class ListOutputVal : public NonArithmeticOutputVal {
+public:
+  ListOutputVal(int);
+  int size();
+};
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 class OutputValue {

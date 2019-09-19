@@ -99,8 +99,8 @@ void computeDisplacement(const FEMesh *mesh, const Element *element,
 
 // Initialize a PropertyOutput with the geometric strain.
 
-SymmMatrix3 *POInitGeometricStrain::operator()(
-		       const ArithmeticPropertyOutput *po, const FEMesh *mesh,
+OutputVal *POInitGeometricStrain::operator()(
+		       const PropertyOutput *po, const FEMesh *mesh,
 		       const Element *element, const MasterCoord &pos)
   const
 {

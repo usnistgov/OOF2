@@ -13,21 +13,80 @@
 # the C++ PropertyOutputs and the more general Python Outputs.
 
 from ooflib.common import debug
+from ooflib.common import utils
 
-class PORegBase(PropertyOutputRegistration):
+class _PORegBase(PropertyOutputRegistration):
+
+    # initializer is either a PropertyOutputValInit object, or None.
+    # If it's None, a default initializer will be used, which
+    # initializes the OutputVal to zero (or the equivalent).  Most of
+    # the time, the default should be sufficient.
+    def __init__(self, name, initializer=None):
+        self.initializer = initializer
+        PropertyOutputRegistration.__init__(self, name)
+        
     ## Callback for all PropertyOutputs.  Outputs that need to return
     ## something other than a list of OutputVal instances should
     ## override the convert method.
     def opfunc(self, mesh, elements, coords, **params):
-        po = self.instantiate(params)
+
+        # instantiate is PropertyOutputRegistration.instantiate,
+        # defined in propertyoutput.h.  It calls
+        # PropertyOutputInit::instantiate and creates an instance of a
+        # PropertyOutput subclass.
+        po = self._instantiate(self.name(), params)
+
+        # initializer initializes the OutputVal at each evaluation
+        # point. If an initializer wasn't provided, the default
+        # initializer just clones a zero-valued OutputVal.  The
+        # initializer can't be set in _instantiate because its
+        # constructor might need to retrieve parameters from the
+        # Output.
+        # Keep a reference to the initializer so that it persists
+        # until the opfunc finishes.
+        self.zeroObj = None
+        if self.initializer is not None:
+            self.initObj = self.initializer
+        else:
+            self.zeroObj = self.zeroVal(po)
+            self.initObj = DefaultPropertyOutputValInit(self.zeroObj)
+                        
+        po.setInitializer(self.initObj)
+
         mesh.precompute_all_subproblems()
-        initializer = self.initializer() # returns PropertyOutputInit* from reg
         results = []
         for element, ecoords, in zip(elements, coords):
             mesh.begin_all_subproblems(element)
-            results.extend(po.evaluate(mesh, element, initializer, ecoords))
+            results.extend(po.evaluate(mesh, element, ecoords))
             mesh.end_all_subproblems(element)
         return self.convert(results)
     def convert(self, results):
         return results
+
+    def zeroVal(self, propout):
+        # Subclasses must define this method, which returns "zero" in
+        # the format desired for the output.  The argument is the 
+        raise ErrPyProgrammingError("%s.zeroVal is not defined!"
+                                    % self.__class__.__name__)
+
+    # instancefn returns an instance of the type of OutputVal that the
+    # Output will produce. It's used to get attributes of the
+    # OutputVal before evaluating the Output.
+    # See comments in Output.outputInstance() in output.py before
+    # changing this function.
+    def instancefn(self, obj):
+        return self.zeroVal(obj)
     
+
+class ArithmeticPropertyOutputRegistration(_PORegBase):
+    def __init__(self, name, initializer=None):
+        _PORegBase.__init__(self, name, initializer)
+    def _instantiate(self, name, params):
+        return self.instantiateArithmetic(name, params)
+
+class NonArithmeticPropertyOutputRegistration(_PORegBase):
+    def __init__(self, name, initializer=None):
+        _PORegBase.__init__(self, name, initializer)
+    def _instantiate(self, name, params):
+        return self.instantiateNonArithmetic(name, params)
+        

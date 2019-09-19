@@ -20,17 +20,12 @@
 %}
 
 %extern "engine/IO/propertyoutput.swg"
-%pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import ArithmeticPropertyOutputInitPtr"
+%pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import PropertyOutputValInitPtr"
   
 
 %pragma(python) include="cstrain.spy"
 
- // TODO: Does swig really need to know the base class for
- // POInitGeometricStrain?  Is it sufficient to give it
- // ArithmeticPropertyOutputInitPtr, or does it need
- // SymmMatrix3PropertyOutputInit, which is the real base class?
-  
-class POInitGeometricStrain : public ArithmeticPropertyOutputInit {
+class POInitGeometricStrain : public PropertyOutputValInit {
 public:
   POInitGeometricStrain();
 };

@@ -11,7 +11,6 @@
 from ooflib.SWIG.engine import corientation
 from ooflib.SWIG.engine import outputval
 from ooflib.SWIG.engine import symmmatrix
-from ooflib.SWIG.engine.IO import propertyoutput
 from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.engine.IO import orientationmatrix
@@ -26,25 +25,31 @@ from ooflib.engine.IO import outputClones
 # This code is not in propertyoutput.spy because putting it there
 # creates import loops.
 
+from ooflib.SWIG.engine.IO.propertyoutput import \
+    ArithmeticPropertyOutputRegistration, \
+    NonArithmeticPropertyOutputRegistration
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
     
 # Scalar outputs
 
-class ScalarPropertyOutputRegistration(propertyoutput.PORegBase):
-    def __init__(self, name, initializer=None, parameters=[], ordering=0,
+class ScalarPropertyOutputRegistration(ArithmeticPropertyOutputRegistration):
+    def __init__(self, name, parameters=[], ordering=0,
+                 initializer=None,
                  srepr=None, tip=None, discussion=None):
-        propertyoutput.PropertyOutputRegistration.__init__(
-            self, name,
-            initializer or propertyoutput.ScalarPropertyOutputInit())
+        ArithmeticPropertyOutputRegistration.__init__(self, name, initializer)
         op = output.Output(name=name,
                            callback=self.opfunc,
                            otype=outputval.ScalarOutputValPtr,
-                           instancefn=outputClones.scalar_instancefn,
+                           instancefn=self.instancefn,
                            column_names=outputClones.single_column_name,
                            params=parameters,
                            srepr=srepr, tip=tip, discussion=discussion)
         output.defineScalarOutput(name, op, ordering=ordering)
         output.defineAggregateOutput(name, op, ordering=ordering)
+
+    def zeroVal(self, output):
+        return outputval.ScalarOutputVal(0.0)
 
 #     def convert(self, results): # convert from ScalarOutputVal to Float
 #         return [r.value() for r in results]
@@ -58,16 +63,16 @@ class ScalarPropertyOutputRegistration(propertyoutput.PORegBase):
 ## None of this is implemented yet because there are no
 ## ThreeVectorPropertyOutputs to test it on.
 
-class ThreeVectorPropertyOutputRegistration(propertyoutput.PORegBase):
-    def __init__(self, name, initializer=None, parameters=[], ordering=0,
+class ThreeVectorPropertyOutputRegistration(
+        ArithmeticPropertyOutputRegistration):
+    def __init__(self, name, parameters=[], ordering=0,
+                 initializer=None,
                  srepr=None, tip=None, discussion=None):
-        propertyoutput.PropertyOutputRegistration.__init__(
-            self, name,
-            initializer or propertyoutput.ThreeVectorPropertyOutputInit())
+        ArithmeticPropertyOutputRegistration.__init__(self, name, initializer)
         op = output.Output(name=name,
                            callback=self.opfunc,
                            otype=outputval.OutputValPtr,
-                           instancefn=outputClones.vector_instancefn,
+                           instancefn=self.instancefn,
                            params=parameters,
                            srepr=srepr, tip=tip,
                            discussion=discussion)
@@ -86,12 +91,14 @@ class ThreeVectorPropertyOutputRegistration(propertyoutput.PORegBase):
         for param in parameters:
             compout.aliasParam('field:'+param.name, param.name)
         output.defineScalarOutput(name+":Component", compout, ordering=ordering)
-        
+
+    def zeroVal(self, output):
+        return outputval.VectorOutputVal(config.dimension()).zero()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def _symmmatrix3_instancefn(self):
-    return symmmatrix.SymmMatrix3(0.,0.,0.,0.,0.,0.)
+# def _symmmatrix3_instancefn(self):
+#     return symmmatrix.SymmMatrix3(0.,0.,0.,0.,0.,0.)
 
 def _symmmatrix3_column_names(self):
     sr = self.shortrepr()
@@ -102,16 +109,16 @@ def _symmmatrix3_column_names(self):
         it.next()
     return names
 
-class SymmMatrix3PropertyOutputRegistration(propertyoutput.PORegBase):
-    def __init__(self, name, initializer=None, parameters=[], ordering=0,
+class SymmMatrix3PropertyOutputRegistration(
+        ArithmeticPropertyOutputRegistration):
+    def __init__(self, name, parameters=[], ordering=0,
+                 initializer=None,
                  srepr=None, tip=None, discussion=None):
-        propertyoutput.PropertyOutputRegistration.__init__(
-            self, name,
-            initializer or symmmatrix.SymmMatrix3PropertyOutputInit())
+        ArithmeticPropertyOutputRegistration.__init__(self, name, initializer)
         op = output.Output(name=name,
                            callback=self.opfunc,
                            otype=outputval.OutputValPtr,
-                           instancefn=_symmmatrix3_instancefn,
+                           instancefn=self.instancefn,
                            srepr=srepr,
                            column_names=_symmmatrix3_column_names,
                            params=parameters,
@@ -159,14 +166,16 @@ class SymmMatrix3PropertyOutputRegistration(propertyoutput.PORegBase):
         output.defineScalarOutput(name+":Invariant", invout, ordering=ordering)
         output.defineAggregateOutput(name+":Invariant", invout, 
                                      ordering=ordering)
+    def zeroVal(self, output):
+        return symmmatrix.SymmMatrix3(0., 0., 0., 0., 0., 0.)
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def _orientation_instancefn(self):
-    fmt = self.findParam("format").value
-    reg = orientationmatrix.getRegistrationForName(fmt)
-    return reg()
+# def _orientation_instancefn(self):
+#     fmt = self.findParam("format").value
+#     reg = orientationmatrix.getRegistrationForName(fmt)
+#     return reg()
 
 def _orientation_column_names(self):
     fmt = self.findParam("format").value
@@ -178,25 +187,32 @@ def _orientation_srepr(self):
     fmt = self.findParam("format").value # an Enum
     return fmt.name
 
-class OrientationPropertyOutputRegistration(propertyoutput.PORegBase):
-    def __init__(self, name, initializer=None, parameters=[], ordering=0,
+class OrientationPropertyOutputRegistration(
+        NonArithmeticPropertyOutputRegistration):
+    def __init__(self, name, parameters=[], ordering=0,
+                 initializer=None,
                  tip=None, discussion=None):
         param = enum.EnumParameter(
             "format",
             orientationmatrix.OrientationEnum,
             tip="How to print the orientation.")
-        propertyoutput.PropertyOutputRegistration.__init__(
-            self, name,
-            initializer or corientation.OrientationPropertyOutputInit())
+        NonArithmeticPropertyOutputRegistration.__init__(self, name,
+                                                         initializer)
         op = output.Output(name=name,
                            callback=self.opfunc,
                            otype=corientation.COrientationPtr,
-                           instancefn=_orientation_instancefn,
+                           instancefn=self.instancefn,
                            srepr=_orientation_srepr,
                            column_names=_orientation_column_names,
                            params=[param] + parameters,
                            tip=tip, discussion=discussion)
         output.defineAggregateOutput(name, op, ordering=ordering)
+
+    def zeroVal(self, output):
+        fmt = output.getEnumParam("format")
+        reg = orientationmatrix.Orientation.getRegistrationForName(fmt)
+        return reg().corient
+        
                            
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -206,10 +222,6 @@ class OrientationPropertyOutputRegistration(propertyoutput.PORegBase):
 # crystal frame.  The type of the "components" parameter depends on
 # the type of the modulus.
 
-def _modulus_instance_fn(self):
-    listarg = self.findParam("components").value
-    return outputval.ListOutputVal(len(listarg))
-
 def _modulus_srepr(self):
     listarg = self.findParam("components").value
     return "%s(%s)" % (self.name, str(listarg)[1:-1])
@@ -218,16 +230,17 @@ def _modulus_column_names(self):
     listarg = self.findParam("components").value
     return ["%s_%s"%(self.symbol, component) for component in listarg]
 
-class ModulusPropertyOutputRegistration(propertyoutput.PORegBase):
-    def __init__(self, name, symbol, initializer=None, parameters=[],
+class ModulusPropertyOutputRegistration(
+        NonArithmeticPropertyOutputRegistration):
+    def __init__(self, name, symbol, parameters=[],
+                 initializer=None,
                  ordering=1, tip=None, discussion=None):
-        propertyoutput.PropertyOutputRegistration.__init__(
-            self, name,
-            initializer or propertyoutput.ListOutputInit())
+        NonArithmeticPropertyOutputRegistration.__init__(self, name,
+                                                         initializer)
         op = output.Output(name=name,
                            callback=self.opfunc,
                            otype=outputval.ListOutputValPtr,
-                           instancefn=_modulus_instance_fn,
+                           instancefn=self.instancefn,
                            srepr=_modulus_srepr,
                            column_names=_modulus_column_names,
                            params=parameters,
@@ -235,3 +248,6 @@ class ModulusPropertyOutputRegistration(propertyoutput.PORegBase):
                            symbol=symbol # C for elastic modulus, etc. For srepr
         )
         output.defineAggregateOutput(name, op, ordering=ordering)
+    def zeroVal(self, output):
+        listarg = output.getListOfStringsParam("components")
+        return outputval.ListOutputVal(len(listarg))
