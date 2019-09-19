@@ -22,11 +22,21 @@ import math
 import types
 
 
-# An array of FloatInput things.  Has as values a dictionary
-# indexed by tuples of integers.
-class MatrixInput(parameterwidgets.ParameterWidget,
+# An array of input things.  Exactly which kind of input thing is
+# determined by the paramtype argument, which must be a Parameter
+# subclass.  An array of that subclass's widgets will be
+# built. paramargs is a dictionary containing the default arguments
+# for the Parameter's constructor.
+
+# MatrixInputBase does not create a working ParameterWidget all by
+# itself, since it doesn't set and display a single Parameter
+# containing all of the matrix entries. See cijklparamwidgets.py
+# for examples of subclasses that do work as ParameterWidgets.
+
+class MatrixInputBase(parameterwidgets.ParameterWidget,
                   widgetscope.WidgetScope):
-    def __init__(self,label,rows,cols,value=None,scope=None,name=None):
+    def __init__(self, label, rows, cols, paramtype, paramargs={},
+                 value=None, scope=None, name=None):
         debug.mainthreadTest()
         frame = gtk.Frame()
         self.table = gtk.Table(rows=rows+2, columns=cols+2)
@@ -37,9 +47,7 @@ class MatrixInput(parameterwidgets.ParameterWidget,
         self.cols = cols
         self.floats = {}
         self.sbcallbacks = []
-        #
-        # self.table = gtk.GtkTable(rows=self.rows+2,cols=self.cols+2)
-        #
+
         # Labels.
         for r in range(self.rows):
             lbl = gtk.Label(' %d ' % (r+1))
@@ -55,10 +63,8 @@ class MatrixInput(parameterwidgets.ParameterWidget,
             for c in range(self.cols):
                 # Parameters are quite lightweight, no harm in providing
                 # a dummy to the FloatWidget.
-                newfloat = parameterwidgets.FloatWidget(
-                    parameter.FloatParameter('dummy', 0.0),
-                    scope=self,
-                    name="%d,%d"%(r,c))
+                dummyparam = paramtype(name="%d,%d"%(r,c), **paramargs)
+                newfloat = dummyparam.makeWidget(scope=self)
                 self.sbcallbacks.append(
                     switchboard.requestCallbackMain(newfloat,
                                                     self.floatChangeCB))
@@ -90,11 +96,11 @@ class MatrixInput(parameterwidgets.ParameterWidget,
             floatwidget.unblock_signal()
 
 
-#
 # This class does different things on init than its parent,
 # but is otherwise similar.
-class SymmetricMatrixInput(MatrixInput):
-    def __init__(self,label,rows,cols,value=None,scope=None,name=None):
+class SymmetricMatrixInputBase(MatrixInput):
+    def __init__(self, label, rows, cols, paramtype, paramargs={},
+                 value=None, scope=None, name=None):
         debug.mainthreadTest()
         frame = gtk.Frame()
         self.table = gtk.Table(rows=rows+1, columns=cols+1)
@@ -106,9 +112,7 @@ class SymmetricMatrixInput(MatrixInput):
         self.cols = cols
         self.floats = {}
         self.sbcallbacks = []
-        #
-        #self.table = gtk.GtkTable(rows=self.rows+2,cols=self.cols+2)
-        #
+
         # Do labels first.
         for r in range(self.rows):
             lbl = gtk.Label(' %d ' % (r+1))
@@ -123,10 +127,8 @@ class SymmetricMatrixInput(MatrixInput):
         # Now put the actual floats in.
         for r in range(self.rows):
             for c in range(r,self.cols):
-                newfloat = parameterwidgets.FloatWidget(
-                    parameter.FloatParameter('dummy',0.0),
-                    scope=self,
-                    name="%d,%d"%(r,c))
+                dummyparam = paramtype(name="%d,%d"%(r,c), **paramargs)
+                newfloat = dummyparam.makeWidget(scope=self)
                 self.sbcallbacks.append(
                     switchboard.requestCallbackMain(newfloat,
                                                     self.floatChangeCB))
@@ -142,3 +144,45 @@ class SymmetricMatrixInput(MatrixInput):
                 self.table.attach(newfloat.gtk,c+1,c+2,r+1,r+2,
                                   xoptions=gtk.FILL)
         self.widgetChanged(1, interactive=0)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# MatrixInput and SymmetricMatrixInput display an array of floats.
+
+class MatrixInput(MatrixInputBase):
+    def __init__(self, label, rows, cols, value=None, scope=None, name=None):
+        MatrixInputBase.__init__(self, label=label,
+                                 rows=rows, cols=cols,
+                                 paramtype=parameter.FloatParameter,
+                                 paramargs=dict(value=0.0),
+                                 value=value, scope=scope, name=name)
+
+class SymmetricMatrixInput(SymmetricMatrixInputBase):
+    def __init__(self, label, rows, cols, value=None, scope=None, name=None):
+        SymmetricMatrixInputBase.__init__(self, label=label,
+                                          rows=rows, cols=cols,
+                                          paramtype=parameter.FloatParameter,
+                                          paramargs=dict(value=0.0),
+                                          value=value, scope=scope, name=name)
+
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# MatrixBoolInput and SymmetricMatrixBoolInput display an array of bools.
+
+class MatrixBoolInput(SymmetricMatrixInputBase):
+    def __init__(self, label, rows, cols, value=None, scope=None, name=None):
+        MatrixInputBase.__init__(self, label=label,
+                                 rows=rows, cols=cols,
+                                 paramtype=parameter.BooleanParameter,
+                                 paramargs=dict(value=False),
+                                 value=value, scope=scope, name=name)
+
+class SymmetricMatrixBoolInput(SymmetricMatrixInputBase):
+    def __init__(self, label, rows, cols, value=None, scope=None, name=None):
+        SymmetricMatrixInputBase.__init__(self, label=label,
+                                          rows=rows, cols=cols,
+                                          paramtype=parameter.BooleanParameter,
+                                          paramargs=dict(value=False),
+                                          value=value, scope=scope, name=name)
+        
