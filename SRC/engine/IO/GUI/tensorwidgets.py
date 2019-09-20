@@ -31,7 +31,7 @@ class SymmMatrix3Widget(SymmetricMatrixInput):
     settable = symmmatrix.voigtIndices
     def __init__(self, param, scope=None, name=None):
         debug.mainthreadTest()
-        SymmetricMatrixInput.__init__(self,"",3,3,value=None,scope=scope,
+        SymmetricMatrixInput.__init__(self, 3,3, value=None, scope=scope,
                                       name=name)
         for (k,f) in self.widgets.items():
             if k not in self.settable:

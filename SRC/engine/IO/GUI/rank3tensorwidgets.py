@@ -30,7 +30,7 @@ MatrixInput = matrixparamwidgets.MatrixInput
 class Rank3TensorWidget(MatrixInput):
     def __init__(self, param, scope=None, name=None):
         debug.mainthreadTest()
-        MatrixInput.__init__(self, "", 3,6, value=None, scope=scope, name=name)
+        MatrixInput.__init__(self, 3,6, value=None, scope=scope, name=name)
         for (k,f) in self.widgets.items():
             if k not in self.excluded:
                 f.gtk.set_editable(0)
@@ -49,7 +49,7 @@ class C1Rank3TensorWidget(Rank3TensorWidget):
     # list is too long.
     def __init__(self, param, scope=None, name=None):
         debug.mainthreadTest()
-        MatrixInput.__init__(self,"",3,6,value=None,scope=scope,name=name)
+        MatrixInput.__init__(self, 3,6, value=None, scope=scope, name=name)
             
         for i in range(3):
             for j in range(6):
