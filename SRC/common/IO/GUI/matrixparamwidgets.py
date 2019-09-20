@@ -33,9 +33,14 @@ import types
 # containing all of the matrix entries. See cijklparamwidgets.py
 # for examples of subclasses that do work as ParameterWidgets.
 
+## TODO: Give all ParameterWidget constructors a "compact" boolean
+## argument, passed in via makeWidget.  All widgets created here will
+## have compact=True.  Move the digitsize hack to GenericWidget.  A
+## compact BooleanWidget will be just the checkbox, without the label.
+
 class MatrixInputBase(parameterwidgets.ParameterWidget,
                   widgetscope.WidgetScope):
-    def __init__(self, label, rows, cols, paramtype, paramargs={},
+    def __init__(self, rows, cols, paramtype, paramargs={},
                  value=None, scope=None, name=None):
         debug.mainthreadTest()
         frame = gtk.Frame()
@@ -62,18 +67,18 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
         for r in range(self.rows):
             for c in range(self.cols):
                 # Parameters are quite lightweight, no harm in providing
-                # a dummy to the FloatWidget.
+                # a dummy to the widget.
                 dummyparam = paramtype(name="%d,%d"%(r,c), **paramargs)
-                newfloat = dummyparam.makeWidget(scope=self)
+                newwidget = dummyparam.makeWidget(scope=self)
                 self.sbcallbacks.append(
-                    switchboard.requestCallbackMain(newfloat,
+                    switchboard.requestCallbackMain(newwidget,
                                                     self.floatChangeCB))
                 # Also, set the size -- otherwise, the matrix
                 # array gets to be too big.
-                newfloat.gtk.set_size_request(8*digitsize, -1)
+                newwidget.gtk.set_size_request(8*digitsize, -1)
 
-                self.widgets[(r,c)] = newfloat
-                self.table.attach(newfloat.gtk, c+1,c+2, r+1,r+2,
+                self.widgets[(r,c)] = newwidget
+                self.table.attach(newwidget.gtk, c+1,c+2, r+1,r+2,
                                   xoptions=gtk.FILL)
 
         self.widgetChanged(1, interactive=0) # always valid
@@ -99,7 +104,7 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
 # This class does different things on init than its parent,
 # but is otherwise similar.
 class SymmetricMatrixInputBase(MatrixInputBase):
-    def __init__(self, label, rows, cols, paramtype, paramargs={},
+    def __init__(self, rows, cols, paramtype, paramargs={},
                  value=None, scope=None, name=None):
         debug.mainthreadTest()
         frame = gtk.Frame()
@@ -128,20 +133,20 @@ class SymmetricMatrixInputBase(MatrixInputBase):
         for r in range(self.rows):
             for c in range(r,self.cols):
                 dummyparam = paramtype(name="%d,%d"%(r,c), **paramargs)
-                newfloat = dummyparam.makeWidget(scope=self)
+                newwidget = dummyparam.makeWidget(scope=self)
                 self.sbcallbacks.append(
-                    switchboard.requestCallbackMain(newfloat,
+                    switchboard.requestCallbackMain(newwidget,
                                                     self.floatChangeCB))
                 # Also, set the size -- otherwise, the matrix
                 # array gets to be too big.
-                newfloat.gtk.set_size_request(8*digitsize,-1)
+                newwidget.gtk.set_size_request(8*digitsize,-1)
                 
-                self.widgets[(r,c)] = newfloat
+                self.widgets[(r,c)] = newwidget
                 try:
                     self.widgets[(r,c)].set_value(value[(r,c)])
                 except:
                     pass
-                self.table.attach(newfloat.gtk,c+1,c+2,r+1,r+2,
+                self.table.attach(newwidget.gtk,c+1,c+2,r+1,r+2,
                                   xoptions=gtk.FILL)
         self.widgetChanged(1, interactive=0)
 
@@ -150,17 +155,15 @@ class SymmetricMatrixInputBase(MatrixInputBase):
 # MatrixInput and SymmetricMatrixInput display an array of floats.
 
 class MatrixInput(MatrixInputBase):
-    def __init__(self, label, rows, cols, value=None, scope=None, name=None):
-        MatrixInputBase.__init__(self, label=label,
-                                 rows=rows, cols=cols,
+    def __init__(self, rows, cols, value=None, scope=None, name=None):
+        MatrixInputBase.__init__(self, rows=rows, cols=cols,
                                  paramtype=parameter.FloatParameter,
                                  paramargs=dict(value=0.0),
                                  value=value, scope=scope, name=name)
 
 class SymmetricMatrixInput(SymmetricMatrixInputBase):
-    def __init__(self, label, rows, cols, value=None, scope=None, name=None):
-        SymmetricMatrixInputBase.__init__(self, label=label,
-                                          rows=rows, cols=cols,
+    def __init__(self, rows, cols, value=None, scope=None, name=None):
+        SymmetricMatrixInputBase.__init__(self, rows=rows, cols=cols,
                                           paramtype=parameter.FloatParameter,
                                           paramargs=dict(value=0.0),
                                           value=value, scope=scope, name=name)
@@ -171,17 +174,15 @@ class SymmetricMatrixInput(SymmetricMatrixInputBase):
 # MatrixBoolInput and SymmetricMatrixBoolInput display an array of bools.
 
 class MatrixBoolInput(SymmetricMatrixInputBase):
-    def __init__(self, label, rows, cols, value=None, scope=None, name=None):
-        MatrixInputBase.__init__(self, label=label,
-                                 rows=rows, cols=cols,
+    def __init__(self, rows, cols, value=None, scope=None, name=None):
+        MatrixInputBase.__init__(self, rows=rows, cols=cols,
                                  paramtype=parameter.BooleanParameter,
                                  paramargs=dict(value=False),
                                  value=value, scope=scope, name=name)
 
 class SymmetricMatrixBoolInput(SymmetricMatrixInputBase):
-    def __init__(self, label, rows, cols, value=None, scope=None, name=None):
-        SymmetricMatrixInputBase.__init__(self, label=label,
-                                          rows=rows, cols=cols,
+    def __init__(self, rows, cols, value=None, scope=None, name=None):
+        SymmetricMatrixInputBase.__init__(self, rows=rows, cols=cols,
                                           paramtype=parameter.BooleanParameter,
                                           paramargs=dict(value=False),
                                           value=value, scope=scope, name=name)

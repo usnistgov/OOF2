@@ -48,6 +48,8 @@ public:
   virtual bool constant_in_space() const { return true; }
   virtual const SymmMatrix3 conductivitytensor(const FEMesh*, const Element*,
 					       const MasterPosition&) const = 0;
+  virtual void output(FEMesh*, const Element*, const PropertyOutput*,
+		      const MasterPosition&, OutputVal*) = 0;
 protected:
   SymmMatrix3  conductivitytensor_;
   ScalarField *temperature;
@@ -63,6 +65,8 @@ public:
   virtual void precompute(FEMesh*);
   virtual const SymmMatrix3 conductivitytensor(const FEMesh*, const Element*,
 					       const MasterPosition&) const;
+  virtual void output(FEMesh*, const Element*, const PropertyOutput*,
+		      const MasterPosition&, OutputVal*);
 private:
   double kappa_;
 };
@@ -75,6 +79,8 @@ public:
   virtual void precompute(FEMesh*);
   virtual const SymmMatrix3 conductivitytensor(const FEMesh*, const Element*,
 					       const MasterPosition&) const;
+  virtual void output(FEMesh*, const Element*, const PropertyOutput*,
+		      const MasterPosition&, OutputVal*);
 private:
   SymmMatrix3 kappa_;
   OrientationPropBase *orientation;

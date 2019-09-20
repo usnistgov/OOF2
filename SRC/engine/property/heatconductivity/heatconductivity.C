@@ -207,3 +207,64 @@ AnisoHeatConductivity::conductivitytensor(const FEMesh *mesh,
     return conductivitytensor_;
   return kappa_.transform(orientation->orientation(mesh, el, mpos));
 }
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+void IsoHeatConductivity::output(FEMesh *mesh,
+				 const Element *element,
+				 const PropertyOutput *output,
+				 const MasterPosition &pos,
+				 OutputVal *data)
+{
+  const std::string &outputname = output->name();
+  if(outputname == "Material Constants:Heat Conductivity") {
+    ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
+    std::vector<std::string> *idxstrs =
+      output->getListOfStringsParam("components");
+    for(unsigned int i=0; i<idxstrs->size(); i++) {
+      const std::string &idxpair = (*idxstrs)[i];
+      if(idxpair[0] == idxpair[1])
+	(*listdata)[i] = kappa_;
+      else
+	(*listdata)[i] = 0;
+    }
+    delete idxstrs;
+  }
+}
+
+static void output_k(const SymmMatrix3 &kappa, ListOutputVal *listdata,
+		     const std::vector<std::string> &idxstrs)
+{
+  for(unsigned int i=0; i<idxstrs.size(); i++) {
+    const std::string &idxpair = idxstrs[i];
+    int j = int(idxpair[0] - '1');
+    int k = int(idxpair[1] - '1');
+    (*listdata)[i] = kappa(j,k);
+  }
+}
+			       
+void AnisoHeatConductivity::output(FEMesh *mesh,
+				   const Element *element,
+				   const PropertyOutput *output,
+				   const MasterPosition &pos,
+				   OutputVal *data)
+{
+  const std::string &outputname = output->name();
+  if(outputname == "Material Constants:Heat Conductivity") {
+    ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
+    std::vector<std::string> *idxstrs =
+      output->getListOfStringsParam("components");
+    const std::string *frame = output->getEnumParam("frame");
+    if(*frame == "Lab") {
+      precompute(mesh);
+      output_k(conductivitytensor_, listdata, *idxstrs);
+    }
+    else {
+      assert(*frame == "Crystal");
+      output_k(kappa_, listdata, *idxstrs);
+    }
+    delete idxstrs;
+    delete frame;
+  }
+}
+			       

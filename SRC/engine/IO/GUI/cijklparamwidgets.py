@@ -652,7 +652,7 @@ anisocijkl.TriclinicCijklParameter.makeWidget = TriCijklParam_makeWidget
 class CijklBoolWidget(matrixparamwidgets.SymmetricMatrixBoolInput):
     def __init__(self, param, scope=None, name=None):
         matrixparamwidgets.SymmetricMatrixBoolInput.__init__(
-            self, 'C', 6, 6, value=None, scope=scope, name=name)
+            self, 6, 6, value=None, scope=scope, name=name)
         self.param = param
         self.set_value()
     def draw_values(self, vvlist):

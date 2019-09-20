@@ -230,10 +230,23 @@ class VoigtPairListParameter(parameter.ListOfStringsParameter):
     def valueDesc(self):
         return "A list of character strings of the form 'XY'" \
             " where X and Y are digits from 1 to 6."
-            
 
+class SymmIndexPairListParameter(parameter.ListOfStringsParameter):
+    def checker(self, x):
+        if not isinstance(x, (ListType, TupleType)):
+            parameter.raiseTypeError(type(x), "list of index pairs")
+        for s in x:
+            if not (isinstance(s, StringType) and len(s)==2 and
+                    s[0] in "123" and s[1] in "123"):
+                parameter.raiseTypeError("list of %s" % typename(type(s)),
+                                         "list of index pairs")
+    def valueDesc(self):
+        return "A list of character strings of the form 'XY'" \
+            "where X and Y are digits from 1 to 3."
+
+    
 propertyoutputreg.ModulusPropertyOutputRegistration(
-    name="Elastic Modulus",
+    name="Material Constants:Elastic Modulus",
     symbol="C",
     parameters=[
         VoigtPairListParameter("components"),
@@ -242,3 +255,13 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
     ],
     ordering=10)
 
+propertyoutputreg.ModulusPropertyOutputRegistration(
+    name="Material Constants:Heat Conductivity",
+    symbol="K",
+    parameters=[
+        SymmIndexPairListParameter("components"),
+        enum.EnumParameter(
+            "frame", ReferenceFrame, default="Crystal",
+            tip="Report the conductivity in this reference frame")
+        ],
+    ordering=11)
