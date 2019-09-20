@@ -11,7 +11,6 @@
 # This file contains the definitions of input widgets used for
 # the input of matrix data.  These are usable as parameterwidgets.
 
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common.IO import parameter
@@ -32,11 +31,6 @@ import types
 # itself, since it doesn't set and display a single Parameter
 # containing all of the matrix entries. See cijklparamwidgets.py
 # for examples of subclasses that do work as ParameterWidgets.
-
-## TODO: Give all ParameterWidget constructors a "compact" boolean
-## argument, passed in via makeWidget.  All widgets created here will
-## have compact=True.  Move the digitsize hack to GenericWidget.  A
-## compact BooleanWidget will be just the checkbox, without the label.
 
 class MatrixInputBase(parameterwidgets.ParameterWidget,
                   widgetscope.WidgetScope):
@@ -62,20 +56,15 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
             lbl = gtk.Label(`c+1`)
             self.table.attach(lbl,c+1,c+2,0,1)
 
-        digitsize = guitop.top().digitsize
-        
         for r in range(self.rows):
             for c in range(self.cols):
                 # Parameters are quite lightweight, no harm in providing
                 # a dummy to the widget.
                 dummyparam = paramtype(name="%d,%d"%(r,c), **paramargs)
-                newwidget = dummyparam.makeWidget(scope=self)
+                newwidget = dummyparam.makeWidget(scope=self, compact=True)
                 self.sbcallbacks.append(
                     switchboard.requestCallbackMain(newwidget,
                                                     self.floatChangeCB))
-                # Also, set the size -- otherwise, the matrix
-                # array gets to be too big.
-                newwidget.gtk.set_size_request(8*digitsize, -1)
 
                 self.widgets[(r,c)] = newwidget
                 self.table.attach(newwidget.gtk, c+1,c+2, r+1,r+2,
@@ -112,7 +101,6 @@ class SymmetricMatrixInputBase(MatrixInputBase):
         frame.add(self.table)
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name)
         widgetscope.WidgetScope.__init__(self, scope)
-        #scope.addWidget(self)
         self.rows = rows
         self.cols = cols
         self.widgets = {}
@@ -127,20 +115,14 @@ class SymmetricMatrixInputBase(MatrixInputBase):
             lbl = gtk.Label(`c+1`)
             self.table.attach(lbl,c+1,c+2,0,1)
 
-        digitsize = guitop.top().digitsize
-
         # Now put the actual widgets in.
         for r in range(self.rows):
             for c in range(r,self.cols):
                 dummyparam = paramtype(name="%d,%d"%(r,c), **paramargs)
-                newwidget = dummyparam.makeWidget(scope=self)
+                newwidget = dummyparam.makeWidget(scope=self, compact=True)
                 self.sbcallbacks.append(
                     switchboard.requestCallbackMain(newwidget,
                                                     self.floatChangeCB))
-                # Also, set the size -- otherwise, the matrix
-                # array gets to be too big.
-                newwidget.gtk.set_size_request(8*digitsize,-1)
-                
                 self.widgets[(r,c)] = newwidget
                 try:
                     self.widgets[(r,c)].set_value(value[(r,c)])
