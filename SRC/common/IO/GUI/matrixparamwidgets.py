@@ -45,7 +45,7 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
         widgetscope.WidgetScope.__init__(self, scope)
         self.rows = rows
         self.cols = cols
-        self.floats = {}
+        self.widgets = {}
         self.sbcallbacks = []
 
         # Labels.
@@ -72,7 +72,7 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
                 # array gets to be too big.
                 newfloat.gtk.set_size_request(8*digitsize, -1)
 
-                self.floats[(r,c)] = newfloat
+                self.widgets[(r,c)] = newfloat
                 self.table.attach(newfloat.gtk, c+1,c+2, r+1,r+2,
                                   xoptions=gtk.FILL)
 
@@ -88,17 +88,17 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
     # another.
     def block_signals(self):
         debug.mainthreadTest()
-        for floatwidget in self.floats.values():
+        for floatwidget in self.widgets.values():
             floatwidget.block_signal()
     def unblock_signals(self):
         debug.mainthreadTest()
-        for floatwidget in self.floats.values():
+        for floatwidget in self.widgets.values():
             floatwidget.unblock_signal()
 
 
 # This class does different things on init than its parent,
 # but is otherwise similar.
-class SymmetricMatrixInputBase(MatrixInput):
+class SymmetricMatrixInputBase(MatrixInputBase):
     def __init__(self, label, rows, cols, paramtype, paramargs={},
                  value=None, scope=None, name=None):
         debug.mainthreadTest()
@@ -110,7 +110,7 @@ class SymmetricMatrixInputBase(MatrixInput):
         #scope.addWidget(self)
         self.rows = rows
         self.cols = cols
-        self.floats = {}
+        self.widgets = {}
         self.sbcallbacks = []
 
         # Do labels first.
@@ -124,7 +124,7 @@ class SymmetricMatrixInputBase(MatrixInput):
 
         digitsize = guitop.top().digitsize
 
-        # Now put the actual floats in.
+        # Now put the actual widgets in.
         for r in range(self.rows):
             for c in range(r,self.cols):
                 dummyparam = paramtype(name="%d,%d"%(r,c), **paramargs)
@@ -136,9 +136,9 @@ class SymmetricMatrixInputBase(MatrixInput):
                 # array gets to be too big.
                 newfloat.gtk.set_size_request(8*digitsize,-1)
                 
-                self.floats[(r,c)] = newfloat
+                self.widgets[(r,c)] = newfloat
                 try:
-                    self.floats[(r,c)].set_value(value[(r,c)])
+                    self.widgets[(r,c)].set_value(value[(r,c)])
                 except:
                     pass
                 self.table.attach(newfloat.gtk,c+1,c+2,r+1,r+2,

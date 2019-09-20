@@ -390,6 +390,12 @@ class BooleanWidget(ParameterWidget):
         else:
             self.label.set_text('false')
         self.widgetChanged(1, interactive=1)
+    def block_signal(self):
+        debug.mainthreadTest()
+        self.signal.block()
+    def unblock_signal(self):
+        debug.mainthreadTest()
+        self.signal.unblock()
 
 def _Boolean_makeWidget(self, scope):
     return BooleanWidget(self, scope=scope, name=self.name)
