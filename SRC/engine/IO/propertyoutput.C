@@ -221,9 +221,9 @@ int PropertyOutput::getIntParam(const char *name) const {
   return x;
 }
 
-std::vector<const std::string>
+std::vector<std::string>*
 PropertyOutput::getListOfStringsParam(const char *name) const {
-  std::vector<const std::string> x;
+  std::vector<std::string> *x = new std::vector<std::string>;
   PyGILState_STATE pystate = acquirePyLock();
   try {
     // params_ is a dictionary
@@ -237,7 +237,7 @@ PropertyOutput::getListOfStringsParam(const char *name) const {
       PyObject *item = PySequence_GetItem(obj, i);
       if(!item)
 	pythonErrorRelay();
-      x.emplace_back(PyString_AsString(item));
+      x->emplace_back(PyString_AsString(item));
       Py_XDECREF(item);
     }
     Py_XDECREF(obj);

@@ -11,6 +11,7 @@
  */
 
 #include <oofconfig.h>
+#include "engine/mastercoord.h"
 #include "engine/property/elasticity/iso/iso.h"
 
 CIsoElasticityProp::CIsoElasticityProp(PyObject *registration,
@@ -33,18 +34,17 @@ void CIsoElasticityProp::output(FEMesh *mesh,
   if(outputname == "Elastic Modulus") {
     const Cijkl modulus = cijkl(mesh, element, pos);
     ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
-    // The PropertyOutput's "indices" parameter is a list of pairs of voigt
-    // indices in string form ("11", "62", etc).
-
-    std::vector<const std::string> idxstrs =
-      output->getListOfStringsParam("indices");
-    assert(idxstrs.size() <= listdata->size());
-    // Extract the desired component of cijkl and store it in the PropertyOutput
-    for(unsigned int i=0; i<idxstrs.size(); i++) {
-      std::string voigtpair = idxstrs[i];
-      SymTensorIndex idx0(int(voigtpair[0]-'0'));
-      SymTensorIndex idx1(int(voigtpair[1]-'0'));
-      listdata[i] = c_ijkl(idx0, idx1);
+    // The PropertyOutput's "components" parameter is a list of pairs
+    // of Voigt indices in string form ("11", "62", etc).
+    std::vector<std::string> *idxstrs =
+      output->getListOfStringsParam("components");
+    for(unsigned int i=0; i<idxstrs->size(); i++) { // loop over index pairs
+      std::string voigtpair = (*idxstrs)[i];
+      // Convert from string to int and 1-based indices to 0-based indices
+      SymTensorIndex idx0(int(voigtpair[0]-'1'));
+      SymTensorIndex idx1(int(voigtpair[1]-'1'));
+      // Store the Cijkl component in the PropertyOutput.
+      (*listdata)[i] = c_ijkl(idx0, idx1);
     }
   }
   Elasticity::output(mesh, element, output, pos, data);

@@ -86,6 +86,7 @@ public:
   %new const string *getStringParam(char*);
   %new const string *getEnumParam(char*);
   %new const string *getRegisteredParamName(char*);
+  %new StringVec *getListOfStringsParam(char*);
 };
 
 class ArithmeticPropertyOutput : public PropertyOutput {
