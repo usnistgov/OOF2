@@ -38,7 +38,7 @@ class CijIsoCijklWidget(SymmetricMatrixInput):
     def __init__(self, params, base, scope=None, name=None):
         debug.mainthreadTest()
         self.params = params
-        SymmetricMatrixInput.__init__(self, 'C', 6,6, value=None, scope=scope,
+        SymmetricMatrixInput.__init__(self, 6,6, value=None, scope=scope,
                                       name=name)
         # Block the appropriate ones, and hook up callbacks
         # to handle the c11/c12/c44 synchronization.
@@ -142,7 +142,7 @@ class CijCubicCijklWidget(SymmetricMatrixInput):
     def __init__(self, params, base, scope=None, name=None):
         debug.mainthreadTest()
         self.params = params
-        SymmetricMatrixInput.__init__(self, 'C',6,6, value=None, scope=scope,
+        SymmetricMatrixInput.__init__(self, 6,6, value=None, scope=scope,
                                       name=name)
         # Block the appropriate ones, and hook up callbacks
         # to handle the c11/c12/c44 synchronization.
@@ -236,7 +236,7 @@ class AnisoWidgetBase(SymmetricMatrixInput):
         debug.mainthreadTest()
         self.params = params
         self.kset = kset
-        SymmetricMatrixInput.__init__(self, 'C', 6,6, value=None, scope=scope,
+        SymmetricMatrixInput.__init__(self, 6,6, value=None, scope=scope,
                                       name=name)
         #
         # Make default blocks according to the kset dictionary.
