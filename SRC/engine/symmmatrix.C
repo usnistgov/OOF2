@@ -451,8 +451,19 @@ double SymmMatrix3::minEigenvalue() const {
 }
 
 double &SymmMatrix3::operator[](const IndexP &p) {
+  // TODO: Why isn't this conversion done in one step, like the const
+  // version, below?
   const FieldIndex &fi(p);
   const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(fi);
+#ifdef DEBUG
+  const SymTensorIndex &sti0 = dynamic_cast<const SymTensorIndex&>(p);
+  if(!(sti==sti0 && sti.row()==sti0.row() && sti.col()==sti0.col())) {
+    std::cerr << "SymmMatrix3::operator[]: p=" << p << std::endl;
+    std::cerr << "SymmMatrix3::operator[]: sti=" << sti << std::endl;
+    std::cerr << "SymmMatrix3::operator[]: sti0=" << sti0 << std::endl;
+    throw ErrProgrammingError("SymTensorIndex error", __FILE__, __LINE__);
+  }
+#endif // DEBUG
   dirtyeigs_ = true;
   return (*this)(sti.row(), sti.col());
 }
