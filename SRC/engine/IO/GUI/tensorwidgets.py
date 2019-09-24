@@ -280,3 +280,40 @@ def SymmIndexPairListParam_makeWidget(self, scope):
 outputDefs.SymmIndexPairListParameter.makeWidget = \
     SymmIndexPairListParam_makeWidget
     
+
+# Rank3TensorBoolWidget -- 1st index is space, 2nd index is Voigt
+
+class Rank3TensorBoolWidget(matrixparamwidgets.MatrixBoolInput):
+    def __init__(self, param, scope=None, name=None):
+        matrixparamwidgets.MatrixBoolInput.__init__(
+            self, 3, 6, value=None, scope=scope, name=name)
+        self.param = param
+        self.set_value()
+
+    def draw_values(self, vlist):
+        self.block_signals()
+        try:
+            for r in range(3):
+                for c in range(6):
+                    self.widgets[(r,c)].set_value(False)
+            for v in vlist:
+                self.widgets[(int(v[0])-1, int(v[1])-1)].set_value(True)
+        finally:
+            self.unblock_signals()
+
+    def set_value(self, value=None):
+        self.draw_values(value or [])
+
+    def get_value(self):
+        vals = []
+        for r in range(3):
+            for c in range(6):
+                if self.widgets[(r,c)].get_value():
+                    vals.append("%d%d" % (r+1, c+1))
+        return vals
+
+def Rank3TensorIndexParam_makeWidget(self, scope):
+    return Rank3TensorBoolWidget(self, scope=scope, name=self.name)
+
+outputDefs.Rank3TensorIndexParameter.makeWidget = \
+    Rank3TensorIndexParam_makeWidget

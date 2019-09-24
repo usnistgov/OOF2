@@ -244,24 +244,72 @@ class SymmIndexPairListParameter(parameter.ListOfStringsParameter):
         return "A list of character strings of the form 'XY'" \
             "where X and Y are digits from 1 to 3."
 
+class Rank3TensorIndexParameter(parameter.ListOfStringsParameter):
+    # Pair of integers, ([1-3], [1-6])
+    # This class is poorly named because the name doesn't indicate the
+    # symmetry of the tensor (ie, 2nd index is Voigt).
+    def checker(self, x):
+        if not isinstance(x, (ListType, TupleType)):
+            parameter.raiseTypeError(type(x), "list of index pairs")
+        for s in x:
+            if not (isinstance(s, StringType) and len(s)==2 and
+                    s[0] in "123" and s[1] in "123456"):
+                parameter.raiseTypeError("list of %s" % typename(type(s)),
+                                         "list of index pairs")
+    def valueDesc(self):
+        return "A list of character strings of the form 'XY'" \
+            "where X is a digit from 1 to 3 and Y is a Voigt index from 1 to 6."
     
 propertyoutputreg.ModulusPropertyOutputRegistration(
-    name="Material Constants:Elastic Modulus",
+    name="Material Constants:Elastic Modulus C",
     symbol="C",
     parameters=[
-        VoigtPairListParameter("components"),
-        enum.EnumParameter("frame", ReferenceFrame, default="Crystal",
-                           tip="Report the modulus in this reference frame.")
+        VoigtPairListParameter(
+            "components",
+            tip="Evaluate the selected components of the modulus."),
+        enum.EnumParameter(
+            "frame", ReferenceFrame, default="Crystal",
+            tip="Report the modulus in this reference frame.")
     ],
     ordering=10)
 
 propertyoutputreg.ModulusPropertyOutputRegistration(
-    name="Material Constants:Heat Conductivity",
+    name="Material Constants:Heat Conductivity K",
     symbol="K",
     parameters=[
-        SymmIndexPairListParameter("components"),
+        SymmIndexPairListParameter(
+            "components",
+            tip="Evaluate the selected components of the conductivity."),
         enum.EnumParameter(
             "frame", ReferenceFrame, default="Crystal",
-            tip="Report the conductivity in this reference frame")
+            tip="Report the conductivity in this reference frame.")
         ],
     ordering=11)
+
+propertyoutputreg.ModulusPropertyOutputRegistration(
+    name="Material Constants:Stress-free Strain epsilon0",
+    symbol="epsilon0",
+    parameters=[
+        SymmIndexPairListParameter(
+            "components",
+            tip="Evaluate the selected components of the stress-free strain."),
+        enum.EnumParameter(
+            "frame", ReferenceFrame, default="Crystal",
+            tip="Report the stress-free strain in this reference frame.")
+        ],
+    ordering=12)
+
+propertyoutputreg.ModulusPropertyOutputRegistration(
+    name="Material Constants:Piezoelectric Coefficient D",
+    symbol="D",
+    parameters=[
+        Rank3TensorIndexParameter(
+            "components",
+            tip="Evaluate the selected components of the peizoelectric coefficient."),
+        enum.EnumParameter(
+            "frame", ReferenceFrame, default="Crystal",
+            tip="Report the stress-free strain in this reference frame.")
+        ],
+    ordering=13
+    )
+    

@@ -92,6 +92,8 @@ public:
   {
     return _dijkLab;
   }
+  virtual void output(FEMesh*, const Element*, const PropertyOutput*,
+		      const MasterPosition&, OutputVal*);
 
 private:
   double _dijkValue;
@@ -113,6 +115,8 @@ public:
   const Rank3Tensor dijk() const {
     return _dijkLab;
   }
+  virtual void output(FEMesh*, const Element*, const PropertyOutput*,
+		      const MasterPosition&, OutputVal*);
 private:
   Rank3Tensor _dijkValue;
   OrientationPropBase *orientation;
