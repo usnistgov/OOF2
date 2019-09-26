@@ -451,26 +451,21 @@ double SymmMatrix3::minEigenvalue() const {
 }
 
 double &SymmMatrix3::operator[](const IndexP &p) {
-  // TODO: Why isn't this conversion done in one step, like the const
-  // version, below?
+  // Converting directly from IndexP to SymTensorIndex via
+  // const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(p);
+  // compiles but fails at run time on some compilers.
   const FieldIndex &fi(p);
   const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(fi);
-#ifdef DEBUG
-  const SymTensorIndex &sti0 = dynamic_cast<const SymTensorIndex&>(p);
-  if(!(sti==sti0 && sti.row()==sti0.row() && sti.col()==sti0.col())) {
-    std::cerr << "SymmMatrix3::operator[]: p=" << p << std::endl;
-    std::cerr << "SymmMatrix3::operator[]: sti=" << sti << std::endl;
-    std::cerr << "SymmMatrix3::operator[]: sti0=" << sti0 << std::endl;
-    throw ErrProgrammingError("SymTensorIndex error", __FILE__, __LINE__);
-  }
-#endif // DEBUG
   dirtyeigs_ = true;
   return (*this)(sti.row(), sti.col());
 }
 
 double SymmMatrix3::operator[](const IndexP &p) const {
-  // const FieldIndex &fi(p);
-  const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(p);
+  // Converting directly from IndexP to SymTensorIndex via
+  // const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(p);
+  // compiles but fails at run time on some compilers.
+  const FieldIndex &fi(p);
+  const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(fi);
   return (*this)(sti.row(), sti.col());
 }
 
