@@ -30,5 +30,8 @@ This is an issue now that AutoGroup operations can take a long time.
 Manual for statgroups. Tutorial section?
 
 Is IndexType<> in engine/indextypes.h really necessary?  Is there any
-performance penalty?  
+performance penalty?
 
+Add move constructors for SymmMatrix, SymmMatrix3, Rank3Tensor, etc.
+Change functions that return pointers so that they return objects, if
+appropriate.
