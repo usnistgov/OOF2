@@ -3120,9 +3120,9 @@ def run_tests():
         OOF_OutOfPlanePeriodicBC('Static')
         ]
 
-    static_set = [OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStrain")]
-    oop_periodic_set = []
-    dynamic_set = []
+    # static_set = [OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStrain")]
+    # oop_periodic_set = []
+    # dynamic_set = []
     # #dynamic_set = [OOF_ElasticTimeSteppers("SS22PlaneStrain")]
     # #dynamic_set = [OOF_StaticAndDynamic("SS22PlaneStrain")]
     # dynamic_set = [OOF_ThermalDiffusionTSPlaneFlux("CNdirect")]
