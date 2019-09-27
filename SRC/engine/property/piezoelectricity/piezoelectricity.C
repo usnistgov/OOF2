@@ -239,6 +239,7 @@ void IsotropicPiezoElectricity::output(FEMesh *mesh,
     }
     delete idxstrs;
   }
+  PiezoElectricity::output(mesh, element, output, pos, data);
 }
 
 
@@ -327,4 +328,5 @@ void AnisotropicPiezoElectricity::output(FEMesh *mesh,
     delete idxstrs;
     delete frame;
   }
+  PiezoElectricity::output(mesh, element, output, pos, data);
 }

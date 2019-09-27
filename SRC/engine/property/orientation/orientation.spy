@@ -21,7 +21,7 @@ orientationReg = propertyregistration.PropertyRegistration(
     [parameter.ConvertibleRegisteredParameter(
        'angles', orientationmatrix.Orientation,
         orientationmatrix.Abg(0.0, 0.0, 0.0), tip=parameter.emptyTipString)],
-    outputs=["Orientation"],
+    outputs=["Material Constants:Orientation"],
     propertyType="Orientation",
     tip="Orientation of the crystalline axes.",
     discussion=xmlmenudump.loadFile(

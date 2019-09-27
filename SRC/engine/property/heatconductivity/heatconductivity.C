@@ -230,6 +230,7 @@ void IsoHeatConductivity::output(FEMesh *mesh,
     }
     delete idxstrs;
   }
+  HeatConductivity::output(mesh, element, output, pos, data);
 }
 
 static void output_k(const SymmMatrix3 &kappa, ListOutputVal *listdata,
@@ -266,5 +267,6 @@ void AnisoHeatConductivity::output(FEMesh *mesh,
     delete idxstrs;
     delete frame;
   }
+  HeatConductivity::output(mesh, element, output, pos, data);
 }
 			       
