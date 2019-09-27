@@ -206,7 +206,7 @@ propertyoutputreg.ScalarPropertyOutputRegistration(
 #-----------
 
 propertyoutputreg.OrientationPropertyOutputRegistration(
-    "Orientation",
+    "Material Constants:Orientation",
     ordering=4,
     tip="Compute the orientation at each point.")
 

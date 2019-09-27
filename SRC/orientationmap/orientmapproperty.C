@@ -74,7 +74,7 @@ void OrientationMapProp::output(FEMesh *mesh,
 				OutputVal *data)
 {
   const std::string &outputname = output->name();
-  if(outputname == "Orientation") {
+  if(outputname == "Material Constants:Orientation") {
     COrientation *odata = dynamic_cast<COrientation*>(data);
     *odata = *orientation(mesh, element, pos);
   }
