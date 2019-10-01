@@ -519,6 +519,16 @@ class Output(object):
     def isPositionOutput(self):
         return positionOutputs.contains(self.getPrototype())
 
+    def allowsArithmetic(self):
+        # _allowsArithmetic is set by PropertyOutputs in
+        # ArithmeticPropertyOutputRegistration and
+        # NonArithmeticPropertyOutputRegistration.  Outputs that don't
+        # allow arithmetic can be printed but not averaged, for
+        # example.
+        try:
+            return self._allowsArithmetic
+        except AttributeError:
+            return True
 
 # Utility function used in Output.getParameterNameHierarchy().  Takes
 # a hierarchical list of Parameters names and prepends the given name

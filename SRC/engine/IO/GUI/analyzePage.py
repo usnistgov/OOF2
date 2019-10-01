@@ -470,10 +470,10 @@ class AnalyzePage(BaseAnalysisPage):
         return self.output_obj is self.aggregate_output_obj
     def outputAllowsArithmetic(self):
         # Arithmetic can be performed on an output as long as it and
-        # none of its ancestors have allowsArithmetic == False
+        # none of its ancestors have _allowsArithmetic == False
         outputproto = self.output_obj.get_proto()
         try:
-            return not outputproto or outputproto.allowsArithmetic
+            return not outputproto or outputproto.allowsArithmetic()
         except AttributeError:
             return True
         
