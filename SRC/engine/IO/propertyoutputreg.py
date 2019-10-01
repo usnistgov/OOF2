@@ -252,10 +252,5 @@ class ModulusPropertyOutputRegistration(
                                                          initializer)
         output.defineAggregateOutput(name, op, ordering=ordering)
     def zeroVal(self, output):
-        debug.fmsg(output)
-        try:
-            listarg = output.getListOfStringsParam("components")
-        except:
-            debug.fmsg("output=", output, "class=", output.__class__)
-            raise
+        listarg = output.getListOfStringsParam("components")
         return outputval.ListOutputVal(len(listarg))

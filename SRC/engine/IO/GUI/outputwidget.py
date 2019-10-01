@@ -90,6 +90,9 @@ class OutputParameterWidget(parameterwidgets.ParameterWidget,
                 pdict[param.name] = param.value
             bozo = outputprototype.clone(params=pdict)
             return bozo
+    def get_proto(self):
+        return self.treewidget.get_value()
+
     def destroyParameterTable(self):
         debug.mainthreadTest()
         if self.paramtable is not None:

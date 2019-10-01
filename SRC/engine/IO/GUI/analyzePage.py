@@ -140,11 +140,18 @@ class DataOperationFactory(regclassfactory.RegisteredClassFactory):
         self.page = page
         regclassfactory.RegisteredClassFactory.__init__(self, *args, **kwargs)
     def includeRegistration(self, registration):
-        return not ((self.page.aggregateMode() and 
+        return ((not
+                 (
+                     (self.page.aggregateMode() and 
                      getattr(registration, 'scalar_only', False))
-                    or
-                    (self.page.scalarMode() and
-                     getattr(registration, 'aggregate_only', False)))
+                     or
+                     (self.page.scalarMode() and
+                      getattr(registration, 'aggregate_only', False))
+                 ))
+                and
+                (self.page.outputAllowsArithmetic() or
+                 getattr(registration, 'direct', False))
+        )
         
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -319,10 +326,14 @@ class AnalyzePage(BaseAnalysisPage):
                                         self.sensitize_widgets)
         switchboard.requestCallbackMain(('validity', self.op_obj),
                                         self.sensitize_widgets)
-        switchboard.requestCallbackMain(('validity', self.scalar_output_obj),
-                                        self.sensitize_widgets)
-        switchboard.requestCallbackMain(('validity', self.aggregate_output_obj),
-                                        self.sensitize_widgets)
+
+        # If the Output changes, the allowed Operations change.
+        # updateOperations calls sensitize_widgets too.
+        switchboard.requestCallbackMain(self.aggregate_output_obj,
+                                        self.updateOperations)
+        switchboard.requestCallbackMain(self.scalar_output_obj,
+                                        self.updateOperations)
+
         switchboard.requestCallbackMain(('validity', self.destwidget),
                                         self.sensitize_widgets)
         switchboard.requestCallbackMain("named analyses changed",
@@ -342,6 +353,7 @@ class AnalyzePage(BaseAnalysisPage):
                                         self.setNamedAnalysisChooser)
         switchboard.requestCallbackMain(self.sample_obj,
                                         self.setNamedAnalysisChooser)
+
     menuWidgetName = 'NamedOpsMenu'
     def show(self):
         # show() is called once, when the page is first created.
@@ -448,10 +460,22 @@ class AnalyzePage(BaseAnalysisPage):
         self.op_obj.refresh()
         self.sensitize_widgets()
 
+    def updateOperations(self, gtkobj):
+        self.op_obj.refresh()
+        self.sensitize_widgets()
+
     def scalarMode(self):
         return self.output_obj is self.scalar_output_obj
     def aggregateMode(self):
         return self.output_obj is self.aggregate_output_obj
+    def outputAllowsArithmetic(self):
+        # Arithmetic can be performed on an output as long as it and
+        # none of its ancestors have allowsArithmetic == False
+        outputproto = self.output_obj.get_proto()
+        try:
+            return not outputproto or outputproto.allowsArithmetic
+        except AttributeError:
+            return True
         
     # Switchboard, ("new who", "Mesh")
     def new_mesh(self, mesh):

@@ -92,13 +92,14 @@ class _PORegBase(PropertyOutputRegistration):
 
 class ArithmeticPropertyOutputRegistration(_PORegBase):
     def __init__(self, name, output, initializer=None):
+        output.allowsArithmetic = True
         _PORegBase.__init__(self, name, output, initializer)
     def _instantiate(self, name, params):
         return self.instantiateArithmetic(name, params)
 
 class NonArithmeticPropertyOutputRegistration(_PORegBase):
     def __init__(self, name, output, initializer=None):
+        output.allowsArithmetic = False
         _PORegBase.__init__(self, name, output, initializer)
     def _instantiate(self, name, params):
         return self.instantiateNonArithmetic(name, params)
-        
