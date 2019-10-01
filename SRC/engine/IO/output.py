@@ -195,7 +195,7 @@ class Output(object):
         try:
             return getattr(self.parent, name)
         except AttributeError:
-            raise AttributeError("Output %s has no attribute named '%s'"
+            raise AttributeError("Output '%s' has no attribute named '%s'"
                                  % (self.name, name))
 
         
