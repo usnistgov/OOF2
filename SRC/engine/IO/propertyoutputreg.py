@@ -37,7 +37,6 @@ class ScalarPropertyOutputRegistration(ArithmeticPropertyOutputRegistration):
     def __init__(self, name, parameters=[], ordering=0,
                  initializer=None,
                  srepr=None, tip=None, discussion=None):
-        ArithmeticPropertyOutputRegistration.__init__(self, name, initializer)
         op = output.Output(name=name,
                            callback=self.opfunc,
                            otype=outputval.ScalarOutputValPtr,
@@ -45,6 +44,8 @@ class ScalarPropertyOutputRegistration(ArithmeticPropertyOutputRegistration):
                            column_names=outputClones.single_column_name,
                            params=parameters,
                            srepr=srepr, tip=tip, discussion=discussion)
+        ArithmeticPropertyOutputRegistration.__init__(self, name, op,
+                                                      initializer)
         output.defineScalarOutput(name, op, ordering=ordering)
         output.defineAggregateOutput(name, op, ordering=ordering)
 
@@ -68,7 +69,6 @@ class ThreeVectorPropertyOutputRegistration(
     def __init__(self, name, parameters=[], ordering=0,
                  initializer=None,
                  srepr=None, tip=None, discussion=None):
-        ArithmeticPropertyOutputRegistration.__init__(self, name, initializer)
         op = output.Output(name=name,
                            callback=self.opfunc,
                            otype=outputval.OutputValPtr,
@@ -76,6 +76,8 @@ class ThreeVectorPropertyOutputRegistration(
                            params=parameters,
                            srepr=srepr, tip=tip,
                            discussion=discussion)
+        ArithmeticPropertyOutputRegistration.__init__(self, name, op,
+                                                      initializer)
         output.defineAggregateOutput(name, op, ordering=ordering)
 
         compout = outputClones.ComponentOutput.clone(
@@ -114,7 +116,6 @@ class SymmMatrix3PropertyOutputRegistration(
     def __init__(self, name, parameters=[], ordering=0,
                  initializer=None,
                  srepr=None, tip=None, discussion=None):
-        ArithmeticPropertyOutputRegistration.__init__(self, name, initializer)
         op = output.Output(name=name,
                            callback=self.opfunc,
                            otype=outputval.OutputValPtr,
@@ -123,6 +124,8 @@ class SymmMatrix3PropertyOutputRegistration(
                            column_names=_symmmatrix3_column_names,
                            params=parameters,
                            tip=tip, discussion=discussion)
+        ArithmeticPropertyOutputRegistration.__init__(self, name, op,
+                                                      initializer)
         output.defineAggregateOutput(name+":Value", op, ordering=ordering)
 
         def comprepr(s):
@@ -196,8 +199,6 @@ class OrientationPropertyOutputRegistration(
             "format",
             orientationmatrix.OrientationEnum,
             tip="How to print the orientation.")
-        NonArithmeticPropertyOutputRegistration.__init__(self, name,
-                                                         initializer)
         op = output.Output(name=name,
                            callback=self.opfunc,
                            otype=corientation.COrientationPtr,
@@ -206,6 +207,8 @@ class OrientationPropertyOutputRegistration(
                            column_names=_orientation_column_names,
                            params=[param] + parameters,
                            tip=tip, discussion=discussion)
+        NonArithmeticPropertyOutputRegistration.__init__(self, name, op,
+                                                         initializer)
         output.defineAggregateOutput(name, op, ordering=ordering)
 
     def zeroVal(self, output):
@@ -235,8 +238,6 @@ class ModulusPropertyOutputRegistration(
     def __init__(self, name, symbol, parameters=[],
                  initializer=None,
                  ordering=1, tip=None, discussion=None):
-        NonArithmeticPropertyOutputRegistration.__init__(self, name,
-                                                         initializer)
         op = output.Output(name=name,
                            callback=self.opfunc,
                            otype=outputval.ListOutputValPtr,
@@ -247,7 +248,14 @@ class ModulusPropertyOutputRegistration(
                            tip=tip, discussion=discussion,
                            symbol=symbol # C for elastic modulus, etc. For srepr
         )
+        NonArithmeticPropertyOutputRegistration.__init__(self, name, op,
+                                                         initializer)
         output.defineAggregateOutput(name, op, ordering=ordering)
     def zeroVal(self, output):
-        listarg = output.getListOfStringsParam("components")
+        debug.fmsg(output)
+        try:
+            listarg = output.getListOfStringsParam("components")
+        except:
+            debug.fmsg("output=", output, "class=", output.__class__)
+            raise
         return outputval.ListOutputVal(len(listarg))

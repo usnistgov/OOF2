@@ -595,7 +595,7 @@ class AggregateOutputParameter(parameter.Parameter):
 
 # Parameter for either aggregate or scalar outputs -- i.e., those
 # outputs which are not positionOutputs, but rather are the values of
-# things.  This class mainly has the valueDesc string.
+# things.
 class ValueOutputParameter(parameter.Parameter):
     def checker(self, x):
         if not isinstance(x, Output):

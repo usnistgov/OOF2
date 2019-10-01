@@ -21,8 +21,11 @@ class _PORegBase(PropertyOutputRegistration):
     # If it's None, a default initializer will be used, which
     # initializes the OutputVal to zero (or the equivalent).  Most of
     # the time, the default should be sufficient.
-    def __init__(self, name, initializer=None):
+    # Subclasses' constructors must create an actual Output object and
+    # pass it in here as the 'output' argument.
+    def __init__(self, name, output, initializer=None):
         self.initializer = initializer
+        self.output = output
         PropertyOutputRegistration.__init__(self, name)
         
     ## Callback for all PropertyOutputs.  Outputs that need to return
@@ -35,6 +38,12 @@ class _PORegBase(PropertyOutputRegistration):
         # PropertyOutputInit::instantiate and creates an instance of a
         # PropertyOutput subclass.
         po = self._instantiate(self.name(), params)
+
+        # Store the currently active PropertyOutput in self, so that
+        # it can be used if instancefn or zeroVal need to examine any
+        # parameters.  This is thread safe because self.output is
+        # cloned before this point.
+        self.output._propertyOutput = po
 
         # initializer initializes the OutputVal at each evaluation
         # point. If an initializer wasn't provided, the default
@@ -65,7 +74,8 @@ class _PORegBase(PropertyOutputRegistration):
 
     def zeroVal(self, propout):
         # Subclasses must define this method, which returns "zero" in
-        # the format desired for the output.  The argument is the 
+        # the format desired for the output.  The argument is the
+        # Output object.
         raise ErrPyProgrammingError("%s.zeroVal is not defined!"
                                     % self.__class__.__name__)
 
@@ -75,18 +85,20 @@ class _PORegBase(PropertyOutputRegistration):
     # See comments in Output.outputInstance() in output.py before
     # changing this function.
     def instancefn(self, obj):
-        return self.zeroVal(obj)
+        # obj is an Output, created in the __init__ of a
+        # PropertyOutputRegistration subclass.
+        return self.zeroVal(obj._propertyOutput)
     
 
 class ArithmeticPropertyOutputRegistration(_PORegBase):
-    def __init__(self, name, initializer=None):
-        _PORegBase.__init__(self, name, initializer)
+    def __init__(self, name, output, initializer=None):
+        _PORegBase.__init__(self, name, output, initializer)
     def _instantiate(self, name, params):
         return self.instantiateArithmetic(name, params)
 
 class NonArithmeticPropertyOutputRegistration(_PORegBase):
-    def __init__(self, name, initializer=None):
-        _PORegBase.__init__(self, name, initializer)
+    def __init__(self, name, output, initializer=None):
+        _PORegBase.__init__(self, name, output, initializer)
     def _instantiate(self, name, params):
         return self.instantiateNonArithmetic(name, params)
         
