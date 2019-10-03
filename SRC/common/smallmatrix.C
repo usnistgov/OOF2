@@ -72,6 +72,11 @@ SmallMatrix SmallMatrix::operator*(double x) const {
   return tmp;
 }
 
+// scalar * Matrix
+SmallMatrix operator*(double x, const SmallMatrix &m) {
+  return m*x;
+}
+
 // Matrix * Matrix
 SmallMatrix SmallMatrix::operator*(const SmallMatrix& other) const {
   SmallMatrix tmp;
