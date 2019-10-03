@@ -77,6 +77,8 @@ public:
   void msub(const SmallMatrix& other) { data -= other.data; }
 };
 
+SmallMatrix operator*(double, const SmallMatrix&);
+
 // class SmallMatrix3x3 : public SmallMatrix {
 // public:
 //   SmallMatrix3x3(double a00, double a01, double a02,
