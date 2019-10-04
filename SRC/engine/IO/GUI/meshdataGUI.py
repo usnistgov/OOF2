@@ -96,7 +96,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
         expander = gtk.Expander("Source")
         gtklogger.setWidgetName(expander, 'ViewSource')
         gtklogger.connect_passive_after(expander, 'activate')
-        self.mainbox.pack_start(expander)
+        self.mainbox.pack_start(expander, expand=0, fill=0)
         expander.set_expanded(1)
         
         self.table = gtk.Table(rows=config.dimension()+4, columns=2)
@@ -217,10 +217,15 @@ class MeshDataGUI(widgetscope.WidgetScope):
         gtklogger.setWidgetName(frame, 'Data')
         frame.set_shadow_type(gtk.SHADOW_IN)
         hbox.pack_start(frame, expand=1, fill=1, padding=5)
-        vbox = gtk.VBox()
-        frame.add(vbox)
-        self.databox = gtk.HBox()
-        vbox.pack_start(self.databox, expand=1, fill=1, padding=3)
+        # valign keeps the data widget at the top of the frame
+        valign = gtk.Alignment(yalign=0.0)
+        frame.add(valign)
+        # dhbox just provides space between the data widget and the frame
+        dhbox = gtk.HBox(spacing=5)
+        valign.add(dhbox)
+        # databox is where the data widget goes
+        self.databox = gtk.VBox()
+        dhbox.pack_start(self.databox, expand=1, fill=1, padding=5)
         self.datawidget = None       # set by updateData
 
         # Buttons at the bottom of the window
