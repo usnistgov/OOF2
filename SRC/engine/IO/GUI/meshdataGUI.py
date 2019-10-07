@@ -549,6 +549,14 @@ class MeshDataGUI(widgetscope.WidgetScope):
                 try:
                     # precompute *must* be called on a subthread
                     self.currentMesh.precompute_all_subproblems()
+
+                    ## TODO: If op is a ConcatenateOutput and just one
+                    ## of its inputs is incomputable, it would be nice
+                    ## to still display the other one.  That doesn't
+                    ## happen with the current structure because
+                    ## op.incomputable is True if just one input is
+                    ## incomputable.
+                    
                     if (op is not None and 
                         not op.incomputable(self.currentMesh)):
                         element = self.currentMesh.enclosingElement(

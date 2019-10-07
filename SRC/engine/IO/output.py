@@ -574,6 +574,8 @@ class PositionOutputParameter(parameter.Parameter):
         if not isinstance(x, Output):
             parameter.raiseTypeError(type(x), 'Position Output')
         PositionOutputParameter.oktypes(x.otype)
+    def incomputable(self, context):
+        return self.value is None or self.value.incomputable(context)
     def valueDesc(self):
         return "An <link linkend='Section-Output-Position'><classname>Output</classname></link> object whose value is a position in the xy plane."
         
@@ -586,6 +588,8 @@ class ScalarOutputParameter(parameter.Parameter):
         if not (isinstance(x, Output)
                 and issubclass(x.otype, outputval.ScalarOutputValPtr)):
             parameter.raiseTypeError(type(x), 'Scalar Output')
+    def incomputable(self, context):
+        return self.value is None or self.value.incomputable(context)
     def valueDesc(self):
         return "An <link linkend='Section-Output-Scalar'><classname>Output</classname></link> object whose value is a real number."
 
@@ -600,6 +604,8 @@ class AggregateOutputParameter(parameter.Parameter):
     def checker(self, x):
         if not isinstance(x, Output):
             parameter.raiseTypeError(type(x), 'Output')
+    def incomputable(self, context):
+        return self.value is None or self.value.incomputable(context)
     def valueDesc(self):
         return "An <link linkend='Section-Output-Aggregate'><classname>AggregateOutput</classname></link> object."
 
@@ -610,6 +616,8 @@ class ValueOutputParameter(parameter.Parameter):
     def checker(self, x):
         if not isinstance(x, Output):
             parameter.raiseTypeError(type(x), 'Output')
+    def incomputable(self, context):
+        return self.value is None or self.value.incomputable(context)
     def valueDesc(self):
         return """Either a <link linkend='Section-Output-Aggregate'>
 <classname>AggregateOutput</classname></link> object, or an

@@ -18,6 +18,9 @@ from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
 import gtk
 
+# Widgets for Parameters whose value is an Output (not the value of an
+# Output, but the Output object itself).
+
 class OutputParameterWidget(parameterwidgets.ParameterWidget,
                             widgetscope.WidgetScope):
     def __init__(self, value, outputtree, scope=None, name=None):

@@ -702,6 +702,15 @@ static double degrees = 180./M_PI;
 
 // -----------
 
+// The strings in COrientation::arguments are used when constructing
+// the OIndex and OIterators that the OutputVal machinery uses when
+// getting the components of an output.  The strings are identical to
+// the names of the Parameters for each COrientation constructor.  Can
+// this duplication be eliminated?
+
+const std::vector<std::string> COrientABG::arguments(
+					     {"alpha", "beta", "gamma"});
+
 const std::string &COrientABG::classname() const {
   static const std::string nm("COrientABG");
   return nm;
@@ -721,6 +730,9 @@ std::vector<double> *COrientABG::value_list() const {
 }
 
 // ---------
+
+const std::vector<std::string> COrientBunge::arguments(
+					       {"phi1", "theta", "phi2"});
 
 const std::string &COrientBunge::classname() const {
   static const std::string nm("COrientBunge");
@@ -742,6 +754,9 @@ std::vector<double> *COrientBunge::value_list() const {
 
 // ---------
 
+const std::vector<std::string> COrientQuaternion::arguments(
+						    {"e0", "e1", "e2", "e3"});
+
 const std::string &COrientQuaternion::classname() const {
   static const std::string nm("COrientQuaternion");
   return nm;
@@ -759,7 +774,9 @@ std::vector<double> *COrientQuaternion::value_list() const {
   return new std::vector<double>{q[0], q[1], q[2], q[3]};
 }
 
-// ---------
+// --------
+
+const std::vector<std::string> COrientX::arguments({"phi", "theta", "psi"});
 
 const std::string &COrientX::classname() const {
   static const std::string nm("COrientX");
@@ -780,6 +797,8 @@ std::vector<double> *COrientX::value_list() const {
 
 // ---------
 
+const std::vector<std::string> COrientXYZ::arguments({"phi", "theta", "psi"});
+
 const std::string &COrientXYZ::classname() const {
   static const std::string nm("COrientXYZ");
   return nm;
@@ -799,6 +818,8 @@ std::vector<double> *COrientXYZ::value_list() const {
 
 // ---------
 
+const std::vector<std::string> COrientAxis::arguments({"angle", "x", "y", "z"});
+
 const std::string &COrientAxis::classname() const {
   static const std::string nm("COrientAxis");
   return nm;
@@ -817,6 +838,8 @@ std::vector<double> *COrientAxis::value_list() const {
 }
 
 // ---------
+
+const std::vector<std::string> COrientRodrigues::arguments({"r1", "r2", "r3"});
 
 const std::string &COrientRodrigues::classname() const {
   static const std::string nm("COrientRodrigues");

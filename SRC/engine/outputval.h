@@ -16,6 +16,7 @@
 #define OUTPUTVAL_H
 
 #include "common/pythonexportable.h"
+#include "engine/fieldindex.h"
 
 #include <iostream>
 #include <math.h>
@@ -52,6 +53,10 @@ public:
   // IO ops.
   virtual std::vector<double> *value_list() const = 0;
   virtual void print(std::ostream&) const = 0;
+  // getIndex converts the string representation of a component index
+  // into an IndexP object that can be used to extract a component.
+  virtual IndexP getIndex(const std::string&) const = 0;
+  virtual IteratorP getIterator() const = 0;
 
   friend class OutputValue;
 };
@@ -69,11 +74,6 @@ public:
   virtual double magnitude() const = 0;
   virtual double operator[](const IndexP&) const = 0;
   virtual double &operator[](const IndexP&) = 0;
-  // getIndex converts the string representation of a component index
-  // into an IndexP object that can be used to extract a component.
-  virtual IndexP getIndex(const std::string&) const = 0;
-  virtual IteratorP getIterator() const = 0;
-
 };
 
 class NonArithmeticOutputVal : public OutputVal {
@@ -223,16 +223,20 @@ VectorOutputVal operator/(VectorOutputVal&, double);
 
 // Subclasses of NonArithmeticOutputVal
 
+// ListOutputVal is just a list of values without any specific
+// structure, so the labels for its components need to be supplied
+// externally.
+
 class ListOutputVal : public NonArithmeticOutputVal {
 private:
   unsigned int size_;
   double *data;
+  const std::vector<std::string> labels; 
   static std::string classname_;
 public:
-  ListOutputVal();
-  ListOutputVal(unsigned int n);
+  ListOutputVal(const std::vector<std::string>*);
+  ListOutputVal(const std::vector<std::string>*, const std::vector<double>&);
   ListOutputVal(const ListOutputVal&);
-  ListOutputVal(const std::vector<double>&);
   virtual ~ListOutputVal();
   virtual const std::string &classname() const { return classname_; }  
   virtual const ListOutputVal &operator=(const OutputVal&);
@@ -243,9 +247,68 @@ public:
   virtual ListOutputVal *clone() const;
   double &operator[](int i) { return data[i]; }
   double operator[](int i) const { return data[i]; }
+  virtual double operator[](const IndexP &p) const;
+  virtual double &operator[](const IndexP &p);
+  virtual IteratorP getIterator() const;
+  virtual IndexP getIndex(const std::string&) const;
   virtual std::vector<double> *value_list() const;
   virtual void print(std::ostream&) const;
+  const std::string &label(int i) const { return labels[i]; }
+  friend class ListOutputValIndex;
 };
+
+// ListOutptuValIndex has to be a FieldIndex so that it can be used to
+// index ListOutputVal, but it doesn't really belong in FieldIndex
+// because the in_plane method doesn't make any sense for it.  We're
+// over-using the FieldIndex class.
+// TODO: OutputVal should use some other kind of Index, and FieldIndex
+// should be derived from that.
+
+class ListOutputValIndex : virtual public FieldIndex {
+protected:
+  int max_;
+  int index_;
+  const ListOutputVal *ov_;
+public:
+  ListOutputValIndex(const ListOutputVal *ov)
+    : max_(ov->size_), index_(0), ov_(ov)
+  {}
+  ListOutputValIndex(const ListOutputVal *ov, int i)
+    : max_(ov->size_), index_(i), ov_(ov)
+  {}
+  ListOutputValIndex(const ListOutputValIndex &o)
+    : max_(o.max_), index_(o.index_), ov_(o.ov_)
+  {}
+  virtual FieldIndex *cloneIndex() const {
+    return new ListOutputValIndex(*this);
+  }
+  virtual int integer() const { return index_; }
+  virtual void set(const std::vector<int>*);
+  virtual std::vector<int>* components() const;
+  virtual void print(std::ostream &os) const;
+  virtual const std::string &shortstring() const;
+};
+
+
+class ListOutputValIterator : public ListOutputValIndex,
+				   public FieldIterator
+{
+public:
+  ListOutputValIterator(const ListOutputVal *ov)
+    : ListOutputValIndex(ov)
+  {}
+  ListOutputValIterator(const ListOutputValIterator &o)
+    : ListOutputValIndex(o)
+  {}
+  virtual void operator++() { index_++; }
+  virtual bool end() const { return index_ == max_; }
+  virtual void reset() { index_ = 0; }
+  virtual int size() const { return max_; }
+  virtual FieldIterator *cloneIterator() const {
+    return new ListOutputValIterator(*this);
+  }
+};
+
 
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

@@ -38,6 +38,8 @@ class OutputVal {
 public:
   ~OutputVal();
   int dim();
+  IndexP getIndex(char *);
+  IteratorP getIterator();
   %new OutputVal *clone();
   %new OutputVal *zero();
   %new DoubleList *value_list();
@@ -49,8 +51,6 @@ public:
 
 class ArithmeticOutputVal : public OutputVal {
 public:
-  IndexP getIndex(char *);
-  IteratorP getIterator();
   %new OutputVal *one();
   void component_pow(int);
   void component_square();
@@ -127,8 +127,16 @@ public:
 
 class ListOutputVal : public NonArithmeticOutputVal {
 public:
-  ListOutputVal(int);
+  ListOutputVal(StringVec*);
   int size();
+  %addmethods {
+    double __getitem__(const IndexP &i) const {
+      return (*self)[i];
+    }
+    void __setitem__(const IndexP &i, double x) {
+      (*self)[i] = x;
+    }
+  }
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

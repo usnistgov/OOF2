@@ -226,10 +226,12 @@ class OrientationPropertyOutputRegistration(
 # the type of the modulus.
 
 def _modulus_srepr(self):
+    # self is an Output
     listarg = self.findParam("components").value
     return "%s(%s)" % (self.name, str(listarg)[1:-1])
 
 def _modulus_column_names(self):
+    # self is an Output
     listarg = self.findParam("components").value
     return ["%s_%s"%(self.symbol, component) for component in listarg]
 
@@ -238,6 +240,7 @@ class ModulusPropertyOutputRegistration(
     def __init__(self, name, symbol, parameters=[],
                  initializer=None,
                  ordering=1, tip=None, discussion=None):
+        self.symbol = symbol
         op = output.Output(name=name,
                            callback=self.opfunc,
                            otype=outputval.ListOutputValPtr,
@@ -252,5 +255,7 @@ class ModulusPropertyOutputRegistration(
                                                          initializer)
         output.defineAggregateOutput(name, op, ordering=ordering)
     def zeroVal(self, output):
-        listarg = output.getListOfStringsParam("components")
-        return outputval.ListOutputVal(len(listarg))
+        # output is a NonArithmeticPropertyOutputPtr, not an Output
+        components = output.getListOfStringsParam("components")
+        symbols = [self.symbol + "_" + c for c in components]
+        return outputval.ListOutputVal(symbols)

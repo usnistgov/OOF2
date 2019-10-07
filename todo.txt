@@ -35,3 +35,5 @@ performance penalty?
 Add move constructors for SymmMatrix, SymmMatrix3, Rank3Tensor, etc.
 Change functions that return pointers so that they return objects, if
 appropriate.
+
+Get rid of the distinction between Scalar and Aggregate Outputs, as in OOF3D. 

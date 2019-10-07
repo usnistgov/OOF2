@@ -11,6 +11,7 @@
 
 #include <oofconfig.h>
 
+#include "common/printvec.h"
 #include "engine/fieldindex.h"
 #include "engine/ooferror.h"
 #include "engine/outputval.h"
@@ -322,35 +323,42 @@ VectorOutputVal operator/(const VectorOutputVal &a, double b) {
 
 std::string ListOutputVal::classname_("ListOutputVal");
 
-ListOutputVal::ListOutputVal()
-  : size_(0),
-    data(nullptr)
-{}
-
-ListOutputVal::ListOutputVal(unsigned int n)
-  : size_(n),
-    data(new double[n])
+ListOutputVal::ListOutputVal(const std::vector<std::string> *lbls)
+  : size_(lbls->size()),
+    data(new double[lbls->size()]),
+    labels(*lbls) 
 {
   for(unsigned int i=0; i<size_; i++)
     data[i] = 0.0;
 }
 
-ListOutputVal::ListOutputVal(const ListOutputVal &other)
-  : size_(other.size()),
-    data(new double[other.size()])
-{
-  (void) memcpy(data, other.data, size_*sizeof(double));
-}
-
-ListOutputVal::ListOutputVal(const std::vector<double> &vec)
+ListOutputVal::ListOutputVal(const std::vector<std::string> *lbls,
+			     const std::vector<double> &vec)
   : size_(vec.size()),
-    data(new double[size_])
+    data(new double[size_]),
+    labels(*lbls)
 {
   (void) memcpy(data, vec.data(), size_*sizeof(double));
 }
 
+ListOutputVal::ListOutputVal(const ListOutputVal &other)
+  : size_(other.size()),
+    data(new double[other.size()]),
+    labels(other.labels)
+{
+  (void) memcpy(data, other.data, size_*sizeof(double));
+}
+
 ListOutputVal::~ListOutputVal() {
   delete [] data;
+}
+
+double ListOutputVal::operator[](const IndexP &p) const {
+  return data[p.integer()];
+}
+  
+double &ListOutputVal::operator[](const IndexP &p) {
+  return data[p.integer()];
 }
 
 const ListOutputVal &ListOutputVal::operator=(const OutputVal &other) {
@@ -367,18 +375,49 @@ const ListOutputVal &ListOutputVal::operator=(const ListOutputVal &other) {
 }
 
 ListOutputVal *ListOutputVal::zero() const {
-  return new ListOutputVal(size_);
+  return new ListOutputVal(&labels);
 }
 
 ListOutputVal *ListOutputVal::clone() const {
   return new ListOutputVal(*this);
 }
 
-
 std::vector<double> *ListOutputVal::value_list() const {
   std::vector<double> *res = new std::vector<double>(size_);
   memcpy(res->data(), data, size_*sizeof(data));
   return res;
+}
+
+IteratorP ListOutputVal::getIterator() const {
+  return IteratorP(new ListOutputValIterator(this));
+}
+
+IndexP ListOutputVal::getIndex(const std::string &s) const {
+  for(int i=0; i<size(); i++) {
+    if(labels[i] == s)
+      return IndexP(new ListOutputValIndex(this, i));
+  }
+  throw ErrProgrammingError("Bad index '" + s + "'", __FILE__, __LINE__);
+}
+
+void ListOutputValIndex::set(const std::vector<int> *vals) {
+  assert(vals->size() == 1);
+  assert((*vals)[0] < max_);
+  index_ = (*vals)[0];
+}
+
+std::vector<int> *ListOutputValIndex::components() const {
+  std::vector<int> *result = new std::vector<int>(1);
+  (*result)[0] = index_;
+  return result;
+}
+
+const std::string &ListOutputValIndex::shortstring() const {
+  return ov_->labels[index_];
+}
+
+void ListOutputValIndex::print(std::ostream &os) const {
+  os << "ListOutputValIndex(" << index_ << ")";
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

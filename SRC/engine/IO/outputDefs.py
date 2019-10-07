@@ -310,6 +310,5 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the stress-free strain in this reference frame.")
         ],
-    ordering=13
-    )
+    ordering=13)
     
