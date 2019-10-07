@@ -61,9 +61,6 @@ private:
 public:
   virtual const std::string &classname() const { return classname_; }
   virtual PropertyOutput *instantiate(const std::string&, PyObject*) const;
-  // virtual ArithmeticOutputVal *operator()(const ArithmeticPropertyOutput*,
-  // 					  const FEMesh*, const Element*,
-  // 					  const MasterCoord&) const = 0;
 };
 
 class NonArithmeticPropertyOutputInit : public PropertyOutputInit {
@@ -72,40 +69,7 @@ private:
 public:
   virtual const std::string &classname() const { return classname_; }
   virtual PropertyOutput *instantiate(const std::string&, PyObject*) const;
-  // virtual NonArithmeticOutputVal *operator()(const NonArithmeticPropertyOutput*,
-  // 					     const FEMesh*, const Element*,
-  // 					     const MasterCoord&) const = 0;
 };
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// class ScalarPropertyOutputInit : public ArithmeticPropertyOutputInit {
-// public:
-//   // ScalarOutputVal *operator()(const ArithmeticPropertyOutput*,
-//   // 				  const FEMesh*,
-//   // 				  const Element*, const MasterCoord&) const;
-// };
-
-// class TwoVectorPropertyOutputInit : public ArithmeticPropertyOutputInit {
-// public:
-//   // VectorOutputVal *operator()(const ArithmeticPropertyOutput*,
-//   // 				  const FEMesh*,
-//   // 				  const Element*, const MasterCoord&) const;
-// };
-
-// class ThreeVectorPropertyOutputInit : public ArithmeticPropertyOutputInit {
-// public:
-//   // VectorOutputVal *operator()(const ArithmeticPropertyOutput*,
-//   // 				  const FEMesh*,
-//   // 				  const Element*, const MasterCoord&) const;
-// };
-
-// class ListOutputInit : public NonArithmeticPropertyOutputInit {
-// public:
-//   // ListOutputVal *operator()(const NonArithmeticPropertyOutput*,
-//   // 			    const FEMesh*,
-//   // 			    const Element*, const MasterCoord&) const;
-// };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -208,9 +172,6 @@ public:
   virtual ~PropertyOutputRegistration() {}
   const std::string &name() const { return name_; }
   int index() const { return index_; }
-  // PropertyOutput *instantiate(PyObject *params) const {
-  //   return initializer_->instantiate(name_, params);
-  // }
   PropertyOutput *instantiateArithmetic(const std::string &name,
 				PyObject *params)
     const
@@ -223,37 +184,10 @@ public:
   {
     return new NonArithmeticPropertyOutput(name, params);
   }
-  // virtual const PropertyOutputInit *initializer() const = 0;
 
   friend PropertyOutputRegistration *getPropertyOutputReg(const std::string&);
   friend int nPropertyOutputRegistrations();
 };
-
-// class ArithmeticPropertyOutputRegistration : public PropertyOutputRegistration {
-// public:
-//   ArithmeticPropertyOutputRegistration(const std::string &name)
-//     : PropertyOutputRegistration(name)
-//   {}
-//   virtual PropertyOutput *instantiate(const std::string &name, PyObject* params)
-//     const
-//   {
-//     return new ArithmeticPropertyOutput(name, params);
-//   }
-// };
-
-// class NonArithmeticPropertyOutputRegistration :
-//   public PropertyOutputRegistration
-// {
-// public:
-//   NonArithmeticPropertyOutputRegistration(const std::string &name)
-//     : PropertyOutputRegistration(name)
-//   {}
-//   virtual PropertyOutput *instantiate(const std::string &name, PyObject *params)
-//     const
-//   {
-//     return new NonArithmeticPropertyOutput(name, params);
-//   }
-// };
 
 PropertyOutputRegistration *getPropertyOutputReg(const std::string&);
 int nPropertyOutputRegistrations();
