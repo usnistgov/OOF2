@@ -155,6 +155,11 @@ class SymmetricMatrixInput(SymmetricMatrixInputBase):
 
 # MatrixBoolInput and SymmetricMatrixBoolInput display an array of bools.
 
+## TODO: Should these set self._valid = False if none of the bools are
+## True?  Probably not, since there may be contexts in which that is a
+## valid situation.  Maybe the underlying Parameter should indicate if
+## all False is a valid value.
+
 class MatrixBoolInput(SymmetricMatrixInputBase):
     def __init__(self, rows, cols, value=None, scope=None, name=None):
         MatrixInputBase.__init__(self, rows=rows, cols=cols,
