@@ -564,17 +564,9 @@ void COrientXYZ::print(std::ostream &os) const {
 
 COrientAxis::COrientAxis(const SmallMatrix &matrix) {
   COrientQuaternion quat(matrix);
-// #ifdef DEBUG
-//   if(quat.norm2() != 1)
-//     std::cerr << "COrientAxis::ctor: |quat|=" << quat.norm2() << std::endl;
-// #endif // DEBUG
   double sin_half_theta = sqrt(quat.e1()*quat.e1()+quat.e2()*quat.e2()+
 			     quat.e3()*quat.e3());
   double cos_half_theta = quat.e0();
-  // std::cerr << "COrientAxis::ctor: quat=" << quat
-  // 	    << " s=" << sin_half_theta << " c=" << cos_half_theta
-  // 	    << std::endl;
-
   angle_ = 2.0*atan2(sin_half_theta, cos_half_theta);
   // Assume z-axis in the absence of clues.
   if(sin_half_theta == 0.0) {
@@ -705,8 +697,9 @@ static double degrees = 180./M_PI;
 // The strings in COrientation::arguments are used when constructing
 // the OIndex and OIterators that the OutputVal machinery uses when
 // getting the components of an output.  The strings are identical to
-// the names of the Parameters for each COrientation constructor.  Can
-// this duplication be eliminated?
+// the names of the python Parameters for each COrientation
+// constructor and the names of the C++ retrieval methods for the
+// values.  Can this triplication be eliminated?
 
 const std::vector<std::string> COrientABG::arguments(
 					     {"alpha", "beta", "gamma"});

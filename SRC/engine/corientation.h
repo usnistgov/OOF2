@@ -98,6 +98,9 @@ public:
 // FieldIterator.  This has to be done separately for each
 // COrientation subclass, but fortunately can be done with templates.
 
+// The indices are used in the __getitem__ methods defined in
+// corientation.spy.  
+
 template <class ORIENT>
 class OIndex : virtual public FieldIndex {
 protected:
