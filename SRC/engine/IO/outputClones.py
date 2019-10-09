@@ -589,7 +589,6 @@ class ConcatenatedOutputs(object):
     def value_list(self):
         # Convert each OutputVal to a list of floats and concatenate them
         vals = reduce(lambda a,b: a+b, [v.value_list() for v in self.args])
-        debug.fmsg("vals=", vals)
         return vals
 
 def _concatenate(mesh, elements, coords, first, second):
