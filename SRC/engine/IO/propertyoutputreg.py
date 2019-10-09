@@ -214,7 +214,7 @@ class OrientationPropertyOutputRegistration(
     def zeroVal(self, output):
         fmt = output.getEnumParam("format")
         reg = orientationmatrix.Orientation.getRegistrationForName(fmt)
-        return reg().corient
+        return reg.zero().corient
         
                            
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
