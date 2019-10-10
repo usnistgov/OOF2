@@ -164,7 +164,6 @@ void AnisoDielectricPermittivity::cross_reference(Material *mat) {
 
 void AnisoDielectricPermittivity::precompute(FEMesh *mesh) {
   DielectricPermittivity::precompute(mesh);
-  Trace("AnisoDielectricPermittivity::precompute");
   if(orientation && orientation->constant_in_space())
     permittivitytensor_ = epsilon_.transform(orientation->orientation());
 }
