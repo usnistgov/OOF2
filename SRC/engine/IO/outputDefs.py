@@ -260,7 +260,7 @@ class Rank3TensorIndexParameter(parameter.ListOfStringsParameter):
     def valueDesc(self):
         return "A list of character strings of the form 'XY'" \
             "where X is a digit from 1 to 3 and Y is a Voigt index from 1 to 6."
-    
+
 propertyoutputreg.ModulusPropertyOutputRegistration(
     name="Material Constants:Elastic Modulus C",
     symbol="C",
@@ -306,10 +306,19 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
     parameters=[
         Rank3TensorIndexParameter(
             "components",
-            tip="Evaluate the selected components of the peizoelectric coefficient."),
+            tip="Evaluate the selected components of the piezoelectric coefficient."),
         enum.EnumParameter(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the stress-free strain in this reference frame.")
         ],
     ordering=13)
     
+propertyoutputreg.TwoVectorParamPropertyOutputRegistration(
+    name="Material Constants:Force Density F",
+    symbol="F",
+    ordering=14)
+
+propertyoutputreg.ScalarParamOutputRegistration(
+    name="Material Constants:Mass Density",
+    srepr=lambda s: "Mass Density",
+    ordering=15)

@@ -33,7 +33,7 @@ from ooflib.SWIG.engine.IO.propertyoutput import \
     
 # Scalar outputs
 
-class ScalarPropertyOutputRegistration(ArithmeticPropertyOutputRegistration):
+class ScalarPropertyOutputRegBase(ArithmeticPropertyOutputRegistration):
     def __init__(self, name, parameters=[], ordering=0,
                  initializer=None,
                  srepr=None, tip=None, discussion=None):
@@ -46,11 +46,20 @@ class ScalarPropertyOutputRegistration(ArithmeticPropertyOutputRegistration):
                            srepr=srepr, tip=tip, discussion=discussion)
         ArithmeticPropertyOutputRegistration.__init__(self, name, op,
                                                       initializer)
-        output.defineScalarOutput(name, op, ordering=ordering)
-        output.defineAggregateOutput(name, op, ordering=ordering)
 
     def zeroVal(self, output):
         return outputval.ScalarOutputVal(0.0)
+
+class ScalarPropertyOutputRegistration(ScalarPropertyOutputRegBase):
+    def __init__(self, name, parameters=[], ordering=0,
+                 initializer=None,
+                 srepr=None, tip=None, discussion=None):
+        ScalarPropertyOutputRegBase.__init__(self, name, parameters, ordering,
+                                             initializer, srepr,
+                                             tip, discussion)
+        output.defineScalarOutput(name, self.output, ordering=ordering)
+        output.defineAggregateOutput(name, self.output, ordering=ordering)
+        
 
 #     def convert(self, results): # convert from ScalarOutputVal to Float
 #         return [r.value() for r in results]
@@ -237,8 +246,7 @@ def _modulus_column_names(self):
 
 class ModulusPropertyOutputRegistration(
         NonArithmeticPropertyOutputRegistration):
-    def __init__(self, name, symbol, parameters=[],
-                 initializer=None,
+    def __init__(self, name, symbol, parameters=[], initializer=None,
                  ordering=1, tip=None, discussion=None):
         self.symbol = symbol
         op = output.Output(name=name,
@@ -259,3 +267,50 @@ class ModulusPropertyOutputRegistration(
         components = output.getListOfStringsParam("components")
         symbols = [self.symbol + "_" + c for c in components]
         return outputval.ListOutputVal(symbols)
+
+# Registration for outputs that are vectors in lab space and are
+# parameters of Properties, such as the value of the Force Density
+# Property.  Just print all the components all the time because there
+# aren't that many.  As Property parameters, they are expected to be
+# used in the Material Constants branch of the aggregate output tree.
+
+def _twovector_srepr(self):
+    return self.name
+
+def _twovector_column_names(self):
+    return ["%s_%s" % (self.symbol, c) for c in "xy"]
+
+class TwoVectorParamPropertyOutputRegistration(
+        NonArithmeticPropertyOutputRegistration):
+    def __init__(self, name, symbol, parameters=[], initializer=None,
+                 ordering=1,tip=None, discussion=None):
+        self.symbol = symbol
+        op = output.Output(name=name,
+                           callback=self.opfunc,
+                           otype=outputval.ListOutputValPtr,
+                           instancefn=self.instancefn,
+                           srepr=_twovector_srepr,
+                           column_names=_twovector_column_names,
+                           params=parameters,
+                           tip=tip, discussion=discussion,
+                           symbol=symbol)
+        NonArithmeticPropertyOutputRegistration.__init__(self, name, op,
+                                                         initializer)
+        output.defineAggregateOutput(name, op, ordering=ordering)
+    def zeroVal(self, output):
+        symbols = _twovector_column_names(self)
+        return outputval.ListOutputVal(symbols)
+                        
+# ScalarParamOutputRegistration is used for Property parameters that
+# are scalars.  It's just like ScalarPropertyOutputRegistration, but
+# it's only in the aggregate output tree.
+
+class ScalarParamOutputRegistration(ScalarPropertyOutputRegBase):
+    def __init__(self, name, parameters=[], ordering=0,
+                 initializer=None,
+                 srepr=None, tip=None, discussion=None):
+        ScalarPropertyOutputRegBase.__init__(self, name, parameters, ordering,
+                                             initializer, srepr,
+                                             tip, discussion)
+        output.defineAggregateOutput(name, self.output, ordering=ordering)
+            
