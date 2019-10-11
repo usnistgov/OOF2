@@ -138,7 +138,8 @@ class OOF_Output(unittest.TestCase):
         OOF.Material.Delete(name='material')
                 
                 
-    @memorycheck.check("thermms", "electroms")
+    @memorycheck.check("thermms", "electroms", "anisothermms", "electroms2",
+                       "electroms2r")
     def outputs(self, treename, tree, args, tolerance):
         from ooflib.common import utils
         from ooflib.engine.IO import analyze
@@ -146,10 +147,21 @@ class OOF_Output(unittest.TestCase):
         outputpaths = tree.leafpaths()
         outputnames = [ string.join(x,':') for x in outputpaths ]
 
-        OOF.File.Load.Data(filename=reference_file('output_data',
-                                                 'thermoelastic.mesh'))
-        OOF.File.Load.Data(filename=reference_file('output_data',
-                                                 'electroelastic.mesh'))
+        OOF.File.Load.Data(filename=reference_file(
+            'output_data', 'thermoelastic.mesh'))
+        OOF.File.Load.Data(filename=reference_file(
+            'output_data', 'electroelastic.mesh'))
+        OOF.File.Load.Data(filename=reference_file(
+            'output_data', 'anisothermoelastic.mesh'))
+
+        # The first electroelastic.mesh doesn't have a piezoelectric
+        # coefficient that's useful for testing the Materials Constant
+        # output, so these were added. 
+        OOF.File.Load.Data(filename=reference_file(
+            'output_data', 'electroelastic2.mesh'))
+        OOF.File.Load.Data(filename=reference_file(
+            'output_data', 'electroelastic2rotated.mesh'))
+        
         for name in outputnames:
             try:
                 testlist = args[name]
@@ -202,21 +214,24 @@ class OOF_Output(unittest.TestCase):
                     # as testing the averaging operation, it tests
                     # that constraints that are only applied weakly
                     # (such as plane stress) are satisfied weakly.
-                    OOF.Mesh.Analyze.Average(
-                        mesh=meshname,
-                        data=outputclone,
-                        time=latest,
-                        domain=EntireMesh(),
-                        sampling=ElementSampleSet(order=automatic),
-                        destination=OutputStream(filename='test.dat',mode='w'))
-                    outputdestination.forgetTextOutputStreams()
+                    if outputclone.allowsArithmetic():
+                        OOF.Mesh.Analyze.Average(
+                            mesh=meshname,
+                            data=outputclone,
+                            time=latest,
+                            domain=EntireMesh(),
+                            sampling=ElementSampleSet(order=automatic),
+                            destination=OutputStream(filename='test.dat',
+                                                     mode='w')
+                        )
+                        outputdestination.forgetTextOutputStreams()
 
-                    self.assert_(
-                        fp_file_compare(
-                            'test.dat',
-                            os.path.join('output_data', 'avg_'+comp_file),
-                                        tolerance))
-                    file_utils.remove('test.dat')
+                        self.assert_(
+                            fp_file_compare(
+                                'test.dat',
+                                os.path.join('output_data', 'avg_'+comp_file),
+                                tolerance))
+                        file_utils.remove('test.dat')
 
         OOF.Material.Delete(name='therm_left')
         OOF.Material.Delete(name='therm_centre')
@@ -224,11 +239,18 @@ class OOF_Output(unittest.TestCase):
         OOF.Material.Delete(name='electro_left')
         OOF.Material.Delete(name='electro_centre')
         OOF.Material.Delete(name='electro_right')
+        OOF.Material.Delete(name='aniso_therm_centre')
+        OOF.Material.Delete(name='therm_left_aniso')
+        OOF.Material.Delete(name="electro_centre2")
+        OOF.Material.Delete(name="electro_centre2r")
         OOF.Property.Delete(property=
                             'Mechanical:StressFreeStrain:Isotropic:therm')
         OOF.Property.Delete(property=
                             'Couplings:ThermalExpansion:Isotropic:therm')
-        
+        OOF.Property.Delete(
+            property= 'Mechanical:Elasticity:Anisotropic:Orthorhombic:aniso')
+        OOF.Property.Delete(property="Orientation:none")
+        OOF.Property.Delete(property="Orientation:ninety")        
 
     def ScalarOutputs(self):
         global scalar_output_args
@@ -253,7 +275,7 @@ class OOF_Output(unittest.TestCase):
 # names of position outputs, and values a tuple consisting of a
 # dictionary of parameter values for the output, and then a list of
 # the expected results for this output applied to the standard
-# 'position_mesh' at MasterCoord(0.0) in each element.
+# 'position_mesh' at MasterCoord(0.0) in each element. 
 
 position_output_args = {}
 def build_position_output_args():
@@ -745,8 +767,99 @@ def build_aggregate_output_args():
                              {'type':PiezoelectricStrain(),
                               'invariant':MatrixTrace()},
                              'agg_strain_electro_piezo_trace.dat')
-                            ]
-        }
+                            ],
+        'Material Constants:Orientation':[
+            ('thermms:thermskel:therm',
+             {'format':'Abg'},'orientation_iso_thermo.dat'),
+            ('anisothermms:thermskel:therm',
+             {'format':'Abg'},'orientation_aniso_abg_thermo.dat'),
+            ('anisothermms:thermskel:therm',
+             {'format':'Axis'},'orientation_aniso_axis_thermo.dat'),
+            ('anisothermms:thermskel:therm',
+             {'format':'Quaternion'},'orientation_aniso_quat_thermo.dat'),
+        ],
+        'Material Constants:Elastic Modulus C':
+        [
+            ('thermms:thermskel:therm',
+             {'components':['11', '12', '13', '22', '23',
+                            '33', '44', '55', '66'],
+              'frame':'Crystal'},
+             'cijkl_iso_thermo.dat'),
+            ('thermms:thermskel:therm',
+             {'components':['11', '12', '13', '22', '23',
+                            '33', '44', '55', '66'],
+              'frame':'Lab'},
+             'cijkl_iso_thermo.dat'),
+            ('anisothermms:thermskel:therm',
+             {'components':['11', '12', '13', '22', '23',
+                            '33', '44', '55', '66'],
+              'frame':'Crystal'},
+             'cijkl_aniso_thermo.dat'),
+            ('anisothermms:thermskel:therm',
+             {'components':['11', '12', '13', '22', '23',
+                            '33', '44', '55', '66'],
+              'frame':'Lab'},
+             'cijkl_aniso_thermo_lab.dat'),
+        ],
+        'Material Constants:Heat Conductivity K':
+        [
+            ('thermms:thermskel:therm',
+             {'components':['11', '12', '13', '22', '33'],
+              'frame':'Crystal'},
+             'heatcond_iso_thermo.dat'),
+            ('thermms:thermskel:therm',
+             {'components':['11', '12', '13', '22', '33'],
+              'frame':'Lab'},
+             'heatcond_iso_thermo.dat'),
+            ('anisothermms:thermskel:therm',
+             {'components':['11', '12', '13', '22', '33'],
+              'frame':'Crystal'},
+             'heatcond_aniso_thermo.dat'),
+            ('anisothermms:thermskel:therm',
+             {'components':['11', '12', '13', '22', '33'],
+              'frame':'Lab'},
+             'heatcond_aniso_thermo_lab.dat'),
+            ],
+        'Material Constants:Stress-free Strain epsilon0':
+        [
+            ('anisothermms:thermskel:therm',
+             {'components':['11', '12', '13', '22', '33'],
+              'frame':'Crystal'},
+             'stressfreestrain_aniso_thermo.dat'),
+            ('anisothermms:thermskel:therm',
+             {'components':['11', '12', '13', '22', '33'],
+              'frame':'Lab'},
+             'stressfreestrain_aniso_thermo_lab.dat'),
+            ],
+        'Material Constants:Piezoelectric Coefficient D':
+        [
+            ('electroms2:electroskel:electro',
+             {'components':['11', '12', '13', '15',
+                            '24',
+                            '31', '32', '33', '35'],
+              'frame':'Crystal'},
+             'piezo_xtal.dat'),
+            ('electroms2:electroskel:electro',
+             {'components':['11', '12', '13', '15',
+                            '24',
+                            '31', '32', '33', '35'],
+              'frame':'Lab'},
+             'piezo_lab.dat'),
+            ('electroms2r:electroskel:electro',
+             {'components':['11', '12', '13', '15',
+                            '24',
+                            '31', '32', '33', '35'],
+              'frame':'Crystal'},
+             'piezo_rot_xtal.dat'),
+            ('electroms2r:electroskel:electro',
+             {'components':['11', '12', '13', '15',
+                            '24',
+                            '31', '32', '33', '35'],
+              'frame':'Lab'},
+             'piezo_rot_lab.dat'),
+
+            ]
+    }
 
 
 
@@ -1111,7 +1224,8 @@ def run_tests():
         OOF_MiscOutput("Range"),
         ]
 
-    #test_set = [OOF_Output("ScalarOutputs")]
+    # test_set = [#OOF_Output("ScalarOutputs"),
+    #             OOF_Output("AggregateOutputs")]
     
     build_position_output_args()
     build_scalar_output_args()

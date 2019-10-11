@@ -23,10 +23,11 @@ from ooflib.common import enum
 from ooflib.common import primitives
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
+from ooflib.common.IO.typename import typename
 from ooflib.engine import problem
-from ooflib.engine.IO import propertyoutputreg
 from ooflib.engine.IO import output
 from ooflib.engine.IO import outputClones
+from ooflib.engine.IO import propertyoutputreg
 
 from types import *
 import string
@@ -226,7 +227,7 @@ class VoigtPairListParameter(parameter.ListOfStringsParameter):
             if not (isinstance(s, StringType) and len(s)==2 and
                     s[0] in "123456" and s[1] in "123456"):
                 parameter.raiseTypeError("list of %s" % typename(type(s)),
-                                         "list of Voigt index pairs")
+                                         "list of Voigt index pairs [1-6][1-6]")
     def valueDesc(self):
         return "A list of character strings of the form 'XY'" \
             " where X and Y are digits from 1 to 6."
@@ -239,7 +240,7 @@ class SymmIndexPairListParameter(parameter.ListOfStringsParameter):
             if not (isinstance(s, StringType) and len(s)==2 and
                     s[0] in "123" and s[1] in "123"):
                 parameter.raiseTypeError("list of %s" % typename(type(s)),
-                                         "list of index pairs")
+                                         "list of index pairs [1-3][1-3]")
     def valueDesc(self):
         return "A list of character strings of the form 'XY'" \
             "where X and Y are digits from 1 to 3."
@@ -255,7 +256,7 @@ class Rank3TensorIndexParameter(parameter.ListOfStringsParameter):
             if not (isinstance(s, StringType) and len(s)==2 and
                     s[0] in "123" and s[1] in "123456"):
                 parameter.raiseTypeError("list of %s" % typename(type(s)),
-                                         "list of index pairs")
+                                         "list of index pairs [1-3][1-6]")
     def valueDesc(self):
         return "A list of character strings of the form 'XY'" \
             "where X is a digit from 1 to 3 and Y is a Voigt index from 1 to 6."
