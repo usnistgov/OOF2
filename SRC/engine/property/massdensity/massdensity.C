@@ -54,7 +54,7 @@ void MassDensityProp::output(FEMesh *mesh,
 			     OutputVal *data)
 {
   const std::string &outputname = output->name();
-  if(outputname == "Material Constants:Mass Density") {
+  if(outputname == "Material Constants:Mechanical:Mass Density") {
     ScalarOutputVal *sdata = dynamic_cast<ScalarOutputVal*>(data);
     *sdata = rho_;
   }

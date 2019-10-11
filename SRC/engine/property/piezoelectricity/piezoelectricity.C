@@ -226,7 +226,7 @@ void IsotropicPiezoElectricity::output(FEMesh *mesh,
 				       OutputVal *data)
 {
   const std::string &outputname = output->name();
-  if(outputname == "Material Constants:Piezoelectric Coefficient D") {
+  if(outputname == "Material Constants:Couplings:Piezoelectric Coefficient D") {
     ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
     std::vector<std::string> *idxstrs =
       output->getListOfStringsParam("components");
@@ -311,7 +311,7 @@ void AnisotropicPiezoElectricity::output(FEMesh *mesh,
 				       OutputVal *data)
 {
   const std::string &outputname = output->name();
-  if(outputname == "Material Constants:Piezoelectric Coefficient D") {
+  if(outputname == "Material Constants:Couplings:Piezoelectric Coefficient D") {
     ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
     std::vector<std::string> *idxstrs =
       output->getListOfStringsParam("components");

@@ -778,7 +778,7 @@ def build_aggregate_output_args():
             ('anisothermms:thermskel:therm',
              {'format':'Quaternion'},'orientation_aniso_quat_thermo.dat'),
         ],
-        'Material Constants:Elastic Modulus C':
+        'Material Constants:Mechanical:Elastic Modulus C':
         [
             ('thermms:thermskel:therm',
              {'components':['11', '12', '13', '22', '23',
@@ -801,7 +801,7 @@ def build_aggregate_output_args():
               'frame':'Lab'},
              'cijkl_aniso_thermo_lab.dat'),
         ],
-        'Material Constants:Heat Conductivity K':
+        'Material Constants:Thermal:Conductivity K':
         [
             ('thermms:thermskel:therm',
              {'components':['11', '12', '13', '22', '33'],
@@ -820,7 +820,7 @@ def build_aggregate_output_args():
               'frame':'Lab'},
              'heatcond_aniso_thermo_lab.dat'),
             ],
-        'Material Constants:Stress-free Strain epsilon0':
+        'Material Constants:Mechanical:Stress-free Strain epsilon0':
         [
             ('anisothermms:thermskel:therm',
              {'components':['11', '12', '13', '22', '33'],
@@ -831,7 +831,7 @@ def build_aggregate_output_args():
               'frame':'Lab'},
              'stressfreestrain_aniso_thermo_lab.dat'),
             ],
-        'Material Constants:Piezoelectric Coefficient D':
+        'Material Constants:Couplings:Piezoelectric Coefficient D':
         [
             ('electroms2:electroskel:electro',
              {'components':['11', '12', '13', '15',
@@ -857,7 +857,6 @@ def build_aggregate_output_args():
                             '31', '32', '33', '35'],
               'frame':'Lab'},
              'piezo_rot_lab.dat'),
-
             ]
     }
 

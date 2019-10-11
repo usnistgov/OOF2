@@ -217,7 +217,7 @@ void IsoHeatConductivity::output(FEMesh *mesh,
 				 OutputVal *data)
 {
   const std::string &outputname = output->name();
-  if(outputname == "Material Constants:Heat Conductivity K") {
+  if(outputname == "Material Constants:Thermal:Conductivity K") {
     ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
     std::vector<std::string> *idxstrs =
       output->getListOfStringsParam("components");
@@ -251,7 +251,7 @@ void AnisoHeatConductivity::output(FEMesh *mesh,
 				   OutputVal *data)
 {
   const std::string &outputname = output->name();
-  if(outputname == "Material Constants:Heat Conductivity K") {
+  if(outputname == "Material Constants:Thermal:Conductivity K") {
     ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
     std::vector<std::string> *idxstrs =
       output->getListOfStringsParam("components");

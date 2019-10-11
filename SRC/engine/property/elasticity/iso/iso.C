@@ -31,7 +31,7 @@ void CIsoElasticityProp::output(FEMesh *mesh,
 				OutputVal *data)
 {
   const std::string &outputname = output->name();
-  if(outputname == "Material Constants:Elastic Modulus C") {
+  if(outputname == "Material Constants:Mechanical:Elastic Modulus C") {
     const Cijkl modulus = cijkl(mesh, element, pos);
     ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
     // The PropertyOutput's "components" parameter is a list of pairs

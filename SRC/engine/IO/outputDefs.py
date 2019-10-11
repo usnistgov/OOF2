@@ -262,7 +262,7 @@ class Rank3TensorIndexParameter(parameter.ListOfStringsParameter):
             "where X is a digit from 1 to 3 and Y is a Voigt index from 1 to 6."
 
 propertyoutputreg.ModulusPropertyOutputRegistration(
-    name="Material Constants:Elastic Modulus C",
+    name="Material Constants:Mechanical:Elastic Modulus C",
     symbol="C",
     parameters=[
         VoigtPairListParameter(
@@ -275,7 +275,7 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
     ordering=10)
 
 propertyoutputreg.ModulusPropertyOutputRegistration(
-    name="Material Constants:Heat Conductivity K",
+    name="Material Constants:Thermal:Conductivity K",
     symbol="K",
     parameters=[
         SymmIndexPairListParameter(
@@ -288,7 +288,7 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
     ordering=11)
 
 propertyoutputreg.ModulusPropertyOutputRegistration(
-    name="Material Constants:Stress-free Strain epsilon0",
+    name="Material Constants:Mechanical:Stress-free Strain epsilon0",
     symbol="epsilon0",
     parameters=[
         SymmIndexPairListParameter(
@@ -301,7 +301,7 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
     ordering=12)
 
 propertyoutputreg.ModulusPropertyOutputRegistration(
-    name="Material Constants:Piezoelectric Coefficient D",
+    name="Material Constants:Couplings:Piezoelectric Coefficient D",
     symbol="D",
     parameters=[
         Rank3TensorIndexParameter(
@@ -314,11 +314,11 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
     ordering=13)
     
 propertyoutputreg.TwoVectorParamPropertyOutputRegistration(
-    name="Material Constants:Force Density F",
+    name="Material Constants:Mechanical:Force Density F",
     symbol="F",
     ordering=14)
 
 propertyoutputreg.ScalarParamOutputRegistration(
-    name="Material Constants:Mass Density",
+    name="Material Constants:Mechanical:Mass Density",
     srepr=lambda s: "Mass Density",
     ordering=15)

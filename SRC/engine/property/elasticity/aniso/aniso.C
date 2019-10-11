@@ -77,7 +77,7 @@ void CAnisoElasticity::output(FEMesh *mesh,
 			      OutputVal *data)
 {
   const std::string &outputname = output->name();
-  if(outputname == "Material Constants:Elastic Modulus C") {
+  if(outputname == "Material Constants:Mechanical:Elastic Modulus C") {
     ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
     std::vector<std::string> *idxstrs =
       output->getListOfStringsParam("components");
