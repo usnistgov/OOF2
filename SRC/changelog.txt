@@ -4,6 +4,13 @@ OOF2 2.1.18
   according to either its color or orientation, even in the presence
   of noise.
 
+* Some material properties can now be included in output files and
+  viewed in the Mesh Data Viewer window, using a new Material
+  Constants branch of the Aggregate Outputs tree.
+
+* More than one type of output can be printed on one line of an output
+  file, by using the Concatenate output.
+
 OOF2 2.1.17
 
 * Significant speed up of the element/pixel intersection code.
