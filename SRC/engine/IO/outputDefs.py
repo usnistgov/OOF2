@@ -122,30 +122,19 @@ output.defineScalarOutput('Flux:Invariant', outputClones.FluxInvariantOutput,
                           ordering=2.1)
 
 from ooflib.common import strfunction
-if config.dimension() == 2:
-    xyfunc = outputClones.ScalarFunctionOutput.clone(
-        tip='Compute an arbitrary scalar function of x and y.',
-        discussion=xmlmenudump.loadFile(
-            'DISCUSSIONS/engine/output/funcOutput.xml'))
-    output.defineScalarOutput('XYFunction', xyfunc, ordering=100)
 
-    xyvecfunc = outputClones.VectorFunctionOutput.clone(
-        tip='Compute an arbitrary vector function of x and y.',
-        discussion=xmlmenudump.loadFile(
-            'DISCUSSIONS/engine/output/vecfuncOutput.xml'))
-    output.defineAggregateOutput('Vector XYFunction', xyvecfunc,
-                                 ordering=100)
+xyfunc = outputClones.ScalarFunctionOutput.clone(
+    tip='Compute an arbitrary scalar function of x and y.',
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/output/funcOutput.xml'))
+output.defineScalarOutput('XYFunction', xyfunc, ordering=100)
 
-elif config.dimension() == 3:
-    xyzfunc = outputClones.ScalarFunctionOutput.clone(
-        tip='Compute an arbitrary scalar function of x, y, and z.',
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/output/funcOutput.xml'))
-    output.defineScalarOutput('XYZFunction', xyzfunc, ordering=100)
-
-    xyzvecfunc = outputClones.VectorFunctionOutput.clone(
-        tip='Compute an arbitrary vector function of x, y and z.')
-    output.defineAggregateOutput('Vector XYZFunction', xyzvecfunc,
-                                 ordering=100)
+xyvecfunc = outputClones.VectorFunctionOutput.clone(
+    tip='Compute an arbitrary vector function of x and y.',
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/output/vecfuncOutput.xml'))
+output.defineAggregateOutput('Vector XYFunction', xyvecfunc,
+                             ordering=100)
 
 ###########
 
@@ -204,14 +193,10 @@ propertyoutputreg.ScalarPropertyOutputRegistration(
       contributions to the energy.</para>"""
     )
 
-#-----------
 
-propertyoutputreg.OrientationPropertyOutputRegistration(
-    "Material Constants:Orientation",
-    ordering=4,
-    tip="Compute the orientation at each point.")
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-#-----------
+# Parameters used for PropertyParameterOutputs
 
 class ReferenceFrame(enum.EnumClass(
         ("Lab", "The laboratory reference frame"),
@@ -261,6 +246,17 @@ class Rank3TensorIndexParameter(parameter.ListOfStringsParameter):
         return "A list of character strings of the form 'XY'" \
             "where X is a digit from 1 to 3 and Y is a Voigt index from 1 to 6."
 
+# PropertyParameterOutputs, which output the parameters defining
+# material properties.  The ordering of the registrations should echo
+# the ordering of the Properties in the Materials page.
+
+## TODO: Can these registrations be created automatically by the
+## Property registrations?  It wouldn't be easy, because there's not a
+## one-to-one relationship between the Property registrations and the
+## PropertyOutput registrations.
+
+# Mechanical
+
 propertyoutputreg.ModulusPropertyOutputRegistration(
     name="Material Constants:Mechanical:Elastic Modulus C",
     symbol="C",
@@ -275,19 +271,6 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
     ordering=10)
 
 propertyoutputreg.ModulusPropertyOutputRegistration(
-    name="Material Constants:Thermal:Conductivity K",
-    symbol="K",
-    parameters=[
-        SymmIndexPairListParameter(
-            "components",
-            tip="Evaluate the selected components of the conductivity."),
-        enum.EnumParameter(
-            "frame", ReferenceFrame, default="Crystal",
-            tip="Report the conductivity in this reference frame.")
-        ],
-    ordering=11)
-
-propertyoutputreg.ModulusPropertyOutputRegistration(
     name="Material Constants:Mechanical:Stress-free Strain epsilon0",
     symbol="epsilon0",
     parameters=[
@@ -298,7 +281,97 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the stress-free strain in this reference frame.")
         ],
+    ordering=11)
+
+propertyoutputreg.TwoVectorParamPropertyOutputRegistration(
+    name="Material Constants:Mechanical:Force Density F",
+    symbol="F",
     ordering=12)
+
+propertyoutputreg.ScalarParamOutputRegistration(
+    name="Material Constants:Mechanical:Mass Density",
+    srepr=lambda s: "Mass Density",
+    ordering=13)
+
+propertyoutputreg.ScalarParamOutputRegistration(
+    name="Material Constants:Mechanical:Damping",
+    srepr=lambda s: "Damping",
+    ordering=15)
+
+propertyoutputreg.ModulusPropertyOutputRegistration(
+    name="Material Constants:Mechanical:Viscosity",
+    symbol="g",
+    parameters=[
+        VoigtPairListParameter(
+            "components",
+            tip="Evaluate the selected components of the modulus"),
+        enum.EnumParameter(
+            "frame", ReferenceFrame, default="Crystal",
+            tip="Report the viscosity in this reference frame.")
+        ],
+    ordering=14)
+
+# Thermal
+
+propertyoutputreg.ModulusPropertyOutputRegistration(
+    name="Material Constants:Thermal:Conductivity K",
+    symbol="K",
+    parameters=[
+        SymmIndexPairListParameter(
+            "components",
+            tip="Evaluate the selected components of the conductivity."),
+        enum.EnumParameter(
+            "frame", ReferenceFrame, default="Crystal",
+            tip="Report the conductivity in this reference frame.")
+        ],
+    ordering=20)
+
+propertyoutputreg.ScalarParamOutputRegistration(
+    name="Material Constants:Thermal:Heat Capacity",
+    srepr=lambda s: "Heat Capacity",
+    ordering=21)
+
+propertyoutputreg.ScalarParamOutputRegistration(
+    name="Material Constants:Thermal:Heat Source",
+    srepr=lambda s: "Heat Source",
+    ordering=22)
+
+propertyoutputreg.ModulusPropertyOutputRegistration(
+    name="Material Constants:Electric:Dielectric Permittivity epsilon",
+    symbol="epsilon",
+    parameters=[
+        SymmIndexPairListParameter(
+            "components",
+            tip="Evaluate the selected components of the permittivity."),
+        enum.EnumParameter(
+            "frame", ReferenceFrame, default="Crystal",
+            tip="Report the permittivity in this reference frame.")
+        ],
+    ordering=30)
+
+propertyoutputreg.ScalarParamOutputRegistration(
+    name="Material Constants:Electric:Space Charge",
+    srepr=lambda s: "Space Charge",
+    ordering=31)
+
+# Couplings
+
+propertyoutputreg.ModulusPropertyOutputRegistration(
+    name="Material Constants:Couplings:Thermal Expansion alpha",
+    symbol="alpha",
+    parameters=[
+        SymmIndexPairListParameter(
+            "components",
+            tip="Evaluate the selected components of the thermal expansion coefficient"),
+        enum.EnumParameter(
+            "frame", ReferenceFrame, default="Crystal",
+            tip="Report the thermal expansion coefficient in this reference frame.")],
+    ordering=50)
+
+propertyoutputreg.ScalarParamOutputRegistration(
+    name="Material Constants:Couplings:Thermal Expansion T0",
+    srepr=lambda s: "T0",
+    ordering=50.5)
 
 propertyoutputreg.ModulusPropertyOutputRegistration(
     name="Material Constants:Couplings:Piezoelectric Coefficient D",
@@ -311,14 +384,14 @@ propertyoutputreg.ModulusPropertyOutputRegistration(
             "frame", ReferenceFrame, default="Crystal",
             tip="Report the stress-free strain in this reference frame.")
         ],
-    ordering=13)
-    
-propertyoutputreg.TwoVectorParamPropertyOutputRegistration(
-    name="Material Constants:Mechanical:Force Density F",
-    symbol="F",
-    ordering=14)
+    ordering=51)
 
-propertyoutputreg.ScalarParamOutputRegistration(
-    name="Material Constants:Mechanical:Mass Density",
-    srepr=lambda s: "Mass Density",
-    ordering=15)
+# TODO: PyroElectricity
+
+# Orientation
+
+propertyoutputreg.OrientationPropertyOutputRegistration(
+    "Material Constants:Orientation",
+    ordering=1000,
+    tip="Compute the orientation at each point.")
+

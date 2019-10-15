@@ -516,3 +516,19 @@ SymmMatrix3 *SymmMatrix3PropertyOutputInit::operator()(
   return new SymmMatrix3();
 }
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Copy values from a SymmMatrix3, modulus, into a ListOutputVal,
+// listdata, given a vector, idxstrs, of strings containing the
+// indices of the desired components as pairs of ints from 1 to 3.
+
+void copyOutputVals(const SymmMatrix3 &modulus, ListOutputVal *listdata,
+		    const std::vector<std::string> &idxstrs)
+{
+  for(unsigned int i=0; i<idxstrs.size(); i++) {
+    const std::string &idxpair = idxstrs[i];
+    int j = int(idxpair[0] - '1');
+    int k = int(idxpair[1] - '1');
+    (*listdata)[i] = modulus(j,k);
+  }
+}

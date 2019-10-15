@@ -233,16 +233,16 @@ void IsoHeatConductivity::output(FEMesh *mesh,
   HeatConductivity::output(mesh, element, output, pos, data);
 }
 
-static void output_k(const SymmMatrix3 &kappa, ListOutputVal *listdata,
-		     const std::vector<std::string> &idxstrs)
-{
-  for(unsigned int i=0; i<idxstrs.size(); i++) {
-    const std::string &idxpair = idxstrs[i];
-    int j = int(idxpair[0] - '1');
-    int k = int(idxpair[1] - '1');
-    (*listdata)[i] = kappa(j,k);
-  }
-}
+// static void output_k(const SymmMatrix3 &kappa, ListOutputVal *listdata,
+// 		     const std::vector<std::string> &idxstrs)
+// {
+//   for(unsigned int i=0; i<idxstrs.size(); i++) {
+//     const std::string &idxpair = idxstrs[i];
+//     int j = int(idxpair[0] - '1');
+//     int k = int(idxpair[1] - '1');
+//     (*listdata)[i] = kappa(j,k);
+//   }
+// }
 			       
 void AnisoHeatConductivity::output(FEMesh *mesh,
 				   const Element *element,
@@ -258,11 +258,12 @@ void AnisoHeatConductivity::output(FEMesh *mesh,
     const std::string *frame = output->getEnumParam("frame");
     if(*frame == "Lab") {
       precompute(mesh);
-      output_k(conductivitytensor(mesh, element, pos), listdata, *idxstrs);
+      copyOutputVals(conductivitytensor(mesh, element, pos),
+		     listdata, *idxstrs);
     }
     else {
       assert(*frame == "Crystal");
-      output_k(kappa_, listdata, *idxstrs);
+      copyOutputVals(kappa_, listdata, *idxstrs);
     }
     delete idxstrs;
     delete frame;

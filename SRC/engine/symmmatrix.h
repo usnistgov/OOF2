@@ -29,9 +29,12 @@ class SymmMatrix;
 
 #include <iostream>
 #include <math.h>
+#include <string>
+#include <vector>
 
 class IndexP;
 class COrientation;
+class ListOutputVal;
 
 class SymmMatrix {
 protected:
@@ -185,6 +188,9 @@ public:
 				  const FEMesh*,
 				  const Element*, const MasterCoord&) const;
 };
+
+void copyOutputVals(const SymmMatrix3&, ListOutputVal*,
+		    const std::vector<std::string>&);
 
 std::ostream& operator<<(std::ostream&, const SymmMatrix&);
 // SymmMatrix3 needs operator<< to disambiguate the base class

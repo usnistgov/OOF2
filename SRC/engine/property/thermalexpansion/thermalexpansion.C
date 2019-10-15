@@ -182,6 +182,11 @@ void ThermalExpansion::output(FEMesh *mesh,
     }
     delete etype;
   } // energy output ends here
+
+  if(outputname == "Material Constants:Couplings:Thermal Expansion T0") {
+    ScalarOutputVal *sdata = dynamic_cast<ScalarOutputVal*>(data);
+    *sdata = tzero_;
+  }
 }
 
 
@@ -193,6 +198,7 @@ bool ThermalExpansion::is_symmetric_K(const CSubProblem* mesh) const {
 	   temperature->is_defined(mesh) &&
 	   temperature->is_active(mesh));
 }
+
 
 IsotropicThermalExpansion::IsotropicThermalExpansion(PyObject *registry,
 						     const std::string &name,
@@ -248,4 +254,53 @@ void AnisotropicThermalExpansion::cross_reference(Material *mat) {
 void AnisotropicThermalExpansion::precompute(FEMesh*) {
   if(orientation && orientation->constant_in_space())
     expansiontensor_ = alpha_.transform(orientation->orientation());
+}
+
+void IsotropicThermalExpansion::output(FEMesh *mesh,
+				       const Element *element,
+				       const PropertyOutput *output,
+				       const MasterPosition &pos,
+				       OutputVal *data)
+{
+  const std::string &outputname = output->name();
+  if(outputname == "Material Constants:Couplings:Thermal Expansion alpha") {
+    ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
+    std::vector<std::string> *idxstrs =
+      output->getListOfStringsParam("components");
+    for(unsigned int i=0; i<idxstrs->size(); i++) {
+      const std::string idxpair = (*idxstrs)[i];
+      if(idxpair[0] == idxpair[1])
+	(*listdata)[i] = alpha_;
+      else
+	(*listdata)[i] = 0;
+    }
+    delete idxstrs;
+  }
+  ThermalExpansion::output(mesh, element, output, pos, data);
+}
+
+void AnisotropicThermalExpansion::output(FEMesh *mesh,
+				       const Element *element,
+				       const PropertyOutput *output,
+				       const MasterPosition &pos,
+				       OutputVal *data)
+{
+  const std::string &outputname = output->name();
+  if(outputname == "Material Constants:Couplings:Thermal Expansion alpha") {
+    ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
+    std::vector<std::string> *idxstrs =
+      output->getListOfStringsParam("components");
+    const std::string *frame = output->getEnumParam("frame");
+    if(*frame == "Lab") {
+      precompute(mesh);
+      copyOutputVals(expansiontensor(mesh, element, pos), listdata, *idxstrs);
+    }
+    else {
+      assert(*frame == "Crystal");
+      copyOutputVals(alpha_, listdata, *idxstrs);
+    }
+    delete idxstrs;
+    delete frame;
+  }
+  ThermalExpansion::output(mesh, element, output, pos, data);
 }

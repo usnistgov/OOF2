@@ -185,16 +185,16 @@ void IsotropicStressFreeStrain::output(FEMesh *mesh,
   StressFreeStrain::output(mesh, element, output, pos, data);
 }
 
-static void output_eps(const SymmMatrix3 &epsilon, ListOutputVal *listdata,
-		       const std::vector<std::string> &idxstrs)
-{
-  for(unsigned int i=0; i<idxstrs.size(); i++) {
-    const std::string &idxpair = idxstrs[i];
-    int j = int(idxpair[0] - '1');
-    int k = int(idxpair[1] - '1');
-    (*listdata)[i] = epsilon(j,k);
-  }
-}
+// static void output_eps(const SymmMatrix3 &epsilon, ListOutputVal *listdata,
+// 		       const std::vector<std::string> &idxstrs)
+// {
+//   for(unsigned int i=0; i<idxstrs.size(); i++) {
+//     const std::string &idxpair = idxstrs[i];
+//     int j = int(idxpair[0] - '1');
+//     int k = int(idxpair[1] - '1');
+//     (*listdata)[i] = epsilon(j,k);
+//   }
+// }
 
 void AnisotropicStressFreeStrain::output(FEMesh *mesh,
 					 const Element *element,
@@ -211,11 +211,12 @@ void AnisotropicStressFreeStrain::output(FEMesh *mesh,
       const std::string *frame = output->getEnumParam("frame");
       if(*frame == "Lab") {
 	precompute(mesh);
-	output_eps(stressfreestrain(mesh, element, pos), listdata, *idxstrs);
+	copyOutputVals(stressfreestrain(mesh, element, pos),
+		       listdata, *idxstrs);
       }
       else {
 	assert(*frame == "Crystal");
-	output_eps(e_, listdata, *idxstrs);
+	copyOutputVals(e_, listdata, *idxstrs);
       }
       delete idxstrs;
       delete frame;

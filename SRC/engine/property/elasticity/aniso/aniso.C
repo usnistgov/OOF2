@@ -57,18 +57,18 @@ const Cijkl &CAnisoElasticity::crystal_cijkl() const {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-static void output_cijkl(const Cijkl &cijkl, ListOutputVal *listdata,
-			const std::vector<std::string> &idxstrs)
-{
-  // Helper for outputting components of Cijkl
-  for(unsigned int i=0; i<idxstrs.size(); i++) {
-    const std::string &voigtpair = idxstrs[i]; // "ab" for a,b in 1-6
-    // convert from string to int and 1-based indices to 0-based indices
-    SymTensorIndex idx0(int(voigtpair[0]-'1'));
-    SymTensorIndex idx1(int(voigtpair[1]-'1'));
-    (*listdata)[i] = cijkl(idx0, idx1);
-  }
-}
+// static void output_cijkl(const Cijkl &cijkl, ListOutputVal *listdata,
+// 			const std::vector<std::string> &idxstrs)
+// {
+//   // Helper for outputting components of Cijkl
+//   for(unsigned int i=0; i<idxstrs.size(); i++) {
+//     const std::string &voigtpair = idxstrs[i]; // "ab" for a,b in 1-6
+//     // convert from string to int and 1-based indices to 0-based indices
+//     SymTensorIndex idx0(int(voigtpair[0]-'1'));
+//     SymTensorIndex idx1(int(voigtpair[1]-'1'));
+//     (*listdata)[i] = cijkl(idx0, idx1);
+//   }
+// }
 
 void CAnisoElasticity::output(FEMesh *mesh,
 			      const Element *element,
@@ -87,11 +87,11 @@ void CAnisoElasticity::output(FEMesh *mesh,
     if(*frame == "Lab") {
       // TODO: Use a timestamp and only precompute when necessary.
       precompute(mesh);
-      output_cijkl(cijkl(mesh, element, pos), listdata, *idxstrs);
+      copyOutputVals(cijkl(mesh, element, pos), listdata, *idxstrs);
     }
     else {
       assert(*frame == "Crystal");
-      output_cijkl(crystal_cijkl(), listdata, *idxstrs);
+      copyOutputVals(crystal_cijkl(), listdata, *idxstrs);
     }
     delete idxstrs;
     delete frame;

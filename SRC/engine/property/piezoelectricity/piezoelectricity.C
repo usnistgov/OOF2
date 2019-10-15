@@ -293,16 +293,16 @@ AnisotropicPiezoElectricity::dijk(const FEMesh *mesh, const Element *el,
 }
 
 
-static void output_D(const Rank3Tensor &d, ListOutputVal *listdata,
-		     const std::vector<std::string> &idxstrs)
-{
-  for(unsigned int i=0; i<idxstrs.size(); i++) {
-    const std::string &idxpair = idxstrs[i];
-    int j = int(idxpair[0]-'1'); // 1-3
-    SymTensorIndex kl = SpaceIndex(idxpair[1]-'1'); // Voigt, 1-6
-    (*listdata)[i] = d(j, kl);
-  }
-}
+// static void output_D(const Rank3Tensor &d, ListOutputVal *listdata,
+// 		     const std::vector<std::string> &idxstrs)
+// {
+//   for(unsigned int i=0; i<idxstrs.size(); i++) {
+//     const std::string &idxpair = idxstrs[i];
+//     int j = int(idxpair[0]-'1'); // 1-3
+//     SymTensorIndex kl = SpaceIndex(idxpair[1]-'1'); // Voigt, 1-6
+//     (*listdata)[i] = d(j, kl);
+//   }
+// }
 
 void AnisotropicPiezoElectricity::output(FEMesh *mesh,
 				       const Element *element,
@@ -319,11 +319,11 @@ void AnisotropicPiezoElectricity::output(FEMesh *mesh,
     if(*frame == "Lab") {
       precompute(mesh);
       const Rank3Tensor dd = dijk(mesh, element, pos);
-      output_D(dijk(mesh, element, pos), listdata, *idxstrs);
+      copyOutputVals(dijk(mesh, element, pos), listdata, *idxstrs);
     }
     else {
       assert(*frame == "Crystal");
-      output_D(_dijkValue, listdata, *idxstrs);
+      copyOutputVals(_dijkValue, listdata, *idxstrs);
     }
     delete idxstrs;
     delete frame;
