@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Space Charge
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Space Charge
+0.0, -1.0
