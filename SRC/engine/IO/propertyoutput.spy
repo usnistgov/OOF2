@@ -60,7 +60,8 @@ class _PORegBase(PropertyOutputRegistration):
         mesh.precompute_all_subproblems()
         results = []
         for element, ecoords, in zip(elements, coords):
-            if not element.material().self_consistent():
+            mat = element.material()
+            if mat and not mat.self_consistent():
                 raise ooferror2.ErrBadMaterial(element.material().name())
             mesh.begin_all_subproblems(element)
             results.extend(po.evaluate(mesh, element, ecoords))
