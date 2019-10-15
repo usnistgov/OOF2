@@ -27,7 +27,8 @@ import gtk
 # The generic output value widget just prints the value.
 
 ## TODO: Widgets should have labels that display the Output's
-## shortrepr().
+## shortrepr().  The problem is that the widget is created by the
+## OutputVal, not the Output.
 
 class GenericOVWidget:
     def __init__(self, val):
