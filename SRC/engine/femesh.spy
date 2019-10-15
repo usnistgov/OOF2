@@ -101,6 +101,7 @@ def _FEMeshPtr_init_field(self, old_skel, old_femesh, field):
             fe_el = old_femesh.getElement(el.meshindex)
             masterpos = fe_el.to_master(position)
             fieldvals = fe_el.outputField(old_femesh, field, masterpos)
+            debug.fmsg("fieldvals=", fieldvals, fieldvals.__class__)
             field.setValueFromOutputValue(self, node, fieldvals)
 
 FEMeshPtr.init_field = _FEMeshPtr_init_field

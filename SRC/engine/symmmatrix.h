@@ -21,15 +21,20 @@ class SymmMatrix;
 #ifndef SYMMMATRIX_H
 #define SYMMMATRIX_H
 
-#include <iostream>
-#include <math.h>
 #include "common/smallmatrix.h"
+#include "engine/IO/propertyoutput.h"
 #include "engine/eigenvalues.h"
 #include "engine/fieldindex.h"
 #include "engine/outputval.h"
 
+#include <iostream>
+#include <math.h>
+#include <string>
+#include <vector>
+
 class IndexP;
 class COrientation;
+class ListOutputVal;
 
 class SymmMatrix {
 protected:
@@ -68,7 +73,7 @@ public:
   friend DoubleVec operator*(const SymmMatrix&, const DoubleVec&);
 };
 
-class SymmMatrix3 : public OutputVal, public SymmMatrix {
+class SymmMatrix3 : public ArithmeticOutputVal, public SymmMatrix {
 // OutputVal is a PythonExportable class, and must be the first base
 // class listed so that the PythonExportable dynamic classes work.
 // This doesn't feel right...
@@ -84,10 +89,11 @@ public:
   SymmMatrix3(double, double, double, double, double, double); // voigt order
   SymmMatrix3(const SymmMatrix3&);
   SymmMatrix3(const SymmMatrix&);
+  virtual const SymmMatrix3 &operator=(const OutputVal &other);
   virtual unsigned int dim() const { return 6; }
   virtual OutputVal *clone() const;
   virtual OutputVal *zero() const;
-  virtual OutputVal *one() const;
+  virtual SymmMatrix3 *one() const;
   virtual const std::string &classname() const { return classname_; }
   virtual const std::string &modulename() const { return modulename_; }
   SymmMatrix3 &operator=(const SymmMatrix3 &x) {
@@ -116,31 +122,37 @@ public:
   }
   virtual std::vector<double>* value_list() const;
 
-  OutputVal &operator*=(double x) {
+  ArithmeticOutputVal &operator*=(double x) {
     dirtyeigs_ = true;
-    return dynamic_cast<OutputVal&>(SymmMatrix::operator*=(x));
+    SymmMatrix::operator*=(x);
+    return *this;
   }
-  OutputVal &operator+=(const OutputVal &x) {
+  ArithmeticOutputVal &operator+=(const ArithmeticOutputVal &x) {
     dirtyeigs_ = true;
     const SymmMatrix3 &sm = dynamic_cast<const SymmMatrix3&>(x);
-    return dynamic_cast<OutputVal&>(SymmMatrix::operator+=(sm));
+    SymmMatrix::operator+=(sm);
+    return *this;
   }
-  OutputVal &operator-=(const OutputVal &x) {
+  ArithmeticOutputVal &operator-=(const ArithmeticOutputVal &x) {
     dirtyeigs_ = true;
     const SymmMatrix3 &sm = dynamic_cast<const SymmMatrix3&>(x);
-    return dynamic_cast<OutputVal&>(SymmMatrix::operator-=(sm));
+    SymmMatrix::operator-=(sm);
+    return *this;
   }
   SymmMatrix3 &operator/=(double x) {
     dirtyeigs_ = true;
-    return dynamic_cast<SymmMatrix3&>(SymmMatrix::operator/=(x));
+    SymmMatrix::operator/=(x);
+    return *this;
   }
   SymmMatrix3 &operator+=(const SymmMatrix3 &x) {
     dirtyeigs_ = true;
-    return dynamic_cast<SymmMatrix3&>(SymmMatrix::operator+=(x));
+    SymmMatrix::operator+=(x);
+    return *this;
   }
   SymmMatrix3 &operator-=(const SymmMatrix3 &x) {
     dirtyeigs_ = true;
-    return dynamic_cast<SymmMatrix3&>(SymmMatrix::operator-=(x));
+    SymmMatrix::operator-=(x);
+    return *this;
   }
   virtual double operator[](const IndexP&) const;
   virtual double &operator[](const IndexP&);
@@ -168,7 +180,17 @@ SymmMatrix3 operator*(double, const SymmMatrix3&);
 SymmMatrix3 operator/(SymmMatrix3&, double);
 
 
-OutputValue *newSymTensorOutputValue();
+ArithmeticOutputValue *newSymTensorOutputValue();
+
+class SymmMatrix3PropertyOutputInit : public ArithmeticPropertyOutputInit {
+public:
+  SymmMatrix3 *operator()(const ArithmeticPropertyOutput*,
+				  const FEMesh*,
+				  const Element*, const MasterCoord&) const;
+};
+
+void copyOutputVals(const SymmMatrix3&, ListOutputVal*,
+		    const std::vector<std::string>&);
 
 std::ostream& operator<<(std::ostream&, const SymmMatrix&);
 // SymmMatrix3 needs operator<< to disambiguate the base class

@@ -639,34 +639,37 @@ class SimpleArray2D {
 private:
   int nrows;
   int ncols;
-  TYPE *data;
+  std::vector<TYPE> data;
+  void initialize() {
+    // Using memset is wrong when data is a pointer to a dynamic class
+    // memset(data, 0, nrows*ncols*sizeof(TYPE));
+    for(unsigned int i=0; i<ncols; i++)
+      for(unsigned int j=0; j<nrows; j++)
+	data[i+j*ncols] = TYPE();
+  }
 public:
   SimpleArray2D(int width, int height)
     : nrows(height),
       ncols(width),
-      data(new TYPE[width*height])
+      data(width*height)
   {
-    memset(data, 0, nrows*ncols*sizeof(TYPE));
+    initialize();
   }
   SimpleArray2D(const ICoord &size) // size is ICoord(width, height)
     : nrows(size[1]),
       ncols(size[0]),
-      data(new TYPE[size[0]*size[1]])
+      data(size[0]*size[1])
   {
-    memset(data, 0, nrows*ncols*sizeof(TYPE));
+    initialize();
   }
   SimpleArray2D(SimpleArray2D &&other)
     : nrows(other.nrows),
-      ncols(other.ncols)
-  {
-    TYPE *temp = data;
-    data = other.data;
-    other.data = temp;
-  }
-  ~SimpleArray2D() {
-    delete [] data;
-  }
-  TYPE &operator()(int i, int j) { 
+      ncols(other.ncols),
+      data(std::move(other.data))
+  {}
+  ~SimpleArray2D() {  }
+  
+  typename std::vector<TYPE>::reference &operator()(int i, int j) { 
     assert(0<=i && i<ncols && 0<=j && j<nrows);
     return data[i + j*ncols];
   }
@@ -674,10 +677,15 @@ public:
     assert(0<=i && i<ncols && 0<=j && j<nrows);
     return data[i + j*ncols];
   }
-  TYPE &operator[](const ICoord &pt) {
+  // We need to use std::vector<TYPE>::reference here instead of TYPE&
+  // so that it will work when TYPE is bool.  std::vector<bool> is a
+  // template specialization whose operator[] returns an accessor
+  // object instead of a bool reference.
+  typename std::vector<TYPE>::reference operator[](const ICoord &pt) {
     assert(contains(pt));
     return data[pt[0] + pt[1]*ncols];
   }
+  // const TYPE &operator[] const doesn't require specialization.
   const TYPE &operator[](const ICoord &pt) const {
     assert(contains(pt));
     return data[pt[0] + pt[1]*ncols];

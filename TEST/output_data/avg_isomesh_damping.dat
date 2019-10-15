@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Damping
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Damping
+0.0, 6.0

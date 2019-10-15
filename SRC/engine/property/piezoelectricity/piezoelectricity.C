@@ -138,12 +138,11 @@ void PiezoElectricity::flux_matrix(const FEMesh *mesh,
 }
 
 
-void PiezoElectricity::output(const FEMesh *mesh,
+void PiezoElectricity::output(FEMesh *mesh,
 			      const Element *element,
 			      const PropertyOutput *output,
 			      const MasterPosition &pos,
 			      OutputVal *data)
-  const
 {
   const std::string &outputname = output->name();
   if(outputname == "Strain") {
@@ -191,6 +190,8 @@ void PiezoElectricity::output(const FEMesh *mesh,
   }
 }
 
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 IsotropicPiezoElectricity::IsotropicPiezoElectricity(PyObject *registry,
 						     const std::string &name,
 						     double d)
@@ -218,6 +219,32 @@ void IsotropicPiezoElectricity::precompute(FEMesh *mesh) {
     = _dijkLab(2,2,2) = _dijkValue;
 }
 
+void IsotropicPiezoElectricity::output(FEMesh *mesh,
+				       const Element *element,
+				       const PropertyOutput *output,
+				       const MasterPosition &pos,
+				       OutputVal *data)
+{
+  const std::string &outputname = output->name();
+  if(outputname == "Material Constants:Couplings:Piezoelectric Coefficient D") {
+    ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
+    std::vector<std::string> *idxstrs =
+      output->getListOfStringsParam("components");
+    for(unsigned int i=0; i<idxstrs->size(); i++) {
+      const std::string &idxpair = (*idxstrs)[i];
+      if(idxpair[0] == idxpair[1])
+      	(*listdata)[i] = _dijkValue;
+      else
+      	(*listdata)[i] = 0;
+    }
+    delete idxstrs;
+  }
+  PiezoElectricity::output(mesh, element, output, pos, data);
+}
+
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 AnisotropicPiezoElectricity::AnisotropicPiezoElectricity(PyObject *registry,
 							 const std::string &nm,
 							 Rank3Tensor *dijkTensor)
@@ -228,17 +255,26 @@ AnisotropicPiezoElectricity::AnisotropicPiezoElectricity(PyObject *registry,
 
 }
 void AnisotropicPiezoElectricity::cross_reference(Material *mat) {
-  // find out which property is the elasticity
+  std::string err_mat, err_prop;
   try {
     elasticity = dynamic_cast<Elasticity*>(mat->fetchProperty("Elasticity"));
+  }
+  catch (ErrNoSuchProperty &err) {
+    elasticity = 0;
+    err_mat = err.material;
+    err_prop = err.propname;
+  }
+  try {
     orientation = dynamic_cast<OrientationPropBase*>
       (mat->fetchProperty("Orientation"));
   }
-  catch (ErrNoSuchProperty&) {
-    elasticity = 0;
+  catch (ErrNoSuchProperty &err) {
     orientation = 0;
-    throw;
+    err_mat = err.material;
+    err_prop = err.propname;
   }
+  if(elasticity == nullptr || orientation == nullptr)
+    throw ErrNoSuchProperty(err_mat, err_prop);
 }
 
 void AnisotropicPiezoElectricity::precompute(FEMesh*) {
@@ -250,7 +286,47 @@ const Rank3Tensor
 AnisotropicPiezoElectricity::dijk(const FEMesh *mesh, const Element *el,
 				  const MasterPosition &pos) const
 {
+  assert(orientation != nullptr);
   if(orientation->constant_in_space())
     return _dijkLab;
   return _dijkValue.transform(orientation->orientation(mesh, el, pos));
+}
+
+
+// static void output_D(const Rank3Tensor &d, ListOutputVal *listdata,
+// 		     const std::vector<std::string> &idxstrs)
+// {
+//   for(unsigned int i=0; i<idxstrs.size(); i++) {
+//     const std::string &idxpair = idxstrs[i];
+//     int j = int(idxpair[0]-'1'); // 1-3
+//     SymTensorIndex kl = SpaceIndex(idxpair[1]-'1'); // Voigt, 1-6
+//     (*listdata)[i] = d(j, kl);
+//   }
+// }
+
+void AnisotropicPiezoElectricity::output(FEMesh *mesh,
+				       const Element *element,
+				       const PropertyOutput *output,
+				       const MasterPosition &pos,
+				       OutputVal *data)
+{
+  const std::string &outputname = output->name();
+  if(outputname == "Material Constants:Couplings:Piezoelectric Coefficient D") {
+    ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
+    std::vector<std::string> *idxstrs =
+      output->getListOfStringsParam("components");
+    const std::string *frame = output->getEnumParam("frame");
+    if(*frame == "Lab") {
+      precompute(mesh);
+      const Rank3Tensor dd = dijk(mesh, element, pos);
+      copyOutputVals(dijk(mesh, element, pos), listdata, *idxstrs);
+    }
+    else {
+      assert(*frame == "Crystal");
+      copyOutputVals(_dijkValue, listdata, *idxstrs);
+    }
+    delete idxstrs;
+    delete frame;
+  }
+  PiezoElectricity::output(mesh, element, output, pos, data);
 }

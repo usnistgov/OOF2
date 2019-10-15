@@ -37,6 +37,7 @@ import ooflib.SWIG.engine.material
 import ooflib.engine.boundary
 import ooflib.engine.IO.outputDefs
 import ooflib.engine.IO.xmloutputs
+import ooflib.engine.IO.propertyoutputreg
 import ooflib.engine.IO.displaymethods
 import ooflib.engine.IO.contourdisplay
 import ooflib.engine.IO.centerfilldisplay

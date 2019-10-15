@@ -203,15 +203,14 @@ void PyroElectricity::flux_offset(const FEMesh *mesh,
 
 
 
-void PyroElectricity::output(const FEMesh *mesh,
+void PyroElectricity::output(FEMesh *mesh,
 			     const Element *element,
 			     const PropertyOutput *output,
 			     const MasterPosition &pos,
 			     OutputVal *data)
-  const
-// Compute our contribution to the energy.
 {
   if((output->name())=="Energy") {
+    // Compute our contribution to the energy.
     const std::string *etype = output->getEnumParam("etype");
     if(*etype=="Total") {
       ScalarOutputVal *edata = dynamic_cast<ScalarOutputVal*>(data);

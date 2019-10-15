@@ -105,6 +105,7 @@ public:
       ++(*self);
     }
   }
+  int size();
   bool end();
   FieldIterator *cloneIterator();
 };
@@ -179,6 +180,7 @@ public:
 //   IteratorP(FieldIterator*);   // DON'T SWIG THE CONSTRUCTOR
   ~IteratorP();
   bool end();
+  int size();
   IteratorP cloneIterator();
   %addmethods{
     void next() { ++(*self); }

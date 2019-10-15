@@ -15,6 +15,7 @@
 %module corientation
 %include "common/typemaps.swg"
 %extern "engine/outputval.swg"
+%extern "engine/IO/propertyoutput.swg"
 
 %{
 #include "engine/corientation.h"
@@ -23,6 +24,7 @@
 
 %pragma(python) include="corientation.spy"
 %pragma(python) code="from ooflib.SWIG.engine.outputval import NonArithmeticOutputValPtr"
+%pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import NonArithmeticPropertyOutputInitPtr"
 
 class COrientation : public NonArithmeticOutputVal {
 public:
@@ -151,6 +153,12 @@ public:
     }
   }
 };
+
+class OrientationPropertyOutputInit : public NonArithmeticPropertyOutputInit {
+public:
+  OrientationPropertyOutputInit();
+};
+
 
 
 #endif	// CORIENTATION_SWG

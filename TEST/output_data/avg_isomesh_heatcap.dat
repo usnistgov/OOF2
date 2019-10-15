@@ -1,0 +1,8 @@
+# Operation: Average
+# Output: Heat Capacity
+# Domain: EntireMesh
+# Sampling: ElementSampleSet(order=automatic)
+# Columns:
+# 1. time
+# 2. average of Heat Capacity
+0.0, 8.0

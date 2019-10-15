@@ -518,6 +518,7 @@ using std::string;
 }
 
 %typemap(python, in) StringVec* (StringVec vec) {
+  // typemap(python, in) StringVec*
   if(!PySequence_Check($source)) {
     PyErr_SetString(PyExc_TypeError, "Type error in vector<string>* typemap. Python sequence of Strings required.");
     return 0;
@@ -547,6 +548,7 @@ using std::string;
 }
 
 %typemap(python, newfree) StringVec *{
+  // typemap(python, newfree) StringVec*
   delete $source;
 }
 

@@ -100,12 +100,11 @@ void DielectricPermittivity::flux_matrix(const FEMesh *mesh,
 }
 
 
-void DielectricPermittivity::output(const FEMesh *mesh,
+void DielectricPermittivity::output(FEMesh *mesh,
 				    const Element *element,
 				    const PropertyOutput *output,
 				    const MasterPosition &pos,
 				    OutputVal *data)
-  const
 {
   const std::string &outputname = output->name();
   if(outputname == "Energy") {
@@ -141,6 +140,30 @@ void IsoDielectricPermittivity::precompute(FEMesh *mesh) {
     = permittivitytensor_(2,2) = epsilon_;
 }
 
+void IsoDielectricPermittivity::output(FEMesh *mesh,
+				       const Element *element,
+				       const PropertyOutput *output,
+				       const MasterPosition &pos,
+				       OutputVal *data)
+{
+  const std::string &outputname = output->name();
+  if(outputname=="Material Constants:Electric:Dielectric Permittivity epsilon")
+    {
+      ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
+      std::vector<std::string> *idxstrs =
+	output->getListOfStringsParam("components");
+      for(unsigned int i=0; i<idxstrs->size(); i++) {
+	const std::string &idxpair = (*idxstrs)[i];
+	if(idxpair[0] == idxpair[1])
+	  (*listdata)[i] = epsilon_;
+	else
+	  (*listdata)[i] = 0;
+      }
+      delete idxstrs;
+    }
+  DielectricPermittivity::output(mesh, element, output, pos, data);
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 AnisoDielectricPermittivity::AnisoDielectricPermittivity(PyObject *reg,
@@ -165,7 +188,6 @@ void AnisoDielectricPermittivity::cross_reference(Material *mat) {
 
 void AnisoDielectricPermittivity::precompute(FEMesh *mesh) {
   DielectricPermittivity::precompute(mesh);
-  Trace("AnisoDielectricPermittivity::precompute");
   if(orientation && orientation->constant_in_space())
     permittivitytensor_ = epsilon_.transform(orientation->orientation());
 }
@@ -180,13 +202,52 @@ AnisoDielectricPermittivity::permittivityTensor(const FEMesh *mesh,
   return epsilon_.transform(orientation->orientation(mesh, element, x));
 }
 
+// static void output_eps(const SymmMatrix3 &epsilon, ListOutputVal *listdata,
+// 		       const std::vector<std::string> &idxstrs)
+// {
+//   for(unsigned int i=0; i<idxstrs.size(); i++) {
+//     const std::string &idxpair = idxstrs[i];
+//     int j = int(idxpair[0] - '1');
+//     int k = int(idxpair[1] - '1');
+//     (*listdata)[i] = epsilon(j,k);
+//   }
+// }
+
+void AnisoDielectricPermittivity::output(FEMesh *mesh,
+					 const Element *element,
+					 const PropertyOutput *output,
+					 const MasterPosition &pos,
+					 OutputVal *data)
+{
+  const std::string &outputname = output->name();
+  if(outputname=="Material Constants:Electric:Dielectric Permittivity epsilon")
+    {
+      ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
+      std::vector<std::string> *idxstrs =
+	output->getListOfStringsParam("components");
+      const std::string *frame = output->getEnumParam("frame");
+      if(*frame == "Lab") {
+	precompute(mesh);
+	copyOutputVals(permittivityTensor(mesh, element, pos),
+		       listdata, *idxstrs);
+      }
+      else {
+	assert(*frame == "Crystal");
+	copyOutputVals(epsilon_, listdata, *idxstrs);
+      }
+      delete idxstrs;
+      delete frame;
+    }
+  DielectricPermittivity::output(mesh, element, output, pos, data);
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 ChargeDensity::ChargeDensity(PyObject *reg,
-			       const std::string &name, double qd)
+			       const std::string &name, double q)
   : EqnProperty(name,reg),
-    qdot_(qd) {
+    q_(q) {
     total_polarization = dynamic_cast<VectorFlux*>
       (Flux::getFlux("Total_Polarization"));
 }
@@ -209,7 +270,20 @@ void ChargeDensity::force_value(const FEMesh *mesh, const Element *element,
 
   // In fact, there is only one component, so this is excessive.
 //   for(int i=0;i<total_polarization->divergence_dim();i++) {
-//     fluxdata->rhs_element(i) -= qdot_;
+//     fluxdata->rhs_element(i) -= q_;
 //   }
-  eqndata->force_vector_element(0) -= qdot_;
+  eqndata->force_vector_element(0) -= q_;
+}
+
+void ChargeDensity::output(FEMesh *mesh,
+			   const Element *element,
+			   const PropertyOutput *output,
+			   const MasterPosition &pos,
+			   OutputVal *data)
+{
+  const std::string &outputname = output->name();
+  if(outputname == "Material Constants:Electric:Space Charge") {
+    ScalarOutputVal *sdata = dynamic_cast<ScalarOutputVal*>(data);
+    *sdata = q_;
+  }
 }

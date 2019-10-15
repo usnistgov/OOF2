@@ -31,7 +31,10 @@
 // out		SymmMatrix3StarVec* std::vector<SymmMatrix3*> -> [SymmMatrix3]
 // out		Flux*		Flux* -> Flux derived class obj
 // out		EdgeVec*	std::vector<Edge*> -> [Edge]
-// out		OutputValueVec* std::vector<OutputValue>* -> [OutputVal]
+// out		ArithmeticOutputValueVec*
+//                              std::vector<OutputValue>* -> [OutputVal]
+// out		NonArithmeticOutputValueVec*
+//                              std::vector<OutputValue>* -> [OutputVal]
 // out		DOUBLELIST*	DOUBLELIST* -> [double]
 // newfree      DOUBLELIST*
 // out		CompoundFieldVec* std::vector<CompoundField*>* ->[CompoundField]
@@ -504,19 +507,20 @@ typedef std::vector<GaussPoint*> GaussPointVec;
 // ownership of the objects to Python.
 
 %{
-  typedef std::vector<OutputValue> OutputValueVec;
+  typedef std::vector<ArithmeticOutputValue> ArithmeticOutputValueVec;
+  typedef std::vector<NonArithmeticOutputValue> NonArithmeticOutputValueVec;
 %}
 
-%typemap(python, out) OutputValueVec* {
-  // typemap(python, out) OutputValueVec*
+%typemap(python, out) ArithmeticOutputValueVec* {
+  // typemap(python, out) ArithmeticOutputValueVec*
   static PyObject *pyOne = 0;
   if(!pyOne) {
     pyOne = PyInt_FromLong(1);
   }
-  OutputValueVec::size_type sz = $source->size();
+  ArithmeticOutputValueVec::size_type sz = $source->size();
   // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $target = PyList_New((Py_ssize_t) sz);
-  for(OutputValueVec::size_type i=0; i<sz; i++) {
+  for(ArithmeticOutputValueVec::size_type i=0; i<sz; i++) {
     // Don't use valuePtr() or valueRef() here, because the OutputVals
     // copied into the Python list will outlive the OutputValues that
     // they're copied from.  valueClone() makes an independent copy.
@@ -528,8 +532,34 @@ typedef std::vector<GaussPoint*> GaussPointVec;
   }
 }
 
-%typemap(python, newfree) OutputValueVec* {
-  // typemap(python, newfree) OutputValueVec*
+%typemap(python, out) NonArithmeticOutputValueVec* {
+  // typemap(python, out) NonArithmeticOutputValueVec*
+  static PyObject *pyOne = 0;
+  if(!pyOne) {
+    pyOne = PyInt_FromLong(1);
+  }
+  NonArithmeticOutputValueVec::size_type sz = $source->size();
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  $target = PyList_New((Py_ssize_t) sz);
+  for(NonArithmeticOutputValueVec::size_type i=0; i<sz; i++) {
+    // Don't use valuePtr() or valueRef() here, because the OutputVals
+    // copied into the Python list will outlive the OutputValues that
+    // they're copied from.  valueClone() makes an independent copy.
+    PyObject *obj = (*$source)[i].valueClone()->pythonObject();
+    if(!obj)
+      return 0;
+    PyObject_SetAttrString(obj, "thisown", pyOne); // take ownership
+    PyList_SET_ITEM($target, (Py_ssize_t) i, obj);
+  }
+}
+
+%typemap(python, newfree) ArithmeticOutputValueVec* {
+  // typemap(python, newfree) ArithmeticOutputValueVec*
+  delete $source;
+}
+
+%typemap(python, newfree) NonArithmeticOutputValueVec* {
+  // typemap(python, newfree) NonArithmeticOutputValueVec*
   delete $source;
 }
 

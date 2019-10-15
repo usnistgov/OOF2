@@ -69,7 +69,7 @@ std::vector<Coord*> *Edge::position_(const std::vector<double> *x) const {
 // between 0 and 1, return a list of lists of field components. The
 // lists will be deleted by Python.
 
-std::vector<OutputValue>*
+std::vector<ArithmeticOutputValue>*
 Edge::outputFields(const FEMesh *mesh, const Field &field,
 		   const std::vector<double> *positions)
   const

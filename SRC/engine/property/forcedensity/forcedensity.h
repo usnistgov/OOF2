@@ -53,7 +53,10 @@ public:
 #if DIM==3
   double fdensity_z() const { return gz; }
 #endif
+
   virtual bool constant_in_space() const { return true; }
+  virtual void output(FEMesh*, const Element*, const PropertyOutput*,
+		      const MasterPosition&, OutputVal*);
 protected:
 #if DIM==2
   TwoVectorField *displacement;

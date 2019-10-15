@@ -382,12 +382,12 @@ void SymmetricTensorFlux::local_boundary(const BoundaryEdge *ed,
 
 // Evaluate the dot product of the flux with the normal at
 // the indicated edge gauss point.
-OutputVal *SymmetricTensorFlux::contract(const FEMesh *mesh,
-					 const Element *elmt,
-					 const EdgeGaussPoint &egpt)
+ArithmeticOutputVal *SymmetricTensorFlux::contract(const FEMesh *mesh,
+						   const Element *elmt,
+						   const EdgeGaussPoint &egpt)
   const
  {
-   OutputValue value = output( mesh, elmt, egpt );
+   ArithmeticOutputValue value = output( mesh, elmt, egpt );
    const SymmMatrix3 &valueRef =
      dynamic_cast<const SymmMatrix3&>(value.valueRef());
    Coord normal2 = egpt.normal();
@@ -458,12 +458,12 @@ FluxNormal *SymmetricTensorFlux::BCCallback(const Coord &pos,
   return new SymTensorFluxNormal(cres(0),cres(1));
 }
 
-OutputValue Flux::output(const FEMesh *mesh, const Element *el,
-			 const MasterPosition &pos) const
+ArithmeticOutputValue Flux::output(const FEMesh *mesh, const Element *el,
+				   const MasterPosition &pos) const
 {
   // std::cerr << "Flux::output: pos=" << pos << " el=" << *el << std::endl;
   DoubleVec *fluxvals = evaluate( mesh, el, pos );
-  OutputValue ov = newOutputValue();
+  ArithmeticOutputValue ov = newOutputValue();
   for(IteratorP it = iterator(ALL_INDICES); !it.end(); ++it) {
     ov[it] = (*fluxvals)[it.integer()];
   }
@@ -480,15 +480,15 @@ OutputValue Flux::output(const FEMesh *mesh, const Element *el,
   return ov;
 }
 
-OutputValue SymmetricTensorFlux::newOutputValue() const {
-  return OutputValue(new SymmMatrix3());
+ArithmeticOutputValue SymmetricTensorFlux::newOutputValue() const {
+  return ArithmeticOutputValue(new SymmMatrix3());
 }
 
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-OutputValue VectorFlux::newOutputValue() const {
-  return OutputValue(new VectorOutputVal(ndof()));
+ArithmeticOutputValue VectorFlux::newOutputValue() const {
+  return ArithmeticOutputValue(new VectorOutputVal(ndof()));
 }
 
 
@@ -515,12 +515,12 @@ void VectorFlux::local_boundary(const BoundaryEdge *ed,
 
 // Evalute the dot product of the flux with the normal at the
 // indicated gauss point.
-OutputVal *VectorFlux::contract(const FEMesh *mesh,
-				const Element *elmt,
-				const EdgeGaussPoint &egpt)
+ArithmeticOutputVal *VectorFlux::contract(const FEMesh *mesh,
+					  const Element *elmt,
+					  const EdgeGaussPoint &egpt)
   const
 {
-  OutputValue value = output( mesh, elmt, egpt );
+  ArithmeticOutputValue value = output( mesh, elmt, egpt );
   const VectorOutputVal &valueRef =
     dynamic_cast<const VectorOutputVal&>(value.valueRef());
   Coord normal = egpt.normal();

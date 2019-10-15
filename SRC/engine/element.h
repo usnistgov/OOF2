@@ -47,7 +47,7 @@ class MasterElement;
 class MasterPosition;
 class Material;
 class Node;
-class OutputValue;
+class ArithmeticOutputValue;
 
 //-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//
 
@@ -214,30 +214,35 @@ public:
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-  OutputValue outputField(const FEMesh*, const Field&, const MasterPosition&)
-    const;
+  ArithmeticOutputValue outputField(const FEMesh*, const Field&,
+				    const MasterPosition&) const;
 
-  std::vector<OutputValue> *outputFields(const FEMesh*, const Field&,
+  std::vector<ArithmeticOutputValue> *outputFields(const FEMesh*, const Field&,
 					 const std::vector<MasterCoord*>*)
     const;
 
-  std::vector<OutputValue> *outputFields(const FEMesh*, const Field&,
+  std::vector<ArithmeticOutputValue> *outputFields(const FEMesh*, const Field&,
 					 const std::vector<MasterCoord>&)
     const;
 
-  std::vector<OutputValue> *outputFieldDerivs(const FEMesh*, const Field&,
-					      SpaceIndex*,
-					      const std::vector<MasterCoord*>*)
+  std::vector<ArithmeticOutputValue> *outputFieldDerivs(
+					const FEMesh*,
+					const Field&,
+					SpaceIndex*,
+					const std::vector<MasterCoord*>*)
     const;
 
-  OutputValue outputFieldDeriv(const FEMesh*, const Field &, SpaceIndex *,
-			       const MasterPosition &) const;
+  ArithmeticOutputValue outputFieldDeriv(const FEMesh*, const Field &,
+					 SpaceIndex *,
+					 const MasterPosition &) const;
 
-  // OutputValue outputFlux(const FEMesh*, const Flux&, const MasterPosition&)
+  // ArithmeticOutputValue outputFlux(const FEMesh*, const Flux&, const MasterPosition&)
   //   const;
 
-  std::vector<OutputValue> *outputFluxes(const FEMesh*, const Flux &flux,
-					 const std::vector<MasterCoord*>*)
+  std::vector<ArithmeticOutputValue> *outputFluxes(
+					   const FEMesh*,
+					   const Flux &flux,
+					   const std::vector<MasterCoord*>*)
     const;
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

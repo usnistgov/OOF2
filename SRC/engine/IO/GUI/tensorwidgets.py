@@ -17,7 +17,11 @@ from ooflib.SWIG.engine import symmmatrix
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import parameterwidgets
-from ooflib.common.IO.GUI.matrixparamwidgets import SymmetricMatrixInput
+from ooflib.common.IO.GUI import matrixparamwidgets
+from ooflib.engine.IO import outputDefs
+
+SymmetricMatrixInput = matrixparamwidgets.SymmetricMatrixInput
+SymmetricMatrixBoolInput = matrixparamwidgets.SymmetricMatrixBoolInput
 
 # Used for triclinic materials with symmetric rank two tensors.  There
 # is another SymmMatrix3Widget object in outputvalwidgets.py, but it's
@@ -27,9 +31,9 @@ class SymmMatrix3Widget(SymmetricMatrixInput):
     settable = symmmatrix.voigtIndices
     def __init__(self, param, scope=None, name=None):
         debug.mainthreadTest()
-        SymmetricMatrixInput.__init__(self,"",3,3,value=None,scope=scope,
+        SymmetricMatrixInput.__init__(self, 3,3, value=None, scope=scope,
                                       name=name)
-        for (k,f) in self.floats.items():
+        for (k,f) in self.widgets.items():
             if k not in self.settable:
                 f.gtk.set_editable(0)
                 f.gtk.set_sensitive(0)
@@ -44,7 +48,7 @@ class SymmMatrix3Widget(SymmetricMatrixInput):
             self.block_signals()
             try:
                 for i in symmmatrix.voigtIndices:
-                    self.floats[i].set_value(self.value.get(*i))
+                    self.widgets[i].set_value(self.value.get(*i))
             finally:
                 self.unblock_signals()
         self.gtk.show_all()
@@ -54,7 +58,7 @@ class SymmMatrix3Widget(SymmetricMatrixInput):
         result = self.value
         try:
             result = symmmatrix.SymmMatrix3(
-                *[self.floats[i].get_value() for i in \
+                *[self.widgets[i].get_value() for i in \
                   symmmatrix.voigtIndices] )
         finally:
             self.set_values(result)
@@ -73,7 +77,7 @@ class TriclinicRank2TensorParameterWidget(SymmMatrix3Widget):
         result = self.value
         try:
             result = symmmatrix.TriclinicRank2Tensor(
-                *[self.floats[i].get_value() for i in symmmatrix.voigtIndices] )
+                *[self.widgets[i].get_value() for i in symmmatrix.voigtIndices] )
         finally:
             self.set_values(result)
               
@@ -93,10 +97,10 @@ class MonoclinicSymmWidget(SymmMatrix3Widget):
         if value is not None:
             self.block_signals()
             try:
-                self.floats[(0,0)].set_value(self.value.get(0,0))
-                self.floats[(1,1)].set_value(self.value.get(1,1))
-                self.floats[(2,2)].set_value(self.value.get(2,2))
-                self.floats[(0,2)].set_value(self.value.get(0,2))
+                self.widgets[(0,0)].set_value(self.value.get(0,0))
+                self.widgets[(1,1)].set_value(self.value.get(1,1))
+                self.widgets[(2,2)].set_value(self.value.get(2,2))
+                self.widgets[(0,2)].set_value(self.value.get(0,2))
             finally:
                 self.unblock_signals()
         self.gtk.show_all()
@@ -104,10 +108,10 @@ class MonoclinicSymmWidget(SymmMatrix3Widget):
         result = self.value
         try:
             result = symmmatrix.MonoclinicRank2Tensor(
-                self.floats[(0,0)].get_value(),
-                self.floats[(1,1)].get_value(),
-                self.floats[(2,2)].get_value(),
-                self.floats[(0,2)].get_value())
+                self.widgets[(0,0)].get_value(),
+                self.widgets[(1,1)].get_value(),
+                self.widgets[(2,2)].get_value(),
+                self.widgets[(0,2)].get_value())
         finally:
             self.set_values(result)
 
@@ -126,9 +130,9 @@ class OrthorhombicSymmWidget(SymmMatrix3Widget):
         if value is not None:
             self.block_signals()
             try:
-                self.floats[(0,0)].set_value(self.value.get(0,0))
-                self.floats[(1,1)].set_value(self.value.get(1,1))
-                self.floats[(2,2)].set_value(self.value.get(2,2))
+                self.widgets[(0,0)].set_value(self.value.get(0,0))
+                self.widgets[(1,1)].set_value(self.value.get(1,1))
+                self.widgets[(2,2)].set_value(self.value.get(2,2))
             finally:
                 self.unblock_signals()
         self.gtk.show_all()
@@ -136,9 +140,9 @@ class OrthorhombicSymmWidget(SymmMatrix3Widget):
         result = self.value
         try:
             result = symmmatrix.OrthorhombicRank2Tensor(
-                self.floats[(0,0)].get_value(),
-                self.floats[(1,1)].get_value(),
-                self.floats[(2,2)].get_value())
+                self.widgets[(0,0)].get_value(),
+                self.widgets[(1,1)].get_value(),
+                self.widgets[(2,2)].get_value())
         finally:
             self.set_values(result)
 
@@ -160,9 +164,9 @@ class IsotropicPlaneSymmWidget(SymmMatrix3Widget):
         if value is not None:
             self.block_signals()
             try:
-                self.floats[(0,0)].set_value(self.value.get(0,0))
-                self.floats[(1,1)].set_value(self.value.get(0,0))
-                self.floats[(2,2)].set_value(self.value.get(2,2))
+                self.widgets[(0,0)].set_value(self.value.get(0,0))
+                self.widgets[(1,1)].set_value(self.value.get(0,0))
+                self.widgets[(2,2)].set_value(self.value.get(2,2))
             finally:
                 self.unblock_signals()
         self.gtk.show_all()
@@ -170,8 +174,8 @@ class IsotropicPlaneSymmWidget(SymmMatrix3Widget):
         result = self.value
         try:
             result = self.make_tensor(
-                xx=self.floats[(0,0)].get_value(),
-                zz=self.floats[(2,2)].get_value())
+                xx=self.widgets[(0,0)].get_value(),
+                zz=self.widgets[(2,2)].get_value())
         finally:
             self.set_values(result)
 
@@ -216,7 +220,7 @@ class CubicSymmWidget(SymmMatrix3Widget):
         result = self.value
         try:
             result = symmmatrix.CubicRank2Tensor(
-                self.floats[(0,0)].get_value() )
+                self.widgets[(0,0)].get_value() )
         finally:
             self.set_values(result)
         
@@ -226,9 +230,9 @@ class CubicSymmWidget(SymmMatrix3Widget):
         if value is not None:
             self.block_signals()
             try:
-                self.floats[(0,0)].set_value(self.value.get(0,0))
-                self.floats[(1,1)].set_value(self.value.get(0,0))
-                self.floats[(2,2)].set_value(self.value.get(0,0))
+                self.widgets[(0,0)].set_value(self.value.get(0,0))
+                self.widgets[(1,1)].set_value(self.value.get(0,0))
+                self.widgets[(2,2)].set_value(self.value.get(0,0))
             finally:
                 self.unblock_signals()
         self.gtk.show_all()
@@ -237,3 +241,79 @@ def _CubicSymmParameter_makeWidget(self, scope=None):
     return CubicSymmWidget(self, scope, name=self.name)
 
 symmmatrix.CubicRank2TensorParameter.makeWidget = _CubicSymmParameter_makeWidget
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# SymmTensor3BoolWidget displays a bool for each entry in a tensor.
+
+class SymmTensor3BoolWidget(matrixparamwidgets.SymmetricMatrixBoolInput):
+    def __init__(self, param, scope=None, name=None):
+        matrixparamwidgets.SymmetricMatrixBoolInput.__init__(
+            self, 3, 3, value=None, scope=scope, name=name)
+        self.param = param
+        self.set_value()
+    def draw_values(self, vlist):
+        self.block_signals()
+        try:
+            for r in range(3):
+                for c in range(r, 3):
+                    self.widgets[(r,c)].set_value(False)
+            for v in vlist:
+                self.widgets[(int(v[0])-1, int(v[1])-1)].set_value(True)
+        finally:
+            self.unblock_signals()
+
+    def set_value(self, value=None):
+        self.draw_values(value or [])
+
+    def get_value(self):
+        vals = []
+        for r in range(3):
+            for c in range(r, 3):
+                if self.widgets[(r,c)].get_value():
+                    vals.append("%d%d" % (r+1, c+1))
+        return vals
+
+def SymmIndexPairListParam_makeWidget(self, scope):
+    return SymmTensor3BoolWidget(self, scope=scope, name=self.name)
+
+outputDefs.SymmIndexPairListParameter.makeWidget = \
+    SymmIndexPairListParam_makeWidget
+    
+
+# Rank3TensorBoolWidget -- 1st index is space, 2nd index is Voigt
+
+class Rank3TensorBoolWidget(matrixparamwidgets.MatrixBoolInput):
+    def __init__(self, param, scope=None, name=None):
+        matrixparamwidgets.MatrixBoolInput.__init__(
+            self, 3, 6, value=None, scope=scope, name=name)
+        self.param = param
+        self.set_value()
+
+    def draw_values(self, vlist):
+        self.block_signals()
+        try:
+            for r in range(3):
+                for c in range(6):
+                    self.widgets[(r,c)].set_value(False)
+            for v in vlist:
+                self.widgets[(int(v[0])-1, int(v[1])-1)].set_value(True)
+        finally:
+            self.unblock_signals()
+
+    def set_value(self, value=None):
+        self.draw_values(value or [])
+
+    def get_value(self):
+        vals = []
+        for r in range(3):
+            for c in range(6):
+                if self.widgets[(r,c)].get_value():
+                    vals.append("%d%d" % (r+1, c+1))
+        return vals
+
+def Rank3TensorIndexParam_makeWidget(self, scope):
+    return Rank3TensorBoolWidget(self, scope=scope, name=self.name)
+
+outputDefs.Rank3TensorIndexParameter.makeWidget = \
+    Rank3TensorIndexParam_makeWidget

@@ -372,7 +372,8 @@ void SimpleTension2::cross_reference(Material* pMat)
 #endif
 }
 
-void SimpleTension2::post_process(CSubProblem* pSubp, const Element *pElem) const
+void SimpleTension2::post_process(CSubProblem* pSubp, const Element *pElem)
+  const
 {
 }
 
@@ -395,8 +396,7 @@ void SimpleTension2::flux_offset(const FEMesh*, const Element*,
   //Do nothing
 }
 
-void SimpleTension2::output(const FEMesh*, const Element*, const PropertyOutput*,
+void SimpleTension2::output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*)
-    const
 {
 }

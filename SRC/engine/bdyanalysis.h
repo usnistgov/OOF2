@@ -16,12 +16,12 @@
 
 #include <vector>
 
+class ArithmeticOutputValue;
 class EdgeSet;
 class FEMesh;
 class Flux;
-class OutputValue;
 
-OutputValue integrateFlux(const FEMesh*, const Flux*, const EdgeSet*);
-OutputValue averageField(const FEMesh*, const Field*, const EdgeSet*);
+ArithmeticOutputValue integrateFlux(const FEMesh*, const Flux*, const EdgeSet*);
+ArithmeticOutputValue averageField(const FEMesh*, const Field*, const EdgeSet*);
 
 #endif // BDYANALYSIS_H

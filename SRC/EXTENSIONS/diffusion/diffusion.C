@@ -73,13 +73,15 @@ void Diffusion::static_flux_value(const FEMesh  *mesh,
   std::vector<double> fieldGradient(3);
 
   for (SpaceIndex i=0; i<DIM; ++i){
-    OutputValue outputVal = element->outputFieldDeriv( mesh, *concentration, &i, pt );
+    ArithmeticOutputValue outputVal =
+      element->outputFieldDeriv( mesh, *concentration, &i, pt );
     fieldGradient[i] = outputVal[0];
   }
 
 #if DIM==2  // if plane-flux eqn, then dT/dz is kept as a separate out_of_plane field
   if ( !concentration->in_plane(mesh) ){
-    OutputValue outputVal = element->outputField( mesh, *concentration->out_of_plane(), pt );
+    ArithmeticOutputValue outputVal
+      = element->outputField( mesh, *concentration->out_of_plane(), pt );
     fieldGradient[2] = outputVal[0];
   }
 #endif

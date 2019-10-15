@@ -249,6 +249,12 @@ void SymmMatrix::copy(double **smd) {	// copy data from another data array
   (void) memcpy(&m[0][0], &smd[0][0], sz*sizeof(double));
 }
 
+const SymmMatrix3 &SymmMatrix3::operator=(const OutputVal &other) {
+  const SymmMatrix3 &othr = dynamic_cast<const SymmMatrix3&>(other);
+  *this = othr;
+  return *this;
+}
+
 void SymmMatrix::resize(unsigned int n) {
   if(n == nrows) return;
   free();
@@ -300,7 +306,7 @@ OutputVal *SymmMatrix3::zero() const {
   return new SymmMatrix3();
 }
 
-OutputVal *SymmMatrix3::one() const {
+SymmMatrix3 *SymmMatrix3::one() const {
   return new SymmMatrix3(1.0, 1.0, 1.0, 1.0, 1.0, 1.0);
 }
 
@@ -445,6 +451,9 @@ double SymmMatrix3::minEigenvalue() const {
 }
 
 double &SymmMatrix3::operator[](const IndexP &p) {
+  // Converting directly from IndexP to SymTensorIndex via
+  // const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(p);
+  // compiles but fails at run time on some compilers.
   const FieldIndex &fi(p);
   const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(fi);
   dirtyeigs_ = true;
@@ -452,8 +461,11 @@ double &SymmMatrix3::operator[](const IndexP &p) {
 }
 
 double SymmMatrix3::operator[](const IndexP &p) const {
-  // const FieldIndex &fi(p);
-  const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(p);
+  // Converting directly from IndexP to SymTensorIndex via
+  // const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(p);
+  // compiles but fails at run time on some compilers.
+  const FieldIndex &fi(p);
+  const SymTensorIndex &sti = dynamic_cast<const SymTensorIndex&>(fi);
   return (*this)(sti.row(), sti.col());
 }
 
@@ -480,8 +492,8 @@ IteratorP SymmMatrix3::getIterator() const {
   return IteratorP(new SymTensorIterator());
 }
 
-OutputValue *newSymTensorOutputValue() {
-  return new OutputValue(new SymmMatrix3());
+ArithmeticOutputValue *newSymTensorOutputValue() {
+  return new ArithmeticOutputValue(new SymmMatrix3());
 }
 
 std::vector<double>* SymmMatrix3::value_list() const {
@@ -493,4 +505,30 @@ std::vector<double>* SymmMatrix3::value_list() const {
   (*res)[4] = m[2][0];
   (*res)[5] = m[1][0];
   return res;
+}
+
+SymmMatrix3 *SymmMatrix3PropertyOutputInit::operator()(
+					       const ArithmeticPropertyOutput*,
+					       const FEMesh*,
+					       const Element*,
+					       const MasterCoord&) const
+{
+  return new SymmMatrix3();
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Copy values from a SymmMatrix3, modulus, into a ListOutputVal,
+// listdata, given a vector, idxstrs, of strings containing the
+// indices of the desired components as pairs of ints from 1 to 3.
+
+void copyOutputVals(const SymmMatrix3 &modulus, ListOutputVal *listdata,
+		    const std::vector<std::string> &idxstrs)
+{
+  for(unsigned int i=0; i<idxstrs.size(); i++) {
+    const std::string &idxpair = idxstrs[i];
+    int j = int(idxpair[0] - '1');
+    int k = int(idxpair[1] - '1');
+    (*listdata)[i] = modulus(j,k);
+  }
 }

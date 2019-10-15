@@ -67,18 +67,16 @@ const COrientation *OrientationMapProp::orientation(const FEMesh *mesh,
   return &meshdata->odata->angle(pxl);
 }
 
-void OrientationMapProp::output(const FEMesh *mesh,
+void OrientationMapProp::output(FEMesh *mesh,
 				const Element *element,
 				const PropertyOutput *output,
 				const MasterPosition &pos,
 				OutputVal *data)
-  const
 {
   const std::string &outputname = output->name();
-  if(outputname == "Orientation") {
+  if(outputname == "Material Constants:Orientation") {
     COrientation *odata = dynamic_cast<COrientation*>(data);
-    const std::string *fmt = output->getEnumParam("format");
-    odata->copy(orientation(mesh, element, pos));
+    *odata = *orientation(mesh, element, pos);
   }
 }
 

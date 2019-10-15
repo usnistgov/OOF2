@@ -19,9 +19,8 @@ class Element;
 class FEMesh;
 class MasterPosition;
 class SmallMatrix;
-class SymmMatrix3;
 
-#include "engine/IO/propertyoutput.h"
+#include "engine/symmmatrix.h"
 
 
 void findGeometricStrain(const FEMesh*, const Element*,
@@ -33,11 +32,18 @@ void computeDisplacementGradient(const FEMesh*, const Element*,
 void computeDisplacement(const FEMesh*, const Element*,
 			 const MasterPosition&, DoubleVec&);
 
-class POInitGeometricStrain : public SymmMatrix3PropertyOutputInit {
+// class POInitGeometricStrain : public SymmMatrix3PropertyOutputInit {
+// public:
+//   virtual SymmMatrix3 *operator()(const ArithmeticPropertyOutput*,
+// 					  const FEMesh*, const Element*,
+// 					  const MasterCoord&) const;
+// };
+
+class POInitGeometricStrain : public PropertyOutputValInit {
 public:
-  virtual OutputVal *operator()(const PropertyOutput*,
-				const FEMesh*, const Element*,
-				const MasterCoord&) const;
+  virtual OutputVal *operator()(const PropertyOutput*, const FEMesh*,
+				const Element*, const MasterCoord&) const;
 };
+
 
 #endif // CSTRAIN_H

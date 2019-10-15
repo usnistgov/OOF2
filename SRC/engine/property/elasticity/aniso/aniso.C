@@ -54,3 +54,48 @@ const Cijkl CAnisoElasticity::cijkl(const FEMesh *mesh, const Element *el,
 const Cijkl &CAnisoElasticity::crystal_cijkl() const {
   return crystal_cijkl_;
 }
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// static void output_cijkl(const Cijkl &cijkl, ListOutputVal *listdata,
+// 			const std::vector<std::string> &idxstrs)
+// {
+//   // Helper for outputting components of Cijkl
+//   for(unsigned int i=0; i<idxstrs.size(); i++) {
+//     const std::string &voigtpair = idxstrs[i]; // "ab" for a,b in 1-6
+//     // convert from string to int and 1-based indices to 0-based indices
+//     SymTensorIndex idx0(int(voigtpair[0]-'1'));
+//     SymTensorIndex idx1(int(voigtpair[1]-'1'));
+//     (*listdata)[i] = cijkl(idx0, idx1);
+//   }
+// }
+
+void CAnisoElasticity::output(FEMesh *mesh,
+			      const Element *element,
+			      const PropertyOutput *output,
+			      const MasterPosition &pos,
+			      OutputVal *data)
+{
+  const std::string &outputname = output->name();
+  if(outputname == "Material Constants:Mechanical:Elastic Modulus C") {
+    ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
+    std::vector<std::string> *idxstrs =
+      output->getListOfStringsParam("components");
+    assert(idxstrs->size() <= listdata->size());
+    const std::string *frame = output->getEnumParam("frame"); // Lab or Crystal
+    
+    if(*frame == "Lab") {
+      // TODO: Use a timestamp and only precompute when necessary.
+      precompute(mesh);
+      copyOutputVals(cijkl(mesh, element, pos), listdata, *idxstrs);
+    }
+    else {
+      assert(*frame == "Crystal");
+      copyOutputVals(crystal_cijkl(), listdata, *idxstrs);
+    }
+    delete idxstrs;
+    delete frame;
+  }
+  Elasticity::output(mesh, element, output, pos, data);
+}
+

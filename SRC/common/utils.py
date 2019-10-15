@@ -150,8 +150,13 @@ def classes(c):
             return [c]
         return [c] +  flatten(map(classes, c.__bases__))
     # Might be a new style class
-    if c == object:
-        return []
+    try:
+        # TODO: Is this test needed?  It's in a try/except block
+        # because it may blow up if c has operator== defined.
+        if c == object:
+            return []
+    except:
+        pass
     if type(c) == types.TypeType:
         if c.__bases__ == (object,):
             return [c]
@@ -183,6 +188,8 @@ def classnames(c):
 # ---->  A
 
 class PrintableClass(type):
+    def __init__(cls, name, bases, dict):
+        super(PrintableClass, cls).__init__(name, bases, dict)
     def __str__(cls):
         return cls.__name__
     def __repr__(cls):

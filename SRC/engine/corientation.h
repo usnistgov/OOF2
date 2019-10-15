@@ -23,6 +23,9 @@ class COrientXYZ;
 class COrientAxis;
 class COrientRodrigues;
 
+// NO, I don't know why outputval.h is in engine but propertyoutput.h
+// is in engine/IO.
+#include "engine/IO/propertyoutput.h"
 #include "engine/outputval.h"
 
 #include <vector>
@@ -33,12 +36,22 @@ class SmallMatrix;
 class LatticeSymmetry;
 
 class COrientation : public NonArithmeticOutputVal {
-private:
+protected:
   mutable SmallMatrix *cachedrot;
+  void copyMatrix(const COrientation&);
+  virtual const COrientation &copyFrom(const COrientation&) = 0;
 public:
   COrientation();
   COrientation(const COrientation&);
   virtual ~COrientation();
+
+  virtual const COrientation &operator=(const OutputVal &ov) {
+    return operator=(dynamic_cast<const COrientation&>(ov));
+  }
+  virtual const COrientation &operator=(const COrientation &other) {
+    copyFrom(other);
+    return *this;
+  }
 
   // As used by the Cijkl's "transform" method, these matrices
   // yield lab-frame vectors when right-multiplied by crystal-frame vectors.
@@ -56,9 +69,6 @@ public:
   virtual COrientAxis axis() const;
   virtual COrientRodrigues rodrigues() const;
 
-  // Conversion in the other direction
-  virtual void copy(const COrientation*) = 0;
-
   double misorientation(const COrientation&, const LatticeSymmetry&) const;
   double misorientation(const COrientation&, const std::string&) const;
 
@@ -69,13 +79,84 @@ public:
 
   virtual void print(std::ostream&) const = 0;
 
-  // Methods required by OutputVal
+  // Methods required by OutputVal.  The IndexP points to one of the
+  // components of an OutputVal, and IteratorP iterates over the
+  // components.  IndexP wraps a FieldIndex and IteratorP wraps a
+  // FieldIterator.  See the TODO in outputval.h about how FieldIndex
+  // and FieldIterator are not suited for this situation, but are
+  // required by the current OutputVal design.
   const std::string &modulename() const;
+  virtual IndexP getIndex(const std::string&) const = 0;
+  virtual IteratorP getIterator() const = 0;
 };
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Because the COrientation classes are derived from OutputVal, they
+// need a mechanism to fetch the names and values of their parameters
+// using index and iterator classes derived from FieldIndex and
+// FieldIterator.  This has to be done separately for each
+// COrientation subclass, but fortunately can be done with templates.
+
+// The indices are used in the __getitem__ methods defined in
+// corientation.spy.  
+
+template <class ORIENT>
+class OIndex : virtual public FieldIndex {
+protected:
+  const ORIENT *orient;
+  int which;
+public:
+  OIndex(const ORIENT *o) : orient(o), which(0) {}
+  OIndex(const ORIENT *o, int i) : orient(o), which(i) {}
+  OIndex(const ORIENT *o, const std::string &s)
+    : orient(o)
+  {
+    for(int i=0; i<orient->arguments.size(); i++) {
+      if(orient->arguments[i] == s) {
+	which = i;
+	return;
+      }
+    }
+    throw ErrProgrammingError("Bad arg to OIndex: " + s, __FILE__, __LINE__);
+  }
+  OIndex(const OIndex &o) : orient(o.orient), which(o.which) {}
+  virtual FieldIndex *cloneIndex() const { return new OIndex(*this); }
+  virtual int integer() const { return which; }
+  virtual void set(const std::vector<int> *v) { which = (*v)[0]; }
+  virtual std::vector<int> *components() const {
+    return new std::vector<int>(1, which);
+  }
+  virtual void print(std::ostream &os) const {
+    os << orient->classname() << "::Index('"
+       << orient->arguments[which] << "')";
+  }
+  virtual const std::string &shortstring() const {
+    return orient->arguments[which];
+  }
+};
+
+template <class ORIENT>
+class OIterator : public OIndex<ORIENT>, public FieldIterator {
+public:
+  OIterator(const ORIENT *o) : OIndex<ORIENT>(o) {}
+  virtual void operator++() { ++OIndex<ORIENT>::which; }
+  virtual bool end() const {
+    return OIndex<ORIENT>::which == OIndex<ORIENT>::orient->arguments.size();
+  }
+  virtual int size() const { return OIndex<ORIENT>::orient->arguments.size(); }
+  virtual void reset() { OIndex<ORIENT>::which = 0; }
+  virtual FieldIterator *cloneIterator() const { return new OIterator(*this); }
+};
+
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 class COrientABG : public COrientation {
 private:
   double alpha_, beta_, gamma_;
+protected:
+  const COrientation &copyFrom(const COrientation&);
 public:
   COrientABG(double alpha, double beta, double gamma)
     : alpha_(alpha), beta_(beta), gamma_(gamma)
@@ -83,7 +164,7 @@ public:
   COrientABG(const SmallMatrix&);
   // Default constructor is needed so that an array of these can be created.
   COrientABG() : alpha_(0.0), beta_(0.0), gamma_(0.0) {}
-  virtual void copy(const COrientation *other) { *this = other->abg(); }
+  
   virtual SmallMatrix *rotation_() const;
   virtual COrientABG abg() const { return *this; }
   // COrientABG has special status among the COrientation subclasses,
@@ -102,20 +183,28 @@ public:
   // Methods required by OutputVal
   virtual const std::string &classname() const;
   virtual unsigned int dim() const { return 3; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual COrientABG *clone() const;
+  virtual COrientABG *zero() const;
   virtual std::vector<double> *value_list() const;
+  static const std::vector<std::string> arguments;
+  virtual IndexP getIndex(const std::string &s) const {
+    return IndexP(new OIndex<COrientABG>(this, s));
+  }
+  virtual IteratorP getIterator() const {
+    return IteratorP(new OIterator<COrientABG>(this));
+  }
 };
 
 class COrientBunge : public COrientation {
 private:
   double phi1_, theta_, phi2_;
+protected:
+  const COrientation &copyFrom(const COrientation&);
 public:
   COrientBunge(double phi1, double theta, double phi2)
     : phi1_(phi1), theta_(theta), phi2_(phi2)
   {}
   COrientBunge(const SmallMatrix&);
-  virtual void copy(const COrientation *other) { *this = other->bunge(); }
   virtual SmallMatrix *rotation_() const;
   virtual COrientBunge bunge() const { return *this; }
   double phi1() const { return phi1_; }
@@ -126,18 +215,26 @@ public:
   // Methods required by OutputVal
   virtual const std::string &classname() const;
   virtual unsigned int dim() const { return 3; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual COrientBunge *clone() const;
+  virtual COrientBunge *zero() const;
   virtual std::vector<double> *value_list() const;
+  static const std::vector<std::string> arguments;
+  virtual IndexP getIndex(const std::string &s) const {
+    return IndexP(new OIndex<COrientBunge>(this, s));
+  }
+  virtual IteratorP getIterator() const {
+    return IteratorP(new OIterator<COrientBunge>(this));
+  }
 };
 
 class COrientQuaternion : public COrientation {
 private:
   double q[4];
+protected:
+  const COrientation &copyFrom(const COrientation&);
 public:
   COrientQuaternion(double e0, double e1, double e2, double e3);
   COrientQuaternion(const SmallMatrix&);
-  virtual void copy(const COrientation *other) { *this = other->quaternion(); }
   virtual SmallMatrix *rotation_() const;
   virtual COrientQuaternion quaternion() const { return *this; }
   virtual COrientAxis axis() const;
@@ -151,9 +248,16 @@ public:
   // Methods required by OutputVal
   virtual const std::string &classname() const;
   virtual unsigned int dim() const { return 4; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual COrientQuaternion *clone() const;
+  virtual COrientQuaternion *zero() const;
   virtual std::vector<double> *value_list() const;
+  static const std::vector<std::string> arguments;
+  virtual IndexP getIndex(const std::string &s) const {
+    return IndexP(new OIndex<COrientQuaternion>(this, s));
+  }
+  virtual IteratorP getIterator() const {
+    return IteratorP(new OIterator<COrientQuaternion>(this));
+  }
 };
 
 // Goldstein's "X" convention.  This may have some other more
@@ -162,14 +266,15 @@ public:
 class COrientX : public COrientation {
 private:
   double phi_, theta_, psi_;
+protected:
+  const COrientation &copyFrom(const COrientation&);
 public:
   COrientX(double phi, double theta, double psi)
     : phi_(phi), theta_(theta), psi_(psi)
   {}
   COrientX(const SmallMatrix&);
-  virtual void copy(const COrientation *other) { *this = other->X(); }
   virtual SmallMatrix *rotation_() const;
-  virtual COrientX x() const { return *this; }
+  virtual COrientX X() const { return *this; }
   double phi() const { return phi_; }
   double theta() const { return theta_; }
   double psi() const { return psi_; }
@@ -178,9 +283,16 @@ public:
   // Methods required by OutputVal
   virtual const std::string &classname() const;
   virtual unsigned int dim() const { return 3; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual COrientX *clone() const;
+  virtual COrientX *zero() const;
   virtual std::vector<double> *value_list() const;
+  static const std::vector<std::string> arguments;
+  virtual IndexP getIndex(const std::string &s) const {
+    return IndexP(new OIndex<COrientX>(this, s));
+  }
+  virtual IteratorP getIterator() const {
+    return IteratorP(new OIterator<COrientX>(this));
+  }
 };
 
 // The "aerodynamic" XYZ convention, with each rotation about a
@@ -189,14 +301,15 @@ public:
 class COrientXYZ : public COrientation {
 private:
   double phi_, theta_, psi_;
+protected:
+  const COrientation &copyFrom(const COrientation&);
 public:
   COrientXYZ(double phi, double theta, double psi)
     : phi_(phi), theta_(theta), psi_(psi)
   {}
   COrientXYZ(const SmallMatrix&);
-  virtual void copy(const COrientation *other) { *this = other->XYZ(); }
   virtual SmallMatrix *rotation_() const;
-  virtual COrientXYZ xyz() const { return *this; }
+  virtual COrientXYZ XYZ() const { return *this; }
   double phi() const { return phi_; }
   double theta() const { return theta_; }
   double psi() const { return psi_; }
@@ -205,20 +318,28 @@ public:
   // Methods required by OutputVal
   virtual const std::string &classname() const;
   virtual unsigned int dim() const { return 3; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual COrientXYZ *clone() const;
+  virtual COrientXYZ *zero() const;
   virtual std::vector<double> *value_list() const;
+  static const std::vector<std::string> arguments;
+  virtual IndexP getIndex(const std::string &s) const {
+    return IndexP(new OIndex<COrientXYZ>(this, s));
+  }
+  virtual IteratorP getIterator() const {
+    return IteratorP(new OIterator<COrientXYZ>(this));
+  }
 };
 
 class COrientAxis : public COrientation {
 private:
   double angle_, x_, y_, z_;
+protected:
+  const COrientation &copyFrom(const COrientation&);
 public:
   COrientAxis(double angle, double x, double y, double z)
     : angle_(angle), x_(x), y_(y), z_(z)
   {}
   COrientAxis(const SmallMatrix&);
-  virtual void copy(const COrientation *other) { *this = other->axis(); }
   virtual SmallMatrix *rotation_() const;
   virtual COrientAxis axis() const { return *this; }
   virtual COrientQuaternion quaternion() const;
@@ -233,9 +354,16 @@ public:
   // Methods required by OutputVal
   virtual const std::string &classname() const;
   virtual unsigned int dim() const { return 4; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual COrientAxis *clone() const;
+  virtual COrientAxis *zero() const;
   virtual std::vector<double> *value_list() const;
+  static const std::vector<std::string> arguments;
+  virtual IndexP getIndex(const std::string &s) const {
+    return IndexP(new OIndex<COrientAxis>(this, s));
+  }
+  virtual IteratorP getIterator() const {
+    return IteratorP(new OIterator<COrientAxis>(this));
+  }
 };
 
 // Rodrigues vector. Another way of describing crystal orientations.
@@ -246,12 +374,13 @@ public:
 class COrientRodrigues : public COrientation {
 private:
   double r1_, r2_, r3_;
+protected:
+  const COrientation &copyFrom(const COrientation&);
 public:
   COrientRodrigues(double r1, double r2, double r3)
     : r1_(r1), r2_(r2), r3_(r3)
   {}
   COrientRodrigues(const SmallMatrix&);
-  virtual void copy(const COrientation *other) { *this = other->rodrigues(); }
   virtual SmallMatrix *rotation_() const;
   virtual COrientRodrigues rodrigues() const { return *this; }
   double r1() const { return r1_; }
@@ -262,13 +391,29 @@ public:
   // Methods required by OutputVal
   virtual const std::string &classname() const;
   virtual unsigned int dim() const { return 3; }
-  virtual OutputVal *clone() const;
-  virtual OutputVal *zero() const;
+  virtual COrientRodrigues *clone() const;
+  virtual COrientRodrigues *zero() const;
   virtual std::vector<double> *value_list() const;
+  static const std::vector<std::string> arguments;
+  virtual IndexP getIndex(const std::string &s) const {
+    return IndexP(new OIndex<COrientRodrigues>(this, s));
+  }
+  virtual IteratorP getIterator() const {
+    return IteratorP(new OIterator<COrientRodrigues>(this));
+  }
 };
 
 std::ostream &operator<<(std::ostream&, const COrientation&);
 
 COrientation *orientationFactory(const std::string*);
+
+class OrientationPropertyOutputInit : public NonArithmeticPropertyOutputInit {
+public:
+  COrientation *operator()(const NonArithmeticPropertyOutput*,
+			   const FEMesh*,
+			   const Element*, const MasterCoord&) const;
+};
+
+
 
 #endif // CORIENTATION_H

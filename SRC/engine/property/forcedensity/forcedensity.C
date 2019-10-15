@@ -12,18 +12,19 @@
 
 #include <oofconfig.h>
 #include "common/coord.h"
-#include "forcedensity.h"
+#include "common/ooferror.h"
+#include "common/trace.h"
+#include "engine/IO/propertyoutput.h"
 #include "engine/csubproblem.h"
 #include "engine/element.h"
 #include "engine/elementnodeiterator.h"
+#include "engine/equation.h"
+#include "engine/femesh.h"
 #include "engine/field.h"
 #include "engine/flux.h"
-#include "engine/equation.h"
 #include "engine/indextypes.h"
 #include "engine/material.h"
-#include "engine/femesh.h"
-#include "common/trace.h"
-#include "common/ooferror.h"
+#include "forcedensity.h"
 
 
 #if DIM==2
@@ -65,4 +66,19 @@ void ForceDensity::force_value(const FEMesh *mesh, const Element *element,
 #if DIM==3
   eqndata->force_vector_element(2) -= gz;
 #endif
+}
+
+void ForceDensity::output(FEMesh *mesh,
+			  const Element *element,
+			  const PropertyOutput *output,
+			  const MasterPosition &pos,
+			  OutputVal *data)
+{
+  const std::string &outputname = output->name();
+  if(outputname == "Material Constants:Mechanical:Force Density F") {
+    ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
+    assert(listdata->size() == 2);
+    (*listdata)[0] = gx;
+    (*listdata)[1] = gy;
+  }
 }

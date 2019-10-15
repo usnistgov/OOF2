@@ -118,12 +118,11 @@ AnisotropicStressFreeStrain::stressfreestrain(const FEMesh *mesh,
   return e_.transform(orientation->orientation(mesh, elem, pos));
 }
 
-void StressFreeStrain::output(const FEMesh *mesh,
+void StressFreeStrain::output(FEMesh *mesh,
 			      const Element *element,
 			      const PropertyOutput *output,
 			      const MasterPosition &pos,
 			      OutputVal *data)
-  const
 {
   // Mostly copied from ThermalExpansion::output
   const std::string &outputname = output->name();
@@ -161,3 +160,67 @@ void StressFreeStrain::output(const FEMesh *mesh,
     delete etype;
   }
 }
+
+void IsotropicStressFreeStrain::output(FEMesh *mesh,
+				       const Element *element,
+				       const PropertyOutput *output,
+				       const MasterPosition &pos,
+				       OutputVal *data)
+{
+  const std::string outputname = output->name();
+  if(outputname == "Material Constants:Mechanical:Stress-free Strain epsilon0")
+    {
+      ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
+      std::vector<std::string> *idxstrs =
+	output->getListOfStringsParam("components");
+      for(unsigned int i=0; i<idxstrs->size(); i++) {
+	const std::string &idxpair = (*idxstrs)[i];
+	if(idxpair[0] == idxpair[1])
+	  (*listdata)[i] = e_;
+	else
+	  (*listdata)[i] = 0;
+      }
+      delete idxstrs;
+    }
+  StressFreeStrain::output(mesh, element, output, pos, data);
+}
+
+// static void output_eps(const SymmMatrix3 &epsilon, ListOutputVal *listdata,
+// 		       const std::vector<std::string> &idxstrs)
+// {
+//   for(unsigned int i=0; i<idxstrs.size(); i++) {
+//     const std::string &idxpair = idxstrs[i];
+//     int j = int(idxpair[0] - '1');
+//     int k = int(idxpair[1] - '1');
+//     (*listdata)[i] = epsilon(j,k);
+//   }
+// }
+
+void AnisotropicStressFreeStrain::output(FEMesh *mesh,
+					 const Element *element,
+					 const PropertyOutput *output,
+					 const MasterPosition &pos,
+					 OutputVal *data)
+{
+  const std::string &outputname = output->name();
+  if(outputname == "Material Constants:Mechanical:Stress-free Strain epsilon0")
+    {
+      ListOutputVal *listdata = dynamic_cast<ListOutputVal*>(data);
+      std::vector<std::string> *idxstrs =
+	output->getListOfStringsParam("components");
+      const std::string *frame = output->getEnumParam("frame");
+      if(*frame == "Lab") {
+	precompute(mesh);
+	copyOutputVals(stressfreestrain(mesh, element, pos),
+		       listdata, *idxstrs);
+      }
+      else {
+	assert(*frame == "Crystal");
+	copyOutputVals(e_, listdata, *idxstrs);
+      }
+      delete idxstrs;
+      delete frame;
+    }
+  StressFreeStrain::output(mesh, element, output, pos, data);
+}
+			       

@@ -31,7 +31,8 @@ import string
 ############################
 
 class ParameterWidget:
-    def __init__(self, gtk, scope=None, name=None, expandable=False):
+    def __init__(self, gtk, scope=None, name=None, expandable=False,
+                 compact=False):
         debug.mainthreadTest()
         self.gtk = gtk                  # base of gtk widget heirarchy
         self.scope = scope              # WidgetScope containing this widget
@@ -40,6 +41,14 @@ class ParameterWidget:
         # ParameterTable to indicate if the widget should adjust its
         # y-dimension when the table is resized.  
         self.expandable = expandable
+        # compact is used when a smaller form of a widget is desired,
+        # such as in a dense table.  Not all widgets have compact
+        # forms. Only a few of them need it, so I didn't go
+        # back and add it to them all.  If it's necessary to implement
+        # a compact form for a new ParameterWidget, make sure to give
+        # the Parameter's makeWidget method an optional 'compact'
+        # argument with default value False.
+        self.compact = compact
 
         if scope:
             scope.addWidget(self)
@@ -101,11 +110,12 @@ class ParameterWidget:
 # also be created as an instance itself, but currently this is not
 # done.
 class GenericWidget(ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, compact=False):
         debug.mainthreadTest()
         widget = gtk.Entry()
         widget.set_size_request(10*guitop.top().charsize, -1)
-        ParameterWidget.__init__(self, widget, scope=scope, name=name)
+        ParameterWidget.__init__(self, widget, scope=scope, name=name,
+                                 compact=compact)
         self.signal = gtklogger.connect(widget, 'changed', self.changedCB)
         self.set_value(param.value)
         self.widgetChanged(self.validValue(param.value), interactive=0)
@@ -355,17 +365,24 @@ parameter.AutoNumericParameter.makeWidget = _AutoNumberWidget_makeWidget
 #########################
 
 class BooleanWidget(ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, compact=False):
         debug.mainthreadTest()
         if param.value:
             labelstr = 'true'
         else:
             labelstr = 'false'
         self.label = gtk.Label(labelstr)
-        ParameterWidget.__init__(self, gtk.Frame(), scope=scope)
-        self.button = gtk.CheckButton()
-        self.gtk.add(self.button)
-        self.button.add(self.label)
+        ParameterWidget.__init__(self, gtk.Frame(), scope=scope,
+                                 compact=compact)
+        if not compact:
+            self.button = gtk.CheckButton()
+            self.button.add(self.label)
+            self.gtk.add(self.button)
+        else:
+            self.button = gtk.ToggleButton()
+            align = gtk.Alignment(xalign=0.5, xscale=0.0)
+            align.add(self.button)
+            self.gtk.add(align)
         # name is assigned to the button, not the frame, because it's
         # the button that gets connected.
         gtklogger.setWidgetName(self.button, name)
@@ -390,9 +407,15 @@ class BooleanWidget(ParameterWidget):
         else:
             self.label.set_text('false')
         self.widgetChanged(1, interactive=1)
+    def block_signal(self):
+        debug.mainthreadTest()
+        self.signal.block()
+    def unblock_signal(self):
+        debug.mainthreadTest()
+        self.signal.unblock()
 
-def _Boolean_makeWidget(self, scope):
-    return BooleanWidget(self, scope=scope, name=self.name)
+def _Boolean_makeWidget(self, scope, compact=False):
+    return BooleanWidget(self, scope=scope, name=self.name, compact=compact)
 parameter.BooleanParameter.makeWidget = _Boolean_makeWidget
 
 ##########################
@@ -509,6 +532,11 @@ parameter.AngleRangeParameter.makeWidget = _AngleRange_makeWidget
 ##############################################
 
 class FloatWidget(GenericWidget):
+    def __init__(self, param, scope=None, name=None, compact=False):
+        GenericWidget.__init__(self, param=param, scope=scope, name=name,
+                               compact=compact)
+        if compact:
+            self.gtk.set_size_request(8*guitop.top().digitsize, -1)
     def get_value(self):
         x = GenericWidget.get_value(self)
         if x is not None:
@@ -529,8 +557,8 @@ class FloatWidget(GenericWidget):
     def set_value(self, newvalue):
         GenericWidget.set_value(self, 1.0*newvalue)
 
-def _FloatParameter_makeWidget(self, scope=None):
-    return FloatWidget(self, scope=scope, name=self.name)
+def _FloatParameter_makeWidget(self, scope=None, compact=False):
+    return FloatWidget(self, scope=scope, name=self.name, compact=compact)
 parameter.FloatParameter.makeWidget = _FloatParameter_makeWidget
 
 class PositiveFloatWidget(FloatWidget):
@@ -565,6 +593,11 @@ parameter.ListOfFloatsParameter.makeWidget = _ListOfFloatsParameter_makeWidget
 #########################
 
 class IntWidget(GenericWidget):
+    def __init__(self, param, scope=None, name=None, compact=False):
+        GenericWidget.__init__(self, param=param, scope=scope, name=name,
+                               compact=compact)
+        if compact:
+            self.gtk.set_size_request(8*guitop.top().digitsize, -1)
     # See comments in FloatWidget
     def get_value(self):
         x = GenericWidget.get_value(self)

@@ -116,6 +116,12 @@ class OrientationRegistration(registeredclass.ConvertibleRegistration):
             params=params,
             tip=tip, discussion=discussion)
         enum.addEnumName(OrientationEnum, name, help=tip)
+    def zero(self):
+        # Computes the null rotation in the subclass's format.
+        abg = Abg(0., 0., 0.)
+        if self.subclass is Abg:
+            return abg
+        return self.subclass(*self.from_base(self, abg))
 
 ## The base representation for the ConvertibleRegisteredClass
 ## mechanism (which is not the same thing as the base class) is the
@@ -143,7 +149,6 @@ class Abg(Orientation):
         return map(math.degrees, (alpha, beta, gamma))
     def rotateXY(self, angle):
         return Abg(self.alpha, self.beta, self.gamma+angle)
-        
 
 def _abg_to_base(reg, vlist = None):
     vset = vlist or reg.getParamValues()

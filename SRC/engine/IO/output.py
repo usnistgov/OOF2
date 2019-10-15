@@ -41,7 +41,8 @@ class Output(object):
                  discussion=parameter.emptyTipString,
                  srepr=None,
                  instancefn=None, column_names=None,
-                 parent=None):
+                 parent=None,
+                 **kwargs):
         # otype is the type of the output.
 
         # inputs is a list of Parameters specifying the names and
@@ -91,6 +92,8 @@ class Output(object):
 
         if srepr is not None:
             self.srepr = srepr      # short repr
+
+        self.__dict__.update(kwargs)
 
         # 'instancefn' is a function that returns an instance of the
         # OutputVal subclass that this Output will produce.  If it's
@@ -192,7 +195,7 @@ class Output(object):
         try:
             return getattr(self.parent, name)
         except AttributeError:
-            raise AttributeError("Output %s has no attribute named '%s'"
+            raise AttributeError("Output '%s' has no attribute named '%s'"
                                  % (self.name, name))
 
         
@@ -516,6 +519,16 @@ class Output(object):
     def isPositionOutput(self):
         return positionOutputs.contains(self.getPrototype())
 
+    def allowsArithmetic(self):
+        # _allowsArithmetic is set by PropertyOutputs in
+        # ArithmeticPropertyOutputRegistration and
+        # NonArithmeticPropertyOutputRegistration.  Outputs that don't
+        # allow arithmetic can be printed but not averaged, for
+        # example.
+        try:
+            return self._allowsArithmetic
+        except AttributeError:
+            return True
 
 # Utility function used in Output.getParameterNameHierarchy().  Takes
 # a hierarchical list of Parameters names and prepends the given name
@@ -561,6 +574,8 @@ class PositionOutputParameter(parameter.Parameter):
         if not isinstance(x, Output):
             parameter.raiseTypeError(type(x), 'Position Output')
         PositionOutputParameter.oktypes(x.otype)
+    def incomputable(self, context):
+        return self.value is None or self.value.incomputable(context)
     def valueDesc(self):
         return "An <link linkend='Section-Output-Position'><classname>Output</classname></link> object whose value is a position in the xy plane."
         
@@ -573,6 +588,8 @@ class ScalarOutputParameter(parameter.Parameter):
         if not (isinstance(x, Output)
                 and issubclass(x.otype, outputval.ScalarOutputValPtr)):
             parameter.raiseTypeError(type(x), 'Scalar Output')
+    def incomputable(self, context):
+        return self.value is None or self.value.incomputable(context)
     def valueDesc(self):
         return "An <link linkend='Section-Output-Scalar'><classname>Output</classname></link> object whose value is a real number."
 
@@ -587,16 +604,20 @@ class AggregateOutputParameter(parameter.Parameter):
     def checker(self, x):
         if not isinstance(x, Output):
             parameter.raiseTypeError(type(x), 'Output')
+    def incomputable(self, context):
+        return self.value is None or self.value.incomputable(context)
     def valueDesc(self):
         return "An <link linkend='Section-Output-Aggregate'><classname>AggregateOutput</classname></link> object."
 
 # Parameter for either aggregate or scalar outputs -- i.e., those
 # outputs which are not positionOutputs, but rather are the values of
-# things.  This class mainly has the valueDesc string.
+# things.
 class ValueOutputParameter(parameter.Parameter):
     def checker(self, x):
         if not isinstance(x, Output):
             parameter.raiseTypeError(type(x), 'Output')
+    def incomputable(self, context):
+        return self.value is None or self.value.incomputable(context)
     def valueDesc(self):
         return """Either a <link linkend='Section-Output-Aggregate'>
 <classname>AggregateOutput</classname></link> object, or an
