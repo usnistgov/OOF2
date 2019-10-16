@@ -93,3 +93,7 @@ class NonArithmeticPropertyOutputRegistration(_PORegBase):
         _PORegBase.__init__(self, name, output, initializer)
     def _instantiate(self, name, params):
         return self.instantiateNonArithmetic(name, params)
+
+# Concrete subclasses of ArithmeticPropertyOutputRegistration and
+# NonArithmeticPropertyOutputRegistration are defined in
+# propertyoutputreg.py.
