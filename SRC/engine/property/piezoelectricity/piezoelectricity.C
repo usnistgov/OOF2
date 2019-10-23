@@ -292,18 +292,6 @@ AnisotropicPiezoElectricity::dijk(const FEMesh *mesh, const Element *el,
   return _dijkValue.transform(orientation->orientation(mesh, el, pos));
 }
 
-
-// static void output_D(const Rank3Tensor &d, ListOutputVal *listdata,
-// 		     const std::vector<std::string> &idxstrs)
-// {
-//   for(unsigned int i=0; i<idxstrs.size(); i++) {
-//     const std::string &idxpair = idxstrs[i];
-//     int j = int(idxpair[0]-'1'); // 1-3
-//     SymTensorIndex kl = SpaceIndex(idxpair[1]-'1'); // Voigt, 1-6
-//     (*listdata)[i] = d(j, kl);
-//   }
-// }
-
 void AnisotropicPiezoElectricity::output(FEMesh *mesh,
 				       const Element *element,
 				       const PropertyOutput *output,

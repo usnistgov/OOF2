@@ -232,17 +232,6 @@ void IsoHeatConductivity::output(FEMesh *mesh,
   }
   HeatConductivity::output(mesh, element, output, pos, data);
 }
-
-// static void output_k(const SymmMatrix3 &kappa, ListOutputVal *listdata,
-// 		     const std::vector<std::string> &idxstrs)
-// {
-//   for(unsigned int i=0; i<idxstrs.size(); i++) {
-//     const std::string &idxpair = idxstrs[i];
-//     int j = int(idxpair[0] - '1');
-//     int k = int(idxpair[1] - '1');
-//     (*listdata)[i] = kappa(j,k);
-//   }
-// }
 			       
 void AnisoHeatConductivity::output(FEMesh *mesh,
 				   const Element *element,

@@ -34,7 +34,6 @@ class SymmMatrix;
 
 class IndexP;
 class COrientation;
-class ListOutputVal;
 
 class SymmMatrix {
 protected:
