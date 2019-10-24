@@ -365,6 +365,12 @@ public:
   const ArithmeticOutputValue &operator+=(const ArithmeticOutputValue &other);
   const ArithmeticOutputValue &operator-=(const ArithmeticOutputValue &other);
   const ArithmeticOutputValue &operator *=(double x);
+
+  // In principle, operator[](IndexP) should be defined in the base
+  // classes OutputValue and OutputVal.  However, it's a bit of a pain
+  // to define them for NonArithmeticOutputVals that are indexed by
+  // strings, and they're not needed in C++.  They're defined in
+  // Python.
   double operator[](const IndexP &p) const;
   double &operator[](const IndexP &p);
 };

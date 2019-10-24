@@ -37,12 +37,10 @@ ScalarOutputValPtr.label_list = _ScalarOutputValPtr_label_list
 
 # Arithmetic operations for the OutputValPtr subclasses.  These must
 # create a new object which Python has ownership of, otherwise data
-# can get lost.  The preliminary "add" step could be replaced by a
-# smarter VectorOutputVal constructor.
+# can get lost.  
 
 def _VectorOutputValPtr___add__(self, other):
-    res = VectorOutputVal(self.size())
-    res._add(self)
+    res = self.clone()
     res._add(other)
     return res
 
@@ -51,8 +49,7 @@ VectorOutputValPtr.__radd__ = _VectorOutputValPtr___add__
 
 
 def _VectorOutputValPtr___sub__(self, other):
-    res = VectorOutputVal(self.size())
-    res._add(self)
+    res = self.clone()
     res._sub(other)
     return res
 
@@ -85,8 +82,7 @@ OutputValPtr.__pow__ = _OutputVal___pow__
 # Multiplication and division only defined for scalar operands, of course.
 
 def _VectorOutputValPtr___mul__(self, other):
-    res = VectorOutputVal(self.size())
-    res._add(self)
+    res = self.clone()
     res._mul(other)
     return res
 
@@ -95,8 +91,7 @@ VectorOutputValPtr.__rmul__ = _VectorOutputValPtr___mul__
 
 
 def _VectorOutputValPtr___div__(self, other):
-    res = VectorOutputVal(self.size())
-    res._add(self)
+    res = self.clone()
     res._mul(1.0/other)
     return res
 
