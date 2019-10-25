@@ -15,21 +15,13 @@
 
 #include <oofconfig.h>
 #include "engine/property.h"
-#include "engine/smallsystem.h"
 #include <string>
 
-class Cijkl;
 class CSubProblem;
 class Element;
 class Equation;
-class Flux;
-class Material;
 class FEMesh;
-class Position;
-class TwoVectorField;
-class ThreeVectorField;
-class SymmetricTensorFlux;
-class ElementNodeIterator;
+class SmallSystem;
 
 class ForceDensity : public EqnProperty {
 private:
@@ -57,13 +49,6 @@ public:
   virtual bool constant_in_space() const { return true; }
   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
 		      const MasterPosition&, OutputVal*);
-protected:
-#if DIM==2
-  TwoVectorField *displacement;
-#elif DIM==3
-  ThreeVectorField *displacement;
-#endif
-  SymmetricTensorFlux *stress_flux;
 };
 
 #endif

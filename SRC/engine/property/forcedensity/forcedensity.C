@@ -24,6 +24,7 @@
 #include "engine/flux.h"
 #include "engine/indextypes.h"
 #include "engine/material.h"
+#include "engine/smallsystem.h"
 #include "forcedensity.h"
 
 
@@ -34,8 +35,6 @@ ForceDensity::ForceDensity(PyObject *reg, const std::string &nm,
     gx(x),
     gy(y)
 {
-  displacement = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));
-  stress_flux  = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
 }
 #elif DIM==3
 ForceDensity::ForceDensity(PyObject *reg, const std::string &nm,
@@ -45,9 +44,6 @@ ForceDensity::ForceDensity(PyObject *reg, const std::string &nm,
     gy(y),
     gz(z)
 {
-  displacement = dynamic_cast<ThreeVectorField*>(Field::getField("Displacement"));
-  stress_flux  = dynamic_cast<SymmetricTensorFlux*>(Flux::getFlux("Stress"));
-}
 #endif
 
 void ForceDensity::precompute(FEMesh*) {}

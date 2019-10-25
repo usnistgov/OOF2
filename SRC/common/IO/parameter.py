@@ -369,7 +369,7 @@ class FloatRangeParameter(_RangeParameter):
         (val,) = struct.unpack(FloatRangeParameter.structfmt, b)
         return val
     def valueDesc(self):
-        return "A real number in the range [%d, %d]." % \
+        return "A real number in the range [%g, %g]." % \
                (self.range[0], self.range[1])
 
 # AngleRangeParameter is a FloatRangeParameter, but it tries to make

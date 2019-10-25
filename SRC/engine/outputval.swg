@@ -25,6 +25,7 @@
 %{
 #include "engine/outputval.h"
 #include "common/tostring.h"
+typedef OutputVal NewOutputVal;
 %}
 
 %typemap(python, out) OutputVal* {
@@ -34,14 +35,28 @@
     return 0;
 }
 
+// For transferring ownership to Python.  %new is supposed to add
+// thisown=1 to the wrapper, but it doesn't seem to work if there's
+// also an "out" typemap.
+%typemap(python, out) NewOutputVal* {
+  // typemap(python, out) NewOutputVal*
+  $target = $source->pythonObject();
+  if($target) {
+    static PyObject *pyOne = 0;
+    if(!pyOne)
+      pyOne = PyInt_FromLong(1);
+    PyObject_SetAttrString($target, "thisown", pyOne);
+  }
+}
+
 class OutputVal {
 public:
   ~OutputVal();
   int dim();
   IndexP getIndex(char *);
   IteratorP getIterator();
-  %new OutputVal *clone();
-  %new OutputVal *zero();
+  NewOutputVal *clone();
+  NewOutputVal *zero();
   %new DoubleList *value_list();
 };
 
@@ -51,7 +66,7 @@ public:
 
 class ArithmeticOutputVal : public OutputVal {
 public:
-  %new OutputVal *one();
+  NewOutputVal *one();
   void component_pow(int);
   void component_square();
   void component_sqrt();
@@ -147,7 +162,7 @@ public:
   OutputVal *valuePtr();
   OutputValue(const OutputValue&);
   int dim();
-  %new OutputVal *valueClone();
+  NewOutputVal *valueClone();
 };
 
 class NonArithmeticOutputValue : public OutputValue {

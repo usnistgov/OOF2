@@ -119,7 +119,6 @@ class LabelledSlider:
             self.entrysignal.unblock()
             
     def text_from_slider(self, obj):
-#         debug.fmsg()
         debug.mainthreadTest()
         val = self.slider.get_value()
         self.entrysignal.block()
@@ -131,9 +130,7 @@ class LabelledSlider:
         self.changed = False
         if self.callback:
             self.callback(self, val)
-#         debug.fmsg("done")
     def slider_from_text(self, obj):    # callback for 'activate' from GtkEntry
-#         debug.fmsg()
         debug.mainthreadTest()
         try:
             v0 = self.get_value()
@@ -215,7 +212,6 @@ class FloatLabelledSlider(LabelledSlider):
         debug.mainthreadTest()
         self.slider.set_digits(digits)
     def set_entry(self, val):
-#         debug.fmsg()
         debug.mainthreadTest()
         self.entry.set_text(("%-8g" % val).rstrip())
     def get_value(self):
