@@ -49,6 +49,7 @@ class SampleRCF(regclassfactory.RegisteredClassFactory):
                                                 self.domainCB))
         else:                   # domainClass was specified
             # Find the registration for the class
+            ## TODO: Use domainClass.getRegistration instead of looping
             for reg in analysisdomain.Domain.registry:
                 if reg.subclass is domainClass:
                     self.sample_types = reg.sample_types
@@ -64,6 +65,7 @@ class SampleRCF(regclassfactory.RegisteredClassFactory):
                 switchboard.requestCallbackMain(self.operationWidget,
                                                 self.operationCB))
         else: # operationClass is not None, set directness accordingly
+            ## TODO: Use operationClass.getRegistration instead of looping
             for reg in analyze.DataOperation.registry:
                 if reg.subclass is operationClass:
                     self.directness = reg.direct

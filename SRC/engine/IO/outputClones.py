@@ -567,6 +567,13 @@ output.defineAggregateOutput('Difference', AggregateDifferenceOutput,
 
 #=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#
 
+# The Concatenate Output allows two Outputs to be printed on the same
+# line of the output file.  Its value type is the
+# ConcatenatedOutputVal class, which defines a bunch of arithmetic
+# operations that it just passes through to the OutputVals that it's
+# concatenating.  ConcatenatedOutputVal is itself *not* an OutputVal.
+# Maybe it should be, but that would mean defining it in C++.
+
 ## TODO: Allow more than two outputs to be concatenated, so that it's
 ## not necesary to nest the concatenations.  We'll need a Parameter
 ## class for multiple Outputs, and a widget for it.
@@ -579,10 +586,7 @@ output.defineAggregateOutput('Difference', AggregateDifferenceOutput,
 ## ValueOutputParameter's widget needs to find an EnumWidget for
 ## Scalar/Aggregate.
 
-class ConcatenatedOutputs(object):
-    # This probably doesn't need to be a full-fledged OutputVal
-    # subclass.  It just needs to provide a few of the class's
-    # methods.
+class ConcatenatedOutputVal(object):
     def __init__(self, *args):
         # args is a tuple of OutputVals
         self.args = args
@@ -590,19 +594,62 @@ class ConcatenatedOutputs(object):
         # Convert each OutputVal to a list of floats and concatenate them
         vals = reduce(lambda a,b: a+b, [v.value_list() for v in self.args])
         return vals
+    def dim(self):
+        return sum(a.dim() for a in self.args())
+    def zero(self):
+        return ConcatenatedOutputVal(*(v.zero() for v in self.args))
+    def one(self):
+        return ConcatenatedOutputVal(*(v.one() for v in self.args))
+    def value(self):
+        return self.value_list()
+    def __mul__(self, x):
+        return ConcatenatedOutputVal(*(x*arg for arg in self.args))
+    def __rmul__(self, x):
+        return self.__mul__(x)
+    def __add__(self, o):
+        assert isinstance(o, ConcatenatedOutputVal)
+        return ConcatenatedOutputVal(*(x+y for x,y, in zip(self.args, o.args)))
+    def __sub__(self, o):
+        assert isinstance(o, ConcatenatedOutputVal)
+        return ConcatenatedOutputVal(*(x-y for x,y, in zip(self.args, o.args)))
+    def __pow__(self, x):
+        return ConcatenatedOutputVal(*(v**x for v in self.args))
+    def __div__(self, x):
+        return ConcatenatedOutputVal(*(v/x for v in self.args))
+    def clone(self):
+        return ConcatenatedOutputVal(*(v.clone() for v in self.args))
+    def component_square(self):
+        return ConcatenatedOutputVal(*(v.component_square() for v in self.args))
+    def component_sqrt(self):
+        return ConcatenatedOutputVal(*(v.component_sqrt() for v in self.args))
+    def component_abs(self):
+        return ConcatenatedOutputVal(*(v.component_abs() for v in self.args))
+
+    def expandRange(self, vmin, vmax):
+        mins = []
+        maxes = []
+        for a,vmn,vmx in zip(self.args, vmin, vmax):
+            mn, mx = a.expandRange(vmn, vmx)
+            mins.append(mn)
+            maxes.append(mx)
+        return mins, maxes
+    def initRange(self):
+        return [a.initRange() for a in self.args]
 
 def _concatenate(mesh, elements, coords, first, second):
     firsts = first.evaluate(mesh, elements, coords)
     seconds = second.evaluate(mesh, elements, coords)
-    return [ConcatenatedOutputs(f, s)
+    return [ConcatenatedOutputVal(f, s)
             for f,s in itertools.izip(firsts, seconds)]
 
 def _concatenate_shortrepr(self):
     return "%s and %s" % (self.resolveAlias('first').value.shortrepr(),
                           self.resolveAlias('second').value.shortrepr())
+
 def _concatenate_instancefn(self):
-    return (self.resolveAlias('first').value.outputInstance(),
-            self.resolveAlias('second').value.outputInstance())
+    return ConcatenatedOutputVal(
+        self.resolveAlias('first').value.outputInstance(),
+        self.resolveAlias('second').value.outputInstance())
 
 def _concatenate_columnnames(self):
     f = self.resolveAlias('first').value
@@ -613,7 +660,7 @@ def _concatenate_columnnames(self):
 ConcatenateOutput = output.Output(
     name="concatenate",
     callback=_concatenate,
-    otype=outputval.OutputValPtr,
+    otype=ConcatenatedOutputVal,
     srepr=_concatenate_shortrepr,
     instancefn=_concatenate_instancefn,
     column_names=_concatenate_columnnames,

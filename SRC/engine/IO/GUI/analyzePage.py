@@ -140,18 +140,19 @@ class DataOperationFactory(regclassfactory.RegisteredClassFactory):
         self.page = page
         regclassfactory.RegisteredClassFactory.__init__(self, *args, **kwargs)
     def includeRegistration(self, registration):
-        return ((not
-                 (
-                     (self.page.aggregateMode() and 
-                     getattr(registration, 'scalar_only', False))
-                     or
-                     (self.page.scalarMode() and
-                      getattr(registration, 'aggregate_only', False))
-                 ))
-                and
-                (self.page.outputAllowsArithmetic() or
-                 getattr(registration, 'direct', False))
-        )
+        return registration.acceptsOutput(self.page.getOutput())
+        # return ((not
+        #          (
+        #              (self.page.aggregateMode() and 
+        #              getattr(registration, 'scalar_only', False))
+        #              or
+        #              (self.page.scalarMode() and
+        #               getattr(registration, 'aggregate_only', False))
+        #          ))
+        #         and
+        #         (self.page.outputAllowsArithmetic() or
+        #          getattr(registration, 'direct', False))
+        # )
         
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -439,6 +440,9 @@ class AnalyzePage(BaseAnalysisPage):
         namedok = len(namedanalysis.bulkAnalysisNames()) > 0
         self.sensitizeBottomRow(go_sensitive, namedok)
         self.namedAnalysisChooser.gtk.set_sensitive(namedok)
+
+    def getOutput(self):
+        return self.output_obj.get_value()
 
     def analysesChanged(self, *args):
         self.sensitize_widgets()

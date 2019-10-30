@@ -37,7 +37,8 @@ typedef OutputVal NewOutputVal;
 
 // For transferring ownership to Python.  %new is supposed to add
 // thisown=1 to the wrapper, but it doesn't seem to work if there's
-// also an "out" typemap.
+// also an "out" typemap.  See comments in outputval.C.
+
 %typemap(python, out) NewOutputVal* {
   // typemap(python, out) NewOutputVal*
   $target = $source->pythonObject();
