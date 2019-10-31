@@ -1343,7 +1343,7 @@ def run_tests():
         OOF_MiscOutput("Range"),
         ]
 
-    test_set = [OOF_Output("AggregateOutputs")]
+    #test_set = [OOF_Output("AggregateOutputs")]
     
     build_position_output_args()
     build_scalar_output_args()
