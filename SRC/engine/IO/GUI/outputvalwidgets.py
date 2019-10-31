@@ -142,7 +142,6 @@ symmmatrix.SymmMatrix3Ptr.makeWidget = _SymmMatrix_makeWidget
 class ConcatenatedOutputsWidget:
     def __init__(self, val):
         self.gtk = gtk.VBox()
-        debug.fmsg("val=", val)
         # Use makeWidget(v) instead of v.makeWidget() so that
         # GenericOVWidget will be used if needed for subwidgets.
         self.widgets = [makeWidget(v) for v in val.args]

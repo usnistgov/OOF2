@@ -13,6 +13,11 @@
 ## TODO: The window needs to be updated when the Microstructure,
 ## Skeleton, or Mesh is renamed.
 
+## TODO: Put the output widgets their values in a table, so that the
+## values are to the right of and lined up with the widgets.  Then
+## there would be no confusion about which values go with widgets.
+## Nested Concatenated outputs would look odd, though.
+
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import lock
