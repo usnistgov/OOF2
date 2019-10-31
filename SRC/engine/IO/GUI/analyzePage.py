@@ -141,18 +141,6 @@ class DataOperationFactory(regclassfactory.RegisteredClassFactory):
         regclassfactory.RegisteredClassFactory.__init__(self, *args, **kwargs)
     def includeRegistration(self, registration):
         return registration.acceptsOutput(self.page.getOutput())
-        # return ((not
-        #          (
-        #              (self.page.aggregateMode() and 
-        #              getattr(registration, 'scalar_only', False))
-        #              or
-        #              (self.page.scalarMode() and
-        #               getattr(registration, 'aggregate_only', False))
-        #          ))
-        #         and
-        #         (self.page.outputAllowsArithmetic() or
-        #          getattr(registration, 'direct', False))
-        # )
         
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

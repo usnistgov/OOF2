@@ -47,11 +47,6 @@ import types
 # argument whose value is a function of an Output.  The function
 # returns True if the DataOperation can process the Output.
 
-# Data operation objects also need to specify whether they act on
-# scalars or aggregrate objects.  Their registrations can contain
-# "scalar_only" or "aggregate_only" booleans.  If neither appears, the
-# operation is assumed to work on both scalars and aggregates.
-
 class DataOperation(registeredclass.RegisteredClass):
     registry = []
     tip='Post-processing data operations'
@@ -224,7 +219,6 @@ DataOperationRegistration(
     RangeOutput,
     ordering=1,
     direct=True, 
-    scalar_only=True,
     acceptsOutput=_rangeOutputFilter,
     tip="Print the min and max values of the data over the domain.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/range.xml'))
