@@ -955,6 +955,28 @@ def build_aggregate_output_args():
                             '31', '32', '33', '35'],
               'frame':'Lab'},
              'piezo_rot_lab.dat'),
+        ],
+        'Concatenate':
+        [
+            ('thermms:thermskel:therm',
+             {'first':getOutput('Field:Value',field=Temperature),
+              'second':getOutput('Field:Value',field=Displacement)},
+             'concat_fields.dat'),
+            ## This doesn't work because we can't average a nonscalar
+            ## material constant.
+            # ('thermms:thermskel:therm',
+            #  {'first':getOutput('Field:Value',field=Temperature),
+            #   'second':getOutput('Material Constants:Thermal:Conductivity K',
+            #                      components=['11', '12'], frame="Crystal")},
+            #  'concat_temp_kappa.dat')
+            ('thermms:thermskel:therm',
+             {'first':getOutput('Field:Value',field=Temperature),
+              'second':getOutput('Concatenate',
+                                 first=getOutput('Flux:Invariant',
+                                                 invariant=Magnitude(),
+                                                 flux=Heat_Flux),
+                                 second=getOutput('Energy',etype='Total'))},
+             'concat_triple.dat')
         ]
     }
 
@@ -1321,8 +1343,7 @@ def run_tests():
         OOF_MiscOutput("Range"),
         ]
 
-    # test_set = [#OOF_Output("ScalarOutputs"),
-    #             OOF_Output("AggregateOutputs")]
+    #test_set = [OOF_Output("AggregateOutputs")]
     
     build_position_output_args()
     build_scalar_output_args()

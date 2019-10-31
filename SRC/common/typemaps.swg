@@ -113,12 +113,13 @@ using std::string;
 }
 
 %typemap(python,out) string {
-  // This typemap should not be used, since swig will use "new string"
-  // to copy the output, and won't delete it.
-
   // typemap(python, out) string
+  // This typemap should not be used, since swig will use "new string"
+  // to copy the output, and won't delete it.  Perhaps this is because
+  // we're using an ancient version of swig.
+
   //$target = PyString_FromString($source->c_str());
-  $target = something_that_will_fail_to_compile();
+  $target = DONT_USE_THIS_TYPEMAP();
 }
 
 %typemap(python, newfree) string* {

@@ -140,18 +140,7 @@ class DataOperationFactory(regclassfactory.RegisteredClassFactory):
         self.page = page
         regclassfactory.RegisteredClassFactory.__init__(self, *args, **kwargs)
     def includeRegistration(self, registration):
-        return ((not
-                 (
-                     (self.page.aggregateMode() and 
-                     getattr(registration, 'scalar_only', False))
-                     or
-                     (self.page.scalarMode() and
-                      getattr(registration, 'aggregate_only', False))
-                 ))
-                and
-                (self.page.outputAllowsArithmetic() or
-                 getattr(registration, 'direct', False))
-        )
+        return registration.acceptsOutput(self.page.getOutput())
         
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -440,6 +429,9 @@ class AnalyzePage(BaseAnalysisPage):
         self.sensitizeBottomRow(go_sensitive, namedok)
         self.namedAnalysisChooser.gtk.set_sensitive(namedok)
 
+    def getOutput(self):
+        return self.output_obj.get_value()
+
     def analysesChanged(self, *args):
         self.sensitize_widgets()
         self.setNamedAnalysisChooser()
@@ -547,8 +539,6 @@ class AnalyzePage(BaseAnalysisPage):
 
     def retrieveCB(self, gtkobj, name): # retrieve named analysis
         if name:                        # can be empty
-            ## TODO: Do we need to call the menu item?  Why not just
-            ## call retrieve_analysis directly?
             menuitem = analyzemenu.namedanalysismenu.RetrieveNamedAnalysis
             menuitem.get_arg('name').value = name
             menuitem.callWithDefaults()

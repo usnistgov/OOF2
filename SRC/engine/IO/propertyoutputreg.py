@@ -184,11 +184,6 @@ class SymmMatrix3PropertyOutputRegistration(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# def _orientation_instancefn(self):
-#     fmt = self.findParam("format").value
-#     reg = orientationmatrix.getRegistrationForName(fmt)
-#     return reg()
-
 def _orientation_column_names(self):
     fmt = self.findParam("format").value
     reg = orientationmatrix.Orientation.getRegistrationForName(fmt)
@@ -220,8 +215,8 @@ class OrientationPropertyOutputRegistration(
                                                          initializer)
         output.defineAggregateOutput(name, op, ordering=ordering)
 
-    def zeroVal(self, output):
-        fmt = output.getEnumParam("format")
+    def zeroVal(self, params):
+        fmt = params["format"]
         reg = orientationmatrix.Orientation.getRegistrationForName(fmt)
         return reg.zero().corient
         
@@ -262,9 +257,8 @@ class ModulusPropertyOutputRegistration(
         NonArithmeticPropertyOutputRegistration.__init__(self, name, op,
                                                          initializer)
         output.defineAggregateOutput(name, op, ordering=ordering)
-    def zeroVal(self, output):
-        # output is a NonArithmeticPropertyOutputPtr, not an Output
-        components = output.getListOfStringsParam("components")
+    def zeroVal(self, params):
+        components = params["components"]
         symbols = [self.symbol + "_" + c for c in components]
         return outputval.ListOutputVal(symbols)
 
