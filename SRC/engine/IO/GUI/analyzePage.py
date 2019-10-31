@@ -539,8 +539,6 @@ class AnalyzePage(BaseAnalysisPage):
 
     def retrieveCB(self, gtkobj, name): # retrieve named analysis
         if name:                        # can be empty
-            ## TODO: Do we need to call the menu item?  Why not just
-            ## call retrieve_analysis directly?
             menuitem = analyzemenu.namedanalysismenu.RetrieveNamedAnalysis
             menuitem.get_arg('name').value = name
             menuitem.callWithDefaults()
