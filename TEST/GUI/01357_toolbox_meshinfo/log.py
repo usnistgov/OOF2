@@ -60,7 +60,6 @@ checkpoint skeleton selection page updated
 checkpoint OOF.Skeleton.New
 findWidget('OOF2:Skeleton Page:Pane').set_position(249)
 findWidget('OOF2:Navigation:Prev').clicked()
-#findWidget('OOF2:Navigation:Prev').clicked()
 findWidget('OOF2').resize(684, 434)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('OOF2:Materials Page:Pane:Material:New').clicked()
@@ -162,7 +161,6 @@ findWidget('Dialog-New Boundary Condition:gtk-ok').clicked()
 checkpoint OOF.Mesh.Boundary_Conditions.New
 findWidget('OOF2:Navigation:Next').clicked()
 findWidget('OOF2:Navigation:Next').clicked()
-#findWidget('OOF2:Solver Page:Solve').clicked()
 
 findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList').get_selection().select_path((0,))
 findWidget('OOF2:Solver Page:VPane:Subproblems:Set').clicked()
@@ -231,7 +229,6 @@ findWidget('Mesh Data 1').resize(510, 402)
 checkpoint Mesh_Data_1 data updated
 assert tests.dataWidgets('generic')
 setComboBox(findWidget('Mesh Data 1:ViewSource:output:Parameters:type:Chooser'), 'Elastic Strain')
-checkpoint Mesh_Data_1 data updated
 checkpoint Mesh_Data_1 data updated
 checkpoint Mesh_Data_1 data updated
 checkpoint_count("Mesh_Data_1 data updated")
