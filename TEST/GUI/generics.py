@@ -157,6 +157,8 @@ def treeViewColCheck(widgetpath, col, choices, tolerance=None):
     if len(liststore) != len(choices):
         print >> sys.stderr, "length mismatch: %d!=%d" % (len(liststore),
                                                           len(choices))
+        print >> sys.stderr, "expected: ", choices
+        print >> sys.stderr, "     got: ", [x[col] for x in liststore]
         return False
     for i,x in enumerate(liststore):
         if choices[i] != None:

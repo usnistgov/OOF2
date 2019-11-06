@@ -665,7 +665,12 @@ def _concatenate_columnnames(self):
     f = self.resolveAlias('first').value
     s = self.resolveAlias('second').value
     return f.column_names(f) + s.column_names(s)
-            
+
+def _concatenate_allowsArithmetic(self):
+    f = self.resolveAlias('first').value
+    s = self.resolveAlias('second').value
+    return (f is not None and s is not None and
+            f.allowsArithmetic() and s.allowsArithmetic())
 
 ConcatenateOutput = output.Output(
     name="concatenate",
@@ -674,6 +679,7 @@ ConcatenateOutput = output.Output(
     srepr=_concatenate_shortrepr,
     instancefn=_concatenate_instancefn,
     column_names=_concatenate_columnnames,
+    arithmeticFilter=_concatenate_allowsArithmetic,
     params=[
         output.AggregateOutputParameter('first'),
         output.AggregateOutputParameter('second')],
