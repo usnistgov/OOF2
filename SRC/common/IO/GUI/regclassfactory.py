@@ -133,6 +133,8 @@ class RegisteredClassFactory(RCFBase):
         # programmatically or by the user.
         self.useDefault = obj is None
 
+        self.suppress_updateCB = False
+
         self.update(registry, obj, interactive=0)
 
     def refresh(self, obj=None):
@@ -148,7 +150,14 @@ class RegisteredClassFactory(RCFBase):
             if reg.tip:
                 helpdict[reg.name()] = reg.tip
 
+        # Chooser.update will call RegisteredClassFactory.updateCB,
+        # which will call RegisteredClassFactory.widgetChanged.
+        # setByRegistration, called below, also calls widgetChanged.
+        # widgetChanged calls switchboard.notify(self, ...), which is
+        # then called too often.
+        self.suppress_updateCB = True
         self.options.update(names, helpdict)
+        self.suppress_updateCB = False
 
         if self.paramWidget:
             switchboard.removeCallback(self.widgetcallback)
@@ -193,7 +202,6 @@ class RegisteredClassFactory(RCFBase):
                 self.setByRegistration(registration, interactive)
                 return
 
-
     # The "interactive" flag should be True when the change is not
     # programmatic, some widgets use it to make sure their displays
     # remain self-consistent.
@@ -223,7 +231,6 @@ class RegisteredClassFactory(RCFBase):
                 self.options.set_state(registration.name())
                 
             self.getBase(registration)
-
             self.options.set_state(registration.name())
             self.currentOption = registration
 
@@ -312,7 +319,7 @@ class RegisteredClassFactory(RCFBase):
         self.optionFinish(self.currentOption, interactive=1)
 
     def updateCB(self, *args):
-        if self.paramWidget is not None:
+        if self.paramWidget is not None and not self.suppress_updateCB:
             self.widgetChanged(
                 self.options.nChoices() > 0 and self.paramWidget.isValid(),
                 interactive=False)
