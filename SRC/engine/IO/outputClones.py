@@ -95,6 +95,8 @@ def _field(mesh, elements, coords, field):
 
 def _field_instancefn(self):
     field = self.resolveAlias('field').value
+    if field is None:
+        return
     # Don't combine the following two lines into one!  There must be a
     # reference to ovalue until zero() is called.  See valuePtr
     # comment in outputval.h.
@@ -203,6 +205,8 @@ def _flux_shortrepr(self):
 
 def _flux_instancefn(self):
     flux = self.resolveAlias('flux').value
+    if flux is None:
+        return
     # Don't combine the following two lines into one!  There must be a
     # reference to ovalue until zero() is called.  See valuePtr
     # comment in outputval.h.
@@ -505,7 +509,10 @@ def _difference_shortrepr(self):
                       self.resolveAlias('subtrahend').value.shortrepr())
 
 def _difference_instancefn(self):
-    return self.resolveAlias('minuend').value.outputInstance()
+    minuend = self.resolveAlias('minuend').value
+    if minuend is None:
+        return
+    return minuend.outputInstance()
 
 
 ScalarDifferenceOutput = output.Output(
@@ -647,9 +654,12 @@ def _concatenate_shortrepr(self):
                           self.resolveAlias('second').value.shortrepr())
 
 def _concatenate_instancefn(self):
-    return ConcatenatedOutputVal(
-        self.resolveAlias('first').value.outputInstance(),
-        self.resolveAlias('second').value.outputInstance())
+    first = self.resolveAlias('first').value
+    second = self.resolveAlias('second').value
+    if first is None or second is None:
+        return
+    return ConcatenatedOutputVal(first.outputInstance(),
+                                 second.outputInstance())
 
 def _concatenate_columnnames(self):
     f = self.resolveAlias('first').value
