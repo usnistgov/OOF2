@@ -283,7 +283,7 @@ class RegisteredClass(object):
     # contain have parameters that are themselves registered
     # parameters, and if those objects contain references to their
     # parent objects.  This causes an infinite loop.  Such subclasses
-    # must redefine clone(). (TODO WTF: Really?  If such an class is
+    # must redefine clone(). (TODO WTF: Really?  If such a class is
     # found, please document it here.)
     def clone(self):
         self.setDefaultParams()
