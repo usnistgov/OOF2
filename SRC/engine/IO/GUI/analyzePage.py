@@ -236,6 +236,9 @@ class AnalyzePage(BaseAnalysisPage):
         self.scalarSignal = gtklogger.connect(self.scalar_output_button,
                                               "clicked",
                                               self.scalar_button_CB)
+        self.aggregateSignal = gtklogger.connect(self.aggregate_output_button,
+                                                 'clicked',
+                                                 self.scalar_button_CB)
 
         # Both aggregate and scalar widgets are built here, and they
         # are switched by show/hide.
@@ -441,7 +444,12 @@ class AnalyzePage(BaseAnalysisPage):
     # "go"-button callback.
     def scalar_button_CB(self, gtkobj):
         debug.mainthreadTest()
-        if self.scalar_output_button.get_active():
+        # This callback is called when the radio buttons are both set
+        # and unset, which means that it's called twice for each user
+        # action, which is unnecessary.
+        if not gtkobj.get_active():
+            return
+        if gtkobj is self.scalar_output_button:
             self.output_obj = self.scalar_output_obj
             self.aggregate_output_obj.gtk.hide()
             self.scalar_output_obj.show()
@@ -460,14 +468,6 @@ class AnalyzePage(BaseAnalysisPage):
         return self.output_obj is self.scalar_output_obj
     def aggregateMode(self):
         return self.output_obj is self.aggregate_output_obj
-    def outputAllowsArithmetic(self):
-        # Arithmetic can be performed on an output as long as neither
-        # it nor any of its ancestors have _allowsArithmetic == False.
-        outputproto = self.output_obj.get_proto()
-        try:
-            return not outputproto or outputproto.allowsArithmetic()
-        except AttributeError:
-            return True
         
     # Switchboard, ("new who", "Mesh")
     def new_mesh(self, mesh):

@@ -523,8 +523,9 @@ class Output(object):
         # _allowsArithmetic is set by PropertyOutputs in
         # ArithmeticPropertyOutputRegistration and
         # NonArithmeticPropertyOutputRegistration.  Outputs that don't
-        # allow arithmetic can be printed but not averaged, for
-        # example.
+        # define _allowsArithmetic are assumed to allow it. Outputs
+        # that don't allow arithmetic can be printed but not averaged,
+        # for example.
         try:
             return self._allowsArithmetic
         except AttributeError:
