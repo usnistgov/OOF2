@@ -118,8 +118,18 @@ class _SwitchboardTaskList:
             callbacks = self.callbacks[:]
         finally:
             self.lock.release()
+        if switchboard.verbose:
+            debug.fmsg("Performing", len(callbacks), "tasks:")
+            for callback in callbacks:
+                debug.fmsg("    ", callback)
         for callback in callbacks:
             callback.perform(*args, **kwargs)
+    def nCallbacks(self):
+        self.lock.acquire()
+        try:
+            return len(self.callbacks)
+        finally:
+            self.lock.release()
 
     
 class _Switchboard:
@@ -127,25 +137,39 @@ class _Switchboard:
         self.taskdict = {}
         self.verbose = 0
         self.lock = lock.SLock()
+        self.depth = 0
     def _defineMessage(self, msgname):
         tasklist = _SwitchboardTaskList(msgname)
         self.taskdict[msgname] = tasklist
         return tasklist
     def notify(self, msgname, *args, **kwargs):
+        self.lock.acquire()
         try:
-            self.lock.acquire()
-            try:
-                task = self.taskdict[msgname]
-            finally:
-                self.lock.release()
+            task = self.taskdict[msgname]
         except KeyError:
-            pass
-        else:
-            if self.verbose:
-                debug.fmsg('performing', msgname, args, kwargs)
-            task.perform(*args, **kwargs)
-            if self.verbose:
-                debug.fmsg('done', msgname)
+            return
+        finally:
+            self.lock.release()
+
+        if self.verbose:
+            debug.fmsg('performing', msgname, args, kwargs,
+                       "depth=%d"%self.depth)
+            self.depth += 1
+        task.perform(*args, **kwargs)
+        if self.verbose:
+            self.depth -= 1
+            debug.fmsg("done", msgname, "depth=%d"%self.depth)
+            
+    def nCallbacks(self, msgname):
+        # How many callbacks are registered for this message?
+        self.lock.acquire()
+        try:
+            task = self.taskdict[msgname]
+        except KeyError:
+            return 0
+        finally:
+            self.lock.release()
+        return task.nCallbacks()
 
     def cnotify(self, oofmessage):
         # Messages passed from C++ may be either simple strings or
@@ -229,8 +253,9 @@ def requestCallback(msgname, func, *args, **kwargs):
     return switchboard.requestCallback(msgname, func, caller, *args, **kwargs)
 
 def notify(msgname, *args, **kwargs):
-    if switchboard.verbose:
-        debug.dumpCaller()
+    if switchboard.verbose and switchboard.nCallbacks(msgname) > 0:
+        # debug.dumpCaller()
+        debug.dumpTrace(-6,-2)
     switchboard.notify(msgname, *args, **kwargs)
     
 def removeCallback(action):
