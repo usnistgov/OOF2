@@ -205,10 +205,8 @@ class SelectionPage(oofGUI.MainPage):
             finally:
                 selection.end_reading()
             mssize = ms.getObject().sizeInPixels()
-            if config.dimension() == 2:
-                msg = "%d of %d pixels selected" % (pssize, mssize[0]*mssize[1])
-            elif config.dimension() == 3:
-                msg = "%d of %d voxels selected" % (pssize, mssize[0]*mssize[1]*mssize[2])
+            msg = "%d of %d pixels selected (%g%%)" % \
+                (pssize, mssize[0]*mssize[1], 100.*pssize/(mssize[0]*mssize[1]))
         else:
             msg = "No Microstructure selected."
         mainthread.runBlock(self.psdata.get_buffer().set_text, (msg,))

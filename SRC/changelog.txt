@@ -1,11 +1,15 @@
+OOF2 2.1.19
+
+* Selection sizes are reported as percentages as well as absolute numbers.
+
 OOF2 2.1.18
 
 * Added OOF.PixelGroup.AutoGroup, which puts every pixel into a group
   according to either its color or orientation, even in the presence
   of noise.
 
-* Some material properties can now be included in output files and
-  viewed in the Mesh Data Viewer window, using a new Material
+* Almost all material properties can now be included in output files
+  and viewed in the Mesh Data Viewer window, using a new Material
   Constants branch of the Aggregate Outputs tree.
 
 * More than one type of output can be printed on one line of an output

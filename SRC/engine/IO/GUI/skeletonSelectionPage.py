@@ -218,6 +218,19 @@ class SkeletonSelectionPage(oofGUI.MainPage):
                 skelcontext.end_reading()
         return 0
 
+    def selectionSizeAndMax(self):
+        debug.subthreadTest()
+        skelcontext = mainthread.runBlock(self.getCurrentSkeleton)
+        if skelcontext is not None:
+            skelcontext.begin_reading()
+            try:
+                if not skelcontext.defunct():
+                    selectionctxt = \
+                        self.activemode.getSelectionContext(skelcontext)
+                    return selectionctxt.size(), selectionctxt.maxSize()
+            finally:
+                skelcontext.end_reading()
+        return None
 
     def update(self):
         skelctxt = self.getCurrentSkeleton()
@@ -226,10 +239,9 @@ class SkeletonSelectionPage(oofGUI.MainPage):
     def update_subthread(self, skelcontext):
         # Get the selection from the skeleton context
         if skelcontext:
-            n = self.selectionSize()    # requires subthread
-            status_text = " %d %s%s selected." % (n,
-                                                  self.activemode.name(),
-                                                  's'*(n!=1))
+            n, m = self.selectionSizeAndMax()    # requires subthread
+            status_text = " %d %s%s selected (%g%%)." % \
+                (n, self.activemode.name(), 's'*(n!=1), 100.*n/m)
         else:
             status_text = "No Skeleton selected."
 

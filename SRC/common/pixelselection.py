@@ -37,13 +37,17 @@ class PixelSelection(cpixelselection.CPixelSelection):
     def getMicrostructure(self):
         cms = self.getCMicrostructure()
         # Find which Microstructure corresponds to this CMicrostructure.
-        return common.microstructure.microStructures[cms.name()]
+        from ooflib.common import microstructure
+        return microstructure.microStructures[cms.name()]
 
 #####################################
 
 class PixelSelectionContext(whoville.WhoDoUndo):
     def getMicrostructure(self):
-        return self.getObject().getMicrostructure()
+        from ooflib.common import microstructure
+        cms = self.getObject().getCMicrostructure()
+        return microstructure.microStructures[cms.name()]
+    
     def start(self):
         newselection = self.getObject().clone()
         self.pushModification(newselection)
@@ -87,6 +91,9 @@ class PixelSelectionContext(whoville.WhoDoUndo):
         if obj is not None:
             return len(self.getObject())
         return 0
+    def maxSize(self):
+        pix = self.getMicrostructure().getObject().sizeInPixels()
+        return pix.x * pix.y
     def getBitmap(self):
         return self.getObject().getBitmap()
 

@@ -820,12 +820,16 @@ class ElementSelection(Selection):
                 if count == nelem:
                     return ordered
         return []
+    def maxSize(self):
+        return self.skeletoncontext.getObject().nelements()
 
 class SegmentSelection(Selection):
     def all_objects(self):
         return self.skeletoncontext.getObject().segments.values()
     def mode(self):
         return skeletonselmodebase.getMode("Segment")
+    def maxSize(self):
+        return len(self.all_objects())
 
 class NodeSelection(Selection):
     def all_objects(self):
@@ -845,4 +849,5 @@ class NodeSelection(Selection):
                     return ordered
         else:
             return []
-
+    def maxSize(self):
+        return len(self.skeletoncontext.getObject().nodes)
