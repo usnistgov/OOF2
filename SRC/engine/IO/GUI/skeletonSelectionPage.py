@@ -240,8 +240,12 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         # Get the selection from the skeleton context
         if skelcontext:
             n, m = self.selectionSizeAndMax()    # requires subthread
-            status_text = " %d %s%s selected (%g%%)." % \
-                (n, self.activemode.name(), 's'*(n!=1), 100.*n/m)
+            if m > 0:
+                status_text = " %d %s%s selected (%g%%)." % \
+                    (n, self.activemode.name(), 's'*(n!=1), 100.*n/m)
+            else:
+                status_text = " 0 %s%s selected." % \
+                    (self.activemode.name(), 's'*(n!=1))
         else:
             status_text = "No Skeleton selected."
 

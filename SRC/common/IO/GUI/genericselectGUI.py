@@ -310,9 +310,12 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
                 if selection is not None:
                     selection.begin_reading()
                     try:
-                        sizetextdata = "%d (%g%%)" % \
-                            (selection.size(),
-                             100.*selection.size()/selection.maxSize())
+                        n = selection.size()
+                        m = selection.maxSize()
+                        if m > 0:
+                            sizetextdata = "%d (%g%%)" % (n, 100.*n/m)
+                        else:
+                            sizetextdata = "0"
                     finally:
                         selection.end_reading()
                 else:
