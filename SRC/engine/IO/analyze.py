@@ -198,15 +198,6 @@ class RangeOutput(OneLineDataOperation):
                 vmin, vmax = value.expandRange(vmin, vmax)
             self.printResults(time, utils.flatten_all([vmin, vmax]),
                               destination)
-        # vmin = None
-        # vmax = None
-        # for sample, value in olist:
-        #     v = value.value()
-        #     if vmin is None or vmin > v:
-        #         vmin = v
-        #     if vmax is None or vmax < v:
-        #         vmax = v
-        # self.printResults(time, [vmin, vmax], destination)
     def colNames(self, output):
         cnames = output.columnNames()
         return ["min "+x for x in cnames] + ["max " +x for x in cnames]
