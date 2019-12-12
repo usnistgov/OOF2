@@ -120,7 +120,7 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Point
 findWidget('OOF2 Graphics 1:Pane0').set_position(280)
 # *Second* pixel selection, check texts.
-assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1')
+assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size','1 (0.00444444%)')
 assert tests.sensitizationCheck({'Undo':True,'Redo':False,'Clear':True,'Invert':True,'Prev':True,'Repeat':True,'Next':False}, 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
 assert tests.gtkMultiTextCompare({'xdown':'--','ydown':'--','xup':'59.1471','yup':'68.2059'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection')
 findWidget('OOF2 Graphics 1').resize(800, 406)

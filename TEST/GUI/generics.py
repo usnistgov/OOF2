@@ -377,7 +377,8 @@ def skeletonSelectionTBSizeCheck(windowname, category, n):
     text = gtklogger.findWidget(
         '%s:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:%s:size' %
         (windowname, category))
-    return eval(text.get_text()) == n
+    # The line is either "0" or "n (p%)" for some n and p.
+    return eval(text.get_text().split()[0]) == n
 
 def pixelSelectionTBSizeCheck(windowname, minpxls, maxpxls=None):
     # Check that the pixel selection size is displayed correctly in
@@ -387,7 +388,8 @@ def pixelSelectionTBSizeCheck(windowname, minpxls, maxpxls=None):
     # counts for this test.
     text = gtklogger.findWidget(
         '%s:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size' % windowname)
-    n = eval(text.get_text())
+    # The line is either "0" or "n (p%)" for some n and p.
+    n = eval(text.get_text().split()[0])
     if maxpxls is None:
         return n == minpxls
     else:

@@ -109,7 +109,7 @@ setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Pixel Selection')
 checkpoint page installed Pixel Selection
 checkpoint pixel page updated
 checkpoint pixel page sensitized
-assert tests.pixelSelectionPageStatusCheck(0, 10000)
+assert tests.pixelSelectionPageStatusCheck(0, 10000, 0)
 assert tests.pixelSelectionSizeCheck('composition.png', 0)
 assert tests.sensitization1()
 findWidget('OOF2:Pixel Selection Page:Pane').set_position(281)
@@ -147,7 +147,7 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Burn
-assert tests.pixelSelectionPageStatusCheck(1938, 10000)
+assert tests.pixelSelectionPageStatusCheck(1938, 10000, 19.38)
 assert tests.pixelSelectionSizeCheck('composition.png', 1938)
 assert tests.sensitization2()
 findWidget('OOF2:Navigation:Prev').clicked()
@@ -203,7 +203,7 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Invert
-assert tests.pixelSelectionPageStatusCheck(8062, 10000)
+assert tests.pixelSelectionPageStatusCheck(8062, 10000, 80.62)
 assert tests.pixelSelectionSizeCheck('composition.png', 8062)
 assert tests.sensitization2()
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Undo').clicked()
@@ -215,7 +215,7 @@ checkpoint pixel page updated
 checkpoint selection info updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Undo
-assert tests.pixelSelectionPageStatusCheck(1938, 10000)
+assert tests.pixelSelectionPageStatusCheck(1938, 10000, 19.38)
 assert tests.pixelSelectionSizeCheck('composition.png', 1938)
 assert tests.sensitization3()
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Clear').clicked()
@@ -228,7 +228,7 @@ checkpoint selection info updated
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Clear
-assert tests.pixelSelectionPageStatusCheck(0, 10000)
+assert tests.pixelSelectionPageStatusCheck(0, 10000, 0)
 assert tests.pixelSelectionSizeCheck('composition.png', 0)
 assert tests.sensitization4()
 setComboBox(findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Chooser'), 'Select Group')
@@ -242,7 +242,7 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Select_Group
-assert tests.pixelSelectionPageStatusCheck(1938, 10000)
+assert tests.pixelSelectionPageStatusCheck(1938, 10000, 19.38)
 assert tests.pixelSelectionSizeCheck('composition.png', 1938)
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
 canvasobj.emit('event', event(gtk.gdk.BUTTON_PRESS,x= 1.6739130434783e-01,y=-9.2826086956522e-01,state=0,window=findCanvasGdkWindow('Graphics_1')))
@@ -301,7 +301,7 @@ checkpoint selection info updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Select_Group
 findWidget('OOF2 Graphics 1:Pane0').set_position(278)
-assert tests.pixelSelectionPageStatusCheck(1938, 10000)
+assert tests.pixelSelectionPageStatusCheck(1938, 10000, 19.38)
 setComboBox(findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Chooser'), 'Add Group')
 setComboBox(findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Add Group:group'), 'upperleft')
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:OK').clicked()
@@ -313,7 +313,7 @@ checkpoint selection info updated
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Add_Group
-assert tests.pixelSelectionPageStatusCheck(3060, 10000)
+assert tests.pixelSelectionPageStatusCheck(3060, 10000, 30.6)
 assert tests.pixelSelectionSizeCheck('composition.png', 3060)
 setComboBox(findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Chooser'), 'Unselect Group')
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:OK').clicked()
@@ -325,7 +325,7 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Unselect_Group
-assert tests.pixelSelectionPageStatusCheck(1122, 10000)
+assert tests.pixelSelectionPageStatusCheck(1122, 10000, 11.22)
 assert tests.pixelSelectionSizeCheck('composition.png', 1122)
 setComboBox(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Chooser'), 'Rectangle')
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(259)
@@ -433,7 +433,7 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle
 assert tests.pixelSelectionSizeCheck('composition.png', 1815)
-assert tests.pixelSelectionPageStatusCheck(1815, 10000)
+assert tests.pixelSelectionPageStatusCheck(1815, 10000, 18.15)
 setComboBox(findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Chooser'), 'Intersect Group')
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:OK').clicked()
 findWidget('OOF2:Pixel Selection Page:Pane').set_position(324)
@@ -445,7 +445,7 @@ checkpoint pixel page updated
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Intersect_Group
-assert tests.pixelSelectionPageStatusCheck(384, 10000)
+assert tests.pixelSelectionPageStatusCheck(384, 10000, 3.84)
 assert tests.pixelSelectionSizeCheck('composition.png', 384)
 assert tests.sensitization5()
 setComboBox(findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Chooser'), 'Despeckle')
@@ -459,7 +459,7 @@ checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Expand
-assert tests.pixelSelectionPageStatusCheck(472, 10000)
+assert tests.pixelSelectionPageStatusCheck(472, 10000, 4.72)
 setComboBox(findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Chooser'), 'Shrink')
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Shrink:radius').set_text('.0')
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Shrink:radius').set_text('4.0')
@@ -472,7 +472,7 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Shrink
-assert tests.pixelSelectionPageStatusCheck(156, 10000)
+assert tests.pixelSelectionPageStatusCheck(156, 10000, 1.56)
 setComboBox(findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Chooser'), 'Color Range')
 findWidget('OOF2').resize(593, 532)
 findWidget('OOF2:Pixel Selection Page:Pane').set_position(221)
@@ -495,7 +495,7 @@ checkpoint pixel page sensitized
 checkpoint selection info updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Color_Range
-assert tests.pixelSelectionPageStatusCheck(1428, 10000)
+assert tests.pixelSelectionPageStatusCheck(1428, 10000, 14.28)
 setComboBox(findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Chooser'), 'Copy')
 findWidget('OOF2:Pixel Selection Page:Pane').set_position(324)
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Microstructure')
@@ -547,14 +547,14 @@ checkpoint pixel page updated
 checkpoint pixel page sensitized
 assert tests.chooserCheck('OOF2:Pixel Selection Page:Microstructure', ['composition.png', 'microstructure'])
 assert tests.chooserStateCheck('OOF2:Pixel Selection Page:Microstructure', 'composition.png')
-assert tests.pixelSelectionPageStatusCheck(1428, 10000)
+assert tests.pixelSelectionPageStatusCheck(1428, 10000, 14.28)
 assert tests.pixelSelectionSizeCheck('microstructure', 0)
 assert tests.pixelSelectionSizeCheck('composition.png', 1428)
 findWidget('OOF2:Pixel Selection Page:Pane').set_position(324)
 setComboBox(findWidget('OOF2:Pixel Selection Page:Microstructure'), 'microstructure')
 checkpoint pixel page updated
 checkpoint pixel page sensitized
-assert tests.pixelSelectionPageStatusCheck(0, 10000)
+assert tests.pixelSelectionPageStatusCheck(0, 10000, 0)
 findWidget('OOF2:Pixel Selection Page:Pane').set_position(324)
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:OK').clicked()
 findWidget('OOF2:Pixel Selection Page:Pane').set_position(324)
@@ -566,7 +566,7 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Copy
-assert tests.pixelSelectionPageStatusCheck(1428, 10000)
+assert tests.pixelSelectionPageStatusCheck(1428, 10000, 14.28)
 assert tests.pixelSelectionSizeCheck('microstructure', 1428)
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Skeleton')
 checkpoint page installed Skeleton
@@ -663,7 +663,7 @@ checkpoint pixel page updated
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Clear
-assert tests.pixelSelectionPageStatusCheck(0, 10000)
+assert tests.pixelSelectionPageStatusCheck(0, 10000, 0)
 assert tests.pixelSelectionSizeCheck('microstructure', 0)
 assert tests.pixelSelectionSizeCheck('composition.png', 1428)
 findWidget('OOF2 Graphics 1').resize(800, 400)
@@ -679,7 +679,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Clear
 findWidget('OOF2:Pixel Selection Page:Pane').set_position(324)
 findWidget('OOF2 Graphics 1:Pane0').set_position(278)
-assert tests.pixelSelectionPageStatusCheck(0, 10000)
+assert tests.pixelSelectionPageStatusCheck(0, 10000, 0)
 assert tests.pixelSelectionSizeCheck('composition.png', 0)
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:OK').clicked()
 findWidget('OOF2:Pixel Selection Page:Pane').set_position(324)
@@ -689,7 +689,7 @@ checkpoint pixel page updated
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Select_Element_Pixels
-assert tests.pixelSelectionPageStatusCheck(625, 10000)
+assert tests.pixelSelectionPageStatusCheck(625, 10000, 6.25)
 assert tests.pixelSelectionSizeCheck('composition.png', 625)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Element:Clear').clicked()
 findWidget('OOF2 Graphics 1:Pane0').set_position(278)
@@ -739,7 +739,7 @@ checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Select_Segment_Pixels
 assert tests.pixelSelectionSizeCheck('composition.png', 675)
-assert tests.pixelSelectionPageStatusCheck(675, 10000)
+assert tests.pixelSelectionPageStatusCheck(675, 10000, 6.75)
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Clear').clicked()
 findWidget('OOF2:Pixel Selection Page:Pane').set_position(324)
 findWidget('OOF2 Graphics 1:Pane0').set_position(278)
@@ -749,7 +749,7 @@ checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Clear
 assert tests.pixelSelectionSizeCheck('composition.png', 0)
-assert tests.pixelSelectionPageStatusCheck(0, 10000)
+assert tests.pixelSelectionPageStatusCheck(0, 10000, 0)
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:OK').clicked()
 findWidget('OOF2:Pixel Selection Page:Pane').set_position(324)
 findWidget('OOF2 Graphics 1:Pane0').set_position(278)
@@ -759,7 +759,7 @@ checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelSelection.Select_Segment_Pixels
 assert tests.pixelSelectionSizeCheck('composition.png', 50)
-assert tests.pixelSelectionPageStatusCheck(50, 10000)
+assert tests.pixelSelectionPageStatusCheck(50, 10000, 0.5)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Segment:Clear').clicked()
 findWidget('OOF2 Graphics 1:Pane0').set_position(278)
 checkpoint selection info updated

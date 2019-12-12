@@ -16,7 +16,11 @@ def _getStatusText():
     return buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
     
 def pixelSelectionPageStatusCheck(npix, total):
-    return _getStatusText() == "%d of %d pixels selected" % (npix, total)
-
-
+    if total > 0:
+        # Don't just check the numerical value of the selection
+        # percentage.  Check the printed version.
+        ptext = "%g" % (100.*npix/total)
+        return _getStatusText() == "%d of %d pixels selected (%s%%)" % (npix, total, ptext)
+    else:
+        return _getStatusText() == "%d of %d pixels selected" % (npix, total)
 

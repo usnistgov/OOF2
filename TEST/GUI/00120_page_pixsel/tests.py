@@ -15,8 +15,11 @@ def _getStatusText():
     buffer = textviewer.get_buffer()
     return buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
     
-def pixelSelectionPageStatusCheck(npix, total):
-    return _getStatusText() == "%d of %d pixels selected" % (npix, total)
+def pixelSelectionPageStatusCheck(npix, total, percent):
+    if percent is not None:
+        return _getStatusText() == "%d of %d pixels selected (%g%%)" % (npix, total, percent)
+    else:
+        return _getStatusText() == "%d of %d pixels selected" % (npix, total)
 
 def pixelSelectionPageNoMSCheck():
     return _getStatusText() == "No Microstructure selected."
