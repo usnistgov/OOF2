@@ -34,20 +34,18 @@ import types
 class PixelSelection(cpixelselection.CPixelSelection):
     def __repr__(self):
         return "PixelSelection(%s)" % len(self)
-    def getMicrostructure(self):
-        cms = self.getCMicrostructure()
-        # Find which Microstructure corresponds to this CMicrostructure.
-        from ooflib.common import microstructure
-        return microstructure.microStructures[cms.name()]
+    ## TODO: getMicrostructure used to be defined here, but it's been
+    ## moved to the .spy file, so that it can be defined in the
+    ## swigged CPixelSelection instead.  Do we still need the
+    ## PixelSelection class, or can we just use CPixelSelection?
 
 #####################################
 
 class PixelSelectionContext(whoville.WhoDoUndo):
     def getMicrostructure(self):
-        from ooflib.common import microstructure
-        cms = self.getObject().getCMicrostructure()
-        return microstructure.microStructures[cms.name()]
-    
+        ps = self.getObject()
+        if ps is not None:
+            return ps.getMicrostructure()
     def start(self):
         newselection = self.getObject().clone()
         self.pushModification(newselection)
@@ -92,8 +90,10 @@ class PixelSelectionContext(whoville.WhoDoUndo):
             return len(self.getObject())
         return 0
     def maxSize(self):
-        pix = self.getMicrostructure().getObject().sizeInPixels()
-        return pix.x * pix.y
+        ms = self.getMicrostructure()
+        if ms is not None:
+            pix = ms.getObject().sizeInPixels()
+            return pix.x * pix.y
     def getBitmap(self):
         return self.getObject().getBitmap()
 

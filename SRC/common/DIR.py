@@ -59,7 +59,7 @@ swigpyfiles = [
     'switchboard.spy', 'pixelgroup.spy', 'timestamp.spy',
     'cdebug.spy', 'brushstyle.spy', 'pixelattribute.spy', 'guitop.spy',
     'activearea.spy', 'lock.spy', 'cmicrostructure.spy', 'doublevec.spy',
-    'smallmatrix.spy', 'direction.spy',
+    'smallmatrix.spy', 'direction.spy', 'cpixelselection.spy',
     'latticesystem.spy', 'burn.spy', 'statgroups.spy'
 ]
 

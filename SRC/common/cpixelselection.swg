@@ -31,6 +31,7 @@
 %pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelSetPtr"
 %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 
+%pragma(python) include="cpixelselection.spy"
 
 class CPixelSelection {
 public:
