@@ -53,9 +53,6 @@ from ooflib.engine.IO import materialparameter
 if parallel_enable.enabled():
     from ooflib.SWIG.common import mpitools
 
-if config.dimension() == 3:
-    import vtk
-
 FloatRangeParameter = parameter.FloatRangeParameter
 IntRangeParameter = parameter.IntRangeParameter
 AutoNumericParameter = parameter.AutoNumericParameter
@@ -121,16 +118,6 @@ class SkeletonDisplayMethod(display.DisplayMethod):
             return  polys
         else:
             return [el.perimeter() for el in skeleton.element_iterator()]
-
-    if config.dimension() == 3:
-        def polyhedra(self, skelcontext):
-            skeleton = skelcontext.getObject()
-           # TODO 3D: does this get deleted? does it matter?
-            meshPoly = vtk.vtkPolyData()
-            meshPoly.SetPoints(skeleton.skelpoints)
-            meshPoly.SetLines(skeleton.skellines)
-            return meshPoly
-
 
 # Dummy exception class, raised by
 # _undisplaced_from_displaced_with_element if it overruns its
@@ -225,40 +212,6 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
         finally:
             meshctxt.releaseCachedData()
 
-    if config.dimension() == 3:
-        # for now, create all the vtk objects here
-        def polyhedra(self, meshctxt):
-            mesh = meshctxt.getObject()
-            numnodes = mesh.nnodes()
-            nodes = mesh.node_iterator()
-            points = vtk.vtkPoints()
-            points.Allocate(numnodes,numnodes)
-            while not nodes.end():
-                node = nodes.node()
-                points.InsertNextPoint(node[0],node[1],node[2])
-                nodes.next()
-
-            seg_dict = {}
-            nelements = mesh.nelements()
-            elements = mesh.element_iterator()
-            lines = vtk.vtkCellArray()
-            while not elements.end():
-                element = elements.element()
-                numedges = element.getNumberOfEdges()
-                for i in xrange(numedges):
-                    edge = element.getEdge(i)
-                    ids = (edge.GetPointIds().GetId(0),edge.GetPointIds().GetId(1))
-                    if ids not in seg_dict:
-                        seg_dict[ids] = 0
-                        lines.InsertNextCell(edge)
-                elements.next()
-                
-            meshPoly = vtk.vtkPolyData()
-            meshPoly.SetPoints(points)
-            meshPoly.SetLines(lines)
-            return meshPoly
-
-
     # Routines for converting between displaced and undisplaced
     # coordinates using this layer's PositionOutput object
     # ("self.where").  This is here primarily so that the mesh info
@@ -282,17 +235,10 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
         # Search master space for an x such that f(x)=pos, and return x.
 
         delta = 0.001 # Small compared to master space.
-        if config.dimension() == 2:
-            mtx = smallmatrix.SmallMatrix(2,2)
-            rhs = smallmatrix.SmallMatrix(2,1)
-            delta_x = mastercoord.MasterCoord(delta, 0.0)
-            delta_y = mastercoord.MasterCoord(0.0, delta)
-        elif config.dimension() == 3:
-            mtx = smallmatrix.SmallMatrix(3,3)
-            rhs = smallmatrix.SmallMatrix(3,1)
-            delta_x = mastercoord.MasterCoord(delta, 0.0, 0.0)
-            delta_y = mastercoord.MasterCoord(0.0, delta, 0.0)
-            delta_z = mastercoord.MasterCoord(0.0, 0.0, delta)
+        mtx = smallmatrix.SmallMatrix(2,2)
+        rhs = smallmatrix.SmallMatrix(2,1)
+        delta_x = mastercoord.MasterCoord(delta, 0.0)
+        delta_y = mastercoord.MasterCoord(0.0, delta)
         
         res = elem.center()
 
@@ -315,45 +261,27 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
             fwd = self.where.evaluate(mesh, [elem],[[res]])[0]
             fwddx = self.where.evaluate(mesh, [elem],[[res+delta_x]])[0]
             fwddy = self.where.evaluate(mesh, [elem],[[res+delta_y]])[0]
-            if config.dimension() == 3:
-                fwddz = self.where.evaluate(mesh, [elem],[[res+delta_z]])[0]
             
             dfdx = (fwddx-fwd)/delta
             dfdy = (fwddy-fwd)/delta
-            if config.dimension() == 3:
-                dfdz = (fwddz-fwd)/delta
+
             diff = pos-fwd
 
             rhs.setitem(0,0,diff[0])
             rhs.setitem(1,0,diff[1])
-            if config.dimension() == 3:
-                rhs.setitem(2,0,diff[2])
             
             mtx.setitem(0,0,dfdx[0])
             mtx.setitem(0,1,dfdy[0])
             mtx.setitem(1,0,dfdx[1])
             mtx.setitem(1,1,dfdy[1])
-            if config.dimension() == 3:
-                mtx.setitem(0,2,dfdz[0])
-                mtx.setitem(1,2,dfdz[1])
-                mtx.setitem(2,0,dfdx[2])
-                mtx.setitem(2,1,dfdy[2])
-                mtx.setitem(2,2,dfdz[2])
 
             ## TODO OPT: For a 2x2 matrix, is it faster to write out
             ## the solution, rather than using a general purpose
             ## routine?
             r = mtx.solve(rhs)
 
-            if config.dimension() == 2:
-                resid = (rhs[0,0]**2+rhs[1,0]**2)
-                res = mastercoord.MasterCoord(res[0]+rhs[0,0],
-                                              res[1]+rhs[1,0])
-            elif config.dimension() == 3:
-                resid = (rhs[0,0]**2+rhs[1,0]**2+rhs[2,0]**2)
-                res = mastercoord.MasterCoord(res[0]+rhs[0,0],
-                                              res[1]+rhs[1,0],
-                                              res[2]+rhs[2,0])
+            resid = (rhs[0,0]**2+rhs[1,0]**2)
+            res = mastercoord.MasterCoord(res[0]+rhs[0,0], res[1]+rhs[1,0])
 
             if resid<tolerance:
                 done = True
@@ -428,15 +356,9 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
 ## Default values of display parameters for SkeletonEdgeDisplay and
 ## MeshEdgeDisplay, and menu items to set them.
 
-if config.dimension() == 2:
-    defaultSkeletonWidth = 0
-    defaultMeshWidth = 0
-    widthRange = (0,10)
-# In vtk, line widths of 0 cause errors
-elif config.dimension() == 3:
-    defaultSkeletonWidth = 1
-    defaultMeshWidth = 1
-    widthRange = (1,10)
+defaultSkeletonWidth = 0
+defaultMeshWidth = 0
+widthRange = (0,10)
 defaultSkeletonColor = color.black
 defaultMeshColor = color.black
 
@@ -498,13 +420,9 @@ class EdgeDisplay:
         device.comment("EdgeDisplay")
         device.set_lineColor(self.color)
         device.set_lineWidth(self.width)
-        if config.dimension() == 2:
-            polygons = self.polygons(gfxwindow, themesh)
-            for polygonset in polygons:
-                device.draw_polygon(primitives.Polygon(polygonset))
-        elif config.dimension() == 3:
-            polyhedra = self.polyhedra(themesh)
-            device.draw_unstructuredgrid(polyhedra)
+        polygons = self.polygons(gfxwindow, themesh)
+        for polygonset in polygons:
+            device.draw_polygon(primitives.Polygon(polygonset))
 
 class MeshEdgeDisplay(EdgeDisplay, MeshDisplayMethod):
     # EdgeDisplay draws the edges of the Elements
@@ -688,66 +606,30 @@ if runtimeflags.surface_mode:
 class MaterialDisplay:
     def draw(self, gfxwindow, device):
         device.comment("Material Color")
-        if config.dimension() == 2:
-            themesh = self.who().resolve(gfxwindow)
-            polygons = self.polygons(gfxwindow, themesh)
-            # colorcache is a dictionary of colors keyed by Material.  It
-            # prevents us from having to call material.fetchProperty for
-            # each element.
-            colorcache = {}
-            for polygon, material in zip(polygons,
-                                         self.materials(gfxwindow, themesh)):
-                if material is not None:
+        themesh = self.who().resolve(gfxwindow)
+        polygons = self.polygons(gfxwindow, themesh)
+        # colorcache is a dictionary of colors keyed by Material.  It
+        # prevents us from having to call material.fetchProperty for
+        # each element.
+        colorcache = {}
+        for polygon, material in zip(polygons,
+                                     self.materials(gfxwindow, themesh)):
+            if material is not None:
+                try:
+                    # If material has been seen already, retrieve its color.
+                    color = colorcache[material]
+                except KeyError:
+                    # This material hasn't been seen yet.
                     try:
-                        # If material has been seen already, retrieve its color.
-                        color = colorcache[material]
-                    except KeyError:
-                        # This material hasn't been seen yet.
-                        try:
-                            colorprop = material.fetchProperty('Color')
-                            color = colorprop.color()
-                        except ooferror.ErrNoSuchProperty:
-                            color = None
-                        colorcache[material] = color
-                    if color is not None:
-                        device.set_fillColor(color)
-                        device.fill_polygon(primitives.Polygon(polygon))
- 
-        elif config.dimension() == 3:
-            # TODO 3D: clean up this code in general, perhaps the look
-            # up table should be a member of the microstructure...
-            themesh = self.who().resolve(gfxwindow).getObject()
-            grid = themesh.skelgrid
-            numCells = grid.GetNumberOfCells()
-            # TODO 3D: will need to handle the creation and deletion of this array within canvas...
-            materialdata = vtk.vtkIntArray()
-            materialdata.SetNumberOfValues(numCells)
-            grid.GetCellData().SetScalars(materialdata)
-            lut = vtk.vtkLookupTable()
-            colordict = {}
-            for i in xrange(numCells):
-                cat = themesh.elements[i].dominantPixel(themesh.MS)
-                materialdata.SetValue(i,cat)
-                mat = themesh.elements[i].material(themesh)
-                if mat is not None:
-                    try: 
-                        color = colordict[cat]
-                    except KeyError:
-                        colorprop = mat.fetchProperty('Color')
+                        colorprop = material.fetchProperty('Color')
                         color = colorprop.color()
-                        colordict[cat] = color
-            lut.SetNumberOfColors(max(colordict.keys())+1)
-            lut.SetTableRange(min(colordict.keys()), max(colordict.keys()))
-            for i in colordict:
-                color = colordict[i]
+                    except ooferror.ErrNoSuchProperty:
+                        color = None
+                    colorcache[material] = color
                 if color is not None:
-                    lut.SetTableValue(i,color.getRed(),color.getGreen(),color.getBlue(),1)
-                else:
-                    lut.SetTableValue(i,0,0,0,0)
-            device.draw_unstructuredgrid_with_lookuptable(grid, lut, mode="cell", scalarbar=False)
-
-            
-
+                    device.set_fillColor(color)
+                    device.fill_polygon(primitives.Polygon(polygon))
+ 
     def getTimeStamp(self, gfxwindow):
         microstructure = self.who().resolve(gfxwindow).getMicrostructure()
         return max(display.DisplayMethod.getTimeStamp(self, gfxwindow),
@@ -825,14 +707,6 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
         try:
             device.comment("Skeleton Energy")
             skel = self.who().resolve(gfxwindow).getObject()
-            if config.dimension() == 3:
-                grid = skel.skelgrid
-                numCells = grid.GetNumberOfCells()
-                # TODO 3D: handle this array within the canvas
-                # This can overwrite or be overwritten by SkeletonMaterialDisplay
-                energydata = vtk.vtkDoubleArray()
-                energydata.SetNumberOfValues(numCells)
-                grid.GetCellData().SetScalars(energydata)
             # get polygons and element energy in one pass
             polyenergy = [(el.perimeter(), el.energyTotal(skel, self.alpha))
                         for el in skel.element_iterator()
@@ -862,16 +736,10 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
                 self.vmax += 1.0
                 min -= 1.0
                 self.vmin -= 1.0
-            if config.dimension()==2:
-                device.set_colormap(self.colormap)
-                for polygon, energy in polyenergy:
-                    device.set_fillColor((energy-min)/(max-min))
-                    device.fill_polygon(primitives.Polygon(polygon))
-            elif config.dimension()==3:
-                lut = self.colormap.getVtkLookupTable(self.contourmaplevels,min,max)
-                for i in xrange(numCells):
-                    energydata.SetValue(i,skel.elements[i].energyTotal(skel, self.alpha))
-                device.draw_unstructuredgrid_with_lookuptable(grid, lut)
+            device.set_colormap(self.colormap)
+            for polygon, energy in polyenergy:
+                device.set_fillColor((energy-min)/(max-min))
+                device.fill_polygon(primitives.Polygon(polygon))
                 
         finally:
             self.lock.release()

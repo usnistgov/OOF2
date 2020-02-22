@@ -58,29 +58,22 @@ class MeshInfoDisplay(display.DisplayMethod):
     def drawElement(self, device, toolbox, element, which="query"):
         device.set_lineColor(self.colors[which])
         device.set_lineWidth(self.element_width)
-        if config.dimension() == 2:
-            node_iter = element.cornernode_iterator().exteriornode_iterator()
-            p_list = [node.position() for node in node_iter]
-            displaced_p_list = [
-                toolbox.meshlayer.displaced_from_undisplaced(
-                toolbox.gfxwindow, x) for x in p_list]
-            for i in range(len(displaced_p_list)):
-                p0 = displaced_p_list[i]
-                p1 = displaced_p_list[(i+1)%len(displaced_p_list)]
-                device.draw_segment(primitives.Segment(p0, p1))
-        elif config.dimension() == 3:
-            device.draw_cell(element)
-
+        node_iter = element.cornernode_iterator().exteriornode_iterator()
+        p_list = [node.position() for node in node_iter]
+        displaced_p_list = [
+            toolbox.meshlayer.displaced_from_undisplaced(
+            toolbox.gfxwindow, x) for x in p_list]
+        for i in range(len(displaced_p_list)):
+            p0 = displaced_p_list[i]
+            p1 = displaced_p_list[(i+1)%len(displaced_p_list)]
+            device.draw_segment(primitives.Segment(p0, p1))
 
     def drawNode(self, device, toolbox, node, which="query"):
         device.set_lineColor(self.colors[which])
         device.set_lineWidth(self.node_size)
-        if config.dimension() == 2:
-            displaced_position = toolbox.meshlayer.displaced_from_undisplaced(
-                toolbox.gfxwindow(), node.position())
-            device.draw_dot(displaced_position)
-        elif config.dimension() == 3:
-            device.draw_dot(node.position())
+        displaced_position = toolbox.meshlayer.displaced_from_undisplaced(
+            toolbox.gfxwindow(), node.position())
+        device.draw_dot(displaced_position)
 
     def getTimeStamp(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Mesh_Info")
@@ -104,11 +97,7 @@ defaultQueryColor = color.RGBColor(0.0, 0.5, 1.0)
 defaultPeekColor = color.RGBColor(1.0, 0.5, 0.5)
 defaultNodeSize = 3
 defaultElementWidth = 2
-if config.dimension() == 2:
-    widthRange = (0,10)
-# In vtk, line widths of 0 cause errors
-elif config.dimension() == 3:
-    widthRange = (1,10)
+widthRange = (0,10)
 
 def _setMeshInfoParams(menuitem, query_color, peek_color, node_size,
                        element_width):

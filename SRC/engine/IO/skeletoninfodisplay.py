@@ -51,26 +51,17 @@ class SkeletonInfoDisplay(display.DisplayMethod):
     def drawElement(self, device, element, which="query"):
         device.set_lineColor(self.colors[which])
         device.set_lineWidth(self.element_width)
-        if config.dimension() == 2:
-            for i in range(element.nnodes()):
-                n0 = element.nodes[i]
-                n1 = element.nodes[(i+1)%element.nnodes()]
-                device.draw_segment(primitives.Segment(n0.position(),
-                                                       n1.position()))
-        elif config.dimension() == 3:
-            device.draw_cell(element)
+        for i in range(element.nnodes()):
+            n0 = element.nodes[i]
+            n1 = element.nodes[(i+1)%element.nnodes()]
+            device.draw_segment(primitives.Segment(n0.position(),
+                                                   n1.position()))
 
     def drawSegment(self, device, segment, which="query"):
         device.set_lineColor(self.colors[which])
         device.set_lineWidth(self.segment_width)
-        if config.dimension() == 2:
-            device.draw_segment(primitives.Segment(segment.nodes()[0].position(),
-                                                   segment.nodes()[1].position()))
-        elif config.dimension() == 3:
-            # this is a hack, later on when vtk and oof are more
-            # streamlined, we shouldn't have to create a vtkLine
-            # twice.
-            device.draw_cell(segment.getVtkLine())
+        device.draw_segment(primitives.Segment(segment.nodes()[0].position(),
+                                               segment.nodes()[1].position()))
 
     def drawNode(self, device, node, which="query"):
         device.set_lineColor(self.colors[which])
@@ -91,11 +82,7 @@ defaultSkelInfoPeekColor = color.RGBColor(1.0, 0.5, 0.5)
 defaultSkelInfoNodeSize = 3
 defaultSkelInfoElemWidth = 3
 defaultSkelInfoSgmtWidth = 3
-if config.dimension() == 2:
-    widthRange = (0,10)
-# In vtk, line widths of 0 cause errors
-elif config.dimension() == 3:
-    widthRange = (1,10)
+widthRange = (0,10)
 
 def _setSkelInfoParams(menuitem, query_color, peek_color, node_size,
                        element_width, segment_width):
@@ -176,23 +163,12 @@ class SkeletonIllegalElementDisplay(display.DisplayMethod):
         if elements:
             device.set_lineColor(self.color)
             device.set_lineWidth(self.linewidth)
-            if config.dimension() == 2:
-                for el in elements:
-                    for i in range(el.nnodes()):
-                        n0 = el.nodes[i]
-                        n1 = el.nodes[(i+1)%el.nnodes()]
-                        device.draw_segment(primitives.Segment(n0.position(),
-                                                               n1.position()))
-            elif config.dimension() == 3:
-                if len(elements):
-                    gridPoints = skel.getPoints()
-                    grid = vtk.vtkUnstructuredGrid()
-                    numCells = len(elements)
-                    grid.Allocate(numCells,numCells)
-                    grid.SetPoints(gridPoints)
-                    for el in elements:
-                        grid.InsertNextCell(el.getCellType(), el.getPointIds())
-                        device.draw_unstructuredgrid(grid)
+            for el in elements:
+                for i in range(el.nnodes()):
+                    n0 = el.nodes[i]
+                    n1 = el.nodes[(i+1)%el.nnodes()]
+                    device.draw_segment(primitives.Segment(n0.position(),
+                                                           n1.position()))
 
 defaultSkelIllegalColor = color.RGBColor(1.0, 0.01, 0.01)
 defaultSkelIllegalWidth = 4

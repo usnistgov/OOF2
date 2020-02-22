@@ -53,31 +53,18 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
             except KeyError:
                 pass
             else:
-                if config.dimension() == 2:
-                    for e in b.edges:
-                        nodes = e.get_nodes()
-                        device.set_lineWidth(self.linewidth)
-                        device.draw_segment(primitives.Segment(
-                                nodes[0].position(), nodes[1].position()))
-                        # Boundaries are directed from 0 to 1.
-                        center = (nodes[0].position() + nodes[1].position())/2
-                        diff = (nodes[1].position() - nodes[0].position())
-                        # Zero of angles is the y-axis, not the x-axis...
-                        angle = math.atan2(-diff.x, diff.y)
-                        device.set_lineWidth(self.arrowsize)
-                        device.draw_triangle(center, angle)
-                elif config.dimension() == 3:
-                    numedges = len(b.edges)
-                    if numedges:
-                        gridPoints = skelobj.getPoints()
-                        grid = vtk.vtkPolyData()
-                        grid.Allocate(numedges,numedges)
-                        grid.SetPoints(gridPoints)
-                        for e in b.edges:
-                            line = e.getVtkLine()
-                            grid.InsertNextCell(line.GetCellType(), line.GetPointIds())
-                        device.draw_unstructuredgrid(grid)
-                        # TODO 3D: add glyphs
+                for e in b.edges:
+                    nodes = e.get_nodes()
+                    device.set_lineWidth(self.linewidth)
+                    device.draw_segment(primitives.Segment(
+                        nodes[0].position(), nodes[1].position()))
+                    # Boundaries are directed from 0 to 1.
+                    center = (nodes[0].position() + nodes[1].position())/2
+                    diff = (nodes[1].position() - nodes[0].position())
+                    # Zero of angles is the y-axis, not the x-axis...
+                    angle = math.atan2(-diff.x, diff.y)
+                    device.set_lineWidth(self.arrowsize)
+                    device.draw_triangle(center, angle)
             
         device.set_lineWidth(self.dotsize)
         device.set_fillColor(self.color)
@@ -97,11 +84,7 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
     # Need to override hash, because we contain a list.  For this
     # class, object identity is a good test of equality.
 
-if config.dimension() == 2:
-    widthRange = (0,10)
-# In vtk, line widths of 0 cause errors
-elif config.dimension() == 3:
-    widthRange = (1,10)
+widthRange = (0,10)
                     
 skeletonBoundaryDisplay = registeredclass.Registration(
     'Boundaries', display.DisplayMethod,
@@ -144,49 +127,19 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
     def drawEdgeBoundary(self, bdy, skelobj, device):
         b = bdy.boundary(skelobj)
         device.set_lineColor(self.color)
-        if config.dimension() == 2:
-            for e in b.edges:
-                nodes = e.get_nodes()
-                n0 = nodes[0].position()
-                n1 = nodes[1].position()
-                device.set_lineWidth(self.linewidth)
-                device.draw_segment(primitives.Segment(n0, n1))
-                # Boundaries are directed from 0 to 1.
-                center = (n0 + n1)/2
-                diff = (n1 - n0)
-                # Zero of angles is the y-axis, not the x-axis...
-                angle = math.atan2(-diff.x, diff.y)
-                device.set_lineWidth(self.arrowsize)
-                device.draw_triangle(center, angle)
-        elif config.dimension() == 3:
-            numedges = len(b.edges)
+        for e in b.edges:
+            nodes = e.get_nodes()
+            n0 = nodes[0].position()
+            n1 = nodes[1].position()
             device.set_lineWidth(self.linewidth)
-            device.set_glyphSize(self.arrowsize)
-            if numedges:
-                gridPoints = skelobj.getPoints()
-                grid = vtk.vtkPolyData()
-                grid.Allocate(numedges,numedges)
-                grid.SetPoints(gridPoints)
-                normalarray = vtk.vtkDoubleArray()
-                normalarray.SetNumberOfComponents(3)
-                for e in b.edges:
-                    line = e.getVtkLine()
-                    grid.InsertNextCell(line.GetCellType(), line.GetPointIds())
-                    nodes = e.get_nodes()
-                    n0 = nodes[0].position()
-                    n1 = nodes[1].position()
-                    d = (n1 - n0)
-                    normalarray.InsertNextTuple3(d[0],d[1],d[2])
-                findcenters = vtk.vtkCellCenters()
-                findcenters.SetInput(grid)
-                centers = findcenters.GetOutput()
-                centers.Update()
-                # we must do this *after* we call Update, otherwise
-                # the data will be overwritten
-                centers.GetPointData().SetNormals(normalarray)
-                device.draw_unstructuredgrid(grid)
-                device.draw_cone_glyphs(centers)
-                    
+            device.draw_segment(primitives.Segment(n0, n1))
+            # Boundaries are directed from 0 to 1.
+            center = (n0 + n1)/2
+            diff = (n1 - n0)
+            # Zero of angles is the y-axis, not the x-axis...
+            angle = math.atan2(-diff.x, diff.y)
+            device.set_lineWidth(self.arrowsize)
+            device.draw_triangle(center, angle)
 
     def drawPointBoundary(self, bdy, skelobj, device):
         b = bdy.boundary(skelobj)
@@ -206,16 +159,10 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
 defaultSelSkelBdyColor = color.orange
 defaultSelSkelBdyLineWidth = 4
 defaultSelSkelBdyDotSize = 4
-if config.dimension() == 2:
-    defaultSelSkelBdyArrowSize = 10
-    arrowparam = parameter.IntRangeParameter('arrowsize', (0, 20),
-                                             defaultSelSkelBdyArrowSize,
-                                             tip="Arrow size for edge boundaries.")
-elif config.dimension() == 3:
-    defaultSelSkelBdyArrowSize = 1.5
-    arrowparam = parameter.FloatRangeParameter('arrowsize', (0, 10, 0.1),
-                                             defaultSelSkelBdyArrowSize,
-                                             tip="Arrow size for edge boundaries.")
+defaultSelSkelBdyArrowSize = 10
+arrowparam = parameter.IntRangeParameter('arrowsize', (0, 20),
+                                         defaultSelSkelBdyArrowSize,
+                                         tip="Arrow size for edge boundaries.")
 
 def _setSelSkelBdyParams(menuitem, color, linewidth, dotsize, arrowsize):
     global defaultSelSkelBdyColor

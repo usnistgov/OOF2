@@ -34,23 +34,9 @@ class SkeletonElementSelectionDisplay(display.DisplayMethod):
             device.set_fillColorAlpha(self.color, color.alpha(self.opacity))
             skel.elementselection.begin_reading()
             try:
-                if config.dimension() == 2:
-                    for e in skel.elementselection.retrieve():
-                        device.fill_polygon(primitives.Polygon([x.position()
-                                                                for x in e.nodes]))
-                elif config.dimension() == 3:
-                    if len(skel.elementselection.retrieve()):
-                        gridPoints = skel.getObject().getPoints()
-                        grid = vtk.vtkUnstructuredGrid()
-                        numCells = len(skel.elementselection.retrieve())
-                        grid.Allocate(numCells,numCells)
-                        grid.SetPoints(gridPoints)
-                        for e in skel.elementselection.retrieve():
-                            grid.InsertNextCell(e.getCellType(), e.getPointIds())
-                        device.draw_filled_unstructuredgrid(grid)
-
-
-                        
+                for e in skel.elementselection.retrieve():
+                    device.fill_polygon(primitives.Polygon([x.position()
+                                                            for x in e.nodes]))
             finally:
                 skel.elementselection.end_reading()
     def getTimeStamp(self, gfxwindow):

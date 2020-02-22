@@ -33,21 +33,9 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
         if skel is not None:
             device.set_lineColor(self.color)
             device.set_lineWidth(self.line_width)
-            if config.dimension() == 2:
-                for s in skel.segmentselection.retrieve():
-                    device.draw_segment(primitives.Segment(s.nodes()[0].position(),
-                                                           s.nodes()[1].position()))
-            elif config.dimension() == 3:
-                numsegs = len(skel.segmentselection.retrieve())
-                if numsegs:
-                    gridPoints = skel.getObject().getPoints()
-                    grid = vtk.vtkUnstructuredGrid()
-                    grid.Allocate(numsegs,numsegs)
-                    grid.SetPoints(gridPoints)
-                    for s in skel.segmentselection.retrieve():
-                        line = s.getVtkLine()
-                        grid.InsertNextCell(line.GetCellType(), line.GetPointIds())
-                    device.draw_unstructuredgrid(grid)
+            for s in skel.segmentselection.retrieve():
+                device.draw_segment(primitives.Segment(s.nodes()[0].position(),
+                                                       s.nodes()[1].position()))
 
     def getTimeStamp(self, gfxwindow):
         return max(self.timestamp,

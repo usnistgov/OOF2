@@ -12,8 +12,7 @@
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import progress
-if config.dimension() == 2:
-    from ooflib.SWIG.engine.IO import contour
+from ooflib.SWIG.engine.IO import contour
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import primitives
@@ -191,105 +190,103 @@ class ContourDisplay(ZDisplay):
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
+class PlainContourDisplay(ContourDisplay):
+    def __init__(self, when, what, where, min=automatic.automatic,
+                 max=automatic.automatic, levels=11,
+                 nbins=5, width=0, color=color.black):
+        ContourDisplay.__init__(self, when, what, where, min, max,
+                                levels, nbins)
+        self.width = width
+        self.color = color
+        self.contour_max = None
+        self.contour_min = None
+        self.contour_levels = None
+    def get_contourmap_info(self):
+        return (self.contour_min, self.contour_max, self.contour_levels)
 
-if config.dimension() == 2:
-    class PlainContourDisplay(ContourDisplay):
-        def __init__(self, when, what, where, min=automatic.automatic,
-                     max=automatic.automatic, levels=11,
-                     nbins=5, width=0, color=color.black):
-            ContourDisplay.__init__(self, when, what, where, min, max,
-                                    levels, nbins)
-            self.width = width
-            self.color = color
-            self.contour_max = None
-            self.contour_min = None
-            self.contour_levels = None
-        def get_contourmap_info(self):
-            return (self.contour_min, self.contour_max, self.contour_levels)
+    # Called on a subthread, "device" is a buffered device, so
+    # commands to it do not need to be on the main thread.
+    def draw(self, gfxwindow, device):
+        self.lock.acquire()
+        meshctxt = mainthread.runBlock(self.who().resolve, (gfxwindow,))
+        mesh = meshctxt.getObject()
+        meshctxt.restoreCachedData(self.getTime(meshctxt, gfxwindow))
+        prog = progress.getProgress("Contour plot", progress.DEFINITE)
+        try:
+            meshctxt.precompute_all_subproblems()
+    #        self.draw_subcells(mesh, device)
+            device.comment("PlainContourDisplay")
+            device.set_lineWidth(self.width)
+            device.set_lineColor(self.color)
 
-        # Called on a subthread, "device" is a buffered device, so
-        # commands to it do not need to be on the main thread.
-        def draw(self, gfxwindow, device):
-            self.lock.acquire()
-            meshctxt = mainthread.runBlock(self.who().resolve, (gfxwindow,))
-            mesh = meshctxt.getObject()
-            meshctxt.restoreCachedData(self.getTime(meshctxt, gfxwindow))
-            prog = progress.getProgress("Contour plot", progress.DEFINITE)
-            try:
-                meshctxt.precompute_all_subproblems()
-        #        self.draw_subcells(mesh, device)
-                device.comment("PlainContourDisplay")
+            # clevels is a list of contour values.
+            # evalues is a list of lists of function values for the
+            # nodes of each element.
+            clevels, evalues = self.find_levels(mesh, self.what)
+            ecount = 0
+            for element in mesh.element_iterator():
+                if (not gfxwindow.settings.hideEmptyElements) or \
+                       ( element.material() is not None ) :
+                    (contours, elmin, elmax)  = contour.findContours(
+                        mesh, element, self.where,
+                        self.what, clevels,
+                        self.nbins, 0)
+                    for cntr in contours:
+                        for loop in cntr.loops:
+                            device.draw_polygon(loop)
+                        for curve in cntr.curves:
+                            device.draw_curve(curve)
+                ecount += 1
+                prog.setFraction((1.*ecount)/mesh.nelements())
+                prog.setMessage("drawing %d/%d elements" %
+                                (ecount, mesh.nelements()))
+            self.contour_min = min(clevels)
+            self.contour_max = max(clevels)
+            self.contour_levels = clevels
+            contour.clearCache()
+        finally:
+            self.lock.release()
+            meshctxt.releaseCachedData()
+            prog.finish()
+
+    # Called on a subthread.
+    def draw_contourmap(self, gfxwindow, device):
+        self.lock.acquire()
+        try:
+            if self.contour_max is not None: # contours have been drawn
+                aspect_ratio = gfxwindow.settings.aspectratio
+                height = self.contour_max - self.contour_min
+                width = height/aspect_ratio
+
+                device.comment("Contourbar minimum: %s" % self.contour_min)
+                device.comment("Contourbar maximum: %s" % self.contour_max)
                 device.set_lineWidth(self.width)
                 device.set_lineColor(self.color)
 
-                # clevels is a list of contour values.
-                # evalues is a list of lists of function values for the
-                # nodes of each element.
-                clevels, evalues = self.find_levels(mesh, self.what)
-                ecount = 0
-                for element in mesh.element_iterator():
-                    if (not gfxwindow.settings.hideEmptyElements) or \
-                           ( element.material() is not None ) :
-                        (contours, elmin, elmax)  = contour.findContours(
-                            mesh, element, self.where,
-                            self.what, clevels,
-                            self.nbins, 0)
-                        for cntr in contours:
-                            for loop in cntr.loops:
-                                device.draw_polygon(loop)
-                            for curve in cntr.curves:
-                                device.draw_curve(curve)
-                    ecount += 1
-                    prog.setFraction((1.*ecount)/mesh.nelements())
-                    prog.setMessage("drawing %d/%d elements" %
-                                    (ecount, mesh.nelements()))
-                self.contour_min = min(clevels)
-                self.contour_max = max(clevels)
-                self.contour_levels = clevels
-                contour.clearCache()
-            finally:
-                self.lock.release()
-                meshctxt.releaseCachedData()
-                prog.finish()
+                for lvl in self.contour_levels:
+                    r_lvl = lvl - self.contour_min
+                    device.draw_curve( primitives.Curve(
+                        [primitives.Point(0.0, r_lvl),
+                         primitives.Point(width, r_lvl)] ))
+        finally:
+            self.lock.release()
 
-        # Called on a subthread.
-        def draw_contourmap(self, gfxwindow, device):
-            self.lock.acquire()
-            try:
-                if self.contour_max is not None: # contours have been drawn
-                    aspect_ratio = gfxwindow.settings.aspectratio
-                    height = self.contour_max - self.contour_min
-                    width = height/aspect_ratio
+defaultLineWidth = 0
+widthRange = (0,10)
 
-                    device.comment("Contourbar minimum: %s" % self.contour_min)
-                    device.comment("Contourbar maximum: %s" % self.contour_max)
-                    device.set_lineWidth(self.width)
-                    device.set_lineColor(self.color)
-
-                    for lvl in self.contour_levels:
-                        r_lvl = lvl - self.contour_min
-                        device.draw_curve( primitives.Curve(
-                            [primitives.Point(0.0, r_lvl),
-                             primitives.Point(width, r_lvl)] ))
-            finally:
-                self.lock.release()
-
-    defaultLineWidth = 0
-    widthRange = (0,10)
-
-    registeredclass.Registration(
-        'Contour Line',
-        display.DisplayMethod,
-        PlainContourDisplay,
-        ordering=3.0,
-        layerordering=display.Linear(1),
-        whoclasses=('Mesh',),
-        params = contourparams +
-        [IntRangeParameter('width', widthRange, defaultLineWidth, tip="line width"),
-         color.ColorParameter('color', color.black, tip="line color")],
-        tip="Draw contour lines for the given output data.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/plaincontour.xml')
-        )
+registeredclass.Registration(
+    'Contour Line',
+    display.DisplayMethod,
+    PlainContourDisplay,
+    ordering=3.0,
+    layerordering=display.Linear(1),
+    whoclasses=('Mesh',),
+    params = contourparams +
+    [IntRangeParameter('width', widthRange, defaultLineWidth, tip="line width"),
+     color.ColorParameter('color', color.black, tip="line color")],
+    tip="Draw contour lines for the given output data.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/plaincontour.xml')
+    )
 
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
@@ -333,101 +330,61 @@ class FilledContourDisplay(ContourDisplay):
                 valrange = 1
             factor = 1./valrange
             offset = -minval*factor
-            if config.dimension() == 2:
-                device.set_colormap(self.colormap)
-                ecount = 0
-                # TODO: we might want to use itertools here
-                for element, values in zip(mesh.element_iterator(), evalues):
-                    if ( not gfxwindow.settings.hideEmptyElements ) or \
-                           ( element.material() is not None ) :
-                        (contours, elmin, elmax) = contour.findContours(
-                            mesh, element, self.where,
-                            self.what, clevels,
-                            self.nbins, 1)
+            device.set_colormap(self.colormap)
+            ecount = 0
+            # TODO: we might want to use itertools here
+            for element, values in zip(mesh.element_iterator(), evalues):
+                if ( not gfxwindow.settings.hideEmptyElements ) or \
+                       ( element.material() is not None ) :
+                    (contours, elmin, elmax) = contour.findContours(
+                        mesh, element, self.where,
+                        self.what, clevels,
+                        self.nbins, 1)
 
-                        # Before drawing anything, fill the element with the
-                        # largest contour value below its lowest detected value.
-                        vmin = min(values)
-                        prevcntour = None
-                        for cntour in contours:
-                            if cntour.value > elmin:
-                                if prevcntour:
-                                    device.set_fillColor(
-                                        offset + prevcntour.value*factor)
-                                else:
-                                    device.set_fillColor(0.0)
-                                break
-                            prevcntour = cntour
-                        else:
-                            # If all of the contours were below the
-                            # element, fill the element with the color
-                            # from the top of the colormap.
-                            device.set_fillColor(1.0)
-                        # Find element perimeter
-                        edges = element.perimeter()
-                        mcorners = [[0.0]]*element.ncorners()
-                        corners = self.where.evaluate(mesh, edges, mcorners)
-                        device.fill_polygon(primitives.pontify(
-                                primitives.Polygon(corners)))
-
-                        # Now fill contours
-                        for cntour in contours:
-                            # This is harder than it looks.
-                            if len(cntour.loops) == 1:
+                    # Before drawing anything, fill the element with the
+                    # largest contour value below its lowest detected value.
+                    vmin = min(values)
+                    prevcntour = None
+                    for cntour in contours:
+                        if cntour.value > elmin:
+                            if prevcntour:
                                 device.set_fillColor(
-                                    offset + cntour.value*factor)
-                                device.fill_polygon(cntour.loops[0])
-                            elif len(cntour.loops) > 1:
-                                device.set_fillColor(
-                                    offset + cntour.value*factor)
-                                # Compound Polygon fill
-                                device.fill_polygon(cntour.loops)
-                    ecount += 1
-                    prog.setFraction((1.0*ecount)/mesh.nelements())
-                    prog.setMessage("drawing %d/%d elements" %
-                                    (ecount, mesh.nelements()))
-                #  self.draw_subcells(mesh, device)
-                contour.clearCache()
+                                    offset + prevcntour.value*factor)
+                            else:
+                                device.set_fillColor(0.0)
+                            break
+                        prevcntour = cntour
+                    else:
+                        # If all of the contours were below the
+                        # element, fill the element with the color
+                        # from the top of the colormap.
+                        device.set_fillColor(1.0)
+                    # Find element perimeter
+                    edges = element.perimeter()
+                    mcorners = [[0.0]]*element.ncorners()
+                    corners = self.where.evaluate(mesh, edges, mcorners)
+                    device.fill_polygon(primitives.pontify(
+                            primitives.Polygon(corners)))
 
-            elif config.dimension() == 3:
-                # TODO 3D: this should be more seamless when meshes
-                # use vtk objects.  Also, will need to update for
-                # quadratic elements.
-                lut = self.colormap.getVtkLookupTable(self.levels,minval,maxval)
-                numnodes = mesh.nnodes()
-                nodes = mesh.node_iterator()
-                points = vtk.vtkPoints()
-                points.Allocate(numnodes,numnodes)
-                data = vtk.vtkDoubleArray()
-                data.SetNumberOfComponents(0)
-                data.SetNumberOfValues(numnodes)
-                    
+                    # Now fill contours
+                    for cntour in contours:
+                        # This is harder than it looks.
+                        if len(cntour.loops) == 1:
+                            device.set_fillColor(
+                                offset + cntour.value*factor)
+                            device.fill_polygon(cntour.loops[0])
+                        elif len(cntour.loops) > 1:
+                            device.set_fillColor(
+                                offset + cntour.value*factor)
+                            # Compound Polygon fill
+                            device.fill_polygon(cntour.loops)
+                ecount += 1
+                prog.setFraction((1.0*ecount)/mesh.nelements())
+                prog.setMessage("drawing %d/%d elements" %
+                                (ecount, mesh.nelements()))
+            #  self.draw_subcells(mesh, device)
+            contour.clearCache()
 
-                while not nodes.end():
-                    node = nodes.node()
-                    points.InsertNextPoint(node[0],node[1],node[2])
-                    nodes.next()
-
-                grid = vtk.vtkUnstructuredGrid()
-                nelements = mesh.nelements()
-                grid.Allocate(nelements, nelements)
-                elements = mesh.element_iterator()
-
-                # this will reset some values. TODO 3D: think about
-                # plotting discontinuous stuff with vtk - could add
-                # points to points object here
-                for element, values in zip(elements, evalues):
-                    elnodes = element.ncorners()
-                    for i in xrange(elnodes):
-                        data.SetValue(element.getPointIds().GetId(i), values[i])
-                    grid.InsertNextCell(element.GetCellType(), element.getPointIds())                 
-
-                grid.SetPoints(points)
-                grid.GetPointData().SetScalars(data)
-                device.draw_unstructuredgrid_with_lookuptable(grid, lut, mode="point")
-
-                self.lookuptable = lut
-                
             self.contour_min = minval
             self.contour_max = maxval
             self.contour_levels = clevels
@@ -443,41 +400,35 @@ class FilledContourDisplay(ContourDisplay):
         self.lock.acquire()
         try:
             if self.contour_max is not None:
-                if config.dimension() == 2:
-                    aspect_ratio = gfxwindow.settings.aspectratio
-                    height = self.contour_max - self.contour_min
-                    width = height/aspect_ratio
+                aspect_ratio = gfxwindow.settings.aspectratio
+                height = self.contour_max - self.contour_min
+                width = height/aspect_ratio
 
-                    device.comment("Colorbar minimum: %s" % self.contour_min)
-                    device.comment("Colorbar maximum: %s" % self.contour_max)
-                    device.set_colormap(self.colormap)
+                device.comment("Colorbar minimum: %s" % self.contour_min)
+                device.comment("Colorbar maximum: %s" % self.contour_max)
+                device.set_colormap(self.colormap)
 
-                    for low, high in utils.list_pairs(self.contour_levels):
-                        # Subtract "contour_min" off the y coords, so that
-                        # the drawn object will include the point (0,0) --
-                        # otherwise, the canvas bounds are wrong.
-                        r_low = low-self.contour_min
-                        r_high = high-self.contour_min
+                for low, high in utils.list_pairs(self.contour_levels):
+                    # Subtract "contour_min" off the y coords, so that
+                    # the drawn object will include the point (0,0) --
+                    # otherwise, the canvas bounds are wrong.
+                    r_low = low-self.contour_min
+                    r_high = high-self.contour_min
 
-                        rect_bndy = map( lambda x: primitives.Point(x[0],x[1]),
-                                         [ (0.0, r_low), (0.0, r_high),
-                                           (width, r_high), (width, r_low) ] )
+                    rect_bndy = map( lambda x: primitives.Point(x[0],x[1]),
+                                     [ (0.0, r_low), (0.0, r_high),
+                                       (width, r_high), (width, r_low) ] )
 
-                        rectangle = primitives.Polygon(rect_bndy)
-                        # In the collapsed case, height can be zero.  This is
-                        # not hugely informative, but should be handled without
-                        # crashing.
-                        if height>0.0:
-                            device.set_fillColor(r_low/height)
-                        else:
-                            device.set_fillColor(0.0)
+                    rectangle = primitives.Polygon(rect_bndy)
+                    # In the collapsed case, height can be zero.  This is
+                    # not hugely informative, but should be handled without
+                    # crashing.
+                    if height>0.0:
+                        device.set_fillColor(r_low/height)
+                    else:
+                        device.set_fillColor(0.0)
 
-                        device.fill_polygon(rectangle)
-
-                elif config.dimension() == 3:
-                    if self.lookuptable:
-                        device.draw_scalarbar(self.lookuptable)
-
+                    device.fill_polygon(rectangle)
 
         finally:
             self.lock.release()
