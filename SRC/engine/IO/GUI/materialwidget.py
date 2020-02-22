@@ -32,7 +32,7 @@ class MaterialWidget(parameterwidgets.ParameterWidget):
         self.update()
         if param.value is not None:
             self.set_value(param.value)
-    def chooserCB(self, gtkobj, name):
+    def chooserCB(self, name):
         self.widgetChanged(validity=self.chooser.nChoices()>0, interactive=1)
     def cleanUp(self):
         map(switchboard.removeCallback, self.sbcallbacks)

@@ -266,7 +266,7 @@ class SkelAllWidget(parameterwidgets.ParameterWidget):
         return self.widget.get_value()
     def set_value(self, value):
         self.widget.set_state(value)
-    def widgetCB(self, gtkobj, name):
+    def widgetCB(self, name):
         self.widgetChanged(validity=self.widget.nChoices()>0, interactive=1)
 
 def _makeSkelAllWidget(self, scope=None):
@@ -331,7 +331,7 @@ class ListOfInterfacesCombinedBdysWidget(parameterwidgets.ParameterWidget):
         return self.widget.get_value()
     def set_value(self, value):
         self.widget.set_selection(value)
-    def widgetCB(self, list, interactive):
+    def widgetCB(self, interactive):
         self.widgetChanged(len(list) > 0, interactive=1)
 
 def _makeListOfInterfacesCombinedBdysWidget(self, scope=None):

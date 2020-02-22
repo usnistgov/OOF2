@@ -216,7 +216,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
     def validCB(self, valid):
         self.show_data()
 
-    def csChooserCB(self, gtkmenuitem, csname):
+    def csChooserCB(self, csname):
         if csname == noCS:
             self.toolbox.deselectCS()
         else:

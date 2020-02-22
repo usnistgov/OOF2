@@ -649,7 +649,7 @@ class MaterialPane:
     ##############
 
     # Callback for the material chooser
-    def newMatSelection(self, gtkobj, name):
+    def newMatSelection(self, name):
         self.updatePropList()
         self.sensitize()
 

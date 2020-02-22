@@ -330,7 +330,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
         self.gfxWindowChooser.update(
             [w.name for w in gfxmanager.gfxManager.windows])
 
-    def chooserCB(self, chsr, gfxwindowname):
+    def chooserCB(self, gfxwindowname):
         self.setupSwitchboard()
         self.updateMesh()               # calls updateData if needed
 

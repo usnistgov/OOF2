@@ -537,7 +537,7 @@ class AnalyzePage(BaseAnalysisPage):
                                           scope=self):
             menuitem.callWithDefaults()
 
-    def retrieveCB(self, gtkobj, name): # retrieve named analysis
+    def retrieveCB(self, name): # retrieve named analysis
         if name:                        # can be empty
             menuitem = analyzemenu.namedanalysismenu.RetrieveNamedAnalysis
             menuitem.get_arg('name').value = name

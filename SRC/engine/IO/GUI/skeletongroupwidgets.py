@@ -62,7 +62,7 @@ class SkeletonGroupWidget(parameterwidgets.ParameterWidget):
     def set_value(self, groupname):
         self.widget.set_state(groupname)
 
-    def selectCB(self, gtkobj, result):
+    def selectCB(self, result):
         self.widgetChanged(self.widget.nChoices() > 0, interactive=1)
 
     def skelwidgetCB(self, interactive):
@@ -297,7 +297,7 @@ class SkeletonBoundaryWidgetBase(parameterwidgets.ParameterWidget):
 
     def get_value(self):
         return self.widget.get_value()
-    def selectCB(self, gtkobj, result):
+    def selectCB(self, result):
         self.widgetChanged(self.widget.nChoices() > 0, interactive=1)
     def skelwidgetCB(self, interactive):
         self.update()

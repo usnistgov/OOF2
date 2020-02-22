@@ -446,8 +446,8 @@ def _getSortedBdyNames(msh):
     return msh.edgeBoundaryNames() + [_separator_proxy] + \
            msh.visiblePointBoundaryNames()
 
-def _bdysepfunc(model, iter):
-    return model[iter][0] == _separator_proxy
+def _bdysepfunc(bdyname):
+    return bdyname == _separator_proxy
 
 
 
