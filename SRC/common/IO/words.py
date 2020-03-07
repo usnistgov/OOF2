@@ -46,9 +46,9 @@ OOF2 was produced by NIST, an agency of the U.S. government, and by statute is n
 
 Programs and libraries written elsewhere and incorporated in OOF2 have their own copyright and licensing terms, which are summarized below.  For details, see the listed URLs, or (where applicable) the full copyright statements in the OOF source code distribution.
 
-Python:  The Python programming language (http://www.python.org) copyright is held by the Python Software Foundation.  Python is freely redistributable.  Its license may be found at http://www.python.org/license.html.  OOF2 requires Python version 2.4 or later.
+Python:  The Python programming language (http://www.python.org) copyright is held by the Python Software Foundation.  Python is freely redistributable.  Its license may be found at http://www.python.org/license.html.  OOF2 requires Python version 2.7 or later.
 
-GTK+: The GTK+ graphics toolkit (http://www.gtk.org) is licensed under the GNU LGPL (http://www.gnu.org/copyleft/lesser.html).  OOF2 currently requires GTK+ version 2.6 and libgnomecanvas2 version 2.6 or later.
+GTK+: The GTK+ graphics toolkit (http://www.gtk.org) is licensed under the GNU LGPL (http://www.gnu.org/copyleft/lesser.html).  OOF2 currently requires GTK+ version 3.24 or later.  It may work with earlier versions of GTK+3 but hasn't been tested with them.
 
 ImageMagick/ImageMagick++:  The ImageMagick image processing library is available at http://www.imagemagick.org/. The copyright holder is ImageMagick Studio LLC.  The ImageMagick license may be found at http://www.imagemagick.org/www/Copyright.html.
 

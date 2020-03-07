@@ -20,15 +20,13 @@ from ooflib.common import pixelselectionmod
 from ooflib.common import subthread
 from ooflib.common import utils
 from ooflib.common.IO import mainmenu
-from ooflib.common.IO.GUI import fixedwidthtext
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import historian
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import regclassfactory
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
-import gtk
+from gi.repository import Gtk
 
 if config.dimension()==2:
     pixstring = "pixel"
@@ -47,55 +45,53 @@ class SelectionPage(oofGUI.MainPage):
             ordering=71,
             tip="Modify the set of selected %ss."%pixstring)
 
-        mainbox = gtk.VBox(spacing=2)
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
         # Microstructure widget, centered at the top of the page.
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        align.add(centerbox)
-        label = gtk.Label('Microstructure=')
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            spacing=3, halign=Gtk.Align.CENTER)
+        mainbox.pack_start(centerbox, expand=False, fill=0)
+        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
         self.mswidget = whowidget.WhoWidget(microstructure.microStructures,
                                             scope=self)
-        centerbox.pack_start(self.mswidget.gtk[0], expand=0, fill=0)
+        centerbox.pack_start(self.mswidget.gtk[0],
+                             expand=False, fill=False, padding=0)
         
-        mainpane = gtk.HPaned()
+        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
         gtklogger.setWidgetName(mainpane, 'Pane')
-        mainbox.pack_start(mainpane, expand=1, fill=1)
+        mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
 
         # Pixel selection status in the left half of the main pane
-        pssframe = gtk.Frame( "%s Selection Status"%Pixstring)
-        pssframe.set_shadow_type(gtk.SHADOW_IN)
-        mainpane.pack1(pssframe, resize=1, shrink=0)
-        self.datascroll = gtk.ScrolledWindow()
+        pssframe = Gtk.Frame(label="%s Selection Status"%Pixstring)
+        pssframe.set_shadow_type(Gtk.ShadowType.IN)
+        mainpane.pack1(pssframe, resize=True, shrink=False)
+        self.datascroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(self.datascroll, "DataScroll")
         pssframe.add(self.datascroll)
-        self.datascroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.psdata = fixedwidthtext.FixedWidthTextView()
+        self.datascroll.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                   Gtk.PolicyType.AUTOMATIC)
+        self.psdata = Gtk.TextView(name="fixedfont")
         gtklogger.setWidgetName(self.psdata, 'DataView')
-        self.psdata.set_editable(0)
+        self.psdata.set_editable(False)
         self.psdata.set_cursor_visible(False)
-        self.psdata.set_wrap_mode(gtk.WRAP_WORD)
-        self.datascroll.add_with_viewport(self.psdata)
+        self.psdata.set_wrap_mode(Gtk.WrapMode.WORD)
+        self.datascroll.add(self.psdata)
 
         # Selection method in the right half of the main pane
-        modframe = gtk.Frame("%s Selection Modification"%Pixstring)
+        modframe = Gtk.Frame(label="%s Selection Modification"%Pixstring)
         gtklogger.setWidgetName(modframe, "SelectionModification")
-        modframe.set_shadow_type(gtk.SHADOW_IN)
-        mainpane.pack2(modframe, resize=0, shrink=0)
-        vbox = gtk.VBox()
+        modframe.set_shadow_type(Gtk.ShadowType.IN)
+        mainpane.pack2(modframe, resize=False, shrink=False)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         modframe.add(vbox)
-##        scroll = gtk.ScrolledWindow()
-##        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-##        vbox.add(scroll)
         self.selectionModFactory = regclassfactory.RegisteredClassFactory(
             pixelselectionmod.SelectionModifier.registry, title="Method:",
             scope=self, name="Method")
-        vbox.pack_start(self.selectionModFactory.gtk, expand=1, fill=1)
+        vbox.pack_start(self.selectionModFactory.gtk,
+                        expand=True, fill=True, padding=0)
 ##        scroll.add_with_viewport(self.selectionModFactory.gtk)
         self.historian = historian.Historian(self.selectionModFactory.set,
                                              self.sensitizeHistory,
@@ -103,47 +99,49 @@ class SelectionPage(oofGUI.MainPage):
         self.selectionModFactory.set_callback(self.historian.stateChangeCB)
         
         # Prev, OK, and Next buttons
-        hbox = gtk.HBox()
-        vbox.pack_start(hbox, expand=0, fill=0, padding=2)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=2)
         self.prevmethodbutton = gtkutils.prevButton()
         gtklogger.connect(self.prevmethodbutton, 'clicked',
                           self.historian.prevCB)
-        hbox.pack_start(self.prevmethodbutton, expand=0, fill=0, padding=2)
-        tooltips.set_tooltip_text(self.prevmethodbutton,
+        hbox.pack_start(self.prevmethodbutton,
+                        expand=False, fill=False, padding=0)
+        self.prevmethodbutton.set_tooltip_text(
             'Recall the previous selection modification operation.')
-        self.okbutton = gtk.Button(stock=gtk.STOCK_OK)
+        self.okbutton = gtkutils.StockButton("gtk-ok", "OK")
         gtklogger.setWidgetName(self.okbutton, "OK")
-        hbox.pack_start(self.okbutton, expand=1, fill=1, padding=2)
+        hbox.pack_start(self.okbutton, expand=True, fill=True, padding=0)
         gtklogger.connect(self.okbutton, 'clicked', self.okbuttonCB)
-        tooltips.set_tooltip_text(self.okbutton,
+        self.okbutton.set_tooltip_text(
             'Perform the selection modification operation defined above.')
         self.nextmethodbutton = gtkutils.nextButton()
         gtklogger.connect(self.nextmethodbutton, 'clicked',
                           self.historian.nextCB)
-        hbox.pack_start(self.nextmethodbutton, expand=0, fill=0, padding=2)
-        tooltips.set_tooltip_text(self.nextmethodbutton,
+        hbox.pack_start(self.nextmethodbutton,
+                        expand=False, fill=False, padding=0)
+        self.nextmethodbutton.set_tooltip_text(
             "Recall the next selection modification operation.")
 
         # Undo, Redo, and Clear buttons
-        hbox = gtk.HBox()
-        vbox.pack_start(hbox, expand=0, fill=0, padding=2)
-        self.undobutton = gtk.Button(stock=gtk.STOCK_UNDO)
-        self.redobutton = gtk.Button(stock=gtk.STOCK_REDO)
-        hbox.pack_start(self.undobutton, expand=1, fill=0)
-        hbox.pack_start(self.redobutton, expand=1, fill=0)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=0)
+        self.undobutton = gtkutils.StockButton("edit-unto-symbolic", "Undo")
+        self.redobutton = gtkutils.StockButton("edit-redo-symbolic", "Redo")
+        hbox.pack_start(self.undobutton, expand=True, fill=False, padding=0)
+        hbox.pack_start(self.redobutton, expand=True, fill=False, padding=0)
         gtklogger.setWidgetName(self.undobutton, "Undo")
         gtklogger.setWidgetName(self.redobutton, "Redo")
         gtklogger.connect(self.undobutton, 'clicked', self.undoCB)
         gtklogger.connect(self.redobutton, 'clicked', self.redoCB)
-        tooltips.set_tooltip_text(self.undobutton,
+        self.undobutton.set_tooltip_text(
             "Undo the previous %s selection operation."%pixstring)
-        tooltips.set_tooltip_text(self.redobutton,
+        self.redobutton.set_tooltip_text(
             "Redo an undone %s selection operation."%pixstring)
-        self.clearbutton = gtk.Button(stock=gtk.STOCK_CLEAR)
-        hbox.pack_start(self.clearbutton, expand=1, fill=0)
+        self.clearbutton = gtkutils.StockButton("edit-clear-symbolic", "Clear")
+        hbox.pack_start(self.clearbutton, expand=True, fill=False, padding=0)
         gtklogger.setWidgetName(self.clearbutton, "Clear")
         gtklogger.connect(self.clearbutton, 'clicked', self.clearCB)
-        tooltips.set_tooltip_text(self.clearbutton,"Unselect all %ss." % pixstring)
+        self.clearbutton.set_tooltip_text("Unselect all %ss." % pixstring)
 
         self.sbcallbacks = [
             switchboard.requestCallbackMain(self.mswidget,

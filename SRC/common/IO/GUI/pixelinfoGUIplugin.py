@@ -8,14 +8,13 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import pixelgroup
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import subthread
 from ooflib.common.IO.GUI import gtklogger
-import gtk
+from gi.repository import Gtk
 import ooflib.common.microstructure
 
 #####################
@@ -66,32 +65,32 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
     def __init__(self, toolbox, table, row):
         debug.mainthreadTest()
         PixelInfoGUIPlugIn.__init__(self, toolbox)
-        label = gtk.Label('microstructure=')
-        label.set_alignment(1.0, 0.5)
-        table.attach(label, 0,1, row,row+1, xpadding=5, xoptions=gtk.FILL)
-        self.microtext = gtk.Entry()
-        gtklogger.setWidgetName(self.microtext,'MSText')
-        self.microtext.set_size_request(12*guitop.top().charsize, -1)
-        self.microtext.set_editable(0)
-        table.attach(self.microtext, 1,2, row,row+1,
-                     xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
+        label = Gtk.Label('microstructure=',
+                          halign=Gtk.Align.END, hexpand=False)
+        table.attach(label, 0,row,1,1)
+        self.microtext = gtk.Entry(hexpand=True, halign=Gtk.Align.FILL)
+        gtklogger.setWidgetName(self.microtext, 'MSText',
+                                hexpand=True, halign=Gtk.Align.FILL)
+        self.microtext.set_width_chars(12)
+        self.microtext.set_editable(False)
+        table.attach(self.microtext, 1,row,1,1)
 
-        label = gtk.Label('pixel groups=')
-        label.set_alignment(1.0, 0.5)
-        table.attach(label, 0,1, row+1,row+2, xpadding=5, xoptions=gtk.FILL)
+        label = Gtk.Label('pixel groups=',
+                          halign=Gtk.Align.END, hexpand=False)
+        table.attach(label, 0,row+1,1,1)
         self.grouplist = gtk.TextView()
-        self.grouplist.set_size_request(12*guitop.top().charsize, -1)
+        ## TODO GTK3: do we need to set a size request?
+        #self.grouplist.set_size_request(12*guitop.top().charsize, -1)
         self.grouplist.set_editable(False)
         self.grouplist.set_cursor_visible(False)
-        self.grouplist.set_wrap_mode(gtk.WRAP_WORD)
+        self.grouplist.set_wrap_mode(Gtk.WrapMode.WORD)
         gtklogger.setWidgetName(self.grouplist, 'Group view')
-        scroll = gtk.ScrolledWindow()
+        scroll = Gtk.ScrolledWindow(halign=Gtk.Align.FILL, hexpand=True)
         gtklogger.logScrollBars(scroll, "MSScroll")
-        scroll.set_shadow_type(gtk.SHADOW_IN)
-        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        scroll.set_shadow_type(Gtk.ShadowType.IN)
+        scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         scroll.add(self.grouplist)
-        table.attach(scroll, 1,2, row+1,row+2,
-                     xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
+        table.attach(scroll, 1,row+1,1,1)
 
         self.sbcallbacks = [
             switchboard.requestCallbackMain('changed pixel group',

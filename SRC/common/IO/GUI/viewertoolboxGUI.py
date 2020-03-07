@@ -8,7 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
@@ -20,9 +19,8 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.mainmenu import OOF
-import gtk
+from gi.repository import Gtk
 
 ndigits = 10
 
@@ -31,95 +29,90 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         debug.mainthreadTest()
 
         toolboxGUI.GfxToolbox.__init__(self, "Viewer", viewertoolbox)
-        mainbox = gtk.VBox()
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
-        infoframe = gtk.Frame("Position Information")
-        infoframe.set_shadow_type(gtk.SHADOW_IN)
-        mainbox.pack_start(infoframe, fill=0, expand=0)
+        infoframe = Gtk.Frame(label="Position Information")
+        infoframe.set_shadow_type(Gtk.ShadowType.IN)
+        mainbox.pack_start(infoframe, fill=False, expand=False)
 
-        infotable = gtk.Table(columns=3, rows=2)
+        infotable = Gtk.Grid()
         infoframe.add(infotable)
-        pixellabel = gtk.Label("Pixel: ")
-        pixellabel.set_alignment(1.0, 0.5)
-        self.pixel_x = gtk.Entry()
+        pixellabel = Gtk.Label("Pixel: ",
+                               halign=Gtk.Align.END, hexpand=False)
+        self.pixel_x = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.pixel_x, "PixelX")
-        self.pixel_x.set_size_request(ndigits*guitop.top().digitsize, -1)
-        self.pixel_x.set_editable(0)
-        self.pixel_y = gtk.Entry()
+        self.pixel_x.set_width_chars(ndigits)
+        self.pixel_y = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.pixel_y, "PixelY")
-        self.pixel_y.set_size_request(ndigits*guitop.top().digitsize, -1)
-        self.pixel_y.set_editable(0)
-        physicallabel = gtk.Label("Physical: ")
-        physicallabel.set_alignment(1.0, 0.5)
-        self.physical_x = gtk.Entry()
+        self.pixel_y.set_width_chars(ndigits)
+        physicallabel = Gtk.Label("Physical: ",
+                                  halign=Gtk.Align.END, hexpand=False)
+        self.physical_x = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.physical_x, "PhysicalX")
-        self.physical_x.set_size_request(ndigits*guitop.top().digitsize, -1)
-        self.physical_x.set_editable(0)
-        self.physical_y = gtk.Entry()
+        self.physical_x.set_width_chars(ndigits)
+        self.physical_y = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.physical_y, "PhysicalY")
-        self.physical_y.set_size_request(ndigits*guitop.top().digitsize, -1)
-        self.physical_y.set_editable(0)
-        infotable.attach(pixellabel, 0,1, 0,1, xpadding=5, ypadding=2,
-                         xoptions=0)
-        infotable.attach(self.pixel_x, 1,2, 0,1, xpadding=1, ypadding=2,
-                         xoptions=gtk.FILL|gtk.EXPAND)
-        infotable.attach(self.pixel_y, 2,3, 0,1, xpadding=1, ypadding=2,
-                         xoptions=gtk.FILL|gtk.EXPAND)
-        infotable.attach(physicallabel, 0,1, 1,2, xpadding=5, ypadding=2,
-                         xoptions=0)
-        infotable.attach(self.physical_x, 1,2, 1,2, xpadding=1, ypadding=2,
-                         xoptions=gtk.FILL|gtk.EXPAND)
-        infotable.attach(self.physical_y, 2,3, 1,2, xpadding=1, ypadding=2,
-                         xoptions=gtk.FILL|gtk.EXPAND)
+        self.physical_y.set_width_chars(ndigits)
 
-        zoomframe = gtk.Frame("Zoom")
+        infotable.attach(pixellabel,      0,0, 1,1)
+        infotable.attach(self.pixel_x,    1,0, 1,1)
+        infotable.attach(self.pixel_y,    2,0, 1,1)
+        infotable.attach(physicallabel,   0,1, 1,1)
+        infotable.attach(self.physical_x, 1,1, 1,1)
+        infotable.attach(self.physical_y, 2,1, 1.1)
+
+        zoomframe = Gtk.Frame(label="Zoom")
         gtklogger.setWidgetName(zoomframe, "Zoom")
-        zoomframe.set_shadow_type(gtk.SHADOW_IN)
-        mainbox.pack_start(zoomframe, fill=0, expand=0)
-        zoombox = gtk.VBox()
+        zoomframe.set_shadow_type(Gtk.ShadowType.IN)
+        mainbox.pack_start(zoomframe, fill=False, expand=False, padding=0)
+        zoombox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         zoomframe.add(zoombox)
 
-        buttonrow = gtk.HBox(homogeneous=1, spacing=2)
-        zoombox.pack_start(buttonrow, expand=0, fill=1, padding=2)
-        inbutton = gtkutils.StockButton(gtk.STOCK_ZOOM_IN, 'In')
-        buttonrow.pack_start(inbutton, expand=0, fill=1)
+        buttonrow = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            homogeneous=True, spacing=2)
+        zoombox.pack_start(buttonrow, expand=False, fill=True, padding=0)
+        inbutton = gtkutils.StockButton("zoom-in-symbolic", 'In')
+        buttonrow.pack_start(inbutton, expand=False, fill=True, padding=0)
         gtklogger.setWidgetName(inbutton, "In")
         gtklogger.connect(inbutton, 'clicked', self.inCB)
-        outbutton = gtkutils.StockButton(gtk.STOCK_ZOOM_OUT, 'Out')
-        buttonrow.pack_start(outbutton, expand=0, fill=1)
+        outbutton = gtkutils.StockButton("zoom-out-symbolic", 'Out')
+        buttonrow.pack_start(outbutton, expand=False, fill=True, padding=0)
         gtklogger.setWidgetName(outbutton, "Out")
         gtklogger.connect(outbutton, 'clicked', self.outCB)
-        fillbutton = gtkutils.StockButton(gtk.STOCK_ZOOM_FIT, 'Fill')
-        buttonrow.pack_start(fillbutton, expand=0, fill=1)
+        fillbutton = gtkutils.StockButton("zoom-fit-best-symbolic", 'Fill')
+        buttonrow.pack_start(fillbutton, expand=False, fill=True, padding=0)
         gtklogger.setWidgetName(fillbutton, "Fill")
         gtklogger.connect(fillbutton, 'clicked', self.fillCB)
 
-        factorrow = gtk.HBox()
-        zoombox.pack_start(factorrow, expand=0, fill=0, padding=2)
-        factorrow.pack_start(gtk.Label("Zoom Factor: "), expand=0, fill=0)
-        self.zoomfactor = gtk.Entry()
-        self.zoomfactor.set_editable(1)
-        self.zoomfactor.set_size_request(ndigits*guitop.top().digitsize, -1)
+        factorrow = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        zoombox.pack_start(factorrow, expand=False, fill=False, padding=0)
+        factorrow.pack_start(Gtk.Label("Zoom Factor: "),
+                             expand=False, fill=False, padding=0)
+        self.zoomfactor = Gtk.Entry(editable=True)
+        self.zoomfactor.set_width_chars(ndigits)
         gtklogger.setWidgetName(self.zoomfactor, "Factor")
-        self.zfactorsignal = gtklogger.connect_passive(self.zoomfactor,"changed")
-        factorrow.pack_start(self.zoomfactor, expand=1, fill=1)
+        self.zfactorsignal = gtklogger.connect_passive(
+            self.zoomfactor,"changed")
+        factorrow.pack_start(self.zoomfactor, expand=True, fill=True)
 
-        zoombox.pack_start(gtk.HSeparator(), fill=0, expand=0, padding=2)
+        zoombox.pack_start(
+            Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            fill=False, expand=False, padding=2)
 
-        label0 = gtk.Label("Shift+Click: Zoom in\nCtrl+Click: Zoom out")
+        label0 = gtk.Label("Shift+Click: Zoom in\nCtrl+Click: Zoom out",
+                           halign=Gtk.Align.CENTER)
         label0.set_pattern("             _______\n            ________\n")
-        label0.set_justify(gtk.JUSTIFY_LEFT)
-        zoombox.pack_start(label0, fill=0, expand=0, padding=2)
+        label0.set_justify(Gtk.Justification.LEFT)
+        zoombox.pack_start(label0, fill=False, expand=False, padding=0)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_end(align, expand=0, fill=0, padding=2)
-        canvas_info = gtkutils.StockButton(gtk.STOCK_DIALOG_INFO, "Canvas Info")
+        canvas_info = gtkutils.StockButton("user-info-symbolic", "Canvas Info",
+                                           halign=Gtk.Align.CENTER)
         gtklogger.setWidgetName(canvas_info, "Info")
         gtklogger.connect(canvas_info, "clicked", self.canvas_infoCB)
-        tooltips.set_tooltip_text(canvas_info,
+        canvas_info.set_tooltip_text(
             "Display canvas information in the message window.")
-        align.add(canvas_info)
+        mainbox.pack_end(canvas_info, expand=False, fill=False, padding=0)
 
         self.currentZFactor = self.gfxwindow().zoomFactor()
 

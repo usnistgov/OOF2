@@ -14,15 +14,15 @@
 #include "common/IO/bitoverlay.h"
 #include "common/trace.h"
 #include "common/tostring.h"
-#include "common/IO/stringimage.h"
+#include "common/IO/OOFCANVAS/canvasimage.h"
+using namespace OOFCanvas;
 
 BitmapOverlay::BitmapOverlay(const Coord *size, const ICoord *isize)
   : fg(CColor(1., 1., 1.)),
     bg(CColor(0., 0., 0.))
 {
     resize(size, isize);
-		tintAlpha = 1.0;
-		voxelAlpha = 1.0;
+    tintAlpha = 1.0;
 }
 
 BitmapOverlay::~BitmapOverlay() {}
@@ -91,22 +91,24 @@ void BitmapOverlay::copy(const BitmapOverlay *other) {
   CColor x(other->getFG());
   setColor(&x);
   tintAlpha = other->getTintAlpha();
-  voxelAlpha = other->getVoxelAlpha();
 }
 
 void BitmapOverlay::setColor(const CColor *color) {
-  // TODO:  A comment here would be nice.  What is this doing?
   fg = *color;
-  if(fg.getRed() == 0.0) {
-    bg.setRed(1.0);
-    bg.setGreen(1.0);
-    bg.setBlue(1.0);
-  }
-  else {
-    bg.setRed(0.0); 
-    bg.setBlue(0.0);
-    bg.setGreen(0.0);
-  }
+
+  // Mysterious code here is commented out but not deleted in case it
+  // turns out to have been important.
+  
+  // if(fg.getRed() == 0.0) {
+  //   bg.setRed(1.0);
+  //   bg.setGreen(1.0);
+  //   bg.setBlue(1.0);
+  // }
+  // else {
+  //   bg.setRed(0.0); 
+  //   bg.setBlue(0.0);
+  //   bg.setGreen(0.0);
+  // }
 }
 
 CColor BitmapOverlay::getBG() const {
@@ -117,25 +119,24 @@ CColor BitmapOverlay::getFG() const {
   return fg;
 }
 
-// Construct a string representation of the image, for making a gdk
-// pixbuf.
-
-void BitmapOverlay::fillstringimage(StringImage *stringimage) const {
-  for(Array<bool>::const_iterator i=data.begin(); i!=data.end(); ++i) {
-    if(data[i])
-      stringimage->set(&i.coord(), &fg);
-    else
-      stringimage->set(&i.coord(), &bg);
-  }
-}
-
-void BitmapOverlay::fillalphastringimage(AlphaStringImage *stringimage) const
+CanvasImage *BitmapOverlay::makeCanvasImage(const Coord *position,
+					    const Coord *size)
 {
-  CColor black(0., 0., 0.);
+  CanvasImage *img = new CanvasImage::newBlank(
+			       (*position)[0], (*position)[1],
+			       sizeInPixels_[0], sizeInPixels_[1],
+			       (*size)[0], (*size)[1],
+			       bg.getRed(), bg.getGreen(), bg.getBlue(),
+			       0.0 /* bg alpha*/ );
+  // TODO: It may be necessary to use a Cairo mask to make the
+  // background pixels disappear.
   for(Array<bool>::const_iterator i=data.begin(); i!=data.end(); ++i) {
-    if(data[i])
-      stringimage->set(&i.coord(), &fg, (unsigned char)(255*tintAlpha));
-    else
-      stringimage->set(&i.coord(), &black, 0);
+    if(data[i]) {
+      Coord p(i.coord());
+      img->set(p[0], p[1],
+	       fg.getRed(), fg.getGreen(), fg.getBlue(), tintAlpha);
+    }
   }
+  return img;
 }
+

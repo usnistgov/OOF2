@@ -22,10 +22,9 @@ from ooflib.common.IO.GUI import fontselector
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import subWindow
-from ooflib.common.IO.GUI import tooltips
 from ooflib.tutorials import tutorial
-import gtk
-import pango
+from gi.repository import Gtk
+from gi.repository import Pango
 import re
 import string
 import textwrap
@@ -50,7 +49,8 @@ parasplit = re.compile(r'\n\s*\n')      # finds lines with only white space
 endline = re.compile(r'\s*\n\s*')
 
 
-## This is ugly.  It should be rewritten to take advantage of pango markup.
+## TODO: This is ugly.  It should be rewritten to take advantage of
+## pango markup.
 
 class Comment:
     def __init__(self, comment, font=None):
@@ -160,21 +160,22 @@ class TutorialClassGUI(subWindow.SubWindow):
             no_log=1,
             ordering=-1))
 
-        labelhbox = gtk.HBox()
-        self.subject = gtk.Label()
-        self.slideIndex = gtk.Label()
-        labelhbox.pack_start(self.subject, expand=1, fill=1, padding=2)
-        labelhbox.pack_end(self.slideIndex, expand=0, fill=0, padding=2)
-        self.mainbox.pack_start(labelhbox, expand=0, fill=0, padding=2)
+        labelhbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        self.subject = Gtk.Label()
+        self.slideIndex = Gtk.Label()
+        labelhbox.pack_start(self.subject, expand=True, fill=True, padding=0)
+        labelhbox.pack_end(self.slideIndex, expand=False, fill=False, padding=0)
+        self.mainbox.pack_start(labelhbox, expand=False, fill=False, padding=0)
 
-        self.msgscroll = gtk.ScrolledWindow()
+        self.msgscroll = Gtk.ScrolledWindow(border_width=2)
         self.scrollsignals = gtklogger.logScrollBars(self.msgscroll,
                                                      "TutorialScroll")
-        self.msgscroll.set_shadow_type(gtk.SHADOW_IN)
-        self.msgscroll.set_border_width(2)
-        self.msgscroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.mainbox.pack_start(self.msgscroll, expand=1, fill=1)
-        self.textview = gtk.TextView()
+        self.msgscroll.set_shadow_type(Gtk.ShadowType.IN)
+        self.msgscroll.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                  Gtk.PolicyType.AUTOMATIC)
+        self.mainbox.pack_start(self.msgscroll, expand=True, fill=True,
+                                padding=0)
+        self.textview = Gtk.TextView(wrap_mode=Gtk.WrapMode.WORD_CHAR)
         self.textview.set_cursor_visible(False)
         self.textview.set_editable(False)
         textattrs = self.textview.get_default_attributes()
@@ -186,41 +187,42 @@ class TutorialClassGUI(subWindow.SubWindow):
 ##             "bold",
 ##             weight=pango.WEIGHT_HEAVY,  # why doesn't this work?
 ##             underline=pango.UNDERLINE_SINGLE)
-        self.textview.set_wrap_mode(gtk.WRAP_WORD_CHAR)
         self.msgscroll.add(self.textview)        
 
-        buttonbox = gtk.HBox(homogeneous=1, spacing=2)
-        self.mainbox.pack_end(buttonbox, expand=0, fill=0, padding=2)
-        self.backbutton = gtkutils.StockButton(gtk.STOCK_GO_BACK, "Back")
+        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                             homogeneous=1, spacing=2)
+        self.mainbox.pack_end(buttonbox, expand=False, fill=False, padding=0)
+        self.backbutton = gtkutils.StockButton("go-previous-symbolic", "Back")
         gtklogger.setWidgetName(self.backbutton, "Back")
         gtklogger.connect(self.backbutton, "clicked", self.backCB)
-        tooltips.set_tooltip_text(self.backbutton,"Move to the previous slide.")
+        self.backbutton.set_tooltip_text("Move to the previous slide.")
 
-        self.nextbutton = gtkutils.StockButton(gtk.STOCK_GO_FORWARD, "Next")
+        self.nextbutton = gtkutils.StockButton("go-next-symbolic", "Next")
         gtklogger.setWidgetName(self.nextbutton, "Next")
         gtklogger.connect(self.nextbutton, "clicked", self.nextCB)
-        tooltips.set_tooltip_text(self.nextbutton,"Move to the next slide.")
+        self.nextbutton.set_tooltip_text("Move to the next slide.")
         
-        self.jumpbutton = gtkutils.StockButton(gtk.STOCK_GOTO_LAST, "Jump")
+        self.jumpbutton = gtkutils.StockButton("go-jump-symbolic", "Jump")
         gtklogger.setWidgetName(self.jumpbutton, "Jump")
         gtklogger.connect(self.jumpbutton, "clicked", self.jumpCB)
-        tooltips.set_tooltip_text(self.jumpbutton,"Jump to the leading slide.")
+        self.jumpbutton.set_tooltip_text("Jump to the leading slide.")
 
-        self.savebutton = gtkutils.StockButton(gtk.STOCK_SAVE, "Save...")
+        self.savebutton = gtkutils.StockButton("document-save-symbolic",
+                                               "Save...")
         gtklogger.setWidgetName(self.savebutton, "Save")
         gtklogger.connect(self.savebutton, "clicked", self.saveCB)
-        tooltips.set_tooltip_text(self.savebutton,"Save your tutorial session.")
+        self.savebutton.set_tooltip_text("Save your tutorial session.")
 
-        self.closebutton = gtkutils.StockButton(gtk.STOCK_CLOSE, "Close")
+        self.closebutton = gtkutils.StockButton("window-close", "Close")
         gtklogger.setWidgetName(self.closebutton, "Close")
         gtklogger.connect(self.closebutton, "clicked", self.closeCB)
-        tooltips.set_tooltip_text(self.closebutton,"Quit the tutorial.")
+        self.closebutton.set_tooltip_text("Quit the tutorial.")
         
-        buttonbox.pack_start(self.backbutton, expand=1, fill=1, padding=2)
-        buttonbox.pack_start(self.nextbutton, expand=1, fill=1, padding=2)
-        buttonbox.pack_start(self.jumpbutton, expand=1, fill=1, padding=2)
-        buttonbox.pack_start(self.savebutton, expand=1, fill=1, padding=2)
-        buttonbox.pack_end(self.closebutton, expand=1, fill=1, padding=2)
+        buttonbox.pack_start(self.backbutton, expand=True, fill=True, padding=2)
+        buttonbox.pack_start(self.nextbutton, expand=True, fill=True, padding=2)
+        buttonbox.pack_start(self.jumpbutton, expand=True, fill=True, padding=2)
+        buttonbox.pack_start(self.savebutton, expand=True, fill=True, padding=2)
+        buttonbox.pack_end(self.closebutton, expand=True, fill=True, padding=2)
 
         self.gtk.connect('destroy', self.closeCB)
         self.gtk.set_default_size(500, 300)

@@ -10,11 +10,10 @@
 
 from ooflib.SWIG.common import config
 from ooflib.common import oofversion
-from ooflib.common.IO.GUI import fixedwidthtext
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import oofGUI
-import gtk
-import pango
+from gi.repository import Gtk
+from gi.repository import Pango
 
 from ooflib.common.IO.words import words
 # words['Credits'], words['Disclaimer'], and words['Copyright']
@@ -54,33 +53,31 @@ Graphics windows may be opened from the Windows menu.  They can be used to view 
 
 ####################
    
-##font = load_font("-*-fixed-*-*-*-*-*-120-*-*-*-*-iso8859-*")
-
 class IntroPage(oofGUI.MainPage):
     def __init__(self):
         oofGUI.MainPage.__init__(self, name="Introduction", ordering=0,
                                  tip="Welcome to %s!"%name)
-        vbox = gtk.VBox()
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(vbox)
-        scroll = gtk.ScrolledWindow()
+        scroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(scroll, "Scroll")
-        scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
-        vbox.pack_start(scroll, expand=1, fill=1)
-        self.textarea = fixedwidthtext.FixedWidthTextView()
-        scroll.set_shadow_type(gtk.SHADOW_IN)
+        scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
+        vbox.pack_start(scroll, expand=True, fill=True, padding=0)
+        self.textarea = Gtk.TextView(name="fixedfont")
+        scroll.set_shadow_type(Gtk.ShadowType.IN)
         scroll.add(self.textarea)
-        self.textarea.set_editable(0)
-        self.textarea.set_cursor_visible(0)
-        self.textarea.set_wrap_mode(gtk.WRAP_WORD)
+        self.textarea.set_editable(False)
+        self.textarea.set_cursor_visible(False)
+        self.textarea.set_wrap_mode(Gtk.WrapMode.WORD)
 
-        buttonbox = gtk.HBox(homogeneous=1, spacing=2)
-        buttonbox.set_border_width(2)
-        vbox.pack_start(buttonbox, expand=0, fill=0)
+        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            homogeneous=True, spacing=2, border_width=2)
+        vbox.pack_start(buttonbox, expand=False, fill=False, padding=0)
 
         self.labels = ['Welcome', 'Credits', 'Copyright', 'Disclaimer']
         self.buttons = [gtk.ToggleButton(x) for x in self.labels]
         for button, label in zip(self.buttons, self.labels):
-            buttonbox.pack_start(button, expand=1, fill=1)
+            buttonbox.pack_start(button, expand=True, fill=True, padding=0)
             gtklogger.setWidgetName(button, label)
             gtklogger.connect(button, 'clicked', self.buttonCB, label)
 
@@ -90,16 +87,11 @@ class IntroPage(oofGUI.MainPage):
         if button.get_active():
             for button, label in zip(self.buttons, self.labels):
                 if label == which:
-                    button.set_sensitive(0)
+                    button.set_sensitive(False)
                 else:
-                    button.set_sensitive(1)
-                    button.set_active(0)
+                    button.set_sensitive(True)
+                    button.set_active(False)
             self.textarea.get_buffer().set_text(words[which])
-##            self.textarea.freeze()
-##            self.textarea.set_point(0)
-##            self.textarea.forward_delete(self.textarea.get_length())
-##            self.textarea.insert(font, None, None, words[which])
-##            self.textarea.thaw()
             
 IntroPage()
 

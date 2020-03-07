@@ -10,6 +10,7 @@
 
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
+from ooflib.common import guitop
 from ooflib.common import thread_enable
 from ooflib.common.IO import filenameparam
 from ooflib.common.IO import mainmenu
@@ -19,8 +20,7 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import progressbar_delay
 from ooflib.common.IO.GUI import activityViewer
 from ooflib.common.IO.GUI import gtklogger
-import gobject
-import gtk
+from gi.repository import Gtk
 import os
 import sys
 import traceback
@@ -112,9 +112,9 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
 # loggererror is installed as the gtklogger handler for exceptions
 # that occur during playback.  It's not possible to use the standard
 # oof2 exception handling mechanism directly, because it doesn't
-# handle the gtk thread locks properly in this case (ie, inside an
-# idle callback on the main thread, but with
-# oof_mainiteration._inside_idle_callback==0).
+# handle the gtk thread locks properly in this case.
+## TODO GTK3: Is that still true?  We don't have gtk thread locks
+## anymore.
 
 def loggererror(exc, line):
     from ooflib.common.IO.GUI import reporter_GUI
@@ -247,10 +247,13 @@ def pauseLog(menuitem):
     pass
 
 def pauseGUI(menuitem):
-    dialog = gtk.Dialog()
+    dialog = Gtk.Dialog(flags=Gtk.DialogFlags.MODAL, parent=guitop.top())
     dialog.set_title("OOF2 Pause")
-    dialog.vbox.pack_start(gtk.Label("Continue?"))
-    dialog.add_button(gtk.STOCK_OK, 0)
+    content = dialog.get_content_area()
+    content.pack_start(Gtk.Label("Continue?"),
+                       expand=True, fill=True, padding=2)
+    dialog.add_action_widget(gtkutils.StockButton("gtk-ok", "OK"),
+                             Gtk.ResponseType.OK)
     dialog.show_all()
     result = dialog.run()
     dialog.destroy()

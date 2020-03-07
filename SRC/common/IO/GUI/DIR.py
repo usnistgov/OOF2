@@ -1,6 +1,5 @@
 # -*- python -*- 
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -10,10 +9,7 @@
 # oof_manager@nist.gov. 
 
 dirname = 'GUI'
-if not DIM_3:
-    clib = 'oof2commonGUI'
-else:
-    clib = 'oof3dcommonGUI'
+clib = 'oof2commonGUI'
 clib_order = 100
 
 pyfiles = [
@@ -26,7 +22,6 @@ pyfiles = [
     'displaymethodwidget.py',
 ##    'fakecanvas.py',
     'fileselector.py',
-    'fixedwidthtext.py',
     'fontselector.py',
     'genericselectGUI.py',
     'gfxLabelTree.py',
@@ -76,35 +71,34 @@ swigfiles = ['progressGUI.swg']
 
 swigpyfiles = ['progressGUI.spy']
 
-if not DIM_3:
 
-    cfiles += [
-        'oofcanvas.C',
-        'rubberband.C',
-        'canvasdot.C',
-        'canvastriangle.C',
-        'gfxbrushstyle.C'
-        ]
+cfiles += [
+    'oofcanvas.C',
+    'rubberband.C',
+    # 'canvasdot.C',
+    # 'canvastriangle.C',
+    'gfxbrushstyle.C'
+]
 
-    swigfiles += [
-        'oofcanvas.swg',
-        'rubberband.swg',
-        'gfxbrushstyle.swg'
-        ]
+swigfiles += [
+    'oofcanvas.swg',
+    'rubberband.swg',
+    'gfxbrushstyle.swg'
+]
 
-    swigpyfiles += [
-        'gfxbrushstyle.spy'
-        ]
+swigpyfiles += [
+    'gfxbrushstyle.spy'
+]
 
-    hfiles += [
-        'canvasdot.h',
-        'canvastriangle.h',
-        'oofcanvas.h',
-        'rubberband.h',
-        'rbstipple.xbm',
-        'rbstubble.xbm',
-        'gfxbrushstyle.h'
-    ]
+hfiles += [
+    # 'canvasdot.h',
+    # 'canvastriangle.h',
+    'oofcanvas.h',
+    'rubberband.h',
+    'rbstipple.xbm',
+    'rbstubble.xbm',
+    'gfxbrushstyle.h'
+]
 
 
 

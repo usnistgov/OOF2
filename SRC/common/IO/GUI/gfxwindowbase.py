@@ -325,7 +325,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     # Toolbox callbacks
     ##################################################
 
-    def switchToolbox(self, chooser, tbname): # toolboxchooser callback
+    def switchToolbox(self, tbname): # toolboxchooser callback
         self.selectToolbox(tbname)
 
     def selectToolbox(self, tbname):
@@ -515,7 +515,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     def removeMouseHandler(self):
         self.mouseHandler = mousehandler.nullHandler
 
-    def mouseCB(self, eventtype, x, y, shift, ctrl):
+    def mouseCB(self, eventtype, x, y, button, shift, ctrl, data):
         debug.mainthreadTest()
         global _during_callback
         _during_callback = 1

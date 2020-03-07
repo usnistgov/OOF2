@@ -8,22 +8,20 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.SWIG.common import config
 from ooflib.common import debug
 from ooflib.common import toolbox
 from ooflib.common import primitives
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import widgetscope
-import gtk
-import sys
+from gi.repository import Gtk
 
 class GfxToolbox(widgetscope.WidgetScope):
     def __init__(self, name, toolbox):
         debug.mainthreadTest()
         self.toolbox = toolbox          # non-GUI toolbox
-        self.gtk = gtk.Frame()          # root of toolbox's gtk widget tree
+        self.gtk = Gtk.Frame()          # root of toolbox's gtk widget tree
         gtklogger.setWidgetName(self.gtk, name)
-        self.gtk.set_shadow_type(gtk.SHADOW_NONE)
+        self.gtk.set_shadow_type(Gtk.ShadowType.NONE)
         self.active = 0
         self._name = name
         widgetscope.WidgetScope.__init__(self, parent=None)
@@ -39,21 +37,9 @@ class GfxToolbox(widgetscope.WidgetScope):
         return self.toolbox.gfxwindow()
     def __cmp__(self, other):           # for sorting in gfxwindow's list
         return cmp(self.toolbox.ordering, other.toolbox.ordering)
-    # needed for 3D only
-    def updateview(self):
-        camera = self.gfxwindow().oofcanvas.getCamera()
-        camera.OrthogonalizeViewUp()
-        self.gfxwindow().oofcanvas.calculateclipping(clippingadj.get_value())
-        self.gfxwindow().oofcanvas.render()
     # convenience function to get a point object from mouseclick coordinates
     def getPoint(self, x, y):
-        if config.dimension() == 2:
-            return primitives.Point(x,y)
-        elif config.dimension() == 3:
-            return self.gfxwindow().oofcanvas.screenCoordsTo3DCoords(x,y)        
-
-#static variable for all toolboxes, does this belong here?
-clippingadj = gtk.Adjustment(value=100, lower=0, upper=100, step_incr=-1, page_incr=-5, page_size=0)
+        return primitives.Point(x,y)
 
 # The base Toolbox class doesn't make a GUI, but it provides a trivial
 # makeGUI function so that derived toolboxes that don't create a GUI

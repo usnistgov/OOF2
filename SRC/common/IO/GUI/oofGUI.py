@@ -37,11 +37,10 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import historian
 from ooflib.common.IO.GUI import mainthreadGUI
 from ooflib.common.IO.GUI import quit
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import widgetscope
-import gtk
 import ooflib.common.quit
-import pango
+
+from gi.repository import Gtk
 
 allPages = {}                           # dictionary of pages keyed by name
 pagenames = []                          # ordered list of pages
@@ -51,11 +50,30 @@ if config.dimension() == 2:
 elif config.dimension() == 3:
     oofname = "OOF3D"
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Global CSS styles.
+
+# addStyle might be called before the GUI is started, before the
+# styles can be applied.  So it stores the styles that have been
+# assigned too early and oofGUI.__init__ applies them after the main
+# window has been created.
+
+styleStrings = []
+
+def addStyle(stylestring):
+    if not guitop.top():
+        styleStrings.append(stylestring)
+    else:
+        guitop.top().addStyle(stylestring)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#        
+
 class oofGUI(widgetscope.WidgetScope):
     def __init__(self):
         debug.mainthreadTest()
         widgetscope.WidgetScope.__init__(self, None)
-        self.gtk = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.gtk = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         self.gtk.set_title(oofname)
         initial_width, initial_height = map(int,
                                             runtimeflags.geometry.split('x'))
@@ -66,74 +84,72 @@ class oofGUI(widgetscope.WidgetScope):
         self.gtk.connect("destroy", self.destroyCB)
         guitop.setTop(self)
         
-        self.mainbox = gtk.VBox()
+        map(self.addStyle, styleStrings)
+        
+        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(self.mainbox)
 
-        self.menubar = gtk.MenuBar()
-        self.mainbox.pack_start(self.menubar, expand=0, fill=0)
-        accelgrp = gtk.AccelGroup()
+        self.menubar = Gtk.MenuBar()
+        self.mainbox.pack_start(self.menubar, expand=False, fill=False, padding=0)
+        accelgrp = Gtk.AccelGroup()
         self.gtk.add_accel_group(accelgrp)
 
         self.mainmenu = mainmenu.OOF
         self.oofmenu = gfxmenu.gtkOOFMenuBar(self.mainmenu, bar=self.menubar,
                                              accelgroup=accelgrp)
         gtklogger.setWidgetName(self.oofmenu, "MenuBar")
-        self.pageChooserFrame = gtk.Frame()
-        self.pageChooserFrame.set_shadow_type(gtk.SHADOW_IN)
+        self.pageChooserFrame = Gtk.Frame()
+        self.pageChooserFrame.set_shadow_type(Gtk.ShadowType.IN)
         self.mainbox.pack_start(self.pageChooserFrame,
-                                expand=0, fill=0, padding=2)
+                                expand=False, fill=False, padding=2)
 
-        align = gtk.Alignment(xalign=0.5)
-        self.pageChooserFrame.add(align)
-        chooserBox = gtk.HBox()
-        chooserBox.set_border_width(2)
+        chooserBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                             halign=Gtk.Align.CENTER, spacing=3,
+                             border_width=2)
         gtklogger.setWidgetName(chooserBox, 'Navigation')
-        align.add(chooserBox)
+        self.pageChooserFrame.add(chooserBox)
 
         self.historian = historian.Historian(self.historianCB,
                                              self.sensitizeHistory)
 
-        label = gtk.Label('Task: ')
-        label.set_alignment(1.0, 0.5)
-        chooserBox.pack_start(label, expand=0, fill=0)
+        label = Gtk.Label('Task:')
+        chooserBox.pack_start(label, expand=False, fill=False, padding=2)
         
-        self.prevHistoryButton = gtkutils.StockButton(gtk.STOCK_GOTO_FIRST)
-        chooserBox.pack_start(self.prevHistoryButton, expand=0, fill=0, 
-                              padding=3)
+        self.prevHistoryButton = gtkutils.StockButton('go-first-symbolic')
+        chooserBox.pack_start(self.prevHistoryButton, expand=False, fill=False, 
+                              padding=0)
         gtklogger.setWidgetName(self.prevHistoryButton, 'PrevHist')
         gtklogger.connect(self.prevHistoryButton, 'clicked', 
                           self.historian.prevCB)
-        tooltips.set_tooltip_text(self.prevHistoryButton,
+        self.prevHistoryButton.set_tooltip_text(
             "Go to the chronologically previously page.")
 
-        self.prevPageButton = gtkutils.StockButton(gtk.STOCK_GO_BACK)
-        chooserBox.pack_start(self.prevPageButton, expand=0, fill=0, padding=3)
+        self.prevPageButton = gtkutils.StockButton('go-previous-symbolic')
+        chooserBox.pack_start(self.prevPageButton, expand=False, fill=False,
+                              padding=0)
         gtklogger.setWidgetName(self.prevPageButton, 'Prev')
         gtklogger.connect(self.prevPageButton, 'clicked', self.prevPageCB)
         self.pageChooser = chooser.ChooserWidget([],
                                                  callback=self.pageChooserCB,
                                                  name="PageMenu")
-        chooserBox.pack_start(self.pageChooser.gtk, expand=0, fill=0)
+        chooserBox.pack_start(self.pageChooser.gtk, expand=False, fill=False,
+                              padding=0)
         self.currentPageName = None
 
-        self.nextPageButton = gtkutils.StockButton(gtk.STOCK_GO_FORWARD)
-        chooserBox.pack_start(self.nextPageButton, expand=0, fill=0, padding=3)
+        self.nextPageButton = gtkutils.StockButton('go-next-symbolic')
+        chooserBox.pack_start(self.nextPageButton, expand=False, fill=False,
+                              padding=0)
         gtklogger.setWidgetName(self.nextPageButton, 'Next')
         gtklogger.connect(self.nextPageButton, 'clicked', self.nextPageCB)
 
-        self.nextHistoryButton = gtkutils.StockButton(gtk.STOCK_GOTO_LAST)
-        chooserBox.pack_start(self.nextHistoryButton, expand=0, fill=0,
-                              padding=3)
+        self.nextHistoryButton = gtkutils.StockButton('go-last-symbolic')
+        chooserBox.pack_start(self.nextHistoryButton, expand=False, fill=False,
+                              padding=0)
         gtklogger.setWidgetName(self.nextHistoryButton, 'NextHist')
         gtklogger.connect(self.nextHistoryButton, 'clicked',
                           self.historian.nextCB)
-        tooltips.set_tooltip_text(self.nextHistoryButton,
+        self.nextHistoryButton.set_tooltip_text(
             "Go to the chronologically next page.")
-
-        # Find the font size, so widgets can be sized appropriately.
-        #  digitsize and charsize are in pixels.
-        
-        self.digitsize,self.charsize = gtkutils.widgetFontSizes(self.gtk)
 
         # Add a GUI callback to the "OOF2" windows item.
         oof2_item = self.mainmenu.Windows.OOF2
@@ -141,13 +157,23 @@ class oofGUI(widgetscope.WidgetScope):
 
         # Frame around main pages.  GUI pages are added and removed
         # from it by installPage().
-        self.pageframe = gtk.Frame()
-        self.pageframe.set_shadow_type(gtk.SHADOW_IN)
-        self.mainbox.pack_start(self.pageframe, expand=1, fill=1)
+        self.pageframe = Gtk.Frame()
+        self.pageframe.set_shadow_type(Gtk.ShadowType.IN)
+        self.mainbox.pack_start(self.pageframe, expand=True, fill=True,
+                                padding=0)
 
         # Add pages that may have been created before the main GUI was built.
         for pagename, i in zip(pagenames, range(len(allPages))):
             self.addPage(allPages[pagename], i)
+
+    def addStyle(self, stylestring):
+        styleContext = self.gtk.get_style_context()
+        screen = self.gtk.get_screen()
+        styleProvider = Gtk.CssProvider()
+        provider.load_from_data(stylestring)
+        styleContext.add_provider_for_screen(
+            screen, styleProvider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
     def installPage(self, pagename):
         debug.mainthreadTest()
@@ -193,7 +219,7 @@ class oofGUI(widgetscope.WidgetScope):
         self.pageChooser.update(pagenames, pagetips)
         self.sensitize()
 
-    def pageChooserCB(self, widget, pagename):
+    def pageChooserCB(self, pagename):
         self.installPage(pagename)
         self.historian.record(pagename)
 
@@ -224,10 +250,10 @@ class oofGUI(widgetscope.WidgetScope):
             self.prevPageButton.set_sensitive(which != 0)
 
             if which < len(pagenames)-1:
-                tooltips.set_tooltip_text(self.nextPageButton,
+                self.nextPageButton.set_tooltip_text(
                     "Go to the %s page" % allPages[pagenames[which+1]].name)
             if which > 0:
-                tooltips.set_tooltip_text(self.prevPageButton,
+                self.prevPageButton.set_tooltip_text(
                     "Go to the %s page" % allPages[pagenames[which-1]].name)
         self.sensitizeHistory()
 
@@ -237,17 +263,17 @@ class oofGUI(widgetscope.WidgetScope):
         self.prevHistoryButton.set_sensitive(self.historian.prevSensitive())
         next = self.historian.nextVal()
         if next is not None:
-            tooltips.set_tooltip_text(self.nextHistoryButton,
+            self.nextHistoryButton.set_tooltip_text(
                 "Go to the chronologically next page, %s." % next)
         else:
-            tooltips.set_tooltip_text(self.nextHistoryButton,
+            self.nextHistoryButton.set_tooltip_text(
                 "Go to the chronologically next page.")
         prev = self.historian.prevVal()
         if prev is not None:
-            tooltips.set_tooltip_text(self.prevHistoryButton,
+            self.prevHistoryButton.set_tooltip_text(
                 "Go the chronologically previous page, %s." % prev)
         else:
-            tooltips.set_tooltip_text(self.prevHistoryButton,
+            self.prevHistoryButton.set_tooltip_text(
                 "Go the chronologically previous page.")
             
 
@@ -308,7 +334,7 @@ class oofGUI(widgetscope.WidgetScope):
     # window is not a subwindow.
     def menu_raise(self, menuitem):
         debug.mainthreadTest()
-        self.gtk.window.raise_()
+        self.gtk.present_with_time(Gtk.get_current_event_time())
         
 
     
@@ -327,8 +353,8 @@ class MainPage(widgetscope.WidgetScope):
         self.name = name
         self.ordering = ordering
         self.tip = tip
-        self.gtk = gtk.Frame()
-        self.gtk.set_shadow_type(gtk.SHADOW_NONE)
+        self.gtk = Gtk.Frame()
+        self.gtk.set_shadow_type(Gtk.ShadowType.NONE)
         # Insert the page in the proper spot
         for i in range(len(pagenames)):
             if self.ordering < allPages[pagenames[i]].ordering:
@@ -374,16 +400,21 @@ def start(messages=[]):
     # gui.show() as an idle callback which will run once the main loop
     # is running.
     mainthreadGUI.run_gui(gui.show, (messages,))
-    if thread_enable.enabled():
-        gtk.gdk.threads_init()
-        ## We used to call gtk.gdk.threads_enter() and threads_leave()
-        ## here, but they appear not to be necessary on OS X or Linux
-        ## and to be detrimental on NetBSD.
-        # gtk.gdk.threads_enter()
     try:
         gtk.main()
     finally:
         guitop.setMainLoop(False)
-        # if thread_enable.enabled():
-        #     gtk.gdk.threads_leave()
+        
+    # if thread_enable.enabled():
+    #     gtk.gdk.threads_init()
+    #     ## We used to call gtk.gdk.threads_enter() and threads_leave()
+    #     ## here, but they appear not to be necessary on OS X or Linux
+    #     ## and to be detrimental on NetBSD.
+    #     # gtk.gdk.threads_enter()
+    # try:
+    #     gtk.main()
+    # finally:
+    #     guitop.setMainLoop(False)
+    #     # if thread_enable.enabled():
+    #     #     gtk.gdk.threads_leave()
 

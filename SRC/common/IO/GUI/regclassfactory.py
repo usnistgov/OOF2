@@ -26,9 +26,8 @@ from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import parameterwidgets
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import widgetscope
-import gtk
+from gi.repository import Gtk
 import types
 
 ###################
@@ -85,7 +84,7 @@ class RCFBase(parameterwidgets.ParameterWidget,
 
 class RegisteredClassFactory(RCFBase):
     def __init__(self, registry, obj=None, title=None,
-                 callback=None, fill=0, expand=0, scope=None, name=None,
+                 callback=None, fill=False, expand=0, scope=None, name=None,
                  widgetdict={},
                  *args, **kwargs):
 
@@ -107,19 +106,24 @@ class RegisteredClassFactory(RCFBase):
         self.readonly = False
         RCFBase.__init__(self, gtk.Frame(), scope, widgetdict, name)
         
-        self.box = gtk.VBox()
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(self.box)
         self.options = chooser.ChooserWidget([], callback=self.optionCB,
                                              update_callback=self.updateCB,
                                              name='Chooser')
         if not title:
-            self.box.pack_start(self.options.gtk, expand=0, fill=0)
+            self.box.pack_start(self.options.gtk,
+                                expand=False, fill=False, padding=0)
             self.titlebox = None
         else:
-            self.titlebox=gtk.HBox()
-            self.box.pack_start(self.titlebox, expand=0, fill=0)
-            self.titlebox.pack_start(gtk.Label(title), expand=0, fill=0)
-            self.titlebox.pack_start(self.options.gtk, expand=1, fill=1)
+            self.titlebox=Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                                   spacing=2)
+            self.box.pack_start(self.titlebox,
+                                expand=False, fill=False, padding=0)
+            self.titlebox.pack_start(Gtk.Label(title),
+                                     expand=False, fill=False, padding=0)
+            self.titlebox.pack_start(self.options.gtk,
+                                     expand=True, fill=True, padding=0)
 
         self.widgetcallback = None
         
@@ -243,11 +247,11 @@ class RegisteredClassFactory(RCFBase):
             self.useDefault = self.useDefault and not interactive
             self.widgetChanged(self.paramWidget.isValid(), interactive)
 
-            self.box.pack_start(self.paramWidget.gtk, fill=self.fill,
-                                expand=self.expand)
+            self.box.pack_start(self.paramWidget.gtk,
+                                fill=self.fill, expand=self.expand, padding=0)
             self.show()
             if hasattr(registration, 'tip'):
-                tooltips.set_tooltip_text(self.options.gtk,registration.tip)
+                self.options.gtk.set_tooltip_text(registration.tip)
 
     def cleanUp(self):
         if self.widgetcallback is not None:
@@ -274,16 +278,14 @@ class RegisteredClassFactory(RCFBase):
         debug.mainthreadTest()
         try:
             # Use the special widget from the widgetdict, if there is one
-            widget = self.widgetdict[registration.subclass](registration.params,
-                                                            scope=self,
-                                                            name=registration.name())
+            widget = self.widgetdict[registration.subclass](
+                registration.params, scope=self, name=registration.name())
         except KeyError:
             # Otherwise, just use a parameter table.
             widget = parameterwidgets.ParameterTable(
                 registration.params, scope=self, name=registration.name())
         self.widgetcallback = switchboard.requestCallbackMain(widget,
                                                               self.widgetCB)
-##        self.widgetChanged(widget.isValid(), interactive)
         return widget
 
     def widgetCB(self, interactive):      # switchboard callback
@@ -295,7 +297,7 @@ class RegisteredClassFactory(RCFBase):
     # When called as an event callback for menu selection in the
     # GtkOptionMenu, self.currentOption is either the "outgoing"
     # registration entry, or None.  
-    def optionCB(self, widget, regname):
+    def optionCB(self, regname):
         debug.mainthreadTest()
         oldbase = None
         if self.currentOption is not None:
@@ -346,7 +348,7 @@ class RegisteredClassFactory(RCFBase):
         entries = gtkutils.findChildren([gtk.Entry], self.paramWidget.gtk)
         for entry in entries:
             entry.set_editable(0)
-        sliders = gtkutils.findChildren([gtk.Scale, gtk.Button],
+        sliders = gtkutils.findChildren([Gtk.Scale, Gtk.Button],
                                         self.paramWidget.gtk)
         for slider in sliders:
             slider.set_sensitive(0)
@@ -359,10 +361,10 @@ class RegisteredClassFactory(RCFBase):
             self.makeUneditable()
         self.widgetChanged(self.paramWidget.isValid(), interactive)
         
-        self.box.pack_start(self.paramWidget.gtk, fill=0, expand=0)
+        self.box.pack_start(self.paramWidget.gtk, fill=False, expand=False)
         self.show()
         if hasattr(registration, 'tip'):
-            tooltips.set_tooltip_text(self.options.gtk,registration.tip)
+            self.options.gtk.set_tooltip_text(registration.tip)
 
         self.useDefault = False
         if self.callback:
@@ -404,7 +406,7 @@ parameter.RegisteredParameter.makeWidget = _RegisteredClass_makeWidget
 # current state data stored in the params.
 class ConvertibleRegisteredClassFactory(RegisteredClassFactory):
     def __init__(self, registry, obj=None, title=None,
-                 callback=None, fill=0, expand=0, scope=None, name=None,
+                 callback=None, fill=False, expand=False, scope=None, name=None,
                  widgetdict={},
                  *args, **kwargs):
         debug.mainthreadTest()
@@ -425,7 +427,7 @@ class ConvertibleRegisteredClassFactory(RegisteredClassFactory):
     # parameters have nontrivial ".value" retrievals (e.g. dependent
     # parts of ParameterGroups) should ensure that their resolver
     # does not throw spurious exceptions in this circumstance.
-    def optionCB(self, widget, regname):
+    def optionCB(self, regname):
         if self.currentOption is not None:
             if self.paramWidget is not None:
                 # If there is a current option and a current widget,
@@ -514,18 +516,17 @@ class RegistrationGUIData:
         # Parameters.  Also, the whole RegisteredClassListFactory
         # would have to be redone.
         self._signal = gtklogger.connect(self._button, 'clicked', self.buttonCB)
-        self._box = gtk.VBox()
-        self._label = gtk.Label(registration.name())
-        self._label.set_alignment(0.0, 0.5)
+        self._box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self._label = Gtk.Label(registration.name(), halign=Gtk.Align.START)
         if hasattr(registration, 'tip'):
-            tooltips.set_tooltip_text(self._label,registration.tip)
+            self._label.set_tooltip_text(registration.tip)
         self.sbcallback = None
         self.makeWidget()
     def makeWidget(self):
         debug.mainthreadTest()
         if self.sbcallback:
             switchboard.removeCallback(self.sbcallback)
-        self._box.foreach(gtk.Object.destroy)
+        self._box.foreach(Gtk.Object.destroy)
         try:
             self._widget = self.rclfactory. \
                            widgetdict[self.registration.subclass] \
@@ -535,7 +536,8 @@ class RegistrationGUIData:
             self._widget = ParameterTable(self.registration.params,
                                           scope=self.rclfactory,
                                           name=self.registration.name())
-        self._box.pack_start(self._widget.gtk, expand=0, fill=0)
+        self._box.pack_start(self._widget.gtk,
+                             expand=False, fill=False, padding=0)
         self.widgetcallback = switchboard.requestCallbackMain(self._widget,
                                                               self.widgetCB)
     def widgetCB(self, interactive):
@@ -583,7 +585,7 @@ class RegistrationGUIData:
 
 class RegisteredClassListFactory(RCFBase):
     def __init__(self, registry, objlist=None, title=None, callback=None,
-                 fill=0, expand=0, scope=None, name=None, widgetdict={},
+                 fill=False, expand=False, scope=None, name=None, widgetdict={},
                  *args, **kwargs):
         debug.mainthreadTest()
 
@@ -595,9 +597,9 @@ class RegisteredClassListFactory(RCFBase):
         self.fill = fill
         self.expand = expand
 
-        frame = gtk.Frame()
-        self.table = gtk.Table(rows=1, columns=2)
-        frame.add(self.table)
+        frame = Gtk.Frame()
+        self.grid = gtk.Grid()
+        frame.add(self.grid)
         RCFBase.__init__(self, frame, scope, widgetdict, name)
         self.parent.addWidget(self)
         self.update(registry, objlist)
@@ -611,31 +613,34 @@ class RegisteredClassListFactory(RCFBase):
         # Called during initialization and whenever the registry changes.
         debug.mainthreadTest()
         self.registry = registry
-        self.table.foreach(gtk.Object.destroy) # clear the table
+        self.grid.foreach(Gtk.Object.destroy) # clear the grid
         row = 0
         if self.title:
-            self.table.attach(gtk.Label(self.title), 0,2, row,row+1,
-                              yoptions=0, ypadding=5)
+            self.grid.attach(gtk.Label(self.title), 0,row,1,1)
             row += 1
-            self.table.attach(gtk.HSeparator(), 0,2, row,row+1,
-                              yoptions=0, ypadding=3)
+            self.grid.attach(
+                Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+                0,row, 2,1)
             row += 1
         self.guidata = {}               # RegistrationGUIData, keyed by reg name
         for registration in registry:
             if self.includeRegistration(registration):
                 data = RegistrationGUIData(registration, self)
                 self.guidata[registration.name()] = data
-                self.table.attach(data.button(), 0,1, row,row+1, xoptions=0,
-                                  yoptions=0, xpadding=3, ypadding=3)
-                self.table.attach(data.label(), 1,2, row,row+1,
-                                  xoptions=gtk.EXPAND|gtk.FILL, yoptions=0)
-                self.table.attach(data.box(), 1,2, row+1,row+2,
-                                  xoptions=gtk.EXPAND|gtk.FILL, yoptions=0,
-                                  xpadding=3, ypadding=3)
-                self.table.attach(gtk.HSeparator(), 0,2, row+2, row+3,
-                                  xoptions=gtk.EXPAND|gtk.FILL, yoptions=0)
+                data.button.set_hexpand(False)
+                self.grid.attach(data.button(), 0,row,1,1)
+                data.label().set_hexpand(True)
+                data.label().set_halign(Gtk.Align.FILL)
+                self.grid.attach(data.label(), 1,row,1,1)
+                data.box().set_hexpand(True)
+                data.box().set_halign(Gtk.Align.FILL)
+                self.grid.attach(data.box(), 1, row+1,1,1)
+                self.grid.attach(
+                    Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL,
+                                  halign=Gtk.Align.FILL),
+                    0,row+2, 2,1)
                 row += 3
-        self.table.resize(rows=row-1, columns=2) # remove last gtk.HSeparator
+        self.grid.remove_row(row-1) # remove last gtk.HSeparator
         if objlist is not None:
             self.set(*objlist)
         self.widgetCB(interactive=0)
@@ -668,7 +673,7 @@ class RegisteredClassListFactory(RCFBase):
         # Don't use self.gtk.show_all(), since it will show collapsed items.
         for data in self.guidata.values():
             data.show()
-        self.table.show()
+        self.grid.show()
         self.gtk.show()
         
     def get_value(self):

@@ -8,6 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+OBSOLETE
 
 ## This file defines a function that lets us use the new gtk.Tooltip
 ## API when it's available.  As of gtk+2 2.20 or so, using the old API

@@ -11,7 +11,6 @@
 
 # GTK widgets for inputting Parameter objects.
 
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
@@ -21,10 +20,9 @@ from ooflib.common import strfunction
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import gtklogger
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import widgetscope
 from types import *
-import gtk
+from gi.repository import Gtk
 import math
 import string
 
@@ -112,8 +110,8 @@ class ParameterWidget:
 class GenericWidget(ParameterWidget):
     def __init__(self, param, scope=None, name=None, compact=False):
         debug.mainthreadTest()
-        widget = gtk.Entry()
-        widget.set_size_request(10*guitop.top().charsize, -1)
+        widget = Gtk.Entry()
+        widget.set_width_chars(10)
         ParameterWidget.__init__(self, widget, scope=scope, name=name,
                                  compact=compact)
         self.signal = gtklogger.connect(widget, 'changed', self.changedCB)
@@ -207,19 +205,24 @@ parameter.RestrictedStringParameter.makeWidget = _RSParam_makeWidget
 
 from ooflib.common.IO import automatic
 
+## TODO: AutoWidgets shouldn't have a checkbox.  They should return
+## automatic.automatic if the text field is empty.  The text field
+## should display 'automatic' in gray if it's empty.
+
 # AutoWidget sets up and handles the basic geometry of automatic
 # widgets -- puts in the checkbox, hooks up signals, etc.  Does not
 # talk to the parameter, because AutoNameWidgets have special
 # requirements for these.
 class AutoWidget(ParameterWidget):
     def __init__(self, param, scope=None, name=None):
-        ParameterWidget.__init__(self, gtk.HBox(), scope=scope, name=name)
-        self.autocheck = gtk.CheckButton()
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        ParameterWidget.__init__(self, hbox, scope=scope, name=name)
+        self.autocheck = Gtk.CheckButton()
         gtklogger.setWidgetName(self.autocheck, 'Auto')
-        self.text = gtk.Entry()
+        self.text = Gtk.Entry()
         gtklogger.setWidgetName(self.text, 'Text')
-        self.gtk.pack_start(self.autocheck, expand=0, fill=0)
-        self.gtk.pack_start(self.text, expand=1, fill=1)
+        self.gtk.pack_start(self.autocheck, expand=0, fill=0, padding=0)
+        self.gtk.pack_start(self.text, expand=1, fill=1, padding=0)
         gtklogger.connect(self.autocheck, "clicked", self.checkCB)
         self.textsignal = gtklogger.connect(self.text, 'changed', self.entryCB)
         
@@ -285,7 +288,7 @@ class AutoNameWidget(AutoWidget):
         else:
             self.set_value(param.truevalue)
             self.widgetChanged(self.validText(param.truevalue), interactive=0)
-        tooltips.set_tooltip_text(self.autocheck,
+        self.autocheck.set_tooltip_text(
             'Switch between typed names and automatically generated names.')
 
     # AutoNameWidget's set-value doesn't take the repr of the value,
@@ -342,8 +345,7 @@ class AutoNumberWidget(AutoWidget):
         AutoWidget.__init__(self, param, scope=scope, name=name)
         self.set_value(param.value)
         self.widgetChanged(1, interactive=0)
-        tooltips.set_tooltip_text(self.autocheck,
-            "Switch between automatic and integer.")
+        self.autocheck.set_tooltip_text("Switch between automatic and integer.")
 
     # The AutoWidget get_value returns automatic or a string, or none.
     # If we get a string, evaluate it and return the result.
@@ -371,18 +373,16 @@ class BooleanWidget(ParameterWidget):
             labelstr = 'true'
         else:
             labelstr = 'false'
-        self.label = gtk.Label(labelstr)
-        ParameterWidget.__init__(self, gtk.Frame(), scope=scope,
+        ParameterWidget.__init__(self, Gtk.Frame(), scope=scope,
                                  compact=compact)
         if not compact:
-            self.button = gtk.CheckButton()
-            self.button.add(self.label)
+            self.button = Gtk.CheckButton(labelstr)
             self.gtk.add(self.button)
         else:
             self.button = gtk.ToggleButton()
-            align = gtk.Alignment(xalign=0.5, xscale=0.0)
-            align.add(self.button)
-            self.gtk.add(align)
+            self.button.set_halign(Gtk.Align.CENTER)
+            self.button.set_hexpand(False)
+            self.gtk.add(self.button)
         # name is assigned to the button, not the frame, because it's
         # the button that gets connected.
         gtklogger.setWidgetName(self.button, name)
@@ -536,7 +536,7 @@ class FloatWidget(GenericWidget):
         GenericWidget.__init__(self, param=param, scope=scope, name=name,
                                compact=compact)
         if compact:
-            self.gtk.set_size_request(8*guitop.top().digitsize, -1)
+            self.gtk.set_width_chars(8)
     def get_value(self):
         x = GenericWidget.get_value(self)
         if x is not None:
@@ -597,7 +597,7 @@ class IntWidget(GenericWidget):
         GenericWidget.__init__(self, param=param, scope=scope, name=name,
                                compact=compact)
         if compact:
-            self.gtk.set_size_request(8*guitop.top().digitsize, -1)
+            self.gtk.set_width_chars(8)
     # See comments in FloatWidget
     def get_value(self):
         x = GenericWidget.get_value(self)
@@ -695,9 +695,9 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
             self.setData(key, value)
         self.params = params            # list of Parameters
         if self.params:
-            base = gtk.Table(rows=len(params), columns=2)
+            base = Gtk.Grid() #rows=len(params), columns=2
         else:
-            base = gtk.VBox()
+            base = gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         ParameterWidget.__init__(self, base, scope, name)
         self.showLabels = showLabels
         self.labels = []
@@ -706,7 +706,6 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
         self.subscopes = []             # Widgetscopes for ParameterGroups
         self.set_values()
         self.show()
-##        self.base_value = None # Original, pre-selection value, in base form.
 
     def set_values(self):
         self.labels = []
@@ -749,21 +748,24 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
             ]
         self.validities[tablepos] = widget.isValid()
         
-        label = gtk.Label(param.name + ' =')
-        label.set_alignment(1.0, 0.5)
+        label = Gtk.Label(param.name + ' =', halign=Gtk.Align.END,
+                          hexpand=False, margin_start=5)
         self.labels.append(label)
+        widget.gtk.set_halign(Gtk.Align.FILL)
+        widget.get.set_hexpand(True)
+        widget.set_margin_start(5)
+        widget.set_margin_end(5)
         if param.tip:
-            tooltips.set_tooltip_text(label,param.tip)
+            label.set_tooltip_text(param.tip)
         if widget.expandable:
-            yoptions = gtk.EXPAND | gtk.FILL
+            widget.gtk.set_vexpand(True)
+            widget.gtk.set_valign(Gtk.Align.FILL)
+            label.set_vexpand(True)
+            label.set_valign(Gtk.Align.FILL)
             self.expandable = True
-        else:
-            yoptions = 0
         if self.showLabels:
-            self.gtk.attach(label, 0, 1, tablepos, tablepos+1, xpadding=5,
-                            xoptions=gtk.FILL, yoptions=yoptions)
-        self.gtk.attach(widget.gtk, 1, 2, tablepos, tablepos+1, xpadding=5,
-                        xoptions=gtk.EXPAND|gtk.FILL, yoptions=yoptions)
+            self.gtk.attach(label, 0, 1, tablepos, tablepos+1)
+        self.gtk.attach(widget.gtk, 1, 2, tablepos, tablepos+1)
     def get_values(self):
         debug.mainthreadTest()
         exceptions = []
@@ -847,8 +849,8 @@ class HierParameterTable(ParameterTable):
 # Modal dialog for setting Parameters
 
 class ParameterDialog(widgetscope.WidgetScope):
-    OK = 1
-    CANCEL = 2
+    # OK = 1   # Use Gtk.ResponseType.OK instead
+    # CANCEL = 2
     def __init__(self, *parameters, **kwargs):
         debug.mainthreadTest()
         # A title for the dialog box can be specified by a REQUIRED
@@ -856,6 +858,8 @@ class ParameterDialog(widgetscope.WidgetScope):
         # with a 'scope' keyword.  If a parent window is specified
         # with the 'parentwindow' argument, the dialog will be brought
         # up as a transient window for it.
+
+        ## TODO: Use dict.get() instead of try/except here.
         try:
             scope = kwargs['scope']
         except KeyError:
@@ -883,40 +887,61 @@ class ParameterDialog(widgetscope.WidgetScope):
                 self.setData(key, value)
             
         self.parameters = parameters
-        self.dialog = gtklogger.Dialog(parent=parentwindow,
-                                       flags=gtk.DIALOG_MODAL)
-        self.dialog.set_keep_above(True)
+        self.dialog = gtklogger.Dialog(flags=Gtk.DialogFlags.MODAL,
+                                       parent=parentwindow)
+        # Window.set_keep_above is not guaranteed to work, but it won't hurt.
+        # https://developer.gnome.org/gtk3/stable/GtkWindow.html#gtk-window-set-keep-above
+        self.dialog.set_keep_above(True) 
         
         try:
             title = kwargs['title']
         except KeyError:
             raise ooferror.ErrPyProgrammingError("Untitled dialog!")
         gtklogger.newTopLevelWidget(self.dialog, 'Dialog-'+kwargs['title'])
-
         self.dialog.set_title(title)
-        hbox = gtk.HBox()
-        self.dialog.vbox.pack_start(hbox, expand=0, fill=0, padding=5)
-        hbox.pack_start(gtk.Label(title), expand=1, fill=1, padding=10)
 
+        # The gtk2 version had code here that put an hbox containing
+        # the dialog's title at the top of the dialog's content area.
+        # But show_all was never called on it, so it never appeared.
+        # Apparently it wasn't necessary.
+
+        # Create buttons in the action area.  This can be overridden
+        # in derived classes.
         self._button_hook()
 
         self.table = ParameterTable(parameters, scope=self)
         self.sbcallback = switchboard.requestCallbackMain(
             ('validity', self.table),
             self.validityCB)
-        self.dialog.vbox.pack_start(self.table.gtk,
-                                    expand=self.table.expandable,
-                                    fill=True)
+        vbox = dialog.get_content_area()
+        vbox.pack_start(self.table.gtk, expand=self.table.expandable,
+                        fill=True, padding=5)
         self.response = None
         self.sensitize()
 
-
-    # Separate draw routine, overridden in subclasses.
+    # _button_hook installs OK and Cancel buttons.  Override in
+    # derived classes if other buttons are needed in the dialog's
+    # action area.
     def _button_hook(self):
         debug.mainthreadTest()
-        okbutton = self.dialog.add_button(gtk.STOCK_OK, self.OK)
-        cancelbutton = self.dialog.add_button(gtk.STOCK_CANCEL, self.CANCEL)
-        self.dialog.set_default_response(self.OK)
+        okbutton = gtkutils.StockButton('gtk-ok', 'OK')
+        self.dialog.add_action_widget(
+            okbutton,
+            Gtk.ResponseType.OK)
+        ## TODO: The following three lines sometimes seem to suffice
+        ## to connect the Enter key with the OK button, as long as
+        ## button.set_receives_default(False) is called for any
+        ## buttons in the content area and the content area contains
+        ## no Gtk.Entrys. Sometimes it generates
+        ##  Gtk-CRITICAL: gtk_widget_grab_default: assertion 'gtk_widget_get_can_default (widget)' failed
+        ## Obviously we don't understand how to do this properly.
+        okbutton.set_can_default(True)
+        okbutton.set_receives_default(True)
+        okbutton.grab_default()
+        
+        self.dialog.add_action_widget(
+            gtkutils.StockButton('gtk-cancel', 'Cancel'),
+            Gtk.ResponseType.CANCEL)
  
     def run(self):
         debug.mainthreadTest()
@@ -933,7 +958,8 @@ class ParameterDialog(widgetscope.WidgetScope):
         self.sensitize()
     def sensitize(self):
         debug.mainthreadTest()
-        self.dialog.set_response_sensitive(self.OK, self.table.isValid())
+        self.dialog.set_response_sensitive(Gtk.ResponseType.OK,
+                                           self.table.isValid())
     def hide(self):
         debug.mainthreadTest()
         self.dialog.hide()
@@ -949,9 +975,9 @@ def getParameters(*params, **kwargs):
 
     result = dialog.run()
     
-    if result in (ParameterDialog.CANCEL,
-                  gtk.RESPONSE_DELETE_EVENT,
-                  gtk.RESPONSE_NONE):
+    if result in (Gtk.ResponseType.CANCEL,
+                  Gtk.ResponseType.DELETE_EVENT,
+                  Gtk.ResponseType.NONE):
         dialog.close()
         return None
     try:
@@ -971,19 +997,27 @@ def getParameterValues(*params, **kwargs):
 #####################################################################
 
 class PersistentParameterDialog(ParameterDialog):
-    OK = 1
-    APPLY = 2
-    CANCEL = 3
+    # OK = 1
+    # APPLY = 2
+    # CANCEL = 3
     def _button_hook(self):
         debug.mainthreadTest()
-        okbutton = self.dialog.add_button(gtk.STOCK_OK, self.OK)
-        applybutton = self.dialog.add_button(gtk.STOCK_APPLY, self.APPLY)
-        cancelbutton = self.dialog.add_button(gtk.STOCK_CANCEL, self.CANCEL)
-        self.dialog.set_default_response(self.OK)
+        self.dialog.add_action_widget(
+            gtkutils.StockButton('gtk-ok', 'OK'),
+            Gtk.ResponseType.OK)
+        self.dialog.add_action_widget(
+            gtkutils.StockButton('gtk-apply', 'Apply'),
+            Gtk.ResponseType.APPLY)
+        self.dialog.add_action_widget(
+            gtkutils.StockButton('gtk-cancel', 'Cancel'),
+            Gtk.ResponseType.CANCEL)
+        self.dialog.set_default_response(Gtk.ResponseType.OK)
+        
     def sensitize(self):
         debug.mainthreadTest()
         ParameterDialog.sensitize(self)
-        self.dialog.set_response_sensitive(self.APPLY, self.table.isValid())
+        self.dialog.set_response_sensitive(Gtk.ResponseType.APPLY,
+                                           self.table.isValid())
 
 # This function passes the params and kwargs on to a persistent
 # parameter dialog box, which it leaves up until it gets OK or some
@@ -997,18 +1031,18 @@ def persistentMenuitemDialog(menuitem, defaults, *params, **kwargs):
     dialog = PersistentParameterDialog(*params,**kwargs)
     while rerun:
         result = dialog.run()
-        if result in (PersistentParameterDialog.CANCEL,
-                      gtk.RESPONSE_DELETE_EVENT,
-                      gtk.RESPONSE_NONE):
+        if result in (Gtk.ResponseType.CANCEL,
+                      Gtk.ResponseType.DELETE_EVENT,
+                      Gtk.ResponseType.NONE):
             rerun = False
-        elif result==PersistentParameterDialog.OK:
+        elif result==Gtk.ResponseType.OK:
             try:
                 dialog.get_values()
             finally:
                 rerun = False
             menuitem.callWithDefaults(**defaults)
             count += 1
-        else: #  result==PersistentParameterDialog.APPLY
+        else: #  result==Gtk.ResponseType.APPLY
             dialog.get_values()
             menuitem.callWithDefaults(**defaults)
             count += 1
@@ -1019,7 +1053,7 @@ def persistentMenuitemDialog(menuitem, defaults, *params, **kwargs):
 def transientMenuItemDialog(menuitem, defaults, *params, **kwargs):
     dialog = ParameterDialog(*params, **kwargs)
     result = dialog.run()
-    if result == ParameterDialog.OK:
+    if result == Gtk.ResponseType.OK:
         dialog.get_values()
         menuitem.callWithDefaults(**defaults)
     dialog.close()
@@ -1100,8 +1134,9 @@ class AutomaticValueSetParameterWidget(AutoWidget):
     def __init__(self, param, scope=None, name=None):
         AutoWidget.__init__(self, param, scope=scope, name=name)
         self.set_value(param.value)
-        tooltips.set_tooltip_text(self.autocheck,
-            "Switch between typed level specifications and automatic generation of levels.")
+        self.autocheck.set_tooltip_text(
+            "Switch between typed level specifications and "
+            "automatic generation of levels.")
 
     def validValue(self, value):
         if value is None:
@@ -1143,19 +1178,17 @@ parameter.AutomaticValueSetParameter.makeWidget = _makeAVSPWidget
 class PointWidget(ParameterWidget):
     def __init__(self, param, scope=None, name=None):
         debug.mainthreadTest()
-        hbox = gtk.HBox()
-        xlabel = gtk.Label("x:")
-        xlabel.set_alignment(1.0, 0.5)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        xlabel = gtk.Label("x:", halign=Gtk.Align.END)
         self.xwidget = FloatWidget(parameter.FloatParameter('Tweedledum', 0),
                                    name="X")
-        ylabel = gtk.Label("y:")
-        ylabel.set_alignment(1.0, 0.5)
+        ylabel = Gtk.Label("y:", halign=Gtk.Align.END)
         self.ywidget = FloatWidget(parameter.FloatParameter('Tweedledee', 0),
                                    name="Y")
-        hbox.pack_start(xlabel, expand=0, fill=0, padding=2)
-        hbox.pack_start(self.xwidget.gtk, expand=1, fill=1)
-        hbox.pack_start(ylabel, expand=0, fill=0, padding=2)
-        hbox.pack_start(self.ywidget.gtk, expand=1, fill=1)
+        hbox.pack_start(xlabel, expand=False, fill=False, padding=2)
+        hbox.pack_start(self.xwidget.gtk, expand=True, fill=True, padding=1)
+        hbox.pack_start(ylabel, expand=False, fill=False, padding=2)
+        hbox.pack_start(self.ywidget.gtk, expand=True, fill=True, padding=1)
         self.sbcallbacks=[
             switchboard.requestCallbackMain(self.xwidget,
                                             self.widgetChangeCB),

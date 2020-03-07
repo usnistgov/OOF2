@@ -10,6 +10,8 @@
  * oof_manager@nist.gov. 
  */
 
+OBSOLETE
+
 #include <oofconfig.h>
 
 #include "common/IO/bitoverlay.h"

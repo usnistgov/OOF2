@@ -23,27 +23,20 @@ import threading
 # is required because idle callbacks and timeout callbacks need to
 # acquire the GTK lock before making GTK calls.
 
+## TOOO GTK3: We probably don't need these functions anymore, since
+## all Gtk3 calls must be from the main thread.  The old version used
+## gdk.threads_enter and gdk.threads_leave here.
+
 def mainiteration(block=True):
      debug.mainthreadTest()
-     if mainthreadGUI.inside_idle_callback and thread_enable.query():
-          gtk.gdk.threads_enter()
-     try:
-          gtk.main_iteration(block)
-     finally:
-          if mainthreadGUI.inside_idle_callback and thread_enable.query():
-               gtk.gdk.threads_leave()
+     Gtk.main_iteration_do(block)
+          
 
 # Looping version, processes the full event queue.  This also wraps
 # the events_pending call, which is necessary to prevent blocking.
 
 def mainiteration_loop(block=True):
      debug.mainthreadTest()
-     if mainthreadGUI.inside_idle_callback and thread_enable.query():
-          gtk.gdk.threads_enter()
-     try:
-          while gtk.events_pending():
-               gtk.main_iteration(block)
-     finally:
-          if mainthreadGUI.inside_idle_callback and thread_enable.query():
-               gtk.gdk.threads_leave()
+     while Gtk.events_pending():
+          Gtk.main_iteration_do(block)
 

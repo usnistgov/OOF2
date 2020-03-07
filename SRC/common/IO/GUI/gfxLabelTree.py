@@ -25,8 +25,8 @@ from ooflib.common import debug
 from ooflib.common import labeltree
 from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import gtklogger
-import gobject
-import gtk
+from gi.repository import GObject
+from gi.repository import Gtk
 import string
 
 
@@ -43,14 +43,14 @@ class GfxLabelTree:
 
         # Create a TreeStore that mirrors the LabelTree.  The first
         # column is the label, and the second is the LabelTree node.
-        self.treestore = gtk.TreeStore(gobject.TYPE_STRING,
-                                       gobject.TYPE_PYOBJECT)
-        self.gtk = gtk.TreeView(model=self.treestore)
+        self.treestore = Gtk.TreeStore(GObject.TYPE_STRING,
+                                       GObject.TYPE_PYOBJECT)
+        self.gtk = Gtk.TreeView(self.treestore)
         gtklogger.setWidgetName(self.gtk, name)
         self.gtk.set_property("headers-visible", False)
-        tvcol = gtk.TreeViewColumn()
+        tvcol = Gtk.TreeViewColumn()
         self.gtk.append_column(tvcol)
-        cell = gtk.CellRendererText()
+        cell = Gtk.CellRendererText()
         tvcol.pack_start(cell, expand=False)
         tvcol.set_attributes(cell, text=0) # display column 0 of the tree store
         
@@ -266,7 +266,7 @@ class LabelTreeChooserWidget:
         if scope:
             scope.addWidget(self)
 
-        self.gtk = gtk.VBox()
+        self.gtk = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.widgets = []
         if value is not None:
             self.set_value(value)
@@ -296,7 +296,7 @@ class LabelTreeChooserWidget:
             self.gtk.pack_start(widget.gtk, expand=0, fill=0)
             tree = tree[name]
         self.gtk.show_all()
-    def chooserCB(self, gtkobj, name, depth):
+    def chooserCB(self, name, depth):
         leadpath = [self.widgets[d].get_value() for d in range(depth)]
         subtree = self.tree[leadpath+[name]]
         self.set_value(subtree.numberOneChild())

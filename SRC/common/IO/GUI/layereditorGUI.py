@@ -23,10 +23,9 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import quit
 from ooflib.common.IO.GUI import subWindow
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.common.IO.GUI import widgetscope
-import gtk
+from gi.repository import Gtk
 
 class LayerEditorGUI(layereditor.LayerEditor, subWindow.SubWindow,
                      widgetscope.WidgetScope):
@@ -60,43 +59,43 @@ class LayerEditorGUI(layereditor.LayerEditor, subWindow.SubWindow,
         self.gtk.set_default_size(600, 250)
         self.gtk.connect('destroy', self.destroyCB)
 
-        mainpane = gtk.HPaned()
+        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
         mainpane.set_border_width(3)
         mainpane.set_position(300)
-        self.mainbox.pack_start(mainpane, expand=1, fill=1)
+        self.mainbox.pack_start(mainpane, expand=True, fill=True)
 
         # The left side of the layer editor is for choosing the object
         # being drawn.
-        whoframe = gtk.Frame('Displayed Object')
-        mainpane.pack1(whoframe, resize=1, shrink=0)
-        wscroll = gtk.ScrolledWindow()
+        whoframe = Gtk.Frame(label='Displayed Object')
+        mainpane.pack1(whoframe, resize=True, shrink=False)
+        wscroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(wscroll, "ObjectScroll")
-        wscroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        wscroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         whoframe.add(wscroll)
-        vbox = gtk.VBox()
-        wscroll.add_with_viewport(vbox)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        wscroll.add(vbox)
         cmd = self.menu.LayerSet.DisplayedObject
         # This creates a table containing a WhoClassWidget and a WhoWidget:
         ptable = parameterwidgets.ParameterTable(
             [cmd.get_arg('category'), cmd.get_arg('object')],
             scope=self)
-        vbox.pack_start(ptable.gtk, expand=0, fill=0)
+        vbox.pack_start(ptable.gtk, expand=False, fill=False, padding=0)
 
         # The right side of the layer editor lists the display methods
         # for the object on the left side.
-        methframe = gtk.Frame('Display Methods')
+        methframe = Gtk.Frame(label='Display Methods')
         gtklogger.setWidgetName(methframe, "DisplayMethods")
-        mainpane.pack2(methframe, resize=1, shrink=0)
-        mvbox = gtk.VBox()
+        mainpane.pack2(methframe, resize=True, shrink=False)
+        mvbox = gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         methframe.add(mvbox)
-        mhbox = gtk.HBox()
-        mvbox.pack_start(mhbox, expand=1, fill=1)
+        mhbox = gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        mvbox.pack_start(mhbox, expand=True, fill=True, padding=0)
         self.methodList = chooser.ScrolledChooserListWidget(
             callback=self.singleClickMethodCB,
             dbcallback=self.doubleClickMethodCB,
             comparator=lambda x, y: (not x.inequivalent(y)),
             name="List")
-        mhbox.pack_start(self.methodList.gtk, expand=1, fill=1, padding=3)
+        mhbox.pack_start(self.methodList.gtk, expand=True, fill=True, padding=3)
 
         # The who widget is replaced each time the who class widget is
         # activated, so its switchboard callback must be reset often,
@@ -104,60 +103,77 @@ class LayerEditorGUI(layereditor.LayerEditor, subWindow.SubWindow,
         self.whowidgetsignal = None
         self.findWhoWidget()
 
-        buttonbox = gtk.HBox()
-        mvbox.pack_start(buttonbox, expand=0, fill=0, padding=3)
+        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        mvbox.pack_start(buttonbox, expand=False, fill=False, padding=3)
 
-        self.newMethodButton = gtkutils.StockButton(gtk.STOCK_NEW, 'New...')
-        buttonbox.pack_start(self.newMethodButton, expand=0, fill=0)
+        self.newMethodButton = gtkutils.StockButton("document-new-symbolic",
+                                                    'New...')
+        buttonbox.pack_start(self.newMethodButton, expand=False, fill=False,
+                             padding=0)
         gtklogger.setWidgetName(self.newMethodButton, "New")
         gtklogger.connect(self.newMethodButton, 'clicked',
                           self.newMethodButtonCB)
-        self.editMethodButton = gtkutils.StockButton(gtk.STOCK_EDIT, 'Edit...')
-        buttonbox.pack_start(self.editMethodButton, expand=0, fill=0)
+
+        self.editMethodButton = gtkutils.StockButton("document-edit-symbolic",
+                                                     'Edit...')
+        buttonbox.pack_start(self.editMethodButton, expand=False, fill=False,
+                             padding=0)
         gtklogger.setWidgetName(self.editMethodButton, "Edit")
         gtklogger.connect(self.editMethodButton, 'clicked',
                           self.editMethodButtonCB)
-        self.copyMethodButton = gtkutils.StockButton(gtk.STOCK_COPY, 'Copy')
-        buttonbox.pack_start(self.copyMethodButton, expand=0, fill=0)
+        
+        self.copyMethodButton = gtkutils.StockButton("edit-copy-symbolic",
+                                                     'Copy')
+        buttonbox.pack_start(self.copyMethodButton, expand=False, fill=False,
+                             padding=0)
         gtklogger.setWidgetName(self.copyMethodButton, "Copy")
         gtklogger.connect(self.copyMethodButton, 'clicked',
                           self.copyMethodButtonCB)
-        self.deleteMethodButton = gtkutils.StockButton(gtk.STOCK_DELETE,
+        
+        self.deleteMethodButton = gtkutils.StockButton("edit-delete-symbolic",
                                                        'Delete')
-        buttonbox.pack_start(self.deleteMethodButton, expand=0, fill=0)
+        buttonbox.pack_start(self.deleteMethodButton, expand=False, fill=False,
+                             padding=0)
         gtklogger.setWidgetName(self.deleteMethodButton, "Delete")
         gtklogger.connect(self.deleteMethodButton, 'clicked',
                           self.deleteMethodButtonCB)
 
-        self.mainbox.pack_start(gtk.HSeparator(), expand=0, fill=0)
+        self.mainbox.pack_start(
+            Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            expand=False, fill=False, padding=0)
 
         # Buttons at the bottom governing LayerSet operations:
         # New LayerSet, Send to Gfx Window, etc.
         
-        mainbuttonbox = gtk.HBox()
-        self.mainbox.pack_start(mainbuttonbox, expand=0, fill=0, padding=3)
+        mainbuttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        self.mainbox.pack_start(mainbuttonbox, expand=False, fill=False,
+                                padding=3)
 
-        newLayerButton = gtkutils.StockButton(gtk.STOCK_NEW, 'New Layer')
-        mainbuttonbox.pack_start(newLayerButton, expand=0, fill=0, padding=3)
+        newLayerButton = gtkutils.StockButton("document-new-symbolic",
+                                              'New Layer')
+        mainbuttonbox.pack_start(newLayerButton, expand=False, fill=False,
+                                 padding=3)
         gtklogger.setWidgetName(newLayerButton, "NewLayer")
         gtklogger.connect(newLayerButton, 'clicked', self.newLayerButtonCB)
 
-        self.sendButton = gtkutils.StockButton(gtk.STOCK_GO_FORWARD, 'Send',
+        self.sendButton = gtkutils.StockButton("document-send-symbolic", 'Send',
                                                reverse=1)
-##        self.sendButton.set_usize(80, -1)
-        mainbuttonbox.pack_end(self.sendButton, expand=0, fill=0, padding=3)
+        mainbuttonbox.pack_end(self.sendButton, expand=False, fill=False,
+                               padding=3)
         gtklogger.setWidgetName(self.sendButton, "Send")
         gtklogger.connect(self.sendButton, 'clicked', self.sendCB)
         self.destinationMenu = chooser.ChooserWidget([], name="Destination")
-        mainbuttonbox.pack_end(self.destinationMenu.gtk, expand=0, fill=0)
+        mainbuttonbox.pack_end(self.destinationMenu.gtk,
+                               expand=False, fill=False, padding=0)
         self.updateDestinationMenu()
-        label=gtk.Label('Destination=')
-        tooltips.set_tooltip_text(label,
+        label = gtk.Label('Destination=', halign=Gtk.Align.END)
+        label.set_tooltip_text(
             'The graphics window(s) that will display the layer(s).')
-        label.set_alignment(1.0, 0.5)
-        mainbuttonbox.pack_end(label, expand=0, fill=0)
+        mainbuttonbox.pack_end(label, expand=False, fill=False, padding=0)
 
-        self.mainbox.pack_start(gtk.HSeparator(), expand=0, fill=0, padding=3)
+        self.mainbox.pack_start(
+            gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            expand=False, fill=False, padding=3)
 
         # When the lhs widgets change state the rhs might have to
         # change too.  The widgets referred to here are inside the

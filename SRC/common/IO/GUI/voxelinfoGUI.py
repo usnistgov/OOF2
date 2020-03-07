@@ -8,6 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+OBSOLETE
 
 #from ooflib.SWIG.common import pixelgroup
 from ooflib.SWIG.common import guitop

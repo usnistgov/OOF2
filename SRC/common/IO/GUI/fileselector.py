@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -24,7 +23,7 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
 import cgi
-import gtk
+from gi.repository import Gtk
 import os
 import os.path
 import re
@@ -63,15 +62,6 @@ _last_file = {}
 _last_dir = {}
 _last_hid = {}
 
-# Installing a search callback via gtk.TreeView.set_search_equal_func
-# causes pygtk 2.6 to dump core the second time a FileSelectorWidget
-# is used.  We only need to use set_search_equal_func because there's
-# pango markup in the file list, so we just don't use markup if we're
-# using version 2.6.  This hasn't been tested with 2.7.
-version = gtk.pygtk_version
-use_markup = version[0] > 2 or (version[0] == 2 and version[1] > 6)
-#            ^^^^^^^^^^^^^^ <--- as if this code will still work with pygtk3
-
 
 class FileSelectorWidget(parameterwidgets.ParameterWidget):
     
@@ -87,42 +77,46 @@ class FileSelectorWidget(parameterwidgets.ParameterWidget):
         self.dirHier = []       # directories in the current hierarchy
         self.dirHistory = ringbuffer.RingBuffer(50)
 
-        parameterwidgets.ParameterWidget.__init__(self, gtk.Frame(), scope,
+        parameterwidgets.ParameterWidget.__init__(self, Gtk.Frame(), scope,
                                                   name, expandable=True)
-        vbox = gtk.VBox()
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                       spacing=2, margin_start=2, margin_end=2)
         self.gtk.add(vbox)
 
         # Directory selector
-        hbox = gtk.HBox()
-        vbox.pack_start(hbox, expand=False, fill=False)
-        hbox.pack_start(gtk.Label("Directory:"), expand=False, fill=False)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=0)
+        hbox.pack_start(Gtk.Label("Directory:"), expand=False, fill=False,
+                        padding=0)
         self.dirWidget = chooser.ChooserComboWidget([],
                                                     callback=self.dirChangedCB, 
                                                     name="Directory")
-        hbox.pack_start(self.dirWidget.gtk, expand=True, fill=True)
+        hbox.pack_start(self.dirWidget.gtk, expand=True, fill=True, padding=0)
 
         # Directory selection buttons
-        hbox = gtk.HBox(homogeneous=False)
-        vbox.pack_start(hbox, expand=False, fill=False)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                        homogeneous=False, spacing=2)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=0)
 
-        self.backbutton = gtkutils.StockButton(gtk.STOCK_GO_BACK, "Back",
-                                               align=0.0)
+        self.backbutton = gtkutils.StockButton('go-previous-symbolic', "Back",
+                                               halign=Gtk.Align.START)
         gtklogger.setWidgetName(self.backbutton, "Back")
         gtklogger.connect(self.backbutton, 'clicked', self.backCB)
-        hbox.pack_start(self.backbutton, expand=True, fill=True)
+        hbox.pack_start(self.backbutton, expand=True, fill=True, padding=0)
 
         self.addDirButtons(hbox)
 
-        homebutton = gtkutils.StockButton(gtk.STOCK_HOME)
+        homebutton = gtkutils.StockButton('go-home-symbolic')
         gtklogger.setWidgetName(homebutton, "Home")
         gtklogger.connect(homebutton, 'clicked', self.homeCB)
-        hbox.pack_start(homebutton, expand=False, fill=True)
+        hbox.pack_start(homebutton, expand=False, fill=True, padding=0)
 
-        self.nextbutton = gtkutils.StockButton(gtk.STOCK_GO_FORWARD, "Next",
-                                               reverse=True, align=1.0)
+        self.nextbutton = gtkutils.StockButton("go-next-symbolic", "Next",
+                                               reverse=True,
+                                               halign=Gtk.Align.END)
         gtklogger.setWidgetName(self.nextbutton, "Next")
         gtklogger.connect(self.nextbutton, 'clicked', self.nextCB)
-        hbox.pack_start(self.nextbutton, expand=True, fill=True)
+        hbox.pack_start(self.nextbutton, expand=True, fill=True, padding=0)
 
         # File list
         self.fileList = chooser.ScrolledChooserListWidget(
@@ -131,21 +125,20 @@ class FileSelectorWidget(parameterwidgets.ParameterWidget):
             dbcallback=self.fileListDoubleCB,
             markup=True)
         self.fileList.gtk.set_size_request(-1, 100)
-        vbox.pack_start(self.fileList.gtk, expand=True, fill=True)
+        vbox.pack_start(self.fileList.gtk, expand=True, fill=True, padding=0)
         # Set the comparison function used when typing in the file
         # list.  _filename_cmp matches the beginnings of file names,
         # ignoring the markup added to directories and escaped
         # characters.
-        if use_markup:
-            self.fileList.treeview.set_search_equal_func(_filename_cmp, None)
+        self.fileList.treeview.set_search_equal_func(_filename_cmp, None)
 
-        align = gtk.Alignment(xalign=1.0)
-        vbox.pack_start(align, expand=False, fill=False)
-        hbox = gtk.HBox()
-        align.add(hbox)
-        hbox.pack_start(gtk.Label("show hidden files"), expand=False, fill=False)
-        self.hiddenButton = gtk.CheckButton()
-        hbox.pack_start(self.hiddenButton, expand=False, fill=False)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                       halign=Gtk.Align.END, spacing=2)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=0)
+        label = Gtk.Label("show hidden files")
+        hbox.pack_start(label, expand=False, fill=False, padding=0)
+        self.hiddenButton = Gtk.CheckButton()
+        hbox.pack_start(self.hiddenButton, expand=False, fill=False, padding=0)
         gtklogger.setWidgetName(self.hiddenButton, "ShowHidden")
         gtklogger.connect(self.hiddenButton, 'clicked', self.showHiddenCB)
         
@@ -259,8 +252,8 @@ class FileSelectorWidget(parameterwidgets.ParameterWidget):
 
     # Callbacks
 
-    def dirChangedCB(self, combobox): # directory widget callback
-        directory = self.cwd()        # adds trailing slash if needed
+    def dirChangedCB(self, val): # directory widget callback
+        directory = self.cwd()   # adds trailing slash if needed
         ## Don't do anything except sensitize widgets if the new
         ## directory isn't valid, or isn't different from the old one.
         ## Typing in the directory widget may cause it to be set to
@@ -351,25 +344,25 @@ class WriteFileSelectorWidget(FileSelectorWidget):
     ## make sense to append to some types of files (such as images).
 
     def addDirButtons(self, hbox): # directory navigation buttons
-        self.newdirbutton = gtkutils.StockButton(gtk.STOCK_DIRECTORY, "New")
+        self.newdirbutton = gtkutils.StockButton('folder-new-symbolic', "New")
         gtklogger.setWidgetName(self.newdirbutton, "NewDir")
         gtklogger.connect(self.newdirbutton, 'clicked', self.newdirCB)
         hbox.pack_start(self.newdirbutton, expand=False, fill=True)
 
     def addMoreWidgets(self, vbox): # Widgets below the file list.
-        hbox = gtk.HBox()
-        vbox.pack_start(hbox, expand=False, fill=False)
-        label = gtk.Label('File:')
-        hbox.pack_start(gtk.Label('File:'), expand=False, fill=False)
-        self.fileEntry = gtk.Entry()
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=0)
+        label = Gtk.Label('File:')
+        hbox.pack_start(Gtk.Label('File:'), expand=False, fill=False, padding=0)
+        self.fileEntry = Gtk.Entry()
         gtklogger.setWidgetName(self.fileEntry, 'File')
         self.fileEntrySignal = gtklogger.connect(self.fileEntry, 'changed',
                                                  self.entryChangeCB)
-        hbox.pack_start(self.fileEntry, expand=True, fill=True)
+        hbox.pack_start(self.fileEntry, expand=True, fill=True, padding=0)
 
         # Add file-name completion in the fileEntry widget.  The
         # fileList already has file-name completion in it.
-        self.completion = gtk.EntryCompletion()
+        self.completion = Gtk.EntryCompletion()
         self.fileEntry.set_completion(self.completion)
         self.completion.set_model(self.fileList.liststore)
         self.completion.set_text_column(0)
@@ -478,16 +471,14 @@ class WriteFileSelectorWidget(FileSelectorWidget):
 # Utility functions used by FileSelectorWidget
 
 def _addMarkup(directory, filename):
-    if use_markup:
-        if filename and os.path.isdir(os.path.join(directory, filename)):
-            return "<b>" + cgi.escape(filename) + "</b>"
-        return cgi.escape(filename)
-    return filename
+    if filename and os.path.isdir(os.path.join(directory, filename)):
+        return "<b>" + cgi.escape(filename) + "</b>"
+    return cgi.escape(filename)
 
 def _filename_cmp(model, column, key, iter, data):
     # Comparisons made while searching in the file list use the raw
     # file name, in column 1 of the model, instead of the marked-up
-    # file name in column 0. Only used if use_markup is True.
+    # file name in column 0.
     name = model[iter][1]
     return not name.startswith(key)
 
@@ -672,219 +663,218 @@ def getFile(ident=None, title=""):
 # the selectors can be destroyed by the window manager, and we don't
 # have any control over that.
 
-_selectors = weakref.WeakValueDictionary()
+if False:
+    _selectors = weakref.WeakValueDictionary()
 
 
-_modes = {'w':gtk.FILE_CHOOSER_ACTION_SAVE,
-         'r':gtk.FILE_CHOOSER_ACTION_OPEN}
+    _modes = {'w':gtk.FILE_CHOOSER_ACTION_SAVE,
+             'r':gtk.FILE_CHOOSER_ACTION_OPEN}
 
-class FileSelector(widgetscope.WidgetScope):
-    OK = 1
-    CANCEL = 2
-    def __init__(self, mode, title=None, filename=None, params=None,
-                 pattern=False):
-        debug.mainthreadTest()
-        widgetscope.WidgetScope.__init__(self, None)
-        self.dialog = gtklogger.Dialog()
-        self.set_title(title)
-        gtklogger.newTopLevelWidget(self.dialog, self.dialog.get_title())
-        self.filechooser = gtk.FileChooserWidget(action=_modes[mode])
-        self.dialog.set_default_size(500, 300)
-        self.filechooser.show()
-        self.dialog.vbox.pack_start(self.filechooser, expand=1, fill=1)
-        gtklogger.setWidgetName(self.filechooser, "FileChooser")
-        gtklogger.connect(self.filechooser, 'selection-changed',
-                          self.selectionchangedCB)
-        self.dialog.add_button(gtk.STOCK_OK, self.OK)
-        self.dialog.add_button(gtk.STOCK_CANCEL, self.CANCEL)
-        self.dialog.set_default_response(self.OK)
+    class FileSelector(widgetscope.WidgetScope):
+        OK = 1
+        CANCEL = 2
+        def __init__(self, mode, title=None, filename=None, params=None,
+                     pattern=False):
+            debug.mainthreadTest()
+            widgetscope.WidgetScope.__init__(self, None)
+            self.dialog = gtklogger.Dialog()
+            self.set_title(title)
+            gtklogger.newTopLevelWidget(self.dialog, self.dialog.get_title())
+            self.filechooser = gtk.FileChooserWidget(action=_modes[mode])
+            self.dialog.set_default_size(500, 300)
+            self.filechooser.show()
+            self.dialog.vbox.pack_start(self.filechooser, expand=1, fill=1)
+            gtklogger.setWidgetName(self.filechooser, "FileChooser")
+            gtklogger.connect(self.filechooser, 'selection-changed',
+                              self.selectionchangedCB)
+            self.dialog.add_button(gtk.STOCK_OK, self.OK)
+            self.dialog.add_button(gtk.STOCK_CANCEL, self.CANCEL)
+            self.dialog.set_default_response(self.OK)
 
-        self.pattern = (pattern and (mode=='r'))
-        if self.pattern:
-            # TODO: Fix aesthetics of the widgets.
-            self.filechooser.set_select_multiple(True)
-            self.patternrow = gtk.HBox()
-            self.patternrow.pack_start(gtk.Label("Pattern: "), expand=0, fill=0, padding=5)
-            self.pattern_entry = gtk.Entry()
-            self.pattern_entry.set_editable(1)
-            self.pattern_entry.set_text("*")
-            gtklogger.connect(self.pattern_entry, 'changed', self.patternchangedCB)
-            self.patternrow.pack_start(self.pattern_entry, expand=1, fill=1, padding=5)
-            self.patternrow.show_all()
-
-        if params is None:
-            self.table = None
+            self.pattern = (pattern and (mode=='r'))
             if self.pattern:
-                self.filechooser.set_extra_widget(self.patternrow)
-        else:
-            self.table = parameterwidgets.ParameterTable(params, scope=self,
-                                                         name="Parameters")
-            self.sbcallback = switchboard.requestCallbackMain(
-                ('validity', self.table), self.validityCB)
-            if not self.pattern:
-                self.filechooser.set_extra_widget(self.table.gtk)
+                # TODO: Fix aesthetics of the widgets.
+                self.filechooser.set_select_multiple(True)
+                self.patternrow = gtk.HBox()
+                self.patternrow.pack_start(gtk.Label("Pattern: "), expand=0, fill=0, padding=5)
+                self.pattern_entry = gtk.Entry()
+                self.pattern_entry.set_editable(1)
+                self.pattern_entry.set_text("*")
+                gtklogger.connect(self.pattern_entry, 'changed', self.patternchangedCB)
+                self.patternrow.pack_start(self.pattern_entry, expand=1, fill=1, padding=5)
+                self.patternrow.show_all()
+
+            if params is None:
+                self.table = None
+                if self.pattern:
+                    self.filechooser.set_extra_widget(self.patternrow)
             else:
-                vbox = gtk.VBox()
-                vbox.pack_start(self.patternrow)
-                vbox.pack_start(self.table.gtk)
-                vbox.show()
-                self.filechooser.set_extra_widget(vbox)
+                self.table = parameterwidgets.ParameterTable(params, scope=self,
+                                                             name="Parameters")
+                self.sbcallback = switchboard.requestCallbackMain(
+                    ('validity', self.table), self.validityCB)
+                if not self.pattern:
+                    self.filechooser.set_extra_widget(self.table.gtk)
+                else:
+                    vbox = gtk.VBox()
+                    vbox.pack_start(self.patternrow)
+                    vbox.pack_start(self.table.gtk)
+                    vbox.show()
+                    self.filechooser.set_extra_widget(vbox)
 
-        if filename is not None:
-            self.filechooser.set_current_name(filename)
+            if filename is not None:
+                self.filechooser.set_current_name(filename)
 
-    def set_mode(self, mode):
-        debug.mainthreadTest()
-        self.filechooser.set_action(_modes[mode])
-        # Calling sensitize() here wouldn't be required if we could
-        # catch keystrokes in the Entry. See comment in sensitize(),
-        # below.
-        self.sensitize()
-    def set_title(self, title):
-        debug.mainthreadTest()
-        self.dialog.set_title(title or "OOF2 File Selector")
-    def sensitize(self):
-        debug.mainthreadTest()
-        valid = self.table is None or self.table.isValid()
-        # If we're opening an existing file, check to see if it's
-        # really there.  If we're opening a new file, it would be nice
-        # to check to see if the file entry widget has text in it, but
-        # there seems to be no way to do that.  There's no way to call
-        # this function after every keystroke, since the Entry widget
-        # inside the FileChooserWidget isn't accessible and we can't
-        # connect to it.
-        if valid and \
-               self.filechooser.get_action() == gtk.FILE_CHOOSER_ACTION_OPEN:
-            if not self.pattern:
-                filename = self.filechooser.get_filename()
-                valid = filename is not None and os.path.isfile(filename)
-            # check that there are files that fit the pattern
-            else:                
-                matchcount = utils.countmatches(self.pattern_entry.get_text(), self.filechooser.get_current_folder(), utils.matchvtkpattern)
-                valid = valid and self.pattern_entry.get_text() != "*" and matchcount
+        def set_mode(self, mode):
+            debug.mainthreadTest()
+            self.filechooser.set_action(_modes[mode])
+            # Calling sensitize() here wouldn't be required if we could
+            # catch keystrokes in the Entry. See comment in sensitize(),
+            # below.
+            self.sensitize()
+        def set_title(self, title):
+            debug.mainthreadTest()
+            self.dialog.set_title(title or "OOF2 File Selector")
+        def sensitize(self):
+            debug.mainthreadTest()
+            valid = self.table is None or self.table.isValid()
+            # If we're opening an existing file, check to see if it's
+            # really there.  If we're opening a new file, it would be nice
+            # to check to see if the file entry widget has text in it, but
+            # there seems to be no way to do that.  There's no way to call
+            # this function after every keystroke, since the Entry widget
+            # inside the FileChooserWidget isn't accessible and we can't
+            # connect to it.
+            if valid and \
+                   self.filechooser.get_action() == gtk.FILE_CHOOSER_ACTION_OPEN:
+                if not self.pattern:
+                    filename = self.filechooser.get_filename()
+                    valid = filename is not None and os.path.isfile(filename)
+                # check that there are files that fit the pattern
+                else:                
+                    matchcount = utils.countmatches(self.pattern_entry.get_text(), self.filechooser.get_current_folder(), utils.matchvtkpattern)
+                    valid = valid and self.pattern_entry.get_text() != "*" and matchcount
 
-        self.dialog.set_response_sensitive(self.OK, valid)
+            self.dialog.set_response_sensitive(self.OK, valid)
 
-    def patternchangedCB(self, *args):
-        # select the files that match
-        self.filechooser.unselect_all()
-        items = os.listdir(self.filechooser.get_current_folder())
-        for item in items:
-            if utils.matchvtkpattern(self.pattern_entry.get_text(), item):
-                self.filechooser.select_filename(os.path.join(self.filechooser.get_current_folder(),item))
-        
-        self.sensitize()
-        
-    def validityCB(self, validity):
-        self.sensitize()
-    def selectionchangedCB(self, *args):
-        self.sensitize()
-    def get_values(self):
-        if self.table:
-            return self.table.get_values()
-    def getFileName(self):
-        if self.table:
-            self.table.get_values()
-        return self.filechooser.get_filename()
-    def getFilePattern(self):
-        if self.table:
-            self.table.get_values()
-        return os.path.join(self.filechooser.get_current_folder(), self.pattern_entry.get_text())
-    def run(self):
-        debug.mainthreadTest()
-        return self.dialog.run()
-    def close(self):
-        debug.mainthreadTest()
-        if self.table:
-            switchboard.removeCallback(self.sbcallback)
-        self.dialog.destroy()
-        self.destroyScope()
-    def hide(self):
-        debug.mainthreadTest()
-        self.dialog.hide()
-        
+        def patternchangedCB(self, *args):
+            # select the files that match
+            self.filechooser.unselect_all()
+            items = os.listdir(self.filechooser.get_current_folder())
+            for item in items:
+                if utils.matchvtkpattern(self.pattern_entry.get_text(), item):
+                    self.filechooser.select_filename(os.path.join(self.filechooser.get_current_folder(),item))
 
-        
-# Always check the return value of fileSelector()!  fileSelector
-# returns None if the user cancels the operation or doesn't type in a
-# name in 'w' mode.
+            self.sensitize()
 
-# mode should be 'r' or 'w'.
+        def validityCB(self, validity):
+            self.sensitize()
+        def selectionchangedCB(self, *args):
+            self.sensitize()
+        def get_values(self):
+            if self.table:
+                return self.table.get_values()
+        def getFileName(self):
+            if self.table:
+                self.table.get_values()
+            return self.filechooser.get_filename()
+        def getFilePattern(self):
+            if self.table:
+                self.table.get_values()
+            return os.path.join(self.filechooser.get_current_folder(), self.pattern_entry.get_text())
+        def run(self):
+            debug.mainthreadTest()
+            return self.dialog.run()
+        def close(self):
+            debug.mainthreadTest()
+            if self.table:
+                switchboard.removeCallback(self.sbcallback)
+            self.dialog.destroy()
+            self.destroyScope()
+        def hide(self):
+            debug.mainthreadTest()
+            self.dialog.hide()
 
-from ooflib.common.IO.GUI import guilogger
 
-def fileSelector(mode, ident=None, title=None, filename=None, params=None,
-                 pattern=False):
-    # GUI logging doesn't work for the file selector, so we use a
-    # simple StringParameter and ParameterDialog when either logging
-    # or replaying.  This is a hack. TODO EVENTUALLY: fix this.
-    # TODO: will need to fix logging for pattern?
 
-    if (useFakeFileSelector=='always' or 
-        (useFakeFileSelector=='sometimes' and 
-         (guilogger.recording() or guilogger.replaying()))):
-        return fakeFileSelector(mode, ident, title, filename, params)
+    # Always check the return value of fileSelector()!  fileSelector
+    # returns None if the user cancels the operation or doesn't type in a
+    # name in 'w' mode.
 
-    try:
-        selector = _selectors[ident]
-    except KeyError:
-        # Make new selector
-        selector = FileSelector(mode=mode, title=title, filename=filename,
-                                params=params, pattern=pattern)
-        if ident is not None:
-            _selectors[ident] = selector
-    else:
-        # Reuse old selector
-        selector.set_mode(mode)
-        selector.set_title(title)
+    # mode should be 'r' or 'w'.
 
-    result = selector.run()
-    selector.hide()
+    def fileSelector(mode, ident=None, title=None, filename=None, params=None,
+                     pattern=False):
+        # GUI logging doesn't work for the file selector, so we use a
+        # simple StringParameter and ParameterDialog when either logging
+        # or replaying.  This is a hack. TODO EVENTUALLY: fix this.
+        # TODO: will need to fix logging for pattern?
 
-    if result in (FileSelector.CANCEL,
-                  gtk.RESPONSE_DELETE_EVENT,
-                  gtk.RESPONSE_NONE):
-        return None
+        if (useFakeFileSelector=='always' or 
+            (useFakeFileSelector=='sometimes' and 
+             (guilogger.recording() or guilogger.replaying()))):
+            return fakeFileSelector(mode, ident, title, filename, params)
 
-    if not pattern:
-        return selector.getFileName()
-    else:
-        return selector.getFilePattern()
-        
+        try:
+            selector = _selectors[ident]
+        except KeyError:
+            # Make new selector
+            selector = FileSelector(mode=mode, title=title, filename=filename,
+                                    params=params, pattern=pattern)
+            if ident is not None:
+                _selectors[ident] = selector
+        else:
+            # Reuse old selector
+            selector.set_mode(mode)
+            selector.set_title(title)
 
-def fakeFileSelector(mode, ident=None, title=None, filename=None, params=None):
-    nameparam = parameter.StringParameter('filename')
-    parameters = [nameparam]
-    if params:
-        parameters.extend(params)
-    if parameterwidgets.getParameters(title='Fake FileSelector', *parameters):
-        return nameparam.value
-    
-#########################
+        result = selector.run()
+        selector.hide()
 
-# # This function should be called before you write to a file.
-# # If the file exists, it will prompt the user, asking whether to
-# # over-write or append.  It will return either 'w' for writing,
-# # 'a' for appending, or None, in which case the caller should not
-# # write to the file at all.
-# def get_file_mode(filename, no_append=0):
-#     mode = None
-#     try:
-#         os.stat(filename)               # does file exist?
-#     except OSError:                     # file not found
-#         mode = 'w'
-#     else:
-#         if no_append:
-#             ans = reporter.query("Overwrite file\n%s?" % filename,
-#                                  "OK", "Cancel", default="OK")
-#             if ans == "OK":
-#                 mode = 'w'
-#         else:
-#             ans = reporter.query("Overwrite file\n%s?" % filename,
-#                                  "OK", "Append", "Cancel", default="OK")
-#             if ans == 'OK':
-#                 mode = 'w'
-#             elif ans == 'Append':
-#                 mode = 'a'
-#     return mode
-    
+        if result in (FileSelector.CANCEL,
+                      gtk.RESPONSE_DELETE_EVENT,
+                      gtk.RESPONSE_NONE):
+            return None
+
+        if not pattern:
+            return selector.getFileName()
+        else:
+            return selector.getFilePattern()
+
+
+    def fakeFileSelector(mode, ident=None, title=None, filename=None, params=None):
+        nameparam = parameter.StringParameter('filename')
+        parameters = [nameparam]
+        if params:
+            parameters.extend(params)
+        if parameterwidgets.getParameters(title='Fake FileSelector', *parameters):
+            return nameparam.value
+
+    #########################
+
+    # # This function should be called before you write to a file.
+    # # If the file exists, it will prompt the user, asking whether to
+    # # over-write or append.  It will return either 'w' for writing,
+    # # 'a' for appending, or None, in which case the caller should not
+    # # write to the file at all.
+    # def get_file_mode(filename, no_append=0):
+    #     mode = None
+    #     try:
+    #         os.stat(filename)               # does file exist?
+    #     except OSError:                     # file not found
+    #         mode = 'w'
+    #     else:
+    #         if no_append:
+    #             ans = reporter.query("Overwrite file\n%s?" % filename,
+    #                                  "OK", "Cancel", default="OK")
+    #             if ans == "OK":
+    #                 mode = 'w'
+    #         else:
+    #             ans = reporter.query("Overwrite file\n%s?" % filename,
+    #                                  "OK", "Append", "Cancel", default="OK")
+    #             if ans == 'OK':
+    #                 mode = 'w'
+    #             elif ans == 'Append':
+    #                 mode = 'a'
+    #     return mode
+

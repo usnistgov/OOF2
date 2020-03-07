@@ -6,7 +6,12 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
+
+## TODO GTK3: Rewrite this to use the Cairo based OOFCanvas.  Then
+## after all of OOF2 is converted to gtk3, remove the OutputDevice
+## class hierarchy, and have the DisplayMethods all use OOFCanvas
+## directly.
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import coord
@@ -17,11 +22,9 @@ from ooflib.common import primitives
 from ooflib.common import thread_enable
 from ooflib.common.IO import colormap
 from ooflib.common.IO import outputdevice
-if config.dimension() == 2: 
-    from ooflib.common.IO.GUI import gfxwindow
-elif config.dimension() == 3:
-    from ooflib.common.IO.GUI import gfxwindow3d as gfxwindow
+from ooflib.common.IO.GUI import gfxwindow
 from ooflib.common.IO.GUI import oof_mainiteration
+from ooflib.common.IO.OOFCanvas import oofcanvas
 import types
 
 import time, sys
@@ -37,11 +40,12 @@ def point2Coord(point):
 
 class CanvasOutput(outputdevice.OutputDevice):
     def __init__(self, canvas):
-        self.canvas = canvas  # OOFCanvas object, C++ wrapper for GtkCanvas
+        self.canvas = canvas  # OOFCanvas object
         outputdevice.OutputDevice.__init__(self)
-
-        self.set_lineColor(color.black)
-        self.set_fillColor(color.black)
+        self.lineColor = None
+        self.lineWidth = None
+        self.fillColor = None
+        self.opacity = 1.0
         self.colormap = colormap.GrayMap()
         self.nLayers = 0
 
@@ -71,9 +75,8 @@ class CanvasOutput(outputdevice.OutputDevice):
                 oof_mainiteration.mainiteration_loop(False)
             
     def begin_layer(self):
-        debug.mainthreadTest()
-        self.currentlayer = self.canvas.newLayer()
-        self.currentlayer.index = self.nLayers
+        self.currentlayer = self.canvas.newLayer("Layer_%d" % self.nLayers)
+        #self.currentlayer.index = self.nLayers
         self.nLayers += 1
         return self.currentlayer
 
@@ -81,119 +84,123 @@ class CanvasOutput(outputdevice.OutputDevice):
         self.currentlayer = None
 
     def set_lineWidth(self, w):         # Set linewidth in pixels
-        debug.mainthreadTest()
-        self.canvas.set_lineWidth(w)
+        self.lineWidth = w
         
     def set_lineColor(self, x):
-        debug.mainthreadTest()
         if type(x) is types.FloatType:
-            self.canvas.set_lineColor(self.colormap(x))
+            col = self.colormap(x)
         else:
-            self.canvas.set_lineColor(x)
+            col = x
+        self.lineColor = \
+            oofcanvas.Color(col.red(), col.green(), col.blue()).opacity(1.0)
 
-    def set_glyphSize(self, x):
-        debug.mainthreadTest()
-        self.canvas.set_glyphSize(x)
-        
     def set_fillColor(self, x):
-        debug.mainthreadTest()
         if type(x) == type(1.0):
-            self.canvas.set_fillColor(self.colormap(x), 255)
+            col = self.colormap(x)
         else:
-            self.canvas.set_fillColor(x, 255)
+            col = x
+        self.fillColor = \
+            oofcanvas.Color(col.red(), col.green(), col.blue()).opacity(1.0)
 
     def set_fillColorAlpha(self, x, alpha):
-        debug.mainthreadTest()
         if type(x) == type(1.0):
-            self.canvas.set_fillColor(self.colormap(x), alpha)
+            col = self.colormap(x)
         else:
-            self.canvas.set_fillColor(x, alpha)
+            col = x
+        self.fillColor = \
+            oofcanvas.Color(col.red(), col.green(), col.blue()).opacity(alpha)
         
     def draw_segment(self, segment):
-        debug.mainthreadTest()
-        self.canvas.draw_segment(segment)
+        seg = oofcanvas.CanvasSegment(segment.startpt.x, segment.startpt.y,
+                                      segment.endpt.x, segment.endpt.y)
+        seg.setLineWidth(self.lineWidth)
+        seg.setLineColor(self.lineColor)
+        self.currentLayer.addItem(seg)
+        return seg
 
     def draw_dot(self, dot):
-        debug.mainthreadTest()
-        self.canvas.draw_dot(dot)
+        ## draw_dot's callers use the old set_lineWidth to set the
+        ## dot's size, for unknowns reasons.  Fix this when removing
+        ## the OutputDevice classes.
+        dot = oofcanvas.CanvasDot(dot.x, dot.y, self.lineWidth)
+        dot.setFillColor(self.fillColor)
+        self.currentLayer.addItem(dot)
+        return dot
 
-    def draw_scalarbar(self, lookuptable):
-        debug.mainthreadTest()
-        self.canvas.draw_scalarbar(lookuptable)
-
-    def draw_voxel(self, voxel):
-        debug.mainthreadTest()
-        self.canvas.draw_voxel(voxel)
-
-    def draw_cell(self, cell, filled=False):
-        debug.mainthreadTest()
-        self.canvas.draw_cell(cell, filled)
-
-    def draw_triangle(self, segment, angle):
-        debug.mainthreadTest()
-        self.canvas.draw_triangle(segment, angle)
+    def draw_triangle(self, segment, relativePos):
+        triangle = oofcanvas.CanvasArrowhead(segment, relativePos,
+                                             self.lineWidth, self.lineWidth)
+        triangle.setFillColor(self.fillColor)
+        self.currentLayer.addItem(triangle)
+        return triangle
         
-    # This function is currently not called, the contouring routines
-    # use "draw_curve", and the segment drawers draw segments one at a
-    # time.
-    def draw_segments(self, seglist):
-        debug.mainthreadTest()
-        self.canvas.draw_segments(seglist)
-
     def draw_curve(self, curve):
-        debug.mainthreadTest()
-        self.canvas.draw_curve(curve)
+        # curve is a primitives.Curve
+        assert self.lineColor is not None
+        segs = oofcanvas.CanvasSegments()
+        for edge in curve.edges():
+            segs.addSegment(edge.startpt.x, edge.startpt.y,
+                            edge.endpt.x, edge.endpt.y)
+        segs.setLineColor(self.lineColor)
+        segs.setLineWidth(self.lineWidth)
+        self.currentLayer.addItem(segs)
+        return segs
         
     def draw_polygon(self, polygon):
-        debug.mainthreadTest()
+        # polygon is a primitives.Polygon or a list of them
+        assert self.lineColor is not None
+        self.fillColor = None
         if type(polygon) == types.ListType:
-            for pgon in polygon:
-                self.canvas.draw_polygon(pgon)
+            return [self._draw_one_polygon(p, False) for p in polygon]
         else:
-            self.canvas.draw_polygon(polygon)
-
-    def draw_cone_glyphs(self, polydata):
-        debug.mainthreadTest()
-        self.canvas.draw_cone_glyphs(polydata)
-
-    def draw_unstructuredgrid(self, polyhedra):
-        debug.mainthreadTest()
-        self.canvas.draw_unstructuredgrid(polyhedra)
-
-    def draw_unstructuredgrid_with_lookuptable(self, grid, lookuptable, mode="cell", scalarbar=True):
-        debug.mainthreadTest()
-        self.canvas.draw_unstructuredgrid_with_lookuptable(grid, lookuptable, mode, scalarbar)
-
-    def draw_filled_unstructuredgrid(self, grid):
-        debug.mainthreadTest()
-        self.canvas.draw_filled_unstructuredgrid(grid)
+            return self._draw_one_polygon(polygon, False)
 
     def fill_polygon(self, polygon):
-        debug.mainthreadTest()
+        assert self.fillColor is not None
+        self.lineColor = None
         if type(polygon) == types.ListType:
-            p = primitives.makeCompoundPolygon(polygon)
-            self.canvas.fill_polygon(p)
+            poly = self.makeCompoundPolygon(polygon)
+            return self._draw_one_polygon(poly, True)
         else:
-            self.canvas.fill_polygon(polygon)
+            return self._draw_one_polygon(polygon, True)
+
+    def _draw_one_polygon(self, polygon, filled):
+        poly = oofcanvas.CanvasPolygon()
+        for pt in polygon.points():
+            poly.addPoint(pt.x, pt.y)
+        if self.lineColor:
+            poly.setLineColor(self.lineColor)
+        if filled and self.fillColor:
+            poly.setFillColor(self.fillColor)
+        self.currentLayer.addItem(poly)
+        return poly
 
     def draw_circle(self, center, radius):
-        debug.mainthreadTest()
-        self.canvas.draw_circle(point2Coord(center), radius)
+        assert self.lineColor is not None
+        circle = oofcanvas.CanvasCircle(center.x, center.y, radius)
+        circle.setLineColor(self.lineColor)
+        self.currentLayer.addItem(circle)
+        return circle
         
     def fill_circle(self, center, radius):
-        debug.mainthreadTest()
-        self.canvas.fill_circle(point2Coord(center), radius)
+        assert self.fillColor is not None
+        circle = oofcanvas.CanvasCircle(center.x, center.y, radius)
+        circle.setFillColor(self.fillColor)
+        self.currentLayer.addItem(circle)
+        return circle
 
-    def draw_image(self, image, offset, size):
-        debug.mainthreadTest()
-        self.canvas.draw_image(image, offset, size)
+    def draw_image(self, image, offset, size, alpha=1.0):
+        img = image.makeCanvasImage(offset, size)
+        img.setOpacity(alpha)
+        self.currentLayer.addItem(img)
+        return img
 
-    def draw_alpha_image(self, image, offset, size):
-        debug.mainthreadTest()
-        self.canvas.draw_alpha_image(image, offset, size)
+    # def draw_alpha_image(self, image, offset, size):
+    #     # self.canvas.draw_alpha_image(image, offset, size)
+    #     img = self.draw_image(image, offset, size)
         
-
-    def comment(self, remark): pass
+    def comment(self, remark):
+        pass
 
 
 

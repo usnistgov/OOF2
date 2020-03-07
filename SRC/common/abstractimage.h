@@ -24,8 +24,8 @@ public:
   virtual ~AbstractImage() {}
   virtual const Coord &size() const = 0;
   virtual const ICoord &sizeInPixels() const = 0;
-  virtual void fillstringimage(StringImage*) const {};
-  virtual void fillalphastringimage(AlphaStringImage*) const {};
+  virtual CanvasImage makeCanvasImage(const Coord *pos, const Coord *size)
+    const = 0;
 };
 
 #endif // ABSTRACTIMAGE_H

@@ -9,6 +9,8 @@
  * oof_manager@nist.gov. 
  */
 
+OBSOLETE
+
 
 // TODO LATER: There is apparently some kind of bug in the canvas
 // code, which results in the appearance of some "garbage" (random)

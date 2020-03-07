@@ -11,6 +11,8 @@
 
 #include <oofconfig.h>
 
+OBSOLETE
+
 // Class for representing an Image as a string, as a step on the way
 // to creating a GdkImlibImage.  Putting this class in C++ instead of
 // Python allows the C++ BitmapOverlay to be drawn without passing it

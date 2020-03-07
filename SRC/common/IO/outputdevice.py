@@ -8,7 +8,17 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-
+######
+##
+## TODO GTK3: We can probably get rid of the whole OutputDevice class
+## hierarchy.  The new OOFCanvas can be called directly from the
+## DisplayMethods. PDF output should be added to OOFCanvas.  There's
+## no need for the BufferedOutputDevice because all of the Cairo
+## commands can be done on a subthread, except for the final transfer
+## to the Gtk.Layout, and that's done by queuing a Gtk event so it'll
+## happen on the main thread in any case.
+##
+######
 
 ## The OutputDevice class (as of now) doesn't do much except provide
 ## stubs for all of the output primitives.  The derived classes have
@@ -50,9 +60,6 @@ class OutputDevice:
     def set_lineWidth(self, w):
         "set_lineWidth(w):  w in units determined by boundingBox"
         self.unsupported("set_lineWidth")
-
-    def set_glyphSize(self, x):
-        self.unsupported("set_glyphSize")
 
     def set_lineColor(self, x):
         """
@@ -107,9 +114,6 @@ class OutputDevice:
         else:
             self.draw_segments(polygon.edges())
 
-    def draw_cone_glyphs(self, polydata):
-        self.unsupported("draw_cone_glyphs")
-
     def draw_unstructuredgrid(self, polyhedra):
         self.unsupported("draw_unstructuredgrid")
 
@@ -129,24 +133,7 @@ class OutputDevice:
         self.unsupported("fill_circle")
 
     def draw_image(self, image, offset, size):
-        # image must have a method 'sizeInPixels()' which returns the
-        # size in pixels as a tuple of ints and a method
-        # 'stringimage()' which returns a string of the form expected
-        # by GdkImlibImage.  The 'size' argument to draw_image is
-        # (width, height) in physical units.
-        ## TODO: Comment about stringimage appears to be wrong.  It
-        ## needs fillstringimage(), which fills a given StringImage
-        ## object.
         self.unsupported("draw_image")
-
-    def draw_shaped_image(self, image, offset, size, shapecolor):
-        # Just like draw_image, but pixels whose color is shapecolor
-        # aren't drawn.
-        self.unsupported("draw_shaped_image")
-
-    def draw_alpha_image(self, image, offset, size):
-        # image must have a method alphastringimage(alpha)
-        self.unsupported("draw_alpha_image")
 
     def set_font(self, font):
         self.unsupported("set_font")
@@ -189,7 +176,6 @@ class NullDevice(OutputDevice):
     def unsupported(x): pass
     def show(self): pass
     def set_lineWidth(self, w): pass
-    def set_glyphSize(self, x): pass
     def set_lineColor(self, x): pass
     def set_fillColor(self, x): pass
     def set_fillColorAlpha(self, x, a): pass
@@ -198,7 +184,6 @@ class NullDevice(OutputDevice):
     def draw_segments(self, seglist): pass
     def draw_curve(self, curve): pass
     def draw_polygon(self, polygon): pass
-    def draw_cone_glyphs(self, polydata): pass
     def draw_unstructuredgrid(self, polyhedra): pass
     def draw_filled_unstructuredgrid(self, grid): pass
     def draw_unstructuredgrid_with_lookuptable(self, grid, lookuptable, mode, scalarbar): pass
@@ -206,8 +191,6 @@ class NullDevice(OutputDevice):
     def draw_circle(self, center, radius): pass
     def fill_circle(self, center, radius): pass
     def draw_image(self, image, offset, size): pass
-    def draw_alpha_image(self, *args): pass
-    def draw_shaped_image(self, *args): pass
     def draw_dot(self, dot): pass
     def draw_triangle(self, segment, angle): pass
     def set_font(self, font): pass
@@ -343,9 +326,6 @@ class BufferedOutputDevice (OutputDevice):
     def set_lineWidth(self, w):
         self.buffer.append(self.device.set_lineWidth, w)
 
-    def set_glyphSize(self, x):
-        self.buffer.append(self.device.set_glyphSize, x)
-
     def set_lineColor(self,x):
         self.buffer.append(self.device.set_lineColor, x)
 
@@ -370,32 +350,11 @@ class BufferedOutputDevice (OutputDevice):
     def draw_polygon(self, polygon):
         self.buffer.append(self.device.draw_polygon, polygon)
     
-    def draw_cone_glyphs(self, polydata):
-        self.buffer.append(self.device.draw_cone_glyphs, polydata)
-
-    def draw_unstructuredgrid(self, polyhedra):
-        self.buffer.append(self.device.draw_unstructuredgrid, polyhedra)
-
-    def draw_filled_unstructuredgrid(self, grid):
-        self.buffer.append(self.device.draw_filled_unstructuredgrid, grid)
-
-    def draw_unstructuredgrid_with_lookuptable(self, grid, lookuptable, mode="cell", scalarbar="true"):
-        self.buffer.append(self.device.draw_unstructuredgrid_with_lookuptable, grid, lookuptable, mode, scalarbar)
-
     def fill_polygon(self, polygon):
         self.buffer.append(self.device.fill_polygon, polygon)
 
     def draw_dot(self, dot):
         self.buffer.append(self.device.draw_dot, dot)
-
-    def draw_scalarbar(self, lookuptable):
-        self.buffer.append(self.device.draw_scalarbar, lookuptable)
-
-    def draw_voxel(self, voxel):
-        self.buffer.append(self.device.draw_voxel, voxel)
-
-    def draw_cell(self, cell, filled=False):
-        self.buffer.append(self.device.draw_cell, cell, filled)
 
     def draw_triangle(self, segment, angle):
         self.buffer.append(self.device.draw_triangle, segment, angle)
@@ -408,13 +367,6 @@ class BufferedOutputDevice (OutputDevice):
 
     def draw_image(self, image, offset, size):
         self.buffer.append(self.device.draw_image, image, offset, size)
-
-    def draw_alpha_image(self, image, offset, size):
-        self.buffer.append(self.device.draw_alpha_image, image, offset, size)
-
-    def draw_shaped_image(self, image, offset, size, shapecolor):
-        self.buffer.append(self.device.draw_shaped_image, image, offset,
-                           size, shapecolor)
 
     def set_font(self, font):
         self.buffer.append(self.device.set_font, font)

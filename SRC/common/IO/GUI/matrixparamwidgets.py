@@ -16,7 +16,7 @@ from ooflib.common import debug
 from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
-import gtk
+from gi.repository import Gtk
 import math
 import types
 
@@ -37,8 +37,8 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
     def __init__(self, rows, cols, paramtype, paramargs={},
                  value=None, scope=None, name=None):
         debug.mainthreadTest()
-        frame = gtk.Frame()
-        self.table = gtk.Table(rows=rows+2, columns=cols+2)
+        frame = Gtk.Frame()
+        self.table = gtk.Grid()
         frame.add(self.table)
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name)
         widgetscope.WidgetScope.__init__(self, scope)
@@ -49,12 +49,11 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
 
         # Labels.
         for r in range(self.rows):
-            lbl = gtk.Label(' %d ' % (r+1))
-            lbl.set_alignment(1.0, 0.5)
-            self.table.attach(lbl,0,1,r+1,r+2)
+            lbl = Gtk.Label(' %d ' % (r+1), halign=Gtk.Align.END)
+            self.table.attach(lbl, 0, r+1, 1, 1)
         for c in range(self.cols):
             lbl = gtk.Label(`c+1`)
-            self.table.attach(lbl,c+1,c+2,0,1)
+            self.table.attach(lbl, c+1, 0, 1, 1)
 
         for r in range(self.rows):
             for c in range(self.cols):
@@ -67,8 +66,11 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
                                                     self.floatChangeCB))
 
                 self.widgets[(r,c)] = newwidget
-                self.table.attach(newwidget.gtk, c+1,c+2, r+1,r+2,
-                                  xoptions=gtk.FILL)
+                self.table.attach(newwidget.gtk, c+1, r+1, 1, 1)
+                ## TODO GTK3: We used to use xoptions=gtk.FILL when
+                ## attaching the widget to the table here.  We need a
+                ## way to pass halign=Gtk.Align.FILL to the underlying
+                ## Gtk.Entry (or whatever kind of widget we have).
 
         self.widgetChanged(1, interactive=0) # always valid
     def floatChangeCB(self, interactive):
@@ -96,8 +98,8 @@ class SymmetricMatrixInputBase(MatrixInputBase):
     def __init__(self, rows, cols, paramtype, paramargs={},
                  value=None, scope=None, name=None):
         debug.mainthreadTest()
-        frame = gtk.Frame()
-        self.table = gtk.Table(rows=rows+1, columns=cols+1)
+        frame = Gtk.Frame()
+        self.table = Gtk.Grid()
         frame.add(self.table)
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name)
         widgetscope.WidgetScope.__init__(self, scope)
@@ -108,12 +110,11 @@ class SymmetricMatrixInputBase(MatrixInputBase):
 
         # Do labels first.
         for r in range(self.rows):
-            lbl = gtk.Label(' %d ' % (r+1))
-            lbl.set_alignment(1.0, 0.5)
-            self.table.attach(lbl,0,1,r+1,r+2)
+            lbl = Gtk.Label(' %d ' % (r+1), halign=Gtk.Align.END)
+            self.table.attach(lbl, 0, r+1, 1, 1)
         for c in range(self.cols):
-            lbl = gtk.Label(`c+1`)
-            self.table.attach(lbl,c+1,c+2,0,1)
+            lbl = Gtk.Label(`c+1`)
+            self.table.attach(lbl, c+1, 0, 1, 1)
 
         # Now put the actual widgets in.
         for r in range(self.rows):
@@ -128,8 +129,8 @@ class SymmetricMatrixInputBase(MatrixInputBase):
                     self.widgets[(r,c)].set_value(value[(r,c)])
                 except:
                     pass
-                self.table.attach(newwidget.gtk,c+1,c+2,r+1,r+2,
-                                  xoptions=gtk.FILL)
+                self.table.attach(newwidget.gtk, c+1, r+1, 1, 1)
+                ## TODO GTK3: need halign=Gtk.Align.FILL
         self.widgetChanged(1, interactive=0)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

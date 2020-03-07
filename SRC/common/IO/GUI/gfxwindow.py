@@ -35,9 +35,9 @@ from ooflib.common.IO.GUI import labelledslider
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import quit
 from ooflib.common.IO.GUI import subWindow
-from ooflib.common.IO.GUI import tooltips
-import gobject
-import gtk
+
+from gi.repository import GObject
+from gi.repository import Gtk
 import threading
 
 # during_callback() is called (by CanvasOutput.show()) only in
@@ -85,35 +85,35 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # __init__ call.  They need to be created first so the
         # GhostGfxWindow can operate on them, and then create the menus
         # which are handed off to the SubWindow.
-        self.mainpane = gtk.VPaned()
+        self.mainpane = gtk.Paned(orientation=Gtk.Orientation.VERTICAL)
         gtklogger.setWidgetName(self.mainpane, 'Pane0')
         gtklogger.connect_passive(self.mainpane, 'notify::position')
 
         # Panes dividing upper pane horizontally into 3 parts.
         # paned1's left half contains paned2.
-        self.paned1 = gtk.HPaned()
+        self.paned1 = gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
         gtklogger.setWidgetName(self.paned1, "Pane1")
-        self.mainpane.pack1(self.paned1, resize=True)
+        self.mainpane.pack1(self.paned1, resize=True, shrink=True)
         gtklogger.connect_passive(self.paned1, 'notify::position')
 
         # paned2 is in left half of paned1
-        self.paned2 = gtk.HPaned()
+        self.paned2 = gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
         gtklogger.setWidgetName(self.paned2, "Pane2")
-        self.paned1.pack1(self.paned2, resize=True)
+        self.paned1.pack1(self.paned2, resize=True, shrink=True)
         gtklogger.connect_passive(self.paned2, 'notify::position')
 
         # The toolbox is in the left half of paned2 (ie the left frame of 3)
         toolboxframe = gtk.Frame()
-        toolboxframe.set_shadow_type(gtk.SHADOW_IN)
-        self.paned2.pack1(toolboxframe, resize=True)
+        toolboxframe.set_shadow_type(Gtk.ShadowType.IN)
+        self.paned2.pack1(toolboxframe, resize=True, shrink=True)
 
         # Box containing the toolbox label and the scroll window for
         # the toolbox itself.
-        toolboxbox1 = gtk.VBox()
+        toolboxbox1 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         toolboxframe.add(toolboxbox1)
-        hbox = gtk.HBox()
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         toolboxbox1.pack_start(hbox, expand=0, fill=0, padding=2)
-        hbox.pack_start(gtk.Label("Toolbox:"), expand=0, fill=0, padding=3)
+        hbox.pack_start(Gtk.Label("Toolbox:"), expand=0, fill=0, padding=3)
         
         self.toolboxchooser = chooser.ChooserWidget([],
                                                     callback=self.switchToolbox,
@@ -121,40 +121,46 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         hbox.pack_start(self.toolboxchooser.gtk, expand=1, fill=1, padding=3)
 
         # Scroll window for the toolbox itself.
-        toolboxbox2 = gtk.ScrolledWindow()
+        toolboxbox2 = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(toolboxbox2, 'TBScroll')
         
-        toolboxbox2.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        toolboxbox1.pack_start(toolboxbox2, expand=1, fill=1)
+        toolboxbox2.set_policy(Gtk.PolicyType.AUTOMATIC,
+                               Gtk.PolicyType.AUTOMATIC)
+        toolboxbox1.pack_start(toolboxbox2, expand=1, fill=1, padding=0)
 
         # Actually, the tool box goes inside yet another box, so that
         # we have a gtk.VBox that we can refer to later.
-        self.toolboxbody = gtk.VBox()
+        self.toolboxbody = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                   spacing=2)
         toolboxbox2.add_with_viewport(self.toolboxbody)
 
         self.toolboxGUIs = []           # GUI wrappers for toolboxes.
         self.current_toolbox = None
 
         # canvasbox contains the time slider and the canvas
-        canvasbox = gtk.VBox()
-        self.paned2.pack2(canvasbox, resize=True)
+        canvasbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self.paned2.pack2(canvasbox, resize=True, shrink=True)
 
         # timebox contains widgets for displaying and setting the time
         # for all AnimationLayers in the window.
-        self.timebox = gtk.HBox()
+        self.timebox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                               spacing=2)
         gtklogger.setWidgetName(self.timebox, 'time')
         canvasbox.pack_start(self.timebox, expand=False, fill=False)
-        self.timebox.pack_start(gtk.Label("time:"), expand=False, fill=False)
-        self.prevtimeButton = gtkutils.StockButton(gtk.STOCK_GO_BACK)
+        self.timebox.pack_start(gtk.Label("time:"), expand=False, fill=False,
+                                padding=0)
+        self.prevtimeButton = gtkutils.StockButton("go-previous-symbolic")
         gtklogger.setWidgetName(self.prevtimeButton, "prev")
         gtklogger.connect(self.prevtimeButton, 'clicked', self.prevtimeCB)
-        self.timebox.pack_start(self.prevtimeButton, expand=False, fill=False)
-        tooltips.set_tooltip_text(self.prevtimeButton,"Go to the previous stored time.")
-        self.nexttimeButton = gtkutils.StockButton(gtk.STOCK_GO_FORWARD)
+        self.timebox.pack_start(self.prevtimeButton, expand=False, fill=False,
+                                padding=0)
+        self.prevtimeButton.set_tooltip_text("Go to the previous stored time.")
+        self.nexttimeButton = gtkutils.StockButton("go-next-symbolic")
         gtklogger.setWidgetName(self.nexttimeButton, "next")
         gtklogger.connect(self.nexttimeButton, 'clicked', self.nexttimeCB)
-        self.timebox.pack_start(self.nexttimeButton, expand=False, fill=False)
-        tooltips.set_tooltip_text(self.nexttimeButton,"Go to the next stored time.")
+        self.timebox.pack_start(self.nexttimeButton, expand=False, fill=False,
+                                padding=0)
+        self.nexttimeButton.set_tooltip_text("Go to the next stored time.")
 
         # The slider/entry combo has immediate==False because we don't
         # want to update until the user is done typing a time.
@@ -163,16 +169,16 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             callback=self.timeSliderCB,
             name='timeslider',
             immediate=False)
-        self.timeslider.set_policy(gtk.UPDATE_DISCONTINUOUS)
-        self.timebox.pack_start(self.timeslider.gtk, expand=True, fill=True)
+
+        # self.timeslider.set_policy(gtk.UPDATE_DISCONTINUOUS)
+        self.timebox.pack_start(self.timeslider.gtk, expand=True, fill=True,
+                                padding=0)
         self.timeslider.set_tooltips(
             slider="Select an interpolation time.",
             entry="Enter an interpolation time.")
-
         
         self.makeCanvasWidgets(gtklogger, canvasbox)
         self.makeContourMapWidgets(gtklogger)
-
 
         # HACK.  Set the position of the toolbox/canvas divider.  This
         # prevents the toolbox pane from coming up minimized.
@@ -181,20 +187,21 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # Bottom part of main pane is a list of layers.  The actual
         # DisplayLayer objects are stored in self.display.
 
-        layerFrame = gtk.Frame(label='Layers')
+        layerFrame = Gtk.Frame(label='Layers')
         
-        self.mainpane.pack2(layerFrame, resize=False)
-        self.layerScroll = gtk.ScrolledWindow()
+        self.mainpane.pack2(layerFrame, resize=False, shrink=True)
+        self.layerScroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(self.layerScroll, "LayerScroll")
-        self.layerScroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.layerScroll.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                    Gtk.PolicyType.AUTOMATIC)
         layerFrame.add(self.layerScroll)
 
-        self.layerList = gtk.ListStore(gobject.TYPE_PYOBJECT)
-        self.layerListView = gtk.TreeView(self.layerList)
+        self.layerList = Gtk.ListStore(GObject.TYPE_PYOBJECT)
+        self.layerListView = Gtk.TreeView(self.layerList)
         gtklogger.setWidgetName(self.layerListView, "LayerList")
         self.layerListView.set_row_separator_func(self.layerRowSepFunc)
         self.layerListView.set_reorderable(True)
-        self.layerListView.set_fixed_height_mode(False)
+        self.layerListView.set_fixed_height_mode(False) # TODO GTK3: True?
         self.layerScroll.add(self.layerListView)
 
         gtklogger.adoptGObject(self.layerList, self.layerListView,
@@ -204,7 +211,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # menu.
         gtklogger.connect(self.layerListView, 'button-press-event',
                           self.layerlistbuttonCB)
-        
 
         # The row-deleted and row-inserted signals are used to detect
         # when the user has reordered rows manually.  When the program
@@ -218,8 +224,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             ]
         self.destination_path = None
 
-        showcell = gtk.CellRendererToggle()
-        showcol = gtk.TreeViewColumn("Show")
+        showcell = Gtk.CellRendererToggle()
+        showcol = Gtk.TreeViewColumn("Show")
         showcol.pack_start(showcell, expand=False)
         showcol.set_cell_data_func(showcell, self.renderShowCell)
         self.layerListView.append_column(showcol)
@@ -228,7 +234,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                                access_kwargs={'col':0, 'rend':0})
         gtklogger.connect(showcell, 'toggled', self.showcellCB)
 
-        cmapcell = gtk.CellRendererToggle()
+        cmapcell = Gtk.CellRendererToggle()
         cmapcell.set_radio(True)
         cmapcol = gtk.TreeViewColumn("Map")
         cmapcol.pack_start(cmapcell, expand=False)
@@ -239,8 +245,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                                access_kwargs={'col':1, 'rend':0})
         gtklogger.connect(cmapcell, 'toggled', self.cmapcellCB)        
 
-        freezecell = gtk.CellRendererToggle()
-        freezecol = gtk.TreeViewColumn("Freeze")
+        freezecell = Gtk.CellRendererToggle()
+        freezecol = Gtk.TreeViewColumn("Freeze")
         freezecol.pack_start(freezecell, expand=False)
         freezecol.set_cell_data_func(freezecell, self.renderFreezeCell)
         self.layerListView.append_column(freezecol)
@@ -249,15 +255,15 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                                access_kwargs={'col':2, 'rend':0})
         gtklogger.connect(freezecell, 'toggled', self.freezeCellCB)
 
-        layercell = gtk.CellRendererText()
-        layercol = gtk.TreeViewColumn("What")
+        layercell = Gtk.CellRendererText()
+        layercol = Gtk.TreeViewColumn("What")
         layercol.set_resizable(True)
         layercol.pack_start(layercell, expand=True)
         layercol.set_cell_data_func(layercell, self.renderLayerCell)
         self.layerListView.append_column(layercol)
 
-        methodcell = gtk.CellRendererText()
-        methodcol = gtk.TreeViewColumn("How")
+        methodcell = Gtk.CellRendererText()
+        methodcol = Gtk.TreeViewColumn("How")
         methodcol.set_resizable(True)
         methodcol.pack_start(methodcell, expand=True)
         methodcol.set_cell_data_func(methodcell, self.renderMethodCell)
@@ -277,17 +283,17 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # we need direct access to the Scrollbars.  Instead, we make
         # the Scrollbars ourselves and put them in a Table with the
         # canvas.
-        self.canvasTable = gtk.Table(rows=2, columns=2)
+        self.canvasTable = Gtk.Grid()
         gtklogger.setWidgetName(self.canvasTable, "Canvas")
-        self.canvasTable.set_col_spacings(0)
-        self.canvasTable.set_row_spacings(0)
-        frame = gtk.Frame()
-        frame.set_shadow_type(gtk.SHADOW_IN)
+        self.canvasTable.set_column_spacing(0)
+        self.canvasTable.set_row_spacing(0)
+        frame = Gtk.Frame()
+        frame.set_shadow_type(Gtk.ShadowType.IN)
         frame.add(self.canvasTable)
-        container.pack_start(frame, expand=True, fill=True)
+        container.pack_start(frame, expand=True, fill=True, padding=0)
 #         self.paned2.pack2(frame, resize=True)
-        self.hScrollbar = gtk.HScrollbar()
-        self.vScrollbar = gtk.VScrollbar()
+        self.hScrollbar = Gtk.Scrollbar(orientation=Gtk.Orientation.HORIZONTAL)
+        self.vScrollbar = Gtk.Scrollbar(orientation=Gtk.Orientation.VERTICAL)
         gtklogger.setWidgetName(self.hScrollbar, "hscroll")
         gtklogger.setWidgetName(self.vScrollbar, "vscroll")
         # Catch button release events on the Scrollbars, so that their
@@ -297,50 +303,69 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                           self.scrlReleaseCB, 'h')
         gtklogger.connect(self.vScrollbar, "button-release-event",
                           self.scrlReleaseCB, 'v')
-        self.canvasTable.attach(self.hScrollbar, 0,1, 1,2,
-                                xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.FILL)
-        self.canvasTable.attach(self.vScrollbar, 1,2, 0,1,
-                                xoptions=gtk.FILL, yoptions=gtk.EXPAND|gtk.FILL)
-        self.canvasFrame = gtk.Frame()
-        self.canvasFrame.set_shadow_type(gtk.SHADOW_NONE)
+        self.canvasTable.attach(self.hScrollbar, 0,1, 1,2)
+        self.canvasTable.attach(self.vScrollbar, 1,2, 0,1)
+        self.canvasFrame = Gtk.Frame()
+        self.canvasFrame.set_shadow_type(Gtk.ShadowType.NONE)
         self.canvasTable.attach(self.canvasFrame, 0,1, 0,1)
 
     def makeContourMapWidgets(self, gtklogger):
         # the contourmap is in the right half of paned1 (the right pane of 3)
-        contourmapframe = gtk.Frame()
-        contourmapframe.set_shadow_type(gtk.SHADOW_IN)
-        self.paned1.pack2(contourmapframe, resize=False)
+        contourmapframe = Gtk.Frame()
+        contourmapframe.set_shadow_type(Gtk.ShadowType.IN)
+        self.paned1.pack2(contourmapframe, resize=False, shrink=True)
 
-        contourmapbox = gtk.VBox()
+        contourmapbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         gtklogger.setWidgetName(contourmapbox, "ContourMap")
         contourmapframe.add(contourmapbox)
-        self.contourmap_max = gtk.Label("max")
+        self.contourmap_max = Gtk.Label("max", halign=Gtk.Align.CENTER)
         gtklogger.setWidgetName(self.contourmap_max, "MapMax")
         self.new_contourmap_canvas()    # Sets self.contourmapdata.canvas.
-        self.contourmap_min = gtk.Label("min")
+        self.contourmap_min = Gtk.Label("min", halign=Gtk.Align.CENTER)
         gtklogger.setWidgetName(self.contourmap_min, "MapMin")
-        contourmaplevelbox = gtk.HBox()
-        self.contourlevel_min = gtk.Label("   min   ")
-        contourmaplevelbox.pack_start(self.contourlevel_min, True, True)
-        contourmaplevelbox.pack_start(gtk.VSeparator(), False, False)
-        contourmaplevelbox.pack_start(gtk.VSeparator(), False, False)
-        self.contourlevel_max = gtk.Label("   max   ")
-        contourmaplevelbox.pack_end(self.contourlevel_max, True, True)
-        contourmapclearbutton = gtk.Button("Clear Mark")
+        contourmaplevelbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                                     spacing=1)
+        self.contourlevel_min = Gtk.Label()
+        contourmaplevelbox.pack_start(self.contourlevel_min,
+                                      expand=True, fill=True, padding=0)
+        contourmaplevelbox.pack_start(
+            gtk.Separator(orientation=Gtk.Orientation.VERTICAL),
+            expand=False, fill=False, padding=0)
+        contourmaplevelbox.pack_start(
+            gtk.Separator(orientation=Gtk.Orientation.VERTICAL),
+            expand=False, fill=False, padding=0)
+        self.contourlevel_max = Gtk.Label()
+        contourmaplevelbox.pack_end(self.contourlevel_max,
+                                    expand=True, fill=True, padding=0)
+        contourmapclearbutton = Gtk.Button("Clear Mark")
         gtklogger.setWidgetName(contourmapclearbutton, "Clear")
         gtklogger.connect(contourmapclearbutton, "clicked",
                          self.contourmap_clear_marker)
-        contourmapbox.pack_start(self.contourmap_max, False, False)
-        contourmapbox.pack_start(gtk.HSeparator(), False, False)
-        contourmapbox.pack_start(self.contourmapdata.canvas.widget(), True, True)
-        contourmapbox.pack_start(gtk.HSeparator(), False, False)
-        contourmapbox.pack_start(self.contourmap_min, False, False)
-
-        contourmapbox.pack_start(gtk.HSeparator(), False, False)
-        contourmapbox.pack_start(gtk.HSeparator(), False, False)
-        contourmapbox.pack_start(contourmaplevelbox, False, False)
-        contourmapbox.pack_start(gtk.HSeparator(), False, False)
-        contourmapbox.pack_end(contourmapclearbutton, False, False)
+        contourmapbox.pack_start(self.contourmap_max, expand=False, fill=False,
+                                 padding=0)
+        contourmapbox.pack_start(
+            gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            expand=False, fill=False, padding=0)
+        contourmapbox.pack_start(self.contourmapdata.canvas.layout,
+                                 expand=True, fill=True)
+        contourmapbox.pack_start(
+            Gtk.HSeparator(orientation=Gtk.Orientation.HORIZONTAL),
+            expand=False, fill=False, padding=0)
+        contourmapbox.pack_start(self.contourmap_min, expand=False, fill=False,
+                                 padding=0)
+        contourmapbox.pack_start(
+            gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            expand=False, fill=False, padding=0)
+        contourmapbox.pack_start(
+            gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            expand=False, fill=False, padding=0)
+        contourmapbox.pack_start(contourmaplevelbox, expand=False, fill=False,
+                                 padding=0)
+        contourmapbox.pack_start(
+            gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            expand=False, fill=False, padding=0)
+        contourmapbox.pack_end(contourmapclearbutton, expand=False, fill=False,
+                               padding=0)
         contourmapframe.show_all()
 
 
@@ -389,9 +414,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         subWindow.SubWindow.__init__(
             self, windowname, menu=self.menu)
 
-        # Create the popup menu for the layer list.
-        self.layerpopup = gfxmenu.gtkOOFPopUpMenu(self.menu.Layer,
-                                                  self.layerListView)
+        # # Create the popup menu for the layer list.
+        # self.layerpopup = gfxmenu.gtkOOFPopUpMenu(self.menu.Layer,
+        #                                           self.layerListView)
 
 
         self.gtk.connect('destroy', self.destroyCB)
@@ -415,7 +440,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     ################################################
 
     def newCanvas(self):
-        # Recreate the canvas object.
+        # Create the canvas object.
         # It's important to acquire and release the lock in the
         # subthread, before calling mainthread.runBlock, to avoid
         # deadlocks.
@@ -428,16 +453,13 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
     def newCanvas_thread(self):
         debug.mainthreadTest()
-        ppu = None
-        if self.oofcanvas:
-            ppu = self.oofcanvas.get_pixels_per_unit()
-            scrollregion = self.oofcanvas.get_scrollregion()
-            offsets = self.oofcanvas.get_scroll_offsets()
-            self.oofcanvas.widget().destroy()
-
-        self.oofcanvas = oofcanvas.OOFCanvas(self.settings.antialias)
+        assert self.oofcanvas is None
+        ## TODO GTK3: How to set initial size of the Canvas?
+        self.oofcanvas = oofcanvas.OOFCanvas(width=300, height=300, ppu=1.0,
+                                             vexpand=True, hexpand=True)
+        self.oofcanvas.antialias(self.settings.antialias)
 ##        self.oofcanvas = fakecanvas.FakeCanvas(self.settings.antialias)
-        self.canvasFrame.add(self.oofcanvas.widget())
+        self.canvasFrame.add(self.oofcanvas.layout)
         self.hScrollbar.set_adjustment(self.oofcanvas.get_hadjustment())
         self.vScrollbar.set_adjustment(self.oofcanvas.get_vadjustment())
         # Changes to the adjustments need to go into the gui log.
@@ -452,27 +474,29 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         gtklogger.connect_passive(self.vScrollbar.get_adjustment(),
                                   'value-changed')
 
-        # GUI logging stuff.
-        canvasroot = self.oofcanvas.rootitem()
-        init_canvas_logging(canvasroot) # one-time initialization
-        # Although canvasroot is a gtk widget, it's not a pygtk
-        # widget, which makes life difficult.  So here it's adopted by
-        # a pygtk widget instead, and uses various hacks to get itself
-        # logged.  The actual widget doing the adopting is completely
-        # arbitrary since it will be passed as the first argument of
-        # findCanvasRoot, which discards it.  It does have to be a
-        # loggable pygtk widget, though, because
-        # AdopteeLogger.location() doesn't know that it will be
-        # discarded.  I did say that this is a hack, didn't I?
-        gtklogger.adoptGObject(canvasroot, self.canvasTable,
-                               access_function=findCanvasRoot,
-                               access_kwargs={"windowname":self.name})
-        gtklogger.connect_passive(canvasroot, "event")
+        ## TODO GTK3: Get GUI logging working with the new OOFCanvas.
+        
+        # # GUI logging stuff.
+        # canvasroot = self.oofcanvas.rootitem()
+        # init_canvas_logging(canvasroot) # one-time initialization
+        # # Although canvasroot is a gtk widget, it's not a pygtk
+        # # widget, which makes life difficult.  So here it's adopted by
+        # # a pygtk widget instead, and uses various hacks to get itself
+        # # logged.  The actual widget doing the adopting is completely
+        # # arbitrary since it will be passed as the first argument of
+        # # findCanvasRoot, which discards it.  It does have to be a
+        # # loggable pygtk widget, though, because
+        # # AdopteeLogger.location() doesn't know that it will be
+        # # discarded.  I did say that this is a hack, didn't I?
+        # gtklogger.adoptGObject(canvasroot, self.canvasTable,
+        #                        access_function=findCanvasRoot,
+        #                        access_kwargs={"windowname":self.name})
+        # gtklogger.connect_passive(canvasroot, "event")
 
-        if ppu is not None:
-            self.oofcanvas.set_pixels_per_unit(ppu)
-            self.oofcanvas.set_scrollregion(scrollregion)
-            self.oofcanvas.set_scroll_offsets(offsets)
+        # if ppu is not None:
+        #     self.oofcanvas.set_pixels_per_unit(ppu)
+        #     self.oofcanvas.set_scrollregion(scrollregion)
+        #     self.oofcanvas.set_scroll_offsets(offsets)
 
         # delayed import to avoid import loops
         from ooflib.common.IO.GUI import canvasoutput
@@ -482,12 +506,19 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         rawdevice = canvasoutput.CanvasOutput(self.oofcanvas)
         self.device = outputdevice.BufferedOutputDevice(rawdevice)
 
-        # On a new canvas, these should both be set at once,
-        # since they both need to call underlay.
-        self.oofcanvas.set_underlay_params(
-            self.settings.bgcolor, self.settings.margin)
-        self.oofcanvas.set_mouse_callback(self.mouseCB)
-        self.oofcanvas.set_rubberband(self.rubberband)
+        # # On a new canvas, these should both be set at once,
+        # # since they both need to call underlay.
+        # self.oofcanvas.set_underlay_params(
+        #     self.settings.bgcolor, self.settings.margin)
+
+        self.oofcanvas.setBackgroundColor(self.settings.bgcolor.red(),
+                                          self.settings.bgcolor.green(),
+                                          self.settings.bgcolor.blue())
+        ## TODO GTK3: margin
+        # self.oofcanvas.setMargin(self.settings.margin)
+
+        self.oofcanvas.setMmouseCallback(self.mouseCB)
+        # self.oofcanvas.set_rubberband(self.rubberband)
         self.oofcanvas.show()
 
         self.fix_step_increment()
@@ -502,8 +533,14 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         if self.contourmapdata.canvas:
             self.contourmapdata.canvas.destroy()
 
-        # Argument is antialias parameter.
-        self.contourmapdata.canvas = oofcanvas.OOFCanvas(0)
+        # Argument is ppu.  TODO GTK3: Does the value here matter?
+        # Just call zoomToFill after drawing.
+        self.contourmapdata.canvas = oofcanvas.OOFCanvas(
+            100, self.oofcanvas.heightInPixels(), 1)
+        self.contourmapdata.canvas.setBackgroundColor(
+            self.settings.bgcolor.red(),
+            self.settings.bgcolor.green(),
+            self.settings.bgcolor.blue())
 
         # Duplicate imports, again to avoid an import loop.
         from ooflib.common.IO.GUI import canvasoutput
@@ -514,19 +551,16 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.contourmapdata.device=outputdevice.BufferedOutputDevice(
             self.contourmapdata.rawdevice)
         
-        self.contourmapdata.canvas.set_configure_callback(
-            self.contourmap_config)
-        self.contourmapdata.canvas.set_mouse_callback(self.contourmap_mouse)
-        # Params are background color and margin.
-        self.contourmapdata.canvas.set_underlay_params(
-            self.settings.bgcolor, 0.0)
+        self.contourmapdata.canvas.setResizeCallback(
+            self.contourmap_resize)
+        self.contourmapdata.canvas.setMouseCallback(self.contourmap_mouse, None)
 
         # Create two layers, one for the "main" drawing, and
         # one for the ticks.
         self.contourmapdata.canvas_mainlayer = \
-                               self.contourmapdata.device.begin_layer()
+                               self.contourmapdata.device.begin_layer("main")
         self.contourmapdata.canvas_ticklayer = \
-                               self.contourmapdata.device.begin_layer()
+                               self.contourmapdata.device.begin_layer("tick")
         self.contourmapdata.canvas_ticklayer.raise_to_top()
     
 ##    # Function called after layers have been arranged.  Does not
@@ -580,8 +614,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         ## a lot of the extraneous "contourmap info updated"
         ## checkpoints in the gui logs.
 
-        self.contourmapdata.canvas_mainlayer.clear()
-        self.contourmapdata.canvas_mainlayer.make_current()
+        self.contourmapdata.canvas_mainlayer.removeAllItems()
+        #self.contourmapdata.canvas_mainlayer.make_current()
         
         c_min = None
         c_max = None
@@ -614,6 +648,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                 ppu = 1.0*ph/abs(c_max-c_min)
             else:
                 ppu = ph  # Arbitrary, one unit for all the pixels.
+
+            ## TODO GTK3: This has to be done completely differently
+            ## for OOFCanvas.  There's no scrollregion to be set, and
+            ## the ppu will be computed automatically.
 
             # Set the scrollregion and pixels-per-unit in the right
             # order.  If the new ppu is much larger than then old ppu,
@@ -736,25 +774,26 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.contourmapdata.device.show()
 
     # Callback for size changes of the pane containing the contourmap.
-    def contourmap_config(self, x, y, width, height):
-        debug.mainthreadTest()
-        if self.current_contourmap_method:
-            (c_min, c_max, c_lvls) = \
-                    self.current_contourmap_method.get_contourmap_info()
-            if c_max!=c_min:
-                ppu = 1.0*height/(c_max-c_min)
-                # ppu = 1.0*height/1000.0
-            else:
-                ppu = height # Arbitrary
+    def contourmap_resize(self):
+        self.contourmapdata.canvas.zoomToFill()
+        # debug.mainthreadTest()
+        # if self.current_contourmap_method:
+        #     (c_min, c_max, c_lvls) = \
+        #             self.current_contourmap_method.get_contourmap_info()
+        #     if c_max!=c_min:
+        #         ppu = 1.0*height/(c_max-c_min)
+        #         # ppu = 1.0*height/1000.0
+        #     else:
+        #         ppu = height # Arbitrary
 
-            # ppu changes here can't be large, so we don't have to
-            # worry about order of operations (see comment in
-            # show_contourmap_info, above).
-            self.contourmapdata.canvas.set_pixels_per_unit(ppu)
-            self.contourmapdata.canvas.set_scrollregion(
-                self.contourmapdata.canvas.get_bounds())
+        #     # ppu changes here can't be large, so we don't have to
+        #     # worry about order of operations (see comment in
+        #     # show_contourmap_info, above).
+        #     self.contourmapdata.canvas.set_pixels_per_unit(ppu)
+        #     self.contourmapdata.canvas.set_scrollregion(
+        #         self.contourmapdata.canvas.get_bounds())
 
-    def contourmap_mouse(self, event, x, y, shift, ctrl):
+    def contourmap_mouse(self, event, x, y, button, shift, ctrl, data):
         debug.mainthreadTest()
         if event=="down":
             self.contourmapdata.mouse_down = 1
@@ -764,15 +803,12 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             self.contourmapdata.mouse_down = None
             subthread.execute(self.show_contourmap_ticks, (y,))
 
-
-
     # Button callback.
     def contourmap_clear_marker(self, gtk):
         self.contourmapdata.mark_value = None
         self.contourlevel_min.set_text('')
         self.contourlevel_max.set_text('')
         subthread.execute(self.show_contourmap_info)
-
 
     # Overridden menu callbacks for the contourmap show/hide menu item.
     def hideLayerContourmap(self, menuitem, n):
@@ -820,20 +856,22 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         if self.oofcanvas.is_empty():
             # *Always* zoom to fill the window on the first non-trivial draw
             zoom = True
-            # Some drawing operations (canvasdot and canvastriangle in
-            # particular) require pixels_per_unit to be set *before*
-            # they're drawn.  This is a problem for the initial
-            # drawing, so here we just guess at the best value, and
-            # set ppu.  Since the canvas will be zoomed soon, it
-            # doesn't matter if the value isn't quite correct.
-            topwho = self.topwho("Microstructure", "Image",
-                                 "Skeleton", "Mesh")
-            if topwho:
-                topms = topwho.getMicrostructure()
-                width, height = topms.size()
-                bbox = geometry.CRectangle(coord.Coord(0.0, 0.0),
-                                           coord.Coord(width, height))
-                mainthread.runBlock(self.zoom_bbox, (bbox,))
+
+            ## OOFCanvas shouldn't have this problem:
+            # # Some drawing operations (canvasdot and canvastriangle in
+            # # particular) require pixels_per_unit to be set *before*
+            # # they're drawn.  This is a problem for the initial
+            # # drawing, so here we just guess at the best value, and
+            # # set ppu.  Since the canvas will be zoomed soon, it
+            # # doesn't matter if the value isn't quite correct.
+            # topwho = self.topwho("Microstructure", "Image",
+            #                      "Skeleton", "Mesh")
+            # if topwho:
+            #     topms = topwho.getMicrostructure()
+            #     width, height = topms.size()
+            #     bbox = geometry.CRectangle(coord.Coord(0.0, 0.0),
+            #                                coord.Coord(width, height))
+            #     mainthread.runBlock(self.zoom_bbox)
         self.acquireGfxLock()
         try:
             self.updateTimeControls()
@@ -891,12 +929,11 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             self._stopAnimation = False
 
             # Start the escapement.
-            gobject.timeout_add(
+            GObject.timeout_add(
                 int(1000./frame_rate), # time between frames, in milliseconds
                 self._escapementCB,
                 prog,
-                escapementDone,
-                priority=gobject.PRIORITY_LOW)
+                escapementDone)
 
             # Draw frames, after waiting for an escapement event.
             while not self._stopAnimation:
@@ -962,9 +999,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def toggleAntialias(self, menuitem, antialias):
         ghostgfxwindow.GhostGfxWindow.toggleAntialias(
             self, menuitem, antialias)
-        self.newCanvas()
-        # Draw is subthread-safe, devices are all buffered.
-        self.draw()
+        mainthread.runBlock(self.oofcanvas.antialias, (antialias,))
 
     # used by viewertoolbox zoom functions -- only 2D!
     def zoomFactor(self):
@@ -1021,26 +1056,26 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         if self.closed:
             return
         if self.oofcanvas and not self.oofcanvas.is_empty():
-            bbox = self.oofcanvas.get_bounds()
-            self.zoom_bbox(bbox)
+            self.zoom_bbox()
 
 
-    def zoom_bbox(self, bbox):
+    def zoom_bbox(self):
         debug.mainthreadTest()
-        width = self.oofcanvas.get_width_in_pixels()-1
-        height = self.oofcanvas.get_height_in_pixels()-1
-        if bbox.width() > 0 and bbox.height() > 0:
-            xf = width/bbox.width()
-            yf = height/bbox.height()
-            ppu = min(xf, yf)       # pixels per unit
-            oldppu = self.oofcanvas.get_pixels_per_unit()
-            if ppu > oldppu:    # See comment in show_contourmap_info().
-                self.oofcanvas.set_scrollregion(bbox)
-                self.oofcanvas.set_pixels_per_unit(ppu)
-            else:
-                self.oofcanvas.set_pixels_per_unit(ppu)
-                self.oofcanvas.set_scrollregion(bbox)
-            self.zoomed = 1
+        self.oofcanvas.zoomToFill()
+        # width = self.oofcanvas.get_width_in_pixels()-1
+        # height = self.oofcanvas.get_height_in_pixels()-1
+        # if bbox.width() > 0 and bbox.height() > 0:
+        #     xf = width/bbox.width()
+        #     yf = height/bbox.height()
+        #     ppu = min(xf, yf)       # pixels per unit
+        #     oldppu = self.oofcanvas.get_pixels_per_unit()
+        #     if ppu > oldppu:    # See comment in show_contourmap_info().
+        #         self.oofcanvas.set_scrollregion(bbox)
+        #         self.oofcanvas.set_pixels_per_unit(ppu)
+        #     else:
+        #         self.oofcanvas.set_pixels_per_unit(ppu)
+        #         self.oofcanvas.set_scrollregion(bbox)
+        #     self.zoomed = 1
         self.fix_step_increment()
 
     # only 2D - fix the step increment of the canvas table scroll bars
@@ -1048,6 +1083,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # For some reason, the step_increment on the canvas scroll
         # bars is zero, so the scroll arrows don't work.  This fixes
         # that.
+        ## TODO GTK3: Is this still necessary?
         debug.mainthreadTest()
         hadj = self.hScrollbar.get_adjustment()
         if hadj.step_increment == 0.0:
@@ -1120,9 +1156,15 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.acquireGfxLock()
         try:
             ghostgfxwindow.GhostGfxWindow.bgColor(self, menuitem, color)
-            mainthread.runBlock(self.oofcanvas.set_bgColor, (color,))
-            mainthread.runBlock(self.contourmapdata.canvas.set_bgColor,
-                                (color,))
+            self.oofcanvas.setBackgroundColor(
+                color.red(), color.green(), color.blue())
+            self.contourmapdata.canvas.setBackgroundColor(
+                color.red(), color.green(), color.blue())
+            mainthread.runBlock(self.oofcanvas.draw)
+            mainthread.runBlock(self.contourmapdata.canvas.draw)
+            # mainthread.runBlock(self.oofcanvas.set_bgColor, (color,))
+            # mainthread.runBlock(self.contourmapdata.canvas.set_bgColor,
+            #                     (color,))
         finally:
             self.releaseGfxLock()
 
@@ -1130,7 +1172,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.acquireGfxLock()
         try:
             self.settings.margin = fraction
-            mainthread.runBlock(self.oofcanvas.set_margin, (fraction,))
+            self.oofcanvas.setMargin(fraction)
         finally:
             self.releaseGfxLock()
 
@@ -1172,7 +1214,12 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     #########################################################
     def layerlistbuttonCB(self, gtkobj, event):
         if event.button == 3:
-            self.layerpopup.popup(None, None, None, event.button, event.time)
+            popupMenu = Gtk.Menu()
+            for item in self.Menu.Layer:
+                item.construct_gui(self.Menu.Layer, popupMenu, None)
+            popupMenu.show_all();
+            popupMenu.popup_at_pointer(event)
+
         # It's important to return False here, since doing so allows
         # other handlers to see the event.  In particular, it allows a
         # right-click to select the treeview line, so that the popup
@@ -1259,94 +1306,94 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
 ###########################################
 
-## Support for logging and replaying mouse clicks.
+# ## Support for logging and replaying mouse clicks.
 
-# Although the Canvas *is* a gtk Widget, it's not a pygtk Widget, and
-# it's hard to use the widget logging machinery directly on it. So we
-# pretend that it's some other kind of gtk object and use the
-# adoptGObject machinery instead.  It's adopted by
-# GfxWindow.canvasTable.  adoptGObject is told the name of the window.
-# The log uses the window name and findCanvasRoot to retrieve the
-# Canvas's root, which is the crucial bit for emitting signals.
+# # Although the Canvas *is* a gtk Widget, it's not a pygtk Widget, and
+# # it's hard to use the widget logging machinery directly on it. So we
+# # pretend that it's some other kind of gtk object and use the
+# # adoptGObject machinery instead.  It's adopted by
+# # GfxWindow.canvasTable.  adoptGObject is told the name of the window.
+# # The log uses the window name and findCanvasRoot to retrieve the
+# # Canvas's root, which is the crucial bit for emitting signals.
 
-def findCanvasRoot(gtkobj, windowname):
+# def findCanvasRoot(gtkobj, windowname):
 
-    # In gui logs, returns the root object of the canvas of the given
-    # gfxwindow.  Put into the logs by AdopteeLogger.location, via
-    # CanvasLogger.location.  See GfxWindow.newCanvas().
+#     # In gui logs, returns the root object of the canvas of the given
+#     # gfxwindow.  Put into the logs by AdopteeLogger.location, via
+#     # CanvasLogger.location.  See GfxWindow.newCanvas().
     
-    window = gfxmanager.gfxManager.getWindow(windowname)
-    return window.oofcanvas.rootitem()
+#     window = gfxmanager.gfxManager.getWindow(windowname)
+#     return window.oofcanvas.rootitem()
 
-def findCanvasGdkWindow(windowname):
-    window = gfxmanager.gfxManager.getWindow(windowname)
-    return window.oofcanvas.widget().window
+# def findCanvasGdkWindow(windowname):
+#     window = gfxmanager.gfxManager.getWindow(windowname)
+#     return window.oofcanvas.widget().window
 
-# desired_events is a list of all of the event types that should be
-# logged on the canvas.
+# # desired_events is a list of all of the event types that should be
+# # logged on the canvas.
 
-desired_events = [gtk.gdk.BUTTON_PRESS,
-                  gtk.gdk.BUTTON_RELEASE,
-                  gtk.gdk.MOTION_NOTIFY]
+# desired_events = [gtk.gdk.BUTTON_PRESS,
+#                   gtk.gdk.BUTTON_RELEASE,
+#                   gtk.gdk.MOTION_NOTIFY]
 
-_canvaslogging_initialized = False
+# _canvaslogging_initialized = False
 
-def init_canvas_logging(canvasgroup):
-    global _canvaslogging_initialized
-    if _canvaslogging_initialized:
-        return
-    _canvaslogging_initialized = True
+# def init_canvas_logging(canvasgroup):
+#     global _canvaslogging_initialized
+#     if _canvaslogging_initialized:
+#         return
+#     _canvaslogging_initialized = True
 
-    # Inject findCanvasRoot into the gtklogger replay namespace, which
-    # is where gui scripts are run.
-    gtklogger.replayDefine(findCanvasRoot)
-    gtklogger.replayDefine(findCanvasGdkWindow)
+#     # Inject findCanvasRoot into the gtklogger replay namespace, which
+#     # is where gui scripts are run.
+#     gtklogger.replayDefine(findCanvasRoot)
+#     gtklogger.replayDefine(findCanvasGdkWindow)
 
-    # The GtkLogger for Canvas events has to be defined *after* the
-    # first canvas has been created, because the GnomeCanvasGroup
-    # class isn't in pygtk.  We snag the object returned by
-    # OOFCanvas::rootitem and use its class for the CanvasLogger.
-    class CanvasLogger(gtklogger.adopteelogger.AdopteeLogger):
-        classes = (canvasgroup.__class__,)
-        def location(self, object, *args):
-            self.windowname = object.oofparent_access_kwargs['windowname']
-            return super(CanvasLogger, self).location(object, *args)
-        buttonup = True
-        def record(self, object, signal, *args):
-            if signal == "event":
-                event = args[0]
-                if event.type in desired_events:
-                    # event.type.value_name is something of the form
-                    # GDK_XXXXXX, but the python variable is
-                    # gtk.gdk.XXXXXX, so we have to strip off the
-                    # "GDK_".
-                    eventname = event.type.value_name[4:]
-                    if event.type in (gtk.gdk.BUTTON_PRESS,
-                                      gtk.gdk.BUTTON_RELEASE):
-                        CanvasLogger.buttonup = (event.type ==
-                                                 gtk.gdk.BUTTON_RELEASE)
-                        return [
-                            "canvasobj = %s" % self.location(object, *args),
-                            "canvasobj.emit('event', event(gtk.gdk.%s,x=%20.13e,y=%20.13e,button=%d,state=%d,window=findCanvasGdkWindow('%s')))"
-                            % (eventname, event.x, event.y, event.button,
-                               event.state, self.windowname)
-                            ]
-                    if event.type == gtk.gdk.MOTION_NOTIFY:
-                        # If the mouse is down, ignore the
-                        # suppress_motion_events flag.  Always log
-                        # mouse-down motion events, and log all motion
-                        # events if they're not suppressed.
-                        if (gtklogger.suppress_motion_events(object) and
-                            self.buttonup):
-                            return self.ignore
-                        return [
-                            "canvasobj = %s" % self.location(object, *args),
-                            "canvasobj.emit('event', event(gtk.gdk.MOTION_NOTIFY,x=%20.13e,y=%20.13e,state=%d,window=findCanvasGdkWindow('%s')))"
-                        % (event.x, event.y, event.state, self.windowname)
+#     # The GtkLogger for Canvas events has to be defined *after* the
+#     # first canvas has been created, because the GnomeCanvasGroup
+#     # class isn't in pygtk.  We snag the object returned by
+#     # OOFCanvas::rootitem and use its class for the CanvasLogger.
+#     class CanvasLogger(gtklogger.adopteelogger.AdopteeLogger):
+#         classes = (canvasgroup.__class__,)
+#         def location(self, object, *args):
+#             self.windowname = object.oofparent_access_kwargs['windowname']
+#             return super(CanvasLogger, self).location(object, *args)
+#         buttonup = True
+#         def record(self, object, signal, *args):
+#             if signal == "event":
+#                 event = args[0]
+#                 if event.type in desired_events:
+#                     # event.type.value_name is something of the form
+#                     # GDK_XXXXXX, but the python variable is
+#                     # gtk.gdk.XXXXXX, so we have to strip off the
+#                     # "GDK_".
+#                     eventname = event.type.value_name[4:]
+#                     if event.type in (gtk.gdk.BUTTON_PRESS,
+#                                       gtk.gdk.BUTTON_RELEASE):
+#                         CanvasLogger.buttonup = (event.type ==
+#                                                  gtk.gdk.BUTTON_RELEASE)
+#                         return [
+#                             "canvasobj = %s" % self.location(object, *args),
+#                             "canvasobj.emit('event', event(gtk.gdk.%s,x=%20.13e,y=%20.13e,button=%d,state=%d,window=findCanvasGdkWindow('%s')))"
+#                             % (eventname, event.x, event.y, event.button,
+#                                event.state, self.windowname)
+#                             ]
+#                     if event.type == gtk.gdk.MOTION_NOTIFY:
+#                         # If the mouse is down, ignore the
+#                         # suppress_motion_events flag.  Always log
+#                         # mouse-down motion events, and log all motion
+#                         # events if they're not suppressed.
+#                         if (gtklogger.suppress_motion_events(object) and
+#                             self.buttonup):
+#                             return self.ignore
+#                         return [
+#                             "canvasobj = %s" % self.location(object, *args),
+#                             "canvasobj.emit('event', event(gtk.gdk.MOTION_NOTIFY,x=%20.13e,y=%20.13e,state=%d,window=findCanvasGdkWindow('%s')))"
+#                         % (event.x, event.y, event.state, self.windowname)
                     
-                        ]
-                return self.ignore      # silently ignore other events
-            super(CanvasLogger, self).record(object, signal, *args)
+#                         ]
+#                 return self.ignore      # silently ignore other events
+#             super(CanvasLogger, self).record(object, signal, *args)
 
 ##############################################
 

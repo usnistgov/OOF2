@@ -22,16 +22,14 @@
 #include <string>
 #include <vector>
 
-class StringImage;
-class AlphaStringImage;
+class CanvasImage;
 
 class BitmapOverlay : public AbstractImage {
 private:
   ICoord sizeInPixels_;
   Coord size_;
   CColor fg, bg;
-  // voxelAlpha is only used in 3D
-  double voxelAlpha, tintAlpha;
+  double tintAlpha;
   // The timestamp is used externally to determine if the image needs
   // to be redrawn.
   TimeStamp timestamp;
@@ -63,8 +61,7 @@ public:
   std::vector<ICoord> *pixels(int i) const { return data.pixels(i); }
   std::vector<ICoord> *getPixels(bool v) const { return data.pixels(v); }
   bool empty() const { return data.empty(); }
-  virtual void fillstringimage(StringImage*) const;
-  virtual void fillalphastringimage(AlphaStringImage*) const; 
+  CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
   const TimeStamp &getTimeStamp() const { return timestamp; }
   TimeStamp &getTimeStamp() { return timestamp; }
 };

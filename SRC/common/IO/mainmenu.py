@@ -306,13 +306,22 @@ fontmenu.addItem(OOFMenuItem(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/widgetfont.xml')
     ))
 
-def setFixedFont(menuitem, fontname):
-    switchboard.notify('change fixed font', fontname)
+# Any Gtk widget that wants a fixed width font should set its CSS name
+# to "fixedfont".
+# The fixed font size is stored as a global here just
+# so that the GUI can retrieve its initial value.
+fixedFontSize = 12
+
+def setFixedFont(menuitem, fontsize):
+    global fixedFontSize
+    fixedFontSize = fontsize
+    switchboard.notify('change fixed font', fontsize)
 
 fontmenu.addItem(OOFMenuItem(
     "Fixed",
     callback=setFixedFont,
-    params=[parameter.StringParameter('fontname', tip='The name of a font.')],
+    params=[parameter.PositiveIntParameter('fontsize', fixedFontSize,
+                                           tip='Font size, in pixels.')],
     help="Set the fixed-width font to use in text displays.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/textfont.xml')
     ))

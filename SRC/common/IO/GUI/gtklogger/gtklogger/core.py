@@ -11,7 +11,7 @@
 ## This file contains the API for gtk_logger.  Nothing outside of this
 ## file should have to be explicitly called by users.
 
-import gtk
+import Gtk
 import os
 import string
 import types
@@ -73,7 +73,7 @@ def add_exception(excclass):
 
 ##################################
 
-# Any gtk.Widget that needs to have its signals logged and replayed
+# Any Gtk.Widget that needs to have its signals logged and replayed
 # must have a name, and enough of its widget ancestors must have names
 # that the sequence of names uniquely identifies the widget.
 # setWidgetName is used to assign the names.
@@ -81,18 +81,18 @@ def add_exception(excclass):
 def setWidgetName(widget, name):
     return logutils.setWidgetName(widget, name)
 
-# Top-level widgets (mostly gtk.Windows) must have their names
+# Top-level widgets (mostly Gtk.Windows) must have their names
 # assigned by newTopLevelWidget() instead of setWidgetName().
 
 def newTopLevelWidget(widget, name):
     return logutils.newTopLevelWidget(widget, name)
 
-# gtk.GObjects which aren't gtk.Widgets but still need to have their
+# Gtk.GObjects which aren't gtk.Widgets but still need to have their
 # signals logged should be registered with adoptGObject(). 'obj' is
-# the object being registered.  'parent' is an actual gtk.Widget, and
+# the object being registered.  'parent' is an actual Gtk.Widget, and
 # 'access_method' is a method of the parent class that retrieves the
 # adopted GObject.  For example, to make the gtk.Adjustment that's
-# part of a gtk.HRange loggable, call
+# part of a gtk.Range loggable, call
 #    adoptGObject(range.get_adjustment(), range, range.get_adjustment)
 # If there's no such parent class method, then use access_function
 # instead of access_method.  The function will be called with the
@@ -113,7 +113,7 @@ def adoptGObject(obj, parent, access_method=None, access_function=None,
     obj.oofparent_access_args = access_args
     obj.oofparent_access_kwargs = access_kwargs
 
-# set_submenu should be used instead of gtk.MenuItem.set_submenu.
+# set_submenu should be used instead of Gtk.MenuItem.set_submenu.
 
 def set_submenu(menuitem, submenu):
     menuitem.set_submenu(submenu)
@@ -132,8 +132,8 @@ def set_submenu(menuitem, submenu):
 #         return guisignals
 #     return wrapper
 
-# To have a gtk.GObject's actions logged, use gtklogger.connect or
-# gtklogger.connect_after instead of gtk.GObject.connect.  If a widget
+# To have a Gtk.GObject's actions logged, use gtklogger.connect or
+# gtklogger.connect_after instead of Gtk.GObject.connect.  If a widget
 # that otherwise would have no callback needs to be logged, use
 # gtklogger.connect_passive. 
 
@@ -153,7 +153,7 @@ def connect_after(obj, signal, callback, *args):
 
 # connect_passive should be used when an action needs to be logged and
 # replayed, but wouldn't otherwise have a callback.  For example,
-# keypresses in a gtk.Entry often aren't connected, but still need to
+# keypresses in a Gtk.Entry often aren't connected, but still need to
 # be logged.
 
 # @debug_connect
@@ -190,7 +190,7 @@ class GUISignals:
         self.signals = signals
         self.alive = True
         self.widget = weakref.ref(widget)
-        if isinstance(widget, gtk.Object):
+        if isinstance(widget, Gtk.Object):
             widget.connect('destroy', self.destroyCB)
     def block(self):
         if self.alive:
@@ -217,7 +217,7 @@ class GUISignals:
 # GUILogLineRunner in replay.py).  We do that by using a modified
 # Dialog class that keeps track of how many dialogs are open.
         
-class Dialog(gtk.Dialog):
+class Dialog(Gtk.Dialog):
     def __init__(self, *args, **kwargs):
         super(Dialog, self).__init__(*args, **kwargs)
         connect_passive(self, 'delete-event')
@@ -232,7 +232,7 @@ class Dialog(gtk.Dialog):
     def add_button(self, name, id):
         # Just to be nice to the programmer, turn on logging for the
         # buttons automatically.  Perhaps this should be optional.
-        button = super(Dialog, self).add_button(name, id)
+        button = super(Dialog, self).add_button(name, response_id)
         assert type(name) is types.StringType
         setWidgetName(button, name)
         connect_passive(button, 'clicked')
@@ -245,7 +245,7 @@ class Dialog(gtk.Dialog):
 # ignored in most cases.
 
 def logScrollBars(window, name=None):
-    assert isinstance(window, gtk.ScrolledWindow)
+    assert isinstance(window, Gtk.ScrolledWindow)
     if name is not None:
         setWidgetName(window, name)
     adoptGObject(window.get_hadjustment(), window,

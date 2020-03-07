@@ -29,8 +29,10 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import historian
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
-from ooflib.common.IO.GUI import tooltips
-import gtk, sys
+
+import sys
+from gi.repository import Gtk
+from gi.repository import Gdk
 
 class HistoricalSelection:
     def __init__(self, selectionMethod, points):
@@ -67,103 +69,99 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.shift = 0                 
         self.ctrl = 0
 
-        outerbox = gtk.VBox(spacing=2)
+        outerbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(outerbox)
 
 ##        scroll = gtk.ScrolledWindow()
 ##        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-##        outerbox.pack_start(scroll, expand=1, fill=1)
+##        outerbox.pack_start(scroll, expand=True, fill=True)
 
         # Retrieve the registered class factory from the subclass.
         self.selectionMethodFactory = self.methodFactory()
         # self.selectionMethodFactory = regclassfactory.RegisteredClassFactory(
         #     method.registry, title="Method:", name="Method")
 ##        scroll.add_with_viewport(self.selectionMethodFactory.gtk)
-        outerbox.pack_start(self.selectionMethodFactory.gtk, expand=1, fill=1)
+        outerbox.pack_start(self.selectionMethodFactory.gtk,
+                            expand=True, fill=True, padding=0)
         self.historian = historian.Historian(self.setHistory,
                                              self.sensitizeHistory)
         self.selectionMethodFactory.set_callback(self.historian.stateChangeCB)
 
         # Undo, Redo, Clear, and Invert buttons.  The callbacks for
         # these have to be defined in the derived classes.
-        hbox = gtk.HBox(homogeneous=True, spacing=2)
-        outerbox.pack_start(hbox, expand=0, fill=0)
-        self.undobutton = gtk.Button(stock=gtk.STOCK_UNDO)
-        self.redobutton = gtk.Button(stock=gtk.STOCK_REDO)
-        hbox.pack_start(self.undobutton, expand=1, fill=1)
-        hbox.pack_start(self.redobutton, expand=1, fill=1)
+        hbox = Gtk.HBox(orientation=Gtk.Orientation.HORIZONTAL,
+                        homogeneous=True, spacing=2)
+        outerbox.pack_start(hbox, expand=False, fill=False, padding=0)
+        self.undobutton = gtkutils.StockButton("edit-undo-symbolic", "Undo")
+        self.redobutton = gtkutils.StockButton("edit-redo-symbolic", "Redo")
+        hbox.pack_start(self.undobutton, expand=True, fill=True, padding=0)
+        hbox.pack_start(self.redobutton, expand=True, fill=True, padding=0)
         gtklogger.setWidgetName(self.undobutton, "Undo")
         gtklogger.setWidgetName(self.redobutton, "Redo")
         gtklogger.connect(self.undobutton, 'clicked', self.undoCB)
         gtklogger.connect(self.redobutton, 'clicked', self.redoCB)
-        tooltips.set_tooltip_text(self.undobutton,
+        self.undobutton.set_tooltip_text(
             "Undo the previous selection operation.")
-        tooltips.set_tooltip_text(self.redobutton,
+        self.redobutton.set_tooltip_text(
             "Redo an undone selection operation.")
 
-        self.clearbutton = gtk.Button(stock=gtk.STOCK_CLEAR)
+        self.clearbutton = gtkutils.StockButton("edit-clear-symbolic", "Clear")
         gtklogger.setWidgetName(self.clearbutton, "Clear")
-        hbox.pack_start(self.clearbutton, expand=1, fill=1)
+        hbox.pack_start(self.clearbutton, expand=True, fill=True, padding=0)
         gtklogger.connect(self.clearbutton, 'clicked', self.clearCB)
-        tooltips.set_tooltip_text(self.clearbutton,"Unselect all objects.")
+        self.clearbutton.set_tooltip_text("Unselect all objects.")
 
-        self.invertbutton = gtk.Button('Invert')
+        self.invertbutton = Gtk.Button('Invert')
         gtklogger.setWidgetName(self.invertbutton, "Invert")
-        hbox.pack_start(self.invertbutton, expand=1, fill=1)
+        hbox.pack_start(self.invertbutton, expand=True, fill=True, padding=0)
         gtklogger.connect(self.invertbutton, 'clicked', self.invertCB)
-        tooltips.set_tooltip_text(self.invertbutton,
+        self.invertbutton.set_tooltip_text(
             "Select all unselected objects, and deselect all selected objects.")
 
         # Selection history
-        frame = gtk.Frame('History')
-        frame.set_shadow_type(gtk.SHADOW_IN)
-        outerbox.pack_start(frame, expand=0, fill=0)
-        vbox = gtk.VBox()
+        frame = Gtk.Frame('History')
+        frame.set_shadow_type(Gtk.ShadowType.IN)
+        outerbox.pack_start(frame, expand=False, fill=False, padding=0)
+        vbox = gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
 
         frame.add(vbox)
         
-        table = gtk.Table(rows=2, columns=3)
-        vbox.pack_start(table, expand=0, fill=0)
-        table.attach(gtk.Label('down'), 0,1, 0,1, xoptions=0, yoptions=0)
-        table.attach(gtk.Label('up'), 0,1, 1,2, xoptions=0, yoptions=0)
+        table = Gtk.Grid()
+        vbox.pack_start(table, expand=False, fill=False, padding=0)
+        table.attach(gtk.Label('down'), 0,1, 0,1)
+        table.attach(gtk.Label('up'), 0,1, 1,2)
 
-        self.xdownentry = gtk.Entry()
-        self.ydownentry = gtk.Entry()
-        self.xupentry = gtk.Entry()
-        self.yupentry = gtk.Entry()
+        self.xdownentry = Gtk.Entry()
+        self.ydownentry = Gtk.Entry()
+        self.xupentry = Gtk.Entry()
+        self.yupentry = Gtk.Entry()
         gtklogger.setWidgetName(self.xdownentry, 'xdown')
         gtklogger.setWidgetName(self.ydownentry, 'ydown')
         gtklogger.setWidgetName(self.xupentry, 'xup')
         gtklogger.setWidgetName(self.yupentry, 'yup') # yessirree, Bob!
-        entries = [self.xdownentry, self.ydownentry, self.xupentry, self.yupentry]
-        if config.dimension() == 3:
-            self.zdownentry = gtk.Entry()  
-            self.zupentry = gtk.Entry()
-            gtklogger.setWidgetName(self.zdownentry, 'zdown')  
-            gtklogger.setWidgetName(self.zdownentry, 'zup')
-            entries.append(self.zdownentry)
-            entries.append(self.zupentry)
+        entries = [self.xdownentry, self.ydownentry,
+                   self.xupentry, self.yupentry]
         self.entrychangedsignals = []
         for entry in entries:
-            entry.set_size_request(12*guitop.top().digitsize, -1)
+            entry.set_width_chars(12)
             self.entrychangedsignals.append(
                 gtklogger.connect(entry, "changed", self.poschanged))
         table.attach(self.xdownentry, 1,2, 0,1)
         table.attach(self.ydownentry, 2,3, 0,1)
         table.attach(self.xupentry, 1,2, 1,2)
         table.attach(self.yupentry, 2,3, 1,2)
-        if config.dimension() == 3:
-            table.attach(self.zdownentry, 3,4, 0,1)
-            table.attach(self.zupentry, 3,4, 1,2)
-        hbox = gtk.HBox(spacing=2)
-        vbox.pack_start(hbox, expand=0, fill=0)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=0)
         self.prevmethodbutton = gtkutils.prevButton()
-        self.repeatbutton = gtkutils.StockButton(gtk.STOCK_REFRESH, 'Repeat')
+        self.repeatbutton = gtkutils.StockButton("view-refresh-symbolic",
+                                                 "Repeat")
         gtklogger.setWidgetName(self.repeatbutton, 'Repeat')
         self.nextmethodbutton = gtkutils.nextButton()
-        hbox.pack_start(self.prevmethodbutton, expand=0, fill=0)
-        hbox.pack_start(self.repeatbutton, expand=1, fill=0)
-        hbox.pack_start(self.nextmethodbutton, expand=0, fill=0)
+        hbox.pack_start(self.prevmethodbutton, expand=False, fill=False,
+                        padding=0)
+        hbox.pack_start(self.repeatbutton, expand=True, fill=False, padding=0)
+        hbox.pack_start(self.nextmethodbutton, expand=False, fill=False,
+                        padding=0)
         gtklogger.connect(self.repeatbutton, 'clicked', self.repeatCB)
         gtklogger.connect(self.repeatbutton, 'button-release-event',
                           self.repeateventCB)
@@ -171,23 +169,29 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
                           self.historian.prevCB)
         gtklogger.connect(self.nextmethodbutton, 'clicked',
                          self.historian.nextCB)
-        tooltips.set_tooltip_text(self.prevmethodbutton,
-            "Recall the settings and mouse coordinates for the previous selection method.")
-        tooltips.set_tooltip_text(self.nextmethodbutton,
-            "Recall the settings and mouse coordinates for the next selection method.")
-        tooltips.set_tooltip_text(self.repeatbutton,
-            "Execute the selection method as if the mouse had been clicked at the above coordinates.  Hold the shift key to retain the previous selection.  Hold the control key to toggle the selection state of the selected pixels.")
+        self.prevmethodbutton.set_tooltip_text(
+            "Recall the settings and mouse coordinates"
+            " for the previous selection method.")
+        self.nextmethodbutton.set_tooltip_text(
+            "Recall the settings and mouse coordinates"
+            " for the next selection method.")
+        self.repeatbutton.set_tooltip_text(
+            "Execute the selection method as if the mouse had been clicked"
+            " at the above coordinates.  Hold the shift key to retain the"
+            " previous selection.  Hold the control key to toggle the"
+            " selection state of the selected pixels.")
         
 
         # Selection information
-        hbox = gtk.HBox()
-        outerbox.pack_start(hbox, expand=0, fill=0)
-        hbox.pack_start(gtk.Label('Selection size: '), expand=0, fill=0)
-        self.sizetext = gtk.Entry();
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        outerbox.pack_start(hbox, expand=False, fill=False)
+        hbox.pack_start(gtk.Label('Selection size: '),
+                        expand=False, fill=False, padding=0)
+        self.sizetext = Gtk.Entry()
         gtklogger.setWidgetName(self.sizetext, 'size')
-        hbox.pack_start(self.sizetext, expand=1, fill=1)
+        hbox.pack_start(self.sizetext, expand=True, fill=True)
         self.sizetext.set_editable(False)
-        self.sizetext.set_size_request(12*guitop.top().digitsize, -1)
+        self.sizetext.set_width_chars(12)
         self.setInfo()
 
         # switchboard callbacks
@@ -204,10 +208,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.sensitize()
         self.sensitizeHistory()
         self.setInfo()
-
         self.gfxwindow().setMouseHandler(self)
-        if config.dimension() == 3:
-            self.gfxwindow().toolbar.setSelect()
 
     def deactivate(self):
         self.gfxwindow().setRubberband(rubberband.NoRubberBand())
@@ -398,8 +399,8 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         # repeatCB is called only if the mouse is actually released on
         # the button, but doesn't have access to the modifier keys
         # like repeateventCB does.
-        self.shift = (gdkevent.state & gtk.gdk.SHIFT_MASK != 0)
-        self.ctrl = (gdkevent.state & gtk.gdk.CONTROL_MASK != 0)
+        self.shift = (gdkevent.state & Gdk.ModifierType.SHIFT_MASK != 0)
+        self.ctrl = (gdkevent.state & Gdk.ModifierType.CONTROL_MASK != 0)
 
     def repeatable(self):
         # Check that the mouse coord entry widgets contain appropriate
@@ -431,23 +432,15 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
             if 'down' in selectionMethodReg.events:
                 self.xdownentry.set_text(("%-8g" % points[0].x).rstrip())
                 self.ydownentry.set_text(("%-8g" % points[0].y).rstrip())
-                if config.dimension() == 3:
-                    self.zdownentry.set_text(("%-8g" % points[0].z).rstrip())
             else:
                 self.xdownentry.set_text('--')
                 self.ydownentry.set_text('--')
-                if config.dimension() == 3:
-                    self.zdownentry.set_text('--')
             if 'up' in selectionMethodReg.events:
                 self.xupentry.set_text(("%-8g" % points[-1].x).rstrip())
                 self.yupentry.set_text(("%-8g" % points[-1].y).rstrip())
-                if config.dimension() == 3:
-                    self.zupentry.set_text(("%-8g" % points[-1].z).rstrip())
             else:
                 self.xupentry.set_text('--')
                 self.yupentry.set_text('--')
-                if config.dimension() == 3:
-                    self.zdownentry.set_text('--')
         finally:
             for sig in self.entrychangedsignals:
                 sig.unblock()

@@ -18,8 +18,8 @@ from ooflib.common.IO import activityviewermenu
 from ooflib.common.IO.GUI import activityViewer
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
-import gobject
-import gtk
+from gi.repository import GObject
+from gi.repository import Gtk
 import sys
 
 ## TODO: Group progress bars from a single command/thread together.
@@ -34,30 +34,30 @@ class GUIProgressBar(progressbar.ProgressBar):
         self.dismissable = False
         progress.setProgressBar(self)
 
-        self.gtk = gtk.Frame()
-        self.gtk.set_shadow_type(gtk.SHADOW_IN)
-        vbox = gtk.VBox(spacing=2)
+        self.gtk = Gtk.Frame()
+        self.gtk.set_shadow_type(Gtk.ShadowType.IN)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(vbox)
 
-        hbox = gtk.HBox(spacing=2)
-        vbox.pack_start(hbox, expand=0, fill=0, padding=2)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=2)
 
-        self.gtkprogressbar = gtk.ProgressBar()
-        self.gtkprogressbar.set_orientation(gtk.PROGRESS_LEFT_TO_RIGHT)
+        self.gtkprogressbar = Gtk.ProgressBar(
+            orientation=Gtk.Orientation.HORIZONTAL)
         hbox.pack_start(self.gtkprogressbar, expand=1, fill=1)
 
-        self.stopbutton = gtkutils.StockButton(gtk.STOCK_STOP, "Stop")
+        self.stopbutton = gtkutils.StockButton("process-stop-symbolic", "Stop")
         gtklogger.setWidgetName(self.stopbutton, "Stop%d"%self.idcounter)
         self.idcounter += 1
         gtklogger.connect(self.stopbutton, 'clicked', self.stopButtonCB)
-        hbox.pack_start(self.stopbutton, expand=0, fill=0)
+        hbox.pack_start(self.stopbutton, expand=False, fill=False, padding=0)
 
         self.timeout_id = None
         
     def schedule(self):
         # Schedule the bar for periodic updates via the gtk timeout
         # events.  The time is specified in milliseconds.
-        self.timeout_id = gobject.timeout_add(progressbar_delay.period,
+        self.timeout_id = GObject.timeout_add(progressbar_delay.period,
                                               self._updateGUI)
 
     def show(self):
@@ -101,7 +101,7 @@ class GUIProgressBar(progressbar.ProgressBar):
                 self.timeout_id = None
                 self.progress = None
                 pgrs.disconnectBar(self)
-                gobject.source_remove(timeout_id)
+                GObject.source_remove(timeout_id)
             finally:
                 pgrs.releaseThreadLock()
 
@@ -110,13 +110,11 @@ class GUIProgressBar(progressbar.ProgressBar):
         # deleting the Progress object until
         # Progress.releaseThreadLock() is called. 
         self.progress.acquireThreadLock()
-        gtk.gdk.threads_enter()
         try:
             self.updateGUI()
             return True         # re-invoke the timeout callback
         finally:
             self.progress.releaseThreadLock()
-            gtk.gdk.threads_leave()
 
     def updateGUI(self):        
         debug.mainthreadTest()
@@ -149,10 +147,10 @@ class GUIProgressBar(progressbar.ProgressBar):
     def switchButton(self): # Change the "Stop" button to a "Dismiss" button
         debug.mainthreadTest()
         if not self.dismissable:
-            label = gtkutils.findChild(gtk.Label, self.stopbutton)
+            label = gtkutils.findChild(Gtk.Label, self.stopbutton)
             label.set_text("Dismiss")
-            image = gtkutils.findChild(gtk.Image, self.stopbutton)
-            image.set_from_stock(gtk.STOCK_CANCEL, gtk.ICON_SIZE_BUTTON)
+            image = gtkutils.findChild(Gtk.Image, self.stopbutton)
+            image.set_from_stock("gtk-cancel", Gtk.IconSize.BUTTON)
             self.dismissable = True
             activityViewer.sensitize()
         

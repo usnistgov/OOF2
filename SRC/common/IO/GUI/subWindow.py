@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -16,7 +15,9 @@
 #
 # If you either override or pass in a callback, it should take two
 # arguments.  The first will be "self" and the second will be the
-# window emitting the signal (i.e. top.gtk).
+# window emitting the signal (i.e. top.gtk).  It will be called
+# instead of the default method when the subwindow should be
+# destroyed.
 
 # Construct the menu for the window's menubar.
 
@@ -29,7 +30,7 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO.GUI import gfxmenu
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import quit 
-import gtk
+from gi.repository import Gtk
 import types
 
 class SubWindow:
@@ -38,13 +39,12 @@ class SubWindow:
     # destroyed.
     def __init__(self, title, menu=None, callback=None, guiloggable=True):
         debug.mainthreadTest()
-        self.gtk = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.gtk.set_title(title)
+        self.gtk = Gtk.Window(Gtk.WindowType.TOPLEVEL, title=title)
         if guiloggable:
             gtklogger.newTopLevelWidget(self.gtk, title)
             gtklogger.connect_passive(self.gtk, 'delete-event')
             gtklogger.connect_passive(self.gtk, 'configure-event')
-        self.mainbox = gtk.VBox()
+        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(self.mainbox)
 
         # Checking the type is clumsy; the idea is that the caller
@@ -86,14 +86,15 @@ class SubWindow:
 
         # Build the menu bar and add it to the window.
 ##        self.menu_bar = None
-        self.accel_group = gtk.AccelGroup()
+        self.accel_group = Gtk.AccelGroup()
         self.gtk.add_accel_group(self.accel_group)
         self.menu_bar = gfxmenu.gtkOOFMenuBar(
             self.subwindow_menu, accelgroup=self.accel_group)
         if guiloggable:
             gtklogger.setWidgetName(self.menu_bar, "MenuBar")
 
-        self.mainbox.pack_start(self.menu_bar, fill=0, expand=0)
+        self.mainbox.pack_start(self.menu_bar, fill=False, expand=False,
+                                padding=0)
 
         # Add the "Windows" menu to the bar.
         self.windows_gtk_menu_item = gfxmenu.gtkOOFMenu(mainmenu.OOF.Windows,
@@ -132,7 +133,7 @@ class SubWindow:
     # This takes arguments so it can be used as a callback.
     def raise_window(self, *args):
         debug.mainthreadTest()
-        self.gtk.window.raise_()
+        self.gtk.present_with_time(Gtk.get_current_event_time())
 
 # used by several of the subwindows for naming window.
 def oofname():

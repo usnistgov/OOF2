@@ -11,47 +11,25 @@
 
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
-import gtk
+from gi.repository import Gtk
 
-# TODO: Add logging for FontSelection
+# TODO: Add gui logging somehow
 
-class FontSelector:
-    OK = 1
-    CANCEL = 2
-    def __init__(self, parent=None):
-        debug.mainthreadTest()
-        self.dialog = gtklogger.Dialog(title="OOF2 Font Selector",
-                                       parent=parent)
-        gtklogger.newTopLevelWidget(self.dialog, "FontSelector")
-        self.dialog.add_button(gtk.STOCK_OK, self.OK)
-        self.dialog.add_button(gtk.STOCK_CANCEL, self.CANCEL)
-        self.fontselector = gtk.FontSelection()
-        self.dialog.vbox.pack_start(self.fontselector, expand=1, fill=1)
-    def run(self):
-        debug.mainthreadTest()
-        self.dialog.show_all()
-        return self.dialog.run()
-    def close(self):
-        debug.mainthreadTest()
-        self.dialog.destroy()
-    def hide(self):
-        debug.mainthreadTest()
-        self.dialog.hide()
-    def get_font_name(self):
-        debug.mainthreadTest()
-        return self.fontselector.get_font_name()
 
-_fsdialog = None
+fsdialog = None
+defaultfont = "Mono 12"
 
 def getFontName(parentwindow=None):
-    global _fsdialog
-    if not _fsdialog:
-        _fsdialog = FontSelector(parentwindow)
-    result = _fsdialog.run()
-    if result in (FontSelector.CANCEL, gtk.RESPONSE_DELETE_EVENT,
-                  gtk.RESPONSE_NONE):
-        _fsdialog.hide()
+    global fsdialog, defaultfont
+    if not fsdialog:
+        fsdialog = Gtk.FontChooserDialog("OOF2 Font Chooser", parentwindow)
+    fsdialog.set_font(defaultfont)
+    result = fsdialog.run()
+    newfont = fsdialog.get_font()
+    fsdialog.hide()
+    if result in (Gtk.ResponseType.CANCEL,
+                  Gtk.ResponseType.DELETE_EVENT,
+                  Gtk.ResponseType.NONE):
         return None
-    fname = _fsdialog.get_font_name()
-    _fsdialog.hide()
-    return fname
+    defaultfont = newfont
+    return newfont

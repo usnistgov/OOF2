@@ -13,6 +13,8 @@
 
 # Message window, and the GUI part of the error reporting machinery.
 
+from gi.repository import Gtk
+from gi.repository import Pango
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
@@ -30,10 +32,7 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import mainmenuGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import subWindow
-from ooflib.common.IO.GUI import tooltips
-import gtk
 import os
-import pango
 import string
 import sys
 import time
@@ -75,52 +74,54 @@ class MessageWindow(subWindow.SubWindow):
         allMessageWindows.add(self)
 
         # Control box, with buttons.  These could be menu items.
-        controlbox = gtk.Frame()
-        controlbox.set_shadow_type(gtk.SHADOW_OUT)
-        self.mainbox.pack_start(controlbox, expand=0, fill=0)
-        controlinnards = gtk.VBox()
+        controlbox = Gtk.Frame()
+        controlbox.set_shadow_type(Gtk.ShadowType.IN)
+        self.mainbox.pack_start(controlbox, expand=False, fill=False)
+        controlinnards = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                 spacing=2)
         controlbox.add(controlinnards)
-        buttonbox = gtk.HBox()
-        controlinnards.pack_start(buttonbox, expand=0, padding=2)
-        savebutton = gtkutils.StockButton(gtk.STOCK_SAVE, "Save...")
-        tooltips.set_tooltip_text(savebutton,
+        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        controlinnards.pack_start(buttonbox, expand=False, fill=False,
+                                  padding=2)
+        savebutton = gtkutils.StockButton("document-save-symbolic", "Save...")
+        savebutton.set_tooltip_text(
             "Save the contents of this window to a file.")
-        buttonbox.pack_start(savebutton, expand=0, fill=0, padding=2)
+        buttonbox.pack_start(savebutton, expand=False, fill=False, padding=0)
         gtklogger.setWidgetName(savebutton, "Save")
         gtklogger.connect(savebutton, 'clicked', self.saveButtonCB)
 
         self.button_dict = {}
         self.signal_dict = {}
         for m in reporter.messageclasses:
-            button = gtk.CheckButton(m)
+            button = Gtk.CheckButton(m)
             gtklogger.setWidgetName(button, m)
-            buttonbox.pack_end(button, fill=0, expand=0, padding=2)
+            buttonbox.pack_end(button, fill=False, expand=False, padding=0)
             self.signal_dict[m] = gtklogger.connect(button, "clicked",
                                                     self.button_click)
             self.button_dict[m] = button
-            tooltips.set_tooltip_text(button,
+            button.set_tooltip_text(
                 "Show or hide "+ reporter.messagedescriptions[m])
 
-        messagepane = gtk.ScrolledWindow()
+        messagepane = Gtk.ScrolledWindow(border_width=4)
         ## The ScrolledWindow's scrollbars are *not* logged in the
         ## gui, because blocking the adjustment "changed" signals in
         ## the write_message function, below, doesn't work to suppress
         ## logging.  This means that programmatic changes to the
         ## scrollbars are logged along with user changes, which fills
         ## up the log file with extraneous lines.
-        messagepane.set_border_width(4)
-        messagepane.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        messagepane.set_policy(Gtk.PolicyType.AUTOMATIC,
+                               Gtk.PolicyType.AUTOMATIC)
         self.mainbox.add(messagepane)
 
-        self.messages = gtk.TextView()
+        self.messages = Gtk.TextView(name="fixedfont",
+                                     editable=False,
+                                     cursor_visible=False)
         gtklogger.setWidgetName(self.messages, "Text")
-        self.messages.set_editable(False)
-        self.messages.set_cursor_visible(False)
-        self.messages.set_wrap_mode(gtk.WRAP_WORD)
-        self.changeFont(mainmenuGUI.getFixedFont())
+        self.messages.set_wrap_mode(Gtk.WrapMode.WORD)
 
-        self.gtk.set_default_size(
-            90*gtkutils.widgetCharSize(self.messages), 200)
+        ## TODO GTK3: Do we need to set a default size?  Can we? 
+        # self.gtk.set_default_size(
+        #     90*gtkutils.widgetCharSize(self.messages), 200)
 
         # Get two marks to be used for automatic scrolling
         bfr = self.messages.get_buffer()
@@ -136,9 +137,7 @@ class MessageWindow(subWindow.SubWindow):
             
         self.sbcbs = [
             switchboard.requestCallbackMain("write message",
-                                            self.write_message),
-            switchboard.requestCallbackMain("change fixed font",
-                                            self.changeFont)
+                                            self.write_message)
             ]
 
         self.draw()
@@ -149,12 +148,6 @@ class MessageWindow(subWindow.SubWindow):
         _message_window_auto_open = False
         map(switchboard.removeCallback, self.sbcbs)
         OOF.Windows.Messages.removeItem(self.windows_menu_name)
-
-    def changeFont(self, fontname):
-        debug.mainthreadTest()
-        font_desc = pango.FontDescription(fontname)
-        if font_desc:
-            self.messages.modify_font(font_desc)
 
     def draw(self):
         debug.mainthreadTest()
@@ -211,27 +204,31 @@ reporter.messagemanager.gui_mode = True
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class WarningPopUp:
+class WarningPopUp(object):
     # Argument "message" is a single string for the second GtkLabel.
-    OK = 1
-    NO_MORE = 2
     def __init__(self, message):
         debug.mainthreadTest()
-        self.gtk = gtklogger.Dialog()
+        self.gtk = gtklogger.Dialog(title="%s Warning"%subWindow.oofname(),
+                                    parent=guitop.top())
         gtklogger.newTopLevelWidget(self.gtk, "Warning")
-        self.gtk.set_title("%s Warning"%subWindow.oofname())
 
-        self.gtk.vbox.set_spacing(3)
+        vbox = self.gtk.get_content_area()
+        vbox.set_spacing(3)
 
-        self.gtk.vbox.pack_start(gtk.Label("WARNING"))
-        self.gtk.vbox.pack_start(gtk.Label(message))
+        vbox.pack_start(Gtk.Label("WARNING"),
+                                 expand=False, fill=False, padding=0)
+        vbox.pack_start(Gtk.Label(message),
+                                 expand=False, fill=False, padding=0)
+        button = gtkutils.StockButton("gtk-ok", "OK")
+        self.gtk.add_action_widget(button, Gtk.ResponseType.OK)
 
-        self.gtk.add_button("OK", self.OK)
-        disable_button = self.gtk.add_button("Disable warnings", self.NO_MORE)
-        tooltips.set_tooltip_text(disable_button,
+        disable_button = Gtk.Button("Disable warnings")
+        self.gtk.add_action_widget(disable_button, Gtk.ResponseType.REJECT)
+
+        disable_button.set_tooltip_text(
             "Warnings can be re-enabled in the Help menu of the main window.")
 
-        self.gtk.vbox.show_all()
+        vbox.show_all()
     def run(self):
         debug.mainthreadTest()
         return self.gtk.run()
@@ -244,7 +241,7 @@ def _warning_pop_up(message):
         popup = WarningPopUp(message)
         result = popup.run()
         popup.close()
-        if result == WarningPopUp.NO_MORE:
+        if result == Gtk.ResponseType.REJECT:
             ## This used to call OOF.Help.Popup_warnings(0), but menu
             ## items shouldn't call other menu items, and the warning
             ## was presumably triggered by a menu item, so it can't
@@ -258,9 +255,7 @@ switchboard.requestCallbackMain("messagemanager warning", _warning_pop_up)
 # The error pop up optionally allows you to view the traceback,
 # and save it to a file.  The file is automatically named.
 
-class ErrorPopUp:
-    OK = 1
-    ABORT = 2
+class ErrorPopUp(object):
     def __init__(self, e_type, value, tbacklist):
         debug.mainthreadTest()
         
@@ -293,63 +288,77 @@ class ErrorPopUp:
         self.answer = None
         
         self.datestampstring = time.strftime("%Y %b %d %H:%M:%S %Z")
-        self.gtk = gtklogger.Dialog()
-        self.gtk.set_keep_above(True)
-        # self.gtk = gtk.Dialog()
+        self.gtk = gtklogger.Dialog(
+            title="%s Error" % subWindow.oofname(),
+            flags=Gtk.DialogFlags.MODAL,
+            parent=guitop.top())
+        self.gtk.set_keep_above(True) # might not work
         gtklogger.newTopLevelWidget(self.gtk, "Error")
-        self.gtk.set_title("%s Error"%subWindow.oofname())
 
-        self.gtk.vbox.set_spacing(3)
+        vbox = self.gtk.get_content_area()
+        vbox.set_spacing(3)
+
         classname = string.split(str(e_type),'.')[-1]
-        self.gtk.vbox.pack_start(gtk.Label("ERROR"), expand=0, fill=0)
+        vbox.pack_start(Gtk.Label("ERROR"),
+                                 expand=False, fill=False, padding=0)
 
-        self.errframe = gtk.Frame()
+        self.errframe = Gtk.Frame()
         self.errframe.set_border_width(6)
-        self.errframe.set_shadow_type(gtk.SHADOW_IN)
-        self.gtk.vbox.pack_start(self.errframe, expand=1, fill=1)
+        self.errframe.set_shadow_type(Gtk.Shadowtype.IN)
+        vbox.pack_start(self.errframe,
+                                 expand=True, fill=True, padding=0)
 
-        fd = pango.FontDescription(mainmenuGUI.getFixedFont())
+        fd = Pango.FontDescription(mainmenuGUI.getFixedFont())
 
-        errscroll = gtk.ScrolledWindow()
+        errscroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(errscroll, "ErrorScroll")
-        errscroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        errscroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.errframe.add(errscroll)
-        self.errbox = gtk.TextView()    # error text goes here
+        self.errbox = Gtk.TextView(name="fixedfont",
+                                   wrap_mode=Gtk.WrapMode.WORD,
+                                   editable=False)
         gtklogger.setWidgetName(self.errbox, "ErrorText")
         errscroll.add(self.errbox)
-        self.errbox.set_editable(0)
-        self.errbox.set_wrap_mode(gtk.WRAP_WORD)
         self.errbox.get_buffer().set_text("\n".join(errorstrings))
-        self.errbox.modify_font(fd)
 
-        self.gtk.add_button(gtk.STOCK_OK, self.OK)
-        self.gtk.add_button("Abort", self.ABORT)
-        self.gtk.set_default_response(self.OK)
-
+        # Buttons for viewing and saving the traceback.  These can't
+        # go in the action area with the OK and Abort buttons because
+        # they don't close the dialog.
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       homogeneous=True)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=0)
         self.tracebutton = gtk.Button("View Traceback")
         gtklogger.setWidgetName(self.tracebutton, "ViewTraceback")
         gtklogger.connect(self.tracebutton, "clicked", self.trace)
-        self.gtk.action_area.add(self.tracebutton)
-
-        self.savebutton = gtkutils.StockButton(gtk.STOCK_SAVE, "Save Traceback")
+        hbox.pack_start(self.tracebutton, expand=False, fill=False, padding=0)
+                       
+        self.savebutton = gtkutils.StockButton("document-save-symbolic",
+                                               "Save Traceback")
         gtklogger.setWidgetName(self.savebutton, "SaveTraceback")
         gtklogger.connect(self.savebutton, "clicked", self.savetrace)
-        self.gtk.action_area.add(self.savebutton)
+        hbox.pack_start(self.savebutton, expand=False, fill=False, padding=0)
 
-        self.scroll = gtk.ScrolledWindow()
+        # OK and Abort buttons
+        self.gtk.add_action_widget(gtkutils.StockButton("gtk-ok", "OK"),
+                                   Gtk.ResponseType.OK)
+        self.gtk.add_action_widget(Gtk.Button("Abort"),
+                                   Gtk.ResponseType.CLOSE)
+        self.gtk.set_default_response(Gtk.ResponseType.OK)
+
+
+        self.scroll = Gtk.ScrolledWindow(border_width=3)
         gtklogger.logScrollBars(self.scroll, "TraceScroll")
-        self.scroll.set_border_width(3)
-        self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.scroll.set_shadow_type(gtk.SHADOW_IN)
+        self.scroll.set_policy(Gtk.PolicyType.AUTOMATIC,
+                               Gtk.PolicyType.AUTOMATIC)
+        self.scroll.set_shadow_type(Gtk.ShadowType.IN)
         
-        self.tracepane = gtk.TextView()
-        self.tracepane.set_editable(0)
-        self.tracepane.set_wrap_mode(gtk.WRAP_WORD)
-        self.tracepane.modify_font(fd)
+        self.tracepane = gtk.TextView(name="fixedfont",
+                                      editable=False,
+                                      wrap_mode=Gtk.WrapMode.WORD)
 
-        self.traceframe = gtk.Frame()
-        self.traceframe.set_shadow_type(gtk.SHADOW_NONE)
-        self.gtk.vbox.pack_start(self.traceframe, expand=0, fill=0)
+        self.traceframe = Gtk.Frame()
+        self.traceframe.set_shadow_type(Gtk.ShadowType.NONE)
+        vbox.pack_start(self.traceframe, expand=False, fill=False, padding=0)
 
         # Scroll is not added to the frame until the traceback button
         # is pressed.
@@ -365,8 +374,8 @@ class ErrorPopUp:
             self.tracepane.get_buffer().set_text(tbtext)
             
         else:
-            self.savebutton.set_sensitive(0)
-            self.tracebutton.set_sensitive(0)
+            self.savebutton.set_sensitive(False)
+            self.tracebutton.set_sensitive(False)
 
         self.gtk.show_all()
 
@@ -377,10 +386,7 @@ class ErrorPopUp:
 
     def run(self):
         debug.mainthreadTest()
-        result = self.gtk.run()
-        if result == self.ABORT:
-            return self.ABORT
-        return self.OK
+        return self.gtk.run()
             
     def trace(self, gtk):
         debug.mainthreadTest()
@@ -390,15 +396,16 @@ class ErrorPopUp:
             self.tracebutton.set_label("Hide Traceback")
             # When the traceback is visible, it expands when the
             # window size changes, and the error box doesn't.
-            _switchpacking(self.gtk.vbox, self.errframe)
-            _switchpacking(self.gtk.vbox, self.traceframe)
+            vbox = self.gtk.get_content_area()
+            _switchpacking(vbox, self.errframe)
+            _switchpacking(vbox, self.traceframe)
         else:
             self.traceframe.remove(c[0])
             self.tracebutton.set_label("View Traceback")
             # When the traceback isn't visible, the error box expands
             # to fill the window.
-            _switchpacking(self.gtk.vbox, self.errframe)
-            _switchpacking(self.gtk.vbox, self.traceframe)
+            _switchpacking(vbox, self.errframe)
+            _switchpacking(vbox, self.traceframe)
         self.gtk.show_all()
 
     def savetrace(self, gtk):
@@ -423,9 +430,12 @@ def _switchpacking(parent, child):
     # Toggle the 'expand' and 'fill' gtk packing properties of the
     # child.
     debug.mainthreadTest()
-    expand, fill, padding, pack_type = parent.query_child_packing(child)
-    parent.set_child_packing(child, expand=not expand, fill=not fill,
-                             padding=padding, pack_type=pack_type)
+    packinfo = parent.query_child_packing(child)
+    parent.set_child_packing(child,
+                             expand=not packinfo.expand,
+                             fill=not packinfo.fill,
+                             padding=packinfo.padding,
+                             pack_type=packinfo.pack_type)
 
 # Blocking function, which raises an error pop up, blocks, and returns
 # ErrorPopUp.OK if the "OK" button was pressed, and ErrorPopUp.ABORT
@@ -447,7 +457,7 @@ def gui_printTraceBack(e_type, e_value, tbacklist):
     if guitop.getMainLoop():
         # Transfer control to the main thread to report errors in the GUI.
         res = mainthread.runBlock(errorpopup_, (e_type, e_value, tbacklist))
-        if res == ErrorPopUp.ABORT:
+        if res == Gtk.ResponseType.CLOSE:
             from ooflib.common.IO.GUI import quit
             if not mainthread.runBlock(quit.queryQuit,
                                        kwargs=dict(exitstatus=1)):

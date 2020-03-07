@@ -345,18 +345,27 @@ def front_end(no_interp=None):
     # When loading modules, use utils.OOFexec so that names are
     # imported into the oof environment, not the oof.run environment.
     if not (runtimeflags.text_mode or config.no_gui()):
-	# The gtk import dance described below doesn't work when the program
-        # has been packaged by cx_freeze.
-        # TODO LATER: is checking frozen required for gtk2?
-        frozen = hasattr(sys, 'frozen')
-	if not frozen:
-            import pygtk
-            pygtk.require("2.0")
-            import gtk
-            msg = gtk.check_version(2, 6, 0)
-            if msg:
-                print msg
-                sys.exit(3)
+        import gi
+        gi.require_version("Gtk", "3.0")
+        from gi.repository import Gtk
+        msg = Gtk.check_version(3, 24, 0)
+        if msg:
+            print msg
+            sys.exit(3)
+
+        ## VERY OLD VERSION
+	# # The gtk import dance described below doesn't work when the program
+        # # has been packaged by cx_freeze.
+        # # TODO LATER: is checking frozen required for gtk2 or gtk3?
+        # frozen = hasattr(sys, 'frozen')
+	# if not frozen:
+        #     import pygtk
+        #     pygtk.require("2.0")
+        #     import gtk
+        #     msg = gtk.check_version(2, 6, 0)
+        #     if msg:
+        #         print msg
+        #         sys.exit(3)
 
         import ooflib.common.IO.GUI.initialize
         # temporarily disable the engine, tutorials, orientationmap

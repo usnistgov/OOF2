@@ -9,6 +9,8 @@
  * oof_manager@nist.gov. 
  */
 
+OBSOLETE
+
 #ifndef STRINGIMAGE_SWG
 #define STRINGIMAGE_SWG
 

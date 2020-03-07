@@ -20,8 +20,9 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import activityViewer
 from ooflib.common.IO.GUI import fontselector
+from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
-import gtk
+from gi.repository import Gtk
 import os
 
 ##########################
@@ -47,7 +48,7 @@ mainmenu.OOF.Settings.Fonts.Widgets.add_gui_callback(setFont_gui)
 
 def reallySetFont(fontname):
     debug.mainthreadTest()
-    settings = gtk.settings_get_default()
+    settings = Gtk.Settings.get_default()
     settings.set_property("gtk-font-name", fontname)
     switchboard.notify('gtk font changed')
 
@@ -55,26 +56,19 @@ switchboard.requestCallbackMain('change font', reallySetFont)
 
 ##############################
 
-# The text font is actually set by the widgets that use it. This code
-# here just sets up the callback to get the font, and also stores it
-# where it can be found by new widgets.
+# Any widget that uses a fixed width font should have its CSS name set
+# to "fixedfont".
 
-fixedfont = "Mono 12"
-mainmenu.OOF.Settings.Fonts.Fixed.add_gui_callback(setFont_gui)
+def setFixedFontSize(fontsize):
+    oofGUI.addStyle("#fixedfont { font: %dpx monospace; }" % fixedfontsize)
 
-def setFixedFont(fontname):
-    global fixedfont
-    fixedfont = fontname
+setFixedFontSize(mainmenu.fixedFontSize)
 
-def getFixedFont():
-    global fixedfont
-    return fixedfont
-
-switchboard.requestCallbackMain('change fixed font', setFixedFont)
+switchboard.requestCallbackMain('change fixed font', setFixedFontSize)
 
 ##############################
 
-themedirs = [gtk.rc_get_theme_dir(),
+themedirs = [Gtk.rc_get_theme_dir(),
              os.path.join(os.path.expanduser("~"), ".themes")]
 
 themes = []
@@ -105,7 +99,7 @@ if themes:
 
     def reallySetTheme(themename):
         debug.mainthreadTest()
-        settings = gtk.settings_get_default()
+        settings = Gtk.Settings.get_default()
         settings.set_property("gtk-theme-name", themename)
 
     switchboard.requestCallbackMain('change theme', reallySetTheme)

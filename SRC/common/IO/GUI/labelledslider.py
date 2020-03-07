@@ -9,12 +9,10 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.SWIG.common import guitop
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO.GUI import gtklogger
-from ooflib.common.IO.GUI import tooltips
-import gtk
+from gi.repository import Gtk
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -59,36 +57,43 @@ class LabelledSlider:
         debug.mainthreadTest()
         self.immediate = immediate
 
-        self.gtk = gtk.HPaned()
+        self.gtk = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
         if value is None:
             value = vmin
         self.clipperclass = clipperclass or DefaultClipper
         self.clipper = self.clipperclass(vmin, vmax)
         if name is not None:
             gtklogger.setWidgetName(self.gtk, name)
-        self.adjustment = gtk.Adjustment(value=value,
-                                         lower=vmin, upper=vmax,
-                                         step_incr=step,
-                                         page_incr=step)
-        self.slider = gtk.HScale(self.adjustment)
+        # TODO: Does setting page_size=0 cause problems for some gtk
+        # themes, if the sliding part of the Gtk.Scale gets its size
+        # from page_size?
+        self.adjustment = Gtk.Adjustment(
+            value=value, lower=vmin, upper=vmax,
+            step_incr=step, # arrow keys move this far
+            page_incr=step, # page up and page down keys move this far
+            page_size=0)    # max slider value is upper-page_size
+        self.slider = gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL,
+                                adjustment=self.adjustment)
         gtklogger.setWidgetName(self.slider, "slider")
         gtklogger.adoptGObject(self.adjustment, self.slider,
                               access_method=self.slider.get_adjustment)
         self.slider.set_size_request(100, -1)
-        self.gtk.pack1(self.slider, resize=True, shrink=True)
+        self.gtk.pack1(self.slider, resize=True, shrink=False)
         self.slider.set_draw_value(False)   # we'll display the value ourselves
         self.adjustmentsignal = gtklogger.connect(self.adjustment,
                                                   'value-changed',
                                                   self.text_from_slider)
 
-        self.entry = gtk.Entry()
+        self.entry = Gtk.Entry()
+        entry.set_margin_start(3)
+        entry.set_margin_end(3)
         gtklogger.setWidgetName(self.entry, "entry")
         self.gtk.pack2(self.entry, resize=True, shrink=True)
 
         # Make sure that the Entry is big enough to hold the min and
         # max values, or at least 8 digits.
         width = max(len(`vmin`), len(`vmax`), 8)
-        self.entry.set_size_request(width*guitop.top().digitsize, -1)
+        self.entry.set_width_chars(width)
 
         self.entrysignal = gtklogger.connect(self.entry, 'changed',
                                              self.entry_changed)
@@ -193,18 +198,19 @@ class LabelledSlider:
 
     def getBounds(self):
         return (self.adjustment.lower, self.adjustment.upper)
-    
-    def set_policy(self, policy):
-        # Set how often the callback is called in response to slider
-        # motion.  policy should be gtk.UPDATE_CONTINUOUS,
-        # gtk.UPDATE_DELAYED, or gtk.UPDATE_DISCONTINUOUS.
-        self.slider.set_update_policy(policy)
+
+    ## TODO: Is there a Gtk3 version of Range.set_policy?
+    # def set_policy(self, policy):
+    #     # Set how often the callback is called in response to slider
+    #     # motion.  policy should be gtk.UPDATE_CONTINUOUS,
+    #     # gtk.UPDATE_DELAYED, or gtk.UPDATE_DISCONTINUOUS.
+    #     self.slider.set_update_policy(policy)
 
     def set_tooltips(self, slider=None, entry=None):
         if slider:
-            tooltips.set_tooltip_text(self.slider,slider)
+            self.slider.set_tooltip_text(slider)
         if entry:
-            tooltips.set_tooltip_text(self.entry,entry)
+            self.entry.set_tooltip_text(entry)
 
 class FloatLabelledSlider(LabelledSlider):
     def set_digits(self, digits):

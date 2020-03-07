@@ -31,7 +31,7 @@ from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
-import gtk
+from gi.repository import Gtk
 import string
 
 
@@ -218,7 +218,7 @@ class WhoWidgetBase:
         else:                           # change does not affect current object
             self.buildWidgets()
 
-    def selectCB(self, gtkobj, name, d): # ChooserWidget callback
+    def selectCB(self, name, d): # ChooserWidget callback
         newpath = self.currentPath[:]
         newpath[d] = name
         self.buildWidgets(newpath, interactive=1) # sets currentPath
@@ -304,13 +304,14 @@ class WhoParameterWidgetBase(parameterwidgets.ParameterWidget,
         
         # Put the WhoWidget's components into a box.
         depth = len(self.whowidget.gtk)
-        frame = gtk.Frame()
-        frame.set_shadow_type(gtk.SHADOW_IN)
-        vbox = gtk.VBox()
+        frame = Gtk.Frame()
+        frame.set_shadow_type(Gtk.ShadowType.IN)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         frame.add(vbox)
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name)
         for d in range(depth):
-            vbox.pack_start(self.whowidget.gtk[d], expand=0, fill=0)
+            vbox.pack_start(self.whowidget.gtk[d], expand=False, fill=False,
+                            padding=0)
 
         self.wwcallback = switchboard.requestCallbackMain(self.whowidget,
                                                           self.widgetCB)
@@ -364,7 +365,7 @@ class WhoClassParameterWidget(parameterwidgets.ParameterWidget):
         self.condition = condition
     def newWhoClass(self, classname):
         self.chooser.update(whoville.classNames(self.condition))
-    def chooserCB(self, gtkobj, name):
+    def chooserCB(self, name):
         switchboard.notify(self, interactive=1)
     def set_value(self, value):
         self.chooser.set_state(value)   # does not call chooserCB
@@ -388,7 +389,10 @@ class AnyWhoParameterWidget(parameterwidgets.ParameterWidget,
     # See comment in WhoParameterWidget about WidgetScope.
     def __init__(self, value, scope, name=None):
         widgetscope.WidgetScope.__init__(self, scope)
-        parameterwidgets.ParameterWidget.__init__(self, gtk.VBox(), scope, name)
+        parameterwidgets.ParameterWidget.__init__(
+            self,
+            Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2),
+            scope, name)
         self.classwidget = scope.findWidget(
             lambda w: isinstance(w, WhoClassParameterWidget))
         self.whopwidget = None          # enclosed WhoParameterWidget

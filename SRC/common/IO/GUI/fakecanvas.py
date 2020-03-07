@@ -10,7 +10,7 @@
 
 # For debugging only
 
-import gtk
+from gi.repository import Gtk
 from ooflib.SWIG.common import coord
 from ooflib.SWIG.common import geometry
 
@@ -25,7 +25,7 @@ class FakeCanvas:
         global dummyfunc
         return dummyfunc
     def widget(self):
-        return gtk.Frame()
+        return Gtk.Frame()
     def get_pixels_per_unit(self):
         return 1
     def get_scrollregion(self):

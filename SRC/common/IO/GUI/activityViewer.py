@@ -29,8 +29,8 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import quit
 from ooflib.common.IO.GUI import subWindow
-import gobject
-import gtk
+from gi.repository import GObject
+from gi.repository import Gtk
 import string
 import sys
 import time
@@ -73,31 +73,37 @@ class ActivityViewer(subWindow.SubWindow):
         self.gtk.set_default_size(400, 300)
         
         # Area at the top containing the editor widget for the line
-        self.control_area = gtk.HBox()       # editor widget goes in here
-        self.mainbox.pack_start(self.control_area, expand=0, fill=0, padding=2)
+        self.control_area = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                                    spacing=2) # editor widget goes in here
+        self.mainbox.pack_start(self.control_area, expand=False, fill=False,
+                                padding=0)
 
         ## Dismiss All bars
-        self.dismissall = gtkutils.StockButton(gtk.STOCK_CANCEL, "Dismiss All")
+        self.dismissall = gtkutils.StockButton("gtk-cancel", "Dismiss All")
         gtklogger.setWidgetName(self.dismissall, "DismissAll")
         gtklogger.connect(self.dismissall, "clicked", self.dismissAllCB)
-        self.control_area.pack_start(self.dismissall, expand=1, fill=0,
-                                     padding=2)
+        self.control_area.pack_start(self.dismissall, expand=True, fill=False,
+                                     padding=0)
 
         ## stop-all-threads
-        self.stopall = gtkutils.StockButton(gtk.STOCK_STOP, "Stop All")
+        self.stopall = gtkutils.StockButton("process-stop", "Stop All")
         gtklogger.setWidgetName(self.stopall, "StopAll")
         gtklogger.connect(self.stopall, "clicked", self.stopAll)
-        self.control_area.pack_start(self.stopall, expand=1, fill=0, padding=2)
+        self.control_area.pack_start(self.stopall, expand=True, fill=False,
+                                     padding=0)
                 
         # Create a scrolled window to pack the bars into
-        scrolled_window = gtk.ScrolledWindow()
-        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        scrolled_window = Gtk.ScrolledWindow()
+        scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                   Gtk.PolicyType.AUTOMATIC)
         gtklogger.logScrollBars(scrolled_window, "Scroll")
-        self.mainbox.pack_start(scrolled_window, expand=1, fill=1, padding=2)
+        self.mainbox.pack_start(scrolled_window, expand=True, fill=True,
+                                padding=0)
         
         ## Create VBox where the progressbars can live happily ever after
-        self.bars_play_area = gtk.VBox() # homogeneous=True?
-        scrolled_window.add_with_viewport(self.bars_play_area)
+        self.bars_play_area = gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                      spacing=2) # homogeneous=True?
+        scrolled_window.add(self.bars_play_area)
 
         self.proglock = lock.SLock()
         self.proglock.acquire()
@@ -129,8 +135,8 @@ class ActivityViewer(subWindow.SubWindow):
         if not prgrss.hasProgressBar():
             pbar = prgrss.makeGUIBar()
             self.listofgtkbars.append(pbar)
-            self.bars_play_area.pack_start(pbar.gtk, expand=0, fill=0,
-                                           padding=2)
+            self.bars_play_area.pack_start(pbar.gtk, expand=False, fill=False,
+                                           padding=0)
             pbar.updateGUI()
             pbar.show()
             pbar.schedule()
@@ -229,18 +235,13 @@ def delayed_add_ProgressBar(progressid):
         if progressbar_delay.delay < progressbar_delay.period:
             _updatePBdisplayNow(progressid) # immediate display
         else:
-            gobject.timeout_add(progressbar_delay.delay,
-                                _updatePBdisplay, progressid)
+            GObject.timeout_add(progressbar_delay.delay,
+                                _updatePBdisplayNow, progressid)
 
 # Time-out callback function invoked by delayed_add_ProgressBar.
 
-def _updatePBdisplay(progressid):
-    gtk.gdk.threads_enter()
-    try:
-        _updatePBdisplayNow(progressid)
-    finally:
-        gtk.gdk.threads_leave()
-    return False
+# In gtk2, the timeout callback was wrapped in gdk.threads_enter and
+# gdk.threads_leave, which are deprecated in Gtk3.
 
 def _updatePBdisplayNow(progressid):
     debug.mainthreadTest()
