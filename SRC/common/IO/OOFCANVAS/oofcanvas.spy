@@ -1,0 +1,73 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+# This file is included verbatim into the swig output for
+# oofcanvas.swg.
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Monkeypatch the Canvas constructor to create the Gtk Layout, which
+# is easier to create in Python.
+
+_Canvas__init__old = Canvas.__init__
+
+def _Canvas__init__new(self, width, height, ppu, **kwargs):
+    self.layout = Gtk.Layout(width_request=width, height_request=height,
+                             **kwargs)
+    _Canvas__init__old(self, self.layout, ppu)
+
+Canvas.__init__ = _Canvas__init__new
+
+def _Canvas_get_hadjustment(self):
+    return self.layout.get_hadjustment()
+
+Canvas.get_hadjustment = _Canvas_get_hadjustment
+
+def _Canvas_get_vadjustment(self):
+    return self.layout.get_vadjustment()
+
+Canvas.get_vadjustment = _Canvas_get_vadjustment
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+CanvasImage.newBlank = staticmethod(CanvasImage_newBlank)
+CanvasImage.newFromPNGFile = staticmethod(CanvasImage_newFromPNGFile)
+CanvasImage.newFromImageMagickFile = \
+    staticmethod(CanvasImage_newFromImageMagickFile)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# CanvasItemListIterator.__next__ and CanvasItemList.__iter__ can't
+# quite do all that they need to do in the swigged versions of the
+# underlying C++ methods.
+
+# CanvasItemListIterator needs to be able to raise StopIteration.
+def _CanvasItemListIterator__next__(self):
+    if self.done():
+        raise StopIteration
+    return self.next_();
+
+CanvasItemListIteratorPtr.__next__ =_CanvasItemListIterator__next__ # Python3
+CanvasItemListIteratorPtr.next = _CanvasItemListIterator__next__ # Python2
+
+# CanvasItemList.__iter__ needs to keep a reference to the list in the
+# iterator, so that the C++ std::vector won't be deleted before the
+# iterator is.
+
+def _CanvasItemList__iter__(self):
+    iterator = self.getiter();
+    iterator.listref = self
+    return iterator
+
+CanvasItemListPtr.__iter__ = _CanvasItemList__iter__

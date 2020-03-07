@@ -1,0 +1,70 @@
+// -*- C++ -*-
+
+/* This software was produced by NIST, an agency of the U.S. government,
+ * and by statute is not subject to copyright in the United States.
+ * Recipients of this software assume all responsibilities associated
+ * with its operation, modification and maintenance. However, to
+ * facilitate maintenance we ask that before distributing modified
+ * versions of this software, you first contact the authors at
+ * oof_manager@nist.gov. 
+ */
+
+#include "canvas.h"
+#include "canvasrectangle.h"
+#include <iostream>
+
+namespace OOFCanvas {
+  
+    CanvasRectangle::CanvasRectangle(double xmin, double ymin,
+				     double xmax, double ymax)
+    : xmin(xmin), ymin(ymin),
+      xmax(xmax), ymax(ymax),
+      bbox0(xmin, ymin, xmax, ymax)
+  {
+    bbox = bbox0;
+  }
+
+  const std::string &CanvasRectangle::classname() const {
+    static const std::string name("CanvasRectangle");
+    return name;
+  }
+
+  void CanvasRectangle::setLineWidth(double w) {
+    CanvasFillableShape::setLineWidth(w);
+    bbox = bbox0;
+    bbox.expand(0.5*lineWidth);
+    modified();
+  }
+
+  void CanvasRectangle::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
+    ctxt->set_line_width(lineWidth);
+    ctxt->set_line_join(lineJoin);
+    ctxt->move_to(xmin, ymin);
+    ctxt->line_to(xmax, ymin);
+    ctxt->line_to(xmax, ymax);
+    ctxt->line_to(xmin, ymax);
+    ctxt->close_path();
+
+    fillAndStroke(ctxt);
+  }
+
+  bool CanvasRectangle::containsPoint(const CanvasBase*, const Coord &pt) const
+  {
+    // We already know that the point is within the bounding box, so
+    // if the rectangle is filled, the point is on it.
+    return fill || (line && (pt.x - bbox.xmin() <= lineWidth ||
+			     bbox.xmax() - pt.x <= lineWidth ||
+			     pt.y - bbox.ymin() <= lineWidth ||
+			     bbox.ymax() - pt.y <= lineWidth));
+  }
+
+  std::string CanvasRectangle::print() const {
+    return to_string(*this);
+  }
+
+  std::ostream &operator<<(std::ostream &os, const CanvasRectangle &rect) {
+    os << "CanvasRectangle(" << Coord(rect.xmin, rect.ymin)
+       << ", " << Coord(rect.xmax, rect.ymax) << ")";
+    return os;
+  }
+};				// namespace OOFCanvas
