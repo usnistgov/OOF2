@@ -1,6 +1,10 @@
 OOF2 2.1.19
 
-* Selection sizes are reported as percentages as well as absolute numbers.
+* Selection sizes are reported as percentages as well as absolute
+  numbers.
+
+* Skeleton modification routines report the total number of nodes and
+  elements after the modification, not just the change.
 
 OOF2 2.1.18
 

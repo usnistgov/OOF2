@@ -366,13 +366,17 @@ def _modify(menuitem, skeleton, modifier):
         end_nnodes = context.getObject().nnodes()
         end_nelems = context.getObject().nelements()
         if end_nnodes > start_nnodes:
-            reporter.report(end_nnodes-start_nnodes, "more nodes.")
+            reporter.report("%d nodes (%d more)"
+                            % (end_nnodes, end_nnodes-start_nnodes))
         elif end_nnodes < start_nnodes:
-            reporter.report(start_nnodes-end_nnodes, "fewer nodes.")
+            reporter.report("%d nodes (%d fewer)"
+                            % (end_nnodes, start_nnodes-end_nnodes))
         if end_nelems > start_nelems:
-            reporter.report(end_nelems-start_nelems, "more elements.")
+            reporter.report("%d elements (%d more)"
+                            % (end_nelems, end_nelems-start_nelems))
         elif end_nelems < start_nelems:
-            reporter.report(start_nelems-end_nelems, "fewer elements.")
+            reporter.report("%d elements (%d fewer)"
+                            % (end_nelems, start_nelems-end_nelems))
     finally:
         context.cancel_reservation()
 
