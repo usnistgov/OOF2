@@ -4,6 +4,7 @@
 *.pyo
 \#*\#
 .\#*
+.swp
 SRC/SWIG2D/*
 build/
 builddir-*
