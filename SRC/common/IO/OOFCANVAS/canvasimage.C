@@ -234,7 +234,7 @@ namespace OOFCanvas {
   }
 
   // static
-  CanvasImage *CanvasImage::newBlank(
+  CanvasImage *CanvasImage::newBlankImage(
 			  double x, double y, // position
 			  int w, int h,	      // size in pixels of image data
 			  double width, double height, // size in display units
@@ -286,7 +286,7 @@ namespace OOFCanvas {
     return canvasImage;
   }
 
-#ifdef USE_IMAGEMAGICK
+#ifdef OOFCANVAS_USE_IMAGEMAGICK
 
   // static
   CanvasImage *CanvasImage::newFromImageMagickFile(double x, double y,
@@ -363,6 +363,6 @@ namespace OOFCanvas {
     return canvasImage;
   }
   
-#endif // USE_IMAGEMAGICK
+#endif // OOFCANVAS_USE_IMAGEMAGICK
   
 };				// namespace OOFCanvas

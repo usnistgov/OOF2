@@ -26,23 +26,30 @@ namespace OOFCanvas {
   void CanvasPolygon::addPoint(double x, double y) {
     corners.emplace_back(x, y);
     bbox0.swallow(corners.back());
-    bbox = bbox0;
-    if(lineWidth > 0)
-      bbox.expand(0.5*lineWidth);
     modified();
   }
 
   void CanvasPolygon::setLineWidth(double w) {
     CanvasShape::setLineWidth(w);
-    bbox = bbox0;
-    bbox.expand(0.5*w);
     modified();
+  }
+
+  const Rectangle &CanvasPolygon::findBoundingBox(double ppu) {
+    bbox = bbox0;
+    if(!line || lineWidth == 0.0) {
+      return bbox;
+    }
+    double w = lineWidth;
+    if(lineWidthInPixels)
+      w /= ppu;
+    bbox.expand(0.5*w);
+    return bbox;
   }
 
   void CanvasPolygon::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
     if(size() < 2)
       return;
-    ctxt->set_line_width(lineWidth);
+    ctxt->set_line_width(lineWidthInUserUnits(ctxt));
     ctxt->set_line_cap(lineCap);
     ctxt->set_line_join(lineJoin);
     lineColor.set(ctxt);

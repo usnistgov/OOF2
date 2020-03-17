@@ -201,6 +201,7 @@ namespace OOFCanvas {
   }
 
   std::ostream &operator<<(std::ostream&, const Cairo::Matrix&);
+  bool operator==(const Cairo::Matrix&, const Cairo::Matrix&);
 
   std::ostream &operator<<(std::ostream&, const std::vector<double>&);
 };

@@ -16,19 +16,19 @@
 #include <gtk/gtk.h>
 #include <string>
 #include <vector>
-#ifdef PYTHON_OOFCANVAS
+#ifdef OOFCANVAS_USE_PYTHON
 #include <Python.h>
 #endif
 
 namespace OOFCanvas {
   class CanvasBase;
   class Canvas;
-#ifdef PYTHON_OOFCANVAS
+#ifdef OOFCANVAS_USE_PYTHON
   class CanvasPython;
 #endif
 };
 
-
+#include "canvaslayer.h"
 #include "utility.h"
 
 
@@ -36,11 +36,12 @@ namespace OOFCanvas {
 
   class CanvasLayer;
   class CanvasItem;
+  class RubberBand;
 
   class CanvasBase {
   protected:
     GtkWidget *layout;
-    CanvasLayer *backingLayer;
+    CanvasLayer *backingLayer;	// TODO: Why is this a pointer?
     std::vector<CanvasLayer*> layers;
     // boundingBox is the bounding box, in user coordinates, of all of
     // the visible objects.
@@ -64,10 +65,19 @@ namespace OOFCanvas {
     int lastButton;		// last mouse button pressed
     bool mouseInside;
     bool buttonDown;
-    virtual void doCallback(const std::string&, int, int, int, bool, bool)
-      const = 0;
+    virtual void doCallback(const std::string&, const Coord&,
+			    int, bool, bool) = 0;
 
     Cairo::Antialias antialiasing;
+
+    // Machinery used to draw rubberbands quickly.
+    WindowSizeCanvasLayer rubberBandLayer; // rubberband representation
+    //CanvasLayer rubberBandBuffer; // everything else
+    Cairo::RefPtr<Cairo::ImageSurface> rubberBandBuffer;
+    RubberBand *rubberBand;	   // the rubberband, or nullptr
+    Rectangle rubberBandBBox;	   // bounding box of the previous rubberband
+    Coord mouseDownPt;		   // where the rubberband drawing started
+    bool rubberBandBufferFilled;
 
   public:
     CanvasBase(double ppu);
@@ -133,6 +143,9 @@ namespace OOFCanvas {
     static void motionCB(GtkWidget*, GdkEventMotion*, gpointer);
     void mouseMotionHandler(GdkEventMotion*);
 
+    void setRubberBand(RubberBand*);
+    void removeRubberBand();
+
     // static void crossingCB(GtkWidget*, GdkEventCrossing*, gpointer);
     // void crossingEventHandler(GdkEventCrossing*);
     // static void focusCB(GtkWidget*, GdkEventFocus*, gpointer);
@@ -164,8 +177,7 @@ namespace OOFCanvas {
     // button, state (GdkModifierType)
     MouseCallback mouseCallback;
     void *mouseCallbackData;
-    virtual void doCallback(const std::string&, int, int, int, bool, bool)
-      const;
+    virtual void doCallback(const std::string&, const Coord&, int, bool, bool);
   public:
     Canvas(double);
     virtual void destroy();
@@ -180,7 +192,7 @@ namespace OOFCanvas {
   };
   
   //=\\=//
-#ifdef PYTHON_OOFCANVAS
+#ifdef OOFCANVAS_USE_PYTHON
   
   // In Python, the Gtk.Layout is created in Python and passed in to
   // the OOFCanvasPython constructor, and the callback functions are
@@ -193,8 +205,7 @@ namespace OOFCanvas {
     PyObject *mouseCallbackData;
     PyObject *resizeCallback;
     PyObject *resizeCallbackData;
-    virtual void doCallback(const std::string&, int, int, int, bool, bool)
-      const;
+    virtual void doCallback(const std::string&, const Coord&, int, bool, bool);
     virtual void allocateHandler();
   public:
     CanvasPython(PyObject*, double);
@@ -204,7 +215,7 @@ namespace OOFCanvas {
     void setMouseCallback(PyObject*, PyObject*);
     void setResizeCallback(PyObject*, PyObject*);
   };
-#endif // PYTHON_OOFCANVAS
+#endif // OOFCANVAS_USE_PYTHON
 
   void initializePyGTK();
 

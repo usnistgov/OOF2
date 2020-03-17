@@ -20,9 +20,19 @@ namespace OOFCanvas {
     : center(cx, cy),
       radius(r)
   {
-    bbox0 = Rectangle(center.x-radius, center.y-radius,
+    setup();
+  }
+
+  CanvasCircle::CanvasCircle(const Coord &c, double r)
+    : center(c),
+      radius(r)
+  {
+    setup();
+  }
+
+  void CanvasCircle::setup() {
+    bbox = Rectangle(center.x-radius, center.y-radius,
 		     center.x+radius, center.y+radius);
-    bbox = bbox0;
   }
 
   const std::string &CanvasCircle::classname() const {
@@ -32,9 +42,6 @@ namespace OOFCanvas {
 
   void CanvasCircle::setLineWidth(double w) {
     CanvasShape::setLineWidth(w);
-    bbox = bbox0;
-    bbox.expand(0.5*lineWidth);
-    modified();
   }
 
   std::string CanvasCircle::print() const {
@@ -48,22 +55,29 @@ namespace OOFCanvas {
 
   bool CanvasCircle::containsPoint(const CanvasBase*, const Coord &pt) const {
     double d2 = (pt - center).norm2();
-    double rOuter = line ? radius + 0.5*lineWidth : radius;
     if(fill) {
-      return d2 <= rOuter*rOuter;
+      return d2 <= radius*radius;
     }
     if(line) {
-      double rInner = radius - 0.5*lineWidth;
-      return d2 >= rInner*rInner && d2 <= rOuter*rOuter;
+      double rInner = radius - lineWidth;
+      return d2 >= rInner*rInner && d2 <= radius*radius;
     }
     return false;
   }
 
   void CanvasCircle::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
     ctxt->begin_new_sub_path();
-    ctxt->set_line_width(lineWidth);
-    ctxt->arc(center.x, center.y, radius, 0, 2*M_PI);
-    fillAndStroke(ctxt);
+    if(fill) {
+      ctxt->arc(center.x, center.y, radius, 0, 2*M_PI);
+      fillColor.set(ctxt);
+      ctxt->fill();
+    }
+    if(line) {
+      double lw = lineWidthInUserUnits(ctxt);
+      ctxt->set_line_width(lw);
+      ctxt->arc(center.x, center.y, radius-0.5*lw, 0, 2*M_PI);
+      ctxt->stroke();
+    }
   }
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -74,13 +88,25 @@ namespace OOFCanvas {
       r0(r0), r1(r1),
       angle(M_PI*angle_degrees/180.)
   {
+    setup();
+  }
+
+  CanvasEllipse::CanvasEllipse(const Coord &c, const Coord &r,
+			       double angle_degrees)
+    : center(c),
+      r0(r.x), r1(r.y),
+      angle(M_PI*angle_degrees/180.)
+  {
+    setup();
+  }
+
+  void CanvasEllipse::setup() {
     double c = cos(angle);
     double s = sin(angle);
     // Half-widths of the bounding box
     double dx = sqrt(c*c*r0*r0 + s*s*r1*r1);
     double dy = sqrt(c*c*r1*r1 + s*s*r0*r0);
-    bbox0 = Rectangle(cx-dx, cy-dy, cx+dx, cy+dy);
-    bbox = bbox0;
+    bbox = Rectangle(center.x-dx, center.y-dy, center.x+dx, center.y+dy);
   }
 
   const std::string &CanvasEllipse::classname() const {
@@ -90,9 +116,6 @@ namespace OOFCanvas {
   
   void CanvasEllipse::setLineWidth(double w) {
     CanvasShape::setLineWidth(w);
-    bbox = bbox0;
-    bbox.expand(0.5*lineWidth);
-    modified();
   }
 
   std::string CanvasEllipse::print() const {
@@ -107,21 +130,11 @@ namespace OOFCanvas {
 
   bool CanvasEllipse::containsPoint(const CanvasBase*, const Coord &pt) const {
     Coord p = pt - center;
-    // If there's a line around the ellipse, the point is on it only
-    // if it's inside the ellipse that follows the outer edge of the
-    // line.  Compute parameters for that ellipse, or the unperturbed
-    // ellipse if there's no line.
     double c = cos(angle);
     double s = sin(angle);
-    double rr0 = r0;
-    double rr1 = r1;
-    if(line) {
-      rr0 += 0.5*lineWidth;
-      rr1 += 0.5*lineWidth;
-    }
     // (x/a)^2 and (y/b)^2 in the rotated coordinate system
-    double px = ( p.x*c + p.y*s)/rr0;
-    double py = (-p.x*s + p.y*c)/rr1;
+    double px = ( p.x*c + p.y*s)/r0;
+    double py = (-p.x*s + p.y*c)/r1;
     if(fill) {
       // If filled, we just have to know if the point is inside the
       // ellipse we just calculated.
@@ -134,8 +147,8 @@ namespace OOFCanvas {
       if(px*px + py*py > 1.0) // Is the point outside the outer edge?
 	return false;
       // Compute the ellipse on the inner edge of the line.
-      rr0 -= lineWidth;
-      rr1 -= lineWidth;
+      double rr0 = r0 - lineWidth;
+      double rr1 = r1 - lineWidth;
       px = ( p.x*c + p.y*s)/rr0;
       py = (-p.x*s + p.y*c)/rr1;
       return px*px + py*py >= 1.0; // point is outside the inner edge
@@ -144,25 +157,43 @@ namespace OOFCanvas {
   }
 
   void CanvasEllipse::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
-    ctxt->set_line_width(lineWidth);
-
-    // Save and restore the context before stroking the line, so that
-    // the line thickness isn't distorted.
-    ctxt->save();
-
     // Operations are defined in the reverse of the order in which
     // they're applied.  We'll be drawing a circle with radius 1, then
     // scaling it so that it's an ellipse with radii r0 and r1, then
     // rotating it, then translating it to the desired center point.
+
+    // The line width has to be computed before rotating because
+    // lineWidthInUserUnits uses only the x component of a value
+    // returned by Context::device_to_user_distance.
+    double lw = lineWidthInUserUnits(ctxt);
+    
     ctxt->translate(center.x, center.y);
     ctxt->rotate(angle);
-    ctxt->scale(r0, r1);
 
-    ctxt->begin_new_sub_path();
-    ctxt->arc(0.0, 0.0, 1.0, 0, 2*M_PI);
-    ctxt->restore();
-
-    fillAndStroke(ctxt);
+    if(fill) {
+      // Do an extra save and restore here so that we don't scale
+      // twice if we're both filling and drawing the perimeter.
+      ctxt->save();
+      ctxt->scale(r0, r1);
+      ctxt->begin_new_sub_path();
+      ctxt->arc(0.0, 0.0, 1.0, 0.0, 2*M_PI);
+      fillColor.set(ctxt);
+      ctxt->fill();
+      ctxt->restore();
+    }
+    if(line) {
+      // Save and restore the context before stroking the line, so
+      // that the line thickness isn't distorted.
+      ctxt->save();
+      ctxt->scale(r0, r1);
+      ctxt->begin_new_sub_path();
+      double rr = r0 > r1 ? r0 : r1;
+      ctxt->arc(0.0, 0.0, 1.0-0.5*lw/rr, 0.0, 2*M_PI);
+      ctxt->restore();
+      ctxt->set_line_width(lw);
+      lineColor.set(ctxt);
+      ctxt->stroke();
+    }
   }
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -177,8 +208,12 @@ namespace OOFCanvas {
   CanvasDot::CanvasDot(double cx, double cy, double r)
     : center(cx, cy),
       radius(r)
-  {
-  }
+  {}
+
+  CanvasDot::CanvasDot(const Coord &c, double r)
+    : center(c),
+      radius(r)
+  {}
 
   const std::string &CanvasDot::classname() const {
     static const std::string name("CanvasDot");
@@ -198,22 +233,19 @@ namespace OOFCanvas {
   {
     double d2 = (pt - center).norm2();
     double r = canvas->pixel2user(radius);
-    double l = line ? 0.5*canvas->pixel2user(lineWidth) : 0.0;
-    double rOuter = r + l;	// outer radius in user coordinates
+    double l = line ? canvas->pixel2user(lineWidth) : 0.0;
     if(fill) {
-      return d2 <= rOuter*rOuter;
+      return d2 <= r*r;
     }
     if(line) {
       double rInner = r - l;
-      return d2 >= rInner*rInner && d2 <= rOuter*rOuter;
+      return d2 >= rInner*rInner && d2 <= r*r;
     }
     return false;
   }
 
   const Rectangle &CanvasDot::findBoundingBox(double ppu) {
     double r = radius;
-    double dummy = 0;
-    if(line) r += 0.5*lineWidth;
     r /= ppu;
     Coord diag(r, r);
     bbox = Rectangle(center-diag, center+diag);
@@ -224,7 +256,7 @@ namespace OOFCanvas {
 			       double &up, double &down)
     const
   {
-    left = radius + 0.5*lineWidth;
+    left = radius;
     right = left;
     up = left;
     down = left;
@@ -234,17 +266,22 @@ namespace OOFCanvas {
     double dummy = 0;
     double r = radius;
     ctxt->device_to_user_distance(r, dummy);
-
-    double l = 0;
-    if(line) {
-      l = lineWidth;
-      ctxt->device_to_user_distance(l, dummy);
-      ctxt->set_line_width(l);
+    if(fill) {
+      ctxt->begin_new_sub_path();
+      ctxt->arc(center.x, center.y, r, 0, 2*M_PI);
+      fillColor.set(ctxt);
+      ctxt->fill();
     }
-    ctxt->begin_new_sub_path();
-    ctxt->arc(center.x, center.y, r, 0, 2*M_PI);
-
-    fillAndStroke(ctxt);
+    if(line) {
+      // A CanvasDot's lineWidth is always in device units.
+      double lw = lineWidth;
+      ctxt->device_to_user_distance(lw, dummy);
+      ctxt->set_line_width(lw);
+      lineColor.set(ctxt);
+      ctxt->begin_new_sub_path();
+      ctxt->arc(center.x, center.y, r-0.5*lw, 0, 2*M_PI);
+      ctxt->stroke();
+    }
   }
 
 };				// namespace OOFCanvas

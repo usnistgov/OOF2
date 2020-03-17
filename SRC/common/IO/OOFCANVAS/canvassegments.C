@@ -32,17 +32,19 @@ namespace OOFCanvas {
     bbox0.swallow(Coord(x0, y0));
     bbox0.swallow(Coord(x1, y1));
     bbox = bbox0;
-    if(lineWidth > 0)
-      bbox.expand(0.5*lineWidth);
     modified();
   }
 
   void CanvasSegments::setLineWidth(double w) {
     CanvasShape::setLineWidth(w);
-    // The bounding box set like this might be a bit bigger than necessary.
-    bbox = bbox0;
-    bbox.expand(0.5*w);
     modified();
+  }
+
+  const Rectangle &CanvasSegments::findBoundingBox(double ppu) {
+    double lw = lineWidthInPixels ? lineWidth/ppu : lineWidth;
+    bbox = bbox0;
+    bbox.expand(0.5*lw);
+    return bbox;
   }
 
   void CanvasSegments::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
@@ -64,7 +66,7 @@ namespace OOFCanvas {
 //     }
 // #endif // DEBUG
     
-    ctxt->set_line_width(lineWidth);
+    ctxt->set_line_width(lineWidthInUserUnits(ctxt));
     ctxt->set_line_cap(lineCap);
     lineColor.set(ctxt);
     for(const Segment &segment : segments) {
@@ -83,12 +85,17 @@ namespace OOFCanvas {
 // #endif // DEBUG
   }
 
-  bool CanvasSegments::containsPoint(const CanvasBase*, const Coord &pt) const {
+  bool CanvasSegments::containsPoint(const CanvasBase *canvas,
+				     const Coord &pt) const
+  {
+    double lw = lineWidthInPixels ?
+      lineWidth/canvas->getPixelsPerUnit() : lineWidth;
+    double d2max = 0.25*lw*lw;
     for(const Segment &seg : segments) {
-      double alpha = 0;
+      double alpha = 0;		// position along segment
       double distance2 = 0; // distance squared from pt to segment along normal
       seg.projection(pt, alpha, distance2);
-      if(alpha >= 0.0 && alpha <= 1.0 && distance2 < 0.25*lineWidth*lineWidth)
+      if(alpha >= 0.0 && alpha <= 1.0 && distance2 < d2max)
 	return true;
     }
     return false;

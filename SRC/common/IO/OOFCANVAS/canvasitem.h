@@ -12,7 +12,7 @@
 #ifndef OOFCANVASITEM_H
 #define OOFCANVASITEM_H
 
-#ifdef PYTHON_OOFCANVAS
+#ifdef OOFCANVAS_USE_PYTHON
 #include "pythonexportable.h"
 #endif
 
@@ -30,7 +30,7 @@ namespace OOFCanvas {
 namespace OOFCanvas {
 
   class CanvasItem
-#ifdef PYTHON_OOFCANVAS
+#ifdef OOFCANVAS_USE_PYTHON
     : public PythonExportable<CanvasItem>
 #endif 
   {
@@ -62,7 +62,7 @@ namespace OOFCanvas {
     // findBoundingBox() computes the bounding box if it's not already
     // known.  Subclasses that can't compute their bounding boxes
     // unless they know the ppu should override findBoundingBox() and
-    // also be drived from PixelSized.  Subclasses that *can* compute
+    // also be derived from PixelSized.  Subclasses that *can* compute
     // their bounding box without knowing ppu should do so in their
     // constructors and in any other methods that affect the bounding
     // box.
@@ -125,8 +125,8 @@ namespace OOFCanvas {
     std::vector<CanvasItem*>::iterator iter;
   public:
     CanvasItemListIterator(std::vector<CanvasItem*> *list)
-      : iter(list->begin()),
-	end(list->end())
+      : end(list->end()),
+	iter(list->begin())
     {}
     bool done() { return iter == end; }
     CanvasItem *next_() { assert(!done()); return *iter++; }

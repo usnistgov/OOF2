@@ -18,16 +18,7 @@
 
 %{
 #define SWIG_FILE_WITH_INIT
-#include "canvas.h"
-#include "canvascircle.h"
-#include "canvasimage.h"
-#include "canvasitem.h"
-#include "canvaslayer.h"
-#include "canvaspolygon.h"
-#include "canvasrectangle.h"
-#include "canvassegment.h"
-#include "canvassegments.h"
-#include "canvastext.h"
+#include "oofcanvas.h"
 using namespace OOFCanvas;
 using namespace std;
 
@@ -125,6 +116,7 @@ public:
 class CanvasShape : public CanvasItem {
 public:
   void setLineWidth(double);
+  void setLineWidthInPixels();
   void setLineColor(Color&);
   void setLineJoin(CairoLineJoin);
   void setLineCap(CairoLineCap);
@@ -242,9 +234,9 @@ public:
     }
   }
 
-  %new static CanvasImage *newBlank(double, double, int, int,
-				    double, double,
-				    double, double, double, double);
+  %new static CanvasImage *newBlankImage(double, double, int, int,
+					 double, double,
+					 double, double, double, double);
   %new static CanvasImage *newFromPNGFile(double, double, char*,
 					  double, double);
   %new static CanvasImage *newFromImageMagickFile(double, double, char*,
@@ -287,6 +279,23 @@ public:
   }
 };
 
+
+class RubberBand {
+public:
+  void setLineWidth(double);
+  void setColor(Color);
+};
+
+class RectangleRubberBand : public RubberBand {
+public:
+  RectangleRubberBand();
+};
+
+class CircleRubberBand : public RubberBand {
+public:
+  CircleRubberBand();
+};
+
 class CanvasItemListIterator {
 public:
   CanvasItem *next_();
@@ -321,6 +330,9 @@ public:
   void setMouseCallback(PyObject*, PyObject*);
   void setResizeCallback(PyObject*, PyObject*);
   void allowMotionEvents(bool);
+  void setRubberBand(RubberBand*);
+  void removeRubberBand();
+  
   %name(clickedItems) %new CanvasItemList* clickedItems_new(double, double);
   %name(allItems) %new CanvasItemList* allItems_new();
 };

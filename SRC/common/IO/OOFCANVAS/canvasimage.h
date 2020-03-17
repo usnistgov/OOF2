@@ -16,9 +16,9 @@
 #include "utility.h"
 #include <string>
 
-#ifdef USE_IMAGEMAGICK
+#ifdef OOFCANVAS_USE_IMAGEMAGICK
 #include <Magick++.h>
-#endif // USE_IMAGEMAGICK
+#endif // OOFCANVAS_USE_IMAGEMAGICK
 
 namespace OOFCanvas {
 
@@ -43,8 +43,8 @@ namespace OOFCanvas {
     virtual const std::string &classname() const;
     friend std::ostream &operator<<(std::ostream&, const CanvasImage&);
     virtual std::string print() const;
-    
-    static CanvasImage *newBlank(double, double, // position
+
+    static CanvasImage *newBlankImage(double, double, // position
 				 int, int,	 // no. of pixels
 				 double, double, // displayed size
 				 double, double, double, double); //color,alpha
@@ -52,7 +52,7 @@ namespace OOFCanvas {
     static CanvasImage *newFromPNGFile(double, double,	   // position
 				       const std::string&, // filename
 				       double, double);	   // displayed size
-#ifdef USE_IMAGEMAGICK
+#ifdef OOFCANVAS_USE_IMAGEMAGICK
     static CanvasImage *newFromImageMagickFile(double, double, // position
 					       const std::string&, // filename
 					       double, double);	// disp. size
@@ -60,7 +60,7 @@ namespace OOFCanvas {
     static CanvasImage *newFromImageMagick(double, double,	// position
 					   Magick::Image,
 					   double, double); // displayed size
-#endif // USE_IMAGEMAGICK
+#endif // OOFCANVAS_USE_IMAGEMAGICK
 
     virtual const Rectangle &findBoundingBox(double ppu);
     void setPixelSize() { pixelScaling = true; }

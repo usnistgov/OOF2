@@ -9,16 +9,21 @@
  * oof_manager@nist.gov. 
  */
 
+// This file can be included in code that uses OOFCanvas.  It's not
+// used within OOFCanvas itself.
+
 #ifndef ALL_OOFCANVAS_H
 #define ALL_OOFCANVAS_H
 
 #include "canvas.h"
 #include "canvascircle.h"
+#include "canvasimage.h"
 #include "canvaslayer.h"
 #include "canvaspolygon.h"
 #include "canvasrectangle.h"
 #include "canvassegment.h"
 #include "canvassegments.h"
 #include "canvastext.h"
+#include "rubberband.h"
 
 #endif // ALL_OOFCANVAS_H

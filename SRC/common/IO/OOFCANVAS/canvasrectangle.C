@@ -15,11 +15,19 @@
 
 namespace OOFCanvas {
   
-    CanvasRectangle::CanvasRectangle(double xmin, double ymin,
+  CanvasRectangle::CanvasRectangle(double xmin, double ymin,
 				     double xmax, double ymax)
     : xmin(xmin), ymin(ymin),
       xmax(xmax), ymax(ymax),
       bbox0(xmin, ymin, xmax, ymax)
+  {
+    bbox = bbox0;
+  }
+
+  CanvasRectangle::CanvasRectangle(const Coord &p0, const Coord &p1)
+    : xmin(p0.x), ymin(p0.y),
+      xmax(p1.x), ymax(p1.y),
+      bbox0(p0, p1)
   {
     bbox = bbox0;
   }
@@ -32,12 +40,13 @@ namespace OOFCanvas {
   void CanvasRectangle::setLineWidth(double w) {
     CanvasFillableShape::setLineWidth(w);
     bbox = bbox0;
+    // TODO: This is wrong if line width is in pixels
     bbox.expand(0.5*lineWidth);
     modified();
   }
 
   void CanvasRectangle::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
-    ctxt->set_line_width(lineWidth);
+    ctxt->set_line_width(lineWidthInUserUnits(ctxt));
     ctxt->set_line_join(lineJoin);
     ctxt->move_to(xmin, ymin);
     ctxt->line_to(xmax, ymin);

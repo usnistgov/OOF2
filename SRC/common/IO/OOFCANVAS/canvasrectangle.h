@@ -24,6 +24,7 @@ namespace OOFCanvas {
     Rectangle bbox0;
   public:
     CanvasRectangle(double xmin, double ymin, double xmax, double ymax);
+    CanvasRectangle(const Coord&, const Coord&);
     virtual const std::string &classname() const;
     virtual void setLineWidth(double);
     friend std::ostream &operator<<(std::ostream &, const CanvasRectangle&);

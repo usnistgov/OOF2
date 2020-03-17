@@ -31,6 +31,8 @@ namespace OOFCanvas {
     friend std::ostream &operator<<(std::ostream&, const CanvasPolygon&);
     virtual std::string print() const;
 
+    virtual const Rectangle &findBoundingBox(double);
+
     int windingNumber(const Coord&) const;
   };
 

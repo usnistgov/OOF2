@@ -12,12 +12,13 @@
 #include "canvas.h"
 #include "canvasitem.h"
 #include "canvaslayer.h"
+#include "rubberband.h"
 #include <iostream>
 #include <gdk/gdk.h>
 #include <cassert>
 #include <algorithm>
 
-#ifdef PYTHON_OOFCANVAS
+#ifdef OOFCANVAS_USE_PYTHON
 #include <pygobject.h>
 #endif 
 
@@ -31,6 +32,8 @@
 // fill.  Not the same as the old OOFCanvas::set_margin.
 
 namespace OOFCanvas {
+
+  // static RubberBand *noRubberBand(new NoRubberBand());
 
   static double optimalPPU(double, double, double,
 			   const std::vector<double>&,
@@ -48,7 +51,10 @@ namespace OOFCanvas {
       lastButton(0),
       mouseInside(false),
       buttonDown(false),
-      antialiasing(Cairo::ANTIALIAS_DEFAULT)
+      antialiasing(Cairo::ANTIALIAS_DEFAULT),
+      rubberBandLayer(this, "rubberbandlayer"),
+      rubberBand(nullptr),
+      rubberBandBufferFilled(false)
   {
     // pixelwidth, pixelheight, and offset are set in realizeHandler.
     // They can't be initialized here because they depend on the
@@ -95,7 +101,6 @@ namespace OOFCanvas {
     gtk_widget_destroy(layout);
   }
 
-  
   CanvasBase::~CanvasBase() {
     destroy();
   }
@@ -264,16 +269,16 @@ namespace OOFCanvas {
 
 	gtk_layout_set_size(GTK_LAYOUT(layout), w, h);
 	Coord offset = ppu*boundingBox.lowerLeft();
-	transform = Cairo::Matrix(ppu, 0, 0, -ppu, -offset.x, h+offset.y);
+	transform = Cairo::Matrix(ppu, 0., 0., -ppu, -offset.x, h+offset.y);
 
 	// Force layers to be redrawn
 	for(CanvasLayer *layer : layers) {
 	  layer->dirty = true; 
 	}
+	rubberBandLayer.dirty = true; // probably not necessary, but harmless
       }
     }
     backingLayer->clear();
-
   } // CanvasBase::setTransform
 
   //=\\=//
@@ -442,14 +447,16 @@ namespace OOFCanvas {
 		    const std::vector<double> &pHi, // pixel extents
 		    const std::vector<double> &refPt) // item coords, user
   {
-    // The span (bbmin, bbmax) contains CanvasItems at user-space
-    // reference points refPt[i].  The items extend below refPt[i] by
-    // pLo[i] pixels, and above by pHi[i] pixels.
+    // bbmin and bbmax are the lower and upper limits of the bounding
+    // box in the direction (x or y) under consideration.  The span
+    // (bbmin, bbmax) contains CanvasItems at user-space reference
+    // points refPt[i].  Item i extends below refPt[i] by pLo[i]
+    // pixels, and above by pHi[i] pixels.
 
     // The optimal ppu is the one for which pixSize() returns
     // totalPixels.  pixSize() is a piecewise linear function of ppu,
-    // so we could find all the pieces and solve for ppu in each
-    // piece.
+    // so we need to find all the linear pieces and solve for ppu in
+    // each piece.
     
     // Find the ppu values at which pixSize(ppu) might change slope.
     // These are the points at which a canvas item starts to protrude
@@ -575,7 +582,7 @@ namespace OOFCanvas {
     int h2 = 0.5*heightInPixels();
     double xadj = gtk_adjustment_get_value(getHAdjustment());
     double yadj = gtk_adjustment_get_value(getVAdjustment());
-    Coord cntr = pixel2user(ICoord(xadj + w2, yadj + w2));
+    Coord cntr = pixel2user(ICoord(xadj + w2, yadj + h2));
     zoomAbout(factor, cntr);
   }
 
@@ -631,6 +638,16 @@ namespace OOFCanvas {
 
   //=\\=//
 
+  void CanvasBase::setRubberBand(RubberBand *rb) {
+    rubberBand = rb;
+  }
+
+  void CanvasBase::removeRubberBand() {
+    rubberBand = nullptr;
+  }
+
+  //=\\=//
+
   // realizeCB is called once, when the Canvas's gtk object is
   // "realized", whatever that means.  It's not as if the Canvas has
   // any existence other than as a pattern of bits.
@@ -663,21 +680,23 @@ namespace OOFCanvas {
     // drawn. This allows pixel2user and user2pixel to work in all
     // circumstances. The backingLayer can't be created until the
     // layout is created, however, because it needs to know the window
-    // size.  So it's done here instead of in the Canvas constructor.
+    // size.  So it's done here, instead of in the Canvas constructor.
     backingLayer = new CanvasLayer(this, "<backinglayer>");
     backingLayer->setClickable(false);
   }
 
   //=\\=//
 
+  // This doesn't seem to be called.  Is it necessary?
   void CanvasBase::allocateCB(GtkWidget*, GdkRectangle*, gpointer data) {
     ((Canvas*) data)->allocateHandler();
   }
 
   void CanvasBase::allocateHandler() {
     // Called whenever the widget size changes.
-    if(backingLayer)
+    if(backingLayer) {
       backingLayer->clear();	// forces it to resize itself
+    }
   }
   
    //=\\=//  
@@ -701,13 +720,89 @@ namespace OOFCanvas {
     // upper left corner of the widget, and is properly clipped."
     // (https://developer.gnome.org/gtk3/stable/ch26s02.html)
 
-    // static int count = 0;
-    // std::cerr << "CanvasBase::drawHandler: " << count++ << " " 
-    // 	      << allItems().size() << std::endl;
+    double hadj = gtk_adjustment_get_value(getHAdjustment());
+    double vadj = gtk_adjustment_get_value(getVAdjustment());
 
+    setTransform(ppu);
 
-    context->set_source_rgb(bgColor.red, bgColor.green, bgColor.blue);
-    context->paint();
+    // If the only thing that's changed is the rubberband, make sure
+    // that we don't update more than is necessary.  The rubberband
+    // needs to be redrawn quickly and often.
+
+    // If there's no rubberband, just update all layers and copy them
+    // to the device's context.
+
+    // If there is a rubberband, and if the rubberband buffer is up to
+    // date, copy the rubberband buffer and the rubberband to the
+    // device.  Limit the copying to the bounding boxes of the
+    // previous and current rubberbands.
+
+    // If there is a rubberband, but the rubberband buffer is out of
+    // date, copy the layers to the rubberband buffer and then copy it
+    // and the rubberband to the device.
+
+    if(rubberBand && rubberBand->active()) {
+
+      if(rubberBandBufferFilled) {
+	// Are any non-rubberband layers dirty?
+	bool dirty = false;
+	for(unsigned int i=0; i<layers.size(); i++)
+	  if(layers[i]->dirty) {
+	    dirty = true;
+	    break;
+	  }
+	if(!dirty) {
+	  // No layers other than the rubberband have changed.  Copy the
+	  // rubberBandBuffer, which already contains the other layers,
+	  // to the destination, and draw the rubberband on top of that.
+	  // TODO: set and use rubberBandBBox
+	  // background
+	  context->set_source_rgb(bgColor.red, bgColor.green, bgColor.blue);
+	  context->paint();
+
+	  // all non-rubberband layers
+	  context->set_source(rubberBandBuffer, 0, 0);
+	  context->paint();
+
+	  // rubberband
+	  rubberBandLayer.redraw();
+	  rubberBandLayer.draw(context, hadj, vadj);
+	  return;
+	}
+      }
+
+      // Recreate rubberBandBuffer, which contains all the layers
+      // other than the rubberBandLayer.
+
+      ICoord size = boundingBoxSizeInPixels();
+      rubberBandBuffer = Cairo::RefPtr<Cairo::ImageSurface>(
+			    Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
+							size.x, size.y));
+      cairo_t *rbctxt = cairo_create(rubberBandBuffer->cobj());
+      Cairo::RefPtr<Cairo::Context> rbContext =
+	Cairo::RefPtr<Cairo::Context>(new Cairo::Context(rbctxt, true));
+      rbContext->set_source_rgb(bgColor.red, bgColor.green, bgColor.blue);
+      rbContext->paint();
+
+      // Draw all other layers to the rubberBandBuffer.
+      for(CanvasLayer *layer : layers) {
+	layer->redraw();
+	layer->draw(rbContext, hadj, vadj);
+      }
+      rubberBandBufferFilled = true;
+
+      context->set_source_rgb(bgColor.red, bgColor.green, bgColor.blue);
+      context->paint();
+
+      context->set_source(rubberBandBuffer, 0, 0);
+      context->paint();
+
+      rubberBandLayer.redraw();	
+      rubberBandLayer.draw(context, hadj, vadj);
+      return;
+    }
+
+    // There's no rubberband, just draw.
 
     // TODO? Extract the clipping region from the context using
     // Cairo::Context::get_clip_extents, and only redraw CanvasItems
@@ -722,11 +817,9 @@ namespace OOFCanvas {
     // 		<< std::endl;
     // }
 
-    double hadj = gtk_adjustment_get_value(getHAdjustment());
-    double vadj = gtk_adjustment_get_value(getVAdjustment());
+    context->set_source_rgb(bgColor.red, bgColor.green, bgColor.blue);
+    context->paint();
 
-    setTransform(ppu);
-    
     for(CanvasLayer *layer : layers) {
       layer->redraw();			// only redraws dirty layers
       layer->draw(context, hadj, vadj); // copies layers to canvas
@@ -740,18 +833,24 @@ namespace OOFCanvas {
   }
 
   void CanvasBase::mouseButtonHandler(GdkEventButton *event) {
+    ICoord pixel(event->x, event->y);
+    Coord userpt(pixel2user(pixel));
+    
     std::string eventtype;
     if(event->type == GDK_BUTTON_PRESS) {
       eventtype = "down";
       buttonDown = true;
+      mouseDownPt = userpt;
     }
     else {
       eventtype = "up";
       buttonDown = false;
+      if(rubberBand && rubberBand->active()) {
+	rubberBand->stop();
+      }
     }
     lastButton = event->button;
-
-    doCallback(eventtype, event->x, event->y, lastButton,
+    doCallback(eventtype, userpt, lastButton,
 	       event->state & GDK_SHIFT_MASK,   
 	       event->state & GDK_CONTROL_MASK);
     allowMotion = (eventtype == "down");
@@ -787,7 +886,17 @@ namespace OOFCanvas {
   void CanvasBase::mouseMotionHandler(GdkEventMotion *event) {
     if(!allowMotion)
       return;
-    doCallback("move", event->x, event->y, lastButton,
+    ICoord pixel(event->x, event->y);
+    Coord userpt(pixel2user(pixel));
+    if(rubberBand) {
+      rubberBandLayer.removeAllItems();
+      if(!rubberBand->active()) {
+	rubberBandBufferFilled = false;
+	rubberBand->start(&rubberBandLayer, mouseDownPt.x, mouseDownPt.y);
+      }
+      rubberBand->draw(userpt.x, userpt.y);
+    }
+    doCallback("move", userpt, lastButton,
 	       event->state & GDK_SHIFT_MASK,
 	       event->state & GDK_CONTROL_MASK);
   }
@@ -861,15 +970,14 @@ namespace OOFCanvas {
     mouseCallback = mcb;
     mouseCallbackData = data;
   }
-  
-  void Canvas::doCallback(const std::string &eventtype,
-			  int x, int y, int button, bool shift, bool ctrl)
-    const
+
+  void Canvas::doCallback(const std::string &eventtype, const Coord &userpt,
+			  int button, bool shift, bool ctrl)
   {
-    ICoord pixel(x, y);
-    Coord userpt(pixel2user(pixel));
-    if(mouseCallback != nullptr)
+    if(mouseCallback != nullptr) {
       (*mouseCallback)(eventtype, userpt.x, userpt.y, button, shift, ctrl);
+      draw();
+    }
   }
   
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -879,7 +987,7 @@ namespace OOFCanvas {
   // mouse callback must be a Python function.  All other public
   // methods are available in C++ and Python.
 
-#ifdef PYTHON_OOFCANVAS
+#ifdef OOFCANVAS_USE_PYTHON
 
   // TODO: Do we really need to store pyCanvas?  It's not explicitly
   // used after the constructor finishes, but perhaps storing a
@@ -932,12 +1040,9 @@ namespace OOFCanvas {
   }
 
   void CanvasPython::doCallback(const std::string &eventtype,
-			  int x, int y, int button, bool shift, bool ctrl)
-    const
+				const Coord &userpt,
+				int button, bool shift, bool ctrl)
   {
-    ICoord pixel(x, y);
-    Coord userpt(pixel2user(pixel));
-
     if(mouseCallback != nullptr) {
       PyGILState_STATE pystate = PyGILState_Ensure();
       try {
@@ -958,6 +1063,7 @@ namespace OOFCanvas {
 	throw;
       }
       PyGILState_Release(pystate);
+      draw();
     }
 
   }
@@ -1057,7 +1163,7 @@ namespace OOFCanvas {
     }
   }
 
-#endif // PYTHON_OOFCANVAS
+#endif // OOFCANVAS_USE_PYTHON
 
 };				// namespace OOFCanvas
 

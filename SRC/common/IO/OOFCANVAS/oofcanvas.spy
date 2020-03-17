@@ -41,7 +41,7 @@ Canvas.get_vadjustment = _Canvas_get_vadjustment
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-CanvasImage.newBlank = staticmethod(CanvasImage_newBlank)
+CanvasImage.newBlankImage = staticmethod(CanvasImage_newBlankImage)
 CanvasImage.newFromPNGFile = staticmethod(CanvasImage_newFromPNGFile)
 CanvasImage.newFromImageMagickFile = \
     staticmethod(CanvasImage_newFromImageMagickFile)

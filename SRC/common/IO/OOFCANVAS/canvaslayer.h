@@ -15,19 +15,19 @@
 #include <cairomm/cairomm.h>
 
 namespace OOFCanvas {
+  class CanvasBase;
   class CanvasLayer;
 };
 
-#include "canvas.h"
 #include "canvasitem.h"
+#include "utility.h"
 
 namespace OOFCanvas {
   
   class CanvasLayer {
-  private:
+  protected:
     Cairo::RefPtr<Cairo::ImageSurface> surface;
     Cairo::RefPtr<Cairo::Context> context;
-  protected:
     CanvasBase *canvas;
     std::vector<CanvasItem*> items;
     double alpha;
@@ -35,20 +35,24 @@ namespace OOFCanvas {
     bool clickable;
     bool dirty;		// Is the surface or bounding box out of date?
     Rectangle bbox;	// Cached bounding box of all contained items
+    void makeCairoObjs(int, int);
   public:
     CanvasLayer(CanvasBase*, const std::string&);
-    ~CanvasLayer();
+    virtual ~CanvasLayer();
     const std::string name;
     // clear() recreates the surface using the current size of the Canvas.
-    void clear();
+    virtual void clear();
+    // clear(Color) is like clear(), but also sets a background color.
+    void clear(const Color&);
     // addItem adds an item to the list and draws to the local
     // surface.  The CanvasLayer takes ownership of the item.
     void addItem(CanvasItem*);
     void removeAllItems();
     // redraw redraws all items to the local surface
-    void redraw();
+    virtual void redraw();
     // draw() draws the surface to the given context (probably the Canvas)
-    void draw(Cairo::RefPtr<Cairo::Context>, double hadj, double vadj) const;
+    virtual void draw(Cairo::RefPtr<Cairo::Context>, double hadj, double vadj)
+      const;
 
     void show();
     void hide();
@@ -77,10 +81,27 @@ namespace OOFCanvas {
     void lowerBy(int) const;
     void raiseToTop() const;
     void lowerToBottom() const;
+
+    void writeToPNG(const std::string &) const;
+
+    Cairo::RefPtr<Cairo::Context> getContext() const { return context; }
     
     friend class CanvasBase;
     friend class CanvasItem;
   };
+
+  // A WindowSizeCanvasLayer is big enough to fill the Canvas's
+  // window, which may be bigger or smaller than the bounding box of
+  // its contents.
+  
+  class WindowSizeCanvasLayer : public CanvasLayer {
+  public:
+    WindowSizeCanvasLayer(CanvasBase*, const std::string&);
+    virtual void clear();
+    virtual void draw(Cairo::RefPtr<Cairo::Context>, double, double) const;
+  };
+
+  std::ostream &operator<<(std::ostream&, const CanvasLayer&);
 
 };
 

@@ -19,6 +19,17 @@ namespace OOFCanvas {
     modified();
   }
 
+  double CanvasShape::lineWidthInUserUnits(Cairo::RefPtr<Cairo::Context> ctxt)
+    const
+  {
+    if(lineWidthInPixels) {
+      double dx=1, dy=1;
+      ctxt->device_to_user_distance(dx, dy);
+      return lineWidth*dx;
+    }
+    return lineWidth;
+  }
+
   void CanvasShape::setLineColor(const Color &color) {
     lineColor = color;
     line = true;

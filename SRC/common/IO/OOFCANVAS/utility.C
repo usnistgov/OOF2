@@ -344,6 +344,11 @@ namespace OOFCanvas {
     return os;
   }
 
+  bool operator==(const Cairo::Matrix &a, const Cairo::Matrix &b) {
+    return (a.xx == b.xx && a.xy == b.xy && a.yx == b.yx && a.yy == b.yy &&
+	    a.x0 == b.x0 && a.y0 == b.y0);
+  }
+
   std::ostream &operator<<(std::ostream &os, const std::vector<double> &vec) {
     os << "[";
     bool first = true;
