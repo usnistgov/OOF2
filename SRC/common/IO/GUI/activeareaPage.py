@@ -64,26 +64,27 @@ class ActiveAreaPage(oofGUI.MainPage):
         gtklogger.connect_passive(mainpane, 'notify::position')
 
         # Active area status in the left half of the main pane.
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
         mainpane.pack1(vbox, resize=True, shrink=False)
         aasframe = Gtk.Frame(label="Active %s Status"%Spacestring)
         aasframe.set_shadow_type(Gtk.ShadowType.IN)
         vbox.pack_start(aasframe, expand=False, fill=False, padding=0)
-        self.aainfo = Gtk.Label()
+        self.aainfo = Gtk.Label(margin=2)
         gtklogger.setWidgetName(self.aainfo, "Status")
-##        self.aainfo.set_alignment(0.0, 0.5)
         aasframe.add(self.aainfo)
 
         naaframe = Gtk.Frame(label="Named Active %ss"%Spacestring)
         naaframe.set_shadow_type(Gtk.ShadowType.IN)
         vbox.pack_start(naaframe, expand=True, fill=True, padding=0)
-        naabox = Gtk.Box(Gtk.Orientation.VERTICAL, spacing=2)
+        naabox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         naaframe.add(naabox)
         self.aalist = chooser.ScrolledChooserListWidget(
             callback=self.aalistCB, dbcallback=self.aalistCB2,
-            name="NamedAreas")
+            name="NamedAreas", margin=2)
         naabox.pack_start(self.aalist.gtk, expand=True, fill=True, padding=0)
-        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                       spacing=2, margin=2)
         naabox.pack_start(bbox, expand=False, fill=False, padding=0)
         self.storebutton = Gtk.Button("Store...")
         bbox.pack_start(self.storebutton, expand=True, fill=False, padding=0)
@@ -111,18 +112,20 @@ class ActiveAreaPage(oofGUI.MainPage):
             "Use the selected saved active %s."%spacestring)
         
         # Active area modification methods in the right half of the main pane
-        modframe = Gtk.Frame(label="Active %s Modification"%Spacestring)
+        modframe = Gtk.Frame(label="Active %s Modification"%Spacestring,
+                             margin=2)
         gtklogger.setWidgetName(modframe, "Modify")
         modframe.set_shadow_type(Gtk.ShadowType.IN)
         mainpane.pack2(modframe, resize=False, shrink=False)
-        modbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        modbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                         spacing=2, margin=2)
         modframe.add(modbox)
 ##        scroll = gtk.ScrolledWindow()
 ##        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 ##        modbox.pack_start(scroll, expand=True, fill=True)
         self.activeareaModFactory = regclassfactory.RegisteredClassFactory(
             activeareamod.ActiveAreaModifier.registry, title="Method:",
-            scope=self, name="Method")
+            scope=self, name="Method", margin=2)
 ##        scroll.add_with_viewport(self.activeareaModFactory.gtk)
         modbox.pack_start(self.activeareaModFactory.gtk,
                           expand=True, fill=True, padding=0)

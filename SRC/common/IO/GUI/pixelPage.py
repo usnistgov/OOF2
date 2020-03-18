@@ -60,13 +60,14 @@ class SelectionPage(oofGUI.MainPage):
                              expand=False, fill=False, padding=0)
         
         mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
-                             wide_handle=True, margin=2)
+                             wide_handle=True)
         gtklogger.setWidgetName(mainpane, 'Pane')
         mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
 
         # Pixel selection status in the left half of the main pane
-        pssframe = Gtk.Frame(label="%s Selection Status"%Pixstring)
+        pssframe = Gtk.Frame(label="%s Selection Status"%Pixstring,
+                             margin=2)
         pssframe.set_shadow_type(Gtk.ShadowType.IN)
         mainpane.pack1(pssframe, resize=True, shrink=False)
         self.datascroll = Gtk.ScrolledWindow(margin=2)
@@ -82,16 +83,18 @@ class SelectionPage(oofGUI.MainPage):
         self.datascroll.add(self.psdata)
 
         # Selection method in the right half of the main pane
-        modframe = Gtk.Frame(label="%s Selection Modification"%Pixstring)
+        modframe = Gtk.Frame(label="%s Selection Modification"%Pixstring,
+                             margin=2)
         gtklogger.setWidgetName(modframe, "SelectionModification")
         modframe.set_shadow_type(Gtk.ShadowType.IN)
         mainpane.pack2(modframe, resize=True, shrink=False)
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
-                       margin=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                       spacing=2, margin=2)
         modframe.add(vbox)
         self.selectionModFactory = regclassfactory.RegisteredClassFactory(
             pixelselectionmod.SelectionModifier.registry, title="Method:",
-            scope=self, name="Method", margin_left=2, margin_right=2)
+            scope=self, name="Method", margin=2)
+#            margin_left=2, margin_right=2)
         vbox.pack_start(self.selectionModFactory.gtk,
                         expand=True, fill=True, padding=0)
 ##        scroll.add_with_viewport(self.selectionModFactory.gtk)

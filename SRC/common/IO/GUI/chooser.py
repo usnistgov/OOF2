@@ -80,10 +80,7 @@ class ChooserWidget(object):
         else:
             name0 = ""
         self.label = Gtk.Label(name0, halign=Gtk.Align.START,
-                               hexpand=True,
-                               # margin_top=5, margin_bottom=5,
-                               # margin_start=2, margin_end=5,
-                               margin=5)
+                               hexpand=True, margin=5)
         hbox.pack_start(self.label, expand=True, fill=True, padding=2)
         image = Gtk.Image.new_from_icon_name('pan-down-symbolic',
                                              Gtk.IconSize.BUTTON)
@@ -137,11 +134,11 @@ class ChooserWidget(object):
         # self.current_item = menuitem
         if self.callback:
             self.callback(*(name,) + self.callbackargs)
-    # def selectCB(self, menuitem, menu):
-    #     print "selectCB"
-    #     return False
+
     def enterItemCB(self, menuitem, event):
         debug.mainthreadTest()
+        # When the mouse enters the pop-up menu, the initially
+        # selected item has to be deselected manually.
         if self.current_item is not None:
             self.current_item.deselect()
             self.current_item = None
@@ -151,23 +148,26 @@ class ChooserWidget(object):
         self.namelist = namelist[:]
         self.helpdict= helpdict
         if self.current_string not in namelist:
-            self.current_string = None
-        if self.update_callback:
-            self.update_callback(*(self.current_string,) +
-                                 self.update_callback_args)
+            self.set_state(None)
+        else:
+            self.set_state(self.current_string)
+
     def set_state(self, arg):
         # arg is either an integer position in namelist or a string in
         # namelist.
         debug.mainthreadTest()
-        if type(arg) == types.IntType:
-            newstr = self.namelist[arg]
-        elif type(arg) == types.StringType:
-            if arg in self.namelist:
-                newstr = arg
-            else:
+        try:
+            if arg is None:
                 newstr = self.namelist[0]
-        else:
-            raise ValueError("Invalid value: " + `arg`)
+            elif type(arg) == types.IntType:
+                newstr = self.namelist[arg]
+            elif type(arg) == types.StringType:
+                if arg in self.namelist:
+                    newstr = arg
+                else:
+                    newstr = self.namelist[0]
+        except IndexError:
+            newstr = ''
         if newstr != self.current_string:
             self.label.set_text(newstr)
             self.current_string = newstr
@@ -270,11 +270,11 @@ class ChooserListWidgetBase:
     def __init__(self, objlist=None, displaylist=[], callback=None,
                  dbcallback=None, autoselect=True, helpdict={},
                  comparator=None, markup=False,
-                 name=None, separator_func=None):
+                 name=None, separator_func=None, **kwargs):
         debug.mainthreadTest()
         self.liststore = Gtk.ListStore(GObject.TYPE_STRING,
                                        GObject.TYPE_PYOBJECT)
-        self.treeview = Gtk.TreeView(self.liststore)
+        self.treeview = Gtk.TreeView(self.liststore, **kwargs)
         self.gtk = self.treeview
         self.treeview.set_property("headers-visible", 0)
         cell = Gtk.CellRendererText()
@@ -412,12 +412,12 @@ class MultiListWidget(ChooserListWidgetBase):
     def __init__(self, objlist, displaylist=[], callback=None,
                  dbcallback=None, autoselect=True, helpdict={},
                  comparator=None, name=None, separator_func=None,
-                 markup=False):
+                 markup=False, **kwargs):
         ChooserListWidgetBase.__init__(self, objlist, displaylist, callback,
                                        dbcallback, autoselect, helpdict,
                                        comparator=comparator, name=name,
                                        separator_func=separator_func,
-                                       markup=markup)
+                                       markup=markup, **kwargs)
         selection = self.treeview.get_selection()
         selection.set_mode(Gtk.SelectionMode.MULTIPLE)
     def get_value(self):
@@ -477,14 +477,15 @@ class MultiListWidget(ChooserListWidgetBase):
 ##################################################
 
 class ChooserComboWidget:
-    def __init__(self, namelist, callback=None, name=None):
+    def __init__(self, namelist, callback=None, name=None, **kwargs):
         # If a callback is provided, it's called a *lot* of times.
         # It's called for every keystroke in the entry part of the
         # widget and every time a selection is made in the list part
         # of the widget.
         debug.mainthreadTest()
         liststore = Gtk.ListStore(GObject.TYPE_STRING)
-        self.combobox = Gtk.ComboBox.new_with_model_and_entry(liststore)
+        self.combobox = Gtk.ComboBox.new_with_model_and_entry(liststore,
+                                                              **kwargs)
         self.combobox.set_entry_text_column(0)
         if name:
             gtklogger.setWidgetName(self.combobox, name)
@@ -552,7 +553,7 @@ class ChooserComboWidget:
 class FramedChooserListWidget(ChooserListWidget):
     def __init__(self, objlist=None, displaylist=[],
                  callback=None, dbcallback=None, autoselect=True,
-                 comparator=None, name=None):
+                 comparator=None, name=None, **kwargs):
         ChooserListWidget.__init__(self,
                                    objlist=objlist,
                                    displaylist=displaylist,
@@ -561,14 +562,14 @@ class FramedChooserListWidget(ChooserListWidget):
                                    autoselect=autoselect,
                                    comparator=comparator,
                                    name=name)
-        self.gtk = Gtk.Frame()
+        self.gtk = Gtk.Frame(**kwargs)
         self.gtk.set_shadow_type(Gtk.ShadowType.IN)
         self.gtk.add(self.treeview)
 
 class ScrolledChooserListWidget(ChooserListWidget):
     def __init__(self, objlist=None, displaylist=[], callback=None,
                  dbcallback=None, autoselect=True, comparator=None, name=None,
-                 separator_func=None, markup=False):
+                 separator_func=None, markup=False, **kwargs):
         ChooserListWidget.__init__(self,
                                    objlist=objlist,
                                    displaylist=displaylist,
@@ -579,7 +580,7 @@ class ScrolledChooserListWidget(ChooserListWidget):
                                    name=name,
                                    separator_func=separator_func,
                                    markup=markup)
-        self.gtk = Gtk.ScrolledWindow()
+        self.gtk = Gtk.ScrolledWindow(**kwargs)
         gtklogger.logScrollBars(self.gtk, name=name+"Scroll")
         self.gtk.set_shadow_type(Gtk.ShadowType.IN)
         self.gtk.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
@@ -588,11 +589,11 @@ class ScrolledChooserListWidget(ChooserListWidget):
 
 class ScrolledMultiListWidget(MultiListWidget):
     def __init__(self, objlist=None, displaylist=[], callback=None, name=None,
-                 separator_func=None):
+                 separator_func=None, **kwargs):
         MultiListWidget.__init__(self, objlist, displaylist, callback,
                                  name=name, separator_func=separator_func)
         mlist = self.gtk
-        self.gtk = Gtk.ScrolledWindow()
+        self.gtk = Gtk.ScrolledWindow(**kwargs)
         self.gtk.set_shadow_type(Gtk.ShadowType.IN)
         self.gtk.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.gtk.add(mlist)

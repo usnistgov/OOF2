@@ -216,7 +216,7 @@ from ooflib.common.IO import automatic
 # requirements for these.
 class AutoWidget(ParameterWidget):
     def __init__(self, param, scope=None, name=None):
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         ParameterWidget.__init__(self, hbox, scope=scope, name=name)
         self.autocheck = Gtk.CheckButton()
         gtklogger.setWidgetName(self.autocheck, 'Auto')
@@ -696,7 +696,7 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
             self.setData(key, value)
         self.params = params            # list of Parameters
         if self.params:
-            base = Gtk.Grid(margin=2)
+            base = Gtk.Grid(margin=2, row_spacing=2, column_spacing=2)
         else:
             base = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, margin=2)
         ParameterWidget.__init__(self, base, scope, name)
