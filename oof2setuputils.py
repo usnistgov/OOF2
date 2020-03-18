@@ -59,6 +59,11 @@ def get_third_party_libs(cmd):
 # their compiler and linker flags if they're found, and complain if
 # they're not.
 
+## TODO: Each set_clib_flags function may call pkg_check, and
+## therefore pkg-config multiple times, which may concatenate
+## duplicate copies of the compilation arguments.  The pkg-config
+## calls should be combined.
+
 def pkg_check(package, version, clib=None):
     if check_exec('pkg-config'):
         if os.system("pkg-config --atleast-version=%s %s" % (version, package)):

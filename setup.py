@@ -28,10 +28,12 @@
 # aren't used explicitly in this file, but they are used in the DIR.py
 # files that are execfile'd here.
 
-GTK_VERSION = "2.6.0"
-PYGTK_VERSION = "2.6"
-GNOMECANVAS_VERSION = "2.6"
+GTK_VERSION = "3.24.0"
 MAGICK_VERSION = "6.0"
+CAIROMM_VERSION = "1.12" # Don't know what the earliest acceptable version is.
+PANGO_VERSION = "1.40"
+PANGOCAIRO_VERSION = "1.40"
+PYGOBJECT_VERSION = "3.28"
 
 # If on a 64-bit system with Python 2.5 or later, make sure that
 # pygobject is at least version 2.12.
