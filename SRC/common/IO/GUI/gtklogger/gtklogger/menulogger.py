@@ -8,7 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import gtk
+from gi.repository import Gtk
 import widgetlogger
 import logutils
 import loggers
@@ -16,7 +16,7 @@ import loggers
 import string
 
 class MenuItemLogger(widgetlogger.WidgetLogger):
-    classes = (gtk.MenuItem,)
+    classes = (Gtk.MenuItem,)
     def location(self, menuitem, *args):
         parent, path = self._getMenuPath(menuitem)
         parentcode = loggers.findLogger(parent).location(parent)
@@ -47,7 +47,7 @@ class MenuItemLogger(widgetlogger.WidgetLogger):
         return parent, path
 
 class MenuLogger(widgetlogger.WidgetLogger):
-    classes = (gtk.MenuShell,)
+    classes = (Gtk.MenuShell,)
     def record(self, obj, signal, *args):
         if signal == 'deactivate':
             return ["%s.deactivate()" % self.location(obj, args)]

@@ -35,7 +35,7 @@ from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import outputdevice
 from ooflib.common.IO import parameter
-from ooflib.common.IO import pdfoutput
+#from ooflib.common.IO import pdfoutput
 from ooflib.common.IO import placeholder
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
@@ -1035,23 +1035,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 pdevice = pdfoutput.PDFoutput(filename=filename)
                 pdevice.set_background(self.settings.bgcolor)
                 self.display.draw(self, pdevice)
-
-    elif config.dimension() == 3:
-        # TODO 3D: we should probably create a GUI-less oofcanvas3d
-        # which resides in the IO directory then clean this all up so
-        # that we aren't importing from the GUI directory.
-        def saveImage(self, menuitem, filename):
-            if overwrite or not os.path.exists(filename):
-                from ooflib.common.IO.GUI import oofcanvas3d
-                self.oofcanvas = oofcanvas3d.OOFCanvas3D(self.settings.antialias, offscreen=True)
-                self.oofcanvas.set_bgColor(self.settings.bgcolor)
-                from ooflib.common.IO.GUI import canvasoutput
-                from ooflib.common.IO import outputdevice
-                rawdevice = canvasoutput.CanvasOutput(self.oofcanvas)
-                self.device = outputdevice.BufferedOutputDevice(rawdevice)
-                self.display.draw(self, self.device)
-                self.oofcanvas.reset()
-                mainthread.runBlock(self.oofcanvas.saveImageThreaded, (filename,))
 
     def saveContourmap(self, menuitem, filename, overwrite):
         if overwrite or not os.path.exists(filename):

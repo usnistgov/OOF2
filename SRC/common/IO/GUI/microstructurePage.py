@@ -85,25 +85,24 @@ class MicrostructurePage(oofGUI.MainPage):
         self.infoplugins = []
 
         # second row of ms buttons
-        centerbox = gtk.HBox(orientation=Gtk.Orientation.HORIZONTAL,
-                             halign=Gtk.Align.CENTER,
-                             homogeneous=True, spacing=3)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            halign=Gtk.Align.CENTER,
+                            homogeneous=True, spacing=3)
         vbox.pack_start(centerbox, expand=False, fill=False, padding=0)
 
         self.renamebutton = gtkutils.StockButton("document-edit-symbolic",
                                                  'Rename...')
         gtklogger.setWidgetName(self.renamebutton, "Rename")
         gtklogger.connect(self.renamebutton, 'clicked', self.renameMSCB)
-        tooltips.set_tooltip_text(self.renamebutton,
-                                  "Rename the current microstructure.")
+        self.renamebutton.set_tooltip_text(
+            "Rename the current microstructure.")
         centerbox.pack_start(self.renamebutton,
                              expand=True, fill=True, padding=0)
 
         self.copybutton = gtkutils.StockButton("edit-copy-symbolic", 'Copy...')
         gtklogger.setWidgetName(self.copybutton, "Copy")
         gtklogger.connect(self.copybutton, 'clicked', self.copyMSCB)
-        tooltips.set_tooltip_text(self.copybutton,
-                                  "Copy the current microstructure.")
+        self.copybutton.set_tooltip_text("Copy the current microstructure.")
         centerbox.pack_start(self.copybutton,
                              expand=True, fill=True, padding=0)
 
@@ -111,7 +110,7 @@ class MicrostructurePage(oofGUI.MainPage):
                                                  'Delete')
         gtklogger.setWidgetName(self.deletebutton, "Delete")
         gtklogger.connect(self.deletebutton, 'clicked', self.deleteMSCB)
-        tooltips.set_tooltip_text(self.deletebutton,
+        self.deletebutton.set_tooltip_text(
                                   "Delete the current microstructure.")
         centerbox.pack_start(self.deletebutton,
                              expand=True, fill=True, padding=0)
@@ -120,12 +119,12 @@ class MicrostructurePage(oofGUI.MainPage):
                                                'Save...')
         gtklogger.setWidgetName(self.savebutton, "Save")
         gtklogger.connect(self.savebutton, 'clicked', self.saveMSCB)
-        tooltips.set_tooltip_text(self.savebutton,
+        self.savebutton.set_tooltip_text(
             "Save the current microstructure to a file.")
         centerbox.pack_start(self.savebutton,
                              expand=True, fill=True, padding=0)
 
-        pane = gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
+        pane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
         gtklogger.setWidgetName(pane, "Pane")
         vbox.pack_start(pane, expand=True, fill=True, padding=2)
         gtklogger.connect_passive(pane, 'notify::position')
@@ -155,7 +154,7 @@ class MicrostructurePage(oofGUI.MainPage):
         groupframe = Gtk.Frame(label = '%s Groups'%Pixstring)
         gtklogger.setWidgetName(groupframe, "%sGroups"%Pixstring)
         groupframe.set_shadow_type(Gtk.ShadowType.IN)
-        pane.pack2(groupframe, resize=True, shrink=False, padding=0)
+        pane.pack2(groupframe, resize=True, shrink=False)
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         groupframe.add(hbox)
         # buttons on L side of pixel group list
@@ -172,7 +171,7 @@ class MicrostructurePage(oofGUI.MainPage):
         self.grplist = chooser.ScrolledChooserListWidget( # list of pixel groups
             callback=self.listItemChosen, name="GroupList")
         grparea.add(self.grplist.gtk)
-        self.grpmsg = gtk.Label() # helpful message when there are no grps
+        self.grpmsg = Gtk.Label() # helpful message when there are no grps
         grparea.pack_start(self.grpmsg, expand=True, fill=True, padding=0)
 
         self.newgroupbutton = Gtk.Button('New...')

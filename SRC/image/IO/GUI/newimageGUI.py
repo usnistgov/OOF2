@@ -15,11 +15,7 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
-if config.dimension() == 2:
-    from ooflib.SWIG.image import oofimage
-elif config.dimension() == 3:
-    from ooflib.SWIG.image import oofimage3d
-    #from ooflib.image import oofimage3d
+from ooflib.SWIG.image import oofimage
 from ooflib.common import debug
 from ooflib.common import microstructure
 from ooflib.common.IO import microstructuremenu
@@ -30,7 +26,8 @@ from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import tooltips
 from ooflib.image.IO import imagemenu  # ensures that OOFMenuItems have been created.
 from ooflib.image import imagecontext
-import gtk
+
+from gi.repository import Gtk
 
 def newMSfromImage(button):
     menuitem = microstructuremenu.micromenu.Create_From_Image

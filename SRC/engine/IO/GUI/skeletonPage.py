@@ -17,7 +17,6 @@ from ooflib.common import subthread
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import parameter, reporter
 from ooflib.common.IO import whoville
-from ooflib.common.IO.GUI import fixedwidthtext
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import historian
@@ -127,7 +126,7 @@ class SkeletonPage(oofGUI.MainPage):
         scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         scroll.set_shadow_type(gtk.SHADOW_IN)
         self.skelframe.add(scroll)
-        self.skelinfo = fixedwidthtext.FixedWidthTextView()
+        self.skelinfo = Gtk.TextView(name="fixedfont")
         gtklogger.setWidgetName(self.skelinfo, "SkeletonText")
         self.skelinfo.set_wrap_mode(gtk.WRAP_WORD)
         self.skelinfo.set_editable(False)

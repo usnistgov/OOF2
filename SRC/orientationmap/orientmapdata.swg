@@ -21,7 +21,6 @@
 %pragma(python) include="orientmapdata.spy"
 %extern "common/abstractimage.swg"
 %extern "common/coord.swg"
-%extern "common/IO/stringimage.swg"
 %extern "engine/angle2color.swg"
 %extern "engine/corientation.swg"
 %extern "image/oofimage.swg"
@@ -55,7 +54,7 @@ class OrientMapImage : public AbstractImage {
 public:
   OrientMapImage(OrientMap*, Angle2Color*);
   ~OrientMapImage();
-  void fillstringimage(StringImage*) const;
+  %new CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 
 void registerOrientMap(char*, OrientMap*);

@@ -17,6 +17,7 @@
 
 %{
 #include "common/IO/bitoverlay.h"
+using OOFCanvas::CanvasImage;
 %}
 %extern "common/coord.swg"
 %extern "common/timestamp.swg"
@@ -42,11 +43,9 @@ public:
   void copy(BitmapOverlay*);
   bool contains(ICoord *iPoint);
   void setColor(CColor*);
-  void setVoxelAlpha(double alpha);
   void setTintAlpha(double alpha);
   CColor getBG();
   CColor getFG();
-  double getVoxelAlpha();
   double getTintAlpha();
   %new CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
   

@@ -32,8 +32,6 @@
 %extern "engine/femesh.swg"
 %extern "common/abstractimage.swg"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
-%extern "common/IO/stringimage.swg"
-
 
 %typemap(python, out) Property* {
   // typemap(python, out) Property*
@@ -114,15 +112,10 @@ void removeMaterialFromPixels(CMicrostructure*, PixelSet*);
 void removeAllMaterials(CMicrostructure*);
 TimeStamp getMaterialTimeStamp(CMicrostructure*);
 
-// %new StringImage *getMaterialImage(CMicrostructure*, CColor*, CColor*);
-
 class MaterialImage : public AbstractImage {
 public:
   MaterialImage(CMicrostructure*, CColor*, CColor*);
-  void fillstringimage(StringImage*);
-#ifdef DIM_3
-	PyObject *getImageData();
-#endif
+  %new CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 
 %typemap(python,out) Property*;

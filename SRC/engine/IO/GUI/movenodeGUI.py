@@ -15,7 +15,6 @@ if config.dimension() == 2:
     from ooflib.SWIG.common.IO.GUI import rubberband
 elif config.dimension() == 3:
     from ooflib.common.IO.GUI import rubberband3d as rubberband
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
@@ -97,7 +96,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.xtext = gtk.Entry()
         gtklogger.setWidgetName(self.xtext, "x")
         self.xsignal = gtklogger.connect_passive(self.xtext, 'changed')
-        self.xtext.set_size_request(12*guitop.top().digitsize, -1)
+        self.xtext.set_width_chars(12)
         self.xtext.set_editable(1)
         self.table.attach(self.xtext, 1,2, 0,1,
                           xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
@@ -109,25 +108,12 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.ytext = gtk.Entry()
         gtklogger.setWidgetName(self.ytext, 'y')
         self.ysignal = gtklogger.connect_passive(self.ytext, 'changed')
-        self.ytext.set_size_request(12*guitop.top().digitsize, -1)        
+        self.ytext.set_width_chars(12)
         self.ytext.set_editable(1)
         self.table.attach(self.ytext, 1,2, 1,2,
                           xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
         tooltips.set_tooltip_text(self.ytext,"y position of the mouse")
 
-        if config.dimension() == 3:
-            label = gtk.Label('z=')
-            label.set_alignment(1.0, 0.5)
-            self.table.attach(label, 0,1, 2,3, xpadding=5, xoptions=gtk.FILL)
-            self.ztext = gtk.Entry()
-            gtklogger.setWidgetName(self.ztext, 'z')
-            self.zsignal = gtklogger.connect_passive(self.ztext, 'changed')
-            self.ztext.set_size_request(12*guitop.top().digitsize, -1)        
-            self.ztext.set_editable(1)
-            self.table.attach(self.ztext, 1,2, 2,3,
-                              xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-            tooltips.set_tooltip_text(self.ztext,"z position of the mouse")
-        
         label = gtk.Label("Change in... ")
         label.set_alignment(1.0, 0.5)
         self.table.attach(label, 0,1, r,r+1, xpadding=4,
@@ -139,7 +125,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.shapetext = gtk.Entry()
         self.shapetext.set_editable(0)
         gtklogger.setWidgetName(self.shapetext,"shape")
-        self.shapetext.set_size_request(12*guitop.top().digitsize, -1)        
+        self.shapetext.set_width_chars(12)
         self.table.attach(self.shapetext, 1,2, r+1,r+2,
                           xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
         tooltips.set_tooltip_text(self.shapetext,"total change in shape energy")
@@ -150,7 +136,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.homogtext = gtk.Entry()
         self.homogtext.set_editable(0)
         gtklogger.setWidgetName(self.homogtext,"homog")
-        self.homogtext.set_size_request(12*guitop.top().digitsize, -1)        
+        self.homogtext.set_width_chars(12)
         self.table.attach(self.homogtext, 1,2, r+2,r+3,
                           xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
         tooltips.set_tooltip_text(self.homogtext,"total change in homogeneity")

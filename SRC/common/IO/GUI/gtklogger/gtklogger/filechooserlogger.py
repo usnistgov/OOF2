@@ -8,11 +8,11 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import gtk
+from gi.repository import Gtk
 import widgetlogger
 
 class FileChooserLogger(widgetlogger.WidgetLogger):
-    classes = (gtk.FileChooserWidget, gtk.FileChooserDialog)
+    classes = (Gtk.FileChooserWidget, Gtk.FileChooserDialog)
     # Although FileChooserDialog is listed here, it's not really
     # loggable because it doesn't use gtklogger.Dialog as a base
     # class.

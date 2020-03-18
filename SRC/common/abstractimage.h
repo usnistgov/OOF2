@@ -16,16 +16,15 @@
 
 class Coord;
 class ICoord;
-class StringImage;
-class AlphaStringImage;
+#include "common/IO/OOFCANVAS/oofcanvas.h"
 
 class AbstractImage {
 public:
   virtual ~AbstractImage() {}
   virtual const Coord &size() const = 0;
   virtual const ICoord &sizeInPixels() const = 0;
-  virtual CanvasImage makeCanvasImage(const Coord *pos, const Coord *size)
-    const = 0;
+  virtual OOFCanvas::CanvasImage *makeCanvasImage(const Coord *pos,
+						  const Coord *size) const = 0;
 };
 
 #endif // ABSTRACTIMAGE_H

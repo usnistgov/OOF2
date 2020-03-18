@@ -13,7 +13,7 @@
 #define OOFCANVASITEM_H
 
 #ifdef OOFCANVAS_USE_PYTHON
-#include "pythonexportable.h"
+#include "common/pythonexportable.h"
 #endif
 
 namespace OOFCanvas {

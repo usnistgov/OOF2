@@ -21,8 +21,7 @@
 #include "common/timestamp.h"
 #include <string>
 #include <vector>
-
-class CanvasImage;
+#include "common/IO/OOFCANVAS/oofcanvas.h"
 
 class BitmapOverlay : public AbstractImage {
 private:
@@ -50,18 +49,16 @@ public:
   void copy(const BitmapOverlay*);
   bool contains(const ICoord *pt) const { return data.contains(*pt); }
   void setColor(const CColor*);
-  void setVoxelAlpha(double alpha) {voxelAlpha=alpha;};
   void setTintAlpha(double alpha) {tintAlpha=alpha;};
   CColor getBG() const;
   CColor getFG() const;
-  double getVoxelAlpha() const {return voxelAlpha;};
   double getTintAlpha() const {return tintAlpha;};
   virtual const Coord &size() const { return size_; }
   virtual const ICoord &sizeInPixels() const { return sizeInPixels_; }
   std::vector<ICoord> *pixels(int i) const { return data.pixels(i); }
   std::vector<ICoord> *getPixels(bool v) const { return data.pixels(v); }
   bool empty() const { return data.empty(); }
-  CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
+  OOFCanvas::CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
   const TimeStamp &getTimeStamp() const { return timestamp; }
   TimeStamp &getTimeStamp() { return timestamp; }
 };

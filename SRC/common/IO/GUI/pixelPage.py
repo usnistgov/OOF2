@@ -51,7 +51,7 @@ class SelectionPage(oofGUI.MainPage):
         # Microstructure widget, centered at the top of the page.
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                             spacing=3, halign=Gtk.Align.CENTER)
-        mainbox.pack_start(centerbox, expand=False, fill=0)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         self.mswidget = whowidget.WhoWidget(microstructure.microStructures,
@@ -125,7 +125,7 @@ class SelectionPage(oofGUI.MainPage):
         # Undo, Redo, and Clear buttons
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         vbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        self.undobutton = gtkutils.StockButton("edit-unto-symbolic", "Undo")
+        self.undobutton = gtkutils.StockButton("edit-undo-symbolic", "Undo")
         self.redobutton = gtkutils.StockButton("edit-redo-symbolic", "Redo")
         hbox.pack_start(self.undobutton, expand=True, fill=False, padding=0)
         hbox.pack_start(self.redobutton, expand=True, fill=False, padding=0)

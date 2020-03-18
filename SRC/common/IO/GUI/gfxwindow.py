@@ -14,8 +14,7 @@ from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import progress
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.IO.GUI import oofcanvas
-from ooflib.SWIG.common.IO.GUI import rubberband
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import primitives
@@ -76,7 +75,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.zoomed = 0
         self.settings = ghostgfxwindow.GfxSettings()
         self.mouseHandler = mousehandler.nullHandler # doesn't do anything
-        self.rubberband = rubberband.NoRubberBand()
+        self.rubberband = None
 
         self.contourmapdata = ContourMapData()
 
@@ -518,7 +517,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # self.oofcanvas.setMargin(self.settings.margin)
 
         self.oofcanvas.setMmouseCallback(self.mouseCB)
-        # self.oofcanvas.set_rubberband(self.rubberband)
+        if self.rubberband:
+            self.oofcanvas.set_rubberband(self.rubberband)
         self.oofcanvas.show()
 
         self.fix_step_increment()
@@ -1208,7 +1208,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
     def setRubberband(self, rubberband):
         self.rubberband = rubberband
-        self.oofcanvas.set_rubberband(rubberband)
+        if rubberband is not None:
+            self.oofcanvas.set_rubberband(rubberband)
+        else:
+            self.oofcanvas.removeRubberBand()
 
     # Right click on layer list
     #########################################################

@@ -12,7 +12,6 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.orientationmap import orientmapdata
 from ooflib.common import debug
 from ooflib.common.IO import parameter
-from ooflib.common.IO.GUI import fixedwidthtext
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import pixelinfoGUI
 from ooflib.common.IO.GUI import pixelinfoGUIplugin
@@ -205,7 +204,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
 
         # Text displayed instead of the reference orientation and
         # location when no reference has been selected.
-        self.refText = fixedwidthtext.FixedWidthTextView()
+        self.refText = Gtk.TextView(name="fixedfont")
         self.refText.set_wrap_mode(gtk.WRAP_WORD)
         self.refText.set_editable(False)
         self.refText.set_cursor_visible(False)

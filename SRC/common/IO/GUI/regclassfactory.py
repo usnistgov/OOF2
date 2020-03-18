@@ -104,7 +104,7 @@ class RegisteredClassFactory(RCFBase):
         # "setByRegistration" routine.
 
         self.readonly = False
-        RCFBase.__init__(self, gtk.Frame(), scope, widgetdict, name)
+        RCFBase.__init__(self, Gtk.Frame(), scope, widgetdict, name)
         
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(self.box)

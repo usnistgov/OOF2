@@ -14,8 +14,7 @@
 #include "common/IO/bitoverlay.h"
 #include "common/trace.h"
 #include "common/tostring.h"
-#include "common/IO/OOFCANVAS/canvasimage.h"
-using namespace OOFCanvas;
+#include "common/IO/OOFCANVAS/oofcanvas.h"
 
 BitmapOverlay::BitmapOverlay(const Coord *size, const ICoord *isize)
   : fg(CColor(1., 1., 1.)),
@@ -119,10 +118,12 @@ CColor BitmapOverlay::getFG() const {
   return fg;
 }
 
-CanvasImage *BitmapOverlay::makeCanvasImage(const Coord *position,
-					    const Coord *size)
+OOFCanvas::CanvasImage *BitmapOverlay::makeCanvasImage(const Coord *position,
+						       const Coord *size)
+  const
 {
-  CanvasImage *img = new CanvasImage::newBlank(
+  using OOFCanvas::CanvasImage;
+  CanvasImage *img = CanvasImage::newBlankImage(
 			       (*position)[0], (*position)[1],
 			       sizeInPixels_[0], sizeInPixels_[1],
 			       (*size)[0], (*size)[1],
@@ -132,7 +133,7 @@ CanvasImage *BitmapOverlay::makeCanvasImage(const Coord *position,
   // background pixels disappear.
   for(Array<bool>::const_iterator i=data.begin(); i!=data.end(); ++i) {
     if(data[i]) {
-      Coord p(i.coord());
+      ICoord p(i.coord());
       img->set(p[0], p[1],
 	       fg.getRed(), fg.getGreen(), fg.getBlue(), tintAlpha);
     }

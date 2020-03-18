@@ -10,13 +10,14 @@
  */
 
 #include <oofconfig.h>
-#include "common/IO/stringimage.h"
-#include "engine/angle2color.h"
+#include "common/IO/OOFCANVAS/canvasimage.h"
 #include "common/ccolor.h"
+#include "engine/angle2color.h"
 #include "orientationmap/orientmapdata.h"
 #include <iostream>
 #include <map>
 #include <string>
+using namespace OOFCanvas;
 
 void COrientMapReader::set_angle(OrientMap &data, const ICoord *where,
 				 const COrientation *angle) const 
@@ -80,14 +81,20 @@ OrientMap::~OrientMap() {
   all_OrientationMaps().erase(i);
 }
 
-void OrientMap::fillstringimage(StringImage *strimg,
-			      const Angle2Color &colorscheme)
-  const 
+CanvasImage *OrientMap::makeCanvasImage(const Coord *position,
+					const Coord *dispsize)
+  const
 {
+  CanvasImage *img = CanvasImage::newBlank((*position)[0], (*position)[1],
+					   sizeInPixels()[0], sizeInPixels()[1],
+					   (*dispsize)[0], (*dispsize)[1],
+					   0.0, 0.0, 0.0, 1.0);
   for(Array<COrientABG>::const_iterator i=angles.begin(); i!=angles.end(); ++i){
     const CColor color = colorscheme(angles[i]);
-    strimg->set(&i.coord(), &color);
+    ICoord pt(i.coord());
+    img->set(pt[0], pt[1], color.getRed(), color.getGreen(), color.getBlue());
   }
+  return img;
 }
 
 ICoord OrientMap::pixelFromPoint(const Coord *point) const {
@@ -134,8 +141,11 @@ const ICoord &OrientMapImage::sizeInPixels() const {
   return orientmap->sizeInPixels();
 }
 
-void OrientMapImage::fillstringimage(StringImage *strimg) const {
-  return orientmap->fillstringimage(strimg, *colorscheme);
+CanvasImage *OrientMapImage::makeCanvasImage(const Coord *position,
+					     const Coord *dispsize)
+  const
+{
+  return orientmap->makeCanvasImage(position, dispsize);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

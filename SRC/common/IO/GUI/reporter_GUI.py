@@ -76,7 +76,7 @@ class MessageWindow(subWindow.SubWindow):
         # Control box, with buttons.  These could be menu items.
         controlbox = Gtk.Frame()
         controlbox.set_shadow_type(Gtk.ShadowType.IN)
-        self.mainbox.pack_start(controlbox, expand=False, fill=False)
+        self.mainbox.pack_start(controlbox, expand=False, fill=False, padding=0)
         controlinnards = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
                                  spacing=2)
         controlbox.add(controlinnards)
@@ -288,6 +288,7 @@ class ErrorPopUp(object):
         self.answer = None
         
         self.datestampstring = time.strftime("%Y %b %d %H:%M:%S %Z")
+        debug.fmsg("parent=", guitop.top())
         self.gtk = gtklogger.Dialog(
             title="%s Error" % subWindow.oofname(),
             flags=Gtk.DialogFlags.MODAL,

@@ -13,10 +13,7 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
-if config.dimension() == 2:
-    from ooflib.SWIG.common.IO.GUI import rubberband
-elif config.dimension() == 3:
-    from ooflib.common.IO.GUI import rubberband3d as rubberband
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import debug
 from ooflib.common import pixelselectionmethod
 from ooflib.common import primitives
@@ -163,35 +160,35 @@ pixelselectiontoolbox.PixelSelectToolbox.makeGUI = _makeGUI
 ## argument.
 
 def _NoRubberBand(self, reg):
-    return rubberband.NoRubberBand()
+    return None
 pixelselectionmethod.PixelSelectionRegistration.getRubberBand = _NoRubberBand
 
 
-if config.dimension() == 2:
+## TODO GTK3: Restore this
 
-    def _BrushSelectorRB(reg):
-        style = reg.getParameter('style').value
-        return rubberband.BrushRubberBand(style)
+# def _BrushSelectorRB(reg):
+#     style = reg.getParameter('style').value
+#     return rubberband.BrushRubberBand(style)
 
-    pixelselectionmethod.brushSelectorRegistration.getRubberBand = _BrushSelectorRB
-
-
-    def _RectangleSelectorRB(reg):
-        return rubberband.RectangleRubberBand()
-
-    pixelselectionmethod.rectangleSelectorRegistration.getRubberBand = \
-                                                         _RectangleSelectorRB
+# pixelselectionmethod.brushSelectorRegistration.getRubberBand = _BrushSelectorRB
 
 
-    def _CircleSelectorRB(reg):
-        return rubberband.CircleRubberBand()
+def _RectangleSelectorRB(reg):
+    return oofcanvas.RectangleRubberBand()
 
-    pixelselectionmethod.circleSelectorRegistration.getRubberBand = \
-                                                                  _CircleSelectorRB
+pixelselectionmethod.rectangleSelectorRegistration.getRubberBand = \
+                                                     _RectangleSelectorRB
 
 
-    def _EllipseSelectorRB(reg):
-        return rubberband.EllipseRubberBand()
+def _CircleSelectorRB(reg):
+    return oofcanvas.CircleRubberBand()
 
-    pixelselectionmethod.ellipseSelectorRegistration.getRubberBand = \
-                                                                 _EllipseSelectorRB
+pixelselectionmethod.circleSelectorRegistration.getRubberBand = \
+                                                              _CircleSelectorRB
+
+
+def _EllipseSelectorRB(reg):
+    return oofcanvas.EllipseRubberBand()
+
+pixelselectionmethod.ellipseSelectorRegistration.getRubberBand = \
+                                                             _EllipseSelectorRB

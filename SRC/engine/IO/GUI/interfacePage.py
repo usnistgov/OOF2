@@ -14,7 +14,6 @@ from ooflib.common import runtimeflags
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import whoville
 from ooflib.common.IO.GUI import chooser
-from ooflib.common.IO.GUI import fixedwidthtext
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
@@ -131,7 +130,7 @@ class InterfacePage(oofGUI.MainPage):
         infoframe.add(infowindow)
         infowindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         
-        self.infotext = fixedwidthtext.FixedWidthTextView()
+        self.infotext = Gtk.TextView(name="fixedfont")
         self.infotext.set_wrap_mode(gtk.WRAP_WORD)
         gtklogger.setWidgetName(self.infotext, 'status')
         self.infotext.set_editable(False)

@@ -8,7 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import material
 from ooflib.common import debug
@@ -28,7 +27,7 @@ class MaterialPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         table.attach(label, 0,1, row,row+1, xpadding=5, xoptions=gtk.FILL)
         self.materialtext = gtk.Entry()
         gtklogger.setWidgetName(self.materialtext, 'material')
-        self.materialtext.set_size_request(12*guitop.top().charsize, -1)
+        self.materialtext.set_width_chars(12)
         self.materialtext.set_editable(0)
         table.attach(self.materialtext, 1,2, row,row+1,
                      xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)

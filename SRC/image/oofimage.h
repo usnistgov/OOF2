@@ -36,7 +36,6 @@ class BitmapOverlay;
 class BoolArray;
 class DoubleArray;
 class CMicrostructure;
-class StringImage;
 class OOFImageIterator;
 class ConstOOFImageIterator;
 
@@ -110,7 +109,7 @@ public:
   void set(const Array<int> &array, CColor (*f)(int));
   void set(const Array<bool> &array, CColor (*f)(bool));
 
-  virtual void fillstringimage(StringImage*) const; 
+  virtual CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
 
   OOFImage *clone(const std::string &name) const;
 

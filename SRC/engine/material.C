@@ -17,10 +17,10 @@
 #include "common/cmicrostructure.h"
 #include "common/coord.h"
 #include "common/pixelattribute.h"
-#include "common/IO/stringimage.h"
 #include "common/tostring.h"
 #include "common/trace.h"
 #include "common/printvec.h"
+#include "common/IO/OOFCANVAS/canvasimage.h"
 #include "engine/cnonlinearsolver.h"
 #include "engine/csubproblem.h"
 #include "engine/elementnodeiterator.h"
@@ -38,6 +38,8 @@
 #include <iostream>
 #include <vector>
 #include <map>
+
+using namespace OOFCanvas;
 
 
 //Interface branch
@@ -896,100 +898,40 @@ const ICoord &MaterialImage::sizeInPixels() const {
   return microstructure->sizeInPixels();
 }
 
-void MaterialImage::fillstringimage(StringImage *strimg) const {
+CanvasImage *MaterialImage::makeCanvasImage(const Coord *position,
+					    const Coord *dispsize)
+  const
+{
+  CanvasImage *img = new CanvasImage::newBlank(
+				       (*position)[0], (*position)[1],
+				       sizeInPixels()[0], sizeInPixels()[1],
+				       (*dispsize)[0], (*dispsize)[1],
+				       0.0, 0.0, 0.0, 1.0);
   const Array<PixelAttribute*> &matMap = matattrreg->map(microstructure);
   for(Array<PixelAttribute*>::const_iterator i=matMap.begin(); i!=matMap.end();
       ++i)
     {
       MaterialAttribute *matAtt = dynamic_cast<MaterialAttribute*>(*i);
       const Material *mat = matAtt->get();
+      CColor color;
       if(mat) {
 	try {
 	  Property *cprop = mat->fetchProperty("Color");
 	  ColorProp *colorprop = dynamic_cast<ColorProp*>(cprop);
-	  const CColor &cc = colorprop->color();
-	  strimg->set(&i.coord(), &cc);
+	  color = colorprop->color();
 	}
-	catch(ErrNoSuchProperty &exc) {
-	  strimg->set(&i.coord(), &noColor);
+	catch(ErrNoSuchProperty &exc) { // no color property
+	  color = noColor;
 	}
-      }	// if mat
-      else
-	strimg->set(&i.coord(), &noMaterial);
+      }	
+      else {			// no material
+	color = noMaterial;
+      }
+      const ICoord pt(i.coord());
+      img->set(pt[0], pt[1], color.getRed(), color.getGreen(), color.getBlue());
     }
+  return img;
 }
-
-#if DIM==3
-
-// TODO 3D: This code could be organized better to avoid the overlaps
-// with the fillstringimage method used in 2D and the image padding
-// code from oofimage3d
-
-// TODO 3D: We probably also want to store this as a single component
-// image where the single scalar is the material index and make color
-// transfer functions which convert the index to the material color.
-// Access material index as mat->objectid().  Will need to drastically
-// change how color transfer functions are created in the canvas for
-// this to work for display.
-
-void setVoxel(vtkImageData *image, const ICoord coord, const CColor cc) {
-  image->SetScalarComponentFromFloat(coord(0),coord(1),coord(2),0,255*cc.getRed());
-  image->SetScalarComponentFromFloat(coord(0),coord(1),coord(2),1,255*cc.getGreen());
-  image->SetScalarComponentFromFloat(coord(0),coord(1),coord(2),2,255*cc.getBlue());
-  image->SetScalarComponentFromFloat(coord(0),coord(1),coord(2),3,255*(1-cc.getAlpha()));
-}
-
-PyObject* MaterialImage::getImageData() {
-  const Array<PixelAttribute*> &matMap = matattrreg->map(microstructure);
-  vtkImageData *image = vtkImageData::New();
-  ICoord sizeInPixels = microstructure->sizeInPixels();
-  image->SetDimensions(sizeInPixels(0),sizeInPixels(1),sizeInPixels(2));
-  image->SetScalarTypeToUnsignedChar();
-  image->SetNumberOfScalarComponents(4);
-  image->AllocateScalars();
-
-  for(Array<PixelAttribute*>::const_iterator i=matMap.begin(); i!=matMap.end();
-      ++i)
-    {
-      MaterialAttribute *matAtt = dynamic_cast<MaterialAttribute*>(*i);
-      const Material *mat = matAtt->get();
-      if(mat) {
-	try {
-	  Property *cprop = mat->fetchProperty("Color");
-	  ColorProp *colorprop = dynamic_cast<ColorProp*>(cprop);
-	  const CColor &cc = colorprop->color();
-	  setVoxel(image, i.coord(), cc);
-	}
-	catch(ErrNoSuchProperty &exc) {
-	  setVoxel(image, i.coord(), noColor);
-	}
-      }	// if mat
-      else
-	setVoxel(image, i.coord(), noMaterial);
-    }
-
-  // copied from oofimage3d.C
-  image->Update();
-  int *currentextent = image->GetExtent();
-  int newextent[6] = {0,0,0,0,0,0};
-  vtkImageConstantPad *padder;
-  // Be careful to not overwrite the extent in the current image.
-  for(int i = 1; i<7; i+=2) newextent[i]=currentextent[i]+1;
-
-  padder = vtkImageConstantPad::New();
-  padder->SetInputConnection(image->GetProducerPort());
-  padder->SetOutputWholeExtent(newextent);
-  padder->SetOutputNumberOfScalarComponents(4);
-  padder->SetConstant(255);
-
-  image = padder->GetOutput();
-  image->Update();
-
-  return vtkPythonGetObjectFromPointer(image);
-}
-
-
-#endif
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

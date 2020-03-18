@@ -63,6 +63,8 @@ class ChooserWidget(object):
         self.current_item = None # only exists while the menu is visible
         self.callback = callback
         self.callbackargs = callbackargs
+        self.update_callback = update_callback
+        self.update_callback_args = update_callback_args
         self.helpdict = helpdict
         self.signal = None #
         self.namelist = namelist[:]
@@ -165,7 +167,8 @@ class ChooserWidget(object):
         else:
             raise ValueError("Invalid value: " + `arg`)
         if newstr != self.current_string:
-            self.label.set_text(self.current_string)
+            self.label.set_text(newstr)
+            self.current_string = newstr
             if self.update_callback:
                 self.update_callback(*(self.current_string,) +
                                      self.update_callback_args)
@@ -272,7 +275,7 @@ class ChooserListWidgetBase:
         self.treeview = Gtk.TreeView(self.liststore)
         self.gtk = self.treeview
         self.treeview.set_property("headers-visible", 0)
-        cell = gtk.CellRendererText()
+        cell = Gtk.CellRendererText()
         if markup:
             # Expect to find pango markup in displaylist, which is
             # stored in column 0 of the ListStore.
@@ -289,7 +292,7 @@ class ChooserListWidgetBase:
                                                self.rowactivatedCB)
 
         # If separator_func is provided, it must be a function that
-        # takes a gtk.TreeModel and gtk.TreeIter as arguments, and
+        # takes a Gtk.TreeModel and Gtk.TreeIter as arguments, and
         # return True if the row given by model[iter] is to be
         # represented by a separator in the TreeView.
         if separator_func:

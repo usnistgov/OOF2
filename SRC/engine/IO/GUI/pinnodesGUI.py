@@ -9,7 +9,6 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import primitives
@@ -57,7 +56,7 @@ And Ctrl-click to toggle.""")
         self.table.attach(label, 1,2, 0,1, xpadding=2, xoptions=gtk.FILL)
         self.xtext = gtk.Entry()
         gtklogger.setWidgetName(self.xtext,"Mouse X")
-        self.xtext.set_size_request(12*guitop.top().digitsize, -1)
+        self.xtext.set_width_chars(12)
         self.xtext.set_editable(0)
         self.table.attach(self.xtext, 2,3, 0,1,
                           xpadding=2, xoptions=gtk.EXPAND|gtk.FILL)
@@ -68,23 +67,11 @@ And Ctrl-click to toggle.""")
         self.table.attach(label, 1,2, 1,2, xpadding=2, xoptions=gtk.FILL)
         self.ytext = gtk.Entry()
         gtklogger.setWidgetName(self.ytext,"Mouse Y")
-        self.ytext.set_size_request(12*guitop.top().digitsize, -1)
+        self.ytext.set_width_chars(12)
         self.ytext.set_editable(0)
         self.table.attach(self.ytext, 2,3, 1,2,
                           xpadding=2, xoptions=gtk.EXPAND|gtk.FILL)
         tooltips.set_tooltip_text(self.ytext,"y position of the mouse")
-
-        if config.dimension() == 3:
-            label = gtk.Label('z=')
-            label.set_alignment(1.0, 0.5)
-            self.table.attach(label, 1,2, 2,3, xpadding=2, xoptions=gtk.FILL)
-            self.ztext = gtk.Entry()
-            gtklogger.setWidgetName(self.ztext,"Mouse Z")
-            self.ztext.set_size_request(12*guitop.top().digitsize, -1)
-            self.ztext.set_editable(0)
-            self.table.attach(self.ztext, 2,3, 2,3,
-                              xpadding=2, xoptions=gtk.EXPAND|gtk.FILL)
-            tooltips.set_tooltip_text(self.ztext,"z position of the mouse")
 
         self.table.set_row_spacing(r-1, 5)
 
@@ -97,7 +84,7 @@ And Ctrl-click to toggle.""")
         self.table.attach(label, 1,2, r,r+1, xpadding=2, xoptions=gtk.FILL)
         self.nodextext = gtk.Entry()
         gtklogger.setWidgetName(self.nodextext,"Node X")
-        self.nodextext.set_size_request(12*guitop.top().digitsize, -1)
+        self.nodextext.set_width_chars(12)
         self.nodextext.set_editable(0)
         self.table.attach(self.nodextext, 2,3, r,r+1,
                           xpadding=2, xoptions=gtk.EXPAND|gtk.FILL)
@@ -108,24 +95,12 @@ And Ctrl-click to toggle.""")
         self.table.attach(label, 1,2, r,r+1, xpadding=2, xoptions=gtk.FILL)
         self.nodeytext = gtk.Entry()
         gtklogger.setWidgetName(self.nodeytext,"Node Y")
-        self.nodeytext.set_size_request(12*guitop.top().digitsize, -1)        
+        self.nodeytext.set_width_chars(12)
         self.nodeytext.set_editable(0)
         self.table.attach(self.nodeytext, 2,3, r,r+1,
                           xpadding=2, xoptions=gtk.EXPAND|gtk.FILL)
         r += 1
 
-        if config.dimension() == 3:
-            label = gtk.Label('z=')
-            label.set_alignment(1.0, 0.5)
-            self.table.attach(label, 1,2, r,r+1, xpadding=2, xoptions=gtk.FILL)
-            self.nodeztext = gtk.Entry()
-            gtklogger.setWidgetName(self.nodeztext,"Node Z")
-            self.nodeztext.set_size_request(12*guitop.top().digitsize, -1)        
-            self.nodeztext.set_editable(0)
-            self.table.attach(self.nodeztext, 2,3, r,r+1,
-                              xpadding=2, xoptions=gtk.EXPAND|gtk.FILL)
-            r += 1
-            
         self.pintext = gtk.Label()
         gtklogger.setWidgetName(self.pintext,"Pin Label")
         self.pintext.set_alignment(0.0, 0.5)

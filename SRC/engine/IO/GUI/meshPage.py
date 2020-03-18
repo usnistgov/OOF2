@@ -18,7 +18,6 @@ from ooflib.common.IO import mainmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
 from ooflib.common.IO.GUI import chooser
-from ooflib.common.IO.GUI import fixedwidthtext
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import historian
@@ -122,7 +121,7 @@ class MeshPage(oofGUI.MainPage):
         scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         scroll.set_shadow_type(gtk.SHADOW_IN)
         infoframe.add(scroll)
-        self.infoarea = fixedwidthtext.FixedWidthTextView()
+        self.infoarea = Gtk.TextView(name="fixedfont")
         self.infoarea.set_cursor_visible(False)
         self.infoarea.set_editable(False)
         scroll.add(self.infoarea)

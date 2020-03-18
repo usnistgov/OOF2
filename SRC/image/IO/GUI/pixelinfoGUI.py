@@ -9,7 +9,6 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 if config.dimension() == 2:
     from ooflib.SWIG.image import oofimage
@@ -20,12 +19,12 @@ from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import pixelinfoGUIplugin
 from ooflib.common.IO.GUI import tooltips
-import gtk
+from gi.repository import Gtk
 
 class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
     ordering = 1
     nrows = 5
-    def __init__(self, toolbox, table, row):
+    def __init__(self, toolbox, grid, row):
         debug.mainthreadTest()
         pixelinfoGUIplugin.PixelInfoGUIPlugIn.__init__(self, toolbox)
 
@@ -35,13 +34,17 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         # switches from RGB to HSV or vice versa.
         self.colorv = None
         
-        label = gtk.Label('image=')
+        label = Gtk.Label('image=')
         label.set_alignment(1.0, 0.5)
-        table.attach(label, 0,1, row,row+1, xpadding=5, xoptions=gtk.FILL)
+        label.set_hexpand(False);
+        label.set_halign(Gtk.Align.FILL)
+        grid.attach(label, 0,1, row,row+1, xpadding=5, xoptions=gtk.FILL)
         self.imagetext = gtk.Entry()
         gtklogger.setWidgetName(self.imagetext, "Image")
-        self.imagetext.set_size_request(12*guitop.top().charsize, -1)
+        self.imagetext.set_width_chars(12)
         self.imagetext.set_editable(0)
+        self.imagetext.set_hexpand(True)
+        self.imagetext.set_halign(Gtk.Align.FILL)
         table.attach(self.imagetext, 1,2, row,row+1,
                      xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
 
@@ -78,7 +81,7 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
                      xpadding=5, xoptions=gtk.FILL)
         self.text1 = gtk.Entry()
         gtklogger.setWidgetName(self.text1,'Text 1')
-        self.text1.set_size_request(10*guitop.top().digitsize, -1)
+        self.text1.set_width_chars(10)
         self.text1.set_editable(0)
         table.attach(self.text1, 1,2, row+2,row+3,
                      xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
@@ -89,7 +92,7 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
                      xpadding=5, xoptions=gtk.FILL)
         self.text2 = gtk.Entry()
         gtklogger.setWidgetName(self.text2,'Text 2')
-        self.text2.set_size_request(10*guitop.top().digitsize, -1)
+        self.text2.set_width_chars(10)
         self.text2.set_editable(0)
         table.attach(self.text2, 1,2, row+3,row+4,
                      xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
@@ -100,7 +103,7 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
                      xpadding=5, xoptions=gtk.FILL)
         self.text3 = gtk.Entry()
         gtklogger.setWidgetName(self.text3,'Text 3')
-        self.text3.set_size_request(10*guitop.top().digitsize, -1)
+        self.text3.set_width_chars(10)
         self.text3.set_editable(0)
         table.attach(self.text3, 1,2, row+4,row+5,
                      xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)

@@ -27,7 +27,6 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
 from ooflib.common.IO import whoville
 from ooflib.common.IO.GUI import chooser
-from ooflib.common.IO.GUI import fixedwidthtext
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import historian
@@ -39,8 +38,6 @@ from ooflib.common.IO.GUI import whowidget
 from ooflib.image import imagecontext
 from ooflib.image import imagemodifier
 import gtk
-
-#font = load_font("-*-fixed-*-*-*-*-*-120-*-*-*-*-iso8859-*")
 
 class ImagePage(oofGUI.MainPage):
     def __init__(self):
@@ -121,7 +118,7 @@ class ImagePage(oofGUI.MainPage):
         scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         frame.add(scroll)
 
-        self.infoarea = fixedwidthtext.FixedWidthTextView()
+        self.infoarea = Gtk.TextView(name="fixedfont")
         self.infoarea.set_wrap_mode(gtk.WRAP_WORD)
         self.infoarea.set_editable(False)
         self.infoarea.set_cursor_visible(False)

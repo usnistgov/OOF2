@@ -10,15 +10,17 @@
  */
 
 #include <oofconfig.h>
-#include "common/IO/stringimage.h"
 #include "common/array.h"
 #include "common/cmicrostructure.h"
 #include "common/coord.h"
+#include "common/IO/OOFCANVAS/canvasimage.h"
 #include "engine/angle2color.h"
 #include "engine/material.h"
 #include "engine/ooferror.h"
 #include "engine/orientationimage.h"
 #include "engine/property/orientation/orientation.h"
+
+using namespace OOFCanvas;
 
 OrientationImage::OrientationImage(CMicrostructure *microstructure,
 				   const Angle2Color *colorscheme,
@@ -43,25 +45,35 @@ const ICoord &OrientationImage::sizeInPixels() const {
   return microstructure->sizeInPixels();
 }
 
-void OrientationImage::fillstringimage(StringImage *strimg) const {
+CanvasImage *OrientationImage::makeCanvasImage(const Coord *position,
+					       const Coord *dispsize)
+  const
+{
+  CanvasImage *img = CanvasImage::newBlank((*position)[0], (*position)[1],
+					   sizeInPixels()[0], sizeInPixels()[1],
+					   (*dispsize)[0], (*dispsize)[1],
+					   0.0, 0.0, 0.0. 1.0);
   const Array<int> &pxls = *microstructure->getCategoryMapRO();
   for(Array<int>::const_iterator i=pxls.begin(); i!=pxls.end(); ++i) {
     ICoord where = i.coord();
     const Material *mat = getMaterialFromPoint(microstructure, &where);
+    CColor color;
     if(mat) {
       try {
 	OrientationPropBase *orientprop =
 	  dynamic_cast<OrientationPropBase*>(mat->fetchProperty("Orientation"));
-	CColor color((*colorscheme)
-		     (*orientprop->orientation(microstructure, where)));
-	strimg->set(&where, &color);
+	color = (*colorscheme)(*orientprop->orientation(microstructure, where));
       }
-      catch (ErrNoSuchProperty &exc) {
-	strimg->set(&where, &noOrientation);
+      catch(ErrNoSuchProperty &exc) { // no orientation property
+	color = noOrientation;
       }
     }
     else {			// no material
-      strimg->set(&where, &noMaterial);
+      color = noOrientation;
     }
+    img->set(where[0], where[1],
+	     color.getRed(), color.getGreen(), color.getBlue());
   }
+  return img;
 }
+

@@ -19,7 +19,6 @@
 ## Nested Concatenated outputs would look odd, though.
 
 from ooflib.SWIG.common import config
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
@@ -129,7 +128,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
         self.meshText = gtk.Entry()
         gtklogger.setWidgetName(self.meshText, "meshname")
         self.meshText.set_editable(False)
-        self.meshText.set_size_request(12*guitop.top().charsize, -1)
+        self.meshText.set_width_chars(12)
         self.table.attach(self.meshText, 1,2, 1,2,
                           xpadding=3, xoptions=gtk.EXPAND|gtk.FILL, yoptions=0)
 
@@ -140,7 +139,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
                           xpadding=3, xoptions=gtk.FILL, yoptions=0)
         self.xText = gtk.Entry()
         gtklogger.setWidgetName(self.xText, 'x')
-        self.xText.set_size_request(12*guitop.top().digitsize, -1)
+        self.xText.set_width_chars(12)
         self.table.attach(self.xText, 1,2, 2,3,
                           xpadding=3, xoptions=gtk.EXPAND|gtk.FILL, yoptions=0)
         self.xsignal = gtklogger.connect(self.xText, 'changed',
@@ -152,7 +151,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
                           xpadding=3, xoptions=gtk.FILL, yoptions=0)
         self.yText = gtk.Entry()
         gtklogger.setWidgetName(self.yText, 'y')
-        self.yText.set_size_request(12*guitop.top().digitsize, -1)
+        self.yText.set_width_chars(12)
         self.table.attach(self.yText, 1,2, 3,4,
                           xpadding=3, xoptions=gtk.EXPAND|gtk.FILL, yoptions=0)
         self.ysignal = gtklogger.connect(self.yText, 'changed',
@@ -165,7 +164,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
                               xpadding=3, xoptions=gtk.FILL, yoptions=0)
             self.zText = gtk.Entry()
             gtklogger.setWidgetName(self.zText, 'z')
-            self.zText.set_size_request(12*guitop.top().digitsize, -1)
+            self.zText.set_width_chars(12)
             self.table.attach(self.zText, 1,2, 4,5,
                               xpadding=3, xoptions=gtk.EXPAND|gtk.FILL, yoptions=0)
             self.zsignal = gtklogger.connect(self.zText, 'changed', 
@@ -196,7 +195,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
         self.tText.set_sensitive(False)
         tBox.pack_start(self.tText, expand=1, fill=1)
         gtklogger.setWidgetName(self.tText, 't')
-        self.tText.set_size_request(12*guitop.top().digitsize, -1)
+        self.tText.set_width_chars(12)
         self.tEditButton = gtk.Button("Edit")
         tBox.pack_start(self.tEditButton, expand=0, fill=0)
         gtklogger.setWidgetName(self.tEditButton, "tEdit")
@@ -304,7 +303,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
 
     def raiseWindow(self, menuitem):
         debug.mainthreadTest()
-        self.gtk.window.raise_()
+        self.gtk.present_with_time(Gtk.get_current_event_time())
 
     def sensitize(self):
         self.xText.set_sensitive(not self.tEditMode)

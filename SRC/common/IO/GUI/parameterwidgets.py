@@ -697,7 +697,7 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
         if self.params:
             base = Gtk.Grid() #rows=len(params), columns=2
         else:
-            base = gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+            base = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         ParameterWidget.__init__(self, base, scope, name)
         self.showLabels = showLabels
         self.labels = []

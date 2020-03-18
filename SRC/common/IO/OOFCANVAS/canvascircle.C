@@ -162,6 +162,13 @@ namespace OOFCanvas {
     // scaling it so that it's an ellipse with radii r0 and r1, then
     // rotating it, then translating it to the desired center point.
 
+    // TODO: We could draw a straight line if one of the radii is
+    // zero.  We can't ignore the situation and try to draw the
+    // ellipse anyway, because Cairo::Context::scale() requires its
+    // arguments to be nonzero.
+    if(r0 == 0.0 || r1 == 0.0)
+      return;
+
     // The line width has to be computed before rotating because
     // lineWidthInUserUnits uses only the x component of a value
     // returned by Context::device_to_user_distance.

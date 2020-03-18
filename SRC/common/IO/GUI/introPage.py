@@ -75,7 +75,7 @@ class IntroPage(oofGUI.MainPage):
         vbox.pack_start(buttonbox, expand=False, fill=False, padding=0)
 
         self.labels = ['Welcome', 'Credits', 'Copyright', 'Disclaimer']
-        self.buttons = [gtk.ToggleButton(x) for x in self.labels]
+        self.buttons = [Gtk.ToggleButton(x) for x in self.labels]
         for button, label in zip(self.buttons, self.labels):
             buttonbox.pack_start(button, expand=True, fill=True, padding=0)
             gtklogger.setWidgetName(button, label)

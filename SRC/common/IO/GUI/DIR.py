@@ -73,17 +73,14 @@ swigpyfiles = ['progressGUI.spy']
 
 
 cfiles += [
-    'oofcanvas.C',
-    'rubberband.C',
-    # 'canvasdot.C',
-    # 'canvastriangle.C',
-    'gfxbrushstyle.C'
+    # 'rubberband.C',
+    #'gfxbrushstyle.C'
 ]
 
 swigfiles += [
-    'oofcanvas.swg',
-    'rubberband.swg',
-    'gfxbrushstyle.swg'
+    #'oofcanvas.swg',
+    # 'rubberband.swg',
+    #'gfxbrushstyle.swg'
 ]
 
 swigpyfiles += [
@@ -91,13 +88,10 @@ swigpyfiles += [
 ]
 
 hfiles += [
-    # 'canvasdot.h',
-    # 'canvastriangle.h',
-    'oofcanvas.h',
-    'rubberband.h',
-    'rbstipple.xbm',
-    'rbstubble.xbm',
-    'gfxbrushstyle.h'
+    # 'rubberband.h',
+    # 'rbstipple.xbm',
+    # 'rbstubble.xbm',
+    #'gfxbrushstyle.h'
 ]
 
 
@@ -106,19 +100,18 @@ hfiles += [
 def set_clib_flags(clib):
     import oof2setuputils
 
-    # This is a hack that is needed by pkg-config on Macs using
-    # fink. After merging its pangocairo branch, fink isn't putting
-    # pango.pc and freetype2.pc in the default locations because they
-    # can cause conflicts.  Once fink completes upgrading to modern
-    # versions of these libraries, this hack can be removed.
-    oof2setuputils.extend_path("PKG_CONFIG_PATH",
-                               "/sw/lib/pango-ft219/lib/pkgconfig",
-                               "/sw/lib/freetype219/lib/pkgconfig/")
+    # # This is a hack that is needed by pkg-config on Macs using
+    # # fink. After merging its pangocairo branch, fink isn't putting
+    # # pango.pc and freetype2.pc in the default locations because they
+    # # can cause conflicts.  Once fink completes upgrading to modern
+    # # versions of these libraries, this hack can be removed.
+    # oof2setuputils.extend_path("PKG_CONFIG_PATH",
+    #                            "/sw/lib/pango-ft219/lib/pkgconfig",
+    #                            "/sw/lib/freetype219/lib/pkgconfig/")
 
-    oof2setuputils.pkg_check("gtk+-2.0", GTK_VERSION, clib)
-    oof2setuputils.pkg_check("libgnomecanvas-2.0", GNOMECANVAS_VERSION, clib)
-    oof2setuputils.pkg_check("pygtk-2.0", PYGTK_VERSION, clib)
-    oof2setuputils.pkg_check("pygobject-2.0", PYGOBJECT_VERSION)
+    oof2setuputils.pkg_check("gtk+-3.0", GTK_VERSION, clib)
+    # oof2setuputils.pkg_check("pygtk-2.0", PYGTK_VERSION, clib)
+    # oof2setuputils.pkg_check("pygobject-2.0", PYGOBJECT_VERSION)
     if not DIM_3:
         clib.externalLibs.append('oof2common')
     else:

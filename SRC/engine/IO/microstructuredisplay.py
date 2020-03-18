@@ -38,8 +38,8 @@ class MicrostructureMaterialDisplay(MSMaterialDisplay):
         MSMaterialDisplay.__init__(self)
     def draw(self, gfxwindow, device):
         microstructure = self.who().getObject(gfxwindow)
-        # The draw_image() routine requires an object with a
-        # .fillstringimage() function.  We can't simply give
+        # The CanvasOutput.draw_image() routine requires an object
+        # with a .makeCanvasImage() function.  We can't simply give
         # Microstructure such a function, since it can be displayed in
         # many ways, so we construct a temporary object,
         # MaterialImage, just to pass to draw_image().

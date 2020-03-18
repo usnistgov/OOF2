@@ -42,7 +42,7 @@ class ActiveAreaPage(oofGUI.MainPage):
         oofGUI.MainPage.__init__(self, name="Active %s"%Spacestring, ordering=71.1,
                                      tip="Modify active %s."%spacestring)
 
-        mainbox = gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
         # Microstructure widget, centered at the top of the page.
@@ -63,12 +63,12 @@ class ActiveAreaPage(oofGUI.MainPage):
         gtklogger.connect_passive(mainpane, 'notify::position')
 
         # Active area status in the left half of the main pane.
-        vbox = gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         mainpane.pack1(vbox, resize=True, shrink=False)
         aasframe = Gtk.Frame(label="Active %s Status"%Spacestring)
         aasframe.set_shadow_type(Gtk.ShadowType.IN)
         vbox.pack_start(aasframe, expand=False, fill=False, padding=0)
-        self.aainfo = gtk.Label()
+        self.aainfo = Gtk.Label()
         gtklogger.setWidgetName(self.aainfo, "Status")
 ##        self.aainfo.set_alignment(0.0, 0.5)
         aasframe.add(self.aainfo)
@@ -76,15 +76,15 @@ class ActiveAreaPage(oofGUI.MainPage):
         naaframe = Gtk.Frame(label="Named Active %ss"%Spacestring)
         naaframe.set_shadow_type(Gtk.ShadowType.IN)
         vbox.pack_start(naaframe, expand=True, fill=True, padding=0)
-        naabox = gtk.Box(Gtk.Orientation.VERTICAL, padding=2)
+        naabox = Gtk.Box(Gtk.Orientation.VERTICAL, spacing=2)
         naaframe.add(naabox)
         self.aalist = chooser.ScrolledChooserListWidget(
             callback=self.aalistCB, dbcallback=self.aalistCB2,
             name="NamedAreas")
         naabox.pack_start(self.aalist.gtk, expand=True, fill=True, padding=0)
-        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, padding=2)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         naabox.pack_start(bbox, expand=False, fill=False, padding=0)
-        self.storebutton = gtk.Button("Store...")
+        self.storebutton = Gtk.Button("Store...")
         bbox.pack_start(self.storebutton, expand=True, fill=False, padding=0)
         gtklogger.setWidgetName(self.storebutton, "Store")
         gtklogger.connect(self.storebutton, 'clicked', self.storeCB)
@@ -152,7 +152,7 @@ class ActiveAreaPage(oofGUI.MainPage):
             "Recall the next active %s modification operation."%spacestring)
 
         # Undo, Redo, Override
-        hbox = gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         modbox.pack_start(hbox, expand=False, fill=False, padding=0)
         self.undobutton = gtkutils.StockButton("edit-undo-symbolic", "Undo")
         hbox.pack_start(self.undobutton, expand=True, fill=False, padding=0)

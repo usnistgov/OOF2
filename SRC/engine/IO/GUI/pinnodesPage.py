@@ -13,7 +13,6 @@ from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import whoville
-from ooflib.common.IO.GUI import fixedwidthtext
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
@@ -59,7 +58,7 @@ class PinNodesPage(oofGUI.MainPage):
         gtklogger.logScrollBars(self.datascroll, "StatusScroll")
         pnsframe.add(self.datascroll)
         self.datascroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.psdata = fixedwidthtext.FixedWidthTextView()
+        self.psdata = Gtk.TextView(name="fixedfont")
         self.psdata.set_editable(False)
         self.psdata.set_wrap_mode(gtk.WRAP_WORD)
         self.psdata.set_cursor_visible(False)

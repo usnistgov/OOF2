@@ -51,7 +51,7 @@ def gtkOOFMenuBar(menu, bar=None, accelgroup=None):
     debug.mainthreadTest()
     if bar is not None:
         # remove old menus from bar
-        bar.foreach(Gtk.Object.destroy)
+        bar.foreach(Gtk.Widget.destroy)
     else:
         bar = Gtk.MenuBar()
     try:

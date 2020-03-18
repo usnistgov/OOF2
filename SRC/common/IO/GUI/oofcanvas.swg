@@ -10,6 +10,8 @@
  * oof_manager@nist.gov. 
  */
 
+OBSOLETE
+
 #ifndef OOFCANVAS_SWG
 #define OOFCANVAS_SWG
 

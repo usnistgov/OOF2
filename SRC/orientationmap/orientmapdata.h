@@ -25,7 +25,6 @@ class COrientMapReader;
 #include <vector>
 
 class Angle2Color;
-class StringImage;
 
 class COrientMapReader {
 public:
@@ -63,7 +62,7 @@ public:
   const COrientABG &angle(const ICoord pt) const { return angles[pt]; }
   const COrientABG &operator[](const ICoord *pt) const { return angles[*pt]; }
   const COrientABG &operator[](const ICoord pt) const { return angles[pt]; }
-  void fillstringimage(StringImage*, const Angle2Color&) const;
+  CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
   OOFImage *createImage(const std::string&, const Angle2Color&) const;
   friend class COrientMapReader;
 
@@ -89,7 +88,7 @@ public:
   virtual ~OrientMapImage();
   virtual const Coord &size() const;
   virtual const ICoord &sizeInPixels() const;
-  virtual void fillstringimage(StringImage*) const;
+  virtual CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
 };
 
 #endif // ORIENTMAPDATA_H

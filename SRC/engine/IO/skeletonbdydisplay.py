@@ -56,15 +56,10 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
                 for e in b.edges:
                     nodes = e.get_nodes()
                     device.set_lineWidth(self.linewidth)
-                    device.draw_segment(primitives.Segment(
+                    seg = device.draw_segment(primitives.Segment(
                         nodes[0].position(), nodes[1].position()))
-                    # Boundaries are directed from 0 to 1.
-                    center = (nodes[0].position() + nodes[1].position())/2
-                    diff = (nodes[1].position() - nodes[0].position())
-                    # Zero of angles is the y-axis, not the x-axis...
-                    angle = math.atan2(-diff.x, diff.y)
                     device.set_lineWidth(self.arrowsize)
-                    device.draw_triangle(center, angle)
+                    device.draw_triangle(seg, 0.5)
             
         device.set_lineWidth(self.dotsize)
         device.set_fillColor(self.color)
@@ -132,14 +127,9 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
             n0 = nodes[0].position()
             n1 = nodes[1].position()
             device.set_lineWidth(self.linewidth)
-            device.draw_segment(primitives.Segment(n0, n1))
-            # Boundaries are directed from 0 to 1.
-            center = (n0 + n1)/2
-            diff = (n1 - n0)
-            # Zero of angles is the y-axis, not the x-axis...
-            angle = math.atan2(-diff.x, diff.y)
+            seg = device.draw_segment(primitives.Segment(n0, n1))
             device.set_lineWidth(self.arrowsize)
-            device.draw_triangle(center, angle)
+            device.draw_triangle(seg, 0.5)
 
     def drawPointBoundary(self, bdy, skelobj, device):
         b = bdy.boundary(skelobj)

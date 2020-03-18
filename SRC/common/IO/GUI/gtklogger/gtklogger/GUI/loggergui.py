@@ -15,41 +15,45 @@
 ## command line argument.
 
 ## The gui allows comments to be inserted into the log file as the log
-## is recorded, making it easier to instrument it later. 
-import gobject
-import gtk
+## is recorded, making it easier to instrument it later.
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import GObject
+from gi.repository import Gtk
 import sys
 
 class GUI:
     def __init__(self):
         global logfile, logfilename
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        window.set_title("gtklogger:" + logfilename)
+        window = Gtk.Window(Gtk.WindowType.TOPLEVEL,
+                            title="gtklogger:" + logfilename)
         window.connect('delete-event', self.quit)
         box = gtk.VBox()
         window.add(box)
 
-        logscroll = gtk.ScrolledWindow()
-        logscroll.set_shadow_type(gtk.SHADOW_IN)
+        logscroll = Gtk.ScrolledWindow()
+        logscroll.set_shadow_type(Gtk.ShadowType.IN)
         box.pack_start(logscroll, expand=True, fill=True)
-        self.logtextview = gtk.TextView()
-        self.logtextview.set_editable(False)
-        self.logtextview.set_cursor_visible(False)
-        self.logtextview.set_wrap_mode(gtk.WRAP_WORD)
+        self.logtextview = Gtk.TextView(editable=False, cursor_visible=False)
+        self.logtextview.set_wrap_mode(Gtk.WrapMode.WORD)
         logscroll.add(self.logtextview)
 
-        commentbox = gtk.HBox()
+        commentbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                             spacing=2)
         box.pack_start(commentbox, expand=False, fill=False)
         
-        self.commentText = gtk.Entry()
-        commentbox.pack_start(self.commentText, expand=True, fill=True)
+        self.commentText = Gtk.Entry()
+        commentbox.pack_start(self.commentText,
+                              expand=True, fill=True, padding=0)
         
-        self.commentButton = gtk.Button("Comment")
-        commentbox.pack_start(self.commentButton, expand=False, fill=False)
+        self.commentButton = Gtk.Button("Comment")
+        commentbox.pack_start(self.commentButton, expand=False, fill=False,
+                              padding=0)
         self.commentButton.connect('clicked', self.commentCB)
 
-        self.clearButton = gtk.Button('Clear')
-        commentbox.pack_start(self.clearButton, expand=False, fill=False)
+        self.clearButton = Gtk.Button('Clear')
+        commentbox.pack_start(self.clearButton, expand=False, fill=False,
+                              padding=0)
         self.clearButton.connect('clicked', self.clearCB)
 
         window.show_all()

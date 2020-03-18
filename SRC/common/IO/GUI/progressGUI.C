@@ -88,18 +88,15 @@ public:
 
 static gboolean idleCallback(void *data) {
   PBarData *pbd = (PBarData*) data;
-  gdk_threads_enter();
   pbd->lock.acquire();
   try {
     pyDisconnect(pbd->progressbar);
   }
   catch (...) {
-    gdk_threads_leave();
     pbd->condition.signal();
     pbd->lock.release();
     throw;
   }
-  gdk_threads_leave();
   pbd->condition.signal();	// unblock the calling thread
   pbd->lock.release();
   return false;

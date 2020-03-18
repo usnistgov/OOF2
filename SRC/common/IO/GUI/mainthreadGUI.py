@@ -70,7 +70,7 @@ def runBlock_gui(func, args=(), kwargs={}):
     if thread_enable.query() and not mainthread.mainthread():
         callbackobj = OOFIdleBlockCallback(func, args, kwargs)
         callbackobj.event.clear()
-        GObject.idle_add(callbackobj, priority=gobject.PRIORITY_LOW)
+        GObject.idle_add(callbackobj, priority=GObject.PRIORITY_LOW)
         callbackobj.event.wait()
         return callbackobj.result
     else:

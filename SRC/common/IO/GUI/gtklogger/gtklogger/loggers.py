@@ -16,7 +16,6 @@
 ## be recorded must correspond to a GtkLogger class which has a
 ## "record" method that can handle the action.
 
-import gtk
 import re
 import sys
 import types

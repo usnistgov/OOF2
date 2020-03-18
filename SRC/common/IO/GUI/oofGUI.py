@@ -170,7 +170,7 @@ class oofGUI(widgetscope.WidgetScope):
         styleContext = self.gtk.get_style_context()
         screen = self.gtk.get_screen()
         styleProvider = Gtk.CssProvider()
-        provider.load_from_data(stylestring)
+        styleProvider.load_from_data(stylestring)
         styleContext.add_provider_for_screen(
             screen, styleProvider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
@@ -326,7 +326,7 @@ class oofGUI(widgetscope.WidgetScope):
             m.gtk.destroy()
 
         # *This* line *is* required.
-        gtk.main_quit()
+        Gtk.main_quit()
 
 
     # GUI callback for "OOF2" entry in Windows menu.  Normally,
@@ -401,7 +401,7 @@ def start(messages=[]):
     # is running.
     mainthreadGUI.run_gui(gui.show, (messages,))
     try:
-        gtk.main()
+        Gtk.main()
     finally:
         guitop.setMainLoop(False)
         

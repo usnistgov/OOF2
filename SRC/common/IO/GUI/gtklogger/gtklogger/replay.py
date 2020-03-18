@@ -10,8 +10,9 @@
 
 # Classes and functions for reading and replaying log files.
 
-import gobject
-import gtk
+from gi.repository import GObject
+from gi.repository import Gdk
+from gi.repository import Gtk
 import sys
 
 import core
@@ -234,7 +235,7 @@ class GUILogLineRunner(object):
         # box, and must be issued even though the previous command
         # hasn't returned.  If the previous line hasn't returned it
         # must have called Dialog.run or started up a new gtk main
-        # loop, so by keeping track of gtk.main_level() and the number
+        # loop, so by keeping track of Gtk.main_level() and the number
         # of open dialogs, we can tell when it's time to execute our
         # line.  (This is why we must redefine the Dialog class.)
         if self.logrunner.aborted:
@@ -255,8 +256,6 @@ class GUILogLineRunner(object):
             if self.status != "repeating" and self.nextLine() is not None:
                 self.nextLine().start()
 
-            if _threaded:
-                gtk.gdk.threads_enter()
             try:
                 if self.status == "installed":
                     self.status = "running"
@@ -309,9 +308,7 @@ class GUILogLineRunner(object):
                         if not self.logrunner.exceptHook(exc, self.srcline):
                             raise exc
             finally:
-                gtk.gdk.flush()
-                if _threaded:
-                    gtk.gdk.threads_leave()
+                Gdk.flush()
         # We're still waiting for the previous line to execute. We put
         # ourself at the back of the execution queue (by reinstalling
         # and returning False) so that the previous line will run
@@ -497,8 +494,11 @@ setComboBox = logutils.setComboBox
 # adopted GObjects, it's harder to get the correct gdk.Window into the
 # log...)
 
+## TODO GTK3: Not sure about the correctness of this.  The comment
+## above is certainly wrong.
+
 def event(etype, **kwargs):
-    ev = gtk.gdk.Event(etype)
+    ev = Gdk.Event(etype)
     for arg, val in kwargs.items():
         setattr(ev, arg, val)
     return ev

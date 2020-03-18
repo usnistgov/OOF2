@@ -22,7 +22,7 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import labelledslider
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
-import Gtk
+from gi.repository import Gtk
 import math
 
 # Collection of labelledsliders, passing through the value-changed

@@ -47,7 +47,7 @@ import ooflib.SWIG.common.IO.GUI.progressGUI
 import ooflib.common.IO.GUI.gfxwindow
 import ooflib.common.IO.GUI.viewertoolboxGUI
 import ooflib.common.IO.GUI.pixelinfoGUI
-import ooflib.SWIG.common.IO.GUI.gfxbrushstyle
+#import ooflib.SWIG.common.IO.GUI.gfxbrushstyle
 
 
 

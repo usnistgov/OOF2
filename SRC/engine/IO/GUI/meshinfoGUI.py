@@ -78,7 +78,7 @@ class MeshInfoMode:
     def entrymaster(self, column, row, editable=0):
         debug.mainthreadTest()
         entry = gtk.Entry()
-        entry.set_size_request(12*guitop.top().digitsize, -1)
+        entry.set_width_chars(12)
         entry.set_editable(editable)
         self.table.attach(entry, column[0],column[1], row[0],row[1],
                           xpadding=xpadding, xoptions=gtk.EXPAND|gtk.FILL)
@@ -287,7 +287,7 @@ class NodeMode(MeshInfoMode):
                     self.fieldvalWidgets.add(label)
                     self.table.attach(label, 1,2, row,row+1, xoptions=gtk.FILL)
                     e = gtk.Entry()
-                    e.set_size_request(10*guitop.top().charsize, -1)
+                    e.set_width_chars(10)
                     e.set_editable(False)
                     self.fieldvalEntries[(fld, fcomp.integer())] = e
                     self.table.attach(e, 2,3, row,row+1,
@@ -372,7 +372,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.xtext = gtk.Entry()
         gtklogger.setWidgetName(self.xtext,'X')
         self.xtext.set_editable(0)
-        self.xtext.set_size_request(13*guitop.top().charsize, -1)
+        self.xtext.set_width_chars(13)
         self.table.attach(self.xtext, 1,2, 0,1,
                           xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
         tooltips.set_tooltip_text(self.xtext,"x coordinate of the mouse click")
@@ -381,23 +381,11 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.table.attach(label, 0,1, 1,2, xpadding=5, xoptions=gtk.FILL)
         self.ytext = gtk.Entry()
         gtklogger.setWidgetName(self.ytext,'Y')
-        self.ytext.set_size_request(13*guitop.top().charsize, -1)
+        self.ytext.set_width_chars(13)
         self.ytext.set_editable(0)
         self.table.attach(self.ytext, 1,2, 1,2,
                           xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
         tooltips.set_tooltip_text(self.ytext,"y coordinate of the mouse click")
-        if config.dimension() == 3:
-            label = gtk.Label('z=')
-            label.set_alignment(1.0, 0.5)
-            self.table.attach(label, 0,1, 2,3, xpadding=5, xoptions=gtk.FILL)
-            self.ztext = gtk.Entry()
-            gtklogger.setWidgetName(self.ztext,'Z')
-            self.ztext.set_size_request(13*guitop.top().charsize, -1)
-            self.ztext.set_editable(0)
-            self.table.attach(self.ztext, 1,2, 2,3,
-                              xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-            tooltips.set_tooltip_text(self.ztext,"z coordinate of the mouse click")
-            
 
         # End of clicked point display
 

@@ -9,8 +9,8 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import ooferror
+from ooflib.SWIG.common import guitop
 from ooflib.common import debug
-from ooflib.common import guitop
 from ooflib.common import thread_enable
 from ooflib.common.IO import filenameparam
 from ooflib.common.IO import mainmenu

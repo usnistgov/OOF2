@@ -60,7 +60,7 @@ switchboard.requestCallbackMain('change font', reallySetFont)
 # to "fixedfont".
 
 def setFixedFontSize(fontsize):
-    oofGUI.addStyle("#fixedfont { font: %dpx monospace; }" % fixedfontsize)
+    oofGUI.addStyle("#fixedfont { font: %dpx monospace; }" % fontsize)
 
 setFixedFontSize(mainmenu.fixedFontSize)
 

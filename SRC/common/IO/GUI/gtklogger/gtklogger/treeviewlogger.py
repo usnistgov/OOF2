@@ -8,13 +8,13 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import gtk
+from gi.repository import Gtk
 import adopteelogger
 import loggers
 import widgetlogger
 
 class TreeViewLogger(widgetlogger.WidgetLogger): # I'm a lumberjack and I'm OK.
-    classes = (gtk.TreeView,)
+    classes = (Gtk.TreeView,)
     def record(self, obj, signal, *args):
         if signal == 'button-release-event':
             event = args[0]
@@ -45,7 +45,7 @@ class TreeViewLogger(widgetlogger.WidgetLogger): # I'm a lumberjack and I'm OK.
         return super(TreeViewLogger, self).record(obj, signal, *args)
 
 class TreeViewColumnLogger(adopteelogger.AdopteeLogger):
-    classes = (gtk.TreeViewColumn,)
+    classes = (Gtk.TreeViewColumn,)
     def record(self, obj, signal, *args):
         if signal == 'clicked':
             # Click in the header of a column in a TreeView
@@ -53,7 +53,7 @@ class TreeViewColumnLogger(adopteelogger.AdopteeLogger):
         return super(TreeViewColumnLogger, self).record(obj, signal, *args)
 
 class TreeSelectionLogger(adopteelogger.AdopteeLogger):
-    classes = (gtk.TreeSelection,)
+    classes = (Gtk.TreeSelection,)
     def record(self, obj, signal, *args):
         if signal == 'changed':
             if obj.get_mode()==gtk.SELECTION_MULTIPLE:
@@ -77,7 +77,7 @@ class TreeSelectionLogger(adopteelogger.AdopteeLogger):
         return super(TreeSelectionLogger, self).record(obj, signal, *args)
 
 class ListStoreLogger(adopteelogger.AdopteeLogger):
-    classes = (gtk.ListStore,)
+    classes = (Gtk.ListStore,)
     insertrow = None                      # destination for row drag'n'drop
     def record(self, obj, signal, *args):
         # Drag-and-drop of a line within a ListStore creates a pair of
@@ -118,7 +118,7 @@ class ListStoreLogger(adopteelogger.AdopteeLogger):
         return super(ListStoreLogger, self).record(obj, signal, *args)
 
 class CellRendererLogger(adopteelogger.AdopteeLogger):
-    classes = (gtk.CellRenderer,)
+    classes = (Gtk.CellRenderer,)
     def record(self, obj, signal, *args):
         if signal == 'toggled':
             path = args[0]

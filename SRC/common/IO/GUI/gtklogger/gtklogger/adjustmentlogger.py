@@ -9,10 +9,10 @@
 # oof_manager@nist.gov. 
 
 import adopteelogger
-import gtk
+from gi.repository import Gtk
 
 class AdjustmentLogger(adopteelogger.AdopteeLogger):
-    classes = (gtk.Adjustment,)
+    classes = (Gtk.Adjustment,)
     def record(self, obj, signal, *args):
         if signal == 'value-changed':
             return ['%s.set_value(%20.13e)' % (self.location(obj, *args),

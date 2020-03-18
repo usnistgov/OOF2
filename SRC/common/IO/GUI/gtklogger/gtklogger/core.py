@@ -11,7 +11,7 @@
 ## This file contains the API for gtk_logger.  Nothing outside of this
 ## file should have to be explicitly called by users.
 
-import Gtk
+from gi.repository import Gtk
 import os
 import string
 import types
@@ -190,7 +190,7 @@ class GUISignals:
         self.signals = signals
         self.alive = True
         self.widget = weakref.ref(widget)
-        if isinstance(widget, Gtk.Object):
+        if isinstance(widget, Gtk.Widget):
             widget.connect('destroy', self.destroyCB)
     def block(self):
         if self.alive:

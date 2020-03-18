@@ -368,22 +368,20 @@ def front_end(no_interp=None):
         #         sys.exit(3)
 
         import ooflib.common.IO.GUI.initialize
-        # temporarily disable the engine, tutorials, orientationmap
-        # for 3D development
-        import ooflib.engine.IO.GUI.initialize
-        import ooflib.image.IO.GUI.initialize
-        if config.dimension() == 2:
-            import ooflib.orientationmap.GUI.initialize
-            import ooflib.tutorials.initialize
+        print "NOT IMPORTING engine image orientationmap tutorials"
+        # import ooflib.engine.IO.GUI.initialize
+        # import ooflib.image.IO.GUI.initialize
+        # import ooflib.orientationmap.GUI.initialize
+        # import ooflib.tutorials.initialize
         if replaydelay is not None:
             from ooflib.common.IO.GUI import gtklogger
             gtklogger.set_delay(int(replaydelay))
     else:                               # text mode
         import ooflib.common.initialize
-        import ooflib.engine.initialize
-        import ooflib.image.initialize
-        if config.dimension() == 2:
-            import ooflib.orientationmap.initialize
+        print "NOT IMPORTING engine image orientationmap"
+        # import ooflib.engine.initialize
+        # import ooflib.image.initialize
+        # import ooflib.orientationmap.initialize
     import ooflib.EXTENSIONS.initialize
 
     # The random number generator must be seeded *after* the gui has

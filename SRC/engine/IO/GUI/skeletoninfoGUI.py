@@ -9,7 +9,6 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import pixelgroup
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
@@ -77,7 +76,7 @@ class SkeletonInfoMode:
     def entrymaster(self, column, row, editable=0):
         debug.mainthreadTest()
         entry = gtk.Entry()
-        entry.set_size_request(13*guitop.top().digitsize, -1)
+        entry.set_width_chars(13)
         entry.set_editable(editable)
         self.table.attach(entry, column[0],column[1], row[0],row[1],
                           xpadding=xpadding, xoptions=xoptions)
@@ -643,7 +642,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.xtext = gtk.Entry()
         gtklogger.setWidgetName(self.xtext,"X Text")
         self.xtext.set_editable(0)
-        self.xtext.set_size_request(13*guitop.top().digitsize, -1)
+        self.xtext.set_width_chars(13)
         table.attach(self.xtext, 1,2, 0,1,
                           xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
         label = gtk.Label('y=')
@@ -651,20 +650,10 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         table.attach(label, 0,1, 1,2, xpadding=5, xoptions=gtk.FILL)
         self.ytext = gtk.Entry()
         gtklogger.setWidgetName(self.ytext,"Y Text")
-        self.ytext.set_size_request(13*guitop.top().digitsize, -1)        
+        self.ytext.set_width_chars(13)
         self.ytext.set_editable(0)
         table.attach(self.ytext, 1,2, 1,2,
                           xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-        if config.dimension() == 3:
-            label = gtk.Label('z=')
-            label.set_alignment(1.0, 0.5)
-            table.attach(label, 0,1, 2,3, xpadding=5, xoptions=gtk.FILL)
-            self.ztext = gtk.Entry()
-            gtklogger.setWidgetName(self.ztext,"Z Text")
-            self.ztext.set_size_request(13*guitop.top().digitsize, -1)        
-            self.ztext.set_editable(0)
-            table.attach(self.ztext, 1,2, 2,3,
-                         xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
         tooltips.set_tooltip_text(self.xtext,"x coordinate of the mouse click")
         tooltips.set_tooltip_text(self.ytext,"y coordinate of the mouse click")
         if config.dimension() == 3:

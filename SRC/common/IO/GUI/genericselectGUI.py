@@ -15,10 +15,6 @@ from ooflib.SWIG.common import config
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import ooferror
-if config.dimension() == 2:
-    from ooflib.SWIG.common.IO.GUI import rubberband
-elif config.dimension() == 3:
-    from ooflib.common.IO.GUI import rubberband3d as rubberband
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import subthread
@@ -211,7 +207,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.gfxwindow().setMouseHandler(self)
 
     def deactivate(self):
-        self.gfxwindow().setRubberband(rubberband.NoRubberBand())
+        self.gfxwindow().removeRubberband()
         toolboxGUI.GfxToolbox.deactivate(self)
 
     def close(self):

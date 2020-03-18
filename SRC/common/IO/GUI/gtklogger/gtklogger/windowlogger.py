@@ -10,10 +10,10 @@
 
 import widgetlogger
 import loggers
-import gtk
+from gi.repository import Gtk
 
 class WindowLogger(widgetlogger.WidgetLogger):
-    classes = (gtk.Window,)
+    classes = (Gtk.Window,)
     def record(self, obj, signal, *args):
         # Don't log "destroy" signals, because they're sent for every
         # object that's destroyed, not just the one that initiated the

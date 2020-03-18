@@ -8,11 +8,11 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import gtk
+from gi.repository import Gtk
 import widgetlogger
 
 class EntryLogger(widgetlogger.WidgetLogger):
-    classes = (gtk.Entry,)
+    classes = (Gtk.Entry,)
     def record(self, obj, signal, *args):
         if signal == 'changed':
             text = obj.get_text().replace('\\', '\\\\')

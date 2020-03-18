@@ -8,7 +8,7 @@
 # for them (so they're not really global variables...).  This helps to
 # avoid import loops, because this files doesn't import anything else.
 
-import gtk
+from gi.repository import Gtk
 import string
 import sys
 import weakref
@@ -30,7 +30,7 @@ class GtkLoggerException(Exception):
 # setWidgetName is used to assign the names.
 
 def setWidgetName(widget, name):
-    assert isinstance(widget, gtk.Widget)
+    assert isinstance(widget, Gtk.Widget)
     assert name is not None
     # When saved in the log files, widget names are surrounded by
     # single quotation marks, so we have to make sure to use only
@@ -65,7 +65,7 @@ def isTopLevelWidget(obj):
 def getTopWidgetNames():
     return topwidgets.keys()[:]
 
-# Top-level widgets (mostly gtk.Windows) must have their names
+# Top-level widgets (mostly Gtk.Windows) must have their names
 # assigned by newTopLevelWidget() instead of setWidgetName().
 
 def newTopLevelWidget(widget, name):
@@ -97,7 +97,7 @@ def findWidget(path):
 def _recursiveFindWidget(path, base):
     if not path:
         return base
-    if isinstance(base, gtk.Container):
+    if isinstance(base, Gtk.Container):
         for child in base.get_children():
             childname = getWidgetName(child)
             if childname == path[0]:
@@ -110,9 +110,9 @@ def _recursiveFindWidget(path, base):
                 # looking at other children.
 
 def findMenu(widget, path):
-    # widget is a gtk.MenuShell (container for MenuItems)
+    # widget is a Gtk.MenuShell (container for MenuItems)
     splitpath = path.split(':', 1)
-    for child in widget.get_children(): # child is a gtk.MenuItem
+    for child in widget.get_children(): # child is a Gtk.MenuItem
         if getWidgetName(child) == splitpath[0]:
             if len(splitpath) == 1:
                 return child
@@ -127,7 +127,7 @@ def setComboBox(widget, name):
     widget.set_active(index)
 
 # findCellRenderer can be used as the access_function argument when
-# adopting a CellRenderer used in a gtk.TreeView.  It takes two
+# adopting a CellRenderer used in a Gtk.TreeView.  It takes two
 # integer arguments, col and rend, that must be passed in via
 # adoptGObject's access_kwargs argument.  col specifies a column of
 # the TreeView, and rend specifies which of the CellRenderers in the
@@ -145,7 +145,7 @@ def findAllWidgets(topname):
 def _findAllWidgets(top):
     topname = getWidgetName(top)
     childpaths = []
-    if isinstance(top, gtk.Container):
+    if isinstance(top, Gtk.Container):
         for child in top.get_children():
             childpaths.extend(_findAllWidgets(child))
     if topname:
@@ -161,7 +161,7 @@ def _findAllWidgets(top):
 
 dialog_level = 0
 def run_level():
-    return gtk.main_level() + dialog_level
+    return Gtk.main_level() + dialog_level
 def increment_dialog_level():
     global dialog_level
     dialog_level += 1
@@ -216,7 +216,7 @@ def set_debugLevel(n):
 ## be turned on or off for all widgets, even those which had been the
 ## arguments of earlier calls to the functions.
 
-## (The argument doesn't actually have to be a gtk.Widget -- if a
+## (The argument doesn't actually have to be a Gtk.Widget -- if a
 ## Logger has been created for some other type of object, it can use
 ## this machinery as well. If the object has a get_parent() method
 ## then turning logging on or off for an object will apply to its

@@ -9,13 +9,13 @@
 # oof_manager@nist.gov. 
 
 import loggers
-import gtk
+from gi.repository import Gtk
 import logutils
 
 import string
 
 class WidgetLogger(loggers.GtkLogger):
-    classes = (gtk.Widget,)
+    classes = (Gtk.Widget,)
     def location(self, widget, *args):
         name = logutils.getWidgetName(widget)
         if not name:

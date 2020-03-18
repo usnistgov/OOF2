@@ -15,14 +15,16 @@
 #include "common/mpitools.h"
 #endif ////HAVE_MPI
 #include "common/IO/bitoverlay.h"
-#include "common/IO/stringimage.h"
 #include "common/ooferror.h"
 #include "common/boolarray.h"
 #include "common/doublearray.h"
+#include "common/IO/OOFCANVAS/canvasimage.h"
 #include "image/oofimage.h"
 #include <math.h>
 #include <set>
 #include <iostream>
+
+using namespace OOFCanvas;
 
 OOFImage::OOFImage(const std::string &name, const std::string &filename)
   : name_(name)
@@ -209,19 +211,12 @@ void OOFImage::imageChanged() {
   image.modifyImage();
 }
 
-void OOFImage::fillstringimage(StringImage *stringimage) const {
-  // Convert image into a string suitable for constructing a gdk pixbuf.
-  Magick::PixelPacket *pixpax =
-    const_cast<OOFImage*>(this)->image.getPixels(0, 0, sizeInPixels_(0),
-						 sizeInPixels_(1));
-  for(int j=0; j<sizeInPixels_(1); j++) {
-    for(int i=0; i<sizeInPixels_(0); i++) {
-      const Magick::PixelPacket *pp = pixpax + i + j*sizeInPixels_(0);
-      CColor color(pp->red*scale, pp->green*scale, pp->blue*scale);
-      ICoord where(i,j);
-      stringimage->set(&where, &color);
-    }
-  }
+CanvasImage *OOFImage::makeCanvasImage(const Coord *pos, const Coord *size)
+  const
+{
+  return new CanvasImage::newFromImageMagick((*pos)[0], (*pos)[1],
+					     image,
+					     (*size)[0], (*size)[1]);
 }
 
 std::vector<unsigned short> *OOFImage::getPixels() {

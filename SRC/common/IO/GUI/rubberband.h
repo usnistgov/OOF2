@@ -9,6 +9,8 @@
  * oof_manager@nist.gov. 
  */
 
+OBSOLETE
+
 #ifndef RUBBERBAND_H
 #define RUBBERBAND_H
 

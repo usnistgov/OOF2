@@ -11,7 +11,7 @@
 dirname = 'IO'
 clib = 'oof2common'
 if not NO_GUI:
-    subdirs = ['GUI']
+    subdirs = ['OOFCANVAS', 'GUI']
 
 cfiles = ['bitoverlay.C']
 
@@ -41,3 +41,13 @@ hfiles = ['bitoverlay.h']
 if HAVE_MPI:
     pyfiles.extend(['parallelmainmenu.py', 'microstructureIPC.py',
                     'pixelgroupIPC.py'])
+
+
+def set_clib_flags(clib):
+    import oof2setuputils
+    oof2setuputils.pkg_check("cairomm-1.0", CAIROMM_VERSION, clib)
+    oof2setuputils.pkg_check("gtk+-3.0", GTK_VERSION, clib)
+    oof2setuputils.pkg_check("pango", PANGO_VERSION, clib)
+    oof2setuputils.pkg_check("pangocairo", PANGOCAIRO_VERSION, clib)
+    clib.extra_compile_args.extend(["-DOOFCANVAS_USE_PYTHON",
+                                    "-DOOFCANVAS_USE_IMAGEMAGICK"])

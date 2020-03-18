@@ -29,7 +29,6 @@
 %extern "common/timestamp.swg"
 %extern "common/ooferror.swg"
 %extern "common/abstractimage.swg"
-%extern "common/IO/stringimage.swg"
 
 %extern "common/doublearray.swg"
 %pragma(python) code="from ooflib.SWIG.common.doublearray import DoubleArrayPtr"
@@ -80,7 +79,7 @@ public:
   void evenly_illuminate(int);
   
   bool compare(OOFImage&, double);
-  virtual void fillstringimage(StringImage*) const; 
+  %new CanvasImage *makeCanvasImage(Coord *Point, Coord*);
 
   // getTimeStamp is redefined in oofimage.spy so that it can have optional args
   %name(_getTimeStamp) TimeStamp *getTimeStamp();
