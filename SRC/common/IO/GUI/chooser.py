@@ -73,15 +73,17 @@ class ChooserWidget(object):
         gtklogger.setWidgetName(self.gtk, name)
         frame = Gtk.Frame()
         self.gtk.add(frame)
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, margin=2)
         frame.add(hbox)
         if namelist:
             name0 = namelist[0]
         else:
             name0 = ""
         self.label = Gtk.Label(name0, halign=Gtk.Align.START,
-                               hexpand=True, # TODO: True?
-                               margin_start=2, margin_end=4)
+                               hexpand=True,
+                               # margin_top=5, margin_bottom=5,
+                               # margin_start=2, margin_end=5,
+                               margin=5)
         hbox.pack_start(self.label, expand=True, fill=True, padding=2)
         image = Gtk.Image.new_from_icon_name('pan-down-symbolic',
                                              Gtk.IconSize.BUTTON)

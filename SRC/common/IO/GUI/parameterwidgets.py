@@ -20,6 +20,7 @@ from ooflib.common import strfunction
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import gtklogger
+from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import widgetscope
 from types import *
 from gi.repository import Gtk
@@ -695,9 +696,9 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
             self.setData(key, value)
         self.params = params            # list of Parameters
         if self.params:
-            base = Gtk.Grid() #rows=len(params), columns=2
+            base = Gtk.Grid(margin=2)
         else:
-            base = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+            base = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, margin=2)
         ParameterWidget.__init__(self, base, scope, name)
         self.showLabels = showLabels
         self.labels = []
@@ -752,9 +753,9 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
                           hexpand=False, margin_start=5)
         self.labels.append(label)
         widget.gtk.set_halign(Gtk.Align.FILL)
-        widget.get.set_hexpand(True)
-        widget.set_margin_start(5)
-        widget.set_margin_end(5)
+        widget.gtk.set_hexpand(True)
+        widget.gtk.set_margin_start(5)
+        widget.gtk.set_margin_end(5)
         if param.tip:
             label.set_tooltip_text(param.tip)
         if widget.expandable:
@@ -764,8 +765,8 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
             label.set_valign(Gtk.Align.FILL)
             self.expandable = True
         if self.showLabels:
-            self.gtk.attach(label, 0, 1, tablepos, tablepos+1)
-        self.gtk.attach(widget.gtk, 1, 2, tablepos, tablepos+1)
+            self.gtk.attach(label, 0,tablepos, 1,1)
+        self.gtk.attach(widget.gtk, 1,tablepos, 1,1)
     def get_values(self):
         debug.mainthreadTest()
         exceptions = []
@@ -913,7 +914,7 @@ class ParameterDialog(widgetscope.WidgetScope):
         self.sbcallback = switchboard.requestCallbackMain(
             ('validity', self.table),
             self.validityCB)
-        vbox = dialog.get_content_area()
+        vbox = self.dialog.get_content_area()
         vbox.pack_start(self.table.gtk, expand=self.table.expandable,
                         fill=True, padding=5)
         self.response = None
@@ -946,6 +947,7 @@ class ParameterDialog(widgetscope.WidgetScope):
     def run(self):
         debug.mainthreadTest()
         self.table.show()
+        self.dialog.get_action_area().show_all()
         return self.dialog.run()        # shows dialog & makes it modal
     def close(self):
         debug.mainthreadTest()

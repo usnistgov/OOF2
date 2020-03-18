@@ -59,7 +59,8 @@ class SelectionPage(oofGUI.MainPage):
         centerbox.pack_start(self.mswidget.gtk[0],
                              expand=False, fill=False, padding=0)
         
-        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
+        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                             wide_handle=True, margin=2)
         gtklogger.setWidgetName(mainpane, 'Pane')
         mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
@@ -68,12 +69,12 @@ class SelectionPage(oofGUI.MainPage):
         pssframe = Gtk.Frame(label="%s Selection Status"%Pixstring)
         pssframe.set_shadow_type(Gtk.ShadowType.IN)
         mainpane.pack1(pssframe, resize=True, shrink=False)
-        self.datascroll = Gtk.ScrolledWindow()
+        self.datascroll = Gtk.ScrolledWindow(margin=2)
         gtklogger.logScrollBars(self.datascroll, "DataScroll")
         pssframe.add(self.datascroll)
         self.datascroll.set_policy(Gtk.PolicyType.AUTOMATIC,
                                    Gtk.PolicyType.AUTOMATIC)
-        self.psdata = Gtk.TextView(name="fixedfont")
+        self.psdata = Gtk.TextView(name="fixedfont", margin=2)
         gtklogger.setWidgetName(self.psdata, 'DataView')
         self.psdata.set_editable(False)
         self.psdata.set_cursor_visible(False)
@@ -84,12 +85,13 @@ class SelectionPage(oofGUI.MainPage):
         modframe = Gtk.Frame(label="%s Selection Modification"%Pixstring)
         gtklogger.setWidgetName(modframe, "SelectionModification")
         modframe.set_shadow_type(Gtk.ShadowType.IN)
-        mainpane.pack2(modframe, resize=False, shrink=False)
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        mainpane.pack2(modframe, resize=True, shrink=False)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
         modframe.add(vbox)
         self.selectionModFactory = regclassfactory.RegisteredClassFactory(
             pixelselectionmod.SelectionModifier.registry, title="Method:",
-            scope=self, name="Method")
+            scope=self, name="Method", margin_left=2, margin_right=2)
         vbox.pack_start(self.selectionModFactory.gtk,
                         expand=True, fill=True, padding=0)
 ##        scroll.add_with_viewport(self.selectionModFactory.gtk)

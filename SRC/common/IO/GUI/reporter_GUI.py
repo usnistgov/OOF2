@@ -52,7 +52,8 @@ class MessageWindow(subWindow.SubWindow):
     def __init__(self):
         debug.mainthreadTest()
         self.menu_name = "MessageWindow_%d" % MessageWindow.count
-        self.title = "%s Messages %d" % (subWindow.oofname(),MessageWindow.count)
+        self.title = "%s Messages %d" % (subWindow.oofname(),
+                                         MessageWindow.count)
         self.windows_menu_name = "Message_%d" % MessageWindow.count
         
         subWindow.SubWindow.__init__(
@@ -74,7 +75,7 @@ class MessageWindow(subWindow.SubWindow):
         allMessageWindows.add(self)
 
         # Control box, with buttons.  These could be menu items.
-        controlbox = Gtk.Frame()
+        controlbox = Gtk.Frame(margin=5)
         controlbox.set_shadow_type(Gtk.ShadowType.IN)
         self.mainbox.pack_start(controlbox, expand=False, fill=False, padding=0)
         controlinnards = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
@@ -111,8 +112,7 @@ class MessageWindow(subWindow.SubWindow):
         ## up the log file with extraneous lines.
         messagepane.set_policy(Gtk.PolicyType.AUTOMATIC,
                                Gtk.PolicyType.AUTOMATIC)
-        self.mainbox.add(messagepane)
-
+        self.mainbox.pack_start(messagepane, expand=True, fill=True, padding=0)
         self.messages = Gtk.TextView(name="fixedfont",
                                      editable=False,
                                      cursor_visible=False)

@@ -347,7 +347,7 @@ class WriteFileSelectorWidget(FileSelectorWidget):
         self.newdirbutton = gtkutils.StockButton('folder-new-symbolic', "New")
         gtklogger.setWidgetName(self.newdirbutton, "NewDir")
         gtklogger.connect(self.newdirbutton, 'clicked', self.newdirCB)
-        hbox.pack_start(self.newdirbutton, expand=False, fill=True)
+        hbox.pack_start(self.newdirbutton, expand=False, fill=True, padding=0)
 
     def addMoreWidgets(self, vbox): # Widgets below the file list.
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)

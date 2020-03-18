@@ -124,9 +124,10 @@ class MicrostructurePage(oofGUI.MainPage):
         centerbox.pack_start(self.savebutton,
                              expand=True, fill=True, padding=0)
 
-        pane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
+        pane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                         wide_handle=True, margin=2)
         gtklogger.setWidgetName(pane, "Pane")
-        vbox.pack_start(pane, expand=True, fill=True, padding=2)
+        vbox.pack_start(pane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(pane, 'notify::position')
 
         #######
@@ -134,12 +135,12 @@ class MicrostructurePage(oofGUI.MainPage):
         infoframe = Gtk.Frame(label='Microstructure Info')
         infoframe.set_shadow_type(Gtk.ShadowType.IN)
         pane.pack1(infoframe, resize=True, shrink=False)
-        scroll = Gtk.ScrolledWindow()
+        scroll = Gtk.ScrolledWindow(margin=2)
         gtklogger.logScrollBars(scroll, "InfoFrameScroll")
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         scroll.set_shadow_type(Gtk.ShadowType.IN)
         infoframe.add(scroll)
-        self.infoarea = Gtk.TextView(name="fixedfont")
+        self.infoarea = Gtk.TextView(name="fixedfont", margin=2)
         self.infoarea.set_editable(0)
         self.infoarea.set_cursor_visible(False)
         self.infoarea.set_wrap_mode(Gtk.WrapMode.WORD)
@@ -155,7 +156,8 @@ class MicrostructurePage(oofGUI.MainPage):
         gtklogger.setWidgetName(groupframe, "%sGroups"%Pixstring)
         groupframe.set_shadow_type(Gtk.ShadowType.IN)
         pane.pack2(groupframe, resize=True, shrink=False)
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       margin=2)
         groupframe.add(hbox)
         # buttons on L side of pixel group list
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,

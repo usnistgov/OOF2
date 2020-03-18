@@ -106,7 +106,8 @@ class RegisteredClassFactory(RCFBase):
         self.readonly = False
         RCFBase.__init__(self, Gtk.Frame(), scope, widgetdict, name)
         
-        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                           margin_left=2, margin_top=2, margin_right=2)
         self.gtk.add(self.box)
         self.options = chooser.ChooserWidget([], callback=self.optionCB,
                                              update_callback=self.updateCB,
@@ -361,7 +362,8 @@ class RegisteredClassFactory(RCFBase):
             self.makeUneditable()
         self.widgetChanged(self.paramWidget.isValid(), interactive)
         
-        self.box.pack_start(self.paramWidget.gtk, fill=False, expand=False)
+        self.box.pack_start(self.paramWidget.gtk,
+                            fill=False, expand=False, padding=0)
         self.show()
         if hasattr(registration, 'tip'):
             self.options.gtk.set_tooltip_text(registration.tip)

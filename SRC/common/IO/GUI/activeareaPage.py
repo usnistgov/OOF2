@@ -57,7 +57,8 @@ class ActiveAreaPage(oofGUI.MainPage):
         centerbox.pack_start(self.mswidget.gtk[0], expand=False, fill=False,
                              padding=0)
 
-        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
+        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                             wide_handle=True)
         gtklogger.setWidgetName(mainpane, 'Pane')
         mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')

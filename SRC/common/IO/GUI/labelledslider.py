@@ -72,7 +72,7 @@ class LabelledSlider:
             step_incr=step, # arrow keys move this far
             page_incr=step, # page up and page down keys move this far
             page_size=0)    # max slider value is upper-page_size
-        self.slider = gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL,
+        self.slider = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL,
                                 adjustment=self.adjustment)
         gtklogger.setWidgetName(self.slider, "slider")
         gtklogger.adoptGObject(self.adjustment, self.slider,
@@ -85,8 +85,8 @@ class LabelledSlider:
                                                   self.text_from_slider)
 
         self.entry = Gtk.Entry()
-        entry.set_margin_start(3)
-        entry.set_margin_end(3)
+        self.entry.set_margin_start(3)
+        self.entry.set_margin_end(3)
         gtklogger.setWidgetName(self.entry, "entry")
         self.gtk.pack2(self.entry, resize=True, shrink=True)
 

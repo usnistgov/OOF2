@@ -90,7 +90,7 @@ class _Questioner:
             if answer == self.default:
                 self.gtk.set_default_response(count)
             count += 1
-        hbox.show_all()
+        self.gtk.show_all()
 
     def inquire(self):
         debug.mainthreadTest()

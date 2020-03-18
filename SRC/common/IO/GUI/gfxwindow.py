@@ -84,19 +84,22 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # __init__ call.  They need to be created first so the
         # GhostGfxWindow can operate on them, and then create the menus
         # which are handed off to the SubWindow.
-        self.mainpane = gtk.Paned(orientation=Gtk.Orientation.VERTICAL)
+        self.mainpane = gtk.Paned(orientation=Gtk.Orientation.VERTICAL,
+                                  wide_handle=True)
         gtklogger.setWidgetName(self.mainpane, 'Pane0')
         gtklogger.connect_passive(self.mainpane, 'notify::position')
 
         # Panes dividing upper pane horizontally into 3 parts.
         # paned1's left half contains paned2.
-        self.paned1 = gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
+        self.paned1 = gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                                wide_handle=True)
         gtklogger.setWidgetName(self.paned1, "Pane1")
         self.mainpane.pack1(self.paned1, resize=True, shrink=True)
         gtklogger.connect_passive(self.paned1, 'notify::position')
 
         # paned2 is in left half of paned1
-        self.paned2 = gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
+        self.paned2 = gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                                wide_handle=True)
         gtklogger.setWidgetName(self.paned2, "Pane2")
         self.paned1.pack1(self.paned2, resize=True, shrink=True)
         gtklogger.connect_passive(self.paned2, 'notify::position')
