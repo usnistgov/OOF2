@@ -14,7 +14,6 @@
 # Message window, and the GUI part of the error reporting machinery.
 
 from gi.repository import Gtk
-from gi.repository import Pango
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
@@ -209,7 +208,7 @@ class WarningPopUp(object):
     def __init__(self, message):
         debug.mainthreadTest()
         self.gtk = gtklogger.Dialog(title="%s Warning"%subWindow.oofname(),
-                                    parent=guitop.top())
+                                    parent=guitop.top().gtk)
         gtklogger.newTopLevelWidget(self.gtk, "Warning")
 
         vbox = self.gtk.get_content_area()
@@ -288,11 +287,10 @@ class ErrorPopUp(object):
         self.answer = None
         
         self.datestampstring = time.strftime("%Y %b %d %H:%M:%S %Z")
-        debug.fmsg("parent=", guitop.top())
         self.gtk = gtklogger.Dialog(
             title="%s Error" % subWindow.oofname(),
             flags=Gtk.DialogFlags.MODAL,
-            parent=guitop.top())
+            parent=guitop.top().gtk)
         self.gtk.set_keep_above(True) # might not work
         gtklogger.newTopLevelWidget(self.gtk, "Error")
 
@@ -305,11 +303,9 @@ class ErrorPopUp(object):
 
         self.errframe = Gtk.Frame()
         self.errframe.set_border_width(6)
-        self.errframe.set_shadow_type(Gtk.Shadowtype.IN)
+        self.errframe.set_shadow_type(Gtk.ShadowType.IN)
         vbox.pack_start(self.errframe,
                                  expand=True, fill=True, padding=0)
-
-        fd = Pango.FontDescription(mainmenuGUI.getFixedFont())
 
         errscroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(errscroll, "ErrorScroll")
@@ -328,7 +324,7 @@ class ErrorPopUp(object):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
                        homogeneous=True)
         vbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        self.tracebutton = gtk.Button("View Traceback")
+        self.tracebutton = Gtk.Button("View Traceback")
         gtklogger.setWidgetName(self.tracebutton, "ViewTraceback")
         gtklogger.connect(self.tracebutton, "clicked", self.trace)
         hbox.pack_start(self.tracebutton, expand=False, fill=False, padding=0)
@@ -340,7 +336,9 @@ class ErrorPopUp(object):
         hbox.pack_start(self.savebutton, expand=False, fill=False, padding=0)
 
         # OK and Abort buttons
-        self.gtk.add_action_widget(gtkutils.StockButton("gtk-ok", "OK"),
+        okbut = gtkutils.StockButton("gtk-ok", "OK")
+        okbut.set_can_default(True)
+        self.gtk.add_action_widget(okbut,
                                    Gtk.ResponseType.OK)
         self.gtk.add_action_widget(Gtk.Button("Abort"),
                                    Gtk.ResponseType.CLOSE)
@@ -353,7 +351,7 @@ class ErrorPopUp(object):
                                Gtk.PolicyType.AUTOMATIC)
         self.scroll.set_shadow_type(Gtk.ShadowType.IN)
         
-        self.tracepane = gtk.TextView(name="fixedfont",
+        self.tracepane = Gtk.TextView(name="fixedfont",
                                       editable=False,
                                       wrap_mode=Gtk.WrapMode.WORD)
 

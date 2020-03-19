@@ -316,6 +316,7 @@ public:
   CanvasLayer *getLayer(int);
   %name(getLayerByName) CanvasLayer *getLayer(char*);
   int nLayers();
+  bool empty();
   void raiseLayer(int, int);
   void lowerLayer(int, int);
   void lowerLayerToBottom(int);

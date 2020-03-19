@@ -150,7 +150,7 @@ class OutputDevice:
     def purge(self):
         pass
 
-    def begin_layer(self): 
+    def begin_layer(self, name=None): 
         return NullLayer()
 
     def end_layer(self): 
@@ -380,8 +380,8 @@ class BufferedOutputDevice (OutputDevice):
     def comment(self, remark):
         self.buffer.append(self.device.comment, remark)
 
-    def begin_layer(self):
-        return BufferedOOFCanvasLayer(self)
+    def begin_layer(self, name=None):
+        return BufferedOOFCanvasLayer(self, name)
 
     def end_layer(self):
         self.buffer.append(self.device.end_layer)
@@ -404,13 +404,14 @@ class BufferedOutputDevice (OutputDevice):
 ##
 
 class BufferedOOFCanvasLayer:
-    def __init__ (self, buffereddevice):
+    def __init__ (self, buffereddevice, name=None):
         self.layer = None
+        self.name = name
         self.buffer = buffereddevice.buffer
         self.device = buffereddevice.device
         self.buffer.append(self.really_begin)
     def really_begin(self):
-        self.layer = self.device.begin_layer()
+        self.layer = self.device.begin_layer(self.name)
 
     def raise_layer(self, x):
         self.buffer.append(self.really_raise_layer, x)

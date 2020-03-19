@@ -33,7 +33,7 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.gtk.add(mainbox)
 
         self.grid = Gtk.Grid()
-        grid.set_column_spacing(5)
+        self.grid.set_column_spacing(5)
         mainbox.pack_start(self.grid, expand=False, fill=False, padding=0)
         
         label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)

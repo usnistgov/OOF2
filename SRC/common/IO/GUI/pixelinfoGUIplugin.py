@@ -68,9 +68,8 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
         label = Gtk.Label('microstructure=',
                           halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,row,1,1)
-        self.microtext = gtk.Entry(hexpand=True, halign=Gtk.Align.FILL)
-        gtklogger.setWidgetName(self.microtext, 'MSText',
-                                hexpand=True, halign=Gtk.Align.FILL)
+        self.microtext = Gtk.Entry(hexpand=True, halign=Gtk.Align.FILL)
+        gtklogger.setWidgetName(self.microtext, 'MSText')
         self.microtext.set_width_chars(12)
         self.microtext.set_editable(False)
         table.attach(self.microtext, 1,row,1,1)
@@ -78,7 +77,7 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
         label = Gtk.Label('pixel groups=',
                           halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,row+1,1,1)
-        self.grouplist = gtk.TextView()
+        self.grouplist = Gtk.TextView()
         ## TODO GTK3: do we need to set a size request?
         #self.grouplist.set_size_request(12*guitop.top().charsize, -1)
         self.grouplist.set_editable(False)

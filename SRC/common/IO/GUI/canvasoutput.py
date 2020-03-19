@@ -16,6 +16,7 @@
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import coord
 from ooflib.SWIG.common import ooferror
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import primitives
@@ -24,7 +25,6 @@ from ooflib.common.IO import colormap
 from ooflib.common.IO import outputdevice
 from ooflib.common.IO.GUI import gfxwindow
 from ooflib.common.IO.GUI import oof_mainiteration
-from ooflib.common.IO.OOFCanvas import oofcanvas
 import types
 
 import time, sys
@@ -74,8 +74,9 @@ class CanvasOutput(outputdevice.OutputDevice):
             if not gfxwindow.during_callback():
                 oof_mainiteration.mainiteration_loop(False)
             
-    def begin_layer(self):
-        self.currentlayer = self.canvas.newLayer("Layer_%d" % self.nLayers)
+    def begin_layer(self, name=None):
+        self.currentlayer = self.canvas.newLayer(name or
+                                                 "Layer_%d" % self.nLayers)
         #self.currentlayer.index = self.nLayers
         self.nLayers += 1
         return self.currentlayer

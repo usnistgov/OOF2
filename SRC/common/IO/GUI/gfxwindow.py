@@ -84,28 +84,28 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # __init__ call.  They need to be created first so the
         # GhostGfxWindow can operate on them, and then create the menus
         # which are handed off to the SubWindow.
-        self.mainpane = gtk.Paned(orientation=Gtk.Orientation.VERTICAL,
+        self.mainpane = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL,
                                   wide_handle=True)
         gtklogger.setWidgetName(self.mainpane, 'Pane0')
         gtklogger.connect_passive(self.mainpane, 'notify::position')
 
         # Panes dividing upper pane horizontally into 3 parts.
         # paned1's left half contains paned2.
-        self.paned1 = gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+        self.paned1 = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
                                 wide_handle=True)
         gtklogger.setWidgetName(self.paned1, "Pane1")
         self.mainpane.pack1(self.paned1, resize=True, shrink=True)
         gtklogger.connect_passive(self.paned1, 'notify::position')
 
         # paned2 is in left half of paned1
-        self.paned2 = gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+        self.paned2 = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
                                 wide_handle=True)
         gtklogger.setWidgetName(self.paned2, "Pane2")
         self.paned1.pack1(self.paned2, resize=True, shrink=True)
         gtklogger.connect_passive(self.paned2, 'notify::position')
 
         # The toolbox is in the left half of paned2 (ie the left frame of 3)
-        toolboxframe = gtk.Frame()
+        toolboxframe = Gtk.Frame()
         toolboxframe.set_shadow_type(Gtk.ShadowType.IN)
         self.paned2.pack1(toolboxframe, resize=True, shrink=True)
 
@@ -114,13 +114,15 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         toolboxbox1 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         toolboxframe.add(toolboxbox1)
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
-        toolboxbox1.pack_start(hbox, expand=0, fill=0, padding=2)
-        hbox.pack_start(Gtk.Label("Toolbox:"), expand=0, fill=0, padding=3)
+        toolboxbox1.pack_start(hbox, expand=False, fill=False, padding=2)
+        hbox.pack_start(Gtk.Label("Toolbox:"),
+                        expand=False, fill=False, padding=3)
         
         self.toolboxchooser = chooser.ChooserWidget([],
                                                     callback=self.switchToolbox,
                                                     name="TBChooser")
-        hbox.pack_start(self.toolboxchooser.gtk, expand=1, fill=1, padding=3)
+        hbox.pack_start(self.toolboxchooser.gtk,
+                        expand=True, fill=True, padding=3)
 
         # Scroll window for the toolbox itself.
         toolboxbox2 = Gtk.ScrolledWindow()
@@ -128,7 +130,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         
         toolboxbox2.set_policy(Gtk.PolicyType.AUTOMATIC,
                                Gtk.PolicyType.AUTOMATIC)
-        toolboxbox1.pack_start(toolboxbox2, expand=1, fill=1, padding=0)
+        toolboxbox1.pack_start(toolboxbox2, expand=True, fill=True, padding=0)
 
         # Actually, the tool box goes inside yet another box, so that
         # we have a gtk.VBox that we can refer to later.
@@ -148,8 +150,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.timebox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                                spacing=2)
         gtklogger.setWidgetName(self.timebox, 'time')
-        canvasbox.pack_start(self.timebox, expand=False, fill=False)
-        self.timebox.pack_start(gtk.Label("time:"), expand=False, fill=False,
+        canvasbox.pack_start(self.timebox, expand=False, fill=False, padding=0)
+        self.timebox.pack_start(Gtk.Label("time:"), expand=False, fill=False,
                                 padding=0)
         self.prevtimeButton = gtkutils.StockButton("go-previous-symbolic")
         gtklogger.setWidgetName(self.prevtimeButton, "prev")
@@ -238,7 +240,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
         cmapcell = Gtk.CellRendererToggle()
         cmapcell.set_radio(True)
-        cmapcol = gtk.TreeViewColumn("Map")
+        cmapcol = Gtk.TreeViewColumn("Map")
         cmapcol.pack_start(cmapcell, expand=False)
         cmapcol.set_cell_data_func(cmapcell, self.renderCMapCell)
         self.layerListView.append_column(cmapcol)
@@ -305,11 +307,11 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                           self.scrlReleaseCB, 'h')
         gtklogger.connect(self.vScrollbar, "button-release-event",
                           self.scrlReleaseCB, 'v')
-        self.canvasTable.attach(self.hScrollbar, 0,1, 1,2)
-        self.canvasTable.attach(self.vScrollbar, 1,2, 0,1)
+        self.canvasTable.attach(self.hScrollbar, 0,1, 1,1)
+        self.canvasTable.attach(self.vScrollbar, 1,0, 1,1)
         self.canvasFrame = Gtk.Frame()
         self.canvasFrame.set_shadow_type(Gtk.ShadowType.NONE)
-        self.canvasTable.attach(self.canvasFrame, 0,1, 0,1)
+        self.canvasTable.attach(self.canvasFrame, 0,0, 1,1)
 
     def makeContourMapWidgets(self, gtklogger):
         # the contourmap is in the right half of paned1 (the right pane of 3)
@@ -331,10 +333,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         contourmaplevelbox.pack_start(self.contourlevel_min,
                                       expand=True, fill=True, padding=0)
         contourmaplevelbox.pack_start(
-            gtk.Separator(orientation=Gtk.Orientation.VERTICAL),
+            Gtk.Separator(orientation=Gtk.Orientation.VERTICAL),
             expand=False, fill=False, padding=0)
         contourmaplevelbox.pack_start(
-            gtk.Separator(orientation=Gtk.Orientation.VERTICAL),
+            Gtk.Separator(orientation=Gtk.Orientation.VERTICAL),
             expand=False, fill=False, padding=0)
         self.contourlevel_max = Gtk.Label()
         contourmaplevelbox.pack_end(self.contourlevel_max,
@@ -346,25 +348,25 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         contourmapbox.pack_start(self.contourmap_max, expand=False, fill=False,
                                  padding=0)
         contourmapbox.pack_start(
-            gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
             expand=False, fill=False, padding=0)
         contourmapbox.pack_start(self.contourmapdata.canvas.layout,
-                                 expand=True, fill=True)
+                                 expand=True, fill=True, padding=0)
         contourmapbox.pack_start(
-            Gtk.HSeparator(orientation=Gtk.Orientation.HORIZONTAL),
+            Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
             expand=False, fill=False, padding=0)
         contourmapbox.pack_start(self.contourmap_min, expand=False, fill=False,
                                  padding=0)
         contourmapbox.pack_start(
-            gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
             expand=False, fill=False, padding=0)
         contourmapbox.pack_start(
-            gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
             expand=False, fill=False, padding=0)
         contourmapbox.pack_start(contourmaplevelbox, expand=False, fill=False,
                                  padding=0)
         contourmapbox.pack_start(
-            gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
             expand=False, fill=False, padding=0)
         contourmapbox.pack_end(contourmapclearbutton, expand=False, fill=False,
                                padding=0)
@@ -428,7 +430,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
         self.mainbox.set_spacing(3)
 
-        self.mainbox.pack_start(self.mainpane, fill=1, expand=1)
+        self.mainbox.pack_start(self.mainpane,
+                                fill=True, expand=True, padding=0)
 
         self.gtk.show_all()
 
@@ -457,8 +460,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         debug.mainthreadTest()
         assert self.oofcanvas is None
         ## TODO GTK3: How to set initial size of the Canvas?
-        self.oofcanvas = oofcanvas.OOFCanvas(width=300, height=300, ppu=1.0,
-                                             vexpand=True, hexpand=True)
+        self.oofcanvas = oofcanvas.Canvas(width=300, height=300, ppu=1.0,
+                                          vexpand=True, hexpand=True)
         self.oofcanvas.antialias(self.settings.antialias)
 ##        self.oofcanvas = fakecanvas.FakeCanvas(self.settings.antialias)
         self.canvasFrame.add(self.oofcanvas.layout)
@@ -513,15 +516,15 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # self.oofcanvas.set_underlay_params(
         #     self.settings.bgcolor, self.settings.margin)
 
-        self.oofcanvas.setBackgroundColor(self.settings.bgcolor.red(),
-                                          self.settings.bgcolor.green(),
-                                          self.settings.bgcolor.blue())
+        self.oofcanvas.setBackgroundColor(self.settings.bgcolor.getRed(),
+                                          self.settings.bgcolor.getGreen(),
+                                          self.settings.bgcolor.getBlue())
         ## TODO GTK3: margin
         # self.oofcanvas.setMargin(self.settings.margin)
 
-        self.oofcanvas.setMmouseCallback(self.mouseCB)
+        self.oofcanvas.setMouseCallback(self.mouseCB, None)
         if self.rubberband:
-            self.oofcanvas.set_rubberband(self.rubberband)
+            self.oofcanvas.setRubberband(self.rubberband)
         self.oofcanvas.show()
 
         self.fix_step_increment()
@@ -536,14 +539,14 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         if self.contourmapdata.canvas:
             self.contourmapdata.canvas.destroy()
 
-        # Argument is ppu.  TODO GTK3: Does the value here matter?
+        # Arguments are width, height, and ppu. They don't matter.
         # Just call zoomToFill after drawing.
-        self.contourmapdata.canvas = oofcanvas.OOFCanvas(
-            100, self.oofcanvas.heightInPixels(), 1)
+        self.contourmapdata.canvas = oofcanvas.Canvas(
+            100, 100, 1)
         self.contourmapdata.canvas.setBackgroundColor(
-            self.settings.bgcolor.red(),
-            self.settings.bgcolor.green(),
-            self.settings.bgcolor.blue())
+            self.settings.bgcolor.getRed(),
+            self.settings.bgcolor.getGreen(),
+            self.settings.bgcolor.getBlue())
 
         # Duplicate imports, again to avoid an import loop.
         from ooflib.common.IO.GUI import canvasoutput
@@ -555,7 +558,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             self.contourmapdata.rawdevice)
         
         self.contourmapdata.canvas.setResizeCallback(
-            self.contourmap_resize)
+            self.contourmap_resize, None)
         self.contourmapdata.canvas.setMouseCallback(self.contourmap_mouse, None)
 
         # Create two layers, one for the "main" drawing, and
@@ -856,7 +859,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         debug.subthreadTest()
         if self.closed:
             return
-        if self.oofcanvas.is_empty():
+        if self.oofcanvas.empty():
             # *Always* zoom to fill the window on the first non-trivial draw
             zoom = True
 
@@ -1089,11 +1092,11 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         ## TODO GTK3: Is this still necessary?
         debug.mainthreadTest()
         hadj = self.hScrollbar.get_adjustment()
-        if hadj.step_increment == 0.0:
-            hadj.step_increment = hadj.page_increment/16
+        if hadj.get_step_increment() == 0.0:
+            hadj.set_step_increment(hadj.page_increment/16)
         vadj = self.vScrollbar.get_adjustment()
-        if vadj.step_increment == 0.0:
-            vadj.step_increment = vadj.page_increment/16
+        if vadj.get_step_increment() == 0.0:
+            vadj.set_step_increment(vadj.page_increment/16)
 
     # are these ever called?
 ##     def set_zoom(self, scrollreg, ppu):
@@ -1160,9 +1163,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         try:
             ghostgfxwindow.GhostGfxWindow.bgColor(self, menuitem, color)
             self.oofcanvas.setBackgroundColor(
-                color.red(), color.green(), color.blue())
+                color.getRed(), color.getGreen(), color.getBlue())
             self.contourmapdata.canvas.setBackgroundColor(
-                color.red(), color.green(), color.blue())
+                color.getRed(), color.getGreen(), color.getBlue())
             mainthread.runBlock(self.oofcanvas.draw)
             mainthread.runBlock(self.contourmapdata.canvas.draw)
             # mainthread.runBlock(self.oofcanvas.set_bgColor, (color,))

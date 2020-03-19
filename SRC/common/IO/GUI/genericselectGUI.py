@@ -115,17 +115,17 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
             "Select all unselected objects, and deselect all selected objects.")
 
         # Selection history
-        frame = Gtk.Frame('History')
+        frame = Gtk.Frame(label='History')
         frame.set_shadow_type(Gtk.ShadowType.IN)
         outerbox.pack_start(frame, expand=False, fill=False, padding=0)
-        vbox = gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
 
         frame.add(vbox)
         
         table = Gtk.Grid()
         vbox.pack_start(table, expand=False, fill=False, padding=0)
-        table.attach(gtk.Label('down'), 0,1, 0,1)
-        table.attach(gtk.Label('up'), 0,1, 1,2)
+        table.attach(Gtk.Label('down'), 0,0, 1,1)
+        table.attach(Gtk.Label('up'),   0,1, 1,1)
 
         self.xdownentry = Gtk.Entry()
         self.ydownentry = Gtk.Entry()
@@ -142,10 +142,10 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
             entry.set_width_chars(12)
             self.entrychangedsignals.append(
                 gtklogger.connect(entry, "changed", self.poschanged))
-        table.attach(self.xdownentry, 1,2, 0,1)
-        table.attach(self.ydownentry, 2,3, 0,1)
-        table.attach(self.xupentry, 1,2, 1,2)
-        table.attach(self.yupentry, 2,3, 1,2)
+        table.attach(self.xdownentry, 1,0, 1,1)
+        table.attach(self.ydownentry, 2,0, 1,1)
+        table.attach(self.xupentry, 1,1, 1,1)
+        table.attach(self.yupentry, 2,1, 1,1)
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         vbox.pack_start(hbox, expand=False, fill=False, padding=0)
         self.prevmethodbutton = gtkutils.prevButton()
@@ -180,12 +180,12 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
 
         # Selection information
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
-        outerbox.pack_start(hbox, expand=False, fill=False)
-        hbox.pack_start(gtk.Label('Selection size: '),
+        outerbox.pack_start(hbox, expand=False, fill=False, padding=0)
+        hbox.pack_start(Gtk.Label('Selection size: '),
                         expand=False, fill=False, padding=0)
         self.sizetext = Gtk.Entry()
         gtklogger.setWidgetName(self.sizetext, 'size')
-        hbox.pack_start(self.sizetext, expand=True, fill=True)
+        hbox.pack_start(self.sizetext, expand=True, fill=True, padding=0)
         self.sizetext.set_editable(False)
         self.sizetext.set_width_chars(12)
         self.setInfo()
