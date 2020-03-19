@@ -947,7 +947,13 @@ class ParameterDialog(widgetscope.WidgetScope):
     def run(self):
         debug.mainthreadTest()
         self.table.show()
-        self.dialog.get_action_area().show_all()
+        ## TODO GTK3: Dialog.show_all() may be unsafe if some of the
+        ## widgets have subwidgets that aren't ready to be shown.  We
+        ## used to use dialog.get_action_area().show_all(), but
+        ## get_action_area is deprecated in Gtk+3.  Maybe we need to
+        ## keep track of the widgets in the action area and show them
+        ## individually.
+        self.dialog.show_all()
         return self.dialog.run()        # shows dialog & makes it modal
     def close(self):
         debug.mainthreadTest()
