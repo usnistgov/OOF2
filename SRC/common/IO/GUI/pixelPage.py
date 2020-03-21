@@ -94,10 +94,8 @@ class SelectionPage(oofGUI.MainPage):
         self.selectionModFactory = regclassfactory.RegisteredClassFactory(
             pixelselectionmod.SelectionModifier.registry, title="Method:",
             scope=self, name="Method", margin=2)
-#            margin_left=2, margin_right=2)
         vbox.pack_start(self.selectionModFactory.gtk,
                         expand=True, fill=True, padding=0)
-##        scroll.add_with_viewport(self.selectionModFactory.gtk)
         self.historian = historian.Historian(self.selectionModFactory.set,
                                              self.sensitizeHistory,
                                              setCBkwargs={'interactive':1})

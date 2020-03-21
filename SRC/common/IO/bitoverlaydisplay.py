@@ -24,6 +24,9 @@ from ooflib.common.IO import xmlmenudump
 # drawn as an overlay on the topmost image in the display.  The pixels
 # are drawn with a single color and transparency.
 
+## TODO: Why is there a tintOpacity parameter when the ColorParameter
+## accepts RGBAColor, HSVAColor, and TranslucentGray? 
+
 #####
 
 class BitmapOverlayDisplayMethod(display.DisplayMethod):

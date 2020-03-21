@@ -62,7 +62,7 @@ class LayerEditorGUI(layereditor.LayerEditor, subWindow.SubWindow,
         mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
         mainpane.set_border_width(3)
         mainpane.set_position(300)
-        self.mainbox.pack_start(mainpane, expand=True, fill=True)
+        self.mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
 
         # The left side of the layer editor is for choosing the object
         # being drawn.
@@ -86,9 +86,9 @@ class LayerEditorGUI(layereditor.LayerEditor, subWindow.SubWindow,
         methframe = Gtk.Frame(label='Display Methods')
         gtklogger.setWidgetName(methframe, "DisplayMethods")
         mainpane.pack2(methframe, resize=True, shrink=False)
-        mvbox = gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        mvbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         methframe.add(mvbox)
-        mhbox = gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        mhbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         mvbox.pack_start(mhbox, expand=True, fill=True, padding=0)
         self.methodList = chooser.ScrolledChooserListWidget(
             callback=self.singleClickMethodCB,
@@ -140,17 +140,19 @@ class LayerEditorGUI(layereditor.LayerEditor, subWindow.SubWindow,
 
         self.mainbox.pack_start(
             Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
-            expand=False, fill=False, padding=0)
+            expand=False, fill=False, padding=2)
 
         # Buttons at the bottom governing LayerSet operations:
         # New LayerSet, Send to Gfx Window, etc.
         
-        mainbuttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        mainbuttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                                spacing=3, margin=3)
         self.mainbox.pack_start(mainbuttonbox, expand=False, fill=False,
                                 padding=3)
 
         newLayerButton = gtkutils.StockButton("document-new-symbolic",
-                                              'New Layer')
+                                              'New Layer',
+                                              halign=Gtk.Align.START)
         mainbuttonbox.pack_start(newLayerButton, expand=False, fill=False,
                                  padding=3)
         gtklogger.setWidgetName(newLayerButton, "NewLayer")
@@ -166,13 +168,13 @@ class LayerEditorGUI(layereditor.LayerEditor, subWindow.SubWindow,
         mainbuttonbox.pack_end(self.destinationMenu.gtk,
                                expand=False, fill=False, padding=0)
         self.updateDestinationMenu()
-        label = gtk.Label('Destination=', halign=Gtk.Align.END)
+        label = Gtk.Label('Destination=', halign=Gtk.Align.END)
         label.set_tooltip_text(
             'The graphics window(s) that will display the layer(s).')
         mainbuttonbox.pack_end(label, expand=False, fill=False, padding=0)
 
         self.mainbox.pack_start(
-            gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
             expand=False, fill=False, padding=3)
 
         # When the lhs widgets change state the rhs might have to

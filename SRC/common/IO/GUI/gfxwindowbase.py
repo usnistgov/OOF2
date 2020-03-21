@@ -113,7 +113,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     # TODO: move contour map stuff back to gfxwindow?
     
     # TreeView callback for setting the state of the "Show" button 
-    def renderShowCell(self, column, cell_renderer, model, iter):
+    def renderShowCell(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         layer = model[iter][0]
         cell_renderer.set_active(not layer.hidden)
@@ -126,7 +126,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         else:
             self.menu.Layer.Hide(n=self.layerID(layer))
 
-    def renderFreezeCell(self, column, cell_renderer, model, iter):
+    def renderFreezeCell(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         layer = model[iter][0]
         cell_renderer.set_active(layer.frozen)
@@ -138,7 +138,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         else:
             self.menu.Layer.Freeze(n=self.layerID(layer))
 
-    def renderCMapCell(self, column, cell_renderer, model, iter):
+    def renderCMapCell(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         layer = model[iter][0]
         if layer.contour_capable(self):
@@ -155,7 +155,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         else:
             self.menu.Layer.Show_Contour_Map(n=self.layerID(layer))
 
-    def renderLayerCell(self, column, cell_renderer, model, iter):
+    def renderLayerCell(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         layer = model[iter][0]
         who = layer.who()
@@ -168,7 +168,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             txt = "???"
         cell_renderer.set_property('text', txt)
 
-    def renderMethodCell(self, column, cell_renderer, model, iter):
+    def renderMethodCell(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         layer = model[iter][0]
         if self.settings.longlayernames:

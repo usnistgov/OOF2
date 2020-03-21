@@ -247,7 +247,7 @@ class GUIConsole(code.InteractiveConsole, subWindow.SubWindow):
             elif event.keyval in (KEYVAL_CTRL_R, KEYVAL_CTRL_L):
                 self.controlKeyPressed = True
             else:                       # we don't understand this key press
-                debug.fmsg("Ignoring", Gdk.keyval_name(event.keyval))
+                # debug.fmsg("Ignoring", Gdk.keyval_name(event.keyval))
                 return False            # key press not processed
 
         else:                           # event.string != ""

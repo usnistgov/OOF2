@@ -251,6 +251,7 @@ private:
 public:
   void addItem(CanvasItem*);
   void removeAllItems();
+  void clear();
   void setClickable(bool);
   void setOpacity(double);
   void show();

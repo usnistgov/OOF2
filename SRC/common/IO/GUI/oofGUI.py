@@ -86,8 +86,8 @@ class oofGUI(widgetscope.WidgetScope):
         
         map(self.addStyle, styleStrings)
         
-        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
-                               margin=5)
+        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                               spacing=2, margin=5)
         self.gtk.add(self.mainbox)
 
         self.menubar = Gtk.MenuBar()

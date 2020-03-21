@@ -117,7 +117,7 @@ class LabelledSlider:
         self.adjustmentsignal.block()
         self.entrysignal.block()
         try:
-            self.adjustment.value = value
+            self.slider.set_value(value)
             self.set_entry(value)
         finally:
             self.adjustmentsignal.unblock()

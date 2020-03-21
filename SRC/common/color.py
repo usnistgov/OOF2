@@ -10,6 +10,7 @@
 
 import math, types
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import debug
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
@@ -23,6 +24,12 @@ FloatRangeParameter = parameter.FloatRangeParameter
 
 ## TODO: Maybe add a version of RGB parametrized by integers 0-255
 ## instead of floats 0-1.
+
+## TODO: Do we need both RGBColor and RGBAColor?  Some menu commands
+## and registered classes have both a color argument and a separate
+## opacity argument.  See TODO in bitoverlaydisplay.py.  The UI would
+## be simpler if all colors had an alpha channel and there were no
+## separate opacity arguments.
 
 class Color(registeredclass.ConvertibleRegisteredClass):
     registry = []
@@ -490,3 +497,10 @@ utils.OOFdefine('yellow', yellow)
 utils.OOFdefine('orange', orange)
 utils.OOFdefine('magenta', magenta)
 utils.OOFdefine('gray50', gray50)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Convert to and OOFCanvas color
+
+def canvasColor(color):
+    return oofcanvas.Color(color.getRed(), color.getGreen(), color.getBlue())

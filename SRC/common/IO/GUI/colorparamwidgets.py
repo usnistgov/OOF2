@@ -25,8 +25,7 @@ from ooflib.common.IO.GUI import regclassfactory
 from gi.repository import Gtk
 import math
 
-# Collection of labelledsliders, passing through the value-changed
-# callback.
+
 class LabelledSliderSet:
     def __init__(self, label=[], min=None, max=None):
         debug.mainthreadTest()
@@ -40,14 +39,14 @@ class LabelledSliderSet:
 
         for i in range(len(label)):
             newlabel = Gtk.Label(label[i])
-            self.gtk.attach(newlabel,0,1,i,i+1)
+            self.gtk.attach(newlabel,0,i, 1,1)
 
             newslider = labelledslider.FloatLabelledSlider(
                 value=self.min[i], vmin=self.min[i], vmax=self.max[i],
                 step=(self.max[i]-self.min[i])/100.0,
-                callback=self.slider_callback, name=label[i] )
+                callback=self.slider_callback, name=label[i])
             
-            self.gtk.attach(newslider.gtk, 1,2,i,i+1)
+            self.gtk.attach(newslider.gtk, 1,i, 1,1)
             self.sliders.append(newslider)
 
     def set_values(self, *values):
@@ -57,7 +56,7 @@ class LabelledSliderSet:
 
     def get_values(self):
         debug.mainthreadTest()
-        return map( lambda x: x.get_value(), self.sliders)
+        return [x.get_value() for x in self.sliders]
 
     def set_callback(self, func):
         self.callback = func
@@ -87,8 +86,9 @@ class TwoColorBox(ColorBoxBase):
         self.color1 = bg
     def change_color(self, fg):
         self.color1 = fg
-    def drawCB(self, widget, ctxt):
-        # ctxt is a Cairo context
+        self.gtk.queue_draw()
+    def drawCB(self, widget, context):
+        # context is a Cairo::Context
         width = widget.get_allocated_width()
         halfwidth = width/2.
         height = widget.get_allocated_height()
@@ -139,13 +139,16 @@ class RGBWidget(parameterwidgets.ParameterWidget):
         # VBox for the color patch.
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.colorbox = colorbox_class(160, 40)
-        #
-        self.gtk.pack_start(self.vbox, expand=False, fill=False, padding=0)
-        #
+
+        self.gtk.pack_start(self.vbox,
+                            expand=False, fill=False, padding=0)
+
         self.slider = LabelledSliderSet(["Red", "Green", "Blue"])
-        self.vbox.pack_start(self.slider.gtk, expand=True, fill=True)
-        self.vbox.pack_start(self.colorbox.gtk, expand=False, fill=False)
-        #
+        self.vbox.pack_start(self.slider.gtk,
+                             expand=True, fill=True, padding=0)
+        self.vbox.pack_start(self.colorbox.gtk,
+                             expand=False, fill=False, padding=0)
+
         if old_base:
             self.color = old_base
         else:
@@ -286,11 +289,11 @@ class HSVWidget(parameterwidgets.ParameterWidget):
 
 class DiffHSVWidget(HSVWidget):
     def __init__(self,params,old_base,scope=None,name=None):
-        HSVWidget.__init__(self, params, old_base, Colorbox, scope, name)
+        HSVWidget.__init__(self, params, old_base, TwoColorBox, scope, name)
 
 class NewHSVWidget(HSVWidget):
     def __init__(self,params,old_base,scope=None,name=None):
-        HSVWidget.__init__(self, params, old_base, ColorBox, scope, name)
+        HSVWidget.__init__(self, params, old_base, OneColorBox, scope, name)
 
         
 regclassfactory.addWidget(color.ColorParameter, color.HSVColor, DiffHSVWidget)
@@ -367,11 +370,11 @@ class GrayWidget(parameterwidgets.ParameterWidget):
 
 class DiffGrayWidget(GrayWidget):
     def __init__(self,params,old_base,scope=None,name=None):
-        GrayWidget.__init__(self, params, old_base, Colorbox, scope, name)
+        GrayWidget.__init__(self, params, old_base, TwoColorBox, scope, name)
 
 class NewGrayWidget(GrayWidget):
     def __init__(self,params,old_base,scope=None,name=None):
-        GrayWidget.__init__(self, params, old_base, ColorBox, scope, name)
+        GrayWidget.__init__(self, params, old_base, OneColorBox, scope, name)
 
 regclassfactory.addWidget(color.ColorParameter, color.Gray, DiffGrayWidget)
 regclassfactory.addWidget(color.NewColorParameter, color.Gray, NewGrayWidget)

@@ -209,8 +209,8 @@ class NullLayer:
         self.hidden = False
     def clear(self):
         pass
-    def make_current(self):
-        pass
+    # def make_current(self):
+    #     pass
     def raise_layer(self, howfar=1):
         pass
     def raise_to_top(self):
@@ -416,17 +416,17 @@ class BufferedOOFCanvasLayer:
     def raise_layer(self, x):
         self.buffer.append(self.really_raise_layer, x)
     def really_raise_layer(self,x):
-        self.layer.raise_layer(x)
+        self.layer.raiseBy(1)
         
     def raise_to_top(self):
         self.buffer.append(self.really_raise_to_top)
     def really_raise_to_top(self):
-        self.layer.raise_to_top()
+        self.layer.raiseToTop()
         
     def lower_layer(self, layer):
         self.buffer.append(self.really_lower_layer, layer)
     def really_lower_layer(self, layer):
-        self.layer.lower_layer(layer)
+        self.layer.lower(1)
         
     def show(self):
         self.buffer.append(self.really_show)
@@ -441,12 +441,12 @@ class BufferedOOFCanvasLayer:
     def clear(self):
         self.buffer.append(self.really_clear)
     def really_clear(self):
-        self.layer.clear()
+        self.layer.removeAllItems()
 
-    def make_current(self):
-        self.buffer.append(self.really_make_current)
-    def really_make_current(self):
-        self.layer.make_current()
+    # def make_current(self):
+    #     self.buffer.append(self.really_make_current)
+    # def really_make_current(self):
+    #     self.layer.make_current()
         
     def destroy(self):
         self.buffer.append(self.really_destroy)

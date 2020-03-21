@@ -74,6 +74,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
 
         # Retrieve the registered class factory from the subclass.
         self.selectionMethodFactory = self.methodFactory()
+        self.selectionMethodFactory.gtk.set_vexpand(True)
         # self.selectionMethodFactory = regclassfactory.RegisteredClassFactory(
         #     method.registry, title="Method:", name="Method")
 ##        scroll.add_with_viewport(self.selectionMethodFactory.gtk)
@@ -115,7 +116,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
             "Select all unselected objects, and deselect all selected objects.")
 
         # Selection history
-        frame = Gtk.Frame(label='History')
+        frame = Gtk.Frame(label='History', margin=2)
         frame.set_shadow_type(Gtk.ShadowType.IN)
         outerbox.pack_start(frame, expand=False, fill=False, padding=0)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
@@ -179,7 +180,8 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         
 
         # Selection information
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                       spacing=2, margin=2)
         outerbox.pack_start(hbox, expand=False, fill=False, padding=0)
         hbox.pack_start(Gtk.Label('Selection size: '),
                         expand=False, fill=False, padding=0)
@@ -207,7 +209,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.gfxwindow().setMouseHandler(self)
 
     def deactivate(self):
-        self.gfxwindow().removeRubberband()
+        self.gfxwindow().setRubberband(None)
         toolboxGUI.GfxToolbox.deactivate(self)
 
     def close(self):

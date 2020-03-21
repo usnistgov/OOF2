@@ -289,6 +289,9 @@ namespace OOFCanvas {
     // ppu is changed.  It's not possible to simply compute the
     // bounding box in user units and scale it to fit the window.
 
+    if(empty())
+      return;
+
     std::vector<CanvasItem*> pixelSizedItems;
     for(CanvasLayer *layer : layers) {
       std::vector<CanvasItem*> layeritems(layer->pixelSizedItems());
@@ -833,6 +836,8 @@ namespace OOFCanvas {
   }
 
   void CanvasBase::mouseButtonHandler(GdkEventButton *event) {
+    if(empty())
+      return;
     ICoord pixel(event->x, event->y);
     Coord userpt(pixel2user(pixel));
     

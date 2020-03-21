@@ -44,7 +44,8 @@ class SubWindow:
             gtklogger.newTopLevelWidget(self.gtk, title)
             gtklogger.connect_passive(self.gtk, 'delete-event')
             gtklogger.connect_passive(self.gtk, 'configure-event')
-        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                               spacing=2, margin=5)
         self.gtk.add(self.mainbox)
 
         # Checking the type is clumsy; the idea is that the caller

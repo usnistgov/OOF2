@@ -72,9 +72,8 @@ class ActivityViewer(subWindow.SubWindow):
         self.gtk.connect('destroy', self.closeCB)
         self.gtk.set_default_size(400, 300)
         
-        # Area at the top containing the editor widget for the line
         self.control_area = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                                    spacing=2) # editor widget goes in here
+                                    spacing=2, margin=2)
         self.mainbox.pack_start(self.control_area, expand=False, fill=False,
                                 padding=0)
 
@@ -101,7 +100,7 @@ class ActivityViewer(subWindow.SubWindow):
                                 padding=0)
         
         ## Create VBox where the progressbars can live happily ever after
-        self.bars_play_area = gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+        self.bars_play_area = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
                                       spacing=2) # homogeneous=True?
         scrolled_window.add(self.bars_play_area)
 

@@ -63,7 +63,10 @@ class ContourMapData:
 
 class GfxWindow(gfxwindowbase.GfxWindowBase):
     # This whole initialization sequence is complicated. See note in
-    # gfxwindowbase.py
+    # gfxwindowbase.py.  preinitialize() is run from
+    # GfxWindowBase.__init__ before the canvas is created, and
+    # postinitialize() is run after the canvas is created.  Both are
+    # run on the main thread.
 
     def preinitialize(self, name, gfxmgr, clone):
         debug.mainthreadTest()
@@ -84,6 +87,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # __init__ call.  They need to be created first so the
         # GhostGfxWindow can operate on them, and then create the menus
         # which are handed off to the SubWindow.
+
+        # The bottom of mainpane contains the layer list.  The top
+        # contains everything else.
         self.mainpane = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL,
                                   wide_handle=True)
         gtklogger.setWidgetName(self.mainpane, 'Pane0')
@@ -94,7 +100,17 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.paned1 = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
                                 wide_handle=True)
         gtklogger.setWidgetName(self.paned1, "Pane1")
-        self.mainpane.pack1(self.paned1, resize=True, shrink=True)
+
+        ## TODO GTK3: With gtk2, we didn't use the "shrink" properties
+        ## on mainpain, so they defaulted to True. In gtk3, setting
+        ## shrink=True for the top part makes the toolbox appear with
+        ## only its bottom part visible.  Setting shrink=False
+        ## however, might make the window too big if the toolbox is
+        ## complicated.  Setting shrink=False in the top pane
+        ## completely collapses the bottom pane unless it alas
+        ## shrink=False.  So at the moment they're both unshrinkable,
+        ## but that might not be a good long term solution.
+        self.mainpane.pack1(self.paned1, resize=True, shrink=False)
         gtklogger.connect_passive(self.paned1, 'notify::position')
 
         # paned2 is in left half of paned1
@@ -105,15 +121,16 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         gtklogger.connect_passive(self.paned2, 'notify::position')
 
         # The toolbox is in the left half of paned2 (ie the left frame of 3)
-        toolboxframe = Gtk.Frame()
+        toolboxframe = Gtk.Frame(margin=2)
         toolboxframe.set_shadow_type(Gtk.ShadowType.IN)
         self.paned2.pack1(toolboxframe, resize=True, shrink=True)
 
-        # Box containing the toolbox label and the scroll window for
+        # Box containing the toolbox chooser and the scroll window for
         # the toolbox itself.
         toolboxbox1 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         toolboxframe.add(toolboxbox1)
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                       spacing=2, margin=2)
         toolboxbox1.pack_start(hbox, expand=False, fill=False, padding=2)
         hbox.pack_start(Gtk.Label("Toolbox:"),
                         expand=False, fill=False, padding=3)
@@ -125,30 +142,30 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                         expand=True, fill=True, padding=3)
 
         # Scroll window for the toolbox itself.
-        toolboxbox2 = Gtk.ScrolledWindow()
-        gtklogger.logScrollBars(toolboxbox2, 'TBScroll')
-        
-        toolboxbox2.set_policy(Gtk.PolicyType.AUTOMATIC,
-                               Gtk.PolicyType.AUTOMATIC)
-        toolboxbox1.pack_start(toolboxbox2, expand=True, fill=True, padding=0)
+        tbscroll = Gtk.ScrolledWindow()
+        gtklogger.logScrollBars(tbscroll, 'TBScroll')
+
+        tbscroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        toolboxbox1.pack_start(tbscroll, expand=True, fill=True, padding=0)
 
         # Actually, the tool box goes inside yet another box, so that
         # we have a gtk.VBox that we can refer to later.
         self.toolboxbody = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                                   spacing=2)
-        toolboxbox2.add_with_viewport(self.toolboxbody)
+                                   spacing=2, margin=2)
+        tbscroll.add(self.toolboxbody)
 
         self.toolboxGUIs = []           # GUI wrappers for toolboxes.
         self.current_toolbox = None
 
         # canvasbox contains the time slider and the canvas
-        canvasbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        canvasbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                            spacing=2, margin=2)
         self.paned2.pack2(canvasbox, resize=True, shrink=True)
 
         # timebox contains widgets for displaying and setting the time
         # for all AnimationLayers in the window.
         self.timebox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                               spacing=2)
+                               spacing=2, margin=2)
         gtklogger.setWidgetName(self.timebox, 'time')
         canvasbox.pack_start(self.timebox, expand=False, fill=False, padding=0)
         self.timebox.pack_start(Gtk.Label("time:"), expand=False, fill=False,
@@ -186,14 +203,14 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
         # HACK.  Set the position of the toolbox/canvas divider.  This
         # prevents the toolbox pane from coming up minimized.
-        self.paned2.set_position(250)
+        ##self.paned2.set_position(250)
 
         # Bottom part of main pane is a list of layers.  The actual
         # DisplayLayer objects are stored in self.display.
 
         layerFrame = Gtk.Frame(label='Layers')
         
-        self.mainpane.pack2(layerFrame, resize=False, shrink=True)
+        self.mainpane.pack2(layerFrame, resize=False, shrink=False)
         self.layerScroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(self.layerScroll, "LayerScroll")
         self.layerScroll.set_policy(Gtk.PolicyType.AUTOMATIC,
@@ -287,12 +304,12 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # we need direct access to the Scrollbars.  Instead, we make
         # the Scrollbars ourselves and put them in a Table with the
         # canvas.
-        self.canvasTable = Gtk.Grid()
+        self.canvasTable = Gtk.Grid(margin=2)
         gtklogger.setWidgetName(self.canvasTable, "Canvas")
         self.canvasTable.set_column_spacing(0)
         self.canvasTable.set_row_spacing(0)
         frame = Gtk.Frame()
-        frame.set_shadow_type(Gtk.ShadowType.IN)
+        frame.set_shadow_type(Gtk.ShadowType.NONE)
         frame.add(self.canvasTable)
         container.pack_start(frame, expand=True, fill=True, padding=0)
 #         self.paned2.pack2(frame, resize=True)
@@ -310,16 +327,17 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.canvasTable.attach(self.hScrollbar, 0,1, 1,1)
         self.canvasTable.attach(self.vScrollbar, 1,0, 1,1)
         self.canvasFrame = Gtk.Frame()
-        self.canvasFrame.set_shadow_type(Gtk.ShadowType.NONE)
+        # self.canvasFrame.set_shadow_type(Gtk.ShadowType.NONE)
         self.canvasTable.attach(self.canvasFrame, 0,0, 1,1)
 
     def makeContourMapWidgets(self, gtklogger):
         # the contourmap is in the right half of paned1 (the right pane of 3)
-        contourmapframe = Gtk.Frame()
-        contourmapframe.set_shadow_type(Gtk.ShadowType.IN)
+        contourmapframe = Gtk.Frame(margin=2)
+        contourmapframe.set_shadow_type(Gtk.ShadowType.NONE)
         self.paned1.pack2(contourmapframe, resize=False, shrink=True)
 
-        contourmapbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        contourmapbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                spacing=2, margin=2)
         gtklogger.setWidgetName(contourmapbox, "ContourMap")
         contourmapframe.add(contourmapbox)
         self.contourmap_max = Gtk.Label("max", halign=Gtk.Align.CENTER)
@@ -620,8 +638,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         ## a lot of the extraneous "contourmap info updated"
         ## checkpoints in the gui logs.
 
-        self.contourmapdata.canvas_mainlayer.removeAllItems()
-        #self.contourmapdata.canvas_mainlayer.make_current()
+        self.contourmapdata.canvas_mainlayer.clear()
+        # self.contourmapdata.canvas_mainlayer.make_current()
         
         c_min = None
         c_max = None
@@ -741,21 +759,18 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                 if level is not None:
                     self.contourmapdata.canvas_ticklayer.clear()
                     self.contourmapdata.canvas_ticklayer.raise_to_top()
-                    self.contourmapdata.canvas_ticklayer.make_current()
-                
-                    self.contourmapdata.device.set_lineColor(
-                        self.settings.contourmap_markercolor)
-                    self.contourmapdata.device.set_lineWidth(
-                        self.settings.contourmap_markersize)
-                    width=(c_max-c_min)/self.settings.aspectratio
+                    # self.contourmapdata.canvas_ticklayer.make_current()
 
-                    polygon = primitives.Polygon(
-                        [primitives.Point(0.0, lvls[level]-c_min),
-                         primitives.Point(width, lvls[level]-c_min),
-                         primitives.Point(width, lvls[level+1]-c_min),
-                         primitives.Point(0.0, lvls[level+1]-c_min)
-                         ])
-                    self.contourmapdata.device.draw_polygon(polygon)
+                    width=(c_max-c_min)/self.settings.aspectratio
+                    polygon = oofcanvas.CanvasRectangle(
+                        0, lvls[level]-c_min,
+                        width, lvls[level+1]-c_min)
+                    clr = self.settings.contourmap_markercolor
+                    polygon.setLineColor(color.canvasColor(
+                        self.settings.contourmap_markercolor))
+                    polygon.setLineWidth(self.settings.contourmap_markersize)
+                    polygon.setLineWidthInPixels()
+                    self.contourmapdata.canvas_ticklayer.addItem(polygon)
 
                     self.contourmapdata.mark_value = y
                     minimum = lvls[level]
@@ -780,8 +795,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.contourmapdata.device.show()
 
     # Callback for size changes of the pane containing the contourmap.
-    def contourmap_resize(self):
+    def contourmap_resize(self, data):
         self.contourmapdata.canvas.zoomToFill()
+
         # debug.mainthreadTest()
         # if self.current_contourmap_method:
         #     (c_min, c_max, c_lvls) = \
@@ -1014,7 +1030,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def zoomIn(self, *args):
         self.acquireGfxLock()
         try:
-            if self.oofcanvas and not self.oofcanvas.is_empty():
+            if self.oofcanvas and not self.oofcanvas.empty():
                 mainthread.runBlock(self.oofcanvas.zoom,
                                     (self.settings.zoomfactor,))
                 mainthread.runBlock(self.fix_step_increment)
@@ -1025,7 +1041,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def zoomInFocussed(self, menuitem, focus):
         self.acquireGfxLock()
         try:
-            if self.oofcanvas and not self.oofcanvas.is_empty():
+            if self.oofcanvas and not self.oofcanvas.empty():
                 mainthread.runBlock(self.oofcanvas.zoomAbout,
                                     (self.settings.zoomfactor, focus))
                 mainthread.runBlock(self.fix_step_increment)
@@ -1036,7 +1052,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def zoomOut(self, *args):
         self.acquireGfxLock()
         try:
-            if self.oofcanvas and not self.oofcanvas.is_empty():
+            if self.oofcanvas and not self.oofcanvas.empty():
                 mainthread.runBlock(self.oofcanvas.zoom,
                                     (1./self.settings.zoomfactor,))
                 mainthread.runBlock(self.fix_step_increment)
@@ -1048,7 +1064,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def zoomOutFocussed(self, menuitem, focus):
         self.acquireGfxLock()
         try:
-            if self.oofcanvas and not self.oofcanvas.is_empty():
+            if self.oofcanvas and not self.oofcanvas.empty():
                 mainthread.runBlock(self.oofcanvas.zoomAbout,
                                     (1./self.settings.zoomfactor, focus))
                 mainthread.runBlock(self.fix_step_increment)
@@ -1061,7 +1077,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         debug.mainthreadTest()
         if self.closed:
             return
-        if self.oofcanvas and not self.oofcanvas.is_empty():
+        if self.oofcanvas and not self.oofcanvas.empty():
             self.zoom_bbox()
 
 

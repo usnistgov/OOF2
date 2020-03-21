@@ -421,7 +421,8 @@ class AnyWhoParameterWidget(parameterwidgets.ParameterWidget,
         self.whopwidget = WhoParameterWidget(whoclass, scope=self,
                                              sort=whoville.proxiesLast,
                                              condition=lambda x:1)
-        self.gtk.pack_start(self.whopwidget.gtk)
+        self.gtk.pack_start(self.whopwidget.gtk,
+                            expand=False, fill=False, padding=0)
         self.gtk.show_all()
 
     def set_value(self, value):

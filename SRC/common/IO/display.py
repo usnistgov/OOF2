@@ -268,7 +268,7 @@ class DisplayMethod(registeredclass.RegisteredClass):
             othertimes.append(gfxwindow.displayTimeChanged)
 
         if lasttime < max(othertimes):
-            dlayer.make_current()
+            # dlayer.make_current()
             whoobj = self.layerset.who.resolve(gfxwindow)
             whoobj.begin_reading()      # acquire lock
             try:

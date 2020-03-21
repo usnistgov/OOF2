@@ -32,9 +32,9 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
-        infoframe = Gtk.Frame(label="Position Information")
-        infoframe.set_shadow_type(Gtk.ShadowType.IN)
-        mainbox.pack_start(infoframe, fill=False, expand=False)
+        infoframe = Gtk.Frame(label="Position Information", margin=2)
+        infoframe.set_shadow_type(Gtk.ShadowType.NONE)
+        mainbox.pack_start(infoframe, fill=False, expand=False, padding=0)
 
         infotable = Gtk.Grid()
         infoframe.add(infotable)
@@ -60,17 +60,18 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         infotable.attach(self.pixel_y,    2,0, 1,1)
         infotable.attach(physicallabel,   0,1, 1,1)
         infotable.attach(self.physical_x, 1,1, 1,1)
-        infotable.attach(self.physical_y, 2,1, 1.1)
+        infotable.attach(self.physical_y, 2,1, 1,1)
 
-        zoomframe = Gtk.Frame(label="Zoom")
+        zoomframe = Gtk.Frame(label="Zoom", margin=2)
         gtklogger.setWidgetName(zoomframe, "Zoom")
-        zoomframe.set_shadow_type(Gtk.ShadowType.IN)
+        zoomframe.set_shadow_type(Gtk.ShadowType.NONE)
         mainbox.pack_start(zoomframe, fill=False, expand=False, padding=0)
-        zoombox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        zoombox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                          margin=2)
         zoomframe.add(zoombox)
 
         buttonrow = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                            homogeneous=True, spacing=2)
+                            homogeneous=True, spacing=2, margin=2)
         zoombox.pack_start(buttonrow, expand=False, fill=True, padding=0)
         inbutton = gtkutils.StockButton("zoom-in-symbolic", 'In')
         buttonrow.pack_start(inbutton, expand=False, fill=True, padding=0)
@@ -85,7 +86,8 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         gtklogger.setWidgetName(fillbutton, "Fill")
         gtklogger.connect(fillbutton, 'clicked', self.fillCB)
 
-        factorrow = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        factorrow = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                            margin=2)
         zoombox.pack_start(factorrow, expand=False, fill=False, padding=0)
         factorrow.pack_start(Gtk.Label("Zoom Factor: "),
                              expand=False, fill=False, padding=0)
@@ -94,20 +96,23 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         gtklogger.setWidgetName(self.zoomfactor, "Factor")
         self.zfactorsignal = gtklogger.connect_passive(
             self.zoomfactor,"changed")
-        factorrow.pack_start(self.zoomfactor, expand=True, fill=True)
+        factorrow.pack_start(self.zoomfactor, expand=True, fill=True, padding=0)
 
         zoombox.pack_start(
-            Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL, margin=2),
             fill=False, expand=False, padding=2)
 
-        label0 = gtk.Label("Shift+Click: Zoom in\nCtrl+Click: Zoom out",
-                           halign=Gtk.Align.CENTER)
+        label0 = Gtk.Label("Shift+Click: Zoom in\nCtrl+Click: Zoom out",
+                           halign=Gtk.Align.CENTER,
+                           margin_bottom=2)
         label0.set_pattern("             _______\n            ________\n")
         label0.set_justify(Gtk.Justification.LEFT)
         zoombox.pack_start(label0, fill=False, expand=False, padding=0)
 
-        canvas_info = gtkutils.StockButton("user-info-symbolic", "Canvas Info",
-                                           halign=Gtk.Align.CENTER)
+        canvas_info = gtkutils.StockButton("dialog-information-symbolic",
+                                           "Canvas Info",
+                                           halign=Gtk.Align.CENTER,
+                                           margin=2)
         gtklogger.setWidgetName(canvas_info, "Info")
         gtklogger.connect(canvas_info, "clicked", self.canvas_infoCB)
         canvas_info.set_tooltip_text(
