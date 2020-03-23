@@ -10,11 +10,7 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
-if config.dimension() == 2:
-    from ooflib.SWIG.image import oofimage
-elif config.dimension() == 3:
-    from ooflib.SWIG.image import oofimage3d
-    #from ooflib.image import oofimage3d
+from ooflib.SWIG.image import oofimage
 from ooflib.common import debug
 from ooflib.common import labeltree
 from ooflib.common import mainthread
@@ -33,151 +29,161 @@ from ooflib.common.IO.GUI import historian
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.image import imagecontext
 from ooflib.image import imagemodifier
-import gtk
+from gi.repository import Gtk
 
 class ImagePage(oofGUI.MainPage):
     def __init__(self):
         oofGUI.MainPage.__init__(self, name="Image", ordering=50,
                                  tip='Manipulate Images')
 
-        mainbox = gtk.VBox(spacing=2)
+        mainbox = Gtk.Box(orientation=Gtk.ORIENTATION.VERTICAL,
+                          spacing=2, margin=2)
         self.gtk.add(mainbox)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        align.add(centerbox)
-        label = gtk.Label('Microstructure=')
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            spacing=3, margin=2, halign=Gtk.Align.CENTER)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
+        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
         self.imagewidget = whowidget.WhoWidget(imagecontext.imageContexts)
-        centerbox.pack_start(self.imagewidget.gtk[0], expand=0, fill=0)
-        label = gtk.Label('Image=')
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.imagewidget.gtk[1], expand=0, fill=0)
+        centerbox.pack_start(self.imagewidget.gtk[0],
+                             expand=False, fill=False, padding=0)
+        label = Gtk.Label('Image=', halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.imagewidget.gtk[1],
+                             expand=False, fill=False, padding=0)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(homogeneous=1, spacing=3)
-        align.add(centerbox)
+        centerbox = gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            homogeneous=True,
+                            spacing=3, margin=2, halign=Gtk.Align.CENTER)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
 
-        self.loadbutton = gtk.Button('Load...')
+        self.loadbutton = Gtk.Button('Load...')
         gtklogger.setWidgetName(self.loadbutton, 'Load')
-        centerbox.pack_start(self.loadbutton, expand=1, fill=1)
+        centerbox.pack_start(self.loadbutton, expand=True, fill=True, padding=0)
         gtklogger.connect(self.loadbutton, 'clicked', self.loadCB)
-        tooltips.set_tooltip_text(self.loadbutton,
+        self.loadbutton_tooltip_text(
             'Load a new image into an existing Microstructure')
         
-        self.copybutton = gtkutils.StockButton(gtk.STOCK_COPY, 'Copy...')
+        self.copybutton = gtkutils.StockButton("edit-copy-symbolic", 'Copy...')
         gtklogger.setWidgetName(self.copybutton, 'Copy')
         gtklogger.connect(self.copybutton, 'clicked', self.copyCB)
-        centerbox.pack_start(self.copybutton, expand=1, fill=1)
-        tooltips.set_tooltip_text(self.copybutton,
-            'Copy the current image.  The copy can be in the same or a different Microstructure.')
+        centerbox.pack_start(self.copybutton, expand=True, fill=True, padding=0)
+        self.copybutton_tooltip_text(
+            'Copy the current image.  The copy can be in the same"
+            " or a different Microstructure.')
 
-        self.renamebutton = gtkutils.StockButton(gtk.STOCK_EDIT, 'Rename...')
+        self.renamebutton = gtkutils.StockButton("document-edit-symbolic",
+                                                 'Rename...')
         gtklogger.setWidgetName(self.renamebutton, 'Rename')
         gtklogger.connect(self.renamebutton, 'clicked', self.renameCB)
-        tooltips.set_tooltip_text(self.renamebutton,'Rename the current image.')
-        centerbox.pack_start(self.renamebutton, expand=1, fill=1)
+        self.renamebutton.set_tooltip_text('Rename the current image.')
+        centerbox.pack_start(self.renamebutton,
+                             expand=True, fill=True, padding=0)
 
-        self.deletebutton = gtkutils.StockButton(gtk.STOCK_DELETE, 'Delete')
+        self.deletebutton = gtkutils.StockButton("edit-delete-symbolic",
+                                                 'Delete')
         gtklogger.setWidgetName(self.deletebutton, 'Delete')
         gtklogger.connect(self.deletebutton, 'clicked', self.deleteCB)
-        tooltips.set_tooltip_text(self.deletebutton,'Delete the current image.')
-        centerbox.pack_start(self.deletebutton, expand=1, fill=1)
+        self.deletebutton.set_tooltip_text('Delete the current image.')
+        centerbox.pack_start(self.deletebutton,
+                             expand=True, fill=True, padding=0)
 
-        self.savebutton = gtkutils.StockButton(gtk.STOCK_SAVE, 'Save...')
+        self.savebutton = gtkutils.StockButton('document-save-symbolic',
+                                               'Save...')
         gtklogger.setWidgetName(self.savebutton, 'Save')
         gtklogger.connect(self.savebutton, 'clicked', self.saveCB)
-        tooltips.set_tooltip_text(self.savebutton,'Save the current image to a file.')
-        centerbox.pack_start(self.savebutton, expand=1, fill=1)
+        self.savebutton.set_tooltip_text('Save the current image to a file.')
+        centerbox.pack_start(self.savebutton, expand=True, fill=True)
 
-        self.autogroupbutton = gtk.Button('Group...')
+        self.autogroupbutton = Gtk.Button('Group...')
         gtklogger.setWidgetName(self.autogroupbutton, 'Group')
         gtklogger.connect(self.autogroupbutton, 'clicked', self.autogroupCB)
-        centerbox.pack_start(self.autogroupbutton, expand=1, fill=1, padding=2)
-        tooltips.set_tooltip_text(self.autogroupbutton,
-                "Create a pixel group in the current image's microstructure for each color pixel in the image.  The 'Auto' button on the Microstructure page is more powerful version of this.")
+        centerbox.pack_start(self.autogroupbutton,
+                             expand=True, fill=True, padding=0)
+        self.autogroupbutton.set_tooltip_text(
+            "Create a pixel group in the current image's microstructure"
+            " for each color pixel in the image.  The 'Auto' button on the"
+            " Microstructure page is more powerful version of this.")
 
-        mainpane = gtk.HPaned()
+        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
         gtklogger.setWidgetName(mainpane, 'Pane')
-        mainbox.pack_start(mainpane, expand=1, fill=1)
+        mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
 
-        frame = gtk.Frame('Image Information')
-        frame.set_shadow_type(gtk.SHADOW_IN)
-        mainpane.pack1(frame, resize=True, shrink=False)
-        scroll = gtk.ScrolledWindow()
+        frame = Gtk.Frame(label='Image Information', margin=2)
+        frame.set_shadow_type(Gtk.ShadowType.IN)
+        mainpane.pack1(frame, resize=True, shrink=False, padding=0)
+        scroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(scroll, "StatusScroll")
-        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         frame.add(scroll)
 
         self.infoarea = Gtk.TextView(name="fixedfont")
-        self.infoarea.set_wrap_mode(gtk.WRAP_WORD)
+        self.infoarea.set_wrap_mode(Gtk.WrapMode.WORD)
         self.infoarea.set_editable(False)
         self.infoarea.set_cursor_visible(False)
-        scroll.add_with_viewport(self.infoarea)
+        scroll.add(self.infoarea)
 
-        frame = gtk.Frame('Image Modification')
-        frame.set_shadow_type(gtk.SHADOW_IN)
+        frame = Gtk.Frame(label='Image Modification')
+        frame.set_shadow_type(Gtk.ShadowType.IN)
         mainpane.pack2(frame, resize=False, shrink=False)
-        vbox = gtk.VBox()
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                       spacing=2, margin=2)
         frame.add(vbox)
-##        scroll = gtk.ScrolledWindow()    # scroll window for image mod method
-##        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-##        vbox.pack_start(scroll, expand=1, fill=1)
         self.imageModFactory = regclassfactory.RegisteredClassFactory(
             imagemodifier.ImageModifier.registry,
             title="Method:", name="Method")
-##        scroll.add_with_viewport(self.imageModFactory.gtk)
-        vbox.pack_start(self.imageModFactory.gtk, expand=1, fill=1)
+        vbox.pack_start(self.imageModFactory.gtk,
+                        expand=True, fill=True, padding=0)
         self.historian = historian.Historian(self.imageModFactory.set,
                                              self.sensitizeHistory,
                                              setCBkwargs={'interactive':1})
         self.imageModFactory.set_callback(self.historian.stateChangeCB)
 
         # Prev, OK, and Next buttons
-        hbox = gtk.HBox()
-        vbox.pack_start(hbox, expand=0, fill=0, padding=2)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                       spacing=2, margin=2)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=2)
         self.prevmethodbutton = gtkutils.prevButton()
         gtklogger.connect(self.prevmethodbutton, 'clicked',
                           self.historian.prevCB)
-        hbox.pack_start(self.prevmethodbutton, expand=0, fill=0, padding=2)
-        tooltips.set_tooltip_text(self.prevmethodbutton,
+        hbox.pack_start(self.prevmethodbutton,
+                        expand=False, fill=False, padding=-)
+        self.prevmethodbutton.set_tooltip_text(
             'Recall the previous image modification operation.')
-        self.okbutton = gtk.Button(stock=gtk.STOCK_OK)
+        self.okbutton = gtkutils.StockButton("gtk-ok", "OK")
         gtklogger.setWidgetName(self.okbutton, 'OK')
-        hbox.pack_start(self.okbutton, expand=1, fill=1, padding=5)
+        hbox.pack_start(self.okbutton, expand=True, fill=True, padding=5)
         gtklogger.connect(self.okbutton, 'clicked', self.okbuttonCB)
-        tooltips.set_tooltip_text(self.okbutton,
+        self.okbutton.set_tooltip_text(
             'Perform the image modification operation defined above.')
         self.nextmethodbutton = gtkutils.nextButton()
         gtklogger.connect(self.nextmethodbutton, 'clicked',
                           self.historian.nextCB)
-        hbox.pack_start(self.nextmethodbutton, expand=0, fill=0, padding=2)
-        tooltips.set_tooltip_text(self.nextmethodbutton,
+        hbox.pack_start(self.nextmethodbutton,
+                        expand=False, fill=False, padding=0)
+        self.nextmethodbutton.set_tooltip_text(
             "Recall the next image modification operation.")
 
         # Undo and Redo buttons
-        hbox = gtk.HBox()
-        vbox.pack_start(hbox, expand=0, fill=0, padding=2)
-        self.undobutton = gtk.Button(stock=gtk.STOCK_UNDO)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                       spacing=2, margin=2)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=0)
+        self.undobutton = gtkutils.StockButton('edit-undo-symbolic', 'Undo')
         gtklogger.setWidgetName(self.undobutton, 'Undo')
         gtklogger.connect(self.undobutton, 'clicked', self.undoCB)
-        tooltips.set_tooltip_text(self.undobutton,'Undo the latest image modification.')
-        hbox.pack_start(self.undobutton, expand=1, fill=0, padding=10)
-        self.redobutton = gtk.Button(stock=gtk.STOCK_REDO)
+        self.undobutton.set_tooltip_text('Undo the latest image modification.')
+        hbox.pack_start(self.undobutton, expand=True, fill=False, padding=0)
+        self.redobutton = gtkutils.StockButton('edit-redo-symbolic', 'Redo')
         gtklogger.setWidgetName(self.redobutton, 'Redo')
         gtklogger.connect(self.redobutton, 'clicked', self.redoCB)
-        tooltips.set_tooltip_text(self.redobutton,
+        self.redobutton.set_tooltip_text(
             'Redo the latest undone image modification.')
-        hbox.pack_start(self.redobutton, expand=1, fill=0, padding=10)
+        hbox.pack_start(self.redobutton, expand=True, fill=False, padding=0)
 
         self.sbcallbacks = [
             switchboard.requestCallbackMain(('new who', 'Microstructure'),
