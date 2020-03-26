@@ -11,17 +11,12 @@
 
 #include <oofconfig.h>
 
-#ifndef ABSTRACTIMAGE_H
-#define ABSTRACTIMAGE_H
+#ifndef OOFIMAGEGUI_H
+#define OOFIMAGEGUI_H
 
-class Coord;
-class ICoord;
+#include "common/IO/OOFCANVAS/oofcanvas.h"
 
-class AbstractImage {
-public:
-  virtual ~AbstractImage() {}
-  virtual const Coord &size() const = 0;
-  virtual const ICoord &sizeInPixels() const = 0;
-};
+OOFCanvas::CanvasImage *oofImageToCanvasImage(const OOFImage*, const Coord*,
+					       const Coord*);
 
-#endif // ABSTRACTIMAGE_H
+#endif // OOFIMAGEGUI_H

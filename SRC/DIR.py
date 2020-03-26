@@ -12,7 +12,7 @@ dirname = 'SRC'
 
 subdirs = ['common',
            # 'engine',
-           # 'image', 
+           'image', 
            # 'orientationmap',
            # 'tutorials',
            # 'EXTENSIONS'

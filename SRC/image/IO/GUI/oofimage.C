@@ -9,19 +9,13 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
+#include "image/IO/GUI/oofimage.h"
 
-#ifndef ABSTRACTIMAGE_H
-#define ABSTRACTIMAGE_H
-
-class Coord;
-class ICoord;
-
-class AbstractImage {
-public:
-  virtual ~AbstractImage() {}
-  virtual const Coord &size() const = 0;
-  virtual const ICoord &sizeInPixels() const = 0;
-};
-
-#endif // ABSTRACTIMAGE_H
+OOFCanvas::CanvasImage *oofImageToCanvasImage(const OOFImage *image,
+					      const Coord *pos,
+					      const Coord *size)
+{
+  return new CanvasImage::newFromImageMagick((*pos)[0], (*pos)[1],
+					     image->magickImage(),
+					     (*size)[0], (*size)[1]);
+}

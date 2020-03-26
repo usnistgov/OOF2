@@ -9,19 +9,19 @@
  * oof_manager@nist.gov. 
  */
 
+#ifndef OOFIMAGEGUI_SWG
+#define OOFIMAGEGUI_SWG
+
+%module oofimagegui
+%include "common/typemaps.swg"
+
+%{
 #include <oofconfig.h>
+#include "image/IO/GUI/oofimage.h"
+%}
 
-#ifndef ABSTRACTIMAGE_H
-#define ABSTRACTIMAGE_H
+CanvasImage *oofImageToCanvasImage(const OOFImage*, const Coord*,
+					      const Coord*);
 
-class Coord;
-class ICoord;
 
-class AbstractImage {
-public:
-  virtual ~AbstractImage() {}
-  virtual const Coord &size() const = 0;
-  virtual const ICoord &sizeInPixels() const = 0;
-};
-
-#endif // ABSTRACTIMAGE_H
+#endif // OOFIMAGEGUI_SWG
