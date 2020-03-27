@@ -1221,8 +1221,8 @@ def set_platform_values():
         if DIM_3:
             platform['incdirs'].append('/usr/include/vtk-5.4')
 
-    ## Irix and cygwin args haven't been tested in years and may be
-    ## horribly out of date.
+    ## Irix and cygwin args haven't been tested in years and are
+    ## certainly horribly out of date.
     elif sys.platform[:4] == 'irix':
         platform['extra_compile_args'].append('-LANG:std')
         platform['extra_link_args'].append('-LANG:std')
