@@ -53,7 +53,11 @@ def set_clib_flags(c_lib):
     # else:
     #     print "Can't find Magick++-config!  Your ImageMagick installation may be defective."
     oof2setuputils.pkg_check("Magick++", MAGICK_VERSION, c_lib)
+    oof2setuputils.pkg_check("cairomm-1.0", CAIROMM_VERSION, c_lib)
+    oof2setuputils.pkg_check("pangocairo", PANGOCAIRO_VERSION, c_lib)
     c_lib.externalLibs.append('oof2common')
+    c_lib.extra_compile_args.extend(['-DOOFCANVAS_USE_IMAGEMAGICK',
+                                     '-DOOFCANVAS_USE_PYTHON'])
         
 
 

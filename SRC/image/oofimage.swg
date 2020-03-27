@@ -12,15 +12,16 @@
 #ifndef OOFIMAGE_SWG
 #define OOFIMAGE_SWG
 %module oofimage
+
 %include "common/typemaps.swg"
 %{
-#include "image/oofimage.h"
-#include "common/ooferror.h"
 #include <oofconfig.h>
-#include "common/doublearray.h"
+#include "common/IO/OOFCANVAS/canvasimage.h"
 #include "common/boolarray.h"
-//typedef Array<bool> arraybool;
-// typedef Array<double> arraydouble;
+#include "common/doublearray.h"
+#include "common/ooferror.h"
+#include "image/oofimage.h"
+typedef OOFCanvas::CanvasImage CanvasImage;
 %}
 
 %pragma(python) include="oofimage.spy"
@@ -29,6 +30,7 @@
 %extern "common/timestamp.swg"
 %extern "common/ooferror.swg"
 %extern "common/abstractimage.swg"
+%extern "common/IO/OOFCANVAS/oofcanvas.swg"
 
 %extern "common/doublearray.swg"
 %pragma(python) code="from ooflib.SWIG.common.doublearray import DoubleArrayPtr"
@@ -39,6 +41,7 @@
 %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 %pragma(python) code="from ooflib.SWIG.common.ooferror import ErrErrorPtr"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
+%pragma(python) code="from ooflib.SWIG.common.IO.OOFCANVAS.oofcanvas import CanvasImagePtr"
 
 class OOFImage : public AbstractImage {
 public:
@@ -79,7 +82,7 @@ public:
   void evenly_illuminate(int);
   
   bool compare(OOFImage&, double);
-  %new CanvasImage *makeCanvasImage(Coord *Point, Coord*);
+  %new CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 
   // getTimeStamp is redefined in oofimage.spy so that it can have optional args
   %name(_getTimeStamp) TimeStamp *getTimeStamp();

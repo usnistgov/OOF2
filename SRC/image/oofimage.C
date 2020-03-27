@@ -24,8 +24,6 @@
 #include <set>
 #include <iostream>
 
-using namespace OOFCanvas;
-
 OOFImage::OOFImage(const std::string &name, const std::string &filename)
   : name_(name)
 {
@@ -211,12 +209,12 @@ void OOFImage::imageChanged() {
   image.modifyImage();
 }
 
-CanvasImage *OOFImage::makeCanvasImage(const Coord *pos, const Coord *size)
+OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
+						  const Coord *size)
   const
 {
-  return new CanvasImage::newFromImageMagick((*pos)[0], (*pos)[1],
-					     image,
-					     (*size)[0], (*size)[1]);
+  return OOFCanvas::CanvasImage::newFromImageMagick(
+			(*pos)[0], (*pos)[1], image, (*size)[0], (*size)[1]);
 }
 
 std::vector<unsigned short> *OOFImage::getPixels() {

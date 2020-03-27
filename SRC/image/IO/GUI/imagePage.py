@@ -39,7 +39,7 @@ class ImagePage(oofGUI.MainPage):
         oofGUI.MainPage.__init__(self, name="Image", ordering=50,
                                  tip='Manipulate Images')
 
-        mainbox = Gtk.Box(orientation=Gtk.ORIENTATION.VERTICAL,
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
                           spacing=2, margin=2)
         self.gtk.add(mainbox)
 
@@ -56,7 +56,7 @@ class ImagePage(oofGUI.MainPage):
         centerbox.pack_start(self.imagewidget.gtk[1],
                              expand=False, fill=False, padding=0)
 
-        centerbox = gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                             homogeneous=True,
                             spacing=3, margin=2, halign=Gtk.Align.CENTER)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
@@ -65,16 +65,16 @@ class ImagePage(oofGUI.MainPage):
         gtklogger.setWidgetName(self.loadbutton, 'Load')
         centerbox.pack_start(self.loadbutton, expand=True, fill=True, padding=0)
         gtklogger.connect(self.loadbutton, 'clicked', self.loadCB)
-        self.loadbutton_tooltip_text(
+        self.loadbutton.set_tooltip_text(
             'Load a new image into an existing Microstructure')
         
         self.copybutton = gtkutils.StockButton("edit-copy-symbolic", 'Copy...')
         gtklogger.setWidgetName(self.copybutton, 'Copy')
         gtklogger.connect(self.copybutton, 'clicked', self.copyCB)
         centerbox.pack_start(self.copybutton, expand=True, fill=True, padding=0)
-        self.copybutton_tooltip_text(
-            'Copy the current image.  The copy can be in the same"
-            " or a different Microstructure.')
+        self.copybutton.set_tooltip_text(
+            "Copy the current image.  The copy can be in the same"
+            " or a different Microstructure.")
 
         self.renamebutton = gtkutils.StockButton("document-edit-symbolic",
                                                  'Rename...')
@@ -97,7 +97,7 @@ class ImagePage(oofGUI.MainPage):
         gtklogger.setWidgetName(self.savebutton, 'Save')
         gtklogger.connect(self.savebutton, 'clicked', self.saveCB)
         self.savebutton.set_tooltip_text('Save the current image to a file.')
-        centerbox.pack_start(self.savebutton, expand=True, fill=True)
+        centerbox.pack_start(self.savebutton, expand=True, fill=True, padding=0)
 
         self.autogroupbutton = Gtk.Button('Group...')
         gtklogger.setWidgetName(self.autogroupbutton, 'Group')
@@ -109,15 +109,16 @@ class ImagePage(oofGUI.MainPage):
             " for each color pixel in the image.  The 'Auto' button on the"
             " Microstructure page is more powerful version of this.")
 
-        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
+        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                             wide_handle=True)
         gtklogger.setWidgetName(mainpane, 'Pane')
         mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
 
         frame = Gtk.Frame(label='Image Information', margin=2)
         frame.set_shadow_type(Gtk.ShadowType.IN)
-        mainpane.pack1(frame, resize=True, shrink=False, padding=0)
-        scroll = Gtk.ScrolledWindow()
+        mainpane.pack1(frame, resize=True, shrink=False)
+        scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN, margin=2)
         gtklogger.logScrollBars(scroll, "StatusScroll")
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         frame.add(scroll)
@@ -128,7 +129,7 @@ class ImagePage(oofGUI.MainPage):
         self.infoarea.set_cursor_visible(False)
         scroll.add(self.infoarea)
 
-        frame = Gtk.Frame(label='Image Modification')
+        frame = Gtk.Frame(label='Image Modification', margin=2)
         frame.set_shadow_type(Gtk.ShadowType.IN)
         mainpane.pack2(frame, resize=False, shrink=False)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
@@ -152,7 +153,7 @@ class ImagePage(oofGUI.MainPage):
         gtklogger.connect(self.prevmethodbutton, 'clicked',
                           self.historian.prevCB)
         hbox.pack_start(self.prevmethodbutton,
-                        expand=False, fill=False, padding=-)
+                        expand=False, fill=False, padding=0)
         self.prevmethodbutton.set_tooltip_text(
             'Recall the previous image modification operation.')
         self.okbutton = gtkutils.StockButton("gtk-ok", "OK")

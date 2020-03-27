@@ -38,6 +38,9 @@ class DoubleArray;
 class CMicrostructure;
 class OOFImageIterator;
 class ConstOOFImageIterator;
+namespace OOFCanvas {
+  class CanvasImage;
+};
 
 /*----------*/
 
@@ -71,7 +74,8 @@ public:
   ICoord pixelFromPoint(const Coord*) const;
   bool pixelInBounds(const ICoord*) const;
   const std::string *comment() const;
-  
+
+  OOFCanvas::CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
 
   void setMicrostructure(CMicrostructure *ms) { microstructure = ms; }
   CMicrostructure *getCMicrostructure() const { return microstructure; }

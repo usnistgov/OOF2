@@ -39,7 +39,7 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
                                    halign=Gtk.Align.FILL)
         self.imagetext.set_width_chars(12)
         gtklogger.setWidgetName(self.imagetext, "Image")
-        table.attach(self.imagetext, 1,row, 1,1)
+        grid.attach(self.imagetext, 1,row, 1,1)
 
         selectorbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                               spacing=2, margin=2)
@@ -56,28 +56,28 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         gtklogger.setWidgetName(self.hsv_selector, "HSV selector")
         gtklogger.connect(self.rgb_selector, "clicked", self.selector_cb)
         gtklogger.connect(self.hsv_selector, "clicked", self.selector_cb)
-        table.attach(selectorbox, 0,row+1, 1,1)
+        grid.attach(selectorbox, 0,row+1, 1,1)
         
-        self.label1 = Gtk.Label('red=', halign=Gtk.ALign.END)
-        table.attach(self.label1, 0,row+2, 1,1)
+        self.label1 = Gtk.Label('red=', halign=Gtk.Align.END)
+        grid.attach(self.label1, 0,row+2, 1,1)
         self.text1 = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.text1,'Text 1')
         self.text1.set_width_chars(10)
-        table.attach(self.text1, 1,row+2, 1,1)
+        grid.attach(self.text1, 1,row+2, 1,1)
 
-        self.label2 = gtk.Label('green=', halign=Gtk.Align.END)
-        table.attach(self.label2, 0,row+3,1,1)
+        self.label2 = Gtk.Label('green=', halign=Gtk.Align.END)
+        grid.attach(self.label2, 0,row+3,1,1)
         self.text2 = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.text2,'Text 2')
         self.text2.set_width_chars(10)
-        table.attach(self.text2, 1,row+3, 1,1)
+        grid.attach(self.text2, 1,row+3, 1,1)
 
-        self.label3 = Gtk.Label('blue=', halign=Gtk.Align.END))
-        table.attach(self.label3, 0,row+4, 1,1)
+        self.label3 = Gtk.Label('blue=', halign=Gtk.Align.END)
+        grid.attach(self.label3, 0,row+4, 1,1)
         self.text3 = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.text3,'Text 3')
         self.text3.set_width_chars(10)
-        table.attach(self.text3, 1,row+4, 1,1)
+        grid.attach(self.text3, 1,row+4, 1,1)
 
         self.sbcallbacks = [
             switchboard.requestCallbackMain('modified image',

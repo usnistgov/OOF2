@@ -22,7 +22,7 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import microstructurePage
 from ooflib.common.IO.GUI import parameterwidgets
-from ooflib.image.IO import imagemenu  # ensures that OOFMenuItems have been created.
+from ooflib.image.IO import imagemenu  # ensures that OOFMenuItems exist
 from ooflib.image import imagecontext
 
 from gi.repository import Gtk
@@ -33,10 +33,11 @@ def newMSfromImage(button):
                                       *menuitem.params):
         menuitem.callWithDefaults()
 
-newfromimagebutton = gtkutils.StockButton(gtk.STOCK_NEW, "New from Image")
+newfromimagebutton = gtkutils.StockButton("document-new-symbolic",
+                                          "New from Image")
 gtklogger.setWidgetName(newfromimagebutton, "NewFromImage")
 gtklogger.connect(newfromimagebutton, 'clicked', newMSfromImage)
-tooltips.set_tooltip_text(newfromimagebutton,
+newfromimagebutton.set_tooltip_text(
     "Create a new Microstructure with an Image that has been loaded already.")
 newfromimagebutton.set_sensitive(0)
 
