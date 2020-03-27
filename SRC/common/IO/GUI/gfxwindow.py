@@ -580,7 +580,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                                self.contourmapdata.device.begin_layer("main")
         self.contourmapdata.canvas_ticklayer = \
                                self.contourmapdata.device.begin_layer("tick")
-        self.contourmapdata.canvas_ticklayer.raise_to_top()
+        self.contourmapdata.canvas_ticklayer.raiseToTop()
     
 ##    # Function called after layers have been arranged.  Does not
 ##    # draw the actual contourmap, just records the layers.
@@ -700,7 +700,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                     self.contourmapdata.canvas.underlay)
 
         self.contourmapdata.device.end_layer()
-        self.contourmapdata.device.show()
+        mainthread.runBlock(self.contourmapdata.device.show)
         
         if c_min is None:
             mainthread.runBlock(
@@ -749,7 +749,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                         break
                 if level is not None:
                     self.contourmapdata.canvas_ticklayer.clear()
-                    self.contourmapdata.canvas_ticklayer.raise_to_top()
+                    self.contourmapdata.canvas_ticklayer.raiseToTop()
                     # self.contourmapdata.canvas_ticklayer.make_current()
 
                     width=(c_max-c_min)/self.settings.aspectratio
@@ -783,7 +783,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             mainthread.runBlock(
                 self.contourlevel_max.set_text, ('',) )
 
-        self.contourmapdata.device.show()
+        mainthread.runBlock(self.contourmapdata.device.show)
 
     # Callback for size changes of the pane containing the contourmap.
     def contourmap_resize(self, data):
