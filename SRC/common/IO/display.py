@@ -55,6 +55,7 @@ from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import timestamp
 from ooflib.common import debug
+from ooflib.common import mainthread
 from ooflib.common import registeredclass
 from ooflib.common import subthread
 from ooflib.common.IO import parameter
@@ -257,7 +258,7 @@ class DisplayMethod(registeredclass.RegisteredClass):
 
         # This is needed because it keeps the order of the oofcanvas
         # layers in sync with the higher level layers.
-        dlayer.raise_to_top() 
+        dlayer.raiseToTop() 
 
         # othertimes is a list of the TimeStamps of events that
         # require the display layer to be redrawn.
@@ -341,10 +342,10 @@ class DisplayMethod(registeredclass.RegisteredClass):
 
     def raise_layer(self, howfar=1):
         for devicelayer in self.devicelayers.values():
-            devicelayer.raise_layer(howfar)
+            devicelayer.raiseBy(howfar)
     def lower_layer(self, howfar=1):
         for devicelayer in self.devicelayers.values():
-            devicelayer.lower_layer(howfar)
+            devicelayer.lowerBy(howfar)
 
     def layerordering(self):
         return self.getRegistration().layerordering
@@ -573,17 +574,15 @@ class Display:
             for layer in self.layers:
                 reason = layer.incomputable(gfxwindow)
                 if reason:      # ignore incomputable display methods
-#                    debug.fmsg('ignoring layer:', layer, reason)
                     layer.clear(device)
                 else:
                     try:
                         layer.drawIfNecessary(gfxwindow, device)
                     except subthread.StopThread:
-#                         print layer, "has a problem!"
                         return
-                    # TODO SWIG1.3: After conversion to SWIG 1.3, OOF
-                    # exceptions will probably be subclasses of
-                    # Exception.
+                    # TODO SWIG1.3: After conversion to SWIG 1.3
+                    # (hahaha), OOF exceptions will probably be
+                    # subclasses of Exception.
                     except (Exception, ooferror.ErrErrorPtr), exc:
                         # This should not happen for computable Outputs
                         debug.fmsg('Exception while drawing!', exc)
@@ -593,13 +592,8 @@ class Display:
             # If the device is a buffered output device, this flushes
             # the buffer and executes the low level drawing calls --
             # ie actually draws something on the screen.
-        device.show()
-        # Finally, if it is 3D and some layers were actually
-        # drawn, render the scene.  We only want to call this at a
-        # high level because 3D rendering is slow.
-        if config.dimension() == 3:
-            gfxwindow.oofcanvas.update_volume_and_render()
-#        debug.fmsg("Exiting.")
+        mainthread.runBlock(device.show)
+
 
     def drawable(self, gfxwindow):
         # Can any layer be drawn? Used when testing the gui.
@@ -673,7 +667,7 @@ class Display:
                     self.layers[n+i] = self.layers[n+i+1]
                 self.layers[n+howfar] = thislayer
                 # actually reorder layers in devices
-                thislayer.raise_layer(howfar)
+                thislayer.raiseBy(howfar)
                 self.layerChangeTime.increment()
                 self.sorted = False
         finally:
@@ -691,7 +685,7 @@ class Display:
                 for i in range(howfar):
                     self.layers[n-i] = self.layers[n-i-1]
                 self.layers[n-howfar] = thislayer
-                thislayer.lower_layer(howfar)
+                thislayer.lowerBy(howfar)
                 self.layerChangeTime.increment()
                 self.sorted = False
         finally:

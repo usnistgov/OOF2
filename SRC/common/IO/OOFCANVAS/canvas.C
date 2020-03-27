@@ -9,6 +9,7 @@
  * oof_manager@nist.gov. 
  */
 
+#include "common/threadstate.h"
 #include "canvas.h"
 #include "canvasitem.h"
 #include "canvaslayer.h"
@@ -155,7 +156,6 @@ namespace OOFCanvas {
   // with scrolling.
 
   void OffScreenCanvas::setTransform(double scale) {
-
     // If no layers are dirty and ppu hasn't changed, don't do anything.
     bool newppu = (scale != ppu);
     bool layersChanged = false;

@@ -8,10 +8,9 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-## TODO GTK3: Rewrite this to use the Cairo based OOFCanvas.  Then
-## after all of OOF2 is converted to gtk3, remove the OutputDevice
-## class hierarchy, and have the DisplayMethods all use OOFCanvas
-## directly.
+## TODO GTK3: After all of OOF2 is converted to gtk3, remove the
+## OutputDevice class hierarchy, and have the DisplayMethods all use
+## OOFCanvas directly.
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import coord

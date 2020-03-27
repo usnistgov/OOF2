@@ -244,11 +244,11 @@ namespace OOFCanvas {
       // Compute ppu in the x and y directions, and choose the smaller
       // one, so that the image fits in both directions.
 
-      // TODO: This assumes that boundingbox has already been
-      // computed, which is only done when setTransform is called.  Is
-      // that a bad assumption?
-      if(!boundingBox.initialized())
-	throw ErrProgrammingError("No bbox", __FILE__, __LINE__);
+      // The bounding box may not have been initialized yet, if the
+      // canvas hasn't been drawn and setTransform hasn't been called.
+      if(!boundingBox.initialized()) {
+	setTransform(ppu);
+      }
       assert(boundingBox.initialized());
       double fudge = 0.97;	// a little extra space
       ppu_x = fudge*widgetWidth()/boundingBox.width();

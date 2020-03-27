@@ -51,7 +51,6 @@ class ContourMapData:
     # display, to keep the code (relatively) tidy.
     def __init__(self):
         self.canvas = None
-        self.rawdevice = None
         self.device = None
         self.mouse_down = None
         self.mark_value = None
@@ -525,9 +524,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         from ooflib.common.IO.GUI import canvasoutput
         from ooflib.common.IO import outputdevice
 
-        # Use the buffered device.
-        rawdevice = canvasoutput.CanvasOutput(self.oofcanvas)
-        self.device = outputdevice.BufferedOutputDevice(rawdevice)
+        self.device = canvasoutput.CanvasOutput(self.oofcanvas)
 
         # # On a new canvas, these should both be set at once,
         # # since they both need to call underlay.
@@ -570,10 +567,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         from ooflib.common.IO.GUI import canvasoutput
         from ooflib.common.IO import outputdevice
         
-        self.contourmapdata.rawdevice=canvasoutput.CanvasOutput(
+        self.contourmapdata.device = canvasoutput.CanvasOutput(
             self.contourmapdata.canvas)
-        self.contourmapdata.device=outputdevice.BufferedOutputDevice(
-            self.contourmapdata.rawdevice)
         
         self.contourmapdata.canvas.setResizeCallback(
             self.contourmap_resize, None)
@@ -658,10 +653,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             (c_min, c_max, lvls) = \
                     current_contourmethod.get_contourmap_info()
 
-
-            # Flush the buffered device, so geometry data is valid.
-            self.contourmapdata.device.flush_wait()
-            
             # Zoom and scroll the canvas so that the drawn contour map 
             # exactly fills it vertically.
             ph = mainthread.runBlock(
@@ -898,7 +889,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         try:
             self.updateTimeControls()
             self.display.draw(self, self.device)
-            self.device.flush_wait() # needed when animating and zooming
             if zoom and self.realized:
                 self.zoomFillWindow(lock=False)
         finally:
