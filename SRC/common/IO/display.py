@@ -565,10 +565,7 @@ class Display:
 
     def draw(self, gfxwindow, device):
         # High level drawing action is done here.  Loop through the
-        # layers and drawIfNecessary.  Note that if the device is a
-        # bufferedoutputdevice, the low level drawing calls will be
-        # added to the buffer and excecuted after device.show is
-        # called.
+        # layers and drawIfNecessary. 
         self.lock.acquire()
         try:
             for layer in self.layers:
@@ -589,9 +586,6 @@ class Display:
                         raise
         finally:
             self.lock.release()
-            # If the device is a buffered output device, this flushes
-            # the buffer and executes the low level drawing calls --
-            # ie actually draws something on the screen.
         mainthread.runBlock(device.show)
 
 
