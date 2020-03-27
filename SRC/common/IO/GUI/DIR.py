@@ -11,6 +11,7 @@
 dirname = 'GUI'
 clib = 'oof2commonGUI'
 clib_order = 100
+subdirs = ['OOFCANVAS']
 
 pyfiles = [
     'activeareaPage.py',

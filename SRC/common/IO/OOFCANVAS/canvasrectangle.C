@@ -57,7 +57,8 @@ namespace OOFCanvas {
     fillAndStroke(ctxt);
   }
 
-  bool CanvasRectangle::containsPoint(const CanvasBase*, const Coord &pt) const
+  bool CanvasRectangle::containsPoint(const OffScreenCanvas*, const Coord &pt)
+    const
   {
     // We already know that the point is within the bounding box, so
     // if the rectangle is filled, the point is on it.

@@ -53,7 +53,9 @@ namespace OOFCanvas {
     return os;
   }
 
-  bool CanvasCircle::containsPoint(const CanvasBase*, const Coord &pt) const {
+  bool CanvasCircle::containsPoint(const OffScreenCanvas*, const Coord &pt)
+    const
+  {
     double d2 = (pt - center).norm2();
     if(fill) {
       return d2 <= radius*radius;
@@ -128,7 +130,9 @@ namespace OOFCanvas {
     return os;
   }
 
-  bool CanvasEllipse::containsPoint(const CanvasBase*, const Coord &pt) const {
+  bool CanvasEllipse::containsPoint(const OffScreenCanvas*, const Coord &pt)
+    const
+  {
     Coord p = pt - center;
     double c = cos(angle);
     double s = sin(angle);
@@ -236,7 +240,8 @@ namespace OOFCanvas {
     return os;
   }
 
-  bool CanvasDot::containsPoint(const CanvasBase *canvas, const Coord &pt) const
+  bool CanvasDot::containsPoint(const OffScreenCanvas *canvas, const Coord &pt)
+    const
   {
     double d2 = (pt - center).norm2();
     double r = canvas->pixel2user(radius);

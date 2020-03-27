@@ -16,7 +16,7 @@
 
 namespace OOFCanvas {
   
-  CanvasLayer::CanvasLayer(CanvasBase *canvas, const std::string &name) 
+  CanvasLayer::CanvasLayer(OffScreenCanvas *canvas, const std::string &name) 
     : canvas(canvas),
       alpha(1.0),
       visible(true),
@@ -251,81 +251,4 @@ namespace OOFCanvas {
     return os;
   }
 
-  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-  WindowSizeCanvasLayer::WindowSizeCanvasLayer(CanvasBase *cb,
-					       const std::string &name)
-    : CanvasLayer(cb, name)
-  {}
-
-  void WindowSizeCanvasLayer::clear() {
-    int size_x = canvas->widthInPixels();
-    int size_y = canvas->heightInPixels();
-    makeCairoObjs(size_x, size_y);
-    // The Cairo::ImageSurface for the WindowSizeCanvasLayer is
-    // aligned with the Canvas window, but it needs to have the same
-    // ppu as the other CanvasLayers so that things drawn on it can
-    // match things drawn on the other layers.  The offset can be
-    // different because it can be compensated for when the
-    // WindowSizeCanvasLayer is copied to the Canvas.  The offset must
-    // put the upperleft corner of the ImageSurface to the lowerleft
-    // corner of the window, and vice versa.
-
-    double ppu = canvas->getPixelsPerUnit();
-    int h = canvas->heightInPixels();
-    int hadj = gtk_adjustment_get_value(canvas->getHAdjustment());
-    int vadj = gtk_adjustment_get_value(canvas->getVAdjustment());
-    
-    Coord offset = ppu*canvas->pixel2user(ICoord(0, h)) + Coord(hadj, -vadj);
-    Cairo::Matrix mat(ppu, 0.0, 0.0, -ppu, -offset.x, h+offset.y);
-    context->set_matrix(mat);
-
-  }
-
-  void WindowSizeCanvasLayer::draw(Cairo::RefPtr<Cairo::Context> ctxt,
-				   double hadj, double vadj)
-    const
-  {
-    // ctxt is the Cairo::Context that was provided to the Gtk "draw"
-    // event handler.  The coordinates in ctxt are pixel coordinates
-    // (the transformation matrix is the identity matrix) but may have
-    // a non-zero offset.
-
-    if(visible && !items.empty()) {
-      double ppu = canvas->getPixelsPerUnit();
-      // The latter two arguments to set_source are the user
-      // coordinates in the destination context of upper left corner
-      // of the source surface.
-      // Coord upleft(canvas->pixel2user(ICoord(hadj, vadj)));
-      // ICoord origin(canvas->user2pixel(Coord(0, 0)));
-      // ctxt->set_source(surface, upleft.x, upleft.y);
-
-      Coord offset = (ICoord(hadj, vadj) + canvas->user2pixel(Coord(0, 0)))/ppu;
-      ctxt->set_source(surface, offset.x, offset.y);
-	
-      if(alpha == 1.0)
-	ctxt->paint();
-      else
-	ctxt->paint_with_alpha(alpha);
-    }
-  }
-
-  // void WindowSizeCanvasLayer::redraw() { // Just for debugging
-  //   if(dirty) {
-  //     clear();
-  //     context->set_source_rgb(0.2, 0.1, 0.1);
-  //     context->paint_with_alpha(0.5);
-  //     // double x0, y0, x1, y1;
-  //     // context->get_clip_extents(x0, y0, x1, y1);
-  //     // std::cerr << "WindowSizeCanvasLayer::redraw: clip extents = "
-  //     // 		<< x0 << " " << y0 << " " << x1 << " " << y1 << std::endl;
-  //     for(CanvasItem *item : items)
-  // 	item->draw(context);
-  //     dirty = false;
-  //   }
-  // }
-
-  
-
-  
 };				// namespace OOFCanvas

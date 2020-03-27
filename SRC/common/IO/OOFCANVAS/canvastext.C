@@ -199,7 +199,7 @@ namespace OOFCanvas {
     up = bb.ymin() - location.y;
   }
 
-  bool CanvasText::containsPoint(const CanvasBase*, const Coord&) const {
+  bool CanvasText::containsPoint(const OffScreenCanvas*, const Coord&) const {
     return false;
   }
 

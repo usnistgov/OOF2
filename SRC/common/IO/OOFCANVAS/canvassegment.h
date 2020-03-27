@@ -24,7 +24,7 @@ namespace OOFCanvas {
   protected:
     Segment segment;
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
-    virtual bool containsPoint(const CanvasBase*, const Coord&) const;
+    virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
     std::vector<double> dashes;
     Rectangle bbox0;
   public:
@@ -57,7 +57,7 @@ namespace OOFCanvas {
     bool pixelScaling;
     bool reversed;		// pointing backwards?
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
-    virtual bool containsPoint(const CanvasBase*, const Coord&) const;
+    virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
     Coord location() const;
     Rectangle findBoundingBox_(double) const;
   public:

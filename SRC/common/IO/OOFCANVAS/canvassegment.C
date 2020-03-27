@@ -60,7 +60,7 @@ namespace OOFCanvas {
     ctxt->stroke();
   }
 
-  bool CanvasSegment::containsPoint(const CanvasBase *canvas,
+  bool CanvasSegment::containsPoint(const OffScreenCanvas *canvas,
 				    const Coord &pt) const
   {
     double alpha = 0;
@@ -204,7 +204,7 @@ namespace OOFCanvas {
     down = loc.y - bb.ymin();
   }
 
-  bool CanvasArrowhead::containsPoint(const CanvasBase*, const Coord &pt)
+  bool CanvasArrowhead::containsPoint(const OffScreenCanvas*, const Coord &pt)
     const
   {
     return false;

@@ -14,7 +14,7 @@ from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import progress
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
+from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import primitives
@@ -478,7 +478,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         debug.mainthreadTest()
         assert self.oofcanvas is None
         ## TODO GTK3: How to set initial size of the Canvas?
-        self.oofcanvas = oofcanvas.Canvas(width=300, height=300, ppu=1.0,
+        self.oofcanvas = oofcanvasgui.Canvas(width=300, height=300, ppu=1.0,
                                           vexpand=True, hexpand=True)
         self.oofcanvas.antialias(self.settings.antialias)
 ##        self.oofcanvas = fakecanvas.FakeCanvas(self.settings.antialias)
@@ -559,7 +559,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
         # Arguments are width, height, and ppu. They don't matter.
         # Just call zoomToFill after drawing.
-        self.contourmapdata.canvas = oofcanvas.Canvas(
+        self.contourmapdata.canvas = oofcanvasgui.Canvas(
             100, 100, 1)
         self.contourmapdata.canvas.setBackgroundColor(
             self.settings.bgcolor.getRed(),

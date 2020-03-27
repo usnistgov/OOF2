@@ -21,7 +21,7 @@ namespace OOFCanvas {
     Coord center;
     double radius;
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
-    virtual bool containsPoint(const CanvasBase*, const Coord&) const;
+    virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
     void setup();
   public:
     CanvasCircle(double cx, double cy, double r);
@@ -43,7 +43,7 @@ namespace OOFCanvas {
     double r0, r1;
     double angle;		// stored in radians, specified in degrees
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
-    virtual bool containsPoint(const CanvasBase*, const Coord&) const;
+    virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
     void setup();
   public:
     CanvasEllipse(double cx, double cy, double r0, double r1, double angle);
@@ -64,7 +64,7 @@ namespace OOFCanvas {
     Coord center;
     double radius;
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
-    virtual bool containsPoint(const CanvasBase*, const Coord&) const;
+    virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
   public:
     CanvasDot(double cx, double cy, double r);
     CanvasDot(const Coord &c, double r);

@@ -20,7 +20,7 @@ namespace OOFCanvas {
     std::vector<Coord> corners;
     Rectangle bbox0;
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
-    virtual bool containsPoint(const CanvasBase*, const Coord&) const;
+    virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
   public:
     CanvasPolygon() {}
     CanvasPolygon(int n);	// preallocates space for n corners

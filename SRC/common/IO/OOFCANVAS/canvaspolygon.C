@@ -95,7 +95,9 @@ namespace OOFCanvas {
     return wn;
   }
 
-  bool CanvasPolygon::containsPoint(const CanvasBase*, const Coord &pt) const {
+  bool CanvasPolygon::containsPoint(const OffScreenCanvas*, const Coord &pt)
+    const
+  {
     if(fill) {
       if(windingNumber(pt) != 0)
 	return true;

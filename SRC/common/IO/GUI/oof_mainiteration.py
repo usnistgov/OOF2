@@ -13,8 +13,8 @@ from ooflib.SWIG.common import threadstate
 from ooflib.common import debug
 from ooflib.common import thread_enable
 from ooflib.common.IO.GUI import mainthreadGUI
-import gobject
-import gtk
+
+from gi.repository import Gtk
 import threading
 
 # Thread-safe GTK mainiteration call -- wraps the gtk.mainiteration in

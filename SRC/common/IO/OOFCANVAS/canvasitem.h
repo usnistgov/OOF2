@@ -77,7 +77,7 @@ namespace OOFCanvas {
     // coordinates is on the item.  It's used to determine if a mouse
     // click selected the item.  It's called after bounding boxes have
     // been checked, so there's no need for it to check again.
-    virtual bool containsPoint(const CanvasBase*, const Coord&) const = 0;
+    virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const = 0;
 
     // Any routine that might change a CanvasItem's size after it's
     // been added to a CanvasLayer needs to call modified().

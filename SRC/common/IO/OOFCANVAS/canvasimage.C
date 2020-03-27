@@ -181,7 +181,7 @@ namespace OOFCanvas {
     down = 0.0;
   }
 
-  bool CanvasImage::containsPoint(const CanvasBase*, const Coord&) const {
+  bool CanvasImage::containsPoint(const OffScreenCanvas*, const Coord&) const {
     // This isn't called unless the point is within the bounding box,
     // and images fill their bounding boxes, so there's nothing to do
     // here.

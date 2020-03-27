@@ -135,10 +135,9 @@ class MicrostructurePage(oofGUI.MainPage):
         infoframe = Gtk.Frame(label='Microstructure Info', margin=2)
         infoframe.set_shadow_type(Gtk.ShadowType.IN)
         pane.pack1(infoframe, resize=True, shrink=False)
-        scroll = Gtk.ScrolledWindow(margin=2)
+        scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN, margin=2)
         gtklogger.logScrollBars(scroll, "InfoFrameScroll")
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        scroll.set_shadow_type(Gtk.ShadowType.IN)
         infoframe.add(scroll)
         self.infoarea = Gtk.TextView(name="fixedfont", margin=2)
         self.infoarea.set_editable(0)
@@ -391,7 +390,7 @@ class MicrostructurePage(oofGUI.MainPage):
 
     def addNewButton(self, gtkobj, sensitizefn):
         debug.mainthreadTest()
-        self.newbuttonbox.pack_start(gtkobj, expand=True, fill=True)
+        self.newbuttonbox.pack_start(gtkobj, expand=True, fill=True, padding=0)
         gtkobj.show()
         if sensitizefn is not None:
             self.sensitizeFns.append(sensitizefn)

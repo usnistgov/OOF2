@@ -50,8 +50,6 @@ typedef std::vector<std::string> StringVec;
   delete $source;
 }
 
-void initializePyGTK();
-
 class Color {
 public:
   Color(double, double, double);
@@ -252,6 +250,7 @@ public:
   void addItem(CanvasItem*);
   void removeAllItems();
   void clear();
+  void redraw();
   void setClickable(bool);
   void setOpacity(double);
   void show();
@@ -308,11 +307,9 @@ public:
   bool done();
 };
 
-%name(Canvas) class CanvasPython {
+class OffScreenCanvas {
 public:
-  %name(Canvas) CanvasPython(PyObject*, double ppu);
-  %name(Canvas) ~CanvasPython();
-  void destroy();
+  OffScreenCanvas(double);
   CanvasLayer *newLayer(char*);
   CanvasLayer *getLayer(int);
   %name(getLayerByName) CanvasLayer *getLayer(char*);
@@ -323,23 +320,10 @@ public:
   void lowerLayerToBottom(int);
   void raiseLayerToTop(int);
   void clear();
-  void show();
   void draw();
   double getPixelsPerUnit();
-  int widthInPixels();
-  int heightInPixels();
-  void zoom(double);
-  void zoomAbout(double, double, double);
-  void zoomToFill();
-  void center();
   void antialias(bool);
   void setBackgroundColor(double, double, double);
-  void setMouseCallback(PyObject*, PyObject*);
-  void setResizeCallback(PyObject*, PyObject*);
-  void allowMotionEvents(bool);
-  void setRubberBand(RubberBand*);
-  void removeRubberBand();
-  
   %name(clickedItems) %new CanvasItemList* clickedItems_new(double, double);
   %name(allItems) %new CanvasItemList* allItems_new();
 };

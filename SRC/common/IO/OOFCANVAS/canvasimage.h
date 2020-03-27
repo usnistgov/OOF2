@@ -35,7 +35,7 @@ namespace OOFCanvas {
     int stride;
     Cairo::RefPtr<Cairo::ImageSurface> imageSurface;
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
-    virtual bool containsPoint(const CanvasBase*, const Coord&) const;
+    virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
     void setUp(Cairo::RefPtr<Cairo::ImageSurface>,
 	       double, double);	// displayed size
   public:

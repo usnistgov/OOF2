@@ -15,7 +15,8 @@
 #include <cairomm/cairomm.h>
 
 namespace OOFCanvas {
-  class CanvasBase;
+  class GUICanvasBase;
+  class OffScreenCanvas;
   class CanvasLayer;
 };
 
@@ -28,7 +29,7 @@ namespace OOFCanvas {
   protected:
     Cairo::RefPtr<Cairo::ImageSurface> surface;
     Cairo::RefPtr<Cairo::Context> context;
-    CanvasBase *canvas;
+    OffScreenCanvas *canvas;
     std::vector<CanvasItem*> items;
     double alpha;
     bool visible;
@@ -37,7 +38,7 @@ namespace OOFCanvas {
     Rectangle bbox;	// Cached bounding box of all contained items
     void makeCairoObjs(int, int);
   public:
-    CanvasLayer(CanvasBase*, const std::string&);
+    CanvasLayer(OffScreenCanvas*, const std::string&);
     virtual ~CanvasLayer();
     const std::string name;
     // clear() recreates the surface using the current size of the Canvas.
@@ -86,19 +87,9 @@ namespace OOFCanvas {
 
     Cairo::RefPtr<Cairo::Context> getContext() const { return context; }
     
-    friend class CanvasBase;
     friend class CanvasItem;
-  };
-
-  // A WindowSizeCanvasLayer is big enough to fill the Canvas's
-  // window, which may be bigger or smaller than the bounding box of
-  // its contents.
-  
-  class WindowSizeCanvasLayer : public CanvasLayer {
-  public:
-    WindowSizeCanvasLayer(CanvasBase*, const std::string&);
-    virtual void clear();
-    virtual void draw(Cairo::RefPtr<Cairo::Context>, double, double) const;
+    friend class GUICanvasBase;
+    friend class OffScreenCanvas;
   };
 
   std::ostream &operator<<(std::ostream&, const CanvasLayer&);

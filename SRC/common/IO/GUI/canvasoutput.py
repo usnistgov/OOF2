@@ -116,7 +116,7 @@ class CanvasOutput(outputdevice.OutputDevice):
                                       segment.endpt.x, segment.endpt.y)
         seg.setLineWidth(self.lineWidth)
         seg.setLineColor(self.lineColor)
-        self.currentLayer.addItem(seg)
+        self.currentlayer.addItem(seg)
         return seg
 
     def draw_dot(self, dot):
@@ -125,14 +125,14 @@ class CanvasOutput(outputdevice.OutputDevice):
         ## the OutputDevice classes.
         dot = oofcanvas.CanvasDot(dot.x, dot.y, self.lineWidth)
         dot.setFillColor(self.fillColor)
-        self.currentLayer.addItem(dot)
+        self.currentlayer.addItem(dot)
         return dot
 
     def draw_triangle(self, segment, relativePos):
         triangle = oofcanvas.CanvasArrowhead(segment, relativePos,
                                              self.lineWidth, self.lineWidth)
         triangle.setFillColor(self.fillColor)
-        self.currentLayer.addItem(triangle)
+        self.currentlayer.addItem(triangle)
         return triangle
         
     def draw_curve(self, curve):
@@ -144,7 +144,7 @@ class CanvasOutput(outputdevice.OutputDevice):
                             edge.endpt.x, edge.endpt.y)
         segs.setLineColor(self.lineColor)
         segs.setLineWidth(self.lineWidth)
-        self.currentLayer.addItem(segs)
+        self.currentlayer.addItem(segs)
         return segs
         
     def draw_polygon(self, polygon):
@@ -173,27 +173,27 @@ class CanvasOutput(outputdevice.OutputDevice):
             poly.setLineColor(self.lineColor)
         if filled and self.fillColor:
             poly.setFillColor(self.fillColor)
-        self.currentLayer.addItem(poly)
+        self.currentlayer.addItem(poly)
         return poly
 
     def draw_circle(self, center, radius):
         assert self.lineColor is not None
         circle = oofcanvas.CanvasCircle(center.x, center.y, radius)
         circle.setLineColor(self.lineColor)
-        self.currentLayer.addItem(circle)
+        self.currentlayer.addItem(circle)
         return circle
         
     def fill_circle(self, center, radius):
         assert self.fillColor is not None
         circle = oofcanvas.CanvasCircle(center.x, center.y, radius)
         circle.setFillColor(self.fillColor)
-        self.currentLayer.addItem(circle)
+        self.currentlayer.addItem(circle)
         return circle
 
     def draw_image(self, image, offset, size, alpha=1.0):
         img = image.makeCanvasImage(offset, size)
         img.setOpacity(alpha)
-        self.currentLayer.addItem(img)
+        self.currentlayer.addItem(img)
         return img
 
     # def draw_alpha_image(self, image, offset, size):

@@ -13,19 +13,11 @@
 #define OOFCANVAS_H
 
 #include <cairomm/cairomm.h>
-#include <gtk/gtk.h>
 #include <string>
 #include <vector>
-#ifdef OOFCANVAS_USE_PYTHON
-#include <Python.h>
-#endif
 
 namespace OOFCanvas {
-  class CanvasBase;
-  class Canvas;
-#ifdef OOFCANVAS_USE_PYTHON
-  class CanvasPython;
-#endif
+  class OffScreenCanvas;
 };
 
 #include "canvaslayer.h"
@@ -36,11 +28,14 @@ namespace OOFCanvas {
 
   class CanvasLayer;
   class CanvasItem;
-  class RubberBand;
 
-  class CanvasBase {
+  // OffScreenCanvas is the base class for GUICanvasBase, which is the
+  // base class for PythonCanvas and Canvas.  OffScreenCanvas can be
+  // used by itself, but can only display its contents by exporting to
+  // an image format.
+
+  class OffScreenCanvas {
   protected:
-    GtkWidget *layout;
     CanvasLayer *backingLayer;	// TODO: Why is this a pointer?
     std::vector<CanvasLayer*> layers;
     // boundingBox is the bounding box, in user coordinates, of all of
@@ -54,48 +49,21 @@ namespace OOFCanvas {
     
     Color bgColor;
 
-    void initSignals();
-    
     void setTransform(double);
-    void zoomAbout(double, const Coord&);
+    virtual void setWidgetSize(int, int) {}
 
     int layerNumber(const CanvasLayer*) const;
     
-    bool allowMotion;
-    int lastButton;		// last mouse button pressed
-    bool mouseInside;
-    bool buttonDown;
-    virtual void doCallback(const std::string&, const Coord&,
-			    int, bool, bool) = 0;
 
     Cairo::Antialias antialiasing;
 
-    // Machinery used to draw rubberbands quickly.
-    WindowSizeCanvasLayer rubberBandLayer; // rubberband representation
-    //CanvasLayer rubberBandBuffer; // everything else
-    Cairo::RefPtr<Cairo::ImageSurface> rubberBandBuffer;
-    RubberBand *rubberBand;	   // the rubberband, or nullptr
-    Rectangle rubberBandBBox;	   // bounding box of the previous rubberband
-    Coord mouseDownPt;		   // where the rubberband drawing started
-    bool rubberBandBufferFilled;
-
   public:
-    CanvasBase(double ppu);
-    virtual ~CanvasBase();
-    virtual void destroy();
+    OffScreenCanvas(double ppu);
+    virtual ~OffScreenCanvas();
 
-    // widthInPixels and heightInPixels return the size of the widget,
-    // in pixels.
-    int widthInPixels() const;
-    int heightInPixels() const;
-    ICoord layoutSize() const;
     ICoord boundingBoxSizeInPixels() const;
     
     double getPixelsPerUnit() const { return ppu; }
-    void zoom(double);
-    void zoomAbout(double x, double y, double factor);
-    void zoomToFill();
-    void center();
 
     // Coordinate system transformations
     const Cairo::Matrix &getTransform() const { return transform; }
@@ -106,22 +74,15 @@ namespace OOFCanvas {
 
     void antialias(bool);
 
-    void removeMouseCallback();
-    void allowMotionEvents(bool allow) { allowMotion = allow; }
-    
-
     bool empty() const;		// Is anything drawn?
 
     void setBackgroundColor(double, double, double);
-    void show();		// make gtk widgets visible
 
     CanvasLayer *newLayer(const std::string&);
     void deleteLayer(CanvasLayer*);
     CanvasLayer *getLayer(int i) const { return layers[i]; }
     CanvasLayer *getLayer(const std::string&) const;
     int nLayers() const { return layers.size(); }
-    void draw();		// draws all modified layers
-    void redraw();		// forces all layers to be redrawn
 
     void raiseLayer(int layer, int howfar); 
     void lowerLayer(int layer, int howfar);
@@ -129,29 +90,13 @@ namespace OOFCanvas {
     void lowerLayerToBottom(int layer);
 
     void clear();
+    // Since the base class doesn't have anyplace to draw to, it's
+    // draw method doesn't.
+    virtual void draw() {}
 
-    // TODO: These callbacks should be private
-    static void realizeCB(GtkWidget*, gpointer);
-    void realizeHandler();
-    static void allocateCB(GtkWidget*, GdkRectangle*, gpointer);
-    virtual void allocateHandler();
-
-    static void drawCB(GtkWidget*, Cairo::Context::cobject*, gpointer);
-    void drawHandler(Cairo::RefPtr<Cairo::Context>);
-    static void buttonCB(GtkWidget*, GdkEventButton*, gpointer);
-    void mouseButtonHandler(GdkEventButton*);
-    static void motionCB(GtkWidget*, GdkEventMotion*, gpointer);
-    void mouseMotionHandler(GdkEventMotion*);
-
-    void setRubberBand(RubberBand*);
-    void removeRubberBand();
-
-    // static void crossingCB(GtkWidget*, GdkEventCrossing*, gpointer);
-    // void crossingEventHandler(GdkEventCrossing*);
-    // static void focusCB(GtkWidget*, GdkEventFocus*, gpointer);
-
-    GtkAdjustment *getHAdjustment() const;
-    GtkAdjustment *getVAdjustment() const;
+    // TODO: Add these:
+    //void saveAs(const std::string &filename);
+    //void saveRegionAs(const std::string &filename, const Rectangle&);
 
     std::vector<CanvasItem*> clickedItems(double, double) const;
     std::vector<CanvasItem*> allItems() const;
@@ -162,62 +107,7 @@ namespace OOFCanvas {
 
     friend class CanvasLayer;
     friend class CanvasItem;
-  };
-
-  //=\\=//
-
-  // In C++, the OOFCanvas constructor creates the gtk Layout.
-
-  typedef void (*MouseCallback)(const std::string&, double, double,
-				int, bool, bool);
-
-  class Canvas : public CanvasBase {
-  protected:
-    // mouse callback args are event type, position (in user coords),
-    // button, state (GdkModifierType)
-    MouseCallback mouseCallback;
-    void *mouseCallbackData;
-    virtual void doCallback(const std::string&, const Coord&, int, bool, bool);
-  public:
-    Canvas(double);
-    virtual void destroy();
-    
-    // Second argument to setMouseCallback is extra data to be passed
-    // through to the callback function.    
-    void setMouseCallback(MouseCallback, void*);
-
-    // gtk() is not exported to Python, since the GtkWidget* is not a
-    // properly wrapped PyGTK object.
-    GtkWidget *gtk() const { return layout; }
-  };
-  
-  //=\\=//
-#ifdef OOFCANVAS_USE_PYTHON
-  
-  // In Python, the Gtk.Layout is created in Python and passed in to
-  // the OOFCanvasPython constructor, and the callback functions are
-  // Python functions.
-
-  class CanvasPython : public CanvasBase {
-  protected:
-    PyObject *pyCanvas;
-    PyObject *mouseCallback;
-    PyObject *mouseCallbackData;
-    PyObject *resizeCallback;
-    PyObject *resizeCallbackData;
-    virtual void doCallback(const std::string&, const Coord&, int, bool, bool);
-    virtual void allocateHandler();
-  public:
-    CanvasPython(PyObject*, double);
-    virtual void destroy();
-    // Second argument to setMouseCallback is extra data to be passed
-    // through to the callback function.
-    void setMouseCallback(PyObject*, PyObject*);
-    void setResizeCallback(PyObject*, PyObject*);
-  };
-#endif // OOFCANVAS_USE_PYTHON
-
-  void initializePyGTK();
+  };				// OffScreenCanvas
 
 };				// namespace OOFCanvas
 

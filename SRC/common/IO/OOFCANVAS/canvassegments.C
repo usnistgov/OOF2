@@ -85,7 +85,7 @@ namespace OOFCanvas {
 // #endif // DEBUG
   }
 
-  bool CanvasSegments::containsPoint(const CanvasBase *canvas,
+  bool CanvasSegments::containsPoint(const OffScreenCanvas *canvas,
 				     const Coord &pt) const
   {
     double lw = lineWidthInPixels ?
