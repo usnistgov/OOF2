@@ -40,7 +40,7 @@ import threading
 
 _stock = {"Yes"    : "gtk-yes",
           "No"     : "gtk-no",
-          "No!"     : "gtk-no",
+          "No!"    : "gtk-no",
           "Cancel" : "gtk-cancel",
           "OK"     : "gtk-ok",
           "Save"   : "document-save-symbolic",
@@ -69,7 +69,7 @@ class _Questioner:
         try:
             self.default = kwargs['default']
         except KeyError:
-            self.default=None
+            self.default = None
         else:
             if not self.default in answers:
                 self.answers = (self.default,)+answers
@@ -88,6 +88,9 @@ class _Questioner:
             self.gtk.add_action_widget(button, count)
             self.answerdict[count] = answer
             if answer == self.default:
+                button.set_can_default(True)
+                button.set_receives_default(True)
+                button.grab_default()
                 self.gtk.set_default_response(count)
             count += 1
         self.gtk.show_all()
