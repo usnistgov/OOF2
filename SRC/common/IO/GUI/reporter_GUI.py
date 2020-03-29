@@ -385,17 +385,24 @@ class ErrorPopUp(object):
 
     def run(self):
         debug.mainthreadTest()
+        # The error dialog's parent window is the main oof window.
+        # Make sure it's visible so that the dialog will be visible.
+        ## TODO GTK3 MAYBE: Keep track of which window was on top when
+        ## the error occurred, and use that for the dialog's parent.
+        ## But if the error arose from a script, the topmost window
+        ## might be irrelevant..
+        guitop.top().gtk.present_with_time(Gtk.get_current_event_time())
         return self.gtk.run()
             
     def trace(self, gtk):
         debug.mainthreadTest()
+        vbox = self.gtk.get_content_area()
         c = self.traceframe.get_children()
         if len(c)==0:
             self.traceframe.add(self.scroll)
             self.tracebutton.set_label("Hide Traceback")
             # When the traceback is visible, it expands when the
             # window size changes, and the error box doesn't.
-            vbox = self.gtk.get_content_area()
             _switchpacking(vbox, self.errframe)
             _switchpacking(vbox, self.traceframe)
         else:
