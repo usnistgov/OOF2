@@ -92,7 +92,7 @@ class CanvasOutput(outputdevice.OutputDevice):
         else:
             col = x
         self.lineColor = \
-            oofcanvas.Color(col.red(), col.green(), col.blue()).opacity(1.0)
+            oofcanvas.Color(col.getRed(), col.getGreen(), col.getBlue()).opacity(1.0)
 
     def set_fillColor(self, x):
         if type(x) == type(1.0):
@@ -100,7 +100,7 @@ class CanvasOutput(outputdevice.OutputDevice):
         else:
             col = x
         self.fillColor = \
-            oofcanvas.Color(col.red(), col.green(), col.blue()).opacity(1.0)
+            oofcanvas.Color(col.getRed(), col.getGreen(), col.getBlue()).opacity(1.0)
 
     def set_fillColorAlpha(self, x, alpha):
         if type(x) == type(1.0):
@@ -108,7 +108,7 @@ class CanvasOutput(outputdevice.OutputDevice):
         else:
             col = x
         self.fillColor = \
-            oofcanvas.Color(col.red(), col.green(), col.blue()).opacity(alpha)
+            oofcanvas.Color(col.getRed(), col.getGreen(), col.getBlue()).opacity(alpha)
         
     def draw_segment(self, segment):
         seg = oofcanvas.CanvasSegment(segment.startpt.x, segment.startpt.y,

@@ -1033,7 +1033,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         try:
             if self.oofcanvas and not self.oofcanvas.empty():
                 mainthread.runBlock(self.oofcanvas.zoomAbout,
-                                    (self.settings.zoomfactor, focus))
+                                    (focus.x, focus.y,
+                                     self.settings.zoomfactor))
                 mainthread.runBlock(self.fix_step_increment)
                 self.zoomed = 1
         finally:
@@ -1056,7 +1057,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         try:
             if self.oofcanvas and not self.oofcanvas.empty():
                 mainthread.runBlock(self.oofcanvas.zoomAbout,
-                                    (1./self.settings.zoomfactor, focus))
+                                    (focus.x, focus.y,
+                                     1./self.settings.zoomfactor))
                 mainthread.runBlock(self.fix_step_increment)
                 self.zoomed = 1
         finally:

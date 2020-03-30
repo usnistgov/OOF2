@@ -519,13 +519,14 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         debug.mainthreadTest()
         global _during_callback
         _during_callback = 1
+        # debug.fmsg("mousehandler.up=", self.mouseHandler.up, "data=", data)
         if self.mouseHandler.acceptEvent(eventtype):
             if eventtype == 'up':
-                self.mouseHandler.up(x,y, shift, ctrl)
+                self.mouseHandler.up(x,y, button, shift, ctrl, data)
             elif eventtype == 'down':
-                self.mouseHandler.down(x,y, shift, ctrl)
+                self.mouseHandler.down(x,y, button, shift, ctrl, data)
             elif eventtype == 'move':
-                self.mouseHandler.move(x,y, shift, ctrl)
+                self.mouseHandler.move(x,y, button, shift, ctrl, data)
         _during_callback = 0
 
     #############################################

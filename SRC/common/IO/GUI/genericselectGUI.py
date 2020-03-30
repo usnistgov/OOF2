@@ -448,7 +448,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         
     # MouseHandler functions
     
-    def down(self, x, y, shift, ctrl):  # mouse down
+    def down(self, x, y, button, shift, ctrl, data):  # mouse down
         debug.mainthreadTest()
         self.selmeth = self.selectionMethodFactory.getRegistration()
         self.selectionMethodFactory.set_defaults()
@@ -456,12 +456,12 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         # Start collecting points
         self.points = [primitives.Point(x,y)]
 
-    def move(self, x, y, shift, ctrl):  # mouse move
+    def move(self, x, y, button, shift, ctrl, data):  # mouse move
         # Continue the collection of points, if it's been started...
         if self.points:
             self.points.append(primitives.Point(x,y))
 
-    def up(self, x, y, shift, ctrl):    # mouse up
+    def up(self, x, y, button, shift, ctrl, data):    # mouse up
         debug.mainthreadTest()
         # Finish the collection of points
         self.points.append(primitives.Point(x,y))

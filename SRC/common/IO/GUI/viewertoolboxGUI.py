@@ -230,7 +230,7 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                 self.gfxwindow().menu.Settings.Zoom.Zoom_Factor,
                 kwargs={'factor':factor})
         
-    def up(self, x, y, shift, ctrl):
+    def up(self, x, y, button, shift, ctrl, data):
         debug.mainthreadTest()
         ms = self.findMicrostructure()
         if ms:
