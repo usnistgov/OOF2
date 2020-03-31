@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -50,7 +49,7 @@ class PixelInfoPlugIn(object):
         # The argument is the toolbox's menu, to which new commands
         # should be added.
         pass
-    def draw(self, displaymethod, device, pixel, microstructure):
+    def draw(self, displaymethod, device, canvaslayer, pixel, microstructure):
         # Define this for any plug-in that wants to draw something on
         # the canvas.  PixelInfoDisplay.draw() calls each plug-in's
         # draw() method.  The displaymethod argument is the

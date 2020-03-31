@@ -17,16 +17,20 @@
 
 %{
 #include "common/IO/bitoverlay.h"
-using OOFCanvas::CanvasImage;
+#include "common/IO/OOFCANVAS/canvasimage.h"
+typedef OOFCanvas::CanvasImage CanvasImage;
 %}
 %extern "common/coord.swg"
 %extern "common/timestamp.swg"
 %extern "common/ccolor.swg"
 %extern "common/abstractimage.swg"
+%extern "common/IO/OOFCANVAS/oofcanvas.swg"
 
 %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 %pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
+%pragma(python) code="from ooflib.SWIG.common.IO.OOFCANVAS.oofcanvas import CanvasImagePtr"
+   
 %pragma(python) include="bitoverlay.spy"
 
 class BitmapOverlay : public AbstractImage {

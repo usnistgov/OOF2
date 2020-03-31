@@ -19,9 +19,11 @@ class BitmapDisplayMethod(display.DisplayMethod):
     def __init__(self):
         self.bitmapobject = None
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device, canvaslayer):
         bitmapobj = self.who().getObject(gfxwindow)
-        device.draw_image(bitmapobj, coord.Coord(0,0), bitmapobj.size())
+        image = bitmapobj.makeCanvasImage(coord.Coord(0,0), bitmapobj.size())
+        image.setOpacity(1.0)
+        canvaslayer.addItem(image)
 
 bitmapDisplay = registeredclass.Registration(
     'Bitmap',

@@ -130,6 +130,7 @@ class DisplayMethod(registeredclass.RegisteredClass):
         # may be used on more than one OutputDevice, so each layer
         # keeps a dictionary of all of its device dependent
         # representations.
+        ## TODO GTK3: devicelayers shouldn't be necessary
         self.devicelayers = weakref.WeakKeyDictionary()
         # When was this layer last displayed on this device?
         self.timestamps = weakref.WeakKeyDictionary()
@@ -251,7 +252,7 @@ class DisplayMethod(registeredclass.RegisteredClass):
             # Layer hasn't been drawn on this device yet!
             lasttime = self.timestamps[device] = timestamp.TimeStamp()
             lasttime.backdate()
-            dlayer = self.devicelayers[device] = device.begin_layer() 
+            dlayer = self.devicelayers[device] = device.begin_layer(self.name())
             actuallydraw = True
         else:
             actuallydraw = not self.frozen
@@ -278,11 +279,11 @@ class DisplayMethod(registeredclass.RegisteredClass):
                     if self.hidden:
                         dlayer.hide()
                     device.comment('Layer: %s' % `self`)
-                    # Note that if the device is a buffered output device,
-                    # this won't necessarily call the lowest level drawing
-                    # calls (and *actually* draw something).  That happens
-                    # when the buffer is flushed.
-                    self.draw(gfxwindow, device)
+                    ## TODO GTK3: Added the dlayer arg, which allows
+                    ## drawing directly to the layer, bypassing the
+                    ## device.  Remove the device arg after all
+                    ## DisplayMethods are updated.
+                    self.draw(gfxwindow, device, dlayer)
                     lasttime.increment()
                     device.end_layer() ## flushes the buffer one last time.
             finally:
@@ -626,7 +627,7 @@ class Display:
     def draw_contourmap(self, gfxwindow, device):
         contourmap_layer = self.get_contourmap_method(gfxwindow)
         if contourmap_layer:
-            device.begin_layer()
+            device.begin_layer("contourmap")
             contourmap_layer.draw_contourmap(gfxwindow, device)
             device.end_layer()
             device.show()
