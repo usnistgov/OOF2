@@ -301,14 +301,10 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             mainthread.runBlock(self.gtk.destroy) # calls destroyCB via gtk
 
     # gtk callback
-    def destroyCB(self, *args):         
+    def destroyCB(self, *args):
         # See comment in GhostGfxWindow.close about the order of operations.
+        self.oofcanvas = None # break ref. loops so that canvas is destroyed
         if self.gtk:
-            ## tell all the miniThreads to stop and go home.
-            self.device.destroy()
-            if config.dimension() == 2:
-                self.contourmapdata.device.destroy()
-            
             for tbgui in self.toolboxGUIs:
                 if tbgui.active:
                     tbgui.deactivate()
@@ -317,7 +313,6 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             del self.mouseHandler
             if self.menu:
                 self.menu.gui_callback=None
-
             self.gtk = None             # make sure this isn't repeated
             if self.menu:
                 self.menu.File.Close()    # calls self.close()

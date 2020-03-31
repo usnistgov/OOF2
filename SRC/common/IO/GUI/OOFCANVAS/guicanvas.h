@@ -51,9 +51,11 @@ namespace OOFCanvas {
     Coord mouseDownPt;		   // where the rubberband drawing started
     bool rubberBandBufferFilled;
 
+    bool destroyed;
+
   public:
     GUICanvasBase(double ppu);
-    virtual ~GUICanvasBase();
+    virtual ~GUICanvasBase() {}
 
     // widgetWidth and widgetHeight return the size of the widget,
     // in pixels.
@@ -108,6 +110,8 @@ namespace OOFCanvas {
     virtual void doCallback(const std::string&, const Coord&, int, bool, bool);
   public:
     Canvas(double);
+    virtual ~Canvas();
+    virtual void destroy();
     // Second argument to setMouseCallback is extra data to be passed
     // through to the callback function.    
     void setMouseCallback(MouseCallback, void*);
@@ -125,6 +129,8 @@ namespace OOFCanvas {
   // Python functions.
 
   class PythonCanvas : public GUICanvasBase {
+  private:
+    bool destroyed;
   protected:
     PyObject *pyCanvas;
     PyObject *mouseCallback;
@@ -136,6 +142,7 @@ namespace OOFCanvas {
   public:
     PythonCanvas(PyObject*, double);
     virtual ~PythonCanvas();
+    virtual void destroy();
     // Second argument to setMouseCallback is extra data to be passed
     // through to the callback function.
     void setMouseCallback(PyObject*, PyObject*);

@@ -33,14 +33,9 @@ namespace OOFCanvas {
       buttonDown(false),
       rubberBandLayer(this, "rubberbandlayer"),
       rubberBand(nullptr),
-      rubberBandBufferFilled(false)
+      rubberBandBufferFilled(false),
+      destroyed(false)
   {}
-
-  GUICanvasBase::~GUICanvasBase() {
-    // Signal handlers are automatically disconnected when the widget
-    // is destroyed.
-    gtk_widget_destroy(layout);
-  }
 
   void GUICanvasBase::initSignals() {
     // gdk_window_set_events() is called in the "realize" event
@@ -672,6 +667,20 @@ namespace OOFCanvas {
     initSignals();
   }
 
+  Canvas::~Canvas() {
+    destroy();
+  }
+
+  void Canvas::destroy() {
+    // Signal handlers are automatically disconnected when the widget
+    // is destroyed.
+    if(destroyed)
+      return;
+    destroyed = true;
+    // Actually destroy the gtk widget, since we created it.
+    gtk_widget_destroy(layout);
+  }
+
 
   void Canvas::setMouseCallback(MouseCallback mcb, void *data) {
     mouseCallback = mcb;
@@ -739,8 +748,30 @@ namespace OOFCanvas {
   }
 
   PythonCanvas::~PythonCanvas() {
-    Py_DECREF(pyCanvas);
+    destroy();
+  }
+
+  void PythonCanvas::destroy() {
+    if(destroyed)
+      return;
+    destroyed = true;
+    // Dereference, but don't destroy the widget, since we didn't create it.
     g_object_unref(layout);
+    PyGILState_STATE pystate = PyGILState_Ensure();
+    try {
+      if(mouseCallback != nullptr)
+	Py_DECREF(mouseCallback);
+      if(resizeCallback != nullptr)
+	Py_DECREF(resizeCallback);
+      Py_DECREF(mouseCallbackData);
+      Py_DECREF(resizeCallbackData);
+      Py_DECREF(pyCanvas);
+    }
+    catch(...) {
+      PyGILState_Release(pystate);
+      throw;
+    }
+    PyGILState_Release(pystate);
   }
 
   void PythonCanvas::doCallback(const std::string &eventtype,

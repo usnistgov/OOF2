@@ -50,6 +50,11 @@ class CanvasOutput(outputdevice.OutputDevice):
 
         self.currentlayer = None        # OOFCanvasLayer object
 
+    def destroy(self):
+        # Need to delete this reference or the Canvas won't be
+        # destroyed properly.
+        self.canvas = None
+
     def has_alpha(self):
         return True;
     

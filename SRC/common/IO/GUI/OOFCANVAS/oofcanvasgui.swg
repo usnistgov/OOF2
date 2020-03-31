@@ -37,6 +37,7 @@ void initializePyGTK();
 public:
   %name(Canvas) PythonCanvas(PyObject*, double ppu);
   %name(Canvas) ~PythonCanvas();
+  void destroy();
   int widgetWidth();
   int widgetHeight();
   void show();

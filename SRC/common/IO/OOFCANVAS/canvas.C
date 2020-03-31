@@ -45,6 +45,9 @@ namespace OOFCanvas {
   }
 
   CanvasLayer *OffScreenCanvas::newLayer(const std::string &name) {
+    // The OffScreenCanvas owns the CanvasLayers and is responsible
+    // for deleting them.  Even if the layers are returned to Python,
+    // Python does not take ownership.
     CanvasLayer *layer = new CanvasLayer(this, name);
     layers.push_back(layer);
     return layer;
@@ -79,7 +82,6 @@ namespace OOFCanvas {
   }
 
   CanvasLayer *OffScreenCanvas::getLayer(const std::string &nm) const {
-    std::cerr << "CanvasLayer::getLayer: nm=" << nm << std::endl;
     for(CanvasLayer *layer : layers)
       if(layer->name == nm)
 	return layer;
@@ -100,7 +102,6 @@ namespace OOFCanvas {
   }
   
   void OffScreenCanvas::lowerLayer(int which, int howfar) {
-    std::cerr << "OffScreenCanvas::lowerLayer: howfar=" << howfar << std::endl;
     assert(howfar >= 0);
     assert(which >= 0 && which < layers.size());
     CanvasLayer *moved = layers[which];

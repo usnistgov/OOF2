@@ -245,8 +245,8 @@ public:
 class CanvasLayer {
 private:
   CanvasLayer();		// private constructor is not swigged
-  ~CanvasLayer();
 public:
+  ~CanvasLayer();
   void addItem(CanvasItem*);
   void removeAllItems();
   void clear();
@@ -310,6 +310,7 @@ public:
 class OffScreenCanvas {
 public:
   OffScreenCanvas(double);
+  ~OffScreenCanvas();
   CanvasLayer *newLayer(char*);
   CanvasLayer *getLayer(int);
   %name(getLayerByName) CanvasLayer *getLayer(char*);
