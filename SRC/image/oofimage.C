@@ -213,8 +213,14 @@ OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
 						  const Coord *size)
   const
 {
-  return OOFCanvas::CanvasImage::newFromImageMagick(
-			(*pos)[0], (*pos)[1], image, (*size)[0], (*size)[1]);
+  // The OOFImage constructor flips the image so that OOF can access
+  // pixels easily in a right handed coordinate system with the origin
+  // in the lower left corner of the image.
+  Magick::Image copy = image;
+  copy.flip();
+  return OOFCanvas::CanvasImage::newFromImageMagick((*pos)[0], (*pos)[1],
+						    copy,
+						    (*size)[0], (*size)[1]);
 }
 
 std::vector<unsigned short> *OOFImage::getPixels() {
