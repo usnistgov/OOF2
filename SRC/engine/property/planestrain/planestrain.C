@@ -38,12 +38,9 @@ int PlaneStrain::integration_order(const CSubProblem*, const Element*el) const {
 void PlaneStrain::cross_reference(Material *mat) {
   try {
     elasticity = dynamic_cast<Elasticity*>(mat->fetchProperty("Elasticity"));
-    orientation = dynamic_cast<OrientationPropBase*>
-      (mat->fetchProperty("Orientation"));
   }
   catch (ErrNoSuchProperty&) {
     elasticity = 0;
-    orientation = 0;
     throw;
   }
 }
@@ -65,7 +62,7 @@ void PlaneStrain::flux_offset(const FEMesh *mesh, const Element *element,
     double &offset_el = fluxdata->offset_vector_element(ij);
     for(SymTensorIterator kl; !kl.end(); ++kl) {
       if(kl.integer()==2) { // Index 2 is voigt-order for the zz component.
-	offset_el += modulus(ij, kl)*ezz_;
+	offset_el -= modulus(ij, kl)*ezz_; // Sign gives physical results.
       }
     }
   }

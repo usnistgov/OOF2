@@ -48,7 +48,6 @@ public:
   virtual int integration_order(const CSubProblem*, const Element*) const;
 private:
   double ezz_;
-  OrientationPropBase *orientation;
 };
 
 #endif
