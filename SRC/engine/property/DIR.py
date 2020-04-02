@@ -27,7 +27,8 @@ subdirs = [
     'skeletonrelaxationrate',
     'thermalexpansion',
     'stressfreestrain',
-    'interfaces' 
+    'interfaces',
+    'planestrain'
     ]
 
 if DIM_3:
