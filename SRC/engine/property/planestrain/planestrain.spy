@@ -20,6 +20,8 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 
 #########
 
+# TODO: PlaneStrain is a dumb name.  ZOffsetStrain?
+
 reg = PropertyRegistration(
     'Mechanical:PlaneStrain',
     PlaneStrain,
