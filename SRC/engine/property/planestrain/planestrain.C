@@ -68,21 +68,21 @@ void PlaneStrain::flux_offset(const FEMesh *mesh, const Element *element,
   }
 }
 
-// void PlaneStrain::output(FEMesh *mesh,
-// 			 const Element *element,
-// 			 const PropertyOutput *output,
-// 			 const MasterPosition &pos,
-// 			 OutputVal *data)
-// {
-//   // Mostly copied from ThermalExpansion::output
-//   const std::string &outputname = output->name();
-//   if(outputname == "Strain") {
-//     const std::string *stype = output->getRegisteredParamName("type");
-//     SymmMatrix3 *sdata = dynamic_cast<SymmMatrix3*>(data);
-//     if(*stype == "Elastic")
-//       *sdata -= stressfreestrain(mesh, element, pos);
-//     delete stype;
-//   }
+void PlaneStrain::output(FEMesh *mesh,
+ 			 const Element *element,
+ 			 const PropertyOutput *output,
+ 			 const MasterPosition &pos,
+ 			 OutputVal *data)
+{
+  // Mostly copied from ThermalExpansion::output
+  const std::string &outputname = output->name();
+  if(outputname == "Strain") {
+     const std::string *stype = output->getRegisteredParamName("type");
+     SymmMatrix3 *sdata = dynamic_cast<SymmMatrix3*>(data);
+     if(*stype == "Elastic")
+       (*sdata)(2,2) += ezz_;
+     delete stype;
+  }
 //   if(outputname == "Energy") {
 //     // Energy looks strange, because we're doing two of the three
 //     // terms in a product of differences.  The full answer is
@@ -109,5 +109,5 @@ void PlaneStrain::flux_offset(const FEMesh *mesh, const Element *element,
 //     }
 //     delete etype;
 //   }
-// }
+}
 

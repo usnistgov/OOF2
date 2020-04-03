@@ -42,8 +42,8 @@ public:
 			   const Flux*, const MasterPosition&,
 			   double time, SmallSystem*) const;
 
-  //   virtual void output(FEMesh*, const Element*, const PropertyOutput*,
-  //	      const MasterPosition&, OutputVal*);
+  virtual void output(FEMesh*, const Element*, const PropertyOutput*,
+		      const MasterPosition&, OutputVal*);
 
   virtual int integration_order(const CSubProblem*, const Element*) const;
 private:

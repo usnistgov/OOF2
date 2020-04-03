@@ -46,7 +46,10 @@ import ooflib.SWIG.engine.property.pyroelectricity.pyroelectricity
 import ooflib.SWIG.engine.property.stressfreestrain.stressfreestrain
 import ooflib.SWIG.engine.property.thermalexpansion.thermalexpansion
 import ooflib.engine.property.plasticity.plasticity
-import ooflib.SWIG.engine.property.planestrain.planestrain
+
+# Planar strain only makes sense in 2D.
+if config.dimension() == 2:
+    import ooflib.SWIG.engine.property.planestrain.planestrain
 
 #Interface branch
 if config.dimension() == 2:
