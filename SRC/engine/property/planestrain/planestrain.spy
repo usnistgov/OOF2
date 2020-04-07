@@ -23,14 +23,14 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 # TODO: PlaneStrain is a dumb name.  ZOffsetStrain?
 
 reg = PropertyRegistration(
-    'Mechanical:PlaneStrain',
+    'Mechanical:ZStrain',
     PlaneStrain,
     "ooflib.SWIG.engine.property.planestrain.planestrain",
     23,
     [parameter.FloatParameter('ezz', 0.0, tip="Out of plane strain")],
     outputs=["Strain"],
     # outputs=["Strain", "Energy", "Material Constants:Mechanical:PlaneStrain ezz"],
-    propertyType="PlaneStrain",
+    propertyType="ZStrain",
     tip="Out-of-plane strain",
     # discussion=xmlmenudump.loadFile(
     #     'DISCUSSIONS/engine/property/isostressfreestrain.xml')
