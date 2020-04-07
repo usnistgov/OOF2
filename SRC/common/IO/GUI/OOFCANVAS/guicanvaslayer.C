@@ -34,36 +34,25 @@ namespace OOFCanvas {
     // corner of the window, and vice versa.
 
     double ppu = cnvs->getPixelsPerUnit();
-    int h = cnvs->widgetHeight();
     int hadj = gtk_adjustment_get_value(cnvs->getHAdjustment());
     int vadj = gtk_adjustment_get_value(cnvs->getVAdjustment());
     
-    Coord offset = ppu*cnvs->pixel2user(ICoord(0, h)) + Coord(hadj, -vadj);
-    Cairo::Matrix mat(ppu, 0.0, 0.0, -ppu, -offset.x, h+offset.y);
+    Coord offset = ppu*cnvs->pixel2user(ICoord(0, size_y)) + Coord(hadj, -vadj);
+    Cairo::Matrix mat(ppu, 0.0, 0.0, -ppu, -offset.x, size_y+offset.y);
     context->set_matrix(mat);
-
   }
 
   void WindowSizeCanvasLayer::draw(Cairo::RefPtr<Cairo::Context> ctxt,
 				   double hadj, double vadj)
     const
   {
-    // ctxt is the Cairo::Context that was provided to the Gtk "draw"
-    // event handler.  The coordinates in ctxt are pixel coordinates
-    // (the transformation matrix is the identity matrix) but may have
-    // a non-zero offset.
+    // Copy this layer to the given ctxt.  ctxt is the Cairo::Context
+    // that was provided to the Gtk "draw" event handler.  The
+    // coordinates in ctxt are pixel coordinates (the transformation
+    // matrix is the identity matrix) but may have a non-zero offset.
 
     if(visible && !items.empty()) {
-      double ppu = canvas->getPixelsPerUnit();
-      // The latter two arguments to set_source are the user
-      // coordinates in the destination context of upper left corner
-      // of the source surface.
-      // Coord upleft(canvas->pixel2user(ICoord(hadj, vadj)));
-      // ICoord origin(canvas->user2pixel(Coord(0, 0)));
-      // ctxt->set_source(surface, upleft.x, upleft.y);
-
-      Coord offset = (ICoord(hadj, vadj) + canvas->user2pixel(Coord(0, 0)))/ppu;
-      ctxt->set_source(surface, offset.x, offset.y);
+      ctxt->set_source(surface, 0, 0);
 	
       if(alpha == 1.0)
 	ctxt->paint();
