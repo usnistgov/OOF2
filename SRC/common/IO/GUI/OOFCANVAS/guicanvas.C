@@ -244,7 +244,6 @@ namespace OOFCanvas {
       if(!boundingBox.initialized()) {
 	setTransform(ppu);
       }
-      assert(boundingBox.initialized());
       double fudge = 0.97;	// a little extra space
       ppu_x = fudge*widgetWidth()/boundingBox.width();
       ppu_y = fudge*widgetHeight()/boundingBox.height();
@@ -398,7 +397,7 @@ namespace OOFCanvas {
   //=\\=//
 
   // widgetHeight and widgetWidth return the size of the visible part
-  // of the canvas, ie, the size of the window comtaining the canvas..
+  // of the canvas, ie, the size of the window comtaining the canvas.
   // layoutSize returns the size of the bitmap, which may be larger or
   // smaller than the visible size.
 
@@ -502,7 +501,7 @@ namespace OOFCanvas {
 
     // If there is a rubberband, and if the rubberband buffer is up to
     // date, copy the rubberband buffer and the rubberband to the
-    // device.  Limit the copying to the bounding boxes of the
+    // device.  TODO: Limit the copying to the bounding boxes of the
     // previous and current rubberbands.
 
     // If there is a rubberband, but the rubberband buffer is out of
@@ -540,7 +539,7 @@ namespace OOFCanvas {
       }
 
       // Recreate rubberBandBuffer, which contains all the layers
-      // other than the rubberBandLayer.
+      // *other* than the rubberBandLayer.
 
       ICoord size = boundingBoxSizeInPixels();
       rubberBandBuffer = Cairo::RefPtr<Cairo::ImageSurface>(
