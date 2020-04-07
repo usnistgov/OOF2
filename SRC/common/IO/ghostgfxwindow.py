@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -82,15 +81,9 @@ class GfxSettings:
     listall = 0                          # are all layers to be listed?
     autoreorder = 1                      # automatically reorder layers?
     antialias = 1
-    if config.dimension() == 2:
-        aspectratio = 5           # Aspect ratio of the contourmap.
-        contourmap_markersize = 2 # Size in pixels of contourmap marker.
-        contourmap_markercolor = color.gray50 # Color of contourmap position marker.
-    elif config.dimension() == 3:
-        showcontourpane = 1
-        contourmap_bgcolor = color.white
-        contourmap_textcolor = color.black
-        contourpanewidth = .1
+    aspectratio = 5           # Aspect ratio of the contourmap.
+    contourmap_markersize = 2 # Size in pixels of contourmap marker.
+    contourmap_markercolor = color.gray50 # Color of contourmap position marker.
     def __init__(self):
         # Copy all default (class) values into local (instance) variables.
         self.__dict__['timestamps'] = {}
@@ -146,8 +139,9 @@ class GhostGfxWindow:
             self.name,
             secret=1,
             help = "Commands dependent on a particular Graphics window.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/graphics.xml')
-            ))
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/graphics.xml')
+        ))
 
         # Put this window into the Windows/Graphics menu, so that it
         # can be raised in graphics mode.  Since this isn't meaningful
@@ -156,7 +150,8 @@ class GhostGfxWindow:
             self.name,
             help="Raise the window named %s." % name, 
             gui_only=1,
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/graphicsraise.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/graphicsraise.xml')
             ))
         filemenu = self.menu.addItem(OOFMenuItem(
             'File',
@@ -177,33 +172,36 @@ class GhostGfxWindow:
             'Save_Image',
             callback=self.saveImage,
             ellipsis=1,
-            params=[filenameparam.WriteFileNameParameter(
-                        'filename', ident='gfxwindow',
-                        tip="Name for the image file."),
-                    filenameparam.OverwriteParameter(
-                        'overwrite',
-                        tip="Overwrite an existing file?")],
+            params=[
+                filenameparam.WriteFileNameParameter(
+                    'filename', ident='gfxwindow',
+                    tip="Name for the image file."),
+                filenameparam.OverwriteParameter(
+                    'overwrite',
+                    tip="Overwrite an existing file?")],
             help="Save the contents of the graphics window as a pdf file.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/graphicssave.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/graphicssave.xml')
             ))
-        if config.dimension() == 2:
-            filemenu.addItem(OOFMenuItem(
-                'Save_Contourmap',
-                callback=self.saveContourmap,
-                ellipsis=1,
-                params=[filenameparam.WriteFileNameParameter(
-                            'filename', ident='gfxwindow',
-                            tip="Name for the image file."),
-                        filenameparam.OverwriteParameter(
-                            'overwrite', tip="Overwrite an existing file?"
-                            )],
-                help="Save a pdf image of the contour map.",
-                discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/graphicssavecontour.xml')))
+        filemenu.addItem(OOFMenuItem(
+            'Save_Contourmap',
+            callback=self.saveContourmap,
+            ellipsis=1,
+            params=[
+                filenameparam.WriteFileNameParameter(
+                    'filename', ident='gfxwindow',
+                    tip="Name for the image file."),
+                filenameparam.OverwriteParameter(
+                    'overwrite', tip="Overwrite an existing file?")],
+            help="Save a pdf image of the contour map.",
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/graphicssavecontour.xml')))
         filemenu.addItem(OOFMenuItem(
             'Clear',
             callback=self.clear,
             help="Remove all user-defined graphics layers.",
-            discussion = xmlmenudump.loadFile('DISCUSSIONS/common/menu/graphicsclear.xml')
+            discussion = xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/graphicsclear.xml')
             ))
         filemenu.addItem(OOFMenuItem(
             'Animate',
@@ -211,23 +209,23 @@ class GhostGfxWindow:
             accel='a',
             params=[
                 placeholder.GfxTimeParameter(
-                        'start',
-                        value=placeholder.earliest,
-                        tip="Start the animation at this time."),
+                    'start',
+                    value=placeholder.earliest,
+                    tip="Start the animation at this time."),
                 placeholder.GfxTimeParameter(
-                        'finish', value=placeholder.latest,
-                        tip="End the animation at this time."),
+                    'finish', value=placeholder.latest,
+                    tip="End the animation at this time."),
                 parameter.RegisteredParameter(
-                        'times',
-                        animationtimes.AnimationTimes,
-                        tip="How to select times between 'start' and 'finish'."),
+                    'times',
+                    animationtimes.AnimationTimes,
+                    tip="How to select times between 'start' and 'finish'."),
                 parameter.FloatParameter(
-                        'frame_rate', 5.0,
-                        tip='Update the display this many times per second.'),
+                    'frame_rate', 5.0,
+                    tip='Update the display this many times per second.'),
                 parameter.RegisteredParameter(
-                        "style",
-                        animationstyle.AnimationStyle,
-                        tip="How to play the animation.")],
+                    "style",
+                    animationstyle.AnimationStyle,
+                    tip="How to play the animation.")],
             help="Animate the Mesh displayed in the graphics window.",
             discussion=xmlmenudump.loadFile(
                     'DISCUSSIONS/common/menu/animate.xml')
@@ -264,7 +262,8 @@ class GhostGfxWindow:
             'Toolbox',
             cli_only=1,
             help='Commands for the graphics toolboxes.',
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/toolbox.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/toolbox.xml')
             ))
         layermenu = self.menu.addItem(OOFMenuItem(
             'Layer',
@@ -284,22 +283,26 @@ class GhostGfxWindow:
             accel='n',
             ellipsis=1,
             help="Open the graphics layer editor.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/newlayer.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/newlayer.xml')
             ))
         layermenu.addItem(OOFMenuItem(
             'Edit',
             gui_only=1,
             accel='e',
             ellipsis=1,
-            help= "Open the graphics layer editor, loading the currently selected layer.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/editlayer.xml')
+            help= "Open the graphics layer editor,"
+            " loading the currently selected layer.",
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/editlayer.xml')
                                       ))
         layermenu.addItem(OOFMenuItem(
             'Delete',
             callback=self.deleteLayerNumber,
             params=[IntParameter('n', 0, tip="Layer index.")],
             help="Delete the selected graphics layer.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/deletelayer.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/deletelayer.xml')
             ))
         layermenu.addItem(OOFMenuItem(
             'Select',
@@ -307,7 +310,8 @@ class GhostGfxWindow:
             cli_only=1,
             params=[IntParameter('n', 0, tip="Layer index.")],
             help="Select the given graphics layer.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/selectlayer.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/selectlayer.xml')
             ))
         layermenu.addItem(OOFMenuItem(
             'Deselect',
@@ -324,7 +328,8 @@ class GhostGfxWindow:
             accel='h',
             params=[IntParameter('n', 0, tip="Layer index.")],
             help="Hide the selected graphics layer.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/hidelayer.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/hidelayer.xml')
             ))
         layermenu.addItem(OOFMenuItem(
             'Show',
@@ -354,29 +359,29 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 """
             ))
 
-        if config.dimension() == 2:
-            layermenu.addItem(OOFMenuItem(
-                'Hide_Contour_Map',
-                callback=self.hideLayerContourmap,
-                params=[IntParameter('n',0,tip="Contour map index.")],
-                help="Hide the selected layer's contour map.",
-                discussion=xmlmenudump.loadFile(
-                        'DISCUSSIONS/common/menu/hidecontour.xml')
-                ))
-            layermenu.addItem(OOFMenuItem(
-                'Show_Contour_Map',
-                callback=self.showLayerContourmap,
-                params=[IntParameter('n',0, tip="Contour map index.")],
-                help="Show the selected layer's contour map.",
-                discussion="""<para>
-                See <xref
-                linkend='MenuItem-OOF.Graphics_n.Layer.Hide_Contour_Map'/>.
-                </para>"""
-                ))
+        layermenu.addItem(OOFMenuItem(
+            'Hide_Contour_Map',
+            callback=self.hideLayerContourmap,
+            params=[IntParameter('n',0,tip="Contour map index.")],
+            help="Hide the selected layer's contour map.",
+            discussion=xmlmenudump.loadFile(
+                    'DISCUSSIONS/common/menu/hidecontour.xml')
+            ))
+        layermenu.addItem(OOFMenuItem(
+            'Show_Contour_Map',
+            callback=self.showLayerContourmap,
+            params=[IntParameter('n',0, tip="Contour map index.")],
+            help="Show the selected layer's contour map.",
+            discussion="""<para>
+            See <xref
+            linkend='MenuItem-OOF.Graphics_n.Layer.Hide_Contour_Map'/>.
+            </para>"""
+            ))
         raisemenu = layermenu.addItem(OOFMenuItem(
             'Raise',
             help='Make a layer more visible.',
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/raiselayer.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/raiselayer.xml')
             ))
         raisemenu.addItem(OOFMenuItem(
             'One_Level',
@@ -384,7 +389,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             accel='r',
             params=[IntParameter('n', 0, tip="Layer index.")],
             help="Raise the selected graphics layer.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/raiseone.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/raiseone.xml')
             ))
         raisemenu.addItem(OOFMenuItem(
             'To_Top',
@@ -393,22 +399,27 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             params=[IntParameter('n', 0, tip="Layer index.")],
             help=\
             "Draw the selected graphics layer on top of all other layers.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/raisetop.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/raisetop.xml')
             ))
         raisemenu.addItem(OOFMenuItem(
             'By',
             callback=self.raiseBy,
             cli_only = 1,
-            params=[IntParameter('n', 0, tip="Layer index."),
-                    IntParameter('howfar', 1, tip="How far to raise the layer.")
-                    ],
-            help="Raise the selected graphics layer over a given number of other layers.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/raiseby.xml')
+            params=[
+                IntParameter('n', 0, tip="Layer index."),
+                IntParameter('howfar', 1, tip="How far to raise the layer.")
+            ],
+            help="Raise the selected graphics layer over a given number"
+            " of other layers.",
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/raiseby.xml')
             ))
         lowermenu = layermenu.addItem(OOFMenuItem(
             'Lower',
             help='Make a layer less visible.',
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/lowerlayer.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/lowerlayer.xml')
             ))
         lowermenu.addItem(OOFMenuItem(
             'One_Level',
@@ -416,7 +427,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             accel='l',
             params=[IntParameter('n', 0, tip="Layer index.")],
             help="Lower the selected graphics layer.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/lowerone.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/lowerone.xml')
             ))
         lowermenu.addItem(OOFMenuItem(
             'To_Bottom',
@@ -424,25 +436,29 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             accel='b',
             params=[IntParameter('n', 0, tip="Layer index.")],
             help="Draw the selected graphics layer below all other layers.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/lowerbtm.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/lowerbtm.xml')
             ))
         lowermenu.addItem(OOFMenuItem(
             'By',
             callback=self.lowerBy,
             cli_only = 1,
-            params=[IntParameter('n', 0, tip="Layer index."),
-                    IntParameter('howfar', 1, tip="How far to lower the layer.")
+            params=[
+                IntParameter('n', 0, tip="Layer index."),
+                IntParameter('howfar', 1, tip="How far to lower the layer.")
                     ],
-            help="Lower the selected graphics layer under a given number of other layers.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/lowerby.xml')
+            help="Lower the selected graphics layer under"
+            " a given number of other layers.",
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/lowerby.xml')
             ))
         layermenu.addItem(OOFMenuItem(
             'Reorder_All',
             callback=self.reorderLayers,
             help="Put the graphics layers in their default order.",
             discussion=xmlmenudump.loadFile(
-                    'DISCUSSIONS/common/menu/reorderlayers.xml')
-            ))
+                'DISCUSSIONS/common/menu/reorderlayers.xml')
+        ))
         settingmenu = self.menu.addItem(OOFMenuItem(
             'Settings',
             help='Control Graphics window behavior.',
@@ -451,7 +467,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             that set parameters that control the behavior of the
             Graphics window.
             </para>"""
-            ))
+        ))
         settingmenu.addItem(CheckOOFMenuItem(
             'Antialias',
             callback=self.toggleAntialias,
@@ -469,7 +485,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             help="List all graphics layers, even predefined ones.",
             discussion=xmlmenudump.loadFile(
                     'DISCUSSIONS/common/menu/listall.xml')
-            ))
+        ))
         settingmenu.addItem(CheckOOFMenuItem(
             'Long_Layer_Names',
             callback=self.toggleLongLayerNames,
@@ -477,7 +493,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             help= "Use the long form of layer names in the layer list.",
             discussion=xmlmenudump.loadFile(
                     'DISCUSSIONS/common/menu/longlayers.xml')
-            ))
+        ))
         settingmenu.addItem(CheckOOFMenuItem(
             'Auto_Reorder',
             callback=self.toggleAutoReorder,
@@ -485,112 +501,110 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             help="Automatically reorder layers when new layers are created.",
             discussion=xmlmenudump.loadFile(
                     'DISCUSSIONS/common/menu/autoreorder.xml')
-            ))
+        ))
         settingmenu.addItem(OOFMenuItem(
-                'Time',
-                callback=self.setTimeCB,
-                params=[FloatParameter(
-                        'time', 0.0,
-                        tip='The time to use when displaying time-dependent layers.')
-                        ],
-                help='Set the time for display layers.',
-                discussion=xmlmenudump.loadFile(
-                    'DISCUSSIONS/common/menu/settime.xml')
-                ))
-        if config.dimension() == 2:
-            settingmenu.addItem(OOFMenuItem(
-                'Aspect_Ratio',
-                callback=self.aspectRatio,
-                params=[FloatParameter('ratio', 5.0,
-                                       tip="Aspect ratio of the contour map.")],
-                help="Set the aspect ratio of the contour map.",
-                discussion="""<para>
-                Set the aspect ratio (height/width) of the <link
-                linkend='Section-Graphics-ContourMap'>contour map</link>
-                display.
-                </para>"""))
+            'Time',
+            callback=self.setTimeCB,
+            params=[FloatParameter(
+                'time', 0.0,
+                tip='The time to use when displaying time-dependent layers.')
+                    ],
+            help='Set the time for display layers.',
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/settime.xml')
+        ))
+        settingmenu.addItem(OOFMenuItem(
+            'Aspect_Ratio',
+            callback=self.aspectRatio,
+            params=[FloatParameter('ratio', 5.0,
+                                   tip="Aspect ratio of the contour map.")],
+            help="Set the aspect ratio of the contour map.",
+            discussion="""<para>
+            Set the aspect ratio (height/width) of the <link
+            linkend='Section-Graphics-ContourMap'>contour map</link>
+            display.
+            </para>"""))
 
+        settingmenu.addItem(OOFMenuItem(
+            'Contourmap_Marker_Size',
+            callback=self.contourmapMarkSize,
+            ellipsis=1,
+            params=[IntParameter('width',2,
+                                 tip="Contour map marker line width.")],
+            help="Width in pixels of the markers on the contour map.",
+            discussion="""<para>
+            Set the line <varname>width</varname>, in pixels, of the
+            rectangle used to mark a region of the <link
+            linkend='Section-Graphics-ContourMap'>contour map</link>.
+            </para>"""))
 
-            settingmenu.addItem(OOFMenuItem(
-                'Contourmap_Marker_Size',
-                callback=self.contourmapMarkSize,
-                ellipsis=1,
-                params=[IntParameter('width',2,
-                                     tip="Contour map marker line width.")],
-                help="Width in pixels of the markers on the contour map.",
-                discussion="""<para>
-                Set the line <varname>width</varname>, in pixels, of the
-                rectangle used to mark a region of the <link
-                linkend='Section-Graphics-ContourMap'>contour map</link>.
-                </para>"""))
-
-            zoommenu = settingmenu.addItem(OOFMenuItem('Zoom',
-                                        help="Change the scale in the display."))
-            zoommenu.addItem(OOFMenuItem(
-                'In',
-                callback=self.zoomIn,
-                accel='.',
-                help='Magnify the image.',
-                discussion="""<para>
-                Magnify the graphics display by the current <link
-                linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
-                factor</link>, keeping the center of the display fixed.
-                </para>"""))
-            zoommenu.addItem(OOFMenuItem(
-                'InFocussed',
-                callback=self.zoomInFocussed,
-                secret=1,
-                params=[primitives.PointParameter('focus',
-                                                  tip='Point to magnify about.')],
-                help='Magnify the image about a mouse click.',
-                discussion="""<para>
-                Magnify the graphics display by the current <link
-                linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
-                factor</link>, keeping the mouse click position fixed.
-                </para>"""))
-            zoommenu.addItem(OOFMenuItem(
-                'Out',
-                callback=self.zoomOut,
-                accel=',',
-                help='Demagnify by the current zoom factor.',
-                discussion="""<para> 
-                Demagnify the graphics display by the current <link
-                linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
-                factor</link>, keeping the center of the display fixed.
-                </para>"""))
-            zoommenu.addItem(OOFMenuItem(
-                'OutFocussed',
-                callback=self.zoomOutFocussed,
-                secret=1,
-                params=[primitives.PointParameter('focus',
-                                                  tip='Point to demagnify about.')],
-                help='Magnify the image about a mouse click.',
-                discussion="""<para>
-                Demagnify the graphics display by the current <link
-                linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
-                factor</link>, keeping the mouse click position fixed.
-                </para>"""))
-            zoommenu.addItem(OOFMenuItem(
-                'Fill_Window',
-                callback=self.zoomFillWindow,
-                accel='=',
-                help='Fit the image to the window.',
-                discussion="""<para>
-                Zoom the display so that it fills the window.
-                </para>"""))
-            zoommenu.addItem(OOFMenuItem(
-                'Zoom_Factor',
-                callback = self.zoomfactorCB,
-                params=[
-                FloatParameter('factor', self.settings.zoomfactor,
-                               tip="Zoom factor.")],
-                ellipsis=1,
-                help='Set the zoom magnification.',
-                discussion="""<para>
-                The scale of the display changes by
-                <varname>factor</varname> or 1./<varname>factor</varname>
-                when zooming in or out.
-                </para>"""))
+        zoommenu = settingmenu.addItem(OOFMenuItem('Zoom',
+                                    help="Change the scale in the display."))
+        zoommenu.addItem(OOFMenuItem(
+            'In',
+            callback=self.zoomIn,
+            accel='.',
+            help='Magnify the image.',
+            discussion="""<para>
+            Magnify the graphics display by the current <link
+            linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
+            factor</link>, keeping the center of the display fixed.
+            </para>"""))
+        zoommenu.addItem(OOFMenuItem(
+            'InFocussed',
+            callback=self.zoomInFocussed,
+            secret=1,
+            params=[primitives.PointParameter('focus',
+                                              tip='Point to magnify about.')],
+            help='Magnify the image about a mouse click.',
+            discussion="""<para>
+            Magnify the graphics display by the current <link
+            linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
+            factor</link>, keeping the mouse click position fixed.
+            </para>"""))
+        zoommenu.addItem(OOFMenuItem(
+            'Out',
+            callback=self.zoomOut,
+            accel=',',
+            help='Demagnify by the current zoom factor.',
+            discussion="""<para> 
+            Demagnify the graphics display by the current <link
+            linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
+            factor</link>, keeping the center of the display fixed.
+            </para>"""))
+        zoommenu.addItem(OOFMenuItem(
+            'OutFocussed',
+            callback=self.zoomOutFocussed,
+            secret=1,
+            params=[primitives.PointParameter('focus',
+                                              tip='Point to demagnify about.')],
+            help='Magnify the image about a mouse click.',
+            discussion="""<para>
+            Demagnify the graphics display by the current <link
+            linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
+            factor</link>, keeping the mouse click position fixed.
+            </para>"""))
+        zoommenu.addItem(OOFMenuItem(
+            'Fill_Window',
+            callback=self.zoomFillWindow,
+            accel='=',
+            help='Fit the image to the window.',
+            discussion="""<para>
+            Zoom the display so that it fills the window.
+            </para>"""))
+        zoommenu.addItem(OOFMenuItem(
+            'Zoom_Factor',
+            callback = self.zoomfactorCB,
+            params=[
+            FloatParameter('factor', self.settings.zoomfactor,
+                           tip="Zoom factor.")],
+            ellipsis=1,
+            help='Set the zoom magnification.',
+            discussion="""<para>
+            The scale of the display changes by
+            <varname>factor</varname> or 1./<varname>factor</varname>
+            when zooming in or out.
+            </para>"""))
         colormenu = settingmenu.addItem(OOFMenuItem(
             'Color',
             help='Set the color of various parts of the display.'
@@ -608,98 +622,55 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             contour map display.
             
             </para>"""))
-        if config.dimension() == 2:
-            colormenu.addItem(OOFMenuItem(
-                'Contourmap_Marker', 
-                callback=self.contourmapMarkColor,
-                params=[color.ColorParameter('color',
-                                             self.settings.contourmap_markercolor,
-                                             tip="Color for the contour map marker.")],
-                ellipsis=1,
-                help="Change the contour map marker color.",
-                discussion="""<para>
-                Change the color of the position marker on the contourmap pane.
-                </para>"""))
-        elif config.dimension() == 3:
-            colormenu.addItem(OOFMenuItem(
-                'Contourmap_Background', 
-                callback=self.contourmapBGColor,
-                params=[color.ColorParameter('color',
-                                             self.settings.contourmap_bgcolor,
-                                             tip="Color for the contour map background.")],
-                ellipsis=1,
-                help="Change the contour map background color.",
-                discussion="""<para>
-                Change the color of the background of the contourmap pane.
-                </para>"""))
-            colormenu.addItem(OOFMenuItem(
-                'Contourmap_Text', 
-                callback=self.contourmapTextColor,
-                params=[color.ColorParameter('color',
-                                             self.settings.contourmap_textcolor,
-                                             tip="Color for the contour map text.")],
-                ellipsis=1,
-                help="Change the contour map text color.",
-                discussion="""<para>
-                Change the color of the text in the contourmap pane.
-                </para>"""))
 
-            settingmenu.addItem(CheckOOFMenuItem(
-                'Show_Contourmap_Pane',
-                callback=self.toggleContourpane,
-                value=self.settings.showcontourpane,
-                threadable=oofmenu.THREADABLE,
-                help="Show/hide the contourmap pane.",
-                discussion="""<para>Show or hide the contourmap pane.</para>"""
-                ))
-                
+        colormenu.addItem(OOFMenuItem(
+            'Contourmap_Marker', 
+            callback=self.contourmapMarkColor,
+            params=[color.ColorParameter(
+                'color',
+                self.settings.contourmap_markercolor,
+                tip="Color for the contour map marker.")],
+            ellipsis=1,
+            help="Change the contour map marker color.",
+            discussion="""<para>
+            Change the color of the position marker on the contourmap pane.
+            </para>"""))
 
         settingmenu.addItem(OOFMenuItem(
             'Margin',
             callback=self.marginCB,
-            params=[FloatParameter('fraction', self.settings.margin,
-                                   tip="Margin as a fraction of the image size.")],
+            params=[FloatParameter(
+                'fraction', self.settings.margin,
+                tip="Margin as a fraction of the image size.")],
             ellipsis=1,
-            help=
-  'Set the margin (as a fraction of the image size) when zooming to full size.',
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/margin.xml')
-            ))
-
-        if config.dimension() == 3:
-            settingmenu.addItem(OOFMenuItem(
-                'Contour_Pane_Width',
-                callback=self.contourpanewidthCB,
-                params=[FloatParameter('fraction', self.settings.contourpanewidth,
-                                       tip="Contour pane width as a fraction of the window size.")],
-                ellipsis=1,
-                help=
-      'Set the contour pane width as a fraction of the window size.',
-                # TODO 3D: will have to update the documentation
-                discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/margin.xml')
-                ))
-
-        if config.dimension() == 2:
-            scrollmenu = settingmenu.addItem(OOFMenuItem(
-                'Scroll',
-                cli_only=1,
-                help='Scroll the main display.'))
-            scrollmenu.addItem(OOFMenuItem(
-                'Horizontal',
-                callback=self.hScrollCB,
-                params=[FloatParameter('position', 0.,
-                                       tip="Horizontal scroll position.")],
-                help="Scroll horizontally.",
-                discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/scrollhoriz.xml')
-                ))
-            scrollmenu.addItem(OOFMenuItem(
-                'Vertical',
-                callback=self.vScrollCB,
-                params=[FloatParameter('position', 0.,
-                                       tip="Vertical scroll position.")],
-                help="Scroll vertically.",
-                discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/scrollvert.xml')
-                ))
-
+            help= 'Set the margin (as a fraction of the image size)'
+            ' when zooming to full size.',
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/margin.xml')
+        ))
+        scrollmenu = settingmenu.addItem(OOFMenuItem(
+            'Scroll',
+            cli_only=1,
+            help='Scroll the main display.'))
+        scrollmenu.addItem(OOFMenuItem(
+            'Horizontal',
+            callback=self.hScrollCB,
+            params=[FloatParameter('position', 0.,
+                                   tip="Horizontal scroll position.")],
+            help="Scroll horizontally.",
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/scrollhoriz.xml')
+        ))
+        scrollmenu.addItem(OOFMenuItem(
+            'Vertical',
+            callback=self.vScrollCB,
+            params=[FloatParameter('position', 0.,
+                                   tip="Vertical scroll position.")],
+            help="Scroll vertically.",
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/scrollvert.xml')
+        ))
+        
         # Create toolboxes.
         self.toolboxes = []
         map(self.newToolboxClass, toolbox.toolboxClasses)
@@ -817,14 +788,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 self.menu.Layer.Freeze.enable()
                 self.menu.Layer.Unfreeze.disable()
 
-            if config.dimension() == 2:
-                self.menu.Layer.Show_Contour_Map.disable()
-                self.menu.Layer.Hide_Contour_Map.disable()
-                if self.selectedLayer.contour_capable(self):
-                    if not self.selectedLayer.contourmaphidden:
-                        self.menu.Layer.Hide_Contour_Map.enable()
-                    else:
-                        self.menu.Layer.Show_Contour_Map.enable()
+            if self.selectedLayer.contour_capable(self):
+                if not self.selectedLayer.contourmaphidden:
+                    self.menu.Layer.Hide_Contour_Map.enable()
+                else:
+                    self.menu.Layer.Show_Contour_Map.enable()
         else:
             self.menu.Layer.Delete.disable()
             self.menu.Layer.Raise.disable()
@@ -834,14 +802,12 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             self.menu.Layer.Freeze.disable()
             self.menu.Layer.Unfreeze.disable()
             self.menu.Layer.Edit.disable()
-            if config.dimension() == 2:
-                self.menu.Layer.Show_Contour_Map.disable()
-                self.menu.Layer.Hide_Contour_Map.disable()
-        if config.dimension() == 2:
-            if len(self.display) == 0:
-                self.menu.Settings.Zoom.disable()
-            else:
-                self.menu.Settings.Zoom.enable()
+            self.menu.Layer.Show_Contour_Map.disable()
+            self.menu.Layer.Hide_Contour_Map.disable()
+        if len(self.display) == 0:
+            self.menu.Settings.Zoom.disable()
+        else:
+            self.menu.Settings.Zoom.enable()
         if self.display.sorted:
             self.menu.Layer.Reorder_All.disable()
         else:
@@ -1029,12 +995,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     def vScrollCB(self, menuitem, position):
         self.vscrollvalue = position
 
-    if config.dimension() == 2:
-        def saveImage(self, menuitem, filename, overwrite):
-            if overwrite or not os.path.exists(filename):
-                pdevice = pdfoutput.PDFoutput(filename=filename)
-                pdevice.set_background(self.settings.bgcolor)
-                self.display.draw(self, pdevice)
+    def saveImage(self, menuitem, filename, overwrite):
+        if overwrite or not os.path.exists(filename):
+            pdevice = pdfoutput.PDFoutput(filename=filename)
+            pdevice.set_background(self.settings.bgcolor)
+            self.display.draw(self, pdevice)
 
     def saveContourmap(self, menuitem, filename, overwrite):
         if overwrite or not os.path.exists(filename):
