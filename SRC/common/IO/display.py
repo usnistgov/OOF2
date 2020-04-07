@@ -700,3 +700,37 @@ class Display:
         finally:
             self.lock.release()
 
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+from ooflib.common import color
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
+
+class MicrostructurePerimeterDisplay(DisplayMethod):
+    def __init__(self, color, width):
+        self.color = color
+        self.width = width
+        DisplayMethod.__init__(self)
+
+    def draw(self, gfxwindow, device, canvaslayer):
+        size = self.who().getObject().size()
+        rect = oofcanvas.CanvasRectangle(0, 0, size.x, size.y)
+        rect.setLineWidth(self.width)
+        rect.setLineColor(color.canvasColor(self.color))
+        rect.setLineWidthInPixels()
+        canvaslayer.addItem(rect)
+        
+
+registeredclass.Registration(
+    'Perimeter',
+    DisplayMethod,
+    MicrostructurePerimeterDisplay,
+    ordering=100,
+    layerordering=Linear(0),
+    params=[
+        color.ColorParameter('color', color.black),
+        parameter.FloatParameter('width', 1.0)],
+    whoclasses = ('Microstructure',),
+    )
+
+

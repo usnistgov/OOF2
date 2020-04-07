@@ -76,7 +76,6 @@ namespace OOFCanvas {
     rect->setLineWidth(0.5*lineWidth);
     rect->setLineColor(color);
 
-    Coord diff = startPt - currentPt;
     CanvasEllipse *ellipse = new CanvasEllipse(0.5*(currentPt+startPt),
 					       0.5*(currentPt-startPt),
 					       0.0 /* angle */ );

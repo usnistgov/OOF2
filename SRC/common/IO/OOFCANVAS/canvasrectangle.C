@@ -39,19 +39,17 @@ namespace OOFCanvas {
 
   void CanvasRectangle::setLineWidth(double w) {
     CanvasFillableShape::setLineWidth(w);
-    bbox = bbox0;
-    // TODO: This is wrong if line width is in pixels
-    bbox.expand(0.5*lineWidth);
-    modified();
   }
 
   void CanvasRectangle::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
-    ctxt->set_line_width(lineWidthInUserUnits(ctxt));
+    double w = lineWidthInUserUnits(ctxt);
+    ctxt->set_line_width(w);
+    double halfw = 0.5*w;
     ctxt->set_line_join(lineJoin);
-    ctxt->move_to(xmin, ymin);
-    ctxt->line_to(xmax, ymin);
-    ctxt->line_to(xmax, ymax);
-    ctxt->line_to(xmin, ymax);
+    ctxt->move_to(xmin+halfw, ymin+halfw);
+    ctxt->line_to(xmax-halfw, ymin+halfw);
+    ctxt->line_to(xmax-halfw, ymax-halfw);
+    ctxt->line_to(xmin+halfw, ymax-halfw);
     ctxt->close_path();
 
     fillAndStroke(ctxt);

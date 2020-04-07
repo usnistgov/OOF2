@@ -1222,10 +1222,11 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
     def setRubberband(self, rubberband):
         self.rubberband = rubberband
-        if rubberband is not None:
-            self.oofcanvas.set_rubberband(rubberband)
-        else:
-            self.oofcanvas.removeRubberBand()
+        if self.oofcanvas is not None:
+            if rubberband is not None:
+                self.oofcanvas.setRubberBand(rubberband)
+            else:
+                self.oofcanvas.removeRubberBand()
 
     # Right click on layer list
     #########################################################
