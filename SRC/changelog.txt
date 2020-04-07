@@ -1,7 +1,4 @@
 
-* Added a "ZStrain" property so users can specify e_zz in
-  plane-strain problems.
-
 OOF2 2.1.19
 
 * Selection sizes are reported as percentages as well as absolute
@@ -9,6 +6,9 @@ OOF2 2.1.19
 
 * Skeleton modification routines report the total number of nodes and
   elements after the modification, not just the change.
+
+* Added a "ZStrain" property so users can specify e_zz in
+  plane-strain problems.
 
 OOF2 2.1.18
 
