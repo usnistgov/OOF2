@@ -127,7 +127,7 @@ namespace OOFCanvas {
     assert(buffer != nullptr);
     assert(stride != 0);
     unsigned char *addr = buffer + y*stride + 4*x;
-    double r, g, b, a;
+    unsigned char r, g, b, a;
     if(littleEndian) {
       b = *addr++;
       g = *addr++;
@@ -140,7 +140,7 @@ namespace OOFCanvas {
       g = *addr++;
       b = *addr;
     }
-    return Color(r, g, b, a);
+    return Color(r/255., g/255., b/255., a/255.);
   }
   
   const Rectangle &CanvasImage::findBoundingBox(double ppu) {
