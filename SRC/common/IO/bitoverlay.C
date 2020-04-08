@@ -124,15 +124,6 @@ OOFCanvas::CanvasImage *BitmapOverlay::makeCanvasImage(const Coord *position,
       img->set(p[0], ymax-p[1],
 	       fg.getRed(), fg.getGreen(), fg.getBlue(), tintAlpha);
     }
-    else {
-      // TODO GTK3: Use a Cairo mask to make the background pixels
-      // disappear instead of setting them to be transparent.
-
-      // TODO GTK3: The background has alpha=0 already.  Why is this
-      // needed?
-      ICoord p(i.coord());
-      img->set(p[0], ymax-p[1], bg.getRed(), bg.getGreen(), bg.getBlue(), 0.);
-    }
   }
   return img;
 }

@@ -299,7 +299,7 @@ namespace OOFCanvas {
 	  *addr++ = b*255;
 	  *addr++ = g*255;
 	  *addr++ = r*255;
-	  *addr = 255;
+	  *addr =   a*255;
 	}
       }
     }
@@ -308,7 +308,7 @@ namespace OOFCanvas {
 	unsigned char *rowaddr = buffer + j*stride;
 	for(int i=0; i<w; i++) {
 	  unsigned char *addr = rowaddr + 4*i;
-	  *addr++ = 255;
+	  *addr++ = a*255;
 	  *addr++ = r*255;
 	  *addr++ = g*255;
 	  *addr++ = b*255;
