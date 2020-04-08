@@ -50,7 +50,7 @@ class MicrostructurePage(oofGUI.MainPage):
         self.gtk.add(vbox)
 
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                            halign=Gtk.Align.CENTER)
+                            halign=Gtk.Align.CENTER, margin_top=2)
         vbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)

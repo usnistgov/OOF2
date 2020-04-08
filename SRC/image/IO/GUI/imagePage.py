@@ -39,8 +39,7 @@ class ImagePage(oofGUI.MainPage):
         oofGUI.MainPage.__init__(self, name="Image", ordering=50,
                                  tip='Manipulate Images')
 
-        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                          spacing=2, margin=2)
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,

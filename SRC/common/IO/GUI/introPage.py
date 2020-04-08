@@ -59,7 +59,7 @@ class IntroPage(oofGUI.MainPage):
                                  tip="Welcome to %s!"%name)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(vbox)
-        scroll = Gtk.ScrolledWindow()
+        scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN, margin=2)
         gtklogger.logScrollBars(scroll, "Scroll")
         scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
         vbox.pack_start(scroll, expand=True, fill=True, padding=0)

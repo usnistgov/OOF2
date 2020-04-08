@@ -50,7 +50,7 @@ class SelectionPage(oofGUI.MainPage):
 
         # Microstructure widget, centered at the top of the page.
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                            spacing=3, halign=Gtk.Align.CENTER)
+                            halign=Gtk.Align.CENTER, margin_top=2)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
@@ -70,7 +70,8 @@ class SelectionPage(oofGUI.MainPage):
                              margin=2)
         pssframe.set_shadow_type(Gtk.ShadowType.IN)
         mainpane.pack1(pssframe, resize=True, shrink=False)
-        self.datascroll = Gtk.ScrolledWindow(margin=2)
+        self.datascroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN,
+                                             margin=2)
         gtklogger.logScrollBars(self.datascroll, "DataScroll")
         pssframe.add(self.datascroll)
         self.datascroll.set_policy(Gtk.PolicyType.AUTOMATIC,

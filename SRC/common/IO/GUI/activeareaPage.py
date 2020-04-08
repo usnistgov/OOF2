@@ -46,8 +46,8 @@ class ActiveAreaPage(oofGUI.MainPage):
         self.gtk.add(mainbox)
 
         # Microstructure widget, centered at the top of the page.
-        centerbox = Gtk.Box(spacing=3, orientation=Gtk.Orientation.HORIZONTAL,
-                            halign=Gtk.Align.CENTER)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            halign=Gtk.Align.CENTER, margin_top=2)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         label = Gtk.Label('Microstructure=',
                           halign=Gtk.Align.END, hexpand=False)
