@@ -94,20 +94,6 @@ void BitmapOverlay::copy(const BitmapOverlay *other) {
 
 void BitmapOverlay::setColor(const CColor *color) {
   fg = *color;
-
-  // Mysterious code here is commented out but not deleted in case it
-  // turns out to have been important.
-  
-  // if(fg.getRed() == 0.0) {
-  //   bg.setRed(1.0);
-  //   bg.setGreen(1.0);
-  //   bg.setBlue(1.0);
-  // }
-  // else {
-  //   bg.setRed(0.0); 
-  //   bg.setBlue(0.0);
-  //   bg.setGreen(0.0);
-  // }
 }
 
 CColor BitmapOverlay::getBG() const {
