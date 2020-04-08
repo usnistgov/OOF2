@@ -14,6 +14,7 @@
 
 namespace OOFCanvas {
 
+  // TODO: Can littleEndian be set at compile time and used in #ifdefs?
   bool getLittleEndian() {
     int k = 1;
     unsigned char *c = (unsigned char*) &k;
@@ -26,6 +27,7 @@ namespace OOFCanvas {
     : location(Coord(x, y)),	// position of lower left corner in user units
       opacity(1.0),
       pixelScaling(false),
+      drawPixelByPixel(true),
       buffer(nullptr),
       stride(0)
   {}
@@ -120,6 +122,26 @@ namespace OOFCanvas {
     }
     imageSurface->mark_dirty();
   }
+
+  Color CanvasImage::get(int x, int y) const {
+    assert(buffer != nullptr);
+    assert(stride != 0);
+    unsigned char *addr = buffer + y*stride + 4*x;
+    double r, g, b, a;
+    if(littleEndian) {
+      b = *addr++;
+      g = *addr++;
+      r = *addr++;
+      a = *addr;
+    }
+    else {
+      a = *addr++;
+      r = *addr++;
+      g = *addr++;
+      b = *addr;
+    }
+    return Color(r, g, b, a);
+  }
   
   const Rectangle &CanvasImage::findBoundingBox(double ppu) {
     if(pixelScaling)
@@ -130,44 +152,67 @@ namespace OOFCanvas {
   }
 
   void CanvasImage::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
-    // Scaling the context to change the image size also changes the
-    // location, so convert the location to device units before
-    // scaling, then convert back afterwards.
-    double posX, posY;
-    if(!pixelScaling) {
-      posX = location.x;
-      posY = location.y + size.y;
-      ctxt->user_to_device(posX, posY);
-      ctxt->scale(size.x/pixels.x, -size.y/pixels.y);
-      ctxt->device_to_user(posX, posY);
+    if(!drawPixelByPixel) {
+      // Scaling the context to change the image size also changes the
+      // location, so convert the location to device units before
+      // scaling, then convert back afterwards.
+      double posX, posY;
+      if(!pixelScaling) {
+	posX = location.x;
+	posY = location.y + size.y;
+	ctxt->user_to_device(posX, posY);
+	ctxt->scale(size.x/pixels.x, -size.y/pixels.y);
+	ctxt->device_to_user(posX, posY);
+      }
+      else {
+	// Given size is in device pixels
+	// Find the size (dx, dy) of a pixel in user coordinates
+	double dx = 1.0;		
+	double dy = 1.0;
+	ctxt->device_to_user_distance(dx, dy);
+	// dy is negative now.
+
+	// Get the desired display position in device coordinates
+	posX = location.x;
+	posY = location.y;
+	ctxt->user_to_device(posX, posY);
+
+	// Scaling x by dx would make image pixels correspond to device
+	// pixels, so scale by dx*size.x/pixels.x to make the image fit
+	// into size.x device pixels.
+	ctxt->scale(dx*size.x/pixels.x, dy*size.y/pixels.y);
+	posY -= size.y;
+      
+	// Convert the display position back to user coordinates
+	ctxt->device_to_user(posX, posY);
+      }
+      ctxt->set_source(imageSurface, posX, posY);
+      if(opacity == 1.0)
+	ctxt->paint();
+      else
+	ctxt->paint_with_alpha(opacity);
     }
     else {
-      // Given size is in device pixels
-      // Find the size (dx, dy) of a pixel in user coordinates
-      double dx = 1.0;		
-      double dy = 1.0;
-      ctxt->device_to_user_distance(dx, dy);
-      // dy is negative now.
+      // drawPixelByPixel==true
+      ctxt->save();
+      ctxt->set_antialias(Cairo::ANTIALIAS_NONE);
+      double dx = size.x/pixels.x;
+      double dy = size.y/pixels.y;
+      for(unsigned int j=0; j<pixels.y; j++) {
+	for(unsigned int i=0; i<pixels.x; i++) {
+	  Color clr = get(i, pixels.y-j-1);
+	  clr.set(ctxt);
+	  ctxt->move_to(location.x + i*dx, location.y+j*dy);
+	  ctxt->rel_line_to(dx, 0);
+	  ctxt->rel_line_to(0, dy);
+	  ctxt->rel_line_to(-dx, 0);
+	  ctxt->close_path();
+	  ctxt->fill();
+	}
+      }
+      ctxt->restore();
 
-      // Get the desired display position in device coordinates
-      posX = location.x;
-      posY = location.y;
-      ctxt->user_to_device(posX, posY);
-
-      // Scaling x by dx would make image pixels correspond to device
-      // pixels, so scale by dx*size.x/pixels.x to make the image fit
-      // into size.x device pixels.
-      ctxt->scale(dx*size.x/pixels.x, dy*size.y/pixels.y);
-      posY -= size.y;
-      
-      // Convert the display position back to user coordinates
-      ctxt->device_to_user(posX, posY);
     }
-    ctxt->set_source(imageSurface, posX, posY);
-    if(opacity == 1.0)
-      ctxt->paint();
-    else
-      ctxt->paint_with_alpha(opacity);
   }
 
   void CanvasImage::pixelExtents(double &left, double &right,

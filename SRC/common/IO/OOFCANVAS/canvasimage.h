@@ -31,6 +31,7 @@ namespace OOFCanvas {
     ICoord pixels;
     double opacity;
     bool pixelScaling;
+    bool drawPixelByPixel;
     unsigned char *buffer;	// points to data owned by Cairo::ImageSurface
     int stride;
     Cairo::RefPtr<Cairo::ImageSurface> imageSurface;
@@ -64,6 +65,7 @@ namespace OOFCanvas {
 
     virtual const Rectangle &findBoundingBox(double ppu);
     void setPixelSize() { pixelScaling = true; }
+    void setDrawIndividualPixels() { drawPixelByPixel = true; }
     virtual bool pixelSized() const { return pixelScaling; }
     virtual Coord referencePoint() const { return location; }
     virtual void pixelExtents(double&, double&, double&, double&) const;
@@ -73,6 +75,8 @@ namespace OOFCanvas {
     void set(int x, int y, unsigned char r, unsigned char g, unsigned char b,
 	     unsigned char a);
     void setOpacity(double alpha) { opacity = alpha; }
+
+    Color get(int x, int y) const;
   };
   
   std::ostream &operator<<(std::ostream&, const CanvasImage&);
