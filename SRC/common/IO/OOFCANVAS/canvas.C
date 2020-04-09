@@ -26,6 +26,10 @@
 // TODO? Canvas::setMargin(double) to add some space when zooming to
 // fill.  Not the same as the old OOFCanvas::set_margin.
 
+// TODO: Layers shouldn't be replaced, but they can be "edited".  An
+// edited layer is cleared of all of its contents and then passed to
+// DisplayMethod::draw().
+
 namespace OOFCanvas {
 
   OffScreenCanvas::OffScreenCanvas(double ppu)

@@ -1180,12 +1180,15 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.newLayerMembers()
         
     def replaceLayer(self, count, oldlayer, newlayer):
-        # extended in gfxwindow.py
+        ## TODO GTK3: Is this being called?
+        assert False
+        # extended in GfxWindowBase in GUI/gfxwindowbase.py
         if self.selectedLayer is oldlayer:
             self.selectedLayer = newlayer
         self.display.replace_layer(oldlayer, newlayer)
         layerset = oldlayer.layerset
         layerset.replaceMethod(count, newlayer)
+        # self.oofcanvas.replaceLayer(oldlayer, newlayer)
         oldlayer.destroy()
 
     def newLayer(self, displaylayer):

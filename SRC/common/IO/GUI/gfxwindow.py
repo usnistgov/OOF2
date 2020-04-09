@@ -435,6 +435,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         subWindow.SubWindow.__init__(
             self, windowname, menu=self.menu)
 
+        ## TODO GTK3: restore the popup menu for the layer list
         # # Create the popup menu for the layer list.
         # self.layerpopup = gfxmenu.gtkOOFPopUpMenu(self.menu.Layer,
         #                                           self.layerListView)
