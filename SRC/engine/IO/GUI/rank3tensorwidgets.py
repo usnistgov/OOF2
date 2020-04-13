@@ -33,8 +33,8 @@ class Rank3TensorWidget(MatrixInput):
         MatrixInput.__init__(self, 3,6, value=None, scope=scope, name=name)
         for (k,f) in self.widgets.items():
             if k not in self.excluded:
-                f.gtk.set_editable(0)
-                f.gtk.set_sensitive(0)
+                f.gtk.set_editable(False)
+                f.gtk.set_sensitive(False)
             else:
                 gtklogger.connect(f.gtk, "activate", self.new_value, None)
                 gtklogger.connect(f.gtk, "focus_out_event", self.new_value)

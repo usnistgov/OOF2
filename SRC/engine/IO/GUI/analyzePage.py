@@ -20,7 +20,6 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import analysisdomain
 from ooflib.engine import namedanalysis
@@ -31,7 +30,8 @@ from ooflib.engine.IO.GUI import outputwidget
 from ooflib.engine.IO.GUI import sampleregclassfactory
 import ooflib.engine.mesh
 
-import gtk
+from gi.repository import Gdk
+from gi.repository import Gtk
 
 
 # A page on which various aspects of the solved mesh can be queried --
@@ -47,83 +47,84 @@ class BaseAnalysisPage(oofGUI.MainPage):
         # button.
         # Box along the bottom of the page, containing Named Analyses,
         # Destination, and Go.
-        hbox = gtk.HBox()
-        hbox.set_homogeneous(True)
-        mainbox.pack_start(hbox, expand=0, fill=0, padding=3)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       homogeneous=True)
+        mainbox.pack_start(hbox, expand=False, fill=False, padding=0)
 
         # Named Analyses
-        nameframe = gtk.Frame("Named Analyses")
+        nameframe = Gtk.Frame(label="Named Analyses",
+                              shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(nameframe, 'Name')
-        nameframe.set_shadow_type(gtk.SHADOW_IN)
-        hbox.pack_start(nameframe, expand=1, fill=1, padding=3)
-        namebox = gtk.VBox(spacing=2)
-        namebox.set_border_width(1)
+        hbox.pack_start(nameframe, expand=True, fill=True, padding=0)
+        namebox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        # namebox.set_border_width(1)   # why?
         nameframe.add(namebox)
-        
+         
         # The namedOps_button isn't used as a button, really.  It's
         # just a place to click to bring up the menu of named analysis
         # operations.  There isn't room in the frame to make separate
         # buttons for all the operations and still display the name of
         # the current analysis, if any.
-        self.namedOps_button = gtk.Button("Create/Delete/etc...")
+        self.namedOps_button = Gtk.Button("Create/Delete/etc...")
         gtklogger.setWidgetName(self.namedOps_button, "Operations")
-        namebox.pack_start(self.namedOps_button, expand=1, fill=1)
+        namebox.pack_start(self.namedOps_button,
+                           expand=True, fill=True, padding=0)
         gtklogger.connect(self.namedOps_button, 'button-press-event', 
                           self.namedOpsCB)
         # Construct the menu of operations.
-        self.namedOpsPopUp = gtk.Menu()
+        self.namedOpsPopUp = Gtk.Menu()
         gtklogger.newTopLevelWidget(self.namedOpsPopUp, self.menuWidgetName)
-        self.namedOpsPopUp.set_screen(self.namedOps_button.get_screen())
+        #self.namedOpsPopUp.set_screen(self.namedOps_button.get_screen())
         gtklogger.connect_passive(self.namedOpsPopUp, 'deactivate')
         self.namedOpsMenuItems = {}
         for position, (name, callback, tip) in enumerate([
                 ('Create', self.createCB, "Create a new named analysis."),
                 ('Save', self.savenamedCB, "Save named analysis definitions."),
                 ('Delete', self.deleteCB, "Delete a named analysis.")]):
-            menuitem = gtk.MenuItem()
+            menuitem = Gtk.MenuItem(name + "...")
             self.namedOpsMenuItems[name] = menuitem
             gtklogger.setWidgetName(menuitem, name)
-            label = gtk.Label(name + "...")
-            tooltips.set_tooltip_text(label, tip)
-            menuitem.add(label)
+            menuitem.set_tooltip_text(tip)
             self.namedOpsPopUp.insert(menuitem, position)
             gtklogger.connect(menuitem, 'activate', callback)
         self.namedOpsPopUp.show_all()
         # Display the name of the current analysis, if it has one.
-        hbox4 = gtk.HBox()
-        namebox.pack_start(hbox4, expand=0, fill=0)
-        hbox4.pack_start(gtk.Label("Current:"), expand=0, fill=0)
+        hbox4 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        namebox.pack_start(hbox4, expand=False, fill=False, padding=0)
+        hbox4.pack_start(Gtk.Label("Current:"),
+                         expand=False, fill=False, padding=0)
         self.namedAnalysisChooser = chooser.ChooserWidget(
             [], callback=self.retrieveCB, name="Retrieve")
-        hbox4.pack_start(self.namedAnalysisChooser.gtk, expand=1, fill=1)
+        hbox4.pack_start(self.namedAnalysisChooser.gtk,
+                         expand=True, fill=True, padding=0)
 
         # reduce no. of calls to setNamedAnalysisChooser
         self.suppressRetrievalLoop = False
 
         # Destination
-        destinationframe = gtk.Frame("Destination")
-        destinationframe.set_shadow_type(gtk.SHADOW_IN)
-        hbox.pack_start(destinationframe, expand=1, fill=1, padding=3)
-        destbox = gtk.HBox()
-        destbox.set_border_width(1)
+        destinationframe = Gtk.Frame(label="Destination",
+                                     shadow_type=Gtk.ShadowType.IN)
+        hbox.pack_start(destinationframe, expand=True, fill=True, padding=0)
+        destbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         destinationframe.add(destbox)
 
         self.destwidget = outputdestinationwidget.TextDestinationWidget(
             name="Destination", framed=False)
-        destbox.pack_start(self.destwidget.gtk, expand=1, fill=1, padding=2)
+        destbox.pack_start(self.destwidget.gtk,
+                           expand=True, fill=True, padding=0)
         
         # Go button
-        self.go_button = gtkutils.StockButton(gtk.STOCK_EXECUTE, "Go")
-        self.go_button.set_border_width(2)
+        self.go_button = gtkutils.StockButton("system-run-symbolic", "Go")
         gtklogger.setWidgetName(self.go_button, 'Go')
         gtklogger.connect(self.go_button, "clicked", self.go_buttonCB)
-        tooltips.set_tooltip_text(self.go_button,
-                             "Send the output to the destination.")
-        hbox.pack_start(self.go_button, fill=1, expand=1, padding=2)
+        self.go_button.set_tooltip_text("Send the output to the destination.")
+        hbox.pack_start(self.go_button, fill=True, expand=True, padding=0)
 
 
     def namedOpsCB(self, gtkbutton, event):
-        self.namedOpsPopUp.popup(None, None, None, event.button, event.time)
+        self.namedOpsPopUp.popup_at_widget(
+            self.namedOps_button,
+            Gdk.Gravity.SOUTH_WEST, Gdk.Gravity.NORTH_WEST, event)
     
     def sensitizeBottomRow(self, createOK, namedOK):
         self.namedOpsMenuItems['Create'].set_sensitive(createOK)
@@ -154,13 +155,13 @@ class AnalyzePage(BaseAnalysisPage):
         
         self.timeparam = placeholder.TimeParameter('time', value=0.0)
 
-        mainbox = gtk.VBox()
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        align.add(centerbox)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            halign=Gtk.Align.CENTER,
+                            spacing=2)
+        mainbox.pack_start(centerbox, expand=False, fill=False)
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               scope=self)
         # The mesh widget callback is not required, because the field
@@ -168,35 +169,40 @@ class AnalyzePage(BaseAnalysisPage):
         # of a parameter table, which is a component of the
         # OutputWidget) are context-sensitive and update themselves
         # automatically.
-        label = gtk.Label("Microstructure=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[0], expand=0, fill=0)
-        label = gtk.Label("Skeleton=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[1], expand=0, fill=0)
-        label = gtk.Label("Mesh=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[2], expand=0, fill=0)
+        label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[0],
+                             expand=False, fill=False, padding=0)
+        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[1],
+                             expand=False, fill=False, padding=0)
+        label = Gtk.Label("Mesh=", halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[2],
+                             expand=False, fill=False, padding=0)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        align.add(centerbox)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            spacing=3, halign=Gtk.Align.CENTER)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
+
         self.timeWidget = self.timeparam.makeWidget(scope=self)
-        centerbox.pack_start(gtk.Label("Time:"), expand=0, fill=0)
-        centerbox.pack_start(self.timeWidget.gtk, expand=0, fill=0)
+        centerbox.pack_start(Gtk.Label("Time:"),
+                             expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.timeWidget.gtk,
+                             expand=False, fill=False, padding=0)
 
-        mainvpane = gtk.VPaned()
-        mainbox.pack_start(mainvpane, expand=1, fill=1)
-        self.topPane = gtk.HPaned()
+        mainvpane = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL,
+                              wide_handle=True)
+        mainbox.pack_start(mainvpane, expand=True, fill=True, padding=0)
+        self.topPane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                                 wide_handle=True)
         gtklogger.setWidgetName(self.topPane, 'top')
-        mainvpane.pack1(self.topPane, resize=1, shrink=0)
-        self.btmPane = gtk.HPaned()
+        mainvpane.pack1(self.topPane, resize=True, shrink=False)
+        self.btmPane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                                 wide_handle=True)
         gtklogger.setWidgetName(self.btmPane, 'bottom')
-        mainvpane.pack2(self.btmPane, resize=1, shrink=0)
+        mainvpane.pack2(self.btmPane, resize=True, shrink=False)
         # The four panes (Output, Domain, Operation, and Sampling) are
         # contained in the top and bottom HPaneds.  The dividers
         # between the sub panes are synchronized with each other.
@@ -214,25 +220,27 @@ class AnalyzePage(BaseAnalysisPage):
                                              self.topPane)
             }
 
-        self.outputframe = gtk.Frame(label="Output")
-        self.outputframe.set_shadow_type(gtk.SHADOW_IN)
-        output_scroll = gtk.ScrolledWindow()
+        self.outputframe = Gtk.Frame(label="Output",
+                                     shadow_type=Gtk.ShadowType.IN)
+        output_scroll = gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         gtklogger.logScrollBars(output_scroll, "Output")
-        output_scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        output_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         self.outputframe.add(output_scroll)
-        output_box = gtk.VBox()
-        output_type_selector_box = gtk.HBox()
-        output_box.pack_start(output_type_selector_box, expand=0, fill=0)
+        output_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        output_type_selector_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        output_box.pack_start(output_type_selector_box,
+                              expand=False, fill=False, padding=0)
 
-        self.scalar_output_button = gtk.RadioButton(label="Scalar")
+        self.scalar_output_button = Gtk.RadioButton("Scalar")
         gtklogger.setWidgetName(self.scalar_output_button, 'ScalarMode')
         self.aggregate_output_button = gtk.RadioButton(
-            group=self.scalar_output_button, label="Aggregate")
+            "Aggregate", group=self.scalar_output_button)
         gtklogger.setWidgetName(self.aggregate_output_button, 'AggregateMode')
         output_type_selector_box.pack_start(self.scalar_output_button,
-                                            expand=0, fill=0)
+                                            expand=False, fill=False. padding=0)
         output_type_selector_box.pack_start(self.aggregate_output_button,
-                                            expand=0, fill=0)
+                                            expand=False, fill=False, padding=0)
         self.scalarSignal = gtklogger.connect(self.scalar_output_button,
                                               "clicked",
                                               self.scalar_button_CB)
@@ -252,55 +260,60 @@ class AnalyzePage(BaseAnalysisPage):
             None, scope=self, name="Aggregate")
         
         self.output_obj = self.scalar_output_obj
-        output_box.pack_start(self.scalar_output_obj.gtk, expand=0, fill=0)
-        output_box.pack_start(self.aggregate_output_obj.gtk, expand=0, fill=0)
+        output_box.pack_start(self.scalar_output_obj.gtk,
+                              expand=False, fill=False, padding=0)
+        output_box.pack_start(self.aggregate_output_obj.gtk,
+                              expand=False, fill=False, padding=0)
         self.aggregate_output_obj.gtk.hide()
         
         output_scroll.add_with_viewport(output_box)
         self.topPane.pack1(self.outputframe, resize=1, shrink=pshrink)
 
         # Operation
-        self.operationframe = gtk.Frame(label="Operation")
-        self.operationframe.set_shadow_type(gtk.SHADOW_IN)
-        op_scroll = gtk.ScrolledWindow()
+        self.operationframe = Gtk.Frame(label="Operation",
+                                        shadow_type=Gtk.ShadowType.IN)
+        op_scroll = Gtk.ScrolledWindow(shadowtype=Gtk.Shadowtype.IN)
         gtklogger.logScrollBars(op_scroll, "Operation")
-        op_scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        op_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         self.op_obj = DataOperationFactory(self,
             analyze.DataOperation.registry, scope=self, name="OperationRCF",
             callback = self.newOperationCB)
         self.operationframe.add(op_scroll)
 
-        operation_box = gtk.VBox()
-        operation_box.pack_start(self.op_obj.gtk, expand=0, fill=0)
-        op_scroll.add_with_viewport(operation_box)
+        operation_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        operation_box.pack_start(self.op_obj.gtk,
+                                 expand=False, fill=False, padding=0)
+        op_scroll.add(operation_box)
         self.btmPane.pack1(self.operationframe, resize=1, shrink=pshrink)
 
         # Domain
-        self.domainframe = gtk.Frame(label="Domain")
-        self.domainframe.set_shadow_type(gtk.SHADOW_IN)
-        dom_scroll = gtk.ScrolledWindow()
+        self.domainframe = Gtk.Frame(label="Domain",
+                                     shadow_type=Gtk.ShadowType.IN)
+        dom_scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         gtklogger.logScrollBars(dom_scroll, "Domain")
-        dom_scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        dom_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         self.domain_obj = regclassfactory.RegisteredClassFactory(
             analysisdomain.Domain.registry, scope=self, name="DomainRCF",
             callback = self.newDomainCB)
         self.domainframe.add(dom_scroll)
-        dom_scroll.add_with_viewport(self.domain_obj.gtk)
-        self.topPane.pack2(self.domainframe, resize=1, shrink=pshrink)
+        dom_scroll.add(self.domain_obj.gtk)
+        self.topPane.pack2(self.domainframe,
+                           resize=1, shrink=pshrink, padding=0)
         
         # Sampling.  The SampleRCF class uses the WidgetScope
         # mechanism to find the Operation and Domain widgets, so that
         # it can display only the relevant SampleSet classes. 
-        self.sampleframe = gtk.Frame(label="Sampling")
-        self.sampleframe.set_shadow_type(gtk.SHADOW_IN)
-        sam_scroll = gtk.ScrolledWindow()
+        self.sampleframe = Gtk.Frame(label="Sampling",
+                                     shadow_type=Gtk.ShadowType.IN)
+        sam_scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         gtklogger.logScrollBars(sam_scroll, "Sampling")
-        sam_scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        sam_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         self.sample_obj = sampleregclassfactory.SampleRCF(
             scope=self, name="Sampling", callback=self.newSampleCB)
         self.sampleframe.add(sam_scroll)
-        sam_scroll.add_with_viewport(self.sample_obj.gtk)
-        self.btmPane.pack2(self.sampleframe, resize=1, shrink=pshrink)
+        sam_scroll.add(self.sample_obj.gtk)
+        self.btmPane.pack2(self.sampleframe,
+                           resize=1, shrink=pshrink, padding=0)
 
         self.buildBottomRow(mainbox)
         

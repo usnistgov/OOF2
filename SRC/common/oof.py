@@ -368,8 +368,8 @@ def front_end(no_interp=None):
         #         sys.exit(3)
 
         import ooflib.common.IO.GUI.initialize
-        print "NOT IMPORTING engine orientationmap tutorials"
-        # import ooflib.engine.IO.GUI.initialize
+        print "NOT IMPORTING orientationmap tutorials"
+        import ooflib.engine.IO.GUI.initialize
         import ooflib.image.IO.GUI.initialize
         # import ooflib.orientationmap.GUI.initialize
         # import ooflib.tutorials.initialize
@@ -378,8 +378,8 @@ def front_end(no_interp=None):
             gtklogger.set_delay(int(replaydelay))
     else:                               # text mode
         import ooflib.common.initialize
-        print "NOT IMPORTING engine orientationmap"
-        # import ooflib.engine.initialize
+        print "NOT IMPORTING orientationmap"
+        import ooflib.engine.initialize
         import ooflib.image.initialize
         # import ooflib.orientationmap.initialize
     import ooflib.EXTENSIONS.initialize

@@ -35,8 +35,8 @@ class SymmMatrix3Widget(SymmetricMatrixInput):
                                       name=name)
         for (k,f) in self.widgets.items():
             if k not in self.settable:
-                f.gtk.set_editable(0)
-                f.gtk.set_sensitive(0)
+                f.gtk.set_editable(False)
+                f.gtk.set_sensitive(False)
             else:
                 gtklogger.connect(f.gtk, "activate", self.new_value, None)
                 gtklogger.connect(f.gtk, "focus_out_event", self.new_value)
@@ -58,8 +58,7 @@ class SymmMatrix3Widget(SymmetricMatrixInput):
         result = self.value
         try:
             result = symmmatrix.SymmMatrix3(
-                *[self.widgets[i].get_value() for i in \
-                  symmmatrix.voigtIndices] )
+                *[self.widgets[i].get_value() for i in symmmatrix.voigtIndices])
         finally:
             self.set_values(result)
 
@@ -77,7 +76,7 @@ class TriclinicRank2TensorParameterWidget(SymmMatrix3Widget):
         result = self.value
         try:
             result = symmmatrix.TriclinicRank2Tensor(
-                *[self.widgets[i].get_value() for i in symmmatrix.voigtIndices] )
+                *[self.widgets[i].get_value() for i in symmmatrix.voigtIndices])
         finally:
             self.set_values(result)
               
@@ -118,7 +117,8 @@ class MonoclinicSymmWidget(SymmMatrix3Widget):
 def _MonoclinicSymmParameter_makeWidget(self, scope=None):
     return MonoclinicSymmWidget(self, scope, name=self.name)
 
-symmmatrix.MonoclinicRank2TensorParameter.makeWidget = _MonoclinicSymmParameter_makeWidget
+symmmatrix.MonoclinicRank2TensorParameter.makeWidget = \
+    _MonoclinicSymmParameter_makeWidget
 
 
 ## for symmetric orthorhombic rank two tensors
@@ -149,7 +149,8 @@ class OrthorhombicSymmWidget(SymmMatrix3Widget):
 def _OrthorhombicSymmParameter_makeWidget(self, scope=None):
     return OrthorhombicSymmWidget(self, scope, name=self.name)
 
-symmmatrix.OrthorhombicRank2TensorParameter.makeWidget = _OrthorhombicSymmParameter_makeWidget
+symmmatrix.OrthorhombicRank2TensorParameter.makeWidget = \
+    _OrthorhombicSymmParameter_makeWidget
 
 
 ## For Tetragonal, Trigonal, Hexagonal symmetric rank two tensors
@@ -182,7 +183,8 @@ class IsotropicPlaneSymmWidget(SymmMatrix3Widget):
 def _IsotropicPlaneSymmParameter_makeWidget(self, scope=None):
     return IsotropicPlaneSymmWidget(self, scope, name=self.name)
 
-symmmatrix.IsotropicPlaneParameter.makeWidget = _IsotropicPlaneSymmParameter_makeWidget
+symmmatrix.IsotropicPlaneParameter.makeWidget = \
+    _IsotropicPlaneSymmParameter_makeWidget
 
 # Nearly-trivial subclasses, which have functions which can generate a
 # tensor of the appropriate type.
@@ -193,7 +195,8 @@ class TetragonalSymmWidget(IsotropicPlaneSymmWidget):
 def _TetragonalSymmParameter_makeWidget(self, scope=None):
     return TetragonalSymmWidget(self, scope, name=self.name)
 
-symmmatrix.TetragonalRank2TensorParameter.makeWidget = _TetragonalSymmParameter_makeWidget
+symmmatrix.TetragonalRank2TensorParameter.makeWidget = \
+    _TetragonalSymmParameter_makeWidget
 
 class TrigonalSymmWidget(IsotropicPlaneSymmWidget):
     def make_tensor(self, xx, zz):
@@ -202,7 +205,8 @@ class TrigonalSymmWidget(IsotropicPlaneSymmWidget):
 def _TrigonalSymmParameter_makeWidget(self, scope=None):
     return TrigonalSymmWidget(self, scope, name=self.name)
 
-symmmatrix.TrigonalRank2TensorParameter.makeWidget = _TrigonalSymmParameter_makeWidget
+symmmatrix.TrigonalRank2TensorParameter.makeWidget = \
+    _TrigonalSymmParameter_makeWidget
 
 class HexagonalSymmWidget(IsotropicPlaneSymmWidget):
     def make_tensor(self, xx, zz):
@@ -211,7 +215,8 @@ class HexagonalSymmWidget(IsotropicPlaneSymmWidget):
 def _HexagonalSymmParameter_makeWidget(self, scope=None):
     return HexagonalSymmWidget(self, scope, name=self.name)
 
-symmmatrix.HexagonalRank2TensorParameter.makeWidget = _HexagonalSymmParameter_makeWidget
+symmmatrix.HexagonalRank2TensorParameter.makeWidget = \
+    _HexagonalSymmParameter_makeWidget
 
 ## For CUBIC symmetric rank two tensors
 class CubicSymmWidget(SymmMatrix3Widget):

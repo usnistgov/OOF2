@@ -24,14 +24,13 @@ from ooflib.common.IO.GUI import historian
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import meshmod
 from ooflib.engine import meshstatus
 from ooflib.engine import skeletoncontext
 import ooflib.engine.mesh
 
-import gtk
+from gi.repository import Gtk
 import string
 
 meshmenu = mainmenu.OOF.Mesh
@@ -44,185 +43,191 @@ meshmenu = mainmenu.OOF.Mesh
 class MeshPage(oofGUI.MainPage):
     def __init__(self):
         self.built = False
-        oofGUI.MainPage.__init__(self, name="FE Mesh", ordering=200,
-                                 tip="Create a Finite Element Mesh from a Skeleton.")
-        mainbox = gtk.VBox(spacing=2)
+        oofGUI.MainPage.__init__(
+            self, name="FE Mesh", ordering=200,
+            tip="Create a Finite Element Mesh from a Skeleton.")
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        align.add(centerbox)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3,
+                            halign=Gtk.Align.CENTER)
+        mainbox.pack_start(centerbox, expand=False, fill=False)
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               scope=self)
-        label = gtk.Label("Microstructure=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[0], expand=0, fill=0)
+        label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[0],
+                             expand=False, fill=False, padding=0)
 
-        label = gtk.Label("Skeleton=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[1], expand=0, fill=0)
+        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[1],
+                             expand=False, fill=False, padding=0)
 
-        label = gtk.Label("Mesh=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[2], expand=0, fill=0)
+        label = Gtk.Label("Mesh=", halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[2],
+                             expand=False, fill=False, padding=0)
 
         # Centered box of buttons
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        bbox = gtk.HBox(homogeneous=1, spacing=3)
-        align.add(bbox)
-        self.newbutton = gtkutils.StockButton(gtk.STOCK_NEW, "New...")
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                       homogeneous=True, spacing=2)
+        mainbox.pack_start(bbox, expand=False, fill=False, padding=0)
+        
+        self.newbutton = gtkutils.StockButton('document-new-symbolic', "New...")
         gtklogger.setWidgetName(self.newbutton, 'New')
         gtklogger.connect(self.newbutton, 'clicked', self.newCB)
-        tooltips.set_tooltip_text(self.newbutton,"Create a new mesh from the current skeleton.")
-        bbox.pack_start(self.newbutton, expand=0, fill=1)
+        self.newbutton.set_tooltip_text(
+            "Create a new mesh from the current skeleton.")
+        bbox.pack_start(self.newbutton, expand=False, fill=True, padding=0)
         
-        self.renamebutton = gtkutils.StockButton(gtk.STOCK_EDIT, "Rename...")
+        self.renamebutton = gtkutils.StockButton('document-edit-symbolic',
+                                                 "Rename...")
         gtklogger.setWidgetName(self.renamebutton, 'Rename')
         gtklogger.connect(self.renamebutton, 'clicked', self.renameCB)
-        tooltips.set_tooltip_text(self.renamebutton,"Rename the current mesh.")   
-        bbox.pack_start(self.renamebutton, expand=0, fill=1)
+        self.renamebutton.set_tooltip_text("Rename the current mesh.")   
+        bbox.pack_start(self.renamebutton, expand=False, fill=True, padding=0)
         
-        self.copybutton = gtkutils.StockButton(gtk.STOCK_COPY, "Copy...")
+        self.copybutton = gtkutils.StockButton('edit-copy-symbolic', "Copy...")
         gtklogger.setWidgetName(self.copybutton, 'Copy')
         gtklogger.connect(self.copybutton, 'clicked', self.copyCB)
-        tooltips.set_tooltip_text(self.copybutton,"Copy the current mesh.")
-        bbox.pack_start(self.copybutton, expand=0, fill=1)
+        self.copybutton.set_tooltip_text("Copy the current mesh.")
+        bbox.pack_start(self.copybutton, expand=False, fill=True, padding=0)
         
-        self.deletebutton = gtkutils.StockButton(gtk.STOCK_DELETE, "Delete")
+        self.deletebutton = gtkutils.StockButton('edit-delete-symbolic',
+                                                 "Delete")
         gtklogger.setWidgetName(self.deletebutton, 'Delete')
         gtklogger.connect(self.deletebutton, 'clicked', self.deleteCB)
-        tooltips.set_tooltip_text(self.deletebutton,"Delete the current mesh.")
-        bbox.pack_start(self.deletebutton, expand=0, fill=1)
+        self.deletebutton.set_tooltip_text("Delete the current mesh.")
+        bbox.pack_start(self.deletebutton, expand=False, fill=True, padding=0)
         
-        self.savebutton = gtkutils.StockButton(gtk.STOCK_SAVE, "Save...")
+        self.savebutton = gtkutils.StockButton('document-save-symbolic',
+                                               "Save...")
         gtklogger.setWidgetName(self.savebutton, 'Save')
         gtklogger.connect(self.savebutton, 'clicked', self.saveCB)
-        tooltips.set_tooltip_text(self.savebutton,
-                             "Save the current mesh to a file.")
-        bbox.pack_start(self.savebutton, expand=0, fill=1)
+        self.savebutton.set_tooltip_text("Save the current mesh to a file.")
+        bbox.pack_start(self.savebutton, expand=False, fill=True, padding=0)
 
-        mainpane = gtk.HPaned()
+        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                              wide_handle=True)
         gtklogger.setWidgetName(mainpane, 'Pane')
-        mainbox.pack_start(mainpane, expand=1, fill=1)
+        mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
-        leftbox = gtk.VPaned()
-        mainpane.pack1(leftbox, resize=1, shrink=0)
+        leftbox = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL,
+                            wide_handle=True)
+        mainpane.pack1(leftbox, resize=True, shrink=False)
         
-        infoframe = gtk.Frame('Mesh Information')
-        infoframe.set_shadow_type(gtk.SHADOW_IN)
-        leftbox.pack1(infoframe, resize=1, shrink=1)
-        scroll = gtk.ScrolledWindow()
+        infoframe = Gtk.Frame(label='Mesh Information',
+                              shadow_type=Gtk.ShadowType.IN)
+        leftbox.pack1(infoframe, resize=True, shrink=True)
+        scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         gtklogger.logScrollBars(scroll, "MeshInfo")
-        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        scroll.set_shadow_type(gtk.SHADOW_IN)
+        scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         infoframe.add(scroll)
-        self.infoarea = Gtk.TextView(name="fixedfont")
-        self.infoarea.set_cursor_visible(False)
-        self.infoarea.set_editable(False)
+        self.infoarea = Gtk.TextView(name="fixedfont", cursor_visible=False,
+                                     editable=False)
         scroll.add(self.infoarea)
 
         # Subproblem creation, deletion, etc.
-        subprobframe = gtk.Frame('Subproblems')
+        subprobframe = Gtk.Frame(label='Subproblems',
+                                 shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(subprobframe, 'Subproblems')
-        subprobframe.set_shadow_type(gtk.SHADOW_IN)
-        leftbox.pack2(subprobframe, resize=1, shrink=1)
-        subpbox = gtk.VBox()
+        leftbox.pack2(subprobframe, resize=True, shrink=True)
+        subpbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         subprobframe.add(subpbox)
         self.subpchooser = chooser.ScrolledChooserListWidget(
             callback=self.subpchooserCB,
             dbcallback=self.subprobEditCB,
             name="subprobChooser")
-        subpbox.pack_start(self.subpchooser.gtk, expand=1, fill=1)
+        subpbox.pack_start(self.subpchooser.gtk,
+                           expand=True, fill=True, padding=0)
 
-        subpbuttons1 = gtk.HBox(homogeneous=True, spacing=2)
-        subpbuttons2 = gtk.HBox(homogeneous=True, spacing=2)
-        subpbox.pack_start(subpbuttons1, expand=0, fill=0)
-        subpbox.pack_start(subpbuttons2, expand=0, fill=0)
+        # Grid containing buttons for operating on subproblems.
+        subpbuttons = Gtk.Grid(column_homogeneous=True,
+                               row_homogeneous=True)
+        subpbox.pack_start(subpbuttons, expand=False, fill=False, padding=0)
 
-        self.subprobNew = gtkutils.StockButton(gtk.STOCK_NEW, "New...")
+        self.subprobNew = gtkutils.StockButton('document-new-symbolic',
+                                               "New...", hexpand=True)
         gtklogger.setWidgetName(self.subprobNew, "New")
         gtklogger.connect(self.subprobNew, "clicked", self.subprobNewCB)
-        tooltips.set_tooltip_text(self.subprobNew,"Create a new subproblem.")
-        subpbuttons1.pack_start(self.subprobNew, expand=1, fill=1)
+        self.subprobNew.set_tooltip_text("Create a new subproblem.")
+        subpbuttons.attach(self.subprobNew, 0,0, 1,1)
 
-        self.subprobRename = gtk.Button("Rename...")
+        self.subprobRename = gtk.Button("Rename...", hexpand=True)
         gtklogger.setWidgetName(self.subprobRename, "Rename")
         gtklogger.connect(self.subprobRename, "clicked", self.subprobRenameCB)
-        tooltips.set_tooltip_text(self.subprobRename,
-                             "Rename the selected subproblem")
-        subpbuttons1.pack_start(self.subprobRename, expand=1, fill=1)
+        self.subprobRename.set_tooltip_text("Rename the selected subproblem")
+        subpbuttons.attach(self.subprobRename, 1,0, 1,1)
 
-        self.subprobEdit = gtkutils.StockButton(gtk.STOCK_EDIT, "Edit...")
+        self.subprobEdit = gtkutils.StockButton('document-edit-symbolic',
+                                                "Edit...", hexpand=True)
         gtklogger.setWidgetName(self.subprobEdit, "Edit")
         gtklogger.connect(self.subprobEdit, 'clicked', self.subprobEditCB)
-        tooltips.set_tooltip_text(self.subprobEdit,"Edit the selected subproblem.")
-        subpbuttons1.pack_start(self.subprobEdit, expand=1, fill=1)
+        self.subprobEdit.set_tooltip_text("Edit the selected subproblem.")
+        subpbuttons.attach(self.subprobEdit, 2,0, 1,1)
 
-        self.subprobCopy = gtkutils.StockButton(gtk.STOCK_COPY, "Copy...")
+        self.subprobCopy = gtkutils.StockButton('edit-copy-symbolic', "Copy...",
+                                                hexpand=True)
         gtklogger.setWidgetName(self.subprobCopy, "Copy")
         gtklogger.connect(self.subprobCopy, "clicked", self.subprobCopyCB)
-        tooltips.set_tooltip_text(self.subprobCopy,"Copy the selected subproblem.")
-        subpbuttons2.pack_start(self.subprobCopy, expand=1, fill=1)
+        self.subprobCopy.set_tooltip_text("Copy the selected subproblem.")
+        subpbuttons.attach(self.subprobCopy, 0,1, 1,1)
 
-##        subpbuttons2.pack_start(gtk.HBox(), expand=1, fill=1) # filler
-        self.subprobInfo = gtk.Button("Info")
+        self.subprobInfo = Gtk.Button("Info", hexpand=True)
         gtklogger.setWidgetName(self.subprobInfo, "Info")
         gtklogger.connect(self.subprobInfo, 'clicked', self.subprobInfoCB)
-        tooltips.set_tooltip_text(self.subprobInfo,
-                             "Print information about the selected subproblem")
-        subpbuttons2.pack_start(self.subprobInfo, expand=1, fill=1)
+        self.subprobInfo.set_tooltip_text(
+            "Print information about the selected subproblem")
+        subpbuttons.attach(self.subprobInfo, 1,1, 1,1)
         
-        self.subprobDelete = gtkutils.StockButton(gtk.STOCK_DELETE, "Delete")
+        self.subprobDelete = gtkutils.StockButton('edit-delete-symbolic',
+                                                  "Delete", hexpand=True)
         gtklogger.setWidgetName(self.subprobDelete, "Delete")
         gtklogger.connect(self.subprobDelete, "clicked", self.subprobDeleteCB)
-        tooltips.set_tooltip_text(self.subprobDelete,
-                             "Delete the selected subproblem.")
-        subpbuttons2.pack_start(self.subprobDelete, expand=1, fill=1)
+        self.subprobDelete.set_tooltip_text("Delete the selected subproblem.")
+        subpbuttons.attach(self.subprobDelete, 2,1, 1,1)
         
         # Right hand side for element operations
         
-        elementopsframe = gtk.Frame(label="Mesh Operations")
+        elementopsframe = Gtk.Frame(label="Mesh Operations",
+                                    shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(elementopsframe, 'ElementOps')
-        elementopsframe.set_shadow_type(gtk.SHADOW_IN)
-        mainpane.pack2(elementopsframe, resize=0, shrink=0)
-        elementopsbox = gtk.VBox(spacing=3)
+        mainpane.pack2(elementopsframe, resize=False, shrink=False)
+        elementopsbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         elementopsframe.add(elementopsbox)
         self.elementops = regclassfactory.RegisteredClassFactory(
             meshmod.MeshModification.registry,
             title="Method:",
             callback=self.elementopsCB,
-            expand=0, fill=0, scope=self, name="Method")
-        elementopsbox.pack_start(self.elementops.gtk, expand=1, fill=1)
+            expand=False, fill=False, scope=self, name="Method")
+        elementopsbox.pack_start(self.elementops.gtk,
+                                 expand=True, fill=True, padding=0)
 
         self.historian = historian.Historian(self.elementops.set,
                                              self.sensitizeHistory,
-                                             setCBkwargs={'interactive':1})
+                                             setCBkwargs={'interactive':True})
         # Prev, OK, Next
-        hbox = gtk.HBox()
-        elementopsbox.pack_start(hbox, expand=0, fill=0, padding=2)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        elementopsbox.pack_start(hbox, expand=False, fill=False, padding=2)
         self.prevbutton = gtkutils.prevButton()
         gtklogger.connect(self.prevbutton, 'clicked', self.prevCB)
-        tooltips.set_tooltip_text(self.prevbutton,
-                             "Recall the previous mesh element operation.")
-        hbox.pack_start(self.prevbutton, expand=0, fill=0, padding=2)
+        self.prevbutton.set_tooltip_text(
+            "Recall the previous mesh element operation.")
+        hbox.pack_start(self.prevbutton, expand=False, fill=False, padding=0)
 
-        self.okbutton = gtk.Button(stock=gtk.STOCK_OK)
+        self.okbutton = gtkutils.StockButton('gtk-ok', 'OK')
         gtklogger.setWidgetName(self.okbutton, 'OK')
         gtklogger.connect(self.okbutton, 'clicked', self.okCB)
-        tooltips.set_tooltip_text(self.okbutton,
-                          'Perform the mesh operation defined above.')
-        hbox.pack_start(self.okbutton, expand=1, fill=1, padding=5)
+        self.okbutton.set_tooltip_text(
+            'Perform the mesh operation defined above.')
+        hbox.pack_start(self.okbutton, expand=True, fill=True, padding=0)
 
         self.nextbutton = gtkutils.nextButton()
         gtklogger.connect(self.nextbutton, 'clicked', self.nextCB)
-        tooltips.set_tooltip_text(self.nextbutton,
-                             'Recall the next mesh element operation.')
-        hbox.pack_start(self.nextbutton, expand=0, fill=0, padding=2)
+        self.nextbutton.set_tooltip_text(
+            'Recall the next mesh element operation.')
+        hbox.pack_start(self.nextbutton, expand=False, fill=False, padding=0)
 
         self.built = True
 
@@ -521,15 +526,15 @@ class MeshPage(oofGUI.MainPage):
                 subproblem=self.currentFullSubProblemName())
 
     def subprobEditCB(self, gtkobj):
-        subproblemname = self.currentFullSubProblemName()
-        if subproblemname:
+        subprobname = self.currentFullSubProblemName()
+        if subprobname:
             menuitem = mainmenu.OOF.Subproblem.Edit
-            subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblemname]
+            subpctxt = ooflib.engine.subproblemcontext.subproblems[subprobname]
             subpparam = menuitem.get_arg('subproblem')
             subpparam.set(subpctxt.subptype)
             if parameterwidgets.getParameters(
                 subpparam, title="Edit Subproblem definition", scope=self):
-                menuitem.callWithDefaults(name=subproblemname)
+                menuitem.callWithDefaults(name=subprobname)
         
 
     def subpchooserCB(self, subp, interactive):

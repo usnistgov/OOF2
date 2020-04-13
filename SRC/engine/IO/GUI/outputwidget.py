@@ -16,7 +16,8 @@ from ooflib.common.IO.GUI import gfxLabelTree
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
-import gtk
+
+from gi.repository import Gtk
 
 # Widgets for Parameters whose value is an Output (not the value of an
 # Output, but the Output object itself).
@@ -25,8 +26,8 @@ class OutputParameterWidget(parameterwidgets.ParameterWidget,
                             widgetscope.WidgetScope):
     def __init__(self, value, outputtree, scope=None, name=None):
         debug.mainthreadTest()
-        frame = gtk.Frame()
-        self.vbox = gtk.VBox()
+        frame = Gtk.Frame()
+        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         frame.add(self.vbox)
         # top part is a bunch of chooser widgets representing the
         # LabelTree of outputs.
@@ -34,14 +35,15 @@ class OutputParameterWidget(parameterwidgets.ParameterWidget,
                      gfxLabelTree.LabelTreeChooserWidget(outputtree,
                                                          callback=self.treeCB,
                                                          name=name)
-        self.vbox.pack_start(self.treewidget.gtk, expand=0, fill=0)
+        self.vbox.pack_start(self.treewidget.gtk,
+                             expand=False, fill=False, padding=0)
         # bottom part is a ParameterTable
-        self.parambox = gtk.VBox()
+        self.parambox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         gtklogger.setWidgetName(self.parambox, "Parameters")
         self.paramtable = None
         self.params = []
         self.paramhier = []
-        self.vbox.pack_start(self.parambox, expand=0, fill=0)
+        self.vbox.pack_start(self.parambox, expand=False, fill=False, padding=0)
         
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name)
         widgetscope.WidgetScope.__init__(self, scope)
@@ -60,7 +62,7 @@ class OutputParameterWidget(parameterwidgets.ParameterWidget,
     def set_value(self, value):
         if value is not None:
             self.treewidget.set_value(value.getPrototype())
-            self.makeParameterTable(value, interactive=0)
+            self.makeParameterTable(value, interactive=False)
     def makeParameterTable(self, value, interactive):
         debug.mainthreadTest()
         self.destroyParameterTable()
@@ -71,14 +73,15 @@ class OutputParameterWidget(parameterwidgets.ParameterWidget,
             self.paramtable = \
                             parameterwidgets.HierParameterTable(self.paramhier,
                                                                 scope=self)
-            self.parambox.pack_start(self.paramtable.gtk, expand=0, fill=0)
+            self.parambox.pack_start(self.paramtable.gtk,
+                                     expand=False, fill=False, padding=0)
             self.widgetChanged(self.paramtable.isValid(), interactive)
             self.paramtable.show()
             self.sbcallback = switchboard.requestCallbackMain(
                 self.paramtable, self.tableChangedCB)
         else:
             self.paramtable = None
-            self.widgetChanged(1, interactive)
+            self.widgetChanged(True, interactive)
     def get_value(self):
         if self.paramtable is not None:
             self.paramtable.get_values()
@@ -104,43 +107,44 @@ class OutputParameterWidget(parameterwidgets.ParameterWidget,
             table.destroy()
             switchboard.removeCallback(self.sbcallback)
     def treeCB(self):
-        self.makeParameterTable(self.treewidget.get_value(), interactive=1)
+        self.makeParameterTable(self.treewidget.get_value(), interactive=True)
     def tableChangedCB(self, arg):      # switchboard callback
-        self.widgetChanged(self.paramtable.isValid(), interactive=1)
+        self.widgetChanged(self.paramtable.isValid(), interactive=True)
 
 ######################
         
 class ScalarOutputParameterWidget(OutputParameterWidget):
-    def __init__(self, value, scope=None, name=None):
+    def __init__(self, value, scope=None, name=None, **kwargs):
         OutputParameterWidget.__init__(self, value, output.scalarOutputs,
-                                       scope=scope, name=name)
+                                       scope=scope, name=name, **kwargs)
 
-def _ScalarOutputParameter_makeWidget(self, scope=None):
-    return ScalarOutputParameterWidget(self.value, scope=scope, name=self.name)
+def _ScalarOutputParameter_makeWidget(self, scope=None, **kwargs):
+    return ScalarOutputParameterWidget(
+        self.value, scope=scope, name=self.name, **kwargs)
 
 output.ScalarOutputParameter.makeWidget = _ScalarOutputParameter_makeWidget
 
 
 
 class PositionOutputParameterWidget(OutputParameterWidget):
-    def __init__(self, value, scope=None, name=None):
+    def __init__(self, value, scope=None, name=None, **kwargs):
         OutputParameterWidget.__init__(self, value, output.positionOutputs,
-                                       scope=scope, name=name)
+                                       scope=scope, name=name, **kwargs)
 
-def _PositionOutputParameter_makeWidget(self, scope=None):
+def _PositionOutputParameter_makeWidget(self, scope=None, **kwargs):
     return PositionOutputParameterWidget(self.value, scope=scope,
-                                         name=self.name)
+                                         name=self.name, **kwargs)
 
 output.PositionOutputParameter.makeWidget = _PositionOutputParameter_makeWidget
 
 class AggregateOutputParameterWidget(OutputParameterWidget):
-    def __init__(self, value, scope=None, name=None):
+    def __init__(self, value, scope=None, name=None, **kwargs):
         OutputParameterWidget.__init__(self, value, output.aggregateOutputs,
-                                       scope=scope, name=name)
+                                       scope=scope, name=name, **kwargs)
 
-def _AggregateOutputParameter_makeWidget(self, scope=None):
+def _AggregateOutputParameter_makeWidget(self, scope=None, **kwargs):
     return AggregateOutputParameterWidget(self.value, scope=scope,
-                                          name=self.name)
+                                          name=self.name, **kwargs)
 
 output.AggregateOutputParameter.makeWidget = \
                                            _AggregateOutputParameter_makeWidget
@@ -162,9 +166,9 @@ class ValueOutputWidget(parameterwidgets.ParameterWidget,
             None, scope=self, name="Aggregate")
         parameterwidgets.ParameterWidget.__init__(self, gtk.VBox(), scope, name)
         self.gtk.pack_start(self.scalar_output_obj.gtk,
-                            expand=False, fill=False)
+                            expand=False, fill=False, padding=0)
         self.gtk.pack_start(self.aggregate_output_obj.gtk,
-                            expand=False, fill=False)
+                            expand=False, fill=False, padding=0)
         self.output_obj = self.scalar_output_obj
         self.aggregate_output_obj.gtk.hide()
         self.typewidget = scope.findWidget(
@@ -207,7 +211,7 @@ class ValueOutputWidget(parameterwidgets.ParameterWidget,
             self.output_obj.set_value(val)
         self.widgetChanged(self.isValid(), interactive=False)
 
-def _ValueOutputParameter_makeWidget(self, scope=None):
-    return ValueOutputWidget(self.value, scope=scope, name=self.name)
+def _ValueOutputParameter_makeWidget(self, scope=None, **kwargs):
+    return ValueOutputWidget(self.value, scope=scope, name=self.name, **kwargs)
 
 output.ValueOutputParameter.makeWidget = _ValueOutputParameter_makeWidget

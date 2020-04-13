@@ -21,129 +21,119 @@ from ooflib.common.IO.GUI import toolboxGUI
 from ooflib.common.IO.GUI import tooltips
 from ooflib.engine.IO import pinnodes
 
-import gtk
+from gi.repository import Gtk
 
 class PinnedNodesToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def __init__(self, pinnodestoolbox):
         debug.mainthreadTest()
 
         toolboxGUI.GfxToolbox.__init__(self, "Pin Nodes", pinnodestoolbox)
-        mainbox = gtk.VBox()
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                          spacing=2, margin=2)
         self.gtk.add(mainbox)
 
-        infoframe = gtk.Frame()
-        mainbox.pack_start(infoframe, expand=0, fill=0)
+        infoframe = Gtk.Frame()
+        mainbox.pack_start(infoframe, expand=False, fill=False)
         info = gtk.Label("""Click a node to pin it,
 Shift-click to unpin it,
 And Ctrl-click to toggle.""")
         infoframe.add(info)
             
        
-        if config.dimension() == 2:
-            self.table = gtk.Table(columns=3, rows=5)
-            r = 2  # variable used to make 2D and 3D code overlap better
-        elif config.dimension() == 3:
-            self.table = gtk.Table(columns=3, rows=7)
-            r = 3
-        mainbox.pack_start(self.table, expand=0, fill=0)
+        self.table = gtk.Grid()
+        mainbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
-        label = gtk.Label('Mouse')
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 0,1, 0,r, xpadding=2, xoptions=0)
+        label = Gtk.Label('Mouse', hexpand=False,
+                          halign=Gtk.Align.END, valign=Gtk.Align.CENTER)
+        self.table.attach(label, 0,0, 1,2)
 
-        label = gtk.Label('x=')
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 1,2, 0,1, xpadding=2, xoptions=gtk.FILL)
-        self.xtext = gtk.Entry()
+        label = Gtk.Label('x=', hexpand=False, halign=Gtk.Align.END)
+        self.table.attach(label, 0,1, 1,1)
+        self.xtext = Gtk.Entry(editable=False,
+                               hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.xtext,"Mouse X")
         self.xtext.set_width_chars(12)
-        self.xtext.set_editable(0)
-        self.table.attach(self.xtext, 2,3, 0,1,
-                          xpadding=2, xoptions=gtk.EXPAND|gtk.FILL)
-        tooltips.set_tooltip_text(self.xtext,"x position of the mouse")
+        self.table.attach(self.xtext, 0,2, 1,1)
+        self.xtext.set_tooltip_text("x position of the mouse")
 
-        label = gtk.Label('y=')
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 1,2, 1,2, xpadding=2, xoptions=gtk.FILL)
-        self.ytext = gtk.Entry()
+        label = Gtk.Label('y=', hexpand=False, halign=Gtk.Align.END)
+        self.table.attach(label, 1,1, 1,1)
+        self.ytext = gtk.Entry(editable=False,
+                               hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.ytext,"Mouse Y")
         self.ytext.set_width_chars(12)
-        self.ytext.set_editable(0)
-        self.table.attach(self.ytext, 2,3, 1,2,
-                          xpadding=2, xoptions=gtk.EXPAND|gtk.FILL)
-        tooltips.set_tooltip_text(self.ytext,"y position of the mouse")
+        self.table.attach(self.ytext, 1,2, 1,1)
+        self.ytext.set_tooltip_text("y position of the mouse")
 
-        self.table.set_row_spacing(r-1, 5)
+        ## TODO GTK3: Maybe a separator here?  Add some space somehow.
 
-        label = gtk.Label("Node")
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 0,1, r,r+2, xpadding=2, xoptions=0)
+        label = Gtk.Label("Node", hexpand=False,
+                          halign=Gtk.Align.END, valign=Gtk.Align.CENTER)
+        self.table.attach(label, 0,2, 1,2)
 
-        label = gtk.Label('x=')
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 1,2, r,r+1, xpadding=2, xoptions=gtk.FILL)
-        self.nodextext = gtk.Entry()
+        label = Gtk.Label('x=', hexpand=False, halign=Gtk.Align.END)
+        self.table.attach(label, 2,1, 1,1)
+        self.nodextext = Gtk.Entry(editable=False,
+                                   hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.nodextext,"Node X")
         self.nodextext.set_width_chars(12)
-        self.nodextext.set_editable(0)
-        self.table.attach(self.nodextext, 2,3, r,r+1,
-                          xpadding=2, xoptions=gtk.EXPAND|gtk.FILL)
-        r += 1
+        self.table.attach(self.nodextext, 2,2, 1,1)
 
-        label = gtk.Label('y=')
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 1,2, r,r+1, xpadding=2, xoptions=gtk.FILL)
-        self.nodeytext = gtk.Entry()
+        label = Gtk.Label('y=', hexpand=False, halign=Gtk.Align.END)
+        self.table.attach(label, 3,1, 1,1)
+        self.nodeytext = Gtk.Entry(editable=False,
+                                   hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.nodeytext,"Node Y")
         self.nodeytext.set_width_chars(12)
-        self.nodeytext.set_editable(0)
-        self.table.attach(self.nodeytext, 2,3, r,r+1,
-                          xpadding=2, xoptions=gtk.EXPAND|gtk.FILL)
-        r += 1
+        self.table.attach(self.nodeytext, 3,2, 1,1)
 
-        self.pintext = gtk.Label()
+        # pintext displays either "pinned" or "unpinned" depending on
+        # the state of the node under the mouse cursor.
+        self.pintext = Gtk.Label(hexpand=False, halign=Gtk.Align.START)
         gtklogger.setWidgetName(self.pintext,"Pin Label")
-        self.pintext.set_alignment(0.0, 0.5)
-        self.table.attach(self.pintext, 2,3, r,r+1,
-                          xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
+        self.table.attach(self.pintext, 4,3, 1,1)
 
-        modbox = gtk.VBox()
-        mainbox.pack_end(modbox, expand=0, fill=0)
+        # 2x2 box of buttons
+        modbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        mainbox.pack_end(modbox, expand=False, fill=False, padding=0)
 
-        bbox1 = gtk.HBox(homogeneous=True, spacing=2)
-        modbox.pack_end(bbox1, expand=0, fill=0, padding=2)
+        bbox1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                        homogeneous=True, spacing=2)
+        modbox.pack_end(bbox1, expand=False, fill=False, padding=0)
 
-        self.undobutton = gtk.Button(stock=gtk.STOCK_UNDO)
+        self.undobutton = gtkutils.StockButton("edit-undo-symbolic", "Undo")
         gtklogger.setWidgetName(self.undobutton, 'Undo')
         gtklogger.connect(self.undobutton, "clicked", self.undoCB)
-        tooltips.set_tooltip_text(self.undobutton,"Undo the latest action.")
-        bbox1.pack_start(self.undobutton, expand=1, fill=1)
+        self.undobutton.set_tooltip_text("Undo the latest action.")
+        bbox1.pack_start(self.undobutton, expand=True, fill=True, padding=0)
 
-        self.redobutton = gtk.Button(stock=gtk.STOCK_REDO)
+        self.redobutton = gtkutils.StockButton("edit-redo-symbolic", "Redo")
         gtklogger.setWidgetName(self.redobutton, 'Redo')
         gtklogger.connect(self.redobutton, "clicked", self.redoCB)
-        tooltips.set_tooltip_text(self.redobutton,"Redo the latest undone action.")
-        bbox1.pack_start(self.redobutton, expand=1, fill=1)
+        self.redobutton.set_tooltip_text("Redo the latest undone action.")
+        bbox1.pack_start(self.redobutton, expand=True, fill=True, padding=0)
 
-        bbox2 = gtk.HBox(homogeneous=True, spacing=2)
-        modbox.pack_end(bbox2, expand=0, fill=0, padding=2)
+        bbox2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                        homogeneous=True, spacing=2)
+        modbox.pack_end(bbox2, expand=False, fill=False, padding=0)
 
         self.unpinallbutton = gtk.Button("Unpin All")
         gtklogger.setWidgetName(self.unpinallbutton, 'UnPinAll')
         gtklogger.connect(self.unpinallbutton, "clicked", self.unpinallCB)
-        tooltips.set_tooltip_text(self.unpinallbutton,"Unpin all the pinned nodes.")
-        bbox2.pack_start(self.unpinallbutton, expand=1, fill=1)
+        self.unpinallbutton.set_tooltip_text("Unpin all the pinned nodes.")
+        bbox2.pack_start(self.unpinallbutton, expand=True, fill=True, padding=0)
 
-        self.invertbutton = gtk.Button("Invert")
+        self.invertbutton = Gtk.Button("Invert")
         gtklogger.setWidgetName(self.invertbutton, 'Invert')
         gtklogger.connect(self.invertbutton, "clicked", self.invertCB)
-        tooltips.set_tooltip_text(self.invertbutton,"Invert - pin the unpinned and unpin the pinned.")
-        bbox2.pack_start(self.invertbutton, expand=1, fill=1)
+        self.invertbutton.set_tooltip_text("Invert - pin the unpinned and unpin the pinned.")
+        bbox2.pack_start(self.invertbutton, expand=True, fill=True, padding=0)
 
-        self.status = gtk.Label()
+        self.status = Gtk.Label(hexpand=True, vexpand=True,
+                                halign=Gtk.Align.START,
+                                valign=Gtk.Align.END)
         gtklogger.setWidgetName(self.status,"Status")
-        self.status.set_alignment(0.0, 0.5)
-        mainbox.pack_end(self.status, expand=0, fill=0, padding=5)
+        mainbox.pack_end(self.status, expand=False, fill=False, padding=0)
 
         # self.skeleton_context is set by self.update().
         self.skeleton_context = None
@@ -184,8 +174,8 @@ And Ctrl-click to toggle.""")
     def activate(self):
         toolboxGUI.GfxToolbox.activate(self)
         self.gfxwindow().setMouseHandler(self)
-        if config.dimension() == 2: 
-            gtklogger.log_motion_events(self.gfxwindow().oofcanvas.rootitem())
+        ## TODO GTK3: enable mouse motion logging
+        #gtklogger.log_motion_events(self.gfxwindow().oofcanvas.rootitem())
         self.sbcallbacks = [
             switchboard.requestCallbackMain(('who changed', 'Skeleton'),
                                             self.skelChanged),
@@ -196,8 +186,6 @@ And Ctrl-click to toggle.""")
                                             self.newPinState)
             ]
         self.update()
-        if config.dimension() == 3:
-            self.gfxwindow().toolbar.setSelect()
 
     # Called when a skeleton has changed.
     def skelChanged(self, skelcontext):
@@ -207,16 +195,14 @@ And Ctrl-click to toggle.""")
     def deactivate(self):
         toolboxGUI.GfxToolbox.deactivate(self)
         self.gfxwindow().removeMouseHandler()
-        if config.dimension() == 2: 
-            gtklogger.dont_log_motion_events(self.gfxwindow().oofcanvas.rootitem())
+        ## TODO GTK3: enable mouse motion logging
+        #gtklogger.dont_log_motion_events(self.gfxwindow().oofcanvas.rootitem())
         map(switchboard.removeCallback, self.sbcallbacks)
 
     def showPosition(self, point):
         debug.mainthreadTest()
         self.xtext.set_text("%-11.4g" % point[0])
         self.ytext.set_text("%-11.4g" % point[1])
-        if config.dimension() == 3:
-            self.ztext.set_text("%-11.4g" % point[2])
 
     def acceptEvent(self, eventtype):
         return eventtype in ('move', 'up')
@@ -230,7 +216,7 @@ And Ctrl-click to toggle.""")
         else:
             self.pintext.set_text('')
 
-    def up(self, x, y, shift, ctrl):
+    def up(self, x, y, button, shift, ctrl, data):
         debug.mainthreadTest()
         thepoint = self.getPoint(x,y)
         self.showPosition(thepoint)
@@ -250,7 +236,7 @@ And Ctrl-click to toggle.""")
             # changed.
             
             skel = self.skeleton_context.getObject()
-            if thepoint is not None: # this means that for 3D we must click within the image
+            if thepoint is not None:
                 node = skel.nearestNode(thepoint)
                 self.current_node = node
                 
@@ -272,18 +258,11 @@ And Ctrl-click to toggle.""")
                 gtklogger.checkpoint("Pin Nodes toolbox up event")
 
 
-    def move(self, x, y, shift, ctrl):
+    def move(self, x, y, button, shift, ctrl, data):
         debug.mainthreadTest()
-        if config.dimension() == 2:
-            self.xtext.set_text("%-11.4g" % x)
-            self.ytext.set_text("%-11.4g" % y)
-            point = primitives.Point(x,y)
-        elif config.dimension() == 3:
-            point = self.gfxwindow().oofcanvas.screenCoordsTo3DCoords(x,y)
-            if point is not None:
-                self.xtext.set_text("%-11.4g" % point[0])
-                self.ytext.set_text("%-11.4g" % point[1])
-                self.ztext.set_text("%-11.4g" % point[2])
+        self.xtext.set_text("%-11.4g" % x)
+        self.ytext.set_text("%-11.4g" % y)
+        point = primitives.Point(x,y)
         if self.skeleton_context and point is not None:
             skel = self.skeleton_context.getObject()
             node = skel.nearestNode(point)
@@ -291,14 +270,10 @@ And Ctrl-click to toggle.""")
                 pos = node.position()
                 self.nodextext.set_text("%-11.4g" % pos.x)
                 self.nodeytext.set_text("%-11.4g" % pos.y)
-                if config.dimension() == 3:
-                    self.nodeztext.set_text("%-11.4g" % pos.z)
                 self.set_pintext(node)
         else:
             self.nodextext.set_text('')
             self.nodeytext.set_text('')
-            if config.dimension() == 3:
-                self.nodeztext.set_text('')
             self.set_pintext(None)
         gtklogger.checkpoint("Pin Nodes toolbox move event")
 

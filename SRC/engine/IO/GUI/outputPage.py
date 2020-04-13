@@ -17,14 +17,13 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine.IO import scheduledoutput
 from ooflib.engine.IO import scheduledoutputmenu
 import ooflib.engine.mesh
 
-import gobject
-import gtk
+from gi.repository import GObject
+from gi.repository import Gtk
 
 outputmenu = scheduledoutputmenu.outputmenu
 
@@ -37,35 +36,34 @@ class OutputPage(oofGUI.MainPage):
         oofGUI.MainPage.__init__(
             self, name="Scheduled Output", ordering=235,
             tip="Set output quantities to be computed during time evolution.")
-        mainbox = gtk.VBox(spacing=2)
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        align.add(centerbox)
+        centerbox = gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3,
+                            halign=Gtk.Align.CENTER)
+        mainbox.pack_start(centerbox, expand=False, fill=False)
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               scope=self)
         switchboard.requestCallbackMain(self.meshwidget, self.meshCB)
-        label = gtk.Label("Microstructure=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[0], expand=0, fill=0)
+        label = gtk.Label("Microstructure=", halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[0],
+                             expand=False, fill=False, padding=0)
 
-        label = gtk.Label("Skeleton=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[1], expand=0, fill=0)
+        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[1],
+                             expand=False, fill=False, padding=0)
 
-        label = gtk.Label("Mesh=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[2], expand=0, fill=0)
+        label = Gtk.Label("Mesh=", halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[2],
+                             expand=False, fill=False, padding=0)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0, padding=3)
-        align.add(gtk.Label(
-                "Skip this page if you're only solving static problems."))
+        mainbox.pack_start(
+            gtk.Label("Skip this page if you're only solving static problems.",
+                      halign=Gtk.Align.CENTER),
+            expand=False, fill=False, padding=0)
 
         # The four columns (enable, output, schedule, and destination)
         # are each displayed in their own gtk.TreeView, each of which
@@ -74,35 +72,37 @@ class OutputPage(oofGUI.MainPage):
         # same gtk.TreeView, but that would have made it hard to put
         # buttons at the bottom of each column.
 
-        hpane0 = gtk.HPaned()
+        hpane0 = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                           wide_handle=True)
         gtklogger.setWidgetName(hpane0, 'HPane0')
         gtklogger.connect_passive(hpane0, 'notify::position')
-        mainbox.pack_start(hpane0, expand=1, fill=1)
+        mainbox.pack_start(hpane0, expand=True, fill=True, padding=0)
 
-        hpaneL = gtk.HPaned()
+        hpaneL = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                           wide_handle=True)
         gtklogger.setWidgetName(hpaneL, 'HPaneL')
         gtklogger.connect_passive(hpaneL, 'notify::position')
         hpane0.pack1(hpaneL, resize=True, shrink=False)
 
-        hpaneR = gtk.HPaned()
+        hpaneR = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                           wide_handle=True)
         gtklogger.setWidgetName(hpaneR, 'HPane2')
         gtklogger.connect_passive(hpaneR, 'notify::position')
         hpane0.pack2(hpaneR, resize=True, shrink=False)
 
-        self.outputList = gtk.ListStore(gobject.TYPE_PYOBJECT)
+        self.outputList = Gtk.ListStore(GObject.TYPE_PYOBJECT)
 
         # The "Enable" column has a check box for each output
-        self.enableFrame = gtk.Frame()
-        self.enableFrame.set_shadow_type(gtk.SHADOW_IN)
+        self.enableFrame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         hpaneL.pack1(self.enableFrame, resize=False, shrink=False)
-        vbox = gtk.VBox()
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.enableFrame.add(vbox)
-        self.enableView = gtk.TreeView(self.outputList)
+        self.enableView = Gtk.TreeView(self.outputList)
         gtklogger.setWidgetName(self.enableView, "enable")
-        vbox.pack_start(self.enableView, expand=True, fill=True)
-        self.enablecell = gtk.CellRendererToggle()
-        enablecol = gtk.TreeViewColumn("")
-        enablecol.set_resizable(False)
+        vbox.pack_start(self.enableView, expand=True, fill=True, padding=0)
+        self.enablecell = Gtk.CellRendererToggle()
+        enablecol = Gtk.TreeViewColumn("", resizable=False)
+        #enablecol.set_resizable(False)
         enablecol.pack_start(self.enablecell, expand=False)
         enablecol.set_cell_data_func(self.enablecell, self.renderEnableCell)
         self.enableView.append_column(enablecol)
@@ -113,24 +113,26 @@ class OutputPage(oofGUI.MainPage):
         # Extra space at the bottom of the column.  The other columns
         # have button boxes at the bottom, so this one needs a strut
         # to keep its rows aligned with the others.
-        self.enableStrut = gtk.VBox()
-        vbox.pack_start(self.enableStrut, expand=False, fill=False)
+        self.enableStrut = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        vbox.pack_start(self.enableStrut, expand=False, fill=False, padding=0)
         
         # The "Output" pane lists the name of each output
-        self.outputFrame = gtk.Frame()
-        self.outputFrame.set_shadow_type(gtk.SHADOW_IN)
+        self.outputFrame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(self.outputFrame, "Output")
         hpaneL.pack2(self.outputFrame, resize=True, shrink=False)
-        outputVBox = gtk.VBox()
+        outputVBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.outputFrame.add(outputVBox)
-        self.outputView = gtk.TreeView(self.outputList)
+        self.outputView = Gtk.TreeView(self.outputList)
         gtklogger.setWidgetName(self.outputView, "list")
-        outputVBox.pack_start(self.outputView, expand=True, fill=True)
-        self.outputHScroll = gtk.HScrollbar()
-        outputVBox.pack_start(self.outputHScroll, expand=False, fill=False)
+        outputVBox.pack_start(self.outputView,
+                              expand=True, fill=True, padding=0)
+        self.outputHScroll = Gtk.Scrollbar(
+            orientation=Gtk.Orientation.HORIZONTAL)
+        outputVBox.pack_start(self.outputHScroll,
+                              expand=False, fill=False, padding=0)
         self.outputView.set_hadjustment(self.outputHScroll.get_adjustment())
-        self.outputcell = gtk.CellRendererText()
-        outputcol = gtk.TreeViewColumn("Output")
+        self.outputcell = Gtk.CellRendererText()
+        outputcol = Gtk.TreeViewColumn("Output")
         outputcol.pack_start(self.outputcell, expand=True)
         outputcol.set_cell_data_func(self.outputcell, self.renderOutputCell)
         self.outputView.append_column(outputcol)
@@ -138,177 +140,205 @@ class OutputPage(oofGUI.MainPage):
                           self.outputDoubleClickCB)
         # Buttons for the Output pane.  The extra VBox is used so that
         # the sizes of the button boxes can be synchronized.
-        self.outputBBox = gtk.VBox(homogeneous=True)
-        outputVBox.pack_start(self.outputBBox, expand=False, fill=False)
-        bbox = gtk.HBox(homogeneous=False)
-        self.outputBBox.pack_start(bbox, expand=True, fill=True)
+        self.outputBBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                  homogeneous=True, spacing=2)
+        outputVBox.pack_start(self.outputBBox,
+                              expand=False, fill=False, padding=0)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                       homogeneous=False, spacing=2)
+        self.outputBBox.pack_start(bbox, expand=True, fill=True, padding=0)
         # New Output
-        self.newOutputButton = gtkutils.StockButton(gtk.STOCK_NEW, "New")
+        self.newOutputButton = gtkutils.StockButton('document-new-symbolic',
+                                                    "New")
         gtklogger.setWidgetName(self.newOutputButton, "New")
         gtklogger.connect(self.newOutputButton, 'clicked', self.newOutputCB)
-        bbox.pack_start(self.newOutputButton, expand=True, fill=True)
-        tooltips.set_tooltip_text(self.newOutputButton,
-                             "Define a new output operation.")
+        bbox.pack_start(self.newOutputButton, expand=True, fill=True, padding=0)
+        self.newOutputButton.set_tooltip_text("Define a new output operation.")
         # Edit Output
-        self.editOutputButton = gtkutils.StockButton(gtk.STOCK_EDIT, "Edit")
+        self.editOutputButton = gtkutils.StockButton('document-edit-symbolic',
+                                                     "Edit")
         gtklogger.setWidgetName(self.editOutputButton, "Edit")
         gtklogger.connect(self.editOutputButton, 'clicked', self.editOutputCB)
-        bbox.pack_start(self.editOutputButton, expand=True, fill=True)
-        tooltips.set_tooltip_text(self.editOutputButton,
-                             "Redefine the selected output operation.")
+        bbox.pack_start(self.editOutputButton,
+                        expand=True, fill=True, padding=0)
+        self.editOutputButton.set_tooltip_text(
+            "Redefine the selected output operation.")
         # Copy Output
-        self.copyOutputButton = gtkutils.StockButton(gtk.STOCK_COPY, "Copy")
+        self.copyOutputButton = gtkutils.StockButton('edit-copy-symbolic',
+                                                     "Copy")
         gtklogger.setWidgetName(self.copyOutputButton, "Copy")
         gtklogger.connect(self.copyOutputButton, 'clicked', self.copyOutputCB)
-        bbox.pack_start(self.copyOutputButton, expand=True, fill=True)
-        tooltips.set_tooltip_text(self.copyOutputButton,
+        bbox.pack_start(self.copyOutputButton,
+                        expand=True, fill=True, padding=0)
+        self.copyOutputButton.set_tooltip_text(
             "Copy the selected output and its schedule and destination.")
         # Second row of buttons
-        bbox = gtk.HBox(homogeneous=False)
-        self.outputBBox.pack_start(bbox, expand=True, fill=True)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       homogeneous=False)
+        self.outputBBox.pack_start(bbox, expand=True, fill=True, padding=0)
         # Rename Output
-        self.renameOutputButton = gtkutils.StockButton(gtk.STOCK_EDIT, "Rename")
+        self.renameOutputButton = gtkutils.StockButton('document-edit-symbolic',
+                                                       "Rename")
         gtklogger.setWidgetName(self.renameOutputButton, "Rename")
         gtklogger.connect(self.renameOutputButton, 'clicked', self.renameCB)
-        bbox.pack_start(self.renameOutputButton, expand=True, fill=True)
-        tooltips.set_tooltip_text(self.renameOutputButton,
-                             "Rename the selected output operation.")
+        bbox.pack_start(self.renameOutputButton,
+                        expand=True, fill=True, padding=0)
+        self.renameOutputButton.set_tooltip_text(
+            "Rename the selected output operation.")
         # Delete Output
-        self.deleteOutputButton = gtkutils.StockButton(gtk.STOCK_DELETE, 
+        self.deleteOutputButton = gtkutils.StockButton('edit-delete-symbolic',
                                                        "Delete")
         gtklogger.setWidgetName(self.deleteOutputButton, "Delete")
         gtklogger.connect(self.deleteOutputButton, 'clicked',
                           self.deleteOutputCB)
-        tooltips.set_tooltip_text(self.deleteOutputButton,
-                             "Delete the selected output operation.")
-        bbox.pack_start(self.deleteOutputButton, expand=True, fill=True)
+        self.deleteOutputButton.set_tooltip_text(
+            "Delete the selected output operation.")
+        bbox.pack_start(self.deleteOutputButton,
+                        expand=True, fill=True, padding=0)
         # Delete all outputs
-        self.deleteAllButton = gtkutils.StockButton(gtk.STOCK_DELETE,
+        self.deleteAllButton = gtkutils.StockButton('edit-delete-symbolic',
                                                     "Delete All")
         gtklogger.setWidgetName(self.deleteAllButton, "DeleteAll")
         gtklogger.connect(self.deleteAllButton, 'clicked', self.deleteAllCB)
-        bbox.pack_start(self.deleteAllButton, expand=True, fill=True)
-        tooltips.set_tooltip_text(self.deleteAllButton,
-                             "Delete all output operations")
+        bbox.pack_start(self.deleteAllButton, expand=True, fill=True, padding=0)
+        self.deleteAllButton.set_tooltip_text("Delete all output operations")
         
 
         # Schedule pane
-        self.schedFrame = gtk.Frame()
-        self.schedFrame.set_shadow_type(gtk.SHADOW_IN)
+        self.schedFrame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(self.schedFrame, "Schedule")
         hpaneR.pack1(self.schedFrame, resize=True, shrink=False)
-        scheduleVBox = gtk.VBox()
+        scheduleVBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.schedFrame.add(scheduleVBox)
-        self.schedView = gtk.TreeView(self.outputList)
+        self.schedView = Gtk.TreeView(self.outputList)
         gtklogger.setWidgetName(self.schedView, "list")
         scheduleVBox.pack_start(self.schedView, expand=True, fill=True)
-        schedHScroll = gtk.HScrollbar()
-        scheduleVBox.pack_start(schedHScroll, expand=False, fill=False)
+        schedHScroll = Gtk.Scrollbar(orientation=Gtk.Orientation.HORIZONTAL)
+        scheduleVBox.pack_start(schedHScroll,
+                                expand=False, fill=False, padding=0)
         self.schedView.set_hadjustment(schedHScroll.get_adjustment())
-        self.schedcell = gtk.CellRendererText()
-        schedcol = gtk.TreeViewColumn("Schedule")
+        self.schedcell = Gtk.CellRendererText()
+        schedcol = Gtk.TreeViewColumn("Schedule")
         schedcol.pack_start(self.schedcell, expand=True)
         schedcol.set_cell_data_func(self.schedcell, self.renderScheduleCB)
         self.schedView.append_column(schedcol)
         gtklogger.connect(self.schedView, 'row-activated',
                           self.schedDoubleClickCB)
         # Buttons for the Schedule pane.  
-        self.schedBBox = gtk.VBox(homogeneous=True)
-        scheduleVBox.pack_start(self.schedBBox, expand=False, fill=False)
-        bbox = gtk.HBox(homogeneous=False)
-        self.schedBBox.pack_start(bbox, expand=True, fill=True)
+        self.schedBBox = gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                 spacing=2, homogeneous=True)
+        scheduleVBox.pack_start(self.schedBBox,
+                                expand=False, fill=False, padding=0)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       homogeneous=False)
+        self.schedBBox.pack_start(bbox, expand=True, fill=True, padding=0)
         # Set Schedule
-        self.setScheduleButton = gtkutils.StockButton(gtk.STOCK_NEW, "Set")
+        self.setScheduleButton = gtkutils.StockButton('document-new-symbolic',
+                                                      "Set")
         gtklogger.setWidgetName(self.setScheduleButton, "New")
         gtklogger.connect(self.setScheduleButton, 'clicked', self.setSchedCB)
-        bbox.pack_start(self.setScheduleButton, expand=True, fill=True)
-        tooltips.set_tooltip_text(self.setScheduleButton,
-                             "Add a Schedule to the selected Output")
+        bbox.pack_start(self.setScheduleButton,
+                        expand=True, fill=True, padding=0)
+        self.setScheduleButton.set_tooltip_text(
+            "Add a Schedule to the selected Output")
         # Copy Schedule
-        self.copyScheduleButton = gtkutils.StockButton(gtk.STOCK_COPY, "Copy")
+        self.copyScheduleButton = gtkutils.StockButton('edit-copy-symbolic',
+                                                       "Copy")
         gtklogger.setWidgetName(self.copyScheduleButton, "Copy")
         gtklogger.connect(self.copyScheduleButton, 'clicked', self.copySchedCB)
-        bbox.pack_start(self.copyScheduleButton, expand=True, fill=True)
-        tooltips.set_tooltip_text(self.copyScheduleButton,
-                             "Copy the selected Schedule to another Output")
+        bbox.pack_start(self.copyScheduleButton,
+                        expand=True, fill=True, padding=0)
+        self.copyScheduleButton.set_tooltip_text(
+            "Copy the selected Schedule to another Output")
         # Second row of buttons in the Schedule pane
-        bbox = gtk.HBox(homogeneous=False)
-        self.schedBBox.pack_start(bbox, expand=True, fill=True)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       homogeneous=False)
+        self.schedBBox.pack_start(bbox, expand=True, fill=True, padding=0)
         # Delete Schedule
-        self.deleteScheduleButton = gtkutils.StockButton(gtk.STOCK_DELETE,
+        self.deleteScheduleButton = gtkutils.StockButton('edit-delete-symbolic',
                                                          "Delete")
         gtklogger.setWidgetName(self.deleteScheduleButton, "Delete")
         gtklogger.connect(self.deleteScheduleButton, 'clicked',
                           self.deleteSchedCB)
-        bbox.pack_start(self.deleteScheduleButton, expand=True, fill=True)
-        tooltips.set_tooltip_text(self.deleteScheduleButton,
-                             "Delete the selected Schedule.")
+        bbox.pack_start(self.deleteScheduleButton,
+                        expand=True, fill=True, padding=0)
+        self.deleteScheduleButton.set_tooltip_text(
+            "Delete the selected Schedule.")
         
 
         # Destination pane
-        self.destFrame = gtk.Frame()
-        self.destFrame.set_shadow_type(gtk.SHADOW_IN)
+        self.destFrame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(self.destFrame, "Destination")
         hpaneR.pack2(self.destFrame, resize=True, shrink=False)
-        destVBox = gtk.VBox()
+        destVBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.destFrame.add(destVBox)
-        destScroll = gtk.ScrolledWindow()
-        destScroll.set_shadow_type(gtk.SHADOW_NONE)
-        destScroll.set_policy(gtk.POLICY_ALWAYS, gtk.POLICY_ALWAYS)
-        destVBox.pack_start(destScroll, expand=True, fill=True)
-        self.destView = gtk.TreeView(self.outputList)
+        # Of all the panes, only the Destination pane contains an
+        # actual ScrolledWindow, because it's the only one with room
+        # for the right hand scroll bar.
+        destScroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.NONE)
+        destScroll.set_policy(Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
+        destVBox.pack_start(destScroll, expand=True, fill=True, padding=0)
+        self.destView = Gtk.TreeView(self.outputList)
         gtklogger.setWidgetName(self.destView, "list")
         destScroll.add(self.destView)
-        self.destcell = gtk.CellRendererText()
-        destcol = gtk.TreeViewColumn("Destination")
+        self.destcell = Gtk.CellRendererText()
+        destcol = gGk.TreeViewColumn("Destination")
         destcol.pack_start(self.destcell, expand=True)
         destcol.set_cell_data_func(self.destcell, self.renderDestinationCB)
         self.destView.append_column(destcol)
         gtklogger.connect(self.destView, 'row-activated',
                           self.destDoubleClickCB)
         # Buttons for the Destination pane
-        self.destBBox = gtk.VBox(homogeneous=True)
-        destVBox.pack_start(self.destBBox, expand=False, fill=True)
-        bbox = gtk.HBox(homogeneous=False)
-        self.destBBox.pack_start(bbox, expand=True, fill=True)
+        self.destBBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                spacing=2, homogeneous=True)
+        destVBox.pack_start(self.destBBox, expand=False, fill=True, padding=0)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       homogeneous=False)
+        self.destBBox.pack_start(bbox, expand=True, fill=True, padding=0)
         # Set Destination
-        self.setDestinationButton = gtkutils.StockButton(gtk.STOCK_NEW, "Set")
+        self.setDestinationButton = gtkutils.StockButton(
+            'document-new-symbolic', "Set")
         gtklogger.setWidgetName(self.setDestinationButton, "Set")
         gtklogger.connect(self.setDestinationButton, 'clicked',
                           self.setDestinationCB)
-        bbox.pack_start(self.setDestinationButton, expand=True, fill=True)
-        tooltips.set_tooltip_text(self.setDestinationButton,
-                             "Assign a destination to the selected Output")
+        bbox.pack_start(self.setDestinationButton,
+                        expand=True, fill=True, padding=0)
+        self.setDestinationButton.set_tooltip_text(
+            "Assign a destination to the selected Output")
         # Delete Dest
-        self.deleteDestButton = gtkutils.StockButton(gtk.STOCK_DELETE,
-                                                         "Delete")
+        self.deleteDestButton = gtkutils.StockButton('edit-delete-symbolic',
+                                                     "Delete")
         gtklogger.setWidgetName(self.deleteDestButton, "Delete")
         gtklogger.connect(self.deleteDestButton, 'clicked',
                           self.deleteDestCB)
-        bbox.pack_start(self.deleteDestButton, expand=True, fill=True)
-        tooltips.set_tooltip_text(self.deleteDestButton,
-                             "Delete the selected Destination.")
+        bbox.pack_start(self.deleteDestButton,
+                        expand=True, fill=True, padding=0)
+        self.deleteDestButton.set_tooltip_text(
+            "Delete the selected Destination.")
         # Second row of buttons in the Dest pane
-        bbox = gtk.HBox(homogeneous=False)
-        self.destBBox.pack_start(bbox, expand=True, fill=True)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       homogeneous=False)
+        self.destBBox.pack_start(bbox, expand=True, fill=True, padding=0)
         # Rewind
-        self.rewindDestButton = gtkutils.StockButton(gtk.STOCK_MEDIA_REWIND,
-                                                     "Rewind")
+        self.rewindDestButton = gtkutils.StockButton(
+            'media-seek-backward-symbolic', "Rewind")
         gtklogger.setWidgetName(self.rewindDestButton, "Rewind")
         gtklogger.connect(self.rewindDestButton, 'clicked',
                           self.rewindDestinationCB)
-        bbox.pack_start(self.rewindDestButton, expand=True, fill=True)
-        tooltips.set_tooltip_text(self.rewindDestButton,
-                             "Go back to the start of the output file.")
+        bbox.pack_start(self.rewindDestButton,
+                        expand=True, fill=True, padding=0)
+        self.rewindDestButton.set_tooltip_text(
+            "Go back to the start of the output file.")
         # Rewind All
-        self.rewindAllDestsButton = gtkutils.StockButton(gtk.STOCK_MEDIA_REWIND,
-                                                         "Rewind All")
+        self.rewindAllDestsButton = gtkutils.StockButton(
+            'media-seek-backward-symbolic', "Rewind All")
         gtklogger.setWidgetName(self.rewindAllDestsButton, "RewindAll")
         gtklogger.connect(self.rewindAllDestsButton, 'clicked',
                           self.rewindAllDestinationsCB)
-        bbox.pack_start(self.rewindAllDestsButton, expand=True, fill=True)
-        tooltips.set_tooltip_text(self.rewindAllDestsButton,
-                             "Go back to the start of all output files.")
+        bbox.pack_start(self.rewindAllDestsButton,
+                        expand=True, fill=True, padding=0)
+        self.rewindAllDestsButton.set_tooltip_text(
+            "Go back to the start of all output files.")
 
         # Synchronize the vertical scrolling of all the panes.
         self.schedView.set_vadjustment(destScroll.get_vadjustment())
@@ -349,11 +379,15 @@ class OutputPage(oofGUI.MainPage):
     def setSizes(self, *args):
         ## TODO: There's something wrong here.  If the font size
         ## is changed, the subwidgets don't resize properly.
+        ## TODO GTK3: Is that still true?
 
         # Make the vertical size of each frame the same, and make the
         # minimum horizontal size the natural size of their button
         # boxes.
-        vsize = self.destFrame.size_request()[1]
+        # get_allocation() returns a Gdk.Rectangle
+        vsize = self.destFrame.get_allocation().height
+        # vsize = self.destFrame.size_request()[1] # gtk2 way is now deprecated
+
         self.outputFrame.set_size_request(self.outputBBox.size_request()[0],
                                           vsize)
         self.schedFrame.set_size_request(self.schedBBox.size_request()[0],
@@ -362,13 +396,13 @@ class OutputPage(oofGUI.MainPage):
         self.enableFrame.set_size_request(-1, vsize)
 
         # make all button boxes the same height
-        bsize = max(x.size_request()[1]
+        bsize = max(x.get_allocation().height
                     for x in (self.outputBBox, self.schedBBox, self.destBBox))
         self.outputBBox.set_size_request(-1, bsize)
         self.schedBBox.set_size_request(-1, bsize)
         self.destBBox.set_size_request(-1, bsize)
         self.enableStrut.set_size_request(
-            -1, bsize+self.outputHScroll.size_request()[1])
+            -1, bsize+self.outputHScroll.get_allocation().height)
         
         # Make all of the TreeViews have the same line height.
         xoff, yoff, width, height = self.outputcell.get_size(self.outputView)

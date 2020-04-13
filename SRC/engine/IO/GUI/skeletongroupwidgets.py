@@ -55,7 +55,7 @@ class SkeletonGroupWidget(parameterwidgets.ParameterWidget):
                                             self.grpCB),
             switchboard.requestCallbackMain("groupset changed", self.grpCB)
             ]
-        self.widgetChanged(self.widget.nChoices() > 0, interactive=0)
+        self.widgetChanged(self.widget.nChoices() > 0, interactive=False)
 
     def get_value(self):
         return self.widget.get_value()
@@ -63,14 +63,14 @@ class SkeletonGroupWidget(parameterwidgets.ParameterWidget):
         self.widget.set_state(groupname)
 
     def selectCB(self, result):
-        self.widgetChanged(self.widget.nChoices() > 0, interactive=1)
+        self.widgetChanged(self.widget.nChoices() > 0, interactive=True)
 
     def skelwidgetCB(self, interactive):
         self.update()
         self.widgetChanged(self.widget.nChoices() > 0, interactive)
     def grpCB(self, *args, **kwargs):
         self.update()
-        self.widgetChanged(self.widget.nChoices() > 0, interactive=0)
+        self.widgetChanged(self.widget.nChoices() > 0, interactive=False)
 
     def getSkeleton(self):
         skelname = self.skelmeshwidget.get_value(depth=2)
@@ -163,7 +163,8 @@ class SegmentAggregateWidget(SkeletonAggregateWidget, SegmentGroupWidget):
 def _makeSegmentAggregateWidget(self, scope=None):
     return SegmentAggregateWidget(self, scope=scope, name=self.name)
 
-skeletongroupparams.SegmentAggregateParameter.makeWidget = _makeSegmentAggregateWidget
+skeletongroupparams.SegmentAggregateParameter.makeWidget = \
+    _makeSegmentAggregateWidget
 
 segmenter[SegmentAggregateWidget]=boundarybuilder.segments_from_seg_aggregate
 
@@ -201,14 +202,14 @@ class BdyModSegmentAggregateWidget(SegmentAggregateWidget, SegmentGroupWidget):
         # The modifierwidget's scope's parent is the ParameterDialog
         # box, which has the boundary name.
         self.bdy_name = self.modifierwidget.scope.parent.boundaryname
-        self.widgetChanged(self.local_validity(), interactive=0)
+        self.widgetChanged(self.local_validity(), interactive=False)
         
     def selectCB(self, gtkobj, result):
-        self.widgetChanged(self.local_validity(), interactive=1)
+        self.widgetChanged(self.local_validity(), interactive=True)
         
     def local_validity(self):
-        if self.widget.nChoices()>0 and self.modifierwidget \
-               and self.skelmeshwidget:
+        if (self.widget.nChoices()>0 and self.modifierwidget
+            and self.skelmeshwidget):
             grp = self.get_value()
             mod_reg = self.modifierwidget.getRegistration()
             mod_obj = mod_reg(group=grp)
@@ -259,7 +260,8 @@ class ElementAggregateWidget(SkeletonAggregateWidget, ElementGroupWidget):
 def _makeElementAggregateWidget(self, scope=None):
     return ElementAggregateWidget(self, scope=scope, name=self.name)
 
-skeletongroupparams.ElementAggregateParameter.makeWidget = _makeElementAggregateWidget
+skeletongroupparams.ElementAggregateParameter.makeWidget = \
+    _makeElementAggregateWidget
 
 segmenter[ElementAggregateWidget]=boundarybuilder.segments_from_el_aggregate
 
@@ -293,12 +295,12 @@ class SkeletonBoundaryWidgetBase(parameterwidgets.ParameterWidget):
             ]
         if param.value is not None:
             self.widget.set_state(param.value)
-        self.widgetChanged(self.widget.nChoices() > 0, interactive=0)            
+        self.widgetChanged(self.widget.nChoices() > 0, interactive=False)
 
     def get_value(self):
         return self.widget.get_value()
     def selectCB(self, result):
-        self.widgetChanged(self.widget.nChoices() > 0, interactive=1)
+        self.widgetChanged(self.widget.nChoices() > 0, interactive=True)
     def skelwidgetCB(self, interactive):
         self.update()
         self.widgetChanged(self.widget.nChoices() > 0, interactive)

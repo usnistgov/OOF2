@@ -1,4 +1,4 @@
-# -*- python -*-
+e# -*- python -*-
 
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
@@ -23,15 +23,12 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
-from ooflib.common.IO.GUI import tooltips
 from ooflib.engine import subproblemcontext
 from ooflib.engine.IO import meshinfo
 from ooflib.engine.IO.GUI import meshdataGUI
 import ooflib.engine.mesh
 
-import gtk
-
-xpadding = 3
+from gi.repository import Gtk
 
 ## TODO: Add a SegmentMode that will display interface materials.
 
@@ -41,23 +38,23 @@ xpadding = 3
 class MeshInfoMode:
     # Base class for ElementMode, NodeMode.
 
-    def __init__(self, toolbox, nrows, ncols):
+    def __init__(self, toolbox):
         debug.mainthreadTest()
         self.toolbox = toolbox  # MeshToolboxGUI
         self.menu = self.toolbox.toolbox.menu  # ie, gfxtoolbox.toolbox.menu
 
-        self.gtk = gtk.Frame(self.targetname + " Information")
-        self.gtk.set_shadow_type(gtk.SHADOW_IN)
-        scroll = gtk.ScrolledWindow()
+        self.gtk = Gtk.Frame(self.targetname + " Information",
+                             shadow_type=Gtk.ShadowType.IN)
+        scroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(scroll, self.targetname+"Info")
-        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.gtk.add(scroll)
         # This vbox just keeps the table from expanding inside the
         # scrolledwindow.
-        vbox = gtk.VBox()
-        scroll.add_with_viewport(vbox)
-        self.table = gtk.Table(rows=nrows, columns=ncols)
-        vbox.pack_start(self.table, expand=0, fill=0)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        scroll.add(vbox)
+        self.table = gtk.Grid()
+        vbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
     def destroy(self):
         mainthread.runBlock(self.gtk.destroy)
@@ -68,20 +65,17 @@ class MeshInfoMode:
             
     # Utility routines for constructing GUI components
     
-    def labelmaster(self, column, row, labeltext):
+    def labelmaster(self, column, row, labeltext, width=1, height=1):
         debug.mainthreadTest()
-        label = gtk.Label(labeltext)
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, column[0],column[1], row[0],row[1],
-                          xpadding=xpadding, xoptions=gtk.FILL)
+        label = Gtk.Label(labeltext, halign=Gtk.Align.END, hexpand=False)
+        self.table.attach(label, column, row, width, height)
 
-    def entrymaster(self, column, row, editable=0):
+    def entrymaster(self, column, row, editable=False, width=1, height=1):
         debug.mainthreadTest()
-        entry = gtk.Entry()
+        entry = Gtk.Entry(editable=editable,
+                          hexpand=True, halign=Gtk.Align.FILL)
         entry.set_width_chars(12)
-        entry.set_editable(editable)
-        self.table.attach(entry, column[0],column[1], row[0],row[1],
-                          xpadding=xpadding, xoptions=gtk.EXPAND|gtk.FILL)
+        self.table.attach(entry, column, row, width, height)
         return entry
 
 ######################
@@ -90,21 +84,21 @@ class ElementMode(MeshInfoMode):
     targetname = "Element"
     def __init__(self, toolbox, querier=None):
         self.built = False
-        MeshInfoMode.__init__(self, toolbox, nrows=4, ncols=2)
+        MeshInfoMode.__init__(self, toolbox)
 
-        self.labelmaster((0,1), (0,1), 'index=')
-        self.index = self.entrymaster((1,2), (0,1))
+        self.labelmaster(0, 0, 'index=')
+        self.index = self.entrymaster(1, 0)
         gtklogger.setWidgetName(self.index, 'index')
 
-        self.labelmaster((0,1), (1,2), 'type=')
-        self.type = self.entrymaster((1,2), (1,2))
+        self.labelmaster(0, 1, 'type=')
+        self.type = self.entrymaster(1, 1)
         gtklogger.setWidgetName(self.type, 'type')
 
-        self.labelmaster((0,1), (2,3), 'nodes=')
-        self.nodes = self.makeNodeList((1,2), (2,3))
+        self.labelmaster(0, 2, 'nodes=')
+        self.nodes = self.makeNodeList(1, 2)
 
-        self.labelmaster((0,1), (3,4), 'material=')
-        self.material = self.entrymaster((1,2), (3,4))
+        self.labelmaster(0, 3, 'material=')
+        self.material = self.entrymaster(1, 3)
         gtklogger.setWidgetName(self.material, 'material')
         self.built = True
 
@@ -112,9 +106,10 @@ class ElementMode(MeshInfoMode):
         debug.mainthreadTest()
         chsr = chooser.FramedChooserListWidget(callback=self.showNodeCB,
                                                dbcallback=self.getNodeCB,
-                                               autoselect=0, name="NodeList")
-        self.table.attach(chsr.gtk, column[0], column[1], row[0], row[1],
-                          xpadding=xpadding, xoptions=gtk.EXPAND|gtk.FILL)
+                                               autoselect=0, name="NodeList",
+                                               hexpand=True,
+                                               halign=Gtk.Align.FILL)
+        self.table.attach(chsr.gtk, column, row, 1,1)
         return chsr
 
     def getNodeCB(self, node):          # callback for dbl click on node list
@@ -171,16 +166,10 @@ class ElementMode(MeshInfoMode):
             self.material.set_text("<No material>")
 
     def updateNodeList(self, chsr, nodes):
-        if config.dimension() == 2:
-            namelist = ["%s %d at (%s, %s)" % 
-                        (node.classname(), node.index(),
-                         node.position().x, node.position().y)
-                        for node in nodes]
-        elif config.dimension() == 3:
-            namelist = ["%s %d at (%s, %s, %s)" % 
-                        (node.classname(), node.index(),
-                         node.position().x, node.position().y, node.position().z)
-                        for node in nodes]
+        namelist = ["%s %d at (%s, %s)" % 
+                    (node.classname(), node.index(),
+                     node.position().x, node.position().y)
+                    for node in nodes]
         chsr.update(nodes, namelist)
 
     def updateNothing(self):
@@ -194,25 +183,30 @@ class ElementMode(MeshInfoMode):
     
 class NodeMode(MeshInfoMode):
     targetname = "Node"
-    fieldspacing = 6 # spacing between Fields in the table
     def __init__(self, toolbox, querier=None):
         self.built = False
-        MeshInfoMode.__init__(self, toolbox, nrows=3, ncols=3)
+        MeshInfoMode.__init__(self, toolbox)
 
-        self.labelmaster((0,1), (0,1), 'index=')
-        self.index = self.entrymaster((1,3), (0,1))
+        # The labels in for index, type, and position take up two
+        # columns because the fields listed below them have two
+        # columns' worth of labels, for field name and component name.
+        
+        self.labelmaster(0, 0, 'index=', width=2)
+        self.index = self.entrymaster(1, 0)
         gtklogger.setWidgetName(self.index, 'index')
 
-        self.labelmaster((0,1), (1,2), 'type=')
-        self.type = self.entrymaster((1,3), (1,2))
+        self.labelmaster(0, 1, 'type=', width=2)
+        self.type = self.entrymaster(1, 1)
         gtklogger.setWidgetName(self.type, 'type')
 
-        self.labelmaster((0,1), (2,3), 'position=')
-        self.pos = self.entrymaster((1,3), (2,3))
+        self.labelmaster(0, 2, 'position=', width=2)
+        self.pos = self.entrymaster(1, 2)
         gtklogger.setWidgetName(self.pos, 'position')
 
-        self.baserows = self.table.get_property("n-rows")
-        self.table.set_col_spacing(1, 4)
+        # fieldSep marks the top of the list of fields in the Gtk.Grid
+        self.fieldSep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
+        self.table.attach(self.fieldSep, 0,3, 3,1)
+
         self.fieldslisted = None
         # fieldvalEntries is a dict of the gtk.Entrys for displaying
         # the values of the DoFs at a Node.  The keys are (Field,
@@ -233,13 +227,7 @@ class NodeMode(MeshInfoMode):
         
         self.index.set_text(`node.index()`)
         self.type.set_text(node.classname())
-        if config.dimension() == 2:
-            self.pos.set_text("(%s, %s)" %
-                              (node.position().x, node.position().y))
-        elif config.dimension() == 3:
-            self.pos.set_text("(%s, %s, %s)" %
-                              (node.position().x, node.position().y,
-                               node.position().z))
+        self.pos.set_text("(%s, %s)" % (node.position().x, node.position().y))
 
         fieldnames = node.fieldNames()
 
@@ -267,34 +255,58 @@ class NodeMode(MeshInfoMode):
                 widget.destroy()
             self.fieldvalEntries.clear()
             self.fieldvalWidgets.clear()
-            self.table.resize(rows=self.baserows + nfieldrows, columns=3)
-            fldrow = self.baserows # starting row for a field
+            # Since we're using Gtk.Grid.attach_next_to, we need to
+            # keep track of the widget at the start of the previous
+            # row.
+            prevRowWidget = self.fieldSep
             for fld in listedfields:
-                sep = gtk.HSeparator()
-                self.fieldvalWidgets.add(sep)
-                self.table.attach(sep, 0,3, fldrow,fldrow+1,xoptions=gtk.FILL)
-                fldrow += 1
-                label = gtk.Label(fld.name())
-                label.set_alignment(1.0, 0.5)
-                self.fieldvalWidgets.add(label)
-                self.table.attach(label,
-                                  0,1, fldrow,fldrow+fld.ndof(),
-                                  xoptions=0)
+                # sep = gtk.HSeparator()
+                # self.fieldvalWidgets.add(sep)
+                # self.table.attach(sep, 0,3, fldrow,fldrow+1,xoptions=gtk.FILL)
+                # fldrow += 1
+                flabel = Gtk.Label(fld.name(),
+                                  halign=Gtk.Align.END, hexpand=False)
+                self.fieldvalWidgets.add(flabel)
+                self.table.attach_next_to(flabel, prevRowWidget,
+                                          Gtk.PositionType.BOTTOM,
+                                          1, fld.ndof())
+                # For each component, put component=value in the two
+                # columns to the right of the field name.  The first
+                # component is attached to the right of the field
+                # name, but the rest are attached below the first.
+                lastComponent = None
                 fcomp = fld.iterator(planarity.ALL_INDICES)
+                prevRowWidget = flabel
                 while not fcomp.end():
-                    row = fldrow + fcomp.integer()
-                    label = gtk.Label(" " + fcomp.shortrepr()+"=")
+                    # row = fldrow + fcomp.integer()
+                    label = Gtk.Label(" " + fcomp.shortrepr()+"=")
                     self.fieldvalWidgets.add(label)
-                    self.table.attach(label, 1,2, row,row+1, xoptions=gtk.FILL)
-                    e = gtk.Entry()
+                    if lastComponent:
+                        self.table.attach_next_to(label, lastComponent,
+                                                  Gtk.PositionType.BOTTOM,
+                                                  1, 1)
+                    else:
+                        self.table.attach_next_to(label, flabel,
+                                                  Gtk.PositionType.RIGHT,
+                                                  1, 1)
+                    lastComponent = label
+                    # self.table.attach(label, 1,2, row,row+1,xoptions=gtk.FILL)
+                    e = gtk.Entry(hexpand=True, halign=Gtk.Align.FILL,
+                                  editable=False)
                     e.set_width_chars(10)
-                    e.set_editable(False)
                     self.fieldvalEntries[(fld, fcomp.integer())] = e
-                    self.table.attach(e, 2,3, row,row+1,
-                                      xoptions=gtk.EXPAND|gtk.FILL)
+                    self.table.attach_next_to(e, label, Gtk.PositionType.RIGHT,
+                                              1, 1)
+                    # self.table.attach(e, 2,3, row,row+1,
+                    #                   xoptions=gtk.EXPAND|gtk.FILL)
                     fcomp.next()
-                    
-                fldrow += fld.ndof()
+
+                sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
+                self.table.attach_next_to(sep, flabel, Gtk.PositionType.BOTTOM,
+                                          3, 1)
+                prevRowWidget = sep
+                
+                # fldrow += fld.ndof()
             self.table.show_all()
             self.fieldslisted = listedfields
 
@@ -327,104 +339,101 @@ modes = [ElementMode, NodeMode]
 class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def __init__(self, meshinfo):
         toolboxGUI.GfxToolbox.__init__(self, "Mesh Info", meshinfo)
-        self.mainbox = gtk.VBox()
+        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(self.mainbox)
 
         self.modeclass = ElementMode
         self.modeobj = None
         self.modeobjdict = {}
 
-        clickframe = gtk.Frame()
+        clickframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(clickframe, 'Click')
-        clickframe.set_shadow_type(gtk.SHADOW_IN)
-        self.mainbox.pack_start(clickframe, expand=0, fill=0)
-        clickbox = gtk.VBox()
+        self.mainbox.pack_start(clickframe, expand=False, fill=False, padding=0)
+        clickbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         clickframe.add(clickbox)
 
-        hbox = gtk.HBox()
-        clickbox.pack_start(hbox, expand=0, fill=0)
-        hbox.pack_start(gtk.Label("Click on an: "), expand=0, fill=0)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       halign=Gtk.Align.CENTER)
+        clickbox.pack_start(hbox, expand=False, fill=False, padding=0)
+        hbox.pack_start(Gtk.Label("Click on an: ", halign=Gtk.Align.END),
+                        expand=False, fill=False, padding=0)
 
         self.modebuttons = []
         self.modebuttonsignals = []
         for mode in modes:
             if self.modebuttons:
-                button = gtk.RadioButton(label=mode.targetname,
-                                        group=self.modebuttons[0])
+                button = Gtk.RadioButton(label=mode.targetname,
+                                         group=self.modebuttons[0])
             else:
-                button = gtk.RadioButton(label=mode.targetname)
+                button = Gtk.RadioButton(label=mode.targetname)
             gtklogger.setWidgetName(button, mode.targetname)
             self.modebuttons.append(button)
-            tooltips.set_tooltip_text(button,
-                               "Show " + mode.targetname + " information")
-            hbox.pack_start(button, expand=0, fill=0)
+            button.set_tooltip_text("Show " + mode.targetname + " information")
+            hbox.pack_start(button, expand=False, fill=False, padding=0)
             button.set_active(self.modeclass is mode)
             self.modebuttonsignals.append(
                 gtklogger.connect(button, 'clicked', self.changeModeCB, mode))
                         
         # Display mouse click coordinates
-        self.table = gtk.Table(columns=2, rows=config.dimension()+1)
-        clickbox.pack_start(self.table, expand=0, fill=0)
+        self.table = Gtk.Grid()
+        clickbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
-        label = gtk.Label('x=')
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 0,1, 0,1, xpadding=5, xoptions=gtk.FILL)
-        self.xtext = gtk.Entry()
+        label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)
+        self.table.attach(label, 0,0, 1,1)
+        self.xtext = Gtk.Entry(editable=False, hexpand=True,
+                               halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.xtext,'X')
-        self.xtext.set_editable(0)
         self.xtext.set_width_chars(13)
-        self.table.attach(self.xtext, 1,2, 0,1,
-                          xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-        tooltips.set_tooltip_text(self.xtext,"x coordinate of the mouse click")
-        label = gtk.Label('y=')
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 0,1, 1,2, xpadding=5, xoptions=gtk.FILL)
-        self.ytext = gtk.Entry()
+        self.table.attach(self.xtext, 1,0, 1,1)
+        self.xtext.set_tooltip_text("x coordinate of the mouse click")
+        label = Gtk.Label('y=', halign=Gtk.Align.END, hexpand=False)
+        self.table.attach(label, 0,1, 1,1)
+        self.ytext = Gtk.Entry(editable=False, hexpand=True,
+                               halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.ytext,'Y')
         self.ytext.set_width_chars(13)
-        self.ytext.set_editable(0)
-        self.table.attach(self.ytext, 1,2, 1,2,
-                          xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-        tooltips.set_tooltip_text(self.ytext,"y coordinate of the mouse click")
+        self.table.attach(self.ytext, 1,1, 1,1)
+        self.ytext.set_tooltip_text("y coordinate of the mouse click")
 
         # End of clicked point display
 
-        self.infoframe = gtk.Frame()
-        self.infoframe.set_shadow_type(gtk.SHADOW_NONE)
-        self.mainbox.pack_start(self.infoframe, expand=1, fill=1)
+        self.infoframe = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
+        self.mainbox.pack_start(self.infoframe,
+                                expand=True, fill=True, padding=0)
         self.meshcontext = self.toolbox.meshcontext()
         self.buildInfoGUI(self.modeclass)
         # End of query data display
 
-        align = gtk.Alignment(xalign=0.5)
-        self.mainbox.pack_start(align, expand=0, fill=0, padding=2)
-        centerbox = gtk.HBox()
-        align.add(centerbox)
-        self.meshdatabutton = gtkutils.StockButton(gtk.STOCK_DIALOG_INFO,
-                                                   'New Data Viewer...')
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                             halign=Gtk.Align.CENTER)
+        self.mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
+        self.meshdatabutton = gtkutils.StockButton(
+            'dialog-information-symbolic', 'New Data Viewer...')
         gtklogger.setWidgetName(self.meshdatabutton, "NewDataViewer")
-        centerbox.pack_start(self.meshdatabutton, expand=0, fill=0)
+        centerbox.pack_start(self.meshdatabutton,
+                             expand=False, fill=False, padding=0)
         gtklogger.connect(self.meshdatabutton, 'clicked', self.meshdataCB)
-        tooltips.set_tooltip_text(self.meshdatabutton,
-                             "Open a window to display fields, fluxes, and other quantities evaluated at the mouse click location.")
+        self.meshdatabutton.set_tooltip_text(
+            "Open a window to display fields, fluxes, and other"
+            " quantities evaluated at the mouse click location.")
 
-        buttonbox = gtk.HBox()
-        self.mainbox.pack_start(buttonbox, expand=0, fill=0)
+        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        self.mainbox.pack_start(buttonbox, expand=False, fill=False, padding=0)
         self.prev = gtkutils.prevButton()
-        tooltips.set_tooltip_text(self.prev,"Go back to the previous object.")
+        self.prev.set_tooltip_text("Go back to the previous object.")
         gtklogger.connect(self.prev, 'clicked', self.prevQuery)
-        buttonbox.pack_start(self.prev, expand=0, fill=0, padding=2)
+        buttonbox.pack_start(self.prev, expand=False, fill=False, padding=0)
         
-        self.clear = gtk.Button(stock=gtk.STOCK_CLEAR)
+        self.clear = gtk.Button("edit-clear-symbolic", "Clear")
         gtklogger.setWidgetName(self.clear, 'Clear')
         gtklogger.connect(self.clear, 'clicked', self.clearQuery)
-        tooltips.set_tooltip_text(self.clear,"Clear the current query.")
-        buttonbox.pack_start(self.clear, expand=1, fill=1, padding=2)
+        self.clear.set_tooltip_text("Clear the current query.")
+        buttonbox.pack_start(self.clear, expand=True, fill=True, padding=0)
 
         self.next = gtkutils.nextButton()
-        tooltips.set_tooltip_text(self.next,"Go to the next object.")
+        self.next.set_tooltip_text("Go to the next object.")
         gtklogger.connect(self.next, 'clicked', self.nextQuery)
-        buttonbox.pack_start(self.next, expand=0, fill=0, padding=2)
+        buttonbox.pack_start(self.next, expand=False, fill=False, padding=0)
 
         self.mainbox.show_all()
         self.sensitize()
@@ -556,8 +565,6 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.gfxwindow().setMouseHandler(self)
         self.toolbox.resetRecords()
         self.sensitize()
-        if config.dimension() == 3:
-            self.gfxwindow().toolbar.setSelect()
 
     def close(self):
         if self.modeobj:
@@ -568,7 +575,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def acceptEvent(self, eventtype):
         return eventtype == 'up'
 
-    def up(self, x, y, shift, ctrl):
+    def up(self, x, y, button, shift, ctrl, data):
         pos = self.getPoint(x,y)
         self.modeobj.menucmd()(position=pos)
 

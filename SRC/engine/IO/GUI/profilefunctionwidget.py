@@ -16,9 +16,8 @@ from ooflib.common.IO.GUI import regclassfactory
 from ooflib.engine import profile
 from ooflib.engine import profilefunction
 from ooflib.engine.IO.GUI import meshparamwidgets
-import gtk
-import re
-import string
+
+from gi.repository import Gtk
 import types
 
 
@@ -67,13 +66,13 @@ class LabelledProfileRCF:
     def __init__(self, fpsw, scope=None, label=""):
         debug.mainthreadTest()
         self.fpsw = fpsw                # parent FluxProfileSetWidget
-        self.gtk = gtk.HBox()
-        self.label = gtk.Label(label+" = ")
+        self.gtk = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        self.label = Gtk.Label(label+" = ")
         self.widget = regclassfactory.RegisteredClassFactory(
             profile.ProfileXT.registry, scope=scope, name=label)
         self.sbcb = switchboard.requestCallbackMain(self.widget, self.rcfCB)
-        self.gtk.pack_start(self.label, expand=0, fill=0)
-        self.gtk.pack_start(self.widget.gtk, expand=1, fill=1)
+        self.gtk.pack_start(self.label, expand=False, fill=False, padding=0)
+        self.gtk.pack_start(self.widget.gtk, expand=True, fill=True, padding=0)
         self.show()
     def rcfCB(self, interactive):
         self.fpsw.rcfChanged(interactive)
@@ -106,8 +105,9 @@ class FluxProfileSetWidget(parameterwidgets.ParameterWidget):
         self.scope=scope
         self.fluxwidget = scope.findWidget(
             lambda x: x.__class__==meshparamwidgets.FluxParameterWidget)
-        self.sbcb = switchboard.requestCallbackMain(self.fluxwidget, self.checkFlux)
-        gtk_obj = gtk.VBox()
+        self.sbcb = switchboard.requestCallbackMain(self.fluxwidget,
+                                                    self.checkFlux)
+        gtk_obj = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         parameterwidgets.ParameterWidget.__init__(self, gtk_obj, scope, name)
         self.profileset = [] # Profiles themselves.
         self.widgetset = []  # LabelledProfileRCF objects
@@ -129,13 +129,13 @@ class FluxProfileSetWidget(parameterwidgets.ParameterWidget):
             self.profileset += [profile.ConstantProfile(0.0)]*\
                                (self.nslots-len(self.profileset))
         self.show()
-        self.widgetChanged(1, interactive)
+        self.widgetChanged(True, interactive)
             
     # Parses the funcstr.
     def set_value(self, newvalue):
         if newvalue:
             self.profileset = newvalue.get_profiles()
-        self.checkFlux(interactive=0)
+        self.checkFlux(interactive=False)
 
     def get_value(self):
         return profile.FluxProfileSet([w.get_value() for w in self.widgetset])
@@ -156,7 +156,8 @@ class FluxProfileSetWidget(parameterwidgets.ParameterWidget):
                 # new_widget = regclassfactory.RegisteredClassFactory(
                 #     profile.Profile.registry, scope=self.scope)
                 self.widgetset.append(new_widget)
-                self.gtk.pack_start(new_widget.gtk, expand=0, fill=0)
+                self.gtk.pack_start(new_widget.gtk,
+                                    expand=False, fill=False, padding=0)
         # Widget list and profile set are now the same length. 
         for i in range(len(self.widgetset)):
             self.widgetset[i].set(self.profileset[i], 0)
@@ -164,7 +165,7 @@ class FluxProfileSetWidget(parameterwidgets.ParameterWidget):
         self.gtk.show()
 
     def rcfChanged(self, interactive):  # called by LabelledProfileRCFs.
-        self.widgetChanged(1, interactive)
+        self.widgetChanged(True, interactive)
 
     def cleanUp(self):
         switchboard.removeCallback(self.sbcb)

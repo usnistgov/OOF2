@@ -90,13 +90,10 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         row = 4
         self.plugins = []
         for pluginclass in pixelinfoGUIplugin.plugInClasses:
-            hsep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL,
-                                 halign=Gtk.Align.FILL,
-                                 hexpand=True,
-                                 vexpand=False)
-            self.grid.attach(hsep, 0,row,2,1)
+            hsep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
+            self.grid.attach(hsep, 0,row, 2,1)
             self.plugins.append(pluginclass(self, self.grid, row+1))
-            row += pluginclass.nrows+1
+            row += pluginclass.nrows + 1
 
     def activate(self):
         toolboxGUI.GfxToolbox.activate(self)

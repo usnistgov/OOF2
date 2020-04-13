@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -20,6 +19,7 @@ from ooflib.SWIG.engine import field
 from ooflib.SWIG.engine import flux
 from ooflib.SWIG.engine import planarity
 from ooflib.common import debug
+from ooflib.common.IO import placeholder
 from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import whowidget
@@ -27,10 +27,9 @@ from ooflib.engine import mesh
 from ooflib.engine import skeletoncontext
 from ooflib.engine import subproblemcontext
 from ooflib.engine.IO import meshparameters
-import gtk
+
+from gi.repository import Gtk
 import string
-#Interface branch
-from ooflib.common.IO import placeholder
 
 ## Blocks of code preceded by "if TESTINGPAPER:" are an attempt to
 ## reproduce the bug that motivated gui test 00176.
@@ -289,16 +288,16 @@ class FieldIndexParameterWidget(parameterwidgets.ParameterWidget):
         debug.mainthreadTest()
         self.chooser = chooser.ChooserWidget([], callback=self.chooserCB,
                                              name=name)
-        box = gtk.VBox()
-        box.pack_start(self.chooser.gtk, expand=0, fill=0)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        box.pack_start(self.chooser.gtk, expand=False, fill=False, padding=0)
         parameterwidgets.ParameterWidget.__init__(self, box, scope)
         self.fieldwidget = scope.findWidget(
             lambda w: isinstance(w, IndexableWidget))
         self.sbcallback = switchboard.requestCallbackMain(self.fieldwidget,
                                                           self.fieldCB)
-        self.notapplicable = gtk.Label('(Not Applicable)')
-        self.notapplicable.set_alignment(0.0, 0.5)
-        box.pack_start(self.notapplicable, expand=0, fill=0)
+        self.notapplicable = Gtk.Label('(Not Applicable)',
+                                       halign=Gtk.Align.START)
+        box.pack_start(self.notapplicable, expand=False, fill=False, padding=0)
         self.nIndices = 0
         self.update()
         if TESTINGPAPER:
@@ -307,12 +306,12 @@ class FieldIndexParameterWidget(parameterwidgets.ParameterWidget):
         else:
             if param.value in self.chooser.choices():
                 self.chooser.set_state(param.value)
-        self.widgetChanged(1, interactive=0)
+        self.widgetChanged(True, interactive=False)
     def chooserCB(self, *args):
-        self.widgetChanged(1, interactive=1)
+        self.widgetChanged(True, interactive=True)
     def fieldCB(self, interactive):
         self.update()
-        self.widgetChanged(1, interactive)
+        self.widgetChanged(True, interactive)
     def update(self):                   # field has changed
         itlist = []
         self.nIndices = 0
@@ -418,15 +417,15 @@ class MeshBoundaryParamWidget(MeshParamWidget):
                 self.widgetChanged(1, interactive)
         else:
             self.chooser.update([])
-            self.widgetChanged(0, interactive)
+            self.widgetChanged(False, interactive)
     def set_value(self, value):
         if TESTINGPAPER:
             self.chooser.set_state(value)
-            self.widgetChanged(1, interactive=0)
+            self.widgetChanged(True, interactive=0)
         else:
             if value in self.chooser.choices():
                 self.chooser.set_state(value)
-                self.widgetChanged(1, interactive=0)
+                self.widgetChanged(True, interactive=0)
     def get_value(self):
         return self.chooser.get_value()
 
@@ -484,7 +483,8 @@ class MeshPeriodicEdgeBdyParamWidget(MeshBoundaryParamWidget):
 def _makePeriodicEdgeBdyWidget(param, scope):
     return MeshPeriodicEdgeBdyParamWidget(param, scope, name=param.name)
 
-meshparameters.MeshPeriodicEdgeBdyParameter.makeWidget = _makePeriodicEdgeBdyWidget
+meshparameters.MeshPeriodicEdgeBdyParameter.makeWidget \
+    = _makePeriodicEdgeBdyWidget
 
 
 
@@ -528,7 +528,8 @@ class MeshEdgeBdyInterfaceParamWidget(MeshBoundaryParamWidget):
 def _makeEdgeBdyInterfaceWidget(param, scope):
     return MeshEdgeBdyInterfaceParamWidget(param, scope, name=param.name)
 
-meshparameters.MeshEdgeBdyInterfaceParameter.makeWidget = _makeEdgeBdyInterfaceWidget
+meshparameters.MeshEdgeBdyInterfaceParameter.makeWidget \
+    = _makeEdgeBdyInterfaceWidget
 
 class MeshEdgeBdyParamWidgetExtra(MeshBoundaryParamWidget):
     def __init__(self, param, scope, name=None):

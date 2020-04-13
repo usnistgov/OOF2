@@ -11,12 +11,9 @@
 from ooflib.SWIG.common import ooferror
 
 from ooflib.SWIG.common import config
-if config.dimension() == 2:
-    from ooflib.SWIG.common.IO.GUI import rubberband
-elif config.dimension() == 3:
-    from ooflib.common.IO.GUI import rubberband3d as rubberband
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import switchboard
+from ooflib.SWIG.common.IO.GUI import rubberband
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import primitives
@@ -26,9 +23,9 @@ from ooflib.common.IO import mainmenu
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
-from ooflib.common.IO.GUI import tooltips
 from ooflib.engine.IO import movenode
-import gtk
+
+from gi.repository import Gtk
 import sys
 import types
 
@@ -45,13 +42,15 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.mouselock = lock.Lock()
         
         toolboxGUI.GfxToolbox.__init__(self, "Move Nodes", movenodetoolbox)
-        mainbox = gtk.VBox()
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                          spacing=2, margin=2)
         self.gtk.add(mainbox)
 
-        hbox = gtk.HBox()
-        mainbox.pack_start(hbox, expand=0, fill=0)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        mainbox.pack_start(hbox, expand=False, fill=False, padding=0)
         gtklogger.setWidgetName(hbox, "MoveWith")
-        hbox.pack_start(gtk.Label("Move with: "), expand=0, fill=0)
+        hbox.pack_start(gtk.Label("Move with: "),
+                        expand=False, fill=False, padding=0)
 
         modes = [("Mouse", "Click and drag a node to move it."),
                  ("Keyboard",
@@ -60,108 +59,101 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.modebuttons = []
         for mode, tip in modes:
             if self.modebuttons:
-                button = gtk.RadioButton(label=mode,
+                button = Gtk.RadioButton(label=mode,
                                          group=self.modebuttons[0])
             else:
                 button = gtk.RadioButton(label=mode)
             gtklogger.setWidgetName(button, mode)
             self.modebuttons.append(button)
-            tooltips.set_tooltip_text(button,tip)
-            hbox.pack_start(button, expand=0, fill=0)
+            button.set_tooltip_text(tip)
+            hbox.pack_start(button, expand=False, fill=False, padding=0)
             button.set_active(self.mode is mode)
             gtklogger.connect(button, 'clicked', self.changeMode, mode)
 
         # allow illegal move?
-        self.allow_illegal = gtk.CheckButton("Allow illegal moves")
+        self.allow_illegal = Gtk.CheckButton("Allow illegal moves")
         gtklogger.setWidgetName(self.allow_illegal, "AllowIllegal")
-        mainbox.pack_start(self.allow_illegal, expand=0, fill=0, padding=1)
-        mainbox.pack_start(gtk.HSeparator(), expand=0, fill=0, padding=3)
+        mainbox.pack_start(self.allow_illegal,
+                           expand=False, fill=False, padding=0)
+        mainbox.pack_start(
+            Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            expand=False, fill=False, padding=0)
         gtklogger.connect(self.allow_illegal, "clicked", self.illegal_status)
         if movenodetoolbox.allow_illegal:
-            self.allow_illegal.set_active(1)
+            self.allow_illegal.set_active(True)
         else:
-            self.allow_illegal.set_active(0)
+            self.allow_illegal.set_active(False)
 
-        if config.dimension() == 2:
-            self.table = gtk.Table(columns=2, rows=6)
-            r = 2
-        elif config.dimension() == 3:
-            self.table = gtk.Table(columns=2, rows=8)
-            r = 3
-        mainbox.pack_start(self.table, expand=0, fill=0)
+        self.table = Gtk.Grid()
+        r = 2
+        mainbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
-        label = gtk.Label('x=')
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 0,1, 0,1, xpadding=5, xoptions=gtk.FILL)
-        self.xtext = gtk.Entry()
+        label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)
+        self.table.attach(label, 0,0, 1,1)
+        self.xtext = Gtk.Entry(editable=True,
+                               halign=Gtk.Align.FILL, hexpand=True)
+        self.table.attach(self.xtext, 1,0, 1,1)
         gtklogger.setWidgetName(self.xtext, "x")
         self.xsignal = gtklogger.connect_passive(self.xtext, 'changed')
         self.xtext.set_width_chars(12)
-        self.xtext.set_editable(1)
-        self.table.attach(self.xtext, 1,2, 0,1,
-                          xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-        tooltips.set_tooltip_text(self.xtext,"x position of the mouse")
+        self.xtext.set_tooltip_text("x position of the mouse")
 
-        label = gtk.Label('y=')
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 0,1, 1,2, xpadding=5, xoptions=gtk.FILL)
-        self.ytext = gtk.Entry()
+        label = Gtk.Label('y=', halign=Gtk.Align.END, hexpand=False)
+        self.table.attach(label, 0,1, 1,1)
+        self.ytext = gtk.Entry(editable=True,
+                               halign=Gtk.Align.FILL, hexpand=True)
+        self.table.attach(self.ytext, 1,1, 1,1)
         gtklogger.setWidgetName(self.ytext, 'y')
         self.ysignal = gtklogger.connect_passive(self.ytext, 'changed')
         self.ytext.set_width_chars(12)
-        self.ytext.set_editable(1)
-        self.table.attach(self.ytext, 1,2, 1,2,
-                          xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-        tooltips.set_tooltip_text(self.ytext,"y position of the mouse")
+        self.ytext.set_tooltip_text("y position of the mouse")
 
-        label = gtk.Label("Change in... ")
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 0,1, r,r+1, xpadding=4,
-                          xoptions=gtk.EXPAND|gtk.FILL)
+        label = Gtk.Label("Change in... ", halign=Gtk.Align.END, hexpand=False)
+        self.table.attach(label, 0,2, 1,1)
 
-        label = gtk.Label("shape energy=")
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 0,1, r+1,r+2, xpadding=5, xoptions=gtk.FILL)
-        self.shapetext = gtk.Entry()
-        self.shapetext.set_editable(0)
+        label = Gtk.Label("shape energy=", halign=Gtk.Align.END, hexpand=False)
+        self.table.attach(label, 0,3, 1,1)
+        self.shapetext = gtk.Entry(editable=False,
+                                   hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.shapetext,"shape")
         self.shapetext.set_width_chars(12)
-        self.table.attach(self.shapetext, 1,2, r+1,r+2,
-                          xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-        tooltips.set_tooltip_text(self.shapetext,"total change in shape energy")
+        self.table.attach(self.shapetext, 1,3, 1,1)
+        self.shapetext.set_tooltip_text("total change in shape energy")
 
-        label = gtk.Label("homogeneity=")
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 0,1, r+2,r+3, xpadding=5, xoptions=gtk.FILL)
-        self.homogtext = gtk.Entry()
-        self.homogtext.set_editable(0)
+        label = Gtk.Label("homogeneity=", halign=Gtk.Align.END, hexpand=False)
+        self.table.attach(label, 0,4, 1,1)
+        self.homogtext = gtk.Entry(editable=False,
+                                   hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.homogtext,"homog")
         self.homogtext.set_width_chars(12)
-        self.table.attach(self.homogtext, 1,2, r+2,r+3,
-                          xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-        tooltips.set_tooltip_text(self.homogtext,"total change in homogeneity")
+        self.table.attach(self.homogtext, 1,4, 1,1)
+        self.homogtext.set_tooltip_text("total change in homogeneity")
 
-        mainbox.pack_start(gtk.HSeparator(), expand=0, fill=0, padding=3)
-        self.statusText = gtk.Label()
+        mainbox.pack_start(
+            Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+            expand=False, fill=False, padding=0)
+
+        self.statusText = Gtk.Label()
         gtklogger.setWidgetName(self.statusText, "Status")
-        mainbox.pack_start(self.statusText, expand=0, fill=0, padding=3)
+        mainbox.pack_start(self.statusText, expand=False, fill=False, padding=0)
         
-        bbox = gtk.HBox(homogeneous=1, spacing=2)
-        mainbox.pack_end(bbox, expand=0, fill=0, padding=3)
-        self.undobutton = gtk.Button(stock=gtk.STOCK_UNDO)
-        tooltips.set_tooltip_text(self.undobutton,"Undo the latest node move.")
-        self.movebutton = gtk.Button('Move')
-        tooltips.set_tooltip_text(self.movebutton,
-                             "Move the selected node to the specified position.")
-        self.redobutton = gtk.Button(stock=gtk.STOCK_REDO)
-        tooltips.set_tooltip_text(self.redobutton,"Redo the latest UNDO.")
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                       homogeneous=True, spacing=2)
+        mainbox.pack_end(bbox, expand=False, fill=False, padding=0)
+        self.undobutton = Gtk.Button("edit-undo-symbolic", "Undo")
+        self.undobutton.set_tooltip_text("Undo the latest node move.")
+        self.movebutton = Gtk.Button('Move')
+        self.movebutton.set_tooltip_text(
+            "Move the selected node to the specified position.")
+        self.redobutton = Gtk.Button("edit-redo-symbolic", "Redo")
+        self.redobutton.set_tooltip_text("Redo the latest UNDO.")
 
         gtklogger.setWidgetName(self.undobutton, 'Undo')
         gtklogger.setWidgetName(self.redobutton, 'Redo')
         gtklogger.setWidgetName(self.movebutton, 'Move')
-        bbox.pack_start(self.undobutton, expand=1, fill=1)
-        bbox.pack_start(self.movebutton, expand=1, fill=1)
-        bbox.pack_start(self.redobutton, expand=1, fill=1)
+        bbox.pack_start(self.undobutton, expand=True, fill=True, padding=0)
+        bbox.pack_start(self.movebutton, expand=True, fill=True, padding=0)
+        bbox.pack_start(self.redobutton, expand=True, fill=True, padding=0)
         gtklogger.connect(self.undobutton, 'clicked', self.undoCB)
         gtklogger.connect(self.movebutton, 'clicked', self.moveCB)
         gtklogger.connect(self.redobutton, 'clicked', self.redoCB)
@@ -196,9 +188,9 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def illegal_status(self, gtkobj):
         debug.mainthreadTest()
         if self.allow_illegal.get_active():
-            self.toolbox.menu.AllowIllegal(allowed=1)
+            self.toolbox.menu.AllowIllegal(allowed=True)
         else:
-            self.toolbox.menu.AllowIllegal(allowed=0)
+            self.toolbox.menu.AllowIllegal(allowed=False)
             
     def changeMode(self, button, mode):
         debug.mainthreadTest()
@@ -291,8 +283,6 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         toolboxGUI.GfxToolbox.activate(self)
         self.gfxwindow().setMouseHandler(self)
         self.sensitize()
-        if config.dimension() == 3:
-            self.gfxwindow().toolbar.setSelect()
 
     def deactivate(self):
         toolboxGUI.GfxToolbox.deactivate(self)
@@ -314,24 +304,16 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         debug.mainthreadTest()
         self.xsignal.block()
         self.ysignal.block()
-        if config.dimension() == 3:
-            self.zsignal.block()
         try:
             if point is None:
                 self.xtext.set_text('---')
                 self.ytext.set_text('---')
-                if config.dimension() == 3:
-                    self.ztext.set_text('---')
             else:
                 self.xtext.set_text(("%-11.4g" % point[0]).rstrip())
                 self.ytext.set_text(("%-11.4g" % point[1]).rstrip())
-                if config.dimension() == 3:
-                    self.ztext.set_text(("%-11.4g" % point[2]).rstrip())
         finally:
             self.xsignal.unblock()
             self.ysignal.unblock()
-            if config.dimension() == 3:
-                self.zsignal.unblock()
 
     def acceptEvent(self, eventtype):
         if not self.writable: # Don't accept events if the skeleton is busy.
@@ -342,10 +324,10 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         elif self.mode == "Keyboard":
             return eventtype=='up'
 
-    def down(self, x, y, shift, ctrl):
+    def down(self, x, y, button, shift, ctrl, data):
         subthread.execute(self.down_subthread, (x,y,shift,ctrl))
 
-    def down_subthread(self, x, y, shift, ctrl):
+    def down_subthread(self, x, y, button, shift, ctrl, data):
         debug.subthreadTest()
         self.mouselock.acquire()
         try:
@@ -389,10 +371,11 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         finally:
             self.mouselock.release()
             
-    def move(self, x, y, shift, ctrl):
+    def move(self, x, y, button, shift, ctrl, data):
         skeleton = self.getSkeleton()
-        subthread.execute(self.move_thread, (skeleton, x, y, shift, ctrl))
-    def move_thread(self, skeleton, x, y, shift, ctrl):
+        subthread.execute(self.move_thread,
+                          (skeleton, x, y, button, shift, ctrl, data))
+    def move_thread(self, skeleton, x, y, button, shift, ctrl, data):
         debug.subthreadTest()
         self.mouselock.acquire()
         try:
@@ -431,14 +414,14 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     # move, the move is not performed -- no menu items are called,
     # nothing is scripted.
 
-    def up(self, x, y, shift, ctrl):
+    def up(self, x, y, button, shift, ctrl, data):
         # "Downed" must be cleared at the earliest opportunity,
         # otherwise spurious "move" events can be processed,
         # unilaterally changing the node position.
         self.downed = 0 
-        subthread.execute(self.up_subthread, (x,y,shift,ctrl))
+        subthread.execute(self.up_subthread, (x, y, button, shift, ctrl, data))
 
-    def up_subthread(self, x, y, shift, ctrl):
+    def up_subthread(self, x, y, button, shift, ctrl, data):
         debug.subthreadTest()
         self.mouselock.acquire()
         try:
@@ -502,14 +485,9 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         debug.mainthreadTest()
         x = utils.OOFeval(self.xtext.get_text())
         y = utils.OOFeval(self.ytext.get_text())
-        if config.dimension() == 2:
-            point = primitives.Point(x,y)
-        elif config.dimension() == 3:
-            z = utils.OOFeval(self.ztext.get_text())
-            point = primitives.Point(x,y,z)
+        point = primitives.Point(x,y)
         skelctxt = self.getSkeletonContext()
         subthread.execute(self.kbmove_subthread, (skelctxt, point))
-
 
     def kbmove_subthread(self, skelctxt, point):
         debug.subthreadTest()

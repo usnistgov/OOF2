@@ -24,7 +24,6 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import subWindow
 from ooflib.tutorials import tutorial
 from gi.repository import Gtk
-from gi.repository import Pango
 import re
 import string
 import textwrap

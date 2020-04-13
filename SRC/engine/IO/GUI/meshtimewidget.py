@@ -16,13 +16,12 @@ from ooflib.common.IO import whoville
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import parameterwidgets
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import mesh
 from ooflib.engine.IO import animationtimes
 from ooflib.engine.IO import meshparameters
 
-import gtk
+from gi.repository import Gtk
 
 # Widget for choosing a time at which to display a Mesh.  There are
 # two derived classes.  MeshTimeParamWidget uses the widget scope to
@@ -34,50 +33,55 @@ class MeshTimeWidgetBase(parameterwidgets.ParameterWidget):
     def __init__(self, scope, name=None):
         debug.mainthreadTest()
 
-        parameterwidgets.ParameterWidget.__init__(self, gtk.HBox(), scope=scope,
-                                                  name=name)
+        parameterwidgets.ParameterWidget.__init__(
+            self,
+            Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2),
+            scope=scope,
+            name=name)
         self.times = []
         self.signals = []
         self.sbcallbacks = []
         
-        self.earliestButton = gtkutils.StockButton(gtk.STOCK_MEDIA_REWIND)
+        self.earliestButton = gtkutils.StockButton('go-first-symbolic')
         gtklogger.setWidgetName(self.earliestButton, 'earliest')
         self.signals.append(gtklogger.connect(self.earliestButton, 'clicked',
                                               self.extremeCB, 
                                               placeholder.earliest))
-        self.gtk.pack_start(self.earliestButton, expand=0, fill=0)
-        tooltips.set_tooltip_text(self.earliestButton,
-                             "Use the earliest stored time.")
+        self.gtk.pack_start(self.earliestButton,
+                            expand=False, fill=False, padding=0)
+        self.earliestButton.set_tooltip_text("Use the earliest stored time.")
 
-        self.prevButton = gtkutils.StockButton(gtk.STOCK_GO_BACK)
+        self.prevButton = gtkutils.StockButton('go-previous-symbolic')
         gtklogger.setWidgetName(self.prevButton, "Prev")
         self.signals.append(gtklogger.connect(self.prevButton, 'clicked', 
                                               self.prevCB))
-        self.gtk.pack_start(self.prevButton, expand=0, fill=0)
-        tooltips.set_tooltip_text(self.prevButton,
-                             "Go to an earlier time saved in the mesh.")
+        self.gtk.pack_start(self.prevButton,
+                            expand=False, fill=False, padding=0)
+        self.prevButton.set_tooltip_text(
+            "Go to an earlier time saved in the mesh.")
 
-        self.text = gtk.Entry()
+        self.text = Gtk.Entry()
         gtklogger.setWidgetName(self.text, 'Text')
         self.signals.append(gtklogger.connect(self.text, 'changed',
                                               self.entryCB))
-        self.gtk.pack_start(self.text, expand=1, fill=1)
+        self.gtk.pack_start(self.text, expand=True, fill=True, padding=0)
 
-        self.nextButton = gtkutils.StockButton(gtk.STOCK_GO_FORWARD)
+        self.nextButton = gtkutils.StockButton('go-next-symbolic')
         gtklogger.setWidgetName(self.nextButton, "Next")
         gtklogger.connect(self.nextButton, 'clicked', self.nextCB)
-        self.gtk.pack_start(self.nextButton, expand=0, fill=0)
-        tooltips.set_tooltip_text(self.nextButton,
-                             "Go to a later time saved in the mesh.")
+        self.gtk.pack_start(self.nextButton,
+                            expand=False, fill=False, padding=0)
+        self.nextButton.set_tooltip_text(
+            "Go to a later time saved in the mesh.")
 
-        self.latestButton = gtkutils.StockButton(gtk.STOCK_MEDIA_FORWARD)
+        self.latestButton = gtkutils.StockButton('go-last-symbolic')
         gtklogger.setWidgetName(self.latestButton, 'latest')
         self.signals.append(gtklogger.connect(self.latestButton, 'clicked',
                                               self.extremeCB,
                                               placeholder.latest))
-        self.gtk.pack_start(self.latestButton, expand=0, fill=0)
-        tooltips.set_tooltip_text(self.latestButton,
-                             "Use the latest stored time.")
+        self.gtk.pack_start(self.latestButton,
+                            expand=False, fill=False, padding=0)
+        self.latestButton.set_tooltip_text("Use the latest stored time.")
         
         self.mode = placeholder.latest # 'earliest', 'latest', or None
 

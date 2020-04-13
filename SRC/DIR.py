@@ -11,7 +11,7 @@
 dirname = 'SRC'
 
 subdirs = ['common',
-           # 'engine',
+           'engine',
            'image', 
            # 'orientationmap',
            # 'tutorials',

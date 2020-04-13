@@ -27,6 +27,13 @@ from gi.repository import Pango
 # The button text needs to be provided with labelstr, if desired.
 # gtk2 provided it automatically.
 
+## TODO GTK3: Many of the icons come in two flavors, "xxx" and
+## "xxx-symbolic".  We could make using the symbolic versions an
+## option. StockButton could check for the existence of the preferred
+## version and fall back to the other version if the preferred one was
+## not available.  Then we could delete the "-symbolic" everywhere
+## that we spell it out in the code.
+
 class StockButton(Gtk.Button):
     def __init__(self, icon_name, labelstr=None, reverse=False, markup=False,
                  align=None, **kwargs):

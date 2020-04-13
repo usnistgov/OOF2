@@ -23,16 +23,13 @@ from ooflib.common.IO.GUI import historian
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import skeletoncontext
-if config.dimension()==2:
-    from ooflib.engine import skeletonelement
-elif config.dimension()==3:
-    from ooflib.engine import skeletonelement3d as skeletonelement
+from ooflib.engine import skeletonelement
 from ooflib.engine import skeletonmodifier
-import gtk
-import pango
+
+from gi.repository import Gtk
+from gi.repository import Pango
 
 # Define some convenience variables.
 OOF = mainmenu.OOF
@@ -46,158 +43,169 @@ class SkeletonPage(oofGUI.MainPage):
         oofGUI.MainPage.__init__(self, name="Skeleton", ordering=120,
                                  tip='Construct and modify mesh skeletons')
 
-        mainbox = gtk.VBox(spacing=2)
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        align.add(centerbox)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                             halign=Gtk.Align.CENTER, spacing=3)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.skelwidget = whowidget.WhoWidget(whoville.getClass('Skeleton'),
                                               scope=self)
-        label = gtk.Label('Microstructure=')
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.skelwidget.gtk[0], expand=1, fill=1)
-        label = gtk.Label('Skeleton=')
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.skelwidget.gtk[1], expand=1, fill=1)
+        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.skelwidget.gtk[0],
+                             expand=True, fill=True, padding=0)
+        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.skelwidget.gtk[1],
+                             expand=True, fill=True, padding=0)
 
         # Centered box of buttons
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        bbox = gtk.HBox(homogeneous=1, spacing=3)
-        align.add(bbox)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                       homogeneous=True, spacing=2)
+        mainbox.pack_start(bbox, expand=False, fill=False, padding=0)
 
-        self.newbutton = gtkutils.StockButton(gtk.STOCK_NEW, 'New...')
+        self.newbutton = gtkutils.StockButton('document-new-symbolic', 'New...')
         gtklogger.setWidgetName(self.newbutton, "New")
         gtklogger.connect(self.newbutton, 'clicked', self.new_skeleton_CB)
-        tooltips.set_tooltip_text(self.newbutton,"Create a new skeleton from the current microstructure.")
-        bbox.pack_start(self.newbutton, expand=1, fill=1)
+        self.newbutton.set_tooltip_text(
+            "Create a new skeleton from the current microstructure.")
+        bbox.pack_start(self.newbutton, expand=True, fill=True, padding=0)
         
-        self.simplebutton = gtk.Button('Simple...')
+        self.simplebutton = Gtk.Button('Simple...')
         gtklogger.setWidgetName(self.simplebutton, "Simple")
         gtklogger.connect(self.simplebutton, 'clicked', self.simple_skeleton_CB)
-        tooltips.set_tooltip_text(self.simplebutton,"Create a new skeleton from the current microstructure in a naive fashion, by creating one quadrilateral or two triangular elements per pixel.  Material boundaries will be inherently jagged, which may cause errors in finite element solutions.")
-        bbox.pack_start(self.simplebutton, expand=1, fill=1)
+        self.simplebutton.set_tooltip_text(
+            "Create a new skeleton from the current microstructure in a naive"
+            " fashion, by creating one quadrilateral or two triangular"
+            " elements per pixel.  Material boundaries will be inherently"
+            " jagged, which may cause errors in finite element solutions.")
+        bbox.pack_start(self.simplebutton, expand=True, fill=True, padding=0)
 
-        self.autobutton = gtk.Button('Auto...')
+        self.autobutton = Gtk.Button('Auto...')
         gtklogger.setWidgetName(self.autobutton, 'Auto')
         gtklogger.connect(self.autobutton, 'clicked', self.autoCB)
-        tooltips.set_tooltip_text(self.autobutton,"Create and automatically refine a Skeleton.")
-        bbox.pack_start(self.autobutton, expand=1, fill=1)
+        self.autobutton.set_tooltip_text(
+            "Create and automatically refine a Skeleton.")
+        bbox.pack_start(self.autobutton, expand=True, fill=True, padding=0)
         
-        self.renamebutton = gtkutils.StockButton(gtk.STOCK_EDIT, 'Rename...')
+        self.renamebutton = gtkutils.StockButton('document-edit-symbolic',
+                                                 'Rename...')
         gtklogger.setWidgetName(self.renamebutton, "Rename")
         gtklogger.connect(self.renamebutton, 'clicked', self.rename_skeleton_CB)
-        tooltips.set_tooltip_text(self.renamebutton,"Rename the current skeleton.")
-        bbox.pack_start(self.renamebutton, expand=1, fill=1)
+        self.renamebutton.set_tooltip_text("Rename the current skeleton.")
+        bbox.pack_start(self.renamebutton, expand=True, fill=True, padding=0)
 
-        self.copybutton = gtkutils.StockButton(gtk.STOCK_COPY, 'Copy...')
+        self.copybutton = gtkutils.StockButton('edit-copy-symbolic', 'Copy...')
         gtklogger.setWidgetName(self.copybutton, 'Copy')
         gtklogger.connect(self.copybutton, 'clicked', self.copy_skeleton_CB)
-        tooltips.set_tooltip_text(self.copybutton,"Copy the current skeleton.")
-        bbox.pack_start(self.copybutton, expand=1, fill=1)
+        self.copybutton.set_tooltip_text("Copy the current skeleton.")
+        bbox.pack_start(self.copybutton, expand=True, fill=True, padding=0)
 
-        self.deletebutton = gtkutils.StockButton(gtk.STOCK_DELETE, 'Delete')
+        self.deletebutton = gtkutils.StockButton('edit-delete-symbolic',
+                                                 'Delete')
         gtklogger.setWidgetName(self.deletebutton, 'Delete')
         gtklogger.connect(self.deletebutton, 'clicked', self.delete_skeletonCB)
-        tooltips.set_tooltip_text(self.deletebutton,"Delete the current skeleton.")
-        bbox.pack_start(self.deletebutton, expand=1, fill=1)
+        self.deletebutton.set_tooltip_text("Delete the current skeleton.")
+        bbox.pack_start(self.deletebutton, expand=True, fill=True, padding=0)
 
-        self.savebutton = gtkutils.StockButton(gtk.STOCK_SAVE, 'Save...')
+        self.savebutton = gtkutils.StockButton('document-save-symbolic',
+                                               'Save...')
         gtklogger.setWidgetName(self.savebutton, "Save")
         gtklogger.connect(self.savebutton, 'clicked', self.save_skeletonCB)
-        tooltips.set_tooltip_text(self.savebutton,
-                             "Save the current skeleton to a file.")
-        bbox.pack_start(self.savebutton, expand=1, fill=1)
+        self.savebutton.set_tooltip_text("Save the current skeleton to a file.")
+        bbox.pack_start(self.savebutton, expand=True, fill=True, padding=0)
         
-        mainpane = gtk.HPaned()
+        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                              wide_handle=True)
         gtklogger.setWidgetName(mainpane, 'Pane')
-        mainbox.pack_start(mainpane, expand=1, fill=1)
+        mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
 
-        self.skelframe = gtk.Frame(label="Skeleton Status")
-        self.skelframe.set_shadow_type(gtk.SHADOW_IN)
-        mainpane.pack1(self.skelframe, resize=1, shrink=0)
-        scroll = gtk.ScrolledWindow()
+        self.skelframe = Gtk.Frame(label="Skeleton Status",
+                                   shadow_type=Gtk.ShadowType.IN)
+        mainpane.pack1(self.skelframe, resize=True, shrink=False)
+        scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         gtklogger.logScrollBars(scroll, "StatusScroll")
-        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        scroll.set_shadow_type(gtk.SHADOW_IN)
+        scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.skelframe.add(scroll)
-        self.skelinfo = Gtk.TextView(name="fixedfont")
+        self.skelinfo = Gtk.TextView(name="fixedfont", editable=False,
+                                     cursor_visible=False,
+                                     wrap_mode=Gtk.WrapMode.WORD)
         gtklogger.setWidgetName(self.skelinfo, "SkeletonText")
-        self.skelinfo.set_wrap_mode(gtk.WRAP_WORD)
-        self.skelinfo.set_editable(False)
-        self.skelinfo.set_cursor_visible(False)
+        ## TODO GTK3: I have no idea if this works.
         self.boldTag = self.skelinfo.get_buffer().create_tag(
-            "bold", weight=pango.WEIGHT_BOLD)
+            "bold", weight=Pango.Weight.BOLD)
         scroll.add(self.skelinfo)
 
         # End of left-side of skeleton info frame.
 
         # Start of right-side
 
-        skelmodframe = gtk.Frame(label="Skeleton Modification")
+        skelmodframe = Gtk.Frame(label="Skeleton Modification",
+                                 shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(skelmodframe, 'Modification')
-        skelmodframe.set_shadow_type(gtk.SHADOW_IN)
-        skelmodbox = gtk.VBox(spacing=3)
+        skelmodbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         skelmodframe.add(skelmodbox)
 
         self.skelmod = regclassfactory.RegisteredClassFactory(
                        skeletonmodifier.SkeletonModifier.registry,
                        title="method: ",
                        callback=self.skelmodCB,
-                       expand=0, fill=0, scope=self, name="Method")
+                       expand=False, fill=False, scope=self, name="Method")
         self.historian = historian.Historian(self.skelmod.set,
                                              self.sensitizeHistory,
                                              setCBkwargs={'interactive':1})
 
-        skelmodbox.pack_start(self.skelmod.gtk,expand=1,fill=1)
+        skelmodbox.pack_start(self.skelmod.gtk,
+                              expand=True, fill=True, padding=0)
 
         # Buttons for "Previous", "OK", and "Next"
-        hbox = gtk.HBox()
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        skelmodbox.pack_start(hbox, expand=False, fill=False, padding=0) 
+
         self.prevskelmodbutton = gtkutils.prevButton()
         gtklogger.connect(self.prevskelmodbutton, 'clicked', self.prevskelmod)
-        tooltips.set_tooltip_text(self.prevskelmodbutton,
-                      'Recall the previous skeleton modification operation.')
-        hbox.pack_start(self.prevskelmodbutton, expand=0, fill=0, padding=2)
+        self.prevskelmodbutton.set_tooltip_text(
+            'Recall the previous skeleton modification operation.')
+        hbox.pack_start(self.prevskelmodbutton,
+                        expand=False, fill=False, padding=0)
 
-        self.okbutton = gtk.Button(stock=gtk.STOCK_OK)
+        self.okbutton = gtkutils.StockButton('gtk-ok', 'OK')
         gtklogger.setWidgetName(self.okbutton, 'OK')
         gtklogger.connect(self.okbutton, 'clicked', self.okskelmod)
-        tooltips.set_tooltip_text(self.okbutton,
-                  'Perform the skeleton modification operation defined above.')
-        hbox.pack_start(self.okbutton, expand=1, fill=1, padding=5)
+        self.okbutton.set_tooltip_text(
+            'Perform the skeleton modification operation defined above.')
+        hbox.pack_start(self.okbutton, expand=True, fill=True, padding=0)
 
         self.nextskelmodbutton = gtkutils.nextButton()
         gtklogger.connect(self.nextskelmodbutton, 'clicked', self.nextskelmod)
-        tooltips.set_tooltip_text(self.nextskelmodbutton,
-                             'Recall the next skeleton modification operation.')
-        hbox.pack_start(self.nextskelmodbutton, expand=0, fill=0, padding=2)
+        self.nextskelmodbutton.set_tooltip_text(
+            'Recall the next skeleton modification operation.')
+        hbox.pack_start(self.nextskelmodbutton,
+                        expand=False, fill=False, padding=0)
 
-        skelmodbox.pack_start(hbox, expand=0, fill=0, padding=2) 
 
         # Buttons for "Undo", "Redo"
-        hbox = gtk.HBox()
-        self.undobutton = gtk.Button(stock=gtk.STOCK_UNDO)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        skelmodbox.pack_start(hbox, expand=False, fill=False, padding=0)
+
+        self.undobutton = gtkutils.StockButton('edit-undo-symbolic', 'Undo')
         gtklogger.setWidgetName(self.undobutton, 'Undo')
         gtklogger.connect(self.undobutton, 'clicked', self.undoskelmod)
-        tooltips.set_tooltip_text(self.undobutton,
-                             'Undo the latest skeleton modification.')
-        hbox.pack_start(self.undobutton, expand=1, fill=0, padding=10)
+        self.undobutton.set_tooltip_text(
+            'Undo the latest skeleton modification.')
+        hbox.pack_start(self.undobutton, expand=True, fill=False, padding=0)
 
-        self.redobutton = gtk.Button(stock=gtk.STOCK_REDO)
+        self.redobutton = gtkutils.StockButton('edit-redo-symbolic', 'Redo')
         gtklogger.setWidgetName(self.redobutton, 'Redo')
         gtklogger.connect(self.redobutton, 'clicked', self.redoskelmod)
-        tooltips.set_tooltip_text(self.redobutton,
-                             'Redo the latest undone skeleton modification.')
-        hbox.pack_start(self.redobutton, expand=1, fill=0, padding=10)
+        self.redobutton.set_tooltip_text(
+            'Redo the latest undone skeleton modification.')
+        hbox.pack_start(self.redobutton, expand=True, fill=False, padding=0)
 
-        skelmodbox.pack_start(hbox, expand=0, fill=0, padding=2)
 
-        mainpane.pack2(skelmodframe, resize=0, shrink=0)
+        mainpane.pack2(skelmodframe, resize=False, shrink=False)
         # End of right-side
 
         self.sbcallbacks = [
@@ -463,7 +471,8 @@ class SkeletonPage(oofGUI.MainPage):
     def getSkeletonAvailability(self):
         try:
             currentSkel = self.skelwidget.get_value() # colon separated string
-            return not skeletoncontext.skeletonContexts[currentSkel].query_reservation()
+            ctxt = skeletoncontexts.skeletonContexts[currentSkel]
+            return not ctxt.query_reservation()
         except KeyError:
             return 1
         

@@ -25,4 +25,3 @@ def _makeStrainParameterWidget(self, scope=None):
 
 cstrain.StrainTypeParameter.makeWidget = _makeStrainParameterWidget
 
-#Note: Sometimes "param" is used in place of "self"

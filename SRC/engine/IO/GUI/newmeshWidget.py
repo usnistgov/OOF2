@@ -14,9 +14,9 @@ from ooflib.common import debug
 from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import parameterwidgets
-from ooflib.common.IO.GUI import tooltips
 from ooflib.engine.IO import meshmenu
-import gtk
+
+from gi.repository import Gtk
 import string
 
 # Widget for the MasterElementTypesParameter, whose value is a list of
@@ -30,7 +30,7 @@ import string
 
 class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
     def __init__(self, param, scope=None, name=None):
-        frame = gtk.Frame()
+        frame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         self.table = None
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name=name)
         self.nclasses = 0    # number of enum classes (ie element topologies)
@@ -60,44 +60,48 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
             if self.table:
                 self.table.destroy()
             self.tablelabels = []
-            self.table = gtk.Table(rows=2+nclasses, columns=2)
+            self.table = gtk.Grid()
             self.gtk.add(self.table)
 
             # Choosers for mapping and interpolation order
-            self.mapchooser = chooser.ChooserWidget([], callback=self.orderCB,
-                                                    name="Map")
-            self.funchooser = chooser.ChooserWidget([], callback=self.orderCB,
-                                                    name="Func")
-            label = gtk.Label('mapping order')
-            tooltips.set_tooltip_text(label,'Polynomial order of the functions used to map master elements to physical space.')
-            label.set_alignment(1.0, 0.5)
+            self.mapchooser = chooser.ChooserWidget(
+                [], callback=self.orderCB, name="Map",
+                hexpand=True, halign=Gtk.Align.FILL)
+            label = Gtk.Label('mapping order', halign=Gtk.Align.END)
+            label.set_tooltip_text(
+                'Polynomial order of the functions used to map master elements"
+                " to physical space.')
             self.tablelabels.append(label)
-            self.table.attach(label, 0, 1, 0, 1, xpadding=5, xoptions=gtk.FILL)
-            self.table.attach(self.mapchooser.gtk, 1, 2, 0, 1,
-                              xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-            label = gtk.Label('interpolation order:')
-            tooltips.set_tooltip_text(label,'Polynomial order of the functions used to interpolate within elements.')
-            label.set_alignment(1.0, 0.5)
+            self.table.attach(label, 0,0, 1,1)
+            self.table.attach(self.mapchooser.gtk, 1,0, 1,1)
+
+            self.funchooser = chooser.ChooserWidget(
+                [], callback=self.orderCB, name="Func",
+                hexpand=True, halign=Gtk.Align.FILL)
+            label = Gtk.Label('interpolation order:', halign=Gtk.Align.END)
+            label.set_tooltip_text(
+                'Polynomial order of the functions used to interpolate"
+                " within elements.')
             self.tablelabels.append(label)
-            self.table.attach(label, 0, 1, 1, 2, xpadding=5,
-                              xoptions=gtk.FILL)
-            self.table.attach(self.funchooser.gtk, 1, 2, 1, 2,
-                              xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
+            self.table.attach(label, 0,1, 1.1)
+            self.table.attach(self.funchooser.gtk, 1,1, 1,1)
 
             # Choosers for each element geometry
             row = 2
             self.classwidgets = []
             for geometry, elclass in zip(elgeometries, elclasses):
-                label = gtk.Label(`geometry`+'-cornered element:')
-                tooltips.set_tooltip_text(label,
-                        'Type of finite element to use for %d cornered Skeleton elements' % geometry)
-                label.set_alignment(1.0, 0.5)
+                label = Gtk.Label(`geometry`+'-cornered element:',
+                                  halign=Gtk.Align.END)
+                label.set_tooltip_text(
+                        'Type of finite element to use for %d cornered'
+                        ' Skeleton elements' % geometry)
                 self.tablelabels.append(label)
-                self.table.attach(label, 0,1, row,row+1, xoptions=gtk.FILL)
-                ewidget = chooser.ChooserWidget([], name="%d-cornered"%geometry)
+                self.table.attach(label, 0,row, 1,1)
+                ewidget = chooser.ChooserWidget(
+                    [], name="%d-cornered"%geometry,
+                    hexpand=True, halign=Gtk.Align.FILL)
                 self.classwidgets.append((elclass, ewidget))
-                self.table.attach(ewidget.gtk, 1,2, row,row+1,
-                                  xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
+                self.table.attach(ewidget.gtk, 1,row, 1,1)
                 row += 1
 
         # Set the allowed values for each chooser.
@@ -122,7 +126,7 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
         except:
             # If the choosers don't have values, it's because there
             # aren't any elements defined. 
-            self.widgetChanged(validity=0, interactive=interactive)
+            self.widgetChanged(validity=False, interactive=interactive)
         else:
             # Find and list the element types for the current orders
             ok = True

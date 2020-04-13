@@ -17,36 +17,40 @@ from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
-import gtk
 import ooflib.common.microstructure
+
+## TODO: This file has been converted to Gtk3 only superficially.  It
+## may not work properly, since the interface code has never been
+## completed.
+
+from gi.repository import Gtk
 
 class InterfacePage(oofGUI.MainPage):
     def __init__(self):
         self.built = False
 
-        oofGUI.MainPage.__init__(self, name="Interfaces",
-                                 ordering = 105,
-                                 tip = "Create named one-dimensional interfaces.")
+        oofGUI.MainPage.__init__(
+            self, name="Interfaces",
+            ordering = 105,
+            tip = "Create named one-dimensional interfaces.")
 
-        mainbox = gtk.VBox(spacing=2)
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        align.add(centerbox)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            halign=Gtk.Align.CENTER, spacing=2)
+        mainbox.pack_start(centerbox, expand=0, fill=0, padding=0)
 
         #skelwidget is really an mswidget
-        self.skelwidget = whowidget.WhoWidget(whoville.getClass('Microstructure'),
-                                              scope=self)
+        self.skelwidget = whowidget.WhoWidget(
+            whoville.getClass('Microstructure'), scope=self)
         switchboard.requestCallbackMain(self.skelwidget,
                                         self.widgetChanged)
-        label = gtk.Label('Microstructure=')
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.skelwidget.gtk[0], expand=0, fill=0)
+        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=0, fill=0, padding=0)
+        centerbox.pack_start(self.skelwidget.gtk[0],
+                             expand=0, fill=0, padding=0)
         #We might want to include a skeleton in the widget, if an interface
         #is defined in terms of skeleton segments. For now the interface is
         #only associated with a microstructure
@@ -55,17 +59,19 @@ class InterfacePage(oofGUI.MainPage):
 ##        centerbox.pack_start(label, expand=0, fill=0)
 ##        centerbox.pack_start(self.skelwidget.gtk[1], expand=0, fill=0)
 
-        mainpane = gtk.HPaned()
+        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                             wide_handle=True)
         gtklogger.setWidgetName(mainpane, 'Pane')
-        mainbox.pack_start(mainpane, expand=1, fill=1)
+        mainbox.pack_start(mainpane, expand=1, fill=1, padding=0)
 
-        interfacelistframe = gtk.Frame("Interfaces")
+        interfacelistframe = gtk.Frame(label="Interfaces",
+                                       shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(interfacelistframe, 'Interfaces')
         gtklogger.connect_passive(interfacelistframe, 'size-allocate')
-        interfacelistframe.set_shadow_type(gtk.SHADOW_IN)
         mainpane.pack1(interfacelistframe, resize=0, shrink=0)
 
-        interfacelistbox = gtk.VBox()
+        interfacelistbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                    spacing=2)
         interfacelistframe.add(interfacelistbox)
 
         # List of all the named interfaces
@@ -75,65 +81,73 @@ class InterfacePage(oofGUI.MainPage):
             autoselect=0,
             name="InterfaceList"
             )
-        interfacelistbox.pack_start(self.interfacelist.gtk, expand=1, fill=1)
+        interfacelistbox.pack_start(self.interfacelist.gtk,
+                                    expand=1, fill=1, padding=0)
 
-        interfacebuttonbox = gtk.HBox(homogeneous=1, spacing=2)
-        interfacelistbox.pack_start(interfacebuttonbox, expand=0, fill=0)
+        interfacebuttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                                      homogeneous=1, spacing=2)
+        interfacelistbox.pack_start(interfacebuttonbox,
+                                    expand=0, fill=0, padding=0)
 
         # Buttons that actually do stuff.
-        self.newbutton = gtk.Button("New...")
+        self.newbutton = Gtk.Button("New...")
         gtklogger.setWidgetName(self.newbutton, 'New')
         gtklogger.connect(self.newbutton, "clicked", self.newInterfaceCB)
-        tooltips.set_tooltip_text(self.newbutton,
-                             "Construct a new interface in the microstructure and associated meshes.")
-        interfacebuttonbox.pack_start(self.newbutton, expand=1, fill=1)
+        self.newbutton.set_tooltip_text(
+            "Construct a new interface in the microstructure and associated meshes.")
+        interfacebuttonbox.pack_start(self.newbutton,
+                                      expand=1, fill=1, padding=0)
 
-        self.renamebutton = gtk.Button("Rename...")
+        self.renamebutton = Gtk.Button("Rename...")
         gtklogger.setWidgetName(self.renamebutton, 'Rename')
         gtklogger.connect(self.renamebutton, "clicked", self.renameInterfaceCB)
-        tooltips.set_tooltip_text(self.renamebutton,
-                             "Rename the selected interface.")
-        interfacebuttonbox.pack_start(self.renamebutton, expand=1, fill=1)
+        self.renamebutton.set_tooltip_text("Rename the selected interface.")
+        interfacebuttonbox.pack_start(self.renamebutton,
+                                      expand=1, fill=1, padding=0)
 
-        self.deletebutton = gtk.Button("Delete")
+        self.deletebutton = Gtk.Button("Delete")
         gtklogger.setWidgetName(self.deletebutton, 'Delete')
         gtklogger.connect(self.deletebutton, "clicked", self.deleteInterfaceCB)
-        tooltips.set_tooltip_text(self.deletebutton,
-                             "Delete the selected interface from the microstructure and associated meshes.")
-        interfacebuttonbox.pack_start(self.deletebutton, expand=1, fill=1)
+        self.deletebutton.set_tooltip_text(
+            "Delete the selected interface from the microstructure and associated meshes.")
+        interfacebuttonbox.pack_start(self.deletebutton,
+                                      expand=1, fill=1, padding=0)
 
         ########## Adding and removing interface materials
-        materialbuttonbox = gtk.HBox(homogeneous=1, spacing=2)
-        interfacelistbox.pack_start(materialbuttonbox, expand=0, fill=0)
-        self.assignmatbutton = gtk.Button("Assign interface material...")
+        materialbuttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                                    homogeneous=1, spacing=2)
+        interfacelistbox.pack_start(materialbuttonbox,
+                                    expand=0, fill=0, padding=0)
+        self.assignmatbutton = Gtk.Button("Assign interface material...")
         gtklogger.setWidgetName(self.assignmatbutton, 'Assign material')
         gtklogger.connect(self.assignmatbutton, "clicked", self.assignmatCB)
-        tooltips.set_tooltip_text(self.assignmatbutton,
-                             "Assign material to interface.")
-        materialbuttonbox.pack_start(self.assignmatbutton, expand=1, fill=1)
+        self.assignmatbutton.set_tooltip_text("Assign material to interface.")
+        materialbuttonbox.pack_start(self.assignmatbutton,
+                                     expand=1, fill=1, padding=0)
 
-        self.removematbutton = gtk.Button("Remove material")
+        self.removematbutton = Gtk.Button("Remove material")
         gtklogger.setWidgetName(self.removematbutton, 'Remove material')
         gtklogger.connect(self.removematbutton, "clicked", self.removematCB)
-        tooltips.set_tooltip_text(self.removematbutton,
-                             "Remove material from interface.")
-        materialbuttonbox.pack_start(self.removematbutton, expand=1, fill=1)
+        self.removematbutton.set_tooltip_text("Remove material from interface.")
+        materialbuttonbox.pack_start(self.removematbutton,
+                                     expand=1, fill=1, padding=0)
+        
         ####################################
 
-        infoframe = gtk.Frame("Interface details")
-        infoframe.set_shadow_type(gtk.SHADOW_IN)
+        infoframe = gtk.Frame(label="Interface details",
+                              shadow_type=Gtk.ShadowType.IN)
         mainpane.pack2(infoframe, resize=1, shrink=1)
 
-        infowindow = gtk.ScrolledWindow()
+        infowindow = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         gtklogger.logScrollBars(infowindow, "InfoScroll")
-        infowindow.set_shadow_type(gtk.SHADOW_IN)
         infoframe.add(infowindow)
-        infowindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        infowindow.set_policy(Gtk.PolicyType.AUTOMATIC,
+                              Gtk.PolicyType.AUTOMATIC)
         
-        self.infotext = Gtk.TextView(name="fixedfont")
-        self.infotext.set_wrap_mode(gtk.WRAP_WORD)
+        self.infotext = Gtk.TextView(name="fixedfont",
+                                     wrap_mode=Gtk.WrapMode.WORD,
+                                     editable=False)
         gtklogger.setWidgetName(self.infotext, 'status')
-        self.infotext.set_editable(False)
         infowindow.add(self.infotext)
 
         self.built = True
@@ -163,7 +177,8 @@ class InterfacePage(oofGUI.MainPage):
     def sensitize(self):
         debug.mainthreadTest()
         buttons_alive = self.interfacelist.has_selection()
-        self.newbutton.set_sensitive(self.skelwidget.get_value(depth=1) is not None)
+        self.newbutton.set_sensitive(self.skelwidget.get_value(depth=1)
+                                     is not None)
         self.renamebutton.set_sensitive(buttons_alive)
         self.deletebutton.set_sensitive(buttons_alive)
         self.assignmatbutton.set_sensitive(buttons_alive)
@@ -217,7 +232,8 @@ class InterfacePage(oofGUI.MainPage):
                  #material=,
                  interfaces=[self.interfacelist.get_value()])
 
-    def interfacelistCB(self, someobj, interactive): # ChooserListWidget callback
+    def interfacelistCB(self, someobj, interactive):
+        # ChooserListWidget callback
         if self.built and interactive:
             msname = self.skelwidget.get_value(depth=1)
             if msname:
