@@ -25,7 +25,7 @@ class MaterialPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
 
         label = Gtk.Label('material=', halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,row, 1,1)
-        self.materialtext = gtk.Entry(editable=False,
+        self.materialtext = Gtk.Entry(editable=False,
                                       halign=Gtk.Align.FILL, hexpand=True)
         gtklogger.setWidgetName(self.materialtext, 'material')
         self.materialtext.set_width_chars(12)
