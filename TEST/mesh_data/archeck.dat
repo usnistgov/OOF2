@@ -1,0 +1,30 @@
+# Operation: Direct Output
+# Output: Elastic Strain
+# Domain: SinglePoint(point=Point(0.1,0.1))
+# Sampling: DiscretePointSampleSet(show_x=True,show_y=True)
+# Columns:
+# 1. X
+# 2. Y
+# 3. Elastic Strain[xx]
+# 4. Elastic Strain[yy]
+# 5. Elastic Strain[zz]
+# 6. Elastic Strain[yz]
+# 7. Elastic Strain[xz]
+# 8. Elastic Strain[xy]
+# time: 0.0
+0.1, 0.1, 0.01, -0.00454577878583, 0.01, 0.0, 0.0, 6.82229367783e-05
+# Operation: Direct Output
+# Output: Stress
+# Domain: SinglePoint(point=Point(0.1,0.1))
+# Sampling: DiscretePointSampleSet(show_x=True,show_y=True)
+# Columns:
+# 1. X
+# 2. Y
+# 3. Stress[xx]
+# 4. Stress[yy]
+# 5. Stress[zz]
+# 6. Stress[yz]
+# 7. Stress[xz]
+# 8. Stress[xy]
+# time: 0.0
+0.1, 0.1, 0.0136359825289, -2.9316826744e-16, 0.0160906407104, -5.95357170094e-08, -4.28422906661e-06, 3.37288519597e-17

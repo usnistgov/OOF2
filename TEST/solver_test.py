@@ -16,6 +16,7 @@ reference_file = file_utils.reference_file
 file_utils.generate = False
 
 class SaveableMeshTest(unittest.TestCase):
+    # This routine uses the global 'suffix' variable.
     def saveAndLoad(self, filename):
         # Save the mesh in ascii format, and compare with a reference file.
         asciifilename = filename + suffix + "-ascii.dat"
@@ -1866,6 +1867,7 @@ class OOF_ElasticPlaneStressPlaneStrainExact(SaveableMeshTest):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+
 # ElasticTimeSteppers is a dynamic version of
 # ElasticPlaneStressPlaneStrainExact.  We're not comparing to an exact
 # solution here, but are checking that different steppers give the
@@ -3036,6 +3038,7 @@ class OOF_OutOfPlanePeriodicBC(SaveableMeshTest):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+
 # Routine to do regression-type testing on the items in this file.
 # Tests will be run in the order they appear in the list.  This
 # routine will stop after the first failure.
@@ -3050,7 +3053,8 @@ def run_tests():
         OOF_AnisoRotation("Solve"),
         OOF_1x1ElasticDynamic("Static"),
         OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStrain"),
-        OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStress")
+        OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStress"),
+        OOF_ZStrain('Triclinic_ZStrain')
         ]
 
     dynamic_set = [
@@ -3128,9 +3132,17 @@ def run_tests():
     # dynamic_set = [OOF_ThermalDiffusionTSPlaneFlux("CNdirect")]
     # dynamic_set = [OOF_ThermalDiffusionTSPlaneFlux("RK4direct"),
     #                OOF_ThermalDiffusionTimeSteppers("RK4direct")]
-
+    static_set = [OOF_ZStrain('Triclinic_ZStrain')]
+    dynamic_set = []
+    oop_periodic_set = []
+    
     logan = unittest.TextTestRunner()
 
+    # Used in the SaveableMeshTest's 'saveAndLoad' routine.  Not
+    # generally used by static tests, but should be available to them.
+    global suffix
+    suffix = ""
+    
     for t in static_set:
         print >> sys.stderr,  "\n *** Running test: %s\n" % t.id()
         res = logan.run(t)
@@ -3146,7 +3158,7 @@ def run_tests():
     # shortening=0.1 and suffix="-short", and then run with
     # shortening=1.0 and suffix="".
     global shortening
-    global suffix
+
     shortening = 0.1
     suffix = "-short"
     for t in dynamic_set:
