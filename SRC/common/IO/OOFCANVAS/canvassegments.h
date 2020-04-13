@@ -27,6 +27,7 @@ namespace OOFCanvas {
     CanvasSegments(int n);
     virtual const std::string &classname() const;
     void addSegment(double x0, double y0, double x1, double y1);
+    void addSegment(const Coord&, const Coord&);
     void setLineWidth(double);
     virtual const Rectangle &findBoundingBox(double ppu);
     int size() const { return segments.size(); }

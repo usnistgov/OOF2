@@ -12,10 +12,14 @@
 #include "canvascircle.h"
 #include "canvasrectangle.h"
 #include "canvassegment.h"
+#include "canvassegments.h"
 #include "rubberband.h"
 #include "utility.h"
 #include <math.h>
 #include <vector>
+
+// TODO GTK3: The gtk2 version draws rubber bands as two interleaved
+// dashed lines, in two different colors.  That would work here too.
 
 namespace OOFCanvas {
 
@@ -41,6 +45,16 @@ namespace OOFCanvas {
   void RubberBand::stop() {
     layer->clear();
     active_ = false;
+  }
+
+  void LineRubberBand::draw(double x, double y) {
+    RubberBand::draw(x, y);
+    CanvasSegment *seg = new CanvasSegment(startPt, currentPt);
+    seg->setLineWidthInPixels();
+    seg->setLineWidth(lineWidth);
+    seg->setLineColor(color);
+    layer->clear();
+    layer->addItem(seg);
   }
 
   void RectangleRubberBand::draw(double x, double y) {
@@ -90,6 +104,29 @@ namespace OOFCanvas {
     layer->clear();
     layer->addItem(rect);
     layer->addItem(ellipse);
+  }
+
+  SpiderRubberBand::SpiderRubberBand(const std::vector<double> *pts) {
+    // The input pts contains x0, y0, x1, y1, etc. so that we don't
+    // need an extra copy to convert OOF Coords to OOFCanvas Coords.
+    int npts = pts->size()/2;
+    points.reserve(npts);
+    for(int i=0; i<npts; i++) {
+      points.emplace_back((*pts)[2*i], (*pts)[2*i+1]);
+    }
+  }
+
+  void SpiderRubberBand::draw(double x, double y) {
+    RubberBand::draw(x, y);
+    CanvasSegments *segs = new CanvasSegments();
+    segs->setLineWidthInPixels();
+    segs->setLineWidth(lineWidth);
+    segs->setLineColor(color);
+    for(Coord &pt : points) {
+      segs->addSegment(currentPt, pt);
+    }
+    layer->clear();
+    layer->addItem(segs);
   }
   
 };				// namespace OOFCanvas

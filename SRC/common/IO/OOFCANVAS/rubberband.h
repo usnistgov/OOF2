@@ -12,6 +12,8 @@
 #ifndef OOFCANVASRUBBERBAND_H
 #define OOFCANVASRUBBERBAND_H
 
+#include <vector>
+
 namespace OOFCanvas {
 
   class CanvasLayer;
@@ -39,6 +41,12 @@ namespace OOFCanvas {
     void setColor(Color c) { color = c; }
   };
 
+  class LineRubberBand : public RubberBand {
+  public:
+    LineRubberBand() {}
+    virtual void draw(double x, double y);
+  };
+
   class RectangleRubberBand : public RubberBand {
   public:
     RectangleRubberBand() {}
@@ -54,6 +62,14 @@ namespace OOFCanvas {
   class EllipseRubberBand : public RubberBand {
   public:
     EllipseRubberBand() {}
+    virtual void draw(double x, double y);
+  };
+
+  class SpiderRubberBand : public RubberBand {
+  protected:
+    std::vector<Coord> points;
+  public:
+    SpiderRubberBand(const std::vector<double>*);
     virtual void draw(double x, double y);
   };
 

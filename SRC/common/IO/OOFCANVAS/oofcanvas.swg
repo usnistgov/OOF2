@@ -24,6 +24,7 @@ using namespace std;
 
 typedef std::vector<CanvasItem*> CanvasItemList;
 typedef std::vector<std::string> StringVec;
+typedef std::vector<double> DoubleVec;
 %}
 
 %typemap(python, out) PyObject* {
@@ -48,6 +49,51 @@ typedef std::vector<std::string> StringVec;
 %typemap(python, newfree) string* {
   // typemap(python, newfree) string*
   delete $source;
+}
+
+// Convert a std::vector* of std::strings to a list of Python strings
+%typemap(python, out) StringVec* {
+  // typemap(python, out) StringVec*
+  StringVec::size_type sz = $source->size();
+  $target = PyList_New((Py_ssize_t) sz);
+  for(StringVec::size_type i=0; i<sz; i++) {
+    PyObject *str = PyString_FromString((*$source)[i].c_str());
+    PyList_SET_ITEM($target, (Py_ssize_t) i, str); // Steals reference.
+  }
+}
+
+// Convert a Python list or tuple of doubles to a std::vector<double>
+%typemap(python, newfree) StringVec *{
+  // typemap(python, newfree) StringVec*
+  delete $source;
+}
+
+
+%typemap(python, in) DoubleVec* (DoubleVec vec) {
+  if(!PySequence_Check($source)) {
+    PyErr_SetString(
+	    PyExc_TypeError,
+	    "OOFCanvas: Error in vector<double> typemap. Expected a sequence of numbers.");
+    return 0;
+  }
+  DoubleVec::size_type sz = Py_SAFE_DOWNCAST(PySequence_Size($source),
+					     Py_ssize_t, DoubleVec::size_type);
+  if(sz > 0) {
+    vec.resize(sz);
+    for(DoubleVec::size_type i=0; i<sz; i++) {
+      PyObject *x = PySequence_GetItem($source, (Py_ssize_t) i);
+      if(PyFloat_Check(x))
+	vec[i] = PyFloat_AsDouble(x);
+      else if(PyInt_Check(x))
+	vec[i] = (double) PyInt_AsLong(x);
+      else {
+	PyErr_SetString(PyExc_TypeError, "OOFCanvas: Error in vector<double> typemap. Expected a sequence of numbers.");
+	return 0;
+      }
+      Py_XDECREF(x);
+    }
+  }
+  $target = &vec;
 }
 
 class Color {
@@ -286,6 +332,11 @@ public:
   void setColor(Color);
 };
 
+class LineRubberBand : public RubberBand {
+public:
+  LineRubberBand();
+};
+
 class RectangleRubberBand : public RubberBand {
 public:
   RectangleRubberBand();
@@ -299,6 +350,11 @@ public:
 class EllipseRubberBand : public RubberBand {
 public:
   EllipseRubberBand();
+};
+
+class SpiderRubberBand : public RubberBand {
+public:
+  SpiderRubberBand(DoubleVec*);
 };
 
 class CanvasItemListIterator {
@@ -330,22 +386,6 @@ public:
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// Convert a std::vector* of std::strings to a list of Python strings
-%typemap(python, out) StringVec* {
-  // typemap(python, out) StringVec*
-  StringVec::size_type sz = $source->size();
-  $target = PyList_New((Py_ssize_t) sz);
-  for(StringVec::size_type i=0; i<sz; i++) {
-    PyObject *str = PyString_FromString((*$source)[i].c_str());
-    PyList_SET_ITEM($target, (Py_ssize_t) i, str); // Steals reference.
-  }
-}
-
-%typemap(python, newfree) StringVec *{
-  // typemap(python, newfree) StringVec*
-  delete $source;
-}
 
 %new StringVec *list_fonts();
 
