@@ -528,7 +528,7 @@ class RegistrationGUIData:
         debug.mainthreadTest()
         if self.sbcallback:
             switchboard.removeCallback(self.sbcallback)
-        self._box.foreach(Gtk.Object.destroy)
+        self._box.foreach(Gtk.Widget.destroy)
         try:
             self._widget = self.rclfactory. \
                            widgetdict[self.registration.subclass] \
@@ -615,7 +615,7 @@ class RegisteredClassListFactory(RCFBase):
         # Called during initialization and whenever the registry changes.
         debug.mainthreadTest()
         self.registry = registry
-        self.grid.foreach(Gtk.Object.destroy) # clear the grid
+        self.grid.foreach(Gtk.Widget.destroy) # clear the grid
         row = 0
         if self.title:
             self.grid.attach(gtk.Label(self.title), 0,row,1,1)

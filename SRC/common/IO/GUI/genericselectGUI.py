@@ -209,7 +209,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.gfxwindow().setMouseHandler(self)
 
     def deactivate(self):
-        self.gfxwindow().setRubberband(None)
+        self.gfxwindow().setRubberBand(None)
         toolboxGUI.GfxToolbox.deactivate(self)
 
     def close(self):
@@ -452,7 +452,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         debug.mainthreadTest()
         self.selmeth = self.selectionMethodFactory.getRegistration()
         self.selectionMethodFactory.set_defaults()
-        self.gfxwindow().setRubberband(self.selmeth.getRubberBand(self.selmeth))
+        self.gfxwindow().setRubberBand(self.selmeth.getRubberBand(self.selmeth))
         # Start collecting points
         self.points = [primitives.Point(x,y)]
 

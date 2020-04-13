@@ -53,7 +53,7 @@ import types
 class ChooserWidget(object):
     def __init__(self, namelist, callback=None, callbackargs=(),
                  update_callback=None, update_callback_args=(),
-                 helpdict={}, name=None, separator_func=None):
+                 helpdict={}, name=None, separator_func=None, **kwargs):
         debug.mainthreadTest()
         self.name = name
         # separator_func takes a string arg and returns true if that
@@ -71,7 +71,7 @@ class ChooserWidget(object):
 
         self.gtk = Gtk.EventBox()
         gtklogger.setWidgetName(self.gtk, name)
-        frame = Gtk.Frame()
+        frame = Gtk.Frame(**kwargs)
         self.gtk.add(frame)
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, margin=2)
         frame.add(hbox)

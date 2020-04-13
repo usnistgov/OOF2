@@ -139,7 +139,7 @@ class GfxLabelTree:
             self.callback("doubleclick", ltnode,
                           *self.callbackargs, **self.callbackkwargs)
                 
-    def selectFn(self, path):
+    def selectFn(self, selection, model, path, path_currently_selected):
         # gtk callback called *before* a selection is made.  It
         # returns True if the node is selectable.  A node is
         # selectable if the LabelTreeNode stores an object.
@@ -293,7 +293,7 @@ class LabelTreeChooserWidget:
             depth += 1
             widget.set_state(name)
             self.widgets.append(widget)
-            self.gtk.pack_start(widget.gtk, expand=0, fill=0)
+            self.gtk.pack_start(widget.gtk, expand=False, fill=False, padding=0)
             tree = tree[name]
         self.gtk.show_all()
     def chooserCB(self, name, depth):

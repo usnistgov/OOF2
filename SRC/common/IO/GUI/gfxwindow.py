@@ -540,7 +540,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
         self.oofcanvas.setMouseCallback(self.mouseCB, None)
         if self.rubberband:
-            self.oofcanvas.setRubberband(self.rubberband)
+            self.oofcanvas.setRubberBand(self.rubberband)
         self.oofcanvas.show()
 
         self.fix_step_increment()
@@ -1218,10 +1218,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def vScrollPosition(self):
         return self.vScrollbar.get_adjustment().value
 
-    # Rubberband
+    # Rubber Band
     #########################################################
 
-    def setRubberband(self, rubberband):
+    def setRubberBand(self, rubberband):
         self.rubberband = rubberband
         if self.oofcanvas is not None:
             if rubberband is not None:
