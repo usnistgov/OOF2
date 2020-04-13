@@ -21,7 +21,8 @@
 #include "engine/property.h"
 #include "common/pixelgroup.h"
 #include "common/ccolor.h"
-  typedef const std::string MaterialType;
+typedef const std::string MaterialType;
+typedef OOFCanvas::CanvasImage CanvasImage;
 %}
 
 %pragma(python) include="engine/material.spy"
@@ -32,6 +33,8 @@
 %extern "engine/femesh.swg"
 %extern "common/abstractimage.swg"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
+%extern "common/IO/OOFCANVAS/oofcanvas.swg"
+%pragma(python) code="from ooflib.SWIG.common.IO.OOFCANVAS.oofcanvas import CanvasImagePtr"
 
 %typemap(python, out) Property* {
   // typemap(python, out) Property*

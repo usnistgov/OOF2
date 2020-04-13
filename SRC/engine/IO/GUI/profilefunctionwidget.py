@@ -58,8 +58,8 @@ def PFPXT_makeWidget(self, scope=None):
 profilefunction.ProfileFunctionXTParameter.makeWidget = PFPXT_makeWidget
     
 
-# Local utility class -- keeps track of a gtk.HBox, and the contained
-# gtk.Label and Registered Class Factory.  Allows the label to be
+# Local utility class -- keeps track of a Gtk.Box, and the contained
+# Gtk.Label and Registered Class Factory.  Allows the label to be
 # dynamically reset.  Exposes a small part of the enclosed Registered
 # Class Factory interface.
 class LabelledProfileRCF:

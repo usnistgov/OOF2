@@ -69,8 +69,8 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
                 hexpand=True, halign=Gtk.Align.FILL)
             label = Gtk.Label('mapping order', halign=Gtk.Align.END)
             label.set_tooltip_text(
-                'Polynomial order of the functions used to map master elements"
-                " to physical space.')
+                'Polynomial order of the functions used to map master elements'
+                ' to physical space.')
             self.tablelabels.append(label)
             self.table.attach(label, 0,0, 1,1)
             self.table.attach(self.mapchooser.gtk, 1,0, 1,1)
@@ -80,8 +80,8 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
                 hexpand=True, halign=Gtk.Align.FILL)
             label = Gtk.Label('interpolation order:', halign=Gtk.Align.END)
             label.set_tooltip_text(
-                'Polynomial order of the functions used to interpolate"
-                " within elements.')
+                'Polynomial order of the functions used to interpolate'
+                ' within elements.')
             self.tablelabels.append(label)
             self.table.attach(label, 0,1, 1.1)
             self.table.attach(self.funchooser.gtk, 1,1, 1,1)

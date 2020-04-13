@@ -89,7 +89,7 @@ class FieldPage(oofGUI.MainPage):
         gtklogger.connect_passive(hpane, 'notify::position')
 
         ## Field Pane
-        fieldframe = Gtk.Frame(label="Fields", shadow_type=Gtk.ShadowType.IN))
+        fieldframe = Gtk.Frame(label="Fields", shadow_type=Gtk.ShadowType.IN)
         hpane.pack1(fieldframe, resize=True, shrink=False)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         fieldframe.add(vbox)
@@ -121,7 +121,7 @@ class FieldPage(oofGUI.MainPage):
         hpane.pack2(eqnframe, resize=True, shrink=False)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         eqnframe.add(vbox)
-        scroll = gtk.ScrolledWindow()
+        scroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(scroll, "Equations")
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         vbox.pack_start(scroll, expand=True, fill=True, padding=0)
@@ -176,9 +176,8 @@ class FieldPage(oofGUI.MainPage):
 
     def build_fieldTable(self):
         debug.mainthreadTest()
-        self.fieldtable.foreach(gtk.Object.destroy) # clear the table
+        self.fieldtable.foreach(Gtk.Widget.destroy) # clear the table
         self.fieldbuttons = {}
-        self.fieldtable.resize(len(allCompoundFields), 6)
         self.fieldtable.attach(
             Gtk.VSeparator(orientation=Gtk.Orientation.VERTICAL),
             1,0, 1,len(allCompoundFields))
@@ -232,7 +231,7 @@ class FieldPage(oofGUI.MainPage):
             verb = "Undefine"
         else:
             verb = "Define"
-        tooltips.set_tooltip_text(button,
+        button.set_tooltip_text(
             "%s the %s field on the mesh.  Only defined fields have values."
             % (verb, field.name()))
 
@@ -273,7 +272,7 @@ class FieldPage(oofGUI.MainPage):
             verb = "Do not constrain"
         else:
             verb = "Constrain"
-        tooltips.set_tooltip_text(button,
+        button.set_tooltip_text(
             "%s the derivatives of the %s field to lie in the x-y plane."
             % (verb, field.name()))
 
@@ -304,16 +303,15 @@ class FieldPage(oofGUI.MainPage):
 
     def build_eqnTable(self):
         debug.mainthreadTest()
-        self.eqntable.foreach(gtk.Object.destroy) # clear the table
+        self.eqntable.foreach(Gtk.Widget.destroy) # clear the table
         self.eqnbuttons = {}
         eqlist = equation.allEquations
-        self.eqntable.resize(len(eqlist), 3)
         row=0
         for eqn in eqlist:
             label = Gtk.Label(utils.underscore2space(eqn.name()),
                               halign=Gtk.Align.END)
             self.eqntable.attach(label, 0,row, 1,1)
-            button = gtk.CheckButton('active')
+            button = Gtk.CheckButton('active')
             gtklogger.setWidgetName(button, eqn.name() + " active")
             signal = gtklogger.connect(button, 'clicked', self.eqnButtonCB, eqn)
             self.eqnbuttons[(eqn.name(), "active")] = ButtonSignal(button,

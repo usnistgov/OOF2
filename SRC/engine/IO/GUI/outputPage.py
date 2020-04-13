@@ -39,13 +39,13 @@ class OutputPage(oofGUI.MainPage):
         mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
-        centerbox = gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3,
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3,
                             halign=Gtk.Align.CENTER)
-        mainbox.pack_start(centerbox, expand=False, fill=False)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               scope=self)
         switchboard.requestCallbackMain(self.meshwidget, self.meshCB)
-        label = gtk.Label("Microstructure=", halign=Gtk.Align.END)
+        label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[0],
                              expand=False, fill=False, padding=0)
@@ -61,15 +61,15 @@ class OutputPage(oofGUI.MainPage):
                              expand=False, fill=False, padding=0)
 
         mainbox.pack_start(
-            gtk.Label("Skip this page if you're only solving static problems.",
+            Gtk.Label("Skip this page if you're only solving static problems.",
                       halign=Gtk.Align.CENTER),
             expand=False, fill=False, padding=0)
 
         # The four columns (enable, output, schedule, and destination)
-        # are each displayed in their own gtk.TreeView, each of which
-        # is in a pane of a gtk.HPaned.  It would have been better to
-        # put each column in a different gtk.TreeViewColumn in the
-        # same gtk.TreeView, but that would have made it hard to put
+        # are each displayed in their own Gtk.TreeView, each of which
+        # is in a pane of a Gtk.Paned.  It would have been better to
+        # put each column in a different Gtk.TreeViewColumn in the
+        # same Gtk.TreeView, but that would have made it hard to put
         # buttons at the bottom of each column.
 
         hpane0 = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
@@ -101,8 +101,8 @@ class OutputPage(oofGUI.MainPage):
         gtklogger.setWidgetName(self.enableView, "enable")
         vbox.pack_start(self.enableView, expand=True, fill=True, padding=0)
         self.enablecell = Gtk.CellRendererToggle()
-        enablecol = Gtk.TreeViewColumn("", resizable=False)
-        #enablecol.set_resizable(False)
+        enablecol = Gtk.TreeViewColumn("")
+        enablecol.set_resizable(False)
         enablecol.pack_start(self.enablecell, expand=False)
         enablecol.set_cell_data_func(self.enablecell, self.renderEnableCell)
         self.enableView.append_column(enablecol)
@@ -212,7 +212,8 @@ class OutputPage(oofGUI.MainPage):
         self.schedFrame.add(scheduleVBox)
         self.schedView = Gtk.TreeView(self.outputList)
         gtklogger.setWidgetName(self.schedView, "list")
-        scheduleVBox.pack_start(self.schedView, expand=True, fill=True)
+        scheduleVBox.pack_start(self.schedView,
+                                expand=True, fill=True, padding=0)
         schedHScroll = Gtk.Scrollbar(orientation=Gtk.Orientation.HORIZONTAL)
         scheduleVBox.pack_start(schedHScroll,
                                 expand=False, fill=False, padding=0)
@@ -225,7 +226,7 @@ class OutputPage(oofGUI.MainPage):
         gtklogger.connect(self.schedView, 'row-activated',
                           self.schedDoubleClickCB)
         # Buttons for the Schedule pane.  
-        self.schedBBox = gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+        self.schedBBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
                                  spacing=2, homogeneous=True)
         scheduleVBox.pack_start(self.schedBBox,
                                 expand=False, fill=False, padding=0)
@@ -282,7 +283,7 @@ class OutputPage(oofGUI.MainPage):
         gtklogger.setWidgetName(self.destView, "list")
         destScroll.add(self.destView)
         self.destcell = Gtk.CellRendererText()
-        destcol = gGk.TreeViewColumn("Destination")
+        destcol = Gtk.TreeViewColumn("Destination")
         destcol.pack_start(self.destcell, expand=True)
         destcol.set_cell_data_func(self.destcell, self.renderDestinationCB)
         self.destView.append_column(destcol)
@@ -388,11 +389,12 @@ class OutputPage(oofGUI.MainPage):
         vsize = self.destFrame.get_allocation().height
         # vsize = self.destFrame.size_request()[1] # gtk2 way is now deprecated
 
-        self.outputFrame.set_size_request(self.outputBBox.size_request()[0],
-                                          vsize)
-        self.schedFrame.set_size_request(self.schedBBox.size_request()[0],
-                                         vsize)
-        self.destFrame.set_size_request(self.destBBox.size_request()[0], -1)
+        self.outputFrame.set_size_request(
+            self.outputBBox.get_allocation().width, vsize)
+        self.schedFrame.set_size_request(
+            self.schedBBox.get_allocation().width, vsize)
+        self.destFrame.set_size_request(
+            self.destBBox.get_allocation().width, -1)
         self.enableFrame.set_size_request(-1, vsize)
 
         # make all button boxes the same height

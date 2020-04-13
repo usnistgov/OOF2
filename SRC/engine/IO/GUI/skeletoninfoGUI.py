@@ -237,7 +237,7 @@ class ElementMode(SkeletonInfoMode):
         self.group = self.entrymaster(1, 8)
         gtklogger.setWidgetName(self.group, "Group")
 
-        self.labelmaster(0, 9), 'material=')
+        self.labelmaster(0, 9, 'material=')
         self.material = self.entrymaster((1,2), (9,10))
         gtklogger.setWidgetName(self.material, "Material")
 
@@ -552,7 +552,7 @@ modes = [ElementMode, NodeMode, SegmentMode]
 class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def __init__(self, skeletoninfo):
         toolboxGUI.GfxToolbox.__init__(self, "Skeleton Info", skeletoninfo)
-        self.mainbox = gtk.VBox()
+        self.mainbox = gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(self.mainbox)
 
         self.modeclass = ElementMode

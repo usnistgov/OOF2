@@ -20,8 +20,6 @@
 #include "engine/orientationimage.h"
 #include "engine/property/orientation/orientation.h"
 
-using namespace OOFCanvas;
-
 OrientationImage::OrientationImage(CMicrostructure *microstructure,
 				   const Angle2Color *colorscheme,
 				   const CColor *noMaterial,
@@ -45,14 +43,15 @@ const ICoord &OrientationImage::sizeInPixels() const {
   return microstructure->sizeInPixels();
 }
 
-CanvasImage *OrientationImage::makeCanvasImage(const Coord *position,
+OOFCanvas::CanvasImage *OrientationImage::makeCanvasImage(const Coord *position,
 					       const Coord *dispsize)
   const
 {
-  CanvasImage *img = CanvasImage::newBlank((*position)[0], (*position)[1],
-					   sizeInPixels()[0], sizeInPixels()[1],
-					   (*dispsize)[0], (*dispsize)[1],
-					   0.0, 0.0, 0.0. 1.0);
+  OOFCanvas::CanvasImage *img = OOFCanvas::CanvasImage::newBlankImage(
+					 (*position)[0], (*position)[1],
+					 sizeInPixels()[0], sizeInPixels()[1],
+					 (*dispsize)[0], (*dispsize)[1],
+					 0.0, 0.0, 0.0, 1.0);
   const Array<int> &pxls = *microstructure->getCategoryMapRO();
   for(Array<int>::const_iterator i=pxls.begin(); i!=pxls.end(); ++i) {
     ICoord where = i.coord();

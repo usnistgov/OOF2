@@ -46,8 +46,8 @@ class MaterialsPage(oofGUI.MainPage):
         oofGUI.MainPage.__init__(self, name="Materials", ordering=100,
                                  tip='Define Materials')
         # Pane has Poperties on left, Materials on right.
-        pane = Gtk.HPaned(orientation=Gtk.Orientation.HORIZONTAL,
-                          wide_handle=True)
+        pane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                         wide_handle=True)
         gtklogger.setWidgetName(pane, 'Pane')
         self.gtk.add(pane)
 
@@ -326,7 +326,7 @@ class MaterialPane:
         self.newmaterial.set_tooltip_text('Create a new Material.')
         gtklogger.connect(self.newmaterial, "clicked", self.on_newmaterial)
 
-        self.renamematerial = gtkutils.StockButton('document-edit-symbolic'
+        self.renamematerial = gtkutils.StockButton('document-edit-symbolic',
                                                    'Rename...')
         gtklogger.setWidgetName(self.renamematerial,'Rename')
         buttonbox.pack_start(self.renamematerial,
@@ -390,28 +390,13 @@ class MaterialPane:
         assignframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, border_width=3)
         vbox.pack_start(assignframe, expand=False, fill=False, padding=0)
 
-        ## NB surface-mode flag is operative here.
-        # if runtimeflags.surface_mode:
-        #     inner2vbox_pair=gtk.VBox()
-        # align = gtk.Alignment(xalign=0.5)
-        # inner2hbox_both=gtk.HBox()
-        # inner2vbox = gtk.VBox()
-        # if runtimeflags.surface_mode:
-        #     assignframe.add(inner2hbox_both)
-        # else:
-        #     assignframe.add(align) 
-        #     align.add(inner2hbox_both) 
-        # inner2hbox_both.pack_start(inner2vbox)
-        # if runtimeflags.surface_mode:
-        #     inner2hbox_both.pack_start(inner2vbox_pair)
-
         # The buttons for assigning and removing materials from pixels
         # are in a Grid because if we ever get around to finishing the
         # interface materials, the buttons for adding and removing
         # material from interfaces will appear in the second column of
         # the grid.
 
-        assigngrid = gtk.Grid(halign=Gtk.Align.CENTER)
+        assigngrid = Gtk.Grid(halign=Gtk.Align.CENTER)
         assignframe.add(assigngrid)
         
         # Assign materials to pixels
@@ -420,8 +405,8 @@ class MaterialPane:
                                        border_width=2)
         gtklogger.setWidgetName(self.assignbutton, "Assign")
         self.assignbutton.set_tooltip_text(
-            'Assign the currently selected Material to pixels"
-            " in a Microstructure.')
+            'Assign the currently selected Material to pixels'
+            ' in a Microstructure.')
         gtklogger.connect(self.assignbutton, 'clicked', self.on_assignment)
         assigngrid.attach(self.assignbutton, 0,0, 1,1)
         
@@ -444,8 +429,8 @@ class MaterialPane:
             gtklogger.setWidgetName(self.assigninterfacebutton,
                                     "AssignInterface")
             self.assigninterfacebutton.set_tooltip_text(
-                'Assign the currently selected Material to an interface"
-                " in a Microstructure.')
+                'Assign the currently selected Material to an interface'
+                ' in a Microstructure.')
             gtklogger.connect(self.assigninterfacebutton, 'clicked',
                               self.on_interface_assign)
         

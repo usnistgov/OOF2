@@ -40,15 +40,14 @@ class BoundaryCondPage(oofGUI.MainPage):
         )
         mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
-
-        centerbox = gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3,
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3,
                             halign=Gtk.Align.CENTER)
-        mainbox.pack_start(centerbox, expand=False, fill=False)
-        align.add(centerbox)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
+
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               callback=self.meshCB, scope=self)
         label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
-        centerbox.pack_start(label, expand=False, fill=False)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[0],
                              expand=False, fill=False, padding=0)
         label = Gtk.Label("Skeleton=", halign=Gtk.Align.END)
@@ -375,10 +374,10 @@ class BCList:
         self.parent = parent # Reference to the enclosing BoundaryCondPage.
         self.current_mesh = mesh
         debug.mainthreadTest()
-        self.bcliststore = gtk.ListStore(GObject.TYPE_STRING,
+        self.bcliststore = Gtk.ListStore(GObject.TYPE_STRING,
                                          GObject.TYPE_PYOBJECT)
-        self.sortedlist = gtk.TreeModelSort(self.bcliststore)
-        self.gtk = gtk.TreeView(self.sortedlist)
+        self.sortedlist = Gtk.TreeModelSort(self.bcliststore)
+        self.gtk = Gtk.TreeView(self.sortedlist)
         gtklogger.setWidgetName(self.gtk, "BCList")
 
         # Enable/disable column
@@ -410,7 +409,7 @@ class BCList:
         bcnamecol.set_attributes(bcnamecell, text=0)
         self.gtk.append_column(bcnamecol)
         gtklogger.adoptGObject(bcnamecol, self.gtk,
-                               access_method=gtk.TreeView.get_column,
+                               access_method=Gtk.TreeView.get_column,
                                access_args=(1,))
         gtklogger.connect_passive(bcnamecol, 'clicked')
         bcnamecol.set_sort_column_id(self.sortByNameID)
@@ -423,7 +422,7 @@ class BCList:
         bdycol.set_cell_data_func(bdycell, self.renderBdy)
         self.gtk.append_column(bdycol)
         gtklogger.adoptGObject(bdycol, self.gtk,
-                               access_method=gtk.TreeView.get_column,
+                               access_method=Gtk.TreeView.get_column,
                                access_args=(2,))
         gtklogger.connect_passive(bdycol, 'clicked')
         bdycol.set_sort_column_id(self.sortByBdyID)
@@ -448,7 +447,7 @@ class BCList:
         # Set initial sorting method
         self.lastsortcol = bcnamecol
         self.sortedlist.set_sort_column_id(self.sortByNameID, 
-                                           gtk.SORT_ASCENDING)
+                                           Gtk.SortType.ASCENDING)
 
     def renderEnableCell(self, column, cell_renderer, model, iter):
         debug.mainthreadTest()

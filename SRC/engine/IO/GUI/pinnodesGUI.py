@@ -18,7 +18,6 @@ from ooflib.common.IO import reporter
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
-from ooflib.common.IO.GUI import tooltips
 from ooflib.engine.IO import pinnodes
 
 from gi.repository import Gtk

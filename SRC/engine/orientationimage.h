@@ -21,6 +21,9 @@ class Angle2Color;
 class CMicrostructure;
 class Coord;
 class ICoord;
+namespace OOFCanvas {
+  class CanvasImage;
+};
 
 // Not an OrientationMap, but just a way of displaying the Orientation
 // of the Materials assigned to pixels in a Microstructure.
@@ -36,7 +39,8 @@ public:
   virtual ~OrientationImage();
   virtual const Coord &size() const;
   virtual const ICoord &sizeInPixels() const;
-  virtual CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
+  virtual OOFCanvas::CanvasImage *makeCanvasImage(const Coord*, const Coord*)
+    const;
 };
 
 #endif // ORIENTATIONIMAGE_H

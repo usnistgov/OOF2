@@ -49,6 +49,10 @@ class Property;
 class PropertyOutput;
 class SmallSystem;
 
+namespace OOFCanvas {
+  class CanvasImage;
+};
+
 //-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//
 
 // MaterialPropertyRegistration associates a Property and a tag, such
@@ -278,7 +282,7 @@ public:
   virtual ~MaterialImage() {}
   virtual const Coord &size() const;
   virtual const ICoord &sizeInPixels() const;
-  virtual CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
+  virtual OOFCanvas::CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
 };
 
 #endif

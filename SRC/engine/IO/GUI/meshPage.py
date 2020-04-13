@@ -51,7 +51,7 @@ class MeshPage(oofGUI.MainPage):
 
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3,
                             halign=Gtk.Align.CENTER)
-        mainbox.pack_start(centerbox, expand=False, fill=False)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               scope=self)
         label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
@@ -154,7 +154,7 @@ class MeshPage(oofGUI.MainPage):
         self.subprobNew.set_tooltip_text("Create a new subproblem.")
         subpbuttons.attach(self.subprobNew, 0,0, 1,1)
 
-        self.subprobRename = gtk.Button("Rename...", hexpand=True)
+        self.subprobRename = Gtk.Button("Rename...", hexpand=True)
         gtklogger.setWidgetName(self.subprobRename, "Rename")
         gtklogger.connect(self.subprobRename, "clicked", self.subprobRenameCB)
         self.subprobRename.set_tooltip_text("Rename the selected subproblem")

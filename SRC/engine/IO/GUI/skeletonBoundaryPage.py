@@ -38,7 +38,7 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
 
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                             halign=Gtk.Align.CENTER, spacing=2)
-        mainbox.pack_start(align, expand=False, fill=False, padding=0)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         
         self.skelwidget = whowidget.WhoWidget(whoville.getClass('Skeleton'),
                                               scope=self)

@@ -39,9 +39,6 @@
 #include <vector>
 #include <map>
 
-using namespace OOFCanvas;
-
-
 //Interface branch
 Material::Material(const std::string &nm,
 		   const std::string &materialtype)
@@ -898,11 +895,11 @@ const ICoord &MaterialImage::sizeInPixels() const {
   return microstructure->sizeInPixels();
 }
 
-CanvasImage *MaterialImage::makeCanvasImage(const Coord *position,
-					    const Coord *dispsize)
+OOFCanvas::CanvasImage *MaterialImage::makeCanvasImage(const Coord *position,
+						       const Coord *dispsize)
   const
 {
-  CanvasImage *img = new CanvasImage::newBlank(
+  OOFCanvas::CanvasImage *img = OOFCanvas::CanvasImage::newBlankImage(
 				       (*position)[0], (*position)[1],
 				       sizeInPixels()[0], sizeInPixels()[1],
 				       (*dispsize)[0], (*dispsize)[1],

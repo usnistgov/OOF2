@@ -14,10 +14,10 @@ from ooflib.common import utils
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import whoville
 from ooflib.common.IO.GUI import gtklogger
+from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import pinnodesmodifier
 from ooflib.engine import skeletoncontext
@@ -34,10 +34,10 @@ class PinNodesPage(oofGUI.MainPage):
 
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                             halign=Gtk.Align.CENTER, spacing=3)
-        mainbox.pack_start(centerbox, expand=False, fill=False)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.skelwidget = whowidget.WhoWidget(whoville.getClass('Skeleton'),
                                               callback=self.select_skeletonCB)
-        label = gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[0],
                              expand=False, fill=False, padding=0)
@@ -67,7 +67,8 @@ class PinNodesPage(oofGUI.MainPage):
         mainpane.pack1(pnsframe, resize=True, shrink=False)
         
         # Pin nodes method
-        modframe = Gtk.Frame("Pin Nodes Methods", shadow_type=Gtk.ShadowType.IN)
+        modframe = Gtk.Frame(label="Pin Nodes Methods",
+                             shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(modframe, 'Modify')
         # box for "methods" and "buttons"
         modbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)

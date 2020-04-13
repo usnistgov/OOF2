@@ -87,8 +87,8 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(self.mainbox)
 
-        self.skelwidgetbox = gtk.HBox(orientation=Gtk.Orientation.HORIZONTAL,
-                                      spacing=2, halign=Gtk.Align.CENTER)
+        self.skelwidgetbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                                     spacing=2, halign=Gtk.Align.CENTER)
         self.mainbox.pack_start(self.skelwidgetbox,
                                 expand=False, fill=False, padding=0)
         self.skelwidget = whowidget.WhoWidget(skeletoncontext.skeletonContexts,
@@ -105,7 +105,7 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         self.skelwidgetbox.pack_start(self.skelwidget.gtk[1],
                                       expand=False, fill=False, padding=0)
 
-        self.modebox = gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+        self.modebox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                                spacing=3, halign=Gtk.Align.CENTER)
         gtklogger.setWidgetName(self.modebox, 'Mode')
         self.mainbox.pack_start(self.modebox,
@@ -129,7 +129,7 @@ class SkeletonSelectionPage(oofGUI.MainPage):
                 self.activemode = modedata
             gtklogger.setWidgetName(button, name)
             modedata.button = button
-            tooltips.set_tooltip_text(button,"Select " + name + "s")
+            button.set_tooltip_text("Select " + name + "s")
             self.modebox.pack_start(button, expand=False, fill=False, padding=0)
             gtklogger.connect(button, 'clicked', self.pickerCB, modedata)
             switchboard.requestCallbackMain(
@@ -340,7 +340,8 @@ class GroupGUI:
 
         self.new_button = Gtk.Button("New...")
         gtklogger.setWidgetName(self.new_button, 'New')
-        lbuttons.pack_start(self.new_button, fill=False, expand=False)
+        lbuttons.pack_start(self.new_button,
+                            fill=False, expand=False, padding=0)
         gtklogger.connect(self.new_button, "clicked", self.newGroupCB)
         self.new_button.set_tooltip_text("Create a new empty group.")
 
@@ -437,7 +438,7 @@ class GroupGUI:
             " OOF Messages window.")
         
         ## TODO: Hide this frame when mode.materialsallowed is False.
-        matframe = Gtk.Frame("Material", shadow_type=Gtk.ShadowType.IN)
+        matframe = Gtk.Frame(label="Material", shadow_type=Gtk.ShadowType.IN)
         rbuttons.pack_start(matframe, expand=False, fill=False, padding=2)
         matbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         matframe.add(matbox)

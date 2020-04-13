@@ -116,7 +116,8 @@ class SolverPage(oofGUI.MainPage):
 
         # Order number in the first column
         ordercell = Gtk.CellRendererText()
-        ordercol = Gtk.TreeViewColumn("Order", resizable=False)
+        ordercol = Gtk.TreeViewColumn("Order")
+        ordercol.set_resizable(False)
         ordercol.pack_start(ordercell, expand=False)
         ordercol.set_cell_data_func(ordercell, self.renderSubproblemOrder)
         self.subpListView.append_column(ordercol)
@@ -132,13 +133,15 @@ class SolverPage(oofGUI.MainPage):
         gtklogger.connect(solvecell, 'toggled', self.solvecellCB)
         # Subproblem name in the third column
         namecell = Gtk.CellRendererText()
-        namecol = Gtk.TreeViewColumn("Subproblem", resizable=True)
+        namecol = Gtk.TreeViewColumn("Subproblem")
+        namecol.set_resizable(True)
         namecol.pack_start(namecell, expand=True)
         namecol.set_cell_data_func(namecell, self.renderSubproblemName)
         self.subpListView.append_column(namecol)
         # Solver in the fourth column
         solvercell = Gtk.CellRendererText()
-        solvercol = Gtk.TreeViewColumn("Solver", resizable=True)
+        solvercol = Gtk.TreeViewColumn("Solver")
+        solvercol.set_resizable(True)
         solvercol.pack_start(solvercell, expand=True)
         solvercol.set_cell_data_func(solvercell, self.renderSubproblemSolver)
         self.subpListView.append_column(solvercol)
@@ -185,7 +188,7 @@ class SolverPage(oofGUI.MainPage):
                           self.removeSolverCB)
         subpbbox.pack_start(self.removeSolverButton,
                             expand=False, fill=True, padding=0)
-        (self.removeSolverButton.set_tooltip_text
+        self.removeSolverButton.set_tooltip_text(
             "Delete the solver from the selected subproblem.")
         # Remove all solvers
         self.removeAllSolversButton = gtkutils.StockButton(
@@ -268,7 +271,7 @@ class SolverPage(oofGUI.MainPage):
         fieldnamecol.set_cell_data_func(fieldnamecell, self.renderFieldName)
 
         fieldinitcell = Gtk.CellRendererText()
-        fieldinitcol = gGk.TreeViewColumn('Initializer')
+        fieldinitcol = Gtk.TreeViewColumn('Initializer')
         self.initview.append_column(fieldinitcol)
         fieldinitcol.pack_start(fieldinitcell, expand=True)
         fieldinitcol.set_cell_data_func(fieldinitcell, self.renderFieldInit)
@@ -338,7 +341,8 @@ class SolverPage(oofGUI.MainPage):
         gtklogger.setWidgetName(self.applyinitattimebutton, "ApplyAt")
         gtklogger.connect(self.applyinitattimebutton, 'clicked',
                           self.applyinitatCB)
-        bbox.pack_start(self.applyinitattimebutton, expand=False, fill=True)
+        bbox.pack_start(self.applyinitattimebutton,
+                        expand=False, fill=True, padding=0)
         self.applyinitattimebutton.set_tooltip_text(
             "Reset the current time and apply all field initializers.")
 

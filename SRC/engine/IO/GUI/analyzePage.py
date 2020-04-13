@@ -145,7 +145,7 @@ class DataOperationFactory(regclassfactory.RegisteredClassFactory):
         
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-pshrink = False # can the HPaneds shrink below the size of their contents?
+pshrink = False # can the Paneds shrink below the size of their contents?
 
 class AnalyzePage(BaseAnalysisPage):
     def __init__(self):
@@ -161,7 +161,7 @@ class AnalyzePage(BaseAnalysisPage):
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                             halign=Gtk.Align.CENTER,
                             spacing=2)
-        mainbox.pack_start(centerbox, expand=False, fill=False)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               scope=self)
         # The mesh widget callback is not required, because the field
@@ -204,7 +204,7 @@ class AnalyzePage(BaseAnalysisPage):
         gtklogger.setWidgetName(self.btmPane, 'bottom')
         mainvpane.pack2(self.btmPane, resize=True, shrink=False)
         # The four panes (Output, Domain, Operation, and Sampling) are
-        # contained in the top and bottom HPaneds.  The dividers
+        # contained in the top and bottom Paneds.  The dividers
         # between the sub panes are synchronized with each other.
         # Since Paneds don't have a dedicated signal indicating that
         # their dividers have been moved, we have to use the the
@@ -222,7 +222,7 @@ class AnalyzePage(BaseAnalysisPage):
 
         self.outputframe = Gtk.Frame(label="Output",
                                      shadow_type=Gtk.ShadowType.IN)
-        output_scroll = gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
+        output_scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         gtklogger.logScrollBars(output_scroll, "Output")
         output_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         self.outputframe.add(output_scroll)
@@ -234,11 +234,11 @@ class AnalyzePage(BaseAnalysisPage):
 
         self.scalar_output_button = Gtk.RadioButton("Scalar")
         gtklogger.setWidgetName(self.scalar_output_button, 'ScalarMode')
-        self.aggregate_output_button = gtk.RadioButton(
+        self.aggregate_output_button = Gtk.RadioButton(
             "Aggregate", group=self.scalar_output_button)
         gtklogger.setWidgetName(self.aggregate_output_button, 'AggregateMode')
         output_type_selector_box.pack_start(self.scalar_output_button,
-                                            expand=False, fill=False. padding=0)
+                                            expand=False, fill=False, padding=0)
         output_type_selector_box.pack_start(self.aggregate_output_button,
                                             expand=False, fill=False, padding=0)
         self.scalarSignal = gtklogger.connect(self.scalar_output_button,
@@ -267,12 +267,12 @@ class AnalyzePage(BaseAnalysisPage):
         self.aggregate_output_obj.gtk.hide()
         
         output_scroll.add_with_viewport(output_box)
-        self.topPane.pack1(self.outputframe, resize=1, shrink=pshrink)
+        self.topPane.pack1(self.outputframe, resize=True, shrink=pshrink)
 
         # Operation
         self.operationframe = Gtk.Frame(label="Operation",
                                         shadow_type=Gtk.ShadowType.IN)
-        op_scroll = Gtk.ScrolledWindow(shadowtype=Gtk.Shadowtype.IN)
+        op_scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         gtklogger.logScrollBars(op_scroll, "Operation")
         op_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         self.op_obj = DataOperationFactory(self,
@@ -284,7 +284,7 @@ class AnalyzePage(BaseAnalysisPage):
         operation_box.pack_start(self.op_obj.gtk,
                                  expand=False, fill=False, padding=0)
         op_scroll.add(operation_box)
-        self.btmPane.pack1(self.operationframe, resize=1, shrink=pshrink)
+        self.btmPane.pack1(self.operationframe, resize=True, shrink=pshrink)
 
         # Domain
         self.domainframe = Gtk.Frame(label="Domain",
@@ -297,8 +297,7 @@ class AnalyzePage(BaseAnalysisPage):
             callback = self.newDomainCB)
         self.domainframe.add(dom_scroll)
         dom_scroll.add(self.domain_obj.gtk)
-        self.topPane.pack2(self.domainframe,
-                           resize=1, shrink=pshrink, padding=0)
+        self.topPane.pack2(self.domainframe, resize=True, shrink=pshrink)
         
         # Sampling.  The SampleRCF class uses the WidgetScope
         # mechanism to find the Operation and Domain widgets, so that
@@ -312,8 +311,7 @@ class AnalyzePage(BaseAnalysisPage):
             scope=self, name="Sampling", callback=self.newSampleCB)
         self.sampleframe.add(sam_scroll)
         sam_scroll.add(self.sample_obj.gtk)
-        self.btmPane.pack2(self.sampleframe,
-                           resize=1, shrink=pshrink, padding=0)
+        self.btmPane.pack2(self.sampleframe, resize=True, shrink=pshrink)
 
         self.buildBottomRow(mainbox)
         
@@ -373,7 +371,7 @@ class AnalyzePage(BaseAnalysisPage):
         
     def installed(self):
         self.sensitize_widgets()
-#         # Compute an initial width for the HPanes that is big enough
+#         # Compute an initial width for the Paneds that is big enough
 #         # for the separators to be synchronized without shrinking the
 #         # subpanes.
 #         outputwidth = self.outputframe.size_request()[0]

@@ -112,7 +112,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
         self.gfxWindowChooser = chooser.ChooserWidget([],
                                                       callback=self.chooserCB,
                                                       name='GfxWindow')
-        self.table.attach(self.gfxWindowChooser.gtk, 1,0 1,,1)
+        self.table.attach(self.gfxWindowChooser.gtk, 1,0, 1,1)
 
         label = Gtk.Label("Mesh:", halign=Gtk.Align.END)
         self.table.attach(label, 0,1, 1,1)

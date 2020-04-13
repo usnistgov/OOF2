@@ -13,7 +13,7 @@ from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.IO.GUI import rubberband
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import primitives
@@ -359,14 +359,13 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                     self.shapeenergy0 = 0.0
                     for element in self.nbrelements:
                         if not element.illegal():
-                            self.homogeneity0 += element.homogeneity(skel.MS, False)
+                            self.homogeneity0 += element.homogeneity(skel.MS,
+                                                                     False)
                             self.shapeenergy0 += element.energyShape()
-                    # Create rubberband
+                    # Create rubber band
                     points = [n.position() for n in self.nbrnodes]
-                    rb = mainthread.runBlock(rubberband.SpiderRubberBand,
-                                             (points,))
-                    mainthread.runBlock(
-                        self.gfxwindow().setRubberband, (rb,) )
+                    self.gfxwindow().setRubberBand(
+                        oofcanvas.SpiderRubberBand(points))
             gtklogger.checkpoint("Move Node toolbox down event")
         finally:
             self.mouselock.release()
@@ -454,9 +453,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                                 origin=self.downpt,
                                 destination=point)
                         finally:
-                            rbb = mainthread.runBlock(rubberband.NoRubberBand)
-                            mainthread.runBlock(self.gfxwindow().setRubberband,
-                                                (rbb,) )
+                            self.gfxwindow().setRubberBand(None)
                             self.nbrnodes = []
 
             elif self.mode == "Keyboard":

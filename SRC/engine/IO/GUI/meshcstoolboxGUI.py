@@ -12,7 +12,7 @@
 # clicks, draws paths, etc.
 
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.IO.GUI import rubberband
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import utils
@@ -144,8 +144,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         self.gobutton = gtkutils.StockButton("system-run-symbolic", "Go!")
         gtklogger.setWidgetName(self.gobutton, 'Go')
         hbox.pack_start(self.gobutton,expand=True, fill=True, padding=2)
-        tooltips.set_tooltip_text(self.gobutton,
-            "Send the output to the destination.")
+        gobutton.set_tooltip_text("Send the output to the destination.")
         gtklogger.connect(self.gobutton, "clicked", self.goCB)
         
         self.startpoint = None
@@ -172,7 +171,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         ## TODO: Is this correct?  Why not GfxToolbox.activate(self)?
         self.toolbox.activate()
         self.gfxwindow().setMouseHandler(self)
-        self.gfxwindow().setRubberband(rubberband.LineRubberBand())
+        self.gfxwindow().setRubberBand(oofcanvas.LineRubberBand())
         self.sb_callbacks = [
             switchboard.requestCallbackMain( (self.gfxwindow(),
                                               "layers changed"),
@@ -192,7 +191,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         debug.mainthreadTest()
         ## TODO: Should this call GfxToolbox.deactivate(self)?
         self.gfxwindow().removeMouseHandler()
-        self.gfxwindow().setRubberband(rubberband.NoRubberBand())
+        self.gfxwindow().setRubberBand(None)
         for s in self.sb_callbacks:
             switchboard.removeCallback(s)
         self.sb_callbacks = []

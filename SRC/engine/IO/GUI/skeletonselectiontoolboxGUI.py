@@ -10,7 +10,7 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.IO.GUI import rubberband
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import debug
 from ooflib.common.IO.GUI import genericselectGUI
 from ooflib.common.IO.GUI import gtklogger
@@ -180,20 +180,19 @@ skeletonselmodebase.firstMode().tbclass.makeGUI = _makeGUI
 ## the class, and so the function needs a 'self' argument.
 
 def _NoRubberBand(self, reg):
-    debug.mainthreadTest()
-    return rubberband.NoRubberBand()
+    return None
 
 skeletonselectionmethod.SkeletonSelectionRegistration.getRubberBand = \
     _NoRubberBand
 
 def _RectangleSelectorRB(reg):
-    return rubberband.RectangleRubberBand()
+    return oofcanvas.RectangleRubberBand()
 
 def _CircleSelectorRB(reg):
-    return rubberband.CircleRubberBand()
+    return oofcanvas.CircleRubberBand()
 
 def _EllipseSelectorRB(reg):
-    return rubberband.EllipseRubberBand()
+    return oofcanvas.EllipseRubberBand()
 
 skeletonselectionmethod.rectangleNodeSelector.getRubberBand = \
     _RectangleSelectorRB

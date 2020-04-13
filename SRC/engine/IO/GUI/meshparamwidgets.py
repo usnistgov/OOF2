@@ -103,7 +103,7 @@ class MeshParamWidgetBase(parameterwidgets.ParameterWidget):
             except KeyError:
                 pass
     def get_value(self):
-        return self.vals[self.chooser.get_value()]
+        return self.vals.get(self.chooser.get_value(), None)
     def set_value(self, obj):
         if TESTINGPAPER:
             if obj is not None and obj.name() in self.chooser.choices():

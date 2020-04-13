@@ -164,7 +164,10 @@ class ValueOutputWidget(parameterwidgets.ParameterWidget,
             None, scope=self, name="Scalar")
         self.aggregate_output_obj = AggregateOutputParameterWidget(
             None, scope=self, name="Aggregate")
-        parameterwidgets.ParameterWidget.__init__(self, gtk.VBox(), scope, name)
+        parameterwidgets.ParameterWidget.__init__(
+            self,
+            Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2),
+            scope, name)
         self.gtk.pack_start(self.scalar_output_obj.gtk,
                             expand=False, fill=False, padding=0)
         self.gtk.pack_start(self.aggregate_output_obj.gtk,
