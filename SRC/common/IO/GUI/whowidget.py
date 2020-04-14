@@ -37,7 +37,7 @@ import string
 
 class WhoWidgetBase:
     def __init__(self, whoclass, value, callback, scope, condition, sort,
-                 widgettype):
+                 widgettype, **kwargs):
         debug.mainthreadTest()
         self.whoclass = whoclass
         self.scope = scope              # WidgetScope object
@@ -56,6 +56,8 @@ class WhoWidgetBase:
 
         if scope:
             scope.addWidget(self)
+
+        self.quargs = kwargs.copy() # Gtk properties (halign, etc.)
 
         # If the WidgetScope contains 'fixed whoclass' data, then the
         # given class and its parent classes aren't allowed to be
@@ -79,7 +81,7 @@ class WhoWidgetBase:
         self.gtk = [None]*depth
         self.currentPath = ['']*depth
         self.destroysignals = [None]*depth
-        self.buildWidgets(value)        # sets currentPath, widgets, and gtk
+        self.buildWidgets(value) # sets currentPath, widgets, and gtk
         self.sbcallbacks = []
         for whoklass in whoclass.hierarchy():
             self.sbcallbacks += [
@@ -136,11 +138,11 @@ class WhoWidgetBase:
                 if self.widgettype == 'Chooser' or d < depth-1:
                     self.widgets[d] = chooser.ChooserWidget(
                         names, callback=self.selectCB, callbackargs=(d,),
-                        name=classlist[d].name())
+                        name=classlist[d].name(), **self.quargs)
                 else:
                     self.widgets[d] = chooser.ChooserComboWidget(
                         names, callback=self.comboCB,
-                        name=classlist[d].name())
+                        name=classlist[d].name(), **self.quargs)
                 self.gtk[d] = self.widgets[d].gtk
                 self.destroysignals[d] = self.gtk[d].connect('destroy',
                                                              self.destroyCB, d)
@@ -239,9 +241,10 @@ class WhoWidget(WhoWidgetBase):
     def __init__(self, whoclass, value=None, callback=None, scope=None,
                  name=None,
                  condition=whoville.excludeProxies,
-                 sort=whoville.proxiesLast):
+                 sort=whoville.proxiesLast,
+                 **kwargs):
         WhoWidgetBase.__init__(self, whoclass, value, callback, scope,
-                               condition, sort, widgettype='Chooser')
+                               condition, sort, widgettype='Chooser', **kwargs)
     def get_value(self, depth=None):
         if depth is None:
             depth = len(self.currentPath)
@@ -268,9 +271,9 @@ class NewWhoWidget(WhoWidgetBase):
     def __init__(self, whoclass, value=None, callback=None, scope=None,
                  name=None,
                  condition=whoville.excludeProxies,
-                 sort=whoville.proxiesLast):
+                 sort=whoville.proxiesLast, **kwargs):
         WhoWidgetBase.__init__(self, whoclass, value, callback, scope,
-                               condition, sort, widgettype='Combo')
+                               condition, sort, widgettype='Combo', **kwargs)
     def get_value(self):
         # This is slightly nontrivial because the ChooserCombo doesn't
         # have a callback, so the last part of self.currentPath isn't
@@ -297,16 +300,18 @@ class NewWhoWidget(WhoWidgetBase):
 class WhoParameterWidgetBase(parameterwidgets.ParameterWidget,
                          widgetscope.WidgetScope):
     def __init__(self, whoclass, value=None, scope=None, name=None, sort=None,
-                 condition=whoville.excludeProxies):
+                 condition=whoville.excludeProxies, **kwargs):
         debug.mainthreadTest()
         widgetscope.WidgetScope.__init__(self, scope)
-        self.whowidget = self.makeSubWidgets(whoclass, value, condition, sort)
+        self.whowidget = self.makeSubWidgets(whoclass, value, condition, sort,
+                                             **kwargs)
         
         # Put the WhoWidget's components into a box.
         depth = len(self.whowidget.gtk)
         frame = Gtk.Frame()
         frame.set_shadow_type(Gtk.ShadowType.IN)
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       **kwargs)
         frame.add(vbox)
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name)
         for d in range(depth):
@@ -329,24 +334,24 @@ class WhoParameterWidgetBase(parameterwidgets.ParameterWidget,
         self.widgetChanged(val and val[-1] != ':', interactive)
 
 class WhoParameterWidget(WhoParameterWidgetBase):
-    def makeSubWidgets(self, whoclass, value, condition, sort):
+    def makeSubWidgets(self, whoclass, value, condition, sort, **kwargs):
         return WhoWidget(whoclass, value, scope=self, condition=condition,
-                         sort=sort)
+                         sort=sort, **kwargs)
 
 class NewWhoParameterWidget(WhoParameterWidgetBase):
-    def makeSubWidgets(self, whoclass, value, condition, sort):
+    def makeSubWidgets(self, whoclass, value, condition, sort, **kwargs):
         return NewWhoWidget(whoclass, value, scope=self, condition=condition,
-                            sort=sort)
+                            sort=sort, **kwargs)
 
-def _WhoParameter_makeWidget(self, scope=None):
+def _WhoParameter_makeWidget(self, scope=None, **kwargs):
     return WhoParameterWidget(self.whoclass, self.value, scope=scope,
-                              name=self.name)
+                              name=self.name, **kwargs)
 
 whoville.WhoParameter.makeWidget = _WhoParameter_makeWidget
 
-def _NewWhoParameter_makeWidget(self, scope=None):
+def _NewWhoParameter_makeWidget(self, scope=None, **kwargs):
     return NewWhoParameterWidget(self.whoclass, self.value, scope=scope,
-                                 name=self.name)
+                                 name=self.name, **kwargs)
 
 whoville.NewWhoParameter.makeWidget = _NewWhoParameter_makeWidget
 
@@ -354,10 +359,10 @@ whoville.NewWhoParameter.makeWidget = _NewWhoParameter_makeWidget
 
 class WhoClassParameterWidget(parameterwidgets.ParameterWidget):
     def __init__(self, value, scope=None, name=None,
-                 condition=whoville.noSecretClasses):
+                 condition=whoville.noSecretClasses, **kwargs):
         self.chooser = chooser.ChooserWidget(whoville.classNames(condition),
                                              callback=self.chooserCB,
-                                             name=name)
+                                             name=name, **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, self.chooser.gtk, scope)
         self.sb = switchboard.requestCallbackMain('new who class',
                                                   self.newWhoClass)
@@ -376,9 +381,9 @@ class WhoClassParameterWidget(parameterwidgets.ParameterWidget):
         switchboard.removeCallback(self.sb)
         parameterwidgets.ParameterWidget.cleanUp(self)
 
-def _WhoClassParameter_makeWidget(self, scope=None):
+def _WhoClassParameter_makeWidget(self, scope=None, **kwargs):
     return WhoClassParameterWidget(self.value, scope=scope, name=self.name,
-                                   condition=self.condition)
+                                   condition=self.condition, **kwargs)
 
 whoville.WhoClassParameter.makeWidget = _WhoClassParameter_makeWidget
 
@@ -387,16 +392,17 @@ whoville.WhoClassParameter.makeWidget = _WhoClassParameter_makeWidget
 class AnyWhoParameterWidget(parameterwidgets.ParameterWidget,
                             widgetscope.WidgetScope):
     # See comment in WhoParameterWidget about WidgetScope.
-    def __init__(self, value, scope, name=None):
+    def __init__(self, value, scope, name=None, **kwargs):
         widgetscope.WidgetScope.__init__(self, scope)
         parameterwidgets.ParameterWidget.__init__(
             self,
-            Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2),
+            Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, **kwargs),
             scope, name)
         self.classwidget = scope.findWidget(
             lambda w: isinstance(w, WhoClassParameterWidget))
         self.whopwidget = None          # enclosed WhoParameterWidget
         self.whoclassname = None
+        self.quargs = kwargs.copy()
         self.buildWidget()
         self.set_value(value)
         self.sb = switchboard.requestCallbackMain(self.classwidget,
@@ -420,7 +426,8 @@ class AnyWhoParameterWidget(parameterwidgets.ParameterWidget,
         # attribute that can be passed in to the widget.
         self.whopwidget = WhoParameterWidget(whoclass, scope=self,
                                              sort=whoville.proxiesLast,
-                                             condition=lambda x:1)
+                                             condition=lambda x:1,
+                                             **self.quargs)
         self.gtk.pack_start(self.whopwidget.gtk,
                             expand=False, fill=False, padding=0)
         self.gtk.show_all()

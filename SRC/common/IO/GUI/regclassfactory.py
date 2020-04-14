@@ -84,9 +84,22 @@ class RCFBase(parameterwidgets.ParameterWidget,
 
 class RegisteredClassFactory(RCFBase):
     def __init__(self, registry, obj=None, title=None,
-                 callback=None, fill=False, expand=0, scope=None, name=None,
+                 callback=None,
+                 fill=False, expand=0, # gtk vertical expand & fill
+                 scope=None, name=None,
                  widgetdict={},
                  *args, **kwargs):
+
+        ## TODO GTK3: Are the fill and expand args ever used?  If so,
+        ## can we just put vexpand and valign into kwargs instead?
+
+        ## TODO GTK3: Don't use args and kwargs for the callback args.  Use
+        ## them for the Gtk format args, and set callback args with
+        ## new cb params.
+        if args:
+            debug.fmsg("args=", args)
+        if kwargs:
+            debug.fmsg("kwargs=", kwargs)
 
         debug.mainthreadTest()
         self.registry = registry
@@ -104,14 +117,18 @@ class RegisteredClassFactory(RCFBase):
         # "setByRegistration" routine.
 
         self.readonly = False
-        RCFBase.__init__(self, Gtk.Frame(), scope, widgetdict, name)
-        
-        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
-                           margin_left=2, margin_top=2, margin_right=2)
+        quargs = kwargs.copy()
+        quargs.setdefault('margin', 2)
+        RCFBase.__init__(self, Gtk.Frame(**quargs),
+                         scope, widgetdict, name)
+
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(self.box)
         self.options = chooser.ChooserWidget([], callback=self.optionCB,
                                              update_callback=self.updateCB,
-                                             name='Chooser')
+                                             name='Chooser',
+                                             hexpand=True,
+                                             halign=Gtk.Align.FILL)
         if not title:
             self.box.pack_start(self.options.gtk,
                                 expand=False, fill=False, padding=0)
@@ -121,7 +138,7 @@ class RegisteredClassFactory(RCFBase):
                                    spacing=2)
             self.box.pack_start(self.titlebox,
                                 expand=False, fill=False, padding=0)
-            self.titlebox.pack_start(Gtk.Label(title),
+            self.titlebox.pack_start(Gtk.Label(title, halign=Gtk.Align.START),
                                      expand=False, fill=False, padding=0)
             self.titlebox.pack_start(self.options.gtk,
                                      expand=True, fill=True, padding=0)
@@ -392,10 +409,10 @@ class RegisteredClassFactory(RCFBase):
         if self.currentOption is not None:
             self.paramWidget.get_values()
 
-def _RegisteredClass_makeWidget(self, scope=None):
+def _RegisteredClass_makeWidget(self, scope=None, **kwargs):
     return RegisteredClassFactory(self.registry, self.value, scope=scope,
                                   widgetdict=_getWidgetDict(self),
-                                  name=self.name)
+                                  name=self.name, **kwargs)
 
 parameter.RegisteredParameter.makeWidget = _RegisteredClass_makeWidget
 
@@ -488,11 +505,11 @@ class ConvertibleRegisteredClassFactory(RegisteredClassFactory):
 ##        self.widgetChanged(widget.isValid(), interactive)
         return widget
     
-def _ConvertibleRegisteredClass_makeWidget(self, scope=None):
+def _ConvertibleRegisteredClass_makeWidget(self, scope=None, **kwargs):
     return ConvertibleRegisteredClassFactory(self.registry, self.value,
                                              scope=scope,
                                              widgetdict=_getWidgetDict(self),
-                                             name=self.name)
+                                             name=self.name, **kwargs)
 
 parameter.ConvertibleRegisteredParameter.makeWidget = \
                       _ConvertibleRegisteredClass_makeWidget
@@ -501,8 +518,6 @@ parameter.ConvertibleRegisteredParameter.makeWidget = \
 #####################################################################
 
 # RegisteredClassListFactory
-
-ParameterTable = parameterwidgets.ParameterTable
 
 class RegistrationGUIData:
     def __init__(self, registration, rclfactory):
@@ -535,9 +550,10 @@ class RegistrationGUIData:
                            (registration.params, scope=self.rclfactory,
                             name=self.registration.name())
         except KeyError:                # no special widget defined
-            self._widget = ParameterTable(self.registration.params,
-                                          scope=self.rclfactory,
-                                          name=self.registration.name())
+            self._widget = parameterwidgets.ParameterTable(
+                self.registration.params,
+                scope=self.rclfactory,
+                name=self.registration.name())
         self._box.pack_start(self._widget.gtk,
                              expand=False, fill=False, padding=0)
         self.widgetcallback = switchboard.requestCallbackMain(self._widget,
@@ -590,6 +606,8 @@ class RegisteredClassListFactory(RCFBase):
                  fill=False, expand=False, scope=None, name=None, widgetdict={},
                  *args, **kwargs):
         debug.mainthreadTest()
+        if kwargs:
+            debug.fmsg("kwargs=", kwargs)
 
         self.registry = registry
         self.callback = callback
@@ -599,7 +617,7 @@ class RegisteredClassListFactory(RCFBase):
         self.fill = fill
         self.expand = expand
 
-        frame = Gtk.Frame()
+        frame = Gtk.Frame(**kwargs)
         self.grid = gtk.Grid()
         frame.add(self.grid)
         RCFBase.__init__(self, frame, scope, widgetdict, name)
@@ -699,10 +717,10 @@ class RegisteredClassListFactory(RCFBase):
         raise ooferror.ErrPyProgrammingError(
             "Don't use RegisteredClassListFactory.set_defaults()!")
 
-def _RegisteredClassList_makeWidget(self, scope=None):
+def _RegisteredClassList_makeWidget(self, scope=None, **kwargs):
     return RegisteredClassListFactory(self.registry, self.value, scope=scope,
                                       widgetdict=_getWidgetDict(self),
-                                      name=self.name)
+                                      name=self.name, **kwargs)
 
 parameter.RegisteredListParameter.makeWidget = _RegisteredClassList_makeWidget
 
@@ -714,11 +732,11 @@ parameter.RegisteredListParameter.makeWidget = _RegisteredClassList_makeWidget
 # RegisteredClasses, so it's in this file anyway.
 
 class MetaRegisteredParamWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         self.registry = param.registry
         self.reg = param.reg
         self.chooser = chooser.ChooserWidget([], callback=self.chooserCB, 
-                                             name=name)
+                                             name=name, **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, gtk=self.chooser.gtk,
                                                   scope=scope)
         self.update()
@@ -741,6 +759,7 @@ class MetaRegisteredParamWidget(parameterwidgets.ParameterWidget):
         else:
             self.chooser.set_state(val.__name__)
 
-def _MetaRegisteredParam_makeWidget(self, scope=None):
-    return MetaRegisteredParamWidget(self, scope=scope, name=self.name)
+def _MetaRegisteredParam_makeWidget(self, scope=None, **kwargs):
+    return MetaRegisteredParamWidget(self, scope=scope, name=self.name,
+                                     **kwargs)
 parameter.MetaRegisteredParameter.makeWidget = _MetaRegisteredParam_makeWidget

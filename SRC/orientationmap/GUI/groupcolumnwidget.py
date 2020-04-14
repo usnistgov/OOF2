@@ -83,9 +83,9 @@ class GCWidgetRow(object):
 
 
 class GroupColumnWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
-        frame = gtk.Frame()
+        frame = gtk.Frame(**kwargs)
         frame.set_shadow_type(gtk.SHADOW_IN)
         self.table = gtk.Table(rows=1, columns=3)
         self.table.set_row_spacings(0)
@@ -176,7 +176,7 @@ class GroupColumnWidget(parameterwidgets.ParameterWidget):
         return True 
 
 
-def _GroupColParameter_makeWidget(self, scope=None):
-    return GroupColumnWidget(self, scope=scope, name=self.name)
+def _GroupColParameter_makeWidget(self, scope=None, **kwargs):
+    return GroupColumnWidget(self, scope=scope, name=self.name, **kwargs)
 
 genericreader.GroupColumnParameter.makeWidget = _GroupColParameter_makeWidget

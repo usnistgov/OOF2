@@ -45,12 +45,13 @@ class MeshParamWidgetBase(parameterwidgets.ParameterWidget):
     # items returned by meshfunc.
 
     def __init__(self, param, whoclass, meshfunc, scope, name=None,
-                 separator_func=None):
+                 separator_func=None, **kwargs):
         self.meshfunc = meshfunc
         self.whoclass = whoclass
         self.chooser = chooser.ChooserWidget([], callback=self.chooserCB,
                                              name=name,
-                                             separator_func=separator_func)
+                                             separator_func=separator_func,
+                                             **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, self.chooser.gtk, scope)
         self.meshwidget = scope.findWidget(
             lambda w: isinstance(w, whowidget.WhoWidget)
@@ -121,16 +122,20 @@ class MeshParamWidgetBase(parameterwidgets.ParameterWidget):
         parameterwidgets.ParameterWidget.cleanUp(self)
 
 class MeshParamWidget(MeshParamWidgetBase):
-    def __init__(self, param, meshfunc, scope, name=None, separator_func=None):
+    def __init__(self, param, meshfunc, scope, name=None, separator_func=None,
+                 **kwargs):
         MeshParamWidgetBase.__init__(self, param,
                                      mesh.meshes,
-                                     meshfunc, scope, name, separator_func)
+                                     meshfunc, scope, name, separator_func,
+                                     **kwargs)
 
 class SubProblemParamWidget(MeshParamWidgetBase):
-    def __init__(self, param, meshfunc, scope, name=None, separator_func=None):
+    def __init__(self, param, meshfunc, scope, name=None, separator_func=None,
+                 **kwargs):
         MeshParamWidgetBase.__init__(self, param,
                                      subproblemcontext.subproblems,
-                                     meshfunc, scope, name, separator_func)
+                                     meshfunc, scope, name, separator_func,
+                                     **kwargs)
     
 
 # Widgets for quantities to which Invariants can be calculated should
@@ -163,19 +168,19 @@ def meshfieldlister(meshctxt):          # meshfunc for FieldParameterWidgets
 
 
 class FieldParameterWidget(MeshParamWidget, InvariandWidget, IndexableWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         if param.outofplane:
             flist = meshfieldlister
         else:
             flist = mesh.Mesh.all_compound_subproblem_fields
-        MeshParamWidget.__init__(self, param, flist, scope, name)
+        MeshParamWidget.__init__(self, param, flist, scope, name, **kwargs)
 ##        self.sbcallbacks.append(
 ##            switchboard.requestCallbackMain("field defined", self.fieldDefCB))
     def fieldDefCB(self, *args):
         self.update(interactive=False)
 
-def _makeFieldWidget(param, scope):
-    return FieldParameterWidget(param, scope, name=param.name)
+def _makeFieldWidget(param, scope, **kwargs):
+    return FieldParameterWidget(param, scope, name=param.name, **kwargs)
 
 meshparameters.FieldParameter.makeWidget = _makeFieldWidget
 
@@ -196,86 +201,90 @@ def subpfieldlister(subp):     # meshfunc for SubProblemFieldParameterWidgets
         
 class SubProblemFieldParameterWidget(SubProblemParamWidget, InvariandWidget,
                                      IndexableWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         if param.outofplane:
             flist = subpfieldlister
         else:
             flist = subproblemcontext.SubProblemContext.all_compound_fields
-        SubProblemParamWidget.__init__(self, param, flist, scope, name)
+        SubProblemParamWidget.__init__(self, param, flist, scope, name,
+                                       **kwargs)
 
-def _makeSubPFieldWidget(param, scope):
-    return FieldParameterWidget(param, scope, name=param.name)
+def _makeSubPFieldWidget(param, scope, **kwargs):
+    return FieldParameterWidget(param, scope, name=param.name, **kwargs)
 
 meshparameters.SubProblemFieldParameter.makeWidget = _makeSubPFieldWidget
 
 #############################
 
 class FluxParameterWidget(MeshParamWidget, InvariandWidget, IndexableWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         MeshParamWidget.__init__(self, param,
                                  mesh.Mesh.all_subproblem_fluxes,
-                                 scope,
-                                 name=name)
+                                 scope, name=name, **kwargs)
             
-def _makeFluxWidget(param, scope):
-    return FluxParameterWidget(param, scope, name=param.name)
+def _makeFluxWidget(param, scope, **kwargs):
+    return FluxParameterWidget(param, scope, name=param.name, **kwargs)
 
 meshparameters.FluxParameter.makeWidget = _makeFluxWidget
 
 class SubProblemFluxParameterWidget(SubProblemParamWidget, InvariandWidget,
                                     IndexableWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         SubProblemParamWidget.__init__(
             self, param,
             subproblemcontext.SubProblemContext.all_fluxes,
-            scope,
-            name=name)
+            scope, name=name, **kwargs)
             
-def _makeSubPFluxWidget(param, scope):
-    return SubProblemParamWidget(param, scope, name=param.name)
+def _makeSubPFluxWidget(param, scope, **kwargs):
+    return SubProblemParamWidget(param, scope, name=param.name, **kwargs)
 
 meshparameters.SubProblemFluxParameter.makeWidget = _makeSubPFluxWidget
 
 #############################
 
 class EquationParameterWidget(MeshParamWidget, IndexableWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         eqfunc = mesh.Mesh.all_subproblem_equations
-        MeshParamWidget.__init__(self, param, eqfunc, scope, name=name)
+        MeshParamWidget.__init__(self, param, eqfunc, scope, name=name,
+                                 **kwargs)
 
-def _makeEquationWidget(param, scope):
-    return EquationParameterWidget(param, scope, name=param.name)
+def _makeEquationWidget(param, scope, **kwargs):
+    return EquationParameterWidget(param, scope, name=param.name, **kwargs)
 
 meshparameters.EquationParameter.makeWidget = _makeEquationWidget
 
 class SubProblemEquationParameterWidget(SubProblemParamWidget, IndexableWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         eqfunc = subproblemcontext.SubProblemContext.all_equations
-        SubProblemParamWidget.__init__(self, param, eqfunc, scope, name=name)
+        SubProblemParamWidget.__init__(self, param, eqfunc, scope, name=name,
+                                       **kwargs)
 
-def _makeSubPEquationWidget(param, scope):
-    return SubProblemEquationParameterWidget(param, scope, name=param.name)
+def _makeSubPEquationWidget(param, scope, **kwargs):
+    return SubProblemEquationParameterWidget(param, scope, name=param.name,
+                                             **kwargs)
 
 meshparameters.SubProblemEquationParameter.makeWidget = _makeSubPEquationWidget
 
 class EquationBCParameterWidget(MeshParamWidget, IndexableWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         eqfunc = mesh.Mesh.all_subproblem_equations_bc
-        MeshParamWidget.__init__(self, param, eqfunc, scope, name)
+        MeshParamWidget.__init__(self, param, eqfunc, scope, name, **kwargs)
 
-def _makeEquationBCWidget(param, scope):
-    return EquationBCParameterWidget(param, scope, name=param.name)
+def _makeEquationBCWidget(param, scope, **kwargs):
+    return EquationBCParameterWidget(param, scope, name=param.name, **kwargs)
 
 meshparameters.EquationBCParameter.makeWidget = _makeEquationBCWidget
 
 class SubProblemEquationBCParameterWidget(SubProblemParamWidget,
                                           IndexableWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         eqfunc = subproblemcontext.SubProblemContext.all_equations_bc
-        SubProblemParamWidget.__init__(self, param, eqfunc, scope, name)
+        SubProblemParamWidget.__init__(self, param, eqfunc, scope, name,
+                                       **kwargs)
 
-def _makeSubPEquationBCWidget(param, scope):
-    return SubProblemEquationBCParameterWidget(param, scope, name=param.name)
+def _makeSubPEquationBCWidget(param, scope, **kwargs):
+    return SubProblemEquationBCParameterWidget(param, scope, name=param.name,
+                                               **kwargs)
 
 meshparameters.SubProblemEquationBCParameter.makeWidget = \
                                                      _makeSubPEquationBCWidget
@@ -284,11 +293,13 @@ meshparameters.SubProblemEquationBCParameter.makeWidget = \
 #############################################
 
 class FieldIndexParameterWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         debug.mainthreadTest()
         self.chooser = chooser.ChooserWidget([], callback=self.chooserCB,
-                                             name=name)
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+                                             name=name,
+                                             hexpand=True,
+                                             halign=Gtk.Align.FILL)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, **kwargs)
         box.pack_start(self.chooser.gtk, expand=False, fill=False, padding=0)
         parameterwidgets.ParameterWidget.__init__(self, box, scope)
         self.fieldwidget = scope.findWidget(
@@ -344,8 +355,8 @@ class FieldIndexParameterWidget(parameterwidgets.ParameterWidget):
         parameterwidgets.ParameterWidget.cleanUp(self)
         switchboard.removeCallback(self.sbcallback)
 
-def _makeFieldIndexParameterWidget(param, scope):
-    return FieldIndexParameterWidget(param, scope, name=param.name)
+def _makeFieldIndexParameterWidget(param, scope, **kwargs):
+    return FieldIndexParameterWidget(param, scope, name=param.name, **kwargs)
 
 meshparameters.FieldIndexParameter.makeWidget = _makeFieldIndexParameterWidget
 
@@ -360,9 +371,9 @@ meshparameters.FieldIndexParameter.makeWidget = _makeFieldIndexParameterWidget
 # is a real object.
 
 class SubProblemWidget(MeshParamWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         MeshParamWidget.__init__(self, param, mesh.Mesh.subproblems,
-                                 scope, name)
+                                 scope, name, **kwargs)
         self.sbcallbacks.append(
             switchboard.requestCallbackMain(("new who", "SubProblem"),
                                             self.newSubProblemCB))
@@ -378,8 +389,8 @@ class SubProblemWidget(MeshParamWidget):
         except KeyError:
             pass
 
-def _makeSubProblemWidget(param, scope):
-    return SubProblemWidget(param, scope, name=param.name)
+def _makeSubProblemWidget(param, scope, **kwargs):
+    return SubProblemWidget(param, scope, name=param.name, **kwargs)
 
 subproblemcontext.SubProblemParameter.makeWidget = _makeSubProblemWidget
 
@@ -391,9 +402,10 @@ subproblemcontext.SubProblemParameter.makeWidget = _makeSubProblemWidget
 # designed for parameters which take the actual object.
 
 class MeshBoundaryParamWidget(MeshParamWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         MeshParamWidget.__init__(self, param, _getSortedBdyNames,
-                                 scope, name=name, separator_func=_bdysepfunc)
+                                 scope, name=name, separator_func=_bdysepfunc,
+                                 **kwargs)
         self.sbcallbacks.append(
             switchboard.requestCallbackMain('mesh boundaries changed',
                                             self.newBdys) )
@@ -429,8 +441,8 @@ class MeshBoundaryParamWidget(MeshParamWidget):
     def get_value(self):
         return self.chooser.get_value()
 
-def _makeBoundaryWidget(param, scope):
-    return MeshBoundaryParamWidget(param, scope, name=param.name)
+def _makeBoundaryWidget(param, scope, **kwargs):
+    return MeshBoundaryParamWidget(param, scope, name=param.name, **kwargs)
 
 meshparameters.MeshBoundaryParameter.makeWidget = _makeBoundaryWidget
 
@@ -456,32 +468,33 @@ def _bdysepfunc(bdyname):
 
 
 class MeshEdgeBdyParamWidget(MeshBoundaryParamWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         MeshParamWidget.__init__(self, param,
                                   mesh.Mesh.edgeBoundaryNames,
-                                  scope, name=name)
+                                  scope, name=name, **kwargs)
         self.sbcallbacks.append(
             switchboard.requestCallbackMain('mesh boundaries changed',
                                             self.newBdys) )
 
-def _makeEdgeBdyWidget(param, scope):
-    return MeshEdgeBdyParamWidget(param, scope, name=param.name)
+def _makeEdgeBdyWidget(param, scope, **kwargs):
+    return MeshEdgeBdyParamWidget(param, scope, name=param.name, **kwargs)
 
 meshparameters.MeshEdgeBdyParameter.makeWidget = _makeEdgeBdyWidget
 
 
 
 class MeshPeriodicEdgeBdyParamWidget(MeshBoundaryParamWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         MeshParamWidget.__init__(self, param,
                                   mesh.Mesh.periodicEdgeBoundaryNames,
-                                  scope, name=name)
+                                  scope, name=name, **kwargs)
         self.sbcallbacks.append(
             switchboard.requestCallbackMain('mesh boundaries changed',
                                             self.newBdys) )
 
-def _makePeriodicEdgeBdyWidget(param, scope):
-    return MeshPeriodicEdgeBdyParamWidget(param, scope, name=param.name)
+def _makePeriodicEdgeBdyWidget(param, scope, **kwargs):
+    return MeshPeriodicEdgeBdyParamWidget(param, scope, name=param.name,
+                                          **kwargs)
 
 meshparameters.MeshPeriodicEdgeBdyParameter.makeWidget \
     = _makePeriodicEdgeBdyWidget
@@ -489,17 +502,17 @@ meshparameters.MeshPeriodicEdgeBdyParameter.makeWidget \
 
 
 class MeshPointBdyParamWidget(MeshBoundaryParamWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         MeshParamWidget.__init__(self, param,
                                   mesh.Mesh.visiblePointBoundaryNames,
-                                  scope, name=name)
+                                  scope, name=name, **kwargs)
         self.sbcallbacks.append(
             switchboard.requestCallbackMain('mesh boundaries changed',
                                         self.newBdys) )
 
 
-def _makePointBdyWidget(param, scope):
-    return MeshPointBdyParamWidget(param, scope, name=param.name)
+def _makePointBdyWidget(param, scope, **kwargs):
+    return MeshPointBdyParamWidget(param, scope, name=param.name, **kwargs)
 
 meshparameters.MeshPointBdyParameter.makeWidget = _makePointBdyWidget
 
@@ -518,28 +531,31 @@ def _getMeshEdgeBdyNamesExtra(msh):
 #created from interfaces (originally, mesh boundaries are
 #created only based on a skeleton boundary template).
 class MeshEdgeBdyInterfaceParamWidget(MeshBoundaryParamWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         MeshParamWidget.__init__(self, param, _getSortedBdyInterfaceNames,
-                                 scope, name=name, separator_func=_bdysepfunc)
+                                 scope, name=name, separator_func=_bdysepfunc,
+                                 **kwargs)
         self.sbcallbacks.append(
             switchboard.requestCallbackMain('mesh boundaries changed',
                                             self.newBdys) )
 
-def _makeEdgeBdyInterfaceWidget(param, scope):
-    return MeshEdgeBdyInterfaceParamWidget(param, scope, name=param.name)
+def _makeEdgeBdyInterfaceWidget(param, scope, **kwargs):
+    return MeshEdgeBdyInterfaceParamWidget(param, scope, name=param.name,
+                                           **kwargs)
 
 meshparameters.MeshEdgeBdyInterfaceParameter.makeWidget \
     = _makeEdgeBdyInterfaceWidget
 
 class MeshEdgeBdyParamWidgetExtra(MeshBoundaryParamWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         MeshParamWidget.__init__(self, param, _getMeshEdgeBdyNamesExtra,
-                                 scope, name=name, separator_func=_bdysepfunc)
+                                 scope, name=name, separator_func=_bdysepfunc,
+                                 **kwargs)
         self.sbcallbacks.append(
             switchboard.requestCallbackMain('mesh boundaries changed',
                                             self.newBdys) )
 
-def _makeEdgeBdyWidgetExtra(param, scope):
-    return MeshEdgeBdyParamWidgetExtra(param, scope, name=param.name)
+def _makeEdgeBdyWidgetExtra(param, scope, **kwargs):
+    return MeshEdgeBdyParamWidgetExtra(param, scope, name=param.name, **kwargs)
 
 meshparameters.MeshEdgeBdyParameterExtra.makeWidget = _makeEdgeBdyWidgetExtra

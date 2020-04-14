@@ -30,12 +30,13 @@ from gi.repository import Gtk
 # all of the animatable Mesh layers in a graphics window.
 
 class MeshTimeWidgetBase(parameterwidgets.ParameterWidget):
-    def __init__(self, scope, name=None):
+    def __init__(self, scope, name=None, **kwargs):
         debug.mainthreadTest()
 
         parameterwidgets.ParameterWidget.__init__(
             self,
-            Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2),
+            Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                    **kwargs),
             scope=scope,
             name=name)
         self.times = []
@@ -228,13 +229,13 @@ class MeshTimeWidgetBase(parameterwidgets.ParameterWidget):
 ##################
 
 class MeshTimeWidget(MeshTimeWidgetBase):
-    def __init__(self, scope, name=None):
+    def __init__(self, scope, name=None, **kwargs):
         # Find the associated mesh widget
         self.meshwidget = scope.findWidget(
             lambda x: isinstance(x, whowidget.WhoWidget)
             and x.whoclass is mesh.meshes)
 
-        MeshTimeWidgetBase.__init__(self, scope, name)
+        MeshTimeWidgetBase.__init__(self, scope, name, **kwargs)
         self.getTimes()
 
         self.widgetChanged(self.currentMeshContext() is not None,
@@ -274,21 +275,21 @@ class MeshTimeWidget(MeshTimeWidgetBase):
             self.times = []
 
 class MeshTimeParamWidget(MeshTimeWidget):
-    def __init__(self, param, scope, name=None):
-        MeshTimeWidget.__init__(self, scope, name)
+    def __init__(self, param, scope, name=None, **kwargs):
+        MeshTimeWidget.__init__(self, scope, name, **kwargs)
         self.set_value(param.value)
 
-def _MeshTimeParam_makeWidget(self, scope=None):
-    return MeshTimeParamWidget(self, scope=scope, name=self.name)
+def _MeshTimeParam_makeWidget(self, scope=None, **kwargs):
+    return MeshTimeParamWidget(self, scope=scope, name=self.name, **kwargs)
 
 placeholder.TimeParameter.makeWidget = _MeshTimeParam_makeWidget
 
 ##############
 
 class GfxMeshTimeParamWidget(MeshTimeWidgetBase):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         self.gfxwindow = None
-        MeshTimeWidgetBase.__init__(self, scope, name)
+        MeshTimeWidgetBase.__init__(self, scope, name, **kwargs)
         menuitem = scope.findData('menuitem')
         gfxwindowname = menuitem.path().split('.')[1]
         self.gfxwindow = gfxmanager.gfxManager.getWindow(gfxwindowname)
@@ -300,8 +301,8 @@ class GfxMeshTimeParamWidget(MeshTimeWidgetBase):
             self.times = []
         self.times = self.gfxwindow.findAnimationTimes()
 
-def _GfxMeshTimeParam_makeWidget(self, scope=None):
-    return GfxMeshTimeParamWidget(self, scope=scope, name=self.name)
+def _GfxMeshTimeParam_makeWidget(self, scope=None, **kwargs):
+    return GfxMeshTimeParamWidget(self, scope=scope, name=self.name, **kwargs)
 
 placeholder.GfxTimeParameter.makeWidget = _GfxMeshTimeParam_makeWidget
         

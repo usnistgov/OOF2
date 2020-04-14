@@ -35,11 +35,11 @@ TriclinicRank4TensorCij = anisocijkl.TriclinicRank4TensorCij
 ## rank3tensorwidgets.py.
 
 class CijIsoCijklWidget(SymmetricMatrixInput):
-    def __init__(self, params, base, scope=None, name=None):
+    def __init__(self, params, base, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         self.params = params
         SymmetricMatrixInput.__init__(self, 6,6, value=None, scope=scope,
-                                      name=name)
+                                      name=name, **kwargs)
         # Block the appropriate ones, and hook up callbacks
         # to handle the c11/c12/c44 synchronization.
         for (k,f) in self.widgets.items():
@@ -139,11 +139,11 @@ regclassfactory.addWidget(isocijkl.IsotropicCijklParameter,
 ############################################################################
 
 class CijCubicCijklWidget(SymmetricMatrixInput):
-    def __init__(self, params, base, scope=None, name=None):
+    def __init__(self, params, base, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         self.params = params
         SymmetricMatrixInput.__init__(self, 6,6, value=None, scope=scope,
-                                      name=name)
+                                      name=name, **kwargs)
         # Block the appropriate ones, and hook up callbacks
         # to handle the c11/c12/c44 synchronization.
         for (k,f) in self.widgets.items():
@@ -232,12 +232,12 @@ regclassfactory.addWidget(anisocijkl.CubicCijklParameter,
 # tuples corresponding to inputs, and value'd by strings corresponding
 # to the attribute names in the corresponding Cijkl value class.
 class AnisoWidgetBase(SymmetricMatrixInput):
-    def __init__(self, params, kset, scope=None, name=None):
+    def __init__(self, params, kset, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         self.params = params
         self.kset = kset
         SymmetricMatrixInput.__init__(self, 6,6, value=None, scope=scope,
-                                      name=name)
+                                      name=name, **kwargs)
         #
         # Make default blocks according to the kset dictionary.
         for (k,f) in self.widgets.items():
@@ -291,11 +291,12 @@ class AnisoWidgetBase(SymmetricMatrixInput):
 
 
 class HexagonalCijklWidget(AnisoWidgetBase):
-    def __init__(self, params, scope=None, name=None):
+    def __init__(self, params, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         kset = {(0,0): 'c11', (0,1): 'c12', (0,2): 'c13',
                 (2,2): 'c33', (3,3): 'c44' }
-        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name)
+        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name,
+                                 **kwargs)
         #
         # Base class will have blocked c66, so unblock it.
         self.widgets[(5,5)].gtk.set_editable(1)
@@ -343,11 +344,11 @@ class HexagonalCijklWidget(AnisoWidgetBase):
             self.draw_values(v_dict)
 
 
-def HexCijklParam_makeWidget(self, scope):
+def HexCijklParam_makeWidget(self, scope, **kwargs):
     # TODO: Why doesn't this (and all the rest of the makeWidget
     # routines here) set the widget name?  Maybe it doesn't need
     # it... Setting the name will probably break the GUI test scripts.
-    return HexagonalCijklWidget(self, scope)
+    return HexagonalCijklWidget(self, scope, **kwargs)
 
 anisocijkl.HexagonalCijklParameter.makeWidget = HexCijklParam_makeWidget
     
@@ -356,10 +357,11 @@ anisocijkl.HexagonalCijklParameter.makeWidget = HexCijklParam_makeWidget
 # Tetragonal.
 
 class TetragonalCijklWidget(AnisoWidgetBase):
-    def __init__(self, params, scope=None, name=None):
+    def __init__(self, params, scope=None, name=None, **kwargs):
         kset = {(0,0): 'c11', (0,1): 'c12', (0,2): 'c13', (0,5): 'c16',
                 (2,2): 'c33', (3,3): 'c44', (5,5): 'c66' }
-        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name)
+        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name,
+                                 **kwargs)
         #
         self.set_values()
 
@@ -386,8 +388,8 @@ class TetragonalCijklWidget(AnisoWidgetBase):
             self.widgets[(1,5)].set_value(-var_dict['c16'])
         finally:
             self.unblock_signals()
-def TetCijklParam_makeWidget(self, scope):
-    return TetragonalCijklWidget(self, scope)
+def TetCijklParam_makeWidget(self, scope, **kwargs):
+    return TetragonalCijklWidget(self, scope, **kwargs)
 
 anisocijkl.TetragonalCijklParameter.makeWidget = TetCijklParam_makeWidget
 
@@ -395,11 +397,12 @@ anisocijkl.TetragonalCijklParameter.makeWidget = TetCijklParam_makeWidget
 # Trigonal A
 
 class TrigonalACijklWidget(AnisoWidgetBase):
-    def __init__(self, params, scope=None, name=None):
+    def __init__(self, params, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         kset = {(0,0): 'c11', (0,1): 'c12', (0,2): 'c13',
                 (2,2): 'c33', (3,3): 'c44', (0,3): 'c14', (0,4): 'c15' }
-        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name)
+        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name,
+                                 **kwargs)
         #
         self.widgets[(5,5)].gtk.set_editable(1)
         self.widgets[(5,5)].gtk.set_sensitive(1)
@@ -454,8 +457,8 @@ class TrigonalACijklWidget(AnisoWidgetBase):
         finally:
             self.draw_values(v_dict)
    
-def TrigACijklParam_makeWidget(self, scope):
-    return TrigonalACijklWidget(self, scope)
+def TrigACijklParam_makeWidget(self, scope, **kwargs):
+    return TrigonalACijklWidget(self, scope, **kwargs)
 
 anisocijkl.TrigonalACijklParameter.makeWidget = TrigACijklParam_makeWidget
 
@@ -465,11 +468,12 @@ anisocijkl.TrigonalACijklParameter.makeWidget = TrigACijklParam_makeWidget
 # Trigonal B
 
 class TrigonalBCijklWidget(AnisoWidgetBase):
-    def __init__(self, params, scope=None, name=None):
+    def __init__(self, params, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         kset = {(0,0): 'c11', (0,1): 'c12', (0,2): 'c13',
                 (2,2): 'c33', (3,3): 'c44', (0,3): 'c14' }
-        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name)
+        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name,
+                                 **kwargs)
         #
         self.widgets[(5,5)].gtk.set_editable(1)
         self.widgets[(5,5)].gtk.set_sensitive(1)
@@ -520,8 +524,8 @@ class TrigonalBCijklWidget(AnisoWidgetBase):
         finally:
             self.draw_values(v_dict)
    
-def TrigBCijklParam_makeWidget(self, scope):
-    return TrigonalBCijklWidget(self, scope)
+def TrigBCijklParam_makeWidget(self, scope, **kwargs):
+    return TrigonalBCijklWidget(self, scope, **kwargs)
 
 anisocijkl.TrigonalBCijklParameter.makeWidget = TrigBCijklParam_makeWidget
 
@@ -531,12 +535,13 @@ anisocijkl.TrigonalBCijklParameter.makeWidget = TrigBCijklParam_makeWidget
 # Orthorhombic
 
 class OrthorhombicCijklWidget(AnisoWidgetBase):
-    def __init__(self, params, scope=None, name=None):
+    def __init__(self, params, scope=None, name=None, **kwargs):
         kset = {(0,0): 'c11', (0,1): 'c12', (0,2): 'c13',
                 (1,1): 'c22', (1,2): 'c23',
                 (2,2): 'c33', (3,3): 'c44', (4,4): 'c55',
                 (5,5): 'c66' }
-        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name)
+        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name,
+                                 **kwargs)
         #
         self.set_values()
 
@@ -556,8 +561,8 @@ class OrthorhombicCijklWidget(AnisoWidgetBase):
         finally:
             self.unblock_signals()
 
-def OrthCijklParam_makeWidget(self, scope):
-    return OrthorhombicCijklWidget(self, scope)
+def OrthCijklParam_makeWidget(self, scope, **kwargs):
+    return OrthorhombicCijklWidget(self, scope, **kwargs)
 
 anisocijkl.OrthorhombicCijklParameter.makeWidget = OrthCijklParam_makeWidget
 
@@ -566,12 +571,13 @@ anisocijkl.OrthorhombicCijklParameter.makeWidget = OrthCijklParam_makeWidget
 # Monoclinic
 
 class MonoclinicCijklWidget(AnisoWidgetBase):
-    def __init__(self, params, scope=None, name=None):
+    def __init__(self, params, scope=None, name=None, **kwargs):
         kset = {(0,0): 'c11', (0,1): 'c12', (0,2): 'c13', (0,4): 'c15',
                 (1,1): 'c22', (1,2): 'c23', (1,4): 'c25',
                 (2,2): 'c33', (2,4): 'c35', 
                 (3,3): 'c44', (3,5): 'c46', (4,4): 'c55', (5,5): 'c66' }
-        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name)
+        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name,
+                                 **kwargs)
         #
         self.set_values()
 
@@ -593,8 +599,8 @@ class MonoclinicCijklWidget(AnisoWidgetBase):
         finally:
             self.unblock_signals()
         
-def MonoCijklParam_makeWidget(self, scope):
-    return MonoclinicCijklWidget(self, scope)
+def MonoCijklParam_makeWidget(self, scope, **kwargs):
+    return MonoclinicCijklWidget(self, scope, **kwargs)
 
 anisocijkl.MonoclinicCijklParameter.makeWidget = MonoCijklParam_makeWidget
 
@@ -603,14 +609,15 @@ anisocijkl.MonoclinicCijklParameter.makeWidget = MonoCijklParam_makeWidget
 # Triclinic, the general case.
 
 class TriclinicCijklWidget(AnisoWidgetBase):
-    def __init__(self, params, scope=None, name=None):
+    def __init__(self, params, scope=None, name=None, **kwargs):
         kset = {(0,0): 'c11', (0,1): 'c12', (0,2): 'c13', (0,3): 'c14',
                 (0,4): 'c15', (0,5): 'c16', (1,1): 'c22', (1,2): 'c23',
                 (1,3): 'c24', (1,4): 'c25', (1,5): 'c26', (2,2): 'c33',
                 (2,3): 'c34', (2,4): 'c35', (2,5): 'c36', (3,3): 'c44',
                 (3,4): 'c45', (3,5): 'c46', (4,4): 'c55', (4,5): 'c56',
                 (5,5): 'c66' }
-        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name)
+        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name,
+                                 **kwargs)
         #
         self.set_values()
 
@@ -638,8 +645,8 @@ class TriclinicCijklWidget(AnisoWidgetBase):
         finally:
             self.unblock_signals()
         
-def TriCijklParam_makeWidget(self, scope):
-    return TriclinicCijklWidget(self, scope)
+def TriCijklParam_makeWidget(self, scope, **kwargs):
+    return TriclinicCijklWidget(self, scope, **kwargs)
 
 anisocijkl.TriclinicCijklParameter.makeWidget = TriCijklParam_makeWidget
 
@@ -650,9 +657,9 @@ anisocijkl.TriclinicCijklParameter.makeWidget = TriCijklParam_makeWidget
 # [1,6].
 
 class CijklBoolWidget(matrixparamwidgets.SymmetricMatrixBoolInput):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         matrixparamwidgets.SymmetricMatrixBoolInput.__init__(
-            self, 6, 6, value=None, scope=scope, name=name)
+            self, 6, 6, value=None, scope=scope, name=name, **kwargs)
         self.param = param
         self.set_value()
     def draw_values(self, vvlist):
@@ -678,7 +685,7 @@ class CijklBoolWidget(matrixparamwidgets.SymmetricMatrixBoolInput):
                     vals.append("%d%d" % (r+1, c+1))
         return vals
 
-def VoigtPairListParam_makeWidget(self, scope):
-    return CijklBoolWidget(self, scope=scope, name=self.name)
+def VoigtPairListParam_makeWidget(self, scope, **kwargs):
+    return CijklBoolWidget(self, scope=scope, name=self.name, **kwargs)
 
 outputDefs.VoigtPairListParameter.makeWidget = VoigtPairListParam_makeWidget

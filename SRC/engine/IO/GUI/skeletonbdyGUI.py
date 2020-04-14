@@ -23,7 +23,7 @@ from ooflib.engine.IO import skeletonbdydisplay
 
 class SkeletonBoundaryListParamWidget(parameterwidgets.ParameterWidget,
                                       chooser.MultiListWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         # Find the who widget with the skeleton.
         self.skelwidget = scope.findWidget(
             lambda x: isinstance(x, whowidget.WhoWidget)
@@ -42,7 +42,7 @@ class SkeletonBoundaryListParamWidget(parameterwidgets.ParameterWidget,
         bdynames = skelctxt.edgeboundaries.keys() + \
                    skelctxt.pointboundaries.keys()
         chooser.MultiListWidget.__init__(self, objlist=bdynames,
-                                         callback=self.chooserCB)
+                                         callback=self.chooserCB, **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, self.gtk, scope, name,
                                                   expandable=True)
         self.set_selection(param.value)
@@ -53,7 +53,8 @@ class SkeletonBoundaryListParamWidget(parameterwidgets.ParameterWidget,
         self.widgetChanged(1, interactive=interactive)
 
     
-def _make_SBLPWidget(self, scope):
-    return SkeletonBoundaryListParamWidget(self, scope, name=self.name)
+def _make_SBLPWidget(self, scope, **kwargs):
+    return SkeletonBoundaryListParamWidget(self, scope, name=self.name,
+                                           **kwargs)
 
 skeletonbdydisplay.SkeletonBoundaryListParameter.makeWidget = _make_SBLPWidget

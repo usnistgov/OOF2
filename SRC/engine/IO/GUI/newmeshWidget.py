@@ -29,8 +29,8 @@ import string
 # for example.
 
 class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
-        frame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        frame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, **kwargs)
         self.table = None
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name=name)
         self.nclasses = 0    # number of enum classes (ie element topologies)
@@ -172,8 +172,8 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
         return [eclass(ewidget.get_value())
                 for eclass, ewidget in self.classwidgets]
 
-def _MasterElementTypesParameter_makeWidget(self, scope=None):
-    return MasterElementTypesWidget(self, scope, name=self.name)
+def _MasterElementTypesParameter_makeWidget(self, scope=None, **kwargs):
+    return MasterElementTypesWidget(self, scope, name=self.name, **kwargs)
 
 meshmenu.MasterElementTypesParameter.makeWidget = \
                                    _MasterElementTypesParameter_makeWidget

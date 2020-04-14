@@ -32,10 +32,10 @@ from gi.repository import Gtk
 ## OutputVal, not the Output.
 
 class GenericOVWidget:
-    def __init__(self, val):
+    def __init__(self, val, **kwargs):
         debug.mainthreadTest()
         if val is not None:
-            self.gtk = Gtk.Entry(editable=False)
+            self.gtk = Gtk.Entry(editable=False, **kwargs)
             gtklogger.setWidgetName(self.gtk, 'generic')
             self.gtk.set_text(`val`)
         else:
@@ -51,11 +51,11 @@ class GenericOVWidget:
 ####################
         
 class VectorWidget:
-    def __init__(self, val):
+    def __init__(self, val, **kwargs):
         debug.mainthreadTest()
         iterator = val.getIterator()
         if iterator.size() != 0:
-            self.gtk = Gtk.Grid()
+            self.gtk = Gtk.Grid(**kwargs)
             row = 0
             while not iterator.end():
                 label = Gtk.Label(iterator.shortrepr()+':',
@@ -69,7 +69,7 @@ class VectorWidget:
                 row += 1
                 iterator.next()
         else:
-            self.gtk = Gtk.Label("No data")
+            self.gtk = Gtk.Label("No data", **kwargs)
             self.gtk.set_sensitive(False)
     def show(self):
         debug.mainthreadTest()
@@ -78,8 +78,8 @@ class VectorWidget:
         debug.mainthreadTest()
         self.gtk.destroy()
 
-def _VectorOutputVal_makeWidget(self):
-    return VectorWidget(self)
+def _VectorOutputVal_makeWidget(self, **kwargs):
+    return VectorWidget(self, **kwargs)
 
 outputval.VectorOutputValPtr.makeWidget = _VectorOutputVal_makeWidget
 
@@ -94,9 +94,9 @@ corientation.COrientationPtr.makeWidget = _VectorOutputVal_makeWidget
 # probably not useful.
 
 class SymmMatrix3Widget:
-    def __init__(self, val):
+    def __init__(self, val, **kwargs):
         debug.mainthreadTest()
-        self.gtk = Gtk.Grid()
+        self.gtk = Gtk.Grid(**kwargs)
         iterator = val.getIterator()
         rowlabels = [None]*3
         collabels = [None]*3
@@ -129,8 +129,8 @@ class SymmMatrix3Widget:
         debug.mainthreadTest()
         self.gtk.destroy()
 
-def _SymmMatrix_makeWidget(self):
-    return SymmMatrix3Widget(self)
+def _SymmMatrix_makeWidget(self, **kwargs):
+    return SymmMatrix3Widget(self, **kwargs)
 
 symmmatrix.SymmMatrix3Ptr.makeWidget = _SymmMatrix_makeWidget
                 
@@ -138,8 +138,10 @@ symmmatrix.SymmMatrix3Ptr.makeWidget = _SymmMatrix_makeWidget
 ####################
 
 class ConcatenatedOutputsWidget:
-    def __init__(self, val):
-        self.gtk = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+    def __init__(self, val, **kwargs):
+        quargs = kwargs.copy()
+        quargs.setdefault('spacing', 2)
+        self.gtk = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, **quargs)
         # Use makeWidget(v) instead of v.makeWidget() so that
         # GenericOVWidget will be used if needed for subwidgets.
         self.widgets = [makeWidget(v) for v in val.args]
@@ -173,10 +175,10 @@ outputClones.ConcatenatedOutputVal.makeWidget = _ConcatenatedOutputs_makeWidget
 
 ####################
 
-def makeWidget(val):
+def makeWidget(val, **kwargs):
     try:
         wfunc = val.makeWidget
     except AttributeError:
-        return GenericOVWidget(val)
-    return wfunc()
+        return GenericOVWidget(val, **kwargs)
+    return wfunc(**kwargs)
 

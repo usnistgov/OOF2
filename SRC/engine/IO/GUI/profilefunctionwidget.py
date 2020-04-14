@@ -98,7 +98,7 @@ class LabelledProfileRCF:
 # where a flux can be retrieved -- it is a container for that number
 # of profile widgets.
 class FluxProfileSetWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         if scope is None:
             raise ooferror.ErrPyProgrammingError(
                 "FluxProfileSetWidget instanced with no scope.")
@@ -107,7 +107,9 @@ class FluxProfileSetWidget(parameterwidgets.ParameterWidget):
             lambda x: x.__class__==meshparamwidgets.FluxParameterWidget)
         self.sbcb = switchboard.requestCallbackMain(self.fluxwidget,
                                                     self.checkFlux)
-        gtk_obj = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        quargs = kwargs.copy()
+        quargs.setdefault('spacing', 2)
+        gtk_obj = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, **quargs)
         parameterwidgets.ParameterWidget.__init__(self, gtk_obj, scope, name)
         self.profileset = [] # Profiles themselves.
         self.widgetset = []  # LabelledProfileRCF objects
@@ -173,7 +175,7 @@ class FluxProfileSetWidget(parameterwidgets.ParameterWidget):
             widget.cleanUp()
         parameterwidgets.ParameterWidget.cleanUp(self)
 
-def FPSP_makeWidget(self, scope):
-    return FluxProfileSetWidget(self, scope, name=self.name)
+def FPSP_makeWidget(self, scope, **kwargs):
+    return FluxProfileSetWidget(self, scope, name=self.name, **kwargs)
 
 profile.FluxProfileSetParameter.makeWidget = FPSP_makeWidget

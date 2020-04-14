@@ -25,7 +25,7 @@ from gi.repository import Gtk
 
 class OutputDestinationWidget(regclassfactory.RegisteredClassFactory):
     def __init__(self, obj=None, title=None, callback=None,
-                 fill=0, expand=0, scope=None, name=None):
+                 scope=None, name=None, **kwargs):
         self.outputWidget = scope.findWidget(
             lambda w: (isinstance(w, regclassfactory.RegisteredClassFactory) and
                        w.registry is scheduledoutput.ScheduledOutput.registry))
@@ -34,7 +34,7 @@ class OutputDestinationWidget(regclassfactory.RegisteredClassFactory):
         regclassfactory.RegisteredClassFactory.__init__(
             self, registry=outputdestination.OutputDestination.registry,
             obj=obj, title=title, callback=callback, 
-            fill=fill, expand=expand, scope=scope, name=name)
+            scope=scope, name=name, **kwargs)
     def includeRegistration(self, reg):
         return issubclass(
             reg.subclass,
@@ -45,8 +45,9 @@ class OutputDestinationWidget(regclassfactory.RegisteredClassFactory):
         switchboard.removeCallback(self.sbcallback)
         regclassfactory.RegisteredClassFactory.cleanUp(self)
                 
-def _makeOutputDestinationWidget(self, scope):
-    return OutputDestinationWidget(self.value, scope=scope, name=self.name)
+def _makeOutputDestinationWidget(self, scope, **kwargs):
+    return OutputDestinationWidget(self.value, scope=scope, name=self.name,
+                                   **kwargs)
         
 outputdestination.OutputDestinationParameter.makeWidget = \
     _makeOutputDestinationWidget
@@ -80,11 +81,12 @@ outputdestination.OutputDestinationParameter.makeWidget = \
 MSGWINDOW = "<Message Window>"
 
 class TextDestinationWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param=None, scope=None, name=None, framed=True):
+    def __init__(self, param=None, scope=None, name=None, framed=True,
+                 **kwargs):
         debug.mainthreadTest()
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         if framed:
-            parameterwidgets.ParameterWidget.__init__(self, Gtk.Frame(),
+            parameterwidgets.ParameterWidget.__init__(self, Gtk.Frame(**kwargs),
                                                   scope=scope, name=name)
             self.gtk.add(vbox)
         else:

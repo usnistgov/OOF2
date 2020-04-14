@@ -29,10 +29,10 @@ SymmetricMatrixBoolInput = matrixparamwidgets.SymmetricMatrixBoolInput
 # that combining the two is probably not useful.
 class SymmMatrix3Widget(SymmetricMatrixInput):
     settable = symmmatrix.voigtIndices
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         SymmetricMatrixInput.__init__(self, 3,3, value=None, scope=scope,
-                                      name=name)
+                                      name=name, **kwargs)
         for (k,f) in self.widgets.items():
             if k not in self.settable:
                 f.gtk.set_editable(False)
@@ -62,8 +62,8 @@ class SymmMatrix3Widget(SymmetricMatrixInput):
         finally:
             self.set_values(result)
 
-def _SymmMatrix3Parameter_makeWidget(self, scope=None):
-    return SymmMatrix3Widget(self, scope, name=self.name)
+def _SymmMatrix3Parameter_makeWidget(self, scope=None, **kwargs):
+    return SymmMatrix3Widget(self, scope, name=self.name, **kwargs)
 
 symmmatrix.SymmMatrix3Parameter.makeWidget = _SymmMatrix3Parameter_makeWidget
 
@@ -80,8 +80,9 @@ class TriclinicRank2TensorParameterWidget(SymmMatrix3Widget):
         finally:
             self.set_values(result)
               
-def _TR2TP_makeWidget(self, scope=None):
-    return TriclinicRank2TensorParameterWidget(self, scope, name=self.name)
+def _TR2TP_makeWidget(self, scope=None, **kwargs):
+    return TriclinicRank2TensorParameterWidget(self, scope, name=self.name,
+                                               **kwargs)
 
 symmmatrix.TriclinicRank2TensorParameter.makeWidget = _TR2TP_makeWidget
 
@@ -114,8 +115,8 @@ class MonoclinicSymmWidget(SymmMatrix3Widget):
         finally:
             self.set_values(result)
 
-def _MonoclinicSymmParameter_makeWidget(self, scope=None):
-    return MonoclinicSymmWidget(self, scope, name=self.name)
+def _MonoclinicSymmParameter_makeWidget(self, scope=None, **kwargs):
+    return MonoclinicSymmWidget(self, scope, name=self.name, **kwargs)
 
 symmmatrix.MonoclinicRank2TensorParameter.makeWidget = \
     _MonoclinicSymmParameter_makeWidget
@@ -146,8 +147,8 @@ class OrthorhombicSymmWidget(SymmMatrix3Widget):
         finally:
             self.set_values(result)
 
-def _OrthorhombicSymmParameter_makeWidget(self, scope=None):
-    return OrthorhombicSymmWidget(self, scope, name=self.name)
+def _OrthorhombicSymmParameter_makeWidget(self, scope=None, **kwargs):
+    return OrthorhombicSymmWidget(self, scope, name=self.name, **kwargs)
 
 symmmatrix.OrthorhombicRank2TensorParameter.makeWidget = \
     _OrthorhombicSymmParameter_makeWidget
@@ -180,8 +181,8 @@ class IsotropicPlaneSymmWidget(SymmMatrix3Widget):
         finally:
             self.set_values(result)
 
-def _IsotropicPlaneSymmParameter_makeWidget(self, scope=None):
-    return IsotropicPlaneSymmWidget(self, scope, name=self.name)
+def _IsotropicPlaneSymmParameter_makeWidget(self, scope=None, **kwargs):
+    return IsotropicPlaneSymmWidget(self, scope, name=self.name, **kwargs)
 
 symmmatrix.IsotropicPlaneParameter.makeWidget = \
     _IsotropicPlaneSymmParameter_makeWidget
@@ -192,8 +193,8 @@ class TetragonalSymmWidget(IsotropicPlaneSymmWidget):
     def make_tensor(self, xx, zz):
         return symmmatrix.TetragonalRank2Tensor(xx=xx,zz=zz)
 
-def _TetragonalSymmParameter_makeWidget(self, scope=None):
-    return TetragonalSymmWidget(self, scope, name=self.name)
+def _TetragonalSymmParameter_makeWidget(self, scope=None, **kwargs):
+    return TetragonalSymmWidget(self, scope, name=self.name, **kwargs)
 
 symmmatrix.TetragonalRank2TensorParameter.makeWidget = \
     _TetragonalSymmParameter_makeWidget
@@ -202,8 +203,8 @@ class TrigonalSymmWidget(IsotropicPlaneSymmWidget):
     def make_tensor(self, xx, zz):
         return symmmatrix.TrigonalRank2Tensor(xx=xx,zz=zz)
 
-def _TrigonalSymmParameter_makeWidget(self, scope=None):
-    return TrigonalSymmWidget(self, scope, name=self.name)
+def _TrigonalSymmParameter_makeWidget(self, scope=None, **kwargs):
+    return TrigonalSymmWidget(self, scope, name=self.name, **kwargs)
 
 symmmatrix.TrigonalRank2TensorParameter.makeWidget = \
     _TrigonalSymmParameter_makeWidget
@@ -212,8 +213,8 @@ class HexagonalSymmWidget(IsotropicPlaneSymmWidget):
     def make_tensor(self, xx, zz):
         return symmmatrix.HexagonalRank2Tensor(xx=xx,zz=zz)
 
-def _HexagonalSymmParameter_makeWidget(self, scope=None):
-    return HexagonalSymmWidget(self, scope, name=self.name)
+def _HexagonalSymmParameter_makeWidget(self, scope=None, **kwargs):
+    return HexagonalSymmWidget(self, scope, name=self.name, **kwargs)
 
 symmmatrix.HexagonalRank2TensorParameter.makeWidget = \
     _HexagonalSymmParameter_makeWidget
@@ -242,8 +243,8 @@ class CubicSymmWidget(SymmMatrix3Widget):
                 self.unblock_signals()
         self.gtk.show_all()
                                           
-def _CubicSymmParameter_makeWidget(self, scope=None):
-    return CubicSymmWidget(self, scope, name=self.name)
+def _CubicSymmParameter_makeWidget(self, scope=None, **kwargs):
+    return CubicSymmWidget(self, scope, name=self.name, **kwargs)
 
 symmmatrix.CubicRank2TensorParameter.makeWidget = _CubicSymmParameter_makeWidget
 
@@ -252,9 +253,9 @@ symmmatrix.CubicRank2TensorParameter.makeWidget = _CubicSymmParameter_makeWidget
 # SymmTensor3BoolWidget displays a bool for each entry in a tensor.
 
 class SymmTensor3BoolWidget(matrixparamwidgets.SymmetricMatrixBoolInput):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         matrixparamwidgets.SymmetricMatrixBoolInput.__init__(
-            self, 3, 3, value=None, scope=scope, name=name)
+            self, 3, 3, value=None, scope=scope, name=name, **kwargs)
         self.param = param
         self.set_value()
     def draw_values(self, vlist):
@@ -279,8 +280,8 @@ class SymmTensor3BoolWidget(matrixparamwidgets.SymmetricMatrixBoolInput):
                     vals.append("%d%d" % (r+1, c+1))
         return vals
 
-def SymmIndexPairListParam_makeWidget(self, scope):
-    return SymmTensor3BoolWidget(self, scope=scope, name=self.name)
+def SymmIndexPairListParam_makeWidget(self, scope, **kwargs):
+    return SymmTensor3BoolWidget(self, scope=scope, name=self.name, **kwargs)
 
 outputDefs.SymmIndexPairListParameter.makeWidget = \
     SymmIndexPairListParam_makeWidget
@@ -289,9 +290,9 @@ outputDefs.SymmIndexPairListParameter.makeWidget = \
 # Rank3TensorBoolWidget -- 1st index is space, 2nd index is Voigt
 
 class Rank3TensorBoolWidget(matrixparamwidgets.MatrixBoolInput):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         matrixparamwidgets.MatrixBoolInput.__init__(
-            self, 3, 6, value=None, scope=scope, name=name)
+            self, 3, 6, value=None, scope=scope, name=name, **kwargs)
         self.param = param
         self.set_value()
 
@@ -317,8 +318,8 @@ class Rank3TensorBoolWidget(matrixparamwidgets.MatrixBoolInput):
                     vals.append("%d%d" % (r+1, c+1))
         return vals
 
-def Rank3TensorIndexParam_makeWidget(self, scope):
-    return Rank3TensorBoolWidget(self, scope=scope, name=self.name)
+def Rank3TensorIndexParam_makeWidget(self, scope, **kwargs):
+    return Rank3TensorBoolWidget(self, scope=scope, name=self.name, **kwargs)
 
 outputDefs.Rank3TensorIndexParameter.makeWidget = \
     Rank3TensorIndexParam_makeWidget

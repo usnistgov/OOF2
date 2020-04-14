@@ -24,8 +24,8 @@ from ooflib.engine.IO import interfaceparameters
 # for a microstructure.
 
 class PixelGroupWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
-        self.groupchooser = chooser.ChooserWidget([], name=name)
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        self.groupchooser = chooser.ChooserWidget([], name=name, **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, self.groupchooser.gtk,
                                                   scope=scope)
         self.mswidget = self.scope.findWidget(
@@ -66,8 +66,8 @@ class PixelGroupWidget(parameterwidgets.ParameterWidget):
         self.groupchooser.set_state(groupname)
         
 
-def _makePixelGroupWidget(self, scope=None):
-    return PixelGroupWidget(self, scope=scope, name=self.name)
+def _makePixelGroupWidget(self, scope=None, **kwargs):
+    return PixelGroupWidget(self, scope=scope, name=self.name, **kwargs)
 
 pixelgroupparam.PixelGroupParameter.makeWidget = _makePixelGroupWidget
 
@@ -91,8 +91,8 @@ class PixelAggregateWidget(PixelGroupWidget):
         rval = self.groupchooser.get_value()
         return placeholder.getPlaceHolderFromString(rval)
 
-def _makePixelAggregateWidget(self, scope=None):
-    return PixelAggregateWidget(self, scope=scope, name=self.name)
+def _makePixelAggregateWidget(self, scope=None, **kwargs):
+    return PixelAggregateWidget(self, scope=scope, name=self.name, **kwargs)
 
 pixelgroupparam.PixelAggregateParameter.makeWidget = _makePixelAggregateWidget
 
@@ -116,7 +116,8 @@ class PixelGroupInterfaceWidget(PixelGroupWidget):
         self.groupchooser.update([])
         self.widgetChanged(0, interactive=0)        
 
-def _makePixelGroupInterfaceWidget(self, scope=None):
-    return PixelGroupInterfaceWidget(self, scope=scope, name=self.name)
+def _makePixelGroupInterfaceWidget(self, scope=None, **kwargs):
+    return PixelGroupInterfaceWidget(self, scope=scope, name=self.name,
+                                     **kwargs)
 
 pixelgroupparam.PixelGroupInterfaceParameter.makeWidget = _makePixelGroupInterfaceWidget

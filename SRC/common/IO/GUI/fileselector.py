@@ -67,7 +67,7 @@ class FileSelectorWidget(parameterwidgets.ParameterWidget):
     
     # Base class for ReadFileSelectorWidget and WriteFileSelectorWidget.
     
-    def __init__(self, param, scope=None, name=None, ident=None):
+    def __init__(self, param, scope=None, name=None, ident=None, **kwargs):
 
         debug.mainthreadTest()
         self.ident = ident or param.ident
@@ -80,7 +80,8 @@ class FileSelectorWidget(parameterwidgets.ParameterWidget):
         parameterwidgets.ParameterWidget.__init__(self, Gtk.Frame(), scope,
                                                   name, expandable=True)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                       spacing=2, margin_start=2, margin_end=2)
+                       # spacing=2, margin_start=2, margin_end=2,
+                       **kwargs)
         self.gtk.add(vbox)
 
         # Directory selector
@@ -508,21 +509,25 @@ def getDirectoryHierarchy(directory):
 class FakeFileSelectorWidget(parameterwidgets.StringWidget):
     pass
 
-def _WFileNameParameter_makeWidget(self, scope=None):
+def _WFileNameParameter_makeWidget(self, scope=None, **kwargs):
     if (useFakeFileSelector=='always' or
         (useFakeFileSelector =='sometimes' and
          (guilogger.recording() or guilogger.replaying()))):
-        return FakeFileSelectorWidget(self, scope=scope, name=self.name)
+        return FakeFileSelectorWidget(self, scope=scope, name=self.name,
+                                      **kwargs)
     else:
-        return WriteFileSelectorWidget(self, scope=scope, name=self.name)
+        return WriteFileSelectorWidget(self, scope=scope, name=self.name,
+                                       **kwargs)
 
-def _RFileNameParameter_makeWidget(self, scope=None):
+def _RFileNameParameter_makeWidget(self, scope=None, **kwargs):
     if (useFakeFileSelector=='always' or
         (useFakeFileSelector=='sometimes' 
          and (guilogger.recording() or guilogger.replaying()))):
-        return FakeFileSelectorWidget(self, scope=scope, name=self.name)
+        return FakeFileSelectorWidget(self, scope=scope, name=self.name,
+                                      **kwargs)
     else:
-        return ReadFileSelectorWidget(self, scope=scope, name=self.name)
+        return ReadFileSelectorWidget(self, scope=scope, name=self.name,
+                                      **kwargs)
 
 filenameparam.WriteFileNameParameter.makeWidget = _WFileNameParameter_makeWidget
 filenameparam.ReadFileNameParameter.makeWidget = _RFileNameParameter_makeWidget
@@ -540,9 +545,10 @@ filenameparam.ReadFileNameParameter.makeWidget = _RFileNameParameter_makeWidget
 # WriteFileNameParameter.  Some cleverer scheme will have to be used.
 
 class WriteModeWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         self.state = None
-        self.widget = chooser.ChooserWidget([], self.chooserCB, name=name)
+        self.widget = chooser.ChooserWidget([], self.chooserCB, name=name,
+                                            **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, self.widget.gtk,
                                                   scope=scope)
         if (useFakeFileSelector=='always' or
@@ -589,8 +595,8 @@ class WriteModeWidget(parameterwidgets.ParameterWidget):
             return 'a'
         return 'w'
 
-def _writeModeParam_makeWidget(self, scope=None):
-    return WriteModeWidget(self, scope=scope, name=self.name)
+def _writeModeParam_makeWidget(self, scope=None, **kwargs):
+    return WriteModeWidget(self, scope=scope, name=self.name, **kwargs)
 
 filenameparam.WriteModeParameter.makeWidget = _writeModeParam_makeWidget
 
@@ -600,8 +606,9 @@ filenameparam.WriteModeParameter.makeWidget = _writeModeParam_makeWidget
 # page's OK button.
 
 class OverwriteWidget(parameterwidgets.BooleanWidget):
-    def __init__(self, param, scope=None, name=None):
-        parameterwidgets.BooleanWidget.__init__(self, param, scope, name)
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        parameterwidgets.BooleanWidget.__init__(self, param, scope, name,
+                                                **kwargs)
         self.fileSelector = self.scope.findWidget(
             lambda x: (isinstance(x, (WriteFileSelectorWidget,
                                       FakeFileSelectorWidget))))
@@ -628,8 +635,8 @@ class OverwriteWidget(parameterwidgets.BooleanWidget):
     def fileSelectorCB(self, *args):
         self.set_validity()
 
-def _overwriteParam_makeWidget(self, scope=None):
-    return OverwriteWidget(self, scope=scope, name=self.name)
+def _overwriteParam_makeWidget(self, scope=None, **kwargs):
+    return OverwriteWidget(self, scope=scope, name=self.name, **kwargs)
 
 filenameparam.OverwriteParameter.makeWidget = _overwriteParam_makeWidget
 
@@ -649,232 +656,4 @@ def getFile(ident=None, title=""):
     fileparam = filenameparam.WriteFileNameParameter('filename', ident=ident)
     if parameterwidgets.getParameters(fileparam, title=title):
         return fileparam.value
-
-###########################################################
-###############  OLD STUFF  ###############################
-###########################################################
-
-## TODO: Get rid of code below here after new widgets are created for
-## loading 3D image slices.
-
-# The _selectors dictionary keeps track of file selectors to be
-# reused.  They are reused so that they preserve their state (current
-# directory, etc).  The dictionary is a WeakValueDictionary because
-# the selectors can be destroyed by the window manager, and we don't
-# have any control over that.
-
-if False:
-    _selectors = weakref.WeakValueDictionary()
-
-
-    _modes = {'w':gtk.FILE_CHOOSER_ACTION_SAVE,
-             'r':gtk.FILE_CHOOSER_ACTION_OPEN}
-
-    class FileSelector(widgetscope.WidgetScope):
-        OK = 1
-        CANCEL = 2
-        def __init__(self, mode, title=None, filename=None, params=None,
-                     pattern=False):
-            debug.mainthreadTest()
-            widgetscope.WidgetScope.__init__(self, None)
-            self.dialog = gtklogger.Dialog()
-            self.set_title(title)
-            gtklogger.newTopLevelWidget(self.dialog, self.dialog.get_title())
-            self.filechooser = gtk.FileChooserWidget(action=_modes[mode])
-            self.dialog.set_default_size(500, 300)
-            self.filechooser.show()
-            self.dialog.vbox.pack_start(self.filechooser, expand=1, fill=1)
-            gtklogger.setWidgetName(self.filechooser, "FileChooser")
-            gtklogger.connect(self.filechooser, 'selection-changed',
-                              self.selectionchangedCB)
-            self.dialog.add_button(gtk.STOCK_OK, self.OK)
-            self.dialog.add_button(gtk.STOCK_CANCEL, self.CANCEL)
-            self.dialog.set_default_response(self.OK)
-
-            self.pattern = (pattern and (mode=='r'))
-            if self.pattern:
-                # TODO: Fix aesthetics of the widgets.
-                self.filechooser.set_select_multiple(True)
-                self.patternrow = gtk.HBox()
-                self.patternrow.pack_start(gtk.Label("Pattern: "), expand=0, fill=0, padding=5)
-                self.pattern_entry = gtk.Entry()
-                self.pattern_entry.set_editable(1)
-                self.pattern_entry.set_text("*")
-                gtklogger.connect(self.pattern_entry, 'changed', self.patternchangedCB)
-                self.patternrow.pack_start(self.pattern_entry, expand=1, fill=1, padding=5)
-                self.patternrow.show_all()
-
-            if params is None:
-                self.table = None
-                if self.pattern:
-                    self.filechooser.set_extra_widget(self.patternrow)
-            else:
-                self.table = parameterwidgets.ParameterTable(params, scope=self,
-                                                             name="Parameters")
-                self.sbcallback = switchboard.requestCallbackMain(
-                    ('validity', self.table), self.validityCB)
-                if not self.pattern:
-                    self.filechooser.set_extra_widget(self.table.gtk)
-                else:
-                    vbox = gtk.VBox()
-                    vbox.pack_start(self.patternrow)
-                    vbox.pack_start(self.table.gtk)
-                    vbox.show()
-                    self.filechooser.set_extra_widget(vbox)
-
-            if filename is not None:
-                self.filechooser.set_current_name(filename)
-
-        def set_mode(self, mode):
-            debug.mainthreadTest()
-            self.filechooser.set_action(_modes[mode])
-            # Calling sensitize() here wouldn't be required if we could
-            # catch keystrokes in the Entry. See comment in sensitize(),
-            # below.
-            self.sensitize()
-        def set_title(self, title):
-            debug.mainthreadTest()
-            self.dialog.set_title(title or "OOF2 File Selector")
-        def sensitize(self):
-            debug.mainthreadTest()
-            valid = self.table is None or self.table.isValid()
-            # If we're opening an existing file, check to see if it's
-            # really there.  If we're opening a new file, it would be nice
-            # to check to see if the file entry widget has text in it, but
-            # there seems to be no way to do that.  There's no way to call
-            # this function after every keystroke, since the Entry widget
-            # inside the FileChooserWidget isn't accessible and we can't
-            # connect to it.
-            if valid and \
-                   self.filechooser.get_action() == gtk.FILE_CHOOSER_ACTION_OPEN:
-                if not self.pattern:
-                    filename = self.filechooser.get_filename()
-                    valid = filename is not None and os.path.isfile(filename)
-                # check that there are files that fit the pattern
-                else:                
-                    matchcount = utils.countmatches(self.pattern_entry.get_text(), self.filechooser.get_current_folder(), utils.matchvtkpattern)
-                    valid = valid and self.pattern_entry.get_text() != "*" and matchcount
-
-            self.dialog.set_response_sensitive(self.OK, valid)
-
-        def patternchangedCB(self, *args):
-            # select the files that match
-            self.filechooser.unselect_all()
-            items = os.listdir(self.filechooser.get_current_folder())
-            for item in items:
-                if utils.matchvtkpattern(self.pattern_entry.get_text(), item):
-                    self.filechooser.select_filename(os.path.join(self.filechooser.get_current_folder(),item))
-
-            self.sensitize()
-
-        def validityCB(self, validity):
-            self.sensitize()
-        def selectionchangedCB(self, *args):
-            self.sensitize()
-        def get_values(self):
-            if self.table:
-                return self.table.get_values()
-        def getFileName(self):
-            if self.table:
-                self.table.get_values()
-            return self.filechooser.get_filename()
-        def getFilePattern(self):
-            if self.table:
-                self.table.get_values()
-            return os.path.join(self.filechooser.get_current_folder(), self.pattern_entry.get_text())
-        def run(self):
-            debug.mainthreadTest()
-            return self.dialog.run()
-        def close(self):
-            debug.mainthreadTest()
-            if self.table:
-                switchboard.removeCallback(self.sbcallback)
-            self.dialog.destroy()
-            self.destroyScope()
-        def hide(self):
-            debug.mainthreadTest()
-            self.dialog.hide()
-
-
-
-    # Always check the return value of fileSelector()!  fileSelector
-    # returns None if the user cancels the operation or doesn't type in a
-    # name in 'w' mode.
-
-    # mode should be 'r' or 'w'.
-
-    def fileSelector(mode, ident=None, title=None, filename=None, params=None,
-                     pattern=False):
-        # GUI logging doesn't work for the file selector, so we use a
-        # simple StringParameter and ParameterDialog when either logging
-        # or replaying.  This is a hack. TODO EVENTUALLY: fix this.
-        # TODO: will need to fix logging for pattern?
-
-        if (useFakeFileSelector=='always' or 
-            (useFakeFileSelector=='sometimes' and 
-             (guilogger.recording() or guilogger.replaying()))):
-            return fakeFileSelector(mode, ident, title, filename, params)
-
-        try:
-            selector = _selectors[ident]
-        except KeyError:
-            # Make new selector
-            selector = FileSelector(mode=mode, title=title, filename=filename,
-                                    params=params, pattern=pattern)
-            if ident is not None:
-                _selectors[ident] = selector
-        else:
-            # Reuse old selector
-            selector.set_mode(mode)
-            selector.set_title(title)
-
-        result = selector.run()
-        selector.hide()
-
-        if result in (FileSelector.CANCEL,
-                      gtk.RESPONSE_DELETE_EVENT,
-                      gtk.RESPONSE_NONE):
-            return None
-
-        if not pattern:
-            return selector.getFileName()
-        else:
-            return selector.getFilePattern()
-
-
-    def fakeFileSelector(mode, ident=None, title=None, filename=None, params=None):
-        nameparam = parameter.StringParameter('filename')
-        parameters = [nameparam]
-        if params:
-            parameters.extend(params)
-        if parameterwidgets.getParameters(title='Fake FileSelector', *parameters):
-            return nameparam.value
-
-    #########################
-
-    # # This function should be called before you write to a file.
-    # # If the file exists, it will prompt the user, asking whether to
-    # # over-write or append.  It will return either 'w' for writing,
-    # # 'a' for appending, or None, in which case the caller should not
-    # # write to the file at all.
-    # def get_file_mode(filename, no_append=0):
-    #     mode = None
-    #     try:
-    #         os.stat(filename)               # does file exist?
-    #     except OSError:                     # file not found
-    #         mode = 'w'
-    #     else:
-    #         if no_append:
-    #             ans = reporter.query("Overwrite file\n%s?" % filename,
-    #                                  "OK", "Cancel", default="OK")
-    #             if ans == "OK":
-    #                 mode = 'w'
-    #         else:
-    #             ans = reporter.query("Overwrite file\n%s?" % filename,
-    #                                  "OK", "Append", "Cancel", default="OK")
-    #             if ans == 'OK':
-    #                 mode = 'w'
-    #             elif ans == 'Append':
-    #                 mode = 'a'
-    #     return mode
 

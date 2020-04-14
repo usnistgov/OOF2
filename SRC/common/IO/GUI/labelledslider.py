@@ -49,7 +49,7 @@ class DefaultClipper(object):
 class LabelledSlider:
     def __init__(self, value=None, vmin=0, vmax=1, step=0.01, callback=None,
                  clipperclass=None,
-                 name=None, immediate=True):
+                 name=None, immediate=True, **kwargs):
         # "callback" is called when the user moves the slider.  If
         # immediate==True, then the callback will be called when any
         # character is typed in the Entry.  If it's false, the
@@ -57,7 +57,7 @@ class LabelledSlider:
         debug.mainthreadTest()
         self.immediate = immediate
 
-        self.gtk = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
+        self.gtk = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL, **kwargs)
         if value is None:
             value = vmin
         self.clipperclass = clipperclass or DefaultClipper

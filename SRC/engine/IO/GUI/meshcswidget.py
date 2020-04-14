@@ -35,7 +35,7 @@ import string
 # assumed that a mesh widget that gives a nontrivial result will
 # always be found.
 class MeshCrossSectionSetParamWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         debug.mainthreadTest()
         # Find the enclosing mesh widget.
         self.meshwidget = scope.findWidget(
@@ -43,7 +43,8 @@ class MeshCrossSectionSetParamWidget(parameterwidgets.ParameterWidget):
             and x.whoclass is mesh.meshes)
 
         self.gtk = Gtk.Frame()
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       **kwargs)
         self.gtk.add(vbox)
 
         meshname = self.meshwidget.get_value()
@@ -66,7 +67,8 @@ class MeshCrossSectionSetParamWidget(parameterwidgets.ParameterWidget):
                 vbox.add(Gtk.Label('Selected'))
             else:
                 self.chooser = chooser.MultiListWidget(
-                    self.meshobj.allCrossSectionNames(), name="List")
+                    self.meshobj.allCrossSectionNames(), name="List",
+                    hexpand=True, halign=Gtk.Align.FILL)
                 self.selected = gtk.CheckButton("Selected")
                 gtklogger.setWidgetName(self.selected, "Selected")
                 gtklogger.connect(self.selected, "clicked", self.selectedCB)
@@ -132,8 +134,8 @@ class MeshCrossSectionSetParamWidget(parameterwidgets.ParameterWidget):
         self.chooser = None
         parameterwidgets.ParameterWidget.cleanUp(self)
 
-def _make_MCSSPWidget(self, scope):
-    return MeshCrossSectionSetParamWidget(self, scope, name=self.name)
+def _make_MCSSPWidget(self, scope, **kwargs):
+    return MeshCrossSectionSetParamWidget(self, scope, name=self.name, **kwargs)
 
 meshcsparams.MeshCrossSectionSetParameter.makeWidget = _make_MCSSPWidget
 
@@ -144,7 +146,7 @@ meshcsparams.MeshCrossSectionSetParameter.makeWidget = _make_MCSSPWidget
 # defining and editing cross sections.
 
 class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         debug.mainthreadTest()
         # Find the enclosing mesh widget.
         self.meshwidget = scope.findWidget(
@@ -160,7 +162,7 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
         else:
             self.meshobj = None
 
-        frame = Gtk.Frame()
+        frame = Gtk.Frame(**kwargs)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         frame.add(vbox)
 
@@ -315,7 +317,7 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
         
 
     
-def _make_MCSPWidget(self, scope):
-    return MeshCrossSectionParamWidget(self, scope, name=self.name)
+def _make_MCSPWidget(self, scope, **kwargs):
+    return MeshCrossSectionParamWidget(self, scope, name=self.name, **kwargs)
 
 meshcsparams.MeshCrossSectionParameter.makeWidget = _make_MCSPWidget

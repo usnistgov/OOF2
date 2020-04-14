@@ -109,9 +109,9 @@ class ParameterWidget:
 # also be created as an instance itself, but currently this is not
 # done.
 class GenericWidget(ParameterWidget):
-    def __init__(self, param, scope=None, name=None, compact=False):
+    def __init__(self, param, scope=None, name=None, compact=False, **kwargs):
         debug.mainthreadTest()
-        widget = Gtk.Entry()
+        widget = Gtk.Entry(**kwargs)
         widget.set_width_chars(10)
         ParameterWidget.__init__(self, widget, scope=scope, name=name,
                                  compact=compact)
@@ -182,23 +182,23 @@ class StringWidget(GenericWidget):
             self.gtk.set_text("")
             self.widgetChanged(0, interactive=0)
 
-def _StringParameter_makeWidget(self, scope=None):
-    return StringWidget(self, scope=scope, name=self.name)
+def _StringParameter_makeWidget(self, scope=None, **kwargs):
+    return StringWidget(self, scope=scope, name=self.name, **kwargs)
 
 parameter.StringParameter.makeWidget = _StringParameter_makeWidget
 
 class RestrictedStringWidget(StringWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         self.exclude = param.exclude
-        StringWidget.__init__(self, param, scope, name)
+        StringWidget.__init__(self, param, scope, name, **kwargs)
     def validValue(self, value):
         for x in self.exclude:
             if x in value:
                 return False
         return StringWidget.validValue(self, value)
 
-def _RSParam_makeWidget(self, scope=None):
-    return RestrictedStringWidget(self, scope=scope,name=self.name)
+def _RSParam_makeWidget(self, scope=None, **kwargs):
+    return RestrictedStringWidget(self, scope=scope,name=self.name, **kwargs)
 
 parameter.RestrictedStringParameter.makeWidget = _RSParam_makeWidget
         
@@ -215,8 +215,9 @@ from ooflib.common.IO import automatic
 # talk to the parameter, because AutoNameWidgets have special
 # requirements for these.
 class AutoWidget(ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       **kwargs)
         ParameterWidget.__init__(self, hbox, scope=scope, name=name)
         self.autocheck = Gtk.CheckButton()
         gtklogger.setWidgetName(self.autocheck, 'Auto')
@@ -278,8 +279,8 @@ class AutoWidget(ParameterWidget):
             self.widgetChanged(1, interactive=0)
     
 class AutoNameWidget(AutoWidget):
-    def __init__(self, param, scope=None, name=None):
-        AutoWidget.__init__(self, param, scope=scope, name=name)
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        AutoWidget.__init__(self, param, scope=scope, name=name, **kwargs)
         # Avoid querying param.value here, as it will trigger the
         # autoname resolution process if the parameter is an
         # AutomaticNameParameter or ContextualNameParameter.
@@ -318,12 +319,12 @@ class AutoNameWidget(AutoWidget):
             self.text.set_position(0)
             self.widgetChanged(1, interactive=0)
     
-def _AutoNameParameter_makeWidget(self, scope):
-    return AutoNameWidget(self, scope=scope, name=self.name)
+def _AutoNameParameter_makeWidget(self, scope, **kwargs):
+    return AutoNameWidget(self, scope=scope, name=self.name, **kwargs)
 parameter.AutomaticNameParameter.makeWidget = _AutoNameParameter_makeWidget
 
 class RestrictedAutoNameWidget(AutoNameWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         self.exclude = param.exclude
         AutoNameWidget.__init__(self, param, scope, name)
     def validText(self, x):
@@ -334,16 +335,16 @@ class RestrictedAutoNameWidget(AutoNameWidget):
                 return False
         return True
 
-def _RestrictedAutoNameParam_makeWidget(self, scope):
-    return RestrictedAutoNameWidget(self, scope=scope, name=self.name)
+def _RestrictedAutoNameParam_makeWidget(self, scope, **kwargs):
+    return RestrictedAutoNameWidget(self, scope=scope, name=self.name, **kwargs)
 parameter.RestrictedAutomaticNameParameter.makeWidget = \
                                          _RestrictedAutoNameParam_makeWidget
 #########################
 
 # Allows a value of "automatic", or an integer.
 class AutoNumberWidget(AutoWidget):
-    def __init__(self, param, scope=None, name=None):
-        AutoWidget.__init__(self, param, scope=scope, name=name)
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        AutoWidget.__init__(self, param, scope=scope, name=name, **kwargs)
         self.set_value(param.value)
         self.widgetChanged(1, interactive=0)
         self.autocheck.set_tooltip_text("Switch between automatic and integer.")
@@ -357,8 +358,8 @@ class AutoNumberWidget(AutoWidget):
         return utils.OOFeval(v)
         
 
-def _AutoNumberWidget_makeWidget(self, scope):
-    return AutoNumberWidget(self, scope=scope, name=self.name)
+def _AutoNumberWidget_makeWidget(self, scope, **kwargs):
+    return AutoNumberWidget(self, scope=scope, name=self.name, **kwargs)
 
 parameter.AutoIntParameter.makeWidget = _AutoNumberWidget_makeWidget
 
@@ -368,7 +369,7 @@ parameter.AutoNumericParameter.makeWidget = _AutoNumberWidget_makeWidget
 #########################
 
 class BooleanWidget(ParameterWidget):
-    def __init__(self, param, scope=None, name=None, compact=False):
+    def __init__(self, param, scope=None, name=None, compact=False, **kwargs):
         debug.mainthreadTest()
         if param.value:
             labelstr = 'true'
@@ -377,12 +378,13 @@ class BooleanWidget(ParameterWidget):
         ParameterWidget.__init__(self, Gtk.Frame(), scope=scope,
                                  compact=compact)
         if not compact:
-            self.button = Gtk.CheckButton(labelstr)
+            self.button = Gtk.CheckButton(labelstr, **kwargs)
             self.gtk.add(self.button)
         else:
-            self.button = gtk.ToggleButton()
-            self.button.set_halign(Gtk.Align.CENTER)
-            self.button.set_hexpand(False)
+            quargs = kwargs.copy()
+            quargs.setdefault('halign', Gtk.Align.CENTER)
+            quargs.setdefault('hexpand', True)
+            self.button = gtk.ToggleButton(**quargs)
             self.gtk.add(self.button)
         # name is assigned to the button, not the frame, because it's
         # the button that gets connected.
@@ -415,8 +417,9 @@ class BooleanWidget(ParameterWidget):
         debug.mainthreadTest()
         self.signal.unblock()
 
-def _Boolean_makeWidget(self, scope, compact=False):
-    return BooleanWidget(self, scope=scope, name=self.name, compact=compact)
+def _Boolean_makeWidget(self, scope, compact=False, **kwargs):
+    return BooleanWidget(self, scope=scope, name=self.name, compact=compact,
+                         **kwargs)
 parameter.BooleanParameter.makeWidget = _Boolean_makeWidget
 
 ##########################
@@ -428,47 +431,45 @@ from ooflib.common.IO.GUI import labelledslider
 # parameterTableXRef, but the one in ParameterWidget is just a stub.
 
 class IntRangeWidget(labelledslider.IntLabelledSlider, ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         if param.value is not None:
             val = param.value
         else:
             val = param.range[0]
-        labelledslider.IntLabelledSlider.__init__(self, val,
-                                               vmin=param.range[0],
-                                               vmax=param.range[1],
-                                               step=1,
-                                               callback=self.sliderCB)
+        labelledslider.IntLabelledSlider.__init__(
+            self, val,
+            vmin=param.range[0], vmax=param.range[1], step=1,
+            callback=self.sliderCB, **kwargs)
         ParameterWidget.__init__(self, self.gtk, scope=scope, name=name)
         self.widgetChanged(1, interactive=0) # always valid
     def sliderCB(self, slider, val):
         debug.mainthreadTest()
         self.widgetChanged(1, interactive=1)
 
-def _IntRange_makeWidget(self, scope):
-    return IntRangeWidget(self, scope=scope, name=self.name)
+def _IntRange_makeWidget(self, scope, **kwargs):
+    return IntRangeWidget(self, scope=scope, name=self.name, **kwargs)
 
 parameter.IntRangeParameter.makeWidget = _IntRange_makeWidget
 
 
 class FloatRangeWidget(labelledslider.FloatLabelledSlider, ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         if param.value is not None:
             val = param.value
         else:
             val = param.range[0]
-        labelledslider.FloatLabelledSlider.__init__(self, val,
-                                               vmin=param.range[0],
-                                               vmax=param.range[1],
-                                               step=param.range[2],
-                                               callback=self.sliderCB)
+        labelledslider.FloatLabelledSlider.__init__(
+            self, val,
+            vmin=param.range[0], vmax=param.range[1], step=param.range[2],
+            callback=self.sliderCB, **kwargs)
         ParameterWidget.__init__(self, self.gtk, scope=scope, name=name)
         self.widgetChanged(1, interactive=0) # always valid
     ## FloatRangeWidget uses LabelledSlider's get_value()
     def sliderCB(self, slider, val):
         self.widgetChanged(1, interactive=1)
 
-def _FloatRange_makeWidget(self, scope=None):
-    return FloatRangeWidget(self, scope=scope, name=self.name)
+def _FloatRange_makeWidget(self, scope=None, **kwargs):
+    return FloatRangeWidget(self, scope=scope, name=self.name, **kwargs)
 parameter.FloatRangeParameter.makeWidget = _FloatRange_makeWidget
 
 ########
@@ -506,7 +507,7 @@ class _ClipperFactory(object):
         return _AngleClipper(vmin, vmax, self.circle)
 
 class AngleRangeWidget(labelledslider.FloatLabelledSlider, ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         if param.value is not None:
             val = param.value
         else:
@@ -517,15 +518,16 @@ class AngleRangeWidget(labelledslider.FloatLabelledSlider, ParameterWidget):
             vmax=param.range[1],
             step=param.range[2],
             callback=self.sliderCB,
-            clipperclass=_ClipperFactory(param.circle))
+            clipperclass=_ClipperFactory(param.circle),
+            **kwargs)
         ParameterWidget.__init__(self, self.gtk, scope=scope, name=name)
         self.widgetChanged(1, interactive=0)
         
     def sliderCB(self, slider, val):
         self.widgetChanged(1, interactive=1)
 
-def _AngleRange_makeWidget(self, scope):
-    return AngleRangeWidget(self, scope=scope, name=self.name)
+def _AngleRange_makeWidget(self, scope, **kwargs):
+    return AngleRangeWidget(self, scope=scope, name=self.name, **kwargs)
 
 parameter.AngleRangeParameter.makeWidget = _AngleRange_makeWidget
         
@@ -533,9 +535,9 @@ parameter.AngleRangeParameter.makeWidget = _AngleRange_makeWidget
 ##############################################
 
 class FloatWidget(GenericWidget):
-    def __init__(self, param, scope=None, name=None, compact=False):
+    def __init__(self, param, scope=None, name=None, compact=False, **kwargs):
         GenericWidget.__init__(self, param=param, scope=scope, name=name,
-                               compact=compact)
+                               compact=compact, **kwargs)
         if compact:
             self.gtk.set_width_chars(8)
     def get_value(self):
@@ -558,8 +560,9 @@ class FloatWidget(GenericWidget):
     def set_value(self, newvalue):
         GenericWidget.set_value(self, 1.0*newvalue)
 
-def _FloatParameter_makeWidget(self, scope=None, compact=False):
-    return FloatWidget(self, scope=scope, name=self.name, compact=compact)
+def _FloatParameter_makeWidget(self, scope=None, compact=False, **kwargs):
+    return FloatWidget(self, scope=scope, name=self.name, compact=compact,
+                       **kwargs)
 parameter.FloatParameter.makeWidget = _FloatParameter_makeWidget
 
 class PositiveFloatWidget(FloatWidget):
@@ -573,8 +576,8 @@ class PositiveFloatWidget(FloatWidget):
         except:
             return False
 
-def _PositiveFloatParameter_makeWidget(self, scope=None):
-    return PositiveFloatWidget(self, scope=scope, name=self.name)
+def _PositiveFloatParameter_makeWidget(self, scope=None, **kwargs):
+    return PositiveFloatWidget(self, scope=scope, name=self.name, **kwargs)
 parameter.PositiveFloatParameter.makeWidget = _PositiveFloatParameter_makeWidget
 
 class ListOfFloatsWidget(GenericWidget):
@@ -587,16 +590,16 @@ class ListOfFloatsWidget(GenericWidget):
     def validValue(self, string):
         return 1
 
-def _ListOfFloatsParameter_makeWidget(self, scope=None):
-    return ListOfFloatsWidget(self, scope=scope, name=self.name)
+def _ListOfFloatsParameter_makeWidget(self, scope=None, **kwargs):
+    return ListOfFloatsWidget(self, scope=scope, name=self.name, **kwargs)
 parameter.ListOfFloatsParameter.makeWidget = _ListOfFloatsParameter_makeWidget
 
 #########################
 
 class IntWidget(GenericWidget):
-    def __init__(self, param, scope=None, name=None, compact=False):
+    def __init__(self, param, scope=None, name=None, compact=False, **kwargs):
         GenericWidget.__init__(self, param=param, scope=scope, name=name,
-                               compact=compact)
+                               compact=compact, **kwargs)
         if compact:
             self.gtk.set_width_chars(8)
     # See comments in FloatWidget
@@ -613,8 +616,8 @@ class IntWidget(GenericWidget):
                 return isinstance(val, IntType)
         except:
             return False
-def _IntParameter_makeWidget(self, scope=None):
-    return IntWidget(self, scope=scope, name=self.name)
+def _IntParameter_makeWidget(self, scope=None, **kwargs):
+    return IntWidget(self, scope=scope, name=self.name, **kwargs)
 
 parameter.IntParameter.makeWidget = _IntParameter_makeWidget
 
@@ -629,8 +632,8 @@ class PositiveIntWidget(IntWidget):
         except:
             return False
 
-def _PositiveIntParameter_makeWidget(self, scope=None):
-    return PositiveIntWidget(self, scope=scope, name=self.name)
+def _PositiveIntParameter_makeWidget(self, scope=None, **kwargs):
+    return PositiveIntWidget(self, scope=scope, name=self.name, **kwargs)
 parameter.PositiveIntParameter.makeWidget = _PositiveIntParameter_makeWidget
 
 #######################
@@ -654,8 +657,8 @@ class XYStrFunctionWidget(GenericWidget):
                 return False
         return isinstance(value, strfunction.XYStrFunction)
             
-def _XYStrFunctionParameter_makeWidget(self, scope=None):
-    return XYStrFunctionWidget(self, scope=scope, name=self.name)
+def _XYStrFunctionParameter_makeWidget(self, scope=None, **kwargs):
+    return XYStrFunctionWidget(self, scope=scope, name=self.name, **kwargs)
         
 strfunction.XYStrFunctionParameter.makeWidget = \
                                               _XYStrFunctionParameter_makeWidget
@@ -679,8 +682,8 @@ class XYTStrFunctionWidget(GenericWidget):
                 return False
         return isinstance(value, strfunction.XYTStrFunction)
             
-def _XYTStrFunctionParameter_makeWidget(self, scope=None):
-    return XYTStrFunctionWidget(self, scope=scope, name=self.name)
+def _XYTStrFunctionParameter_makeWidget(self, scope=None, **kwargs):
+    return XYTStrFunctionWidget(self, scope=scope, name=self.name, **kwargs)
         
 strfunction.XYTStrFunctionParameter.makeWidget = \
                                            _XYTStrFunctionParameter_makeWidget
@@ -689,16 +692,21 @@ strfunction.XYTStrFunctionParameter.makeWidget = \
 
 class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
     # A table of Parameter Widgets
-    def __init__(self, params, scope=None, name=None, showLabels=True, data={}):
+    def __init__(self, params, scope=None, name=None, showLabels=True, data={},
+                 **kwargs):
         debug.mainthreadTest()
         widgetscope.WidgetScope.__init__(self, scope)
         for key, value in data.items():
             self.setData(key, value)
         self.params = params            # list of Parameters
+        quargs = kwargs.copy()
+        quargs.setdefault('margin', 2)
         if self.params:
-            base = Gtk.Grid(margin=2, row_spacing=2, column_spacing=2)
+            quargs.setdefault('row_spacing', 2)
+            quargs.setdefault('column_spacing', 2)
+            base = Gtk.Grid(**quargs)
         else:
-            base = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, margin=2)
+            base = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, **quargs)
         ParameterWidget.__init__(self, base, scope, name)
         self.showLabels = showLabels
         self.labels = []
@@ -739,7 +747,9 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
 
     def makeSingleWidget(self, param, tablepos, scope):
         debug.mainthreadTest()
-        widget = param.makeWidget(scope=scope)
+        
+        widget = param.makeWidget(scope=scope, halign=Gtk.Align.FILL,
+                                  hexpand=True, margin_start=2, margin_end=2)
         self.widgets.append(widget)
 
         self.sbcallbacks += [
@@ -752,10 +762,6 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
         label = Gtk.Label(param.name + ' =', halign=Gtk.Align.END,
                           hexpand=False, margin_start=5)
         self.labels.append(label)
-        widget.gtk.set_halign(Gtk.Align.FILL)
-        widget.gtk.set_hexpand(True)
-        widget.gtk.set_margin_start(5)
-        widget.gtk.set_margin_end(5)
         if param.tip:
             label.set_tooltip_text(param.tip)
         if widget.expandable:
@@ -827,9 +833,10 @@ class HierParameterTable(ParameterTable):
     # the hierarchy.  The hierarchical list is just a list of lists of
     # lists of Parameters, with arbitrarily deep nesting.
     ## TODO: Is this necessary, now that ParameterGroups can be nested?
-    def __init__(self, params, scope=None):
+    def __init__(self, params, scope=None, **kwargs):
         self.paramhier = params
-        ParameterTable.__init__(self, utils.flatten_all(params), scope)
+        ParameterTable.__init__(self, utils.flatten_all(params), scope,
+                                **kwargs)
     def makeWidgets(self):
         debug.mainthreadTest()
         tablepos = 0
@@ -889,7 +896,8 @@ class ParameterDialog(widgetscope.WidgetScope):
             
         self.parameters = parameters
         self.dialog = gtklogger.Dialog(flags=Gtk.DialogFlags.MODAL,
-                                       parent=parentwindow)
+                                       parent=parentwindow,
+                                       border_width=3)
         # Window.set_keep_above is not guaranteed to work, but it won't hurt.
         # https://developer.gnome.org/gtk3/stable/GtkWindow.html#gtk-window-set-keep-above
         self.dialog.set_keep_above(True) 
@@ -910,7 +918,8 @@ class ParameterDialog(widgetscope.WidgetScope):
         # in derived classes.
         self._button_hook()
 
-        self.table = ParameterTable(parameters, scope=self)
+        self.table = ParameterTable(parameters, scope=self, hexpand=True,
+                                    halign=Gtk.Align.FILL)
         self.sbcallback = switchboard.requestCallbackMain(
             ('validity', self.table),
             self.validityCB)
@@ -1072,12 +1081,12 @@ from ooflib.common.IO.GUI import chooser
 
 # Widget base class for subclasses of the Enum class.
 class EnumWidget(ParameterWidget):
-    def __init__(self, enumclass, param, scope=None, name=None):
+    def __init__(self, enumclass, param, scope=None, name=None, **kwargs):
         self.enumclass = enumclass
         nameset = list(self.enumclass.names)
         self.widget = chooser.ChooserWidget(nameset, self.selection,
                                             helpdict=self.enumclass.helpdict,
-                                            name=name)
+                                            name=name, **kwargs)
         if param.value is not None:
             self.set_value(param.value)
         else:
@@ -1101,8 +1110,9 @@ class EnumWidget(ParameterWidget):
         switchboard.removeCallback(self.sbcallback)
         ParameterWidget.cleanUp(self)
     
-def _EnumParameter_makeWidget(self, scope=None):
-    return EnumWidget(self.enumclass, self, scope=scope, name=self.name)
+def _EnumParameter_makeWidget(self, scope=None, **kwargs):
+    return EnumWidget(self.enumclass, self, scope=scope, name=self.name,
+                      **kwargs)
 
 enum.EnumParameter.makeWidget = _EnumParameter_makeWidget
 
@@ -1133,14 +1143,14 @@ class ValueSetParameterWidget(GenericWidget):
             return 1
 
 
-def _makeVSPWidget(self, scope=None):
-    return ValueSetParameterWidget(self, scope=scope, name=self.name)
+def _makeVSPWidget(self, scope=None, **kwargs):
+    return ValueSetParameterWidget(self, scope=scope, name=self.name, **kwargs)
 
 parameter.ValueSetParameter.makeWidget = _makeVSPWidget
 
 class AutomaticValueSetParameterWidget(AutoWidget):
-    def __init__(self, param, scope=None, name=None):
-        AutoWidget.__init__(self, param, scope=scope, name=name)
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        AutoWidget.__init__(self, param, scope=scope, name=name, **kwargs)
         self.set_value(param.value)
         self.autocheck.set_tooltip_text(
             "Switch between typed level specifications and "
@@ -1176,27 +1186,29 @@ class AutomaticValueSetParameterWidget(AutoWidget):
             return v
         return utils.OOFeval(v)
 
-def _makeAVSPWidget(self, scope=None):
-    return AutomaticValueSetParameterWidget(self, scope=scope, name=self.name)
+def _makeAVSPWidget(self, scope=None, **kwargs):
+    return AutomaticValueSetParameterWidget(self, scope=scope, name=self.name,
+                                            **kwargs)
 
 parameter.AutomaticValueSetParameter.makeWidget = _makeAVSPWidget
 
 #######################################################################
 
 class PointWidget(ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        xlabel = gtk.Label("x:", halign=Gtk.Align.END)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       **kwargs)
+        xlabel = Gtk.Label("x:", halign=Gtk.Align.END)
         self.xwidget = FloatWidget(parameter.FloatParameter('Tweedledum', 0),
                                    name="X")
         ylabel = Gtk.Label("y:", halign=Gtk.Align.END)
         self.ywidget = FloatWidget(parameter.FloatParameter('Tweedledee', 0),
                                    name="Y")
-        hbox.pack_start(xlabel, expand=False, fill=False, padding=2)
-        hbox.pack_start(self.xwidget.gtk, expand=True, fill=True, padding=1)
-        hbox.pack_start(ylabel, expand=False, fill=False, padding=2)
-        hbox.pack_start(self.ywidget.gtk, expand=True, fill=True, padding=1)
+        hbox.pack_start(xlabel, expand=False, fill=False, padding=0)
+        hbox.pack_start(self.xwidget.gtk, expand=True, fill=True, padding=0)
+        hbox.pack_start(ylabel, expand=False, fill=False, padding=0)
+        hbox.pack_start(self.ywidget.gtk, expand=True, fill=True, padding=0)
         self.sbcallbacks=[
             switchboard.requestCallbackMain(self.xwidget,
                                             self.widgetChangeCB),
@@ -1220,8 +1232,8 @@ class PointWidget(ParameterWidget):
         map(switchboard.removeCallback, self.sbcallbacks)
         ParameterWidget.cleanUp(self)
 
-def _PointParameter_makeWidget(self, scope=None):
-    return PointWidget(self, scope=scope, name=self.name)
+def _PointParameter_makeWidget(self, scope=None, **kwargs):
+    return PointWidget(self, scope=scope, name=self.name, **kwargs)
 
 primitives.PointParameter.makeWidget = _PointParameter_makeWidget
  

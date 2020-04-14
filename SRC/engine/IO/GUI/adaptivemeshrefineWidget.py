@@ -25,13 +25,13 @@ import string
 skeletonContexts = skeletoncontext.skeletonContexts
 
 class AMRWhoParameterWidget(whowidget.WhoParameterWidget):
-    def __init__(self, whoclass, value=None, scope=None, name=None):
+    def __init__(self, whoclass, value=None, scope=None, name=None, **kwargs):
         self.skelwidget = scope.findWidget(
             lambda x: isinstance(x, whowidget.WhoWidget)
             and x.whoclass is skeletonContexts)
         whowidget.WhoParameterWidgetBase.__init__(self, whoclass,
                                                   value=value, scope=scope,
-                                                  name=name)
+                                                  name=name, **kwargs)
 
         # switchboard callbacks
         self.sbcallbacks = [
@@ -77,8 +77,9 @@ class AMRWhoParameterWidget(whowidget.WhoParameterWidget):
         map(switchboard.removeCallback, self.sbcallbacks)
         whowidget.WhoParameterWidgetBase.cleanUp(self)
                         
-def _AMRWhoParameter_makeWidget(self, scope=None):
-    return AMRWhoParameterWidget(self.whoclass, self.value, scope=scope)
+def _AMRWhoParameter_makeWidget(self, scope=None, **kwargs):
+    return AMRWhoParameterWidget(self.whoclass, self.value, scope=scope,
+                                 **kwargs)
 
 errorestimator.AMRWhoParameter.makeWidget = _AMRWhoParameter_makeWidget
 
@@ -214,9 +215,10 @@ errorestimator.AMRWhoParameter.makeWidget = _AMRWhoParameter_makeWidget
 #########################################
 
 class ZZFluxParameterWidget(meshparamwidgets.SubProblemFluxParameterWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         meshparamwidgets.SubProblemFluxParameterWidget.__init__(self, param,
-                                                                scope, name)
+                                                                scope, name,
+                                                                **kwargs)
 
         self.meshChangedCB()
         self.sbcallbacks += [switchboard.requestCallbackMain(
@@ -227,7 +229,7 @@ class ZZFluxParameterWidget(meshparamwidgets.SubProblemFluxParameterWidget):
         if mesh:
             self.widgetChanged(mesh.has_solution(), interactive=1)
         
-def _ZZFluxParameter_makeWidget(param, scope):
-    return ZZFluxParameterWidget(param, scope=scope, name=param.name)
+def _ZZFluxParameter_makeWidget(param, scope, **kwargs):
+    return ZZFluxParameterWidget(param, scope=scope, name=param.name, **kwargs)
 
 errorestimator.ZZFluxParameter.makeWidget = _ZZFluxParameter_makeWidget

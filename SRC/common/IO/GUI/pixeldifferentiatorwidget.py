@@ -21,7 +21,7 @@ from ooflib.common.IO.GUI import regclassfactory
 # algorithm, it needs to consider both local and global differences.
 
 class PixelDifferentiatorWidget(regclassfactory.RegisteredClassFactory):
-    def __init__(self, value, scope, name):
+    def __init__(self, value, scope, name, **kwargs):
         self.contiguity = None  # current value of contiguityWidget
         self.contiguityWidget = scope.findWidget(
             lambda w: isinstance(w, parameterwidgets.EnumWidget) and
@@ -32,7 +32,8 @@ class PixelDifferentiatorWidget(regclassfactory.RegisteredClassFactory):
             self.contiguityWidget, self.contiguityWidgetChanged)
 
         regclassfactory.RegisteredClassFactory.__init__(
-            self, burn.PixelDifferentiator.registry, scope=scope, name=name)
+            self, burn.PixelDifferentiator.registry, scope=scope, name=name,
+            **kwargs)
 
     def cleanUp(self):
         switchboard.removeCallback(self.sbcb)
@@ -45,8 +46,9 @@ class PixelDifferentiatorWidget(regclassfactory.RegisteredClassFactory):
     def includeRegistration(self, registration):
         return self.contiguity in registration.contiguities
     
-def _makeWidget(self, scope):
-    return PixelDifferentiatorWidget(self.value, scope=scope, name=self.name)
+def _makeWidget(self, scope, **kwargs):
+    return PixelDifferentiatorWidget(self.value, scope=scope, name=self.name,
+                                     **kwargs)
 
 burn.PixelDifferentiatorParameter.makeWidget = _makeWidget
 

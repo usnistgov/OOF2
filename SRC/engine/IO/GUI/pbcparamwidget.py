@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -23,8 +22,9 @@ from ooflib.engine.IO import pbcparams
 # valid state, though.
 
 class PBCBooleanWidget(parameterwidgets.BooleanWidget):
-    def __init__(self, param, scope=None, name=None):
-        parameterwidgets.BooleanWidget.__init__(self, param, scope, name)
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        parameterwidgets.BooleanWidget.__init__(self, param, scope, name,
+                                                **kwargs)
         self.skelwidget = scope.findWidget(
             lambda w: isinstance(w, whowidget.WhoWidget)
             and w.whoclass is skeletoncontext.skeletonContexts)
@@ -52,7 +52,7 @@ class PBCBooleanWidget(parameterwidgets.BooleanWidget):
             return False
         return parameterwidgets.BooleanWidget.get_value(self)
                 
-def _makePBCBooleanWidget(param, scope):
-    return PBCBooleanWidget(param, scope, name=param.name)
+def _makePBCBooleanWidget(param, scope, **kwargs):
+    return PBCBooleanWidget(param, scope, name=param.name, **kwargs)
             
 pbcparams.PBCBooleanParameter.makeWidget = _makePBCBooleanWidget

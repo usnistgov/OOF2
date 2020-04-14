@@ -33,11 +33,17 @@ import types
 # for examples of subclasses that do work as ParameterWidgets.
 
 class MatrixInputBase(parameterwidgets.ParameterWidget,
-                  widgetscope.WidgetScope):
+                      widgetscope.WidgetScope):
     def __init__(self, rows, cols, paramtype, paramargs={},
-                 value=None, scope=None, name=None):
+                 value=None, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
-        frame = Gtk.Frame()
+        args = kwargs.copy()
+        args.setdefault('hexpand', True)
+        args.setdefault('halign', Gtk.Align.FILL)
+        args.setdefault('vexpand', False)
+        args.setdefault('valign', Gtk.Align.START)
+        args.setdefault('margin', 2)
+        frame = Gtk.Frame(**args)
         self.table = gtk.Grid()
         frame.add(self.table)
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name)
@@ -60,7 +66,9 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
                 # Parameters are quite lightweight, no harm in providing
                 # a dummy to the widget.
                 dummyparam = paramtype(name="%d,%d"%(r,c), **paramargs)
-                newwidget = dummyparam.makeWidget(scope=self, compact=True)
+                newwidget = dummyparam.makeWidget(scope=self, compact=True,
+                                                  halign=Gtk.Align.FILL,
+                                                  hexpand=True)
                 self.sbcallbacks.append(
                     switchboard.requestCallbackMain(newwidget,
                                                     self.floatChangeCB))
@@ -96,10 +104,16 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
 # but is otherwise similar.
 class SymmetricMatrixInputBase(MatrixInputBase):
     def __init__(self, rows, cols, paramtype, paramargs={},
-                 value=None, scope=None, name=None):
+                 value=None, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
-        frame = Gtk.Frame()
-        self.table = Gtk.Grid()
+        frame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
+        args = kwargs.copy()
+        args.setdefault('hexpand', True)
+        args.setdefault('halign', Gtk.Align.FILL)
+        args.setdefault('vexpand', False)
+        args.setdefault('valign', Gtk.Align.START)
+        args.setdefault('margin', 2)
+        self.table = Gtk.Grid(**args)
         frame.add(self.table)
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name)
         widgetscope.WidgetScope.__init__(self, scope)
@@ -120,7 +134,9 @@ class SymmetricMatrixInputBase(MatrixInputBase):
         for r in range(self.rows):
             for c in range(r,self.cols):
                 dummyparam = paramtype(name="%d,%d"%(r,c), **paramargs)
-                newwidget = dummyparam.makeWidget(scope=self, compact=True)
+                newwidget = dummyparam.makeWidget(scope=self, compact=True,
+                                                  halign=Gtk.Align.FILL,
+                                                  hexpand=True)
                 self.sbcallbacks.append(
                     switchboard.requestCallbackMain(newwidget,
                                                     self.floatChangeCB))
@@ -138,18 +154,19 @@ class SymmetricMatrixInputBase(MatrixInputBase):
 # MatrixInput and SymmetricMatrixInput display an array of floats.
 
 class MatrixInput(MatrixInputBase):
-    def __init__(self, rows, cols, value=None, scope=None, name=None):
+    def __init__(self, rows, cols, value=None, scope=None, name=None, **kwargs):
         MatrixInputBase.__init__(self, rows=rows, cols=cols,
                                  paramtype=parameter.FloatParameter,
                                  paramargs=dict(value=0.0),
-                                 value=value, scope=scope, name=name)
+                                 value=value, scope=scope, name=name, **kwargs)
 
 class SymmetricMatrixInput(SymmetricMatrixInputBase):
-    def __init__(self, rows, cols, value=None, scope=None, name=None):
+    def __init__(self, rows, cols, value=None, scope=None, name=None, **kwargs):
         SymmetricMatrixInputBase.__init__(self, rows=rows, cols=cols,
                                           paramtype=parameter.FloatParameter,
                                           paramargs=dict(value=0.0),
-                                          value=value, scope=scope, name=name)
+                                          value=value, scope=scope, name=name,
+                                          **kwargs)
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -162,16 +179,17 @@ class SymmetricMatrixInput(SymmetricMatrixInputBase):
 ## all False is a valid value.
 
 class MatrixBoolInput(SymmetricMatrixInputBase):
-    def __init__(self, rows, cols, value=None, scope=None, name=None):
+    def __init__(self, rows, cols, value=None, scope=None, name=None, **kwargs):
         MatrixInputBase.__init__(self, rows=rows, cols=cols,
                                  paramtype=parameter.BooleanParameter,
                                  paramargs=dict(value=False),
-                                 value=value, scope=scope, name=name)
+                                 value=value, scope=scope, name=name, **kwargs)
 
 class SymmetricMatrixBoolInput(SymmetricMatrixInputBase):
-    def __init__(self, rows, cols, value=None, scope=None, name=None):
+    def __init__(self, rows, cols, value=None, scope=None, name=None, **kwargs):
         SymmetricMatrixInputBase.__init__(self, rows=rows, cols=cols,
                                           paramtype=parameter.BooleanParameter,
                                           paramargs=dict(value=False),
-                                          value=value, scope=scope, name=name)
+                                          value=value, scope=scope, name=name,
+                                          **kwargs)
         

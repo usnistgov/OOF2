@@ -24,9 +24,9 @@ from gi.repository import Gtk
 
 class OutputParameterWidget(parameterwidgets.ParameterWidget,
                             widgetscope.WidgetScope):
-    def __init__(self, value, outputtree, scope=None, name=None):
+    def __init__(self, value, outputtree, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
-        frame = Gtk.Frame()
+        frame = Gtk.Frame(**kwargs)
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         frame.add(self.vbox)
         # top part is a bunch of chooser widgets representing the
@@ -157,16 +157,18 @@ output.AggregateOutputParameter.makeWidget = \
 
 class ValueOutputWidget(parameterwidgets.ParameterWidget, 
                         widgetscope.WidgetScope):
-    def __init__(self, value, scope=None, name=None):
+    def __init__(self, value, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         widgetscope.WidgetScope.__init__(self, scope)
         self.scalar_output_obj = ScalarOutputParameterWidget(
             None, scope=self, name="Scalar")
         self.aggregate_output_obj = AggregateOutputParameterWidget(
             None, scope=self, name="Aggregate")
+        quargs = kwargs.copy()
+        quargs.setdefault('spacing', 2)
         parameterwidgets.ParameterWidget.__init__(
             self,
-            Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2),
+            Gtk.Box(orientation=Gtk.Orientation.VERTICAL, **quargs),
             scope, name)
         self.gtk.pack_start(self.scalar_output_obj.gtk,
                             expand=False, fill=False, padding=0)

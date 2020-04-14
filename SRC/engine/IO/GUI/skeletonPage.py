@@ -471,7 +471,7 @@ class SkeletonPage(oofGUI.MainPage):
     def getSkeletonAvailability(self):
         try:
             currentSkel = self.skelwidget.get_value() # colon separated string
-            ctxt = skeletoncontexts.skeletonContexts[currentSkel]
+            ctxt = skeletoncontext.skeletonContexts[currentSkel]
             return not ctxt.query_reservation()
         except KeyError:
             return 1

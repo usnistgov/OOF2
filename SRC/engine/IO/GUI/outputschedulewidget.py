@@ -20,9 +20,9 @@ from ooflib.engine import mesh
 from ooflib.engine.IO import scheduledoutput
 
 class ScheduledOutputWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         self.chooser = chooser.ChooserWidget([], callback=self.chooserCB,
-                                             name=name)
+                                             name=name, **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, self.chooser.gtk, scope)
         self.meshwidget = scope.findWidget(
             lambda w: isinstance(w, whowidget.WhoWidget)
@@ -60,7 +60,7 @@ class ScheduledOutputWidget(parameterwidgets.ParameterWidget):
         self.widgetChanged(True, interactive=False)
 
 
-def _makeScheduledOutputWidget(self, scope):
-    return ScheduledOutputWidget(self, scope, name=self.name)
+def _makeScheduledOutputWidget(self, scope, **kwargs):
+    return ScheduledOutputWidget(self, scope, name=self.name, **kwargs)
 
 scheduledoutput.ScheduledOutputParameter.makeWidget = _makeScheduledOutputWidget
