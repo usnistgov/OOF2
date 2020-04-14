@@ -290,7 +290,8 @@ class ErrorPopUp(object):
         self.gtk = gtklogger.Dialog(
             title="%s Error" % subWindow.oofname(),
             flags=Gtk.DialogFlags.MODAL,
-            parent=guitop.top().gtk)
+            parent=guitop.top().gtk,
+            border_width=3)
         self.gtk.set_keep_above(True) # might not work
         gtklogger.newTopLevelWidget(self.gtk, "Error")
 
@@ -302,7 +303,6 @@ class ErrorPopUp(object):
                                  expand=False, fill=False, padding=0)
 
         self.errframe = Gtk.Frame()
-        self.errframe.set_border_width(6)
         self.errframe.set_shadow_type(Gtk.ShadowType.IN)
         vbox.pack_start(self.errframe,
                                  expand=True, fill=True, padding=0)
@@ -345,7 +345,7 @@ class ErrorPopUp(object):
         self.gtk.set_default_response(Gtk.ResponseType.OK)
 
 
-        self.scroll = Gtk.ScrolledWindow(border_width=3)
+        self.scroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(self.scroll, "TraceScroll")
         self.scroll.set_policy(Gtk.PolicyType.AUTOMATIC,
                                Gtk.PolicyType.AUTOMATIC)
