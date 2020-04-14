@@ -39,8 +39,9 @@ elif config.dimension()==3:
 class ActiveAreaPage(oofGUI.MainPage):
     def __init__(self):
         self.built = False
-        oofGUI.MainPage.__init__(self, name="Active %s"%Spacestring, ordering=71.1,
-                                     tip="Modify active %s."%spacestring)
+        oofGUI.MainPage.__init__(self, name="Active %s"%Spacestring,
+                                 ordering=71.1,
+                                 tip="Modify active %s."%spacestring)
 
         mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)

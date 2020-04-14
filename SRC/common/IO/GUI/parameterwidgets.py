@@ -1098,7 +1098,7 @@ class EnumWidget(ParameterWidget):
     def update(self):
         self.widget.update(list(self.enumclass.names), self.enumclass.helpdict)
         self.widgetChanged(len(self.enumclass.names) > 0, interactive=0)
-    def selection(self, gtkobj, name):
+    def selection(self, name):
         self.value = self.enumclass(name)
         self.widgetChanged(validity=1, interactive=1)
     def get_value(self):

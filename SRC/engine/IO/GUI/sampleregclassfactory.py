@@ -21,16 +21,16 @@ from ooflib.engine.IO import analyze
 
 class SampleRCF(regclassfactory.RegisteredClassFactory):
     def __init__(self, obj=None, title=None, callback=None,
-                 fill=0, expand=0, scope=None, name=None, widgetdict={},
+                 scope=None, name=None, widgetdict={},
                  domainClass=None, operationClass=None,
                  **kwargs):
         self.sample_types = []
         self.directness = False
 
         regclassfactory.RegisteredClassFactory.__init__(
-            self, analysissample.SampleSet.registry, obj,
-            title, callback, fill, expand, scope,
-            name, widgetdict, **kwargs)
+            self, analysissample.SampleSet.registry, obj=obj, title=title,
+            callback=callback, scope=scope, name=name, widgetdict=widgetdict,
+            **kwargs)
 
         self.sbcallbacks = []
 

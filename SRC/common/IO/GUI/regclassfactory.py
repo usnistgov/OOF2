@@ -85,7 +85,8 @@ class RCFBase(parameterwidgets.ParameterWidget,
 class RegisteredClassFactory(RCFBase):
     def __init__(self, registry, obj=None, title=None,
                  callback=None,
-                 fill=False, expand=0, # gtk vertical expand & fill
+                 cbargs=(), cbkwargs={},
+                 # fill=False, expand=0, # gtk vertical expand & fill
                  scope=None, name=None,
                  widgetdict={},
                  *args, **kwargs):
@@ -95,7 +96,7 @@ class RegisteredClassFactory(RCFBase):
 
         ## TODO GTK3: Don't use args and kwargs for the callback args.  Use
         ## them for the Gtk format args, and set callback args with
-        ## new cb params.
+        ## new cbargs and cbkwargs.
         if args:
             debug.fmsg("args=", args)
         if kwargs:
@@ -108,11 +109,11 @@ class RegisteredClassFactory(RCFBase):
         # registration, plus the extra args and kwargs given to
         # __init__.
         self.callback = callback
-        self.callbackargs = args
-        self.callbackkwargs = kwargs
+        self.callbackargs = cbargs
+        self.callbackkwargs = cbkwargs
 
-        self.fill = fill
-        self.expand = expand    
+        # self.fill = fill
+        # self.expand = expand    
         # fill & expand option passed in to the add command in
         # "setByRegistration" routine.
 
@@ -265,8 +266,13 @@ class RegisteredClassFactory(RCFBase):
             self.useDefault = self.useDefault and not interactive
             self.widgetChanged(self.paramWidget.isValid(), interactive)
 
+            ## TODO GTK3: This used to use self.expand and self.fill
+            ## instead of True, but the containing object should set
+            ## its fill and align properties to control the width of
+            ## the parameter widgets.
             self.box.pack_start(self.paramWidget.gtk,
-                                fill=self.fill, expand=self.expand, padding=0)
+                                expand=True, fill=True, padding=0)
+
             self.show()
             if hasattr(registration, 'tip'):
                 self.options.gtk.set_tooltip_text(registration.tip)
@@ -603,7 +609,8 @@ class RegistrationGUIData:
 
 class RegisteredClassListFactory(RCFBase):
     def __init__(self, registry, objlist=None, title=None, callback=None,
-                 fill=False, expand=False, scope=None, name=None, widgetdict={},
+                 # fill=False, expand=False,
+                 scope=None, name=None, widgetdict={},
                  *args, **kwargs):
         debug.mainthreadTest()
         if kwargs:
@@ -614,8 +621,8 @@ class RegisteredClassListFactory(RCFBase):
         self.callbackargs = args
         self.callbackkwargs = kwargs
         self.title = title
-        self.fill = fill
-        self.expand = expand
+        # self.fill = fill
+        # self.expand = expand
 
         frame = Gtk.Frame(**kwargs)
         self.grid = gtk.Grid()

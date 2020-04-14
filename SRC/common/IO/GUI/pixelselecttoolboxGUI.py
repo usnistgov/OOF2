@@ -23,14 +23,12 @@ from ooflib.common.IO.GUI import regclassfactory
 
 
 class PixelSelectionMethodFactory(regclassfactory.RegisteredClassFactory):
-    def __init__(self, registry, obj=None, title=None,
-                 callback=None, fill=0, expand=0, scope=None, name=None,
-                 widgetdict={}, *args, **kwargs):
+    def __init__(self, registry, obj=None, title=None, callback=None,
+                 scope=None, name=None, widgetdict={}, **kwargs):
         self.current_who_class = None
         regclassfactory.RegisteredClassFactory.__init__(
             self, registry, obj=obj, title=title, callback=callback,
-            fill=fill, expand=expand, scope=scope, name=name,
-            widgetdict=widgetdict, *args, **kwargs)
+            scope=scope, name=name, widgetdict=widgetdict, **kwargs)
 
     def set_whoclass_name(self, name):
         self.current_who_class = name

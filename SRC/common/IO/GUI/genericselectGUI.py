@@ -68,16 +68,9 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         outerbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(outerbox)
 
-##        scroll = gtk.ScrolledWindow()
-##        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-##        outerbox.pack_start(scroll, expand=True, fill=True)
-
         # Retrieve the registered class factory from the subclass.
         self.selectionMethodFactory = self.methodFactory()
         self.selectionMethodFactory.gtk.set_vexpand(True)
-        # self.selectionMethodFactory = regclassfactory.RegisteredClassFactory(
-        #     method.registry, title="Method:", name="Method")
-##        scroll.add_with_viewport(self.selectionMethodFactory.gtk)
         outerbox.pack_start(self.selectionMethodFactory.gtk,
                             expand=True, fill=True, padding=0)
         self.historian = historian.Historian(self.setHistory,

@@ -30,7 +30,7 @@ boundaryconditionmenu.BCNameParameter.makeWidget = _bcNameParameter_makeWidget
 
 class FloatBCInitWidget(regclassfactory.RegisteredClassFactory):
     def __init__(self, obj=None, title=None, callback=None,
-                 fill=0, expand=0, scope=None, name=None, **kwargs): 
+                 scope=None, name=None, **kwargs): 
         meshwidget = scope.findWidget(
             lambda x: isinstance(x, whowidget.WhoWidget)
             and x.whoclass is mesh.meshes)
@@ -43,7 +43,7 @@ class FloatBCInitWidget(regclassfactory.RegisteredClassFactory):
         debug.fmsg("time_derivs=", self.time_derivs)
         regclassfactory.RegisteredClassFactory.__init__(
             self, bdycondition.FloatBCInitMethod.registry, obj=obj,
-            title=title, callback=callback, fill=fill, expand=expand,
+            title=title, callback=callback,
             scope=scope, name=name, **kwargs)
     def includeRegistration(self, reg):
         return self.time_derivs == reg.time_derivative

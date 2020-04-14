@@ -149,10 +149,8 @@ class SkeletonPage(oofGUI.MainPage):
         skelmodframe.add(skelmodbox)
 
         self.skelmod = regclassfactory.RegisteredClassFactory(
-                       skeletonmodifier.SkeletonModifier.registry,
-                       title="method: ",
-                       callback=self.skelmodCB,
-                       expand=False, fill=False, scope=self, name="Method")
+            skeletonmodifier.SkeletonModifier.registry, title="method: ",
+            callback=self.skelmodCB, scope=self, name="Method")
         self.historian = historian.Historian(self.skelmod.set,
                                              self.sensitizeHistory,
                                              setCBkwargs={'interactive':1})
