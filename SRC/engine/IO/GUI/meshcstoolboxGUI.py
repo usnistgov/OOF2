@@ -51,11 +51,11 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
 
         sourceframe = gtk.Frame("Source", shadow_type=Gtk.ShadowType.IN)
         mainbox.pack_start(sourceframe, fill=False, expand=False, padding=0)
-        sourcescroll = gtk.ScrolledWindow()
+        sourcescroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(sourcescroll, "Source")
         sourceframe.add(sourcescroll)
         sourcescroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.NEVER)
-        datatable = gtk.Grid()
+        datatable = Gtk.Grid()
         sourcescroll.add(datatable)
         
         meshlabel = Gtk.Label("mesh = ", halign=Gtk.Align.END)
@@ -76,7 +76,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         csframe.add(csbox)
 
         # Table contains the "current" and "points" widgets
-        table = gtk.Grid()
+        table = Gtk.Grid()
         csbox.pack_start(table, expand=False, fill=False, paddding=0)
 
         # Widget which shows the name of the current cross-section.

@@ -69,15 +69,15 @@ class FieldPage(oofGUI.MainPage):
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.subpwidget.gtk[0],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END)
+        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.subpwidget.gtk[1],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label("Mesh=", halign=Gtk.Align.END)
+        label = Gtk.Label("Mesh=", halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.subpwidget.gtk[2],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label("SubProblem=", halign=Gtk.Align.END)
+        label = Gtk.Label("SubProblem=", halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.subpwidget.gtk[3],
                              expand=False, fill=False, padding=0)

@@ -84,23 +84,9 @@ class RCFBase(parameterwidgets.ParameterWidget,
 
 class RegisteredClassFactory(RCFBase):
     def __init__(self, registry, obj=None, title=None,
-                 callback=None,
-                 cbargs=(), cbkwargs={},
-                 # fill=False, expand=0, # gtk vertical expand & fill
-                 scope=None, name=None,
-                 widgetdict={},
-                 *args, **kwargs):
-
-        ## TODO GTK3: Are the fill and expand args ever used?  If so,
-        ## can we just put vexpand and valign into kwargs instead?
-
-        ## TODO GTK3: Don't use args and kwargs for the callback args.  Use
-        ## them for the Gtk format args, and set callback args with
-        ## new cbargs and cbkwargs.
-        if args:
-            debug.fmsg("args=", args)
-        if kwargs:
-            debug.fmsg("kwargs=", kwargs)
+                 callback=None, cbargs=(), cbkwargs={},
+                 scope=None, name=None, widgetdict={},
+                 **kwargs):
 
         debug.mainthreadTest()
         self.registry = registry
@@ -112,18 +98,14 @@ class RegisteredClassFactory(RCFBase):
         self.callbackargs = cbargs
         self.callbackkwargs = cbkwargs
 
-        # self.fill = fill
-        # self.expand = expand    
-        # fill & expand option passed in to the add command in
-        # "setByRegistration" routine.
-
         self.readonly = False
         quargs = kwargs.copy()
         quargs.setdefault('margin', 2)
         RCFBase.__init__(self, Gtk.Frame(**quargs),
                          scope, widgetdict, name)
 
-        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                           margin=2)
         self.gtk.add(self.box)
         self.options = chooser.ChooserWidget([], callback=self.optionCB,
                                              update_callback=self.updateCB,
@@ -369,7 +351,7 @@ class RegisteredClassFactory(RCFBase):
         self.makeUneditable()
     def makeUneditable(self):
         # called by makeReadOnly and when subclass changes
-        entries = gtkutils.findChildren([gtk.Entry], self.paramWidget.gtk)
+        entries = gtkutils.findChildren([Gtk.Entry], self.paramWidget.gtk)
         for entry in entries:
             entry.set_editable(0)
         sliders = gtkutils.findChildren([Gtk.Scale, Gtk.Button],
@@ -431,20 +413,17 @@ parameter.RegisteredParameter.makeWidget = _RegisteredClass_makeWidget
 # current state data stored in the params.
 class ConvertibleRegisteredClassFactory(RegisteredClassFactory):
     def __init__(self, registry, obj=None, title=None,
-                 callback=None, fill=False, expand=False, scope=None, name=None,
+                 callback=None, cbargs=(), cbkwargs={},
+                 scope=None, name=None,
                  widgetdict={},
-                 *args, **kwargs):
+                 **kwargs):
         debug.mainthreadTest()
         self.base_value = None
-        RegisteredClassFactory.__init__(self, registry, obj,
-                                        title=title,
-                                        callback=callback,
-                                        fill=fill,
-                                        expand=expand,
-                                        scope=scope,
-                                        name=name,
-                                        widgetdict=widgetdict,
-                                        *args, **kwargs)
+        RegisteredClassFactory.__init__(
+            self, registry, obj, title=title,
+            callback=callback, cbargs=cbargs, cbkwargs=cbkwargs,
+            scope=scope, name=name, widgetdict=widgetdict,
+            **kwargs)
         
     # The ConvertibleRCF's optionCB needs to extract the values from
     # the "outgoing" widgets in order to insert them, suitably
@@ -625,7 +604,7 @@ class RegisteredClassListFactory(RCFBase):
         # self.expand = expand
 
         frame = Gtk.Frame(**kwargs)
-        self.grid = gtk.Grid()
+        self.grid = Gtk.Grid()
         frame.add(self.grid)
         RCFBase.__init__(self, frame, scope, widgetdict, name)
         self.parent.addWidget(self)
@@ -643,7 +622,7 @@ class RegisteredClassListFactory(RCFBase):
         self.grid.foreach(Gtk.Widget.destroy) # clear the grid
         row = 0
         if self.title:
-            self.grid.attach(gtk.Label(self.title), 0,row,1,1)
+            self.grid.attach(Gtk.Label(self.title), 0,row,1,1)
             row += 1
             self.grid.attach(
                 Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),

@@ -33,13 +33,13 @@ class PinnedNodesToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
         infoframe = Gtk.Frame()
         mainbox.pack_start(infoframe, expand=False, fill=False)
-        info = gtk.Label("""Click a node to pin it,
+        info = Gtk.Label("""Click a node to pin it,
 Shift-click to unpin it,
 And Ctrl-click to toggle.""")
         infoframe.add(info)
             
        
-        self.table = gtk.Grid()
+        self.table = Gtk.Grid()
         mainbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
         label = Gtk.Label('Mouse', hexpand=False,
@@ -57,7 +57,7 @@ And Ctrl-click to toggle.""")
 
         label = Gtk.Label('y=', hexpand=False, halign=Gtk.Align.END)
         self.table.attach(label, 1,1, 1,1)
-        self.ytext = gtk.Entry(editable=False,
+        self.ytext = Gtk.Entry(editable=False,
                                hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.ytext,"Mouse Y")
         self.ytext.set_width_chars(12)
@@ -116,7 +116,7 @@ And Ctrl-click to toggle.""")
                         homogeneous=True, spacing=2)
         modbox.pack_end(bbox2, expand=False, fill=False, padding=0)
 
-        self.unpinallbutton = gtk.Button("Unpin All")
+        self.unpinallbutton = Gtk.Button("Unpin All")
         gtklogger.setWidgetName(self.unpinallbutton, 'UnPinAll')
         gtklogger.connect(self.unpinallbutton, "clicked", self.unpinallCB)
         self.unpinallbutton.set_tooltip_text("Unpin all the pinned nodes.")
@@ -125,7 +125,8 @@ And Ctrl-click to toggle.""")
         self.invertbutton = Gtk.Button("Invert")
         gtklogger.setWidgetName(self.invertbutton, 'Invert')
         gtklogger.connect(self.invertbutton, "clicked", self.invertCB)
-        self.invertbutton.set_tooltip_text("Invert - pin the unpinned and unpin the pinned.")
+        self.invertbutton.set_tooltip_text(
+            "Invert - pin the unpinned and unpin the pinned.")
         bbox2.pack_start(self.invertbutton, expand=True, fill=True, padding=0)
 
         self.status = Gtk.Label(hexpand=True, vexpand=True,

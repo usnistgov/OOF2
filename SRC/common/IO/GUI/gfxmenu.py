@@ -118,25 +118,6 @@ class MenuCallBackWrapper:
             # Call, but don't log, the gui callback.
             self.menuitem.gui_callback(self.menuitem)
 
-# def _gtklabel(self, gtkitem):
-#     debug.mainthreadTest()
-#     name = utils.underscore2space(self.name)
-#     # Add ellipsis automatically if there's an automatically generated
-#     # gui_callback.
-#     if self.ellipsis or (self.params and not self.gui_callback):
-#         name = name + '...'
-#     if self.accel:
-#         label = gtk.AccelLabel(name)
-#         label.set_accel_widget(gtkitem)
-#     else:
-#         label = gtk.Label(name)
-#     label.set_alignment(0.0, 0.5)
-#     tooltips.set_tooltip_text(label,self.helpstr)
-#     label.show_all()
-#     return label
-
-# OOFMenuItem.gtklabel = _gtklabel
-
 def _menuItemName(self):
     name = utils.underscore2space(self.name)
     # Add an ellipsis if explicitly requested or if there's an

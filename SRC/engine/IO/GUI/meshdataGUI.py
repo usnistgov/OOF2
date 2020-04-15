@@ -101,7 +101,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
         self.mainbox.pack_start(expander, expand=False, fill=False, padding=0)
         expander.set_expanded(True)
         
-        self.table = gtk.Grid()
+        self.table = Gtk.Grid()
         expander.add(self.table)
 
         label = Gtk.Label("Source Window:", halign=Gtk.Align.END)
@@ -371,7 +371,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
         debug.subthreadTest()
         self.updateData()
 
-    def posChangedCB(self, gtkobj): # text edited in x & y gtk.Entries
+    def posChangedCB(self, gtkobj): # text edited in x & y Gtk.Entries
         debug.mainthreadTest()
         try:
             self.position = primitives.Point(_getval(self.xText),

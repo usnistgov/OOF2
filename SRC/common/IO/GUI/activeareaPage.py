@@ -71,6 +71,9 @@ class ActiveAreaPage(oofGUI.MainPage):
         aasframe = Gtk.Frame(label="Active %s Status"%Spacestring)
         aasframe.set_shadow_type(Gtk.ShadowType.IN)
         vbox.pack_start(aasframe, expand=False, fill=False, padding=0)
+
+        ## TODO GTK3: For consistency with other status panes, aainfo
+        ## should be a TextView.
         self.aainfo = Gtk.Label(margin=2)
         gtklogger.setWidgetName(self.aainfo, "Status")
         aasframe.add(self.aainfo)
@@ -121,13 +124,9 @@ class ActiveAreaPage(oofGUI.MainPage):
         modbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
                          spacing=2, margin=2)
         modframe.add(modbox)
-##        scroll = gtk.ScrolledWindow()
-##        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-##        modbox.pack_start(scroll, expand=True, fill=True)
         self.activeareaModFactory = regclassfactory.RegisteredClassFactory(
             activeareamod.ActiveAreaModifier.registry, title="Method:",
             scope=self, name="Method", margin=2)
-##        scroll.add_with_viewport(self.activeareaModFactory.gtk)
         modbox.pack_start(self.activeareaModFactory.gtk,
                           expand=True, fill=True, padding=0)
         self.historian = historian.Historian(self.activeareaModFactory.set,

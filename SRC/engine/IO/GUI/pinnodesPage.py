@@ -33,7 +33,7 @@ class PinNodesPage(oofGUI.MainPage):
         self.gtk.add(mainbox)
 
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                            halign=Gtk.Align.CENTER, spacing=3)
+                            halign=Gtk.Align.CENTER, margin_top=2, spacing=2)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.skelwidget = whowidget.WhoWidget(whoville.getClass('Skeleton'),
                                               callback=self.select_skeletonCB)
@@ -41,7 +41,7 @@ class PinNodesPage(oofGUI.MainPage):
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[0],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END)
+        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[1],
                              expand=False, fill=False, padding=0)
@@ -53,9 +53,10 @@ class PinNodesPage(oofGUI.MainPage):
         gtklogger.connect_passive(mainpane, 'notify::position')
 
         # Pinned nodes status in the left half of the main pane
-        pnsframe = Gtk.Frame(label="Pinned Nodes Status",
+        pnsframe = Gtk.Frame(label="Pinned Nodes Status", margin=2,
                              shadow_type=Gtk.ShadowType.IN)
-        self.datascroll = Gtk.ScrolledWindow()
+        self.datascroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN,
+                                             margin=2)
         gtklogger.logScrollBars(self.datascroll, "StatusScroll")
         pnsframe.add(self.datascroll)
         self.datascroll.set_policy(Gtk.PolicyType.AUTOMATIC,
@@ -67,7 +68,7 @@ class PinNodesPage(oofGUI.MainPage):
         mainpane.pack1(pnsframe, resize=True, shrink=False)
         
         # Pin nodes method
-        modframe = Gtk.Frame(label="Pin Nodes Methods",
+        modframe = Gtk.Frame(label="Pin Nodes Methods", margin=2,
                              shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(modframe, 'Modify')
         # box for "methods" and "buttons"
@@ -80,7 +81,8 @@ class PinNodesPage(oofGUI.MainPage):
                           expand=True, fill=True, padding=0)
 
         # buttons
-        hbox1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        hbox1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                        margin_left=2, margin_right=2)
         modbox.pack_start(hbox1, expand=False, fill=False, padding=0)
         self.okbutton = gtkutils.StockButton('gtk-ok', 'OK')
         gtklogger.setWidgetName(self.okbutton, 'OK')
@@ -99,7 +101,8 @@ class PinNodesPage(oofGUI.MainPage):
         hbox1.pack_end(self.redobutton, expand=False, fill=True, padding=0)
 
         hbox2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                        homogeneous=True, spacing=2)
+                        homogeneous=True, spacing=2,
+                        margin_left=2, margin_right=2, margin_bottom=2)
         modbox.pack_start(hbox2, expand=False, fill=False, padding=0)
         self.unpinallbutton = Gtk.Button("Unpin All")
         gtklogger.setWidgetName(self.unpinallbutton, 'Unpin All')

@@ -47,7 +47,7 @@ class SkeletonPage(oofGUI.MainPage):
         self.gtk.add(mainbox)
 
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                             halign=Gtk.Align.CENTER, spacing=3)
+                             halign=Gtk.Align.CENTER, margin_top=2, spacing=2)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.skelwidget = whowidget.WhoWidget(whoville.getClass('Skeleton'),
                                               scope=self)
@@ -55,14 +55,15 @@ class SkeletonPage(oofGUI.MainPage):
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[0],
                              expand=True, fill=True, padding=0)
-        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END)
+        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[1],
                              expand=True, fill=True, padding=0)
 
         # Centered box of buttons
         bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                       homogeneous=True, spacing=2)
+                       halign=Gtk.Align.CENTER,
+                       homogeneous=False, spacing=3)
         mainbox.pack_start(bbox, expand=False, fill=False, padding=0)
 
         self.newbutton = gtkutils.StockButton('document-new-symbolic', 'New...')
@@ -122,10 +123,10 @@ class SkeletonPage(oofGUI.MainPage):
         mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
 
-        self.skelframe = Gtk.Frame(label="Skeleton Status",
+        self.skelframe = Gtk.Frame(label="Skeleton Status", margin=2,
                                    shadow_type=Gtk.ShadowType.IN)
         mainpane.pack1(self.skelframe, resize=True, shrink=False)
-        scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
+        scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN, margin=2)
         gtklogger.logScrollBars(scroll, "StatusScroll")
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.skelframe.add(scroll)
@@ -142,15 +143,15 @@ class SkeletonPage(oofGUI.MainPage):
 
         # Start of right-side
 
-        skelmodframe = Gtk.Frame(label="Skeleton Modification",
+        skelmodframe = Gtk.Frame(label="Skeleton Modification", margin=2,
                                  shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(skelmodframe, 'Modification')
         skelmodbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         skelmodframe.add(skelmodbox)
 
         self.skelmod = regclassfactory.RegisteredClassFactory(
-            skeletonmodifier.SkeletonModifier.registry, title="method: ",
-            callback=self.skelmodCB, scope=self, name="Method")
+            skeletonmodifier.SkeletonModifier.registry, title="Method= ",
+            callback=self.skelmodCB, scope=self, name="Method", margin=2)
         self.historian = historian.Historian(self.skelmod.set,
                                              self.sensitizeHistory,
                                              setCBkwargs={'interactive':1})
@@ -159,7 +160,8 @@ class SkeletonPage(oofGUI.MainPage):
                               expand=True, fill=True, padding=0)
 
         # Buttons for "Previous", "OK", and "Next"
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       margin_left=2, margin_right=2)
         skelmodbox.pack_start(hbox, expand=False, fill=False, padding=0) 
 
         self.prevskelmodbutton = gtkutils.prevButton()
@@ -183,9 +185,9 @@ class SkeletonPage(oofGUI.MainPage):
         hbox.pack_start(self.nextskelmodbutton,
                         expand=False, fill=False, padding=0)
 
-
         # Buttons for "Undo", "Redo"
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       margin=2)
         skelmodbox.pack_start(hbox, expand=False, fill=False, padding=0)
 
         self.undobutton = gtkutils.StockButton('edit-undo-symbolic', 'Undo')

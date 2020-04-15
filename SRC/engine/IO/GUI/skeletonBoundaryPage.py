@@ -48,7 +48,7 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[0],
                              expand=False, fill=False, padding=0)
-        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END)
+        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.skelwidget.gtk[1],
                              expand=False, fill=False, padding=0)

@@ -53,7 +53,7 @@ class MeshInfoMode:
         # scrolledwindow.
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         scroll.add(vbox)
-        self.table = gtk.Grid()
+        self.table = Gtk.Grid()
         vbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
     def destroy(self):
@@ -208,7 +208,7 @@ class NodeMode(MeshInfoMode):
         self.table.attach(self.fieldSep, 0,3, 3,1)
 
         self.fieldslisted = None
-        # fieldvalEntries is a dict of the gtk.Entrys for displaying
+        # fieldvalEntries is a dict of the Gtk.Entrys for displaying
         # the values of the DoFs at a Node.  The keys are (Field,
         # component) tuples.
         self.fieldvalEntries = {}
@@ -291,7 +291,7 @@ class NodeMode(MeshInfoMode):
                                                   1, 1)
                     lastComponent = label
                     # self.table.attach(label, 1,2, row,row+1,xoptions=gtk.FILL)
-                    e = gtk.Entry(hexpand=True, halign=Gtk.Align.FILL,
+                    e = Gtk.Entry(hexpand=True, halign=Gtk.Align.FILL,
                                   editable=False)
                     e.set_width_chars(10)
                     self.fieldvalEntries[(fld, fcomp.integer())] = e
@@ -424,7 +424,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         gtklogger.connect(self.prev, 'clicked', self.prevQuery)
         buttonbox.pack_start(self.prev, expand=False, fill=False, padding=0)
         
-        self.clear = gtk.Button("edit-clear-symbolic", "Clear")
+        self.clear = Gtk.Button("edit-clear-symbolic", "Clear")
         gtklogger.setWidgetName(self.clear, 'Clear')
         gtklogger.connect(self.clear, 'clicked', self.clearQuery)
         self.clear.set_tooltip_text("Clear the current query.")

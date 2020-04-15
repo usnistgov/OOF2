@@ -44,7 +44,7 @@ class DefaultClipper(object):
         val = max(val, self.vmin)
         return val
 
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#    
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class LabelledSlider:
     def __init__(self, value=None, vmin=0, vmax=1, step=0.01, callback=None,
@@ -88,7 +88,7 @@ class LabelledSlider:
         self.entry.set_margin_start(3)
         self.entry.set_margin_end(3)
         gtklogger.setWidgetName(self.entry, "entry")
-        self.gtk.pack2(self.entry, resize=True, shrink=True)
+        self.gtk.pack2(self.entry, resize=True, shrink=False)
 
         # Make sure that the Entry is big enough to hold the min and
         # max values, or at least 8 digits.

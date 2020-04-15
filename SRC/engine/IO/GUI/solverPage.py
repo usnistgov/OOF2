@@ -62,12 +62,12 @@ class SolverPage(oofGUI.MainPage):
         centerbox.pack_start(self.meshwidget.gtk[0],
                              expand=False, fill=False, padding=0)
 
-        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END)
+        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[1], expand=False, fill=False,
                              padding=0)
 
-        label = Gtk.Label("Mesh=", halign=Gtk.Align.END)
+        label = Gtk.Label("Mesh=", halign=Gtk.Align.END, margin_start=5)
         centerbox.pack_start(label, expand=False, fill=False, padding=0)
         centerbox.pack_start(self.meshwidget.gtk[2], expand=False, fill=False,
                              padding=0)
@@ -352,7 +352,7 @@ class SolverPage(oofGUI.MainPage):
 
         # The start time isn't set directly by the user, except by
         # applying field initializers at a given time.  It's displayed
-        # in a desensitized gtk.Entry.
+        # in a desensitized Gtk.Entry.
         label = Gtk.Label('current time=', halign=Gtk.Align.END, hexpand=False)
         table.attach(label, 0,0, 1,1)
         self.currentTimeEntry = Gtk.Entry(sensitive=False, hexpand=True,

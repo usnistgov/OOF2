@@ -88,7 +88,8 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         self.gtk.add(self.mainbox)
 
         self.skelwidgetbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                                     spacing=2, halign=Gtk.Align.CENTER)
+                                     spacing=2, halign=Gtk.Align.CENTER,
+                                     margin_top=2)
         self.mainbox.pack_start(self.skelwidgetbox,
                                 expand=False, fill=False, padding=0)
         self.skelwidget = whowidget.WhoWidget(skeletoncontext.skeletonContexts,
@@ -99,7 +100,7 @@ class SkeletonSelectionPage(oofGUI.MainPage):
                                       expand=False, fill=False, padding=0)
         self.skelwidgetbox.pack_start(self.skelwidget.gtk[0],
                                       expand=False, fill=False, padding=0)
-        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END)
+        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END, margin_start=5)
         self.skelwidgetbox.pack_start(label,
                                       expand=False, fill=False, padding=0)
         self.skelwidgetbox.pack_start(self.skelwidget.gtk[1],
@@ -152,7 +153,7 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         self.mainpane.pack1(self.leftbox, resize=True, shrink=False)
 
         # Status box.
-        self.statusframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
+        self.statusframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
         self.leftbox.pack_start(self.statusframe,
                                 expand=False, fill=False, padding=0)
         self.status = Gtk.Label(halign=Gtk.Align.START)
@@ -322,7 +323,7 @@ class GroupGUI:
     def __init__(self, parent):
         debug.mainthreadTest()
         self.parent = parent
-        self.gtk = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
+        self.gtk = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
         gtklogger.setWidgetName(self.gtk, 'Groups')
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         self.gtk.add(box)
@@ -335,7 +336,8 @@ class GroupGUI:
         self.groupandselectionbuttons = []
 
         # Left-hand button box.  New/Auto/Rename/Copy/Delete/DeleteAll
-        lbuttons = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        lbuttons = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                           margin=2)
         box.pack_start(lbuttons, fill=False, expand=False, padding=0)
 
         self.new_button = Gtk.Button("New...")
@@ -386,11 +388,13 @@ class GroupGUI:
         
         # Groups list.
         self.grouplist = chooser.ScrolledChooserListWidget(
-            callback=self.chooserCB, name="GroupList")
+            callback=self.chooserCB, name="GroupList",
+            margin_top=2, margin_bottom=2)
         box.pack_start(self.grouplist.gtk, fill=True, expand=True, padding=0)
         
         # Right-hand button box.  Add/Remove/Clear/ClearAll/Info
-        rbuttons = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        rbuttons = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                           margin=2)
         box.pack_start(rbuttons, fill=False, expand=False, padding=0)
 
         self.add_button = Gtk.Button("Add")
@@ -440,7 +444,8 @@ class GroupGUI:
         ## TODO: Hide this frame when mode.materialsallowed is False.
         matframe = Gtk.Frame(label="Material", shadow_type=Gtk.ShadowType.IN)
         rbuttons.pack_start(matframe, expand=False, fill=False, padding=2)
-        matbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        matbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                         margin=2)
         matframe.add(matbox)
 
         self.addmaterial_button = Gtk.Button("Assign")
@@ -766,7 +771,7 @@ class SelectionGUI:
     def __init__(self, parent):
         debug.mainthreadTest()
         self.parent = parent
-        self.gtk = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
+        self.gtk = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
         gtklogger.setWidgetName(self.gtk, 'Selection')
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(self.vbox)
@@ -798,7 +803,8 @@ class SelectionGUI:
 
         # Slightly misleading name, includes undo, redo and clear.
         self.undoredoline = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                                    spacing=2)
+                                    spacing=2, margin_left=2, margin_right=2,
+                                    margin_bottom=2)
         
         self.undo_button = gtkutils.StockButton('edit-undo-symbolic', 'Undo')
         gtklogger.setWidgetName(self.undo_button, 'Undo')
@@ -968,7 +974,7 @@ class HistoryBox:
         self.historian = historian.Historian(self.setCB, self.sensitize)
 
         # Buttons:  Previous, OK, and next.
-        self.prevbutton = gtkutils.prevButton()
+        self.prevbutton = gtkutils.prevButton(margin_left=2)
         gtklogger.connect(self.prevbutton, "clicked", self.historian.prevCB)
         self.prevbutton.set_tooltip_text(
             "Recall the previous selection modification operation.")
@@ -983,7 +989,7 @@ class HistoryBox:
             "Perform the selection modification operation.")
         self.okbutton.set_sensitive(False)
         
-        self.nextbutton = gtkutils.nextButton()
+        self.nextbutton = gtkutils.nextButton(margin_right=2)
         gtklogger.connect(self.nextbutton, "clicked", self.historian.nextCB)
         self.nextbutton.set_tooltip_text(
             "Recall the next selection modification operation.")

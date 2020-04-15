@@ -85,15 +85,15 @@ class StockButton(Gtk.Button):
         #     else:
         #         self.label.set_label(' ' + labelstr)
                         
-def prevButton():
+def prevButton(**kwargs):
     debug.mainthreadTest()
-    button = StockButton('go-previous-symbolic', 'Prev')
+    button = StockButton('go-previous-symbolic', 'Prev', **kwargs)
     gtklogger.setWidgetName(button, "Prev")
     return button
 
-def nextButton():
+def nextButton(**kwargs):
     debug.mainthreadTest()
-    button = StockButton('go-next-symbolic', 'Next', reverse=True)
+    button = StockButton('go-next-symbolic', 'Next', reverse=True, **kwargs)
     gtklogger.setWidgetName(button, "Next")
     return button
 

@@ -49,7 +49,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         mainbox.pack_start(hbox, expand=False, fill=False, padding=0)
         gtklogger.setWidgetName(hbox, "MoveWith")
-        hbox.pack_start(gtk.Label("Move with: "),
+        hbox.pack_start(Gtk.Label("Move with: "),
                         expand=False, fill=False, padding=0)
 
         modes = [("Mouse", "Click and drag a node to move it."),
@@ -100,7 +100,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
         label = Gtk.Label('y=', halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, 0,1, 1,1)
-        self.ytext = gtk.Entry(editable=True,
+        self.ytext = Gtk.Entry(editable=True,
                                halign=Gtk.Align.FILL, hexpand=True)
         self.table.attach(self.ytext, 1,1, 1,1)
         gtklogger.setWidgetName(self.ytext, 'y')
@@ -113,7 +113,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
         label = Gtk.Label("shape energy=", halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, 0,3, 1,1)
-        self.shapetext = gtk.Entry(editable=False,
+        self.shapetext = Gtk.Entry(editable=False,
                                    hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.shapetext,"shape")
         self.shapetext.set_width_chars(12)
@@ -122,7 +122,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
         label = Gtk.Label("homogeneity=", halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, 0,4, 1,1)
-        self.homogtext = gtk.Entry(editable=False,
+        self.homogtext = Gtk.Entry(editable=False,
                                    hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.homogtext,"homog")
         self.homogtext.set_width_chars(12)

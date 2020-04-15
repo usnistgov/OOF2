@@ -54,10 +54,10 @@ class InterfacePage(oofGUI.MainPage):
         #We might want to include a skeleton in the widget, if an interface
         #is defined in terms of skeleton segments. For now the interface is
         #only associated with a microstructure
-##        label = gtk.Label('Skeleton=')
-##        label.set_alignment(1.0, 0.5)
-##        centerbox.pack_start(label, expand=0, fill=0)
-##        centerbox.pack_start(self.skelwidget.gtk[1], expand=0, fill=0)
+        # label = Gtk.Label('Skeleton=', halign=Gtk.Align.END)
+        # centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        # centerbox.pack_start(self.skelwidget.gtk[1],
+        #                      expand=True, fill=True, padding=0)
 
         mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
                              wide_handle=True)

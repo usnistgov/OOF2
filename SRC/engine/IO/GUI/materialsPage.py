@@ -92,14 +92,17 @@ class PropertyPane:
         # GfxLabelTree self.propertytree.
         self.current_property = None
 
-        self.gtk = Gtk.Frame(label='Property', shadow_type=Gtk.ShadowType.IN)
+        self.gtk = Gtk.Frame(label='Property', shadow_type=Gtk.ShadowType.IN,
+                             margin=2)
         gtklogger.setWidgetName(self.gtk, 'Property')
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
         
         self.gtk.add(vbox)
 
         # Button box above the Property Tree
-        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                            margin=2)
         vbox.pack_start(buttonbox, expand=False, fill=False, padding=0)
 
         self.copybutton = gtkutils.StockButton('edit-copy-symbolic', 'Copy...')
@@ -129,10 +132,12 @@ class PropertyPane:
                              expand=True, fill=False, padding=0)
 
         # Scrolling window containing the Property Tree
-        scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
+        scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN,
+                                    margin=2)
         gtklogger.logScrollBars(scroll, "PropertyScroll")
         vbox.pack_start(scroll, expand=True, fill=True, padding=0)
-        scroll.set_policy(Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
+        scroll.set_policy(Gtk.PolicyType.AUTOMATIC,
+                          Gtk.PolicyType.AUTOMATIC)
         self.propertytree = gfxLabelTree.GfxLabelTree(AllProperties.data,
                                                       expand=None,
                                                       callback=self.proptreeCB,
@@ -310,13 +315,15 @@ class MaterialPane:
         debug.mainthreadTest()
         self.parent = parent
 
-        self.gtk = Gtk.Frame(label='Material', shadow_type=Gtk.ShadowType.IN)
+        self.gtk = Gtk.Frame(label='Material', shadow_type=Gtk.ShadowType.IN,
+                             margin=2)
         gtklogger.setWidgetName(self.gtk, 'Material')
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
         self.gtk.add(vbox)
 
         buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                            spacing=2)
+                            spacing=2, margin=2)
         vbox.pack_start(buttonbox, expand=False, fill=False, padding=0)
 
         self.newmaterial = gtkutils.StockButton('document-new', 'New...')
@@ -358,21 +365,25 @@ class MaterialPane:
         self.savebutton.set_tooltip_text('Save this material in a file.')
         gtklogger.connect(self.savebutton, 'clicked', self.on_save)
 
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=0)
+        
         self.materialName = chooser.ChooserWidget(
             materialmanager.getMaterialNames(),
             callback=self.newMatSelection,
             update_callback=self.newMatSelection,
             name="MaterialList",
-            border_width=3)
-
-        vbox.pack_start(self.materialName.gtk,
+            border_width=2)
+        hbox.pack_start(Gtk.Label("Material:"),
                         expand=False, fill=False, padding=0)
+        hbox.pack_start(self.materialName.gtk,
+                        expand=True, fill=True, padding=0)
         self.materialName.gtk.set_tooltip_text('Choose a Material to edit.')
 
         # The list of Properties belonging to a Material
         self.matproplist = chooser.ScrolledChooserListWidget(
             callback=self.matproplistCB, autoselect=False, name="PropertyList",
-            border_width=3)
+            border_width=2)
         vbox.pack_start(self.matproplist.gtk, expand=True, fill=True, padding=0)
 
         self.removebutton = Gtk.Button('Remove Property from Material',
@@ -383,24 +394,18 @@ class MaterialPane:
             'Remove the currently selected property from this material.')
         gtklogger.connect(self.removebutton, "clicked", self.on_remove)
 
-        # Assignment of materials to pixels and removal of materials
-        # from pixels may belong in a separate GUI page.  For now,
-        # it's done via the dialog boxes raised by the buttons defined
-        # here.
-        assignframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, border_width=3)
-        vbox.pack_start(assignframe, expand=False, fill=False, padding=0)
-
         # The buttons for assigning and removing materials from pixels
         # are in a Grid because if we ever get around to finishing the
         # interface materials, the buttons for adding and removing
-        # material from interfaces will appear in the second column of
+        # material from interfaces will appear in the second row of
         # the grid.
 
-        assigngrid = Gtk.Grid(halign=Gtk.Align.CENTER)
-        assignframe.add(assigngrid)
+        assigngrid = Gtk.Grid(halign=Gtk.Align.CENTER,
+                              column_homogeneous=True)
+        vbox.pack_start(assigngrid, expand=False, fill=False, padding=0)
         
         # Assign materials to pixels
-        self.assignbutton = Gtk.Button('Assign Material to Pixels...',
+        self.assignbutton = Gtk.Button('Assign to Pixels...',
                                        hexpand=True,
                                        border_width=2)
         gtklogger.setWidgetName(self.assignbutton, "Assign")
@@ -411,7 +416,7 @@ class MaterialPane:
         assigngrid.attach(self.assignbutton, 0,0, 1,1)
         
         # Remove materials from pixels
-        self.removematbutton = Gtk.Button('Remove Materials from Pixels...',
+        self.removematbutton = Gtk.Button('Remove from Pixels...',
                                           hexpand=True,
                                           border_width=2)
         gtklogger.setWidgetName(self.removematbutton, "RemoveMaterial")
@@ -419,7 +424,7 @@ class MaterialPane:
             'Remove all Materials from pixels in a Microstructure.')
         gtklogger.connect(self.removematbutton, 'clicked',
                           self.on_MS_remove_material)
-        assigngrid.attach(self.removematbutton, 0,1, 1,1)
+        assigngrid.attach(self.removematbutton, 1,0, 1,1)
 
         if runtimeflags.surface_mode:
             # Assign material to interface
@@ -625,8 +630,8 @@ class MaterialPane:
         nmicros = microstructure.microStructures.nActual()
         self.assignbutton.set_sensitive(
             mat_selected and nmicros > 0 and
-            self.currentMaterial().type()==
-            material.MATERIALTYPE_BULK)
+            self.currentMaterial() is not None and
+            self.currentMaterial().type() == material.MATERIALTYPE_BULK)
         self.removematbutton.set_sensitive(nmicros > 0)
 
         self.removebutton.set_sensitive(

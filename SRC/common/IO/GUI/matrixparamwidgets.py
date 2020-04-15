@@ -37,14 +37,14 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
     def __init__(self, rows, cols, paramtype, paramargs={},
                  value=None, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
-        args = kwargs.copy()
-        args.setdefault('hexpand', True)
-        args.setdefault('halign', Gtk.Align.FILL)
-        args.setdefault('vexpand', False)
-        args.setdefault('valign', Gtk.Align.START)
-        args.setdefault('margin', 2)
-        frame = Gtk.Frame(**args)
-        self.table = gtk.Grid()
+        quargs = kwargs.copy()
+        quargs.setdefault('hexpand', True)
+        quargs.setdefault('halign', Gtk.Align.FILL)
+        quargs.setdefault('vexpand', False)
+        quargs.setdefault('valign', Gtk.Align.START)
+        quargs.setdefault('margin', 2)
+        frame = Gtk.Frame(**quargs)
+        self.table = Gtk.Grid(row_spacing=2, column_spacing=2)
         frame.add(self.table)
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name)
         widgetscope.WidgetScope.__init__(self, scope)
@@ -58,7 +58,7 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
             lbl = Gtk.Label(' %d ' % (r+1), halign=Gtk.Align.END)
             self.table.attach(lbl, 0, r+1, 1, 1)
         for c in range(self.cols):
-            lbl = gtk.Label(`c+1`)
+            lbl = Gtk.Label(`c+1`)
             self.table.attach(lbl, c+1, 0, 1, 1)
 
         for r in range(self.rows):
@@ -75,10 +75,6 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
 
                 self.widgets[(r,c)] = newwidget
                 self.table.attach(newwidget.gtk, c+1, r+1, 1, 1)
-                ## TODO GTK3: We used to use xoptions=gtk.FILL when
-                ## attaching the widget to the table here.  We need a
-                ## way to pass halign=Gtk.Align.FILL to the underlying
-                ## Gtk.Entry (or whatever kind of widget we have).
 
         self.widgetChanged(1, interactive=0) # always valid
     def floatChangeCB(self, interactive):
@@ -87,7 +83,7 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
         map(switchboard.removeCallback, self.sbcallbacks)
         parameterwidgets.ParameterWidget.cleanUp(self)
 
-    # Turn the gtk.Entry 'changed' signal on and off.  Used to
+    # Turn the Gtk.Entry 'changed' signal on and off.  Used to
     # suppress signalling loops when widgets' values depend on one
     # another.
     def block_signals(self):
@@ -107,13 +103,13 @@ class SymmetricMatrixInputBase(MatrixInputBase):
                  value=None, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         frame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
-        args = kwargs.copy()
-        args.setdefault('hexpand', True)
-        args.setdefault('halign', Gtk.Align.FILL)
-        args.setdefault('vexpand', False)
-        args.setdefault('valign', Gtk.Align.START)
-        args.setdefault('margin', 2)
-        self.table = Gtk.Grid(**args)
+        quargs = kwargs.copy()
+        quargs.setdefault('hexpand', True)
+        quargs.setdefault('halign', Gtk.Align.FILL)
+        quargs.setdefault('vexpand', False)
+        quargs.setdefault('valign', Gtk.Align.START)
+        quargs.setdefault('margin', 2)
+        self.table = Gtk.Grid(row_spacing=2, column_spacing=2, **quargs)
         frame.add(self.table)
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name)
         widgetscope.WidgetScope.__init__(self, scope)
@@ -146,7 +142,6 @@ class SymmetricMatrixInputBase(MatrixInputBase):
                 except:
                     pass
                 self.table.attach(newwidget.gtk, c+1, r+1, 1, 1)
-                ## TODO GTK3: need halign=Gtk.Align.FILL
         self.widgetChanged(1, interactive=0)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

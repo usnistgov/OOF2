@@ -70,7 +70,7 @@ class SkeletonInfoMode:
 
     def entrymaster(self, column, row, editable=False, width=1, height=1):
         debug.mainthreadTest()
-        entry = gtk.Entry(editable=editable,
+        entry = Gtk.Entry(editable=editable,
                           hexpand=True, halign=Gtk.Align.FILL)
         entry.set_width_chars(13)
         self.table.attach(entry, column, row, width, height)
@@ -552,7 +552,7 @@ modes = [ElementMode, NodeMode, SegmentMode]
 class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def __init__(self, skeletoninfo):
         toolboxGUI.GfxToolbox.__init__(self, "Skeleton Info", skeletoninfo)
-        self.mainbox = gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(self.mainbox)
 
         self.modeclass = ElementMode
@@ -567,7 +567,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         clickbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        hbox.pack_start(gtk.Label("Click on an: "),
+        hbox.pack_start(Gtk.Label("Click on an: "),
                         expand=False, fill=False, padding=0)
 
         self.modebuttons = []
@@ -587,7 +587,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
             self.modebuttondict[mode.targetname] = button
 
         # Display mouse click coordinates
-        table = gtk.Grid() 
+        table = Gtk.Grid() 
         clickbox.pack_start(table, expand=False, fill=False, padding=0)
 
         label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)

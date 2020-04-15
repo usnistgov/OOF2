@@ -150,7 +150,7 @@ class ConcatenatedOutputsWidget:
         for w in self.widgets:
             if not first:
                 self.gtk.pack_start(
-                    gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+                    Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
                     expand=False, fill=False, padding=0)
             first = False
             self.gtk.pack_start(w.gtk, expand=0, fill=1, padding=0)
