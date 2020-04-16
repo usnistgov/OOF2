@@ -37,7 +37,7 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         self.gtk.add(mainbox)
 
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                            halign=Gtk.Align.CENTER, spacing=2)
+                            halign=Gtk.Align.CENTER, spacing=2, margin_top=2)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         
         self.skelwidget = whowidget.WhoWidget(whoville.getClass('Skeleton'),
@@ -59,7 +59,7 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
 
-        boundarylistframe = Gtk.Frame(label="Boundaries",
+        boundarylistframe = Gtk.Frame(label="Boundaries", margin=2,
                                       shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(boundarylistframe, 'Boundaries')
         mainpane.pack1(boundarylistframe, resize=False, shrink=False)
@@ -74,12 +74,13 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
             dbcallback=self.modifyBoundaryCB,
             autoselect=0,
             name="BoundaryList",
-            separator_func=self.chooserSepFunc)
+            separator_func=self.chooserSepFunc, margin=2)
         boundarylistbox.pack_start(self.boundarylist.gtk,
                                    expand=True, fill=True, padding=0)
 
-        boundarybuttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                                    homogeneous=True, spacing=2)
+        boundarybuttonbox = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, homogeneous=True,
+            spacing=2, margin_bottom=2, margin_start=2, margin_end=2)
         boundarylistbox.pack_start(boundarybuttonbox,
                                    expand=False, fill=False, padding=0)
 
@@ -124,10 +125,11 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         # make sense.
 
         infoframe = Gtk.Frame(label="Boundary data",
-                              shadow_type=Gtk.ShadowType.IN)
+                              shadow_type=Gtk.ShadowType.IN, margin=2)
         mainpane.pack2(infoframe, resize=True, shrink=True)
 
-        infowindow = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
+        infowindow = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN,
+                                        margin=2)
         gtklogger.logScrollBars(infowindow, "InfoScroll")
         infoframe.add(infowindow)
         infowindow.set_policy(Gtk.PolicyType.AUTOMATIC,

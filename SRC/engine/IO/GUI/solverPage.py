@@ -574,24 +574,24 @@ class SolverPage(oofGUI.MainPage):
         return [s[0].name() for s in self.subprobList]
 
     # TreeView callback for displaying the subproblem order.
-    def renderSubproblemOrder(self, column, cell_renderer, model, iter):
+    def renderSubproblemOrder(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         rowno = model.get_path(iter)[0]
         cell_renderer.set_property('text', `rowno`)
 
     # TreeView callback for setting the state of the 'Solve' button
     # for each SubProblem
-    def renderSolveCell(self, column, cell_renderer, model, iter):
+    def renderSolveCell(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         subproblemctxt = model[iter][0]
         cell_renderer.set_active(subproblemctxt.solveFlag)
 
-    def renderSubproblemName(self, column, cell_renderer, model, iter):
+    def renderSubproblemName(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         subpctxt = model[iter][0]
         cell_renderer.set_property('text', subpctxt.name())
 
-    def renderSubproblemSolver(self, column, cell_renderer, model, iter):
+    def renderSubproblemSolver(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         subpctxt = model[iter][0]
         if subpctxt.solver_mode:
@@ -837,12 +837,12 @@ class SolverPage(oofGUI.MainPage):
     # Functions that the TreeView machinery calls to fill in the
     # cells.  These will never be called for undefined fields, so
     # there's no need to check that the mesh or field exists.
-    def renderFieldName(self, column, cell_renderer, model, iter):
+    def renderFieldName(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         obj = model[iter][0]    # Either a Field or a BC
         cell_renderer.set_property('text', obj.name())
 
-    def renderFieldInit(self, column, cell_renderer, model, iter):
+    def renderFieldInit(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         obj = model[iter][0]    # Either a Field or a BC
         mesh = self.currentMeshContext()

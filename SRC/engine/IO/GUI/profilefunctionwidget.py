@@ -34,8 +34,8 @@ class ProfileFunctionXWidget(parameterwidgets.XYStrFunctionWidget):
                 return False
         return isinstance(value, profilefunction.ProfileFunctionX)
 
-def PFPX_makeWidget(self, scope=None):
-    return ProfileFunctionXWidget(self, scope, name=self.name)
+def PFPX_makeWidget(self, scope=None, **kwargs):
+    return ProfileFunctionXWidget(self, scope, name=self.name, **kwargs)
 
 profilefunction.ProfileFunctionXParameter.makeWidget = PFPX_makeWidget
 
@@ -52,8 +52,8 @@ class ProfileFunctionXTWidget(parameterwidgets.XYTStrFunctionWidget):
                 return False
         return isinstance(value, profilefunction.ProfileFunctionXT)
 
-def PFPXT_makeWidget(self, scope=None):
-    return ProfileFunctionXTWidget(self, scope, name=self.name)
+def PFPXT_makeWidget(self, scope=None, **kwargs):
+    return ProfileFunctionXTWidget(self, scope, name=self.name, **kwargs)
 
 profilefunction.ProfileFunctionXTParameter.makeWidget = PFPXT_makeWidget
     

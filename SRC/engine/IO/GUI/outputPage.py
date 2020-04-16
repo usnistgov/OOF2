@@ -31,6 +31,10 @@ outputmenu = scheduledoutputmenu.outputmenu
 ## destination list on the Analysis or Bdy Analysis pages.  What
 ## should happen to the OutputStream on this page?
 
+## TODO GTK3: Use PolicyType.EXTERNAL for the vertical scrolling in
+## all ScrolledWindows, and then connect them to an explicitly
+## constructed ScrollBar to the right of the Destination pane.
+
 class OutputPage(oofGUI.MainPage):
     def __init__(self):
         oofGUI.MainPage.__init__(
@@ -40,7 +44,7 @@ class OutputPage(oofGUI.MainPage):
         self.gtk.add(mainbox)
 
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3,
-                            halign=Gtk.Align.CENTER)
+                            halign=Gtk.Align.CENTER, margin_top=2)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               scope=self)
@@ -63,7 +67,7 @@ class OutputPage(oofGUI.MainPage):
         mainbox.pack_start(
             Gtk.Label("Skip this page if you're only solving static problems.",
                       halign=Gtk.Align.CENTER),
-            expand=False, fill=False, padding=0)
+            expand=False, fill=False, padding=2)
 
         # The four columns (enable, output, schedule, and destination)
         # are each displayed in their own Gtk.TreeView, each of which
@@ -93,15 +97,17 @@ class OutputPage(oofGUI.MainPage):
         self.outputList = Gtk.ListStore(GObject.TYPE_PYOBJECT)
 
         # The "Enable" column has a check box for each output
-        self.enableFrame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
+        self.enableFrame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE, margin=2)
         hpaneL.pack1(self.enableFrame, resize=False, shrink=False)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        enableScroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         self.enableFrame.add(vbox)
         self.enableView = Gtk.TreeView(self.outputList)
+        enableScroll.add(self.enableView)
         gtklogger.setWidgetName(self.enableView, "enable")
-        vbox.pack_start(self.enableView, expand=True, fill=True, padding=0)
+        vbox.pack_start(enableScroll, expand=True, fill=True, padding=0)
         self.enablecell = Gtk.CellRendererToggle()
-        enablecol = Gtk.TreeViewColumn("")
+        enablecol = Gtk.TreeViewColumn("On?")
         enablecol.set_resizable(False)
         enablecol.pack_start(self.enablecell, expand=False)
         enablecol.set_cell_data_func(self.enablecell, self.renderEnableCell)
@@ -110,27 +116,39 @@ class OutputPage(oofGUI.MainPage):
                                access_function=gtklogger.findCellRenderer,
                                access_kwargs={'col':0, 'rend':0})
         gtklogger.connect(self.enablecell, 'toggled', self.enableCellCB)
-        # Extra space at the bottom of the column.  The other columns
-        # have button boxes at the bottom, so this one needs a strut
-        # to keep its rows aligned with the others.
-        self.enableStrut = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        vbox.pack_start(self.enableStrut, expand=False, fill=False, padding=0)
+        # Extra space at the bottom of the column to make sure that
+        # its rows align with the other columns.  The other columns
+        # have button boxes at the bottom, so this one does too,
+        # although they don't do anything.
+        self.enableBBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                  spacing=2, margin=2)
+        vbox.pack_start(self.enableBBox, expand=False, fill=False, padding=0)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        self.enableBBox.pack_start(bbox, expand=False, fill=False, padding=0)
+        bbox.pack_start(Gtk.Button(" ", sensitive=False),
+                         expand=True, fill=True, padding=0)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        self.enableBBox.pack_start(bbox, expand=False, fill=False, padding=0)
+        bbox.pack_start(Gtk.Button(" ", sensitive=False),
+                        expand=True, fill=True, padding=0)
         
         # The "Output" pane lists the name of each output
-        self.outputFrame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
+        self.outputFrame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE, margin=2)
         gtklogger.setWidgetName(self.outputFrame, "Output")
         hpaneL.pack2(self.outputFrame, resize=True, shrink=False)
         outputVBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.outputFrame.add(outputVBox)
+        outputScroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         self.outputView = Gtk.TreeView(self.outputList)
         gtklogger.setWidgetName(self.outputView, "list")
-        outputVBox.pack_start(self.outputView,
+        outputVBox.pack_start(outputScroll,
                               expand=True, fill=True, padding=0)
-        self.outputHScroll = Gtk.Scrollbar(
-            orientation=Gtk.Orientation.HORIZONTAL)
-        outputVBox.pack_start(self.outputHScroll,
-                              expand=False, fill=False, padding=0)
-        self.outputView.set_hadjustment(self.outputHScroll.get_adjustment())
+        outputScroll.add(self.outputView)
+        # self.outputHScroll = Gtk.Scrollbar(
+        #     orientation=Gtk.Orientation.HORIZONTAL)
+        # outputVBox.pack_start(self.outputHScroll,
+        #                       expand=False, fill=False, padding=0)
+        # self.outputView.set_hadjustment(self.outputHScroll.get_adjustment())
         self.outputcell = Gtk.CellRendererText()
         outputcol = Gtk.TreeViewColumn("Output")
         outputcol.pack_start(self.outputcell, expand=True)
@@ -141,7 +159,7 @@ class OutputPage(oofGUI.MainPage):
         # Buttons for the Output pane.  The extra VBox is used so that
         # the sizes of the button boxes can be synchronized.
         self.outputBBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                                  homogeneous=True, spacing=2)
+                                  homogeneous=True, spacing=2, margin=2)
         outputVBox.pack_start(self.outputBBox,
                               expand=False, fill=False, padding=0)
         bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
@@ -205,19 +223,21 @@ class OutputPage(oofGUI.MainPage):
         
 
         # Schedule pane
-        self.schedFrame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
+        self.schedFrame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE, margin=2)
         gtklogger.setWidgetName(self.schedFrame, "Schedule")
         hpaneR.pack1(self.schedFrame, resize=True, shrink=False)
         scheduleVBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.schedFrame.add(scheduleVBox)
+        schedScroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         self.schedView = Gtk.TreeView(self.outputList)
         gtklogger.setWidgetName(self.schedView, "list")
-        scheduleVBox.pack_start(self.schedView,
+        scheduleVBox.pack_start(schedScroll,
                                 expand=True, fill=True, padding=0)
-        schedHScroll = Gtk.Scrollbar(orientation=Gtk.Orientation.HORIZONTAL)
-        scheduleVBox.pack_start(schedHScroll,
-                                expand=False, fill=False, padding=0)
-        self.schedView.set_hadjustment(schedHScroll.get_adjustment())
+        schedScroll.add(self.schedView)
+        # schedHScroll = Gtk.Scrollbar(orientation=Gtk.Orientation.HORIZONTAL)
+        # scheduleVBox.pack_start(schedHScroll,
+        #                         expand=False, fill=False, padding=0)
+        # self.schedView.set_hadjustment(schedHScroll.get_adjustment())
         self.schedcell = Gtk.CellRendererText()
         schedcol = Gtk.TreeViewColumn("Schedule")
         schedcol.pack_start(self.schedcell, expand=True)
@@ -227,7 +247,7 @@ class OutputPage(oofGUI.MainPage):
                           self.schedDoubleClickCB)
         # Buttons for the Schedule pane.  
         self.schedBBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                                 spacing=2, homogeneous=True)
+                                 spacing=2, homogeneous=True, margin=2)
         scheduleVBox.pack_start(self.schedBBox,
                                 expand=False, fill=False, padding=0)
         bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
@@ -268,7 +288,7 @@ class OutputPage(oofGUI.MainPage):
         
 
         # Destination pane
-        self.destFrame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
+        self.destFrame = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE, margin=2)
         gtklogger.setWidgetName(self.destFrame, "Destination")
         hpaneR.pack2(self.destFrame, resize=True, shrink=False)
         destVBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
@@ -276,7 +296,7 @@ class OutputPage(oofGUI.MainPage):
         # Of all the panes, only the Destination pane contains an
         # actual ScrolledWindow, because it's the only one with room
         # for the right hand scroll bar.
-        destScroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.NONE)
+        destScroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         destScroll.set_policy(Gtk.PolicyType.ALWAYS, Gtk.PolicyType.ALWAYS)
         destVBox.pack_start(destScroll, expand=True, fill=True, padding=0)
         self.destView = Gtk.TreeView(self.outputList)
@@ -291,7 +311,7 @@ class OutputPage(oofGUI.MainPage):
                           self.destDoubleClickCB)
         # Buttons for the Destination pane
         self.destBBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                                spacing=2, homogeneous=True)
+                                spacing=2, homogeneous=True, margin=2)
         destVBox.pack_start(self.destBBox, expand=False, fill=True, padding=0)
         bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
                        homogeneous=False)
@@ -346,7 +366,10 @@ class OutputPage(oofGUI.MainPage):
         self.outputView.set_vadjustment(destScroll.get_vadjustment())
         self.enableView.set_vadjustment(destScroll.get_vadjustment())
 
-
+        self.schedView.set_vscroll_policy(Gtk.ScrollablePolicy.NATURAL)
+        self.outputView.set_vscroll_policy(Gtk.ScrollablePolicy.NATURAL)
+        self.enableView.set_vscroll_policy(Gtk.ScrollablePolicy.NATURAL)
+        
         self.allViews = (self.enableView, self.outputView, self.schedView,
                          self.destView)
 
@@ -378,38 +401,8 @@ class OutputPage(oofGUI.MainPage):
 
 
     def setSizes(self, *args):
-        ## TODO: There's something wrong here.  If the font size
-        ## is changed, the subwidgets don't resize properly.
-        ## TODO GTK3: Is that still true?
-
-        # Make the vertical size of each frame the same, and make the
-        # minimum horizontal size the natural size of their button
-        # boxes.
-        # get_allocation() returns a Gdk.Rectangle
-        vsize = self.destFrame.get_allocation().height
-        # vsize = self.destFrame.size_request()[1] # gtk2 way is now deprecated
-
-        self.outputFrame.set_size_request(
-            self.outputBBox.get_allocation().width, vsize)
-        self.schedFrame.set_size_request(
-            self.schedBBox.get_allocation().width, vsize)
-        self.destFrame.set_size_request(
-            self.destBBox.get_allocation().width, -1)
-        self.enableFrame.set_size_request(-1, vsize)
-
-        # make all button boxes the same height
-        bsize = max(x.get_allocation().height
-                    for x in (self.outputBBox, self.schedBBox, self.destBBox))
-        self.outputBBox.set_size_request(-1, bsize)
-        self.schedBBox.set_size_request(-1, bsize)
-        self.destBBox.set_size_request(-1, bsize)
-        self.enableStrut.set_size_request(
-            -1, bsize+self.outputHScroll.get_allocation().height)
-        
         # Make all of the TreeViews have the same line height.
         xoff, yoff, width, height = self.outputcell.get_size(self.outputView)
-        ypad = self.outputcell.get_property("ypad")
-        height -= ypad
         self.enablecell.set_fixed_size(-1, height)
         self.outputcell.set_fixed_size(-1, height)
         self.schedcell.set_fixed_size(-1, height)
@@ -572,7 +565,7 @@ class OutputPage(oofGUI.MainPage):
 
     ##############
 
-    def renderEnableCell(self, column, cell_renderer, model, iter):
+    def renderEnableCell(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         output = model[iter][0]
         cell_renderer.set_active(output.active)
@@ -584,13 +577,13 @@ class OutputPage(oofGUI.MainPage):
                           output=output.name(),
                           enable=(not output.active))
 
-    def renderOutputCell(self, column, cell_renderer, model, iter):
+    def renderOutputCell(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         output = model[iter][0]
         cell_renderer.set_property('text', output.name())
 
         
-    def renderScheduleCB(self, column, cell_renderer, model, iter):
+    def renderScheduleCB(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         output = model[iter][0]
         if output.schedule is not None:
@@ -598,7 +591,7 @@ class OutputPage(oofGUI.MainPage):
         else:
             cell_renderer.set_property('text', '---')
 
-    def renderDestinationCB(self, column, cell_renderer, model, iter):
+    def renderDestinationCB(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         output = model[iter][0]
         if output.destination is not None:

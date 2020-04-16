@@ -50,7 +50,7 @@ class MeshPage(oofGUI.MainPage):
         self.gtk.add(mainbox)
 
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3,
-                            halign=Gtk.Align.CENTER)
+                            halign=Gtk.Align.CENTER, margin_top=2)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               scope=self)
@@ -117,10 +117,10 @@ class MeshPage(oofGUI.MainPage):
                             wide_handle=True)
         mainpane.pack1(leftbox, resize=True, shrink=False)
         
-        infoframe = Gtk.Frame(label='Mesh Information',
+        infoframe = Gtk.Frame(label='Mesh Information', margin=2,
                               shadow_type=Gtk.ShadowType.IN)
-        leftbox.pack1(infoframe, resize=True, shrink=True)
-        scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
+        leftbox.pack1(infoframe, resize=True, shrink=False)
+        scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN, margin=2)
         gtklogger.logScrollBars(scroll, "MeshInfo")
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         infoframe.add(scroll)
@@ -129,10 +129,10 @@ class MeshPage(oofGUI.MainPage):
         scroll.add(self.infoarea)
 
         # Subproblem creation, deletion, etc.
-        subprobframe = Gtk.Frame(label='Subproblems',
+        subprobframe = Gtk.Frame(label='Subproblems', margin=2,
                                  shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(subprobframe, 'Subproblems')
-        leftbox.pack2(subprobframe, resize=True, shrink=True)
+        leftbox.pack2(subprobframe, resize=True, shrink=False)
         subpbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         subprobframe.add(subpbox)
         self.subpchooser = chooser.ScrolledChooserListWidget(
@@ -144,7 +144,9 @@ class MeshPage(oofGUI.MainPage):
 
         # Grid containing buttons for operating on subproblems.
         subpbuttons = Gtk.Grid(column_homogeneous=True,
-                               row_homogeneous=True)
+                               row_homogeneous=True,
+                               margin=2,
+                               row_spacing=2, column_spacing=2)
         subpbox.pack_start(subpbuttons, expand=False, fill=False, padding=0)
 
         self.subprobNew = gtkutils.StockButton('document-new-symbolic',
@@ -190,7 +192,7 @@ class MeshPage(oofGUI.MainPage):
         
         # Right hand side for element operations
         
-        elementopsframe = Gtk.Frame(label="Mesh Operations",
+        elementopsframe = Gtk.Frame(label="Mesh Operations", margin=2,
                                     shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(elementopsframe, 'ElementOps')
         mainpane.pack2(elementopsframe, resize=False, shrink=False)
@@ -211,8 +213,9 @@ class MeshPage(oofGUI.MainPage):
                                              self.sensitizeHistory,
                                              setCBkwargs={'interactive':True})
         # Prev, OK, Next
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
-        elementopsbox.pack_start(hbox, expand=False, fill=False, padding=2)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       margin_start=2, margin_end=2, margin_bottom=2)
+        elementopsbox.pack_start(hbox, expand=False, fill=False, padding=0)
         self.prevbutton = gtkutils.prevButton()
         gtklogger.connect(self.prevbutton, 'clicked', self.prevCB)
         self.prevbutton.set_tooltip_text(

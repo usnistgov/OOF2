@@ -442,10 +442,11 @@ class GroupGUI:
             " OOF Messages window.")
         
         ## TODO: Hide this frame when mode.materialsallowed is False.
-        matframe = Gtk.Frame(label="Material", shadow_type=Gtk.ShadowType.IN)
-        rbuttons.pack_start(matframe, expand=False, fill=False, padding=2)
+        matframe = Gtk.Frame(label="Material", shadow_type=Gtk.ShadowType.IN,
+                             valign=Gtk.Align.END)
+        rbuttons.pack_end(matframe, expand=False, fill=False, padding=0)
         matbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
-                         margin=2)
+                         margin_start=2, margin_end=2, margin_bottom=2)
         matframe.add(matbox)
 
         self.addmaterial_button = Gtk.Button("Assign")
@@ -803,7 +804,7 @@ class SelectionGUI:
 
         # Slightly misleading name, includes undo, redo and clear.
         self.undoredoline = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                                    spacing=2, margin_left=2, margin_right=2,
+                                    spacing=2, margin_start=2, margin_end=2,
                                     margin_bottom=2)
         
         self.undo_button = gtkutils.StockButton('edit-undo-symbolic', 'Undo')
@@ -974,7 +975,7 @@ class HistoryBox:
         self.historian = historian.Historian(self.setCB, self.sensitize)
 
         # Buttons:  Previous, OK, and next.
-        self.prevbutton = gtkutils.prevButton(margin_left=2)
+        self.prevbutton = gtkutils.prevButton(margin_start=2)
         gtklogger.connect(self.prevbutton, "clicked", self.historian.prevCB)
         self.prevbutton.set_tooltip_text(
             "Recall the previous selection modification operation.")
@@ -989,7 +990,7 @@ class HistoryBox:
             "Perform the selection modification operation.")
         self.okbutton.set_sensitive(False)
         
-        self.nextbutton = gtkutils.nextButton(margin_right=2)
+        self.nextbutton = gtkutils.nextButton(margin_end=2)
         gtklogger.connect(self.nextbutton, "clicked", self.historian.nextCB)
         self.nextbutton.set_tooltip_text(
             "Recall the next selection modification operation.")

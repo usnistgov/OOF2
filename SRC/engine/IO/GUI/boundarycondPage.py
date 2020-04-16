@@ -41,7 +41,7 @@ class BoundaryCondPage(oofGUI.MainPage):
         mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3,
-                            halign=Gtk.Align.CENTER)
+                            halign=Gtk.Align.CENTER, margin_top=2)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
 
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
@@ -60,18 +60,18 @@ class BoundaryCondPage(oofGUI.MainPage):
                              expand=False, fill=False, padding=0)
         switchboard.requestCallbackMain(self.meshwidget, self.meshwidgetCB)
 
-        bcbuildframe = Gtk.Frame(label="Condition",
+        bcbuildframe = Gtk.Frame(label="Condition", margin=2,
                                  shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(bcbuildframe, 'Condition')
         mainbox.pack_start(bcbuildframe, expand=True, fill=True, padding=0)
         bcbuildbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         bcbuildframe.add(bcbuildbox)
 
-
         # Buttons for creating, editing and removing boundary conditions
 
         bcbuttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                            homogeneous=1, spacing=2, halign=Gtk.Align.CENTER)
+                            homogeneous=1, spacing=2, halign=Gtk.Align.CENTER,
+                            margin=2)
         bcbuildbox.pack_start(bcbuttons, expand=False, fill=False, padding=0)
         
         self.bcNew = Gtk.Button("New...")
@@ -449,7 +449,7 @@ class BCList:
         self.sortedlist.set_sort_column_id(self.sortByNameID, 
                                            Gtk.SortType.ASCENDING)
 
-    def renderEnableCell(self, column, cell_renderer, model, iter):
+    def renderEnableCell(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         bc = model[iter][1]
         cell_renderer.set_active(not bc.explicit_disable)
@@ -462,7 +462,7 @@ class BCList:
         else:
             boundaryconditionmenu.bcmenu.Disable(mesh=meshname, name=bc.name())
 
-    def renderBdy(self, column, cell_renderer, model, iter):
+    def renderBdy(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         bc = model[iter][1]
         try:
@@ -471,7 +471,7 @@ class BCList:
             bdyname = '???'
         cell_renderer.set_property('text', bdyname)
 
-    def renderBC(self, column, cell_renderer, model, iter):
+    def renderBC(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         bc = model[iter][1]
         cell_renderer.set_property('text', bc.display_string())

@@ -83,7 +83,7 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
                 'Polynomial order of the functions used to interpolate'
                 ' within elements.')
             self.tablelabels.append(label)
-            self.table.attach(label, 0,1, 1.1)
+            self.table.attach(label, 0,1, 1,1)
             self.table.attach(self.funchooser.gtk, 1,1, 1,1)
 
             # Choosers for each element geometry

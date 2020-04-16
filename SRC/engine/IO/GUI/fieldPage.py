@@ -59,7 +59,7 @@ class FieldPage(oofGUI.MainPage):
         self.gtk.add(mainbox)
 
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3,
-                            halign=Gtk.Align.CENTER)
+                            halign=Gtk.Align.CENTER, margin_top=2)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
 
         self.subpwidget = whowidget.WhoWidget(
@@ -89,20 +89,18 @@ class FieldPage(oofGUI.MainPage):
         gtklogger.connect_passive(hpane, 'notify::position')
 
         ## Field Pane
-        fieldframe = Gtk.Frame(label="Fields", shadow_type=Gtk.ShadowType.IN)
+        fieldframe = Gtk.Frame(label="Fields", shadow_type=Gtk.ShadowType.IN,
+                               margin=2)
         hpane.pack1(fieldframe, resize=True, shrink=False)
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
         fieldframe.add(vbox)
         scroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(scroll, "Fields")
-        scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         vbox.pack_start(scroll, expand=True, fill=True, padding=0)
-        # extra layer keeps table from expanding inside scroll
-        ## TODO GTK3: Is this necessary?
-        bbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-        scroll.add(bbox)
-        self.fieldtable = Gtk.Grid()
-        bbox.pack_start(self.fieldtable, expand=False, fill=False, padding=0)
+        self.fieldtable = Gtk.Grid(border_width=2)
+        scroll.add(self.fieldtable)
         self.build_fieldTable()
 
         self.copyfieldbutton = Gtk.Button("Copy Field State...",
@@ -117,21 +115,18 @@ class FieldPage(oofGUI.MainPage):
             " to another subproblem.")
 
         ## Equation Pane
-        eqnframe = Gtk.Frame(label="Equations", shadow_type=Gtk.ShadowType.IN)
+        eqnframe = Gtk.Frame(label="Equations", shadow_type=Gtk.ShadowType.IN,
+                             margin=2)
         hpane.pack2(eqnframe, resize=True, shrink=False)
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
         eqnframe.add(vbox)
         scroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(scroll, "Equations")
-        scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         vbox.pack_start(scroll, expand=True, fill=True, padding=0)
-        # extra layer keeps table from expanding inside scroll
-        ## TODO GTK3: Is this necessary?
-        bbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-        scroll.add(bbox)
-        self.eqntable = Gtk.Grid()
-        self.eqntable.set_border_width(3)
-        bbox.pack_start(self.eqntable, expand=False, fill=False, padding=0)
+        self.eqntable = Gtk.Grid(border_width=2)
+        scroll.add(self.eqntable)
         self.eqnbuttons = {}
         self.build_eqnTable()
 

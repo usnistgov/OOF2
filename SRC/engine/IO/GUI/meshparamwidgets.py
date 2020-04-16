@@ -299,16 +299,15 @@ class FieldIndexParameterWidget(parameterwidgets.ParameterWidget):
                                              name=name,
                                              hexpand=True,
                                              halign=Gtk.Align.FILL)
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, **kwargs)
-        box.pack_start(self.chooser.gtk, expand=False, fill=False, padding=0)
-        parameterwidgets.ParameterWidget.__init__(self, box, scope)
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                           **kwargs)
+        parameterwidgets.ParameterWidget.__init__(self, self.box, scope)
         self.fieldwidget = scope.findWidget(
             lambda w: isinstance(w, IndexableWidget))
         self.sbcallback = switchboard.requestCallbackMain(self.fieldwidget,
                                                           self.fieldCB)
         self.notapplicable = Gtk.Label('(Not Applicable)',
                                        halign=Gtk.Align.START)
-        box.pack_start(self.notapplicable, expand=False, fill=False, padding=0)
         self.nIndices = 0
         self.update()
         if TESTINGPAPER:
@@ -336,16 +335,33 @@ class FieldIndexParameterWidget(parameterwidgets.ParameterWidget):
                 itlist.append(itrepr)
                 iterator.next()
         self.chooser.update(itlist)
+
+        # The __init__ used to put both the chooser and the "Not
+        # Applicable" label in the Box, and the show() method showed
+        # or hid them as appropriate.  That doesn't work in Gtk3
+        # because ParameterDialog.run() calls show_all().  There's a
+        # TODO in ParameterDialog explaining why.  So now update() has
+        # to explicitly add and remove the chooser and label from the
+        # box, and this widget doesn't need a customized show() method.
+        currentWidgets = self.box.get_children()
+        if len(currentWidgets) == 1:
+            currentWidget = currentWidgets[0]
+            if self.nIndices > 1 and currentWidget is self.notapplicable:
+                self.box.remove(self.notapplicable)
+                self.box.pack_start(self.chooser.gtk,
+                                    expand=False, fill=False, padding=0)
+            elif self.nIndices <= 1 and currentWidget is self.chooser.gtk:
+                self.box.remove(self.chooser.gtk)
+                self.box.pack_start(self.notapplicable,
+                                    expand=False, fill=False, padding=0)
+        else:                   # no current widget
+            if self.nIndices > 1:
+                self.box.pack_start(self.chooser.gtk,
+                                    expand=False, fill=False, padding=0)
+            else:
+                self.box.pack_start(self.notapplicable,
+                                    expand=False, fill=False, padding=0)
         self.show()
-    def show(self):
-        debug.mainthreadTest()
-        self.gtk.show()
-        if self.nIndices > 1:
-            self.chooser.show()
-            self.notapplicable.hide()
-        else:
-            self.chooser.gtk.hide()
-            self.notapplicable.show()
     def get_value(self):
         val = self.chooser.get_value()
         if val is None:

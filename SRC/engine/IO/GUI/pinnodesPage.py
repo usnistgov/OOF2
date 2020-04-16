@@ -82,7 +82,7 @@ class PinNodesPage(oofGUI.MainPage):
 
         # buttons
         hbox1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
-                        margin_left=2, margin_right=2)
+                        margin_start=2, margin_end=2)
         modbox.pack_start(hbox1, expand=False, fill=False, padding=0)
         self.okbutton = gtkutils.StockButton('gtk-ok', 'OK')
         gtklogger.setWidgetName(self.okbutton, 'OK')
@@ -102,7 +102,7 @@ class PinNodesPage(oofGUI.MainPage):
 
         hbox2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                         homogeneous=True, spacing=2,
-                        margin_left=2, margin_right=2, margin_bottom=2)
+                        margin_start=2, margin_end=2, margin_bottom=2)
         modbox.pack_start(hbox2, expand=False, fill=False, padding=0)
         self.unpinallbutton = Gtk.Button("Unpin All")
         gtklogger.setWidgetName(self.unpinallbutton, 'Unpin All')

@@ -161,7 +161,7 @@ class SkeletonPage(oofGUI.MainPage):
 
         # Buttons for "Previous", "OK", and "Next"
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
-                       margin_left=2, margin_right=2)
+                       margin_start=2, margin_end=2)
         skelmodbox.pack_start(hbox, expand=False, fill=False, padding=0) 
 
         self.prevskelmodbutton = gtkutils.prevButton()
