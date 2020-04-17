@@ -32,6 +32,9 @@ class ScheduleType(registeredclass.RegisteredClass):
     tip="How output Schedules are interpreted."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/scheduletype.xml')
 
+    def shortrepr(self):
+        return self.getRegistration().name()
+
 class AbsoluteOutputSchedule(ScheduleType):
     conditional = False
     def setOffset(self, schedule, time0):
