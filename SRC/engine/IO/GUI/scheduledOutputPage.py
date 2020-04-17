@@ -27,10 +27,6 @@ from gi.repository import Gtk
 
 outputmenu = scheduledoutputmenu.outputmenu
 
-## TODO: It would be nice to have tooltips on the cells in the
-## TreeView, so that if a cell is too small to show all of its text,
-## the full text can appear in the tooltip.
-
 class OutputPage(oofGUI.MainPage):
     def __init__(self):
         oofGUI.MainPage.__init__(
@@ -100,20 +96,23 @@ class OutputPage(oofGUI.MainPage):
         scrollWindow = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN,
                                           margin_start=2, margin_end=2)
         mainbox.pack_start(scrollWindow, expand=True, fill=True, padding=0)
-        self.outputView = Gtk.TreeView(self.outputList)
+        self.outputView = Gtk.TreeView(self.outputList, has_tooltip=True)
         self.outputView.set_grid_lines(Gtk.TreeViewGridLines.VERTICAL)
+        self.outputView.connect('query-tooltip', self.tooltipQueryCB)
         gtklogger.setWidgetName(self.outputView, "list")
         scrollWindow.add(self.outputView)
         gtklogger.connect(self.outputView, 'row-activated',
                           self.outputDoubleClickCB)
 
+
         # Check box for enabling/disabling an Output
         self.enableCell = Gtk.CellRendererToggle()
-        enableCol = Gtk.TreeViewColumn()
-        enableCol.set_resizable(False)
-        enableCol.pack_start(self.enableCell, expand=False)
-        enableCol.set_cell_data_func(self.enableCell, self.renderEnableCell)
-        self.outputView.append_column(enableCol)
+        self.enableCol = Gtk.TreeViewColumn()
+        self.enableCol.set_resizable(False)
+        self.enableCol.pack_start(self.enableCell, expand=False)
+        self.enableCol.set_cell_data_func(self.enableCell,
+                                          self.renderEnableCell)
+        self.outputView.append_column(self.enableCol)
         gtklogger.adoptGObject(self.enableCell, self.outputView,
                                access_function=gtklogger.findCellRenderer,
                                access_kwargs=dict(col=0,rend=0))
@@ -209,7 +208,7 @@ class OutputPage(oofGUI.MainPage):
         gtklogger.connect(self.editScheduleButton, 'clicked', self.editSchedCB)
         grid.attach(self.editScheduleButton, 0,0, 1,1)
         self.editScheduleButton.set_tooltip_text(
-            "Add a Schedule to the selected Output")
+            "Create or modify the selected output's schedule")
 
         # Copy schedule
         self.copyScheduleButton = gtkutils.StockButton(
@@ -218,7 +217,7 @@ class OutputPage(oofGUI.MainPage):
         gtklogger.connect(self.copyScheduleButton, 'clicked', self.copySchedCB)
         grid.attach(self.copyScheduleButton, 0,1, 1,1)
         self.copyScheduleButton.set_tooltip_text(
-            "Copy the selected Schedule to another Output")
+            "Copy the selected Schedule to another output")
 
         destBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         masterButtonBox.pack_start(destBox,
@@ -236,7 +235,7 @@ class OutputPage(oofGUI.MainPage):
                           self.editDestinationCB)
         grid.attach(self.editDestinationButton, 0,0, 1,1)
         self.editDestinationButton.set_tooltip_text(
-            "Assign a destination to the selected Output")
+            "Create or modify the selected output's destination.")
 
         # Rewind destination
         self.rewindDestButton = gtkutils.StockButton(
@@ -248,7 +247,7 @@ class OutputPage(oofGUI.MainPage):
         self.rewindDestButton.set_tooltip_text(
             "Go back to the start of the output file.")
 
-g        
+        
         # This is a hack.  Some of the dialogs use widgets that need
         # to find out what the current Output is, using the
         # WidgetScope mechanism.  The TreeView isn't a
@@ -448,6 +447,37 @@ g
             self.editSchedCB()
         elif col is self.destCol:
             self.editDestinationCB()
+
+    # The tooltips in the TreeView show the contents of the cells,
+    # which is useful if the cells are too small to show their entire
+    # contents.  Make tooltips that change from cell to cell requires
+    # more work than just adding them to a widget in the normal way.
+    
+    def tooltipQueryCB(self, treeview, wx, wy, keyboard_mode, tooltip):
+        bx, by = treeview.convert_widget_to_bin_window_coords(wx, wy)
+        treecoords = treeview.get_path_at_pos(bx, by)
+        if treecoords is not None:
+            path, column, x, y = treecoords
+            output = treeview.get_model()[path][0]
+            if column is self.outputCol:
+                tooltip.set_text(output.name())
+                return True
+            elif column is self.schedCol:
+                sched = output.schedule
+                if sched is not None:
+                    tooltip.set_text(output.scheduleType.shortrepr() + "/" +
+                                     sched.shortrepr())
+                    return True
+            elif column is self.destCol:
+                dest = output.destination
+                if dest is not None:
+                    tooltip.set_text(dest.shortrepr())
+                    return True
+            elif column is self.enableCol:
+                tooltip.set_text("Enable or disable this output.")
+                return True
+        return False            # don't show tooltip
+        
 
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
         
