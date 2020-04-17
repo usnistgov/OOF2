@@ -11,6 +11,7 @@
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
+from ooflib.common.IO import reporter
 from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
@@ -25,6 +26,10 @@ from gi.repository import GObject
 from gi.repository import Gtk
 
 outputmenu = scheduledoutputmenu.outputmenu
+
+## TODO: It would be nice to have tooltips on the cells in the
+## TreeView, so that if a cell is too small to show all of its text,
+## the full text can appear in the tooltip.
 
 class OutputPage(oofGUI.MainPage):
     def __init__(self):
@@ -140,24 +145,24 @@ class OutputPage(oofGUI.MainPage):
 
         # Buttons for operating on the selected output
 
-        grid = Gtk.Grid(margin_start=2, margin_bottom=2,
-                        row_spacing=2, column_spacing=2,
-                        halign=Gtk.Align.CENTER)
-        mainbox.pack_start(grid, expand=False, fill=False, padding=0)
+        masterButtonBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                                  margin=2)
+        mainbox.pack_start(masterButtonBox, expand=False, fill=False, padding=0)
 
-        grid.attach(Gtk.Label("Output:",
-                              halign=Gtk.Align.END, hexpand=False), 0,0, 1,1)
-        grid.attach(Gtk.Label("Schedule:",
-                              halign=Gtk.Align.END, hexpand=False), 0,1, 1,1)
-        grid.attach(Gtk.Label("Destination:",
-                              halign=Gtk.Align.END, hexpand=False), 0,2, 1,1)
-
+        outputBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        masterButtonBox.pack_start(outputBox,
+                                   expand=True, fill=False, padding=0)
+        outputBox.pack_start(Gtk.Label("Output", halign=Gtk.Align.CENTER),
+                           expand=False, fill=False, padding=0)
+        grid = Gtk.Grid(row_homogeneous=True, column_homogeneous=True)
+        outputBox.pack_start(grid, expand=False, fill=False, padding=0)
+        
         # Edit output
         self.editOutputButton = gtkutils.StockButton(
             "document-edit-symbolic", "Edit")
         gtklogger.connect(self.editOutputButton, 'clicked', self.editOutputCB)
         gtklogger.setWidgetName(self.editOutputButton, 'EditOutput')
-        grid.attach(self.editOutputButton, 1,0, 1,1)
+        grid.attach(self.editOutputButton, 0,0, 1,1)
         self.editOutputButton.set_tooltip_text(
             "Redefine or rename the selected output operation.")
 
@@ -166,17 +171,16 @@ class OutputPage(oofGUI.MainPage):
                                                        "Rename")
         gtklogger.setWidgetName(self.renameOutputButton, "Rename")
         gtklogger.connect(self.renameOutputButton, 'clicked', self.renameCB)
-        grid.attach(self.renameOutputButton, 2,0, 1,1)
+        grid.attach(self.renameOutputButton, 0,1, 1,1)
         self.renameOutputButton.set_tooltip_text(
             "Rename the selected output operation.")
-        
 
         # Copy output
         self.copyOutputButton = gtkutils.StockButton(
             "edit-copy-symbolic", "Copy")
         gtklogger.setWidgetName(self.copyOutputButton, "CopyOutput")
         gtklogger.connect(self.copyOutputButton, 'clicked', self.copyOutputCB)
-        grid.attach(self.copyOutputButton, 3,0, 1,1)
+        grid.attach(self.copyOutputButton, 1,0, 1,1)
         self.copyOutputButton.set_tooltip_text(
             "Copy the selected output and its schedule and destination.")
 
@@ -186,17 +190,25 @@ class OutputPage(oofGUI.MainPage):
         gtklogger.setWidgetName(self.deleteOutputButton, "DeleteOutput")
         gtklogger.connect(self.deleteOutputButton, 'clicked',
                           self.deleteOutputCB)
-        grid.attach(self.deleteOutputButton, 4,0, 1,1)
+        grid.attach(self.deleteOutputButton, 1,1, 1,1)
         self.deleteOutputButton.set_tooltip_text(
             "Delete the selected output operation.")
 
+        scheduleBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        masterButtonBox.pack_start(scheduleBox,
+                                   expand=True, fill=False, padding=0)
+        scheduleBox.pack_start(Gtk.Label("Schedule", halign=Gtk.Align.CENTER),
+                               expand=False, fill=False, padding=0)
+        grid = Gtk.Grid(row_homogeneous=True, column_homogeneous=True)
+        scheduleBox.pack_start(grid, expand=False, fill=False, padding=0)
+
         # Set/edit schedule
-        self.setScheduleButton = gtkutils.StockButton(
-            'document-new-symbolic', "Set")
-        gtklogger.setWidgetName(self.setScheduleButton, "NewSchedule")
-        gtklogger.connect(self.setScheduleButton, 'clicked', self.setSchedCB)
-        grid.attach(self.setScheduleButton, 1,1, 1,1)
-        self.setScheduleButton.set_tooltip_text(
+        self.editScheduleButton = gtkutils.StockButton(
+            'document-edit-symbolic', "Edit")
+        gtklogger.setWidgetName(self.editScheduleButton, "NewSchedule")
+        gtklogger.connect(self.editScheduleButton, 'clicked', self.editSchedCB)
+        grid.attach(self.editScheduleButton, 0,0, 1,1)
+        self.editScheduleButton.set_tooltip_text(
             "Add a Schedule to the selected Output")
 
         # Copy schedule
@@ -204,28 +216,26 @@ class OutputPage(oofGUI.MainPage):
             'edit-copy-symbolic', "Copy")
         gtklogger.setWidgetName(self.copyScheduleButton, "CopySchedule")
         gtklogger.connect(self.copyScheduleButton, 'clicked', self.copySchedCB)
-        grid.attach(self.copyScheduleButton, 2,1, 1,1)
+        grid.attach(self.copyScheduleButton, 0,1, 1,1)
         self.copyScheduleButton.set_tooltip_text(
             "Copy the selected Schedule to another Output")
 
-        # Delete schedule
-        self.deleteScheduleButton = gtkutils.StockButton(
-            'edit-delete-symbolic', "Delete")
-        gtklogger.setWidgetName(self.deleteScheduleButton, "DeleteSchedule")
-        gtklogger.connect(self.deleteScheduleButton, 'clicked',
-                          self.deleteSchedCB)
-        grid.attach(self.deleteScheduleButton, 3,1, 1,1)
-        self.deleteScheduleButton.set_tooltip_text(
-            "Delete the selected Schedule.")
+        destBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        masterButtonBox.pack_start(destBox,
+                                   expand=True, fill=False, padding=0)
+        destBox.pack_start(Gtk.Label("Destination", halign=Gtk.Align.CENTER),
+                               expand=False, fill=False, padding=0)
+        grid = Gtk.Grid(row_homogeneous=True, column_homogeneous=True)
+        destBox.pack_start(grid, expand=False, fill=False, padding=0)
 
         # Set destination
-        self.setDestinationButton = gtkutils.StockButton(
-            'document-new-symbolic', "Set")
-        gtklogger.setWidgetName(self.setDestinationButton, "Set")
-        gtklogger.connect(self.setDestinationButton, 'clicked',
-                          self.setDestinationCB)
-        grid.attach(self.setDestinationButton, 1,2, 1,1)
-        self.setDestinationButton.set_tooltip_text(
+        self.editDestinationButton = gtkutils.StockButton(
+            'document-edit-symbolic', "Edit")
+        gtklogger.setWidgetName(self.editDestinationButton, "Set")
+        gtklogger.connect(self.editDestinationButton, 'clicked',
+                          self.editDestinationCB)
+        grid.attach(self.editDestinationButton, 0,0, 1,1)
+        self.editDestinationButton.set_tooltip_text(
             "Assign a destination to the selected Output")
 
         # Rewind destination
@@ -234,21 +244,11 @@ class OutputPage(oofGUI.MainPage):
         gtklogger.setWidgetName(self.rewindDestButton, "Rewind")
         gtklogger.connect(self.rewindDestButton, 'clicked',
                           self.rewindDestinationCB)
-        grid.attach(self.rewindDestButton, 2,2, 1,1)
+        grid.attach(self.rewindDestButton, 0,1, 1,1)
         self.rewindDestButton.set_tooltip_text(
             "Go back to the start of the output file.")
 
-        # Delete destination
-        self.deleteDestButton = gtkutils.StockButton(
-            'edit-delete-symbolic', "Delete")
-        gtklogger.setWidgetName(self.deleteDestButton, "Delete")
-        gtklogger.connect(self.deleteDestButton, 'clicked',
-                          self.deleteDestCB)
-        grid.attach(self.deleteDestButton, 3,2, 1,1)
-        self.deleteDestButton.set_tooltip_text(
-            "Delete the selected Destination.")
-        # Second row of buttons in the Dest pane
-        
+g        
         # This is a hack.  Some of the dialogs use widgets that need
         # to find out what the current Output is, using the
         # WidgetScope mechanism.  The TreeView isn't a
@@ -416,17 +416,16 @@ class OutputPage(oofGUI.MainPage):
         self.editOutputButton.set_sensitive(outputok)
         self.copyOutputButton.set_sensitive(outputok)
         self.deleteOutputButton.set_sensitive(outputok)
+        self.renameOutputButton.set_sensitive(outputok)
 
         scheduleok = outputok and output.schedule is not None
-        self.setScheduleButton.set_sensitive(outputok)
-        self.deleteScheduleButton.set_sensitive(scheduleok)
+        self.editScheduleButton.set_sensitive(outputok)
         self.copyScheduleButton.set_sensitive(scheduleok)
 
         destinationok = (outputok and output.settableDestination and
                          output.destination is not None)
-        self.setDestinationButton.set_sensitive(outputok and
+        self.editDestinationButton.set_sensitive(outputok and
                                                 output.settableDestination)
-        self.deleteDestButton.set_sensitive(destinationok)
         self.rewindDestButton.set_sensitive(
             destinationok and output.destination.getRegistration().rewindable)
         
@@ -446,9 +445,9 @@ class OutputPage(oofGUI.MainPage):
         if col is self.outputCol:
             self.editOutputCB()
         elif col is self.schedCol:
-            self.setSchedCB()
+            self.editSchedCB()
         elif col is self.destCol:
-            self.setDestinationCB()
+            self.editDestinationCB()
 
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
         
@@ -465,7 +464,10 @@ class OutputPage(oofGUI.MainPage):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName())
     
     def deleteAllCB(self, gtkbutton):
-        outputmenu.DeleteAll.callWithDefaults(mesh=self.currentFullMeshName())
+        if reporter.query("Really delete all scheduled outputs?", "Yes", "No") \
+           == "Yes":
+            outputmenu.DeleteAll.callWithDefaults(
+                mesh=self.currentFullMeshName())
 
     def rewindAllDestinationsCB(self, gtkbutton):
         menuitem = outputmenu.Destination.RewindAll
@@ -513,7 +515,7 @@ class OutputPage(oofGUI.MainPage):
         outputmenu.Delete.callWithDefaults(mesh=self.currentFullMeshName(),
                                            output=self.currentOutputName())
 
-    def setSchedCB(self, *args):
+    def editSchedCB(self, *args):
         menuitem = outputmenu.Schedule.Set
         schedparam = menuitem.get_arg('schedule')
         schedtypeparam = menuitem.get_arg('scheduletype')
@@ -526,12 +528,6 @@ class OutputPage(oofGUI.MainPage):
                                           scope=self):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName(),
                                       output=self.currentOutputName())
-
-    def deleteSchedCB(self, gtkbutton):
-        outputmenu.Schedule.Delete.callWithDefaults(
-            mesh=self.currentFullMeshName(),
-            output=self.currentOutputName())
-
     def copySchedCB(self, gtkbutton):
         menuitem = outputmenu.Schedule.Copy
         targetmeshparam = menuitem.get_arg('targetmesh')
@@ -544,7 +540,7 @@ class OutputPage(oofGUI.MainPage):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName(),
                                       source=self.currentOutputName())
 
-    def setDestinationCB(self, *args):
+    def editDestinationCB(self, *args):
         assert self.currentOutput() is not None
         menuitem = outputmenu.Destination.Set
         destparam = menuitem.get_arg('destination')
@@ -561,9 +557,4 @@ class OutputPage(oofGUI.MainPage):
         menuitem.callWithDefaults(mesh=self.currentFullMeshName(),
                                   output=self.currentOutputName())
 
-    def deleteDestCB(self, gtkbutton):
-        outputmenu.Destination.Delete.callWithDefaults(
-            mesh=self.currentFullMeshName(),
-            output=self.currentOutputName())
-        
 op = OutputPage()

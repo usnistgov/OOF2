@@ -288,31 +288,6 @@ outputIOmenu.addItem(schedulemenu.Set.clone(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def _deleteSchedule(menuitem, mesh, output):
-    meshctxt = ooflib.engine.mesh.meshes[mesh]
-    meshctxt.begin_writing()
-    try:
-        meshctxt.outputSchedule.getByName(output).deleteSchedule()
-    finally:
-        meshctxt.end_writing()
-    switchboard.notify("scheduled outputs changed", meshctxt)
-
-schedulemenu.addItem(oofmenu.OOFMenuItem(
-    'Delete',
-    callback=_deleteSchedule,
-    params=[
-    whoville.WhoParameter('mesh', ooflib.engine.mesh.meshes,
-                          tip=parameter.emptyTipString),
-    scheduledoutput.ScheduledOutputParameter(
-        'output',
-        tip='Name of the output whose schedule is being deleted.')
-    ],
-    help="Delete the schedule for a scheduled output.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/menu/delschedule.xml')
-))
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
 def _copySchedule(menuitem, mesh, source, targetmesh, target):
     meshctxt = ooflib.engine.mesh.meshes[mesh]
     targetmeshctxt = ooflib.engine.mesh.meshes[targetmesh]
@@ -392,32 +367,6 @@ destinationmenu.addItem(oofmenu.OOFMenuItem(
 outputIOmenu.addItem(destinationmenu.Set.clone(
         name="Destination",
         discussion="<para>Used internally in data files.</para>"))
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-def _deleteDestination(menuitem, mesh, output):
-    meshctxt = ooflib.engine.mesh.meshes[mesh]
-    meshctxt.begin_writing()
-    try:
-        meshctxt.outputSchedule.getByName(output).deleteDestination(meshctxt)
-    finally:
-        meshctxt.end_writing()
-    switchboard.notify("scheduled outputs changed", meshctxt)
-
-destinationmenu.addItem(oofmenu.OOFMenuItem(
-    'Delete',
-    callback=_deleteDestination,
-    params=[
-            whoville.WhoParameter('mesh', ooflib.engine.mesh.meshes,
-                                  tip=parameter.emptyTipString),
-            scheduledoutput.ScheduledOutputParameter(
-                'output',
-                tip='Name of the output whose destination is being deleted.')
-            ],
-    help="Delete the destination for a scheduled output.",
-    discussion=xmlmenudump.loadFile(
-            "DISCUSSIONS/engine/menu/delscheduleddest.xml")
-    ))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
