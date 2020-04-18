@@ -136,7 +136,9 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
                               Gtk.PolicyType.AUTOMATIC)
         
         self.infotext = Gtk.TextView(name="fixedfont", editable=False,
-                                     wrap_mode=Gtk.WrapMode.WORD)
+                                     wrap_mode=Gtk.WrapMode.WORD,
+                                     left_margin=5, right_margin=5,
+                                     top_margin=5, bottom_margin=5)
         gtklogger.setWidgetName(self.infotext, 'status')
         infowindow.add(self.infotext)
 

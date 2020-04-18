@@ -63,7 +63,9 @@ class PinNodesPage(oofGUI.MainPage):
                                    Gtk.PolicyType.AUTOMATIC)
         self.psdata = Gtk.TextView(name="fixedfont", editable=False,
                                    wrap_mode=Gtk.WrapMode.WORD,
-                                   cursor_visible=False)
+                                   cursor_visible=False,
+                                   left_margin=5, right_margin=5,
+                                   top_margin=5, bottom_margin=5)
         self.datascroll.add(self.psdata)
         mainpane.pack1(pnsframe, resize=True, shrink=False)
         

@@ -174,7 +174,9 @@ class TutorialClassGUI(subWindow.SubWindow):
                                   Gtk.PolicyType.AUTOMATIC)
         self.mainbox.pack_start(self.msgscroll, expand=True, fill=True,
                                 padding=0)
-        self.textview = Gtk.TextView(wrap_mode=Gtk.WrapMode.WORD_CHAR)
+        self.textview = Gtk.TextView(wrap_mode=Gtk.WrapMode.WORD_CHAR,
+                                     left_margin=5, right_margin=5,
+                                     top_margin=5, bottom_margin=5)
         self.textview.set_cursor_visible(False)
         self.textview.set_editable(False)
         textattrs = self.textview.get_default_attributes()

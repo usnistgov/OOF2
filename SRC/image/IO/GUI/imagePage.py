@@ -122,7 +122,9 @@ class ImagePage(oofGUI.MainPage):
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         frame.add(scroll)
 
-        self.infoarea = Gtk.TextView(name="fixedfont")
+        self.infoarea = Gtk.TextView(name="fixedfont",
+                                     left_margin=5, right_margin=5,
+                                     top_margin=5, bottom_margin=5)
         self.infoarea.set_wrap_mode(Gtk.WrapMode.WORD)
         self.infoarea.set_editable(False)
         self.infoarea.set_cursor_visible(False)

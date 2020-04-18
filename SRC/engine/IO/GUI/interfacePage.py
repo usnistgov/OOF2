@@ -146,7 +146,9 @@ class InterfacePage(oofGUI.MainPage):
         
         self.infotext = Gtk.TextView(name="fixedfont",
                                      wrap_mode=Gtk.WrapMode.WORD,
-                                     editable=False)
+                                     editable=False,
+                                     left_margin=5, right_margin=5,
+                                     top_margin=5, bottom_margin=5)
         gtklogger.setWidgetName(self.infotext, 'status')
         infowindow.add(self.infotext)
 

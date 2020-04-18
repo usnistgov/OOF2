@@ -74,16 +74,15 @@ class MessageWindow(subWindow.SubWindow):
         allMessageWindows.add(self)
 
         # Control box, with buttons.  These could be menu items.
-        controlbox = Gtk.Frame(margin=5)
-        controlbox.set_shadow_type(Gtk.ShadowType.IN)
-        self.mainbox.pack_start(controlbox, expand=False, fill=False, padding=0)
-        controlinnards = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                                 spacing=2)
-        controlbox.add(controlinnards)
-        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
-        controlinnards.pack_start(buttonbox, expand=False, fill=False,
-                                  padding=2)
-        savebutton = gtkutils.StockButton("document-save-symbolic", "Save...")
+        controlframe = Gtk.Frame()
+        controlframe.set_shadow_type(Gtk.ShadowType.IN)
+        self.mainbox.pack_start(controlframe,
+                                expand=False, fill=False, padding=0)
+        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                            margin=2)
+        controlframe.add(buttonbox)
+        savebutton = gtkutils.StockButton("document-save-symbolic", "Save...",
+                                          margin=2)
         savebutton.set_tooltip_text(
             "Save the contents of this window to a file.")
         buttonbox.pack_start(savebutton, expand=False, fill=False, padding=0)
@@ -102,7 +101,7 @@ class MessageWindow(subWindow.SubWindow):
             button.set_tooltip_text(
                 "Show or hide "+ reporter.messagedescriptions[m])
 
-        messagepane = Gtk.ScrolledWindow(border_width=4)
+        messagepane = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         ## The ScrolledWindow's scrollbars are *not* logged in the
         ## gui, because blocking the adjustment "changed" signals in
         ## the write_message function, below, doesn't work to suppress
@@ -114,7 +113,9 @@ class MessageWindow(subWindow.SubWindow):
         self.mainbox.pack_start(messagepane, expand=True, fill=True, padding=0)
         self.messages = Gtk.TextView(name="fixedfont",
                                      editable=False,
-                                     cursor_visible=False)
+                                     cursor_visible=False,
+                                     left_margin=5, right_margin=5,
+                                     top_margin=5, bottom_margin=5)
         gtklogger.setWidgetName(self.messages, "Text")
         self.messages.set_wrap_mode(Gtk.WrapMode.WORD)
 
@@ -313,7 +314,9 @@ class ErrorPopUp(object):
         self.errframe.add(errscroll)
         self.errbox = Gtk.TextView(name="fixedfont",
                                    wrap_mode=Gtk.WrapMode.WORD,
-                                   editable=False)
+                                   editable=False,
+                                   left_margin=5, right_margin=5,
+                                   top_margin=5, bottom_margin=5)
         gtklogger.setWidgetName(self.errbox, "ErrorText")
         errscroll.add(self.errbox)
         self.errbox.get_buffer().set_text("\n".join(errorstrings))
@@ -353,7 +356,9 @@ class ErrorPopUp(object):
         
         self.tracepane = Gtk.TextView(name="fixedfont",
                                       editable=False,
-                                      wrap_mode=Gtk.WrapMode.WORD)
+                                      wrap_mode=Gtk.WrapMode.WORD,
+                                      left_margin=5, right_margin=5,
+                                      top_margin=5, bottom_margin=5)
 
         self.traceframe = Gtk.Frame()
         self.traceframe.set_shadow_type(Gtk.ShadowType.NONE)

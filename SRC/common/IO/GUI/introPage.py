@@ -63,7 +63,9 @@ class IntroPage(oofGUI.MainPage):
         gtklogger.logScrollBars(scroll, "Scroll")
         scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
         vbox.pack_start(scroll, expand=True, fill=True, padding=0)
-        self.textarea = Gtk.TextView(name="fixedfont")
+        self.textarea = Gtk.TextView(name="fixedfont",
+                                     left_margin=5, right_margin=5,
+                                     top_margin=5, bottom_margin=5)
         scroll.set_shadow_type(Gtk.ShadowType.IN)
         scroll.add(self.textarea)
         self.textarea.set_editable(False)

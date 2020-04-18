@@ -125,7 +125,9 @@ class MeshPage(oofGUI.MainPage):
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         infoframe.add(scroll)
         self.infoarea = Gtk.TextView(name="fixedfont", cursor_visible=False,
-                                     editable=False)
+                                     editable=False,
+                                     left_margin=5, right_margin=5,
+                                     top_margin=5, bottom_margin=5)
         scroll.add(self.infoarea)
 
         # Subproblem creation, deletion, etc.
@@ -133,7 +135,8 @@ class MeshPage(oofGUI.MainPage):
                                  shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(subprobframe, 'Subproblems')
         leftbox.pack2(subprobframe, resize=True, shrink=False)
-        subpbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        subpbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, margin=2,
+                          spacing=2)
         subprobframe.add(subpbox)
         self.subpchooser = chooser.ScrolledChooserListWidget(
             callback=self.subpchooserCB,
@@ -145,7 +148,6 @@ class MeshPage(oofGUI.MainPage):
         # Grid containing buttons for operating on subproblems.
         subpbuttons = Gtk.Grid(column_homogeneous=True,
                                row_homogeneous=True,
-                               margin=2,
                                row_spacing=2, column_spacing=2)
         subpbox.pack_start(subpbuttons, expand=False, fill=False, padding=0)
 

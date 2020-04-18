@@ -139,7 +139,9 @@ class MicrostructurePage(oofGUI.MainPage):
         gtklogger.logScrollBars(scroll, "InfoFrameScroll")
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         infoframe.add(scroll)
-        self.infoarea = Gtk.TextView(name="fixedfont", margin=2)
+        self.infoarea = Gtk.TextView(name="fixedfont", margin=2,
+                                     left_margin=5, right_margin=5,
+                                     top_margin=5, bottom_margin=5)
         self.infoarea.set_editable(0)
         self.infoarea.set_cursor_visible(False)
         self.infoarea.set_wrap_mode(Gtk.WrapMode.WORD)

@@ -92,15 +92,14 @@ class GUIConsole(code.InteractiveConsole, subWindow.SubWindow):
 
         self.controlKeyPressed = False
 
-        frame = Gtk.Frame(border_width=2)
-        frame.set_shadow_type(Gtk.ShadowType.IN)
-        self.mainbox.pack_start(frame, expand=True, fill=True, padding=0)
     
-        scroll = Gtk.ScrolledWindow()
-        frame.add(scroll)
+        scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
+        self.mainbox.pack_start(scroll, expand=True, fill=True, padding=0)
         scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
-        self.text = Gtk.TextView(name="fixedfont")
+        self.text = Gtk.TextView(name="fixedfont",
+                                 left_margin=5, right_margin=5,
+                                 top_margin=5, bottom_margin=5)
         scroll.add(self.text)
         self.text.set_wrap_mode(Gtk.WrapMode.WORD)
         self.text.set_cursor_visible(False) # *mouse* cursor is invisible

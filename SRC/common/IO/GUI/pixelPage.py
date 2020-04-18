@@ -76,7 +76,9 @@ class SelectionPage(oofGUI.MainPage):
         pssframe.add(self.datascroll)
         self.datascroll.set_policy(Gtk.PolicyType.AUTOMATIC,
                                    Gtk.PolicyType.AUTOMATIC)
-        self.psdata = Gtk.TextView(name="fixedfont", margin=2)
+        self.psdata = Gtk.TextView(name="fixedfont", margin=2,
+                                   left_margin=5, right_margin=5,
+                                   top_margin=5, bottom_margin=5)
         gtklogger.setWidgetName(self.psdata, 'DataView')
         self.psdata.set_editable(False)
         self.psdata.set_cursor_visible(False)

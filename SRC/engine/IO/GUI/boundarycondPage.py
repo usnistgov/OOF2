@@ -377,16 +377,18 @@ class BCList:
         self.bcliststore = Gtk.ListStore(GObject.TYPE_STRING,
                                          GObject.TYPE_PYOBJECT)
         self.sortedlist = Gtk.TreeModelSort(self.bcliststore)
-        self.gtk = Gtk.TreeView(self.sortedlist)
-        gtklogger.setWidgetName(self.gtk, "BCList")
+        self.gtk = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
+        self.treeview = Gtk.TreeView(self.sortedlist)
+        self.gtk.add(self.treeview)
+        gtklogger.setWidgetName(self.treeview, "BCList")
 
         # Enable/disable column
         enablecell = Gtk.CellRendererToggle()
         enablecol = Gtk.TreeViewColumn("Enable")
         enablecol.pack_start(enablecell, expand=False)
         enablecol.set_cell_data_func(enablecell, self.renderEnableCell)
-        self.gtk.append_column(enablecol)
-        gtklogger.adoptGObject(enablecell, self.gtk,
+        self.treeview.append_column(enablecol)
+        gtklogger.adoptGObject(enablecell, self.treeview,
                                access_function=gtklogger.findCellRenderer,
                                access_kwargs={'col':0, 'rend':0})
         gtklogger.connect(enablecell, 'toggled', self.enableCellCB)
@@ -395,7 +397,7 @@ class BCList:
         ## when sorting by Enable may trigger an instant re-sort,
         ## which moves the clicked cell.
         ## TODO GTK3: restore this?
-#         gtklogger.adoptGObject(enablecol, self.gtk,
+#         gtklogger.adoptGObject(enablecol, self.treeview,
 #                                access_method=gtk.TreeView.get_column,
 #                                access_args=(0,))
 #         gtklogger.connect_passive(enablecol, 'clicked')
@@ -407,8 +409,8 @@ class BCList:
         bcnamecol = Gtk.TreeViewColumn('Name')
         bcnamecol.pack_start(bcnamecell, expand=False)
         bcnamecol.set_attributes(bcnamecell, text=0)
-        self.gtk.append_column(bcnamecol)
-        gtklogger.adoptGObject(bcnamecol, self.gtk,
+        self.treeview.append_column(bcnamecol)
+        gtklogger.adoptGObject(bcnamecol, self.treeview,
                                access_method=Gtk.TreeView.get_column,
                                access_args=(1,))
         gtklogger.connect_passive(bcnamecol, 'clicked')
@@ -420,8 +422,8 @@ class BCList:
         bdycol = Gtk.TreeViewColumn('Boundary')
         bdycol.pack_start(bdycell, expand=True)
         bdycol.set_cell_data_func(bdycell, self.renderBdy)
-        self.gtk.append_column(bdycol)
-        gtklogger.adoptGObject(bdycol, self.gtk,
+        self.treeview.append_column(bdycol)
+        gtklogger.adoptGObject(bdycol, self.treeview,
                                access_method=Gtk.TreeView.get_column,
                                access_args=(2,))
         gtklogger.connect_passive(bdycol, 'clicked')
@@ -433,15 +435,15 @@ class BCList:
         bccol = Gtk.TreeViewColumn('Condition')
         bccol.pack_start(bccell, expand=True)
         bccol.set_cell_data_func(bccell, self.renderBC)
-        self.gtk.append_column(bccol)
+        self.treeview.append_column(bccol)
 
-        selection = self.gtk.get_selection()
-        gtklogger.adoptGObject(selection, self.gtk,
-                               access_method=self.gtk.get_selection)
+        selection = self.treeview.get_selection()
+        gtklogger.adoptGObject(selection, self.treeview,
+                               access_method=self.treeview.get_selection)
 
         self.signals = (
             gtklogger.connect(selection, 'changed', self.selectCB),
-            gtklogger.connect(self.gtk, 'row-activated', self.doubleClickCB)
+            gtklogger.connect(self.treeview, 'row-activated', self.doubleClickCB)
             )
 
         # Set initial sorting method
@@ -478,13 +480,13 @@ class BCList:
 
     def getBC(self):
         debug.mainthreadTest()
-        selection = self.gtk.get_selection()
+        selection = self.treeview.get_selection()
         model, iter = selection.get_selected()
         if iter:
             return model[iter][1]
     def getBCName(self):
         debug.mainthreadTest()
-        selection = self.gtk.get_selection()
+        selection = self.treeview.get_selection()
         model, iter = selection.get_selected()
         if iter:
             return model[iter][0]
@@ -509,7 +511,7 @@ class BCList:
                 if currentBC is not None:
                     for row in range(len(self.sortedlist)):
                         if self.sortedlist[row][0] == currentBC:
-                            self.gtk.get_selection().select_path(row)
+                            self.treeview.get_selection().select_path(row)
                             break
         finally:
             for signal in self.signals:

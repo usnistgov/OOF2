@@ -204,7 +204,9 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
 
         # Text displayed instead of the reference orientation and
         # location when no reference has been selected.
-        self.refText = Gtk.TextView(name="fixedfont")
+        self.refText = Gtk.TextView(name="fixedfont",
+                                    left_margin=5, right_margin=5,
+                                    top_margin=5, bottom_margin=5)
         self.refText.set_wrap_mode(gtk.WRAP_WORD)
         self.refText.set_editable(False)
         self.refText.set_cursor_visible(False)

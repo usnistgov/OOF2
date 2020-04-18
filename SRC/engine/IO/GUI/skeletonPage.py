@@ -132,7 +132,9 @@ class SkeletonPage(oofGUI.MainPage):
         self.skelframe.add(scroll)
         self.skelinfo = Gtk.TextView(name="fixedfont", editable=False,
                                      cursor_visible=False,
-                                     wrap_mode=Gtk.WrapMode.WORD)
+                                     wrap_mode=Gtk.WrapMode.WORD,
+                                     left_margin=5, right_margin=5,
+                                     top_margin=5, bottom_margin=5)
         gtklogger.setWidgetName(self.skelinfo, "SkeletonText")
         ## TODO GTK3: I have no idea if this works.
         self.boldTag = self.skelinfo.get_buffer().create_tag(
