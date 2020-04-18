@@ -52,7 +52,7 @@ class SolverPage(oofGUI.MainPage):
         self.gtk.add(mainbox)
 
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
-                            halign=Gtk.Align.CENTER)
+                            halign=Gtk.Align.CENTER, margin_top=2)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               scope=self)
@@ -73,30 +73,32 @@ class SolverPage(oofGUI.MainPage):
                              padding=0)
 
         mainvpane = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL,
-                               wide_handle=True)
+                              # margin_start=2, margin_end=2, margin_bottom=2,
+                              wide_handle=True
+                              )
         gtklogger.setWidgetName(mainvpane, 'VPane')
         mainbox.pack_start(mainvpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainvpane, 'notify::position')
 
-        # Subproblem pane
+        # Solvers pane
 
         ## TODO: Make it possible to reorder the subproblems by
         ## drag and drop.
 
-        subprobframe = Gtk.Frame(label='Solvers', shadow_type=Gtk.ShadowType.IN)
+        subprobframe = Gtk.Frame(label='Solvers', shadow_type=Gtk.ShadowType.IN,
+                                 margin=2)
         gtklogger.setWidgetName(subprobframe, "Subproblems")
         mainvpane.pack1(subprobframe, resize=True, shrink=False)
         # subpvbox contains scrolled list and buttons
-        subpvbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        subpvbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                           margin=2)
         #subpvbox.set_border_width(3)
         subprobframe.add(subpvbox)
-        innerframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
-        subpvbox.pack_start(innerframe, expand=True, fill=True, padding=0)
-        self.subpScroll = Gtk.ScrolledWindow()
+        self.subpScroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
+        subpvbox.pack_start(self.subpScroll, expand=True, fill=True, padding=0)
         gtklogger.logScrollBars(self.subpScroll, "SubproblemScroll")
         self.subpScroll.set_policy(Gtk.PolicyType.AUTOMATIC,
                                    Gtk.PolicyType.AUTOMATIC)
-        innerframe.add(self.subpScroll)
 
         self.subprobList = Gtk.ListStore(GObject.TYPE_PYOBJECT)
         self.subpListView = Gtk.TreeView(self.subprobList)
@@ -246,10 +248,11 @@ class SolverPage(oofGUI.MainPage):
 
         # Field Initializers
         initframe = Gtk.Frame(label='Initialization',
-                              shadow_type=Gtk.ShadowType.IN)
+                              shadow_type=Gtk.ShadowType.IN, margin=2)
         gtklogger.setWidgetName(initframe, "FieldInit")
         mainvpane.pack2(initframe, resize=True, shrink=False)
-        ivbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        ivbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                        margin=2)
         #ivbox.set_border_width(3)
         initframe.add(ivbox)
         self.initscroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
@@ -347,7 +350,8 @@ class SolverPage(oofGUI.MainPage):
             "Reset the current time and apply all field initializers.")
 
         # Table containing status, time entries and Solve button
-        table = Gtk.Grid()
+        table = Gtk.Grid(row_spacing=2, column_spacing=4,
+                         margin_start=2, margin_end=2, margin_bottom=2)
         mainbox.pack_start(table, expand=False, fill=True, padding=0)
 
         # The start time isn't set directly by the user, except by
@@ -375,7 +379,7 @@ class SolverPage(oofGUI.MainPage):
         table.attach(statusFrame, 2,0, 1,2)
         vbox.pack_start(self.statusLabel, expand=False, fill=False, padding=0)
         self.statusDetailButton = Gtk.Button("Details...",
-                                             halign=Gtk.Align.CENTER)
+                                             halign=Gtk.Align.CENTER, margin=6)
         vbox.pack_start(self.statusDetailButton,
                         expand=False, fill=False, padding=3)
         gtklogger.setWidgetName(self.statusDetailButton, 'status')
@@ -384,13 +388,13 @@ class SolverPage(oofGUI.MainPage):
         # The outer frame around the solver button had shadow_type OUT
         # in gtk2, but that's not available in gtk3.  Try to make the
         # frame a little fancier by using two anyway.
-        solveFrame0 = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
-        solveFrame1 = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
+        solveFrame0 = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
+        solveFrame1 = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
         solveFrame0.add(solveFrame1)
         table.attach(solveFrame0, 3,0, 1,2)
         self.solveButton = gtkutils.StockButton("system-run-symbolic",
                                                 '<b>Solve</b>', markup=True,
-                                                border_width=4)
+                                                border_width=6)
         gtklogger.setWidgetName(self.solveButton, 'solve')
         gtklogger.connect(self.solveButton, 'clicked', self.solveCB)
         solveFrame1.add(self.solveButton)
