@@ -83,8 +83,10 @@ class SolverPage(oofGUI.MainPage):
         ## TODO: Make it possible to reorder the subproblems by
         ## drag and drop.
 
-        subprobframe = Gtk.Frame(label='Solvers', shadow_type=Gtk.ShadowType.IN,
-                                 margin=2)
+        subprobframe = Gtk.Frame(
+            label='Solvers', shadow_type=Gtk.ShadowType.IN,
+            margin_start=2, margin_end=2,
+            margin_top=2, margin_bottom=gtkutils.handle_padding)
         gtklogger.setWidgetName(subprobframe, "Subproblems")
         mainvpane.pack1(subprobframe, resize=True, shrink=False)
         # subpvbox contains scrolled list and buttons
@@ -245,8 +247,10 @@ class SolverPage(oofGUI.MainPage):
             " over subproblems.")
 
         # Field Initializers
-        initframe = Gtk.Frame(label='Initialization',
-                              shadow_type=Gtk.ShadowType.IN, margin=2)
+        initframe = Gtk.Frame(
+            label='Initialization', shadow_type=Gtk.ShadowType.IN,
+            margin_start=2, margin_end=2,
+            margin_top=gtkutils.handle_padding, margin_bottom=2)
         gtklogger.setWidgetName(initframe, "FieldInit")
         mainvpane.pack2(initframe, resize=True, shrink=False)
         ivbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
@@ -386,16 +390,18 @@ class SolverPage(oofGUI.MainPage):
         # The outer frame around the solver button had shadow_type OUT
         # in gtk2, but that's not available in gtk3.  Try to make the
         # frame a little fancier by using two anyway.
-        solveFrame0 = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
-        solveFrame1 = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
-        solveFrame0.add(solveFrame1)
-        table.attach(solveFrame0, 3,0, 1,2)
+        # solveFrame0 = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
+        # solveFrame1 = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
+        # solveFrame0.add(solveFrame1)
+        # table.attach(solveFrame0, 3,0, 1,2)
         self.solveButton = gtkutils.StockButton("system-run-symbolic",
                                                 '<b>Solve</b>', markup=True,
-                                                border_width=6)
+                                                border_width=6,
+                                                valign=Gtk.Align.CENTER)
         gtklogger.setWidgetName(self.solveButton, 'solve')
         gtklogger.connect(self.solveButton, 'clicked', self.solveCB)
-        solveFrame1.add(self.solveButton)
+        table.attach(self.solveButton, 3,0, 1,2)
+        # solveFrame1.add(self.solveButton)
 
         switchboard.requestCallbackMain("field defined", self.defineFldCB)
         switchboard.requestCallbackMain("field initializer set", self.initFldCB)

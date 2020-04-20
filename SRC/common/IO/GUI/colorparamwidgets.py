@@ -25,6 +25,11 @@ from ooflib.common.IO.GUI import regclassfactory
 from gi.repository import Gtk
 import math
 
+## TODO GTK3: The widgets for non-translucent colors don't expand
+## horizontally to fill their boxes.  Is that because they display
+## color swatches?  The widgets for translucent colors do expand.
+## They should have color swatches, though.
+
 
 class LabelledSliderSet:
     def __init__(self, label=[], min=None, max=None):

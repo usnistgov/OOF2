@@ -92,8 +92,10 @@ class PropertyPane:
         # GfxLabelTree self.propertytree.
         self.current_property = None
 
-        self.gtk = Gtk.Frame(label='Property', shadow_type=Gtk.ShadowType.IN,
-                             margin=2)
+        self.gtk = Gtk.Frame(
+            label='Property', shadow_type=Gtk.ShadowType.IN,
+            margin_start=2, margin_end=gtkutils.handle_padding,
+            margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(self.gtk, 'Property')
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
                        margin=2)
@@ -315,8 +317,10 @@ class MaterialPane:
         debug.mainthreadTest()
         self.parent = parent
 
-        self.gtk = Gtk.Frame(label='Material', shadow_type=Gtk.ShadowType.IN,
-                             margin=2)
+        self.gtk = Gtk.Frame(
+            label='Material', shadow_type=Gtk.ShadowType.IN,
+            margin_start=gtkutils.handle_padding, margin_end=2,
+            margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(self.gtk, 'Material')
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
                        margin=2)

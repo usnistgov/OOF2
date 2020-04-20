@@ -53,8 +53,11 @@ class PinNodesPage(oofGUI.MainPage):
         gtklogger.connect_passive(mainpane, 'notify::position')
 
         # Pinned nodes status in the left half of the main pane
-        pnsframe = Gtk.Frame(label="Pinned Nodes Status", margin=2,
-                             shadow_type=Gtk.ShadowType.IN)
+        pnsframe = Gtk.Frame(
+            label="Pinned Nodes Status",
+            shadow_type=Gtk.ShadowType.IN,
+            margin_start=2, margin_end=gtkutils.handle_padding,
+            margin_top=2, margin_bottom=2)
         self.datascroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN,
                                              margin=2)
         gtklogger.logScrollBars(self.datascroll, "StatusScroll")
@@ -70,15 +73,19 @@ class PinNodesPage(oofGUI.MainPage):
         mainpane.pack1(pnsframe, resize=True, shrink=False)
         
         # Pin nodes method
-        modframe = Gtk.Frame(label="Pin Nodes Methods", margin=2,
-                             shadow_type=Gtk.ShadowType.IN)
+        modframe = Gtk.Frame(
+            label="Pin Nodes Methods",
+            shadow_type=Gtk.ShadowType.IN,
+            margin_start=gtkutils.handle_padding, margin_end=2,
+            margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(modframe, 'Modify')
         # box for "methods" and "buttons"
         modbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         modframe.add(modbox)
         self.pinModFactory = regclassfactory.RegisteredClassFactory(
             pinnodesmodifier.PinNodesModifier.registry,
-            title="Method:", scope=self, name="Method")
+            title="Method:", scope=self, name="Method",
+            shadow_type=Gtk.ShadowType.NONE)
         modbox.pack_start(self.pinModFactory.gtk,
                           expand=True, fill=True, padding=0)
 

@@ -15,6 +15,7 @@ from ooflib.common import utils
 from ooflib.common.IO import whoville
 from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import gtklogger
+from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import whowidget
@@ -59,8 +60,10 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
 
-        boundarylistframe = Gtk.Frame(label="Boundaries", margin=2,
-                                      shadow_type=Gtk.ShadowType.IN)
+        boundarylistframe = Gtk.Frame(
+            label="Boundaries", shadow_type=Gtk.ShadowType.IN,
+            margin_start=2, margin_end=gtkutils.handle_padding,
+            margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(boundarylistframe, 'Boundaries')
         mainpane.pack1(boundarylistframe, resize=False, shrink=False)
 
@@ -124,8 +127,10 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         # visual pointy-clicky boundary editing is added, copying will
         # make sense.
 
-        infoframe = Gtk.Frame(label="Boundary data",
-                              shadow_type=Gtk.ShadowType.IN, margin=2)
+        infoframe = Gtk.Frame(
+            label="Boundary data", shadow_type=Gtk.ShadowType.IN,
+            margin_start=gtkutils.handle_padding, margin_end=2,
+            margin_top=2, margin_bottom=2)
         mainpane.pack2(infoframe, resize=True, shrink=True)
 
         infowindow = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN,

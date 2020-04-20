@@ -60,6 +60,9 @@ class ContourMapData:
 
 #TODO: Figure out what now overlaps with gfxwindowbase and clean up.
 
+## TODO GTK3: Use gtkutils.handle_padding to make the Paned handles
+## wider.
+
 class GfxWindow(gfxwindowbase.GfxWindowBase):
     # This whole initialization sequence is complicated. See note in
     # gfxwindowbase.py.  preinitialize() is run from

@@ -123,8 +123,11 @@ class SkeletonPage(oofGUI.MainPage):
         mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
 
-        self.skelframe = Gtk.Frame(label="Skeleton Status", margin=2,
-                                   shadow_type=Gtk.ShadowType.IN)
+        self.skelframe = Gtk.Frame(
+            label="Skeleton Status", shadow_type=Gtk.ShadowType.IN,
+            margin_start=2, margin_end=gtkutils.handle_padding,
+            margin_top=2, margin_bottom=2)
+
         mainpane.pack1(self.skelframe, resize=True, shrink=False)
         scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN, margin=2)
         gtklogger.logScrollBars(scroll, "StatusScroll")
@@ -145,15 +148,18 @@ class SkeletonPage(oofGUI.MainPage):
 
         # Start of right-side
 
-        skelmodframe = Gtk.Frame(label="Skeleton Modification", margin=2,
-                                 shadow_type=Gtk.ShadowType.IN)
+        skelmodframe = Gtk.Frame(
+            label="Skeleton Modification", shadow_type=Gtk.ShadowType.IN,
+            margin_start=gtkutils.handle_padding, margin_end=2,
+            margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(skelmodframe, 'Modification')
         skelmodbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         skelmodframe.add(skelmodbox)
 
         self.skelmod = regclassfactory.RegisteredClassFactory(
             skeletonmodifier.SkeletonModifier.registry, title="Method= ",
-            callback=self.skelmodCB, scope=self, name="Method", margin=2)
+            callback=self.skelmodCB, scope=self, name="Method", margin=2,
+            shadow_type=Gtk.ShadowType.NONE)
         self.historian = historian.Historian(self.skelmod.set,
                                              self.sensitizeHistory,
                                              setCBkwargs={'interactive':1})

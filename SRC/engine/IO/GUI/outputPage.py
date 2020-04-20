@@ -6,7 +6,9 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
+
+OBSOLETE
 
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard

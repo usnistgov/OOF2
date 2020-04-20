@@ -66,7 +66,8 @@ class ActiveAreaPage(oofGUI.MainPage):
 
         # Active area status in the left half of the main pane.
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
-                       margin=2)
+                       margin_start=2, margin_end=gtkutils.handle_padding,
+                       margin_top=2, margin_bottom=2)
         mainpane.pack1(vbox, resize=True, shrink=False)
         aasframe = Gtk.Frame(label="Active %s Status"%Spacestring)
         aasframe.set_shadow_type(Gtk.ShadowType.IN)
@@ -117,7 +118,8 @@ class ActiveAreaPage(oofGUI.MainPage):
         
         # Active area modification methods in the right half of the main pane
         modframe = Gtk.Frame(label="Active %s Modification"%Spacestring,
-                             margin=2)
+                             margin_start=gtkutils.handle_padding,
+                             margin_end=2, margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(modframe, "Modify")
         modframe.set_shadow_type(Gtk.ShadowType.IN)
         mainpane.pack2(modframe, resize=False, shrink=False)
@@ -126,7 +128,8 @@ class ActiveAreaPage(oofGUI.MainPage):
         modframe.add(modbox)
         self.activeareaModFactory = regclassfactory.RegisteredClassFactory(
             activeareamod.ActiveAreaModifier.registry, title="Method:",
-            scope=self, name="Method", margin=2)
+            scope=self, name="Method", margin=2,
+            shadow_type=Gtk.ShadowType.NONE)
         modbox.pack_start(self.activeareaModFactory.gtk,
                           expand=True, fill=True, padding=0)
         self.historian = historian.Historian(self.activeareaModFactory.set,

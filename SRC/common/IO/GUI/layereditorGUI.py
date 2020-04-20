@@ -27,6 +27,8 @@ from ooflib.common.IO.GUI import whowidget
 from ooflib.common.IO.GUI import widgetscope
 from gi.repository import Gtk
 
+## TODO GTK3: Get rid of the layer editor.
+
 class LayerEditorGUI(layereditor.LayerEditor, subWindow.SubWindow,
                      widgetscope.WidgetScope):
 
@@ -59,14 +61,15 @@ class LayerEditorGUI(layereditor.LayerEditor, subWindow.SubWindow,
         self.gtk.set_default_size(600, 250)
         self.gtk.connect('destroy', self.destroyCB)
 
-        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL)
-        mainpane.set_border_width(3)
+        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                             wide_handle=True, margin=2)
         mainpane.set_position(300)
         self.mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
 
         # The left side of the layer editor is for choosing the object
         # being drawn.
-        whoframe = Gtk.Frame(label='Displayed Object')
+        whoframe = Gtk.Frame(label='Displayed Object',
+                             margin_end=gtkutils.handle_padding)
         mainpane.pack1(whoframe, resize=True, shrink=False)
         wscroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(wscroll, "ObjectScroll")
@@ -83,7 +86,8 @@ class LayerEditorGUI(layereditor.LayerEditor, subWindow.SubWindow,
 
         # The right side of the layer editor lists the display methods
         # for the object on the left side.
-        methframe = Gtk.Frame(label='Display Methods')
+        methframe = Gtk.Frame(label='Display Methods',
+                              margin_start=gtkutils.handle_padding)
         gtklogger.setWidgetName(methframe, "DisplayMethods")
         mainpane.pack2(methframe, resize=True, shrink=False)
         mvbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
@@ -103,8 +107,9 @@ class LayerEditorGUI(layereditor.LayerEditor, subWindow.SubWindow,
         self.whowidgetsignal = None
         self.findWhoWidget()
 
-        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
-        mvbox.pack_start(buttonbox, expand=False, fill=False, padding=3)
+        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                            margin=2)
+        mvbox.pack_start(buttonbox, expand=False, fill=False, padding=0)
 
         self.newMethodButton = gtkutils.StockButton("document-new-symbolic",
                                                     'New...')
@@ -291,6 +296,7 @@ class LayerEditorGUI(layereditor.LayerEditor, subWindow.SubWindow,
         # Overrides null function in base class.  This is called at
         # the completion of menu commands that change the current
         # layerset.
+        ## This shouldn't call readySend if there are no graphics windows.
         if layereditor.autoSendFlag:
             self.reallySend()
     def reallySend(self):

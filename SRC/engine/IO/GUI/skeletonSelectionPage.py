@@ -149,11 +149,14 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         gtklogger.connect_passive(self.mainpane, 'notify::position')
         
         # Status and Group are on the left side of the page.
-        self.leftbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self.leftbox = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=2,
+            margin_top=2, margin_bottom=2,
+            margin_start=2, margin_end=gtkutils.handle_padding)
         self.mainpane.pack1(self.leftbox, resize=True, shrink=False)
 
         # Status box.
-        self.statusframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
+        self.statusframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         self.leftbox.pack_start(self.statusframe,
                                 expand=False, fill=False, padding=0)
         self.status = Gtk.Label(halign=Gtk.Align.START)
@@ -772,7 +775,10 @@ class SelectionGUI:
     def __init__(self, parent):
         debug.mainthreadTest()
         self.parent = parent
-        self.gtk = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
+        self.gtk = Gtk.Frame(
+            shadow_type=Gtk.ShadowType.IN,
+            margin_start=gtkutils.handle_padding, margin_end=2,
+            margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(self.gtk, 'Selection')
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(self.vbox)
@@ -789,8 +795,10 @@ class SelectionGUI:
         for modeobj in parent.modedict.values():
             modeobj.factory = regclassfactory.RegisteredClassFactory(
                 modeobj.mode.modifierclass.registry,
-                title="Action: ",
-                scope=parent, name=modeobj.name()+"Action")
+                title="Method= ",
+                scope=parent, name=modeobj.name()+"Action",
+                shadow_type=Gtk.ShadowType.NONE
+            )
             modeobj.historybox = HistoryBox(self.setCB, self.okCB)
             gtklogger.setWidgetName(modeobj.historybox.gtk,
                                     modeobj.name()+"History")

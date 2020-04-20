@@ -71,7 +71,7 @@ class MeshPage(oofGUI.MainPage):
 
         # Centered box of buttons
         bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                       homogeneous=True, spacing=2)
+                       halign=Gtk.Align.CENTER, homogeneous=False, spacing=3)
         mainbox.pack_start(bbox, expand=False, fill=False, padding=0)
         
         self.newbutton = gtkutils.StockButton('document-new-symbolic', "New...")
@@ -117,8 +117,11 @@ class MeshPage(oofGUI.MainPage):
                             wide_handle=True)
         mainpane.pack1(leftbox, resize=True, shrink=False)
         
-        infoframe = Gtk.Frame(label='Mesh Information', margin=2,
-                              shadow_type=Gtk.ShadowType.IN)
+        infoframe = Gtk.Frame(
+            label='Mesh Information',
+            shadow_type=Gtk.ShadowType.IN,
+            margin_top=2, margin_bottom=gtkutils.handle_padding,
+            margin_start=2, margin_end=gtkutils.handle_padding)
         leftbox.pack1(infoframe, resize=True, shrink=False)
         scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN, margin=2)
         gtklogger.logScrollBars(scroll, "MeshInfo")
@@ -131,8 +134,12 @@ class MeshPage(oofGUI.MainPage):
         scroll.add(self.infoarea)
 
         # Subproblem creation, deletion, etc.
-        subprobframe = Gtk.Frame(label='Subproblems', margin=2,
-                                 shadow_type=Gtk.ShadowType.IN)
+        subprobframe = Gtk.Frame(
+            label='Subproblems',
+            shadow_type=Gtk.ShadowType.IN,
+            margin_top=gtkutils.handle_padding, margin_bottom=2,
+            margin_start=2, margin_end=gtkutils.handle_padding)
+
         gtklogger.setWidgetName(subprobframe, 'Subproblems')
         leftbox.pack2(subprobframe, resize=True, shrink=False)
         subpbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, margin=2,
@@ -194,8 +201,10 @@ class MeshPage(oofGUI.MainPage):
         
         # Right hand side for element operations
         
-        elementopsframe = Gtk.Frame(label="Mesh Operations", margin=2,
-                                    shadow_type=Gtk.ShadowType.IN)
+        elementopsframe = Gtk.Frame(
+            label="Mesh Operations", shadow_type=Gtk.ShadowType.IN,
+            margin_start=gtkutils.handle_padding, margin_end=2,
+            margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(elementopsframe, 'ElementOps')
         mainpane.pack2(elementopsframe, resize=False, shrink=False)
         elementopsbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
@@ -206,6 +215,7 @@ class MeshPage(oofGUI.MainPage):
             meshmod.MeshModification.registry,
             title="Method:",
             callback=self.elementopsCB,
+            shadow_type=Gtk.ShadowType.NONE,
             #expand=False, fill=False,
             scope=self, name="Method")
         elementopsbox.pack_start(self.elementops.gtk,

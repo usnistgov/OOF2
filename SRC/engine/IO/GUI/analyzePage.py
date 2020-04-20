@@ -40,8 +40,6 @@ from gi.repository import Gtk
 
 # Base class for AnalyzePage and BoundaryAnalysisPage.
 
-handle_padding = 5              # extra space around the Paned handles
-
 class BaseAnalysisPage(oofGUI.MainPage):
     def buildBottomRow(self, mainbox):
         # Build the bottom row of widgets, containing the named
@@ -228,7 +226,8 @@ class AnalyzePage(BaseAnalysisPage):
 
         self.outputframe = Gtk.Frame(
             label="Output", shadow_type=Gtk.ShadowType.IN,
-            margin_end=handle_padding, margin_bottom=handle_padding)
+            margin_end=gtkutils.handle_padding,
+            margin_bottom=gtkutils.handle_padding)
         output_scroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(output_scroll, "Output")
         output_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
@@ -282,7 +281,8 @@ class AnalyzePage(BaseAnalysisPage):
         # Operation
         self.operationframe = Gtk.Frame(
             label="Operation", shadow_type=Gtk.ShadowType.IN,
-            margin_top=handle_padding, margin_end=handle_padding)
+            margin_top=gtkutils.handle_padding,
+            margin_end=gtkutils.handle_padding)
         op_scroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(op_scroll, "Operation")
         op_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
@@ -304,7 +304,8 @@ class AnalyzePage(BaseAnalysisPage):
         # Domain
         self.domainframe = Gtk.Frame(
             label="Domain",
-            margin_bottom=handle_padding, margin_start=handle_padding)
+            margin_bottom=gtkutils.handle_padding,
+            margin_start=gtkutils.handle_padding)
         dom_scroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(dom_scroll, "Domain")
         dom_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
@@ -320,7 +321,8 @@ class AnalyzePage(BaseAnalysisPage):
         # it can display only the relevant SampleSet classes. 
         self.sampleframe = Gtk.Frame(
             label="Sampling", shadow_type=Gtk.ShadowType.IN,
-            margin_start=handle_padding, margin_top=handle_padding)
+            margin_start=gtkutils.handle_padding,
+            margin_top=gtkutils.handle_padding)
         sam_scroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(sam_scroll, "Sampling")
         sam_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)

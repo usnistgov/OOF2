@@ -126,3 +126,9 @@ def findChildren(widgetclasses, root):
                     break
             kids.extend(findChildren(widgetclasses, child))
     return kids
+
+########################
+
+# extra space around Paned handles because they're not visible enough
+handle_padding = 5   
+

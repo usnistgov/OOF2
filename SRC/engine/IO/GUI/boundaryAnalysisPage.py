@@ -83,7 +83,7 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
 
         boundarylistframe = Gtk.Frame(label="Boundaries",
                                       shadow_type=Gtk.ShadowType.IN,
-                                      margin_end=analyzePage.handle_padding)
+                                      margin_end=gtkutils.handle_padding)
         gtklogger.setWidgetName(boundarylistframe, 'frame')
         mainpane.pack1(boundarylistframe, resize=True, shrink=False)
 
@@ -99,7 +99,7 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
 
         analyzerframe = Gtk.Frame(label="Boundary Operation",
                                   shadow_type=Gtk.ShadowType.IN,
-                                  margin_start=analyzePage.handle_padding)
+                                  margin_start=gtkutils.handle_padding)
         mainpane.pack2(analyzerframe, resize=True, shrink=False)
         self.analysisWidget = regclassfactory.RegisteredClassFactory(
             meshbdyanalysis.MeshBdyAnalyzer.registry,

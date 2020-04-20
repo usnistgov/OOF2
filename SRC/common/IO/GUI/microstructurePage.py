@@ -132,7 +132,10 @@ class MicrostructurePage(oofGUI.MainPage):
 
         #######
         
-        infoframe = Gtk.Frame(label='Microstructure Info', margin=2)
+        infoframe = Gtk.Frame(
+            label='Microstructure Info',
+            margin_start=2, margin_end=gtkutils.handle_padding,
+            margin_top=2, margin_bottom=2)
         infoframe.set_shadow_type(Gtk.ShadowType.IN)
         pane.pack1(infoframe, resize=True, shrink=False)
         scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN, margin=2)
@@ -153,7 +156,10 @@ class MicrostructurePage(oofGUI.MainPage):
         ## Microstructure is busy.
 
         self.grouplock = lock.Lock()
-        groupframe = Gtk.Frame(label = '%s Groups'%Pixstring, margin=2)
+        groupframe = Gtk.Frame(
+            label = '%s Groups'%Pixstring,
+            margin_start=gtkutils.handle_padding, margin_end=2,
+            margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(groupframe, "%sGroups"%Pixstring)
         groupframe.set_shadow_type(Gtk.ShadowType.IN)
         pane.pack2(groupframe, resize=True, shrink=False)

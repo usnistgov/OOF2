@@ -67,7 +67,8 @@ class SelectionPage(oofGUI.MainPage):
 
         # Pixel selection status in the left half of the main pane
         pssframe = Gtk.Frame(label="%s Selection Status"%Pixstring,
-                             margin=2)
+                             margin_start=2, margin_end=gtkutils.handle_padding,
+                             margin_top=2, margin_bottom=2)
         pssframe.set_shadow_type(Gtk.ShadowType.IN)
         mainpane.pack1(pssframe, resize=True, shrink=False)
         self.datascroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN,
@@ -86,8 +87,10 @@ class SelectionPage(oofGUI.MainPage):
         self.datascroll.add(self.psdata)
 
         # Selection method in the right half of the main pane
-        modframe = Gtk.Frame(label="%s Selection Modification"%Pixstring,
-                             margin=2)
+        modframe = Gtk.Frame(
+            label="%s Selection Modification"%Pixstring,
+            margin_start=gtkutils.handle_padding, margin_end=2,
+            margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(modframe, "SelectionModification")
         modframe.set_shadow_type(Gtk.ShadowType.IN)
         mainpane.pack2(modframe, resize=True, shrink=False)
@@ -96,7 +99,8 @@ class SelectionPage(oofGUI.MainPage):
         modframe.add(vbox)
         self.selectionModFactory = regclassfactory.RegisteredClassFactory(
             pixelselectionmod.SelectionModifier.registry, title="Method:",
-            scope=self, name="Method", margin=2)
+            scope=self, name="Method", margin=2,
+            shadow_type=Gtk.ShadowType.NONE)
         vbox.pack_start(self.selectionModFactory.gtk,
                         expand=True, fill=True, padding=0)
         self.historian = historian.Historian(self.selectionModFactory.set,

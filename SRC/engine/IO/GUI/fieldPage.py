@@ -18,6 +18,7 @@ from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import whoville
 from ooflib.common.IO.GUI import gtklogger
+from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import whowidget
@@ -89,8 +90,10 @@ class FieldPage(oofGUI.MainPage):
         gtklogger.connect_passive(hpane, 'notify::position')
 
         ## Field Pane
-        fieldframe = Gtk.Frame(label="Fields", shadow_type=Gtk.ShadowType.IN,
-                               margin=2)
+        fieldframe = Gtk.Frame(
+            label="Fields", shadow_type=Gtk.ShadowType.IN,
+            margin_start=2, margin_end=gtkutils.handle_padding,
+            margin_top=2, margin_bottom=2)
         hpane.pack1(fieldframe, resize=True, shrink=False)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
                        margin=2)
@@ -115,8 +118,10 @@ class FieldPage(oofGUI.MainPage):
             " to another subproblem.")
 
         ## Equation Pane
-        eqnframe = Gtk.Frame(label="Equations", shadow_type=Gtk.ShadowType.IN,
-                             margin=2)
+        eqnframe = Gtk.Frame(
+            label="Equations", shadow_type=Gtk.ShadowType.IN,
+            margin_start=gtkutils.handle_padding, margin_end=2,
+            margin_top=2, margin_bottom=2)
         hpane.pack2(eqnframe, resize=True, shrink=False)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
                        margin=2)

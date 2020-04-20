@@ -437,8 +437,9 @@ class AnyWhoParameterWidget(parameterwidgets.ParameterWidget,
     def get_value(self):
         return self.whopwidget.get_value()
 
-def _AnyWhoParameter_makeWidget(self, scope=None):
-    return AnyWhoParameterWidget(self.value, scope=scope, name=self.name)
+def _AnyWhoParameter_makeWidget(self, scope=None, **kwargs):
+    return AnyWhoParameterWidget(self.value, scope=scope, name=self.name,
+                                 **kwargs)
 
 whoville.AnyWhoParameter.makeWidget = _AnyWhoParameter_makeWidget
 
