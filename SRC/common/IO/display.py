@@ -282,8 +282,14 @@ class DisplayMethod(registeredclass.RegisteredClass):
                     ## TODO GTK3: Added the dlayer arg, which allows
                     ## drawing directly to the layer, bypassing the
                     ## device.  Remove the device arg after all
-                    ## DisplayMethods are updated.
-                    self.draw(gfxwindow, device, dlayer)
+                    ## DisplayMethods are updated.  The try/except
+                    ## here is to help find which DisplayMethods still
+                    ## need to be updated.
+                    try:
+                        self.draw(gfxwindow, device, dlayer)
+                    except:
+                        debug.fmsg("Failed to call", self.draw)
+                        raise
                     lasttime.increment()
                     device.end_layer() ## flushes the buffer one last time.
             finally:
