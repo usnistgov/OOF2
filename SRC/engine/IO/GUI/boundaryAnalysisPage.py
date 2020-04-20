@@ -45,7 +45,7 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
         self.gtk.add(mainbox)
 
         centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
-                            halign=Gtk.Align.CENTER)
+                            halign=Gtk.Align.CENTER, margin_top=2)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               callback=self.meshCB,
@@ -67,41 +67,43 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
                             halign=Gtk.Align.CENTER)
         mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.timeWidget = self.timeparam.makeWidget(scope=self)
-        centerbox.pack_start(Gtk.Label("Time:"),
+        centerbox.pack_start(Gtk.Label("Time="),
                              expand=False, fill=False, padding=0)
         centerbox.pack_start(self.timeWidget.gtk,
                              expand=False, fill=False, padding=0)
 
         mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
-                             wide_handle=True)
+                             wide_handle=True, margin=2)
         gtklogger.setWidgetName(mainpane, 'Pane')
         mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
 
-        leftbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-        mainpane.pack1(leftbox, resize=1, shrink=0) # ??
+        # leftbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        # mainpane.pack1(leftbox, resize=1, shrink=0) 
 
         boundarylistframe = Gtk.Frame(label="Boundaries",
-                                      shadow_type=Gtk.ShadowType.IN)
+                                      shadow_type=Gtk.ShadowType.IN,
+                                      margin_end=analyzePage.handle_padding)
         gtklogger.setWidgetName(boundarylistframe, 'frame')
-        leftbox.pack_start(boundarylistframe, expand=True, fill=True, padding=0)
+        mainpane.pack1(boundarylistframe, resize=True, shrink=False)
 
         self.bdylist = chooser.ScrolledChooserListWidget(
             callback=self.boundarylistCB,
             dbcallback=self.doubleclickCB,
             autoselect=1,
-            name="BoundaryList")
+            name="BoundaryList", margin=2)
         boundarylistframe.add(self.bdylist.gtk)
 
-        rightbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-        mainpane.pack2(rightbox, resize=True, shrink=False) 
+        # rightbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        # mainpane.pack2(rightbox, resize=True, shrink=False) 
 
         analyzerframe = Gtk.Frame(label="Boundary Operation",
-                                  shadow_type=Gtk.ShadowType.IN)
-        rightbox.pack_start(analyzerframe, expand=True, fill=True, padding=0)
+                                  shadow_type=Gtk.ShadowType.IN,
+                                  margin_start=analyzePage.handle_padding)
+        mainpane.pack2(analyzerframe, resize=True, shrink=False)
         self.analysisWidget = regclassfactory.RegisteredClassFactory(
             meshbdyanalysis.MeshBdyAnalyzer.registry,
-            scope=self,
+            scope=self, shadow_type=Gtk.ShadowType.NONE,
             name="BdyAnalyzerRCF")
         analyzerframe.add(self.analysisWidget.gtk)
 

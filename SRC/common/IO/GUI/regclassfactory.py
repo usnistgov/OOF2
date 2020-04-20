@@ -82,6 +82,9 @@ class RCFBase(parameterwidgets.ParameterWidget,
 
 ####################
 
+## TODO GTK3: When the registered class has no parameters, the frame
+## is too big.
+
 class RegisteredClassFactory(RCFBase):
     def __init__(self, registry, obj=None, title=None,
                  callback=None, cbargs=(), cbkwargs={},

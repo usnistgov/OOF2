@@ -73,9 +73,7 @@ class SolverPage(oofGUI.MainPage):
                              padding=0)
 
         mainvpane = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL,
-                              # margin_start=2, margin_end=2, margin_bottom=2,
-                              wide_handle=True
-                              )
+                              wide_handle=True)
         gtklogger.setWidgetName(mainvpane, 'VPane')
         mainbox.pack_start(mainvpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainvpane, 'notify::position')

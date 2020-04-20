@@ -27,7 +27,8 @@ class OutputParameterWidget(parameterwidgets.ParameterWidget,
     def __init__(self, value, outputtree, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         frame = Gtk.Frame(**kwargs)
-        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                            margin=2)
         frame.add(self.vbox)
         # top part is a bunch of chooser widgets representing the
         # LabelTree of outputs.

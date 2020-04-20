@@ -163,7 +163,8 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
             self.meshobj = None
 
         frame = Gtk.Frame(**kwargs)
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
         frame.add(vbox)
 
         self.chooser = chooser.ChooserWidget([], callback=self.chooserCB,

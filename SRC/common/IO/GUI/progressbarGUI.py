@@ -44,7 +44,7 @@ class GUIProgressBar(progressbar.ProgressBar):
 
         self.gtkprogressbar = Gtk.ProgressBar(
             orientation=Gtk.Orientation.HORIZONTAL)
-        hbox.pack_start(self.gtkprogressbar, expand=1, fill=1)
+        hbox.pack_start(self.gtkprogressbar, expand=1, fill=1, padding=0)
 
         self.stopbutton = gtkutils.StockButton("process-stop-symbolic", "Stop")
         gtklogger.setWidgetName(self.stopbutton, "Stop%d"%self.idcounter)
