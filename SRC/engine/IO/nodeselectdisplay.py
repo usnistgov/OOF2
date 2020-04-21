@@ -8,6 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import registeredclass
@@ -27,20 +28,17 @@ class SkeletonNodeSelectionDisplay(display.DisplayMethod):
         self.color = color
         self.size = size
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         skel = self.who().resolve(gfxwindow)
         if skel is not None:
-            device.set_lineColor(self.color)
-            device.set_lineWidth(self.size)
-            ## debug.fmsg("::before drawing dot")
+            clr = color.canvasColor(self.color)
             retr = skel.nodeselection.retrieve().copy()
             size = len(retr)
             for node in retr:
-                device.draw_dot(node.position())
-##            for n in range(size):
-                ## debug.fmsg("during drawing dot")
-##                device.draw_dot(retr[n].position())
-            ## debug.fmsg("::after drawing dot")
+                dot = oofcanvas.CanvasDot(node.position().x, node.position().y,
+                                          self.size)
+                dot.setFillColor(clr)
+                canvaslayer.addItem(dot)
     def getTimeStamp(self, gfxwindow):
         return max(self.timestamp,
                    self.who().resolve(gfxwindow).nodeselection.timestamp)

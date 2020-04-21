@@ -9,6 +9,7 @@
 # oof_manager@nist.gov.
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import primitives
@@ -33,7 +34,7 @@ class MeshInfoDisplay(display.DisplayMethod):
                           "Node": self.drawNode}
 
 
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         toolbox = gfxwindow.getToolboxByName("Mesh_Info")
         mesh = toolbox.meshcontext()
         mesh.begin_reading()
@@ -41,39 +42,41 @@ class MeshInfoDisplay(display.DisplayMethod):
         try:
             # Draw "queried" item.
             if toolbox.querier and toolbox.querier.object:
-                self.drawFuncs[toolbox.querier.targetname](device, toolbox, 
-                                                           toolbox.querier.object,
-                                                           which="query")
+                self.drawFuncs[toolbox.querier.targetname]\
+                    (canvaslayer, toolbox, toolbox.querier.object,
+                     which="query")
             # Draw "peeked" item.
             if toolbox.peeker and toolbox.peeker.objects.values():
                 for objtype in toolbox.peeker.objects:
                     if toolbox.peeker.objects[objtype]:
-                        self.drawFuncs[objtype](device, toolbox, 
+                        self.drawFuncs[objtype](canvaslayer, toolbox, 
                                                 toolbox.peeker.objects[objtype],
                                                 which="peek")
         finally:
             mesh.releaseCachedData()
             mesh.end_reading()
 
-    def drawElement(self, device, toolbox, element, which="query"):
-        device.set_lineColor(self.colors[which])
-        device.set_lineWidth(self.element_width)
+    def drawElement(self, canvaslayer, toolbox, element, which="query"):
         node_iter = element.cornernode_iterator().exteriornode_iterator()
         p_list = [node.position() for node in node_iter]
         displaced_p_list = [
-            toolbox.meshlayer.displaced_from_undisplaced(
-            toolbox.gfxwindow, x) for x in p_list]
-        for i in range(len(displaced_p_list)):
-            p0 = displaced_p_list[i]
-            p1 = displaced_p_list[(i+1)%len(displaced_p_list)]
-            device.draw_segment(primitives.Segment(p0, p1))
+            toolbox.meshlayer.displaced_from_undisplaced(toolbox.gfxwindow, x)
+            for x in p_list]
+        poly = oofcanvas.CanvasPolygon()
+        poly.setLineWidth(self.element_width)
+        poly.setLineWidthInPixels()
+        poly.setLineColor(color.canvasColor(self.colors[which]))
+        for pt in displaced_p_list:
+            poly.addPoint(pt.x, pt.y)
+        canvaslayer.addItem(poly)
 
-    def drawNode(self, device, toolbox, node, which="query"):
-        device.set_lineColor(self.colors[which])
-        device.set_lineWidth(self.node_size)
+    def drawNode(self, canvaslayer, toolbox, node, which="query"):
         displaced_position = toolbox.meshlayer.displaced_from_undisplaced(
             toolbox.gfxwindow(), node.position())
-        device.draw_dot(displaced_position)
+        dot = oofcanvas.CanvasDot(displaced_position.x, displaced_position.y,
+                                  self.node_size)
+        dot.setFillColor(color.canvasColor(self.colors[which]))
+        canvaslayer.addItem(dot)
 
     def getTimeStamp(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Mesh_Info")

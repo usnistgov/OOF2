@@ -8,6 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.SWIG.common import config
 from ooflib.common import color
 from ooflib.common import debug
@@ -43,10 +44,10 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
         self.arrowsize = arrowsize
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         skel = self.who().resolve(gfxwindow)
         skelobj = skel.getObject()
-        device.set_lineColor(self.color)
+        clr = color.canvasColor(self.color)
         for k in self.boundaries:
             try:
                 b = skelobj.edgeboundaries[k]
@@ -55,14 +56,17 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
             else:
                 for e in b.edges:
                     nodes = e.get_nodes()
-                    device.set_lineWidth(self.linewidth)
-                    seg = device.draw_segment(primitives.Segment(
-                        nodes[0].position(), nodes[1].position()))
-                    device.set_lineWidth(self.arrowsize)
-                    device.draw_triangle(seg, 0.5)
-            
-        device.set_lineWidth(self.dotsize)
-        device.set_fillColor(self.color)
+                    pt0 = nodes[0].position()
+                    pt1 = nodes[1].position()
+                    seg = oofcanvas.CanvasSegment(pt0.x, pt0.y, pt1.x, pt1.y)
+                    seg.setLineWidth(self.linewidth)
+                    seg.setLineWidthInPixels()
+                    seg.setLineColor(clr)
+                    arrow = oofcanvas.CanvasArrowhead(
+                        seg, 0.5, 0.7*self.arrowsize, self.arrowsize)
+                    canvaslayer.addItem(seg)
+                    canvaslayer.addItem(arrow)
+
         for k in self.boundaries:
             try:
                 b = skelobj.pointboundaries[k]
@@ -70,14 +74,14 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
                 pass
             else:
                 for n in b.nodes:
-                    device.draw_dot(n.position())
+                    dot = oofcanvas.CanvasDot(n.position().x, n.position().y,
+                                              self.dotsize)
+                    dot.setFillColor(clr)
+                    canvaslayer.addItem(dot)
 
     def getTimeStamp(self, gfxwindow):
         return max( self.timestamp,
                     self.who().resolve(gfxwindow).bdytimestamp )
-
-    # Need to override hash, because we contain a list.  For this
-    # class, object identity is a good test of equality.
 
 widthRange = (0,10)
                     
@@ -98,7 +102,8 @@ skeletonBoundaryDisplay = registeredclass.Registration(
     layerordering=display.SemiLinear(2),
     whoclasses=('Skeleton',),
     tip="Display some or all of the boundaries of the Skeleton",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/skeletonbdydisplay.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/skeletonbdydisplay.xml')
     )
 
 # Layer for showing the selected boundary (point and edge) of a skeleton.
@@ -111,32 +116,38 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
         self.arrowsize = arrowsize
         display.DisplayMethod.__init__(self)
         
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         skel = self.who().resolve(gfxwindow)
         skelobj = skel.getObject()
         bdy = skel.getSelectedBoundary()  # SkelContextBoundary
         if bdy is not None:
             # bdy.draw calls either drawEdgeBoundary or drawPointBoundary
-            bdy.draw(self, device, skelobj)
+            bdy.draw(self, canvaslayer, skelobj)
 
-    def drawEdgeBoundary(self, bdy, skelobj, device):
+    def drawEdgeBoundary(self, bdy, skelobj, canvaslayer):
         b = bdy.boundary(skelobj)
-        device.set_lineColor(self.color)
+        clr = color.canvasColor(self.color)
         for e in b.edges:
             nodes = e.get_nodes()
             n0 = nodes[0].position()
             n1 = nodes[1].position()
-            device.set_lineWidth(self.linewidth)
-            seg = device.draw_segment(primitives.Segment(n0, n1))
-            device.set_lineWidth(self.arrowsize)
-            device.draw_triangle(seg, 0.5)
+            seg = oofcanvas.CanvasSegment(n0.x, n0.y, n1.x, n1.y)
+            seg.setLineColor(clr)
+            seg.setLineWidth(self.linewidth)
+            seg.setLineWidthInPixels()
+            arrow = oofcanvas.CanvasArrowhead(seg, 0.5, 0.7*self.arrowsize,
+                                              self.arrowsize)
+            canvaslayer.addItem(seg)
+            canvaslayer.addItem(arrow)
 
-    def drawPointBoundary(self, bdy, skelobj, device):
+    def drawPointBoundary(self, bdy, skelobj, canvaslayer):
         b = bdy.boundary(skelobj)
-        device.set_lineWidth(self.dotsize)
-        device.set_lineColor(self.color)
+        clr = color.canvasColor(self.color)
         for n in b.nodes:
-            device.draw_dot(n.position())
+            dot = oofcanvas.CanvasDot(n.position().x, n.position().y,
+                                      self.dotsize)
+            dot.setFillColor(clr)
+            canvaslayer.addItem(dot)
     
     def getTimeStamp(self, gfxwindow):
         skelcontext = self.who().resolve(gfxwindow)
@@ -201,7 +212,8 @@ selectedSkeletonBoundaryDisplay = registeredclass.Registration(
     layerordering=display.SemiLinear(1),
     whoclasses=('Skeleton',),
     tip="Display the currently selected boundary.",
-    discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/skeletonselbdydisplay.xml')
+    discussion = xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/skeletonselbdydisplay.xml')
     )
 
 def defaultSelectedSkeletonBoundaryDisplay():

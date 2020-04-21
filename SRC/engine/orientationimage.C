@@ -35,7 +35,6 @@ OrientationImage::~OrientationImage() {
 }
 
 const Coord &OrientationImage::size()  const {
-  std::cerr << "OrientationImage::size: size=" << microstructure->size() << std::endl;
   return microstructure->size();
 }
 
@@ -44,7 +43,7 @@ const ICoord &OrientationImage::sizeInPixels() const {
 }
 
 OOFCanvas::CanvasImage *OrientationImage::makeCanvasImage(const Coord *position,
-					       const Coord *dispsize)
+							  const Coord *dispsize)
   const
 {
   OOFCanvas::CanvasImage *img = OOFCanvas::CanvasImage::newBlankImage(

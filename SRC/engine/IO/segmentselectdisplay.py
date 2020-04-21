@@ -8,6 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.SWIG.common import config
 from ooflib.common import color
 from ooflib.common import primitives
@@ -28,14 +29,18 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
         self.color = color
         self.line_width = line_width
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         skel = self.who().resolve(gfxwindow)
         if skel is not None:
-            device.set_lineColor(self.color)
-            device.set_lineWidth(self.line_width)
+            segs = oofcanvas.CanvasSegments()
+            segs.setLineColor(color.canvasColor(self.color))
+            segs.setLineWidth(self.line_width)
+            segs.setLineWidthInPixels()
             for s in skel.segmentselection.retrieve():
-                device.draw_segment(primitives.Segment(s.nodes()[0].position(),
-                                                       s.nodes()[1].position()))
+                pt0 = s.nodes()[0].position()
+                pt1 = s.nodes()[1].position()
+                segs.addSegment(pt0.x, pt0.y, pt1.x, pt1.y)
+            canvaslayer.addItem(segs)
 
     def getTimeStamp(self, gfxwindow):
         return max(self.timestamp,

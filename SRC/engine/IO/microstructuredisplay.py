@@ -36,16 +36,16 @@ class MicrostructureMaterialDisplay(MSMaterialDisplay):
         self.no_material = no_material    # color if Material isn't assigned
         self.no_color = no_color    # color if Material has no ColorProperty
         MSMaterialDisplay.__init__(self)
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         microstructure = self.who().getObject(gfxwindow)
-        # The CanvasOutput.draw_image() routine requires an object
-        # with a .makeCanvasImage() function.  We can't simply give
-        # Microstructure such a function, since it can be displayed in
-        # many ways, so we construct a temporary object,
-        # MaterialImage, just to pass to draw_image().
+        # The MaterialImage object created here is just a lightweight
+        # wrapper that houses the makeCanvasImage method.  It's an
+        # artefact of the days when we had an OutputDevice with a
+        # draw_image method that took an AbstractImage* argument.
         matlimage = material.MaterialImage(microstructure, self.no_material,
                                            self.no_color)
-        device.draw_image(matlimage, coord.Coord(0,0), microstructure.size())
+        img = matlimage.makeCanvasImage(coord.Coord(0,0), microstructure.size())
+        canvaslayer.addItem(img)
 
 registeredclass.Registration(
     'Material',
@@ -73,17 +73,19 @@ class OrientationDisplay(MSMaterialDisplay):
         self.no_orientation = no_orientation
         self.no_material = no_material
         MSMaterialDisplay.__init__(self)
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         msobj = self.who().getObject(gfxwindow)
-        img = orientationimage.OrientationImage(msobj,
+        oimg = orientationimage.OrientationImage(msobj,
                                                 self.colorscheme,
                                                 self.no_material,
                                                 self.no_orientation)
         # Don't use OrientationImage.size() here, because
-        # orientmapimage may be destroyed before drawing is
-        # complete.  msobj.size() refers to an object that will be
-        # persistent.
-        device.draw_image(img, coord.Coord(0,0), msobj.size())
+        # orientmapimage may be destroyed before drawing is complete.
+        # (TODO: Really? That can't be right.)  msobj.size() refers to
+        # an object that will be persistent.
+        img = oimg.makeCanvasImage(coord.Coord(0,0), msobj.size())
+        canvaslayer.addItem(img)
+        
 
 registeredclass.Registration(
     'Orientation',

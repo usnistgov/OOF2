@@ -11,6 +11,7 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import ooferror
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import primitives
 from ooflib.common import registeredclass
@@ -40,17 +41,15 @@ class MeshCrossSectionDisplay(display.DisplayMethod):
         return max(self.timestamp, mesh.cross_sections.timestamp)
 
 
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         mesh = self.who().resolve(gfxwindow)
-        device.set_lineColor(self.color)
-        device.set_lineWidth(self.linewidth)
+        segments = []
 
         if self.cross_sections==placeholder.selection:
             cstoolbox = gfxwindow.getToolboxByName('Mesh_Cross_Section')
             cs = mesh.selectedCS()
             if cs:
-                device.draw_segment(primitives.Segment(cs.start, cs.end))
-                
+                segments = primitives.Segment(cs.start, cs.end)
         else: # List of cs names.
             for k in self.cross_sections:
                 try:
@@ -58,16 +57,20 @@ class MeshCrossSectionDisplay(display.DisplayMethod):
                 except KeyError:
                     pass
                 else:
-                    device.draw_segment(
-                        primitives.Segment(b.start, b.end) )
+                    segments.append(primitives.Segment(b.start, b.end))
+        if segments:
+            segs = oofcanvas.CanvasSegments()
+            segs.setLineWidth(self.linewidth)
+            segs.setLineColor(color.canvasColor(self.color))
+            segs.setLineWidthInPixels()
+            for seg in segments:
+                segs.addSegment(seg.startpt.x, seg.startpt.y,
+                                seg.endpt.x, seg.endpt.y)
+            canvaslayer.addItem(segs)
+            
 
 defaultMeshCSColor = color.gray50
 defaultMeshCSLineWidth = 1
-if config.dimension() == 2:
-    widthRange = (0,10)
-# In vtk, line widths of 0 cause errors
-elif config.dimension() == 3:
-    widthRange = (1,10)
 
 def _setMeshCSDefaults(menuitem, color, linewidth):
     global defaultMeshCSColor
@@ -78,7 +81,7 @@ def _setMeshCSDefaults(menuitem, color, linewidth):
 meshcsdispparams = [
     color.ColorParameter('color', value=defaultMeshCSColor,
                          tip="In which color?"),
-    parameter.IntRangeParameter('linewidth', widthRange, defaultMeshCSLineWidth,
+    parameter.IntRangeParameter('linewidth', (0, 10), defaultMeshCSLineWidth,
                                 tip="Thickness of the line.")]
 
 mainmenu.gfxdefaultsmenu.Meshes.addItem(oofmenu.OOFMenuItem(

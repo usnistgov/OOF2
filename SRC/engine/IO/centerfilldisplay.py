@@ -13,6 +13,7 @@
 # doesn't draw contour lines, it's a subclass ContourDisplay in order
 # to get access to the functionality of the contour map.
 
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import registeredclass
@@ -34,15 +35,13 @@ MeshDisplayMethod = displaymethods.MeshDisplayMethod
 class CenterFillDisplay(contourdisplay.ZDisplay):
     # The "draw" function should set contour_max, contour_min, and
     # contour_levels, which will be used by the draw_contourmap function.
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device, canvaslayer):
         self.contour_max = None
         self.contour_min = None
         self.contour_levels = None
         
         meshctxt = self.who().resolve(gfxwindow)
         themesh = meshctxt.mesh()
-        device.comment("SolidFill")
-        device.set_colormap(self.colormap)
         polygons = self.polygons(gfxwindow, meshctxt)
         elements = tuple(themesh.element_iterator())
         evaluationpoints = [[el.center()] for el in elements]
@@ -113,11 +112,14 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
                              break
                          last_v = v
 
-                     cmap_value = (last_v-self.contour_min)/(self.contour_max-self.contour_min)
-
-                device.set_fillColor(cmap_value)
-                # device.set_fillColor((value-min_value)/(max_value-min_value))
-                device.fill_polygon(primitives.Polygon(polygon))
+                     cmap_value = ((last_v-self.contour_min)/
+                                   (self.contour_max-self.contour_min))
+                poly = oofcanvas.CanvasPolygon()
+                poly.setFillColor(
+                    color.canvasColor(self.colormap(cmap_value)))
+                for pt in polygon:
+                    poly.addPoint(pt.x, pt.y)
+                canvaslayer.addItem(poly)
 
     # These two functions should maybe belong somewhere higher up in
     # the hierarchy, because it's duplicated across several classes.
@@ -178,22 +180,25 @@ class MeshCenterFillDisplay(CenterFillDisplay,
 
         
 
-registeredclass.Registration('Solid Fill',
-                             display.DisplayMethod,
-                             MeshCenterFillDisplay,
-                             ordering=2.0,
-                             layerordering=display.Planar,
-                             params=
-                             contourdisplay.zdisplayparams + 
-                             [
-    parameter.AutomaticValueSetParameter('levels', automatic.automatic,
-                                         tip="Number of levels or list of levels (in []), or automatic"),
-    parameter.RegisteredParameter('colormap', colormap.ColorMap,
-                                  colormap.ThermalMap(), tip="Fill color.")],
-                             whoclasses = ('Mesh',),
-                             tip="Quick and dirty contour plot.",
-                             discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/centerfilldisplay.xml')
-                             )
+registeredclass.Registration(
+    'Solid Fill',
+    display.DisplayMethod,
+    MeshCenterFillDisplay,
+    ordering=2.0,
+    layerordering=display.Planar,
+    params=
+    contourdisplay.zdisplayparams + [
+        parameter.AutomaticValueSetParameter(
+            'levels', automatic.automatic,
+            tip="Number of levels or list of levels (in []), or automatic"),
+        parameter.RegisteredParameter(
+            'colormap', colormap.ColorMap,
+            colormap.ThermalMap(), tip="Fill color.")],
+    whoclasses = ('Mesh',),
+    tip="Quick and dirty contour plot.",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/centerfilldisplay.xml')
+)
 
 # SkeletonCenterFillDisplay isn't useful unless there are Outputs that
 # can be evaluated on a Skeleton.

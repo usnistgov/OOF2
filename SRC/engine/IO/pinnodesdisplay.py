@@ -8,6 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import registeredclass
@@ -23,12 +24,14 @@ class PinnedNodesDisplay(display.DisplayMethod):
         self.color = color
         self.size = size
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         skel = self.who().resolve(gfxwindow)
-        device.set_lineColor(self.color)
-        device.set_lineWidth(self.size)
+        clr = color.canvasColor(self.color)
         for node in skel.pinnednodes.retrieve():
-            device.draw_dot(node.position())
+            dot = oofcanvas.CanvasDot(node.position().x, node.position().y,
+                                      self.size)
+            dot.setFillColor(clr)
+            canvaslayer.addItem(dot)
     def getTimeStamp(self, gfxwindow):
         return max(self.timestamp,
                    self.who().resolve(gfxwindow).pinnednodes.timestamp)

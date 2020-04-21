@@ -20,6 +20,7 @@ from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import smallmatrix
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import threadstate
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.SWIG.engine import mastercoord
 from ooflib.common import color
 from ooflib.common import debug
@@ -382,7 +383,8 @@ mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
 
     Set the default parameters for
     <link linkend="RegisteredClass-SkeletonEdgeDisplay"><classname>SkeletonEdgeDisplays</classname></link>.
-    See <xref linkend="RegisteredClass-SkeletonEdgeDisplay"/> for the details.      This command may be placed in the &oof2rc; file
+    See <xref linkend="RegisteredClass-SkeletonEdgeDisplay"/> for the details.
+    This command may be placed in the &oof2rc; file
     to set a default value for all &oof2; sessions.
 
     </para>"""))
@@ -415,15 +417,19 @@ mainmenu.gfxdefaultsmenu.Meshes.addItem(oofmenu.OOFMenuItem(
 ####
 
 class EdgeDisplay:
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         themesh = self.who().resolve(gfxwindow)
-        device.comment("EdgeDisplay")
-        device.set_lineColor(self.color)
-        device.set_lineWidth(self.width)
         polygons = self.polygons(gfxwindow, themesh)
-        for polygonset in polygons:
-            device.draw_polygon(primitives.Polygon(polygonset))
-
+        clr = color.canvasColor(self.color)
+        for polygon in polygons:
+            poly = oofcanvas.CanvasPolygon()
+            poly.setLineWidth(self.width)
+            poly.setLineWidthInPixels()
+            poly.setLineColor(clr)
+            for pt in polygon:
+                poly.addPoint(pt.x, pt.y)
+            canvaslayer.addItem(poly)
+        
 class MeshEdgeDisplay(EdgeDisplay, MeshDisplayMethod):
     # EdgeDisplay draws the edges of the Elements
     def __init__(self, when, where,
@@ -435,8 +441,8 @@ class MeshEdgeDisplay(EdgeDisplay, MeshDisplayMethod):
         self.width = width
         self.color = color
         MeshDisplayMethod.__init__(self, when)
-    def draw(self, gfxwindow, device):
-        EdgeDisplay.draw(self, gfxwindow, device)
+    def draw(self, gfxwindow, device, canvaslayer):
+        EdgeDisplay.draw(self, gfxwindow, device, canvaslayer)
     def getTimeStamp(self, gfxwindow):
         return max(
             MeshDisplayMethod.getTimeStamp(self, gfxwindow),
@@ -448,37 +454,41 @@ class SkeletonEdgeDisplay(EdgeDisplay, SkeletonDisplayMethod):
         self.color = color
         SkeletonDisplayMethod.__init__(self)
 
-registeredclass.Registration('Element Edges',
-                             display.DisplayMethod,
-                             MeshEdgeDisplay,
-                             ordering=0.0,
-                             layerordering=display.Linear,
-                             params= meshdispparams + [
+registeredclass.Registration(
+    'Element Edges',
+    display.DisplayMethod,
+    MeshEdgeDisplay,
+    ordering=0.0,
+    layerordering=display.Linear,
+    params=meshdispparams + [
         color.ColorParameter('color',
                              defaultMeshColor,
                              tip="Color of the displayed edges."),
         IntRangeParameter('width', widthRange, defaultMeshWidth,
                           tip="Line thickness, in pixels.")],
-                             whoclasses = ('Mesh',),
-                             tip="Draw the edges of Mesh Elements.",
-                             discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/meshedgedisplay.xml')
-                             )
+    whoclasses = ('Mesh',),
+    tip="Draw the edges of Mesh Elements.",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/meshedgedisplay.xml')
+)
     
-registeredclass.Registration('Element Edges',
-                             display.DisplayMethod,
-                             SkeletonEdgeDisplay,
-                             ordering=0.0,
-                             layerordering=display.Linear,
-                             params=[
-    color.ColorParameter('color',
-                         defaultSkeletonColor,
-                         tip="Color of the displayed edges."),
-    IntRangeParameter('width', widthRange, defaultSkeletonWidth,
-                      tip="Line thickness, in pixels.")],
-                             whoclasses = ('Skeleton',),
-                             tip="Draw the edges of Skeleton Elements.",
-                             discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/skeletonedgedisplay.xml')
-                             )
+registeredclass.Registration(
+    'Element Edges',
+    display.DisplayMethod,
+    SkeletonEdgeDisplay,
+    ordering=0.0,
+    layerordering=display.Linear,
+    params=[
+        color.ColorParameter('color',
+                             defaultSkeletonColor,
+                             tip="Color of the displayed edges."),
+        IntRangeParameter('width', widthRange, defaultSkeletonWidth,
+                          tip="Line thickness, in pixels.")],
+    whoclasses = ('Skeleton',),
+    tip="Draw the edges of Skeleton Elements.",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/skeletonedgedisplay.xml')
+)
 
 ######################
 
@@ -488,124 +498,124 @@ class PerimeterDisplay(MeshDisplayMethod):
         self.width = width
         self.color = color
         MeshDisplayMethod.__init__(self, when)
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         themesh = self.who().resolve(gfxwindow)
         femesh = themesh.getObject()
         themesh.restoreCachedData(self.getTime(themesh, gfxwindow))
         try:
-            device.comment("PerimeterDisplay")
-            device.set_lineColor(self.color)
-            device.set_lineWidth(self.width)
-            for element in femesh.element_iterator():
-                el_edges = element.perimeter()
-                for edge in el_edges:
-                    if element.exterior(edge.startpt(), edge.endpt()):
-                        pts = self.where.evaluate(femesh, [edge], [[0.0, 1.0]])
-                        device.draw_segment(primitives.Segment(pts[0], pts[1]))
+            segs = oofcanvas.CanvasSegments()
+            segs.setLineWidthInPixels()
+            segs.setLineWidth(self.width)
+            segs.setLineColor(color.canvasColor(self.color))
+            for seg in segs:
+                pt0 = edge.startpt()
+                pt1 = edge.endpt()
+                segs.addSegment(pt0.x, pt0.y, pt1.x, pt1.y)
+            canvaslayer.addItem(segs)
         finally:
             themesh.releaseCachedData()
 
-registeredclass.Registration('Perimeter',
-                             display.DisplayMethod,
-                             PerimeterDisplay,
-                             ordering=1.0,
-                             layerordering=display.SemiLinear,
-                             params=meshdispparams + [
+registeredclass.Registration(
+    'Perimeter',
+    display.DisplayMethod,
+    PerimeterDisplay,
+    ordering=1.0,
+    layerordering=display.SemiLinear,
+    params=meshdispparams + [
         color.ColorParameter('color', color.black,
                              tip=parameter.emptyTipString),
         IntRangeParameter('width', widthRange, defaultMeshWidth,
                           tip="Line width.")
-        ],
-                             whoclasses = ('Mesh',),
-                             tip="Outline the perimeter of the Mesh",
-                             discussion=xmlmenudump.loadFile(
-    'DISCUSSIONS/engine/reg/perimeterdisplay.xml')
-             )
+    ],
+    whoclasses = ('Mesh',),
+    tip="Outline the perimeter of the Mesh",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/perimeterdisplay.xml')
+)
 
-#Interface branch
-class InterfaceElementDisplay(MeshDisplayMethod):
-    def __init__(self, when, where,
-                 boundary, #=placeholder.every.IDstring,
-                 material, #=materialparameter.InterfaceAnyMaterialParameter.extranames[0],
-                 width=0, color=color.black):
-        self.where = where.clone()
-        self.boundary=boundary
-        self.material=material
-        self.width = width
-        self.color = color
-        MeshDisplayMethod.__init__(self, when)
-    def draw(self, gfxwindow, device):
-        meshctxt = self.who().resolve(gfxwindow)
-        femesh = meshctxt.getObject()
-        device.comment("InterfaceElementDisplay")
-        device.set_lineColor(self.color)
-        device.set_lineWidth(self.width)
-        ANYstring=materialparameter.InterfaceAnyMaterialParameter.extranames[0]
-        NONEstring=materialparameter.InterfaceAnyMaterialParameter.extranames[1]
-        try:
-            meshctxt.restoreCachedData(self.getTime(meshctxt, gfxwindow))
-            if self.boundary==placeholder.every.IDstring:
-                for edgement in femesh.edgement_iterator():
-                    if self.material!=ANYstring:
-                        if edgement.material():
-                            matname=edgement.material().name()
-                        else:
-                            matname=NONEstring
-                        if self.material!=matname:
-                            continue
-                    el_edges = edgement.perimeter()
-                    for edge in el_edges:
-                        pts = self.where.evaluate(femesh, [edge], [[0.0, 1.0]])
-                        device.draw_segment(primitives.Segment(pts[0], pts[1]))
-            else:
-                for edgement in femesh.edgement_iterator():
-                    if self.material!=ANYstring:
-                        if edgement.material():
-                            matname=edgement.material().name()
-                        else:
-                            matname=NONEstring
-                        if self.material!=matname:
-                            continue
-                    if self.boundary not in edgement.namelist():
-                        continue
-                    el_edges = edgement.perimeter()
-                    for edge in el_edges:
-                        pts = self.where.evaluate(femesh, [edge], [[0.0, 1.0]])
-                        device.draw_segment(primitives.Segment(pts[0], pts[1]))
-        finally:
-            meshctxt.releaseCachedData()
+# #Interface branch
+# class InterfaceElementDisplay(MeshDisplayMethod):
+#     def __init__(self, when, where,
+#                  boundary, #=placeholder.every.IDstring,
+#                  material, #=materialparameter.InterfaceAnyMaterialParameter.extranames[0],
+#                  width=0, color=color.black):
+#         self.where = where.clone()
+#         self.boundary=boundary
+#         self.material=material
+#         self.width = width
+#         self.color = color
+#         MeshDisplayMethod.__init__(self, when)
+#     def draw(self, gfxwindow, device):
+#         meshctxt = self.who().resolve(gfxwindow)
+#         femesh = meshctxt.getObject()
+#         device.comment("InterfaceElementDisplay")
+#         device.set_lineColor(self.color)
+#         device.set_lineWidth(self.width)
+#         ANYstring=materialparameter.InterfaceAnyMaterialParameter.extranames[0]
+#         NONEstring=materialparameter.InterfaceAnyMaterialParameter.extranames[1]
+#         try:
+#             meshctxt.restoreCachedData(self.getTime(meshctxt, gfxwindow))
+#             if self.boundary==placeholder.every.IDstring:
+#                 for edgement in femesh.edgement_iterator():
+#                     if self.material!=ANYstring:
+#                         if edgement.material():
+#                             matname=edgement.material().name()
+#                         else:
+#                             matname=NONEstring
+#                         if self.material!=matname:
+#                             continue
+#                     el_edges = edgement.perimeter()
+#                     for edge in el_edges:
+#                         pts = self.where.evaluate(femesh, [edge], [[0.0, 1.0]])
+#                         device.draw_segment(primitives.Segment(pts[0], pts[1]))
+#             else:
+#                 for edgement in femesh.edgement_iterator():
+#                     if self.material!=ANYstring:
+#                         if edgement.material():
+#                             matname=edgement.material().name()
+#                         else:
+#                             matname=NONEstring
+#                         if self.material!=matname:
+#                             continue
+#                     if self.boundary not in edgement.namelist():
+#                         continue
+#                     el_edges = edgement.perimeter()
+#                     for edge in el_edges:
+#                         pts = self.where.evaluate(femesh, [edge], [[0.0, 1.0]])
+#                         device.draw_segment(primitives.Segment(pts[0], pts[1]))
+#         finally:
+#             meshctxt.releaseCachedData()
 
-from ooflib.common import runtimeflags
-if runtimeflags.surface_mode:
-    registeredclass.Registration(
-        'InterfaceElement',
-        display.DisplayMethod,
-        InterfaceElementDisplay,
-        ordering=10,
-        layerordering=display.SemiLinear,
-        params=meshdispparams + [
-            meshparameters.MeshEdgeBdyParameterExtra(
-                'boundary', placeholder.every.IDstring,
-                tip='Only display edges on this boundary or interface.'),
-            materialparameter.InterfaceAnyMaterialParameter(
-                'material',
-                materialparameter.InterfaceAnyMaterialParameter.extranames[0],
-                tip="Only display edges with this material assigned to them."),
-            ## TODO: Add settable defaults
-            color.ColorParameter('color', color.RGBColor(0.5, 0.3, 0.5),
-                                 tip=parameter.emptyTipString),
-            IntRangeParameter('width', widthRange, defaultMeshWidth+2,
-                              tip="Line width.")
-            ],
-        whoclasses = ('Mesh',),
-        tip="Highlight the edgements (1-D elements) on the Mesh."
-        )
+# from ooflib.common import runtimeflags
+# if runtimeflags.surface_mode:
+#     registeredclass.Registration(
+#         'InterfaceElement',
+#         display.DisplayMethod,
+#         InterfaceElementDisplay,
+#         ordering=10,
+#         layerordering=display.SemiLinear,
+#         params=meshdispparams + [
+#             meshparameters.MeshEdgeBdyParameterExtra(
+#                 'boundary', placeholder.every.IDstring,
+#                 tip='Only display edges on this boundary or interface.'),
+#             materialparameter.InterfaceAnyMaterialParameter(
+#                 'material',
+#                 materialparameter.InterfaceAnyMaterialParameter.extranames[0],
+#                 tip="Only display edges with this material assigned to them."),
+#             ## TODO: Add settable defaults
+#             color.ColorParameter('color', color.RGBColor(0.5, 0.3, 0.5),
+#                                  tip=parameter.emptyTipString),
+#             IntRangeParameter('width', widthRange, defaultMeshWidth+2,
+#                               tip="Line width.")
+#             ],
+#         whoclasses = ('Mesh',),
+#         tip="Highlight the edgements (1-D elements) on the Mesh."
+#         )
 
 ######################
 
 class MaterialDisplay:
-    def draw(self, gfxwindow, device):
-        device.comment("Material Color")
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         themesh = self.who().resolve(gfxwindow)
         polygons = self.polygons(gfxwindow, themesh)
         # colorcache is a dictionary of colors keyed by Material.  It
@@ -617,18 +627,21 @@ class MaterialDisplay:
             if material is not None:
                 try:
                     # If material has been seen already, retrieve its color.
-                    color = colorcache[material]
+                    clr = colorcache[material]
                 except KeyError:
                     # This material hasn't been seen yet.
                     try:
                         colorprop = material.fetchProperty('Color')
-                        color = colorprop.color()
+                        clr = color.canvasColor(colorprop.color())
                     except ooferror.ErrNoSuchProperty:
-                        color = None
-                    colorcache[material] = color
-                if color is not None:
-                    device.set_fillColor(color)
-                    device.fill_polygon(primitives.Polygon(polygon))
+                        clr = None
+                    colorcache[material] = clr
+                if clr is not None:
+                    poly = oofcanvas.CanvasPolygon()
+                    poly.setFillColor(clr)
+                    for pt in polygon:
+                        poly.addPoint(pt.x, pt.y)
+                    canvaslayer.addItem(plot)
  
     def getTimeStamp(self, gfxwindow):
         microstructure = self.who().resolve(gfxwindow).getMicrostructure()
@@ -666,27 +679,31 @@ class MeshMaterialDisplay(MaterialDisplay, MeshDisplayMethod):
                    gfxwindow.settings.getTimeStamp('hideEmptyElements'))
     
     
-registeredclass.Registration('Material Color',
-                             display.DisplayMethod,
-                             SkeletonMaterialDisplay,
-                             layerordering=display.Planar(1),
-                             ordering=0.1,
-                             params=[],
-                             whoclasses=('Skeleton',),
-                             tip="Fill each Element with the color of its assigned Material.",
-                             discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/skeletonmaterialdisplay.xml')
-                             )
+registeredclass.Registration(
+    'Material Color',
+    display.DisplayMethod,
+    SkeletonMaterialDisplay,
+    layerordering=display.Planar(1),
+    ordering=0.1,
+    params=[],
+    whoclasses=('Skeleton',),
+    tip="Fill each Element with the color of its assigned Material.",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/skeletonmaterialdisplay.xml')
+)
 
-registeredclass.Registration('Material Color',
-                             display.DisplayMethod,
-                             MeshMaterialDisplay,
-                             ordering=0.11,
-                             layerordering=display.Planar(2),
-                             params=meshdispparams,
-                             whoclasses=('Mesh',),
-                             tip="Fill each Element with the color of its assigned Material.",
-                                                          discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/meshmaterialdisplay.xml')
-                             )
+registeredclass.Registration(
+    'Material Color',
+    display.DisplayMethod,
+    MeshMaterialDisplay,
+    ordering=0.11,
+    layerordering=display.Planar(2),
+    params=meshdispparams,
+    whoclasses=('Mesh',),
+    tip="Fill each Element with the color of its assigned Material.",
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/meshmaterialdisplay.xml')
+)
 
 ###########################################
 
@@ -702,10 +719,9 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
         self.contourmaphidden = False
         self.lock = lock.Lock()
         SkeletonDisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         self.lock.acquire()
         try:
-            device.comment("Skeleton Energy")
             skel = self.who().resolve(gfxwindow).getObject()
             # get polygons and element energy in one pass
             polyenergy = [(el.perimeter(), el.energyTotal(skel, self.alpha))
@@ -722,25 +738,27 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
             # to the passed in values.  Store the actual limits in
             # vmin and vmax.
             if self.max == automatic.automatic:
-                max = self.vmax
+                emax = self.vmax
             else:
-                max = self.max
+                emax = self.max
                 self.vmax = max
             if self.min == automatic.automatic:
-                min = self.vmin
+                emin = self.vmin
             else:
-                min = self.min
+                emin = self.min
                 self.vmin = min
-            if max == min:
-                max += 1.0
+            if emax == min:
+                emax += 1.0
                 self.vmax += 1.0
-                min -= 1.0
+                emin -= 1.0
                 self.vmin -= 1.0
-            device.set_colormap(self.colormap)
             for polygon, energy in polyenergy:
-                device.set_fillColor((energy-min)/(max-min))
-                device.fill_polygon(primitives.Polygon(polygon))
-                
+                poly = oofcanvas.CanvasPolygon()
+                poly.setFillColor(
+                    color.canvasColor(self.colormap((energy-emin)/(emax-emin))))
+                for pt in polygon:
+                    poly.addPoint(pt.x, py.y)
+                canvaslayer.addItem(poly)
         finally:
             self.lock.release()
     def getTimeStamp(self, gfxwindow):
@@ -805,7 +823,8 @@ registeredclass.Registration(
                               tip="highest energy to display, or 'automatic'")
             ],
     tip="Color each element according to its effective energy.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/skelqualdisplay.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/skelqualdisplay.xml')
     )
 
 ###########################################

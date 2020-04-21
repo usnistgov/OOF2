@@ -27,16 +27,18 @@ class SkeletonElementSelectionDisplay(display.DisplayMethod):
         self.opacity = opacity
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device, canvaslayer):
         skel = self.who().resolve(gfxwindow)
         if skel is not None:
-            device.set_lineColor(self.color)
-            device.set_fillColorAlpha(self.color, color.alpha(self.opacity))
             skel.elementselection.begin_reading()
+            clr = color.canvasColor(self.color).opacity(self.opacity)
             try:
                 for e in skel.elementselection.retrieve():
-                    device.fill_polygon(primitives.Polygon([x.position()
-                                                            for x in e.nodes]))
+                    poly = oofcanvas.CanvasPolygon()
+                    for n in e.nodes():
+                        poly.addPoint(n.x, n.y)
+                    poly.setFillColor(clr)
+                    canvaslayer.addItem(poly)
             finally:
                 skel.elementselection.end_reading()
     def getTimeStamp(self, gfxwindow):

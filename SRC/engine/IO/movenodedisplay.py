@@ -8,6 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import primitives
 from ooflib.common import registeredclass
@@ -25,13 +26,15 @@ class MoveNodeDisplay(display.DisplayMethod):
         self.size = size
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         toolbox = gfxwindow.getToolboxByName("Move_Nodes")
         node = toolbox.selectednode.node()
         if node and toolbox.selectednode.visible:
-            device.set_lineColor(self.color)
-            device.set_lineWidth(self.size)
-            device.draw_dot(node.position())
+            dot = oofcanvas.CanvasDot(node.position().x,
+                                      node.position().y,
+                                      self.size)
+            dot.setFillColor(color.canvasColor(self.color))
+            canvaslayer.addItem(dot)
 
     def getTimeStamp(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Move_Nodes")

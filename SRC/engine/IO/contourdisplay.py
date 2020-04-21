@@ -12,6 +12,7 @@
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import progress
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.SWIG.engine.IO import contour
 from ooflib.common import color
 from ooflib.common import debug
@@ -206,7 +207,7 @@ class PlainContourDisplay(ContourDisplay):
 
     # Called on a subthread, "device" is a buffered device, so
     # commands to it do not need to be on the main thread.
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         self.lock.acquire()
         meshctxt = mainthread.runBlock(self.who().resolve, (gfxwindow,))
         mesh = meshctxt.getObject()
@@ -214,10 +215,7 @@ class PlainContourDisplay(ContourDisplay):
         prog = progress.getProgress("Contour plot", progress.DEFINITE)
         try:
             meshctxt.precompute_all_subproblems()
-    #        self.draw_subcells(mesh, device)
-            device.comment("PlainContourDisplay")
-            device.set_lineWidth(self.width)
-            device.set_lineColor(self.color)
+            clr = color.canvasColor(self.color)
 
             # clevels is a list of contour values.
             # evalues is a list of lists of function values for the
@@ -233,9 +231,21 @@ class PlainContourDisplay(ContourDisplay):
                         self.nbins, 0)
                     for cntr in contours:
                         for loop in cntr.loops:
-                            device.draw_polygon(loop)
+                            poly = oofcanvas.CanvasPolygon()
+                            poly.setLineWidth(self.width)
+                            poly.setLineWidthInPixels()
+                            poly.setLineColor(clr)
+                            for pt in loop:
+                                poly.addPoint(pt.x, pt.y)
                         for curve in cntr.curves:
-                            device.draw_curve(curve)
+                            segs = oofcanvas.CanvasSegments()
+                            segs.setLineWidth(self.width)
+                            segs.setLineWidthInPixels()
+                            segs.setLineColor(clr)
+                            for edge in curve.edges():
+                                segs.addSegment(edge.startpt.x, edge.startpt.py,
+                                                edge.endpt.x, edge.endpt.y)
+                            canvaslayer.addItem(segs)
                 ecount += 1
                 prog.setFraction((1.*ecount)/mesh.nelements())
                 prog.setMessage("drawing %d/%d elements" %
@@ -306,8 +316,8 @@ class FilledContourDisplay(ContourDisplay):
     def get_contourmap_info(self):
         return (self.contour_min, self.contour_max, self.contour_levels)
 
-    # Called on a subthread, "device" is buffered.
-    def draw(self, gfxwindow, device):
+    # Called on a subthread
+    def draw(self, gfxwindow, device_unused, canvaslayer):
         self.lock.acquire()
         meshctxt = mainthread.runBlock(self.who().resolve, (gfxwindow,))
         mesh = meshctxt.getObject()
@@ -318,7 +328,6 @@ class FilledContourDisplay(ContourDisplay):
             self.contour_min = None
             self.contour_levels = []
             meshctxt.precompute_all_subproblems()
-            device.comment("FilledContourDisplay")
             # clevels is a list of contour values.
             # evalues is a list of lists of function values
             # for the nodes of each element.
@@ -330,7 +339,6 @@ class FilledContourDisplay(ContourDisplay):
                 valrange = 1
             factor = 1./valrange
             offset = -minval*factor
-            device.set_colormap(self.colormap)
             ecount = 0
             # TODO: we might want to use itertools here
             for element, values in zip(mesh.element_iterator(), evalues):
@@ -348,36 +356,45 @@ class FilledContourDisplay(ContourDisplay):
                     for cntour in contours:
                         if cntour.value > elmin:
                             if prevcntour:
-                                device.set_fillColor(
-                                    offset + prevcntour.value*factor)
+                                baseclr = color.canvasColor(self.colormap(
+                                    offset + prevcntour.value*factor))
                             else:
-                                device.set_fillColor(0.0)
+                                baseclr = color.canvasColor(self.colormap(0.0))
                             break
                         prevcntour = cntour
                     else:
                         # If all of the contours were below the
                         # element, fill the element with the color
                         # from the top of the colormap.
-                        device.set_fillColor(1.0)
+                        baseclr = color.canvasColor(self.colormap(1.0))
                     # Find element perimeter
                     edges = element.perimeter()
                     mcorners = [[0.0]]*element.ncorners()
                     corners = self.where.evaluate(mesh, edges, mcorners)
-                    device.fill_polygon(primitives.pontify(
-                            primitives.Polygon(corners)))
+                    poly = oofcanvas.CanvasPolygon()
+                    for pt in corners:
+                        poly.addPoint(pt.x, pt.y)
+                    poly.setFillColor(baseclr)
+                    canvaslayer.addItem(poly)
 
                     # Now fill contours
                     for cntour in contours:
                         # This is harder than it looks.
+                        points = None
                         if len(cntour.loops) == 1:
-                            device.set_fillColor(
-                                offset + cntour.value*factor)
-                            device.fill_polygon(cntour.loops[0])
+                            points = cntour.loops[0]
                         elif len(cntour.loops) > 1:
-                            device.set_fillColor(
-                                offset + cntour.value*factor)
-                            # Compound Polygon fill
-                            device.fill_polygon(cntour.loops)
+                            compoundpoly = primitives.makeCompoundPolygon(
+                                cntour.loops)
+                            points = compoundpoly.loops[0]
+                        if points:
+                            poly = oofcanvas.CanvasPolygon()
+                            poly.setFillColor(
+                                color.canvasColor(self.colormap(
+                                    offset + cntour.value*factor)))
+                            for pt in points:
+                                poly.addPoint(pt.x, pt.y)
+                            canvaslayer.addItem(poly)
                 ecount += 1
                 prog.setFraction((1.0*ecount)/mesh.nelements())
                 prog.setMessage("drawing %d/%d elements" %
