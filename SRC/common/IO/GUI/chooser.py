@@ -387,11 +387,17 @@ class ChooserListWidget(ChooserListWidgetBase):
         self.suppress_signals()
         old_obj = self.get_value()
         self.liststore.clear()
-        for obj, dispname in map(None, objlist, displaylist):
-            if dispname is not None:
-                self.liststore.append([dispname, obj])
-            else:
-                self.liststore.append([obj, obj])
+
+        if not objlist:
+            self.liststore.append(["None", None])
+            self.treeview.set_sensitive(False)
+        else:
+            self.treeview.set_sensitive(True)
+            for obj, dispname in map(None, objlist, displaylist):
+                if dispname is not None:
+                    self.liststore.append([dispname, obj])
+                else:
+                    self.liststore.append([obj, obj])
         try:
             index = self.find_obj_index(old_obj)
         except ValueError:
