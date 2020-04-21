@@ -221,13 +221,13 @@ class AutoWidget(ParameterWidget):
         ParameterWidget.__init__(self, hbox, scope=scope, name=name)
         self.autocheck = Gtk.CheckButton()
         gtklogger.setWidgetName(self.autocheck, 'Auto')
-        self.text = Gtk.Entry()
+        self.text = Gtk.Entry(placeholder_text="automatic")
         gtklogger.setWidgetName(self.text, 'Text')
         self.gtk.pack_start(self.autocheck, expand=0, fill=0, padding=0)
         self.gtk.pack_start(self.text, expand=1, fill=1, padding=0)
         gtklogger.connect(self.autocheck, "clicked", self.checkCB)
         self.textsignal = gtklogger.connect(self.text, 'changed', self.entryCB)
-        
+
     def checkCB(self, gtkobj):
         debug.mainthreadTest()
         if self.autocheck.get_active():
@@ -277,6 +277,24 @@ class AutoWidget(ParameterWidget):
             self.text.set_text(`newvalue`)
             self.text.set_position(0)
             self.widgetChanged(1, interactive=0)
+
+class AutoWidgetNEW(GenericWidget):
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        quargs = kwargs.copy()
+        quargs.setdefault('placeholder_text', 'automatic')
+        GenericWidget.__init__(self, param, scope, name, **quargs)
+    def set_value(self, newvalue):
+        # TODO GTK3: How does this work if the value is not a string?
+        if newvalue is automatic.automatic:
+            self.gtk.set_text("")
+        else:
+            self.gtk.set_text(newvalue)
+        self.widgetChanged(1, interactive=0)
+    def get_value(self):
+        txt = self.gtk.get_text()
+        if not txt:
+            return automatic.automatic
+        return txt
     
 class AutoNameWidget(AutoWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
@@ -384,7 +402,7 @@ class BooleanWidget(ParameterWidget):
             quargs = kwargs.copy()
             quargs.setdefault('halign', Gtk.Align.CENTER)
             quargs.setdefault('hexpand', True)
-            self.button = gtk.ToggleButton(**quargs)
+            self.button = Gtk.ToggleButton(**quargs)
             self.gtk.add(self.button)
         # name is assigned to the button, not the frame, because it's
         # the button that gets connected.
