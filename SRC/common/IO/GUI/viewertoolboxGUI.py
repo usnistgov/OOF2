@@ -36,7 +36,7 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         infoframe.set_shadow_type(Gtk.ShadowType.NONE)
         mainbox.pack_start(infoframe, fill=False, expand=False, padding=0)
 
-        infotable = Gtk.Grid()
+        infotable = Gtk.Grid(row_spacing=2, column_spacing=2)
         infoframe.add(infotable)
         pixellabel = Gtk.Label("Pixel: ",
                                halign=Gtk.Align.END, hexpand=False)
@@ -55,12 +55,14 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         gtklogger.setWidgetName(self.physical_y, "PhysicalY")
         self.physical_y.set_width_chars(ndigits)
 
-        infotable.attach(pixellabel,      0,0, 1,1)
-        infotable.attach(self.pixel_x,    1,0, 1,1)
-        infotable.attach(self.pixel_y,    2,0, 1,1)
-        infotable.attach(physicallabel,   0,1, 1,1)
-        infotable.attach(self.physical_x, 1,1, 1,1)
-        infotable.attach(self.physical_y, 2,1, 1,1)
+        infotable.attach(Gtk.Label("X", halign=Gtk.Align.CENTER), 1,0, 1,1)
+        infotable.attach(Gtk.Label("Y", halign=Gtk.Align.CENTER), 2,0, 1,1) 
+        infotable.attach(pixellabel,      0,1, 1,1)
+        infotable.attach(self.pixel_x,    1,1, 1,1)
+        infotable.attach(self.pixel_y,    2,1, 1,1)
+        infotable.attach(physicallabel,   0,2, 1,1)
+        infotable.attach(self.physical_x, 1,2, 1,1)
+        infotable.attach(self.physical_y, 2,2, 1,1)
 
         zoomframe = Gtk.Frame(label="Zoom", margin=2)
         gtklogger.setWidgetName(zoomframe, "Zoom")

@@ -21,6 +21,7 @@ from ooflib.common import subthread
 from ooflib.common import utils
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO.GUI import gtklogger
+from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
 from ooflib.engine.IO import movenode
@@ -84,7 +85,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         else:
             self.allow_illegal.set_active(False)
 
-        self.table = Gtk.Grid()
+        self.table = Gtk.Grid(row_spacing=2, column_spacing=2)
         r = 2
         mainbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
@@ -133,19 +134,20 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
             Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
             expand=False, fill=False, padding=0)
 
-        self.statusText = Gtk.Label()
+        self.statusText = Gtk.Label(valign=Gtk.Align.END)
         gtklogger.setWidgetName(self.statusText, "Status")
-        mainbox.pack_start(self.statusText, expand=False, fill=False, padding=0)
+        mainbox.pack_start(self.statusText, expand=True, fill=False, padding=0)
         
         bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                       homogeneous=True, spacing=2)
-        mainbox.pack_end(bbox, expand=False, fill=False, padding=0)
-        self.undobutton = Gtk.Button("edit-undo-symbolic", "Undo")
+                       valign=Gtk.Align.END, vexpand=True,
+                       halign=Gtk.Align.FILL, homogeneous=True, spacing=2)
+        mainbox.pack_start(bbox, expand=True, fill=True, padding=0)
+        self.undobutton = gtkutils.StockButton("edit-undo-symbolic", "Undo")
         self.undobutton.set_tooltip_text("Undo the latest node move.")
         self.movebutton = Gtk.Button('Move')
         self.movebutton.set_tooltip_text(
             "Move the selected node to the specified position.")
-        self.redobutton = Gtk.Button("edit-redo-symbolic", "Redo")
+        self.redobutton = gtkutils.StockButton("edit-redo-symbolic", "Redo")
         self.redobutton.set_tooltip_text("Redo the latest UNDO.")
 
         gtklogger.setWidgetName(self.undobutton, 'Undo')
@@ -325,7 +327,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
             return eventtype=='up'
 
     def down(self, x, y, button, shift, ctrl, data):
-        subthread.execute(self.down_subthread, (x,y,shift,ctrl))
+        subthread.execute(self.down_subthread, (x,y,button,shift,ctrl,data))
 
     def down_subthread(self, x, y, button, shift, ctrl, data):
         debug.subthreadTest()

@@ -69,7 +69,7 @@ class MeshCrossSectionSetParamWidget(parameterwidgets.ParameterWidget):
                 self.chooser = chooser.MultiListWidget(
                     self.meshobj.allCrossSectionNames(), name="List",
                     hexpand=True, halign=Gtk.Align.FILL)
-                self.selected = gtk.CheckButton("Selected")
+                self.selected = Gtk.CheckButton("Selected")
                 gtklogger.setWidgetName(self.selected, "Selected")
                 gtklogger.connect(self.selected, "clicked", self.selectedCB)
                 vbox.pack_start(self.selected,

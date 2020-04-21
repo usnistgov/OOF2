@@ -64,7 +64,7 @@ class InterfacePage(oofGUI.MainPage):
         gtklogger.setWidgetName(mainpane, 'Pane')
         mainbox.pack_start(mainpane, expand=1, fill=1, padding=0)
 
-        interfacelistframe = gtk.Frame(label="Interfaces",
+        interfacelistframe = Gtk.Frame(label="Interfaces",
                                        shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(interfacelistframe, 'Interfaces')
         gtklogger.connect_passive(interfacelistframe, 'size-allocate')
@@ -134,7 +134,7 @@ class InterfacePage(oofGUI.MainPage):
         
         ####################################
 
-        infoframe = gtk.Frame(label="Interface details",
+        infoframe = Gtk.Frame(label="Interface details",
                               shadow_type=Gtk.ShadowType.IN)
         mainpane.pack2(infoframe, resize=1, shrink=1)
 

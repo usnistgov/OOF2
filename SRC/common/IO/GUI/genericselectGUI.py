@@ -69,7 +69,8 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.gtk.add(outerbox)
 
         # Retrieve the registered class factory from the subclass.
-        self.selectionMethodFactory = self.methodFactory()
+        self.selectionMethodFactory = self.methodFactory(
+            shadow_type=Gtk.ShadowType.IN, margin=2)
         self.selectionMethodFactory.gtk.set_vexpand(True)
         outerbox.pack_start(self.selectionMethodFactory.gtk,
                             expand=True, fill=True, padding=0)
@@ -80,7 +81,8 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         # Undo, Redo, Clear, and Invert buttons.  The callbacks for
         # these have to be defined in the derived classes.
         hbox = Gtk.HBox(orientation=Gtk.Orientation.HORIZONTAL,
-                        homogeneous=True, spacing=2)
+                        homogeneous=True, spacing=2,
+                        margin_start=2, margin_end=2)
         outerbox.pack_start(hbox, expand=False, fill=False, padding=0)
         self.undobutton = gtkutils.StockButton("edit-undo-symbolic", "Undo")
         self.redobutton = gtkutils.StockButton("edit-redo-symbolic", "Redo")
@@ -112,11 +114,12 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         frame = Gtk.Frame(label='History', margin=2)
         frame.set_shadow_type(Gtk.ShadowType.IN)
         outerbox.pack_start(frame, expand=False, fill=False, padding=0)
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
 
         frame.add(vbox)
         
-        table = Gtk.Grid()
+        table = Gtk.Grid(row_spacing=1, column_spacing=1)
         vbox.pack_start(table, expand=False, fill=False, padding=0)
         table.attach(Gtk.Label('down'), 0,0, 1,1)
         table.attach(Gtk.Label('up'),   0,1, 1,1)

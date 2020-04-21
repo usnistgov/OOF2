@@ -46,12 +46,13 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         toolboxGUI.GfxToolbox.__init__(
             self, utils.underscore2space(toolbox.name()), toolbox)
 
-        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                          margin=2)
         self.gtk.add(mainbox)
 
-        sourceframe = gtk.Frame("Source", shadow_type=Gtk.ShadowType.IN)
+        sourceframe = Gtk.Frame(label="Source", shadow_type=Gtk.ShadowType.IN)
         mainbox.pack_start(sourceframe, fill=False, expand=False, padding=0)
-        sourcescroll = Gtk.ScrolledWindow()
+        sourcescroll = Gtk.ScrolledWindow(margin=2)
         gtklogger.logScrollBars(sourcescroll, "Source")
         sourceframe.add(sourcescroll)
         sourcescroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.NEVER)
@@ -70,14 +71,16 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         datatable.attach(layerlabel, 0,1, 1,1)
         datatable.attach(self.layername, 1,1, 1,1)
 
-        csframe = gtk.Frame("Cross Section", shadow_type=Gtk.ShadowType.IN)
+        csframe = Gtk.Frame(label="Cross Section",
+                            shadow_type=Gtk.ShadowType.IN)
         mainbox.pack_start(csframe, expand=False, fill=False, padding=0)
-        csbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        csbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                        margin=2)
         csframe.add(csbox)
 
         # Table contains the "current" and "points" widgets
         table = Gtk.Grid()
-        csbox.pack_start(table, expand=False, fill=False, paddding=0)
+        csbox.pack_start(table, expand=False, fill=False, padding=0)
 
         # Widget which shows the name of the current cross-section.
         label = Gtk.Label("current: ", halign=Gtk.Align.END, hexpand=False)
@@ -101,7 +104,9 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         self.int_valid_swcb = switchboard.requestCallbackMain(
             ('validity', self.cs_sample_widget), self.validCB)
 
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       homogeneous=False,
+                       margin_start=2, margin_end=2)
         csbox.pack_start(hbox, expand=False, fill=False, padding=0)
         # Rename button.
         self.renamebutton = Gtk.Button("Rename")
@@ -110,7 +115,8 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         self.renamebutton.set_tooltip_text("Rename the current cross-section.")
         hbox.pack_start(self.renamebutton,fill=True,expand=True, padding=0)
         # Edit button
-        self.editbutton = gtkutils.StockButton(gtk.STOCK_EDIT, "Edit...")
+        self.editbutton = gtkutils.StockButton('document-edit-symbolic',
+                                               "Edit...")
         gtklogger.setWidgetName(self.editbutton, 'Edit')
         gtklogger.connect(self.editbutton, 'clicked', self.cseditCB)
         self.editbutton.set_tooltip_text("Edit the current cross-section.")
@@ -130,9 +136,10 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
             "Remove the current cross-section.")
         hbox.pack_start(self.csdeletebutton,fill=True,expand=True, padding=0)
 
-        goframe = Gtk.Frame("Output", shadow_type=Gtk.ShadowType.IN)
+        goframe = Gtk.Frame(label="Output", shadow_type=Gtk.ShadowType.IN)
         mainbox.pack_start(goframe, expand=False, fill=False, padding=0)
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       margin=2)
         goframe.add(hbox)
         label = Gtk.Label("Destination: ", halign=Gtk.Align.END)
         hbox.pack_start(label, expand=False, fill=False, padding=0)
@@ -144,7 +151,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         self.gobutton = gtkutils.StockButton("system-run-symbolic", "Go!")
         gtklogger.setWidgetName(self.gobutton, 'Go')
         hbox.pack_start(self.gobutton,expand=True, fill=True, padding=2)
-        gobutton.set_tooltip_text("Send the output to the destination.")
+        self.gobutton.set_tooltip_text("Send the output to the destination.")
         gtklogger.connect(self.gobutton, "clicked", self.goCB)
         
         self.startpoint = None
@@ -311,9 +318,9 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
     # Mouse-handler stuff.
     def acceptEvent(self, event):
         return event=='up' or event=='down'
-    def down(self,x,y,shift,ctrl):
+    def down(self, x, y, button, shift, ctrl, data):
         self.startpoint = primitives.Point(x,y)
-    def up(self,x,y,shift,ctrl):
+    def up(self, x, y, button, shift, ctrl, data):
         self.endpoint = primitives.Point(x,y)
         self.toolbox.makeCS(self.startpoint, self.endpoint)
 

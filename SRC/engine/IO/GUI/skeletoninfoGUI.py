@@ -33,7 +33,7 @@ class SkeletonInfoMode:
         self.toolbox = toolbox  # SkeletonInfoToolboxGUI
         self.menu = self.toolbox.toolbox.menu  # ie, gfxtoolbox.toolbox.menu
 
-        self.gtk = Gtk.Frame(self.targetname + " Information",
+        self.gtk = Gtk.Frame(label=self.targetname + " Information",
                              shadow_type=Gtk.ShadowType.IN)
         scroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(scroll, self.targetname+"Information")
@@ -43,7 +43,7 @@ class SkeletonInfoMode:
         # scrolledwindow.  TODO GTK3: Is this still needed?
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         scroll.add(vbox)
-        self.table = Gtk.Grid()
+        self.table = Gtk.Grid(row_spacing=1, column_spacing=2)
         vbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
         self.sbcallbacks = [
@@ -217,7 +217,7 @@ class ElementMode(SkeletonInfoMode):
         self.labelmaster(0, 3, 'segments=')
         self.segs = self.makeSegmentList(1, 3)
 
-        self.labelmaster(0, 4, area)
+        self.labelmaster(0, 4, 'area=')
         self.area = self.entrymaster(1, 4)
         gtklogger.setWidgetName(self.area, "Area")
 
@@ -238,7 +238,7 @@ class ElementMode(SkeletonInfoMode):
         gtklogger.setWidgetName(self.group, "Group")
 
         self.labelmaster(0, 9, 'material=')
-        self.material = self.entrymaster((1,2), (9,10))
+        self.material = self.entrymaster(1, 9)
         gtklogger.setWidgetName(self.material, "Material")
 
         self.built = True
@@ -559,11 +559,10 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.modeobj = None
         self.modeobjdict = {}
 
-        clickframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
-        gtklogger.setWidgetName(clickframe, 'Click')
-        self.mainbox.pack_start(clickframe, expand=False, fill=False, padding=0)
-        clickbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-        clickframe.add(clickbox)
+        clickbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                           spacing=2, margin=2)
+        gtklogger.setWidgetName(clickbox, 'Click')
+        self.mainbox.pack_start(clickbox, expand=False, fill=False, padding=0)
 
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         clickbox.pack_start(hbox, expand=False, fill=False, padding=0)
@@ -587,7 +586,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
             self.modebuttondict[mode.targetname] = button
 
         # Display mouse click coordinates
-        table = Gtk.Grid() 
+        table = Gtk.Grid(row_spacing=2, column_spacing=2) 
         clickbox.pack_start(table, expand=False, fill=False, padding=0)
 
         label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)
@@ -609,7 +608,8 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.ytext.set_tooltip_text("y coordinate of the mouse click")
         # End of clicked point display
 
-        self.infoframe = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
+        self.infoframe = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE,
+                                   vexpand=True)
         self.mainbox.pack_start(self.infoframe, expand=True,
                                 fill=True, padding=0)
         

@@ -21,6 +21,7 @@ from ooflib.common.IO import pixelselectiontoolbox
 from ooflib.common.IO.GUI import genericselectGUI
 from ooflib.common.IO.GUI import regclassfactory
 
+from gi.repository import Gtk
 
 class PixelSelectionMethodFactory(regclassfactory.RegisteredClassFactory):
     def __init__(self, registry, obj=None, title=None, callback=None,
@@ -63,9 +64,9 @@ class PixelSelectToolboxGUI(genericselectGUI.GenericSelectToolboxGUI):
             ])
 
     # In parent class, RCF is assigned to self.selectionMethodFactory
-    def methodFactory(self):
+    def methodFactory(self, **kwargs):
         return PixelSelectionMethodFactory(
-            self.method.registry, title="Method:", name="Method")
+            self.method.registry, title="Method:", name="Method", **kwargs)
     
     def activate(self):
         genericselectGUI.GenericSelectToolboxGUI.activate(self)

@@ -43,7 +43,7 @@ class MeshInfoMode:
         self.toolbox = toolbox  # MeshToolboxGUI
         self.menu = self.toolbox.toolbox.menu  # ie, gfxtoolbox.toolbox.menu
 
-        self.gtk = Gtk.Frame(self.targetname + " Information",
+        self.gtk = Gtk.Frame(label=self.targetname + " Information",
                              shadow_type=Gtk.ShadowType.IN)
         scroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(scroll, self.targetname+"Info")
@@ -51,9 +51,10 @@ class MeshInfoMode:
         self.gtk.add(scroll)
         # This vbox just keeps the table from expanding inside the
         # scrolledwindow.
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
         scroll.add(vbox)
-        self.table = Gtk.Grid()
+        self.table = Gtk.Grid(row_spacing=1, column_spacing=2)
         vbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
     def destroy(self):
@@ -187,20 +188,20 @@ class NodeMode(MeshInfoMode):
         self.built = False
         MeshInfoMode.__init__(self, toolbox)
 
-        # The labels in for index, type, and position take up two
+        # The entries for index, type, and position take up two
         # columns because the fields listed below them have two
         # columns' worth of labels, for field name and component name.
         
         self.labelmaster(0, 0, 'index=', width=2)
-        self.index = self.entrymaster(1, 0)
+        self.index = self.entrymaster(2, 0)
         gtklogger.setWidgetName(self.index, 'index')
 
         self.labelmaster(0, 1, 'type=', width=2)
-        self.type = self.entrymaster(1, 1)
+        self.type = self.entrymaster(2, 1)
         gtklogger.setWidgetName(self.type, 'type')
 
         self.labelmaster(0, 2, 'position=', width=2)
-        self.pos = self.entrymaster(1, 2)
+        self.pos = self.entrymaster(2, 2)
         gtklogger.setWidgetName(self.pos, 'position')
 
         # fieldSep marks the top of the list of fields in the Gtk.Grid
@@ -339,18 +340,17 @@ modes = [ElementMode, NodeMode]
 class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def __init__(self, meshinfo):
         toolboxGUI.GfxToolbox.__init__(self, "Mesh Info", meshinfo)
-        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                               margin=2)
         self.gtk.add(self.mainbox)
 
         self.modeclass = ElementMode
         self.modeobj = None
         self.modeobjdict = {}
 
-        clickframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
-        gtklogger.setWidgetName(clickframe, 'Click')
-        self.mainbox.pack_start(clickframe, expand=False, fill=False, padding=0)
         clickbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-        clickframe.add(clickbox)
+        gtklogger.setWidgetName(clickbox, 'Click')
+        self.mainbox.pack_start(clickbox, expand=False, fill=False, padding=0)
 
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
                        halign=Gtk.Align.CENTER)
@@ -375,7 +375,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                 gtklogger.connect(button, 'clicked', self.changeModeCB, mode))
                         
         # Display mouse click coordinates
-        self.table = Gtk.Grid()
+        self.table = Gtk.Grid(row_spacing=2, column_spacing=2, margin=2)
         clickbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
         label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)
@@ -397,7 +397,8 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
         # End of clicked point display
 
-        self.infoframe = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE)
+        self.infoframe = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE,
+                                   vexpand=True)
         self.mainbox.pack_start(self.infoframe,
                                 expand=True, fill=True, padding=0)
         self.meshcontext = self.toolbox.meshcontext()
@@ -424,7 +425,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         gtklogger.connect(self.prev, 'clicked', self.prevQuery)
         buttonbox.pack_start(self.prev, expand=False, fill=False, padding=0)
         
-        self.clear = Gtk.Button("edit-clear-symbolic", "Clear")
+        self.clear = gtkutils.StockButton("edit-clear-symbolic", "Clear")
         gtklogger.setWidgetName(self.clear, 'Clear')
         gtklogger.connect(self.clear, 'clicked', self.clearQuery)
         self.clear.set_tooltip_text("Clear the current query.")

@@ -512,7 +512,7 @@ class RegistrationGUIData:
         debug.mainthreadTest()
         self.registration = registration
         self.rclfactory = rclfactory
-        self._button = gtk.CheckButton()
+        self._button = Gtk.CheckButton()
         gtklogger.setWidgetName(self._button, registration.name()+'Toggle')
         # We could use an Expander instead of a CheckButton here, but
         # it might be confusing.  The check button makes it clear that
@@ -649,7 +649,7 @@ class RegisteredClassListFactory(RCFBase):
                                   halign=Gtk.Align.FILL),
                     0,row+2, 2,1)
                 row += 3
-        self.grid.remove_row(row-1) # remove last gtk.HSeparator
+        self.grid.remove_row(row-1) # remove last Gtk.Separator
         if objlist is not None:
             self.set(*objlist)
         self.widgetCB(interactive=0)

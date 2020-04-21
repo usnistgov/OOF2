@@ -195,7 +195,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
         buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         self.mainbox.pack_start(buttonbox, expand=False, fill=False, padding=2)
         # Freeze buttons 
-        freezeframe = Gtk.Frame("Freeze", shadow_type=Gtk.ShadowType.IN)
+        freezeframe = Gtk.Frame(label="Freeze", shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(freezeframe, "Freeze")
         buttonbox.pack_start(freezeframe, expand=True, fill=True, padding=0)
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)

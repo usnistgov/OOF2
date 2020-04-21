@@ -16,6 +16,7 @@ from ooflib.common import utils
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import reporter
 from ooflib.common.IO.GUI import gtklogger
+from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
 from ooflib.engine.IO import pinnodes
@@ -32,14 +33,15 @@ class PinnedNodesToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.gtk.add(mainbox)
 
         infoframe = Gtk.Frame()
-        mainbox.pack_start(infoframe, expand=False, fill=False)
+        mainbox.pack_start(infoframe, expand=False, fill=False, padding=0)
         info = Gtk.Label("""Click a node to pin it,
 Shift-click to unpin it,
 And Ctrl-click to toggle.""")
         infoframe.add(info)
             
        
-        self.table = Gtk.Grid()
+        self.table = Gtk.Grid(row_spacing=2, column_spacing=2,
+                              vexpand=False, valign=Gtk.Align.START)
         mainbox.pack_start(self.table, expand=False, fill=False, padding=0)
 
         label = Gtk.Label('Mouse', hexpand=False,
@@ -47,12 +49,12 @@ And Ctrl-click to toggle.""")
         self.table.attach(label, 0,0, 1,2)
 
         label = Gtk.Label('x=', hexpand=False, halign=Gtk.Align.END)
-        self.table.attach(label, 0,1, 1,1)
+        self.table.attach(label, 1,0, 1,1)
         self.xtext = Gtk.Entry(editable=False,
                                hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.xtext,"Mouse X")
         self.xtext.set_width_chars(12)
-        self.table.attach(self.xtext, 0,2, 1,1)
+        self.table.attach(self.xtext, 2,0, 1,1)
         self.xtext.set_tooltip_text("x position of the mouse")
 
         label = Gtk.Label('y=', hexpand=False, halign=Gtk.Align.END)
@@ -61,37 +63,47 @@ And Ctrl-click to toggle.""")
                                hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.ytext,"Mouse Y")
         self.ytext.set_width_chars(12)
-        self.table.attach(self.ytext, 1,2, 1,1)
+        self.table.attach(self.ytext, 2,1, 1,1)
         self.ytext.set_tooltip_text("y position of the mouse")
 
-        ## TODO GTK3: Maybe a separator here?  Add some space somehow.
+        self.table.attach(
+            Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL,
+                          vexpand=False, valign=Gtk.Align.CENTER),
+                    0,2, 3,1)
 
         label = Gtk.Label("Node", hexpand=False,
                           halign=Gtk.Align.END, valign=Gtk.Align.CENTER)
-        self.table.attach(label, 0,2, 1,2)
+        self.table.attach(label, 0,3, 1,2)
 
         label = Gtk.Label('x=', hexpand=False, halign=Gtk.Align.END)
-        self.table.attach(label, 2,1, 1,1)
+        self.table.attach(label, 1,3, 1,1)
         self.nodextext = Gtk.Entry(editable=False,
                                    hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.nodextext,"Node X")
         self.nodextext.set_width_chars(12)
-        self.table.attach(self.nodextext, 2,2, 1,1)
+        self.table.attach(self.nodextext, 2,3, 1,1)
 
         label = Gtk.Label('y=', hexpand=False, halign=Gtk.Align.END)
-        self.table.attach(label, 3,1, 1,1)
+        self.table.attach(label, 1,4, 1,1)
         self.nodeytext = Gtk.Entry(editable=False,
                                    hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.nodeytext,"Node Y")
         self.nodeytext.set_width_chars(12)
-        self.table.attach(self.nodeytext, 3,2, 1,1)
+        self.table.attach(self.nodeytext, 2,4, 1,1)
 
         # pintext displays either "pinned" or "unpinned" depending on
         # the state of the node under the mouse cursor.
-        self.pintext = Gtk.Label(hexpand=False, halign=Gtk.Align.START)
+        self.pintext = Gtk.Label(hexpand=False, halign=Gtk.Align.START,
+                                 vexpand=False, valign=Gtk.Align.START)
         gtklogger.setWidgetName(self.pintext,"Pin Label")
-        self.table.attach(self.pintext, 4,3, 1,1)
+        self.table.attach(self.pintext, 2,5, 1,1)
 
+        self.status = Gtk.Label(hexpand=True, vexpand=True,
+                                halign=Gtk.Align.START,
+                                valign=Gtk.Align.END)
+        gtklogger.setWidgetName(self.status,"Status")
+        mainbox.pack_start(self.status, expand=True, fill=True, padding=0)
+        
         # 2x2 box of buttons
         modbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         mainbox.pack_end(modbox, expand=False, fill=False, padding=0)
@@ -128,12 +140,6 @@ And Ctrl-click to toggle.""")
         self.invertbutton.set_tooltip_text(
             "Invert - pin the unpinned and unpin the pinned.")
         bbox2.pack_start(self.invertbutton, expand=True, fill=True, padding=0)
-
-        self.status = Gtk.Label(hexpand=True, vexpand=True,
-                                halign=Gtk.Align.START,
-                                valign=Gtk.Align.END)
-        gtklogger.setWidgetName(self.status,"Status")
-        mainbox.pack_end(self.status, expand=False, fill=False, padding=0)
 
         # self.skeleton_context is set by self.update().
         self.skeleton_context = None

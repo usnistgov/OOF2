@@ -23,12 +23,9 @@ namespace OOFCanvas {
       clickable(false),
       dirty(false),
       name(name)
-  {
-    std::cerr << "CanvasLayer::ctor: " << this << " " << name << std::endl;
-  }
+  {}
 
   CanvasLayer::~CanvasLayer() {
-    std::cerr << "CanvasLayer::dtor: " << this << " " << name << std::endl;
     for(CanvasItem *item : items)
       delete item;
   }

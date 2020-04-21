@@ -29,11 +29,11 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def __init__(self, pixelinfotoolbox):
         debug.mainthreadTest()
         toolboxGUI.GfxToolbox.__init__(self, "Pixel Info", pixelinfotoolbox)
-        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                          margin_start=2, margin_end=2)
         self.gtk.add(mainbox)
 
-        self.grid = Gtk.Grid()
-        self.grid.set_column_spacing(5)
+        self.grid = Gtk.Grid(column_spacing=2, row_spacing=2)
         mainbox.pack_start(self.grid, expand=False, fill=False, padding=0)
         
         label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)
@@ -57,7 +57,7 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                       homogeneous=True, spacing=2)
-        self.grid.attach(box, 0,2,2,1) # box spans both grid columns
+        self.grid.attach(box, 0,2, 2,1) # box spans both grid columns
         self.updatebutton = gtkutils.StockButton("view-refresh-symbolic",
                                                  'Update',
                                                  halign=Gtk.Align.FILL,

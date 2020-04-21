@@ -60,9 +60,6 @@ class ContourMapData:
 
 #TODO: Figure out what now overlaps with gfxwindowbase and clean up.
 
-## TODO GTK3: Use gtkutils.handle_padding to make the Paned handles
-## wider.
-
 class GfxWindow(gfxwindowbase.GfxWindowBase):
     # This whole initialization sequence is complicated. See note in
     # gfxwindowbase.py.  preinitialize() is run from
@@ -100,7 +97,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # Panes dividing upper pane horizontally into 3 parts.
         # paned1's left half contains paned2.
         self.paned1 = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
-                                wide_handle=True)
+                                wide_handle=True,
+                                margin_bottom=gtkutils.handle_padding)
         gtklogger.setWidgetName(self.paned1, "Pane1")
 
         ## TODO GTK3: With gtk2, we didn't use the "shrink" properties
@@ -109,7 +107,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         ## only its bottom part visible.  Setting shrink=False
         ## however, might make the window too big if the toolbox is
         ## complicated.  Setting shrink=False in the top pane
-        ## completely collapses the bottom pane unless it alas
+        ## completely collapses the bottom pane unless it also has
         ## shrink=False.  So at the moment they're both unshrinkable,
         ## but that might not be a good long term solution.
         self.mainpane.pack1(self.paned1, resize=True, shrink=False)
@@ -117,13 +115,15 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
         # paned2 is in left half of paned1
         self.paned2 = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
-                                wide_handle=True)
+                                wide_handle=True,
+                                margin_right=gtkutils.handle_padding)
         gtklogger.setWidgetName(self.paned2, "Pane2")
         self.paned1.pack1(self.paned2, resize=True, shrink=True)
         gtklogger.connect_passive(self.paned2, 'notify::position')
 
         # The toolbox is in the left half of paned2 (ie the left frame of 3)
-        toolboxframe = Gtk.Frame(margin=2)
+        toolboxframe = Gtk.Frame(margin_end=gtkutils.handle_padding,
+                                 margin_start=2)
         toolboxframe.set_shadow_type(Gtk.ShadowType.IN)
         self.paned2.pack1(toolboxframe, resize=True, shrink=True)
 
@@ -153,15 +153,17 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # Actually, the tool box goes inside yet another box, so that
         # we have a gtk.VBox that we can refer to later.
         self.toolboxbody = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                                   spacing=2, margin=2)
+                                   spacing=2, margin=0)
         tbscroll.add(self.toolboxbody)
 
         self.toolboxGUIs = []           # GUI wrappers for toolboxes.
         self.current_toolbox = None
 
         # canvasbox contains the time slider and the canvas
-        canvasbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                            spacing=2, margin=2)
+        canvasbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                            margin_start=gtkutils.handle_padding,
+                            #margin_end=gtkutils.handle_padding
+                            )
         self.paned2.pack2(canvasbox, resize=True, shrink=True)
 
         # timebox contains widgets for displaying and setting the time
@@ -200,8 +202,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             slider="Select an interpolation time.",
             entry="Enter an interpolation time.")
         
-        self.makeCanvasWidgets(gtklogger, canvasbox)
-        self.makeContourMapWidgets(gtklogger)
+        self.makeCanvasWidgets(canvasbox)
+        self.makeContourMapWidgets()
 
         # HACK.  Set the position of the toolbox/canvas divider.  This
         # prevents the toolbox pane from coming up minimized.
@@ -210,7 +212,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # Bottom part of main pane is a list of layers.  The actual
         # DisplayLayer objects are stored in self.display.
 
-        layerFrame = Gtk.Frame(label='Layers')
+        layerFrame = Gtk.Frame(label='Layers',
+                               margin_top=gtkutils.handle_padding)
         
         self.mainpane.pack2(layerFrame, resize=False, shrink=False)
         self.layerScroll = Gtk.ScrolledWindow()
@@ -300,21 +303,18 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         gtklogger.connect(self.layerListView, 'row-activated',
                          self.layerDoubleClickCB)
 
-    def makeCanvasWidgets(self, gtklogger, container):
+    def makeCanvasWidgets(self, container):
         # The canvas is in the right half of paned2 (ie the middle
         # pane of 3).  We *don't* use a ScrolledWindow for it, because
         # we need direct access to the Scrollbars.  Instead, we make
         # the Scrollbars ourselves and put them in a Table with the
         # canvas.
-        self.canvasTable = Gtk.Grid(margin=2)
+        self.canvasTable = Gtk.Grid()
         gtklogger.setWidgetName(self.canvasTable, "Canvas")
-        self.canvasTable.set_column_spacing(0)
-        self.canvasTable.set_row_spacing(0)
-        frame = Gtk.Frame()
-        frame.set_shadow_type(Gtk.ShadowType.NONE)
-        frame.add(self.canvasTable)
-        container.pack_start(frame, expand=True, fill=True, padding=0)
-#         self.paned2.pack2(frame, resize=True)
+        self.canvasTable.set_column_spacing(1)
+        self.canvasTable.set_row_spacing(1)
+        container.pack_start(self.canvasTable,
+                             expand=True, fill=True, padding=0)
         self.hScrollbar = Gtk.Scrollbar(orientation=Gtk.Orientation.HORIZONTAL)
         self.vScrollbar = Gtk.Scrollbar(orientation=Gtk.Orientation.VERTICAL)
         gtklogger.setWidgetName(self.hScrollbar, "hscroll")
@@ -332,15 +332,15 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # self.canvasFrame.set_shadow_type(Gtk.ShadowType.NONE)
         self.canvasTable.attach(self.canvasFrame, 0,0, 1,1)
 
-    def makeContourMapWidgets(self, gtklogger):
+    def makeContourMapWidgets(self):
         # the contourmap is in the right half of paned1 (the right pane of 3)
-        contourmapframe = Gtk.Frame(margin=2)
-        contourmapframe.set_shadow_type(Gtk.ShadowType.NONE)
+        contourmapframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN,
+                                    margin_start=gtkutils.handle_padding,
+                                    margin_end=2)
+        contourmapbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                                margin=2)
         self.paned1.pack2(contourmapframe, resize=False, shrink=True)
-
-        contourmapbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                                spacing=2, margin=2)
-        gtklogger.setWidgetName(contourmapbox, "ContourMap")
+        gtklogger.setWidgetName(contourmapframe, "ContourMap")
         contourmapframe.add(contourmapbox)
         self.contourmap_max = Gtk.Label("max", halign=Gtk.Align.CENTER)
         gtklogger.setWidgetName(self.contourmap_max, "MapMax")
@@ -390,7 +390,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             expand=False, fill=False, padding=0)
         contourmapbox.pack_end(contourmapclearbutton, expand=False, fill=False,
                                padding=0)
-        contourmapframe.show_all()
+        contourmapframe.show_all() # Is this needed?
 
 
     def postinitialize(self, name, gfxmgr, clone):

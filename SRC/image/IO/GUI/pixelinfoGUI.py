@@ -33,7 +33,7 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         # switches from RGB to HSV or vice versa.
         self.colorv = None
         
-        label = Gtk.Label('image=', halign=Gtk.Align.FILL, hexpand=False)
+        label = Gtk.Label('image=', halign=Gtk.Align.END, hexpand=False)
         grid.attach(label, 0,row, 1,1)
         self.imagetext = Gtk.Entry(editable=False, hexpand=True,
                                    halign=Gtk.Align.FILL)
@@ -42,7 +42,8 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         grid.attach(self.imagetext, 1,row, 1,1)
 
         selectorbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                              spacing=2, margin=2)
+                              halign=Gtk.Align.START,
+                              spacing=2)
         self.rgb_selector = Gtk.RadioButton("RGB")
         self.rgb_selector.set_tooltip_text(
             "View color values in Red-Green-Blue format.")
@@ -56,7 +57,7 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         gtklogger.setWidgetName(self.hsv_selector, "HSV selector")
         gtklogger.connect(self.rgb_selector, "clicked", self.selector_cb)
         gtklogger.connect(self.hsv_selector, "clicked", self.selector_cb)
-        grid.attach(selectorbox, 0,row+1, 1,1)
+        grid.attach(selectorbox, 1,row+1, 1,1)
         
         self.label1 = Gtk.Label('red=', halign=Gtk.Align.END)
         grid.attach(self.label1, 0,row+2, 1,1)

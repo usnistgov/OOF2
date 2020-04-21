@@ -275,7 +275,11 @@ class DisplayMethod(registeredclass.RegisteredClass):
             whoobj.begin_reading()      # acquire lock
             try:
                 if actuallydraw:
+                    ## TODO GTK3: Fix the nomenclature. It makes no
+                    ## sense to have to call both clear() and
+                    ## removeAllItems() here.
                     dlayer.clear()
+                    dlayer.removeAllItems()
                     if self.hidden:
                         dlayer.hide()
                     #device.comment('Layer: %s' % `self`)

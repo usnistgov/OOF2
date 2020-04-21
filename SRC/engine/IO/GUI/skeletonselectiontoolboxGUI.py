@@ -45,9 +45,9 @@ class SkeletonSelectionToolboxModeGUI(genericselectGUI.GenericSelectToolboxGUI):
                                             self.newSelection)
             )
 
-    def methodFactory(self):
+    def methodFactory(self, **kwargs):
         return regclassfactory.RegisteredClassFactory(
-            self.method.registry, title="Method:", name="Method")
+            self.method.registry, title="Method:", name="Method", **kwargs)
                                                           
     def activate(self):
         genericselectGUI.GenericSelectToolboxGUI.activate(self)
@@ -111,10 +111,12 @@ class SkeletonSelectionToolboxGUI(toolboxGUI.GfxToolbox):
         bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         gtklogger.setWidgetName(bbox, "Select")
         vbox.pack_start(bbox, expand=False, fill=False, padding=0)
-        bbox.pack_start(Gtk.Label("Select: "), expand=False, fill=False)
+        bbox.pack_start(Gtk.Label("Select: "),
+                        expand=False, fill=False, padding=0)
 
-        self.tbbox = gtk.Frame()       # holds SkeletonSelectionToolboxModes
-        vbox.pack_start(self.tbbox, expand=True, fill=True)
+        # self.tbbox = Gtk.Frame()       # holds SkeletonSelectionToolboxModes
+        self.tbbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        vbox.pack_start(self.tbbox, expand=True, fill=True, padding=0)
         
         group = None
         self.tbdict = {}
@@ -124,7 +126,7 @@ class SkeletonSelectionToolboxGUI(toolboxGUI.GfxToolbox):
             else:
                 button = Gtk.RadioButton(mode.name)
                 group = button
-            bbox.pack_start(button, expand=False, fill=False)
+            bbox.pack_start(button, expand=False, fill=False, padding=0)
             gtklogger.setWidgetName(button, mode.name)
             gtklogger.connect(button, 'clicked', self.switchModeCB, mode.name)
 

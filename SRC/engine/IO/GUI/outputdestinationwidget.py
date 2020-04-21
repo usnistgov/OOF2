@@ -84,7 +84,8 @@ class TextDestinationWidget(parameterwidgets.ParameterWidget):
     def __init__(self, param=None, scope=None, name=None, framed=True,
                  **kwargs):
         debug.mainthreadTest()
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
         if framed:
             parameterwidgets.ParameterWidget.__init__(self, Gtk.Frame(**kwargs),
                                                   scope=scope, name=name)
