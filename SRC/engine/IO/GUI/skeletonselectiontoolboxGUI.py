@@ -110,7 +110,7 @@ class SkeletonSelectionToolboxGUI(toolboxGUI.GfxToolbox):
         self.gtk.add(vbox)
         bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         gtklogger.setWidgetName(bbox, "Select")
-        vbox.pack_start(bbox, expand=False, fill=False)
+        vbox.pack_start(bbox, expand=False, fill=False, padding=0)
         bbox.pack_start(Gtk.Label("Select: "), expand=False, fill=False)
 
         self.tbbox = gtk.Frame()       # holds SkeletonSelectionToolboxModes

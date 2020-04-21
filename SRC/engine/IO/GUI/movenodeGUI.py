@@ -62,7 +62,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                 button = Gtk.RadioButton(label=mode,
                                          group=self.modebuttons[0])
             else:
-                button = gtk.RadioButton(label=mode)
+                button = Gtk.RadioButton(label=mode)
             gtklogger.setWidgetName(button, mode)
             self.modebuttons.append(button)
             button.set_tooltip_text(tip)

@@ -278,7 +278,7 @@ class DisplayMethod(registeredclass.RegisteredClass):
                     dlayer.clear()
                     if self.hidden:
                         dlayer.hide()
-                    device.comment('Layer: %s' % `self`)
+                    #device.comment('Layer: %s' % `self`)
                     ## TODO GTK3: Added the dlayer arg, which allows
                     ## drawing directly to the layer, bypassing the
                     ## device.  Remove the device arg after all
