@@ -35,10 +35,16 @@ class SkeletonNodeSelectionDisplay(display.DisplayMethod):
             retr = skel.nodeselection.retrieve().copy()
             size = len(retr)
             for node in retr:
-                dot = oofcanvas.CanvasDot(node.position().x, node.position().y,
-                                          self.size)
+                pt = node.position()
+
+                dot = oofcanvas.CanvasDot(pt.x, pt.y, 1.2*self.size)
+                dot.setFillColor(oofcanvas.white)
+                canvaslayer.addItem(dot)
+
+                dot = oofcanvas.CanvasDot(pt.x, pt.y, self.size)
                 dot.setFillColor(clr)
                 canvaslayer.addItem(dot)
+                
     def getTimeStamp(self, gfxwindow):
         return max(self.timestamp,
                    self.who().resolve(gfxwindow).nodeselection.timestamp)
@@ -46,7 +52,7 @@ class SkeletonNodeSelectionDisplay(display.DisplayMethod):
 
 
 defaultNodeSelColor = color.RGBColor(0.07, 0.09, 0.96)
-defaultNodeSelSize = 2
+defaultNodeSelSize = 3
 
 def _setNodeSelParams(menuitem, color, size):
     global defaultNodeSelColor

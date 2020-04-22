@@ -357,9 +357,9 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
 ## Default values of display parameters for SkeletonEdgeDisplay and
 ## MeshEdgeDisplay, and menu items to set them.
 
-defaultSkeletonWidth = 0
-defaultMeshWidth = 0
-widthRange = (0,10)
+defaultSkeletonWidth = 0.5
+defaultMeshWidth = 0.5
+widthRange = (0, 10, 0.1)
 defaultSkeletonColor = color.black
 defaultMeshColor = color.black
 
@@ -375,8 +375,8 @@ mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
     ordering = 0,
     params=[color.ColorParameter('color', defaultSkeletonColor,
                                  tip=parameter.emptyTipString),
-            IntRangeParameter('width', widthRange, defaultSkeletonWidth,
-                              tip="Line thickness, in pixels.")
+            FloatRangeParameter('width', widthRange, defaultSkeletonWidth,
+                                tip="Line thickness, in pixels.")
             ],
     help="Set the default parameters for Skeleton edge displays.",
     discussion="""<para>
@@ -401,8 +401,8 @@ mainmenu.gfxdefaultsmenu.Meshes.addItem(oofmenu.OOFMenuItem(
     ordering=0,
     params=[color.ColorParameter('color', defaultMeshColor,
                                  tip=parameter.emptyTipString),
-            IntRangeParameter('width', widthRange, defaultMeshWidth,
-                              tip="Line thickness, in pixels.")],
+            FloatRangeParameter('width', widthRange, defaultMeshWidth,
+                                tip="Line thickness, in pixels.")],
     help="Set the default parameters for Mesh edge displays.",
     discussion="""<para>
 
@@ -464,8 +464,8 @@ registeredclass.Registration(
         color.ColorParameter('color',
                              defaultMeshColor,
                              tip="Color of the displayed edges."),
-        IntRangeParameter('width', widthRange, defaultMeshWidth,
-                          tip="Line thickness, in pixels.")],
+        FloatRangeParameter('width', widthRange, defaultMeshWidth,
+                            tip="Line thickness, in pixels.")],
     whoclasses = ('Mesh',),
     tip="Draw the edges of Mesh Elements.",
     discussion=xmlmenudump.loadFile(
@@ -482,8 +482,8 @@ registeredclass.Registration(
         color.ColorParameter('color',
                              defaultSkeletonColor,
                              tip="Color of the displayed edges."),
-        IntRangeParameter('width', widthRange, defaultSkeletonWidth,
-                          tip="Line thickness, in pixels.")],
+        FloatRangeParameter('width', widthRange, defaultSkeletonWidth,
+                            tip="Line thickness, in pixels.")],
     whoclasses = ('Skeleton',),
     tip="Draw the edges of Skeleton Elements.",
     discussion=xmlmenudump.loadFile(
@@ -524,8 +524,8 @@ registeredclass.Registration(
     params=meshdispparams + [
         color.ColorParameter('color', color.black,
                              tip=parameter.emptyTipString),
-        IntRangeParameter('width', widthRange, defaultMeshWidth,
-                          tip="Line width.")
+        FloatRangeParameter('width', widthRange, defaultMeshWidth,
+                            tip="Line width.")
     ],
     whoclasses = ('Mesh',),
     tip="Outline the perimeter of the Mesh",
@@ -605,8 +605,8 @@ registeredclass.Registration(
 #             ## TODO: Add settable defaults
 #             color.ColorParameter('color', color.RGBColor(0.5, 0.3, 0.5),
 #                                  tip=parameter.emptyTipString),
-#             IntRangeParameter('width', widthRange, defaultMeshWidth+2,
-#                               tip="Line width.")
+#             FloatRangeParameter('width', widthRange, defaultMeshWidth+2,
+#                                 tip="Line width.")
 #             ],
 #         whoclasses = ('Mesh',),
 #         tip="Highlight the edgements (1-D elements) on the Mesh."

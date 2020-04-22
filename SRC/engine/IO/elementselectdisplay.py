@@ -9,6 +9,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import primitives
@@ -35,8 +36,9 @@ class SkeletonElementSelectionDisplay(display.DisplayMethod):
             try:
                 for e in skel.elementselection.retrieve():
                     poly = oofcanvas.CanvasPolygon()
-                    for n in e.nodes():
-                        poly.addPoint(n.x, n.y)
+                    for n in e.nodes:
+                        pt = n.position()
+                        poly.addPoint(pt.x, pt.y)
                     poly.setFillColor(clr)
                     canvaslayer.addItem(poly)
             finally:

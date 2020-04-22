@@ -63,6 +63,14 @@ class MeshInfoDisplay(display.DisplayMethod):
             toolbox.meshlayer.displaced_from_undisplaced(toolbox.gfxwindow, x)
             for x in p_list]
         poly = oofcanvas.CanvasPolygon()
+        poly.setLineWidth(1.4*self.element_width)
+        poly.setLineWidthInPixels()
+        poly.setLineColor(oofcanvas.white)
+        for pt in displaced_p_list:
+            poly.addPoint(pt.x, pt.y)
+        canvaslayer.addItem(poly)
+
+        poly = oofcanvas.CanvasPolygon()
         poly.setLineWidth(self.element_width)
         poly.setLineWidthInPixels()
         poly.setLineColor(color.canvasColor(self.colors[which]))
@@ -71,10 +79,12 @@ class MeshInfoDisplay(display.DisplayMethod):
         canvaslayer.addItem(poly)
 
     def drawNode(self, canvaslayer, toolbox, node, which="query"):
-        displaced_position = toolbox.meshlayer.displaced_from_undisplaced(
+        pt = toolbox.meshlayer.displaced_from_undisplaced(
             toolbox.gfxwindow(), node.position())
-        dot = oofcanvas.CanvasDot(displaced_position.x, displaced_position.y,
-                                  self.node_size)
+        dot = oofcanvas.CanvasDot(pt.x, pt.y, 1.2*self.node_size)
+        dot.setFillColor(oofcanvas.white)
+        canvaslayer.addItem(dot)
+        dot = oofcanvas.CanvasDot(pt.x, pt.y, self.node_size)
         dot.setFillColor(color.canvasColor(self.colors[which]))
         canvaslayer.addItem(dot)
 
@@ -100,7 +110,7 @@ defaultQueryColor = color.RGBColor(0.0, 0.5, 1.0)
 defaultPeekColor = color.RGBColor(1.0, 0.5, 0.5)
 defaultNodeSize = 3
 defaultElementWidth = 2
-widthRange = (0,10)
+widthRange = (0, 10, 0.1)
 
 def _setMeshInfoParams(menuitem, query_color, peek_color, node_size,
                        element_width):
@@ -118,11 +128,11 @@ meshinfoparams = [
                          tip="Color for the queried object."),
     color.ColorParameter('peek_color', defaultPeekColor,
                          tip="Color for the peeked object."),
-    parameter.IntRangeParameter('node_size', widthRange, defaultNodeSize,
-                                tip="Node size."),
-    parameter.IntRangeParameter('element_width', widthRange,
-                                defaultElementWidth,
-                                tip="Line thickness for element edge.")]
+    parameter.FloatRangeParameter('node_size', widthRange, defaultNodeSize,
+                                  tip="Node size."),
+    parameter.FloatRangeParameter('element_width', widthRange,
+                                  defaultElementWidth,
+                                  tip="Line thickness for element edge.")]
 
 mainmenu.gfxdefaultsmenu.Meshes.addItem(oofmenu.OOFMenuItem(
     "Mesh_Info",

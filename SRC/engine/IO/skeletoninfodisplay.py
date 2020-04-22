@@ -21,6 +21,18 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 
+def draw_elements(canvaslayer, elements, lineWidth, color):
+    segs = oofcanvas.CanvasSegments()
+    segs.setLineWidth(lineWidth)
+    segs.setLineWidthInPixels()
+    segs.setLineColor(color)
+    for element in elements:
+        for i in range(element.nnodes()):
+            n0 = element.nodes[i].position()
+            n1 = element.nodes[(i+1)%element.nnodes()].position()
+            segs.addSegment(n0.x, n0.y, n1.x, n1.y)
+    canvaslayer.addItem(segs)
+
 class SkeletonInfoDisplay(display.DisplayMethod):
     def __init__(self, query_color, peek_color, node_size,
                  element_width, segment_width):
@@ -49,19 +61,21 @@ class SkeletonInfoDisplay(display.DisplayMethod):
                     self.drawFuncs[objtype](canvaslayer, obj, which="peek")
 
     def drawElement(self, canvaslayer, element, which="query"):
-        segs = oofcanvas.CanvasSegments()
-        segs.setLineWidth(self.element_width)
-        segs.setLineWidthInPixels()
-        segs.setLineColor(color.canvasColor(self.colors[which]))
-        for i in range(element.nnodes()):
-            n0 = element.nodes[i].position()
-            n1 = element.nodes[(i+1)%element.nnodes()].position()
-            segs.addSegment(n0.x, n0.y, n1.x, n1.y)
-        canvaslayer.addItem(segs)
-        
+        draw_elements(canvaslayer, [element], 1.4*self.element_width,
+                      oofcanvas.white)
+        draw_elements(canvaslayer, [element], self.element_width,
+                      color.canvasColor(self.colors[which]))
+                      
     def drawSegment(self, canvaslayer, segment, which="query"):
         n0 = segment.nodes()[0].position()
         n1 = segment.nodes()[1].position()
+
+        seg = oofcanvas.CanvasSegment(n0.x, n0.y, n1.x, n1.y)
+        seg.setLineWidth(1.4*self.segment_width)
+        seg.setLineWidthInPixels()
+        seg.setLineColor(oofcanvas.white)
+        canvaslayer.addItem(seg)
+
         seg = oofcanvas.CanvasSegment(n0.x, n0.y, n1.x, n1.y)
         seg.setLineWidth(self.segment_width)
         seg.setLineWidthInPixels()
@@ -69,6 +83,11 @@ class SkeletonInfoDisplay(display.DisplayMethod):
         canvaslayer.addItem(seg)
 
     def drawNode(self, canvaslayer, node, which="query"):
+        dot = oofcanvas.CanvasDot(node.position().x, node.position().y,
+                                  1.2*self.node_size)
+        dot.setFillColor(oofcanvas.white)
+        canvaslayer.addItem(dot)
+        
         dot = oofcanvas.CanvasDot(node.position().x, node.position().y,
                                   self.node_size)
         dot.setFillColor(color.canvasColor(self.colors[which]))
@@ -88,7 +107,7 @@ defaultSkelInfoPeekColor = color.RGBColor(1.0, 0.5, 0.5)
 defaultSkelInfoNodeSize = 3
 defaultSkelInfoElemWidth = 3
 defaultSkelInfoSgmtWidth = 3
-widthRange = (0,10)
+widthRange = (0, 10, 0.1)
 
 def _setSkelInfoParams(menuitem, query_color, peek_color, node_size,
                        element_width, segment_width):
@@ -108,15 +127,15 @@ skelinfoparams = [
                          tip="Color for the queried objects."),
     color.ColorParameter('peek_color', defaultSkelInfoPeekColor,
                          tip="Color for the peeked objects."),
-    parameter.IntRangeParameter('node_size', widthRange,
-                                defaultSkelInfoNodeSize,
-                                tip="Node size."),
-    parameter.IntRangeParameter('element_width', widthRange,
-                                defaultSkelInfoElemWidth,
-                                tip="Line width for elements."),
-    parameter.IntRangeParameter('segment_width', widthRange,
-                                defaultSkelInfoSgmtWidth,
-                                tip="Line width for segments.")]
+    parameter.FloatRangeParameter('node_size', widthRange,
+                                  defaultSkelInfoNodeSize,
+                                  tip="Node size."),
+    parameter.FloatRangeParameter('element_width', widthRange,
+                                  defaultSkelInfoElemWidth,
+                                  tip="Line width for elements."),
+    parameter.FloatRangeParameter('segment_width', widthRange,
+                                  defaultSkelInfoSgmtWidth,
+                                  tip="Line width for segments.")]
 
 mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
     'Skeleton_Info',
@@ -169,16 +188,10 @@ class SkeletonIllegalElementDisplay(display.DisplayMethod):
         skel = self.who().resolve(gfxwindow).getObject()
         elements = skel.getIllegalElements()
         if elements:
-            segs = oofcanvas.CanvasSegments()
-            segs.setLineWidth(self.linewidth)
-            segs.setLineWidthInPixels()
-            segs.setLineColor(color.canvasColor(self.color))
-            for el in elements:
-                for i in range(el.nnodes()):
-                    n0 = el.nodes[i].position()
-                    n1 = el.nodes[(i+1)%el.nnodes()].position()
-                    segs.addSegment(n0.x, n0.y, n1.x, n1.y)
-            canvaslayer.addItem(segs)
+            draw_elements(canvaslayer, elements, 1.4*self.linewidth,
+                          oofcanvas.white)
+            draw_elements(canvaslayer, elements, self.linewidth,
+                          color.canvasColor(self.color))
 
 defaultSkelIllegalColor = color.RGBColor(1.0, 0.01, 0.01)
 defaultSkelIllegalWidth = 4
@@ -192,9 +205,9 @@ def _setSkelIllegalParams(menuitem, color, linewidth):
 skelillegalparams = [
     color.ColorParameter('color', defaultSkelIllegalColor,
                          tip="Color for illegal elements."),
-    parameter.IntRangeParameter('linewidth', widthRange,
-                                defaultSkelIllegalWidth,
-                                tip="Line width")]
+    parameter.FloatRangeParameter('linewidth', widthRange,
+                                  defaultSkelIllegalWidth,
+                                  tip="Line width")]
 
 mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
     "Illegal_Elements",
