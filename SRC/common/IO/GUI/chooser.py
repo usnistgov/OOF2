@@ -568,8 +568,9 @@ class FramedChooserListWidget(ChooserListWidget):
                                    autoselect=autoselect,
                                    comparator=comparator,
                                    name=name)
-        self.gtk = Gtk.Frame(**kwargs)
-        self.gtk.set_shadow_type(Gtk.ShadowType.IN)
+        quargs = kwargs.copy()
+        quargs.setdefault("shadow_type", Gtk.ShadowType.IN)
+        self.gtk = Gtk.Frame(**quargs)
         self.gtk.add(self.treeview)
 
 class ScrolledChooserListWidget(ChooserListWidget):
@@ -586,9 +587,10 @@ class ScrolledChooserListWidget(ChooserListWidget):
                                    name=name,
                                    separator_func=separator_func,
                                    markup=markup)
-        self.gtk = Gtk.ScrolledWindow(**kwargs)
+        quargs = kwargs.copy()
+        quargs.setdefault('shadow_type', Gtk.ShadowType.IN)
+        self.gtk = Gtk.ScrolledWindow(**quargs)
         gtklogger.logScrollBars(self.gtk, name=name+"Scroll")
-        self.gtk.set_shadow_type(Gtk.ShadowType.IN)
         self.gtk.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.gtk.add(self.treeview)
 

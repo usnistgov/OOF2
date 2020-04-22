@@ -367,7 +367,6 @@ class BoundaryCondPage(oofGUI.MainPage):
 class BCList:
     sortByNameID = 1
     sortByBdyID = 2
-#     sortByEnableID = 3
 
     def __init__(self, parent, mesh=None):
         debug.mainthreadTest()
@@ -392,23 +391,16 @@ class BCList:
                                access_function=gtklogger.findCellRenderer,
                                access_kwargs={'col':0, 'rend':0})
         gtklogger.connect(enablecell, 'toggled', self.enableCellCB)
-        ## Click on the column header to sort by Enabled status.
-        ## Currently commented out because clicking on a toggle cell
-        ## when sorting by Enable may trigger an instant re-sort,
-        ## which moves the clicked cell.
-        ## TODO GTK3: restore this?
-#         gtklogger.adoptGObject(enablecol, self.treeview,
-#                                access_method=gtk.TreeView.get_column,
-#                                access_args=(0,))
-#         gtklogger.connect_passive(enablecol, 'clicked')
-#         enablecol.set_sort_column_id(self.sortByEnableID)
-#         self.sortedlist.set_sort_func(self.sortByEnableID, self.sortByEnableFn)
+        # Sorting by enabled/disabled status is not supported. It
+        # were, then cliking on the toggle button could move the
+        # object being clicked, which is confusing.
 
         # Boundary condition name column
         bcnamecell = Gtk.CellRendererText()
         bcnamecol = Gtk.TreeViewColumn('Name')
         bcnamecol.pack_start(bcnamecell, expand=False)
         bcnamecol.set_attributes(bcnamecell, text=0)
+        bcnamecol.set_resizable(True)
         self.treeview.append_column(bcnamecol)
         gtklogger.adoptGObject(bcnamecol, self.treeview,
                                access_method=Gtk.TreeView.get_column,
@@ -422,6 +414,7 @@ class BCList:
         bdycol = Gtk.TreeViewColumn('Boundary')
         bdycol.pack_start(bdycell, expand=True)
         bdycol.set_cell_data_func(bdycell, self.renderBdy)
+        bdycol.set_resizable(True)
         self.treeview.append_column(bdycol)
         gtklogger.adoptGObject(bdycol, self.treeview,
                                access_method=Gtk.TreeView.get_column,
@@ -435,6 +428,7 @@ class BCList:
         bccol = Gtk.TreeViewColumn('Condition')
         bccol.pack_start(bccell, expand=True)
         bccol.set_cell_data_func(bccell, self.renderBC)
+        bccol.set_resizable(True)
         self.treeview.append_column(bccol)
 
         selection = self.treeview.get_selection()
@@ -443,7 +437,8 @@ class BCList:
 
         self.signals = (
             gtklogger.connect(selection, 'changed', self.selectCB),
-            gtklogger.connect(self.treeview, 'row-activated', self.doubleClickCB)
+            gtklogger.connect(self.treeview, 'row-activated',
+                              self.doubleClickCB)
             )
 
         # Set initial sorting method
@@ -523,25 +518,10 @@ class BCList:
     def doubleClickCB(self, treeview, path, col):
         self.parent.bcEdit_CB()
 
-    def sortByNameFn(self, model, iter1, iter2):
+    def sortByNameFn(self, model, iter1, iter2, data):
         return cmp(model[iter1][0], model[iter2][0])
 
-#     def sortByEnableFn(self, model, iter1, iter2):
-#         bc1 = model[iter1][1]
-#         bc2 = model[iter2][1]
-#         # I don't understand how bc1 or bc2 can be None, but they
-#         # sometimes are, so we need to check for.  What we do when one
-#         # of them is None doesn't seem to matter.
-#         if bc1 is not None and bc2 is not None:
-#             return cmp(bc1.is_explicitly_disabled(),
-#                        bc2.is_explicitly_disabled())
-#         if bc1 == bc2:          # both None
-#             return 0
-#         if bc1 is None:
-#             return -1
-#         return 1
-
-    def sortByBdyFn(self, model, iter1, iter2):
+    def sortByBdyFn(self, model, iter1, iter2, data):
         bc1 = model[iter1][1]
         bc2 = model[iter2][1]
         # I don't understand how bc1 or bc2 can be None, but they

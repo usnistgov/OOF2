@@ -39,12 +39,8 @@ class SkeletonInfoMode:
         gtklogger.logScrollBars(scroll, self.targetname+"Information")
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.gtk.add(scroll)
-        # This vbox just keeps the Grid from expanding inside the
-        # scrolledwindow.  TODO GTK3: Is this still needed?
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        scroll.add(vbox)
-        self.table = Gtk.Grid(row_spacing=1, column_spacing=2)
-        vbox.pack_start(self.table, expand=False, fill=False, padding=0)
+        self.table = Gtk.Grid(row_spacing=1, column_spacing=2, margin=2)
+        scroll.add(self.table)
 
         self.sbcallbacks = [
             switchboard.requestCallback("groupset member resized",

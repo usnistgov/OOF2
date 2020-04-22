@@ -170,15 +170,18 @@ class MicrostructurePage(oofGUI.MainPage):
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
                        spacing=2)
         hbox.pack_start(vbox, expand=False, fill=False, padding=2)
-        frame = Gtk.Frame()              # frame for the list of groups
-        frame.set_shadow_type(Gtk.ShadowType.IN)
+
+        # frame for the list of groups
+        frame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         hbox.pack_start(frame, expand=True, fill=True, padding=0)
         grparea = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         frame.add(grparea)
 
         # only one of grplist and grpmsg is visible at a time
         self.grplist = chooser.ScrolledChooserListWidget( # list of pixel groups
-            callback=self.listItemChosen, name="GroupList")
+            callback=self.listItemChosen, name="GroupList",
+            vexpand=True, valign=Gtk.Align.FILL,
+            shadow_type=Gtk.ShadowType.NONE)
         grparea.add(self.grplist.gtk)
         self.grpmsg = Gtk.Label() # helpful message when there are no grps
         grparea.pack_start(self.grpmsg, expand=True, fill=True, padding=0)

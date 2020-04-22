@@ -246,15 +246,15 @@ class RegisteredClassFactory(RCFBase):
             if self.readonly:
                 self.makeUneditable()
 
-            ## After the widget has once been set interactively, its
-            ## default value isn't used.
+            # After the widget has once been set interactively, its
+            # default value isn't used.
             self.useDefault = self.useDefault and not interactive
             self.widgetChanged(self.paramWidget.isValid(), interactive)
 
-            ## TODO GTK3: This used to use self.expand and self.fill
-            ## instead of True, but the containing object should set
-            ## its fill and align properties to control the width of
-            ## the parameter widgets.
+            # This used to use self.expand and self.fill instead of
+            # True, but the containing object should set its fill and
+            # align properties to control the width of the parameter
+            # widgets.
             self.box.pack_start(self.paramWidget.gtk,
                                 expand=True, fill=True, padding=0)
 

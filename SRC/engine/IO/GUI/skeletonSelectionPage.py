@@ -150,7 +150,7 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         
         # Status and Group are on the left side of the page.
         self.leftbox = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL, spacing=2,
+            orientation=Gtk.Orientation.VERTICAL, spacing=5,
             margin_top=2, margin_bottom=2,
             margin_start=2, margin_end=gtkutils.handle_padding)
         self.mainpane.pack1(self.leftbox, resize=True, shrink=False)
@@ -326,9 +326,10 @@ class GroupGUI:
     def __init__(self, parent):
         debug.mainthreadTest()
         self.parent = parent
-        self.gtk = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
+        self.gtk = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(self.gtk, 'Groups')
-        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                      margin=2)
         self.gtk.add(box)
         # Set in chooserCB, the widget callback for the chooser list.
         self.current_group_name = None
@@ -339,8 +340,7 @@ class GroupGUI:
         self.groupandselectionbuttons = []
 
         # Left-hand button box.  New/Auto/Rename/Copy/Delete/DeleteAll
-        lbuttons = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
-                           margin=2)
+        lbuttons = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         box.pack_start(lbuttons, fill=False, expand=False, padding=0)
 
         self.new_button = Gtk.Button("New...")
@@ -396,8 +396,7 @@ class GroupGUI:
         box.pack_start(self.grouplist.gtk, fill=True, expand=True, padding=0)
         
         # Right-hand button box.  Add/Remove/Clear/ClearAll/Info
-        rbuttons = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
-                           margin=2)
+        rbuttons = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         box.pack_start(rbuttons, fill=False, expand=False, padding=0)
 
         self.add_button = Gtk.Button("Add")

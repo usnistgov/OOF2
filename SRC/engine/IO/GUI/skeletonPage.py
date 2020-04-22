@@ -139,7 +139,6 @@ class SkeletonPage(oofGUI.MainPage):
                                      left_margin=5, right_margin=5,
                                      top_margin=5, bottom_margin=5)
         gtklogger.setWidgetName(self.skelinfo, "SkeletonText")
-        ## TODO GTK3: I have no idea if this works.
         self.boldTag = self.skelinfo.get_buffer().create_tag(
             "bold", weight=Pango.Weight.BOLD)
         scroll.add(self.skelinfo)

@@ -27,6 +27,21 @@ from gi.repository import Gtk
 
 # TODO: Display interface material, if any.
 
+
+# A separator is inserted in the list of boundary names between
+# the edge boundaries and the point boundaries.  (The separator is
+# a meta-boundary!)  This is done by including a string unlikely
+# to be a boundary name in the list of names sent to the
+# ChooserListWidget, and giving the widget a separator_func that
+# looks for the string.
+    
+separator_proxy = "a string unlikely to be a boundary name"
+    
+def chooserSepFunc(model, iter):
+    return model[iter][0] == separator_proxy
+        
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class SkeletonBoundaryPage(oofGUI.MainPage):
     def __init__(self):
         self.built = False
@@ -77,7 +92,7 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
             dbcallback=self.modifyBoundaryCB,
             autoselect=0,
             name="BoundaryList",
-            separator_func=self.chooserSepFunc, margin=2)
+            separator_func=chooserSepFunc, margin=2)
         boundarylistbox.pack_start(self.boundarylist.gtk,
                                    expand=True, fill=True, padding=0)
 
@@ -185,22 +200,10 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         self.sensitize()
         gtklogger.checkpoint("boundary page updated")
 
-    # A separator is inserted in the list of boundary names between
-    # the edge boundaries and the point boundaries.  (The separator is
-    # a meta-boundary!)  This is done by including a string unlikely
-    # to be a boundary name in the list of names sent to the
-    # ChooserListWidget, and giving the widget a separator_func that
-    # looks for the string.
-    ## TODO GTK3: Does the proxy have to be a string?  It would be
-    ## more elegant to create an object for that purpose.  Then there
-    ## would be no chance of a conflict with boundary name.
-    
-    separator_proxy = "a string unlikely to be a boundary name"
-
     def updateBdyList(self):
         skelctxt = self.currentSkeletonContext()
         if skelctxt:
-            names = skelctxt.edgeboundaries.keys() + [self.separator_proxy] \
+            names = skelctxt.edgeboundaries.keys() + [separator_proxy] \
                     + skelctxt.pointboundaries.keys()
             self.boundarylist.update(names)
             # If we've just switched Skeletons, we need make sure that
@@ -213,10 +216,6 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         else:
             self.boundarylist.update([])
 
-    def chooserSepFunc(self, model, iter):
-        # See comment about separators above.
-        return model[iter][0] == self.separator_proxy
-        
     def sensitize(self):
         debug.mainthreadTest()
         buttons_alive = self.boundarylist.has_selection()
@@ -350,6 +349,6 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         menuitem(skeleton=self.skelwidget.get_value(),
                  boundary=self.boundarylist.get_value())
 
-        
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#        
     
 sbp = SkeletonBoundaryPage()

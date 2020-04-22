@@ -292,12 +292,6 @@ class AnalyzePage(BaseAnalysisPage):
             shadow_type=Gtk.ShadowType.NONE)
         self.operationframe.add(op_scroll)
 
-        ## TODO GTK3: Why do we need this box?  Can the factory go
-        ## directly into the scrolled window?
-        # operation_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-        # operation_box.pack_start(self.op_obj.gtk,
-        #                          expand=False, fill=False, padding=0)
-        # op_scroll.add(operation_box)
         op_scroll.add(self.op_obj.gtk)
         self.btmPane.pack1(self.operationframe, resize=True, shrink=pshrink)
 

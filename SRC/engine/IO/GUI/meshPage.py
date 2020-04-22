@@ -209,14 +209,11 @@ class MeshPage(oofGUI.MainPage):
         mainpane.pack2(elementopsframe, resize=False, shrink=False)
         elementopsbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         elementopsframe.add(elementopsbox)
-        ## TODO GTK3: Check that expand and fill args to the RCF
-        ## aren't needed, and use vexpand and valign if they are.
         self.elementops = regclassfactory.RegisteredClassFactory(
             meshmod.MeshModification.registry,
             title="Method:",
             callback=self.elementopsCB,
             shadow_type=Gtk.ShadowType.NONE,
-            #expand=False, fill=False,
             scope=self, name="Method")
         elementopsbox.pack_start(self.elementops.gtk,
                                  expand=True, fill=True, padding=0)
