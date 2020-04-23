@@ -69,6 +69,20 @@ typedef std::vector<double> DoubleVec;
   delete $source;
 }
 
+// Convert a Python coord (any object with .x and .y attributes) to an
+// OOFCanvas Coord.
+
+%typemap(python, in) Coord* (Coord pt) {
+  // typemap(python, in) Coord*
+  PyObject *x = PyObject_GetAttrString($source, "x");
+  PyObject *y = PyObject_GetAttrString($source, "y");
+  pt.x = PyFloat_AsDouble(x);
+  pt.y = PyFloat_AsDouble(y);
+  Py_XDECREF(x);
+  Py_XDECREF(y);
+  $target = &pt;
+}
+
 // Convert a Python sequence of coords to a list of doubles
 // (x0,y0,x1,y1,...)  The Python coord type must have .x and .y
 // attributes.
@@ -219,6 +233,7 @@ class CanvasSegments : public CanvasShape {
 public:
   CanvasSegments();
   void addSegment(double, double, double, double);
+  %name(addSegmentPoints) void addSegment(Coord*, Coord*);
   %addmethods {
     %new const string *__repr__() {
       return self->repr();
