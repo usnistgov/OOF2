@@ -17,7 +17,6 @@
 #include <iostream>
 #include <map>
 #include <string>
-using namespace OOFCanvas;
 
 void COrientMapReader::set_angle(OrientMap &data, const ICoord *where,
 				 const COrientation *angle) const 
@@ -81,19 +80,22 @@ OrientMap::~OrientMap() {
   all_OrientationMaps().erase(i);
 }
 
-CanvasImage *OrientMap::makeCanvasImage(const Coord *position,
-					const Coord *dispsize)
+OOFCanvas::CanvasImage *OrientMap::makeCanvasImage(
+			   const Coord *position, const Coord *dispsize,
+			   const Angle2Color *colorscheme)
   const
 {
-  CanvasImage *img = CanvasImage::newBlank((*position)[0], (*position)[1],
-					   sizeInPixels()[0], sizeInPixels()[1],
-					   (*dispsize)[0], (*dispsize)[1],
-					   0.0, 0.0, 0.0, 1.0);
-  for(Array<COrientABG>::const_iterator i=angles.begin(); i!=angles.end(); ++i){
-    const CColor color = colorscheme(angles[i]);
-    ICoord pt(i.coord());
-    img->set(pt[0], pt[1], color.getRed(), color.getGreen(), color.getBlue());
-  }
+  OOFCanvas::CanvasImage *img = OOFCanvas::CanvasImage::newBlankImage(
+					 (*position)[0], (*position)[1],
+					 sizeInPixels()[0], sizeInPixels()[1],
+					 (*dispsize)[0], (*dispsize)[1],
+					 0.0, 0.0, 0.0, 1.0);
+  for(Array<COrientABG>::const_iterator i=angles.begin(); i!=angles.end(); ++i)
+    {
+      const CColor color = (*colorscheme)(angles[i]);
+      ICoord pt(i.coord());
+      img->set(pt[0], pt[1], color.getRed(), color.getGreen(), color.getBlue());
+    }
   return img;
 }
 
@@ -141,11 +143,11 @@ const ICoord &OrientMapImage::sizeInPixels() const {
   return orientmap->sizeInPixels();
 }
 
-CanvasImage *OrientMapImage::makeCanvasImage(const Coord *position,
-					     const Coord *dispsize)
+OOFCanvas::CanvasImage *OrientMapImage::makeCanvasImage(const Coord *position,
+							const Coord *dispsize)
   const
 {
-  return orientmap->makeCanvasImage(position, dispsize);
+  return orientmap->makeCanvasImage(position, dispsize, colorscheme);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -156,10 +158,6 @@ CanvasImage *OrientMapImage::makeCanvasImage(const Coord *position,
 // OrientMapImage.  The OrientMapImage is just a display method, but
 // createImage makes an OOFImage Who object and adds it to the
 // Microstructure's list of Images.
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-#include <Magick++.h>
 
 OOFImage *OrientMap::createImage(const std::string &name,
 				 const Angle2Color &colorscheme) const

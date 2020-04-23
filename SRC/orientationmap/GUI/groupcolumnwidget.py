@@ -11,44 +11,36 @@
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import parameterwidgets
-from ooflib.common.IO.GUI import tooltips
 from ooflib.orientationmap import genericreader
 
-import gtk
+from gi.repository import Gtk
 import types
 
 class GCWidgetRow(object):
     def __init__(self, table, row, parent):
-        self.deleteButton = gtk.Button('-')
-        table.attach(self.deleteButton, 0,1, row+1,row+2,
-                     xoptions=gtk.FILL, yoptions=0, xpadding=0, ypadding=0)
+        self.deleteButton = Gtk.Button('-', halign=Gtk.Align.FILL)
+        table.attach(self.deleteButton, 0,row+1, 1,1)
         gtklogger.setWidgetName(self.deleteButton, 'Delete%d' % row)
         gtklogger.connect(self.deleteButton, 'clicked', parent.deleteRowCB, row)
-        tooltips.set_tooltip_text(self.deleteButton,
-                                  "Delete this group definition.")
+        self.deleteButton.set_tooltip_text("Delete this group definition.")
 
-        self.colEntry = gtk.Entry()
-        table.attach(self.colEntry, 1,2, row+1,row+2,
-                     xoptions=0, yoptions=0, xpadding=0, ypadding=0)
+        self.colEntry = Gtk.Entry()
+        table.attach(self.colEntry, 1,row+1, 1,1)
         self.colSignal = gtklogger.connect(self.colEntry, 'changed',
                                            parent.changedCB)
         gtklogger.setWidgetName(self.colEntry, 'Column%d' % row)
-        tooltips.set_tooltip_text(
-            self.colEntry,
+        self.colEntry.set_tooltip_text(
             'A column number.  Points in the data file with different '
             'values in this column will be assigned to different pixel groups.'
             )
 
-        self.nameEntry = gtk.Entry()
+        self.nameEntry = Gtk.Entry(hexpand=True, halign=Gtk.Align.FILL)
         self.nameEntry.set_text('group_%s')
-        table.attach(self.nameEntry, 2,3, row+1,row+2,
-                     xoptions=gtk.FILL|gtk.EXPAND, yoptions=0,
-                     xpadding=0, ypadding=0)
+        table.attach(self.nameEntry, 2,row+1, 1,1)
         self.nameSignal = gtklogger.connect(self.nameEntry, 'changed',
                                             parent.changedCB)
         gtklogger.setWidgetName(self.nameEntry, 'Name%d' % row)
-        tooltips.set_tooltip_text(
-            self.nameEntry, 
+        self.nameEntry.set_tooltip_text(
             'The name to assign to the group. A "%s" in the name '
             'will be replaced by the contents of the column.'
             )
@@ -85,38 +77,29 @@ class GCWidgetRow(object):
 class GroupColumnWidget(parameterwidgets.ParameterWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
-        frame = gtk.Frame(**kwargs)
-        frame.set_shadow_type(gtk.SHADOW_IN)
-        self.table = gtk.Table(rows=1, columns=3)
-        self.table.set_row_spacings(0)
-        self.table.set_col_spacings(0)
+        quargs = kwargs.copy()
+        quargs.setdefault('shadow_type', Gtk.ShadowType.IN)
+        frame = Gtk.Frame(**quargs)
+        self.table = Gtk.Grid(row_spacing=1, column_spacing=1, margin=1)
         frame.add(self.table)
         gtklogger.setWidgetName(self.table, 'GroupTable')
 
-        addbutton = gtk.Button('+')
+        addbutton = Gtk.Button('+', hexpand=False)
         gtklogger.setWidgetName(addbutton, "Add")
         gtklogger.connect(addbutton, 'clicked', self.addCB)
-        self.table.attach(addbutton, 0,1, 0,1, xoptions=gtk.FILL, yoptions=0,
-                     xpadding=0, ypadding=0)
-        tooltips.set_tooltip_text(addbutton, "Add a new group definition.")
+        self.table.attach(addbutton, 0,0, 1,1)
+        addbutton.set_tooltip_text("Add a new group definition.")
 
-        clabel = gtk.Label("Column")
-        clabel.set_alignment(0.0, 0.5)
-        cframe = gtk.Frame()
-        cframe.set_shadow_type(gtk.SHADOW_OUT)
+        clabel = Gtk.Label("Column", halign=Gtk.Align.CENTER, hexpand=True)
+        cframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         cframe.add(clabel)
-        self.table.attach(cframe, 1,2, 0,1,
-                          xoptions=gtk.FILL|gtk.EXPAND, yoptions=gtk.FILL,
-                          xpadding=0, ypadding=0)
+        self.table.attach(cframe, 1,0, 1,1)
 
-        nlabel = gtk.Label("Name")
+        nlabel = Gtk.Label("Name", halign=Gtk.Align.CENTER, hexpand=True)
         nlabel.set_alignment(0.0, 0.5)
-        nframe = gtk.Frame()
-        nframe.set_shadow_type(gtk.SHADOW_OUT)
+        nframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         nframe.add(nlabel)
-        self.table.attach(nframe, 2,3, 0,1,
-                          xoptions=gtk.FILL|gtk.EXPAND, yoptions=gtk.FILL,
-                          xpadding=0, ypadding=0)
+        self.table.attach(nframe, 2,0, 1,1)
 
         self.rows = []          #  list of GCWidgetRow objects
 
@@ -126,13 +109,10 @@ class GroupColumnWidget(parameterwidgets.ParameterWidget):
             self.set_value(param.value)
         self.widgetChanged(self.checkValue(), interactive=0)
 
-    def nrows(self):
-        return self.table.get_property('n-rows') - 1
-
     def resize(self, newnrows):
-        oldnrows = self.nrows()
+        oldnrows = len(self.rows)
         if oldnrows != newnrows:
-            self.table.resize(newnrows+1, 3)
+            # self.table.resize(newnrows+1, 3)
             if oldnrows < newnrows:
                 for r in range(oldnrows, newnrows):
                     self.rows.append(GCWidgetRow(self.table, r, self))
@@ -165,7 +145,7 @@ class GroupColumnWidget(parameterwidgets.ParameterWidget):
         
 
     def addCB(self, gtkobj):
-        self.resize(self.nrows() + 1)
+        self.resize(len(self.rows) + 1)
         self.widgetChanged(0, interactive=1)
         self.show()
 

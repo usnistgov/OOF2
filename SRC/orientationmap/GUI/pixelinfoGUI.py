@@ -15,10 +15,10 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import pixelinfoGUI
 from ooflib.common.IO.GUI import pixelinfoGUIplugin
-from ooflib.common.IO.GUI import tooltips
 from ooflib.engine.IO import orientationmatrix
 from ooflib.orientationmap import pixelinfoplugin
-import gtk
+
+from gi.repository import Gtk
 import math
 
 class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
@@ -28,21 +28,18 @@ class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         debug.mainthreadTest()
         pixelinfoGUIplugin.PixelInfoGUIPlugIn.__init__(self, toolbox)
 
-        self.label = gtk.Label('orientation=')
-        self.label.set_alignment(1.0, 0.5)
-        table.attach(self.label, 0,1, row,row+1, xpadding=5, xoptions=gtk.FILL)
+        self.label = Gtk.Label('orientation=', halign=Gtk.Align.END)
+        table.attach(self.label, 0,row, 1,1)
 
-        self.vbox = gtk.VBox()
+        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1)
         self.param = parameter.ConvertibleRegisteredParameter(
             'dummy', orientationmatrix.Orientation)
         self.widget = self.param.makeWidget() # RegisteredClassFactory
         self.widget.makeReadOnly()
-        self.text = gtk.Entry()
-        self.text.set_editable(0)
-        self.vbox.pack_start(self.text, expand=0, fill=0)
+        self.text = Gtk.Entry(editable=False, hexpand=True)
+        self.vbox.pack_start(self.text, expand=False, fill=False, padding=0)
         self.current_mode = 'text'
-        table.attach(self.vbox, 1,2, row,row+1,
-                     xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
+        table.attach(self.vbox, 1,row,1,1)
         self.sbcbs = [
             switchboard.requestCallbackMain(
                 'materials changed in microstructure', self.materialchanged),
@@ -63,11 +60,13 @@ class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         if self.current_mode != mode:
             if mode == 'text':
                 self.vbox.remove(self.widget.gtk)
-                self.vbox.pack_start(self.text, expand=0, fill=0)
+                self.vbox.pack_start(self.text,
+                                     expand=False, fill=False, padding=0)
                 self.text.show()
             elif mode == 'widget':
                 self.vbox.remove(self.text)
-                self.vbox.pack_start(self.widget.gtk, expand=0, fill=0)
+                self.vbox.pack_start(self.widget.gtk,
+                                     expand=False, fill=False, padding=0)
                 self.widget.show()
             self.current_mode = mode
                                                               
@@ -152,27 +151,23 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.refOrient = None   # the current reference orientation
         self.sbcbs = []         # switchboard callbacks
 
-        title = gtk.Label("Misorientation")
-        title.set_alignment(0.5, 0.5)
-        table.attach(title, 1,2, row, row+1, xpadding=5, ypadding=2,
-                     xoptions=gtk.FILL)
+        title = Gtk.Label("Misorientation", halign=Gtk.Align.FILL)
+        table.attach(title, 1,row, 1,1)
 
-        label = gtk.Label("reference=")
-        label.set_alignment(1.0, 0.5)
-        table.attach(label, 0,1, row+1, row+2, xpadding=5, xoptions=gtk.FILL)
+        label = Gtk.Label("reference=", halign=Gtk.Align.END)
+        table.attach(label, 0,row+1, 1,1)
 
-        frame = gtk.Frame()
-        vbox = gtk.VBox()
+        frame = Gtk.Frame()
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         frame.add(vbox)
-        table.attach(frame, 1,2, row+1,row+2, xpadding=5,
-                     xoptions=gtk.EXPAND|gtk.FILL)
+        table.attach(frame, 1,row+1, 1,1)
 
         # refBox holds either the RCF for the reference orientation,
         # or a gtk.Entry saying that the reference orientation isn't
         # set.  The only purpose of the box is to make it easy to swap
         # the RCF and the Entry.
-        self.refBox = gtk.VBox()
-        vbox.pack_start(self.refBox, fill=1, expand=0)
+        self.refBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        vbox.pack_start(self.refBox, fill=True, expand=False, padding=0)
         
         refParam = self.getMenu().Set_Reference.get_arg("orientation")
         self.refWidget = refParam.makeWidget() # RegisteredClassFactory
@@ -182,68 +177,61 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         # TODO: Should the coordinates be editable directly?  It would
         # require a separate button to indicate that the user is done
         # editing.
-        self.refPointTable = gtk.Table(rows=2, columns=2)
-        xlabel = gtk.Label("x=")
-        xlabel.set_alignment(1.0, 0.5)
-        self.refPointTable.attach(xlabel, 0,1, 0,1, xpadding=3, ypadding=0,
-                                  xoptions=gtk.FILL)
-        self.xtext = gtk.Entry()
+        self.refPointTable = Gtk.Grid(margin_start=2, margin_end=2,
+                                      column_spacing=1, row_spacing=1,
+                                      hexpand=True)
+
+        xlabel = Gtk.Label("x=", halign=Gtk.Align.END)
+        self.refPointTable.attach(xlabel, 0,0, 1,1)
+
+        self.xtext = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.xtext, 'X')
-        self.xtext.set_editable(False)
-        self.refPointTable.attach(self.xtext, 1,2, 0,1, xpadding=3, ypadding=0,
-                                  xoptions=gtk.FILL|gtk.EXPAND)
-        ylabel = gtk.Label("y=")
-        ylabel.set_alignment(1.0, 0.5)
-        self.refPointTable.attach(ylabel, 0,1, 1,2, xpadding=3, ypadding=0,
-                                  xoptions=gtk.FILL)
-        self.ytext = gtk.Entry()
+        self.refPointTable.attach(self.xtext, 1,0, 1,1)
+
+        ylabel = Gtk.Label("y=", halign=Gtk.Align.END)
+        self.refPointTable.attach(ylabel, 0,1, 1,1)
+        
+        self.ytext = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.ytext, 'Y')
-        self.ytext.set_editable(False)
-        self.refPointTable.attach(self.ytext, 1,2, 1,2, xpadding=3, ypadding=0,
-                                  xoptions=gtk.FILL|gtk.EXPAND)
+        self.refPointTable.attach(self.ytext, 1,1, 1,1)
 
         # Text displayed instead of the reference orientation and
         # location when no reference has been selected.
         self.refText = Gtk.TextView(name="fixedfont",
                                     left_margin=5, right_margin=5,
-                                    top_margin=5, bottom_margin=5)
-        self.refText.set_wrap_mode(gtk.WRAP_WORD)
-        self.refText.set_editable(False)
-        self.refText.set_cursor_visible(False)
+                                    top_margin=5, bottom_margin=5,
+                                    wrap_mode=Gtk.WrapMode.WORD,
+                                    editable=False,
+                                    cursor_visible=False)
         self.refText.get_buffer().set_text(
-            'Select a pixel and click "Set Reference Point" to make it the reference.')
-        self.refBox.pack_start(self.refText, expand=0, fill=0)
+            'Select a pixel and click "Set Reference Point"'
+            ' to make it the reference.')
+        self.refBox.pack_start(self.refText,
+                               expand=False, fill=False, padding=0)
 
         # The "Set Reference" button copies the orientation from the
         # OrientMapPixelInfoPlugIn to the reference widget in this
         # plug-in.
-        self.setButton = gtk.Button("Set Reference Point")
+        self.setButton = Gtk.Button("Set Reference Point",
+                                    halign=Gtk.Align.CENTER)
         gtklogger.setWidgetName(self.setButton, "Set")
-        align = gtk.Alignment(xalign=0.5)
-        align.add(self.setButton)
-        vbox.pack_start(align, fill=0, expand=0)
+        vbox.pack_start(self.setButton, fill=False, expand=False, padding=0)
         gtklogger.connect(self.setButton, 'clicked', self.setButtonCB)
-        tooltips.set_tooltip_text(
-            self.setButton,
+        self.setButton.set_tooltip_text(
             'Set the reference orientation to the'
             ' previously selected orientation.')
 
-        label = gtk.Label("symmetry=")
-        label.set_alignment(1.0, 0.5)
-        table.attach(label, 0,1, row+2,row+3, xpadding=0, xoptions=gtk.FILL)
+        label = Gtk.Label("symmetry=", halign=Gtk.Align.END)
+        table.attach(label, 0,row+2, 1,1)
         symParam = self.getMenu().Set_Symmetry.get_arg('symmetry')
-        self.symWidget = symParam.makeWidget()
+        self.symWidget = symParam.makeWidget(hexpand=True)
         gtklogger.setWidgetName(self.symWidget.gtk, "Symmetry")
-        table.attach(self.symWidget.gtk, 1,2, row+2,row+3, xpadding=5,
-                     xoptions=gtk.EXPAND|gtk.FILL)
+        table.attach(self.symWidget.gtk, 1,row+2, 1,1)
 
-        label = gtk.Label("misorientation=")
-        label.set_alignment(1.0, 0.5)
-        table.attach(label, 0,1, row+3,row+4, xpadding=0, xoptions=gtk.FILL)
-        self.misorientationText = gtk.Entry()
-        self.misorientationText.set_editable(0)
-        table.attach(self.misorientationText, 1,2, row+3,row+4,
-                     xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
+        label = Gtk.Label("misorientation=", halign=Gtk.Align.END)
+        table.attach(label, 0,row+3, 1,1)
+        self.misorientationText = Gtk.Entry(editable=False, hexpand=True)
+        table.attach(self.misorientationText, 1,row+3, 1,1)
         self.sbcbs = [
             # Changing the lattice symmetry requires an immediate
             # update of the misorientation.  Connecting to the widget
@@ -288,7 +276,8 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         if self.refOrient is not None:
             self.refBox.remove(self.refWidget.gtk)
             self.refBox.remove(self.refPointTable)
-            self.refBox.pack_start(self.refText, expand=0, fill=0)
+            self.refBox.pack_start(self.refText,
+                                   expand=False, fill=False, padding=0)
         self.refOrient = None
         self.updateMisorientation()
         
@@ -326,8 +315,10 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         # have to install the orientation widget and remove the text widget.
         if switchModes: # ie, the OLD refOrient is None
             self.refBox.remove(self.refText)
-            self.refBox.pack_start(self.refWidget.gtk, expand=0, fill=0)
-            self.refBox.pack_start(self.refPointTable, expand=1, fill=1)
+            self.refBox.pack_start(self.refWidget.gtk,
+                                   expand=False, fill=False, padding=0)
+            self.refBox.pack_start(self.refPointTable,
+                                   expand=True, fill=True, padding=0)
             self.refPointTable.show_all()
         assert self.refOrient is not None
         self.updateMisorientation()

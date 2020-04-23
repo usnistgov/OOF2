@@ -353,35 +353,20 @@ def front_end(no_interp=None):
             print msg
             sys.exit(3)
 
-        ## VERY OLD VERSION
-	# # The gtk import dance described below doesn't work when the program
-        # # has been packaged by cx_freeze.
-        # # TODO LATER: is checking frozen required for gtk2 or gtk3?
-        # frozen = hasattr(sys, 'frozen')
-	# if not frozen:
-        #     import pygtk
-        #     pygtk.require("2.0")
-        #     import gtk
-        #     msg = gtk.check_version(2, 6, 0)
-        #     if msg:
-        #         print msg
-        #         sys.exit(3)
-
         import ooflib.common.IO.GUI.initialize
-        print "NOT IMPORTING orientationmap tutorials"
+        print "NOT IMPORTING tutorials"
         import ooflib.engine.IO.GUI.initialize
         import ooflib.image.IO.GUI.initialize
-        # import ooflib.orientationmap.GUI.initialize
+        import ooflib.orientationmap.GUI.initialize
         # import ooflib.tutorials.initialize
         if replaydelay is not None:
             from ooflib.common.IO.GUI import gtklogger
             gtklogger.set_delay(int(replaydelay))
     else:                               # text mode
         import ooflib.common.initialize
-        print "NOT IMPORTING orientationmap"
         import ooflib.engine.initialize
         import ooflib.image.initialize
-        # import ooflib.orientationmap.initialize
+        import ooflib.orientationmap.initialize
     import ooflib.EXTENSIONS.initialize
 
     # The random number generator must be seeded *after* the gui has

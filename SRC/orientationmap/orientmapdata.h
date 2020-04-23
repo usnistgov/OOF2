@@ -62,7 +62,8 @@ public:
   const COrientABG &angle(const ICoord pt) const { return angles[pt]; }
   const COrientABG &operator[](const ICoord *pt) const { return angles[*pt]; }
   const COrientABG &operator[](const ICoord pt) const { return angles[pt]; }
-  CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
+  OOFCanvas::CanvasImage *makeCanvasImage(const Coord*, const Coord*,
+					  const Angle2Color*) const;
   OOFImage *createImage(const std::string&, const Angle2Color&) const;
   friend class COrientMapReader;
 
@@ -88,7 +89,8 @@ public:
   virtual ~OrientMapImage();
   virtual const Coord &size() const;
   virtual const ICoord &sizeInPixels() const;
-  virtual CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
+  virtual OOFCanvas::CanvasImage *makeCanvasImage(const Coord*, const Coord*)
+    const;
 };
 
 #endif // ORIENTMAPDATA_H

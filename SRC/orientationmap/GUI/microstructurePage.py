@@ -15,8 +15,6 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import microstructurePage
 from ooflib.common.IO.GUI import parameterwidgets
-from ooflib.common.IO.GUI import tooltips
-import gtk
 import os
 
 # Create a MicrostructurePageInfoPlugIn that displays the Orientation
@@ -49,11 +47,11 @@ def _newMSfromOrientationMap(button):
         *menuitem.params):
         menuitem.callWithDefaults()
 
-newfromorientmapbutton = gtkutils.StockButton(gtk.STOCK_NEW,
-                                        "New from Orientation Map")
+newfromorientmapbutton = gtkutils.StockButton("document-new-symbolic",
+                                              "New from Orientation Map")
 gtklogger.setWidgetName(newfromorientmapbutton, "NewFromOrientationMap")
 gtklogger.connect(newfromorientmapbutton, 'clicked', _newMSfromOrientationMap)
-tooltips.set_tooltip_text(newfromorientmapbutton,
+newfromorientmapbutton.set_tooltip_text(
     "Create a new Microstructure from an Orientation Map data file.")
 
 microstructurePage.addNewButton(newfromorientmapbutton)

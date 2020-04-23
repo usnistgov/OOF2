@@ -16,6 +16,7 @@
 %include "common/typemaps.swg"
 %{
 #include "orientationmap/orientmapdata.h"
+typedef OOFCanvas::CanvasImage CanvasImage;
 %}
 
 %pragma(python) include="orientmapdata.spy"
