@@ -14,6 +14,10 @@ from ooflib.common import utils
 from ooflib.common.IO.GUI import gtklogger
 from gi.repository import Gtk
 
+## TODO GTK3: Why are labelled sliders in the OrientationMap pixel info
+## plugin so sluggish?  Typing doesn't seem to work either.  Are there
+## signalling loops?
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Each LabelledSlider has a clipper that says what to do with values

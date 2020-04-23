@@ -77,11 +77,12 @@ class FileSelectorWidget(parameterwidgets.ParameterWidget):
         self.dirHier = []       # directories in the current hierarchy
         self.dirHistory = ringbuffer.RingBuffer(50)
 
-        parameterwidgets.ParameterWidget.__init__(self, Gtk.Frame(), scope,
-                                                  name, expandable=True)
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                       # spacing=2, margin_start=2, margin_end=2,
-                       **kwargs)
+        quargs = kwargs.copy()
+        quargs.setdefault('margin', 2)
+        parameterwidgets.ParameterWidget.__init__(
+            self, Gtk.Frame(**quargs), scope, name, expandable=True)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
         self.gtk.add(vbox)
 
         # Directory selector
@@ -134,9 +135,9 @@ class FileSelectorWidget(parameterwidgets.ParameterWidget):
         self.fileList.treeview.set_search_equal_func(_filename_cmp, None)
 
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                       halign=Gtk.Align.END, spacing=2)
+                       halign=Gtk.Align.START, spacing=2)
         vbox.pack_start(hbox, expand=False, fill=False, padding=0)
-        label = Gtk.Label("show hidden files")
+        label = Gtk.Label("show hidden files", halign=Gtk.Align.START)
         hbox.pack_start(label, expand=False, fill=False, padding=0)
         self.hiddenButton = Gtk.CheckButton()
         hbox.pack_start(self.hiddenButton, expand=False, fill=False, padding=0)
