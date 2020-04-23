@@ -82,9 +82,6 @@ class RCFBase(parameterwidgets.ParameterWidget,
 
 ####################
 
-## TODO GTK3: When the registered class has no parameters, the frame
-## is too big.
-
 class RegisteredClassFactory(RCFBase):
     def __init__(self, registry, obj=None, title=None,
                  callback=None, cbargs=(), cbkwargs={},
@@ -107,7 +104,13 @@ class RegisteredClassFactory(RCFBase):
         RCFBase.__init__(self, Gtk.Frame(**quargs),
                          scope, widgetdict, name)
 
-        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+        # Setting spacing=0 for self.box is important, for small
+        # values of important.  If there are no parameters, instead of
+        # a Gtk.Grid, the parameter table is an empty Gtk.Box, but
+        # it's still packed into self.box below the ChooserWidget.  If
+        # spacing is non-zero, there will be extra space below the
+        # ChooserWidget in that case.
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0,
                            margin=2)
         self.gtk.add(self.box)
         self.options = chooser.ChooserWidget([], callback=self.optionCB,

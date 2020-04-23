@@ -14,6 +14,7 @@
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import mainthread
+from ooflib.common import runtimeflags
 from ooflib.common import utils
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
@@ -104,11 +105,12 @@ class GUIConsole(code.InteractiveConsole, subWindow.SubWindow):
         self.text.set_wrap_mode(Gtk.WrapMode.WORD)
         self.text.set_cursor_visible(False) # *mouse* cursor is invisible
 
-        ## TODO GTK3: Is there any way to do this?  Do we need to set
-        ## a size request?  widgetCharSize doesn't work in gtk3, and
-        ## isn't needed in most cases where it had been used because
-        ## we use Gtk.Entry.set_width_chars() instead.
-        #self.gtk.set_default_size(90*gtkutils.widgetCharSize(self.text), -1)
+        # TODO: With gtk2 we could easily get the size of a character
+        # and use it to set a good initial width for the console
+        # window.  How do we do that in gtk3?  This uses the initial
+        # size that was set for the main window.
+        w, h = runtimeflags.getGeometry()
+        self.gtk.set_default_size(w, -1)
 
         self.bfr = self.text.get_buffer()
         # beginmark stays at the beginning of the last line of text
@@ -120,7 +122,7 @@ class GUIConsole(code.InteractiveConsole, subWindow.SubWindow):
                                                left_gravity=False)
 
         # The rvTag is used to show the text cursor in reverse video.
-        ## TODO: Actually, the foreground color is manuallyset to
+        ## TODO: Actually, the foreground color is manually set to
         ## white. For some reason the background color reported in the
         ## default attributes is blue (on macOS 10.15, no X11), and
         ## blue on black text in the cursor is illegible.  This will

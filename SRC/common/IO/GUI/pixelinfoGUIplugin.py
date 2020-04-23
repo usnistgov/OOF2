@@ -79,8 +79,6 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
         table.attach(label, 0,row+1,1,1)
         self.grouplist = Gtk.TextView(left_margin=5, right_margin=5,
                                       top_margin=5, bottom_margin=5)
-        ## TODO GTK3: do we need to set a size request?
-        #self.grouplist.set_size_request(12*guitop.top().charsize, -1)
         self.grouplist.set_editable(False)
         self.grouplist.set_cursor_visible(False)
         self.grouplist.set_wrap_mode(Gtk.WrapMode.WORD)

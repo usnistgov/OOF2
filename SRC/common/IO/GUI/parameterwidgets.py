@@ -717,14 +717,18 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
         for key, value in data.items():
             self.setData(key, value)
         self.params = params            # list of Parameters
-        quargs = kwargs.copy()
-        quargs.setdefault('margin', 2)
         if self.params:
+            quargs = kwargs.copy()
+            quargs.setdefault('margin', 2)
             quargs.setdefault('row_spacing', 2)
             quargs.setdefault('column_spacing', 2)
             base = Gtk.Grid(**quargs)
         else:
-            base = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, **quargs)
+            # There are no parameters.  The 'table' needs to be a
+            # wiget but it should take up no space, so don't pass any
+            # kwargs to it, since they might set margins.
+            base = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, vexpand=False)
+            base.set_size_request(-1, 0) # overkill
         ParameterWidget.__init__(self, base, scope, name)
         self.showLabels = showLabels
         self.labels = []

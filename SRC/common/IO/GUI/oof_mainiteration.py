@@ -26,6 +26,8 @@ import threading
 ## TOOO GTK3: We probably don't need these functions anymore, since
 ## all Gtk3 calls must be from the main thread.  The old version used
 ## gdk.threads_enter and gdk.threads_leave here.
+## mainiteration is used by raw_input in console.py and possibly by
+## the graphics window when running an animation.  
 
 def mainiteration(block=True):
      debug.mainthreadTest()
