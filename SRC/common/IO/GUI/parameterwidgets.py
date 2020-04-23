@@ -389,21 +389,21 @@ parameter.AutoNumericParameter.makeWidget = _AutoNumberWidget_makeWidget
 class BooleanWidget(ParameterWidget):
     def __init__(self, param, scope=None, name=None, compact=False, **kwargs):
         debug.mainthreadTest()
+        quargs = kwargs.copy()
         if param.value:
             labelstr = 'true'
         else:
             labelstr = 'false'
-        ParameterWidget.__init__(self, Gtk.Frame(), scope=scope,
-                                 compact=compact)
         if not compact:
-            self.button = Gtk.CheckButton(labelstr, **kwargs)
-            self.gtk.add(self.button)
+            self.button = Gtk.CheckButton(labelstr)
         else:
-            quargs = kwargs.copy()
             quargs.setdefault('halign', Gtk.Align.CENTER)
             quargs.setdefault('hexpand', True)
-            self.button = Gtk.ToggleButton(**quargs)
-            self.gtk.add(self.button)
+            quargs.setdefault('shadow_type', Gtk.ShadowType.NONE)
+            self.button = Gtk.CheckButton()
+        ParameterWidget.__init__(self, Gtk.Frame(**quargs), scope=scope,
+                                 compact=compact)
+        self.gtk.add(self.button)
         # name is assigned to the button, not the frame, because it's
         # the button that gets connected.
         gtklogger.setWidgetName(self.button, name)
@@ -423,10 +423,11 @@ class BooleanWidget(ParameterWidget):
         self.widgetChanged(1, interactive=0)
     def buttonCB(self, obj):
         debug.mainthreadTest()
-        if self.button.get_active():
-            self.label.set_text('true')
-        else:
-            self.label.set_text('false')
+        if not self.compact:
+            if self.button.get_active():
+                self.button.set_label('true')
+            else:
+                self.button.set_label('false')
         self.widgetChanged(1, interactive=1)
     def block_signal(self):
         debug.mainthreadTest()
