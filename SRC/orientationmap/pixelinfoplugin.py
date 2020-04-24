@@ -53,8 +53,10 @@ class MisorientationPlugIn(pixelinfo.PixelInfoPlugIn):
     def setReference(self, menuitem, point, orientation):
         self.referencePoint = point
         self.referenceOrientation = orientation
+        self.toolbox.timestamp.increment()
         switchboard.notify("set reference orientation",
                            self.toolbox.gfxwindow())
+        switchboard.notify("redraw")
 
     def setSymmetry(self, menuitem, symmetry):
         self.symmetry = symmetry
@@ -68,7 +70,8 @@ class MisorientationPlugIn(pixelinfo.PixelInfoPlugIn):
         # method, which calls this one.
         self.referenceOrientation = None
 
-    def draw(self, displaymethod, device_unused, canvaslayer, pixel, microstructure):
+    def draw(self, displaymethod, device_unused, canvaslayer, pixel,
+             microstructure):
         # Called by PixelInfoDisplay.draw()
         if self.referenceOrientation is not None:
             n0, n1, n2, n3 = displaymethod.getNodes(self.referencePoint,

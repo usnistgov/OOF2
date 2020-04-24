@@ -158,7 +158,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         table.attach(label, 0,row+1, 1,1)
 
         frame = Gtk.Frame()
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, margin=2)
         frame.add(vbox)
         table.attach(frame, 1,row+1, 1,1)
 
@@ -166,7 +166,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         # or a gtk.Entry saying that the reference orientation isn't
         # set.  The only purpose of the box is to make it easy to swap
         # the RCF and the Entry.
-        self.refBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.refBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         vbox.pack_start(self.refBox, fill=True, expand=False, padding=0)
         
         refParam = self.getMenu().Set_Reference.get_arg("orientation")
@@ -197,16 +197,17 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
 
         # Text displayed instead of the reference orientation and
         # location when no reference has been selected.
-        self.refText = Gtk.TextView(name="fixedfont",
-                                    left_margin=5, right_margin=5,
-                                    top_margin=5, bottom_margin=5,
-                                    wrap_mode=Gtk.WrapMode.WORD,
-                                    editable=False,
-                                    cursor_visible=False)
-        self.refText.get_buffer().set_text(
+        refText = Gtk.TextView(name="fixedfont",
+                               left_margin=5, right_margin=5,
+                               top_margin=5, bottom_margin=5,
+                               wrap_mode=Gtk.WrapMode.WORD,
+                               editable=False, cursor_visible=False)
+        self.refTextFrame = Gtk.Frame(margin=2)
+        self.refTextFrame.add(refText)
+        refText.get_buffer().set_text(
             'Select a pixel and click "Set Reference Point"'
             ' to make it the reference.')
-        self.refBox.pack_start(self.refText,
+        self.refBox.pack_start(self.refTextFrame,
                                expand=False, fill=False, padding=0)
 
         # The "Set Reference" button copies the orientation from the
@@ -276,7 +277,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         if self.refOrient is not None:
             self.refBox.remove(self.refWidget.gtk)
             self.refBox.remove(self.refPointTable)
-            self.refBox.pack_start(self.refText,
+            self.refBox.pack_start(self.refTextFrame,
                                    expand=False, fill=False, padding=0)
         self.refOrient = None
         self.updateMisorientation()
@@ -314,7 +315,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         # If there was no reference orientation displayed before, we
         # have to install the orientation widget and remove the text widget.
         if switchModes: # ie, the OLD refOrient is None
-            self.refBox.remove(self.refText)
+            self.refBox.remove(self.refTextFrame)
             self.refBox.pack_start(self.refWidget.gtk,
                                    expand=False, fill=False, padding=0)
             self.refBox.pack_start(self.refPointTable,
