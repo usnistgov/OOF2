@@ -230,22 +230,26 @@ class RegisteredClassFactory(RCFBase):
 
     def setByRegistration(self, registration, interactive=0):
         debug.mainthreadTest()
-        # setByRegistration() is almost the same as optionCB(), except
-        # that it makes no attempt to set the new parameters from the
-        # old ones, since it's not being used to switch between
-        # convertible classes.  In fact, it may be used to switch to a
-        # new instance of the same class, so it's important to throw
-        # out the old parameter values.
         if self.includeRegistration(registration):
-            if self.paramWidget is not None:
+            # Are we switching to a new subclass or just changing the
+            # parameters in this one?
+            newsubclass = self.currentOption is not registration
+            
+            if self.paramWidget is not None and newsubclass:
                 self.paramWidget.destroy()
-                self.options.set_state(registration.name())
                 
             self.getBase(registration)
             self.options.set_state(registration.name())
             self.currentOption = registration
 
-            self.paramWidget = self.makeWidget(registration)
+            if newsubclass:
+                # It's important *not* to call makeWidget if we're not
+                # changing subclasses. Keyboard focus will shift
+                # unexpectedly if widgets are destroyed and rebuilt.
+                self.paramWidget = self.makeWidget(registration)
+                self.box.pack_start(self.paramWidget.gtk,
+                                    expand=True, fill=True, padding=0)
+
             if self.readonly:
                 self.makeUneditable()
 
@@ -258,9 +262,6 @@ class RegisteredClassFactory(RCFBase):
             # True, but the containing object should set its fill and
             # align properties to control the width of the parameter
             # widgets.
-            self.box.pack_start(self.paramWidget.gtk,
-                                expand=True, fill=True, padding=0)
-
             self.show()
             if hasattr(registration, 'tip'):
                 self.options.gtk.set_tooltip_text(registration.tip)
