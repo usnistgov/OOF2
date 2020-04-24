@@ -361,7 +361,9 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         # which is issued by the menu command.
         if gfxwindow is not self.toolbox.gfxwindow():
             return
+        debug.fmsg("calling symWidget.set")
         self.symWidget.set(self.getNonGUIPlugIn().symmetry, interactive=False)
+        debug.fmsg("back from symWidget.set")
         self.updateMisorientation()
         
     def materialchanged(self, *args, **kwargs):
