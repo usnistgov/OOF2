@@ -74,6 +74,7 @@ pixelgroupparam.PixelGroupParameter.makeWidget = _makePixelGroupWidget
 ############
 
 class PixelAggregateWidget(PixelGroupWidget):
+    placeholders = (placeholder.selection, placeholder.every)
     def update(self, *args, **kwargs):
         msname = self.mswidget.get_value()
         if msname:
@@ -90,6 +91,11 @@ class PixelAggregateWidget(PixelGroupWidget):
     def get_value(self):
         rval = self.groupchooser.get_value()
         return placeholder.getPlaceHolderFromString(rval)
+    def set_value(self, groupname):
+        if groupname in self.placeholders:
+            self.groupchooser.set_state(groupname.IDstring)
+        else:
+            self.groupchooser.set_state(groupname)
 
 def _makePixelAggregateWidget(self, scope=None, **kwargs):
     return PixelAggregateWidget(self, scope=scope, name=self.name, **kwargs)

@@ -9,6 +9,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import guitop
+from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
 from gi.repository import GObject
@@ -156,18 +157,29 @@ class ChooserWidget(object):
         # arg is either an integer position in namelist or a string in
         # namelist.
         debug.mainthreadTest()
-        try:
-            if arg is None:
-                newstr = self.namelist[0]
-            elif type(arg) == types.IntType:
+        # Before the gtk3 upgrade, the equivalent of this routine
+        # failed silently if arg was not None, a string, or an int, or
+        # if it was a string that wasn't in the list.  It's now an
+        # error.
+        if not self.namelist and arg is None:
+            # If the set of values is empty, None is the only legal arg.
+            return
+        if arg is None:
+            newstr = self.namelist[0]
+        elif type(arg) == types.IntType:
+            try:
                 newstr = self.namelist[arg]
-            elif type(arg) == types.StringType:
-                if arg in self.namelist:
-                    newstr = arg
-                else:
-                    newstr = self.namelist[0]
-        except IndexError:
-            newstr = ''
+            except IndexError:
+                raise ooferror.ErrPyProgrammingError(
+                    "ChooserWidget index is out of range: %d" % arg)
+        elif type(arg) == types.StringType:
+            if arg not in self.namelist:
+                raise ooferror.ErrPyProgrammingError(
+                    "Invalid ChooserWidget argument: %s" % arg)
+            newstr = arg
+        else:
+            raise ooferror.ErrPyProgrammingError(
+                "Invalid ChooserWidget argument: %s %s" % (arg, arg.__class__))
         if newstr != self.current_string:
             self.label.set_text(newstr)
             self.current_string = newstr
