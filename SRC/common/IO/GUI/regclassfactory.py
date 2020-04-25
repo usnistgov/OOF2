@@ -258,10 +258,6 @@ class RegisteredClassFactory(RCFBase):
             self.useDefault = self.useDefault and not interactive
             self.widgetChanged(self.paramWidget.isValid(), interactive)
 
-            # This used to use self.expand and self.fill instead of
-            # True, but the containing object should set its fill and
-            # align properties to control the width of the parameter
-            # widgets.
             self.show()
             if hasattr(registration, 'tip'):
                 self.options.gtk.set_tooltip_text(registration.tip)
