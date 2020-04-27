@@ -354,11 +354,10 @@ def front_end(no_interp=None):
             sys.exit(3)
 
         import ooflib.common.IO.GUI.initialize
-        print "NOT IMPORTING tutorials"
         import ooflib.engine.IO.GUI.initialize
         import ooflib.image.IO.GUI.initialize
         import ooflib.orientationmap.GUI.initialize
-        # import ooflib.tutorials.initialize
+        import ooflib.tutorials.initialize
         if replaydelay is not None:
             from ooflib.common.IO.GUI import gtklogger
             gtklogger.set_delay(int(replaydelay))

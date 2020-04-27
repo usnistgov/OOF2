@@ -14,8 +14,8 @@ subdirs = ['common',
            'engine',
            'image', 
            'orientationmap',
-           # 'tutorials',
-           # 'EXTENSIONS'
+           'tutorials',
+           'EXTENSIONS'
            ]
 
 

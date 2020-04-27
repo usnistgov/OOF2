@@ -23,7 +23,10 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import subWindow
 from ooflib.tutorials import tutorial
+
 from gi.repository import Gtk
+from gi.repository import Pango
+
 import re
 import string
 import textwrap
@@ -35,10 +38,6 @@ import textwrap
 ## saved session is loaded, if the user saves the session after the
 ## button is sensitized but before clicking Next.  The sensitivity
 ## probably needs to be saved in the file.
-
-## TODO: After completing a page, clicking Back and then Next
-## desensitizes the Next button, although the completed page is still
-## displayed.
 
 boldtag = "BOLD("
 lenboldtag = len(boldtag)
@@ -182,12 +181,8 @@ class TutorialClassGUI(subWindow.SubWindow):
         textattrs = self.textview.get_default_attributes()
         self.boldTag = self.textview.get_buffer().create_tag(
             "bold",
-            weight=pango.WEIGHT_BOLD,  # why doesn't this work?
+            weight=Pango.Weight.BOLD,
             foreground="blue")
-##         self.boldTag = self.textview.get_buffer().create_tag(
-##             "bold",
-##             weight=pango.WEIGHT_HEAVY,  # why doesn't this work?
-##             underline=pango.UNDERLINE_SINGLE)
         self.msgscroll.add(self.textview)        
 
         buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
@@ -231,7 +226,6 @@ class TutorialClassGUI(subWindow.SubWindow):
         self.progress = 0  # How far has the tutorial gone?
                            # It's not affected by "Back" command.
         self.index = 0     # which slide?
-        self.signalReceived = 0  # Received a signal, if any.
         self.tutor = tutor
         self.newLesson()
         self.tutor.lessons[0].activate()
@@ -270,7 +264,6 @@ class TutorialClassGUI(subWindow.SubWindow):
 
     def newLesson(self):
         self.updateGUI()
-        self.signalReceived = 0  # Resetting ...
 
     def sensitize(self):
         debug.mainthreadTest()
@@ -278,18 +271,18 @@ class TutorialClassGUI(subWindow.SubWindow):
         self.backbutton.set_sensitive(self.index != 0)
         self.jumpbutton.set_sensitive(self.index != self.progress)
         # Next
-        self.nextbutton.set_sensitive(1)  # Default
+        self.nextbutton.set_sensitive(True)  # Default
         if self.index == self.progress:
-            if self.lesson.signal and not self.signalReceived \
-                   and not debug.debug():
-                self.nextbutton.set_sensitive(0)
+            if (self.lesson.signal and not self.lesson.done and
+                not debug.debug()):
+                self.nextbutton.set_sensitive(False)
         if self.lesson == self.tutor.lessons[-1]:  # the last one?
-            self.nextbutton.set_sensitive(0)
+            self.nextbutton.set_sensitive(False)
 
     def signalCB(self):
         debug.mainthreadTest()
         if self.lesson != self.tutor.lessons[-1]:
-            self.nextbutton.set_sensitive(1)
+            self.nextbutton.set_sensitive(True)
 
     def destroy(self):
         self.closeCB()
