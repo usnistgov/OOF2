@@ -536,7 +536,7 @@ findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll:PropertyList').
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint Materials page updated
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row((1, 3), open_all=False)
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row((1, 4), open_all=False)
 findWidget('OOF2:Materials Page:Pane:Material:RemoveProperty').clicked()
 checkpoint Materials page updated
 checkpoint Materials page updated

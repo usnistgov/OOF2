@@ -109,8 +109,8 @@ findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_
 checkpoint Materials page updated
 checkpoint property deselected
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').collapse_row((1, 0))
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row((1, 2), open_all=False)
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 2, 0))
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row((1, 3), open_all=False)
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 3, 0))
 checkpoint Materials page updated
 checkpoint property selected
 widget_3=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
@@ -153,8 +153,8 @@ checkpoint Materials page updated
 checkpoint property deselected
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').collapse_row((1, 0))
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').collapse_row((1, 2))
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row((1, 3), open_all=False)
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 3, 0))
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row((1, 4), open_all=False)
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 4, 0))
 checkpoint Materials page updated
 checkpoint property selected
 widget_5=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
@@ -199,9 +199,9 @@ findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment()
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 5.9434690480103e+01)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 8.9152035720155e+01)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 1.1886938096021e+02)
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row((1, 4), open_all=False)
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row((1, 5), open_all=False)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 1.1800000000000e+02)
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 4, 0))
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 5, 0))
 checkpoint Materials page updated
 checkpoint property selected
 widget_6=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
@@ -1266,7 +1266,7 @@ findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll:PropertyList').
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint Materials page updated
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row((1, 3), open_all=False)
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row((1, 4), open_all=False)
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll:PropertyList').get_selection().select_path((3,))
 checkpoint Materials page updated
 checkpoint property selected

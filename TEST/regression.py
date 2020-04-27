@@ -61,6 +61,7 @@ test_module_names = [
     "subproblem_test_extra",
     "r3tensorrotationbug",
     "polefigure_test",
+    "zstrain_test",
     # "interface_test"
     ]
 
