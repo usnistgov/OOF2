@@ -226,7 +226,10 @@ class RegisteredClassFactory(RCFBase):
         # new instance of the same class, so it's important to throw
         # out the old parameter values.
         if self.includeRegistration(registration):
-            if self.paramWidget is not None:
+
+            newsubclass = self.currentOption is not registration
+            
+            if self.paramWidget is not None and newsubclass:
                 self.paramWidget.destroy()
                 self.options.set_state(registration.name())
                 
@@ -234,7 +237,11 @@ class RegisteredClassFactory(RCFBase):
             self.options.set_state(registration.name())
             self.currentOption = registration
 
-            self.paramWidget = self.makeWidget(registration)
+            if newsubclass:
+                self.paramWidget = self.makeWidget(registration)
+                self.box.pack_start(self.paramWidget.gtk, fill=self.fill,
+                                    expand=self.expand)
+
             if self.readonly:
                 self.makeUneditable()
 
@@ -243,8 +250,6 @@ class RegisteredClassFactory(RCFBase):
             self.useDefault = self.useDefault and not interactive
             self.widgetChanged(self.paramWidget.isValid(), interactive)
 
-            self.box.pack_start(self.paramWidget.gtk, fill=self.fill,
-                                expand=self.expand)
             self.show()
             if hasattr(registration, 'tip'):
                 tooltips.set_tooltip_text(self.options.gtk,registration.tip)
