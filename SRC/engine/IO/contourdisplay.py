@@ -176,19 +176,6 @@ class ContourDisplay(ZDisplay):
 
         return clevels, evalues
 
-##    def draw_subcells(self, mesh, device): # for debugging, presumably
-##        for element in mesh.element_iterator():
-##            cells = \
-##                  element.masterelement().contourCells(self.nbins)
-##            device.set_lineWidth(0)
-##            device.set_lineColor(color.red)
-##            for cell in cells:
-##                cellpoints = self.where.evaluate(mesh, [element],
-##                                                 [cell.corners])
-##                device.draw_polygon(primitives.Polygon(cellpoints))
-##            device.set_lineColor(color.black)
-
-
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
 class PlainContourDisplay(ContourDisplay):
@@ -205,9 +192,7 @@ class PlainContourDisplay(ContourDisplay):
     def get_contourmap_info(self):
         return (self.contour_min, self.contour_max, self.contour_levels)
 
-    # Called on a subthread, "device" is a buffered device, so
-    # commands to it do not need to be on the main thread.
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         self.lock.acquire()
         meshctxt = mainthread.runBlock(self.who().resolve, (gfxwindow,))
         mesh = meshctxt.getObject()
@@ -243,8 +228,7 @@ class PlainContourDisplay(ContourDisplay):
                             segs.setLineWidthInPixels()
                             segs.setLineColor(clr)
                             for edge in curve.edges():
-                                segs.addSegment(edge.startpt.x, edge.startpt.py,
-                                                edge.endpt.x, edge.endpt.y)
+                                segs.addSegmentPoints(edge.startpt, edge.endpt)
                             canvaslayer.addItem(segs)
                 ecount += 1
                 prog.setFraction((1.*ecount)/mesh.nelements())
@@ -260,7 +244,7 @@ class PlainContourDisplay(ContourDisplay):
             prog.finish()
 
     # Called on a subthread.
-    def draw_contourmap(self, gfxwindow, device):
+    def draw_contourmap(self, gfxwindow, canvaslayer):
         self.lock.acquire()
         try:
             if self.contour_max is not None: # contours have been drawn
@@ -268,16 +252,16 @@ class PlainContourDisplay(ContourDisplay):
                 height = self.contour_max - self.contour_min
                 width = height/aspect_ratio
 
-                device.comment("Contourbar minimum: %s" % self.contour_min)
-                device.comment("Contourbar maximum: %s" % self.contour_max)
-                device.set_lineWidth(self.width)
-                device.set_lineColor(self.color)
+                segs = oofcanvas.CanvasSegments()
+                segs.setLineWidthInPixels()
+                segs.setLineWidth(self.width)
+                segs.setLineColor(color.canvasColor(self.color))
 
                 for lvl in self.contour_levels:
                     r_lvl = lvl - self.contour_min
-                    device.draw_curve( primitives.Curve(
-                        [primitives.Point(0.0, r_lvl),
-                         primitives.Point(width, r_lvl)] ))
+                    segs.addSegmentPoints(primitives.Point(0.0, r_lvl),
+                                          primitives.Point(width, r_lvl))
+                canvaslayer.addItem(segs)
         finally:
             self.lock.release()
 
@@ -317,7 +301,7 @@ class FilledContourDisplay(ContourDisplay):
         return (self.contour_min, self.contour_max, self.contour_levels)
 
     # Called on a subthread
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         self.lock.acquire()
         meshctxt = mainthread.runBlock(self.who().resolve, (gfxwindow,))
         mesh = meshctxt.getObject()
@@ -399,7 +383,6 @@ class FilledContourDisplay(ContourDisplay):
                 prog.setFraction((1.0*ecount)/mesh.nelements())
                 prog.setMessage("drawing %d/%d elements" %
                                 (ecount, mesh.nelements()))
-            #  self.draw_subcells(mesh, device)
             contour.clearCache()
 
             self.contour_min = minval
@@ -411,7 +394,7 @@ class FilledContourDisplay(ContourDisplay):
             meshctxt.releaseCachedData()
             prog.finish()
 
-    def draw_contourmap(self, gfxwindow, device):
+    def draw_contourmap(self, gfxwindow, canvaslayer):
         # If the drawing failed, then contour_max won't have been set
         # yet.
         self.lock.acquire()
@@ -421,10 +404,6 @@ class FilledContourDisplay(ContourDisplay):
                 height = self.contour_max - self.contour_min
                 width = height/aspect_ratio
 
-                device.comment("Colorbar minimum: %s" % self.contour_min)
-                device.comment("Colorbar maximum: %s" % self.contour_max)
-                device.set_colormap(self.colormap)
-
                 for low, high in utils.list_pairs(self.contour_levels):
                     # Subtract "contour_min" off the y coords, so that
                     # the drawn object will include the point (0,0) --
@@ -432,21 +411,16 @@ class FilledContourDisplay(ContourDisplay):
                     r_low = low-self.contour_min
                     r_high = high-self.contour_min
 
-                    rect_bndy = map( lambda x: primitives.Point(x[0],x[1]),
-                                     [ (0.0, r_low), (0.0, r_high),
-                                       (width, r_high), (width, r_low) ] )
-
-                    rectangle = primitives.Polygon(rect_bndy)
+                    rect = oofcanvas.CanvasRectangle(0, r_low, width, r_high)
                     # In the collapsed case, height can be zero.  This is
                     # not hugely informative, but should be handled without
                     # crashing.
-                    if height>0.0:
-                        device.set_fillColor(r_low/height)
+                    if height > 0:
+                        clr = color.canvasColor(self.colormap(r_low/height))
                     else:
-                        device.set_fillColor(0.0)
-
-                    device.fill_polygon(rectangle)
-
+                        clr = oofcanvas.black
+                    rect.setFillColor(clr)
+                    canvaslayer.addItem(rect)
         finally:
             self.lock.release()
 

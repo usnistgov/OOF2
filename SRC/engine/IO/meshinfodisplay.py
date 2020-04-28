@@ -34,7 +34,7 @@ class MeshInfoDisplay(display.DisplayMethod):
                           "Node": self.drawNode}
 
 
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         toolbox = gfxwindow.getToolboxByName("Mesh_Info")
         mesh = toolbox.meshcontext()
         mesh.begin_reading()

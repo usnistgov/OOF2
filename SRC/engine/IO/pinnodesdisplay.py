@@ -24,7 +24,7 @@ class PinnedNodesDisplay(display.DisplayMethod):
         self.color = color
         self.size = size
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         skel = self.who().resolve(gfxwindow)
         clr = color.canvasColor(self.color)
         for node in skel.pinnednodes.retrieve():

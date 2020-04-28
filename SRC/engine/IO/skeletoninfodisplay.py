@@ -47,7 +47,7 @@ class SkeletonInfoDisplay(display.DisplayMethod):
                           "Segment": self.drawSegment,
                           "Node": self.drawNode}
 
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         toolbox = gfxwindow.getToolboxByName("Skeleton_Info")
         # Drawing "queried" item.
         if toolbox.querier and toolbox.querier.object:
@@ -184,7 +184,7 @@ class SkeletonIllegalElementDisplay(display.DisplayMethod):
         self.color = color
         self.linewidth = linewidth
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         skel = self.who().resolve(gfxwindow).getObject()
         elements = skel.getIllegalElements()
         if elements:

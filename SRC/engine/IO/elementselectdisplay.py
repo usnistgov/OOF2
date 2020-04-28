@@ -28,7 +28,7 @@ class SkeletonElementSelectionDisplay(display.DisplayMethod):
         self.opacity = opacity
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, device, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         skel = self.who().resolve(gfxwindow)
         if skel is not None:
             skel.elementselection.begin_reading()

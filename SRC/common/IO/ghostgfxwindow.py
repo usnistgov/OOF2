@@ -32,9 +32,7 @@ from ooflib.common.IO import display
 from ooflib.common.IO import filenameparam
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
-from ooflib.common.IO import outputdevice
 from ooflib.common.IO import parameter
-#from ooflib.common.IO import pdfoutput
 from ooflib.common.IO import placeholder
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
@@ -56,12 +54,6 @@ CheckOOFMenuItem = oofmenu.CheckOOFMenuItem
 # requirement, and commenting out the debugging lines is a pain, they
 # can all be turned on and off by setting _debuglocks.
 _debuglocks = False
-
-# TODO 3D: in 3D and in oof 3.0, the division between ghostgfxwindow
-# and the regular gfxwindow will probably not be necessary -- we still
-# need a vtkRenderWindow to save images, even if we don't display it
-# on the screen.  It will also be simplified by not using a pdf device
-# and separate device for the contourmap.
 
 #######################################
 
@@ -123,8 +115,6 @@ class GhostGfxWindow:
         self.name = name
         self.gfxmanager = gfxmanager
         self.display = display.Display()
-        if not hasattr(self, 'device'): # may have already been set by GfxWindow
-            self.device = outputdevice.NullDevice()
         if not hasattr(self, 'gfxlock'): # ditto
             self.gfxlock = lock.Lock()
         self.layerSets = []
@@ -837,10 +827,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             self.releaseGfxLock()
 
     def close(self, menuitem, *args):
-        # Before acquiring the gfx lock, kill all subthreads, or
-        # this may deadlock!
-        self.device.destroy()
-
         self.acquireGfxLock()
         try:
             self.gfxmanager.closeWindow(self)
@@ -873,10 +859,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             del self.selectedLayer
             del self.toolboxes
         finally:
-            # Although the window is closing, it's important to
-            # release the lock so that any remaining drawing threads
-            # can finish.  They won't actually try to draw anything,
-            # because of the device.destroy call, above.
             self.releaseGfxLock()
 
     def clear(self, *args, **kwargs):
@@ -996,12 +978,14 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.vscrollvalue = position
 
     def saveImage(self, menuitem, filename, overwrite):
+        ## TODO GTK3: Use OOFCanvas
         if overwrite or not os.path.exists(filename):
             pdevice = pdfoutput.PDFoutput(filename=filename)
             pdevice.set_background(self.settings.bgcolor)
             self.display.draw(self, pdevice)
 
     def saveContourmap(self, menuitem, filename, overwrite):
+        ## TODO GTK3: Use OOFCanvas
         if overwrite or not os.path.exists(filename):
             pdevice = pdfoutput.PDFoutput(filename=filename)
             pdevice.set_background(self.settings.bgcolor)

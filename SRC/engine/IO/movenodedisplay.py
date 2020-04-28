@@ -26,7 +26,7 @@ class MoveNodeDisplay(display.DisplayMethod):
         self.size = size
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         toolbox = gfxwindow.getToolboxByName("Move_Nodes")
         node = toolbox.selectednode.node()
         if node and toolbox.selectednode.visible:

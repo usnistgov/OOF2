@@ -10,7 +10,7 @@
 
 ## Display objects and friends.  A *Display* is basically a collection
 ## of DisplayMethods, sharing the same output device.  The layers are
-## drawn in turn.
+## drawn in turn.  TODO GTK3: There is no device. No need for Display.
 
 #####################################
 
@@ -120,23 +120,23 @@ class DisplayMethodParameter(parameter.RegisteredParameter):
 class DisplayMethod(registeredclass.RegisteredClass):
     registry = []
     def __init__(self):
-        self.layerset = None
+        self.layerset = None    # soon to be obsolete
         self.hidden = False
         self.listed = True     # is it listed in gfxwindow layer list?
         self.frozen = False
 
-        # Different OutputDevices have different internal
-        # representations for the layers (DisplayMethods).  A Display
-        # may be used on more than one OutputDevice, so each layer
-        # keeps a dictionary of all of its device dependent
-        # representations.
-        ## TODO GTK3: devicelayers shouldn't be necessary
-        self.devicelayers = weakref.WeakKeyDictionary()
-        # When was this layer last displayed on this device?
-        self.timestamps = weakref.WeakKeyDictionary()
+        self.canvaslayer = None # an oofcanvas.CanvasLayer
 
-    # Derived classes must redefine this:
-    def draw(self, device):
+        # When was this layer last modified?
+        self.timestamp = timestamp.TimeStamp()
+        # When was this layer last drawn?
+        self.lastDrawn = timestamp.TimeStamp()
+        self.lastDrawn.backdate() # it hasn't been drawn yet
+
+    # Derived classes must redefine this.
+    ## TODO GTK3: Don't need to pass the canvaslayer as an
+    ## arg. Subclasses can use self.canvaslayer.
+    def draw(self, gfxwindow, canvaslayer):
         pass
 
     # Derived classes which can have contours should redefine these
@@ -148,8 +148,9 @@ class DisplayMethod(registeredclass.RegisteredClass):
     def get_contourmap_info(self):
         pass
 
-    # Should actually draw the colorbar on the passed-in device.
-    def draw_contourmap(self, gfxwindow, device):
+    # Should actually draw the colorbar on the passed-in
+    # OOFCanvas.CanvasLayer.
+    def draw_contourmap(self, gfxwindow, canvaslayer):
         pass
 
     # Other contour-map-management functions -- only implemented
@@ -163,10 +164,9 @@ class DisplayMethod(registeredclass.RegisteredClass):
     def show_contourmap(self):
         pass
 
-    # Frozen layers won't be *redrawn*, but they will be drawn on new
-    # devices.  These functions should be redefined in derived classes
-    # that need to do more computation (such as storing the time) when
-    # freezing.
+    # Frozen layers won't be redrawn, but they will be drawn once.
+    # These functions should be redefined in derived classes that need
+    # to do more computation (such as storing the time) when freezing.
     def freeze(self, gfxwindow):
         self.frozen = True
     def unfreeze(self, gfxwindow):
@@ -240,27 +240,15 @@ class DisplayMethod(registeredclass.RegisteredClass):
         if self.layerset is not None:
             self.layerset.removeMethod(self)
         self.layerset = None
-        for devicelayer in self.devicelayers.values():
-            devicelayer.destroy()
+        self.canvaslayer.destroy()
         
-    def drawIfNecessary(self, gfxwindow, device):
-        # Called by Display.draw().
-        try:
-            lasttime = self.timestamps[device]
-            dlayer = self.devicelayers[device]
-        except KeyError:
-            # Layer hasn't been drawn on this device yet!
-            lasttime = self.timestamps[device] = timestamp.TimeStamp()
-            lasttime.backdate()
-            dlayer = self.devicelayers[device] = device.begin_layer(self.name())
-            actuallydraw = True
-        else:
-            actuallydraw = not self.frozen
-
-        # This is needed because it keeps the order of the oofcanvas
-        # layers in sync with the higher level layers.
-        dlayer.raiseToTop() 
-
+    def drawIfNecessary(self, gfxwindow):
+        if self.frozen and self.lastDrawn != timestamp.timeZero:
+            return
+        
+        if self.canvaslayer is None:
+            self.canvaslayer = gfxwindow.oofcanvas.newLayer(self.short_name())
+    
         # othertimes is a list of the TimeStamps of events that
         # require the display layer to be redrawn.
         othertimes = [self.getTimeStamp(gfxwindow),
@@ -269,71 +257,39 @@ class DisplayMethod(registeredclass.RegisteredClass):
         if self.animatable(gfxwindow):
             othertimes.append(gfxwindow.displayTimeChanged)
 
-        if lasttime < max(othertimes):
-            # dlayer.make_current()
+        if self.lastDrawn < max(othertimes):
             whoobj = self.layerset.who.resolve(gfxwindow)
             whoobj.begin_reading()      # acquire lock
             try:
-                if actuallydraw:
-                    ## TODO GTK3: Fix the nomenclature. It makes no
-                    ## sense to have to call both clear() and
-                    ## removeAllItems() here.
-                    dlayer.clear()
-                    dlayer.removeAllItems()
-                    if self.hidden:
-                        dlayer.hide()
-                    #device.comment('Layer: %s' % `self`)
-                    ## TODO GTK3: Added the dlayer arg, which allows
-                    ## drawing directly to the layer, bypassing the
-                    ## device.  Remove the device arg after all
-                    ## DisplayMethods are updated.  The try/except
-                    ## here is to help find which DisplayMethods still
-                    ## need to be updated.
-                    try:
-                        self.draw(gfxwindow, device, dlayer)
-                    except:
-                        debug.fmsg("Failed to call", self.draw)
-                        raise
-                    lasttime.increment()
-                    device.end_layer() ## flushes the buffer one last time.
+                ## TODO GTK3: Fix the nomenclature. It makes no sense
+                ## to have to call both clear() and removeAllItems()
+                ## here.  clear() should be called something else, and
+                ## removeAllItems() should be called clear().
+                self.canvaslayer.clear()
+                self.canvaslayer.removeAllItems()
+                if self.hidden:
+                    self.canvaslayer.hide()
+                self.draw(gfxwindow, self.canvaslayer)
+                self.lastDrawn.increment()
             finally:
                 whoobj.end_reading()    # release lock
 
-    def hide(self, device=None):
+    def hide(self):
         self.hidden = True
-        if not device:
-            for devicelayer in self.devicelayers.values():
-                devicelayer.hide()
-        else:
-            self.devicelayers[device].hide()
-    def show(self, device=None):
+        self.canvaslayer.hide()
+    def show(self):
         self.hidden = False
-        if not device:
-            for devicelayer in self.devicelayers.values():
-                devicelayer.show()
-        else:
-            self.devicelayers[device].show()
+        self.canvaslayer.show()
 
-    def clear(self, device=None):
-        # Clear a layer on a device (or all devices), backdating its
-        # timestamp so that it will be redrawn the next time around.
-        if device:
-            try:
-                dlayer = self.devicelayers[device]
-            except KeyError:            # layer hasn't been drawn yet
-                return
-            dlayer.clear()
-            self.timestamps[device].backdate()
-        else:
-            for device,devicelayer in self.devicelayers.items():
-                devicelayer.clear()
-                self.timestamps[device].backdate() # force redraw
+    def clear(self):
+        # Clear a layer, backdating its timestamp so that it will be
+        # redrawn the next time around.
+        if self.canvaslayer:
+            self.canvaslayer.removeAllItems()
+        self.backdate()
             
-    def backdate(self, device):
-        try:
-            self.timestamps[device].backdate()
-        except KeyError:
-            pass
+    def backdate(self):
+        self.lastDrawn.backdate()
 
     def getTimeStamp(self, gfxwindow):
         # Return the timestamp for the last event that changed the
@@ -345,18 +301,12 @@ class DisplayMethod(registeredclass.RegisteredClass):
     def outOfTime(self, gfxwindow):
         # Has the GfxWindow's displayTime changed since this layer was
         # last drawn?
-        try:
-            ts = self.timestamps[gfxwindow.device]
-        except KeyError:
-            return True
-        return ts < gfxwindow.displayTimeChanged
+        return self.lastDrawn < gfxwindow.displayTimeChanged
 
     def raise_layer(self, howfar=1):
-        for devicelayer in self.devicelayers.values():
-            devicelayer.raiseBy(howfar)
+        self.canvaslayer.raiseBy(howfar)
     def lower_layer(self, howfar=1):
-        for devicelayer in self.devicelayers.values():
-            devicelayer.lowerBy(howfar)
+        self.canvaslayer.lowerBy(howfar)
 
     def layerordering(self):
         return self.getRegistration().layerordering
@@ -574,7 +524,7 @@ class Display:
         self.layers[i] = displaymethod
         self.sorted = False
 
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow):
         # High level drawing action is done here.  Loop through the
         # layers and drawIfNecessary. 
         self.lock.acquire()
@@ -582,10 +532,10 @@ class Display:
             for layer in self.layers:
                 reason = layer.incomputable(gfxwindow)
                 if reason:      # ignore incomputable display methods
-                    layer.clear(device)
+                    layer.clear()
                 else:
                     try:
-                        layer.drawIfNecessary(gfxwindow, device)
+                        layer.drawIfNecessary(gfxwindow)
                     except subthread.StopThread:
                         return
                     # TODO SWIG1.3: After conversion to SWIG 1.3
@@ -597,7 +547,7 @@ class Display:
                         raise
         finally:
             self.lock.release()
-        mainthread.runBlock(device.show)
+        gfxwindow.oofcanvas.draw()
 
 
     def drawable(self, gfxwindow):
@@ -611,15 +561,6 @@ class Display:
             self.lock.release()
         return False
 
-    # Return the non-hidden contour-capable method.  There should only
-    # be one, so returning the first one is safe.
-    def get_contourmap_method(self, gfxwindow):
-        for layer in self.layers:
-            if layer.contour_capable(gfxwindow):
-                if not layer.contourmaphidden:
-                    return layer
-        return None # Default behavior, not required.
-
     # Find the topmost contourable method, and set it to be the
     # only nonhidden one.
     def set_contourmap_topmost(self, gfxwindow):
@@ -630,38 +571,41 @@ class Display:
             topmost.show_contourmap()
             return topmost
 
-    # Contourmaps are drawn on the canvas directly by the gfxwindow,
-    # which has additional auxiliary info, like min/max values for the
-    # text boxes.  This routine is called for drawing it into a file,
-    # typically with the "device" being PSOutput.
-    def draw_contourmap(self, gfxwindow, device):
-        contourmap_layer = self.get_contourmap_method(gfxwindow)
-        if contourmap_layer:
-            device.begin_layer("contourmap")
-            contourmap_layer.draw_contourmap(gfxwindow, device)
-            device.end_layer()
-            device.show()
+    ## OLD code for saving the contourmap to a file, kept for
+    ## reference here until the new code is written. The new code will
+    ## use pdf git aoutput from the OOFCanvas.Canvas.
+    # # Contourmaps are drawn on the canvas directly by the gfxwindow,
+    # # which has additional auxiliary info, like min/max values for the
+    # # text boxes.  This routine is called for drawing it into a file,
+    # # typically with the "device" being PSOutput.
+    # def draw_contourmap(self, gfxwindow, device):
+    #     contourmap_layer = self.get_contourmap_method(gfxwindow)
+    #     if contourmap_layer:
+    #         device.begin_layer("contourmap")
+    #         contourmap_layer.draw_contourmap(gfxwindow, device)
+    #         device.end_layer()
+    #         device.show()
+    # # Return the non-hidden contour-capable method.  There should only
+    # # be one, so returning the first one is safe.
+    # def get_contourmap_method(self, gfxwindow):
+    #     for layer in self.layers:
+    #         if layer.contour_capable(gfxwindow):
+    #             if not layer.contourmaphidden:
+    #                 return layer
+    #     return None # Default behavior, not required.
+
 
             
-    def clear(self, device=None):       # device is None ==> all devices
-        "Clear layers and backdate timestamps so that they'll be redrawn."
+    def clear(self):   
+        # Clear layers and backdate timestamps so that they'll be
+        # redrawn.
         for layer in self.layers:
-            layer.clear(device)
+            layer.clear()
 
-    def hide_layer(self, device, n):
-        # If the layer hasn't been drawn yet, the lookup in the
-        # devicelayers dictionary will fail.
-        try:
-            self.layers[n].devicelayers[device].hide()
-        except KeyError:
-            pass
-    def show_layer(self, device, n):
-        # If the layer hasn't been drawn yet, the lookup in the
-        # devicelayers dictionary will fail.
-        try:
-            self.layers[n].devicelayers[device].show()
-        except KeyError:
-            pass
+    def hide_layer(self, n):
+        self.layers[n].hide()
+    def show_layer(self, n):
+        self.layers[n].show()
     def raise_layer_by(self, n, howfar):
         self.lock.acquire()
         try:
@@ -671,7 +615,6 @@ class Display:
                 for i in range(howfar):
                     self.layers[n+i] = self.layers[n+i+1]
                 self.layers[n+howfar] = thislayer
-                # actually reorder layers in devices
                 thislayer.raiseBy(howfar)
                 self.layerChangeTime.increment()
                 self.sorted = False
@@ -722,7 +665,7 @@ class MicrostructurePerimeterDisplay(DisplayMethod):
         self.width = width
         DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, device, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         size = self.who().getObject().size()
         rect = oofcanvas.CanvasRectangle(0, 0, size.x, size.y)
         rect.setLineWidth(self.width)

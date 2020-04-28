@@ -50,8 +50,7 @@ class ContourMapData:
     # This class just aggregates data related to the ContourMap
     # display, to keep the code (relatively) tidy.
     def __init__(self):
-        self.canvas = None
-        self.device = None
+        self.canvas = None      # an OOFCanvas.Canvas
         self.mouse_down = None
         self.mark_value = None
         self.canvas_mainlayer = None
@@ -519,22 +518,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         #                        access_kwargs={"windowname":self.name})
         # gtklogger.connect_passive(canvasroot, "event")
 
-        # if ppu is not None:
-        #     self.oofcanvas.set_pixels_per_unit(ppu)
-        #     self.oofcanvas.set_scrollregion(scrollregion)
-        #     self.oofcanvas.set_scroll_offsets(offsets)
-
-        # delayed import to avoid import loops
-        from ooflib.common.IO.GUI import canvasoutput
-        from ooflib.common.IO import outputdevice
-
-        self.device = canvasoutput.CanvasOutput(self.oofcanvas)
-
-        # # On a new canvas, these should both be set at once,
-        # # since they both need to call underlay.
-        # self.oofcanvas.set_underlay_params(
-        #     self.settings.bgcolor, self.settings.margin)
-
         self.oofcanvas.setBackgroundColor(self.settings.bgcolor.getRed(),
                                           self.settings.bgcolor.getGreen(),
                                           self.settings.bgcolor.getBlue())
@@ -567,13 +550,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             self.settings.bgcolor.getGreen(),
             self.settings.bgcolor.getBlue())
 
-        # Duplicate imports, again to avoid an import loop.
-        from ooflib.common.IO.GUI import canvasoutput
-        from ooflib.common.IO import outputdevice
-        
-        self.contourmapdata.device = canvasoutput.CanvasOutput(
-            self.contourmapdata.canvas)
-        
         self.contourmapdata.canvas.setResizeCallback(
             self.contourmap_resize, None)
         self.contourmapdata.canvas.setMouseCallback(self.contourmap_mouse, None)
@@ -581,10 +557,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # Create two layers, one for the "main" drawing, and
         # one for the ticks.
         self.contourmapdata.canvas_mainlayer = \
-                               self.contourmapdata.device.begin_layer("main")
+            self.contourmapdata.canvas.newLayer("main")
         self.contourmapdata.canvas_ticklayer = \
-                               self.contourmapdata.device.begin_layer("tick")
-        self.contourmapdata.canvas_ticklayer.raiseToTop()
+            self.contourmapdata.canvas.newLayer("tick")
     
 ##    # Function called after layers have been arranged.  Does not
 ##    # draw the actual contourmap, just records the layers.
@@ -627,18 +602,11 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     # you want to see something on the map, it has to be drawn over an
     # interval.
 
-    # Called on a subthread now, but that's OK, device is buffered.
     def show_contourmap_info(self):
         if not self.gtk:
             return
 
-        ## TODO: Should the rest of this function be inside the "if
-        ## current_contourmap_method:" block?  That would cut down on
-        ## a lot of the extraneous "contourmap info updated"
-        ## checkpoints in the gui logs.
-
         self.contourmapdata.canvas_mainlayer.clear()
-        # self.contourmapdata.canvas_mainlayer.make_current()
         
         c_min = None
         c_max = None
@@ -647,64 +615,12 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # prevent interference from other threads.
         current_contourmethod = self.current_contourmap_method
 
-        ## TODO: There are an awful lot of mainthread.runBlock calls
-        ## here, which is probably quite inefficient.  Can they be
-        ## consolidated?
-
         if current_contourmethod:
+            self.contourmapdata.canvaslayer.removeAllItems()
             current_contourmethod.draw_contourmap(
-                self, self.contourmapdata.device)
-            (c_min, c_max, lvls) = \
-                    current_contourmethod.get_contourmap_info()
-
-            # Zoom and scroll the canvas so that the drawn contour map 
-            # exactly fills it vertically.
-            ph = mainthread.runBlock(
-                self.contourmapdata.canvas.get_height_in_pixels)
-
-            # c_max can equal c_min....
-            if c_max!=c_min:
-                ppu = 1.0*ph/abs(c_max-c_min)
-            else:
-                ppu = ph  # Arbitrary, one unit for all the pixels.
-
-            ## TODO GTK3: This has to be done completely differently
-            ## for OOFCanvas.  There's no scrollregion to be set, and
-            ## the ppu will be computed automatically.
-
-            # Set the scrollregion and pixels-per-unit in the right
-            # order.  If the new ppu is much larger than then old ppu,
-            # the memory required by the canvas will explode unless
-            # the new scrollregion set first.  It's also necessary to
-            # call canvas.underlay() at the right time, so that a
-            # large underlayer isn't drawn with a high ppu.
-            oldppu = mainthread.runBlock(
-                self.contourmapdata.canvas.get_pixels_per_unit)
-            if ppu > oldppu:            # new map is smaller in physical units
-                mainthread.runBlock(self.contourmapdata.canvas.underlay)
-                # Recompute bounds *after* recomputing the underlayer,
-                # because the old underlayer is too big, and is
-                # included in the bounds computation.
-                bounds = mainthread.runBlock(
-                    self.contourmapdata.canvas.get_bounds)
-                mainthread.runBlock(
-                    self.contourmapdata.canvas.set_scrollregion, (bounds,))
-                # Now that the canvas is only drawing small things,
-                # it's ok to set ppu to something big.
-                mainthread.runBlock(
-                    self.contourmapdata.canvas.set_pixels_per_unit, (ppu,))
-            else:           # ppu < oldppu, new map is larger in phyical units
-                mainthread.runBlock(
-                    self.contourmapdata.canvas.set_pixels_per_unit, (ppu,))
-                bounds = mainthread.runBlock(
-                    self.contourmapdata.canvas.get_bounds)
-                mainthread.runBlock(
-                    self.contourmapdata.canvas.set_scrollregion, (bounds,))
-                mainthread.runBlock(
-                    self.contourmapdata.canvas.underlay)
-
-        self.contourmapdata.device.end_layer()
-        mainthread.runBlock(self.contourmapdata.device.show)
+                self, self.contourmapdata.canvas_mainlayer)
+            self.contourmapdata.canvas.zoomToFill()
+            (c_min, c_max, lvls) = current_contourmethod.get_contourmap_info()
         
         if c_min is None:
             mainthread.runBlock(
@@ -729,12 +645,14 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     # Draw the marks on it.  Argument is the new value for the ticks.
     # A tick-layer redraw can be forced by setting
     # self.contourmapdata.mark_value to None and then calling this with
-    # the new value.
+    # the new value.  (TODO : Really??)
     def show_contourmap_ticks(self, y):
         if not self.gtk:
             return
         c_min = None
         c_max = None
+
+        self.contourmapdata.canvas_ticklayer.removeAllItems()
         
         if self.current_contourmap_method:
             (c_min, c_max, lvls) = \
@@ -752,10 +670,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                             i -= 1
                         break
                 if level is not None:
-                    self.contourmapdata.canvas_ticklayer.clear()
-                    self.contourmapdata.canvas_ticklayer.raiseToTop()
-                    # self.contourmapdata.canvas_ticklayer.make_current()
-
                     width=(c_max-c_min)/self.settings.aspectratio
                     polygon = oofcanvas.CanvasRectangle(
                         0, lvls[level]-c_min,
@@ -781,13 +695,12 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # tick layer.
         if (c_max is None) or (c_min is None) or \
                (y is None) or (level is None):
-            self.contourmapdata.canvas_ticklayer.clear()
             mainthread.runBlock(
                 self.contourlevel_min.set_text, ('',) )
             mainthread.runBlock(
                 self.contourlevel_max.set_text, ('',) )
 
-        mainthread.runBlock(self.contourmapdata.device.show)
+        self.contourmapdata.canvas.show()
 
     # Callback for size changes of the pane containing the contourmap.
     def contourmap_resize(self, data):
@@ -892,7 +805,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.acquireGfxLock()
         try:
             self.updateTimeControls()
-            self.display.draw(self, self.device)
+            self.display.draw(self) # calls drawIfNecessary on each layer
             if zoom and self.realized:
                 self.zoomFillWindow(lock=False)
         finally:
@@ -998,7 +911,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 ###################
 
     def shutdownCB(self):
-        self.device.destroy()
         self._stopAnimation = True
         # self._escapement might not exist if the window hasn't
         # been animated, so we need to use try/except.
@@ -1321,7 +1233,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             # outOfTime==True.
             for layer in self.display.layers:
                 if layer.animatable(self) and layer.outOfTime(self):
-                    layer.backdate(self.device)
+                    layer.backdate()
         self.draw(zoom=zoom)
 
         mainthread.runBlock(self.sensitizeTimeButtons)

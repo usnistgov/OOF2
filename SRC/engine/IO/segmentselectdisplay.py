@@ -29,7 +29,7 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
         self.color = color
         self.line_width = line_width
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         skel = self.who().resolve(gfxwindow)
         if skel is not None:
             # First draw a slightly fatter segment in white

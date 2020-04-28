@@ -35,7 +35,7 @@ class BitmapOverlayDisplayMethod(display.DisplayMethod):
         self.tintOpacity = tintOpacity
         self.voxelOpacity = voxelOpacity
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         canvaslayer.removeAllItems()
         bitmap = self.who().resolve(gfxwindow).getBitmap()
         if bitmap is None or bitmap.empty():

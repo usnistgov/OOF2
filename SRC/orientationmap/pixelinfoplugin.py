@@ -70,7 +70,7 @@ class MisorientationPlugIn(pixelinfo.PixelInfoPlugIn):
         # method, which calls this one.
         self.referenceOrientation = None
 
-    def draw(self, displaymethod, device_unused, canvaslayer, pixel,
+    def draw(self, displaymethod, canvaslayer, pixel,
              microstructure):
         # Called by PixelInfoDisplay.draw()
         if self.referenceOrientation is not None:

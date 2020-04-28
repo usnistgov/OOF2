@@ -417,7 +417,7 @@ mainmenu.gfxdefaultsmenu.Meshes.addItem(oofmenu.OOFMenuItem(
 ####
 
 class EdgeDisplay:
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         themesh = self.who().resolve(gfxwindow)
         polygons = self.polygons(gfxwindow, themesh)
         clr = color.canvasColor(self.color)
@@ -441,8 +441,8 @@ class MeshEdgeDisplay(EdgeDisplay, MeshDisplayMethod):
         self.width = width
         self.color = color
         MeshDisplayMethod.__init__(self, when)
-    def draw(self, gfxwindow, device, canvaslayer):
-        EdgeDisplay.draw(self, gfxwindow, device, canvaslayer)
+    def draw(self, gfxwindow, canvaslayer):
+        EdgeDisplay.draw(self, gfxwindow, canvaslayer)
     def getTimeStamp(self, gfxwindow):
         return max(
             MeshDisplayMethod.getTimeStamp(self, gfxwindow),
@@ -498,7 +498,7 @@ class PerimeterDisplay(MeshDisplayMethod):
         self.width = width
         self.color = color
         MeshDisplayMethod.__init__(self, when)
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         themesh = self.who().resolve(gfxwindow)
         femesh = themesh.getObject()
         themesh.restoreCachedData(self.getTime(themesh, gfxwindow))
@@ -615,7 +615,7 @@ registeredclass.Registration(
 ######################
 
 class MaterialDisplay:
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         themesh = self.who().resolve(gfxwindow)
         polygons = self.polygons(gfxwindow, themesh)
         # colorcache is a dictionary of colors keyed by Material.  It
@@ -719,7 +719,7 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
         self.contourmaphidden = False
         self.lock = lock.Lock()
         SkeletonDisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         self.lock.acquire()
         try:
             skel = self.who().resolve(gfxwindow).getObject()
@@ -778,7 +778,7 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
         self.contourmaphidden = True
     def show_contourmap(self):
         self.contourmaphidden = False
-    def draw_contourmap(self, gfxwindow, device):
+    def draw_contourmap(self, gfxwindow, canvaslayer):
         self.lock.acquire()
         try:
             if self.vmax is not None:
@@ -786,22 +786,16 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
                 height = self.vmax - self.vmin
                 width = height/aspect_ratio
                 delta = height/(self.contourmaplevels-1.)
-                device.comment("Colorbar minimum: %s" % self.vmin)
-                device.comment("Colorbar maximum: %s" % self.vmax)
-                device.set_colormap(self.colormap)
                 for i in range(self.contourmaplevels):
                     low = i*delta
                     high = (i+1)*delta
-                    rect_bdy = [primitives.Point(0.0, low),
-                                primitives.Point(0.0, high),
-                                primitives.Point(width, high),
-                                primitives.Point(width, low)]
-                    rectangle = primitives.Polygon(rect_bdy)
-                    if height > 0.0:
-                        device.set_fillColor(low/height)
+                    rect = oofcanvas.CanvasRectangle(0.0, low, width, high)
+                    if height > 0:
+                        clr = color.canvasColor(self.colormap(low/height))
                     else:
-                        device.set_fillColor(0.0)
-                    device.fill_polygon(rectangle)
+                        clr = oofcanvas.black
+                    rect.setFillColor(clr)
+                    canvaslayer.addItem(rect)
         finally:
             self.lock.release()
     

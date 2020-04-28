@@ -30,7 +30,7 @@ class PixelInfoDisplay(display.DisplayMethod):
         self.opacity = opacity
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, device, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         canvaslayer.removeAllItems()
         toolbox = gfxwindow.getToolboxByName("Pixel_Info")
         microstructure = toolbox.findMicrostructure()
@@ -39,7 +39,7 @@ class PixelInfoDisplay(display.DisplayMethod):
             if pixel is not None:
                 self.drawPixel(canvaslayer, pixel, microstructure)
                 for plugIn in toolbox.plugIns:
-                    plugIn.draw(self, device, canvaslayer, pixel, microstructure)
+                    plugIn.draw(self, canvaslayer, pixel, microstructure)
 
 #      n3_______________n2 ((i+1)*dx, (j+1)*dy)
 #       |               |

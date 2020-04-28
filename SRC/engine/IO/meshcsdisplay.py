@@ -41,7 +41,7 @@ class MeshCrossSectionDisplay(display.DisplayMethod):
         return max(self.timestamp, mesh.cross_sections.timestamp)
 
 
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         mesh = self.who().resolve(gfxwindow)
         segments = []
 

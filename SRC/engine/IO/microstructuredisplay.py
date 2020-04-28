@@ -36,7 +36,7 @@ class MicrostructureMaterialDisplay(MSMaterialDisplay):
         self.no_material = no_material    # color if Material isn't assigned
         self.no_color = no_color    # color if Material has no ColorProperty
         MSMaterialDisplay.__init__(self)
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         microstructure = self.who().getObject(gfxwindow)
         # The MaterialImage object created here is just a lightweight
         # wrapper that houses the makeCanvasImage method.  It's an
@@ -73,7 +73,7 @@ class OrientationDisplay(MSMaterialDisplay):
         self.no_orientation = no_orientation
         self.no_material = no_material
         MSMaterialDisplay.__init__(self)
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         msobj = self.who().getObject(gfxwindow)
         oimg = orientationimage.OrientationImage(msobj,
                                                 self.colorscheme,

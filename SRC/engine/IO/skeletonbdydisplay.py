@@ -44,7 +44,7 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
         self.arrowsize = arrowsize
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         skel = self.who().resolve(gfxwindow)
         skelobj = skel.getObject()
         clr = color.canvasColor(self.color)
@@ -116,7 +116,7 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
         self.arrowsize = arrowsize
         display.DisplayMethod.__init__(self)
         
-    def draw(self, gfxwindow, device_unused, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         skel = self.who().resolve(gfxwindow)
         skelobj = skel.getObject()
         bdy = skel.getSelectedBoundary()  # SkelContextBoundary

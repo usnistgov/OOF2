@@ -394,7 +394,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         mainthread.runBlock(self.hideLayer_thread, (menuitem, n))
 
     def hideLayer_thread(self, menuitem, n):
-        self.display.hide_layer(self.device, n) # hide layer in canvas
+        self.display.hide_layer(n) # hide layer in canvas
         self.layerListRowChanged(n)
         # Update the contourmap.
         if config.dimension() == 2:
@@ -414,7 +414,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         mainthread.runBlock(self.showLayer_thread, (menuitem, n))
 
     def showLayer_thread(self, menuitem, n):
-        self.display.show_layer(self.device, n) # show layer in canvas
+        self.display.show_layer(n) # show layer in canvas
         self.layerListRowChanged(n)
         # Update the contourmap.
         if config.dimension() == 2:

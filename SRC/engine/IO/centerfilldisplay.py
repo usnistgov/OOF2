@@ -35,7 +35,7 @@ MeshDisplayMethod = displaymethods.MeshDisplayMethod
 class CenterFillDisplay(contourdisplay.ZDisplay):
     # The "draw" function should set contour_max, contour_min, and
     # contour_levels, which will be used by the draw_contourmap function.
-    def draw(self, gfxwindow, device, canvaslayer):
+    def draw(self, gfxwindow, canvaslayer):
         self.contour_max = None
         self.contour_min = None
         self.contour_levels = None
@@ -128,7 +128,7 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
         return (self.contour_min, self.contour_max, self.contour_levels)
 
 
-    def draw_contourmap(self, gfxwindow, device):
+    def draw_contourmap(self, gfxwindow, canvaslayer):
         # If the drawing failed, then contour_max won't have been set
         # yet.
         self.lock.acquire()
@@ -138,31 +138,22 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
                 height = self.contour_max - self.contour_min
                 width = height/aspect_ratio
 
-                device.comment("Colorbar minimum: %s" % self.contour_min)
-                device.comment("Colorbar maximum: %s" % self.contour_max)
-                device.set_colormap(self.colormap)
-
                 for low, high in utils.list_pairs(self.contour_levels):
                     # Subtract "contour_min" off the y coords, so that
                     # the drawn object will include the point (0,0) --
                     # otherwise, the canvas bounds are wrong.
                     r_low = low-self.contour_min
                     r_high = high-self.contour_min
-
-                    rect_bndy = map( lambda x: primitives.Point(x[0],x[1]),
-                                     [ (0.0, r_low), (0.0, r_high),
-                                       (width, r_high), (width, r_low) ] )
-
-                    rectangle = primitives.Polygon(rect_bndy)
+                    rect = oofcanvas.CanvasRectangle(0, r_low, width, r_high)
                     # In the collapsed case, height can be zero.  This is
                     # not hugely informative, but should be handled without
                     # crashing.
-                    if height>0.0:
-                        device.set_fillColor(r_low/height)
+                    if height > 0:
+                        clr = color.canvasColor(self.colormap(r_low/height))
                     else:
-                        device.set_fillColor(0.0)
-
-                    device.fill_polygon(rectangle)
+                        clr = oofcanvas.black
+                    rect.setFillColor(clr)
+                    canvaslayer.addItem(rect)
         finally:
             self.lock.release()             
         
