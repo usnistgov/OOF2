@@ -88,6 +88,7 @@ namespace OOFCanvas {
     void lowerLayer(int layer, int howfar);
     void raiseLayerToTop(int layer);
     void lowerLayerToBottom(int layer);
+    void reorderLayers(const std::vector<CanvasLayer*>*);
 
     void clear();
     // Since the base class doesn't have anyplace to draw to, it's
@@ -104,6 +105,8 @@ namespace OOFCanvas {
     // Versions for swig.
     std::vector<CanvasItem*> *clickedItems_new(double, double) const;
     std::vector<CanvasItem*> *allItems_new() const;
+
+    
 
     friend class CanvasLayer;
     friend class CanvasItem;

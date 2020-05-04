@@ -40,7 +40,7 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
         self.contour_min = None
         self.contour_levels = None
         
-        meshctxt = self.who().resolve(gfxwindow)
+        meshctxt = self.who.resolve(gfxwindow)
         themesh = meshctxt.mesh()
         polygons = self.polygons(gfxwindow, meshctxt)
         elements = tuple(themesh.element_iterator())

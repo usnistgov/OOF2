@@ -166,13 +166,8 @@ mainmenu.gfxdefaultsmenu.Pixels.addItem(oofmenu.OOFMenuItem(
     </para>"""))
 
 def predefinedPixelSelectionLayer():
-    if config.dimension() == 2:
-        return bitoverlaydisplay.bitmapOverlay(color=defaultPixelSelectionColor,
-                                               tintOpacity=defaultTintOpacity)
-    if config.dimension() == 3:
-        return bitoverlaydisplay.bitmapOverlay(color=defaultPixelSelectionColor,
-                                               tintOpacity=defaultTintOpacity,
-                                               voxelOpacity=defaultVoxelOpacity)
+    return bitoverlaydisplay.bitmapOverlay(color=defaultPixelSelectionColor,
+                                           tintOpacity=defaultTintOpacity)
 
 ghostgfxwindow.PredefinedLayer('Pixel Selection', '<top microstructure>',
                                predefinedPixelSelectionLayer)

@@ -30,7 +30,7 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
         self.line_width = line_width
         display.DisplayMethod.__init__(self)
     def draw(self, gfxwindow, canvaslayer):
-        skel = self.who().resolve(gfxwindow)
+        skel = self.who.resolve(gfxwindow)
         if skel is not None:
             # First draw a slightly fatter segment in white
             segs = oofcanvas.CanvasSegments()
@@ -55,7 +55,7 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
 
     def getTimeStamp(self, gfxwindow):
         return max(self.timestamp,
-                   self.who().resolve(gfxwindow).segmentselection.timestamp)
+                   self.who.resolve(gfxwindow).segmentselection.timestamp)
             
 defaultSegSelColor = color.RGBColor(0.13, 0.93, 0.25)
 defaultSegSelWidth = 2

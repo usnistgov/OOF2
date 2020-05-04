@@ -45,7 +45,7 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
         display.DisplayMethod.__init__(self)
 
     def draw(self, gfxwindow, canvaslayer):
-        skel = self.who().resolve(gfxwindow)
+        skel = self.who.resolve(gfxwindow)
         skelobj = skel.getObject()
         clr = color.canvasColor(self.color)
         for k in self.boundaries:
@@ -81,7 +81,7 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
 
     def getTimeStamp(self, gfxwindow):
         return max( self.timestamp,
-                    self.who().resolve(gfxwindow).bdytimestamp )
+                    self.who.resolve(gfxwindow).bdytimestamp )
 
 widthRange = (0,10)
                     
@@ -117,7 +117,7 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
         display.DisplayMethod.__init__(self)
         
     def draw(self, gfxwindow, canvaslayer):
-        skel = self.who().resolve(gfxwindow)
+        skel = self.who.resolve(gfxwindow)
         skelobj = skel.getObject()
         bdy = skel.getSelectedBoundary()  # SkelContextBoundary
         if bdy is not None:
@@ -150,7 +150,7 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
             canvaslayer.addItem(dot)
     
     def getTimeStamp(self, gfxwindow):
-        skelcontext = self.who().resolve(gfxwindow)
+        skelcontext = self.who.resolve(gfxwindow)
         bdy = skelcontext.getSelectedBoundary()
         if bdy is not None:
             return max(self.timestamp, skelcontext.bdyselected,

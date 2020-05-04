@@ -55,6 +55,11 @@ namespace OOFCanvas {
     virtual void draw(Cairo::RefPtr<Cairo::Context>, double hadj, double vadj)
       const;
 
+    // Layers can be removed from a Canvas by calling
+    // Canvas::deleteLayer or CanvasLayer::destroy.  The effect is the
+    // same.  Don't call both.
+    void destroy();
+
     void show();
     void hide();
 

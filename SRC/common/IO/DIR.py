@@ -17,22 +17,23 @@ cfiles = ['bitoverlay.C']
 
 swigfiles = ['bitoverlay.swg']
 
-pyfiles = ['activeareamodmenu.py', 'automatic.py', 'binarydata.py',
-'bitmapdisplay.py', 'bitoverlaydisplay.py', 'colordiffparameter.py',
-'colormap.py', 'datafile.py', 'display.py',
-'genericselecttoolbox.py', 'gfxmanager.py', 'ghostgfxwindow.py',
-'layereditor.py', 'mainmenu.py', 'menudump.py', 'menuparser.py',
-'microstructureIO.py',
-'microstructuremenu.py', 'oofmenu.py',
-'parameter.py', 'pixelgroupmenu.py',
-'pixelgroupparam.py', 'pixelinfo.py', 'pixelinfodisplay.py',
-'pixelselectionmenu.py', 'pixelselectiontoolbox.py',
-'progressbar_delay.py', 'pdfoutput.py', 'questioner.py', 'reporter.py',
-'reportermenu.py', 'scriptloader.py', 'placeholder.py',
-'socket2me.py', 'threadmanager.py', 'activityviewermenu.py',
-'topwho.py', 'typename.py', 'viewertoolbox.py', 'whoville.py',
-'words.py', 'reporterIO.py', 'xmlmenudump.py', 'automaticdoc.py',
-'activeareamenu.py']
+pyfiles = [
+    'activeareamenu.py', 'activeareamodmenu.py',
+    'activityviewermenu.py', 'automatic.py', 'automaticdoc.py',
+    'binarydata.py', 'bitmapdisplay.py', 'bitoverlaydisplay.py',
+    'colordiffparameter.py', 'colormap.py', 'datafile.py',
+    'display.py', 'genericselecttoolbox.py', 'gfxmanager.py',
+    'ghostgfxwindow.py', 'mainmenu.py', 'menudump.py',
+    'menuparser.py', 'microstructureIO.py', 'microstructuremenu.py',
+    'oofmenu.py', 'parameter.py', 'pdfoutput.py', 'pixelgroupmenu.py',
+    'pixelgroupparam.py', 'pixelinfo.py', 'pixelinfodisplay.py',
+    'pixelselectionmenu.py', 'pixelselectiontoolbox.py',
+    'placeholder.py', 'progressbar_delay.py', 'questioner.py',
+    'reporter.py', 'reporterIO.py', 'reportermenu.py',
+    'scriptloader.py', 'socket2me.py', 'threadmanager.py',
+    'topwho.py', 'typename.py', 'viewertoolbox.py', 'whoville.py',
+    'words.py', 'xmlmenudump.py',
+]
 
 swigpyfiles = ['bitoverlay.spy']
 

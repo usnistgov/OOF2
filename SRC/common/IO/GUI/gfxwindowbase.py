@@ -15,9 +15,9 @@ from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import subthread
 from ooflib.common.IO import ghostgfxwindow
-from ooflib.common.IO import layereditor
 from ooflib.common.IO import reporter
 from ooflib.common.IO.GUI import mousehandler
+from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import subWindow
 
 
@@ -98,7 +98,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         self.suppressSelectionSignals()
         try:
             self.layerList.clear()
-            for layer in self.display:
+            for layer in self.layers:
                 self.layerList.prepend([layer])
                 if layer is self.selectedLayer:
                     self.layerListView.get_selection().select_path('0')
@@ -158,9 +158,8 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     def renderLayerCell(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         layer = model[iter][0]
-        who = layer.who()
-        if who is not None:
-            txt = "%s(%s)" % (who.getClassName(), who.name())
+        if layer.who is not None:
+            txt = "%s(%s)" % (layer.who.getClassName(), layer.who.name())
         else:
             # who is None.  This probably can't happen, but there was
             # comment here wondering if it could, and it's harmless to
@@ -190,9 +189,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             self.allowSelectionSignals()
 
     def layerDoubleClickCB(self, treeview, path, col):
-        if self.selectedLayer is not None:
-            layereditor.menu.LayerSet.Edit(
-                window=self.name, layer_number=self.layerID(self.selectedLayer))
+        self.editLayer_gui(self.menu.Layer.Edit)
 
     # TreeView callback that determines if a row is displayed as a
     # separator.
@@ -263,19 +260,6 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     def layerListRowChanged(self, n):
         rowno = len(self.layerList) - 1 - n
         self.layerList.row_changed(rowno, self.layerList.get_iter(rowno))
-
-    def replaceLayer(self, count, oldlayer, newlayer):
-        self.acquireGfxLock()
-        try:
-            ghostgfxwindow.GhostGfxWindow.replaceLayer(self, count,
-                                                       oldlayer, newlayer)
-            for row in self.layerList:
-                if row[0] is oldlayer:
-                    row[0] = newlayer
-                    break
-        finally:
-            self.releaseGfxLock()
-
 
     # General callbacks
     #######################################################
@@ -356,12 +340,17 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     # Layer callbacks
     ######################################################
                 
-    def newLayer_gui(self, menuitem):
-        layereditor.menu.LayerSet.New(window=self.name)
-
     def editLayer_gui(self, menuitem):
-        layereditor.menu.LayerSet.Edit(
-            window=self.name, layer_number=self.layerID(self.selectedLayer))
+        if self.selectedLayer is not None:
+            category = menuitem.get_arg("category")
+            what = menuitem.get_arg("what")
+            how = menuitem.get_arg("how")
+            category.value = self.selectedLayer.who.getClassName()
+            what.value = self.selectedLayer.who.path()
+            how.value = self.selectedLayer
+            if parameterwidgets.getParameters(category, what, how,
+                                              title="Edit Graphics Layer"):
+                menuitem.callWithDefaults(n=self.layerID(self.selectedLayer))
 
     def newLayer(self, displaylayer):
         self.updateTimeControls()
@@ -394,13 +383,11 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         mainthread.runBlock(self.hideLayer_thread, (menuitem, n))
 
     def hideLayer_thread(self, menuitem, n):
-        self.display.hide_layer(n) # hide layer in canvas
+        self.layers[n].hide()   # hide layer in canvas
         self.layerListRowChanged(n)
         # Update the contourmap.
-        if config.dimension() == 2:
-            self.contourmap_newlayers()
-            subthread.execute(self.show_contourmap_info)
-
+        # self.contourmap_newlayers() # called by GhostGfxWindow.hideLayer
+        subthread.execute(self.show_contourmap_info)
         
     def hideLayer_gui(self, menuitem):  # OOFMenu GUI callback.
         if self.selectedLayer is None:
@@ -414,12 +401,11 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         mainthread.runBlock(self.showLayer_thread, (menuitem, n))
 
     def showLayer_thread(self, menuitem, n):
-        self.display.show_layer(n) # show layer in canvas
+        self.layers[n].show()   # show layer in canvas
         self.layerListRowChanged(n)
         # Update the contourmap.
-        if config.dimension() == 2:
-            self.contourmap_newlayers()
-            subthread.execute(self.show_contourmap_info)
+        # self.contourmap_newlayers() # called by GhostGfxWindow.hideLayer
+        subthread.execute(self.show_contourmap_info)
 
     def showLayer_gui(self, menuitem):  # OOFMenu GUI callback
         if self.selectedLayer is None:\
@@ -435,7 +421,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
 
     def selectLayer_thread(self, n):
         self.suppressSelectionSignals()
-        self.layerListView.get_selection().select_path(len(self.display)-n-1)
+        self.layerListView.get_selection().select_path(self.nLayers()-n-1)
         self.allowSelectionSignals()
 
     def deselectLayer(self, n):
@@ -459,13 +445,12 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         ghostgfxwindow.GhostGfxWindow.deselectAll(self)
         self.allowSelectionSignals()
         
-    # At layer-removal time, it's necessary to explicitly redraw the
-    # contourmap, because the main canvas layers have not been redrawn,
-    # so the usual automatic redraw has not taken place.
-    def removeLayer(self, layer):
-        ghostgfxwindow.GhostGfxWindow.removeLayer(self, layer)
-        if config.dimension() == 2:
-            self.show_contourmap_info()
+    # # At layer-removal time, it's necessary to explicitly redraw the
+    # # contourmap, because the main canvas layers have not been redrawn,
+    # # so the usual automatic redraw has not taken place.
+    # def removeLayer(self, layer):
+    #     ghostgfxwindow.GhostGfxWindow.removeLayer(self, layer)
+    #     self.show_contourmap_info()
     
     def raiseLayer_gui(self, menuitem):
         if self.selectedLayer is None:

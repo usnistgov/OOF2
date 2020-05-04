@@ -306,8 +306,6 @@ class oofGUI(widgetscope.WidgetScope):
         # those subwindows here.  Other subwindows don't have these
         # constraints.
         debug.mainthreadTest()
-        from ooflib.common.IO.GUI import layereditorGUI
-        layereditorGUI.destroyLayerEditor()
 
         for window in gfxmanager.gfxManager.getAllWindows():
             gfxmanager.gfxManager.closeWindow(window)

@@ -23,6 +23,7 @@ using namespace OOFCanvas;
 using namespace std;
 
 typedef std::vector<CanvasItem*> CanvasItemList;
+typedef std::vector<CanvasLayer*> CanvasLayerList;
 typedef std::vector<std::string> StringVec;
 typedef std::vector<double> DoubleVec;
 %}
@@ -61,6 +62,32 @@ typedef std::vector<double> DoubleVec;
     PyObject *str = PyString_FromString((*$source)[i].c_str());
     PyList_SET_ITEM($target, (Py_ssize_t) i, str); // Steals reference.
   }
+}
+
+// Convert a list of swigged CanvasLayer*s to a std::vector<CanvasLayer*>
+%typemap(python, in) CanvasLayerList* (CanvasLayerList vec) {
+  // typemap(python, in) CanvasLayerList*
+  if(!PyList_Check($source)) {
+    PyErr_SetString(PyExc_TypeError, "Type error in CanvasLayerList* typemap.  Python list CanvasLayers expected.");
+    return NULL;
+  }
+  CanvasLayerList::size_type sz =
+    Py_SAFE_DOWNCAST(PyList_Size($source),
+		     Py_ssize_t, CanvasLayerList::size_type);
+  vec.resize(sz);
+  for(CanvasLayerList::size_type i=0; i<sz; i++) {
+    PyObject *strobj = PyObject_GetAttrString(PyList_GET_ITEM($source,
+							      (Py_ssize_t) i),
+					      "this");
+    if(!strobj)
+      return NULL;
+    char *str = PyString_AsString(strobj);
+    Py_XDECREF(strobj);
+    CanvasLayer *layer;
+    SWIG_GetPtr(str, (void**) &layer, "_CanvasLayer_p");
+    vec[i] = layer;
+  }
+  $target = &vec;
 }
 
 // Convert a Python list or tuple of doubles to a std::vector<double>
@@ -332,6 +359,8 @@ private:
   CanvasLayer();		// private constructor is not swigged
 public:
   ~CanvasLayer();
+  bool empty();
+  void destroy();
   void addItem(CanvasItem*);
   void removeAllItems();
   void clear();
@@ -344,6 +373,7 @@ public:
   void lowerBy(int);
   void raiseToTop();
   void lowerToBottom();
+  void writeToPNG(char*);
   %addmethods {
     const char *name() {
       return self->name.c_str();
@@ -407,6 +437,7 @@ public:
   OffScreenCanvas(double);
   ~OffScreenCanvas();
   CanvasLayer *newLayer(char*);
+  void deleteLayer(CanvasLayer*);
   CanvasLayer *getLayer(int);
   %name(getLayerByName) CanvasLayer *getLayer(char*);
   int nLayers();
@@ -415,6 +446,7 @@ public:
   void lowerLayer(int, int);
   void lowerLayerToBottom(int);
   void raiseLayerToTop(int);
+  void reorderLayers(CanvasLayerList*);
   void clear();
   void draw();
   double getPixelsPerUnit();

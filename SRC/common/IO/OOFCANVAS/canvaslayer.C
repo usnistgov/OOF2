@@ -30,6 +30,11 @@ namespace OOFCanvas {
       delete item;
   }
 
+  void CanvasLayer::destroy() {
+    canvas->deleteLayer(this);
+    // This destroys *this.  Don't do anthing else here.
+  }
+
   void CanvasLayer::clear() {
     ICoord size(canvas->boundingBoxSizeInPixels());
     makeCairoObjs(size.x, size.y);
@@ -179,7 +184,6 @@ namespace OOFCanvas {
     // hadj and vadj are pixel offsets, from the scroll bars.
     if(visible && !items.empty()) {
       ctxt->set_source(surface, -hadj, -vadj);
-
       // {
       // 	static int filecount = 0;
       // 	surface->write_to_png("layer_"+to_string(filecount++)+".png");

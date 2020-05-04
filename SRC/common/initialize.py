@@ -22,7 +22,6 @@ import ooflib.common.IO.automaticdoc
 import ooflib.common.IO.bitmapdisplay
 import ooflib.common.IO.bitoverlaydisplay
 import ooflib.common.IO.colormap
-import ooflib.common.IO.layereditor       # adds LayerEditor to OOF menu
 import ooflib.common.IO.menudump
 import ooflib.common.IO.microstructuremenu
 import ooflib.common.IO.pixelgroupmenu

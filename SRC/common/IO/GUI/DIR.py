@@ -35,7 +35,6 @@ pyfiles = [
     'initialize.py',
     'introPage.py',
     'labelledslider.py',
-    'layereditorGUI.py',
     'mainmenuGUI.py',
     'mainthreadGUI.py',
     'matrixparamwidgets.py',

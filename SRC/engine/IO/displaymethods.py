@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -136,7 +135,7 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
         display.AnimationLayer.__init__(self, when)
         display.DisplayMethod.__init__(self)
     def incomputable(self, gfxwindow):
-        themesh = self.who().resolve(gfxwindow)
+        themesh = self.who.resolve(gfxwindow)
         return (display.DisplayMethod.incomputable(self, gfxwindow) or
                 not themesh.boundedTime(self.when) or 
                 self.where.incomputable(themesh))
@@ -145,7 +144,7 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
         bozo.freezetime = self.freezetime
         return bozo
     def freeze(self, gfxwindow):
-        meshctxt = self.who().resolve(gfxwindow)
+        meshctxt = self.who.resolve(gfxwindow)
         if meshctxt:
             self.freezetime = meshctxt.getTime(self.when)
         display.DisplayMethod.freeze(self, gfxwindow)
@@ -166,7 +165,7 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
         return meshctxt.getTime(self.when)
 
     def animationTimes(self, gfxwindow):
-        meshctxt = self.who().resolve(gfxwindow)
+        meshctxt = self.who.resolve(gfxwindow)
         return meshctxt.cachedTimes()
         
     def polygons(self, gfxwindow, meshctxt):
@@ -220,7 +219,7 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
     # method refers to the topmost mesh display, only that display
     # (i.e. this object) knows the right PositionOutput to use.
     def displaced_from_undisplaced(self, gfxwindow, orig):
-        meshctxt = self.who().resolve(gfxwindow)
+        meshctxt = self.who.resolve(gfxwindow)
         femesh = meshctxt.getObject()
         felem = meshctxt.enclosingElement(orig)
         return self._displaced_from_undisplaced_with_element(
@@ -293,7 +292,7 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
     # single-point, single-element version of self.where.evaluate() --
     # performance improvements there would be welcome.
     def undisplaced_from_displaced(self, gfxwindow, pos):
-        meshctxt = self.who().resolve(gfxwindow)
+        meshctxt = self.who.resolve(gfxwindow)
         femesh = meshctxt.getObject()
 
         hideEmpty = gfxwindow.settings.hideEmptyElements
@@ -418,7 +417,7 @@ mainmenu.gfxdefaultsmenu.Meshes.addItem(oofmenu.OOFMenuItem(
 
 class EdgeDisplay:
     def draw(self, gfxwindow, canvaslayer):
-        themesh = self.who().resolve(gfxwindow)
+        themesh = self.who.resolve(gfxwindow)
         polygons = self.polygons(gfxwindow, themesh)
         clr = color.canvasColor(self.color)
         for polygon in polygons:
@@ -499,7 +498,7 @@ class PerimeterDisplay(MeshDisplayMethod):
         self.color = color
         MeshDisplayMethod.__init__(self, when)
     def draw(self, gfxwindow, canvaslayer):
-        themesh = self.who().resolve(gfxwindow)
+        themesh = self.who.resolve(gfxwindow)
         femesh = themesh.getObject()
         themesh.restoreCachedData(self.getTime(themesh, gfxwindow))
         try:
@@ -546,7 +545,7 @@ registeredclass.Registration(
 #         self.color = color
 #         MeshDisplayMethod.__init__(self, when)
 #     def draw(self, gfxwindow, device):
-#         meshctxt = self.who().resolve(gfxwindow)
+#         meshctxt = self.who.resolve(gfxwindow)
 #         femesh = meshctxt.getObject()
 #         device.comment("InterfaceElementDisplay")
 #         device.set_lineColor(self.color)
@@ -616,7 +615,7 @@ registeredclass.Registration(
 
 class MaterialDisplay:
     def draw(self, gfxwindow, canvaslayer):
-        themesh = self.who().resolve(gfxwindow)
+        themesh = self.who.resolve(gfxwindow)
         polygons = self.polygons(gfxwindow, themesh)
         # colorcache is a dictionary of colors keyed by Material.  It
         # prevents us from having to call material.fetchProperty for
@@ -644,7 +643,7 @@ class MaterialDisplay:
                     canvaslayer.addItem(plot)
  
     def getTimeStamp(self, gfxwindow):
-        microstructure = self.who().resolve(gfxwindow).getMicrostructure()
+        microstructure = self.who.resolve(gfxwindow).getMicrostructure()
         return max(display.DisplayMethod.getTimeStamp(self, gfxwindow),
                    ooflib.SWIG.engine.material.getMaterialTimeStamp(microstructure))
                     
@@ -722,7 +721,7 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
     def draw(self, gfxwindow, canvaslayer):
         self.lock.acquire()
         try:
-            skel = self.who().resolve(gfxwindow).getObject()
+            skel = self.who.resolve(gfxwindow).getObject()
             # get polygons and element energy in one pass
             polyenergy = [(el.perimeter(), el.energyTotal(skel, self.alpha))
                         for el in skel.element_iterator()
@@ -762,7 +761,7 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
         finally:
             self.lock.release()
     def getTimeStamp(self, gfxwindow):
-        skelcontext = self.who().resolve(gfxwindow)
+        skelcontext = self.who.resolve(gfxwindow)
         return max(self.timestamp,
                    skelcontext.getTimeStamp(gfxwindow),
                    skelcontext.getMicrostructure().getTimeStamp())

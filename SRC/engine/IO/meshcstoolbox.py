@@ -66,7 +66,7 @@ class CrossSectionToolbox(toolbox.Toolbox):
         layer = self.gfxwindow().topcontourable()
         if layer:
             self.current_layer = layer
-            self.current_mesh = layer.who().resolve(self.gfxwindow())
+            self.current_mesh = layer.who.resolve(self.gfxwindow())
         else:
             self.current_layer = None
             self.current_mesh = apply(self.gfxwindow().topwho, self.whoset)

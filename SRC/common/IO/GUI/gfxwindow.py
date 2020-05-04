@@ -12,6 +12,7 @@ from ooflib.SWIG.common import coord
 from ooflib.SWIG.common import geometry
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import lock
+from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import progress
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
@@ -209,7 +210,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         ##self.paned2.set_position(250)
 
         # Bottom part of main pane is a list of layers.  The actual
-        # DisplayLayer objects are stored in self.display.
+        # DisplayLayer objects are stored in self.layers.
 
         layerFrame = Gtk.Frame(label='Layers',
                                margin_top=gtkutils.handle_padding)
@@ -398,7 +399,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         filemenu = self.menu.File
         filemenu.Quit.add_gui_callback(quit.queryQuit)
         layermenu = self.menu.Layer
-        layermenu.New.add_gui_callback(self.newLayer_gui)
+        # Theres no gui callback for layermenu.New.
         layermenu.Edit.add_gui_callback(self.editLayer_gui)
         layermenu.Delete.add_gui_callback(self.deleteLayer_gui)
         layermenu.Hide.add_gui_callback(self.hideLayer_gui)
@@ -596,7 +597,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     # contour plot occupies a small fraction of the main-canvas area.
     
     # A possible answer is to make the colormap be drawn continuously,
-    # no matter how many levels their actually are.  Alternatively,
+    # no matter how many levels there actually are.  Alternatively,
     # one could figure out how to do something sensible with the fact
     # that contour lines in general occur at particular levels, but if
     # you want to see something on the map, it has to be drawn over an
@@ -645,7 +646,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     # Draw the marks on it.  Argument is the new value for the ticks.
     # A tick-layer redraw can be forced by setting
     # self.contourmapdata.mark_value to None and then calling this with
-    # the new value.  (TODO : Really??)
+    # the new value.  (TODO: Really??)
     def show_contourmap_ticks(self, y):
         if not self.gtk:
             return
@@ -805,11 +806,29 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.acquireGfxLock()
         try:
             self.updateTimeControls()
-            self.display.draw(self) # calls drawIfNecessary on each layer
+            for layer in self.layers:
+                reason = layer.incomputable(self)
+                if reason:
+                    layer.clear()
+                else:
+                    try:
+                        # Tell the DisplayLayer to (re)create its CanvasLayer.
+                        layer.drawIfNecessary(self)
+                    except subthread.StopThread:
+                        return
+                    except (Exception, ooferror.ErrErrorPtr), exc:
+                        # This should not happen for computable Outputs
+                        debug.fmsg('Exception while drawing!', exc)
+                        raise
             if zoom and self.realized:
                 self.zoomFillWindow(lock=False)
         finally:
             self.releaseGfxLock()
+
+        # Copy the OOFCanvas::CanvasLayers to the OOFCanvas::Canvas
+        # (actually just tells gtk to queue up a draw event).
+        self.oofcanvas.draw()
+        
         # Update the contourmap info, now that the appropriate layer
         # has completed its draw.
         self.show_contourmap_info()
@@ -1231,7 +1250,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             # Don't backdate layers that have already been drawn at the
             # given time.  Layers that have been drawn already return
             # outOfTime==True.
-            for layer in self.display.layers:
+            for layer in self.layers:
                 if layer.animatable(self) and layer.outOfTime(self):
                     layer.backdate()
         self.draw(zoom=zoom)

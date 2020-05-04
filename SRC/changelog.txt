@@ -1,6 +1,13 @@
+gtk3 changes, which may be in 2.1.19 or 2.2.0, depending...
 
-* Added a "ZStrain" property so users can specify e_zz in
-  plane-strain problems.
+* OOF2 uses gtk3 instead of gtk2, and no longer requires
+  libgnomecanvas.
+
+* The LayerEditor has been removed.  Canvas layers are created
+  directly by menu items in the graphics window.
+
+* OOF.Graphics_1.File.Save_Image is now Save_Canvas.
+
 
 OOF2 2.1.19
 
@@ -9,6 +16,9 @@ OOF2 2.1.19
 
 * Skeleton modification routines report the total number of nodes and
   elements after the modification, not just the change.
+
+* Added a "ZStrain" property so users can specify e_zz in
+  plane-strain problems.
 
 OOF2 2.1.18
 

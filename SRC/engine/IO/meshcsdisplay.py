@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -37,12 +36,12 @@ class MeshCrossSectionDisplay(display.DisplayMethod):
     # We might need to be redrawn when the mesh's cross-sections have
     # changed.
     def getTimeStamp(self, gfxwindow):
-        mesh = self.who().resolve(gfxwindow)
+        mesh = self.who.resolve(gfxwindow)
         return max(self.timestamp, mesh.cross_sections.timestamp)
 
 
     def draw(self, gfxwindow, canvaslayer):
-        mesh = self.who().resolve(gfxwindow)
+        mesh = self.who.resolve(gfxwindow)
         segments = []
 
         if self.cross_sections==placeholder.selection:

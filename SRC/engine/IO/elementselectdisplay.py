@@ -29,7 +29,7 @@ class SkeletonElementSelectionDisplay(display.DisplayMethod):
         display.DisplayMethod.__init__(self)
 
     def draw(self, gfxwindow, canvaslayer):
-        skel = self.who().resolve(gfxwindow)
+        skel = self.who.resolve(gfxwindow)
         if skel is not None:
             skel.elementselection.begin_reading()
             clr = color.canvasColor(self.color).opacity(self.opacity)
@@ -45,7 +45,7 @@ class SkeletonElementSelectionDisplay(display.DisplayMethod):
                 skel.elementselection.end_reading()
     def getTimeStamp(self, gfxwindow):
         return max(self.timestamp,
-                   self.who().resolve(gfxwindow).elementselection.timestamp)
+                   self.who.resolve(gfxwindow).elementselection.timestamp)
                 
                 
 # This object should be created via the registration, and not

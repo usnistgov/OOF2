@@ -69,12 +69,12 @@ class GfxSettings:
     bgcolor = color.white
     zoomfactor = 1.5
     margin = 0.05
-    longlayernames = 0                   # Use long form of layer reprs.
-    listall = 0                          # are all layers to be listed?
-    autoreorder = 1                      # automatically reorder layers?
-    antialias = 1
-    aspectratio = 5           # Aspect ratio of the contourmap.
-    contourmap_markersize = 2 # Size in pixels of contourmap marker.
+    longlayernames = False      # Use long form of layer reprs.
+    listall = False             # are all layers to be listed?
+    autoreorder = True          # automatically reorder layers?
+    antialias = True
+    aspectratio = 5             # Aspect ratio of the contourmap.
+    contourmap_markersize = 2   # Size in pixels of contourmap marker.
     contourmap_markercolor = color.gray50 # Color of contourmap position marker.
     def __init__(self):
         # Copy all default (class) values into local (instance) variables.
@@ -114,12 +114,17 @@ class GhostGfxWindow:
     def __init__(self, name, gfxmanager, clone=0):
         self.name = name
         self.gfxmanager = gfxmanager
-        self.display = display.Display()
-        if not hasattr(self, 'gfxlock'): # ditto
+        if not hasattr(self, 'gfxlock'):
             self.gfxlock = lock.Lock()
-        self.layerSets = []
+        self.layers = []        # DisplayMethod instances
         self.current_contourmap_method = None
         self.selectedLayer = None
+        self.sortedLayers = True
+        self.layerChangeTime = timestamp.TimeStamp()
+        # displayTime is the simulation time of the displayed
+        # mesh. displayTimeChanged is the timestamp indicated when the
+        # simulation time was modified.  They are completely different
+        # sorts of time.
         self.displayTime = 0.0
         self.displayTimeChanged = timestamp.TimeStamp()
         if not hasattr(self, 'settings'):
@@ -127,7 +132,7 @@ class GhostGfxWindow:
 
         self.menu = OOF.addItem(OOFMenuItem(
             self.name,
-            secret=1,
+            secret=True,
             help = "Commands dependent on a particular Graphics window.",
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/graphics.xml')
@@ -159,8 +164,8 @@ class GhostGfxWindow:
             </para>"""
             ))
         filemenu.addItem(OOFMenuItem(
-            'Save_Image',
-            callback=self.saveImage,
+            'Save_Canvas',
+            callback=self.saveCanvas,
             ellipsis=1,
             params=[
                 filenameparam.WriteFileNameParameter(
@@ -230,9 +235,13 @@ class GhostGfxWindow:
             This should never be necessary.
             </para>"""
             ))
+        if debug.debug():
+            filemenu.addItem(OOFMenuItem(
+                'DumpLayers',
+                callback=self.dumpLayers,
+                params=[parameter.StringParameter('filename')],
+                ))
 
-        ## This had been marked UNTHREADABLE.  Why?  Making it
-        ## unthreaded makes it hang when executed while drawing.
         filemenu.addItem(OOFMenuItem(
             'Close',
             callback=self.close,
@@ -248,6 +257,7 @@ class GhostGfxWindow:
             discussion="""<para>
             See <xref linkend='MenuItem-OOF.File.Quit'/>.
             </para>"""))
+        
         self.toolboxmenu = self.menu.addItem(OOFMenuItem(
             'Toolbox',
             cli_only=1,
@@ -261,28 +271,34 @@ class GhostGfxWindow:
             discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/layer.xml')
             ))
 
-        # Layer editing is invoked either through the GUI version of
-        # this menu item, or by double clicking on a layer in the
-        # GUI's layer list.  In either case, the scripted command is a
-        # *LayerEditor* command, not a GhostGfxWindow command, so
-        # there's nothing to do here.  This menu item is here just so
-        # that the GfxWindow can hang a gui_callback on it.
         layermenu.addItem(OOFMenuItem(
             'New',
-            gui_only=1,
+            callback=self.newLayerCB,
             accel='n',
-            ellipsis=1,
-            help="Open the graphics layer editor.",
+            ellipsis=True,
+            params=[
+                whoville.WhoClassParameter("category"),
+                whoville.AnyWhoParameter(
+                    "what", tip="The object to display."),
+                display.DisplayMethodParameter(
+                    "how", tip="How to display the object.")],
+            help="Add a new graphics layer.",
             discussion=xmlmenudump.loadFile(
+                # TODO GTK3: Fix this manual page.
                 'DISCUSSIONS/common/menu/newlayer.xml')
             ))
         layermenu.addItem(OOFMenuItem(
             'Edit',
-            gui_only=1,
+            callback=self.editLayerCB,
+            params=[IntParameter('n', 0, tip="Layer to edit."),
+                    whoville.WhoClassParameter("category"),
+                    whoville.AnyWhoParameter(
+                        "what", tip="The object to display"),
+                    display.DisplayMethodParameter(
+                        "how", tip="How to display the object")],
             accel='e',
-            ellipsis=1,
-            help= "Open the graphics layer editor,"
-            " loading the currently selected layer.",
+            ellipsis=True,
+            help= "Edit the currently selected layer.",
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/editlayer.xml')
                                       ))
@@ -685,27 +701,22 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             ]
         
 
-    def createPredefinedLayers(self):
-        # Create pre-defined layers.  These are in all graphics
-        # windows, regardless of whether or not they are drawable at
-        # the moment.
-        for predeflayer in PredefinedLayer.allPredefinedLayers:
-            self.incorporateLayerSet(predeflayer.createLayerSet(),
-                                     force=1, autoselect=0)
-        
-##        for layerset in display.predefinedLayerSets:
-##            self.incorporateLayerSet(layerset, force=1, autoselect=0)
-
-        # Create default layers if possible.  One layer is created for
-        # each WhoClass the first time that an instance of that class
-        # is created.
-        self.createDefaultLayers()
-
-    def drawable(self):                 # used when testing the gui
-        return self.display.drawable(self)
+    def drawable(self):
+        # Can any layer be drawn?  Used when testing the gui.
+        self.acquireGfxLock()
+        try:
+            for layer in self.layers:
+                if not layer.incomputable(self):
+                    return True
+            return False
+        finally:
+            self.releaseGfxLock()
         
     def __repr__(self):
         return 'GhostGfxWindow("%s")' % self.name
+
+    def nLayers(self):
+        return len(self.layers)
 
     def acquireGfxLock(self):
         if _debuglocks:
@@ -720,6 +731,19 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             debug.fmsg("------------------------ releasing gfxlock", self.name)
         self.gfxlock.release()
 
+    def createPredefinedLayers(self):
+        # Create pre-defined layers.  These are in all graphics
+        # windows, regardless of whether or not they are drawable at
+        # the moment.
+        for predeflayer in PredefinedLayer.allPredefinedLayers:
+            layer, who = predeflayer.createLayer()
+            self.incorporateLayer(layer, who, autoselect=False, lock=False)
+            
+        # Create default layers if possible.  One layer is created for
+        # each WhoClass the first time that an instance of that class
+        # is created.
+        self.createDefaultLayers()
+
     def createDefaultLayers(self):
         # Unselect all layers first, so that new layers don't
         # overwrite existing ones.
@@ -728,19 +752,19 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
         # Create a default layer for each WhoClass if this window
         # hasn't already created a default layer for that class and if
-        # there's only a single member of the class.  (The single
-        # member constraint is enforced in
-        # DefaultLayer.createLayerSet().)
+        # there's only a single member of the class.  The single
+        # member constraint is enforced in DefaultLayer.createLayer().
         for defaultlayer in DefaultLayer.allDefaultLayers:
             try:
                 layercreated = self.defaultLayerCreated[defaultlayer]
             except KeyError:
-                self.defaultLayerCreated[defaultlayer] = layercreated = 0
+                self.defaultLayerCreated[defaultlayer] = layercreated = False
             if not layercreated:
-                layerset = defaultlayer.createLayerSet()
-                if layerset is not None:
-                    self.incorporateLayerSet(layerset, autoselect=0)
-                    self.defaultLayerCreated[defaultlayer] = 1
+                layer, who = defaultlayer.createLayer()
+                if layer is not None:
+                    self.incorporateLayer(layer, who, autoselect=False,
+                                          lock=False)
+                    self.defaultLayerCreated[defaultlayer] = True
 
         # Restore the previous selection state.
         if selectedLayer:
@@ -751,7 +775,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         ## double clicks in the LayerList --- can one thread be inside
         ## sensitize_menus() while another thread is setting
         ## self.selectedLayer to None?  Does there need to be a lock
-        ## on self.selectedLayer?
+        ## on self.selectedLayer? (Not sure if this is still a problem...)
         if self.selectedLayer is not None and \
                (self.selectedLayer.listed or self.settings.listall):
             self.menu.Layer.Delete.enable()
@@ -766,7 +790,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 self.menu.Layer.Lower.disable()
             else:
                 self.menu.Layer.Lower.enable()
-            if self.layerID(self.selectedLayer) == self.display.nlayers()-1:
+            if self.layerID(self.selectedLayer) == self.nLayers()-1:
                 self.menu.Layer.Raise.disable()
             else:
                 self.menu.Layer.Raise.enable()
@@ -794,30 +818,47 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             self.menu.Layer.Edit.disable()
             self.menu.Layer.Show_Contour_Map.disable()
             self.menu.Layer.Hide_Contour_Map.disable()
-        if len(self.display) == 0:
+        if self.nLayers() == 0:
             self.menu.Settings.Zoom.disable()
         else:
             self.menu.Settings.Zoom.enable()
-        if self.display.sorted:
+        if self.sortedLayers:
             self.menu.Layer.Reorder_All.disable()
         else:
             self.menu.Layer.Reorder_All.enable()
 
     def getLayerChangeTimeStamp(self):
-        return self.display.getLayerChangeTimeStamp()
+        return self.layerChangeTime
         
     ##############################
 
     # Menu callbacks.
 
-    # Runs on a subthread, even in GUI mode.
+    def newLayerCB(self, menuitem, category, what, how):
+        whoclass = whoville.getClass(category)
+        who = whoclass[what]
+        self.selectedLayer = None
+        self.incorporateLayer(how, who)
+        self.draw()
+
+    def editLayerCB(self, menuitem, n, category, what, how):
+        whoclass = whoville.getClass(category)
+        who = whoclass[what]
+        # If the edit command is run from a script, self.selectedLayer
+        # might not be the nth layer, which is the one being edited.
+        # So make sure it's selected, then call incorporateLayer,
+        # which will replace it.
+        self.selectedLayer = self.layers[n]
+        self.incorporateLayer(how, who)
+        self.draw()
+
     def cloneWindow(self, *args):
         self.acquireGfxLock()
         try:
             clone = self.gfxmanager.openWindow(clone=1)
             clone.settings = copy.deepcopy(self.settings)
-            for layerset in self.layerSets:
-                clone.incorporateLayerSet(layerset)
+            for layer in self.layers:
+                clone.incorporateLayer(layer, )
                 clone.deselectLayer(clone.selectedLayerNumber())
             if self.selectedLayer is not None:
                 clone.selectLayer(self.layerID(self.selectedLayer))
@@ -845,9 +886,10 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             for toolbox in self.toolboxes:
                 toolbox.close()
 
-            for layerSet in self.layerSets:
-                layerSet.removeAll()
-            del self.layerSets
+            ## TODO GTK3: Do we need to explicitly delete the
+            ## OOFCanvas?  The OOFCanvas::Canvas destructor deletes
+            ## the CanvasLayers.
+            self.layers = []
 
             # cleanup to prevent possible circular references
             ## del self.display
@@ -865,14 +907,24 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         # Remove all user specified layers from the display.
         self.acquireGfxLock()
         try:
-            # The layer list is modified as layers are deleted, so we
-            # have to work with a copy.
-            layers = self.display[:]
-            for layer in layers:
+            keptlayers = []
+            for layer in self.layers:
                 if layer.listed:
-                    self.removeLayer(layer)
+                    if layer is self.selectedLayer:
+                        self.selectedLayer = None
+                    layer.destroy()
+                else:
+                    keptlayers.append(layer)
+            self.layers = keptlayers
         finally:
             self.releaseGfxLock()
+        ## TODO GTK3: We only called self.draw() here before, but
+        ## other layer modification routines do more work.  What is
+        ## appropriate here?  Should all of this be done in
+        ## newLayerMembers?
+        self.sensitize_menus()
+        self.newLayerMembers()
+        switchboard.notify((self, "layers changed"))
         self.draw()
 
     def draw(self, *args, **kwargs):
@@ -895,7 +947,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     def redraw(self, menuitem):
         self.acquireGfxLock()
         try:
-            self.display.clear()  
+            for layer in self.layers:
+                layer.clear()
         finally:
             self.releaseGfxLock()
         self.draw()
@@ -977,15 +1030,15 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     def vScrollCB(self, menuitem, position):
         self.vscrollvalue = position
 
-    def saveImage(self, menuitem, filename, overwrite):
-        ## TODO GTK3: Use OOFCanvas
+    def saveCanvas(self, menuitem, filename, overwrite):
+        ## TODO GTK3: Use OOFCanvas.  Add file type as an argument.
         if overwrite or not os.path.exists(filename):
             pdevice = pdfoutput.PDFoutput(filename=filename)
             pdevice.set_background(self.settings.bgcolor)
             self.display.draw(self, pdevice)
 
     def saveContourmap(self, menuitem, filename, overwrite):
-        ## TODO GTK3: Use OOFCanvas
+        ## TODO GTK3: Use OOFCanvas.  Add file type as an argument.
         if overwrite or not os.path.exists(filename):
             pdevice = pdfoutput.PDFoutput(filename=filename)
             pdevice.set_background(self.settings.bgcolor)
@@ -993,59 +1046,52 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
 
 
-    # Called as part of the "layers changed" in response to layer
-    # insertion, removal, or reordering.  Sets the current contourable
-    # layer to be the topmost one, unconditionally.
+    # Called from newLayerMembers in response to layer insertion,
+    # removal, or reordering, or when layers are shown and hidden.
+    # Sets the current contourable layer to be the topmost one,
+    # unconditionally.
     def contourmap_newlayers(self):
-        self.current_contourmap_method = \
-                                       self.display.set_contourmap_topmost(self)
+        for layer in self.layers:
+            layer.hide_contourmap()
+        topmost = self.topcontourable()
+        if topmost:
+            topmost.show_contourmap()
+            self.current_contourmap_method = topmost
+        else:
+            self.current_contourmap_method = None
         switchboard.notify( (self, "new contourmap layer") )
         self.sensitize_menus()
 
-    # Alternate method -- manually set a particular layer to be the
-    # current contourable layer.
-    def set_contourmap_layer(self, method):
-        self.current_contourmap_method.hide_contourmap()
-        self.current_contourmap_method = method
-        self.current_contourmap_method.show_contourmap()
-    
     ###############################
 
     # Returns the index of the layer in the list.
     def layerID(self, layer):
-        return self.display.layerID(layer)
+        try:
+            return self.layers.index(layer)
+        except ValueError:
+            debug.fmsg("Can't find layer", layer)
+            raise
 
     def getLayer(self, layerNumber):
-        return self.display[layerNumber]
+        return self.layers[layerNumber]
 
-    def getLayerSet(self, layerNumber):
-        return self.display[layerNumber].layerset
-    
-    def getSelectedLayerSet(self):
-        if self.selectedLayer:
-            return self.selectedLayer.layerset
-    
     def topwho(self, *whoclasses):
-        nlayers = self.display.nlayers()
-        for i in range(nlayers-1, -1, -1): # top down
-            who = self.display[i].who()
-            classname = who.getClassName()
-            if (not isinstance(who, whoville.WhoProxy)) and \
-                   not self.display[i].hidden and \
-                   classname in whoclasses:
-                return who
+        for layer in reversed(self.layers):
+            classname = layer.who.getClassName()
+            if ((not isinstance(layer.who, whoville.WhoProxy)) and
+                not layer.hidden and
+                classname in whoclasses):
+                return layer.who
 
     # Advanced function, returns a reference to the *layer* object
     # which draws the who object referred to.
     def topwholayer(self, *whoclasses):
-        nlayers = self.display.nlayers()
-        for i in range(nlayers-1, -1, -1): # top down
-            who = self.display[i].who()
-            classname = who.getClassName()
-            if (not isinstance(who, whoville.WhoProxy)) and \
-                   not self.display[i].hidden and \
-                   classname in whoclasses:
-                return self.display[i]
+        for layer in reversed(self.layers):
+            classname = layer.who.getClassName()
+            if ((not isinstance(layer.who, whoville.WhoProxy)) and
+                not layer.hidden and
+                classname in whoclasses):
+                return layer
 
     def topmost(self, *whoclasses):
         # Find the topmost layer whose 'who' belongs to the given
@@ -1055,189 +1101,149 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             return who.getObject(self)
 
     def topMethod(self, *displaymethods):
-        nlayers = self.display.nlayers()
-        for i in range(nlayers-1, -1, -1): # top down
-            for method in displaymethods:
-                if isinstance(self.display[i], method):
-                    return self.display[i]
+        # Is this used?
+        for layer in reversed(self.layers):
+            if isinstance(layer, displaymethods):
+                return layer
 
     #################################
 
-    # Function for doing book-keeping whenever the membership of the
-    # current layer set has changed.  Overridden in gfxwindow.
+    # Function for doing book-keeping whenever the list of layers has
+    # changed.  Overridden in gfxwindow.
+    ## TODO GTK3: Change the name of this method to layersChanged, or
+    ## something like that.
     def newLayerMembers(self):
+        self.layerChangeTime.increment()
         self.contourmap_newlayers()
-            
-    def incorporateLayerSet(self, layerset, force=0, autoselect=1):
-        # Called by the LayerEditor when a new LayerSet is being sent
-        # to the graphics window.  If there is a currently selected
-        # layer, then its LayerSet is replaced by the new one.
 
-        # *** See extensive comments about layers and LayerSets in
-        # *** display.py
+    def incorporateLayer(self, layer, who, autoselect=True, lock=True):
+        if lock:
+            self.acquireGfxLock()
+        try:
+            if self.selectedLayer:
+                if not self.selectedLayer.inequivalent(layer):
+                    ## TODO GTK3: Check that the new layer is deleted
+                    return
+                # Replace the selected layer with the new layer.
+                which = self.layerID(self.selectedLayer)
+                layer.frozen = self.selectedLayer.frozen
+                oldlayer = self.selectedLayer
+                self.layers[which] = layer
+                # Do not call self.selectLayer here.  It'll try to
+                # call deselectLayer() on the previous selection,
+                # which is no longer in the list.  It also does
+                # too much in the way of switchboard and gui
+                # callbacks.
+                self.selectedLayer = layer
+                layer.build(self) # creates OOFCanvas::CanvasLayer
+                layer.setWho(who)
+                self.sortedLayers = False
+                self.sortLayers()
+                oldlayer.destroy()
+            else:
+                # There's no selected layer. Add the new layer.
+                self.layers.append(layer)
+                layer.build(self)
+                layer.setWho(who)
+                self.sortedLayers = False
+                self.sortLayers()
+                if autoselect:
+                    self.selectLayer(self.layerID(layer))
+        finally:
+            if lock:
+                self.releaseGfxLock()
+
+    def sortLayers(self, forced=False):
+        if not self.sortedLayers and (forced or self.settings.autoreorder):
+            self.layers.sort(display.layercomparator)
+            # Reorder the layers in the OOFCanvas too.
+            self.oofcanvas.reorderLayers([l.canvaslayer for l in self.layers])
+            self.sortedLayers = True
+            self.newLayerMembers()
+            
+    def deleteLayerNumber(self, menuitem, n):
+        # This used to call a method called removeLayer() which was
+        # redefined in GfxWindowBase to call
+        # GfxWindow.show_contourmap_info.  removeLayer was also called
+        # by clear() when it was deleting all layers but that caused
+        # too many signals to be sent.  So clear() deleteLayerNumber
+        # need to be separate, and we dont' need removeLayer(). ??
         self.acquireGfxLock()
         try:
-            if len(layerset) == 0:
-                return
-            selectedLayerSet = self.getSelectedLayerSet()
-            newLayerSet = layerset.clone()
-            if force:
-                newLayerSet.forced = 1
-            if selectedLayerSet is None:
-                # Add a new LayerSet to the existing layers.
-                self.cleanLayerSet(newLayerSet, installed=0)
-                if len(newLayerSet) > 0:    # cleanUp didn't remove all layers
-                    for layer in newLayerSet:
-                        self.newLayer(layer) # overridden in graphics mode
-                        self.display.add_layer(layer)
-                    if autoselect:
-                        self.selectLayer(self.display.layerID(newLayerSet[0]))
-            else:
-                # selectedLayerSet is not None.  Replace it with the
-                # new LayerSet.
-                count = 0                   # loop over layers in the LayerSets
-                for oldlayer,newlayer in map(None,selectedLayerSet,newLayerSet):
-                    if newlayer is None or newlayer is display.emptyLayer:
-                        if self.selectedLayer is oldlayer:
-                            self.selectedLayer = None
-                        if oldlayer is not None:
-                            self.display.remove_layer(oldlayer)
-                            oldlayer.destroy()
-                    elif newlayer.inequivalent(oldlayer):
-                        if oldlayer is not None:
-                            self.display.replace_layer(oldlayer, newlayer)
-                            if self.selectedLayer is oldlayer:
-                                self.selectedLayer = newlayer
-                            oldlayer.destroy()
-                        elif newlayer is not display.emptyLayer:
-                            # oldlayer is None
-                            self.display.add_layer(newlayer)
-                    else:                   # newlayer is equivalent to oldlayer
-                        # Use the old layer, since it's been drawn already.
-                        newLayerSet.replaceMethod(count, oldlayer)
-                    count += 1
-                self.cleanLayerSet(newLayerSet, installed=1)
-                self.layerSets.remove(selectedLayerSet)
-                selectedLayerSet.destroy() #doesn't affect layers, just LayerSet
-            if len(newLayerSet) > 0:
-                self.layerSets.append(newLayerSet)
-
-            if self.settings.autoreorder:
-                self.display.reorderLayers()
-            self.sensitize_menus()
-            self.newLayerMembers()
+            layer = self.layers[n]
+            if layer is self.selectedLayer:
+                self.selectedLayer = None
+            layer.destroy();
+            del self.layers[n]
         finally:
             self.releaseGfxLock()
-        switchboard.notify((self, 'layers changed'))
-
-    def cleanLayerSet(self, layerset, installed):
-        if not layerset.forced:
-            layers = layerset.methods[:]
-            for layer in layers:
-                reason = layer.incomputable(self)
-                if reason:
-                    debug.fmsg('incomputable layer:', layer)
-                    # Empty layers are not added to the graphics window,
-                    # so we can't remove them.
-                    if installed and layer != display.emptyLayer:
-                        self.removeLayer(layer) # calls layerset.removeMethod()
-                    else:
-                        layerset.removeMethod(layer)
-        
-    def deleteLayerNumber(self, menuitem, n):
-        layer = self.display[n]
-        layerset = layer.layerset
-        self.removeLayer(layer)
-        if len(layerset) == 0:
-            self.layerSets.remove(layerset)
-        switchboard.notify((self, 'layers changed'))
-        # This "draw" added so deletions are properly removed from the
-        # graphics windows.
-        self.draw()
-
-    def removeLayer(self, layer):       # extended in gfxwindow.py
-        self.display.remove_layer(layer)
-        if layer is self.selectedLayer:
-            self.selectedLayer = None
-            self.sensitize_menus()
-        layer.destroy()
+        self.sensitize_menus()
         self.newLayerMembers()
-        
-    def replaceLayer(self, count, oldlayer, newlayer):
-        ## TODO GTK3: Is this being called?
-        assert False
-        # extended in GfxWindowBase in GUI/gfxwindowbase.py
-        if self.selectedLayer is oldlayer:
-            self.selectedLayer = newlayer
-        self.display.replace_layer(oldlayer, newlayer)
-        layerset = oldlayer.layerset
-        layerset.replaceMethod(count, newlayer)
-        # self.oofcanvas.replaceLayer(oldlayer, newlayer)
-        oldlayer.destroy()
+        switchboard.notify((self, 'layers changed'))
+        self.draw()
 
     def newLayer(self, displaylayer):
         pass
 
     def hideLayer(self, menuitem, n):
-        self.display[n].hide()
+        self.layers[n].hide()
         self.draw()
         switchboard.notify((self, 'layers changed'))
         self.sensitize_menus()
         self.contourmap_newlayers()
 
     def showLayer(self, menuitem, n):
-        self.display[n].show()
+        self.layers[n].show()
         self.draw()
         switchboard.notify((self, 'layers changed'))
         self.sensitize_menus()
         self.contourmap_newlayers()
 
     def freezeLayer(self, menuitem, n):
-        self.display[n].freeze(self)
+        self.layers[n].freeze(self)
         switchboard.notify((self, 'layers frozen'))
         self.sensitize_menus()
     def unfreezeLayer(self, menuitem, n):
-        self.display[n].unfreeze(self)
+        self.layers[n].unfreeze(self)
         switchboard.notify((self, 'layers frozen'))
         self.sensitize_menus()
         self.draw()
 
-    # Called at layer-rearrangement time if there is exactly one
-    # contour-capable layer.  The timing on this is such that all it
-    # has to do is mark the appropriate layer, and the drawing will be
-    # correct.
-    # def auto_enable_layer_contourmap(self, layer):
-    #     layer.show_contourmap()
-    #     self.sensitize_menus()
-        
-        
+    ## TODO: hideLayerContourmap() and showLayerContourmap() interact
+    ## badly with all methods that change layers or reorder layers,
+    ## because they call newLayerMembers(), which calls
+    ## contourmap_newlayers(), which resets
+    ## self.current_contourmap_method.
+
     # Menu callbacks for layer operations.  Overridden in gfxwindow.
     def hideLayerContourmap(self, menuitem, n):
-        self.display[n].hide_contourmap()
+        self.layers[n].hide_contourmap()
         self.current_contourmap_method = None
         self.sensitize_menus()
     
     def showLayerContourmap(self, menuitem, n):
         # At most one contourmap can be shown at a time, so hide all
         # the others.
-        for layer in self.display:
+        for layer in self.layers:
             layer.hide_contourmap()
-        self.current_contourmap_method = self.display[n]
+        self.current_contourmap_method = self.layers[n]
         self.current_contourmap_method.show_contourmap()
         self.sensitize_menus()
 
     # Topmost layer on which contours can be drawn -- such a layer
     # must have a mesh as its "who".
     def topcontourable(self):
-        return self.display.topcontourable(self)
-
+        for layer in reversed(self.layers):
+            if layer.contour_capable(self) and not layer.hidden():
+                return layer
+            
     def selectLayer(self, n):
         if n is not None:
-            self.selectedLayer = self.display[n]
+            self.selectedLayer = self.layers[n]
             self.sensitize_menus()
     def deselectLayer(self, n):
-        if self.selectedLayer is not None and \
-           self.layerID(self.selectedLayer)==n:
+        if (self.selectedLayer is not None and 
+            self.layerID(self.selectedLayer) == n):
             self.selectedLayer = None
             self.sensitize_menus()
     def deselectAll(self):
@@ -1253,50 +1259,67 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     def deselectLayerCB(self, menuitem, n):
         self.deselectLayer(n)
 
-    def raiseLayer(self, menuitem, n):
-        self.display.raise_layer(n)
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.draw()
-        self.newLayerMembers()
-        
-    def raiseToTop(self, menuitem, n):
-        self.display.layer_to_top(n)
+    def raiseLayerBy(self, n, howfar):
+        # n is the layer number
+        self.acquireGfxLock()
+        try:
+            if howfar > 0 and 0 < n < self.nLayers()-howfar:
+                thislayer = self.layers[n]
+                for i in range(howfar):
+                    self.layers[n+i] = self.layers[n+i-1]
+                self.layers[n+howfar] = thislayer
+                thislayer.raise_layer(howfar) # raises it in OOFCanvas
+                ## TODO GTK3: the gtk2 version incremented a timestamp
+                ## here, but I think it can be done in newLayerMembers
+                ## instead.
+            else:
+                return
+        finally:
+            self.releaseGfxLock()
         switchboard.notify((self, 'layers changed'))
         self.sensitize_menus()
         self.draw()
         self.newLayerMembers()
 
+    def raiseLayer(self, menuitem, n):
+        self.raiseLayerBy(n, 1)
+        
+    def raiseToTop(self, menuitem, n):
+        self.raiseLayerBy(n, self.nLayers()-n-1)
+
     def raiseBy(self, menuitem, n, howfar):
-        self.display.raise_layer_by(n, howfar)
+        self.raiseLayerBy(n, howfar)
+
+    def lowerLayerBy(self, n, howfar):
+        # n is the layer number
+        self.acquireGfxLock()
+        try:
+            if howfar > 0 and howfar <= n < self.nLayers():
+                thislayer = self.layers[n]
+                for i in range(howfar):
+                    self.layers[n-i] = self.layers[n-i-1]
+                self.layers[n-howfar] = thislayer
+                thislayer.lower_layer(howfar)
+            else:
+                return
+        finally:
+            self.releaseGfxLock()
         switchboard.notify((self, 'layers changed'))
         self.sensitize_menus()
         self.draw()
         self.newLayerMembers()
 
     def lowerLayer(self, menuitem, n):
-        self.display.lower_layer(n)
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.draw()
-        self.newLayerMembers()
+        self.lowerLayerBy(n, 1)
         
     def lowerToBottom(self, menuitem, n):
-        self.display.layer_to_bottom(n)
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.draw()
-        self.newLayerMembers()
+        self.lowerLayerBy(n, n)
 
     def lowerBy(self, menuitem, n, howfar):
-        self.display.lower_layer_by(n, howfar)
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.draw()
-        self.newLayerMembers()
+        self.lowerLayerBy(n, howfar)
 
     def reorderLayers(self, menuitem):
-        self.display.reorderLayers()
+        self.sortLayers(forced=True)
         switchboard.notify((self, 'layers changed'))
         self.sensitize_menus()
         self.draw()
@@ -1304,7 +1327,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def listedLayers(self):             # for testing
         result = []
-        for layer in self.display:
+        for layer in self.layers:
             if layer.listed:
                 result.append(layer)
         return result
@@ -1314,12 +1337,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         # animation, by asking the unfrozen AnimationLayers for their
         # times.
         times = set()
-        layersetsseen = set() # only need to check one layer in each layerset
-        for layer in self.display.layers:
+        for layer in self.layers:
             if (isinstance(layer, display.AnimationLayer) 
-                and layer.animatable(self)
-                and layer.layerset not in layersetsseen):
-                layersetsseen.add(layer.layerset)
+                and layer.animatable(self)):
                 when = layer.getParamValue('when')
                 if when is placeholder.latest:
                     times.update(layer.animationTimes(self))
@@ -1327,12 +1347,19 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         times.sort()
         return times
 
-
     def latestTime(self):
         times = self.findAnimationTimes()
         if times:
             return max(times)
         return None
+
+    def dumpLayers(self, menuitem, filename):
+        for i, layer in enumerate(self.layers):
+            if not layer.empty():
+                fname = filename + '%02d' % i + ".png"
+                print "Saving layer", layer.short_name(), "as", fname
+                layer.canvaslayer.writeToPNG(fname)
+            
 
     #####################################
 
@@ -1350,19 +1377,18 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     def removeWho(self, whoclassname, whoname):
         path = labeltree.makePath(whoname)
         # In each layer containing the removed Who, replace the Who with Nobody.
-        for layerset in self.layerSets:
-            layerpath = labeltree.makePath(layerset.who.path())
-            if layerpath == path and \
-                   layerset.who.getClass().name()==whoclassname:
-                layerset.changeWho(who=whoville.nobody)
-        # self.draw()                     # update graphics display
-
+        for layer in self.layers:
+            layerpath = labeltree.makePath(layer.who.path())
+            if (layer.who.getClass().name() == whoclassname and
+                layerpath == path):
+                layer.setWho(whoville.nobody)
+            
         switchboard.notify((self, 'layers changed'))
         
-        # There is a race condition between the newLayerMembers
-        # and the redraw, which results (in the unbuffered case) in
-        # the color map not being removed properly if the draw
-        # precedes the newLayerMembers.
+        # There is a race condition between the newLayerMembers and
+        # the redraw, which results (in the unbuffered case) in the
+        # color map not being removed properly if the draw precedes
+        # the newLayerMembers.  TODO: Is this still true?
         self.newLayerMembers()
         self.draw()
         
@@ -1394,11 +1420,11 @@ class DefaultLayer:
         self.whoclass = whoclass
         self.displaymethodfn = displaymethodfn
 
-    def createLayerSet(self):
+    def createLayer(self):
         if self.whoclass.nActual() == 1:
-            layerset = display.LayerSet(self.whoclass.actualMembers()[0])
-            layerset.addMethod(self.displaymethodfn())
-            return layerset
+            return (self.displaymethodfn(),
+                    self.whoclass.actualMembers()[0])
+        return None, None
 
 # Predefined layers are created whenever a graphics window is opened
 # by GhostGfxWindow.createPredefinedLayers(), without checking for the
@@ -1412,12 +1438,10 @@ class PredefinedLayer:
         self.whoclass = whoville.getClass(whoclassname)
         self.path = path
         self.displaymethodfn = displaymethodfn
-    def createLayerSet(self):
-        layerset = display.LayerSet(self.whoclass[self.path])
+    def createLayer(self):
         displaymethod = self.displaymethodfn()
         displaymethod.listed = 0
-        layerset.addMethod(displaymethod)
-        return layerset
+        return displaymethod, self.whoclass[self.path]
 
 ################################################
 

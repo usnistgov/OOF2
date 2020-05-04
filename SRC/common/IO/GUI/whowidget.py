@@ -111,7 +111,8 @@ class WhoWidgetBase:
         # those which satisfy both the passed-in condition *and* are
         # proxies.
         self.proxy_names = [x[0]  for x in classlist[-1].keys(
-            condition = lambda x: self.condition(x) and not whoville.excludeProxies(x),
+            condition = (lambda x: self.condition(x) and
+                         not whoville.excludeProxies(x)),
             sort=self.sort)]
         
         # Make sure that value contains a setting for each chooser widget
@@ -311,7 +312,7 @@ class WhoParameterWidgetBase(parameterwidgets.ParameterWidget,
         frame = Gtk.Frame()
         frame.set_shadow_type(Gtk.ShadowType.IN)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
-                       **kwargs)
+                       margin=2, **kwargs)
         frame.add(vbox)
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name)
         for d in range(depth):
@@ -372,9 +373,14 @@ class WhoClassParameterWidget(parameterwidgets.ParameterWidget):
         self.chooser.update(whoville.classNames(self.condition))
     def chooserCB(self, name):
         switchboard.notify(self, interactive=1)
+        self.widgetChanged(self.get_value() is not None, interactive=True)
     def set_value(self, value):
         self.chooser.set_state(value)   # does not call chooserCB
         switchboard.notify(self, interactive=0)
+        # Use self.get_value(), not value, to check validity, because
+        # value may be None, in which case the actual value is
+        # whatever's first in the Chooser.
+        self.widgetChanged(self.get_value() is not None, interactive=False)
     def get_value(self):
         return self.chooser.get_value()
     def cleanUp(self):
@@ -402,15 +408,18 @@ class AnyWhoParameterWidget(parameterwidgets.ParameterWidget,
             lambda w: isinstance(w, WhoClassParameterWidget))
         self.whopwidget = None          # enclosed WhoParameterWidget
         self.whoclassname = None
+        self.whoSignal = None
         self.quargs = kwargs.copy()
         self.buildWidget()
         self.set_value(value)
-        self.sb = switchboard.requestCallbackMain(self.classwidget,
-                                                  self.classChangedCB)
+        self.classSignal = switchboard.requestCallbackMain(
+            self.classwidget, self.classChangedCB)
     def cleanUp(self):
         parameterwidgets.ParameterWidget.cleanUp(self)
-        switchboard.removeCallback(self.sb)
-    def classChangedCB(self, **kwargs):
+        switchboard.removeCallback(self.classSignal)
+        if self.whoSignal:
+            switchboard.removeCallback(self.whoSignal)
+    def classChangedCB(self, *args, **kwargs):
         if self.classwidget.get_value() != self.whoclassname:
             self.buildWidget()
     def buildWidget(self):
@@ -428,12 +437,19 @@ class AnyWhoParameterWidget(parameterwidgets.ParameterWidget,
                                              sort=whoville.proxiesLast,
                                              condition=lambda x:1,
                                              **self.quargs)
+        if self.whoSignal:
+            switchboard.removeCallback(self.whoSignal)
+        self.whoSignal = switchboard.requestCallbackMain(self.whopwidget,
+                                                         self.whoChangedCB)
         self.gtk.pack_start(self.whopwidget.gtk,
                             expand=False, fill=False, padding=0)
         self.gtk.show_all()
-
+        self.widgetChanged(self.get_value() is not None, interactive=False)
+    def whoChangedCB(self, *args):
+        self.widgetChanged(self.get_value() is not None, interactive=True)
     def set_value(self, value):
         self.whopwidget.set_value(value)
+        self.widgetChanged(self.get_value() is not None, interactive=False)
     def get_value(self):
         return self.whopwidget.get_value()
 

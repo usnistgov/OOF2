@@ -25,7 +25,7 @@ class PinnedNodesDisplay(display.DisplayMethod):
         self.size = size
         display.DisplayMethod.__init__(self)
     def draw(self, gfxwindow, canvaslayer):
-        skel = self.who().resolve(gfxwindow)
+        skel = self.who.resolve(gfxwindow)
         clr = color.canvasColor(self.color)
         for node in skel.pinnednodes.retrieve():
             dot = oofcanvas.CanvasDot(node.position().x, node.position().y,
@@ -34,7 +34,7 @@ class PinnedNodesDisplay(display.DisplayMethod):
             canvaslayer.addItem(dot)
     def getTimeStamp(self, gfxwindow):
         return max(self.timestamp,
-                   self.who().resolve(gfxwindow).pinnednodes.timestamp)
+                   self.who.resolve(gfxwindow).pinnednodes.timestamp)
 
 defaultPinNodeColor = color.RGBColor(0.93, 0.93, 0.0)
 defaultPinNodeSize = 2

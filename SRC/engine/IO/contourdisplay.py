@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -84,7 +83,7 @@ class ZDisplay(displaymethods.MeshDisplayMethod):
             return 1
         return 0
     
-    def explicit_contour_hide(self):
+    def explicit_contour_hide(self): # Not used?
         self.contourmap_user_hide = 1
         self.hide_contourmap()
         
@@ -95,7 +94,7 @@ class ZDisplay(displaymethods.MeshDisplayMethod):
         self.contourmaphidden = False
 
     def incomputable(self, gfxwindow):
-        mesh = self.who().resolve(gfxwindow)
+        mesh = self.who.resolve(gfxwindow)
         return (self.what.incomputable(mesh) or 
                displaymethods.MeshDisplayMethod.incomputable(self, gfxwindow))
 
@@ -194,7 +193,7 @@ class PlainContourDisplay(ContourDisplay):
 
     def draw(self, gfxwindow, canvaslayer):
         self.lock.acquire()
-        meshctxt = mainthread.runBlock(self.who().resolve, (gfxwindow,))
+        meshctxt = mainthread.runBlock(self.who.resolve, (gfxwindow,))
         mesh = meshctxt.getObject()
         meshctxt.restoreCachedData(self.getTime(meshctxt, gfxwindow))
         prog = progress.getProgress("Contour plot", progress.DEFINITE)
@@ -303,7 +302,7 @@ class FilledContourDisplay(ContourDisplay):
     # Called on a subthread
     def draw(self, gfxwindow, canvaslayer):
         self.lock.acquire()
-        meshctxt = mainthread.runBlock(self.who().resolve, (gfxwindow,))
+        meshctxt = mainthread.runBlock(self.who.resolve, (gfxwindow,))
         mesh = meshctxt.getObject()
         meshctxt.restoreCachedData(self.getTime(meshctxt, gfxwindow))
         prog = progress.getProgress("Contour plot", progress.DEFINITE)

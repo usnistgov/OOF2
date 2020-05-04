@@ -29,7 +29,7 @@ class SkeletonNodeSelectionDisplay(display.DisplayMethod):
         self.size = size
         display.DisplayMethod.__init__(self)
     def draw(self, gfxwindow, canvaslayer):
-        skel = self.who().resolve(gfxwindow)
+        skel = self.who.resolve(gfxwindow)
         if skel is not None:
             clr = color.canvasColor(self.color)
             retr = skel.nodeselection.retrieve().copy()
@@ -47,7 +47,7 @@ class SkeletonNodeSelectionDisplay(display.DisplayMethod):
                 
     def getTimeStamp(self, gfxwindow):
         return max(self.timestamp,
-                   self.who().resolve(gfxwindow).nodeselection.timestamp)
+                   self.who.resolve(gfxwindow).nodeselection.timestamp)
 
 
 

@@ -133,6 +133,13 @@ namespace OOFCanvas {
     layers[0] = moved;
     draw();
   }
+
+  void OffScreenCanvas::reorderLayers(const std::vector<CanvasLayer*> *neworder)
+  {
+    // reorderLayers should be called with a list of layers that is
+    // the same as the existing list, but in a different order.
+    layers = *neworder;		// vector copy
+  }
   
   void OffScreenCanvas::setBackgroundColor(double r, double g, double b) {
     bgColor = Color(r, g, b);

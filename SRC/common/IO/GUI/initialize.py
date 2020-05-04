@@ -40,7 +40,6 @@ import ooflib.common.IO.GUI.mainthreadGUI
 import ooflib.common.IO.GUI.activeareaPage
 import ooflib.common.IO.GUI.progressbarGUI
 import ooflib.common.IO.GUI.tutorialsGUI
-import ooflib.common.IO.GUI.layereditorGUI
 
 import ooflib.SWIG.common.IO.GUI.progressGUI
 

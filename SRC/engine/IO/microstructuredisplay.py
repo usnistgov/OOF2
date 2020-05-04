@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -26,7 +25,7 @@ from ooflib.common.IO import xmlmenudump
 
 class MSMaterialDisplay(display.DisplayMethod):
     def getTimeStamp(self, gfxwindow):
-        microstructure = self.who().getObject(gfxwindow)
+        microstructure = self.who.getObject(gfxwindow)
         return max(display.DisplayMethod.getTimeStamp(self, gfxwindow),
                    material.getMaterialTimeStamp(microstructure))
 
@@ -37,7 +36,7 @@ class MicrostructureMaterialDisplay(MSMaterialDisplay):
         self.no_color = no_color    # color if Material has no ColorProperty
         MSMaterialDisplay.__init__(self)
     def draw(self, gfxwindow, canvaslayer):
-        microstructure = self.who().getObject(gfxwindow)
+        microstructure = self.who.getObject(gfxwindow)
         # The MaterialImage object created here is just a lightweight
         # wrapper that houses the makeCanvasImage method.  It's an
         # artefact of the days when we had an OutputDevice with a
@@ -74,7 +73,7 @@ class OrientationDisplay(MSMaterialDisplay):
         self.no_material = no_material
         MSMaterialDisplay.__init__(self)
     def draw(self, gfxwindow, canvaslayer):
-        msobj = self.who().getObject(gfxwindow)
+        msobj = self.who.getObject(gfxwindow)
         oimg = orientationimage.OrientationImage(msobj,
                                                 self.colorscheme,
                                                 self.no_material,

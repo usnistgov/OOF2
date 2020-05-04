@@ -37,7 +37,7 @@ class BitmapOverlayDisplayMethod(display.DisplayMethod):
         display.DisplayMethod.__init__(self)
     def draw(self, gfxwindow, canvaslayer):
         canvaslayer.removeAllItems()
-        bitmap = self.who().resolve(gfxwindow).getBitmap()
+        bitmap = self.who.resolve(gfxwindow).getBitmap()
         if bitmap is None or bitmap.empty():
             return
         bitmap.setColor(self.color)
