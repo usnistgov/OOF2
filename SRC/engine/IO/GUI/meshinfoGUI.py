@@ -45,17 +45,8 @@ class MeshInfoMode:
 
         self.gtk = Gtk.Frame(label=self.targetname + " Information",
                              shadow_type=Gtk.ShadowType.IN)
-        scroll = Gtk.ScrolledWindow()
-        gtklogger.logScrollBars(scroll, self.targetname+"Info")
-        scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        self.gtk.add(scroll)
-        # This vbox just keeps the table from expanding inside the
-        # scrolledwindow.
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
-                       margin=2)
-        scroll.add(vbox)
-        self.table = Gtk.Grid(row_spacing=1, column_spacing=2)
-        vbox.pack_start(self.table, expand=False, fill=False, padding=0)
+        self.table = Gtk.Grid(row_spacing=1, column_spacing=2, margin=2)
+        self.gtk.add(self.table)
 
     def destroy(self):
         mainthread.runBlock(self.gtk.destroy)

@@ -60,7 +60,7 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
             if self.table:
                 self.table.destroy()
             self.tablelabels = []
-            self.table = Gtk.Grid()
+            self.table = Gtk.Grid(margin=2, row_spacing=1, column_spacing=1)
             self.gtk.add(self.table)
 
             # Choosers for mapping and interpolation order

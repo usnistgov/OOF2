@@ -35,12 +35,8 @@ class SkeletonInfoMode:
 
         self.gtk = Gtk.Frame(label=self.targetname + " Information",
                              shadow_type=Gtk.ShadowType.IN)
-        scroll = Gtk.ScrolledWindow()
-        gtklogger.logScrollBars(scroll, self.targetname+"Information")
-        scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        self.gtk.add(scroll)
         self.table = Gtk.Grid(row_spacing=1, column_spacing=2, margin=2)
-        scroll.add(self.table)
+        self.gtk.add(self.table)
 
         self.sbcallbacks = [
             switchboard.requestCallback("groupset member resized",
