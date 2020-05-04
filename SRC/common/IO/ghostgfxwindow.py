@@ -1261,12 +1261,13 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def raiseLayerBy(self, n, howfar):
         # n is the layer number
+        debug.fmsg("n=", n, "howfar=", howfar)
         self.acquireGfxLock()
         try:
-            if howfar > 0 and 0 < n < self.nLayers()-howfar:
+            if howfar > 0 and 0 <= n < self.nLayers()-howfar:
                 thislayer = self.layers[n]
                 for i in range(howfar):
-                    self.layers[n+i] = self.layers[n+i-1]
+                    self.layers[n+i] = self.layers[n+i+1]
                 self.layers[n+howfar] = thislayer
                 thislayer.raise_layer(howfar) # raises it in OOFCanvas
                 ## TODO GTK3: the gtk2 version incremented a timestamp
