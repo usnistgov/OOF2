@@ -269,9 +269,9 @@ namespace OOFCanvas {
     const
   {
     left = radius;
-    right = left;
-    up = left;
-    down = left;
+    right = radius;
+    up = radius;
+    down = radius;
   }
 
   void CanvasDot::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {

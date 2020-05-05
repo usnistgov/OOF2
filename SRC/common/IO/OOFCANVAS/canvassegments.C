@@ -29,11 +29,6 @@ namespace OOFCanvas {
 
   void CanvasSegments::addSegment(double x0, double y0, double x1, double y1) {
     addSegment(Coord(x0, y0), Coord(x1, y1));
-    // segments.emplace_back(x0, y0, x1, y1);
-    // bbox0.swallow(Coord(x0, y0));
-    // bbox0.swallow(Coord(x1, y1));
-    // bbox = bbox0;
-    // modified();
   }
 
   void CanvasSegments::addSegment(const Coord &p0, const Coord &p1) {

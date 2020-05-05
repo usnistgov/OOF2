@@ -36,6 +36,7 @@ namespace OOFCanvas {
     bool allowMotion;
     int lastButton;		// last mousebutton pressed
     bool buttonDown;
+    double marginFactor;
 
     void initSignals();
     virtual void doCallback(const std::string&, const Coord&,
@@ -70,6 +71,7 @@ namespace OOFCanvas {
     void zoomAbout(const Coord&, double factor);
     void zoomToFill();
     void center();
+    void setZoomMargin(double);
 
     void removeMouseCallback();
     void allowMotionEvents(bool allow) { allowMotion = allow; }

@@ -31,6 +31,7 @@ namespace OOFCanvas {
       allowMotion(false),
       lastButton(0),
       buttonDown(false),
+      marginFactor(0.02),
       rubberBandLayer(this, "rubberbandlayer"),
       rubberBand(nullptr),
       rubberBandBufferFilled(false),
@@ -284,7 +285,7 @@ namespace OOFCanvas {
       // decreases from infinity, some of the CanvasItems will grow,
       // and may protrude through the sides of bboxInf.  We need to
       // find the smallest ppu such that the expanded bbox fits inside
-      // a rectangle of (size widgetWidth(), widgetHeight()).
+      // a rectangle of size (widgetWidth(), widgetHeight()).
       
       // The distance in device units that an item i protrudes through
       // the right side of bboxInf is
