@@ -504,6 +504,7 @@ class SkeletonBase:
     def _get_intersections_with_element(self, local_seg, skel_el):
         skel_segs = skel_el.getSegments(self)
         isec_set = {}
+        #
         for s in skel_segs:
             nds = s.nodes()
             c1 = nds[0].position()
@@ -522,8 +523,11 @@ class SkeletonBase:
     # segment, and entry point, returns either (None, None) if the
     # segment terminates inside the current element, or otherwise, the
     # next element along the segment.
-    def get_intersection_and_next_element(self, local_seg, skel_el, entry):
+    def get_intersection_and_next_element(self, local_seg, skel_el,
+                                          entry, prior_element):
 
+
+        
         # First, see if we're already done -- if the current element
         # encloses the trailing point of the local segment, there is
         # no next element.
@@ -532,20 +536,49 @@ class SkeletonBase:
         
         # Find all the intersections with this element.
         isec_set = self._get_intersections_with_element(local_seg, skel_el)
-
+        
         # Remove the intersection we already know about -- it's not an
         # allowed "exit" intersection.
 
-        ## TODO?: The keys in the isec_set dictionary need to be
-        ## tuples containing both the intersection point and the
-        ## element from which the traversal is arriving.  This
-        ## function needs to know that previous element as well.  If
-        ## the current element is degenerate, the entry point and exit
-        ## point might be identical, so using the entry point alone as
-        ## a key is insufficient.  This may have been fixed already.
+        # The code below handles a case where, if an element is
+        # degenerate, or if the ray "nicks the corner" of the element,
+        # the entry point and the exit point can coincide, in which
+        # case just deleting the segment list indexed by the entry
+        # point will incorrectly lead to the algorithm finding no
+        # exits, and concluding that the ray terminates inside the
+        # element.  Instead, if we find a matching key for the entry
+        # point, we check the segment list, and if there's more than
+        # one segment, we rebuild this list without the segment whose
+        # element list contains the element we came from.
+        # TODO: Prior behavior is preserved if you call it with
+        # "None" as the prior element. Analsysidomain.py does this.
         if entry:
-            del isec_set[entry]
-
+            entry_segs = isec_set[entry]
+            if ((len(entry_segs)==1) or (prior_element is None)):
+                del isec_set[entry]
+            else:
+                # If *none* of the segments have the prior element,
+                # then we entered through a corner, and we should
+                # still delete the whole entry.
+                prior_adjacency = []
+                for s in entry_segs:
+                    if (prior_element in s.getElements()):
+                        prior_adjacency.append(s)
+                if len(prior_adjacency)==0:
+                    del isec_set[entry]
+                else:
+                    # If at least one of the segments has the prior
+                    # element, delete *only* *that* *one*.
+                    exit_segs = []
+                    for s in entry_segs:
+                        if not (s in prior_adjacency):
+                            exit_segs.append(s)
+                    # Modify the entry to only have those segments
+                    # which are not adjacent to the prior element.
+                    isec_set[entry] = exit_segs
+                        
+                    
+                    
         # If there is no exit intersection, but the interiority check
         # on the end-point failed (i.e. it gave the result "exterior"
         # for the end-point of local_seg), then the end-point must be
@@ -703,14 +736,17 @@ class SkeletonBase:
         center = el.center()
         straw = primitives.Segment(center, point)
 
+        print "Straw is ", straw
+        
         entry = None
+        prior_el = None 
         while(el):
-            last_el = el
+            current_el = el
             (entry, el) = self.get_intersection_and_next_element(
-                straw, last_el, entry)
-            
-        self._found_element = weakref.ref(last_el)
-        return last_el
+                straw, current_el, entry, prior_el)
+            prior_el = current_el
+        self._found_element = weakref.ref(current_el)
+        return current_el
 
         
 

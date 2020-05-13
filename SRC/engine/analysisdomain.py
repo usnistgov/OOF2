@@ -314,12 +314,12 @@ class CrossSectionDomain(Domain):
             # the spurious intersection.
             (isec, new_el) = \
                    skeleton.get_intersection_and_next_element(
-                local_segment, last_el, None)
+                       local_segment, last_el, None, None)
         except ooferror.ErrPyProgrammingError, e:
             if e.summary()=="Segment exits element multiple times.":
                 (isec, new_el) = \
                        skeleton.get_intersection_and_next_element(
-                    local_segment, last_el, real_start)
+                           local_segment, last_el, real_start, None)
             else:
                 raise 
             
