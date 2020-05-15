@@ -48,6 +48,7 @@ namespace OOFCanvas {
     double ppu;	// pixels per unit. Converts user coords to device coords
     
     Color bgColor;
+    double margin;
 
     void setTransform(double);
     virtual void setWidgetSize(int, int) {}
@@ -61,7 +62,7 @@ namespace OOFCanvas {
     OffScreenCanvas(double ppu);
     virtual ~OffScreenCanvas();
 
-    ICoord boundingBoxSizeInPixels() const;
+    virtual ICoord bitmapSize() const;
     
     double getPixelsPerUnit() const { return ppu; }
 
@@ -73,6 +74,7 @@ namespace OOFCanvas {
     double pixel2user(double) const;
 
     void antialias(bool);
+    void setMargin(double);
 
     bool empty() const;		// Is anything drawn?
 

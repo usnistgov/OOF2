@@ -106,6 +106,7 @@ namespace OOFCanvas {
 
     // angle measured from the x axis, counterclockwise.
     double angle() const;
+    Coord interpolate(double) const;
   };
 
   std::ostream &operator<<(std::ostream&, const Segment&);

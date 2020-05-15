@@ -218,7 +218,6 @@ private:
   CanvasItem();			// private constructor is not swigged
   ~CanvasItem();
 public:
-  Rectangle boundingBox();
   void drawBoundingBox(double, Color&);
 };
 
@@ -311,8 +310,7 @@ public:
 
 class CanvasArrowhead : public CanvasItem {
 public:
-  CanvasArrowhead(CanvasSegment*, double, double, double);
-  void setReversed();
+  CanvasArrowhead(CanvasSegment*, double, double, double, bool);
   void setPixelSize();
   %addmethods {
     %new const string *__repr__() {
@@ -451,6 +449,7 @@ public:
   void draw();
   double getPixelsPerUnit();
   void antialias(bool);
+  void setMargin(double);
   void setBackgroundColor(double, double, double);
   %name(clickedItems) %new CanvasItemList* clickedItems_new(double, double);
   %name(allItems) %new CanvasItemList* allItems_new();

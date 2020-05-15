@@ -63,7 +63,7 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
                     seg.setLineWidthInPixels()
                     seg.setLineColor(clr)
                     arrow = oofcanvas.CanvasArrowhead(
-                        seg, 0.5, 0.7*self.arrowsize, self.arrowsize)
+                        seg, 0.5, 0.7*self.arrowsize, self.arrowsize, False)
                     canvaslayer.addItem(seg)
                     canvaslayer.addItem(arrow)
 
@@ -92,11 +92,11 @@ skeletonBoundaryDisplay = registeredclass.Registration(
                                       tip="Boundaries to display."),
             color.ColorParameter('color', value=color.gray50,
                                  tip="Color for the displayed boundaries."),
-            parameter.IntRangeParameter('linewidth', widthRange, 4,
+            parameter.IntRangeParameter('linewidth', widthRange, 3,
                                         tip="Line width for edge boundaries."),
             parameter.IntRangeParameter('dotsize', widthRange, 4,
                                         tip="Dot radius for point boundaries."),
-            parameter.IntRangeParameter('arrowsize', (0, 20), 10,
+            parameter.IntRangeParameter('arrowsize', (0, 30), 15,
                                         tip="Arrow size for edge boundaries.")],
     ordering=1.0,
     layerordering=display.SemiLinear(2),
@@ -136,7 +136,8 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
             seg.setLineWidth(self.linewidth)
             seg.setLineWidthInPixels()
             arrow = oofcanvas.CanvasArrowhead(seg, 0.5, 0.7*self.arrowsize,
-                                              self.arrowsize)
+                                              self.arrowsize, False)
+            arrow.setPixelSize()
             canvaslayer.addItem(seg)
             canvaslayer.addItem(arrow)
 

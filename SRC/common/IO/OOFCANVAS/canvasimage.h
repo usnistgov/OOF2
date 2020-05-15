@@ -24,7 +24,7 @@ namespace OOFCanvas {
 
   // TODO? Arbitrary rotation.
 
-  class CanvasImage : public CanvasItem, public PixelSized {
+  class CanvasImage : public CanvasItem {
   protected:
     Coord location;	      // lower-left corner in user coordinates
     Coord size;
@@ -39,11 +39,14 @@ namespace OOFCanvas {
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
     void setUp(Cairo::RefPtr<Cairo::ImageSurface>,
 	       double, double);	// displayed size
+    void setSurface(Cairo::RefPtr<Cairo::ImageSurface>, int);
   public:
-    CanvasImage(double x, double y);
+    CanvasImage(const Coord &pos, const Coord &size, const ICoord &npixels);
     virtual const std::string &classname() const;
     friend std::ostream &operator<<(std::ostream&, const CanvasImage&);
     virtual std::string print() const;
+
+    virtual void pixelExtents(double&, double&, double&, double&) const;
 
     static CanvasImage *newBlankImage(double, double, // position
 				 int, int,	 // no. of pixels
@@ -63,12 +66,8 @@ namespace OOFCanvas {
 					   double, double); // displayed size
 #endif // OOFCANVAS_USE_IMAGEMAGICK
 
-    virtual const Rectangle &findBoundingBox(double ppu);
-    void setPixelSize() { pixelScaling = true; }
+    void setPixelSize(); 
     void setDrawIndividualPixels() { drawPixelByPixel = true; }
-    virtual bool pixelSized() const { return pixelScaling; }
-    virtual Coord referencePoint() const { return location; }
-    virtual void pixelExtents(double&, double&, double&, double&) const;
     void set(int x, int y, double r, double g, double b);
     void set(int x, int y, double r, double g, double b, double a);
     void set(int x, int y, unsigned char r, unsigned char g, unsigned char b);

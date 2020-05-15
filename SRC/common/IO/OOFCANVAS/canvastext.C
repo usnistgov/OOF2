@@ -23,8 +23,14 @@
 
 namespace OOFCanvas {
 
+  // The constructor passes the wrong bbox to the CanvasItem
+  // constructor, but that's ok because the CanvasText item can't be
+  // used unless setFont is called, and setFont computes the actual
+  // bounding box.
+
   CanvasText::CanvasText(double x, double y, const std::string &txt)
-    : location(x, y),
+    : CanvasItem(Rectangle()),
+      location(x, y),
       text(txt),
       angle(0),
       color(black),
@@ -42,7 +48,7 @@ namespace OOFCanvas {
 
   void CanvasText::rotate(double ang) {
     angle = M_PI/180.*ang;
-    bbox.clear();
+    findBoundingBox_();
     modified();
   }
 
@@ -55,6 +61,7 @@ namespace OOFCanvas {
     fontName = name;
     bbox.clear();
     modified();
+    findBoundingBox_();
 
     // TODO: Check to see if the name specifies a size in pixels.  If
     // it is, do something appropriate.
@@ -108,18 +115,9 @@ namespace OOFCanvas {
     g_object_unref(layout);
   }
 
-  const Rectangle &CanvasText::findBoundingBox(double ppu) {
-    // Only do the work if the bounding box hasn't been computed or if
-    // the font size is given in pixels, making the bounding box size
-    // change with the ppu.
-    if(bbox.initialized() && !sizeInPixels)
-      return bbox;
-
-    bbox = findBoundingBox_(ppu);
-    return bbox;
-  }
-  
-  Rectangle CanvasText::findBoundingBox_(double ppu) const {
+  void CanvasText::findBoundingBox_() {
+    if(fontName == "")
+      return;
     Rectangle bb;
     // To get the bounding box, we need to have a Cairo::Context, but
     // we need the bounding box to figure out the dimensions of the
@@ -140,7 +138,8 @@ namespace OOFCanvas {
     // The size seems to converge as the ppu increases, until
     // something else goes wrong at large ppu.  (Mac is using pango
     // 1.42.4.  Linux has 1.40.14.)
-    //
+
+    double ppu = 1.0;
     Cairo::Matrix transf(Cairo::scaling_matrix(ppu, ppu));
     ctxt->set_matrix(transf);
 
@@ -181,7 +180,14 @@ namespace OOFCanvas {
       throw;
     }
     g_object_unref(layout);
-    return bb;
+
+    if(sizeInPixels) {
+      bbox = Rectangle(location, location);
+      pixelBBox = bb;
+    }
+    else {
+      bbox = bb;
+    }
   }
 
   void CanvasText::pixelExtents(double &left, double &right,
@@ -190,13 +196,12 @@ namespace OOFCanvas {
   {
     // When ppu=1, the user-space and device-space bounding boxes are
     // the same.
-    Rectangle bb(findBoundingBox_(1.0));
-    left = location.x - bb.xmin();
-    right = bb.xmax() - location.x;
+    left = location.x - pixelBBox.xmin();
+    right = pixelBBox.xmax() - location.x;
     // down and up seem to be reversed because our definition of "up"
     // and pango's definition differ.
-    down = location.y - bb.ymax();
-    up = bb.ymin() - location.y;
+    down = location.y - pixelBBox.ymax();
+    up = pixelBBox.ymin() - location.y;
   }
 
   bool CanvasText::containsPoint(const OffScreenCanvas*, const Coord&) const {

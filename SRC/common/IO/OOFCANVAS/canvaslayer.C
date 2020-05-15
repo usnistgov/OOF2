@@ -36,7 +36,7 @@ namespace OOFCanvas {
   }
 
   void CanvasLayer::clear() {
-    ICoord size(canvas->boundingBoxSizeInPixels());
+    ICoord size(canvas->bitmapSize());
     makeCairoObjs(size.x, size.y);
     context->set_matrix(canvas->getTransform());
 
@@ -97,31 +97,9 @@ namespace OOFCanvas {
       return bbox;
     bbox.clear();
     for(CanvasItem *item : items) {
-      // Don't recompute bbox unless ppu has changed since it was
-      // last computed.
-      if(newppu || !item->boundingBox().initialized())
-	item->findBoundingBox(ppu);
-      bbox.swallow(item->boundingBox());
+      bbox.swallow(item->findBoundingBox(ppu));
     }
     return bbox;
-  }
-
-  std::vector<CanvasItem*> CanvasLayer::pixelSizedItems() const {
-    std::vector<CanvasItem*> result;
-    for(CanvasItem *item : items) {
-      if(item->pixelSized())
-	result.push_back(item);
-    }
-    return result;
-  }
-
-  std::vector<CanvasItem*> CanvasLayer::userSizedItems() const {
-    std::vector<CanvasItem*> result;
-    for(CanvasItem *item : items) {
-      if(!item->pixelSized())
-	result.push_back(item);
-    }
-    return result;
   }
 
   bool CanvasLayer::empty() const {
@@ -240,9 +218,11 @@ namespace OOFCanvas {
   {
     // TODO? Use an R-tree for efficient search.
     for(CanvasItem *item : items) {
-      if(item->boundingBox().contains(pt) && item->containsPoint(canvas, pt)) {
-	clickeditems.push_back(item);
-      }
+      if(item->findBoundingBox(canvas->getPixelsPerUnit()).contains(pt) &&
+	 item->containsPoint(canvas, pt))
+	{
+	  clickeditems.push_back(item);
+	}
     }
   }
 

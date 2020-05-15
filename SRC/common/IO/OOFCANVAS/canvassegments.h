@@ -19,18 +19,17 @@ namespace OOFCanvas {
   class CanvasSegments : public CanvasShape {
   protected:
     std::vector<Segment> segments;
-    Rectangle bbox0;		// bbox not adjusted for line width
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
   public:
-    CanvasSegments() {}
+    CanvasSegments() : CanvasShape(Rectangle()) {}
     CanvasSegments(int n);
     virtual const std::string &classname() const;
     void addSegment(double x0, double y0, double x1, double y1);
     void addSegment(const Coord&, const Coord&);
     void addSegment(const Coord *a, const Coord *b) { addSegment(*a, *b); }
     void setLineWidth(double);
-    virtual const Rectangle &findBoundingBox(double ppu);
+    virtual void pixelExtents(double&, double&, double&, double&) const;
     int size() const { return segments.size(); }
     friend std::ostream &operator<<(std::ostream &, const CanvasSegments&);
     virtual std::string print() const;

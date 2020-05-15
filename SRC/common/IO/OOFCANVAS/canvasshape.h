@@ -26,7 +26,8 @@ namespace OOFCanvas {
     Cairo::LineCap lineCap;
     double lineWidthInUserUnits(Cairo::RefPtr<Cairo::Context>) const;
   public:
-    CanvasShape() :
+    CanvasShape(const Rectangle &rect) :
+      CanvasItem(rect),
       lineWidth(0),
       lineColor(black),
       line(false),
@@ -52,7 +53,11 @@ namespace OOFCanvas {
     bool fill;
     void fillAndStroke(Cairo::RefPtr<Cairo::Context>) const;
   public:
-    CanvasFillableShape() : fillColor(black), fill(false) {
+    CanvasFillableShape(const Rectangle &rect)
+      : CanvasShape(rect),
+	fillColor(black),
+	fill(false)
+    {
       line = false;
     }
     virtual ~CanvasFillableShape() {}

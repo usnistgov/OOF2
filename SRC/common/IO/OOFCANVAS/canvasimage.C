@@ -23,8 +23,11 @@ namespace OOFCanvas {
 
   static bool littleEndian = getLittleEndian();
 
-  CanvasImage::CanvasImage(double x, double y)
-    : location(Coord(x, y)),	// position of lower left corner in user units
+  CanvasImage::CanvasImage(const Coord &loc, const Coord &sz, const ICoord &pix)
+    : CanvasItem(Rectangle(loc, loc+sz)),
+      location(loc),	// position of lower left corner in user units
+      size(sz),
+      pixels(pix),
       opacity(1.0),
       pixelScaling(false),
       drawPixelByPixel(true),
@@ -142,14 +145,6 @@ namespace OOFCanvas {
     }
     return Color(r/255., g/255., b/255., a/255.);
   }
-  
-  const Rectangle &CanvasImage::findBoundingBox(double ppu) {
-    if(pixelScaling)
-      bbox = Rectangle(location, location + size/ppu);
-    else
-      bbox = Rectangle(location, location+size);
-    return bbox;
-  }
 
   void CanvasImage::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
     if(!drawPixelByPixel) {
@@ -196,6 +191,7 @@ namespace OOFCanvas {
       // drawPixelByPixel==true
       ctxt->save();
       ctxt->set_antialias(Cairo::ANTIALIAS_NONE);
+      // TODO GTK3: If pixelScaling is true, dx and dy need to be adjusted.
       double dx = size.x/pixels.x;
       double dy = size.y/pixels.y;
       for(unsigned int j=0; j<pixels.y; j++) {
@@ -215,15 +211,27 @@ namespace OOFCanvas {
     }
   }
 
+  void CanvasImage::setPixelSize() {
+    // Change from user units to pixel units.
+    pixelScaling = true;
+    // The "bare" bounding box is just a point.
+    bbox = Rectangle(location, location);
+  }
+
   void CanvasImage::pixelExtents(double &left, double &right,
 				 double &up, double &down)
     const
   {
-    // Only called if pixelScaling==true
     left = 0.0;
-    right = size.x;
-    up = size.y;
     down = 0.0;
+    if(pixelScaling) {
+      right = size.x;
+      up = size.y;
+    }
+    else {
+      right = 0.0;
+      up = 0.0;
+    }
   }
 
   bool CanvasImage::containsPoint(const OffScreenCanvas*, const Coord&) const {
@@ -249,34 +257,36 @@ namespace OOFCanvas {
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-  void CanvasImage::setUp(Cairo::RefPtr<Cairo::ImageSurface> surface,
-			  double width, double height)
-  {
-    imageSurface = surface;
-    buffer = surface->get_data();
-    pixels = ICoord(surface->get_width(), surface->get_height());
-    stride = Cairo::ImageSurface::format_stride_for_width(surface->get_format(),
-							  pixels.x);
+  // Utility functions used when creating CanvasImages
 
-    // "size" is the displayed size of the image, given by the
-    // width and height. They're assumed to be
-    // in user units unless setPixelSize() is called, in which case
-    // they're in device units. If one of height or width is negative,
-    // it's computed from the other dimension and the aspect ratio,
-    // assuming that pixels are square.  If both are negative, the
-    // pixels are assumed to be 1x1.
-    if(height <= 0 && width <= 0) {
-      width = pixels.x;
-      height = pixels.y;
-    }
-    else if(height <= 0) {
-      height = width*pixels.y/pixels.x;
-    }
-    else if(width <= 0) {
-      width = height*pixels.x/pixels.y;
-    }
-    size = Coord(width, height);
+  // If an image's physical (displayed) size has one or more negative
+  // components, the actual value of that component is inferred from
+  // the size in pixels, assuming that pixels are square.
+
+  static Coord imageSize(double width, double height,
+			 double pixWidth, double pixHeight)
+  {
+    if(width <= 0 && height <=0)
+      return Coord(pixWidth, pixHeight); // assume pixels are 1x1 
+    if(height <= 0)
+      return Coord(width, width*pixHeight/pixWidth); // assume square pixels
+    if(width <= 0)
+      return Coord(height*pixWidth/pixHeight, height); // assume square pixels
+    return Coord(width, height);
   }
+
+  void CanvasImage::setSurface(Cairo::RefPtr<Cairo::ImageSurface> surf,
+			       int width)
+  {
+    imageSurface = surf;
+    buffer = surf->get_data();
+    stride = Cairo::ImageSurface::format_stride_for_width(surf->get_format(),
+							  width);
+  }
+
+  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+  // Factory methods for creating CanvasImages from different sources
 
   // static
   CanvasImage *CanvasImage::newBlankImage(
@@ -286,9 +296,13 @@ namespace OOFCanvas {
 			  double r, double g, double b, // color
 			  double a)			// opacity
   {
-    CanvasImage *canvasImage = new CanvasImage(x, y);
-    canvasImage->setUp(Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h),
-		       width, height);
+    CanvasImage *canvasImage = new CanvasImage(Coord(x, y),
+					       imageSize(width, height, w, h),
+					       ICoord(w, h));
+    Cairo::RefPtr<Cairo::ImageSurface> surf =
+      Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
+    canvasImage->setSurface(surf, w);
+
     int stride = canvasImage->stride;
     unsigned char *buffer = canvasImage->buffer;
     if(littleEndian) {
@@ -325,9 +339,16 @@ namespace OOFCanvas {
 					   const std::string &filename,
 					   double width, double height)
   {
-    CanvasImage *canvasImage = new CanvasImage(x,y);
-    canvasImage->setUp(Cairo::ImageSurface::create_from_png(filename),
-		       width, height);
+    // Read the file first, to get the size in pixels.
+    Cairo::RefPtr<Cairo::ImageSurface> surf =
+      Cairo::ImageSurface::create_from_png(filename);
+    int w = surf->get_width();	// pixel sizes
+    int h = surf->get_height();
+    CanvasImage *canvasImage = new CanvasImage(
+				       Coord(x,y),
+				       imageSize(width, height, w, h),
+				       ICoord(w, h));
+    canvasImage->setSurface(surf, w);
     return canvasImage;
   }
 
@@ -348,12 +369,17 @@ namespace OOFCanvas {
 					       Magick::Image image,
 					       double width, double height)
   {
-    CanvasImage *canvasImage = new CanvasImage(x,y);
     Magick::Geometry sz = image.size();
     int w = sz.width();
     int h = sz.height();
-    canvasImage->setUp(Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h),
-		       width, height);
+    CanvasImage *canvasImage = new CanvasImage(Coord(x,y),
+					       imageSize(width, height, w, h),
+					       ICoord(w, h));
+    Cairo::RefPtr<Cairo::ImageSurface> surf =
+      Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
+    canvasImage->setSurface(surf, w);
+    // canvasImage->setUp(Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h),
+    // 		       width, height);
 
     // Copy pixel data from ImageMagick to the Cairo buffer.
     // Cairo uses libpixman for image storage.  There is no

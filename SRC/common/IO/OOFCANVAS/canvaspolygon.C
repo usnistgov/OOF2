@@ -14,7 +14,13 @@
 
 namespace OOFCanvas {
 
-  CanvasPolygon::CanvasPolygon(int n) {
+  CanvasPolygon::CanvasPolygon()
+    : CanvasFillableShape(Rectangle())
+  {}
+
+  CanvasPolygon::CanvasPolygon(int n)
+    : CanvasFillableShape(Rectangle())
+  {
     corners.reserve(n);
   }
 
@@ -25,25 +31,26 @@ namespace OOFCanvas {
 
   void CanvasPolygon::addPoint(double x, double y) {
     corners.emplace_back(x, y);
-    bbox0.swallow(corners.back());
-    modified();
+    bbox.swallow(corners.back());
+    modified();			// TODO: Do we still need this?
   }
 
   void CanvasPolygon::setLineWidth(double w) {
     CanvasShape::setLineWidth(w);
-    modified();
+    modified();			// TODO: Do we still need this?
   }
 
-  const Rectangle &CanvasPolygon::findBoundingBox(double ppu) {
-    bbox = bbox0;
-    if(!line || lineWidth == 0.0) {
-      return bbox;
-    }
-    double w = lineWidth;
-    if(lineWidthInPixels)
-      w /= ppu;
-    bbox.expand(0.5*w);
-    return bbox;
+  void CanvasPolygon::pixelExtents(double &right, double &left,
+				   double &up, double &down)
+    const
+  {
+    // Doing this right would involve taking the angles of the
+    // segments into account and is probably not worth the trouble.
+    double halfw = 0.5*lineWidth;
+    right = halfw;
+    left = halfw;
+    up = halfw;
+    down = halfw;
   }
 
   void CanvasPolygon::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {

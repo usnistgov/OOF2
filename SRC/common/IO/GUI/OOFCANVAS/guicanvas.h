@@ -36,7 +36,6 @@ namespace OOFCanvas {
     bool allowMotion;
     int lastButton;		// last mousebutton pressed
     bool buttonDown;
-    double marginFactor;
 
     void initSignals();
     virtual void doCallback(const std::string&, const Coord&,
@@ -64,14 +63,14 @@ namespace OOFCanvas {
     int widgetHeight() const;
     // layoutSize is the full size of the drawable area, in pixels.
     // It may be different than the size of the widget.
-    ICoord layoutSize() const;
+    virtual ICoord bitmapSize() const;
+
 
     void zoom(double);
     void zoomAbout(double x, double y, double factor);
     void zoomAbout(const Coord&, double factor);
     void zoomToFill();
     void center();
-    void setZoomMargin(double);
 
     void removeMouseCallback();
     void allowMotionEvents(bool allow) { allowMotion = allow; }

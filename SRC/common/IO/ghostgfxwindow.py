@@ -8,10 +8,11 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-
 # The GhostGfxWindow is the underlying non-GUI representation of a
 # graphics window.  The actual graphics window, GfxWindow, is derived
 # from GhostGfxWindow and overrides some of its functions.
+
+## TODO GTK3: Where is the OffScreenCanvas created when not in GUI mode?
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
@@ -1016,6 +1017,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def marginCB(self, menuitem, fraction):
         self.settings.margin = fraction
+        self.draw()
 
     def contourpanewidthCB(self, menuitem, fraction):
         self.settings.contourpanewidth = fraction

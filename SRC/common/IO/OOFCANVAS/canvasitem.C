@@ -16,8 +16,9 @@
 
 namespace OOFCanvas {
 
-  CanvasItem::CanvasItem()
-    : layer(nullptr)
+  CanvasItem::CanvasItem(const Rectangle &rect)
+    : bbox(rect),
+      layer(nullptr)
 #ifdef DEBUG
     , drawBBox(false)
 #endif // DEBUG
@@ -28,6 +29,29 @@ namespace OOFCanvas {
   const std::string &CanvasItem::modulename() const {
     static const std::string name("oofcanvas");
     return name;
+  }
+
+  void CanvasItem::pixelExtents(double &left, double &right,
+				double &up, double &down)
+    const
+  {
+    left = 0.0;
+    right = 0.0;
+    up = 0.0;
+    down = 0.0;
+  }  
+
+  Rectangle CanvasItem::findBoundingBox(double ppu) const {
+    Rectangle bb = findBareBoundingBox();
+    assert(bb.initialized());
+    double pLeft, pRight, pUp, pDown;
+    pixelExtents(pLeft, pRight, pUp, pDown);
+    double upp = 1./ppu;
+    bb.xmin() -= pLeft*upp;
+    bb.xmax() += pRight*upp;
+    bb.ymin() -= pDown*upp;
+    bb.ymax() += pUp*upp;
+    return bb;
   }
 
   void CanvasItem::draw(Cairo::RefPtr<Cairo::Context> ctxt) const {

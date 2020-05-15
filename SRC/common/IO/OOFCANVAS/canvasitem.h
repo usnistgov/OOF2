@@ -18,7 +18,6 @@
 
 namespace OOFCanvas {
   class CanvasItem;
-  class PixelSized;
   class CanvasItemListIterator;
 };
 
@@ -35,10 +34,11 @@ namespace OOFCanvas {
 #endif 
   {
   protected:
-    // Bounding box in user space.  Canvas items that can compute this
-    // when they're constructed should do so.  Canvas items that can't
-    // compute it without knowing the ppu should override
-    // CanvasItem::boundingBox().
+    // bbox is the "bare" bounding box in user space coordinates.
+    // This is the bounding box that the object would have if the
+    // pixels were infinitesimal.  Canvas items that can compute this
+    // when they're constructed should do so.  If they can't, they
+    // need to redefine findBareBoundingBox().
     Rectangle bbox;
     CanvasLayer *layer;
 #ifdef DEBUG
@@ -47,7 +47,7 @@ namespace OOFCanvas {
     Color bboxColor;
 #endif // DEBUG
   public:
-    CanvasItem();
+    CanvasItem(const Rectangle&); // arg is the bare bounding box
     virtual ~CanvasItem();
     virtual const std::string &modulename() const;
 
@@ -59,20 +59,27 @@ namespace OOFCanvas {
     // drawBoundingBox is a no-op unless DEBUG is defined.
     void drawBoundingBox(double, const Color&);
 
-    // findBoundingBox() computes the bounding box if it's not already
-    // known.  Subclasses that can't compute their bounding boxes
-    // unless they know the ppu should override findBoundingBox() and
-    // also be derived from PixelSized.  Subclasses that *can* compute
-    // their bounding box without knowing ppu should do so in their
-    // constructors and in any other methods that affect the bounding
-    // box.
-    virtual const Rectangle &findBoundingBox(double ppu) { return bbox; }
-    // boundingBox() assumes that the bbox is already computed, and
-    // just returns it.
-    const Rectangle &boundingBox() const { return bbox; }
+    // findBareBoundingBox() returns the what the item's bounding box
+    // in user space units would be if the ppu were infinite.  That
+    // is, it's the bounding box when so that any pixel-sized
+    // components of the item have been shrunk to zero.  Most
+    // subclasses can set CanvasItem::bbox in their constructors and
+    // don't need to redefine findBareBoundingBox().
+    virtual const Rectangle& findBareBoundingBox() const { return bbox; }
 
-    virtual bool pixelSized() const { return false; }
+    // pixelExtents returns the distances, in pixel units, that the
+    // object extends beyond its bare bounding box.  The default
+    // implementation returns zeroes.
+    virtual void pixelExtents(double &left, double &right,
+			      double &up, double &down) const;
     
+
+    // findBoundingBox() computes the actual bounding box, including
+    // pixel-sized components, given a value for the pixels per unit.
+    // The default implementation uses findBareBoundingBox and
+    // pixelExtents.
+    Rectangle findBoundingBox(double ppu) const;
+
     // containsPoint computes whether the given point in user
     // coordinates is on the item.  It's used to determine if a mouse
     // click selected the item.  It's called after bounding boxes have
@@ -89,33 +96,6 @@ namespace OOFCanvas {
   };
 
   std::ostream &operator<<(std::ostream&, const CanvasItem&);
-
-  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-  // PixelSized is a mix-in subclass for CanvasItems which are
-  // drawn differently in user-space units when the ppu (pixels per
-  // unit) changes.  Anything whose dimensions are given in pixels
-  // (aka device units) needs to be derived from PixelSized.
-  
-  class PixelSized {
-  public:
-    virtual bool pixelSized() const { return true; }
-
-    // referencePoint() and pixelExtents() are used when computing the
-    // ppu for Canvas::zoomToFill().  referencePoint() returns the
-    // position in user space that the CanvasItem would occupy if the
-    // ppu were infinite (ie, if the item's size were 0).
-    // pixelExtents() gives the number of pixels that the object
-    // extends from the referencePoint in each direction.
-    virtual Coord referencePoint() const = 0;
-    virtual void pixelExtents(double &left, double &right,
-			      double &up, double &down) const = 0;
-
-    // findBoundingBox() is used to get the bounding box when the ppu
-    // is known, in order to compute the size of the Cairo::Surface or
-    // the scroll limits.
-    virtual const Rectangle &findBoundingBox(double ppu) = 0;
-  };
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

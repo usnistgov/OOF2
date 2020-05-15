@@ -17,16 +17,14 @@
 namespace OOFCanvas {
 
   CanvasSegment::CanvasSegment(double x0, double y0, double x1, double y1)
-    : segment(x0, y0, x1, y1),
-      bbox0(x0, y0, x1, y1)
-  {
-  }
+    : CanvasShape(Rectangle(x0, y0, x1, y1)),
+      segment(x0, y0, x1, y1)
+  {}
 
   CanvasSegment::CanvasSegment(const Coord &p0, const Coord &p1)
-    : segment(p0, p1),
-      bbox0(p0, p1)
-  {
-  }
+    : CanvasShape(Rectangle(p0, p1)),
+      segment(p0, p1)
+  {}
 
   const std::string &CanvasSegment::classname() const {
     static const std::string name("CanvasSegment");
@@ -38,11 +36,17 @@ namespace OOFCanvas {
     modified();
   }
 
-  const Rectangle &CanvasSegment::findBoundingBox(double ppu) {
-    double lw = lineWidthInPixels ? lineWidth/ppu : lineWidth;
-    bbox = bbox0;
-    bbox.expand(0.5*lw);
-    return bbox;
+  void CanvasSegment::pixelExtents(double &left, double &right,
+				   double &up, double &down)
+    const
+  {
+    // Doing this right would involve taking the angle of the segment
+    // into account, and is probably not worth the trouble.
+    double halfw = 0.5*lineWidth;
+    left = halfw;
+    right = halfw;
+    up = halfw;
+    down = halfw;
   }
 
   void CanvasSegment::setDashes(const std::vector<double> &d) {
@@ -109,11 +113,47 @@ namespace OOFCanvas {
   //   might look funny.  This might be fixed by creating an arrowhead
   //   shaped mask for the segment, if the mask could be applied only
   //   to the ends of the segment somehow.
+
+  Rectangle CanvasArrowhead::arrowheadBBox(
+		  const CanvasSegment *seg, double position,
+		  double width, double length, bool reversed)
+  {
+    // The easiest way to compute the bounding box is to use a Context
+    // to transform the coordinates, as in drawItem.  But we don't
+    // have a Context when findBoundingBox is called, so create a
+    // dummy one.  See CanvasText for a similar treatment.
+
+    auto surface = Cairo::RefPtr<Cairo::ImageSurface>(
+		      Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, 1, 1));
+    cairo_t *ct = cairo_create(surface->cobj());
+    auto ctxt = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(ct, true));
+    ctxt->save();
+    ctxt->rotate(seg->segment.angle());
+    // Find bounding box in the arrow's coordinates
+    double l = reversed ? length : -length;
+    double w = width/2.;
+    std::vector<Coord> corners({{l, -w}, {0, -w}, {0, w}, {l, w}});
+    // convert to device space on the dummy device
+    for(Coord &corner : corners)
+      ctxt->user_to_device(corner.x, corner.y);
+    // convert from device space to the real user coordinates
+    ctxt->restore();
+    for(Coord &corner : corners)
+      ctxt->device_to_user(corner.x, corner.y);
+    Rectangle bb = Rectangle(corners[0], corners[1]);
+    bb.swallow(corners[2]);
+    bb.swallow(corners[3]);
+    // Put the bbox at the right place on the segment.
+    bb.shift(seg->segment.interpolate(position));
+    return bb;
+  }
   
 
   CanvasArrowhead::CanvasArrowhead(const CanvasSegment *seg,
-				   double pos, double w, double l)
-    : segment(seg),
+				   double pos, double w, double l,
+				   bool reversed)
+    : CanvasItem(arrowheadBBox(seg, pos, w, l, reversed)),
+      segment(seg),
       width(w),	       // width of arrowhead, perpendicular to segment
       length(l),       // length of arrowhead along segment
       position(pos),   // relative position along segment, in the range 0->1.
@@ -126,13 +166,15 @@ namespace OOFCanvas {
     return name;
   }
 
-  Coord CanvasArrowhead::location() const {
-    return segment->segment.p0 +
-      position*(segment->segment.p1 - segment->segment.p0);
+  void CanvasArrowhead::setPixelSize() {
+    pixelScaling = true;
+    pixelBBox = bbox;
+    Coord loc = segment->segment.interpolate(position);
+    bbox = Rectangle(loc, loc);
   }
 
   void CanvasArrowhead::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
-    Coord loc = location();
+    Coord loc = segment->segment.interpolate(position);
     ctxt->translate(loc.x, loc.y);
 
     // If converting to pixel coordinates, get the size before rotating
@@ -153,60 +195,27 @@ namespace OOFCanvas {
     ctxt->fill();
   }
 
-  Rectangle CanvasArrowhead::findBoundingBox_(double ppu) const {
-    // The easiest way to compute the bounding box is to use a Context
-    // to transform the coordinates, as in drawItem.  But we don't
-    // have a Context when findBoundingBox is called, so create a
-    // dummy one.  See CanvasText for a similar treatment.
-
-    auto surface = Cairo::RefPtr<Cairo::ImageSurface>(
-		      Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, 1, 1));
-    cairo_t *ct = cairo_create(surface->cobj());
-    auto ctxt = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(ct, true));
-    ctxt->save();
-    ctxt->rotate(segment->segment.angle());
-    // Find bounding box in the arrow's coordinates
-    double l = reversed ? length : -length;
-    double w = width/2.;
-    std::vector<Coord> corners({{l, -w}, {0, -w}, {0, w}, {l, w}});
-    // convert to device space on the dummy device
-    for(Coord &corner : corners)
-      ctxt->user_to_device(corner.x, corner.y);
-    // convert from device space to the real user coordinates
-    ctxt->restore();
-    for(Coord &corner : corners)
-      ctxt->device_to_user(corner.x, corner.y);
-    Rectangle bb = Rectangle(corners[0], corners[1]);
-    bb.swallow(corners[2]);
-    bb.swallow(corners[3]);
-    if(pixelScaling)
-      bb.scale(1./ppu, 1./ppu);
-    bb.shift(location());
-    return bb;
-  }
-
-  const Rectangle &CanvasArrowhead::findBoundingBox(double ppu) {
-    bbox = findBoundingBox_(ppu);
-    return bbox;
-  }
 
   void CanvasArrowhead::pixelExtents(double &left, double &right,
 				     double &up, double &down)
     const
   {
-    // When ppu=1, the user-space and device-space bounding boxes are
-    // the same.
-    Rectangle bb(findBoundingBox_(1.0));
-    Coord loc(location());
-    left = loc.x - bb.xmin();
-    right = bb.xmax() - loc.x;
-    up = bb.ymax() - loc.y;
-    down = loc.y - bb.ymin();
+    // pixelBBox was computed to be the bounding box in user
+    // coordinates when it was thought that the arrowhead size was in
+    // user coordinates.  If we're here, then setPixelSize() has been
+    // called and the size is really in pixels.  The numerical
+    // dimensions of the saved bbox are the pixel extents.
+    Coord loc(segment->segment.interpolate(position));
+    left = loc.x - pixelBBox.xmin();
+    right = pixelBBox.xmax() - loc.x;
+    up = pixelBBox.ymax() - loc.y;
+    down = loc.y - pixelBBox.ymin();
   }
 
   bool CanvasArrowhead::containsPoint(const OffScreenCanvas*, const Coord &pt)
     const
   {
+    // Only recognize mouse clicks on the associated segment.
     return false;
   }
 

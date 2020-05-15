@@ -26,7 +26,6 @@ namespace OOFCanvas {
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
     std::vector<double> dashes;
-    Rectangle bbox0;
   public:
     CanvasSegment(double x0, double y0, double x1, double y1);
     CanvasSegment(const Coord &p0, const Coord &p1);
@@ -34,8 +33,7 @@ namespace OOFCanvas {
     virtual void setLineWidth(double);
     void setDashes(const std::vector<double>&);
 
-    virtual const Rectangle &findBoundingBox(double ppu);
-
+    virtual void pixelExtents(double&, double&, double&, double&) const;
     friend class CanvasArrowhead;
     friend std::ostream &operator<<(std::ostream&, const CanvasSegment&);
     friend std::ostream &operator<<(std::ostream&, const CanvasArrowhead&);
@@ -49,7 +47,7 @@ namespace OOFCanvas {
   // CanvasSegment, and therefore doesn't need to be derived from
   // CanvasShape.
   
-  class CanvasArrowhead : public CanvasItem, public PixelSized {
+  class CanvasArrowhead : public CanvasItem {
   protected:
     const CanvasSegment *segment;
     double width, length;
@@ -58,17 +56,15 @@ namespace OOFCanvas {
     bool reversed;		// pointing backwards?
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
-    Coord location() const;
-    Rectangle findBoundingBox_(double) const;
+    Rectangle pixelBBox;
+    static Rectangle arrowheadBBox(const CanvasSegment*, double, double,
+				   double, bool);
   public:
-    CanvasArrowhead(const CanvasSegment*, double position, double w, double l);
+    CanvasArrowhead(const CanvasSegment*, double position, double w, double l,
+		    bool rev);
     virtual const std::string &classname() const;
-    void setReversed() { reversed = true; }
-    void setPixelSize() { pixelScaling = true; }
+    void setPixelSize();
 
-    virtual const Rectangle &findBoundingBox(double ppu);
-    virtual bool pixelSized() const { return pixelScaling; }
-    virtual Coord referencePoint() const { return location(); }
     virtual void pixelExtents(double&, double&, double&, double&) const;
 
     friend std::ostream &operator<<(std::ostream&, const CanvasArrowhead&);

@@ -18,6 +18,7 @@ namespace OOFCanvas {
   // Use this constructor if you know how many segments you'll be
   // drawing.
   CanvasSegments::CanvasSegments(int n)
+    : CanvasShape(Rectangle())
   {
     segments.reserve(n);
   }
@@ -33,9 +34,8 @@ namespace OOFCanvas {
 
   void CanvasSegments::addSegment(const Coord &p0, const Coord &p1) {
     segments.emplace_back(p0, p1);
-    bbox0.swallow(p0);
-    bbox0.swallow(p1);
-    bbox = bbox0;
+    bbox.swallow(p0);
+    bbox.swallow(p1);
     modified();
   }
 
@@ -44,32 +44,18 @@ namespace OOFCanvas {
     modified();
   }
 
-  const Rectangle &CanvasSegments::findBoundingBox(double ppu) {
-    double lw = lineWidthInPixels ? lineWidth/ppu : lineWidth;
-    bbox = bbox0;
-    bbox.expand(0.5*lw);
-    return bbox;
+  void CanvasSegments::pixelExtents(double &left, double &right,
+				    double &up, double &down)
+    const
+  {
+    double halfw = 0.5*lineWidth;
+    left = halfw;
+    right = halfw;
+    up = halfw;
+    down = halfw;
   }
 
   void CanvasSegments::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
-// #ifdef DEBUG
-//     {
-//       double xmin, ymin, xmax, ymax;
-//       ctxt->get_clip_extents(xmin, ymin, xmax, ymax);
-//       Rectangle clip_extents(xmin, ymin, xmax, ymax);
-//       std::cerr << "CanvasSegments::drawItem: clip_extents=" << clip_extents
-// 		<< std::endl;
-//       for(const Segment & segment : segments) {
-// 	if(!clip_extents.contains(segment.p0) ||
-// 	   !clip_extents.contains(segment.p1))
-// 	  {
-// 	    std::cerr << "   Segment " << segment
-// 		      << " is not inside clip extents" << std::endl;
-// 	  }
-//       }
-//     }
-// #endif // DEBUG
-    
     ctxt->set_line_width(lineWidthInUserUnits(ctxt));
     ctxt->set_line_cap(lineCap);
     lineColor.set(ctxt);
@@ -78,15 +64,6 @@ namespace OOFCanvas {
       ctxt->line_to(segment.p1.x, segment.p1.y);
     }
     ctxt->stroke();
-
-// #ifdef DEBUG
-//     {
-//       static int count = 0;
-//       std::string fname = "segments_" + to_string(count++) + ".png";
-//       ctxt->get_target()->write_to_png(fname);
-//       std::cerr << "CanvasSegments::drawItem: wrote " << fname << std::endl;
-//     }
-// #endif // DEBUG
   }
 
   bool CanvasSegments::containsPoint(const OffScreenCanvas *canvas,

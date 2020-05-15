@@ -22,7 +22,6 @@ namespace OOFCanvas {
     double radius;
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
-    void setup();
   public:
     CanvasCircle(double cx, double cy, double r);
     CanvasCircle(const Coord &c, double r);
@@ -59,7 +58,7 @@ namespace OOFCanvas {
   // The size doesn't change when the window is zoomed.  The center is
   // given in user coordinates.
   
-  class CanvasDot : public CanvasFillableShape, public PixelSized {
+  class CanvasDot : public CanvasFillableShape {
   protected:
     Coord center;
     double radius;
@@ -72,9 +71,6 @@ namespace OOFCanvas {
     friend std::ostream &operator<<(std::ostream&, const CanvasDot&);
     virtual std::string print() const;
 
-    virtual const Rectangle &findBoundingBox(double ppu);
-    virtual bool pixelSized() const { return true; }
-    virtual Coord referencePoint() const { return center; }
     virtual void pixelExtents(double&, double&, double&, double&) const;
   };
   std::ostream &operator<<(std::ostream&, const CanvasDot&);

@@ -17,23 +17,17 @@
 namespace OOFCanvas {
 
   CanvasCircle::CanvasCircle(double cx, double cy, double r)
-    : center(cx, cy),
+    : CanvasFillableShape(Rectangle(cx-r, cy-r, cx+r, cy+r)),
+      center(cx, cy),
       radius(r)
-  {
-    setup();
-  }
+  {}
+
 
   CanvasCircle::CanvasCircle(const Coord &c, double r)
-    : center(c),
+    : CanvasFillableShape(Rectangle(c-Coord(r,r), c+Coord(r,r))),
+      center(c),
       radius(r)
-  {
-    setup();
-  }
-
-  void CanvasCircle::setup() {
-    bbox = Rectangle(center.x-radius, center.y-radius,
-		     center.x+radius, center.y+radius);
-  }
+  {}
 
   const std::string &CanvasCircle::classname() const {
     static const std::string name("CanvasCircle");
@@ -84,32 +78,33 @@ namespace OOFCanvas {
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-  CanvasEllipse::CanvasEllipse(double cx, double cy, double r0, double r1,
-			       double angle_degrees)
-    : center(cx, cy),
-      r0(r0), r1(r1),
-      angle(M_PI*angle_degrees/180.)
+  static Rectangle ellipseBBox(double cx, double cy, double r0, double r1,
+			       double angle)
   {
-    setup();
-  }
-
-  CanvasEllipse::CanvasEllipse(const Coord &c, const Coord &r,
-			       double angle_degrees)
-    : center(c),
-      r0(r.x), r1(r.y),
-      angle(M_PI*angle_degrees/180.)
-  {
-    setup();
-  }
-
-  void CanvasEllipse::setup() {
-    double c = cos(angle);
-    double s = sin(angle);
+    double ang = M_PI*angle/180.;
+    double c = cos(ang);
+    double s = sin(ang);
     // Half-widths of the bounding box
     double dx = sqrt(c*c*r0*r0 + s*s*r1*r1);
     double dy = sqrt(c*c*r1*r1 + s*s*r0*r0);
-    bbox = Rectangle(center.x-dx, center.y-dy, center.x+dx, center.y+dy);
+    return Rectangle(cx-dx, cy-dy, cx+dx, cy+dy);
   }
+
+  CanvasEllipse::CanvasEllipse(double cx, double cy, double r0, double r1,
+			       double angle_degrees)
+    : CanvasFillableShape(ellipseBBox(cx, cy, r0, r1, angle_degrees)),
+      center(cx, cy),
+      r0(r0), r1(r1),
+      angle(M_PI*angle_degrees/180.)
+  {}
+
+  CanvasEllipse::CanvasEllipse(const Coord &c, const Coord &r,
+			       double angle_degrees)
+    : CanvasFillableShape(ellipseBBox(c.x, c.y, r.x, r.y, angle_degrees)),
+      center(c),
+      r0(r.x), r1(r.y),
+      angle(M_PI*angle_degrees/180.)
+  {}
 
   const std::string &CanvasEllipse::classname() const {
     static const std::string name("CanvasEllipse");
@@ -210,19 +205,17 @@ namespace OOFCanvas {
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
   // A CanvasDot is a circle that has a fixed size in device units.
-  // Differences between CanvasDot and CanvasCircle are (0) The radius
-  // and lineWidth are in pixel units (1) The bounding box (in user
-  // units) can't be computed until the dot is drawn, but that's ok
-  // because we won't need it until then (2) We don't need to
-  // recompute the bounding box when the lineWidth changes.
-
+  // Its "bare" bounding box is therefore just a point.
+  
   CanvasDot::CanvasDot(double cx, double cy, double r)
-    : center(cx, cy),
+    : CanvasFillableShape(Rectangle(cx, cy, cx, cy)),
+      center(cx, cy),
       radius(r)
   {}
 
   CanvasDot::CanvasDot(const Coord &c, double r)
-    : center(c),
+    : CanvasFillableShape(Rectangle(c,c)),
+      center(c),
       radius(r)
   {}
 
@@ -254,14 +247,6 @@ namespace OOFCanvas {
       return d2 >= rInner*rInner && d2 <= r*r;
     }
     return false;
-  }
-
-  const Rectangle &CanvasDot::findBoundingBox(double ppu) {
-    double r = radius;
-    r /= ppu;
-    Coord diag(r, r);
-    bbox = Rectangle(center-diag, center+diag);
-    return bbox;
   }
 
   void CanvasDot::pixelExtents(double &left, double &right,

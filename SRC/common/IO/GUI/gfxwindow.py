@@ -483,7 +483,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         ## TODO GTK3: How to set initial size of the Canvas?
         self.oofcanvas = oofcanvasgui.Canvas(width=300, height=300, ppu=1.0,
                                           vexpand=True, hexpand=True)
-        self.oofcanvas.antialias(self.settings.antialias)
 ##        self.oofcanvas = fakecanvas.FakeCanvas(self.settings.antialias)
         self.canvasFrame.add(self.oofcanvas.layout)
         self.hScrollbar.set_adjustment(self.oofcanvas.get_hadjustment())
@@ -519,11 +518,11 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         #                        access_kwargs={"windowname":self.name})
         # gtklogger.connect_passive(canvasroot, "event")
 
+        self.oofcanvas.antialias(self.settings.antialias)
         self.oofcanvas.setBackgroundColor(self.settings.bgcolor.getRed(),
                                           self.settings.bgcolor.getGreen(),
                                           self.settings.bgcolor.getBlue())
-        ## TODO GTK3: margin
-        # self.oofcanvas.setMargin(self.settings.margin)
+        self.oofcanvas.setMargin(self.settings.margin)
 
         self.oofcanvas.setMouseCallback(self.mouseCB, None)
         if self.rubberband:
@@ -788,21 +787,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             # *Always* zoom to fill the window on the first non-trivial draw
             zoom = True
 
-            ## OOFCanvas shouldn't have this problem:
-            # # Some drawing operations (canvasdot and canvastriangle in
-            # # particular) require pixels_per_unit to be set *before*
-            # # they're drawn.  This is a problem for the initial
-            # # drawing, so here we just guess at the best value, and
-            # # set ppu.  Since the canvas will be zoomed soon, it
-            # # doesn't matter if the value isn't quite correct.
-            # topwho = self.topwho("Microstructure", "Image",
-            #                      "Skeleton", "Mesh")
-            # if topwho:
-            #     topms = topwho.getMicrostructure()
-            #     width, height = topms.size()
-            #     bbox = geometry.CRectangle(coord.Coord(0.0, 0.0),
-            #                                coord.Coord(width, height))
-            #     mainthread.runBlock(self.zoom_bbox)
         self.acquireGfxLock()
         try:
             self.updateTimeControls()
@@ -834,11 +818,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.show_contourmap_info()
             
 ###########
-
-    ## TODO MAYBE: when looping, save frames as canvas groups on first
-    ## pass, and show/hide groups on subsequent passes.  This probably
-    ## isn't worth the effort since most of this code will go away
-    ## when we switch the 2D graphics to vtk.
 
     def animate(self, menuitem, start, finish, times, frame_rate, style):
         menuitem.disable()
@@ -1011,20 +990,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def zoom_bbox(self):
         debug.mainthreadTest()
         self.oofcanvas.zoomToFill()
-        # width = self.oofcanvas.get_width_in_pixels()-1
-        # height = self.oofcanvas.get_height_in_pixels()-1
-        # if bbox.width() > 0 and bbox.height() > 0:
-        #     xf = width/bbox.width()
-        #     yf = height/bbox.height()
-        #     ppu = min(xf, yf)       # pixels per unit
-        #     oldppu = self.oofcanvas.get_pixels_per_unit()
-        #     if ppu > oldppu:    # See comment in show_contourmap_info().
-        #         self.oofcanvas.set_scrollregion(bbox)
-        #         self.oofcanvas.set_pixels_per_unit(ppu)
-        #     else:
-        #         self.oofcanvas.set_pixels_per_unit(ppu)
-        #         self.oofcanvas.set_scrollregion(bbox)
-        #     self.zoomed = 1
         self.fix_step_increment()
 
     # only 2D - fix the step increment of the canvas table scroll bars
@@ -1040,25 +1005,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         vadj = self.vScrollbar.get_adjustment()
         if vadj.get_step_increment() == 0.0:
             vadj.set_step_increment(vadj.page_increment/16)
-
-    # are these ever called?
-##     def set_zoom(self, scrollreg, ppu):
-##         self.acquireGfxLock()
-##         try:
-##             mainthread.runBlock(self.set_zoom_thread, (scrollreg, ppu))
-##         finally:
-##             self.releaseGfxLock()
-
-##     def set_zoom_thread(self, scrollreg, ppu):
-##         debug.mainthreadTest()
-##         oldppu = self.oofcanvas.get_pixels_per_unit()
-##         if ppu > oldppu:            # See comment in show_contourmap_info().
-##             self.oofcanvas.set_scrollregion(scrollreg)
-##             self.oofcanvas.set_pixels_per_unit(ppu)
-##         else:
-##             self.oofcanvas.set_pixels_per_unit(ppu)
-##             self.oofcanvas.set_scrollregion(scrollreg)
-##         self.zoomed = 1
 
     # GUI override of menu callback for new contourmap aspect ratio.
     # GUI callbacks are required because, when the settings change,

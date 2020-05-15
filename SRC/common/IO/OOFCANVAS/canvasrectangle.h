@@ -21,7 +21,6 @@ namespace OOFCanvas {
     double xmin, ymin, xmax, ymax;
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
-    Rectangle bbox0;
   public:
     CanvasRectangle(double xmin, double ymin, double xmax, double ymax);
     CanvasRectangle(const Coord&, const Coord&);

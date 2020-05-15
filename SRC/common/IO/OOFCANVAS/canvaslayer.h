@@ -66,10 +66,6 @@ namespace OOFCanvas {
     // Given the ppu, compute and cache the bounding box.
     Rectangle findBoundingBox(double, bool);
 
-    // Get a list of all items whose size is given in device units.
-    std::vector<CanvasItem*> pixelSizedItems() const;
-    std::vector<CanvasItem*> userSizedItems() const;
-    
     ICoord user2pixel(const Coord&) const;
     Coord pixel2user(const ICoord&) const;
     double user2pixel(double) const;
@@ -82,6 +78,7 @@ namespace OOFCanvas {
 
     void allItems(std::vector<CanvasItem*>&) const;
     bool empty() const;
+    int size() const { return items.size(); } 
 
     void raiseBy(int) const;
     void lowerBy(int) const;

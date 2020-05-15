@@ -251,6 +251,10 @@ namespace OOFCanvas {
     return atan2(delta.y, delta.x);
   }
 
+  Coord Segment::interpolate(double alpha) const {
+    return p0 + alpha*(p1 - p0);
+  }
+
   std::ostream &operator<<(std::ostream &os, const Segment &seg) {
     os << "[" << seg.p0 << ", " << seg.p1 << "]";
     return os;

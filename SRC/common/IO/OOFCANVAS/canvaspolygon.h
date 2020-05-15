@@ -22,16 +22,15 @@ namespace OOFCanvas {
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
   public:
-    CanvasPolygon() {}
+    CanvasPolygon();
     CanvasPolygon(int n);	// preallocates space for n corners
     virtual const std::string &classname() const;
     void addPoint(double x, double y);
     void setLineWidth(double);
     int size() const { return corners.size(); }
+    virtual void pixelExtents(double&, double&, double&, double&) const;
     friend std::ostream &operator<<(std::ostream&, const CanvasPolygon&);
     virtual std::string print() const;
-
-    virtual const Rectangle &findBoundingBox(double);
 
     int windingNumber(const Coord&) const;
   };

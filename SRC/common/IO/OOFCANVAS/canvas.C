@@ -23,9 +23,6 @@
 	
 // TODO: Save visible area or entire canvas to a file (pdf or png).
 
-// TODO? Canvas::setMargin(double) to add some space when zooming to
-// fill.  Not the same as the old OOFCanvas::set_margin.
-
 // TODO: Layers shouldn't be replaced, but they can be "edited".  An
 // edited layer is cleared of all of its contents and then passed to
 // DisplayMethod::draw().
@@ -37,6 +34,7 @@ namespace OOFCanvas {
       transform(Cairo::identity_matrix()),
       ppu(ppu),			// pixels per unit
       bgColor(1.0, 1.0, 1.0),
+      margin(0.0),
       antialiasing(Cairo::ANTIALIAS_DEFAULT)
   {}
 
@@ -159,6 +157,10 @@ namespace OOFCanvas {
     draw();
   }
 
+  void OffScreenCanvas::setMargin(double m) {
+    margin = m;
+  }
+
   //=\\=//
 
   // OffScreenCanvas::transform is a Cairo::Matrix that converts from user
@@ -168,6 +170,7 @@ namespace OOFCanvas {
   // with scrolling.
 
   void OffScreenCanvas::setTransform(double scale) {
+    assert(scale > 0.0);
     // If no layers are dirty and ppu hasn't changed, don't do anything.
     bool newppu = (scale != ppu);
     bool layersChanged = false;
@@ -191,7 +194,7 @@ namespace OOFCanvas {
 	  bbox.swallow(rect);
       }
     }
-    
+
     if(!bbox.initialized()) {
       // Nothing is drawn.
       transform = Cairo::identity_matrix();
@@ -200,17 +203,21 @@ namespace OOFCanvas {
       if(newppu  || !boundingBox.initialized() || bbox != boundingBox) {
 	boundingBox = bbox;
 	ppu = scale;
-	guint w = ppu*boundingBox.width();
-	guint h = ppu*boundingBox.height();
-	setWidgetSize(w, h);
-	Coord offset = ppu*boundingBox.lowerLeft();
-	transform = Cairo::Matrix(ppu, 0., 0., -ppu, -offset.x, h+offset.y);
+	ICoord bitmapsz = bitmapSize();
+	setWidgetSize(bitmapsz.x, bitmapsz.y);
+	// The bounding box for the objects that are actually drawn is
+	// smaller than the bitmap and centered in it.
+	double bbw = ppu*boundingBox.width();
+	double bbh = ppu*boundingBox.height();
+	double deltax = 0.5*(bitmapsz.x - bbw);
+	double deltay = 0.5*(bitmapsz.y - bbh);
+	Coord offset = ppu*boundingBox.lowerLeft() + Coord(-deltax, deltay);
+	transform = Cairo::Matrix(ppu, 0., 0., -ppu, -offset.x, bbh+offset.y);
 
 	// Force layers to be redrawn
 	for(CanvasLayer *layer : layers) {
 	  layer->dirty = true; 
 	}
-	//rubberBandLayer.dirty = true; // probably not necessary, but harmless
       }
     }
     backingLayer->clear();
@@ -236,8 +243,9 @@ namespace OOFCanvas {
     return backingLayer->pixel2user(d);
   }
 
-  ICoord OffScreenCanvas::boundingBoxSizeInPixels() const {
-    return ICoord(ppu*boundingBox.width(), ppu*boundingBox.height());
+  ICoord OffScreenCanvas::bitmapSize() const {
+    return ICoord(ppu*boundingBox.width()*(1+margin),
+		  ppu*boundingBox.height()*(1+margin));
   }
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
