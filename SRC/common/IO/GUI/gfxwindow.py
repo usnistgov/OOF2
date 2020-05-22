@@ -309,6 +309,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # we need direct access to the Scrollbars.  Instead, we make
         # the Scrollbars ourselves and put them in a Table with the
         # canvas.
+
+        ## TODO GTK3: Sliding the horizontal panes can make the
+        ## vertical canvas scrollbar disappear.  This shouldn't
+        ## happen.
         self.canvasTable = Gtk.Grid()
         gtklogger.setWidgetName(self.canvasTable, "Canvas")
         self.canvasTable.set_column_spacing(1)
