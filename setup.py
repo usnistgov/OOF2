@@ -28,7 +28,7 @@
 # aren't used explicitly in this file, but they are used in the DIR.py
 # files that are execfile'd here.
 
-GTK_VERSION = "3.24.0"
+GTK_VERSION = "3.22.0"
 MAGICK_VERSION = "6.0"
 CAIROMM_VERSION = "1.12" # Don't know what the earliest acceptable version is.
 PANGO_VERSION = "1.40"

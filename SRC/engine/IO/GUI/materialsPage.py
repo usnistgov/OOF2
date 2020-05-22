@@ -330,7 +330,8 @@ class MaterialPane:
                             spacing=2, margin=2)
         vbox.pack_start(buttonbox, expand=False, fill=False, padding=0)
 
-        self.newmaterial = gtkutils.StockButton('document-new', 'New...')
+        self.newmaterial = gtkutils.StockButton('document-new-symbolic',
+                                                'New...')
         gtklogger.setWidgetName(self.newmaterial, 'New')
         buttonbox.pack_start(self.newmaterial,
                              expand=True, fill=False, padding=0)

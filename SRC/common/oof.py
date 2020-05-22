@@ -348,7 +348,7 @@ def front_end(no_interp=None):
         import gi
         gi.require_version("Gtk", "3.0")
         from gi.repository import Gtk
-        msg = Gtk.check_version(3, 24, 0)
+        msg = Gtk.check_version(3, 22, 0)
         if msg:
             print msg
             sys.exit(3)
