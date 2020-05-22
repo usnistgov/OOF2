@@ -82,6 +82,10 @@ namespace OOFCanvas {
   Coord ICoord::operator*(double a) const {
     return Coord(x*a, y*a);
   }
+
+  ICoord ICoord::operator*(int a) const {
+    return ICoord(x*a, y*a);
+  }
   
   Coord ICoord::operator/(double a) const {
     return Coord(x/a, y/a);

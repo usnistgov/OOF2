@@ -78,6 +78,7 @@ namespace OOFCanvas {
     ICoord(int x, int y) : x(x), y(y) {}
     ICoord &operator+=(const ICoord &a) { x += a.x; y+= a.y; return *this; }
     ICoord &operator-=(const ICoord &a) { x -= a.x; y-= a.y; return *this; }
+    ICoord operator*(int) const;
     Coord operator*(double) const;
     Coord operator/(double) const;
     ICoord operator+(const ICoord&) const;
@@ -85,6 +86,7 @@ namespace OOFCanvas {
   };
 
   inline Coord operator*(double a, ICoord pt) { return pt*a; }
+  inline ICoord operator*(int a, ICoord pt) { return pt*a; }
 
   std::ostream &operator<<(std::ostream&, const ICoord&);
 
