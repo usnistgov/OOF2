@@ -35,10 +35,15 @@ namespace OOFCanvas {
     // This destroys *this.  Don't do anthing else here.
   }
 
-  void CanvasLayer::clear() {
+  bool CanvasLayer::rebuild() {
     ICoord size(canvas->bitmapSize());
-    makeCairoObjs(size.x, size.y);
+    bool rebuilt = makeCairoObjs(size.x, size.y);
     context->set_matrix(canvas->getTransform());
+    // std::cerr << "CanvasLayer::rebuild: " << name << " " << this
+    // 	      << " size=" << size
+    // 	      << " matrix=" << context->get_matrix() << std::endl;
+    dirty = true;
+    return rebuilt;
 
 // #ifdef DEBUG
 //     {
@@ -59,18 +64,38 @@ namespace OOFCanvas {
 // #endif // DEBUG
   }
 
-  void CanvasLayer::makeCairoObjs(int x, int y) {
-    surface = Cairo::RefPtr<Cairo::ImageSurface>(
-      Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, x, y));
-    cairo_t *ct = cairo_create(surface->cobj());
-    context = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(ct, true));
-    context->set_antialias(canvas->antialiasing);
+  bool CanvasLayer::makeCairoObjs(int x, int y) {
+    if(!surface || surface->get_width() != x || surface->get_height() != y) {
+      // std::cerr << "CanvasLayer::makeCairoObjs: " << this
+      //  		<< " " << x << "x" << y << std::endl;
+      surface = Cairo::RefPtr<Cairo::ImageSurface>(
+		   Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, x, y));
+      cairo_t *ct = cairo_create(surface->cobj());
+      context = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(ct, true));
+      context->set_antialias(canvas->antialiasing);
+      dirty = true;
+      return true;
+    }
+    return false;
+  }
+
+  void CanvasLayer::clear() {
+    if(surface) {
+      context->save();
+      context->set_operator(Cairo::OPERATOR_CLEAR);
+      context->paint();
+      context->restore();
+      dirty = true;
+    }
   }
 
   void CanvasLayer::clear(const Color &color) {
-    clear();
+    context->save();
     context->set_source_rgb(color.red, color.green, color.blue);
+    context->set_operator(Cairo::OPERATOR_SOURCE);
     context->paint();
+    context->restore();
+    dirty = true;
   }
 
   void CanvasLayer::writeToPNG(const std::string &filename) const {
@@ -89,7 +114,7 @@ namespace OOFCanvas {
       delete item;
     items.clear();
     dirty = true;
-    clear();
+    rebuild();			// TODO GTK3: Is this necessary?
   }
 
   Rectangle CanvasLayer::findBoundingBox(double ppu, bool newppu) {
@@ -135,7 +160,18 @@ namespace OOFCanvas {
   
   void CanvasLayer::redraw() {
     if(dirty) {
-      clear();
+// #ifdef DEBUG
+//       if(!empty())
+// 	std::cerr << "CanvasLayer::redraw: " << this
+// 		  << " "  << name 
+// 		  << " surface=" << surface->get_width()
+// 		  << "x" << surface->get_height()
+// 		  << " matrix=" << context->get_matrix()
+// 		  << std::endl;
+// #endif // DEBUG
+      if(!rebuild())
+	clear();
+      context->set_matrix(canvas->getTransform());
       // {
       // 	double xmin, ymin, xmax, ymax;
       // 	context->get_clip_extents(xmin, ymin, xmax, ymax);
@@ -143,7 +179,6 @@ namespace OOFCanvas {
       // 	std::cerr << "CanvasLayer::redraw: clip_extents=" << clip_extents
       // 		  << std::endl;
       // }
-      
       for(CanvasItem *item : items) {
 	item->draw(context);
       }
@@ -152,8 +187,9 @@ namespace OOFCanvas {
   }
 
   // CanvasLayer::draw copies the layer's surface to the Canvas's
-  // surface, via the Canvas' context, passed in as an argument.  The
-  // layer's items have already been drawn on its surface.
+  // surface, via the Canvas' context, which is passed in as an
+  // argument.  The layer's items have already been drawn on its
+  // surface.
   
   void CanvasLayer::draw(Cairo::RefPtr<Cairo::Context> ctxt,
 			 double hadj, double vadj)
@@ -177,6 +213,7 @@ namespace OOFCanvas {
 	ctxt->paint();
       else
 	ctxt->paint_with_alpha(alpha);
+      // std::cerr << "CanvasLayer::draw: " << ctxt->get_matrix() << std::endl;
     }
   }
 

@@ -19,27 +19,91 @@ namespace OOFCanvas {
     : CanvasLayer(cb, name)
   {}
 
-  void WindowSizeCanvasLayer::clear() {
+  bool WindowSizeCanvasLayer::rebuild() {
+
+    // TODO GTK3: Why is this being called on every mouse event
+    // instead of only when the window size changes or when zoomed?
+    
     GUICanvasBase *cnvs = dynamic_cast<GUICanvasBase*>(canvas);
     int size_x = cnvs->widgetWidth();
     int size_y = cnvs->widgetHeight();
-    makeCairoObjs(size_x, size_y);
+    bool rebuilt = makeCairoObjs(size_x, size_y);
     // The Cairo::ImageSurface for the WindowSizeCanvasLayer is
     // aligned with the Canvas window, but it needs to have the same
     // ppu as the other CanvasLayers so that things drawn on it can
     // match things drawn on the other layers.  The offset can be
     // different because it can be compensated for when the
     // WindowSizeCanvasLayer is copied to the Canvas.  The offset must
-    // put the upperleft corner of the ImageSurface to the lowerleft
+    // map the upperleft corner of the ImageSurface to the lowerleft
     // corner of the window, and vice versa.
 
-    double ppu = cnvs->getPixelsPerUnit();
-    int hadj = gtk_adjustment_get_value(cnvs->getHAdjustment());
-    int vadj = gtk_adjustment_get_value(cnvs->getVAdjustment());
+    // double ppu = cnvs->getPixelsPerUnit();
+    // int hadj = gtk_adjustment_get_value(cnvs->getHAdjustment());
+    // int vadj = gtk_adjustment_get_value(cnvs->getVAdjustment());
+
+    // There are three coordinate systems:
+
+    // * Window coords are the device coordinates in this layer.  The
+    //   origin is at the upper left corner of the window.
+
+    // * Bitmap coords are the device coordinates of CanvasLayers that
+    //   aren't WindowSizeCanvasLayers.  They're offset from Window
+    //   coords by (hadj, vadj).
+
+    // * User coords are what the user is using.
+
+    // The transformation matrix for this layer's context converts
+    // from user coordinates to window coordinates.  We already know
+    // how to convert from user coordinates to bitmap coordinates, so
+    // just subtract (hadj, vadj) from the offset.  The offset can be
+    // found by converting the origin.
+
+
+    // Cairo::Matrix mat = cnvs->getTransform();
+    // context->set_matrix(mat);
+    // context->translate(ppu*hadj, ppu*vadj);
     
-    Coord offset = ppu*cnvs->pixel2user(ICoord(0, size_y)) + Coord(hadj, -vadj);
-    Cairo::Matrix mat(ppu, 0.0, 0.0, -ppu, -offset.x, size_y+offset.y);
-    context->set_matrix(mat);
+    // ICoord offset = cnvs->user2pixel(Coord(0.0, 0.0)) - ICoord(hadj, vadj);
+    // Cairo::Matrix mat(ppu, 0.0, 0.0, -ppu, offset.x, offset.y);
+
+    // Coord offset = ppu*cnvs->pixel2user(ICoord(0, size_y)) + Coord(hadj, -vadj);
+    // Cairo::Matrix mat(ppu, 0.0, 0.0, -ppu, -offset.x, size_y+offset.y);
+
+    // context->set_matrix(mat);
+
+    // std::cerr << "WindowSizeCanvasLayer::rebuild:"
+    // 	      << " size=" << size_x << "," << size_y
+    // 	      << " adj=" << hadj << "," << vadj
+    // 	      // << " mat=" << mat
+    // 	      // << " offset=" << offset
+    // 	      << " canvas origin=" << cnvs->user2pixel(Coord(0,0))
+    // 	      << " layer origin=" << user2pixel(Coord(0, 0))
+    // 	      << std::endl;
+
+    return rebuilt;
+  }
+
+  void WindowSizeCanvasLayer::redraw() {
+    if(dirty) {
+      if(!rebuild())
+	clear();
+      GUICanvasBase *cnvs = dynamic_cast<GUICanvasBase*>(canvas);
+      double ppu = cnvs->getPixelsPerUnit();
+      int hadj = gtk_adjustment_get_value(cnvs->getHAdjustment());
+      int vadj = gtk_adjustment_get_value(cnvs->getVAdjustment());
+      context->set_matrix(cnvs->getTransform());
+      context->translate(hadj/ppu, vadj/ppu);
+      std::cerr << "WindowSizeCanvasLayer::redraw: mat="
+		<< context->get_matrix()
+		<< " ppu=" << ppu
+		<< " adj=" << hadj << "," << vadj
+		<< " canvas origin=" << cnvs->user2pixel(Coord(0,0))
+		<< " layer origin=" << user2pixel(Coord(0,0))
+		<< std::endl;
+      for(CanvasItem *item : items)
+	item->draw(context);
+      dirty = false;
+    }
   }
 
   void WindowSizeCanvasLayer::draw(Cairo::RefPtr<Cairo::Context> ctxt,
@@ -47,11 +111,10 @@ namespace OOFCanvas {
     const
   {
     // Copy this layer to the given ctxt.  ctxt is the Cairo::Context
-    // that was provided to the Gtk "draw" event handler.  The
-    // coordinates in ctxt are pixel coordinates (the transformation
-    // matrix is the identity matrix) but may have a non-zero offset.
-
+    // that was provided to the Gtk "draw" event handler.
     if(visible && !items.empty()) {
+      // Args are the user-space coordinates in ctxt where the surface
+      // origin (upper left corner) should appear.
       ctxt->set_source(surface, 0, 0);
 	
       if(alpha == 1.0)

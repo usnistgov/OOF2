@@ -361,6 +361,7 @@ public:
   void destroy();
   void addItem(CanvasItem*);
   void removeAllItems();
+  void rebuild();
   void clear();
   void redraw();
   void setClickable(bool);

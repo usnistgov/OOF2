@@ -220,11 +220,7 @@ class DisplayMethod(registeredclass.RegisteredClass):
             whoobj = self.who.resolve(gfxwindow)
             whoobj.begin_reading()      # acquire lock
             try:
-                ## TODO GTK3: Fix the nomenclature. It makes no sense
-                ## to have to call both clear() and removeAllItems()
-                ## here.  clear() should be called something else, and
-                ## removeAllItems() should be called clear().
-                self.canvaslayer.clear()
+                self.canvaslayer.rebuild()
                 self.canvaslayer.removeAllItems()
                 if self.hidden:
                     self.canvaslayer.hide()

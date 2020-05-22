@@ -949,7 +949,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.acquireGfxLock()
         try:
             for layer in self.layers:
-                layer.clear()
+                layer.canvaslayer.redraw()
         finally:
             self.releaseGfxLock()
         self.draw()
@@ -1168,8 +1168,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         # redefined in GfxWindowBase to call
         # GfxWindow.show_contourmap_info.  removeLayer was also called
         # by clear() when it was deleting all layers but that caused
-        # too many signals to be sent.  So clear() deleteLayerNumber
-        # need to be separate, and we dont' need removeLayer(). ??
+        # too many signals to be sent.  So clear() and
+        # deleteLayerNumber() need to be separate, and we dont' need
+        # removeLayer(). ??
         self.acquireGfxLock()
         try:
             layer = self.layers[n]

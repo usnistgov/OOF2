@@ -35,7 +35,7 @@ namespace OOFCanvas {
       buttonDown(false),
       rubberBandLayer(this, "rubberbandlayer"),
       rubberBand(nullptr),
-      rubberBandBufferFilled(false),
+      nonRubberBandBufferFilled(false),
       destroyed(false)
   {}
 
@@ -364,8 +364,11 @@ namespace OOFCanvas {
 
   ICoord GUICanvasBase::bitmapSize() const {
     ICoord bbsize(OffScreenCanvas::bitmapSize());
-    guint w, h;
-    gtk_layout_get_size(GTK_LAYOUT(layout), &w, &h);
+    // The bitmap must be at least as large as the window so that the
+    // drawing can be centered in the window when it's smaller than
+    // the window.
+    int w = widgetWidth();
+    int h = widgetHeight();
     return ICoord(w > bbsize.x ? w : bbsize.x,
 		  h > bbsize.y ? h : bbsize.y);
   }
@@ -465,7 +468,7 @@ namespace OOFCanvas {
 
     if(rubberBand && rubberBand->active()) {
 
-      if(rubberBandBufferFilled) {
+      if(nonRubberBandBufferFilled) {
 	// Are any non-rubberband layers dirty?
 	bool dirty = false;
 	for(unsigned int i=0; i<layers.size(); i++)
@@ -475,7 +478,7 @@ namespace OOFCanvas {
 	  }
 	if(!dirty) {
 	  // No layers other than the rubberband have changed.  Copy the
-	  // rubberBandBuffer, which already contains the other layers,
+	  // nonRubberBandBuffer, which already contains the other layers,
 	  // to the destination, and draw the rubberband on top of that.
 	  // TODO: set and use rubberBandBBox
 	  // background
@@ -483,40 +486,41 @@ namespace OOFCanvas {
 	  context->paint();
 
 	  // all non-rubberband layers
-	  context->set_source(rubberBandBuffer, 0, 0);
+	  context->set_source(nonRubberBandBuffer, 0, 0);
 	  context->paint();
 
 	  // rubberband
 	  rubberBandLayer.redraw();
-	  rubberBandLayer.draw(context, hadj, vadj);
+	  // rubberBandLayer.draw(context, hadj, vadj);
+	  rubberBandLayer.draw(context, 0, 0);
 	  return;
 	}
       }
 
-      // Recreate rubberBandBuffer, which contains all the layers
+      // Recreate nonRubberBandBuffer, which contains all the layers
       // *other* than the rubberBandLayer.
 
       ICoord size = bitmapSize();
-      rubberBandBuffer = Cairo::RefPtr<Cairo::ImageSurface>(
-			    Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
-							size.x, size.y));
-      cairo_t *rbctxt = cairo_create(rubberBandBuffer->cobj());
+      nonRubberBandBuffer = Cairo::RefPtr<Cairo::ImageSurface>(
+			       Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
+							   size.x, size.y));
+      cairo_t *rbctxt = cairo_create(nonRubberBandBuffer->cobj());
       Cairo::RefPtr<Cairo::Context> rbContext =
 	Cairo::RefPtr<Cairo::Context>(new Cairo::Context(rbctxt, true));
       rbContext->set_source_rgb(bgColor.red, bgColor.green, bgColor.blue);
       rbContext->paint();
 
-      // Draw all other layers to the rubberBandBuffer.
+      // Draw all other layers to the nonRubberBandBuffer.
       for(CanvasLayer *layer : layers) {
 	layer->redraw();
 	layer->draw(rbContext, hadj, vadj);
       }
-      rubberBandBufferFilled = true;
+      nonRubberBandBufferFilled = true;
 
       context->set_source_rgb(bgColor.red, bgColor.green, bgColor.blue);
       context->paint();
 
-      context->set_source(rubberBandBuffer, 0, 0);
+      context->set_source(nonRubberBandBuffer, 0, 0);
       context->paint();
 
       rubberBandLayer.redraw();	
@@ -588,7 +592,7 @@ namespace OOFCanvas {
     if(rubberBand) {
       rubberBandLayer.removeAllItems();
       if(!rubberBand->active()) {
-	rubberBandBufferFilled = false;
+	nonRubberBandBufferFilled = false;
 	rubberBand->start(&rubberBandLayer, mouseDownPt.x, mouseDownPt.y);
       }
       rubberBand->draw(userpt.x, userpt.y);

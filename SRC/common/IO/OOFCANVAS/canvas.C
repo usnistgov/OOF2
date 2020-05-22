@@ -182,8 +182,9 @@ namespace OOFCanvas {
 	}
       }
     }
-    if(!newppu && !layersChanged)
+    if(!newppu && !layersChanged) {
       return;
+    }
     
     // Find the bounding box of all drawn objects at the new scale
     Rectangle bbox;
@@ -213,14 +214,15 @@ namespace OOFCanvas {
 	double deltay = 0.5*(bitmapsz.y - bbh);
 	Coord offset = ppu*boundingBox.lowerLeft() + Coord(-deltax, deltay);
 	transform = Cairo::Matrix(ppu, 0., 0., -ppu, -offset.x, bbh+offset.y);
-
+	// std::cerr << "OffScreenCanvas::setTransform: " << this << " "
+	// 	  << transform << std::endl;
 	// Force layers to be redrawn
 	for(CanvasLayer *layer : layers) {
 	  layer->dirty = true; 
 	}
       }
     }
-    backingLayer->clear();
+    backingLayer->rebuild();
   } // OffScreenCanvas::setTransform
 
   ICoord OffScreenCanvas::user2pixel(const Coord &pt) const {
