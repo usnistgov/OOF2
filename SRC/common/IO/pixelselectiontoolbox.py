@@ -25,6 +25,10 @@ from ooflib.common.IO import whoville
 # and invokes the non-GUI menu item, which creates the actual method
 # does the selection.
 
+## TODO: Using the mouse to select a rectangle that's completely
+## outside the Microstructure selects a row of pixels along the edge.
+## This seems wrong.
+
 class PixelSelectToolbox(genericselecttoolbox.GenericSelectToolbox):
     def __init__(self, gfxwindow):
         genericselecttoolbox.GenericSelectToolbox.__init__(
