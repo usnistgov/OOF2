@@ -340,7 +340,7 @@ class CrossSectionDomain(Domain):
             last_el = new_el
             (isec, new_el) = \
                    skeleton.get_intersection_and_next_element(
-                local_segment, last_el, last_pt)
+                       local_segment, last_el, last_pt, None)
 
         # Bolt on the final one.
         result.append( (primitives.Segment(last_pt, real_end),
