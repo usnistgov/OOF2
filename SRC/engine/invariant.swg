@@ -54,7 +54,12 @@ public:
 class Deviator : public Invariant {
 public:
   Deviator();
-}
+};
+
+class VonMises : public Invariant {
+public:
+  VonMises();
+};
 
 %typemap(python, in) EigenValueRank* (EigenValueRank rank) {
   // $source is a Python EigenValueRank, which is a subclass of

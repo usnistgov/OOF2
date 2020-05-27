@@ -419,6 +419,12 @@ double SymmMatrix3::magnitude() const {
   return sqrt(v00*v00+v11*v11+v22*v22 + 2*(v01*v01+v02*v02+v12*v12));
 }
 
+double SymmMatrix3::vonMises() const {
+  // \sqrt{3/2 sigma_{ij} sigma_{ij} - 1/2 (sigma_kk)^2}
+  double tr = trace();
+  return sqrt(1.5*contract(*this) - 0.5*tr*tr);
+}
+
 double SymmMatrix3::contract(const SymmMatrix3 &other) const {
   return (operator()(0,0)*other(0,0) +
 	  operator()(1,1)*other(1,1) +
