@@ -161,6 +161,7 @@ public:
   double determinant() const;
   double secondInvariant() const;
   double deviator() const;
+  double vonMises() const;
   virtual double magnitude() const;
   double maxEigenvalue() const;
   double midEigenvalue() const;

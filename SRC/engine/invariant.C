@@ -42,6 +42,11 @@ double Deviator::operator()(const ArithmeticOutputVal &oval) const {
   return s.deviator();
 }
 
+double VonMises::operator()(const ArithmeticOutputVal &oval) const {
+  const SymmMatrix3 &s = dynamic_cast<const SymmMatrix3&>(oval);
+  return s.vonMises();
+}
+
 double Eigenvalue::operator()(const ArithmeticOutputVal &oval) const {
   const SymmMatrix3 &s = dynamic_cast<const SymmMatrix3&>(oval);
   switch(which_) {

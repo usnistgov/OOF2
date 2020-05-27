@@ -1,8 +1,13 @@
 
+OOF2 2.1.19
+
+* Added output for von Mises stress.
+
+* Fixed a bug in which round-off error could cause outputs to be
+  computed in the wrong elements.
+
 * Added a "ZStrain" property so users can specify e_zz in
   plane-strain problems.
-
-OOF2 2.1.19
 
 * Selection sizes are reported as percentages as well as absolute
   numbers.
