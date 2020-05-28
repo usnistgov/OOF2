@@ -422,7 +422,10 @@ double SymmMatrix3::magnitude() const {
 double SymmMatrix3::vonMises() const {
   // \sqrt{3/2 sigma_{ij} sigma_{ij} - 1/2 (sigma_kk)^2}
   double tr = trace();
-  return sqrt(1.5*contract(*this) - 0.5*tr*tr);
+  double ss = 1.5*contract(*this) - 0.5*tr*tr;
+  if(ss > 0)
+    return sqrt(ss);
+  return 0.0;			// must have been roundoff.
 }
 
 double SymmMatrix3::contract(const SymmMatrix3 &other) const {
