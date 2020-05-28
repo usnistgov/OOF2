@@ -142,6 +142,7 @@ class OOF_PoleFigureTest(unittest.TestCase):
         self.createFromMap('orientmap1.tsl')
         self.checkPoleFigures('orientmap1')
 
+    @memorycheck.check("microstructure")
     def FromMap2(self):
         # orientmap2.tsl was created by tslsimulator.py with the
         # arguments: -x 100 -y 100 -m "Gauss(0, 45, 0, 10)"
