@@ -3053,8 +3053,7 @@ def run_tests():
         OOF_AnisoRotation("Solve"),
         OOF_1x1ElasticDynamic("Static"),
         OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStrain"),
-        OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStress"),
-        OOF_ZStrain('Triclinic_ZStrain')
+        OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStress")
         ]
 
     dynamic_set = [
@@ -3132,9 +3131,6 @@ def run_tests():
     # dynamic_set = [OOF_ThermalDiffusionTSPlaneFlux("CNdirect")]
     # dynamic_set = [OOF_ThermalDiffusionTSPlaneFlux("RK4direct"),
     #                OOF_ThermalDiffusionTimeSteppers("RK4direct")]
-    static_set = [OOF_ZStrain('Triclinic_ZStrain')]
-    dynamic_set = []
-    oop_periodic_set = []
     
     logan = unittest.TextTestRunner()
 
