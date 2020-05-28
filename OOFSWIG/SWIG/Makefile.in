@@ -107,7 +107,7 @@ Makefile:	$(srcdir)/Makefile.in ../config.status
 .PRECIOUS:	Makefile
 
 clean::
-	rm -f *.o libswig.a y.tab.c y.tab.h
+	rm -f *.o libswig.a y.tab.c y.tab.h parser.cxx parser.h
 
 nuke::
 	rm -f Makefile *~ #* core a.out
