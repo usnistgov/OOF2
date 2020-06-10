@@ -521,7 +521,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         #                        access_kwargs={"windowname":self.name})
         # gtklogger.connect_passive(canvasroot, "event")
 
-        self.oofcanvas.antialias(self.settings.antialias)
+        self.oofcanvas.setAntialias(self.settings.antialias)
         self.oofcanvas.setBackgroundColor(self.settings.bgcolor.getRed(),
                                           self.settings.bgcolor.getGreen(),
                                           self.settings.bgcolor.getBlue())
@@ -928,7 +928,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def toggleAntialias(self, menuitem, antialias):
         ghostgfxwindow.GhostGfxWindow.toggleAntialias(
             self, menuitem, antialias)
-        mainthread.runBlock(self.oofcanvas.antialias, (antialias,))
+        mainthread.runBlock(self.oofcanvas.setAntialias, (antialias,))
 
     # used by viewertoolbox zoom functions -- only 2D!
     def zoomFactor(self):

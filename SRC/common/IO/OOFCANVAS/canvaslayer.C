@@ -31,11 +31,11 @@ namespace OOFCanvas {
   }
 
   void CanvasLayer::destroy() {
-    // TODO: Check that layers are being destroyed when replaced or
-    // the window is closed.
-    std::cerr << "CanvasLayer::destroy: " << name << std::endl;
+    // CanvasLayer::destroy is provided as a slightly easier way to
+    // delete a layer when a pointer to the Canvas isn't easily
+    // available.  Canvas::deleteLayer calls the CanvasLayer
+    // destructor.  Don't do anthing else here.
     canvas->deleteLayer(this);
-    // This destroys *this.  Don't do anthing else here.
   }
 
   bool CanvasLayer::rebuild() {

@@ -449,7 +449,7 @@ public:
   void clear();
   void draw();
   double getPixelsPerUnit();
-  void antialias(bool);
+  void setAntialias(bool);
   void setMargin(double);
   void setBackgroundColor(double, double, double);
   %name(clickedItems) %new CanvasItemList* clickedItems_new(double, double);

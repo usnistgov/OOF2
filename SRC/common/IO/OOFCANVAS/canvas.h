@@ -42,6 +42,9 @@ namespace OOFCanvas {
     // the visible objects.
     Rectangle boundingBox;
 
+    // centerOffset is the translation applied to the coordinates that
+    // centers the image in the window if it's zoomed out so far that
+    // it's smaller than the window.
     Coord centerOffset;
 
     // transform is used by the CanvasLayers when drawing their
@@ -73,7 +76,7 @@ namespace OOFCanvas {
     double user2pixel(double) const;
     double pixel2user(double) const;
 
-    void antialias(bool);
+    void setAntialias(bool);
     void setMargin(double);
 
     bool empty() const;		// Is anything drawn?

@@ -1169,14 +1169,14 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         # GfxWindow.show_contourmap_info.  removeLayer was also called
         # by clear() when it was deleting all layers but that caused
         # too many signals to be sent.  So clear() and
-        # deleteLayerNumber() need to be separate, and we dont' need
+        # deleteLayerNumber() need to be separate, and we don't need
         # removeLayer(). ??
         self.acquireGfxLock()
         try:
             layer = self.layers[n]
             if layer is self.selectedLayer:
                 self.selectedLayer = None
-            layer.destroy();
+            layer.destroy()
             del self.layers[n]
         finally:
             self.releaseGfxLock()

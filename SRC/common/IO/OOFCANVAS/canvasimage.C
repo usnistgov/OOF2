@@ -14,7 +14,6 @@
 
 namespace OOFCanvas {
 
-  // TODO: Can littleEndian be set at compile time and used in #ifdefs?
   bool getLittleEndian() {
     int k = 1;
     unsigned char *c = (unsigned char*) &k;
@@ -61,6 +60,7 @@ namespace OOFCanvas {
       *addr   = b*255;
     }
     imageSurface->mark_dirty();
+    modified();
   }
 
   void CanvasImage::set(int x, int y, double r, double g, double b, double a) {
@@ -80,6 +80,7 @@ namespace OOFCanvas {
       *addr   = b*255;
     }
     imageSurface->mark_dirty();
+    modified();
   }
 
 
@@ -102,6 +103,7 @@ namespace OOFCanvas {
       *addr   = b;
     }
     imageSurface->mark_dirty();
+    modified();
   }
 
   void CanvasImage::set(int x, int y,
@@ -124,6 +126,7 @@ namespace OOFCanvas {
       *addr   = b;
     }
     imageSurface->mark_dirty();
+    modified();
   }
 
   Color CanvasImage::get(int x, int y) const {
@@ -191,9 +194,13 @@ namespace OOFCanvas {
       // drawPixelByPixel==true
       ctxt->save();
       ctxt->set_antialias(Cairo::ANTIALIAS_NONE);
-      // TODO GTK3: If pixelScaling is true, dx and dy need to be adjusted.
       double dx = size.x/pixels.x;
       double dy = size.y/pixels.y;
+      if(pixelScaling) {
+	ctxt->device_to_user_distance(dx, dy); // changes sign of dy
+	dy *= -1;
+      }
+
       for(unsigned int j=0; j<pixels.y; j++) {
 	for(unsigned int i=0; i<pixels.x; i++) {
 	  Color clr = get(i, pixels.y-j-1);
@@ -216,6 +223,7 @@ namespace OOFCanvas {
     pixelScaling = true;
     // The "bare" bounding box is just a point.
     bbox = Rectangle(location, location);
+    modified();
   }
 
   void CanvasImage::pixelExtents(double &left, double &right,

@@ -32,12 +32,12 @@ namespace OOFCanvas {
   void CanvasPolygon::addPoint(double x, double y) {
     corners.emplace_back(x, y);
     bbox.swallow(corners.back());
-    modified();			// TODO: Do we still need this?
+    modified();
   }
 
   void CanvasPolygon::setLineWidth(double w) {
     CanvasShape::setLineWidth(w);
-    modified();			// TODO: Do we still need this?
+    modified();
   }
 
   void CanvasPolygon::pixelExtents(double &right, double &left,

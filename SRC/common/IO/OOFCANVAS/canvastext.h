@@ -27,7 +27,6 @@ namespace OOFCanvas {
     std::string fontName;
     bool sizeInPixels;
 
-    bool antiAlias;
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
     PangoLayout *getLayout(Cairo::RefPtr<Cairo::Context>) const;
@@ -43,8 +42,6 @@ namespace OOFCanvas {
 
     virtual void pixelExtents(double&, double&, double&, double&) const;
 
-    // Antialiasing is turned on by default.  Use this to turn it off.
-    void setAntiAlias(bool v) { antiAlias = v; }
     friend std::ostream &operator<<(std::ostream&, const CanvasText&);
     virtual std::string print() const;
   };

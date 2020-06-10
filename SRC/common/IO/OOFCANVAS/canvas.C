@@ -17,13 +17,9 @@
 #include <cassert>
 #include <algorithm>
 
-// TODO: If the layout size as computed from the bounding box is
-// smaller than the window size in one or both directions, the image
-// is drawn in the upper left corner of the window.  Can we center it?
-	
 // TODO: Save visible area or entire canvas to a file (pdf or png).
 
-// TODO: Layers shouldn't be replaced, but they can be "edited".  An
+// TODO? Layers shouldn't be replaced, but they can be "edited".  An
 // edited layer is cleared of all of its contents and then passed to
 // DisplayMethod::draw().
 
@@ -156,8 +152,7 @@ namespace OOFCanvas {
     ctxt->restore();
   }
 
-  // TODO: Change name to setAntialias for consistency w/other settings
-  void OffScreenCanvas::antialias(bool aa) {
+  void OffScreenCanvas::setAntialias(bool aa) {
     if(aa && antialiasing != Cairo::ANTIALIAS_DEFAULT) {
       antialiasing = Cairo::ANTIALIAS_DEFAULT;
     }

@@ -51,6 +51,7 @@ namespace OOFCanvas {
 
   void CanvasSegment::setDashes(const std::vector<double> &d) {
     dashes = d;
+    modified();
   }
 
   void CanvasSegment::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
@@ -171,6 +172,7 @@ namespace OOFCanvas {
     pixelBBox = bbox;
     Coord loc = segment->segment.interpolate(position);
     bbox = Rectangle(loc, loc);
+    modified();
   }
 
   void CanvasArrowhead::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {

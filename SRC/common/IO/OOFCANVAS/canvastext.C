@@ -54,6 +54,7 @@ namespace OOFCanvas {
 
   void CanvasText::setFillColor(const Color &c) {
     color = c;
+    modified();
   }
 
   void CanvasText::setFont(const std::string &name, bool inPixels) {
