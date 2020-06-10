@@ -30,17 +30,17 @@
 namespace OOFCanvas {
 
   OffScreenCanvas::OffScreenCanvas(double ppu)
-    : backingLayer(nullptr),
+    : backingLayer(this, "<backinglayer>"),
       transform(Cairo::identity_matrix()),
       ppu(ppu),			// pixels per unit
       bgColor(1.0, 1.0, 1.0),
       margin(0.0),
       antialiasing(Cairo::ANTIALIAS_DEFAULT)
-  {}
+  {
+    backingLayer.setClickable(false);
+  }
 
   OffScreenCanvas::~OffScreenCanvas() {
-    if(backingLayer)
-      delete backingLayer;
     for(CanvasLayer *layer : layers)
       delete layer;
     layers.clear();
@@ -143,6 +143,20 @@ namespace OOFCanvas {
     bgColor = Color(r, g, b);
   }
 
+  void OffScreenCanvas::drawBackground(Cairo::RefPtr<Cairo::Context> ctxt) const
+  {
+    ctxt->save();
+    // One might think that one should call ctxt->reset_clip() here,
+    // to ensure that the background is painted over the entire
+    // canvas.  But doing that will paint the background over the
+    // entire window.  Just be sure to call drawBackground before any
+    // other drawing operations reset the clip region.
+    ctxt->set_source_rgb(bgColor.red, bgColor.green, bgColor.blue);
+    ctxt->paint();
+    ctxt->restore();
+  }
+
+  // TODO: Change name to setAntialias for consistency w/other settings
   void OffScreenCanvas::antialias(bool aa) {
     if(aa && antialiasing != Cairo::ANTIALIAS_DEFAULT) {
       antialiasing = Cairo::ANTIALIAS_DEFAULT;
@@ -182,9 +196,11 @@ namespace OOFCanvas {
 	}
       }
     }
-    if(!newppu && !layersChanged) {
-      return;
-    }
+    if(!newppu && !layersChanged &&
+       backingLayer.bitmapSize() == desiredBitmapSize())
+      {
+	return;
+      }
     
     // Find the bounding box of all drawn objects at the new scale
     Rectangle bbox;
@@ -204,8 +220,8 @@ namespace OOFCanvas {
       if(newppu  || !boundingBox.initialized() || bbox != boundingBox) {
 	boundingBox = bbox;
 	ppu = scale;
-	ICoord bitmapsz = bitmapSize();
-	setWidgetSize(bitmapsz.x, bitmapsz.y);
+	ICoord bitmapsz = desiredBitmapSize();
+	setWidgetSize(bitmapsz.x, bitmapsz.y); // is a no-op for OffScreenCanvas
 	// The bounding box for the objects that are actually drawn is
 	// smaller than the bitmap and centered in it.
 	double bbw = ppu*boundingBox.width();
@@ -214,38 +230,32 @@ namespace OOFCanvas {
 	double deltay = 0.5*(bitmapsz.y - bbh);
 	Coord offset = ppu*boundingBox.lowerLeft() + Coord(-deltax, deltay);
 	transform = Cairo::Matrix(ppu, 0., 0., -ppu, -offset.x, bbh+offset.y);
-	// std::cerr << "OffScreenCanvas::setTransform: " << this << " "
-	// 	  << transform << std::endl;
 	// Force layers to be redrawn
 	for(CanvasLayer *layer : layers) {
 	  layer->dirty = true; 
 	}
       }
     }
-    backingLayer->rebuild();
+    backingLayer.rebuild();
   } // OffScreenCanvas::setTransform
 
   ICoord OffScreenCanvas::user2pixel(const Coord &pt) const {
-    assert(backingLayer != nullptr);
-    return backingLayer->user2pixel(pt);
+    return backingLayer.user2pixel(pt);
   }
 
   Coord OffScreenCanvas::pixel2user(const ICoord &pt) const {
-    assert(backingLayer != nullptr);
-    return backingLayer->pixel2user(pt);
+    return backingLayer.pixel2user(pt);
   }
 
   double OffScreenCanvas::user2pixel(double d) const {
-    assert(backingLayer != nullptr);
-    return backingLayer->user2pixel(d);
+    return backingLayer.user2pixel(d);
   }
 
   double OffScreenCanvas::pixel2user(double d) const {
-    assert(backingLayer != nullptr);
-    return backingLayer->pixel2user(d);
+    return backingLayer.pixel2user(d);
   }
 
-  ICoord OffScreenCanvas::bitmapSize() const {
+  ICoord OffScreenCanvas::desiredBitmapSize() const {
     return ICoord(ppu*boundingBox.width()*(1+margin),
 		  ppu*boundingBox.height()*(1+margin));
   }

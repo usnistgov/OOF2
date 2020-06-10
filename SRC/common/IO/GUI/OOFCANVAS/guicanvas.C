@@ -23,7 +23,7 @@
 
 #ifdef OOFCANVAS_USE_PYTHON
 #include <pygobject.h>
-#endif 
+#endif
 
 namespace OOFCanvas {
 
@@ -44,8 +44,8 @@ namespace OOFCanvas {
     // handler.
     g_signal_connect(G_OBJECT(layout), "realize",
 		     G_CALLBACK(GUICanvasBase::realizeCB), this);
-    // g_signal_connect(G_OBJECT(layout), "size-allocate",
-    // 		     G_CALLBACK(GUICanvasBase::allocateCB), this);
+    g_signal_connect(G_OBJECT(layout), "size-allocate",
+     		     G_CALLBACK(GUICanvasBase::allocateCB), this);
 
     g_signal_connect(G_OBJECT(layout), "button_press_event",
     		     G_CALLBACK(GUICanvasBase::buttonCB), this);
@@ -350,9 +350,7 @@ namespace OOFCanvas {
   //=\\=//
 
   // widgetHeight and widgetWidth return the size of the visible part
-  // of the canvas, ie, the size of the window comtaining the canvas.
-  // bitmapSize returns the desired size of the bitmap, which may be larger or
-  // smaller than the visible size.
+  // of the canvas, ie, the size of the window containing the canvas.
 
   int GUICanvasBase::widgetHeight() const {
     return gtk_widget_get_allocated_height(layout);
@@ -362,18 +360,7 @@ namespace OOFCanvas {
     return gtk_widget_get_allocated_width(layout);
   }
 
-  ICoord GUICanvasBase::bitmapSize() const {
-    ICoord bbsize(OffScreenCanvas::bitmapSize());
-    // The bitmap must be at least as large as the window so that the
-    // drawing can be centered in the window when it's smaller than
-    // the window.
-    int w = widgetWidth();
-    int h = widgetHeight();
-    return ICoord(w > bbsize.x ? w : bbsize.x,
-		  h > bbsize.y ? h : bbsize.y);
-  }
-
-    //=\\=//
+  //=\\=//
 
   void GUICanvasBase::setRubberBand(RubberBand *rb) {
     rubberBand = rb;
@@ -414,16 +401,52 @@ namespace OOFCanvas {
 					  | GDK_LEAVE_NOTIFY_MASK
 					  | GDK_FOCUS_CHANGE_MASK
 					  ));
-    // The backingLayer is a CanvasLayer that exists just so that the
-    // canvas transforms can be defined even when nothing is
-    // drawn. This allows pixel2user and user2pixel to work in all
-    // circumstances. The backingLayer can't be created until the
-    // layout is created, however, because it needs to know the window
-    // size.  So it's done here, instead of in the Canvas constructor.
-    backingLayer = new CanvasLayer(this, "<backinglayer>");
-    backingLayer->setClickable(false);
   }
 
+  //=\\=//
+
+  // static
+  void GUICanvasBase::allocateCB(GtkWidget*, GdkRectangle *allocation,
+				 gpointer data)
+  {
+    ((GUICanvasBase*) data)->allocateHandler(allocation);
+  }
+
+  void GUICanvasBase::allocateHandler(GdkRectangle *allocation) {
+    // The window size has changed.
+    resizeHandler();
+  }
+
+  //=\\=//
+
+  // Get the horizontal and vertical adjustments for converting layer
+  // bitmap coordinates to window bitmap coordinates.  They are
+  // potentially different than the values obtained from the
+  // scrollbars' GtkAdjustments because the bitmaps are centered in
+  // the window if they're smaller than the window.
+  void GUICanvasBase::getEffectiveAdjustments(double &hadj, double &vadj) {
+    hadj = gtk_adjustment_get_value(getHAdjustment());
+    vadj = gtk_adjustment_get_value(getVAdjustment());
+
+    ICoord bsize(backingLayer.bitmapSize());
+
+    int w = widgetWidth();
+    if(bsize.x < w) {
+      hadj = 0.5*(bsize.x - w);
+      centerOffset.x = hadj - gtk_adjustment_get_value(getHAdjustment());
+    }
+    else
+      centerOffset.x = 0.0;
+    
+    int h = widgetHeight();
+    if(bsize.y < h) {
+      vadj = 0.5*(bsize.y - h);
+      centerOffset.y = vadj - gtk_adjustment_get_value(getVAdjustment());
+    }
+    else
+      centerOffset.y = 0.0;
+  }
+  
   //=\\=//
 
   // TODO: Why is drawCB called so often?  This only happens on a Mac.
@@ -445,8 +468,8 @@ namespace OOFCanvas {
     // upper left corner of the widget, and is properly clipped."
     // (https://developer.gnome.org/gtk3/stable/ch26s02.html)
 
-    double hadj = gtk_adjustment_get_value(getHAdjustment());
-    double vadj = gtk_adjustment_get_value(getVAdjustment());
+    double hadj, vadj;
+    getEffectiveAdjustments(hadj, vadj);
 
     setTransform(ppu);
 
@@ -481,17 +504,15 @@ namespace OOFCanvas {
 	  // nonRubberBandBuffer, which already contains the other layers,
 	  // to the destination, and draw the rubberband on top of that.
 	  // TODO: set and use rubberBandBBox
-	  // background
-	  context->set_source_rgb(bgColor.red, bgColor.green, bgColor.blue);
-	  context->paint();
+
+	  drawBackground(context);
 
 	  // all non-rubberband layers
-	  context->set_source(nonRubberBandBuffer, 0, 0);
+	  context->set_source(nonRubberBandBuffer, -hadj, -vadj);
 	  context->paint();
 
 	  // rubberband
 	  rubberBandLayer.redraw();
-	  // rubberBandLayer.draw(context, hadj, vadj);
 	  rubberBandLayer.draw(context, 0, 0);
 	  return;
 	}
@@ -499,28 +520,27 @@ namespace OOFCanvas {
 
       // Recreate nonRubberBandBuffer, which contains all the layers
       // *other* than the rubberBandLayer.
-
-      ICoord size = bitmapSize();
+      ICoord bsize(backingLayer.bitmapSize());
       nonRubberBandBuffer = Cairo::RefPtr<Cairo::ImageSurface>(
 			       Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32,
-							   size.x, size.y));
+							   bsize.x, bsize.y));
       cairo_t *rbctxt = cairo_create(nonRubberBandBuffer->cobj());
-      Cairo::RefPtr<Cairo::Context> rbContext =
+      Cairo::RefPtr<Cairo::Context> nonrbContext =
 	Cairo::RefPtr<Cairo::Context>(new Cairo::Context(rbctxt, true));
-      rbContext->set_source_rgb(bgColor.red, bgColor.green, bgColor.blue);
-      rbContext->paint();
+      drawBackground(nonrbContext);
 
-      // Draw all other layers to the nonRubberBandBuffer.
+      // Draw all other layers to the nonRubberBandBuffer.  They're
+      // drawn at their unscrolled positions, because the
+      // nonRubberBandBuffer will be shifted when copied to the
+      // screen.
       for(CanvasLayer *layer : layers) {
 	layer->redraw();
-	layer->draw(rbContext, hadj, vadj);
+	layer->draw(nonrbContext, 0,0); 
       }
       nonRubberBandBufferFilled = true;
+      drawBackground(context);
 
-      context->set_source_rgb(bgColor.red, bgColor.green, bgColor.blue);
-      context->paint();
-
-      context->set_source(nonRubberBandBuffer, 0, 0);
+      context->set_source(nonRubberBandBuffer, -hadj, -vadj);
       context->paint();
 
       rubberBandLayer.redraw();	
@@ -535,8 +555,7 @@ namespace OOFCanvas {
     // whose bounding boxes intersect the clipping region.  If the
     // items are stored in an R-tree this might be fast.
 
-    context->set_source_rgb(bgColor.red, bgColor.green, bgColor.blue);
-    context->paint();
+    drawBackground(context);
 
     for(CanvasLayer *layer : layers) {
       layer->redraw();			// only redraws dirty layers
@@ -556,7 +575,6 @@ namespace OOFCanvas {
       return;
     ICoord pixel(event->x, event->y);
     Coord userpt(pixel2user(pixel));
-    
     std::string eventtype;
     if(event->type == GDK_BUTTON_PRESS) {
       eventtype = "down";
@@ -619,7 +637,9 @@ namespace OOFCanvas {
   Canvas::Canvas(double ppu)
     : GUICanvasBase(ppu),
       mouseCallback(nullptr),
-      mouseCallbackData(nullptr)
+      mouseCallbackData(nullptr),
+      resizeCallback(nullptr),
+      resizeCallbackData(nullptr)
   {
     layout = gtk_layout_new(NULL, NULL);
     initSignals();
@@ -649,10 +669,17 @@ namespace OOFCanvas {
 			  int button, bool shift, bool ctrl)
   {
     if(mouseCallback != nullptr) {
+      // TODO: pass mouseCallbackData!
       (*mouseCallback)(eventtype, userpt.x, userpt.y, button, shift, ctrl);
       draw();
     }
   }
+
+  void Canvas::resizeHandler() {
+    if(resizeCallback != nullptr) {
+      (*resizeCallback)(resizeCallbackData);
+    }
+  };
   
 #ifdef OOFCANVAS_USE_PYTHON
 
@@ -817,7 +844,8 @@ namespace OOFCanvas {
     PyGILState_Release(pystate);
   }
 
-  void PythonCanvas::allocateHandler() {
+  void PythonCanvas::resizeHandler() {
+    // TODO: This isn't called.  Should it be?
     if(resizeCallback) {
       PyGILState_STATE pystate = PyGILState_Ensure();
       try {

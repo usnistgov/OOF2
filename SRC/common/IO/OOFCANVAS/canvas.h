@@ -36,11 +36,13 @@ namespace OOFCanvas {
 
   class OffScreenCanvas {
   protected:
-    CanvasLayer *backingLayer;	// TODO: Why is this a pointer?
+    CanvasLayer backingLayer;
     std::vector<CanvasLayer*> layers;
     // boundingBox is the bounding box, in user coordinates, of all of
     // the visible objects.
     Rectangle boundingBox;
+
+    Coord centerOffset;
 
     // transform is used by the CanvasLayers when drawing their
     // CanvasItems to their ImageSurfaces.
@@ -49,20 +51,18 @@ namespace OOFCanvas {
     
     Color bgColor;
     double margin;
+    Cairo::Antialias antialiasing;
 
     void setTransform(double);
     virtual void setWidgetSize(int, int) {}
-
     int layerNumber(const CanvasLayer*) const;
-    
-
-    Cairo::Antialias antialiasing;
+    void drawBackground(Cairo::RefPtr<Cairo::Context>) const;
 
   public:
     OffScreenCanvas(double ppu);
     virtual ~OffScreenCanvas();
 
-    virtual ICoord bitmapSize() const;
+    ICoord desiredBitmapSize() const;
     
     double getPixelsPerUnit() const { return ppu; }
 
@@ -107,8 +107,6 @@ namespace OOFCanvas {
     // Versions for swig.
     std::vector<CanvasItem*> *clickedItems_new(double, double) const;
     std::vector<CanvasItem*> *allItems_new() const;
-
-    
 
     friend class CanvasLayer;
     friend class CanvasItem;

@@ -31,17 +31,18 @@ namespace OOFCanvas {
   }
 
   void CanvasLayer::destroy() {
+    // TODO: Check that layers are being destroyed when replaced or
+    // the window is closed.
+    std::cerr << "CanvasLayer::destroy: " << name << std::endl;
     canvas->deleteLayer(this);
     // This destroys *this.  Don't do anthing else here.
   }
 
   bool CanvasLayer::rebuild() {
-    ICoord size(canvas->bitmapSize());
+    ICoord size(canvas->desiredBitmapSize());
     bool rebuilt = makeCairoObjs(size.x, size.y);
     context->set_matrix(canvas->getTransform());
-    // std::cerr << "CanvasLayer::rebuild: " << name << " " << this
-    // 	      << " size=" << size
-    // 	      << " matrix=" << context->get_matrix() << std::endl;
+    if(!empty())
     dirty = true;
     return rebuilt;
 
@@ -77,6 +78,12 @@ namespace OOFCanvas {
       return true;
     }
     return false;
+  }
+
+  ICoord CanvasLayer::bitmapSize() const {
+    if(surface)
+      return ICoord(surface->get_width(), surface->get_height());
+    return ICoord(0,0);
   }
 
   void CanvasLayer::clear() {
@@ -198,43 +205,24 @@ namespace OOFCanvas {
     // hadj and vadj are pixel offsets, from the scroll bars.
     if(visible && !items.empty()) {
       ctxt->set_source(surface, -hadj, -vadj);
-      // {
-      // 	static int filecount = 0;
-      // 	surface->write_to_png("layer_"+to_string(filecount++)+".png");
-      // 	double xmin, ymin, xmax, ymax;
-      // 	ctxt->get_clip_extents(xmin, ymin, xmax, ymax);
-      // 	Rectangle clip_extents(xmin, ymin, xmax, ymax);
-      // 	std::cerr << "CanvasLayer::draw: clip_extents=" << clip_extents
-      // 		  << " filecount=" << filecount
-      // 		  << std::endl;
-
-      // }
-      if(alpha == 1.0)
-	ctxt->paint();
-      else
-	ctxt->paint_with_alpha(alpha);
-      // std::cerr << "CanvasLayer::draw: " << ctxt->get_matrix() << std::endl;
+      ctxt->paint_with_alpha(alpha);
     }
   }
 
   Coord CanvasLayer::pixel2user(const ICoord &pt) const {
     assert(context);
-    double x = pt.x;
-    double y = pt.y;
-    context->device_to_user(x, y);
-    return Coord(x, y);
+    Coord pp = pt + canvas->centerOffset;
+    context->device_to_user(pp.x, pp.y);
+    return pp;
   }
 
   ICoord CanvasLayer::user2pixel(const Coord &pt) const {
     assert(context);
-    double x = pt.x;
-    double y = pt.y;
-    context->user_to_device(x, y);
-    return ICoord(x, y);
+    Coord pp = pt - canvas->centerOffset/canvas->getPixelsPerUnit();
+    context->user_to_device(pp.x, pp.y);
+    return ICoord(pp.x, pp.y);
   }
 
-  // TODO: Do we want to support different scales in the x and y
-  // directions?
   double CanvasLayer::pixel2user(double d) const {
     assert(context);
     double dummy = 0;

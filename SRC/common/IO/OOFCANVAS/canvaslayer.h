@@ -73,6 +73,8 @@ namespace OOFCanvas {
     double user2pixel(double) const;
     double pixel2user(double) const;
 
+    ICoord bitmapSize() const;
+
     void setClickable(bool f) { clickable = f; }
     void clickedItems(const Coord&, std::vector<CanvasItem*>&) const;
 

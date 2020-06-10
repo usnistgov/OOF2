@@ -83,10 +83,15 @@ namespace OOFCanvas {
     Coord operator/(double) const;
     ICoord operator+(const ICoord&) const;
     ICoord operator-(const ICoord&) const;
+    bool operator==(const ICoord&) const;
+    bool operator!=(const ICoord&) const;
   };
 
   inline Coord operator*(double a, ICoord pt) { return pt*a; }
   inline ICoord operator*(int a, ICoord pt) { return pt*a; }
+
+  Coord operator+(const Coord&, const ICoord&);
+  Coord operator+(const ICoord&, const Coord&);
 
   std::ostream &operator<<(std::ostream&, const ICoord&);
 

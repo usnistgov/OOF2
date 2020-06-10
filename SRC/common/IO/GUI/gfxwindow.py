@@ -151,7 +151,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         toolboxbox1.pack_start(tbscroll, expand=True, fill=True, padding=0)
 
         # Actually, the tool box goes inside yet another box, so that
-        # we have a gtk.VBox that we can refer to later.
+        # we have a gtk.Box that we can refer to later.
         self.toolboxbody = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
                                    spacing=2, margin=0)
         tbscroll.add(self.toolboxbody)
@@ -164,7 +164,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                             margin_start=gtkutils.handle_padding,
                             #margin_end=gtkutils.handle_padding
                             )
-        self.paned2.pack2(canvasbox, resize=True, shrink=True)
+        # Setting shrink=False here is necessary so that the canvas'
+        # scroll bars are always visible.
+        self.paned2.pack2(canvasbox, resize=True, shrink=False)
 
         # timebox contains widgets for displaying and setting the time
         # for all AnimationLayers in the window.
@@ -201,8 +203,11 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.timeslider.set_tooltips(
             slider="Select an interpolation time.",
             entry="Enter an interpolation time.")
+
+        canvasbox.pack_start(self.makeCanvasWidgets(),
+                             expand=True, fill=True, padding=0)
+
         
-        self.makeCanvasWidgets(canvasbox)
         self.makeContourMapWidgets()
 
         # HACK.  Set the position of the toolbox/canvas divider.  This
@@ -303,22 +308,16 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         gtklogger.connect(self.layerListView, 'row-activated',
                          self.layerDoubleClickCB)
 
-    def makeCanvasWidgets(self, container):
+    def makeCanvasWidgets(self):
         # The canvas is in the right half of paned2 (ie the middle
         # pane of 3).  We *don't* use a ScrolledWindow for it, because
         # we need direct access to the Scrollbars.  Instead, we make
         # the Scrollbars ourselves and put them in a Table with the
         # canvas.
-
-        ## TODO GTK3: Sliding the horizontal panes can make the
-        ## vertical canvas scrollbar disappear.  This shouldn't
-        ## happen.
         self.canvasTable = Gtk.Grid()
         gtklogger.setWidgetName(self.canvasTable, "Canvas")
         self.canvasTable.set_column_spacing(1)
         self.canvasTable.set_row_spacing(1)
-        container.pack_start(self.canvasTable,
-                             expand=True, fill=True, padding=0)
         self.hScrollbar = Gtk.Scrollbar(orientation=Gtk.Orientation.HORIZONTAL)
         self.vScrollbar = Gtk.Scrollbar(orientation=Gtk.Orientation.VERTICAL)
         gtklogger.setWidgetName(self.hScrollbar, "hscroll")
@@ -333,8 +332,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.canvasTable.attach(self.hScrollbar, 0,1, 1,1)
         self.canvasTable.attach(self.vScrollbar, 1,0, 1,1)
         self.canvasFrame = Gtk.Frame()
-        # self.canvasFrame.set_shadow_type(Gtk.ShadowType.NONE)
         self.canvasTable.attach(self.canvasFrame, 0,0, 1,1)
+        return self.canvasTable
 
     def makeContourMapWidgets(self):
         # the contourmap is in the right half of paned1 (the right pane of 3)
@@ -486,7 +485,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         assert self.oofcanvas is None
         ## TODO GTK3: How to set initial size of the Canvas?
         self.oofcanvas = oofcanvasgui.Canvas(width=300, height=300, ppu=1.0,
-                                          vexpand=True, hexpand=True)
+                                             vexpand=True, hexpand=True)
 ##        self.oofcanvas = fakecanvas.FakeCanvas(self.settings.antialias)
         self.canvasFrame.add(self.oofcanvas.layout)
         self.hScrollbar.set_adjustment(self.oofcanvas.get_hadjustment())
