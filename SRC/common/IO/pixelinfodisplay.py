@@ -81,7 +81,7 @@ class PixelInfoDisplay(display.DisplayMethod):
                    toolbox.getTimeStamp())
 
 defaultPixelInfoColor = color.blue
-defaultLineWidth = 1
+defaultLineWidth = 2
 widthRange = (0, 10, 0.2)
 
 def _setDefaultPixelParams(menuitem, color, line_width): #, opacity):
