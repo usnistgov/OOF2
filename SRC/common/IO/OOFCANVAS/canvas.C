@@ -135,6 +135,15 @@ namespace OOFCanvas {
     layers = *neworder;		// vector copy
   }
   
+  int OffScreenCanvas::nVisibleItems() const {
+    int n = 0;
+    for(CanvasLayer *layer : layers)
+      if(layer->visible) {
+	n += layer->size();
+      }
+    return n;
+  }
+  
   void OffScreenCanvas::setBackgroundColor(double r, double g, double b) {
     bgColor = Color(r, g, b);
   }
@@ -172,6 +181,16 @@ namespace OOFCanvas {
 
   //=\\=//
 
+  Rectangle OffScreenCanvas::findBoundingBox(double ppu) const {
+    Rectangle bb;
+    for(const CanvasLayer *layer : layers)
+      if(!layer->empty())
+	bb.swallow(layer->findBoundingBox(ppu));
+    return bb;
+  }
+
+  //=\\=//
+
   // OffScreenCanvas::transform is a Cairo::Matrix that converts from user
   // coordinates to device coordinates in the CanvasLayers'
   // Cairo::Contexts. It is *not* the transform that maps the
@@ -196,14 +215,12 @@ namespace OOFCanvas {
       {
 	return;
       }
-    
+
     // Find the bounding box of all drawn objects at the new scale
     Rectangle bbox;
     for(CanvasLayer *layer : layers) {
       if(!layer->empty()) {
-	Rectangle rect = layer->findBoundingBox(scale, newppu);
-	if(rect.initialized())
-	  bbox.swallow(rect);
+	bbox.swallow(layer->findBoundingBox(scale, newppu));
       }
     }
 
@@ -231,6 +248,7 @@ namespace OOFCanvas {
 	}
       }
     }
+    
     backingLayer.rebuild();
   } // OffScreenCanvas::setTransform
 
@@ -253,6 +271,198 @@ namespace OOFCanvas {
   ICoord OffScreenCanvas::desiredBitmapSize() const {
     return ICoord(ppu*boundingBox.width()*(1+margin),
 		  ppu*boundingBox.height()*(1+margin));
+  }
+
+  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+  // getFilledPPU() and helper routines used to calculate the optimal
+  // ppu for a given size canvas.  Used by GUICanvas::zoomToFill().
+  // At one point this was also used when saving the canvas to a file,
+  // and might be used that way again, which is why it's here and not
+  // in guicanvas.C.
+
+  // pixSize() computes the size in pixels that the window would have
+  // to be at the given ppu in order to contain a bounding box from
+  // bbmin to bbmax and a bunch of objects spanning user coords from
+  // refLo to refHi with pixel extensions pLo and pHi.  X and Y are
+  // handled separately. pixSize() just does one of them at a time.
+
+  static double pixSize(double ppu,
+			const std::vector<double> &pLo,
+			const std::vector<double> &refLo,
+			const std::vector<double> &pHi,
+			const std::vector<double> &refHi)
+  {
+    // CanvasItem i extends from refLo[i] to refHi[i] in physical
+    // units, but extends past that by pLo[i] and pHi[i] in pixel
+    // units.
+    // The total size is
+    //    max(ppu*refHi_i + pHi_i) - min(ppu*refLo_i - pLo_i)
+    double maxHi = -std::numeric_limits<double>::max();
+    double minLo = std::numeric_limits<double>::max();
+    int iHi = -1;
+    int iLo = -1;
+    for(unsigned int i=0; i<pLo.size(); i++) {
+      double xHi = ppu*refHi[i] + pHi[i];
+      if(xHi > maxHi) {
+	maxHi = xHi;
+	iHi = i;
+      }
+      double xLo = ppu*refLo[i] - pLo[i];
+      if(xLo < minLo) {
+	minLo = xLo;
+	iLo = i;
+      }
+    }
+    return maxHi - minLo;
+  }
+
+  //=\\=//
+
+  // getFilledPPU() uses optimalPPU() to compute the ppu in one
+  // direction.
+
+  static double optimalPPU(double w0, 
+			   const std::vector<double> &pLo,
+			   const std::vector<double> &refLo, 
+			   const std::vector<double> &pHi,
+			   const std::vector<double> &refHi)
+  {
+    // Item i extends from
+    //     xLo[i] = ppu*(refLo[i]-C) - pLo[i]
+    // to
+    //     xHi[i] = ppu*(refHi[i]-C) + pHi[i]
+    // where the origin C is arbitrary and ignored.
+    // The total width is 
+    //     w(ppu) = max(xHi[i]) - min(xLo[i])
+    // We need to solve w(ppu) = w0.
+    // w is a piecewise linear function of ppu, so we find the
+    // critical ppu values at which it changes slope, and look for a
+    // solution in each interval.
+
+    assert(pLo.size() == refLo.size() &&
+	   pHi.size() == refHi.size() &&
+	   pLo.size() == pHi.size());
+    unsigned int n = pLo.size();
+
+    double maxRefHi = -std::numeric_limits<double>::max();
+    double minRefLo = std::numeric_limits<double>::max();
+    int iMax, iMin;
+    
+    // ppus at which the slope of max(ppu*xmax+pmax) or
+    // min(ppu*xmin-pmin) changes.
+    std::vector<double> criticalPPUs;
+    criticalPPUs.reserve(2*n*(n-1));
+    criticalPPUs.push_back(0.0);
+
+    // TODO: Is there a way to do this that isn't o(N^2)?
+    
+    for(unsigned int i=0; i<n; i++) {
+      if(refHi[i] > maxRefHi) {
+	maxRefHi = refHi[i];
+	iMax = i;
+      }
+      if(refLo[i] < minRefLo) {
+	minRefLo = refLo[i];
+	iMin = i; 
+      }
+      for(unsigned int j=i+1; j<n; j++) {
+	// Find the ppu at which items i and j extend equally far down.
+	// ppu*refLo[i] - pLo[i] = ppu*refLo[j] - pLo[j]
+	if(refLo[i] != refLo[j]) {
+	  double ppu = (pLo[i] - pLo[j])/(refLo[i] - refLo[j]);
+	  if(ppu > 0)
+	    criticalPPUs.push_back(ppu);
+	}
+	// Find the ppu at which items i and j extend equally far up.
+	// ppu*refHi[i] + pHi[i] = ppu*refHi[j] + pHi[j]
+	if(refHi[i] != refHi[j]) {
+	  double ppu = (pHi[j] - pHi[i])/(refHi[i] - refHi[j]);
+	  if(ppu > 0)
+	    criticalPPUs.push_back(ppu);
+	}
+      }
+    }
+
+    std::sort(criticalPPUs.begin(), criticalPPUs.end());
+
+    double ppuMax = 0.0;	// maximum ppu that gives a solution
+    for(unsigned int i=0; i<criticalPPUs.size()-1; i++) {
+      // Interval in which W is a linear function of ppu
+      double ppuA = criticalPPUs[i];
+      double ppuB = criticalPPUs[i+1];
+      if(ppuA != ppuB) {
+	// Find value of ppu that gives width W = totalPixels
+	double wA = pixSize(ppuA, pLo, refLo, pHi, refHi);
+	double wB = pixSize(ppuB, pLo, refLo, pHi, refHi);
+	if((wA - w0) * (wB - w0) <= 0.0) {
+	  double ppu = ppuA + (w0 - wA)*(ppuB - ppuA)/(wB - wA);
+	  if(ppuA <= ppu && ppu <= ppuB && ppu > ppuMax) {
+	    ppuMax = ppu;
+	  }
+	}
+      }
+    }
+
+    // The interval from the largest criticalPPU to infinity has to be
+    // examined too.  As ppu goes to infinity, only the largest refHi
+    // and smallest refLo contribute.
+    // w0 = (ppu*refHi[iMax] + pHi[iMax]) - (ppu*refLo[iMin] - pLo[iMin])
+    double ppu = (w0 - pHi[iMax] - pLo[iMin])/(refHi[iMax] - refLo[iMin]);
+    if(ppu > criticalPPUs.back() && ppu > ppuMax)
+      ppuMax = ppu;
+    
+    return ppuMax;
+  } // optimalPPU
+
+  //=\\=//
+
+  // If the target surface is xsize by ysize pixels, compute the ppu
+  // that fills the surface.  This is tricky, because some objects
+  // have fixed sizes in device units and therefore change their size
+  // when the ppu is changed.  n is the number of visible items being
+  // drawn.
+  
+  double OffScreenCanvas::getFilledPPU(int n, double xsize, double ysize)
+    const
+  {
+    // Pixel extents of each item from its reference point.
+    std::vector<double> pxLo, pxHi, pyLo, pyHi;
+    // User coordinates of the upper and lower reference points of
+    // each object in each direction.
+    std::vector<double> xLo, yLo, xHi, yHi;
+    pxLo.reserve(n);
+    pxHi.reserve(n);
+    pyLo.reserve(n);
+    pyHi.reserve(n);
+    xLo.reserve(n);
+    xHi.reserve(n);
+    yLo.reserve(n);
+    yHi.reserve(n);
+
+    for(CanvasLayer *layer : layers) {
+      if(layer->visible) {
+	for(CanvasItem *item : layer->items) {
+	  const Rectangle &bbox0 = item->findBareBoundingBox();
+	  xHi.push_back(bbox0.xmax());
+	  xLo.push_back(bbox0.xmin());
+	  yHi.push_back(bbox0.ymax());
+	  yLo.push_back(bbox0.ymin());
+	  double pxlo, pxhi, pylo, pyhi;
+	  item->pixelExtents(pxlo, pxhi, pyhi, pylo);
+	  pxLo.push_back(pxlo);
+	  pxHi.push_back(pxhi);
+	  pyHi.push_back(pyhi);
+	  pyLo.push_back(pylo);
+	}
+      }
+    }
+    double ppu_x = optimalPPU(xsize, pxLo, xLo, pxHi, xHi);
+    double ppu_y = optimalPPU(ysize, pyLo, yLo, pyHi, yHi);
+    // Pick the smaller of ppu_x and ppu_y, so that the entire image
+    // is visible in both directions.
+    double newppu = ppu_x < ppu_y ? ppu_x : ppu_y;
+    return newppu;
   }
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -300,6 +510,61 @@ namespace OOFCanvas {
     for(const CanvasLayer *layer : layers)
       layer->allItems(*items);
     return items;
+  }
+
+  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+  void OffScreenCanvas::saveAsPDF(const std::string &filename,
+				  double scale, bool drawBG)
+  {
+    // TODO: Save only a region of the canvas.
+    
+    int n = nVisibleItems();
+    if(n == 0) {
+      throw ErrUserError("Nothing is drawn!");
+    }
+
+    Coord bsize = scale*backingLayer.bitmapSize();
+    auto surface = Cairo::PdfSurface::create(filename, bsize.x, bsize.y);
+    cairo_t *ct = cairo_create(surface->cobj());
+    auto pdfctxt = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(ct, true));
+    pdfctxt->set_antialias(antialiasing);
+
+    if(drawBG)
+      drawBackground(pdfctxt);
+
+
+    auto layersurf = Cairo::Surface::create(surface,
+					    Cairo::CONTENT_COLOR_ALPHA,
+					    bsize.x, bsize.y);
+    cairo_t *lt = cairo_create(layersurf->cobj());
+    auto lctxt = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(lt, true));
+
+    Cairo::Matrix matrix(getTransform());
+    matrix.xx *= scale;
+    matrix.yy *= scale;
+    matrix.x0 *= scale;
+    matrix.y0 *= scale;
+    lctxt->set_matrix(matrix);
+
+    for(CanvasLayer *layer : layers) {
+      if(!layer->empty() && layer->visible) {
+	lctxt->save();
+	lctxt->set_operator(Cairo::OPERATOR_CLEAR);
+	lctxt->paint();
+	lctxt->restore();
+
+	lctxt->save();
+	layer->redrawToContext(lctxt);
+	lctxt->restore();
+
+	pdfctxt->set_source(layersurf, 0, 0);
+	pdfctxt->paint_with_alpha(layer->alpha);
+      }
+    }
+    // Not sure if these are needed but they don't seem to hurt.
+    pdfctxt->show_page();
+    surface->finish();
   }
 
 };				// namespace OOFCanvas

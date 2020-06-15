@@ -174,9 +174,17 @@ class GhostGfxWindow:
                     tip="Name for the image file."),
                 filenameparam.OverwriteParameter(
                     'overwrite',
-                    tip="Overwrite an existing file?")],
+                    tip="Overwrite an existing file?"),
+                parameter.FloatParameter(
+                    "scale", 1.0,
+                    tip=""),
+                parameter.BooleanParameter(
+                    "background", True,
+                    tip="Fill the background?")                       
+            ],
             help="Save the contents of the graphics window as a pdf file.",
             discussion=xmlmenudump.loadFile(
+                # TODO GTK3: Update this file
                 'DISCUSSIONS/common/menu/graphicssave.xml')
             ))
         filemenu.addItem(OOFMenuItem(
@@ -964,6 +972,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             switchboard.notify((self, "time changed"))
 
     def toggleAntialias(self, menuitem, antialias):
+        # TODO GTK3: Force a redraw
         self.settings.antialias = antialias
 
     def toggleContourpane(self, menuitem, contourpane):
@@ -1032,12 +1041,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     def vScrollCB(self, menuitem, position):
         self.vscrollvalue = position
 
-    def saveCanvas(self, menuitem, filename, overwrite):
-        ## TODO GTK3: Use OOFCanvas.  Add file type as an argument.
+    def saveCanvas(self, menuitem, filename, overwrite,
+                   scale, background):
+        ## TODO GTK3: Allow different file types
         if overwrite or not os.path.exists(filename):
-            pdevice = pdfoutput.PDFoutput(filename=filename)
-            pdevice.set_background(self.settings.bgcolor)
-            self.display.draw(self, pdevice)
+            self.oofcanvas.saveAsPDF(filename, scale, background)
 
     def saveContourmap(self, menuitem, filename, overwrite):
         ## TODO GTK3: Use OOFCanvas.  Add file type as an argument.

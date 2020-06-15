@@ -46,8 +46,7 @@ namespace OOFCanvas {
       // The signs for the x and y translations are different because
       // the y axis is flipped.
       context->translate(-hadj/ppu, vadj/ppu);
-      for(CanvasItem *item : items)
-	item->draw(context);
+      redrawToContext(context);
       dirty = false;
     }
   }

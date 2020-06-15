@@ -137,9 +137,7 @@ namespace OOFCanvas {
     Rectangle(const PangoRectangle&);
     bool initialized() const { return initialized_; }
     void swallow(const Coord&);
-    void swallow(const Rectangle &rect) {
-      swallow(rect.pmin); swallow(rect.pmax);
-    }
+    void swallow(const Rectangle &rect);
     void expand(double);
     void shift(const Coord&);
     void scale(double, double);

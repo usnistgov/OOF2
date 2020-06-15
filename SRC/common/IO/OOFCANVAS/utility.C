@@ -181,6 +181,13 @@ namespace OOFCanvas {
     }
   }
 
+  void Rectangle::swallow(const Rectangle &rect) {
+    if(rect.initialized()) {
+      swallow(rect.pmin);
+      swallow(rect.pmax);
+    }
+  }
+
   void Rectangle::expand(double delta) {
     // Grow by delta in each direction
     if(initialized_) {

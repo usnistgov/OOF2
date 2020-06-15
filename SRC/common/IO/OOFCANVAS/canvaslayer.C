@@ -67,8 +67,6 @@ namespace OOFCanvas {
 
   bool CanvasLayer::makeCairoObjs(int x, int y) {
     if(!surface || surface->get_width() != x || surface->get_height() != y) {
-      // std::cerr << "CanvasLayer::makeCairoObjs: " << this
-      //  		<< " " << x << "x" << y << std::endl;
       surface = Cairo::RefPtr<Cairo::ImageSurface>(
 		   Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, x, y));
       cairo_t *ct = cairo_create(surface->cobj());
@@ -121,17 +119,20 @@ namespace OOFCanvas {
       delete item;
     items.clear();
     dirty = true;
-    rebuild();			// TODO GTK3: Is this necessary?
   }
 
   Rectangle CanvasLayer::findBoundingBox(double ppu, bool newppu) {
     if(!dirty && !newppu && bbox.initialized())
       return bbox;
-    bbox.clear();
-    for(CanvasItem *item : items) {
-      bbox.swallow(item->findBoundingBox(ppu));
-    }
+    bbox = findBoundingBox(ppu);
     return bbox;
+  }
+
+  Rectangle CanvasLayer::findBoundingBox(double ppu) const {
+    Rectangle bb;
+    for(CanvasItem *item : items)
+      bb.swallow(item->findBoundingBox(ppu));
+    return bb;
   }
 
   bool CanvasLayer::empty() const {
@@ -178,7 +179,7 @@ namespace OOFCanvas {
 // #endif // DEBUG
       if(!rebuild())
 	clear();
-      context->set_matrix(canvas->getTransform());
+      context->set_matrix(canvas->getTransform()); // TODO: Not needed?
       // {
       // 	double xmin, ymin, xmax, ymax;
       // 	context->get_clip_extents(xmin, ymin, xmax, ymax);
@@ -186,10 +187,16 @@ namespace OOFCanvas {
       // 	std::cerr << "CanvasLayer::redraw: clip_extents=" << clip_extents
       // 		  << std::endl;
       // }
-      for(CanvasItem *item : items) {
-	item->draw(context);
-      }
+
+      redrawToContext(context);
       dirty = false;
+    }
+  }
+
+  
+  void CanvasLayer::redrawToContext(Cairo::RefPtr<Cairo::Context> ctxt) const {
+    for(CanvasItem *item : items) {
+      item->draw(ctxt);
     }
   }
 

@@ -51,8 +51,12 @@ namespace OOFCanvas {
     // surface.  The CanvasLayer takes ownership of the item.
     void addItem(CanvasItem*);
     void removeAllItems();
-    // redraw redraws all items to the local surface
+    // redraw redraws all items to the local surface if the surface is
+    // out of date.  It rebuilds the surface if necessary.
     virtual void redraw();
+    // redrawToContext draws items to the given context,
+    // unconditionally.
+    void redrawToContext(Cairo::RefPtr<Cairo::Context>) const;
     // draw() draws the surface to the given context (probably the Canvas)
     virtual void draw(Cairo::RefPtr<Cairo::Context>, double hadj, double vadj)
       const;
@@ -65,8 +69,13 @@ namespace OOFCanvas {
     void show();
     void hide();
 
-    // Given the ppu, compute and cache the bounding box.
+    // Given the ppu, compute and cache the bounding box. It's not
+    // recomputed if the cached value is current. The bool says
+    // whether or not the ppu has changed since the last time.
     Rectangle findBoundingBox(double, bool);
+    // This version returns but doesn't cache the bounding box.  It
+    // always recomputes.
+    Rectangle findBoundingBox(double) const;
 
     ICoord user2pixel(const Coord&) const;
     Coord pixel2user(const ICoord&) const;

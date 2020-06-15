@@ -57,6 +57,8 @@ namespace OOFCanvas {
     Cairo::Antialias antialiasing;
 
     void setTransform(double);
+    Cairo::Matrix getTransform(double);
+    
     virtual void setWidgetSize(int, int) {}
     int layerNumber(const CanvasLayer*) const;
     void drawBackground(Cairo::RefPtr<Cairo::Context>) const;
@@ -68,6 +70,8 @@ namespace OOFCanvas {
     ICoord desiredBitmapSize() const;
     
     double getPixelsPerUnit() const { return ppu; }
+    double getFilledPPU(int, double, double) const;
+    Rectangle findBoundingBox(double) const;
 
     // Coordinate system transformations
     const Cairo::Matrix &getTransform() const { return transform; }
@@ -88,6 +92,7 @@ namespace OOFCanvas {
     CanvasLayer *getLayer(int i) const { return layers[i]; }
     CanvasLayer *getLayer(const std::string&) const;
     int nLayers() const { return layers.size(); }
+    int nVisibleItems() const;
 
     void raiseLayer(int layer, int howfar); 
     void lowerLayer(int layer, int howfar);
@@ -103,6 +108,7 @@ namespace OOFCanvas {
     // TODO: Add these:
     //void saveAs(const std::string &filename);
     //void saveRegionAs(const std::string &filename, const Rectangle&);
+    void saveAsPDF(const std::string &filename, double, bool);
 
     std::vector<CanvasItem*> clickedItems(double, double) const;
     std::vector<CanvasItem*> allItems() const;
