@@ -270,6 +270,10 @@ namespace OOFCanvas {
       // A CanvasDot's lineWidth is always in device units.
       double lw = lineWidth;
       ctxt->device_to_user_distance(lw, dummy);
+      // ctxt->set_line_width(lw);
+      // lineColor.set(ctxt);
+      // if(!dash.empty())
+      // 	ctxt->set_dash(dashLengthInUserUnits(ctxt), dashOffset);
       ctxt->begin_new_sub_path();
       ctxt->arc(center.x, center.y, r-0.5*lw, 0, 2*M_PI);
       stroke(ctxt);
