@@ -16,6 +16,9 @@
 #include "utility.h"
 
 namespace OOFCanvas {
+
+  // CanvasSegments is a set of unconnected line segments.
+  
   class CanvasSegments : public CanvasShape {
   protected:
     std::vector<Segment> segments;
@@ -28,7 +31,6 @@ namespace OOFCanvas {
     void addSegment(double x0, double y0, double x1, double y1);
     void addSegment(const Coord&, const Coord&);
     void addSegment(const Coord *a, const Coord *b) { addSegment(*a, *b); }
-    void setLineWidth(double);
     virtual void pixelExtents(double&, double&, double&, double&) const;
     int size() const { return segments.size(); }
     friend std::ostream &operator<<(std::ostream &, const CanvasSegments&);
@@ -36,6 +38,31 @@ namespace OOFCanvas {
   };
 
   std::ostream &operator<<(std::ostream &, const CanvasSegments&);
+
+  // CanvasCurve is a set of connected line segments.
+
+  class CanvasCurve : public CanvasShape {
+  protected:
+    std::vector<Coord> points;
+    virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
+    virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
+  public:
+    CanvasCurve() : CanvasShape(Rectangle()) {}
+    CanvasCurve(int n);
+    CanvasCurve(const std::vector<Coord>&);
+    virtual const std::string &classname() const;
+    void addPoint(double, double);
+    void addPoint(const Coord&);
+    void addPoint(const Coord *p) { addPoint(*p); }
+    void addPoints(const std::vector<Coord>&);
+    virtual void pixelExtents(double&, double&, double&, double&) const;
+    int size() const { return points.size(); }
+    friend std::ostream &operator<<(std::ostream&, const CanvasCurve&);
+    virtual std::string print() const;
+  };
+
+  std::ostream &operator<<(std::ostream&, const CanvasCurve&);
+  
 };
 
 

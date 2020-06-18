@@ -20,11 +20,21 @@ namespace OOFCanvas {
   protected:
     double lineWidth;
     Color lineColor;
+    Color dashColor;
     bool line;
     bool lineWidthInPixels;
+    bool dashLengthInPixels;
+    bool dashColorSet;
+    int dashOffset;
+    std::vector<double> dash;
     Cairo::LineJoin lineJoin;
     Cairo::LineCap lineCap;
     double lineWidthInUserUnits(Cairo::RefPtr<Cairo::Context>) const;
+    std::vector<double> dashLengthInUserUnits(Cairo::RefPtr<Cairo::Context>)
+      const;
+    // stroke sets line color, width, and dash pattern and draws the
+    // lines.
+    void stroke(Cairo::RefPtr<Cairo::Context>) const; // virtual?
   public:
     CanvasShape(const Rectangle &rect) :
       CanvasItem(rect),
@@ -32,6 +42,8 @@ namespace OOFCanvas {
       lineColor(black),
       line(false),
       lineWidthInPixels(false),
+      dashLengthInPixels(false),
+      dashOffset(0),
       lineJoin(Cairo::LineJoin::LINE_JOIN_MITER),
       lineCap(Cairo::LineCap::LINE_CAP_ROUND)
     {}
@@ -43,6 +55,17 @@ namespace OOFCanvas {
     virtual void setLineColor(const Color&);
     void setLineJoin(Cairo::LineJoin lj) { lineJoin = lj; }
     void setLineCap(Cairo::LineCap lc) { lineCap = lc; }
+
+    // Calling setDash makes the lines dashed.  The args are a vector
+    // of dash lengths, and an offset into that vector.  If
+    // setDashLengthInPixels is called, the lengths are interpreted in
+    // pixel units, otherwise they're in user units.  If setDashColor
+    // is called, the spaces between dashes will be in the given
+    // color.  If it's not called, the spaces will be blank.
+    void setDash(const std::vector<double>&, int);
+    void setDash(double l); // same as setDash(std::vector<double>{l}, false)
+    void setDashLengthInPixels() { dashLengthInPixels = true; }
+    void setDashColor(const Color&);
 
     Color getLineColor() const { return lineColor; }
   };

@@ -1114,6 +1114,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
     # Right click on layer list
     #########################################################
+    
     def layerlistbuttonCB(self, gtkobj, event):
         if event.button == 3:
             popupMenu = Gtk.Menu()

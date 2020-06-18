@@ -39,11 +39,6 @@ namespace OOFCanvas {
     modified();
   }
 
-  void CanvasSegments::setLineWidth(double w) {
-    CanvasShape::setLineWidth(w);
-    modified();
-  }
-
   void CanvasSegments::pixelExtents(double &left, double &right,
 				    double &up, double &down)
     const
@@ -56,25 +51,23 @@ namespace OOFCanvas {
   }
 
   void CanvasSegments::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
-    ctxt->set_line_width(lineWidthInUserUnits(ctxt));
-    ctxt->set_line_cap(lineCap);
-    lineColor.set(ctxt);
     for(const Segment &segment : segments) {
       ctxt->move_to(segment.p0.x, segment.p0.y);
       ctxt->line_to(segment.p1.x, segment.p1.y);
     }
-    ctxt->stroke();
+    stroke(ctxt);
   }
 
   bool CanvasSegments::containsPoint(const OffScreenCanvas *canvas,
-				     const Coord &pt) const
+				     const Coord &pt)
+    const
   {
     double lw = lineWidthInPixels ?
       lineWidth/canvas->getPixelsPerUnit() : lineWidth;
     double d2max = 0.25*lw*lw;
     for(const Segment &seg : segments) {
-      double alpha = 0;		// position along segment
-      double distance2 = 0; // distance squared from pt to segment along normal
+      double alpha = 0;	    // position along segment
+      double distance2 = 0; // normal distance squared from pt to segment
       seg.projection(pt, alpha, distance2);
       if(alpha >= 0.0 && alpha <= 1.0 && distance2 < d2max)
 	return true;
@@ -96,4 +89,100 @@ namespace OOFCanvas {
     os << ")";
     return os;
   }
-};
+
+  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+  CanvasCurve::CanvasCurve(int n)
+    : CanvasShape(Rectangle())
+  {
+    points.reserve(n);
+  }
+
+  CanvasCurve::CanvasCurve(const std::vector<Coord> &pts)
+    : CanvasShape(Rectangle())
+  {
+    points.reserve(pts.size());
+    for(const Coord &pt : pts) {
+      points.push_back(pt);
+      bbox.swallow(pt);
+    }
+  }
+
+  const std::string &CanvasCurve::classname() const {
+    static const std::string name("CanvasCurve");
+    return name;
+  }
+
+  void CanvasCurve::addPoint(double x, double y) {
+    points.emplace_back(x, y);
+    bbox.swallow(points.back());
+    modified();
+  }
+
+  void CanvasCurve::addPoint(const Coord &pt) {
+    points.push_back(pt);
+    bbox.swallow(pt);
+  }
+
+  void CanvasCurve::addPoints(const std::vector<Coord> &pts) {
+    points.insert(points.end(), pts.begin(), pts.end());
+    for(const Coord &pt : pts)
+      bbox.swallow(pt);
+  }
+
+  void CanvasCurve::pixelExtents(double &left, double &right,
+				 double &up, double &down)
+    const
+  {
+    double halfw = 0.5*lineWidth;
+    left = halfw;
+    right = halfw;
+    up = halfw;
+    down = halfw;
+  }
+
+  void CanvasCurve::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
+    if(points.size() > 1) {
+      ctxt->move_to(points[0].x, points[0].y);
+      for(unsigned int i=1; i<points.size(); i++)
+	ctxt->line_to(points[i].x, points[i].y);
+      stroke(ctxt);
+    }
+  }
+
+  bool CanvasCurve::containsPoint(const OffScreenCanvas *canvas,
+				  const Coord &pt)
+    const
+  {
+    if(points.size() < 2)
+      return false;
+    double lw = lineWidthInPixels ?
+      lineWidth/canvas->getPixelsPerUnit() : lineWidth;
+    double d2max = 0.25*lw*lw;
+    for(unsigned int i=1; i<points.size(); i++) {
+      Segment seg(points[i-1], points[i]);
+      double alpha = 0;	 // position along segment;
+      double distance2;	 // normal distance squared from pt to segment
+      seg.projection(pt, alpha, distance2);
+      if(alpha >= 0.0 && alpha <= 1.0 && distance2 < d2max)
+	return true;
+    }
+    return false;
+  }
+
+  std::string CanvasCurve::print() const {
+    return to_string(*this);
+  }
+
+  std::ostream &operator<<(std::ostream &os, const CanvasCurve &curve) {
+    os << "CanvasCurve(";
+    if(curve.size() > 0) {
+      os << curve.points[0];
+      for(int i=1; i<curve.size(); i++)
+	os << ", " << curve.points[i];
+    }
+    os << ")";
+    return os;
+  }
+
+};				// namespace OOFCanvas

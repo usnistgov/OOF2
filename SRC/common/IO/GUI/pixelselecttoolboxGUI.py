@@ -13,6 +13,7 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
+from ooflib.SWIG.common.IO.GUI import rubberband
 from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import debug
 from ooflib.common import pixelselectionmethod
@@ -22,6 +23,14 @@ from ooflib.common.IO.GUI import genericselectGUI
 from ooflib.common.IO.GUI import regclassfactory
 
 from gi.repository import Gtk
+
+## TODO: Fix these bugs:
+## * With the Point selector, clicking a single point outside the MS
+##   selects a point on the boundary.
+## * With the Rectangle selector, selecting a rectangle entirely
+##   outside the MS selects points on the boundary.
+## * With the brush selector, selecting points entirely outside the MS
+##   crashes the program.
 
 class PixelSelectionMethodFactory(regclassfactory.RegisteredClassFactory):
     def __init__(self, registry, obj=None, title=None, callback=None,
@@ -135,9 +144,6 @@ class PixelSelectToolboxGUI(genericselectGUI.GenericSelectToolboxGUI):
         self.updateSelectionMethods()
         genericselectGUI.GenericSelectToolboxGUI.layerChangeCB(self)
         
-        
-
-
 
 #######################################
 
@@ -163,13 +169,11 @@ def _NoRubberBand(self, reg):
 pixelselectionmethod.PixelSelectionRegistration.getRubberBand = _NoRubberBand
 
 
-## TODO GTK3: Restore this
+def _BrushSelectorRB(reg):
+    style = reg.getParameter('style').value
+    return rubberband.BrushRubberBand(style) 
 
-# def _BrushSelectorRB(reg):
-#     style = reg.getParameter('style').value
-#     return rubberband.BrushRubberBand(style)
-
-# pixelselectionmethod.brushSelectorRegistration.getRubberBand = _BrushSelectorRB
+pixelselectionmethod.brushSelectorRegistration.getRubberBand = _BrushSelectorRB
 
 
 def _RectangleSelectorRB(reg):

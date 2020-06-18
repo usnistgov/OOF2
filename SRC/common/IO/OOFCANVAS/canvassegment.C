@@ -49,20 +49,10 @@ namespace OOFCanvas {
     down = halfw;
   }
 
-  void CanvasSegment::setDashes(const std::vector<double> &d) {
-    dashes = d;
-    modified();
-  }
-
   void CanvasSegment::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
-    ctxt->set_line_width(lineWidthInUserUnits(ctxt));
-    ctxt->set_line_cap(lineCap);
-    lineColor.set(ctxt);
-    if(!dashes.empty())
-      ctxt->set_dash(dashes, 0);
     ctxt->move_to(segment.p0.x, segment.p0.y);
     ctxt->line_to(segment.p1.x, segment.p1.y);
-    ctxt->stroke();
+    stroke(ctxt);
   }
 
   bool CanvasSegment::containsPoint(const OffScreenCanvas *canvas,

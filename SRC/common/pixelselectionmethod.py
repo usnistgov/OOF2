@@ -28,8 +28,7 @@
 # common/IO/GUI/pixelselecttoolboxGUI.py for examples.
 
 from ooflib.SWIG.common import config
-if config.dimension() == 2:
-    from ooflib.SWIG.common import brushstyle
+from ooflib.SWIG.common import brushstyle
 from ooflib.SWIG.common import pixelselectioncourier
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
@@ -97,160 +96,158 @@ def sign(x):
     else:
         return -1
 
-if config.dimension() == 2:
+BrushSelection = pixelselectioncourier.BrushSelection
+class BrushSelector(SelectionMethod):
+    def __init__(self, style):
+        self.style = style
 
-    BrushSelection = pixelselectioncourier.BrushSelection
-    class BrushSelector(SelectionMethod):
-        def __init__(self, style):
-            self.style = style
-
-        def select(self, immidge, pointlist, selector):
-            self.ms = immidge.getMicrostructure()
-            points = []
-            prev = pointlist[0]
-            prevIPoint = self.ms.pixelFromPoint(prev)
-            points.append(prev)
-            for current in pointlist[1:]:
-                currentIPoint = self.ms.pixelFromPoint(current)
-                if prevIPoint == currentIPoint:
-                    continue
-                else:
-                    if self.contiguous(prev, current):
-                        points.append(current)
-                    else:
-                        points += self.fillTheGap(prev, current)
-                    prev = current
-                    prevIPoint = currentIPoint
-            selector(BrushSelection(self.ms, self.style,
-                                    filter(self.okPoints,points)))
-
-        def contiguous(self, prev, next):
-            # To simplify things, two points are assumed to be contiguous,
-            # if their iPoint counterparts are contiguous.        
-            iprev = self.ms.pixelFromPoint(prev)
-            inext = self.ms.pixelFromPoint(next)
-            dx = abs(inext.x - iprev.x)
-            dy = abs(inext.y - iprev.y)
-            return (dx <= 1) and (dy <= 1)
-
-        def fillTheGap(self, prev, next):
-            dx = next.x - prev.x
-            dy = next.y - prev.y
-            points = []
-            if abs(dx) >= abs(dy):  # Sample along the x-axis
-                slope = (next.y - prev.y)/(next.x - prev.x)
-                h = sign(dx)*self.ms.sizeOfPixels()[0]  # Sampling increment
-                i = 1
-                x = prev.x+i*h
-                while sign(next.x - x)==sign(dx):
-                    y = slope*(x - prev.x) + prev.y
-                    points.append(primitives.Point(x,y))
-                    i += 1
-                    x = prev.x+i*h
-                points.append(next)
+    def select(self, immidge, pointlist, selector):
+        self.ms = immidge.getMicrostructure()
+        points = []
+        prev = pointlist[0]
+        prevIPoint = self.ms.pixelFromPoint(prev)
+        points.append(prev)
+        for current in pointlist[1:]:
+            currentIPoint = self.ms.pixelFromPoint(current)
+            if prevIPoint == currentIPoint:
+                continue
             else:
-                slope = (next.x - prev.x)/(next.y - prev.y)
-                h = sign(dy)*self.ms.sizeOfPixels()[1]
-                i = 1
+                if self.contiguous(prev, current):
+                    points.append(current)
+                else:
+                    points += self.fillTheGap(prev, current)
+                prev = current
+                prevIPoint = currentIPoint
+        selector(BrushSelection(self.ms, self.style,
+                                filter(self.okPoints,points)))
+
+    def contiguous(self, prev, next):
+        # To simplify things, two points are assumed to be contiguous,
+        # if their iPoint counterparts are contiguous.        
+        iprev = self.ms.pixelFromPoint(prev)
+        inext = self.ms.pixelFromPoint(next)
+        dx = abs(inext.x - iprev.x)
+        dy = abs(inext.y - iprev.y)
+        return (dx <= 1) and (dy <= 1)
+
+    def fillTheGap(self, prev, next):
+        dx = next.x - prev.x
+        dy = next.y - prev.y
+        points = []
+        if abs(dx) >= abs(dy):  # Sample along the x-axis
+            slope = (next.y - prev.y)/(next.x - prev.x)
+            h = sign(dx)*self.ms.sizeOfPixels()[0]  # Sampling increment
+            i = 1
+            x = prev.x+i*h
+            while sign(next.x - x)==sign(dx):
+                y = slope*(x - prev.x) + prev.y
+                points.append(primitives.Point(x,y))
+                i += 1
+                x = prev.x+i*h
+            points.append(next)
+        else:
+            slope = (next.x - prev.x)/(next.y - prev.y)
+            h = sign(dy)*self.ms.sizeOfPixels()[1]
+            i = 1
+            y = prev.y+i*h
+            while sign(next.y - y)==sign(dy):
+                x = slope*(y - prev.y) + prev.x
+                points.append(primitives.Point(x,y))
+                i += 1
                 y = prev.y+i*h
-                while sign(next.y - y)==sign(dy):
-                    x = slope*(y - prev.y) + prev.x
-                    points.append(primitives.Point(x,y))
-                    i += 1
-                    y = prev.y+i*h
-                points.append(next)
-            return points
+            points.append(next)
+        return points
 
-        def okPoints(self, p):
-            if (p.x >= 0.0 and p.x <= self.ms.size().x) and \
-            (p.y >= 0.0 and p.y <= self.ms.size().y):
-                return 1
-            return 0
+    def okPoints(self, p):
+        if (p.x >= 0.0 and p.x <= self.ms.size().x) and \
+        (p.y >= 0.0 and p.y <= self.ms.size().y):
+            return 1
+        return 0
 
-    brushSelectorRegistration = PixelSelectionRegistration(
-        'Brush',
-        BrushSelector,
-        ordering=0.101,
-        events=['down', 'move', 'up'],
-        params=[parameter.RegisteredParameter('style', brushstyle.BrushStyle,
-                                              tip=parameter.emptyTipString)],
-        whoclasses=['Microstructure', 'Image'],
-        tip="Drag to select multiple pixels with a brush.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/brushselect.xml')
-        )
+brushSelectorRegistration = PixelSelectionRegistration(
+    'Brush',
+    BrushSelector,
+    ordering=0.101,
+    events=['down', 'move', 'up'],
+    params=[parameter.RegisteredParameter('style', brushstyle.BrushStyle,
+                                          tip=parameter.emptyTipString)],
+    whoclasses=['Microstructure', 'Image'],
+    tip="Drag to select multiple pixels with a brush.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/brushselect.xml')
+    )
 
-    ####################
+####################
 
-    RectangleSelection = pixelselectioncourier.RectangleSelection
-    class RectangleSelector(SelectionMethod):
-        def select(self, immidge, pointlist, selector):
-            # Select pixels whose centers are in the rectangle defined by
-            # the points. 
-            ms = immidge.getMicrostructure()
-            isize = ms.sizeInPixels()
-            psize = primitives.Point(*ms.sizeOfPixels())
-            ll = primitives.Point(min(pointlist[0].x, pointlist[-1].x),
-                                  min(pointlist[0].y, pointlist[-1].y))
-            ur = primitives.Point(max(pointlist[0].x, pointlist[-1].x),
-                                  max(pointlist[0].y, pointlist[-1].y))
-            selector(RectangleSelection(ms, ll, ur))
+RectangleSelection = pixelselectioncourier.RectangleSelection
+class RectangleSelector(SelectionMethod):
+    def select(self, immidge, pointlist, selector):
+        # Select pixels whose centers are in the rectangle defined by
+        # the points. 
+        ms = immidge.getMicrostructure()
+        isize = ms.sizeInPixels()
+        psize = primitives.Point(*ms.sizeOfPixels())
+        ll = primitives.Point(min(pointlist[0].x, pointlist[-1].x),
+                              min(pointlist[0].y, pointlist[-1].y))
+        ur = primitives.Point(max(pointlist[0].x, pointlist[-1].x),
+                              max(pointlist[0].y, pointlist[-1].y))
+        selector(RectangleSelection(ms, ll, ur))
 
-    rectangleSelectorRegistration = PixelSelectionRegistration(
-        'Rectangle',
-        RectangleSelector,
-        ordering=0.2,
-        events=['down', 'up'],
-        whoclasses=['Microstructure', 'Image'],
-        tip="Drag to select a rectangular region.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/rectangle.xml')
-        )
+rectangleSelectorRegistration = PixelSelectionRegistration(
+    'Rectangle',
+    RectangleSelector,
+    ordering=0.2,
+    events=['down', 'up'],
+    whoclasses=['Microstructure', 'Image'],
+    tip="Drag to select a rectangular region.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/rectangle.xml')
+    )
 
-    CircleSelection = pixelselectioncourier.CircleSelection
-    class CircleSelector(SelectionMethod):
-        def select(self, immidge, pointlist, selector):
-            ms = immidge.getMicrostructure()
-            isize = ms.sizeInPixels()
-            psize = primitives.Point(*ms.sizeOfPixels())
-            center = pointlist[0]
-            radius = pointlist[-1] - center
-            rr = radius.x*radius.x + radius.y*radius.y
-            r = math.sqrt(rr)
-            ll = primitives.Point(center.x - r, center.y - r)
-            ur = primitives.Point(center.x + r, center.y + r)
-            selector(CircleSelection(ms, center, r, ll, ur))
+CircleSelection = pixelselectioncourier.CircleSelection
+class CircleSelector(SelectionMethod):
+    def select(self, immidge, pointlist, selector):
+        ms = immidge.getMicrostructure()
+        isize = ms.sizeInPixels()
+        psize = primitives.Point(*ms.sizeOfPixels())
+        center = pointlist[0]
+        radius = pointlist[-1] - center
+        rr = radius.x*radius.x + radius.y*radius.y
+        r = math.sqrt(rr)
+        ll = primitives.Point(center.x - r, center.y - r)
+        ur = primitives.Point(center.x + r, center.y + r)
+        selector(CircleSelection(ms, center, r, ll, ur))
 
 
-    circleSelectorRegistration = PixelSelectionRegistration(
-        'Circle',
-        CircleSelector,
-        ordering=0.3,
-        events=['down', 'up'],
-        whoclasses=['Microstructure', 'Image'],
-        tip="Drag to select a circular region.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/circleselect.xml')
-        )
+circleSelectorRegistration = PixelSelectionRegistration(
+    'Circle',
+    CircleSelector,
+    ordering=0.3,
+    events=['down', 'up'],
+    whoclasses=['Microstructure', 'Image'],
+    tip="Drag to select a circular region.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/circleselect.xml')
+    )
 
-    EllipseSelection = pixelselectioncourier.EllipseSelection
-    class EllipseSelector(SelectionMethod):
-        def select(self, immidge, pointlist, selector):
-            ms = immidge.getMicrostructure()
-            isize = ms.sizeInPixels()
-            psize = primitives.Point(*ms.sizeOfPixels())
-            ll = primitives.Point(min(pointlist[0].x, pointlist[-1].x),
-                                  min(pointlist[0].y, pointlist[-1].y))
-            ur = primitives.Point(max(pointlist[0].x, pointlist[-1].x),
-                                  max(pointlist[0].y, pointlist[-1].y))
-            selector(EllipseSelection(ms, ll, ur))
+EllipseSelection = pixelselectioncourier.EllipseSelection
+class EllipseSelector(SelectionMethod):
+    def select(self, immidge, pointlist, selector):
+        ms = immidge.getMicrostructure()
+        isize = ms.sizeInPixels()
+        psize = primitives.Point(*ms.sizeOfPixels())
+        ll = primitives.Point(min(pointlist[0].x, pointlist[-1].x),
+                              min(pointlist[0].y, pointlist[-1].y))
+        ur = primitives.Point(max(pointlist[0].x, pointlist[-1].x),
+                              max(pointlist[0].y, pointlist[-1].y))
+        selector(EllipseSelection(ms, ll, ur))
 
-    ellipseSelectorRegistration = PixelSelectionRegistration(
-        'Ellipse',
-        EllipseSelector,
-        ordering=0.4,
-        events=['down', 'up'],
-        whoclasses=['Microstructure', 'Image'],
-        tip="Drag to select an elliptical region.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/ellipseselect.xml')
-        )
+ellipseSelectorRegistration = PixelSelectionRegistration(
+    'Ellipse',
+    EllipseSelector,
+    ordering=0.4,
+    events=['down', 'up'],
+    whoclasses=['Microstructure', 'Image'],
+    tip="Drag to select an elliptical region.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/ellipseselect.xml')
+    )
 
 
 ## TODO LATER: Add TriangleSelector, or maybe a PolygonSelector.  This

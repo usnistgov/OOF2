@@ -185,6 +185,9 @@ namespace OOFCanvas {
 
   void GUICanvasBase::setRubberBand(RubberBand *rb) {
     rubberBand = rb;
+    // TODO:  Why isn't the rubberband drawn right away?
+    rubberBandLayer.dirty = true;
+    draw();
   }
 
   void GUICanvasBase::removeRubberBand() {
@@ -288,6 +291,12 @@ namespace OOFCanvas {
     // being set up so that the origin at (0, 0) coincides with the
     // upper left corner of the widget, and is properly clipped."
     // (https://developer.gnome.org/gtk3/stable/ch26s02.html)
+
+    // static int iii = 0;
+    // std::cerr << "GUICanvasBase::drawHandler " << iii++
+    // 	      << " rb=" << rubberBand
+    // 	      << " rb active=" << (rubberBand && rubberBand->active())
+    // 	      << std::endl;
 
     double hadj, vadj;
     getEffectiveAdjustments(hadj, vadj);

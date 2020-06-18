@@ -267,6 +267,18 @@ public:
   }
 };
 
+class CanvasCurve : public CanvasShape {
+public:
+  CanvasCurve();
+  void addPoint(double, double);
+  %name(addCurvePoint) void addPoint(Coord*);
+  %addmethods {
+    %new const string *__repr__() {
+      return self->repr();
+    }
+  }
+};
+
 class CanvasPolygon : public CanvasFillableShape {
 public:
   CanvasPolygon();
@@ -398,6 +410,8 @@ class RubberBand {
 public:
   void setLineWidth(double);
   void setColor(Color);
+  void setDashLength(double);
+  void setDashColor(Color);
 };
 
 class LineRubberBand : public RubberBand {

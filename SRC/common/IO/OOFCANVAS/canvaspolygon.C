@@ -56,17 +56,12 @@ namespace OOFCanvas {
   void CanvasPolygon::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
     if(size() < 2)
       return;
-    ctxt->set_line_width(lineWidthInUserUnits(ctxt));
-    ctxt->set_line_cap(lineCap);
-    ctxt->set_line_join(lineJoin);
-    lineColor.set(ctxt);
     auto iter = corners.begin();
     ctxt->move_to(iter->x, iter->y);
     while(++iter != corners.end()) {
       ctxt->line_to(iter->x, iter->y);
     }
     ctxt->close_path();
-
     fillAndStroke(ctxt);
   }
 

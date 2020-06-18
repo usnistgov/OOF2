@@ -70,9 +70,8 @@ namespace OOFCanvas {
     }
     if(line) {
       double lw = lineWidthInUserUnits(ctxt);
-      ctxt->set_line_width(lw);
       ctxt->arc(center.x, center.y, radius-0.5*lw, 0, 2*M_PI);
-      ctxt->stroke();
+      stroke(ctxt);
     }
   }
 
@@ -196,9 +195,7 @@ namespace OOFCanvas {
       double rr = r0 > r1 ? r0 : r1;
       ctxt->arc(0.0, 0.0, 1.0-0.5*lw/rr, 0.0, 2*M_PI);
       ctxt->restore();
-      ctxt->set_line_width(lw);
-      lineColor.set(ctxt);
-      ctxt->stroke();
+      stroke(ctxt);
     }
   }
 
@@ -273,11 +270,9 @@ namespace OOFCanvas {
       // A CanvasDot's lineWidth is always in device units.
       double lw = lineWidth;
       ctxt->device_to_user_distance(lw, dummy);
-      ctxt->set_line_width(lw);
-      lineColor.set(ctxt);
       ctxt->begin_new_sub_path();
       ctxt->arc(center.x, center.y, r-0.5*lw, 0, 2*M_PI);
-      ctxt->stroke();
+      stroke(ctxt);
     }
   }
 

@@ -366,8 +366,13 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                             self.shapeenergy0 += element.energyShape()
                     # Create rubber band
                     points = [n.position() for n in self.nbrnodes]
-                    self.gfxwindow().setRubberBand(
-                        oofcanvas.SpiderRubberBand(points))
+                    rb = oofcanvas.SpiderRubberBand(points);
+                    ## TODO GTK3: Make rubber band parameters settable.
+                    rb.setLineWidth(1)
+                    rb.setColor(oofcanvas.black)
+                    rb.setDashColor(oofcanvas.white)
+                    rb.setDashLength(7)
+                    self.gfxwindow().setRubberBand(rb)
             gtklogger.checkpoint("Move Node toolbox down event")
         finally:
             self.mouselock.release()

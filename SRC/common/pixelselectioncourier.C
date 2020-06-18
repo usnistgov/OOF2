@@ -14,9 +14,7 @@
 #include "common/cmicrostructure.h"
 #include "common/pixelselectioncourier.h"
 #include "common/printvec.h"
-#if DIM==2
 #include "common/brushstyle.h"
-#endif
 #include <math.h>
 #include <iostream>
 #include <iomanip>
@@ -45,7 +43,7 @@ void PointSelection::next() {
 }
 
 //////////
-#if DIM==2
+
 BrushSelection::BrushSelection(CMicrostructure *ms, BrushStyle *brush,
 			       const std::vector<Coord> *points)
   : PixelSelectionCourier(ms),
@@ -86,7 +84,6 @@ void BrushSelection::next() {
   while(!*sel_iter && !done_) 
     advance();
 }
-#endif
 
 ///////////
 

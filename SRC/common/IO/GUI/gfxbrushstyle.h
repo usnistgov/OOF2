@@ -14,38 +14,31 @@
 
 #include <oofconfig.h>
 
-#include "common/coord.h"
+#include "common/IO/OOFCANVAS/oofcanvas.h"
 #include "common/brushstyle.h"
-#include <gdk/gdk.h>
-#include <gtk/gtk.h>
-#include <libgnomecanvas/libgnomecanvas.h>
 
 // Each BrushStyle subclass defined in common/brushstyle.h should have
-// a GfxBrushStyle class derived from it here.  The drawStyle()
-// routine draws the brush's "rubberband" while the user is moving the
-// mouse.  The classes defined here must be swigged in
-// gfxbrushstyle.swg, and the brushstyle registration must be modified
-// in gfxbrushstyle.spy.
+// a GfxBrushStyle class derived from it here.  The draw() routine
+// draws the brush's "rubberband" while the user is moving the mouse.
+// The classes defined here must be swigged in gfxbrushstyle.swg, and
+// the brushstyle registration must be modified in gfxbrushstyle.spy.
 
 class GfxBrushStyle {
 public:
   virtual ~GfxBrushStyle() {}
-  virtual void drawStyle(GnomeCanvasItem*, GdkBitmap*, GdkBitmap*,
-			 const guint32&, const guint32&, const Coord&) = 0;
+  virtual void draw(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&) const = 0;
 };
 
 class GfxCircleBrush : public GfxBrushStyle, public CircleBrush {
 public:
   GfxCircleBrush(double r) : CircleBrush(r) {}
-  virtual void drawStyle(GnomeCanvasItem*, GdkBitmap*, GdkBitmap*,
-			 const guint32&, const guint32&, const Coord&);
+  virtual void draw(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&) const;
 };
 
 class GfxSquareBrush : public GfxBrushStyle, public SquareBrush {
 public:
   GfxSquareBrush(double hs) : SquareBrush(hs) {}
-  virtual void drawStyle(GnomeCanvasItem*, GdkBitmap*, GdkBitmap*,
-			 const guint32&, const guint32&, const Coord&);
+  virtual void draw(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&) const;
 };
 
 #endif // GFXBRUSHSTYLE_H

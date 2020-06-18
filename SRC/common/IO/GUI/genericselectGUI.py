@@ -15,6 +15,7 @@ from ooflib.SWIG.common import config
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import ooferror
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import subthread
@@ -448,7 +449,13 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         debug.mainthreadTest()
         self.selmeth = self.selectionMethodFactory.getRegistration()
         self.selectionMethodFactory.set_defaults()
-        self.gfxwindow().setRubberBand(self.selmeth.getRubberBand(self.selmeth))
+        rb = self.selmeth.getRubberBand(self.selmeth)
+        ## TODO: Make the rubberband width, etc, settable by the user
+        rb.setLineWidth(1)
+        rb.setColor(oofcanvas.black)
+        rb.setDashColor(oofcanvas.white)
+        rb.setDashLength(7)
+        self.gfxwindow().setRubberBand(rb)
         # Start collecting points
         self.points = [primitives.Point(x,y)]
 

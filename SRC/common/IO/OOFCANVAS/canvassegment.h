@@ -25,14 +25,11 @@ namespace OOFCanvas {
     Segment segment;
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
-    std::vector<double> dashes;
   public:
     CanvasSegment(double x0, double y0, double x1, double y1);
     CanvasSegment(const Coord &p0, const Coord &p1);
     virtual const std::string &classname() const;
     virtual void setLineWidth(double);
-    void setDashes(const std::vector<double>&);
-
     virtual void pixelExtents(double&, double&, double&, double&) const;
     friend class CanvasArrowhead;
     friend std::ostream &operator<<(std::ostream&, const CanvasSegment&);

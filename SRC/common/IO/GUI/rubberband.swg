@@ -16,50 +16,16 @@
 %include "common/typemaps.swg"
 %{
 #include "common/IO/GUI/rubberband.h"
+using namespace OOFCanvas;
 %}
 %extern "gfxbrushstyle.swg"
+%extern "common/IO/OOFCANVAS/oofcanvas.swg"
 
-class RubberBand {};
-
-class NoRubberBand : public RubberBand {
-public:
-  NoRubberBand();
-};
-
-class RectangleRubberBand : public RubberBand {
-public:
-  RectangleRubberBand();
-  ~RectangleRubberBand();
-};
-
-class CircleRubberBand : public RubberBand {
-public:
-  CircleRubberBand();
-  ~CircleRubberBand();
-};
-
-class EllipseRubberBand : public RubberBand {
-public:
-  EllipseRubberBand();
-  ~EllipseRubberBand();
-};
-
-class SpiderRubberBand : public RubberBand {
-public:
-  SpiderRubberBand(PointVec *PointList);
-  ~SpiderRubberBand();
-};
+%pragma(python) code="from ooflib.SWIG.common.IO.OOFCANVAS.oofcanvas import RubberBandPtr"
 
 class BrushRubberBand : public RubberBand {
 public:
   BrushRubberBand(GfxBrushStyle *brush);
-  ~BrushRubberBand();
-};
-
-class LineRubberBand : public RubberBand {
-public:
-  LineRubberBand();
-  ~LineRubberBand();
 };
 
 #endif // RUBBERBAND_SWG

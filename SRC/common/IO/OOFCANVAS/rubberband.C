@@ -26,7 +26,10 @@ namespace OOFCanvas {
   RubberBand::RubberBand()
     : active_(false),
       lineWidth(1),
-      color(black)
+      color(black),
+      dashColor(white),
+      dashLength(0),
+      coloredDashes(false)
   {}
 
   RubberBand::~RubberBand() {}
@@ -47,12 +50,29 @@ namespace OOFCanvas {
     active_ = false;
   }
 
+  void RubberBand::setDashColor(Color c) {
+    dashColor = c;
+    coloredDashes = true;
+  }
+
+  void RubberBand::doDashes(CanvasShape *shape) {
+    if(dashLength > 0) {
+      shape->setDashLengthInPixels();
+      shape->setDash(dashLength);
+      if(coloredDashes)
+	shape->setDashColor(dashColor);
+    }
+  }
+
+  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
   void LineRubberBand::draw(double x, double y) {
     RubberBand::draw(x, y);
     CanvasSegment *seg = new CanvasSegment(startPt, currentPt);
     seg->setLineWidthInPixels();
     seg->setLineWidth(lineWidth);
     seg->setLineColor(color);
+    doDashes(seg);
     layer->clear();
     layer->addItem(seg);
   }
@@ -63,6 +83,7 @@ namespace OOFCanvas {
     rect->setLineWidthInPixels();
     rect->setLineWidth(lineWidth);
     rect->setLineColor(color);
+    doDashes(rect);
     layer->clear();
     layer->addItem(rect);
   }
@@ -78,6 +99,8 @@ namespace OOFCanvas {
     seg->setLineWidthInPixels();
     seg->setLineWidth(lineWidth/2.);
     seg->setLineColor(color);
+    doDashes(seg);
+    doDashes(circle);
     layer->clear();
     layer->addItem(circle);
     layer->addItem(seg);
@@ -100,6 +123,9 @@ namespace OOFCanvas {
     ellipse->setLineWidthInPixels();
     ellipse->setLineWidth(lineWidth);
     ellipse->setLineColor(color);
+
+    doDashes(ellipse);
+    doDashes(rect);
 
     layer->clear();
     layer->addItem(rect);
@@ -126,6 +152,7 @@ namespace OOFCanvas {
     for(Coord &pt : points) {
       segs->addSegment(currentPt, pt);
     }
+    doDashes(segs);
     layer->clear();
     layer->addItem(segs);
   }

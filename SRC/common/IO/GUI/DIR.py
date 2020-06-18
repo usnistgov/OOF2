@@ -63,38 +63,13 @@ pyfiles = [
     'workerGUI.py'
  ]
 
-cfiles = ['progressGUI.C']
+cfiles = ['progressGUI.C', 'rubberband.C', 'gfxbrushstyle.C']
 
-hfiles = ['progressGUI.h']
+hfiles = ['progressGUI.h', 'rubberband.h', 'gfxbrushstyle.h']
 
-swigfiles = ['progressGUI.swg']
+swigfiles = ['progressGUI.swg', 'rubberband.swg', 'gfxbrushstyle.swg']
 
-swigpyfiles = ['progressGUI.spy']
-
-
-cfiles += [
-    # 'rubberband.C',
-    #'gfxbrushstyle.C'
-]
-
-swigfiles += [
-    #'oofcanvas.swg',
-    # 'rubberband.swg',
-    #'gfxbrushstyle.swg'
-]
-
-swigpyfiles += [
-    'gfxbrushstyle.spy'
-]
-
-hfiles += [
-    # 'rubberband.h',
-    # 'rbstipple.xbm',
-    # 'rbstubble.xbm',
-    #'gfxbrushstyle.h'
-]
-
-
+swigpyfiles = ['progressGUI.spy', 'gfxbrushstyle.spy']
 
 
 def set_clib_flags(clib):
@@ -110,10 +85,6 @@ def set_clib_flags(clib):
     #                            "/sw/lib/freetype219/lib/pkgconfig/")
 
     oof2setuputils.pkg_check("gtk+-3.0", GTK_VERSION, clib)
-    # oof2setuputils.pkg_check("pygtk-2.0", PYGTK_VERSION, clib)
-    # oof2setuputils.pkg_check("pygobject-2.0", PYGOBJECT_VERSION)
-    if not DIM_3:
-        clib.externalLibs.append('oof2common')
-    else:
-        clib.externalLibs.append('oof3dcommon')
+    clib.externalLibs.append('oof2common')
+
 

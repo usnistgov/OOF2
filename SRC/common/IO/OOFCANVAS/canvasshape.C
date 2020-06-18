@@ -19,6 +19,10 @@ namespace OOFCanvas {
     modified();
   }
 
+  // TODO: There should be a version of this that takes an
+  // OffScreenCanvas argument instead of a Context.  Some methods,
+  // like CanvasSegments::containsPoint, are computing the lineWidth
+  // themselves because they don't know the context.
   double CanvasShape::lineWidthInUserUnits(Cairo::RefPtr<Cairo::Context> ctxt)
     const
   {
@@ -30,10 +34,65 @@ namespace OOFCanvas {
     return lineWidth;
   }
 
+  std::vector<double> CanvasShape::dashLengthInUserUnits(
+				 Cairo::RefPtr<Cairo::Context> ctxt)
+    const
+  {
+    if(!dashLengthInPixels)
+      return dash;
+    std::vector<double> newdash(dash);
+    double dummy=0;
+    for(unsigned int i=0; i<dash.size(); i++)
+      ctxt->device_to_user_distance(newdash[i], dummy);
+    return newdash;
+  }
+
   void CanvasShape::setLineColor(const Color &color) {
     lineColor = color;
     line = true;
   }
+
+  void CanvasShape::setDash(const std::vector<double> &d, int offset) {
+    dash = d;
+    dashOffset = offset;
+  }
+
+  void CanvasShape::setDash(double d) {
+    dash = std::vector<double>({d});
+    dashOffset = 0;
+  }
+
+  void CanvasShape::setDashColor(const Color &clr) {
+    dashColor = clr;
+    dashColorSet = true;
+  }
+
+  void CanvasShape::stroke(Cairo::RefPtr<Cairo::Context> ctxt) const {
+    ctxt->set_line_width(lineWidthInUserUnits(ctxt));
+    ctxt->set_line_cap(lineCap);
+    ctxt->set_line_join(lineJoin);
+    if(dash.empty()) {
+      // No dashes
+      lineColor.set(ctxt);
+      ctxt->stroke();
+    }
+    else if(!dashColorSet) {
+      // line is dashed with gaps between dashes.
+      lineColor.set(ctxt);
+      ctxt->set_dash(dashLengthInUserUnits(ctxt), dashOffset);
+      ctxt->stroke();
+    }
+    else {
+      // gaps between dashes are filled with the dashColor
+      dashColor.set(ctxt);
+      ctxt->stroke_preserve();
+      lineColor.set(ctxt);
+      ctxt->set_dash(dashLengthInUserUnits(ctxt), dashOffset);
+      ctxt->stroke();
+    }
+  }
+
+  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
   void CanvasFillableShape::setFillColor(const Color &color) {
     fillColor = color;
@@ -43,15 +102,16 @@ namespace OOFCanvas {
   void CanvasFillableShape::fillAndStroke(Cairo::RefPtr<Cairo::Context> ctxt)
     const
   {
+    if(line && !dash.empty()) {
+      ctxt->set_dash(dashLengthInUserUnits(ctxt), dashOffset);
+    }
     if(line && fill) {
       fillColor.set(ctxt);
       ctxt->fill_preserve();
-      lineColor.set(ctxt);
-      ctxt->stroke();
+      stroke(ctxt);
     }
     else if(line) {
-      lineColor.set(ctxt);
-      ctxt->stroke();
+      stroke(ctxt);
     }
     else if(fill) {
       fillColor.set(ctxt);

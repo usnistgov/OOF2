@@ -18,6 +18,7 @@ namespace OOFCanvas {
 
   class CanvasLayer;
   class Color;
+  class CanvasShape;
 
   // Should this be a PythonExportable class?
 
@@ -29,6 +30,10 @@ namespace OOFCanvas {
     CanvasLayer *layer;
     double lineWidth;
     Color color;
+    Color dashColor;
+    double dashLength;		// length==0 means no dashes
+    bool coloredDashes;
+    void doDashes(CanvasShape*);
   public:
     RubberBand();
     virtual ~RubberBand();
@@ -39,6 +44,9 @@ namespace OOFCanvas {
 
     void setLineWidth(double w) { lineWidth = w; }
     void setColor(Color c) { color = c; }
+
+    void setDashColor(Color);
+    void setDashLength(double l) { dashLength = l; }
   };
 
   class LineRubberBand : public RubberBand {
