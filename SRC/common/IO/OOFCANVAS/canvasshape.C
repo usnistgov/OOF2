@@ -102,9 +102,6 @@ namespace OOFCanvas {
   void CanvasFillableShape::fillAndStroke(Cairo::RefPtr<Cairo::Context> ctxt)
     const
   {
-    if(line && !dash.empty()) {
-      ctxt->set_dash(dashLengthInUserUnits(ctxt), dashOffset);
-    }
     if(line && fill) {
       fillColor.set(ctxt);
       ctxt->fill_preserve();

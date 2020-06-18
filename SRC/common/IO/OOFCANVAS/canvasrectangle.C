@@ -38,8 +38,6 @@ namespace OOFCanvas {
   }
 
   void CanvasRectangle::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
-    // TODO GTK3: Why aren't dashes working properly?  The second
-    // color isn't showing up rubber bands.
     double w = lineWidthInUserUnits(ctxt);
     double halfw = 0.5*w;
     ctxt->set_line_join(lineJoin);
