@@ -105,10 +105,12 @@ namespace OOFCanvas {
     // draw method doesn't.
     virtual void draw() {}
 
-    // TODO: Add these:
-    //void saveAs(const std::string &filename);
-    //void saveRegionAs(const std::string &filename, const Rectangle&);
+    // TODO: Add saveAsPNG, saveRegionAsPNG
     void saveAsPDF(const std::string &filename, double, bool);
+    void saveRegionAsPDF(const std::string &filename, double, bool,
+			 const Coord&, const Coord&);
+    void saveRegionAsPDF(const std::string &filename, double, bool,
+			 const Coord*, const Coord*);
 
     std::vector<CanvasItem*> clickedItems(double, double) const;
     std::vector<CanvasItem*> allItems() const;

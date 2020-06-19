@@ -524,8 +524,8 @@ namespace OOFCanvas {
       throw ErrUserError("Nothing is drawn!");
     }
 
-    Coord bsize = scale*backingLayer.bitmapSize();
-    auto surface = Cairo::PdfSurface::create(filename, bsize.x, bsize.y);
+    Coord imgsize = scale*backingLayer.bitmapSize();
+    auto surface = Cairo::PdfSurface::create(filename, imgsize.x, imgsize.y);
     cairo_t *ct = cairo_create(surface->cobj());
     auto pdfctxt = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(ct, true));
     pdfctxt->set_antialias(antialiasing);
@@ -533,10 +533,9 @@ namespace OOFCanvas {
     if(drawBG)
       drawBackground(pdfctxt);
 
-
     auto layersurf = Cairo::Surface::create(surface,
 					    Cairo::CONTENT_COLOR_ALPHA,
-					    bsize.x, bsize.y);
+					    imgsize.x, imgsize.y);
     cairo_t *lt = cairo_create(layersurf->cobj());
     auto lctxt = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(lt, true));
 
@@ -567,6 +566,73 @@ namespace OOFCanvas {
     surface->finish();
   }
 
+  void OffScreenCanvas::saveRegionAsPDF(
+				const std::string &filename,
+				double scale, bool drawBG,
+				const Coord &pt0, const Coord &pt1)
+  {
+    int n = nVisibleItems();
+    if(n == 0) {
+      throw ErrUserError("Nothing is drawn!");
+    }
+
+    Rectangle region(pt0, pt1); // ensures that upperRight[i] >= lowerLeft[i]
+
+    // Compute pixel size of region and make a PdfSurface to fit.
+    Coord imgsize = scale*ppu*(region.upperRight() - region.lowerLeft());
+    auto surface = Cairo::PdfSurface::create(filename, imgsize.x, imgsize.y);
+    cairo_t *ct = cairo_create(surface->cobj());
+    auto pdfctxt = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(ct, true));
+    pdfctxt->set_antialias(antialiasing);
+
+    if(drawBG)
+      drawBackground(pdfctxt);
+
+    auto layersurf = Cairo::Surface::create(surface,
+					    Cairo::CONTENT_COLOR_ALPHA,
+					    imgsize.x, imgsize.y);
+    cairo_t *lt = cairo_create(layersurf->cobj());
+    auto lctxt = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(lt, true));
+
+    Cairo::Matrix matrix(getTransform());
+    matrix.xx *= scale;
+    matrix.yy *= scale;
+    matrix.x0 *= scale;
+    matrix.y0 *= scale;
+    lctxt->set_matrix(matrix);
+    Coord deviceOrigin(0,0);
+    lctxt->device_to_user(deviceOrigin.x, deviceOrigin.y);
+    Coord offset = deviceOrigin - region.upperLeft();
+    lctxt->translate(offset.x, offset.y);
+
+    for(CanvasLayer *layer : layers) {
+      if(!layer->empty() && layer->visible) {
+	lctxt->save();
+	lctxt->set_operator(Cairo::OPERATOR_CLEAR);
+	lctxt->paint();
+	lctxt->restore();
+
+	lctxt->save();
+	layer->redrawToContext(lctxt);
+	lctxt->restore();
+
+	pdfctxt->set_source(layersurf, 0, 0);
+	pdfctxt->paint_with_alpha(layer->alpha);
+      }
+    }
+    // Not sure if these are needed but they don't seem to hurt.
+    pdfctxt->show_page();
+    surface->finish();
+  }
+
+  void OffScreenCanvas::saveRegionAsPDF(
+				const std::string &filename,
+				double scale, bool drawBG,
+				const Coord *pt0, const Coord *pt1)
+  {
+    saveRegionAsPDF(filename, scale, drawBG, *pt0, *pt1);
+  }
+    
 };				// namespace OOFCanvas
 
 

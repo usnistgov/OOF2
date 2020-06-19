@@ -126,6 +126,14 @@ namespace OOFCanvas {
     draw();
   }
 
+  Rectangle GUICanvasBase::visibleRegion() const {
+    ICoord pix0(gtk_adjustment_get_value(getHAdjustment()),
+		gtk_adjustment_get_value(getVAdjustment()));
+    Coord pt0 = pixel2user(pix0);
+    Coord pt1 = pixel2user(pix0 + ICoord(widgetWidth(), widgetHeight()));
+    return Rectangle(pt0, pt1);
+  }
+
   void GUICanvasBase::zoomAbout(const Coord &fixedPt, double factor) {
     // Zoom by factor while keeping the device-space coordinates of
     // the user-space fixedPt fixed.

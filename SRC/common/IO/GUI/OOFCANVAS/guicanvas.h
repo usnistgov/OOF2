@@ -85,6 +85,8 @@ namespace OOFCanvas {
     void zoomToFill();
     void center();
 
+    Rectangle visibleRegion() const;
+
     void removeMouseCallback();
     void allowMotionEvents(bool allow) { allowMotion = allow; }
 

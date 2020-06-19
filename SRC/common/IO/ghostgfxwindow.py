@@ -177,7 +177,7 @@ class GhostGfxWindow:
                     tip="Overwrite an existing file?"),
                 parameter.FloatParameter(
                     "scale", 1.0,
-                    tip=""),
+                    tip="Multiply distances by this before saving."),
                 parameter.BooleanParameter(
                     "background", True,
                     tip="Fill the background?")                       
@@ -187,6 +187,34 @@ class GhostGfxWindow:
                 # TODO GTK3: Update this file
                 'DISCUSSIONS/common/menu/graphicssave.xml')
             ))
+        filemenu.addItem(OOFMenuItem(
+            'Save_Canvas_Region',
+            callback=self.saveCanvasRegion,
+            ellipsis=1,
+            params=[
+                filenameparam.WriteFileNameParameter(
+                    'filename', ident='gfxwindow',
+                    tip='Name for the image file.'),
+                filenameparam.OverwriteParameter(
+                    'overwrite',
+                    tip="Overwrite an existing file?"),
+                parameter.FloatParameter(
+                    "scale", 1.0,
+                    tip="Multiply distances by this before saving."),
+                parameter.BooleanParameter(
+                    "background", True,
+                    tip="Fill the background?"),
+                primitives.PointParameter(
+                    "lowerleft",
+                    tip="Lower left corner of the saved region,"
+                    " in physical coordinates."),
+                primitives.PointParameter(
+                    "upperright",
+                    tip="Upper right corner of the saved region,"
+                    " in physical coordinates.")
+                ],
+            help="Save a region of the graphics window as a pdf file."))
+            
         filemenu.addItem(OOFMenuItem(
             'Save_Contourmap',
             callback=self.saveContourmap,
@@ -1046,6 +1074,12 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         ## TODO GTK3: Allow different file types
         if overwrite or not os.path.exists(filename):
             self.oofcanvas.saveAsPDF(filename, scale, background)
+
+    def saveCanvasRegion(self, menuitem, filename, overwrite,
+                         scale, background, lowerleft, upperright):
+        if overwrite or not os.path.exists(filename):
+            self.oofcanvas.saveRegionAsPDF(filename, scale, background,
+                                           lowerleft, upperright)
 
     def saveContourmap(self, menuitem, filename, overwrite):
         ## TODO GTK3: Use OOFCanvas.  Add file type as an argument.

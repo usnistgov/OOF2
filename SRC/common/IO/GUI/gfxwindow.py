@@ -33,6 +33,7 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import labelledslider
 from ooflib.common.IO.GUI import mousehandler
+from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import quit
 from ooflib.common.IO.GUI import subWindow
 
@@ -400,9 +401,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         debug.mainthreadTest()
         # Add gui callbacks to the non-gui menu created by the GhostGfxWindow.
         filemenu = self.menu.File
+        filemenu.Save_Canvas_Region.add_gui_callback(self.saveCanvasRegion_gui)
         filemenu.Quit.add_gui_callback(quit.queryQuit)
         layermenu = self.menu.Layer
-        # Theres no gui callback for layermenu.New.
+        # There's no gui callback for layermenu.New.
         layermenu.Edit.add_gui_callback(self.editLayer_gui)
         layermenu.Delete.add_gui_callback(self.deleteLayer_gui)
         layermenu.Hide.add_gui_callback(self.hideLayer_gui)
@@ -994,6 +996,16 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         debug.mainthreadTest()
         self.oofcanvas.zoomToFill()
         self.fix_step_increment()
+
+    def saveCanvasRegion_gui(self, menuitem):
+        visrect = self.oofcanvas.visibleRegion() # an OOFCanvas::Rectangle
+        ll = menuitem.get_arg('lowerleft')
+        ll.value = primitives.Point(visrect.xmin(), visrect.ymin());
+        ur = menuitem.get_arg('upperright')
+        ur.value = primitives.Point(visrect.xmax(), visrect.ymax());
+        if parameterwidgets.getParameters(*menuitem.params,
+                                          title="Save Region"):
+            menuitem.callWithDefaults()
 
     # only 2D - fix the step increment of the canvas table scroll bars
     def fix_step_increment(self):

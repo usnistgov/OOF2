@@ -469,6 +469,7 @@ public:
   %name(clickedItems) %new CanvasItemList* clickedItems_new(double, double);
   %name(allItems) %new CanvasItemList* allItems_new();
   void saveAsPDF(char*, double, bool);
+  void saveRegionAsPDF(char*, double, bool, Coord*, Coord*);
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

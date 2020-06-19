@@ -17,7 +17,8 @@
 
 %pragma(python) include="oofcanvasgui.spy"
 
-%pragma(python) code="from ooflib.SWIG.common.IO.OOFCANVAS.oofcanvas import OffScreenCanvasPtr"  
+%pragma(python) code="from ooflib.SWIG.common.IO.OOFCANVAS.oofcanvas import OffScreenCanvasPtr"
+%pragma(python) code="from ooflib.SWIG.common.IO.OOFCANVAS.oofcanvas import RectanglePtr"
 %extern "common/IO/OOFCANVAS/oofcanvas.swg"
   
 %{
@@ -45,6 +46,7 @@ public:
   void zoomAbout(double, double, double);
   void zoomToFill();
   void center();
+  Rectangle visibleRegion();
   void setMouseCallback(PyObject*, PyObject*);
   void setResizeCallback(PyObject*, PyObject*);
   void allowMotionEvents(bool);
