@@ -18,9 +18,6 @@
 #include <math.h>
 #include <vector>
 
-// TODO GTK3: The gtk2 version draws rubber bands as two interleaved
-// dashed lines, in two different colors.  That would work here too.
-
 namespace OOFCanvas {
 
   RubberBand::RubberBand()
