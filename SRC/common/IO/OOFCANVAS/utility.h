@@ -92,6 +92,8 @@ namespace OOFCanvas {
 
   Coord operator+(const Coord&, const ICoord&);
   Coord operator+(const ICoord&, const Coord&);
+  Coord operator-(const Coord&, const ICoord&);
+  Coord operator-(const ICoord&, const Coord&);
 
   std::ostream &operator<<(std::ostream&, const ICoord&);
 

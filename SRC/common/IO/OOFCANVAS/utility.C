@@ -119,6 +119,14 @@ namespace OOFCanvas {
     return Coord(a.x+b.x, a.y+b.y);
   }
 
+  Coord operator-(const Coord &a, const ICoord &b) {
+    return Coord(a.x-b.x, a.y-b.y);
+  }
+
+  Coord operator-(const ICoord &a, const Coord &b) {
+    return Coord(a.x-b.x, a.y-b.y);
+  }
+  
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
   
   Rectangle::Rectangle()
