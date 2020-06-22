@@ -53,6 +53,10 @@ BrushSelection::BrushSelection(CMicrostructure *ms, BrushStyle *brush,
     offset(0, 0) {}
 
 void BrushSelection::start() {
+  if(points.empty()) {
+    done_ = true;
+    return;
+  }
   pts_iter = points.begin();  // start from the first point
   brush->getPixels(ms, *pts_iter, master, selected, offset); // get pixels
   sel_iter = selected.begin();
