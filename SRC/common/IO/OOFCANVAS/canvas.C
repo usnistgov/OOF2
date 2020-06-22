@@ -517,53 +517,8 @@ namespace OOFCanvas {
   void OffScreenCanvas::saveAsPDF(const std::string &filename,
 				  double scale, bool drawBG)
   {
-    // TODO: Save only a region of the canvas.
-    
-    int n = nVisibleItems();
-    if(n == 0) {
-      throw ErrUserError("Nothing is drawn!");
-    }
-
-    Coord imgsize = scale*backingLayer.bitmapSize();
-    auto surface = Cairo::PdfSurface::create(filename, imgsize.x, imgsize.y);
-    cairo_t *ct = cairo_create(surface->cobj());
-    auto pdfctxt = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(ct, true));
-    pdfctxt->set_antialias(antialiasing);
-
-    if(drawBG)
-      drawBackground(pdfctxt);
-
-    auto layersurf = Cairo::Surface::create(surface,
-					    Cairo::CONTENT_COLOR_ALPHA,
-					    imgsize.x, imgsize.y);
-    cairo_t *lt = cairo_create(layersurf->cobj());
-    auto lctxt = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(lt, true));
-
-    Cairo::Matrix matrix(getTransform());
-    matrix.xx *= scale;
-    matrix.yy *= scale;
-    matrix.x0 *= scale;
-    matrix.y0 *= scale;
-    lctxt->set_matrix(matrix);
-
-    for(CanvasLayer *layer : layers) {
-      if(!layer->empty() && layer->visible) {
-	lctxt->save();
-	lctxt->set_operator(Cairo::OPERATOR_CLEAR);
-	lctxt->paint();
-	lctxt->restore();
-
-	lctxt->save();
-	layer->redrawToContext(lctxt);
-	lctxt->restore();
-
-	pdfctxt->set_source(layersurf, 0, 0);
-	pdfctxt->paint_with_alpha(layer->alpha);
-      }
-    }
-    // Not sure if these are needed but they don't seem to hurt.
-    pdfctxt->show_page();
-    surface->finish();
+    Rectangle bb = findBoundingBox(scale*getPixelsPerUnit());
+    saveRegionAsPDF(filename, scale, drawBG, bb.lowerLeft(), bb.upperRight());
   }
 
   void OffScreenCanvas::saveRegionAsPDF(
