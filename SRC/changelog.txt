@@ -1,4 +1,4 @@
-gtk3 changes, which may be in 2.1.19 or 2.2.0, depending...
+gtk3 changes, which may be in 2.1.20 or 2.2.0, depending...
 
 * OOF2 uses gtk3 instead of gtk2, and no longer requires
   libgnomecanvas.
@@ -8,6 +8,11 @@ gtk3 changes, which may be in 2.1.19 or 2.2.0, depending...
 
 * OOF.Graphics_1.File.Save_Image is now Save_Canvas.
 
+Other unreleased changes:
+
+* Fixed the square brush in the pixel selection toolbox, which was
+  confused about units and didn't work correctly unless the physical
+  pixel size was 1x1.
 
 OOF2 2.1.19
 
