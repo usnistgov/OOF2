@@ -29,8 +29,6 @@ from gi.repository import Gtk
 ##   selects a point on the boundary.
 ## * With the Rectangle selector, selecting a rectangle entirely
 ##   outside the MS selects points on the boundary.
-## * With the brush selector, selecting points entirely outside the MS
-##   crashes the program.
 
 class PixelSelectionMethodFactory(regclassfactory.RegisteredClassFactory):
     def __init__(self, registry, obj=None, title=None, callback=None,
@@ -95,17 +93,6 @@ class PixelSelectToolboxGUI(genericselectGUI.GenericSelectToolboxGUI):
     def finish_up(self, ptlist, shift, ctrl, selmeth):
         # copy parameters from widgets to the registration
         self.selectionMethodFactory.set_defaults()
-
-        # we convert the ptlist, which uses the 2d screen
-        # coordinates to 3d coordinates using the canvas
-        if config.dimension() == 3:
-            vxllist = []
-            msOrImage = self.gfxwindow().topmost('Microstructure', 'Image')
-            if msOrImage:
-                for pt in ptlist:
-                    vxllist.append(
-                        self.gfxwindow().oofcanvas.screenCoordsTo3DCoords(pt[0], pt[1]))
-            ptlist = vxllist
         
         # Now invoke the selection method by calling the
         # corresponding toolbox menu item. The arguments are
