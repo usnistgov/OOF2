@@ -14,6 +14,9 @@ Other unreleased changes:
   confused about units and didn't work correctly unless the physical
   pixel size was 1x1.
 
+* Fixed the brush pixel selector, which was trying too hard to be
+  efficient and could miss points.
+
 OOF2 2.1.19
 
 * Selection sizes are reported as percentages as well as absolute

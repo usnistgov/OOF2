@@ -451,10 +451,11 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.selectionMethodFactory.set_defaults()
         rb = self.selmeth.getRubberBand(self.selmeth)
         ## TODO: Make the rubberband width, etc, settable by the user
-        rb.setLineWidth(1)
-        rb.setColor(oofcanvas.black)
-        rb.setDashColor(oofcanvas.white)
-        rb.setDashLength(7)
+        if rb is not None:
+            rb.setLineWidth(1)
+            rb.setColor(oofcanvas.black)
+            rb.setDashColor(oofcanvas.white)
+            rb.setDashLength(7)
         self.gfxwindow().setRubberBand(rb)
         # Start collecting points
         self.points = [primitives.Point(x,y)]
@@ -466,8 +467,11 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
 
     def up(self, x, y, button, shift, ctrl, data):    # mouse up
         debug.mainthreadTest()
-        # Finish the collection of points
-        self.points.append(primitives.Point(x,y))
+        # Finish the collection of points. If the mouse up position is
+        # the same as the last move event position, don't duplicate it.
+        pt = primitives.Point(x,y)
+        if len(self.points) == 0 or self.points[-1] != pt:
+            self.points.append(pt)
         if self.selmeth is not None:
             # Construct the list of points that the method needs
             ptlist = []

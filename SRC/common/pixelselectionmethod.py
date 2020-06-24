@@ -105,21 +105,25 @@ class BrushSelector(SelectionMethod):
         self.ms = immidge.getMicrostructure()
         points = []
         prev = pointlist[0]
-        prevIPoint = self.ms.pixelFromPoint(prev)
         points.append(prev)
         for current in pointlist[1:]:
-            currentIPoint = self.ms.pixelFromPoint(current)
-            if prevIPoint == currentIPoint:
-                continue
+            # NOTE: We used to check whether or not the current point
+            # was in the same pixel as the previous point, and ignore
+            # it if it was.  That could greatly reduce the number of
+            # points processed, but is the wrong thing to do if the
+            # brush is relatively small and the pixels relatively
+            # large and the user is trying to be precise about which
+            # pixels are selected.
+            if self.contiguous(prev, current):
+                points.append(current)
             else:
-                if self.contiguous(prev, current):
-                    points.append(current)
-                else:
-                    points += self.fillTheGap(prev, current)
-                prev = current
-                prevIPoint = currentIPoint
-        selector(BrushSelection(self.ms, self.style,
-                                filter(self.okPoints,points)))
+                points += self.fillTheGap(prev, current)
+            prev = current
+
+        xmax = self.ms.size().x
+        ymax = self.ms.size().y
+        points = [p for p in points if 0<=p.x<=xmax and 0<=p.y<=ymax]
+        selector(BrushSelection(self.ms, self.style, points))
 
     def contiguous(self, prev, next):
         # To simplify things, two points are assumed to be contiguous,
@@ -157,12 +161,6 @@ class BrushSelector(SelectionMethod):
                 y = prev.y+i*h
             points.append(next)
         return points
-
-    def okPoints(self, p):
-        if (p.x >= 0.0 and p.x <= self.ms.size().x) and \
-        (p.y >= 0.0 and p.y <= self.ms.size().y):
-            return 1
-        return 0
 
 brushSelectorRegistration = PixelSelectionRegistration(
     'Brush',
