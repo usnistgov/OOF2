@@ -1196,6 +1196,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         finally:
             if lock:
                 self.releaseGfxLock()
+        switchboard.notify((self, 'layers changed'))
 
     def sortLayers(self, forced=False):
         if not self.sortedLayers and (forced or self.settings.autoreorder):
