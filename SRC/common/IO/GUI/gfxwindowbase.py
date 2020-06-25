@@ -20,6 +20,9 @@ from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import subWindow
 
+## TODO: There's no need anymore for a separate GfxWindowBase base
+## class.  All of this can be merged into GfxWindow.  GfxWindowBase
+## was useful when the 2D and 3D graphics windows shared a base class.
 
 class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     def __init__(self, name, gfxmgr, clone=0):
@@ -94,7 +97,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
 
     def fillLayerList_thread(self):
         debug.mainthreadTest()
-        self.suppressRowOpSignals()
+        # self.suppressRowOpSignals()
         self.suppressSelectionSignals()
         try:
             self.layerList.clear()
@@ -103,7 +106,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
                 if layer is self.selectedLayer:
                     self.layerListView.get_selection().select_path('0')
         finally:
-            self.allowRowOpSignals()
+            # self.allowRowOpSignals()
             self.allowSelectionSignals()
             
 
@@ -197,55 +200,58 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         layer = model[iter][0]
         return not (layer.listed or self.settings.listall)
 
-    # Callbacks for the layerList's "row-inserted" and "row-deleted"
-    # signals, sent when the user reorders layers by dragging them in
-    # the layer list.  "row-inserted" is sent first.
+    ## TODO: Reordering by drag and drop is disabled because I can't
+    ## figure out how it's supposed to work.  It didn't work properly
+    ## in gtk+2 either.
+    # # Callbacks for the layerList's "row-inserted" and "row-deleted"
+    # # signals, sent when the user reorders layers by dragging them in
+    # # the layer list.  "row-inserted" is sent first.
     
-    def listRowInsertedCB(self, model, path, iter):
-        # "row-inserted" is sent before the row is built, so we can't
-        # get the actual layer here, just where it's going to be.
-        self.destination_path = path
-        self.suppressSelectionSignals()
+    # def listRowInsertedCB(self, model, path, iter):
+    #     # "row-inserted" is sent before the row is built, so we can't
+    #     # get the actual layer here, just where it's going to be.
+    #     self.destination_path = path
+    #     self.suppressSelectionSignals()
 
-    def listRowDeletedCB(self, model, path):
-        self.allowSelectionSignals()
-        if self.destination_path is not None:
-            source_row = path[0]
-            dest_row = self.destination_path[0]
-            if source_row > dest_row:
-                # The layer has been raised.  Remember that indices in the
-                # gtk ListStore run in the opposite direction from indices
-                # in the Display's layer list.
-                layer = model[self.destination_path][0]
-                # How far has the row moved? The -1 is because the path
-                # was computed *before* the row was deleted.
-                delta = source_row - dest_row - 1
-                if delta > 0:
-                    self.menu.Layer.Raise.By(n=self.layerID(layer),
-                                             howfar=delta)
-            else:                           # source_row < dest_row
-                # The layer has been lowered.
-                # After the source row is deleted, the destination row
-                # number decreases by 1.
-                layer = model[(dest_row-1,)][0]
-                delta = dest_row - source_row - 1
-                if delta > 0:
-                    self.menu.Layer.Lower.By(n=self.layerID(layer),
-                                             howfar=delta)
-            self.destination_path = None
+    # def listRowDeletedCB(self, model, path):
+    #     self.allowSelectionSignals()
+    #     if self.destination_path is not None:
+    #         source_row = path[0]
+    #         dest_row = self.destination_path[0]
+    #         if source_row > dest_row:
+    #             # The layer has been raised.  Remember that indices in the
+    #             # gtk ListStore run in the opposite direction from indices
+    #             # in the Display's layer list.
+    #             layer = model[self.destination_path][0]
+    #             # How far has the row moved? The -1 is because the path
+    #             # was computed *before* the row was deleted.
+    #             delta = source_row - dest_row - 1
+    #             if delta > 0:
+    #                 self.menu.Layer.Raise.By(n=self.layerID(layer),
+    #                                          howfar=delta)
+    #         else:                           # source_row < dest_row
+    #             # The layer has been lowered.
+    #             # After the source row is deleted, the destination row
+    #             # number decreases by 1.
+    #             layer = model[(dest_row-1,)][0]
+    #             delta = dest_row - source_row - 1
+    #             if delta > 0:
+    #                 self.menu.Layer.Lower.By(n=self.layerID(layer),
+    #                                          howfar=delta)
+    #         self.destination_path = None
 
-    # suppressRowOpSignals and allowRowOpSignals are used to make sure
-    # that the row rearrangement callbacks aren't invoked when rows
-    # are manipulated from the program, instead of by the user.
-    def suppressRowOpSignals(self):
-        debug.mainthreadTest()
-        for signal in self.rowOpSignals:
-            signal.block()
+    # # suppressRowOpSignals and allowRowOpSignals are used to make sure
+    # # that the row rearrangement callbacks aren't invoked when rows
+    # # are manipulated from the program, instead of by the user.
+    # def suppressRowOpSignals(self):
+    #     debug.mainthreadTest()
+    #     for signal in self.rowOpSignals:
+    #         signal.block()
 
-    def allowRowOpSignals(self):
-        debug.mainthreadTest()
-        for signal in self.rowOpSignals:
-            signal.unblock()
+    # def allowRowOpSignals(self):
+    #     debug.mainthreadTest()
+    #     for signal in self.rowOpSignals:
+    #         signal.unblock()
 
     def suppressSelectionSignals(self):
         debug.mainthreadTest()

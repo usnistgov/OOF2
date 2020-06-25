@@ -232,7 +232,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.layerListView = Gtk.TreeView(self.layerList)
         gtklogger.setWidgetName(self.layerListView, "LayerList")
         self.layerListView.set_row_separator_func(self.layerRowSepFunc)
-        self.layerListView.set_reorderable(True)
         self.layerListView.set_fixed_height_mode(False) # TODO GTK3: True?
         self.layerScroll.add(self.layerListView)
 
@@ -244,17 +243,21 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         gtklogger.connect(self.layerListView, 'button-press-event',
                           self.layerlistbuttonCB)
 
-        # The row-deleted and row-inserted signals are used to detect
-        # when the user has reordered rows manually.  When the program
-        # does anything that might cause these signals to be emitted,
-        # it must first call suppressRowOpSignals.
-        self.rowOpSignals = [
-            gtklogger.connect(self.layerList, "row-deleted",
-                             self.listRowDeletedCB),
-            gtklogger.connect(self.layerList, "row-inserted",
-                             self.listRowInsertedCB)
-            ]
-        self.destination_path = None
+        ## TODO: Reordering by drag and drop is disabled because I
+        ## can't figure out how it's supposed to work.  It didn't work
+        ## properly in gtk+2 either.
+        # # The row-deleted and row-inserted signals are used to detect
+        # # when the user has reordered rows manually.  When the program
+        # # does anything that might cause these signals to be emitted,
+        # # it must first call suppressRowOpSignals.
+        # self.layerListView.set_reorderable(True)
+        # self.rowOpSignals = [
+        #     gtklogger.connect(self.layerList, "row-deleted",
+        #                      self.listRowDeletedCB),
+        #     gtklogger.connect(self.layerList, "row-inserted",
+        #                      self.listRowInsertedCB)
+        #     ]
+        # self.destination_path = None
 
         showcell = Gtk.CellRendererToggle()
         showcol = Gtk.TreeViewColumn("Show")
@@ -1130,9 +1133,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def layerlistbuttonCB(self, gtkobj, event):
         if event.button == 3:
             popupMenu = Gtk.Menu()
-            for item in self.Menu.Layer:
-                item.construct_gui(self.Menu.Layer, popupMenu, None)
-            popupMenu.show_all();
+            for item in self.menu.Layer:
+                item.construct_gui(self.menu.Layer, popupMenu, None)
+            popupMenu.show_all()
             popupMenu.popup_at_pointer(event)
 
         # It's important to return False here, since doing so allows
