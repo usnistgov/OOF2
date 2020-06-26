@@ -715,7 +715,6 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
         self.min = min
         self.vmax = None
         self.vmin = None
-        self.contourmaphidden = False
         self.lock = lock.Lock()
         SkeletonDisplayMethod.__init__(self)
     def draw(self, gfxwindow, canvaslayer):
@@ -773,10 +772,6 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
             return (self.vmin, self.vmax,
                     [self.vmin+x*delta for x in range(self.contourmaplevels)])
         return (0., 1., [0])
-    def hide_contourmap(self):
-        self.contourmaphidden = True
-    def show_contourmap(self):
-        self.contourmaphidden = False
     def draw_contourmap(self, gfxwindow, canvaslayer):
         self.lock.acquire()
         try:

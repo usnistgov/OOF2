@@ -137,7 +137,7 @@ class ContourableMesh(whoville.WhoProxyClass):
     def resolve(self, proxy, gfxwindow):
         layer = gfxwindow.topcontourable()
         if layer:
-            return layer.who().resolve(gfxwindow)
+            return layer.who.resolve(gfxwindow)
         else:
             return gfxwindow.topwho( ('Mesh') )
     def getTimeStamp(self, proxy, gfxwindow):

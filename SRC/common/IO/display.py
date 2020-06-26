@@ -137,17 +137,6 @@ class DisplayMethod(registeredclass.RegisteredClass):
     def draw_contourmap(self, gfxwindow, canvaslayer):
         pass
 
-    # Other contour-map-management functions -- only implemented
-    # in subclasses of ContourDisplay.
-    def explicit_contour_hide(self):
-        pass
-        
-    def hide_contourmap(self):
-        pass
-
-    def show_contourmap(self):
-        pass
-
     # Frozen layers won't be redrawn, but they will be drawn once.
     # These functions should be redefined in derived classes that need
     # to do more computation (such as storing the time) when freezing.

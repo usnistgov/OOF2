@@ -141,23 +141,6 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         else:
             self.menu.Layer.Freeze(n=self.layerID(layer))
 
-    def renderCMapCell(self, column, cell_renderer, model, iter, data):
-        debug.mainthreadTest()
-        layer = model[iter][0]
-        if layer.contour_capable(self):
-            cell_renderer.set_property('activatable', True)
-            cell_renderer.set_active(layer is self.current_contourmap_method)
-        else:
-            cell_renderer.set_property('activatable', False)
-            cell_renderer.set_property('active', False)
-
-    def cmapcellCB(self, cell_renderer, path):
-        layer = self.layerList[path][0]
-        if layer is self.current_contourmap_method:
-            self.menu.Layer.Hide_Contour_Map(n=self.layerID(layer))
-        else:
-            self.menu.Layer.Show_Contour_Map(n=self.layerID(layer))
-
     def renderLayerCell(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         layer = model[iter][0]
@@ -265,7 +248,8 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     # displays has changed.
     def layerListRowChanged(self, n):
         rowno = len(self.layerList) - 1 - n
-        self.layerList.row_changed(rowno, self.layerList.get_iter(rowno))
+        mainthread.runBlock(
+            self.layerList.row_changed, (rowno, self.layerList.get_iter(rowno)))
 
     # General callbacks
     #######################################################
@@ -391,6 +375,10 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     def hideLayer_thread(self, menuitem, n):
         self.layers[n].hide()   # hide layer in canvas
         self.layerListRowChanged(n)
+        ## TODO GTK3: Do hideLayer_thread and showLayer_thread need to
+        ## call show_contourmap_info?  Shouldn't they call draw(),
+        ## which calls show_contourmap_info?
+        
         # Update the contourmap.
         # self.contourmap_newlayers() # called by GhostGfxWindow.hideLayer
         subthread.execute(self.show_contourmap_info)
@@ -451,13 +439,6 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         ghostgfxwindow.GhostGfxWindow.deselectAll(self)
         self.allowSelectionSignals()
         
-    # # At layer-removal time, it's necessary to explicitly redraw the
-    # # contourmap, because the main canvas layers have not been redrawn,
-    # # so the usual automatic redraw has not taken place.
-    # def removeLayer(self, layer):
-    #     ghostgfxwindow.GhostGfxWindow.removeLayer(self, layer)
-    #     self.show_contourmap_info()
-    
     def raiseLayer_gui(self, menuitem):
         if self.selectedLayer is None:
             guitop.top().message_out('No layer is selected!\n')

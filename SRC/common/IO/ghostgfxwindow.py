@@ -402,24 +402,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 """
             ))
 
-        layermenu.addItem(OOFMenuItem(
-            'Hide_Contour_Map',
-            callback=self.hideLayerContourmap,
-            params=[IntParameter('n',0,tip="Contour map index.")],
-            help="Hide the selected layer's contour map.",
-            discussion=xmlmenudump.loadFile(
-                    'DISCUSSIONS/common/menu/hidecontour.xml')
-            ))
-        layermenu.addItem(OOFMenuItem(
-            'Show_Contour_Map',
-            callback=self.showLayerContourmap,
-            params=[IntParameter('n',0, tip="Contour map index.")],
-            help="Show the selected layer's contour map.",
-            discussion="""<para>
-            See <xref
-            linkend='MenuItem-OOF.Graphics_n.Layer.Hide_Contour_Map'/>.
-            </para>"""
-            ))
         raisemenu = layermenu.addItem(OOFMenuItem(
             'Raise',
             help='Make a layer more visible.',
@@ -838,12 +820,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             else:
                 self.menu.Layer.Freeze.enable()
                 self.menu.Layer.Unfreeze.disable()
-
-            if self.selectedLayer.contour_capable(self):
-                if not self.selectedLayer.contourmaphidden:
-                    self.menu.Layer.Hide_Contour_Map.enable()
-                else:
-                    self.menu.Layer.Show_Contour_Map.enable()
         else:
             self.menu.Layer.Delete.disable()
             self.menu.Layer.Raise.disable()
@@ -853,8 +829,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             self.menu.Layer.Freeze.disable()
             self.menu.Layer.Unfreeze.disable()
             self.menu.Layer.Edit.disable()
-            self.menu.Layer.Show_Contour_Map.disable()
-            self.menu.Layer.Hide_Contour_Map.disable()
         if self.nLayers() == 0:
             self.menu.Settings.Zoom.disable()
         else:
@@ -1095,11 +1069,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     # Sets the current contourable layer to be the topmost one,
     # unconditionally.
     def contourmap_newlayers(self):
-        for layer in self.layers:
-            layer.hide_contourmap()
         topmost = self.topcontourable()
         if topmost:
-            topmost.show_contourmap()
             self.current_contourmap_method = topmost
         else:
             self.current_contourmap_method = None
@@ -1255,32 +1226,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.sensitize_menus()
         self.draw()
 
-    ## TODO: hideLayerContourmap() and showLayerContourmap() interact
-    ## badly with all methods that change layers or reorder layers,
-    ## because they call newLayerMembers(), which calls
-    ## contourmap_newlayers(), which resets
-    ## self.current_contourmap_method.
-
-    # Menu callbacks for layer operations.  Overridden in gfxwindow.
-    def hideLayerContourmap(self, menuitem, n):
-        self.layers[n].hide_contourmap()
-        self.current_contourmap_method = None
-        self.sensitize_menus()
-    
-    def showLayerContourmap(self, menuitem, n):
-        # At most one contourmap can be shown at a time, so hide all
-        # the others.
-        for layer in self.layers:
-            layer.hide_contourmap()
-        self.current_contourmap_method = self.layers[n]
-        self.current_contourmap_method.show_contourmap()
-        self.sensitize_menus()
-
     # Topmost layer on which contours can be drawn -- such a layer
     # must have a mesh as its "who".
     def topcontourable(self):
         for layer in reversed(self.layers):
-            if layer.contour_capable(self) and not layer.hidden():
+            if layer.contour_capable(self) and not layer.hidden:
                 return layer
             
     def selectLayer(self, n):
@@ -1307,7 +1257,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def raiseLayerBy(self, n, howfar):
         # n is the layer number
-        debug.fmsg("n=", n, "howfar=", howfar)
         self.acquireGfxLock()
         try:
             if howfar > 0 and 0 <= n < self.nLayers()-howfar:
@@ -1316,17 +1265,16 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                     self.layers[n+i] = self.layers[n+i+1]
                 self.layers[n+howfar] = thislayer
                 thislayer.raise_layer(howfar) # raises it in OOFCanvas
-                ## TODO GTK3: the gtk2 version incremented a timestamp
-                ## here, but I think it can be done in newLayerMembers
-                ## instead.
             else:
                 return
         finally:
             self.releaseGfxLock()
         switchboard.notify((self, 'layers changed'))
         self.sensitize_menus()
-        self.draw()
+        # newLayerMembers() must be called before draw() so that
+        # current_contourmap_method is set.
         self.newLayerMembers()
+        self.draw()
 
     def raiseLayer(self, menuitem, n):
         self.raiseLayerBy(n, 1)
@@ -1353,8 +1301,10 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             self.releaseGfxLock()
         switchboard.notify((self, 'layers changed'))
         self.sensitize_menus()
-        self.draw()
+        # newLayerMembers() must be called before draw() so that
+        # current_contourmap_method is set.
         self.newLayerMembers()
+        self.draw()
 
     def lowerLayer(self, menuitem, n):
         self.lowerLayerBy(n, 1)

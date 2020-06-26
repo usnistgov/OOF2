@@ -16,6 +16,8 @@ from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import progress
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
+from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import primitives
@@ -269,17 +271,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                                access_kwargs={'col':0, 'rend':0})
         gtklogger.connect(showcell, 'toggled', self.showcellCB)
 
-        cmapcell = Gtk.CellRendererToggle()
-        cmapcell.set_radio(True)
-        cmapcol = Gtk.TreeViewColumn("Map")
-        cmapcol.pack_start(cmapcell, expand=False)
-        cmapcol.set_cell_data_func(cmapcell, self.renderCMapCell)
-        self.layerListView.append_column(cmapcol)
-        gtklogger.adoptGObject(cmapcell, self.layerListView,
-                               access_function=gtklogger.findCellRenderer,
-                               access_kwargs={'col':1, 'rend':0})
-        gtklogger.connect(cmapcell, 'toggled', self.cmapcellCB)        
-
         freezecell = Gtk.CellRendererToggle()
         freezecol = Gtk.TreeViewColumn("Freeze")
         freezecol.pack_start(freezecell, expand=False)
@@ -414,10 +405,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         layermenu.Show.add_gui_callback(self.showLayer_gui)
         layermenu.Freeze.add_gui_callback(self.freezeLayer_gui)
         layermenu.Unfreeze.add_gui_callback(self.unfreezeLayer_gui)
-        layermenu.Hide_Contour_Map.add_gui_callback(
-            self.hideLayerContourmap_gui)
-        layermenu.Show_Contour_Map.add_gui_callback(
-            self.showLayerContourmap_gui)
         layermenu.Raise.One_Level.add_gui_callback(self.raiseLayer_gui)
         layermenu.Raise.To_Top.add_gui_callback(self.raiseToTop_gui)
         layermenu.Lower.One_Level.add_gui_callback(self.lowerLayer_gui)
@@ -624,7 +611,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         current_contourmethod = self.current_contourmap_method
 
         if current_contourmethod:
-            self.contourmapdata.canvaslayer.removeAllItems()
+            self.contourmapdata.canvas_mainlayer.removeAllItems()
             current_contourmethod.draw_contourmap(
                 self, self.contourmapdata.canvas_mainlayer)
             self.contourmapdata.canvas.zoomToFill()
@@ -748,43 +735,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.contourlevel_max.set_text('')
         subthread.execute(self.show_contourmap_info)
 
-    # Overridden menu callbacks for the contourmap show/hide menu item.
-    def hideLayerContourmap(self, menuitem, n):
-        self.acquireGfxLock()
-        try:
-            ghostgfxwindow.GhostGfxWindow.hideLayerContourmap(self, menuitem, n)
-            self.layerListRowChanged(n)
-            self.show_contourmap_info()
-        finally:
-            self.releaseGfxLock()
-        
-    def showLayerContourmap(self, menuitem, n):
-        self.acquireGfxLock()
-        try:
-            ghostgfxwindow.GhostGfxWindow.showLayerContourmap(self, menuitem, n)
-            self.layerListRowChanged(n)
-            self.show_contourmap_info()
-        finally:
-            self.releaseGfxLock()
-
-    
-    # GUI callbacks -- required because the GUI menu item must
-    # operate on the current layer.
-    def hideLayerContourmap_gui(self, menuitem):
-        if self.selectedLayer is None:
-            reporter.report(
-                "Unable to hide contour map, no layer is selected.")
-        else:
-            menuitem(n=self.layerID(self.selectedLayer))
-
-    def showLayerContourmap_gui(self, menuitem):
-        if self.selectedLayer is None:
-            reporter.report(
-                "Unable to show contour map, no layer is selected.")
-        else:
-            menuitem(n=self.layerID(self.selectedLayer))
-
-                
     # Called on a subthread, not on the main thread.
     # Argument is actually used at gfxwindow-open-time by the menu command.
     def draw(self, zoom=False): # switchboard "redraw" callback

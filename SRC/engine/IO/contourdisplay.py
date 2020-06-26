@@ -72,9 +72,6 @@ class ZDisplay(displaymethods.MeshDisplayMethod):
         self.max = max
         self.levels = levels
         self.lock = lock.SLock()
-        
-        self.contourmaphidden = False
-        self.contourmap_user_hide = 0
 
         displaymethods.MeshDisplayMethod.__init__(self, when)
 
@@ -83,16 +80,6 @@ class ZDisplay(displaymethods.MeshDisplayMethod):
             return 1
         return 0
     
-    def explicit_contour_hide(self): # Not used?
-        self.contourmap_user_hide = 1
-        self.hide_contourmap()
-        
-    def hide_contourmap(self):
-        self.contourmaphidden = True
-
-    def show_contourmap(self):
-        self.contourmaphidden = False
-
     def incomputable(self, gfxwindow):
         mesh = self.who.resolve(gfxwindow)
         return (self.what.incomputable(mesh) or 
@@ -356,7 +343,7 @@ class FilledContourDisplay(ContourDisplay):
                     corners = self.where.evaluate(mesh, edges, mcorners)
                     poly = oofcanvas.CanvasPolygon()
                     for pt in corners:
-                        poly.addPoint(pt.x, pt.y)
+                        poly.addPoint(pt[0], pt[1])
                     poly.setFillColor(baseclr)
                     canvaslayer.addItem(poly)
 
@@ -376,7 +363,7 @@ class FilledContourDisplay(ContourDisplay):
                                 color.canvasColor(self.colormap(
                                     offset + cntour.value*factor)))
                             for pt in points:
-                                poly.addPoint(pt.x, pt.y)
+                                poly.addPoint(pt[0], pt[1])
                             canvaslayer.addItem(poly)
                 ecount += 1
                 prog.setFraction((1.0*ecount)/mesh.nelements())
