@@ -500,7 +500,7 @@ utils.OOFdefine('gray50', gray50)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Convert to and OOFCanvas color
+# Convert to an OOFCanvas color
 
 def canvasColor(color):
     return oofcanvas.Color(color.getRed(), color.getGreen(), color.getBlue())
