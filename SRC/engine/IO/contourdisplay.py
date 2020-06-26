@@ -251,8 +251,8 @@ class PlainContourDisplay(ContourDisplay):
         finally:
             self.lock.release()
 
-defaultLineWidth = 0
-widthRange = (0,10)
+defaultLineWidth = 1
+widthRange = (0., 10., 0.5)
 
 registeredclass.Registration(
     'Contour Line',
@@ -262,7 +262,8 @@ registeredclass.Registration(
     layerordering=display.Linear(1),
     whoclasses=('Mesh',),
     params = contourparams +
-    [IntRangeParameter('width', widthRange, defaultLineWidth, tip="line width"),
+    [parameter.FloatRangeParameter('width', widthRange, defaultLineWidth,
+                                   tip="line width"),
      color.ColorParameter('color', color.black, tip="line color")],
     tip="Draw contour lines for the given output data.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/plaincontour.xml')
