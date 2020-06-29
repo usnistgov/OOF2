@@ -104,8 +104,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                                 margin_bottom=gtkutils.handle_padding)
         gtklogger.setWidgetName(self.paned1, "Pane1")
 
-        ## TODO GTK3: With gtk2, we didn't use the "shrink" properties
-        ## on mainpain, so they defaulted to True. In gtk3, setting
+        ## TODO GTK3? With gtk2, we didn't use the "shrink" properties
+        ## on mainpane, so they defaulted to True. In gtk3, setting
         ## shrink=True for the top part makes the toolbox appear with
         ## only its bottom part visible.  Setting shrink=False
         ## however, might make the window too big if the toolbox is
@@ -234,7 +234,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.layerListView = Gtk.TreeView(self.layerList)
         gtklogger.setWidgetName(self.layerListView, "LayerList")
         self.layerListView.set_row_separator_func(self.layerRowSepFunc)
-        self.layerListView.set_fixed_height_mode(False) # TODO GTK3: True?
+        self.layerListView.set_fixed_height_mode(False)
         self.layerScroll.add(self.layerListView)
 
         gtklogger.adoptGObject(self.layerList, self.layerListView,
@@ -433,12 +433,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         subWindow.SubWindow.__init__(
             self, windowname, menu=self.menu)
 
-        ## TODO GTK3: restore the popup menu for the layer list
-        # # Create the popup menu for the layer list.
-        # self.layerpopup = gfxmenu.gtkOOFPopUpMenu(self.menu.Layer,
-        #                                           self.layerListView)
-
-
         self.gtk.connect('destroy', self.destroyCB)
         self.gtk.connect_after('realize', self.realizeCB)
         self.gtk.set_default_size(ghostgfxwindow.GhostGfxWindow.initial_width,
@@ -523,9 +517,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         if self.rubberband:
             self.oofcanvas.setRubberBand(self.rubberband)
         self.oofcanvas.show()
-
-        self.fix_step_increment()
-
 
     # Contour map stuff.
     ###########################################
@@ -638,9 +629,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
 
     # Draw the marks on it.  Argument is the new value for the ticks.
-    # A tick-layer redraw can be forced by setting
-    # self.contourmapdata.mark_value to None and then calling this with
-    # the new value.  (TODO: Really??)
+
     def show_contourmap_ticks(self, y):
         if not self.gtk:
             return
@@ -700,23 +689,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     # Callback for size changes of the pane containing the contourmap.
     def contourmap_resize(self, data):
         self.contourmapdata.canvas.zoomToFill()
-
-        # debug.mainthreadTest()
-        # if self.current_contourmap_method:
-        #     (c_min, c_max, c_lvls) = \
-        #             self.current_contourmap_method.get_contourmap_info()
-        #     if c_max!=c_min:
-        #         ppu = 1.0*height/(c_max-c_min)
-        #         # ppu = 1.0*height/1000.0
-        #     else:
-        #         ppu = height # Arbitrary
-
-        #     # ppu changes here can't be large, so we don't have to
-        #     # worry about order of operations (see comment in
-        #     # show_contourmap_info, above).
-        #     self.contourmapdata.canvas.set_pixels_per_unit(ppu)
-        #     self.contourmapdata.canvas.set_scrollregion(
-        #         self.contourmapdata.canvas.get_bounds())
 
     def contourmap_mouse(self, event, x, y, button, shift, ctrl, data):
         debug.mainthreadTest()
@@ -895,7 +867,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             if self.oofcanvas and not self.oofcanvas.empty():
                 mainthread.runBlock(self.oofcanvas.zoom,
                                     (self.settings.zoomfactor,))
-                mainthread.runBlock(self.fix_step_increment)
                 self.zoomed = 1
         finally:
             self.releaseGfxLock()
@@ -907,7 +878,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                 mainthread.runBlock(self.oofcanvas.zoomAbout,
                                     (focus.x, focus.y,
                                      self.settings.zoomfactor))
-                mainthread.runBlock(self.fix_step_increment)
                 self.zoomed = 1
         finally:
             self.releaseGfxLock()
@@ -918,7 +888,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             if self.oofcanvas and not self.oofcanvas.empty():
                 mainthread.runBlock(self.oofcanvas.zoom,
                                     (1./self.settings.zoomfactor,))
-                mainthread.runBlock(self.fix_step_increment)
                 self.zoomed = 1
         finally:
             self.releaseGfxLock()
@@ -931,7 +900,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                 mainthread.runBlock(self.oofcanvas.zoomAbout,
                                     (focus.x, focus.y,
                                      1./self.settings.zoomfactor))
-                mainthread.runBlock(self.fix_step_increment)
                 self.zoomed = 1
         finally:
             self.releaseGfxLock()
@@ -948,7 +916,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def zoom_bbox(self):
         debug.mainthreadTest()
         self.oofcanvas.zoomToFill()
-        self.fix_step_increment()
 
     def saveCanvasRegion_gui(self, menuitem):
         visrect = self.oofcanvas.visibleRegion() # an OOFCanvas::Rectangle
@@ -959,20 +926,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         if parameterwidgets.getParameters(*menuitem.params,
                                           title="Save Region"):
             menuitem.callWithDefaults()
-
-    # only 2D - fix the step increment of the canvas table scroll bars
-    def fix_step_increment(self):
-        # For some reason, the step_increment on the canvas scroll
-        # bars is zero, so the scroll arrows don't work.  This fixes
-        # that.
-        ## TODO GTK3: Is this still necessary?
-        debug.mainthreadTest()
-        hadj = self.hScrollbar.get_adjustment()
-        if hadj.get_step_increment() == 0.0:
-            hadj.set_step_increment(hadj.page_increment/16)
-        vadj = self.vScrollbar.get_adjustment()
-        if vadj.get_step_increment() == 0.0:
-            vadj.set_step_increment(vadj.page_increment/16)
 
     # GUI override of menu callback for new contourmap aspect ratio.
     # GUI callbacks are required because, when the settings change,

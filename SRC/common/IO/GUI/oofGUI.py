@@ -59,6 +59,8 @@ elif config.dimension() == 3:
 # assigned too early and oofGUI.__init__ applies them after the main
 # window has been created.
 
+# See https://developer.gnome.org/gtk3/stable/chap-css-overview.html
+
 styleStrings = []
 
 def addStyle(stylestring):

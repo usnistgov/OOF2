@@ -56,16 +56,20 @@ See the TODO in parameterwidgets.py:ParameterDialog
 
 pdf output can be done directly by Cairo.  No need for a pdf output
 device.  No need for the whole OutputDevice hierarchy.
+DONE
 
 All AbstractImage subclasses need to use something other than
 StringImage to create CanvasImage items.
+DONE
 
 Gdk.threads_enter() and Gdk.threads_leave() are deprecated.  Make all
 calls from the main thread.
 https://lazka.github.io/pgi-docs/Gdk-3.0/functions.html#Gdk.threads_enter
 Don't need inside_idle_callback.
+DONE
 
 Attempting to drag text from the Console window crashes the program.
+CAN'T REPRODUCE
 
 Simplify the DisplayLayer handling in the Graphics window, like it is
 in OOF3D.
@@ -75,7 +79,7 @@ in OOF3D.
 * Editing a layer entails replacing its CanvasItems,  No need to
   create a new CanvasLayer.
 * Debug problems with CanvasLayer destruction after this is all set.
-
+DONE
 
 We are inconsistent about the spacing and format of the labels that
 identify input and output fields.  Sometimes there are colons and
@@ -84,4 +88,8 @@ end and sometimes there aren't.  We should probably use Gtk to add the
 space, and not put it in the label text.
 
 Typing illegal input into the LabelledSliders when parametrizing an
-Orientation property doesn't disable the "OK" button.
+Orientation property doesn't disable the "OK" button. (This isn't a
+gtk3 problem.  The gtk2 version does this too.  Slider values are
+parsed and evaluated only when it's time to use them, so they're not
+checked as they're typed.)
+DONT
