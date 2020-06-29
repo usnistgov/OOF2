@@ -55,6 +55,8 @@ namespace OOFCanvas {
     		     G_CALLBACK(GUICanvasBase::motionCB), this);
     g_signal_connect(G_OBJECT(layout), "draw",
     		     G_CALLBACK(GUICanvasBase::drawCB), this);
+    g_signal_connect(G_OBJECT(layout), "scroll_event",
+		     G_CALLBACK(GUICanvasBase::scrollCB), this);
   }
   
   void GUICanvasBase::show() {
@@ -232,6 +234,7 @@ namespace OOFCanvas {
 					  | GDK_ENTER_NOTIFY_MASK
 					  | GDK_LEAVE_NOTIFY_MASK
 					  | GDK_FOCUS_CHANGE_MASK
+					  | GDK_SCROLL_MASK
 					  ));
   }
 
@@ -456,6 +459,26 @@ namespace OOFCanvas {
     doCallback("move", userpt, lastButton,
 	       event->state & GDK_SHIFT_MASK,
 	       event->state & GDK_CONTROL_MASK);
+  }
+
+  void GUICanvasBase::scrollCB(GtkWidget*, GdkEventScroll *event, gpointer data)
+  {
+    ((Canvas*) data)->scrollHandler(event);
+  }
+
+  void GUICanvasBase::scrollHandler(GdkEventScroll *event) {
+    if(event->direction == GDK_SCROLL_SMOOTH) {
+      // Scroll amount is stored in deltas.
+      Coord delta(event->delta_x, event->delta_y);
+      // TODO: Do we want to use a different callback here?  Is there
+      // any point in transmitting the event location as well as the
+      // delta?
+      doCallback("scroll", delta, lastButton,
+		 event->state & GDK_SHIFT_MASK,
+		 event->state & GDK_CONTROL_MASK);
+
+    }
+    
   }
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

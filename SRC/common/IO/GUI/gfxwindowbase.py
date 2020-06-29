@@ -486,7 +486,6 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         debug.mainthreadTest()
         global _during_callback
         _during_callback = 1
-        # debug.fmsg("mousehandler.up=", self.mouseHandler.up, "data=", data)
         if self.mouseHandler.acceptEvent(eventtype):
             if eventtype == 'up':
                 self.mouseHandler.up(x,y, button, shift, ctrl, data)
@@ -494,6 +493,20 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
                 self.mouseHandler.down(x,y, button, shift, ctrl, data)
             elif eventtype == 'move':
                 self.mouseHandler.move(x,y, button, shift, ctrl, data)
+            elif eventtype == 'scroll':
+                self.mouseHandler.scroll(x,y, button, shift, ctrl, data)
+        # If the current mousehandler doesn't anything special for
+        # scrolling, do the obvious.
+        elif eventtype == "scroll":
+            ## TODO: This should be logged, but we don't want to log
+            ## every event (there are a lot of them).  How do we know
+            ## when we're done scrolling?  Catch another type of mouse
+            ## event (including leave_notify)?
+            sx = self.hScrollbar.get_adjustment().get_value()
+            self.hScrollbar.get_adjustment().set_value(sx + x)
+            sy = self.vScrollbar.get_adjustment().get_value()
+            self.vScrollbar.get_adjustment().set_value(sy + y)
+            
         _during_callback = 0
 
     #############################################
