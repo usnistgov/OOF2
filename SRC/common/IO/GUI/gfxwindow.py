@@ -317,13 +317,13 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.vScrollbar = Gtk.Scrollbar(orientation=Gtk.Orientation.VERTICAL)
         gtklogger.setWidgetName(self.hScrollbar, "hscroll")
         gtklogger.setWidgetName(self.vScrollbar, "vscroll")
-        # Catch button release events on the Scrollbars, so that their
-        # changes can be logged.  *Don't* catch the "changed" signals
-        # from their Adjustments, because they occur too often.
-        gtklogger.connect(self.hScrollbar, "button-release-event",
-                          self.scrlReleaseCB, 'h')
-        gtklogger.connect(self.vScrollbar, "button-release-event",
-                          self.scrlReleaseCB, 'v')
+        # # Catch button release events on the Scrollbars, so that their
+        # # changes can be logged.  *Don't* catch the "changed" signals
+        # # from their Adjustments, because they occur too often.
+        # gtklogger.connect(self.hScrollbar, "button-release-event",
+        #                   self.scrlReleaseCB, 'h')
+        # gtklogger.connect(self.vScrollbar, "button-release-event",
+        #                   self.scrlReleaseCB, 'v')
         self.canvasTable.attach(self.hScrollbar, 0,1, 1,1)
         self.canvasTable.attach(self.vScrollbar, 1,0, 1,1)
         self.canvasFrame = Gtk.Frame()
@@ -978,9 +978,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                 color.getRed(), color.getGreen(), color.getBlue())
             mainthread.runBlock(self.oofcanvas.draw)
             mainthread.runBlock(self.contourmapdata.canvas.draw)
-            # mainthread.runBlock(self.oofcanvas.set_bgColor, (color,))
-            # mainthread.runBlock(self.contourmapdata.canvas.set_bgColor,
-            #                     (color,))
         finally:
             self.releaseGfxLock()
 
@@ -994,24 +991,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
     # Scrolling 
     ##########################################################
-
-    def scrlReleaseCB(self, scrollbar, event, which):
-        if which == 'h':
-            self.menu.Settings.Scroll.Horizontal(
-                position=scrollbar.get_adjustment().get_value())
-        else:
-            self.menu.Settings.Scroll.Vertical(
-                position=scrollbar.get_adjustment().get_value())
-
-    def hScrollCB(self, menuitem, position): # OOFMenu callback
-        ghostgfxwindow.GhostGfxWindow.hScrollCB(self, menuitem, position)
-        mainthread.runBlock(
-            self.hScrollbar.get_adjustment().set_value, (position,))
-
-    def vScrollCB(self, menuitem, position): # OOFMenu callback
-        ghostgfxwindow.GhostGfxWindow.vScrollCB(self, menuitem, position)
-        mainthread.runBlock(
-            self.vScrollbar.get_adjustment().set_value, (position,))
 
     def hScrollPosition(self):
         return self.hScrollbar.get_adjustment().value

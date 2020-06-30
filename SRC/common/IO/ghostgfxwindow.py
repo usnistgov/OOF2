@@ -674,28 +674,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/margin.xml')
         ))
-        scrollmenu = settingmenu.addItem(OOFMenuItem(
-            'Scroll',
-            cli_only=1,
-            help='Scroll the main display.'))
-        scrollmenu.addItem(OOFMenuItem(
-            'Horizontal',
-            callback=self.hScrollCB,
-            params=[FloatParameter('position', 0.,
-                                   tip="Horizontal scroll position.")],
-            help="Scroll horizontally.",
-            discussion=xmlmenudump.loadFile(
-                'DISCUSSIONS/common/menu/scrollhoriz.xml')
-        ))
-        scrollmenu.addItem(OOFMenuItem(
-            'Vertical',
-            callback=self.vScrollCB,
-            params=[FloatParameter('position', 0.,
-                                   tip="Vertical scroll position.")],
-            help="Scroll vertically.",
-            discussion=xmlmenudump.loadFile(
-                'DISCUSSIONS/common/menu/scrollvert.xml')
-        ))
         
         # Create toolboxes.
         self.toolboxes = []
@@ -1035,12 +1013,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     def zoomfactorCB(self, menuitem, factor):
         self.settings.zoomfactor = factor
         switchboard.notify("zoom factor changed")
-
-    def hScrollCB(self, menuitem, position):
-        self.hscrollvalue = position
-
-    def vScrollCB(self, menuitem, position):
-        self.vscrollvalue = position
 
     def saveCanvas(self, menuitem, filename, overwrite,
                    scale, background):
