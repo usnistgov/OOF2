@@ -494,5 +494,5 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
             self.points = []            # get ready for next event
             
     def acceptEvent(self, eventtype):
-        return 1
+        return eventtype in ('up', 'down', 'move')
 

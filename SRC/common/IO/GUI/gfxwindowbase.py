@@ -509,6 +509,20 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             
         _during_callback = 0
 
+
+    ## TODO: It would be nice if dragging the mouse from inside the
+    ## canvas to outside the canvas made the canvas scroll in the
+    ## opposite direction.  Then users could extend a selection past
+    ## the part of the canvas that was visible during the mouse-down
+    ## event, for example.  Doing this might be tricky.  We'd need to
+    ## catch the leave notify event, install a timeout event that
+    ## would scroll the canvas (at a rate and direction determined by
+    ## the mouse position), and remove the timeout event when the
+    ## mouse re-entered the canvas or the button was released.  At
+    ## each timeout, we'd scroll the canvas and simulate move events
+    ## for the toolbox's mouse handler.  When the event is finished,
+    ## we'd want to log the net effect of the scrolling.
+
     #############################################
 
 

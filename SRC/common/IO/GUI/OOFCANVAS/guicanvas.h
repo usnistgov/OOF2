@@ -45,6 +45,7 @@ namespace OOFCanvas {
     void mouseMotionHandler(GdkEventMotion*);
     virtual void doCallback(const std::string&, const Coord&,
 			    int, bool, bool) = 0;
+    // Scrollwheel
     static void scrollCB(GtkWidget*, GdkEventScroll*, gpointer);
     void scrollHandler(GdkEventScroll*);
 

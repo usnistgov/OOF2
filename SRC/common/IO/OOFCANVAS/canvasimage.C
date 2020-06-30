@@ -150,6 +150,30 @@ namespace OOFCanvas {
   }
 
   void CanvasImage::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
+
+    // The native Cairo image drawing method antialiases each pixel --
+    // maybe that's not the right term for it, but each pixel is
+    // blurry if you zoom way in.  This may be what you want if you're
+    // showing pictures from your vacation, but if the pixels are
+    // individual data points that you are examining, you don't want
+    // to antialias them.  If drawPixelByPixel is false, then the
+    // native Cairo rendering is used.  If it's true, then the pixels
+    // are drawn as individual filled rectangles.
+
+    // Drawing the individual rectangles has three possible drawbacks.
+    // First, it might be slow (but I haven't actually timed it).
+    // Second, it can lead to aliasing problems in which adjacent
+    // image pixels don't actually meet when drawn on the screen,
+    // producing a stripe of the background color across the image.
+    // This can often be fixed by scaling the whole image by a factor
+    // very close to one.  Third, when converted to pdf or some other
+    // printable format, the boundaries between the image pixels can
+    // sometimes be seen.
+
+    // The default behavior of CanvasImage is to use the Cairo
+    // rendering and not draw the individual pixels.  To change it,
+    // call CanvasImage::setDrawIndividualPixels().
+    
     if(!drawPixelByPixel) {
       // Scaling the context to change the image size also changes the
       // location, so convert the location to device units before
@@ -386,8 +410,6 @@ namespace OOFCanvas {
     Cairo::RefPtr<Cairo::ImageSurface> surf =
       Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
     canvasImage->setSurface(surf, w);
-    // canvasImage->setUp(Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h),
-    // 		       width, height);
 
     // Copy pixel data from ImageMagick to the Cairo buffer.
     // Cairo uses libpixman for image storage.  There is no
