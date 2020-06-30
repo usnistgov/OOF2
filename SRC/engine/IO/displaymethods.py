@@ -426,7 +426,7 @@ class EdgeDisplay:
             poly.setLineWidthInPixels()
             poly.setLineColor(clr)
             for pt in polygon:
-                poly.addPoint(pt.x, pt.y)
+                poly.addPoint(pt[0], pt[1])
             canvaslayer.addItem(poly)
         
 class MeshEdgeDisplay(EdgeDisplay, MeshDisplayMethod):
@@ -509,7 +509,7 @@ class PerimeterDisplay(MeshDisplayMethod):
             for seg in segs:
                 pt0 = edge.startpt()
                 pt1 = edge.endpt()
-                segs.addSegment(pt0.x, pt0.y, pt1.x, pt1.y)
+                segs.addSegment(pt0[0], pt0[1], pt1[0], pt1[1])
             canvaslayer.addItem(segs)
         finally:
             themesh.releaseCachedData()
@@ -639,7 +639,7 @@ class MaterialDisplay:
                     poly = oofcanvas.CanvasPolygon()
                     poly.setFillColor(clr)
                     for pt in polygon:
-                        poly.addPoint(pt.x, pt.y)
+                        poly.addPoint(pt[0], pt[1])
                     canvaslayer.addItem(plot)
  
     def getTimeStamp(self, gfxwindow):
@@ -755,7 +755,7 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
                 poly.setFillColor(
                     color.canvasColor(self.colormap((energy-emin)/(emax-emin))))
                 for pt in polygon:
-                    poly.addPoint(pt.x, py.y)
+                    poly.addPoint(pt[0], py[1])
                 canvaslayer.addItem(poly)
         finally:
             self.lock.release()

@@ -14,6 +14,8 @@
 
 ## TODO GTK3: Where is the OffScreenCanvas created when not in GUI mode?
 
+## TODO GTK3: Changing settings isn't forcing a redraw.
+
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import switchboard
@@ -120,7 +122,6 @@ class GhostGfxWindow:
         self.layers = []        # DisplayMethod instances
         self.current_contourmap_method = None
         self.selectedLayer = None
-        self.sortedLayers = True
         self.layerChangeTime = timestamp.TimeStamp()
         # displayTime is the simulation time of the displayed
         # mesh. displayTimeChanged is the timestamp indicated when the
@@ -833,7 +834,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             self.menu.Settings.Zoom.disable()
         else:
             self.menu.Settings.Zoom.enable()
-        if self.sortedLayers:
+
+        if self.sortedLayers():
             self.menu.Layer.Reorder_All.disable()
         else:
             self.menu.Layer.Reorder_All.enable()
@@ -929,14 +931,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             self.layers = keptlayers
         finally:
             self.releaseGfxLock()
-        ## TODO GTK3: We only called self.draw() here before, but
-        ## other layer modification routines do more work.  What is
-        ## appropriate here?  Should all of this be done in
-        ## newLayerMembers?
-        self.sensitize_menus()
-        self.newLayerMembers()
-        switchboard.notify((self, "layers changed"))
-        self.draw()
+        self.layersHaveChanged()
 
     def draw(self, *args, **kwargs):
         pass
@@ -985,9 +980,13 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         try:
             self.settings.listall = listall
             self.sensitize_menus()
-            self.newLayerMembers()
+            self.fillLayerList()
         finally:
             self.releaseGfxLock()
+
+    def fillLayerList(self):
+        # Redefined in GfxWindowBase class.
+        pass
 
     def toggleAutoReorder(self, menuitem, autoreorder):
         self.acquireGfxLock()
@@ -1064,7 +1063,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
 
 
-    # Called from newLayerMembers in response to layer insertion,
+    # Called from layersHaveChanged in response to layer insertion,
     # removal, or reordering, or when layers are shown and hidden.
     # Sets the current contourable layer to be the topmost one,
     # unconditionally.
@@ -1125,11 +1124,12 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     # Function for doing book-keeping whenever the list of layers has
     # changed.  Overridden in gfxwindow.
-    ## TODO GTK3: Change the name of this method to layersChanged, or
-    ## something like that.
-    def newLayerMembers(self):
+    def layersHaveChanged(self):
+        self.sensitize_menus()
         self.layerChangeTime.increment()
+        switchboard.notify((self, 'layers changed'))
         self.contourmap_newlayers()
+        self.draw()
 
     def incorporateLayer(self, layer, who, autoselect=True, lock=True):
         if lock:
@@ -1152,30 +1152,34 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 self.selectedLayer = layer
                 layer.build(self) # creates OOFCanvas::CanvasLayer
                 layer.setWho(who)
-                self.sortedLayers = False
-                self.sortLayers()
                 oldlayer.destroy()
             else:
                 # There's no selected layer. Add the new layer.
                 self.layers.append(layer)
                 layer.build(self)
                 layer.setWho(who)
-                self.sortedLayers = False
-                self.sortLayers()
                 if autoselect:
                     self.selectLayer(self.layerID(layer))
         finally:
             if lock:
                 self.releaseGfxLock()
-        switchboard.notify((self, 'layers changed'))
+        if self.settings.autoreorder:
+            self.sortLayers()
+        self.layersHaveChanged()
 
-    def sortLayers(self, forced=False):
-        if not self.sortedLayers and (forced or self.settings.autoreorder):
-            self.layers.sort(display.layercomparator)
-            # Reorder the layers in the OOFCanvas too.
-            self.oofcanvas.reorderLayers([l.canvaslayer for l in self.layers])
-            self.sortedLayers = True
-            self.newLayerMembers()
+    def sortLayers(self):
+        # Called by incorporateLayer and reorderLayers.  Calling
+        # routine should call layersHaveChanged.
+        self.layers.sort(display.layercomparator)
+        # Reorder the layers in the OOFCanvas too.
+        self.oofcanvas.reorderLayers([l.canvaslayer for l in self.layers])
+
+    def sortedLayers(self):
+        # Are the layers in a canonical order?
+        for i in range(1, len(self.layers)):
+            if display.layercomparator(self.layers[i-1], self.layers[i]) > 0:
+                return False
+        return True
             
     def deleteLayerNumber(self, menuitem, n):
         # This used to call a method called removeLayer() which was
@@ -1194,10 +1198,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             del self.layers[n]
         finally:
             self.releaseGfxLock()
-        self.sensitize_menus()
-        self.newLayerMembers()
-        switchboard.notify((self, 'layers changed'))
-        self.draw()
+        self.layersHaveChanged()
 
     def newLayer(self, displaylayer):
         pass
@@ -1269,12 +1270,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 return
         finally:
             self.releaseGfxLock()
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        # newLayerMembers() must be called before draw() so that
-        # current_contourmap_method is set.
-        self.newLayerMembers()
-        self.draw()
+        self.layersHaveChanged()
 
     def raiseLayer(self, menuitem, n):
         self.raiseLayerBy(n, 1)
@@ -1299,12 +1295,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 return
         finally:
             self.releaseGfxLock()
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        # newLayerMembers() must be called before draw() so that
-        # current_contourmap_method is set.
-        self.newLayerMembers()
-        self.draw()
+        self.layersHaveChanged()
 
     def lowerLayer(self, menuitem, n):
         self.lowerLayerBy(n, 1)
@@ -1316,11 +1307,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.lowerLayerBy(n, howfar)
 
     def reorderLayers(self, menuitem):
-        self.sortLayers(forced=True)
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.draw()
-        self.newLayerMembers()
+        self.sortLayers()
+        self.layersHaveChanged()
 
     def listedLayers(self):             # for testing
         result = []
@@ -1374,20 +1362,14 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     def removeWho(self, whoclassname, whoname):
         path = labeltree.makePath(whoname)
         # In each layer containing the removed Who, replace the Who with Nobody.
+        ## TODO GTK3: Is Nobody still necessary, now that there's no
+        ## LayerEditor?  Just delete the layer.
         for layer in self.layers:
             layerpath = labeltree.makePath(layer.who.path())
             if (layer.who.getClass().name() == whoclassname and
                 layerpath == path):
                 layer.setWho(whoville.nobody)
-            
-        switchboard.notify((self, 'layers changed'))
-        
-        # There is a race condition between the newLayerMembers and
-        # the redraw, which results (in the unbuffered case) in the
-        # color map not being removed properly if the draw precedes
-        # the newLayerMembers.  TODO: Is this still true?
-        self.newLayerMembers()
-        self.draw()
+        self.layersHaveChanged()
         
     def newToolboxClass(self, tbclass):
         tb = tbclass(self)              # constructs toolbox

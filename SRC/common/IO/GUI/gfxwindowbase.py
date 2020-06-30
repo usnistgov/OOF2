@@ -86,10 +86,10 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     # Functions that manipulate the LayerList
     ################################################
 
-    def newLayerMembers(self):
+    def layersHaveChanged(self):
         self.fillLayerList()
         self.updateTimeControls()
-        ghostgfxwindow.GhostGfxWindow.newLayerMembers(self)
+        ghostgfxwindow.GhostGfxWindow.layersHaveChanged(self)
 
     ## Only call fillLayerList if the whole list needs to be rebuilt.
     def fillLayerList(self):
@@ -108,7 +108,8 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         finally:
             # self.allowRowOpSignals()
             self.allowSelectionSignals()
-            
+
+        ## TODO GTK3: Scroll to selected line.
 
     # Callbacks for the TreeView for the Layer List.
     ##################################################
