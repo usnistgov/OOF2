@@ -20,13 +20,10 @@ namespace OOFCanvas {
   {}
 
   void WindowSizeCanvasLayer::rebuild() {
-
-    // TODO GTK3: Why is this being called on every mouse event
-    // instead of only when the window size changes or when zoomed?
-    
     GUICanvasBase *cnvs = dynamic_cast<GUICanvasBase*>(canvas);
     int size_x = cnvs->widgetWidth();
     int size_y = cnvs->widgetHeight();
+    // makeCairoObjs doesn't do anything if the size hasn't changed.
     makeCairoObjs(size_x, size_y);
   }
 
