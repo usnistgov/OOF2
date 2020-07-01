@@ -22,7 +22,7 @@ namespace OOFCanvas {
   class WindowSizeCanvasLayer : public CanvasLayer {
   public:
     WindowSizeCanvasLayer(OffScreenCanvas*, const std::string&);
-    virtual bool rebuild();
+    virtual void rebuild();
     virtual void redraw();
     virtual void draw(Cairo::RefPtr<Cairo::Context>, double, double) const;
   };

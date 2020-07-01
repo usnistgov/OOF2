@@ -36,13 +36,13 @@ namespace OOFCanvas {
     bool clickable;
     bool dirty;		// Is the surface or bounding box out of date?
     Rectangle bbox;	// Cached bounding box of all contained items
-    bool makeCairoObjs(int, int);
+    void makeCairoObjs(int, int);
   public:
     CanvasLayer(OffScreenCanvas*, const std::string&);
     virtual ~CanvasLayer();
     const std::string name;
     // rebuild() recreates the surface using the current size of the Canvas.
-    virtual bool rebuild();
+    virtual void rebuild();
     // clear make the layer blank and completely transparent.
     void clear();
     // clear(Color) is like clear(), but also sets an opaque background color.

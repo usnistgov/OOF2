@@ -38,49 +38,25 @@ namespace OOFCanvas {
     canvas->deleteLayer(this);
   }
 
-  bool CanvasLayer::rebuild() {
+  void CanvasLayer::rebuild() {
     ICoord size(canvas->desiredBitmapSize());
-    bool rebuilt = makeCairoObjs(size.x, size.y);
+    makeCairoObjs(size.x, size.y);
     context->set_matrix(canvas->getTransform());
-    if(!empty())
-      dirty = true;
-    return rebuilt;
-
-// #ifdef DEBUG
-//     {
-//       double xmin, ymin, xmax, ymax;
-//       context->get_clip_extents(xmin, ymin, xmax, ymax);
-//       Rectangle user_clip(xmin, ymin, xmax, ymax);
-//       context->user_to_device(xmin, ymin);
-//       context->user_to_device(xmax, ymax);
-//       Rectangle clip_extents(xmin, ymin, xmax, ymax);
-//       std::cerr << "CanvasLayer::clear: " << name << " " << this
-// 		<< "\ttransf=" << canvas->getTransform()
-//     		<< " device clip_extents=" << clip_extents
-// 		<< " user clip_extents=" << user_clip
-//     		<< " surface=(" << surface->get_width() << ", "
-//     		<< surface->get_height() << ")"
-//     		<< std::endl;
-//     }
-// #endif // DEBUG
+    dirty = !empty();
   }
 
-  bool CanvasLayer::makeCairoObjs(int x, int y) {
-    bool status = false;
+  void CanvasLayer::makeCairoObjs(int x, int y) {
     if(!surface || surface->get_width() != x || surface->get_height() != y) {
       surface = Cairo::RefPtr<Cairo::ImageSurface>(
 		   Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, x, y));
       cairo_t *ct = cairo_create(surface->cobj());
       context = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(ct, true));
       dirty = true;
-      status = true;
     }
     if(context->get_antialias() != canvas->antialiasing) {
       context->set_antialias(canvas->antialiasing);
       dirty = true;
-      status = true;
     }
-    return status;
   }
 
   ICoord CanvasLayer::bitmapSize() const {
@@ -173,8 +149,8 @@ namespace OOFCanvas {
   
   void CanvasLayer::redraw() {
     if(dirty) {
-      if(!rebuild())
-	clear();	    // paints background color over everything
+      rebuild();
+      clear();		    // paints background color over everything
       redrawToContext(context);	// draws all items
       dirty = false;
     }
