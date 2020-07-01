@@ -115,7 +115,7 @@ namespace OOFCanvas {
     std::vector<CanvasItem*> clickedItems(double, double) const;
     std::vector<CanvasItem*> allItems() const;
 
-    // Versions for swig.
+    // Versions for swig return a new instance.
     std::vector<CanvasItem*> *clickedItems_new(double, double) const;
     std::vector<CanvasItem*> *allItems_new() const;
 

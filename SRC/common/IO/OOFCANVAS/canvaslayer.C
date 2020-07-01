@@ -43,7 +43,7 @@ namespace OOFCanvas {
     bool rebuilt = makeCairoObjs(size.x, size.y);
     context->set_matrix(canvas->getTransform());
     if(!empty())
-    dirty = true;
+      dirty = true;
     return rebuilt;
 
 // #ifdef DEBUG
@@ -66,16 +66,21 @@ namespace OOFCanvas {
   }
 
   bool CanvasLayer::makeCairoObjs(int x, int y) {
+    bool status = false;
     if(!surface || surface->get_width() != x || surface->get_height() != y) {
       surface = Cairo::RefPtr<Cairo::ImageSurface>(
 		   Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, x, y));
       cairo_t *ct = cairo_create(surface->cobj());
       context = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(ct, true));
+      dirty = true;
+      status = true;
+    }
+    if(context->get_antialias() != canvas->antialiasing) {
       context->set_antialias(canvas->antialiasing);
       dirty = true;
-      return true;
+      status = true;
     }
-    return false;
+    return status;
   }
 
   ICoord CanvasLayer::bitmapSize() const {
@@ -168,27 +173,9 @@ namespace OOFCanvas {
   
   void CanvasLayer::redraw() {
     if(dirty) {
-// #ifdef DEBUG
-//       if(!empty())
-// 	std::cerr << "CanvasLayer::redraw: " << this
-// 		  << " "  << name 
-// 		  << " surface=" << surface->get_width()
-// 		  << "x" << surface->get_height()
-// 		  << " matrix=" << context->get_matrix()
-// 		  << std::endl;
-// #endif // DEBUG
       if(!rebuild())
-	clear();
-      context->set_matrix(canvas->getTransform()); // TODO: Not needed?
-      // {
-      // 	double xmin, ymin, xmax, ymax;
-      // 	context->get_clip_extents(xmin, ymin, xmax, ymax);
-      // 	Rectangle clip_extents(xmin, ymin, xmax, ymax);
-      // 	std::cerr << "CanvasLayer::redraw: clip_extents=" << clip_extents
-      // 		  << std::endl;
-      // }
-
-      redrawToContext(context);
+	clear();	    // paints background color over everything
+      redrawToContext(context);	// draws all items
       dirty = false;
     }
   }

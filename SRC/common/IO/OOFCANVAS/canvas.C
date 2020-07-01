@@ -170,8 +170,9 @@ namespace OOFCanvas {
     }
     else
       return;
-    for(CanvasLayer *layer : layers)
-      layer->dirty = true;
+    for(CanvasLayer *layer : layers) {
+      layer->rebuild();
+    }
     draw();
   }
 

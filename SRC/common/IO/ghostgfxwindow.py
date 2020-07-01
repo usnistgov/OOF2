@@ -877,9 +877,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             for toolbox in self.toolboxes:
                 toolbox.close()
 
-            ## TODO GTK3: Do we need to explicitly delete the
-            ## OOFCanvas?  The OOFCanvas::Canvas destructor deletes
-            ## the CanvasLayers.
             self.layers = []
 
             # cleanup to prevent possible circular references
@@ -947,8 +944,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             switchboard.notify((self, "time changed"))
 
     def toggleAntialias(self, menuitem, antialias):
-        # TODO GTK3: Force a redraw
         self.settings.antialias = antialias
+        self.oofcanvas.setAntialias(antialias)
 
     def toggleContourpane(self, menuitem, contourpane):
         self.settings.showcontourpane = contourpane
