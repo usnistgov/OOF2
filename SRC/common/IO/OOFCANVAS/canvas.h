@@ -51,6 +51,7 @@ namespace OOFCanvas {
     // CanvasItems to their ImageSurfaces.
     Cairo::Matrix transform;
     double ppu;	// pixels per unit. Converts user coords to device coords
+    Cairo::Matrix findTransform(double, const Rectangle&, const ICoord) const;
     
     Color bgColor;
     double margin;
@@ -106,10 +107,10 @@ namespace OOFCanvas {
     virtual void draw() {}
 
     // TODO: Add saveAsPNG, saveRegionAsPNG
-    void saveAsPDF(const std::string &filename, double, bool);
-    void saveRegionAsPDF(const std::string &filename, double, bool,
+    void saveAsPDF(const std::string &filename, int, bool);
+    void saveRegionAsPDF(const std::string &filename, int, bool,
 			 const Coord&, const Coord&);
-    void saveRegionAsPDF(const std::string &filename, double, bool,
+    void saveRegionAsPDF(const std::string &filename, int, bool,
 			 const Coord*, const Coord*);
 
     std::vector<CanvasItem*> clickedItems(double, double) const;

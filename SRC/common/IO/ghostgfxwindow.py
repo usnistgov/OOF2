@@ -14,12 +14,11 @@
 
 ## TODO GTK3: Where is the OffScreenCanvas created when not in GUI mode?
 
-## TODO GTK3: Changing settings isn't forcing a redraw.
-
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import timestamp
+from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import enum
@@ -132,6 +131,13 @@ class GhostGfxWindow:
         if not hasattr(self, 'settings'):
             self.settings = GfxSettings()
 
+        self.oofcanvas = self.newCanvas()
+        self.oofcanvas.setAntialias(self.settings.antialias)
+        self.oofcanvas.setBackgroundColor(self.settings.bgcolor.getRed(),
+                                          self.settings.bgcolor.getGreen(),
+                                          self.settings.bgcolor.getBlue())
+        self.oofcanvas.setMargin(self.settings.margin)
+
         self.menu = OOF.addItem(OOFMenuItem(
             self.name,
             secret=True,
@@ -176,9 +182,9 @@ class GhostGfxWindow:
                 filenameparam.OverwriteParameter(
                     'overwrite',
                     tip="Overwrite an existing file?"),
-                parameter.FloatParameter(
-                    "scale", 1.0,
-                    tip="Multiply distances by this before saving."),
+                parameter.IntParameter(
+                    "pixels", 100,
+                    tip="Size in pixels of the largest dimension of the image."),
                 parameter.BooleanParameter(
                     "background", True,
                     tip="Fill the background?")                       
@@ -199,9 +205,9 @@ class GhostGfxWindow:
                 filenameparam.OverwriteParameter(
                     'overwrite',
                     tip="Overwrite an existing file?"),
-                parameter.FloatParameter(
-                    "scale", 1.0,
-                    tip="Multiply distances by this before saving."),
+                parameter.IntParameter(
+                    "pixels", 100,
+                    tip="Size of the largest dimension of the image in pixels"),
                 parameter.BooleanParameter(
                     "background", True,
                     tip="Fill the background?"),
@@ -697,7 +703,13 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             switchboard.requestCallback('redraw', self.draw),
             switchboard.requestCallback('draw at time', self.drawAtTime)
             ]
-        
+
+    def newCanvas(self):
+        # Create the actual OOFCanvas object.  This method is
+        # overridden in GfxWindow.  If this version is called, the
+        # program is running in text mode. The canvas might be used to
+        # generate image files, but isn't going to be displayed.
+        return oofcanvas.OffScreenCanvas(100) # arg is ppu
 
     def drawable(self):
         # Can any layer be drawn?  Used when testing the gui.
@@ -1011,16 +1023,37 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.settings.zoomfactor = factor
         switchboard.notify("zoom factor changed")
 
-    def saveCanvas(self, menuitem, filename, overwrite,
-                   scale, background):
+    def drawLayers(self):
+        self.acquireGfxLock()
+        try:
+            for layer in self.layers:
+                reason = layer.incomputable(self)
+                if reason:
+                    layer.clear()
+                else:
+                    try:
+                        # Tell the DisplayLayer to (re)create its
+                        # OOFCanvas::CanvasLayer.
+                        layer.drawIfNecessary(self)
+                    except subthread.StopThread:
+                        return
+                    except (Exception, ooferror.ErrErrorPtr), exc:
+                        debug.fmsg('Exception while drawing!', exc)
+                        raise
+        finally:
+            self.releaseGfxLock()
+            
+    def saveCanvas(self, menuitem, filename, overwrite, pixels, background):
         ## TODO GTK3: Allow different file types
         if overwrite or not os.path.exists(filename):
-            self.oofcanvas.saveAsPDF(filename, scale, background)
+            self.drawLayers()
+            self.oofcanvas.saveAsPDF(filename, pixels, background)
 
     def saveCanvasRegion(self, menuitem, filename, overwrite,
-                         scale, background, lowerleft, upperright):
+                         pixels, background, lowerleft, upperright):
         if overwrite or not os.path.exists(filename):
-            self.oofcanvas.saveRegionAsPDF(filename, scale, background,
+            self.drawLayers()
+            self.oofcanvas.saveRegionAsPDF(filename, pixels, background,
                                            lowerleft, upperright)
 
     def saveContourmap(self, menuitem, filename, overwrite):

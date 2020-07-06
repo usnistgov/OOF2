@@ -29,7 +29,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         debug.subthreadTest()
         self.gfxlock = lock.Lock()
         mainthread.runBlock(self.preinitialize, (name, gfxmgr, clone))
-        self.newCanvas()
+
         ghostgfxwindow.GhostGfxWindow.__init__(self, name, gfxmgr,
                                                clone=clone)
         mainthread.runBlock(self.postinitialize, (name, gfxmgr, clone))

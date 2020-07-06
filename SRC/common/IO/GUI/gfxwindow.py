@@ -455,27 +455,11 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     ################################################
 
     def newCanvas(self):
-        # Create the canvas object.
-        # It's important to acquire and release the lock in the
-        # subthread, before calling mainthread.runBlock, to avoid
-        # deadlocks.
-        debug.subthreadTest()
-        self.acquireGfxLock()
-        try:
-            mainthread.runBlock(self.newCanvas_thread)
-        finally:
-            self.releaseGfxLock()
-
-    def newCanvas_thread(self):
-        debug.mainthreadTest()
-        assert self.oofcanvas is None
-        ## TODO GTK3: How to set initial size of the Canvas?
-        self.oofcanvas = oofcanvasgui.Canvas(width=300, height=300, ppu=1.0,
-                                             vexpand=True, hexpand=True)
-##        self.oofcanvas = fakecanvas.FakeCanvas(self.settings.antialias)
-        self.canvasFrame.add(self.oofcanvas.layout)
-        self.hScrollbar.set_adjustment(self.oofcanvas.get_hadjustment())
-        self.vScrollbar.set_adjustment(self.oofcanvas.get_vadjustment())
+        canvas = oofcanvasgui.Canvas(width=300, height=300, ppu=1.0,
+                                     vexpand=True, hexpand=True)
+        self.canvasFrame.add(canvas.layout)
+        self.hScrollbar.set_adjustment(canvas.get_hadjustment())
+        self.vScrollbar.set_adjustment(canvas.get_vadjustment())
         # Changes to the adjustments need to go into the gui log.
         gtklogger.adoptGObject(self.hScrollbar.get_adjustment(),
                                self.hScrollbar,
@@ -487,36 +471,40 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                                   'value-changed')
         gtklogger.connect_passive(self.vScrollbar.get_adjustment(),
                                   'value-changed')
-
-        ## TODO GTK3: Get GUI logging working with the new OOFCanvas.
-        
-        # # GUI logging stuff.
-        # canvasroot = self.oofcanvas.rootitem()
-        # init_canvas_logging(canvasroot) # one-time initialization
-        # # Although canvasroot is a gtk widget, it's not a pygtk
-        # # widget, which makes life difficult.  So here it's adopted by
-        # # a pygtk widget instead, and uses various hacks to get itself
-        # # logged.  The actual widget doing the adopting is completely
-        # # arbitrary since it will be passed as the first argument of
-        # # findCanvasRoot, which discards it.  It does have to be a
-        # # loggable pygtk widget, though, because
-        # # AdopteeLogger.location() doesn't know that it will be
-        # # discarded.  I did say that this is a hack, didn't I?
-        # gtklogger.adoptGObject(canvasroot, self.canvasTable,
-        #                        access_function=findCanvasRoot,
-        #                        access_kwargs={"windowname":self.name})
-        # gtklogger.connect_passive(canvasroot, "event")
-
-        self.oofcanvas.setAntialias(self.settings.antialias)
-        self.oofcanvas.setBackgroundColor(self.settings.bgcolor.getRed(),
-                                          self.settings.bgcolor.getGreen(),
-                                          self.settings.bgcolor.getBlue())
-        self.oofcanvas.setMargin(self.settings.margin)
-
-        self.oofcanvas.setMouseCallback(self.mouseCB, None)
+        canvas.setMouseCallback(self.mouseCB, None)
         if self.rubberband:
-            self.oofcanvas.setRubberBand(self.rubberband)
-        self.oofcanvas.show()
+            canvas.setRubberBand(self.rubberband)
+        return canvas
+        
+#         ## TODO GTK3: Get GUI logging working with the new OOFCanvas.
+        
+#         # # GUI logging stuff.
+#         # canvasroot = self.oofcanvas.rootitem()
+#         # init_canvas_logging(canvasroot) # one-time initialization
+#         # # Although canvasroot is a gtk widget, it's not a pygtk
+#         # # widget, which makes life difficult.  So here it's adopted by
+#         # # a pygtk widget instead, and uses various hacks to get itself
+#         # # logged.  The actual widget doing the adopting is completely
+#         # # arbitrary since it will be passed as the first argument of
+#         # # findCanvasRoot, which discards it.  It does have to be a
+#         # # loggable pygtk widget, though, because
+#         # # AdopteeLogger.location() doesn't know that it will be
+#         # # discarded.  I did say that this is a hack, didn't I?
+#         # gtklogger.adoptGObject(canvasroot, self.canvasTable,
+#         #                        access_function=findCanvasRoot,
+#         #                        access_kwargs={"windowname":self.name})
+#         # gtklogger.connect_passive(canvasroot, "event")
+
+#         # self.oofcanvas.setAntialias(self.settings.antialias)
+#         # self.oofcanvas.setBackgroundColor(self.settings.bgcolor.getRed(),
+#         #                                   self.settings.bgcolor.getGreen(),
+#         #                                   self.settings.bgcolor.getBlue())
+#         # self.oofcanvas.setMargin(self.settings.margin)
+
+#         # self.oofcanvas.setMouseCallback(self.mouseCB, None)
+#         # if self.rubberband:
+#         #     self.oofcanvas.setRubberBand(self.rubberband)
+#         # self.oofcanvas.show()
 
     # Contour map stuff.
     ###########################################
@@ -717,27 +705,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             # *Always* zoom to fill the window on the first non-trivial draw
             zoom = True
 
-        self.acquireGfxLock()
-        try:
-            self.updateTimeControls()
-            for layer in self.layers:
-                reason = layer.incomputable(self)
-                if reason:
-                    layer.clear()
-                else:
-                    try:
-                        # Tell the DisplayLayer to (re)create its CanvasLayer.
-                        layer.drawIfNecessary(self)
-                    except subthread.StopThread:
-                        return
-                    except (Exception, ooferror.ErrErrorPtr), exc:
-                        # This should not happen for computable Outputs
-                        debug.fmsg('Exception while drawing!', exc)
-                        raise
-            if zoom and self.realized:
-                self.zoomFillWindow(lock=False)
-        finally:
-            self.releaseGfxLock()
+        self.updateTimeControls()
+        self.drawLayers()
+        if zoom and self.realized:
+            self.zoomFillWindow()
 
         # Copy the OOFCanvas::CanvasLayers to the OOFCanvas::Canvas
         # (actually just tells gtk to queue up a draw event).

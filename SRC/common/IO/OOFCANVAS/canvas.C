@@ -9,6 +9,7 @@
  * oof_manager@nist.gov. 
  */
 
+#include "common/tostring.h"
 #include "common/threadstate.h"
 #include "canvas.h"
 #include "canvasitem.h"
@@ -16,6 +17,7 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
+#include <math.h>
 
 // TODO: Save visible area or entire canvas to a file (pdf or png).
 
@@ -198,6 +200,27 @@ namespace OOFCanvas {
   // CanvasLayers to the gtk Layout, nor does it have anything to do
   // with scrolling.
 
+  // findTransform() computes the transform without setting or using
+  // any state data from the Canvas.  setTransform() uses
+  // findTransform() and state data to set OffScreenCanvas::transform.
+
+  Cairo::Matrix OffScreenCanvas::findTransform(
+					double peepeeyou, const Rectangle &bbox,
+					const ICoord pxlsize)
+    const
+  {
+    // The bounding box for the objects that are actually drawn is
+    // smaller than the bitmap and centered in it.
+    double bbw = peepeeyou*bbox.width();
+    double bbh = peepeeyou*bbox.height();
+    double deltax = 0.5*(pxlsize.x - bbw);
+    double deltay = 0.5*(pxlsize.y - bbh);
+    Coord offset = peepeeyou*bbox.lowerLeft() + Coord(-deltax, deltay);
+    return Cairo::Matrix(peepeeyou, 0., 0., -peepeeyou,
+			 -offset.x, bbh+offset.y);
+  }
+			     
+
   void OffScreenCanvas::setTransform(double scale) {
     assert(scale > 0.0);
     // If no layers are dirty and ppu hasn't changed, don't do anything.
@@ -235,14 +258,9 @@ namespace OOFCanvas {
 	ppu = scale;
 	ICoord bitmapsz = desiredBitmapSize();
 	setWidgetSize(bitmapsz.x, bitmapsz.y); // is a no-op for OffScreenCanvas
-	// The bounding box for the objects that are actually drawn is
-	// smaller than the bitmap and centered in it.
-	double bbw = ppu*boundingBox.width();
-	double bbh = ppu*boundingBox.height();
-	double deltax = 0.5*(bitmapsz.x - bbw);
-	double deltay = 0.5*(bitmapsz.y - bbh);
-	Coord offset = ppu*boundingBox.lowerLeft() + Coord(-deltax, deltay);
-	transform = Cairo::Matrix(ppu, 0., 0., -ppu, -offset.x, bbh+offset.y);
+
+	transform = findTransform(ppu, boundingBox, bitmapsz);
+
 	// Force layers to be redrawn
 	for(CanvasLayer *layer : layers) {
 	  layer->dirty = true; 
@@ -516,15 +534,19 @@ namespace OOFCanvas {
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
   void OffScreenCanvas::saveAsPDF(const std::string &filename,
-				  double scale, bool drawBG)
+				  int maxpix, bool drawBG)
   {
-    Rectangle bb = findBoundingBox(scale*getPixelsPerUnit());
-    saveRegionAsPDF(filename, scale, drawBG, bb.lowerLeft(), bb.upperRight());
+    // Saving the whole image requires that we compute the ppu as if
+    // we're zooming to fill.
+    double newppu = getFilledPPU(nVisibleItems(), maxpix, maxpix); // margin?
+    Rectangle bb = findBoundingBox(newppu);
+    saveRegionAsPDF(filename, maxpix, drawBG, bb.lowerLeft(), bb.upperRight());
   }
 
   void OffScreenCanvas::saveRegionAsPDF(
 				const std::string &filename,
-				double scale, bool drawBG,
+				int maxpix, // no. of pixels in max(w, h)
+				bool drawBG,
 				const Coord &pt0, const Coord &pt1)
   {
     int n = nVisibleItems();
@@ -535,8 +557,12 @@ namespace OOFCanvas {
     Rectangle region(pt0, pt1); // ensures that upperRight[i] >= lowerLeft[i]
 
     // Compute pixel size of region and make a PdfSurface to fit.
-    Coord imgsize = scale*ppu*(region.upperRight() - region.lowerLeft());
-    auto surface = Cairo::PdfSurface::create(filename, imgsize.x, imgsize.y);
+    Coord imgsize = region.upperRight() - region.lowerLeft();
+    double peepeeyou = maxpix/(imgsize.x > imgsize.y ? imgsize.x : imgsize.y);
+    Coord psize = peepeeyou*imgsize;
+    ICoord pxlsize(ceil(psize.x), ceil(psize.y));
+    
+    auto surface = Cairo::PdfSurface::create(filename, pxlsize.x, pxlsize.y);
     cairo_t *ct = cairo_create(surface->cobj());
     auto pdfctxt = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(ct, true));
     pdfctxt->set_antialias(antialiasing);
@@ -546,16 +572,12 @@ namespace OOFCanvas {
 
     auto layersurf = Cairo::Surface::create(surface,
 					    Cairo::CONTENT_COLOR_ALPHA,
-					    imgsize.x, imgsize.y);
+					    pxlsize.x, pxlsize.y);
     cairo_t *lt = cairo_create(layersurf->cobj());
     auto lctxt = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(lt, true));
 
-    Cairo::Matrix matrix(getTransform());
-    matrix.xx *= scale;
-    matrix.yy *= scale;
-    matrix.x0 *= scale;
-    matrix.y0 *= scale;
-    lctxt->set_matrix(matrix);
+    Cairo::Matrix transf = findTransform(peepeeyou, region, pxlsize); 
+    lctxt->set_matrix(transf);
     Coord deviceOrigin(0,0);
     lctxt->device_to_user(deviceOrigin.x, deviceOrigin.y);
     Coord offset = deviceOrigin - region.upperLeft();
@@ -568,25 +590,23 @@ namespace OOFCanvas {
 	lctxt->paint();
 	lctxt->restore();
 
-	lctxt->save();
 	layer->redrawToContext(lctxt);
-	lctxt->restore();
 
 	pdfctxt->set_source(layersurf, 0, 0);
 	pdfctxt->paint_with_alpha(layer->alpha);
       }
     }
     // Not sure if these are needed but they don't seem to hurt.
-    pdfctxt->show_page();
-    surface->finish();
+    // pdfctxt->show_page();
+    // surface->finish();
   }
 
   void OffScreenCanvas::saveRegionAsPDF(
 				const std::string &filename,
-				double scale, bool drawBG,
+				int maxpix, bool drawBG,
 				const Coord *pt0, const Coord *pt1)
   {
-    saveRegionAsPDF(filename, scale, drawBG, *pt0, *pt1);
+    saveRegionAsPDF(filename, maxpix, drawBG, *pt0, *pt1);
   }
     
 };				// namespace OOFCanvas
