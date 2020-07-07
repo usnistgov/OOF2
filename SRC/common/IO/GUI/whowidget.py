@@ -23,6 +23,9 @@
 # ParameterWidget, and must do the work of that class by itself.
 # Perhaps this is a symptom of bad design.
 
+## TODO GTK3: When a Mesh is deleted, the WhoWidget on the Mesh page
+## is deactivated but the Mesh is still displayed.
+
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import labeltree
