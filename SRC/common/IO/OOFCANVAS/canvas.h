@@ -107,10 +107,10 @@ namespace OOFCanvas {
     virtual void draw() {}
 
     // TODO: Add saveAsPNG, saveRegionAsPNG
-    void saveAsPDF(const std::string &filename, int, bool);
-    void saveRegionAsPDF(const std::string &filename, int, bool,
+    bool saveAsPDF(const std::string &filename, int, bool);
+    bool saveRegionAsPDF(const std::string &filename, int, bool,
 			 const Coord&, const Coord&);
-    void saveRegionAsPDF(const std::string &filename, int, bool,
+    bool saveRegionAsPDF(const std::string &filename, int, bool,
 			 const Coord*, const Coord*);
 
     std::vector<CanvasItem*> clickedItems(double, double) const;

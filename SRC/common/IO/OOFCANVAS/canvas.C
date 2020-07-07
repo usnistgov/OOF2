@@ -445,6 +445,9 @@ namespace OOFCanvas {
   double OffScreenCanvas::getFilledPPU(int n, double xsize, double ysize)
     const
   {
+    if(n == 0)
+      return 1.0;
+    
     // Pixel extents of each item from its reference point.
     std::vector<double> pxLo, pxHi, pyLo, pyHi;
     // User coordinates of the upper and lower reference points of
@@ -533,25 +536,27 @@ namespace OOFCanvas {
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-  void OffScreenCanvas::saveAsPDF(const std::string &filename,
+  // The saveAs methods return true if they were successful.
+
+  bool OffScreenCanvas::saveAsPDF(const std::string &filename,
 				  int maxpix, bool drawBG)
   {
     // Saving the whole image requires that we compute the ppu as if
     // we're zooming to fill.
     double newppu = getFilledPPU(nVisibleItems(), maxpix, maxpix); // margin?
     Rectangle bb = findBoundingBox(newppu);
-    saveRegionAsPDF(filename, maxpix, drawBG, bb.lowerLeft(), bb.upperRight());
+    return saveRegionAsPDF(filename, maxpix, drawBG,
+			   bb.lowerLeft(), bb.upperRight());
   }
 
-  void OffScreenCanvas::saveRegionAsPDF(
+  bool OffScreenCanvas::saveRegionAsPDF(
 				const std::string &filename,
 				int maxpix, // no. of pixels in max(w, h)
 				bool drawBG,
 				const Coord &pt0, const Coord &pt1)
   {
-    int n = nVisibleItems();
-    if(n == 0) {
-      throw ErrUserError("Nothing is drawn!");
+    if(nVisibleItems() == 0) {
+      return false;
     }
 
     Rectangle region(pt0, pt1); // ensures that upperRight[i] >= lowerLeft[i]
@@ -596,17 +601,18 @@ namespace OOFCanvas {
 	pdfctxt->paint_with_alpha(layer->alpha);
       }
     }
-    // Not sure if these are needed but they don't seem to hurt.
+    // Not sure if these are needed.
     // pdfctxt->show_page();
     // surface->finish();
+    return true;
   }
 
-  void OffScreenCanvas::saveRegionAsPDF(
+  bool OffScreenCanvas::saveRegionAsPDF(
 				const std::string &filename,
 				int maxpix, bool drawBG,
 				const Coord *pt0, const Coord *pt1)
   {
-    saveRegionAsPDF(filename, maxpix, drawBG, *pt0, *pt1);
+    return saveRegionAsPDF(filename, maxpix, drawBG, *pt0, *pt1);
   }
     
 };				// namespace OOFCanvas

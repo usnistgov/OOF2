@@ -50,18 +50,9 @@ _during_callback = 0
 def during_callback():
     return _during_callback
 
-class ContourMapData:
-    # This class just aggregates data related to the ContourMap
-    # display, to keep the code (relatively) tidy.
-    def __init__(self):
-        self.canvas = None      # an OOFCanvas.Canvas
-        self.mouse_down = None
-        self.mark_value = None
-        self.canvas_mainlayer = None
-        self.canvas_ticklayer = None
 
-
-#TODO: Figure out what now overlaps with gfxwindowbase and clean up.
+# TODO: Merge GfxWindow and GfxWindowBase.  There's no need for two
+# classes if OOF2 and OOF3D don't share code.
 
 class GfxWindow(gfxwindowbase.GfxWindowBase):
     # This whole initialization sequence is complicated. See note in
@@ -81,8 +72,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.settings = ghostgfxwindow.GfxSettings()
         self.mouseHandler = mousehandler.nullHandler # doesn't do anything
         self.rubberband = None
-
-        self.contourmapdata = ContourMapData()
 
         # Build all the GTK objects for the interior of the box.  These
         # actually get added to the window itself after the SubWindow
@@ -209,9 +198,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
         canvasbox.pack_start(self.makeCanvasWidgets(),
                              expand=True, fill=True, padding=0)
-
-        
-        self.makeContourMapWidgets()
 
         # HACK.  Set the position of the toolbox/canvas divider.  This
         # prevents the toolbox pane from coming up minimized.
@@ -393,6 +379,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
     def postinitialize(self, name, gfxmgr, clone):
         debug.mainthreadTest()
+        # The ContourMapData structure is created in the
+        # GhostGfxWindow constructor, and the widgets can't be made
+        # until after the contructor is called.
+        self.makeContourMapWidgets()
         # Add gui callbacks to the non-gui menu created by the GhostGfxWindow.
         filemenu = self.menu.File
         filemenu.Save_Canvas_Region.add_gui_callback(self.saveCanvasRegion_gui)
@@ -452,9 +442,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def __repr__(self):
         return 'GfxWindow("%s")' % self.name
 
-    ################################################
+    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
     def newCanvas(self):
+        debug.mainthreadTest()
         canvas = oofcanvasgui.Canvas(width=300, height=300, ppu=1.0,
                                      vexpand=True, hexpand=True)
         self.canvasFrame.add(canvas.layout)
@@ -506,34 +497,23 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 #         #     self.oofcanvas.setRubberBand(self.rubberband)
 #         # self.oofcanvas.show()
 
+
+    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
     # Contour map stuff.
-    ###########################################
+
+    def newContourmapCanvas(self):
+        # Arguments are width, height, and ppu. They don't matter.
+        # Just call zoomToFill after drawing.
+        return oofcanvasgui.Canvas(100, 100, 1)
 
     # Create object and assign to self.contourmap_canvas.
     def new_contourmap_canvas(self):
-        debug.mainthreadTest()
-        if self.contourmapdata.canvas:
-            self.contourmapdata.canvas.destroy()
-
-        # Arguments are width, height, and ppu. They don't matter.
-        # Just call zoomToFill after drawing.
-        self.contourmapdata.canvas = oofcanvasgui.Canvas(
-            100, 100, 1)
-        self.contourmapdata.canvas.setBackgroundColor(
-            self.settings.bgcolor.getRed(),
-            self.settings.bgcolor.getGreen(),
-            self.settings.bgcolor.getBlue())
-
+        ghostgfxwindow.GhostGfxWindow.new_contourmap_canvas(self)
         self.contourmapdata.canvas.setResizeCallback(
             self.contourmap_resize, None)
         self.contourmapdata.canvas.setMouseCallback(self.contourmap_mouse, None)
 
-        # Create two layers, one for the "main" drawing, and
-        # one for the ticks.
-        self.contourmapdata.canvas_mainlayer = \
-            self.contourmapdata.canvas.newLayer("main")
-        self.contourmapdata.canvas_ticklayer = \
-            self.contourmapdata.canvas.newLayer("tick")
     
 ##    # Function called after layers have been arranged.  Does not
 ##    # draw the actual contourmap, just records the layers.
@@ -695,6 +675,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.contourlevel_max.set_text('')
         subthread.execute(self.show_contourmap_info)
 
+    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
     # Called on a subthread, not on the main thread.
     # Argument is actually used at gfxwindow-open-time by the menu command.
     def draw(self, zoom=False): # switchboard "redraw" callback
@@ -718,7 +700,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # has completed its draw.
         self.show_contourmap_info()
             
-###########
+    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
     def animate(self, menuitem, start, finish, times, frame_rate, style):
         menuitem.disable()
@@ -807,7 +789,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def _timegenerator(self, style, times, start, finish):
         return iter(style.getTimes(times.times(start, finish, self)))
 
-###################
+    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
     def shutdownCB(self):
         self._stopAnimation = True
@@ -818,7 +800,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         except:
             pass
 
-###################
+    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#        
 
     # TODO: clean up the rest of this file!
 
@@ -960,8 +942,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         finally:
             self.releaseGfxLock()
 
+    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
     # Scrolling 
-    ##########################################################
 
     def hScrollPosition(self):
         return self.hScrollbar.get_adjustment().value
@@ -969,8 +952,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def vScrollPosition(self):
         return self.vScrollbar.get_adjustment().value
 
+    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
     # Rubber Band
-    #########################################################
 
     def setRubberBand(self, rubberband):
         self.rubberband = rubberband
@@ -980,8 +964,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             else:
                 self.oofcanvas.removeRubberBand()
 
+    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
     # Right click on layer list
-    #########################################################
     
     def layerlistbuttonCB(self, gtkobj, event):
         if event.button == 3:
@@ -1002,8 +987,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # correctly?]
         return False         
         
-
-    #######################
+    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#    
 
     # Time Controls. 
 
@@ -1075,7 +1059,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
         mainthread.runBlock(self.sensitizeTimeButtons)
 
-###########################################
+    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#        
+
 
 # ## Support for logging and replaying mouse clicks.
 
@@ -1166,7 +1151,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 #                 return self.ignore      # silently ignore other events
 #             super(CanvasLogger, self).record(object, signal, *args)
 
-##############################################
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # This function redefines the one in GfxWindowManager when the GUI
 # code is loaded.

@@ -16,6 +16,7 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
+from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import timestamp
 from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
@@ -57,7 +58,7 @@ CheckOOFMenuItem = oofmenu.CheckOOFMenuItem
 # can all be turned on and off by setting _debuglocks.
 _debuglocks = False
 
-#######################################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class GfxSettings:
     # Stores all the settable parameters for a graphics
@@ -108,7 +109,20 @@ class GfxSettings:
 def defineGfxSetting(name, val):
     GfxSettings.__dict__[name] = val
 
-#######################################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# ContourMapData class just aggregates data related to the ContourMap
+# display, to keep the code (relatively) tidy.
+
+class ContourMapData:
+    def __init__(self):
+        self.canvas = None      # an OOFCanvas.Canvas
+        self.mouse_down = None
+        self.mark_value = None
+        self.canvas_mainlayer = None
+        self.canvas_ticklayer = None
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class GhostGfxWindow:
     initial_height = 400
@@ -131,12 +145,18 @@ class GhostGfxWindow:
         if not hasattr(self, 'settings'):
             self.settings = GfxSettings()
 
-        self.oofcanvas = self.newCanvas()
+        self.oofcanvas = mainthread.runBlock(self.newCanvas)
         self.oofcanvas.setAntialias(self.settings.antialias)
         self.oofcanvas.setBackgroundColor(self.settings.bgcolor.getRed(),
                                           self.settings.bgcolor.getGreen(),
                                           self.settings.bgcolor.getBlue())
         self.oofcanvas.setMargin(self.settings.margin)
+
+        # Although the contour map, which displays the contour color
+        # scheme, is only used in GUI mode, the command that saves it
+        # to a file can be invoked in text mode, so the data has to
+        # exist here in GhostGfxWindow.
+        self.contourmapdata = ContourMapData()
 
         self.menu = OOF.addItem(OOFMenuItem(
             self.name,
@@ -231,7 +251,11 @@ class GhostGfxWindow:
                     'filename', ident='gfxwindow',
                     tip="Name for the image file."),
                 filenameparam.OverwriteParameter(
-                    'overwrite', tip="Overwrite an existing file?")],
+                    'overwrite', tip="Overwrite an existing file?"),
+                parameter.IntParameter(
+                    'pixels', 100,
+                    tip='Size of the largest dimension of the image in pixels')
+            ],
             help="Save a pdf image of the contour map.",
             discussion=xmlmenudump.loadFile(
                 'DISCUSSIONS/common/menu/graphicssavecontour.xml')))
@@ -711,6 +735,26 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         # generate image files, but isn't going to be displayed.
         return oofcanvas.OffScreenCanvas(100) # arg is ppu
 
+    def newContourmapCanvas(self):
+        # Redefined in GfxWindow, where it returns an on-screen canvas.
+        return oofcanvas.OffScreenCanvas(100) # arg is ppu
+
+    def new_contourmap_canvas(self):
+        # In GUI mode this method is extended in GfxWindow.
+        if self.contourmapdata.canvas:
+            self.contourmapdata.canvas.destroy()
+        self.contourmapdata.canvas = self.newContourmapCanvas()
+        self.contourmapdata.canvas.setBackgroundColor(
+            self.settings.bgcolor.getRed(),
+            self.settings.bgcolor.getGreen(),
+            self.settings.bgcolor.getBlue())
+        # Create two layers, one for the "main" drawing, and
+        # one for the ticks.
+        self.contourmapdata.canvas_mainlayer = \
+            self.contourmapdata.canvas.newLayer("main")
+        self.contourmapdata.canvas_ticklayer = \
+            self.contourmapdata.canvas.newLayer("tick")
+
     def drawable(self):
         # Can any layer be drawn?  Used when testing the gui.
         self.acquireGfxLock()
@@ -829,6 +873,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             self.menu.Layer.Reorder_All.disable()
         else:
             self.menu.Layer.Reorder_All.enable()
+
+        if self.current_contourmap_method is not None:
+            self.menu.File.Save_Contourmap.enable()
+        else:
+            self.menu.File.Save_Contourmap.disable()
 
     def getLayerChangeTimeStamp(self):
         return self.layerChangeTime
@@ -1042,28 +1091,37 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                         raise
         finally:
             self.releaseGfxLock()
-            
+
     def saveCanvas(self, menuitem, filename, overwrite, pixels, background):
         ## TODO GTK3: Allow different file types
         if overwrite or not os.path.exists(filename):
             self.drawLayers()
-            self.oofcanvas.saveAsPDF(filename, pixels, background)
+            if not self.oofcanvas.saveAsPDF(filename, pixels, background):
+                raise ooferror.ErrUserError("Cannot save canvas!")
 
     def saveCanvasRegion(self, menuitem, filename, overwrite,
                          pixels, background, lowerleft, upperright):
         if overwrite or not os.path.exists(filename):
             self.drawLayers()
-            self.oofcanvas.saveRegionAsPDF(filename, pixels, background,
-                                           lowerleft, upperright)
+            if not self.oofcanvas.saveRegionAsPDF(filename, pixels, background,
+                                                  lowerleft, upperright):
+                raise ooferror.ErrUserError("Cannot save canvas region!")
 
-    def saveContourmap(self, menuitem, filename, overwrite):
-        ## TODO GTK3: Use OOFCanvas.  Add file type as an argument.
+    def saveContourmap(self, menuitem, filename, overwrite, pixels):
+        ## TODO GTK3: Allow different file types
+        assert self.current_contourmap_method is not None
         if overwrite or not os.path.exists(filename):
-            pdevice = pdfoutput.PDFoutput(filename=filename)
-            pdevice.set_background(self.settings.bgcolor)
-            self.display.draw_contourmap(self, pdevice)
-
-
+            # In text mode, the contourmap canvas might not exist
+            if self.contourmapdata.canvas is None:
+                mainthread.runBlock(self.new_contourmap_canvas)
+                # Can't draw the contourmap until the contour plot has
+                # been drawn, because the limits aren't known.
+                self.drawLayers() # draws contour plot
+                self.current_contourmap_method.draw_contourmap(
+                    self, self.contourmapdata.canvas_mainlayer)
+                
+            if not self.contourmapdata.canvas.saveAsPDF(filename,pixels,False):
+                raise ooferror.ErrUserError("Cannot save canvas contour map!")
 
     # Called from layersHaveChanged in response to layer insertion,
     # removal, or reordering, or when layers are shown and hidden.
