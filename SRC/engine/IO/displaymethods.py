@@ -135,6 +135,8 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
         display.AnimationLayer.__init__(self, when)
         display.DisplayMethod.__init__(self)
     def incomputable(self, gfxwindow):
+        if self.who is None:
+            return True
         themesh = self.who.resolve(gfxwindow)
         return (display.DisplayMethod.incomputable(self, gfxwindow) or
                 not themesh.boundedTime(self.when) or 

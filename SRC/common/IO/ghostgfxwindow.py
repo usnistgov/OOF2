@@ -12,8 +12,6 @@
 # graphics window.  The actual graphics window, GfxWindow, is derived
 # from GhostGfxWindow and overrides some of its functions.
 
-## TODO GTK3: Where is the OffScreenCanvas created when not in GUI mode?
-
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror
@@ -1151,21 +1149,23 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def topwho(self, *whoclasses):
         for layer in reversed(self.layers):
-            classname = layer.who.getClassName()
-            if ((not isinstance(layer.who, whoville.WhoProxy)) and
-                not layer.hidden and
-                classname in whoclasses):
-                return layer.who
+            if layer.who is not None:
+                classname = layer.who.getClassName()
+                if ((not isinstance(layer.who, whoville.WhoProxy)) and
+                    not layer.hidden and
+                    classname in whoclasses):
+                    return layer.who
 
     # Advanced function, returns a reference to the *layer* object
     # which draws the who object referred to.
     def topwholayer(self, *whoclasses):
         for layer in reversed(self.layers):
-            classname = layer.who.getClassName()
-            if ((not isinstance(layer.who, whoville.WhoProxy)) and
-                not layer.hidden and
-                classname in whoclasses):
-                return layer
+            if layer.who is not None:
+                classname = layer.who.getClassName()
+                if ((not isinstance(layer.who, whoville.WhoProxy)) and
+                    not layer.hidden and
+                    classname in whoclasses):
+                    return layer
 
     def topmost(self, *whoclasses):
         # Find the topmost layer whose 'who' belongs to the given
@@ -1421,15 +1421,25 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         
     def removeWho(self, whoclassname, whoname):
         path = labeltree.makePath(whoname)
-        # In each layer containing the removed Who, replace the Who with Nobody.
-        ## TODO GTK3: Is Nobody still necessary, now that there's no
-        ## LayerEditor?  Just delete the layer.
+        defunctLayers = []
         for layer in self.layers:
             layerpath = labeltree.makePath(layer.who.path())
             if (layer.who.getClass().name() == whoclassname and
                 layerpath == path):
-                layer.setWho(whoville.nobody)
+                if layer is self.selectedLayer:
+                    self.selectedLayer = None
+                layer.setWho(None)
+                defunctLayers.append(layer)
+        # Don't use layer.getWho() here, because that tries to resolve
+        # proxies in the graphics window.  We are just checking to see
+        # if who was set to None in the loop above.
+        self.layers = [layer for layer in self.layers
+                       if layer.who is not None]
+        for layer in defunctLayers:
+            layer.destroy()
+
         self.layersHaveChanged()
+
         
     def newToolboxClass(self, tbclass):
         tb = tbclass(self)              # constructs toolbox

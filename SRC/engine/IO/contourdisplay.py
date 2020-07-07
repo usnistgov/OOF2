@@ -81,6 +81,8 @@ class ZDisplay(displaymethods.MeshDisplayMethod):
         return 0
     
     def incomputable(self, gfxwindow):
+        if self.who is None:
+            return True
         mesh = self.who.resolve(gfxwindow)
         return (self.what.incomputable(mesh) or 
                displaymethods.MeshDisplayMethod.incomputable(self, gfxwindow))

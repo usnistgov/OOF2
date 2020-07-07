@@ -823,7 +823,3 @@ class WhoClassParameter(parameter.StringParameter):
     def valueDesc(self):
         return "The name of a class of OOF2 objects (eg, <userinput>'Microstructure'</userinput> or <userinput>'Skeleton'</userinput>)."
         
-##########################
-
-noclass = WhoClass('Nothing', 0)
-nobody = noclass.add('Nobody', None, parent=None)
