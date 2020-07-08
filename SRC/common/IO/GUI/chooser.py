@@ -67,7 +67,7 @@ class ChooserWidget(object):
         self.update_callback = update_callback
         self.update_callback_args = update_callback_args
         self.helpdict = helpdict
-        self.signal = None #
+        # self.signal = None # TODO GTK3: Is this needed?
         self.namelist = namelist[:]
 
         self.gtk = Gtk.EventBox()
@@ -148,10 +148,12 @@ class ChooserWidget(object):
         debug.mainthreadTest()
         self.namelist = namelist[:]
         self.helpdict= helpdict
-        if self.current_string not in namelist:
+        if not self.namelist:
             self.set_state(None)
-        else:
+        elif self.current_string in self.namelist:
             self.set_state(self.current_string)
+        else:
+            self.set_state(self.namelist[0])
 
     def set_state(self, arg):
         # arg is either an integer position in namelist or a string in
@@ -163,6 +165,8 @@ class ChooserWidget(object):
         # error.
         if not self.namelist and arg is None:
             # If the set of values is empty, None is the only legal arg.
+            self.label.set_text("")
+            self.current_string = None
             return
         if arg is None:
             newstr = self.namelist[0]
