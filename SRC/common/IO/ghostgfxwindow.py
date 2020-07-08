@@ -196,7 +196,7 @@ class GhostGfxWindow:
             params=[
                 filenameparam.WriteFileNameParameter(
                     'filename', ident='gfxwindow',
-                    tip="Name for the image file."),
+                    tip="Name for the pdf image file."),
                 filenameparam.OverwriteParameter(
                     'overwrite',
                     tip="Overwrite an existing file?"),
@@ -219,7 +219,7 @@ class GhostGfxWindow:
             params=[
                 filenameparam.WriteFileNameParameter(
                     'filename', ident='gfxwindow',
-                    tip='Name for the image file.'),
+                    tip='Name for the pdf image file.'),
                 filenameparam.OverwriteParameter(
                     'overwrite',
                     tip="Overwrite an existing file?"),
