@@ -194,7 +194,6 @@ namespace OOFCanvas {
   //=\\=//
 
   void GUICanvasBase::setRubberBand(RubberBand *rb) {
-    std::cerr << "GUICanvasBase::setRubberBand: " << rb << std::endl;
     rubberBand = rb;
     rubberBandLayer.dirty = true; 
   }
@@ -410,6 +409,12 @@ namespace OOFCanvas {
     ((GUICanvasBase*) data)->mouseButtonHandler(event);
   }
 
+  // TODO: There's a possible race condition if the mouse button
+  // callback for a down event creates a rubberband in a subthread,
+  // which might not finish before the callback returns.  We could
+  // prevent this by requiring that the callback return a pointer to
+  // the rubberband, and get rid of Canvas::setRubberBand.
+  
   void GUICanvasBase::mouseButtonHandler(GdkEventButton *event) {
     if(empty())
       return;
@@ -433,8 +438,6 @@ namespace OOFCanvas {
 	       event->state & GDK_SHIFT_MASK,   
 	       event->state & GDK_CONTROL_MASK);
     // The callback may have installed a rubberband.
-    std::cerr << "GUICanvasBase::mouseButtonHandler: after callback, event="
-	      << eventtype << " rubberBand=" << rubberBand << std::endl;
     if(eventtype == "down" && rubberBand) {
       rubberBandLayer.removeAllItems();
       if(!rubberBand->active()) {

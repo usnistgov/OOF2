@@ -436,7 +436,8 @@ public:
 
 class SpiderRubberBand : public RubberBand {
 public:
-  SpiderRubberBand(DoubleVec *Coords);
+  SpiderRubberBand();
+  void addPoints(DoubleVec *Coords);
 };
 
 class CanvasItemListIterator {

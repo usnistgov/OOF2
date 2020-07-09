@@ -22,6 +22,7 @@ namespace OOFCanvas {
 
   RubberBand::RubberBand()
     : active_(false),
+      layer(nullptr),
       lineWidth(1),
       color(black),
       dashColor(white),
@@ -29,7 +30,9 @@ namespace OOFCanvas {
       coloredDashes(false)
   {}
 
-  RubberBand::~RubberBand() {}
+  RubberBand::~RubberBand() {
+    std::cerr << "RubberBand::dtor: " << this << std::endl;
+  }
 
   void RubberBand::start(CanvasLayer *lyr, double x, double y) {
     layer = lyr;
@@ -129,23 +132,24 @@ namespace OOFCanvas {
     layer->addItem(ellipse);
   }
 
-  SpiderRubberBand::SpiderRubberBand(const std::vector<double> *pts) {
+  SpiderRubberBand::SpiderRubberBand() {
+  }
+
+  void SpiderRubberBand::addPoints(const std::vector<double> *pts) {
     // The input pts contains x0, y0, x1, y1, etc. so that we don't
     // need an extra copy to convert Python OOF Coords to C++
     // OOFCanvas Coords.
-    std::cerr << "SpiderRubberBand::ctor: " << this << std::endl;
     int npts = pts->size()/2;
-    points.reserve(npts);
+    points.reserve(npts + points.size());
     for(int i=0; i<npts; i++) {
       points.emplace_back((*pts)[2*i], (*pts)[2*i+1]);
     }
   }
 
   void SpiderRubberBand::draw(double x, double y) {
-    std::cerr << "SpiderRubberBand::draw: " << x << " " << y << std::endl;
+    assert(layer != nullptr);	// RubberBand::start() has not been called!
     RubberBand::draw(x, y);
     CanvasSegments *segs = new CanvasSegments();
-    std::cerr << "SpiderRubberBand::draw: segs=" << *segs << std::endl;
     segs->setLineWidthInPixels();
     segs->setLineWidth(lineWidth);
     segs->setLineColor(color);
@@ -153,12 +157,8 @@ namespace OOFCanvas {
       segs->addSegment(currentPt, pt);
     }
     doDashes(segs);
-    std::cerr << "SpiderRubberBand::draw: segs=" << *segs << std::endl;
-    std::cerr << "SpiderRubberBand::draw: layer=" << layer << std::endl;
-    std::cerr << "SpiderRubberBand::draw: layer=" << *layer << std::endl;
     layer->clear();
     layer->addItem(segs);
-    std::cerr << "SpiderRubberBand::draw: done" << std::endl;
   }
   
 };				// namespace OOFCanvas

@@ -327,11 +327,20 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
             return eventtype=='up'
 
     def down(self, x, y, button, shift, ctrl, data):
-        subthread.execute(self.down_subthread, (x,y,button,shift,ctrl,data))
+        # The RubberBand object needs to be created on the main thread
+        # before this method returns, because the Canvas will want to
+        # use it right away.
+        ## TODO GTK3: Make rubber band parameters settable.
+        rb = oofcanvas.SpiderRubberBand()
+        rb.setLineWidth(1)
+        rb.setColor(oofcanvas.black)
+        rb.setDashColor(oofcanvas.white)
+        rb.setDashLength(7)
+        self.gfxwindow().setRubberBand(rb)
+        subthread.execute(self.down_subthread, (x,y,button,shift,ctrl,rb))
 
-    def down_subthread(self, x, y, button, shift, ctrl, data):
+    def down_subthread(self, x, y, button, shift, ctrl, rb):
         debug.subthreadTest()
-        debug.fmsg()
         self.mouselock.acquire()
         try:
             self.downed = 1
@@ -365,16 +374,11 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                             self.homogeneity0 += element.homogeneity(skel.MS,
                                                                      False)
                             self.shapeenergy0 += element.energyShape()
-                    # Create rubber band
-                    points = [n.position() for n in self.nbrnodes]
-                    rb = oofcanvas.SpiderRubberBand(points);
-                    ## TODO GTK3: Make rubber band parameters settable.
-                    rb.setLineWidth(1)
-                    rb.setColor(oofcanvas.black)
-                    rb.setDashColor(oofcanvas.white)
-                    rb.setDashLength(7)
-                    debug.fmsg("calling setRubberBand")
-                    self.gfxwindow().setRubberBand(rb)
+
+                    mainthread.runBlock(
+                        rb.addPoints,
+                        ([n.position() for n in self.nbrnodes],))
+                    
             gtklogger.checkpoint("Move Node toolbox down event")
         finally:
             self.mouselock.release()
