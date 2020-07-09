@@ -62,8 +62,7 @@ namespace OOFCanvas {
 				     const Coord &pt)
     const
   {
-    double lw = lineWidthInPixels ?
-      lineWidth/canvas->getPixelsPerUnit() : lineWidth;
+    double lw = lineWidthInUserUnits(canvas);
     double d2max = 0.25*lw*lw;
     for(const Segment &seg : segments) {
       double alpha = 0;	    // position along segment
@@ -156,8 +155,7 @@ namespace OOFCanvas {
   {
     if(points.size() < 2)
       return false;
-    double lw = lineWidthInPixels ?
-      lineWidth/canvas->getPixelsPerUnit() : lineWidth;
+    double lw = lineWidthInUserUnits(canvas);
     double d2max = 0.25*lw*lw;
     for(unsigned int i=1; i<points.size(); i++) {
       Segment seg(points[i-1], points[i]);

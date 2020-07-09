@@ -21,8 +21,10 @@ For Adam C.:
 Material property outputs
     Orientation at a point
     C_ijkl in various reference frames (+ other Property parameters)
+    DONE
 Multiple outputs in one file, from Analysis page, not scheduled output.
     eg, x y stress strain orientation, all in one row
+    DONE
 
 PixelGroup buttons on MS page should be desensitized when MS is busy.
 This is an issue now that AutoGroup operations can take a long time.
@@ -44,3 +46,8 @@ initializers need to be saved. Also, non-command lines can be read
 from input scripts, and they should be saved too.  When reading from a
 script, should logging be done by the script reader, and not by the
 menu command?  Menu commands are only logged when executed by the gui?
+
+Add a Decoration WhoClass and DisplayMethods that can be used to put
+text or arbitrary shapes on the canvas.  Maybe allow the decorations
+to be moved around with the mouse.  That may be too much like writing
+our own graphics app.

@@ -30,6 +30,7 @@ namespace OOFCanvas {
     Cairo::LineJoin lineJoin;
     Cairo::LineCap lineCap;
     double lineWidthInUserUnits(Cairo::RefPtr<Cairo::Context>) const;
+    double lineWidthInUserUnits(const OffScreenCanvas*) const;
     std::vector<double> dashLengthInUserUnits(Cairo::RefPtr<Cairo::Context>)
       const;
     // stroke sets line color, width, and dash pattern and draws the

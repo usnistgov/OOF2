@@ -17,9 +17,9 @@
 // CanvasText item, so text items aren't selectable by the mouse.  It
 // is possible to tell if a point is inside a text item's bounding
 // box, so text could be selected if nearby clicks are acceptable.
-// However, it might be possible to render text the text to an
-// otherwise empty surface and check the color of the selected point
-// on the surface.
+// However, it might be possible to render the text to an otherwise
+// empty surface and check the color of the selected point on the
+// surface.
 
 namespace OOFCanvas {
 

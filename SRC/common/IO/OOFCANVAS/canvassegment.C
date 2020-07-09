@@ -60,8 +60,7 @@ namespace OOFCanvas {
   {
     double alpha = 0;
     double distance2 = 0; // distance squared from pt to segment along normal
-    double lw = lineWidthInPixels ?
-      lineWidth/canvas->getPixelsPerUnit() : lineWidth;
+    double lw = lineWidthInUserUnits(canvas);
     segment.projection(pt, alpha, distance2);
     return (alpha >= 0.0 && alpha <= 1.0 && distance2 < 0.25*lw*lw);
   }

@@ -160,7 +160,7 @@ namespace OOFCanvas {
     // scaling it so that it's an ellipse with radii r0 and r1, then
     // rotating it, then translating it to the desired center point.
 
-    // TODO: We could draw a straight line if one of the radii is
+    // TODO? We could draw a straight line if one of the radii is
     // zero.  We can't ignore the situation and try to draw the
     // ellipse anyway, because Cairo::Context::scale() requires its
     // arguments to be nonzero.
@@ -270,10 +270,6 @@ namespace OOFCanvas {
       // A CanvasDot's lineWidth is always in device units.
       double lw = lineWidth;
       ctxt->device_to_user_distance(lw, dummy);
-      // ctxt->set_line_width(lw);
-      // lineColor.set(ctxt);
-      // if(!dash.empty())
-      // 	ctxt->set_dash(dashLengthInUserUnits(ctxt), dashOffset);
       ctxt->begin_new_sub_path();
       ctxt->arc(center.x, center.y, r-0.5*lw, 0, 2*M_PI);
       stroke(ctxt);

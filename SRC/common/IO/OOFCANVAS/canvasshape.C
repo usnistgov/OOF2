@@ -19,10 +19,6 @@ namespace OOFCanvas {
     modified();
   }
 
-  // TODO: There should be a version of this that takes an
-  // OffScreenCanvas argument instead of a Context.  Some methods,
-  // like CanvasSegments::containsPoint, are computing the lineWidth
-  // themselves because they don't know the context.
   double CanvasShape::lineWidthInUserUnits(Cairo::RefPtr<Cairo::Context> ctxt)
     const
   {
@@ -30,6 +26,14 @@ namespace OOFCanvas {
       double dx=1, dy=1;
       ctxt->device_to_user_distance(dx, dy);
       return lineWidth*dx;
+    }
+    return lineWidth;
+  }
+
+  double CanvasShape::lineWidthInUserUnits(const OffScreenCanvas *canvas) const
+  {
+    if(lineWidthInPixels) {
+      return canvas->pixel2user(lineWidth);
     }
     return lineWidth;
   }

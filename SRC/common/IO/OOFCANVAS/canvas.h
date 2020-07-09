@@ -106,7 +106,6 @@ namespace OOFCanvas {
     // draw method doesn't.
     virtual void draw() {}
 
-    // TODO: Add saveAsPNG, saveRegionAsPNG
     bool saveAsPDF(const std::string &filename, int, bool);
     bool saveRegionAsPDF(const std::string &filename, int, bool,
 			 const Coord&, const Coord&);

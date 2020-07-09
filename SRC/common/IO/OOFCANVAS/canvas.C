@@ -19,8 +19,6 @@
 #include <algorithm>
 #include <math.h>
 
-// TODO: Save visible area or entire canvas to a file (pdf or png).
-
 // TODO? Layers shouldn't be replaced, but they can be "edited".  An
 // edited layer is cleared of all of its contents and then passed to
 // DisplayMethod::draw().
@@ -536,7 +534,11 @@ namespace OOFCanvas {
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-  // The saveAs methods return true if they were successful.
+  // Save the whole canvas or a region of it as a pdf.  The saveAs
+  // methods return true if they were successful.
+  
+  // TODO: Add saveAsPNG, saveRegionAsPNG.  If ImageMagick is being
+  // used, we could save in other formats as well, presumably.
 
   bool OffScreenCanvas::saveAsPDF(const std::string &filename,
 				  int maxpix, bool drawBG)
