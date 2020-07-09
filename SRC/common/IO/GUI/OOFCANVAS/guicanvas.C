@@ -194,10 +194,9 @@ namespace OOFCanvas {
   //=\\=//
 
   void GUICanvasBase::setRubberBand(RubberBand *rb) {
+    std::cerr << "GUICanvasBase::setRubberBand: " << rb << std::endl;
     rubberBand = rb;
-    // TODO:  Why isn't the rubberband drawn right away?
-    rubberBandLayer.dirty = true;
-    draw();
+    rubberBandLayer.dirty = true; 
   }
 
   void GUICanvasBase::removeRubberBand() {
@@ -433,6 +432,17 @@ namespace OOFCanvas {
     doCallback(eventtype, userpt, lastButton,
 	       event->state & GDK_SHIFT_MASK,   
 	       event->state & GDK_CONTROL_MASK);
+    // The callback may have installed a rubberband.
+    std::cerr << "GUICanvasBase::mouseButtonHandler: after callback, event="
+	      << eventtype << " rubberBand=" << rubberBand << std::endl;
+    if(eventtype == "down" && rubberBand) {
+      rubberBandLayer.removeAllItems();
+      if(!rubberBand->active()) {
+	nonRubberBandBufferFilled = false;
+	rubberBand->start(&rubberBandLayer, mouseDownPt.x, mouseDownPt.y);
+      }
+      rubberBand->draw(userpt.x, userpt.y);
+      }
     allowMotion = (eventtype == "down");
   }
 
@@ -450,10 +460,10 @@ namespace OOFCanvas {
     Coord userpt(pixel2user(pixel));
     if(rubberBand) {
       rubberBandLayer.removeAllItems();
-      if(!rubberBand->active()) {
-	nonRubberBandBufferFilled = false;
-	rubberBand->start(&rubberBandLayer, mouseDownPt.x, mouseDownPt.y);
-      }
+      // if(!rubberBand->active()) {
+      // 	nonRubberBandBufferFilled = false;
+      // 	rubberBand->start(&rubberBandLayer, mouseDownPt.x, mouseDownPt.y);
+      // }
       rubberBand->draw(userpt.x, userpt.y);
     }
     doCallback("move", userpt, lastButton,

@@ -132,7 +132,8 @@ namespace OOFCanvas {
   SpiderRubberBand::SpiderRubberBand(const std::vector<double> *pts) {
     // The input pts contains x0, y0, x1, y1, etc. so that we don't
     // need an extra copy to convert Python OOF Coords to C++
-    // OOFCanvas Coords. 
+    // OOFCanvas Coords.
+    std::cerr << "SpiderRubberBand::ctor: " << this << std::endl;
     int npts = pts->size()/2;
     points.reserve(npts);
     for(int i=0; i<npts; i++) {
@@ -141,8 +142,10 @@ namespace OOFCanvas {
   }
 
   void SpiderRubberBand::draw(double x, double y) {
+    std::cerr << "SpiderRubberBand::draw: " << x << " " << y << std::endl;
     RubberBand::draw(x, y);
     CanvasSegments *segs = new CanvasSegments();
+    std::cerr << "SpiderRubberBand::draw: segs=" << *segs << std::endl;
     segs->setLineWidthInPixels();
     segs->setLineWidth(lineWidth);
     segs->setLineColor(color);
@@ -150,8 +153,12 @@ namespace OOFCanvas {
       segs->addSegment(currentPt, pt);
     }
     doDashes(segs);
+    std::cerr << "SpiderRubberBand::draw: segs=" << *segs << std::endl;
+    std::cerr << "SpiderRubberBand::draw: layer=" << layer << std::endl;
+    std::cerr << "SpiderRubberBand::draw: layer=" << *layer << std::endl;
     layer->clear();
     layer->addItem(segs);
+    std::cerr << "SpiderRubberBand::draw: done" << std::endl;
   }
   
 };				// namespace OOFCanvas

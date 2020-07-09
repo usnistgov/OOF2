@@ -331,6 +331,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
     def down_subthread(self, x, y, button, shift, ctrl, data):
         debug.subthreadTest()
+        debug.fmsg()
         self.mouselock.acquire()
         try:
             self.downed = 1
@@ -372,6 +373,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                     rb.setColor(oofcanvas.black)
                     rb.setDashColor(oofcanvas.white)
                     rb.setDashLength(7)
+                    debug.fmsg("calling setRubberBand")
                     self.gfxwindow().setRubberBand(rb)
             gtklogger.checkpoint("Move Node toolbox down event")
         finally:

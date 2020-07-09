@@ -20,9 +20,6 @@
 // The BrushRubberBand draws a curve along the centerline of the brush
 // stroke and also outlines the brush.
 
-// TODO: The brush rubber band isn't visible until after the
-// first mouse move.  It should appear on mouse down.
-
 BrushRubberBand::BrushRubberBand(GfxBrushStyle *brush) :
   style(brush)
 {}
@@ -30,7 +27,6 @@ BrushRubberBand::BrushRubberBand(GfxBrushStyle *brush) :
 void BrushRubberBand::start(OOFCanvas::CanvasLayer *lyr, double x, double y) {
   RubberBand::start(lyr, x, y);
   trail.emplace_back(x, y);
-  style->draw(layer, currentPt); // TODO: Is this needed here? Legal here?
 }
 
 void BrushRubberBand::draw(double x, double y) {
