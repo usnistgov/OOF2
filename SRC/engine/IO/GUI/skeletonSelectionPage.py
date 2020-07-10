@@ -159,9 +159,15 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         self.statusframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         self.leftbox.pack_start(self.statusframe,
                                 expand=False, fill=False, padding=0)
-        self.status = Gtk.Label(halign=Gtk.Align.START)
+        sframe2 = Gtk.Frame(margin=2)
+        self.statusframe.add(sframe2)
+        self.status = Gtk.TextView(name="fixedfont", editable=False,
+                                   cursor_visible=False,
+                                   wrap_mode=Gtk.WrapMode.WORD,
+                                   left_margin=10, right_margin=10,
+                                   top_margin=2, bottom_margin=2)
         gtklogger.setWidgetName(self.status, 'status')
-        self.statusframe.add(self.status)
+        sframe2.add(self.status)
 
         # Group operations.
         self.groupgui = GroupGUI(self)
@@ -246,15 +252,15 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         if skelcontext:
             n, m = self.selectionSizeAndMax()    # requires subthread
             if m > 0:
-                status_text = " %d %s%s selected (%g%%)." % \
+                status_text = "%d %s%s selected (%g%%)." % \
                     (n, self.activemode.name(), 's'*(n!=1), 100.*n/m)
             else:
-                status_text = " 0 %s%s selected." % \
+                status_text = "0 %s%s selected." % \
                     (self.activemode.name(), 's'*(n!=1))
         else:
             status_text = "No Skeleton selected."
 
-        mainthread.runBlock(self.status.set_text, (status_text,))
+        mainthread.runBlock(self.status.get_buffer().set_text, (status_text,))
         gtklogger.checkpoint("skeleton selection page updated")
 
         

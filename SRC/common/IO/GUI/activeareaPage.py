@@ -29,19 +29,12 @@ from ooflib.common.IO.GUI import regclassfactory
 from ooflib.common.IO.GUI import whowidget
 from gi.repository import Gtk
 
-if config.dimension()==2:
-    spacestring = "area"
-    Spacestring = "Area"
-elif config.dimension()==3:
-    spacestring = "volume"
-    Spacestring = "Volume"    
-
 class ActiveAreaPage(oofGUI.MainPage):
     def __init__(self):
         self.built = False
-        oofGUI.MainPage.__init__(self, name="Active %s"%Spacestring,
+        oofGUI.MainPage.__init__(self, name="Active Area",
                                  ordering=71.1,
-                                 tip="Modify active %s."%spacestring)
+                                 tip="Modify active area.")
 
         mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
@@ -69,17 +62,21 @@ class ActiveAreaPage(oofGUI.MainPage):
                        margin_start=2, margin_end=gtkutils.handle_padding,
                        margin_top=2, margin_bottom=2)
         mainpane.pack1(vbox, resize=True, shrink=False)
-        aasframe = Gtk.Frame(label="Active %s Status"%Spacestring)
+        aasframe = Gtk.Frame(label="Active Area Status")
         aasframe.set_shadow_type(Gtk.ShadowType.IN)
         vbox.pack_start(aasframe, expand=False, fill=False, padding=0)
-
-        ## TODO GTK3: For consistency with other status panes, aainfo
-        ## should be a TextView.
-        self.aainfo = Gtk.Label(margin=2)
+        aasframe2 = Gtk.Frame(margin=2)
+        aasframe.add(aasframe2)
+        self.aainfo = Gtk.TextView(name="fixedfont",
+                                   editable=False,
+                                   cursor_visible=False,
+                                   wrap_mode=Gtk.WrapMode.WORD,
+                                   left_margin=10, right_margin=10,
+                                   top_margin=2, bottom_margin=2)
         gtklogger.setWidgetName(self.aainfo, "Status")
-        aasframe.add(self.aainfo)
+        aasframe2.add(self.aainfo)
 
-        naaframe = Gtk.Frame(label="Named Active %ss"%Spacestring)
+        naaframe = Gtk.Frame(label="Named Active Areas")
         naaframe.set_shadow_type(Gtk.ShadowType.IN)
         vbox.pack_start(naaframe, expand=True, fill=True, padding=0)
         naabox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
@@ -96,28 +93,28 @@ class ActiveAreaPage(oofGUI.MainPage):
         gtklogger.setWidgetName(self.storebutton, "Store")
         gtklogger.connect(self.storebutton, 'clicked', self.storeCB)
         self.storebutton.set_tooltip_text(
-            "Save the current active %s for future use."%spacestring)
+            "Save the current active area for future use.")
         self.renamebutton = Gtk.Button("Rename...")
         bbox.pack_start(self.renamebutton, expand=True, fill=False, padding=0)
         gtklogger.setWidgetName(self.renamebutton, "Rename")
         gtklogger.connect(self.renamebutton, 'clicked', self.renameCB)
         self.renamebutton.set_tooltip_text(
-            "Rename the selected saved active %s."%spacestring)
+            "Rename the selected saved active areas.")
         self.deletebutton = Gtk.Button("Delete")
         bbox.pack_start(self.deletebutton, expand=True, fill=False, padding=0)
         gtklogger.setWidgetName(self.deletebutton, "Delete")
         gtklogger.connect(self.deletebutton, 'clicked', self.deleteCB)
         self.deletebutton.set_tooltip_text(
-            "Delete the selected saved active %s."%spacestring)
+            "Delete the selected saved active areas.")
         self.restorebutton = Gtk.Button("Restore")
         bbox.pack_start(self.restorebutton, expand=True, fill=False, padding=0)
         gtklogger.setWidgetName(self.restorebutton, "Restore")
         gtklogger.connect(self.restorebutton, 'clicked', self.restoreCB)
         self.restorebutton.set_tooltip_text(
-            "Use the selected saved active %s."%spacestring)
+            "Use the selected saved active areas.")
         
         # Active area modification methods in the right half of the main pane
-        modframe = Gtk.Frame(label="Active %s Modification"%Spacestring,
+        modframe = Gtk.Frame(label="Active Area Modification",
                              margin_start=gtkutils.handle_padding,
                              margin_end=2, margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(modframe, "Modify")
@@ -144,19 +141,18 @@ class ActiveAreaPage(oofGUI.MainPage):
         hbox.pack_start(self.prevbutton, expand=False, fill=False, padding=2)
         gtklogger.connect(self.prevbutton, 'clicked', self.historian.prevCB)
         self.prevbutton.set_tooltip_text(
-            'Recall the previous active %s modification operation.'%spacestring)
+            'Recall the previous active area modification operation.')
         self.okbutton = gtkutils.StockButton("gtk-ok", "OK")
         hbox.pack_start(self.okbutton, expand=True, fill=True, padding=2)
         gtklogger.setWidgetName(self.okbutton, "OK")
         gtklogger.connect(self.okbutton, 'clicked', self.okbuttonCB)
         self.okbutton.set_tooltip_text(
-            'Perform the active %s modification operation defined above.'
-            % spacestring)
+            'Perform the active area modification operation defined above.')
         self.nextbutton = gtkutils.nextButton()
         hbox.pack_start(self.nextbutton, expand=False, fill=False, padding=2)
         gtklogger.connect(self.nextbutton, 'clicked', self.historian.nextCB)
         self.nextbutton.set_tooltip_text(
-            "Recall the next active %s modification operation."%spacestring)
+            "Recall the next active area modification operation.")
 
         # Undo, Redo, Override
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
@@ -259,8 +255,8 @@ class ActiveAreaPage(oofGUI.MainPage):
         namearg.value = self.getCurrentActiveArea()
         oldname = self.getCurrentActiveArea()
         if parameterwidgets.getParameters(menuitem.get_arg('newname'),
-                                          title="Rename active%s '%s'"
-                                               % (spacestring,oldname)):
+                                          title="Rename active area '%s'"
+                                               % oldname):
             menuitem.callWithDefaults(microstructure=self.getCurrentMSName(),
                                       oldname=oldname)
 
@@ -312,22 +308,19 @@ class ActiveAreaPage(oofGUI.MainPage):
             try:
                 aasize = activearea.size()
                 mssize = ms.getObject().sizeInPixels()
-                if config.dimension()==2:
-                    mpxls = mssize[0] * mssize[1]
-                    pixstring="pixels"
-                elif config.dimension()==3:
-                    mpxls = mssize[0] * mssize[1] * mssize[2]
-                    pixstring="voxels"
+                mpxls = mssize[0] * mssize[1]
+                pixstring="pixels"
                 apxls = mpxls - aasize
                 if ms.getObject().activearea.getOverride():
-                    msg = "OVERRIDE: all %d %s are active" % (mpxls, pixstring)
+                    msg = "OVERRIDE: all %d pixels are active." % mpxls
                 else:
-                    msg = "%d of %d %s are active" % (apxls, mpxls, pixstring)
+                    msg = "%d of %d pixels are active (%g%%)." % \
+                        (apxls, mpxls, 100.*apxls/mpxls)
             finally:
                 activearea.end_reading()
         else:
             msg = "No Microstructure selected"
-        mainthread.runBlock(self.aainfo.set_text, (msg,))
+        mainthread.runBlock(self.aainfo.get_buffer().set_text, (msg,))
         gtklogger.checkpoint("active area status updated")
 
     def setOverrideButton(self):
