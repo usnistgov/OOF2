@@ -413,7 +413,10 @@ namespace OOFCanvas {
   // callback for a down event creates a rubberband in a subthread,
   // which might not finish before the callback returns.  We could
   // prevent this by requiring that the callback return a pointer to
-  // the rubberband, and get rid of Canvas::setRubberBand.
+  // the rubberband, and get rid of Canvas::setRubberBand.  Doing that
+  // would require different types of callbacks for different events,
+  // because it would make no sense for a mouse-up or mouse-move
+  // callback to return a rubberband pointer.
   
   void GUICanvasBase::mouseButtonHandler(GdkEventButton *event) {
     if(empty())
