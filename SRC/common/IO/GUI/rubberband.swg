@@ -19,9 +19,9 @@
 using namespace OOFCanvas;
 %}
 %extern "gfxbrushstyle.swg"
-%extern "common/IO/OOFCANVAS/oofcanvas.swg"
+%extern "common/IO/GUI/OOFCANVAS/oofcanvasgui.swg"
 
-%pragma(python) code="from ooflib.SWIG.common.IO.OOFCANVAS.oofcanvas import RubberBandPtr"
+%pragma(python) code="from ooflib.SWIG.common.IO.GUI.OOFCANVAS.oofcanvasgui import RubberBandPtr"
 
 class BrushRubberBand : public RubberBand {
 public:

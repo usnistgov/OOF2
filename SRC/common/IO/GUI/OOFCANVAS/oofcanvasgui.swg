@@ -26,13 +26,102 @@
 #include "common/IO/GUI/OOFCANVAS/guicanvas.h"
 using namespace OOFCanvas;
 typedef std::vector<CanvasItem*> CanvasItemList;
+typedef std::vector<double> DoubleVec;
 %}
 
 %typemap(python, in) PyObject* {
   $target = $source;
 }
 
+// Convert a Python sequence of coords to a list of doubles
+// (x0,y0,x1,y1,...)  The Python coord type must have .x and .y
+// attributes.
+
+%typemap(python, in) DoubleVec *Coords (DoubleVec vec) {
+  // typemap(python, in) DoubleVec *Coords
+  if(!PySequence_Check($source)) {
+    PyErr_SetString(
+	    PyExc_TypeError,
+	    "OOFCanvas: typemap error. Expected a sequence of coordinates.");
+    return 0;
+  }
+  DoubleVec::size_type sz = Py_SAFE_DOWNCAST(PySequence_Size($source),
+					     Py_ssize_t, DoubleVec::size_type);
+  if(sz > 0) {
+    vec.resize(2*sz);
+    for(DoubleVec::size_type i=0; i<sz; i++) {
+      PyObject *coord = PySequence_GetItem($source, (Py_ssize_t) i);
+      PyObject *x = PyObject_GetAttrString(coord, "x");
+      PyObject *y = PyObject_GetAttrString(coord, "y");
+      if(!x || !y) {
+	PyErr_SetString(
+	PyExc_TypeError,
+	"OOFCanvas: typemap error. Expected a sequence of coodinates with x and y attributes.");
+	return 0;
+      }
+      if(PyNumber_Check(x))
+	vec[2*i] = PyFloat_AsDouble(x);
+      else {
+	PyErr_SetString(
+		PyExc_TypeError,
+		"OOFCanvas: typemap error: x coordinate is not a number.");
+	return 0;
+      }
+      if(PyNumber_Check(y))
+	vec[2*i+1] = PyFloat_AsDouble(y);
+      else {
+	PyErr_SetString(
+		PyExc_TypeError,
+		"OOFCanvas: typemap error: y coordinate is not a number.");
+	return 0;
+      }
+      Py_XDECREF(x);
+      Py_XDECREF(y);
+    }
+  }
+  $target = &vec;
+}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 void initializePyGTK();
+
+class RubberBand {
+public:
+  ~RubberBand();
+  void setLineWidth(double);
+  void setColor(Color);
+  void setDashLength(double);
+  void setDashColor(Color);
+};
+
+class LineRubberBand : public RubberBand {
+public:
+  LineRubberBand();
+};
+
+class RectangleRubberBand : public RubberBand {
+public:
+  RectangleRubberBand();
+};
+
+class CircleRubberBand : public RubberBand {
+public:
+  CircleRubberBand();
+};
+
+class EllipseRubberBand : public RubberBand {
+public:
+  EllipseRubberBand();
+};
+
+class SpiderRubberBand : public RubberBand {
+public:
+  SpiderRubberBand();
+  void addPoints(DoubleVec *Coords);
+};
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 %name(Canvas) class PythonCanvas : public OffScreenCanvas {
 public:

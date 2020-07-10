@@ -14,7 +14,7 @@
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common.IO.GUI import rubberband
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
+from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
 from ooflib.common import debug
 from ooflib.common import pixelselectionmethod
 from ooflib.common import primitives
@@ -164,21 +164,21 @@ pixelselectionmethod.brushSelectorRegistration.getRubberBand = _BrushSelectorRB
 
 
 def _RectangleSelectorRB(reg):
-    return oofcanvas.RectangleRubberBand()
+    return oofcanvasgui.RectangleRubberBand()
 
 pixelselectionmethod.rectangleSelectorRegistration.getRubberBand = \
                                                      _RectangleSelectorRB
 
 
 def _CircleSelectorRB(reg):
-    return oofcanvas.CircleRubberBand()
+    return oofcanvasgui.CircleRubberBand()
 
 pixelselectionmethod.circleSelectorRegistration.getRubberBand = \
                                                               _CircleSelectorRB
 
 
 def _EllipseSelectorRB(reg):
-    return oofcanvas.EllipseRubberBand()
+    return oofcanvasgui.EllipseRubberBand()
 
 pixelselectionmethod.ellipseSelectorRegistration.getRubberBand = \
                                                              _EllipseSelectorRB

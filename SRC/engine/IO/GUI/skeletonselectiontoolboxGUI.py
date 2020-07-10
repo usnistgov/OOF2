@@ -10,7 +10,7 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
+from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
 from ooflib.common import debug
 from ooflib.common.IO.GUI import genericselectGUI
 from ooflib.common.IO.GUI import gtklogger
@@ -188,13 +188,13 @@ skeletonselectionmethod.SkeletonSelectionRegistration.getRubberBand = \
     _NoRubberBand
 
 def _RectangleSelectorRB(reg):
-    return oofcanvas.RectangleRubberBand()
+    return oofcanvasgui.RectangleRubberBand()
 
 def _CircleSelectorRB(reg):
-    return oofcanvas.CircleRubberBand()
+    return oofcanvasgui.CircleRubberBand()
 
 def _EllipseSelectorRB(reg):
-    return oofcanvas.EllipseRubberBand()
+    return oofcanvasgui.EllipseRubberBand()
 
 skeletonselectionmethod.rectangleNodeSelector.getRubberBand = \
     _RectangleSelectorRB

@@ -24,6 +24,5 @@
 #include "canvassegment.h"
 #include "canvassegments.h"
 #include "canvastext.h"
-#include "rubberband.h"
 
 #endif // ALL_OOFCANVAS_H

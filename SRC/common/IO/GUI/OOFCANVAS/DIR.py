@@ -11,9 +11,9 @@
 dirname = 'OOFCANVAS'
 clib = 'oof2commonGUI'
 
-cfiles = ['guicanvas.C', 'guicanvaslayer.C']
+cfiles = ['guicanvas.C', 'guicanvaslayer.C', 'rubberband.C']
 
-hfiles = ['guicanvas.h', 'guicanvaslayer.h']
+hfiles = ['guicanvas.h', 'guicanvaslayer.h', 'rubberband.h']
 
 swigfiles = ['oofcanvasgui.swg']
 

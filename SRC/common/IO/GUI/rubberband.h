@@ -14,7 +14,7 @@
 
 #include <oofconfig.h>
 
-#include "common/IO/OOFCANVAS/oofcanvas.h"
+#include "common/IO/GUI/OOFCANVAS/rubberband.h"
 #include <vector>
 
 class GfxBrushStyle;

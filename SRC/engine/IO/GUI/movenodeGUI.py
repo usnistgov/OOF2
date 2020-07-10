@@ -329,17 +329,18 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def down(self, x, y, button, shift, ctrl, data):
         # The RubberBand object needs to be created on the main thread
         # before this method returns, because the Canvas will want to
-        # use it right away.
+        # use it right away.  A reference to it is held here to ensure
+        # that it won't be destroyed before we're done with it.
         ## TODO GTK3: Make rubber band parameters settable.
-        rb = oofcanvas.SpiderRubberBand()
-        rb.setLineWidth(1)
-        rb.setColor(oofcanvas.black)
-        rb.setDashColor(oofcanvas.white)
-        rb.setDashLength(7)
-        self.gfxwindow().setRubberBand(rb)
-        subthread.execute(self.down_subthread, (x,y,button,shift,ctrl,rb))
+        self.rb = oofcanvas.SpiderRubberBand()
+        self.rb.setLineWidth(1)
+        self.rb.setColor(oofcanvas.black)
+        self.rb.setDashColor(oofcanvas.white)
+        self.rb.setDashLength(7)
+        self.gfxwindow().setRubberBand(self.rb)
+        subthread.execute(self.down_subthread, (x,y,button,shift,ctrl))
 
-    def down_subthread(self, x, y, button, shift, ctrl, rb):
+    def down_subthread(self, x, y, button, shift, ctrl):
         debug.subthreadTest()
         self.mouselock.acquire()
         try:
@@ -376,7 +377,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                             self.shapeenergy0 += element.energyShape()
 
                     mainthread.runBlock(
-                        rb.addPoints,
+                        self.rb.addPoints,
                         ([n.position() for n in self.nbrnodes],))
                     
             gtklogger.checkpoint("Move Node toolbox down event")
@@ -386,8 +387,8 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def move(self, x, y, button, shift, ctrl, data):
         skeleton = self.getSkeleton()
         subthread.execute(self.move_thread,
-                          (skeleton, x, y, button, shift, ctrl, data))
-    def move_thread(self, skeleton, x, y, button, shift, ctrl, data):
+                          (skeleton, x, y, button, shift, ctrl))
+    def move_thread(self, skeleton, x, y, button, shift, ctrl):
         debug.subthreadTest()
         self.mouselock.acquire()
         try:
@@ -430,10 +431,12 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         # "Downed" must be cleared at the earliest opportunity,
         # otherwise spurious "move" events can be processed,
         # unilaterally changing the node position.
-        self.downed = 0 
-        subthread.execute(self.up_subthread, (x, y, button, shift, ctrl, data))
+        self.downed = 0
+        self.rb = None
+        self.gfxwindow().setRubberBand(None)
+        subthread.execute(self.up_subthread, (x, y, button, shift, ctrl))
 
-    def up_subthread(self, x, y, button, shift, ctrl, data):
+    def up_subthread(self, x, y, button, shift, ctrl):
         debug.subthreadTest()
         self.mouselock.acquire()
         try:

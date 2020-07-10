@@ -463,10 +463,6 @@ namespace OOFCanvas {
     Coord userpt(pixel2user(pixel));
     if(rubberBand) {
       rubberBandLayer.removeAllItems();
-      // if(!rubberBand->active()) {
-      // 	nonRubberBandBufferFilled = false;
-      // 	rubberBand->start(&rubberBandLayer, mouseDownPt.x, mouseDownPt.y);
-      // }
       rubberBand->draw(userpt.x, userpt.y);
     }
     doCallback("move", userpt, lastButton,

@@ -65,6 +65,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         # Was a modifier key pressed during the last button event?
         self.shift = 0                 
         self.ctrl = 0
+        self.rb = None          # rubberband
 
         outerbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(outerbox)
@@ -448,15 +449,22 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
     def down(self, x, y, button, shift, ctrl, data):  # mouse down
         debug.mainthreadTest()
         self.selmeth = self.selectionMethodFactory.getRegistration()
+        ## TODO: Illegal entries in the selectionMethodFactory can
+        ## cause problems here.  Need to catch exceptions and do
+        ## something sensible.
         self.selectionMethodFactory.set_defaults()
-        rb = self.selmeth.getRubberBand(self.selmeth)
+
+        # A reference is kept to the RubberBand so that it's not
+        # destroyed too early.  It's not actually used in Python after
+        # it's set up here.
+        self.rb = self.selmeth.getRubberBand(self.selmeth)
         ## TODO: Make the rubberband width, etc, settable by the user
-        if rb is not None:
-            rb.setLineWidth(1)
-            rb.setColor(oofcanvas.black)
-            rb.setDashColor(oofcanvas.white)
-            rb.setDashLength(7)
-        self.gfxwindow().setRubberBand(rb)
+        if self.rb is not None:
+            self.rb.setLineWidth(1)
+            self.rb.setColor(oofcanvas.black)
+            self.rb.setDashColor(oofcanvas.white)
+            self.rb.setDashLength(7)
+        self.gfxwindow().setRubberBand(self.rb)
         # Start collecting points
         self.points = [primitives.Point(x,y)]
 
@@ -467,6 +475,8 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
 
     def up(self, x, y, button, shift, ctrl, data):    # mouse up
         debug.mainthreadTest()
+        self.gfxwindow().setRubberBand(None)
+        self.rb = None
         # Finish the collection of points. If the mouse up position is
         # the same as the last move event position, don't duplicate it.
         pt = primitives.Point(x,y)

@@ -14,6 +14,7 @@
 
 #include "canvas.h"
 #include "guicanvaslayer.h"
+#include "rubberband.h"
 #include <gtk/gtk.h>
 
 namespace OOFCanvas {
