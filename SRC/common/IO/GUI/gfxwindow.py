@@ -93,15 +93,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                                 margin_bottom=gtkutils.handle_padding)
         gtklogger.setWidgetName(self.paned1, "Pane1")
 
-        ## TODO GTK3? With gtk2, we didn't use the "shrink" properties
-        ## on mainpane, so they defaulted to True. In gtk3, setting
-        ## shrink=True for the top part makes the toolbox appear with
-        ## only its bottom part visible.  Setting shrink=False
-        ## however, might make the window too big if the toolbox is
-        ## complicated.  Setting shrink=False in the top pane
-        ## completely collapses the bottom pane unless it also has
-        ## shrink=False.  So at the moment they're both unshrinkable,
-        ## but that might not be a good long term solution.
         self.mainpane.pack1(self.paned1, resize=True, shrink=False)
         gtklogger.connect_passive(self.paned1, 'notify::position')
 
@@ -208,7 +199,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
         layerFrame = Gtk.Frame(label='Layers',
                                margin_top=gtkutils.handle_padding)
-        
+
         self.mainpane.pack2(layerFrame, resize=False, shrink=False)
         self.layerScroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(self.layerScroll, "LayerScroll")
