@@ -109,7 +109,12 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             # self.allowRowOpSignals()
             self.allowSelectionSignals()
 
-        ## TODO GTK3: Scroll to selected line.
+        ## Scroll to selected line.
+        if self.selectedLayer is not None:
+            selection = self.layerListView.get_selection()
+            model, treeiter = selection.get_selected()
+            path = model.get_path(treeiter)
+            self.layerListView.scroll_to_cell(path)
 
     # Callbacks for the TreeView for the Layer List.
     ##################################################
