@@ -67,7 +67,6 @@ class ChooserWidget(object):
         self.update_callback = update_callback
         self.update_callback_args = update_callback_args
         self.helpdict = helpdict
-        # self.signal = None # TODO GTK3: Is this needed?
         self.namelist = namelist[:]
 
         self.gtk = Gtk.EventBox()
@@ -116,7 +115,6 @@ class ChooserWidget(object):
                     menuitem.set_tooltip_text(helpstr)
                 if name == self.current_string:
                     newCurrentItem = menuitem
-                    # menuitem.connect('select', self.selectCB, popupMenu)
             popupMenu.append(menuitem)
         if newCurrentItem:
             self.current_item = newCurrentItem

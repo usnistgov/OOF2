@@ -25,11 +25,6 @@ from ooflib.common.IO.GUI import regclassfactory
 from gi.repository import Gtk
 import math
 
-## TODO GTK3: The widgets for non-translucent colors don't expand
-## horizontally to fill their boxes.  Is that because they display
-## color swatches?  The widgets for translucent colors do expand.
-## They should have color swatches, though.
-
 
 class LabelledSliderSet:
     def __init__(self, label=[], min=None, max=None):
@@ -49,10 +44,17 @@ class LabelledSliderSet:
             newslider = labelledslider.FloatLabelledSlider(
                 value=self.min[i], vmin=self.min[i], vmax=self.max[i],
                 step=(self.max[i]-self.min[i])/100.0,
-                callback=self.slider_callback, name=label[i])
+                callback=self.slider_callback, name=label[i],
+                hexpand=True, halign=Gtk.Align.FILL
+            )
             
             self.gtk.attach(newslider.gtk, 1,i, 1,1)
             self.sliders.append(newslider)
+
+        # (Ab)use the widget synchronization for ParameterTables to
+        # keep the Paneds in the LabelledSliders in sync.
+        for slider in self.sliders:
+            slider.parameterTableXRef(self, self.sliders)
 
     def set_values(self, *values):
         debug.mainthreadTest()
@@ -138,21 +140,17 @@ class OneColorBox(ColorBoxBase):
 class RGBWidget(parameterwidgets.ParameterWidget):
     def __init__(self, params, old_base, colorbox_class, scope=None, name=None):
         debug.mainthreadTest()
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
-        parameterwidgets.ParameterWidget.__init__(self, hbox, scope, name)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        parameterwidgets.ParameterWidget.__init__(self, vbox, scope, name)
         self.params = params
-        # VBox for the color patch.
-        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+
         self.colorbox = colorbox_class(160, 40)
 
-        self.gtk.pack_start(self.vbox,
-                            expand=False, fill=False, padding=0)
-
         self.slider = LabelledSliderSet(["Red", "Green", "Blue"])
-        self.vbox.pack_start(self.slider.gtk,
-                             expand=True, fill=True, padding=0)
-        self.vbox.pack_start(self.colorbox.gtk,
-                             expand=False, fill=False, padding=0)
+        self.gtk.pack_start(self.slider.gtk,
+                            expand=True, fill=True, padding=0)
+        self.gtk.pack_start(self.colorbox.gtk,
+                            expand=False, fill=False, padding=0)
 
         if old_base:
             self.color = old_base
@@ -185,8 +183,6 @@ class RGBWidget(parameterwidgets.ParameterWidget):
         self.params[0].value = self.color.getRed()
         self.params[1].value = self.color.getGreen()
         self.params[2].value = self.color.getBlue()
-        # for p,v in map(None, self.params, self.values):
-        #     p.value = v
 
     def destroy(self):
         debug.mainthreadTest()
@@ -207,19 +203,17 @@ regclassfactory.addWidget(color.NewColorParameter, color.RGBColor, NewRGBWidget)
 class HSVWidget(parameterwidgets.ParameterWidget):
     def __init__(self, params, old_base, colorbox_class, scope=None, name=None):
         debug.mainthreadTest()
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
-        parameterwidgets.ParameterWidget.__init__(self, hbox, scope, name)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        parameterwidgets.ParameterWidget.__init__(self, vbox, scope, name)
         self.params = params
-        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.colorbox = colorbox_class(160,40)
-        self.gtk.pack_start(self.vbox, expand=False, fill=False, padding=0)
         self.slider = LabelledSliderSet(["Hue","Saturation","Value"],
                                         max=[360.0, 1.0, 1.0])
 
-        self.vbox.pack_start(self.slider.gtk, expand=False, fill=False,
-                             padding=0)
-        self.vbox.pack_start(self.colorbox.gtk, expand=False, fill=False,
-                             padding=0)
+        self.gtk.pack_start(self.slider.gtk, expand=False, fill=False,
+                            padding=0)
+        self.gtk.pack_start(self.colorbox.gtk, expand=False, fill=False,
+                            padding=0)
         if old_base:
             self.color = old_base
         else:
@@ -234,14 +228,6 @@ class HSVWidget(parameterwidgets.ParameterWidget):
         h,s,v = self.slider.get_values()
         self.color = color.HSVColor(h,s,v)
         self.colorbox.change_color(self.color)
-        
-        # self.values = self.slider.get_values()
-        # rgb = self.hsv2rgb(self.values)
-        # self.gdkcol = self.gtk.get_colormap().alloc_color(
-        #     int(65535*rgb[0]),
-        #     int(65535*rgb[1]),
-        #     int(65535*rgb[2]))
-        # self.colorbox.set_foreground(self.gdkcol)
         self.widgetChanged(1, interactive=1)
 
     # Set slider values from the params.
@@ -257,39 +243,10 @@ class HSVWidget(parameterwidgets.ParameterWidget):
         self.params[0].value = self.color.hue
         self.params[1].value = self.color.saturation
         self.params[2].value = self.color.value
-        # for p,v in map(None, self.params, self.values):
-        #     p.value = v
 
     def destroy(self):
         debug.mainthreadTest()
         self.gtk.destroy()
-
-    # def hsv2rgb(self,hsv):
-    #     (h,s,v) = hsv
-        
-    #     if s==0.0:
-    #         (r,g,b) = (v,v,v)
-    #     else:
-    #         h_sector = int(math.floor(h/60.0)) # Pick a sector, 0->5.
-    #         h_fraction = (h/60.0)-h_sector
-    #         #
-    #         p = v*(1.0-s)
-    #         q = v*(1.0-s*h_fraction)
-    #         t = v*(1.0-s*(1.0-h_fraction))
-    #         # If h=360.0, we can get artificial wrap-around -- catch it.
-    #         if (h_sector == 0) or (h_sector == 6):
-    #             (r,g,b) = (v,t,p)
-    #         elif h_sector == 1:
-    #             (r,g,b) = (q,v,p)
-    #         elif h_sector == 2:
-    #             (r,g,b) = (p,v,t)
-    #         elif h_sector == 3:
-    #             (r,g,b) = (p,q,v)
-    #         elif h_sector == 4:
-    #             (r,g,b) = (t,p,v)
-    #         else:
-    #             (r,g,b) = (v,p,q)
-    #     return (r,g,b)
 
 
 class DiffHSVWidget(HSVWidget):
@@ -309,21 +266,16 @@ regclassfactory.addWidget(color.NewColorParameter, color.HSVColor, NewHSVWidget)
 class GrayWidget(parameterwidgets.ParameterWidget):
     def __init__(self,params,old_base,colorbox_class,scope=None,name=None):
         debug.mainthreadTest()
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
-        parameterwidgets.ParameterWidget.__init__(self, hbox, scope, name)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        parameterwidgets.ParameterWidget.__init__(self, vbox, scope, name)
         self.params = params
-        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+
         self.colorbox = colorbox_class(160,40)
-        #
-        self.gtk.pack_start(self.vbox, expand=False, fill=False, padding=0)
-        #
         self.slider = LabelledSliderSet(["Gray"], min=[0.0],max=[1.0])
-        #
-        self.vbox.pack_start(self.slider.gtk, expand=False, fill=False,
-                             padding=0)
-        self.vbox.pack_start(self.colorbox.gtk, expand=False, fill=False,
-                             padding=0)
-        #
+        self.gtk.pack_start(self.slider.gtk, expand=False, fill=False,
+                            padding=0)
+        self.gtk.pack_start(self.colorbox.gtk, expand=False, fill=False,
+                            padding=0)
         if old_base:
             self.color = old_base
         else:
@@ -341,15 +293,6 @@ class GrayWidget(parameterwidgets.ParameterWidget):
         self.colorbox.change_color(self.color)
         self.widgetChanged(1, interactive=0)
         
-        # self.values = values or [p.value for p in self.params]
-        # self.slider.set_values(self.values)
-        # rgb = self.gray2rgb(self.values[0])
-        # self.gdkcol = self.gtk.get_colormap().alloc_color(int(65535*rgb[0]),
-        #                                                   int(65535*rgb[1]),
-        #                                                   int(65535*rgb[2]))
-        # self.colorbox.set_foreground(self.gdkcol)
-        # self.widgetChanged(1, interactive=0)
-        
     def get_values(self):
         assert isinstance(self.color, color.Gray)
         self.params[0].value = self.color.value
@@ -362,16 +305,7 @@ class GrayWidget(parameterwidgets.ParameterWidget):
         debug.mainthreadTest()
         self.color = color.Gray(value)
         self.colorbox.change_color(self.color)
-        # self.values = [value]
-        # rgb = self.gray2rgb(self.values[0])
-        # self.gdkcol = self.gtk.get_colormap().alloc_color(int(65535*rgb[0]),
-        #                                                   int(65535*rgb[1]),
-        #                                                   int(65535*rgb[2]))
-        # self.colorbox.set_foreground(self.gdkcol)
         self.widgetChanged(1, interactive=1)
-        
-    # def gray2rgb(self, gray):
-    #     return (gray, gray, gray)
 
 class DiffGrayWidget(GrayWidget):
     def __init__(self,params,old_base,scope=None,name=None):
