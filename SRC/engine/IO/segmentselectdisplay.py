@@ -36,7 +36,8 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
             if selection:
                 # First draw a slightly fatter segment in white
                 segs = oofcanvas.CanvasSegments()
-                segs.setLineColor(oofcanvas.white)
+                segs.setLineColor(
+                    oofcanvas.white.opacity(self.color.getAlpha()))
                 segs.setLineWidth(1.4*self.line_width)
                 segs.setLineWidthInPixels()
                 for s in skel.segmentselection.retrieve():
@@ -59,7 +60,7 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
         return max(self.timestamp,
                    self.who.resolve(gfxwindow).segmentselection.timestamp)
             
-defaultSegSelColor = color.RGBColor(0.13, 0.93, 0.25)
+defaultSegSelColor = color.RGBAColor(0.13, 0.93, 0.25, 1.0)
 defaultSegSelWidth = 2
 
 def _setSegSelParams(menuitme, color, line_width):
@@ -69,8 +70,8 @@ def _setSegSelParams(menuitme, color, line_width):
     defaultSegSelWidth = line_width
 
 segselparams = [
-    color.ColorParameter('color', defaultSegSelColor,
-                         tip="Color for the selected segments."),
+    color.TranslucentColorParameter('color', defaultSegSelColor,
+                                    tip="Color for the selected segments."),
     parameter.IntRangeParameter('line_width', (0,10), defaultSegSelWidth,
                                 tip="Line width.")]
 
@@ -101,7 +102,8 @@ segmentSelectDisplay = registeredclass.Registration(
     layerordering=display.SemiLinear(4),
     whoclasses=('Skeleton',),
     tip="Display the currently selected segments.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/segmentselectdisplay.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/segmentselectdisplay.xml')
     )
 
 def defaultSegmentSelectDisplay():

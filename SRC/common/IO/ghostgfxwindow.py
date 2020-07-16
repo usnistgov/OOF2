@@ -67,7 +67,7 @@ class GfxSettings:
 
     ## TODO: Use Python properties, instead of __setattr__.
 
-    bgcolor = color.white
+    bgcolor = color.white.opaque()
     zoomfactor = 1.5
     margin = 0.05
     longlayernames = False      # Use long form of layer reprs.
@@ -666,8 +666,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         colormenu.addItem(OOFMenuItem(
             'Background',
             callback=self.bgColor,
-            params=[color.ColorParameter('color', self.settings.bgcolor,
-                                         tip="Color for the background.")],
+            params=[color.OpaqueColorParameter(
+                'color', self.settings.bgcolor,
+                tip="Color for the background.")],
             ellipsis=1,
             help='Change the background color.',
             discussion="""<para>
@@ -680,9 +681,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         colormenu.addItem(OOFMenuItem(
             'Contourmap_Marker', 
             callback=self.contourmapMarkColor,
-            params=[color.ColorParameter(
-                'color',
-                self.settings.contourmap_markercolor,
+            params=[color.TranslucentColorParameter(
+                'color', self.settings.contourmap_markercolor,
                 tip="Color for the contour map marker.")],
             ellipsis=1,
             help="Change the contour map marker color.",

@@ -343,7 +343,7 @@ registeredclass.Registration(
     ordering=100,
     layerordering=Linear(0),
     params=[
-        color.ColorParameter('color', color.black),
+        color.TranslucentColorParameter('color', color.black),
         parameter.FloatParameter('width', 1.0)],
     whoclasses = ('Microstructure',),
     )

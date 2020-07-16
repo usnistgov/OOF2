@@ -28,7 +28,6 @@ private:
   ICoord sizeInPixels_;
   Coord size_;
   CColor fg, bg;
-  double tintAlpha;
   // The timestamp is used externally to determine if the image needs
   // to be redrawn.
   TimeStamp timestamp;
@@ -49,10 +48,8 @@ public:
   void copy(const BitmapOverlay*);
   bool contains(const ICoord *pt) const { return data.contains(*pt); }
   void setColor(const CColor*);
-  void setTintAlpha(double alpha) {tintAlpha=alpha;};
   CColor getBG() const;
   CColor getFG() const;
-  double getTintAlpha() const {return tintAlpha;};
   virtual const Coord &size() const { return size_; }
   virtual const ICoord &sizeInPixels() const { return sizeInPixels_; }
   std::vector<ICoord> *pixels(int i) const { return data.pixels(i); }

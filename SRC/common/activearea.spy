@@ -99,29 +99,21 @@ activeareaWhoClass = whoville.WhoDoUndoClass(
     secret=0,
     proxyClasses=['<top activearea>'])
 
-defaultActiveAreaColor = color.white
-if config.dimension() == 2:
-    defaultActiveAreaOpacity = 0.8
-elif config.dimension() == 3:
-    defaultActiveAreaOpacity = 0.0
-    defaultOverallOpacity = 0.2
+defaultActiveAreaColor = color.TranslucentGray(1.0, 0.5)
 
-def _setDefaultActiveAreaParams(menuitem, color, opacity):
+def _setDefaultActiveAreaParams(menuitem, color):
     global defaultActiveAreaColor
-    global defaultActiveAreaOpacity
     defaultActiveAreaColor = color
-    defaultActiveAreaOpacity = opacity
 
 mainmenu.gfxdefaultsmenu.Pixels.addItem(oofmenu.OOFMenuItem(
     'Active_Area',
     callback=_setDefaultActiveAreaParams,
     ordering=3,
-    params=[color.ColorParameter('color',
-                                 defaultActiveAreaColor,
-                                 tip='Color of inactive pixels.'),
-            parameter.FloatRangeParameter('opacity',
-                                          (0., 1., 0.01), defaultActiveAreaOpacity,
-                                          tip='Opacity of inactive pixels. 0 is transparent, 1 is opaque.')],
+    params=[
+        color.TranslucentColorParameter(
+            'color', defaultActiveAreaColor,
+            tip='Color of inactive pixels.')
+    ],
     help="Set default parameters for displaying active areas.",
     discussion="""<para>
 
@@ -134,13 +126,7 @@ mainmenu.gfxdefaultsmenu.Pixels.addItem(oofmenu.OOFMenuItem(
     </para>"""))
 
 def predefinedActiveAreaLayer():
-    if config.dimension() == 2:
-        return bitoverlaydisplay.bitmapOverlay(color=defaultActiveAreaColor,
-                                               tintOpacity=defaultActiveAreaOpacity)
-    elif config.dimension() == 3:
-        return bitoverlaydisplay.bitmapOverlay(color=defaultActiveAreaColor,
-                                               tintOpacity=defaultActiveAreaOpacity,
-                                               overall_opacity=defaultOverallOpacity)
+    return bitoverlaydisplay.bitmapOverlay(color=defaultActiveAreaColor)
 
 ghostgfxwindow.PredefinedLayer('Active Area', '<top activearea>',
                                predefinedActiveAreaLayer)

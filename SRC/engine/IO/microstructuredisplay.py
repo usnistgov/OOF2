@@ -53,10 +53,12 @@ registeredclass.Registration(
     ordering=0,
     layerordering=display.Planar(0.4),
     params=[
-    color.ColorParameter('no_material', color.black,
-                         tip="Color to use if no material has been assigned to a pixel"),
-    color.ColorParameter('no_color', color.blue,
-                         tip="Color to use if the assigned material has no assigned color")
+    color.TranslucentColorParameter(
+        'no_material', color.black,
+        tip="Color to use if no material has been assigned to a pixel"),
+    color.TranslucentColorParameter(
+        'no_color', color.blue,
+        tip="Color to use if the assigned material has no assigned color")
     ],
     whoclasses = ('Microstructure',),
     tip="Display the color of the Material assigned to each pixel.",
@@ -94,10 +96,12 @@ registeredclass.Registration(
     params=[parameter.RegisteredParameter('colorscheme',
                                           angle2color.Angle2Color,
                                  tip='Method for converting angles to colors.'),
-            color.ColorParameter('no_material', color.blue,
-                   tip="Color to use for pixels with no assigned Material"),
-            color.ColorParameter('no_orientation', color.black,
-                   tip='Color to use for pixels with no Orientation Property')],
+            color.TranslucentColorParameter(
+                'no_material', color.blue,
+                tip="Color to use for pixels with no assigned Material"),
+            color.TranslucentColorParameter(
+                'no_orientation', color.black,
+                tip='Color to use for pixels with no Orientation Property')],
     layerordering=display.Planar(0.6),
     whoclasses = ('Microstructure',),
     tip="Display the Orientation Property of pixels.",

@@ -102,8 +102,8 @@ class SkeletonInfoDisplay(display.DisplayMethod):
 # directly via the initializer, because the registration creation
 # method gives it a timestamp.
 
-defaultSkelInfoQueryColor = color.RGBColor(0.0, 0.5, 1.0)
-defaultSkelInfoPeekColor = color.RGBColor(1.0, 0.5, 0.5)
+defaultSkelInfoQueryColor = color.RGBAColor(0.0, 0.5, 1.0, 1.0)
+defaultSkelInfoPeekColor = color.RGBAColor(1.0, 0.5, 0.5, 1.0)
 defaultSkelInfoNodeSize = 3
 defaultSkelInfoElemWidth = 3
 defaultSkelInfoSgmtWidth = 3
@@ -123,19 +123,21 @@ def _setSkelInfoParams(menuitem, query_color, peek_color, node_size,
     defaultSkelInfoSgmtWidth = segment_width
 
 skelinfoparams = [
-    color.ColorParameter('query_color', defaultSkelInfoQueryColor,
-                         tip="Color for the queried objects."),
-    color.ColorParameter('peek_color', defaultSkelInfoPeekColor,
-                         tip="Color for the peeked objects."),
-    parameter.FloatRangeParameter('node_size', widthRange,
-                                  defaultSkelInfoNodeSize,
-                                  tip="Node size."),
-    parameter.FloatRangeParameter('element_width', widthRange,
-                                  defaultSkelInfoElemWidth,
-                                  tip="Line width for elements."),
-    parameter.FloatRangeParameter('segment_width', widthRange,
-                                  defaultSkelInfoSgmtWidth,
-                                  tip="Line width for segments.")]
+    color.TranslucentColorParameter(
+        'query_color', defaultSkelInfoQueryColor,
+        tip="Color for the queried objects."),
+    color.TranslucentColorParameter(
+        'peek_color', defaultSkelInfoPeekColor,
+        tip="Color for the peeked objects."),
+    parameter.FloatRangeParameter(
+        'node_size', widthRange, defaultSkelInfoNodeSize,
+        tip="Node size."),
+    parameter.FloatRangeParameter(
+        'element_width', widthRange, defaultSkelInfoElemWidth,
+        tip="Line width for elements."),
+    parameter.FloatRangeParameter(
+        'segment_width', widthRange, defaultSkelInfoSgmtWidth,
+        tip="Line width for segments.")]
 
 mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
     'Skeleton_Info',
@@ -193,7 +195,7 @@ class SkeletonIllegalElementDisplay(display.DisplayMethod):
             draw_elements(canvaslayer, elements, self.linewidth,
                           color.canvasColor(self.color))
 
-defaultSkelIllegalColor = color.RGBColor(1.0, 0.01, 0.01)
+defaultSkelIllegalColor = color.RGBAColor(1.0, 0.01, 0.01, 1.0)
 defaultSkelIllegalWidth = 4
 
 def _setSkelIllegalParams(menuitem, color, linewidth):
@@ -203,8 +205,8 @@ def _setSkelIllegalParams(menuitem, color, linewidth):
     defaultSkelIllegalWidth = linewidth
 
 skelillegalparams = [
-    color.ColorParameter('color', defaultSkelIllegalColor,
-                         tip="Color for illegal elements."),
+    color.TranslucentColorParameter('color', defaultSkelIllegalColor,
+                                    tip="Color for illegal elements."),
     parameter.FloatRangeParameter('linewidth', widthRange,
                                   defaultSkelIllegalWidth,
                                   tip="Line width")]

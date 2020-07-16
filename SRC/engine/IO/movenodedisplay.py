@@ -41,8 +41,8 @@ class MoveNodeDisplay(display.DisplayMethod):
         return max(self.timestamp,
                    toolbox.selectednode.getTimeStamp())
 
-defaultMoveNodeColor = color.RGBColor(1.0, 0.5, 0.5)
-defaultMoveNodeSize = 3
+defaultMoveNodeColor = color.RGBAColor(1.0, 0.5, 0.5, 1.0)
+defaultMoveNodeSize = 5
 
 def _setDefaultMoveNodeParams(menuitem, color, size):
     global defaultMoveNodeSize
@@ -50,11 +50,13 @@ def _setDefaultMoveNodeParams(menuitem, color, size):
     defaultMoveNodeColor = color
     defaultMoveNodeSize = size
 
-movenodeparams = [color.ColorParameter('color', defaultMoveNodeColor,
-                                       tip="Color for the to-be-moved node."),
-                  parameter.IntRangeParameter('size', (0,10),
-                                              defaultMoveNodeSize,
-                                              tip="Node size.")]
+movenodeparams = [
+    color.TranslucentColorParameter(
+        'color', defaultMoveNodeColor,
+        tip="Color for the to-be-moved node."),
+    parameter.IntRangeParameter(
+        'size', (0,20), defaultMoveNodeSize,
+        tip="Node size.")]
 
 mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
     'Moving_Nodes',

@@ -108,52 +108,21 @@ pixelselectionWhoClass = whoville.WhoDoUndoClass(
 
 ###################
 
-defaultPixelSelectionColor = color.RGBColor(1.0, 0.22, 0.09)
-defaultTintOpacity = 0.6
-defaultVoxelOpacity = 1.0
+defaultPixelSelectionColor = color.RGBAColor(1.0, 0.22, 0.09, 0.6)
 
-def _setDefaultPixelSelectionParams(menuitem, color, tintOpacity,
-                                    voxelOpacity=1):
+def _setDefaultPixelSelectionParams(menuitem, color):
     global defaultPixelSelectionColor
-    global defaultTintOpacity
-    global defaultVoxelOpacity
     defaultPixelSelectionColor = color
-    defaultTintOpacity = tintOpacity
-    defaultVoxelOpacity = voxelOpacity
-
-
-if config.dimension() == 2:
-    colorparams=[
-        color.ColorParameter(
-            'color',
-            defaultPixelSelectionColor,
-            tip='Color of selected pixels.'),
-                 parameter.FloatRangeParameter(
-            'tintOpacity',
-            (0., 1., 0.01), defaultTintOpacity,
-            tip='Opacity of tint of selected pixels.'
-            '  0 is transparent, 1 is opaque.')]
-if config.dimension() == 3:
-    colorparams=[
-        color.ColorParameter(
-            'color',
-            defaultPixelSelectionColor,
-            tip='Color of selected voxels.'),
-        parameter.FloatRangeParameter(
-            'tintOpacity',
-            (0., 1., 0.01), defaultTintOpacity,
-            tip='Opacity of tint of selected voxels.'
-            '  0 is transparent, 1 is opaque.'),
-        parameter.FloatRangeParameter(
-            'voxelOpacity',
-            (0., 1., 0.01), defaultVoxelOpacity,
-            tip='Opacity of selected voxels.  0 is transparent, 1 is opaque.')]
-
 
 mainmenu.gfxdefaultsmenu.Pixels.addItem(oofmenu.OOFMenuItem(
     'Pixel_Selection',
     callback=_setDefaultPixelSelectionParams,
-    params = colorparams,
+    params = [
+        color.TranslucentColorParameter(
+            'color',
+            defaultPixelSelectionColor,
+            tip='Color of selected pixels.'),
+    ],
     help="Set default parameters for displaying selected pixels.",
     discussion="""<para>
 
@@ -166,8 +135,7 @@ mainmenu.gfxdefaultsmenu.Pixels.addItem(oofmenu.OOFMenuItem(
     </para>"""))
 
 def predefinedPixelSelectionLayer():
-    return bitoverlaydisplay.bitmapOverlay(color=defaultPixelSelectionColor,
-                                           tintOpacity=defaultTintOpacity)
+    return bitoverlaydisplay.bitmapOverlay(color=defaultPixelSelectionColor)
 
 ghostgfxwindow.PredefinedLayer('Pixel Selection', '<top microstructure>',
                                predefinedPixelSelectionLayer)

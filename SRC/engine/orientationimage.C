@@ -51,6 +51,7 @@ OOFCanvas::CanvasImage *OrientationImage::makeCanvasImage(const Coord *position,
 					 sizeInPixels()[0], sizeInPixels()[1],
 					 (*dispsize)[0], (*dispsize)[1],
 					 0.0, 0.0, 0.0, 1.0);
+  img->setDrawIndividualPixels();
   const Array<int> &pxls = *microstructure->getCategoryMapRO();
   for(Array<int>::const_iterator i=pxls.begin(); i!=pxls.end(); ++i) {
     ICoord where = i.coord();

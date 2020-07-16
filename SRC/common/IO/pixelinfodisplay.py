@@ -91,7 +91,7 @@ def _setDefaultPixelParams(menuitem, color, line_width): #, opacity):
     defaultLineWidth = line_width
 
 pixelinfoparams = [
-    color.ColorParameter(
+    color.TranslucentColorParameter(
         'color', defaultPixelInfoColor,
         tip="Color for the queried pixel."),
     parameter.FloatRangeParameter(

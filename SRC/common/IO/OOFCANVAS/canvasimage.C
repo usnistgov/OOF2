@@ -29,7 +29,7 @@ namespace OOFCanvas {
       pixels(pix),
       opacity(1.0),
       pixelScaling(false),
-      drawPixelByPixel(true),
+      drawPixelByPixel(false),
       buffer(nullptr),
       stride(0)
   {}

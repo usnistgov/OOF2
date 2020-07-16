@@ -218,9 +218,12 @@ OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
   // in the lower left corner of the image.
   Magick::Image copy = image;
   copy.flip();
-  return OOFCanvas::CanvasImage::newFromImageMagick((*pos)[0], (*pos)[1],
-						    copy,
-						    (*size)[0], (*size)[1]);
+  OOFCanvas::CanvasImage *img =
+    OOFCanvas::CanvasImage::newFromImageMagick((*pos)[0], (*pos)[1],
+					       copy,
+					       (*size)[0], (*size)[1]);
+  img->setDrawIndividualPixels();
+  return img;
 }
 
 std::vector<unsigned short> *OOFImage::getPixels() {

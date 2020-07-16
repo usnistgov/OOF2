@@ -24,16 +24,10 @@ from ooflib.common.IO import xmlmenudump
 # drawn as an overlay on the topmost image in the display.  The pixels
 # are drawn with a single color and transparency.
 
-## TODO: Why is there a tintOpacity parameter when the ColorParameter
-## accepts RGBAColor, HSVAColor, and TranslucentGray? 
-
-#####
 
 class BitmapOverlayDisplayMethod(display.DisplayMethod):
-    def __init__(self, color, tintOpacity, voxelOpacity=1.0):
+    def __init__(self, color):
         self.color = color
-        self.tintOpacity = tintOpacity
-        self.voxelOpacity = voxelOpacity
         display.DisplayMethod.__init__(self)
     def draw(self, gfxwindow, canvaslayer):
         canvaslayer.removeAllItems()
@@ -41,7 +35,6 @@ class BitmapOverlayDisplayMethod(display.DisplayMethod):
         if bitmap is None or bitmap.empty():
             return
         bitmap.setColor(self.color)
-        bitmap.setTintAlpha(self.tintOpacity)
         image = bitmap.makeCanvasImage(coord.Coord(0,0), bitmap.size())
         canvaslayer.addItem(image)
 
@@ -52,10 +45,7 @@ bitmapOverlay = registeredclass.Registration(
     'BitmapOverlay',
     display.DisplayMethod,
     BitmapOverlayDisplayMethod,
-    params=[color.ColorParameter('color', tip="Bitmap color."),
-            parameter.FloatRangeParameter('tintOpacity', (0., 1., 0.01), 0.6,
-                                          tip="Opacity of the overlay.")
-            ],
+    params=[color.TranslucentColorParameter('color', tip="Bitmap color.")],
     ordering=0,
     layerordering=display.SemiPlanar,
     whoclasses=('Pixel Selection', 'Active Area'),

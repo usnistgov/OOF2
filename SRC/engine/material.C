@@ -904,6 +904,7 @@ OOFCanvas::CanvasImage *MaterialImage::makeCanvasImage(const Coord *position,
 				       sizeInPixels()[0], sizeInPixels()[1],
 				       (*dispsize)[0], (*dispsize)[1],
 				       0.0, 0.0, 0.0, 1.0);
+  img->setDrawIndividualPixels();
   const Array<PixelAttribute*> &matMap = matattrreg->map(microstructure);
   for(Array<PixelAttribute*>::const_iterator i=matMap.begin(); i!=matMap.end();
       ++i)

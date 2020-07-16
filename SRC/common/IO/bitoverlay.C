@@ -17,11 +17,10 @@
 #include "common/IO/OOFCANVAS/oofcanvas.h"
 
 BitmapOverlay::BitmapOverlay(const Coord *size, const ICoord *isize)
-  : fg(CColor(1., 1., 1.)),
-    bg(CColor(0., 0., 0.))
+  : fg(CColor(1., 1., 1., 1.)),
+    bg(CColor(0., 0., 0., 1.))
 {
     resize(size, isize);
-    tintAlpha = 1.0;
 }
 
 BitmapOverlay::~BitmapOverlay() {}
@@ -89,7 +88,6 @@ void BitmapOverlay::copy(const BitmapOverlay *other) {
   // avoid taking address of temporary
   CColor x(other->getFG());
   setColor(&x);
-  tintAlpha = other->getTintAlpha();
 }
 
 void BitmapOverlay::setColor(const CColor *color) {
@@ -115,14 +113,13 @@ OOFCanvas::CanvasImage *BitmapOverlay::makeCanvasImage(const Coord *position,
 			       (*size)[0], (*size)[1],
 			       bg.getRed(), bg.getGreen(), bg.getBlue(),
 			       0.0 /* bg alpha*/ );
-
-  
+  img->setDrawIndividualPixels();
   int ymax = sizeInPixels_[1]-1;
   for(Array<bool>::const_iterator i=data.begin(); i!=data.end(); ++i) {
     if(data[i]) {
       ICoord p(i.coord());
       img->set(p[0], ymax-p[1],
-	       fg.getRed(), fg.getGreen(), fg.getBlue(), tintAlpha);
+	       fg.getRed(), fg.getGreen(), fg.getBlue(), fg.getAlpha());
     }
   }
   return img;

@@ -83,20 +83,22 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
         return max( self.timestamp,
                     self.who.resolve(gfxwindow).bdytimestamp )
 
-widthRange = (0,10)
+widthRange = (0,20)
                     
 skeletonBoundaryDisplay = registeredclass.Registration(
     'Boundaries', display.DisplayMethod,
     SkeletonBoundaryDisplay,
-    params=[SkeletonBoundaryListParameter('boundaries', [],
+    params=[
+        SkeletonBoundaryListParameter('boundaries', [],
                                       tip="Boundaries to display."),
-            color.ColorParameter('color', value=color.gray50,
-                                 tip="Color for the displayed boundaries."),
-            parameter.IntRangeParameter('linewidth', widthRange, 3,
-                                        tip="Line width for edge boundaries."),
-            parameter.IntRangeParameter('dotsize', widthRange, 4,
-                                        tip="Dot radius for point boundaries."),
-            parameter.IntRangeParameter('arrowsize', (0, 30), 15,
+        color.TranslucentColorParameter(
+            'color', value=color.gray50,
+            tip="Color for the displayed boundaries."),
+        parameter.IntRangeParameter('linewidth', widthRange, 3,
+                                    tip="Line width for edge boundaries."),
+        parameter.IntRangeParameter('dotsize', widthRange, 4,
+                                    tip="Dot radius for point boundaries."),
+        parameter.IntRangeParameter('arrowsize', (0, 30), 15,
                                         tip="Arrow size for edge boundaries.")],
     ordering=1.0,
     layerordering=display.SemiLinear(2),
@@ -161,10 +163,7 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
 defaultSelSkelBdyColor = color.orange
 defaultSelSkelBdyLineWidth = 4
 defaultSelSkelBdyDotSize = 4
-defaultSelSkelBdyArrowSize = 10
-arrowparam = parameter.IntRangeParameter('arrowsize', (0, 20),
-                                         defaultSelSkelBdyArrowSize,
-                                         tip="Arrow size for edge boundaries.")
+defaultSelSkelBdyArrowSize = 15
 
 def _setSelSkelBdyParams(menuitem, color, linewidth, dotsize, arrowsize):
     global defaultSelSkelBdyColor
@@ -177,15 +176,19 @@ def _setSelSkelBdyParams(menuitem, color, linewidth, dotsize, arrowsize):
     defaultSelSkelBdyArrowSize = arrowsize
 
 selskelbdyparams = [
-    color.ColorParameter('color', value=defaultSelSkelBdyColor,
-                         tip="Color for the selected boundary."),
-    parameter.IntRangeParameter('linewidth', widthRange,
-                                defaultSelSkelBdyLineWidth,
-                                tip="Line width for edge boundaries."),
-    parameter.IntRangeParameter('dotsize', widthRange,
-                                defaultSelSkelBdyDotSize,
-                                tip="Dot radius for point boundaries."),
-    arrowparam
+    color.TranslucentColorParameter(
+        'color', value=defaultSelSkelBdyColor,
+        tip="Color for the selected boundary."),
+    parameter.IntRangeParameter(
+        'linewidth', widthRange, defaultSelSkelBdyLineWidth,
+        tip="Line width for edge boundaries, in pixels."),
+    parameter.IntRangeParameter(
+        'dotsize', widthRange, defaultSelSkelBdyDotSize,
+        tip="Dot radius for point boundaries, in pixels."),
+    parameter.IntRangeParameter(
+        'arrowsize', (0, 30),
+        defaultSelSkelBdyArrowSize,
+        tip="Arrow size for edge boundaries, in pixels.")
     ]
 
 mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(

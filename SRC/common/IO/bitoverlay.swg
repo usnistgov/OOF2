@@ -47,10 +47,8 @@ public:
   void copy(BitmapOverlay*);
   bool contains(ICoord *iPoint);
   void setColor(CColor*);
-  void setTintAlpha(double alpha);
   CColor getBG();
   CColor getFG();
-  double getTintAlpha();
   %new CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
   
   Coord size();

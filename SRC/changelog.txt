@@ -18,6 +18,12 @@ gtk3 changes, which may be in 2.1.20 or 2.2.0, depending...
   been removed. The scrolling state of the grpahics window isn't
   logged.
 
+* Some commands that set colors used to have a separate opacity
+  parameter, which was confusing when the color also had an alpha
+  channel for the opacity.  Now there are no separate opacity
+  parameters, and all colors can be set to be translucent, except in a
+  few cases where it doesn't make sense.
+
 Other unreleased changes:
 
 * Fixed the square brush in the pixel selection toolbox, which was

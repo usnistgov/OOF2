@@ -65,7 +65,8 @@ class MeshInfoDisplay(display.DisplayMethod):
         poly = oofcanvas.CanvasPolygon()
         poly.setLineWidth(1.4*self.element_width)
         poly.setLineWidthInPixels()
-        poly.setLineColor(oofcanvas.white)
+        poly.setLineColor(
+            oofcanvas.white.opacity(self.colors[which].getAlpha()))
         for pt in displaced_p_list:
             poly.addPoint(pt.x, pt.y)
         canvaslayer.addItem(poly)
@@ -82,7 +83,7 @@ class MeshInfoDisplay(display.DisplayMethod):
         pt = toolbox.meshlayer.displaced_from_undisplaced(
             toolbox.gfxwindow(), node.position())
         dot = oofcanvas.CanvasDot(pt.x, pt.y, 1.2*self.node_size)
-        dot.setFillColor(oofcanvas.white)
+        dot.setFillColor(oofcanvas.white.opacity(self.colors[which].getAlpha()))
         canvaslayer.addItem(dot)
         dot = oofcanvas.CanvasDot(pt.x, pt.y, self.node_size)
         dot.setFillColor(color.canvasColor(self.colors[which]))
@@ -106,8 +107,8 @@ class MeshInfoDisplay(display.DisplayMethod):
 # directly via the initializer, because the registration creation
 # method gives it a timestamp.
 
-defaultQueryColor = color.RGBColor(0.0, 0.5, 1.0)
-defaultPeekColor = color.RGBColor(1.0, 0.5, 0.5)
+defaultQueryColor = color.RGBAColor(0.0, 0.5, 1.0, 1.0)
+defaultPeekColor = color.RGBAColor(1.0, 0.5, 0.5, 1.0)
 defaultNodeSize = 3
 defaultElementWidth = 2
 widthRange = (0, 10, 0.1)
@@ -124,10 +125,10 @@ def _setMeshInfoParams(menuitem, query_color, peek_color, node_size,
     defaultElementWidth = element_width
 
 meshinfoparams = [
-    color.ColorParameter('query_color', defaultQueryColor,
-                         tip="Color for the queried object."),
-    color.ColorParameter('peek_color', defaultPeekColor,
-                         tip="Color for the peeked object."),
+    color.TranslucentColorParameter('query_color', defaultQueryColor,
+                                    tip="Color for the queried object."),
+    color.TranslucentColorParameter('peek_color', defaultPeekColor,
+                                    tip="Color for the peeked object."),
     parameter.FloatRangeParameter('node_size', widthRange, defaultNodeSize,
                                   tip="Node size."),
     parameter.FloatRangeParameter('element_width', widthRange,

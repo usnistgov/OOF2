@@ -36,8 +36,8 @@ class PinnedNodesDisplay(display.DisplayMethod):
         return max(self.timestamp,
                    self.who.resolve(gfxwindow).pinnednodes.timestamp)
 
-defaultPinNodeColor = color.RGBColor(0.93, 0.93, 0.0)
-defaultPinNodeSize = 2
+defaultPinNodeColor = color.RGBAColor(0.93, 0.93, 0.0, 1.0)
+defaultPinNodeSize = 5
 
 def _setPinNodeParams(menuitem, color, size):
     global defaultPinNodeColor
@@ -46,9 +46,9 @@ def _setPinNodeParams(menuitem, color, size):
     defaultPinNodeSize = size
 
 pinnodeparams = [
-    color.ColorParameter('color', defaultPinNodeColor,
-                         tip="Color for the pinned nodes."),
-    parameter.IntRangeParameter('size', (0,10), defaultPinNodeSize,
+    color.TranslucentColorParameter('color', defaultPinNodeColor,
+                                    tip="Color for the pinned nodes."),
+    parameter.IntRangeParameter('size', (0,20), defaultPinNodeSize,
                                 tip="Node size.")]
 
 mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
@@ -77,7 +77,8 @@ pinnedNodesDisplay = registeredclass.Registration(
     ordering=3.1,
     whoclasses=('Skeleton',),
     tip="Display the pinned nodes.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/pinnodesdisplay.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/pinnodesdisplay.xml')
     )
 
 def defaultPinnedNodesDisplay():

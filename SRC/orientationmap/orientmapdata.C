@@ -90,11 +90,13 @@ OOFCanvas::CanvasImage *OrientMap::makeCanvasImage(
 					 sizeInPixels()[0], sizeInPixels()[1],
 					 (*dispsize)[0], (*dispsize)[1],
 					 0.0, 0.0, 0.0, 1.0);
+  img->setDrawIndividualPixels();
   for(Array<COrientABG>::const_iterator i=angles.begin(); i!=angles.end(); ++i)
     {
       const CColor color = (*colorscheme)(angles[i]);
       ICoord pt(i.coord());
-      img->set(pt[0], pt[1], color.getRed(), color.getGreen(), color.getBlue());
+      img->set(pt[0], pt[1], color.getRed(), color.getGreen(), color.getBlue(),
+	       color.getAlpha());
     }
   return img;
 }

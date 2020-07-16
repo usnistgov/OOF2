@@ -78,8 +78,8 @@ def _setMeshCSDefaults(menuitem, color, linewidth):
     defaultMeshCSLineWidth = linewidth
 
 meshcsdispparams = [
-    color.ColorParameter('color', value=defaultMeshCSColor,
-                         tip="In which color?"),
+    color.TranslucentColorParameter('color', value=defaultMeshCSColor,
+                                    tip="In which color?"),
     parameter.IntRangeParameter('linewidth', (0, 10), defaultMeshCSLineWidth,
                                 tip="Thickness of the line.")]
 

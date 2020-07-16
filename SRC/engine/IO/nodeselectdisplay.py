@@ -38,7 +38,7 @@ class SkeletonNodeSelectionDisplay(display.DisplayMethod):
                 pt = node.position()
 
                 dot = oofcanvas.CanvasDot(pt.x, pt.y, 1.2*self.size)
-                dot.setFillColor(oofcanvas.white)
+                dot.setFillColor(oofcanvas.white.opacity(self.color.getAlpha()))
                 canvaslayer.addItem(dot)
 
                 dot = oofcanvas.CanvasDot(pt.x, pt.y, self.size)
@@ -51,8 +51,8 @@ class SkeletonNodeSelectionDisplay(display.DisplayMethod):
 
 
 
-defaultNodeSelColor = color.RGBColor(0.07, 0.09, 0.96)
-defaultNodeSelSize = 3
+defaultNodeSelColor = color.RGBAColor(0.07, 0.09, 0.96, 1.0)
+defaultNodeSelSize = 5
 
 def _setNodeSelParams(menuitem, color, size):
     global defaultNodeSelColor
@@ -61,9 +61,9 @@ def _setNodeSelParams(menuitem, color, size):
     defaultNodeSelSize = size
 
 nodeselparams = [
-    color.ColorParameter('color', defaultNodeSelColor,
-                         tip="Color for the selected nodes."),
-    parameter.IntRangeParameter('size', (0,10), defaultNodeSelSize,
+    color.TranslucentColorParameter('color', defaultNodeSelColor,
+                                    tip="Color for the selected nodes."),
+    parameter.IntRangeParameter('size', (0,20), defaultNodeSelSize,
                                 tip="Node size.")]
 
 mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
@@ -93,7 +93,8 @@ nodeSelectDisplay = registeredclass.Registration(
     layerordering= display.PointLike(3),
     whoclasses=('Skeleton',),
     tip="Display the currently selected nodes.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/nodeselectdisplay.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/nodeselectdisplay.xml')
     )
 
 def defaultNodeSelectDisplay():

@@ -266,7 +266,7 @@ registeredclass.Registration(
     params = contourparams +
     [parameter.FloatRangeParameter('width', widthRange, defaultLineWidth,
                                    tip="line width"),
-     color.ColorParameter('color', color.black, tip="line color")],
+     color.TranslucentColorParameter('color', color.black, tip="line color")],
     tip="Draw contour lines for the given output data.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/plaincontour.xml')
     )
