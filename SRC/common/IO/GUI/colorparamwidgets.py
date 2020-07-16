@@ -26,7 +26,7 @@ from gi.repository import Gtk
 import math
 
 
-class LabelledSliderSet:
+class LabelledSliderSet(object):
     def __init__(self, label=[], min=None, max=None):
         debug.mainthreadTest()
         self.min = min or [0.0]*len(label)
@@ -38,7 +38,7 @@ class LabelledSliderSet:
         self.callback = None
 
         for i in range(len(label)):
-            newlabel = Gtk.Label(label[i])
+            newlabel = Gtk.Label(label[i], halign=Gtk.Align.END)
             self.gtk.attach(newlabel,0,i, 1,1)
 
             newslider = labelledslider.FloatLabelledSlider(
@@ -52,7 +52,9 @@ class LabelledSliderSet:
             self.sliders.append(newslider)
 
         # (Ab)use the widget synchronization for ParameterTables to
-        # keep the Paneds in the LabelledSliders in sync.
+        # keep the Paneds in the LabelledSliders in sync.  This is an
+        # abuse because we're not actually using a ParameterTable
+        # here.
         for slider in self.sliders:
             slider.parameterTableXRef(self, self.sliders)
 
@@ -77,19 +79,19 @@ class LabelledSliderSet:
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class ColorBoxBase(object):
+# TwoColorBox divides its drawing area into two rectangles.  Initially
+# both rectangles are filled with the color passed to set_color().  If
+# a color is passed to change_color(), only the right hand rectangle
+# is updated with the new color.  Both rectangles are drawn on top of
+# black and white triangles so that the opacity of the colors is
+# apparent.
+
+class TwoColorBox(object):
     def __init__(self, xsize=100, ysize=100):
         debug.mainthreadTest()
         self.gtk = Gtk.DrawingArea()
         self.gtk.set_size_request(xsize, ysize)
         self.gtk.connect("draw", self.drawCB)
-
-# TwoColorBox divides its drawing area into two rectangles.  Initially
-# both rectangles are filled with the color passed to set_color().  If
-# a color is passed to change_color(), only the right hand rectangle
-# is updated with the new color.
-
-class TwoColorBox(ColorBoxBase):
     def set_color(self, bg):
         self.color0 = bg
         self.color1 = bg
@@ -101,49 +103,53 @@ class TwoColorBox(ColorBoxBase):
         width = widget.get_allocated_width()
         halfwidth = width/2.
         height = widget.get_allocated_height()
+        # Draw white and black triangles on the background.
+        context.set_source_rgb(0, 0, 0)
+        context.move_to(0, 0)
+        context.line_to(halfwidth, 0)
+        context.line_to(0, height)
+        context.close_path()
+        context.fill()
+        context.move_to(halfwidth, 0)
+        context.line_to(width, 0)
+        context.line_to(halfwidth, height)
+        context.close_path()
+        context.fill()
+        context.set_source_rgb(1, 1, 1)
+        context.move_to(halfwidth, 0)
+        context.line_to(halfwidth, height)
+        context.line_to(0, height)
+        context.close_path()
+        context.fill()
+        context.move_to(width, 0)
+        context.line_to(width, height)
+        context.line_to(halfwidth, height)
+        context.close_path()
+        context.fill()
+
+        # Draw the old color in a rectangle on the left.
         context.move_to(0, 0)
         context.line_to(halfwidth, 0)
         context.line_to(halfwidth, height)
         context.line_to(0, height)
         context.close_path()
-        context.set_source_rgb(self.color0.getRed(), self.color0.getGreen(),
-                               self.color0.getBlue())
+        context.set_source_rgba(self.color0.getRed(), self.color0.getGreen(),
+                                self.color0.getBlue(), self.color0.getAlpha())
         context.fill()
+        # Draw the new color in a rectangle on the right.
         context.move_to(halfwidth, 0)
         context.line_to(width, 0)
         context.line_to(width, height)
         context.line_to(halfwidth, height)
         context.close_path()
-        context.set_source_rgb(self.color1.getRed(), self.color1.getGreen(),
-                               self.color1.getBlue())
+        context.set_source_rgba(self.color1.getRed(), self.color1.getGreen(),
+                                self.color1.getBlue(), self.color1.getAlpha())
         context.fill()
         return False
-
-# OneColorBox just displays a single color.  The whole box is redrawn
-# when change_color() is called.
-        
-class OneColorBox(ColorBoxBase):
-    def set_color(self, clr):
-        self.color = clr
-    def change_color(self, clr):
-        self.color = clr
-    def drawCB(self, widget, ctxt):
-        width = widget.get_allocated_width()
-        height = widget.get_allocated_height()
-        context.set_source_rgb(self.color.getRed(), self.color.getGreen(),
-                               self.color.getBlue())
-        context.paint()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class ColorWidget(parameterwidgets.ParameterWidget):
-    # We used to sometimes use different styles of box to show the
-    # current color.  colorbox_class is a vestige of that. It used to
-    # be a constructor argument.
-    ## TODO GTK3: We need a different type of ColorBox for translucent
-    ## colors.
-    colorbox_class = TwoColorBox
-    
     def __init__(self, params, old_base, scope=None, name=None):
         debug.mainthreadTest()
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
@@ -152,7 +158,7 @@ class ColorWidget(parameterwidgets.ParameterWidget):
 
         self.sliders = LabelledSliderSet(self.slidernames,
                                          self.slidermins, self.slidermaxes)
-        self.colorbox = self.colorbox_class(160, 40)
+        self.colorbox = TwoColorBox(160, 40)
         self.gtk.pack_start(self.sliders.gtk,
                             expand=True, fill=True, padding=0)
         self.gtk.pack_start(self.colorbox.gtk,
@@ -191,7 +197,7 @@ class ColorWidget(parameterwidgets.ParameterWidget):
 
 class RGBWidget(ColorWidget):
     colorclass = color.RGBColor
-    slidernames = ["Red", "Green", "Blue"]
+    slidernames = ["red", "green", "blue"]
     slidermins = [0.0]*3
     slidermaxes = [1.0]*3
     def get_values(self):
@@ -201,7 +207,7 @@ class RGBWidget(ColorWidget):
 
 class RGBAWidget(ColorWidget):
     colorclass = color.RGBAColor
-    slidernames = ["Red", "Green", "Blue", "Alpha"]
+    slidernames = ["red", "green", "blue", "alpha"]
     slidermins = [0.0]*4
     slidermaxes = [1.0]*4
     def get_values(self):
@@ -212,7 +218,7 @@ class RGBAWidget(ColorWidget):
 
 class HSVWidget(ColorWidget):
     colorclass = color.HSVColor
-    slidernames = ["Hue", "Saturation", "Value"]
+    slidernames = ["hue", "saturation", "value"]
     slidermins = [0.0]*3
     slidermaxes = [360., 1.0, 1.0]
     def get_values(self):
@@ -222,7 +228,7 @@ class HSVWidget(ColorWidget):
 
 class HSVAWidget(ColorWidget):
     colorclass = color.HSVAColor
-    slidernames = ["Hue", "Saturation", "Value", "Alpha"]
+    slidernames = ["hue", "saturation", "value", "alpha"]
     slidermins = [0.0]*4
     slidermaxes = [360., 1.0, 1.0, 1.0]
     def get_values(self):
@@ -233,7 +239,7 @@ class HSVAWidget(ColorWidget):
 
 class GrayWidget(ColorWidget):
     colorclass = color.Gray
-    slidernames = ["Gray"]
+    slidernames = ["gray"]
     slidermins = [0.0]
     slidermaxes = [1.0]
     def get_values(self):
@@ -241,7 +247,7 @@ class GrayWidget(ColorWidget):
 
 class TransGrayWidget(ColorWidget):
     colorclass = color.TranslucentGray
-    slidernames = ["Gray", "Alpha"]
+    slidernames = ["gray", "alpha"]
     slidermins = [0.0, 0.0]
     slidermaxes = [1.0, 1.0]
     def get_values(self):
