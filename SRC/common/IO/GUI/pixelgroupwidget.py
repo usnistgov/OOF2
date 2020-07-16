@@ -16,8 +16,6 @@ from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import whowidget
 import ooflib.common.microstructure
-#Interface branch
-from ooflib.engine.IO import interfaceparameters
 
 # Widget for choosing a pixel group.  It *requires* a non trivial
 # scope argument (WidgetScope object) so that it can find a WhoWidget
@@ -102,28 +100,36 @@ def _makePixelAggregateWidget(self, scope=None, **kwargs):
 
 pixelgroupparam.PixelAggregateParameter.makeWidget = _makePixelAggregateWidget
 
-#Interface branch
-class PixelGroupInterfaceWidget(PixelGroupWidget):
-    def update(self, *args, **kwargs):
-        msname = self.mswidget.get_value()
-        if msname:
-            ms = ooflib.common.microstructure.microStructures[msname]
-            if ms:
-                names = ms.getObject().groupNames()
-                names=names+[interfaceparameters.NO_PIXELGROUP_STR,
-                             interfaceparameters.ANY_STR,
-                             interfaceparameters.NORTH_STR,
-                             interfaceparameters.SOUTH_STR,
-                             interfaceparameters.EAST_STR,
-                             interfaceparameters.WEST_STR]
-                self.groupchooser.update(names)
-                self.widgetChanged(len(names) > 0, interactive=0)
-                return
-        self.groupchooser.update([])
-        self.widgetChanged(0, interactive=0)        
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def _makePixelGroupInterfaceWidget(self, scope=None, **kwargs):
-    return PixelGroupInterfaceWidget(self, scope=scope, name=self.name,
-                                     **kwargs)
+## TODO: This breaks common/engine modularity and doesn't belong
+## here. It's only used if runtimeflags.surface_mode is True, and
+## surface_mode isn't completed, so I've just commented this out for
+## now.
 
-pixelgroupparam.PixelGroupInterfaceParameter.makeWidget = _makePixelGroupInterfaceWidget
+# #Interface branch
+# from ooflib.engine.IO import interfaceparameters
+# class PixelGroupInterfaceWidget(PixelGroupWidget):
+#     def update(self, *args, **kwargs):
+#         msname = self.mswidget.get_value()
+#         if msname:
+#             ms = ooflib.common.microstructure.microStructures[msname]
+#             if ms:
+#                 names = ms.getObject().groupNames()
+#                 names=names+[interfaceparameters.NO_PIXELGROUP_STR,
+#                              interfaceparameters.ANY_STR,
+#                              interfaceparameters.NORTH_STR,
+#                              interfaceparameters.SOUTH_STR,
+#                              interfaceparameters.EAST_STR,
+#                              interfaceparameters.WEST_STR]
+#                 self.groupchooser.update(names)
+#                 self.widgetChanged(len(names) > 0, interactive=0)
+#                 return
+#         self.groupchooser.update([])
+#         self.widgetChanged(0, interactive=0)        
+
+# def _makePixelGroupInterfaceWidget(self, scope=None, **kwargs):
+#     return PixelGroupInterfaceWidget(self, scope=scope, name=self.name,
+#                                      **kwargs)
+
+# pixelgroupparam.PixelGroupInterfaceParameter.makeWidget = _makePixelGroupInterfaceWidget
