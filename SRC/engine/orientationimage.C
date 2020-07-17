@@ -53,6 +53,7 @@ OOFCanvas::CanvasImage *OrientationImage::makeCanvasImage(const Coord *position,
 					 0.0, 0.0, 0.0, 1.0);
   img->setDrawIndividualPixels();
   const Array<int> &pxls = *microstructure->getCategoryMapRO();
+  int ymax = sizeInPixels()[1] - 1;
   for(Array<int>::const_iterator i=pxls.begin(); i!=pxls.end(); ++i) {
     ICoord where = i.coord();
     const Material *mat = getMaterialFromPoint(microstructure, &where);
@@ -70,7 +71,7 @@ OOFCanvas::CanvasImage *OrientationImage::makeCanvasImage(const Coord *position,
     else {			// no material
       color = noOrientation;
     }
-    img->set(where[0], where[1],
+    img->set(where[0], ymax-where[1],
 	     color.getRed(), color.getGreen(), color.getBlue());
   }
   return img;

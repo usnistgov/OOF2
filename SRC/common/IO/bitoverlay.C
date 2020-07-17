@@ -114,7 +114,7 @@ OOFCanvas::CanvasImage *BitmapOverlay::makeCanvasImage(const Coord *position,
 			       bg.getRed(), bg.getGreen(), bg.getBlue(),
 			       0.0 /* bg alpha*/ );
   img->setDrawIndividualPixels();
-  int ymax = sizeInPixels_[1]-1;
+  int ymax = sizeInPixels_[1] - 1;
   for(Array<bool>::const_iterator i=data.begin(); i!=data.end(); ++i) {
     if(data[i]) {
       ICoord p(i.coord());

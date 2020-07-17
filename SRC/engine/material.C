@@ -905,6 +905,7 @@ OOFCanvas::CanvasImage *MaterialImage::makeCanvasImage(const Coord *position,
 				       (*dispsize)[0], (*dispsize)[1],
 				       0.0, 0.0, 0.0, 1.0);
   img->setDrawIndividualPixels();
+  int ymax = sizeInPixels()[1] - 1;
   const Array<PixelAttribute*> &matMap = matattrreg->map(microstructure);
   for(Array<PixelAttribute*>::const_iterator i=matMap.begin(); i!=matMap.end();
       ++i)
@@ -926,7 +927,9 @@ OOFCanvas::CanvasImage *MaterialImage::makeCanvasImage(const Coord *position,
 	color = noMaterial;
       }
       const ICoord pt(i.coord());
-      img->set(pt[0], pt[1], color.getRed(), color.getGreen(), color.getBlue());
+      img->set(pt[0], ymax-pt[1],
+	       color.getRed(), color.getGreen(), color.getBlue(),
+	       color.getAlpha());
     }
   return img;
 }
