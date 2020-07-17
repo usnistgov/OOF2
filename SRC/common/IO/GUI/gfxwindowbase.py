@@ -306,8 +306,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     def selectToolbox(self, tbname):
         debug.mainthreadTest()
         if not (self.current_toolbox and (self.current_toolbox.name()==tbname)):
-            if config.dimension() == 2:
-                self.removeMouseHandler()
+            self.removeMouseHandler()
             if self.current_toolbox:
                 self.current_toolbox.deactivate()
             self.current_toolbox = self.getToolboxGUIByName(tbname)
@@ -332,6 +331,13 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         self.toolboxGUIs.sort()
         self.toolboxchooser.update([tb.name() for tb in self.toolboxGUIs])
 
+    def allowMotionEvents(self, mode):
+        # mode is one of the MotionAllowed objects defined in
+        # OOFCANVAS/oofcanvasgui.swg.
+        if self.oofcanvas is not None:
+            if mode is None:
+                mode = oofcanvasgui.MOTION_NEVER
+            return self.oofcanvas.allowMotionEvents(mode)
 
     # Layer callbacks
     ######################################################

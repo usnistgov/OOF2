@@ -26,15 +26,24 @@ namespace OOFCanvas {
 #include <Python.h>
   class CanvasPython;
 #endif
-  
+
+  // MotionAllowed indicates the circumstances in which mouse motion
+  // events will be accepted.
+  enum MotionAllowed {
+		      MOTION_NEVER,
+		      MOTION_ALWAYS,
+		      MOTION_MOUSEDOWN
+  };
+
   // GUICanvasBase includes code that actually draws in a GtkWidget
   // and can interact with the user.  Other than this and its derived
   // classes, no OOFCanvas classes use Gtk.
   
   class GUICanvasBase : public OffScreenCanvas {
   protected:
+    
     GtkWidget *layout;
-    bool allowMotion;
+    MotionAllowed allowMotion;
     int lastButton;		// last mousebutton pressed
     bool buttonDown;
 
@@ -92,7 +101,7 @@ namespace OOFCanvas {
     Rectangle visibleRegion() const;
 
     void removeMouseCallback();
-    void allowMotionEvents(bool allow) { allowMotion = allow; }
+    MotionAllowed allowMotionEvents(MotionAllowed ma);
 
     void show();		// make gtk widgets visible
     void draw();		// draws all modified layers

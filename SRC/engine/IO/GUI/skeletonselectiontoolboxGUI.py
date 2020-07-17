@@ -67,15 +67,6 @@ class SkeletonSelectionToolboxModeGUI(genericselectGUI.GenericSelectToolboxGUI):
         return self.gfxwindow().topwho('Skeleton')
 
     def finish_up(self, ptlist, shift, ctrl, selmeth):
-        # we convert the ptlist, which uses the 2d screen
-        # coordinates to 3d coordinates using the canvas
-        if config.dimension() == 3:
-            vxllist = []
-            for pt in ptlist:
-                vxllist.append(
-                    self.gfxwindow().oofcanvas.screenCoordsTo3DCoords(pt[0], pt[1], ))
-            ptlist = vxllist
-
         self.setCoordDisplay(selmeth, ptlist)
         self.selectionMethodFactory.set_defaults()
         menuitem = getattr(self.toolbox.menu, selmeth.name())
@@ -139,7 +130,8 @@ class SkeletonSelectionToolboxGUI(toolboxGUI.GfxToolbox):
         self.currentMode = None
 
     def switchModeCB(self, button, modename):
-        self.setMode(modename)
+        if button.get_active() and self.currentMode != modename:
+            self.setMode(modename)
         
     def setMode(self, modename):
         debug.mainthreadTest()

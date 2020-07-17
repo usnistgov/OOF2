@@ -30,7 +30,7 @@ namespace OOFCanvas {
   GUICanvasBase::GUICanvasBase(double ppu)
     : OffScreenCanvas(ppu),
       layout(nullptr),
-      allowMotion(false),
+      allowMotion(MOTION_NEVER),
       lastButton(0),
       buttonDown(false),
       rubberBandLayer(this, "rubberbandlayer"),
@@ -449,7 +449,6 @@ namespace OOFCanvas {
       }
       rubberBand->draw(userpt.x, userpt.y);
       }
-    allowMotion = (eventtype == "down");
   }
 
   //=\\=//
@@ -460,18 +459,28 @@ namespace OOFCanvas {
   }
 
   void GUICanvasBase::mouseMotionHandler(GdkEventMotion *event) {
-    if(!allowMotion)
-      return;
-    ICoord pixel(event->x, event->y);
-    Coord userpt(pixel2user(pixel));
-    if(rubberBand) {
-      rubberBandLayer.removeAllItems();
-      rubberBand->draw(userpt.x, userpt.y);
-    }
-    doCallback("move", userpt, lastButton,
-	       event->state & GDK_SHIFT_MASK,
-	       event->state & GDK_CONTROL_MASK);
+    if(allowMotion == MOTION_ALWAYS ||
+       (allowMotion == MOTION_MOUSEDOWN && buttonDown))
+      {
+	ICoord pixel(event->x, event->y);
+	Coord userpt(pixel2user(pixel));
+	if(rubberBand) {
+	  rubberBandLayer.removeAllItems();
+	  rubberBand->draw(userpt.x, userpt.y);
+	}
+	doCallback("move", userpt, lastButton,
+		   event->state & GDK_SHIFT_MASK,
+		   event->state & GDK_CONTROL_MASK);
+      }
   }
+
+  MotionAllowed GUICanvasBase::allowMotionEvents(MotionAllowed ma) {
+    MotionAllowed old = allowMotion;
+    allowMotion = ma;
+    return old;
+  }
+
+  //=\\=//  
 
   void GUICanvasBase::scrollCB(GtkWidget*, GdkEventScroll *event, gpointer data)
   {

@@ -14,6 +14,7 @@ from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
+from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import primitives
@@ -284,11 +285,14 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def activate(self):
         toolboxGUI.GfxToolbox.activate(self)
         self.gfxwindow().setMouseHandler(self)
+        self.motionFlag = self.gfxwindow().allowMotionEvents(
+            oofcanvasgui.MOTION_MOUSEDOWN)
         self.sensitize()
 
     def deactivate(self):
         toolboxGUI.GfxToolbox.deactivate(self)
         self.gfxwindow().removeMouseHandler()
+        self.gfxwindow().allowMotionEvents(self.motionFlag)
 
     def close(self):
         map(switchboard.removeCallback, self.sbcallbacks)
@@ -332,7 +336,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         # use it right away.  A reference to it is held here to ensure
         # that it won't be destroyed before we're done with it.
         ## TODO GTK3: Make rubber band parameters settable.
-        self.rb = oofcanvas.SpiderRubberBand()
+        self.rb = oofcanvasgui.SpiderRubberBand()
         self.rb.setLineWidth(1)
         self.rb.setColor(oofcanvas.black)
         self.rb.setDashColor(oofcanvas.white)

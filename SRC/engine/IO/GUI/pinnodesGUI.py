@@ -10,6 +10,7 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
+from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import utils
@@ -180,6 +181,8 @@ And Ctrl-click to toggle.""")
     def activate(self):
         toolboxGUI.GfxToolbox.activate(self)
         self.gfxwindow().setMouseHandler(self)
+        self.oldMotionFlag = self.gfxwindow().allowMotionEvents(
+            oofcanvasgui.MOTION_ALWAYS)
         ## TODO GTK3: enable mouse motion logging
         #gtklogger.log_motion_events(self.gfxwindow().oofcanvas.rootitem())
         self.sbcallbacks = [
@@ -201,6 +204,7 @@ And Ctrl-click to toggle.""")
     def deactivate(self):
         toolboxGUI.GfxToolbox.deactivate(self)
         self.gfxwindow().removeMouseHandler()
+        self.gfxwindow().allowMotionEvents(self.oldMotionFlag)
         ## TODO GTK3: enable mouse motion logging
         #gtklogger.dont_log_motion_events(self.gfxwindow().oofcanvas.rootitem())
         map(switchboard.removeCallback, self.sbcallbacks)

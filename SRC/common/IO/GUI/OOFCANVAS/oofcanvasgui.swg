@@ -17,6 +17,8 @@
 
 %pragma(python) include="oofcanvasgui.spy"
 
+ // TODO: These pragma lines are specific to OOF2 and will prevent
+ // OOFCanvas from being used independently from OOF2.
 %pragma(python) code="from ooflib.SWIG.common.IO.OOFCANVAS.oofcanvas import OffScreenCanvasPtr"
 %pragma(python) code="from ooflib.SWIG.common.IO.OOFCANVAS.oofcanvas import RectanglePtr"
 %extern "common/IO/OOFCANVAS/oofcanvas.swg"
@@ -86,6 +88,23 @@ typedef std::vector<double> DoubleVec;
 
 void initializePyGTK();
 
+// MOTION_ALWAYS, et al are enum values in C++ but swig doesn't deal
+// well with them.  The following hijinks makes swig create Python
+// constants with the same names and values as the C++ enums.  We
+// can't swig the enum names directly.
+class MotionAllowed {};	// swig doesn't need to know it's really an enum.
+%{
+  //typedef OOFCanvas::MotionAllowed MotionAllowed;
+MotionAllowed M_ALWAYS = MOTION_ALWAYS;
+MotionAllowed M_MOUSE = MOTION_MOUSEDOWN;
+MotionAllowed M_NEVER = MOTION_NEVER;
+%}
+%readonly
+%name(MOTION_ALWAYS) MotionAllowed M_ALWAYS;
+%name(MOTION_MOUSEDOWN) MotionAllowed M_MOUSE;
+%name(MOTION_NEVER) MotionAllowed M_NEVER;
+%readwrite
+
 class RubberBand {
 public:
   ~RubberBand();
@@ -138,11 +157,11 @@ public:
   Rectangle visibleRegion();
   void setMouseCallback(PyObject*, PyObject*);
   void setResizeCallback(PyObject*, PyObject*);
-  void allowMotionEvents(bool);
+
+  MotionAllowed allowMotionEvents(MotionAllowed);
+  
   void setRubberBand(RubberBand*);
   void removeRubberBand();
 };
-
-
 
 #endif // OOFGUICANVAS_SWG

@@ -8,7 +8,6 @@ Add an OutputDestination that saves objects to a given Python array.
 Upgrade to gtk+3 and use libcairo instead of libgnomecanvas.  Will
 need to find or write a cairo based alternative to libgnomecanvas.
   Mesh cross section toolbox isn't working.
-  SpiderRubberBand for node motion isn't working.  I think I moved its file.
 
 Allow the Remove Material button in the Element Group operations pane
 on the Skeleton Selection page to remove the material from an element

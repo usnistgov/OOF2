@@ -16,6 +16,7 @@ from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
+from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import subthread
@@ -205,10 +206,13 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.sensitizeHistory()
         self.setInfo()
         self.gfxwindow().setMouseHandler(self)
+        self.motionFlag = self.gfxwindow().allowMotionEvents(
+            oofcanvasgui.MOTION_MOUSEDOWN)
 
     def deactivate(self):
         self.gfxwindow().setRubberBand(None)
         toolboxGUI.GfxToolbox.deactivate(self)
+        self.gfxwindow().allowMotionEvents(self.motionFlag)
 
     def close(self):
         map(switchboard.removeCallback, self.sbcallbacks)
