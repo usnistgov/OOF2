@@ -28,8 +28,11 @@ class PinnedNodesDisplay(display.DisplayMethod):
         skel = self.who.resolve(gfxwindow)
         clr = color.canvasColor(self.color)
         for node in skel.pinnednodes.retrieve():
-            dot = oofcanvas.CanvasDot(node.position().x, node.position().y,
-                                      self.size)
+            pt = node.position()
+            dot = oofcanvas.CanvasDot(pt.x, pt.y, 1.2*self.size)
+            dot.setFillColor(oofcanvas.white.opacity(self.color.getAlpha()))
+            canvaslayer.addItem(dot)
+            dot = oofcanvas.CanvasDot(pt.x, pt.y, self.size)
             dot.setFillColor(clr)
             canvaslayer.addItem(dot)
     def getTimeStamp(self, gfxwindow):
