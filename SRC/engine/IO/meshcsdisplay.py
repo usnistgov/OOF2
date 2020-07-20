@@ -12,6 +12,7 @@ from ooflib.SWIG.common import config
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
+from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import registeredclass
 from ooflib.common.IO import automatic
@@ -43,12 +44,11 @@ class MeshCrossSectionDisplay(display.DisplayMethod):
     def draw(self, gfxwindow, canvaslayer):
         mesh = self.who.resolve(gfxwindow)
         segments = []
-
-        if self.cross_sections==placeholder.selection:
+        if self.cross_sections == placeholder.selection:
             cstoolbox = gfxwindow.getToolboxByName('Mesh_Cross_Section')
             cs = mesh.selectedCS()
             if cs:
-                segments = primitives.Segment(cs.start, cs.end)
+                segments = [primitives.Segment(cs.start, cs.end)]
         else: # List of cs names.
             for k in self.cross_sections:
                 try:

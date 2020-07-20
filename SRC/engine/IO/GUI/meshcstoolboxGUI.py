@@ -12,7 +12,7 @@
 # clicks, draws paths, etc.
 
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
+from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import utils
@@ -178,7 +178,9 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         ## TODO: Is this correct?  Why not GfxToolbox.activate(self)?
         self.toolbox.activate()
         self.gfxwindow().setMouseHandler(self)
-        self.gfxwindow().setRubberBand(oofcanvas.LineRubberBand())
+        self.motionFlag = self.gfxwindow().allowMotionEvents(
+            oofcanvasgui.MOTION_MOUSEDOWN)
+        self.gfxwindow().setRubberBand(oofcanvasgui.LineRubberBand())
         self.sb_callbacks = [
             switchboard.requestCallbackMain( (self.gfxwindow(),
                                               "layers changed"),
@@ -199,6 +201,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         ## TODO: Should this call GfxToolbox.deactivate(self)?
         self.gfxwindow().removeMouseHandler()
         self.gfxwindow().setRubberBand(None)
+        self.gfxwindow().allowMotionEvents(self.motionFlag)
         for s in self.sb_callbacks:
             switchboard.removeCallback(s)
         self.sb_callbacks = []
