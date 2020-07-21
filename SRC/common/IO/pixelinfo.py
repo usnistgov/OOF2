@@ -18,8 +18,6 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
 
-## TODO:  Remove obsolete 3D stuff
-
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Plug-in classes can add new menu items.  To be useful they probably
@@ -75,15 +73,9 @@ class PixelInfoToolbox(toolbox.Toolbox):
 
     def makeMenu(self, menu):
         self.menu = menu
-        if config.dimension() == 2:
-            positionparams=[parameter.IntParameter('x', 0, tip="The x coordinate."),
-                    parameter.IntParameter('y', 0, tip="The y coordinate.")]
-            helpstring="Query the pixel that is closest to the given point(x,y)."
-        elif config.dimension() == 3:
-            positionparams=[parameter.IntParameter('x', 0, tip="The x coordinate."),
-                    parameter.IntParameter('y', 0, tip="The y coordinate."),
-                    parameter.IntParameter('z', 0, tip="The z coordinate.")]
-            helpstring="Query the pixel that is closest to the given point(x,y,z)." 
+        positionparams=[parameter.IntParameter('x', 0, tip="The x coordinate."),
+                        parameter.IntParameter('y', 0, tip="The y coordinate.")]
+        helpstring="Query the pixel that is closest to the given point(x,y)."
         menu.addItem(oofmenu.OOFMenuItem(
             'Query',
             callback=self.queryPixel,
@@ -126,12 +118,9 @@ class PixelInfoToolbox(toolbox.Toolbox):
             if isinstance(plugin, pluginClass):
                 return plugin
 
-    def queryPixel(self, menuitem, x, y, z=0): # menu callback
+    def queryPixel(self, menuitem, x, y): # menu callback
         self.timestamp.increment()
-        if config.dimension() == 2:
-            self.point = primitives.iPoint(x, y)
-        elif config.dimension() == 3:
-            self.point = primitives.iPoint(x, y, z)
+        self.point = primitives.iPoint(x, y)
         switchboard.notify(self)        # caught by GUI toolbox
         switchboard.notify('redraw')
 
