@@ -28,9 +28,6 @@ from ooflib.orientationmap import orientmapmenu
 import ooflib.common.microstructure
 import os.path
 
-## TODO GTK3: Fix this.  There is no pdfoutput.py anymore.  Draw the
-## polefigure onto a Cairo::PdfSurface.
-
 def _makePoleFigure(menuitem, microstructure, pixels, symmetry,
                     pole, nBins,
                     min, max, colormap, size,
