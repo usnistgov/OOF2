@@ -86,25 +86,6 @@ typedef std::vector<double> DoubleVec;
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-void initializePyGTK();
-
-// MOTION_ALWAYS, et al are enum values in C++ but swig doesn't deal
-// well with them.  The following hijinks makes swig create Python
-// constants with the same names and values as the C++ enums.  We
-// can't swig the enum names directly.
-class MotionAllowed {};	// swig doesn't need to know it's really an enum.
-%{
-  //typedef OOFCanvas::MotionAllowed MotionAllowed;
-MotionAllowed M_ALWAYS = MOTION_ALWAYS;
-MotionAllowed M_MOUSE = MOTION_MOUSEDOWN;
-MotionAllowed M_NEVER = MOTION_NEVER;
-%}
-%readonly
-%name(MOTION_ALWAYS) MotionAllowed M_ALWAYS;
-%name(MOTION_MOUSEDOWN) MotionAllowed M_MOUSE;
-%name(MOTION_NEVER) MotionAllowed M_NEVER;
-%readwrite
-
 class RubberBand {
 public:
   ~RubberBand();
@@ -142,6 +123,25 @@ public:
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+// MOTION_ALWAYS, et al are enum values in C++ but swig doesn't deal
+// well with them.  The following hijinks makes swig create Python
+// constants with the same names and values as the C++ enums.  We
+// can't swig the enum names directly.
+class MotionAllowed {};	// swig doesn't need to know it's really an enum.
+%{
+  //typedef OOFCanvas::MotionAllowed MotionAllowed;
+MotionAllowed M_ALWAYS = MOTION_ALWAYS;
+MotionAllowed M_MOUSE = MOTION_MOUSEDOWN;
+MotionAllowed M_NEVER = MOTION_NEVER;
+%}
+%readonly
+%name(MOTION_ALWAYS) MotionAllowed M_ALWAYS;
+%name(MOTION_MOUSEDOWN) MotionAllowed M_MOUSE;
+%name(MOTION_NEVER) MotionAllowed M_NEVER;
+%readwrite
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
 %name(Canvas) class PythonCanvas : public OffScreenCanvas {
 public:
   %name(Canvas) PythonCanvas(PyObject*, double ppu);
@@ -163,5 +163,7 @@ public:
   void setRubberBand(RubberBand*);
   void removeRubberBand();
 };
+
+void initializePyGTK();
 
 #endif // OOFGUICANVAS_SWG
