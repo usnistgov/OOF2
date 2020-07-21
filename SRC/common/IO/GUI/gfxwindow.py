@@ -54,6 +54,11 @@ def during_callback():
 # TODO: Merge GfxWindow and GfxWindowBase.  There's no need for two
 # classes if OOF2 and OOF3D don't share code.
 
+# TODO: Document and simplify the call chains and signals.  Some
+# routines (eg, show_contourmap_info) are being called too often.
+# What has to be done when the gfxlock is acquired?  What can't be
+# done?
+
 class GfxWindow(gfxwindowbase.GfxWindowBase):
     # This whole initialization sequence is complicated. See note in
     # gfxwindowbase.py.  preinitialize() is run from
@@ -550,18 +555,20 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def show_contourmap_info(self):
         if not self.gtk:
             return
+        ## TODO GTK3: This should only be called once when a layer is
+        ## hidden or shown.  It's being called twice.
 
         self.contourmapdata.canvas_mainlayer.clear()
+        self.contourmapdata.canvas_mainlayer.removeAllItems()
         
         c_min = None
         c_max = None
 
         # Copy self.current_contourmap_method to a local variable to
-        # prevent interference from other threads.
+        # prevent interference from other threads. (TODO: Really?
+        # Shouldn't this be done while the gfxlock is acquired?)
         current_contourmethod = self.current_contourmap_method
-
         if current_contourmethod:
-            self.contourmapdata.canvas_mainlayer.removeAllItems()
             current_contourmethod.draw_contourmap(
                 self, self.contourmapdata.canvas_mainlayer)
             self.contourmapdata.canvas.zoomToFill()

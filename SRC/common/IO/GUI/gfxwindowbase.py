@@ -387,12 +387,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     def hideLayer_thread(self, menuitem, n):
         self.layers[n].hide()   # hide layer in canvas
         self.layerListRowChanged(n)
-        ## TODO GTK3: Do hideLayer_thread and showLayer_thread need to
-        ## call show_contourmap_info?  Shouldn't they call draw(),
-        ## which calls show_contourmap_info?
-        
         # Update the contourmap.
-        # self.contourmap_newlayers() # called by GhostGfxWindow.hideLayer
         subthread.execute(self.show_contourmap_info)
         
     def hideLayer_gui(self, menuitem):  # OOFMenu GUI callback.
@@ -410,7 +405,6 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         self.layers[n].show()   # show layer in canvas
         self.layerListRowChanged(n)
         # Update the contourmap.
-        # self.contourmap_newlayers() # called by GhostGfxWindow.hideLayer
         subthread.execute(self.show_contourmap_info)
 
     def showLayer_gui(self, menuitem):  # OOFMenu GUI callback

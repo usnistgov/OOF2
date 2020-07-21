@@ -1245,13 +1245,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         return True
             
     def deleteLayerNumber(self, menuitem, n):
-        # This used to call a method called removeLayer() which was
-        # redefined in GfxWindowBase to call
-        # GfxWindow.show_contourmap_info.  removeLayer was also called
-        # by clear() when it was deleting all layers but that caused
-        # too many signals to be sent.  So clear() and
-        # deleteLayerNumber() need to be separate, and we don't need
-        # removeLayer(). ??
         self.acquireGfxLock()
         try:
             layer = self.layers[n]
