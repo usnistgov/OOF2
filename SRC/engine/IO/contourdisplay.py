@@ -180,7 +180,7 @@ class PlainContourDisplay(ContourDisplay):
     def get_contourmap_info(self):
         return (self.contour_min, self.contour_max, self.contour_levels)
 
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         self.lock.acquire()
         meshctxt = mainthread.runBlock(self.who.resolve, (gfxwindow,))
         mesh = meshctxt.getObject()
@@ -217,7 +217,7 @@ class PlainContourDisplay(ContourDisplay):
                             segs.setLineColor(clr)
                             for edge in curve.edges():
                                 segs.addSegmentPoints(edge.startpt, edge.endpt)
-                            canvaslayer.addItem(segs)
+                            self.canvaslayer.addItem(segs)
                 ecount += 1
                 prog.setFraction((1.*ecount)/mesh.nelements())
                 prog.setMessage("drawing %d/%d elements" %
@@ -232,7 +232,7 @@ class PlainContourDisplay(ContourDisplay):
             prog.finish()
 
     # Called on a subthread.
-    def draw_contourmap(self, gfxwindow, canvaslayer):
+    def draw_contourmap(self, gfxwindow, cmaplayer):
         self.lock.acquire()
         try:
             if self.contour_max is not None: # contours have been drawn
@@ -249,7 +249,7 @@ class PlainContourDisplay(ContourDisplay):
                     r_lvl = lvl - self.contour_min
                     segs.addSegmentPoints(primitives.Point(0.0, r_lvl),
                                           primitives.Point(width, r_lvl))
-                canvaslayer.addItem(segs)
+                cmaplayer.addItem(segs)
         finally:
             self.lock.release()
 
@@ -290,7 +290,7 @@ class FilledContourDisplay(ContourDisplay):
         return (self.contour_min, self.contour_max, self.contour_levels)
 
     # Called on a subthread
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         self.lock.acquire()
         meshctxt = mainthread.runBlock(self.who.resolve, (gfxwindow,))
         mesh = meshctxt.getObject()
@@ -348,7 +348,7 @@ class FilledContourDisplay(ContourDisplay):
                     for pt in corners:
                         poly.addPoint(pt[0], pt[1])
                     poly.setFillColor(baseclr)
-                    canvaslayer.addItem(poly)
+                    self.canvaslayer.addItem(poly)
 
                     # Now fill contours
                     for cntour in contours:
@@ -357,9 +357,8 @@ class FilledContourDisplay(ContourDisplay):
                         if len(cntour.loops) == 1:
                             points = cntour.loops[0]
                         elif len(cntour.loops) > 1:
-                            compoundpoly = primitives.makeCompoundPolygon(
+                            points = primitives.makeCompoundPolygon(
                                 cntour.loops)
-                            points = compoundpoly.loops[0]
                         if points:
                             poly = oofcanvas.CanvasPolygon()
                             poly.setFillColor(
@@ -367,7 +366,7 @@ class FilledContourDisplay(ContourDisplay):
                                     offset + cntour.value*factor)))
                             for pt in points:
                                 poly.addPoint(pt[0], pt[1])
-                            canvaslayer.addItem(poly)
+                            self.canvaslayer.addItem(poly)
                 ecount += 1
                 prog.setFraction((1.0*ecount)/mesh.nelements())
                 prog.setMessage("drawing %d/%d elements" %
@@ -383,7 +382,7 @@ class FilledContourDisplay(ContourDisplay):
             meshctxt.releaseCachedData()
             prog.finish()
 
-    def draw_contourmap(self, gfxwindow, canvaslayer):
+    def draw_contourmap(self, gfxwindow, cmaplayer):
         # If the drawing failed, then contour_max won't have been set
         # yet.
         self.lock.acquire()
@@ -409,7 +408,7 @@ class FilledContourDisplay(ContourDisplay):
                     else:
                         clr = oofcanvas.black
                     rect.setFillColor(clr)
-                    canvaslayer.addItem(rect)
+                    cmaplayer.addItem(rect)
         finally:
             self.lock.release()
 

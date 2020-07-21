@@ -29,14 +29,14 @@ class BitmapOverlayDisplayMethod(display.DisplayMethod):
     def __init__(self, color):
         self.color = color
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, canvaslayer):
-        canvaslayer.removeAllItems()
+    def draw(self, gfxwindow):
+        self.canvaslayer.removeAllItems()
         bitmap = self.who.resolve(gfxwindow).getBitmap()
         if bitmap is None or bitmap.empty():
             return
         bitmap.setColor(self.color)
         image = bitmap.makeCanvasImage(coord.Coord(0,0), bitmap.size())
-        canvaslayer.addItem(image)
+        self.canvaslayer.addItem(image)
 
     def getTimeStamp(self, gfxwindow):
         return self.timestamp

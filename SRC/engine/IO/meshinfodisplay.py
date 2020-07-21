@@ -34,7 +34,7 @@ class MeshInfoDisplay(display.DisplayMethod):
                           "Node": self.drawNode}
 
 
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Mesh_Info")
         mesh = toolbox.meshcontext()
         mesh.begin_reading()
@@ -43,20 +43,19 @@ class MeshInfoDisplay(display.DisplayMethod):
             # Draw "queried" item.
             if toolbox.querier and toolbox.querier.object:
                 self.drawFuncs[toolbox.querier.targetname]\
-                    (canvaslayer, toolbox, toolbox.querier.object,
-                     which="query")
+                    (toolbox, toolbox.querier.object, which="query")
             # Draw "peeked" item.
             if toolbox.peeker and toolbox.peeker.objects.values():
                 for objtype in toolbox.peeker.objects:
                     if toolbox.peeker.objects[objtype]:
-                        self.drawFuncs[objtype](canvaslayer, toolbox, 
+                        self.drawFuncs[objtype](toolbox, 
                                                 toolbox.peeker.objects[objtype],
                                                 which="peek")
         finally:
             mesh.releaseCachedData()
             mesh.end_reading()
 
-    def drawElement(self, canvaslayer, toolbox, element, which="query"):
+    def drawElement(self, toolbox, element, which="query"):
         node_iter = element.cornernode_iterator().exteriornode_iterator()
         p_list = [node.position() for node in node_iter]
         displaced_p_list = [
@@ -69,7 +68,7 @@ class MeshInfoDisplay(display.DisplayMethod):
             oofcanvas.white.opacity(self.colors[which].getAlpha()))
         for pt in displaced_p_list:
             poly.addPoint(pt.x, pt.y)
-        canvaslayer.addItem(poly)
+        self.canvaslayer.addItem(poly)
 
         poly = oofcanvas.CanvasPolygon()
         poly.setLineWidth(self.element_width)
@@ -77,17 +76,17 @@ class MeshInfoDisplay(display.DisplayMethod):
         poly.setLineColor(color.canvasColor(self.colors[which]))
         for pt in displaced_p_list:
             poly.addPoint(pt.x, pt.y)
-        canvaslayer.addItem(poly)
+        self.canvaslayer.addItem(poly)
 
-    def drawNode(self, canvaslayer, toolbox, node, which="query"):
+    def drawNode(self, toolbox, node, which="query"):
         pt = toolbox.meshlayer.displaced_from_undisplaced(
             toolbox.gfxwindow(), node.position())
         dot = oofcanvas.CanvasDot(pt.x, pt.y, 1.2*self.node_size)
         dot.setFillColor(oofcanvas.white.opacity(self.colors[which].getAlpha()))
-        canvaslayer.addItem(dot)
+        self.canvaslayer.addItem(dot)
         dot = oofcanvas.CanvasDot(pt.x, pt.y, self.node_size)
         dot.setFillColor(color.canvasColor(self.colors[which]))
-        canvaslayer.addItem(dot)
+        self.canvaslayer.addItem(dot)
 
     def getTimeStamp(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Mesh_Info")

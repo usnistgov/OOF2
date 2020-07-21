@@ -44,7 +44,7 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
         self.arrowsize = arrowsize
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         skel = self.who.resolve(gfxwindow)
         skelobj = skel.getObject()
         clr = color.canvasColor(self.color)
@@ -64,8 +64,8 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
                     seg.setLineColor(clr)
                     arrow = oofcanvas.CanvasArrowhead(
                         seg, 0.5, 0.7*self.arrowsize, self.arrowsize, False)
-                    canvaslayer.addItem(seg)
-                    canvaslayer.addItem(arrow)
+                    self.canvaslayer.addItem(seg)
+                    self.canvaslayer.addItem(arrow)
 
         for k in self.boundaries:
             try:
@@ -77,7 +77,7 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
                     dot = oofcanvas.CanvasDot(n.position().x, n.position().y,
                                               self.dotsize)
                     dot.setFillColor(clr)
-                    canvaslayer.addItem(dot)
+                    self.canvaslayer.addItem(dot)
 
     def getTimeStamp(self, gfxwindow):
         return max( self.timestamp,
@@ -118,15 +118,15 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
         self.arrowsize = arrowsize
         display.DisplayMethod.__init__(self)
         
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         skel = self.who.resolve(gfxwindow)
         skelobj = skel.getObject()
         bdy = skel.getSelectedBoundary()  # SkelContextBoundary
         if bdy is not None:
             # bdy.draw calls either drawEdgeBoundary or drawPointBoundary
-            bdy.draw(self, canvaslayer, skelobj)
+            bdy.draw(self, skelobj)
 
-    def drawEdgeBoundary(self, bdy, skelobj, canvaslayer):
+    def drawEdgeBoundary(self, bdy, skelobj):
         b = bdy.boundary(skelobj)
         clr = color.canvasColor(self.color)
         for e in b.edges:
@@ -140,17 +140,17 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
             arrow = oofcanvas.CanvasArrowhead(seg, 0.5, 0.7*self.arrowsize,
                                               self.arrowsize, False)
             arrow.setPixelSize()
-            canvaslayer.addItem(seg)
-            canvaslayer.addItem(arrow)
+            self.canvaslayer.addItem(seg)
+            self.canvaslayer.addItem(arrow)
 
-    def drawPointBoundary(self, bdy, skelobj, canvaslayer):
+    def drawPointBoundary(self, bdy, skelobj):
         b = bdy.boundary(skelobj)
         clr = color.canvasColor(self.color)
         for n in b.nodes:
             dot = oofcanvas.CanvasDot(n.position().x, n.position().y,
                                       self.dotsize)
             dot.setFillColor(clr)
-            canvaslayer.addItem(dot)
+            self.canvaslayer.addItem(dot)
     
     def getTimeStamp(self, gfxwindow):
         skelcontext = self.who.resolve(gfxwindow)

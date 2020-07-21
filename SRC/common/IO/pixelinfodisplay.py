@@ -30,16 +30,16 @@ class PixelInfoDisplay(display.DisplayMethod):
         self.opacity = opacity
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, canvaslayer):
-        canvaslayer.removeAllItems()
+    def draw(self, gfxwindow):
+        self.canvaslayer.removeAllItems()
         toolbox = gfxwindow.getToolboxByName("Pixel_Info")
         microstructure = toolbox.findMicrostructure()
         if microstructure is not None:
             pixel = toolbox.currentPixel()
             if pixel is not None:
-                self.drawPixel(canvaslayer, pixel, microstructure)
+                self.drawPixel(pixel, microstructure)
                 for plugIn in toolbox.plugIns:
-                    plugIn.draw(self, canvaslayer, pixel, microstructure)
+                    plugIn.draw(self, self.canvaslayer, pixel, microstructure)
 
 #      n3_______________n2 ((i+1)*dx, (j+1)*dy)
 #       |               |
@@ -67,13 +67,13 @@ class PixelInfoDisplay(display.DisplayMethod):
         n3 = primitives.Point(i*dx, (j+1)*dy)
         return n0, n1, n2, n3
             
-    def drawPixel(self, canvaslayer, pixel, microstructure):
+    def drawPixel(self, pixel, microstructure):
         n0, n1, n2, n3 = self.getNodes(pixel, microstructure)
         rect = oofcanvas.CanvasRectangle(n0.x, n0.y, n2.x, n2.y)
         rect.setLineColor(color.canvasColor(self.color))
         rect.setLineWidthInPixels()
         rect.setLineWidth(self.line_width)
-        canvaslayer.addItem(rect)
+        self.canvaslayer.addItem(rect)
         
     def getTimeStamp(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Pixel_Info")

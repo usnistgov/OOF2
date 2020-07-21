@@ -27,7 +27,7 @@ class SkeletonElementSelectionDisplay(display.DisplayMethod):
         self.color = color
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         skel = self.who.resolve(gfxwindow)
         if skel is not None:
             skel.elementselection.begin_reading()
@@ -39,7 +39,7 @@ class SkeletonElementSelectionDisplay(display.DisplayMethod):
                         pt = n.position()
                         poly.addPoint(pt.x, pt.y)
                     poly.setFillColor(clr)
-                    canvaslayer.addItem(poly)
+                    self.canvaslayer.addItem(poly)
             finally:
                 skel.elementselection.end_reading()
     def getTimeStamp(self, gfxwindow):

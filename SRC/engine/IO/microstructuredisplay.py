@@ -35,7 +35,7 @@ class MicrostructureMaterialDisplay(MSMaterialDisplay):
         self.no_material = no_material    # color if Material isn't assigned
         self.no_color = no_color    # color if Material has no ColorProperty
         MSMaterialDisplay.__init__(self)
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         microstructure = self.who.getObject(gfxwindow)
         # The MaterialImage object created here is just a lightweight
         # wrapper that houses the makeCanvasImage method.  It's an
@@ -44,7 +44,7 @@ class MicrostructureMaterialDisplay(MSMaterialDisplay):
         matlimage = material.MaterialImage(microstructure, self.no_material,
                                            self.no_color)
         img = matlimage.makeCanvasImage(coord.Coord(0,0), microstructure.size())
-        canvaslayer.addItem(img)
+        self.canvaslayer.addItem(img)
 
 registeredclass.Registration(
     'Material',
@@ -74,7 +74,7 @@ class OrientationDisplay(MSMaterialDisplay):
         self.no_orientation = no_orientation
         self.no_material = no_material
         MSMaterialDisplay.__init__(self)
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         msobj = self.who.getObject(gfxwindow)
         oimg = orientationimage.OrientationImage(msobj,
                                                 self.colorscheme,
@@ -85,7 +85,7 @@ class OrientationDisplay(MSMaterialDisplay):
         # (TODO: Really? That can't be right.)  msobj.size() refers to
         # an object that will be persistent.
         img = oimg.makeCanvasImage(coord.Coord(0,0), msobj.size())
-        canvaslayer.addItem(img)
+        self.canvaslayer.addItem(img)
         
 
 registeredclass.Registration(

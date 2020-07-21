@@ -41,7 +41,7 @@ class MeshCrossSectionDisplay(display.DisplayMethod):
         return max(self.timestamp, mesh.cross_sections.timestamp)
 
 
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         mesh = self.who.resolve(gfxwindow)
         segments = []
         if self.cross_sections == placeholder.selection:
@@ -65,7 +65,7 @@ class MeshCrossSectionDisplay(display.DisplayMethod):
             for seg in segments:
                 segs.addSegment(seg.startpt.x, seg.startpt.y,
                                 seg.endpt.x, seg.endpt.y)
-            canvaslayer.addItem(segs)
+            self.canvaslayer.addItem(segs)
             
 
 defaultMeshCSColor = color.gray50

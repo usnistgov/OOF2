@@ -8,12 +8,11 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-# Mesh for drawing elements with a uniform fill based on the
-# evaluation of their "what" at the element center.  Although it
-# doesn't draw contour lines, it's a subclass ContourDisplay in order
-# to get access to the functionality of the contour map.
+# Display method for drawing elements with a uniform fill based on the
+# evaluation of its "what" at the element center.
 
 from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
+from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import registeredclass
@@ -35,7 +34,7 @@ MeshDisplayMethod = displaymethods.MeshDisplayMethod
 class CenterFillDisplay(contourdisplay.ZDisplay):
     # The "draw" function should set contour_max, contour_min, and
     # contour_levels, which will be used by the draw_contourmap function.
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         self.contour_max = None
         self.contour_min = None
         self.contour_levels = None
@@ -74,7 +73,8 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
         # If levels is an int, then make that many evenly-spaced levels.
         if type(self.levels)==IntType:
             if self.levels == 1:
-                self.contour_levels = [0.5*(self.contour_max + self.contour_min)]
+                self.contour_levels = [0.5*(self.contour_max
+                                            + self.contour_min)]
             else:
                 dz = (self.contour_max-self.contour_min)/(self.levels-1.0)
                 self.contour_levels = [self.contour_min + i*dz for
@@ -89,15 +89,7 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
             self.contour_levels = [x for x in data_levels
                                    if x >= self.contour_min
                                    and x <= self.contour_max ]
-            
-
-        # print "CenterFillDisplay: "
-        # print self.contour_min, self.contour_max, self.contour_levels
-        # HACK: If the values are equal, put the actual value in
-        # the middle of an arbitrary range.
-        # if max_value==min_value:
-        #    max_value += 1.0
-        #     min_value -= 1.0
+            self.contour_levels.sort()
 
         # Actually draw things.
         for polygon, value in zip(polygons, values):
@@ -118,8 +110,8 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
                 poly.setFillColor(
                     color.canvasColor(self.colormap(cmap_value)))
                 for pt in polygon:
-                    poly.addPoint(pt.x, pt.y)
-                canvaslayer.addItem(poly)
+                    poly.addPoint(pt[0], pt[1])
+                self.canvaslayer.addItem(poly)
 
     # These two functions should maybe belong somewhere higher up in
     # the hierarchy, because it's duplicated across several classes.
@@ -128,7 +120,7 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
         return (self.contour_min, self.contour_max, self.contour_levels)
 
 
-    def draw_contourmap(self, gfxwindow, canvaslayer):
+    def draw_contourmap(self, gfxwindow, cmaplayer):
         # If the drawing failed, then contour_max won't have been set
         # yet.
         self.lock.acquire()
@@ -153,7 +145,7 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
                     else:
                         clr = oofcanvas.black
                     rect.setFillColor(clr)
-                    canvaslayer.addItem(rect)
+                    cmaplayer.addItem(rect)
         finally:
             self.lock.release()             
         

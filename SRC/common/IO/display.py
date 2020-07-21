@@ -120,7 +120,7 @@ class DisplayMethod(registeredclass.RegisteredClass):
     # Derived classes must redefine this.
     ## TODO GTK3: Don't need to pass the canvaslayer as an
     ## arg. Subclasses can use self.canvaslayer.
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         pass
 
     # Derived classes which can have contours should redefine these
@@ -213,7 +213,7 @@ class DisplayMethod(registeredclass.RegisteredClass):
                 self.canvaslayer.removeAllItems()
                 if self.hidden:
                     self.canvaslayer.hide()
-                self.draw(gfxwindow, self.canvaslayer)
+                self.draw(gfxwindow)
                 self.lastDrawn.increment()
             finally:
                 whoobj.end_reading()    # release lock
@@ -327,13 +327,13 @@ class MicrostructurePerimeterDisplay(DisplayMethod):
         self.width = width
         DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         size = self.getWho(gfxwindow).getObject().size()
         rect = oofcanvas.CanvasRectangle(0, 0, size.x, size.y)
         rect.setLineWidth(self.width)
         rect.setLineColor(color.canvasColor(self.color))
         rect.setLineWidthInPixels()
-        canvaslayer.addItem(rect)
+        self.canvaslayer.addItem(rect)
         
 
 registeredclass.Registration(

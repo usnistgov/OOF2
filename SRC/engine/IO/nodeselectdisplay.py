@@ -28,7 +28,7 @@ class SkeletonNodeSelectionDisplay(display.DisplayMethod):
         self.color = color
         self.size = size
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         skel = self.who.resolve(gfxwindow)
         if skel is not None:
             clr = color.canvasColor(self.color)
@@ -39,11 +39,11 @@ class SkeletonNodeSelectionDisplay(display.DisplayMethod):
 
                 dot = oofcanvas.CanvasDot(pt.x, pt.y, 1.2*self.size)
                 dot.setFillColor(oofcanvas.white.opacity(self.color.getAlpha()))
-                canvaslayer.addItem(dot)
+                self.canvaslayer.addItem(dot)
 
                 dot = oofcanvas.CanvasDot(pt.x, pt.y, self.size)
                 dot.setFillColor(clr)
-                canvaslayer.addItem(dot)
+                self.canvaslayer.addItem(dot)
                 
     def getTimeStamp(self, gfxwindow):
         return max(self.timestamp,

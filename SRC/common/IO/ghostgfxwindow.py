@@ -1191,13 +1191,16 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.contourmap_newlayers()
         self.draw()
 
+    ## TODO GTK3: If there are multiple contour layers, editing one of
+    ## them can change which one is visible.  Is sortLayers too
+    ## aggressive?  Being called too often?
+
     def incorporateLayer(self, layer, who, autoselect=True, lock=True):
         if lock:
             self.acquireGfxLock()
         try:
             if self.selectedLayer:
                 if not self.selectedLayer.inequivalent(layer):
-                    ## TODO GTK3: Check that the new layer is deleted
                     return
                 # Replace the selected layer with the new layer.
                 which = self.layerID(self.selectedLayer)

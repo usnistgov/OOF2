@@ -26,7 +26,7 @@ class MoveNodeDisplay(display.DisplayMethod):
         self.size = size
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Move_Nodes")
         node = toolbox.selectednode.node()
         if node and toolbox.selectednode.visible:
@@ -34,7 +34,7 @@ class MoveNodeDisplay(display.DisplayMethod):
                                       node.position().y,
                                       self.size)
             dot.setFillColor(color.canvasColor(self.color))
-            canvaslayer.addItem(dot)
+            self.canvaslayer.addItem(dot)
 
     def getTimeStamp(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Move_Nodes")

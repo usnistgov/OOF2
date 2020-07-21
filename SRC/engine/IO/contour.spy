@@ -12,6 +12,9 @@ from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common.IO import whoville
 
+## TODO GTK3: How much of this is used anymore?  Contour.draw isn't
+## used.
+
 # The swig typemap for ContourCellSet.getCorners returns a list of
 # swig address strings, which we have to convert to actual swigged
 # ContourCoords here:
@@ -44,13 +47,6 @@ class Contour(CContour):
                                                             [loop]))
                       for loop in self.loops]
         
-    def draw(self, device):
-        for curve in self.curves:
-            device.draw_curve(curve)
-        for loop in self.loops:
-            device.draw_polygon(loop)
-
-
     # The swig typemaps used by CContour.getCurves and
     # CContour.getLoops return lists of lists SwigPtr strings, which
     # get converted into MasterCoordPtr objects here:
@@ -76,7 +72,6 @@ def findContours(mesh, element,
                  clevels,               # list of contour levels
                  nbins,                 # number of cells in each direction
                  closecontours):        # close contours at element perimeter?
-##    debug.fmsg(element)
     # Compute the contours crossing an element.
     # This would be an Element method, but it's more convenient to put
     # it here.

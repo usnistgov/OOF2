@@ -47,26 +47,25 @@ class SkeletonInfoDisplay(display.DisplayMethod):
                           "Segment": self.drawSegment,
                           "Node": self.drawNode}
 
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Skeleton_Info")
         # Drawing "queried" item.
         if toolbox.querier and toolbox.querier.object:
-            self.drawFuncs[toolbox.querier.targetname](canvaslayer,
-                                                       toolbox.querier.object,
+            self.drawFuncs[toolbox.querier.targetname](toolbox.querier.object,
                                                        which="query")
         # Drawing "peeked" item.
         if toolbox.peeker:
             for objtype, obj in toolbox.peeker.objects.items():
                 if obj:
-                    self.drawFuncs[objtype](canvaslayer, obj, which="peek")
+                    self.drawFuncs[objtype](obj, which="peek")
 
-    def drawElement(self, canvaslayer, element, which="query"):
-        draw_elements(canvaslayer, [element], 1.4*self.element_width,
+    def drawElement(self, element, which="query"):
+        draw_elements(self.canvaslayer, [element], 1.4*self.element_width,
                       oofcanvas.white)
-        draw_elements(canvaslayer, [element], self.element_width,
+        draw_elements(self.canvaslayer, [element], self.element_width,
                       color.canvasColor(self.colors[which]))
                       
-    def drawSegment(self, canvaslayer, segment, which="query"):
+    def drawSegment(self, segment, which="query"):
         n0 = segment.nodes()[0].position()
         n1 = segment.nodes()[1].position()
 
@@ -74,24 +73,24 @@ class SkeletonInfoDisplay(display.DisplayMethod):
         seg.setLineWidth(1.4*self.segment_width)
         seg.setLineWidthInPixels()
         seg.setLineColor(oofcanvas.white)
-        canvaslayer.addItem(seg)
+        self.canvaslayer.addItem(seg)
 
         seg = oofcanvas.CanvasSegment(n0.x, n0.y, n1.x, n1.y)
         seg.setLineWidth(self.segment_width)
         seg.setLineWidthInPixels()
         seg.setLineColor(color.canvasColor(self.colors[which]))
-        canvaslayer.addItem(seg)
+        self.canvaslayer.addItem(seg)
 
-    def drawNode(self, canvaslayer, node, which="query"):
+    def drawNode(self, node, which="query"):
         dot = oofcanvas.CanvasDot(node.position().x, node.position().y,
                                   1.2*self.node_size)
         dot.setFillColor(oofcanvas.white)
-        canvaslayer.addItem(dot)
+        self.canvaslayer.addItem(dot)
         
         dot = oofcanvas.CanvasDot(node.position().x, node.position().y,
                                   self.node_size)
         dot.setFillColor(color.canvasColor(self.colors[which]))
-        canvaslayer.addItem(dot)
+        self.canvaslayer.addItem(dot)
         
     def getTimeStamp(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Skeleton_Info")
@@ -186,13 +185,13 @@ class SkeletonIllegalElementDisplay(display.DisplayMethod):
         self.color = color
         self.linewidth = linewidth
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         skel = self.who.resolve(gfxwindow).getObject()
         elements = skel.getIllegalElements()
         if elements:
-            draw_elements(canvaslayer, elements, 1.4*self.linewidth,
+            draw_elements(self.canvaslayer, elements, 1.4*self.linewidth,
                           oofcanvas.white)
-            draw_elements(canvaslayer, elements, self.linewidth,
+            draw_elements(self.canvaslayer, elements, self.linewidth,
                           color.canvasColor(self.color))
 
 defaultSkelIllegalColor = color.RGBAColor(1.0, 0.01, 0.01, 1.0)

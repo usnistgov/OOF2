@@ -29,7 +29,7 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
         self.color = color
         self.line_width = line_width
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, canvaslayer):
+    def draw(self, gfxwindow):
         skel = self.who.resolve(gfxwindow)
         if skel is not None:
             selection = skel.segmentselection.retrieve()
@@ -44,7 +44,7 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
                     pt0 = s.nodes()[0].position()
                     pt1 = s.nodes()[1].position()
                     segs.addSegment(pt0.x, pt0.y, pt1.x, pt1.y)
-                canvaslayer.addItem(segs)
+                self.canvaslayer.addItem(segs)
                 # Then draw with the given color and width
                 segs = oofcanvas.CanvasSegments()
                 segs.setLineColor(color.canvasColor(self.color))
@@ -54,7 +54,7 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
                     pt0 = s.nodes()[0].position()
                     pt1 = s.nodes()[1].position()
                     segs.addSegment(pt0.x, pt0.y, pt1.x, pt1.y)
-                canvaslayer.addItem(segs)
+                self.canvaslayer.addItem(segs)
 
     def getTimeStamp(self, gfxwindow):
         return max(self.timestamp,
