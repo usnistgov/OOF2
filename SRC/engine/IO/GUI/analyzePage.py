@@ -40,6 +40,8 @@ from gi.repository import Gtk
 
 # Base class for AnalyzePage and BoundaryAnalysisPage.
 
+## TODO: "Go" button isn't desensitized when XY function arg is empty
+
 class BaseAnalysisPage(oofGUI.MainPage):
     def buildBottomRow(self, mainbox):
         # Build the bottom row of widgets, containing the named

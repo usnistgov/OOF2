@@ -11,6 +11,9 @@
 # Display method for drawing elements with a uniform fill based on the
 # evaluation of its "what" at the element center.
 
+## TOOD GTK3: Is this working properly when levels are specified & not
+## automatic?
+
 from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import debug
