@@ -23,6 +23,7 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import widgetscope
 from types import *
+from gi.repository import Gdk
 from gi.repository import Gtk
 import math
 import string
@@ -109,15 +110,23 @@ class ParameterWidget:
 # also be created as an instance itself, but currently this is not
 # done.
 class GenericWidget(ParameterWidget):
-    def __init__(self, param, scope=None, name=None, compact=False, **kwargs):
+    def __init__(self, param, scope=None, name=None, compact=False,
+                 value=None,    # init. to this instead of param.value
+                 **kwargs):
+        # It's possible that param.value can't be evaluate when the
+        # widget is constructed because its resolution depends on the
+        # state of other widgets that may not exist yet.  In that
+        # case, pass an initial value for the widget in the 'value'
+        # arg, to be used instead of param.value.
         debug.mainthreadTest()
         widget = Gtk.Entry(**kwargs)
         widget.set_width_chars(10)
         ParameterWidget.__init__(self, widget, scope=scope, name=name,
                                  compact=compact)
         self.signal = gtklogger.connect(widget, 'changed', self.changedCB)
-        self.set_value(param.value)
-        self.widgetChanged(self.validValue(param.value), interactive=0)
+        val = value or param.value
+        self.set_value(val)
+        self.widgetChanged(self.validValue(val), interactive=0)
     def get_value(self):
         debug.mainthreadTest()
         text = self.gtk.get_text().lstrip()
@@ -132,7 +141,7 @@ class GenericWidget(ParameterWidget):
         debug.mainthreadTest()
         valuestr = `newvalue`
         self.gtk.set_text(valuestr)
-        self.gtk.set_position(0)        # makes MSD visible
+        self.gtk.set_position(0) # makes most significant digit visible
     def changedCB(self, gtkobj):
         debug.mainthreadTest()
         self.widgetChanged(self.validValue(self.gtk.get_text()), interactive=1)
@@ -206,137 +215,113 @@ parameter.RestrictedStringParameter.makeWidget = _RSParam_makeWidget
 
 from ooflib.common.IO import automatic
 
-## TODO: AutoWidgets shouldn't have a checkbox.  They should return
-## automatic.automatic if the text field is empty.  The text field
-## should display 'automatic' in gray if it's empty.
-
-# AutoWidget sets up and handles the basic geometry of automatic
-# widgets -- puts in the checkbox, hooks up signals, etc.  Does not
-# talk to the parameter, because AutoNameWidgets have special
-# requirements for these.
-class AutoWidget(ParameterWidget):
-    def __init__(self, param, scope=None, name=None, **kwargs):
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
-                       **kwargs)
-        ParameterWidget.__init__(self, hbox, scope=scope, name=name)
-        self.autocheck = Gtk.CheckButton()
-        gtklogger.setWidgetName(self.autocheck, 'Auto')
-        self.text = Gtk.Entry(placeholder_text="automatic")
-        gtklogger.setWidgetName(self.text, 'Text')
-        self.gtk.pack_start(self.autocheck, expand=0, fill=0, padding=0)
-        self.gtk.pack_start(self.text, expand=1, fill=1, padding=0)
-        gtklogger.connect(self.autocheck, "clicked", self.checkCB)
-        self.textsignal = gtklogger.connect(self.text, 'changed', self.entryCB)
-
-    def checkCB(self, gtkobj):
-        debug.mainthreadTest()
-        if self.autocheck.get_active():
-            self.textsignal.block()
-            self.text.set_editable(1)
-            self.text.set_sensitive(1)
-            self.text.set_text("")
-            self.textsignal.unblock()
-            self.widgetChanged(0, interactive=1)
-        else:
-            self.textsignal.block()
-            self.text.set_editable(0)
-            self.text.set_sensitive(0)
-            self.text.set_text("automatic")
-            self.textsignal.unblock()
-            self.widgetChanged(1, interactive=1)
-
-    def entryCB(self, entry):
-        debug.mainthreadTest()
-        self.widgetChanged(self.autocheck.get_active() and
-                           self.validText(self.text.get_text()),
-                           interactive=1)
-
-    def validText(self, x):             # override in subclass
-        return x != "" and x is not None
-
-    def get_value(self):
-        debug.mainthreadTest()
-        if not self.autocheck.get_active():
-            return automatic.automatic
-        return self.text.get_text()
-
+class AutoWidget(GenericWidget):
+    # If no text is provided, display "automatic" (or
+    # placeholder_text) in gray letters.  When the user types
+    # anything, delete "automatic" and replace it with the user's
+    # text, changing the color to black.  When the user deletes all of
+    # the text, put "automatic" back again, in gray.
+    # *Don't* use Gtk.Entry.placeholder_text.  That is only displayed
+    # when the widget doesn't have focus.
+    def __init__(self, param, scope=None, name=None,
+                 autotext=None, # text to display in automatic mode
+                 autocolor=None, # color of text to display in automatic mode
+                 **kwargs):
+        self.automatic = True
+        self.autotext = autotext or "automatic"
+        self.autocolor = autocolor or Gdk.RGBA(0.7, 0.7, 0.7, 1.0)
+        # manualcolor is the text color when not in automatic mode.
+        ## TODO GTK3: manualcolor should not be assumed to be black.
+        self.manualcolor = Gdk.RGBA(0.0, 0.0, 0.0, 1.0)
+        GenericWidget.__init__(self, param, scope, name, **kwargs)
+        gtklogger.connect(self.gtk, 'key-press-event', self.keypressCB)
+        gtklogger.connect_after(self.gtk, 'key-release-event',self.keyreleaseCB)
     def set_value(self, newvalue):
-        debug.mainthreadTest()
+        # If newvalue is not a string, the derived class might need to
+        # override this method.  The derived class method should call
+        # the base class method, passing a string or
+        # automatic.automatic as newvalue.
         if newvalue is automatic.automatic:
-            self.autocheck.set_active(0)
-            self.checkCB(self.autocheck)
-            self.widgetChanged(1, interactive=0)
-        elif newvalue is None or newvalue == '':
-            self.autocheck.set_active(1)
-            self.checkCB(self.autocheck)
-            self.text.set_text('')
-            self.widgetChanged(0, interactive=0)
+            self.enterAutoMode()
         else:
-            self.autocheck.set_active(1)
-            self.checkCB(self.autocheck)
-            self.text.set_text(`newvalue`)
-            self.text.set_position(0)
-            self.widgetChanged(1, interactive=0)
-
-class AutoWidgetNEW(GenericWidget):
-    def __init__(self, param, scope=None, name=None, **kwargs):
-        quargs = kwargs.copy()
-        quargs.setdefault('placeholder_text', 'automatic')
-        GenericWidget.__init__(self, param, scope, name, **quargs)
-    def set_value(self, newvalue):
-        # TODO GTK3: How does this work if the value is not a string?
-        if newvalue is automatic.automatic:
-            self.gtk.set_text("")
-        else:
-            self.gtk.set_text(newvalue)
+            self.enterManualMode()
+            if isinstance(newvalue, StringType):
+                self.gtk.set_text(newvalue)
+            else:
+                self.gtk.set_text(`newvalue`)
         self.widgetChanged(1, interactive=0)
     def get_value(self):
-        txt = self.gtk.get_text()
-        if not txt:
+        if self.automatic:
             return automatic.automatic
-        return txt
+        return self.gtk.get_text()
+    def validValue(self, value):
+        # See comment in GenericWidget.validValue.
+        return (value is automatic.automatic or
+                (isinstance(value, StringType) and
+                 string.lstrip(value) != ""))
+
+    # ignorekeys are the keyboard keys that don't cause the widget to
+    # shift from automatic to manual mode.  The modifier keys have to
+    # be included because they generate keypress events too. (There
+    # must be a better way to find out if a key is a modifier key...)
+    ignorekeys = (Gdk.KEY_Tab, Gdk.KEY_ISO_Left_Tab, Gdk.KEY_KP_Tab,
+                  Gdk.KEY_Shift_L, Gdk.KEY_Shift_R,
+                  Gdk.KEY_Alt_L, Gdk.KEY_Alt_R,
+                  Gdk.KEY_Control_L, Gdk.KEY_Control_R,
+                  Gdk.KEY_Meta_L, Gdk.KEY_Meta_R,
+                  Gdk.KEY_Escape, Gdk.KEY_Caps_Lock)
+
+    def keypressCB(self, widget, event):
+        # When a key is pressed, switch out of automatic mode and
+        # clear the text.  This handler is called before the standard
+        # handler, so the text being typed will be entered into the
+        # widget.
+        # But first... Don't switch modes or clear the widget if the
+        # key is tab or shift-tab, because they transfer focus to
+        # another widget, and we don't want to leave this one in
+        # manual mode with no text.  Also don't switch if the user is
+        # just fiddling with the modifier keys.
+        if event.keyval in self.ignorekeys:
+            return False
+        if self.automatic:
+            self.enterManualMode()
+            self.gtk.set_text("")
+        return False            # False means "call other event handlers"
+    def keyreleaseCB(self, widget, event):
+        if self.gtk.get_text().strip() == "":
+            self.enterAutoMode()
+        return False            # False means "call other event handlers"
+    def enterAutoMode(self):
+        self.automatic = True
+        self.gtk.override_color(Gtk.StateFlags.NORMAL, self.autocolor)
+        self.gtk.set_text(self.autotext)
+    def enterManualMode(self):
+        self.automatic = False
+        self.gtk.override_color(Gtk.StateFlags.NORMAL, self.manualcolor)
     
 class AutoNameWidget(AutoWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
-        AutoWidget.__init__(self, param, scope=scope, name=name, **kwargs)
+        AutoWidget.__init__(self, param, scope=scope, name=name,
+                            value=automatic.automatic,
+                            **kwargs)
         # Avoid querying param.value here, as it will trigger the
         # autoname resolution process if the parameter is an
-        # AutomaticNameParameter or ContextualNameParameter.
+        # AutomaticNameParameter or ContextualNameParameter, and the
+        # resolution may not be possible if the widget is just now
+        # being constructed and the other widgets that it depends on
+        # don't yet have values.
         if param.automatic():
             self.set_value(automatic.automatic)
             self.widgetChanged(1, interactive=0)
         else:
             self.set_value(param.truevalue)
             self.widgetChanged(self.validText(param.truevalue), interactive=0)
-        self.autocheck.set_tooltip_text(
-            'Switch between typed names and automatically generated names.')
 
-    # AutoNameWidget's set-value doesn't take the repr of the value,
-    # since it's a string -- just put it in directly.
-    def set_value(self, newvalue):
-        debug.mainthreadTest()
-        ## TODO: When the parameter has been set to an automatic value
-        ## from a script, the widget is subsequently initialized with
-        ## the non-automatic string generated from the automatic
-        ## value, because AutomaticNameParameter.value always returns
-        ## the resolved name.  However, the widget should still be
-        ## initialized to 'automatic' somehow.
-        if newvalue is automatic.automatic:
-            self.autocheck.set_active(0)
-            self.checkCB(self.autocheck)
-            self.widgetChanged(1, interactive=0)
-        elif newvalue is None or newvalue == '':
-            self.autocheck.set_active(1)
-            self.checkCB(self.autocheck)
-            self.text.set_text('')
-            self.widgetChanged(0, interactive=0)
-        else:
-            self.autocheck.set_active(1)
-            self.checkCB(self.autocheck)
-            self.text.set_text(newvalue)
-            self.text.set_position(0)
-            self.widgetChanged(1, interactive=0)
-    
+    def validText(self, txt):
+        # Redefined in RestrictedAutoNameWidget to exclude particular
+        # strings.
+        return txt != "" and txt is not None
+
 def _AutoNameParameter_makeWidget(self, scope, **kwargs):
     return AutoNameWidget(self, scope=scope, name=self.name, **kwargs)
 parameter.AutomaticNameParameter.makeWidget = _AutoNameParameter_makeWidget
@@ -365,7 +350,6 @@ class AutoNumberWidget(AutoWidget):
         AutoWidget.__init__(self, param, scope=scope, name=name, **kwargs)
         self.set_value(param.value)
         self.widgetChanged(1, interactive=0)
-        self.autocheck.set_tooltip_text("Switch between automatic and integer.")
 
     # The AutoWidget get_value returns automatic or a string, or none.
     # If we get a string, evaluate it and return the result.
@@ -567,8 +551,6 @@ class FloatWidget(GenericWidget):
             return x
         return 0.0
     def validValue(self, val):
-#         # Any string is a potentially valid value
-#         return 1
         try:
             if type(val) is StringType:
                 return type(1.0*utils.OOFeval(val)) is FloatType
@@ -1183,9 +1165,6 @@ class AutomaticValueSetParameterWidget(AutoWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
         AutoWidget.__init__(self, param, scope=scope, name=name, **kwargs)
         self.set_value(param.value)
-        self.autocheck.set_tooltip_text(
-            "Switch between typed level specifications and "
-            "automatic generation of levels.")
 
     def validValue(self, value):
         if value is None:
