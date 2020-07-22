@@ -78,38 +78,23 @@ sizeparams = parameter.ParameterGroup(
                                    tip= \
                                    "Physical width of image, or 'automatic'."))
 
-if config.dimension() == 3:
-    sizeparams.append(parameter.AutoNumericParameter(
-        'depth',
-        automatic.automatic,
-        tip= \
-        "Physical depth of image, or 'automatic'."))
-                      
-
 ###################################
 
-def loadImage(menuitem, filename, microstructure, height, width, depth=0):
+def loadImage(menuitem, filename, microstructure, height, width):
     debug.fmsg("filename=", filename)
     if filename:
         # Read file and create an OOFImage object
-        image = autoReadImage(filename, height, width, depth)
+        image = autoReadImage(filename, height, width)
         loadImageIntoMS(image, microstructure)
         switchboard.notify("redraw")
 
-def autoReadImage(filename, height, width, depth=0):
+def autoReadImage(filename, height, width):
     kwargs = {}
     if height is not automatic.automatic:
         kwargs['height'] = height
     if width is not automatic.automatic:
         kwargs['width'] = width
-
-    if config.dimension() == 2:
-        return oofimage.readImage(filename, **kwargs) # OOFImage object
-
-    elif config.dimension() == 3:
-        if depth is not automatic.automatic:
-            kwargs['depth'] = depth
-        return oofimage.readImage(filename, **kwargs)
+    return oofimage.readImage(filename, **kwargs) # OOFImage object
     
         
 def loadImageIntoMS(image, microstructure):
@@ -137,21 +122,12 @@ def loadImageIntoMS(image, microstructure):
     immidgecontext = imagecontext.imageContexts.add([ms.name(),newname], image,
                                               parent=ms)
 
-if config.dimension() == 2:
-    imageparams = parameter.ParameterGroup(
-        filenameparam.ReadFileNameParameter('filename', 'image',
-                                            tip="Name of the image file."),
-        whoville.WhoParameter('microstructure',
-                              whoville.getClass('Microstructure'),
-                              tip=parameter.emptyTipString))
-    
-elif config.dimension() == 3:
-    imageparams = parameter.ParameterGroup(
-        parameter.StringParameter('filename', 'image',
-                                  tip="Pattern for the image files."),
-        whoville.WhoParameter('microstructure',
-                              whoville.getClass('Microstructure'),
-                              tip=parameter.emptyTipString))
+imageparams = parameter.ParameterGroup(
+    filenameparam.ReadFileNameParameter('filename', 'image',
+                                        tip="Name of the image file."),
+    whoville.WhoParameter('microstructure',
+                          whoville.getClass('Microstructure'),
+                          tip=parameter.emptyTipString))
     
 mainmenu.OOF.File.Load.addItem(
     oofmenu.OOFMenuItem(
@@ -457,16 +433,13 @@ microstructuremenu.micromenu.addItem(
 # Load an Image and create a Microstructure from it in one operation.
 
 def createMSFromImageFile(menuitem, filename, microstructure_name,
-                          height, width, depth=0):
-       
+                          height, width):
  
-    if (height!=automatic and height<=0) or \
-           (width!=automatic and width<=0) or \
-           (config.dimension()==3 and depth!=automatic and depth<=0):
+    if (height!=automatic and height<=0) or (width!=automatic and width<=0):
         raise ooferror.ErrUserError(
             "Negative microstructure sizes are not allowed.")
 
-    image = autoReadImage(filename, height, width, depth)
+    image = autoReadImage(filename, height, width)
     ms = ooflib.common.microstructure.Microstructure(microstructure_name,
                                               image.sizeInPixels(),
                                               image.size())
@@ -495,29 +468,19 @@ def msImageFileNameResolver(param, name):
         basename.replace(':','.'))
 
 
-if config.dimension() == 2:
-    imageparams=parameter.ParameterGroup(
-        filenameparam.ReadFileNameParameter('filename',
-                                            tip="Name of the file."),
-        parameter.AutomaticNameParameter('microstructure_name',
+imageparams=parameter.ParameterGroup(
+    filenameparam.ReadFileNameParameter('filename',
+                                        tip="Name of the file."),
+    parameter.AutomaticNameParameter('microstructure_name',
                                      msImageFileNameResolver,
                                      automatic.automatic,
                                      tip= 'Name of the new Microstructure.'))
-
-
-elif config.dimension() == 3:
-    imageparams=parameter.ParameterGroup(
-        parameter.StringParameter('filename',tip="Pattern for the filenames."),
-        parameter.AutomaticNameParameter('microstructure_name',
-                                     msImageFileNameResolver,
-                                     automatic.automatic,
-                                     tip= 'Name of the new Microstructure.'))
-    
 
 microstructuremenu.micromenu.addItem(oofmenu.OOFMenuItem(
     'Create_From_ImageFile',
     callback=createMSFromImageFile,
     params = imageparams + sizeparams,
     help="Load an Image and create a Microstructure from it.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/menu/microfromimagefile.xml')
-                        ))
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/image/menu/microfromimagefile.xml')
+))
