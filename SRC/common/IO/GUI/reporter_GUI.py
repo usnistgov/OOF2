@@ -28,7 +28,6 @@ from ooflib.common.IO import reportermenu
 from ooflib.common.IO.GUI import gfxmenu
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
-from ooflib.common.IO.GUI import mainmenuGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import subWindow
 import os
@@ -192,6 +191,7 @@ class MessageWindow(subWindow.SubWindow):
         menuitem = OOF.File.Save.Messages
         if parameterwidgets.getParameters(menuitem.get_arg('filename'),
                                           menuitem.get_arg('mode'),
+                                          parentwindow=self.gtk,
                                           title="Save Messages"):
             menuitem.callWithDefaults(**self.state_dict)
 

@@ -375,6 +375,12 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
     def postinitialize(self, name, gfxmgr, clone):
         debug.mainthreadTest()
+        # SubWindow initializer makes the menu bar, and sets up the
+        # .gtk and .mainbox members.  ".gtk" is the window itself,
+        # and .mainbox is a gtk.VBox that holds the menu bar.
+        windowname = utils.underscore2space("OOF2 " + name)
+        subWindow.SubWindow.__init__(self, windowname, menu=self.menu)
+
         # The ContourMapData structure is created in the
         # GhostGfxWindow constructor, and the widgets can't be made
         # until after the contructor is called.
@@ -382,9 +388,14 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # Add gui callbacks to the non-gui menu created by the GhostGfxWindow.
         filemenu = self.menu.File
         filemenu.Save_Canvas_Region.add_gui_callback(self.saveCanvasRegion_gui)
+        # The generic Quit callback uses Quit.data to know which
+        # window it's being called from, so that the dialog can appear
+        # in the right place.
         filemenu.Quit.add_gui_callback(quit.queryQuit)
+        filemenu.Quit.data = self.gtk.get_toplevel()
+
         layermenu = self.menu.Layer
-        # There's no gui callback for layermenu.New.
+        # layermenu.New doesn't need a GUI callback.
         layermenu.Edit.add_gui_callback(self.editLayer_gui)
         layermenu.Delete.add_gui_callback(self.deleteLayer_gui)
         layermenu.Hide.add_gui_callback(self.hideLayer_gui)
@@ -411,13 +422,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # raise_window routine is in SubWindow class.
         getattr(mainmenu.OOF.Windows.Graphics, name).add_gui_callback(
             self.raise_window)
-
-        # SubWindow initializer makes the menu bar, and sets up the
-        # .gtk and .mainbox members.  ".gtk" is the window itself,
-        # and .mainbox is a gtk.VBox that holds the menu bar.
-        windowname = utils.underscore2space("OOF2 " + name)
-        subWindow.SubWindow.__init__(
-            self, windowname, menu=self.menu)
 
         self.gtk.connect('destroy', self.destroyCB)
         self.gtk.connect_after('realize', self.realizeCB)
@@ -869,12 +873,15 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.oofcanvas.zoomToFill()
 
     def saveCanvasRegion_gui(self, menuitem):
+        ## TODO GTK3: check for empty canvas.  Disable the menu item
+        ## if the canvas is empty.
         visrect = self.oofcanvas.visibleRegion() # an OOFCanvas::Rectangle
         ll = menuitem.get_arg('lowerleft')
         ll.value = primitives.Point(visrect.xmin(), visrect.ymin());
         ur = menuitem.get_arg('upperright')
         ur.value = primitives.Point(visrect.xmax(), visrect.ymax());
         if parameterwidgets.getParameters(*menuitem.params,
+                                          parentwindow=self.gtk,
                                           title="Save Region"):
             menuitem.callWithDefaults()
 
@@ -967,6 +974,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     # Right click on layer list
     
     def layerlistbuttonCB(self, gtkobj, event):
+        ## TODO GTK3: Fix this
+        debug.fmsg("button=", event.button)
         if event.button == 3:
             popupMenu = Gtk.Menu()
             for item in self.menu.Layer:

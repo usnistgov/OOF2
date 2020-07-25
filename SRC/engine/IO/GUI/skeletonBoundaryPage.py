@@ -301,7 +301,9 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         nameparam =  menuitem.get_arg('name')
         builderparam = menuitem.get_arg('constructor')
         if parameterwidgets.getParameters(
-            nameparam, builderparam, title="New Boundary",scope=self):
+                nameparam, builderparam,
+                parentwindow=self.gtk.get_toplevel(),
+                title="New Boundary",scope=self):
             menuitem.callWithDefaults(skeleton=self.skelwidget.get_value())
     
     def modifyBoundaryCB(self, *args): # button callback
@@ -328,8 +330,9 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         
         
         if parameterwidgets.getParameters(
-            modparam, title="Boundary modifier", scope=self,
-            dialog_data=dialog_extra):
+                modparam, title="Boundary modifier", scope=self,
+                parentwindow=self.gtk.get_toplevel(),
+                dialog_data=dialog_extra):
             menuitem.callWithDefaults(skeleton=self.skelwidget.get_value(),
                                       boundary=self.boundarylist.get_value())
 
@@ -339,7 +342,9 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         oldname = self.boundarylist.get_value()
         newname.set(oldname)
         if parameterwidgets.getParameters(
-            newname, title="New name for this boundary"):
+                newname,
+                parentwindow=self.gtk.get_toplevel(),
+                title="New name for this boundary"):
             menuitem.callWithDefaults(
                 skeleton=self.skelwidget.get_value(),
                 boundary=self.boundarylist.get_value())

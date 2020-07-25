@@ -20,7 +20,6 @@ from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO.GUI import gfxmenu
 from ooflib.common.IO.GUI import gtkutils
-from ooflib.common.IO.GUI import mainmenuGUI
 from ooflib.common.IO.GUI import oof_mainiteration
 from ooflib.common.IO.GUI import quit
 from ooflib.common.IO.GUI import subWindow
@@ -61,6 +60,9 @@ def _close_console(menuitem):
 _console_menu = oofmenu.OOFMenuItem("Console", secret=1, gui_only=1, no_log=1)
 mainmenu.OOF.addItem(_console_menu)
 
+## TODO GTK3: The File menu has already been created by the SubWindow.
+## No need to recreate it.  Can the SubWindow's close() method be
+## used?  Extended?
 _console_file_menu = oofmenu.OOFMenuItem('File', gui_only=1, no_log=1)
 _console_menu.addItem(_console_file_menu)
 
@@ -68,12 +70,6 @@ _console_file_menu.addItem(oofmenu.OOFMenuItem(
     'Close', help="Close the console window.",
     callback=_close_console, no_log=1, gui_only=1, accel='w',
     threadable=oofmenu.UNTHREADABLE))
-
-_console_file_menu.addItem(oofmenu.OOFMenuItem(
-    'Quit', help="Exit the OOF application.",
-    threadable=oofmenu.UNTHREADABLE,
-    callback=quit.queryQuit, no_log=1, gui_only=1, accel='q'))
-
 
 # GUIConsole does not have a conventional "interact" function, but
 # instead is event-driven by the GUI.

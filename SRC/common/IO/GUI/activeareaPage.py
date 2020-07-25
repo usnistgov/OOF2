@@ -246,7 +246,8 @@ class ActiveAreaPage(oofGUI.MainPage):
     def storeCB(self, button):
         menuitem = mainmenu.OOF.ActiveArea.Store
         if parameterwidgets.getParameters(menuitem.get_arg('name'),
-                                          title="Store the active area"):
+                                          title="Store the active area",
+                                          parentwindow=self.gtk.get_toplevel()):
             menuitem.callWithDefaults(microstructure=self.getCurrentMSName())
 
     def renameCB(self, button):
@@ -254,15 +255,17 @@ class ActiveAreaPage(oofGUI.MainPage):
         namearg = menuitem.get_arg('newname')
         namearg.value = self.getCurrentActiveArea()
         oldname = self.getCurrentActiveArea()
-        if parameterwidgets.getParameters(menuitem.get_arg('newname'),
-                                          title="Rename active area '%s'"
-                                               % oldname):
+        if parameterwidgets.getParameters(
+                menuitem.get_arg('newname'),
+                title="Rename active area '%s'" % oldname,
+                parentwindow=self.gtk.get_toplevel()):
             menuitem.callWithDefaults(microstructure=self.getCurrentMSName(),
                                       oldname=oldname)
 
     def deleteCB(self, button):
         if reporter.query("Really delete %s?" % self.getCurrentActiveArea(),
-                          "No", default="Yes") == "Yes":
+                          "No", default="Yes",
+                          parentwindow=self.gtk.get_toplevel()) == "Yes":
             mainmenu.OOF.ActiveArea.Delete(
                 microstructure=self.getCurrentMSName(),
                 name=self.getCurrentActiveArea())

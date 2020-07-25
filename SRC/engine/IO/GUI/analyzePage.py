@@ -549,6 +549,7 @@ class AnalyzePage(BaseAnalysisPage):
     def createCB(self, gtkobj):  # create a named analysis
         menuitem = analyzemenu.namedanalysismenu.Create
         if parameterwidgets.getParameters(menuitem.get_arg('name'),
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title='Name an analysis operation',
                                           scope=self):
             menuitem.callWithDefaults(
@@ -559,7 +560,8 @@ class AnalyzePage(BaseAnalysisPage):
         
     def deleteCB(self, gtkobj): # delete named analysis
         menuitem = analyzemenu.namedanalysismenu.Delete
-        if parameterwidgets.getParameters(menuitem.get_arg('name'), 
+        if parameterwidgets.getParameters(menuitem.get_arg('name'),
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title='Delete a named analysis',
                                           scope=self):
             menuitem.callWithDefaults()
@@ -597,6 +599,7 @@ class AnalyzePage(BaseAnalysisPage):
         menuitem = analyzemenu.namedanalysismenu.SaveAnalysisDefs
         if parameterwidgets.getParameters(title="Save Analysis Definitions",
                                           ident="SaveAnalysis",
+                                          parentwindow=self.gtk.get_toplevel(),
                                           *menuitem.params):
             menuitem.callWithDefaults()
 

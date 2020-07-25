@@ -22,7 +22,6 @@ from ooflib.common.IO import whoville
 from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
-from ooflib.common.IO.GUI import mainmenuGUI
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import whowidget
@@ -534,19 +533,23 @@ class MicrostructurePage(oofGUI.MainPage):
         namearg = menuitem.get_arg('name')
         namearg.value = self.currentMSName()
         if parameterwidgets.getParameters(
-            namearg,
-            title='Rename Microstructure '+self.currentMSName()):
+                namearg,
+                parentwindow=self.gtk.get_toplevel(),
+                title='Rename Microstructure '+self.currentMSName()):
             menuitem.callWithDefaults(microstructure=self.currentMSName())
 
     def copyMSCB(self, button):
         menuitem = mainmenu.OOF.Microstructure.Copy
         namearg = menuitem.get_arg('name')
-        if parameterwidgets.getParameters(namearg, title='Copy microstructure'):
+        if parameterwidgets.getParameters(namearg,
+                                          parentwindow=self.gtk.get_toplevel(),
+                                          title='Copy microstructure'):
             menuitem.callWithDefaults(microstructure=self.currentMSName())
 
     def deleteMSCB(self, button):
         if reporter.query("Really delete %s?" % self.currentMSName(),
-                          "No", default="Yes") == "Yes":
+                          "No", default="Yes",
+                          parentwindow=self.gtk.get_toplevel()) == "Yes":
             mainmenu.OOF.Microstructure.Delete(
                 microstructure=self.currentMSName())
 
@@ -628,6 +631,7 @@ class MicrostructurePage(oofGUI.MainPage):
     def newEmptyCB(self, *args):
         menuitem = mainmenu.OOF.Microstructure.New
         if parameterwidgets.getParameters(title='Create Microstructure',
+                                          parentwindow=self.gtk.get_toplevel(),
                                           *menuitem.params):
             menuitem.callWithDefaults()
 
@@ -636,6 +640,7 @@ class MicrostructurePage(oofGUI.MainPage):
         nameparam = menuitem.get_arg('name')
         if parameterwidgets.getParameters(
                 nameparam,
+                parentwindow=self.gtk.get_toplevel(),
                 title='Create new %s group'%pixstring):
             menuitem.callWithDefaults(microstructure=self.currentMSName())
 
@@ -652,6 +657,7 @@ class MicrostructurePage(oofGUI.MainPage):
         menuitem = mainmenu.OOF.PixelGroup.AutoGroup
         scopedata = {'fixed whoclass': ('Microstructure', self.currentMSName())}
         if parameterwidgets.getParameters(title="AutoGroup", scope=self,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           data=scopedata, *menuitem.params):
             menuitem.callWithDefaults()
 
@@ -660,8 +666,9 @@ class MicrostructurePage(oofGUI.MainPage):
         nameparam = menuitem.get_arg('new_name')
         nameparam.value = self.currentGroupName()
         if parameterwidgets.getParameters(
-            nameparam,
-            title = 'Rename %sgroup '%pixstring + self.currentGroupName()):
+                nameparam,
+                parentwindow=self.gtk.get_toplevel(),
+                title = 'Rename %sgroup '%pixstring + self.currentGroupName()):
             menuitem.callWithDefaults(
                 microstructure=self.currentMSName(),
                 group=self.currentGroupName())
@@ -689,13 +696,15 @@ class MicrostructurePage(oofGUI.MainPage):
 
     def deleteGroupButtonCB(self, button):
         if reporter.query("Really delete %s?" % self.currentGroupName(),
-                          "No", default="Yes") == "Yes":
+                          "No", default="Yes",
+                          parentwindow=self.gtk.get_toplevel()) == "Yes":
             mainmenu.OOF.PixelGroup.Delete(microstructure=self.currentMSName(),
                                            group=self.currentGroupName())
 
     def deleteAllGroupsButtonCB(self, button):
         if reporter.query("Really delete all pixel groups?", "No",
-                          default="Yes") == "Yes":
+                          default="Yes",
+                          parentwindow=self.gtk.get_toplevel()) == "Yes":
             mainmenu.OOF.PixelGroup.DeleteAll(
                 microstructure=self.currentMSName())
 
@@ -703,8 +712,9 @@ class MicrostructurePage(oofGUI.MainPage):
         menuitem = mainmenu.OOF.PixelGroup.Copy
         nameparam = menuitem.get_arg('name')
         if parameterwidgets.getParameters(
-            nameparam,
-            title='Copy group '+self.currentGroup().name()):
+                nameparam,
+                parentwindow=self.gtk.get_toplevel(),
+                title='Copy group '+self.currentGroup().name()):
             menuitem.callWithDefaults(microstructure=self.currentMSName(),
                                       group=self.currentGroupName())
 
@@ -737,10 +747,11 @@ class MicrostructurePage(oofGUI.MainPage):
         menuitem = mainmenu.OOF.File.Save.Microstructure
         msname = self.currentMSName()
         if parameterwidgets.getParameters(
-            menuitem.get_arg('filename'),
-            menuitem.get_arg('mode'),
-            menuitem.get_arg('format'),
-            title="Save Microstructure '%s'" % msname):
+                menuitem.get_arg('filename'),
+                menuitem.get_arg('mode'),
+                menuitem.get_arg('format'),
+                parentwindow=self.gtk.get_toplevel(),
+                title="Save Microstructure '%s'" % msname):
             menuitem.callWithDefaults(microstructure=msname)
 
 mp = MicrostructurePage()

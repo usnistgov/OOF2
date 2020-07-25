@@ -250,9 +250,11 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
 
     def createCB(self, gtkobj): # create a named analysis
         menuitem = meshbdymenu.bdyanalysismenu.Create
-        if parameterwidgets.getParameters(menuitem.get_arg('name'),
-                                          title='Name an analysis operation',
-                                          scope=self):
+        if parameterwidgets.getParameters(
+                menuitem.get_arg('name'),
+                title='Name an analysis operation',
+                parentwindow=self.gtk.get_toplevel(),
+                scope=self):
             menuitem.callWithDefaults(
                 boundary=self.bdylist.get_value(),
                 analyzer=self.analysisWidget.get_value())
@@ -260,9 +262,10 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
     def deleteCB(self, gtkobj):
         menuitem = meshbdymenu.bdyanalysismenu.Delete
         if parameterwidgets.getParameters(
-            menuitem.get_arg('name'),
-            title='Delete a named boundary analysis',
-            scope=self):
+                menuitem.get_arg('name'),
+                title='Delete a named boundary analysis',
+                parentwindow=self.gtk.get_toplevel(),
+                scope=self):
             menuitem.callWithDefaults()
 
     def retrieveCB(self, gtkobj, name):
@@ -286,9 +289,10 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
     def savenamedCB(self, gtkobj):
         menuitem = meshbdymenu.bdyanalysismenu.SaveAnalysisDefs
         if parameterwidgets.getParameters(
-            title="Save Boundary Analysis Definitions",
-            ident="SaveAnalysis",
-            *menuitem.params):
+                title="Save Boundary Analysis Definitions",
+                ident="SaveAnalysis",
+                parentwindow=self.gtk.get_toplevel(),
+                *menuitem.params):
             menuitem.callWithDefaults()
 
 boundaryAnalysisPage = BoundaryAnalysisPage()

@@ -428,13 +428,15 @@ class MeshPage(oofGUI.MainPage):
         menuitem = mainmenu.OOF.Mesh.New
         params = filter(lambda x: x.name !='skeleton', menuitem.params)
         if parameterwidgets.getParameters(title='Create a new mesh',
+                                          parentwindow=self.gtk.get_toplevel(),
                                           scope=self, *params):
             menuitem.callWithDefaults(skeleton=self.currentSkeletonFullName())
 
     def deleteCB(self, *args):          # gtk button callback
         if reporter.query(
-            "Really delete %s?"%self.currentFullMeshName(),
-            "No", default="Yes") == "Yes":
+                "Really delete %s?"%self.currentFullMeshName(),
+                "No", default="Yes",
+                parentwindow=self.gtk.get_toplevel()) == "Yes":
             meshmenu.Delete(mesh=self.currentFullMeshName())
 
 ##    def removeMesh(self, path):    # switchboard ("remove who", "Mesh")
@@ -448,7 +450,9 @@ class MeshPage(oofGUI.MainPage):
         eqnparam = menuitem.get_arg("copy_equation")
         bcparam = menuitem.get_arg("copy_bc")
         if parameterwidgets.getParameters(nameparam, fieldparam, eqnparam,
-                                          bcparam, title='Copy a mesh'):
+                                          bcparam,
+                                          parentwindow=self.gtk.get_toplevel(),
+                                          title='Copy a mesh'):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName())
         
     def renameCB(self, *args):          # gtk button callback
@@ -457,6 +461,7 @@ class MeshPage(oofGUI.MainPage):
         curmeshpath = self.currentFullMeshName()
         namearg.value = labeltree.makePath(curmeshpath)[-1]
         if parameterwidgets.getParameters(namearg,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title='Rename mesh '+namearg.value):
             menuitem.callWithDefaults(mesh=curmeshpath)
 
@@ -465,6 +470,7 @@ class MeshPage(oofGUI.MainPage):
         meshname = self.meshwidget.get_value()
         params = filter(lambda x: x.name!="mesh", menuitem.params)
         if parameterwidgets.getParameters(ident='SaveMeshFromPage',
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title='Save Mesh "%s"' % meshname,
                                           *params):
             menuitem.callWithDefaults(mesh=meshname)
@@ -506,6 +512,7 @@ class MeshPage(oofGUI.MainPage):
         menuitem = mainmenu.OOF.Subproblem.New
         params = filter(lambda x: x.name != 'mesh', menuitem.params)
         if parameterwidgets.getParameters(title='Create a new subproblem',
+                                          parentwindow=self.gtk.get_toplevel(),
                                           scope=self, *params):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName())
     def subprobCopyCB(self, gtkobj):
@@ -517,6 +524,7 @@ class MeshPage(oofGUI.MainPage):
         meshparam.value = self.currentFullMeshName()
         params = filter(lambda x: x.name != 'subproblem', menuitem.params)
         if parameterwidgets.getParameters(title='Copy a subproblem',
+                                          parentwindow=self.gtk.get_toplevel(),
                                           scope=self, *params):
             menuitem.callWithDefaults(
                 subproblem=self.currentFullSubProblemName())
@@ -526,7 +534,9 @@ class MeshPage(oofGUI.MainPage):
         cursubprob = self.currentFullSubProblemName()
         namearg.value = labeltree.makePath(cursubprob)[-1]
         if parameterwidgets.getParameters(
-            namearg, title="Rename subproblem " + namearg.value):
+                namearg,
+                parentwindow=self.gtk.get_toplevel(),
+                title="Rename subproblem " + namearg.value):
             menuitem.callWithDefaults(subproblem=cursubprob)
 
     def subprobInfoCB(self, gtkobj):
@@ -535,8 +545,9 @@ class MeshPage(oofGUI.MainPage):
 
     def subprobDeleteCB(self, gtkobj):
         if reporter.query(
-            "Really delete %s" % self.currentFullSubProblemName(),
-            "No", default="Yes") == "Yes":
+                "Really delete %s" % self.currentFullSubProblemName(),
+                "No", default="Yes",
+                parentwindow=self.gtk.get_toplevel()) == "Yes":
             mainmenu.OOF.Subproblem.Delete(
                 subproblem=self.currentFullSubProblemName())
 
@@ -548,7 +559,9 @@ class MeshPage(oofGUI.MainPage):
             subpparam = menuitem.get_arg('subproblem')
             subpparam.set(subpctxt.subptype)
             if parameterwidgets.getParameters(
-                subpparam, title="Edit Subproblem definition", scope=self):
+                    subpparam,
+                    parentwindow=self.gtk.get_toplevel(),
+                    title="Edit Subproblem definition", scope=self):
                 menuitem.callWithDefaults(name=subprobname)
         
 

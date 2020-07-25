@@ -284,8 +284,9 @@ class PropertyPane:
                 # the menu item. 
                 params = [p for p in reg.params if p.name != 'name']
                 if parameterwidgets.getParameters(
-                    title='Parametrize '+self.current_property[0],
-                    *params):
+                        title='Parametrize '+self.current_property[0],
+                        parentwindow=self.parent.gtk.get_toplevel(),
+                        *params):
                     menuitem.callParamList(params)
             else:                       # should never happen
                 reporter.report("Property is not parametrizable.")
@@ -299,14 +300,16 @@ class PropertyPane:
         menuitem = OOF.Property.Copy
         newnameparam = menuitem.get_arg('new_name')
         if parameterwidgets.getParameters(
-            newnameparam,
-            title='Copy property ' + self.current_property[0]):
+                newnameparam,
+                parentwindow=self.parent.gtk.get_toplevel(),
+                title='Copy property ' + self.current_property[0]):
             if newnameparam.nontrivial():
                 menuitem.callWithDefaults(property=self.current_property[0])
 
     def GUIdelete(self, gtk):
         if reporter.query("Delete property %s?" % self.current_property[0],
-                          "OK", "Cancel", default="OK") == "OK":
+                          "OK", "Cancel", default="OK",
+                          parentwindow=self.parent.gtk.get_toplevel()) == "OK":
             OOF.Property.Delete(property=self.current_property[0])
 
 ########################################################################
@@ -514,16 +517,20 @@ class MaterialPane:
 
     def on_newmaterial(self, button):   # gtk callback
         menuitem = OOF.Material.New
-        if parameterwidgets.getParameters(title='New material',
-                                          *menuitem.params):
+        if parameterwidgets.getParameters(
+                title='New material',
+                parentwindow=self.parent.gtk.get_toplevel(),
+                *menuitem.params):
             if menuitem.get_arg('name').nontrivial():
                 menuitem.callWithDefaults()
 
     def on_delete(self, button):        # gtk callback
         name = self.currentMaterialName()
         if name is not None:
-            if reporter.query("Delete material %s?" % name,
-                              'OK', 'Cancel', default='OK') == 'OK':
+            if reporter.query(
+                    "Delete material %s?" % name,
+                    'OK', 'Cancel', default='OK',
+                    parentwindow=self.parent.gtk.get_toplevel()) == 'OK':
                 OOF.Material.Delete(name=name)
             
     def new_mat(self, name):            # switchboard "new_material"
@@ -544,7 +551,9 @@ class MaterialPane:
             menuitem = OOF.Material.Rename
             newnameparam = menuitem.get_arg("name")
             if parameterwidgets.getParameters(
-                newnameparam, title="New name for the material."):
+                    newnameparam,
+                    parentwindow=self.parent.gtk.get_toplevel(),
+                    title="New name for the material."):
                 if newnameparam.nontrivial():
                     menuitem.callWithDefaults(material=oldname)
             
@@ -555,7 +564,9 @@ class MaterialPane:
             menuitem = OOF.Material.Copy
             newnameparam = menuitem.get_arg('new_name')
             if parameterwidgets.getParameters(
-                newnameparam, title="Name for the new material."):
+                    newnameparam,
+                    parentwindow=self.parent.gtk.get_toplevel(),
+                    title="Name for the new material."):
                 if newnameparam.nontrivial():
                     menuitem.callWithDefaults(name=oldname)
 
@@ -571,13 +582,16 @@ class MaterialPane:
         params = filter(lambda x: x.name != 'material', menuitem.params)
         materialname = self.currentMaterialName()
         if parameterwidgets.getParameters(
-            title="Assign material %s to pixels" % materialname, *params):
+                parentwindow=self.parent.gtk.get_toplevel(),
+                title="Assign material %s to pixels" % materialname, *params):
             menuitem.callWithDefaults(material=materialname)
 
     def on_MS_remove_material(self, button): # gtk callback
         menuitem = OOF.Material.Remove
         if parameterwidgets.getParameters(
-            title='Remove the assigned material from pixels', *menuitem.params):
+                parentwindow=self.parent.gtk.get_toplevel(),
+                title='Remove the assigned material from pixels',
+                *menuitem.params):
             menuitem.callWithDefaults()
 
     #Interface branch
@@ -586,11 +600,14 @@ class MaterialPane:
         params = filter(lambda x: x.name != 'material', menuitem.params)
         materialname = self.currentMaterialName()
         if parameterwidgets.getParameters(
-            title="Assign material %s to an interface" % materialname, *params):
+                parentwindow=self.parent.gtk.get_toplevel(),
+                title="Assign material %s to an interface" % materialname,
+                *params):
             menuitem.callWithDefaults(material=materialname)
     def on_interface_remove(self, button):
         menuitem = OOF.Material.Interface.Remove
         if parameterwidgets.getParameters(
+                parentwindow=self.parent.gtk.get_toplevel(),
                 title='Remove the assigned material from interface',
                 *menuitem.params):
             menuitem.callWithDefaults()
@@ -601,9 +618,10 @@ class MaterialPane:
         materialname = self.currentMaterialName()
         params = filter(lambda x: x.name != "materials", menuitem.params)
         if parameterwidgets.getParameters(
-            title='Save Material "%s"' % materialname,
-            ident='SaveMat',
-            *params):
+                parentwindow=self.parent.gtk.get_toplevel(),
+                title='Save Material "%s"' % materialname,
+                ident='SaveMat',
+                *params):
             menuitem.callWithDefaults(materials=[materialname])
         
     #########
@@ -684,6 +702,7 @@ def _save_prop(menuitem):
         params = filter(lambda x: x.name!="property", menuitem.params)
         if parameterwidgets.getParameters(ident='PropMenu',
                                           title='Save Property',
+                                          parentwindow=oofGUI.gui.gtk,
                                           *params):
             menuitem.callWithDefaults(property=propname)
     else:

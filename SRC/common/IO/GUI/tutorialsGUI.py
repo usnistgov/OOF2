@@ -308,7 +308,8 @@ class TutorialClassGUI(subWindow.SubWindow):
 
     def saveCB(self, *args):
         filename = fileselector.getFile(
-            ident="FileMenu", title="Save Tutorial Session")
+            ident="FileMenu", title="Save Tutorial Session",
+            parentwindow=self.gtk)
         if filename is not None:
             phile = file(filename, "w")
             mainmenu.OOF.saveLog(phile)

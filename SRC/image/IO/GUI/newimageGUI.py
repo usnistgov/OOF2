@@ -13,6 +13,7 @@
 # module.
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.image import oofimage
 from ooflib.common import debug
@@ -30,6 +31,7 @@ from gi.repository import Gtk
 def newMSfromImage(button):
     menuitem = microstructuremenu.micromenu.Create_From_Image
     if parameterwidgets.getParameters(title='Create Microstructure from Image',
+                                      parentwindow=guitop.top().gtk,
                                       *menuitem.params):
         menuitem.callWithDefaults()
 
@@ -58,8 +60,9 @@ switchboard.requestCallbackMain(('remove who', 'Image'), newwhoCB)
 def newMSfromImageFile(button):
     menuitem = microstructuremenu.micromenu.Create_From_ImageFile
     if parameterwidgets.getParameters(
-        title='Load Image and create Microstructure',
-        *menuitem.params):
+            title='Load Image and create Microstructure',
+            parentwindow=guitop.top().gtk,
+            *menuitem.params):
         menuitem.callWithDefaults()
 
 from ooflib.common.IO.GUI import fileselector

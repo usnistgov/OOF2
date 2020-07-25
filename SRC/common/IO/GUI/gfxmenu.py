@@ -18,13 +18,12 @@ from ooflib.common.IO.oofmenu import *
 from gi.repository import Gdk
 from gi.repository import Gtk
 
-def gtkOOFMenu(menu, accelgroup=None):
-    """
-    Function to turn an OOFMenu into GTK+.  The leading GtkMenuItem is
-    returned.
-    """
+def gtkOOFMenu(menu, accelgroup=None, parentwindow=None):
+    # Function to turn an OOFMenu into GTK+.  The leading GtkMenuItem
+    # is returned.
     debug.mainthreadTest()
     base = Gtk.MenuItem(utils.underscore2space(menu.name))
+    menu.parentwindow = parentwindow
     gtklogger.setWidgetName(base, menu.name)
     new_gtkmenu = Gtk.Menu()
     try:
@@ -43,12 +42,11 @@ def gtkOOFMenu(menu, accelgroup=None):
     return base
 
 
-def gtkOOFMenuBar(menu, bar=None, accelgroup=None):
-    """
-    Function to turn an OOFMenu into a GTK+ MenuBar.  Reuse the given
-    GtkMenuBar, if one is provided.
-    """
+def gtkOOFMenuBar(menu, bar=None, accelgroup=None, parentwindow=None):
+    # Function to turn an OOFMenu into a GTK+ MenuBar.  Reuse the
+    # given GtkMenuBar, if one is provided.
     debug.mainthreadTest()
+    menu.parentwindow = parentwindow
     if bar is not None:
         # remove old menus from bar
         bar.foreach(Gtk.Widget.destroy)
@@ -107,8 +105,10 @@ class MenuCallBackWrapper:
             if self.menuitem.nargs() > 0:
                 # Ask for args in a standard dialog box.
                 if parameterwidgets.getParameters(
-                    title=self.menuitem.name, data={'menuitem':self.menuitem},
-                    *self.menuitem.params):
+                        title=self.menuitem.name,
+                        data={'menuitem':self.menuitem},
+                        parentwindow=self.findParentWindow(),
+                        *self.menuitem.params):
                     # Call and log the cli callback.
                     self.menuitem.callWithDefaults()
             else:
@@ -117,6 +117,14 @@ class MenuCallBackWrapper:
         else:
             # Call, but don't log, the gui callback.
             self.menuitem.gui_callback(self.menuitem)
+    def findParentWindow(self, menuitem=None):
+        m = menuitem or self.menuitem
+        if m is None:
+            return None
+        try:
+            return m.parentwindow
+        except AttributeError:
+            return self.findParentWindow(m.parent)
 
 def _menuItemName(self):
     name = utils.underscore2space(self.name)
@@ -175,7 +183,8 @@ def _OOFMenuItem_construct_gui(self, base, parent_menu, accelgroup):
             for item in self.items:
                 item.construct_gui(self, new_gtkmenu, accelgroup) # recursive!
         else:                               # no submenu, create command
-            gtklogger.connect(new_gtkitem, 'activate', MenuCallBackWrapper(self))
+            gtklogger.connect(
+                new_gtkitem, 'activate', MenuCallBackWrapper(self))
             if self.accel is not None and accelgroup is not None:
                 new_gtkitem.add_accelerator('activate', accelgroup,
                                             ord(self.accel),
@@ -313,8 +322,8 @@ def _CheckOOFMenuItem_construct_gui(self, base, parent_menu, accelgroup):
         # is item-for-item correspondence of the lists.  They're used
         # to suppress recursion when the state of the check mark is
         # set manually.
-        new_handler = gtklogger.connect(new_gtkitem, 'activate',
-                                        CheckMenuCallBackWrapper(self))
+        new_handler = gtklogger.connect(
+            new_gtkitem, 'activate', CheckMenuCallBackWrapper(self))
         try:
             self.handlerid.append(new_handler)
         except AttributeError:
@@ -395,8 +404,8 @@ def _RadioOOFMenuItem_construct_gui(self, base, parent_menu, accelgroup):
                                     Gdk.ModifierType.CONTROL_MASK,
                                     Gtk.AccelFlags.VISIBLE)
         
-    new_handlerid = gtklogger.connect(new_gtkitem, 'activate',
-                                     RadioMenuCallBackWrapper(self))
+    new_handlerid = gtklogger.connect(
+        new_gtkitem, 'activate', RadioMenuCallBackWrapper(self))
 
     try:
         self.handlerid.append(new_handlerid)

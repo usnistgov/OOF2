@@ -585,8 +585,9 @@ class GroupGUI:
         menuitem = self.activemode().getGroupMenu().New_Group
         group_param = menuitem.get_arg('name')
         if parameterwidgets.getParameters(
-            group_param,
-            title='Create a new %s group' % self.activemode().name()):
+                group_param,
+                parentwindow=self.gtk.get_toplevel(),
+                title='Create a new %s group' % self.activemode().name()):
             menuitem.callWithDefaults(skeleton=skelpath)
 
     def autoGroupCB(self, gtkobj): # "auto group" button callback
@@ -602,7 +603,9 @@ class GroupGUI:
         new_group_param = menuitem.get_arg('new_name')
         new_group_param.value = current_group
         if parameterwidgets.getParameters(
-            new_group_param, title='Rename group %s' % current_group):
+                new_group_param,
+                parentwindow=self.gtk.get_toplevel(),
+                title='Rename group %s' % current_group):
             menuitem.callWithDefaults(skeleton=skelpath,
                                       group=current_group)
 
@@ -613,8 +616,9 @@ class GroupGUI:
         menuitem = self.activemode().getGroupMenu().Copy_Group
         new_group_param = menuitem.get_arg('new_name')
         if parameterwidgets.getParameters(
-            new_group_param,
-            title='Copy group %s' % current_group):
+                new_group_param,
+                parentwindow=self.gtk.get_toplevel(),
+                title='Copy group %s' % current_group):
             menuitem.callWithDefaults(skeleton=skelpath,
                                       group=current_group)
 
@@ -669,8 +673,9 @@ class GroupGUI:
         current_group = self.grouplist.get_value()
         menuitem = self.activemode().getGroupMenu().Assign_Material
         if parameterwidgets.getParameters(
-            menuitem.get_arg('material'),
-            title="Assign a material to a %s group" % self.activemode().name()):
+                menuitem.get_arg('material'),
+                parentwindow=self.gtk.get_toplevel(),
+                title="Assign a material to a %s group" % self.activemode().name()):
             menuitem.callWithDefaults(skeleton=skelpath, group=current_group)
 
     def removeMaterialCB(self, gtkobj):

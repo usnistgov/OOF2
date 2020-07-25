@@ -8,6 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.orientationmap import orientmapdata
 from ooflib.common.IO import microstructuremenu
@@ -43,8 +44,9 @@ switchboard.requestCallback('OrientationMap changed', _updateCB)
 def _newMSfromOrientationMap(button):
     menuitem = microstructuremenu.micromenu.Create_From_OrientationMap_File
     if parameterwidgets.getParameters(
-        title='Create Microstructure from Orientation Map file',
-        *menuitem.params):
+            title='Create Microstructure from Orientation Map file',
+            parentwindow=guitop.top().gtkk,
+            *menuitem.params):
         menuitem.callWithDefaults()
 
 newfromorientmapbutton = gtkutils.StockButton("document-new-symbolic",

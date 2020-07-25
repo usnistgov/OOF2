@@ -437,20 +437,25 @@ class SkeletonPage(oofGUI.MainPage):
     def new_skeleton_CB(self, gtkobj): # gtk callback for "New..." button
         paramset = filter(lambda x: x.name!='microstructure',
                           skeletonmenu.New.params)
-        if parameterwidgets.getParameters(title='New skeleton', *paramset):
+        if parameterwidgets.getParameters(title='New skeleton',
+                                          parentwindow=self.gtk.get_toplevel(),
+                                          *paramset):
             skeletonmenu.New.callWithDefaults(
                 microstructure=self.currentMSName())
 
     def simple_skeleton_CB(self, gtkobj): # gtk callback for "Simple..." button
         paramset = filter(lambda x: x.name!='microstructure',
                           skeletonmenu.Simple.params)
-        if parameterwidgets.getParameters(title='Simple skeleton', *paramset):
+        if parameterwidgets.getParameters(title='Simple skeleton',
+                                          parentwindow=self.gtk.get_toplevel(),
+                                          *paramset):
             skeletonmenu.Simple.callWithDefaults(
                 microstructure=self.currentMSName())
     def autoCB(self, gtkobj):           # gtk callback for "Auto..." button
         paramset = filter(lambda x: x.name!='microstructure',
                           skeletonmenu.Auto.params)
         if parameterwidgets.getParameters(title='Automatic skeleton',
+                                          parentwindow=self.gtk.get_toplevel(),
                                           *paramset):
             skeletonmenu.Auto.callWithDefaults(
                 microstructure=self.currentMSName())
@@ -458,20 +463,25 @@ class SkeletonPage(oofGUI.MainPage):
     def copy_skeleton_CB(self, gtkobj): # gtk callback for "Copy..." button
         menuitem = skeletonmenu.Copy
         namearg = menuitem.get_arg('name')
-        if parameterwidgets.getParameters(namearg, title='Copy skeleton'):
+        if parameterwidgets.getParameters(namearg,
+                                          parentwindow=self.gtk.get_toplevel(),
+                                          title='Copy skeleton'):
             menuitem.callWithDefaults(skeleton=self.skelwidget.get_value())
 
     def rename_skeleton_CB(self, gtkobj): # gtk callback for "Rename..." button
         menuitem = skeletonmenu.Rename
         namearg = menuitem.get_arg('name')
         namearg.value = labeltree.makePath(self.skelwidget.get_value())[-1]
-        if parameterwidgets.getParameters(namearg, title='Rename skeleton'):
+        if parameterwidgets.getParameters(namearg,
+                                          parentwindow=self.gtk.get_toplevel(),
+                                          title='Rename skeleton'):
             menuitem.callWithDefaults(skeleton=self.skelwidget.get_value())
 
     def delete_skeletonCB(self, gtkobj): # gtk callback for Delete button.
         skelname = self.currentSkeletonName()
         if reporter.query("Delete skeleton %s?" % skelname,
-                          "OK", "Cancel", default="OK")=="OK":
+                          "OK", "Cancel", default="OK",
+                          parentwindow=self.gtk.get_toplevel())=="OK":
             menuitem = skeletonmenu.Delete
             menuitem.callWithDefaults(skeleton=self.skelwidget.get_value())
 
@@ -572,7 +582,8 @@ class SkeletonPage(oofGUI.MainPage):
         menuitem = mainmenu.OOF.File.Save.Skeleton
         skelname = self.skelwidget.get_value()
         params = filter(lambda x: x.name!="skeleton", menuitem.params)
-        if parameterwidgets.getParameters(title='Save Skeleton "%s"' % skelname,
+        if parameterwidgets.getParameters(parentwindow=self.gtk.get_toplevel(),
+                                          title='Save Skeleton "%s"' % skelname,
                                           *params):
             menuitem.callWithDefaults(skeleton=skelname)
 

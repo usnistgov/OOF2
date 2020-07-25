@@ -314,6 +314,7 @@ class ImagePage(oofGUI.MainPage):
     def loadCB(self, button):
         menuitem = mainmenu.OOF.File.Load.Image
         if parameterwidgets.getParameters(title='Load Image',
+                                          parentwindow=self.gtk.get_toplevel(),
                                           *menuitem.params):
             menuitem.callWithDefaults()
 
@@ -322,6 +323,7 @@ class ImagePage(oofGUI.MainPage):
         nameparam = menuitem.get_arg('name')
         msparam = menuitem.get_arg('microstructure')
         if parameterwidgets.getParameters(msparam, nameparam,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title="Copy Image"):
             menuitem.callWithDefaults(image=self.imagewidget.get_value())
 
@@ -329,19 +331,24 @@ class ImagePage(oofGUI.MainPage):
         menuitem = mainmenu.OOF.Image.Rename
         namearg = menuitem.get_arg('name')
         namearg.value = labeltree.makePath(self.imagewidget.get_value())[-1]
-        if parameterwidgets.getParameters(namearg, title='Rename Image'):
+        if parameterwidgets.getParameters(namearg,
+                                          parentwindow=self.gtk.get_toplevel(),
+                                          title='Rename Image'):
             menuitem.callWithDefaults(image=self.imagewidget.get_value())
 
     def deleteCB(self, button):
         if reporter.query("Really delete %s?"
                           % self.getCurrentImageName(),
-                          "No", default="Yes") == "Yes":
+                          "No", default="Yes",
+                          parentwindow=self.gtk.get_toplevel()) == "Yes":
             mainmenu.OOF.Image.Delete(image=self.imagewidget.get_value())
             
     def saveCB(self,button):
         menuitem = mainmenu.OOF.File.Save.Image
         params = filter(lambda x: x.name!="image", menuitem.params)
-        if parameterwidgets.getParameters(title='Save Image', *params):
+        if parameterwidgets.getParameters(
+                parentwindow=self.gtk.get_toplevel(), title='Save Image',
+                *params):
             menuitem.callWithDefaults(image=self.imagewidget.get_value())
                                           
     def okbuttonCB(self, button):
@@ -376,7 +383,9 @@ class ImagePage(oofGUI.MainPage):
     def autogroupCB(self, button):
         menuitem = mainmenu.OOF.Image.AutoGroup
         params = [p for p in menuitem.params if p.name != 'image']
-        if parameterwidgets.getParameters(title='AutoGroup', *params):
+        if parameterwidgets.getParameters(title='AutoGroup',
+                                          parentwindow=self.gtk.get_toplevel(),
+                                          *params):
             menuitem.callWithDefaults(image=self.imagewidget.get_value())
 
         

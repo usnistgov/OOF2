@@ -351,6 +351,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             what.value = self.selectedLayer.who.path()
             how.value = self.selectedLayer
             if parameterwidgets.getParameters(category, what, how,
+                                              parentwindow=self.gtk,
                                               title="Edit Graphics Layer"):
                 menuitem.callWithDefaults(n=self.layerID(self.selectedLayer))
 

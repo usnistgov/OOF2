@@ -426,8 +426,11 @@ class WriteFileSelectorWidget(FileSelectorWidget):
 
     def newdirCB(self, button):
         dirnameparam = parameter.StringParameter('directory name')
+        topwin = self.gtk.get_toplevel()
+        assert isinstance(topwin, Gtk.Window)
         if parameterwidgets.getParameters(dirnameparam,
-                                          title="New Directory"):
+                                          title="New Directory",
+                                          parentwindow=topwin):
             if dirnameparam.value[0] != os.sep:
                 dirname = os.path.join(self.cwd(), dirnameparam.value)
             else:
@@ -647,14 +650,16 @@ filenameparam.OverwriteParameter.makeWidget = _overwriteParam_makeWidget
 # it's necessary to get a bunch of parameter values that include a
 # FileNameParameter, use parameterwidgets.getParameters() instead.
 
-def getFileAndMode(ident=None, title=""):
+def getFileAndMode(ident=None, title="", parentwindow=None):
     fileparam = filenameparam.WriteFileNameParameter('filename', ident=ident)
     modeparam = filenameparam.WriteModeParameter('mode')
-    if parameterwidgets.getParameters(fileparam, modeparam, title=title):
+    if parameterwidgets.getParameters(fileparam, modeparam, title=title,
+                                      parentwindow=parentwindow):
         return fileparam.value, modeparam.value.string()
 
-def getFile(ident=None, title=""):
+def getFile(ident=None, title="", parentwindow=None):
     fileparam = filenameparam.WriteFileNameParameter('filename', ident=ident)
-    if parameterwidgets.getParameters(fileparam, title=title):
+    if parameterwidgets.getParameters(fileparam, title=title,
+                                      parentwindow=parentwindow):
         return fileparam.value
 

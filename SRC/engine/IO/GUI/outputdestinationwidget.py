@@ -145,6 +145,7 @@ class TextDestinationWidget(parameterwidgets.ParameterWidget):
         fileparam = outputdestination.newreg.getParameter('filename')
         modeparam = outputdestination.newreg.getParameter('mode')
         if parameterwidgets.getParameters(fileparam, modeparam,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title="Add a data destination"):
             newname = fileparam.value
             # Create the OutputDestination object.  This calls

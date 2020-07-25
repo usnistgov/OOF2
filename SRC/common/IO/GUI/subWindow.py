@@ -76,6 +76,9 @@ class SubWindow:
                 no_log=1, gui_only=1,
                 help="Quit the OOF application.",
                 accel='q', threadable = oofmenu.UNTHREADABLE))
+            # quit.queryQuit uses menuitem.data to know which window
+            # to use as the base for its dialog box.
+            file_item.Quit.data = self.gtk
                               
             mainmenu.OOF.addItem(self.subwindow_menu)
             self._local_menu = menu
@@ -90,7 +93,8 @@ class SubWindow:
         self.accel_group = Gtk.AccelGroup()
         self.gtk.add_accel_group(self.accel_group)
         self.menu_bar = gfxmenu.gtkOOFMenuBar(
-            self.subwindow_menu, accelgroup=self.accel_group)
+            self.subwindow_menu, accelgroup=self.accel_group,
+            parentwindow=self.gtk)
         if guiloggable:
             gtklogger.setWidgetName(self.menu_bar, "MenuBar")
 
@@ -98,8 +102,8 @@ class SubWindow:
                                 padding=0)
 
         # Add the "Windows" menu to the bar.
-        self.windows_gtk_menu_item = gfxmenu.gtkOOFMenu(mainmenu.OOF.Windows,
-                                                        self.accel_group)
+        self.windows_gtk_menu_item = gfxmenu.gtkOOFMenu(
+            mainmenu.OOF.Windows, self.accel_group, parentwindow=self.gtk)
         self.menu_bar.append(self.windows_gtk_menu_item)
 
         self.menu_bar.connect("destroy", self.menu_bar_destroyed)

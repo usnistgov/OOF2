@@ -27,6 +27,10 @@ from gi.repository import Gtk
 
 outputmenu = scheduledoutputmenu.outputmenu
 
+## TODO GTK3: parentwindow args were added here before they were
+## supported in ParamterDialog.  These use guitop.top().gtk instead of
+## self.gtk.get_toplevel().  Does it matter?
+
 class OutputPage(oofGUI.MainPage):
     def __init__(self):
         oofGUI.MainPage.__init__(
@@ -494,8 +498,8 @@ class OutputPage(oofGUI.MainPage):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName())
     
     def deleteAllCB(self, gtkbutton):
-        if reporter.query("Really delete all scheduled outputs?", "Yes", "No") \
-           == "Yes":
+        if reporter.query("Really delete all scheduled outputs?", "Yes", "No",
+                          parentwindow=guitiop.top().gtk) == "Yes":
             outputmenu.DeleteAll.callWithDefaults(
                 mesh=self.currentFullMeshName())
 

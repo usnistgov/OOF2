@@ -229,6 +229,7 @@ class AutoWidget(GenericWidget):
                  **kwargs):
         self.automatic = True
         self.autotext = autotext or "automatic"
+        self.stylecontext = None
         self.autocolor = autocolor or Gdk.RGBA(0.7, 0.7, 0.7, 1.0)
         # manualcolor is the text color when not in automatic mode.
         ## TODO GTK3: manualcolor should not be assumed to be black.
@@ -236,6 +237,7 @@ class AutoWidget(GenericWidget):
         GenericWidget.__init__(self, param, scope, name, **kwargs)
         gtklogger.connect(self.gtk, 'key-press-event', self.keypressCB)
         gtklogger.connect_after(self.gtk, 'key-release-event',self.keyreleaseCB)
+
     def set_value(self, newvalue):
         # If newvalue is not a string, the derived class might need to
         # override this method.  The derived class method should call
@@ -293,11 +295,18 @@ class AutoWidget(GenericWidget):
         return False            # False means "call other event handlers"
     def enterAutoMode(self):
         self.automatic = True
+        ## TODO GTK3: Gtk.Widget.override_color is deprecated.  Use
+        ## CSS instead.
         self.gtk.override_color(Gtk.StateFlags.NORMAL, self.autocolor)
         self.gtk.set_text(self.autotext)
     def enterManualMode(self):
         self.automatic = False
         self.gtk.override_color(Gtk.StateFlags.NORMAL, self.manualcolor)
+    def getColors(self):
+        if self.stylecontext is None:
+            self.stylecontext = self.gtk.get_style_context()
+        return (self.stylecontext.get_color(Gtk.StateFlags.NORMAL),
+                self.stylecontext.get_background_color(Gtk.StateFlags.NORMAL))
     
 class AutoNameWidget(AutoWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
@@ -862,8 +871,6 @@ class HierParameterTable(ParameterTable):
 # Modal dialog for setting Parameters
 
 class ParameterDialog(widgetscope.WidgetScope):
-    # OK = 1   # Use Gtk.ResponseType.OK instead
-    # CANCEL = 2
     def __init__(self, *parameters, **kwargs):
         debug.mainthreadTest()
         # A title for the dialog box can be specified by a REQUIRED
@@ -872,11 +879,10 @@ class ParameterDialog(widgetscope.WidgetScope):
         # with the 'parentwindow' argument, the dialog will be brought
         # up as a transient window for it.
 
-        ## TODO: Use dict.get() instead of try/except here.
-        try:
-            scope = kwargs['scope']
-        except KeyError:
-            scope = None
+        parentwindow = kwargs['parentwindow'] # required!
+        assert isinstance(parentwindow, Gtk.Window)
+
+        scope = kwargs.get('scope', None)
         widgetscope.WidgetScope.__init__(self, scope)
 
         try:
@@ -885,11 +891,6 @@ class ParameterDialog(widgetscope.WidgetScope):
             pass
         else:
             self.__dict__.update(data_dict)
-
-        try:
-            parentwindow = kwargs['parentwindow']
-        except KeyError:
-            parentwindow=None
 
         try:
             scopedata = kwargs['data']
@@ -1055,10 +1056,12 @@ class PersistentParameterDialog(ParameterDialog):
 # passed-in menu item to be run with the provided defaults, via
 # menuitem.callWithDefaults(**defaults).  OK events close the dialog,
 # APPLY events cause the dialog to persist.
-def persistentMenuitemDialog(menuitem, defaults, *params, **kwargs):
+def persistentMenuitemDialog(menuitem, defaults, parentwindow,
+                             *params, **kwargs):
     rerun = True
     count = 0
-    dialog = PersistentParameterDialog(*params,**kwargs)
+    dialog = PersistentParameterDialog(parentwindow=parentwindow,
+                                       *params, **kwargs)
     while rerun:
         result = dialog.run()
         if result in (Gtk.ResponseType.CANCEL,
@@ -1080,8 +1083,9 @@ def persistentMenuitemDialog(menuitem, defaults, *params, **kwargs):
     
     return count
 
-def transientMenuItemDialog(menuitem, defaults, *params, **kwargs):
-    dialog = ParameterDialog(*params, **kwargs)
+def transientMenuItemDialog(menuitem, defaults, parentwindow,
+                            *params, **kwargs):
+    dialog = ParameterDialog(parentwindow=parentwindow, *params, **kwargs)
     result = dialog.run()
     if result == Gtk.ResponseType.OK:
         dialog.get_values()

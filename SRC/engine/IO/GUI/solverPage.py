@@ -638,6 +638,7 @@ class SolverPage(oofGUI.MainPage):
         targetparam.set(self.currentFullSubProblemName())
         if parameterwidgets.getParameters(
             targetparam,
+                parentwindow=self.gtk.get_toplevel(),
             title="Copy a Solver to a Subproblem"):
             menuitem.callWithDefaults(source=self.currentFullSubProblemName())
 
@@ -646,8 +647,9 @@ class SolverPage(oofGUI.MainPage):
         targetparam = menuitem.get_arg("target")
         targetparam.set(self.currentFullMeshName())
         if parameterwidgets.getParameters(
-            targetparam,
-            title="Copy all Solvers to a Mesh"):
+                targetparam,
+                parentwindow=self.gtk.get_toplevel(),
+                title="Copy all Solvers to a Mesh"):
             menuitem.callWithDefaults(source=self.currentFullMeshName())
 
     def removeSolverCB(self, button): # gtk callback
@@ -788,9 +790,10 @@ class SolverPage(oofGUI.MainPage):
             bcwidget = bcparam.makeWidget()
             self.addWidget(bcwidget)
             if parameterwidgets.getParameters(
-                iparam,
-                scope=self,
-                title='Initialize BC ' + bc.name()):
+                    iparam,
+                    scope=self,
+                    parentwindow=self.gtk.get_toplevel(),
+                    title='Initialize BC ' + bc.name()):
                 menuitem.callWithDefaults(mesh=self.currentFullMeshName())
             self.removeWidget(bcwidget)
             bcwidget.destroy()
@@ -813,7 +816,7 @@ class SolverPage(oofGUI.MainPage):
         targetparam = menuitem.get_arg("target")
         targetparam.set(self.currentFullMeshName())
         if parameterwidgets.getParameters(targetparam,
-                                          parentwindow=guitop.top().gtk,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title="Select a target Mesh"):
             menuitem.callWithDefaults(source=self.currentFullMeshName())
 
@@ -839,7 +842,9 @@ class SolverPage(oofGUI.MainPage):
     def applyinitatCB(self, button): # apply all initializers and set time
         menuitem = meshmenu.Apply_Field_Initializers_at_Time
         if parameterwidgets.getParameters(
-            menuitem.get_arg('time'), title="Initialize Fields at Time"):
+                menuitem.get_arg('time'),
+                parentwindow=self.gtk.get_toplevel(),
+                title="Initialize Fields at Time"):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName())
 
     # Functions that the TreeView machinery calls to fill in the

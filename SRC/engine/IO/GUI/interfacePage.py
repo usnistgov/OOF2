@@ -193,9 +193,9 @@ class InterfacePage(oofGUI.MainPage):
         menuitem=mainmenu.OOF.Microstructure.Interface.New
         params = filter(lambda x: x.name != 'microstructure', menuitem.params)
         if parameterwidgets.getParameters(
-            title="Create interface in microstructure %s" % msname,
-            scope=self,
-            *params):
+                title="Create interface in microstructure %s" % msname,
+                parentwindow=self.gtk.get_toplevel(),
+                scope=self, *params):
             menuitem.callWithDefaults(microstructure=msname)
 
     def renameInterfaceCB(self,gtkobj):
@@ -204,7 +204,9 @@ class InterfacePage(oofGUI.MainPage):
         oldname = self.interfacelist.get_value()
         newname.set(oldname)
         if parameterwidgets.getParameters(
-            newname, title="New name for this interface"):
+                newname,
+                parentwindow=self.gtk.get_toplevel(),
+                title="New name for this interface"):
             menuitem.callWithDefaults(
                 microstructure=self.skelwidget.get_value(depth=1),
                 interface=self.interfacelist.get_value())
@@ -219,8 +221,9 @@ class InterfacePage(oofGUI.MainPage):
         matparam=menuitem.get_arg('material')
         interfacename=self.interfacelist.get_value()
         if parameterwidgets.getParameters(
-            matparam,
-            title="Assign material to interface %s" % interfacename):
+                matparam,
+                parentwindow=self.gtk.get_toplevel(),
+                title="Assign material to interface %s" % interfacename):
             menuitem.callWithDefaults(
                 microstructure=self.skelwidget.get_value(depth=1),
                 interfaces=[interfacename],

@@ -424,6 +424,7 @@ class FieldPage(oofGUI.MainPage):
         
         targetparam.set(self.currentFullSubProblemName())
         if parameterwidgets.getParameters(targetparam,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title="Select a target Subproblem"):
             menuitem.callWithDefaults(source=self.currentFullSubProblemName())
 
@@ -432,6 +433,7 @@ class FieldPage(oofGUI.MainPage):
         targetparam = menuitem.get_arg("target")
         targetparam.set(self.currentFullSubProblemName())
         if parameterwidgets.getParameters(targetparam,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title="Select a target subproblem"):
             menuitem.callWithDefaults(source=self.currentFullSubProblemName())
 

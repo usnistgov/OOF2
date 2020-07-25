@@ -302,6 +302,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         targetnameparam.value = csname
         if parameterwidgets.getParameters(targetmeshparam,
                                           targetnameparam,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title='Copy cross section ' + csname):
             menuitem.callWithDefaults(current=meshobj.path(),
                                       cross_section=csname)

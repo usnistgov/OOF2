@@ -298,8 +298,9 @@ class BoundaryCondPage(oofGUI.MainPage):
             boundaryparam.set(bc.boundary)
             meshnameparam = menuitem.get_arg("mesh")
             if parameterwidgets.getParameters(
-                newnameparam, meshnameparam, boundaryparam,
-                title="Choose a name and boundary.", scope=self):
+                    newnameparam, meshnameparam, boundaryparam,
+                    parentwindow=self.gtk.get_toplevel(),
+                    title="Choose a name and boundary.", scope=self):
                 menuitem.callWithDefaults(current=currentmesh, bc=bcname,
                                           boundary=boundaryparam.value)
 
@@ -310,8 +311,9 @@ class BoundaryCondPage(oofGUI.MainPage):
             menuitem = boundaryconditionmenu.bcmenu.Copy_All
             meshnameparam = menuitem.get_arg("mesh")
             if parameterwidgets.getParameters(
-                meshnameparam,
-                title="Choose the target mesh.", scope=self):
+                    meshnameparam,
+                    parentwindow=self.gtk.get_toplevel(),
+                    title="Choose the target mesh.", scope=self):
                 menuitem.callWithDefaults(current=currentmesh)
     
     def bcEdit_CB(self, *args):
@@ -327,8 +329,9 @@ class BoundaryCondPage(oofGUI.MainPage):
             condition_param.set(condition_obj)
 
             if parameterwidgets.getParameters(
-                condition_param, title="Edit Boundary Condition",
-                scope=self):
+                    condition_param, title="Edit Boundary Condition",
+                    parentwindow=self.gtk.get_toplevel(),
+                    scope=self):
                 menuitem.callWithDefaults(name=bcname, mesh=meshname)
                 
     def bcRename_CB(self, gtkobj):
@@ -340,6 +343,7 @@ class BoundaryCondPage(oofGUI.MainPage):
             newnameparam.value = bcname
             if parameterwidgets.getParameters(
                     newnameparam,
+                    parentwindow=self.gtk.get_toplevel(),
                     title="Rename the boundary condition '%s'" % bcname):
                 menuitem.callWithDefaults(mesh=meshname, bc=bcname)
 

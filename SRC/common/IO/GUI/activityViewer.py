@@ -14,6 +14,12 @@
 ## TODO MAYBE: Put progress bars at the bottom of the Message window,
 ## and don't have a separate Activity Viewer window.
 
+## TODO GTK3: The Close menu item added here shouldn't be necessary
+## since the SubWindow constructor already adds a Close item.  But the
+## calling sequence initiated by that menu item may not be correct.
+## Check that it's working.  Probably need to have a close() method
+## that's overwritten in SubWindow subclasses.
+
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import progress
@@ -62,7 +68,8 @@ class ActivityViewer(subWindow.SubWindow):
     def __init__(self):
         debug.mainthreadTest()
         self.listofgtkbars = []
-        self.makeMenus()  # Sets self.menu.
+        # self.makeMenus()  # Sets self.menu.
+
         # SubWindow init sets self.gtk and self.mainbox.
         
         subWindow.SubWindow.__init__(
@@ -171,18 +178,18 @@ class ActivityViewer(subWindow.SubWindow):
             self.proglock.release()
         self.sensitizeButtons()
 
-    def makeMenus(self): ## Adds quit Button
-        self.menu = activityviewermenu.activityviewermenu
-        # Because we have our own submenu, these are not automatically
-        # added in the SubWindow class. 
-        self.menu.File.addItem(oofmenu.OOFMenuItem(
-            'Close', help="Close this Activity Viewer window.",
-            callback=self.close, no_log = 1, gui_only = 1, accel='w',
-            threadable = oofmenu.UNTHREADABLE))
-        self.menu.File.addItem(oofmenu.OOFMenuItem(
-            'Quit', help="TTFN",
-            callback=quit.queryQuit, no_log = 1, gui_only = 1, accel='q',
-            threadable = oofmenu.UNTHREADABLE))
+    # def makeMenus(self): ## Adds quit Button
+    #     self.menu = activityviewermenu.activityviewermenu
+    #     # Because we have our own submenu, these are not automatically
+    #     # added in the SubWindow class. 
+    #     self.menu.File.addItem(oofmenu.OOFMenuItem(
+    #         'Close', help="Close this Activity Viewer window.",
+    #         callback=self.close, no_log = 1, gui_only = 1, accel='w',
+    #         threadable = oofmenu.UNTHREADABLE))
+    #     self.menu.File.addItem(oofmenu.OOFMenuItem(
+    #         'Quit', help="TTFN",
+    #         callback=quit.queryQuit, no_log = 1, gui_only = 1, accel='q',
+    #         threadable = oofmenu.UNTHREADABLE))
     
     def closeCB(self, *args):           # GTK callback.
         if activityViewer:

@@ -56,8 +56,9 @@ class _Questioner:
             raise ooferror.ErrSetupError(
                 "Questioner must have at least one possible answer.")
 
+        parentwindow = kwargs['parentwindow']
         self.answers = answers
-        self.gtk = gtklogger.Dialog(border_width=3)
+        self.gtk = gtklogger.Dialog(border_width=3, parent=parentwindow)
         self.gtk.set_keep_above(True)
         gtklogger.newTopLevelWidget(self.gtk, "Questioner")
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)

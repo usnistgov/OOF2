@@ -73,17 +73,16 @@ class StockButton(Gtk.Button):
         self.add(hbox)
 
     def relabel(self, labelstr):
-        pass
-        # if self.markup:
-        #     if self.reverse:
-        #         self.label.set_markup(labelstr + ' ')
-        #     else:
-        #         self.label.set_markup(' ' + labelstr)
-        # else:
-        #     if self.reverse:
-        #         self.label.set_label(labelstr + ' ')
-        #     else:
-        #         self.label.set_label(' ' + labelstr)
+        if self.markup:
+            if self.reverse:
+                self.label.set_markup(labelstr + ' ')
+            else:
+                self.label.set_markup(' ' + labelstr)
+        else:
+            if self.reverse:
+                self.label.set_text(labelstr + ' ')
+            else:
+                self.label.set_text(' ' + labelstr)
                         
 def prevButton(**kwargs):
     debug.mainthreadTest()
