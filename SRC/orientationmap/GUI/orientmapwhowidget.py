@@ -50,7 +50,8 @@ class MicrostructureWithoutOrientationMapWidget(whowidget.WhoParameterWidget):
             value=value, scope=scope, name=name,
             condition=_withoutOrientationMap, **kwargs)
 
-def _MicrostructureWithoutOrientMapParameter_makeWidget(self, scope=None):
+def _MicrostructureWithoutOrientMapParameter_makeWidget(self, scope=None,
+                                                        **kwargs):
     return MicrostructureWithoutOrientationMapWidget(self.value, scope=scope,
                                                      name=self.name, **kwargs)
 
