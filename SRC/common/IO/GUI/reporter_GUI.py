@@ -118,10 +118,6 @@ class MessageWindow(subWindow.SubWindow):
         gtklogger.setWidgetName(self.messages, "Text")
         self.messages.set_wrap_mode(Gtk.WrapMode.WORD)
 
-        ## TODO GTK3: Do we need to set a default size?  Can we? 
-        # self.gtk.set_default_size(
-        #     90*gtkutils.widgetCharSize(self.messages), 200)
-
         # Get two marks to be used for automatic scrolling
         bfr = self.messages.get_buffer()
         enditer = bfr.get_end_iter()
@@ -392,11 +388,9 @@ class ErrorPopUp(object):
         debug.mainthreadTest()
         # The error dialog's parent window is the main oof window.
         # Make sure it's visible so that the dialog will be visible.
-        ## TODO GTK3 MAYBE: Keep track of which window was on top when
-        ## the error occurred, and use that for the dialog's parent.
-        ## But if the error arose from a script, the topmost window
-        ## might be irrelevant..
-        guitop.top().gtk.present_with_time(Gtk.get_current_event_time())
+        ## TODO GTK3: This doesn't seem to be necessary.  Check if
+        ## it's needed on Linux.
+#        guitop.top().gtk.present_with_time(Gtk.get_current_event_time())
         return self.gtk.run()
             
     def trace(self, gtk):
@@ -460,6 +454,9 @@ def errorpopup_(e_type, e_value, tbacklist):
 
 #########
 
+## gui_printTraceBack overrides excepthook.displayTraceBack, and is
+## called when an exception occurs.
+
 def gui_printTraceBack(e_type, e_value, tbacklist):
     # If the mainloop isn't running yet, just display to the terminal.
     # In debugging mode, always display to the terminal.
@@ -470,7 +467,10 @@ def gui_printTraceBack(e_type, e_value, tbacklist):
         res = mainthread.runBlock(errorpopup_, (e_type, e_value, tbacklist))
         if res == Gtk.ResponseType.CLOSE:
             from ooflib.common.IO.GUI import quit
-            if not mainthread.runBlock(quit.queryQuit,
+            # The first argument to doQueryQuit is the window that the
+            # Quit dialog box will appear in front of.
+            if not mainthread.runBlock(quit.doQueryQuit,
+                                       (guitop.top().gtk,),
                                        kwargs=dict(exitstatus=1)):
                 sys.exc_clear() # quitting was cancelled
         else:

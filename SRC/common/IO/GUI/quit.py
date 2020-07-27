@@ -26,7 +26,13 @@ import sys
 # to pop up over the correct window.
 
 def queryQuit(menuitem, *args, **kwargs):
-    parentwindow = menuitem.data 
+    doQueryQuit(menuitem.data, *args, **kwargs)
+
+# When quitting from an error dialog, there's no menu item, so we need
+# a version of queryQuit that takes a parent window, which is the only
+# information that it needs from the menu item.
+
+def doQueryQuit(parentwindow, *args, **kwargs):
     if _quitQuery(parentwindow):
         ooflib.common.quit.cleanup(shutdown, kwargs.get('exitstatus', 0))
         return True
