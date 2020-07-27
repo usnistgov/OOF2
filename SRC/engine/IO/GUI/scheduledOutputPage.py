@@ -27,10 +27,6 @@ from gi.repository import Gtk
 
 outputmenu = scheduledoutputmenu.outputmenu
 
-## TODO GTK3: parentwindow args were added here before they were
-## supported in ParamterDialog.  These use guitop.top().gtk instead of
-## self.gtk.get_toplevel().  Does it matter?
-
 class OutputPage(oofGUI.MainPage):
     def __init__(self):
         oofGUI.MainPage.__init__(
@@ -493,13 +489,13 @@ class OutputPage(oofGUI.MainPage):
         params = filter(lambda a: a.name != 'mesh', menuitem.params)
         if parameterwidgets.getParameters(title='Define a new Output',
                                           scope=self,
-                                          parentwindow=guitop.top().gtk,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           *params):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName())
     
     def deleteAllCB(self, gtkbutton):
         if reporter.query("Really delete all scheduled outputs?", "Yes", "No",
-                          parentwindow=guitiop.top().gtk) == "Yes":
+                          parentwindow=self.gtk.get_toplevel()) == "Yes":
             outputmenu.DeleteAll.callWithDefaults(
                 mesh=self.currentFullMeshName())
 
@@ -516,7 +512,7 @@ class OutputPage(oofGUI.MainPage):
                         menuitem.params)
         if parameterwidgets.getParameters(title='Redefine an Output',
                                           scope=self,
-                                          parentwindow=guitop.top().gtk,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           *params):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName(),
                                       output=self.currentOutputName())
@@ -529,7 +525,7 @@ class OutputPage(oofGUI.MainPage):
         if parameterwidgets.getParameters(nameparam,
                                           title='Rename output "%s"'%name,
                                           scope=self,
-                                          parentwindow=guitop.top().gtk):
+                                          parentwindow=self.gtk.get_toplevel()):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName(),
                                       output=self.currentOutputName())
             
@@ -542,7 +538,7 @@ class OutputPage(oofGUI.MainPage):
                                           menuitem.get_arg('copy'),
                                           scope=self,
                                           title="Copy an Output",
-                                          parentwindow=guitop.top().gtk):
+                                          parentwindow=self.gtk.get_toplevel()):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName(),
                                       source=self.currentOutputName())
     def deleteOutputCB(self, gtkbutton):
@@ -557,7 +553,7 @@ class OutputPage(oofGUI.MainPage):
             schedparam.set(self.currentOutput().schedule)
             schedtypeparam.set(self.currentOutput().scheduleType)
         if parameterwidgets.getParameters(schedtypeparam, schedparam,
-                                          parentwindow=guitop.top().gtk,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title='Set an Output Schedule',
                                           scope=self):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName(),
@@ -568,7 +564,7 @@ class OutputPage(oofGUI.MainPage):
         targetmeshparam.set(self.currentFullMeshName())
         targetparam = menuitem.get_arg('target')
         if parameterwidgets.getParameters(targetmeshparam, targetparam,
-                                          parentwindow=guitop.top().gtk,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title="Copy an Output Schedule",
                                           scope=self):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName(),
@@ -581,7 +577,7 @@ class OutputPage(oofGUI.MainPage):
         if self.currentOutput().destination is not None:
             destparam.set(self.currentOutput().destination)
         if parameterwidgets.getParameters(destparam,
-                                          parentwindow=guitop.top().gtk,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title='Set an Output Destination',
                                           scope=self):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName(),
