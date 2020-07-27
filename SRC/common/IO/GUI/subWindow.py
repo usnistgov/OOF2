@@ -33,6 +33,31 @@ from ooflib.common.IO.GUI import quit
 from gi.repository import Gtk
 import types
 
+## TODO: Menu creation here is clumsy and should be cleaned up.
+## Currently the "menu" arg to the SubWindow constructor is expected
+## to be either an OOFMenuItem or a string.  If it's a string, a menu
+## is created with that name and File/Close and File/Quit are added to
+## it, and the menu is attached to the window's menu bar.  If the
+## "menu" arg is an OOFMenuItem, then it is attached to the menu bar
+## without modification.
+
+## A better scheme would be for the constructor arg to always be an
+## OOFMenuItem, which could be in an existing OOFMenu or not.  The
+## SubWindow constructor would always create File/Close and File/Quit
+## menu items if they didn't already exist.  The subclasses could
+## override the callback methods if necessary.  Having
+## SubWindow.__init__ create the File/Quit would mean that the hack of
+## setting File.Quit.data=self.gtk would be required in far fewer
+## places.
+
+## Subclasses of SubWindow and the menu arg they pass to SubWindow.__init__:
+## GUIConsole (console.py)  passes _console_menu
+## ActivityViewer, passes self.menu
+## GfxWindowBase (uses self.menu from GhostGfxWindow, calls
+##   SubWindow.__init__ from gfxwindow.py) passes self.menu
+## MessageWindow (reporter_GUI.py)   passes self.menu_name
+## TutorialClassGUI (tutorialsGUI.py) passes ""
+
 class SubWindow:
     # Base class for non-modal windows which want to be destroyed when
     # the main OOF GUI window, which from here is top().gtk, gets
@@ -50,13 +75,7 @@ class SubWindow:
 
         # Checking the type is clumsy; the idea is that the caller
         # must provide either the name for the auto-generated menu, or
-        # a menu to use instead.  TODO LATER: It would be cleaner for
-        # the Layer Editor and the Activity Viewer if the SubWindow
-        # class could provide the window-specific (i.e "Close" and
-        # "Quit") menu items under "File" (creating it, if necessary,
-        # and prepending it to the passed-in menu) even when a menu is
-        # passed in.  This would prevent duplication of effort by
-        # separate subclasses of subwindow.
+        # a menu to use instead.  See the TODO above.
         if type(menu)==types.StringType:
             # If no menu is provided, then build a non-logging local
             # one with 'Close' and 'Quit'.
