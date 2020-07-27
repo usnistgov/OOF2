@@ -18,6 +18,7 @@ from ooflib.common import enum
 from ooflib.common import primitives
 from ooflib.common import strfunction
 from ooflib.common import utils
+from ooflib.common.IO import automatic
 from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
@@ -213,27 +214,34 @@ parameter.RestrictedStringParameter.makeWidget = _RSParam_makeWidget
         
 #########################
 
-from ooflib.common.IO import automatic
+# If the user doesn't type anything in an AutoWidget, it displays
+# self.autotext and its value is automatic.automatic.  The autotext is
+# displayed in a distinctive style.  When the user types anything, the
+# autotext is deleted and the style is changed back to the normal
+# Gtk.Entry style.  When the user deletes everything in the Entry, the
+# autotext and its style are restored.
+
+# Style for displaying the autotext.  It should look different from
+# what the user types.  It should *not* set the color unless we first
+# check the theme's background color to make sure that the text is
+# visible.
+gtkutils.addStyle("entry.automatic { font-style: italic; }")
+# If we want to change the colors, we'd have to base the new colors on
+# the colors for the current theme, which can be retrieved from the
+# widget's StyleContext, eg:
+#   widget.get_style_context().get_color(Gtk.StateFlags.NORMAL)
+#   widget.get_style_context().get_background_color(Gtk.StateFlags.NORMAL)
+# We'd also need to make sure to update the colors if the user changes
+# the theme.
+
 
 class AutoWidget(GenericWidget):
-    # If no text is provided, display "automatic" (or
-    # placeholder_text) in gray letters.  When the user types
-    # anything, delete "automatic" and replace it with the user's
-    # text, changing the color to black.  When the user deletes all of
-    # the text, put "automatic" back again, in gray.
-    # *Don't* use Gtk.Entry.placeholder_text.  That is only displayed
-    # when the widget doesn't have focus.
     def __init__(self, param, scope=None, name=None,
                  autotext=None, # text to display in automatic mode
-                 autocolor=None, # color of text to display in automatic mode
                  **kwargs):
         self.automatic = True
-        self.autotext = autotext or "automatic"
+        self.autotext = autotext or "<automatic>"
         self.stylecontext = None
-        self.autocolor = autocolor or Gdk.RGBA(0.7, 0.7, 0.7, 1.0)
-        # manualcolor is the text color when not in automatic mode.
-        ## TODO GTK3: manualcolor should not be assumed to be black.
-        self.manualcolor = Gdk.RGBA(0.0, 0.0, 0.0, 1.0)
         GenericWidget.__init__(self, param, scope, name, **kwargs)
         gtklogger.connect(self.gtk, 'key-press-event', self.keypressCB)
         gtklogger.connect_after(self.gtk, 'key-release-event',self.keyreleaseCB)
@@ -295,18 +303,11 @@ class AutoWidget(GenericWidget):
         return False            # False means "call other event handlers"
     def enterAutoMode(self):
         self.automatic = True
-        ## TODO GTK3: Gtk.Widget.override_color is deprecated.  Use
-        ## CSS instead.
-        self.gtk.override_color(Gtk.StateFlags.NORMAL, self.autocolor)
+        self.gtk.get_style_context().add_class("automatic")
         self.gtk.set_text(self.autotext)
     def enterManualMode(self):
         self.automatic = False
-        self.gtk.override_color(Gtk.StateFlags.NORMAL, self.manualcolor)
-    def getColors(self):
-        if self.stylecontext is None:
-            self.stylecontext = self.gtk.get_style_context()
-        return (self.stylecontext.get_color(Gtk.StateFlags.NORMAL),
-                self.stylecontext.get_background_color(Gtk.StateFlags.NORMAL))
+        self.gtk.get_style_context().remove_class("automatic")
     
 class AutoNameWidget(AutoWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):

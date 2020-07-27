@@ -23,6 +23,7 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import activityViewer
 from ooflib.common.IO.GUI import fontselector
+from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from gi.repository import Gtk
@@ -68,7 +69,7 @@ switchboard.requestCallbackMain('change font', reallySetFont)
 # to "fixedfont".
 
 def setFixedFontSize(fontsize):
-    oofGUI.addStyle("#fixedfont { font: %dpx monospace; }" % fontsize)
+    gtkutils.addStyle("#fixedfont { font: %dpx monospace; }" % fontsize)
 
 setFixedFontSize(mainmenu.fixedFontSize)
 

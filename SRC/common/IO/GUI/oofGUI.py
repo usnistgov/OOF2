@@ -52,25 +52,6 @@ elif config.dimension() == 3:
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Global CSS styles.
-
-# addStyle might be called before the GUI is started, before the
-# styles can be applied.  So it stores the styles that have been
-# assigned too early and oofGUI.__init__ applies them after the main
-# window has been created.
-
-# See https://developer.gnome.org/gtk3/stable/chap-css-overview.html
-
-styleStrings = []
-
-def addStyle(stylestring):
-    if not guitop.top():
-        styleStrings.append(stylestring)
-    else:
-        guitop.top().addStyle(stylestring)
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#        
-
 class oofGUI(widgetscope.WidgetScope):
     def __init__(self):
         debug.mainthreadTest()
@@ -86,7 +67,7 @@ class oofGUI(widgetscope.WidgetScope):
         self.gtk.connect("destroy", self.destroyCB)
         guitop.setTop(self)
         
-        map(self.addStyle, styleStrings)
+        map(self.addStyle, gtkutils.styleStrings)
         
         self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
                                spacing=2, margin=5)

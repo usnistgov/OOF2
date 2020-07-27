@@ -9,6 +9,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
@@ -130,4 +131,24 @@ def findChildren(widgetclasses, root):
 
 # extra space around Paned handles because they're not visible enough
 handle_padding = 5   
+
+########################
+
+# Global CSS styles.
+
+# addStyle might be called before the GUI is started, before the
+# styles can be applied.  So it stores the styles that have been
+# assigned too early and oofGUI.__init__ applies them after the main
+# window has been created.
+
+# See https://developer.gnome.org/gtk3/stable/chap-css-overview.html
+
+styleStrings = []
+
+def addStyle(stylestring):
+    if not guitop.top():
+        styleStrings.append(stylestring)
+    else:
+        guitop.top().addStyle(stylestring)
+
 
