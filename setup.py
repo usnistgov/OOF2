@@ -69,7 +69,8 @@ import oof2installlib
 import shlib # adds build_shlib and install_shlib to the distutils command set
 from shlib import build_shlib
 
-from oof2setuputils import run_swig, find_file, extend_path, get_third_party_libs
+from oof2setuputils import run_swig, find_file, extend_path
+#from oof2setuputils import get_third_party_libs
 
 import os
 import shlex
@@ -165,6 +166,7 @@ class CLibInfo:
                         'swigfiles': [], # *.swg  -- swig source code
                         'swigpyfiles': [], # *.spy  -- python included in swig
                         }
+        self.pkgs = set()          # packages to run pkg-config on
         self.externalLibs = []
         self.externalLibDirs = []
         self.includeDirs = []
@@ -172,6 +174,36 @@ class CLibInfo:
         self.extra_compile_args = []
         self.extensionObjs = None
         self.ordering = None
+
+    def add_pkg(self, pkg):
+        self.pkgs.add(pkg)
+
+    def run_pkg_config(self):
+        # Running pkg-config on all of the packages at the same time
+        # reduces redundancy in the resulting compiler argument list.
+        if not self.pkgs:
+            return
+        cmd = "pkg-config --cflags %s" % string.join(self.pkgs)
+        print self.libname, ":", cmd
+        f = os.popen(cmd, 'r')
+        for line in f.readlines():
+            for flag in line.split():
+                if flag[:2] == '-I':
+                    self.includeDirs.append(flag[2:])
+                else:
+                    self.extra_compile_args.append(flag)
+        # Run pkg-config --libs for all packages
+        cmd = "pkg-config --libs %s" % string.join(self.pkgs)
+        print self.libname, ":", cmd
+        f = os.popen(cmd, 'r')
+        for line in f.readlines():
+            for flag in line.split():
+                if flag[:2] == '-l':
+                    self.externalLibs.append(flag[2:])
+                elif flag[:2] == '-L':
+                    self.externalLibDirs.append(flag[2:])
+                else:
+                    self.extra_link_args.append(flag)
 
     # Parse the file lists in a DIR.py file.  The file has been read
     # already, and its key,list pairs are in dirdict.  Only the data
@@ -194,6 +226,8 @@ class CLibInfo:
             pass
         else:
             flagFunc(self)
+
+            
         try:
             self.ordering = dirdict['clib_order']
             del dirdict['clib_order']
@@ -1399,6 +1433,7 @@ if __name__ == '__main__':
     extensions = []
     shlibs = []
     for clib in clibraries:
+        clib.run_pkg_config()
         extensions.extend(clib.get_extensions())
         shlib = clib.get_shlib()
         if shlib is not None:

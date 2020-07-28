@@ -15,45 +15,45 @@
 
 import os, sys, string, stat
 
-# Utilities for running xxxxx-config programs that get the flags and
-# libs required to link with external libraries.  "clib" is a CLibInfo
-# object. "cmd" is a command to run that returns the required data,
-# such as "Magick++-config --cflags".
+# # Utilities for running xxxxx-config programs that get the flags and
+# # libs required to link with external libraries.  "clib" is a CLibInfo
+# # object. "cmd" is a command to run that returns the required data,
+# # such as "Magick++-config --cflags"  BUT it's always pkg-config
 
-def add_third_party_includes(cmd, clib):
-    f = os.popen(cmd, 'r')
-    for line in f.readlines():
-        for flag in line.split():
-            if flag[:2] == '-I':
-                clib.includeDirs.append(flag[2:])
-            else:
-                clib.extra_compile_args.append(flag)
+# def add_third_party_includes(cmd, clib):
+#     f = os.popen(cmd, 'r')
+#     for line in f.readlines():
+#         for flag in line.split():
+#             if flag[:2] == '-I':
+#                 clib.includeDirs.append(flag[2:])
+#             else:
+#                 clib.extra_compile_args.append(flag)
 
-def add_third_party_libs(cmd, clib):
-    f = os.popen(cmd, 'r')
-    for line in f.readlines():
-        for flag in line.split():
-            if flag[:2] == '-l':
-                clib.externalLibs.append(flag[2:])
-            elif flag[:2] == '-L':
-                clib.externalLibDirs.append(flag[2:])
-            else:
-                clib.extra_link_args.append(flag)
+# def add_third_party_libs(cmd, clib):
+#     f = os.popen(cmd, 'r')
+#     for line in f.readlines():
+#         for flag in line.split():
+#             if flag[:2] == '-l':
+#                 clib.externalLibs.append(flag[2:])
+#             elif flag[:2] == '-L':
+#                 clib.externalLibDirs.append(flag[2:])
+#             else:
+#                 clib.extra_link_args.append(flag)
 
-def get_third_party_libs(cmd):
-    try:
-        f = os.popen(cmd, 'r')
-    except:
-        return [], []
-    libs = []
-    libdirs = []
-    for line in f.readlines():
-        for flag in line.split():
-            if flag[:2] == '-l':
-                libs.append(flag[2:])
-            elif flag[:2] == '-L':
-                libdirs.append(flag[2:])
-    return libdirs, libs
+# def get_third_party_libs(cmd):
+#     try:
+#         f = os.popen(cmd, 'r')
+#     except:
+#         return [], []
+#     libs = []
+#     libdirs = []
+#     for line in f.readlines():
+#         for flag in line.split():
+#             if flag[:2] == '-l':
+#                 libs.append(flag[2:])
+#             elif flag[:2] == '-L':
+#                 libdirs.append(flag[2:])
+#     return libdirs, libs
 
 # Check for packages that use pkg-config for their options.  Include
 # their compiler and linker flags if they're found, and complain if
@@ -66,8 +66,9 @@ def pkg_check(package, version, clib=None):
                                                                    version)
             sys.exit()
         if clib:
-            add_third_party_libs("pkg-config --libs %s" % package, clib)
-            add_third_party_includes("pkg-config --cflags %s" % package, clib)
+            clib.add_pkg(package)
+            # add_third_party_libs("pkg-config --libs %s" % package, clib)
+            # add_third_party_includes("pkg-config --cflags %s" % package, clib)
     else:
         print "Can't find pkg-config!"
         sys.exit()
