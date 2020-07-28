@@ -180,9 +180,13 @@ class CLibInfo:
 
     def run_pkg_config(self):
         # Running pkg-config on all of the packages at the same time
-        # reduces redundancy in the resulting compiler argument list.
+        # reduces redundancy in the resulting compiler argument
+        # list. This is called after all of the DIR.py files have been
+        # read, so that self.pkgs contains all of the third party
+        # packages that will be used.
         if not self.pkgs:
             return
+        # Run pkg-config --cflags.
         cmd = "pkg-config --cflags %s" % string.join(self.pkgs)
         print self.libname, ":", cmd
         f = os.popen(cmd, 'r')
@@ -192,7 +196,7 @@ class CLibInfo:
                     self.includeDirs.append(flag[2:])
                 else:
                     self.extra_compile_args.append(flag)
-        # Run pkg-config --libs for all packages
+        # Run pkg-config --libs.
         cmd = "pkg-config --libs %s" % string.join(self.pkgs)
         print self.libname, ":", cmd
         f = os.popen(cmd, 'r')
