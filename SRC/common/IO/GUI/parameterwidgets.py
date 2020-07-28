@@ -226,13 +226,17 @@ parameter.RestrictedStringParameter.makeWidget = _RSParam_makeWidget
 # check the theme's background color to make sure that the text is
 # visible.
 gtkutils.addStyle("entry.automatic { font-style: italic; }")
-# If we want to change the colors, we'd have to base the new colors on
+
+# This changes the text color for automatic widgets with keyboard focus:
+#   gtkutils.addStyle("entry.automatic:focus { color: blue; }")
+# BUT if we want to change the colors, we'd have to base the new colors on
 # the colors for the current theme, which can be retrieved from the
 # widget's StyleContext, eg:
 #   widget.get_style_context().get_color(Gtk.StateFlags.NORMAL)
 #   widget.get_style_context().get_background_color(Gtk.StateFlags.NORMAL)
 # We'd also need to make sure to update the colors if the user changes
-# the theme.
+# the theme.  Gtk3 doesn't provide a good way to do this, since
+# changing colors and such violates the spirit of CSS.
 
 
 class AutoWidget(GenericWidget):
@@ -308,7 +312,7 @@ class AutoWidget(GenericWidget):
     def enterManualMode(self):
         self.automatic = False
         self.gtk.get_style_context().remove_class("automatic")
-    
+
 class AutoNameWidget(AutoWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
         AutoWidget.__init__(self, param, scope=scope, name=name,

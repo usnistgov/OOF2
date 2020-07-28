@@ -304,6 +304,8 @@ class ErrorPopUp(object):
         vbox.pack_start(self.errframe,
                                  expand=True, fill=True, padding=0)
 
+        ## TODO GTK3: On Ubuntu, the TextView comes up showing only
+        ## half the height of the first line.
         errscroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(errscroll, "ErrorScroll")
         errscroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
