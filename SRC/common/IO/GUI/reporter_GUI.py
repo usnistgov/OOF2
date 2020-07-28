@@ -304,19 +304,21 @@ class ErrorPopUp(object):
         vbox.pack_start(self.errframe,
                                  expand=True, fill=True, padding=0)
 
-        ## TODO GTK3: On Ubuntu, the TextView comes up showing only
-        ## half the height of the first line.
-        errscroll = Gtk.ScrolledWindow()
-        gtklogger.logScrollBars(errscroll, "ErrorScroll")
-        errscroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        self.errframe.add(errscroll)
+        ## On Ubuntu, the TextView comes up showing only half the
+        ## height of the first line if it's in a ScrolledWindow.
+        #errscroll = Gtk.ScrolledWindow()
+        #gtklogger.logScrollBars(errscroll, "ErrorScroll")
+        #errscroll.set_policy(Gtk.PolicyType.AUTOMATIC,
+        #                     Gtk.PolicyType.AUTOMATIC)
+        #self.errframe.add(errscroll)
         self.errbox = Gtk.TextView(name="fixedfont",
                                    wrap_mode=Gtk.WrapMode.WORD,
                                    editable=False,
                                    left_margin=5, right_margin=5,
                                    top_margin=5, bottom_margin=5)
         gtklogger.setWidgetName(self.errbox, "ErrorText")
-        errscroll.add(self.errbox)
+        #errscroll.add(self.errbox)
+        self.errframe.add(self.errbox)
         self.errbox.get_buffer().set_text("\n".join(errorstrings))
 
         # Buttons for viewing and saving the traceback.  These can't
