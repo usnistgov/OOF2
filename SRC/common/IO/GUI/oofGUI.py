@@ -142,6 +142,7 @@ class oofGUI(widgetscope.WidgetScope):
 
         # Frame around main pages.  GUI pages are added and removed
         # from it by installPage().
+        ## TODO GTK3: Use a Gtk.Stack ?
         self.pageframe = Gtk.Frame()
         self.pageframe.set_shadow_type(Gtk.ShadowType.IN)
         self.mainbox.pack_start(self.pageframe, expand=True, fill=True,
@@ -267,7 +268,7 @@ class oofGUI(widgetscope.WidgetScope):
         # or doesn't.  Since the quitting process begins on another
         # thread (waiting for other threads to finish) queryQuit()
         # will actually return if if it's really quitting.
-        quit.queryQuit()
+        quit.doQueryQuit(self.gtk)
         return 1  # Don't destroy the window.  If we're really
                   # quitting, self.destroy() will be called in due
                   # course.
