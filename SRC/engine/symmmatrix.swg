@@ -72,6 +72,7 @@ public:
   double determinant();
   double secondInvariant();
   double deviator();
+  double vonMises();
   double maxEigenvalue();
   double midEigenvalue();
   double minEigenvalue();

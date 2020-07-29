@@ -27,10 +27,10 @@ class InvariantParameterWidget(regclassfactory.RegisteredClassFactory):
         self.sbcallback = switchboard.requestCallbackMain(
             self.invariandwidget, self.invWidgetChanged)
     def findInvariand(self):
-        invariand = self.invariandwidget.get_value()
-        if invariand is not None:
+        self.invariand = self.invariandwidget.get_value()
+        if self.invariand is not None:
             self.invariandclass = \
-                                invariand.newOutputValue().valuePtr().__class__
+                           self.invariand.newOutputValue().valuePtr().__class__
         else:
             self.invariandclass = None
     # This function can get an "interactive" argument -- discard it.
@@ -41,7 +41,8 @@ class InvariantParameterWidget(regclassfactory.RegisteredClassFactory):
         switchboard.removeCallback(self.sbcallback)
         regclassfactory.RegisteredClassFactory.cleanUp(self)
     def includeRegistration(self, registration):
-        return invariant.okInvariant(registration, self.invariandclass)
+        return invariant.okInvariant(registration, self.invariandclass,
+                                     self.invariand)
 
 def _InvariantParameter_makeWidget(self, scope, **kwargs):
     return InvariantParameterWidget(self.value, scope=scope, name=self.name,

@@ -59,4 +59,9 @@ public:
   virtual double operator()(const ArithmeticOutputVal&) const;
 };
 
+class VonMises : public Invariant {
+public:
+  virtual double operator()(const ArithmeticOutputVal&) const;
+};
+
 #endif // INVARIANT_H

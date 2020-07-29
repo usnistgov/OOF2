@@ -17,6 +17,7 @@ import oof2setuputils
 import shlib                            # our own distutils command
 import os.path
 
+import sys
 
 # Tell distutils that .C is a C++ file suffix
 from distutils.ccompiler import CCompiler
@@ -77,6 +78,13 @@ class SharedLibrary(build_shlib.SharedLibrary):
 def run_swig(srcdir, swigfile, destdir,
              cext="_wrap.C", include_dirs=[], dry_run=False, force=False,
              with_swig=None):
+    # TODO: There's a problem with extensions, they need access
+    # to SWIG, but the build process builds SWIG in the build-temp
+    # directory, to accommodate different architectures in the
+    # same build tree.  Extensions do have access to the "root"
+    # of the source tree, through oofcconfig.py, maybe they all
+    # just need to build their own swig executables, the way
+    # the main setup.py does?
     return oof2setuputils.run_swig(srcdir, swigfile, destdir, cext,
                                    include_dirs + oof2config.swig_include,
                                    dry_run, force, with_swig)
@@ -90,6 +98,9 @@ def get_swig_ext(srcdir, srcfile, destdir, cext="_wrap.C", include_dirs=[],
                  libraries=[], dry_run=False, force=False,
                  with_swig=None, **kwargs):
 
+    print >> sys.stderr, "*** OOF2extutils.get_swig_ext ***"
+    print >> sys.stderr, oof2config.root
+    
     swigstatus = run_swig(srcdir, srcfile, destdir, cext, include_dirs,
                           dry_run, force, with_swig)
 

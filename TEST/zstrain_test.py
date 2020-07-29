@@ -93,6 +93,7 @@ class OOF_ZStrain(unittest.TestCase):
         OOF.Material.Assign(material='artest',
                             microstructure='microstructure', pixels=every)
 
+    @memorycheck.check("microstructure")
     def Triclinic_ZStrain(self):
         OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh',endtime=0.0)
         OOF.Mesh.Analyze.Direct_Output(
@@ -121,16 +122,8 @@ class OOF_ZStrain(unittest.TestCase):
             property='Mechanical:ZStrain:arz')
         OOF.Property.Delete(
             property='Orientation:arorientation')
-        OOF.Mesh.Boundary_Conditions.Delete(
-            mesh='microstructure:skeleton:mesh', name='bc<3>')
-        OOF.Mesh.Boundary_Conditions.Delete(
-            mesh='microstructure:skeleton:mesh', name='bc<2>')
-        OOF.Mesh.Boundary_Conditions.Delete(
-            mesh='microstructure:skeleton:mesh', name='bc')
 
         
-        
-
 def run_tests():
     
     test_set = [OOF_ZStrain("Triclinic_ZStrain")]
