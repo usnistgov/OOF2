@@ -24,6 +24,15 @@ gtk3 changes, which may be in 2.1.20 or 2.2.0, depending...
   parameters, and all colors can be set to be translucent, except in a
   few cases where it doesn't make sense.
 
+* All widgets that can take an "automatic" value used to have a
+  checkbox that had to be checked before a different value could be
+  entered.  Now they're simple text entry boxes, and the automatic
+  value will be used if the box is empty.  To make it clear what's
+  happening, the box displays "<automatic>" if it's empty.  To use a
+  non-automatic value, just type it in the box.  To change a
+  non-automatic value to an automatic one, delete the contents of the
+  box.
+
 Other unreleased changes:
 
 * Fixed the square brush in the pixel selection toolbox, which was
