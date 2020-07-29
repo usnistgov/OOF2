@@ -45,7 +45,7 @@ def _newMSfromOrientationMap(button):
     menuitem = microstructuremenu.micromenu.Create_From_OrientationMap_File
     if parameterwidgets.getParameters(
             title='Create Microstructure from Orientation Map file',
-            parentwindow=guitop.top().gtkk,
+            parentwindow=guitop.top().gtk,
             *menuitem.params):
         menuitem.callWithDefaults()
 

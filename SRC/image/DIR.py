@@ -36,22 +36,6 @@ pyfiles = ['initialize.py', 'pixelselectionmethod.py',
 
 def set_clib_flags(c_lib):
     import oof2setuputils
-    # if oof2setuputils.check_exec('Magick++-config'):
-    #     # Hack. Check that ImageMagick is really installed, not
-    #     # GraphicsMagick.
-    #     f = os.popen('Magick++-config --libs', 'r')
-    #     line = f.readline()
-    #     if 'GraphicsMagick' in line:
-    #         print "You seem to be using GraphicsMagick instead of ImageMagick.  OOF2 cannot use GraphicsMagick."
-    #         sys.exit()
-    #     # Add ImageMagick headers and libs.
-
-    #     oof2setuputils.add_third_party_includes(
-    #         'Magick++-config --cppflags', c_lib)
-    #     oof2setuputils.add_third_party_libs(
-    #         'Magick++-config --ldflags --libs', c_lib)
-    # else:
-    #     print "Can't find Magick++-config!  Your ImageMagick installation may be defective."
     oof2setuputils.pkg_check("Magick++", MAGICK_VERSION, c_lib)
     oof2setuputils.pkg_check("cairomm-1.0", CAIROMM_VERSION, c_lib)
     oof2setuputils.pkg_check("pangocairo", PANGOCAIRO_VERSION, c_lib)
