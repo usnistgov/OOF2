@@ -39,7 +39,7 @@ import types
 ## used to take different arguments.  Now they all pass the widget's
 ## current value, and not the widget.
 
-## The ChooserWidget is a Gtk.Label with a pop-up menu, instead of a
+## The ChooserWidget is a Gtk.Stack with a pop-up menu, instead of a
 ## Gtk.ComboBox with a Gtk.ListStore and Gtk.TreeView, because menu
 ## items can have tooltips but the cells in a TreeView can't.  The
 ## ChooserComboWidget can stay as a Gtk.ComboBox because it lists
@@ -54,7 +54,8 @@ import types
 class ChooserWidget(object):
     def __init__(self, namelist, callback=None, callbackargs=(),
                  update_callback=None, update_callback_args=(),
-                 helpdict={}, name=None, separator_func=None, **kwargs):
+                 helpdict={}, name=None, separator_func=None,
+                 homogeneous=False, **kwargs):
         debug.mainthreadTest()
         self.name = name
         # separator_func takes a string arg and returns true if that
@@ -66,26 +67,62 @@ class ChooserWidget(object):
         self.callbackargs = callbackargs
         self.update_callback = update_callback
         self.update_callback_args = update_callback_args
-        self.helpdict = helpdict
-        self.namelist = namelist[:]
+        self.helpdict = {}
+        self.namelist = []
 
         self.gtk = Gtk.EventBox()
         gtklogger.setWidgetName(self.gtk, name)
         frame = Gtk.Frame(**kwargs)
         self.gtk.add(frame)
+        # Using a Stack instead of a simple Label makes it easy to
+        # make sure that the horizontal size of the Chooser doesn't
+        # change when the visible label changes, if homogeneous=True. 
+        self.stack = Gtk.Stack(homogeneous=homogeneous)
+        frame.add(self.stack)
+        # When a chooser has nothing to display, it looks ugly.
+        # emptyMarker is a placeholder to display when there's nothing
+        # else, and self.empty indicates that it's in use.
+        self.empty = False
+        self.emptyMarker = self.makeSubWidget("---")
+        self.emptyMarkerName = "despair"
+        self.update(namelist, helpdict)
+        
+        gtklogger.connect(self.gtk, "button-press-event", self.buttonpressCB)
+
+    def makeSubWidget(self, name):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, margin=2)
-        frame.add(hbox)
-        if namelist:
-            name0 = namelist[0]
-        else:
-            name0 = ""
-        self.label = Gtk.Label(name0, halign=Gtk.Align.START,
-                               hexpand=True, margin=5)
-        hbox.pack_start(self.label, expand=True, fill=True, padding=2)
+        label = Gtk.Label(name, halign=Gtk.Align.START, hexpand=True, margin=5)
         image = Gtk.Image.new_from_icon_name('pan-down-symbolic',
                                              Gtk.IconSize.BUTTON)
+        hbox.pack_start(label, expand=True, fill=True, padding=2)
         hbox.pack_start(image, expand=False, fill=False, padding=2)
-        gtklogger.connect(self.gtk, "button-press-event", self.buttonpressCB)
+        hbox.show_all()
+        return hbox
+
+    def update(self, namelist, helpdict={}):
+        debug.mainthreadTest()
+        self.namelist = namelist[:]
+        self.helpdict = helpdict
+        if self.namelist:
+            if self.empty:
+                self.stack.remove(self.emptyMarker)
+                self.empty = False
+            for name in self.namelist:
+                if not self.stack.get_child_by_name(name):
+                    hbox = self.makeSubWidget(name)
+                    self.stack.add_named(hbox, name)
+            if self.current_string in self.namelist:
+                self.set_state(self.current_string)
+            else:
+                self.set_state(self.namelist[0])
+        else:
+            # namelist is empty
+            self.set_state(None)
+            if not self.empty:
+                for widget in self.stack:
+                    self.stack.remove(widget)
+                self.empty = True
+                self.stack.add_named(self.emptyMarker, self.emptyMarkerName)
 
     def show(self):
         debug.mainthreadTest()
@@ -122,15 +159,14 @@ class ChooserWidget(object):
         else:
             self.current_item = None
         popupMenu.show_all()
-        popupMenu.popup_at_widget(self.label, Gdk.Gravity.SOUTH_WEST,
+        popupMenu.popup_at_widget(self.stack, Gdk.Gravity.SOUTH_WEST,
                                   Gdk.Gravity.NORTH_WEST, event)
 
         return False
     def activateCB(self, menuitem, name):
         debug.mainthreadTest()
-        self.label.set_text(name)
+        self.stack.set_visible_child_name(name)
         self.current_string = name
-        # self.current_item = menuitem
         if self.callback:
             self.callback(*(name,) + self.callbackargs)
 
@@ -142,17 +178,6 @@ class ChooserWidget(object):
             self.current_item.deselect()
             self.current_item = None
 
-    def update(self, namelist, helpdict={}):
-        debug.mainthreadTest()
-        self.namelist = namelist[:]
-        self.helpdict= helpdict
-        if not self.namelist:
-            self.set_state(None)
-        elif self.current_string in self.namelist:
-            self.set_state(self.current_string)
-        else:
-            self.set_state(self.namelist[0])
-
     def set_state(self, arg):
         # arg is either an integer position in namelist or a string in
         # namelist.
@@ -163,7 +188,6 @@ class ChooserWidget(object):
         # error.
         if not self.namelist and arg is None:
             # If the set of values is empty, None is the only legal arg.
-            self.label.set_text("")
             self.current_string = None
             return
         if arg is None:
@@ -183,7 +207,7 @@ class ChooserWidget(object):
             raise ooferror.ErrPyProgrammingError(
                 "Invalid ChooserWidget argument: %s %s" % (arg, arg.__class__))
         if newstr != self.current_string:
-            self.label.set_text(newstr)
+            self.stack.set_visible_child_name(newstr)
             self.current_string = newstr
             if self.update_callback:
                 self.update_callback(*(self.current_string,) +

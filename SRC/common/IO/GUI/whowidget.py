@@ -139,7 +139,9 @@ class WhoWidgetBase:
                 if self.widgettype == 'Chooser' or d < depth-1:
                     self.widgets[d] = chooser.ChooserWidget(
                         names, callback=self.selectCB, callbackargs=(d,),
-                        name=classlist[d].name(), **self.quargs)
+                        name=classlist[d].name(),
+                        homogeneous=True,
+                        **self.quargs)
                 else:
                     self.widgets[d] = chooser.ChooserComboWidget(
                         names, callback=self.comboCB,

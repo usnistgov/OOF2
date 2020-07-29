@@ -116,7 +116,8 @@ class oofGUI(widgetscope.WidgetScope):
         gtklogger.connect(self.prevPageButton, 'clicked', self.prevPageCB)
         self.pageChooser = chooser.ChooserWidget([],
                                                  callback=self.pageChooserCB,
-                                                 name="PageMenu")
+                                                 name="PageMenu",
+                                                 homogeneous=True)
         chooserBox.pack_start(self.pageChooser.gtk, expand=False, fill=False,
                               padding=0)
         self.currentPageName = None
@@ -142,15 +143,16 @@ class oofGUI(widgetscope.WidgetScope):
 
         # Frame around main pages.  GUI pages are added and removed
         # from it by installPage().
-        ## TODO GTK3: Use a Gtk.Stack ?
         self.pageframe = Gtk.Frame()
         self.pageframe.set_shadow_type(Gtk.ShadowType.IN)
         self.mainbox.pack_start(self.pageframe, expand=True, fill=True,
                                 padding=0)
+        self.pageStack = Gtk.Stack(homogeneous=True)
+        self.pageframe.add(self.pageStack)
 
         # Add pages that may have been created before the main GUI was built.
         for pagename, i in zip(pagenames, range(len(allPages))):
-            self.addPage(allPages[pagename], i)
+            self.addPage(allPages[pagename])
 
     def addStyle(self, stylestring):
         styleContext = self.gtk.get_style_context()
@@ -163,13 +165,11 @@ class oofGUI(widgetscope.WidgetScope):
 
     def installPage(self, pagename):
         debug.mainthreadTest()
-        # Actually install a page in the page frame.
         oldPage = None
         if self.currentPageName is not None:
             oldPage = allPages[self.currentPageName]
-            self.pageframe.remove(oldPage.gtk)
         self.currentPageName = pagename
-        self.pageframe.add(allPages[self.currentPageName].gtk)
+        self.pageStack.set_visible_child_name(pagename)
         if oldPage is not None:
             oldPage.hidden()
         allPages[self.currentPageName].installed()
@@ -177,26 +177,31 @@ class oofGUI(widgetscope.WidgetScope):
         gtklogger.checkpoint("page installed " + self.currentPageName)
 
     def show(self, messages=[]):
+        # Called as an idle callback by the start() function at the
+        # bottom of this file.
         debug.mainthreadTest()
-        if self.currentPageName is None:
-            self.installPage(pagenames[0])
-            self.pageChooser.set_state(self.currentPageName)
-            self.historian.record(pagenames[0])
+        for page in allPages.values():
+            page.show()
 
         # don't use self.gtk.show_all(), since there may be page
         # components that shouldn't yet be shown.
         self.menubar.show_all()
         self.pageChooserFrame.show_all()
+        self.pageStack.show()
         self.pageframe.show()
         self.mainbox.show()
-        for page in allPages.values():
-            page.show()
         self.gtk.show()
+
+        if self.currentPageName is None:
+            self.installPage(pagenames[0])
+            self.pageChooser.set_state(self.currentPageName)
+            self.historian.record(pagenames[0])
 
         for m in messages:
             reporter.report(m)
         
-    def addPage(self, page, position):
+    def addPage(self, page):
+        self.pageStack.add_named(page.gtk, page.name)
         debug.mainthreadTest()
         pagetips = {}
         for pg in allPages.values():
@@ -344,12 +349,12 @@ class MainPage(widgetscope.WidgetScope):
             if self.ordering < allPages[pagenames[i]].ordering:
                 pagenames.insert(i, name)
                 if guitop.top():        # gui may not be constructed yet!
-                    guitop.top().addPage(self, i)
+                    guitop.top().addPage(self)
                 break
         else:                           # page goes at the end
             pagenames.append(name)
             if guitop.top():            # gui may not be constructed yet!
-                guitop.top().addPage(self, len(pagenames))
+                guitop.top().addPage(self)
         allPages[name] = self
         gtklogger.setWidgetName(self.gtk, name+' Page')
 
