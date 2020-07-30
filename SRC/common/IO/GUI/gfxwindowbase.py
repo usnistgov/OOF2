@@ -311,9 +311,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
                 self.current_toolbox.deactivate()
             self.current_toolbox = self.getToolboxGUIByName(tbname)
             self.current_toolbox.activate()
-            self.toolboxbody.foreach(self.toolboxbody.remove)
-            self.toolboxbody.add(self.current_toolbox.gtk)
-            self.toolboxbody.show_all()
+            self.toolboxstack.set_visible_child_name(tbname)
 
     def getToolboxGUIByName(self, name):
         for tbgui in self.toolboxGUIs:
@@ -323,8 +321,9 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     def makeToolboxGUI(self, tb):
         tbgui = mainthread.runBlock(tb.makeGUI)
         if tbgui:
+            tbgui.gtk.show_all()
             self.toolboxGUIs.append(tbgui)
-            self.toolboxGUIs.sort()
+            self.toolboxstack.add_named(tbgui.gtk, tbgui.name())
             self.updateToolboxChooser()
                
     def updateToolboxChooser(self):

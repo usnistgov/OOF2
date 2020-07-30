@@ -125,9 +125,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         hbox.pack_start(Gtk.Label("Toolbox:"),
                         expand=False, fill=False, padding=3)
         
-        self.toolboxchooser = chooser.ChooserWidget([],
-                                                    callback=self.switchToolbox,
-                                                    name="TBChooser")
+        self.toolboxchooser = chooser.ChooserWidget(
+            [], callback=self.switchToolbox, name="TBChooser")
         hbox.pack_start(self.toolboxchooser.gtk,
                         expand=True, fill=True, padding=3)
 
@@ -138,11 +137,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         tbscroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         toolboxbox1.pack_start(tbscroll, expand=True, fill=True, padding=0)
 
-        # Actually, the tool box goes inside yet another box, so that
-        # we have a gtk.Box that we can refer to later.
-        self.toolboxbody = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                                   spacing=2, margin=0)
-        tbscroll.add(self.toolboxbody)
+        self.toolboxstack = Gtk.Stack(homogeneous=False)
+        tbscroll.add(self.toolboxstack)
 
         self.toolboxGUIs = []           # GUI wrappers for toolboxes.
         self.current_toolbox = None
