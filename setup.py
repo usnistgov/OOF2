@@ -190,7 +190,7 @@ class CLibInfo:
             return
         # Run pkg-config --cflags.
         cmd = "pkg-config --cflags %s" % string.join(self.pkgs)
-        print self.libname, ":", cmd
+        print "%s: %s" % (self.libname, cmd)
         f = os.popen(cmd, 'r')
         for line in f.readlines():
             for flag in line.split():
@@ -200,7 +200,7 @@ class CLibInfo:
                     self.extra_compile_args.append(flag)
         # Run pkg-config --libs.
         cmd = "pkg-config --libs %s" % string.join(self.pkgs)
-        print self.libname, ":", cmd
+        print "%s: %s" % (self.libname, cmd)
         f = os.popen(cmd, 'r')
         for line in f.readlines():
             for flag in line.split():
