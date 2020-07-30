@@ -877,6 +877,13 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         else:
             self.menu.File.Save_Contourmap.disable()
 
+        if self.oofcanvas.empty():
+            self.menu.File.Save_Canvas.disable()
+            self.menu.File.Save_Canvas_Region.disable()
+        else:
+            self.menu.File.Save_Canvas.enable()
+            self.menu.File.Save_Canvas_Region.enable()
+
     def getLayerChangeTimeStamp(self):
         return self.layerChangeTime
         
@@ -1092,6 +1099,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def saveCanvas(self, menuitem, filename, overwrite, pixels, background):
         ## TODO GTK3: Allow different file types
+        assert not self.oofcanvas.empty()
         if overwrite or not os.path.exists(filename):
             self.drawLayers()
             if not self.oofcanvas.saveAsPDF(filename, pixels, background):
@@ -1099,6 +1107,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def saveCanvasRegion(self, menuitem, filename, overwrite,
                          pixels, background, lowerleft, upperright):
+        assert not self.oofcanvas.empty()
         if overwrite or not os.path.exists(filename):
             self.drawLayers()
             if not self.oofcanvas.saveRegionAsPDF(filename, pixels, background,
@@ -1185,11 +1194,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     # Function for doing book-keeping whenever the list of layers has
     # changed.  Overridden in gfxwindow.
     def layersHaveChanged(self):
-        self.sensitize_menus()
         self.layerChangeTime.increment()
         switchboard.notify((self, 'layers changed'))
         self.contourmap_newlayers()
         self.draw()
+        self.sensitize_menus()  # must be called last
 
     ## TODO GTK3: If there are multiple contour layers, editing one of
     ## them can change which one is visible.  Is sortLayers too

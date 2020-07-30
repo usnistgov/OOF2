@@ -118,8 +118,6 @@ class DisplayMethod(registeredclass.RegisteredClass):
         return self.who.resolve(gfxwindow)
 
     # Derived classes must redefine this.
-    ## TODO GTK3: Don't need to pass the canvaslayer as an
-    ## arg. Subclasses can use self.canvaslayer.
     def draw(self, gfxwindow):
         pass
 

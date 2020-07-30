@@ -869,8 +869,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.oofcanvas.zoomToFill()
 
     def saveCanvasRegion_gui(self, menuitem):
-        ## TODO GTK3: check for empty canvas.  Disable the menu item
-        ## if the canvas is empty.
+        if self.oofcanvas.empty():
+            reporter.warn("Canvas is empty! Not saving anything.")
+            return
         visrect = self.oofcanvas.visibleRegion() # an OOFCanvas::Rectangle
         ll = menuitem.get_arg('lowerleft')
         ll.value = primitives.Point(visrect.xmin(), visrect.ymin());

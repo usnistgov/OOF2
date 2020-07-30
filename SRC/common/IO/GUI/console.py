@@ -60,9 +60,9 @@ def _close_console(menuitem):
 _console_menu = oofmenu.OOFMenuItem("Console", secret=1, gui_only=1, no_log=1)
 mainmenu.OOF.addItem(_console_menu)
 
-## TODO GTK3: The File menu has already been created by the SubWindow.
-## No need to recreate it.  Can the SubWindow's close() method be
-## used?  Extended?
+## TODO: The File menu has already been created by the SubWindow.
+## There's no need to recreate it.  Can the SubWindow's close() method
+## be used?  Extended?
 _console_file_menu = oofmenu.OOFMenuItem('File', gui_only=1, no_log=1)
 _console_menu.addItem(_console_file_menu)
 
