@@ -555,8 +555,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def show_contourmap_info(self):
         if not self.gtk:
             return
-        ## TODO GTK3: This should only be called once when a layer is
-        ## hidden or shown.  It's being called twice.
 
         self.contourmapdata.canvas_mainlayer.clear()
         self.contourmapdata.canvas_mainlayer.removeAllItems()
@@ -971,8 +969,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     # Right click on layer list
     
     def layerlistbuttonCB(self, gtkobj, event):
-        ## TODO GTK3: Fix this
-        debug.fmsg("button=", event.button)
         if event.button == 3:
             popupMenu = Gtk.Menu()
             for item in self.menu.Layer:

@@ -896,7 +896,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         who = whoclass[what]
         self.selectedLayer = None
         self.incorporateLayer(how, who)
-        self.draw()
 
     def editLayerCB(self, menuitem, n, category, what, how):
         whoclass = whoville.getClass(category)
@@ -907,7 +906,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         # which will replace it.
         self.selectedLayer = self.layers[n]
         self.incorporateLayer(how, who)
-        self.draw()
 
     def cloneWindow(self, *args):
         self.acquireGfxLock()
@@ -919,7 +917,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 clone.deselectLayer(clone.selectedLayerNumber())
             if self.selectedLayer is not None:
                 clone.selectLayer(self.layerID(self.selectedLayer))
-            clone.draw()
             return clone
         finally:
             self.releaseGfxLock()
@@ -1130,19 +1127,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             if not self.contourmapdata.canvas.saveAsPDF(filename,pixels,False):
                 raise ooferror.ErrUserError("Cannot save canvas contour map!")
 
-    # Called from layersHaveChanged in response to layer insertion,
-    # removal, or reordering, or when layers are shown and hidden.
-    # Sets the current contourable layer to be the topmost one,
-    # unconditionally.
-    def contourmap_newlayers(self):
-        topmost = self.topcontourable()
-        if topmost:
-            self.current_contourmap_method = topmost
-        else:
-            self.current_contourmap_method = None
-        switchboard.notify( (self, "new contourmap layer") )
-        self.sensitize_menus()
-
     ###############################
 
     # Returns the index of the layer in the list.
@@ -1192,17 +1176,25 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     #################################
 
     # Function for doing book-keeping whenever the list of layers has
-    # changed.  Overridden in gfxwindow.
+    # changed.  Overridden in gfxwindow to update the layer list and
+    # the time controls as well.
     def layersHaveChanged(self):
         self.layerChangeTime.increment()
         switchboard.notify((self, 'layers changed'))
-        self.contourmap_newlayers()
+        new_contourmap_method = self.topcontourable()
+        if new_contourmap_method != self.current_contourmap_method:
+            self.current_contourmap_method = new_contourmap_method
+            switchboard.notify((self, "new contourmap layer"))
         self.draw()
         self.sensitize_menus()  # must be called last
 
     ## TODO GTK3: If there are multiple contour layers, editing one of
     ## them can change which one is visible.  Is sortLayers too
     ## aggressive?  Being called too often?
+
+    ## TODO GTK3: If there is no selected layer and autoreorder=False,
+    ## a new layer should be inserted at the lowest level such that it
+    ## would normally sort below all of the layers above it.
 
     def incorporateLayer(self, layer, who, autoselect=True, lock=True):
         if lock:
@@ -1270,17 +1262,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def hideLayer(self, menuitem, n):
         self.layers[n].hide()
-        self.draw()
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.contourmap_newlayers()
+        self.layersHaveChanged()
 
     def showLayer(self, menuitem, n):
         self.layers[n].show()
-        self.draw()
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.contourmap_newlayers()
+        self.layersHaveChanged()
 
     def freezeLayer(self, menuitem, n):
         self.layers[n].freeze(self)

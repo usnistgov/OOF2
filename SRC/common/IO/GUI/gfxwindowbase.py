@@ -250,13 +250,6 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         debug.mainthreadTest()
         self.selsignal.unblock()
         
-    # Call layerListRowChanged to notify the TreeView that the data it
-    # displays has changed.
-    def layerListRowChanged(self, n):
-        rowno = len(self.layerList) - 1 - n
-        mainthread.runBlock(
-            self.layerList.row_changed, (rowno, self.layerList.get_iter(rowno)))
-
     # General callbacks
     #######################################################
 
@@ -376,20 +369,6 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         if self.selectedLayer is not None:
             self.menu.Layer.Unfreeze(n=self.layerID(self.selectedLayer))
 
-    # This is an override of the command-line menu callback in
-    # ghostgfxwindow.  It exists in addition to the GUI callback
-    # below, which is also required because it operates on the
-    # current layer.
-    def hideLayer(self, menuitem, n):   # OOFMenu callback
-        ghostgfxwindow.GhostGfxWindow.hideLayer(self, menuitem, n)
-        mainthread.runBlock(self.hideLayer_thread, (menuitem, n))
-
-    def hideLayer_thread(self, menuitem, n):
-        self.layers[n].hide()   # hide layer in canvas
-        self.layerListRowChanged(n)
-        # Update the contourmap.
-        subthread.execute(self.show_contourmap_info)
-        
     def hideLayer_gui(self, menuitem):  # OOFMenu GUI callback.
         if self.selectedLayer is None:
             reporter.report('No layer is selected!')
@@ -397,16 +376,6 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             self.menu.Layer.Hide(n=self.layerID(self.selectedLayer))
 
         
-    def showLayer(self, menuitem, n):   # OOFMenu callback.
-        ghostgfxwindow.GhostGfxWindow.showLayer(self, menuitem, n)
-        mainthread.runBlock(self.showLayer_thread, (menuitem, n))
-
-    def showLayer_thread(self, menuitem, n):
-        self.layers[n].show()   # show layer in canvas
-        self.layerListRowChanged(n)
-        # Update the contourmap.
-        subthread.execute(self.show_contourmap_info)
-
     def showLayer_gui(self, menuitem):  # OOFMenu GUI callback
         if self.selectedLayer is None:\
             reporter.report('No layer is selected!')
