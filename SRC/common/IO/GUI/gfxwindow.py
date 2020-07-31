@@ -555,13 +555,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def show_contourmap_info(self):
         if not self.gtk:
             return
-
+        wasempty = self.contourmapdata.canvas.empty()
         self.contourmapdata.canvas_mainlayer.clear()
         self.contourmapdata.canvas_mainlayer.removeAllItems()
         
-        c_min = None
-        c_max = None
-
         # Copy self.current_contourmap_method to a local variable to
         # prevent interference from other threads. (TODO: Really?
         # Shouldn't this be done while the gfxlock is acquired?)
@@ -571,22 +568,24 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                 self, self.contourmapdata.canvas_mainlayer)
             self.contourmapdata.canvas.zoomToFill()
             (c_min, c_max, lvls) = current_contourmethod.get_contourmap_info()
+        else:
+            # A newly empty contourmap canvas has to be drawn to erase
+            # its old contents.
+            if not wasempty:
+                self.contourmapdata.canvas.draw()
+            c_min = c_max = None
         
         if c_min is None:
-            mainthread.runBlock(
-                self.contourmap_min.set_text, ('min',))
+            mainthread.runBlock(self.contourmap_min.set_text, ('min',))
         else:
-            mainthread.runBlock(
-                self.contourmap_min.set_text,
-                ( ("%.3g" % c_min).rstrip(), ) )
+            mainthread.runBlock(self.contourmap_min.set_text,
+                                (("%.3g" % c_min).rstrip(),) )
             
         if c_max is None:
-            mainthread.runBlock(
-                self.contourmap_max.set_text, ('max',) )
+            mainthread.runBlock(self.contourmap_max.set_text, ('max',) )
         else:
-            mainthread.runBlock(
-                self.contourmap_max.set_text,
-                ( ("%.3g" % c_max).rstrip(), ) )
+            mainthread.runBlock(self.contourmap_max.set_text,
+                                (("%.3g" % c_max).rstrip(),) )
 
         self.show_contourmap_ticks(self.contourmapdata.mark_value)
         gtklogger.checkpoint("contourmap info updated for " + self.name)
