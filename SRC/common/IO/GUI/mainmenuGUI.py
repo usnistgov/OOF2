@@ -8,10 +8,9 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-# This file adds GUI code to the menu items defined in common.IO.mainmenu
-
-## TODO GTK3: This file should not be imported by anything except
-## initialize.py
+# This file adds GUI code to the menu items defined in
+# common.IO.mainmenu.  It should not be imported by anything except
+# initialize.py.
 
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
