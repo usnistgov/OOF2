@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -8,8 +7,6 @@
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
-
-
 
 # Message window, and the GUI part of the error reporting machinery.
 
@@ -56,6 +53,7 @@ class MessageWindow(subWindow.SubWindow):
         
         subWindow.SubWindow.__init__(
             self, title=self.title, menu=self.menu_name)
+        self.resized = False    # see MessageWindow.fix_size()
 
         # We are locally responsible for the windows submenu items.
         self.gtk.connect("destroy", self.destroy)
@@ -100,16 +98,17 @@ class MessageWindow(subWindow.SubWindow):
             button.set_tooltip_text(
                 "Show or hide "+ reporter.messagedescriptions[m])
 
-        messagepane = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
+        self.messagepane = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         ## The ScrolledWindow's scrollbars are *not* logged in the
         ## gui, because blocking the adjustment "changed" signals in
         ## the write_message function, below, doesn't work to suppress
         ## logging.  This means that programmatic changes to the
         ## scrollbars are logged along with user changes, which fills
         ## up the log file with extraneous lines.
-        messagepane.set_policy(Gtk.PolicyType.AUTOMATIC,
-                               Gtk.PolicyType.AUTOMATIC)
-        self.mainbox.pack_start(messagepane, expand=True, fill=True, padding=0)
+        self.messagepane.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                    Gtk.PolicyType.AUTOMATIC)
+        self.mainbox.pack_start(self.messagepane,
+                                expand=True, fill=True, padding=0)
         self.messages = Gtk.TextView(name="fixedfont",
                                      editable=False,
                                      cursor_visible=False,
@@ -124,7 +123,7 @@ class MessageWindow(subWindow.SubWindow):
         self.endmark = bfr.create_mark(None, enditer, False)
         self.midmark = bfr.create_mark(None, enditer, False)
 
-        messagepane.add(self.messages)
+        self.messagepane.add(self.messages)
 
         self.state_dict = {}
         for m in reporter.messageclasses:
@@ -160,11 +159,14 @@ class MessageWindow(subWindow.SubWindow):
     def refresh(self):
         debug.mainthreadTest()
         msgs = []
+        bfr = self.messages.get_buffer()
+        nchars = bfr.get_char_count()
         self.messages.move_mark_onscreen(self.midmark)
         for m in reporter.messagemanager.all_messages():
             if self.state_dict[m[1]]:
                 msgs.append(m[0])
-        self.messages.get_buffer().set_text("\n".join(msgs)+"\n")
+        bfr.set_text("\n".join(msgs)+"\n")
+        self.fix_size()
         self.messages.scroll_mark_onscreen(self.midmark)
 
     # After each button click, set your local state.
@@ -176,11 +178,35 @@ class MessageWindow(subWindow.SubWindow):
                 self.state_dict[m]=0
         self.refresh()
 
+    def fix_size(self):
+        # On Ubuntu the initial size of the ScrolledWindow isn't big
+        # enough to show a full line of text. (Maybe it's a Gtk
+        # version thing: at the moment the Mac has 3.24.21 and Ubuntu
+        # has 3.22.30.)  This code gets the height of a single line
+        # and resizes the widget so that three lines are visible.  It
+        # has to be run *after* the first text is added to the buffer,
+        # and should only be run once per window so that the program
+        # isn't fighting with the user over the window size.
+        if self.resized:
+            return
+        bfr = self.messages.get_buffer()
+        if bfr.get_char_count() > 0:
+            y, height = self.messages.get_line_yrange(bfr.get_start_iter())
+            # The Gtk docs say that it's better to use
+            # GtkWindow.set_default_size instead of
+            # GtkWidget.set_size_request, because using
+            # set_size_request prevents the user from making the
+            # widget smaller than the requested size. I don't know how
+            # to compute the right size for the GtkWindow, though.
+            self.messagepane.set_size_request(-1, 3*height)
+            self.resized = True
+
     def write_message(self, message_tuple):
         debug.mainthreadTest()
         if self.state_dict[message_tuple[1]]:
             bfr = self.messages.get_buffer()
             bfr.insert(bfr.get_end_iter(), message_tuple[0]+"\n")
+            self.fix_size()
             self.messages.scroll_mark_onscreen(self.endmark)
             
     def saveButtonCB(self, button):
@@ -304,20 +330,12 @@ class ErrorPopUp(object):
         vbox.pack_start(self.errframe,
                                  expand=True, fill=True, padding=0)
 
-        ## On Ubuntu, the TextView comes up showing only half the
-        ## height of the first line if it's in a ScrolledWindow.
-        #errscroll = Gtk.ScrolledWindow()
-        #gtklogger.logScrollBars(errscroll, "ErrorScroll")
-        #errscroll.set_policy(Gtk.PolicyType.AUTOMATIC,
-        #                     Gtk.PolicyType.AUTOMATIC)
-        #self.errframe.add(errscroll)
         self.errbox = Gtk.TextView(name="fixedfont",
                                    wrap_mode=Gtk.WrapMode.WORD,
                                    editable=False,
                                    left_margin=5, right_margin=5,
                                    top_margin=5, bottom_margin=5)
         gtklogger.setWidgetName(self.errbox, "ErrorText")
-        #errscroll.add(self.errbox)
         self.errframe.add(self.errbox)
         self.errbox.get_buffer().set_text("\n".join(errorstrings))
 
@@ -390,11 +408,6 @@ class ErrorPopUp(object):
 
     def run(self):
         debug.mainthreadTest()
-        # The error dialog's parent window is the main oof window.
-        # Make sure it's visible so that the dialog will be visible.
-        ## TODO GTK3: This doesn't seem to be necessary.  Check if
-        ## it's needed on Linux.
-#        guitop.top().gtk.present_with_time(Gtk.get_current_event_time())
         return self.gtk.run()
             
     def trace(self, gtk):
