@@ -86,7 +86,7 @@ class ActivityViewer(subWindow.SubWindow):
                                      padding=0)
 
         ## stop-all-threads
-        self.stopall = gtkutils.StockButton("process-stop", "Stop All")
+        self.stopall = gtkutils.StockButton("process-stop-symbolic", "Stop All")
         gtklogger.setWidgetName(self.stopall, "StopAll")
         gtklogger.connect(self.stopall, "clicked", self.stopAll)
         self.control_area.pack_start(self.stopall, expand=True, fill=False,

@@ -209,7 +209,8 @@ class TutorialClassGUI(subWindow.SubWindow):
         gtklogger.connect(self.savebutton, "clicked", self.saveCB)
         self.savebutton.set_tooltip_text("Save your tutorial session.")
 
-        self.closebutton = gtkutils.StockButton("window-close", "Close")
+        self.closebutton = gtkutils.StockButton("window-close-symbolic",
+                                                "Close")
         gtklogger.setWidgetName(self.closebutton, "Close")
         gtklogger.connect(self.closebutton, "clicked", self.closeCB)
         self.closebutton.set_tooltip_text("Quit the tutorial.")
