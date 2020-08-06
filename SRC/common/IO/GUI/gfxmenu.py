@@ -115,7 +115,8 @@ class MenuCallBackWrapper:
                 # No gui callback and no args.  Call and log the cli callback.
                 self.menuitem()
         else:
-            # Call, but don't log, the gui callback.
+            # Call, but don't log, the gui callback.  The gui callback
+            # will (probably) call and log the cli callback.
             self.menuitem.gui_callback(self.menuitem)
     def findParentWindow(self, menuitem=None):
         m = menuitem or self.menuitem

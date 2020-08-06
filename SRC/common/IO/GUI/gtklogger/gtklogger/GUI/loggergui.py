@@ -28,19 +28,19 @@ class GUI:
         window = Gtk.Window(Gtk.WindowType.TOPLEVEL,
                             title="gtklogger:" + logfilename)
         window.connect('delete-event', self.quit)
-        box = gtk.VBox()
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, margin=5)
         window.add(box)
 
         logscroll = Gtk.ScrolledWindow()
         logscroll.set_shadow_type(Gtk.ShadowType.IN)
-        box.pack_start(logscroll, expand=True, fill=True)
+        box.pack_start(logscroll, expand=True, fill=True, padding=0)
         self.logtextview = Gtk.TextView(editable=False, cursor_visible=False)
         self.logtextview.set_wrap_mode(Gtk.WrapMode.WORD)
         logscroll.add(self.logtextview)
 
         commentbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                              spacing=2)
-        box.pack_start(commentbox, expand=False, fill=False)
+        box.pack_start(commentbox, expand=False, fill=False, padding=0)
         
         self.commentText = Gtk.Entry()
         commentbox.pack_start(self.commentText,
@@ -66,7 +66,7 @@ class GUI:
         buffer.delete_mark(mark)
     
     def quit(self, *args):
-        gtk.main_quit()
+        Gtk.main_quit()
         logfile.close()
     
     def clearCB(self, button):
@@ -99,9 +99,9 @@ def start(name):
     global logfilename, logfile, gui
     logfilename = name
     logfile = file(logfilename, "w")
-    gobject.io_add_watch(sys.stdin, gobject.IO_IN, inputhandler)
+    GObject.io_add_watch(sys.stdin, GObject.IO_IN, inputhandler)
     gui = GUI()
-    gtk.main()
+    Gtk.main()
     
 if __name__ == "__main__":
     start(sys.argv[1])

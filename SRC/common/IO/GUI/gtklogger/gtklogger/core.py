@@ -14,6 +14,7 @@
 from gi.repository import Gtk
 import os
 import string
+import subprocess
 import types
 import weakref
 
@@ -32,15 +33,15 @@ def start(filename, debugLevel=2, suppress_motion_events=True,
     try:
         if logger_comments:
             # Open a pipe to the loggergui process for inserting
-            # comments into the output stream.
+            # comments into the output stream.  The pipe is
+            # line-buffered so that comments appear in the right
+            # places.
             from GUI import loggergui
             guifile = os.path.abspath(loggergui.__file__)
-            # The third argument of '1' to popen indicates that the
-            # stream is line buffered.  This ensures that the comments
-            # appear in the right place.
-            ## TODO: os.popen is deprecated.  Use subprocess.Popen.
-            process = os.popen("python " + guifile + " " + filename, "w", 1)
-            logutils.set_logfile(process)
+            process = subprocess.Popen(["python", guifile, filename],
+                                       bufsize=1, # means line-buffered
+                                       stdin=subprocess.PIPE)
+            logutils.set_logfile(process.stdin)
         elif type(filename) is types.StringType:
             logutils.set_logfile(open(filename, "w"))
         else:                   # filename is assumed to be a file
@@ -77,6 +78,11 @@ def add_exception(excclass):
 # must have a name, and enough of its widget ancestors must have names
 # that the sequence of names uniquely identifies the widget.
 # setWidgetName is used to assign the names.
+
+# NOTE that this name is not the same as the name that you might set
+# with Gtk.Widget.set_name().  That name is used to decide what CSS
+# styles to apply to the widget and need not be unique.  This name is
+# used to identify the widget in log files and must be unique.
 
 def setWidgetName(widget, name):
     return logutils.setWidgetName(widget, name)
@@ -229,7 +235,7 @@ class Dialog(Gtk.Dialog):
         finally:
             logutils.decrement_dialog_level()
         return result
-    def add_button(self, name, id):
+    def add_button(self, name, response_id):
         # Just to be nice to the programmer, turn on logging for the
         # buttons automatically.  Perhaps this should be optional.
         button = super(Dialog, self).add_button(name, response_id)
@@ -237,6 +243,26 @@ class Dialog(Gtk.Dialog):
         setWidgetName(button, name)
         connect_passive(button, 'clicked')
         return button
+    def add_action_widget(self, child, response_id):
+        super(Dialog, self).add_action_widget(child, response_id)
+        if logutils.getWidgetName(child) is None:
+            if isinstance(response_id, Gtk.ResponseType):
+                name = response_id.value_name
+            else:
+                name = response_id
+            logutils.setWidgetName(child, 'widget_%s'%name)
+        # "child" must be a 'activatable' widget, according to the
+        # docs.  Presumably that means that it implements the
+        # GtkActivatable interface.  The docs for GtkActivatable don't
+        # mention which signals are emitted, so it's not obvious what
+        # to connect to here.  Gtk.Button has an 'activate' signal,
+        # but the docs say not to use it. Other GtkActivatable widgets
+        # also have 'activate' signals, so I'm just hoping that it's
+        # the right thing to connect to here.
+        if isinstance(child, Gtk.Button):
+            connect_passive(child, 'clicked')
+        else:
+            connect_passive(child, 'activate')
 
 # logScrollBars should be called on any ScrolledWindow whose scroll
 # bars need to be logged.  It just encapsulates the adoptGObject calls

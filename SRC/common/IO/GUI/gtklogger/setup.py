@@ -11,7 +11,7 @@
 from distutils.core import setup
 
 setup(name="gtklogger",
-      version="1.1",
+      version="1.2",
       author="The NIST OOF team",
       author_email="oof_manager@nist.gov",
       url="http://www.ctcms.nist.gov/oof/gtklogger/",

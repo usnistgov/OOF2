@@ -27,14 +27,14 @@ class MenuItemLogger(widgetlogger.WidgetLogger):
         return super(MenuItemLogger, self).record(obj, signal, *args)
     
     # Find a list of menu item names leading to the given
-    # gtk.MenuItem.  This relies on setting gtk.Menu.oofparent in
+    # Gtk.MenuItem.  This relies on setting Gtk.Menu.oofparent in
     # gtklogger.set_submenu.  The return value is a tuple containing
     # the parent widget of the top of the menu hierarchy and the list
     # of menuitem names.
     def _getMenuPath(self, gtkmenuitem):
         path = [logutils.getWidgetName(gtkmenuitem)]
         parent = gtkmenuitem.get_parent()
-        if isinstance(parent, gtk.Menu):
+        if isinstance(parent, Gtk.Menu):
             try:
                 pp = parent.oofparent
             except AttributeError:

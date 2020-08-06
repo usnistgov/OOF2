@@ -85,7 +85,6 @@ class _Questioner:
                 debug.fmsg('no stock icon for', answer)
                 button = Gtk.Button(answer)
             gtklogger.setWidgetName(button, answer)
-            gtklogger.connect_passive(button, 'clicked')
             self.gtk.add_action_widget(button, count)
             self.answerdict[count] = answer
             if answer == self.default:

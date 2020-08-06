@@ -68,7 +68,7 @@ def logFinished():                      # called by GUILogPlayer when done
 
 ############################
     
-def startLog(menuitem, filename, use_gui):#Passing the use_gui parameter to show the loggergui
+def startLog(menuitem, filename, use_gui): 
     gtklogger.reset_checkpoints()
     menuitem.root().setOption('post_hook', menucheckpoint)
     if debug.debug():
@@ -237,11 +237,8 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
 
 # Selecting 'Pause' from the logger menu when recording will cause the
 # program to pause on playback until the Continue button is pressed.
-# Clicks on the Continue button are *not* recorded, but the menuitem
-# inserts a checkpoint into the log, so execution will pause at the
-# checkpoint until the button is actually pressed.  TODO: Fix this
-# comment.  There is no checkpoint in the log file, just a call to the
-# menu item.
+# Clicks on the Continue button are *not* recorded, so that playback
+# won't proceed without user intervention.
 
 def pauseLog(menuitem):
     pass

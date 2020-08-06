@@ -49,7 +49,7 @@ maxtries = 100
 def replay(filename, beginCB=None, finishCB=None, debugLevel=2,
            threaded=False, exceptHook=None, rerecord=None, checkpoints=True):
     logutils.set_replaying(True)
-    gobject.idle_add(GUILogPlayer(filename, beginCB, finishCB, debugLevel,
+    GObject.idle_add(GUILogPlayer(filename, beginCB, finishCB, debugLevel,
                                   threaded, exceptHook, rerecord, checkpoints))
 
 # A GUILogPlayer reads a log file of saved gui events and simulates them.
@@ -201,7 +201,7 @@ class GUILogLineRunner(object):
             self.status = "installed"
             if logutils.debugLevel() >= 4:
                 print >> sys.stderr, "Installing", self.srcline
-            gobject.idle_add(self, priority=gobject.PRIORITY_LOW)
+            GObject.idle_add(self, priority=GObject.PRIORITY_LOW)
     def nextLine(self):
         line = self.logrunner.getLine(self.lineno+1)
         if line:
@@ -294,8 +294,8 @@ class GUILogLineRunner(object):
                     # (meaning, "don't repeat this callback") we move
                     # to the back of the queue.  This allows the
                     # widget we are waiting for to appear, we hope.
-                    gobject.timeout_add(retrydelay, self,
-                                        priority=gobject.PRIORITY_LOW)
+                    GObject.timeout_add(retrydelay, self,
+                                        priority=GObject.PRIORITY_LOW)
                     return False
 
 
@@ -315,7 +315,7 @@ class GUILogLineRunner(object):
         # first.
         if logutils.debugLevel() >= 4:
             print >> sys.stderr, "Reinstalling", self.srcline
-        gobject.timeout_add(retrydelay, self, priority=gobject.PRIORITY_LOW)
+        GObject.timeout_add(retrydelay, self, priority=GObject.PRIORITY_LOW)
         return False
 
     def run_postponed(self):
@@ -406,8 +406,8 @@ class PostponedLine(PerformLine):
         return False
     def report(self):
         print >> sys.stderr, "////// %d/%d (postponed) %s" % (self.srcline,
-                                                            self.nlines(),
-                                                            self.line)
+                                                              self.nlines(),
+                                                              self.line)
 
 class CommentLine(GUILogLineRunner):
     def __init__(self, logrunner, srcline, lineno, comment):
@@ -419,9 +419,8 @@ class CommentLine(GUILogLineRunner):
         self.status = "done"
         return False
     def report(self):
-        print >> sys.stderr, "###### %d/%d %s" % (self.srcline,
-                                                            self.nlines(),
-                                                            self.comment)
+        print >> sys.stderr, "###### %d/%d %s" % (self.srcline, self.nlines(),
+                                                  self.comment)
 
 class PauseLine(GUILogLineRunner):
     # Special handler for lines of the form "pause <time>".  Such
@@ -439,8 +438,8 @@ class PauseLine(GUILogLineRunner):
                 if logutils.debugLevel() >= 4:
                     print >> sys.stderr, self.srcline, \
                           "Pausing", self.delaytime, "milliseconds"
-                gobject.timeout_add(self.delaytime, self,
-                                    priority=gobject.PRIORITY_LOW)
+                GObject.timeout_add(self.delaytime, self,
+                                    priority=GObject.PRIORITY_LOW)
             elif self.status == "repeating":
                 if logutils.debugLevel() >= 4:
                     print >> sys.stderr, "Done pausing", self.srcline
@@ -468,7 +467,7 @@ class CheckPointLine(GUILogLineRunner):
             self.status = "repeating"
             if logutils.debugLevel() >= 4:
                 print >> sys.stderr, "Waiting on checkpoint", self.srcline
-            gobject.timeout_add(retrydelay, self, priority=gobject.PRIORITY_LOW)
+            GObject.timeout_add(retrydelay, self, priority=GObject.PRIORITY_LOW)
         return False
     def report(self):
         print >> sys.stderr, "////// %d/%d checkpoint %s" %(self.srcline,
@@ -486,20 +485,29 @@ findMenu = logutils.findMenu
 findCellRenderer = logutils.findCellRenderer
 setComboBox = logutils.setComboBox
 
-# Utility function for creating a gtk.gdk.Event object.  "etype" must
-# be an event type (gtk.gdk.BUTTON_PRESS, for example).  "kwargs" can
-# contain attributes of the event object.  It almost certainly should
-# include the "window" attribute, which must be set to a
-# gtk.gdk.Window.  (For gtk.Widgets, this is just Widget.window.  For
-# adopted GObjects, it's harder to get the correct gdk.Window into the
-# log...)
+# Utility function for creating a Gdk.Event object.  "eclass" should
+# be a class of GdkEvent, such as Gdk.EventButton.  "etype" should be
+# a GdkEventType, such as Gdk.EventType.BUTTON_PRESS that is
+# compatible with eclass.  kwargs contains attributes that will be
+# assigned to the event.  It almost certainly should include the
+# "window" attribute, which must be set to a Gdk.Window.  For
+# Gtk.Widgets, this is just Widget.get_window().
 
-## TODO GTK3: Not sure about the correctness of this.  The comment
-## above is certainly wrong.
+## TODO GTK3: We don't need the eclass arg. Fix it below and in the
+## comment above.
 
-def event(etype, **kwargs):
-    ev = Gdk.Event(etype)
+def event(eclass, etype, **kwargs):
+    ev = Gdk.Event.new(etype)
+    # ev.type = etype
+    if hasattr(ev, 'time'):
+        ev.time = Gtk.get_current_event_time()
+    if hasattr(ev, 'set_device'):
+        disp = Gdk.Display.get_default()
+        ev.set_device(disp.list_devices()[0])
     for arg, val in kwargs.items():
+        if logutils.debugLevel() > 0:
+            if not hasattr(ev, arg):
+                print >> sys.stderr, "Event", eclass, "has no attribute", arg
         setattr(ev, arg, val)
     return ev
         

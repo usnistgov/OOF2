@@ -16,12 +16,14 @@ import widgetlogger
 class TreeViewLogger(widgetlogger.WidgetLogger): # I'm a lumberjack and I'm OK.
     classes = (Gtk.TreeView,)
     def record(self, obj, signal, *args):
+        ## TODO GTK3: Why handle button-release-event here?
+        ## WidgetLogger will handle it.
         if signal == 'button-release-event':
             event = args[0]
             wvar = loggers.localvar('widget')
             return [
     "%s=%s" % (wvar, self.location(obj, *args)),
-    "%(w)s.event(event(gtk.gdk.BUTTON_RELEASE,button=%(b)d,window=%(w)s.window))"
+    "%(w)s.event(event(Gdk.EventButton,Gdk.EventType.BUTTON_RELEASE,button=%(b)d,window=%(w)s.window))"
     % dict(w=wvar, b=event.button)
     ]
         if signal == 'row-activated':
@@ -56,7 +58,7 @@ class TreeSelectionLogger(adopteelogger.AdopteeLogger):
     classes = (Gtk.TreeSelection,)
     def record(self, obj, signal, *args):
         if signal == 'changed':
-            if obj.get_mode()==gtk.SELECTION_MULTIPLE:
+            if obj.get_mode()==Gtk.SelectionMode.MULTIPLE:
                 model, rows = obj.get_selected_rows()
                 # Unselecting all rows and then selecting the selected
                 # ones seems wrong, since unselecting and reselecting

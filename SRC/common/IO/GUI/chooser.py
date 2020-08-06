@@ -135,15 +135,16 @@ class ChooserWidget(object):
         self.gtk.destroy()
     def buttonpressCB(self, gtkobj, event):
         debug.mainthreadTest()
-        popupMenu = Gtk.Menu()
-        gtklogger.newTopLevelWidget(popupMenu, 'chooserPopup-'+self.name)
-        popupMenu.set_size_request(self.gtk.get_allocated_width(), -1)
+        self.popupMenu = Gtk.Menu()
+        gtklogger.newTopLevelWidget(self.popupMenu, 'chooserPopup-'+self.name)
+        self.popupMenu.set_size_request(self.gtk.get_allocated_width(), -1)
         newCurrentItem = None
         for name in self.namelist:
             if self.separator_func and self.separator_func(name):
                 menuitem = Gtk.SeparatorMenuItem()
             else:
                 menuitem = Gtk.MenuItem(name)
+                gtklogger.setWidgetName(menuitem, name)
                 gtklogger.connect(menuitem, 'activate', self.activateCB, name)
                 gtklogger.connect(menuitem, 'enter-notify-event',
                                   self.enterItemCB)
@@ -152,20 +153,28 @@ class ChooserWidget(object):
                     menuitem.set_tooltip_text(helpstr)
                 if name == self.current_string:
                     newCurrentItem = menuitem
-            popupMenu.append(menuitem)
+            self.popupMenu.append(menuitem)
         if newCurrentItem:
             self.current_item = newCurrentItem
             self.current_item.select()
         else:
             self.current_item = None
-        popupMenu.show_all()
-        popupMenu.popup_at_widget(self.stack, Gdk.Gravity.SOUTH_WEST,
-                                  Gdk.Gravity.NORTH_WEST, event)
-
+        self.popupMenu.show_all()
+        self.popupMenu.popup_at_widget(self.stack, Gdk.Gravity.SOUTH_WEST,
+                                       Gdk.Gravity.NORTH_WEST, event)
         return False
+
     def activateCB(self, menuitem, name):
         debug.mainthreadTest()
         self.stack.set_visible_child_name(name)
+        # TODO GTK3: It shouldn't be necessary to call
+        # popupMenu.destroy() here, but during playback of a gtklogger
+        # script the menu doesn't disappear unless it's explicitly
+        # destroyed. The popup menu in the gfx window layer list does
+        # *not* have this problem.  (popupMenu is stored in self only
+        # so that it can be destroyed here.)
+        self.popupMenu.destroy()
+        self.popupMenu = None
         self.current_string = name
         if self.callback:
             self.callback(*(name,) + self.callbackargs)
@@ -174,7 +183,7 @@ class ChooserWidget(object):
         debug.mainthreadTest()
         # When the mouse enters the pop-up menu, the initially
         # selected item has to be deselected manually.
-        if self.current_item is not None:
+        if self.current_item is not None and self.current_item is not menuitem:
             self.current_item.deselect()
             self.current_item = None
 

@@ -970,6 +970,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def layerlistbuttonCB(self, gtkobj, event):
         if event.button == 3:
             popupMenu = Gtk.Menu()
+            gtklogger.newTopLevelWidget(popupMenu, 'PopUp-'+self.name)
             for item in self.menu.Layer:
                 item.construct_gui(self.menu.Layer, popupMenu, None)
             popupMenu.show_all()
@@ -979,11 +980,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # other handlers to see the event.  In particular, it allows a
         # right-click to select the treeview line, so that the popup
         # menu can act on it.  Most of the menu items act on the
-        # current selection.  [SAL: I don't quite understand the order
-        # of events (no pun intended) here, but the code seems to
-        # work.  layerpopup.popup() is being called *before* the
-        # selection callbacks, so why is the menu sensitized
-        # correctly?]
+        # current selection.
         return False         
         
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#    

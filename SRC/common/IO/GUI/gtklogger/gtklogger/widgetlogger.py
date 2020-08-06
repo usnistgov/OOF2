@@ -14,8 +14,12 @@ import logutils
 
 import string
 
+## TODO GTK3: Use gtk_main_do_event instead of Gtk.Widget.event?  See
+## https://developer.gnome.org/gtk3/stable/GtkWidget.html#gtk-widget-event
+
 class WidgetLogger(loggers.GtkLogger):
     classes = (Gtk.Widget,)
+
     def location(self, widget, *args):
         name = logutils.getWidgetName(widget)
         if not name:
@@ -32,7 +36,9 @@ class WidgetLogger(loggers.GtkLogger):
         if parent is None:
             return []
         return self._parentWidgetPath(parent) + [logutils.getWidgetName(parent)]
+
     def record(self, obj, signal, *args):
+        
         if signal in ('button-press-event', 'button-release-event'):
             evnt = args[0]
             if signal == 'button-press-event':
@@ -42,10 +48,11 @@ class WidgetLogger(loggers.GtkLogger):
             wvar = loggers.localvar('widget')
             return [
                 "%s = %s" % (wvar, self.location(obj, *args)),
-                "%s.event(event(gtk.gdk.%s,x=%20.13e,y=%20.13e,button=%d,state=%d,window=%s.window))"
+                "%s.event(event(Gdk.EventButton, Gdk.EventType.%s,x=%20.13e,y=%20.13e,button=%d,state=%d,window=%s.get_window()))"
                 % (wvar, eventname,
                    evnt.x, evnt.y, evnt.button, evnt.state, wvar)
                 ]
+        
         if signal == 'motion-notify-event':
             evnt = args[0]
             if logutils.suppress_motion_events(obj):
@@ -53,26 +60,45 @@ class WidgetLogger(loggers.GtkLogger):
             wvar = loggers.localvar('widget')
             return [
                 "%s = %s" % (wvar, self.location(obj, *args)),
-                "%s.event(event(gtk.gdk.MOTION_NOTIFY,x=%20.13e,y=%20.13e,state=%d,window=%s.window))"
+                "%s.event(event(Gdk.EventMotion, Gdk.EventType.MOTION_NOTIFY,x=%20.13e,y=%20.13e,state=%d,window=%s.get_window()))"
                 % (wvar, evnt.x, evnt.y, evnt.state, wvar)
                 ]
+        
         if signal == 'focus-in-event':
             wvar = loggers.localvar('widget')
             return [
        "%s=%s" % (wvar, self.location(obj, *args)),
-       "%(widget)s.event(event(gtk.gdk.FOCUS_CHANGE, in_=1, window=%(widget)s.window))" % dict(widget=wvar)
+       "%(widget)s.event(event(Gdk.EventFocus, Gdk.EventType.FOCUS_CHANGE, in_=1, window=%(widget)s.get_window()))" % dict(widget=wvar)
                 ]
+        
         if signal == 'focus-out-event':
             wvar = loggers.localvar('widget')
             return [
        "%s=%s" % (wvar,self.location(obj, *args)),
-       "%(widget)s.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=%(widget)s.window))" % dict(widget=wvar)
+       "%(widget)s.event(event(Gdk.EventFocus, Gdk.EventType.FOCUS_CHANGE, in_=0, window=%(widget)s.get_window()))" % dict(widget=wvar)
                 ]
-            
+
+        if signal in ('enter-notify-event', 'leave-notify-event'):
+            evnt = args[0]
+            device = evnt.get_device()
+            if signal == 'enter-notify-event':
+                etype = "ENTER_NOTIFY"
+            else:
+                etype = "LEAVE_NOTIFY"
+            wvar = loggers.localvar('widget')
+            return [
+        "%s=%s" % (wvar, self.location(obj, *args)),
+        "%(widget)s.event(event(Gdk.EventCrossing, Gdk.EventType.%(etype)s, window=%(widget)s.get_window()))" % dict(etype=etype, widget=wvar)
+            ]
+
+        ## TODO GTK3: We should catch and log allocation events on top
+        ## level windows only.  Currently we don't catch any
+        ## size-allocate signals except within the OOFCanvas, and it
+        ## doesn't use gtklogger.
         if signal == 'size-allocate':
             alloc = obj.get_allocation()
             parent = obj.get_parent()
-            return ["%s.size_allocate(gtk.gdk.Rectangle(%d, %d, %d, %d))" \
+            return ["%s.size_allocate(Gdk.Rectangle(%d, %d, %d, %d))" \
                    % (self.location(obj, *args),
                       alloc.x, alloc.y, alloc.width, alloc.height)]
         return super(WidgetLogger, self).record(obj, signal, *args)
