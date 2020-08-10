@@ -529,8 +529,17 @@ class AnalyzePage(BaseAnalysisPage):
         # settings happen to match a named analysis.  Call this
         # whenever anything on the page changes.
         
-        self.namedAnalysisChooser.update(['']
-                                         + namedanalysis.bulkAnalysisNames())
+        # TODO: Just creating a Microstructure or Skeleton generates 9
+        # calls to setNamedAnalysisChooser, which seems like a lot.
+        # This checks the oldname and whether the chooser state has
+        # actually changed before issuing a checkpoint, but a better
+        # solution would be to figure out why the function is being
+        # called so often, and to fix it.
+
+        oldname = self.namedAnalysisChooser.get_value()
+        
+        changed = self.namedAnalysisChooser.update(
+            [''] + namedanalysis.bulkAnalysisNames())
 
         # If the get_value calls fail, the widgets aren't in a valid
         # state, and therefore there's no current name.
@@ -543,8 +552,10 @@ class AnalyzePage(BaseAnalysisPage):
                 self.sample_obj.get_value())
         except:
             currentname = ""
-        self.namedAnalysisChooser.set_state(currentname)
-        gtklogger.checkpoint("named analysis chooser set")
+        changed = changed or currentname != oldname
+        if changed:
+            self.namedAnalysisChooser.set_state(currentname)
+            gtklogger.checkpoint("named analysis chooser set")
 
     def createCB(self, gtkobj):  # create a named analysis
         menuitem = analyzemenu.namedanalysismenu.Create

@@ -100,7 +100,10 @@ class ChooserWidget(object):
         return hbox
 
     def update(self, namelist, helpdict={}):
+        # update() returns True if something changed.
         debug.mainthreadTest()
+        if namelist == self.namelist and helpdict == self.helpdict:
+            return False
         self.namelist = namelist[:]
         self.helpdict = helpdict
         if self.namelist:
@@ -123,6 +126,7 @@ class ChooserWidget(object):
                     self.stack.remove(widget)
                 self.empty = True
                 self.stack.add_named(self.emptyMarker, self.emptyMarkerName)
+        return True
 
     def show(self):
         debug.mainthreadTest()
@@ -247,6 +251,7 @@ class FakeChooserWidget:
         pass
     def update(self, namelist, helpdict={}):
         debug.fmsg(namelist)
+        return False
     def set_state(self, arg):
         pass
     def get_value(self):
