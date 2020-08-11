@@ -38,7 +38,8 @@ class WidgetLogger(loggers.GtkLogger):
         return self._parentWidgetPath(parent) + [logutils.getWidgetName(parent)]
 
     def record(self, obj, signal, *args):
-        
+        ## TODO GTK3: Keep a weak ref to the previous wvar and re-use
+        ## the old one if the current one is the same.
         if signal in ('button-press-event', 'button-release-event'):
             evnt = args[0]
             if signal == 'button-press-event':

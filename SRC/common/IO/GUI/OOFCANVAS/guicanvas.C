@@ -40,11 +40,28 @@ namespace OOFCanvas {
   {}
 
   void GUICanvasBase::initSignals() {
-    // gdk_window_set_events() is called in the "realize" event
-    // handler.
+    // initSignals is called by the derived class constructors after
+    // layout is set.
+
+    // We don't (yet) use all of these events, but I don't think it
+    // hurts to include them here.  I also haven't been able to figure
+    // out which ones need to be explicitly included, and which ones
+    // are included by default.  gtk_widget_get_events(layout) returns
+    // 0 at this point, but gtk_widget_add_events() works. Go figure.
+    gtk_widget_add_events(layout,
+			  (GdkEventMask) (GDK_BUTTON_PRESS_MASK |
+					  GDK_BUTTON_RELEASE_MASK |
+					  GDK_POINTER_MOTION_MASK |
+					  GDK_KEY_PRESS_MASK |
+					  GDK_KEY_RELEASE_MASK |
+					  GDK_ENTER_NOTIFY_MASK |
+					  GDK_LEAVE_NOTIFY_MASK |
+					  GDK_FOCUS_CHANGE_MASK |
+					  GDK_SCROLL_MASK));
+
     g_signal_connect(G_OBJECT(layout), "realize",
 		     G_CALLBACK(GUICanvasBase::realizeCB), this);
-    g_signal_connect(G_OBJECT(layout), "size-allocate",
+    g_signal_connect(G_OBJECT(layout), "size_allocate",
      		     G_CALLBACK(GUICanvasBase::allocateCB), this);
 
     g_signal_connect(G_OBJECT(layout), "button_press_event",
@@ -57,6 +74,7 @@ namespace OOFCanvas {
     		     G_CALLBACK(GUICanvasBase::drawCB), this);
     g_signal_connect(G_OBJECT(layout), "scroll_event",
 		     G_CALLBACK(GUICanvasBase::scrollCB), this);
+
   }
   
   void GUICanvasBase::show() {
@@ -218,22 +236,18 @@ namespace OOFCanvas {
     // Set the initial size of the virtual window to be the same as
     // the size the actual window.
     gtk_layout_set_size(GTK_LAYOUT(layout), widgetWidth(), widgetHeight());
-    
-    GdkWindow *bin_window = gtk_layout_get_bin_window(GTK_LAYOUT(layout));
 
+    // https://developer.gnome.org/gtk3/stable/GtkLayout.html says:
+    // When handling expose events on a GtkLayout, you must draw to
+    // the GdkWindow returned by gtk_layout_get_bin_window(), rather
+    // than to the one returned by gtk_widget_get_window() as you
+    // would for a GtkDrawingArea.
+
+    // TODO: Do we need this?  Do we actually catch expose events?
+    GdkWindow *bin_window = gtk_layout_get_bin_window(GTK_LAYOUT(layout));
     gdk_window_set_events(bin_window,
-			  (GdkEventMask) (gdk_window_get_events(bin_window)
-					  | GDK_EXPOSURE_MASK
-					  | GDK_BUTTON_PRESS_MASK
-					  | GDK_BUTTON_RELEASE_MASK
-					  | GDK_POINTER_MOTION_MASK
-					  | GDK_KEY_PRESS_MASK
-					  | GDK_KEY_RELEASE_MASK
-					  | GDK_ENTER_NOTIFY_MASK
-					  | GDK_LEAVE_NOTIFY_MASK
-					  | GDK_FOCUS_CHANGE_MASK
-					  | GDK_SCROLL_MASK
-					  ));
+			  (GdkEventMask)(gdk_window_get_events(bin_window)
+					 | GDK_EXPOSURE_MASK));
   }
 
   //=\\=//
@@ -288,14 +302,14 @@ namespace OOFCanvas {
   // but not an emacs window.  The scrollbar in the canvas changes
   // color when this happens.
 
-  void GUICanvasBase::drawCB(GtkWidget*, Cairo::Context::cobject *ctxt,
+  bool GUICanvasBase::drawCB(GtkWidget*, Cairo::Context::cobject *ctxt,
 			  gpointer data)
   {
-    ((GUICanvasBase*) data)->drawHandler(
+    return ((GUICanvasBase*) data)->drawHandler(
 	  Cairo::RefPtr<Cairo::Context>(new Cairo::Context(ctxt, false)));
   }
 
-  void GUICanvasBase::drawHandler(Cairo::RefPtr<Cairo::Context> context) {
+  bool GUICanvasBase::drawHandler(Cairo::RefPtr<Cairo::Context> context) {
     // From the gtk2->gtk3 conversion notes: "The cairo context is
     // being set up so that the origin at (0, 0) coincides with the
     // upper left corner of the widget, and is properly clipped."
@@ -353,7 +367,7 @@ namespace OOFCanvas {
 	  // rubberband
 	  rubberBandLayer.redraw();
 	  rubberBandLayer.draw(context, 0, 0);
-	  return;
+	  return true;
 	}
       }
 
@@ -384,7 +398,7 @@ namespace OOFCanvas {
 
       rubberBandLayer.redraw();	
       rubberBandLayer.draw(context, hadj, vadj);
-      return;
+      return true;
     }
 
     // There's no rubberband, just draw.
@@ -400,13 +414,14 @@ namespace OOFCanvas {
       layer->redraw();			// only redraws dirty layers
       layer->draw(context, hadj, vadj); // copies layers to canvas
     }
+    return true;
   } // GUICanvasBase::drawHandler
 
   //=\\=//
 
-  void GUICanvasBase::buttonCB(GtkWidget*, GdkEventButton *event, gpointer data)
+  bool GUICanvasBase::buttonCB(GtkWidget*, GdkEventButton *event, gpointer data)
   {
-    ((GUICanvasBase*) data)->mouseButtonHandler(event);
+    return ((GUICanvasBase*) data)->mouseButtonHandler(event);
   }
 
   // TODO: There's a possible race condition if the mouse button
@@ -418,9 +433,9 @@ namespace OOFCanvas {
   // because it would make no sense for a mouse-up or mouse-move
   // callback to return a rubberband pointer.
   
-  void GUICanvasBase::mouseButtonHandler(GdkEventButton *event) {
+  bool GUICanvasBase::mouseButtonHandler(GdkEventButton *event) {
     if(empty())
-      return;
+      return false;
     ICoord pixel(event->x, event->y);
     Coord userpt(pixel2user(pixel));
     std::string eventtype;
@@ -449,16 +464,17 @@ namespace OOFCanvas {
       }
       rubberBand->draw(userpt.x, userpt.y);
       }
+    return false;
   }
 
   //=\\=//
   
-  void GUICanvasBase::motionCB(GtkWidget*, GdkEventMotion *event, gpointer data)
+  bool GUICanvasBase::motionCB(GtkWidget*, GdkEventMotion *event, gpointer data)
   {
-    ((Canvas*) data)->mouseMotionHandler(event);
+    return ((Canvas*) data)->mouseMotionHandler(event);
   }
 
-  void GUICanvasBase::mouseMotionHandler(GdkEventMotion *event) {
+  bool GUICanvasBase::mouseMotionHandler(GdkEventMotion *event) {
     if(allowMotion == MOTION_ALWAYS ||
        (allowMotion == MOTION_MOUSEDOWN && buttonDown))
       {
@@ -471,7 +487,15 @@ namespace OOFCanvas {
 	doCallback("move", userpt, lastButton,
 		   event->state & GDK_SHIFT_MASK,
 		   event->state & GDK_CONTROL_MASK);
+	return false;
       }
+    // Returning "true" means that this handler has processed the
+    // event and no further processing should be done.  In particular,
+    // it prevents the event from being logged if a gui event logger
+    // is being used.  This is easier than turning logging on and off
+    // in the logger.  (Motion events shouldn't be logged if they're
+    // not wanted, because there are too many of them.)
+    return true; 
   }
 
   MotionAllowed GUICanvasBase::allowMotionEvents(MotionAllowed ma) {
@@ -482,12 +506,12 @@ namespace OOFCanvas {
 
   //=\\=//  
 
-  void GUICanvasBase::scrollCB(GtkWidget*, GdkEventScroll *event, gpointer data)
+  bool GUICanvasBase::scrollCB(GtkWidget*, GdkEventScroll *event, gpointer data)
   {
-    ((Canvas*) data)->scrollHandler(event);
+    return ((Canvas*) data)->scrollHandler(event);
   }
 
-  void GUICanvasBase::scrollHandler(GdkEventScroll *event) {
+  bool GUICanvasBase::scrollHandler(GdkEventScroll *event) {
     if(event->direction == GDK_SCROLL_SMOOTH) {
       // Scroll amount is stored in deltas.
       Coord delta(event->delta_x, event->delta_y);
@@ -499,7 +523,7 @@ namespace OOFCanvas {
 		 event->state & GDK_CONTROL_MASK);
 
     }
-    
+    return false;
   }
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

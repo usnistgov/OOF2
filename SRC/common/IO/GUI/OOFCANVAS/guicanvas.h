@@ -49,15 +49,15 @@ namespace OOFCanvas {
 
     void initSignals();
     // Mouse handling 
-    static void buttonCB(GtkWidget*, GdkEventButton*, gpointer);
-    void mouseButtonHandler(GdkEventButton*);
-    static void motionCB(GtkWidget*, GdkEventMotion*, gpointer);
-    void mouseMotionHandler(GdkEventMotion*);
+    static bool buttonCB(GtkWidget*, GdkEventButton*, gpointer);
+    bool mouseButtonHandler(GdkEventButton*);
+    static bool motionCB(GtkWidget*, GdkEventMotion*, gpointer);
+    bool mouseMotionHandler(GdkEventMotion*);
     virtual void doCallback(const std::string&, const Coord&,
 			    int, bool, bool) = 0;
     // Scrollwheel
-    static void scrollCB(GtkWidget*, GdkEventScroll*, gpointer);
-    void scrollHandler(GdkEventScroll*);
+    static bool scrollCB(GtkWidget*, GdkEventScroll*, gpointer);
+    bool scrollHandler(GdkEventScroll*);
 
     // Window creation
     static void realizeCB(GtkWidget*, gpointer);
@@ -68,8 +68,8 @@ namespace OOFCanvas {
     void allocateHandler(GdkRectangle*);
     virtual void resizeHandler() = 0;
 
-    static void drawCB(GtkWidget*, Cairo::Context::cobject*, gpointer);
-    void drawHandler(Cairo::RefPtr<Cairo::Context>);
+    static bool drawCB(GtkWidget*, Cairo::Context::cobject*, gpointer);
+    bool drawHandler(Cairo::RefPtr<Cairo::Context>);
 
     virtual void setWidgetSize(int, int);
     

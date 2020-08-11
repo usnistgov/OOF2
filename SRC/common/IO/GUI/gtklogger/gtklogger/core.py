@@ -204,12 +204,6 @@ class GUISignals:
     def unblock(self):
         if self.alive:
             map(self.widget().handler_unblock, self.signals)
-    def block_log(self):
-        if self.alive:
-            self.widget().handler_block(self.signals[0])
-    def unblock_log(self):
-        if self.alive:
-            self.widget().handler_unblock(self.signals[0])
     def disconnect(self):
         if self.alive:
             map(self.widget().disconnect, self.signals)

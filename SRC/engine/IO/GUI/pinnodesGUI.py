@@ -183,8 +183,6 @@ And Ctrl-click to toggle.""")
         self.gfxwindow().setMouseHandler(self)
         self.oldMotionFlag = self.gfxwindow().allowMotionEvents(
             oofcanvasgui.MOTION_ALWAYS)
-        ## TODO GTK3: enable mouse motion logging
-        #gtklogger.log_motion_events(self.gfxwindow().oofcanvas.rootitem())
         self.sbcallbacks = [
             switchboard.requestCallbackMain(('who changed', 'Skeleton'),
                                             self.skelChanged),
@@ -205,8 +203,6 @@ And Ctrl-click to toggle.""")
         toolboxGUI.GfxToolbox.deactivate(self)
         self.gfxwindow().removeMouseHandler()
         self.gfxwindow().allowMotionEvents(self.oldMotionFlag)
-        ## TODO GTK3: enable mouse motion logging
-        #gtklogger.dont_log_motion_events(self.gfxwindow().oofcanvas.rootitem())
         map(switchboard.removeCallback, self.sbcallbacks)
 
     def showPosition(self, point):

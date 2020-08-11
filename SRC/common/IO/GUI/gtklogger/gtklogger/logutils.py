@@ -229,7 +229,12 @@ def set_debugLevel(n):
 ## the default value which applies to all widgets that have *not* been
 ## the argument of log_motion_events() or dont_log_motion_events().
 ## suppress_motion_events() should only be used inside Loggers.
-    
+
+## In practice, if it's necessary to turn motion event logging on and
+## off for a widget, it may be easier to toggle the return value of
+## the event handler.  If the user's event handler runs before
+## gtklogger's handler, returning true from the user's handler will
+## suppress gtklogger's handler.
 
 _suppress_motion_events = True
 _suppression_dict = weakref.WeakKeyDictionary()

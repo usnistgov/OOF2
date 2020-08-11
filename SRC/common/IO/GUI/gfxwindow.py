@@ -459,41 +459,21 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         gtklogger.connect_passive(self.vScrollbar.get_adjustment(),
                                   'value-changed')
         canvas.setMouseCallback(self.mouseCB, None)
+
+        gtklogger.setWidgetName(canvas.layout, "OOFCanvas")
+        gtklogger.connect_passive(canvas.layout, "button-press-event")
+        gtklogger.connect_passive(canvas.layout, "button-release-event")
+        gtklogger.connect_passive(canvas.layout, "motion-notify-event")
+        gtklogger.log_motion_events(canvas.layout)
+
+        ## TODO GTK3: Do we need to log scroll-event if we're already
+        ## logging the scrollbars?
+        # gtklogger.connect_passive(canvas.layout, "scroll-event")
+        
         if self.rubberband:
             canvas.setRubberBand(self.rubberband)
         return canvas
         
-#         ## TODO GTK3: Get GUI logging working with the new OOFCanvas.
-        
-#         # # GUI logging stuff.
-#         # canvasroot = self.oofcanvas.rootitem()
-#         # init_canvas_logging(canvasroot) # one-time initialization
-#         # # Although canvasroot is a gtk widget, it's not a pygtk
-#         # # widget, which makes life difficult.  So here it's adopted by
-#         # # a pygtk widget instead, and uses various hacks to get itself
-#         # # logged.  The actual widget doing the adopting is completely
-#         # # arbitrary since it will be passed as the first argument of
-#         # # findCanvasRoot, which discards it.  It does have to be a
-#         # # loggable pygtk widget, though, because
-#         # # AdopteeLogger.location() doesn't know that it will be
-#         # # discarded.  I did say that this is a hack, didn't I?
-#         # gtklogger.adoptGObject(canvasroot, self.canvasTable,
-#         #                        access_function=findCanvasRoot,
-#         #                        access_kwargs={"windowname":self.name})
-#         # gtklogger.connect_passive(canvasroot, "event")
-
-#         # self.oofcanvas.setAntialias(self.settings.antialias)
-#         # self.oofcanvas.setBackgroundColor(self.settings.bgcolor.getRed(),
-#         #                                   self.settings.bgcolor.getGreen(),
-#         #                                   self.settings.bgcolor.getBlue())
-#         # self.oofcanvas.setMargin(self.settings.margin)
-
-#         # self.oofcanvas.setMouseCallback(self.mouseCB, None)
-#         # if self.rubberband:
-#         #     self.oofcanvas.setRubberBand(self.rubberband)
-#         # self.oofcanvas.show()
-
-
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
     # Contour map stuff.
@@ -1054,99 +1034,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.draw(zoom=zoom)
 
         mainthread.runBlock(self.sensitizeTimeButtons)
-
-    #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#        
-
-
-# ## Support for logging and replaying mouse clicks.
-
-# # Although the Canvas *is* a gtk Widget, it's not a pygtk Widget, and
-# # it's hard to use the widget logging machinery directly on it. So we
-# # pretend that it's some other kind of gtk object and use the
-# # adoptGObject machinery instead.  It's adopted by
-# # GfxWindow.canvasTable.  adoptGObject is told the name of the window.
-# # The log uses the window name and findCanvasRoot to retrieve the
-# # Canvas's root, which is the crucial bit for emitting signals.
-
-# def findCanvasRoot(gtkobj, windowname):
-
-#     # In gui logs, returns the root object of the canvas of the given
-#     # gfxwindow.  Put into the logs by AdopteeLogger.location, via
-#     # CanvasLogger.location.  See GfxWindow.newCanvas().
-    
-#     window = gfxmanager.gfxManager.getWindow(windowname)
-#     return window.oofcanvas.rootitem()
-
-# def findCanvasGdkWindow(windowname):
-#     window = gfxmanager.gfxManager.getWindow(windowname)
-#     return window.oofcanvas.widget().window
-
-# # desired_events is a list of all of the event types that should be
-# # logged on the canvas.
-
-# desired_events = [gtk.gdk.BUTTON_PRESS,
-#                   gtk.gdk.BUTTON_RELEASE,
-#                   gtk.gdk.MOTION_NOTIFY]
-
-# _canvaslogging_initialized = False
-
-# def init_canvas_logging(canvasgroup):
-#     global _canvaslogging_initialized
-#     if _canvaslogging_initialized:
-#         return
-#     _canvaslogging_initialized = True
-
-#     # Inject findCanvasRoot into the gtklogger replay namespace, which
-#     # is where gui scripts are run.
-#     gtklogger.replayDefine(findCanvasRoot)
-#     gtklogger.replayDefine(findCanvasGdkWindow)
-
-#     # The GtkLogger for Canvas events has to be defined *after* the
-#     # first canvas has been created, because the GnomeCanvasGroup
-#     # class isn't in pygtk.  We snag the object returned by
-#     # OOFCanvas::rootitem and use its class for the CanvasLogger.
-#     class CanvasLogger(gtklogger.adopteelogger.AdopteeLogger):
-#         classes = (canvasgroup.__class__,)
-#         def location(self, object, *args):
-#             self.windowname = object.oofparent_access_kwargs['windowname']
-#             return super(CanvasLogger, self).location(object, *args)
-#         buttonup = True
-#         def record(self, object, signal, *args):
-#             if signal == "event":
-#                 event = args[0]
-#                 if event.type in desired_events:
-#                     # event.type.value_name is something of the form
-#                     # GDK_XXXXXX, but the python variable is
-#                     # gtk.gdk.XXXXXX, so we have to strip off the
-#                     # "GDK_".
-#                     eventname = event.type.value_name[4:]
-#                     if event.type in (gtk.gdk.BUTTON_PRESS,
-#                                       gtk.gdk.BUTTON_RELEASE):
-#                         CanvasLogger.buttonup = (event.type ==
-#                                                  gtk.gdk.BUTTON_RELEASE)
-#                         return [
-#                             "canvasobj = %s" % self.location(object, *args),
-#                             "canvasobj.emit('event', event(gtk.gdk.%s,x=%20.13e,y=%20.13e,button=%d,state=%d,window=findCanvasGdkWindow('%s')))"
-#                             % (eventname, event.x, event.y, event.button,
-#                                event.state, self.windowname)
-#                             ]
-#                     if event.type == gtk.gdk.MOTION_NOTIFY:
-#                         # If the mouse is down, ignore the
-#                         # suppress_motion_events flag.  Always log
-#                         # mouse-down motion events, and log all motion
-#                         # events if they're not suppressed.
-#                         if (gtklogger.suppress_motion_events(object) and
-#                             self.buttonup):
-#                             return self.ignore
-#                         return [
-#                             "canvasobj = %s" % self.location(object, *args),
-#                             "canvasobj.emit('event', event(gtk.gdk.MOTION_NOTIFY,x=%20.13e,y=%20.13e,state=%d,window=findCanvasGdkWindow('%s')))"
-#                         % (event.x, event.y, event.state, self.windowname)
-                    
-#                         ]
-#                 return self.ignore      # silently ignore other events
-#             super(CanvasLogger, self).record(object, signal, *args)
-
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
