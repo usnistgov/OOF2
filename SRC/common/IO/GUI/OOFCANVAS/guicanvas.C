@@ -751,7 +751,6 @@ namespace OOFCanvas {
   }
 
   void PythonCanvas::resizeHandler() {
-    // TODO: This isn't called.  Should it be?
     if(resizeCallback) {
       PyGILState_STATE pystate = PyGILState_Ensure();
       try {
