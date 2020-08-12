@@ -43,4 +43,5 @@ import menulogger
 import treeviewlogger
 import widgetlogger
 import panedlogger
+import layoutlogger
 import windowlogger

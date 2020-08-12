@@ -3,9 +3,6 @@ OOF2 TODO
 This file is for high-priority or long-range TODOs for which a comment
 in the code is insufficient for some reason.
 
-Trying to save a region of the canvas when it's empty crashes the
-program.
-
 Add an OutputDestination that saves objects to a given Python array.
 
 Upgrade to gtk+3 and use libcairo instead of libgnomecanvas.  Will
@@ -57,3 +54,12 @@ our own graphics app.
 
 Complete or delete the interface branch.  It's not a git branch.  Most
 of the relevant code is inactive and commented with "Interface branch".
+
+
+THINGS TO FIX IN TUTORIALS
+
+The Basics tutorial leaves out a step in the creation of pixel
+groups.  It was written before the name_template parameter was added.
+Also, the example may be too fast to bring up the activity viewer.
+
+Basics/Error Handling -- continued:  Should tell the user to click "OK".
