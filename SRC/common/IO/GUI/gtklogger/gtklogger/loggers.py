@@ -103,20 +103,20 @@ class GtkLogger(object):
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 ##############################################################    
 
-# This is the gtk signal handler that records everything.
+# This is the gtk signal handler that records everything.  If "logger"
+# is None (the usual case) the logger that is registered for the
+# object's class will be used.
 
-def signalLogger(obj, signal, *args):
+def signalLogger(obj, signal, logger, *args):
     if logutils.recording() and not logutils.replaying():
+        if logger is None:
+            logger = findLogger(obj)
         try:
-            records = findLogger(obj).record(obj, signal, *args)
-        except logutils.GtkLoggerTopFailure, exc:
-            if logutils.debugLevel() >= 3:
-                print >> sys.stderr, "Can't log %s (%s): %s" \
-                      (obj.__class__.__name__, signal, exc)
-        except logutils.GtkLoggerException, exc:
-            if logutils.debugLevel() >= 1:
-                print >> sys.stderr, "Can't log %s (%s): %s" % \
-                      (obj.__class__.__name__, signal, exc)
+            records = logger.record(obj, signal, *args)
+        except (logutils.GtkLoggerTopFailure,
+                logutils.GtkLoggerException), exc:
+            print >> sys.stderr, "Can't log %s (%s): %s" \
+                % (obj.__class__.__name__, signal, exc)
         else:
             if records is GtkLogger.ignore:
                 pass
@@ -132,6 +132,7 @@ def signalLogger(obj, signal, *args):
 
 ## Some lines are logged too often.  This code eliminates redundant
 ## lines, making the log files easier to read and faster to run.
+## TODO GTK3: Is this still needed?
 
 ## _redundantlines is a list of regular expression objects that match
 ## lines that are redundant when repeated.

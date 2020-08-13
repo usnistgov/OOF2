@@ -81,6 +81,11 @@ namespace OOFCanvas {
     double user2pixel(double) const;
     double pixel2user(double) const;
 
+    // This version just exists for calling from Python. Used when
+    // converting GdkEvent coordinates to user coordinates.  Event
+    // coords are floats.
+    Coord *pixel2user(double, double) const;
+
     void setAntialias(bool);
     void setMargin(double);
 

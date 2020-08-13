@@ -79,6 +79,7 @@ namespace OOFCanvas {
 
     ICoord user2pixel(const Coord&) const;
     Coord pixel2user(const ICoord&) const;
+    Coord *pixel2user(double, double) const;
     // These versions use Cairo::Context::device_to_user_distance
     double user2pixel(double) const;
     double pixel2user(double) const;

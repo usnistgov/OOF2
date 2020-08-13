@@ -519,5 +519,6 @@ def event(eclass, etype, **kwargs):
 ## module containing it) should be injected into the namespace using
 ## replayDefine.
 
-def replayDefine(obj):
-    sys.modules[__name__].__dict__[obj.__name__] = obj
+def replayDefine(obj, name=None):
+    nm = name or obj.__name__
+    sys.modules[__name__].__dict__[nm] = obj

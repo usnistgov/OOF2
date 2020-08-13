@@ -109,6 +109,15 @@ typedef std::vector<std::string> StringVec;
   $target = &pt;
 }
 
+%typemap(python, out) Coord* {
+   // typemap(python, out) Coord*
+   $target = Py_BuildValue("dd", $source->x, $source->y);
+ }
+
+%typemap(python, newfree) Coord* {
+  // typemap(python, newfree) Coord*
+  delete $source;
+}
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -387,6 +396,8 @@ public:
   %name(allItems) %new CanvasItemList* allItems_new();
   bool saveAsPDF(char*, int, bool);
   bool saveRegionAsPDF(char*, int, bool, Coord*, Coord*);
+
+  %new Coord *pixel2user(double, double);
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

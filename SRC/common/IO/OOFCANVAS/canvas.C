@@ -277,6 +277,10 @@ namespace OOFCanvas {
     return backingLayer.pixel2user(pt);
   }
 
+  Coord *OffScreenCanvas::pixel2user(double px, double py) const {
+    return backingLayer.pixel2user(px, py);
+  }
+
   double OffScreenCanvas::user2pixel(double d) const {
     return backingLayer.user2pixel(d);
   }

@@ -144,18 +144,26 @@ def set_submenu(menuitem, submenu):
 # gtklogger.connect_passive. 
 
 # @debug_connect
-def connect(obj, signal, callback, *args):
+def connect(obj, signal, callback, *args, **kwargs):
+    logger = kwargs.get("logger", None)
     return GUISignals(
         obj,
-        obj.connect(signal, CallBackWrapper(signal, callback), *args)
-        )
+        obj.connect(
+            signal,
+            CallBackWrapper(signal, callback=callback, logger=logger),
+            *args)
+    )
 
 # @debug_connect
-def connect_after(obj, signal, callback, *args):
+def connect_after(obj, signal, callback, *args, **kwargs):
+    logger = kwargs.get("logger", None)
     return GUISignals(
         obj,
-        obj.connect_after(signal, CallBackWrapper(signal, callback), *args)
-        )
+        obj.connect_after(
+            signal,
+            CallBackWrapper(signal, callback=callback, logger=logger),
+            *args)
+    )
 
 # connect_passive should be used when an action needs to be logged and
 # replayed, but wouldn't otherwise have a callback.  For example,
@@ -163,26 +171,29 @@ def connect_after(obj, signal, callback, *args):
 # be logged.
 
 # @debug_connect
-def connect_passive(obj, signal, *args):
+def connect_passive(obj, signal, *args, **kwargs):
+    logger = kwargs.get("logger", None)
     return GUISignals(
         obj,
-        obj.connect(signal, CallBackWrapper(signal), *args)
+        obj.connect(signal, CallBackWrapper(signal, logger=logger), *args)
         )
 
 # @debug_connect
-def connect_passive_after(obj, signal, *args):
+def connect_passive_after(obj, signal, *args, **kwargs):
+    logger = kwargs.get("logger", None)
     return GUISignals(
         obj,
-        obj.connect_after(signal, CallBackWrapper(signal), *args)
+        obj.connect_after(signal, CallBackWrapper(signal, logger=logger), *args)
         )
 
 
 class CallBackWrapper(object):
-    def __init__(self, signal, callback=None):
+    def __init__(self, signal, callback=None, logger=None):
         self.callback = callback
         self.signal = signal
+        self.logger = logger    # If None, will look up default logger for obj
     def __call__(self, obj, *args):
-        loggers.signalLogger(obj, self.signal, *args)
+        loggers.signalLogger(obj, self.signal, self.logger, *args)
         if self.callback:
             return self.callback(obj, *args)
         return False

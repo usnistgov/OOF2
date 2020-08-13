@@ -14,11 +14,15 @@ from ooflib.SWIG.common import lock
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import subthread
+from ooflib.common.IO import gfxmanager
 from ooflib.common.IO import ghostgfxwindow
 from ooflib.common.IO import reporter
+from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import subWindow
+
+from gi.repository import Gdk
 
 ## TODO: There's no need anymore for a separate GfxWindowBase base
 ## class.  All of this can be merged into GfxWindow.  GfxWindowBase
@@ -451,6 +455,19 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
 
     #### Mouse clicks ############
 
+    ## TODO: It would be nice if dragging the mouse from inside the
+    ## canvas to outside the canvas made the canvas scroll in the
+    ## opposite direction.  Then users could extend a selection past
+    ## the part of the canvas that was visible during the mouse-down
+    ## event, for example.  Doing this might be tricky.  We'd need to
+    ## catch the leave notify event, install a timeout event that
+    ## would scroll the canvas (at a rate and direction determined by
+    ## the mouse position), and remove the timeout event when the
+    ## mouse re-entered the canvas or the button was released.  At
+    ## each timeout, we'd scroll the canvas and simulate move events
+    ## for the toolbox's mouse handler.  When the event is finished,
+    ## we'd want to log the net effect of the scrolling.
+
     def setMouseHandler(self, handler):
         self.mouseHandler = handler
 
@@ -458,6 +475,9 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         self.mouseHandler = mousehandler.nullHandler
 
     def mouseCB(self, eventtype, x, y, button, shift, ctrl, data):
+        # "data" is an object that was passed in to
+        # Canvas::setMouseCallback() when this method was installed as
+        # the callback, in GfxWindow.newCanvas. 
         debug.mainthreadTest()
         global _during_callback
         _during_callback = 1
@@ -484,23 +504,47 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             
         _during_callback = 0
 
+    #=--=##=--=##=--=##=--=##=--=#
+    
+    # GUI logging of canvas events.
 
-    ## TODO: It would be nice if dragging the mouse from inside the
-    ## canvas to outside the canvas made the canvas scroll in the
-    ## opposite direction.  Then users could extend a selection past
-    ## the part of the canvas that was visible during the mouse-down
-    ## event, for example.  Doing this might be tricky.  We'd need to
-    ## catch the leave notify event, install a timeout event that
-    ## would scroll the canvas (at a rate and direction determined by
-    ## the mouse position), and remove the timeout event when the
-    ## mouse re-entered the canvas or the button was released.  At
-    ## each timeout, we'd scroll the canvas and simulate move events
-    ## for the toolbox's mouse handler.  When the event is finished,
-    ## we'd want to log the net effect of the scrolling.
+    # We can't just log events in pixel coordinates on the GtkLayout
+    # that's within the OOFCanvas, because the canvas size can change
+    # and therefore the conversion from pixel to user coordinates
+    # isn't reproducible.  We have to log the events in user
+    # coordinate, which means that the graphics window is
+    # responsible. (The OOFCanvas can't do the logging because we
+    # don't want to mix the OOFCanvas and gtklogger code, since both
+    # could be distributed independently of other.)
 
-    #############################################
+    # The logged code for each event should just run
+    # GfxWindow.mouseCB.  The "data" argument to mouseCB is what was
+    # passed in to OOFCanvas::Canvas::setMouseCallback when the
+    # callback was installed, in GfxWindow.newCanvas.  On replay, we
+    # need to be able to reconstruct that data.  Fortunately for us,
+    # it's just None.  If we ever actually use it, we'll have to do
+    # something more sophisticated here.
 
+    def simulateMouse(self, eventtype, x, y, button, shift, ctrl):
+        self.mouseCB(eventtype, x, y, button, shift, ctrl, None)
 
+    def logMouse(self, etype, x, y, button, state):
+        #debug.fmsg("x=", x, "y=", y, "button=", button, "state=", state)
+        # "etype" is "up", "down", or "move"
+        # x and y are pixel coordinates of the event
+        # button is which mouse button was used
+        # state is a GdkModifierType containing control, shift, etc.
+        ux, uy = self.oofcanvas.pixel2user(x, y)
+        shift = state & Gdk.ModifierType.SHIFT_MASK != 0
+        ctrl = state & Gdk.ModifierType.CONTROL_MASK != 0
+        return ["findGfxWindow('%s').simulateMouse('%s', %g, %g, %d, %d, %d)"
+                % (self.name, etype, ux, uy, button, shift, ctrl)]
+
+# This makes the "findGfxWindow" function used by the logged mouse
+# events available in the Python namespace in which replayed gui log
+# files are executed.  It's just the gfxManager's getWindow method,
+# renamed to make it a bit shorter.
+gtklogger.replayDefine(gfxmanager.gfxManager.getWindow, "findGfxWindow")
 
 
 

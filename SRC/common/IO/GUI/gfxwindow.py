@@ -28,6 +28,7 @@ from ooflib.common.IO import gfxmanager
 from ooflib.common.IO import ghostgfxwindow
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import reporter
+from ooflib.common.IO.GUI import canvaslogger
 from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import gfxmenu
 from ooflib.common.IO.GUI import gfxwindowbase
@@ -460,10 +461,21 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                                   'value-changed')
         canvas.setMouseCallback(self.mouseCB, None)
 
+        ## Because the OOFCanvas's window size can change depending on
+        ## the platform or the Gtk theme, the conversion from mouse
+        ## coordinates to user coordinates is not portable, so we need
+        ## to log the user coordinates.  The GtkLayout in the
+        ## OOFCanvas needs its own gtklogger that has access to the
+        ## OOFCanvas, and can call an OOFCanvas method that acts like
+        ## the OOFCanvas's mouse callback.
+        self.logger = canvaslogger.CanvasLogger(self)
         gtklogger.setWidgetName(canvas.layout, "OOFCanvas")
-        gtklogger.connect_passive(canvas.layout, "button-press-event")
-        gtklogger.connect_passive(canvas.layout, "button-release-event")
-        gtklogger.connect_passive(canvas.layout, "motion-notify-event")
+        gtklogger.connect_passive(canvas.layout, "button-press-event",
+                                  logger=self.logger)
+        gtklogger.connect_passive(canvas.layout, "button-release-event",
+                                  logger=self.logger)
+        gtklogger.connect_passive(canvas.layout, "motion-notify-event",
+                                  logger=self.logger)
         gtklogger.log_motion_events(canvas.layout)
 
         ## TODO GTK3: Do we need to log scroll-event if we're already

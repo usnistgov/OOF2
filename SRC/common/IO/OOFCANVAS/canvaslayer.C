@@ -186,6 +186,15 @@ namespace OOFCanvas {
     return pp;
   }
 
+  Coord *CanvasLayer::pixel2user(double x, double y) const {
+    // GdkEvents give pixel coords as floats, so this version is useful.
+    assert(context);
+    Coord *pp = new Coord(x, y);
+    *pp += canvas->centerOffset;
+    context->device_to_user(pp->x, pp->y);
+    return pp;
+  }
+
   ICoord CanvasLayer::user2pixel(const Coord &pt) const {
     assert(context);
     Coord pp = pt - canvas->centerOffset/canvas->getPixelsPerUnit();
