@@ -86,6 +86,33 @@ adoptive parent.  The parent must be named by gtklogger.setWidgetName
 or gtklogger.newTopLevelWidget.  See the comments for the adoptGObject
 code, below, for more details.
 
+There are four variants of gtklogger.connect:
+
+gtklogger.connect(object, signal, callback, *args, **kwargs)
+connects the given callback to the given signal from the given
+object. Extra *args are passed to the callback.  The callback is
+called before any other signal handlers.
+
+gtklogger.connect_after(object, signal, callback, *args, **kwargs)
+is identical, but calls the callback after any other signal handlers.
+
+gtklogger.connect_passive(object, signal, *args, **kwargs)
+logs the signal, but doesn't call a callback.  This is useful if, for
+example, you want to log something like a window resize event, but
+don't need to explicitly handle the event in your code.
+
+gtklogger.connect_passive_after(object, signal, *args, **kwargs) is
+like connect_passive, but the signal is handled after other handlers
+have run.  This may not be useful.
+
+All of the connect methods can take an optional "logger" key word
+argument, which specifies an object that will be called to handle the
+event.  It needs to have a "record" function that takes the object
+being logged, the name of signal being logged, and returns a list of
+strings that will be inserted in the log file.  This is useful if, for
+instance, the GtkWidget doesn't have enough information by itself to
+reproduce an event.
+
 Instead of assigning submenus with gtk.MenuItem.set_submenu, use
 gtklogger.set_submenu(menuitem, submenu).  The submenu will behave as
 if it's been adopted by its parent menu.
