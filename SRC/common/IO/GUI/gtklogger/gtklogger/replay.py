@@ -485,18 +485,13 @@ findMenu = logutils.findMenu
 findCellRenderer = logutils.findCellRenderer
 setComboBox = logutils.setComboBox
 
-# Utility function for creating a Gdk.Event object.  "eclass" should
-# be a class of GdkEvent, such as Gdk.EventButton.  "etype" should be
-# a GdkEventType, such as Gdk.EventType.BUTTON_PRESS that is
-# compatible with eclass.  kwargs contains attributes that will be
-# assigned to the event.  It almost certainly should include the
-# "window" attribute, which must be set to a Gdk.Window.  For
-# Gtk.Widgets, this is just Widget.get_window().
+# Utility function for creating a Gdk.Event object. "etype" should be
+# a GdkEventType, such as Gdk.EventType.BUTTON_PRESS.  kwargs contains
+# attributes that will be assigned to the event.  It almost certainly
+# should include the "window" attribute, which must be set to a
+# Gdk.Window.  For Gtk.Widgets, this is just Widget.get_window().
 
-## TODO GTK3: We don't need the eclass arg. Fix it below and in the
-## comment above.
-
-def event(eclass, etype, **kwargs):
+def event(etype, **kwargs):
     ev = Gdk.Event.new(etype)
     # ev.type = etype
     if hasattr(ev, 'time'):
@@ -507,7 +502,7 @@ def event(eclass, etype, **kwargs):
     for arg, val in kwargs.items():
         if logutils.debugLevel() > 0:
             if not hasattr(ev, arg):
-                print >> sys.stderr, "Event", eclass, "has no attribute", arg
+                print >> sys.stderr, "Event", etype, "has no attribute", arg
         setattr(ev, arg, val)
     return ev
         

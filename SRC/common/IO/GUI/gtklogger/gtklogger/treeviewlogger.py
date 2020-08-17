@@ -13,28 +13,20 @@ import adopteelogger
 import loggers
 import widgetlogger
 
+# Loggers for various components of a TreeView.
+
 class TreeViewLogger(widgetlogger.WidgetLogger): # I'm a lumberjack and I'm OK.
     classes = (Gtk.TreeView,)
     def record(self, obj, signal, *args):
-        ## TODO GTK3: Why handle button-release-event here?
-        ## WidgetLogger will handle it.
-        if signal == 'button-release-event':
-            event = args[0]
-            wvar = loggers.localvar('widget')
-            return [
-    "%s=%s" % (wvar, self.location(obj, *args)),
-    "%(w)s.event(event(Gdk.EventButton,Gdk.EventType.BUTTON_RELEASE,button=%(b)d,window=%(w)s.get_window()))"
-    % dict(w=wvar, b=event.button)
-    ]
         if signal == 'row-activated':
-            path = args[0]             # Gtk.TreePath object
-            col = args[1]              # gtk.TreeViewColumn obj
+            path = args[0].get_indices() # args[0] is a Gtk.TreePath object
+            col = args[1]                # gtk.TreeViewColumn obj
             cols = obj.get_columns()
             i = cols.index(col)
-            ipath = path.get_indices() # list of ints
-            return ["tree=%s" % self.location(obj, *args),
-                    "column = tree.get_column(%d)" % i,
-                    "tree.row_activated(Gtk.TreePath(%s), column)" % ipath
+            return [
+                "tree=%s" % self.location(obj, *args),
+                "column = tree.get_column(%d)" % i,
+                "tree.row_activated(Gtk.TreePath(%s), column)" % path
                     ]
         if signal == 'row-expanded':
             path = args[1]
@@ -42,8 +34,8 @@ class TreeViewLogger(widgetlogger.WidgetLogger): # I'm a lumberjack and I'm OK.
                     % (self.location(obj, *args), path.get_indices())]
         if signal == 'row-collapsed':
             path = args[1]
-            return ["%s.collapse_row(%s)"
-                    % (self.location(obj,*args), `path`)]
+            return ["%s.collapse_row(Gtk.TreePath(%s))"
+                    % (self.location(obj,*args), path.get_indices())]
         return super(TreeViewLogger, self).record(obj, signal, *args)
 
 class TreeViewColumnLogger(adopteelogger.AdopteeLogger):
@@ -72,9 +64,9 @@ class TreeSelectionLogger(adopteelogger.AdopteeLogger):
             else:                       # single selection only
                 model, iter = obj.get_selected()
                 if iter is not None:
-                    ipath = model.get_path(iter).get_indices()
+                    path = model.get_path(iter).get_indices()
                     return ["%s.select_path(Gtk.TreePath(%s))" 
-                            % (self.location(obj, *args), ipath)]
+                            % (self.location(obj, *args), path)]
                 else:
                     return ["%s.unselect_all()" % self.location(obj, *args)]
         return super(TreeSelectionLogger, self).record(obj, signal, *args)
@@ -83,6 +75,10 @@ class ListStoreLogger(adopteelogger.AdopteeLogger):
     classes = (Gtk.ListStore,)
     insertrow = None                      # destination for row drag'n'drop
     def record(self, obj, signal, *args):
+        ## Logging the row-inserted and row-deleted signals has not
+        ## been tested because drag and drop isn't working in OOF2
+        ## yet.
+        
         # Drag-and-drop of a line within a ListStore creates a pair of
         # row-inserted and row-deleted signals, with row-inserted
         # coming first.  The two must be logged together, so we don't
@@ -124,8 +120,12 @@ class CellRendererLogger(adopteelogger.AdopteeLogger):
     classes = (Gtk.CellRenderer,)
     def record(self, obj, signal, *args):
         if signal == 'toggled':
+            # args[0] is a tuple of strings representing ints, NOT a
+            # Gtk.TreePath.  I don't know why this case is different
+            # from the cases above, where an actual Gtk.TreePath is
+            # passed in.
             path = args[0]
-            return ["%s.emit('toggled', %s)"
-                    % (self.location(obj, *args), `path`)]
+            return ["%s.emit('toggled', Gtk.TreePath(%s))"
+                    % (self.location(obj, *args), path)]
         return super(CellRendererLogger, self).record(obj, signal, *args)
 

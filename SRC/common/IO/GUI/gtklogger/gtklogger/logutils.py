@@ -134,7 +134,7 @@ def setComboBox(widget, name):
 # column is being logged.
 
 def findCellRenderer(treeview, col, rend):
-    return treeview.get_column(col).get_cell_renderers()[rend]
+    return treeview.get_column(col).get_cells()[rend]
 
 # findAllWidgets returns the paths to all named widgets under (and
 # including) the given widget.  It *won't* find adopted non-widget
