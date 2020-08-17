@@ -141,7 +141,9 @@ class GenericWidget(ParameterWidget):
     def set_value(self, newvalue):
         debug.mainthreadTest()
         valuestr = `newvalue`
+        self.signal.block()
         self.gtk.set_text(valuestr)
+        self.signal.unblock()
         self.gtk.set_position(0) # makes most significant digit visible
     def changedCB(self, gtkobj):
         debug.mainthreadTest()
@@ -166,7 +168,10 @@ class GenericWidget(ParameterWidget):
     # parameters, which may need control over the emission of the
     # 'changed' signal.  (See matrixparamwidgets.py, for example.)
     # The need for these functions indicates that widgets *shouldn't*
-    # be nested like this.
+    # be nested like this.  OTOH, blocking and unblocking are
+    # cumulative, so a signal that's been blocked twice needs to be
+    # unblocked twice before it's active again, which makes nesting
+    # safe(r).
     def block_signal(self):
         debug.mainthreadTest()
         self.signal.block()

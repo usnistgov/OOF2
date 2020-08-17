@@ -65,14 +65,14 @@ class WidgetLogger(loggers.GtkLogger):
                 % (wvar, evnt.x, evnt.y, evnt.state, wvar)
                 ]
         
-        if signal == 'focus-in-event':
+        if signal == 'focus_in_event':
             wvar = loggers.localvar('widget')
             return [
        "%s=%s" % (wvar, self.location(obj, *args)),
        "%(widget)s.event(event(Gdk.EventFocus, Gdk.EventType.FOCUS_CHANGE, in_=1, window=%(widget)s.get_window()))" % dict(widget=wvar)
                 ]
         
-        if signal == 'focus-out-event':
+        if signal == 'focus_out_event':
             wvar = loggers.localvar('widget')
             return [
        "%s=%s" % (wvar,self.location(obj, *args)),

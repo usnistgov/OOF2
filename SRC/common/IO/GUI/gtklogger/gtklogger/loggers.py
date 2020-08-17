@@ -132,7 +132,6 @@ def signalLogger(obj, signal, logger, *args):
 
 ## Some lines are logged too often.  This code eliminates redundant
 ## lines, making the log files easier to read and faster to run.
-## TODO GTK3: Is this still needed?
 
 ## _redundantlines is a list of regular expression objects that match
 ## lines that are redundant when repeated.

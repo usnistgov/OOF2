@@ -23,23 +23,23 @@ class TreeViewLogger(widgetlogger.WidgetLogger): # I'm a lumberjack and I'm OK.
             wvar = loggers.localvar('widget')
             return [
     "%s=%s" % (wvar, self.location(obj, *args)),
-    "%(w)s.event(event(Gdk.EventButton,Gdk.EventType.BUTTON_RELEASE,button=%(b)d,window=%(w)s.window))"
+    "%(w)s.event(event(Gdk.EventButton,Gdk.EventType.BUTTON_RELEASE,button=%(b)d,window=%(w)s.get_window()))"
     % dict(w=wvar, b=event.button)
     ]
         if signal == 'row-activated':
-            path = args[0]
-            col = args[1]               # gtk.TreeViewColumn obj
+            path = args[0]             # Gtk.TreePath object
+            col = args[1]              # gtk.TreeViewColumn obj
             cols = obj.get_columns()
-            for i in range(len(cols)):
-                # TODO is there a better way to find the column number?
-                if cols[i] is col:
-                    return ["tree=%s" % self.location(obj, *args),
-                            "column = tree.get_column(%d)" % i,
-                            "tree.row_activated(%s, column)" % `path`]
+            i = cols.index(col)
+            ipath = path.get_indices() # list of ints
+            return ["tree=%s" % self.location(obj, *args),
+                    "column = tree.get_column(%d)" % i,
+                    "tree.row_activated(Gtk.TreePath(%s), column)" % ipath
+                    ]
         if signal == 'row-expanded':
             path = args[1]
-            return ["%s.expand_row(%s, open_all=False)"
-                    % (self.location(obj, *args), `path`)]
+            return ["%s.expand_row(Gtk.TreePath(%s), open_all=False)"
+                    % (self.location(obj, *args), path.get_indices())]
         if signal == 'row-collapsed':
             path = args[1]
             return ["%s.collapse_row(%s)"
@@ -66,14 +66,15 @@ class TreeSelectionLogger(adopteelogger.AdopteeLogger):
                 # just to select or unselect the changed rows, but I
                 # don't see how to do that simply.
                 return ["%s.unselect_all()" % self.location(obj, *args)] + \
-                       ["%s.select_path(%s)" % (self.location(obj,*args),row)
+                       ["%s.select_path(Gtk.TreePath(%s))"
+                           % (self.location(obj,*args), row.get_indices())
                         for row in rows]
             else:                       # single selection only
                 model, iter = obj.get_selected()
                 if iter is not None:
-                    path = model.get_path(iter)
-                    return ["%s.select_path(%s)" 
-                            % (self.location(obj, *args), path)]
+                    ipath = model.get_path(iter).get_indices()
+                    return ["%s.select_path(Gtk.TreePath(%s))" 
+                            % (self.location(obj, *args), ipath)]
                 else:
                     return ["%s.unselect_all()" % self.location(obj, *args)]
         return super(TreeSelectionLogger, self).record(obj, signal, *args)
