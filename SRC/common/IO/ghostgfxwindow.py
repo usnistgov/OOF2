@@ -738,7 +738,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         return oofcanvas.OffScreenCanvas(100) # arg is ppu
 
     def new_contourmap_canvas(self):
-        # In GUI mode this method is extended in GfxWindow.
+        # Called by saveContourmap and, in GUI mode, by
+        # makeContourMapWidgets.  In GUI mode this method is extended
+        # in the derived class.
         if self.contourmapdata.canvas:
             self.contourmapdata.canvas.destroy()
         self.contourmapdata.canvas = self.newContourmapCanvas()

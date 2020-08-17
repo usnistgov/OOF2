@@ -296,13 +296,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         self.vScrollbar = Gtk.Scrollbar(orientation=Gtk.Orientation.VERTICAL)
         gtklogger.setWidgetName(self.hScrollbar, "hscroll")
         gtklogger.setWidgetName(self.vScrollbar, "vscroll")
-        # # Catch button release events on the Scrollbars, so that their
-        # # changes can be logged.  *Don't* catch the "changed" signals
-        # # from their Adjustments, because they occur too often.
-        # gtklogger.connect(self.hScrollbar, "button-release-event",
-        #                   self.scrlReleaseCB, 'h')
-        # gtklogger.connect(self.vScrollbar, "button-release-event",
-        #                   self.scrlReleaseCB, 'v')
         self.canvasTable.attach(self.hScrollbar, 0,1, 1,1)
         self.canvasTable.attach(self.vScrollbar, 1,0, 1,1)
         self.canvasFrame = Gtk.Frame()
@@ -441,6 +434,16 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+    # When the mouse is clicked or moved on the Canvas two chains of
+    # events are started.  One is via GfxWindowBase.mouseCB() and is
+    # for interaction with the Canvas, and the other is via the
+    # CanvasLogger and is for logging Canvas events.  On the surface
+    # it seems that these are redundant, and that the Canvas's gui
+    # logging could simply be done in mouseCB.  It is NOT done that
+    # way because currently logging is initiated by an event (in
+    # Python) that is connected to a logger, not by an event (in C++)
+    # that is connected to mouseCB.
+
     def newCanvas(self):
         debug.mainthreadTest()
         canvas = oofcanvasgui.Canvas(width=300, height=300, ppu=1.0,
@@ -461,13 +464,14 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                                   'value-changed')
         canvas.setMouseCallback(self.mouseCB, None)
 
-        ## Because the OOFCanvas's window size can change depending on
-        ## the platform or the Gtk theme, the conversion from mouse
-        ## coordinates to user coordinates is not portable, so we need
-        ## to log the user coordinates.  The GtkLayout in the
-        ## OOFCanvas needs its own gtklogger that has access to the
-        ## OOFCanvas, and can call an OOFCanvas method that acts like
-        ## the OOFCanvas's mouse callback.
+        # Because the OOFCanvas's window size can change depending on
+        # the platform or the Gtk theme, the conversion from mouse
+        # coordinates to user coordinates is not portable, so we need
+        # to log the user coordinates.  The GtkLayout in the OOFCanvas
+        # needs its own gtklogger that has access to the OOFCanvas,
+        # and can call an OOFCanvas method that acts like the
+        # OOFCanvas's mouse callback.
+        
         self.logger = canvaslogger.CanvasLogger(self)
         gtklogger.setWidgetName(canvas.layout, "OOFCanvas")
         gtklogger.connect_passive(canvas.layout, "button-press-event",
@@ -478,10 +482,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                                   logger=self.logger)
         gtklogger.log_motion_events(canvas.layout)
 
-        ## TODO GTK3: Do we need to log scroll-event if we're already
-        ## logging the scrollbars?
-        # gtklogger.connect_passive(canvas.layout, "scroll-event")
-        
         if self.rubberband:
             canvas.setRubberBand(self.rubberband)
         return canvas
@@ -492,10 +492,17 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
     def newContourmapCanvas(self):
         # Arguments are width, height, and ppu. They don't matter.
-        # Just call zoomToFill after drawing.
-        return oofcanvasgui.Canvas(100, 100, 1)
+        # Just call zoomToFill after drawing.  The 'ghost' version of
+        # this routine in the base class creates an OffScreenCanvas.
+        canvas = oofcanvasgui.Canvas(100, 100, 1)
+        # TODO: GUI logging for the contourmap canvas.  This wasn't
+        # done in the pre-gtk3 versions.  It's probably not important
+        # enough to worry about.  Doing it right would involve
+        # generalizing the CanvasLogger so that it works on either the
+        # main canvas or the contourmap canvas.
+        return canvas
 
-    # Create object and assign to self.contourmap_canvas.
+    # Create object and assign to self.contourmapdata.canvas.
     def new_contourmap_canvas(self):
         ghostgfxwindow.GhostGfxWindow.new_contourmap_canvas(self)
         self.contourmapdata.canvas.setResizeCallback(
@@ -831,7 +838,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                 self.zoomed = 1
         finally:
             self.releaseGfxLock()
-        hadj = self.hScrollbar.get_adjustment()
 
     def zoomOutFocussed(self, menuitem, focus):
         self.acquireGfxLock()
@@ -844,14 +850,12 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         finally:
             self.releaseGfxLock()
 
-
     def zoomFillWindow_thread(self):
         debug.mainthreadTest()
         if self.closed:
             return
         if self.oofcanvas and not self.oofcanvas.empty():
             self.zoom_bbox()
-
 
     def zoom_bbox(self):
         debug.mainthreadTest()

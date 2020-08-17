@@ -24,7 +24,7 @@ except AttributeError:
 # imported on any other thread.
 from ooflib.SWIG.common import threadstate
 # switchboard is used for communication between modules
-import ooflib.SWIG.common.switchboard
+from ooflib.SWIG.common import switchboard
 
 # utils must be imported next because it inserts some code into
 # __builtins__.
@@ -142,6 +142,7 @@ data files are loaded in the order that they are specified."""
     debug_options_string = """
 The following options are for debugging:
 --debug                  Turn on debugging mode
+--verbose-switchboard    Print internal communications
 --record=   logfile      Save gui logging data
 --rerecord= logfile      Read and re-record a gui log file 
 --replay=    file        Load a gui log file (may be present more than once)
@@ -196,7 +197,7 @@ def process_inline_options():
                    'record=', 'rerecord=', 'replay=', 'replaydelay=',
                    'pathdir=', 'no-checkpoints', 'autoload', 'geometry=',
                    'no-fakefileselector', 'fakefileselector', 'surface', 
-                   'nobars']
+                   'nobars', 'verbose-switchboard']
     if config.enablempi():
         option_list += ['parallel']
     try:
@@ -242,6 +243,9 @@ def process_inline_options():
             remove_option(opt[0], opt[1])
         elif opt[0] in ('--debug',):
             debug.set_debug_mode()
+            remove_option(opt[0])
+        elif opt[0] in ('--verbose-switchboard',):
+            switchboard.verbose(None, True)
             remove_option(opt[0])
         elif opt[0] in ('--record',):
             startupfiles.append(StartUpRecord(opt[1]))

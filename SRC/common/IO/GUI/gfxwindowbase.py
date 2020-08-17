@@ -493,10 +493,6 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         # If the current mousehandler doesn't anything special for
         # scrolling, do the obvious.
         elif eventtype == "scroll":
-            ## TODO: This should be logged, but we don't want to log
-            ## every event (there are a lot of them).  How do we know
-            ## when we're done scrolling?  Catch another type of mouse
-            ## event (including leave_notify)?
             sx = self.hScrollbar.get_adjustment().get_value()
             self.hScrollbar.get_adjustment().set_value(sx + x)
             sy = self.vScrollbar.get_adjustment().get_value()
@@ -537,8 +533,10 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         ux, uy = self.oofcanvas.pixel2user(x, y)
         shift = state & Gdk.ModifierType.SHIFT_MASK != 0
         ctrl = state & Gdk.ModifierType.CONTROL_MASK != 0
-        return ["findGfxWindow('%s').simulateMouse('%s', %g, %g, %d, %d, %d)"
-                % (self.name, etype, ux, uy, button, shift, ctrl)]
+        return [
+            "findGfxWindow('%s').simulateMouse('%s', %.8g, %.8g, %d, %d, %d)"
+            % (self.name, etype, ux, uy, button, shift, ctrl)
+        ]
 
 # This makes the "findGfxWindow" function used by the logged mouse
 # events available in the Python namespace in which replayed gui log
