@@ -53,6 +53,22 @@ class WidgetLogger(loggers.GtkLogger):
                 % (wvar, eventname,
                    evnt.x, evnt.y, evnt.button, evnt.state, wvar)
                 ]
+
+        if signal in ('key-press-event', 'key-release-event'):
+            evnt = args[0]
+            if signal == 'key-press-event':
+                eventname = "KEY_PRESS"
+            else:
+                eventname = "KEY_RELEASE"
+            wvar = loggers.localvar('widget')
+            return [
+                # Including the hardware_keycode seems to be important
+                # for getting the delete key to work.
+                "%s = %s" % (wvar, self.location(obj, *args)),
+                "%s.event(event(Gdk.EventType.%s, keyval=%d, state=%d, hardware_keycode=%d, window=%s.get_window())) # %s"
+                % (wvar, eventname, evnt.keyval, evnt.state,
+                   evnt.hardware_keycode, wvar, evnt.string)
+                ]
         
         if signal == 'motion-notify-event':
             evnt = args[0]

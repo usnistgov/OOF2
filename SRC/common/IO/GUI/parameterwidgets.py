@@ -243,7 +243,6 @@ gtkutils.addStyle("entry.automatic { font-style: italic; }")
 # the theme.  Gtk3 doesn't provide a good way to do this, since
 # changing colors and such violates the spirit of CSS.
 
-
 class AutoWidget(GenericWidget):
     def __init__(self, param, scope=None, name=None,
                  autotext=None, # text to display in automatic mode
@@ -254,6 +253,7 @@ class AutoWidget(GenericWidget):
         GenericWidget.__init__(self, param, scope, name, **kwargs)
         gtklogger.connect(self.gtk, 'key-press-event', self.keypressCB)
         gtklogger.connect_after(self.gtk, 'key-release-event',self.keyreleaseCB)
+        self.block_signal()     # don't need 'changed' if we have 'key-*' ???
 
     def set_value(self, newvalue):
         # If newvalue is not a string, the derived class might need to
@@ -304,16 +304,25 @@ class AutoWidget(GenericWidget):
             return False
         if self.automatic:
             self.enterManualMode()
+            self.block_signal()
             self.gtk.set_text("")
+            self.unblock_signal()
         return False            # False means "call other event handlers"
     def keyreleaseCB(self, widget, event):
+        # keyreleaseCB is installed with connect_after(), so the
+        # normal event processing has already taken place and the text
+        # in the Entry has already been updated by the time it's
+        # called.
         if self.gtk.get_text().strip() == "":
             self.enterAutoMode()
+        self.widgetChanged(self.validValue(self.gtk.get_text()), interactive=1)
         return False            # False means "call other event handlers"
     def enterAutoMode(self):
         self.automatic = True
         self.gtk.get_style_context().add_class("automatic")
+        self.block_signal()
         self.gtk.set_text(self.autotext)
+        self.unblock_signal()
     def enterManualMode(self):
         self.automatic = False
         self.gtk.get_style_context().remove_class("automatic")
@@ -1066,12 +1075,11 @@ class PersistentParameterDialog(ParameterDialog):
 # passed-in menu item to be run with the provided defaults, via
 # menuitem.callWithDefaults(**defaults).  OK events close the dialog,
 # APPLY events cause the dialog to persist.
-def persistentMenuitemDialog(menuitem, defaults, parentwindow,
+def persistentMenuitemDialog(menuitem, defaults,
                              *params, **kwargs):
     rerun = True
     count = 0
-    dialog = PersistentParameterDialog(parentwindow=parentwindow,
-                                       *params, **kwargs)
+    dialog = PersistentParameterDialog(*params, **kwargs)
     while rerun:
         result = dialog.run()
         if result in (Gtk.ResponseType.CANCEL,
