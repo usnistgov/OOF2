@@ -267,7 +267,9 @@ class BoundaryCondPage(oofGUI.MainPage):
         params = [p for p in menuitem.params if p.name != "mesh"]
         defaults={'mesh': self.currentFullMeshName()}
         parameterwidgets.persistentMenuitemDialog(
-            menuitem, defaults, scope=self, title="New Boundary Condition",
+            menuitem, defaults, scope=self,
+            parentwindow=self.gtk.get_toplevel(),
+            title="New Boundary Condition",
             *params)
 
     def bcDel_CB(self, gtkobj):
@@ -396,7 +398,7 @@ class BCList:
                                access_kwargs={'col':0, 'rend':0})
         gtklogger.connect(enablecell, 'toggled', self.enableCellCB)
         # Sorting by enabled/disabled status is not supported. It
-        # were, then cliking on the toggle button could move the
+        # were, then clicking on the toggle button could move the
         # object being clicked, which is confusing.
 
         # Boundary condition name column
