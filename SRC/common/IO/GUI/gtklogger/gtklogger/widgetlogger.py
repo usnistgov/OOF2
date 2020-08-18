@@ -9,6 +9,7 @@
 # oof_manager@nist.gov. 
 
 import loggers
+from gi.repository import Gdk
 from gi.repository import Gtk
 import logutils
 
@@ -61,13 +62,19 @@ class WidgetLogger(loggers.GtkLogger):
             else:
                 eventname = "KEY_RELEASE"
             wvar = loggers.localvar('widget')
+            
+            keymap = Gdk.Keymap.get_default()
+            ok, keymapkeys = keymap.get_entries_for_keyval(evnt.keyval)
+            print "keys=", [k.keycode for k in keymapkeys], \
+                "event.hardware_keycode=", evnt.hardware_keycode
+
             return [
                 # Including the hardware_keycode seems to be important
                 # for getting the delete key to work.
                 "%s = %s" % (wvar, self.location(obj, *args)),
-                "%s.event(event(Gdk.EventType.%s, keyval=%d, state=%d, hardware_keycode=%d, window=%s.get_window())) # %s"
-                % (wvar, eventname, evnt.keyval, evnt.state,
-                   evnt.hardware_keycode, wvar, evnt.string)
+                "%s.event(event(Gdk.EventType.%s, keyval=Gdk.keyval_from_name('%s'), state=%d, window=%s.get_window()))"
+                % (wvar, eventname, Gdk.keyval_name(evnt.keyval), evnt.state,
+                   wvar)
                 ]
         
         if signal == 'motion-notify-event':
