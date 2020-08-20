@@ -11,10 +11,29 @@
 from gi.repository import Gtk
 import widgetlogger
 
-class EntryLogger(widgetlogger.WidgetLogger):
-    classes = (Gtk.Entry,)
+class EditableLogger(widgetlogger.WidgetLogger):
+    classes = (Gtk.Editable, Gtk.Entry)
     def record(self, obj, signal, *args):
         if signal == 'changed':
             text = obj.get_text().replace('\\', '\\\\')
             return ["%s.set_text('%s')" % (self.location(obj, *args),text)]
-        return super(EntryLogger, self).record(obj, signal, *args)
+        if signal == 'insert_text':
+            text = args[0]
+            # args[2] should be the position, but it's not.  See
+            # https://stackoverflow.com/questions/40074977/how-to-format-the-entries-in-gtk-entry/40163816
+            pos = obj.get_position()
+            return [
+                "%s.insert_text('%s', %d)" % (self.location(obj, *args),
+                                              text, pos)
+                    ]
+        if signal == 'delete_text':
+            first = args[0]
+            last = args[1]
+            return [
+                "%s.delete_text(%d, %d)" % (self.location(obj, *args),
+                                            first, last)
+                ]
+                
+        return super(EditableLogger, self).record(obj, signal, *args)
+
+            

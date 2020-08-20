@@ -243,29 +243,66 @@ gtkutils.addStyle("entry.automatic { font-style: italic; }")
 # the theme.  Gtk3 doesn't provide a good way to do this, since
 # changing colors and such violates the spirit of CSS.
 
-class AutoWidget(GenericWidget):
+# We want to add a handler for the Gtk.Entry's 'insert_text' signal,
+# but there's a bug in Gtk with regard to in/out parameters in python
+# signal handlers, such as the 'position' parameter for the
+# insert_text handler.  This can be avoided by deriving a new class
+# from Gtk.Entry instead of using a handler.  See
+# https://stackoverflow.com/questions/38815694/gtk-3-position-attribute-on-insert-text-signal-from-gtk-entry-is-always-0
+# That site also 'explains' that it's necessary to derive the new
+# class from both Gtk.Entry and Gtk.Editable, even though Gtk.Entry is
+# itself derived from Gtk.Editable.
+
+from ooflib.common.IO.GUI.gtklogger import findLogger, signalLogger
+
+class AutomaticEntry(Gtk.Entry, Gtk.Editable):
+    def __init__(self, *args, **kwargs):
+        Gtk.Entry.__init__(self, *args, **kwargs)
+        # super(AutomaticEntry, self).__init__(args, kwargs)
+    def setAutoWidget(self, autowidget):
+        self.autowidget = autowidget
+        self.logger = gtklogger.findLogger(self)
+    def do_insert_text(self, new_text, length, position):
+        # If we used gtklogger to connect to the 'insert_text' signal,
+        # it would call signalLogger() like this at about this point
+        # in the proceedings:
+        if isinstance(self.get_toplevel(), Gtk.Window):
+            gtklogger.signalLogger(self, 'insert_text', self.logger,
+                                   new_text, length, position)
+        # Code that would be in the 'insert_text' handler if there
+        # were one:
+        if self.autowidget.automatic:
+            self.autowidget.enterManualMode()
+            self.get_buffer().set_text(new_text, len(new_text))
+            newpos = len(new_text)
+        else:
+            # Code that is presumably in the base class do_insert_text()
+            # method:
+            self.get_buffer().insert_text(position, new_text, length)
+            newpos = length + position
+        # More code that should be in the 'insert_text' handler:
+        self.autowidget.widgetChanged(
+            self.autowidget.validValue(self.get_buffer().get_text()), True)
+        return newpos
+
+class AutoWidget(ParameterWidget):
     def __init__(self, param, scope=None, name=None,
                  compact=False,
                  value=None,
                  autotext=None, # text to display in automatic mode
                  **kwargs):
+        debug.mainthreadTest()
         self.autotext = autotext or "<automatic>"
         self.stylecontext = None
-        # Do NOT call GenericWidget.__init__, because it calls
-        # set_value, and we can't call set_value here until the
-        # signals are connected. This is ugly.
-        ## GenericWidget.__init__(self, param, scope, name, **kwargs)
-        debug.mainthreadTest()
-        widget = Gtk.Entry(**kwargs)
+        widget = AutomaticEntry(**kwargs)
+        widget.setAutoWidget(self)
         widget.set_width_chars(10)
         ParameterWidget.__init__(self, widget, scope=scope, name=name,
                                  compact=compact)
-
-        self.signals = [
-            gtklogger.connect(widget, 'changed', self.changedCB),
-            gtklogger.connect(self.gtk, 'insert_text', self.insertTextCB),
-            gtklogger.connect(self.gtk, 'delete_text', self.deleteTextCB)
-            ]
+        # We don't need to connect to the 'changed' signal because
+        # we're handling 'insert_text' (sort of) and 'delete_text'.
+        self.deleteSignal = gtklogger.connect(self.gtk, 'delete_text',
+                                              self.deleteTextCB)
 
         val = value or param.value
         # Initialize self.automatic to the wrong value so that
@@ -274,20 +311,12 @@ class AutoWidget(GenericWidget):
         self.set_value(val)
         self.widgetChanged(self.validValue(val), interactive=False)
 
-    def blockSignals(self):
-        for signal in self.signals:
-            signal.block()
-
-    def unblockSignals(self):
-        for signal in self.signals:
-            signal.unblock()
-
     def set_value(self, newvalue):
         # If newvalue is not a string, the derived class might need to
         # override this method.  The derived class method should call
         # the base class method, passing a string or
         # automatic.automatic as newvalue.
-        self.blockSignals()
+        self.deleteSignal.block()
         try:
             if newvalue is automatic.automatic:
                 if not self.automatic:
@@ -300,20 +329,8 @@ class AutoWidget(GenericWidget):
                 else:
                     self.gtk.set_text(`newvalue`)
         finally:
-            self.unblockSignals()
+            self.deleteSignal.unblock()
         self.widgetChanged(1, interactive=0)
-
-    def insertTextCB(self, gtkobj, text, length, position):
-        self.blockSignals()
-        try:
-            if self.automatic:
-                # Leaving automatic mode
-                self.enterManualMode()
-                self.gtk.set_text(text)
-                self.gtk.stop_emission("insert_text")
-                self.gtk.set_position(-1) # move cursor to end
-        finally:
-            self.unblockSignals()
 
     def deleteTextCB(self, gtkobj, start_pos, end_pos):
         # In automatic mode, deletion does nothing.
@@ -324,12 +341,15 @@ class AutoWidget(GenericWidget):
         # automatic mode.
         if start_pos == 0 and (end_pos == -1 or
                                end_pos == self.gtk.get_text_length()):
-            self.blockSignals()
+            self.deleteSignal.block()
             try:
                 self.enterAutoMode()
                 self.gtk.stop_emission("delete_text")
             finally:
-                self.unblockSignals()
+                self.deleteSignal.unblock()
+            self.widgetChanged(self.validValue(self.gtk.get_text()),
+                               interactive=True)
+            return 1
                 
     def get_value(self):
         if self.automatic:
@@ -342,7 +362,10 @@ class AutoWidget(GenericWidget):
     def enterAutoMode(self):
         self.automatic = True
         self.gtk.get_style_context().add_class("automatic")
-        self.gtk.set_text(self.autotext)
+        # Don't use AutomaticEntry.set_text() here, because it will
+        # call AutomaticEntry.do_insert_text() and switch back to
+        # manual mode.
+        self.gtk.get_buffer().set_text(self.autotext, len(self.autotext))
         self.gtk.set_position(-1)
         self.gtk.select_region(0, -1)
 
