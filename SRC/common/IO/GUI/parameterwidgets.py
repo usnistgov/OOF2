@@ -31,7 +31,7 @@ import string
 
 ############################
 
-class ParameterWidget:
+class ParameterWidget(object):
     def __init__(self, gtk, scope=None, name=None, expandable=False,
                  compact=False):
         debug.mainthreadTest()
@@ -245,30 +245,92 @@ gtkutils.addStyle("entry.automatic { font-style: italic; }")
 
 class AutoWidget(GenericWidget):
     def __init__(self, param, scope=None, name=None,
+                 compact=False,
+                 value=None,
                  autotext=None, # text to display in automatic mode
                  **kwargs):
-        self.automatic = True
         self.autotext = autotext or "<automatic>"
         self.stylecontext = None
-        GenericWidget.__init__(self, param, scope, name, **kwargs)
-        gtklogger.connect(self.gtk, 'key-press-event', self.keypressCB)
-        gtklogger.connect_after(self.gtk, 'key-release-event',self.keyreleaseCB)
-        self.block_signal()     # don't need 'changed' if we have 'key-*' ???
+        # Do NOT call GenericWidget.__init__, because it calls
+        # set_value, and we can't call set_value here until the
+        # signals are connected. This is ugly.
+        ## GenericWidget.__init__(self, param, scope, name, **kwargs)
+        debug.mainthreadTest()
+        widget = Gtk.Entry(**kwargs)
+        widget.set_width_chars(10)
+        ParameterWidget.__init__(self, widget, scope=scope, name=name,
+                                 compact=compact)
+
+        self.signals = [
+            gtklogger.connect(widget, 'changed', self.changedCB),
+            gtklogger.connect(self.gtk, 'insert_text', self.insertTextCB),
+            gtklogger.connect(self.gtk, 'delete_text', self.deleteTextCB)
+            ]
+
+        val = value or param.value
+        # Initialize self.automatic to the wrong value so that
+        # set_value() will switch into the correct mode.
+        self.automatic = val is not automatic.automatic
+        self.set_value(val)
+        self.widgetChanged(self.validValue(val), interactive=False)
+
+    def blockSignals(self):
+        for signal in self.signals:
+            signal.block()
+
+    def unblockSignals(self):
+        for signal in self.signals:
+            signal.unblock()
 
     def set_value(self, newvalue):
         # If newvalue is not a string, the derived class might need to
         # override this method.  The derived class method should call
         # the base class method, passing a string or
         # automatic.automatic as newvalue.
-        if newvalue is automatic.automatic:
-            self.enterAutoMode()
-        else:
-            self.enterManualMode()
-            if isinstance(newvalue, StringType):
-                self.gtk.set_text(newvalue)
+        self.blockSignals()
+        try:
+            if newvalue is automatic.automatic:
+                if not self.automatic:
+                    self.enterAutoMode()
             else:
-                self.gtk.set_text(`newvalue`)
+                if self.automatic:
+                    self.enterManualMode()
+                if isinstance(newvalue, StringType):
+                    self.gtk.set_text(newvalue)
+                else:
+                    self.gtk.set_text(`newvalue`)
+        finally:
+            self.unblockSignals()
         self.widgetChanged(1, interactive=0)
+
+    def insertTextCB(self, gtkobj, text, length, position):
+        self.blockSignals()
+        try:
+            if self.automatic:
+                # Leaving automatic mode
+                self.enterManualMode()
+                self.gtk.set_text(text)
+                self.gtk.stop_emission("insert_text")
+                self.gtk.set_position(-1) # move cursor to end
+        finally:
+            self.unblockSignals()
+
+    def deleteTextCB(self, gtkobj, start_pos, end_pos):
+        # In automatic mode, deletion does nothing.
+        if self.automatic:
+            self.gtk.stop_emission("delete_text")
+            return
+        # In manual mode, deleting the last character switches to
+        # automatic mode.
+        if start_pos == 0 and (end_pos == -1 or
+                               end_pos == self.gtk.get_text_length()):
+            self.blockSignals()
+            try:
+                self.enterAutoMode()
+                self.gtk.stop_emission("delete_text")
+            finally:
+                self.unblockSignals()
+                
     def get_value(self):
         if self.automatic:
             return automatic.automatic
@@ -276,56 +338,18 @@ class AutoWidget(GenericWidget):
     def validValue(self, value):
         # See comment in GenericWidget.validValue.
         return (value is automatic.automatic or
-                (isinstance(value, StringType) and
-                 string.lstrip(value) != ""))
-
-    # ignorekeys are the keyboard keys that don't cause the widget to
-    # shift from automatic to manual mode.  The modifier keys have to
-    # be included because they generate keypress events too. (There
-    # must be a better way to find out if a key is a modifier key...)
-    ignorekeys = (Gdk.KEY_Tab, Gdk.KEY_ISO_Left_Tab, Gdk.KEY_KP_Tab,
-                  Gdk.KEY_Shift_L, Gdk.KEY_Shift_R,
-                  Gdk.KEY_Alt_L, Gdk.KEY_Alt_R,
-                  Gdk.KEY_Control_L, Gdk.KEY_Control_R,
-                  Gdk.KEY_Meta_L, Gdk.KEY_Meta_R,
-                  Gdk.KEY_Escape, Gdk.KEY_Caps_Lock)
-
-    def keypressCB(self, widget, event):
-        # When a key is pressed, switch out of automatic mode and
-        # clear the text.  This handler is called before the standard
-        # handler, so the text being typed will be entered into the
-        # widget.
-        # But first... Don't switch modes or clear the widget if the
-        # key is tab or shift-tab, because they transfer focus to
-        # another widget, and we don't want to leave this one in
-        # manual mode with no text.  Also don't switch if the user is
-        # just fiddling with the modifier keys.
-        if event.keyval in self.ignorekeys:
-            return False
-        if self.automatic:
-            self.enterManualMode()
-            self.block_signal()
-            self.gtk.set_text("")
-            self.unblock_signal()
-        return False            # False means "call other event handlers"
-    def keyreleaseCB(self, widget, event):
-        # keyreleaseCB is installed with connect_after(), so the
-        # normal event processing has already taken place and the text
-        # in the Entry has already been updated by the time it's
-        # called.
-        if self.gtk.get_text().strip() == "":
-            self.enterAutoMode()
-        self.widgetChanged(self.validValue(self.gtk.get_text()), interactive=1)
-        return False            # False means "call other event handlers"
+                (isinstance(value, StringType) and string.lstrip(value) != ""))
     def enterAutoMode(self):
         self.automatic = True
         self.gtk.get_style_context().add_class("automatic")
-        self.block_signal()
         self.gtk.set_text(self.autotext)
-        self.unblock_signal()
+        self.gtk.set_position(-1)
+        self.gtk.select_region(0, -1)
+
     def enterManualMode(self):
         self.automatic = False
         self.gtk.get_style_context().remove_class("automatic")
+
 
 class AutoNameWidget(AutoWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
@@ -344,6 +368,9 @@ class AutoNameWidget(AutoWidget):
         else:
             self.set_value(param.truevalue)
             self.widgetChanged(self.validText(param.truevalue), interactive=0)
+
+    ## TODO GTK3: Shouldn't validText be called from validValue?  It's
+    ## currently only called from __init__.
 
     def validText(self, txt):
         # Redefined in RestrictedAutoNameWidget to exclude particular
