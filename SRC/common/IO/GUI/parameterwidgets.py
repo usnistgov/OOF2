@@ -344,12 +344,15 @@ class AutoWidget(ParameterWidget):
             self.deleteSignal.block()
             try:
                 self.enterAutoMode()
-                self.gtk.stop_emission("delete_text")
             finally:
                 self.deleteSignal.unblock()
-            self.widgetChanged(self.validValue(self.gtk.get_text()),
-                               interactive=True)
-            return 1
+        else:
+            # Just a normal deletion.
+            self.gtk.get_buffer().delete_text(start_pos, end_pos-start_pos)
+
+        self.gtk.stop_emission("delete_text")
+        self.widgetChanged(self.validValue(self.gtk.get_text()),
+                           interactive=True)
                 
     def get_value(self):
         if self.automatic:
@@ -390,29 +393,24 @@ class AutoNameWidget(AutoWidget):
             self.widgetChanged(1, interactive=0)
         else:
             self.set_value(param.truevalue)
-            self.widgetChanged(self.validText(param.truevalue), interactive=0)
-
-    ## TODO GTK3: Shouldn't validText be called from validValue?  It's
-    ## currently only called from __init__.
-
-    def validText(self, txt):
-        # Redefined in RestrictedAutoNameWidget to exclude particular
-        # strings.
-        return txt != "" and txt is not None
+            self.widgetChanged(self.validValue(param.truevalue), interactive=0)
 
 def _AutoNameParameter_makeWidget(self, scope, **kwargs):
     return AutoNameWidget(self, scope=scope, name=self.name, **kwargs)
 parameter.AutomaticNameParameter.makeWidget = _AutoNameParameter_makeWidget
 
+
 class RestrictedAutoNameWidget(AutoNameWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
         self.exclude = param.exclude
         AutoNameWidget.__init__(self, param, scope, name)
-    def validText(self, x):
-        if not x:
+    def validValue(self, value):
+        if value is automatic.automatic:
+            return True
+        if not isinstance(value, StringType) or string.strip(value) == "":
             return False
         for c in self.exclude:
-            if c in x:
+            if c in value:
                 return False
         return True
 
