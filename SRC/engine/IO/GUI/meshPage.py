@@ -347,7 +347,10 @@ class MeshPage(oofGUI.MainPage):
         self.copybutton.set_sensitive(meshok and meshsync)
         self.savebutton.set_sensitive(meshok and meshsync)
         self.okbutton.set_sensitive(meshok and self.elementops.isValid())
-        self.sensitizeSubProblems()
+        ## Anything that changes the list of subproblems will call
+        ## sensitizeSubProblems via the Chooser callback, so it's not
+        ## necessary to call it here.
+        # self.sensitizeSubProblems()
         gtklogger.checkpoint("mesh page sensitized")
 
     def sensitizeHistory(self):
@@ -428,7 +431,6 @@ class MeshPage(oofGUI.MainPage):
     
     def meshwidgetCB(self, interactive): # switchboard widget callback
         self.update()
-        self.sensitize()
 
     def equationCB(self, *args):  # switchboard "equation activated"
         switchboard.notify(self.meshwidget, interactive=1)

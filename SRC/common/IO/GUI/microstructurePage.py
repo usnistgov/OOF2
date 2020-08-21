@@ -389,7 +389,6 @@ class MicrostructurePage(oofGUI.MainPage):
     def set_group_message(self, msg):
         debug.mainthreadTest()
         self.grpmsg.set_text(msg)
-        self.grplist.update([])
         self.grplist.hide()
         self.grpmsg.show()
     def set_group_list(self, grpnames, dispnames=[]):
