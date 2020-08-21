@@ -112,17 +112,27 @@ class MeshPage(oofGUI.MainPage):
                               wide_handle=True)
         gtklogger.setWidgetName(mainpane, 'Pane')
         mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
+        # TODO? Figure this out. The notify::position signals for
+        # mainpane and leftpane generate gui log lines when the
+        # program starts.  I haven't been able to discover why.  Other
+        # pages contain Gtk.Paneds connected to notify::position
+        # signals, but those signals aren't emitted at start up time.
+        # I don't know what's different about the Gtk.Paneds here.  In
+        # any case the problem is harmless, although it does generate
+        # an extra line in gui log files.
         gtklogger.connect_passive(mainpane, 'notify::position')
-        leftbox = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL,
-                            wide_handle=True)
-        mainpane.pack1(leftbox, resize=True, shrink=False)
-        
+        leftpane = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL,
+                             wide_handle=True)
+        gtklogger.setWidgetName(leftpane, 'leftpane')
+        mainpane.pack1(leftpane, resize=True, shrink=False)
+        gtklogger.connect_passive(leftpane, 'notify::position')
+
         infoframe = Gtk.Frame(
             label='Mesh Information',
             shadow_type=Gtk.ShadowType.IN,
             margin_top=2, margin_bottom=gtkutils.handle_padding,
             margin_start=2, margin_end=gtkutils.handle_padding)
-        leftbox.pack1(infoframe, resize=True, shrink=False)
+        leftpane.pack1(infoframe, resize=True, shrink=False)
         scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN, margin=2)
         gtklogger.logScrollBars(scroll, "MeshInfo")
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
@@ -141,7 +151,7 @@ class MeshPage(oofGUI.MainPage):
             margin_start=2, margin_end=gtkutils.handle_padding)
 
         gtklogger.setWidgetName(subprobframe, 'Subproblems')
-        leftbox.pack2(subprobframe, resize=True, shrink=False)
+        leftpane.pack2(subprobframe, resize=True, shrink=False)
         subpbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, margin=2,
                           spacing=2)
         subprobframe.add(subpbox)
@@ -271,7 +281,6 @@ class MeshPage(oofGUI.MainPage):
 
         switchboard.requestCallbackMain(('validity', self.elementops),
                                         self.validityChangeCB)
-        
 
     def installed(self):
         self.sensitize()
