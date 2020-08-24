@@ -32,10 +32,11 @@ class WindowLogger(widgetlogger.WidgetLogger):
             hvar = loggers.localvar('handled')
             return [
                 "%s=%s" % (wvar, self.location(obj, *args)),
-                "%(h)s=%(w)s.event(event(gtk.gdk.DELETE,window=%(w)s.window))"
+                "%(h)s=%(w)s.event(event(Gdk.EventType.DELETE,window=%(w)s.get_window()))"
                 % dict(w=wvar, h=hvar),
                 "postpone if not %(h)s: %(w)s.destroy()" % dict(w=wvar, h=hvar),
-                    ]
+                "del %s, %s" % (wvar, hvar)
+            ]
         if signal == 'configure-event':
             event = args[0]
             return ["%s.resize(%d, %d)" % (self.location(obj, *args),

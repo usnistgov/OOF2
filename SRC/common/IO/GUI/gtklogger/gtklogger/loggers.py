@@ -35,7 +35,9 @@ def findLogger(obj):
             return logger()
     raise NotImplementedError("No GtkLogger for %s" % obj.__class__.__name__)
 
-# localvar generates names for local variables in scripts.
+# localvar generates names for local variables in scripts.  The
+# variables should be deleted after they're used, in case holding a
+# reference to a GUI object has side effects.
 _localvarcount = {}
 
 def localvar(base):

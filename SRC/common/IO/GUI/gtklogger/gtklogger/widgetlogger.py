@@ -52,7 +52,8 @@ class WidgetLogger(loggers.GtkLogger):
                 "%s = %s" % (wvar, self.location(obj, *args)),
                 "%s.event(event(Gdk.EventType.%s,x=%20.13e,y=%20.13e,button=%d,state=%d,window=%s.get_window()))"
                 % (wvar, eventname,
-                   evnt.x, evnt.y, evnt.button, evnt.state, wvar)
+                   evnt.x, evnt.y, evnt.button, evnt.state, wvar),
+                "del %s" % wvar
                 ]
 
         if signal in ('key-press-event', 'key-release-event'):
@@ -74,7 +75,8 @@ class WidgetLogger(loggers.GtkLogger):
                 "%s = %s" % (wvar, self.location(obj, *args)),
                 "%s.event(event(Gdk.EventType.%s, keyval=Gdk.keyval_from_name('%s'), state=%d, window=%s.get_window()))"
                 % (wvar, eventname, Gdk.keyval_name(evnt.keyval), evnt.state,
-                   wvar)
+                   wvar),
+                "del %s" % wvar
                 ]
         
         if signal == 'motion-notify-event':
@@ -85,21 +87,24 @@ class WidgetLogger(loggers.GtkLogger):
             return [
                 "%s = %s" % (wvar, self.location(obj, *args)),
                 "%s.event(event(Gdk.EventType.MOTION_NOTIFY,x=%20.13e,y=%20.13e,state=%d,window=%s.get_window()))"
-                % (wvar, evnt.x, evnt.y, evnt.state, wvar)
+                % (wvar, evnt.x, evnt.y, evnt.state, wvar),
+                "del %s" % wvar
                 ]
         
         if signal == 'focus_in_event':
             wvar = loggers.localvar('widget')
             return [
-       "%s=%s" % (wvar, self.location(obj, *args)),
-       "%(widget)s.event(event(Gdk.EventType.FOCUS_CHANGE, in_=1, window=%(widget)s.get_window()))" % dict(widget=wvar)
+                "%s=%s" % (wvar, self.location(obj, *args)),
+                "%(widget)s.event(event(Gdk.EventType.FOCUS_CHANGE, in_=1, window=%(widget)s.get_window()))" % dict(widget=wvar),
+                "del %s" % wvar
                 ]
         
         if signal == 'focus_out_event':
             wvar = loggers.localvar('widget')
             return [
-       "%s=%s" % (wvar,self.location(obj, *args)),
-       "%(widget)s.event(event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=%(widget)s.get_window()))" % dict(widget=wvar)
+                "%s=%s" % (wvar,self.location(obj, *args)),
+                "%(widget)s.event(event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=%(widget)s.get_window()))" % dict(widget=wvar),
+                "del %s" % wvar
                 ]
 
         if signal in ('enter-notify-event', 'leave-notify-event'):
@@ -111,8 +116,9 @@ class WidgetLogger(loggers.GtkLogger):
                 etype = "LEAVE_NOTIFY"
             wvar = loggers.localvar('widget')
             return [
-        "%s=%s" % (wvar, self.location(obj, *args)),
-        "%(widget)s.event(event(Gdk.EventType.%(etype)s, window=%(widget)s.get_window()))" % dict(etype=etype, widget=wvar)
+                "%s=%s" % (wvar, self.location(obj, *args)),
+                "%(widget)s.event(event(Gdk.EventType.%(etype)s, window=%(widget)s.get_window()))" % dict(etype=etype, widget=wvar),
+                "del %s" % wvar
             ]
 
         ## TODO GTK3: We should catch and log allocation events on top

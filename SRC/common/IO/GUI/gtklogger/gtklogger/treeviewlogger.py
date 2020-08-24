@@ -111,7 +111,8 @@ class ListStoreLogger(adopteelogger.AdopteeLogger):
 "%s = %s" % (lvar, self.location(obj, *args)),
 "%(data)s = [%(ls)s.get_value(%(ls)s.get_iter((%(r)d,)),i) for i in range(%(ls)s.get_n_columns())]" % dict(r=sourcerow, data=dvar, ls=lvar),
 "%s.insert(%d, %s)" % (lvar, destrow, dvar),
-"%(ls)s.remove(%(ls)s.get_iter((%(r)d,)))" % dict(r=deleterow, ls=lvar)
+                "%(ls)s.remove(%(ls)s.get_iter((%(r)d,)))" % dict(r=deleterow, ls=lvar),
+                "del %s, %s" % (lvar, dvar)
                 ]
 
         return super(ListStoreLogger, self).record(obj, signal, *args)
