@@ -190,12 +190,14 @@ class StringWidget(GenericWidget):
         return self.gtk.get_text().lstrip()
     def set_value(self, value):
         debug.mainthreadTest()
+        self.block_signal()
         if type(value) == StringType and string.lstrip(value) != "":
             self.gtk.set_text(value)
             self.widgetChanged(1, interactive=0)
         else:
             self.gtk.set_text("")
             self.widgetChanged(0, interactive=0)
+        self.unblock_signal()
 
 def _StringParameter_makeWidget(self, scope=None, **kwargs):
     return StringWidget(self, scope=scope, name=self.name, **kwargs)
@@ -721,10 +723,12 @@ class XYStrFunctionWidget(GenericWidget):
         return strfunction.XYStrFunction(self.gtk.get_text().lstrip())
     def set_value(self, newvalue):
         debug.mainthreadTest()
+        self.block_signal()
         if newvalue is not None:
             self.gtk.set_text(newvalue.funcstr)
         else:
             self.gtk.set_text('')
+        self.unblock_signal()
     def validValue(self, value):
         if type(value) is StringType:
             try:
@@ -746,10 +750,12 @@ class XYTStrFunctionWidget(GenericWidget):
         return strfunction.XYTStrFunction(self.gtk.get_text().lstrip())
     def set_value(self, newvalue):
         debug.mainthreadTest()
+        self.block_signal()
         if newvalue is not None:
             self.gtk.set_text(newvalue.funcstr)
         else:
             self.gtk.set_text('')
+        self.unblock_signal()
     def validValue(self, value):
         if type(value) is StringType:
             try:
@@ -991,8 +997,10 @@ class ParameterDialog(widgetscope.WidgetScope):
         # in derived classes.
         self._button_hook()
 
+        debug.fmsg("Creating ParameterTable")
         self.table = ParameterTable(parameters, scope=self, hexpand=True,
                                     halign=Gtk.Align.FILL)
+        debug.fmsg("done creating ParameterTable")
         self.sbcallback = switchboard.requestCallbackMain(
             ('validity', self.table),
             self.validityCB)
