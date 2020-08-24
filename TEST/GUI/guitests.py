@@ -120,7 +120,7 @@ def really_run_tests(homedir, dirs, rerecord):
             extraargs = []
         # Read the expected exit status from the exitstatus file, if
         # it exists.
-        if os.path.exists(os.path.join(originaldirectory, 'exitstatus')):
+        if os.path.exists(os.path.join(originaldir, 'exitstatus')):
             exitstatfile = open(os.path.join(directory, 'exitstatus'))
             exitstatus = int(exitstatfile.readline())
             exitstatfile.close()
