@@ -41,7 +41,7 @@ import sys
 # each mode, all of this mode specific data is stored in a ModeData
 # object.
 
-class ModeData:
+class ModeData(object):
     def __init__(self, page, mode):
         self.page = page                # SkeletonSelectionPage
         self.mode = mode                # SkeletonSelectionMode object
@@ -328,7 +328,7 @@ class SkeletonSelectionPage(oofGUI.MainPage):
 # selected by the mesh widget.  The GroupGUI has a local selection
 # state.
 
-class GroupGUI:
+class GroupGUI(object):
     def __init__(self, parent):
         debug.mainthreadTest()
         self.parent = parent
@@ -536,9 +536,6 @@ class GroupGUI:
             self.update_grouplist(names, map(gset.displayString, names))
             mainthread.runBlock(self.grouplist.set_selection,
                                     (name,) )
-            self.sensitize_subthread() #  TODO: Remove this line.  May
-                                       #  require re-recording gui
-                                       #  tests.
 
         self.sensitize_subthread()
         switchboard.notify("redraw skeletongroups", skelcontext)
@@ -571,7 +568,6 @@ class GroupGUI:
 
         # Must sensitize -- if the resize was to or away from size 0,
         # the clear button needs updating.
-        #  mainthread.runBlock(self.sensitize)
         self.sensitize_subthread()
 
     def pxlgroup_added(self, group, *args):
@@ -778,10 +774,9 @@ class GroupGUI:
 
         self.addmaterial_button.set_sensitive(matok)
         self.removematerial_button.set_sensitive(matok)
-        
         gtklogger.checkpoint("skeleton selection page groups sensitized")
             
-class SelectionGUI:
+class SelectionGUI(object):
     def __init__(self, parent):
         debug.mainthreadTest()
         self.parent = parent
@@ -985,7 +980,7 @@ class SelectionGUI:
         self.activemode().ok_sensitize()
         gtklogger.checkpoint("skeleton selection page selection sensitized")
         
-class HistoryBox:
+class HistoryBox(object):
     def __init__(self, set_callback, ok_callback):
         debug.mainthreadTest()
         self.gtk = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)

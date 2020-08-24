@@ -189,7 +189,6 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         hbox.pack_start(self.sizetext, expand=True, fill=True, padding=0)
         self.sizetext.set_editable(False)
         self.sizetext.set_width_chars(12)
-        self.setInfo()
 
         # switchboard callbacks
         self.sbcallbacks = [
@@ -327,7 +326,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
             sizetextdata = self.toolbox.emptyMessage()
 
         mainthread.runBlock(self._write_text, (sizetextdata,))
-        gtklogger.checkpoint("selection info updated")
+        gtklogger.checkpoint("selection info updated " + self._name)
             
     def _write_text(self, txt):
         self.sizetext.set_text(txt)
