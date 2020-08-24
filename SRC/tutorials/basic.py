@@ -131,7 +131,7 @@ TutorialClass(subject="Basics",
     task page.
 
     The menu bar contains four menus, BOLD(File), BOLD(Settings),
-    BOLD(Windows), and BOLD(Help).
+    BOLD(Windows), BOLD(OrientationMap), and BOLD(Help).
 
     The BOLD(File) menu deals with loading and saving files and
     quitting OOF2.
@@ -141,6 +141,9 @@ TutorialClass(subject="Basics",
 
     From the BOLD(Windows) menu, one can open additional OOF2 windows
     and raise existing windows.
+
+    The BOLD(OrientationMap) menu contains commands for manipulating
+    EBSD data files.
 
     The BOLD(Help) menu contains tools to help you use OOF2 and to
     help us debug it."""
@@ -162,8 +165,8 @@ TutorialClass(subject="Basics",
 
     A brief description of each page is displayed when the mouse
     cursor is over the page's entry in the task menu. (These are
-    examples of BOLD(Tooltips).  They can be disabled in the
-    BOLD(Help) menu.)
+    examples of BOLD(Tooltips).  Most GUI elements in OOF2 have
+    tooltips to help you figure out what they're for.
 
     Open the BOLD(Microstructure) page by selecting
     BOLD(Microstructure) in the task menu.
@@ -241,9 +244,8 @@ TutorialClass(subject="Basics",
     displayed in the canvas.
 
     The toolbox, canvas, contour map, and layer list are separated by
-    dividers with a small square(its shape varies depending on system)
-    on them.  Drag these squares with the
-    mouse to change the size of the various panes in the window.
+    dividers that can be dragged with the mouse to change the sizes of
+    the various panes in the window.
     """
         ),
 
@@ -255,21 +257,18 @@ TutorialClass(subject="Basics",
     you'll be able to monitor the progress of certain activities and
     furthermore you'll be able to stop these activities at will.
 
-    Demonstrate this feature by categorizing the Microstructure
-    BOLD(small.ppm) by pixel colors, that is, create a BOLD(pixel
-    group) for each color of pixel in the Image.
+    The BOLD(Activity Viewer) window appears when OOF2 does something
+    that takes longer than two seconds (the exact time can be adjusted
+    in the window's BOLD(Settings) menu), or when opened explicitly
+    with the main window's BOLD(Windows) menu.
 
-    Open the BOLD(Image) page in the main OOF2 window, and click the
-    BOLD(Group) button.
+    Progress bars in the BOLD(Activity Viewer) window indicate how far
+    a process has progressed.  Each bar has a BOLD(Stop) button that
+    will abort the process.
 
-    The BOLD(Activity Viewer) window will appear.  It features a
-    progress bar that lets you graphically monitor the progress of
-    pixel categorization.
-
-    While the bar is still moving, you can abort the process by
-    clicking on the BOLD(Stop) button.
-
-    Cool, isn't it?
+    Unfortunately, unless you're using a very slow computer it's
+    impossible to demonstrate the progress bars at this point, because
+    there's nothing that we can do that takes longer than two seconds.
     """
     ),
 
