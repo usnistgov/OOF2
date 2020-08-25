@@ -78,6 +78,7 @@ class ChooserWidget(object):
         # make sure that the horizontal size of the Chooser doesn't
         # change when the visible label changes, if homogeneous=True. 
         self.stack = Gtk.Stack(homogeneous=homogeneous)
+        gtklogger.setWidgetName(self.stack, 'stack')
         frame.add(self.stack)
         # When a chooser has nothing to display, it looks ugly.
         # emptyMarker is a placeholder to display when there's nothing

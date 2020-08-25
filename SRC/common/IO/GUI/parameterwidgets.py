@@ -997,10 +997,8 @@ class ParameterDialog(widgetscope.WidgetScope):
         # in derived classes.
         self._button_hook()
 
-        debug.fmsg("Creating ParameterTable")
         self.table = ParameterTable(parameters, scope=self, hexpand=True,
                                     halign=Gtk.Align.FILL)
-        debug.fmsg("done creating ParameterTable")
         self.sbcallback = switchboard.requestCallbackMain(
             ('validity', self.table),
             self.validityCB)
