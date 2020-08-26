@@ -47,10 +47,12 @@ maxtries = 100
 ## See the README file for a description of the arguments to replay().
 
 def replay(filename, beginCB=None, finishCB=None, debugLevel=2,
-           threaded=False, exceptHook=None, rerecord=None, checkpoints=True):
+           threaded=False, exceptHook=None, rerecord=None, checkpoints=True,
+           comment_gui=False):
     logutils.set_replaying(True)
     GObject.idle_add(GUILogPlayer(filename, beginCB, finishCB, debugLevel,
-                                  threaded, exceptHook, rerecord, checkpoints))
+                                  threaded, exceptHook, rerecord, checkpoints,
+                                  comment_gui))
 
 # A GUILogPlayer reads a log file of saved gui events and simulates them.
 
@@ -58,7 +60,7 @@ class GUILogPlayer(object):
     current = None
     def __init__(self, filename, beginCB=None, finishCB=None, debugLevel=2,
                  threaded=False, exceptHook=None, rerecord=None,
-                 checkpoints=True):
+                 checkpoints=True, comment_gui=False):
         global _threaded
         logutils.set_debugLevel(debugLevel)
         _threaded = threaded
@@ -74,7 +76,7 @@ class GUILogPlayer(object):
         self.linerunners = []
 
         if rerecord:
-            core.start(rerecord)
+            core.start(rerecord, comment_gui=comment_gui)
 
         # More than one execution line can come from a single source
         # line, if, for example, automatic pauses are inserted.  The

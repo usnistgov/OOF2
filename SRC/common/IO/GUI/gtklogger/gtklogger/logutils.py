@@ -59,6 +59,12 @@ def getTopLevelWidget(name):
     except KeyError:
         raise GtkLoggerTopFailure(name)
 
+def getTopLevelWidgetName(widget):
+    # This is just for debugging and doesn't have to be fast
+    for name in topwidgets:
+        if topwidgets[name] is widget:
+            return name
+
 def isTopLevelWidget(obj):
     return obj in topwidgets.values()
 
@@ -290,3 +296,4 @@ def add_exception(excclass):
 
 def exceptions():
     return tuple(_allexceptions)
+

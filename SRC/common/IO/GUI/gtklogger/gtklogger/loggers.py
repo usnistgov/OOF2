@@ -138,8 +138,9 @@ def signalLogger(obj, signal, logger, *args):
 ## _redundantlines is a list of regular expression objects that match
 ## lines that are redundant when repeated.
 _redundantlines = [
-    # Each time a Window is created, it emits four 'configure-event'
-    # signals, which show up as four 'resize' lines in the log.
+    # Each time a Window is created, it emits multiple
+    # 'configure-event' signals, which show up as multiple identical
+    # 'resize' lines in the log.
     re.compile(r".*\.resize\([0-9]+, [0-9]+\)$"),
     # set_position lines for HPaned and VPaned widgets are generated
     # from their children's 'size-allocate' signals, which are

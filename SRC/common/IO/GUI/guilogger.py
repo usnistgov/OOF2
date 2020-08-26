@@ -77,7 +77,7 @@ def startLog(menuitem, filename, use_gui):
         dblevel = 0
     global _recording
     _recording = True
-    gtklogger.start(filename, debugLevel=dblevel, logger_comments=use_gui)
+    gtklogger.start(filename, debugLevel=dblevel, comment_gui=use_gui)
 
 guidebugmenu.addItem(oofmenu.OOFMenuItem(
     'Record',
@@ -206,7 +206,7 @@ def rerecordLog(menuitem, filename, checkpoints, use_gui):
         exceptHook=loggererror,
         rerecord=filename,
         checkpoints=checkpoints,
-        logger_comments=use_gui) #Passing the logger_comments parameter to show the loggergui
+        comment_gui=use_gui)
 
 guidebugmenu.addItem(oofmenu.OOFMenuItem(
     'Rerecord',

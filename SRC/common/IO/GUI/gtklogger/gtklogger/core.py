@@ -24,14 +24,14 @@ import logutils
 _allexceptions = [Exception]
 
 def start(filename, debugLevel=2, suppress_motion_events=True,
-          logger_comments=True):
+          comment_gui=True):
     global _suppress_motion_events
     logutils.set_debugLevel(debugLevel)
     _suppress_motion_events = suppress_motion_events
     if logutils.recording():
         logutils.logfile().close()
     try:
-        if logger_comments:
+        if comment_gui:
             # Open a pipe to the loggergui process for inserting
             # comments into the output stream.  The pipe is
             # line-buffered so that comments appear in the right
