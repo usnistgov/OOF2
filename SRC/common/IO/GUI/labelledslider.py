@@ -102,7 +102,7 @@ class LabelledSlider:
         self.changed = False
 
         gtklogger.connect(self.entry, 'activate', self.slider_from_text)
-        gtklogger.connect(self.entry, 'focus-out-event', self.entry_lost_focus)
+        gtklogger.connect(self.entry, 'focus_out_event', self.entry_lost_focus)
     
     def set_sensitive(self, sensitivity):
         self.slider.set_sensitive(sensitivity)
@@ -181,7 +181,7 @@ class LabelledSlider:
                 self.gtk.handler_unblock(signal)
 
     def setBounds(self, minval, maxval):
-        val = self.adjustment.value
+        val = self.adjustment.get_value()
         attop = (val == self.adjustment.upper)
         atbot = (val == self.adjustment.lower)
         self.adjustmentsignal.block()
