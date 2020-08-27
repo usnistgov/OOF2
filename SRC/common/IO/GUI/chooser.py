@@ -68,7 +68,9 @@ class ChooserWidget(object):
         self.update_callback = update_callback
         self.update_callback_args = update_callback_args
         self.helpdict = {}
-        self.namelist = []
+        # Initialize namelist to None instead of [] so that the first
+        # call to update will install self.emptyMarker if appropriate.
+        self.namelist = None
 
         self.gtk = Gtk.EventBox()
         gtklogger.setWidgetName(self.gtk, name)
@@ -85,6 +87,7 @@ class ChooserWidget(object):
         # else, and self.empty indicates that it's in use.
         self.empty = False
         self.emptyMarker = self.makeSubWidget("---")
+        self.emptyMarker.set_sensitive(False)
         self.emptyMarkerName = "despair"
         self.update(namelist, helpdict)
         
@@ -108,6 +111,7 @@ class ChooserWidget(object):
         self.namelist = namelist[:]
         self.helpdict = helpdict
         if self.namelist:
+            self.gtk.set_sensitive(True)
             if self.empty:
                 self.stack.remove(self.emptyMarker)
                 self.empty = False
@@ -122,11 +126,13 @@ class ChooserWidget(object):
         else:
             # namelist is empty
             self.set_state(None)
+            self.gtk.set_sensitive(False)
             if not self.empty:
                 for widget in self.stack:
                     self.stack.remove(widget)
                 self.empty = True
                 self.stack.add_named(self.emptyMarker, self.emptyMarkerName)
+                # self.stack.set_visible_child(self.emptyMarker)
         return True
 
     def show(self):
