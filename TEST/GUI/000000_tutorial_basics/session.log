@@ -1,0 +1,5 @@
+OOF.Microstructure.Create_From_ImageFile(filename='examples/small.ppm', microstructure_name='small.ppm', height=automatic, width=automatic)
+OOF.Windows.Graphics.New()
+OOF.Graphics_1.Layer.Select(n=0)
+OOF.Windows.Activity_Viewer()
+OOF.Image.AutoGroup(image='small.ppm:small.ppm', name_template='%c')
