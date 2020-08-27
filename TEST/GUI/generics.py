@@ -147,6 +147,24 @@ def treeViewLength(widgetpath):
     treeview = gtklogger.findWidget(widgetpath)
     return len(treeview.get_model())
 
+def chooserCheck(widgetpath, choices, tolerance=None):
+    stack = gtklogger.findWidget(widgetpath + ':stack')
+    # stack is a Gtk.Stack of Gtk.Boxes containing labels and images.
+    # box.get_children()[0] is a Gtk.Label.
+    names = [box.get_children()[0].get_text() for box in stack.get_children()]
+    if len(names) != len(choices):
+        print >> sys.stderr, "length mismatch: %d!=%d" % (len(names),
+                                                          len(choices))
+        print >> sys.stderr, "expected:", choices
+        print >> sys.stderr, "     got:", names
+        return False
+    for name, choice in zip(names, choices):
+        if not fp_string_compare(name, choice, tolerance):
+            print >> sys.stderr, name, "!=", choice
+            return False
+    return True
+    
+
 def treeViewColCheck(widgetpath, col, choices, tolerance=None):
     # Check that the contents of the given column of a TreeView match
     # the given list of choices.  'widgetpath' is the gtklogger path
@@ -190,9 +208,6 @@ def listViewSelectedRowNo(widgetpath):
     if iter is not None:
         return model.get_path(iter)[0]
     return None                         # nothing selected
-
-def chooserCheck(widgetpath, choices, tolerance=None):
-    return treeViewColCheck(widgetpath, 0, choices, tolerance)
 
 def chooserStateCheck(widgetpath, choice):
     # only for ChooserWidget, not ChooserListWidget.  Checks that the

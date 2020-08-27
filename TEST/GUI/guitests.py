@@ -18,6 +18,16 @@
 # python path so that the log file can contain import statements that
 # load tests from other files in the subdirectory.
 
+# Actually, the tests are run in a temporary directory so that any
+# files created by the test don't overwrite anything.  This means that
+# *this* directory (OOF2/TEST/GUI) is also added to the path.  The
+# temp directory also contains a symbolic link to OOF2/TEST/UTILS,
+# which is added to the path. It contains links to
+# OOF2/TEST/GUI/examples and OOF2/TEST/GUI/TEST_DATA, but they're not
+# in the path.
+
+# To temporarily skip a subdirectory, add a file called SKIP to it.
+
 # The subdirectory can contain a file called "args" which contains a
 # single line of arguments to be added to the oof2 command.  It can
 # also contain a file named 'cleanup.py' which will be run after the
@@ -80,7 +90,7 @@ def run_tests(dirs, rerecord, forever):
         # even if everything ran correctly.
         for f in os.listdir(tmpdir):
             os.remove(f)
-            # Remove the temp directory
+        # Remove the temp directory
         os.rmdir(tmpdir)
 
 def really_run_tests(homedir, dirs, rerecord):
@@ -158,12 +168,13 @@ def really_run_tests(homedir, dirs, rerecord):
                "--pathdir", "UTILS",
                "--%s" % replayarg,
                os.path.join(directory, "log.py")] + extraargs
-               
+
         print >> sys.stderr, "-------------------------"
-        print >> sys.stderr, "--- Running %s" % cmd
+        print >> sys.stderr, "--- Running %s" % ' '.join(cmd)
         os.putenv('OOFTESTDIR', directory)
         # result = os.system(cmd)
-        result = subprocess.call(cmd, shell=True)
+        result = subprocess.call(cmd)
+        print >> sys.stderr, "--- Return value =", result
         if result < 0:
             print >> sys.stderr, "Child was terminated by signal", -result
             sys.exit(result)
