@@ -39,6 +39,11 @@ import textwrap
 ## button is sensitized but before clicking Next.  The sensitivity
 ## probably needs to be saved in the file.
 
+## TODO GTK3: Don't make the tutorial window scrollable. Just always
+## make the pages small enough to fit.  Then users don't have to worry
+## about scrolling when a modal dialog is open.  OR, open the
+## tutorials in a separate process entirely.
+
 boldtag = "BOLD("
 lenboldtag = len(boldtag)
 delimexpr = re.compile(r'[^\\]\)')      # finds ')' not preceded by '\'

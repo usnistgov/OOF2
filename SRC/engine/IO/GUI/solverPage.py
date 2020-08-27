@@ -154,7 +154,7 @@ class SolverPage(oofGUI.MainPage):
         subpvbox.pack_start(subpbbox, expand=False, fill=False, padding=0)
         # Set Solver
         self.setSolverButton = gtkutils.StockButton("list-add-symbolic",
-                                                    "Set...")
+                                                    "Set Solver...")
         gtklogger.setWidgetName(self.setSolverButton, "Set")
         gtklogger.connect(self.setSolverButton, 'clicked', self.setSolverCB)
         subpbbox.pack_start(self.setSolverButton,
