@@ -15,9 +15,6 @@ import logutils
 
 import string
 
-## TODO GTK3: Use gtk_main_do_event instead of Gtk.Widget.event?  See
-## https://developer.gnome.org/gtk3/stable/GtkWidget.html#gtk-widget-event
-
 class WidgetLogger(loggers.GtkLogger):
     classes = (Gtk.Widget,)
 
@@ -37,57 +34,46 @@ class WidgetLogger(loggers.GtkLogger):
                 eventname = "BUTTON_PRESS"
             else:
                 eventname = "BUTTON_RELEASE"
-            wvar = loggers.localvar('widget')
             return [
-                "%s = %s" % (wvar, self.location(obj, *args)),
-                "%s.event(event(Gdk.EventType.%s,x=%20.13e,y=%20.13e,button=%d,state=%d,window=%s.get_window()))"
-                % (wvar, eventname,
-                   evnt.x, evnt.y, evnt.button, evnt.state, wvar),
-                "del %s" % wvar
-                ]
+                "event(Gdk.EventType.%s,x=%20.13e,y=%20.13e,button=%d,state=%d,window=%s.get_window())"
+                % (eventname, evnt.x, evnt.y, evnt.button, evnt.state,
+                   self.location(obj, *args)),
+            ]
 
         if signal in ('key-press-event', 'key-release-event'):
+            # TODO: Is this needed?  Is it reliable?
             evnt = args[0]
             if signal == 'key-press-event':
                 eventname = "KEY_PRESS"
             else:
                 eventname = "KEY_RELEASE"
-            wvar = loggers.localvar('widget')
-            
-            keymap = Gdk.Keymap.get_default()
-            ok, keymapkeys = keymap.get_entries_for_keyval(evnt.keyval)
-            print "keys=", [k.keycode for k in keymapkeys], \
-                "event.hardware_keycode=", evnt.hardware_keycode
+            # keymap = Gdk.Keymap.get_default()
+            # ok, keymapkeys = keymap.get_entries_for_keyval(evnt.keyval)
+            # print "keys=", [k.keycode for k in keymapkeys], \
+            #     "event.hardware_keycode=", evnt.hardware_keycode
 
             return [
                 # Including the hardware_keycode seems to be important
-                # for getting the delete key to work.
-                "%s = %s" % (wvar, self.location(obj, *args)),
-                "%s.event(event(Gdk.EventType.%s, keyval=Gdk.keyval_from_name('%s'), state=%d, window=%s.get_window()))"
-                % (wvar, eventname, Gdk.keyval_name(evnt.keyval), evnt.state,
-                   wvar),
-                "del %s" % wvar
-                ]
+                # for getting the delete key to work, but it's not
+                # portable, so I'm not sure what to do...
+                "event(Gdk.EventType.%s, keyval=Gdk.keyval_from_name('%s'), state=%d, window=%s.get_window())"
+                % (eventname, Gdk.keyval_name(evnt.keyval), evnt.state,
+                   self.location(obj, *args))
+            ]
         
         if signal == 'motion-notify-event':
             evnt = args[0]
             if logutils.suppress_motion_events(obj):
                 return self.ignore
-            wvar = loggers.localvar('widget')
             return [
-                "%s = %s" % (wvar, self.location(obj, *args)),
-                "%s.event(event(Gdk.EventType.MOTION_NOTIFY,x=%20.13e,y=%20.13e,state=%d,window=%s.get_window()))"
-                % (wvar, evnt.x, evnt.y, evnt.state, wvar),
-                "del %s" % wvar
-                ]
+                "event(Gdk.EventType.MOTION_NOTIFY,x=%20.13e,y=%20.13e,state=%d,window=%s.get_window())"
+                % (evnt.x, evnt.y, evnt.state, self.location(obj, *args))
+            ]
         
         if signal == 'focus_in_event':
-            wvar = loggers.localvar('widget')
             return [
-                "%s=%s" % (wvar, self.location(obj, *args)),
-                "%(widget)s.event(event(Gdk.EventType.FOCUS_CHANGE, in_=1, window=%(widget)s.get_window()))" % dict(widget=wvar),
-                "del %s" % wvar
-                ]
+                "event(Gdk.EventType.FOCUS_CHANGE, in_=1, window=%s.get_window())" % self.location(obj, *args)
+            ]
 
         # If a widget has lost focus because it's been destroyed for
         # some reason, then replaying the focus_out_event will fail.
@@ -100,7 +86,7 @@ class WidgetLogger(loggers.GtkLogger):
             wvar = loggers.localvar('widget')
             return [
                 "%s=%s" % (wvar,self.location(obj, *args)),
-                "if %(widget)s: %(widget)s.event(event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=%(widget)s.get_window()))" % dict(widget=wvar),
+                "if %(widget)s: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=%(widget)s.get_window())" % dict(widget=wvar),
                 "del %s" % wvar
                 ]
 
@@ -113,9 +99,7 @@ class WidgetLogger(loggers.GtkLogger):
                 etype = "LEAVE_NOTIFY"
             wvar = loggers.localvar('widget')
             return [
-                "%s=%s" % (wvar, self.location(obj, *args)),
-                "%(widget)s.event(event(Gdk.EventType.%(etype)s, window=%(widget)s.get_window()))" % dict(etype=etype, widget=wvar),
-                "del %s" % wvar
+                "event(Gdk.EventType.%(etype)s, window=%(widget)s.get_window())" % dict(etype=etype, widget=self.location(obj, *args))
             ]
 
         ## TODO GTK3: We should catch and log allocation events on top

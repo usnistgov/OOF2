@@ -21,21 +21,15 @@ class WindowLogger(widgetlogger.WidgetLogger):
         if signal == 'destroy':
             return self.ignore
         if signal == 'delete-event':
-
-            # Simply re-emitting the delete event doesn't actually
-            # destroy a window, so we have to explicitly destroy it.
-            # This may be the wrong thing to do if a window intercepts
-            # delete-event and doesn't propagate the signal.
-            
-##            return ["%s.destroy()" % self.location(obj, *args)]
-            wvar = loggers.localvar('widget')
-            hvar = loggers.localvar('handled')
+            # The gtk2 version did something more complicated here.
+            # If GtkWidget.event returned False, indicating the the
+            # delete event wasn't handled, it inserted a gtklogger
+            # "postpone" line that explicitly destroyed the window.
+            # That doesn't appear to be necessary with gtk3, at least
+            # when using Gtk.main_do_event instead of GtkWidget.Event.
             return [
-                "%s=%s" % (wvar, self.location(obj, *args)),
-                "%(h)s=%(w)s.event(event(Gdk.EventType.DELETE,window=%(w)s.get_window()))"
-                % dict(w=wvar, h=hvar),
-                "postpone if not %(h)s: %(w)s.destroy()" % dict(w=wvar, h=hvar),
-                "del %s, %s" % (wvar, hvar)
+                "event(Gdk.EventType.DELETE,window=%s.get_window())"
+                % self.location(obj, *args),
             ]
         if signal == 'configure-event':
             event = args[0]
