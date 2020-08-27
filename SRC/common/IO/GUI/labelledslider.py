@@ -182,12 +182,12 @@ class LabelledSlider:
 
     def setBounds(self, minval, maxval):
         val = self.adjustment.get_value()
-        attop = (val == self.adjustment.upper)
-        atbot = (val == self.adjustment.lower)
+        attop = (val == self.adjustment.get_upper())
+        atbot = (val == self.adjustment.get_lower())
         self.adjustmentsignal.block()
         try:
-            self.adjustment.lower = minval
-            self.adjustment.upper = maxval
+            self.adjustment.set_lower(minval)
+            self.adjustment.set_upper(maxval)
             self.clipper = self.clipperclass(minval, maxval)
             if attop:
                 self.set_value(maxval)
@@ -197,7 +197,7 @@ class LabelledSlider:
             self.adjustmentsignal.unblock()
 
     def getBounds(self):
-        return (self.adjustment.lower, self.adjustment.upper)
+        return (self.adjustment.get_lower(), self.adjustment.get_upper())
 
     ## TODO: Is there a Gtk3 version of Range.set_policy?
     # def set_policy(self, policy):
