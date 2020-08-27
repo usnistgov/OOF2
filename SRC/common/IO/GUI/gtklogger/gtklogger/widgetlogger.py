@@ -22,21 +22,11 @@ class WidgetLogger(loggers.GtkLogger):
     classes = (Gtk.Widget,)
 
     def location(self, widget, *args):
-        name = logutils.getWidgetName(widget)
-        if not name:
-            raise logutils.GtkLoggerException("Unnamed widget")
-        path = self._parentWidgetPath(widget) + [name]
+        path = logutils.getWidgetPath(widget)
         if path[0] not in logutils.getTopWidgetNames():
             raise logutils.GtkLoggerException(string.join(path, ':') + 
                                      " is not contained in a top-level widget")
         return "findWidget('%s')" % string.join(path, ':')
-    def _parentWidgetPath(self, widget):
-        parent = widget.get_parent()
-        while parent is not None and logutils.getWidgetName(parent) is None:
-            parent = parent.get_parent()
-        if parent is None:
-            return []
-        return self._parentWidgetPath(parent) + [logutils.getWidgetName(parent)]
 
     def record(self, obj, signal, *args):
         ## TODO GTK3: Keep a weak ref to the previous wvar and re-use

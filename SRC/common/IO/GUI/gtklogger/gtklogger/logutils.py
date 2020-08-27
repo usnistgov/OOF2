@@ -45,6 +45,20 @@ def setWidgetName(widget, name):
 def getWidgetName(widget):
     return getattr(widget, 'oofname', None)
 
+def getWidgetPath(widget):
+    name = getWidgetName(widget)
+    if not name:
+        raise GtkLoggerException("Unnamed widget!")
+    return _parentWidgetPath(widget) + [name]
+
+def _parentWidgetPath(widget):
+    parent = widget.get_parent()
+    while parent is not None and getWidgetName(parent) is None:
+        parent = parent.get_parent()
+    if parent is None:
+        return []
+    return _parentWidgetPath(parent) + [getWidgetName(parent)]
+
 ##############################
 
 # Dictionary of top level widgets keyed by name
