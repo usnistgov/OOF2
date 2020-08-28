@@ -950,13 +950,14 @@ findWidget('OOF2:Navigation:Next').clicked()
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint page installed Fields & Equations
+checkpoint_count("Field page sensitized")
+assert tests.fieldPageSensitivityCheck0()
 findWidget('OOF2:Fields & Equations Page:HPane').set_position(470)
 findWidget('OOF2:Fields & Equations Page:HPane:Fields:Displacement defined').clicked()
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint Field page sensitized
-assert tests.fieldPageSensitivityCheck0()
 checkpoint named boundary analysis chooser set
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized

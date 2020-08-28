@@ -377,6 +377,9 @@ class FieldPage(oofGUI.MainPage):
         self.eqntable.set_sensitive(subpok and meshok)
         self.copyfieldbutton.set_sensitive(subpok and meshok)
         self.copyeqnbutton.set_sensitive(subpok and meshok)
+        ## TODO GTK3: Why is this called so often?  The gui log has
+        ## multiple "Field page sensitized" checkpoints for each
+        ## button event on this page.
         gtklogger.checkpoint("Field page sensitized")
         
     def update(self):
