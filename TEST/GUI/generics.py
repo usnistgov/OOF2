@@ -152,18 +152,14 @@ def chooserCheck(widgetpath, choices, tolerance=None):
     # stack is a Gtk.Stack of Gtk.Boxes containing labels and images.
     # box.get_children()[0] is a Gtk.Label.
     names = [box.get_children()[0].get_text() for box in stack.get_children()]
-    if len(names) != len(choices):
-        print >> sys.stderr, "length mismatch: %d!=%d" % (len(names),
-                                                          len(choices))
-        print >> sys.stderr, "expected:", choices
-        print >> sys.stderr, "     got:", names
+    # stack.get_children doesn't return the children in a predictable
+    # order, so just compare the sorted lists.
+    if sorted(names) != sorted(choices):
+        print >> sys.stderr, "chooserCheck failed!"
+        print >> sys.stderr, "   Expected:", sorted(choices)
+        print >> sys.stderr, "        Got:", sorted(names)
         return False
-    for name, choice in zip(names, choices):
-        if not fp_string_compare(name, choice, tolerance):
-            print >> sys.stderr, name, "!=", choice
-            return False
     return True
-    
 
 def treeViewColCheck(widgetpath, col, choices, tolerance=None):
     # Check that the contents of the given column of a TreeView match

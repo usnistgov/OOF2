@@ -51,14 +51,14 @@ findWidget('Basics:Next').clicked()
 findWidget('Basics:Next').clicked()
 findWidget('Basics:Next').clicked()
 widget_0 = findWidget('OOF2:Navigation:PageMenu')
-widget_0.event(event(Gdk.EventType.BUTTON_PRESS,x= 1.0400000000000e+02,y= 2.5000000000000e+01,button=1,state=0,window=widget_0.get_window()))
+event(Gdk.EventType.BUTTON_PRESS,x= 1.0400000000000e+02,y= 2.5000000000000e+01,button=1,state=0,window=widget_0.get_window())
 del widget_0
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 widget_1=findMenu(findWidget('chooserPopup-PageMenu'), 'Introduction')
-widget_1.event(event(Gdk.EventType.ENTER_NOTIFY, window=widget_1.get_window()))
+event(Gdk.EventType.ENTER_NOTIFY, window=widget_1.get_window())
 del widget_1
 widget_2=findMenu(findWidget('chooserPopup-PageMenu'), 'Microstructure')
-widget_2.event(event(Gdk.EventType.ENTER_NOTIFY, window=widget_2.get_window()))
+event(Gdk.EventType.ENTER_NOTIFY, window=widget_2.get_window())
 del widget_2
 findMenu(findWidget('chooserPopup-PageMenu'), 'Microstructure').activate()
 checkpoint page installed Microstructure
@@ -118,7 +118,7 @@ checkpoint OOF.Microstructure.Create_From_ImageFile
 assert tests.whoNameCheck('Microstructure', ['small.ppm'])
 assert tests.chooserCheck('OOF2:Microstructure Page:Microstructure', ['small.ppm'])
 assert tests.msPageSensitizationCheck1()
-# Test the testers.  The following three tests should report errors.
+### Test the testers.  The following three tests should report errors. ###
 assert not tests.chooserCheck('OOF2:Microstructure Page:Microstructure', [])
 assert not tests.chooserCheck('OOF2:Microstructure Page:Microstructure', ['smell.ppm'])
 assert not tests.chooserCheck('OOF2:Microstructure Page:Microstructure', ['small.ppm', 'big.ppm'])
@@ -170,17 +170,17 @@ findWidget('OOF2 Activity Viewer').resize(400, 300)
 findWidget('Basics:Next').clicked()
 findWidget('Basics:Back').clicked()
 widget_3 = findWidget('OOF2:Navigation:PageMenu')
-widget_3.event(event(Gdk.EventType.BUTTON_PRESS,x= 1.1700000000000e+02,y= 1.9000000000000e+01,button=1,state=0,window=widget_3.get_window()))
+event(Gdk.EventType.BUTTON_PRESS,x= 1.1700000000000e+02,y= 1.9000000000000e+01,button=1,state=0,window=widget_3.get_window())
 del widget_3
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 widget_4=findMenu(findWidget('chooserPopup-PageMenu'), 'Introduction')
-widget_4.event(event(Gdk.EventType.ENTER_NOTIFY, window=widget_4.get_window()))
+event(Gdk.EventType.ENTER_NOTIFY, window=widget_4.get_window())
 del widget_4
 widget_5=findMenu(findWidget('chooserPopup-PageMenu'), 'Microstructure')
-widget_5.event(event(Gdk.EventType.ENTER_NOTIFY, window=widget_5.get_window()))
+event(Gdk.EventType.ENTER_NOTIFY, window=widget_5.get_window())
 del widget_5
 widget_6=findMenu(findWidget('chooserPopup-PageMenu'), 'Image')
-widget_6.event(event(Gdk.EventType.ENTER_NOTIFY, window=widget_6.get_window()))
+event(Gdk.EventType.ENTER_NOTIFY, window=widget_6.get_window())
 del widget_6
 findMenu(findWidget('chooserPopup-PageMenu'), 'Image').activate()
 checkpoint page installed Image
@@ -252,17 +252,17 @@ checkpoint toplevel widget mapped Dialog-Python_Log
 findWidget('Dialog-Python_Log').resize(192, 122)
 findWidget('Dialog-Python_Log:filename').set_text('session.log')
 widget_0 = findWidget('Dialog-Python_Log:mode')
-widget_0.event(event(Gdk.EventType.BUTTON_PRESS,x= 5.9000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=widget_0.get_window()))
+event(Gdk.EventType.BUTTON_PRESS,x= 5.9000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=widget_0.get_window())
 del widget_0
 checkpoint toplevel widget mapped chooserPopup-mode
 widget_1=findMenu(findWidget('chooserPopup-mode'), 'write')
-widget_1.event(event(Gdk.EventType.ENTER_NOTIFY, window=widget_1.get_window()))
+event(Gdk.EventType.ENTER_NOTIFY, window=widget_1.get_window())
 del widget_1
 widget_2=findMenu(findWidget('chooserPopup-mode'), 'append')
-widget_2.event(event(Gdk.EventType.ENTER_NOTIFY, window=widget_2.get_window()))
+event(Gdk.EventType.ENTER_NOTIFY, window=widget_2.get_window())
 del widget_2
 widget_3=findMenu(findWidget('chooserPopup-mode'), 'write')
-widget_3.event(event(Gdk.EventType.ENTER_NOTIFY, window=widget_3.get_window()))
+event(Gdk.EventType.ENTER_NOTIFY, window=widget_3.get_window())
 del widget_3
 findMenu(findWidget('chooserPopup-mode'), 'write').activate()
 findWidget('Dialog-Python_Log:widget_GTK_RESPONSE_OK').clicked()

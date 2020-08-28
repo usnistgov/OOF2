@@ -80,6 +80,8 @@ class MaterialsPage(oofGUI.MainPage):
     def sensitize(self):
         self.propertypane.do_sensitize()
         self.materialpane.do_sensitize()
+        ## TODO GTK3: Is this called too often?  There are a lot of
+        ## checkpoints in the log file.
         gtklogger.checkpoint("Materials page updated")
         
 class PropertyPane:

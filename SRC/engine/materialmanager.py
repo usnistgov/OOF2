@@ -292,7 +292,7 @@ materialmanager = MaterialManager()
 AllProperties.materialmanager = materialmanager
 
 def getMaterialNames():
-    return materialmanager.materials.keys()
+    return sorted(materialmanager.materials.keys())
 
 def getMaterial(name):
     # getMaterial is called by the Material* out-typemap when the
