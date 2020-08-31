@@ -397,6 +397,21 @@ settingsmenu.addItem(oofmenu.OOFMenuItem(
         params=[parameter.IntParameter('seed', 17)]
         ))
 
+################################
+
+def _logmenucallback(menutiem, **kwargs):
+    # TODO: Should do a try/except here, but OOFError is not imported,
+    # so really it should be in its own file with proper imports, probably.
+    msg = kwargs['message']
+    reporter.report(msg)
+
+_logmenu = _filemenu.addItem(OOFMenuItem(
+    'Log',
+    help="Write a message to the log file",
+    discussion="<para>Write info directly to the log file.</para>",
+    callback = _logmenucallback,
+    params=[parameter.StringParameter(name="message"),]
+    ))
 
 ##################################
 
