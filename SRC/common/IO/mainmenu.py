@@ -399,11 +399,8 @@ settingsmenu.addItem(oofmenu.OOFMenuItem(
 
 ################################
 
-def _logmenucallback(menutiem, **kwargs):
-    # TODO: Should do a try/except here, but OOFError is not imported,
-    # so really it should be in its own file with proper imports, probably.
-    msg = kwargs['message']
-    reporter.report(msg)
+def _logmenucallback(menutiem, message):
+    reporter.report(message)
 
 _logmenu = _filemenu.addItem(OOFMenuItem(
     'Log',
