@@ -177,6 +177,7 @@ class MicrostructurePage(oofGUI.MainPage):
         frame.add(grparea)
 
         # only one of grplist and grpmsg is visible at a time
+        ## TODO GTK3: Use a GtkStack for switching between grplist and grpmsg.
         self.grplist = chooser.ScrolledChooserListWidget( # list of pixel groups
             callback=self.listItemChosen, name="GroupList",
             vexpand=True, valign=Gtk.Align.FILL,
@@ -565,10 +566,11 @@ class MicrostructurePage(oofGUI.MainPage):
         
     def newpixgrp(self, group):  # switchboard callback 'new pixel group'
         ## TODO: This should check the group's Microstructure, and not
-        ## do anything unless the it is the page's current
-        ## Microstructure.  The code as it is now will change the
-        ## selected group if it's in a different Microstructure but
-        ## has the same name as one in the current Microstructure.
+        ## do anything unless it is the page's current Microstructure.
+        ## The code as it is now will change the selected group if
+        ## it's in a different Microstructure but has the same name as
+        ## one in the current Microstructure.
+        debug.fmsg(group.name())
         self.grouplock.acquire()
         try:
             self.rebuild_grouplist()
