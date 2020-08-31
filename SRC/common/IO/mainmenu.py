@@ -399,14 +399,14 @@ settingsmenu.addItem(oofmenu.OOFMenuItem(
 
 ################################
 
-def _logmenucallback(menutiem, message):
+def _annotatelogmenucallback(menutiem, message):
     reporter.report(message)
 
-_logmenu = _filemenu.addItem(OOFMenuItem(
-    'Log',
+_annotatelogmenu = _filemenu.addItem(OOFMenuItem(
+    'Annotate_Log',
     help="Write a message to the log file",
     discussion="<para>Write info directly to the log file.</para>",
-    callback = _logmenucallback,
+    callback = _annotatelogmenucallback,
     params=[parameter.StringParameter(name="message"),]
     ))
 
