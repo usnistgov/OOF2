@@ -337,7 +337,7 @@ def createPixelGroups(menuitem, image, name_template):
     prog.setMessage("Categorizing pixels...")
     mscontext.begin_writing()
     try:
-        newgrpname = autogroupMP.autogroup(ms, immidge, name_template)
+        newgrpnames = autogroupMP.autogroup(ms, immidge, name_template)
     finally:
         prog.finish()
         mscontext.end_writing()
@@ -348,9 +348,11 @@ def createPixelGroups(menuitem, image, name_template):
         # Do this only after releasing the ms write lock!  If the main
         # thread is waiting for the read lock, then switchboard.notify
         # will deadlock here.
-        if newgrpname:
-            # We only have to send the notification for the most
-            # recently created group.
+        if newgrpnames:
+            # We only have to send the notification for one of the
+            # recently created groups.  Don't pick it at random, to
+            # ensure that tests are reproducible.
+            newgrpname = sorted(newgrpnames)[0]
             switchboard.notify("new pixel group", ms.findGroup(newgrpname))
         switchboard.notify("changed pixel groups", ms.name())
 

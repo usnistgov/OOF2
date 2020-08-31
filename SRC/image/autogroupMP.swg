@@ -22,6 +22,6 @@
 #include "image/oofimage.h"
 %}
 
-const string *autogroup(CMicrostructure*, OOFImage*, char*);
+%new StringVec *autogroup(CMicrostructure*, OOFImage*, char*);
 
 #endif // AUTOGROUPMP_SWG
