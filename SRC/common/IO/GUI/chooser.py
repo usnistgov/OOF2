@@ -148,6 +148,10 @@ class ChooserWidget(object):
         debug.mainthreadTest()
         self.popupMenu = Gtk.Menu()
         gtklogger.newTopLevelWidget(self.popupMenu, 'chooserPopup-'+self.name)
+        # It's necessary to log the 'deactivate' signal in case a menu
+        # is closed without activating anything when recording a gui
+        # session.  If it's not logged, the session will hang when replayed.
+        gtklogger.connect_passive(self.popupMenu, 'deactivate')
         self.popupMenu.set_size_request(self.gtk.get_allocated_width(), -1)
         newCurrentItem = None
         for name in self.namelist:
