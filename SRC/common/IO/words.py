@@ -56,6 +56,8 @@ IML++ and SparseLib++:  The IML++ library of iterative matrix methods in C++ and
 
 LAPACK: The LAPACK linear algebra library is freely available at http://www.netlib.org/lapack/.  Its copyright terms are at http://www.netlib.org/lapack/faq.html#1.2.
 
+Eigen: The Eigen linear algebra package is available at http://eigen.tuxfamily.org and is distributed under the Mozilla Public License Version 2.0.
+
 tcmalloc: tcmalloc is part of the Google Performance Tools which can be found at https://github.com/gperftools/gperftools.  It may be redistributed under the conditions listed at https://github.com/gperftools/gperftools/blob/master/COPYING.
 
 """
