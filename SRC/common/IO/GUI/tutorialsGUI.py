@@ -39,11 +39,6 @@ import textwrap
 ## button is sensitized but before clicking Next.  The sensitivity
 ## probably needs to be saved in the file.
 
-## TODO GTK3: Don't make the tutorial window scrollable. Just always
-## make the pages small enough to fit.  Then users don't have to worry
-## about scrolling when a modal dialog is open.  OR, open the
-## tutorials in a separate process entirely.
-
 boldtag = "BOLD("
 lenboldtag = len(boldtag)
 delimexpr = re.compile(r'[^\\]\)')      # finds ')' not preceded by '\'
@@ -170,14 +165,9 @@ class TutorialClassGUI(subWindow.SubWindow):
         labelhbox.pack_end(self.slideIndex, expand=False, fill=False, padding=0)
         self.mainbox.pack_start(labelhbox, expand=False, fill=False, padding=0)
 
-        self.msgscroll = Gtk.ScrolledWindow(border_width=2)
-        self.scrollsignals = gtklogger.logScrollBars(self.msgscroll,
-                                                     "TutorialScroll")
-        self.msgscroll.set_shadow_type(Gtk.ShadowType.IN)
-        self.msgscroll.set_policy(Gtk.PolicyType.AUTOMATIC,
-                                  Gtk.PolicyType.AUTOMATIC)
-        self.mainbox.pack_start(self.msgscroll, expand=True, fill=True,
-                                padding=0)
+        textframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
+        self.mainbox.pack_start(textframe,
+                                expand=True, fill=True, padding=0)
         self.textview = Gtk.TextView(wrap_mode=Gtk.WrapMode.WORD_CHAR,
                                      left_margin=5, right_margin=5,
                                      top_margin=5, bottom_margin=5)
@@ -188,7 +178,7 @@ class TutorialClassGUI(subWindow.SubWindow):
             "bold",
             weight=Pango.Weight.BOLD,
             foreground="blue")
-        self.msgscroll.add(self.textview)        
+        textframe.add(self.textview)
 
         buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                              homogeneous=1, spacing=2)
@@ -259,12 +249,12 @@ class TutorialClassGUI(subWindow.SubWindow):
                 bfr.insert_with_tags(bfr.get_end_iter(), comment, self.boldTag)
             else:
                 bfr.insert(bfr.get_end_iter(), comment)
-        for s in self.scrollsignals:
-            s.block()
-        self.msgscroll.get_hadjustment().set_value(0.)
-        self.msgscroll.get_vadjustment().set_value(0.)
-        for s in self.scrollsignals:
-            s.unblock()
+        # for s in self.scrollsignals:
+        #     s.block()
+        # self.msgscroll.get_hadjustment().set_value(0.)
+        # self.msgscroll.get_vadjustment().set_value(0.)
+        # for s in self.scrollsignals:
+        #     s.unblock()
         self.sensitize()
         self.gtk.show_all()
 

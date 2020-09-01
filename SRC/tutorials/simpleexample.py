@@ -304,7 +304,7 @@ TutorialClass(subject="A Simple Example",
     sliders to something yellowish, say BOLD(red)=1, BOLD(green=0.8),
     and BOLD(blue)=0.  BOLD(Alpha) is the opacity.  Leave it at 1.0.
     (You can change the values either by sliding the sliders or typing
-    in the text box at the right.)  Click BOLD(OK).
+    in the text boxes on the right.)  Click BOLD(OK).
 
     Add the BOLD(yellow) Property to the BOLD(yellow-material).
 
@@ -430,7 +430,7 @@ TutorialClass(subject="A Simple Example",
     Open the BOLD(Skeleton) page in the main OOF2 window.
 
     Since we have such a simple microstructure, creating a reasonable
-    skeleton is going to be short and sweet.
+    skeleton is going to be easy.
 
     Click the BOLD(New) button to open up a skeleton initializer.
 
@@ -565,11 +565,7 @@ TutorialClass(subject="A Simple Example",
     TutoringItem(
     subject="Applying Boundary Conditions -- continued",
     comments=
-    """ First, expand this tutorial window so that you can see the full
-    text.  Once you open the boundary condition building dialog, you
-    won't be able to scroll the tutorial (sorry!).
-    
-    Click the BOLD(New...) button in the BOLD(Condition) pane to bring
+    """Click the BOLD(New...) button in the BOLD(Condition) pane to bring
     up a boundary condition builder. 
     
     Give the boundary condition a name, or leave the name field set to
@@ -695,9 +691,10 @@ TutorialClass(subject="A Simple Example",
     """ At the bottom of the graphics window, you'll see that four layers
     are listed, BOLD(Mesh), BOLD(Skeleton), BOLD(Microstructure) and
     BOLD(Image).  (You may have to drag the divider between the canvas
-    and the layer list in order to see all the layers.) The Mesh layer
-    displays the Mesh element edges at their displaced positions.
-    We'll change it to display a contour map of the x displacements.
+    and the layer list and/or expand the window in order to see all
+    the layers.) The Mesh layer displays the Mesh element edges at
+    their displaced positions.  We'll change it to display a contour
+    map of the x displacements.
     
     Double-click on the Mesh layer to edit it.
 
@@ -717,7 +714,7 @@ TutorialClass(subject="A Simple Example",
     The BOLD(where) parameter controls whether the contours will be
     displayed at their original positions (ie, on the Skeleton) or at
     their actual displaced positions (ie, on the Mesh), or somewhere
-    in between.
+    in between.  Leave it set to BOLD(original).
 
     Click BOLD(OK) and go back to the Graphics Window to observe the
     result.  The map on the right edge of the window indicates how
