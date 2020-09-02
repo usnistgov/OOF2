@@ -1,3 +1,7 @@
+import tests
+assert tests.existence()
+assert tests.gui_open()
+assert tests.mainPageCheck('Introduction')
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 checkpoint toplevel widget mapped OOF2
@@ -6,10 +10,12 @@ findWidget('OOF2').resize(782, 511)
 findMenu(findWidget('OOF2:MenuBar'), 'Help:Tutorials').activate()
 findMenu(findWidget('OOF2:MenuBar'), 'Help:Tutorials:Basics').activate()
 checkpoint toplevel widget mapped Basics
+assert tests.tutorialPageCheck(0)
 findWidget('Basics').resize(500, 302)
 findWidget('OOF2').resize(782, 545)
 findWidget('Basics').resize(500, 302)
 findWidget('Basics:Next').clicked()
+assert tests.tutorialPageCheck(1)
 findWidget('Basics').resize(500, 482)
 findWidget('Basics:Next').clicked()
 findWidget('Basics:Next').clicked()
@@ -20,6 +26,8 @@ checkpoint page installed Microstructure
 findWidget('OOF2:Microstructure Page:Pane').set_position(184)
 checkpoint meshable button set
 checkpoint microstructure page sensitized
+assert tests.mainPageCheck('Microstructure')
+assert tests.msPageSensitizationCheck0()
 findWidget('Basics:Next').clicked()
 findWidget('OOF2:Microstructure Page:NewFromFile').clicked()
 checkpoint toplevel widget mapped Dialog-Load Image and create Microstructure
@@ -66,6 +74,14 @@ checkpoint skeleton selection page groups sensitized
 checkpoint Solver page sensitized
 checkpoint microstructure page sensitized
 checkpoint OOF.Microstructure.Create_From_ImageFile
+# Image loaded
+assert tests.whoNameCheck('Microstructure', ['small.ppm'])
+assert tests.chooserCheck('OOF2:Microstructure Page:Microstructure', ['small.ppm'])
+assert tests.msPageSensitizationCheck1()
+### Test the testers.  The following three tests should report errors. ###
+assert not tests.chooserCheck('OOF2:Microstructure Page:Microstructure', [])
+assert not tests.chooserCheck('OOF2:Microstructure Page:Microstructure', ['smell.ppm'])
+assert not tests.chooserCheck('OOF2:Microstructure Page:Microstructure', ['small.ppm', 'big.ppm'])
 findMenu(findWidget('OOF2:MenuBar'), 'Windows:Messages:Message_1').activate()
 findWidget('Basics:Next').clicked()
 findMenu(findWidget('OOF2:MenuBar'), 'Windows:Graphics:New').activate()
@@ -81,6 +97,7 @@ findWidget('OOF2 Graphics 1').resize(800, 492)
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
 checkpoint OOF.Graphics_1.Layer.Select
+assert tests.gfxWindowCheck(['Graphics_1'])
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findWidget('Basics:Next').clicked()
 findWidget('Basics:Next').clicked()
@@ -134,5 +151,6 @@ findWidget('Dialog-Python_Log:filename').set_text('session.lo')
 findWidget('Dialog-Python_Log:filename').set_text('session.log')
 findWidget('Dialog-Python_Log:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Save.Python_Log
+assert tests.filediff('session.log')
 findMenu(findWidget('OOF2:MenuBar'), 'File:Quit').activate()
 checkpoint OOF.Graphics_1.File.Close
