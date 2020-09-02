@@ -9,8 +9,6 @@ checkpoint toplevel widget mapped A Simple Example
 findWidget('A Simple Example').resize(500, 300)
 findWidget('OOF2').resize(782, 545)
 findWidget('A Simple Example').resize(500, 300)
-findWidget('OOF2').resize(782, 545)
-findWidget('A Simple Example').resize(500, 300)
 findWidget('A Simple Example:Next').clicked()
 findMenu(findWidget('OOF2:MenuBar'), 'Windows:Graphics:New').activate()
 checkpoint Move Node toolbox info updated
@@ -25,7 +23,11 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
 findWidget('A Simple Example:Next').clicked()
 findWidget('A Simple Example:Next').clicked()
-findWidget('OOF2:Navigation:Next').clicked()
+event(Gdk.EventType.BUTTON_PRESS,x= 7.8000000000000e+01,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
+checkpoint toplevel widget mapped chooserPopup-PageMenu
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Introduction').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Microstructure').get_window())
+findMenu(findWidget('chooserPopup-PageMenu'), 'Microstructure').activate()
 checkpoint page installed Microstructure
 findWidget('OOF2:Microstructure Page:Pane').set_position(235)
 checkpoint meshable button set
@@ -40,10 +42,12 @@ findWidget('Dialog-Load Image and create Microstructure:filename').set_text('exa
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('exam')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examp')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('exampl')
-findWidget('Dialog-Load Image and create Microstructure:filename').set_text('exampls')
-findWidget('Dialog-Load Image and create Microstructure:filename').set_text('exampl')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('example')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/s')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/sm')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/s')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/c')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cy')
@@ -51,6 +55,14 @@ findWidget('Dialog-Load Image and create Microstructure:filename').set_text('exa
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cyal')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cyall')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cyallo')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cyallow')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cyallow/')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cyallow/p')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cyallow/pm')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cyallow/pmg')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cyallow/pm')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cyallow/p')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cyallow/')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cyallow')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cyallow.')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/cyallow.p')
@@ -62,8 +74,8 @@ checkpoint microstructure page sensitized
 checkpoint pixel page updated
 checkpoint active area status updated
 checkpoint named analysis chooser set
-checkpoint pixel page sensitized
 findWidget('OOF2:Microstructure Page:Pane').set_position(189)
+checkpoint pixel page sensitized
 checkpoint named boundary analysis chooser set
 checkpoint named boundary analysis chooser set
 checkpoint mesh bdy page updated
@@ -90,7 +102,14 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Microstructure.Create_From_ImageFile
 findWidget('A Simple Example:Next').clicked()
 findWidget('A Simple Example').resize(500, 302)
-findWidget('OOF2:Navigation:Next').clicked()
+event(Gdk.EventType.BUTTON_PRESS,x= 1.1100000000000e+02,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
+checkpoint toplevel widget mapped chooserPopup-PageMenu
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Introduction').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Microstructure').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Image').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Pixel Selection').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Image').get_window())
+findMenu(findWidget('chooserPopup-PageMenu'), 'Image').activate()
 checkpoint page installed Image
 findWidget('OOF2:Image Page:Pane').set_position(546)
 findWidget('OOF2:Image Page:Group').clicked()
@@ -148,14 +167,17 @@ checkpoint OOF.PixelGroup.Rename
 checkpoint microstructure page sensitized
 checkpoint meshable button set
 findWidget('A Simple Example:Next').clicked()
-findWidget('A Simple Example').resize(500, 326)
 findWidget('A Simple Example').resize(500, 398)
-event(Gdk.EventType.BUTTON_PRESS,x= 4.3000000000000e+01,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 8.8000000000000e+01,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Introduction').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Microstructure').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Image').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Pixel Selection').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Active Area').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Materials').get_window())
-findWidget('chooserPopup-PageMenu').deactivate()
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Materials').get_window())
 findMenu(findWidget('chooserPopup-PageMenu'), 'Materials').activate()
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([0]))
 checkpoint Materials page updated
@@ -204,16 +226,17 @@ checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint OOF.Material.New
 findWidget('A Simple Example:Next').clicked()
+event(Gdk.EventType.BUTTON_RELEASE,x= 1.0000000000000e+01,y= 2.6000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1]), open_all=False)
-event(Gdk.EventType.BUTTON_RELEASE,x= 8.0000000000000e+00,y= 2.6000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
+event(Gdk.EventType.BUTTON_RELEASE,x= 1.2000000000000e+01,y= 2.8000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1, 0]), open_all=False)
-event(Gdk.EventType.BUTTON_RELEASE,x= 2.9000000000000e+01,y= 4.7000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
+event(Gdk.EventType.BUTTON_RELEASE,x= 2.7000000000000e+01,y= 4.3000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([1, 0, 0]))
 checkpoint Materials page updated
 checkpoint property deselected
 checkpoint Materials page updated
 checkpoint property selected
-event(Gdk.EventType.BUTTON_RELEASE,x= 8.2000000000000e+01,y= 6.1000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
+event(Gdk.EventType.BUTTON_RELEASE,x= 7.7000000000000e+01,y= 6.3000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
 checkpoint toplevel widget mapped Dialog-Copy property Mechanical;Elasticity;Isotropic
 findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic').resize(192, 92)
@@ -221,46 +244,38 @@ findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').dele
 findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('y', 11)
 findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('e', 1)
 findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('l', 2)
-findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('o', 3)
-findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('w', 4)
-findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('_', 5)
-findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('e', 6)
-findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('l', 7)
-findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('a', 8)
-findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('s', 9)
-findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('t', 10)
-findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('i', 11)
-findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('c', 12)
-findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('i', 13)
-findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('t', 14)
-findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('y', 15)
 findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('l', 3)
+findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('o', 4)
+findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('w', 5)
+findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('_', 6)
+findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('e', 7)
+findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('l', 8)
+findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('a', 9)
+findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('s', 10)
+findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('t', 11)
+findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('i', 12)
+findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('c', 13)
+findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('i', 14)
+findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('t', 15)
+findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:new_name').insert_text('y', 16)
 findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1, 0, 0]), open_all=False)
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint OOF.Property.Copy
 findWidget('A Simple Example:Next').clicked()
-event(Gdk.EventType.BUTTON_RELEASE,x= 9.9000000000000e+01,y= 7.6000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
-tree=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
-column = tree.get_column(0)
-tree.row_activated(Gtk.TreePath([1, 0, 0, 0]), column)
-checkpoint Materials page updated
-checkpoint property selected
+findWidget('OOF2:Materials Page:Pane:Property:Parametrize').clicked()
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity').resize(538, 330)
-event(Gdk.EventType.BUTTON_PRESS,x= 7.5000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity:cijkl:Chooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 4.9000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity:cijkl:Chooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-Chooser
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Cij').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Lame').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'E and nu').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Bulk and Shear').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'E and nu').get_window())
-findWidget('chooserPopup-Chooser').deactivate()
 findMenu(findWidget('chooserPopup-Chooser'), 'E and nu').activate()
-widget_8=findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity:cijkl:Cij:0,0')
-if widget_8: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_8.get_window())
-del widget_8
+widget_18=findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity:cijkl:Cij:0,0')
+if widget_18: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_18.get_window())
+del widget_18
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity:cijkl:E and nu:young').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity:cijkl:E and nu:young').set_text('1')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity:cijkl:E and nu:poisson').set_text('0.')
@@ -269,12 +284,10 @@ findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.yellow_elasticity
 findWidget('A Simple Example:Next').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 3.7000000000000e+01,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('OOF2:Materials Page:Pane:Material:MaterialList').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 8.7000000000000e+01,y= 2.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Materials Page:Pane:Material:MaterialList').get_window())
 checkpoint toplevel widget mapped chooserPopup-MaterialList
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-MaterialList'), 'cyan-material').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-MaterialList'), 'cyan-material').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-MaterialList'), 'yellow-material').get_window())
-findWidget('chooserPopup-MaterialList').deactivate()
 findMenu(findWidget('chooserPopup-MaterialList'), 'yellow-material').activate()
 checkpoint Materials page updated
 checkpoint Materials page updated
@@ -291,7 +304,7 @@ checkpoint Materials page updated
 checkpoint property deselected
 checkpoint Materials page updated
 checkpoint property selected
-event(Gdk.EventType.BUTTON_RELEASE,x= 8.4000000000000e+01,y= 6.3000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
+event(Gdk.EventType.BUTTON_RELEASE,x= 8.0000000000000e+01,y= 6.0000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
 checkpoint toplevel widget mapped Dialog-Copy property Mechanical;Elasticity;Isotropic
 findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic').resize(192, 92)
@@ -305,8 +318,9 @@ checkpoint Materials page updated
 checkpoint property selected
 checkpoint OOF.Property.Copy
 findWidget('A Simple Example:Next').clicked()
-event(Gdk.EventType.BUTTON_RELEASE,x= 1.2700000000000e+02,y= 9.4000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
-event(Gdk.EventType.BUTTON_RELEASE,x= 1.2900000000000e+02,y= 9.9000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
+event(Gdk.EventType.BUTTON_RELEASE,x= 1.2400000000000e+02,y= 9.5000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
+event(Gdk.EventType.BUTTON_RELEASE,x= 1.2700000000000e+02,y= 9.5000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
+event(Gdk.EventType.BUTTON_RELEASE,x= 1.2800000000000e+02,y= 9.6000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 tree=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
 column = tree.get_column(0)
 tree.row_activated(Gtk.TreePath([1, 0, 0, 1]), column)
@@ -314,16 +328,16 @@ checkpoint Materials page updated
 checkpoint property selected
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotropic;cyan_elasticity
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;cyan_elasticity').resize(538, 330)
-event(Gdk.EventType.BUTTON_PRESS,x= 6.8000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;cyan_elasticity:cijkl:Chooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.0900000000000e+02,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;cyan_elasticity:cijkl:Chooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-Chooser
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Cij').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Lame').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'E and nu').get_window())
-findWidget('chooserPopup-Chooser').deactivate()
 findMenu(findWidget('chooserPopup-Chooser'), 'E and nu').activate()
-widget_15=findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;cyan_elasticity:cijkl:Cij:0,0')
-if widget_15: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_15.get_window())
-del widget_15
+widget_24=findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;cyan_elasticity:cijkl:Cij:0,0')
+if widget_24: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_24.get_window())
+del widget_24
+findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;cyan_elasticity').resize(595, 330)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;cyan_elasticity:cijkl:E and nu:young').set_text('0.')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;cyan_elasticity:cijkl:E and nu:young').set_text('0.5')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;cyan_elasticity:cijkl:E and nu:poisson').set_text('0.')
@@ -332,10 +346,10 @@ findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;cyan_elasticity:w
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.cyan_elasticity
 findWidget('A Simple Example:Next').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 6.5000000000000e+01,y= 2.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Materials Page:Pane:Material:MaterialList').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 8.1000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Materials Page:Pane:Material:MaterialList').get_window())
 checkpoint toplevel widget mapped chooserPopup-MaterialList
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-MaterialList'), 'yellow-material').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-MaterialList'), 'cyan-material').get_window())
-findWidget('chooserPopup-MaterialList').deactivate()
 findMenu(findWidget('chooserPopup-MaterialList'), 'cyan-material').activate()
 checkpoint Materials page updated
 checkpoint Materials page updated
@@ -364,7 +378,7 @@ checkpoint Materials page updated
 checkpoint property deselected
 checkpoint Materials page updated
 checkpoint property selected
-event(Gdk.EventType.BUTTON_RELEASE,x= 4.5000000000000e+01,y= 8.0000000000000e+00,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
+event(Gdk.EventType.BUTTON_RELEASE,x= 4.6000000000000e+01,y= 6.0000000000000e+00,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
 checkpoint toplevel widget mapped Dialog-Copy property Color
 findWidget('Dialog-Copy property Color').resize(192, 92)
@@ -374,50 +388,42 @@ findWidget('Dialog-Copy property Color:new_name').insert_text('e', 1)
 findWidget('Dialog-Copy property Color:new_name').insert_text('l', 2)
 findWidget('Dialog-Copy property Color:new_name').insert_text('l', 3)
 findWidget('Dialog-Copy property Color:new_name').insert_text('o', 4)
-findWidget('Dialog-Copy property Color:new_name').insert_text('e', 5)
-findWidget('Dialog-Copy property Color:new_name').delete_text(5, 6)
 findWidget('Dialog-Copy property Color:new_name').insert_text('w', 5)
 findWidget('Dialog-Copy property Color:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([0]), open_all=False)
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint OOF.Property.Copy
-event(Gdk.EventType.BUTTON_RELEASE,x= 5.3000000000000e+01,y= 2.6000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
-tree=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
-column = tree.get_column(0)
-tree.row_activated(Gtk.TreePath([0, 0]), column)
-checkpoint Materials page updated
-checkpoint property selected
+findWidget('OOF2:Materials Page:Pane:Property:Parametrize').clicked()
 checkpoint toplevel widget mapped Dialog-Parametrize Color;yellow
 findWidget('Dialog-Parametrize Color;yellow').resize(279, 206)
-event(Gdk.EventType.BUTTON_PRESS,x= 9.0000000000000e+01,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('Dialog-Parametrize Color;yellow:color:Chooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 6.9000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('Dialog-Parametrize Color;yellow:color:Chooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-Chooser
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'RGBAColor').get_window())
-findWidget('chooserPopup-Chooser').deactivate()
 findMenu(findWidget('chooserPopup-Chooser'), 'RGBAColor').activate()
-widget_18=findWidget('Dialog-Parametrize Color;yellow:color:TranslucentGray:gray:entry')
-if widget_18: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_18.get_window())
-del widget_18
+widget_28=findWidget('Dialog-Parametrize Color;yellow:color:TranslucentGray:gray:entry')
+if widget_28: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_28.get_window())
+del widget_28
 findWidget('Dialog-Parametrize Color;yellow').resize(280, 274)
-findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:red:slider').get_adjustment().set_value( 1.3888888888889e-02)
-findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:red:slider').get_adjustment().set_value( 8.3333333333333e-02)
-findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:red:slider').get_adjustment().set_value( 2.3611111111111e-01)
-findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:red:slider').get_adjustment().set_value( 4.0277777777778e-01)
-findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:red:slider').get_adjustment().set_value( 6.2500000000000e-01)
+findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:red:slider').get_adjustment().set_value( 4.1666666666667e-02)
+findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:red:slider').get_adjustment().set_value( 1.3888888888889e-01)
+findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:red:slider').get_adjustment().set_value( 2.9166666666667e-01)
+findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:red:slider').get_adjustment().set_value( 4.7222222222222e-01)
+findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:red:slider').get_adjustment().set_value( 7.6388888888889e-01)
+findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:red:slider').get_adjustment().set_value( 9.3055555555556e-01)
 findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:red:slider').get_adjustment().set_value( 1.0000000000000e+00)
 findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:green:entry').set_text('0.')
 findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:green:entry').set_text('0.8')
-widget_19=findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:green:entry')
-if widget_19: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_19.get_window())
-del widget_19
+widget_29=findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:green:entry')
+if widget_29: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_29.get_window())
+del widget_29
 findWidget('Dialog-Parametrize Color;yellow:widget_GTK_RESPONSE_OK').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Property.Parametrize.Color.yellow
-event(Gdk.EventType.BUTTON_PRESS,x= 4.9000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Materials Page:Pane:Material:MaterialList').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 6.7000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Materials Page:Pane:Material:MaterialList').get_window())
 checkpoint toplevel widget mapped chooserPopup-MaterialList
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-MaterialList'), 'cyan-material').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-MaterialList'), 'yellow-material').get_window())
-findWidget('chooserPopup-MaterialList').deactivate()
 findMenu(findWidget('chooserPopup-MaterialList'), 'yellow-material').activate()
 checkpoint Materials page updated
 checkpoint Materials page updated
@@ -432,43 +438,46 @@ findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
 checkpoint toplevel widget mapped Dialog-Copy property Color;yellow
 findWidget('Dialog-Copy property Color;yellow').resize(192, 92)
 findWidget('Dialog-Copy property Color;yellow:new_name').delete_text(0, 6)
-findWidget('Dialog-Copy property Color;yellow:new_name').insert_text('c', 11)
-findWidget('Dialog-Copy property Color;yellow:new_name').insert_text('y', 1)
-findWidget('Dialog-Copy property Color;yellow:new_name').insert_text('a', 2)
-findWidget('Dialog-Copy property Color;yellow:new_name').insert_text('n', 3)
+findWidget('Dialog-Copy property Color;yellow:new_name').insert_text('b', 11)
+findWidget('Dialog-Copy property Color;yellow:new_name').insert_text('l', 1)
+findWidget('Dialog-Copy property Color;yellow:new_name').insert_text('u', 2)
+findWidget('Dialog-Copy property Color;yellow:new_name').insert_text('e', 3)
 findWidget('Dialog-Copy property Color;yellow:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint OOF.Property.Copy
-findWidget('OOF2:Materials Page:Pane:Property:Parametrize').clicked()
-checkpoint toplevel widget mapped Dialog-Parametrize Color;cyan
-findWidget('Dialog-Parametrize Color;cyan').resize(280, 274)
-widget_22=findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:entry')
-if widget_22: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_22.get_window())
-del widget_22
-findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:slider').get_adjustment().set_value( 9.7222222222222e-01)
-findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:slider').get_adjustment().set_value( 9.1666666666667e-01)
-findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:slider').get_adjustment().set_value( 8.0555555555556e-01)
-findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:slider').get_adjustment().set_value( 5.2777777777778e-01)
-findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:slider').get_adjustment().set_value( 2.9166666666667e-01)
-findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:slider').get_adjustment().set_value( 6.9444444444444e-02)
-findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:slider').get_adjustment().set_value( 0.0000000000000e+00)
-findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:blue:slider').get_adjustment().set_value( 4.1666666666667e-02)
-findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:blue:slider').get_adjustment().set_value( 1.3888888888889e-01)
-findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:blue:slider').get_adjustment().set_value( 3.7500000000000e-01)
-findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:blue:slider').get_adjustment().set_value( 5.9722222222222e-01)
-findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:blue:slider').get_adjustment().set_value( 7.7777777777778e-01)
-findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:blue:slider').get_adjustment().set_value( 1.0000000000000e+00)
-findWidget('Dialog-Parametrize Color;cyan:widget_GTK_RESPONSE_OK').clicked()
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Property.Parametrize.Color.cyan
-event(Gdk.EventType.BUTTON_PRESS,x= 6.8000000000000e+01,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('OOF2:Materials Page:Pane:Material:MaterialList').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 6.1000000000000e+01,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Materials Page:Pane:Material:MaterialList').get_window())
 checkpoint toplevel widget mapped chooserPopup-MaterialList
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-MaterialList'), 'cyan-material').get_window())
-findWidget('chooserPopup-MaterialList').deactivate()
 findMenu(findWidget('chooserPopup-MaterialList'), 'cyan-material').activate()
 checkpoint Materials page updated
 checkpoint Materials page updated
+event(Gdk.EventType.BUTTON_RELEASE,x= 5.8000000000000e+01,y= 4.5000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
+tree=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
+column = tree.get_column(0)
+tree.row_activated(Gtk.TreePath([0, 1]), column)
+checkpoint Materials page updated
+checkpoint property selected
+checkpoint toplevel widget mapped Dialog-Parametrize Color;blue
+findWidget('Dialog-Parametrize Color;blue').resize(280, 274)
+widget_33=findWidget('Dialog-Parametrize Color;blue:color:RGBAColor:red:entry')
+if widget_33: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_33.get_window())
+del widget_33
+findWidget('Dialog-Parametrize Color;blue:color:RGBAColor:red:slider').get_adjustment().set_value( 9.5833333333333e-01)
+findWidget('Dialog-Parametrize Color;blue:color:RGBAColor:red:slider').get_adjustment().set_value( 9.0277777777778e-01)
+findWidget('Dialog-Parametrize Color;blue:color:RGBAColor:red:slider').get_adjustment().set_value( 7.2222222222222e-01)
+findWidget('Dialog-Parametrize Color;blue:color:RGBAColor:red:slider').get_adjustment().set_value( 5.2777777777778e-01)
+findWidget('Dialog-Parametrize Color;blue:color:RGBAColor:red:slider').get_adjustment().set_value( 2.2222222222222e-01)
+findWidget('Dialog-Parametrize Color;blue:color:RGBAColor:red:slider').get_adjustment().set_value( 0.0000000000000e+00)
+findWidget('Dialog-Parametrize Color;blue:color:RGBAColor:blue:slider').get_adjustment().set_value( 5.5555555555556e-02)
+findWidget('Dialog-Parametrize Color;blue:color:RGBAColor:blue:slider').get_adjustment().set_value( 3.8888888888889e-01)
+findWidget('Dialog-Parametrize Color;blue:color:RGBAColor:blue:slider').get_adjustment().set_value( 6.9444444444444e-01)
+findWidget('Dialog-Parametrize Color;blue:color:RGBAColor:blue:slider').get_adjustment().set_value( 8.3333333333333e-01)
+findWidget('Dialog-Parametrize Color;blue:color:RGBAColor:blue:slider').get_adjustment().set_value( 9.1666666666667e-01)
+findWidget('Dialog-Parametrize Color;blue:color:RGBAColor:blue:slider').get_adjustment().set_value( 1.0000000000000e+00)
+findWidget('Dialog-Parametrize Color;blue:widget_GTK_RESPONSE_OK').clicked()
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Property.Parametrize.Color.blue
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint Materials page updated
 checkpoint Materials page updated
@@ -477,53 +486,51 @@ checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Material.Add_property
 findWidget('A Simple Example:Next').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 8.8000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Materials Page:Pane:Material:MaterialList').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.1000000000000e+02,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('OOF2:Materials Page:Pane:Material:MaterialList').get_window())
 checkpoint toplevel widget mapped chooserPopup-MaterialList
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-MaterialList'), 'cyan-material').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-MaterialList'), 'yellow-material').get_window())
-findWidget('chooserPopup-MaterialList').deactivate()
 findMenu(findWidget('chooserPopup-MaterialList'), 'yellow-material').activate()
 checkpoint Materials page updated
 checkpoint Materials page updated
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()
 checkpoint toplevel widget mapped Dialog-Assign material yellow-material to pixels
 findWidget('Dialog-Assign material yellow-material to pixels').resize(221, 122)
-event(Gdk.EventType.BUTTON_PRESS,x= 4.8000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('Dialog-Assign material yellow-material to pixels:pixels').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 5.3000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('Dialog-Assign material yellow-material to pixels:pixels').get_window())
 checkpoint toplevel widget mapped chooserPopup-pixels
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-pixels'), '<selection>').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-pixels'), '<every>').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-pixels'), 'cyan').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-pixels'), 'yellow').get_window())
-findWidget('chooserPopup-pixels').deactivate()
 findMenu(findWidget('chooserPopup-pixels'), 'yellow').activate()
 findWidget('Dialog-Assign material yellow-material to pixels:widget_GTK_RESPONSE_OK').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Material.Assign
 findWidget('A Simple Example:Next').clicked()
-findWidget('A Simple Example').resize(500, 422)
 findWidget('A Simple Example').resize(500, 446)
+findMenu(findWidget('OOF2:MenuBar'), 'Windows:Graphics:Graphics_1').activate()
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Layer:New').activate()
 checkpoint toplevel widget mapped Dialog-New
 findWidget('Dialog-New').resize(203, 193)
-event(Gdk.EventType.BUTTON_PRESS,x= 7.3000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('Dialog-New:category').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 6.1000000000000e+01,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('Dialog-New:category').get_window())
 checkpoint toplevel widget mapped chooserPopup-category
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-category'), 'Image').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-category'), 'Microstructure').get_window())
-findWidget('chooserPopup-category').deactivate()
 findMenu(findWidget('chooserPopup-category'), 'Microstructure').activate()
 findWidget('Dialog-New').resize(395, 532)
 findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.New
 findWidget('A Simple Example:Next').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 2.3000000000000e+01,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 2.1000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 findCellRenderer(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), col=0, rend=0).emit('toggled', Gtk.TreePath(13))
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
@@ -535,7 +542,7 @@ checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Hide
-event(Gdk.EventType.BUTTON_PRESS,x= 2.2000000000000e+01,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 2.3000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 findCellRenderer(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), col=0, rend=0).emit('toggled', Gtk.TreePath(13))
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
@@ -547,42 +554,44 @@ checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Show
-event(Gdk.EventType.BUTTON_PRESS,x= 1.4400000000000e+02,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 findWidget('A Simple Example:Next').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 7.2000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Materials Page:Pane:Material:MaterialList').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.0400000000000e+02,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Materials Page:Pane:Material:MaterialList').get_window())
 checkpoint toplevel widget mapped chooserPopup-MaterialList
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-MaterialList'), 'cyan-material').get_window())
-findWidget('chooserPopup-MaterialList').deactivate()
 findMenu(findWidget('chooserPopup-MaterialList'), 'cyan-material').activate()
 checkpoint Materials page updated
 checkpoint Materials page updated
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()
 checkpoint toplevel widget mapped Dialog-Assign material cyan-material to pixels
 findWidget('Dialog-Assign material cyan-material to pixels').resize(221, 122)
-event(Gdk.EventType.BUTTON_PRESS,x= 5.3000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('Dialog-Assign material cyan-material to pixels:pixels').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 5.9000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('Dialog-Assign material cyan-material to pixels:pixels').get_window())
 checkpoint toplevel widget mapped chooserPopup-pixels
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-pixels'), '<selection>').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-pixels'), '<every>').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-pixels'), 'cyan').get_window())
-findWidget('chooserPopup-pixels').deactivate()
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-pixels'), 'yellow').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-pixels'), 'cyan').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-pixels'), 'yellow').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-pixels'), 'cyan').get_window())
 findMenu(findWidget('chooserPopup-pixels'), 'cyan').activate()
 findWidget('Dialog-Assign material cyan-material to pixels:widget_GTK_RESPONSE_OK').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Material.Assign
 findWidget('A Simple Example:Next').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 2.7000000000000e+01,y= 2.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 6.6000000000000e+01,y= 2.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Introduction').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Microstructure').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Image').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Pixel Selection').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Active Area').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Materials').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Pin Nodes').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton').get_window())
-findWidget('chooserPopup-PageMenu').deactivate()
 findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton').activate()
 checkpoint page installed Skeleton
-checkpoint skeleton page sensitized
-checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:Pane').set_position(417)
+checkpoint skeleton page sensitized
+checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-New skeleton
 findWidget('Dialog-New skeleton').resize(346, 254)
@@ -619,34 +628,32 @@ checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist
 checkpoint skeleton page info updated
-checkpoint skeleton selection page selection sensitized
 checkpoint Solver page sensitized
+checkpoint skeleton selection page selection sensitized
 checkpoint skeleton page info updated
-checkpoint skeleton selection page groups sensitized
 checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized
 checkpoint skeleton page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.New
 findWidget('A Simple Example:Next').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 1.1400000000000e+02,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Chooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.0700000000000e+02,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Chooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-Chooser
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Relax').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Snap Nodes').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Smooth').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Swap Edges').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Smooth').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Split Quads').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Anneal').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Split Quads').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Snap Nodes').get_window())
-findWidget('chooserPopup-Chooser').deactivate()
 findMenu(findWidget('chooserPopup-Chooser'), 'Snap Nodes').activate()
 findWidget('OOF2:Skeleton Page:Pane').set_position(437)
 checkpoint skeleton page sensitized
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 3.0555555555556e-01)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 5.0000000000000e-01)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 6.2500000000000e-01)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 7.2222222222222e-01)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 8.3333333333333e-01)
-findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 9.4444444444444e-01)
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 3.3333333333333e-01)
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 6.8055555555556e-01)
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 7.3611111111111e-01)
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 8.1944444444444e-01)
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 8.8888888888889e-01)
+findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 9.5833333333333e-01)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:slider').get_adjustment().set_value( 1.0000000000000e+00)
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized
@@ -677,14 +684,14 @@ checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
 findWidget('A Simple Example:Next').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 2.6000000000000e+01,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 4.1000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Introduction').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Materials').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Pin Nodes').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton Selection').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton Boundaries').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'FE Mesh').get_window())
-findWidget('chooserPopup-PageMenu').deactivate()
 findMenu(findWidget('chooserPopup-PageMenu'), 'FE Mesh').activate()
 checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
@@ -695,7 +702,7 @@ findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(130)
 findWidget('OOF2:FE Mesh Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create a new mesh
 findWidget('Dialog-Create a new mesh').resize(299, 244)
-event(Gdk.EventType.BUTTON_PRESS,x= 4.1000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('Dialog-Create a new mesh:element_types:2-cornered').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 4.7000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('Dialog-Create a new mesh:element_types:2-cornered').get_window())
 checkpoint toplevel widget mapped chooserPopup-2-cornered
 findWidget('chooserPopup-2-cornered').deactivate()
 findWidget('Dialog-Create a new mesh:widget_GTK_RESPONSE_OK').clicked()
@@ -733,19 +740,7 @@ checkpoint Solver page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.New
 findWidget('A Simple Example:Next').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 3.1000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
-checkpoint toplevel widget mapped chooserPopup-PageMenu
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Pixel Selection').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Active Area').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Materials').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Pin Nodes').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton Selection').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton Boundaries').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'FE Mesh').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Fields & Equations').get_window())
-findWidget('chooserPopup-PageMenu').deactivate()
-findMenu(findWidget('chooserPopup-PageMenu'), 'Fields & Equations').activate()
+findWidget('OOF2:Navigation:Next').clicked()
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint page installed Fields & Equations
@@ -823,35 +818,18 @@ checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Subproblem.Equation.Activate
 findWidget('A Simple Example:Next').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 5.4000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
-checkpoint toplevel widget mapped chooserPopup-PageMenu
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Introduction').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Microstructure').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Image').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Pixel Selection').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Active Area').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Materials').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Pin Nodes').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton Selection').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton Boundaries').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'FE Mesh').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Fields & Equations').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Boundary Conditions').get_window())
-findWidget('chooserPopup-PageMenu').deactivate()
-findMenu(findWidget('chooserPopup-PageMenu'), 'Boundary Conditions').activate()
-checkpoint page installed Boundary Conditions
 findWidget('A Simple Example:Next').clicked()
+findWidget('OOF2:Navigation:Next').clicked()
+checkpoint page installed Boundary Conditions
 findWidget('OOF2:Boundary Conditions Page:Condition:New').clicked()
 checkpoint toplevel widget mapped Dialog-New Boundary Condition
 findWidget('Dialog-New Boundary Condition').resize(353, 362)
-event(Gdk.EventType.BUTTON_PRESS,x= 2.5000000000000e+01,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Boundary Condition:condition:Dirichlet:boundary').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 5.7000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Boundary Condition:condition:Dirichlet:boundary').get_window())
 checkpoint toplevel widget mapped chooserPopup-boundary
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'top').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'bottom').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'right').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'left').get_window())
-findWidget('chooserPopup-boundary').deactivate()
 findMenu(findWidget('chooserPopup-boundary'), 'left').activate()
 findWidget('Dialog-New Boundary Condition:widget_GTK_RESPONSE_OK').clicked()
 checkpoint named boundary analysis chooser set
@@ -874,51 +852,27 @@ findWidget('A Simple Example:Next').clicked()
 findWidget('OOF2:Boundary Conditions Page:Condition:New').clicked()
 checkpoint toplevel widget mapped Dialog-New Boundary Condition
 findWidget('Dialog-New Boundary Condition').resize(353, 362)
-event(Gdk.EventType.BUTTON_PRESS,x= 3.0000000000000e+01,y= 7.0000000000000e+00,button=1,state=0,window=findWidget('Dialog-New Boundary Condition:condition:Dirichlet:field_component').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 7.0000000000000e+01,y= 8.0000000000000e+00,button=1,state=0,window=findWidget('Dialog-New Boundary Condition:condition:Dirichlet:field_component').get_window())
 checkpoint toplevel widget mapped chooserPopup-field_component
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-field_component'), 'x').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-field_component'), 'y').get_window())
-findWidget('chooserPopup-field_component').deactivate()
 findMenu(findWidget('chooserPopup-field_component'), 'y').activate()
-event(Gdk.EventType.BUTTON_PRESS,x= 3.9000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Boundary Condition:condition:Dirichlet:eqn_component').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 6.8000000000000e+01,y= 7.0000000000000e+00,button=1,state=0,window=findWidget('Dialog-New Boundary Condition:condition:Dirichlet:eqn_component').get_window())
 checkpoint toplevel widget mapped chooserPopup-eqn_component
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-eqn_component'), 'x').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-eqn_component'), 'y').get_window())
-findWidget('chooserPopup-eqn_component').deactivate()
 findMenu(findWidget('chooserPopup-eqn_component'), 'y').activate()
-event(Gdk.EventType.BUTTON_PRESS,x= 4.1000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Boundary Condition:condition:Dirichlet:boundary').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 3.2000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Boundary Condition:condition:Dirichlet:boundary').get_window())
 checkpoint toplevel widget mapped chooserPopup-boundary
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'top').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'bottom').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'right').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'left').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'topleft').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'bottomleft').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'topright').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'bottomleft').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'topleft').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'left').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'right').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'bottom').get_window())
-findWidget('chooserPopup-boundary').deactivate()
 findMenu(findWidget('chooserPopup-boundary'), 'bottom').activate()
-findWidget('Dialog-New Boundary Condition:widget_GTK_RESPONSE_APPLY').clicked()
-checkpoint named boundary analysis chooser set
-checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint named boundary analysis chooser set
-checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Field page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint named boundary analysis chooser set
-checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint OOF.Mesh.Boundary_Conditions.New
 findWidget('Dialog-New Boundary Condition:widget_GTK_RESPONSE_OK').clicked()
 checkpoint named boundary analysis chooser set
 checkpoint Solver page sensitized
@@ -937,30 +891,25 @@ checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint OOF.Mesh.Boundary_Conditions.New
 findWidget('A Simple Example:Next').clicked()
-findWidget('OOF2:Boundary Conditions Page:Condition:Edit').clicked()
-checkpoint toplevel widget mapped Dialog-Edit Boundary Condition
-findWidget('Dialog-Edit Boundary Condition').resize(353, 326)
-event(Gdk.EventType.BUTTON_PRESS,x= 5.6000000000000e+01,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('Dialog-Edit Boundary Condition:condition:Dirichlet:field_component').get_window())
+findWidget('OOF2:Boundary Conditions Page:Condition:New').clicked()
+checkpoint toplevel widget mapped Dialog-New Boundary Condition
+findWidget('Dialog-New Boundary Condition').resize(353, 362)
+event(Gdk.EventType.BUTTON_PRESS,x= 4.5000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Boundary Condition:condition:Dirichlet:field_component').get_window())
 checkpoint toplevel widget mapped chooserPopup-field_component
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-field_component'), 'x').get_window())
-findWidget('chooserPopup-field_component').deactivate()
 findMenu(findWidget('chooserPopup-field_component'), 'x').activate()
-event(Gdk.EventType.BUTTON_PRESS,x= 4.8000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('Dialog-Edit Boundary Condition:condition:Dirichlet:eqn_component').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 3.9000000000000e+01,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Boundary Condition:condition:Dirichlet:eqn_component').get_window())
 checkpoint toplevel widget mapped chooserPopup-eqn_component
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-eqn_component'), 'x').get_window())
-findWidget('chooserPopup-eqn_component').deactivate()
 findMenu(findWidget('chooserPopup-eqn_component'), 'x').activate()
-findWidget('Dialog-Edit Boundary Condition:condition:Dirichlet:profile:Constant Profile:value').set_text('10.0')
-event(Gdk.EventType.BUTTON_PRESS,x= 8.7000000000000e+01,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('Dialog-Edit Boundary Condition:condition:Dirichlet:boundary').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 4.4000000000000e+01,y= 8.0000000000000e+00,button=1,state=0,window=findWidget('Dialog-New Boundary Condition:condition:Dirichlet:boundary').get_window())
 checkpoint toplevel widget mapped chooserPopup-boundary
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'top').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'bottom').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'right').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'left').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-boundary'), 'right').get_window())
-findWidget('chooserPopup-boundary').deactivate()
 findMenu(findWidget('chooserPopup-boundary'), 'right').activate()
-findWidget('Dialog-Edit Boundary Condition:widget_GTK_RESPONSE_OK').clicked()
+findWidget('Dialog-New Boundary Condition:condition:Dirichlet:profile:Constant Profile:value').set_text('10.0')
+findWidget('Dialog-New Boundary Condition:widget_GTK_RESPONSE_OK').clicked()
 checkpoint named boundary analysis chooser set
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
@@ -976,42 +925,30 @@ checkpoint named boundary analysis chooser set
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint named boundary analysis chooser set
-checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Field page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint named boundary analysis chooser set
-checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint OOF.Mesh.Boundary_Conditions.Edit
+checkpoint OOF.Mesh.Boundary_Conditions.New
 findWidget('A Simple Example:Next').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 8.6000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 7.4000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Introduction').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Microstructure').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Image').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Pixel Selection').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Active Area').get_window())
-event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Materials').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Pin Nodes').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton Selection').get_window())
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Skeleton Boundaries').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'FE Mesh').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Fields & Equations').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Boundary Conditions').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Scheduled Output').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-PageMenu'), 'Solver').get_window())
-findWidget('chooserPopup-PageMenu').deactivate()
 findMenu(findWidget('chooserPopup-PageMenu'), 'Solver').activate()
+findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList').get_selection().select_path(Gtk.TreePath([0]))
+checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint page installed Solver
 findWidget('OOF2:Solver Page:VPane').set_position(170)
-findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList').get_selection().select_path(Gtk.TreePath([0]))
-checkpoint Solver page sensitized
 findWidget('OOF2:Solver Page:VPane:Subproblems:Set').clicked()
 checkpoint toplevel widget mapped Dialog-Specify Solver
 findWidget('Dialog-Specify Solver').resize(414, 253)
@@ -1039,17 +976,27 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.Solve
 findWidget('A Simple Example:Next').clicked()
 findWidget('A Simple Example:Next').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 1.4900000000000e+02,y= 3.0000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 3.3800000000000e+02,y= 3.3000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path(Gtk.TreePath([10]))
-checkpoint OOF.Graphics_1.Layer.Select
-event(Gdk.EventType.BUTTON_PRESS,x= 1.4400000000000e+02,y= 2.7000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
-event(Gdk.EventType.BUTTON_PRESS,x= 1.4400000000000e+02,y= 2.7000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 3.3800000000000e+02,y= 3.3000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 tree=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList')
-column = tree.get_column(2)
+column = tree.get_column(3)
+tree.row_activated(Gtk.TreePath([10]), column)
+checkpoint toplevel widget mapped Dialog-Edit Graphics Layer
+findWidget('Dialog-Edit Graphics Layer').resize(395, 532)
+checkpoint OOF.Graphics_1.Layer.Select
+widget_104=findWidget('Dialog-Edit Graphics Layer:how:Material:no_material:TranslucentGray:gray:entry')
+if widget_104: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_104.get_window())
+del widget_104
+findWidget('Dialog-Edit Graphics Layer:widget_GTK_RESPONSE_CANCEL').clicked()
+event(Gdk.EventType.BUTTON_PRESS,x= 3.4500000000000e+02,y= 2.9000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 3.4500000000000e+02,y= 2.9000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
+tree=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList')
+column = tree.get_column(3)
 tree.row_activated(Gtk.TreePath([10]), column)
 checkpoint toplevel widget mapped Dialog-Edit Graphics Layer
 findWidget('Dialog-Edit Graphics Layer').resize(467, 484)
-event(Gdk.EventType.BUTTON_PRESS,x= 1.1700000000000e+02,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('Dialog-Edit Graphics Layer:how:Chooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 9.6000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('Dialog-Edit Graphics Layer:how:Chooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-Chooser
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Element Edges').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Material Color').get_window())
@@ -1057,7 +1004,7 @@ event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Choos
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Solid Fill').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Contour Line').get_window())
 event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Filled Contour').get_window())
-findWidget('chooserPopup-Chooser').deactivate()
+event(Gdk.EventType.ENTER_NOTIFY, window=findMenu(findWidget('chooserPopup-Chooser'), 'Filled Contour').get_window())
 findMenu(findWidget('chooserPopup-Chooser'), 'Filled Contour').activate()
 findWidget('Dialog-Edit Graphics Layer').resize(483, 613)
 findWidget('Dialog-Edit Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
@@ -1075,6 +1022,18 @@ findMenu(findWidget('OOF2:MenuBar'), 'File:Save:Python_Log').activate()
 checkpoint toplevel widget mapped Dialog-Python_Log
 findWidget('Dialog-Python_Log').resize(192, 122)
 findWidget('Dialog-Python_Log:filename').set_text('s')
+findWidget('Dialog-Python_Log:filename').set_text('se')
+findWidget('Dialog-Python_Log:filename').set_text('sea')
+findWidget('Dialog-Python_Log:filename').set_text('seas')
+findWidget('Dialog-Python_Log:filename').set_text('seass')
+findWidget('Dialog-Python_Log:filename').set_text('seassi')
+findWidget('Dialog-Python_Log:filename').set_text('seassio')
+findWidget('Dialog-Python_Log:filename').set_text('seassion')
+findWidget('Dialog-Python_Log:filename').set_text('seassio')
+findWidget('Dialog-Python_Log:filename').set_text('seassi')
+findWidget('Dialog-Python_Log:filename').set_text('seass')
+findWidget('Dialog-Python_Log:filename').set_text('seas')
+findWidget('Dialog-Python_Log:filename').set_text('sea')
 findWidget('Dialog-Python_Log:filename').set_text('se')
 findWidget('Dialog-Python_Log:filename').set_text('ses')
 findWidget('Dialog-Python_Log:filename').set_text('sess')
