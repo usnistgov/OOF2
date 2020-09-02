@@ -180,6 +180,8 @@ TutorialClass(subject="Basics",
 
     TutoringItem(
     subject="Task Pages -- continued",
+        ## TODO GTK3: Move discussion of automatic widgets here, from
+        ## simpleexample.py.
     comments=
     """Now, create a microstructure to see what happens to the
     grayed-out buttons on the page.
@@ -189,12 +191,32 @@ TutorialClass(subject="Basics",
 
     Click the BOLD(New from Image File) button.
 
-    From the file selector, navigate to BOLD(small.ppm).  (To
-    navigate, switch directories with the pull-down menu near the top
-    of the window or by double clicking in the "Directories" pane on
-    the left.  Select files by choosing them in the "Files" pane on
-    the right. File and directory names may also be typed into the
-    "Selection" field at the bottom.)  When you're done, click the
+    The file selector will appear. To navigate, switch directories by
+    typing in the BOLD(Directory) box at the top of the window, or by
+    using the pull-down menu to its right, which displays the
+    directory hierarchy.  Directories are also listed in bold in the
+    list of files below the row of buttons.  Double-clicking on a
+    directory name in the list will take you to that directory.
+
+    The BOLD(Back) and BOLD(Next) buttons take you other directories
+    that you've recently visited, and the BOLD(Home) button takes you
+    to your home directory.
+
+    Navigate to the directory containing BOLD(small.ppm) and click its
+    name in the list.
+
+    The three fields labelled BOLD(microstructure_name), BOLD(height),
+    and BOLD(width) are BOLD(automatic) widgets, currently displaying
+    "<automatic>" in italics.  If you don't type anything in the
+    widgets, OOF2 will automatically create an appropriate value for
+    them.  In this case, the microstructure name will be set to the
+    name of the image, "small.ppm", and the height and width will be
+    set to the size of the image, in pixels.  If you type anything in
+    an automatic widget, the its value will be the value that you
+    typed.  If you delete all of the text in an automatic widget, the
+    value will revert to "<automatic>".
+
+    Leave the automatic widgets set to "<automatic>" and click the
     BOLD(OK) button.
 
     You should see that all of the buttons in the upper part of the
@@ -245,9 +267,10 @@ TutorialClass(subject="Basics",
 
     The toolbox, canvas, contour map, and layer list are separated by
     dividers that can be dragged with the mouse to change the sizes of
-    the various panes in the window.
-    """
-        ),
+    the various panes in the window.  Many user interface elements
+    have a minimum size, so you may need to enlarge the entire window
+    before moving some of the dividers.  """
+    ),
 
     TutoringItem(
     subject="Activity Viewer and Progress Bars",
