@@ -131,37 +131,9 @@ def signalLogger(obj, signal, logger, *args):
                     print >> sys.stderr, "No record function for", obj, signal
     return False                        # propagate events
 
-
-## Some lines are logged too often.  This code eliminates redundant
-## lines, making the log files easier to read and faster to run.
-
-## _redundantlines is a list of regular expression objects that match
-## lines that are redundant when repeated.
-_redundantlines = [
-    # Each time a Window is created, it emits multiple
-    # 'configure-event' signals, which show up as multiple identical
-    # 'resize' lines in the log.
-    re.compile(r".*\.resize\([0-9]+, [0-9]+\)$"),
-    # set_position lines for HPaned and VPaned widgets are generated
-    # from their children's 'size-allocate' signals, which are
-    # repeated unnecessarily, as far as we're concerned.
-    re.compile(r".*\.set_position\([0-9]+\)$")
-    ]
-
-def _not_redundant(line):
-    for regexp in _redundantlines:
-        if regexp.match(line) is not None:
-            return False
-    return True
-
-_prevline = None
 def _writeline(line):
-    global _prevline
-    if line != _prevline or _not_redundant(line):
-        print >> logutils.logfile(), line
-        logutils.logfile().flush()
-        if logutils.debugLevel() >= 2 and not logutils.replaying():
-            print >> sys.stderr, "//////", line
-    _prevline = line
-    
+    print >> logutils.logfile(), line
+    logutils.logfile().flush()
+    if logutils.debugLevel() >= 2 and not logutils.replaying():
+        print >> sys.stderr, "//////", line
 

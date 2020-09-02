@@ -132,7 +132,6 @@ class ChooserWidget(object):
                     self.stack.remove(widget)
                 self.empty = True
                 self.stack.add_named(self.emptyMarker, self.emptyMarkerName)
-                # self.stack.set_visible_child(self.emptyMarker)
         return True
 
     def show(self):
@@ -148,9 +147,17 @@ class ChooserWidget(object):
         debug.mainthreadTest()
         self.popupMenu = Gtk.Menu()
         gtklogger.newTopLevelWidget(self.popupMenu, 'chooserPopup-'+self.name)
-        # It's necessary to log the 'deactivate' signal in case a menu
-        # is closed without activating anything when recording a gui
-        # session.  If it's not logged, the session will hang when replayed.
+        # When recording a gui log file, it's necessary to log the
+        # 'deactivate' signal when a menu is closed without activating
+        # any of its menu items.  If 'deactivate' is not logged, the
+        # session will hang when replayed.  However, if a menuitem
+        # *is* activated, it's redundant to log both the menuitem's
+        # activation and the menu's deactivation (and leads to a
+        # Gdk-CRITICAL error), because activating the menu item
+        # automatically deactivates the menu.  Unfortunately, the
+        # menu's deactivation signal is emitted before the menu item's
+        # activation signal, so the redundancy can be fixed only by
+        # postprocessing the log file.
         gtklogger.connect_passive(self.popupMenu, 'deactivate')
         self.popupMenu.set_size_request(self.gtk.get_allocated_width(), -1)
         newCurrentItem = None
