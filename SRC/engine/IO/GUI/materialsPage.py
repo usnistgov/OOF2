@@ -210,8 +210,8 @@ class PropertyPane:
             mainmenu.OOF.File.Save.Property.disable()
         
 
-    # Although the load button is in the Property pane, loading is
-    # a material-menu operation.
+    # Although the "Add Property to Material" button is in the
+    # Property pane, adding a property is a material-menu operation.
     def on_prop_load(self,button):      # gtk callback
         propname = self.current_property[0]
         mat = self.parent.currentMaterial()
@@ -225,6 +225,7 @@ class PropertyPane:
     # in response to both materialsPane and propertyPane selection events.
 
     def select_property(self, name):
+        debug.fmsg("name=", name)
         debug.mainthreadTest()
         treenode = AllProperties.data[name]
         self.propertytree.blockSignals()
@@ -252,8 +253,10 @@ class PropertyPane:
                 print "Inconsistent selection state."
             gtklogger.checkpoint("property deselected")
         
-
     def proptreeCB(self, signal, treenode): # GfxLabelTree callback
+        # Why is the labeltree selection set when the Materials Page
+        # is installed, but only a Microstructure has been created?
+        debug.fmsg("signal=", signal)
         prop_name = treenode.path()
         if signal == "select":
             self.select_property(prop_name)

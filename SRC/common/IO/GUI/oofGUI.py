@@ -43,6 +43,8 @@ from ooflib.common.IO.GUI import quit
 from ooflib.common.IO.GUI import widgetscope
 import ooflib.common.quit
 
+USE_STACK = True
+
 from gi.repository import Gtk
 
 allPages = {}                           # dictionary of pages keyed by name
@@ -150,11 +152,12 @@ class oofGUI(widgetscope.WidgetScope):
         self.pageframe.set_shadow_type(Gtk.ShadowType.IN)
         self.mainbox.pack_start(self.pageframe, expand=True, fill=True,
                                 padding=0)
-        self.pageStack = Gtk.Stack(homogeneous=True)
-        self.pageframe.add(self.pageStack)
+        if USE_STACK:
+            self.pageStack = Gtk.Stack(homogeneous=True)
+            self.pageframe.add(self.pageStack)
 
         # Add pages that may have been created before the main GUI was built.
-        for pagename, i in zip(pagenames, range(len(allPages))):
+        for pagename in pagenames:
             self.addPage(allPages[pagename])
 
     def addStyle(self, stylestring):
@@ -171,8 +174,13 @@ class oofGUI(widgetscope.WidgetScope):
         oldPage = None
         if self.currentPageName is not None:
             oldPage = allPages[self.currentPageName]
+            if not USE_STACK:
+                self.pageframe.remove(oldPage.gtk)
         self.currentPageName = pagename
-        self.pageStack.set_visible_child_name(pagename)
+        if not USE_STACK:
+            self.pageframe.add(allPages[self.currentPageName].gtk)
+        else:
+            self.pageStack.set_visible_child_name(pagename)
         if oldPage is not None:
             oldPage.hidden()
         allPages[self.currentPageName].installed()
@@ -190,8 +198,11 @@ class oofGUI(widgetscope.WidgetScope):
         # components that shouldn't yet be shown.
         self.menubar.show_all()
         self.pageChooserFrame.show_all()
-        self.pageStack.show()
         self.pageframe.show()
+        if USE_STACK:
+            self.pageStack.show()
+            for page in allPages.values():
+                page.show() 
         self.mainbox.show()
         self.gtk.show()
 
@@ -204,12 +215,13 @@ class oofGUI(widgetscope.WidgetScope):
             reporter.report(m)
         
     def addPage(self, page):
-        self.pageStack.add_named(page.gtk, page.name)
+        if USE_STACK:
+            self.pageStack.add_named(page.gtk, page.name)
         debug.mainthreadTest()
         pagetips = {}
         for pg in allPages.values():
             if pg.tip:
-                pagetips[pg.name]=pg.tip
+                pagetips[pg.name] = pg.tip
         self.pageChooser.update(pagenames, pagetips)
         self.sensitize()
 
