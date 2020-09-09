@@ -287,4 +287,4 @@ class SelectionPage(oofGUI.MainPage):
 
 ####################################
         
-sp = SelectionPage()
+#sp = SelectionPage()

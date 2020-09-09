@@ -87,6 +87,7 @@ class MaterialsPage(oofGUI.MainPage):
 class PropertyPane:
     def __init__(self, parent):
         debug.mainthreadTest()
+        debug.fmsg("Constructing PropertyPane")
         self.parent = parent
         # Property selection state lives here.  When not None,
         # current_property is a tuple, (name, propertyregistration).
@@ -255,7 +256,9 @@ class PropertyPane:
         
     def proptreeCB(self, signal, treenode): # GfxLabelTree callback
         # Why is the labeltree selection set when the Materials Page
-        # is installed, but only a Microstructure has been created?
+        # is installed, but only if a Microstructure has been recently
+        # created, and the page is installed via the Chooser, not the
+        # arrow buttons.
         debug.fmsg("signal=", signal)
         prop_name = treenode.path()
         if signal == "select":
@@ -270,6 +273,7 @@ class PropertyPane:
         
             
     def newPropCB(self, propertyregistration): # switchboard 'new property'
+        debug.fmsg(propertyregistration.name())
         propname = propertyregistration.name()
         self.select_property(propname)
         self.parent.materialpane.select_property(propname)
@@ -714,3 +718,8 @@ def _save_prop(menuitem):
         reporter.report("No property selected for saving.")
 
 mainmenu.OOF.File.Save.Property.add_gui_callback(_save_prop)
+
+
+def printSelectedProperty(tag):
+    debug.fmsg(tag, "current_property=",
+               materialspage.propertypane.propertytree.getSelection())

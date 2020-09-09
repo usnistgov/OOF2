@@ -633,4 +633,4 @@ class AnalyzePage(BaseAnalysisPage):
         
 
         
-analyzepage = AnalyzePage()
+#analyzepage = AnalyzePage()

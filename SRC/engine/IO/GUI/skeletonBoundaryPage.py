@@ -356,4 +356,4 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#        
     
-sbp = SkeletonBoundaryPage()
+#sbp = SkeletonBoundaryPage()

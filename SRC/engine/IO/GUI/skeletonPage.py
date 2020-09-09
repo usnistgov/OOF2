@@ -588,5 +588,5 @@ class SkeletonPage(oofGUI.MainPage):
             menuitem.callWithDefaults(skeleton=skelname)
 
 # Create the page.
-skeletonpage = SkeletonPage()
+#skeletonpage = SkeletonPage()
 

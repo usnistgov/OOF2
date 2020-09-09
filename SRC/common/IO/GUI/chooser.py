@@ -17,6 +17,18 @@ from gi.repository import Gdk
 from gi.repository import Gtk
 import types
 
+# Debugging
+def printProperty(tag):
+    from ooflib.common.IO import mainmenu
+    # Don't try this if the material machinery is incomplete
+    if hasattr(mainmenu.OOF.File.Save, "Property"):
+        try:
+            from ooflib.engine.IO.GUI import materialsPage
+        except ImportError:
+            pass
+        else:
+            materialsPage.printSelectedProperty(tag)
+
 # The ChooserWidget creates a pull-down menu containing the given list
 # of names.  The currently selected name is shown when the menu isn't
 # being pulled down.
@@ -51,7 +63,113 @@ import types
 ## takes a single string argument, and returns True if that string
 ## should be replaced by a separator in the pull down menu.
 
-class ChooserWidget(object):
+class OLDChooserWiget(object):
+    def __init__(self, namelist, callback=None, callbackargs=(),
+                 update_callback=None, update_callback_args=(), helpdict={},
+                 name=None, separator_func=None, homogeneous=True,
+                 **kwargs):
+        debug.mainthreadTest()
+        assert name is not None
+        liststore = Gtk.ListStore(GObject.TYPE_STRING)
+        self.combobox = Gtk.ComboBox.new_with_model(liststore)
+        gtklogger.setWidgetName(self.combobox, name)
+        cell = Gtk.CellRendererText()
+        self.combobox.pack_start(cell, True)
+        self.combobox.set_cell_data_func(cell, self.cell_layout_data_func)
+        self.gtk = self.combobox
+        self.current_string = None
+        self.callback = callback
+        self.callbackargs = callbackargs
+        self.helpdict = {}
+        self.tipmap = {}
+        self.signal = gtklogger.connect(self.combobox, 'changed',
+                                        self.changedCB)
+        self.update_callback = None
+        self.update_callback_args = ()
+        self.update(namelist, helpdict)
+        # gtk2 version does this. Is there a reason for it?
+        self.update_callback = update_callback
+        self.update_callback_args = update_callback_args
+
+    def cell_layout_data_func(self, cell_view, cell_renderer, model, iter):
+        debug.mainthreadTest()
+        idx = model.get_path(iter)[0]
+        item_text = model.get_value(iter, 0)
+        cell_renderer.set_property('text', item_text)
+        # ignore tool tips
+
+    def show(self):
+        self.gtk.show_all()
+    def hide(self):
+        self.gtk.hide()
+    def destroy(self):
+        self.gtk.destroy()
+    def suppress_signals(self):
+        self.signal.block()
+    def allow_signals(self):
+        self.signal.unblock()
+    def changedCB(self, combobox):
+        model = combobox.get_model()
+        index = combobox.get_active()
+        self.current_string = model[index][0]
+        if self.callback:
+            self.callback(*(self.current_string,)+self.callbackargs)
+    def update(self, namelist, helpdict={}):
+        try:
+            current_index = namelist.index(self.current_string)
+        except ValueError:
+            if len(namelist) > 0:
+                current_index = 0
+            else:
+                current_index = -1
+        self.helpdict = helpdict
+        self.suppress_signals()
+        liststore = self.combobox.get_model()
+        liststore.clear()
+        for name in namelist:
+            liststore.append([name])
+        self.combobox.set_active(current_index)
+        if current_index >= 0:
+            self.current_string = liststore[current_index][0]
+        else:
+            self.current_string = None
+        self.allow_signals()
+        if self.update_callback:
+            self.update_callback(*(self.gtk, self.current_string)+
+                                 self.update_callback_args)
+        self.combobox.set_sensitive(len(namelist) > 0)
+
+    def set_state(self, arg):
+        self.suppress_signals()
+        model = self.combobox.get_model()
+        if type(arg) == types.IntType:
+            self.combobox.set_active(arg)
+            self.current_string = model[arg][0]
+        elif type(arg) == types.StringType:
+            names = [row[0] for row in model]
+            try:
+                index = names.index(arg)
+            except ValueError:
+                self.combobox.set_active(0)
+                self.current_string = names[0]
+            else:
+                self.combobox.set_active(index)
+                self.current_string = arg
+        self.allow_signals()
+        if self.update_callback:
+            self.update_callback(*(self.gtk, self.current_string)+
+                                 self.update_callback_args)
+    def get_value(self):
+        return self.current_string
+    def nChoices(self):
+        return len(self.combobox.get_model())
+    def choices(self):
+        model = self.combobox.get_model()
+        return [x[0] for x in iter(model)]
+
+ChooserWidget = OLDChooserWiget
+
+class NEWChooserWidget(object):
     def __init__(self, namelist, callback=None, callbackargs=(),
                  update_callback=None, update_callback_args=(),
                  helpdict={}, name=None, separator_func=None,
@@ -105,8 +223,10 @@ class ChooserWidget(object):
 
     def update(self, namelist, helpdict={}):
         # update() returns True if something changed.
+        printProperty("start of update")
         debug.mainthreadTest()
         if namelist == self.namelist and helpdict == self.helpdict:
+            printProperty("no change, ending update")
             return False
         self.namelist = namelist[:]
         self.helpdict = helpdict
@@ -132,6 +252,7 @@ class ChooserWidget(object):
                     self.stack.remove(widget)
                 self.empty = True
                 self.stack.add_named(self.emptyMarker, self.emptyMarkerName)
+        printProperty("end of update")
         return True
 
     def show(self):
@@ -145,6 +266,7 @@ class ChooserWidget(object):
         self.gtk.destroy()
     def buttonpressCB(self, gtkobj, event):
         debug.mainthreadTest()
+        printProperty("buttonpressCB 1")
         self.popupMenu = Gtk.Menu()
         gtklogger.newTopLevelWidget(self.popupMenu, 'chooserPopup-'+self.name)
         # When recording a gui log file, it's necessary to log the
@@ -176,18 +298,22 @@ class ChooserWidget(object):
                 if name == self.current_string:
                     newCurrentItem = menuitem
             self.popupMenu.append(menuitem)
+        printProperty("buttonpressCB 2")
         if newCurrentItem:
             self.current_item = newCurrentItem
             self.current_item.select()
         else:
             self.current_item = None
+        printProperty("buttonpressCB 3")
         self.popupMenu.show_all()
         self.popupMenu.popup_at_widget(self.stack, Gdk.Gravity.SOUTH_WEST,
                                        Gdk.Gravity.NORTH_WEST, event)
+        printProperty("buttonpressCB 4")
         return False
 
     def activateCB(self, menuitem, name):
         debug.mainthreadTest()
+        printProperty("activateCB 1")
         self.stack.set_visible_child_name(name)
         # TODO GTK3: It shouldn't be necessary to call
         # popupMenu.destroy() here, but during playback of a gtklogger
@@ -200,19 +326,23 @@ class ChooserWidget(object):
         self.current_string = name
         if self.callback:
             self.callback(*(name,) + self.callbackargs)
+        printProperty("activateCB 2")
 
     def enterItemCB(self, menuitem, event):
+        printProperty("enterItemCB 1")
         debug.mainthreadTest()
         # When the mouse enters the pop-up menu, the initially
         # selected item has to be deselected manually.
         if self.current_item is not None and self.current_item is not menuitem:
             self.current_item.deselect()
             self.current_item = None
+        printProperty("enterItemCB 2")
 
     def set_state(self, arg):
         # arg is either an integer position in namelist or a string in
         # namelist.
         debug.mainthreadTest()
+        printProperty("set_state 1")
         # Before the gtk3 upgrade, the equivalent of this routine
         # failed silently if arg was not None, a string, or an int, or
         # if it was a string that wasn't in the list.  It's now an
@@ -243,6 +373,7 @@ class ChooserWidget(object):
             if self.update_callback:
                 self.update_callback(*(self.current_string,) +
                                      self.update_callback_args)
+        printProperty("set_state 2")
             
     def get_value(self):
         return self.current_string

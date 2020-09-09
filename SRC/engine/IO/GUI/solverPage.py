@@ -994,5 +994,5 @@ class SolverPage(oofGUI.MainPage):
 
 ################
 
-SolverPage()
+#SolverPage()
 

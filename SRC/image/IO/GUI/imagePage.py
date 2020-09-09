@@ -389,5 +389,5 @@ class ImagePage(oofGUI.MainPage):
             menuitem.callWithDefaults(image=self.imagewidget.get_value())
 
         
-ImagePage()
+#ImagePage()
 

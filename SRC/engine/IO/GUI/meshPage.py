@@ -611,4 +611,4 @@ class MeshPage(oofGUI.MainPage):
 
 #############
         
-mp = MeshPage()
+#mp = MeshPage()

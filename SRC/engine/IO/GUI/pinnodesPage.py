@@ -227,4 +227,4 @@ class PinNodesPage(oofGUI.MainPage):
 
 
 # Create the page.
-pinnodesPage = PinNodesPage()
+#pinnodesPage = PinNodesPage()

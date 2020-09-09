@@ -295,6 +295,6 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
                 *menuitem.params):
             menuitem.callWithDefaults()
 
-boundaryAnalysisPage = BoundaryAnalysisPage()
+#boundaryAnalysisPage = BoundaryAnalysisPage()
 
 

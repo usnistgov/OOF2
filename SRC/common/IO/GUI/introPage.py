@@ -95,6 +95,6 @@ class IntroPage(oofGUI.MainPage):
                     button.set_active(False)
             self.textarea.get_buffer().set_text(words[which])
             
-IntroPage()
+#IntroPage()
 
     

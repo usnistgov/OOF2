@@ -30,6 +30,11 @@ from gi.repository import Gtk
 import string
 
 
+def CHANGED(*args, **kwargs):
+    print "CHANGED", args, kwargs
+    return True
+
+
 class GfxLabelTree:
     def __init__(self, tree, expand=1, callback=None, name=None,
                  *callbackargs, **callbackkwargs):
@@ -55,6 +60,7 @@ class GfxLabelTree:
         tvcol.set_attributes(cell, text=0) # display column 0 of the tree store
         
         selection = self.gtk.get_selection()
+        gtklogger.connect(selection, 'changed', CHANGED)
         gtklogger.adoptGObject(selection, self.gtk,
                               access_method=self.gtk.get_selection)
         self.selection_signal = gtklogger.connect(selection, 'changed',
@@ -114,7 +120,7 @@ class GfxLabelTree:
                 self.constructGUI(node, iter)
 
     def selectionChangedCB(self, selection):
-        debug.fmsg()
+        debug.fmsg("selection=", selection)
         debug.mainthreadTest()
         model, iter = selection.get_selected()
         if iter is None:                # nothing selected

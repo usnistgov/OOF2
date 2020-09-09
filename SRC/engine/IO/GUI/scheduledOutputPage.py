@@ -587,4 +587,4 @@ class OutputPage(oofGUI.MainPage):
         menuitem.callWithDefaults(mesh=self.currentFullMeshName(),
                                   output=self.currentOutputName())
 
-op = OutputPage()
+#op = OutputPage()

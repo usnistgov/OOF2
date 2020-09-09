@@ -170,6 +170,7 @@ class oofGUI(widgetscope.WidgetScope):
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
     def installPage(self, pagename):
+        debug.fmsg("Installing", pagename)
         debug.mainthreadTest()
         oldPage = None
         if self.currentPageName is not None:
@@ -180,7 +181,9 @@ class oofGUI(widgetscope.WidgetScope):
         if not USE_STACK:
             self.pageframe.add(allPages[self.currentPageName].gtk)
         else:
+            debug.fmsg("Calling pageStack.set_visible_child_name")
             self.pageStack.set_visible_child_name(pagename)
+            debug.fmsg("Back from pageStack.set_visible_child_name")
         if oldPage is not None:
             oldPage.hidden()
         allPages[self.currentPageName].installed()
@@ -354,6 +357,7 @@ class MainPage(widgetscope.WidgetScope):
     def __init__(self, name, ordering, tip=None):
         debug.mainthreadTest()
         widgetscope.WidgetScope.__init__(self, parent=gui)
+        allPages[name] = self
         self.name = name
         self.ordering = ordering
         self.tip = tip
@@ -370,7 +374,6 @@ class MainPage(widgetscope.WidgetScope):
             pagenames.append(name)
             if guitop.top():            # gui may not be constructed yet!
                 guitop.top().addPage(self)
-        allPages[name] = self
         gtklogger.setWidgetName(self.gtk, name+' Page')
 
     # MainPage.show() should be redefined in subclasses that don't

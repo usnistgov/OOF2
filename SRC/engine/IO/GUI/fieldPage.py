@@ -459,4 +459,4 @@ class FieldPage(oofGUI.MainPage):
 
 #############
 
-fp = FieldPage()
+#fp = FieldPage()

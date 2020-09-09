@@ -377,4 +377,4 @@ class ActiveAreaPage(oofGUI.MainPage):
 
 ####################################
         
-aap = ActiveAreaPage()
+#aap = ActiveAreaPage()
