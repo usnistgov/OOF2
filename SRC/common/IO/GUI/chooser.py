@@ -63,7 +63,7 @@ def printProperty(tag):
 ## takes a single string argument, and returns True if that string
 ## should be replaced by a separator in the pull down menu.
 
-class OLDChooserWiget(object):
+class OLDChooserWidget(object):
     def __init__(self, namelist, callback=None, callbackargs=(),
                  update_callback=None, update_callback_args=(), helpdict={},
                  name=None, separator_func=None, homogeneous=True,
@@ -166,8 +166,6 @@ class OLDChooserWiget(object):
     def choices(self):
         model = self.combobox.get_model()
         return [x[0] for x in iter(model)]
-
-ChooserWidget = OLDChooserWiget
 
 class NEWChooserWidget(object):
     def __init__(self, namelist, callback=None, callbackargs=(),
@@ -383,6 +381,8 @@ class NEWChooserWidget(object):
         return self.namelist
             
                 
+#ChooserWidget = OLDChooserWidget
+ChooserWidget = NEWChooserWidget
 
 
 class FakeChooserWidget:
