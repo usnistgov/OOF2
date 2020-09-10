@@ -73,13 +73,20 @@ class ChooserWidget(object):
         self.namelist = None
 
         self.gtk = Gtk.EventBox()
+        # The docs say that event boxes should generally be invisible
+        # to avoid rendering artifacts, but then they need to be above
+        # their children to propagate events properly.
+        self.gtk.set_visible_window(False)
+        self.gtk.set_above_child(True)
         gtklogger.setWidgetName(self.gtk, name)
         frame = Gtk.Frame(**kwargs)
         self.gtk.add(frame)
         # Using a Stack instead of a simple Label makes it easy to
         # make sure that the horizontal size of the Chooser doesn't
-        # change when the visible label changes, if homogeneous=True. 
+        # change when the visible label changes, if homogeneous=True.
         self.stack = Gtk.Stack(homogeneous=homogeneous)
+        self.stack.set_can_focus(True)
+        self.stack.set_focus_on_click(True)
         gtklogger.setWidgetName(self.stack, 'stack')
         frame.add(self.stack)
         # When a chooser has nothing to display, it looks ugly.
@@ -93,6 +100,23 @@ class ChooserWidget(object):
         
         gtklogger.connect(self.gtk, "button-press-event", self.buttonpressCB)
 
+        ## Trying to figure out how to get <return> to activate the
+        ## pull down menu.  Once the event box has focus, it's very
+        ## hard to convince it to give it up.
+        
+    #     self.gtk.add_events(Gdk.EventMask.KEY_PRESS_MASK)
+    #     gtklogger.connect(self.gtk, "key-press-event", self.keyPressCB)
+    #     self.gtk.connect("focus-in-event", self.focusCB, "in")
+    #     self.gtk.connect("focus-out-event", self.focusCB, "out")
+
+    # def focusCB(self, event, data):
+    #     debug.fmsg("stack focus", data)
+    #     return False
+
+    # def keyPressCB(self, *args, **kwargs):
+    #     debug.fmsg(args, kwargs)
+    #     return True
+    
     def makeSubWidget(self, name):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, margin=2)
         label = Gtk.Label(name, halign=Gtk.Align.START, hexpand=True, margin=5)
@@ -133,6 +157,9 @@ class ChooserWidget(object):
                 self.empty = True
                 self.stack.add_named(self.emptyMarker, self.emptyMarkerName)
         return True
+
+    def grab_focus(self):
+        self.stack.grab_focus()
 
     def show(self):
         debug.mainthreadTest()

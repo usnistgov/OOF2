@@ -172,6 +172,12 @@ class oofGUI(widgetscope.WidgetScope):
     def installPage(self, pagename):
         debug.mainthreadTest()
         oldPage = None
+        # If the old page has keyboard focus, switching to a new page
+        # will give the focus to some object in the new page, which
+        # can have surprising results.
+        ## TODO GTK3: Probably it would be better for the Chooser to
+        ## always take focus if it's used.
+        self.pageChooser.grab_focus()
         if self.currentPageName is not None:
             oldPage = allPages[self.currentPageName]
             if not USE_STACK:

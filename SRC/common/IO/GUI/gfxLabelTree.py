@@ -114,7 +114,6 @@ class GfxLabelTree:
                 self.constructGUI(node, iter)
 
     def selectionChangedCB(self, selection):
-        debug.fmsg()
         debug.mainthreadTest()
         model, iter = selection.get_selected()
         if iter is None:                # nothing selected
@@ -151,8 +150,6 @@ class GfxLabelTree:
     # Programmatically select an object stored in the tree, without
     # calling the callback function.
     def selectObject(self, object):
-        debug.fmsg(object)
-        debug.dumpTrace()
         node = self.tree.reverse_dict[object]
         self.selectNode(node)
 
