@@ -100,23 +100,11 @@ class ChooserWidget(object):
         
         gtklogger.connect(self.gtk, "button-press-event", self.buttonpressCB)
 
-        ## Trying to figure out how to get <return> to activate the
-        ## pull down menu.  Once the event box has focus, it's very
-        ## hard to convince it to give it up.
-        
-    #     self.gtk.add_events(Gdk.EventMask.KEY_PRESS_MASK)
-    #     gtklogger.connect(self.gtk, "key-press-event", self.keyPressCB)
-    #     self.gtk.connect("focus-in-event", self.focusCB, "in")
-    #     self.gtk.connect("focus-out-event", self.focusCB, "out")
+        # Catch key press events so that hitting <Return> when the
+        # widget has focus brings up the menu.
+        self.gtk.add_events(Gdk.EventMask.KEY_PRESS_MASK)
+        gtklogger.connect(self.gtk, "key-press-event", self.keyPressCB)
 
-    # def focusCB(self, event, data):
-    #     debug.fmsg("stack focus", data)
-    #     return False
-
-    # def keyPressCB(self, *args, **kwargs):
-    #     debug.fmsg(args, kwargs)
-    #     return True
-    
     def makeSubWidget(self, name):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, margin=2)
         label = Gtk.Label(name, halign=Gtk.Align.START, hexpand=True, margin=5)
@@ -176,13 +164,13 @@ class ChooserWidget(object):
         gtklogger.newTopLevelWidget(self.popupMenu, 'chooserPopup-'+self.name)
         # When recording a gui log file, it's necessary to log the
         # 'deactivate' signal when a menu is closed without activating
-        # any of its menu items.  If 'deactivate' is not logged, the
+        # any of its menuitems.  If 'deactivate' is not logged, the
         # session will hang when replayed.  However, if a menuitem
         # *is* activated, it's redundant to log both the menuitem's
         # activation and the menu's deactivation (and leads to a
-        # Gdk-CRITICAL error), because activating the menu item
+        # Gdk-CRITICAL error), because activating the menuitem
         # automatically deactivates the menu.  Unfortunately, the
-        # menu's deactivation signal is emitted before the menu item's
+        # menu's deactivation signal is emitted before the menuitem's
         # activation signal, so the redundancy can be fixed only by
         # postprocessing the log file.
         gtklogger.connect_passive(self.popupMenu, 'deactivate')
@@ -213,6 +201,15 @@ class ChooserWidget(object):
                                        Gdk.Gravity.NORTH_WEST, event)
         return False
 
+    def keyPressCB(self, eventbox, event):
+        # Hitting <Return> when the widget has keyboard focus is the
+        # same as clicking on it with the mouse.
+        if event.keyval == Gdk.keyval_from_name('Return') and not event.state:
+            self.buttonpressCB(None, event)
+            return True         # this event has been handled
+        return False            # invoke other handlers
+    
+    
     def activateCB(self, menuitem, name):
         debug.mainthreadTest()
         self.stack.set_visible_child_name(name)
@@ -225,6 +222,9 @@ class ChooserWidget(object):
         self.popupMenu.destroy()
         self.popupMenu = None
         self.current_string = name
+        # After the menu is used, focus returns to it so that it's not
+        # randomly reassigned elsewhere.
+        self.stack.grab_focus()
         if self.callback:
             self.callback(*(name,) + self.callbackargs)
 
