@@ -62,7 +62,6 @@ class ChooserWidget(object):
         # string should be represented by a Gtk.SeparatorMenuItem.
         self.separator_func = separator_func
         self.current_string = None
-        self.current_item = None # only exists while the menu is visible
         self.callback = callback
         self.callbackargs = callbackargs
         self.update_callback = update_callback
@@ -75,9 +74,12 @@ class ChooserWidget(object):
         self.gtk = Gtk.EventBox()
         # The docs say that event boxes should generally be invisible
         # to avoid rendering artifacts, but then they need to be above
-        # their children to propagate events properly.
-        self.gtk.set_visible_window(False)
-        self.gtk.set_above_child(True)
+        # their children to propagate events properly.  HOWEVER,
+        # setting visible=False somehow prevents the window from
+        # opening when replaying a gui log file.  The button press
+        # event is not processed.
+        ##self.gtk.set_visible_window(False)
+        ##self.gtk.set_above_child(True)
         gtklogger.setWidgetName(self.gtk, name)
         frame = Gtk.Frame(**kwargs)
         self.gtk.add(frame)
@@ -158,6 +160,7 @@ class ChooserWidget(object):
     def destroy(self):
         debug.mainthreadTest()
         self.gtk.destroy()
+        
     def buttonpressCB(self, gtkobj, event):
         debug.mainthreadTest()
         self.popupMenu = Gtk.Menu()
@@ -175,27 +178,32 @@ class ChooserWidget(object):
         # postprocessing the log file.
         gtklogger.connect_passive(self.popupMenu, 'deactivate')
         self.popupMenu.set_size_request(self.gtk.get_allocated_width(), -1)
-        newCurrentItem = None
         for name in self.namelist:
             if self.separator_func and self.separator_func(name):
                 menuitem = Gtk.SeparatorMenuItem()
             else:
-                menuitem = Gtk.MenuItem(name)
-                gtklogger.setWidgetName(menuitem, name)
-                gtklogger.connect(menuitem, 'activate', self.activateCB, name)
-                gtklogger.connect(menuitem, 'enter-notify-event',
-                                  self.enterItemCB)
+                # Since there's no point to switching to the current
+                # value, make its entry insensitive, and in italics,
+                # to give the user a clue to the current location in
+                # the list.  It would be nice to just start in the
+                # current location when the menu is popped up, like a
+                # GtkComboBox, but that's not possible with a GtkMenu.
+                # If the GtkComboBox allowed tooltips, we'd use it
+                # instead.
+                if name == self.current_string:
+                    menuitem = Gtk.MenuItem.new_with_label("")
+                    label = menuitem.get_child()
+                    label.set_markup("<i>" + name + "</i>")
+                    menuitem.set_sensitive(False)
+                else:
+                    menuitem = Gtk.MenuItem(name)
+                    gtklogger.setWidgetName(menuitem, name)
+                    gtklogger.connect(menuitem, 'activate', self.activateCB,
+                                      name)
                 helpstr = self.helpdict.get(name, None)
                 if helpstr:
                     menuitem.set_tooltip_text(helpstr)
-                if name == self.current_string:
-                    newCurrentItem = menuitem
             self.popupMenu.append(menuitem)
-        if newCurrentItem:
-            self.current_item = newCurrentItem
-            self.current_item.select()
-        else:
-            self.current_item = None
         self.popupMenu.show_all()
         self.popupMenu.popup_at_widget(self.stack, Gdk.Gravity.SOUTH_WEST,
                                        Gdk.Gravity.NORTH_WEST, event)
@@ -208,8 +216,7 @@ class ChooserWidget(object):
             self.buttonpressCB(None, event)
             return True         # this event has been handled
         return False            # invoke other handlers
-    
-    
+
     def activateCB(self, menuitem, name):
         debug.mainthreadTest()
         self.stack.set_visible_child_name(name)
@@ -227,14 +234,6 @@ class ChooserWidget(object):
         self.stack.grab_focus()
         if self.callback:
             self.callback(*(name,) + self.callbackargs)
-
-    def enterItemCB(self, menuitem, event):
-        debug.mainthreadTest()
-        # When the mouse enters the pop-up menu, the initially
-        # selected item has to be deselected manually.
-        if self.current_item is not None and self.current_item is not menuitem:
-            self.current_item.deselect()
-            self.current_item = None
 
     def set_state(self, arg):
         # arg is either an integer position in namelist or a string in
