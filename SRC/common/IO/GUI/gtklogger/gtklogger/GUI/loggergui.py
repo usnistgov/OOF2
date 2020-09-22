@@ -51,10 +51,10 @@ actions = []
 # previously added line is replaced by the current line. The
 # replacement is done if the current line matches the regular
 # expression in regexp and the previous line matches the one in
-# regexpprev.  If regexpprev is omitted, both lines have match regexp.
-# groups is a list of pairs of integers.  For each (i,j) in the list,
-# the replacement is done only if group i in the current line is
-# identical to group j in the previous line.
+# regexpprev.  If regexpprev is omitted, the replacement is done if
+# both lines match regexp.  groups is a list of pairs of integers.
+# For each (i,j) in the list, the replacement is done only if group i
+# in the current line is identical to group j in the previous line.
 
 class ReplaceLine(object):
     def __init__(self, regexp, regexpprev=None, groups=[]):
@@ -84,7 +84,6 @@ class ReplaceLine(object):
             logProc.replaceLastLine(line)
             return True         # line was handled successfully.
         return False            # line was not dealt with.
-    
 
 # Look for pairs of lines like
 #   findWidget('WIDGETNAME').resize(x0, y0)
@@ -95,14 +94,29 @@ actions.append(
         r"^findWidget\('(.+)'\).resize\([0-9]+, [0-9]+\)$",
         groups=[(1,1)]))
 
-
 # Look for pairs of lines like
 #    findWidget('MENUNAME').deactivate()
 #    findMenu(findWidget('MENUNAME'), MENUITEM).activate()
-# and delete the first one.  
+# and delete the first one.  This occurs when an item is selected from
+# a menu.  The menu's deactivate signal is sent before the menu item
+# is activated, but on replay the menu must not be destroyed before
+# its item is activated.  Activating the menu item will deactivate the
+# menu, so explicit deactivation isn't necessary.
+
 actions.append(
     ReplaceLine(
         r"^findMenu\(findWidget\('(.+)'\), '.+'\).activate\(\)$",
+        r"^findWidget\('(.+)'\).deactivate\(\)$",
+        groups=[(1,1)]))
+
+# Look for pairs of lines like
+#   findWidget('MENUNAME').deactivate()
+#   findMenu(findWidget('MENUNAME'), MENUITEM).set_active(BOOL)
+# and delete the first one.  This is just like the case above, but for
+# CheckMenuItems and RadioMenuItems.
+actions.append(
+    ReplaceLine(
+        r"^findMenu\(findWidget\('(.+)'\), '.+'\).set_active\(0|1|True|False\)$",
         r"^findWidget\('(.+)'\).deactivate\(\)$",
         groups=[(1,1)]))
     
@@ -119,6 +133,7 @@ class LogProcessor(object):
         self.logfilename = logfilename
         self.inbuf = ""
         self.lines = []
+        self.strikeThrough = True # TODO: make this settable in the GUI
 
         window = Gtk.Window(Gtk.WindowType.TOPLEVEL,
                             title="gtklogger:" + logfilename)
@@ -184,15 +199,27 @@ class LogProcessor(object):
         self.scrollToEnd()
 
     def replaceLastLine(self, line):
-        if not self.lines:
-            self.addLine(line)
-        else:
-            self.lines[-1] = line
+        if self.lines:
+            # Delete the last line, then add the new one.
             bfr = self.logtextview.get_buffer()
-            endIter = bfr.get_end_iter()
             lastLineIter = bfr.get_iter_at_line(len(self.lines)-1)
-            bfr.delete(lastLineIter, endIter)
-            self.scrollToEnd()
+            endIter = bfr.get_end_iter()
+            del self.lines[-1]  # delete previous last line from output
+            if self.strikeThrough:
+                # If strikeThrough is True, then the deleted line is
+                # still displayed, but crossed out.
+                lastLine = bfr.get_text(lastLineIter, endIter, True).rstrip()
+                bfr.delete(lastLineIter, endIter)
+                markup = ('<span strikethrough="t" strikethrough-color="red">'
+                          + lastLine
+                          + '</span>\n')
+                bfr.insert_markup(bfr.get_end_iter(), markup , -1);
+
+            else:
+                # strikeThrough is False.  Don't display the deleted line.
+                bfr.delete(lastLineIter, endIter)
+        self.addLine(line)
+
 
     def scrollToEnd(self):
         bfr = self.logtextview.get_buffer()
