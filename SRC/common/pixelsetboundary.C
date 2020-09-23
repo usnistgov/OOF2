@@ -894,7 +894,7 @@ ClippedPixelBdyLoop::ClippedPixelBdyLoop(
 ClippedPixelBdyLoop::ClippedPixelBdyLoop(
 			 const PxlBdyLoopBase<ICoord, ICRectangle> *otherloop) {
   loop.reserve(otherloop->size());
-  for(const ICoord ipt : otherloop->getLoop()) {
+  for(const ICoord &ipt : otherloop->getLoop()) {
     add(ipt);			// converts from ICoord to Coord
   }
 }
