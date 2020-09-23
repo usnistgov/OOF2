@@ -128,11 +128,17 @@ actions.append(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# LogProcessor reads lines from stdin, stores them in a list, applies
+# filters, displays the lines, and writes them out to the log file
+# when it's done.  The list of lines is separate from the
+# GtkTextBuffer that displays the lines, because the text buffer has
+# the option of showing the filtered-out lines.
+
 class LogProcessor(object):
     def __init__(self, logfilename):
         self.logfilename = logfilename
         self.inbuf = ""
-        self.lines = []
+        self.lines = []           # The list of lines
         self.strikeThrough = True # TODO: make this settable in the GUI
 
         window = Gtk.Window(Gtk.WindowType.TOPLEVEL,
@@ -147,6 +153,12 @@ class LogProcessor(object):
         self.logtextview = Gtk.TextView(editable=False, cursor_visible=False)
         self.logtextview.set_wrap_mode(Gtk.WrapMode.WORD)
         logscroll.add(self.logtextview)
+
+        # beginLineMark is a GtkTextMark that is kept at the beginning
+        # of the most recently added line.
+        bfr = self.logtextview.get_buffer()
+        self.beginLineMark = bfr.create_mark("beginLine", bfr.get_end_iter(),
+                                             True)
 
         commentbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                              spacing=2)
@@ -195,16 +207,17 @@ class LogProcessor(object):
     def addLine(self, line):
         self.lines.append(line)
         bfr = self.logtextview.get_buffer()
+        bfr.move_mark(self.beginLineMark, bfr.get_end_iter())
         bfr.insert(bfr.get_end_iter(), line+"\n")
         self.scrollToEnd()
 
     def replaceLastLine(self, line):
         if self.lines:
-            # Delete the last line, then add the new one.
+            # Update the display, either by deleting the old last
+            # line, or crossing it out.
             bfr = self.logtextview.get_buffer()
-            lastLineIter = bfr.get_iter_at_line(len(self.lines)-1)
+            lastLineIter = bfr.get_iter_at_mark(self.beginLineMark)
             endIter = bfr.get_end_iter()
-            del self.lines[-1]  # delete previous last line from output
             if self.strikeThrough:
                 # If strikeThrough is True, then the deleted line is
                 # still displayed, but crossed out.
@@ -214,11 +227,11 @@ class LogProcessor(object):
                           + lastLine
                           + '</span>\n')
                 bfr.insert_markup(bfr.get_end_iter(), markup , -1);
-
             else:
                 # strikeThrough is False.  Don't display the deleted line.
                 bfr.delete(lastLineIter, endIter)
-        self.addLine(line)
+            del self.lines[-1]  # delete previous last line from output
+        self.addLine(line)      # add new last line
 
 
     def scrollToEnd(self):
