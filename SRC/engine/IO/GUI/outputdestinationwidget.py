@@ -95,7 +95,7 @@ class TextDestinationWidget(parameterwidgets.ParameterWidget):
                                                       name=name)
 
         self.chooser = chooser.ChooserWidget([], callback=self.chooserCB,
-                                             name='Chooser')
+                                             name='TextDestChooser')
         vbox.pack_start(self.chooser.gtk, expand=False, fill=False, padding=0)
         bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                        spacing=2, homogeneous=True)

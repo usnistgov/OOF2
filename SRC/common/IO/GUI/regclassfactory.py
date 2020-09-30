@@ -115,7 +115,7 @@ class RegisteredClassFactory(RCFBase):
         self.gtk.add(self.box)
         self.options = chooser.ChooserWidget([], callback=self.optionCB,
                                              update_callback=self.updateCB,
-                                             name='Chooser',
+                                             name='RCFChooser',
                                              hexpand=True,
                                              halign=Gtk.Align.FILL)
         if not title:
