@@ -66,39 +66,16 @@ def gtkOOFMenuBar(menu, bar=None, accelgroup=None, parentwindow=None):
             item.construct_gui(menu, bar, accelgroup)
     return bar
 
-# def gtkOOFPopUpMenu(menu, basewidget):
-#     # Create a pop-up menu for an OOFMenu. The basewidget argument
-#     # can be any existing gtk Widget on the same screen as the pop-up.
-#     # The pop-up is returned. 
-
-#     # Example:
-#     #  popup = gtkOOFPopUpMenu(oofmenu, basewidget)
-#     #  gtklogger.connect(basewidget, 'button-press-event', callback)
-#     #
-#     #  def callback(gtkobj, event):
-#     #     if event.button == 3:  # right-click
-#     #         popup.popup(None, None, None, event.button, event.time)
-#     #         ## The Nones are some vestigial gtk cruft, apparently.
-#     debug.mainthreadTest()
-#     popupmenu = Gtk.Menu()
-#     gtklogger.newTopLevelWidget(popupmenu, 'PopUp-'+menu.name)
-#     popupmenu.set_screen(basewidget.get_screen())
-#     gtklogger.connect_passive(popupmenu, 'deactivate')
-#     for item in menu:
-#         item.construct_gui(menu, popupmenu, None)
-#     popupmenu.show_all()
-#     return popupmenu
-
-
 ###########################
 
 # Extend the OOFMenu classes so that they can construct the gtk menu
 
 #######################
 
-class MenuCallBackWrapper:
-    def __init__(self, menuitem):
-        self.menuitem = menuitem
+class MenuCallBackWrapper(object):
+    def __init__(self, menuitem, popup=False):
+        self.menuitem = menuitem # An OOFMenuItem, not a GtkMenuItem
+        self.popup = popup
     def __call__(self, gtkmenuitem, *args):
         if self.menuitem.gui_callback is None:
             # No special gui callback.
@@ -118,6 +95,8 @@ class MenuCallBackWrapper:
             # Call, but don't log, the gui callback.  The gui callback
             # will (probably) call and log the cli callback.
             self.menuitem.gui_callback(self.menuitem)
+        if self.popup:
+            gtkmenuitem.get_parent().destroy()
     def findParentWindow(self, menuitem=None):
         m = menuitem or self.menuitem
         if m is None:
@@ -151,7 +130,8 @@ def _OOFMenuItem_children_visible(self):
 
 OOFMenuItem.children_visible = _OOFMenuItem_children_visible
     
-def _OOFMenuItem_construct_gui(self, base, parent_menu, accelgroup):
+def _OOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
+                               popup=False):
     # "base" is this menu item's OOF menu parent, and "parent_menu" is
     # the to-be-constructed GtkMenuItem's gtk container.
     debug.mainthreadTest()
@@ -182,10 +162,11 @@ def _OOFMenuItem_construct_gui(self, base, parent_menu, accelgroup):
 
             gtklogger.set_submenu(new_gtkitem, new_gtkmenu)
             for item in self.items:
-                item.construct_gui(self, new_gtkmenu, accelgroup) # recursive!
-        else:                               # no submenu, create command
+                # recursively construct submenu
+                item.construct_gui(self, new_gtkmenu, accelgroup, popup=popup)
+        else:                   # no submenu, create command
             gtklogger.connect(
-                new_gtkitem, 'activate', MenuCallBackWrapper(self))
+                new_gtkitem, 'activate', MenuCallBackWrapper(self, popup))
             if self.accel is not None and accelgroup is not None:
                 new_gtkitem.add_accelerator('activate', accelgroup,
                                             ord(self.accel),
@@ -298,9 +279,13 @@ OOFMenuItem.removeItem = _newRemoveItem
 
 class CheckMenuCallBackWrapper(MenuCallBackWrapper):
     def __call__(self, gtkmenuitem, *args):
-        return self.menuitem(gtkmenuitem.get_active())
+        active = gtkmenuitem.get_active()
+        if self.popup:
+            gtkmenuitem.get_parent().destroy()
+        return self.menuitem(active)
 
-def _CheckOOFMenuItem_construct_gui(self, base, parent_menu, accelgroup):
+def _CheckOOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
+                                    popup=False):
     debug.mainthreadTest()
     if not (self.secret or self.getOption('cli_only')):
         new_gtkitem = Gtk.CheckMenuItem(self.menuItemName())
@@ -324,7 +309,7 @@ def _CheckOOFMenuItem_construct_gui(self, base, parent_menu, accelgroup):
         # to suppress recursion when the state of the check mark is
         # set manually.
         new_handler = gtklogger.connect(
-            new_gtkitem, 'activate', CheckMenuCallBackWrapper(self))
+            new_gtkitem, 'activate', CheckMenuCallBackWrapper(self, popup))
         try:
             self.handlerid.append(new_handler)
         except AttributeError:
@@ -374,10 +359,13 @@ class RadioMenuCallBackWrapper(CheckMenuCallBackWrapper):
         # callback for the item that's being turned off, here we only
         # call the callback if an item is being turned on.
         if gtkmenuitem.active:
+            if self.popup:
+                gtkmenuitem.get_parent().destroy()
             return self.menuitem()
 
 
-def _RadioOOFMenuItem_construct_gui(self, base, parent_menu, accelgroup):
+def _RadioOOFMenuItem_construct_gui(self, base, parent_menu, accelgroup,
+                                    popup=False):
     debug.mainthreadTest()
 
     new_gtkitem = Gtk.RadioMenuItem(self.menuItemName())
@@ -406,7 +394,7 @@ def _RadioOOFMenuItem_construct_gui(self, base, parent_menu, accelgroup):
                                     Gtk.AccelFlags.VISIBLE)
         
     new_handlerid = gtklogger.connect(
-        new_gtkitem, 'activate', RadioMenuCallBackWrapper(self))
+        new_gtkitem, 'activate', RadioMenuCallBackWrapper(self, popup))
 
     try:
         self.handlerid.append(new_handlerid)

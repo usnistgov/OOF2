@@ -269,6 +269,30 @@ class Dialog(Gtk.Dialog):
         else:
             connect_passive(child, 'activate')
 
+popupCount = 0
+
+def newPopupMenu(name=None):
+    menu = Gtk.Menu()
+    global popupCount
+    if name:
+        pname = name
+    else:
+        pname = 'PopUp-'+`popupCount`
+        popupCount += 1
+    newTopLevelWidget(menu, pname)
+    # When recording a gui log file, it's necessary to log the
+    # 'deactivate' signal when a menu is closed without activating any
+    # of its menuitems.  If 'deactivate' is not logged, the session
+    # will hang when replayed.  However, if a menuitem *is* activated,
+    # it's redundant to log both the menuitem's activation and the
+    # menu's deactivation (and leads to a Gdk-CRITICAL error), because
+    # activating the menuitem automatically deactivates the menu.
+    # Unfortunately, the menu's deactivation signal is emitted before
+    # the menuitem's activation signal, so the redundancy can be fixed
+    # only by postprocessing the log file.
+    connect_passive(menu, 'deactivate')
+    return menu
+
 # logScrollBars should be called on any ScrolledWindow whose scroll
 # bars need to be logged.  It just encapsulates the adoptGObject calls
 # that would otherwise be necessary.  It returns a pair of GUISignals

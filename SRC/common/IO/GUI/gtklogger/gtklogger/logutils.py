@@ -1,5 +1,13 @@
 # -*- python -*-
 
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
 # Some of this stuff might want to live elsewhere, eventually... It's
 # stuff that has been moved out of gtklogger.py to keep the public API
 # file clean.
@@ -58,6 +66,30 @@ def _parentWidgetPath(widget):
     if parent is None:
         return []
     return _parentWidgetPath(parent) + [getWidgetName(parent)]
+
+##############################
+
+# Find a list of menu item names leading to the given
+# Gtk.MenuItem.  This relies on setting Gtk.Menu.oofparent in
+# gtklogger.set_submenu.  The return value is a tuple containing
+# the parent widget of the top of the menu hierarchy and the list
+# of menuitem names.
+
+def getMenuPath(gtkmenuitem):
+    path = [getWidgetName(gtkmenuitem)]
+    parent = gtkmenuitem.get_parent()
+    if isinstance(parent, Gtk.Menu):
+        try:
+            pp = parent.oofparent
+        except AttributeError:
+            # Parent is a Menu, but doesn't have oofparent set.
+            # It must be a pop-up menu.
+            pass
+        else:
+            pparent, ppath = getMenuPath(pp)
+            return pparent, ppath+path
+    return parent, path
+
 
 ##############################
 

@@ -507,7 +507,6 @@ def event(etype, **kwargs):
                 print >> sys.stderr, "Event", etype, "has no attribute", arg
         setattr(ev, arg, val)
     Gtk.main_do_event(ev)
-    # return ev
         
 ####################
 

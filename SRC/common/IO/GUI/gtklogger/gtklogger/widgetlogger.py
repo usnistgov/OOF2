@@ -102,6 +102,9 @@ class WidgetLogger(loggers.GtkLogger):
                 "event(Gdk.EventType.%(etype)s, window=%(widget)s.get_window())" % dict(etype=etype, widget=self.location(obj, *args))
             ]
 
+        if signal == 'destroy':
+            return ['%s.destroy()' % self.location(obj, *args)]
+
         ## TODO GTK3: We should catch and log allocation events on top
         ## level windows only.  Currently we don't catch any
         ## size-allocate signals except within the OOFCanvas, and it

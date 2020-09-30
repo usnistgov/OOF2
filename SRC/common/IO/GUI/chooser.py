@@ -21,6 +21,12 @@ import types
 # of names.  The currently selected name is shown when the menu isn't
 # being pulled down.
 
+# The names must be plain text.  No markup is allowed.  This is
+# because the ChooserWidget uses markup to indicate the current
+# selection, so it has to replace any angle braces in the selection's
+# name with &lt; and &gt;.  If the name contained markup the
+# replacement would destroy it.
+
 # Calls the callback, if specified, with the gtk-selecting object
 # and the name.  Backward compatible with other callbacks that way.
 # Also has an "update_callback" which gets called, with the new
@@ -146,6 +152,7 @@ class ChooserWidget(object):
                     self.stack.remove(widget)
                 self.empty = True
                 self.stack.add_named(self.emptyMarker, self.emptyMarkerName)
+        self.buildPopUpMenu()
         return True
 
     def grab_focus(self):
@@ -160,23 +167,9 @@ class ChooserWidget(object):
     def destroy(self):
         debug.mainthreadTest()
         self.gtk.destroy()
-        
-    def buttonpressCB(self, gtkobj, event):
-        debug.mainthreadTest()
-        self.popupMenu = Gtk.Menu()
-        gtklogger.newTopLevelWidget(self.popupMenu, 'chooserPopup-'+self.name)
-        # When recording a gui log file, it's necessary to log the
-        # 'deactivate' signal when a menu is closed without activating
-        # any of its menuitems.  If 'deactivate' is not logged, the
-        # session will hang when replayed.  However, if a menuitem
-        # *is* activated, it's redundant to log both the menuitem's
-        # activation and the menu's deactivation (and leads to a
-        # Gdk-CRITICAL error), because activating the menuitem
-        # automatically deactivates the menu.  Unfortunately, the
-        # menu's deactivation signal is emitted before the menuitem's
-        # activation signal, so the redundancy can be fixed only by
-        # postprocessing the log file.
-        gtklogger.connect_passive(self.popupMenu, 'deactivate')
+
+    def buildPopUpMenu(self):
+        self.popupMenu = gtklogger.newPopupMenu('chooserPopup-'+self.name)
         self.popupMenu.set_size_request(self.gtk.get_allocated_width(), -1)
         for name in self.namelist:
             if self.separator_func and self.separator_func(name):
@@ -193,7 +186,10 @@ class ChooserWidget(object):
                 if name == self.current_string:
                     menuitem = Gtk.MenuItem.new_with_label("")
                     label = menuitem.get_child()
-                    label.set_markup("<i>" + name + "</i>")
+                    ## TODO: If we want to allow markup in names, then
+                    ## we need to do something smarter here.
+                    nm = name.replace("<", "&lt;").replace(">", "&gt;")
+                    label.set_markup("<i>" + nm + "</i>")
                     menuitem.set_sensitive(False)
                 else:
                     menuitem = Gtk.MenuItem(name)
@@ -205,6 +201,9 @@ class ChooserWidget(object):
                     menuitem.set_tooltip_text(helpstr)
             self.popupMenu.append(menuitem)
         self.popupMenu.show_all()
+        
+    def buttonpressCB(self, gtkobj, event):
+        debug.mainthreadTest()
         self.popupMenu.popup_at_widget(self.stack, Gdk.Gravity.SOUTH_WEST,
                                        Gdk.Gravity.NORTH_WEST, event)
         return False
@@ -220,14 +219,6 @@ class ChooserWidget(object):
     def activateCB(self, menuitem, name):
         debug.mainthreadTest()
         self.stack.set_visible_child_name(name)
-        # TODO GTK3: It shouldn't be necessary to call
-        # popupMenu.destroy() here, but during playback of a gtklogger
-        # script the menu doesn't disappear unless it's explicitly
-        # destroyed. The popup menu in the gfx window layer list does
-        # *not* have this problem.  (popupMenu is stored in self only
-        # so that it can be destroyed here.)
-        self.popupMenu.destroy()
-        self.popupMenu = None
         self.current_string = name
         # After the menu is used, focus returns to it so that it's not
         # randomly reassigned elsewhere.

@@ -964,14 +964,14 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-    # Right click on layer list
+    # Mouse click on layer list.  Right click pops up a copy of the
+    # Layer menu.
     
     def layerlistbuttonCB(self, gtkobj, event):
         if event.button == 3:
-            popupMenu = Gtk.Menu()
-            gtklogger.newTopLevelWidget(popupMenu, 'PopUp-'+self.name)
+            popupMenu = gtklogger.newPopupMenu()
             for item in self.menu.Layer:
-                item.construct_gui(self.menu.Layer, popupMenu, None)
+                item.construct_gui(self.menu.Layer, popupMenu, None, popup=True)
             popupMenu.show_all()
             popupMenu.popup_at_pointer(event)
 
@@ -980,8 +980,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # right-click to select the treeview line, so that the popup
         # menu can act on it.  Most of the menu items act on the
         # current selection.
-        return False         
-        
+        return False
+
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#    
 
     # Time Controls. 
