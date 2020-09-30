@@ -39,7 +39,7 @@ class MenuItemLogger(widgetlogger.WidgetLogger):
             if isinstance(parent, Gtk.Menu):
                 # obj is a pop-up menu.  TODO GTK3: get rid of repeated calls
                 return ["%s.activate()" % self.location(obj, args),
-                        "%s.destroy()" % loggers.findLogger(parent).location(parent)]
+                        "%s.deactivate()" % loggers.findLogger(parent).location(parent)]
             return ["%s.activate()" % self.location(obj, args)]
         return super(MenuItemLogger, self).record(obj, signal, *args)
 

@@ -15,6 +15,7 @@ from gi.repository import Gtk
 import os
 import string
 import subprocess
+import sys
 import types
 import weakref
 
@@ -271,8 +272,8 @@ class Dialog(Gtk.Dialog):
 
 popupCount = 0
 
-def newPopupMenu(name=None):
-    menu = Gtk.Menu()
+def newPopupMenu(name=None, **kwargs):
+    menu = Gtk.Menu(**kwargs)
     global popupCount
     if name:
         pname = name
