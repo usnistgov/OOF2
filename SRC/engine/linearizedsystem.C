@@ -271,7 +271,14 @@ void LinearizedSystem::insertK(int row, int col, double x) {
   else
     KTri_.emplace_back(i, j, x);
 #else
-  KTri_.emplace_back(i, j, x); 
+try {
+   KTri_.emplace_back(i,j,x);
+catch (...) {
+   std::cerr << "OOPs: size=" << KTri_.size() << std::endl;
+   throw;
+}
+
+#  KTri_.emplace_back(i, j, x); 
 #endif
 }
 
