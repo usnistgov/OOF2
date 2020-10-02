@@ -266,7 +266,8 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
         if parameterwidgets.getParameters(menuitem.get_arg("name"),
                                           menuitem.get_arg("cross_section"),
                                           title="New cross section",
-                                          scope=self.scope):
+                                          scope=self.scope,
+                                          parentwindow=self.gtk.get_toplevel()):
             menuitem.callWithDefaults(mesh=self.meshwidget.get_value())
 
     def deleteCB(self, *args):          # gtk callback
@@ -279,8 +280,10 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
         oldname = self.chooser.get_value()
         namearg = menuitem.get_arg('name')
         namearg.value = oldname
-        if parameterwidgets.getParameters(namearg,
-                                 title='Rename cross section "%s"' % oldname):
+        if parameterwidgets.getParameters(
+                namearg,
+                title='Rename cross section "%s"' % oldname,
+                parentwindow=self.gtk.get_toplevel()):
             menuitem.callWithDefaults(mesh=self.meshwidget.get_value(),
                                       cross_section=oldname)
     def renamedCS(self, oldname, newname): # sb ("cross section renamed", mesh)
@@ -291,15 +294,19 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
         csname = self.chooser.get_value()
         csparam = menuitem.get_arg('cross_section')
         csparam.value = self.meshobj.getCrossSection(csname)
-        if parameterwidgets.getParameters(menuitem.get_arg('cross_section'),
-                                          title="Edit cross section " + csname):
+        if parameterwidgets.getParameters(
+                menuitem.get_arg('cross_section'),
+                title="Edit cross section " + csname,
+                parentwindow=self.gtk.get_toplevel()):
             menuitem.callWithDefaults(mesh=self.meshobj.path(), name=csname)
     def copyCB(self, *args):
         menuitem = meshmenu.csmenu.Copy
         csname = self.chooser.get_value()
-        if parameterwidgets.getParameters(menuitem.get_arg('mesh'),
-                                          menuitem.get_arg('name'),
-                                          title="Copy cross section " + csname):
+        if parameterwidgets.getParameters(
+                menuitem.get_arg('mesh'),
+                menuitem.get_arg('name'),
+                title="Copy cross section " + csname,
+                parentwindow=self.gtk.get_toplevel()):
             menuitem.callWithDefaults(current=self.meshobj.path(),
                                       cross_section=csname)
             
