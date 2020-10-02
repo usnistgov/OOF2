@@ -61,7 +61,7 @@ class ChooserWidget(object):
     def __init__(self, namelist, callback=None, callbackargs=(),
                  update_callback=None, update_callback_args=(),
                  helpdict={}, name=None, separator_func=None,
-                 homogeneous=False, **kwargs):
+                 allowNone=None, homogeneous=False, **kwargs):
         debug.mainthreadTest()
         self.name = name
         # separator_func takes a string arg and returns true if that
@@ -76,6 +76,9 @@ class ChooserWidget(object):
         # Initialize namelist to None instead of [] so that the first
         # call to update will install self.emptyMarker if appropriate.
         self.namelist = None
+        # If allowNone is True, then set_state(None) is allowed.  It
+        # will display emptyMarker in the event box.
+        self.allowNone = allowNone
 
         self.gtk = Gtk.EventBox()
         # The docs say that event boxes should generally be invisible
@@ -103,7 +106,6 @@ class ChooserWidget(object):
         self.empty = False
         self.emptyMarker = self.makeSubWidget("---")
         self.emptyMarker.set_sensitive(False)
-        self.emptyMarkerName = "despair"
         self.update(namelist, helpdict)
         
         gtklogger.connect(self.gtk, "button-press-event", self.buttonpressCB)
@@ -130,29 +132,25 @@ class ChooserWidget(object):
             return False
         self.namelist = namelist[:]
         self.helpdict = helpdict
-        if self.namelist:
-            self.gtk.set_sensitive(True)
-            if self.empty:
-                self.stack.remove(self.emptyMarker)
-                self.empty = False
-            for name in self.namelist:
-                if not self.stack.get_child_by_name(name):
-                    hbox = self.makeSubWidget(name)
-                    self.stack.add_named(hbox, name)
-            if self.current_string in self.namelist:
-                self.set_state(self.current_string)
+
+        for child in self.stack.get_children():
+            self.stack.remove(child)
+        self.stack.add(self.emptyMarker)
+        for name in self.namelist:
+            hbox = self.makeSubWidget(name)
+            self.stack.add_named(hbox, name)
+        if self.current_string not in self.namelist:
+            if self.allowNone:
+                newstr = None
             else:
-                self.set_state(self.namelist[0])
+                if namelist:
+                    newstr = self.namelist[0]
+                else:
+                    newstr = None
         else:
-            # namelist is empty
-            self.set_state(None)
-            self.gtk.set_sensitive(False)
-            if not self.empty:
-                for widget in self.stack:
-                    self.stack.remove(widget)
-                self.empty = True
-                self.stack.add_named(self.emptyMarker, self.emptyMarkerName)
-        self.buildPopUpMenu()
+            newstr = self.current_string
+
+        self.set_state(newstr)
         return True
 
     def grab_focus(self):
@@ -204,6 +202,9 @@ class ChooserWidget(object):
         
     def buttonpressCB(self, gtkobj, event):
         debug.mainthreadTest()
+        # Rebuild menu each time it's used, so that the current item
+        # is desensitized.
+        self.buildPopUpMenu()
         self.popupMenu.popup_at_widget(self.stack, Gdk.Gravity.SOUTH_WEST,
                                        Gdk.Gravity.NORTH_WEST, event)
         return False
@@ -234,28 +235,24 @@ class ChooserWidget(object):
         # failed silently if arg was not None, a string, or an int, or
         # if it was a string that wasn't in the list.  It's now an
         # error.
-        if not self.namelist and arg is None:
-            # If the set of values is empty, None is the only legal arg.
-            self.current_string = None
-            return
-        if arg is None:
-            newstr = self.namelist[0]
-        elif type(arg) == types.IntType:
-            try:
-                newstr = self.namelist[arg]
-            except IndexError:
-                raise ooferror.ErrPyProgrammingError(
-                    "ChooserWidget index is out of range: %d" % arg)
-        elif type(arg) == types.StringType:
-            if arg not in self.namelist:
+        if (self.allowNone and arg is None) or self.nChoices() == 0:
+            self.stack.set_visible_child(self.emptyMarker)
+            newstr = None
+        else:
+            if type(arg) == types.IntType:
+                try:
+                    newstr = self.namelist[arg]
+                except IndexError:
+                    raise ooferror.ErrPyProgrammingError(
+                        "ChooserWidget index is out of range: %d" % arg)
+            elif type(arg) == types.StringType and arg in self.namelist:
+                newstr = arg
+            else:
                 raise ooferror.ErrPyProgrammingError(
                     "Invalid ChooserWidget argument: %s" % arg)
-            newstr = arg
-        else:
-            raise ooferror.ErrPyProgrammingError(
-                "Invalid ChooserWidget argument: %s %s" % (arg, arg.__class__))
-        if newstr != self.current_string:
             self.stack.set_visible_child_name(newstr)
+
+        if newstr != self.current_string:
             self.current_string = newstr
             if self.update_callback:
                 self.update_callback(*(self.current_string,) +

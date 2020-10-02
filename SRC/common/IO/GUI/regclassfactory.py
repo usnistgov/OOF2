@@ -234,7 +234,7 @@ class RegisteredClassFactory(RCFBase):
             # Are we switching to a new subclass or just changing the
             # parameters in this one?
             newsubclass = self.currentOption is not registration
-            
+
             if self.paramWidget is not None and newsubclass:
                 self.paramWidget.destroy()
                 
@@ -249,6 +249,16 @@ class RegisteredClassFactory(RCFBase):
                 self.paramWidget = self.makeWidget(registration)
                 self.box.pack_start(self.paramWidget.gtk,
                                     expand=True, fill=True, padding=0)
+            else:
+                # This will call makeWidgets for the components of the
+                # ParameterTable, and any subwidget that has keyboard
+                # focus will lose it. Do ParameterTables need to have
+                # a way of setting widgets without rebuilding them?
+                # No. Something had to have happened outside this
+                # widget if its value is being changed by this method,
+                # so this widget *can't* currently have focus, so it
+                # can't lose it.
+                self.paramWidget.set_values()
 
             if self.readonly:
                 self.makeUneditable()
