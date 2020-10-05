@@ -186,7 +186,8 @@ class ChooserWidget(object):
                     label = menuitem.get_child()
                     ## TODO: If we want to allow markup in names, then
                     ## we need to do something smarter here.
-                    nm = name.replace("<", "&lt;").replace(">", "&gt;")
+                    nm = name.replace("<", "&lt;").replace(">", "&gt;").replace(
+                        "&", "&amp;")
                     label.set_markup("<i>" + nm + "</i>")
                     menuitem.set_sensitive(False)
                 else:
