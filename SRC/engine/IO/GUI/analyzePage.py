@@ -61,47 +61,39 @@ class BaseAnalysisPage(oofGUI.MainPage):
         namebox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
                           margin=2)
         nameframe.add(namebox)
+
+        namedOpsBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                              margin=2)
+        namebox.pack_start(namedOpsBox, expand=True, fill=True, padding=0)
+        self.createNamedOpButton = Gtk.Button('New...')
+        gtklogger.connect(self.createNamedOpButton, 'clicked', self.createCB)
+        self.createNamedOpButton.set_tooltip_text(
+            "Name and store the current analysis settings.")
+        namedOpsBox.pack_start(self.createNamedOpButton,
+                               expand=True, fill=True, padding=0)
+        
+        self.saveNamedOpButton = Gtk.Button('Save...')
+        gtklogger.connect(self.saveNamedOpButton, 'clicked', self.savenamedCB)
+        self.saveNamedOpButton.set_tooltip_text(
+            "Save the definitions of the named analyses in a file.")
+        namedOpsBox.pack_start(self.saveNamedOpButton,
+                               expand=True, fill=True, padding=0)
+
+        self.deleteNamedOpButton = Gtk.Button('Delete...')
+        gtklogger.connect(self.deleteNamedOpButton, 'clicked', self.deleteCB)
+        self.deleteNamedOpButton.set_tooltip_text("Delete a named analysis.")
+        namedOpsBox.pack_start(self.deleteNamedOpButton,
+                               expand=True, fill=True, padding=0)
          
-        # The namedOps_button isn't used as a button, really.  It's
-        # just a place to click to bring up the menu of named analysis
-        # operations.  There isn't room in the frame to make separate
-        # buttons for all the operations and still display the name of
-        # the current analysis, if any.
-        self.namedOps_button = Gtk.Button("Create/Delete/etc...")
-        gtklogger.setWidgetName(self.namedOps_button, "Operations")
-        namebox.pack_start(self.namedOps_button,
-                           expand=True, fill=True, padding=0)
-        gtklogger.connect(self.namedOps_button, 'button-press-event', 
-                          self.namedOpsCB)
-        # Construct the menu of operations.
-        self.namedOpsPopUp = Gtk.Menu()
-        gtklogger.newTopLevelWidget(self.namedOpsPopUp, self.menuWidgetName)
-        #self.namedOpsPopUp.set_screen(self.namedOps_button.get_screen())
-        gtklogger.connect_passive(self.namedOpsPopUp, 'deactivate')
-        self.namedOpsMenuItems = {}
-        for position, (name, callback, tip) in enumerate([
-                ('Create', self.createCB, "Create a new named analysis."),
-                ('Save', self.savenamedCB, "Save named analysis definitions."),
-                ('Delete', self.deleteCB, "Delete a named analysis.")]):
-            menuitem = Gtk.MenuItem(name + "...")
-            self.namedOpsMenuItems[name] = menuitem
-            gtklogger.setWidgetName(menuitem, name)
-            menuitem.set_tooltip_text(tip)
-            self.namedOpsPopUp.insert(menuitem, position)
-            gtklogger.connect(menuitem, 'activate', callback)
-        self.namedOpsPopUp.show_all()
-        # Display the name of the current analysis, if it has one.
+        # Display the name of the current analysis, if there is one.
         hbox4 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         namebox.pack_start(hbox4, expand=False, fill=False, padding=0)
         hbox4.pack_start(Gtk.Label("Current:"),
                          expand=False, fill=False, padding=0)
         self.namedAnalysisChooser = chooser.ChooserWidget(
-            [], callback=self.retrieveCB, name="Retrieve")
+            [], callback=self.retrieveCB, name="Retrieve", allowNone=True)
         hbox4.pack_start(self.namedAnalysisChooser.gtk,
                          expand=True, fill=True, padding=0)
-
-        # reduce no. of calls to setNamedAnalysisChooser
-        self.suppressRetrievalLoop = False
 
         # Destination
         destinationframe = Gtk.Frame(label="Destination",
@@ -125,16 +117,10 @@ class BaseAnalysisPage(oofGUI.MainPage):
         self.go_button.set_tooltip_text("Send the output to the destination.")
         hbox.pack_start(self.go_button, fill=True, expand=False, padding=0)
 
-
-    def namedOpsCB(self, gtkbutton, event):
-        self.namedOpsPopUp.popup_at_widget(
-            self.namedOps_button,
-            Gdk.Gravity.SOUTH_WEST, Gdk.Gravity.NORTH_WEST, event)
-    
     def sensitizeBottomRow(self, createOK, namedOK):
-        self.namedOpsMenuItems['Create'].set_sensitive(createOK)
-        self.namedOpsMenuItems['Delete'].set_sensitive(namedOK)
-        self.namedOpsMenuItems['Save'].set_sensitive(namedOK)
+        self.createNamedOpButton.set_sensitive(createOK)
+        self.deleteNamedOpButton.set_sensitive(namedOK)
+        self.saveNamedOpButton.set_sensitive(namedOK)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -362,16 +348,20 @@ class AnalyzePage(BaseAnalysisPage):
         switchboard.requestCallbackMain("mesh status changed",
                                         self.sensitize_widgets)
 
-        switchboard.requestCallbackMain(self.domain_obj,
-                                        self.setNamedAnalysisChooser)
-        switchboard.requestCallbackMain(self.op_obj,
-                                        self.setNamedAnalysisChooser)
-        switchboard.requestCallbackMain(self.scalar_output_obj,
-                                        self.setNamedAnalysisChooser)
-        switchboard.requestCallbackMain(self.aggregate_output_obj,
-                                        self.setNamedAnalysisChooser)
-        switchboard.requestCallbackMain(self.sample_obj,
-                                        self.setNamedAnalysisChooser)
+        # These signals need to be suppressed when retrieving a named
+        # analysis to avoid a signalling loop.
+        self.namedAnalysisSignals = [
+            switchboard.requestCallbackMain(self.domain_obj,
+                                            self.setNamedAnalysisChooser),
+            switchboard.requestCallbackMain(self.op_obj,
+                                            self.setNamedAnalysisChooser),
+            switchboard.requestCallbackMain(self.scalar_output_obj,
+                                            self.setNamedAnalysisChooser),
+            switchboard.requestCallbackMain(self.aggregate_output_obj,
+                                            self.setNamedAnalysisChooser),
+            switchboard.requestCallbackMain(self.sample_obj,
+                                            self.setNamedAnalysisChooser)
+            ]
 
     menuWidgetName = 'NamedOpsMenu'
     def show(self):
@@ -387,32 +377,6 @@ class AnalyzePage(BaseAnalysisPage):
         
     def installed(self):
         self.sensitize_widgets()
-#         # Compute an initial width for the Paneds that is big enough
-#         # for the separators to be synchronized without shrinking the
-#         # subpanes.
-#         outputwidth = self.outputframe.size_request()[0]
-#         opertnwidth = self.operationframe.size_request()[0]
-#         domainwidth = self.domainframe.size_request()[0]
-#         samplewidth = self.sampleframe.size_request()[0]
-#         # Size of separator between the panes. Setting it cleverly
-#         # doesn't seem to do anything different than setting it to a
-#         # guess.
-#         gutterwidth = min(
-#             self.topPane.size_request()[0] - outputwidth - domainwidth,
-#             self.btmPane.size_request()[0] - opertnwidth - samplewidth)
-#         debug.fmsg("topPane", self.topPane.size_request(),
-#                    "output", outputwidth, "domain", domainwidth)
-#         debug.fmsg("btmPane", self.btmPane.size_request(), 
-#                    "operation", opertnwidth, "sample", samplewidth)
-#         debug.fmsg("gutterwidth=", gutterwidth)
-# #         gutterwidth = 5
-#         totalwidth = (max(outputwidth, opertnwidth) +
-#                       max(domainwidth, samplewidth) +
-#                       gutterwidth)
-#         debug.fmsg("totalwidth", totalwidth)
-#         self.topPane.set_size_request(totalwidth, -1)
-#         self.btmPane.set_size_request(totalwidth, -1)
-#         self.topPane.set_position(self.btmPane.get_position())
 
     # Synchronize the top and bottom panes
     synccount = 0               # suppresses recursion 
@@ -422,20 +386,14 @@ class AnalyzePage(BaseAnalysisPage):
             pos = pane.get_position()
             # Try to move the other pane to the position of the one
             # that just moved and triggered this callback.
-            self._setPanePos(otherpane, pos)
-            # The other pane may not have been able to move far
-            # enough.  If it didn't make it, move this pane back to
-            # keep them synchronized.  If this causes objectionable
-            # flicker, just comment out the following line.
-#             self._setPanePos(pane, otherpane.get_position())
+            self.paneSignals[otherpane].block()
+            try:
+                otherpane.set_position(pos)
+            finally:
+                self.paneSignals[otherpane].unblock()
         elif self.synccount > 1:
             self.synccount = 0
-    def _setPanePos(self, pane, pos):
-        self.paneSignals[pane].block()
-        try:
-            pane.set_position(pos)
-        finally:
-            self.paneSignals[pane].unblock()
+
     def currentMeshContext(self):
         meshname = self.meshwidget.get_value()
         try:
@@ -523,8 +481,6 @@ class AnalyzePage(BaseAnalysisPage):
     # Manipulation of named analyses.
 
     def setNamedAnalysisChooser(self, *args):
-        if self.suppressRetrievalLoop:
-            return
         # Display the name for the current analysis if the current
         # settings happen to match a named analysis.  Call this
         # whenever anything on the page changes.
@@ -538,12 +494,11 @@ class AnalyzePage(BaseAnalysisPage):
 
         oldname = self.namedAnalysisChooser.get_value()
         
-        changed = self.namedAnalysisChooser.update(
-            [''] + namedanalysis.bulkAnalysisNames())
+        self.namedAnalysisChooser.update(namedanalysis.bulkAnalysisNames())
 
         # If the get_value calls fail, the widgets aren't in a valid
         # state, and therefore there's no current name.
-        # findNamedBulkAnalysis returns "" if it can't find a match.
+        # findNamedBulkAnalysis returns None if it can't find a match.
         try:
             currentname = namedanalysis.findNamedBulkAnalysis(
                 self.op_obj.get_value(),
@@ -551,9 +506,8 @@ class AnalyzePage(BaseAnalysisPage):
                 self.domain_obj.get_value(),
                 self.sample_obj.get_value())
         except:
-            currentname = ""
-        changed = changed or currentname != oldname
-        if changed:
+            currentname = None
+        if currentname != oldname:
             self.namedAnalysisChooser.set_state(currentname)
             gtklogger.checkpoint("named analysis chooser set")
 
@@ -583,9 +537,15 @@ class AnalyzePage(BaseAnalysisPage):
             menuitem.get_arg('name').value = name
             menuitem.callWithDefaults()
 
+    # "Retrieve" means fetch a value from the store of named analyses
+    # and put it into the widgets so that the user can use it or edit
+    # it.
+
     def retrieve_analysis(self, name): # switchboard "retrieve analysis"
+        assert name is not None
         analysis = namedanalysis.getNamedBulkAnalysis(name)
-        self.suppressRetrievalLoop = True
+        for signal in self.namedAnalysisSignals:
+            signal.block()
         try:
             self.op_obj.set(analysis.operation, interactive=False)
             if analysis.data.isScalarOutput():
@@ -598,7 +558,8 @@ class AnalyzePage(BaseAnalysisPage):
             self.domain_obj.set(analysis.domain, interactive=False)
             self.sample_obj.set(analysis.sampling, interactive=False)
         finally:
-            self.suppressRetrievalLoop = False
+            for signal in self.namedAnalysisSignals:
+                signal.unblock()
         gtklogger.checkpoint("retrieved named analysis")
         # If this call was triggered by the namedAnalysisChooser,
         # setting the chooser's value is redundant but harmless. If

@@ -114,8 +114,9 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
         switchboard.requestCallbackMain(("new who", "Skeleton"), self.newskelCB)
         switchboard.requestCallbackMain(self.meshwidget, self.meshwidgetCB)
         switchboard.requestCallbackMain("mesh changed", self.meshchangedCB)
-        switchboard.requestCallbackMain(self.analysisWidget,
-                                        self.analysisWidgetCB)
+        self.namedAnalysisSignals = [
+            switchboard.requestCallbackMain(self.analysisWidget,
+                                            self.analysisWidgetCB)]
         switchboard.requestCallbackMain("new boundary created", self.newbdyCB)
         switchboard.requestCallbackMain("boundary removed", self.newbdyCB)
         switchboard.requestCallbackMain("boundary renamed", self.newbdyCB)
@@ -234,19 +235,18 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
         self.setNamedAnalysisChooser()
 
     def setNamedAnalysisChooser(self, *args):
-        if self.suppressRetrievalLoop:
-            return
-        self.namedAnalysisChooser.update(['']
-                                         + namedanalysis.bdyAnalysisNames())
+        oldname = self.namedAnalysisChooser.get_value()
+        self.namedAnalysisChooser.update(namedanalysis.bdyAnalysisNames())
         
         try:
             currentname = namedanalysis.findNamedBdyAnalysis(
                 self.bdylist.get_value(),
                 self.analysisWidget.get_value())
-        except Exception, exc:
-            currentname = ""
-        self.namedAnalysisChooser.set_state(currentname)
-        gtklogger.checkpoint("named boundary analysis chooser set")
+        except:
+            currentname = None
+        if currentname != oldname:
+            self.namedAnalysisChooser.set_state(currentname)
+            gtklogger.checkpoint("named boundary analysis chooser set")
 
     def createCB(self, gtkobj): # create a named analysis
         menuitem = meshbdymenu.bdyanalysismenu.Create
@@ -268,7 +268,7 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
                 scope=self):
             menuitem.callWithDefaults()
 
-    def retrieveCB(self, gtkobj, name):
+    def retrieveCB(self, name):
         if name:
             menuitem = meshbdymenu.bdyanalysismenu.RetrieveNamedAnalysis
             menuitem.get_arg('name').value = name
@@ -276,12 +276,14 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
 
     def retrieve_analysis(self, name): # sb "retrieve boundary analysis"
         analysis = namedanalysis.getNamedBdyAnalysis(name)
-        self.suppressRetrievalLoop = True
+        for signal in self.namedAnalysisSignals:
+            signal.block()
         try:
             self.bdylist.set_selection(analysis.boundary)
             self.analysisWidget.set(analysis.analyzer, interactive=False)
         finally:
-            self.suppressRetrievalLoop = False
+            for signal in self.namedAnalysisSignals:
+                signal.unblock()
         gtklogger.checkpoint("retrieved named boundary analysis")
         self.setNamedAnalysisChooser()
         
