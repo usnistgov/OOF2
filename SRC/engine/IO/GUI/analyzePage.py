@@ -66,6 +66,7 @@ class BaseAnalysisPage(oofGUI.MainPage):
                               margin=2)
         namebox.pack_start(namedOpsBox, expand=True, fill=True, padding=0)
         self.createNamedOpButton = Gtk.Button('New...')
+        gtklogger.setWidgetName(self.createNamedOpButton, "New")
         gtklogger.connect(self.createNamedOpButton, 'clicked', self.createCB)
         self.createNamedOpButton.set_tooltip_text(
             "Name and store the current analysis settings.")
@@ -73,6 +74,7 @@ class BaseAnalysisPage(oofGUI.MainPage):
                                expand=True, fill=True, padding=0)
         
         self.saveNamedOpButton = Gtk.Button('Save...')
+        gtklogger.setWidgetName(self.saveNamedOpButton, "Save")
         gtklogger.connect(self.saveNamedOpButton, 'clicked', self.savenamedCB)
         self.saveNamedOpButton.set_tooltip_text(
             "Save the definitions of the named analyses in a file.")
@@ -80,6 +82,7 @@ class BaseAnalysisPage(oofGUI.MainPage):
                                expand=True, fill=True, padding=0)
 
         self.deleteNamedOpButton = Gtk.Button('Delete...')
+        gtklogger.setWidgetName(self.deleteNamedOpButton, "Delete")
         gtklogger.connect(self.deleteNamedOpButton, 'clicked', self.deleteCB)
         self.deleteNamedOpButton.set_tooltip_text("Delete a named analysis.")
         namedOpsBox.pack_start(self.deleteNamedOpButton,
