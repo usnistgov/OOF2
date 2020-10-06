@@ -20,7 +20,7 @@ class MenuItemLogger(widgetlogger.WidgetLogger):
     def location(self, menuitem, *args):
         parent, path = logutils.getMenuPath(menuitem)
         parentcode = loggers.findLogger(parent).location(parent)
-        return "findMenu(%s, '%s')" % (parentcode, path)
+        return "findMenu(%s, %s)" % (parentcode, path)
 
     def record(self, obj, signal, *args):
         if signal == "activate":
