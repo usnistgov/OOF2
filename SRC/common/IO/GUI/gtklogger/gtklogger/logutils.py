@@ -163,12 +163,12 @@ def _recursiveFindWidget(path, base):
 
 def findMenu(widget, path):
     # widget is a Gtk.MenuShell (container for MenuItems)
-    splitpath = path.split(':', 1)
+    # path is a list of strings (menu item names)
     for child in widget.get_children(): # child is a Gtk.MenuItem
-        if getWidgetName(child) == splitpath[0]:
-            if len(splitpath) == 1:
+        if getWidgetName(child) == path[0]:
+            if len(path) == 1:
                 return child
-            return findMenu(child.get_submenu(), splitpath[1])
+            return findMenu(child.get_submenu(), path[1:])
 
 def setComboBox(widget, name):
     # Set the state of a ComboBox to a given string.  This assumes

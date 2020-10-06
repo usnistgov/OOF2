@@ -20,10 +20,7 @@ class MenuItemLogger(widgetlogger.WidgetLogger):
     def location(self, menuitem, *args):
         parent, path = logutils.getMenuPath(menuitem)
         parentcode = loggers.findLogger(parent).location(parent)
-        ## TODO GTK3: Using string.join(path,':') here is dangerous if
-        ## the menu item names contain colons.  Better to just pass a
-        ## list of names.  Fix here and in logutils.findMenu. 
-        return "findMenu(%s, '%s')" % (parentcode, string.join(path, ':'))
+        return "findMenu(%s, '%s')" % (parentcode, path)
 
     def record(self, obj, signal, *args):
         if signal == "activate":
@@ -66,6 +63,4 @@ class MenuLogger(widgetlogger.WidgetLogger):
             return ["%s.deactivate()" % self.location(obj, args)]
         if signal == 'cancel':
             return ["%s.cancel()" % self.location(obj, args)]
-        # if signal == "popped-up":
-        #     print >> sys.stderr, "popped-up: ", self.location(obj, args)
         return super(MenuLogger, self).record(obj, signal, *args)

@@ -80,27 +80,3 @@ def msPageSensitizationCheck1():
          'Pane:PixelGroups:Info' : 0
          },
         base='OOF2:Microstructure Page')
-
-def msPageSensitizationCheck2():
-    # Check sensitization of the MS page after a Microstructure has
-    # been created and groups have been defined.
-    return sensitizationCheck(
-        {'Microstructure' : 1,
-         'New' : 1,
-         'NewFromImage' : 1,
-         'NewFromFile' : 1,
-         'Rename' : 1,
-         'Copy' : 1,
-         'Delete' : 1,
-         'Save' : 1,
-         'Pane:PixelGroups:New' : 1,
-         'Pane:PixelGroups:Rename' : 1,
-         'Pane:PixelGroups:Copy' : 1,
-         'Pane:PixelGroups:Delete' : 1,
-         'Pane:PixelGroups:Meshable' : 1,
-         'Pane:PixelGroups:Add' : 0,
-         'Pane:PixelGroups:Remove' : 0,
-         'Pane:PixelGroups:Clear' : 1,
-         'Pane:PixelGroups:Info' : 1
-         },
-        base='OOF2:Microstructure Page')

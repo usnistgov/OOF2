@@ -147,11 +147,15 @@ def treeViewLength(widgetpath):
     treeview = gtklogger.findWidget(widgetpath)
     return len(treeview.get_model())
 
-def chooserCheck(widgetpath, choices, tolerance=None):
+def chooserCheck(widgetpath, choices):
     stack = gtklogger.findWidget(widgetpath + ':stack')
     # stack is a Gtk.Stack of Gtk.Boxes containing labels and images.
     # box.get_children()[0] is a Gtk.Label.
     names = [box.get_children()[0].get_text() for box in stack.get_children()]
+    try:
+        names.remove('---')
+    except ValueError:
+        pass
     # stack.get_children doesn't return the children in a predictable
     # order, so just compare the sorted lists.
     if sorted(names) != sorted(choices):
