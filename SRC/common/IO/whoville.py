@@ -809,8 +809,11 @@ class NewWhoParameter(parameter.RestrictedStringParameter):
             % self.whoclass.name()
 
 
+# A WhoClassParameter's value is the name of a WhoClass.  The value
+# can't be None.
+
 class WhoClassParameter(parameter.StringParameter):
-    def __init__(self, name, value=None, default=None,
+    def __init__(self, name, value="Microstructure", default=None,
                  condition=noSecretClasses, tip=None):
         self.condition = condition
         parameter.StringParameter.__init__(self, name, value, default, tip)
