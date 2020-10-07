@@ -185,6 +185,15 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             self.allowSelectionSignals()
 
     def layerDoubleClickCB(self, treeview, path, col):
+        # If the user has double-clicked on an unselected layer,
+        # selectionChangedCB will be called before layerDoubleClickCB.
+        # It's necessary for selectionChangedCB to finish before
+        # editLayer_gui is called, or else editLayer_gui may load the
+        # wrong layer into the editing window.  Rather than performing
+        # some complicated subthread locking dance here, the
+        # Layer.Select menu callback has been made UNTHREADABLE so
+        # that it will finish on the main thread before this method
+        # runs.
         self.editLayer_gui(self.menu.Layer.Edit)
 
     # TreeView callback that determines if a row is displayed as a

@@ -380,6 +380,11 @@ class GhostGfxWindow:
             'Select',
             callback=self.selectLayerCB,
             cli_only=1,
+            # Running this command on the mainthread avoids a race
+            # condition arising from double clicks on the layer list.
+            # See the comment in GfxWindowBase.layerDoubleClickCB in
+            # SRC/common/IO/GUI/gfxwindowbase.py.
+            threadable=oofmenu.UNTHREADABLE,
             params=[IntParameter('n', 0, tip="Layer index.")],
             help="Select the given graphics layer.",
             discussion=xmlmenudump.loadFile(
