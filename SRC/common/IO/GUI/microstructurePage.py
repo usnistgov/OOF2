@@ -570,7 +570,6 @@ class MicrostructurePage(oofGUI.MainPage):
         ## The code as it is now will change the selected group if
         ## it's in a different Microstructure but has the same name as
         ## one in the current Microstructure.
-        debug.fmsg(group.name())
         self.grouplock.acquire()
         try:
             self.rebuild_grouplist()

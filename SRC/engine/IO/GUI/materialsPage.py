@@ -225,7 +225,6 @@ class PropertyPane:
     # in response to both materialsPane and propertyPane selection events.
 
     def select_property(self, name):
-        debug.fmsg("name=", name)
         debug.mainthreadTest()
         treenode = AllProperties.data[name]
         self.propertytree.blockSignals()
@@ -254,9 +253,6 @@ class PropertyPane:
             gtklogger.checkpoint("property deselected")
         
     def proptreeCB(self, signal, treenode): # GfxLabelTree callback
-        # Why is the labeltree selection set when the Materials Page
-        # is installed, but only a Microstructure has been created?
-        debug.fmsg("signal=", signal)
         prop_name = treenode.path()
         if signal == "select":
             self.select_property(prop_name)
