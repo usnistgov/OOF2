@@ -102,12 +102,14 @@ class ChooserWidget(object):
         frame.add(self.stack)
         # When a chooser has nothing to display, it looks ugly.
         # emptyMarker is a placeholder to display when there's nothing
-        # else, and self.empty indicates that it's in use.
-        self.empty = False
+        # else to display.
         self.emptyMarker = self.makeSubWidget("---")
         self.emptyMarker.set_sensitive(False)
-        self.update(namelist, helpdict)
+        # Has the user asked for the widget to be sensitive? 
+        self.user_sensitive = True
         
+        self.update(namelist, helpdict)
+
         gtklogger.connect(self.gtk, "button-press-event", self.buttonpressCB)
 
         # Catch key press events so that hitting <Return> when the
@@ -151,6 +153,7 @@ class ChooserWidget(object):
             newstr = self.current_string
 
         self.set_state(newstr)
+        self.sensitize()
         return True
 
     def grab_focus(self):
@@ -258,6 +261,11 @@ class ChooserWidget(object):
             if self.update_callback:
                 self.update_callback(*(self.current_string,) +
                                      self.update_callback_args)
+    def set_sensitive(self, sens):
+        self.user_sensitive = sens
+        self.sensitize()
+    def sensitize(self):
+        self.gtk.set_sensitive(self.user_sensitive and self.nChoices() > 0)
             
     def get_value(self):
         return self.current_string
