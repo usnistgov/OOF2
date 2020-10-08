@@ -116,8 +116,8 @@ def really_run_tests(homedir, dirs, rerecord):
         # Ok, everything's there.  Get ready to run this test.  Make a
         # symlink to the test directory.
         ## TODO: Is the symlink really necessary? We could provide a
-        ## full path to log.py.  The test directory is already putting
-        ## into PYTHONPATH.
+        ## full path to log.py.  The test directory is already in
+        ## PYTHONPATH.
         testdir = os.path.join(tmpdir, directory)
         os.symlink(os.path.join(homedir, directory), testdir)
 
@@ -153,15 +153,8 @@ def really_run_tests(homedir, dirs, rerecord):
         else:
             replayarg = 'replay'
 
-        # cmd = ("oof2 --pathdir . --pathdir %(test)s --pathdir %(home)s"
-        #        " --pathdir UTILS --%(mode)s %(log)s %(extra)s" 
-        #        % {"test" : dir, 
-        #           "home" : homedir,
-        #           "mode" : replayarg, 
-        #           "log" : os.path.join(dir, "log.py"),
-        #           "extra" : extraargs
-        #         })
         cmd = ["oof2",
+               "--no-rc",       # .oof2rc might affect tests.  Don't use it.
                "--pathdir", ".",
                "--pathdir", "%s" % directory,
                "--pathdir", "%s" % homedir,
@@ -172,14 +165,13 @@ def really_run_tests(homedir, dirs, rerecord):
         print >> sys.stderr, "-------------------------"
         print >> sys.stderr, "--- Running %s" % ' '.join(cmd)
         os.putenv('OOFTESTDIR', directory)
-        # result = os.system(cmd)
         result = subprocess.call(cmd)
         print >> sys.stderr, "--- Return value =", result
         if result < 0:
             print >> sys.stderr, "Child was terminated by signal", -result
             sys.exit(result)
 
-        if result != exitstatus*256: # os.system returns status in high byte
+        if result != exitstatus*256: # subprocess returns status in high byte
             print "Test", directory, "failed! Status =", result
             sys.exit(result)
         print >> sys.stderr, "--- Finished %s" % directory

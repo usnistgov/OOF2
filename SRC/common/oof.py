@@ -178,6 +178,7 @@ version_mode = False
 replaydelay = None
 no_checkpoints = False
 no_rc = False
+recording = replaying = False
 
 def process_inline_options():
     # Defaults for option switches.
@@ -191,6 +192,7 @@ def process_inline_options():
     global version_mode
     global no_checkpoints
     global no_rc
+    global recording, replaying
     option_list = ['text', 'help', 'version', 'quiet', 'batch', 'no-rc',
                    'gtk=', 'unthreaded', 'socket=', 'script=', 'seed=',
                    'data=', 'image=', 'import=', 'debug', 'command=',
@@ -206,6 +208,7 @@ def process_inline_options():
         # Malformed arguments have been found.  Exit.
         print message
         state_options_and_quit()
+
     for opt in optlist:
         if opt[0] == '--gtk':
             gtk_options = opt[1]
@@ -250,12 +253,15 @@ def process_inline_options():
         elif opt[0] in ('--record',):
             startupfiles.append(StartUpRecord(opt[1]))
             remove_option(opt[0], opt[1])
+            recording = True
         elif opt[0] in ('--rerecord',):
             startupfiles.append(StartUpRerecord(opt[1]))
             remove_option(opt[0], opt[1])
+            recording = True
         elif opt[0] in ('--replay',):
             startupfiles.append(StartUpReplay(opt[1]))
             remove_option(opt[0], opt[1])
+            replaying = True
         elif opt[0] in ('--replaydelay',):
             replaydelay = opt[1]
             remove_option(opt[0], opt[1])
@@ -599,6 +605,12 @@ def run(no_interp=None):
     if not no_rc:
         oofrcpath = os.path.join(os.path.expanduser("~"), ".oof2rc")
         if os.path.exists(oofrcpath):
+            if recording or replaying:
+                print >> sys.stderr, """
+******* Warning: Loading .oof2rc can interfere with recording or replaying
+******* a gui script.  Consider starting oof2 with the --no-rc option.
+"""
+
             startupfiles = [StartUpScriptNoLog(oofrcpath)]+startupfiles
 
 
