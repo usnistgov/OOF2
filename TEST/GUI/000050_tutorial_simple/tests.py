@@ -169,54 +169,6 @@ def selectedMatlPropertyCheck(propertypath):
           % (model[iter][0], propertypath)
     return False
 
-def layerEditorSensitivityCheck0():
-    # initial state of the Layer Editor, set to Nothing/Nobody
-    return sensitizationCheck(
-        {
-        'ObjectScroll:category' : 1,
-        'ObjectScroll:object:Nothing' : 1,
-        'DisplayMethods:New' : 0,
-        'DisplayMethods:Edit' : 0,
-        'DisplayMethods:Copy' : 0,
-        'DisplayMethods:Delete' : 0,
-        'NewLayer' : 1,
-        'Destination' : 1,
-        'Send' : 0
-        },
-        base='OOF2 Graphics Layer Editor')
-    
-def layerEditorSensitivityCheck1():
-    # layer editor with a Microstructure selected, but no display methods
-    return sensitizationCheck(
-        {
-        'ObjectScroll:category' : 1,
-        'ObjectScroll:object:Microstructure' : 1,
-        'DisplayMethods:New' : 1,
-        'DisplayMethods:Edit' : 0,
-        'DisplayMethods:Copy' : 0,
-        'DisplayMethods:Delete' : 0,
-        'NewLayer' : 1,
-        'Destination' : 1,
-        'Send' : 0
-        },
-        base='OOF2 Graphics Layer Editor')
-    
-def layerEditorSensitivityCheck2():
-    # layer editor with a Microstructure selected and some layers in the list
-    return sensitizationCheck(
-        {
-        'ObjectScroll:category' : 1,
-        'ObjectScroll:object:Microstructure' : 1,
-        'DisplayMethods:New' : 1,
-        'DisplayMethods:Edit' : 1,
-        'DisplayMethods:Copy' : 1,
-        'DisplayMethods:Delete' : 1,
-        'NewLayer' : 1,
-        'Destination' : 1,
-        'Send' : 1
-        },
-        base='OOF2 Graphics Layer Editor')
-    
 def skeletonPageSensitivityCheck0():
     # skeleton page with a Microstructure defined but no Skeleton
     return sensitizationCheck(
@@ -233,7 +185,7 @@ def skeletonPageSensitivityCheck0():
         base='OOF2:Skeleton Page') and \
         sensitizationCheck(
         {
-        'Method:Chooser' : 1,
+        'Method:RCFChooser' : 1,
         'OK' : 0,
         'Prev' : 0,
         'Next' : 0,
@@ -258,7 +210,7 @@ def skeletonPageSensitivityCheck1():
         base='OOF2:Skeleton Page') and \
         sensitizationCheck(
         {
-        'Method:Chooser' : 1,
+        'Method:RCFChooser' : 1,
         'OK' : 1,
         'Prev' : 0,
         'Next' : 0,
@@ -283,7 +235,7 @@ def skeletonPageSensitivityCheck2():
         base='OOF2:Skeleton Page') and \
         sensitizationCheck(
         {
-        'Method:Chooser' : 1,
+        'Method:RCFChooser' : 1,
         'OK' : 1,
         'Prev' : 0,
         'Next' : 0,
@@ -304,7 +256,7 @@ def meshPageSensitivityCheck0():
         'Copy' : 0,
         'Delete' : 0,
         'Save' : 0,
-        'Pane:ElementOps:Method:Chooser' : 1,
+        'Pane:ElementOps:Method:RCFChooser' : 1,
         'Pane:ElementOps:Prev' : 0,
         'Pane:ElementOps:OK' : 0,
         'Pane:ElementOps:Next' : 0
@@ -323,7 +275,7 @@ def meshPageSensitivityCheck1():
         'Copy' : 1,
         'Delete' : 1,
         'Save' : 1,
-        'Pane:ElementOps:Method:Chooser' : 1,
+        'Pane:ElementOps:Method:RCFChooser' : 1,
         'Pane:ElementOps:Prev' : 0,
         'Pane:ElementOps:OK' : 1,
         'Pane:ElementOps:Next' : 0
