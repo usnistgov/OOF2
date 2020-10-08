@@ -16,12 +16,13 @@ TutorialClass = tutorial.TutorialClass
 ## microstructures if running this tutorial after running another one,
 ## so that new images will appear automatically.
 
-TutorialClass(subject="A Simple Example",
-              ordering=0.1,
-              lessons = [
-    TutoringItem(
-    subject="Introduction",
-    comments=
+TutorialClass(
+    subject="A Simple Example",
+    ordering=0.1,
+    lessons = [
+        TutoringItem(
+            subject="Introduction",
+            comments=
 
     """This tutorial is designed to familiarize users with OOF2 by
     guiding them through a simple but complete project.
@@ -42,8 +43,8 @@ TutorialClass(subject="A Simple Example",
         ),
 
     TutoringItem(
-    subject="Graphics Window",
-    comments=
+        subject="Graphics Window",
+        comments=
 
     """Open a graphics window, if none has been opened yet, with the
     BOLD(Graphics/New) command in the BOLD(Windows) menu in any OOF2
@@ -54,16 +55,19 @@ TutorialClass(subject="A Simple Example",
     ),
 
     TutoringItem(
-    subject="Get the Image",
-    comments="""Locate the file BOLD(cyallow.png) within the
+        subject="Get the Image",
+        comments="""Locate the file BOLD(cyallow.png) within the
     share/oof2/examples directory in your OOF2 installation.
 
     """),
 
     TutoringItem(
-    subject="Loading a Microstructure and an Image",
-    comments=
+        subject="Loading a Microstructure and an Image",
+        comments=
 
+        ## TODO GTK3: figure out how to use real markup in tutorial
+        ## entries.  The angle braces in BOLD(<automatic>) aren't
+        ## appearing.
     """Open the BOLD(Microstructure) page from the BOLD(Task) menu in
     the main OOF2 window.
 
@@ -72,7 +76,7 @@ TutorialClass(subject="A Simple Example",
 
     In the file selector, navigate to BOLD(cyallow.png).  For now,
     leave the BOLD(microstructure_name), BOLD(width) and BOLD(height)
-    values set to BOLD(automatic).  Click BOLD(OK).
+    values set to BOLD(<automatic>).  Click BOLD(OK).
 
     You should see an image -- cyan on top of yellow -- displayed on
     the graphics window.  Also, the BOLD(Microstructure) pull down
@@ -81,13 +85,13 @@ TutorialClass(subject="A Simple Example",
     for the Microstructure that was created by the BOLD(New from Image
     File) command.
     """,
-    
+        
     signal=("new who", "Microstructure")
     ),
 
     TutoringItem(
-    subject="Categorizing Pixels",
-    comments=
+        subject="Categorizing Pixels",
+        comments=
 
     """At this point, a microstructure has been created but it
     contains no useful information other than its size.
@@ -107,44 +111,46 @@ TutorialClass(subject="A Simple Example",
 
     Go back to the BOLD(Microstructure) page, and notice that two
     pixel groups have been created.""",
-    signal="new pixel group"
+        signal="new pixel group"
     ),
 
     TutoringItem(
-    subject="Renaming Pixel Groups",
-    comments=
+        subject="Renaming Pixel Groups",
+        comments=
 
     """The automatically generated names of the pixel groups are not
     terribly convenient. The groups can be renamed.
 
     Select the first pixel group, BOLD(#00ffff (2160 pixels meshable))
 
-    Once it's been highlighted, click BOLD(Rename).
+    Once it's been highlighted, click BOLD(Rename), in the buttons to
+    the left of the group list. (The buttons above the group list act
+    on the Microstructure, not the groups).
 
     Delete the old name and type in BOLD(cyan), which is the actual
     color of the group. 
 
     Click BOLD(OK) to finalize the change.
     """,
-    signal="renamed pixel group"
+        signal="renamed pixel group"
     ),
 
     TutoringItem(
-    subject="Renaming Pixel Groups -- continued",
-    comments=
+        subject="Renaming Pixel Groups -- continued",
+        comments=
 
     """Select the second pixel group and BOLD(Rename) it to
     BOLD(yellow).
 
     Now you're ready to create materials for each pixel group.
     """,
-    signal="renamed pixel group"
+        signal="renamed pixel group"
     ),        
 
     TutoringItem(
-    subject="Adding Materials",
-    comments=
-    """Open the BOLD(Materials) page in the main OOF2 window.
+        subject="Adding Materials",
+        comments=
+        """Open the BOLD(Materials) page in the main OOF2 window.
 
     The page contains two panes.  The left hand BOLD(Property) pane
     allows you to define material properties.  The right hand
@@ -174,20 +180,20 @@ TutorialClass(subject="A Simple Example",
     
     Click BOLD(OK).
     """,
-    signal="new_material"
+        signal="new_material"
     ),
 
     TutoringItem(
-    subject="Adding Materials -- continued",
-    comments=
-    """Create a second BOLD(New) material with the name
+        subject="Adding Materials -- continued",
+        comments=
+        """Create a second BOLD(New) material with the name
     BOLD(cyan-material).""",
-    signal="new_material"
+        signal="new_material"
     ),
 
     TutoringItem(
-    subject="Creating a Property",
-    comments=
+        subject="Creating a Property",
+        comments=
 
     """We now need to make materials meaningful by adding properties
     to them.
@@ -210,13 +216,13 @@ TutorialClass(subject="A Simple Example",
     Property names must begin with a letter and can only contain
     letters, numerals, and underscores (they must be legal Python
     variable names). """,
-    signal = "new property"
+        signal = "new property"
     ),
-    
+        
     TutoringItem(
-    subject="Parametrizing a Property",
-    comments=
-    
+        subject="Parametrizing a Property",
+        comments=
+        
     """Select BOLD(yellow_elasticity) from the Property hierarchy and
     either double click it or click the BOLD(Parametrize...) button to
     input actual values.
@@ -230,12 +236,12 @@ TutorialClass(subject="A Simple Example",
 
     Click BOLD(OK) to finish up.
     """,
-    signal = "redraw"
+        signal = "redraw"
     ),
 
     TutoringItem(
-    subject="Adding a Property to a Material",
-    comments=
+        subject="Adding a Property to a Material",
+        comments=
 
     """ Below the BOLD(New) button in the BOLD(Material) pane is a
     pull-down menu that lists all of the Materials that have been
@@ -251,28 +257,28 @@ TutorialClass(subject="A Simple Example",
     The addition should immediately appear in the BOLD(Material) pane,
     in the list of Properties below the Material selector.
     """,
-    signal= "prop_added_to_material"
+        signal= "prop_added_to_material"
     ),
 
     TutoringItem(
-    subject="Creating Another Property",
-    comments=
-    """Make another BOLD(Copy) of BOLD(Isotropic) and name it
+        subject="Creating Another Property",
+        comments=
+        """Make another BOLD(Copy) of BOLD(Isotropic) and name it
     BOLD(cyan_elasticity).""",
-    signal = "new property"
+        signal = "new property"
     ),
 
     TutoringItem(
-    subject="Parametrizing Another Property",
-    comments=
-    """BOLD(Parametrize) the property BOLD(cyan_elasticity) with these
+        subject="Parametrizing Another Property",
+        comments=
+        """BOLD(Parametrize) the property BOLD(cyan_elasticity) with these
     values: BOLD(young)=0.5, BOLD(poisson)=0.3.""",
-    signal = "redraw"
+        signal = "redraw"
     ),
 
     TutoringItem(
-    subject="Adding Another Property to a Material",
-    comments=
+        subject="Adding Another Property to a Material",
+        comments=
 
     """Select BOLD(cyan-material) in the Material selector in the
     BOLD(Material) pane, and add the Property BOLD(cyan_elasticity) by
@@ -287,9 +293,9 @@ TutorialClass(subject="A Simple Example",
     ),
 
     TutoringItem(
-    subject="Adding Colors to Materials",
-    comments=
-    """Although it's not necessary mathematically, it's convenient to
+        subject="Adding Colors to Materials",
+        comments=
+        """Although it's not necessary mathematically, it's convenient to
     assign colors to Materials so that the Microstructure can be
     displayed.
 
@@ -312,12 +318,12 @@ TutorialClass(subject="A Simple Example",
     BOLD(cyan-material).  Parametrize it with BOLD(Red)=0,
     BOLD(Green)=0.8, and BOLD(Blue)=1.
     """,
-    signal="prop_added_to_material"
+        signal="prop_added_to_material"
     ),
 
     TutoringItem(
-    subject="Assigning a Material to Pixels",
-    
+        subject="Assigning a Material to Pixels",
+        
     comments=
 
     """Now that we have defined Materials and created pixel groups in
@@ -333,12 +339,12 @@ TutorialClass(subject="A Simple Example",
 
     Click BOLD(OK) to finish.
     """,
-    signal = "materials changed in microstructure"
+        signal = "materials changed in microstructure"
     ),
 
     TutoringItem(
-    subject="Displaying a Microstructure",
-    comments=
+        subject="Displaying a Microstructure",
+        comments=
 
     """The graphics window displays many things automatically, but if
     you want to view a Microstructure you must tell it to do so
@@ -360,8 +366,10 @@ TutorialClass(subject="A Simple Example",
     Click on the pulldown menu and select BOLD(Microstructure).
 
     BOLD(what) is the name of the particular object that is to be
-    displayed.  Because only one Microstructure has been defined, that
-    is the only option in the pull down menu at the moment.
+    displayed.  Select BOLD(cyallow.png), the name of the
+    Microstructure, in the pulldown menu.  (The other two items in the
+    menu refer to the Microstructures displayed in other layers, but
+    there are no relevant layers at the moment, so ignore them.)
 
     BOLD(how) is the way in which the object will be displayed.
     Different kinds of objects have different kinds of display
@@ -376,9 +384,9 @@ TutorialClass(subject="A Simple Example",
     """),
 
     TutoringItem(
-    subject="Layer List",
-    comments=
-    
+        subject="Layer List",
+        comments=
+        
     """The Microstructure Material Display appears in the Graphics
     window.  Pixels to which you assigned the yellow-material are
     drawn in yellow, or whatever color you gave to that Material.  The
@@ -402,9 +410,9 @@ TutorialClass(subject="A Simple Example",
     """),
 
     TutoringItem(
-    subject="Assigning a Material to Pixels -- continued",
-    comments=
-    
+        subject="Assigning a Material to Pixels -- continued",
+        comments=
+        
     """Select the BOLD(cyan-material) in the BOLD(Material) pane in
     the main OOF2 window and assign it to the pixel group named
     BOLD(cyan).
@@ -418,8 +426,8 @@ TutorialClass(subject="A Simple Example",
 
 
     TutoringItem(
-    subject="Creating a Skeleton",
-    comments=
+        subject="Creating a Skeleton",
+        comments=
 
     """OOF2 doesn't create a finite element mesh directly from a
     Microstructure.  Instead, it creates a BOLD(Skeleton), which
@@ -436,13 +444,13 @@ TutorialClass(subject="A Simple Example",
 
     To keep things simple, just click BOLD(OK) to create a 4x4 grid of
     quadrilateral skeleton elements.""",
-    
+        
     signal = ("new who", "Skeleton")
     ),
 
     TutoringItem(
-    subject="Snapping Nodes to Material Boundaries",
-    comments=
+        subject="Snapping Nodes to Material Boundaries",
+        comments=
 
     """The Skeleton is now displayed on top of the Microstructure in
     the graphics window.
@@ -471,9 +479,9 @@ TutorialClass(subject="A Simple Example",
     ),
 
     TutoringItem(
-    subject="Creating a Finite Element Mesh",
-    comments=
-    """It's time to create an FE mesh based on this skeleton.
+        subject="Creating a Finite Element Mesh",
+        comments=
+        """It's time to create an FE mesh based on this skeleton.
 
     Open the BOLD(FE Mesh) page.
 
@@ -502,8 +510,8 @@ TutorialClass(subject="A Simple Example",
     ),
 
     TutoringItem(
-    subject="Defining Fields",
-    comments=
+        subject="Defining Fields",
+        comments=
 
     """Proceed to the BOLD(Fields & Equations) page.
         
@@ -526,8 +534,8 @@ TutorialClass(subject="A Simple Example",
     ),
 
     TutoringItem(
-    subject="Activating Equations",
-    comments=
+        subject="Activating Equations",
+        comments=
 
     """We're solving the BOLD(Force_Balance) equation, so check the
     corresponding box on the right hand side of the BOLD(Fields &
@@ -536,8 +544,8 @@ TutorialClass(subject="A Simple Example",
     ),
 
     TutoringItem(
-    subject="Applying Boundary Conditions",
-    comments="""Now, move to the BOLD(Boundary Conditions) page.
+        subject="Applying Boundary Conditions",
+        comments="""Now, move to the BOLD(Boundary Conditions) page.
 
     The boundary conditions we're going to apply are:
 
@@ -563,9 +571,9 @@ TutorialClass(subject="A Simple Example",
     """),
 
     TutoringItem(
-    subject="Applying Boundary Conditions -- continued",
-    comments=
-    """Click the BOLD(New...) button in the BOLD(Condition) pane to bring
+        subject="Applying Boundary Conditions -- continued",
+        comments=
+        """Click the BOLD(New...) button in the BOLD(Condition) pane to bring
     up a boundary condition builder. 
     
     Give the boundary condition a name, or leave the name field set to
@@ -596,13 +604,13 @@ TutorialClass(subject="A Simple Example",
     next slide.
 
     """,
-    
+        
     signal = "boundary conditions changed"
     ),
 
     TutoringItem(
-    subject="Applying Boundary Conditions -- continued",
-    comments=
+        subject="Applying Boundary Conditions -- continued",
+        comments=
 
     """Click BOLD(New...) to add the second boundary condition.
 
@@ -618,8 +626,8 @@ TutorialClass(subject="A Simple Example",
     ),
 
     TutoringItem(
-    subject="Applying Boundary Conditions -- continued again",
-    comments=
+        subject="Applying Boundary Conditions -- continued again",
+        comments=
 
     """Click BOLD(New...) to add the third boundary condition.
 
@@ -634,13 +642,13 @@ TutorialClass(subject="A Simple Example",
 
     We've just finished creating all three boundary conditions.
     """,
-    signal = "boundary conditions changed"
+        signal = "boundary conditions changed"
     ),
 
     TutoringItem(
-    subject="Setting a Solver",
-    comments=
-    
+        subject="Setting a Solver",
+        comments=
+        
     """ Open the BOLD(Solver) page.  There are three subregions of the
     page.
 
@@ -667,26 +675,28 @@ TutorialClass(subject="A Simple Example",
     ),
 
 
-    TutoringItem(
-    subject="Solving a Mesh",
-    comments="""
-    We're almost at the end of this tutorial.
+    # TutoringItem(
+    #     subject="Solving a Mesh",
+    #     comments="""
+    # We're almost at the end of this tutorial.
 
-    Click BOLD(Solve).
-    """,
-    signal="mesh solved"
+    # """,
+    #     signal="mesh solved"
+    # ),
+        
+    TutoringItem(
+        subject="Solving and Displaying a Mesh",
+        comments=
+
+        """ Click BOLD(Solve).
+        Bring up the graphics window to examine the deformed mesh.
+        """,
+        signal="mesh solved"
     ),
-    
-    TutoringItem(
-    subject="Displaying a Mesh",
-    comments=
-
-    """Bring up the graphics window to examine the deformed mesh.
-    """),
 
     TutoringItem(
-    subject="Displaying Contour",
-    comments=
+        subject="Displaying Contours",
+        comments=
 
     """ At the bottom of the graphics window, you'll see that four layers
     are listed, BOLD(Mesh), BOLD(Skeleton), BOLD(Microstructure) and
@@ -719,10 +729,60 @@ TutorialClass(subject="A Simple Example",
     Click BOLD(OK) and go back to the Graphics Window to observe the
     result.  The map on the right edge of the window indicates how
     colors correspond to actual values.
-
-    Congratulations!!! You've finished your first OOF2 project.
     """
-    )
+    ),
+        
+        TutoringItem(
+            subject="Modifying the Problem",
+            comments=
+            
+            """The solution you obtained wasn't very interesting.  
+            Let's change the problem and solve it again.
 
-      
-    ])
+            Go back to the BOLD(Boundary Conditions) page.  Select the
+            third boundary condition and click the BOLD(Edit) button,
+            or double click on the boundary condition.
+
+            In the dialog box, change BOLD(Dirichlet) to
+            BOLD(Neumann).  Neumann boundary conditions allow you to
+            specify the normal components of a flux (eg, stress)
+            instead of a field (eg, displacement) along a boundary.
+
+            Set BOLD(flux) to BOLD(Stress).  Stress is a tensor, and
+            its normal components are the external force density,
+            which is two dimensional vector, specified by the BOLD(p0)
+            and BOLD(p1) parameters. If the BOLD(normal) parameter is
+            BOLD(false), then the force is given in lab coordinates,
+            where BOLD(p0) is the x component and BOLD(p1) is the y
+            component.  If BOLD(normal) is BOLD(true), then the force
+            is give in a local coordinate system with BOLD(p0) in the
+            outward normal direction and BOLD(p1) in the
+            counterclockwise tangential direction.
+            
+            Change BOLD(p1) to BOLD(0.01), and click BOLD(OK).  Return
+            to the BOLD(Solver) page and click BOLD(Solve) again.  Go
+            to the graphics window to observe the result.
+
+            In the graphics window, double click the BOLD(Mesh) layer
+            in the layer list, and experiment with different values.
+            You can set BOLD(where) to BOLD(actual) to see how the
+            mesh is deformed.  Change the BOLD(what) field to display
+            contour plots of different quanties.  Change BOLD(min) and
+            BOLD(max) and BOLD(levels) to control which contours are
+            computed, and change BOLD(nbins) to adjust how smooth the
+            contours are.
+
+            """),
+
+        TutoringItem(
+            subject="Finished",
+            comments=
+
+            """Congratulations.  You've completed an OOF2 problem. 
+            To learn more about the program, continue to the next tutorial. 
+            Please also read the manual, at
+
+            https://www.ctcms.nist.gov/~langer/oof2man/
+            """)
+    ]
+)

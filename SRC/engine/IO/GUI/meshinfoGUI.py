@@ -532,6 +532,9 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.meshChanged(subpcontext.getParent())
 
     def sensitize(self):
+        ## TODO GTK3: This is called a lot.  Adding a boundary
+        ## condition leads to six calls.  Editing leads to 10. Can
+        ## some be eliminated?
         debug.mainthreadTest()
         self.clear.set_sensitive(self.clearable())
         self.prev.set_sensitive(self.prev_able())
