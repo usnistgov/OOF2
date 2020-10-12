@@ -12,17 +12,21 @@
 #ifndef ACTIVEAREA_SWG
 #define ACTIVEAREA_SWG
 
-%module cactivearea
+%module activearea
+%include "common/typemaps.swg"
 
 %{
+#include <oofconfig.h>
 #include "common/activearea.h"
+#include "common/ooferror.h"
 %}
-%include "common/typemaps.swg"
+%pragma(python) include="activearea.spy"
+%extern "common/cmicrostructure.swg"
 %extern "common/cpixelselection.swg"
 %extern "common/pixelattribute.swg"
+   
 %pragma(python) code="from ooflib.SWIG.common.cpixelselection import CPixelSelectionPtr"
 %pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
-%pragma(python) include="activearea.spy"
 
 class ActiveArea : public CPixelSelection {
 public:
@@ -46,10 +50,9 @@ class ActiveAreaList {
 public:
   void add(char *);
   void remove(char *);
-  StringVec* getNames();
+  %new StringVec *getNames() const;
 };
 
 ActiveAreaList *areaListFromPixel(CMicrostructure*, ICoord *iPoint);
-
 
 #endif // ACTIVEAREA_SWG

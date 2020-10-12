@@ -207,7 +207,7 @@ const std::string *statgroups(CMicrostructure *microstructure,
     unsigned int npix = shuffledPix.size();
     unsigned int nChecked = 0;
 
-    for(const ICoord pixel : shuffledPix) { // Loop over all pixels
+    for(const ICoord &pixel : shuffledPix) { // Loop over all pixels
       if(progress->stopped()) {
 	cleanUp_(pixelDists);
 	return new std::string("");
