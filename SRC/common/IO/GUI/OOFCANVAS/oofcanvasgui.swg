@@ -28,7 +28,7 @@
 #include "common/IO/GUI/OOFCANVAS/guicanvas.h"
 using namespace OOFCanvas;
 typedef std::vector<CanvasItem*> CanvasItemList;
-typedef std::vector<double> DoubleVec;
+typedef std::vector<double> OOFCanvasDoubleVec;
 %}
 
 %typemap(python, in) PyObject* {
@@ -39,19 +39,19 @@ typedef std::vector<double> DoubleVec;
 // (x0,y0,x1,y1,...)  The Python coord type must have .x and .y
 // attributes.
 
-%typemap(python, in) DoubleVec *Coords (DoubleVec vec) {
-  // typemap(python, in) DoubleVec *Coords
+%typemap(python, in) OOFCanvasDoubleVec *Coords (OOFCanvasDoubleVec vec) {
+  // typemap(python, in) OOFCanvasDoubleVec *Coords
   if(!PySequence_Check($source)) {
     PyErr_SetString(
 	    PyExc_TypeError,
 	    "OOFCanvas: typemap error. Expected a sequence of coordinates.");
     return 0;
   }
-  DoubleVec::size_type sz = Py_SAFE_DOWNCAST(PySequence_Size($source),
-					     Py_ssize_t, DoubleVec::size_type);
+  OOFCanvasDoubleVec::size_type sz = Py_SAFE_DOWNCAST(PySequence_Size($source),
+				     Py_ssize_t, OOFCanvasDoubleVec::size_type);
   if(sz > 0) {
     vec.resize(2*sz);
-    for(DoubleVec::size_type i=0; i<sz; i++) {
+    for(OOFCanvasDoubleVec::size_type i=0; i<sz; i++) {
       PyObject *coord = PySequence_GetItem($source, (Py_ssize_t) i);
       PyObject *x = PyObject_GetAttrString(coord, "x");
       PyObject *y = PyObject_GetAttrString(coord, "y");
@@ -118,7 +118,7 @@ public:
 class SpiderRubberBand : public RubberBand {
 public:
   SpiderRubberBand();
-  void addPoints(DoubleVec *Coords);
+  void addPoints(OOFCanvasDoubleVec *Coords);
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

@@ -24,7 +24,7 @@ using namespace std;
 
 typedef std::vector<CanvasItem*> CanvasItemList;
 typedef std::vector<CanvasLayer*> CanvasLayerList;
-typedef std::vector<std::string> StringVec;
+typedef std::vector<std::string> OOFCanvasStringVec;
 %}
 
 %typemap(python, out) PyObject* {
@@ -53,11 +53,11 @@ typedef std::vector<std::string> StringVec;
 }
 
 // Convert a std::vector* of std::strings to a list of Python strings
-%typemap(python, out) StringVec* {
-  // typemap(python, out) StringVec*
-  StringVec::size_type sz = $source->size();
+%typemap(python, out) OOFCanvasStringVec* {
+  // typemap(python, out) OOFCanvasStringVec*
+  OOFCanvasStringVec::size_type sz = $source->size();
   $target = PyList_New((Py_ssize_t) sz);
-  for(StringVec::size_type i=0; i<sz; i++) {
+  for(OOFCanvasStringVec::size_type i=0; i<sz; i++) {
     PyObject *str = PyString_FromString((*$source)[i].c_str());
     PyList_SET_ITEM($target, (Py_ssize_t) i, str); // Steals reference.
   }
@@ -90,8 +90,8 @@ typedef std::vector<std::string> StringVec;
 }
 
 // Convert a Python list or tuple of doubles to a std::vector<double>
-%typemap(python, newfree) StringVec *{
-  // typemap(python, newfree) StringVec*
+%typemap(python, newfree) OOFCanvasStringVec *{
+  // typemap(python, newfree) OOFCanvasStringVec*
   delete $source;
 }
 
@@ -402,12 +402,12 @@ public:
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-%new StringVec *list_fonts();
+%new OOFCanvasStringVec *list_fonts();
 
 
 %typemap(python, in) PyObject*;
 %typemap(python, out) PyObject*;
-%typemap(python, out) StringVec*;
-%typemap(python, newfree) StringVec*;
+%typemap(python, out) OOFCanvasStringVec*;
+%typemap(python, newfree) OOFCanvasStringVec*;
 
 #endif // OOFCANVAS_SWG
