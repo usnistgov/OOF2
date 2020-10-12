@@ -583,8 +583,16 @@ class ChooserComboWidget:
         # of the widget.
         debug.mainthreadTest()
         liststore = Gtk.ListStore(GObject.TYPE_STRING)
-        self.combobox = Gtk.ComboBox.new_with_model_and_entry(liststore,
-                                                              **kwargs)
+        # We're not passing kwargs to the ComboBox constructor because
+        # the constructor doesn't accept all the values that are in
+        # kwargs, eg, halign.  This doesn't seem to be a problem in
+        # the few cases in which this widget is used.  kwargs is set
+        # (I think) by ParameterTable.makeSingleWidget().
+        ## TODO GTK3? Don't use Gtk.ComboBox, because it looks
+        ## different from the chooser widget varieties used elsewhere.
+        ## Build a new widget in the style of ChooserWidget.  This
+        ## will be a fair amount of work for a small aesthetic gain.
+        self.combobox = Gtk.ComboBox.new_with_model_and_entry(liststore)
         self.combobox.set_entry_text_column(0)
         if name:
             gtklogger.setWidgetName(self.combobox, name)

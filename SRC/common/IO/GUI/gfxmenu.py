@@ -110,6 +110,10 @@ def _menuItemName(self):
     name = utils.underscore2space(self.name)
     # Add an ellipsis if explicitly requested or if there's an
     # automatically generated gui_callback.
+    ## TODO: Menu items that take arguments in text mode but get them
+    ## automatically in GUI mode should not have an ellipsis appended
+    ## to their names in GUI mode.
+
     if self.ellipsis or (self.params and not self.gui_callback):
         name = name + "..."
     return name

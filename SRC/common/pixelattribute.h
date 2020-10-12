@@ -30,8 +30,8 @@ class CMicrostructure;
 // In principle, the attributes of a pixel may not be definable within
 // the "common" module, where the Microstructure lives.  For example,
 // the Material assigned to a pixel is an attribute, but it's defined
-// in "engine".  Therefore we need a generic way of managing unknown
-// attributes.
+// in "engine", not "common".  Therefore we need a generic way of
+// managing unknown attributes.
 
 // Each type of pixel attribute has two classes associated with it,
 // derived from the base classes PixelAttribute and
@@ -155,4 +155,4 @@ std::ostream &operator<<(std::ostream&, const PixelAttribute&);
 int nAttributes();
 const PxlAttributeRegistration *getRegistration(int);
 
-#endif
+#endif	// PIXELATTRIBUTE_H
