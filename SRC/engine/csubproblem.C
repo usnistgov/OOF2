@@ -681,6 +681,15 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 
 #else // _OPENMP
 
+  // TOOD MEMORY MANAGEMENT:
+  // If we want to pre-allocate the triplet vectors in the linearized
+  // system, this is more or less our last chance.  Candidate
+  // estimate: # of nodes x connectivity of the nodes x # of DOFs in
+  // the problem.  Can get nodes from funcode_iterator().size().
+  // There is an n_active_field attribute, but it does not have
+  // field dimensions.  There's an "ndof" function, which returns
+  // the # of degrees of freedom, but includes both static and
+  // time-derivative values, which is more than we want here.
   for(ElementIterator ei=element_iterator(); !ei.end() && !progress->stopped();
       ++ei)
   {
