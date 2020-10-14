@@ -266,6 +266,7 @@ void LinearizedSystem::insertK(int row, int col, double x) {
   assert(i > -1 && j > -1);
 
 #ifdef _OPENMP
+#warning OPENMP branch
   if (mkl_parallel)
     KTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
   else
@@ -278,7 +279,7 @@ void LinearizedSystem::insertK(int row, int col, double x) {
       std::cerr << "OOPs: size=" << KTri_.size() << std::endl;
       throw;
   }
-  KTri_.emplace_back(i, j, x); 
+  // KTri_.emplace_back(i, j, x); 
 #endif
 }
 
