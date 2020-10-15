@@ -327,6 +327,14 @@ void LinearizedSystem::insertJ(int row, int col, double x) {
 #endif
 }
 
+// Some large problems may have memory fragmentation problems due to
+// the repeated emplace_back operations performed on the KTri_
+// attribute.  This function lets them pre-allocate a bunch of space
+// so that things go better.
+void LinearizedSystem::K_preallocate(int n) {
+  KTri_.reserve(n);
+}
+
 void LinearizedSystem::consolidate() {
   // Called by CSubproblem::make_linear_system after matrices are
   // built.
