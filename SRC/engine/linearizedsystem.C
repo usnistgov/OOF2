@@ -273,10 +273,10 @@ void LinearizedSystem::insertK(int row, int col, double x) {
     KTri_.emplace_back(i, j, x);
 #else
   try {
-    KTri_.emplace_back(i,j,x);
+    KTri_.emplace_front(i,j,x);
   }
   catch (...) {
-      std::cerr << "OOPs: size=" << KTri_.size() << std::endl;
+      std::cerr << "Error allocating a K triplet."  << std::endl;
       throw;
   }
   // KTri_.emplace_back(i, j, x); 
@@ -294,7 +294,7 @@ void LinearizedSystem::insertC(int row, int col, double x) {
   else
     CTri_.emplace_back(i, j, x);
 #else
-  CTri_.emplace_back(i, j, x); 
+  CTri_.emplace_front(i, j, x); 
 #endif
 }
 
@@ -309,7 +309,7 @@ void LinearizedSystem::insertM(int row, int col, double x) {
   else
     MTri_.emplace_back(i, j, x);
 #else
-  MTri_.emplace_back(i, j, x);
+  MTri_.emplace_front(i, j, x);
 #endif
 }
 
@@ -323,17 +323,10 @@ void LinearizedSystem::insertJ(int row, int col, double x) {
   else
     JTri_.emplace_back(i, j, x);
 #else
-    JTri_.emplace_back(i, j, x);
+    JTri_.emplace_front(i, j, x);
 #endif
 }
 
-// Some large problems may have memory fragmentation problems due to
-// the repeated emplace_back operations performed on the KTri_
-// attribute.  This function lets them pre-allocate a bunch of space
-// so that things go better.
-void LinearizedSystem::K_preallocate(int n) {
-  KTri_.reserve(n);
-}
 
 void LinearizedSystem::consolidate() {
   // Called by CSubproblem::make_linear_system after matrices are
@@ -345,13 +338,13 @@ void LinearizedSystem::consolidate() {
 
   // Deallocate the memory
   MTri_.clear();
-  MTri_.shrink_to_fit();
+  // MTri_.shrink_to_fit();
   CTri_.clear();
-  CTri_.shrink_to_fit();
+  // CTri_.shrink_to_fit();
   JTri_.clear();
-  JTri_.shrink_to_fit();
+  // JTri_.shrink_to_fit();
   KTri_.clear();
-  KTri_.shrink_to_fit();
+  // KTri_.shrink_to_fit();
 }
 
 void LinearizedSystem::insert_force_bndy_rhs(int row, double val) {

@@ -17,6 +17,8 @@
 #include "Eigen/SparseCore"
 #include "common/doublevec.h"
 
+#include <forward_list>
+
 class DoFMap;
 template<typename MT, typename VT> class SparseMatIterator;
 enum class Precond;
@@ -45,6 +47,7 @@ public:
   ~SparseMat() = default;
   SparseMat clone() const { return *this; }
   void set_from_triplets(std::vector<Triplet>&);
+  void set_from_triplets(std::forward_list<Triplet>&);
 
   // TODO(lizhong): inline possible methods
 

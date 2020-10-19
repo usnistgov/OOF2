@@ -52,6 +52,13 @@ void SparseMat::set_from_triplets(std::vector<Triplet>& tris) {
     [] (const double& a, const double& b) { return a+b; });
 }
 
+
+void SparseMat::set_from_triplets(std::forward_list<Triplet>& tris) {
+  // See above.
+  data.setFromTriplets(tris.begin(), tris.end(),
+		       [](const double &a, const double &b) {return a+b; });
+}
+
 bool SparseMat::is_nonempty_row(int i) const {
   assert(i >=0 && i <= nrows());
   Eigen::SparseVector<double> row = data.row(i);

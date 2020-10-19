@@ -26,6 +26,8 @@ class NodalEquation;
 #include <vector>
 #include <iostream>
 
+#include <forward_list>
+
 // Data object to hold the matrices and vectors, which may make up the
 // general linear or nonlinear time-dependent FE problem.
 //
@@ -96,7 +98,7 @@ private:
   // of matrices. Because SparseMat is in compressed row/column storage
   // format which is not efficient for matrix construction (make linaer
   // system).
-  std::vector<Triplet> KTri_, CTri_, MTri_, JTri_;
+  std::forward_list<Triplet> KTri_, CTri_, MTri_, JTri_;
 
   // Each map level operates on the output from the previous level.
   // The domain of level x is the range of level x-1.
@@ -306,7 +308,6 @@ public:
   unsigned int n_unknowns_MCKa() const;
   unsigned int n_unknowns_MCKd() const;
 
-  void K_preallocate(int);
   void consolidate();
 
   void insertK(int, int, double);
