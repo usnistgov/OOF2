@@ -9,8 +9,11 @@
  * oof_manager@nist.gov. 
  */
 
-#include "sparsemat.h"
+#include <oofconfig.h>
+#include "common/chunkyvector.h"
 #include "engine/dofmap.h"
+#include "engine/sparsemat.h"
+
 #include <unsupported/Eigen/SparseExtra>
 #include <iostream>
 #include <fstream>
@@ -44,7 +47,7 @@ SparseMat::SparseMat(const SparseMat& source,
   make_compressed();
 }
 
-void SparseMat::set_from_triplets(std::vector<Triplet>& tris) {
+void SparseMat::set_from_triplets(const ChunkyVector<Triplet>& tris) {
   // Initialize this sparse matrix from treiplets like (row, col,
   // value). For triplets having the same row# and col#, add them
   // together.
@@ -397,7 +400,7 @@ bool load_mat(SparseMat& mat, const std::string& filename) {
   mat.resize(nr, nc);
 
   // read matrix elements
-  std::vector<Triplet> trips;
+  ChunkyVector<Triplet> trips;
   trips.reserve(nnz);
   int r, c;
   double val;

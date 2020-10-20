@@ -21,6 +21,7 @@ class FuncNode;
 class NodalEquation;
 
 #include "common/doublevec.h"
+#include "common/chunkyvector.h"
 #include "engine/dofmap.h"
 #include "engine/sparsemat.h"
 #include <vector>
@@ -96,7 +97,8 @@ private:
   // of matrices. Because SparseMat is in compressed row/column storage
   // format which is not efficient for matrix construction (make linaer
   // system).
-  std::vector<Triplet> KTri_, CTri_, MTri_, JTri_;
+  //  std::vector<Triplet> KTri_, CTri_, MTri_, JTri_;
+  ChunkyVector<Triplet> KTri_, CTri_, MTri_, JTri_;
 
   // Each map level operates on the output from the previous level.
   // The domain of level x is the range of level x-1.

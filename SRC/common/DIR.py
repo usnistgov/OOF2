@@ -75,7 +75,7 @@ hfiles = [
     'removeitem.h', 'sincos.h', 'swiglib.h', 'switchboard.h',
     'threadstate.h', 'timestamp.h', 'tostring.h', 'trace.h',
     'pythonlock.h', 'direction.h', 'doublevec.h', 'smallmatrix.h',
-    'latticesystem.h', 'burn.h', 'statgroups.h'
+    'latticesystem.h', 'burn.h', 'statgroups.h', 'chunkyvector.h'
 ]
 
 
