@@ -92,11 +92,11 @@ public:
   }
 
   ChunkyVector(ChunkyVector<TYPE> &&other)
-    : chunkList(other.chunkList),
+    : chunkList(std::move(other.chunkList)),
       logChunkSize(other.logChunkSize),
       chunkSize(other.chunkSize)
   {
-    other.chunkList = nullptr;
+    other.chunkList = std::vector<std::vector<TYPE>*>();
   }
 
   ~ChunkyVector() {
