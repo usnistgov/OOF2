@@ -95,7 +95,7 @@ private:
 
   // Using vector of triplets (row, col, value) during the construction
   // of matrices. Because SparseMat is in compressed row/column storage
-  // format which is not efficient for matrix construction (make linaer
+  // format which is not efficient for matrix construction (make linear
   // system).
   //  std::vector<Triplet> KTri_, CTri_, MTri_, JTri_;
   ChunkyVector<Triplet> KTri_, CTri_, MTri_, JTri_;

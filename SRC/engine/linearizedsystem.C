@@ -408,7 +408,7 @@ void LinearizedSystem::init_parallel_env(bool needJacobian,
   this->need_residual = needResidual;
   this->need_jacobian = needJacobian;
 
-  // For each OpenMP thread, creat a vector of coefficient
+  // For each OpenMP thread, create a vector of coefficient
   // triplets of K, C, M, J matrix, and a copy of residual,
   // body_rhs as well as force_bndy_rhs vectors.
 
@@ -450,8 +450,11 @@ void LinearizedSystem::tear_down_parallel_env() {
 
   // Merge each thread's coefficient triplets and vectors
   // to principal ones. Also clean up threads' copies.
-  // This function is call from an OpenMP single region.
+  // This function is called from an OpenMP single region.
 
+  // TODO OPENMP: This won't work because KTri_ is now a ChunkyVector.
+  // ChunkyVector will need to acquire an insert() method, or at least
+  // an append() method for this to work.
   auto merge = [] (
     std::vector<vector<Triplet>>& srcs,
     std::vector<Triplet>& dest) {
