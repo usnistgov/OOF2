@@ -681,7 +681,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 
 #else // _OPENMP
 
-  // TOOD MEMORY MANAGEMENT:
+  // TODO MEMORY MANAGEMENT:
   // If we want to pre-allocate the triplet vectors in the linearized
   // system, this is more or less our last chance.  Candidate
   // estimate: # of nodes x connectivity of the nodes x # of DOFs in
