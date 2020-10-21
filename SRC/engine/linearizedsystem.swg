@@ -136,5 +136,7 @@ public:
 };
 
 int get_globalLinSysCount();
+void setLogChunkSize(int);
+int getLogChunkSize();
 
 #endif // LINEARIZEDSYSTEM_SWG

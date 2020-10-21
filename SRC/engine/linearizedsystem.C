@@ -1,13 +1,16 @@
+// -*- C++ -*-
+
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
  * with its operation, modification and maintenance. However, to
  * facilitate maintenance we ask that before distributing modified
  * versions of this software, you first contact the authors at
- * oof_manager@nist.gov.
+ * oof_manager@nist.gov. 
  */
 
 #include <oofconfig.h>
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -40,8 +43,22 @@
 static int nlinsys = 0;
 static SLock countLock;
 
+// The chunk size used by ChunkyVector is 2**logChunkSize.
+static int logChunkSize = 20;
+void setLogChunkSize(int lcs) {
+  logChunkSize = lcs;
+}
+
+int getLogChunkSize() {
+  return logChunkSize;
+}
+
 LinearizedSystem::LinearizedSystem(CSubProblem *subp, double time)
   : subproblem( subp ),
+    KTri_(logChunkSize),
+    CTri_(logChunkSize),
+    MTri_(logChunkSize),
+    JTri_(logChunkSize),
     tdDirichlet(false),
     time_(time)
 #ifdef _OPENMP

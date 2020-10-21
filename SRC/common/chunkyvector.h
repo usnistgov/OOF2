@@ -22,7 +22,7 @@
 #ifndef CHUNKYVECTOR_H
 #define CHUNKYVECTOR_H
 
-#define DEFAULT_LOGCHUNKSIZE 8
+#define DEFAULT_LOGCHUNKSIZE 10
 
 #include <oofconfig.h>
 #include <vector>
@@ -126,9 +126,7 @@ public:
   }
 
   void reserve(size_type n) {
-    // The whole point of this class is to make reserving unnecessary,
-    // but since it's supposed to be a drop-in replacement for
-    // std::vector, this method must be implemented.
+    chunkList.reserve(n/chunkSize + 1);
   }
 
   void push_back(TYPE &val) {
