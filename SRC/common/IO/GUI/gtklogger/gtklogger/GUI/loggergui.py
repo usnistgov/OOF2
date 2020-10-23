@@ -56,6 +56,9 @@ actions = []
 # For each (i,j) in the list, the replacement is done only if group i
 # in the current line is identical to group j in the previous line.
 
+# The regular expressions should *not* end with "$", because the
+# logged lines may contain trailing comments.  
+
 class ReplaceLine(object):
     def __init__(self, regexp, regexpprev=None, groups=[]):
         self.regexp = re.compile(regexp)
@@ -91,7 +94,7 @@ class ReplaceLine(object):
 # and delete the first one.
 actions.append(
     ReplaceLine(
-        r"^findWidget\('(.+)'\).resize\([0-9]+, [0-9]+\)$",
+        r"^findWidget\('(.+)'\).resize\([0-9]+, [0-9]+\)" + endcomment,
         groups=[(1,1)]))
 
 # Look for pairs of lines like
@@ -103,10 +106,17 @@ actions.append(
 # its item is activated.  Activating the menu item will deactivate the
 # menu, so explicit deactivation isn't necessary.
 
+# A menuitem in the log is given as a list of strings, matched by this
+# regular expression.  TODO: This isn't quite right, because it can be
+# fooled by mismatched single and double quotation marks, or menuitem
+# names containing quotation marks.
+listofstrings = r"\[\s*(['\"].[^'\"]+?['\"])(\s*,\s*['\"][^'\"]+?['\"])*\s*\]"
+
 actions.append(
     ReplaceLine(
-        r"^findMenu\(findWidget\('(.+)'\), '.+'\).activate\(\)$",
-        r"^findWidget\('(.+)'\).deactivate\(\)$",
+        r"^findMenu\(findWidget\('(.+)'\), " + listofstrings + "\).activate\(\)"
+        + endcomment,
+        r"^findWidget\('(.+)'\).deactivate\(\)" + endcomment,
         groups=[(1,1)]))
 
 # Look for pairs of lines like
@@ -116,14 +126,14 @@ actions.append(
 # CheckMenuItems and RadioMenuItems.
 actions.append(
     ReplaceLine(
-        r"^findMenu\(findWidget\('(.+)'\), '.+'\).set_active\(0|1|True|False\)$",
-        r"^findWidget\('(.+)'\).deactivate\(\)$",
+        r"^findMenu\(findWidget\('(.+)'\), "+listofstrings+"\).set_active\(0|1|True|False\)" + endcomment,
+        r"^findWidget\('(.+)'\).deactivate\(\)" + endcomment,
         groups=[(1,1)]))
     
 # Replace repeated set_position events from Paned widgets
 actions.append(
     ReplaceLine(
-        r"^findWidget\('(.+)'\).set_position\([0-9]+\)$",
+        r"^findWidget\('(.+)'\).set_position\([0-9]+\)" + endcomment,
         groups=[(1,1)]))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
