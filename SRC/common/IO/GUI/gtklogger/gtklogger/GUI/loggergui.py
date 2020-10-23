@@ -94,7 +94,7 @@ class ReplaceLine(object):
 # and delete the first one.
 actions.append(
     ReplaceLine(
-        r"^findWidget\('(.+)'\).resize\([0-9]+, [0-9]+\)" + endcomment,
+        r"^findWidget\('(.+)'\).resize\([0-9]+, [0-9]+\)",
         groups=[(1,1)]))
 
 # Look for pairs of lines like
@@ -114,9 +114,8 @@ listofstrings = r"\[\s*(['\"].[^'\"]+?['\"])(\s*,\s*['\"][^'\"]+?['\"])*\s*\]"
 
 actions.append(
     ReplaceLine(
-        r"^findMenu\(findWidget\('(.+)'\), " + listofstrings + "\).activate\(\)"
-        + endcomment,
-        r"^findWidget\('(.+)'\).deactivate\(\)" + endcomment,
+        r"^findMenu\(findWidget\('(.+)'\), " + listofstrings + "\).activate\(\)" ,
+        r"^findWidget\('(.+)'\).deactivate\(\)",
         groups=[(1,1)]))
 
 # Look for pairs of lines like
@@ -126,14 +125,14 @@ actions.append(
 # CheckMenuItems and RadioMenuItems.
 actions.append(
     ReplaceLine(
-        r"^findMenu\(findWidget\('(.+)'\), "+listofstrings+"\).set_active\(0|1|True|False\)" + endcomment,
-        r"^findWidget\('(.+)'\).deactivate\(\)" + endcomment,
+        r"^findMenu\(findWidget\('(.+)'\), "+listofstrings+"\).set_active\(0|1|True|False\)",
+        r"^findWidget\('(.+)'\).deactivate\(\)",
         groups=[(1,1)]))
     
 # Replace repeated set_position events from Paned widgets
 actions.append(
     ReplaceLine(
-        r"^findWidget\('(.+)'\).set_position\([0-9]+\)" + endcomment,
+        r"^findWidget\('(.+)'\).set_position\([0-9]+\)",
         groups=[(1,1)]))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
