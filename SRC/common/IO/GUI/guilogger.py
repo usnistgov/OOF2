@@ -32,10 +32,8 @@ guidebugmenu = mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem("GUI_Logging",
 
 
 # When running under the OOF context, gtklogger should catch OOF
-# errors also.  TODO SWIG1.3 -- after the changeover to SWIG 1.3, OOF
-# exceptions will probably be subclasses of Exception, so this will be
-# redundant.
-gtklogger.allexceptions = (Exception, ooferror.ErrErrorPtr)
+# errors also. 
+gtklogger.add_exception(ooferror.ErrErrorPtr)
 
 ###################################
 
