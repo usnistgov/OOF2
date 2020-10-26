@@ -493,9 +493,8 @@ setComboBox = logutils.setComboBox
 # should include the "window" attribute, which must be set to a
 # Gdk.Window.  For Gtk.Widgets, this is just Widget.get_window().
 
-def event(etype, **kwargs):
+def buildEvent(etype, **kwargs):
     ev = Gdk.Event.new(etype)
-    # ev.type = etype
     if hasattr(ev, 'time'):
         ev.time = Gtk.get_current_event_time()
     if hasattr(ev, 'set_device'):
@@ -506,7 +505,26 @@ def event(etype, **kwargs):
             if not hasattr(ev, arg):
                 print >> sys.stderr, "Event", etype, "has no attribute", arg
         setattr(ev, arg, val)
+    return ev
+
+# event() and wevent() can be used in log files to recreate events.
+# The gtk documentation is vague on how to do this correctly, because
+# apparently it's not a good idea.  wevent() uses GtkWidget.event(),
+# which ensures that the event is associated with the correct widget.
+# However the docs say to use Gtk.main_do_event() instead, so that the
+# event will behave as if it's in the event queue.  However,
+# main_do_event() takes a window and a position as arguments, not a
+# widget, and sometimes the wrong widget responds when replaying a log
+# file.
+
+def event(etype, **kwargs):
+    ev = buildEvent(etype, **kwargs)
     Gtk.main_do_event(ev)
+
+def wevent(widget, etype, **kwargs):
+    ev = buildEvent(etype, **kwargs)
+    widget.event(ev)
+    
         
 ####################
 
