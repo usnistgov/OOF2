@@ -283,19 +283,21 @@ class GUILogLineRunner(object):
                     # until the window is mapped makes this problem
                     # less frequent, but doesn't make it go away
                     # entirely.
-                    self.status = "repeating"
                     self.ntries += 1
                     if self.ntries == maxtries:
                         if logutils.debugLevel() >= 1:
                             print >> sys.stderr, \
                                   "Failed to find top-level widget after", \
                                   self.ntries, "attempts."
-                        raise
+                        self.status = "aborted"
+                        self.logrunner.abort()
+                        return False
                     # Keep trying.  By reinstalling ourself in the
                     # idle callback table and returning False
                     # (meaning, "don't repeat this callback") we move
                     # to the back of the queue.  This allows the
                     # widget we are waiting for to appear, we hope.
+                    self.status = "repeating"
                     GObject.timeout_add(retrydelay, self,
                                         priority=GObject.PRIORITY_LOW)
                     return False
@@ -311,10 +313,12 @@ class GUILogLineRunner(object):
                             raise exc
             finally:
                 Gdk.flush()
-        # We're still waiting for the previous line to execute. We put
-        # ourself at the back of the execution queue (by reinstalling
-        # and returning False) so that the previous line will run
-        # first.
+
+        # We're still waiting for the previous line to execute. It's
+        # probably getting GtkLoggerTopFailure exceptions (see above).
+        # We put ourself at the back of the execution queue (by
+        # reinstalling and returning False) so that the previous line
+        # will run first.
         if logutils.debugLevel() >= 4:
             print >> sys.stderr, "Reinstalling", self.srcline
         GObject.timeout_add(retrydelay, self, priority=GObject.PRIORITY_LOW)
