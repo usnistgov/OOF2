@@ -40,6 +40,7 @@ import ooflib.common.IO.GUI.mainthreadGUI
 import ooflib.common.IO.GUI.activeareaPage
 import ooflib.common.IO.GUI.progressbarGUI
 import ooflib.common.IO.GUI.tutorialsGUI
+import ooflib.common.IO.GUI.sandbox
 
 import ooflib.SWIG.common.IO.GUI.progressGUI
 
@@ -47,9 +48,6 @@ import ooflib.common.IO.GUI.gfxwindow
 import ooflib.common.IO.GUI.viewertoolboxGUI
 import ooflib.common.IO.GUI.pixelinfoGUI
 import ooflib.SWIG.common.IO.GUI.gfxbrushstyle
-
-
-
 
 
 
