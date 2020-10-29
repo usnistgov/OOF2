@@ -1,8 +1,4 @@
 // -*- text -*-
-// $RCSfile: README,v $
-// $Revision: 1.6 $
-// $Author: langer $
-// $Date: 2014/09/27 21:54:32 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
@@ -36,13 +32,14 @@ OVERVIEW
 These routines provide GUI logging and replay for PyGTK, at the gtk
 signal level.  The idea is to be able to reproduce the way in which a
 GUI drives its underlying code, without bothering to reproduce the way
-in which X11 drives the GUI.  Recording X11 events would produce large
-unreadable log files, which would break if the GUI were redesigned.
-The philosophy here is to log only those actions that actually have an
-effect (namely, those that produce gtk signals that the program is
-connected to) and to assign those actions to *named* widgets.  If the
-GUI changes, but the names stay the same, there's at least a chance
-that a previously recorded script will still work properly.
+in which X11 (or equivalent) drives the GUI.  Recording X11 events
+would produce large unreadable log files, which would break if the GUI
+were redesigned.  The philosophy here is to log only those actions
+that actually have an effect (namely, those that produce gtk signals
+that the program is connected to) and to assign those actions to
+*named* widgets.  If the GUI changes, but the names stay the same,
+there's at least a chance that a previously recorded script will still
+work properly.
 
 Because it's not possible (yet) to redefine pygtk class methods, it's
 necessary to make a bunch of changes to pygtk code in order to use the
@@ -68,18 +65,17 @@ code should be used instead:
 (The paranoid will use a try/finally block to ensure that
 signal.unblock was called in all circumstances.)
 
-All gtk.Widgets that emit signals that need to be replayed have to
-have names assigned by gtklogger.setWidgetName.  (These names are
-*not* the same as those set by gtk.Widget.set_name.)  All top level
-widgets (eg, gtk.Windows) need to have names set by
-gtklogger.newTopLevelWidget.  Intermediate Widgets, such as gtk.Paneds
-and gtk.Boxes that don't emit signals but contain Widgets that do, can
-have names but aren't required to do so.  The only requirement is that
-the sequence of names, going from a top level widget through
-intermediate widgets to a signalling widget, uniquely specifies the
-signalling widget.
+All gtk.Widgets that emit signals that need to be replayed must have
+names assigned by gtklogger.setWidgetName.  (These names are *not* the
+same as those set by gtk.Widget.set_name.)  All top level widgets (eg,
+gtk.Windows) need to have names set by gtklogger.newTopLevelWidget.
+Intermediate Widgets, such as gtk.Paneds and gtk.Boxes that don't emit
+signals but contain Widgets that do, can have names but aren't
+required to do so.  The only requirement is that the sequence of
+names, going from a top level widget through intermediate widgets to a
+signalling widget, uniquely specifies the signalling widget.
 
-GObjects that aren't Widgets but nonetheless emit signals must be
+ GObjects that aren't Widgets but nonetheless emit signals must be
 "adopted" by an associated Widget, using gtklogger.adoptGObject.  The
 arguments to adoptGObject specify how to extract the GObject from its
 adoptive parent.  The parent must be named by gtklogger.setWidgetName

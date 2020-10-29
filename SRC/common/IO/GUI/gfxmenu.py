@@ -72,6 +72,9 @@ def gtkOOFMenuBar(menu, bar=None, accelgroup=None, parentwindow=None):
 
 #######################
 
+debugOption = 'A1'
+#debugOption = 'A2'
+
 class MenuCallBackWrapper(object):
     def __init__(self, menuitem, popup=False):
         self.menuitem = menuitem # An OOFMenuItem, not a GtkMenuItem
@@ -95,8 +98,9 @@ class MenuCallBackWrapper(object):
             # Call, but don't log, the gui callback.  The gui callback
             # will (probably) call and log the cli callback.
             self.menuitem.gui_callback(self.menuitem)
-        if self.popup:
-            gtkmenuitem.get_parent().destroy()
+        if debugOption == 'A1':
+            if self.popup:
+                gtkmenuitem.get_parent().destroy()
     def findParentWindow(self, menuitem=None):
         m = menuitem or self.menuitem
         if m is None:

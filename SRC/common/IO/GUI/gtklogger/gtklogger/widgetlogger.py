@@ -13,7 +13,11 @@ from gi.repository import Gdk
 from gi.repository import Gtk
 import logutils
 
+import sys
 import string
+
+debugOption = 'C1'
+#debugOption = 'C2'
 
 class WidgetLogger(loggers.GtkLogger):
     classes = (Gtk.Widget,)
@@ -26,22 +30,30 @@ class WidgetLogger(loggers.GtkLogger):
         return "findWidget('%s')" % string.join(path, ':')
 
     def record(self, obj, signal, *args):
-        ## TODO GTK3: Keep a weak ref to the previous wvar and re-use
-        ## the old one if the current one is the same.
         if signal in ('button-press-event', 'button-release-event'):
             evnt = args[0]
             if signal == 'button-press-event':
                 eventname = "BUTTON_PRESS"
             else:
                 eventname = "BUTTON_RELEASE"
-            return [
-                "event(Gdk.EventType.%s,x=%20.13e,y=%20.13e,button=%d,state=%d,window=%s.get_window())"
-                % (eventname, evnt.x, evnt.y, evnt.button, evnt.state,
-                   self.location(obj, *args)),
-            ]
+            if debugOption == 'C1':
+                return [
+                    "event(Gdk.EventType.%s,x=%20.13e,y=%20.13e,button=%d,state=%d,window=%s.get_window())"
+                    % (eventname, evnt.x, evnt.y, evnt.button, evnt.state,
+                       self.location(obj, *args))
+                    ]
+            if debugOption == 'C2':
+                return [
+                    "wevent(%(w)s, Gdk.EventType.%(e)s, x=%(x)20.13e, y=%(y)20.13e, button=%(b)d, state=%(s)d, window=%(w)s.get_window())"
+                    % dict(w=self.location(obj, *args),
+                           e=eventname,
+                           x=evnt.x,
+                           y=evnt.y,
+                           b=evnt.button,
+                           s=evnt.state)
+                ]
 
         if signal in ('key-press-event', 'key-release-event'):
-            # TODO: Is this needed?  Is it reliable?
             evnt = args[0]
             if signal == 'key-press-event':
                 eventname = "KEY_PRESS"
@@ -52,13 +64,28 @@ class WidgetLogger(loggers.GtkLogger):
             # print "keys=", [k.keycode for k in keymapkeys], \
             #     "event.hardware_keycode=", evnt.hardware_keycode
 
+            # Don't log the modifier keys.  There seem to be problems
+            # created by generating the keypress events for them.
+            # (For example, recreating a Shift_L event in OOF2 was
+            # somehow activating the menu item with the ^A keyboard
+            # accelerator.)  We don't need the modifier keypress
+            # events as long as the "state" data recorded in other
+            # events includes the correct modifiers.
+            if is_modifier(evnt.keyval): # evnt.is_modifier isn't set properly!
+                return self.ignore
             return [
-                # Including the hardware_keycode seems to be important
-                # for getting the delete key to work, but it's not
-                # portable, so I'm not sure what to do...
+                # TODO: Including the hardware_keycode seems to be
+                # important for getting the delete key to work, but
+                # it's not portable.  Do we need to log the delete
+                # key?  For example, Gtk.Entry is logged via other
+                # signals and doesn't need to handle key press events.
+                # When would a delete keypress need to be logged as an
+                # event?
                 "event(Gdk.EventType.%s, keyval=Gdk.keyval_from_name('%s'), state=%d, window=%s.get_window())"
                 % (eventname, Gdk.keyval_name(evnt.keyval), evnt.state,
                    self.location(obj, *args))
+                # "wevent(%(w)s, Gdk.EventType.%(e)s, keyval=Gdk.keyval_from_name('%s'), state=%d, window=%(w)s.get_window()"
+                # % dict(w=self.location(obj, *args), e=eventname, s=evnt.state)
             ]
         
         if signal == 'motion-notify-event':
@@ -83,6 +110,8 @@ class WidgetLogger(loggers.GtkLogger):
         # check that the widget still exists before issuing the
         # signal.
         if signal == 'focus_out_event':
+            ## TODO GTK3: Keep a weak ref to the previous wvar and
+            ## re-use the old one if the current one is the same.
             wvar = loggers.localvar('widget')
             return [
                 "%s=%s" % (wvar,self.location(obj, *args)),
@@ -116,3 +145,19 @@ class WidgetLogger(loggers.GtkLogger):
                    % (self.location(obj, *args),
                       alloc.x, alloc.y, alloc.width, alloc.height)]
         return super(WidgetLogger, self).record(obj, signal, *args)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# See comment above about not logging keypress events for modifier
+# keys.  GdkEventKey.is_modifier isn't set correctly, so we have to
+# detect them the hard way.  This is probably incorrect for non-Latin
+# keyboards.
+
+modifiernames = ["Shift_L", "Shift_R",
+                 "Control_L", "Control_R",
+                 "Meta_L", "Meta_R",
+                 "Alt_L", "Alt_R"]
+modifierkeyvals = map(Gdk.keyval_from_name, modifiernames)
+
+def is_modifier(keyval):
+    return keyval in modifierkeyvals
