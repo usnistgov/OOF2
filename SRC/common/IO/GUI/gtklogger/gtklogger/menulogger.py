@@ -15,10 +15,6 @@ import loggers
 
 import string, sys
 
-debugOption = 'B1'  # explicitly deactivate all pop-ups
-#debugOption = 'B2' # explicitly deactivate parent of all nested pop-ups
-#debugOption = 'B3' # don't explicitly deactivate any pop-ups
-
 class MenuItemLogger(widgetlogger.WidgetLogger):
     classes = (Gtk.MenuItem,)
     def location(self, menuitem, *args):
@@ -40,23 +36,10 @@ class MenuItemLogger(widgetlogger.WidgetLogger):
             if debugOption != 'B3':
                 if isinstance(parent, Gtk.Menu):
                     # obj is a pop-up menu.
-                    if debugOption == 'B1':
-                        return ["%s.activate() # MenuItemLogger" %
-                                self.location(obj, args),
-                                "%s.deactivate() # MenuItemLogger" %
-                                loggers.findLogger(parent).location(parent)]
-                    if debugOption == 'B2':
-                        cmds = ["%s.activate() # MenuItemLogger" %
-                                self.location(obj, args)]
-                        if len(path) > 1:
-                            # obj is a nested pop-up menu.  Its parent menu
-                            # must be deactivated explicitly, inexplicably.
-
-                            ## Chooser widget also needs to be explicitly
-                            ## deactivated here.  WTF?
-                            cmds.append("%s.deactivate() # MenuItemLogger" %
-                                        loggers.findLogger(parent).location(parent))
-                        return cmds
+                    return ["%s.activate() # MenuItemLogger" %
+                            self.location(obj, args),
+                            "%s.deactivate() # MenuItemLogger" %
+                            loggers.findLogger(parent).location(parent)]
             return ["%s.activate()" % self.location(obj, args)]
         return super(MenuItemLogger, self).record(obj, signal, *args)
 

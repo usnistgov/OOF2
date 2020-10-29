@@ -16,9 +16,6 @@ import logutils
 import sys
 import string
 
-debugOption = 'C1'
-#debugOption = 'C2'
-
 class WidgetLogger(loggers.GtkLogger):
     classes = (Gtk.Widget,)
 
@@ -36,21 +33,10 @@ class WidgetLogger(loggers.GtkLogger):
                 eventname = "BUTTON_PRESS"
             else:
                 eventname = "BUTTON_RELEASE"
-            if debugOption == 'C1':
-                return [
-                    "event(Gdk.EventType.%s,x=%20.13e,y=%20.13e,button=%d,state=%d,window=%s.get_window())"
-                    % (eventname, evnt.x, evnt.y, evnt.button, evnt.state,
-                       self.location(obj, *args))
-                    ]
-            if debugOption == 'C2':
-                return [
-                    "wevent(%(w)s, Gdk.EventType.%(e)s, x=%(x)20.13e, y=%(y)20.13e, button=%(b)d, state=%(s)d, window=%(w)s.get_window())"
-                    % dict(w=self.location(obj, *args),
-                           e=eventname,
-                           x=evnt.x,
-                           y=evnt.y,
-                           b=evnt.button,
-                           s=evnt.state)
+            return [
+                "event(Gdk.EventType.%s,x=%20.13e,y=%20.13e,button=%d,state=%d,window=%s.get_window())"
+                % (eventname, evnt.x, evnt.y, evnt.button, evnt.state,
+                   self.location(obj, *args))
                 ]
 
         if signal in ('key-press-event', 'key-release-event'):
