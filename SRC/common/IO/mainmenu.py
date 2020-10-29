@@ -278,7 +278,7 @@ _filemenu.addItem(OOFMenuItem(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/quit.xml'),
     threadable = oofmenu.UNTHREADABLE,
     no_log=1
-    )) 
+    ))
 
 ##################################
 
@@ -524,6 +524,16 @@ debugmenu.addItem(CheckOOFMenuItem(
     help='Print all switchboard calls as they occur.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/verbosesb.xml')
     ))
+
+if debug.debug():
+    debugmenu.addItem(oofmenu.OOFMenuItem(
+        "Sandbox",
+        callback=None,
+        accel='d',
+        threadable=oofmenu.UNTHREADABLE))
+        
+
+
 
 def setWarnPopups(menuitem, value):
     reporter.messagemanager.set_warning_pop_up(value)
