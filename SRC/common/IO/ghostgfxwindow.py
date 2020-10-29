@@ -464,7 +464,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         raisemenu.addItem(OOFMenuItem(
             'By',
             callback=self.raiseBy,
-            cli_only = 1,
+            #cli_only = 1,
             params=[
                 IntParameter('n', 0, tip="Layer index."),
                 IntParameter('howfar', 1, tip="How far to raise the layer.")
@@ -501,7 +501,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         lowermenu.addItem(OOFMenuItem(
             'By',
             callback=self.lowerBy,
-            cli_only = 1,
+            # cli_only = 1,
             params=[
                 IntParameter('n', 0, tip="Layer index."),
                 IntParameter('howfar', 1, tip="How far to lower the layer.")
