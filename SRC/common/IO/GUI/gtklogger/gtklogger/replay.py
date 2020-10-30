@@ -283,6 +283,8 @@ class GUILogLineRunner(object):
                     # until the window is mapped makes this problem
                     # less frequent, but doesn't make it go away
                     # entirely.
+                    ## TODO GTK3: See if this is really still required
+                    ## by setting maxtries to 1.
                     self.ntries += 1
                     if self.ntries == maxtries:
                         if logutils.debugLevel() >= 1:

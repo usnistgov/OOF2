@@ -30,7 +30,9 @@ class MenuItemLogger(widgetlogger.WidgetLogger):
             # explicitly deactivated, but menu items that don't open
             # dialog boxes do.  This makes no sense at all.  In any
             # case we don't know whether or not the menu needs to be
-            # deactivated, and we can't 
+            # deactivated.  deactivatePopup() attempts to deactivate
+            # the pop-up, and ignores the exception that is raised if
+            # it can't find it.
             parent, path = logutils.getMenuPath(obj)
             if isinstance(parent, Gtk.Menu):
                 # obj is a pop-up menu.
