@@ -261,6 +261,8 @@ class AutomaticEntry(Gtk.Entry, Gtk.Editable):
         Gtk.Entry.__init__(self, *args, **kwargs)
         # super(AutomaticEntry, self).__init__(args, kwargs)
     def setAutoWidget(self, autowidget):
+        # autowidget is the ParameterWidget that is using this
+        # AutomaticEntry.
         self.autowidget = autowidget
         self.logger = gtklogger.findLogger(self)
     def do_insert_text(self, new_text, length, position):
