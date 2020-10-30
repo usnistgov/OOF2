@@ -173,12 +173,12 @@ class GenericSelectToolbox(toolbox.Toolbox):
                 except AttributeError:
                     help = None
                 params = sourceparams + registration.params + [
-                    primitives.ListOfPointsParameter('points',
-                                                     tip=parameter.emptyTipString),
-                    parameter.BooleanParameter('shift', 0,
-                                               tip="True for addition."),
-                    parameter.BooleanParameter('ctrl', 0,
-                                               tip="True for toggle.")
+                    primitives.ListOfPointsParameter(
+                        'points', tip=parameter.emptyTipString),
+                    parameter.BooleanParameter(
+                        'shift', False, tip="True for addition."),
+                    parameter.BooleanParameter(
+                        'ctrl', False, tip="True for toggle.")
                     ]
                 menuitem = self.menu.addItem(
                     oofmenu.OOFMenuItem(registration.name(),

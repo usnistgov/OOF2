@@ -64,8 +64,8 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.method = method            # RegisteredClass of selection methods
         self.points = []                # locations of mouse events
         # Was a modifier key pressed during the last button event?
-        self.shift = 0                 
-        self.ctrl = 0
+        self.shift = False                 
+        self.ctrl = False
         self.rb = None          # rubberband
 
         outerbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)

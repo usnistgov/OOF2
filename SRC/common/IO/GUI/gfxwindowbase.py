@@ -486,10 +486,17 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     def mouseCB(self, eventtype, x, y, button, shift, ctrl, data):
         # "data" is an object that was passed in to
         # Canvas::setMouseCallback() when this method was installed as
-        # the callback, in GfxWindow.newCanvas. 
+        # the callback, in GfxWindow.newCanvas.
         debug.mainthreadTest()
         global _during_callback
         _during_callback = 1
+
+        # Convert from 0,1, to False,True. If log files have a mix of
+        # different boolean formats, test scripts that compare log
+        # files can fail for trivial reasons.
+        shift = bool(shift)
+        ctrl = bool(ctrl)
+        
         if self.mouseHandler.acceptEvent(eventtype):
             if eventtype == 'up':
                 self.mouseHandler.up(x,y, button, shift, ctrl, data)
@@ -540,10 +547,10 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         # button is which mouse button was used
         # state is a GdkModifierType containing control, shift, etc.
         ux, uy = self.oofcanvas.pixel2user(x, y)
-        shift = state & Gdk.ModifierType.SHIFT_MASK != 0
-        ctrl = state & Gdk.ModifierType.CONTROL_MASK != 0
+        shift = bool(state & Gdk.ModifierType.SHIFT_MASK != 0)
+        ctrl = bool(state & Gdk.ModifierType.CONTROL_MASK != 0)
         return [
-            "findGfxWindow('%s').simulateMouse('%s', %.8g, %.8g, %d, %d, %d)"
+            "findGfxWindow('%s').simulateMouse('%s', %.8g, %.8g, %d, %s, %s)"
             % (self.name, etype, ux, uy, button, shift, ctrl)
         ]
 

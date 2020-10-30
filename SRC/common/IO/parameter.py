@@ -288,10 +288,6 @@ class Parameter(object):
 # Special Parameter subclasses.  They have specialized widgets and
 # BinaryReprs.
 
-## TODO PEDANTRY: Change the values for BooleanParameter to True &
-## False, instead of 1 & 0.  Doing this may actually be messy and
-## break scripts, though.
-
 class BooleanParameter(Parameter):
     def __init__(self, name, value=None, default=0, tip=None):
         Parameter.__init__(self, name, value, default, tip)
@@ -303,10 +299,10 @@ class BooleanParameter(Parameter):
             raiseTypeError(type(x), "0 or 1")
     def set(self, value):
         if value is not None:
-            if not (value==0 or value==1):
+            if value not in (True, False):
                 raise ParameterMismatch('Got ' + `value` + ' for Parameter '
                                         + self.name)
-        self._value = value
+        self._value = bool(value) # converts 0,1 to True,False
         self.timestamp.increment()
     def binaryRepr(self, datafile, value):
         if value:
@@ -316,7 +312,7 @@ class BooleanParameter(Parameter):
         v = parser.getBytes(1)
         return (v == "1")
     def valueDesc(self):
-        return "Boolean, 0 (false) or 1 (true)."
+        return "Boolean: True or False."
 
 class _RangeParameter(Parameter):
     def __init__(self, name, range, types, value, default, tip):
