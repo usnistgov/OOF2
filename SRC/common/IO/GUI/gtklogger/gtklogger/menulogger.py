@@ -24,22 +24,21 @@ class MenuItemLogger(widgetlogger.WidgetLogger):
 
     def record(self, obj, signal, *args):
         if signal == "activate":
-            # If the menu is a nested pop-up menu, we need to hide or
-            # destroy it after it's used. (Not sure why this is
-            # necessary, but it seems to be.) Whether it needs to be
-            # hidden or destroyed depends on whether the code is
-            # reusing the pop-up, which we don't know.  TODO GTK3:
-            # pop-up menus will need to be popped-up by gtklogger code
-            # which can mark it as a pop-up (so checking here will be
-            # easier) and also say if it is transient or not.
+            # If the menu is a pop-up menu, we need to deactivate it
+            # after it's used, sometimes.  Apparently menu items that
+            # open dialog boxes don't require the menu to be
+            # explicitly deactivated, but menu items that don't open
+            # dialog boxes do.  This makes no sense at all.  In any
+            # case we don't know whether or not the menu needs to be
+            # deactivated, and we can't 
             parent, path = logutils.getMenuPath(obj)
-            if debugOption != 'B3':
-                if isinstance(parent, Gtk.Menu):
-                    # obj is a pop-up menu.
-                    return ["%s.activate() # MenuItemLogger" %
-                            self.location(obj, args),
-                            "%s.deactivate() # MenuItemLogger" %
-                            loggers.findLogger(parent).location(parent)]
+            if isinstance(parent, Gtk.Menu):
+                # obj is a pop-up menu.
+                return ["%s.activate() # MenuItemLogger"
+                        % self.location(obj, args),
+                        "deactivatePopup('%s') # MenuItemLogger"
+                        % logutils.getWidgetName(parent)]
+            # Not a pop-up menu.
             return ["%s.activate()" % self.location(obj, args)]
         return super(MenuItemLogger, self).record(obj, signal, *args)
 

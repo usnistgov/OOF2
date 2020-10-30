@@ -528,7 +528,18 @@ def event(etype, **kwargs):
 def wevent(widget, etype, **kwargs):
     ev = buildEvent(etype, **kwargs)
     widget.event(ev)
-    
+
+
+# Pop-up menus sometimes need to be explicitly closed, but it's hard
+# to tell when.  deactivatePopup() closes a popup if it can be found,
+# and silently returns if it can't.
+
+def deactivatePopup(name):
+    try:
+        menu = logutils.getTopLevelWidget(name)
+    except logutils.GtkLoggerTopFailure:
+        return
+    menu.deactivate()
         
 ####################
 
