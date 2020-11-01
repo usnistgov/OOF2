@@ -103,10 +103,13 @@ TutorialClass(
     correspondence between colors and features is trivial, we can
     group pixels automatically.
 
-    Open the BOLD(Image) page and click the BOLD(Group) button.
+    Open the BOLD(Image) page and click the BOLD(Group) button.  Click
+    BOLD(OK) in the dialog box.
 
     Go back to the BOLD(Microstructure) page and you will see that
     BOLD(8) pixel groups have been created for the microstructure.
+    The group names are the hexadecimal representations of the pixel
+    colors in the groups.
     """ ),
 
     TutoringItem(
@@ -137,8 +140,9 @@ TutorialClass(
 
     """Click BOLD(New...) to create an initial skeleton.
     
-    As in other cases, to give a skeleton a user-defined name, check
-    the little square box and type in a name of your liking.
+    The BOLD(name) field is an automatic widget.  You can type a name,
+    or leave it set to BOLD(<automatic>), in which the name "skeleton"
+    or "skeleton<x>" will be used, for some x.
 
     The number of elements in the initial skeleton can be set with the
     parameters, BOLD(x_elements) and BOLD(y_elements).
@@ -148,7 +152,8 @@ TutorialClass(
 
     For this tutorial, just use the default values for the initial
     skeleton: BOLD(x_elements)=4, BOLD(y_elements)=4, and
-    BOLD(skeleton_geometry)=QuadSkeleton.
+    BOLD(skeleton_geometry)=QuadSkeleton.  Leave the BOLD(periodicity)
+    arguments set to BOLD(false).
 
     Click BOLD(OK) to create the Skeleton.
     """,
@@ -198,8 +203,9 @@ TutorialClass(
     largest fraction of an element's area belonging to a single pixel
     type.)
     
-    The second parameter BOLD(criterion) determines whether to accept
-    or reject the resulting refinement.  Select BOLD(Unconditional).
+    The second parameter BOLD(criterion) determines how OOF2 decides
+    to accept or reject a possible refinement.  Select
+    BOLD(Unconditional).
 
     The parameter BOLD(degree) controls the degree of
     subdivision.  It specifies into how many segments each edge of an
@@ -247,7 +253,7 @@ TutorialClass(
     Click BOLD(Undo) and BOLD(Redo), while checking out Homogeneity
     Index.
 
-    The number has been increased from BOLD(0.7305) to BOLD(0.8726).
+    The number has been increased from BOLD(0.7306) to BOLD(0.8726).
     """ ),
     
     TutoringItem(
@@ -317,13 +323,9 @@ TutorialClass(
     Select BOLD(Heterogeneous Elements) for the BOLD(targets)
     parameter and set the BOLD(threshold) to be BOLD(0.9), meaning it
     will attempt to move nodes of elements with homogeneity less than
-    BOLD(0.9).  """ ),
+    BOLD(0.9). 
 
-    TutoringItem(
-    subject="Snapping Nodes -- continued",
-    comments=
-    
-    """For the BOLD(criterion) parameter, select BOLD(Average Energy)
+    For the BOLD(criterion) parameter, select BOLD(Average Energy)
     and set its parameter BOLD(alpha) to be BOLD(1).
 
     The quality of a Skeleton element is quantified by a functional,
@@ -342,8 +344,8 @@ TutorialClass(
     long as doing so makes them more homogeneous. (We'll fix the bad
     shapes next.)
 
-    Click BOLD(OK) to make changes.  The BOLD(Homogeneity Index)
-    increases from 0.957 to 0.989.""",
+    Click BOLD(OK) to make changes.  Notice that the BOLD(Homogeneity
+    Index) increases from 0.957 to 0.989.""",
         
     signal = "Skeleton modified"
     ),
@@ -356,8 +358,7 @@ TutorialClass(
     elements have been badly distorted while adapting themselves to
     the material boundaries.
     
-    Select the BOLD(Skeleton Modification) method to
-    BOLD(Rationalize).
+    Set the BOLD(Skeleton Modification) method to BOLD(Rationalize).
 
     This modification tool automatically removes badly shaped
     elements, provided the changes meet a certain criterion.
@@ -392,16 +393,18 @@ TutorialClass(
     components -- elements, segments, and nodes -- and for
     manipulating groups of them.
 
-    Set BOLD(Selection Mode) to BOLD(Elements).
+    Below the Skeleton selector at the top of the page, set
+    BOLD(Selection Mode) to BOLD(Elements).
 
     From the BOLD(Element Selection Operations) pane in the right side
     of the page, select BOLD(Select By Homogeneity) for the parameter
-    BOLD(Action) and set its BOLD(threshold) to be BOLD(0.9), to
+    BOLD(Method) and set its BOLD(threshold) to be BOLD(0.9), to
     select all elements less than 90% homogeneous.
 
+    Click BOLD(OK) to make a selection.
+
     We will apply the next modification only to the selected elements.
-        
-    Now, click BOLD(OK) to make a selection.""",
+    """,
 
     signal = "changed element selection"
     ),
@@ -714,8 +717,8 @@ TutorialClass(
     subject="Homework",
     comments=
     
-    """You must like what you see in the graphics window.  Anyway, we
-    have covered most of the issues related to Skeleton modifications.
+    """We have covered most of the issues related to Skeleton
+    modifications.
     
     Related topics not covered in this tutorial include BOLD(Active
     Areas), and the BOLD(Move Node) toolbox.  """ )
