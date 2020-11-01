@@ -646,7 +646,7 @@ class RegisteredClassListFactory(RCFBase):
             if self.includeRegistration(registration):
                 data = RegistrationGUIData(registration, self)
                 self.guidata[registration.name()] = data
-                data.button.set_hexpand(False)
+                data.button().set_hexpand(False)
                 self.grid.attach(data.button(), 0,row,1,1)
                 data.label().set_hexpand(True)
                 data.label().set_halign(Gtk.Align.FILL)
