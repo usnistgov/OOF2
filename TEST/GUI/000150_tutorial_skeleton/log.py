@@ -1,3 +1,4 @@
+import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 checkpoint toplevel widget mapped OOF2
@@ -122,6 +123,7 @@ checkpoint skeleton selection page groups sensitized
 checkpoint skeleton selection page updated
 checkpoint OOF.Skeleton.New
 checkpoint skeleton page sensitized
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 16, 25)
 findWidget('Skeleton:Next').clicked()
 findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
 checkpoint Move Node toolbox info updated
@@ -175,6 +177,7 @@ checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 140, 163)
 findWidget('Skeleton:Next').clicked()
 findWidget('OOF2:Skeleton Page:Pane:Modification:Undo').clicked()
 checkpoint skeleton selection page groups sensitized
@@ -196,6 +199,7 @@ checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Undo
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 16, 25)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Redo').clicked()
 checkpoint skeleton selection page groups sensitized
 checkpoint skeleton selection page groups sensitized
@@ -216,6 +220,7 @@ checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Redo
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 140, 163)
 findWidget('Skeleton:Next').clicked()
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:slider').get_adjustment().set_value( 9.8611111111111e-01)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry').set_text('0.')
@@ -253,6 +258,7 @@ checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 777, 815)
 findWidget('Skeleton:Next').clicked()
 findWidget('Skeleton:Next').clicked()
 findWidget('Skeleton:Next').clicked()
@@ -304,6 +310,7 @@ checkpoint Move Node toolbox writable changed
 checkpoint skeleton selection page groups sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
+assert tests.skeletonSizeCheck('small.ppm:skeleton', 777, 815)
 findWidget('Skeleton:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 1.1300000000000e+02,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
@@ -1254,6 +1261,7 @@ findWidget('Dialog-Skeleton:filename').set_text('skeleton.da')
 findWidget('Dialog-Skeleton:filename').set_text('skeleton.dat')
 findWidget('Dialog-Skeleton:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Save.Skeleton
+assert tests.filediff('skeleton.dat')
 findWidget('Skeleton:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 6.0000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
@@ -1280,5 +1288,6 @@ findWidget('Dialog-Python_Log:filename').set_text('session.log')
 findWidget('Dialog-Python_Log').resize(194, 122)
 findWidget('Dialog-Python_Log:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Save.Python_Log
+assert tests.filediff('session.log')
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Quit']).activate()
 checkpoint OOF.Graphics_1.File.Close
