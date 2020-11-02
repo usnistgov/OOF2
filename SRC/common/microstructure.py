@@ -322,6 +322,10 @@ class MicrostructureContext(whoville.Who):
     def getSelectionContext(self):
         return self.getObject().pixelselection
     def lockAndDelete(self):
+        # TODO: Suppress all redrawing until all Who objects have been
+        # deleted.  There's no need to redraw after the Skeletons or
+        # ActiveArea has been deleted and again after the
+        # Microstructure has been deleted.
         self.reserve()
         ms = self.getObject()
         try:

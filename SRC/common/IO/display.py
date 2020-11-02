@@ -153,8 +153,9 @@ class DisplayMethod(registeredclass.RegisteredClass):
         # For example, a method that displays a field defined on a
         # mesh would return 'Field not defined' if that field weren't
         # defined on the mesh self.who.
+        ## TODO: just returning True or False is probably sufficient.
         who = self.who.resolve(gfxwindow)
-        if who is None:
+        if who is None or who.getObject() is None:
             return "Nothing to draw"
         if not self.acceptsWho(who):
             return "DisplayMethod can't display %s objects" \
