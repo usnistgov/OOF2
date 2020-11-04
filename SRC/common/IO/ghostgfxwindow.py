@@ -58,6 +58,14 @@ _debuglocks = False
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+class NewLayerPolicy(enum.EnumClass(
+        ("Never", "Don't automatically create any display layers."),
+        ("Single", "Automatically add new graphics layers for Images, Skeletons, and Meshes if the graphics window doesn't contain any similar layers for other objects.  New graphics windows will automatically add layers for pre-existing objects if they are unique."),
+        ("Always", "Automatically add display layers for all newly created Images, Skeletons, and Meshes."))):
+    tip = "How the graphics window reacts when new Images, Skeletons, or Meshes are created."
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class GfxSettings:
     # Stores all the settable parameters for a graphics
     # window. Variables defined at the class level are the default
@@ -77,6 +85,7 @@ class GfxSettings:
     aspectratio = 5             # Aspect ratio of the contourmap.
     contourmap_markersize = 2   # Size in pixels of contourmap marker.
     contourmap_markercolor = color.gray50 # Color of contourmap position marker.
+    newlayerpolicy = NewLayerPolicy("Never")
     def __init__(self):
         # Copy all default (class) values into local (instance) variables.
         self.__dict__['timestamps'] = {}
@@ -532,10 +541,16 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             callback=self.toggleAntialias,
             value=self.settings.antialias,
             threadable=oofmenu.THREADABLE,
-            help=
-            "Use antialiased rendering.",
+            help="Use antialiased rendering.",
             discussion=xmlmenudump.loadFile(
                     'DISCUSSIONS/common/menu/antialias.xml')
+        ))
+        settingmenu.addItem(OOFMenuItem(
+            'New_Layer_Policy',
+            callback=self.setNewLayerPolicy,
+            params=[enum.EnumParameter('policy', NewLayerPolicy,
+                                       value=self.settings.newlayerpolicy)],
+            help="When to create new graphics layers."
         ))
         settingmenu.addItem(CheckOOFMenuItem(
             'List_All_Layers',
@@ -712,7 +727,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.toolboxes = []
         map(self.newToolboxClass, toolbox.toolboxClasses)
 
-        self.defaultLayerCreated = {}
         self.sensitize_menus()
 
         if not clone:
@@ -803,27 +817,80 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         # is created.
         self.createDefaultLayers()
 
-    def createDefaultLayers(self):
+    def createDefaultLayers(self, whoclassname=None, newwhopath=None):
+        # If whoclassname and newwhopath are given, a new Who object
+        # has just been created.  If they're not given, then this
+        # window has just been created.
+
+        # Do different things depending on newlayerpolicy:
+
+        # newlayerpolicy == "Never":
+        #   Don't do anything.
+        
+        # newlayerpolicy == "Always"
+
+        #   If a new Who object has been created, add all
+        #   DefaultLayers that apply to it.  "Always" only applies
+        #   when a new Who object is created, not when a new gfx
+        #   window is opened.
+
+        # newlayerpolicy == "Single"
+
+        #   If a new Who object has been created, add the relevant
+        #   default layers if no non-proxy layer exists for any other
+        #   Who object in the same class.
+        
+        #   If the window is new, create new layers if there's only
+        #   one member of the relevant WhoClass.
+
+        
+        if self.settings.newlayerpolicy == "Never":
+            return
+
         # Unselect all layers first, so that new layers don't
         # overwrite existing ones.
         selectedLayer = self.selectedLayer
         self.deselectAll()
 
-        # Create a default layer for each WhoClass if this window
-        # hasn't already created a default layer for that class and if
-        # there's only a single member of the class.  The single
-        # member constraint is enforced in DefaultLayer.createLayer().
-        for defaultlayer in DefaultLayer.allDefaultLayers:
-            try:
-                layercreated = self.defaultLayerCreated[defaultlayer]
-            except KeyError:
-                self.defaultLayerCreated[defaultlayer] = layercreated = False
-            if not layercreated:
-                layer, who = defaultlayer.createLayer()
+        # Are we adding layers for a new Who object, or is this a new
+        # graphics window?  If it's a new window, create default
+        # layers for all existing who objects, consistent with the
+        # current policy.
+        if whoclassname is not None:
+            # A new Who object may need to be displayed.
+            whoclass = whoville.getClass(whoclassname)
+            newwho = whoclass[newwhopath]
+            assert newwho is not None
+            # Add only the default layers that can display newwho.
+            for defaultlayer in DefaultLayer.allDefaultLayers:
+                # createLayer returns None if the given Who is the
+                # wrong kind of Who (of Whom?).
+                layer, who = defaultlayer.createLayer(newwho)
                 if layer is not None:
-                    self.incorporateLayer(layer, who, autoselect=False,
-                                          lock=False)
-                    self.defaultLayerCreated[defaultlayer] = True
+                    if self.settings.newlayerpolicy == "Always":
+                        self.incorporateLayer(layer, who, autoselect=False,
+                                              lock=False)
+                    elif self.settings.newlayerpolicy == "Single":
+                        # See if there's already a layer displaying a
+                        # non-proxy Who object of this type.
+                        for oldlayer in self.layers:
+                            if not isinstance(oldlayer.who, whoville.WhoProxy):
+                                if oldlayer.who.getClassName() == whoclassname:
+                                    break
+                        else:
+                            # No existing layer for this WhoClass
+                            self.incorporateLayer(layer, who, autoselect=False,
+                                                  lock=False)
+        else:
+            # whoclassname is None, so this is a new graphics window.
+            if self.settings.newlayerpolicy == "Single":
+                for defaultlayer in DefaultLayer.allDefaultLayers:
+                    if defaultlayer.whoclass.nActual() == 1:
+                        layer, who = defaultlayer.createLayer(
+                            defaultlayer.whoclass.actualMembers()[0])
+                        if layer is not None:
+                            self.incorporateLayer(layer, who, autoselect=False,
+                                                  lock=False)
 
         # Restore the previous selection state.
         if selectedLayer:
@@ -1028,6 +1095,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             self.fillLayerList()
         finally:
             self.releaseGfxLock()
+
+    def setNewLayerPolicy(self, menuitem, policy):
+        self.settings.newlayerpolicy = policy
 
     def fillLayerList(self):
         # Redefined in GfxWindowBase class.
@@ -1408,10 +1478,10 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     # switchboard callbacks
 
-    def newWho(self, classname, who):
+    def newWho(self, classname, whopath):
         # A new Who (layer context) has been created.  Display it
         # automatically, if nothing else is displayed.
-        self.createDefaultLayers()
+        self.createDefaultLayers(classname, whopath)
         ## Don't call self.draw() here!  It should only be called when
         ## a menu item issues the "redraw" switchboard signal.
         ## Otherwise it can be called too often (such as when one menu
@@ -1457,8 +1527,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
 # An imported module can define a default layer for a graphics window
 # by instantiating the DefaultLayer class.  Default layers are drawn
-# in a new grraphics window if and only if there is exactly one
-# instance of the WhoClass which they display.
+# in a new grraphics window if there is exactly one instance of the
+# WhoClass which they display, or if an object of the appropriate
+# WhoClass is passed in to the createLayer method.
 
 class DefaultLayer:
     allDefaultLayers = []
@@ -1467,11 +1538,11 @@ class DefaultLayer:
         self.whoclass = whoclass
         self.displaymethodfn = displaymethodfn
 
-    def createLayer(self):
-        if self.whoclass.nActual() == 1:
-            return (self.displaymethodfn(),
-                    self.whoclass.actualMembers()[0])
-        return None, None
+    def createLayer(self, who):
+        assert who is not None # used to be allowed
+        if who.getClass() is self.whoclass:
+            return (self.displaymethodfn(), who)
+        return (None, None)
 
 # Predefined layers are created whenever a graphics window is opened
 # by GhostGfxWindow.createPredefinedLayers(), without checking for the
@@ -1513,3 +1584,13 @@ mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
     help="Set the initial size of graphics windows.",
     discussion="<para> Set the initial size of graphics windows. </para>"
     ))
+
+def _setDefaultNewLayerPolicy(menuitem, policy):
+    GfxSettings.newlayerpolicy = policy
+
+mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
+    'New_Layer_Policy',
+    callback=_setDefaultNewLayerPolicy,
+    params=[enum.EnumParameter('policy', NewLayerPolicy,
+                               value=GfxSettings.newlayerpolicy)],
+    help = "When to create new graphics layers."))

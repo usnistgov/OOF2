@@ -33,6 +33,11 @@ gtk3 changes, which may be in 2.1.20 or 2.2.0, depending...
   non-automatic value to an automatic one, delete the contents of the
   box.
 
+* Whether or not new Images, Skeletons, and Meshes are displayed
+  automatically in a graphics window depends on the setting of the
+  window's "New Layer Policy".  Choices are "Never", "Single", and
+  "Always".
+
 Other unreleased changes:
 
 * Fixed the square brush in the pixel selection toolbox, which was
