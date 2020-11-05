@@ -234,12 +234,10 @@ TutorialClass(subject="Basics",
     subject="The Graphics Window",
     comments=
 
-    """The graphics window displays Microstructures, Skeletons, and
-    Meshes and their associated data.  Open a graphics window with the
-    BOLD(Graphics/New) command in the BOLD(Windows) menu.
+    """Open a graphics window with the BOLD(Graphics/New) command in the
+    BOLD(Windows) menu.  The graphics window displays Microstructures,
+    Skeletons, and Meshes and their associated data.
 
-    You should see the Image BOLD(small.ppm) displayed in the window.
-    
     The graphics window is composed of five parts: a menu bar, a
     toolbox area, a canvas, a contour map, and a layer list.  
 
@@ -271,6 +269,42 @@ TutorialClass(subject="Basics",
     have a minimum size, so you may need to enlarge the entire window
     before moving some of the dividers.  """
     ),
+
+    TutoringItem(
+    subject="Adding a Graphics Layer",
+    comments=
+    
+    """The BOLD(canvas) is currently blank, even though a microstructure
+    has been created from an image.
+
+    Everything displayed in a graphics window is part of a
+    BOLD(Layer).  Layers are listed at the bottom of the window.
+    Layers can be shown, hidden, deleted, and reordered by using the
+    BOLD(Layer) menu, or by right-clicking in the layer list.
+
+    To display a layer, select BOLD(New) from the BOLD(Layer) menu in
+    the graphics window.
+
+    Each layer is defined by three parameters, BOLD(category),
+    BOLD(what), and BOLD(how).  BOLD(category) determines what kind of
+    object is displayed in the layer.  Set BOLD(category) to
+    BOLD(Image).
+
+    BOLD(what) determines which object in the selected category will
+    be displayed.  Images are identified by their name and the name of
+    the Microstructure that contains them.  The upper pull-down menu
+    in the BOLD(what) box selects the Microstructure, and the lower
+    one selects the Image.  We have only one Microstructure (named
+    "small.ppm") and it contains only one Image (also named
+    "small.ppm"), so leave both menus set to "small.ppm"
+
+    BOLD(how) determines how the object will be rendered on the
+    canvas.  Leave it set to BOLD(Bitmap) and click BOLD(OK).
+
+    The image now appears on the canvas and its display layer is
+    listed at the bottom of the window.
+
+    """),
 
     TutoringItem(
     subject="Activity Viewer and Progress Bars",
