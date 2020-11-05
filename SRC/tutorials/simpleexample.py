@@ -51,7 +51,14 @@ TutorialClass(
     window.  Graphical representations of entities such as
     Microstructure, Skeleton, and Mesh, are displayed in the graphics
     window.
-    """
+
+    (New!) The graphics window doesn't automatically display objects
+    unless you add a new graphics layer.  It can be told to
+    automatically add layers, though.  In the Settings menu, select
+    BOLD(New Layer Policy), and in the dialog box set BOlD(policy) to
+    BOLD(Single).  Click BOLD(OK).  This makes the window
+    automatically display new Images, Meshes, and Skeletons if only one
+    such object exists."""
     ),
 
     TutoringItem(
@@ -118,8 +125,9 @@ TutorialClass(
         subject="Renaming Pixel Groups",
         comments=
 
-    """The automatically generated names of the pixel groups are not
-    terribly convenient. The groups can be renamed.
+    """The automatically generated names of the pixel groups are the
+    hexadecimal values of the colors and are not terribly
+    convenient. The groups can be renamed.
 
     Select the first pixel group, BOLD(#00ffff (2160 pixels meshable))
 
@@ -346,9 +354,9 @@ TutorialClass(
         subject="Displaying a Microstructure",
         comments=
 
-    """The graphics window displays many things automatically, but if
-    you want to view a Microstructure you must tell it to do so
-    explicitly by adding a new BOLD(Display Layer).
+    """The graphics window can display some things automatically, but if
+    you want to view a Microstructure you must do it explicitly by
+    adding a new BOLD(Display Layer).
 
     Dig up the Graphics window that you opened earlier by choosing
     BOLD(Graphics/Graphics 1) in the BOLD(Windows) menu on any OOF2
@@ -356,7 +364,7 @@ TutorialClass(
 
     Select BOLD(New) from the BOLD(Layer) menu in the Graphics window.
     Earlier versions of OOF2 used a really awkward graphics layer
-    editor window here.  Fortunately for you, it's been eliminated.
+    editor window here.  Fortunately, it's been eliminated.
 
     The dialog box for creating a new graphics layer asks you to
     specify three things: BOLD(category), BOLD(what), and BOLD(how).
@@ -387,11 +395,10 @@ TutorialClass(
         subject="Layer List",
         comments=
         
-    """The Microstructure Material Display appears in the Graphics
-    window.  Pixels to which you assigned the yellow-material are
-    drawn in yellow, or whatever color you gave to that Material.  The
-    remaining pixels are black because they have no Material, and the
-    default value for BOLD(no_material) is black.
+    """The Microstructure Material Display appears in the Graphics window.
+    Pixels to which you assigned the yellow-material are drawn in
+    yellow.  The remaining pixels are black because they have no
+    Material, and the default value for BOLD(no_material) is black.
 
     The Layer List at the bottom of the Graphics Window now shows two
     layers: a Microstructure layer on top of an Image layer.  You may
@@ -433,7 +440,8 @@ TutorialClass(
     Microstructure.  Instead, it creates a BOLD(Skeleton), which
     specifies the mesh geometry and nothing else.  One Skeleton can be
     used to create many different meshes, with different element types
-    and different physical fields.
+    and different physical fields.  One Microstructure can contain
+    many Skeletons.
 
     Open the BOLD(Skeleton) page in the main OOF2 window.
 
@@ -711,14 +719,14 @@ TutorialClass(
     In the pop-up window, change BOLD(Element Edges) to BOLD(Filled
     Contour).
 
-    The set of pull-down menus labelled BOLD(what) determines which
-    quantity will be plotted.  Displacement is a BOLD(Field), so set the top
-    "what" menu to BOLD(Field), and then set the next menu to
+    The set of pull-down menus labelled BOLD(how) determines which
+    quantity will be plotted.  Displacement is a BOLD(Field), so set
+    the top "what" menu to BOLD(Field), and then set the next menu to
     BOLD(Component).
 
-    Two new menus appear inside the "what" box, allowing you to choose
-    which BOLD(field) and which BOLD(component) to display.  The only
-    field defined in this problem is Displacement, so leave that menu alone.
+    The two menus below BOLD(Component) in the "what" box allow you to
+    choose which field and which component to display.  The only field
+    defined in this problem is Displacement, so leave that menu alone.
     Make sure that the BOLD(component) menu is set to BOLD(x).
 
     The BOLD(where) parameter controls whether the contours will be
