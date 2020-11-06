@@ -523,10 +523,10 @@ class IntRangeWidget(labelledslider.IntLabelledSlider, ParameterWidget):
             vmin=param.range[0], vmax=param.range[1], step=1,
             callback=self.sliderCB, **kwargs)
         ParameterWidget.__init__(self, self.gtk, scope=scope, name=name)
-        self.widgetChanged(1, interactive=0) # always valid
+        self.widgetChanged(self.consistent(), interactive=0)
     def sliderCB(self, slider, val):
         debug.mainthreadTest()
-        self.widgetChanged(1, interactive=1)
+        self.widgetChanged(self.consistent(), interactive=1)
 
 def _IntRange_makeWidget(self, scope, **kwargs):
     return IntRangeWidget(self, scope=scope, name=self.name, **kwargs)
@@ -545,10 +545,11 @@ class FloatRangeWidget(labelledslider.FloatLabelledSlider, ParameterWidget):
             vmin=param.range[0], vmax=param.range[1], step=param.range[2],
             callback=self.sliderCB, **kwargs)
         ParameterWidget.__init__(self, self.gtk, scope=scope, name=name)
-        self.widgetChanged(1, interactive=0) # always valid
+        self.widgetChanged(self.consistent(), interactive=0)
     ## FloatRangeWidget uses LabelledSlider's get_value()
     def sliderCB(self, slider, val):
-        self.widgetChanged(1, interactive=1)
+        debug.mainthreadTest()
+        self.widgetChanged(self.consistent(), interactive=1)
 
 def _FloatRange_makeWidget(self, scope=None, **kwargs):
     return FloatRangeWidget(self, scope=scope, name=self.name, **kwargs)
@@ -875,6 +876,7 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
             except (Exception, ooferror.ErrError), exception:
                 exceptions.append(exception)
         if exceptions:
+            debug.fmsg("exceptions[0] ->%s<-", exceptions[0])
             raise exceptions[0]
     def vcheck(self, widgetnumber, validity):
         # callback for ('validity', widget).  This just stores the

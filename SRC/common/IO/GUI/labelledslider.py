@@ -119,6 +119,9 @@ class LabelledSlider:
         try:
             self.slider.set_value(value)
             self.set_entry(value)
+            self.inconsistent = False
+        except:
+            self.inconsistent = True
         finally:
             self.adjustmentsignal.unblock()
             self.entrysignal.unblock()
@@ -140,12 +143,16 @@ class LabelledSlider:
         try:
             v0 = self.get_value()
         except:
-            # Illegal values will raise an exception, but they
-            # may be incomplete entries.  So don't do anything
-            # about it here.
-            pass
+            # The value in the entry is illegal. Maybe the entry is
+            # empty.  We need to call the callback anyway, in case
+            # someone needs to know that the widget is in an
+            # inconsistent state.
+            if self.callback:
+                self.inconsistent = True
+                self.callback(self, None)
         else:
             self.changed = False
+            self.inconsistent = False
             val = self.clipper.clip(v0)
             self.adjustmentsignal.block()
             try:
@@ -198,6 +205,13 @@ class LabelledSlider:
 
     def getBounds(self):
         return (self.adjustment.get_lower(), self.adjustment.get_upper())
+
+    def consistent(self):
+        # If the text in the entry has been deleted but slider hasn't
+        # moved and no new text has been inserted, the widget is in an
+        # inconsistent state and its value can't be evaluated.
+        return not self.inconsistent
+        
 
     ## TODO: Is there a Gtk3 version of Range.set_policy?
     # def set_policy(self, policy):
