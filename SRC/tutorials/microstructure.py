@@ -30,26 +30,7 @@ TutorialClass(subject="Microstructure",
     assembled into pixel groups.
 
     An OOF2 Microstructure is the data structure that stores this
-    information."""  ),
-
-    TutoringItem(
-    subject="Graphics Window",
-    comments=
-
-    """Open a graphics window with the BOLD(Graphics/New) command in
-    the BOLD(Windows) menu.
-
-    Let us get started by creating a microstructure from an image
-    file.  """
-    ),
-
-    TutoringItem(
-    subject="Locate the Data",
-    comments=
-
-    """Locate the file BOLD(K1_small.pgm) within the
-    share/oof2/examples directory in your OOF2 installation.
-
+    information.
     """
     ),
     
@@ -58,7 +39,10 @@ TutorialClass(subject="Microstructure",
     subject="Creating a Microstructure",
     comments=
 
-    """Open the BOLD(Microstructure) page in the main OOF2 window.  Click
+    """Locate the file BOLD(K1_small.pgm) within the
+    share/oof2/examples directory in your OOF2 installation.
+
+    Open the BOLD(Microstructure) page in the main OOF2 window.  Click
     on BOLD(New from Image File).
 
     In the file selection dialog box, navigate to BOLD(K1_small.pgm).
@@ -82,6 +66,27 @@ TutorialClass(subject="Microstructure",
     signal = ("new who", "Microstructure") ),
 
     TutoringItem(
+        subject="Display the Image",
+        comments=
+
+        """
+        Open a graphics window.  
+
+        Because we didn't set BOLD(Settings/New Layer Policy) before
+        loading the Image, nothing is shown in the window.
+
+        Create a new Image layer with the BOLD(New) menu item in the
+        BOLD(Layer) menu.  In the dialog box, set BOLD(category) to
+        BOLD(Image).  Leave BOLD(what) set to
+        BOLD(K1_small.pgm/K1_small.pgm) (the Image called
+        "K1_small.pgm" in the Microstructure also called
+        "K1_small.pgm").  Leave BOLD(how) set to BOLD(Bitmap).
+
+        Click BOLD(OK).
+        """
+    ),
+
+    TutoringItem(
     subject="A Glance at the Microstructure",
     comments=
 
@@ -89,22 +94,18 @@ TutorialClass(subject="Microstructure",
     BOLD('K1_small.ppm') features two distinct materials, one in
     BOLD(black) and the other in BOLD(white).
 
-    The boundaries between two materials are rather blurry and some
-    parts of materials are not as discernable as others.
+    The boundaries between two materials are rather blurry and the
+    black and white regions are really continuous shades of gray.
 
-    At this point, your Microstructure object doesn't contain any
-    useful information other than its size and the micrograph itself.
-
-    The ultimate goal of this tutorial session is to establish two
-    distinct pixel groups that represent the two materials featured in
-    the micrograph.
+    To make a useful Skeleton and Mesh from this image, we need to add
+    information to the Microstructure so that it knows which pixels
+    belong to which material.  We will do this by creating two pixel
+    groups, one for each material.
 
     For any given pixel, you could decide individually whether it
     belongs to BOLD(black) or BOLD(white).  This process would be
     tedious.  OOF2 contains image manipulation tools to make it
-    easier.
-
-    """
+    easier. """
     ),
     
     TutoringItem(
@@ -115,7 +116,7 @@ TutorialClass(subject="Microstructure",
     Open the BOLD(Image) page in the main OOF2 window.
 
     The two pull-down menus at the top of the page, labelled
-    BOLD(Microstructure) and BOLD(Image) comprise the BOLD(Image
+    BOLD(Microstructure) and BOLD(Image) form the BOLD(Image
     Selector).  They let you choose which BOLD(Image) object the page
     operates on. (Most OOF2 main window pages have some sort of
     Selector at the top.) Since we currently have only one
@@ -151,13 +152,12 @@ TutorialClass(subject="Microstructure",
 
     """Select BOLD(Contrast) and apply it BOLD(three) times.
 
-    The darker region gets darker and the brighter region gets
-    brighter, which make materials more distinguishable than
+    The darker regions get darker and the brighter regions get
+    brighter, making the two materials more distinguishable than
     before.
 
-    The two materials are now clearly distinguishable except a
-    questionable spot in the lower-middle part of the image, where a
-    supposedly-white material looks dark.
+    There is, however, questionable spot in the lower-middle part of
+    the image, where a region that ought to be white material is dark.
 
     We'll deal with it later.
     """,
@@ -311,7 +311,7 @@ TutorialClass(subject="Microstructure",
     works on the entire microstructure.
 
     BOLD(Clear) the current pixel selection, if any, and move on to
-    the next slide for some real action.
+    the next slide for for information.
     """
     ),
 
@@ -352,10 +352,11 @@ TutorialClass(subject="Microstructure",
     image.
 
     If you're unsure of the location of the erroneous region,
-    BOLD(Clear) to view the whole image, the BOLD(Undo) (that is, undo
-    the Clear) to make it more apparent.
+    BOLD(Clear) to deselect the whole image, and then the BOLD(Undo)
+    (that is, undo the Clear) switch the view back and forth between
+    the image and the selection.
 
-    If you located the spot, click BOLD(Invert) to invert the selection.
+    Once you have located the spot, click BOLD(Invert) to invert the selection.
     """,
     signal= "new pixel selection"
     ),
@@ -509,8 +510,8 @@ TutorialClass(subject="Microstructure",
 
     Switch the BOLD(Image Selector) in the BOLD(Image) page in the
     main window to the original Image, "K1_small.pgm", and click
-    BOLD(Undo) four times (corresponding to the one TODO and three
-    TODO operations on the image that you did earlier).  """
+    BOLD(Undo) four times (corresponding to the one Normalize and three
+    Contrast operations on the image that you did earlier).  """
     ),
 
     TutoringItem(
