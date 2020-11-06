@@ -33,46 +33,6 @@ TutorialClass(
         
     ),
 
-##        TutoringItem(
-##        subject="Why skeleton?",
-##        comments=
-
-##        """Let us assume that we don't have skeleton, meaning we only
-##        have FE mesh.
-
-##        You spent a considerable amount of time to mesh your
-##        microstructure.
-
-##        What if you chose the wrong element type in the beginning?
-
-##        You need to either start over or write a program to correct
-##        your mistakes, which will not be so easy.
-
-##        With skeleton, you don't need to go through this kind of
-##        hassle.
-
-##        You're always a click away from your FE mesh with customizable
-##        element types.
-
-##        Also, compared to FE mesh, skeleton is extremely
-##        BOLD(lighter), that is, it is easy to be manipulated.
-
-##        Factoring in a highly intensive computation needed in
-##        BOLD(meshing) stage, it is easy to see why we need
-##        BOLD(skeleton).
-
-##        Further information on skeleton can be found in the manual.
-##        """ ),
-
-##     TutoringItem(
-##     subject="Graphics window",
-##     comments=
-    
-##     """Open a graphics window, if none has been opened yet, with
-##     the BOLD(Graphics/New) command in the BOLD(Windows) menu.
-    
-##     """ ),
-
     TutoringItem(
     subject="Creating a Microstructure from an Image File",
     comments=
@@ -165,8 +125,15 @@ TutorialClass(
     subject="Heterogeneous Elements",
     comments=
     
-    """ Open a BOLD(Graphics) window if you haven't already.  It
-    should be showing the skeleton on top of the micrograph.
+    """In the BOLD(Settings/Graphics Defaults) menu, set BOLD(New Layer
+    Policy) to BOLD(Single).  This will make new unique graphics
+    layers appear automatically in new graphics windows.
+
+    Open a new BOLD(Graphics) window.  It should show the Skeleton on
+    top of the image.  (Note that a graphics window that was opened
+    before you loaded the Image or created the Skeleton won't show
+    them unless you explicitly create a layer with the BOLD(Layer/New)
+    menu item.)
 
     For a Skeleton to be a good representation of a Microstructure,
     the BOLD(Elements) in the Skeleton must not cross boundaries
@@ -607,9 +574,18 @@ TutorialClass(
     Internal Boundary Nodes). Click BOLD(OK).
 
     All the nodes along the boundaries should be selected and
-    displayed as BOLD(yellow) dots.
+    displayed as BOLD(yellow) dots.  These nodes are not going to move
+    at all, until they are unpinned.
 
-    These nodes are not going to move at all, until they are unpinned.
+    If the dots are too large and are obscuring the Skeleton, you can
+    change their radius by editing their graphics layer.  In the
+    graphics window's BOLD(Settings) menu, check BOLD(List All
+    Layers).  Make the window and layer list larger if necessary, and
+    double-click the BOLD(PinnedNodesDisplay) line in the layer list.
+    Reduce the radius by changing the BOLD(size) parameter and click
+    BOLD(OK).  Uncheck BOLD(List All Layers) in the BOLD(Settings)
+    menu.
+
     """,
         
     signal = "new pinned nodes"
