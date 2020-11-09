@@ -356,13 +356,13 @@ class BasicIterative(BasicMatrixMethod):
             tolerance=self.tolerance,
             max_iterations=self.max_iterations)
     def resolve_asymmetric(self, subproblemcontext, existingSolver):
-        if (isinstance(existingSolver, StabilizedConjugateGradient) and
+        if (isinstance(existingSolver, StabilizedBiConjugateGradient) and
             existingSolver.tolerance == self.tolerance and
             existingSolver.max_iterations == self.max_iterations and
             isinstance(existingSolver.preconditioner,
                        preconditioner.JacobiPreconditioner)):
             return existingSolver
-        return StabilizedConjugateGradient(
+        return StabilizedBiConjugateGradient(
             preconditioner=preconditioner.JacobiPreconditioner(),
             tolerance=self.tolerance,
             max_iterations=self.max_iterations)
