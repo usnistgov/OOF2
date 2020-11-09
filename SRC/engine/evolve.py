@@ -74,8 +74,10 @@ def evolve(meshctxt, endtime):
             # Initialize static fields in all subproblems.  For static
             # problems, this computes the actual solution.
             try:
+                debug.memusage("before initializeStaticFields")
                 linsys_dict = initializeStaticFields(subprobctxts, starttime,
                                                      prog)
+                debug.memusage("after initializeStaticFields")
                 # Initial output comes *after* solving static fields.
                 # For fully static problems, this is the only output.
                 _do_output(meshctxt, starttime)
@@ -240,6 +242,7 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
     starttime = time
     startdelta = delta
     truncated_step = False
+    debug.memusage("evolve_to")
 
     try:
         # Main loop.  There is no explicit limit to the number of
