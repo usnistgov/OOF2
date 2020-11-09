@@ -15,6 +15,7 @@ import ooflib.SWIG.common.lock
 
 import gc
 import string
+import subprocess
 import sys
 import types
 
@@ -198,3 +199,30 @@ def dumpReferrers(obj, levels=0, exclude=[], _level=0):
                     dumpReferrers(ref, levels,
                                   exclude=exclude+[locals(), refs], 
                                   _level=_level+1)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# This only works on Linux.
+
+memfile = None
+
+def startMemoryMonitor(filename):
+    global memfile
+    memfile = file(filename, "w")
+    memusage("startMemoryMonitor")
+
+def stopMemoryMonitor():
+    global memfile
+    if memfile is not None:
+        memfile.close()
+        memfile = None
+    
+def memusage(comment):
+    if memfile:
+        pid = os.getpid()
+        pmap = subprocess.check_output(["pmap", `pid`])
+        # pmap contains a long string with embedded newlines. It ends with
+        # "\n total XXXXXK\n" where XXXXX is the number we want.
+        mem = pmap.rsplit('\n')[-2].split()[1][:-1]
+        print >> memfile, mem, comment
+        memfile.flush()

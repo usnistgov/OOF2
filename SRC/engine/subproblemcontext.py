@@ -827,6 +827,7 @@ class SubProblemContext(whoville.Who):
             self.nonlinear_solver.computeStaticFields(self, linsys, unknowns)
                 
     def computeStaticFieldsL(self, linsys, unknowns):
+        debug.memusage("start of computeStaticFieldsL")
         # Initialize "static" fields for linear problems. 
         if linsys.n_unknowns_part('K')==0 and linsys.n_unknowns_part('C')==0:
             return
@@ -867,6 +868,7 @@ class SubProblemContext(whoville.Who):
                 rhs -= K02*u2
             self.matrix_method(self.asymmetricK).solve(K00, rhs, u0)
             self.time_stepper.set_unknowns_part('K', linsys, u0, unknowns)
+            debug.memusage("K computed")
 
         if len(u1) > 0 and self.time_stepper.derivOrder() > 1:
             # Find u1dot by solving

@@ -528,6 +528,22 @@ debugmenu.addItem(CheckOOFMenuItem(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/verbosesb.xml')
     ))
 
+def _startMemMonitor(menuitem, filename):
+    debug.startMemoryMonitor(filename)
+
+def _stopMemMonitor(menuitem):
+    debug.stopMemoryMonitor()
+
+memmenu = debugmenu.addItem(OOFMenuItem('Memory_Monitor'))
+memmenu.addItem(OOFMenuItem(
+    'Start',
+    callback=_startMemMonitor,
+    params=[filenameparam.WriteFileNameParameter("filename")],
+    ))
+memmenu.addItem(OOFMenuItem(
+    'Stop',
+    callback=_stopMemMonitor))
+
 def setWarnPopups(menuitem, value):
     reporter.messagemanager.set_warning_pop_up(value)
 
