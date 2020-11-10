@@ -663,19 +663,27 @@ def stopMemoryMonitor():
     if memfile is not None:
         memfile.close()
         memfile = None
+
+def get_memusage_str():
+    pid = os.getpid()
+    pmap = subprocess.check_output(["pmap", `pid`])
+    # pmap contains a long string with embedded newlines. It ends with
+    # "\n total XXXXXK\n" where XXXXX is the number we want.
+    mem = pmap.rsplit('\n')[-2].split()[1][:-1]
+    return mem
+
+def get_memusage():
+    m = get_memusage_str()
+    return int(m[:-1])          # strip off the K and convert to int
     
 def memusage(comment):
     if memfile:
-        pid = os.getpid()
-        pmap = subprocess.check_output(["pmap", `pid`])
-        # pmap contains a long string with embedded newlines. It ends with
-        # "\n total XXXXXK\n" where XXXXX is the number we want.
-        mem = pmap.rsplit('\n')[-2].split()[1][:-1]
-        print >> memfile, mem, comment
+        print >> memfile, get_memusage_str(), '#', comment
         memfile.flush()
 
-# Make it available in OOF scripts
+# Make memusage available in OOF scripts
 OOFdefine('memusage', memusage)
+OOFdefine('get_memusage', get_memusage)
 
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
