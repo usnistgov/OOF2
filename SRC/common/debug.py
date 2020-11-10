@@ -9,15 +9,19 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import threadstate
+from ooflib.common import mainthread
 from ooflib.common import parallel_enable
 from ooflib.common import thread_enable
 import ooflib.SWIG.common.lock
 
 import gc
+import os
 import string
-import subprocess
 import sys
+import traceback
 import types
+
+
 
 _debug_mode = 0
 
@@ -41,8 +45,6 @@ def clear_debug_mode():
 
 def debug():
     return _debug_mode
-
-import traceback
 
 def dumpTrace(start=0, end=-1):
     ## Use start=-3, end=-2 if you only want to see the calling
@@ -142,9 +144,6 @@ def fmsg(*args):
             lock.release()
 
 
-from ooflib.common import mainthread
-import os
-
 def mainthreadTest():
     if _debug_mode:
         if not mainthread.mainthread():
@@ -200,29 +199,4 @@ def dumpReferrers(obj, levels=0, exclude=[], _level=0):
                                   exclude=exclude+[locals(), refs], 
                                   _level=_level+1)
 
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# This only works on Linux.
-
-memfile = None
-
-def startMemoryMonitor(filename):
-    global memfile
-    memfile = file(filename, "w")
-    memusage("startMemoryMonitor")
-
-def stopMemoryMonitor():
-    global memfile
-    if memfile is not None:
-        memfile.close()
-        memfile = None
-    
-def memusage(comment):
-    if memfile:
-        pid = os.getpid()
-        pmap = subprocess.check_output(["pmap", `pid`])
-        # pmap contains a long string with embedded newlines. It ends with
-        # "\n total XXXXXK\n" where XXXXX is the number we want.
-        mem = pmap.rsplit('\n')[-2].split()[1][:-1]
-        print >> memfile, mem, comment
-        memfile.flush()

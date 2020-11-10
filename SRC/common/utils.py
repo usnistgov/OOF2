@@ -11,7 +11,10 @@
 
 from ooflib.SWIG.common import lock
 from ooflib.common import debug
+
+import os
 import string
+import subprocess
 import sys
 import types
 
@@ -641,6 +644,39 @@ except NameError:
                 return False
         return True
     __builtins__['all'] = all
+
+#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
+
+# Memory monitoring.  Prints the current memory usage to a file.  Put
+# calls to memusage() at points where you want to know how much memory
+# is being used.  This only works on Linux at the moment.
+
+memfile = None
+
+def startMemoryMonitor(filename):
+    global memfile
+    memfile = file(filename, "w")
+    memusage("startMemoryMonitor")
+
+def stopMemoryMonitor():
+    global memfile
+    if memfile is not None:
+        memfile.close()
+        memfile = None
+    
+def memusage(comment):
+    if memfile:
+        pid = os.getpid()
+        pmap = subprocess.check_output(["pmap", `pid`])
+        # pmap contains a long string with embedded newlines. It ends with
+        # "\n total XXXXXK\n" where XXXXX is the number we want.
+        mem = pmap.rsplit('\n')[-2].split()[1][:-1]
+        print >> memfile, mem, comment
+        memfile.flush()
+
+# Make it available in OOF scripts
+OOFdefine('memusage', memusage)
+
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
