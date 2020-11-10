@@ -666,11 +666,32 @@ def stopMemoryMonitor():
 
 def get_memusage_str():
     pid = os.getpid()
-    pmap = subprocess.check_output(["pmap", `pid`])
-    # pmap contains a long string with embedded newlines. It ends with
-    # "\n total XXXXXK\n" where XXXXX is the number we want.
-    mem = pmap.rsplit('\n')[-2].split()[1][:-1]
-    return mem
+    if sys.platform == 'darwin':
+        vmmap = subprocess.check_output(["vmmap", "-summary", `pid`])
+        lines = vmmap.split('\n')
+        # The trouble here is that the output from vmmap requires some
+        # parsing, and I don't know if whatever is done here will be
+        # robust.  I am tempted not to bother with it until it's
+        # actually needed, if ever.
+
+        # There are two main blocks of output below the header.  One
+        # is headed "REGION TYPE" and one is "MALLOC ZONE".  We may
+        # just want to look at the second.  REGION TYPE seems to
+        # always have a line that begins with "TOTAL" followed by 8
+        # numbers in the form xxxG, xxxM, or xxxK.  The first number
+        # is the column marked "VIRTUAL SIZE" and may be what we want.
+        # Or maybe we only want the same number from the "MALLOC ZONE"
+        # block.  But that block doesn't always have a TOTAL line.
+        # Sometimes it has only one line, marked
+        # "DefaultMallocZone_0x....".  Presumably TOTAL is omitted if
+        # there's only one contribution.
+
+    elif sys.platform == 'linux2':
+        pmap = subprocess.check_output(["pmap", `pid`])
+        # pmap contains a long string with embedded newlines. It ends with
+        # "\n total XXXXXK\n" where XXXXX is the number we want.
+        mem = pmap.rsplit('\n')[-2].split()[1][:-1]
+        return mem
 
 def get_memusage():
     m = get_memusage_str()
