@@ -540,8 +540,8 @@ class GroupGUI(object):
             self.update_grouplist(names, map(gset.displayString, names))
             mainthread.runBlock(self.grouplist.set_selection,
                                     (name,) )
-
-        self.sensitize_subthread()
+        else:
+            self.sensitize_subthread()
         switchboard.notify("redraw skeletongroups", skelcontext)
 
     def groupset_changed(self, skelcontext, gset):
@@ -554,10 +554,11 @@ class GroupGUI(object):
             finally:
                 skelcontext.end_reading()
             self.update_grouplist(names, map(gset.displayString, names))
-        # Must sensitize -- if the current group has become empty, the
-        # "clear" button's sensitivity will have changed.
-        self.sensitize_subthread()
-        switchboard.notify("redraw skeletongroups", skelcontext)    
+        else:
+            # Must sensitize -- if the current group has become empty,
+            # the "clear" button's sensitivity will have changed.
+            self.sensitize_subthread()
+            switchboard.notify("redraw skeletongroups", skelcontext)    
 
     def group_resized(self, skelcontext, gset):
         debug.subthreadTest()
@@ -569,10 +570,10 @@ class GroupGUI(object):
             finally:
                 skelcontext.end_reading()
             self.update_grouplist(names, map(gset.displayString, names))
-
-        # Must sensitize -- if the resize was to or away from size 0,
-        # the clear button needs updating.
-        self.sensitize_subthread()
+        else:
+            # Must sensitize -- if the resize was to or away from size 0,
+            # the clear button needs updating.
+            self.sensitize_subthread()
 
     def pxlgroup_added(self, group, *args):
         # switchboard callback when pixel groups are added or
@@ -694,7 +695,8 @@ class GroupGUI(object):
     def pickerCB(self, mode):
         self.gtk.set_label(mode.name() + " group operations")
         self.draw_grouplist()
-        self.sensitize()
+        # Don't call self.sensitize here.  It's already been called
+        # via self.draw_grouplist.
 
     def draw_grouplist(self):
         groupset = self.getGroupSet()
@@ -708,9 +710,12 @@ class GroupGUI(object):
     def update_grouplist(self, names, objs):
         mainthread.runBlock(self.update_grouplist_thread, (names, objs))
     def update_grouplist_thread(self, names, objs):
-        self.grouplist.update(names, objs)
-        gtklogger.checkpoint("skeleton selection page grouplist")
-                             # + self.activemode().name())
+        # Updating the chooser calls self.chooserCB, which calls
+        # self.sensisitize, so methods that call update_grouplist
+        # should *not* call sensitize.
+        self.grouplist.update(names, objs) 
+        gtklogger.checkpoint("skeleton selection page grouplist"
+                             + self.activemode().name())
 
     # This little two-step is required because the selectionSize()
     # query locks the selection object, and so can't be on the main
@@ -778,8 +783,9 @@ class GroupGUI(object):
 
         self.addmaterial_button.set_sensitive(matok)
         self.removematerial_button.set_sensitive(matok)
-        gtklogger.checkpoint("skeleton selection page groups sensitized")
-                             # + self.activemode().name())
+        gtklogger.checkpoint("skeleton selection page groups sensitized"
+                             + self.activemode().name())
+                             
             
 class SelectionGUI(object):
     def __init__(self, parent):
@@ -983,8 +989,8 @@ class SelectionGUI(object):
         self.redo_button.set_sensitive(r and skelok)
         self.activemode().historybox.sensitize()
         self.activemode().ok_sensitize()
-        gtklogger.checkpoint("skeleton selection page selection sensitized")
-                             # + self.activemode().name())
+        gtklogger.checkpoint("skeleton selection page selection sensitized"
+                             + self.activemode().name())
         
 class HistoryBox(object):
     def __init__(self, set_callback, ok_callback):
