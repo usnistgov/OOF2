@@ -192,8 +192,7 @@ class SkeletonSelectionPage(oofGUI.MainPage):
     def installed(self):
         if not self.built:
             # initialize, arbitrarily, to the first mode listed
-            self.pickerCB(None,
-                          self.modedict[skeletonselmodebase.firstMode().name])
+            self.set_mode(self.modedict[skeletonselmodebase.firstMode().name])
             self.built = True
 
     def getCurrentSkeletonName(self):
@@ -262,14 +261,19 @@ class SkeletonSelectionPage(oofGUI.MainPage):
 
         mainthread.runBlock(self.status.get_buffer().set_text, (status_text,))
         gtklogger.checkpoint("skeleton selection page updated")
-
         
-    def pickerCB(self, gtk, modedata):  # new selection mode chosen
+    def pickerCB(self, radiobutton, modedata):  # new selection mode chosen
+        # This is called for the button that's turned off as well as
+        # the one that's turned on, so check before doing anything.
+        if radiobutton.get_active():
+            self.set_mode(modedata)
+
+    def set_mode(self, modedata):
         self.statusframe.set_label(modedata.name() + ' Selection Status')
         self.activemode = modedata
         self.groupgui.pickerCB(modedata)
         self.selectiongui.pickerCB(modedata)
-        self.update()                   # doesn't set self.activemode anymore
+        self.update()       # doesn't set self.activemode anymore
 
     def skelwidgetCB(self, interactive): # skeleton widget sb callback
         debug.mainthreadTest()
@@ -706,7 +710,7 @@ class GroupGUI(object):
     def update_grouplist_thread(self, names, objs):
         self.grouplist.update(names, objs)
         gtklogger.checkpoint("skeleton selection page grouplist")
-            
+                             # + self.activemode().name())
 
     # This little two-step is required because the selectionSize()
     # query locks the selection object, and so can't be on the main
@@ -775,6 +779,7 @@ class GroupGUI(object):
         self.addmaterial_button.set_sensitive(matok)
         self.removematerial_button.set_sensitive(matok)
         gtklogger.checkpoint("skeleton selection page groups sensitized")
+                             # + self.activemode().name())
             
 class SelectionGUI(object):
     def __init__(self, parent):
@@ -979,6 +984,7 @@ class SelectionGUI(object):
         self.activemode().historybox.sensitize()
         self.activemode().ok_sensitize()
         gtklogger.checkpoint("skeleton selection page selection sensitized")
+                             # + self.activemode().name())
         
 class HistoryBox(object):
     def __init__(self, set_callback, ok_callback):
