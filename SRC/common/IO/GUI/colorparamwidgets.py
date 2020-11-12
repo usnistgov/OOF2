@@ -177,10 +177,17 @@ class ColorWidget(parameterwidgets.ParameterWidget):
         # Set the ColorBox from the sliders. The first arg is the
         # slider that changed, but we don't really need to know it.
         debug.mainthreadTest()
-        values = self.sliders.get_values()
-        self.color = self.colorclass(*values)
-        self.colorbox.change_color(self.color)
-        self.widgetChanged(True, interactive=True)
+        # A labelled slider can be in an invalid state if its text has
+        # been deleted, in which case get_values() will raise an
+        # exception.
+        try:
+            values = self.sliders.get_values()
+        except:
+            self.widgetChanged(False, interactive=True)
+        else:
+            self.color = self.colorclass(*values)
+            self.colorbox.change_color(self.color)
+            self.widgetChanged(True, interactive=True)
 
     def set_values(self, values=None):
         # Set the sliders and the ColorBox from the parameters
