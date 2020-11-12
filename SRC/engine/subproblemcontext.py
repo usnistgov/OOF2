@@ -603,7 +603,7 @@ class SubProblemContext(whoville.Who):
         # The linsys argument is either a LinearizedSystem object
         # previously created by this SubProblemContext, or None.  If
         # it's not None, it will be updated and reused.
-
+	debug.memusage("Make Linear System Started")
         mesh    = self.getParent()
         femesh  = mesh.getObject()
         subpobj = self.getObject()
@@ -629,6 +629,7 @@ class SubProblemContext(whoville.Who):
         ## timestamps in the Mesh? 
 
         femesh.setCurrentSubProblem(self.getObject())
+	debug.memusage("Completed Set FE Mesh")
 
         # Figure out which parts of the calculation have to be redone.
         # If always is set, all steps of the calculation will be
@@ -693,6 +694,7 @@ class SubProblemContext(whoville.Who):
         if newTime:
             linsys.set_time(time)
 
+	debug.memusage("Start Setting Boundary Conditions")
 
         # Apply boundary conditions to the linearized system object.
         # This has to be done before the matrix and rhs values are
@@ -772,6 +774,7 @@ class SubProblemContext(whoville.Who):
             ## TODO OPT: Only call float_contrib_rhs if solver needs
             ## to know the rhs explicitly.
             femesh.float_contrib_rhs(self.getObject(), linsys)
+	debug.memusage("End Setting Boundary Conditions")
 
         femesh.clearCurrentSubProblem()
         linsys.computed.increment()
