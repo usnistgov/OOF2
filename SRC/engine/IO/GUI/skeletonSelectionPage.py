@@ -714,7 +714,7 @@ class GroupGUI(object):
         # self.sensisitize, so methods that call update_grouplist
         # should *not* call sensitize.
         self.grouplist.update(names, objs) 
-        gtklogger.checkpoint("skeleton selection page grouplist"
+        gtklogger.checkpoint("skeleton selection page grouplist "
                              + self.activemode().name())
 
     # This little two-step is required because the selectionSize()
@@ -783,7 +783,7 @@ class GroupGUI(object):
 
         self.addmaterial_button.set_sensitive(matok)
         self.removematerial_button.set_sensitive(matok)
-        gtklogger.checkpoint("skeleton selection page groups sensitized"
+        gtklogger.checkpoint("skeleton selection page groups sensitized "
                              + self.activemode().name())
                              
             
@@ -989,7 +989,7 @@ class SelectionGUI(object):
         self.redo_button.set_sensitive(r and skelok)
         self.activemode().historybox.sensitize()
         self.activemode().ok_sensitize()
-        gtklogger.checkpoint("skeleton selection page selection sensitized"
+        gtklogger.checkpoint("skeleton selection page selection sensitized "
                              + self.activemode().name())
         
 class HistoryBox(object):

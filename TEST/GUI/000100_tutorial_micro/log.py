@@ -1,8 +1,9 @@
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
 import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
-checkpoint toplevel widget mapped OOF2
-checkpoint page installed Introduction
 findWidget('OOF2').resize(782, 511)
 findMenu(findWidget('OOF2:MenuBar'), ['Help', 'Tutorials']).activate()
 findMenu(findWidget('OOF2:MenuBar'), ['Help', 'Tutorials', 'Microstructure']).activate()
@@ -15,8 +16,8 @@ findWidget('Microstructure').resize(500, 362)
 event(Gdk.EventType.BUTTON_PRESS,x= 9.3000000000000e+01,y= 2.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Microstructure']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Microstructure
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Microstructure Page:Pane').set_position(235)
 checkpoint meshable button set
 checkpoint microstructure page sensitized
@@ -53,18 +54,18 @@ checkpoint microstructure page sensitized
 checkpoint pixel page updated
 checkpoint active area status updated
 checkpoint pixel page sensitized
-findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint mesh bdy page updated
+findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint Field page sensitized
 checkpoint Materials page updated
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
-checkpoint skeleton selection page grouplist
-checkpoint skeleton selection page selection sensitized
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized
+checkpoint skeleton selection page groups sensitized Element
 checkpoint Solver page sensitized
 checkpoint microstructure page sensitized
 checkpoint OOF.Microstructure.Create_From_ImageFile
@@ -73,10 +74,10 @@ findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
+checkpoint toplevel widget mapped OOF2 Graphics 1
 findWidget('OOF2 Graphics 1:Pane0').set_position(360)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
-checkpoint toplevel widget mapped OOF2 Graphics 1
 findWidget('OOF2 Graphics 1').resize(800, 492)
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
@@ -101,8 +102,8 @@ findWidget('OOF2').resize(782, 545)
 event(Gdk.EventType.BUTTON_PRESS,x= 8.5000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Image']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Image
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Image Page:Pane').set_position(546)
 findWidget('Microstructure:Next').clicked()
 findWidget('Microstructure:Next').clicked()
@@ -133,18 +134,18 @@ event(Gdk.EventType.BUTTON_PRESS,x= 8.3000000000000e+01,y= 9.0000000000000e+00,b
 checkpoint toplevel widget mapped chooserPopup-TBChooser
 findMenu(findWidget('chooserPopup-TBChooser'), ['Pixel Selection']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(249)
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(249)
 findWidget('Microstructure:Next').clicked()
 findGfxWindow('Graphics_1').simulateMouse('down', 65.90625, 54.7365, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 65.90625, 54.7365, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 65.90625, 54.7365, 1, False, False)
 checkpoint microstructure page sensitized
-checkpoint pixel page updated
-checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
+checkpoint pixel page updated
+checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Point
@@ -154,11 +155,11 @@ findGfxWindow('Graphics_1').simulateMouse('down', 72.59475, 53.781, 1, False, Tr
 findGfxWindow('Graphics_1').simulateMouse('move', 73.55025, 53.781, 1, False, True)
 findGfxWindow('Graphics_1').simulateMouse('up', 73.55025, 53.781, 1, False, True)
 checkpoint microstructure page sensitized
+checkpoint pixel page updated
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
 checkpoint pixel page sensitized
-checkpoint pixel page updated
-checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Point
 assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 2)
@@ -184,8 +185,8 @@ checkpoint microstructure page sensitized
 checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
-checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint pixel page sensitized
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Point
 assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 4)
@@ -193,11 +194,11 @@ findGfxWindow('Graphics_1').simulateMouse('down', 67.18025, 60.151, 1, False, Tr
 findGfxWindow('Graphics_1').simulateMouse('move', 67.18025, 60.151, 1, False, True)
 findGfxWindow('Graphics_1').simulateMouse('up', 67.18025, 60.151, 1, False, True)
 checkpoint microstructure page sensitized
-checkpoint Graphics_1 Pixel Selection sensitized
-checkpoint selection info updated Pixel Selection
 checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Pixel Selection
 checkpoint pixel page sensitized
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Point
 assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 3)
@@ -215,17 +216,17 @@ assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 4)
 findWidget('Microstructure:Next').clicked()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Undo').clicked()
 checkpoint microstructure page sensitized
-checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint pixel page updated
-checkpoint selection info updated Pixel Selection
 checkpoint pixel page sensitized
+checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Pixel Selection
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Undo
 assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 3)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Redo').clicked()
 checkpoint microstructure page sensitized
-checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint pixel page updated
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
@@ -234,18 +235,18 @@ assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 4)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.4000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Invert').clicked()
 checkpoint microstructure page sensitized
-checkpoint selection info updated Pixel Selection
-checkpoint pixel page sensitized
-checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Pixel Selection
+checkpoint pixel page updated
+checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Invert
 assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 8368)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Clear').clicked()
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
-checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Clear
@@ -264,21 +265,21 @@ checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Point
 assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 1)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Settings', 'Zoom', 'In']).activate()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:hscroll').get_adjustment().set_value( 6.1000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 7.4000000000000e+01)
 checkpoint OOF.Graphics_1.Settings.Zoom.In
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 7.4000000000000e+01)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Settings', 'Zoom', 'In']).activate()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:hscroll').get_adjustment().set_value( 1.9000000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 1.8500000000000e+02)
 checkpoint OOF.Graphics_1.Settings.Zoom.In
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Settings', 'Zoom', 'Out']).activate()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:hscroll').get_adjustment().set_value( 6.1000000000000e+01)
+checkpoint OOF.Graphics_1.Settings.Zoom.Out
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 1.5000000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 7.3000000000000e+01)
-checkpoint OOF.Graphics_1.Settings.Zoom.Out
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Settings', 'Zoom', 'Fill_Window']).activate()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:hscroll').get_adjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 0.0000000000000e+00)
 checkpoint OOF.Graphics_1.Settings.Zoom.Fill_Window
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 0.0000000000000e+00)
 findWidget('Microstructure:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 1.6100000000000e+02,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
@@ -314,9 +315,9 @@ findGfxWindow('Graphics_1').simulateMouse('move', 55.39575, 48.048, 1, False, Fa
 findGfxWindow('Graphics_1').simulateMouse('up', 55.39575, 48.048, 1, False, False)
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
-checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
+checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle
@@ -412,9 +413,9 @@ findGfxWindow('Graphics_1').simulateMouse('move', 75.14275, 48.048, 1, True, Tru
 findGfxWindow('Graphics_1').simulateMouse('up', 75.14275, 48.048, 1, True, True)
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
-checkpoint pixel page sensitized
-checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Pixel Selection
+checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Ellipse
@@ -456,8 +457,8 @@ checkpoint microstructure page sensitized
 checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
-checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint pixel page sensitized
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Ellipse
 assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 1153)
@@ -503,10 +504,10 @@ findGfxWindow('Graphics_1').simulateMouse('move', 80.55725, 40.404, 1, False, Fa
 findGfxWindow('Graphics_1').simulateMouse('move', 80.23875, 41.3595, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 80.23875, 41.3595, 1, False, False)
 checkpoint microstructure page sensitized
-checkpoint pixel page sensitized
 checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
+checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Brush
@@ -514,8 +515,8 @@ assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 1405)
 findWidget('Microstructure:Next').clicked()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Clear').clicked()
 checkpoint microstructure page sensitized
-checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint pixel page updated
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
@@ -552,21 +553,21 @@ checkpoint microstructure page sensitized
 checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
-assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 5799)
-widget_0=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Color:range:DeltaGray:delta_gray:entry')
-if widget_0: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
-del widget_0
 checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Color
+assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 5799)
+widget_0=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Color:range:DeltaGray:delta_gray:entry')
+if widget_0: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
+del widget_0
 findWidget('Microstructure:Next').clicked()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 9.4000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Invert').clicked()
 checkpoint microstructure page sensitized
-checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
+checkpoint pixel page updated
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Invert
@@ -621,8 +622,8 @@ findWidget('Microstructure:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 7.2000000000000e+01,y= 7.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Microstructure']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Microstructure
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:New').clicked()
@@ -640,7 +641,7 @@ findWidget('Dialog-Create new pixel group:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
-checkpoint skeleton selection page groups sensitized
+checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.New
 checkpoint microstructure page sensitized
 checkpoint meshable button set
@@ -664,8 +665,8 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Clear').c
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
-checkpoint selection info updated Pixel Selection
 checkpoint pixel page sensitized
+checkpoint selection info updated Pixel Selection
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Clear
 assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 0)
@@ -691,10 +692,10 @@ findGfxWindow('Graphics_1').simulateMouse('move', 79.92025, 61.425, 1, True, Fal
 findGfxWindow('Graphics_1').simulateMouse('move', 80.23875, 61.1065, 1, True, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 80.23875, 61.1065, 1, True, False)
 checkpoint microstructure page sensitized
-checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
-checkpoint pixel page sensitized
+checkpoint pixel page updated
 checkpoint selection info updated Pixel Selection
+checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Burn
@@ -713,10 +714,10 @@ assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 3717)
 findWidget('Microstructure:Next').clicked()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Clear').clicked()
 checkpoint microstructure page sensitized
-checkpoint Graphics_1 Pixel Selection sensitized
-checkpoint selection info updated Pixel Selection
 checkpoint pixel page updated
 checkpoint pixel page sensitized
+checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Pixel Selection
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Clear
 assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 0)
@@ -724,8 +725,8 @@ findWidget('OOF2').resize(782, 545)
 event(Gdk.EventType.BUTTON_PRESS,x= 7.1000000000000e+01,y= 2.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Image']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Image
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Image Page:Copy').clicked()
 checkpoint toplevel widget mapped Dialog-Copy Image
 findWidget('Dialog-Copy Image').resize(317, 134)
@@ -745,8 +746,8 @@ findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Element
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -799,17 +800,17 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Co
 findGfxWindow('Graphics_1').simulateMouse('down', 76.73525, 62.3805, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 76.73525, 62.3805, 1, False, False)
 checkpoint microstructure page sensitized
+checkpoint pixel page sensitized
 checkpoint pixel page updated
+checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Pixel Selection
+checkpoint Graphics_1 Pixel Selection sensitized
 widget_1=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Color:range:DeltaGray:delta_gray:entry')
 if widget_1: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1.get_window())
 del widget_1
-checkpoint selection info updated Pixel Selection
-checkpoint pixel page sensitized
-checkpoint Graphics_1 Pixel Selection sensitized
-checkpoint Graphics_1 Pixel Selection sensitized
-checkpoint contourmap info updated for Graphics_1
-assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 4341)
+ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Color
+assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 4341)
 event(Gdk.EventType.BUTTON_PRESS,x= 1.6100000000000e+02,y= 3.2000000000000e+01,button=3,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 checkpoint toplevel widget mapped PopUp-1
 findMenu(findWidget('PopUp-1'), ['Raise', 'One_Level']).activate() # MenuItemLogger
@@ -818,8 +819,8 @@ findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -828,21 +829,21 @@ event(Gdk.EventType.BUTTON_RELEASE,x= 6.0000000000000e+01,y= 2.3000000000000e+01
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Repeat').clicked()
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
-checkpoint selection info updated Pixel Selection
 checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
-assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 4843)
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Color
+assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 4843)
 findWidget('Microstructure:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 8.1000000000000e+01,y= 2.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Pixel Selection']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Pixel Selection
-findWidget('OOF2:Pixel Selection Page:Pane').set_position(273)
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint pixel page updated
+findWidget('OOF2:Pixel Selection Page:Pane').set_position(273)
 checkpoint pixel page sensitized
 event(Gdk.EventType.BUTTON_PRESS,x= 8.6000000000000e+01,y= 2.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
@@ -850,8 +851,8 @@ findMenu(findWidget('chooserPopup-RCFChooser'), ['Select Group']).activate() # M
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:OK').clicked()
 checkpoint microstructure page sensitized
-checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint pixel page updated
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
 checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
@@ -875,8 +876,8 @@ findWidget('Microstructure:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 1.0100000000000e+02,y= 2.3000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Microstructure']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Microstructure
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:New').clicked()
@@ -892,7 +893,7 @@ findWidget('Dialog-Create new pixel group:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
-checkpoint skeleton selection page groups sensitized
+checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.New
 assert tests.treeViewColCheck("OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList", 0, ['black (0 pixels, meshable)', 'white (2649 pixels, meshable)'])
 findWidget('Microstructure:Next').clicked()
