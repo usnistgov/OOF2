@@ -256,7 +256,11 @@ def chooserListStateCheckN(widgetpath, choices):
 
 
 def is_sensitive(widgetpath):
-    return _widget_sensitive(gtklogger.findWidget(widgetpath))
+    try:
+        return _widget_sensitive(gtklogger.findWidget(widgetpath))
+    except:
+        print >> sys.stderr, "Failed to find widget", widgetpath
+        raise
 
 def menuSensitive(menu, item):
     topmenuwidget = gtklogger.findWidget(menu)
