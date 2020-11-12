@@ -510,8 +510,8 @@ TutorialClass(subject="Microstructure",
 
     Switch the BOLD(Image Selector) in the BOLD(Image) page in the
     main window to the original Image, "K1_small.pgm", and click
-    BOLD(Undo) four times (corresponding to the one Normalize and three
-    Contrast operations on the image that you did earlier).  """
+    BOLD(Undo) four times (corresponding to the one Normalize and
+    three Contrast operations that you did earlier).  """
     ),
 
     TutoringItem(
