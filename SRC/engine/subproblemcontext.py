@@ -725,18 +725,21 @@ class SubProblemContext(whoville.Who):
 
             femesh.invoke_flux_bcs(subpobj, linsys, time)
 
+	utils.memusage("Start Apply Dirichlet Boundary Conditions")
         # Apply Dirichlet BCs.  If new values have been assigned to
         # the Fields, the old Dirichlet BCs may have been overwritten,
         # so they have to be reapplied.
         if bcsReset or newFieldValues:
             linsys.resetFieldFlags()
             femesh.invoke_fixed_bcs(subpobj, linsys, time)
+	utils.memusage("End if bcsReset or newFieldValues")
 
         if bcsReset:
             femesh.invoke_force_bcs(subpobj, linsys, time)
             # Set initial values of DoFs used in FloatBCs that
             # intersect fixedBCs.
             femesh.fix_float_bcs(subpobj, linsys, time)
+	utils.memusage("End if bcsReset")
 
         if rebuildMatrices:
             # Assemble vectors and matrices of the linearized system.
@@ -749,6 +752,7 @@ class SubProblemContext(whoville.Who):
             # **** This is the cpu intensive step: ****
             self.getObject().make_linear_system(linsys, self.nonlinear_solver)
             self.newMatrixCount += 1
+	utils.memusage("End if rebuildMatricies")
 
         if bcsReset or rebuildMatrices or newFieldValues:
             linsys.build_submatrix_maps()
@@ -761,6 +765,8 @@ class SubProblemContext(whoville.Who):
             # of the time-dependent Dirichlet boundary conditions.
             linsys.initDirichletDerivatives()
             femesh.setDirichletDerivatives(subpobj, linsys, time)
+	utils.memusage("End if bcsReset or rebuildMatricies or newFieldValues")
+
 
         if bcsReset:
             # Compute the part of the rhs due to fixed fields or fixed
