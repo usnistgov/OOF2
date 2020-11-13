@@ -776,14 +776,15 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def drawable(self):
         # Can any layer be drawn?  Used when testing the gui.
-        self.acquireGfxLock()
-        try:
-            for layer in self.layers:
-                if not layer.incomputable(self):
-                    return True
-            return False
-        finally:
-            self.releaseGfxLock()
+        ## TODO: Does this need a lock?  The gtk2 version had a
+        ## separate SLock that controlled access to the list of
+        ## layers, and it was acquired here.  This is called from the
+        ## main thread during gui tests, and can't use self.gfxlock,
+        ## because that's not an SLock.
+        for layer in self.layers:
+            if not layer.incomputable(self):
+                return True
+        return False
         
     def __repr__(self):
         return 'GhostGfxWindow("%s")' % self.name

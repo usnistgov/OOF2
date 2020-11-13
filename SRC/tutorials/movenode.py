@@ -103,7 +103,7 @@ TutorialClass(
     At this stage, continuing to move nodes will yield only a marginal
     improvement.  We need to refine the heterogeneous elements.
 
-    Set the Skeleton Refinement method to BOLD(Refine). Set
+    Set the Skeleton Modification method to BOLD(Refine). Set
     BOLD(targets) to BOLD(Heterogeneous Elements) with
     BOLD(threshold) = BOLD(1). Set BOLD(criterion) to
     BOLD(Unconditional), and BOLD(degree) to BOLD(Trisection) with
@@ -189,8 +189,8 @@ TutorialClass(
 
     Open the BOLD(Microstructure) page.
     
-    Click BOLD(Delete) to delete the existing Microstructure and
-    Skeleton at the same time.
+    Click BOLD(Delete) in the row of buttons near the top to delete
+    the existing Microstructure and Skeleton at the same time.
 
     As soon as you confirm the deletion, the graphics window will be
     emptied.""",
@@ -254,7 +254,7 @@ TutorialClass(
     undo/redo stack overflowed, in which case you should delete and
     reload the Skeleton).
 
-    Select BOLD(Anneal).
+    Select BOLD(Anneal) as the Skeleton Modification Method.
 
     Set BOLD(targets) to be BOLD(Heterogeneous Elements) with
     BOLD(threshold)=1, meaning that only the nodes of the
@@ -370,9 +370,9 @@ TutorialClass(
     subject="Annealing Revisited -- continued",
     comments=
 
-    """The Skeleton has been treated with BOLD(Snap Nodes) a few times
-    so far and it is obvious that snapping won't help the situation
-    any more. (Go ahead and try, anyway, if you like.)
+    """The Skeleton has been treated with BOLD(Snap Nodes) a few times so
+    far and snapping won't help the situation any more. (Go ahead and
+    try, anyway, if you like.)
 
     The worst problem spot is at the left corner of the triangle.  If
     you look closely, however, you'll see that the mesh alignment at
@@ -456,9 +456,11 @@ TutorialClass(
     quadrilateral (one with an interior angle near 180 degrees).
 
     BOLD(Undo) your modification and try again with BOLD(alpha) in the
-    BOLD(criterion) parameter set to BOLD(0.95), so that shape energy is
-    considered minimally.  The node should move closer to the vertex.
-    But the creation of an ugly element was unavoidable.
+    BOLD(criterion) parameter set to BOLD(0.95), so that shape energy
+    is considered minimally.  The node should move closer to the
+    vertex, but it creates an ugly element (the one to the southwest
+    of the node, with an interior angle that's almost 180 degrees).
+
 
     BOLD(Undo) this modification.""",
 
@@ -603,9 +605,9 @@ TutorialClass(
     subject="Manual Node Motion -- continued",
     comments=
 
-    """It's that simple to move a pain-in-the-butt node.
-
-    The BOLD(keyboard) mode allows more precise node moves.
+    """Unless you have unusual mouse-eye coordination, it's
+    impossible to precisely locate a point in BOLD(mouse) mode.
+    BOLD(Keyboard) mode allows more precise node moves.
 
     BOLD(Undo) the move with the BOLD(Undo) button in the toolbox.
     (The BOLD(Undo) button on the BOLD(Skeleton) page in the main
@@ -614,14 +616,9 @@ TutorialClass(
     Set the BOLD(Move with) button at the top of the toolbox to
     BOLD(Keyboard).
 
-    Now, assume that this problem node has to be absolutely positively
-    at the corner of the boundary.
-    
-    Unless you're blessed with enormous mouse-eye coordination, it's
-    impossible for you to spot the point in BOLD(mouse) mode.
-
-    So, in BOLD(keyboard) mode, all you have to do is to find the
-    position of the corner and type in these numbers.
+    Assuming that the problem node has to be absolutely positively at
+    the corner of the boundary, in BOLD(keyboard) mode all you have to
+    do is to find the position of the corner and type in the numbers.
     """,
     
     signal = ("who changed", "Skeleton")

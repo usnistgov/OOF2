@@ -483,7 +483,7 @@ def gtkTextviewCompare(widgetpath, targettext, tolerance=None):
     widget = gtklogger.findWidget(widgetpath)
     msgbuffer = gtklogger.findWidget(widgetpath).get_buffer()
     text = msgbuffer.get_text(msgbuffer.get_start_iter(),
-                              msgbuffer.get_end_iter())
+                              msgbuffer.get_end_iter(), True)
     if not fp_string_compare(text, targettext, tolerance):
         print >> sys.stderr, ("Textview compare failed for %s, >%s<!=>%s<."
                               % (widgetpath, text, targettext))
@@ -493,7 +493,7 @@ def gtkTextviewCompare(widgetpath, targettext, tolerance=None):
 def gtkTextviewTail(widgetpath, targettext, tolerance=None):
     msgbuffer = gtklogger.findWidget(widgetpath).get_buffer()
     text = msgbuffer.get_text(msgbuffer.get_start_iter(),
-                              msgbuffer.get_end_iter())
+                              msgbuffer.get_end_iter(), True)
     if not fp_string_compare_tail(text, targettext, tolerance):
         print >> sys.stderr, (("gtkTextviewTail failed for %s\n"
                                "expected =>%s<=\ngot =>%s<=")
@@ -504,7 +504,7 @@ def gtkTextviewTail(widgetpath, targettext, tolerance=None):
 def gtkTextviewHead(widgetpath, targettext):
     msgbuffer = gtklogger.findWidget(widgetpath).get_buffer()
     text = msgbuffer.get_text(msgbuffer.get_start_iter(),
-                              msgbuffer.get_end_iter())
+                              msgbuffer.get_end_iter(), True)
     ok = text.startswith(targettext)
     if not ok:
         print >> sys.stderr, \
@@ -515,7 +515,7 @@ def gtkTextviewHead(widgetpath, targettext):
 def gtkTextviewGetLines(widgetpath):
     msgbuffer = gtklogger.findWidget(widgetpath).get_buffer()
     text = msgbuffer.get_text(msgbuffer.get_start_iter(),
-                              msgbuffer.get_end_iter()).split('\n')
+                              msgbuffer.get_end_iter(), True).split('\n')
     return text
     
 def gtkTextviewGetLine(widgetpath, line):
