@@ -148,6 +148,7 @@ def treeViewLength(widgetpath):
     return len(treeview.get_model())
 
 def chooserCheck(widgetpath, choices):
+    # chooserCheck works for ChooserWidget, but not ChooserListWidget
     stack = gtklogger.findWidget(widgetpath + ':stack')
     # stack is a Gtk.Stack of Gtk.Boxes containing labels and images.
     # box.get_children()[0] is a Gtk.Label.
@@ -164,6 +165,10 @@ def chooserCheck(widgetpath, choices):
         print >> sys.stderr, "        Got:", sorted(names)
         return False
     return True
+
+def chooserListCheck(widgetpath, choices):
+    return treeViewColCheck(widgetpath, 0, choices)
+    
 
 def treeViewColCheck(widgetpath, col, choices, tolerance=None):
     # Check that the contents of the given column of a TreeView match
