@@ -28,6 +28,7 @@ from ooflib.engine import timestepper
 from ooflib.engine import solverstats
 import string
 import sys
+import datetime
 
 ## SubProblemContext is derived from IdentifiedObject for debugging.
 
@@ -603,7 +604,7 @@ class SubProblemContext(whoville.Who):
         # The linsys argument is either a LinearizedSystem object
         # previously created by this SubProblemContext, or None.  If
         # it's not None, it will be updated and reused.
-	utils.memusage("Make Linear System Started")
+	utils.memusage("Make Linear System Started %s" %datetime.datetime.now())
         mesh    = self.getParent()
         femesh  = mesh.getObject()
         subpobj = self.getObject()
@@ -629,7 +630,7 @@ class SubProblemContext(whoville.Who):
         ## timestamps in the Mesh? 
 
         femesh.setCurrentSubProblem(self.getObject())
-	utils.memusage("Completed Set FE Mesh")
+	utils.memusage("Completed Set FE Mesh %s" %datetime.datetime.now())
 
         # Figure out which parts of the calculation have to be redone.
         # If always is set, all steps of the calculation will be
@@ -694,7 +695,7 @@ class SubProblemContext(whoville.Who):
         if newTime:
             linsys.set_time(time)
 
-	utils.memusage("Start Setting Boundary Conditions")
+	utils.memusage("Start Setting Boundary Conditions %s" %datetime.datetime.now())
 
         # Apply boundary conditions to the linearized system object.
         # This has to be done before the matrix and rhs values are
@@ -725,21 +726,21 @@ class SubProblemContext(whoville.Who):
 
             femesh.invoke_flux_bcs(subpobj, linsys, time)
 
-	utils.memusage("Start Apply Dirichlet Boundary Conditions")
+	utils.memusage("Start Apply Dirichlet Boundary Conditions %s" %datetime.datetime.now())
         # Apply Dirichlet BCs.  If new values have been assigned to
         # the Fields, the old Dirichlet BCs may have been overwritten,
         # so they have to be reapplied.
         if bcsReset or newFieldValues:
             linsys.resetFieldFlags()
             femesh.invoke_fixed_bcs(subpobj, linsys, time)
-	utils.memusage("End if bcsReset or newFieldValues")
+	utils.memusage("End if bcsReset or newFieldValues %s" %datetime.datetime.now())
 
         if bcsReset:
             femesh.invoke_force_bcs(subpobj, linsys, time)
             # Set initial values of DoFs used in FloatBCs that
             # intersect fixedBCs.
             femesh.fix_float_bcs(subpobj, linsys, time)
-	utils.memusage("End if bcsReset")
+	utils.memusage("End if bcsReset %s" %datetime.datetime.now())
 
         if rebuildMatrices:
             # Assemble vectors and matrices of the linearized system.
@@ -750,22 +751,31 @@ class SubProblemContext(whoville.Who):
             if self.nonlinear_solver.needsJacobian():
                 linsys.clearJacobian()
             # **** This is the cpu intensive step: ****
+            utils.memusage("Start Make linear system %s" %datetime.datetime.now())
             self.getObject().make_linear_system(linsys, self.nonlinear_solver)
+	    utils.memusage("End Make linear system %s" %datetime.datetime.now())
+
             self.newMatrixCount += 1
-	utils.memusage("End if rebuildMatricies")
+	utils.memusage("End if rebuildMatricies %s" %datetime.datetime.now())
 
         if bcsReset or rebuildMatrices or newFieldValues:
+	    utils.memusage("Begin Build submatrix maps %s" %datetime.datetime.now())
             linsys.build_submatrix_maps()
+	    utils.memusage("End Build submatrix maps %s" %datetime.datetime.now())
             # Apply floating boundary conditions by modifying maps in
             # the LinearizedSystem.  This must follow
             # build_submatrix_maps() and precede build_MCK_maps().
+	    utils.memusage("Begin invoke flot bcs %s" %datetime.datetime.now())
             femesh.invoke_float_bcs(subpobj, linsys, time)
+	    utils.memusage("Begin Build MCK maps %s" %datetime.datetime.now())
             linsys.build_MCK_maps()
+	    utils.memusage("End Build MCK maps %s" %datetime.datetime.now())
             # Construct vectors of first and second time derivatives
             # of the time-dependent Dirichlet boundary conditions.
             linsys.initDirichletDerivatives()
+	    utils.memusage("Begin set Dirichlet Derivatives %s" %datetime.datetime.now())
             femesh.setDirichletDerivatives(subpobj, linsys, time)
-	utils.memusage("End if bcsReset or rebuildMatricies or newFieldValues")
+	utils.memusage("End if bcsReset or rebuildMatricies or newFieldValues %s" %datetime.datetime.now())
 
 
         if bcsReset:
@@ -780,7 +790,7 @@ class SubProblemContext(whoville.Who):
             ## TODO OPT: Only call float_contrib_rhs if solver needs
             ## to know the rhs explicitly.
             femesh.float_contrib_rhs(self.getObject(), linsys)
-	utils.memusage("End Setting Boundary Conditions")
+	utils.memusage("End Setting Boundary Conditions %s" %datetime.datetime.now())
 
         femesh.clearCurrentSubProblem()
         linsys.computed.increment()
