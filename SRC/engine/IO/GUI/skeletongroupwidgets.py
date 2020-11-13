@@ -90,10 +90,13 @@ class SkeletonAggregateWidget(SkeletonGroupWidget):
     def get_value(self):
         rval = self.widget.get_value()
         return placeholder.getPlaceHolderFromString(rval)
-#         if rval == placeholder.selectionIDstring:
-#             return placeholder.selectionPlaceHolder
-#         return rval
 
+    def set_value(self, aggregate):
+        if aggregate == placeholder.selection:
+            super(SkeletonAggregateWidget, self).set_value(aggregate.IDstring)
+        else:
+            super(SkeletonAggregateWidget, self).set_value(aggregate)
+        
 # Dictionary, indexed by widget class, of the function to use to
 # get a segment set from the relevant aggregate name.
 segmenter = {}
