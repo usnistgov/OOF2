@@ -46,12 +46,12 @@ TutorialClass(
     completed the BOLD(Simple Example) tutorial, you should be
     familiar with this mesh.
 
-    As a default, a deformed mesh is displayed. If this is bothering your
-    view (probably later in the tutorial), you can hide it.
-    To do so, find a layer called BOLD(Mesh(mesh)) in the bottom part of
-    the graphics window. Click on the little check box to hide the layer.
-    
-    First, we'll go over standard features such as displaying contour
+    Display the mesh by selecting BOLD(New) from the BOLD(Layer) menu.
+    Set BOLD(category) to BOLD(Mesh), BOLD(what) to
+    "cyallow.png/skeleton/mesh" and BOLD(how) to BOLD(Element Edges)
+    with BOLD(where)=BOLD(original).
+
+    Next, we'll go over standard features such as displaying contour
     (filled or line) plots and element/node queries in the graphics
     window."""
 
@@ -64,25 +64,13 @@ TutorialClass(
     """We'll start with a filled contour of the displacement in the
     x-direction, which is one of a few non-trivial results - the mesh
     is subjected to an uniaxial tension in the x-direction.
-    
-    In the graphics window, create a new layer using the BOLD(New)
-    entry of the BOLD(Layer) menu on the graphics window menubar.  A
-    layer editor will pop up.  Select BOLD(Mesh) for BOLD(Category).
-    If you have other meshes in the system, make sure you choose
-    BOLD(cyallow.png) from the second option menu that represents the
-    microstructure of the mesh.
-    
-    Move to the next slide for further instruction."""
-    ),
-        
-    TutoringItem(
-    subject="Display method",
-    comments=
 
-    """Now, move to the BOLD(Display Methods) pane.  It will initially
-    be empty.  Click BOLD(New).  A display method editor will pop up.
-    Click on the topmost button to list all the available display
-    methods for the mesh.  Select BOLD(FilledContour).
+    Open the new layer dialog box again, using the BOLD(Layer/New)
+    dialog box or by right-clicking in the layer list.  BOLD(category)
+    and BOLD(what) should still be set to the values you used in the
+    previous step.
+
+    Select BOLD(Filled Contour) in the BOLD(how) box.
     
     In the BOLD(what) option block, select BOLD(Field) and
     BOLD(Component).  Then, select BOLD(Displacement) and BOLD(x)
@@ -92,16 +80,17 @@ TutorialClass(
     the displaced or original position.  Select BOLD(original).
     
     Leave the next five options as they are.  Click BOLD(OK) to display
-    the contour, which will send you back to the layer editor."""
+    the contour plot."""
     ),
         
     TutoringItem(
     subject="More levels for contour",
     comments=
-    """Bring up the graphics window to check the contour displayed.  If
-    you want to put more levels in the contour, go back to
-    the layer editor.  Make sure to select BOLD(FilledContour) from
-    the BOLD(Display Methods) pane and click BOLD(Edit...).
+    """Admire the contour plot in the graphics window.  To add more levels
+    to the plot, double-click on the BOLD(FilledContourDisplay) line
+    in the the BOLD(Layers) list (or right-click on it and select
+    BOLD(Edit), or select it and choose BOLD(Edit) in the window's
+    BOLD(Layer) menu.)
     
     Look for the parameter BOLD(levels) and type in BOLD(21).  Click
     BOLD(OK).  The contour plot in the graphics window should reflect
@@ -123,10 +112,10 @@ TutorialClass(
     subject="Mesh info toolbox",
     comments=
 
-    """While contour plots are effective in presenting the overall
-    trend, if you are interested in result data at specific locations,
-    you need to use other tools.  OOF2 provides the BOLD(Mesh Info)
-    toolbox for this situation.
+    """While contour plots are effective in presenting an overall trend,
+    if you are interested in data at specific locations, you need to
+    use other tools.  OOF2 provides the BOLD(Mesh Info) toolbox for
+    this situation.
     
     Open the BOLD(Mesh Info) toolbox in the graphics window.  The
     toolbox lets you query complete information on elements and
@@ -136,47 +125,62 @@ TutorialClass(
     subject="Querying node data",
     comments=
 
-    """The first order of business in using the toolbox is to set
-    the mode.  Set the toolbox in the node mode by clicking on the label
-    BOLD(Node) or the check box for it.
+    """The first order of business in using the toolbox is to set the
+    mode.  Enter node mode by clicking on the BOLD(Node) button at the
+    top of the toolbox.
     
-    Click on any node that you think might be interesting.  The
-    queried node is highlighted as a blue dot and its basic
-    data, such as index and position, are displayed in the
-    information frame.
-
-    To display associated field data,
-    click BOLD(New Data Viewer...) in the lower
-    part of the toolbox.
-
-    Once the BOLD(Mesh Data) window opens, you can manipulate it to
-    display various outputs.  The information displayed in this viewer
-    is valid for the position where the mouse-click occurred.  The
-    data will be updated whenever you use the Mesh Info toolbox,
-    unless you click the BOLD(Freeze) box in the data viewer.""",
+    Click the mouse inside the mesh in the graphics window.  The
+    closest node is highlighted with a blue dot and its basic data,
+    such as index and position, and the values of all of its fields
+    are displayed in the toolbox. """,
     
     signal = "redraw" ),
         
     TutoringItem(
     subject="Querying element data",
     comments=
-
-    """Now, switch the toolbox to the element mode.  As soon as you
-    switch the mode, you will notice an element is automatically
-    selected.  It's the closest element to the last mouse point from
-    the previous mode.
+        
+    """Now, switch the toolbox to the element mode.  Notice an element is
+    automatically selected.  It's the element containing the last
+    mouse point from the previous mode.
     
-    By default, basic data, including index, nodes, and 
-    material, are displayed.  To query BOLD(Displacement) or BOLD(Stress)
-    data, use the BOLD(Mesh Data) window.  It is a good idea to expand
-    the graphics window to have a better access to the displayed
-    values.
-    
-    As before, the BOLD(Mesh Data) results are calculated at the mouse
-    point.  Thus, if you click on a different point in the same
-    element, values will be refreshed accordingly.""",
+    Basic data about the element, including index, nodes, and
+    material, are displayed in the toolbox.  To query BOLD(Displacement) or
+    BOLD(Stress) data, use the BOLD(Mesh Data) window.  It is a good
+    idea to expand the graphics window to have a better access to the
+    displayed values. """,
     signal = "redraw" ),
+
+    TutoringItem(
+    subject="Querying data at interior points",
+    comments=
+
+    """To display data at any point inside an element, click the BOLD(New
+    Data Viewer...) button in the lower part of the toolbox.  You can
+    open more than one data viewer at a time if necessary.
+
+    Each data viewer window displays the value of one output quantity.
+    The upper part of the window, marked BOLD(Source), determines what
+    is computed and where.  (If the window is too large, you can
+    collapse the BOLD(Source) region with by clicking the triangle in
+    the upper left, and then resize the window.) The BOLD(Data) box at
+    the bottom of the window shows the result.
     
+    Any output that can be computed in the OOF2 BOLD(Analysis) page
+    can be examined in a data viewer window.  The output is evaluated
+    at the position given in the Source region.  You can change the
+    position by typing in the BOLD(x) or BOLD(y) boxes, or by clicking
+    the mouse in the graphics window.  If you don't want the position
+    and data to change when you click the mouse, check BOLD(Space) in
+    the BOLD(Freeze) box at the bottom.
+
+    Normally, the data in the viewer window updates when the Mesh
+    changes or when you select a new point.  The BOLD(Space) and
+    BOLD(Time) checkboxes in the BOLD(Freeze) pane prevent the data
+    from changing, if you need to compare values at different places
+    or times.
+    """),
+
     TutoringItem(
     subject="Clearing up",
     comments=
@@ -203,7 +207,7 @@ TutorialClass(
     contain at least one contour layer.
     
     A path is created by clicking and dragging the mouse.  (At this
-    time, only straight line paths can be created.) Created paths are
+    time, only straight line paths can be created.) The paths are
     automatically added to a list of cross sections and can be managed
     through the buttons in the BOLD(Cross Section) frame of the
     toolbox.
