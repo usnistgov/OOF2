@@ -82,7 +82,8 @@ class MeshDataGUI(widgetscope.WidgetScope):
         gtklogger.newTopLevelWidget(self.gtk, title)
         gtklogger.connect_passive(self.gtk, 'delete-event')
         gtklogger.connect_passive(self.gtk, 'configure-event')
-        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                               spacing=2, margin=5)
         self.gtk.add(self.mainbox)
 
         # Put this window into the Windows menu.  The menu item can't
@@ -95,13 +96,13 @@ class MeshDataGUI(widgetscope.WidgetScope):
             threadable=oofmenu.UNTHREADABLE,
             callback=self.raiseWindow))
 
-        expander = Gtk.Expander("Source")
+        expander = Gtk.Expander(label="Source")
         gtklogger.setWidgetName(expander, 'ViewSource')
         gtklogger.connect_passive_after(expander, 'activate')
         self.mainbox.pack_start(expander, expand=False, fill=False, padding=0)
         expander.set_expanded(True)
         
-        self.table = Gtk.Grid()
+        self.table = Gtk.Grid(margin=2, row_spacing=2, column_spacing=2)
         expander.add(self.table)
 
         label = Gtk.Label("Source Window:", halign=Gtk.Align.END)
@@ -187,7 +188,8 @@ class MeshDataGUI(widgetscope.WidgetScope):
         gtklogger.setWidgetName(frame, 'Data')
         self.mainbox.pack_start(frame, expand=True, fill=True, padding=0)
         # databox is where the data widget goes
-        self.databox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self.databox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                               margin=2)
         frame.add(self.databox)
         self.datawidget = None       # set by updateData
 

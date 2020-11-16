@@ -55,7 +55,7 @@ class VectorWidget:
         debug.mainthreadTest()
         iterator = val.getIterator()
         if iterator.size() != 0:
-            self.gtk = Gtk.Grid(**kwargs)
+            self.gtk = Gtk.Grid(row_spacing=2, column_spacing=2,**kwargs)
             row = 0
             while not iterator.end():
                 label = Gtk.Label(iterator.shortrepr()+':',

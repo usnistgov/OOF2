@@ -173,6 +173,10 @@ class SymmetricMatrixInput(SymmetricMatrixInputBase):
 ## valid situation.  Maybe the underlying Parameter should indicate if
 ## all False is a valid value.
 
+## TODO GTK3: The checkboxes are not centered in the columns, but the
+## column labels are, which is bad when the widget has expanded to
+## fill extra space.  
+
 class MatrixBoolInput(SymmetricMatrixInputBase):
     def __init__(self, rows, cols, value=None, scope=None, name=None, **kwargs):
         MatrixInputBase.__init__(self, rows=rows, cols=cols,
