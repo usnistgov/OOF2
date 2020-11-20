@@ -109,7 +109,9 @@ def loadImageIntoMS(image, microstructure):
         msobj = ooflib.common.microstructure.Microstructure(microstructure,
                                                      image.sizeInPixels(),
                                                      image.size())
-        ms = msclass.add(microstructure, msobj, parent=None)
+        # The Microstructure.__init__ calls WhoClass.add for us, so
+        # the Context is available now.
+        ms = msclass[microstructure]
 
     # Check size of microstructure
     if ms.getObject().sizeInPixels() != image.sizeInPixels():
@@ -117,7 +119,7 @@ def loadImageIntoMS(image, microstructure):
 
     # See if the image name is unique in the Microstructure
     newname = imagecontext.imageContexts.uniqueName([ms.name(), image.name()])
-    image.rename(newname)
+    image.rename(newname)       # harmless if old name == new name
     # Create ImageContext object
     immidgecontext = imagecontext.imageContexts.add([ms.name(),newname], image,
                                               parent=ms)

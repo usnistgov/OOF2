@@ -65,27 +65,6 @@ def newMSfromImageFile(button):
             *menuitem.params):
         menuitem.callWithDefaults()
 
-from ooflib.common.IO.GUI import fileselector
-def newMSfromImageFiles(button):
-    ## TODO 3D: Use FileSelectorWidget instead of fileSelector, and
-    ## don't import fileselector anymore.
-    menuitem = microstructuremenu.micromenu.Create_From_ImageFile
-    wparam = menuitem.get_arg('width')
-    hparam = menuitem.get_arg('height')
-    dparam = menuitem.get_arg('depth')
-    msparam = menuitem.get_arg('microstructure_name')
-    file = fileselector.fileSelector(
-        ident='Image/MS',
-        mode='r',
-        title='Load Images and create Microstructure',
-        params=(msparam, wparam, hparam, dparam),
-        pattern=True)
-    # TODO 3D: We will need to make filepattern behavior more clear to
-    # the user
-    if file is not None:
-        menuitem.callWithDefaults(filename=file)
-
-        
 newfromfilebutton = gtkutils.StockButton("document-new-symbolic",
                                          "New from Image File")
 gtklogger.setWidgetName(newfromfilebutton, "NewFromFile")
