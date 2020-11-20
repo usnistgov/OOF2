@@ -300,53 +300,12 @@ def sensitizationCheck(wdict, base=None):
             return False
     return True
 
-# Assumes that every line in the files to be compared is either a
-# comment, or a separator-separated list of float-ables, or identical
-# strings.  If there are fields which cannot be converted to floats,
-# they're checked for identicalness, and if they pass, the test just
-# continues.  TODO: Use fp_file_compare instead.
-def floatFileDiff(filename, tolerance=1.0e-8, comment="#", separator=","):
-    class FloatFileDiffFailure:
-        def __init__(self, message):
-            self.message = message
-    reference = file(os.path.join(testdir(),filename))
-    local = file(filename)
-    try:
-        try: # Again.
-            for refline in reference:
-                localline = local.next()
-                if refline[0]==comment:
-                    continue
-                refitems = string.split(refline,separator)
-                localitems = string.split(localline,separator)
-                for(i1,i2) in zip(refitems, localitems):
-                    try:
-                        (f1, f2) = (float(i1), float(i2))
-                    except ValueError:
-                        if i1!=i2:
-                            raise FloatFileDiffFailure(
-                                "Text mismatch, >%s< != >%s<" % (i1,i2))
-                    else:
-                        if abs(f1-f2)>tolerance:
-                            raise FloatFileDiffFailure(
-                                "%f too far from %f" % (f1,f2))
-                        if f1!=0.0 and f2!=0.0 and abs((f1/f2)-1.0)>tolerance:
-                            raise FloatFileDiffFailure(
-                                "%f/%f too far from 1.0" % (f1,f2))
+# Compare a test file to a reference file, using a tolerance on any
+# floats found.  The test file is assumed to be in the test's working
+# directory, and the reference file to be in the test source
+# directory.  If the name of the reference file isn't given, it's
+# asssumed to be the same as the test file.
 
-        except FloatFileDiffFailure, f:
-            print >> sys.stderr, "floatFileDiff failure, ", f.message
-            return False
-        except StopIteration: # Raised by local.next() if EOF is encountered.
-            print >> sys.stderr, "floatFileDiff: File size mismatch."
-            return False
-        else:
-            return True
-    finally:
-        reference.close()
-        local.close()
-    
-# More robust float file diff, using file_utils.py from TEST/UTILS.
 def filediff(filename, reference=None, tolerance=1.e-8):
     if reference is None:
         reffile = os.path.join(testdir(), filename)
