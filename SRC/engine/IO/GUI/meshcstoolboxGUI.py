@@ -40,6 +40,9 @@ from gi.repository import Gtk
 # selected.
 noCS = '<None>'
 
+## TODO GTK3: Make the Source panel a text view or somehow more
+## visible.  It needs a different background, like other info panels.
+
 class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
                              mousehandler.MouseHandler):
     def __init__(self, toolbox):
@@ -138,9 +141,13 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
 
         goframe = Gtk.Frame(label="Output", shadow_type=Gtk.ShadowType.IN)
         mainbox.pack_start(goframe, expand=False, fill=False, padding=0)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
+        goframe.add(vbox)
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
                        margin=2)
-        goframe.add(hbox)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=0)
+        
         label = Gtk.Label("Destination: ", halign=Gtk.Align.END)
         hbox.pack_start(label, expand=False, fill=False, padding=0)
         self.destwidget = outputdestinationwidget.TextDestinationWidget(
@@ -150,7 +157,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         hbox.pack_start(self.destwidget.gtk, expand=True, fill=True, padding=0)
         self.gobutton = gtkutils.StockButton("system-run-symbolic", "Go!")
         gtklogger.setWidgetName(self.gobutton, 'Go')
-        hbox.pack_start(self.gobutton,expand=True, fill=True, padding=2)
+        vbox.pack_start(self.gobutton,expand=True, fill=True, padding=5)
         self.gobutton.set_tooltip_text("Send the output to the destination.")
         gtklogger.connect(self.gobutton, "clicked", self.goCB)
         
@@ -278,7 +285,9 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         newnameparam = menuitem.get_arg('name')
         newnameparam.value = csname
         if parameterwidgets.getParameterValues(
-            newnameparam, title="Rename cross section " + csname):
+                newnameparam,
+                parentwindow=self.gtk.get_toplevel(),
+                title="Rename cross section " + csname):
             menuitem.callWithDefaults(mesh=meshobj.path(), cross_section=csname)
 
     def cseditCB(self, gtkobj):
@@ -288,8 +297,9 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         csparam = menuitem.get_arg('cross_section')
         csparam.value = meshobj.selectedCS()
         if parameterwidgets.getParameterValues(
-            csparam,
-            title='Edit cross section ' + csname):
+                csparam,
+                parentwindow=self.gtk.get_toplevel(),
+                title='Edit cross section ' + csname):
             menuitem.callWithDefaults(mesh=meshobj.path(), name=csname)
             
     def cscopyCB(self, gtkobj):
@@ -300,10 +310,11 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         targetmeshparam.value = meshobj.path()
         targetnameparam = menuitem.get_arg('name')
         targetnameparam.value = csname
-        if parameterwidgets.getParameters(targetmeshparam,
-                                          targetnameparam,
-                                          parentwindow=self.gtk.get_toplevel(),
-                                          title='Copy cross section ' + csname):
+        if parameterwidgets.getParameters(
+                targetmeshparam,
+                targetnameparam,
+                parentwindow=self.gtk.get_toplevel(),
+                title='Copy cross section ' + csname):
             menuitem.callWithDefaults(current=meshobj.path(),
                                       cross_section=csname)
             

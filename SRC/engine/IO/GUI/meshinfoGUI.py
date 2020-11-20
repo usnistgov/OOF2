@@ -47,6 +47,7 @@ class MeshInfoMode:
                              shadow_type=Gtk.ShadowType.IN)
         self.table = Gtk.Grid(row_spacing=1, column_spacing=2, margin=2)
         self.gtk.add(self.table)
+        gtklogger.setWidgetName(self.gtk, self.targetname + "Info")
 
     def destroy(self):
         mainthread.runBlock(self.gtk.destroy)

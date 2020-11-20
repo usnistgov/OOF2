@@ -217,12 +217,11 @@ def listViewSelectedRowNo(widgetpath):
 def chooserStateCheck(widgetpath, choice):
     # only for ChooserWidget, not ChooserListWidget.  Checks that the
     # currently selected item is 'choice'.
-    combobox = gtklogger.findWidget(widgetpath)
-    index = combobox.get_active()
-    if index == -1:
+    stack = gtklogger.findWidget(widgetpath + ":stack")
+    current = stack.get_visible_child()
+    if current is None:
         return choice is None
-    model = combobox.get_model()
-    return choice == model[index][0]
+    return choice == current.get_children()[0].get_text()
 
 
 def chooserListStateCheck(widgetpath, choices, tolerance=None):
@@ -301,13 +300,6 @@ def sensitizationCheck(wdict, base=None):
             return False
     return True
 
-def filediff(filename):
-    return file_utils.fp_file_compare(filename, 
-                                      os.path.join(testdir(), filename),
-                                      tolerance=1.e-8,
-                                      comment=None)
-    # return filecmp.cmp(filename, os.path.join(testdir(), filename))
-
 # Assumes that every line in the files to be compared is either a
 # comment, or a separator-separated list of float-ables, or identical
 # strings.  If there are fields which cannot be converted to floats,
@@ -355,9 +347,12 @@ def floatFileDiff(filename, tolerance=1.0e-8, comment="#", separator=","):
         local.close()
     
 # More robust float file diff, using file_utils.py from TEST/UTILS.
-def floatFileDiff2(filename, tolerance=1.e-8):
-    reference = os.path.join(testdir(), filename)
-    return file_utils.fp_file_compare(filename, reference, tolerance)
+def filediff(filename, reference=None, tolerance=1.e-8):
+    if reference is None:
+        reffile = os.path.join(testdir(), filename)
+    else:
+        reffile = os.path.join(testdir(), reference)
+    return file_utils.fp_file_compare(filename, reffile, tolerance)
     
 def skeletonNodeSelectionCheck(skeleton, nodelist):
     from ooflib.common.IO import whoville

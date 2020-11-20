@@ -439,8 +439,8 @@ class ErrorPopUp(object):
             fobj.write("%s\n\n" % self.datestampstring)
             
             tbuf = self.tracepane.get_buffer()
-            fobj.write(
-                tbuf.get_text(tbuf.get_start_iter(), tbuf.get_end_iter()))
+            fobj.write(tbuf.get_text(tbuf.get_start_iter(), tbuf.get_end_iter(),
+                                     False))
             errbuf.insert(errbuf.get_end_iter(), "\nTraceback written to %s.\n"
                           % fname)
         except IOError:

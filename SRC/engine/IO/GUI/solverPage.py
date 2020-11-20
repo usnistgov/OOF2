@@ -773,7 +773,8 @@ class SolverPage(oofGUI.MainPage):
             param.value = self.currentMeshContext().get_initializer(fld)
 
             init = parameterwidgets.getParameterValues(
-                param, title = 'Initialize field ' + fld.name(), scope=self)
+                param, title = 'Initialize field ' + fld.name(),
+                scope=self, parentwindow=self.gtk.get_toplevel())
 
             if init is not None:
                 menuitem.callWithDefaults(mesh=self.currentFullMeshName(),
