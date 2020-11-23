@@ -694,7 +694,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   // time-derivative values, which is more than we want here.
 
   // Hard-coded for Adam C's problem, Oct. 15, 2020.  TODO: Generalize.
-  linearsystem->K_preallocate(1720753200);
+  // linearsystem->K_preallocate(1720753200);
   for(ElementIterator ei=element_iterator(); !ei.end() && !progress->stopped();
       ++ei)
   {
