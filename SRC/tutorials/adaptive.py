@@ -36,16 +36,15 @@ TutorialClass(
     subject="Loading a Skeleton",
     comments=
     
-    """Open a graphics window, if none has been opened yet, with
-    the BOLD(Graphics/New) command in the BOLD(Windows) menu.
+    """Open a graphics window, if none has been opened yet, with the
+    BOLD(Graphics/New) command in the BOLD(Windows) menu.  Set
+    BOLD(New Layer Policy) to BOLD(Single) in the BOLD(Settings) menu.
 
     Locate the file BOLD(el_shape.mesh) within the share/oof2/examples
     directory in your OOF2 installation.
 
-    A data file can be loaded from the BOLD(File) menu in the main OOF2
-    window (BOLD(File -> Load -> Data)).
-    Select the example file (BOLD(el_shape.mesh)) in the file selector,
-    and click BOLD(OK).
+    Use the menu item BOLD(File/Load/Data) in the main OOF2 window to
+    load the file.
     """,
     signal = ("new who", "Skeleton")
     ),
@@ -55,10 +54,9 @@ TutorialClass(
     comments=
 
     """If you have finished the tutorial for BOLD(Non-rectangular Domain),
-    you should be familiar with this Mesh.
-    The Mesh looks rectangular but Material has been assigned only to
-    the BOLD(green) part of the Mesh, which simulates an effective
-    BOLD(L)-shaped domain.
+    you should be familiar with this Mesh.  The Mesh looks rectangular
+    but a Material has been assigned only to the BOLD(green) part of
+    the Mesh, which simulates an effective BOLD(L)-shaped domain.
     
     Move on to the next slide.
     """ ),
@@ -204,8 +202,8 @@ TutorialClass(
     the refined mesh.  If you get an convergence error, edit the
     BOLD(Solver) and switch the BOLD(symmetric_solver) to BOLD(BiCG),
     which seems to work better here, or increase the tolerance of
-    BOLD(CG) to 1.e-08.
-    """,
+    BOLD(CG) to 1.e-08.  After you change the Solver, click
+    BOLD(Solve) again.  """,
     signal = "mesh solved"
     ),
 
