@@ -183,15 +183,16 @@ class DisplayMethod(registeredclass.RegisteredClass):
         return self.getRegistration().name()
 
     # Distinct methods with the same values should not compare
-    # equally, so override RegisteredClass's __eq__.
+    # equally, so override RegisteredClass's __eq__.  This is so that
+    # it's possible to have two identical layers in the layer list but
+    # still be able to refer to them individually.  I think.  If you
+    # need to see if two different Display objects are identical, use
+    # Display.equivalent().
     def __eq__(self, other):
         return id(self)==id(other)
     
-    # The former __eq__, negated, for equivalence testing.
-    def inequivalent(self, other):
-        return other is None or \
-               not (other.__class__ is self.__class__ 
-                    and registeredclass.RegisteredClass.__eq__(self, other))
+    def equivalent(self, other):
+        return registeredclass.RegisteredClass.__eq__(self, other)
 
     def drawIfNecessary(self, gfxwindow):
         if self.frozen and self.lastDrawn != timestamp.timeZero:

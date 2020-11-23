@@ -1279,7 +1279,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             self.acquireGfxLock()
         try:
             if self.selectedLayer:
-                if not self.selectedLayer.inequivalent(layer):
+                if (self.selectedLayer.equivalent(layer) and
+                    who is self.selectedLayer.who):
                     return
                 # Replace the selected layer with the new layer.
                 which = self.layerID(self.selectedLayer)
