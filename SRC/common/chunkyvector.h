@@ -22,10 +22,14 @@
 #ifndef CHUNKYVECTOR_H
 #define CHUNKYVECTOR_H
 
+//#define USE_CHUNKYVECTOR 
+
 #define DEFAULT_LOGCHUNKSIZE 10
 
 #include <oofconfig.h>
 #include <vector>
+
+#ifdef USE_CHUNKYVECTOR
 
 template <class CHUNKYVECTOR> class CVIterator;
 template <class CHUNKYVECTOR> class CVConstIterator;
@@ -378,6 +382,22 @@ public:
     return index <= other.index;
   }
 };
+
+#else // USE_CHUNKYVECTOR
+
+// Not using ChunkyVector.  Define it as std::vector, but make it
+// compatible with the ChunkyVector constructor.
+
+template <class TYPE>
+class ChunkyVector : public std::vector<TYPE> {
+public:
+  ChunkyVector(int logChunkSize=DEFAULT_LOGCHUNKSIZE) {}
+  ChunkyVector(int size, const TYPE &val, int logChunkSize=DEFAULT_LOGCHUNKSIZE)
+    : std::vector<TYPE>(size, val)
+    {}
+};
+
+#endif // USE_CHUNKYVECTOR
 
 
 #endif // CHUNKYVECTOR_H
