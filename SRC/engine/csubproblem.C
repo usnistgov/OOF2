@@ -14,6 +14,7 @@
 #include <utility>		// for std::pair
 #include <vector>
 
+#include "common/cdebug.h"
 #include "common/cleverptr.h"
 #include "common/doublevec.h"
 #include "common/lock.h"
@@ -594,6 +595,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   const
 {
   double time = linearsystem->time();
+  memusage("Start of make_linear_system");
 
   DefiniteProgress *progress =
     dynamic_cast<DefiniteProgress*>(getProgress("Building linear system",
@@ -724,6 +726,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 
   //std::cerr << "CSubProblem::make_linear_system exiting." << std::endl;
   //linearsystem->dumpAll("junk.out",time,"MLS exit");
+  memusage("End of make_linear_system");
 } // end of 'CSubProblem::make_linear_system'
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

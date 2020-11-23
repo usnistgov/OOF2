@@ -41,4 +41,6 @@ void throwPythonCException();
 
 void spinCycle(int);
 
+void memusage(const std::string&);
+
 #endif // CDEBUG_H

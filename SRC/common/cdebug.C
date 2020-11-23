@@ -185,3 +185,33 @@ void spinCycle(int nCycles) {
   }
   progress->finish();
 }
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+
+// Call out to the python utils.memusage() method
+
+void memusage(const std::string &comment) {
+  static PyObject *memfunc = nullptr;
+  PyGILState_STATE pystate = acquirePyLock();
+  try {
+    if(!memfunc) {
+      PyObject *utils = PyImport_ImportModule((char*) "ooflib.common.utils");
+      memfunc = PyObject_GetAttrString(utils, (char*) "memusage");
+      Py_XDECREF(utils);
+    }
+    PyObject *arg = Py_BuildValue((char *) "(s)", comment.c_str());
+    PyObject *result = PyObject_CallObject(memfunc, arg);
+    Py_XDECREF(arg);
+    if(!result)
+      pythonErrorRelay();
+    Py_XDECREF(result);
+  }
+  catch (...) {
+    releasePyLock(pystate);
+    throw;
+  }
+  releasePyLock(pystate);
+}
+
+					
