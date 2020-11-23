@@ -35,8 +35,9 @@ TutorialClass(
     subject="Microstructure",
     comments=
     
-    """Open a graphics window, if none has been opened yet, with
-    the BOLD(Graphics/New) command in the BOLD(Windows) menu.
+    """Open a graphics window, if none has been opened yet, with the
+    BOLD(Graphics/New) command in the BOLD(Windows) menu.  In its
+    BOLD(Settings) menu, set BOLD(New Layer Policy) to BOLD(Single).
 
     Locate the file BOLD(el_shape.png) within the
     share/oof2/examples directory in your OOF2 installation.
@@ -71,9 +72,9 @@ TutorialClass(
 
     """Now, we'll change names of pixel groups for our convenience.
 
-    Go to the BOLD(Microstructure) page and select the first pixel group,
-    which represents BOLD(green) pixels.
-    Click the BOLD(Rename) button.
+    Go to the BOLD(Microstructure) page and select the first pixel
+    group, "#00ff00", which contains the BOLD(green) pixels.  Click
+    the BOLD(Rename) button.
 
     Replace the old name with "green".  (Triple-clicking on the old
     name in the dialog box will select the whole name, making it
@@ -92,10 +93,8 @@ TutorialClass(
     Create a new material by clicking on the BOLD(New) button in the
     BOLD(Material) pane.
 
-    Click the check box for non-generic name, and type BOLD(green-material)
-    in the text entry field.
-    Click BOLD(OK).
-    """,
+    Tgype BOLD(green-material) in the text entry field.  Click
+    BOLD(OK).  """,
     signal="new_material"
     ),
 
@@ -109,8 +108,7 @@ TutorialClass(
 
     Click BOLD(Copy) and check the box to give it a user-defined name.
 
-    Check the box and type in BOLD(green_elasticity). Click
-    BOLD(OK).""",
+    Tgype in BOLD(green_elasticity). Click BOLD(OK).""",
 
     signal = "new property"
     ),
@@ -194,10 +192,9 @@ TutorialClass(
     Skeleton, we're going to modify the existing boundaries.  The
     existing boundaries include edges of non-green elements.
     
-    Let us modify two edge boundaries, BOLD(top) and BOLD(right), so that
-    only the segments from the BOLD(green) elements will be part of them.
-    Advance to the next slide for real action.
-    """
+    We will modify two edge boundaries, BOLD(top) and BOLD(right), so
+    that only the segments from the BOLD(green) elements will be part
+    of them.  Advance to the next slide for real action.  """
     ),
 
     TutoringItem(
@@ -221,7 +218,16 @@ TutorialClass(
     button. Select BOLD(Remove segments) for the modifying method and
     select BOLD(<selection>) for BOLD(group).  Click BOLD(OK). You
     should see the immediate change in the BOLD(Boundary data) pane
-    and in the graphics window.  """,
+    and in the graphics window. 
+
+    (Depending on the size of your graphics window, the arrows drawn
+    on the selected boundary may obscure the view.  Select BOLD(List
+    All Layers) from the BOLD(Settings) menu in the graphics window.
+    Double click on BOLD(SkeletonSelectedBoundaryDisplay), and set
+    BOLD(arrowsize) to something small.  Click BOLD(OK).  You may want
+    to unset BOLD(List All Layers) when you're done.)
+
+    """,
         
     signal = "new boundary configuration"
     ),
@@ -279,21 +285,12 @@ TutorialClass(
     subject=" Field",
     comments=
 
-    """Proceed to the BOLD(Fields) page.
+    """Proceed to the BOLD(Fields & Equations) page.
     
     Check all BOLD(three) boxes for the BOLD(Displacement) field.
-    """,
-    signal = "field activated"
-    ),
 
-    TutoringItem(
-    subject="Activating Equations",
-    comments=
-
-    """Open the BOLD(Equations) page.
-
-    We're solving a BOLD(Force_Balance) equation,
-    so check the corresponding box.
+    Check the BOLD(active) box for the BOLD(Force Balance) equation.
+    
     """,
     signal = "equation activated"
     ),
@@ -362,8 +359,14 @@ TutorialClass(
     subject="Solution",
     comments=
     
-    """Open the BOLD(Solver) page and just click BOLD(Solve).
-    The deformed Mesh will be displayed in the graphics window.
+    """Open the BOLD(Solver) page.
+
+    In the BOLD(Solvers) box, select the BOLD(default) subproblem and
+    click BOLD(Set Solver).  Click BOLD(OK) to accept the default
+    values (BOLD(solver_mode)=Basic, BOLD(time_stepper)=Static, etc).
+
+    Click BOLD(Solve).  The deformed Mesh will be displayed in the
+    graphics window.
 
     By default, OOF2 doesn't display elements with no material defined in
     the output, which explains what you're seeing now.
