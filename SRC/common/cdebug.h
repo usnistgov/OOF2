@@ -20,6 +20,7 @@
 
 #include <Python.h>
 #include <vector>
+#include <string>
 
 void initDebug(PyObject*);
 void installSignals_();
