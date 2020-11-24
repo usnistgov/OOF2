@@ -167,7 +167,7 @@ class WhoWidgetBase:
             elif len(names) > 0:
                 # ... or pick the first value in the list
                 self.currentPath[d] = names[0]
-                self.widgets[d].set_state(0)
+                self.widgets[d].set_state(names[0])
             else:
                 # ... or don't pick anything
                 self.currentPath[d] = ''

@@ -18,14 +18,15 @@ from gi.repository import Gtk
 import types
 
 # The ChooserWidget creates a pull-down menu containing the given list
-# of names.  The currently selected name is shown when the menu isn't
-# being pulled down.
+# of objects.  The currently selected object is shown when the menu
+# isn't being pulled down.
 
-# The names must be plain text.  No markup is allowed.  This is
-# because the ChooserWidget uses markup to indicate the current
-# selection, so it has to replace any angle braces in the selection's
-# name with &lt; and &gt;.  If the name contained markup the
-# replacement would destroy it.
+# The objects are converted to displayed names by str(obj), which must
+# return plain text.  No markup is allowed.  This is because the
+# ChooserWidget uses markup to indicate the current selection, so it
+# has to replace any angle braces in the selection's name with &lt;
+# and &gt;.  If the name contained markup the replacement would
+# destroy it.
 
 # Calls the callback, if specified, with the gtk-selecting object
 # and the name.  Backward compatible with other callbacks that way.
@@ -57,8 +58,16 @@ import types
 ## takes a single string argument, and returns True if that string
 ## should be replaced by a separator in the pull down menu.
 
+## The values for a ChooserWidget can be any kind of object and don't
+## have to be strings.  str() is used to convert the values to strings
+## for display, but get_value() and set_state() work with the raw
+## objects.
+
+## ChooserWidget.set_state(arg) no longer allows arg to be an integer
+## index.
+
 class ChooserWidget(object):
-    def __init__(self, namelist, callback=None, callbackargs=(),
+    def __init__(self, objlist, callback=None, callbackargs=(),
                  update_callback=None, update_callback_args=(),
                  helpdict={}, name=None, separator_func=None,
                  allowNone=None, homogeneous=False, **kwargs):
@@ -107,8 +116,8 @@ class ChooserWidget(object):
         self.emptyMarker.set_sensitive(False)
         # Has the user asked for the widget to be sensitive? 
         self.user_sensitive = True
-        
-        self.update(namelist, helpdict)
+
+        self.update(objlist, helpdict)
 
         gtklogger.connect(self.gtk, "button-press-event", self.buttonpressCB)
 
@@ -127,12 +136,14 @@ class ChooserWidget(object):
         hbox.show_all()
         return hbox
 
-    def update(self, namelist, helpdict={}):
-        # update() returns True if something changed.
+    # update() returns True if something changed.
+    def update(self, objlist, helpdict={}):
         debug.mainthreadTest()
+        self.objlist = objlist[:]
+        namelist = [str(n) for n in self.objlist]
         if namelist == self.namelist and helpdict == self.helpdict:
             return False
-        self.namelist = namelist[:]
+        self.namelist = namelist
         self.helpdict = helpdict
 
         for child in self.stack.get_children():
@@ -238,20 +249,14 @@ class ChooserWidget(object):
         # Before the gtk3 upgrade, the equivalent of this routine
         # failed silently if arg was not None, a string, or an int, or
         # if it was a string that wasn't in the list.  It's now an
-        # error.
+        # error.  Also, ints aren't accepted as indices into the
+        # list. They're acepted if they're in objlist.
         if (self.allowNone and arg is None) or self.nChoices() == 0:
             self.stack.set_visible_child(self.emptyMarker)
             newstr = None
         else:
-            if type(arg) == types.IntType:
-                try:
-                    newstr = self.namelist[arg]
-                except IndexError:
-                    raise ooferror.ErrPyProgrammingError(
-                        "ChooserWidget index is out of range: %d" % arg)
-            elif type(arg) == types.StringType and arg in self.namelist:
-                newstr = arg
-            else:
+            newstr = str(arg)
+            if not newstr in self.namelist:
                 raise ooferror.ErrPyProgrammingError(
                     "Invalid ChooserWidget argument: %s" % arg)
             self.stack.set_visible_child_name(newstr)
@@ -268,11 +273,16 @@ class ChooserWidget(object):
         self.gtk.set_sensitive(self.user_sensitive and self.nChoices() > 0)
             
     def get_value(self):
-        return self.current_string
+        if self.current_string is None:
+            assert self.allowNone or not self.namelist
+            return None
+        which = self.namelist.index(self.current_string)
+        return self.objlist[which]
+
     def nChoices(self):
         return len(self.namelist)
     def choices(self):
-        return self.namelist
+        return self.objlist
             
                 
 
