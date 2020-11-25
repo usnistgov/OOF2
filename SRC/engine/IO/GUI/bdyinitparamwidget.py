@@ -40,7 +40,6 @@ class FloatBCInitWidget(regclassfactory.RegisteredClassFactory):
         bc = meshctxt.getBdyCondition(bcwidget.get_value())
         self.time_derivs = (bc.field.time_derivative()
                             in meshctxt.all_initializable_fields())
-        debug.fmsg("time_derivs=", self.time_derivs)
         regclassfactory.RegisteredClassFactory.__init__(
             self, bdycondition.FloatBCInitMethod.registry, obj=obj,
             title=title, callback=callback,

@@ -29,8 +29,6 @@ from ooflib.engine import solverstats
 import string
 import sys
 
-## SubProblemContext is derived from IdentifiedObject for debugging.
-
 class SubProblemContext(whoville.Who):
     def __init__(self, name, classname, obj, parent, subptype, secretFlag=0):
         whoville.Who.__init__(self, name, classname, obj, parent, secretFlag)
