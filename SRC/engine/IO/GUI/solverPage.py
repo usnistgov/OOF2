@@ -540,7 +540,6 @@ class SolverPage(oofGUI.MainPage):
         ## Time pane sensitization
 
         self.endtimeEntry.set_sensitive(meshok)
-        # self.stepsizeEntry.set_sensitive(meshok)
 
         timesok = (meshok and
                    ((endtime is not None and
@@ -873,8 +872,8 @@ class SolverPage(oofGUI.MainPage):
             cell_renderer.set_property('text', '')
 
     def updateInitializers(self):
+        ## TODO GTK3: why is this called so often?
         debug.mainthreadTest()
-        currentObj = self.selectedObj()
         self.initlist.clear()
         mesh = self.currentMeshContext()
         if mesh:
@@ -883,6 +882,7 @@ class SolverPage(oofGUI.MainPage):
             for name, bc in mesh.allBoundaryConds():
                 if bc.initializable(mesh):
                     self.initlist.append([bc])
+            currentObj = self.selectedObj()
             if currentObj is not None:
                 for row in range(len(self.initlist)):
                     if self.initlist[row][0] == currentObj:

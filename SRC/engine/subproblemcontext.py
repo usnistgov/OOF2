@@ -511,9 +511,11 @@ class SubProblemContext(whoville.Who):
         return minorder
 
 
-    # Function to assess the well-posedness of the current state.
-    # Returns None if the problem is well-posed or not being solved,
-    # or returns a message string indicating what's wrong.
+    # Function to assess the well-posedness of the current state, with
+    # the exclusion of the boundary conditions.  Returns None if the
+    # problem is well-posed or not being solved, or returns a message
+    # string indicating what's wrong.  Boundary conditions are set and
+    # checked at the Mesh level.
 
     def checkSolvability(self):
         if self.solver_mode is not None and self.solveFlag:
@@ -551,7 +553,6 @@ class SubProblemContext(whoville.Who):
                         ## in CSubProblem.check_equations.
                         status.append("Equation '%s' has no flux contributions"
                                       % eqn.name())
-            status.extend(self.getParent().checkBdyConditions())
             return "\n   ".join(status)
 
     def materialsConsistent(self):

@@ -796,8 +796,7 @@ class Mesh(whoville.Who):
 
     def checkBdyConditions(self):
         # Check boundary conditions for consistency with other
-        # conditions on the same boundary.  Called by
-        # SubProblemContext.checkSolvability.
+        # conditions on the same boundary. 
         errors = []
         for bdy in self.getObject().boundaries.values():
             errs = bdy.checkConditions()
@@ -1274,9 +1273,12 @@ class Mesh(whoville.Who):
         if self.outOfSync() and not resync:
             return
         self.status = statusobj # a MeshStatus object
-        errors = filter(None, [subproblem.checkSolvability()
-                               for subproblem in self.subproblems()
-                               if  subproblem.time_stepper is not None])
+        errors = filter(None,
+                        [subproblem.checkSolvability()
+                         for subproblem in self.subproblems()
+                         if  subproblem.time_stepper is not None] +
+                        self.checkBdyConditions()
+                        )
         if errors:
             self.status = meshstatus.Unsolvable('\n'.join(errors))
         switchboard.notify("mesh status changed", self)
