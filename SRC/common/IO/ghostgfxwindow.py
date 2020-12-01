@@ -1174,19 +1174,18 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def saveCanvas(self, menuitem, filename, overwrite, pixels, background):
         ## TODO GTK3: Allow different file types
-        ## TODO GTK3: This ought to work in text/batch mode, but
-        ## output_test.py is failing.
-        assert not self.oofcanvas.empty()
         if overwrite or not os.path.exists(filename):
             self.drawLayers()
+            assert not self.oofcanvas.empty()
             if not self.oofcanvas.saveAsPDF(filename, pixels, background):
                 raise ooferror.ErrUserError("Cannot save canvas!")
 
     def saveCanvasRegion(self, menuitem, filename, overwrite,
                          pixels, background, lowerleft, upperright):
-        assert not self.oofcanvas.empty()
+        ## TODO GTK3: Allow different file types
         if overwrite or not os.path.exists(filename):
             self.drawLayers()
+            assert not self.oofcanvas.empty()
             if not self.oofcanvas.saveRegionAsPDF(filename, pixels, background,
                                                   lowerleft, upperright):
                 raise ooferror.ErrUserError("Cannot save canvas region!")

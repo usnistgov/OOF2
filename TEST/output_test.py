@@ -66,7 +66,10 @@ class OOF_Output(unittest.TestCase):
         ## TODO GTK3: The file comparison is currently impossible
         ## because Cairo saves the pdf in binary and also includes a
         ## date stamp.  fp_file_compare in pdfmode knows how to deal
-        ## with the date stamp, but not the binary.
+        ## with the date stamp, but not binary.  It's still worth
+        ## running this test to make sure that Save_Canvas doesn't
+        ## crash, but it would be nice to know if it's working
+        ## properly.
         # self.assert_(fp_file_compare(
         #     'test.pdf', os.path.join('output_data', 'posmesh.pdf'),
         #     1.0e-08, comment="%", pdfmode=True))
