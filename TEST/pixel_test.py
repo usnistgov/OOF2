@@ -145,7 +145,7 @@ class Direct_Pixel_Selection(unittest.TestCase):
                     Point(38.9545,60.239), Point(39.4765,60.239), 
                     Point(39.9984,60.239)], shift=0, ctrl=0)
         ps =  pixelselection.pixelselectionWhoClass['image_test.ppm']
-        self.assertEqual(ps.getObject().len(), 94)
+        self.assertEqual(ps.getObject().len(), 99)
 
 
     @memorycheck.check("image_test.ppm")

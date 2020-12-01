@@ -82,7 +82,7 @@ class OOF_Microstructure(unittest.TestCase):
     def Create_From_ImageFile(self):
         from ooflib.SWIG.image import oofimage
         from ooflib.common import primitives
-        from ooflib.SWIG.common.IO import stringimage
+        # from ooflib.SWIG.common.IO import stringimage
         self.assertRaises(
             oofimage.ImageMagickError, 
             OOF.Microstructure.Create_From_ImageFile,
@@ -105,15 +105,15 @@ class OOF_Microstructure(unittest.TestCase):
         ms_images = ms.imageNames()
         self.assertEqual(len(ms_images), 1)
         self.assert_("small.ppm" in ms_images)
-        img = oofimage.getImage("small.ms:small.ppm")
-        strimg = stringimage.StringImage(ms.sizeInPixels(), ms.size())
-        img.fillstringimage(strimg)
-        outfile = file('hexstringimage.dat','w')
-        print >> outfile, strimg.hexstringimage()
-        outfile.close()
-        assert filecmp.cmp('hexstringimage.dat',
-                           reference_file('ms_data','smallppm.hex'))
-        os.remove("hexstringimage.dat")
+        # img = oofimage.getImage("small.ms:small.ppm")
+        # strimg = stringimage.StringImage(ms.sizeInPixels(), ms.size())
+        # img.fillstringimage(strimg)
+        # outfile = file('hexstringimage.dat','w')
+        # print >> outfile, strimg.hexstringimage()
+        # outfile.close()
+        # assert filecmp.cmp('hexstringimage.dat',
+        #                    reference_file('ms_data','smallppm.hex'))
+        # os.remove("hexstringimage.dat")
 
     # Assumes no microstructures are present.  Requires "New" and "Delete".
     @memorycheck.check("new")
