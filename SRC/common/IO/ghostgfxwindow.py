@@ -1174,6 +1174,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def saveCanvas(self, menuitem, filename, overwrite, pixels, background):
         ## TODO GTK3: Allow different file types
+        ## TODO GTK3: This ought to work in text/batch mode, but
+        ## output_test.py is failing.
         assert not self.oofcanvas.empty()
         if overwrite or not os.path.exists(filename):
             self.drawLayers()
