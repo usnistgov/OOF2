@@ -32,16 +32,12 @@ class OOF_Subproblem(unittest.TestCase):
                                width_in_pixels=10, height_in_pixels=10)
         OOF.Windows.Graphics.New()
         OOF.Graphics_1.Settings.Hide_Empty_Mesh_Elements(0)
-        OOF.LayerEditor.LayerSet.New(window='Graphics_1')
-        OOF.LayerEditor.LayerSet.DisplayedObject(
+        OOF.Graphics_1.Layer.New(
             category='Microstructure',
-            object='subptest')
-        OOF.LayerEditor.LayerSet.Add_Method(
-            method=MicrostructureMaterialDisplay(no_material=Gray(value=0.0),
-                                                 no_color=RGBColor(red=0.0,
-                                                                   green=0.0,
-                                                                   blue=1.0)))
-        OOF.LayerEditor.LayerSet.Send(window='Graphics_1')
+            what='subptest',
+            how=MicrostructureMaterialDisplay(
+                no_material=TranslucentGray(value=0.0,alpha=1.0),
+                no_color=RGBAColor(red=0.0,green=0.0,blue=1.0,alpha=1.0)))
         OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle(source='subptest',
             points=[Point(0.442218,0.463619), Point(-0.109922,1.04144)],
             shift=0, ctrl=0)
