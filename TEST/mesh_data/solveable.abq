@@ -5,10 +5,10 @@ ABAQUS-style file created by OOF2 on 2015-09-24 11:06:12.658326 from a mesh of t
 **     name: Mechanical:Elasticity:Isotropic:stiff
 **     cijkl: IsotropicRank4TensorCij(c11=1.2,c12=0.5)
 **     name: Color:wred
-**     color: RGBColor(red=0.75000,green=0.00000,blue=0.00000)
+**     color: RGBAColor(red=0.75000,green=0.00000,blue=0.00000,alpha=1.0000)
 **   mortar:
 **     name: Color:bloo
-**     color: RGBColor(red=0.00000,green=0.00000,blue=0.75000)
+**     color: RGBAColor(red=0.00000,green=0.00000,blue=0.75000,alpha=1.0000)
 **     name: Mechanical:Elasticity:Isotropic:soft
 **     cijkl: IsotropicRank4TensorCij(c11=0.8,c12=0.5)
 ** Master elements used in OOF2:
