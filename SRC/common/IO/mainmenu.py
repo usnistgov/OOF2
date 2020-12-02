@@ -525,6 +525,13 @@ debugmenu.addItem(CheckOOFMenuItem(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/verbosesb.xml')
     ))
 
+debugmenu.addItem(CheckOOFMenuItem(
+    'Switchboard_Stack_Tracking',
+    switchboard.useMessageStackFlag,
+    callback=switchboard.useMessageStackCB,
+    help='Keep track of current switchboard calls.'))
+    
+
 if debug.debug():
     debugmenu.addItem(oofmenu.OOFMenuItem(
         "Sandbox",
