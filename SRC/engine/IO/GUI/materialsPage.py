@@ -78,11 +78,10 @@ class MaterialsPage(oofGUI.MainPage):
         return None
     
     def sensitize(self):
-        self.propertypane.do_sensitize()
-        self.materialpane.do_sensitize()
-        ## TODO GTK3: Is this called too often?  There are a lot of
-        ## checkpoints in the log file.
-        gtklogger.checkpoint("Materials page updated")
+        if self.sensitizable():
+            self.propertypane.do_sensitize()
+            self.materialpane.do_sensitize()
+            gtklogger.checkpoint("Materials page updated")
         
 class PropertyPane:
     def __init__(self, parent):
@@ -469,8 +468,8 @@ class MaterialPane:
         self.gtk.show_all()
 
         # Switchboard callbacks.
-        switchboard.requestCallbackMain("new_material",self.new_mat)
-        switchboard.requestCallbackMain("remove_material",self.del_mat)
+        switchboard.requestCallbackMain("new_material", self.new_mat)
+        switchboard.requestCallbackMain("remove_material", self.del_mat)
         switchboard.requestCallbackMain("prop_added_to_material",
                                         self.prop_added)
         switchboard.requestCallbackMain("prop_removed_from_material",
@@ -536,14 +535,22 @@ class MaterialPane:
             
     def new_mat(self, name):            # switchboard "new_material"
         names = materialmanager.getMaterialNames()
-        self.materialName.update(names)
-        self.materialName.set_state(name)
-        self.updatePropList()
+        self.parent.suppressSensitization(True)
+        try:
+            self.materialName.update(names)
+            self.materialName.set_state(name)
+            self.updatePropList()
+        finally:
+            self.parent.suppressSensitization(False)
         self.sensitize()
 
     def del_mat(self, material):        # switchboard "remove_material"
-        self.materialName.update(materialmanager.getMaterialNames())
-        self.updatePropList()
+        self.parent.suppressSensitization(True)
+        try:
+            self.materialName.update(materialmanager.getMaterialNames())
+            self.updatePropList()
+        finally:
+            self.parent.suppressSensitization(False)
         self.sensitize()
 
     def on_rename(self, button):     # gtk callback
@@ -630,15 +637,23 @@ class MaterialPane:
     # switchboard "prop_added_to_material".
     def prop_added(self, material, property):
         if self.currentMaterialName() == material:
-            self.updatePropList()
-            self.select_property(property)
-            self.parent.propertypane.select_property(property)
+            self.parent.suppressSensitization(True)
+            try:
+                self.updatePropList()
+                self.select_property(property)
+                self.parent.propertypane.select_property(property)
+            finally:
+                self.parent.suppressSensitization(False)
         self.sensitize()
 
     # switchboard "prop_removed_from_material"
     def prop_removed(self, material, name, property):
         if self.currentMaterialName() == material.name:
-            self.updatePropList()
+            self.parent.suppressSensitization(True)
+            try:
+                self.updatePropList()
+            finally:
+                self.parent.suppressSensitization(False)
             self.sensitize()
 
     def sensitize(self, *args):
@@ -674,7 +689,11 @@ class MaterialPane:
 
     # Callback for the material chooser
     def newMatSelection(self, name):
-        self.updatePropList()
+        self.parent.suppressSensitization(True)
+        try:
+            self.updatePropList()
+        finally:
+            self.parent.suppressSensitization(False)
         self.sensitize()
 
     # Callback for the property list
@@ -682,7 +701,11 @@ class MaterialPane:
         if self.parent.built:
             if interactive:
                 propname = self.currentPropertyName()
-                self.parent.propertypane.select_property(propname)
+                self.parent.suppressSensitization(True)
+                try:
+                    self.parent.propertypane.select_property(propname)
+                finally:
+                    self.parent.suppressSensitization(False)
             self.sensitize()
         
 

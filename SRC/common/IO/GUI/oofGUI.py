@@ -363,6 +363,16 @@ class MainPage(widgetscope.WidgetScope):
         allPages[name] = self
         gtklogger.setWidgetName(self.gtk, name+' Page')
 
+        # Page sensitization can occur through a number of channels.
+        # When more than one operation is taking place sequentially,
+        # it's best to suppress sensitization until the last one
+        # completes.  Those operations should be enclosed in a
+        # suppressSensitization(True)...suppressSensitization(False)
+        # block, which should be followed by the routine that actually
+        # does the sensitization. That routine should only do anything
+        # if sensitizable() return True.
+        self.suppressSensitizationCount = 0
+
     # MainPage.show() should be redefined in subclasses that don't
     # always want to show all their widgets.  show() should call the
     # gtk.show method on the components of the page.  It's called when
@@ -382,6 +392,15 @@ class MainPage(widgetscope.WidgetScope):
         pass
     def is_current(self):
         return gui.currentPageName == self.name
+
+    def suppressSensitization(self, yes):
+        if yes:
+            self.suppressSensitizationCount += 1
+        else:
+            self.suppressSensitizationCount -= 1
+            assert self.suppressSensitizationCount >= 0
+    def sensitizable(self):
+        return self.suppressSensitizationCount == 0
 
 gui = oofGUI()
 
