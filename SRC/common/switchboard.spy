@@ -18,6 +18,7 @@ import sys
 import types
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import threadstate
+from ooflib.common import atshutdown
 from ooflib.common import debug
 from ooflib.common import subthread
 from ooflib.common import thread_enable
@@ -40,11 +41,6 @@ from ooflib.common import mainthread
 # means that message A was emitted, and its callback directly or
 # indirectly emitted message B, and B's callback directly or
 # indirectly emitted message C, which ran on a different thread.
-
-# TODO: The message stack isn't transferred to the new thread if the
-# new thread is created through some other mechanism.  That would
-# require modifications to mainthread.run(), mainthread.runBlock(),
-# and subthread.execute().
 
 class _MessageStack(object):
     def __init__(self):
@@ -84,7 +80,8 @@ class _MessageStack(object):
 
 # Function wrapper used to pass the message stack when the switchboard
 # callback will be called on a different thread than the one that
-# issued the notification.
+# issued the notification.  This is used in the subthread and
+# mainthreadGUI modules.
 
 class _StackWrap(object):
     def __init__(self, func):
@@ -97,9 +94,10 @@ class _StackWrap(object):
         # Called on a different thread.
         messageStack.push(self.stack)
         try:
-            self.func(*args, **kwargs)
+            val = self.func(*args, **kwargs)
         finally:
             messageStack.pop()
+        return val
 
 # No-op versions of _MessageStack and _StackWrap
 class _MessageStackDummy(object):
@@ -136,11 +134,15 @@ def useMessageStackCB(menuitem, flag):
 
 # This sets the default behavior.  It should be False for efficiency,
 # and True for debugging.
-useMessageStack(False)         
+useMessageStack(True)
+
+# Turn off switchboard stack tracking at shutdown, because it doesn't
+# work once threads have been turned off.
+atshutdown.atShutDown(useMessageStack, False)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class _SwitchboardCallbackBase:
+class _SwitchboardCallbackBase(object):
     def __init__(self, msgname, func, caller, args, kwargs):
         self.msgname = msgname
         self.caller = caller            # code line that requested the callback
@@ -174,7 +176,7 @@ class _SwitchboardCallback (_SwitchboardCallbackBase):
                 debug.fmsg("requested by", self.caller)
             messageStack.push(self.msgname)
             try:
-                mainthread.runBlock(StackWrap(self.func), self.args + args, kwargs)
+                mainthread.runBlock(self.func, self.args + args, kwargs)
             finally:
                 messageStack.pop()
             
@@ -199,8 +201,7 @@ class _SwitchboardCallbackThread (_SwitchboardCallbackBase):
                 if not mainthread.mainthread():
                     self.func(*(self.args + args), **kwargs)
                 else:
-                    subthread.execute(StackWrap(self.func),
-                                      self.args+args, kwargs)
+                    subthread.execute(self.func, self.args+args, kwargs)
             finally:
                 messageStack.pop()
             
@@ -208,7 +209,7 @@ class _SwitchboardCallbackThread (_SwitchboardCallbackBase):
         return 'SwitchboardCallbackThread(%s, %s)' % (`self.msgname`,
                                                       `self.func`)
 
-class _SwitchboardTaskList:
+class _SwitchboardTaskList(object):
     def __init__(self, msgname):
         self.callbacks = []
         self.msgname = msgname
@@ -257,7 +258,7 @@ class _SwitchboardTaskList:
             self.lock.release()
 
     
-class _Switchboard:
+class _Switchboard(object):
     def __init__(self):
         self.taskdict = {}
         self.verbose = 0

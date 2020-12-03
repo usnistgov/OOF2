@@ -22,7 +22,8 @@ import threading
 
 class OOFIdleCallback:
      def __init__(self, func, args=(), kwargs={}):
-          self.func = func
+          from ooflib.SWIG.common.switchboard import StackWrap
+          self.func = StackWrap(func)
           self.args = args
           self.kwargs = kwargs
      def __call__(self):
@@ -50,7 +51,8 @@ def run_gui(func, args=(), kwargs={}):
 
 class OOFIdleBlockCallback:
      def __init__(self, func, args=(), kwargs={}):
-          self.func = func
+          from ooflib.SWIG.common.switchboard import StackWrap
+          self.func = StackWrap(func)
           self.args = args
           self.kwargs = kwargs
           self.event = threading.Event()

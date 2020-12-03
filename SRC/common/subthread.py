@@ -25,7 +25,6 @@ import exceptions
 import sys
 import threading
 
-
 class StopThread(exceptions.Exception):
     def __init__ (self):
         exceptions.Exception.__init__(self)
@@ -33,7 +32,8 @@ class StopThread(exceptions.Exception):
 
 class MiniThread(threading.Thread):
     def __init__(self, function, args=(), kwargs={}):
-        self.function = function
+        from ooflib.SWIG.common.switchboard import StackWrap
+        self.function = StackWrap(function)
         self.args = args
         self.kwargs = kwargs
         self.immortal = False
