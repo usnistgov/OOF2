@@ -51,7 +51,7 @@ pyfiles = [
     'pixelselectionmethod.py', 'pixelselectionmod.py', 'primitives.py',
     'quit.py', 'registeredclass.py', 'ringbuffer.py', 'strfunction.py',
     'subthread.py', 'thread_enable.py', 'timer.py', 'toolbox.py',
-    'utils.py', 'version.py', 'worker.py', 'runtimeflags.py'
+    'utils.py', 'version.py', 'worker.py', 'runtimeflags.py', 'atshutdown.py'
 ]
 
 swigpyfiles = [
