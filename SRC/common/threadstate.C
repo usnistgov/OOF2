@@ -327,6 +327,7 @@ void testcancel() {
 // function calls.  For reasons that aren't completely understood, if
 // those functions are used in unthreaded mode, we get seg faults from
 // gtk.
+// TODO GTK3: Is this still true?
 
 bool threading_enabled=true;
 

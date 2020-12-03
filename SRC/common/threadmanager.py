@@ -10,13 +10,10 @@
 
 import string
 from ooflib.SWIG.common import lock
-from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import thread_enable
 from ooflib.common.IO import reporter
-
-## TODO: Why is this file in common/IO?  Move it to common.
 
 ## ThreadManager coordinates the thread-enabled menu items of OOF.  It
 ## administers the existing running threaded processes.  It also
