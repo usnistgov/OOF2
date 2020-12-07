@@ -333,3 +333,9 @@ def comprehensive_sanity_check():
     for widget in logutils.topwidgets.values():
         sanity_check(widget)
     
+##################
+
+# Insert a comment in the log file.
+def comment(*args):
+    if logutils.recording():
+        print >> logutils.logfile(), ' '.join(map(str, ("# ",) + args))
