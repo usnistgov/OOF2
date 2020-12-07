@@ -398,7 +398,7 @@ def _copyFieldState(menuitem, source, target):
                 target_mesh.set_field_initializer(f, initializer)
                 notifications.append(("field initialized"))
 
-        if target_subp.autoenableBCs(reserve=False):
+        if target_subp.autoenableBCs():
             notifications.append(("boundary conditions changed", targetsubp))
     finally:
         source_subp.end_reading()
@@ -494,7 +494,7 @@ def _copyEquationState(menuitem, source, target):
                     target_obj.activate_dynamics(e)
                     notifications.append(
                         ('dynamics activated', target_subp.path(), e.name(), 1))
-        if target_subp.autoenableBCs(reserve=False):
+        if target_subp.autoenableBCs():
             notifications.append(("boundary conditions changed", self))
     finally:
         source_subp.end_reading()
@@ -553,7 +553,7 @@ def _defineField(menuitem, mesh, field):
         subpcontext.begin_writing()
         try:
             subpcontext.getObject().define_field(field)
-            bcchanged = subpcontext.autoenableBCs(reserve=False)
+            bcchanged = subpcontext.autoenableBCs()
         finally:
             subpcontext.end_writing()
             subpcontext.cancel_reservation()
@@ -581,7 +581,7 @@ def _undefineField(menuitem, mesh, field):
             # might be slow (especially for a disk cache).  The
             # simpler thing to do is to just delete the whole cache.
             subpcontext.getParent().clearDataCache()
-            bcchanged = subpcontext.autoenableBCs(reserve=False)
+            bcchanged = subpcontext.autoenableBCs()
         finally:
             subpcontext.end_writing()
             subpcontext.cancel_reservation()
@@ -637,7 +637,7 @@ def _activateField(menuitem, mesh, field):
             if subp.is_defined_field(field):
                 subp.activate_field(field)
                 activation = True
-                bcchanged = subpcontext.autoenableBCs(reserve=False)
+                bcchanged = subpcontext.autoenableBCs()
             else:
                 reporter.report(
                     "You must define a Field before you can activate it.")
@@ -667,7 +667,7 @@ def _deactivateField(menuitem, mesh, field):
             if subp.is_active_field(field):
                 subp.deactivate_field(field)
                 deactivation = True
-                bcchanged = subpcontext.autoenableBCs(reserve=False)
+                bcchanged = subpcontext.autoenableBCs()
             else:
                 reporter.report(
                     "You must define and activate a Field before you can deactivate it.")
@@ -1024,7 +1024,7 @@ def _activateEquation(menuitem, mesh, equation):
         subpcontext.begin_writing()
         try:
             subpcontext.getObject().activate_equation(equation)
-            bcchanged = subpcontext.autoenableBCs(reserve=False)
+            bcchanged = subpcontext.autoenableBCs()
         finally:
             subpcontext.end_writing()
             subpcontext.cancel_reservation()
@@ -1045,7 +1045,7 @@ def _deactivateEquation(menuitem, mesh, equation):
         subpcontext.begin_writing()
         try:
             subpcontext.getObject().deactivate_equation(equation)
-            bcchanged = subpcontext.autoenableBCs(reserve=False)
+            bcchanged = subpcontext.autoenableBCs()
         finally:
             subpcontext.end_writing()
             subpcontext.cancel_reservation()

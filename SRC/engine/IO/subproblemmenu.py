@@ -136,7 +136,7 @@ def _copy_subproblem(menuitem, subproblem, mesh, name):
         for eqn in sourceobj.all_equations():
             copyobj.activate_equation(eqn)
             notifications.append(("equation activated", copyname, eqn.name(), 1))
-        if copyctxt.autoenableBCs(reserve=False):
+        if copyctxt.autoenableBCs():
             notifications.append(("boundary conditions changed", self))
     finally:
         copyctxt.end_writing()
@@ -219,7 +219,7 @@ def _edit_subproblem(menuitem, name, subproblem):
     newsubp.reserve()
     newsubp.begin_writing()
     try:
-        newsubp.autoenableBCs(reserve=False)
+        newsubp.autoenableBCs()
     finally:
         newsubp.end_writing()
         newsubp.cancel_reservation()
@@ -373,7 +373,7 @@ def _defineField(menuitem, subproblem, field):
                     initializer.apply(subpcontext.getParent().getObject(),
                                       field, singleFieldDef=True)
                 meshctxt.update_fields()
-                bcchanged = subpcontext.autoenableBCs(reserve=False)
+                bcchanged = subpcontext.autoenableBCs()
                 didsomething = True
         finally:
             subpcontext.end_writing()
@@ -416,7 +416,7 @@ def _undefineField(menuitem, subproblem, field):
             # might be slow (especially for a disk cache).  The
             # simpler thing to do is to just delete the whole cache.
             subpcontext.getParent().clearDataCache()
-            bcchanged = subpcontext.autoenableBCs(reserve=False)
+            bcchanged = subpcontext.autoenableBCs()
         finally:
             subpcontext.end_writing()
             subpcontext.cancel_reservation()
@@ -459,7 +459,7 @@ def _activateField(menuitem, subproblem, field):
             subp = subpcontext.getObject()
             if subp.is_defined_field(field):
                 subp.activate_field(field)
-                bcchanged = subpcontext.autoenableBCs(reserve=False)
+                bcchanged = subpcontext.autoenableBCs()
                 activation = True
             else:
                 reporter.report(
@@ -486,7 +486,7 @@ def _deactivateField(menuitem, subproblem, field):
             subp = subpcontext.getObject()
             if subp.is_active_field(field):
                 subp.deactivate_field(field)
-                bcchanged = subpcontext.autoenableBCs(reserve=False)
+                bcchanged = subpcontext.autoenableBCs()
                 deactivation = True
             else:
                 reporter.report(
@@ -550,7 +550,7 @@ def _activateEquation(menuitem, subproblem, equation):
         subpcontext.begin_writing()
         try:
             subpcontext.getObject().activate_equation(equation)
-            bcchanged = subpcontext.autoenableBCs(reserve=False)
+            bcchanged = subpcontext.autoenableBCs()
         finally:
             subpcontext.end_writing()
             subpcontext.cancel_reservation()
@@ -570,7 +570,7 @@ def _deactivateEquation(menuitem, subproblem, equation):
         subpcontext.begin_writing()
         try:
             subpcontext.getObject().deactivate_equation(equation)
-            bcchanged = subpcontext.autoenableBCs(reserve=False)
+            bcchanged = subpcontext.autoenableBCs()
         finally:
             subpcontext.end_writing()
             subpcontext.cancel_reservation()
@@ -685,7 +685,7 @@ def _copyFieldState(menuitem, source, target):
                 target_meshctxt.set_in_plane_field(f, inplane)
                 notifications.append(
                     ("field inplane", target_meshname, f.name(), inplane))
-        if target_subp.autoenableBCs(reserve=False):
+        if target_subp.autoenableBCs():
             notifications.append(
                 ("boundary conditions changed", target_subp))
     finally:
@@ -762,7 +762,7 @@ def _copyEquationState(menuitem, source, target):
                 target_obj.activate_equation(e)
                 notifications.append(
                         ("equation activated", target, e.name(), 1) )
-        if target_subp.autoenableBCs(reserve=False):
+        if target_subp.autoenableBCs():
             notifications.append(
                 ("boundary conditions changed", target_subp))
     finally:

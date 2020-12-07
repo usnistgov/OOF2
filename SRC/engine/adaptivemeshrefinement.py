@@ -244,7 +244,7 @@ class AdaptiveMeshRefinement(meshmod.MeshModification):
                 subproblem.reserve()
                 subproblem.begin_writing()
                 try:
-                    subproblem.autoenableBCs(reserve=False)
+                    subproblem.autoenableBCs()
                 finally:
                     subproblem.end_writing()
                     subproblem.cancel_reservation()
