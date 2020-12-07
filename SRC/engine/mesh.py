@@ -1276,7 +1276,6 @@ class Mesh(whoville.Who):
     ########################
 
     def setStatus(self, statusobj, resync=False):
-        # debug.fmsg(statusobj)
         # If the Mesh is out of sync with the Skeleton, it has to be
         # rebuilt before anything else can be done with it.
         # Mesh.rebuildMesh calls this function with resync=True after
