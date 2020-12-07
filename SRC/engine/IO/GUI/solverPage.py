@@ -453,10 +453,14 @@ class SolverPage(oofGUI.MainPage):
             return ctxt.getObject()
 
     def update(self):
-        self.updateSubproblems()
-        self.updateInitializers()
-        self.updateTime()
-        self.updateStatus()
+        self.suppressSensitization(True)
+        try:
+            self.updateSubproblems()
+            self.updateInitializers()
+            self.updateTime()
+            self.updateStatus()
+        finally:
+            self.suppressSensitization(False)
         self.sensitize()
 
     def reservationCB(self, who): # sb "made/cancelled reservation"
@@ -467,8 +471,8 @@ class SolverPage(oofGUI.MainPage):
         self.update()
 
     def sensitize(self):
-        ## TODO OPT: This is called an awful lot. Can it be reduced?
-        ## Does it matter?
+        if not self.sensitizable():
+            return
         debug.mainthreadTest()
         meshctxt = self.currentMeshContext()
         meshok = (meshctxt is not None and not meshctxt.query_reservation()
@@ -734,15 +738,23 @@ class SolverPage(oofGUI.MainPage):
     def subpSolversChangedCB(self, *args):
         # switchboard "subproblem solvers changed".  Note the plural...
         # Called by OOF.Mesh.Remove_All_Solvers.
-        self.updateSubproblems()
-        self.updateInitializers()
+        self.suppressSensitization(True)
+        try:
+            self.updateSubproblems()
+            self.updateInitializers()
+        finally:
+            self.suppressSensitization(False)
         self.sensitize()
 
     def subproblemsChangedCB(self, *args):
         # switchboard "new who", "rename who", etc.
-        self.updateSubproblems()
-        self.updateInitializers()
-        self.updateStatus()
+        self.suppressSensitization(True)
+        try:
+            self.updateSubproblems()
+            self.updateInitializers()
+            self.updateStatus()
+        finally:
+            self.suppressSensitization(False)
         self.sensitize()
 
     ####################
@@ -873,6 +885,8 @@ class SolverPage(oofGUI.MainPage):
 
     def updateInitializers(self):
         ## TODO GTK3: why is this called so often?
+        ## This does not indirectly call self.sensitize(), it seems.
+        #debug.fmsg("switchboard stack:", switchboard.messageStack.current())
         debug.mainthreadTest()
         self.initlist.clear()
         mesh = self.currentMeshContext()

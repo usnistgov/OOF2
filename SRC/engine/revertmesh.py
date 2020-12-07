@@ -102,12 +102,22 @@ class RevertMesh(meshmod.MeshModification):
         meshcontext.pause_writing()
         try:
             for subproblem in meshcontext.subproblems():
-                subproblem.autoenableBCs()
+                subproblem.reserve()
+                subproblem.begin_writing()
+                try:
+                    subproblem.autoenableBCs(reserve=False)
+                finally:
+                    subproblem.end_writing()
+                    subproblem.cancel_reservation()
         finally:
             meshcontext.resume_writing()
             
         old_femesh.destroy()
-                
+
+        # TODO GTK3: This used to send "boundary conditions changed"
+        # via autoenableBCs, which doesn't send it any more.  Is it
+        # necessary here?
+        
         # time stamp update
         meshcontext.changed("Copied.")
 

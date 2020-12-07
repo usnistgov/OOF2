@@ -122,9 +122,13 @@ class BC(registeredclass.RegisteredClass):
     # mesh changes.  Subclasses must have the "computable" function,
     # which answers the "do you make sense" question, independently of
     # whether the BC will actually be enabled.
+    # Returns True if the status has changed.
     def auto_enable(self, subpcontext):
         subproblem = subpcontext.getObject()
-        self.computableDict[subproblem] = self.computable(subproblem)
+        oldval = self.computableDict.get(subproblem, None)
+        newval = self.computable(subproblem)
+        self.computableDict[subproblem] = newval
+        return oldval != newval
 
     # Functions for explicit enabling or disabling of BCs by users.
 
@@ -1547,7 +1551,8 @@ class NeumannBC(BC):
             applicator.integrate(flux_locator, self.profile,
                                  self.normal, time)
         else:
-            raise ErrSetupError('Attempt to invoke NeumannBC on inactive flux.')
+            raise ooferror2.ErrSetupError(
+                'Attempt to invoke NeumannBC on inactive flux: %s ' % self.flux)
     def display(self):
         return "Neumann / %s" % `self.flux`
 

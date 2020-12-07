@@ -349,7 +349,8 @@ class BoundaryCondPage(oofGUI.MainPage):
                     title="Rename the boundary condition '%s'" % bcname):
                 menuitem.callWithDefaults(mesh=meshname, bc=bcname)
 
-    def newBCs(self, mesh, bc, visible): # sb "boundary conditions changed"
+    def newBCs(self, mesh, bc=None, visible=True):
+        # sb "boundary conditions changed"
         if mesh==self.currentMesh() and visible:
             self.bclist.update(mesh, select=bc)
 

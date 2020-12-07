@@ -465,18 +465,37 @@ class SubProblemContext(whoville.Who):
     # This function must be called after fields or equations are added
     # to or removed from this subproblem -- BCs which have become
     # incomputable will shut themselves off, and those which have
-    # become computable will switch themselves on.
-    def autoenableBCs(self):
-        self.reserve()
-        self.begin_writing()
+    # become computable will switch themselves on.  Call with
+    # reserve=False if the calling function has already reserved the
+    # write lock on the SubProblemContext, in which case it's
+    # responsible for sending the switchboard signal.
+    def autoenableBCs(self, reserve=True):
+
+        ## TODO GTK3: This is always called just after another
+        ## operation that has acquired and cancelled the reservation
+        ## on the subproblem.  If this could be called while that
+        ## reservation is in effect, then we would save a whole
+        ## reserve/cancel cycle, which would reduce the number of
+        ## reservationChanged() calls on the FieldPage, and maybe on
+        ## other pages as well.  Each reservationChanged() call
+        ## re-sensitizes the page and adds gtklogger checkpoints.
+
+        changed = False
+
+        if reserve:
+            self.reserve()
+            self.begin_writing()
         try:
             for (name, bc) in self.parent.allBoundaryConds():
-                bc.auto_enable(self)
+                changed = changed or bc.auto_enable(self)
         finally:
-            self.end_writing()
-            self.cancel_reservation()
-        # Mild abuse of this switchboard callback, with placeholder args.
-        switchboard.notify("boundary conditions changed", self, None, True)
+            if reserve:
+                self.end_writing()
+                self.cancel_reservation()
+        if reserve and changed:
+            switchboard.notify("boundary conditions changed", self)
+
+        return changed
 
     def timeDependent(self):
         return self._timeDependent
