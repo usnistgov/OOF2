@@ -8,6 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+import itertools
 import math
 import os
 import re
@@ -251,6 +252,76 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
 
         if not silent:
             print >> sys.stderr, "Files", filename1, "and", filename2, "agree."
+        return True
+    finally:
+        f1.close()
+        f2.close()
+
+def pdf_compare(filename1, filename2, quiet=False):
+    # Compare two files byte by byte, allowing them to differ by a pdf
+    # date stamp of the form
+    #   /CreationDate (D:20201207163212-05'00)
+    #   0           ^12               ^30    ^37
+
+    # This is based on what is found in a pdf file created by Cairo,
+    # which is what OOF2 generates.  If Cairo uses different formats
+    # at different times or on different platforms, or if it changes,
+    # then this will break.
+    f1 = open(filename1, "r")
+    try:
+        fn2 = reference_file(filename2)
+        f2 = open(fn2, "r")
+    except:
+        if generate:
+            print >> sys.stderr, "\nMoving file %s to %s.\n" % (filename1,
+                                                                filename2)
+            os.rename(filename1, fn2)
+            return True
+        else:
+            raise
+    
+    chars1 = f1.read()
+    chars2 = f2.read()
+    try:
+        if len(chars1) != len(chars2):
+            print >> sys.stderr, "File sizes differ:", filename1, fn2
+            return False
+        inDate = False
+        foundDate = False
+        for i, (c1, c2) in enumerate(itertools.izip(chars1, chars2)):
+            if inDate:
+                # We're inside the date string.  Just look for its end and
+                # ignore differences.
+                if c1 == c2 == ")":
+                    inDate = False
+            elif c1 != c2:
+                if foundDate:
+                    # We already found the date string and have moved past
+                    # it.  The files must differ.
+                    if not quiet:
+                        print >> sys.stderr, "Files differ after date string"
+                    return False
+                if not inDate:
+                    # This is the first difference.  Is it inside the
+                    # parentheses after "/CreationDate"?  That string can
+                    # start anywhere between 16 and 36 characters before here.
+                    jmin = max(i-36, 0)
+                    jmax = max(i-16, 0)
+                    for j in range(jmin, jmax):
+                        if chars1[j:j+17] == "/CreationDate (D:":
+                            # We're in the parenthesized region.
+                            assert chars1[j+37] == chars2[j+37] == ')'
+                            inDate = True
+                            foundDate = True
+                            break
+                    else:
+                        # We found a difference, but it's not in the
+                        # date string.
+                        if not quiet:
+                            print >> sys.stderr, "Files differ before date string"
+                        return False
+        if not quiet:
+            print >> sys.stderr, "Files", filename1, "and", fn2, "agree."
         return True
     finally:
         f1.close()
