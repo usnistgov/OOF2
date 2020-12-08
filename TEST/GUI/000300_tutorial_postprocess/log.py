@@ -1,8 +1,9 @@
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
 import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
-checkpoint toplevel widget mapped OOF2
-checkpoint page installed Introduction
 findWidget('OOF2').resize(782, 545)
 findMenu(findWidget('OOF2:MenuBar'), ['Help', 'Tutorials']).activate()
 findMenu(findWidget('OOF2:MenuBar'), ['Help', 'Tutorials', 'Postprocessing']).activate()
@@ -39,8 +40,8 @@ checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
 checkpoint active area status updated
-checkpoint mesh bdy page updated
 checkpoint pixel page sensitized
+checkpoint mesh bdy page updated
 checkpoint Field page sensitized
 checkpoint Materials page updated
 checkpoint mesh page subproblems sensitized
@@ -67,12 +68,6 @@ checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint meshable button set
 checkpoint microstructure page sensitized
-checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint Materials page updated
@@ -165,8 +160,8 @@ findWidget('Postprocessing').resize(500, 530)
 event(Gdk.EventType.BUTTON_PRESS,x= 9.0000000000000e+01,y= 8.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Analysis']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Analysis
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Analysis Page:bottom').set_position(320)
 findWidget('OOF2:Analysis Page:top:Output:AggregateMode').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 1.3700000000000e+02,y= 8.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Output:Aggregate:Aggregate_0').get_window())
@@ -255,9 +250,9 @@ findWidget('Postprocessing:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 6.2000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Analysis']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint mesh bdy page updated
 checkpoint page installed Boundary Analysis
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Boundary Analysis Page:Pane').set_position(217)
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([1]))
 event(Gdk.EventType.BUTTON_PRESS,x= 1.3700000000000e+02,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('OOF2:Boundary Analysis Page:Pane:BdyAnalyzerRCF:RCFChooser').get_window())
@@ -273,13 +268,12 @@ findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
+checkpoint toplevel widget mapped OOF2 Graphics 1
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Windows.Graphics.New
 findWidget('OOF2 Graphics 1:Pane0').set_position(360)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
-checkpoint toplevel widget mapped OOF2 Graphics 1
-findWidget('OOF2 Graphics 1').resize(800, 492)
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Windows.Graphics.New
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
 checkpoint toplevel widget mapped Dialog-New
@@ -350,8 +344,8 @@ findWidget('Postprocessing:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 6.5000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-TBChooser
 findMenu(findWidget('chooserPopup-TBChooser'), ['Mesh Info']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 checkpoint Graphics_1 Mesh Info sensitized
+deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 assert tests.checkTBMode("OOF2 Graphics 1", "Element")
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(225)
 findWidget('Postprocessing:Next').clicked()
@@ -378,8 +372,8 @@ checkpoint Graphics_1 Mesh Info showed position
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info updated
 checkpoint contourmap info updated for Graphics_1
-assert tests.checkTBMode("OOF2 Graphics 1", "Element")
 checkpoint OOF.Graphics_1.Toolbox.Mesh_Info.QueryElement
+assert tests.checkTBMode("OOF2 Graphics 1", "Element")
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInfo:NodeList').get_selection().select_path(Gtk.TreePath([0]))
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 1.0000000000000e+00)
 checkpoint contourmap info updated for Graphics_1
@@ -390,11 +384,11 @@ tree=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:ElementInf
 column = tree.get_column(0)
 tree.row_activated(Gtk.TreePath([1]), column)
 checkpoint Graphics_1 Mesh Info showed position
-assert tests.meshInfoNodeTBCheck('OOF2 Graphics 1', 12, 'FuncNode', (30, 24))
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Mesh_Info.QueryNode
+assert tests.meshInfoNodeTBCheck('OOF2 Graphics 1', 12, 'FuncNode', (30, 24))
 findWidget('Postprocessing:Next').clicked()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 7.9715133144980e-01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 3.5797151331450e+01)
@@ -405,7 +399,6 @@ checkpoint Mesh_Data_1 position updated
 checkpoint Mesh_Data_1 time updated
 checkpoint Mesh_Data_1 mesh updated
 checkpoint toplevel widget mapped Mesh Data 1
-findWidget('Mesh Data 1').resize(278, 372)
 checkpoint Mesh_Data_1 data updated
 findWidget('Mesh Data 1').resize(278, 448)
 assert tests.chooserStateCheck('Mesh Data 1:ViewSource:output:Parameters:field', 'Displacement')
@@ -429,8 +422,8 @@ findWidget('Postprocessing:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 6.7000000000000e+01,y= 2.1000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-TBChooser
 findMenu(findWidget('chooserPopup-TBChooser'), ['Mesh Cross Section']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 checkpoint Graphics_1 Mesh Cross Section sensitized
+deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(268)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 1.2700000000000e+02)
 findWidget('Postprocessing:Next').clicked()

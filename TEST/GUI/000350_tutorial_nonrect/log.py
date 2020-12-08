@@ -1,8 +1,9 @@
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
 import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
-checkpoint toplevel widget mapped OOF2
-checkpoint page installed Introduction
 findWidget('OOF2').resize(782, 545)
 findMenu(findWidget('OOF2:MenuBar'), ['Help', 'Tutorials']).activate()
 findMenu(findWidget('OOF2:MenuBar'), ['Help', 'Tutorials', 'Nonrectangular_Domain']).activate()
@@ -13,10 +14,10 @@ findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
+checkpoint toplevel widget mapped OOF2 Graphics 1
 findWidget('OOF2 Graphics 1:Pane0').set_position(360)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
-checkpoint toplevel widget mapped OOF2 Graphics 1
 findWidget('OOF2 Graphics 1').resize(800, 492)
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
@@ -33,12 +34,12 @@ checkpoint OOF.Graphics_1.Settings.New_Layer_Policy
 event(Gdk.EventType.BUTTON_PRESS,x= 9.3000000000000e+01,y= 2.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Microstructure']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Microstructure
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Microstructure Page:Pane').set_position(235)
 checkpoint meshable button set
-findWidget('OOF2:Microstructure Page:Pane').set_position(184)
 checkpoint microstructure page sensitized
+findWidget('OOF2:Microstructure Page:Pane').set_position(184)
 findWidget('OOF2:Microstructure Page:NewFromFile').clicked()
 checkpoint toplevel widget mapped Dialog-Load Image and create Microstructure
 findWidget('Dialog-Load Image and create Microstructure').resize(237, 200)
@@ -72,9 +73,9 @@ checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
 checkpoint active area status updated
-findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint pixel page sensitized
 checkpoint mesh bdy page updated
+findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint Field page sensitized
 checkpoint Materials page updated
 checkpoint mesh page subproblems sensitized
@@ -83,8 +84,8 @@ checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page updated
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page updated
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -100,8 +101,8 @@ findWidget('Nonrectangular Domain:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 9.1000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Image']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Image
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Image Page:Pane').set_position(546)
 findWidget('OOF2:Image Page:Group').clicked()
 checkpoint toplevel widget mapped Dialog-AutoGroup
@@ -120,8 +121,8 @@ checkpoint OOF.Image.AutoGroup
 event(Gdk.EventType.BUTTON_PRESS,x= 8.2000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Microstructure']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Microstructure
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Microstructure Page:Pane').set_position(235)
 checkpoint meshable button set
 checkpoint microstructure page sensitized
@@ -146,9 +147,9 @@ findWidget('Nonrectangular Domain:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 6.4000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Materials']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Materials page updated
 checkpoint page installed Materials
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Materials Page:Pane').set_position(289)
 findWidget('OOF2:Materials Page:Pane:Material:New').clicked()
 checkpoint toplevel widget mapped Dialog-New material
@@ -173,9 +174,6 @@ findWidget('Dialog-New material:name').insert_text('i', 11)
 findWidget('Dialog-New material:name').insert_text('a', 12)
 findWidget('Dialog-New material:name').insert_text('l', 13)
 findWidget('Dialog-New material:widget_GTK_RESPONSE_OK').clicked()
-checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint OOF.Material.New
 findWidget('Nonrectangular Domain:Next').clicked()
@@ -248,8 +246,6 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.green_elasticity
 findWidget('Nonrectangular Domain:Next').clicked()
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
-checkpoint Materials page updated
-checkpoint Materials page updated
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
@@ -269,10 +265,10 @@ findWidget('Nonrectangular Domain:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 6.2000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Skeleton
-findWidget('OOF2:Skeleton Page:Pane').set_position(417)
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint skeleton page sensitized
+findWidget('OOF2:Skeleton Page:Pane').set_position(417)
 checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-New skeleton
@@ -311,11 +307,11 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
-checkpoint skeleton page info updated
 checkpoint skeleton selection page grouplist Element
 checkpoint skeleton page info updated
 checkpoint skeleton selection page selection sensitized Element
 checkpoint Solver page sensitized
+checkpoint skeleton page info updated
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
 checkpoint skeleton page sensitized
@@ -327,8 +323,8 @@ findWidget('Nonrectangular Domain:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 2.4000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton Boundaries']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Skeleton Boundaries
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 assert tests.skeletonBdySensitizationCheck0()
 findWidget('OOF2:Skeleton Boundaries Page:Pane').set_position(379)
 findWidget('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([0]))
@@ -340,14 +336,14 @@ event(Gdk.EventType.BUTTON_PRESS,x= 6.5000000000000e+01,y= 2.4000000000000e+01,b
 checkpoint toplevel widget mapped chooserPopup-TBChooser
 findMenu(findWidget('chooserPopup-TBChooser'), ['Skeleton Selection']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
+checkpoint Graphics_1 Element sensitized
+checkpoint selection info updated Element
+checkpoint Graphics_1 Element sensitized
+checkpoint selection info updated Element
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(265)
-checkpoint Graphics_1 Element sensitized
-checkpoint Graphics_1 Element sensitized
-checkpoint selection info updated Element
-checkpoint selection info updated Element
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Select:Segment').clicked()
-checkpoint Graphics_1 Segment sensitized
 checkpoint selection info updated Segment
+checkpoint Graphics_1 Segment sensitized
 event(Gdk.EventType.BUTTON_PRESS,x= 1.0200000000000e+02,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Segment:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Rectangle']).activate() # MenuItemLogger
@@ -571,8 +567,8 @@ findGfxWindow('Graphics_1').simulateMouse('move', 10.193125, 10.215, 1, False, F
 findGfxWindow('Graphics_1').simulateMouse('move', 10.193125, 10.215, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 10.193125, 10.215, 1, False, False)
 checkpoint Graphics_1 Segment sensitized
-checkpoint Graphics_1 Segment sensitized
 checkpoint selection info updated Segment
+checkpoint Graphics_1 Segment sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Select_Segment.Rectangle
 findWidget('OOF2:Skeleton Boundaries Page:Pane:Boundaries:Modify').clicked()
@@ -587,12 +583,12 @@ findWidget('Nonrectangular Domain').resize(500, 326)
 event(Gdk.EventType.BUTTON_PRESS,x= 5.2000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['FE Mesh']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint page installed FE Mesh
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(130)
 findWidget('OOF2:FE Mesh Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create a new mesh
@@ -672,14 +668,12 @@ findWidget('Nonrectangular Domain:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 7.3000000000000e+01,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Fields & Equations']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint page installed Fields & Equations
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Fields & Equations Page:HPane').set_position(470)
 findWidget('OOF2:Fields & Equations Page:HPane:Fields:Displacement defined').clicked()
-checkpoint Field page sensitized
-checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
@@ -696,8 +690,6 @@ checkpoint Solver page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Subproblem.Field.Define
 findWidget('OOF2:Fields & Equations Page:HPane:Fields:Displacement active').clicked()
-checkpoint Field page sensitized
-checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
@@ -726,8 +718,6 @@ checkpoint OOF.Mesh.Field.In_Plane
 findWidget('OOF2:Fields & Equations Page:HPane:Equations:Force_Balance active').clicked()
 checkpoint Field page sensitized
 checkpoint Field page sensitized
-checkpoint Field page sensitized
-checkpoint Field page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
@@ -744,8 +734,8 @@ findWidget('Nonrectangular Domain:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 5.8000000000000e+01,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Conditions']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Boundary Conditions
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('Nonrectangular Domain:Next').clicked()
 findWidget('OOF2:Boundary Conditions Page:Condition:New').clicked()
 checkpoint toplevel widget mapped Dialog-New Boundary Condition
@@ -873,9 +863,9 @@ findWidget('Nonrectangular Domain:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 8.6000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Solver']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Solver page sensitized
 checkpoint page installed Solver
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Solver Page:VPane').set_position(170)
 findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList').get_selection().select_path(Gtk.TreePath([0]))
 checkpoint Solver page sensitized
@@ -898,11 +888,11 @@ checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
-findWidget('OOF2:Solver Page:end').set_text('0.0')
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.Solve
+findWidget('OOF2:Solver Page:end').set_text('0.0')
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()
 checkpoint toplevel widget mapped Dialog-Python_Log
 findWidget('Dialog-Python_Log').resize(192, 122)

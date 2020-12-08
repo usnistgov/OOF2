@@ -189,9 +189,6 @@ findWidget('Dialog-New material:name').insert_text('a', 13)
 findWidget('Dialog-New material:name').insert_text('l', 14)
 findWidget('Dialog-New material:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint Materials page updated
 checkpoint OOF.Material.New
 assert tests.chooserCheck('OOF2:Materials Page:Pane:Material:MaterialList', ['yellow-material'])
 assert tests.matlPageSensitizationCheck1()
@@ -205,9 +202,6 @@ findWidget('Dialog-New material:name').insert_text('y', 1)
 findWidget('Dialog-New material:name').insert_text('a', 2)
 findWidget('Dialog-New material:name').insert_text('n', 3)
 findWidget('Dialog-New material:widget_GTK_RESPONSE_OK').clicked()
-checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint OOF.Material.New
 assert tests.chooserCheck('OOF2:Materials Page:Pane:Material:MaterialList', [ 'cyan-material', 'yellow-material'])
@@ -279,11 +273,8 @@ event(Gdk.EventType.BUTTON_PRESS,x= 1.0900000000000e+02,y= 2.2000000000000e+01,b
 checkpoint toplevel widget mapped chooserPopup-MaterialList
 findMenu(findWidget('chooserPopup-MaterialList'), ['yellow-material']).activate() # MenuItemLogger
 checkpoint Materials page updated
-checkpoint Materials page updated
 deactivatePopup('chooserPopup-MaterialList') # MenuItemLogger
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
-checkpoint Materials page updated
-checkpoint Materials page updated
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
@@ -327,11 +318,8 @@ event(Gdk.EventType.BUTTON_PRESS,x= 1.0700000000000e+02,y= 1.4000000000000e+01,b
 checkpoint toplevel widget mapped chooserPopup-MaterialList
 findMenu(findWidget('chooserPopup-MaterialList'), ['cyan-material']).activate() # MenuItemLogger
 checkpoint Materials page updated
-checkpoint Materials page updated
 deactivatePopup('chooserPopup-MaterialList') # MenuItemLogger
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
-checkpoint Materials page updated
-checkpoint Materials page updated
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
@@ -340,14 +328,11 @@ assert tests.materialCheck('cyan-material', ['Mechanical:Elasticity:Isotropic:cy
 assert tests.selectedMatlPropertyCheck('Mechanical:Elasticity:Isotropic:cyan_elasticity')
 findWidget('OOF2:Materials Page:Pane:Material:RemoveProperty').clicked()
 checkpoint Materials page updated
-checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Material.Remove_property
 assert tests.selectedMatlPropertyCheck(None)
 assert tests.materialCheck('cyan-material', [])
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
-checkpoint Materials page updated
-checkpoint Materials page updated
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
@@ -414,11 +399,8 @@ event(Gdk.EventType.BUTTON_PRESS,x= 7.2000000000000e+01,y= 1.0000000000000e+01,b
 checkpoint toplevel widget mapped chooserPopup-MaterialList
 findMenu(findWidget('chooserPopup-MaterialList'), ['yellow-material']).activate() # MenuItemLogger
 checkpoint Materials page updated
-checkpoint Materials page updated
 deactivatePopup('chooserPopup-MaterialList') # MenuItemLogger
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
-checkpoint Materials page updated
-checkpoint Materials page updated
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
@@ -502,11 +484,8 @@ event(Gdk.EventType.BUTTON_PRESS,x= 6.9000000000000e+01,y= 1.2000000000000e+01,b
 checkpoint toplevel widget mapped chooserPopup-MaterialList
 findMenu(findWidget('chooserPopup-MaterialList'), ['cyan-material']).activate() # MenuItemLogger
 checkpoint Materials page updated
-checkpoint Materials page updated
 deactivatePopup('chooserPopup-MaterialList') # MenuItemLogger
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
-checkpoint Materials page updated
-checkpoint Materials page updated
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
@@ -517,7 +496,6 @@ findWidget('A Simple Example:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 9.5000000000000e+01,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Materials Page:Pane:Material:MaterialList').get_window())
 checkpoint toplevel widget mapped chooserPopup-MaterialList
 findMenu(findWidget('chooserPopup-MaterialList'), ['yellow-material']).activate() # MenuItemLogger
-checkpoint Materials page updated
 checkpoint Materials page updated
 deactivatePopup('chooserPopup-MaterialList') # MenuItemLogger
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()
@@ -567,8 +545,8 @@ findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -577,7 +555,6 @@ findWidget('A Simple Example:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 8.9000000000000e+01,y= 2.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Materials Page:Pane:Material:MaterialList').get_window())
 checkpoint toplevel widget mapped chooserPopup-MaterialList
 findMenu(findWidget('chooserPopup-MaterialList'), ['cyan-material']).activate() # MenuItemLogger
-checkpoint Materials page updated
 checkpoint Materials page updated
 deactivatePopup('chooserPopup-MaterialList') # MenuItemLogger
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()
@@ -597,11 +574,11 @@ findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuIte
 checkpoint page installed Skeleton
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint skeleton page sensitized
+checkpoint skeleton page sensitized
 assert tests.skeletonPageSensitivityCheck0()
 findWidget('OOF2:Skeleton Page:Pane').set_position(417)
 findWidget('OOF2:Skeleton Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-New skeleton
-checkpoint skeleton page sensitized
 findWidget('Dialog-New skeleton').resize(346, 254)
 findWidget('Dialog-New skeleton:widget_GTK_RESPONSE_OK').clicked()
 checkpoint skeleton selection page groups sensitized Element
@@ -625,7 +602,6 @@ checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 checkpoint mesh bdy page updated
 checkpoint Field page sensitized
 checkpoint mesh page subproblems sensitized
@@ -639,6 +615,7 @@ checkpoint skeleton selection page selection sensitized Element
 checkpoint Solver page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 checkpoint skeleton page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.New
@@ -705,8 +682,8 @@ checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Element
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -741,8 +718,6 @@ findWidget('OOF2:Fields & Equations Page:HPane').set_position(470)
 findWidget('OOF2:Fields & Equations Page:HPane:Fields:Displacement defined').clicked()
 checkpoint Field page sensitized
 checkpoint Field page sensitized
-checkpoint Field page sensitized
-checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
@@ -758,8 +733,6 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Subproblem.Field.Define
 assert tests.fieldPageSensitivityCheck1()
 findWidget('OOF2:Fields & Equations Page:HPane:Fields:Displacement active').clicked()
-checkpoint Field page sensitized
-checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
@@ -787,8 +760,6 @@ checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Field.In_Plane
 findWidget('A Simple Example:Next').clicked()
 findWidget('OOF2:Fields & Equations Page:HPane:Equations:Force_Balance active').clicked()
-checkpoint Field page sensitized
-checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint mesh page subproblems sensitized
@@ -929,10 +900,10 @@ checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
 findWidget('OOF2:Solver Page:end').set_text('0.0')
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.Solve
 findWidget('A Simple Example:Next').clicked()

@@ -1,8 +1,9 @@
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
 import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
-checkpoint toplevel widget mapped OOF2
-checkpoint page installed Introduction
 findWidget('OOF2').resize(782, 545)
 findMenu(findWidget('OOF2:MenuBar'), ['Help', 'Tutorials']).activate()
 findMenu(findWidget('OOF2:MenuBar'), ['Help', 'Tutorials', 'Adaptive_Mesh_Refinement']).activate()
@@ -13,13 +14,12 @@ findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
+checkpoint toplevel widget mapped OOF2 Graphics 1
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Windows.Graphics.New
 findWidget('OOF2 Graphics 1:Pane0').set_position(360)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
-checkpoint toplevel widget mapped OOF2 Graphics 1
-findWidget('OOF2 Graphics 1').resize(800, 492)
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Windows.Graphics.New
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findWidget('Adaptive Mesh Refinement').resize(500, 300)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Settings', 'New_Layer_Policy']).activate()
@@ -100,9 +100,6 @@ checkpoint microstructure page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint Materials page updated
 checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint Materials page updated
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
@@ -180,8 +177,8 @@ checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -216,8 +213,6 @@ checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
-checkpoint toplevel widget mapped OOF2 Activity Viewer
-findWidget('OOF2 Activity Viewer').resize(400, 300)
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
@@ -227,6 +222,7 @@ checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
+findWidget('OOF2 Activity Viewer').resize(400, 300)
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
@@ -278,9 +274,9 @@ findWidget('Adaptive Mesh Refinement:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 6.7000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Solver']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Solver page sensitized
 checkpoint page installed Solver
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Solver Page:VPane').set_position(170)
 findWidget('OOF2:Solver Page:solve').clicked()
 checkpoint Solver page sensitized
@@ -292,9 +288,9 @@ checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
 findWidget('OOF2:Solver Page:end').set_text('0.0')
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.Solve
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.0000000000000e+00)
@@ -306,16 +302,16 @@ findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select
 checkpoint OOF.Graphics_1.Layer.Select
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.5081001712994e+01)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.5000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.2000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.2000000000000e+01)
 checkpoint Move Node toolbox writable changed
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Move Nodes sensitized
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.2000000000000e+01)
 checkpoint Graphics_1 Skeleton Info sensitized
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.2000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -325,8 +321,8 @@ findWidget('Adaptive Mesh Refinement').resize(500, 374)
 event(Gdk.EventType.BUTTON_PRESS,x= 7.4000000000000e+01,y= 8.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Skeleton
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Skeleton Page:Pane').set_position(417)
 checkpoint skeleton page sensitized
 checkpoint skeleton page info updated
@@ -398,8 +394,8 @@ checkpoint Graphics_1 Mesh Info cleared position
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -414,8 +410,8 @@ checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Element
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -430,8 +426,8 @@ checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -457,11 +453,11 @@ findWidget('chooserPopup-RCFChooser').deactivate() # MenuLogger
 event(Gdk.EventType.BUTTON_PRESS,x= 7.9000000000000e+01,y= 8.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['FE Mesh']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint page installed FE Mesh
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(199)
 findWidget('OOF2:FE Mesh Page:Pane:ElementOps:OK').clicked()
 checkpoint Solver page sensitized
@@ -506,9 +502,9 @@ findWidget('Adaptive Mesh Refinement:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 8.4000000000000e+01,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Solver']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Solver page sensitized
 checkpoint page installed Solver
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Solver Page:VPane').set_position(273)
 findWidget('OOF2:Solver Page:solve').clicked()
 checkpoint Solver page sensitized
@@ -554,10 +550,10 @@ findWidget('Adaptive Mesh Refinement:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 9.2000000000000e+01,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Skeleton
-assert tests.is_sensitive('OOF2:Skeleton Page:Pane:Modification:OK')
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint skeleton page sensitized
+assert tests.is_sensitive('OOF2:Skeleton Page:Pane:Modification:OK')
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized
 checkpoint skeleton selection page selection sensitized Element
@@ -587,11 +583,11 @@ checkpoint OOF.Skeleton.Modify
 event(Gdk.EventType.BUTTON_PRESS,x= 7.0000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['FE Mesh']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint page installed FE Mesh
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:FE Mesh Page:Pane:ElementOps:OK').clicked()
 checkpoint Solver page sensitized
 checkpoint mesh page subproblems sensitized
