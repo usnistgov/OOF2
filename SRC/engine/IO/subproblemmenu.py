@@ -137,7 +137,7 @@ def _copy_subproblem(menuitem, subproblem, mesh, name):
             copyobj.activate_equation(eqn)
             notifications.append(("equation activated", copyname, eqn.name(), 1))
         if copyctxt.autoenableBCs():
-            notifications.append(("boundary conditions changed", self))
+            notifications.append(("boundary conditions changed", copyctxt))
     finally:
         copyctxt.end_writing()
         copyctxt.cancel_reservation()
