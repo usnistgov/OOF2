@@ -13,6 +13,7 @@ import memorycheck
 
 from UTILS import file_utils
 fp_file_compare = file_utils.fp_file_compare
+pdf_compare = file_utils.pdf_compare
 reference_file = file_utils.reference_file
 # Flag that says whether to generate missing reference data files.
 # Should be false unless you really know what you're doing.
@@ -63,16 +64,8 @@ class OOF_Output(unittest.TestCase):
         OOF.Graphics_1.File.Save_Canvas(
             filename='test.pdf', overwrite=False, pixels=400, background=True)
 
-        ## TODO GTK3: The file comparison is currently impossible
-        ## because Cairo saves the pdf in binary and also includes a
-        ## date stamp.  fp_file_compare in pdfmode knows how to deal
-        ## with the date stamp, but not binary.  It's still worth
-        ## running this test to make sure that Save_Canvas doesn't
-        ## crash, but it would be nice to know if it's working
-        ## properly.
-        # self.assert_(fp_file_compare(
-        #     'test.pdf', os.path.join('output_data', 'posmesh.pdf'),
-        #     1.0e-08, comment="%", pdfmode=True))
+        self.assert_(pdf_compare(
+            'test.pdf', os.path.join('output_data', 'posmesh.pdf')))
 
         file_utils.remove('test.pdf')
             
