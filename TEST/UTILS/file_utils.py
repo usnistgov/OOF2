@@ -258,7 +258,7 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
         f2.close()
 
 pdfTimeStamp = r"/CreationDate \(D:[-0-9']*\)"
-pdfProducer = r"/Producer \(cairo [0-9\.]* \(https://cairographics\.org\)\)"
+pdfProducer = r"/Producer \(cairo [0-9\.]* \(https?://cairographics\.org\)\)"
 
 def pdf_compare(file1, file2, quiet=False):
     # Compare two files byte by byte, allowing them to differ by a pdf
