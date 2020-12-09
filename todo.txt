@@ -53,7 +53,16 @@ to be moved around with the mouse.  That may be too much like writing
 our own graphics app.
 
 Complete or delete the interface branch.  It's not a git branch.  Most
-of the relevant code is inactive and commented with "Interface branch".
+of the relevant code is inactive and commented with "Interface
+branch".
+
+Stopping processes via the Activity Viewer doesn't always work well.
+Interrupting Skeleton construction leads to ParamterMismatch errors --
+something else is being passed to a WhoParameter, maybe?
+Interrupting Mesh construction leads to
+"Assertion failed: (not (started_ and not finished_)), function ~Progress"
+
+Add Progress bars inside Eigen iterative solvers, if possible.
 
 
 THINGS TO FIX IN TUTORIALS

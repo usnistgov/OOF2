@@ -20,6 +20,8 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from gi.repository import GObject
 from gi.repository import Gtk
+from gi.repository import Pango
+
 import sys
 
 ## TODO: Group progress bars from a single command/thread together.
@@ -43,7 +45,10 @@ class GUIProgressBar(progressbar.ProgressBar):
         vbox.pack_start(hbox, expand=False, fill=False, padding=2)
 
         self.gtkprogressbar = Gtk.ProgressBar(
+            name="fixedfont", # piggyback on the font styling for text widgets
             orientation=Gtk.Orientation.HORIZONTAL)
+        self.gtkprogressbar.set_show_text(True)
+        self.gtkprogressbar.set_ellipsize(Pango.EllipsizeMode.END)
         hbox.pack_start(self.gtkprogressbar, expand=1, fill=1, padding=0)
 
         self.stopbutton = gtkutils.StockButton("process-stop-symbolic", "Stop")
