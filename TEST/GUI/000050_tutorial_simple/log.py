@@ -137,7 +137,7 @@ checkpoint OOF.PixelGroup.Rename
 checkpoint microstructure page sensitized
 checkpoint meshable button set
 findWidget('A Simple Example:Next').clicked()
-findWidget('OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList').get_selection().select_path(Gtk.TreePath([0]))
+findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList').get_selection().select_path(Gtk.TreePath([0]))
 checkpoint microstructure page sensitized
 checkpoint meshable button set
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Rename').clicked()
@@ -157,7 +157,7 @@ checkpoint OOF.PixelGroup.Rename
 checkpoint microstructure page sensitized
 checkpoint meshable button set
 assert tests.checkNewGroupNames()
-assert tests.treeViewColCheck('OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList', 0, ['cyan (2160 pixels, meshable)', 'yellow (1440 pixels, meshable)'])
+assert tests.treeViewColCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', 0, ['cyan (2160 pixels, meshable)', 'yellow (1440 pixels, meshable)'])
 findWidget('A Simple Example:Next').clicked()
 findWidget('A Simple Example').resize(500, 398)
 event(Gdk.EventType.BUTTON_PRESS,x= 9.2000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())

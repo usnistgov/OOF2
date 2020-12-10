@@ -71,7 +71,7 @@ checkpoint microstructure page sensitized
 checkpoint meshable button set
 findWidget('OOF2:Microstructure Page:Pane').set_position(235)
 assert tests.sensitization2()
-assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList', ['abcde (0 pixels, meshable)'])
+assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['abcde (0 pixels, meshable)'])
 assert tests.meshableButtonState() == 1
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create new pixel group
@@ -86,14 +86,14 @@ findWidget('Dialog-Create new pixel group:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
 checkpoint meshable button set
 assert tests.sensitization2()
-assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList', ['abcde (0 pixels, meshable)', 'fghij (0 pixels, meshable)']) 
-assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList', ['fghij (0 pixels, meshable)'])
+assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['abcde (0 pixels, meshable)', 'fghij (0 pixels, meshable)']) 
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['fghij (0 pixels, meshable)'])
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.New
-findWidget('OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList').get_selection().select_path(Gtk.TreePath([0]))
+findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList').get_selection().select_path(Gtk.TreePath([0]))
 checkpoint microstructure page sensitized
-assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList', ['abcde (0 pixels, meshable)'])
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['abcde (0 pixels, meshable)'])
 checkpoint meshable button set
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Rename').clicked()
 checkpoint toplevel widget mapped Dialog-Rename pixelgroup abcde
@@ -110,12 +110,12 @@ checkpoint microstructure page sensitized
 checkpoint OOF.PixelGroup.Rename
 checkpoint microstructure page sensitized
 assert tests.sensitization2()
-assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList', ['fghij (0 pixels, meshable)', 'klmno (0 pixels, meshable)'])
-assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList', ['klmno (0 pixels, meshable)'])
+assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['fghij (0 pixels, meshable)', 'klmno (0 pixels, meshable)'])
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['klmno (0 pixels, meshable)'])
 checkpoint meshable button set
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Meshable').clicked()
 checkpoint meshable button set
-assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList', ['klmno (0 pixels)'])
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['klmno (0 pixels)'])
 assert tests.meshableButtonState() == 0
 checkpoint microstructure page sensitized
 checkpoint OOF.PixelGroup.Meshable
@@ -125,7 +125,7 @@ findWidget('Questioner').resize(184, 86)
 findWidget('Questioner:Yes').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
-assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList', ['fghij (0 pixels, meshable)'])
+assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['fghij (0 pixels, meshable)'])
 assert tests.meshableButtonState() == 1
 checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.Delete

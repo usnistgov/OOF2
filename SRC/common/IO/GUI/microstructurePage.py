@@ -173,18 +173,20 @@ class MicrostructurePage(oofGUI.MainPage):
         # frame for the list of groups
         frame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         hbox.pack_start(frame, expand=True, fill=True, padding=0)
-        grparea = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-        frame.add(grparea)
+        self.grparea = Gtk.Stack()
+        gtklogger.setWidgetName(self.grparea, "Stack")
+        frame.add(self.grparea)
 
         # only one of grplist and grpmsg is visible at a time
-        ## TODO GTK3: Use a GtkStack for switching between grplist and grpmsg.
         self.grplist = chooser.ScrolledChooserListWidget( # list of pixel groups
             callback=self.listItemChosen, name="GroupList",
             vexpand=True, valign=Gtk.Align.FILL,
             shadow_type=Gtk.ShadowType.NONE)
-        grparea.add(self.grplist.gtk)
+        self.grparea.add(self.grplist.gtk)
+
         self.grpmsg = Gtk.Label() # helpful message when there are no grps
-        grparea.pack_start(self.grpmsg, expand=True, fill=True, padding=0)
+        self.grparea.add(self.grpmsg)
+        self.grparea.set_visible_child(self.grpmsg)
 
         self.newgroupbutton = Gtk.Button('New...')
         gtklogger.setWidgetName(self.newgroupbutton, "New")
@@ -390,13 +392,11 @@ class MicrostructurePage(oofGUI.MainPage):
     def set_group_message(self, msg):
         debug.mainthreadTest()
         self.grpmsg.set_text(msg)
-        self.grplist.hide()
-        self.grpmsg.show()
+        self.grparea.set_visible_child(self.grpmsg)
     def set_group_list(self, grpnames, dispnames=[]):
         debug.mainthreadTest()
         self.grplist.update(grpnames, dispnames)
-        self.grplist.show()
-        self.grpmsg.hide()
+        self.grparea.set_visible_child(self.grplist.gtk)
 
     def addNewButton(self, gtkobj, sensitizefn):
         debug.mainthreadTest()
@@ -516,7 +516,7 @@ class MicrostructurePage(oofGUI.MainPage):
         self.infobutton.set_sensitive(grp_selected)
 
         self.addbutton.set_sensitive(grp_selected and pixelsselected)
-        self.removebutton.set_sensitive(grp_selected and pixelsselected)
+        self.removebutton.set_sensitive(nonemptygrp and pixelsselected)
         self.clearbutton.set_sensitive(nonemptygrp)
 
         for fn in self.sensitizeFns:

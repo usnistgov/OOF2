@@ -10,7 +10,7 @@
 
 from generics import *
 
-def sensitization0(): # Check initial sensitization of the MS page
+def sensitization0():
     return sensitizationCheck(
         {'Microstructure' : 0,
          'New' : 1,
@@ -21,6 +21,7 @@ def sensitization0(): # Check initial sensitization of the MS page
          'Delete' : 0,
          'Save' : 0,
          'Pane:PixelGroups:New' : 0,
+         'Pane:PixelGroups:Auto': 0,
          'Pane:PixelGroups:Rename' : 0,
          'Pane:PixelGroups:Copy' : 0,
          'Pane:PixelGroups:Delete' : 0,
@@ -32,7 +33,7 @@ def sensitization0(): # Check initial sensitization of the MS page
          },
         base='OOF2:Microstructure Page')
 
-def sensitization1(): # After creating a Microstructure
+def sensitization1():
     return sensitizationCheck(
         {'Microstructure' : 1,
          'New' : 1,
@@ -43,6 +44,7 @@ def sensitization1(): # After creating a Microstructure
          'Delete' : 1,
          'Save' : 1,
          'Pane:PixelGroups:New' : 1,
+         'Pane:PixelGroups:Auto': 1,
          'Pane:PixelGroups:Rename' : 0,
          'Pane:PixelGroups:Copy' : 0,
          'Pane:PixelGroups:Delete' : 0,
@@ -54,7 +56,11 @@ def sensitization1(): # After creating a Microstructure
          },
         base='OOF2:Microstructure Page')
 
-def sensitization2(): # After creating a PixelGroup
+def meshableButtonState(yesno):
+    return yesno == gtklogger.findWidget(
+        'OOF2:Microstructure Page:Pane:PixelGroups:Meshable').get_active()
+
+def sensitization2():
     return sensitizationCheck(
         {'Microstructure' : 1,
          'New' : 1,
@@ -65,6 +71,7 @@ def sensitization2(): # After creating a PixelGroup
          'Delete' : 1,
          'Save' : 1,
          'Pane:PixelGroups:New' : 1,
+         'Pane:PixelGroups:Auto': 1,
          'Pane:PixelGroups:Rename' : 1,
          'Pane:PixelGroups:Copy' : 1,
          'Pane:PixelGroups:Delete' : 1,
@@ -76,7 +83,7 @@ def sensitization2(): # After creating a PixelGroup
          },
         base='OOF2:Microstructure Page')
 
-def sensitization3(): # After selecting pixels
+def sensitization2a():
     return sensitizationCheck(
         {'Microstructure' : 1,
          'New' : 1,
@@ -87,6 +94,7 @@ def sensitization3(): # After selecting pixels
          'Delete' : 1,
          'Save' : 1,
          'Pane:PixelGroups:New' : 1,
+         'Pane:PixelGroups:Auto': 1,
          'Pane:PixelGroups:Rename' : 1,
          'Pane:PixelGroups:Copy' : 1,
          'Pane:PixelGroups:Delete' : 1,
@@ -98,7 +106,7 @@ def sensitization3(): # After selecting pixels
          },
         base='OOF2:Microstructure Page')
 
-def sensitization4(): # After adding pixels
+def sensitization3():
     return sensitizationCheck(
         {'Microstructure' : 1,
          'New' : 1,
@@ -109,6 +117,7 @@ def sensitization4(): # After adding pixels
          'Delete' : 1,
          'Save' : 1,
          'Pane:PixelGroups:New' : 1,
+         'Pane:PixelGroups:Auto': 1,
          'Pane:PixelGroups:Rename' : 1,
          'Pane:PixelGroups:Copy' : 1,
          'Pane:PixelGroups:Delete' : 1,
@@ -120,6 +129,95 @@ def sensitization4(): # After adding pixels
          },
         base='OOF2:Microstructure Page')
 
-def meshableButtonState():
-    return gtklogger.findWidget(
-        'OOF2:Microstructure Page:Pane:PixelGroups:Meshable').get_active()
+def sensitization3a():
+    return sensitizationCheck(
+        {'Microstructure' : 1,
+         'New' : 1,
+         'NewFromImage' : 0,
+         'NewFromFile' : 1,
+         'Rename' : 1,
+         'Copy' : 1,
+         'Delete' : 1,
+         'Save' : 1,
+         'Pane:PixelGroups:New' : 1,
+         'Pane:PixelGroups:Auto': 1,
+         'Pane:PixelGroups:Rename' : 1,
+         'Pane:PixelGroups:Copy' : 1,
+         'Pane:PixelGroups:Delete' : 1,
+         'Pane:PixelGroups:Meshable' : 1,
+         'Pane:PixelGroups:Add' : 1,
+         'Pane:PixelGroups:Remove' : 0,
+         'Pane:PixelGroups:Clear' : 0,
+         'Pane:PixelGroups:Info' : 1
+         },
+        base='OOF2:Microstructure Page')
+
+def sensitization4():
+    return sensitizationCheck(
+        {'Microstructure' : 1,
+         'New' : 1,
+         'NewFromImage' : 1,
+         'NewFromFile' : 1,
+         'Rename' : 1,
+         'Copy' : 1,
+         'Delete' : 1,
+         'Save' : 1,
+         'Pane:PixelGroups:New' : 1,
+         'Pane:PixelGroups:Auto': 1,
+         'Pane:PixelGroups:Rename' : 0,
+         'Pane:PixelGroups:Copy' : 0,
+         'Pane:PixelGroups:Delete' : 0,
+         'Pane:PixelGroups:Meshable' : 0,
+         'Pane:PixelGroups:Add' : 0,
+         'Pane:PixelGroups:Remove' : 0,
+         'Pane:PixelGroups:Clear' : 0,
+         'Pane:PixelGroups:Info' : 0
+         },
+        base='OOF2:Microstructure Page')
+
+def sensitization5():
+    return sensitizationCheck(
+        {'Microstructure' : 1,
+         'New' : 1,
+         'NewFromImage' : 1,
+         'NewFromFile' : 1,
+         'Rename' : 1,
+         'Copy' : 1,
+         'Delete' : 1,
+         'Save' : 1,
+         'Pane:PixelGroups:New' : 1,
+         'Pane:PixelGroups:Auto': 1,
+         'Pane:PixelGroups:Rename' : 0,
+         'Pane:PixelGroups:Copy' : 0,
+         'Pane:PixelGroups:Delete' : 0,
+         'Pane:PixelGroups:Meshable' : 0,
+         'Pane:PixelGroups:Add' : 0,
+         'Pane:PixelGroups:Remove' : 0,
+         'Pane:PixelGroups:Clear' : 0,
+         'Pane:PixelGroups:Info' : 0
+         },
+        base='OOF2:Microstructure Page')
+
+def sensitization6():
+    return sensitizationCheck(
+        {'Microstructure' : 0,
+         'New' : 1,
+         'NewFromImage' : 0,
+         'NewFromFile' : 1,
+         'Rename' : 0,
+         'Copy' : 0,
+         'Delete' : 0,
+         'Save' : 0,
+         'Pane:PixelGroups:New' : 0,
+         'Pane:PixelGroups:Auto': 1,
+         'Pane:PixelGroups:Rename' : 0,
+         'Pane:PixelGroups:Copy' : 0,
+         'Pane:PixelGroups:Delete' : 0,
+         'Pane:PixelGroups:Meshable' : 0,
+         'Pane:PixelGroups:Add' : 0,
+         'Pane:PixelGroups:Remove' : 0,
+         'Pane:PixelGroups:Clear' : 0,
+         'Pane:PixelGroups:Info' : 0
+         },
+        base='OOF2:Microstructure Page')
+

@@ -1,7 +1,7 @@
+import tests
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
 checkpoint toplevel widget mapped OOF2 Activity Viewer
-import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 511)
@@ -645,7 +645,7 @@ checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.New
 checkpoint microstructure page sensitized
 checkpoint meshable button set
-assert tests.chooserListStateCheck("OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList", ['white (0 pixels, meshable)'])
+assert tests.chooserListStateCheck("OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList", ['white (0 pixels, meshable)'])
 findWidget('OOF2:Microstructure Page:Pane').set_position(235)
 findWidget('Microstructure:Next').clicked()
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Add').clicked()
@@ -655,7 +655,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelGroup.AddSelection
 ## The gtk2 version says that the number of pixels in a group depends
 ## on the ImageMagick version, so these tests are unreliable.
-assert tests.chooserListStateCheck("OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList", ['white (2649 pixels, meshable)'])
+assert tests.chooserListStateCheck("OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList", ['white (2649 pixels, meshable)'])
 assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 2649)
 findWidget('OOF2 Messages 1').resize(410, 130)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.0000000000000e+00)
@@ -895,14 +895,14 @@ checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.New
-assert tests.treeViewColCheck("OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList", 0, ['black (0 pixels, meshable)', 'white (2649 pixels, meshable)'])
+assert tests.treeViewColCheck("OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList", 0, ['black (0 pixels, meshable)', 'white (2649 pixels, meshable)'])
 findWidget('Microstructure:Next').clicked()
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Add').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelGroup.AddSelection
-assert tests.treeViewColCheck("OOF2:Microstructure Page:Pane:PixelGroups:GroupListScroll:GroupList", 0, ['black (5723 pixels, meshable)', 'white (2649 pixels, meshable)'])
+assert tests.treeViewColCheck("OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList", 0, ['black (5723 pixels, meshable)', 'white (2649 pixels, meshable)'])
 findWidget('Microstructure:Next').clicked()
 findWidget('Microstructure').resize(500, 458)
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Microstructure']).activate()
