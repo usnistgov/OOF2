@@ -185,6 +185,7 @@ class MicrostructurePage(oofGUI.MainPage):
         self.grparea.add(self.grplist.gtk)
 
         self.grpmsg = Gtk.Label() # helpful message when there are no grps
+        gtklogger.setWidgetName(self.grpmsg, "Message")
         self.grparea.add(self.grpmsg)
         self.grparea.set_visible_child(self.grpmsg)
 

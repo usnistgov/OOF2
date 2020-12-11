@@ -15,6 +15,7 @@ checkpoint microstructure page sensitized
 findWidget('OOF2:Microstructure Page:Pane').set_position(184)
 # No Microstructure defined
 assert tests.sensitization0()
+assert tests.stackStateTest("message", "No Microstructure defined!")
 findWidget('OOF2:Microstructure Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create Microstructure
 findWidget('Dialog-Create Microstructure').resize(210, 236)
@@ -47,6 +48,7 @@ checkpoint OOF.Microstructure.New
 # Microstructure defined, but no groups
 assert tests.sensitization1()
 assert tests.meshableButtonState(0)
+assert tests.stackStateTest("message", "No pixel groups defined!")
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create new pixel group
 findWidget('Dialog-Create new pixel group').resize(192, 92)
@@ -58,13 +60,14 @@ checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.New
+checkpoint microstructure page sensitized
+checkpoint meshable button set
 # Microstructure with one group
 assert tests.sensitization2()
 assert tests.meshableButtonState(1)
-assert tests.treeViewColValues('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList',0) == ['a (0 pixels, meshable)']
-assert tests.treeViewSelectCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList',0) == 'a (0 pixels, meshable)'
-checkpoint microstructure page sensitized
-checkpoint meshable button set
+assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['a (0 pixels, meshable)'])
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['a (0 pixels, meshable)'])
+assert tests.stackStateTest("list")
 findWidget('OOF2:Microstructure Page:Pane').set_position(235)
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create new pixel group
@@ -80,8 +83,8 @@ checkpoint OOF.PixelGroup.New
 # Microstructure with two groups
 assert tests.sensitization2()
 assert tests.meshableButtonState(1)
-assert tests.treeViewColValues('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList',0) == ['a (0 pixels, meshable)', 'b (0 pixels, meshable)']
-assert tests.treeViewSelectCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList',0) == 'b (0 pixels, meshable)'
+assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['a (0 pixels, meshable)', 'b (0 pixels, meshable)'])
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['b (0 pixels, meshable)'])
 assert tests.meshableButtonState(1)
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create new pixel group
@@ -94,7 +97,7 @@ checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.New
 assert tests.sensitization2()
-assert tests.treeViewSelectCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList',0) == 'pixelgroup (0 pixels, meshable)'
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['pixelgroup (0 pixels, meshable)'])
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create new pixel group
 findWidget('Dialog-Create new pixel group').resize(192, 92)
@@ -107,8 +110,8 @@ checkpoint OOF.PixelGroup.New
 # ... four groups
 assert tests.sensitization2()
 assert tests.meshableButtonState(1)
-assert tests.treeViewColValues('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList',0) == ['a (0 pixels, meshable)', 'b (0 pixels, meshable)', 'pixelgroup (0 pixels, meshable)', 'pixelgroup<2> (0 pixels, meshable)']
-assert tests.treeViewSelectCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList',0) == 'pixelgroup<2> (0 pixels, meshable)'
+assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['a (0 pixels, meshable)', 'b (0 pixels, meshable)', 'pixelgroup (0 pixels, meshable)', 'pixelgroup<2> (0 pixels, meshable)'])
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['pixelgroup<2> (0 pixels, meshable)'])
 assert tests.meshableButtonState(1)
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Meshable').clicked()
 checkpoint meshable button set
@@ -116,44 +119,44 @@ checkpoint microstructure page sensitized
 checkpoint OOF.PixelGroup.Meshable
 # not meshable
 assert tests.sensitization2()
-assert tests.treeViewColValues('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList',0) == ['a (0 pixels, meshable)', 'b (0 pixels, meshable)', 'pixelgroup (0 pixels, meshable)', 'pixelgroup<2> (0 pixels)']
+assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['a (0 pixels, meshable)', 'b (0 pixels, meshable)', 'pixelgroup (0 pixels, meshable)', 'pixelgroup<2> (0 pixels)'])
 assert tests.meshableButtonState(0)
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList').get_selection().select_path(Gtk.TreePath([1]))
 checkpoint microstructure page sensitized
 checkpoint meshable button set
 assert tests.meshableButtonState(1)
-assert tests.treeViewSelectCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList',0) == 'b (0 pixels, meshable)'
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['b (0 pixels, meshable)'])
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Meshable').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint OOF.PixelGroup.Meshable
 assert tests.meshableButtonState(0)
-assert tests.treeViewSelectCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList',0) == 'b (0 pixels)'
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['b (0 pixels)'])
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList').get_selection().select_path(Gtk.TreePath([0]))
 checkpoint microstructure page sensitized
 checkpoint meshable button set
 assert tests.meshableButtonState(1)
-assert tests.treeViewSelectCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList',0) == 'a (0 pixels, meshable)'
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['a (0 pixels, meshable)'])
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList').get_selection().select_path(Gtk.TreePath([1]))
 checkpoint microstructure page sensitized
 checkpoint meshable button set
 assert tests.meshableButtonState(0)
-assert tests.treeViewSelectCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList',0) == 'b (0 pixels)'
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['b (0 pixels)'])
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList').get_selection().select_path(Gtk.TreePath([2]))
 checkpoint microstructure page sensitized
 checkpoint meshable button set
 assert tests.meshableButtonState(1)
-assert tests.treeViewSelectCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList',0) == 'pixelgroup (0 pixels, meshable)'
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['pixelgroup (0 pixels, meshable)'])
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList').get_selection().select_path(Gtk.TreePath([3]))
 checkpoint microstructure page sensitized
 checkpoint meshable button set
 assert tests.meshableButtonState(0)
-assert tests.treeViewSelectCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList',0) == 'pixelgroup<2> (0 pixels)'
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['pixelgroup<2> (0 pixels)'])
 
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList').get_selection().select_path(Gtk.TreePath([1]))
 checkpoint microstructure page sensitized
 checkpoint meshable button set
-assert tests.treeViewSelectCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', 0) == 'b (0 pixels)'
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['b (0 pixels)'])
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(184, 86)
@@ -166,7 +169,7 @@ checkpoint microstructure page sensitized
 checkpoint meshable button set
 # Group deleted. No group selected.
 assert tests.sensitization1()
-assert tests.treeViewColValues('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', 0) == ['a (0 pixels, meshable)', 'pixelgroup (0 pixels, meshable)', 'pixelgroup<2> (0 pixels)']
+assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['a (0 pixels, meshable)', 'pixelgroup (0 pixels, meshable)', 'pixelgroup<2> (0 pixels)'])
 event(Gdk.EventType.BUTTON_PRESS,x= 7.9000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Pixel Selection']).activate() # MenuItemLogger
@@ -190,21 +193,21 @@ assert tests.sensitization1()
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList').get_selection().select_path(Gtk.TreePath([1]))
 checkpoint microstructure page sensitized
 checkpoint meshable button set
-assert tests.sensitization2a()
+assert tests.sensitization3()
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Add').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint OOF.PixelGroup.AddSelection
 # Non-empty pixel group
-assert tests.sensitization3()
-assert tests.treeViewColValues('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', 0) == ['a (0 pixels, meshable)', 'pixelgroup (100 pixels, meshable)', 'pixelgroup<2> (0 pixels)']
+assert tests.sensitization4()
+assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['a (0 pixels, meshable)', 'pixelgroup (100 pixels, meshable)', 'pixelgroup<2> (0 pixels)'])
 assert tests.meshableButtonState(1)
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Remove').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint OOF.PixelGroup.RemoveSelection
-assert tests.sensitization3a()
-assert tests.treeViewColValues('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', 0) == ['a (0 pixels, meshable)', 'pixelgroup (0 pixels, meshable)', 'pixelgroup<2> (0 pixels)']
+assert tests.sensitization5()
+assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['a (0 pixels, meshable)', 'pixelgroup (0 pixels, meshable)', 'pixelgroup<2> (0 pixels)'])
 assert tests.meshableButtonState(1)
 # Load a Microstructure containing an image
 findWidget('OOF2:Microstructure Page:NewFromFile').clicked()
@@ -244,14 +247,10 @@ checkpoint skeleton selection page updated
 checkpoint skeleton selection page groups sensitized Element
 checkpoint microstructure page sensitized
 checkpoint OOF.Microstructure.Create_From_ImageFile
-assert tests.sensitization4()
-#assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', [])
+assert tests.sensitization6()
+assert tests.stackStateTest("message", "No pixel groups defined!")
 assert tests.chooserCheck('OOF2:Microstructure Page:Microstructure', ['test', 'small.ppm'])
 assert tests.chooserStateCheck('OOF2:Microstructure Page:Microstructure', 'small.ppm')
-
-## START HERE
-## Change calls to treeViewColValues and treeViewSelectCheck to chooserListCheck and chooserListStateCheck.
-
 findWidget('OOF2:Microstructure Page:NewFromImage').clicked()
 checkpoint toplevel widget mapped Dialog-Create Microstructure from Image
 findWidget('Dialog-Create Microstructure from Image').resize(192, 230)
@@ -281,7 +280,10 @@ checkpoint skeleton selection page updated
 checkpoint skeleton selection page groups sensitized Element
 checkpoint microstructure page sensitized
 checkpoint OOF.Microstructure.Create_From_Image
-
+assert tests.sensitization6()
+assert tests.stackStateTest("message", "No pixel groups defined!")
+assert tests.chooserCheck("OOF2:Microstructure Page:Microstructure", ['test', 'small.ppm', '2small'])
+assert tests.chooserStateCheck("OOF2:Microstructure Page:Microstructure", '2small')
 findWidget('OOF2:Microstructure Page:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(184, 86)
@@ -302,6 +304,10 @@ checkpoint microstructure page sensitized
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Microstructure.Delete
+assert tests.sensitization7()
+assert tests.stackStateTest("list")
+assert tests.chooserCheck("OOF2:Microstructure Page:Microstructure", ['test', 'small.ppm'])
+assert tests.chooserStateCheck("OOF2:Microstructure Page:Microstructure", 'test')
 findWidget('OOF2:Microstructure Page:Pane').set_position(235)
 findWidget('OOF2:Microstructure Page:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
@@ -344,4 +350,5 @@ findWidget('Dialog-Python_Log:filename').set_text('session.lo')
 findWidget('Dialog-Python_Log:filename').set_text('session.log')
 findWidget('Dialog-Python_Log:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Save.Python_Log
+assert tests.filediff("session.log")
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Quit']).activate()
