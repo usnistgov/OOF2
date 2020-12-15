@@ -57,7 +57,7 @@ actions = []
 # in the current line is identical to group j in the previous line.
 
 # endcomment matches possible comments appended to log lines
-endcomment = r"\s*#.*$"
+endcomment = r"\s*#?.*$"
 
 class ReplaceLine(object):
     def __init__(self, regexp, regexpprev=None, groups=[]):
