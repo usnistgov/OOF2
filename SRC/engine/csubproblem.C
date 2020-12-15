@@ -595,11 +595,12 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   const
 {
   double time = linearsystem->time();
-  memusage("Start of make_linear_system");
+  memusage("Start of make_linear_system (C)");
 
   DefiniteProgress *progress =
     dynamic_cast<DefiniteProgress*>(getProgress("Building linear system",
 						DEFINITE));
+  memusage("After DefiniteProgress (C)");
   
   // TODO TDEP: The first thing we want to do for each element is
   // determine the integration order, so we know how many gausspoints
@@ -610,7 +611,10 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   // gausspoints, which have been set (along with any gpdofs) by the
   // mesh.
 
+
 #ifdef _OPENMP
+  memusage("Ifdef _OPENMP (C)");
+
   // extract elements for this subproblem. Because OpenMP for loop 
   // parallel directive can only work on for loops with forms
   // like: for (int i = val; i < n; i++)
@@ -682,6 +686,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   }
 
 #else // _OPENMP
+  memusage("Else _OPENMP (C)");
 
   // TOOD MEMORY MANAGEMENT:
   // If we want to pre-allocate the triplet vectors in the linearized
@@ -695,15 +700,29 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 
   // Hard-coded for Adam C's problem, Oct. 15, 2020.  TODO: Generalize.
   // linearsystem->K_preallocate(1720753200);
+  // commented out for now (Dec 2020)
+ 
+  int counter = 0; 
   for(ElementIterator ei=element_iterator(); !ei.end() && !progress->stopped();
       ++ei)
   {
+  memusage("Start ElementIterator for loop (C)");
+
+     if(counter % 1000 == 0) {
+	memusage("ElementIterator for loop % 1000 step (C)");
+        }
+
     ei.element()->make_linear_system( this, time, nlsolver, *linearsystem );
     progress->setFraction( float(ei.count()+1)/float(ei.size()) );
     progress->setMessage(to_string(ei.count()+1) + "/" + to_string(ei.size())
   		   + " elements");
+     counter++;
+
   }
 #endif // _OPENMP
+
+memusage("endif _OPENMP (C)");
+
 
   //Interface branch
   //TODO: Write an InterfaceElementIterator for the subproblem.
@@ -717,10 +736,14 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
     progress->setFraction(double(i+1)/n);
     progress->setMessage(to_string(i+1) + "/" + to_string(n) + " edges");
   }
+  memusage("Before Progress Finish (C)");
   progress->finish();
+  memusage("After Progress Finish (C)");
+
   if(progress->stopped()) {
     throw ErrInterrupted();
   }
+  memusage("Before Consolidate Linear system (C)");
 
   linearsystem->consolidate();
 
