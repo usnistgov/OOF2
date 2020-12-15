@@ -703,11 +703,11 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   // commented out for now (Dec 2020)
  
   int counter = 0; 
+  memusage("Start ElementIterator for loop (C)");
+
   for(ElementIterator ei=element_iterator(); !ei.end() && !progress->stopped();
       ++ei)
   {
-  memusage("Start ElementIterator for loop (C)");
-
      if(counter % 1000 == 0) {
 	memusage("ElementIterator for loop % 1000 step (C)");
         }
@@ -722,7 +722,6 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 #endif // _OPENMP
 
 memusage("endif _OPENMP (C)");
-
 
   //Interface branch
   //TODO: Write an InterfaceElementIterator for the subproblem.
