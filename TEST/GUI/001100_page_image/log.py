@@ -351,9 +351,12 @@ findWidget('Dialog-Save Image:filename').set_text('image.pp')
 findWidget('Dialog-Save Image:filename').set_text('image.ppm')
 findWidget('Dialog-Save Image:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Save.Image
-# This test may need to be removed because the exact final image can
-# depend upon which version of ImageMagick is being used.
-assert tests.filediff('image.ppm')
+## This test has been be removed because the exact final image can
+## depend upon which version of ImageMagick is being used.  In
+## particular, the results using ImageMagick 6.9.11 on macOS 10.15.7
+## differ from the results using ImageMagick 6.9.7 on Ubuntu 18.04 in
+## a single pixel.
+#assert tests.filediff('image.ppm')
 findWidget('OOF2:Image Page:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(184, 86)
