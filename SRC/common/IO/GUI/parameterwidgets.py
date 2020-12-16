@@ -205,13 +205,12 @@ parameter.StringParameter.makeWidget = _StringParameter_makeWidget
 
 class RestrictedStringWidget(StringWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
-        self.exclude = param.exclude
+        self.prog = param.prog  # compiled regular expression
         StringWidget.__init__(self, param, scope, name, **kwargs)
     def validValue(self, value):
-        for x in self.exclude:
-            if x in value:
-                return False
-        return StringWidget.validValue(self, value)
+        if self.prog.match(value):
+            return StringWidget.validValue(self, value)
+        return False
 
 def _RSParam_makeWidget(self, scope=None, **kwargs):
     return RestrictedStringWidget(self, scope=scope,name=self.name, **kwargs)
@@ -405,17 +404,13 @@ parameter.AutomaticNameParameter.makeWidget = _AutoNameParameter_makeWidget
 
 class RestrictedAutoNameWidget(AutoNameWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
-        self.exclude = param.exclude
+        self.prog = param.prog  # compiled regular expression
         AutoNameWidget.__init__(self, param, scope, name)
     def validValue(self, value):
         if value is automatic.automatic:
             return True
-        if not isinstance(value, StringType) or string.strip(value) == "":
-            return False
-        for c in self.exclude:
-            if c in value:
-                return False
-        return True
+        return (isinstance(value, StringType) and string.strip(value) != ""
+                and self.prog.match(value))
 
 def _RestrictedAutoNameParam_makeWidget(self, scope, **kwargs):
     return RestrictedAutoNameWidget(self, scope=scope, name=self.name, **kwargs)

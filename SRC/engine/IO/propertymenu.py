@@ -58,12 +58,15 @@ OOF.Property.addItem(oofmenu.OOFMenuItem(
     'Copy',
     callback=_copywrapper,
     params=parameter.ParameterGroup(
-    parameter.StringParameter('property', tip="Name of the source Property."),
-    parameter.RestrictedAutomaticNameParameter('new_name',
-                                               exclude=':',
-                                               resolver=propertyNameResolver,
-                                               value=automatic.automatic,
-                                               tip="Name for the new Property.")
+        parameter.StringParameter(
+            'property',
+            tip="Name of the source Property."),
+        parameter.RestrictedAutomaticNameParameter(
+            'new_name',
+            pattern = r'[a-zA-Z_][a-zA-Z0-9_]*$',
+            resolver=propertyNameResolver,
+            value=automatic.automatic,
+            tip="Name for the new Property (begin with a letter, use no spaces or punctuation other than '_').")
     ),
     help="Copy a Property.",
     discussion="""<para>

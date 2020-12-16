@@ -41,6 +41,7 @@ from ooflib.common.IO import automatic
 from ooflib.common.IO.typename import typename
 from types import *
 import math
+import re
 import string
 import struct
 
@@ -488,37 +489,32 @@ class StringParameter(Parameter):
         return "A character string."
 
 class RestrictedStringParameter(StringParameter):
-    def __init__(self, name, exclude, value=None, default="", tip=None):
-        self.exclude = exclude
+    def __init__(self, name, pattern, value=None, default="", tip=None):
+        self.pattern = pattern
+        self.prog = re.compile(pattern)
         Parameter.__init__(self, name, value=value, default=default, tip=tip)
     def set(self, value):
         if value is not None:
             if type(value) is not StringType:
                 raise ParameterMismatch(
                     "Expected a character string for Parameter: " + self.name)
-            for c in self.exclude:
-                if c in value:
-                    if len(self.exclude) == 1:
-                        raise ParameterMismatch(
-                            "Parameter '%s' cannot contain the character '%s'"
-                            % (self.name, self.exclude))
-                    raise ParameterMismatch(
-                        "Parameter '%s' cannot contain the characters '%s'"
-                        % (self.name, self.exclude))
+            match = self.prog.match(value)
+            if not match:
+                raise ParameterMismatch(
+                    "Parameter '%s' must match the pattern '%s'"
+                    % (self.name, self.pattern))
         self._value = self.converter(value)
         self.timestamp.increment()
     def clone(self):
-        return self.__class__(self.name, self.exclude, self.value,
+        return self.__class__(self.name, self.pattern, self.value,
                               self.default, self.tip)
     def __repr__(self):
-        return "%s(name='%s', exclude='%s', value=%s, default=%s)" % \
-               (self.__class__.__name__, self.name, self.exclude, self.value,
+        return "%s(name='%s', pattern='%s', value=%s, default=%s)" % \
+               (self.__class__.__name__, self.name, self.pattern, self.value,
                 self.default)
     def valueDesc(self):
-        if len(self.exclude) == 1:
-            return "A character string not containing '%s'." % self.exclude
-        return ("A character string not containing any characters in '%s'."
-                % self.exclude)
+        return ("A character string matching the regular expression '%s'."
+                % self.pattern)
 
 class ListOfStringsParameter(Parameter):
     def __init__(self, name, value=None, default=[], tip=None):
@@ -1182,7 +1178,7 @@ class AutomaticNameParameter(Parameter):
         return parser.getBytes(length)
 
 class RestrictedAutomaticNameParameter(AutomaticNameParameter):
-    def __init__(self, name, exclude, resolver, value=None, default=None,
+    def __init__(self, name, pattern, resolver, value=None, default=None,
                  tip=None):
         self.name = name
         self.tip = tip
@@ -1190,7 +1186,8 @@ class RestrictedAutomaticNameParameter(AutomaticNameParameter):
         self.timestamp = timestamp.TimeStamp()
         self.group = None
         self.resolver = resolver
-        self.exclude = exclude
+        self.pattern = pattern
+        self.prog = re.compile(pattern)
         if value is not None:
             self.set(value)
         else:
@@ -1200,30 +1197,22 @@ class RestrictedAutomaticNameParameter(AutomaticNameParameter):
             if type(value) is not StringType:
                 raise ParameterMismatch(
                     "Expected a character string for Parameter: " + self.name)
-            for c in self.exclude:
-                if c in value:
-                    if len(self.exclude) == 1:
-                        raise ParameterMismatch(
-                            "Parameter '%s' cannot contain the character '%s'"
-                            % (self.name, self.exclude))
-                    raise ParameterMismatch(
-                        "Parameter '%s' cannot contain the characters '%s'"
-                        % (self.name, self.exclude))
+            match = self.prog.match(value)
+            if not match:
+                raise ParameterMismatch(
+                    "Parameter '%s' must match the pattern '%s'"
+                    % (self.name, self.pattern))
         self.truevalue = value
         self.timestamp.increment()
     def clone(self):
-        return RestrictedAutomaticNameParameter(self.name, self.exclude,
+        return RestrictedAutomaticNameParameter(self.name, self.pattern,
                                                 self.resolver, self.value,
                                                 self.default, self.tip)
     def __repr__(self):
-        return "RestrictedAutomaticNameParameter(%s, exclude=%s, resolver=%s, truevalue=%s, tip=%s)" % (
-            self.name, self.exclude, self.resolver, self.truevalue, self.tip)
+        return "RestrictedAutomaticNameParameter(%s, pattern=%s, resolver=%s, truevalue=%s, tip=%s)" % (
+            self.name, self.pattern, self.resolver, self.truevalue, self.tip)
     def valueDesc(self):
-        if len(self.exclude) == 1:
-            return "A character string not containing '%s', or the variable <constant>automatic</constant>." % self.exclude
-        return  "A character string not containing any of the characters '%s', or the variable <constant>automatic</constant>." % self.exclude
-  
-
+        return "A character string matching the regular expression '%s', or the variable <constant>automatic</constant>." % self.pattern
     
 ##############################
         
