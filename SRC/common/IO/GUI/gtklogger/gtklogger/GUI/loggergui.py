@@ -159,7 +159,8 @@ class LogProcessor(object):
         logscroll = Gtk.ScrolledWindow()
         logscroll.set_shadow_type(Gtk.ShadowType.IN)
         box.pack_start(logscroll, expand=True, fill=True, padding=0)
-        self.logtextview = Gtk.TextView(editable=False, cursor_visible=False)
+        self.logtextview = Gtk.TextView(editable=False, cursor_visible=False,
+                                        margin=5)
         self.logtextview.set_wrap_mode(Gtk.WrapMode.WORD)
         logscroll.add(self.logtextview)
 
