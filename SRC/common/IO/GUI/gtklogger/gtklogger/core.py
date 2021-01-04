@@ -39,9 +39,10 @@ def start(filename, debugLevel=2, suppress_motion_events=True,
             # places.
             from GUI import loggergui
             guifile = os.path.abspath(loggergui.__file__)
-            process = subprocess.Popen(["python", guifile, filename],
-                                       bufsize=1, # means line-buffered
-                                       stdin=subprocess.PIPE)
+            process = subprocess.Popen(
+                ["python", guifile, filename],
+                bufsize=1, # 0 means unbuffered, 1 means line buffered
+                stdin=subprocess.PIPE)
             logutils.set_logfile(process.stdin)
         elif type(filename) is types.StringType:
             logutils.set_logfile(open(filename, "w"))
