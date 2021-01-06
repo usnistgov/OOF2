@@ -40,7 +40,10 @@ def start(filename, debugLevel=2, suppress_motion_events=True,
             from GUI import loggergui
             guifile = os.path.abspath(loggergui.__file__)
             process = subprocess.Popen(
-                ["python", guifile, filename],
+                ["python",
+                 "-u",          # unbuffered stdin on the subprocess
+                 guifile, filename
+                 ],
                 bufsize=1, # 0 means unbuffered, 1 means line buffered
                 stdin=subprocess.PIPE)
             logutils.set_logfile(process.stdin)
