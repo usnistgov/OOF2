@@ -254,15 +254,18 @@ class PropertyPane:
     def proptreeCB(self, signal, treenode): # GfxLabelTree callback
         prop_name = treenode.path()
         if signal == "select":
-            self.select_property(prop_name)
+            # MaterialPane.select_property must be called first, or
+            # else when select_property calls sensitize, the Remove
+            # Property from Material button will be sensitized
+            # incorrectly.
             self.parent.materialpane.select_property(prop_name)
+            self.select_property(prop_name)
         elif signal == "deselect":
-            self.deselect_property(prop_name)
             self.parent.materialpane.deselect_property(prop_name)
+            self.deselect_property(prop_name)
         elif signal == "doubleclick":
             self.select_property(prop_name)
             self.parametrize()
-        
             
     def newPropCB(self, propertyregistration): # switchboard 'new property'
         propname = propertyregistration.name()
@@ -673,8 +676,7 @@ class MaterialPane:
             self.currentMaterial().type() == material.MATERIALTYPE_BULK)
         self.removematbutton.set_sensitive(nmicros > 0)
 
-        self.removebutton.set_sensitive(
-            self.currentPropertyName() is not None)
+        self.removebutton.set_sensitive(self.currentPropertyName() is not None)
 
         #Interface branch
 # Commented out while interfaces are unimplemented.
