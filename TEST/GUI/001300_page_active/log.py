@@ -411,16 +411,6 @@ checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Clear
 assert tests.pixelSelectionCheck(0)
 
 # Select a different circle 
-# findGfxWindow('Graphics_1').simulateMouse('up', 10.1625, 163.9875, 1, False, False)
-# checkpoint microstructure page sensitized
-# checkpoint Graphics_1 Pixel Selection sensitized
-# checkpoint selection info updated Pixel Selection
-# checkpoint pixel page updated
-# checkpoint pixel page sensitized
-# checkpoint Graphics_1 Pixel Selection sensitized
-# checkpoint contourmap info updated for Graphics_1
-# checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Burn
-# # Nope -- delete that
 event(Gdk.EventType.BUTTON_PRESS,x= 1.0700000000000e+02,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Circle']).activate() # MenuItemLogger
@@ -903,12 +893,6 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Circle
 assert tests.pixelSelectionCheck(3714)
-
-# event(Gdk.EventType.BUTTON_PRESS,x= 6.7000000000000e+01,y= 6.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
-# checkpoint toplevel widget mapped chooserPopup-PageMenu
-# findMenu(findWidget('chooserPopup-PageMenu'), ['Active Area']).activate() # MenuItemLogger
-# deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-# checkpoint page installed Active Area
 
 # Restore the saved active area
 findWidget('OOF2:Active Area Page:Pane:Restore').clicked()
