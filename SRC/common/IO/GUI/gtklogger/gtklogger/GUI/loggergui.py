@@ -194,10 +194,6 @@ class LogProcessor(object):
         
     def inputHandler(self, source, condition):
         line = sys.stdin.readline()
-        # l = line
-        # if line and line[-1] == "\n":
-        #     l = line[:-1] + "\\n"
-        # print >> sys.stderr, "INPUT -->%s<--" % l
         if not line:
             self.quit()
             return False
@@ -219,7 +215,6 @@ class LogProcessor(object):
         self.addLine(line)
 
     def addLine(self, line):
-        # print >> sys.stderr, "ADDLINE", line
         self.lines.append(line)
         bfr = self.logtextview.get_buffer()
         bfr.move_mark(self.beginLineMark, bfr.get_end_iter())
@@ -228,7 +223,6 @@ class LogProcessor(object):
 
     def replaceLastLine(self, line):
         if self.lines:
-            # print >> sys.stderr, "REPLACING last line"
             # Update the display, either by deleting the old last
             # line, or crossing it out.
             bfr = self.logtextview.get_buffer()

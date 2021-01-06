@@ -44,7 +44,6 @@ gtklogger.add_exception(ooferror.ErrErrorPtr)
 def menucheckpoint(menuitem, successful):
     # successful==True means that the menuitem's callback didn't raise
     # an exception.
-    # debug.fmsg("Issuing OOFMenu checkpoint:", menuitem.path())
     gtklogger.checkpoint(menuitem.path())
 
 ##################################
