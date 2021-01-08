@@ -351,6 +351,7 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(225)
 findWidget('Postprocessing:Next').clicked()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:Click:Node').clicked()
 assert tests.checkTBMode("OOF2 Graphics 1", "Node")
+findGfxWindow('Graphics_1').simulateMouse('down', 15.484598, 44.305034, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 15.484598, 44.305034, 1, False, False)
 checkpoint Graphics_1 Mesh Info showed position
 checkpoint Graphics_1 Mesh Info sensitized

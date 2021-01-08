@@ -122,6 +122,7 @@ assert tests.pixelGroupSizeCheck('small.ppm', 'green', 4795)
 
 # Burn the white region and put pixels in a group
 
+findGfxWindow('Graphics_1').simulateMouse('down', 81.0375, 44.55, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 81.0375, 44.55, 1, False, False)
 checkpoint microstructure page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized

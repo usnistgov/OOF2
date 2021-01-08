@@ -474,12 +474,14 @@ checkpoint OOF.Material.Remove
 assert tests.checkTBMaterial()
 
 # click on a couple other pixels
+findGfxWindow('Graphics_1').simulateMouse('down', 31.95, 56.625, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 31.95, 56.625, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
 assert tests.checkTBMaterial()
 
+findGfxWindow('Graphics_1').simulateMouse('down', 87.075, 47.175, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 87.075, 47.175, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint contourmap info updated for Graphics_1
@@ -500,18 +502,21 @@ checkpoint OOF.Material.Assign
 assert tests.checkTBMaterial('another test')
 
 # query some other pixels
+findGfxWindow('Graphics_1').simulateMouse('down', 46.65, 79.725, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 46.65, 79.725, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
 assert tests.checkTBMaterial('another test')
 
+findGfxWindow('Graphics_1').simulateMouse('down', 135.375, 9.9, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 135.375, 9.9, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
 assert tests.checkTBMaterial('another test')
 
+findGfxWindow('Graphics_1').simulateMouse('down', 126.45, 60.3, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 126.45, 60.3, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint contourmap info updated for Graphics_1
@@ -527,12 +532,14 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Material.Remove
 assert tests.checkTBMaterial('another test')
 
+findGfxWindow('Graphics_1').simulateMouse('down', 54, 64.5, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 54, 64.5, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
 assert tests.checkTBMaterial()
 
+findGfxWindow('Graphics_1').simulateMouse('down', 109.125, 119.1, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 109.125, 119.1, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint contourmap info updated for Graphics_1

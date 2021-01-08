@@ -424,6 +424,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.New
 
 # select pixels in micro2
+findGfxWindow('Graphics_1').simulateMouse('down', 44.8125, 50.85, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 44.8125, 50.85, 1, False, False)
 checkpoint microstructure page sensitized
 checkpoint pixel page updated

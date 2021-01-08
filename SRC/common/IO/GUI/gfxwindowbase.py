@@ -36,6 +36,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
 
         ghostgfxwindow.GhostGfxWindow.__init__(self, name, gfxmgr,
                                                clone=clone)
+        self.buttonDown = False
         mainthread.runBlock(self.postinitialize, (name, gfxmgr, clone))
         # This whole initialization sequence is complicated.  The
         # reason is that the order of operations is important -- the
@@ -497,8 +498,26 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         shift = bool(shift)
         ctrl = bool(ctrl)
         
+        # It's possible to get a spurious mouse-up without having
+        # received the corresponding mouse-down.  For example, a
+        # mouse-down in an unfocused window might bring focus to the
+        # window without actually passing the mouse click to the
+        # window.  The ensuing mouse-up won't have a mouse-down, and
+        # that can cause problems.  So ignore mouse-up if there has
+        # been no mouse-down.
+        # ignoreUp and buttonDown must be computed outside of the
+        # acceptEvent block, or else buttonDown won't be set properly
+        # if the mouse handler only accepts mouse-up events.
+        
+        ignoreUp = eventtype == "up" and not self.buttonDown
+        # Set buttonDown for the *next* up.
+        if eventtype == 'down':
+            self.buttonDown = True
+        elif eventtype == 'up':
+            self.buttonDown = False
+        
         if self.mouseHandler.acceptEvent(eventtype):
-            if eventtype == 'up':
+            if eventtype == 'up' and not ignoreUp:
                 self.mouseHandler.up(x,y, button, shift, ctrl, data)
             elif eventtype == 'down':
                 self.mouseHandler.down(x,y, button, shift, ctrl, data)
@@ -524,7 +543,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     # that's within the OOFCanvas, because the canvas size can change
     # and therefore the conversion from pixel to user coordinates
     # isn't reproducible.  We have to log the events in user
-    # coordinate, which means that the graphics window is
+    # coordinates, which means that the graphics window is
     # responsible. (The OOFCanvas can't do the logging because we
     # don't want to mix the OOFCanvas and gtklogger code, since both
     # could be distributed independently of other.)
