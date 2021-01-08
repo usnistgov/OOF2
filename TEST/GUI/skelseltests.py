@@ -14,8 +14,10 @@ from ooflib.common.IO.GUI import gtklogger
 import generics
 
 def _statusText():
-    return gtklogger.findWidget(
-        'OOF2:Skeleton Selection Page:Pane:status').get_text()
+    bfr = gtklogger.findWidget(
+        'OOF2:Skeleton Selection Page:Pane:status').get_buffer()
+    return bfr.get_text(bfr.get_start_iter(), bfr.get_end_iter(), True)
+
     
 def selectionSizeCheck(n):
     if n is None:
@@ -31,6 +33,6 @@ def historySensitizationCheck(mode, prev, ok, next):
         base="OOF2:Skeleton Selection Page:Pane:Selection:%sHistory" % mode)
 
 def groupCheck(names):
-    return generics.chooserCheck(
+    return generics.chooserListCheck(
         'OOF2:Skeleton Selection Page:Pane:Groups:GroupListScroll:GroupList',
         names)
