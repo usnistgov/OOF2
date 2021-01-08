@@ -489,7 +489,8 @@ class GroupGUI(object):
                                     self.group_resized)
         switchboard.requestCallback("new pixel group", self.pxlgroup_added)
         switchboard.requestCallback("destroy pixel group", self.pxlgroup_added)
-      
+
+        self.sensitize()
 
     def show(self):
         debug.mainthreadTest()
@@ -554,11 +555,10 @@ class GroupGUI(object):
             finally:
                 skelcontext.end_reading()
             self.update_grouplist(names, map(gset.displayString, names))
-        else:
-            # Must sensitize -- if the current group has become empty,
-            # the "clear" button's sensitivity will have changed.
-            self.sensitize_subthread()
-            switchboard.notify("redraw skeletongroups", skelcontext)    
+        # Must sensitize -- if the current group has become empty,
+        # the "clear" button's sensitivity will have changed.
+        self.sensitize_subthread()
+        switchboard.notify("redraw skeletongroups", skelcontext)    
 
     def group_resized(self, skelcontext, gset):
         debug.subthreadTest()
@@ -570,10 +570,9 @@ class GroupGUI(object):
             finally:
                 skelcontext.end_reading()
             self.update_grouplist(names, map(gset.displayString, names))
-        else:
-            # Must sensitize -- if the resize was to or away from size 0,
-            # the clear button needs updating.
-            self.sensitize_subthread()
+        # Must sensitize -- if the resize was to or away from size 0,
+        # the clear button needs updating.
+        self.sensitize_subthread()
 
     def pxlgroup_added(self, group, *args):
         # switchboard callback when pixel groups are added or
