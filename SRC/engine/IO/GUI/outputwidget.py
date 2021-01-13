@@ -161,6 +161,7 @@ class ValueOutputWidget(parameterwidgets.ParameterWidget,
     def __init__(self, value, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         widgetscope.WidgetScope.__init__(self, scope)
+
         self.scalar_output_obj = ScalarOutputParameterWidget(
             None, scope=self, name="Scalar")
         self.aggregate_output_obj = AggregateOutputParameterWidget(
@@ -171,12 +172,14 @@ class ValueOutputWidget(parameterwidgets.ParameterWidget,
             self,
             Gtk.Box(orientation=Gtk.Orientation.VERTICAL, **quargs),
             scope, name)
-        self.gtk.pack_start(self.scalar_output_obj.gtk,
-                            expand=False, fill=False, padding=0)
-        self.gtk.pack_start(self.aggregate_output_obj.gtk,
-                            expand=False, fill=False, padding=0)
+        self.stack = Gtk.Stack()
+        self.gtk.pack_start(self.stack, expand=False, fill=False, padding=0)
+        self.stack.add_named(self.scalar_output_obj.gtk, "Scalar")
+        self.stack.add_named(self.aggregate_output_obj.gtk, "Aggregate")
+        self.scalar_output_obj.show()
+        self.aggregate_output_obj.show()
         self.output_obj = self.scalar_output_obj
-        self.aggregate_output_obj.gtk.hide()
+
         self.typewidget = scope.findWidget(
             lambda x: (isinstance(x, parameterwidgets.EnumWidget)
                        and x.enumclass is output.OutputType))
@@ -188,7 +191,7 @@ class ValueOutputWidget(parameterwidgets.ParameterWidget,
     def show(self):
         debug.mainthreadTest()
         self.gtk.show()
-        self.output_obj.show()
+        self.stack.show()
     def isValid(self):
         return self.output_obj.isValid()
     def cleanUp(self):
@@ -196,15 +199,14 @@ class ValueOutputWidget(parameterwidgets.ParameterWidget,
         parameterwidgets.ParameterWidget.cleanUp(self)
     def typeWidgetCB(self, interactive):
         debug.mainthreadTest()
-        self.setType(self.typewidget.get_value())
+        self.setType(self.typewidget.get_value().string())
     def setType(self, outtype):
         debug.mainthreadTest()
-        self.output_obj.gtk.hide()
         if outtype == "Scalar":
             self.output_obj = self.scalar_output_obj
         else:                   # outtype == "Aggregate"
             self.output_obj = self.aggregate_output_obj
-        self.output_obj.show()
+        self.stack.set_visible_child_name(outtype)
         self.widgetChanged(self.isValid(), interactive=False)
     def get_value(self):
         return self.output_obj.get_value()
