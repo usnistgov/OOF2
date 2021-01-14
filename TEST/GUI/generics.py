@@ -22,6 +22,8 @@ import string
 import sys
 import types
 
+from gi.repository import Gtk
+
 floatpattern = \
     re.compile("([-+]?(?:\d+(?:\.\d*)?|\d*\.\d+)(?:[eE][-+]?\d+)?)")
 intpattern = re.compile("[0-9]+$")
@@ -197,6 +199,14 @@ def treeViewColValues(widgetpath, col):
     treeview = gtklogger.findWidget(widgetpath)
     liststore = treeview.get_model()
     return [x[col] for  x in iter(liststore)]
+
+def treeViewRowValues(widgetpath, row):
+    # row can be an int or a list of ints, if the tree is nested
+    treeview = gtklogger.findWidget(widgetpath)
+    liststore = treeview.get_model()
+    treepath = Gtk.TreePath(row)
+    model = treeview.get_model()
+    return list(model[treepath])
 
 def treeViewSelectCheck(widgetpath, col):
     # Returns the contents of the given column of a TreeStore in the
