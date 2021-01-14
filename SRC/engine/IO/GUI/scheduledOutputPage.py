@@ -230,7 +230,7 @@ class OutputPage(oofGUI.MainPage):
         # Set destination
         self.editDestinationButton = gtkutils.StockButton(
             'document-edit-symbolic', "Edit")
-        gtklogger.setWidgetName(self.editDestinationButton, "Set")
+        gtklogger.setWidgetName(self.editDestinationButton, "EditDestination")
         gtklogger.connect(self.editDestinationButton, 'clicked',
                           self.editDestinationCB)
         grid.attach(self.editDestinationButton, 0,0, 1,1)
@@ -270,7 +270,7 @@ class OutputPage(oofGUI.MainPage):
         switchboard.requestCallbackMain("new scheduled output",
                                         self.newOutputSBCB)
 
-        
+        self.sensitize()
 
         
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -450,8 +450,9 @@ class OutputPage(oofGUI.MainPage):
 
     # The tooltips in the TreeView show the contents of the cells,
     # which is useful if the cells are too small to show their entire
-    # contents.  Make tooltips that change from cell to cell requires
-    # more work than just adding them to a widget in the normal way.
+    # contents.  Making tooltips that change from cell to cell
+    # requires more work than just adding them to a widget in the
+    # normal way.
     
     def tooltipQueryCB(self, treeview, wx, wy, keyboard_mode, tooltip):
         bx, by = treeview.convert_widget_to_bin_window_coords(wx, wy)

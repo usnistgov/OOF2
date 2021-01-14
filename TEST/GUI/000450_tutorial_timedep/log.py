@@ -384,7 +384,7 @@ findWidget('Dialog-Copy an Output Schedule').resize(294, 182)
 findWidget('Dialog-Copy an Output Schedule:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.Mesh.Scheduled_Output.Schedule.Copy
 findWidget('OOF2:Scheduled Output Page:list').get_selection().select_path(Gtk.TreePath([1]))
-findWidget('OOF2:Scheduled Output Page:Set').clicked()
+findWidget('OOF2:Scheduled Output Page:EditDestination').clicked()
 checkpoint toplevel widget mapped Dialog-Set an Output Destination
 findWidget('Dialog-Set an Output Destination').resize(235, 97)
 event(Gdk.EventType.BUTTON_PRESS,x= 5.3000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('Dialog-Set an Output Destination:destination:RCFChooser').get_window())
@@ -451,7 +451,7 @@ deactivatePopup('chooserPopup-target') # MenuItemLogger
 findWidget('Dialog-Copy an Output Schedule:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.Mesh.Scheduled_Output.Schedule.Copy
 findWidget('OOF2:Scheduled Output Page:list').get_selection().select_path(Gtk.TreePath([2]))
-findWidget('OOF2:Scheduled Output Page:Set').clicked()
+findWidget('OOF2:Scheduled Output Page:EditDestination').clicked()
 checkpoint toplevel widget mapped Dialog-Set an Output Destination
 findWidget('Dialog-Set an Output Destination').resize(259, 164)
 findWidget('Dialog-Set an Output Destination:widget_GTK_RESPONSE_OK').clicked()
