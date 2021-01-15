@@ -17,6 +17,13 @@ Floating periodic boundary conditions.  For example, a system with
 thermal expansion and periodic boundary conditions should be able to
 expand as a whole.
 
+Resolve an inconsistency in boundary condition handling.  It's not
+possible in the GUI to create a BC in a Mesh that has no defined
+fields or active equations, but it *is* possible to copy a BC to the
+Mesh from another Mesh.  It's also possible to create incomputable BCs
+by undefining fields or deactivating equations. See the TODO in
+boundarycondPage.py.
+
 For Adam C.:
 Material property outputs
     Orientation at a point

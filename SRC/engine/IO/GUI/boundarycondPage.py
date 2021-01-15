@@ -27,6 +27,16 @@ from gi.repository import Gtk
 # TODO MAYBE: Construct names automatically:
 #           bdyname:fieldname:component, or bdyname:fluxname:component
 
+# TODO: It's not possible to create a boundary condition that uses
+# undefined fields or inactive equations, and the New button is
+# desensitized if the current Mesh has no defined fields or active
+# equations.  However, it's still possible to copy a boundary
+# condition from another Mesh whether or not it would be possible to
+# create the same boundary condition in the target Mesh.  This is an
+# inconsistency that should be resolved somehow.  Also, the same
+# inconsistency can arise if fields or equations are undefined after
+# boundary conditions are created.
+
 ## Blocks of code preceded by "if TESTINGPAPER:" are an attempt to
 ## reproduce the bug that motivated gui test 00176.
 TESTINGPAPER = False
@@ -205,10 +215,7 @@ class BoundaryCondPage(oofGUI.MainPage):
         self.bcDel.set_sensitive(bclist and meshok)
         self.bcEdit.set_sensitive(bclist and meshsync)
         self.bcCopy.set_sensitive(bclist)
-#         self.bcEnableDisable.set_sensitive(bclist)
-        self.bcCopyAll.set_sensitive(bclist)
         self.bcRename.set_sensitive(bclist and meshok)
-        
         self.bcCopyAll.set_sensitive(len(self.bclist)>0)
         
     def update(self):
