@@ -150,8 +150,12 @@ class ChooserWidget(object):
             self.stack.remove(child)
         self.stack.add(self.emptyMarker)
         for name in self.namelist:
-            hbox = self.makeSubWidget(name)
-            self.stack.add_named(hbox, name)
+            # Separators appear in the pull down menu but don't get a
+            # stack entry.  The gui tests get the Chooser contents
+            # from the stack, not the menu, and ignore separators.
+            if not (self.separator_func and self.separator_func(name)):
+                hbox = self.makeSubWidget(name)
+                self.stack.add_named(hbox, name)
         if self.current_string not in self.namelist:
             if self.allowNone:
                 newstr = None
