@@ -248,9 +248,13 @@ class oofGUI(widgetscope.WidgetScope):
             if which < len(pagenames)-1:
                 self.nextPageButton.set_tooltip_text(
                     "Go to the %s page" % allPages[pagenames[which+1]].name)
+            else:
+                self.nextPageButton.set_tooltip_text("Go to the next page.")
             if which > 0:
                 self.prevPageButton.set_tooltip_text(
                     "Go to the %s page" % allPages[pagenames[which-1]].name)
+            else:
+                self.prevPageButton.set_tooltip_text("Go to the previous page.")
         self.sensitizeHistory()
 
     def sensitizeHistory(self):
