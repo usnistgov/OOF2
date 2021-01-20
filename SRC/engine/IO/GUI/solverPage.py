@@ -888,20 +888,24 @@ class SolverPage(oofGUI.MainPage):
         ## This does not indirectly call self.sensitize(), it seems.
         #debug.fmsg("switchboard stack:", switchboard.messageStack.current())
         debug.mainthreadTest()
-        self.initlist.clear()
+        currentObj = self.selectedObj()
         mesh = self.currentMeshContext()
-        if mesh:
-            for field in mesh.all_initializable_fields():
-                self.initlist.append([field])
-            for name, bc in mesh.allBoundaryConds():
-                if bc.initializable(mesh):
-                    self.initlist.append([bc])
-            currentObj = self.selectedObj()
-            if currentObj is not None:
-                for row in range(len(self.initlist)):
-                    if self.initlist[row][0] == currentObj:
-                        self.initview.get_selection().select_path(row)
-                        break
+        self.initselsignal.block()
+        self.initlist.clear()
+        try:
+            if mesh:
+                for field in mesh.all_initializable_fields():
+                    self.initlist.append([field])
+                for name, bc in mesh.allBoundaryConds():
+                    if bc.initializable(mesh):
+                        self.initlist.append([bc])
+                if currentObj is not None:
+                    for row in range(len(self.initlist)):
+                        if self.initlist[row][0] == currentObj:
+                            self.initview.get_selection().select_path(row)
+                            break
+        finally:
+            self.initselsignal.unblock()
 
     def initSelectCB(self, selection):
         # gtk callback. Field init selection changed

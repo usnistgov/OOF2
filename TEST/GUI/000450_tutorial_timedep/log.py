@@ -1,7 +1,7 @@
-import tests
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
 checkpoint toplevel widget mapped OOF2 Activity Viewer
+import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 511)
@@ -36,14 +36,14 @@ checkpoint Materials page updated
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
-findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page updated
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page updated
 checkpoint Solver page sensitized
 checkpoint OOF.Microstructure.New
+findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 findWidget('Solving Time Dependent Systems:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 5.2000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
@@ -191,8 +191,8 @@ findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuIte
 checkpoint page installed Skeleton
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint skeleton page sensitized
-findWidget('OOF2:Skeleton Page:Pane').set_position(417)
 checkpoint skeleton page sensitized
+findWidget('OOF2:Skeleton Page:Pane').set_position(417)
 findWidget('OOF2:Skeleton Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-New skeleton
 findWidget('Dialog-New skeleton').resize(346, 254)
@@ -571,9 +571,9 @@ findWidget('Dialog-Initialize field Displacement:initializer:XYTFunction:fy').se
 findWidget('Dialog-Initialize field Displacement:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
-checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Set_Field_Initializer
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().unselect_all()
+checkpoint Solver page sensitized
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([0]))
 checkpoint Solver page sensitized
 findWidget('Solving Time Dependent Systems:Next').clicked()
@@ -618,10 +618,11 @@ checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().unselect_all()
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([0]))
 checkpoint Solver page sensitized
 checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Mesh.Apply_Field_Initializers
+findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([0]))
+ checkpoint OOF.Mesh.Apply_Field_Initializers
+checkpoint Solver page sensitized
 #checkpoint Solver page sensitized
 event(Gdk.EventType.BUTTON_PRESS,x= 3.7800000000000e+02,y= 2.6000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 event(Gdk.EventType.BUTTON_PRESS,x= 3.7900000000000e+02,y= 2.6000000000000e+01,button=1,state=0,window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
@@ -642,9 +643,9 @@ findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Element
 checkpoint selection info updated Node
-checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Edit

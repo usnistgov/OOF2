@@ -225,13 +225,8 @@ findWidget('Dialog-Initialize field Temperature').resize(232, 134)
 findWidget('Dialog-Initialize field Temperature:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([0]))
-checkpoint Solver page sensitized
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([0]))
-checkpoint Solver page sensitized
-findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().unselect_all()
-checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Set_Field_Initializer
+
 # Apply an initializer
 findWidget('OOF2:Solver Page:VPane:FieldInit:Apply').clicked()
 checkpoint Solver page sensitized
