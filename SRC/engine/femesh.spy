@@ -110,7 +110,28 @@ FEMeshPtr.init_field = _FEMeshPtr_init_field
 # Destroy
 def _FEMeshPtr_destroy(self):
     self.clear_parent_mesh()
-    del self.boundaries
+    # TODO: The next line used to be "del self.boundaries".  That
+    # caused a rare race condition when I clicked too fast when
+    # recording a gui test.  Switching to the Boundary Analysis page
+    # after deleting a Mesh caused the page installation to occur
+    # before the mesh deletion was complete, so the gtklogger commands
+    # for the two actions were intermixed in the log file. (I think
+    # that's what happened, at least.) On replaying the log file,
+    # sometimes BoundaryAnalysisPage.update() would be called after
+    # FEMeshPtr.boundaries was deleted, but before the page's
+    # WhoWidget had been updated, with the result that the page tried
+    # to retrieve the boundary data from a Mesh that had already
+    # deleted it.  Setting self.boundaries to an empty dict avoids the
+    # problem without really solving it.
+    #
+    # It might be that the problem that the Mesh isn't locked
+    # properly.  Should BoundaryAnalysisPage.update or
+    # Mesh.edgeBoundaryNames acquire the read lock?  That wouldn't
+    # entirely solve the problem, because what happens if update() is
+    # waiting on the lock but only acquires it after the Mesh is
+    # deleted?
+    self.boundaries = {}
+    #del self.boundaries
 
 FEMeshPtr.destroy = _FEMeshPtr_destroy
 
