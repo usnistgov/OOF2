@@ -28,12 +28,13 @@ namespace OOFCanvas {
   OffScreenCanvas::OffScreenCanvas(double ppu)
     : backingLayer(this, "<backinglayer>"),
       transform(Cairo::identity_matrix()),
-      ppu(ppu),			// pixels per unit
+      ppu(0),	 // pixels per unit. 0 here forces setTransform to run
       bgColor(1.0, 1.0, 1.0),
       margin(0.0),
       antialiasing(Cairo::ANTIALIAS_DEFAULT)
   {
     backingLayer.setClickable(false);
+    setTransform(ppu);
   }
 
   OffScreenCanvas::~OffScreenCanvas() {
@@ -196,7 +197,7 @@ namespace OOFCanvas {
   // coordinates to device coordinates in the CanvasLayers'
   // Cairo::Contexts. It is *not* the transform that maps the
   // CanvasLayers to the gtk Layout, nor does it have anything to do
-  // with scrolling.
+  // with scrolling.        
 
   // findTransform() computes the transform without setting or using
   // any state data from the Canvas.  setTransform() uses
@@ -265,7 +266,7 @@ namespace OOFCanvas {
 	}
       }
     }
-    
+
     backingLayer.rebuild();
   } // OffScreenCanvas::setTransform
 

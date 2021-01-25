@@ -945,10 +945,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     # Scrolling 
 
     def hScrollPosition(self):
-        return self.hScrollbar.get_adjustment().value
+        return self.hScrollbar.get_adjustment().get_value()
 
     def vScrollPosition(self):
-        return self.vScrollbar.get_adjustment().value
+        return self.vScrollbar.get_adjustment().get_value()
 
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

@@ -180,11 +180,11 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def canvas_infoCB(self, *args):
         debug.mainthreadTest()
         # Visible canvas size in pixel units
-        xmax = self.gfxwindow().oofcanvas.get_width_in_pixels()-1
-        ymax = self.gfxwindow().oofcanvas.get_height_in_pixels()-1
+        xmax = self.gfxwindow().oofcanvas.widgetWidth()-1
+        ymax = self.gfxwindow().oofcanvas.widgetHeight()-1
         # Visible MS in physical units
-        ll = self.get_proper_world_coord(0, ymax)
-        ur = self.get_proper_world_coord(xmax, 0)
+        ll = self.gfxwindow().oofcanvas.pixel2user(0, ymax)
+        ur = self.gfxwindow().oofcanvas.pixel2user(xmax, 0)
         reporter.report("### Canvas Information ###")
         reporter.report("Width (pixels)    : ", xmax)
         reporter.report("Height (pixels)   : ", ymax)
@@ -195,11 +195,7 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         reporter.report("V-scroll position : ",
                         self.gfxwindow().vScrollPosition())
         reporter.report("Pixels per unit   : ",
-                        self.gfxwindow().oofcanvas.get_pixels_per_unit())
-        reporter.report("Canvas allocation : ",
-                        self.gfxwindow().oofcanvas.get_allocation())
-        reporter.report("Scroll region     : ",
-                        self.gfxwindow().oofcanvas.get_scrollregion())
+                        self.gfxwindow().oofcanvas.getPixelsPerUnit())
 
     def inCB(self, *args):              # gtk callback
         self.getNewZoomFactor()
