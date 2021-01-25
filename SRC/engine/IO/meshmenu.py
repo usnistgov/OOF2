@@ -117,7 +117,6 @@ def newMesh(menuitem, name, skeleton, element_types):
             meshctxt = ooflib.engine.mesh.meshes.add(
                 skelpath+[name], femesh,
                 parent=skeletoncontext.skeletonContexts[skelpath],
-                skeleton=skel,
                 elementdict=edict,
                 materialfactory=skeletonelement.SkeletonElement.realmaterial)
             meshctxt.createDefaultSubProblem()
@@ -258,7 +257,7 @@ def copyMesh(menuitem, mesh, name, copy_field, copy_equation, copy_bc):
             skelpath+[copiedmeshname],
             copiedfemesh,
             parent=skeletoncontext.skeletonContexts[skelpath],
-            skeleton=skel, elementdict=edict,
+            elementdict=edict,
             materialfactory=basemesh.materialfactory)
         newmesh.reserve()
         newmesh.begin_writing()

@@ -118,7 +118,7 @@ class SkeletonBuffer(ringbuffer.RingBuffer):
 
 class Mesh(whoville.Who):
     def __init__(self, name, classname, femesh, parent,
-                 skeleton=None, elementdict=None,
+                 elementdict=None,
                  materialfactory=None):
         whoville.Who.__init__(self, name, classname, femesh, parent)
         # Share the mesh-level lock with the contained femesh.

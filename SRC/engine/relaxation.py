@@ -117,8 +117,7 @@ class Relax(skeletonmodifier.SkeletonModifier):
         femesh = skel.femesh(edict, self.set_fakematerial, context.path())
         meshcontext = ooflib.engine.mesh.meshes.add(
             self.meshname, femesh,
-            parent=context,
-            skeleton=skel, elementdict=edict)
+            parent=context, elementdict=edict)
         meshcontext.createDefaultSubProblem()
 
         return meshcontext
