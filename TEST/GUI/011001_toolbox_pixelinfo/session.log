@@ -1,0 +1,5 @@
+OOF.Windows.Graphics.New()
+OOF.Graphics_1.Settings.New_Layer_Policy(policy='Single')
+OOF.Microstructure.Create_From_ImageFile(filename='examples/small.ppm', microstructure_name='small.ppm', height=automatic, width=automatic)
+OOF.Graphics_1.Toolbox.Pixel_Info.Query(x=41, y=80)
+OOF.Graphics_1.Toolbox.Pixel_Info.Query(x=130, y=70)
