@@ -28,11 +28,13 @@ namespace OOFCanvas {
   OffScreenCanvas::OffScreenCanvas(double ppu)
     : backingLayer(this, "<backinglayer>"),
       transform(Cairo::identity_matrix()),
-      ppu(0),	 // pixels per unit. 0 here forces setTransform to run
+      ppu(ppu),
       bgColor(1.0, 1.0, 1.0),
       margin(0.0),
-      antialiasing(Cairo::ANTIALIAS_DEFAULT)
+      antialiasing(Cairo::ANTIALIAS_DEFAULT),
+      initialized(false)
   {
+    assert(ppu > 0.0);
     backingLayer.setClickable(false);
     setTransform(ppu);
   }
@@ -233,7 +235,7 @@ namespace OOFCanvas {
 	}
       }
     }
-    if(!newppu && !layersChanged &&
+    if(initialized && !newppu && !layersChanged &&
        backingLayer.bitmapSize() == desiredBitmapSize())
       {
 	return;
@@ -268,6 +270,7 @@ namespace OOFCanvas {
     }
 
     backingLayer.rebuild();
+    initialized = true;
   } // OffScreenCanvas::setTransform
 
   ICoord OffScreenCanvas::user2pixel(const Coord &pt) const {

@@ -63,6 +63,7 @@ namespace OOFCanvas {
     virtual void setWidgetSize(int, int) {}
     int layerNumber(const CanvasLayer*) const;
     void drawBackground(Cairo::RefPtr<Cairo::Context>) const;
+    bool initialized;
 
   public:
     OffScreenCanvas(double ppu);
