@@ -34,9 +34,21 @@ class WidgetLogger(loggers.GtkLogger):
             else:
                 eventname = "BUTTON_RELEASE"
             return [
-                "event(Gdk.EventType.%s,x=%20.13e,y=%20.13e,button=%d,state=%d,window=%s.get_window())"
-                % (eventname, evnt.x, evnt.y, evnt.button, evnt.state,
-                   self.location(obj, *args))
+                ## See comments re event and wevent in replay.py.  The
+                ## commented-out lines that use event here don't
+                ## always replay correctly, in particular when trying
+                ## to detect whether a modifier key has been pressed
+                ## before a button event.  Switching to wevent appears
+                ## to fix the problem.
+                # "event(Gdk.EventType.%s,x=%20.13e,y=%20.13e,button=%d,state=%d,window=%s.get_window())"
+                # % (eventname, evnt.x, evnt.y, evnt.button, evnt.state,
+                #    self.location(obj, *args))
+                "wevent(%(w)s, Gdk.EventType.%(e)s, button=%(b)d, state=%(s)d, window=%(w)s.get_window())"
+                % dict(w=self.location(obj, *args),
+                       e=eventname,
+                       b=evnt.button,
+                       s=evnt.state)
+                
                 ]
 
         if signal in ('key-press-event', 'key-release-event'):
