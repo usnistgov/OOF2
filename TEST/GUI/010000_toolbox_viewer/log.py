@@ -43,8 +43,11 @@ assert tests.gtkTextCompare('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Viewer:Z
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Viewer:Info').clicked()
 findWidget('OOF2').resize(782, 545)
 
-# Check tail of messages for text correctness.
-assert tests.gtkTextviewTail('OOF2 Messages 1:Text', "Pixels per unit   :  1.0\n", tolerance=1.e-6)
+# # Check tail of messages for text correctness.
+## Or not.  The information in the window is not portable.  It
+## probably depends on the gtk theme, which will affect widget sizes.
+## It might depend on other things as well.
+# assert tests.gtkTextviewTail('OOF2 Messages 1:Text', "Pixels per unit   :  1.0\n", tolerance=1.e-6)
 
 # Load an image
 event(Gdk.EventType.BUTTON_PRESS,x= 7.9000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
@@ -106,9 +109,9 @@ checkpoint microstructure page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Microstructure.Create_From_ImageFile
 
-# Check viewer info again
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Viewer:Info').clicked()
-assert tests.gtkTextviewTail('OOF2 Messages 1:Text',"Pixels per unit   :  1.9047619\n", tolerance=1.e-6)
+# # Check viewer info again
+# findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Viewer:Info').clicked()
+# assert tests.gtkTextviewTail('OOF2 Messages 1:Text',"Pixels per unit   :  1.9047619\n", tolerance=1.e-6)
 
 # Get ppu for later checks
 starting_ppu = tests.getCanvasPPU()
