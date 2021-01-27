@@ -44,7 +44,7 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Viewer:Info').clicked()
 findWidget('OOF2').resize(782, 545)
 
 # Check tail of messages for text correctness.
-assert tests.gtkTextviewTail('OOF2 Messages 1:Text', "Pixels per unit   :  0.0\n", tolerance=1.e-6)
+assert tests.gtkTextviewTail('OOF2 Messages 1:Text', "Pixels per unit   :  1.0\n", tolerance=1.e-6)
 
 # Load an image
 event(Gdk.EventType.BUTTON_PRESS,x= 7.9000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
