@@ -13,6 +13,7 @@ from ooflib.SWIG.orientationmap import orientmapdata
 from ooflib.common import debug
 from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import gtklogger
+from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import pixelinfoGUI
 from ooflib.common.IO.GUI import pixelinfoGUIplugin
 from ooflib.engine.IO import orientationmatrix
@@ -225,20 +226,23 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         label = Gtk.Label("symmetry=", halign=Gtk.Align.END)
         table.attach(label, 0,row+2, 1,1)
         symParam = self.getMenu().Set_Symmetry.get_arg('symmetry')
-        self.symWidget = symParam.makeWidget(hexpand=True)
-        gtklogger.setWidgetName(self.symWidget.gtk, "Symmetry")
-        table.attach(self.symWidget.gtk, 1,row+2, 1,1)
+        symbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        gtklogger.setWidgetName(symbox, 'symmetry')
+        self.symtext = Gtk.Entry(editable=False)
+        gtklogger.setWidgetName(self.symtext, 'text')
+        symbox.pack_start(self.symtext, expand=True, fill=True, padding=0)
+        self.setSymButton = Gtk.Button("Set")
+        gtklogger.setWidgetName(self.setSymButton, "set")
+        gtklogger.connect(self.setSymButton, 'clicked', self.setSymmetryCB)
+        symbox.pack_start(self.setSymButton,
+                          expand=False, fill=False, padding=0)
+        table.attach(symbox, 1,row+2, 1,1)
 
         label = Gtk.Label("misorientation=", halign=Gtk.Align.END)
         table.attach(label, 0,row+3, 1,1)
         self.misorientationText = Gtk.Entry(editable=False, hexpand=True)
         table.attach(self.misorientationText, 1,row+3, 1,1)
         self.sbcbs = [
-            # Changing the lattice symmetry requires an immediate
-            # update of the misorientation.  Connecting to the widget
-            # via the switchboard catches all changes, not just
-            # changes to the top chooser widget.
-            switchboard.requestCallbackMain(self.symWidget, self.symChanged),
             # Messages indicating that the Microstructure has changed
             # in some possibly relevant way:
             switchboard.requestCallbackMain('OrientationMap changed',
@@ -259,6 +263,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
             ]
 
         self.sensitize()
+        self.setSymmetry(self.toolbox.gfxwindow())
 
     def getNonGUIPlugIn(self):
         return self.getNonGUIToolbox().findPlugIn(
@@ -344,24 +349,23 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
             return
         return oplugin.getOrientation(), oplugin.getLocation()
 
-    def symChanged(self, interactive):
-        # Switchboard callback for changes in the state of the
-        # symmetry widget.
-
-        # Checking 'interactive' here suppresses an infinite loop.
-        # The menu item sets the value of the widget, which calls this
-        # callback. 'interactive' is false if this callback is called
-        # via that sequence.
-        if interactive:
-            menuitem = self.getMenu().Set_Symmetry
-            menuitem.callWithDefaults(symmetry=self.symWidget.get_value())
+    def setSymmetryCB(self, button):
+        menuitem = self.getMenu().Set_Symmetry
+        if parameterwidgets.getParameters(
+                menuitem.get_arg('symmetry'),
+                parentwindow=self.toolbox.gtk.get_toplevel(),
+                title="Set lattice symmetry for misorientation calculation"):
+            menuitem.callWithDefaults()
+                                        
 
     def setSymmetry(self, gfxwindow):
         # switchboard callback for "set misorientation symmetry",
         # which is issued by the menu command.
         if gfxwindow is not self.toolbox.gfxwindow():
             return
-        self.symWidget.set(self.getNonGUIPlugIn().symmetry, interactive=False)
+        val = self.getNonGUIPlugIn().symmetry
+        assert val is not None
+        self.symtext.set_text(val.displayname())
         self.updateMisorientation()
         
     def materialchanged(self, *args, **kwargs):

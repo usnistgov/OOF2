@@ -859,6 +859,8 @@ class International(LatticeSymmetry):
         self.name = name        # an InternationalName Enum
     def schoenflies(self):
         return international2SchoenDict[self.name.name]
+    def displayname(self):
+        return "International " + self.name.string()
 
 def _international_from_base(reg, base):
     # base is an International instance.  base.name is an Enum.
@@ -890,6 +892,8 @@ class SpaceGroup(LatticeSymmetry):
         self.number = number
     def schoenflies(self):
         return schoenfliesFromSpaceGroup(self.number).name
+    def displayname(self):
+        return "Space Group %d" % self.number
 
 def _space_from_base(reg, base):
     # base is an International instance. base.name is an Enum.
@@ -934,6 +938,8 @@ class Schoenflies(LatticeSymmetry):
         self.symbol = symbol    # a SchoenfliesName Enum
     def schoenflies(self):
         return self.symbol.name
+    def displayname(self):
+        return "Schoenflies " + self.symbol.name
 
 def _schoenflies_from_base(reg, base):
     # base is an International instance.  base.name is an Enum.
