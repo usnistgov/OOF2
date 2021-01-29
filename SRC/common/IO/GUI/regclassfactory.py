@@ -28,6 +28,7 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
 from gi.repository import Gtk
+import sys
 import types
 
 ###################
@@ -148,6 +149,13 @@ class RegisteredClassFactory(RCFBase):
 
         self.update(registry, obj, interactive=0)
 
+    def dumpState(self, comment):
+        print >> sys.stderr, comment, self.__class__.__name__, \
+            (self.currentOption and self.currentOption.name())
+        self.options.dumpState("   " + comment)
+        if self.paramWidget:
+            self.paramWidget.dumpState("   " + comment)
+
     def refresh(self, obj=None):
         self.update(self.registry, obj)
 
@@ -258,6 +266,17 @@ class RegisteredClassFactory(RCFBase):
                 # widget if its value is being changed by this method,
                 # so this widget *can't* currently have focus, so it
                 # can't lose it.
+                ## TODO: This comment contradicts the previous one.
+                ## Does focus shift unexpectedly or not?  It can, if
+                ## using a widget invokes a menu command that then
+                ## updates the widget, even if the update won't
+                ## actually change the widget.  When the process gets
+                ## to this point, the widget will be rebuilt and will
+                ## lose focus.  HOWEVER, this situation should be
+                ## avoided because it will clutter up the log file
+                ## with menu commands for all intermediate states of
+                ## the widget.  Menu commands should not be called for
+                ## intermediate values of sliders or entries.
                 self.paramWidget.set_values()
 
             if self.readonly:

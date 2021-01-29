@@ -15,6 +15,7 @@ from ooflib.common.IO.GUI import gtklogger
 from gi.repository import GObject
 from gi.repository import Gdk
 from gi.repository import Gtk
+import sys
 import types
 
 # The ChooserWidget creates a pull-down menu containing the given list
@@ -288,6 +289,9 @@ class ChooserWidget(object):
     def choices(self):
         return self.objlist
             
+    def dumpState(self, comment):
+        print >> sys.stderr, comment, self.current_string
+
                 
 
 

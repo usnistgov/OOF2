@@ -27,6 +27,7 @@ from gi.repository import Gdk
 from gi.repository import Gtk
 import math
 import string
+import sys
 
 ############################
 
@@ -105,6 +106,10 @@ class ParameterWidget(object):
     # the ParameterTable and the widgets it contains.
     def parameterTableXRef(self, ptable, widgets):
         pass
+
+    # For debugging. Redefine in derived classes to print more useful info.
+    def dumpState(self, comment):
+        print >> sys.stderr, comment, "(%s)" % self.__class__.__name__
 
 # GenericWidget is a base class for several other widgets.  It can
 # also be created as an instance itself, but currently this is not
@@ -859,6 +864,7 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
         if self.showLabels:
             self.gtk.attach(label, 0,tablepos, 1,1)
         self.gtk.attach(widget.gtk, 1,tablepos, 1,1)
+        
     def get_values(self):
         debug.mainthreadTest()
         exceptions = []
@@ -891,6 +897,12 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
         debug.fmsg(zip([p.name for p in self.params], self.validities))
     def dumpValues(self):
         debug.fmsg(*["%s=%s" % (p.name, p.value) for p in self.params])
+    def dumpState(self, comment):
+        for widget in self.widgets:
+            try:
+                widget.dumpState("   " + comment)
+            except AttributeError:
+                pass
     def show(self):
         # Don't simply run self.gtk.show_all(), because it might show
         # too much of some child widgets.

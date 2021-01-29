@@ -13,6 +13,7 @@ from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO.GUI import gtklogger
 from gi.repository import Gtk
+import sys
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -34,6 +35,11 @@ from gi.repository import Gtk
 # This extra complexity is required because the LabelledSlider needs
 # to be able to reset its range, which requires changing the range of
 # the clipper.
+
+## TODO: When the Gtk.Entry loses focus, should it clip?  Currently
+## one can type an out of bounds value into the entry, and it isn't
+## replaced with the clipped value until the parameterwidget is
+## evaluated.
 
 class DefaultClipper(object):
     def __init__(self, vmin, vmax):
@@ -103,7 +109,7 @@ class LabelledSlider:
 
         gtklogger.connect(self.entry, 'activate', self.slider_from_text)
         gtklogger.connect(self.entry, 'focus_out_event', self.entry_lost_focus)
-    
+
     def set_sensitive(self, sensitivity):
         self.slider.set_sensitive(sensitivity)
         self.entry.set_sensitive(sensitivity)
@@ -163,8 +169,13 @@ class LabelledSlider:
                 self.callback(self, val)
     def entry_lost_focus(self, obj, event):
         if self.changed:
-            self.slider_from_text(obj)
-    def entry_changed(self, obj):
+            # get_value returns the current value of the entry, which
+            # may be out of bounds if the user is fooling around.
+            # set_value clips the value to the correct bounds and sets
+            # both the entry and the slider.
+            self.set_value(self.get_value())
+            # self.slider_from_text(obj)
+    def entry_changed(self, obj): # gtk callback for self.entry 'changed'
         if self.immediate:
             self.slider_from_text(obj)
         else:
@@ -225,6 +236,12 @@ class LabelledSlider:
             self.slider.set_tooltip_text(slider)
         if entry:
             self.entry.set_tooltip_text(entry)
+
+    def dumpState(self, comment):
+        print >> sys.stderr, comment, self.__class__.__name__, \
+            "text=%s" % self.entry.get_text(), \
+            "val=%s" % self.adjustment.get_value(), \
+            "focus=%s" % self.entry.has_focus()
 
 class FloatLabelledSlider(LabelledSlider):
     def set_digits(self, digits):
