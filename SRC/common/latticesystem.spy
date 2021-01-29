@@ -815,7 +815,7 @@ schoenfliesSymbols = schoen2SpaceDict.keys()
 # LatticeSymmetry is the base class of a set of
 # ConvertibleRegisteredClasses for representing lattice symmetry
 # (point groups) in various notations.  Space groups are included
-# because that's what EBSD provides, although it's more informaation
+# because that's what EBSD provides, although it's more information
 # than we need.  Many space groups are equivalent to a single point
 # group, so converting space group to point group and back to space
 # group will not necessarily return to the original group.

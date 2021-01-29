@@ -36,7 +36,7 @@ from ooflib.common import mainthread
 # be turned on and off by calling useMessageStack(bool). 
 
 # Calling switchboard.messageStack.current() at any point returns a
-# list of switchboard messages whose callback haven't returned.
+# list of switchboard messages whose callbacks haven't returned.
 # Nested lists indicate calls on another thread.  Eg, [[A, B], C]
 # means that message A was emitted, and its callback directly or
 # indirectly emitted message B, and B's callback directly or
