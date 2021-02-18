@@ -103,6 +103,19 @@ def fp_string_compare_tail(str1, str2, tolerance):
             return False
     return True
 
+# Compare a test file to a reference file, using a tolerance on any
+# floats found.  The test file is assumed to be in the test's working
+# directory, and the reference file to be in the test source
+# directory.  If the name of the reference file isn't given, it's
+# asssumed to be the same as the test file.
+
+def filediff(filename, reference=None, tolerance=1.e-8):
+    if reference is None:
+        reffile = os.path.join(testdir(), filename)
+    else:
+        reffile = os.path.join(testdir(), reference)
+    return file_utils.fp_file_compare(filename, reffile, tolerance)
+
 checkpoint_count = gtklogger.checkpoint_count
 
 def testdir():
@@ -224,185 +237,16 @@ def listViewSelectedRowNo(widgetpath):
         return model.get_path(iter)[0]
     return None                         # nothing selected
 
-def chooserStateCheck(widgetpath, choice):
-    # only for ChooserWidget, not ChooserListWidget.  Checks that the
-    # currently selected item is 'choice'.
-    stack = gtklogger.findWidget(widgetpath + ":stack")
-    current = stack.get_visible_child()
-    if current is None:
-        return choice is None
-    return choice == current.get_children()[0].get_text()
-
-
-def chooserListStateCheck(widgetpath, choices, tolerance=None):
-    # for ChooserListWidget and friends, including MultiListWidget.
-    # Checks that everything in the list 'choices' is selected.
-    treeview = gtklogger.findWidget(widgetpath)
-    selection = treeview.get_selection()
-    model, paths = selection.get_selected_rows()
-    if len(paths) != len(choices):
-        print >> sys.stderr, "Wrong number of selections:", len(paths), "!=", len(choices)
-        return False
-    for path in paths:          # loop over actually selected objects
-        val = model[path][0]
-        for choice in choices:
-            if fp_string_compare(val, choice, tolerance):
-                break
-        else:
-            print >> sys.stderr, "Expected:", choices
-            print >> sys.stderr, "     Got:", [model[p][0] for p in paths]
-            return False
-    return True
-
-def chooserListStateCheckN(widgetpath, choices):
-    # Just like chooserListStateCheck, but choices is a list of integers
-    treeview = gtklogger.findWidget(widgetpath)
-    selection = treeview.get_selection()
-    model, paths = selection.get_selected_rows()
-    if len(paths) != len(choices):
-        print >> sys.stderr, "Wrong number of selections:", len(paths), "!=", len(choices)
-        return False
-    selected = [p[0] for p in paths]
-    if selected == choices:
-        return True
-    print >> sys.stderr, "Selected rows are", selected
-    return False
-
-
-def is_sensitive(widgetpath):
-    try:
-        return _widget_sensitive(gtklogger.findWidget(widgetpath))
-    except:
-        print >> sys.stderr, "Failed to find widget", widgetpath
-        raise
-
-def menuSensitive(menu, item):
-    topmenuwidget = gtklogger.findWidget(menu)
-    if not topmenuwidget:
-        print >> sys.stderr, "Didn't find widget for", menu
-    menuitemwidget = gtklogger.findMenu(topmenuwidget, item)
-    if not menuitemwidget:
-        print >> sys.stderr, "Didn't find widget for %s:%s" % (menu, item)
-    return _widget_sensitive(menuitemwidget)
-
-def _widget_sensitive(widget):
-    if not widget.get_property('sensitive'):
-        return 0
-    parent = widget.get_parent()
-    while parent:
-        if not parent.get_property('sensitive'):
-            return 0
-        parent = parent.get_parent()
-    return 1
-
-def sensitizationCheck(wdict, base=None):
-    # Check widget sensitization.  wdict is a dictionary whose keys
-    # are the gtklogger paths to widgets and whose values are 0 or 1,
-    # indicating whether (1) or not (0) the widget is sensitive.  If
-    # provided, base is prepended to each widget path.
-    for wname, sense in wdict.items():
-        if base:
-            path = base + ':' + wname
-        else:
-            path = wname
-        if is_sensitive(path) != sense:
-            print >> sys.stderr, "Sensitization test failed for", path
-            return False
-    return True
-
-# Compare a test file to a reference file, using a tolerance on any
-# floats found.  The test file is assumed to be in the test's working
-# directory, and the reference file to be in the test source
-# directory.  If the name of the reference file isn't given, it's
-# asssumed to be the same as the test file.
-
-def filediff(filename, reference=None, tolerance=1.e-8):
-    if reference is None:
-        reffile = os.path.join(testdir(), filename)
-    else:
-        reffile = os.path.join(testdir(), reference)
-    return file_utils.fp_file_compare(filename, reffile, tolerance)
-    
-def skeletonNodeSelectionCheck(skeleton, nodelist):
-    from ooflib.common.IO import whoville
-    sc = whoville.getClass('Skeleton')[skeleton]
-    nodes = sc.nodeselection.retrieve()
-    nodeindices = [node.index for node in nodes]
-    nodeindices.sort()
-    nodelist.sort()
-    ok = (nodeindices == nodelist)
-    if not ok:
-        print >> sys.stderr, nodeindices
-    return ok
-
-def skeletonElementSelectionCheck(skeleton, elemlist):
-    from ooflib.common.IO import whoville
-    sc = whoville.getClass('Skeleton')[skeleton]
-    elems = sc.elementselection.retrieve()
-    elemindices = [el.index for el in elems]
-    elemindices.sort()
-    elemlist.sort()
-    ok = (elemindices == elemlist)
-    if not ok:
-        print >> sys.stderr, elemindices
-    return ok
-
-def skeletonSegmentSelectionCheck(skeleton, seglist):
-    from ooflib.common.IO import whoville
-    sc = whoville.getClass('Skeleton')[skeleton]
-    segs = sc.segmentselection.retrieve()
-    nodepairs = [[n.index for n in seg.nodes()] for seg in segs]
-    nodepairs.sort()
-    seglist.sort()
-    ok = nodepairs == seglist
-    if not ok:
-        print >> sys.stderr, nodepairs
-    return ok
-
-def skeletonSelectionTBSizeCheck(windowname, category, n):
-    # Check that the right size is displayed in the Skeleton Selection
-    # toolbox. 'category' must be "Element", "Node", or "Segment".
-    text = gtklogger.findWidget(
-        '%s:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:%s:size' %
-        (windowname, category))
-    # The line is either "0" or "n (p%)" for some n and p.
-    return eval(text.get_text().split()[0]) == n
-
-def pixelSelectionTBSizeCheck(windowname, minpxls, maxpxls=None):
-    # Check that the pixel selection size is displayed correctly in
-    # the graphics window.  Since different versions of ImageMagick
-    # can cause pixel selection operations to work differently after
-    # image modifications, it's possible to specify a range of pixel
-    # counts for this test.
-    text = gtklogger.findWidget(
-        '%s:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size' % windowname)
-    # The line is either "0" or "n (p%)" for some n and p.
-    n = eval(text.get_text().split()[0])
-    if maxpxls is None:
-        return n == minpxls
-    else:
-        return minpxls <= n <= maxpxls
-
-def pixelSelectionSizeCheck(msname, n):
-    from ooflib.common.IO import whoville
-    ms = whoville.getClass('Microstructure')[msname].getObject()
-    return ms.pixelselection.size() == n
-
-
-def pixelGroupSizeCheck(msname, grpname, n):
-    from ooflib.common.IO import whoville
-    ms = whoville.getClass('Microstructure')[msname].getObject()
-    grp = ms.findGroup(grpname)
-    return len(grp) == n
-
 def gtkTextCompare(widgetpath, targettext, tolerance=None):
+    # Check the contents of a GtkEntry.  For a GtkTextView, use
+    # gtkTextviewCompare.
     gtktxt = gtklogger.findWidget(widgetpath)
     if not gtktxt:
         print >> sys.stderr, "Text widget not found: %s." % widgetpath
         return False
     sourcetext = string.strip(gtktxt.get_text())
     if not fp_string_compare(sourcetext, targettext, tolerance):
-        print >> sys.stderr, ("Text compare failed for path %s, >%s< != >%s<"
+        print >> sys.stderr, ("Text compare failed for path %s, got >%s<, expected >%s<"
                               % (widgetpath, sourcetext, targettext))
         return False
     return True
@@ -497,6 +341,169 @@ def gtkTextviewLine(widgetpath, line, targettext):
         return False
     return True
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Chooser checks
+
+def chooserStateCheck(widgetpath, choice):
+    # only for ChooserWidget, not ChooserListWidget.  Checks that the
+    # currently selected item is 'choice'.
+    stack = gtklogger.findWidget(widgetpath + ":stack")
+    current = stack.get_visible_child()
+    if current is None:
+        return choice is None
+    return choice == current.get_children()[0].get_text()
+
+
+def chooserListStateCheck(widgetpath, choices, tolerance=None):
+    # for ChooserListWidget and friends, including MultiListWidget.
+    # Checks that everything in the list 'choices' is selected.
+    treeview = gtklogger.findWidget(widgetpath)
+    selection = treeview.get_selection()
+    model, paths = selection.get_selected_rows()
+    if len(paths) != len(choices):
+        print >> sys.stderr, "Wrong number of selections:", len(paths), "!=", len(choices)
+        return False
+    for path in paths:          # loop over actually selected objects
+        val = model[path][0]
+        for choice in choices:
+            if fp_string_compare(val, choice, tolerance):
+                break
+        else:
+            print >> sys.stderr, "Expected:", choices
+            print >> sys.stderr, "     Got:", [model[p][0] for p in paths]
+            return False
+    return True
+
+def chooserListStateCheckN(widgetpath, choices):
+    # Just like chooserListStateCheck, but choices is a list of integers
+    treeview = gtklogger.findWidget(widgetpath)
+    selection = treeview.get_selection()
+    model, paths = selection.get_selected_rows()
+    if len(paths) != len(choices):
+        print >> sys.stderr, "Wrong number of selections:", len(paths), "!=", len(choices)
+        return False
+    selected = [p[0] for p in paths]
+    if selected == choices:
+        return True
+    print >> sys.stderr, "Selected rows are", selected
+    return False
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Sensitization checks
+
+def is_sensitive(widgetpath):
+    return gtklogger.findWidget(widgetpath).is_sensitive()
+
+def menuSensitive(menu, item):
+    topmenuwidget = gtklogger.findWidget(menu)
+    if not topmenuwidget:
+        print >> sys.stderr, "Didn't find widget for", menu
+    menuitemwidget = gtklogger.findMenu(topmenuwidget, item)
+    if not menuitemwidget:
+        print >> sys.stderr, "Didn't find widget for %s:%s" % (menu, item)
+    return menuitemwidget.is_sensitive()
+
+def sensitizationCheck(wdict, base=None):
+    # Check widget sensitization.  wdict is a dictionary whose keys
+    # are the gtklogger paths to widgets and whose values are 0 or 1,
+    # indicating whether (1) or not (0) the widget is sensitive.  If
+    # provided, base is prepended to each widget path.
+    for wname, sense in wdict.items():
+        if base:
+            path = base + ':' + wname
+        else:
+            path = wname
+        if is_sensitive(path) != sense:
+            print >> sys.stderr, "Sensitization test failed for", path
+            return False
+    return True
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Skeleton-specific tests
+
+def skeletonNodeSelectionCheck(skeleton, nodelist):
+    from ooflib.common.IO import whoville
+    sc = whoville.getClass('Skeleton')[skeleton]
+    nodes = sc.nodeselection.retrieve()
+    nodeindices = [node.index for node in nodes]
+    nodeindices.sort()
+    nodelist.sort()
+    ok = (nodeindices == nodelist)
+    if not ok:
+        print >> sys.stderr, nodeindices
+    return ok
+
+def skeletonElementSelectionCheck(skeleton, elemlist):
+    from ooflib.common.IO import whoville
+    sc = whoville.getClass('Skeleton')[skeleton]
+    elems = sc.elementselection.retrieve()
+    elemindices = [el.index for el in elems]
+    elemindices.sort()
+    elemlist.sort()
+    ok = (elemindices == elemlist)
+    if not ok:
+        print >> sys.stderr, elemindices
+    return ok
+
+def skeletonSegmentSelectionCheck(skeleton, seglist):
+    from ooflib.common.IO import whoville
+    sc = whoville.getClass('Skeleton')[skeleton]
+    segs = sc.segmentselection.retrieve()
+    nodepairs = [[n.index for n in seg.nodes()] for seg in segs]
+    nodepairs.sort()
+    seglist.sort()
+    ok = nodepairs == seglist
+    if not ok:
+        print >> sys.stderr, nodepairs
+    return ok
+
+def skeletonSelectionTBSizeCheck(windowname, category, n):
+    # Check that the right size is displayed in the Skeleton Selection
+    # toolbox. 'category' must be "Element", "Node", or "Segment".
+    text = gtklogger.findWidget(
+        '%s:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:%s:size' %
+        (windowname, category))
+    # The line is either "0" or "n (p%)" for some n and p.
+    return eval(text.get_text().split()[0]) == n
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Pixel group and selection tests
+
+def pixelSelectionTBSizeCheck(windowname, minpxls, maxpxls=None):
+    # Check that the pixel selection size is displayed correctly in
+    # the graphics window.  Since different versions of ImageMagick
+    # can cause pixel selection operations to work differently after
+    # image modifications, it's possible to specify a range of pixel
+    # counts for this test.
+    text = gtklogger.findWidget(
+        '%s:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:size' % windowname)
+    # The line is either "0" or "n (p%)" for some n and p.
+    n = eval(text.get_text().split()[0])
+    if maxpxls is None:
+        return n == minpxls
+    else:
+        return minpxls <= n <= maxpxls
+
+def pixelSelectionSizeCheck(msname, n):
+    from ooflib.common.IO import whoville
+    ms = whoville.getClass('Microstructure')[msname].getObject()
+    return ms.pixelselection.size() == n
+
+
+def pixelGroupSizeCheck(msname, grpname, n):
+    from ooflib.common.IO import whoville
+    ms = whoville.getClass('Microstructure')[msname].getObject()
+    grp = ms.findGroup(grpname)
+    return len(grp) == n
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Error message tests
+
 def errorMsg(text):
     return gtkTextviewTail('Error:ErrorScroll:ErrorText', text+'\n')
 
@@ -513,6 +520,9 @@ def syntaxErrorMsg(text):
 
 def msgTextTail(text):
     return gtkTextviewTail('OOF2 Messages 1:Text', text+'\n')
+
+###################
+
 
 ###################
 
