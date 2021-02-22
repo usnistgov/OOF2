@@ -248,7 +248,6 @@ assert tests.checkOrientation("Abg", alpha=0, beta=0, gamma=0)
 assert tests.checkReference(x=46, y=73, oclass="Abg", alpha=45, beta=105, gamma=0)
 
 # Change the symmetry
-tests.findAllWidgets()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Info:symmetry:set').clicked()
 checkpoint toplevel widget mapped Dialog-Set lattice symmetry for misorientation calculation
 findWidget('Dialog-Set lattice symmetry for misorientation calculation').resize(342, 134)
