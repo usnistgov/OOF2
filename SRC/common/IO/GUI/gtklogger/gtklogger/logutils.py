@@ -205,6 +205,16 @@ def _findAllWidgets(top):
                      [string.join([topname, path], ':') for path in childpaths]
     return childpaths
 
+# dumpAllWidgets prints the paths and widgets of all named widgets
+# under and including the given widget.
+def dumpAllWidgets(topname):
+    aw = findAllWidgets(topname)[:]
+    aw.sort()
+    basepath = ':'.join(topname.split(':')[:-1])
+    for name in aw:
+        print >> sys.stderr, "dumpAllWidgets:", name, findWidget(basepath
+                                                                 + ':' + name)
+
 ##############################
 
 # Keep track of the run level, which is the gtk run level plus the
