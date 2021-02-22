@@ -23,7 +23,8 @@ from gi.repository import Gtk
 import math
 
 ## TODO GTK3: GUI test for switching from one Orientation subclass to
-## another.  Changing Abg(45, 105, 0) to XYZ fails.
+## another.  Changing Abg(45, 105, 0) to XYZ fails.  This fails in
+## 2.1.19 too.
 
 class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
     ordering = 4
@@ -35,11 +36,11 @@ class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.label = Gtk.Label('orientation=', halign=Gtk.Align.END)
         table.attach(self.label, 0,row, 1,1)
 
-        # TODO GTK3: is vbox needed?
-        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1)
+        # # TODO GTK3: is vbox needed?
+        # self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1)
         self.stack = Gtk.Stack(homogeneous=False)
         gtklogger.setWidgetName(self.stack, "orientation")
-        self.vbox.pack_start(self.stack, expand=False, fill=False, padding=0)
+        # self.vbox.pack_start(self.stack, expand=False, fill=False, padding=0)
 
         self.param = parameter.ConvertibleRegisteredParameter(
             'dummy', orientationmatrix.Orientation)
@@ -51,7 +52,7 @@ class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.stack.add_named(self.text, "text")
         self.stack.set_visible_child_name("text")
 
-        table.attach(self.vbox, 1,row,1,1)
+        table.attach(self.stack, 1,row,1,1)
         self.sbcbs = [
             switchboard.requestCallbackMain(
                 'materials changed in microstructure', self.materialchanged),
