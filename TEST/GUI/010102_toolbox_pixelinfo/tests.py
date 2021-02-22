@@ -14,9 +14,6 @@ from ooflib.common.IO.GUI import gtklogger
 tbpath = 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Info'
 
 def checkReferenceText(txt):
-    # print gtklogger.findAllWidgets(tbpath +':misorientation')
-    # print gtklogger.findAllWidgets(tbpath)
-    #gtklogger.dumpAllWidgets(tbpath)
     return gtkTextviewCompare(tbpath + ':reference:text', txt)
 
 def checkSetRefButton(state):
@@ -78,7 +75,3 @@ def checkReference(x, y, oclass, **kwargs):
     return (checkVisibleRefWidget("refwidget") and
             checkOrientationWidget(tbpath + ':reference:orientation',
                                    oclass, **kwargs))
-        
-
-def findAllWidgets():           # DEBUGGING
-    print "===>", gtklogger.findAllWidgets(tbpath+":symmetry")
