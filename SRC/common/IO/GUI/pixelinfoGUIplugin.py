@@ -100,6 +100,7 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
             switchboard.requestCallbackMain('renamed pixel group',
                                             self.grprenamed)
             ]
+        self.update(None)
 
     def close(self):
         map(switchboard.removeCallback, self.sbcallbacks)

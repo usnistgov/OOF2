@@ -47,7 +47,7 @@ checkpoint toplevel widget mapped chooserPopup-TBChooser
 findMenu(findWidget('chooserPopup-TBChooser'), ['Pixel Info']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(224)
-assert tests.gtkMultiTextCompare({'X':'','Y':'','Image':'','Text 1':'','Text 2':'','Text 3':'','MSText':'','material':''},tbox)
+assert tests.gtkMultiTextCompare({'X':'','Y':'','Image':'','Text 1':'','Text 2':'','Text 3':'','MSText':'(No microstructure)','material':''},tbox)
 assert tests.sensitizationCheck({'Update':False,'Clear':False},tbox)
 assert findWidget(tbox+':RGB selector').get_active()
 assert tests.gtkTextviewCompare(tbox+":MSScroll:Group view","")
