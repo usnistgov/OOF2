@@ -332,8 +332,9 @@ class _RangeParameter(Parameter):
                 self._value = value
                 self.timestamp.increment()
             else:
-                raise ValueError('Parameter value out of range for '
-                                 + self.name)
+                raise ValueError(
+                    'Parameter value out of range for %s. value=%s range=%s'
+                                 % (self.name, value, self.range))
     def classRepr(self):
         return "%s%s" % (self.__class__.__name__, self.range)
 
@@ -408,8 +409,9 @@ class AngleRangeParameter(FloatRangeParameter):
                 self._value = value
                 self.timestamp.increment()
             else:
-                raise ValueError('Parameter value out of range for '
-                                 + self.name)
+                raise ValueError(
+                    'Parameter value out of range for %s. value=%s, range=%s'
+                                 % (self.name, value, self.range))
             
 # Parameter class that can take a float or an integer,
 # or the special value "automatic". 

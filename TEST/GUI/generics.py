@@ -22,6 +22,9 @@ import string
 import sys
 import types
 
+## TODO: The naming conventions for functions in this file are not at
+## all consistent.
+
 from gi.repository import Gtk
 
 floatpattern = \
@@ -391,6 +394,35 @@ def chooserListStateCheckN(widgetpath, choices):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+def checkLabelledSlider(widgetpath, value, tolerance=None):
+    # print >> sys.stderr, "checkLabelledSlider: widgetpath=", widgetpath
+    # print >> sys.stderr, "checkLabelledSlider: widgets=", gtklogger.findAllWidgets(widgetpath)
+    slider = gtklogger.findWidget(widgetpath + ':slider')
+    sliderval = slider.get_value()
+    diff = abs(sliderval - value)
+    if tolerance:
+        reltol = min(abs(sliderval), abs(value))*tolerance
+        sliderok =  diff < reltol and diff < tolerance
+    else:
+        sliderok = diff == 0
+    entry = gtklogger.findWidget(widgetpath + ':entry')
+    entryval = string.strip(entry.get_text())
+    entryok = fp_string_compare(value, float(entryval), tolerance)
+    if entryok and sliderok:
+        return True
+    #print "checkLabelledSlider:", sliderval, type(sliderval), entryval, type(entryval), value, type(value)
+    print >> sys.stderr, \
+        "Labelled slider check failed. Got %g (%s). Expected %g." % \
+        (sliderval, entryval, value)
+
+def checkSliders(widgetpath, **params):
+    for pname, val in params.items():
+        if not checkLabelledSlider(widgetpath+':'+pname, val):
+            return False
+    return True
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 # Sensitization checks
 
 def is_sensitive(widgetpath):
@@ -521,10 +553,36 @@ def syntaxErrorMsg(text):
 def msgTextTail(text):
     return gtkTextviewTail('OOF2 Messages 1:Text', text+'\n')
 
-###################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# Check the state of an Orientation RCF widget.  Since the form of the
+# RCF subwidgets depends on the Orientation subclass, this is ugly.
+# It might be cleaner if ParameterWidgets knew how to check
+# themselves.
 
-###################
+def checkOrientationWidget(widgetpath, orClass, tolerance=1.e-6, **orParams):
+    if not chooserStateCheck(widgetpath + ':RCFChooser',
+                             orClass):
+        print >> sys.stderr, "Orientation chooser check failed."
+        return False
+    # Orientation subclasses that only use LabelledSliders in their
+    # widgets:
+    if orClass in("Abg", "X", "XYZ", "Bunge"):
+        return checkSliders(widgetpath + ':Abg', **orParams)
+    # Orientation subclasses that only use GtkEntries
+    if orClass in ("Quaternion", "Rodrigues"):
+        return gtkMultiTextCompare(orParams, widgetpath + ':' + orClass,
+                                   tolerance)
+    if orClass == "Axis":
+        xyz = orParams.copy()
+        del xyz['angle']
+        return (
+            checkLabelledSlider(widgetpath+':Axis:angle', orParams['angle'])
+            and
+            gtkMultiTextCompare(xyz, widgetpath+':Axis', tolerance))
+    print >> sys.stderr, "checkOrientationWidget: unknown class", orClass
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Memory leak checker checks for the presence of allocated and
 # inventoried C++ objects.
