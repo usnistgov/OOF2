@@ -1,3 +1,7 @@
+OOF2 2.1.20
+
+* Fixed a bug in Basic solver mode, which was trying to use an old
+  solver for asymmetric matrices.
 
 OOF2 2.1.19
 

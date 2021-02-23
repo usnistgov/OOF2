@@ -3038,6 +3038,153 @@ class OOF_OutOfPlanePeriodicBC(SaveableMeshTest):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# Additional test added to be sure we've tested a asymmetric matrix in
+# basic solver mode.
+
+class ThermalExpansionTest(unittest.TestCase):
+    def setUp(self):
+        OOF.Microstructure.New(
+            name='microstructure',
+            width=1.0, height=1.0,
+            width_in_pixels=10, height_in_pixels=10)
+        OOF.Material.New(
+            name='material', material_type='bulk')
+        OOF.Property.Parametrize.Couplings.ThermalExpansion.Isotropic(
+            alpha=1.0, T0=0.0)
+        OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic(
+            cijkl=IsotropicRank4TensorCij(c11=1.0,c12=0.5))
+        OOF.Property.Parametrize.Thermal.Conductivity.Isotropic(
+            kappa=1.0)
+        OOF.Material.Add_property(
+            name='material',
+            property='Thermal:Conductivity:Isotropic')
+        OOF.Material.Add_property(
+            name='material',
+            property='Mechanical:Elasticity:Isotropic')
+        OOF.Material.Add_property(
+            name='material',
+            property='Couplings:ThermalExpansion:Isotropic')
+        OOF.Material.Assign(
+            material='material', microstructure='microstructure', pixels=every)
+        OOF.Skeleton.New(
+            name='skeleton', microstructure='microstructure',
+            x_elements=4, y_elements=4,
+            skeleton_geometry=QuadSkeleton(left_right_periodicity=False,
+                                           top_bottom_periodicity=False))
+        OOF.Mesh.New(
+            name='mesh', skeleton='microstructure:skeleton',
+            element_types=['D2_2', 'T3_3', 'Q4_4'])
+        OOF.Subproblem.Field.Define(
+            subproblem='microstructure:skeleton:mesh:default',
+            field=Temperature)
+        OOF.Subproblem.Field.Activate(
+            subproblem='microstructure:skeleton:mesh:default',
+            field=Temperature)
+        OOF.Mesh.Field.In_Plane(
+            mesh='microstructure:skeleton:mesh', field=Temperature)
+        OOF.Subproblem.Field.Define(
+            subproblem='microstructure:skeleton:mesh:default',
+            field=Displacement)
+        OOF.Subproblem.Field.Activate(
+            subproblem='microstructure:skeleton:mesh:default',
+            field=Displacement)
+        OOF.Mesh.Field.In_Plane(
+            mesh='microstructure:skeleton:mesh', field=Displacement)
+        OOF.Subproblem.Equation.Activate(
+            subproblem='microstructure:skeleton:mesh:default',
+            equation=Force_Balance)
+        OOF.Subproblem.Equation.Activate(
+            subproblem='microstructure:skeleton:mesh:default',
+            equation=Heat_Eqn)
+        OOF.Mesh.Boundary_Conditions.New(
+            name='bc', mesh='microstructure:skeleton:mesh',
+            condition=DirichletBC(
+                field=Temperature,field_component='',
+                equation=Heat_Eqn,eqn_component='',
+                profile=ConstantProfile(value=0.1),
+                boundary='bottomleft'))
+        OOF.Mesh.Boundary_Conditions.New(
+            name='bc<2>', mesh='microstructure:skeleton:mesh',
+            condition=DirichletBC(
+                field=Displacement,field_component='x',
+                equation=Force_Balance,eqn_component='x',
+                profile=ConstantProfile(value=0.0),
+                boundary='bottomleft'))
+        OOF.Mesh.Boundary_Conditions.New(
+            name='bc<3>', mesh='microstructure:skeleton:mesh',
+            condition=DirichletBC(
+                field=Displacement,field_component='y',
+                equation=Force_Balance,eqn_component='y',
+                profile=ConstantProfile(value=0.0),
+                boundary='bottomleft'))
+        OOF.Mesh.Boundary_Conditions.New(
+            name='bc<4>', mesh='microstructure:skeleton:mesh',
+            condition=DirichletBC(
+                field=Displacement,field_component='y',
+                equation=Force_Balance,eqn_component='y',
+                profile=ConstantProfile(value=0.0),
+                boundary='bottomright'))
+        OOF.Mesh.Boundary_Conditions.New(
+            name='bc<5>', mesh='microstructure:skeleton:mesh',
+            condition=DirichletBC(
+                field=Displacement,field_component='x',
+                equation=Force_Balance,eqn_component='x',
+                profile=ConstantProfile(value=0.0),
+                boundary='bottomright'))
+    def tearDown(self):
+        OOF.Material.Delete(name='material')
+
+    def saveAndCheck(self):
+        filename = 'thermal_expansion.dat'
+        OOF.Mesh.Analyze.Direct_Output(
+            mesh='microstructure:skeleton:mesh',
+            time=latest,
+            data=getOutput(
+                'Concatenate',
+                first=getOutput('Field:Value',field=Temperature),
+                second=getOutput('Field:Value',field=Displacement)),
+            domain=EntireMesh(),
+            sampling=GridSampleSet(
+                x_points=5,y_points=5,
+                show_x=False,show_y=False),
+            destination=OutputStream(filename=filename,mode='w'))
+        self.assert_(file_utils.fp_file_compare(
+            filename,
+            os.path.join('mesh_data', filename),
+            1.e-6))
+        file_utils.remove(filename)
+                     
+    @memorycheck.check('microstructure')
+    def Basic(self):
+        OOF.Subproblem.Set_Solver(
+            subproblem='microstructure:skeleton:mesh:default',
+            solver_mode=BasicSolverMode(
+                time_stepper=BasicStaticDriver(),
+                matrix_method=BasicIterative(
+                    tolerance=1e-13,max_iterations=1000)))
+        OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=0.0)
+        self.saveAndCheck()
+        
+    @memorycheck.check('microstructure')        
+    def Advanced(self):
+        OOF.Subproblem.Set_Solver(
+            subproblem='microstructure:skeleton:mesh:default',
+            solver_mode=AdvancedSolverMode(
+                time_stepper=StaticDriver(),
+                nonlinear_solver=NoNonlinearSolver(),
+                symmetric_solver=ConjugateGradient(
+                    preconditioner=ILUTPreconditioner(),
+                    tolerance=1e-13,
+                    max_iterations=1000),
+                asymmetric_solver=BiConjugateGradient(
+                    preconditioner=ILUTPreconditioner(),
+                    tolerance=1e-13,
+                    max_iterations=1000)))
+        OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=0.0)
+        self.saveAndCheck()
+        
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 
 # Routine to do regression-type testing on the items in this file.
 # Tests will be run in the order they appear in the list.  This
@@ -3053,7 +3200,9 @@ def run_tests():
         OOF_AnisoRotation("Solve"),
         OOF_1x1ElasticDynamic("Static"),
         OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStrain"),
-        OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStress")
+        OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStress"),
+        ThermalExpansionTest("Basic"),
+        ThermalExpansionTest("Advanced")
         ]
 
     dynamic_set = [
@@ -3123,7 +3272,8 @@ def run_tests():
         OOF_OutOfPlanePeriodicBC('Static')
         ]
 
-    # static_set = [OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStrain")]
+    # static_set = [ThermalExpansionTest("Basic"),
+    #               ThermalExpansionTest("Advanced")]
     # oop_periodic_set = []
     # dynamic_set = []
     # #dynamic_set = [OOF_ElasticTimeSteppers("SS22PlaneStrain")]
