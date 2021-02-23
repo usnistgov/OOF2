@@ -36,11 +36,8 @@ class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.label = Gtk.Label('orientation=', halign=Gtk.Align.END)
         table.attach(self.label, 0,row, 1,1)
 
-        # # TODO GTK3: is vbox needed?
-        # self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1)
         self.stack = Gtk.Stack(homogeneous=False)
         gtklogger.setWidgetName(self.stack, "orientation")
-        # self.vbox.pack_start(self.stack, expand=False, fill=False, padding=0)
 
         self.param = parameter.ConvertibleRegisteredParameter(
             'dummy', orientationmatrix.Orientation)
