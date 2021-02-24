@@ -35,6 +35,7 @@ class SkeletonInfoMode:
 
         self.gtk = Gtk.Frame(label=self.targetname + " Information",
                              shadow_type=Gtk.ShadowType.IN)
+        gtklogger.setWidgetName(self.gtk, self.targetname + "Information")
         self.table = Gtk.Grid(row_spacing=1, column_spacing=2, margin=2)
         self.gtk.add(self.table)
 

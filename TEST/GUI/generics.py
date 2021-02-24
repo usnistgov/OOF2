@@ -181,9 +181,9 @@ def chooserCheck(widgetpath, choices):
         return False
     return True
 
-def chooserListCheck(widgetpath, choices):
+def chooserListCheck(widgetpath, choices, tolerance=None):
     if choices:
-        return treeViewColCheck(widgetpath, 0, choices)
+        return treeViewColCheck(widgetpath, 0, choices, tolerance)
     return (treeViewColCheck(widgetpath, 0, ['None']) and
             not gtklogger.findWidget(widgetpath).get_sensitive())
     
@@ -205,6 +205,8 @@ def treeViewColCheck(widgetpath, col, choices, tolerance=None):
         if choices[i] != None:
             if not fp_string_compare(x[col], choices[i], tolerance):
                 print >> sys.stderr, x[col], '!=', choices[i]
+                print >> sys.stderr, "expected: ", choices
+                print >> sys.stderr, "     got: ", [x[col] for x in liststore]
                 return False
     return True
 
