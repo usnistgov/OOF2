@@ -1,0 +1,441 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+# Test the "peek" methods in the skeleton info toolbox
+
+import tests
+tbox = "OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info"
+elbox = tbox+":ElementInformation"
+ndbox = tbox+":NodeInformation"
+sgbox = tbox+":SegmentInformation"
+cbox = tbox+":Click"
+
+findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
+findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+findWidget('OOF2').resize(782, 511)
+
+findMenu(findWidget('OOF2:MenuBar'), ['File', 'Load', 'Data']).activate()
+checkpoint toplevel widget mapped Dialog-Data
+findWidget('Dialog-Data').resize(192, 92)
+findWidget('OOF2').resize(782, 545)
+findWidget('Dialog-Data:filename').set_text('e')
+findWidget('Dialog-Data:filename').set_text('ex')
+findWidget('Dialog-Data:filename').set_text('exa')
+findWidget('Dialog-Data:filename').set_text('exam')
+findWidget('Dialog-Data:filename').set_text('examp')
+findWidget('Dialog-Data:filename').set_text('exampl')
+findWidget('Dialog-Data:filename').set_text('example')
+findWidget('Dialog-Data:filename').set_text('examples')
+findWidget('Dialog-Data:filename').set_text('examples/')
+findWidget('Dialog-Data:filename').set_text('examples/t')
+findWidget('Dialog-Data:filename').set_text('examples/ti')
+findWidget('Dialog-Data:filename').set_text('examples/tir')
+findWidget('Dialog-Data:filename').set_text('examples/tira')
+findWidget('Dialog-Data:filename').set_text('examples/tir')
+findWidget('Dialog-Data:filename').set_text('examples/ti')
+findWidget('Dialog-Data:filename').set_text('examples/t')
+findWidget('Dialog-Data:filename').set_text('examples/tr')
+findWidget('Dialog-Data:filename').set_text('examples/tri')
+findWidget('Dialog-Data:filename').set_text('examples/tria')
+findWidget('Dialog-Data:filename').set_text('examples/trian')
+findWidget('Dialog-Data:filename').set_text('examples/triang')
+findWidget('Dialog-Data:filename').set_text('examples/triangl')
+findWidget('Dialog-Data:filename').set_text('examples/triangle')
+findWidget('Dialog-Data:filename').set_text('examples/triangle.')
+findWidget('Dialog-Data:filename').set_text('examples/triangle.s')
+findWidget('Dialog-Data:filename').set_text('examples/triangle.sk')
+findWidget('Dialog-Data:filename').set_text('examples/triangle.ske')
+findWidget('Dialog-Data:filename').set_text('examples/triangle.skel')
+findWidget('Dialog-Data:filename').set_text('examples/triangle.skele')
+findWidget('Dialog-Data:filename').set_text('examples/triangle.skelet')
+findWidget('Dialog-Data:filename').set_text('examples/triangle.skeleto')
+findWidget('Dialog-Data:filename').set_text('examples/triangle.skeleton')
+findWidget('Dialog-Data:widget_GTK_RESPONSE_OK').clicked()
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint pixel page updated
+checkpoint active area status updated
+checkpoint pixel page sensitized
+checkpoint mesh bdy page updated
+checkpoint Field page sensitized
+checkpoint Materials page updated
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page sensitized
+checkpoint boundary page updated
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
+checkpoint Solver page sensitized
+checkpoint microstructure page sensitized
+checkpoint meshable button set
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint skeleton selection page groups sensitized Element
+checkpoint microstructure page sensitized
+checkpoint meshable button set
+checkpoint meshable button set
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint skeleton selection page groups sensitized Element
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
+checkpoint mesh bdy page updated
+checkpoint Field page sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page sensitized
+checkpoint boundary page updated
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint Solver page sensitized
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint OOF.File.Load.Data
+findMenu(findWidget('OOF2:MenuBar'), ['Settings', 'Graphics_Defaults', 'New_Layer_Policy']).activate()
+checkpoint toplevel widget mapped Dialog-New_Layer_Policy
+findWidget('Dialog-New_Layer_Policy').resize(192, 86)
+wevent(findWidget('Dialog-New_Layer_Policy:policy'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New_Layer_Policy:policy').get_window())
+checkpoint toplevel widget mapped chooserPopup-policy
+findMenu(findWidget('chooserPopup-policy'), ['Single']).activate() # MenuItemLogger
+deactivatePopup('chooserPopup-policy') # MenuItemLogger
+findWidget('Dialog-New_Layer_Policy:widget_GTK_RESPONSE_OK').clicked()
+checkpoint OOF.Settings.Graphics_Defaults.New_Layer_Policy
+findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
+checkpoint Move Node toolbox info updated
+checkpoint Graphics_1 Skeleton Info sensitized
+checkpoint Graphics_1 Mesh Info sensitized
+findWidget('OOF2 Graphics 1:Pane0').set_position(360)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
+checkpoint toplevel widget mapped OOF2 Graphics 1
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path(Gtk.TreePath([10]))
+checkpoint OOF.Graphics_1.Layer.Select
+findWidget('OOF2 Graphics 1').resize(800, 492)
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Windows.Graphics.New
+wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
+checkpoint toplevel widget mapped chooserPopup-TBChooser
+findMenu(findWidget('chooserPopup-TBChooser'), ['Skeleton Info']).activate() # MenuItemLogger
+deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
+checkpoint Graphics_1 Skeleton Info sensitized
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(243)
+findWidget('OOF2 Graphics 1').resize(836, 507)
+findWidget('OOF2 Graphics 1:Pane0').set_position(375)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(708)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(256)
+findWidget('OOF2 Graphics 1').resize(945, 555)
+findWidget('OOF2 Graphics 1:Pane0').set_position(423)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(817)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(296)
+findWidget('OOF2 Graphics 1').resize(997, 571)
+findWidget('OOF2 Graphics 1:Pane0').set_position(439)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(869)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(315)
+findWidget('OOF2 Graphics 1').resize(1058, 596)
+findWidget('OOF2 Graphics 1:Pane0').set_position(464)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(930)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(337)
+findWidget('OOF2 Graphics 1').resize(1068, 600)
+findWidget('OOF2 Graphics 1:Pane0').set_position(468)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(940)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(341)
+findWidget('OOF2 Graphics 1').resize(1113, 628)
+findWidget('OOF2 Graphics 1:Pane0').set_position(496)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(985)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(357)
+findWidget('OOF2 Graphics 1').resize(1130, 635)
+findWidget('OOF2 Graphics 1:Pane0').set_position(503)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(1002)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(363)
+findWidget('OOF2 Graphics 1').resize(1137, 637)
+findWidget('OOF2 Graphics 1:Pane0').set_position(505)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(1009)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(366)
+findWidget('OOF2 Graphics 1').resize(1138, 637)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(1010)
+findWidget('OOF2 Graphics 1').resize(1141, 638)
+findWidget('OOF2 Graphics 1:Pane0').set_position(506)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(1013)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(367)
+findWidget('OOF2 Graphics 1').resize(1145, 638)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(1017)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(369)
+findWidget('OOF2 Graphics 1').resize(1151, 638)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(1023)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(371)
+findWidget('OOF2 Graphics 1').resize(1176, 639)
+findWidget('OOF2 Graphics 1:Pane0').set_position(507)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(1048)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(380)
+findWidget('OOF2 Graphics 1').resize(1206, 641)
+findWidget('OOF2 Graphics 1:Pane0').set_position(509)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(1078)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(391)
+findWidget('OOF2 Graphics 1').resize(1207, 641)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(1079)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(392)
+findWidget('OOF2 Graphics 1').resize(1209, 641)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(1081)
+findWidget('OOF2 Graphics 1').resize(1218, 641)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(1090)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(396)
+findWidget('OOF2 Graphics 1').resize(1218, 641)
+
+# Click on an element
+findGfxWindow('Graphics_1').simulateMouse('down', 26.55, 70.825, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('up', 26.55, 70.825, 1, False, False)
+checkpoint Graphics_1 Skeleton Info showed position
+checkpoint contourmap info updated for Graphics_1
+checkpoint Graphics_1 Skeleton Info sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryElement
+# Dominant pixel test skipped, because it's a numerically-derived name
+# which may be prone to roundoff, and is tested directly in the 01200
+# test.
+assert findWidget(tbox+":Click:Element").get_active()
+assert not findWidget(tbox+":Click:Node").get_active()
+assert not findWidget(tbox+":Click:Segment").get_active()
+assert tests.gtkMultiFloatCompare({'X Text':26.55,'Y Text':70.83},cbox)
+assert tests.gtkMultiTextCompare({'Material':'<No material>','Group':'','Index':'54','Type':'quad'},elbox)
+assert tests.gtkMultiFloatCompare({'Shape':0.308000,'Homog':0.988881,'Area':287.500000},elbox)
+assert tests.sensitizationCheck({'Prev':False,'Clear':True,'Next':False},tbox)
+assert tests.chooserListCheck(elbox+":SegmentList",["Segment 79, nodes (43, 52) (length: 12.5)","Segment 130, nodes (43, 44) (length: 18.5)","Segment 127, nodes (44, 53) (length: 15.402922)","Segment 131, nodes (52, 53) (length: 27.5)"], tolerance=1.e-6)
+assert tests.chooserListCheck(elbox+":NodeList",["Node 43 at (12.5, 62.5) (angle: 90)","Node 44 at (31, 62.5) (angle: 125.753887)","Node 53 at (40, 75) (angle: 54.2461127)","Node 52 at (12.5, 75) (angle: 90)"],tolerance=1.e-6)
+
+# Node peek
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:ElementInformation:NodeList').get_selection().select_path(Gtk.TreePath([1]))
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 7.0000000000000e+00)
+checkpoint contourmap info updated for Graphics_1
+assert findWidget(tbox+":Click:Element").get_active()
+assert not findWidget(tbox+":Click:Node").get_active()
+assert not findWidget(tbox+":Click:Segment").get_active()
+assert tests.gtkMultiFloatCompare({'X Text':26.55,'Y Text':70.83},cbox)
+assert tests.gtkMultiTextCompare({'Material':'<No material>','Group':'','Index':'54','Type':'quad'},elbox)
+assert tests.gtkMultiFloatCompare({'Shape':0.308000,'Homog':0.988881,'Area':287.500000},elbox)
+assert tests.sensitizationCheck({'Prev':False,'Clear':True,'Next':False},tbox)
+assert tests.chooserListCheck(elbox+":SegmentList",["Segment 79, nodes (43, 52) (length: 12.5)","Segment 130, nodes (43, 44) (length: 18.5)","Segment 127, nodes (44, 53) (length: 15.4029218)","Segment 131, nodes (52, 53) (length: 27.5)"],tolerance=1.e-6)
+assert tests.chooserListCheck(elbox+":NodeList",["Node 43 at (12.5, 62.5) (angle: 90)","Node 44 at (31, 62.5) (angle: 125.753887)","Node 53 at (40, 75) (angle: 54.246112)","Node 52 at (12.5, 75) (angle: 90)"],tolerance=1.e-6)
+assert tests.chooserListStateCheck(elbox+":NodeList",["Node 44 at (31, 62.5) (angle: 125.753887)"],tolerance=1.e-6)
+
+# Double click on node
+tree=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:ElementInformation:NodeList')
+column = tree.get_column(0)
+tree.row_activated(Gtk.TreePath([1]), column)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Node').clicked()
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
+checkpoint Graphics_1 Skeleton Info showed position
+checkpoint contourmap info updated for Graphics_1
+checkpoint Graphics_1 Skeleton Info sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryNodeByID
+assert not findWidget(tbox+":Click:Element").get_active()
+assert findWidget(tbox+":Click:Node").get_active()
+assert not findWidget(tbox+":Click:Segment").get_active()
+assert tests.gtkMultiFloatCompare({'X Text':31,'Y Text':62.5},cbox)
+assert tests.gtkMultiTextCompare({'Boundary':'','Group':'','Mobility':'free','Position':'(31, 62.5)','Index':'44'},ndbox, tolerance=1.e-6)
+assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
+assert tests.chooserListCheck(ndbox+":ElementList",["Element 52","Element 54","Element 59","Element 60"])
+
+# Element peek
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:NodeInformation:ElementList').get_selection().select_path(Gtk.TreePath([1]))
+checkpoint contourmap info updated for Graphics_1
+assert not findWidget(tbox+":Click:Element").get_active()
+assert findWidget(tbox+":Click:Node").get_active()
+assert not findWidget(tbox+":Click:Segment").get_active()
+assert tests.gtkMultiFloatCompare({'X Text':31,'Y Text':62.5},cbox)
+assert tests.gtkMultiTextCompare({'Boundary':'','Group':'','Mobility':'free','Position':'(31, 62.5)','Index':'44'},ndbox,tolerance=1.e-6)
+assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
+assert tests.chooserListCheck(ndbox+":ElementList",["Element 52","Element 54","Element 59","Element 60"])
+
+# Double click on element
+tree=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:NodeInformation:ElementList')
+column = tree.get_column(0)
+tree.row_activated(Gtk.TreePath([1]), column)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Element').clicked()
+checkpoint Graphics_1 Skeleton Info showed position
+checkpoint contourmap info updated for Graphics_1
+checkpoint Graphics_1 Skeleton Info sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryElementByID
+assert findWidget(tbox+":Click:Element").get_active()
+assert not findWidget(tbox+":Click:Node").get_active()
+assert not findWidget(tbox+":Click:Segment").get_active()
+assert tests.gtkMultiFloatCompare({'X Text':24,'Y Text':68.75},cbox)
+assert tests.gtkMultiTextCompare({'Material':'<No material>','Group':'','Index':'54','Type':'quad'},elbox)
+assert tests.gtkMultiFloatCompare({'Shape':0.308000,'Homog':0.988881,'Area':287.500000},elbox)
+assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
+assert tests.chooserListCheck(elbox+":SegmentList",["Segment 79, nodes (43, 52) (length: 12.5)","Segment 130, nodes (43, 44) (length: 18.5)","Segment 127, nodes (44, 53) (length: 15.4029218)","Segment 131, nodes (52, 53) (length: 27.5)"],tolerance=1.e-6)
+assert tests.chooserListCheck(elbox+":NodeList",["Node 43 at (12.5, 62.5) (angle: 90)","Node 44 at (31, 62.5) (angle: 125.753887)","Node 53 at (40, 75) (angle: 54.2461127)","Node 52 at (12.5, 75) (angle: 90)"],tolerance=1.e-6)
+assert tests.chooserListStateCheck(elbox+":NodeList",[])
+
+# Segment peek
+findWidget('OOF2 Graphics 1').resize(1218, 641)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:ElementInformation:SegmentList').get_selection().select_path(Gtk.TreePath([1]))
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 7.0000000000000e+00)
+checkpoint contourmap info updated for Graphics_1
+assert findWidget(tbox+":Click:Element").get_active()
+assert not findWidget(tbox+":Click:Node").get_active()
+assert not findWidget(tbox+":Click:Segment").get_active()
+assert tests.gtkMultiFloatCompare({'X Text':24,'Y Text':68.75},cbox)
+assert tests.gtkMultiTextCompare({'Material':'<No material>','Group':'','Index':'54','Type':'quad'},elbox)
+assert tests.gtkMultiFloatCompare({'Shape':0.308000,'Homog':0.988881,'Area':287.500000},elbox)
+assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
+assert tests.chooserListCheck(elbox+":SegmentList",["Segment 79, nodes (43, 52) (length: 12.5)","Segment 130, nodes (43, 44) (length: 18.5)","Segment 127, nodes (44, 53) (length: 15.4029218)","Segment 131, nodes (52, 53) (length: 27.5)"],tolerance=1.e-6)
+assert tests.chooserListCheck(elbox+":NodeList",["Node 43 at (12.5, 62.5) (angle: 90)","Node 44 at (31, 62.5) (angle: 125.753887)","Node 53 at (40, 75) (angle: 54.2461127)","Node 52 at (12.5, 75) (angle: 90)"],tolerance=1.e-6)
+assert tests.chooserListStateCheck(elbox+":NodeList", [])
+assert tests.chooserListStateCheck(elbox+":SegmentList",["Segment 130, nodes (43, 44) (length: 18.5)"])
+
+# Double click on segment
+tree=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:ElementInformation:SegmentList')
+column = tree.get_column(0)
+tree.row_activated(Gtk.TreePath([1]), column)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Segment').clicked()
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
+checkpoint Graphics_1 Skeleton Info showed position
+checkpoint contourmap info updated for Graphics_1
+checkpoint Graphics_1 Skeleton Info sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QuerySegmentByID
+assert not findWidget(tbox+":Click:Element").get_active()
+assert not findWidget(tbox+":Click:Node").get_active()
+assert findWidget(tbox+":Click:Segment").get_active()
+assert tests.gtkMultiFloatCompare({'X Text':21.75,'Y Text':62.5},cbox)
+assert tests.gtkMultiTextCompare({'Boundary':'','Groups':'','Index':'130','Length':'18.5'},sgbox,tolerance=1.e-6)
+assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
+assert tests.chooserListCheck(sgbox+":ElementList",["Element 54","Element 60"])
+assert tests.chooserListCheck(sgbox+":NodeList",["Node 43 at (12.5, 62.5)","Node 44 at (31, 62.5)"],tolerance=1.e-6)
+
+# Element peek
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:SegmentInformation:ElementList').get_selection().select_path(Gtk.TreePath([0]))
+checkpoint contourmap info updated for Graphics_1
+assert not findWidget(tbox+":Click:Element").get_active()
+assert not findWidget(tbox+":Click:Node").get_active()
+assert findWidget(tbox+":Click:Segment").get_active()
+assert tests.gtkMultiFloatCompare({'X Text':21.75,'Y Text':62.5},cbox)
+assert tests.gtkMultiTextCompare({'Boundary':'','Groups':'','Index':'130','Length':'18.5'},sgbox,tolerance=1.e-6)
+assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
+assert tests.chooserListCheck(sgbox+":ElementList",["Element 54","Element 60"])
+assert tests.chooserListCheck(sgbox+":NodeList",["Node 43 at (12.5, 62.5)","Node 44 at (31, 62.5)"],tolerance=1.e-6)
+assert tests.chooserListStateCheck(sgbox+":ElementList",["Element 54"])
+
+# Double click on element
+tree=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:SegmentInformation:ElementList')
+column = tree.get_column(0)
+tree.row_activated(Gtk.TreePath([0]), column)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Element').clicked()
+checkpoint Graphics_1 Skeleton Info showed position
+checkpoint contourmap info updated for Graphics_1
+checkpoint Graphics_1 Skeleton Info sensitized
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryElementByID
+assert findWidget(tbox+":Click:Element").get_active()
+assert not findWidget(tbox+":Click:Node").get_active()
+assert not findWidget(tbox+":Click:Segment").get_active()
+assert tests.gtkMultiFloatCompare({'X Text':24,'Y Text':68.75},cbox)
+assert tests.gtkMultiTextCompare({'Material':'<No material>','Group':'','Index':'54','Type':'quad'},elbox)
+assert tests.gtkMultiFloatCompare({'Shape':0.308000,'Homog':0.988881,'Area':287.500000},elbox)
+assert tests.sensitizationCheck({'Prev':True,'Clear':True,'Next':False},tbox)
+assert tests.chooserListCheck(elbox+":SegmentList",["Segment 79, nodes (43, 52) (length: 12.5)","Segment 130, nodes (43, 44) (length: 18.5)","Segment 127, nodes (44, 53) (length: 15.4029218)","Segment 131, nodes (52, 53) (length: 27.5)"],tolerance=1.e-6)
+assert tests.chooserListCheck(elbox+":NodeList",["Node 43 at (12.5, 62.5) (angle: 90)","Node 44 at (31, 62.5) (angle: 125.753887)","Node 53 at (40, 75) (angle: 54.2461127)","Node 52 at (12.5, 75) (angle: 90)"],tolerance=1.e-6)
+assert tests.chooserListStateCheck(elbox+":NodeList", [])
+assert tests.chooserListStateCheck(elbox+":SegmentList", [])
+
+# Delete Skeleton layer
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.BUTTON_PRESS, button=3, state=0, window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
+checkpoint toplevel widget mapped PopUp-0
+findMenu(findWidget('PopUp-0'), ['Delete']).activate() # MenuItemLogger
+deactivatePopup('PopUp-0') # MenuItemLogger
+checkpoint Move Node toolbox writable changed
+checkpoint Move Node toolbox info updated
+checkpoint Graphics_1 Move Nodes sensitized
+checkpoint Graphics_1 Skeleton Info sensitized
+checkpoint Graphics_1 Pixel Info updated
+checkpoint selection info updated Pixel Selection
+checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
+checkpoint selection info updated Node
+checkpoint selection info updated Segment
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Graphics_1.Layer.Delete
+assert findWidget(tbox+":Click:Element").get_active()
+assert not findWidget(tbox+":Click:Node").get_active()
+assert not findWidget(tbox+":Click:Segment").get_active()
+assert tests.gtkMultiTextCompare({'X Text':'','Y Text':''},cbox)
+assert tests.gtkMultiTextCompare({'Material':'','Group':'','Shape':'','Homog':'','Dom pixel':'','Area':'','Index':'','Type':''},elbox)
+assert tests.sensitizationCheck({'Prev':False,'Clear':False,'Next':False},tbox)
+assert tests.chooserListCheck(elbox+":SegmentList",[])
+assert tests.chooserListCheck(elbox+":NodeList",[])
+
+findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()
+checkpoint toplevel widget mapped Dialog-Python_Log
+findWidget('Dialog-Python_Log').resize(192, 122)
+findWidget('Dialog-Python_Log:filename').set_text('s')
+findWidget('Dialog-Python_Log:filename').set_text('se')
+findWidget('Dialog-Python_Log:filename').set_text('ses')
+findWidget('Dialog-Python_Log:filename').set_text('sess')
+findWidget('Dialog-Python_Log:filename').set_text('sessi')
+findWidget('Dialog-Python_Log:filename').set_text('sessio')
+findWidget('Dialog-Python_Log:filename').set_text('session')
+findWidget('Dialog-Python_Log:filename').set_text('session,')
+findWidget('Dialog-Python_Log:filename').set_text('session,l')
+findWidget('Dialog-Python_Log:filename').set_text('session,lo')
+findWidget('Dialog-Python_Log:filename').set_text('session,log')
+findWidget('Dialog-Python_Log:filename').set_text('sessionlog')
+findWidget('Dialog-Python_Log:filename').set_text('session.log')
+findWidget('Dialog-Python_Log:widget_GTK_RESPONSE_OK').clicked()
+checkpoint OOF.File.Save.Python_Log
+assert tests.filediff("session.log")
+
+findMenu(findWidget('OOF2:MenuBar'), ['File', 'Quit']).activate()
+checkpoint OOF.Graphics_1.File.Close
