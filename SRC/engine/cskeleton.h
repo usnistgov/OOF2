@@ -168,6 +168,8 @@ public:
   virtual double energyShape() const = 0;
 
   friend long get_globalElementCount();
+
+  friend std::ostream &operator<<(std::ostream&, const CSkeletonElement&);
 };
 
 class CSkeletonTriangle : public CSkeletonElement {
@@ -196,6 +198,7 @@ public:
   virtual double energyShape() const;
 };
 
+std::ostream &operator<<(std::ostream&, const CSkeletonElement&);
 
 long get_globalElementCount();
 
