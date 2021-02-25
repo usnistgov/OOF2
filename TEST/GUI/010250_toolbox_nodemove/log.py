@@ -6,24 +6,25 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
 import tests
 
-findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
-findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
+findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
+findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 511)
 findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
 findWidget('OOF2').resize(782, 545)
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
+checkpoint toplevel widget mapped OOF2 Graphics 1
 findWidget('OOF2 Graphics 1:Pane0').set_position(360)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
-checkpoint toplevel widget mapped OOF2 Graphics 1
 findWidget('OOF2 Graphics 1').resize(800, 492)
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
@@ -40,8 +41,8 @@ checkpoint OOF.Graphics_1.Settings.New_Layer_Policy
 wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-TBChooser
 findMenu(findWidget('chooserPopup-TBChooser'), ['Move Nodes']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 checkpoint Graphics_1 Move Nodes sensitized
+deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(240)
 assert tests.sensitivityCheck0()
 assert tests.textCompare('---', '---', '---', '---')
@@ -91,13 +92,13 @@ checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -197,15 +198,15 @@ assert tests.mouseMode()
 
 # Move node with mouse
 findGfxWindow('Graphics_1').simulateMouse('down', 87.45, 88.15, 1, False, False)
-checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox node changed
 checkpoint Move Node toolbox down event
-assert tests.floatCompare(87.45, 88.15, 0, 0)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
+assert tests.floatCompare(87.45, 88.15, 0.01088, 0)
 findGfxWindow('Graphics_1').simulateMouse('move', 87.45, 88.15, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
-## TODO: Why with no motion yet has the shape energy changed?
-assert tests.floatCompare(87.45, 88.15, 0.01088, 0) # ????
+assert tests.floatCompare(87.45, 88.15, 0.01088, 0)
 findGfxWindow('Graphics_1').simulateMouse('move', 87.45, 87.8, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
@@ -300,10 +301,11 @@ assert tests.sensitivityCheck1()
 
 # Another mouse move
 findGfxWindow('Graphics_1').simulateMouse('down', 74.5, 88.85, 1, False, False)
-checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox node changed
 checkpoint Move Node toolbox down event
-assert tests.floatCompare(74.5, 88.85, 0, 0)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
+assert tests.floatCompare(74.5, 88.85, 0.01097, 0.002187)
 findGfxWindow('Graphics_1').simulateMouse('move', 74.5, 88.5, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
@@ -627,9 +629,9 @@ checkpoint Graphics_1 Move Nodes sensitized
 checkpoint boundary page updated
 checkpoint skeleton page sensitized
 checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
-checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Move_Nodes.MoveNode
 assert tests.sensitivityCheck5()
@@ -779,9 +781,10 @@ assert tests.sensitivityCheck2()
 
 # Make an illegal move
 findGfxWindow('Graphics_1').simulateMouse('down', 12.2, 88.15, 1, False, False)
-checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox node changed
 checkpoint Move Node toolbox down event
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
 assert tests.messageCompare("")
 findGfxWindow('Graphics_1').simulateMouse('move', 12.2, 88.15, 1, False, False)
 checkpoint Move Node toolbox info updated
@@ -924,9 +927,10 @@ assert tests.xyshCompare(22.7, 68.9, '---', '---')
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Move Nodes:AllowIllegal').clicked()
 checkpoint OOF.Graphics_1.Toolbox.Move_Nodes.AllowIllegal
 findGfxWindow('Graphics_1').simulateMouse('down', 61.55, 21.65, 1, False, False)
-checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox node changed
 checkpoint Move Node toolbox down event
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 61.55, 21.65, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event

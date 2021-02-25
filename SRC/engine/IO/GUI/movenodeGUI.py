@@ -31,6 +31,14 @@ from gi.repository import Gtk
 import sys
 import types
 
+
+## TODO GTK3: In mouse mode, on mouse down, rubberband is drawn at new
+## position and x and y are computed at new position.  New position is
+## not exactly the node position.  But change in shape energy and
+## homogeneity aren't computed and displayed until after first move
+## event.
+
+
 class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def __init__(self, movenodetoolbox):
         debug.mainthreadTest()
@@ -347,18 +355,19 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def down_subthread(self, x, y, button, shift, ctrl):
         debug.subthreadTest()
         self.mouselock.acquire()
+        debug.fmsg(x,y)
         try:
             self.downed = 1
             point = self.getPoint(x,y)
-            mainthread.runBlock(self.move_info, (point, "0", "0", ''))
+
             skel = mainthread.runBlock(self.getSkeleton)
             skelctxt = mainthread.runBlock(self.getSkeletonContext)
             reserved = skel is not None and skelctxt.query_reservation()
             if skel is not None and not reserved and point is not None:
                 self.movingnode = skel.nearestNode(point)
                 self.nodeChanged()
-                #Store this point for use by the up callback's call to MoveNode
-                self.downpt=point
+                # Store this point for use by the up callback's call to MoveNode
+                self.downpt = point
                 if self.movingnode.pinned():
                     self.nodeChanged()
                     self.movingnode = None
@@ -387,12 +396,20 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
             gtklogger.checkpoint("Move Node toolbox down event")
         finally:
             self.mouselock.release()
+
+        if self.movingnode:
+            # The position of the mouse down event is not necessarily
+            # exactly the original position of the node, so the
+            # handler needs to incorporate a move to the position of
+            # the event.
+            self.move_thread(self.getSkeleton(), x, y, button, shift, ctrl)
             
     def move(self, x, y, button, shift, ctrl, data):
         skeleton = self.getSkeleton()
         subthread.execute(self.move_thread,
                           (skeleton, x, y, button, shift, ctrl))
     def move_thread(self, skeleton, x, y, button, shift, ctrl):
+        debug.fmsg(x, y)
         debug.subthreadTest()
         self.mouselock.acquire()
         try:
