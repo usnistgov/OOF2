@@ -261,9 +261,6 @@ And Ctrl-click to toggle.""")
                     self.toolbox.menu.Pin(
                         skeleton=path, point = thepoint)
 
-                gtklogger.checkpoint("Pin Nodes toolbox up event")
-
-
     def move(self, x, y, button, shift, ctrl, data):
         debug.mainthreadTest()
         self.xtext.set_text("%-11.4g" % x)

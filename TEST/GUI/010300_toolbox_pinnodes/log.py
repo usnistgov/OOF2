@@ -285,7 +285,6 @@ assert tests.sensitizationCheck({'Undo':False,'Invert':True,'Redo':False,'UnPinA
 # Pin node.
 findGfxWindow('Graphics_1').simulateMouse('down', 21.65, 49.3, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 21.65, 49.3, 1, False, False)
-checkpoint Pin Nodes toolbox up event
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -347,7 +346,6 @@ assert findWidget(tbox+":Status").get_text()=='1 node pinned.'
 assert tests.sensitizationCheck({'Undo':True,'Invert':True,'Redo':False,'UnPinAll':True},tbox)
 findGfxWindow('Graphics_1').simulateMouse('down', 37.05, 48.95, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 37.05, 48.95, 1, False, False)
-checkpoint Pin Nodes toolbox up event
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -404,7 +402,6 @@ assert findWidget(tbox+":Status").get_text()=='2 nodes pinned.'
 assert tests.sensitizationCheck({'Undo':True,'Invert':True,'Redo':False,'UnPinAll':True},tbox)
 findGfxWindow('Graphics_1').simulateMouse('down', 50, 50.35, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 50, 50.35, 1, False, False)
-checkpoint Pin Nodes toolbox up event
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pin_Nodes.Pin
@@ -517,7 +514,6 @@ assert findWidget(tbox+":Status").get_text()=='3 nodes pinned.'
 assert tests.sensitizationCheck({'Undo':True,'Invert':True,'Redo':False,'UnPinAll':True},tbox)
 findGfxWindow('Graphics_1').simulateMouse('down', 71.35, 48.95, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 71.35, 48.95, 1, False, False)
-checkpoint Pin Nodes toolbox up event
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pin_Nodes.Pin
@@ -599,7 +595,6 @@ assert tests.sensitizationCheck({'Undo':True,'Invert':True,'Redo':True,'UnPinAll
 # Ctrl-click to toggle it.
 findGfxWindow('Graphics_1').simulateMouse('down', 50, 51.05, 1, False, True)
 findGfxWindow('Graphics_1').simulateMouse('up', 50, 51.05, 1, False, True)
-checkpoint Pin Nodes toolbox up event
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pin_Nodes.TogglePin
@@ -672,7 +667,6 @@ assert tests.sensitizationCheck({'Undo':True,'Invert':True,'Redo':False,'UnPinAl
 # Toggle it off
 findGfxWindow('Graphics_1').simulateMouse('down', 50.7, 49.65, 1, False, True)
 findGfxWindow('Graphics_1').simulateMouse('up', 50.7, 49.65, 1, False, True)
-checkpoint Pin Nodes toolbox up event
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -708,7 +702,6 @@ assert tests.sensitizationCheck({'Undo':True,'Invert':True,'Redo':False,'UnPinAl
 # Shift-click to unpin it.
 findGfxWindow('Graphics_1').simulateMouse('down', 37.4, 51.05, 1, True, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 37.4, 51.05, 1, True, False)
-checkpoint Pin Nodes toolbox up event
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -721,7 +714,6 @@ assert tests.sensitizationCheck({'Undo':True,'Invert':True,'Redo':False,'UnPinAl
 # Shift-click to unpin it again -- should be a no-op.
 findGfxWindow('Graphics_1').simulateMouse('down', 37.05, 50.35, 1, True, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 37.05, 50.35, 1, True, False)
-checkpoint Pin Nodes toolbox up event
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -805,8 +797,6 @@ findWidget('Dialog-Python_Log:filename').set_text('session.log')
 findWidget('Dialog-Python_Log:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Save.Python_Log
 assert tests.filediff("session.log")
-
-checkpoint_count("Pin Nodes toolbox up event")
 
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Quit']).activate()
 checkpoint OOF.Graphics_1.File.Close
