@@ -517,6 +517,10 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             self.buttonDown = False
         
         if self.mouseHandler.acceptEvent(eventtype):
+            # Since we are actually handling this mouse event, it
+            # should be logged if we're recording a gui log.
+            self.logMouseEvent(eventtype, x, y, button, shift, ctrl)
+            # Call the appropriate handler.
             if eventtype == 'up' and not ignoreUp:
                 self.mouseHandler.up(x,y, button, shift, ctrl, data)
             elif eventtype == 'down':
@@ -525,9 +529,10 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
                 self.mouseHandler.move(x,y, button, shift, ctrl, data)
             elif eventtype == 'scroll':
                 self.mouseHandler.scroll(x,y, button, shift, ctrl, data)
-        # If the current mousehandler doesn't anything special for
-        # scrolling, do the obvious.
         elif eventtype == "scroll":
+            # If we're here, then the current mousehandler doesn't
+            # anything special for scrolling.  Don't ignore the event.
+            # Do the obvious thing.
             sx = self.hScrollbar.get_adjustment().get_value()
             self.hScrollbar.get_adjustment().set_value(sx + x)
             sy = self.vScrollbar.get_adjustment().get_value()
@@ -539,14 +544,23 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     
     # GUI logging of canvas events.
 
-    # We can't just log events in pixel coordinates on the GtkLayout
-    # that's within the OOFCanvas, because the canvas size can change
-    # and therefore the conversion from pixel to user coordinates
-    # isn't reproducible.  We have to log the events in user
-    # coordinates, which means that the graphics window is
-    # responsible. (The OOFCanvas can't do the logging because we
-    # don't want to mix the OOFCanvas and gtklogger code, since both
-    # could be distributed independently of other.)
+    # The OOFCanvas isn't a real GtkWidget, although it contains a
+    # GtkWidget, so gui logging isn't done the same way as it's done
+    # for GtkWidgets.  If we try to just log the GtkLayout that lives
+    # in the OOFCanvas, it's difficult to ensure that the logging
+    # callback runs before the mouse handling callback.  By not using
+    # most of the gtklogger mechanism, we ensure that logMouseEvent is
+    # called before the mouseHandler, and there's no causality paradox
+    # in the logs.
+
+    # As a side benefit, canvas mouse events in the log file only
+    # contain user coordinates, not pixel coordinates.  It's important
+    # to log only the user coordinates, because the canvas size
+    # depends on things outside our control (like the fonts used in
+    # other widgets in the graphics window), and the conversion from
+    # pixel coordinates to user coordinates depends on the canvas
+    # size.  Logging only user coordinates means that the gui
+    # recordings are portable to different computers.
 
     # The logged code for each event should just run
     # GfxWindow.mouseCB.  The "data" argument to mouseCB is what was
@@ -559,19 +573,14 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     def simulateMouse(self, eventtype, x, y, button, shift, ctrl):
         self.mouseCB(eventtype, x, y, button, shift, ctrl, None)
 
-    def logMouse(self, etype, x, y, button, state):
-        #debug.fmsg("x=", x, "y=", y, "button=", button, "state=", state)
-        # "etype" is "up", "down", or "move"
-        # x and y are pixel coordinates of the event
-        # button is which mouse button was used
-        # state is a GdkModifierType containing control, shift, etc.
-        ux, uy = self.oofcanvas.pixel2user(x, y)
-        shift = bool(state & Gdk.ModifierType.SHIFT_MASK != 0)
-        ctrl = bool(state & Gdk.ModifierType.CONTROL_MASK != 0)
-        return [
-            "findGfxWindow('%s').simulateMouse('%s', %.8g, %.8g, %d, %s, %s)"
-            % (self.name, etype, ux, uy, button, shift, ctrl)
-        ]
+    def logMouseEvent(self, eventtype, x, y, button, shift, ctrl):
+        # This replaces gtklogger.signalLogger for OOFCanvas events.
+        if gtklogger.recording() and not gtklogger.replaying():
+            gtklogger.writeLine(
+               "findGfxWindow('%s').simulateMouse('%s', %.8g, %.8g, %d, %s, %s)"
+                % (self.name, eventtype, x, y, button, shift, ctrl)
+                
+            )
 
 # This makes the "findGfxWindow" function used by the logged mouse
 # events available in the Python namespace in which replayed gui log

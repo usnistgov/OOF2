@@ -63,15 +63,20 @@ def stop():
             logutils.set_logfile(None)
 
 
-# Utility functions to temporarily turn on motion-event recording.
+# Utility functions to turn on motion-event recording on or off.  If
+# the widget argument is not None, the call applies to the given
+# widget and its children.
 
-def log_motion_events():
+def log_motion_events(widget=None):
     logutils.log_motion_events()
 
-def dont_log_motion_events():
+def dont_log_motion_events(widget=None):
     logutils.dont_log_motion_events()
 
-def suppress_motion_events():
+# suppress_motion_events(widget) returns True if motion events have
+# been suppressed for the given widget, or globally if widget is None.
+
+def suppress_motion_events(widget=None):
     return logutils.suppress_motion_events()
 
 def add_exception(excclass):

@@ -355,7 +355,6 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def down_subthread(self, x, y, button, shift, ctrl):
         debug.subthreadTest()
         self.mouselock.acquire()
-        debug.fmsg(x,y)
         try:
             self.downed = 1
             point = self.getPoint(x,y)
@@ -409,7 +408,6 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         subthread.execute(self.move_thread,
                           (skeleton, x, y, button, shift, ctrl))
     def move_thread(self, skeleton, x, y, button, shift, ctrl):
-        debug.fmsg(x, y)
         debug.subthreadTest()
         self.mouselock.acquire()
         try:

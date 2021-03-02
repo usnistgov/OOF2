@@ -125,13 +125,16 @@ def signalLogger(obj, signal, logger, *args):
             elif records is not None:
                 assert type(records) is types.ListType
                 for record in records:
-                    _writeline(record)
+                    writeLine(record)
             else:
                 if logutils.debugLevel() >= 1:
                     print >> sys.stderr, "No record function for", obj, signal
     return False                        # propagate events
 
-def _writeline(line):
+# Code that needs to insert something into the log file can just call
+# writeLine.
+
+def writeLine(line):
     print >> logutils.logfile(), line
     logutils.logfile().flush()
     if logutils.debugLevel() >= 2 and not logutils.replaying():

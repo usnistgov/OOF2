@@ -28,7 +28,6 @@ from ooflib.common.IO import gfxmanager
 from ooflib.common.IO import ghostgfxwindow
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import reporter
-from ooflib.common.IO.GUI import canvaslogger
 from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import gfxmenu
 from ooflib.common.IO.GUI import gfxwindowbase
@@ -437,16 +436,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-    # When the mouse is clicked or moved on the Canvas two chains of
-    # events are started.  One is via GfxWindowBase.mouseCB() and is
-    # for interaction with the Canvas, and the other is via the
-    # CanvasLogger and is for logging Canvas events.  On the surface
-    # it seems that these are redundant, and that the Canvas's gui
-    # logging could simply be done in mouseCB.  It is NOT done that
-    # way because currently logging is initiated by an event (in
-    # Python) that is connected to a logger, not by an event (in C++)
-    # that is connected to mouseCB.
-
     def newCanvas(self):
         debug.mainthreadTest()
         canvas = oofcanvasgui.Canvas(width=300, height=300, ppu=1.0,
@@ -465,25 +454,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                                   'value-changed')
         gtklogger.connect_passive(self.vScrollbar.get_adjustment(),
                                   'value-changed')
+        # The canvas is not a real gtk widget, so it doesn't use
+        # gtklogger in the same was as the real widgets. mouseCB
+        # handles the events *and* the gui logging.
         canvas.setMouseCallback(self.mouseCB, None)
-
-        # Because the OOFCanvas's window size can change depending on
-        # the platform or the Gtk theme, the conversion from mouse
-        # coordinates to user coordinates is not portable, so we need
-        # to log the user coordinates.  The GtkLayout in the OOFCanvas
-        # needs its own gtklogger that has access to the OOFCanvas,
-        # and can call an OOFCanvas method that acts like the
-        # OOFCanvas's mouse callback.
-        
-        self.logger = canvaslogger.CanvasLogger(self)
-        gtklogger.setWidgetName(canvas.layout, "OOFCanvas")
-        gtklogger.connect_passive(canvas.layout, "button-press-event",
-                                  logger=self.logger)
-        gtklogger.connect_passive(canvas.layout, "button-release-event",
-                                  logger=self.logger)
-        gtklogger.connect_passive(canvas.layout, "motion-notify-event",
-                                  logger=self.logger)
-        gtklogger.log_motion_events(canvas.layout)
 
         if self.rubberband:
             canvas.setRubberBand(self.rubberband)
@@ -500,9 +474,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         canvas = oofcanvasgui.Canvas(100, 100, 1)
         # TODO: GUI logging for the contourmap canvas.  This wasn't
         # done in the pre-gtk3 versions.  It's probably not important
-        # enough to worry about.  Doing it right would involve
-        # generalizing the CanvasLogger so that it works on either the
-        # main canvas or the contourmap canvas.
+        # enough to worry about. 
         return canvas
 
     # Create object and assign to self.contourmapdata.canvas.
