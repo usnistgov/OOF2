@@ -240,3 +240,22 @@ incorrect.  It may be necessary to manually move the assert statements
 in the new file if they're incorrectly positioned with respect to the
 new checkpoints.
 
+Including Other Things in the Log File
+
+If for some reason you need to add events to the log file that aren't
+handled well by the standard parts of gtklogger, you can use
+gtklogger.writeLine() and gtklogger.replayDefine() in your source
+code.  writeLine(str) takes a string argument and puts that string in
+the log file.  replayDefine(obj, name) takes a Python object and
+inserts it in the namespace in which log files are executed.  "name"
+is an optional argument that can be given if the object's name in the
+replay namespace should be different from it's name in the calling
+namespace.  (If obj is not a class or function, name is required.)
+
+For example, say that you're using a third party widget library and
+don't have access to its internal Gtk widgets.  The library calls a
+callback in your code.  Make your callback available in the gtklogger
+replay namespace with replayDefine().  At the beginning of the
+callback, before it has done anything consequential, call
+writeLine(str) where str is a string that when evaluated calls your
+callback.

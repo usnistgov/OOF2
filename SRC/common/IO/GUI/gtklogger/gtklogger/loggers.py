@@ -132,11 +132,16 @@ def signalLogger(obj, signal, logger, *args):
     return False                        # propagate events
 
 # Code that needs to insert something into the log file can just call
-# writeLine.
+# writeLine.  _writeline is used internally when it's necessary to
+# write without checking, when rerecording a log file for example.
 
-def writeLine(line):
+def _writeline(line):
     print >> logutils.logfile(), line
     logutils.logfile().flush()
-    if logutils.debugLevel() >= 2 and not logutils.replaying():
+    if logutils.debugLevel() >= 2:
         print >> sys.stderr, "//////", line
+
+def writeLine(line):
+    if logutils.recording() and not logutils.replaying():
+        _writeline(line)
 
