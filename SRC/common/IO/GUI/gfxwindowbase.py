@@ -508,18 +508,20 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         # ignoreUp and buttonDown must be computed outside of the
         # acceptEvent block, or else buttonDown won't be set properly
         # if the mouse handler only accepts mouse-up events.
-        
         ignoreUp = eventtype == "up" and not self.buttonDown
         # Set buttonDown for the *next* up.
         if eventtype == 'down':
             self.buttonDown = True
         elif eventtype == 'up':
             self.buttonDown = False
-        
-        if self.mouseHandler.acceptEvent(eventtype):
-            # Since we are actually handling this mouse event, it
-            # should be logged if we're recording a gui log.
+
+        if eventtype != 'move' or self.mouseHandler.acceptEvent('move'):
+            # Mouse up and down events need to be logged even if
+            # they're not handled by the mouseHandler, so that the
+            # mouse button state is reproduced correctly.
             self.logMouseEvent(eventtype, x, y, button, shift, ctrl)
+
+        if self.mouseHandler.acceptEvent(eventtype):
             # Call the appropriate handler.
             if eventtype == 'up' and not ignoreUp:
                 self.mouseHandler.up(x,y, button, shift, ctrl, data)
