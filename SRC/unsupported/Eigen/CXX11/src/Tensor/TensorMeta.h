@@ -24,12 +24,86 @@ const T2& choose(Cond<false>, const T1&, const T2& second) {
   return second;
 }
 
+
+template <typename T, typename X, typename Y>
+EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
+T divup(const X x, const Y y) {
+  return static_cast<T>((x + y - 1) / y);
+}
+
+template <typename T>
+EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
+T divup(const T x, const T y) {
+  return static_cast<T>((x + y - 1) / y);
+}
+
 template <size_t n> struct max_n_1 {
   static const size_t size = n;
 };
 template <> struct max_n_1<0> {
   static const size_t size = 1;
 };
+
+
+// Default packet types
+template <typename Scalar, typename Device>
+struct PacketType : internal::packet_traits<Scalar> {
+  typedef typename internal::packet_traits<Scalar>::type type;
+};
+
+// For CUDA packet types when using a GpuDevice
+#if defined(EIGEN_USE_GPU) && defined(__CUDACC__) && defined(EIGEN_HAS_CUDA_FP16)
+template <>
+struct PacketType<half, GpuDevice> {
+  typedef half2 type;
+  static const int size = 2;
+  enum {
+    HasAdd    = 1,
+    HasSub    = 1,
+    HasMul    = 1,
+    HasNegate = 1,
+    HasAbs    = 1,
+    HasArg    = 0,
+    HasAbs2   = 0,
+    HasMin    = 1,
+    HasMax    = 1,
+    HasConj   = 0,
+    HasSetLinear = 0,
+    HasBlend  = 0,
+
+    HasDiv    = 1,
+    HasSqrt   = 1,
+    HasRsqrt  = 1,
+    HasExp    = 1,
+    HasLog    = 1,
+    HasLog1p  = 0,
+    HasLog10  = 0,
+    HasPow    = 1,
+  };
+};
+#endif
+
+#if defined(EIGEN_USE_SYCL)
+template <typename T>
+  struct PacketType<T, SyclDevice> {
+  typedef T type;
+  static const int size = 1;
+  enum {
+    HasAdd    = 0,
+    HasSub    = 0,
+    HasMul    = 0,
+    HasNegate = 0,
+    HasAbs    = 0,
+    HasArg    = 0,
+    HasAbs2   = 0,
+    HasMin    = 0,
+    HasMax    = 0,
+    HasConj   = 0,
+    HasSetLinear = 0,
+    HasBlend  = 0
+  };
+};
+#endif
 
 
 // Tuple mimics std::pair but works on e.g. nvcc.
@@ -76,18 +150,37 @@ bool operator!=(const Tuple<U, V>& x, const Tuple<U, V>& y) {
 }
 
 
+// Can't use std::pairs on cuda devices
+template <typename Idx> struct IndexPair {
+  EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE IndexPair() : first(0), second(0) {}
+  EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE IndexPair(Idx f, Idx s) : first(f), second(s) {}
+
+  EIGEN_DEVICE_FUNC void set(IndexPair<Idx> val) {
+    first = val.first;
+    second = val.second;
+  }
+
+  Idx first;
+  Idx second;
+};
+
 
 #ifdef EIGEN_HAS_SFINAE
-namespace internal{
+namespace internal {
 
   template<typename IndexType, Index... Is>
   EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   array<Index, sizeof...(Is)> customIndices2Array(IndexType& idx, numeric_list<Index, Is...>) {
     return { idx[Is]... };
   }
+  template<typename IndexType>
+  EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+  array<Index, 0> customIndices2Array(IndexType&, numeric_list<Index>) {
+    return array<Index, 0>();
+  }
 
   /** Make an array (for index/dimensions) out of a custom index */
-  template<typename Index, int NumIndices, typename IndexType>
+  template<typename Index, std::size_t NumIndices, typename IndexType>
   EIGEN_CONSTEXPR EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   array<Index, NumIndices> customIndices2Array(IndexType& idx) {
     return customIndices2Array(idx, typename gen_numeric_list<Index, NumIndices>::type{});

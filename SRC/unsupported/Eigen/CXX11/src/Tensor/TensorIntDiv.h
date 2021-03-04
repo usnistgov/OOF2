@@ -29,28 +29,47 @@ namespace Eigen {
 namespace internal {
 
 namespace {
+
   // Note: result is undefined if val == 0
   template <typename T>
-  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE int count_leading_zeros(const T val)
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
+  typename internal::enable_if<sizeof(T)==4,int>::type count_leading_zeros(const T val)
   {
 #ifdef __CUDA_ARCH__
-    if (sizeof(T) == 8) {
-      return __clzll(val);
-    }
     return __clz(val);
 #elif EIGEN_COMP_MSVC
-    DWORD leading_zeros = 0;
-    if (sizeof(T) == 8) {
-      _BitScanReverse64(&leading_zero, val);
-    }
-    else {
-      _BitScanReverse(&leading_zero, val);
-    }
+    unsigned long index;
+    _BitScanReverse(&index, val);
+    return 31 - index;
 #else
-    if (sizeof(T) == 8) {
-      return __builtin_clzl(static_cast<uint64_t>(val));
-    }
+    EIGEN_STATIC_ASSERT(sizeof(unsigned long long) == 8, YOU_MADE_A_PROGRAMMING_MISTAKE);
     return __builtin_clz(static_cast<uint32_t>(val));
+#endif
+  }
+
+  template <typename T>
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
+  typename internal::enable_if<sizeof(T)==8,int>::type count_leading_zeros(const T val)
+  {
+#ifdef __CUDA_ARCH__
+    return __clzll(val);
+#elif EIGEN_COMP_MSVC && EIGEN_ARCH_x86_64
+    unsigned long index;
+    _BitScanReverse64(&index, val);
+    return 63 - index;
+#elif EIGEN_COMP_MSVC
+    // MSVC's _BitScanReverse64 is not available for 32bits builds.
+    unsigned int lo = (unsigned int)(val&0xffffffff);
+    unsigned int hi = (unsigned int)((val>>32)&0xffffffff);
+    int n;
+    if(hi==0)
+      n = 32 + count_leading_zeros<unsigned int>(lo);
+    else
+      n = count_leading_zeros<unsigned int>(hi);
+    return n;
+#else
+    EIGEN_STATIC_ASSERT(sizeof(unsigned long long) == 8, YOU_MADE_A_PROGRAMMING_MISTAKE);
+    return __builtin_clzll(static_cast<uint64_t>(val));
 #endif
   }
 
@@ -61,13 +80,8 @@ namespace {
 
   template <typename T>
   struct DividerTraits {
-#if defined(__SIZEOF_INT128__) && !defined(__CUDACC__)
     typedef typename UnsignedTraits<T>::type type;
     static const int N = sizeof(T) * 8;
-#else
-    typedef uint32_t type;
-    static const int N = 32;
-#endif
   };
 
   template <typename T>
@@ -79,44 +93,44 @@ namespace {
 #endif
   }
 
-#if defined(__CUDA_ARCH__)
- template <typename T>
- EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE uint64_t muluh(const uint64_t a, const T b) {
-    return __umul64hi(a, b);
- }
-#else
   template <typename T>
-  EIGEN_ALWAYS_INLINE uint64_t muluh(const uint64_t a, const T b) {
-#if defined(__SIZEOF_INT128__) && !defined(__CUDACC__)
+  EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE uint64_t muluh(const uint64_t a, const T b) {
+#if defined(__CUDA_ARCH__)
+    return __umul64hi(a, b);
+#elif defined(__SIZEOF_INT128__)
     __uint128_t v = static_cast<__uint128_t>(a) * static_cast<__uint128_t>(b);
     return static_cast<uint64_t>(v >> 64);
 #else
-    EIGEN_STATIC_ASSERT(sizeof(T) == 4, YOU_MADE_A_PROGRAMMING_MISTAKE);
-    return (a * b) >> 32;
+    return (TensorUInt128<static_val<0>, uint64_t>(a) * TensorUInt128<static_val<0>, uint64_t>(b)).upper();
 #endif
   }
-#endif
 
   template <int N, typename T>
   struct DividerHelper {
-    static EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE uint32_t computeMultiplier (const int log_div, const T divider) {
+    static EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE uint32_t computeMultiplier(const int log_div, const T divider) {
       EIGEN_STATIC_ASSERT(N == 32, YOU_MADE_A_PROGRAMMING_MISTAKE);
       return static_cast<uint32_t>((static_cast<uint64_t>(1) << (N+log_div)) / divider - (static_cast<uint64_t>(1) << N) + 1);
     }
   };
 
-#if defined(__SIZEOF_INT128__) && !defined(__CUDACC__)
   template <typename T>
   struct DividerHelper<64, T> {
-    static EIGEN_ALWAYS_INLINE uint64_t computeMultiplier(const int log_div, const T divider) {
+    static EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE uint64_t computeMultiplier(const int log_div, const T divider) {
+#if defined(__SIZEOF_INT128__) && !defined(__CUDA_ARCH__)
       return static_cast<uint64_t>((static_cast<__uint128_t>(1) << (64+log_div)) / static_cast<__uint128_t>(divider) - (static_cast<__uint128_t>(1) << 64) + 1);
+#else
+      const uint64_t shift = 1ULL << log_div;
+      TensorUInt128<uint64_t, uint64_t> result = TensorUInt128<uint64_t, static_val<0> >(shift, 0) / TensorUInt128<static_val<0>, uint64_t>(divider)
+                                               - TensorUInt128<static_val<1>, static_val<0> >(1, 0)
+                                               + TensorUInt128<static_val<0>, static_val<1> >(1);
+      return static_cast<uint64_t>(result);
+#endif
     }
   };
-#endif
 }
 
 
-template <typename T>
+template <typename T, bool div_gt_one = false>
 struct TensorIntDivisor {
  public:
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorIntDivisor() {
@@ -166,8 +180,9 @@ struct TensorIntDivisor {
 
 // Optimized version for signed 32 bit integers.
 // Derived from Hacker's Delight.
+// Only works for divisors strictly greater than one
 template <>
-class TensorIntDivisor<int32_t> {
+class TensorIntDivisor<int32_t, true> {
  public:
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE TensorIntDivisor() {
     magic = 0;
@@ -226,8 +241,8 @@ private:
 };
 
 
-template <typename T>
-static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE T operator / (const T& numerator, const TensorIntDivisor<T>& divisor) {
+template <typename T, bool div_gt_one>
+static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE T operator / (const T& numerator, const TensorIntDivisor<T, div_gt_one>& divisor) {
   return divisor.divide(numerator);
 }
 
