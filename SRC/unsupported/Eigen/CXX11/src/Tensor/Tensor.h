@@ -23,12 +23,12 @@ namespace Eigen {
   * The %Tensor class encompasses only dynamic-size objects so far.
   *
   * The first two template parameters are required:
-  * \tparam Scalar_ \anchor tensor_tparam_scalar Numeric type, e.g. float, double, int or std::complex<float>.
+  * \tparam Scalar_  Numeric type, e.g. float, double, int or `std::complex<float>`.
   *                 User defined scalar types are supported as well (see \ref user_defined_scalars "here").
   * \tparam NumIndices_ Number of indices (i.e. rank of the tensor)
   *
   * The remaining template parameters are optional -- in most cases you don't have to worry about them.
-  * \tparam Options_ \anchor tensor_tparam_options A combination of either \b #RowMajor or \b #ColMajor, and of either
+  * \tparam Options_  A combination of either \b #RowMajor or \b #ColMajor, and of either
   *                 \b #AutoAlign or \b #DontAlign.
   *                 The former controls \ref TopicStorageOrders "storage order", and defaults to column-major. The latter controls alignment, which is required
   *                 for vectorization. It defaults to aligning tensors. Note that tensors currently do not support any operations that profit from vectorization.
@@ -42,13 +42,13 @@ namespace Eigen {
   * \endcode
   *
   * This class can be extended with the help of the plugin mechanism described on the page
-  * \ref TopicCustomizingEigen by defining the preprocessor symbol \c EIGEN_TENSOR_PLUGIN.
+  * \ref TopicCustomizing_Plugins by defining the preprocessor symbol \c EIGEN_TENSOR_PLUGIN.
   *
   * <i><b>Some notes:</b></i>
   *
   * <dl>
   * <dt><b>Relation to other parts of Eigen:</b></dt>
-  * <dd>The midterm developement goal for this class is to have a similar hierarchy as Eigen uses for matrices, so that
+  * <dd>The midterm development goal for this class is to have a similar hierarchy as Eigen uses for matrices, so that
   * taking blocks or using tensors in expressions is easily possible, including an interface with the vector/matrix code
   * by providing .asMatrix() and .asVector() (or similar) methods for rank 2 and 1 tensors. However, currently, the %Tensor
   * class does not provide any of these features and is only available as a stand-alone class that just allows for
@@ -59,7 +59,7 @@ namespace Eigen {
   * \ref TopicStorageOrders
   */
 
-template<typename Scalar_, std::size_t NumIndices_, int Options_, typename IndexType_>
+template<typename Scalar_, int NumIndices_, int Options_, typename IndexType_>
 class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexType_> >
 {
   public:
@@ -69,20 +69,18 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
     typedef typename internal::traits<Self>::StorageKind StorageKind;
     typedef typename internal::traits<Self>::Index Index;
     typedef Scalar_ Scalar;
-    typedef typename internal::packet_traits<Scalar>::type Packet;
     typedef typename NumTraits<Scalar>::Real RealScalar;
     typedef typename Base::CoeffReturnType CoeffReturnType;
-    typedef typename Base::PacketReturnType PacketReturnType;
 
     enum {
       IsAligned = bool(EIGEN_MAX_ALIGN_BYTES>0) & !(Options_&DontAlign),
-      PacketAccess = (internal::packet_traits<Scalar>::size > 1),
       Layout = Options_ & RowMajor ? RowMajor : ColMajor,
       CoordAccess = true,
+      RawAccess = true
     };
 
     static const int Options = Options_;
-    static const std::size_t NumIndices = NumIndices_;
+    static const int NumIndices = NumIndices_;
     typedef DSizes<Index, NumIndices_> Dimensions;
 
   protected:
@@ -112,7 +110,7 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
     inline Self& base()             { return *this; }
     inline const Self& base() const { return *this; }
 
-#ifdef EIGEN_HAS_VARIADIC_TEMPLATES
+#if EIGEN_HAS_VARIADIC_TEMPLATES
     template<typename... IndexTypes>
     EIGEN_DEVICE_FUNC inline const Scalar& coeff(Index firstIndex, Index secondIndex, IndexTypes... otherIndices) const
     {
@@ -140,13 +138,19 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
     }
 #endif
 
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Scalar& coeff() const
+    {
+      EIGEN_STATIC_ASSERT(NumIndices == 0, YOU_MADE_A_PROGRAMMING_MISTAKE);
+      return m_storage.data()[0];
+    }
+
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Scalar& coeff(Index index) const
     {
       eigen_internal_assert(index >= 0 && index < size());
       return m_storage.data()[index];
     }
 
-#ifdef EIGEN_HAS_VARIADIC_TEMPLATES
+#if EIGEN_HAS_VARIADIC_TEMPLATES
     template<typename... IndexTypes>
     inline Scalar& coeffRef(Index firstIndex, Index secondIndex, IndexTypes... otherIndices)
     {
@@ -174,13 +178,19 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
     }
 #endif
 
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar& coeffRef()
+    {
+      EIGEN_STATIC_ASSERT(NumIndices == 0, YOU_MADE_A_PROGRAMMING_MISTAKE);
+      return m_storage.data()[0];
+    }
+
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar& coeffRef(Index index)
     {
       eigen_internal_assert(index >= 0 && index < size());
       return m_storage.data()[index];
     }
 
-#ifdef EIGEN_HAS_VARIADIC_TEMPLATES
+#if EIGEN_HAS_VARIADIC_TEMPLATES
     template<typename... IndexTypes>
     inline const Scalar& operator()(Index firstIndex, Index secondIndex, IndexTypes... otherIndices) const
     {
@@ -234,6 +244,12 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
       return coeff(index);
     }
 
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Scalar& operator()() const
+    {
+      EIGEN_STATIC_ASSERT(NumIndices == 0, YOU_MADE_A_PROGRAMMING_MISTAKE);
+      return coeff();
+    }
+
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Scalar& operator[](Index index) const
     {
       // The bracket operator is only for vectors, use the parenthesis operator instead.
@@ -241,7 +257,7 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
       return coeff(index);
     }
 
-#ifdef EIGEN_HAS_VARIADIC_TEMPLATES
+#if EIGEN_HAS_VARIADIC_TEMPLATES
     template<typename... IndexTypes>
     inline Scalar& operator()(Index firstIndex, Index secondIndex, IndexTypes... otherIndices)
     {
@@ -295,6 +311,12 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
       return coeffRef(index);
     }
 
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar& operator()()
+    {
+      EIGEN_STATIC_ASSERT(NumIndices == 0, YOU_MADE_A_PROGRAMMING_MISTAKE);
+      return coeffRef();
+    }
+
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Scalar& operator[](Index index)
     {
       // The bracket operator is only for vectors, use the parenthesis operator instead
@@ -314,44 +336,44 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
     {
     }
 
-#ifdef EIGEN_HAS_VARIADIC_TEMPLATES
+#if EIGEN_HAS_VARIADIC_TEMPLATES
     template<typename... IndexTypes>
-    inline Tensor(Index firstDimension, IndexTypes... otherDimensions)
-        : m_storage(internal::array_prod(array<Index, NumIndices>{{firstDimension, otherDimensions...}}), array<Index, NumIndices>{{firstDimension, otherDimensions...}})
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Tensor(Index firstDimension, IndexTypes... otherDimensions)
+        : m_storage(firstDimension, otherDimensions...)
     {
       // The number of dimensions used to construct a tensor must be equal to the rank of the tensor.
       EIGEN_STATIC_ASSERT(sizeof...(otherDimensions) + 1 == NumIndices, YOU_MADE_A_PROGRAMMING_MISTAKE)
     }
 #else
-    inline explicit Tensor(Index dim1)
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE explicit Tensor(Index dim1)
       : m_storage(dim1, array<Index, 1>(dim1))
     {
       EIGEN_STATIC_ASSERT(1 == NumIndices, YOU_MADE_A_PROGRAMMING_MISTAKE)
     }
-    inline explicit Tensor(Index dim1, Index dim2)
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Tensor(Index dim1, Index dim2)
       : m_storage(dim1*dim2, array<Index, 2>(dim1, dim2))
     {
       EIGEN_STATIC_ASSERT(2 == NumIndices, YOU_MADE_A_PROGRAMMING_MISTAKE)
     }
-    inline explicit Tensor(Index dim1, Index dim2, Index dim3)
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Tensor(Index dim1, Index dim2, Index dim3)
       : m_storage(dim1*dim2*dim3, array<Index, 3>(dim1, dim2, dim3))
     {
       EIGEN_STATIC_ASSERT(3 == NumIndices, YOU_MADE_A_PROGRAMMING_MISTAKE)
     }
-    inline explicit Tensor(Index dim1, Index dim2, Index dim3, Index dim4)
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Tensor(Index dim1, Index dim2, Index dim3, Index dim4)
       : m_storage(dim1*dim2*dim3*dim4, array<Index, 4>(dim1, dim2, dim3, dim4))
     {
       EIGEN_STATIC_ASSERT(4 == NumIndices, YOU_MADE_A_PROGRAMMING_MISTAKE)
     }
-    inline explicit Tensor(Index dim1, Index dim2, Index dim3, Index dim4, Index dim5)
-      : m_storage(dim1*dim2*dim3*dim4*dim5, array<Index, 4>(dim1, dim2, dim3, dim4, dim5))
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Tensor(Index dim1, Index dim2, Index dim3, Index dim4, Index dim5)
+      : m_storage(dim1*dim2*dim3*dim4*dim5, array<Index, 5>(dim1, dim2, dim3, dim4, dim5))
     {
       EIGEN_STATIC_ASSERT(5 == NumIndices, YOU_MADE_A_PROGRAMMING_MISTAKE)
     }
 #endif
 
     /** Normal Dimension */
-    inline explicit Tensor(const array<Index, NumIndices>& dimensions)
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE explicit Tensor(const array<Index, NumIndices>& dimensions)
         : m_storage(internal::array_prod(dimensions), dimensions)
     {
       EIGEN_INITIALIZE_COEFFS_IF_THAT_OPTION_IS_ENABLED
@@ -396,7 +418,7 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
       return *this;
     }
 
-#ifdef EIGEN_HAS_VARIADIC_TEMPLATES
+#if EIGEN_HAS_VARIADIC_TEMPLATES
     template<typename... IndexTypes> EIGEN_DEVICE_FUNC
     void resize(Index firstDimension, IndexTypes... otherDimensions)
     {
@@ -409,7 +431,7 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
     /** Normal Dimension */
     EIGEN_DEVICE_FUNC void resize(const array<Index, NumIndices>& dimensions)
     {
-      std::size_t i;
+      int i;
       Index size = Index(1);
       for (i = 0; i < NumIndices; i++) {
         internal::check_rows_cols_for_overflow<Dynamic>::run(size, dimensions[i]);
@@ -427,10 +449,17 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
     // Why this overload, DSizes is derived from array ??? //
     EIGEN_DEVICE_FUNC void resize(const DSizes<Index, NumIndices>& dimensions) {
       array<Index, NumIndices> dims;
-      for (std::size_t i = 0; i < NumIndices; ++i) {
+      for (int i = 0; i < NumIndices; ++i) {
         dims[i] = dimensions[i];
       }
       resize(dims);
+    }
+
+    EIGEN_DEVICE_FUNC
+    void resize()
+    {
+      EIGEN_STATIC_ASSERT(NumIndices == 0, YOU_MADE_A_PROGRAMMING_MISTAKE);
+      // Nothing to do: rank 0 tensors have fixed size
     }
 
     /** Custom Dimension */
@@ -449,7 +478,7 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
     EIGEN_DEVICE_FUNC
     void resize(const Sizes<Indices...>& dimensions) {
       array<Index, NumIndices> dims;
-      for (std::size_t i = 0; i < NumIndices; ++i) {
+      for (int i = 0; i < NumIndices; ++i) {
         dims[i] = static_cast<Index>(dimensions[i]);
       }
       resize(dims);
@@ -459,7 +488,7 @@ class Tensor : public TensorBase<Tensor<Scalar_, NumIndices_, Options_, IndexTyp
     EIGEN_DEVICE_FUNC
     void resize(const Sizes<V1, V2, V3, V4, V5>& dimensions) {
       array<Index, NumIndices> dims;
-      for (std::size_t i = 0; i < NumIndices; ++i) {
+      for (int i = 0; i < NumIndices; ++i) {
         dims[i] = static_cast<Index>(dimensions[i]);
       }
       resize(dims);

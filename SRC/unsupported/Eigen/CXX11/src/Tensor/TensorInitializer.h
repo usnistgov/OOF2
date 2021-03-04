@@ -10,7 +10,7 @@
 #ifndef EIGEN_CXX11_TENSOR_TENSOR_INITIALIZER_H
 #define EIGEN_CXX11_TENSOR_TENSOR_INITIALIZER_H
 
-#ifdef EIGEN_HAS_VARIADIC_TEMPLATES
+#if EIGEN_HAS_VARIADIC_TEMPLATES
 
 #include <initializer_list>
 
@@ -54,6 +54,18 @@ struct Initializer<Derived, 1> {
     }
   }
 };
+
+template <typename Derived>
+struct Initializer<Derived, 0> {
+  typedef typename traits<Derived>::Scalar InitList;
+
+  static void run(TensorEvaluator<Derived, DefaultDevice>& tensor,
+                  Eigen::array<typename traits<Derived>::Index, traits<Derived>::NumDimensions>*,
+                  const InitList& v) {
+    tensor.coeffRef(0) = v;
+  }
+};
+
 
 template <typename Derived, int N>
 void initialize_tensor(TensorEvaluator<Derived, DefaultDevice>& tensor,
