@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -22,7 +24,7 @@
 
 // TODO: Add progress bars for Eigen solvers, somehow.
 
-enum class Precond {Uncond=1, Diag=2, ILUT=3};
+enum class Precond {Uncond=1, Diag=2, ILUT=3, IC=4};
 
 enum Info {
   SUCCESS = Eigen::Success,
@@ -43,6 +45,8 @@ namespace internal {
 
 template<typename Derived> struct IterSolverTrait;
 
+// ESMat is an Eigen SparseMatrix typedef'd in sparsemat.h.
+
 template<> struct IterSolverTrait<CG<Precond::Uncond>> {
   typedef Eigen::ConjugateGradient< ESMat,
     Eigen::Lower | Eigen::Upper,
@@ -61,6 +65,12 @@ template<> struct IterSolverTrait<CG<Precond::ILUT>> {
     Eigen::IncompleteLUT<double> > Type;
 };
 
+template<> struct IterSolverTrait<CG<Precond::IC>> {
+  typedef Eigen::ConjugateGradient< ESMat,
+    Eigen::Lower | Eigen::Upper,
+    Eigen::IncompleteCholesky<double> > Type;
+};
+
 template<> struct IterSolverTrait<BiCGStab<Precond::Uncond>> {
   typedef Eigen::BiCGSTAB< ESMat, Eigen::IdentityPreconditioner > Type;
 };
@@ -73,7 +83,11 @@ template<> struct IterSolverTrait<BiCGStab<Precond::ILUT>> {
   typedef Eigen::BiCGSTAB< ESMat, Eigen::IncompleteLUT<double> > Type;
 };
 
-// Direct sovler traits
+template<> struct IterSolverTrait<BiCGStab<Precond::IC>> {
+  typedef Eigen::BiCGSTAB< ESMat, Eigen::IncompleteCholesky<double> > Type;
+};
+
+// Direct solver traits
 
 template<typename Derived> struct DirectSolverTrait;
 
@@ -148,6 +162,7 @@ class CG : public IterativeSolver<CG<P>> {
 template class CG<Precond::Uncond>;
 template class CG<Precond::Diag>;
 template class CG<Precond::ILUT>;
+template class CG<Precond::IC>;
 
 template <Precond P>
 class BiCGStab : public IterativeSolver<BiCGStab<P>> {
@@ -156,6 +171,7 @@ class BiCGStab : public IterativeSolver<BiCGStab<P>> {
 template class BiCGStab<Precond::Uncond>;
 template class BiCGStab<Precond::Diag>;
 template class BiCGStab<Precond::ILUT>;
+template class BiCGStab<Precond::IC>;
 
 // Direct solvers
 
