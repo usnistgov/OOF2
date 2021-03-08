@@ -603,14 +603,15 @@ class OOF_Material_Symmetry(unittest.TestCase):
             subproblem='microstructure:skeleton:mesh:default',
             equation=InPlanePolarization)
         # If there's no solver assigned, properties won't be
-        # activated, and symmetry can't be checked.
+        # activated, and symmetry can't be checked.  The solver isn't
+        # actually used in these tests.
         OOF.Subproblem.Set_Solver(
             subproblem='microstructure:skeleton:mesh:default',
             solver_mode=AdvancedSolverMode(
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver= ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),tolerance=1e-13,
+                    preconditioner=ICPreconditioner(),tolerance=1e-13,
                     max_iterations=1000)))
         
     def tearDown(self):
