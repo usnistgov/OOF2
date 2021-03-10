@@ -16,7 +16,6 @@
 #include <sstream>
 #include "Eigen/SparseCore"
 #include "common/doublevec.h"
-#include "common/chunkyvector.h"
 
 class DoFMap;
 template<typename MT, typename VT> class SparseMatIterator;
@@ -45,7 +44,7 @@ public:
   SparseMat& operator=(SparseMat&&) = default; // move assignment
   ~SparseMat() = default;
   SparseMat clone() const { return *this; }
-  void set_from_triplets(const ChunkyVector<Triplet>&);
+  void set_from_triplets(std::vector<std::vector<Triplet>>&);
 
   // TODO(lizhong): inline possible methods
 
@@ -195,6 +194,10 @@ public:
 
 private:
   void to_end();
+};
+
+namespace Eigen {
+  std::ostream& operator<<(std::ostream&, const ::Triplet&);
 };
 
 #endif // SPARSEMAT_H_

@@ -55,10 +55,14 @@ int getLogChunkSize() {
 
 LinearizedSystem::LinearizedSystem(CSubProblem *subp, double time)
   : subproblem( subp ),
-    KTri_(logChunkSize),
-    CTri_(logChunkSize),
-    MTri_(logChunkSize),
-    JTri_(logChunkSize),
+    // KTri_(logChunkSize),
+    // CTri_(logChunkSize),
+    // MTri_(logChunkSize),
+    // JTri_(logChunkSize),
+    KTri_(subp->ndof()),
+    CTri_(subp->ndof()),
+    MTri_(subp->ndof()),
+    JTri_(subp->ndof()),
     tdDirichlet(false),
     time_(time)
 #ifdef _OPENMP
@@ -277,71 +281,45 @@ void LinearizedSystem::clearJacobian() {
 
 // TODO OPT: Mark empty*Maps as out-of-date.
 
-void LinearizedSystem::insertK(int row, int col, double x) {
+void LinearizedSystem::insertTriplet(std::vector<std::vector<Triplet>> &arr,
+				     int row, int col, double x)
+{
+  // TODO: For testing the more efficient way of constructing sparse
+  // matrices in the efficient-sparse git branch, the OpenMP code that
+  // used to be in insertK, insertC, etc, was removed.  That should be
+  // recreated here.  This was the openMP version of insertC:
+  //   int i = subproblem->mesh2subpEqnMap[row];
+  //   int j = subproblem->mesh2subpDoFMap[col];
+  //   assert(i > -1 && j > -1);
+  // #ifdef _OPENMP 
+  //   if (mkl_parallel)
+  //     CTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
+  //   else
+  //     CTri_.emplace_back(i, j, x);
+  // #else
+  //   CTri_.emplace_back(i, j, x); 
+  // #endif
+
   int i = subproblem->mesh2subpEqnMap[row];
   int j = subproblem->mesh2subpDoFMap[col];
   assert(i > -1 && j > -1);
+  arr[j].emplace_back(i, j, x);
+}
 
-#ifdef _OPENMP
-#warning OPENMP branch
-  if (mkl_parallel)
-    KTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
-  else
-    KTri_.emplace_back(i, j, x);
-#else
-  try {
-    KTri_.emplace_back(i,j,x);
-  }
-  catch (...) {
-      std::cerr << "OOPs: size=" << KTri_.size() << std::endl;
-      throw;
-  }
-  // KTri_.emplace_back(i, j, x); 
-#endif
+void LinearizedSystem::insertK(int row, int col, double x) {
+  insertTriplet(KTri_, row, col, x);
 }
 
 void LinearizedSystem::insertC(int row, int col, double x) {
-  int i = subproblem->mesh2subpEqnMap[row];
-  int j = subproblem->mesh2subpDoFMap[col];
-  assert(i > -1 && j > -1);
-
-#ifdef _OPENMP
-  if (mkl_parallel)
-    CTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
-  else
-    CTri_.emplace_back(i, j, x);
-#else
-  CTri_.emplace_back(i, j, x); 
-#endif
+  insertTriplet(CTri_, row, col, x);
 }
 
 void LinearizedSystem::insertM(int row, int col, double x) {
-  int i = subproblem->mesh2subpEqnMap[row];
-  int j = subproblem->mesh2subpDoFMap[col];
-  assert(i > -1 && j > -1);
-
-#ifdef _OPENMP
-  if (mkl_parallel)
-    MTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
-  else
-    MTri_.emplace_back(i, j, x);
-#else
-  MTri_.emplace_back(i, j, x);
-#endif
+  insertTriplet(MTri_, row, col, x);
 }
 
 void LinearizedSystem::insertJ(int row, int col, double x) {
-  int i = subproblem->mesh2subpEqnMap[row];
-  int j = subproblem->mesh2subpDoFMap[col];
-
-#ifdef _OPENMP
-  if (mkl_parallel)
-    JTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
-  else
-    JTri_.emplace_back(i, j, x);
-#else
-    JTri_.emplace_back(i, j, x);
-#endif
+  insertTriplet(JTri_, row, col, x);
 }
 
 // Some large problems may have memory fragmentation problems due to
@@ -359,7 +337,6 @@ void LinearizedSystem::consolidate() {
   C_.set_from_triplets(CTri_);
   J_.set_from_triplets(JTri_);
   K_.set_from_triplets(KTri_);
-
   // Deallocate the memory
   MTri_.clear();
   MTri_.shrink_to_fit();

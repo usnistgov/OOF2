@@ -11,6 +11,7 @@
 
 #include <oofconfig.h>
 #include "common/chunkyvector.h"
+#include "common/printvec.h"
 #include "engine/dofmap.h"
 #include "engine/sparsemat.h"
 
@@ -47,12 +48,81 @@ SparseMat::SparseMat(const SparseMat& source,
   make_compressed();
 }
 
-void SparseMat::set_from_triplets(const ChunkyVector<Triplet>& tris) {
-  // Initialize this sparse matrix from treiplets like (row, col,
-  // value). For triplets having the same row# and col#, add them
-  // together.
-  data.setFromTriplets(tris.begin(), tris.end(),
-    [] (const double& a, const double& b) { return a+b; });
+void SparseMat::set_from_triplets(std::vector<std::vector<Triplet>> &trips) {
+  // Fill the Eigen::SparseMatrix efficiently, without allocating
+  // extra space or doing too much extra work (hopefully).
+  
+  // Each entry in trips is a vector of triplets for a single column
+  // of the matrix.  It may have multiple entries for a row, which
+  // need to be summed.
+
+  // TODO: If we're not using Eigen::SparseMatrix::setFromTriplets, we
+  // don't need to use Eigen::Triplet.  We can use our own class, or
+  // std::tuple if it's more convenient.  Then we can add directly to
+  // the value in the compression step below.
+
+  std::vector<int> counts;
+  for(const std::vector<Triplet> &tvec : trips)
+    counts.push_back(tvec.size());
+  // nnzcol is a vector of ints saying how many non-zero elements
+  // are in each column of the matrix.
+  Eigen::VectorXi nnzcol = Eigen::VectorXi::Zero(ncols());
+
+  // For each column, find and sum the redundant entries and reserve
+  // space in the Eigen::SparseMatrix for the resulting number of
+  // rows.
+  for(int c=0; c<ncols(); c++) {
+
+    std::vector<Triplet> *tr = &trips[c];
+    if(tr->size() > 1) {
+      // Sort the entries in the column by row number
+      std::sort(tr->begin(), tr->end(),
+		[](const Triplet &a, const Triplet &b) -> bool {
+		  return a.row() < b.row();
+		});
+      // Look for adjacent entries with the same row number and add
+      // them, while compressing the vector. 
+      int nuniq = 1;		// number of unique rows found
+      int latest = 0;		// index of latest unique row
+      for(unsigned int k=1; k<tr->size(); k++) { // loop over triplets
+	if((*tr)[k].row() == (*tr)[latest].row()) {
+	  double v = (*tr)[latest].value() + (*tr)[k].value();
+	  // Triplet.value() returns a const, so we can't just update
+	  // tr[latest].value() += tr[k].value()
+	  (*tr)[latest] = Triplet((*tr)[latest].row(), c, v);
+	}
+	else {
+	  // Found a new row number
+	  (*tr)[nuniq] = (*tr)[k];
+	  latest = nuniq;
+	  ++nuniq;
+	}
+      }	// end loop over triplets k
+      
+      // Truncate the vector of Triplets to its new length
+      tr->resize(nuniq);
+      nnzcol[c] = nuniq;
+    } // end if tr->size() > 1
+
+    else if(tr->size() == 1)
+      nnzcol[c] = 1;
+
+  } // end loop over columns c
+
+  // Reserve space in the matrix.
+  data.reserve(nnzcol);
+
+  // Insert values
+  for(int c=0; c<ncols(); c++) {
+    for(const Triplet &trip : trips[c]) {
+      data.insert(trip.row(), trip.col()) = trip.value();
+    }
+  }
+  // makeCompressed shouldn't have to move any values around.  The
+  // only reason to call it here is to free some unnecessary vectors
+  // and let the rest of Eigen know that the matrix is already
+  // compressed.
+  data.makeCompressed();
 }
 
 bool SparseMat::is_nonempty_row(int i) const {
@@ -322,6 +392,14 @@ std::ostream& operator<<(std::ostream& os, const SparseMat& smat) {
   } 
   return os;
 }
+
+namespace Eigen {
+  std::ostream &operator<<(std::ostream& os, const ::Triplet& trip) {
+  os << "(" << trip.row() << ", " << trip.col() << ", " << trip.value()
+     << ")";
+  return os;
+}
+};
 
 bool save_market_mat(const SparseMat& mat, const std::string& filename, int sym) {
   return Eigen::saveMarket(mat.data, filename, sym);
