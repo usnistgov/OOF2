@@ -45,10 +45,6 @@ static SLock countLock;
 
 LinearizedSystem::LinearizedSystem(CSubProblem *subp, double time)
   : subproblem( subp ),
-    KTri_(subp->ndof()),
-    CTri_(subp->ndof()),
-    MTri_(subp->ndof()),
-    JTri_(subp->ndof()),
     tdDirichlet(false),
     time_(time)
 #ifdef _OPENMP
@@ -58,6 +54,7 @@ LinearizedSystem::LinearizedSystem(CSubProblem *subp, double time)
   countLock.acquire();
   ++nlinsys;
   countLock.release();
+  allocateTriplets();
   dofstates_.clear();
   dofstates_.resize(subproblem->ndof(), UNSET);
   resetFieldFlags();
@@ -133,6 +130,7 @@ LinearizedSystem::LinearizedSystem(const LinearizedSystem &other)
     , mkl_parallel(false)
 #endif
 {
+  allocateTriplets();
   countLock.acquire();
   ++nlinsys;
   countLock.release();
@@ -288,7 +286,7 @@ void LinearizedSystem::insertTriplet(std::vector<std::vector<Triplet>> &arr,
 
   int i = subproblem->mesh2subpEqnMap[row];
   int j = subproblem->mesh2subpDoFMap[col];
-  assert(i > -1 && j > -1);
+  assert(i > -1 && j > -1 && j < arr.size());
   arr[j].emplace_back(i, j, x);
 }
 
@@ -308,30 +306,45 @@ void LinearizedSystem::insertJ(int row, int col, double x) {
   insertTriplet(JTri_, row, col, x);
 }
 
-// Some large problems may have memory fragmentation problems due to
-// the repeated emplace_back operations performed on the KTri_
-// attribute.  This function lets them pre-allocate a bunch of space
-// so that things go better.
-void LinearizedSystem::K_preallocate(int n) {
-  KTri_.reserve(n);
-}
-
-void LinearizedSystem::consolidate() {
+void LinearizedSystem::consolidate(bool keepTempSpace) {
   // Called by CSubproblem::make_linear_system after matrices are
   // built.
   M_.set_from_triplets(MTri_);
   C_.set_from_triplets(CTri_);
   J_.set_from_triplets(JTri_);
   K_.set_from_triplets(KTri_);
+
   // Deallocate the memory
-  MTri_.clear();
-  MTri_.shrink_to_fit();
-  CTri_.clear();
-  CTri_.shrink_to_fit();
-  JTri_.clear();
-  JTri_.shrink_to_fit();
-  KTri_.clear();
-  KTri_.shrink_to_fit();
+  if(keepTempSpace) {
+    // keepTempSpace==true means that this LinearizedSystem is
+    // expected to be recomputed.  Clear the triplet vectors but don't
+    // deallocate their space.
+    for(auto &vec : MTri_) 
+      vec.clear();
+    for(auto &vec : CTri_)
+      vec.clear();
+    for(auto &vec : JTri_)
+      vec.clear();
+    for(auto &vec : KTri_)
+      vec.clear();
+  }
+  else {
+    MTri_.clear();
+    MTri_.shrink_to_fit();
+    CTri_.clear();
+    CTri_.shrink_to_fit();
+    JTri_.clear();
+    JTri_.shrink_to_fit();
+    KTri_.clear();
+    KTri_.shrink_to_fit();
+  }
+}
+
+void LinearizedSystem::allocateTriplets() {
+  MTri_.resize(subproblem->ndof());
+  CTri_.resize(subproblem->ndof());
+  JTri_.resize(subproblem->ndof());
+  KTri_.resize(subproblem->ndof());
 }
 
 void LinearizedSystem::insert_force_bndy_rhs(int row, double val) {

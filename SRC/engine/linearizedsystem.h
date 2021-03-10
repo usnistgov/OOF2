@@ -309,8 +309,8 @@ public:
   unsigned int n_unknowns_MCKa() const;
   unsigned int n_unknowns_MCKd() const;
 
-  void K_preallocate(int);
-  void consolidate();
+  void consolidate(bool);
+  void allocateTriplets();
 
   void insertK(int, int, double);
   void insertC(int, int, double);

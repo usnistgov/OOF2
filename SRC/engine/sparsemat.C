@@ -40,8 +40,10 @@ SparseMat::SparseMat(const SparseMat& source,
       if (i >= 0) {
         int j = colmap[it.col()];
         assert(j < (int) colmap.range() && j >= -1);
-        if (j >= 0)
+        if (j >= 0) {
+	  // This calls SparseMatrix::coeffRef, which is inefficient.
           insert(i, j, it.value());
+	}
       }
     }
   }

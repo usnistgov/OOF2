@@ -596,12 +596,11 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 {
   double time = linearsystem->time();
   memusage("Start of make_linear_system (C)");
+  linearsystem->allocateTriplets();
 
   DefiniteProgress *progress =
     dynamic_cast<DefiniteProgress*>(getProgress("Building linear system",
 						DEFINITE));
-  memusage("After DefiniteProgress (C)");
-  
   // TODO TDEP: The first thing we want to do for each element is
   // determine the integration order, so we know how many gausspoints
   // there are, and then signal to all the elements, so they can
@@ -613,8 +612,6 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 
 
 #ifdef _OPENMP
-  memusage("Ifdef _OPENMP (C)");
-
   // extract elements for this subproblem. Because OpenMP for loop 
   // parallel directive can only work on for loops with forms
   // like: for (int i = val; i < n; i++)
@@ -686,7 +683,6 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   }
 
 #else // _OPENMP
-  memusage("Else _OPENMP (C)");
 
   // TOOD MEMORY MANAGEMENT:
   // If we want to pre-allocate the triplet vectors in the linearized
@@ -698,10 +694,6 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   // the # of degrees of freedom, but includes both static and
   // time-derivative values, which is more than we want here.
 
-  // Hard-coded for Adam C's problem, Oct. 15, 2020.  TODO: Generalize.
-  // linearsystem->K_preallocate(1720753200);
-  // commented out for now (Dec 2020)
- 
   int counter = 0; 
   memusage("Start ElementIterator for loop (C)");
 
@@ -721,7 +713,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   }
 #endif // _OPENMP
 
-memusage("endif _OPENMP (C)");
+  memusage("endif _OPENMP (C)");
 
   //Interface branch
   //TODO: Write an InterfaceElementIterator for the subproblem.
@@ -735,16 +727,16 @@ memusage("endif _OPENMP (C)");
     progress->setFraction(double(i+1)/n);
     progress->setMessage(to_string(i+1) + "/" + to_string(n) + " edges");
   }
-  memusage("Before Progress Finish (C)");
   progress->finish();
-  memusage("After Progress Finish (C)");
-
   if(progress->stopped()) {
     throw ErrInterrupted();
   }
   memusage("Before Consolidate Linear system (C)");
 
-  linearsystem->consolidate();
+  // The argument to consolidate tells it whether or not to preserve
+  // the temp space that it uses when building the matrices.  If the
+  // problem is nonlinear, the space will be needed again.
+  linearsystem->consolidate(nlsolver->nonlinear());
 
   //std::cerr << "CSubProblem::make_linear_system exiting." << std::endl;
   //linearsystem->dumpAll("junk.out",time,"MLS exit");
