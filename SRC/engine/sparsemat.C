@@ -125,6 +125,17 @@ void SparseMat::set_from_triplets(std::vector<std::vector<Triplet>> &trips) {
   data.makeCompressed();
 }
 
+void SparseMat::set_from_triplets(std::vector<Triplet>& tris) {
+  // Initialize this sparse matrix from treiplets like (row, col,
+  // value). For triplets having the same row# and col#, add them
+  // together.
+
+  // This method is simple but involves some internal array
+  // reallocation in Eigen and is expected to use more memory.
+  data.setFromTriplets(tris.begin(), tris.end(),
+    [] (const double& a, const double& b) { return a+b; });
+}
+
 bool SparseMat::is_nonempty_row(int i) const {
   assert(i >=0 && i <= nrows());
   Eigen::SparseVector<double> row = data.row(i);
@@ -478,7 +489,7 @@ bool load_mat(SparseMat& mat, const std::string& filename) {
   mat.resize(nr, nc);
 
   // read matrix elements
-  ChunkyVector<Triplet> trips;
+  std::vector<Triplet> trips;
   trips.reserve(nnz);
   int r, c;
   double val;

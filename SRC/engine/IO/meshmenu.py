@@ -1460,24 +1460,6 @@ settingsmenu.addItem(oofmenu.OOFMenuItem(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-from ooflib.SWIG.engine import linearizedsystem
-
-logChunkSize = linearizedsystem.getLogChunkSize()
-
-def _setLogChunkSize(menuitem, logsize):
-    linearizedsystem.setLogChunkSize(logsize)
-
-settingsmenu.addItem(oofmenu.OOFMenuItem(
-    "Chunk_Size",
-    callback=_setLogChunkSize,
-    params=[parameter.PositiveIntParameter(
-        "logsize", value=logChunkSize,
-        tip="Allocate (some) large data arrays in chunks of size 2**logsize")],
-    help="Set the data allocation chunk size."
-))
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
 def _removeAllSolvers(menuitem, mesh):
     meshctxt = ooflib.engine.mesh.meshes[mesh]
     for subprob in meshctxt.subproblems():

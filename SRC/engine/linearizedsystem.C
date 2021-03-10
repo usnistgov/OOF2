@@ -43,22 +43,8 @@
 static int nlinsys = 0;
 static SLock countLock;
 
-// The chunk size used by ChunkyVector is 2**logChunkSize.
-static int logChunkSize = 20;
-void setLogChunkSize(int lcs) {
-  logChunkSize = lcs;
-}
-
-int getLogChunkSize() {
-  return logChunkSize;
-}
-
 LinearizedSystem::LinearizedSystem(CSubProblem *subp, double time)
   : subproblem( subp ),
-    // KTri_(logChunkSize),
-    // CTri_(logChunkSize),
-    // MTri_(logChunkSize),
-    // JTri_(logChunkSize),
     KTri_(subp->ndof()),
     CTri_(subp->ndof()),
     MTri_(subp->ndof()),
@@ -446,9 +432,9 @@ void LinearizedSystem::tear_down_parallel_env() {
   // to principal ones. Also clean up threads' copies.
   // This function is called from an OpenMP single region.
 
-  // TODO OPENMP: This won't work because KTri_ is now a ChunkyVector.
-  // ChunkyVector will need to acquire an insert() method, or at least
-  // an append() method for this to work.
+  // TODO OPENMP: This needs to take into account that KTri_ now keeps
+  // Triplets for each column in a separate vector.
+
   auto merge = [] (
     std::vector<vector<Triplet>>& srcs,
     std::vector<Triplet>& dest) {
