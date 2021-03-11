@@ -377,7 +377,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         gtklogger.setWidgetName(self.xtext,'X')
         self.xtext.set_width_chars(13)
         self.table.attach(self.xtext, 1,0, 1,1)
-        self.xtext.set_tooltip_text("x coordinate of the mouse click")
+        self.xtext.set_tooltip_text("x coordinate of the mouse click on the undisplaced Mesh")
         label = Gtk.Label('y=', halign=Gtk.Align.END, hexpand=False)
         self.table.attach(label, 0,1, 1,1)
         self.ytext = Gtk.Entry(editable=False, hexpand=True,
@@ -385,7 +385,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         gtklogger.setWidgetName(self.ytext,'Y')
         self.ytext.set_width_chars(13)
         self.table.attach(self.ytext, 1,1, 1,1)
-        self.ytext.set_tooltip_text("y coordinate of the mouse click")
+        self.ytext.set_tooltip_text("y coordinate of the mouse click on the undisplaced Mesh")
 
         # End of clicked point display
 

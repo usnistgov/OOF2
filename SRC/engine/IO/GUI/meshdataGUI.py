@@ -132,6 +132,8 @@ class MeshDataGUI(widgetscope.WidgetScope):
         gtklogger.setWidgetName(self.xText, 'x')
         self.xText.set_width_chars(12)
         self.table.attach(self.xText, 1,2, 1,1)
+        self.xText.set_tooltip_text(
+            "x coordinate of the mouse click on the undisplaced Mesh")
         self.xsignal = gtklogger.connect(self.xText, 'changed',
                                          self.posChangedCB)
 
@@ -141,6 +143,8 @@ class MeshDataGUI(widgetscope.WidgetScope):
         gtklogger.setWidgetName(self.yText, 'y')
         self.yText.set_width_chars(12)
         self.table.attach(self.yText, 1,3, 1,1)
+        self.yText.set_tooltip_text(
+            "y coordinate of the mouse click on the undisplaced Mesh")
         self.ysignal = gtklogger.connect(self.yText, 'changed',
                                          self.posChangedCB)
 
