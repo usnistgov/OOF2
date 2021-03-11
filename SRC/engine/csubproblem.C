@@ -596,7 +596,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 {
   double time = linearsystem->time();
   memusage("Start of make_linear_system (C)");
-  linearsystem->allocateTriplets();
+  linearsystem->allocateDoublets();
 
   DefiniteProgress *progress =
     dynamic_cast<DefiniteProgress*>(getProgress("Building linear system",

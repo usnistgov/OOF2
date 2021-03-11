@@ -54,7 +54,7 @@ LinearizedSystem::LinearizedSystem(CSubProblem *subp, double time)
   countLock.acquire();
   ++nlinsys;
   countLock.release();
-  allocateTriplets();
+  allocateDoublets();
   dofstates_.clear();
   dofstates_.resize(subproblem->ndof(), UNSET);
   resetFieldFlags();
@@ -130,7 +130,7 @@ LinearizedSystem::LinearizedSystem(const LinearizedSystem &other)
     , mkl_parallel(false)
 #endif
 {
-  allocateTriplets();
+  allocateDoublets();
   countLock.acquire();
   ++nlinsys;
   countLock.release();
@@ -265,7 +265,7 @@ void LinearizedSystem::clearJacobian() {
 
 // TODO OPT: Mark empty*Maps as out-of-date.
 
-void LinearizedSystem::insertTriplet(std::vector<std::vector<Triplet>> &arr,
+void LinearizedSystem::insertDoublet(std::vector<std::vector<Doublet>> &arr,
 				     int row, int col, double x)
 {
   // TODO: For testing the more efficient way of constructing sparse
@@ -287,64 +287,64 @@ void LinearizedSystem::insertTriplet(std::vector<std::vector<Triplet>> &arr,
   int i = subproblem->mesh2subpEqnMap[row];
   int j = subproblem->mesh2subpDoFMap[col];
   assert(i > -1 && j > -1 && j < arr.size());
-  arr[j].emplace_back(i, j, x);
+  arr[j].emplace_back(i, x);
 }
 
 void LinearizedSystem::insertK(int row, int col, double x) {
-  insertTriplet(KTri_, row, col, x);
+  insertDoublet(KDoub_, row, col, x);
 }
 
 void LinearizedSystem::insertC(int row, int col, double x) {
-  insertTriplet(CTri_, row, col, x);
+  insertDoublet(CDoub_, row, col, x);
 }
 
 void LinearizedSystem::insertM(int row, int col, double x) {
-  insertTriplet(MTri_, row, col, x);
+  insertDoublet(MDoub_, row, col, x);
 }
 
 void LinearizedSystem::insertJ(int row, int col, double x) {
-  insertTriplet(JTri_, row, col, x);
+  insertDoublet(JDoub_, row, col, x);
 }
 
 void LinearizedSystem::consolidate(bool keepTempSpace) {
   // Called by CSubproblem::make_linear_system after matrices are
   // built.
-  M_.set_from_triplets(MTri_);
-  C_.set_from_triplets(CTri_);
-  J_.set_from_triplets(JTri_);
-  K_.set_from_triplets(KTri_);
+  M_.set_from_doublets(MDoub_);
+  C_.set_from_doublets(CDoub_);
+  J_.set_from_doublets(JDoub_);
+  K_.set_from_doublets(KDoub_);
 
   // Deallocate the memory
   if(keepTempSpace) {
     // keepTempSpace==true means that this LinearizedSystem is
     // expected to be recomputed.  Clear the triplet vectors but don't
     // deallocate their space.
-    for(auto &vec : MTri_) 
+    for(auto &vec : MDoub_) 
       vec.clear();
-    for(auto &vec : CTri_)
+    for(auto &vec : CDoub_)
       vec.clear();
-    for(auto &vec : JTri_)
+    for(auto &vec : JDoub_)
       vec.clear();
-    for(auto &vec : KTri_)
+    for(auto &vec : KDoub_)
       vec.clear();
   }
   else {
-    MTri_.clear();
-    MTri_.shrink_to_fit();
-    CTri_.clear();
-    CTri_.shrink_to_fit();
-    JTri_.clear();
-    JTri_.shrink_to_fit();
-    KTri_.clear();
-    KTri_.shrink_to_fit();
+    MDoub_.clear();
+    MDoub_.shrink_to_fit();
+    CDoub_.clear();
+    CDoub_.shrink_to_fit();
+    JDoub_.clear();
+    JDoub_.shrink_to_fit();
+    KDoub_.clear();
+    KDoub_.shrink_to_fit();
   }
 }
 
-void LinearizedSystem::allocateTriplets() {
-  MTri_.resize(subproblem->ndof());
-  CTri_.resize(subproblem->ndof());
-  JTri_.resize(subproblem->ndof());
-  KTri_.resize(subproblem->ndof());
+void LinearizedSystem::allocateDoublets() {
+  MDoub_.resize(subproblem->ndof());
+  CDoub_.resize(subproblem->ndof());
+  JDoub_.resize(subproblem->ndof());
+  KDoub_.resize(subproblem->ndof());
 }
 
 void LinearizedSystem::insert_force_bndy_rhs(int row, double val) {
@@ -405,18 +405,18 @@ void LinearizedSystem::init_parallel_env(bool needJacobian,
   // triplets of K, C, M, J matrix, and a copy of residual,
   // body_rhs as well as force_bndy_rhs vectors.
 
-  KTri_mtd.clear();
-  KTri_mtd.resize(ntds);
+  KDoub_mtd.clear();
+  KDoub_mtd.resize(ntds);
 
-  CTri_mtd.clear();
-  CTri_mtd.resize(ntds);
+  CDoub_mtd.clear();
+  CDoub_mtd.resize(ntds);
 
-  MTri_mtd.clear();
-  MTri_mtd.resize(ntds);
+  MDoub_mtd.clear();
+  MDoub_mtd.resize(ntds);
 
   if (need_jacobian) {
-    JTri_mtd.clear();
-    JTri_mtd.resize(ntds);
+    JDoub_mtd.clear();
+    JDoub_mtd.resize(ntds);
   }
 
   if (need_residual) {
@@ -445,12 +445,12 @@ void LinearizedSystem::tear_down_parallel_env() {
   // to principal ones. Also clean up threads' copies.
   // This function is called from an OpenMP single region.
 
-  // TODO OPENMP: This needs to take into account that KTri_ now keeps
-  // Triplets for each column in a separate vector.
+  // TODO OPENMP: This needs to take into account that KDoub_ now keeps
+  // Doublets for each column in a separate vector.
 
   auto merge = [] (
-    std::vector<vector<Triplet>>& srcs,
-    std::vector<Triplet>& dest) {
+    std::vector<vector<Doublet>>& srcs,
+    std::vector<Doublet>& dest) {
       int size = 0;
       for (auto& s : srcs)
         size += s.size();
@@ -459,11 +459,11 @@ void LinearizedSystem::tear_down_parallel_env() {
     srcs.clear();
   };
 
-  merge(KTri_mtd, KTri_);
-  merge(CTri_mtd, CTri_);
-  merge(MTri_mtd, MTri_);
+  merge(KDoub_mtd, KDoub_);
+  merge(CDoub_mtd, CDoub_);
+  merge(MDoub_mtd, MDoub_);
   if (need_jacobian)
-    merge(JTri_mtd, JTri_);
+    merge(JDoub_mtd, JDoub_);
 
   if (need_residual) {
     #pragma omp parallel for

@@ -94,12 +94,11 @@ private:
   SparseMat K_indfree_, C_indfree_, M_indfree_, J_indfree_;
   SparseMat K_indfixed_, M_indfixed_, C_indfixed_;
 
-  // Using vector of triplets (row, col, value) during the construction
-  // of matrices. Because SparseMat is in compressed row/column storage
-  // format which is not efficient for matrix construction (make linear
-  // system).
-  std::vector<std::vector<Triplet>> KTri_, CTri_, MTri_, JTri_;
-  void insertTriplet(std::vector<std::vector<Triplet>>&, int, int, double);
+  // The sparse matrices are built from intermediate structures, which
+  // are vectors of (row, value) pairs, stored in a vector of vectors.
+  // The outer vector's index is the column.
+  std::vector<std::vector<Doublet>> KDoub_, CDoub_, MDoub_, JDoub_;
+  void insertDoublet(std::vector<std::vector<Doublet>>&, int, int, double);
 
   // Each map level operates on the output from the previous level.
   // The domain of level x is the range of level x-1.
@@ -200,7 +199,7 @@ private:
   // Those structures are initialized and torn down by
   // init_parallel_env() and tear_down_parallel_env() 
   // functions.
-  std::vector<std::vector<Triplet>> KTri_mtd, CTri_mtd, MTri_mtd, JTri_mtd; 
+  std::vector<std::vector<Doublet>> KDoub_mtd, CDoub_mtd, MDoub_mtd, JDoub_mtd; 
   std::vector<DoubleVec> residual_mtd, body_mtd, force_bndy_mtd;
 
   // A flag indicates if make_linear_system is running in parallel
@@ -310,7 +309,7 @@ public:
   unsigned int n_unknowns_MCKd() const;
 
   void consolidate(bool);
-  void allocateTriplets();
+  void allocateDoublets();
 
   void insertK(int, int, double);
   void insertC(int, int, double);
