@@ -246,7 +246,7 @@ OrientationRegistration(
     to_base=_xyz_to_base,
     params=[AngleRangeParameter('phi', (-180., 180., 0.1), 0.0,
                             tip="Initial rotation about x axis, in degrees."),
-            AngleRangeParameter('theta', (0., 180., 0.1), 0.0,
+            AngleRangeParameter('theta', (-90.0, 90.0, 0.1), 0.0,
                             tip="Second rotation, about y axis, in degrees."),
             AngleRangeParameter('psi', (-180., 180., 0.1), 0.0,
                             tip="Third rotation, about z axis, in degrees.")],
