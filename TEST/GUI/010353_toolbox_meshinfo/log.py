@@ -378,18 +378,7 @@ checkpoint Mesh_Data_1 data updated
 findWidget('Mesh Data 1').resize(543, 503)
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Mesh_Info.QueryElement
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 3.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 6.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 9.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.3000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.8000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.1000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.3000000000000e+01)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
-assert tests.dataWidgets('xy', 'xz', 'yz', 'zz', 'yy', 'xx')
 
-# DELETE ABOVE SCROLL EVENTS
 # Change from Value to Invariant
 wevent(findWidget('Mesh Data 1:ViewSource:output:output_1'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Mesh Data 1:ViewSource:output:output_1').get_window())
 checkpoint toplevel widget mapped chooserPopup-output_1
