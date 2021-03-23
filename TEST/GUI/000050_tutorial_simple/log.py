@@ -384,13 +384,13 @@ findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:red:slider').get_adj
 findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:green:entry').set_text('0.')
 findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:green:entry').set_text('0.8')
 widget_0=findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:green:entry')
-if widget_0: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
+if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
 del widget_0
 widget_1=findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:green:entry')
-if widget_1: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1.get_window())
+if widget_1: wevent(widget_1, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1.get_window())
 del widget_1
 widget_2=findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:green:entry')
-if widget_2: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2.get_window())
+if widget_2: wevent(widget_2, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2.get_window())
 del widget_2
 findWidget('Dialog-Parametrize Color;yellow:widget_GTK_RESPONSE_OK').clicked()
 checkpoint contourmap info updated for Graphics_1
@@ -451,7 +451,7 @@ findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:green:slider').get_adj
 findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:entry').set_text('0.')
 findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:entry').set_text('0.8')
 widget_3=findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:entry')
-if widget_3: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_3.get_window())
+if widget_3: wevent(widget_3, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_3.get_window())
 del widget_3
 findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:slider').get_adjustment().set_value( 8.0555555555556e-01)
 findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:slider').get_adjustment().set_value( 9.4444444444444e-01)
@@ -463,7 +463,7 @@ findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:green:entry').set_text
 findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:green:entry').set_text('0.')
 findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:green:entry').set_text('0.8')
 widget_4=findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:green:entry')
-if widget_4: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_4.get_window())
+if widget_4: wevent(widget_4, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_4.get_window())
 del widget_4
 findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:slider').get_adjustment().set_value( 9.8611111111111e-01)
 findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:red:slider').get_adjustment().set_value( 7.9166666666667e-01)

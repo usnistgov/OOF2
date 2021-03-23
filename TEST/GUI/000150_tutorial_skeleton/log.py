@@ -158,10 +158,10 @@ findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogen
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set_text('0.')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set_text('0.5')
 widget_0=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry')
-if widget_0: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
+if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
 del widget_0
 widget_1=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry')
-if widget_1: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1.get_window())
+if widget_1: wevent(widget_1, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1.get_window())
 del widget_1
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized
@@ -241,7 +241,7 @@ findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogen
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry').set_text('0.9')
 widget_2=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogeneous Elements:threshold:entry')
 checkpoint skeleton page sensitized
-if widget_2: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2.get_window())
+if widget_2: wevent(widget_2, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2.get_window())
 del widget_2
 checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
@@ -348,14 +348,14 @@ findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Av
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry').set_text('0.8')
 widget_3=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry')
 checkpoint skeleton page sensitized
-if widget_3: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_3.get_window())
+if widget_3: wevent(widget_3, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_3.get_window())
 checkpoint skeleton page sensitized
 del widget_3
 widget_4=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry')
-if widget_4: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_4.get_window())
+if widget_4: wevent(widget_4, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_4.get_window())
 del widget_4
 widget_5=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Rationalize:criterion:Average Energy:alpha:entry')
-if widget_5: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_5.get_window())
+if widget_5: wevent(widget_5, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_5.get_window())
 del widget_5
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized

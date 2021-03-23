@@ -115,14 +115,14 @@ class GfxLabelTree:
 
     def selectionChangedCB(self, selection):
         debug.mainthreadTest()
-        model, iter = selection.get_selected()
-        if iter is None:                # nothing selected
+        model, treeiter = selection.get_selected()
+        if treeiter is None:                # nothing selected
             if self.callback and self.current_selection is not None:
                 self.callback("deselect", self.current_selection,
                               *self.callbackargs, **self.callbackkwargs)
             self.current_selection = None
         else:
-            ltnode = model[iter][1]
+            ltnode = model[treeiter][1]
             if self.callback:
                 if self.current_selection is not None:
                     self.callback("deselect", self.current_selection,

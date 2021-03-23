@@ -12,6 +12,7 @@ from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import guitop
 from ooflib.common import debug
 from ooflib.common import thread_enable
+from ooflib.common import utils
 from ooflib.common.IO import filenameparam
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
@@ -260,3 +261,9 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
         gui_callback=pauseGUI,
         help="Stop replaying until the 'Continue' button is pressed."))
 
+############################
+
+# Save some typing in the Console window when debugging.
+
+utils.OOFdefine('findAllWidgets', gtklogger.findAllWidgets)
+utils.OOFdefine('findWidget', gtklogger.findWidget)

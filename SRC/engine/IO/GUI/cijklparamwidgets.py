@@ -48,19 +48,25 @@ class CijIsoCijklWidget(SymmetricMatrixInput):
                 f.gtk.set_sensitive(0)
                 
         # Callbacks to cross-connect things so that c44 can be
-        # entered, and gets maintained correctly.
+        # entered, and gets maintained correctly.  "activate" means
+        # that the user pressed return while typing in a GtkEntry.
+        # "focus_out_event" means that the user did something that
+        # transferred keyboard focus elsewhere. In either case, if the
+        # user changed the contents of a GtkEntry has changed, the
+        # signal means that the change is complete and that other
+        # GtkEntries that depend on it might need to be updated.
         gtklogger.connect(self.widgets[(0,0)].gtk, "activate",
-                          self.new_c11_or_c12,None)
+                          self.new_c11_or_c12, None)
         gtklogger.connect(self.widgets[(0,0)].gtk, "focus_out_event",
                           self.new_c11_or_c12)
         #
         gtklogger.connect(self.widgets[(0,1)].gtk, "activate",
-                          self.new_c11_or_c12,None)
+                          self.new_c11_or_c12, None)
         gtklogger.connect(self.widgets[(0,1)].gtk, "focus_out_event",
                           self.new_c11_or_c12)
         #
         gtklogger.connect(self.widgets[(3,3)].gtk, "activate",
-                          self.new_c44,None)
+                          self.new_c44, None)
         gtklogger.connect(self.widgets[(3,3)].gtk, "focus_out_event",
                           self.new_c44)
 
@@ -90,6 +96,8 @@ class CijIsoCijklWidget(SymmetricMatrixInput):
             self.widgets[(5,5)].set_value(c44)
         finally:
             self.unblock_signals()
+
+        gtklogger.checkpoint("CijIsoCijklWidget updated")
         
     # This widget understands its "values" to be c11 and c12,
     # in that order, for both setting and getting.
@@ -101,14 +109,8 @@ class CijIsoCijklWidget(SymmetricMatrixInput):
         for p, v in map(None, self.params, self.values):
             p.value = v
 
-    # Callbacks -- called on return or focus_out.  These must not
-    # throw exceptions, or the GTK's focus book-keeping can get
-    # screwed up, because the error dialog will want the focus, and
-    # the widget whose focus-out-callback this is will not have
-    # released it yet, because it didn't return FALSE, because it
-    # didn't return, because it threw an exception.  But we call
-    # get_value(), which can throw an exception -- do not propagate
-    # it.
+    # Callbacks -- called on return or focus_out.
+
     def new_c11_or_c12(self,gtk,event):
         c11 = self.params[0].value
         c12 = self.params[1].value
@@ -189,6 +191,8 @@ class CijCubicCijklWidget(SymmetricMatrixInput):
             self.widgets[(5,5)].set_value(c44)
         finally:
             self.unblock_signals()
+        gtklogger.checkpoint("CijCubicCijklWidget updated")
+        
     # This widget understands its "values" to be c11, c12, and c44,
     # in that order, for both setting and getting.
     def set_values(self, values=None):
@@ -330,6 +334,8 @@ class HexagonalCijklWidget(AnisoWidgetBase):
             self.widgets[(5,5)].set_value(0.5*(var_dict['c11']-var_dict['c12']))
         finally:
             self.unblock_signals()
+        gtklogger.checkpoint("HexagonalCijklWidget updated")
+        
     def new_c66(self,gtk,event):
         v_dict={}
         for v in self.kset.values():
@@ -388,6 +394,8 @@ class TetragonalCijklWidget(AnisoWidgetBase):
             self.widgets[(1,5)].set_value(-var_dict['c16'])
         finally:
             self.unblock_signals()
+        gtklogger.checkpoint("TetragonalCijklWidget updated")
+        
 def TetCijklParam_makeWidget(self, scope, **kwargs):
     return TetragonalCijklWidget(self, scope, **kwargs)
 
@@ -443,7 +451,8 @@ class TrigonalACijklWidget(AnisoWidgetBase):
             self.widgets[(5,5)].set_value(c66)
         finally:
             self.unblock_signals()
-
+        gtklogger.checkpoint("TrigonalACijklWidget updated")
+        
     def new_c66(self, gtk, event):
         v_dict = {}
         for v in self.kset.values():
@@ -510,6 +519,7 @@ class TrigonalBCijklWidget(AnisoWidgetBase):
             self.widgets[(5,5)].set_value(c66)
         finally:
             self.unblock_signals()
+        gtklogger.checkpoint("TrigonalBCijklWidget updated")
 
     def new_c66(self, gtk, event):
         v_dict = {}
@@ -560,6 +570,7 @@ class OrthorhombicCijklWidget(AnisoWidgetBase):
                 self.widgets[k].set_value(var_dict[v])
         finally:
             self.unblock_signals()
+        gtklogger.checkpoint("OrthorhombicCijklWidget updated")
 
 def OrthCijklParam_makeWidget(self, scope, **kwargs):
     return OrthorhombicCijklWidget(self, scope, **kwargs)
@@ -598,6 +609,7 @@ class MonoclinicCijklWidget(AnisoWidgetBase):
                 self.widgets[k].set_value(var_dict[v])
         finally:
             self.unblock_signals()
+        gtklogger.checkpoint("MonoclinicCijklWidget updated")
         
 def MonoCijklParam_makeWidget(self, scope, **kwargs):
     return MonoclinicCijklWidget(self, scope, **kwargs)
@@ -644,6 +656,7 @@ class TriclinicCijklWidget(AnisoWidgetBase):
                 self.widgets[k].set_value(var_dict[v])
         finally:
             self.unblock_signals()
+        gtklogger.checkpoint("TriclinicCijklWidget updated")
         
 def TriCijklParam_makeWidget(self, scope, **kwargs):
     return TriclinicCijklWidget(self, scope, **kwargs)
@@ -652,7 +665,7 @@ anisocijkl.TriclinicCijklParameter.makeWidget = TriCijklParam_makeWidget
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# CijklBoolWidget displays a bool for each entry in Cijkl. It's value
+# CijklBoolWidget displays a bool for each entry in Cijkl. Its value
 # is a list of strings, each of which is a pair of Voigt indices in
 # [1,6].
 

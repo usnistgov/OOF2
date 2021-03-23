@@ -438,19 +438,19 @@ findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Color Ra
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Color Range:range:DeltaRGB:delta_red:entry').set_text('0.0')
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Color Range:range:DeltaRGB:delta_red:entry').set_text('0.01')
 widget_0=findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Color Range:range:DeltaRGB:delta_red:entry')
-if widget_0: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
+if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
 del widget_0
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Color Range:range:DeltaRGB:delta_green:entry').set_text('0.')
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Color Range:range:DeltaRGB:delta_green:entry').set_text('0.0')
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Color Range:range:DeltaRGB:delta_green:entry').set_text('0.01')
 widget_1=findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Color Range:range:DeltaRGB:delta_green:entry')
-if widget_1: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1.get_window())
+if widget_1: wevent(widget_1, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1.get_window())
 del widget_1
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Color Range:range:DeltaRGB:delta_blue:entry').set_text('0.')
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Color Range:range:DeltaRGB:delta_blue:entry').set_text('0.0')
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Color Range:range:DeltaRGB:delta_blue:entry').set_text('0.01')
 widget_2=findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Color Range:range:DeltaRGB:delta_blue:entry')
-if widget_2: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2.get_window())
+if widget_2: wevent(widget_2, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2.get_window())
 del widget_2
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:OK').clicked()
 checkpoint microstructure page sensitized

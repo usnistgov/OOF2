@@ -559,7 +559,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Color
 assert tests.pixelSelectionTBSizeCheck('OOF2 Graphics 1', 5799)
 widget_0=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Color:range:DeltaGray:delta_gray:entry')
-if widget_0: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
+if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
 del widget_0
 findWidget('Microstructure:Next').clicked()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 9.4000000000000e+01)
@@ -806,7 +806,7 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
 widget_1=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Color:range:DeltaGray:delta_gray:entry')
-if widget_1: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1.get_window())
+if widget_1: wevent(widget_1, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1.get_window())
 del widget_1
  checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Color

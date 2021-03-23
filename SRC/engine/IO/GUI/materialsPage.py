@@ -45,7 +45,7 @@ class MaterialsPage(oofGUI.MainPage):
         self.built = False
         oofGUI.MainPage.__init__(self, name="Materials", ordering=100,
                                  tip='Define Materials')
-        # Pane has Poperties on left, Materials on right.
+        # Pane has Properties on left, Materials on right.
         pane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
                          wide_handle=True)
         gtklogger.setWidgetName(pane, 'Pane')
@@ -78,11 +78,17 @@ class MaterialsPage(oofGUI.MainPage):
         return None
     
     def sensitize(self):
+        # When recording, this is called twice after each
+        # TreeSelectionLogger changed signal.  When replaying, it's
+        # called just once.
         if self.sensitizable():
             self.propertypane.do_sensitize()
             self.materialpane.do_sensitize()
             gtklogger.checkpoint("Materials page updated")
-        
+
+########################################################################
+########################################################################
+
 class PropertyPane:
     def __init__(self, parent):
         debug.mainthreadTest()
@@ -241,15 +247,15 @@ class PropertyPane:
     def deselect_property(self, name):
         debug.mainthreadTest()
         if self.current_property: # and self.propertytree:
-            if self.current_property[0]==name:
-                self.propertytree.blockSignals()
-                self.propertytree.deselect()
-                self.propertytree.unblockSignals()
-                self.current_property = None
-                self.sensitize()
-            else:
-                print "Inconsistent selection state."
+            assert self.current_property[0] == name
+            self.propertytree.blockSignals()
+            self.propertytree.deselect()
+            self.propertytree.unblockSignals()
+            self.current_property = None
+            self.sensitize()
             gtklogger.checkpoint("property deselected")
+        else:
+            raise ooferror.ErrPyProgrammingError("Inconsistent selection state")
         
     def proptreeCB(self, signal, treenode): # GfxLabelTree callback
         prop_name = treenode.path()

@@ -102,18 +102,18 @@ class WidgetLogger(loggers.GtkLogger):
 
         # If a widget has lost focus because it's been destroyed for
         # some reason, then replaying the focus_out_event will fail.
-        # The widget destruction was caused by a previous line in the
-        # log file, so the widget will have been destroyed before the
-        # focus_out_event is replayed.  Therefore it's necessary to
-        # check that the widget still exists before issuing the
-        # signal.
+        # The widget destruction would have been caused by a previous
+        # line in the log file, so the widget will have been destroyed
+        # before the focus_out_event is replayed.  Therefore it's
+        # necessary to check that the widget still exists before
+        # issuing the signal.
         if signal == 'focus_out_event':
             ## TODO GTK3: Keep a weak ref to the previous wvar and
             ## re-use the old one if the current one is the same.
             wvar = loggers.localvar('widget')
             return [
-                "%s=%s" % (wvar,self.location(obj, *args)),
-                "if %(widget)s: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=%(widget)s.get_window())" % dict(widget=wvar),
+                "%s=%s" % (wvar, self.location(obj, *args)),
+                "if %(w)s: wevent(%(w)s, Gdk.EventType.FOCUS_CHANGE, in_=0, window=%(w)s.get_window())" % dict(w=wvar),
                 "del %s" % wvar
                 ]
 

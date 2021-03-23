@@ -185,7 +185,7 @@ findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set_text('0.7')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set_text('0.75')
 widget_0=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry')
-if widget_0: event(Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
+if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
 del widget_0
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized

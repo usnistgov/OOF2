@@ -347,4 +347,6 @@ def comprehensive_sanity_check():
 # Insert a comment in the log file.
 def comment(*args):
     if logutils.recording():
-        print >> logutils.logfile(), ' '.join(map(str, ("# ",) + args))
+        print >> logutils.logfile(), ' '.join(map(str, ("#",) + args))
+        if logutils.debugLevel() >= 2:
+            print >> sys.stderr, ' '.join(map(str, ("#",) + args))

@@ -65,7 +65,7 @@ class TreeSelectionLogger(adopteelogger.AdopteeLogger):
                 model, iter = obj.get_selected()
                 if iter is not None:
                     path = model.get_path(iter).get_indices()
-                    return ["%s.select_path(Gtk.TreePath(%s))" 
+                    return ["%s.select_path(Gtk.TreePath(%s)) # TreeSelectionLogger changed" 
                             % (self.location(obj, *args), path)]
                 else:
                     return ["%s.unselect_all()" % self.location(obj, *args)]
