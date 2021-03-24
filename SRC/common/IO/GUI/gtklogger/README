@@ -259,3 +259,8 @@ replay namespace with replayDefine().  At the beginning of the
 callback, before it has done anything consequential, call
 writeLine(str) where str is a string that when evaluated calls your
 callback.
+
+
+TODO:
+* gtklogger.comment()
+* Describe problems re logging GtkTreeSelection changed and checkpoints
