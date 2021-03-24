@@ -26,6 +26,7 @@ checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint OOF.Material.New
+
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((0,))
 checkpoint Materials page updated
 checkpoint property selected
@@ -41,6 +42,7 @@ checkpoint property selected
 widget_0=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
 widget_0.event(event(gtk.gdk.BUTTON_RELEASE,button=1,window=widget_0.window))
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+
 findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
 checkpoint toplevel widget mapped Dialog-Copy property Mechanical;Elasticity;Isotropic
 findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic').resize(282, 72)
@@ -50,6 +52,7 @@ findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expa
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint OOF.Property.Copy
+
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('OOF2:Materials Page:Pane:Property:Parametrize').clicked()
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance
@@ -62,28 +65,39 @@ findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Ci
 widget_1=findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Cij:0,0')
 widget_1.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_1.window))
 assert tests.convertibleCij("Isotropic;instance", c11=2.0, c12=0.5, c13=0.5, c22=2.0, c23=0.5, c33=2.0, c44=0.75, c55=0.75, c66=0.75)
+
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Chooser'), 'Lame')
 assert tests.other('Isotropic;instance', 'Lame', lmbda=0.5, mu=0.75)
+
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Chooser'), 'E and nu')
 assert tests.other('Isotropic;instance', 'E and nu', young=1.8, poisson=0.2)
+
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Chooser'), 'Bulk and Shear')
 assert tests.other('Isotropic;instance', 'Bulk and Shear', bulk=1.0, shear=0.75)
+
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Bulk and Shear:bulk').set_text('.0000000000000002')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Bulk and Shear:bulk').set_text('2.0000000000000002')
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Chooser'), 'E and nu')
 assert tests.other('Isotropic;instance', 'E and nu', young=2.0, poisson=1./3.)
+
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Chooser'), 'Lame')
 assert tests.other('Isotropic;instance', 'Lame', lmbda=1.5, mu=0.75)
+
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Chooser'), 'Cij')
 assert tests.convertibleCij('Isotropic;instance', c11=3.0, c12=1.5, c13=1.5, c22=3.0, c23=1.5, c33=3.0, c44=0.75, c55=0.75, c66=0.75)
+
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Chooser'), 'E and nu')
 assert tests.other('Isotropic;instance', 'E and nu', young=2.0, poisson=1./3.)
+
+# Set poisson to an illegal value and try to switch to bulk & shear
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:E and nu:poisson').set_text('0.')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:E and nu:poisson').set_text('0.5')
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Chooser'), 'Bulk and Shear')
 checkpoint toplevel widget mapped Warning
 findWidget('Warning').resize(310, 85)
 findWidget('Warning:OK').clicked()
+# Add test for bulk and shear values
+
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Chooser'), 'Cij')
 assert tests.convertibleCij('Isotropic;instance', c11=3.0, c12=1.5, c13=1.5, c22=3.0, c23=1.5, c33=3.0, c44=0.75, c55=0.75, c66=0.75)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:gtk-ok').clicked()
@@ -96,6 +110,7 @@ checkpoint Materials page updated
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint OOF.Material.Add_property
+
 widget_2=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
 widget_2.event(event(gtk.gdk.BUTTON_RELEASE,button=1,window=widget_2.window))
 findWidget('OOF2:Materials Page:Pane').set_position(272)
@@ -108,6 +123,8 @@ findWidget('OOF2:Materials Page:Pane').set_position(272)
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint OOF.Property.Copy
+
+# Parametrize instance_2
 widget_3=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
 widget_3.event(event(gtk.gdk.BUTTON_RELEASE,button=1,window=widget_3.window))
 tree=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
@@ -118,12 +135,18 @@ checkpoint property selected
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_2
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_2').resize(372, 244)
 assert tests.convertibleCij('Isotropic;instance_2', c11=3.0, c12=1.5, c13=1.5, c22=3.0, c23=1.5, c33=3.0, c44=0.75, c55=0.75, c66=0.75)
+
+# Switch to Lame
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_2:cijkl:Chooser'), 'Lame')
 assert tests.other('Isotropic;instance_2', 'Lame', lmbda=1.5, mu=0.75)
+
+# Change lmbda
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_2:cijkl:Lame:lmbda').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_2:cijkl:Lame:lmbda').set_text('3')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_2:gtk-ok').clicked()
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.instance_2
+
+# Add instance_2 to material
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 findWidget('OOF2:Materials Page:Pane').set_position(272)
@@ -132,6 +155,8 @@ checkpoint Materials page updated
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint OOF.Material.Add_property
+
+# Make a copy, instance_3
 findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
 checkpoint toplevel widget mapped Dialog-Copy property Mechanical;Elasticity;Isotropic;instance_2
 findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic;instance_2').resize(282, 72)
@@ -141,19 +166,27 @@ findWidget('OOF2:Materials Page:Pane').set_position(272)
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint OOF.Property.Copy
+
+# Open instance_3
 findWidget('OOF2:Materials Page:Pane:Property:Parametrize').clicked()
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3').resize(214, 128)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 assert tests.other('Isotropic;instance_3', 'Lame', lmbda=3.0, mu=0.75)
+
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:cijkl:Chooser'), 'E and nu')
 assert tests.other('Isotropic;instance_3', 'E and nu', young=2.1, poisson=0.4)
+
+# Set poisson illegally but don't try to convert it.  Just save. No
+# error message.
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3').resize(223, 128)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:cijkl:E and nu:poisson').set_text('0.')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:cijkl:E and nu:poisson').set_text('0.5')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:gtk-ok').clicked()
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.instance_3
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+
+# Now re-open the illegal property -- get error message
 findWidget('OOF2:Materials Page:Pane:Property:Parametrize').clicked()
 checkpoint toplevel widget mapped Warning
 findWidget('Warning').resize(310, 85)
@@ -161,11 +194,15 @@ findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('Warning:OK').clicked()
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3
 assert tests.other('Isotropic;instance_3', 'E and nu', young=2.1, poisson=0.5)
+
+# Fix illegal value
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3').resize(223, 128)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:cijkl:E and nu:poisson').set_text('0.')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:cijkl:E and nu:poisson').set_text('0.4')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:gtk-ok').clicked()
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.instance_3
+
+# Add property to material
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 findWidget('OOF2:Materials Page:Pane').set_position(272)
@@ -174,8 +211,11 @@ checkpoint Materials page updated
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint OOF.Material.Add_property
+
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_vadjustment().set_value( 4.0000000000000e+01)
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+
+# Open instance_3
 widget_4=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
 widget_4.event(event(gtk.gdk.BUTTON_RELEASE,button=1,window=widget_4.window))
 tree=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
@@ -185,7 +225,9 @@ checkpoint Materials page updated
 checkpoint property selected
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3').resize(223, 128)
+# Check unmodified parameters
 assert tests.other('Isotropic;instance_3', 'E and nu', young=2.1, poisson=0.4)
+# Choose illegal poisson.  Get error message bc property is in a material
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:cijkl:E and nu:poisson').set_text('0.')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:cijkl:E and nu:poisson').set_text('0.5')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:gtk-ok').clicked()
@@ -193,10 +235,14 @@ checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.instance_3
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(592, 166)
 findWidget('Error:gtk-ok').clicked()
+
+# Remove illegal property from material
 findWidget('OOF2:Materials Page:Pane:Material:RemoveProperty').clicked()
 checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint OOF.Material.Remove_property
+
+# Open the illegal property -- get error message
 widget_5=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
 widget_5.event(event(gtk.gdk.BUTTON_RELEASE,button=1,window=widget_5.window))
 tree=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
@@ -210,15 +256,21 @@ findWidget('Warning:OK').clicked()
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3').resize(223, 128)
 assert tests.other('Isotropic;instance_3', 'E and nu', young=2.1, poisson=0.5)
+
+# Close illegal property -- no error message bc it's not in a material
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:gtk-ok').clicked()
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.instance_3
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+
+# Add illegal property to the material -- get error message
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint OOF.Material.Add_property
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(592, 166)
 findWidget('Error:gtk-ok').clicked()
+
+# Open illegal property -- get error message
 widget_6=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
 widget_6.event(event(gtk.gdk.BUTTON_RELEASE,button=1,window=widget_6.window))
 tree=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
@@ -231,12 +283,16 @@ findWidget('Warning').resize(310, 85)
 findWidget('Warning:OK').clicked()
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3
 assert tests.other('Isotropic;instance_3', 'E and nu', young=2.1, poisson=0.5)
+
+# Make the illegal property legal again
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3').resize(223, 128)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:cijkl:E and nu:poisson').set_text('0.')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:cijkl:E and nu:poisson').set_text('0.4')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:gtk-ok').clicked()
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.instance_3
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+
+# Add the legal property to the material -- no error message
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 checkpoint Materials page updated
@@ -244,9 +300,12 @@ checkpoint Materials page updated
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint OOF.Material.Add_property
+
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_vadjustment().set_value( 4.0000000000000e+01)
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+
+# Make another copy, instance_4
 findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
 checkpoint toplevel widget mapped Dialog-Copy property Mechanical;Elasticity;Isotropic;instance_3
 findWidget('Dialog-Copy property Mechanical;Elasticity;Isotropic;instance_3').resize(282, 72)
@@ -257,18 +316,26 @@ findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment()
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint OOF.Property.Copy
+
+# Open instance_4
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('OOF2:Materials Page:Pane:Property:Parametrize').clicked()
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_4
 assert tests.other('Isotropic;instance_4', 'E and nu', young=2.1, poisson=0.4)
+
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_4').resize(223, 128)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+
+# Change to bulk & shear
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_4:cijkl:Chooser'), 'Bulk and Shear')
 assert tests.other('Isotropic;instance_4', 'Bulk and Shear', bulk=3.5, shear=0.75)
+# Change shear modulus
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_4:cijkl:Bulk and Shear:shear').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_4:cijkl:Bulk and Shear:shear').set_text('1')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_4:gtk-ok').clicked()
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic.instance_4
+
+# Add instance_4 to the material
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 findWidget('OOF2:Materials Page:Pane').set_position(272)
@@ -279,6 +346,8 @@ checkpoint Materials page updated
 checkpoint OOF.Material.Add_property
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_vadjustment().set_value( 6.2000000000000e+01)
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_vadjustment().set_value( 1.8000000000000e+01)
+
+# Save materials to a file
 findMenu(findWidget('OOF2:MenuBar'), 'File:Save:Materials').activate()
 checkpoint toplevel widget mapped Dialog-Materials
 findWidget('Dialog-Materials').resize(190, 187)
@@ -297,6 +366,8 @@ findWidget('Dialog-Materials:filename').set_text('isomat.dat')
 findWidget('Dialog-Materials:gtk-ok').clicked()
 checkpoint OOF.File.Save.Materials
 assert tests.filediff('isomat.dat')
+
+# Delete material
 findWidget('OOF2:Materials Page:Pane:Material:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(194, 94)
@@ -306,6 +377,8 @@ checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint OOF.Material.Delete
+
+# Load material from file
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 findMenu(findWidget('OOF2:MenuBar'), 'File:Load:Data').activate()
 checkpoint toplevel widget mapped Dialog-Data
@@ -330,6 +403,7 @@ checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint OOF.File.Load.Data
+
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_vadjustment().set_value( 6.2000000000000e+01)
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_vadjustment().set_value( 1.8000000000000e+01)
 findWidget('OOF2').resize(684, 356)
@@ -340,6 +414,8 @@ findWidget('OOF2').resize(738, 449)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 findWidget('OOF2').resize(738, 449)
+
+# Open isotropic elasticity instance to check its values
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 0, 0, 0))
 checkpoint Materials page updated
 checkpoint property deselected
@@ -355,7 +431,11 @@ checkpoint property selected
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance').resize(372, 244)
 assert tests.convertibleCij('Isotropic;instance', c11=3.0, c12=1.5, c13=1.5, c22=3.0, c23=1.5, c33=3.0, c44=0.75, c55=0.75, c66=0.75)
+
+# Close instance
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:gtk-cancel').clicked()
+
+# Open and check instance_2
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 0, 0, 1))
 checkpoint Materials page updated
 checkpoint property deselected
@@ -372,6 +452,8 @@ checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotr
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_2').resize(214, 128)
 assert tests.other('Isotropic;instance_2', 'Lame', lmbda=3.0, mu=0.75)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_2:gtk-cancel').clicked()
+
+# Open and check instance_3
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 0, 0, 2))
 checkpoint Materials page updated
 checkpoint property deselected
@@ -388,6 +470,8 @@ checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotr
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3').resize(223, 128)
 assert tests.other('Isotropic;instance_3', 'E and nu', young=2.1, poisson=0.4)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:gtk-cancel').clicked()
+
+# Open and check instance_4
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 0, 0, 3))
 checkpoint Materials page updated
 checkpoint property deselected
@@ -404,12 +488,17 @@ checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotr
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_4').resize(210, 128)
 assert tests.other('Isotropic;instance_4', 'Bulk and Shear', bulk=3.5, shear=1.0)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_4:gtk-cancel').clicked()
+
+## END OF ISOTROPIC TESTS
+
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().unselect_all()
 checkpoint Materials page updated
 checkpoint property deselected
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').collapse_row((1, 0, 0))
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+
+# Select cubic elasticity and copy it
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row((1, 0, 1), open_all=False)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 0, 1, 0))
@@ -428,51 +517,82 @@ findWidget('OOF2:Materials Page:Pane').set_position(272)
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint OOF.Property.Copy
+
+# Parametrize cubic elasticity
 findWidget('OOF2:Materials Page:Pane:Property:Parametrize').clicked()
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance').resize(372, 244)
 assert tests.convertibleCij("Anisotropic;Cubic;instance", c11=1.0, c12=0.5, c13=0.5, c22=1.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=0.25)
 assert tests.sensitiveConvCij("Anisotropic;Cubic;instance", c11=1, c12=1, c44=1)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+# Change C_00
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Cij:0,0').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Cij:0,0').set_text('2')
 widget_12=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Cij:0,0')
+# Click on C_12 and check that other C_ij update correctly
 widget_12.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_12.window))
 assert tests.convertibleCij("Anisotropic;Cubic;instance", c11=2.0, c12=0.5, c13=0.5, c22=2.0, c23=0.5, c33=2.0, c44=0.25, c55=0.25, c66=0.25)
+
+# Switch to Lame
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Chooser'), 'Lame')
 assert tests.other("Anisotropic;Cubic;instance", "Lame", lmbda=0.5, mu=0.75, aniso=1./3.)
+
+# Switch to E and nu
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Chooser'), 'E and nu')
 assert tests.other("Anisotropic;Cubic;instance", "E and nu", young=1.8, poisson=0.2, aniso=1./3.)
+
+# Switch to bulk and shear
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Chooser'), 'Bulk and Shear')
 assert tests.other("Anisotropic;Cubic;instance", "Bulk and Shear", bulk=1.0, shear=0.75, aniso=1./3.)
+
+# Change anisotropy 
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Bulk and Shear:aniso').set_text('0.')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Bulk and Shear:aniso').set_text('0.5')
+
+# Switch to Cij 
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Chooser'), 'Cij')
 assert tests.convertibleCij("Anisotropic;Cubic;instance", c11=2.0, c12=0.5, c13=0.5, c22=2.0, c23=0.5, c33=2.0, c44=0.375, c55=0.375, c66=0.375)
+
+# Switch to Lame
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Chooser'), 'Lame')
 assert tests.other("Anisotropic;Cubic;instance", "Lame", lmbda=0.5, mu=0.75, aniso=0.5)
+
+# Switch to E and nu
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Chooser'), 'E and nu')
 assert tests.other("Anisotropic;Cubic;instance", "E and nu", young=1.8, poisson=0.2, aniso=0.5)
+
+# Set nu to an illegal value
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:E and nu:poisson').set_text('0.')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:E and nu:poisson').set_text('0.5')
+
+# Switch to Lame and get warning message
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Chooser'), 'Lame')
 checkpoint toplevel widget mapped Warning
 findWidget('Warning').resize(310, 85)
 findWidget('Warning:OK').clicked()
+
+# Switch back to E and nu and set illegal value again
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Chooser'), 'E and nu')
 assert tests.other("Anisotropic;Cubic;instance", "E and nu", young=1.8, poisson=0.2, aniso=0.5)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:E and nu:poisson').set_text('0.')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:E and nu:poisson').set_text('0.5')
+
+# Switch to Cij and get error message
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Chooser'), 'Cij')
 checkpoint toplevel widget mapped Warning
 findWidget('Warning').resize(310, 85)
 findWidget('Warning:OK').clicked()
+
+# Switch back to E and nu, check for legal value, and save
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Chooser'), 'E and nu')
 assert tests.other("Anisotropic;Cubic;instance", "E and nu", young=1.8, poisson=0.2, aniso=0.5)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:gtk-ok').clicked()
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.Cubic.instance
+
 findWidget('OOF2 Messages 1').resize(575, 200)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+
+# Copy Cubic elasticity
 findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
 checkpoint toplevel widget mapped Dialog-Copy property Mechanical;Elasticity;Anisotropic;Cubic;instance
 findWidget('Dialog-Copy property Mechanical;Elasticity;Anisotropic;Cubic;instance').resize(282, 72)
@@ -482,11 +602,15 @@ findWidget('OOF2:Materials Page:Pane').set_position(272)
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint OOF.Property.Copy
+
+# Open instance_2
 findWidget('OOF2:Materials Page:Pane:Property:Parametrize').clicked()
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_2
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_2').resize(223, 152)
 assert tests.other("Anisotropic;Cubic;instance_2", "E and nu", young=1.8, poisson=0.2, aniso=0.5)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+
+# Switch to Cij
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_2:cijkl:Chooser'), 'Cij')
 assert tests.convertibleCij("Anisotropic;Cubic;instance_2", c11=2.0, c12=0.5, c13=0.5, c22=2.0, c23=0.5, c33=2.0, c44=0.375, c55=0.375, c66=0.375)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_2').resize(372, 244)
@@ -494,6 +618,8 @@ findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.Cubic.instance_2
 findWidget('OOF2 Messages 1').resize(588, 200)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+
+# Make a copy of instance_2
 findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
 checkpoint toplevel widget mapped Dialog-Copy property Mechanical;Elasticity;Anisotropic;Cubic;instance_2
 findWidget('Dialog-Copy property Mechanical;Elasticity;Anisotropic;Cubic;instance_2').resize(282, 72)
@@ -503,17 +629,22 @@ findWidget('OOF2:Materials Page:Pane').set_position(272)
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint OOF.Property.Copy
+
+# Open instance_3
 findWidget('OOF2:Materials Page:Pane:Property:Parametrize').clicked()
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_3
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_3').resize(372, 244)
 assert tests.convertibleCij("Anisotropic;Cubic;instance_3", c11=2.0, c12=0.5, c13=0.5, c22=2.0, c23=0.5, c33=2.0, c44=0.375, c55=0.375, c66=0.375)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+# Switch to Lame and change mu
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_3:cijkl:Chooser'), 'Lame')
 assert tests.other("Anisotropic;Cubic;instance_3", "Lame", lmbda=0.5, mu=0.75, aniso=0.5)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_3:cijkl:Lame:mu').set_text('0.')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_3:cijkl:Lame:mu').set_text('0.5')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_3:gtk-ok').clicked()
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.Cubic.instance_3
+
+# Copy instance_3
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('OOF2:Materials Page:Pane:Property:Copy').clicked()
 checkpoint toplevel widget mapped Dialog-Copy property Mechanical;Elasticity;Anisotropic;Cubic;instance_3
@@ -524,17 +655,23 @@ findWidget('OOF2:Materials Page:Pane').set_position(272)
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint OOF.Property.Copy
+
+# Open instance_4 
 findWidget('OOF2:Materials Page:Pane:Property:Parametrize').clicked()
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_4
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_4').resize(214, 152)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 assert tests.other('Anisotropic;Cubic;instance_4', 'Lame', lmbda=0.5, mu=0.5, aniso=0.5)
+# Switch to bulk and shear
 setComboBox(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_4:cijkl:Chooser'), 'Bulk and Shear')
 assert tests.other('Anisotropic;Cubic;instance_4', 'Bulk and Shear', bulk=0.8333333, shear=0.5, aniso=0.5)
+# Change anisotropy
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_4:cijkl:Bulk and Shear:aniso').set_text('0.')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_4:cijkl:Bulk and Shear:aniso').set_text('0.3')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_4:gtk-ok').clicked()
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.Cubic.instance_4
+
+# Create a material
 findWidget('OOF2:Materials Page:Pane:Material:New').clicked()
 checkpoint toplevel widget mapped Dialog-New material
 findWidget('Dialog-New material').resize(249, 72)
@@ -553,6 +690,8 @@ checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint OOF.Material.New
+
+# Add all four cubic instances to the material
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 findWidget('OOF2:Materials Page:Pane').set_position(272)
@@ -607,6 +746,7 @@ checkpoint property selected
 checkpoint Materials page updated
 checkpoint OOF.Material.Add_property
 
+# Save the material
 findMenu(findWidget('OOF2:MenuBar'), 'File:Save:Materials').activate()
 checkpoint toplevel widget mapped Dialog-Materials
 findWidget('Dialog-Materials').resize(194, 170)
@@ -625,6 +765,8 @@ findWidget('Dialog-Materials:materials').get_selection().select_path((0,))
 findWidget('Dialog-Materials:gtk-ok').clicked()
 checkpoint OOF.File.Save.Materials
 assert tests.filediff('cubics.dat')
+
+# Delete the Material
 findWidget('OOF2:Materials Page:Pane:Material:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(194, 94)
@@ -634,6 +776,7 @@ checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint OOF.Material.Delete
+
 # Accidentally load the data file as a script...
 findMenu(findWidget('OOF2:MenuBar'), 'File:Load:Script').activate()
 checkpoint toplevel widget mapped Dialog-Script
@@ -679,6 +822,8 @@ checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint OOF.File.Load.Data
+
+# Open cubic instance and check parameters
 widget_16=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
 widget_16.event(event(gtk.gdk.BUTTON_RELEASE,button=1,window=widget_16.window))
 tree=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
@@ -690,6 +835,8 @@ checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Aniso
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance').resize(223, 152)
 assert tests.other('Anisotropic;Cubic;instance', 'E and nu', young=1.8, poisson=0.2, aniso=0.5)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:gtk-cancel').clicked()
+
+# Open instance_2 and check parameters
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 0, 1, 0, 1))
 checkpoint Materials page updated
 checkpoint property deselected
@@ -706,6 +853,8 @@ checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Aniso
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_2').resize(372, 244)
 assert tests.convertibleCij('Anisotropic;Cubic;instance_2', c11=2.0, c12=0.5, c13=0.5, c22=2.0, c23=0.5, c33=2.0, c44=0.375, c55=0.375, c66=0.375)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_2:gtk-cancel').clicked()
+
+# Open instance_3 and check parameters
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 0, 1, 0, 2))
 checkpoint Materials page updated
 checkpoint property deselected
@@ -722,6 +871,8 @@ checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Aniso
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_3').resize(214, 152)
 assert tests.other('Anisotropic;Cubic;instance_3', 'Lame', lmbda=0.5, mu=0.5, aniso=0.5)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_3:gtk-cancel').clicked()
+
+# Open instance_4 and check parameters 
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 0, 1, 0, 3))
 checkpoint Materials page updated
 checkpoint property deselected
@@ -738,11 +889,17 @@ checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Aniso
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_4').resize(210, 152)
 assert tests.other('Anisotropic;Cubic;instance_4', 'Bulk and Shear', bulk=0.8333333333, shear=0.5, aniso=0.3)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance_4:gtk-cancel').clicked()
+
+# Unselect all properties
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().unselect_all()
 checkpoint Materials page updated
 checkpoint property deselected
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').collapse_row((1, 0, 1, 0))
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+
+## END OF CUBIC TESTS
+
+# Create a new material
 findWidget('OOF2:Materials Page:Pane:Material:New').clicked()
 checkpoint toplevel widget mapped Dialog-New material
 findWidget('Dialog-New material').resize(249, 72)
@@ -760,6 +917,8 @@ checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint OOF.Material.New
+
+# Open and parametrize hexagonal elasticity
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 0, 1, 1))
 checkpoint Materials page updated
 checkpoint property selected
@@ -774,39 +933,52 @@ checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Aniso
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal').resize(368, 212)
 assert tests.anisoCij("Hexagonal", c11=1.0, c12=0.5, c13=0.5, c22=1.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=0.25)
 assert tests.sensitiveAnisoCij("Hexagonal", c11=1, c12=1, c13=1, c33=1, c44=1, c66=1)
+# Change C_11
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,0').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,0').set_text('2')
+# Switch focus and check C_ij values
 widget_21=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,0')
 widget_21.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_21.window))
 assert tests.anisoCij("Hexagonal", c11=2.0, c12=0.5, c13=0.5, c22=2.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=0.75)
+# Change C_12
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,1').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,1').set_text('3')
 widget_22=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,1')
+# Switch focus and check C_ij values
 widget_22.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_22.window))
 assert tests.anisoCij("Hexagonal", c11=2.0, c12=3.0, c13=0.5, c22=2.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=-0.5)
+# Change C_13
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,2').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,2').set_text('4')
+# Switch focus and check C_ij values
 widget_23=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,2')
 widget_23.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_23.window))
 assert tests.anisoCij("Hexagonal", c11=2.0, c12=3.0, c13=4.0, c22=2.0, c23=4.0, c33=1.0, c44=0.25, c55=0.25, c66=-0.5)
+# Change C_33
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:2,2').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:2,2').set_text('1')
 widget_24=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:2,2')
+# Switch focus and check C_ij values
 widget_24.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_24.window))
 assert tests.anisoCij("Hexagonal", c11=2.0, c12=3.0, c13=4.0, c22=2.0, c23=4.0, c33=1.0, c44=0.25, c55=0.25, c66=-0.5)
+# Change C_44
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:3,3').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:3,3').set_text('2')
+# Switch focus and check C_ij values
 widget_25=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:3,3')
 widget_25.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_25.window))
 assert tests.anisoCij("Hexagonal", c11=2.0, c12=3.0, c13=4.0, c22=2.0, c23=4.0, c33=1.0, c44=2.0 , c55=2.0, c66=-0.5)
+# Change C_66
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:5,5').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:5,5').set_text('-')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:5,5').set_text('-1')
+# Switch focus and check C_ij values
 widget_26=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:5,5')
 widget_26.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_26.window))
 assert tests.anisoCij("Hexagonal", c11=2.0, c12=4.0, c13=4.0, c22=2.0, c23=4.0, c33=1.0, c44=2.0 , c55=2.0, c66=-1.0)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:gtk-ok').clicked()
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.Hexagonal
+# Add property to material
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 findWidget('OOF2:Materials Page:Pane').set_position(272)
@@ -815,6 +987,8 @@ checkpoint Materials page updated
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint OOF.Material.Add_property
+
+# Open Tetragonal elasticity
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 0, 1, 2))
 checkpoint Materials page updated
 checkpoint property deselected
@@ -833,48 +1007,64 @@ checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Aniso
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal').resize(368, 212)
 assert tests.anisoCij("Tetragonal", c11=1.0, c12=0.5, c13=0.5, c22=1.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=0.25)
 assert tests.sensitiveAnisoCij("Tetragonal", c11=1, c12=1, c13=1, c16=1, c33=1, c44=1, c66=1)
+# Change C_11
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,0').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,0').set_text('2')
 widget_29=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,0')
+# Switch focus and check C_ij values
 widget_29.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_29.window))
 assert tests.anisoCij("Tetragonal", c11=2.0, c12=0.5, c13=0.5, c22=2.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=0.25)
 widget_30=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,1')
 widget_30.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_30.window))
 assert tests.anisoCij("Tetragonal", c11=2.0, c12=0.5, c13=0.5, c22=2.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=0.25)
 findWidget('OOF2').resize(738, 449)
+# Change C_12
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,1').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,1').set_text('3')
 widget_31=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,1')
+# Switch focus and check C_ij values
 widget_31.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_31.window))
 assert tests.anisoCij("Tetragonal", c11=2.0, c12=3.0, c13=0.5, c22=2.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=0.25)
+# Change C_13
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,2').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,2').set_text('4')
 widget_32=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,2')
+# Switch focus and check C_ij values
 widget_32.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_32.window))
 assert tests.anisoCij("Tetragonal", c11=2.0, c12=3.0, c13=4.0, c22=2.0, c23=4.0, c33=1.0, c44=0.25, c55=0.25, c66=0.25)
+# Change C_14
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,5').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,5').set_text('5')
+# Switch focus and check C_ij values
 widget_33=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,5')
 widget_33.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_33.window))
 assert tests.anisoCij("Tetragonal", c11=2.0, c12=3.0, c13=4.0, c16=5.0, c22=2.0, c23=4.0, c26=-5.0, c33=1.0, c44=0.25, c55=0.25, c66=0.25)
+# Change C_33
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:2,2').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:2,2').set_text('6')
+# Switch focus and check C_ij values
 widget_34=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:2,2')
 widget_34.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_34.window))
 assert tests.anisoCij("Tetragonal", c11=2.0, c12=3.0, c13=4.0, c16=5.0, c22=2.0, c23=4.0, c26=-5.0, c33=6.0, c44=0.25, c55=0.25, c66=0.25)
+# Change C_44
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:3,3').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:3,3').set_text('7')
+# Switch focus and check C_ij values
 widget_35=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:3,3')
 widget_35.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_35.window))
 assert tests.anisoCij("Tetragonal", c11=2.0, c12=3.0, c13=4.0, c16=5.0, c22=2.0, c23=4.0, c26=-5.0, c33=6.0, c44=7.0, c55=7.0, c66=0.25)
+# Change C_66
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:5,5').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:5,5').set_text('8')
+# Switch focus and check C_ij values
 widget_36=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:5,5')
 widget_36.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_36.window))
 assert tests.anisoCij("Tetragonal", c11=2.0, c12=3.0, c13=4.0, c16=5.0, c22=2.0, c23=4.0, c26=-5.0, c33=6.0, c44=7.0, c55=7.0, c66=8.0)
+# Close Tetragonal dialog
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:gtk-ok').clicked()
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.Tetragonal
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+# Add property to material
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 checkpoint Materials page updated
@@ -882,6 +1072,8 @@ checkpoint Materials page updated
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint OOF.Material.Add_property
+
+# Open TrigonalA
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((1, 0, 1, 3))
 checkpoint Materials page updated
 checkpoint property deselected
