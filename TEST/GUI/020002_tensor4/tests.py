@@ -23,6 +23,10 @@ def testcij(widgetname, **cijs):
             cijname = "c%d%d" % (i, j)
             wijname = "%d,%d" % (i-1, j-1)
             dct[wijname] = cijs.get(cijname, 0.0)
+            # try:
+            #     dct[wijname] = cijs[cijname]
+            # except KeyError:
+            #     dct[wijname] = 0.0
     return gtkMultiFloatCompare(dct, widgetbase=base+";"+widgetname)
 
 def sensitivecij(widgetname, **cijs):
@@ -31,6 +35,10 @@ def sensitivecij(widgetname, **cijs):
             cijname = "c%d%d" % (i, j)
             wijname = "%d,%d" % (i-1, j-1)
             nominal = cijs.get(cijname, 0)
+            # try:
+            #     nominal = cijs[cijname]
+            # except KeyError:
+            #     nominal = 0
             fullwname = base + ";" + widgetname + ":" + wijname
             actual = is_sensitive(fullwname)
             if actual != nominal:

@@ -1,0 +1,10 @@
+# OOF version 2.0
+FileVersion(number=1.0, format='ascii')
+Property.Mechanical.Elasticity.Anisotropic.Hexagonal(name='', cijkl=HexagonalRank4TensorCij(c11=2, c12=4, c13=4, c33=1, c44=2))
+Property.Mechanical.Elasticity.Anisotropic.Monoclinic(name='', cijkl=MonoclinicRank4TensorCij(c11=2, c12=3, c13=4, c15=5, c22=6, c23=7, c25=8, c33=9, c35=10, c44=11, c46=12, c55=13, c66=14))
+Property.Mechanical.Elasticity.Anisotropic.Orthorhombic(name='', cijkl=OrthorhombicRank4TensorCij(c11=2, c12=3, c13=4, c22=5, c23=6, c33=7, c44=8, c55=9, c66=10))
+Property.Mechanical.Elasticity.Anisotropic.Tetragonal(name='', cijkl=TetragonalRank4TensorCij(c11=2, c12=3, c13=4, c33=6, c44=7, c66=8, c16=5))
+Property.Mechanical.Elasticity.Anisotropic.Triclinic(name='', cijkl=TriclinicRank4TensorCij(c11=1, c12=0.5, c13=0.5, c14=0, c15=0, c16=123, c22=1, c23=0.5, c24=0, c25=456, c26=0, c33=1, c34=789, c35=0, c36=0, c44=0.25, c45=0, c46=0, c55=0.25, c56=0, c66=0.25))
+Property.Mechanical.Elasticity.Anisotropic.TrigonalA(name='', cijkl=TrigonalARank4TensorCij(c11=2, c12=4, c13=4, c33=7, c44=8, c14=5, c15=6))
+Property.Mechanical.Elasticity.Anisotropic.TrigonalB(name='', cijkl=TrigonalBRank4TensorCij(c11=2, c12=-14, c13=4, c33=6, c44=7, c14=5))
+MaterialandType(name='aniso', properties=['Mechanical:Elasticity:Anisotropic:Hexagonal', 'Mechanical:Elasticity:Anisotropic:Tetragonal', 'Mechanical:Elasticity:Anisotropic:TrigonalA', 'Mechanical:Elasticity:Anisotropic:TrigonalB', 'Mechanical:Elasticity:Anisotropic:Orthorhombic', 'Mechanical:Elasticity:Anisotropic:Monoclinic', 'Mechanical:Elasticity:Anisotropic:Triclinic'], materialtype='bulk')

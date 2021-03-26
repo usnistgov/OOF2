@@ -1032,7 +1032,7 @@ widget_32=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetra
 # Switch focus and check C_ij values
 widget_32.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_32.window))
 assert tests.anisoCij("Tetragonal", c11=2.0, c12=3.0, c13=4.0, c22=2.0, c23=4.0, c33=1.0, c44=0.25, c55=0.25, c66=0.25)
-# Change C_14
+# Change C_16
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,5').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Tetragonal:0,5').set_text('5')
 # Switch focus and check C_ij values
@@ -1131,6 +1131,7 @@ findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;TrigonalA:5,5')
 widget_45=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;TrigonalA:5,5')
 widget_45.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_45.window))
 assert tests.anisoCij("TrigonalA", c11=2.0, c12=4.0, c13=4.0, c14=5.0, c15=6.0, c22=2.0, c23=4.0, c24=-5.0, c25=-6.0, c33=7.0, c44=8.0, c46=-6.0, c55=8.0, c56=5.0, c66=-1.0)
+
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;TrigonalA:gtk-ok').clicked()
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.TrigonalA
 findWidget('OOF2:Materials Page:Pane').set_position(272)
@@ -1403,6 +1404,7 @@ checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Aniso
 assert tests.anisoCij("Triclinic", c11=1.0, c12=0.5, c13=0.5, c22=1.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=0.25)
 assert tests.sensitiveAnisoCij("Triclinic", c11=1, c12=1, c13=1, c14=1, c15=1, c16=1, c22=1, c23=1, c24=1, c25=1, c26=1, c33=1, c34=1, c35=1, c36=1, c44=1, c45=1, c46=1, c55=1, c56=1, c66=1)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic').resize(368, 212)
+
 widget_84=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:0,0')
 widget_84.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_84.window))
 assert tests.anisoCij("Triclinic", c11=1.0, c12=0.5, c13=0.5, c22=1.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=0.25)
@@ -1413,6 +1415,7 @@ findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:0,5')
 widget_85=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:0,5')
 widget_85.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_85.window))
 assert tests.anisoCij("Triclinic", c11=1.0, c12=0.5, c13=0.5, c16=123., c22=1.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=0.25)
+
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:1,4').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:1,4').set_text('4')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:1,4').set_text('45')
@@ -1420,6 +1423,7 @@ findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:1,4')
 widget_86=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:1,4')
 widget_86.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_86.window))
 assert tests.anisoCij("Triclinic", c11=1.0, c12=0.5, c13=0.5, c16=123., c22=1.0, c23=0.5, c25=456., c33=1.0, c44=0.25, c55=0.25, c66=0.25)
+
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:2,3').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:2,3').set_text('7')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:2,3').set_text('78')
@@ -1427,10 +1431,12 @@ findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:2,3')
 widget_87=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:2,3')
 widget_87.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_87.window))
 assert tests.anisoCij("Triclinic", c11=1.0, c12=0.5, c13=0.5, c16=123., c22=1.0, c23=0.5, c25=456., c33=1.0, c34=789., c44=0.25, c55=0.25, c66=0.25)
+
 widget_88=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:2,4')
 widget_88.event(event(gtk.gdk.FOCUS_CHANGE, in_=0, window=widget_88.window))
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Triclinic:gtk-ok').clicked()
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Anisotropic.Triclinic
+
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 findWidget('OOF2:Materials Page:Pane').set_position(272)
