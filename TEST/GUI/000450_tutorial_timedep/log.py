@@ -1,3 +1,14 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
 checkpoint toplevel widget mapped OOF2 Activity Viewer
@@ -58,16 +69,14 @@ findWidget('Dialog-New material').resize(196, 122)
 findWidget('Dialog-New material:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Materials page updated
 checkpoint OOF.Material.New
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([0]))
+getTree('PropertyTree').simulateSelect('Color')
 checkpoint Materials page updated
 checkpoint property selected
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1]), open_all=False)
 event(Gdk.EventType.BUTTON_RELEASE,x= 1.4000000000000e+01,y= 2.3000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1, 0]), open_all=False)
 event(Gdk.EventType.BUTTON_RELEASE,x= 2.7000000000000e+01,y= 4.3000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([1, 0, 0]))
-checkpoint Materials page updated
-checkpoint property deselected
+getTree('PropertyTree').simulateSelect(Gtk.TreePath([1, 0, 0]))
 checkpoint Materials page updated
 checkpoint property selected
 event(Gdk.EventType.BUTTON_RELEASE,x= 8.9000000000000e+01,y= 6.0000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -91,7 +100,7 @@ findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint OOF.Material.Add_property
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().unselect_all()
+getTree('PropertyTree').simulateUnselect()
 checkpoint Materials page updated
 checkpoint property deselected
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').collapse_row(Gtk.TreePath([1, 0]))
@@ -121,7 +130,7 @@ findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint property selected
 checkpoint Materials page updated
 checkpoint OOF.Material.Add_property
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().unselect_all()
+getTree("PropertyTree").simulateUnselect()
 checkpoint Materials page updated
 checkpoint property deselected
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').collapse_row(Gtk.TreePath([1, 3]))
@@ -147,9 +156,7 @@ checkpoint Materials page updated
 checkpoint OOF.Material.Add_property
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1, 5]), open_all=False)
 event(Gdk.EventType.BUTTON_RELEASE,x= 2.5000000000000e+01,y= 1.5100000000000e+02,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([1, 5, 0]))
-checkpoint Materials page updated
-checkpoint property deselected
+getTree("PropertyTree").simulateSelect(Gtk.TreePath([1,5,0]))
 checkpoint Materials page updated
 checkpoint property selected
 event(Gdk.EventType.BUTTON_RELEASE,x= 6.6000000000000e+01,y= 1.6900000000000e+02,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())

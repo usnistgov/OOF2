@@ -61,16 +61,14 @@ findWidget('Dialog-New material').resize(196, 122)
 findWidget('Dialog-New material:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Materials page updated
 checkpoint OOF.Material.New
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([0]))
+getTree("PropertyTree").simulateSelect(Gtk.TreePath([0]))
 checkpoint Materials page updated
 checkpoint property selected
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1]), open_all=False)
 event(Gdk.EventType.BUTTON_RELEASE,x= 9.0000000000000e+00,y= 2.8000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1, 0]), open_all=False)
 event(Gdk.EventType.BUTTON_RELEASE,x= 3.1000000000000e+01,y= 4.3000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([1, 0, 0]))
-checkpoint Materials page updated
-checkpoint property deselected
+getTree("PropertyTree").simulateSelect(Gtk.TreePath([1, 0, 0]))
 checkpoint Materials page updated
 checkpoint property selected
 event(Gdk.EventType.BUTTON_RELEASE,x= 8.2000000000000e+01,y= 6.0000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())

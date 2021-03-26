@@ -1,3 +1,14 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
 checkpoint toplevel widget mapped OOF2 Activity Viewer
@@ -177,7 +188,7 @@ findWidget('Dialog-New material:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Materials page updated
 checkpoint OOF.Material.New
 findWidget('Nonrectangular Domain:Next').clicked()
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([0]))
+getTree('PropertyTree').simulateSelect('Color')
 checkpoint Materials page updated
 checkpoint property selected
 event(Gdk.EventType.BUTTON_RELEASE,x= 1.7000000000000e+01,y= 2.3000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -185,9 +196,7 @@ findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expa
 event(Gdk.EventType.BUTTON_RELEASE,x= 1.7000000000000e+01,y= 3.2000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1, 0]), open_all=False)
 event(Gdk.EventType.BUTTON_RELEASE,x= 3.2000000000000e+01,y= 4.5000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([1, 0, 0]))
-checkpoint Materials page updated
-checkpoint property deselected
+getTree('PropertyTree').simulateSelect("Mechanical:Elasticity:Isotropic")
 checkpoint Materials page updated
 checkpoint property selected
 event(Gdk.EventType.BUTTON_RELEASE,x= 9.1000000000000e+01,y= 6.3000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())

@@ -1,3 +1,13 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
 checkpoint toplevel widget mapped OOF2 Activity Viewer
@@ -213,9 +223,7 @@ findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expa
 event(Gdk.EventType.BUTTON_RELEASE,x= 1.3000000000000e+01,y= 2.5000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1, 0]), open_all=False)
 event(Gdk.EventType.BUTTON_RELEASE,x= 2.8000000000000e+01,y= 4.3000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([1, 0, 0]))
-checkpoint Materials page updated
-checkpoint property deselected
+getTree('PropertyTree').simulateSelect('Mechanical:Elasticity:Isotropic')
 checkpoint Materials page updated
 checkpoint property selected
 assert tests.matlPageSensitizationCheck2()
@@ -340,9 +348,7 @@ checkpoint OOF.Material.Add_property
 assert tests.materialCheck('cyan-material', ['Mechanical:Elasticity:Isotropic:cyan_elasticity'])
 assert tests.selectedMatlPropertyCheck('Mechanical:Elasticity:Isotropic:cyan_elasticity')
 findWidget('A Simple Example:Next').clicked()
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([0]))
-checkpoint Materials page updated
-checkpoint property deselected
+getTree('PropertyTree').simulateSelect('Color')
 checkpoint Materials page updated
 checkpoint property selected
 event(Gdk.EventType.BUTTON_RELEASE,x= 6.6000000000000e+01,y= 1.2000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -407,9 +413,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Material.Add_property
 assert tests.materialCheck('yellow-material',  ['Mechanical:Elasticity:Isotropic:yellow_elasticity', 'Color:yellow'])
 assert tests.selectedMatlPropertyCheck('Color:yellow')
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([0]))
-checkpoint Materials page updated
-checkpoint property deselected
+getTree('PropertyTree').simulateSelect('Color')
 checkpoint Materials page updated
 checkpoint property selected
 event(Gdk.EventType.BUTTON_RELEASE,x= 3.4000000000000e+01,y= 4.0000000000000e+00,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())

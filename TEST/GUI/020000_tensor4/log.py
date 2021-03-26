@@ -51,16 +51,14 @@ checkpoint Materials page updated
 checkpoint OOF.Material.New
 
 # Copy the isotropic elasticity property
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([0]))
+getTree("PropertyTree").simulateSelect(Gtk.TreePath([0]))
 checkpoint Materials page updated
 checkpoint property selected
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1]), open_all=False)
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([1, 0]), open_all=False)
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([1, 0, 0]))
-checkpoint Materials page updated
-checkpoint property deselected
+getTree("PropertyTree").simulateSelect(Gtk.TreePath([1, 0, 0]))
 checkpoint Materials page updated
 checkpoint property selected
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -466,9 +464,7 @@ checkpoint Materials page updated
 checkpoint OOF.File.Load.Data
 
 # Open isotropic elasticity instance to check its values
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([1, 0, 0, 0]))
-checkpoint Materials page updated
-checkpoint property deselected
+getTree("PropertyTree").simulateSelect(Gtk.TreePath([1, 0, 0, 0]))
 checkpoint Materials page updated
 checkpoint property selected
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -489,9 +485,7 @@ findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:widget_G
 
 # Open and check instance_2
 findWidget('OOF2').resize(782, 545)
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([1, 0, 0, 1]))
-checkpoint Materials page updated
-checkpoint property deselected
+getTree("PropertyTree").simulateSelect(Gtk.TreePath([1, 0, 0, 1]))
 checkpoint Materials page updated
 checkpoint property selected
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -530,9 +524,7 @@ assert tests.other('Isotropic;instance_3', 'E and nu', young=2.1, poisson=0.4)
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance_3:widget_GTK_RESPONSE_CANCEL').clicked()
 
 # Open and check instance_4
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([1, 0, 0, 3]))
-checkpoint Materials page updated
-checkpoint property deselected
+getTree("PropertyTree").simulateSelect(Gtk.TreePath([1, 0, 0, 3]))
 checkpoint Materials page updated
 checkpoint property selected
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())

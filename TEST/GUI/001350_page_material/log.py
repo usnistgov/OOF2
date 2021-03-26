@@ -1,3 +1,14 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+
 import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
@@ -127,7 +138,7 @@ assert tests.materialListCheck('test')
 
 # Clone a color property named green
 event(Gdk.EventType.BUTTON_RELEASE,x= 3.3000000000000e+01,y= 5.0000000000000e+00,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([0]))
+getTree("PropertyTree").simulateSelect(Gtk.TreePath([0]))
 checkpoint Materials page updated
 checkpoint property selected
 event(Gdk.EventType.BUTTON_RELEASE,x= 3.3000000000000e+01,y= 7.0000000000000e+00,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -195,9 +206,7 @@ findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expa
 event(Gdk.EventType.BUTTON_RELEASE,x= 2.4000000000000e+01,y= 7.8000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([2, 0, 1]), open_all=False)
 event(Gdk.EventType.BUTTON_RELEASE,x= 4.2000000000000e+01,y= 1.1500000000000e+02,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([2, 0, 1, 0]))
-checkpoint Materials page updated
-checkpoint property deselected
+getTree("PropertyTree").simulateSelect(Gtk.TreePath([2, 0, 1, 0]))
 checkpoint Materials page updated
 checkpoint property selected
 event(Gdk.EventType.BUTTON_RELEASE,x= 9.8000000000000e+01,y= 1.3300000000000e+02,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
@@ -354,14 +363,13 @@ assert tests.currentPropertyCheck(None)
 
 # select the cubic thermal conductivity property again
 event(Gdk.EventType.BUTTON_RELEASE,x= 1.0900000000000e+02,y= 1.1400000000000e+02,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path(Gtk.TreePath([2, 0, 1, 0]))
+getTree("PropertyTree").simulateSelect(Gtk.TreePath([2, 0, 1, 0]))
 checkpoint Materials page updated
 checkpoint property selected
 event(Gdk.EventType.BUTTON_RELEASE,x= 1.0400000000000e+02,y= 1.1600000000000e+02,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 assert tests.propertyTreeCheck('Thermal:Conductivity:Anisotropic:Cubic')
 
 # parametrize it again, without changing anything
-## TODO: Are these mouse click lines necessary if row_activated is logged?
 event(Gdk.EventType.BUTTON_RELEASE,x= 9.5000000000000e+01,y= 1.1400000000000e+02,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 event(Gdk.EventType.BUTTON_RELEASE,x= 9.5000000000000e+01,y= 1.1400000000000e+02,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 event(Gdk.EventType.BUTTON_RELEASE,x= 9.4000000000000e+01,y= 1.1400000000000e+02,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
