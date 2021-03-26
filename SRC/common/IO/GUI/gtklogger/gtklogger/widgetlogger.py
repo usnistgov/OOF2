@@ -20,6 +20,8 @@ class WidgetLogger(loggers.GtkLogger):
     classes = (Gtk.Widget,)
 
     def location(self, widget, *args):
+        # This does not use getWidgetPathStr because it uses both the
+        # list of strings and the colon separated string.
         path = logutils.getWidgetPath(widget)
         if path[0] not in logutils.getTopWidgetNames():
             raise logutils.GtkLoggerException(string.join(path, ':') + 

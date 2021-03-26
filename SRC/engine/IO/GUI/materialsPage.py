@@ -148,9 +148,9 @@ class PropertyPane:
         scroll.set_policy(Gtk.PolicyType.AUTOMATIC,
                           Gtk.PolicyType.AUTOMATIC)
         self.propertytree = gfxLabelTree.GfxLabelTree(AllProperties.data,
+                                                      "PropertyTree",
                                                       expand=None,
-                                                      callback=self.proptreeCB,
-                                                      name="PropertyTree")
+                                                      callback=self.proptreeCB)
         self.propertytree.setRightClickCB(self.parametrize)
         scroll.add(self.propertytree.gtk)
 

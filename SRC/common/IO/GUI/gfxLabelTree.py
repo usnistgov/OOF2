@@ -28,13 +28,23 @@ from ooflib.common.IO.GUI import gtklogger
 from gi.repository import GObject
 from gi.repository import Gtk
 import string
+import weakref
+
+# TODO GTK3: gui logging for arrow keys in the Property tree. up,
+# down, shift-left, and shift-right do interesting things.
 
 
 class GfxLabelTree:
-    def __init__(self, tree, expand=1, callback=None, name=None,
+    allGfxLabelTrees = weakref.WeakValueDictionary()
+    @staticmethod
+    def getTree(name):
+        return GfxLabelTree.allGfxLabelTrees[name]
+    
+    def __init__(self, tree, name, expand=1, callback=None, 
                  *callbackargs, **callbackkwargs):
         debug.mainthreadTest()
         self.tree = tree                # associated LabelTree
+        self.name = name
         self.callback = callback
         self.callbackargs = callbackargs
         self.callbackkwargs = callbackkwargs
@@ -47,6 +57,18 @@ class GfxLabelTree:
                                        GObject.TYPE_PYOBJECT)
         self.gtk = Gtk.TreeView(self.treestore)
         gtklogger.setWidgetName(self.gtk, name)
+
+        # Store this GfxLabelTree in a weak value dictionary so that
+        # it can be found by gtklogger when replaying.  We need to use
+        # a key that can be saved in the gui log file and is unique to
+        # this GfxLabelTree.  We can't use the gtklogger widget path
+        # because at this point the GfxLabelTree hasn't been inserted
+        # in a GtkContainer and so its path isn't known.  So we use
+        # the name (ie, the tail of the widget path) and rely on the
+        # user to ensure that the name is unique.
+        assert name not in GfxLabelTree.allGfxLabelTrees
+        GfxLabelTree.allGfxLabelTrees[name] = self
+        
         self.gtk.set_property("headers-visible", False)
         tvcol = Gtk.TreeViewColumn()
         self.gtk.append_column(tvcol)
@@ -55,10 +77,8 @@ class GfxLabelTree:
         tvcol.set_attributes(cell, text=0) # display column 0 of the tree store
         
         selection = self.gtk.get_selection()
-        gtklogger.adoptGObject(selection, self.gtk,
-                              access_method=self.gtk.get_selection)
-        self.selection_signal = gtklogger.connect(selection, 'changed',
-                                                 self.selectionChangedCB)
+        self.selection_signal = selection.connect("changed",
+                                                  self.selectionChangedCB)
         selection.set_select_function(self.selectFn)
         gtklogger.connect(self.gtk, 'row-activated', self.activateRowCB)
         gtklogger.connect_passive(self.gtk, 'row-expanded')
@@ -97,11 +117,11 @@ class GfxLabelTree:
 
     def blockSignals(self):
         debug.mainthreadTest()
-        self.selection_signal.block()
+        self.gtk.get_selection().handler_block(self.selection_signal)
     def unblockSignals(self):
         debug.mainthreadTest()
-        self.selection_signal.unblock()
-
+        self.gtk.get_selection().handler_unblock(self.selection_signal)
+        
     def constructGUI(self, labeltreenode, gtktreeparent):
         debug.mainthreadTest()
         if labeltreenode.secret():
@@ -115,18 +135,32 @@ class GfxLabelTree:
 
     def selectionChangedCB(self, selection):
         debug.mainthreadTest()
+        # This is the callback for the Gtk.TreeSelection "changed"
+        # signal.  The docs say to treat it as a hint.  It is
+        # sometimes called when the selection hasn't actually changed.
+        # If we include the "changed" signal in gtklogger logs, the
+        # signals differ when recording and replaying a log file, and
+        # the program will hang if the callback includes gtklogger
+        # checkpoints.  So we don't log the "changed" signal, but
+        # instead insert simulateUnselect and simulateSelect calls in
+        # the log.  These issue the "changed" signal when replayed,
+        # but the replaying is not a consequence of the signal.
+        # Furthermore, we call the LayerTree callback only if the
+        # selection has actually changed.
         model, treeiter = selection.get_selected()
         if treeiter is None:                # nothing selected
             if self.callback and self.current_selection is not None:
+                gtklogger.writeLine(
+                    "getTree('%s').simulateUnselect()" % self.name)
                 self.callback("deselect", self.current_selection,
                               *self.callbackargs, **self.callbackkwargs)
             self.current_selection = None
         else:
             ltnode = model[treeiter][1]
-            if self.callback:
-                if self.current_selection is not None:
-                    self.callback("deselect", self.current_selection,
-                                  *self.callbackargs, **self.callbackkwargs)
+            if self.callback and self.current_selection is not ltnode:
+                gtklogger.writeLine(
+                    "getTree('%s').simulateSelect('%s')"
+                    % (self.name, ltnode.path()))
                 self.callback("select", ltnode,
                               *self.callbackargs, **self.callbackkwargs)
             self.current_selection = ltnode
@@ -181,6 +215,32 @@ class GfxLabelTree:
         if iter is not None:
             return self.treestore[iter][1]
 
+    def simulateUnselect(self):
+        # Used when replaying gui log files.  This does *not* block
+        # signals, since the intention is that it does whatever is
+        # done when the user unselects everything.
+        selection = self.gtk.get_selection()
+        selection.unselect_all()
+
+    def simulateSelect(self, path):
+        # Used when replaying gui log files.  This does *not* block
+        # signals, since the intention is that it does whatever is
+        # done when the user selects something.
+
+        # Allow selection via a Gtk.TreePath as well as a LabelTree
+        # path for easy compatibility with the old version.  Newly
+        # recorded scripts will only use the LabelTree path, but log
+        # files from before we realized the difficulty of logging
+        # Gtk.TreeSelection changed events contain the Gtk.TreePath
+        # instead.
+        if isinstance(path, Gtk.TreePath):
+            self.gtk.get_selection().select_path(path)
+        else:
+            # path is a colon separated string of LabelTree node names
+            selection = self.gtk.get_selection()
+            node = self.tree[path]
+            self.gtk.get_selection().select_iter(self.lt2treeiter[node])
+
     # Ensure that the given labeltree node is visible, by expanding
     # each node along the path.
     def expandToPath(self, path):
@@ -232,7 +292,7 @@ class GfxLabelTree:
         self.constructGUI(node, gtkparent)
         self.autoSelect()
 
-    def deleteCB(self, node):
+    def deleteCB(self, node): # sb callback for (self.tree, "delete")
         # node is a LabelTreeNode object
         debug.mainthreadTest()
         if not node.secret():
@@ -310,3 +370,4 @@ class LabelTreeChooserWidget:
         
         
 
+gtklogger.replayDefine(GfxLabelTree.getTree, "getTree")

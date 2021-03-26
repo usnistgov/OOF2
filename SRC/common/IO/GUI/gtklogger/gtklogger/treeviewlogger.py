@@ -50,6 +50,8 @@ class TreeSelectionLogger(adopteelogger.AdopteeLogger):
     classes = (Gtk.TreeSelection,)
     def record(self, obj, signal, *args):
         if signal == 'changed':
+            # See comments in the gtklogger README about handling
+            # TreeSelection "changed" signals.
             if obj.get_mode()==Gtk.SelectionMode.MULTIPLE:
                 model, rows = obj.get_selected_rows()
                 # Unselecting all rows and then selecting the selected
@@ -65,7 +67,7 @@ class TreeSelectionLogger(adopteelogger.AdopteeLogger):
                 model, iter = obj.get_selected()
                 if iter is not None:
                     path = model.get_path(iter).get_indices()
-                    return ["%s.select_path(Gtk.TreePath(%s)) # TreeSelectionLogger changed" 
+                    return ["%s.select_path(Gtk.TreePath(%s))" 
                             % (self.location(obj, *args), path)]
                 else:
                     return ["%s.unselect_all()" % self.location(obj, *args)]

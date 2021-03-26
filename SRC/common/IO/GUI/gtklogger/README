@@ -260,7 +260,58 @@ callback, before it has done anything consequential, call
 writeLine(str) where str is a string that when evaluated calls your
 callback.
 
+You can add comments to a log file by calling gtklogger.comment(),
+which prints all of its arguments after a comment character.  This can
+help you figure out where to add instrumentation to the log.  It's
+safe to call comment() even when not recording a log.
 
-TODO:
-* gtklogger.comment()
-* Describe problems re logging GtkTreeSelection changed and checkpoints
+SPECIAL CASES
+
+Handling the "changed" signal emitted by a GtkTreeSelection is tricky.
+First, a GtkTreeSelection is not a GtkWidget, so it must be adopted
+(see above) by its GtkTreeView:
+
+  selection = treeview.get_selection()
+  gtklogger.adoptGObject(selection, treeview,
+                         access_method=treeview.get_selection)
+  gtklogger.connect(selection, "changed", your_selection_callback)
+
+However, the gtk3 documentation warns that the "changed" signal is not
+meant to be taken literally.
+https://developer.gnome.org/gtk3/stable/GtkTreeSelection.html It is
+sometimes emitted when the selection hasn't changed.  It is sometimes
+emitted twice -- once with a null selection and once with a non-null
+selection.  It can behave differently when invoked by an actual mouse
+click or when invoked by a call to Gtk.TreeSelection.select_path(), If
+the callback function contains a gtklogger.checkpoint() call, then
+these inconsistencies mean that a checkpoint placed in the log file
+when recording might not be reached when replaying, and the test will
+fail.
+
+If you need checkpoints in a TreeViewSelection "changed" callback, it
+is better NOT to use the default TreeSelectionLogger.  Instead,
+connect to the signal in the normal, non-gtklogger way:
+
+  selection = treeview.get_selection()
+  selection.connect("changed", your_selection_callback)
+
+In your_selection_callback, first check to see if the selection has
+really changed.  If it has, use gtklogger.writeLine() to add something
+like this to the log
+
+  model, treeiter = selection.get_selected()
+  path = model.get_path(treeiter)
+  gtklogger.writeLine("simulateSelect(%s)" % path)
+
+where simulateSelect() is a function that calls selection.select() and
+has been made available in the replay script's namespace by calling
+
+  gtklogger.replayDefine("simulateSelect").
+
+[TODO: It may be possible to do this generically within gtklogger, and
+not require special attention from the user, although we may need a
+different version for each GtkSelectionMode.]
+
+
+
+

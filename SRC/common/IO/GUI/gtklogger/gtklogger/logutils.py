@@ -54,10 +54,17 @@ def getWidgetName(widget):
     return getattr(widget, 'oofname', None)
 
 def getWidgetPath(widget):
+    # Get the widget path as a list of strings.  This is the useful
+    # form for everything other than I/O.
     name = getWidgetName(widget)
     if not name:
         raise GtkLoggerException("Unnamed widget!")
     return _parentWidgetPath(widget) + [name]
+
+def getWidgetPathStr(widget):
+    # Get the widget path as a colon separated string.  This is the
+    # useful form for writing a log file and printing error messages.
+    return ":".join(getWidgetPath(widget))
 
 def _parentWidgetPath(widget):
     parent = widget.get_parent()
