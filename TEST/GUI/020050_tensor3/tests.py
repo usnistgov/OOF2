@@ -33,10 +33,6 @@ def testDij(widgetname, **aijs):
                 aijname = "d%d%d" % (i,j)
                 wijname = "%d,%d" % (i-1, j-1)
                 dct[wijname] = aijs.get(aijname, 0.0)
-                # try:
-                #     dct[wijname] = aijs[aijname]
-                # except KeyError:
-                #     dct[wijname] = 0.0
         return gtkMultiFloatCompare(dct, widgetbase=base+";"+widgetname+":dijk")
 
 def sensitiveDij(widgetname, **aijs):
@@ -46,10 +42,6 @@ def sensitiveDij(widgetname, **aijs):
                 aijname = "d%d%d" % (i,j)
                 wijname = "%d,%d" % (i-1, j-1)
                 nominal = aijs.get(aijname, 0)
-                # try:
-                #     nominal = aijs[aijname]
-                # except KeyError:
-                #     nominal = 0
                 fullwname = base+";"+widgetname+":dijk:"+wijname
                 actual = is_sensitive(fullwname)
                 if actual != nominal:
