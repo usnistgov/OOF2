@@ -1805,26 +1805,6 @@ findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Triclinic;C1:dijk:0,1'
 widget_285=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Triclinic;C1:dijk:0,1')
 if widget_285: wevent(widget_285, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_285.get_window())
 del widget_285
-# findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Triclinic;C1:widget_GTK_RESPONSE_OK').clicked()
-# checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Triclinic.C1
-# wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
-# tree=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
-# column = tree.get_column(0)
-# tree.row_activated(Gtk.TreePath([4, 1, 6, 0]), column)
-# checkpoint Materials page updated
-# checkpoint property selected
-# checkpoint toplevel widget mapped Dialog-Parametrize Couplings;PiezoElectricity;Triclinic;C1
-# findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Triclinic;C1').resize(526, 184)
-# widget_286=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Triclinic;C1:dijk:0,0')
-# if widget_286: wevent(widget_286, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_286.get_window())
-# del widget_286
-# widget_287=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Triclinic;C1:dijk:0,0')
-# if widget_287: wevent(widget_287, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_287.get_window())
-# del widget_287
-# widget_288=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Triclinic;C1:dijk:0,0')
-# if widget_288: wevent(widget_288, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_288.get_window())
-# del widget_288
-# # DELETE BACK TO GTK_RESPONSE_OK
 widget_289=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Triclinic;C1:dijk:0,0')
 if widget_289: wevent(widget_289, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_289.get_window())
 del widget_289
@@ -1958,8 +1938,9 @@ findWidget('Dialog-Materials:materials').get_selection().unselect_all()
 findWidget('Dialog-Materials:materials').get_selection().select_path(Gtk.TreePath([0]))
 findWidget('Dialog-Materials:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Save.Materials
-# Delete material
+assert tests.filediff("rank3mat.dat")
 
+# Delete material
 findWidget('OOF2:Materials Page:Pane:Material:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(192, 86)
@@ -1967,9 +1948,9 @@ findWidget('Questioner:OK').clicked()
 checkpoint Materials page updated
 checkpoint OOF.Material.Delete
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-# Open piezoelectricity cubic Td
-# Check that values are what we set earlier
 
+# Open piezoelectricity cubic Td and check that values are what we set
+# earlier
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 1.8700000000000e+02)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 1.8100000000000e+02)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 1.7200000000000e+02)
@@ -2010,7 +1991,6 @@ del widget_311
 assert tests.testDij("Cubic;Td", d14=1.3, d25=1.3, d36=1.3)
 
 # Change d_14 to 0
-
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Cubic;Td').resize(526, 184)
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Cubic;Td:dijk:0,3').set_text('')
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Cubic;Td:dijk:0,3').set_text('0')
@@ -2022,7 +2002,9 @@ assert tests.testDij("Cubic;Td")
 
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Cubic;Td:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.Property.Parametrize.Couplings.PiezoElectricity.Cubic.Td
-# Change one entry in the rest of the piezoelectric properties so we can test that reloading changes the back.
+
+# Change one entry in the rest of the piezoelectric properties so we
+# can test that reloading changes the back.
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Hexagonal:D3h')
 checkpoint Materials page updated
@@ -2475,8 +2457,8 @@ findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment()
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 2.9000000000000e+02)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 2.9300000000000e+02)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 2.9700000000000e+02)
-# Load rank3mat.dat
 
+# Load rank3mat.dat
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Load', 'Data']).activate()
 checkpoint toplevel widget mapped Dialog-Data
 findWidget('Dialog-Data').resize(192, 92)
@@ -2515,8 +2497,8 @@ checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint OOF.File.Load.Data
 findWidget('OOF2:Materials Page:Pane:Material:PropertyListScroll').get_vadjustment().set_value( 6.3000000000000e+01)
-# Open piezoelectric cubic Td
 
+# Open piezoelectric cubic Td
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 2.9610565570012e+02)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 2.9110565570012e+02)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 2.7910565570012e+02)
@@ -2614,8 +2596,8 @@ widget_334=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Cubic;Td:di
 if widget_334: wevent(widget_334, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_334.get_window())
 del widget_334
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Cubic;Td:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity hexagonal D3h
 
+# Open piezoelectricity hexagonal D3h
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Hexagonal:D3h')
 checkpoint Materials page updated
@@ -2643,8 +2625,8 @@ widget_338=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Hexagonal;D
 if widget_338: wevent(widget_338, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_338.get_window())
 del widget_338
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Hexagonal;D3h:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity hexagonal C6v
 
+# Open piezoelectricity hexagonal C6v
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Hexagonal:C6v')
 checkpoint Materials page updated
@@ -2672,8 +2654,8 @@ widget_342=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Hexagonal;C
 if widget_342: wevent(widget_342, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_342.get_window())
 del widget_342
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Hexagonal;C6v:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity hexagonal D6
 
+# Open piezoelectricity hexagonal D6
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Hexagonal:D6')
 checkpoint Materials page updated
@@ -2701,8 +2683,8 @@ widget_346=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Hexagonal;D
 if widget_346: wevent(widget_346, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_346.get_window())
 del widget_346
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Hexagonal;D6:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity hexagonal D6i
 
+# Open piezoelectricity hexagonal D6i
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Hexagonal:D6i')
 checkpoint Materials page updated
 checkpoint property selected
@@ -2729,8 +2711,8 @@ widget_350=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Hexagonal;D
 if widget_350: wevent(widget_350, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_350.get_window())
 del widget_350
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Hexagonal;D6i:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity hexagonal C6
 
+# Open piezoelectricity hexagonal C6
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Hexagonal:C6')
 checkpoint Materials page updated
 checkpoint property selected
@@ -2757,8 +2739,8 @@ widget_354=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Hexagonal;C
 if widget_354: wevent(widget_354, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_354.get_window())
 del widget_354
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Hexagonal;C6:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity trigonal C3v
 
+# Open piezoelectricity trigonal C3v
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Trigonal:C3v')
 checkpoint Materials page updated
 checkpoint property selected
@@ -2785,8 +2767,8 @@ widget_358=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Trigonal;C3
 if widget_358: wevent(widget_358, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_358.get_window())
 del widget_358
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Trigonal;C3v:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity trigonal D3
 
+# Open piezoelectricity trigonal D3
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Trigonal:D3')
 checkpoint Materials page updated
@@ -2815,8 +2797,8 @@ widget_362=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Trigonal;D3
 if widget_362: wevent(widget_362, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_362.get_window())
 del widget_362
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Trigonal;D3:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity trigonal C3
 
+# Open piezoelectricity trigonal C3
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Trigonal:C3')
 checkpoint Materials page updated
@@ -2848,8 +2830,8 @@ getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Tetragonal:D2
 checkpoint Materials page updated
 checkpoint property selected
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
-# Open piezoelectricity tetragonal D2d
 
+# Open piezoelectricity tetragonal D2d
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 tree=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
 column = tree.get_column(0)
@@ -2876,8 +2858,8 @@ widget_371=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Tetragonal;
 if widget_371: wevent(widget_371, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_371.get_window())
 del widget_371
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Tetragonal;D2d:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity tetragonal C4v
 
+# Open piezoelectricity tetragonal C4v
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Tetragonal:C4v')
 checkpoint Materials page updated
 checkpoint property selected
@@ -2904,8 +2886,8 @@ widget_375=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Tetragonal;
 if widget_375: wevent(widget_375, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_375.get_window())
 del widget_375
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Tetragonal;C4v:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity tetragonal D4
 
+# Open piezoelectricity tetragonal D4
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Tetragonal:D4')
 checkpoint Materials page updated
@@ -2933,8 +2915,8 @@ widget_379=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Tetragonal;
 if widget_379: wevent(widget_379, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_379.get_window())
 del widget_379
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Tetragonal;D4:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity tetragonal C4i
 
+# Open piezoelectricity tetragonal C4i
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Tetragonal:C4i')
 checkpoint Materials page updated
 checkpoint property selected
@@ -3013,8 +2995,8 @@ findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment()
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 1.7300000000000e+02)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 1.7400000000000e+02)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 1.7500000000000e+02)
-# Open piezoelectricity tetragonal C4
 
+# Open piezoelectricity tetragonal C4
 findWidget('OOF2:Materials Page:Pane:Property:Parametrize').clicked()
 checkpoint toplevel widget mapped Dialog-Parametrize Couplings;PiezoElectricity;Tetragonal;C4i
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Tetragonal;C4i').resize(526, 184)
@@ -3058,8 +3040,8 @@ widget_391=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Tetragonal;
 if widget_391: wevent(widget_391, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_391.get_window())
 del widget_391
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Tetragonal;C4:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity orthorhombic C2v
 
+# Open piezoelectricity orthorhombic C2v
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Orthorhombic:C2v')
 checkpoint Materials page updated
 checkpoint property selected
@@ -3080,8 +3062,8 @@ widget_393=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Orthorhombi
 if widget_393: wevent(widget_393, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_393.get_window())
 del widget_393
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Orthorhombic;C2v:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity orthorhombic D2
 
+# Open piezoelectricity orthorhombic D2
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Orthorhombic:D2')
 checkpoint Materials page updated
 checkpoint property selected
@@ -3116,8 +3098,8 @@ widget_397=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Orthorhombi
 if widget_397: wevent(widget_397, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_397.get_window())
 del widget_397
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Orthorhombic;D2:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity monoclinic C2
 
+# Open piezoelectricity monoclinic Cs
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 1.7600000000000e+02)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 1.8000000000000e+02)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 1.8500000000000e+02)
@@ -3147,7 +3129,6 @@ findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment()
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 2.5200000000000e+02)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 2.5300000000000e+02)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll').get_vadjustment().set_value( 2.5400000000000e+02)
-# CHANGE PREV COMMENT TO Cs
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Monoclinic:Cs')
 checkpoint Materials page updated
 checkpoint property selected
@@ -3183,8 +3164,8 @@ widget_401=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Monoclinic;
 if widget_401: wevent(widget_401, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_401.get_window())
 del widget_401
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Monoclinic;Cs:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity monoclinic C2
 
+# Open piezoelectricity monoclinic C2
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Monoclinic:C2')
 checkpoint Materials page updated
 checkpoint property selected
@@ -3225,8 +3206,8 @@ widget_406=findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Monoclinic;
 if widget_406: wevent(widget_406, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_406.get_window())
 del widget_406
 findWidget('Dialog-Parametrize Couplings;PiezoElectricity;Monoclinic;C2:widget_GTK_RESPONSE_CANCEL').clicked()
-# Open piezoelectricity triclinic C1
 
+# Open piezoelectricity triclinic C1
 wevent(findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree'), Gdk.EventType.BUTTON_RELEASE, button=1, state=256, window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 getTree('PropertyTree').simulateSelect('Couplings:PiezoElectricity:Triclinic:C1')
 checkpoint Materials page updated
