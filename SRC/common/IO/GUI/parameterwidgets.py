@@ -338,6 +338,7 @@ class AutoWidget(ParameterWidget):
         finally:
             self.deleteSignal.unblock()
         self.widgetChanged(1, interactive=0)
+        
 
     def deleteTextCB(self, gtkobj, start_pos, end_pos):
         # In automatic mode, deletion does nothing.
@@ -358,17 +359,19 @@ class AutoWidget(ParameterWidget):
             self.gtk.get_buffer().delete_text(start_pos, end_pos-start_pos)
 
         self.gtk.stop_emission("delete_text")
-        self.widgetChanged(self.validValue(self.gtk.get_text()),
+        self.widgetChanged(self.validValue(self.get_value()),
                            interactive=True)
                 
     def get_value(self):
         if self.automatic:
             return automatic.automatic
         return self.gtk.get_text()
+
     def validValue(self, value):
         # See comment in GenericWidget.validValue.
         return (value is automatic.automatic or
                 (isinstance(value, StringType) and string.lstrip(value) != ""))
+
     def enterAutoMode(self):
         self.automatic = True
         self.gtk.get_style_context().add_class("automatic")

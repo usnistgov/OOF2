@@ -1129,10 +1129,7 @@ class AutomaticNameParameter(Parameter):
         self.timestamp = timestamp.TimeStamp()
         self.group = None
         self.resolver = resolver
-        if value is not None:
-            self.set(value)
-        else:
-            self.truevalue=None
+        self.set(value)
 
     def set(self, value):
         if value is not None:
