@@ -1,3 +1,13 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
 import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
@@ -85,12 +95,12 @@ findWidget('Dialog-Create new pixel group:name').insert_text('j', 4)
 findWidget('Dialog-Create new pixel group:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
 checkpoint meshable button set
-assert tests.sensitization2()
-assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['abcde (0 pixels, meshable)', 'fghij (0 pixels, meshable)']) 
-assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['fghij (0 pixels, meshable)'])
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.New
+assert tests.sensitization2()
+assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['abcde (0 pixels, meshable)', 'fghij (0 pixels, meshable)']) 
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['fghij (0 pixels, meshable)'])
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList').get_selection().select_path(Gtk.TreePath([0]))
 checkpoint microstructure page sensitized
 assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['abcde (0 pixels, meshable)'])
@@ -109,28 +119,28 @@ checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint OOF.PixelGroup.Rename
 checkpoint microstructure page sensitized
+checkpoint meshable button set
 assert tests.sensitization2()
 assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['fghij (0 pixels, meshable)', 'klmno (0 pixels, meshable)'])
 assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['klmno (0 pixels, meshable)'])
-checkpoint meshable button set
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Meshable').clicked()
 checkpoint meshable button set
-assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['klmno (0 pixels)'])
-assert tests.meshableButtonState() == 0
 checkpoint microstructure page sensitized
 checkpoint OOF.PixelGroup.Meshable
+assert tests.chooserListStateCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['klmno (0 pixels)'])
+assert tests.meshableButtonState() == 0
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(184, 86)
 findWidget('Questioner:Yes').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
-assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['fghij (0 pixels, meshable)'])
-assert tests.meshableButtonState() == 1
 checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.Delete
 checkpoint microstructure page sensitized
 checkpoint meshable button set
+assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['fghij (0 pixels, meshable)'])
+assert tests.meshableButtonState() == 1
 event(Gdk.EventType.BUTTON_PRESS,x= 7.4000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Pixel Selection']).activate() # MenuItemLogger
@@ -154,9 +164,9 @@ checkpoint microstructure page sensitized
 assert tests.sensitization3()
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Add').clicked()
 checkpoint meshable button set
-assert tests.sensitization4()
 checkpoint microstructure page sensitized
 checkpoint OOF.PixelGroup.AddSelection
+assert tests.sensitization4()
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Clear').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
