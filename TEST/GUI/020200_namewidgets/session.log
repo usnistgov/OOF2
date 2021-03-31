@@ -1,0 +1,3 @@
+OOF.Microstructure.New(name='abcdef', width=1.0, height=1.0, width_in_pixels=10, height_in_pixels=10)
+OOF.Property.Copy(property='Mechanical:Elasticity:Isotropic', new_name='abc')
+OOF.Property.Copy(property='Mechanical:Elasticity:Isotropic:abc', new_name='abcd')
