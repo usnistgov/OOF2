@@ -124,7 +124,7 @@ def _FEMeshPtr_destroy(self):
     # deleted it.  Setting self.boundaries to an empty dict avoids the
     # problem without really solving it.
     #
-    # It might be that the problem that is the Mesh isn't locked
+    # It might be that the problem is that the Mesh isn't locked
     # properly.  Should BoundaryAnalysisPage.update or
     # Mesh.edgeBoundaryNames acquire the read lock?  That wouldn't
     # entirely solve the problem, because what happens if update() is
