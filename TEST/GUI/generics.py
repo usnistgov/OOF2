@@ -434,9 +434,11 @@ def menuSensitive(menu, item):
     topmenuwidget = gtklogger.findWidget(menu)
     if not topmenuwidget:
         print >> sys.stderr, "Didn't find widget for", menu
+        raise RuntimeError("Menu sensitization check failed!")
     menuitemwidget = gtklogger.findMenu(topmenuwidget, item)
     if not menuitemwidget:
         print >> sys.stderr, "Didn't find widget for %s:%s" % (menu, item)
+        raise RuntimeError("Menu sensitization check failed!!")
     return menuitemwidget.is_sensitive()
 
 def sensitizationCheck(wdict, base=None):
