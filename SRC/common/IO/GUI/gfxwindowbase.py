@@ -580,9 +580,16 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         if gtklogger.recording() and not gtklogger.replaying():
             gtklogger.writeLine(
                "findGfxWindow('%s').simulateMouse('%s', %.8g, %.8g, %d, %s, %s)"
-                % (self.name, eventtype, x, y, button, shift, ctrl)
-                
-            )
+                % (self.name, eventtype, x, y, button, shift, ctrl))
+
+    # Same for mouse clicks on the contourmap canvas
+    def simulateCMapMouse(self, eventtype, x, y, button, shift, ctrl):
+        self.contourmap_mouse(eventtype, x, y, button, shift, ctrl, None)
+    def logContourMapMouseEvent(self, eventtype, x, y, button, shift, ctrl):
+        if gtklogger.recording() and not gtklogger.replaying():
+            gtklogger.writeLine(
+                "findGfxWindow('%s').simulateCMapMouse('%s', %.8g, %.8g, %d, %s, %s)"
+                % (self.name, eventtype, x, y, button, shift, ctrl))
 
 # This makes the "findGfxWindow" function used by the logged mouse
 # events available in the Python namespace in which replayed gui log

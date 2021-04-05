@@ -169,6 +169,7 @@ def _recursiveFindWidget(path, base):
                 # looking at other children.
 
 def findMenu(widget, path):
+    assert isinstance(widget, Gtk.MenuShell)
     # widget is a Gtk.MenuShell (container for MenuItems)
     # path is a list of strings (menu item names)
     for child in widget.get_children(): # child is a Gtk.MenuItem
@@ -200,6 +201,8 @@ def findCellRenderer(treeview, col, rend):
 # objects.  It's mostly for debugging.
 
 def findAllWidgets(topname):
+    if isinstance(topname, Gtk.Widget):
+        return _findAllWidgets(topname)
     return _findAllWidgets(findWidget(topname))
 def _findAllWidgets(top):
     topname = getWidgetName(top)

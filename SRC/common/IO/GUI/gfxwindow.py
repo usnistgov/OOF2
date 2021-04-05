@@ -319,6 +319,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         contourmaplevelbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
                                      spacing=1)
         self.contourlevel_min = Gtk.Label()
+        gtklogger.setWidgetName(self.contourlevel_min, "LevelMin")
         contourmaplevelbox.pack_start(self.contourlevel_min,
                                       expand=True, fill=True, padding=0)
         contourmaplevelbox.pack_start(
@@ -328,6 +329,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             Gtk.Separator(orientation=Gtk.Orientation.VERTICAL),
             expand=False, fill=False, padding=0)
         self.contourlevel_max = Gtk.Label()
+        gtklogger.setWidgetName(self.contourlevel_max, "LevelMax")
         contourmaplevelbox.pack_end(self.contourlevel_max,
                                     expand=True, fill=True, padding=0)
         contourmapclearbutton = Gtk.Button("Clear Mark")
@@ -623,19 +625,25 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
         self.contourmapdata.canvas.show()
 
+        # Don't put a checkpoint here... there are too many of them
+        # b/c this is called by show_contourmap_info.  That function
+        # ends with a checkpoint.  If this function is never called
+        # outside of show_contourmap_info, no checkpoint is needed
+        # here.
+
     # Callback for size changes of the pane containing the contourmap.
     def contourmap_resize(self, data):
         self.contourmapdata.canvas.zoomToFill()
 
     def contourmap_mouse(self, event, x, y, button, shift, ctrl, data):
         debug.mainthreadTest()
-        if event=="down":
-            self.contourmapdata.mouse_down = 1
-        elif (event=="move") and self.contourmapdata.mouse_down==1:
-            subthread.execute(self.show_contourmap_ticks, (y,))
-        elif event=="up":
-            self.contourmapdata.mouse_down = None
-            subthread.execute(self.show_contourmap_ticks, (y,))
+        if event == "up":
+            self.logContourMapMouseEvent(event, x, y, button, shift, ctrl)
+            self.set_contourmap_marker(y)
+
+    def set_contourmap_marker(self, y):
+        self.contourmapdata.mark_value = y
+        subthread.execute(self.show_contourmap_info)
 
     # Button callback.
     def contourmap_clear_marker(self, gtk):
