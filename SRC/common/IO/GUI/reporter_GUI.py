@@ -446,7 +446,11 @@ class ErrorPopUp(object):
         except IOError:
             errbuf.insert(erfbuf.get_end_iter(),
                           "\nUnable to write traceback.\n")
-        self.errbox.scroll_to_iter(errbuf.get_end_iter(), 0.4)
+        self.errbox.scroll_to_iter(errbuf.get_end_iter(),
+                                   within_margin=0.0,
+                                   use_align=True,
+                                   xalign=0.0,
+                                   yalign=1.0)
 
 def _switchpacking(parent, child):
     # Toggle the 'expand' and 'fill' gtk packing properties of the
