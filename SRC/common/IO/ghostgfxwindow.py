@@ -1350,10 +1350,12 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def freezeLayer(self, menuitem, n):
         self.layers[n].freeze(self)
+        # TODO: This signal is not caught.   Does freezing work?
         switchboard.notify((self, 'layers frozen'))
         self.sensitize_menus()
     def unfreezeLayer(self, menuitem, n):
         self.layers[n].unfreeze(self)
+        # TODO: This signal is not caught.   Does freezing work?
         switchboard.notify((self, 'layers frozen'))
         self.sensitize_menus()
         self.draw()

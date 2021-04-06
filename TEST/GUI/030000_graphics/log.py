@@ -459,7 +459,11 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Hide
 # TODO: I don't know how to check the state of a CellRendererToggle,
 # so there's no test here to see if the show/hide buttons are set
-# correctly.   IS THAT STILL TRUE?
+# correctly. Gtk.CellRendererToggle has set_active() and get_active()
+# methods, but they appear to be only usable in the context of a
+# "toggled" signal handler, where an iterator for the row is provided.
+# There doesn't seem to be any way to call get_active() on a
+# particular row.
 assert tests.sensitizationCheck5()
 
 # Unhide the Skeleton material layer from the layer list
