@@ -171,8 +171,9 @@ def really_run_tests(homedir, dirs, rerecord):
             print >> sys.stderr, "Child was terminated by signal", -result
             sys.exit(result)
 
-        if result != exitstatus*256: # subprocess returns status in high byte
-            print "Test", directory, "failed! Status =", result
+        if result != exitstatus:
+            print "Test %s failed! Status=%d, expected=%d" \
+                % (directory, result, exitstatus)
             sys.exit(result)
         print >> sys.stderr, "--- Finished %s" % directory
 
