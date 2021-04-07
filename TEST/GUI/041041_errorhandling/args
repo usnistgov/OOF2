@@ -1,0 +1,1 @@
+--script TEST_DATA/syntaxerror.py --unthreaded

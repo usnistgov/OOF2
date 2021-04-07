@@ -541,7 +541,7 @@ def pixelGroupSizeCheck(msname, grpname, n):
 # Error message tests
 
 def errorMsg(text):
-    return gtkTextviewTail('Error:ErrorScroll:ErrorText', text+'\n')
+    return gtkTextviewTail('Error:ErrorText', text+'\n')
 
 def syntaxErrorMsg(text):
     # The syntax error message format changed slightly from Python 2.5
