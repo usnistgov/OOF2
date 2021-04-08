@@ -10,6 +10,7 @@
 
 import tests
 
+# Create a microstructure
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Microstructure')
 findWidget('OOF2').resize(585, 350)
 findWidget('OOF2:Microstructure Page:Pane').set_position(161)
@@ -33,8 +34,10 @@ checkpoint boundary page updated
 checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
-# checkpoint interface page updated
 checkpoint OOF.Microstructure.New
+
+# Set new layer policy to Single
+# Open a graphics window
 findMenu(findWidget('OOF2:MenuBar'), 'Windows:Graphics:New').activate()
 checkpoint Move Node toolbox info updated
 findWidget('OOF2 Graphics 1:Pane0').set_position(285)
@@ -48,6 +51,8 @@ checkpoint selection info updated
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(714)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(258)
 checkpoint OOF.Windows.Graphics.New
+
+# Create a skeleton
 findWidget('OOF2 Graphics 1').resize(800, 400)
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Skeleton')
 findWidget('OOF2:Skeleton Page:Pane').set_position(227)
@@ -84,6 +89,8 @@ checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
 checkpoint OOF.Skeleton.New
+
+# Refine all elements w/ bisection
 setComboBox(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Chooser'), 'All Elements')
 findWidget('OOF2:Skeleton Page:Pane').set_position(379)
 setComboBox(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:degree:Chooser'), 'Bisection')
@@ -101,6 +108,8 @@ checkpoint skeleton page sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint OOF.Skeleton.Modify
+
+# Undo the skeleton modification
 findWidget('OOF2 Graphics 1').resize(800, 400)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Undo').clicked()
 checkpoint skeleton selection page grouplist
@@ -110,6 +119,8 @@ checkpoint boundary page updated
 checkpoint skeleton page sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint OOF.Skeleton.Undo
+
+# Select a single element (1st one in 2nd row from the top)
 setComboBox(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), 'Skeleton Selection')
 checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated
@@ -127,6 +138,8 @@ checkpoint Graphics_1 Element sensitized
 checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated
 checkpoint OOF.Graphics_1.Toolbox.Select_Element.Single_Element
+
+# Redo the skeleton modification
 findWidget('OOF2:Skeleton Page:Pane:Modification:Redo').clicked()
 checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
@@ -139,6 +152,8 @@ checkpoint boundary page updated
 checkpoint skeleton page sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint OOF.Skeleton.Redo
+
+# Shift click on a selected element
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
 canvasobj.emit('event', event(gtk.gdk.BUTTON_PRESS,x= 1.7934362934363e-01,y=-5.1911196911197e-01,button=1,state=1,window=findCanvasGdkWindow('Graphics_1')))
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
@@ -151,6 +166,8 @@ checkpoint selection info updated
 checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated
 checkpoint OOF.Graphics_1.Toolbox.Select_Element.Single_Element
+
+# Control click on a selected element
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
 canvasobj.emit('event', event(gtk.gdk.BUTTON_PRESS,x= 2.2181467181467e-01,y=-7.0598455598456e-01,button=1,state=4,window=findCanvasGdkWindow('Graphics_1')))
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
@@ -163,6 +180,8 @@ checkpoint selection info updated
 checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated
 checkpoint OOF.Graphics_1.Toolbox.Select_Element.Single_Element
+
+# Undo the skeleton *selection* modification
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Element:Undo').clicked()
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
@@ -171,6 +190,7 @@ checkpoint selection info updated
 checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated
 checkpoint OOF.Graphics_1.Toolbox.Select_Element.Undo
+# Undo again
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Element:Undo').clicked()
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
@@ -179,6 +199,7 @@ checkpoint selection info updated
 checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated
 checkpoint OOF.Graphics_1.Toolbox.Select_Element.Undo
+# Undo yet again
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Element:Undo').clicked()
 checkpoint skeleton selection page selection sensitized
 checkpoint Graphics_1 Element sensitized
@@ -187,6 +208,8 @@ checkpoint selection info updated
 checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated
 checkpoint OOF.Graphics_1.Toolbox.Select_Element.Undo
+
+# Redo the skeleton selection modification
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Element:Redo').clicked()
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
@@ -195,6 +218,7 @@ checkpoint selection info updated
 checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated
 checkpoint OOF.Graphics_1.Toolbox.Select_Element.Redo
+# Redo again
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Element:Redo').clicked()
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
@@ -203,6 +227,7 @@ checkpoint selection info updated
 checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated
 checkpoint OOF.Graphics_1.Toolbox.Select_Element.Redo
+# Redo yet again
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Element:Redo').clicked()
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
@@ -211,6 +236,8 @@ checkpoint selection info updated
 checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated
 checkpoint OOF.Graphics_1.Toolbox.Select_Element.Redo
+
+# Query an element
 setComboBox(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), 'Skeleton Info')
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
 canvasobj.emit('event', event(gtk.gdk.BUTTON_PRESS,x= 4.7239382239382e-01,y=-7.2297297297297e-01,button=1,state=0,window=findCanvasGdkWindow('Graphics_1')))
@@ -219,6 +246,8 @@ canvasobj.emit('event', event(gtk.gdk.MOTION_NOTIFY,x= 4.7239382239382e-01,y=-7.
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
 canvasobj.emit('event', event(gtk.gdk.BUTTON_RELEASE,x= 4.7239382239382e-01,y=-7.1872586872587e-01,button=1,state=256,window=findCanvasGdkWindow('Graphics_1')))
 checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryElement
+
+# Undo the skeleton modification
 findWidget('OOF2:Skeleton Page:Pane:Modification:Undo').clicked()
 checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
@@ -229,11 +258,15 @@ checkpoint boundary page updated
 checkpoint skeleton page sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint OOF.Skeleton.Undo
+
+# Query another element
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
 canvasobj.emit('event', event(gtk.gdk.BUTTON_PRESS,x= 4.5115830115830e-01,y=-5.7007722007722e-01,button=1,state=0,window=findCanvasGdkWindow('Graphics_1')))
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
 canvasobj.emit('event', event(gtk.gdk.BUTTON_RELEASE,x= 4.5115830115830e-01,y=-5.7007722007722e-01,button=1,state=256,window=findCanvasGdkWindow('Graphics_1')))
 checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryElement
+
+# Redo the skeleton modification
 findWidget('OOF2:Skeleton Page:Pane:Modification:Redo').clicked()
 checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
@@ -244,6 +277,8 @@ checkpoint boundary page updated
 checkpoint skeleton page sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint OOF.Skeleton.Redo
+
+# Query an element
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
 canvasobj.emit('event', event(gtk.gdk.BUTTON_PRESS,x= 4.4266409266409e-01,y=-5.9131274131274e-01,button=1,state=0,window=findCanvasGdkWindow('Graphics_1')))
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
@@ -251,6 +286,7 @@ canvasobj.emit('event', event(gtk.gdk.MOTION_NOTIFY,x= 4.5115830115830e-01,y=-5.
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
 canvasobj.emit('event', event(gtk.gdk.BUTTON_RELEASE,x= 4.5115830115830e-01,y=-5.9131274131274e-01,button=1,state=256,window=findCanvasGdkWindow('Graphics_1')))
 checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryElement
+# Query an element
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
 canvasobj.emit('event', event(gtk.gdk.BUTTON_PRESS,x= 5.5733590733591e-01,y=-4.6814671814672e-01,button=1,state=0,window=findCanvasGdkWindow('Graphics_1')))
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
@@ -258,18 +294,23 @@ canvasobj.emit('event', event(gtk.gdk.MOTION_NOTIFY,x= 5.5733590733591e-01,y=-4.
 canvasobj = findCanvasRoot(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas'), windowname='Graphics_1')
 canvasobj.emit('event', event(gtk.gdk.BUTTON_RELEASE,x= 5.5733590733591e-01,y=-4.6389961389961e-01,button=1,state=256,window=findCanvasGdkWindow('Graphics_1')))
 checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryElement
+# Double click on a node in the node list
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:ElementInformation:NodeList').get_selection().select_path((0,))
 tree=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:ElementInformation:NodeList')
 column = tree.get_column(0)
 tree.row_activated((0,), column)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Node').clicked()
 checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryNodeByID
+
+# Double click on an element in the element list
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:NodeInformation:ElementList').get_selection().select_path((0,))
 tree=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:NodeInformation:ElementList')
 column = tree.get_column(0)
 tree.row_activated((0,), column)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Element').clicked()
 checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryElementByID
+
+# Delete the microstructure
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Microstructure')
 findWidget('OOF2:Microstructure Page:Pane').set_position(203)
 findWidget('OOF2:Microstructure Page:Delete').clicked()
@@ -332,12 +373,12 @@ checkpoint boundary page updated
 checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
-# checkpoint interface page updated
 findWidget('OOF2:Microstructure Page:Pane').set_position(197)
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint meshable button set
 checkpoint OOF.Microstructure.Delete
+# Check for leftover objects
 assert tests.objectInventory()
 findMenu(findWidget('OOF2:MenuBar'), 'File:Quit').activate()
 checkpoint toplevel widget mapped Questioner

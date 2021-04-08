@@ -10,6 +10,7 @@
 
 import tests
 
+# Create a microstructure
 findWidget('OOF2:Navigation:Next').clicked()
 findWidget('OOF2').resize(585, 350)
 findWidget('OOF2:Microstructure Page:Pane').set_position(161)
@@ -34,6 +35,8 @@ checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
 checkpoint OOF.Microstructure.New
+
+# Create a skeleton
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Skeleton')
 findWidget('OOF2:Skeleton Page:Pane').set_position(227)
 findWidget('OOF2').resize(712, 424)
@@ -60,6 +63,8 @@ checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
 checkpoint OOF.Skeleton.New
+
+# Create a mesh
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'FE Mesh')
 findWidget('OOF2:FE Mesh Page:Pane').set_position(418)
 findWidget('OOF2:FE Mesh Page:New').clicked()
@@ -82,6 +87,8 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Mesh.New
+
+# Define and activate Temperature, activate Heat_Eqn
 findWidget('OOF2:Navigation:Next').clicked()
 findWidget('OOF2:Fields & Equations Page:HPane').set_position(129)
 findWidget('OOF2:Fields & Equations Page:HPane:Fields:Temperature defined').clicked()
@@ -94,6 +101,8 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Subproblem.Equation.Activate
+
+# Create boundary conditions, T=0 on top and bottom
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Boundary Conditions')
 findWidget('OOF2:Boundary Conditions Page:Condition:New').clicked()
 checkpoint toplevel widget mapped Dialog-New Boundary Condition
@@ -110,6 +119,8 @@ findWidget('Dialog-New Boundary Condition').resize(408, 271)
 findWidget('Dialog-New Boundary Condition:gtk-ok').clicked()
 checkpoint OOF.Mesh.Boundary_Conditions.New
 findWidget('OOF2').resize(712, 424)
+
+# Delete the mesh
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'FE Mesh')
 findWidget('OOF2:FE Mesh Page:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
@@ -125,6 +136,8 @@ checkpoint mesh page subproblems sensitized
 checkpoint OOF.Mesh.Delete
 assert tests.objectInventory(microstructures=1, nodes=25, elements=16, meshes=0)
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Skeleton')
+
+# Delete the skeleton
 findWidget('OOF2:Skeleton Page:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(198, 93)
@@ -144,6 +157,8 @@ checkpoint skeleton page sensitized
 checkpoint skeleton page sensitized
 checkpoint OOF.Skeleton.Delete
 assert tests.objectInventory(microstructures=1, nodes=0, elements=0, meshes=0)
+
+# Delete the microstructure
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Microstructure')
 findWidget('OOF2:Microstructure Page:Pane').set_position(203)
 findWidget('OOF2:Microstructure Page:Delete').clicked()
@@ -162,13 +177,14 @@ checkpoint boundary page updated
 checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
-# checkpoint interface page updated
 findWidget('OOF2:Microstructure Page:Pane').set_position(197)
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint meshable button set
 checkpoint OOF.Microstructure.Delete
 assert tests.objectInventory(microstructures=0, nodes=0, elements=0, meshes=0)
+# Set new layer policy to Single
+# Open a graphics window
 findMenu(findWidget('OOF2:MenuBar'), 'Windows:Graphics:New').activate()
 checkpoint Move Node toolbox info updated
 findWidget('OOF2 Graphics 1:Pane0').set_position(285)
@@ -183,6 +199,8 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(714)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(258)
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
+
+# Create another microstructure
 findWidget('OOF2:Microstructure Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create Microstructure
 findWidget('Dialog-Create Microstructure').resize(316, 163)
@@ -203,8 +221,8 @@ checkpoint boundary page updated
 checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
-# checkpoint interface page updated
 checkpoint OOF.Microstructure.New
+ # Create a skeleton
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Skeleton')
 checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:New').clicked()
@@ -236,6 +254,8 @@ checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
 checkpoint OOF.Skeleton.New
+
+# Create a mesh
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'FE Mesh')
 findWidget('OOF2:FE Mesh Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create a new mesh
@@ -268,6 +288,8 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Mesh.New
+
+# Create a material
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Materials')
 findWidget('OOF2:Materials Page:Pane').set_position(278)
 findWidget('OOF2:Materials Page:Pane:Material:New').clicked()
@@ -277,6 +299,8 @@ findWidget('Dialog-New material:gtk-ok').clicked()
 checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Material.New
+
+# Assign material to all pixels
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()
 checkpoint toplevel widget mapped Dialog-Assign material material to pixels
 findWidget('Dialog-Assign material material to pixels').resize(276, 106)
@@ -284,6 +308,8 @@ setComboBox(findWidget('Dialog-Assign material material to pixels:pixels'), '<ev
 findWidget('Dialog-Assign material material to pixels:gtk-ok').clicked()
 checkpoint OOF.Material.Assign
 findWidget('OOF2 Graphics 1').resize(800, 400)
+
+# Delete the mesh
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'FE Mesh')
 findWidget('OOF2:FE Mesh Page:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
@@ -310,6 +336,8 @@ checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Mesh.Delete
 assert tests.objectInventory(microstructures=1, nodes=25, elements=16, meshes=0)
+
+# Delete the skeleton
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Skeleton')
 checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:Delete').clicked()
@@ -342,6 +370,7 @@ checkpoint skeleton page sensitized
 checkpoint skeleton page sensitized
 checkpoint OOF.Skeleton.Delete
 assert tests.objectInventory(microstructures=1, nodes=0, elements=0, meshes=0)
+ # Delete the microstructure
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Microstructure')
 findWidget('OOF2:Microstructure Page:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
@@ -377,17 +406,20 @@ checkpoint boundary page updated
 checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
-# checkpoint interface page updated
 findWidget('OOF2:Microstructure Page:Pane').set_position(197)
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint meshable button set
 checkpoint OOF.Microstructure.Delete
 assert tests.objectInventory(microstructures=0, nodes=0, elements=0, meshes=0)
+
+# Close the graphics window
 widget_0=findWidget('OOF2 Graphics 1')
 handled_0=widget_0.event(event(gtk.gdk.DELETE,window=widget_0.window))
 postpone if not handled_0: widget_0.destroy()
 checkpoint OOF.Graphics_1.File.Close
+
+# Create a microstructure
 findWidget('OOF2:Microstructure Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create Microstructure
 findWidget('Dialog-Create Microstructure').resize(316, 163)
@@ -408,8 +440,9 @@ checkpoint boundary page updated
 checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
-# checkpoint interface page updated
 checkpoint OOF.Microstructure.New
+
+# Assign material to all pixels
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Materials')
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()
 checkpoint toplevel widget mapped Dialog-Assign material material to pixels
@@ -417,6 +450,8 @@ findWidget('Dialog-Assign material material to pixels').resize(276, 106)
 setComboBox(findWidget('Dialog-Assign material material to pixels:pixels'), '<every>')
 findWidget('Dialog-Assign material material to pixels:gtk-ok').clicked()
 checkpoint OOF.Material.Assign
+
+# Create a skeleton
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Skeleton')
 checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:New').clicked()
@@ -439,6 +474,8 @@ checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint OOF.Skeleton.New
 checkpoint skeleton selection page updated
+
+# Create a second skeleton
 findWidget('OOF2:Skeleton Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-New skeleton
 findWidget('Dialog-New skeleton').resize(397, 198)
@@ -453,6 +490,8 @@ checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Skeleton.New
 checkpoint skeleton page sensitized
+
+# Create a mesh for the second skeleton
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'FE Mesh')
 findWidget('OOF2:FE Mesh Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create a new mesh
@@ -474,6 +513,8 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Mesh.New
+
+# Create a second mesh for the second skeleton
 findWidget('OOF2:FE Mesh Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create a new mesh
 findWidget('Dialog-Create a new mesh').resize(338, 210)
@@ -494,6 +535,8 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Mesh.New
+
+# Open a graphics window
 findMenu(findWidget('OOF2:MenuBar'), 'Windows:Graphics:New').activate()
 checkpoint Move Node toolbox info updated
 findWidget('OOF2 Graphics 1:Pane0').set_position(285)
@@ -508,6 +551,8 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(714)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(258)
 checkpoint OOF.Windows.Graphics.New
 findWidget('OOF2 Graphics 1').resize(800, 400)
+
+# Add two mesh edge display layers for the second mesh of the second skeleton
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Layer:New').activate()
 checkpoint layereditor layerset changed
 checkpoint toplevel widget mapped OOF2 Graphics Layer Editor
@@ -594,6 +639,8 @@ checkpoint selection info updated
 checkpoint OOF.LayerEditor.LayerSet.Send
 checkpoint layereditor layerset changed
 checkpoint OOF.LayerEditor.LayerSet.Add_Method
+
+# Delete the microstructure
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Microstructure')
 findWidget('OOF2:Microstructure Page:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
@@ -696,7 +743,9 @@ checkpoint microstructure page sensitized
 checkpoint meshable button set
 checkpoint OOF.Microstructure.Delete
 assert tests.objectInventory(microstructures=0, nodes=0, elements=0, meshes=0)
+# Save python log
 findMenu(findWidget('OOF2:MenuBar'), 'File:Quit').activate()
+# Quit
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(356, 93)
 findWidget('Questioner:gtk-delete').clicked()

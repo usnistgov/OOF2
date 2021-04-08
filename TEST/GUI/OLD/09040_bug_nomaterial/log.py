@@ -12,6 +12,7 @@
 ## computing PropertyOutputs of Meshes that had elements with no
 ## assigned Material.
 
+# Create a 4x4 pixel Microstructure
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Microstructure')
 findWidget('OOF2').resize(566, 350)
 findWidget('OOF2:Microstructure Page:Pane').set_position(155)
@@ -39,8 +40,9 @@ checkpoint boundary page updated
 checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
-# checkpoint interface page updated
 checkpoint OOF.Microstructure.New
+
+# Create a material
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Materials')
 findWidget('OOF2').resize(657, 350)
 findWidget('OOF2:Materials Page:Pane').set_position(263)
@@ -49,6 +51,8 @@ checkpoint toplevel widget mapped Dialog-New material
 findWidget('Dialog-New material').resize(298, 98)
 findWidget('Dialog-New material:gtk-ok').clicked()
 checkpoint OOF.Material.New
+
+# Add isotropic elasticity
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((0,))
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row((1,), open_all=False)
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row((1, 0), open_all=False)
@@ -57,6 +61,8 @@ widget_0=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTr
 widget_0.event(event(gtk.gdk.BUTTON_RELEASE,button=1,window=widget_0.window))
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 checkpoint OOF.Material.Add_property
+
+# Open a graphics window
 findMenu(findWidget('OOF2:MenuBar'), 'Windows:Graphics:New').activate()
 findWidget('OOF2 Graphics 1:Pane0').set_position(285)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(693)
@@ -69,6 +75,8 @@ checkpoint selection info updated
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(717)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(259)
 checkpoint OOF.Windows.Graphics.New
+
+# Add a microstructure material display
 findWidget('OOF2 Graphics 1').resize(800, 400)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Layer:New').activate()
 checkpoint layereditor layerset changed
@@ -98,6 +106,8 @@ checkpoint selection info updated
 checkpoint OOF.LayerEditor.LayerSet.Send
 checkpoint layereditor layerset changed
 checkpoint OOF.LayerEditor.LayerSet.Add_Method
+
+# Select all pixels around the perimeter
 setComboBox(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), 'Pixel Selection')
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated
@@ -240,12 +250,16 @@ checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Point
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((0,))
 widget_1=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
 widget_1.event(event(gtk.gdk.BUTTON_RELEASE,button=1,window=widget_1.window))
+
+# Assign the material to the selected pixels
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()
 checkpoint toplevel widget mapped Dialog-Assign material material to pixels
 findWidget('PopUp-Layer').deactivate()
 findWidget('Dialog-Assign material material to pixels').resize(258, 106)
 findWidget('Dialog-Assign material material to pixels:gtk-ok').clicked()
 checkpoint OOF.Material.Assign
+
+# Create a skeleton
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Skeleton')
 findWidget('OOF2').resize(657, 424)
 findWidget('OOF2:Skeleton Page:Pane').set_position(312)
@@ -278,6 +292,8 @@ checkpoint skeleton page sensitized
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
 checkpoint OOF.Skeleton.New
+
+# Create a mesh
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'FE Mesh')
 findWidget('OOF2:FE Mesh Page:Pane').set_position(389)
 findWidget('OOF2:FE Mesh Page:New').clicked()
@@ -307,6 +323,8 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Mesh.New
+
+# Create a display later for filled contours of total energy
 findWidget('OOF2 Graphics Layer Editor:NewLayer').clicked()
 findWidget('OOF2 Graphics Layer Editor').resize(600, 250)
 checkpoint layer editor updated
@@ -337,6 +355,7 @@ checkpoint selection info updated
 checkpoint OOF.LayerEditor.LayerSet.Send
 checkpoint layereditor layerset changed
 checkpoint OOF.LayerEditor.LayerSet.Add_Method
+
 findMenu(findWidget('OOF2:MenuBar'), 'File:Quit').activate()
 checkpoint toplevel widget mapped Questioner
 findWidget('PopUp-Layer').deactivate()

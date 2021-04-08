@@ -33,6 +33,8 @@ checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
 checkpoint OOF.Microstructure.Create_From_ImageFile
+
+# Autogroup the image
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Image')
 findWidget('OOF2').resize(593, 350)
 findWidget('OOF2:Image Page:Pane').set_position(380)
@@ -49,6 +51,8 @@ checkpoint meshable button set
 checkpoint meshable button set
 checkpoint OOF.Image.AutoGroup
 findWidget('OOF2').resize(593, 350)
+
+# Create a new material
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Materials')
 findWidget('OOF2').resize(684, 350)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
@@ -57,6 +61,8 @@ checkpoint toplevel widget mapped Dialog-New material
 findWidget('Dialog-New material').resize(249, 72)
 findWidget('Dialog-New material:gtk-ok').clicked()
 checkpoint OOF.Material.New
+
+# Add an isotropic elasticity property
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_selection().select_path((0,))
 findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row((1,), open_all=False)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
@@ -69,12 +75,17 @@ findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('OOF2:Materials Page:Pane:Property:Add').clicked()
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 checkpoint OOF.Material.Add_property
+
+# Assign the material to all pixels
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()
 checkpoint toplevel widget mapped Dialog-Assign material material to pixels
 findWidget('Dialog-Assign material material to pixels').resize(440, 108)
 setComboBox(findWidget('Dialog-Assign material material to pixels:pixels'), '<every>')
 findWidget('Dialog-Assign material material to pixels:gtk-ok').clicked()
 checkpoint OOF.Material.Assign
+
+# Set the new layer policy to Single
+# Open a graphics window
 findMenu(findWidget('OOF2:MenuBar'), 'Windows:Graphics:New').activate()
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint toplevel widget mapped OOF2 Graphics 1
@@ -90,6 +101,8 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(693)
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
 findWidget('OOF2 Graphics 1').resize(800, 400)
 checkpoint OOF.Windows.Graphics.New
+
+# Create a Skeleton
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(250)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(693)
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
@@ -131,6 +144,8 @@ checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
 checkpoint OOF.Skeleton.New
+
+# Create a Mesh
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'FE Mesh')
 findWidget('OOF2:FE Mesh Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create a new mesh
@@ -160,6 +175,8 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Mesh.New
+
+# Create a pixel group subproblem, group='#00ffff'
 findWidget('OOF2:FE Mesh Page:Pane:Subproblems:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create a new subproblem
 findWidget('Dialog-Create a new subproblem').resize(288, 104)
@@ -170,6 +187,8 @@ findWidget('OOF2 Graphics 1:Pane0').set_position(283)
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Subproblem.New
+
+# Define and activate displacement on the subproblem.
 findWidget('OOF2:Navigation:Next').clicked()
 findWidget('OOF2').resize(692, 434)
 findWidget('OOF2:Fields & Equations Page:HPane').set_position(132)
@@ -179,8 +198,7 @@ findWidget('OOF2 Graphics 1:Pane0').set_position(283)
 checkpoint OOF.Subproblem.Field.Define
 findWidget('OOF2:Fields & Equations Page:HPane:Fields:Displacement active').clicked()
 checkpoint OOF.Subproblem.Field.Activate
-# findWidget('OOF2:Navigation:Next').clicked()
-# setComboBox(findWidget('OOF2:Equations Page:SubProblem'), 'subproblem')
+# Activate the force balance and plane stress equations on the subproblem
 findWidget('OOF2:Fields & Equations Page:HPane:Equations:Force_Balance active').clicked()
 checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
@@ -193,6 +211,8 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Subproblem.Equation.Activate
+
+# Create boundary condition: left, x, continuum profile, all 0s
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Boundary Conditions')
 findWidget('OOF2:Boundary Conditions Page:Condition:New').clicked()
 checkpoint toplevel widget mapped Dialog-New Boundary Condition
@@ -204,18 +224,19 @@ setComboBox(findWidget('Dialog-New Boundary Condition:condition:Dirichlet:bounda
 findWidget('Dialog-New Boundary Condition:gtk-apply').clicked()
 findWidget('OOF2 Messages 1').resize(798, 200)
 checkpoint OOF.Mesh.Boundary_Conditions.New
+# Create boundary condition: right, x, continuum profile, all 0s
 setComboBox(findWidget('Dialog-New Boundary Condition:condition:Dirichlet:boundary'), 'right')
 findWidget('Dialog-New Boundary Condition:gtk-ok').clicked()
 checkpoint OOF.Mesh.Boundary_Conditions.New
+
+# Disable the default subproblem
 findWidget('OOF2:Navigation:Next').clicked()
 findWidget('OOF2:Navigation:Next').clicked()
-# setComboBox(findWidget('OOF2:Solver Page:SubProblem'), 'subproblem')
-# findWidget('OOF2:Solver Page:Solve').clicked()
-# findWidget('OOF2 Graphics 1:Pane0').set_position(283)
-# checkpoint OOF.Solver.Solve
 findCellRenderer(findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList'), col=1, rend=0).emit('toggled', '0')
 findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList').get_selection().select_path((0,))
 checkpoint OOF.Subproblem.Disable_Solution
+
+# Set the basic static solver for the "subproblem" subproblem
 findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList').get_selection().select_path((1,))
 findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_vadjustment().set_value( 3.0000000000000e+00)
 tree=findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList')
@@ -225,12 +246,16 @@ checkpoint toplevel widget mapped Dialog-Specify Solver
 findWidget('Dialog-Specify Solver').resize(398, 212)
 findWidget('Dialog-Specify Solver:gtk-ok').clicked()
 checkpoint OOF.Subproblem.Set_Solver
+
+# Set end time to  0
 findWidget('OOF2:Solver Page:end').set_text('0')
-# solve 1 subproblem with trivial bcs
+
+# Solve 1 subproblem with trivial bcs
 findWidget('OOF2:Solver Page:solve').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.Solve
 
+# Edit bc<2> (right) changing value to 10
 findWidget('OOF2:Navigation:Prev').clicked()
 findWidget('OOF2:Navigation:Prev').clicked()
 findWidget('OOF2:Boundary Conditions Page:Condition:Edit').clicked()
@@ -239,6 +264,8 @@ findWidget('Dialog-Edit Boundary Condition').resize(399, 276)
 findWidget('Dialog-Edit Boundary Condition:condition:Dirichlet:profile:Continuum Profile:function').set_text('10.0')
 findWidget('Dialog-Edit Boundary Condition:gtk-ok').clicked()
 checkpoint OOF.Mesh.Boundary_Conditions.Edit
+
+# Create a second subproblem using the same pixel group
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'FE Mesh')
 findWidget('OOF2:FE Mesh Page:Pane:Subproblems:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create a new subproblem
@@ -249,6 +276,8 @@ findWidget('OOF2 Graphics 1:Pane0').set_position(283)
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Subproblem.New
+
+# Copy field state from the first subproblem to the second
 findWidget('OOF2:FE Mesh Page:Pane:Subproblems:subprobChooserScroll').get_vadjustment().set_value( 9.0000000000000e+00)
 findWidget('OOF2:FE Mesh Page:Pane:Subproblems:subprobChooserScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 findWidget('OOF2:Navigation:Next').clicked()
@@ -262,7 +291,8 @@ setComboBox(findWidget('Dialog-Select a target Subproblem:target:SubProblem'), '
 findWidget('Dialog-Select a target Subproblem:gtk-ok').clicked()
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
 checkpoint OOF.Subproblem.Copy_Field_State
-#setComboBox(findWidget('OOF2:Fields & Equations Page:SubProblem'), 'subproblem<2>')
+
+# Copy equation state from the first subproblem to the second
 findWidget('OOF2:Fields & Equations Page:HPane:CopyEquation').clicked()
 checkpoint toplevel widget mapped Dialog-Select a target subproblem
 findWidget('Dialog-Select a target subproblem').resize(211, 164)
@@ -277,13 +307,20 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Subproblem.Copy_Equation_State
+
+# Switch to the second subproblem
 setComboBox(findWidget('OOF2:Fields & Equations Page:SubProblem'), 'subproblem<2>')
+
+# Go to the solver page
 findWidget('OOF2:Navigation:Next').clicked()
 findWidget('OOF2:Navigation:Next').clicked()
 findWidget('OOF2:Navigation:Next').clicked()
 
+# Disable solution of the first subproblem
 findCellRenderer(findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList'), col=1, rend=0).emit('toggled', '1')
 checkpoint OOF.Subproblem.Disable_Solution
+
+# Specify a solver for the second subproblem (basic static)
 findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_vadjustment().set_value( 1.4890202136873e+01)
 findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll').get_vadjustment().set_value( 2.5000000000000e+01)
 findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList').get_selection().select_path((2,))
@@ -294,21 +331,28 @@ checkpoint toplevel widget mapped Dialog-Specify Solver
 findWidget('Dialog-Specify Solver').resize(398, 212)
 findWidget('Dialog-Specify Solver:gtk-ok').clicked()
 checkpoint OOF.Subproblem.Set_Solver
+
+# Set end time to 0
 findWidget('OOF2:Solver Page:end').set_text('0')
-# solve second subproblem with nontrivial bcs
+
+# Solve second subproblem with nontrivial bcs
 findWidget('OOF2:Solver Page:solve').clicked()
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
 checkpoint OOF.Mesh.Solve
 findWidget('OOF2').resize(716, 434)
 
+# Enable solution of first subproblem and disable the second
 findCellRenderer(findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList'), col=1, rend=0).emit('toggled', '1')
 findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList').get_selection().select_path((1,))
 checkpoint OOF.Subproblem.Enable_Solution
 findCellRenderer(findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList'), col=1, rend=0).emit('toggled', '2')
 findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList').get_selection().select_path((2,))
 checkpoint OOF.Subproblem.Disable_Solution
+
+# Set end time to 0
 findWidget('OOF2:Solver Page:end').set_text('0')
-# solve first subproblem again, with nontrivial bcs
+
+# Solve first subproblem again, with nontrivial bcs
 findWidget('OOF2:Solver Page:solve').clicked()
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
 checkpoint OOF.Mesh.Solve

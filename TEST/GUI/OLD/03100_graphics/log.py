@@ -11,6 +11,7 @@ checkpoint toplevel widget mapped OOF2 Activity Viewer
 
 import tests
 
+# Open empty graphics window
 findMenu(findWidget('OOF2:MenuBar'), 'Windows:Graphics:New').activate()
 checkpoint Move Node toolbox info updated
 checkpoint toplevel widget mapped OOF2 Graphics 1
@@ -59,6 +60,7 @@ findWidget('OOF2 Graphics 1:Pane0').set_position(137)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(259)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(717)
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
+# Toggle "List All Layers" on
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:List_All_Layers').activate()
 checkpoint OOF.Graphics_1.Settings.List_All_Layers
 checkpoint_count("contourmap info updated for Graphics_1")
@@ -68,13 +70,18 @@ checkpoint_count("contourmap info updated for Graphics_1")
 # care whether or not the GUI is using the flag.  Toggling
 # List_All_Layers doesn't change the flag.
 assert tests.layerCheck()
+# Toggle "Long Layer Names" on
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Long_Layer_Names').activate()
 checkpoint OOF.Graphics_1.Settings.Long_Layer_Names
 # Similarly, there's no way to check whether long layer names are being used.
+# Toggle "Long Layer Names" off
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Long_Layer_Names').activate()
 checkpoint OOF.Graphics_1.Settings.Long_Layer_Names
+# Toggle "List All Layers" off
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:List_All_Layers').activate()
 checkpoint OOF.Graphics_1.Settings.List_All_Layers
+# Set New Layer Policy to Single
+# Create a Microstructure from "examples/small.ppm"
 findWidget('OOF2:Navigation:Next').clicked()
 findWidget('OOF2:Microstructure Page:Pane').set_position(150)
 findWidget('OOF2:Microstructure Page:NewFromFile').clicked()
@@ -117,7 +124,6 @@ checkpoint boundary page updated
 checkpoint skeleton selection page grouplist
 checkpoint skeleton selection page selection sensitized
 checkpoint skeleton selection page updated
-# checkpoint interface page updated
 findWidget('OOF2:Microstructure Page:Pane').set_position(153)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated
@@ -133,6 +139,7 @@ assert tests.layerCheck("Bitmap")
 assert tests.selectedLayerCheck(None)
 assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nodes', 'Pixel Info', 'Selected Segments', 'Illegal Elements', 'Info', 'Selected Boundary', 'Cross Section', 'Selected Elements', 'BitmapOverlay', 'BitmapOverlay', 'Bitmap')
 findWidget('OOF2:Microstructure Page:Pane').set_position(153)
+# Create a Skeleton
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Skeleton')
 findWidget('OOF2').resize(593, 434)
 findWidget('OOF2:Skeleton Page:Pane').set_position(249)
@@ -176,9 +183,11 @@ findWidget('OOF2:Skeleton Page:Pane').set_position(249)
 assert tests.sensitizationCheck0()
 assert tests.layerCheck("Bitmap", "Element Edges")
 assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nodes', 'Pixel Info', 'Selected Segments', 'Illegal Elements', 'Info', 'Selected Boundary', 'Cross Section', 'Element Edges', 'Selected Elements', 'BitmapOverlay', 'BitmapOverlay', 'Bitmap')
+# Select the Skeleton layer
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path((10,))
 checkpoint OOF.Graphics_1.Layer.Select
 assert tests.sensitizationCheck1()
+# Add a Material color layer for the Skeleton
 tree=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList')
 column = tree.get_column(2)
 tree.row_activated((10,), column)
@@ -211,15 +220,16 @@ assert tests.selectedLayerCheck("Element Edges")
 assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nodes', 'Pixel Info', 'Selected Segments', 'Illegal Elements', 'Info', 'Selected Boundary', 'Cross Section', 'Element Edges', 'Selected Elements', 'BitmapOverlay', 'BitmapOverlay', 'Material Color', 'Bitmap')
 assert tests.sensitizationCheck1()
 assert tests.noContourBounds()
+# Delete Material color layer via the Layer Editor (no gtk3 equivalent)
 findWidget('OOF2 Graphics Layer Editor').resize(600, 250)
 findWidget('OOF2 Graphics Layer Editor:DisplayMethods:Delete').clicked()
 findWidget('OOF2 Graphics Layer Editor').resize(600, 250)
 checkpoint layer editor updated
 checkpoint layereditor layerset changed
 checkpoint OOF.LayerEditor.LayerSet.Delete_Method
-assert tests.layerCheck("Bitmap", "Material Color", "Element Edges")
-assert tests.selectedLayerCheck("Element Edges")
-assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nodes', 'Pixel Info', 'Selected Segments', 'Illegal Elements', 'Info', 'Selected Boundary', 'Cross Section', 'Element Edges', 'Selected Elements', 'BitmapOverlay', 'BitmapOverlay', 'Material Color', 'Bitmap')
+#assert tests.layerCheck("Bitmap", "Material Color", "Element Edges")
+#assert tests.selectedLayerCheck("Element Edges")
+#assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nodes', 'Pixel Info', 'Selected Segments', 'Illegal Elements', 'Info', 'Selected Boundary', 'Cross Section', 'Element Edges', 'Selected Elements', 'BitmapOverlay', 'BitmapOverlay', 'Material Color', 'Bitmap')
 assert tests.sensitizationCheck1()
 findWidget('OOF2 Graphics Layer Editor:Send').clicked()
 findWidget('OOF2 Graphics Layer Editor').resize(600, 250)
@@ -236,6 +246,7 @@ assert tests.layerCheck("Bitmap", "Element Edges")
 assert tests.selectedLayerCheck("Element Edges")
 assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nodes', 'Pixel Info', 'Selected Segments', 'Illegal Elements', 'Info', 'Selected Boundary', 'Cross Section', 'Element Edges', 'Selected Elements', 'BitmapOverlay', 'BitmapOverlay', 'Bitmap')
 assert tests.sensitizationCheck1()
+# Send again (not gtk3 equivalent)
 findWidget('OOF2 Graphics Layer Editor:Send').clicked()
 findWidget('OOF2 Graphics Layer Editor').resize(600, 250)
 checkpoint Graphics_1 Pixel Info updated
@@ -247,10 +258,12 @@ checkpoint selection info updated
 checkpoint selection info updated
 checkpoint OOF.LayerEditor.LayerSet.Send
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
-assert tests.layerCheck("Bitmap", "Element Edges")
-assert tests.selectedLayerCheck("Element Edges")
-assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nodes', 'Pixel Info', 'Selected Segments', 'Illegal Elements', 'Info', 'Selected Boundary', 'Cross Section', 'Element Edges', 'Selected Elements', 'BitmapOverlay', 'BitmapOverlay', 'Bitmap')
-assert tests.sensitizationCheck1()
+#assert tests.layerCheck("Bitmap", "Element Edges")
+#assert tests.selectedLayerCheck("Element Edges")
+#assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nodes', 'Pixel Info', 'Selected Segments', 'Illegal Elements', 'Info', 'Selected Boundary', 'Cross Section', 'Element Edges', 'Selected Elements', 'BitmapOverlay', 'BitmapOverlay', 'Bitmap')
+#assert tests.sensitizationCheck1()
+
+# Create new skeleton material layer again
 tree=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList')
 column = tree.get_column(2)
 tree.row_activated((10,), column)
@@ -279,6 +292,7 @@ assert tests.layerCheck("Bitmap", "Material Color", "Element Edges")
 assert tests.selectedLayerCheck("Element Edges")
 assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nodes', 'Pixel Info', 'Selected Segments', 'Illegal Elements', 'Info', 'Selected Boundary', 'Cross Section', 'Element Edges', 'Selected Elements', 'BitmapOverlay', 'BitmapOverlay', 'Material Color', 'Bitmap')
 assert tests.sensitizationCheck1()
+# Drag and drop to misorder the layers
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path((14,))
 checkpoint OOF.Graphics_1.Layer.Select
 ls_0 = findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_model()
@@ -299,6 +313,7 @@ assert tests.sensitizationCheck2()
 assert tests.layerCheck("Bitmap", "Element Edges", "Material Color")
 assert tests.selectedLayerCheck("Material Color")
 assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nodes', 'Pixel Info', 'Material Color', 'Selected Segments', 'Illegal Elements', 'Info', 'Selected Boundary', 'Cross Section', 'Element Edges', 'Selected Elements', 'BitmapOverlay', 'BitmapOverlay', 'Bitmap')
+# Reorder the layers with "Reorder All"
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Layer:Reorder_All').activate()
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated
@@ -313,6 +328,7 @@ assert tests.sensitizationCheck1()
 assert tests.layerCheck("Bitmap", "Material Color", "Element Edges")
 assert tests.selectedLayerCheck("Material Color")
 assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nodes', 'Pixel Info', 'Selected Segments', 'Illegal Elements', 'Info', 'Selected Boundary', 'Cross Section', 'Element Edges', 'Selected Elements', 'BitmapOverlay', 'BitmapOverlay', 'Material Color', 'Bitmap')
+# Drag and drop again
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path((15,))
 checkpoint OOF.Graphics_1.Layer.Select
 ls_1 = findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_model()
@@ -334,6 +350,7 @@ assert tests.sensitizationCheck3()
 assert tests.allLayerNames('Bitmap', 'Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nodes', 'Pixel Info', 'Selected Segments', 'Illegal Elements', 'Info', 'Selected Boundary', 'Cross Section', 'Element Edges', 'Selected Elements', 'BitmapOverlay', 'BitmapOverlay', 'Material Color')
 assert tests.layerCheck("Material Color", "Element Edges", "Bitmap")
 assert tests.selectedLayerCheck("Bitmap")
+# Reorder again
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Layer:Reorder_All').activate()
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated
@@ -351,6 +368,7 @@ assert tests.selectedLayerCheck("Bitmap")
 assert tests.allLayerNames('Info', 'Selected Nodes', 'Pinned Nodes', 'Moving Nodes', 'Pixel Info', 'Selected Segments', 'Illegal Elements', 'Info', 'Selected Boundary', 'Cross Section', 'Element Edges', 'Selected Elements', 'BitmapOverlay', 'BitmapOverlay', 'Material Color', 'Bitmap')
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path((14,))
 checkpoint OOF.Graphics_1.Layer.Select
+# Hide the Skeleton Material layer from the menu bar
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Layer:Hide').activate()
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
 checkpoint contourmap info updated for Graphics_1
@@ -366,6 +384,7 @@ checkpoint OOF.Graphics_1.Layer.Hide
 # so there's no test here to see if the show/hide buttons are set
 # correctly.
 assert tests.sensitizationCheck5()
+# Unhide the Skeleton material layer from the layer list
 findCellRenderer(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), col=0, rend=0).emit('toggled', '14')
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
 checkpoint contourmap info updated for Graphics_1
@@ -378,6 +397,7 @@ checkpoint selection info updated
 checkpoint selection info updated
 checkpoint OOF.Graphics_1.Layer.Show
 assert tests.sensitizationCheck1()
+# Toggle "List All Layers" on
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:List_All_Layers').activate()
 checkpoint OOF.Graphics_1.Settings.List_All_Layers
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0370370370370e+00)
@@ -403,16 +423,19 @@ findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.5
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:List_All_Layers').activate()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 checkpoint OOF.Graphics_1.Settings.List_All_Layers
+# Toggle "Long Layer Names" on (Why?  Haven't we done this already?)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Long_Layer_Names').activate()
 checkpoint OOF.Graphics_1.Settings.Long_Layer_Names
 # TODO: I don't know how to check the contents of a cell, so there's
 # no test here to see if the long layer names are being used.
+# Toggle "Long Layer Names" off (Why?  Haven't we done this already?)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Long_Layer_Names').activate()
 checkpoint OOF.Graphics_1.Settings.Long_Layer_Names
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'FE Mesh')
 findWidget('OOF2').resize(593, 482)
 findWidget('OOF2:FE Mesh Page:Pane').set_position(174)
 findWidget('OOF2:FE Mesh Page:New').clicked()
+# Create a Mesh
 checkpoint toplevel widget mapped Dialog-Create a new mesh
 findWidget('Dialog-Create a new mesh').resize(331, 188)
 findWidget('Dialog-Create a new mesh:gtk-ok').clicked()
@@ -423,6 +446,7 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated
 checkpoint selection info updated
 checkpoint selection info updated
+# Close warning about no materials
 findWidget('Warning').resize(364, 85)
 findWidget('OOF2 Activity Viewer').resize(400, 300)
 findWidget('Warning:OK').clicked()
@@ -446,6 +470,7 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint OOF.Mesh.New
 checkpoint_count("contourmap info updated for Graphics_1")
+# Create a Material and assign it to all pixels
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Materials')
 findWidget('OOF2').resize(684, 482)
 findWidget('OOF2:Materials Page:Pane').set_position(272)
@@ -465,6 +490,7 @@ findWidget('OOF2 Graphics 1:Pane0').set_position(138)
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Material.Assign
 checkpoint_count("contourmap info updated for Graphics_1")
+# Define Temperature
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Fields & Equations')
 findWidget('OOF2:Fields & Equations Page:HPane:Fields:Temperature defined').clicked()
 checkpoint contourmap info updated for Graphics_1
@@ -473,8 +499,9 @@ findWidget('OOF2:Fields & Equations Page:HPane:Fields:Temperature active').click
 checkpoint OOF.Subproblem.Field.Activate
 findWidget('OOF2:Fields & Equations Page:HPane:Fields:Temperature active').clicked()
 checkpoint OOF.Subproblem.Field.Deactivate
-setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Solver')
 
+# Initialize temperature to x*y
+setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Solver')
 checkpoint_count("contourmap info updated for Graphics_1")
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path((0,))
 tree=findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers')
@@ -502,6 +529,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint_count("contourmap info updated for Graphics_1")
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
 assert tests.noContourBounds()
+# Select the Mesh layer (skip this)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path((10,))
 checkpoint OOF.Graphics_1.Layer.Select
 tree=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList')
@@ -511,6 +539,7 @@ findWidget('OOF2 Graphics Layer Editor').resize(600, 250)
 checkpoint layer editor updated
 checkpoint layereditor layerset changed
 checkpoint OOF.LayerEditor.LayerSet.Edit
+# Add a solid fill mesh display layer
 findWidget('OOF2 Graphics Layer Editor:DisplayMethods:New').clicked()
 checkpoint toplevel widget mapped Dialog-New Display Method for Mesh mesh
 findWidget('Dialog-New Display Method for Mesh mesh').resize(339, 232)
@@ -533,6 +562,7 @@ checkpoint OOF.LayerEditor.LayerSet.Add_Method
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
 checkpoint_count("contourmap info updated for Graphics_1")
 assert tests.contourBounds(352, 1.72e4, tolerance=1.e-3)
+# Change aspect ratio of the contour map to 3
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Aspect_Ratio').activate()
 checkpoint toplevel widget mapped Dialog-Aspect_Ratio
 findWidget('Dialog-Aspect_Ratio').resize(194, 72)
@@ -545,6 +575,7 @@ checkpoint OOF.Graphics_1.Settings.Aspect_Ratio
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(241)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(667)
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
+# Clear the contour map  
 findWidget('OOF2 Graphics 1:Pane0:Pane1:ContourMap:Clear').clicked()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(259)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(717)
@@ -552,6 +583,7 @@ findWidget('OOF2 Graphics 1:Pane0').set_position(138)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(241)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(667)
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
+# Change contour map marker size to 5
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Contourmap_Marker_Size').activate()
 checkpoint toplevel widget mapped Dialog-Contourmap_Marker_Size
 findWidget('Dialog-Contourmap_Marker_Size').resize(194, 72)
@@ -561,6 +593,7 @@ findWidget('Dialog-Contourmap_Marker_Size:gtk-ok').clicked()
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Settings.Contourmap_Marker_Size
+# Change contour map marker color
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Color:Contourmap_Marker').activate()
 checkpoint toplevel widget mapped Dialog-Contourmap_Marker
 findWidget('Dialog-Contourmap_Marker').resize(248, 144)
@@ -578,6 +611,7 @@ findWidget('Dialog-Contourmap_Marker:color:RGBColor:Red:slider').get_adjustment(
 findWidget('Dialog-Contourmap_Marker:gtk-ok').clicked()
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
 checkpoint OOF.Graphics_1.Settings.Color.Contourmap_Marker
+# Change background color
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Color:Background').activate()
 checkpoint toplevel widget mapped Dialog-Background
 findWidget('Dialog-Background').resize(248, 144)
@@ -597,24 +631,32 @@ findWidget('Dialog-Background:gtk-ok').clicked()
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(667)
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
 checkpoint OOF.Graphics_1.Settings.Color.Background
+# Zoom in from Settings menu
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Zoom:In').activate()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 2.8000000000000e+01)
 checkpoint OOF.Graphics_1.Settings.Zoom.In
+# Zoom in again
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Zoom:In').activate()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 7.0000000000000e+01)
 checkpoint OOF.Graphics_1.Settings.Zoom.In
+# Zoom in again
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Zoom:In').activate()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 1.3300000000000e+02)
 checkpoint OOF.Graphics_1.Settings.Zoom.In
+# Zoom to fill
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Zoom:Fill_Window').activate()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 0.0000000000000e+00)
 checkpoint OOF.Graphics_1.Settings.Zoom.Fill_Window
+# Zoom out
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Zoom:Out').activate()
 checkpoint OOF.Graphics_1.Settings.Zoom.Out
+# Zoom out
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Zoom:Out').activate()
 checkpoint OOF.Graphics_1.Settings.Zoom.Out
+# Zoom to fill
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Zoom:Fill_Window').activate()
 checkpoint OOF.Graphics_1.Settings.Zoom.Fill_Window
+# Change margin to 0.01
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Margin').activate()
 checkpoint toplevel widget mapped Dialog-Margin
 findWidget('Dialog-Margin').resize(194, 72)
@@ -622,12 +664,15 @@ findWidget('Dialog-Margin:fraction').set_text('0.00000000000000003')
 findWidget('Dialog-Margin:fraction').set_text('0.010000000000000003')
 findWidget('Dialog-Margin:gtk-ok').clicked()
 checkpoint OOF.Graphics_1.Settings.Margin
+# Redraw from file menu
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'File:Redraw').activate()
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.File.Redraw
+# Zoom to fill again
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Settings:Zoom:Fill_Window').activate()
 checkpoint OOF.Graphics_1.Settings.Zoom.Fill_Window
+# Add a solid fill mesh layer displaying x**2 + y**2, TequilaSunrise colormap
 findWidget('OOF2 Graphics Layer Editor:DisplayMethods:New').clicked()
 checkpoint toplevel widget mapped Dialog-New Display Method for Mesh mesh
 findWidget('Dialog-New Display Method for Mesh mesh').resize(414, 320)
@@ -664,6 +709,7 @@ checkpoint_count("contourmap info updated for Graphics_1")
 assert tests.contourBounds(703, 3.45e4, tolerance=1.e-3)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(668)
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
+# Show contour map for center fill display of temperature
 findCellRenderer(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), col=1, rend=0).emit('toggled', '17')
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path((17,))
 checkpoint OOF.Graphics_1.Layer.Select
@@ -675,6 +721,7 @@ checkpoint_count("contourmap info updated for Graphics_1")
 assert tests.contourBounds(352, 1.72e4, tolerance=1.e-3)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(667)
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
+# Show contour map for center fill display of x**2+y**2
 findCellRenderer(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), col=1, rend=0).emit('toggled', '16')
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path((16,))
 checkpoint OOF.Graphics_1.Layer.Select
@@ -686,6 +733,7 @@ checkpoint_count("contourmap info updated for Graphics_1")
 assert tests.contourBounds(703, 3.45e04, tolerance=1.e-3)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(668)
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
+# Hide center fill display of x**2+y**2
 findCellRenderer(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), col=0, rend=0).emit('toggled', '16')
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
 checkpoint contourmap info updated for Graphics_1
@@ -701,6 +749,7 @@ checkpoint_count("contourmap info updated for Graphics_1")
 assert tests.contourBounds(352, 1.72e4, tolerance=1.e-3)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(667)
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
+# Show center fill display of x**2+y**2
 findCellRenderer(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), col=0, rend=0).emit('toggled', '16')
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
 checkpoint contourmap info updated for Graphics_1
@@ -715,6 +764,7 @@ checkpoint OOF.Graphics_1.Layer.Show
 assert tests.contourBounds(703, 3.45e4, tolerance=1.e-3)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(668)
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
+# Hide center fill display of temperature
 findCellRenderer(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), col=0, rend=0).emit('toggled', '17')
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path((17,))
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
@@ -730,6 +780,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Hide
 assert tests.contourBounds(703, 3.45e4, tolerance=1.e-3)
 checkpoint_count("contourmap info updated for Graphics_1")
+# Show center fill display of temperature
 findCellRenderer(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), col=0, rend=0).emit('toggled', '17')
 findWidget('OOF2 Graphics 1:Pane0').set_position(138)
 checkpoint contourmap info updated for Graphics_1
@@ -743,6 +794,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Show
 checkpoint_count("contourmap info updated for Graphics_1")
 assert tests.contourBounds(703, 3.45e4, tolerance=1.e-3)
+# Save session
 findMenu(findWidget('OOF2:MenuBar'), 'File:Save:Python_Log').activate()
 checkpoint toplevel widget mapped Dialog-Python_Log
 findWidget('Dialog-Python_Log').resize(194, 72)
@@ -760,4 +812,5 @@ findWidget('Dialog-Python_Log:filename').set_text('gfxtest.log')
 findWidget('Dialog-Python_Log:gtk-ok').clicked()
 checkpoint OOF.File.Save.Python_Log
 assert tests.filediff("gfxtest.log")
+# Quit
 findMenu(findWidget('OOF2:MenuBar'), 'File:Quit').activate()

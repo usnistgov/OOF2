@@ -13,6 +13,8 @@ checkpoint toplevel widget mapped OOF2 Activity Viewer
 # when Materials are added to or removed from pixels.
 
 import tests
+
+# Create a microstructure
 findWidget('OOF2:Navigation:Next').clicked()
 checkpoint page installed Microstructure
 findWidget('OOF2').resize(579, 350)
@@ -49,7 +51,8 @@ checkpoint skeleton selection page updated
 checkpoint Solver page sensitized
 findWidget('OOF2:Microstructure Page:Pane').set_position(161)
 checkpoint OOF.Microstructure.New
-# checkpoint interface page updated
+
+# Set the default color for skeleton edges to gray 0.7
 findMenu(findWidget('OOF2:MenuBar'), 'Settings:Graphics_Defaults:Skeletons').activate()
 findMenu(findWidget('OOF2:MenuBar'), 'Settings:Graphics_Defaults:Skeletons:Skeleton_Edges').activate()
 checkpoint toplevel widget mapped Dialog-Skeleton_Edges
@@ -60,6 +63,8 @@ findWidget('Dialog-Skeleton_Edges:color:Gray:Gray:slider').get_adjustment().set_
 findWidget('Dialog-Skeleton_Edges:color:Gray:Gray:slider').get_adjustment().set_value( 6.8253968253968e-01)
 findWidget('Dialog-Skeleton_Edges:gtk-ok').clicked()
 checkpoint OOF.Settings.Graphics_Defaults.Skeletons.Skeleton_Edges
+
+# Create a skeleton 
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Skeleton')
 checkpoint page installed Skeleton
 findWidget('OOF2').resize(691, 434)
@@ -98,6 +103,9 @@ checkpoint OOF.Skeleton.New
 checkpoint skeleton selection page updated
 findWidget('OOF2:Skeleton Page:Pane').set_position(350)
 assert tests.homogindex(1.0)
+
+# Set default new layer policy to Single
+# Open a graphics window
 findMenu(findWidget('OOF2:MenuBar'), 'Windows:Graphics:New').activate()
 checkpoint Move Node toolbox info updated
 checkpoint toplevel widget mapped OOF2 Graphics 1
@@ -107,6 +115,7 @@ checkpoint selection info updated
 checkpoint selection info updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
+
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(250)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(693)
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
@@ -121,6 +130,8 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(259)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(717)
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
 findWidget('OOF2 Graphics 1').resize(800, 400)
+
+# Create a microstructure material display layer
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), 'Layer:New').activate()
 checkpoint layereditor layerset changed
 checkpoint toplevel widget mapped OOF2 Graphics Layer Editor
@@ -156,6 +167,8 @@ postpone if not handled_0: widget_0.destroy()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(259)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(717)
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
+
+# Select a rectangle of pixels (0<=x<=5, 0<=y<=4)
 setComboBox(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), 'Pixel Selection')
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(259)
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -247,6 +260,7 @@ checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
+# Create a material
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Materials')
 checkpoint Materials page updated
 checkpoint page installed Materials
@@ -262,12 +276,16 @@ checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint Materials page updated
 checkpoint OOF.Material.New
+
+# Assign the material to the selected pixels
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()
 checkpoint toplevel widget mapped Dialog-Assign material material to pixels
 findWidget('Dialog-Assign material material to pixels').resize(268, 108)
 findWidget('Dialog-Assign material material to pixels:gtk-ok').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Material.Assign
+
+# Switch to the Skeleton page to check homogeneity
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Skeleton')
 checkpoint page installed Skeleton
@@ -277,6 +295,8 @@ checkpoint skeleton page info updated
 checkpoint skeleton page info updated
 checkpoint skeleton page sensitized
 assert tests.homogindex(0.95)
+
+# Remove material from all pixels
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Materials')
 checkpoint Materials page updated
 checkpoint page installed Materials
@@ -289,6 +309,8 @@ findWidget('Dialog-Remove the assigned material from pixels:gtk-ok').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Material.Remove
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
+
+# Go back to the Skeleton page to check homogeneity
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Skeleton')
 checkpoint page installed Skeleton
 findWidget('OOF2:Skeleton Page:Pane').set_position(350)
@@ -297,12 +319,13 @@ checkpoint skeleton page info updated
 checkpoint skeleton page info updated
 checkpoint skeleton page sensitized
 assert tests.homogindex(1.0)
+
+# Go back to the Materials page
 findWidget('OOF2:Navigation:Prev').clicked()
 checkpoint Materials page updated
 checkpoint page installed Materials
-# checkpoint page installed Interfaces
-# findWidget('OOF2:Navigation:Prev').clicked()
 findWidget('OOF2:Materials Page:Pane').set_position(272)
+# Assign the material to the selected pixels again
 findWidget('OOF2:Materials Page:Pane:Material:Assign').clicked()
 checkpoint toplevel widget mapped Dialog-Assign material material to pixels
 findWidget('Dialog-Assign material material to pixels').resize(268, 108)
@@ -310,21 +333,21 @@ findWidget('Dialog-Assign material material to pixels:gtk-ok').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Material.Assign
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
+
+# Go back to the Skeleton page to check homogeneity again
 findWidget('OOF2:Navigation:Next').clicked()
 checkpoint page installed Skeleton
-# checkpoint page installed Interfaces
-# findWidget('OOF2:Navigation:Next').clicked()
 checkpoint skeleton page sensitized
 checkpoint skeleton page info updated
 checkpoint skeleton page info updated
 checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:Pane').set_position(350)
 assert tests.homogindex(0.95)
+
+# Go back to the Materials page and delete the material
 findWidget('OOF2:Navigation:Prev').clicked()
 checkpoint Materials page updated
 checkpoint page installed Materials
-# checkpoint page installed Interfaces
-# findWidget('OOF2:Navigation:Prev').clicked()
 findWidget('OOF2:Materials Page:Pane').set_position(272)
 findWidget('OOF2:Materials Page:Pane:Material:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
@@ -337,16 +360,18 @@ checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Material.Delete
 findWidget('OOF2 Graphics 1:Pane0').set_position(283)
+
+# Go back to the Skeleton page to check homogeneity yet again
 findWidget('OOF2:Navigation:Next').clicked()
 checkpoint page installed Skeleton
-# checkpoint page installed Interfaces
-# findWidget('OOF2:Navigation:Next').clicked()
 checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:Pane').set_position(350)
 checkpoint skeleton page info updated
 checkpoint skeleton page info updated
 checkpoint skeleton page sensitized
 assert tests.homogindex(1.0)
+
+# Save the log
 findMenu(findWidget('OOF2:MenuBar'), 'File:Save:Python_Log').activate()
 checkpoint toplevel widget mapped Dialog-Python_Log
 findWidget('Dialog-Python_Log').resize(194, 72)
