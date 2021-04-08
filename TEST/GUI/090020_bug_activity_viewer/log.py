@@ -17,8 +17,9 @@
 # the test runs to the end without raising an exception or crashing,
 # it's successful.
 
-# TODO: How do we know that the window is really being closed before
-# the progress bar is complete?
+# The task associated with the progress bar is auto-grouping a
+# ridiculously large image.  This ensures, sort of, that the progress
+# bar is not complete before the window is closed.
 
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
@@ -50,7 +51,7 @@ findWidget('OOF2:Microstructure Page:Pane').set_position(184)
 findWidget('OOF2:Microstructure Page:NewFromFile').clicked()
 checkpoint toplevel widget mapped Dialog-Load Image and create Microstructure
 findWidget('Dialog-Load Image and create Microstructure').resize(237, 200)
-findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/small.ppm')
+findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/big.ppm')
 findWidget('Dialog-Load Image and create Microstructure:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
