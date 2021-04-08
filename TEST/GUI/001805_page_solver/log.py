@@ -10,6 +10,10 @@
 
 # Test the handling of time dependent boundary conditions in the Solver page.
 
+# TODO: Check the contents of the Initialization GtkTreeView.  I don't
+# know how to verify that a given row and column of a tree view
+# contains a given string.
+
 import tests
 
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
@@ -386,8 +390,7 @@ findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_valu
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 9.0000000000000e+00)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 2.4000000000000e+01)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 2.6000000000000e+01)
-# TODO: Check that floatdisp initializer is displayed correctly
-# (min=0).  I don't know how to do this.
+# Check that floatdisp initializer is displayed correctly (min=0).
 
 # Set the temperature initializer
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([2]))
@@ -408,7 +411,7 @@ checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Boundary_Conditions.Set_BC_Initializer
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 8.0000000000000e+00)
-# TODO: Check that floattemp initializer is min=0. How?
+# Check that floattemp initializer is min=0.
 
 # Switch to time dependent solver.
 tree=findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList')
@@ -465,8 +468,7 @@ findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_valu
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 9.0000000000000e+00)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 2.4000000000000e+01)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 4.4000000000000e+01)
-# TODO: Check that initializer listed for floatdisp is min=0,
-# time_derivative=0.1 How?
+# Check that initializer listed for floatdisp is min=0, time_derivative=0.1
 
 # Check that time_derivative isn't settable for floattemp.
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([3]))
@@ -486,7 +488,7 @@ checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Boundary_Conditions.Set_BC_Initializer
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 8.0000000000000e+00)
-# TODO: Check that initializer for floattemp is min=0.2
+# Check that initializer for floattemp is min=0.2
 
 # Clear the floattemp bc initializer
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 9.0000000000000e+00)
@@ -497,14 +499,14 @@ checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Boundary_Conditions.Clear_BC_Initializer
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll').get_vadjustment().set_value( 8.0000000000000e+00)
-# TODO: Check that floattemp initializer has been cleared.
+# Check that floattemp initializer has been cleared.
 
 # Clear all initializers
 findWidget('OOF2:Solver Page:VPane:FieldInit:ClearAll').clicked()
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Clear_Field_Initializers
-# TODO: Check that all initializers have been cleared.
+# Check that all initializers have been cleared.
 
 # Remove the mass density property.
 event(Gdk.EventType.BUTTON_PRESS,x= 7.3000000000000e+01,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
