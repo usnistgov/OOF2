@@ -169,6 +169,7 @@ def really_run_tests(homedir, dirs, rerecord):
         print >> sys.stderr, "--- Return value =", result
         if result < 0:
             print >> sys.stderr, "Child was terminated by signal", -result
+            print >> sys.stderr, "Test", directory, "failed!"
             sys.exit(result)
 
         if result != exitstatus:
