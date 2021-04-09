@@ -40,6 +40,11 @@ gtk3 changes, which may be in 2.1.20 or 2.2.0, depending...
 
 Other unreleased changes:
 
+* Upgraded the Eigen library to version 3.3.9.
+
+* Sparse matrices are constructed more efficiently, reducing memory
+  requirements when solving large system.
+
 * Fixed the square brush in the pixel selection toolbox, which was
   confused about units and didn't work correctly unless the physical
   pixel size was 1x1.
