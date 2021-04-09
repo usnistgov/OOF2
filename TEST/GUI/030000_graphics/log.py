@@ -1,6 +1,3 @@
-checkpoint toplevel widget mapped OOF2
-checkpoint page installed Introduction
-checkpoint toplevel widget mapped OOF2 Activity Viewer
 # -*- python -*-
 
 # This software was produced by NIST, an agency of the U.S. government,
@@ -15,6 +12,9 @@ checkpoint toplevel widget mapped OOF2 Activity Viewer
 
 import tests
 
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 511)
