@@ -1,3 +1,13 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
 import tests
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
@@ -85,18 +95,18 @@ findWidget('OOF2').resize(782, 545)
 
 # Add a microstructure material display
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(395, 532)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 1.3698630136986e-02)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 5.4794520547945e-02)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 1.6438356164384e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 3.0136986301370e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 4.9315068493151e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 5.7534246575342e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 5.8904109589041e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 5.7534246575342e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 5.6164383561644e-01)
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(395, 532)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 1.3698630136986e-02)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 5.4794520547945e-02)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 1.6438356164384e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 3.0136986301370e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 4.9315068493151e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 5.7534246575342e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 5.8904109589041e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 5.7534246575342e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 5.6164383561644e-01)
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection

@@ -38,13 +38,13 @@ checkpoint OOF.Graphics_1.Settings.New_Layer_Policy
 
 # Create an Image graphics layer
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(395, 532)
-wevent(findWidget('Dialog-New:category'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New:category').get_window())
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(395, 532)
+wevent(findWidget('Dialog-New Graphics Layer:category'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Graphics Layer:category').get_window())
 checkpoint toplevel widget mapped chooserPopup-category
 findMenu(findWidget('chooserPopup-category'), ['Image']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-category') # MenuItemLogger
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -58,17 +58,17 @@ findWidget('OOF2 Graphics 1').resize(800, 492)
 
 # Create a Microstructure Material graphics layer
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(209, 193)
-wevent(findWidget('Dialog-New:category'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New:category').get_window())
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(209, 193)
+wevent(findWidget('Dialog-New Graphics Layer:category'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Graphics Layer:category').get_window())
 checkpoint toplevel widget mapped chooserPopup-category
 findMenu(findWidget('chooserPopup-category'), ['Microstructure']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-category') # MenuItemLogger
-findWidget('Dialog-New').resize(395, 532)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 1.3698630136986e-02)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 3.5616438356164e-01)
-findWidget('Dialog-New').resize(395, 532)
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+findWidget('Dialog-New Graphics Layer').resize(395, 532)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 1.3698630136986e-02)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 3.5616438356164e-01)
+findWidget('Dialog-New Graphics Layer').resize(395, 532)
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated

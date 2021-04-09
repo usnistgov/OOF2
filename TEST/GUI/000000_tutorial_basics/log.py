@@ -1,3 +1,13 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
 import tests
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
@@ -95,16 +105,16 @@ checkpoint OOF.Windows.Graphics.New
 assert tests.gfxWindowCheck(['Graphics_1'])
 findWidget('Basics:Next').clicked()
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(395, 532)
-event(Gdk.EventType.BUTTON_PRESS,x= 3.2000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('Dialog-New:category').get_window())
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(395, 532)
+event(Gdk.EventType.BUTTON_PRESS,x= 3.2000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Graphics Layer:category').get_window())
 checkpoint toplevel widget mapped chooserPopup-category
 findMenu(findWidget('chooserPopup-category'), ['Image']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-category') # MenuItemLogger
-event(Gdk.EventType.BUTTON_PRESS,x= 3.8000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('Dialog-New:what:Microstructure').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 3.8000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Graphics Layer:what:Microstructure').get_window())
 checkpoint toplevel widget mapped chooserPopup-Microstructure
 findWidget('chooserPopup-Microstructure').deactivate() # MenuLogger
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection

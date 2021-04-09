@@ -1,3 +1,13 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
 import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
@@ -70,13 +80,13 @@ findWidget('OOF2 Graphics 1').resize(800, 492)
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(395, 532)
-event(Gdk.EventType.BUTTON_PRESS,x= 7.1000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('Dialog-New:category').get_window())
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(395, 532)
+event(Gdk.EventType.BUTTON_PRESS,x= 7.1000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('Dialog-New Graphics Layer:category').get_window())
 checkpoint toplevel widget mapped chooserPopup-category
 findMenu(findWidget('chooserPopup-category'), ['Image']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-category') # MenuItemLogger
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection

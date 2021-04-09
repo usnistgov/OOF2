@@ -157,17 +157,17 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
 # Display the 7x7 Skeleton
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(395, 532)
-event(Gdk.EventType.BUTTON_PRESS,x= 7.0000000000000e+01,y= 8.0000000000000e+00,button=1,state=0,window=findWidget('Dialog-New:category').get_window())
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(395, 532)
+event(Gdk.EventType.BUTTON_PRESS,x= 7.0000000000000e+01,y= 8.0000000000000e+00,button=1,state=0,window=findWidget('Dialog-New Graphics Layer:category').get_window())
 checkpoint toplevel widget mapped chooserPopup-category
 findMenu(findWidget('chooserPopup-category'), ['Skeleton']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-category') # MenuItemLogger
-event(Gdk.EventType.BUTTON_PRESS,x= 8.3000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('Dialog-New:what:Skeleton').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 8.3000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Graphics Layer:what:Skeleton').get_window())
 checkpoint toplevel widget mapped chooserPopup-Skeleton
 findMenu(findWidget('chooserPopup-Skeleton'), ['skeleton<2>']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Skeleton') # MenuItemLogger
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 checkpoint Move Node toolbox writable changed
 checkpoint Move Node toolbox info updated
@@ -269,23 +269,6 @@ findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton Boundaries']).activate(
 checkpoint page installed Skeleton Boundaries
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Skeleton Boundaries Page:Pane').set_position(379)
-# findWidget('OOF2:Skeleton Boundaries Page:Pane:Boundaries:New').clicked()
-# checkpoint toplevel widget mapped Dialog-New Boundary
-# findWidget('Dialog-New Boundary').resize(313, 194)
-# findWidget('Dialog-New Boundary:name').delete_text(0, 11)
-# findWidget('Dialog-New Boundary:name').insert_text('d', 11)
-# findWidget('Dialog-New Boundary:name').insert_text('i', 1)
-# findWidget('Dialog-New Boundary:name').insert_text('a', 2)
-# findWidget('Dialog-New Boundary:name').insert_text('g', 3)
-# findWidget('Dialog-New Boundary:name').insert_text('o', 4)
-# findWidget('Dialog-New Boundary:name').insert_text('n', 5)
-# findWidget('Dialog-New Boundary:name').insert_text('a', 6)
-# findWidget('Dialog-New Boundary:name').insert_text('l', 7)
-# event(Gdk.EventType.BUTTON_PRESS,x= 8.2000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Boundary:constructor:Edge boundary from segments:group').get_window())
-# checkpoint toplevel widget mapped chooserPopup-group
-# findWidget('chooserPopup-group').deactivate() # MenuLogger
-# findWidget('Dialog-New Boundary:widget_GTK_RESPONSE_CANCEL').clicked()
-# # DELETE BACK TO THE CLICK ON NEW
 event(Gdk.EventType.BUTTON_PRESS,x= 7.0000000000000e+01,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Boundaries Page:Skeleton').get_window())
 checkpoint toplevel widget mapped chooserPopup-Skeleton
 findMenu(findWidget('chooserPopup-Skeleton'), ['skeleton<2>']).activate() # MenuItemLogger

@@ -1,3 +1,13 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
 import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
@@ -91,13 +101,13 @@ deactivatePopup('chooserPopup-policy') # MenuItemLogger
 findWidget('Dialog-New_Layer_Policy:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.Graphics_1.Settings.New_Layer_Policy
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(395, 532)
-event(Gdk.EventType.BUTTON_PRESS,x= 5.6000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('Dialog-New:category').get_window())
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(395, 532)
+event(Gdk.EventType.BUTTON_PRESS,x= 5.6000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Graphics Layer:category').get_window())
 checkpoint toplevel widget mapped chooserPopup-category
 findMenu(findWidget('chooserPopup-category'), ['Image']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-category') # MenuItemLogger
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -405,13 +415,13 @@ assert tests.sensitization3()
 # add a second image layer for micro2
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(203, 193)
-event(Gdk.EventType.BUTTON_PRESS,x= 6.0000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('Dialog-New:what:Microstructure').get_window())
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(203, 193)
+event(Gdk.EventType.BUTTON_PRESS,x= 6.0000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Graphics Layer:what:Microstructure').get_window())
 checkpoint toplevel widget mapped chooserPopup-Microstructure
 findMenu(findWidget('chooserPopup-Microstructure'), ['micro2']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Microstructure') # MenuItemLogger
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated

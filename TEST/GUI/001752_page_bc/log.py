@@ -1,13 +1,22 @@
-checkpoint toplevel widget mapped OOF2
-checkpoint page installed Introduction
-checkpoint toplevel widget mapped OOF2 Activity Viewer
-# ## This file tests for the absence of a bug that was causing KeyErrors
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+## This file tests for the absence of a bug that was causing KeyErrors
 ## when switching to the Boundary Condition page after editing a
 ## Subproblem.
 
-# This test was 00178_page_bc before the gtk3 upgrade
-
 import tests
+
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
 
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)

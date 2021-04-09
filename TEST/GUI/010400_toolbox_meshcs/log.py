@@ -357,24 +357,24 @@ assert not tests.is_sensitive(tbox+":Go")
 
 # Create a contour plot of the magnitude of the displacement
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(395, 532)
-wevent(findWidget('Dialog-New:category'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New:category').get_window())
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(395, 532)
+wevent(findWidget('Dialog-New Graphics Layer:category'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Graphics Layer:category').get_window())
 checkpoint toplevel widget mapped chooserPopup-category
 findMenu(findWidget('chooserPopup-category'), ['Mesh']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-category') # MenuItemLogger
-findWidget('Dialog-New').resize(467, 532)
-wevent(findWidget('Dialog-New:how:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New:how:RCFChooser').get_window())
+findWidget('Dialog-New Graphics Layer').resize(467, 532)
+wevent(findWidget('Dialog-New Graphics Layer:how:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Graphics Layer:how:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Filled Contour']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('Dialog-New').resize(483, 613)
-wevent(findWidget('Dialog-New:how:Filled Contour:what:what_1'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New:how:Filled Contour:what:what_1').get_window())
+findWidget('Dialog-New Graphics Layer').resize(483, 613)
+wevent(findWidget('Dialog-New Graphics Layer:how:Filled Contour:what:what_1'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Graphics Layer:how:Filled Contour:what:what_1').get_window())
 checkpoint toplevel widget mapped chooserPopup-what_1
 findMenu(findWidget('chooserPopup-what_1'), ['Invariant']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-what_1') # MenuItemLogger
-findWidget('Dialog-New').resize(483, 624)
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+findWidget('Dialog-New Graphics Layer').resize(483, 624)
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.6000000000000e+01)
 checkpoint Graphics_1 Mesh Info cleared position
@@ -800,21 +800,21 @@ assert tests.is_sensitive(tbox+":Go")
 
 # Create plot of second invariant of stress
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(483, 624)
-wevent(findWidget('Dialog-New:how:Filled Contour:what:what_0'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New:how:Filled Contour:what:what_0').get_window())
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(483, 624)
+wevent(findWidget('Dialog-New Graphics Layer:how:Filled Contour:what:what_0'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Graphics Layer:how:Filled Contour:what:what_0').get_window())
 checkpoint toplevel widget mapped chooserPopup-what_0
 findMenu(findWidget('chooserPopup-what_0'), ['Flux']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-what_0') # MenuItemLogger
-wevent(findWidget('Dialog-New:how:Filled Contour:what:what_1'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New:how:Filled Contour:what:what_1').get_window())
+wevent(findWidget('Dialog-New Graphics Layer:how:Filled Contour:what:what_1'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Graphics Layer:how:Filled Contour:what:what_1').get_window())
 checkpoint toplevel widget mapped chooserPopup-what_1
 findMenu(findWidget('chooserPopup-what_1'), ['Invariant']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-what_1') # MenuItemLogger
-wevent(findWidget('Dialog-New:how:Filled Contour:what:Parameters:invariant:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New:how:Filled Contour:what:Parameters:invariant:RCFChooser').get_window())
+wevent(findWidget('Dialog-New Graphics Layer:how:Filled Contour:what:Parameters:invariant:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Graphics Layer:how:Filled Contour:what:Parameters:invariant:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['SecondInvariant']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 6.8000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated

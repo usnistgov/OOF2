@@ -515,12 +515,12 @@ checkpoint OOF.Material.Assign
 findWidget('A Simple Example:Next').clicked()
 findWidget('A Simple Example').resize(500, 458)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(395, 532)
-event(Gdk.EventType.BUTTON_PRESS,x= 1.3600000000000e+02,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('Dialog-New:what:Microstructure').get_window())
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(395, 532)
+event(Gdk.EventType.BUTTON_PRESS,x= 1.3600000000000e+02,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Graphics Layer:what:Microstructure').get_window())
 checkpoint toplevel widget mapped chooserPopup-Microstructure
 findWidget('chooserPopup-Microstructure').deactivate() # MenuLogger
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection

@@ -182,30 +182,30 @@ findWidget('OOF2 Graphics 1').resize(800, 492)
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(395, 532)
-wevent(findWidget('Dialog-New:how:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New:how:RCFChooser').get_window())
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(395, 532)
+wevent(findWidget('Dialog-New Graphics Layer:how:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Graphics Layer:how:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findWidget('chooserPopup-RCFChooser').deactivate() # MenuLogger
-wevent(findWidget('Dialog-New:category'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New:category').get_window())
+wevent(findWidget('Dialog-New Graphics Layer:category'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Graphics Layer:category').get_window())
 checkpoint toplevel widget mapped chooserPopup-category
 findMenu(findWidget('chooserPopup-category'), ['Mesh']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-category') # MenuItemLogger
-findWidget('Dialog-New').resize(467, 532)
-wevent(findWidget('Dialog-New:how:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New:how:RCFChooser').get_window())
+findWidget('Dialog-New Graphics Layer').resize(467, 532)
+wevent(findWidget('Dialog-New Graphics Layer:how:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Graphics Layer:how:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Filled Contour']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('Dialog-New').resize(483, 613)
-wevent(findWidget('Dialog-New:how:Filled Contour:what:what_0'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New:how:Filled Contour:what:what_0').get_window())
+findWidget('Dialog-New Graphics Layer').resize(483, 613)
+wevent(findWidget('Dialog-New Graphics Layer:how:Filled Contour:what:what_0'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Graphics Layer:how:Filled Contour:what:what_0').get_window())
 checkpoint toplevel widget mapped chooserPopup-what_0
 findMenu(findWidget('chooserPopup-what_0'), ['Flux']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-what_0') # MenuItemLogger
-wevent(findWidget('Dialog-New:how:Filled Contour:what:Parameters:component'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New:how:Filled Contour:what:Parameters:component').get_window())
+wevent(findWidget('Dialog-New Graphics Layer:how:Filled Contour:what:Parameters:component'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-New Graphics Layer:how:Filled Contour:what:Parameters:component').get_window())
 checkpoint toplevel widget mapped chooserPopup-component
 findMenu(findWidget('chooserPopup-component'), ['yy']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-component') # MenuItemLogger
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 6.8000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection

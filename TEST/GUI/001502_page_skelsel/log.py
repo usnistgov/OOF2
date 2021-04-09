@@ -1,3 +1,13 @@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
 import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
@@ -413,23 +423,23 @@ assert tests.selectionSizeCheck(12)
 
 # Add a Microstructure Material display
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(395, 532)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 1.3698630136986e-02)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 8.2191780821918e-02)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 1.0958904109589e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 1.5068493150685e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 1.9178082191781e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 2.0547945205479e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 2.4657534246575e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 2.6027397260274e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 2.8767123287671e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 3.1506849315068e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 3.2876712328767e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 3.4246575342466e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 3.5616438356164e-01)
-findWidget('Dialog-New:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 3.6986301369863e-01)
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(395, 532)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 1.3698630136986e-02)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 8.2191780821918e-02)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 1.0958904109589e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 1.5068493150685e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 1.9178082191781e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 2.0547945205479e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 2.4657534246575e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 2.6027397260274e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 2.8767123287671e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 3.1506849315068e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 3.2876712328767e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 3.4246575342466e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 3.5616438356164e-01)
+findWidget('Dialog-New Graphics Layer:how:Material:no_material:TranslucentGray:gray:slider').get_adjustment().set_value( 3.6986301369863e-01)
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated

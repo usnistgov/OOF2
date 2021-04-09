@@ -597,14 +597,14 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(395, 532)
-event(Gdk.EventType.BUTTON_PRESS,x= 5.6000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('Dialog-New:category').get_window())
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(395, 532)
+event(Gdk.EventType.BUTTON_PRESS,x= 5.6000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Graphics Layer:category').get_window())
 checkpoint toplevel widget mapped chooserPopup-category
 findMenu(findWidget('chooserPopup-category'), ['Mesh']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-category') # MenuItemLogger
-findWidget('Dialog-New').resize(467, 532)
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+findWidget('Dialog-New Graphics Layer').resize(467, 532)
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Mesh Info cleared position
 checkpoint Graphics_1 Mesh Info sensitized
@@ -657,42 +657,42 @@ checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Edit
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
-checkpoint toplevel widget mapped Dialog-New
-findWidget('Dialog-New').resize(467, 484)
-event(Gdk.EventType.BUTTON_PRESS,x= 4.8000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('Dialog-New:category').get_window())
+checkpoint toplevel widget mapped Dialog-New Graphics Layer
+findWidget('Dialog-New Graphics Layer').resize(467, 484)
+event(Gdk.EventType.BUTTON_PRESS,x= 4.8000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('Dialog-New Graphics Layer:category').get_window())
 checkpoint toplevel widget mapped chooserPopup-category
 findMenu(findWidget('chooserPopup-category'), ['Skeleton']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-category') # MenuItemLogger
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 1.5151515151515e-02)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 6.0606060606061e-02)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 1.4393939393939e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 1.8181818181818e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 2.5000000000000e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 2.9545454545455e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 3.2575757575758e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 3.3333333333333e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 3.4090909090909e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 3.5606060606061e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 3.7878787878788e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 4.3181818181818e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 4.9242424242424e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 5.6060606060606e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 6.0606060606061e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 6.3636363636364e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 6.5909090909091e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 6.7424242424242e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 6.8181818181818e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 6.8939393939394e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.0454545454545e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.2727272727273e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.4242424242424e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.6515151515152e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.5757575757576e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.5000000000000e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.4242424242424e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.2727272727273e-01)
-findWidget('Dialog-New:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.1969696969697e-01)
-findWidget('Dialog-New:widget_GTK_RESPONSE_OK').clicked()
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 1.5151515151515e-02)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 6.0606060606061e-02)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 1.4393939393939e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 1.8181818181818e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 2.5000000000000e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 2.9545454545455e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 3.2575757575758e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 3.3333333333333e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 3.4090909090909e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 3.5606060606061e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 3.7878787878788e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 4.3181818181818e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 4.9242424242424e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 5.6060606060606e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 6.0606060606061e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 6.3636363636364e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 6.5909090909091e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 6.7424242424242e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 6.8181818181818e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 6.8939393939394e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.0454545454545e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.2727272727273e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.4242424242424e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.6515151515152e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.5757575757576e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.5000000000000e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.4242424242424e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.2727272727273e-01)
+findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:slider').get_adjustment().set_value( 7.1969696969697e-01)
+findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+01)
 checkpoint Move Node toolbox writable changed
 checkpoint Move Node toolbox info updated
