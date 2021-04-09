@@ -47,11 +47,7 @@ template<typename T> struct NumTraits;
 template<typename Derived> struct EigenBase;
 template<typename Derived> class DenseBase;
 template<typename Derived> class PlainObjectBase;
-
-
-template<typename Derived,
-         int Level = internal::accessors_level<Derived>::value >
-class DenseCoeffsBase;
+template<typename Derived, int Level> class DenseCoeffsBase;
 
 template<typename _Scalar, int _Rows, int _Cols,
          int _Options = AutoAlign |
@@ -91,15 +87,12 @@ template<typename NullaryOp, typename MatrixType>         class CwiseNullaryOp;
 template<typename UnaryOp,   typename MatrixType>         class CwiseUnaryOp;
 template<typename ViewOp,    typename MatrixType>         class CwiseUnaryView;
 template<typename BinaryOp,  typename Lhs, typename Rhs>  class CwiseBinaryOp;
+template<typename TernaryOp, typename Arg1, typename Arg2, typename Arg3>  class CwiseTernaryOp;
 template<typename Decomposition, typename Rhstype>        class Solve;
 template<typename XprType>                                class Inverse;
 
-namespace internal {
-  template<typename Lhs, typename Rhs> struct product_tag;
-}
-
 template<typename Lhs, typename Rhs, int Option = DefaultProduct> class Product;
-         
+
 template<typename Derived> class DiagonalBase;
 template<typename _DiagonalVectorType> class DiagonalWrapper;
 template<typename _Scalar, int SizeAtCompileTime, int MaxSizeAtCompileTime=SizeAtCompileTime> class DiagonalMatrix;
@@ -132,6 +125,7 @@ template<typename MatrixType> struct CommaInitializer;
 template<typename Derived> class ReturnByValue;
 template<typename ExpressionType> class ArrayWrapper;
 template<typename ExpressionType> class MatrixWrapper;
+template<typename Derived> class SolverBase;
 template<typename XprType> class InnerIterator;
 
 namespace internal {
@@ -177,9 +171,11 @@ namespace internal {
 // with optional conjugation of the arguments.
 template<typename LhsScalar, typename RhsScalar, bool ConjLhs=false, bool ConjRhs=false> struct conj_helper;
 
-template<typename Scalar> struct scalar_sum_op;
-template<typename Scalar> struct scalar_difference_op;
-template<typename LhsScalar,typename RhsScalar> struct scalar_conj_product_op;
+template<typename LhsScalar,typename RhsScalar=LhsScalar> struct scalar_sum_op;
+template<typename LhsScalar,typename RhsScalar=LhsScalar> struct scalar_difference_op;
+template<typename LhsScalar,typename RhsScalar=LhsScalar> struct scalar_conj_product_op;
+template<typename LhsScalar,typename RhsScalar=LhsScalar> struct scalar_min_op;
+template<typename LhsScalar,typename RhsScalar=LhsScalar> struct scalar_max_op;
 template<typename Scalar> struct scalar_opposite_op;
 template<typename Scalar> struct scalar_conjugate_op;
 template<typename Scalar> struct scalar_real_op;
@@ -195,24 +191,28 @@ template<typename Scalar> struct scalar_sin_op;
 template<typename Scalar> struct scalar_acos_op;
 template<typename Scalar> struct scalar_asin_op;
 template<typename Scalar> struct scalar_tan_op;
-template<typename Scalar> struct scalar_pow_op;
 template<typename Scalar> struct scalar_inverse_op;
 template<typename Scalar> struct scalar_square_op;
 template<typename Scalar> struct scalar_cube_op;
 template<typename Scalar, typename NewType> struct scalar_cast_op;
-template<typename Scalar> struct scalar_multiple_op;
-template<typename Scalar> struct scalar_quotient1_op;
-template<typename Scalar> struct scalar_min_op;
-template<typename Scalar> struct scalar_max_op;
 template<typename Scalar> struct scalar_random_op;
-template<typename Scalar> struct scalar_add_op;
 template<typename Scalar> struct scalar_constant_op;
 template<typename Scalar> struct scalar_identity_op;
-
+template<typename Scalar,bool iscpx> struct scalar_sign_op;
+template<typename Scalar,typename ScalarExponent> struct scalar_pow_op;
+template<typename LhsScalar,typename RhsScalar=LhsScalar> struct scalar_hypot_op;
 template<typename LhsScalar,typename RhsScalar=LhsScalar> struct scalar_product_op;
-template<typename LhsScalar,typename RhsScalar> struct scalar_multiple2_op;
 template<typename LhsScalar,typename RhsScalar=LhsScalar> struct scalar_quotient_op;
-template<typename LhsScalar,typename RhsScalar> struct scalar_quotient2_op;
+
+// SpecialFunctions module
+template<typename Scalar> struct scalar_lgamma_op;
+template<typename Scalar> struct scalar_digamma_op;
+template<typename Scalar> struct scalar_erf_op;
+template<typename Scalar> struct scalar_erfc_op;
+template<typename Scalar> struct scalar_igamma_op;
+template<typename Scalar> struct scalar_igammac_op;
+template<typename Scalar> struct scalar_zeta_op;
+template<typename Scalar> struct scalar_betainc_op;
 
 } // end namespace internal
 
@@ -250,6 +250,7 @@ template<typename MatrixType> struct inverse_impl;
 template<typename MatrixType> class HouseholderQR;
 template<typename MatrixType> class ColPivHouseholderQR;
 template<typename MatrixType> class FullPivHouseholderQR;
+template<typename MatrixType> class CompleteOrthogonalDecomposition;
 template<typename MatrixType, int QRPreconditioner = ColPivHouseholderQRPreconditioner> class JacobiSVD;
 template<typename MatrixType> class BDCSVD;
 template<typename MatrixType, int UpLo = Lower> class LLT;
@@ -265,13 +266,15 @@ template<typename Scalar> class Rotation2D;
 template<typename Scalar> class AngleAxis;
 template<typename Scalar,int Dim> class Translation;
 template<typename Scalar,int Dim> class AlignedBox;
-
 template<typename Scalar, int Options = AutoAlign> class Quaternion;
 template<typename Scalar,int Dim,int Mode,int _Options=AutoAlign> class Transform;
 template <typename _Scalar, int _AmbientDim, int Options=AutoAlign> class ParametrizedLine;
 template <typename _Scalar, int _AmbientDim, int Options=AutoAlign> class Hyperplane;
 template<typename Scalar> class UniformScaling;
 template<typename MatrixType,int Direction> class Homogeneous;
+
+// Sparse module:
+template<typename Derived> class SparseMatrixBase;
 
 // MatrixFunctions module
 template<typename Derived> struct MatrixExponentialReturnValue;

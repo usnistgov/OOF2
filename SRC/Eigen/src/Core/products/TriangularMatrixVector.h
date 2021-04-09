@@ -20,20 +20,20 @@ struct triangular_matrix_vector_product;
 template<typename Index, int Mode, typename LhsScalar, bool ConjLhs, typename RhsScalar, bool ConjRhs, int Version>
 struct triangular_matrix_vector_product<Index,Mode,LhsScalar,ConjLhs,RhsScalar,ConjRhs,ColMajor,Version>
 {
-  typedef typename scalar_product_traits<LhsScalar, RhsScalar>::ReturnType ResScalar;
+  typedef typename ScalarBinaryOpTraits<LhsScalar, RhsScalar>::ReturnType ResScalar;
   enum {
     IsLower = ((Mode&Lower)==Lower),
     HasUnitDiag = (Mode & UnitDiag)==UnitDiag,
     HasZeroDiag = (Mode & ZeroDiag)==ZeroDiag
   };
   static EIGEN_DONT_INLINE  void run(Index _rows, Index _cols, const LhsScalar* _lhs, Index lhsStride,
-                                     const RhsScalar* _rhs, Index rhsIncr, ResScalar* _res, Index resIncr, const ResScalar& alpha);
+                                     const RhsScalar* _rhs, Index rhsIncr, ResScalar* _res, Index resIncr, const RhsScalar& alpha);
 };
 
 template<typename Index, int Mode, typename LhsScalar, bool ConjLhs, typename RhsScalar, bool ConjRhs, int Version>
 EIGEN_DONT_INLINE void triangular_matrix_vector_product<Index,Mode,LhsScalar,ConjLhs,RhsScalar,ConjRhs,ColMajor,Version>
   ::run(Index _rows, Index _cols, const LhsScalar* _lhs, Index lhsStride,
-        const RhsScalar* _rhs, Index rhsIncr, ResScalar* _res, Index resIncr, const ResScalar& alpha)
+        const RhsScalar* _rhs, Index rhsIncr, ResScalar* _res, Index resIncr, const RhsScalar& alpha)
   {
     static const Index PanelWidth = EIGEN_TUNE_TRIANGULAR_PANEL_WIDTH;
     Index size = (std::min)(_rows,_cols);
@@ -91,7 +91,7 @@ EIGEN_DONT_INLINE void triangular_matrix_vector_product<Index,Mode,LhsScalar,Con
 template<typename Index, int Mode, typename LhsScalar, bool ConjLhs, typename RhsScalar, bool ConjRhs,int Version>
 struct triangular_matrix_vector_product<Index,Mode,LhsScalar,ConjLhs,RhsScalar,ConjRhs,RowMajor,Version>
 {
-  typedef typename scalar_product_traits<LhsScalar, RhsScalar>::ReturnType ResScalar;
+  typedef typename ScalarBinaryOpTraits<LhsScalar, RhsScalar>::ReturnType ResScalar;
   enum {
     IsLower = ((Mode&Lower)==Lower),
     HasUnitDiag = (Mode & UnitDiag)==UnitDiag,
@@ -216,13 +216,14 @@ template<int Mode> struct trmv_selector<Mode,ColMajor>
     typedef internal::blas_traits<Rhs> RhsBlasTraits;
     typedef typename RhsBlasTraits::DirectLinearAccessType ActualRhsType;
     
-    typedef Map<Matrix<ResScalar,Dynamic,1>, Aligned> MappedDest;
+    typedef Map<Matrix<ResScalar,Dynamic,1>, EIGEN_PLAIN_ENUM_MIN(AlignedMax,internal::packet_traits<ResScalar>::size)> MappedDest;
 
     typename internal::add_const_on_value_type<ActualLhsType>::type actualLhs = LhsBlasTraits::extract(lhs);
     typename internal::add_const_on_value_type<ActualRhsType>::type actualRhs = RhsBlasTraits::extract(rhs);
 
-    ResScalar actualAlpha = alpha * LhsBlasTraits::extractScalarFactor(lhs)
-                                  * RhsBlasTraits::extractScalarFactor(rhs);
+    LhsScalar lhs_alpha = LhsBlasTraits::extractScalarFactor(lhs);
+    RhsScalar rhs_alpha = RhsBlasTraits::extractScalarFactor(rhs);
+    ResScalar actualAlpha = alpha * lhs_alpha * rhs_alpha;
 
     enum {
       // FIXME find a way to allow an inner stride on the result if packet_traits<Scalar>::size==1
@@ -274,6 +275,12 @@ template<int Mode> struct trmv_selector<Mode,ColMajor>
       else
         dest = MappedDest(actualDestPtr, dest.size());
     }
+
+    if ( ((Mode&UnitDiag)==UnitDiag) && (lhs_alpha!=LhsScalar(1)) )
+    {
+      Index diagSize = (std::min)(lhs.rows(),lhs.cols());
+      dest.head(diagSize) -= (lhs_alpha-LhsScalar(1))*rhs.head(diagSize);
+    }
   }
 };
 
@@ -295,8 +302,9 @@ template<int Mode> struct trmv_selector<Mode,RowMajor>
     typename add_const<ActualLhsType>::type actualLhs = LhsBlasTraits::extract(lhs);
     typename add_const<ActualRhsType>::type actualRhs = RhsBlasTraits::extract(rhs);
 
-    ResScalar actualAlpha = alpha * LhsBlasTraits::extractScalarFactor(lhs)
-                                  * RhsBlasTraits::extractScalarFactor(rhs);
+    LhsScalar lhs_alpha = LhsBlasTraits::extractScalarFactor(lhs);
+    RhsScalar rhs_alpha = RhsBlasTraits::extractScalarFactor(rhs);
+    ResScalar actualAlpha = alpha * lhs_alpha * rhs_alpha;
 
     enum {
       DirectlyUseRhs = ActualRhsTypeCleaned::InnerStrideAtCompileTime==1
@@ -326,6 +334,12 @@ template<int Mode> struct trmv_selector<Mode,RowMajor>
             actualRhsPtr,1,
             dest.data(),dest.innerStride(),
             actualAlpha);
+
+    if ( ((Mode&UnitDiag)==UnitDiag) && (lhs_alpha!=LhsScalar(1)) )
+    {
+      Index diagSize = (std::min)(lhs.rows(),lhs.cols());
+      dest.head(diagSize) -= (lhs_alpha-LhsScalar(1))*rhs.head(diagSize);
+    }
   }
 };
 

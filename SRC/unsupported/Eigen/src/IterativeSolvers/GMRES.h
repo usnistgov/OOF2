@@ -21,7 +21,7 @@ namespace internal {
 *
 * Parameters:
 *  \param mat       matrix of linear system of equations
-*  \param Rhs       right hand side vector of linear system of equations
+*  \param rhs       right hand side vector of linear system of equations
 *  \param x         on input: initial guess, on output: solution
 *  \param precond   preconditioner used
 *  \param iters     on input: maximum number of iterations to perform
@@ -62,7 +62,7 @@ bool gmres(const MatrixType & mat, const Rhs & rhs, Dest & x, const Precondition
   typedef typename Dest::RealScalar RealScalar;
   typedef typename Dest::Scalar Scalar;
   typedef Matrix < Scalar, Dynamic, 1 > VectorType;
-  typedef Matrix < Scalar, Dynamic, Dynamic > FMatrixType;
+  typedef Matrix < Scalar, Dynamic, Dynamic, ColMajor> FMatrixType;
 
   RealScalar tol = tol_error;
   const Index maxIters = iters;
@@ -157,7 +157,8 @@ bool gmres(const MatrixType & mat, const Rhs & rhs, Dest & x, const Precondition
     // insert coefficients into upper matrix triangle
     H.col(k-1).head(k) = v.head(k);
 
-    bool stop = (k==m || abs(w(k)) < tol * r0Norm || iters == maxIters);
+    tol_error = abs(w(k)) / r0Norm;
+    bool stop = (k==m || tol_error < tol || iters == maxIters);
 
     if (stop || k == restart)
     {
@@ -251,13 +252,15 @@ struct traits<GMRES<_MatrixType,_Preconditioner> >
   * By default the iterations start with x=0 as an initial guess of the solution.
   * One can control the start using the solveWithGuess() method.
   * 
+  * GMRES can also be used in a matrix-free context, see the following \link MatrixfreeSolverExample example \endlink.
+  *
   * \sa class SimplicialCholesky, DiagonalPreconditioner, IdentityPreconditioner
   */
 template< typename _MatrixType, typename _Preconditioner>
 class GMRES : public IterativeSolverBase<GMRES<_MatrixType,_Preconditioner> >
 {
   typedef IterativeSolverBase<GMRES> Base;
-  using Base::mp_matrix;
+  using Base::matrix;
   using Base::m_error;
   using Base::m_iterations;
   using Base::m_info;
@@ -288,7 +291,8 @@ public:
     * this class becomes invalid. Call compute() to update it with the new
     * matrix A, or modify a copy of A.
     */
-  GMRES(const MatrixType& A) : Base(A), m_restart(30) {}
+  template<typename MatrixDerived>
+  explicit GMRES(const EigenBase<MatrixDerived>& A) : Base(A.derived()), m_restart(30) {}
 
   ~GMRES() {}
 
@@ -312,7 +316,7 @@ public:
       m_error = Base::m_tolerance;
 
       typename Dest::ColXpr xj(x,j);
-      if(!internal::gmres(mp_matrix, b.col(j), xj, Base::m_preconditioner, m_iterations, m_restart, m_error))
+      if(!internal::gmres(matrix(), b.col(j), xj, Base::m_preconditioner, m_iterations, m_restart, m_error))
         failed = true;
     }
     m_info = failed ? NumericalIssue

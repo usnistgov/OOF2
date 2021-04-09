@@ -12,14 +12,123 @@
 
 namespace Eigen { 
 
+namespace internal {
+
+template<typename _PlainObjectType, int _Options, typename _StrideType>
+struct traits<Ref<_PlainObjectType, _Options, _StrideType> >
+  : public traits<Map<_PlainObjectType, _Options, _StrideType> >
+{
+  typedef _PlainObjectType PlainObjectType;
+  typedef _StrideType StrideType;
+  enum {
+    Options = _Options,
+    Flags = traits<Map<_PlainObjectType, _Options, _StrideType> >::Flags | NestByRefBit,
+    Alignment = traits<Map<_PlainObjectType, _Options, _StrideType> >::Alignment
+  };
+
+  template<typename Derived> struct match {
+    enum {
+      IsVectorAtCompileTime = PlainObjectType::IsVectorAtCompileTime || Derived::IsVectorAtCompileTime,
+      HasDirectAccess = internal::has_direct_access<Derived>::ret,
+      StorageOrderMatch = IsVectorAtCompileTime || ((PlainObjectType::Flags&RowMajorBit)==(Derived::Flags&RowMajorBit)),
+      InnerStrideMatch = int(StrideType::InnerStrideAtCompileTime)==int(Dynamic)
+                      || int(StrideType::InnerStrideAtCompileTime)==int(Derived::InnerStrideAtCompileTime)
+                      || (int(StrideType::InnerStrideAtCompileTime)==0 && int(Derived::InnerStrideAtCompileTime)==1),
+      OuterStrideMatch = IsVectorAtCompileTime
+                      || int(StrideType::OuterStrideAtCompileTime)==int(Dynamic) || int(StrideType::OuterStrideAtCompileTime)==int(Derived::OuterStrideAtCompileTime),
+      // NOTE, this indirection of evaluator<Derived>::Alignment is needed
+      // to workaround a very strange bug in MSVC related to the instantiation
+      // of has_*ary_operator in evaluator<CwiseNullaryOp>.
+      // This line is surprisingly very sensitive. For instance, simply adding parenthesis
+      // as "DerivedAlignment = (int(evaluator<Derived>::Alignment))," will make MSVC fail...
+      DerivedAlignment = int(evaluator<Derived>::Alignment),
+      AlignmentMatch = (int(traits<PlainObjectType>::Alignment)==int(Unaligned)) || (DerivedAlignment >= int(Alignment)), // FIXME the first condition is not very clear, it should be replaced by the required alignment
+      ScalarTypeMatch = internal::is_same<typename PlainObjectType::Scalar, typename Derived::Scalar>::value,
+      MatchAtCompileTime = HasDirectAccess && StorageOrderMatch && InnerStrideMatch && OuterStrideMatch && AlignmentMatch && ScalarTypeMatch
+    };
+    typedef typename internal::conditional<MatchAtCompileTime,internal::true_type,internal::false_type>::type type;
+  };
+  
+};
+
+template<typename Derived>
+struct traits<RefBase<Derived> > : public traits<Derived> {};
+
+}
+
+template<typename Derived> class RefBase
+ : public MapBase<Derived>
+{
+  typedef typename internal::traits<Derived>::PlainObjectType PlainObjectType;
+  typedef typename internal::traits<Derived>::StrideType StrideType;
+
+public:
+
+  typedef MapBase<Derived> Base;
+  EIGEN_DENSE_PUBLIC_INTERFACE(RefBase)
+
+  EIGEN_DEVICE_FUNC inline Index innerStride() const
+  {
+    return StrideType::InnerStrideAtCompileTime != 0 ? m_stride.inner() : 1;
+  }
+
+  EIGEN_DEVICE_FUNC inline Index outerStride() const
+  {
+    return StrideType::OuterStrideAtCompileTime != 0 ? m_stride.outer()
+         : IsVectorAtCompileTime ? this->size()
+         : int(Flags)&RowMajorBit ? this->cols()
+         : this->rows();
+  }
+
+  EIGEN_DEVICE_FUNC RefBase()
+    : Base(0,RowsAtCompileTime==Dynamic?0:RowsAtCompileTime,ColsAtCompileTime==Dynamic?0:ColsAtCompileTime),
+      // Stride<> does not allow default ctor for Dynamic strides, so let' initialize it with dummy values:
+      m_stride(StrideType::OuterStrideAtCompileTime==Dynamic?0:StrideType::OuterStrideAtCompileTime,
+               StrideType::InnerStrideAtCompileTime==Dynamic?0:StrideType::InnerStrideAtCompileTime)
+  {}
+  
+  EIGEN_INHERIT_ASSIGNMENT_OPERATORS(RefBase)
+
+protected:
+
+  typedef Stride<StrideType::OuterStrideAtCompileTime,StrideType::InnerStrideAtCompileTime> StrideBase;
+
+  template<typename Expression>
+  EIGEN_DEVICE_FUNC void construct(Expression& expr)
+  {
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(PlainObjectType,Expression);
+
+    if(PlainObjectType::RowsAtCompileTime==1)
+    {
+      eigen_assert(expr.rows()==1 || expr.cols()==1);
+      ::new (static_cast<Base*>(this)) Base(expr.data(), 1, expr.size());
+    }
+    else if(PlainObjectType::ColsAtCompileTime==1)
+    {
+      eigen_assert(expr.rows()==1 || expr.cols()==1);
+      ::new (static_cast<Base*>(this)) Base(expr.data(), expr.size(), 1);
+    }
+    else
+      ::new (static_cast<Base*>(this)) Base(expr.data(), expr.rows(), expr.cols());
+    
+    if(Expression::IsVectorAtCompileTime && (!PlainObjectType::IsVectorAtCompileTime) && ((Expression::Flags&RowMajorBit)!=(PlainObjectType::Flags&RowMajorBit)))
+      ::new (&m_stride) StrideBase(expr.innerStride(), StrideType::InnerStrideAtCompileTime==0?0:1);
+    else
+      ::new (&m_stride) StrideBase(StrideType::OuterStrideAtCompileTime==0?0:expr.outerStride(),
+                                   StrideType::InnerStrideAtCompileTime==0?0:expr.innerStride());    
+  }
+
+  StrideBase m_stride;
+};
+
 /** \class Ref
   * \ingroup Core_Module
   *
   * \brief A matrix or vector expression mapping an existing expression
   *
   * \tparam PlainObjectType the equivalent matrix type of the mapped data
-  * \tparam MapOptions specifies the pointer alignment in bytes. It can be: \c #Aligned128, , \c #Aligned64, \c #Aligned32, \c #Aligned16, \c #Aligned8 or \c #Unaligned.
-  *                The default is \c #Unaligned.
+  * \tparam Options specifies the pointer alignment in bytes. It can be: \c #Aligned128, , \c #Aligned64, \c #Aligned32, \c #Aligned16, \c #Aligned8 or \c #Unaligned.
+  *                 The default is \c #Unaligned.
   * \tparam StrideType optionally specifies strides. By default, Ref implies a contiguous storage along the inner dimension (inner stride==1),
   *                   but accepts a variable outer stride (leading dimension).
   *                   This can be overridden by specifying strides.
@@ -81,108 +190,6 @@ namespace Eigen {
   *
   * \sa PlainObjectBase::Map(), \ref TopicStorageOrders
   */
-
-namespace internal {
-
-template<typename _PlainObjectType, int _Options, typename _StrideType>
-struct traits<Ref<_PlainObjectType, _Options, _StrideType> >
-  : public traits<Map<_PlainObjectType, _Options, _StrideType> >
-{
-  typedef _PlainObjectType PlainObjectType;
-  typedef _StrideType StrideType;
-  enum {
-    Options = _Options,
-    Flags = traits<Map<_PlainObjectType, _Options, _StrideType> >::Flags | NestByRefBit,
-    Alignment = traits<Map<_PlainObjectType, _Options, _StrideType> >::Alignment
-  };
-
-  template<typename Derived> struct match {
-    enum {
-      HasDirectAccess = internal::has_direct_access<Derived>::ret,
-      StorageOrderMatch = PlainObjectType::IsVectorAtCompileTime || Derived::IsVectorAtCompileTime || ((PlainObjectType::Flags&RowMajorBit)==(Derived::Flags&RowMajorBit)),
-      InnerStrideMatch = int(StrideType::InnerStrideAtCompileTime)==int(Dynamic)
-                      || int(StrideType::InnerStrideAtCompileTime)==int(Derived::InnerStrideAtCompileTime)
-                      || (int(StrideType::InnerStrideAtCompileTime)==0 && int(Derived::InnerStrideAtCompileTime)==1),
-      OuterStrideMatch = Derived::IsVectorAtCompileTime
-                      || int(StrideType::OuterStrideAtCompileTime)==int(Dynamic) || int(StrideType::OuterStrideAtCompileTime)==int(Derived::OuterStrideAtCompileTime),
-      AlignmentMatch = (int(traits<PlainObjectType>::Alignment)==int(Unaligned)) || (int(evaluator<Derived>::Alignment) >= int(Alignment)), // FIXME the first condition is not very clear, it should be replaced by the required alignment
-      ScalarTypeMatch = internal::is_same<typename PlainObjectType::Scalar, typename Derived::Scalar>::value,
-      MatchAtCompileTime = HasDirectAccess && StorageOrderMatch && InnerStrideMatch && OuterStrideMatch && AlignmentMatch && ScalarTypeMatch
-    };
-    typedef typename internal::conditional<MatchAtCompileTime,internal::true_type,internal::false_type>::type type;
-  };
-  
-};
-
-template<typename Derived>
-struct traits<RefBase<Derived> > : public traits<Derived> {};
-
-}
-
-template<typename Derived> class RefBase
- : public MapBase<Derived>
-{
-  typedef typename internal::traits<Derived>::PlainObjectType PlainObjectType;
-  typedef typename internal::traits<Derived>::StrideType StrideType;
-
-public:
-
-  typedef MapBase<Derived> Base;
-  EIGEN_DENSE_PUBLIC_INTERFACE(RefBase)
-
-  EIGEN_DEVICE_FUNC inline Index innerStride() const
-  {
-    return StrideType::InnerStrideAtCompileTime != 0 ? m_stride.inner() : 1;
-  }
-
-  EIGEN_DEVICE_FUNC inline Index outerStride() const
-  {
-    return StrideType::OuterStrideAtCompileTime != 0 ? m_stride.outer()
-         : IsVectorAtCompileTime ? this->size()
-         : int(Flags)&RowMajorBit ? this->cols()
-         : this->rows();
-  }
-
-  EIGEN_DEVICE_FUNC RefBase()
-    : Base(0,RowsAtCompileTime==Dynamic?0:RowsAtCompileTime,ColsAtCompileTime==Dynamic?0:ColsAtCompileTime),
-      // Stride<> does not allow default ctor for Dynamic strides, so let' initialize it with dummy values:
-      m_stride(StrideType::OuterStrideAtCompileTime==Dynamic?0:StrideType::OuterStrideAtCompileTime,
-               StrideType::InnerStrideAtCompileTime==Dynamic?0:StrideType::InnerStrideAtCompileTime)
-  {}
-  
-  EIGEN_INHERIT_ASSIGNMENT_OPERATORS(RefBase)
-
-protected:
-
-  typedef Stride<StrideType::OuterStrideAtCompileTime,StrideType::InnerStrideAtCompileTime> StrideBase;
-
-  template<typename Expression>
-  EIGEN_DEVICE_FUNC void construct(Expression& expr)
-  {
-    if(PlainObjectType::RowsAtCompileTime==1)
-    {
-      eigen_assert(expr.rows()==1 || expr.cols()==1);
-      ::new (static_cast<Base*>(this)) Base(expr.data(), 1, expr.size());
-    }
-    else if(PlainObjectType::ColsAtCompileTime==1)
-    {
-      eigen_assert(expr.rows()==1 || expr.cols()==1);
-      ::new (static_cast<Base*>(this)) Base(expr.data(), expr.size(), 1);
-    }
-    else
-      ::new (static_cast<Base*>(this)) Base(expr.data(), expr.rows(), expr.cols());
-    
-    if(Expression::IsVectorAtCompileTime && (!PlainObjectType::IsVectorAtCompileTime) && ((Expression::Flags&RowMajorBit)!=(PlainObjectType::Flags&RowMajorBit)))
-      ::new (&m_stride) StrideBase(expr.innerStride(), StrideType::InnerStrideAtCompileTime==0?0:1);
-    else
-      ::new (&m_stride) StrideBase(StrideType::OuterStrideAtCompileTime==0?0:expr.outerStride(),
-                                   StrideType::InnerStrideAtCompileTime==0?0:expr.innerStride());    
-  }
-
-  StrideBase m_stride;
-};
-
-
 template<typename PlainObjectType, int Options, typename StrideType> class Ref
   : public RefBase<Ref<PlainObjectType, Options, StrideType> >
 {
@@ -209,6 +216,7 @@ template<typename PlainObjectType, int Options, typename StrideType> class Ref
     EIGEN_DEVICE_FUNC inline Ref(const DenseBase<Derived>& expr,
                                  typename internal::enable_if<bool(Traits::template match<Derived>::MatchAtCompileTime),Derived>::type* = 0)
     #else
+    /** Implicit constructor from any dense expression */
     template<typename Derived>
     inline Ref(DenseBase<Derived>& expr)
     #endif
@@ -263,7 +271,7 @@ template<typename TPlainObjectType, int Options, typename StrideType> class Ref<
     template<typename Expression>
     EIGEN_DEVICE_FUNC void construct(const Expression& expr, internal::false_type)
     {
-      internal::call_assignment_no_alias(m_object,expr,internal::assign_op<Scalar>());
+      internal::call_assignment_no_alias(m_object,expr,internal::assign_op<Scalar,Scalar>());
       Base::construct(m_object);
     }
 

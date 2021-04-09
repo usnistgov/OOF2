@@ -27,7 +27,8 @@
  */
 
 // SFINAE requires variadic templates
-#ifdef EIGEN_HAS_VARIADIC_TEMPLATES
+#ifndef __CUDACC__
+#if EIGEN_HAS_VARIADIC_TEMPLATES
   // SFINAE doesn't work for gcc <= 4.7
   #ifdef EIGEN_COMP_GNUC
     #if EIGEN_GNUC_AT_LEAST(4,8)
@@ -36,14 +37,14 @@
   #else
     #define EIGEN_HAS_SFINAE
   #endif
-
+#endif
 #endif
 
 #define EIGEN_SFINAE_ENABLE_IF( __condition__ ) \
     typename internal::enable_if< ( __condition__ ) , int >::type = 0
 
 
-#if defined(EIGEN_HAS_CONSTEXPR)
+#if EIGEN_HAS_CONSTEXPR
 #define EIGEN_CONSTEXPR constexpr
 #else
 #define EIGEN_CONSTEXPR

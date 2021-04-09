@@ -9,8 +9,12 @@
  * oof_manager@nist.gov. 
  */
 
-#include "sparsemat.h"
+#include <oofconfig.h>
+#include "common/chunkyvector.h"
+#include "common/printvec.h"
 #include "engine/dofmap.h"
+#include "engine/sparsemat.h"
+
 #include <unsupported/Eigen/SparseExtra>
 #include <iostream>
 #include <fstream>
@@ -36,20 +40,91 @@ SparseMat::SparseMat(const SparseMat& source,
       if (i >= 0) {
         int j = colmap[it.col()];
         assert(j < (int) colmap.range() && j >= -1);
-        if (j >= 0)
+        if (j >= 0) {
+	  // This calls SparseMatrix::coeffRef, which is inefficient.
           insert(i, j, it.value());
+	}
       }
     }
   }
   make_compressed();
 }
 
-void SparseMat::set_from_triplets(std::vector<Triplet>& tris) {
-  // Initialize this sparse matrix from treiplets like (row, col,
-  // value). For triplets having the same row# and col#, add them
+void SparseMat::set_from_doublets(std::vector<std::vector<Doublet>> &doubs) {
+  // Fill the Eigen::SparseMatrix efficiently, without allocating
+  // extra space or doing too much extra work (hopefully).  Each entry
+  // in doubs is a vector of Doublets for a single column of the
+  // matrix.  It may have multiple entries for a row, which need to be
+  // summed. 
+
+  // nnzcol is a vector of ints saying how many non-zero elements
+  // are in each column of the matrix.
+  Eigen::VectorXi nnzcol = Eigen::VectorXi::Zero(ncols());
+
+  // For each column, find and sum the redundant entries and reserve
+  // space in the Eigen::SparseMatrix for the resulting number of
+  // rows.
+  for(int c=0; c<ncols(); c++) { // Loop over columns
+    std::vector<Doublet> *dvec = &doubs[c]; // Doublets in this column
+    if(dvec->size() > 1) {
+      // Sort the entries in the column by row number
+      std::sort(dvec->begin(), dvec->end(),
+		[](const Doublet &a, const Doublet &b) {
+		  return a.row() < b.row();
+		});
+      // Look for adjacent entries with the same row number and add
+      // them, while compressing the vector. 
+      int nuniq = 1;		// number of unique rows found
+      int latest = 0;		// index of latest unique row
+      for(unsigned int k=1; k<dvec->size(); k++) { // loop over Doublets
+	if((*dvec)[k].row() == (*dvec)[latest].row()) {
+	  // Repeated row. Add this matrix element to the first one
+	  // found for this row, and don't increment latest or nuniq.
+	  (*dvec)[latest].value() += (*dvec)[k].value();
+	}
+	else {
+	  // Found a new row number
+	  (*dvec)[nuniq] = (*dvec)[k];
+	  latest = nuniq;
+	  ++nuniq;
+	}
+      }	// end loop over Doublets k
+      
+      // Truncate the vector of Doublets to its new length
+      dvec->resize(nuniq, Doublet(-1,0));
+      nnzcol[c] = nuniq;
+    } // end if dvec->size() > 1
+
+    else if(dvec->size() == 1)
+      nnzcol[c] = 1;
+
+  } // end loop over columns c
+
+  // Reserve space in the matrix.
+  data.reserve(nnzcol);
+
+  // Insert values
+  for(int c=0; c<ncols(); c++) {
+    for(const Doublet &doub : doubs[c]) {
+      data.insert(doub.row(), c) = doub.value();
+    }
+  }
+  // makeCompressed shouldn't have to move any values around.  The
+  // only reason to call it here is to free some unnecessary vectors
+  // and let the rest of Eigen know that the matrix is already
+  // compressed.
+  data.makeCompressed();
+}
+
+void SparseMat::set_from_triplets(std::vector<Eigen::Triplet<double>>& tris) {
+  // Initialize this sparse matrix from (row, col, value)
+  // triplets. For triplets having the same row# and col#, add them
   // together.
-  data.setFromTriplets(tris.begin(), tris.end(),
-    [] (const double& a, const double& b) { return a+b; });
+
+  // This method is simple but involves some internal array
+  // reallocation in Eigen and is expected to use more memory than
+  // set_from_doublets.
+  data.setFromTriplets(tris.begin(), tris.end());
 }
 
 bool SparseMat::is_nonempty_row(int i) const {
@@ -320,6 +395,11 @@ std::ostream& operator<<(std::ostream& os, const SparseMat& smat) {
   return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const Doublet& trip) {
+  os << "(" << trip.row() << ", " << trip.value() << ")";
+  return os;
+}
+
 bool save_market_mat(const SparseMat& mat, const std::string& filename, int sym) {
   return Eigen::saveMarket(mat.data, filename, sym);
 }
@@ -328,7 +408,9 @@ bool load_market_mat(SparseMat& mat, const std::string& filename) {
   return Eigen::loadMarket(mat.data, filename);
 }
 
-bool save_mat(const SparseMat& mat, const std::string& filename, int precision, int sym) {
+bool save_mat(const SparseMat& mat, const std::string& filename,
+	      int precision, int sym)
+{
   //TODO(lizhong): support symmetric matrix
 
   // Note: matrix needs to be compressed
@@ -397,7 +479,7 @@ bool load_mat(SparseMat& mat, const std::string& filename) {
   mat.resize(nr, nc);
 
   // read matrix elements
-  std::vector<Triplet> trips;
+  std::vector<Eigen::Triplet<double>> trips;
   trips.reserve(nnz);
   int r, c;
   double val;

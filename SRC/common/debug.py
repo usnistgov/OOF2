@@ -9,14 +9,19 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import threadstate
+from ooflib.common import mainthread
 from ooflib.common import parallel_enable
 from ooflib.common import thread_enable
 import ooflib.SWIG.common.lock
 
 import gc
+import os
 import string
 import sys
+import traceback
 import types
+
+
 
 _debug_mode = 0
 
@@ -40,8 +45,6 @@ def clear_debug_mode():
 
 def debug():
     return _debug_mode
-
-import traceback
 
 def dumpTrace(start=0, end=-1):
     ## Use start=-3, end=-2 if you only want to see the calling
@@ -141,9 +144,6 @@ def fmsg(*args):
             lock.release()
 
 
-from ooflib.common import mainthread
-import os
-
 def mainthreadTest():
     if _debug_mode:
         if not mainthread.mainthread():
@@ -198,3 +198,5 @@ def dumpReferrers(obj, levels=0, exclude=[], _level=0):
                     dumpReferrers(ref, levels,
                                   exclude=exclude+[locals(), refs], 
                                   _level=_level+1)
+
+

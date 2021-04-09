@@ -488,11 +488,11 @@ class NonlinearPropertyTest(unittest.TestCase):
                 time_stepper=StaticDriver(),
                 nonlinear_solver=test_solver,
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000),
                 asymmetric_solver=BiConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
 
@@ -906,11 +906,11 @@ class NonlinearPropertyTest(unittest.TestCase):
                 time_stepper=StaticDriver(),
                 nonlinear_solver=test_solver,
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000),
                 asymmetric_solver=BiConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
 

@@ -94,7 +94,7 @@ namespace Eigen
     const KnotVectorType& knots() const { return m_knots; }
     
     /**
-     * \brief Returns the knots of the underlying spline.
+     * \brief Returns the ctrls of the underlying spline.
      **/    
     const ControlPointVectorType& ctrls() const { return m_ctrls; }
 
@@ -191,7 +191,7 @@ namespace Eigen
     DenseIndex span(Scalar u) const;
 
     /**
-     * \brief Computes the spang within the provided knot vector in which u is falling.
+     * \brief Computes the span within the provided knot vector in which u is falling.
      **/
     static DenseIndex Span(typename SplineTraits<Spline>::Scalar u, DenseIndex degree, const typename SplineTraits<Spline>::KnotVectorType& knots);
     
@@ -249,8 +249,6 @@ namespace Eigen
     DenseIndex degree,
     const typename Spline<_Scalar, _Dim, _Degree>::KnotVectorType& knots)
   {
-    typedef typename Spline<_Scalar, _Dim, _Degree>::BasisVectorType BasisVectorType;
-
     const DenseIndex p = degree;
     const DenseIndex i = Spline::Span(u, degree, knots);
 
@@ -380,9 +378,6 @@ namespace Eigen
     typedef Spline<_Scalar, _Dim, _Degree> SplineType;
     enum { Order = SplineTraits<SplineType>::OrderAtCompileTime };
 
-    typedef typename SplineTraits<SplineType>::Scalar Scalar;
-    typedef typename SplineTraits<SplineType>::BasisVectorType BasisVectorType;
-  
     const DenseIndex span = SplineType::Span(u, p, U);
 
     const DenseIndex n = (std::min)(p, order);
@@ -394,7 +389,7 @@ namespace Eigen
 
     Matrix<Scalar,Order,Order> ndu(p+1,p+1);
 
-    double saved, temp;
+    Scalar saved, temp; // FIXME These were double instead of Scalar. Was there a reason for that?
 
     ndu(0,0) = 1.0;
 
@@ -433,7 +428,7 @@ namespace Eigen
       // Compute the k-th derivative
       for (DenseIndex k=1; k<=static_cast<DenseIndex>(n); ++k)
       {
-        double d = 0.0;
+        Scalar d = 0.0;
         DenseIndex rk,pk,j1,j2;
         rk = r-k; pk = p-k;
 

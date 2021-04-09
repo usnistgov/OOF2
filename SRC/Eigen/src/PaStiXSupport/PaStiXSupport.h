@@ -64,28 +64,28 @@ namespace internal
     typedef typename _MatrixType::StorageIndex StorageIndex;
   };
   
-  void eigen_pastix(pastix_data_t **pastix_data, int pastix_comm, int n, int *ptr, int *idx, float *vals, int *perm, int * invp, float *x, int nbrhs, int *iparm, double *dparm)
+  inline void eigen_pastix(pastix_data_t **pastix_data, int pastix_comm, int n, int *ptr, int *idx, float *vals, int *perm, int * invp, float *x, int nbrhs, int *iparm, double *dparm)
   {
     if (n == 0) { ptr = NULL; idx = NULL; vals = NULL; }
     if (nbrhs == 0) {x = NULL; nbrhs=1;}
     s_pastix(pastix_data, pastix_comm, n, ptr, idx, vals, perm, invp, x, nbrhs, iparm, dparm); 
   }
   
-  void eigen_pastix(pastix_data_t **pastix_data, int pastix_comm, int n, int *ptr, int *idx, double *vals, int *perm, int * invp, double *x, int nbrhs, int *iparm, double *dparm)
+  inline void eigen_pastix(pastix_data_t **pastix_data, int pastix_comm, int n, int *ptr, int *idx, double *vals, int *perm, int * invp, double *x, int nbrhs, int *iparm, double *dparm)
   {
     if (n == 0) { ptr = NULL; idx = NULL; vals = NULL; }
     if (nbrhs == 0) {x = NULL; nbrhs=1;}
     d_pastix(pastix_data, pastix_comm, n, ptr, idx, vals, perm, invp, x, nbrhs, iparm, dparm); 
   }
   
-  void eigen_pastix(pastix_data_t **pastix_data, int pastix_comm, int n, int *ptr, int *idx, std::complex<float> *vals, int *perm, int * invp, std::complex<float> *x, int nbrhs, int *iparm, double *dparm)
+  inline void eigen_pastix(pastix_data_t **pastix_data, int pastix_comm, int n, int *ptr, int *idx, std::complex<float> *vals, int *perm, int * invp, std::complex<float> *x, int nbrhs, int *iparm, double *dparm)
   {
     if (n == 0) { ptr = NULL; idx = NULL; vals = NULL; }
     if (nbrhs == 0) {x = NULL; nbrhs=1;}
     c_pastix(pastix_data, pastix_comm, n, ptr, idx, reinterpret_cast<PASTIX_COMPLEX*>(vals), perm, invp, reinterpret_cast<PASTIX_COMPLEX*>(x), nbrhs, iparm, dparm); 
   }
   
-  void eigen_pastix(pastix_data_t **pastix_data, int pastix_comm, int n, int *ptr, int *idx, std::complex<double> *vals, int *perm, int * invp, std::complex<double> *x, int nbrhs, int *iparm, double *dparm)
+  inline void eigen_pastix(pastix_data_t **pastix_data, int pastix_comm, int n, int *ptr, int *idx, std::complex<double> *vals, int *perm, int * invp, std::complex<double> *x, int nbrhs, int *iparm, double *dparm)
   {
     if (n == 0) { ptr = NULL; idx = NULL; vals = NULL; }
     if (nbrhs == 0) {x = NULL; nbrhs=1;}
@@ -141,6 +141,10 @@ class PastixBase : public SparseSolverBase<Derived>
     typedef typename MatrixType::StorageIndex StorageIndex;
     typedef Matrix<Scalar,Dynamic,1> Vector;
     typedef SparseMatrix<Scalar, ColMajor> ColSpMatrix;
+    enum {
+      ColsAtCompileTime = MatrixType::ColsAtCompileTime,
+      MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime
+    };
     
   public:
     
@@ -180,7 +184,7 @@ class PastixBase : public SparseSolverBase<Derived>
       * The statistics related to the different phases of factorization and solve are saved here as well
       * \sa analyzePattern() factorize()
       */
-    Array<RealScalar,IPARM_SIZE,1>& dparm()
+    Array<double,DPARM_SIZE,1>& dparm()
     {
       return m_dparm; 
     }
@@ -240,8 +244,8 @@ class PastixBase : public SparseSolverBase<Derived>
     mutable ComputationInfo m_info; 
     mutable pastix_data_t *m_pastixdata; // Data structure for pastix
     mutable int m_comm; // The MPI communicator identifier
-    mutable Matrix<int,IPARM_SIZE,1> m_iparm; // integer vector for the input parameters
-    mutable Matrix<double,DPARM_SIZE,1> m_dparm; // Scalar vector for the input parameters
+    mutable Array<int,IPARM_SIZE,1> m_iparm; // integer vector for the input parameters
+    mutable Array<double,DPARM_SIZE,1> m_dparm; // Scalar vector for the input parameters
     mutable Matrix<StorageIndex,Dynamic,1> m_perm;  // Permutation vector
     mutable Matrix<StorageIndex,Dynamic,1> m_invp;  // Inverse permutation vector
     mutable int m_size; // Size of the matrix 
@@ -264,7 +268,7 @@ void PastixBase<Derived>::init()
          0, 0, 0, 1, m_iparm.data(), m_dparm.data());
   
   m_iparm[IPARM_MATRIX_VERIFICATION] = API_NO;
-  m_iparm[IPARM_VERBOSE]             = 2;
+  m_iparm[IPARM_VERBOSE]             = API_VERBOSE_NOT;
   m_iparm[IPARM_ORDERING]            = API_ORDER_SCOTCH;
   m_iparm[IPARM_INCOMPLETE]          = API_NO;
   m_iparm[IPARM_OOC_LIMIT]           = 2000;
@@ -401,7 +405,7 @@ bool PastixBase<Base>::_solve_impl(const MatrixBase<Rhs> &b, MatrixBase<Dest> &x
   *
   * \implsparsesolverconcept
   *
-  * \sa \ref TutorialSparseDirectSolvers
+  * \sa \ref TutorialSparseSolverConcept, class SparseLU
   * 
   */
 template<typename _MatrixType, bool IsStrSym>
@@ -514,7 +518,7 @@ class PastixLU : public PastixBase< PastixLU<_MatrixType> >
   *
   * \implsparsesolverconcept
   *
-  * \sa \ref TutorialSparseDirectSolvers
+  * \sa \ref TutorialSparseSolverConcept, class SimplicialLLT
   */
 template<typename _MatrixType, int _UpLo>
 class PastixLLT : public PastixBase< PastixLLT<_MatrixType, _UpLo> >
@@ -577,6 +581,7 @@ class PastixLLT : public PastixBase< PastixLLT<_MatrixType, _UpLo> >
     
     void grabMatrix(const MatrixType& matrix, ColSpMatrix& out)
     {
+      out.resize(matrix.rows(), matrix.cols());
       // Pastix supports only lower, column-major matrices 
       out.template selfadjointView<Lower>() = matrix.template selfadjointView<UpLo>();
       internal::c_to_fortran_numbering(out);
@@ -597,7 +602,7 @@ class PastixLLT : public PastixBase< PastixLLT<_MatrixType, _UpLo> >
   *
   * \implsparsesolverconcept
   *
-  * \sa \ref TutorialSparseDirectSolvers
+  * \sa \ref TutorialSparseSolverConcept, class SimplicialLDLT
   */
 template<typename _MatrixType, int _UpLo>
 class PastixLDLT : public PastixBase< PastixLDLT<_MatrixType, _UpLo> >
@@ -662,6 +667,7 @@ class PastixLDLT : public PastixBase< PastixLDLT<_MatrixType, _UpLo> >
     void grabMatrix(const MatrixType& matrix, ColSpMatrix& out)
     {
       // Pastix supports only lower, column-major matrices 
+      out.resize(matrix.rows(), matrix.cols());
       out.template selfadjointView<Lower>() = matrix.template selfadjointView<UpLo>();
       internal::c_to_fortran_numbering(out);
     }

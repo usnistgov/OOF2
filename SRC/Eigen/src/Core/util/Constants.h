@@ -30,6 +30,14 @@ const int DynamicIndex = 0xffffff;
   */
 const int Infinity = -1;
 
+/** This value means that the cost to evaluate an expression coefficient is either very expensive or
+  * cannot be known at compile time.
+  *
+  * This value has to be positive to (1) simplify cost computation, and (2) allow to distinguish between a very expensive and very very expensive expressions.
+  * It thus must also be large enough to make sure unrolling won't happen and that sub expressions will be evaluated, but not too large to avoid overflow.
+  */
+const int HugeCost = 10000;
+
 /** \defgroup flags Flags
   * \ingroup Core_Module
   *
@@ -48,8 +56,8 @@ const int Infinity = -1;
   * for a matrix, this means that the storage order is row-major.
   * If this bit is not set, the storage order is column-major.
   * For an expression, this determines the storage order of
-  * the matrix created by evaluation of that expression. 
-  * \sa \ref TopicStorageOrders */
+  * the matrix created by evaluation of that expression.
+  * \sa \blank  \ref TopicStorageOrders */
 const unsigned int RowMajorBit = 0x1;
 
 /** \ingroup flags
@@ -59,6 +67,7 @@ const unsigned int EvalBeforeNestingBit = 0x2;
 /** \ingroup flags
   * \deprecated
   * means the expression should be evaluated before any assignment */
+EIGEN_DEPRECATED
 const unsigned int EvalBeforeAssigningBit = 0x4; // FIXME deprecated
 
 /** \ingroup flags
@@ -150,7 +159,7 @@ const unsigned int DirectAccessBit = 0x40;
   * expression.packet<Aligned>(0);
   * \endcode
   */
-const unsigned int AlignedBit = 0x80;
+EIGEN_DEPRECATED const unsigned int AlignedBit = 0x80;
 
 const unsigned int NestByRefBit = 0x100;
 
@@ -160,7 +169,7 @@ const unsigned int NestByRefBit = 0x100;
   * can be either row-major or column-major.
   * The precise choice will be decided at evaluation time or when
   * combined with other expressions.
-  * \sa \ref RowMajorBit, \ref TopicStorageOrders */
+  * \sa \blank  \ref RowMajorBit, \ref TopicStorageOrders */
 const unsigned int NoPreferredStorageOrderBit = 0x200;
 
 /** \ingroup flags
@@ -179,8 +188,7 @@ const unsigned int CompressedAccessBit = 0x400;
 
 // list of flags that are inherited by default
 const unsigned int HereditaryBits = RowMajorBit
-                                  | EvalBeforeNestingBit
-                                  | EvalBeforeAssigningBit;
+                                  | EvalBeforeNestingBit;
 
 /** \defgroup enums Enumerations
   * \ingroup Core_Module
@@ -191,7 +199,7 @@ const unsigned int HereditaryBits = RowMajorBit
 /** \ingroup enums
   * Enum containing possible values for the \c Mode or \c UpLo parameter of
   * MatrixBase::selfadjointView() and MatrixBase::triangularView(), and selfadjoint solvers. */
-enum {
+enum UpLoType {
   /** View matrix as a lower triangular matrix. */
   Lower=0x1,                      
   /** View matrix as an upper triangular matrix. */
@@ -216,7 +224,7 @@ enum {
 
 /** \ingroup enums
   * Enum for indicating whether a buffer is aligned or not. */
-enum { 
+enum AlignmentType {
   Unaligned=0,        /**< Data pointer has no specific alignment. */
   Aligned8=8,         /**< Data pointer is aligned on a 8 bytes boundary. */
   Aligned16=16,       /**< Data pointer is aligned on a 16 bytes boundary. */
@@ -265,7 +273,7 @@ enum DirectionType {
 
 /** \internal \ingroup enums
   * Enum to specify how to traverse the entries of a matrix. */
-enum {
+enum TraversalType {
   /** \internal Default traversal, no vectorization, no index-based access */
   DefaultTraversal,
   /** \internal No vectorization, use index-based access to have only one for loop instead of 2 nested loops */
@@ -287,7 +295,7 @@ enum {
 
 /** \internal \ingroup enums
   * Enum to specify whether to unroll loops when traversing over the entries of a matrix. */
-enum {
+enum UnrollingType {
   /** \internal Do not unroll loops. */
   NoUnrolling,
   /** \internal Unroll only the inner loop, but not the outer loop. */
@@ -299,7 +307,7 @@ enum {
 
 /** \internal \ingroup enums
   * Enum to specify whether to use the default (built-in) implementation or the specialization. */
-enum {
+enum SpecializedType {
   Specialized,
   BuiltIn
 };
@@ -307,7 +315,7 @@ enum {
 /** \ingroup enums
   * Enum containing possible values for the \p _Options template parameter of
   * Matrix, Array and BandMatrix. */
-enum {
+enum StorageOptions {
   /** Storage order is column major (see \ref TopicStorageOrders). */
   ColMajor = 0,
   /** Storage order is row major (see \ref TopicStorageOrders). */
@@ -320,7 +328,7 @@ enum {
 
 /** \ingroup enums
   * Enum for specifying whether to apply or solve on the left or right. */
-enum {
+enum SideType {
   /** Apply transformation on the left. */
   OnTheLeft = 1,  
   /** Apply transformation on the right. */
@@ -345,7 +353,7 @@ enum Default_t    { Default };
 
 /** \internal \ingroup enums
   * Used in AmbiVector. */
-enum {
+enum AmbiVectorMode {
   IsDense         = 0,
   IsSparse
 };
@@ -471,8 +479,9 @@ namespace Architecture
 }
 
 /** \internal \ingroup enums
-  * Enum used as template parameter in Product and product evalautors. */
-enum { DefaultProduct=0, LazyProduct, AliasFreeProduct, CoeffBasedProductMode, LazyCoeffBasedProductMode, OuterProduct, InnerProduct, GemvProduct, GemmProduct };
+  * Enum used as template parameter in Product and product evaluators. */
+enum ProductImplType
+{ DefaultProduct=0, LazyProduct, AliasFreeProduct, CoeffBasedProductMode, LazyCoeffBasedProductMode, OuterProduct, InnerProduct, GemvProduct, GemmProduct };
 
 /** \internal \ingroup enums
   * Enum used in experimental parallel implementation. */
@@ -483,6 +492,9 @@ struct Dense {};
 
 /** The type used to identify a general sparse storage. */
 struct Sparse {};
+
+/** The type used to identify a general solver (factored) storage. */
+struct SolverStorage {};
 
 /** The type used to identify a permutation storage. */
 struct PermutationStorage {};
@@ -498,6 +510,7 @@ struct ArrayXpr {};
 
 // An evaluator must define its shape. By default, it can be one of the following:
 struct DenseShape             { static std::string debugName() { return "DenseShape"; } };
+struct SolverShape            { static std::string debugName() { return "SolverShape"; } };
 struct HomogeneousShape       { static std::string debugName() { return "HomogeneousShape"; } };
 struct DiagonalShape          { static std::string debugName() { return "DiagonalShape"; } };
 struct BandShape              { static std::string debugName() { return "BandShape"; } };
@@ -523,7 +536,9 @@ enum ComparisonName {
   cmp_LT = 1,
   cmp_LE = 2,
   cmp_UNORD = 3,
-  cmp_NEQ = 4
+  cmp_NEQ = 4,
+  cmp_GT = 5,
+  cmp_GE = 6
 };
 } // end namespace internal
 

@@ -13,7 +13,7 @@
 
 namespace Eigen { 
 
-/** \geometry_module
+/** \geometry_module \ingroup Geometry_Module
   *
   * \returns the cross product of \c *this and \a other
   *
@@ -26,7 +26,11 @@ namespace Eigen {
   */
 template<typename Derived>
 template<typename OtherDerived>
-inline typename MatrixBase<Derived>::template cross_product_return_type<OtherDerived>::type
+#ifndef EIGEN_PARSED_BY_DOXYGEN
+EIGEN_DEVICE_FUNC inline typename MatrixBase<Derived>::template cross_product_return_type<OtherDerived>::type
+#else
+inline typename MatrixBase<Derived>::PlainObject
+#endif
 MatrixBase<Derived>::cross(const MatrixBase<OtherDerived>& other) const
 {
   EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived,3)
@@ -49,7 +53,7 @@ template< int Arch,typename VectorLhs,typename VectorRhs,
           typename Scalar = typename VectorLhs::Scalar,
           bool Vectorizable = bool((VectorLhs::Flags&VectorRhs::Flags)&PacketAccessBit)>
 struct cross3_impl {
-  static inline typename internal::plain_matrix_type<VectorLhs>::type
+  EIGEN_DEVICE_FUNC static inline typename internal::plain_matrix_type<VectorLhs>::type
   run(const VectorLhs& lhs, const VectorRhs& rhs)
   {
     return typename internal::plain_matrix_type<VectorLhs>::type(
@@ -63,7 +67,7 @@ struct cross3_impl {
 
 }
 
-/** \geometry_module
+/** \geometry_module \ingroup Geometry_Module
   *
   * \returns the cross product of \c *this and \a other using only the x, y, and z coefficients
   *
@@ -74,7 +78,7 @@ struct cross3_impl {
   */
 template<typename Derived>
 template<typename OtherDerived>
-inline typename MatrixBase<Derived>::PlainObject
+EIGEN_DEVICE_FUNC inline typename MatrixBase<Derived>::PlainObject
 MatrixBase<Derived>::cross3(const MatrixBase<OtherDerived>& other) const
 {
   EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Derived,4)
@@ -90,17 +94,18 @@ MatrixBase<Derived>::cross3(const MatrixBase<OtherDerived>& other) const
                         typename internal::remove_all<OtherDerivedNested>::type>::run(lhs,rhs);
 }
 
-/** \returns a matrix expression of the cross product of each column or row
+/** \geometry_module \ingroup Geometry_Module
+  *
+  * \returns a matrix expression of the cross product of each column or row
   * of the referenced expression with the \a other vector.
   *
   * The referenced matrix must have one dimension equal to 3.
   * The result matrix has the same dimensions than the referenced one.
   *
-  * \geometry_module
-  *
   * \sa MatrixBase::cross() */
 template<typename ExpressionType, int Direction>
 template<typename OtherDerived>
+EIGEN_DEVICE_FUNC 
 const typename VectorwiseOp<ExpressionType,Direction>::CrossReturnType
 VectorwiseOp<ExpressionType,Direction>::cross(const MatrixBase<OtherDerived>& other) const
 {
@@ -207,7 +212,9 @@ struct unitOrthogonal_selector<Derived,2>
 
 } // end namespace internal
 
-/** \returns a unit vector which is orthogonal to \c *this
+/** \geometry_module \ingroup Geometry_Module
+  *
+  * \returns a unit vector which is orthogonal to \c *this
   *
   * The size of \c *this must be at least 2. If the size is exactly 2,
   * then the returned vector is a counter clock wise rotation of \c *this, i.e., (-y,x).normalized().
@@ -215,7 +222,7 @@ struct unitOrthogonal_selector<Derived,2>
   * \sa cross()
   */
 template<typename Derived>
-typename MatrixBase<Derived>::PlainObject
+EIGEN_DEVICE_FUNC typename MatrixBase<Derived>::PlainObject
 MatrixBase<Derived>::unitOrthogonal() const
 {
   EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)

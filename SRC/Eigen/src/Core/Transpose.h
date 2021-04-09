@@ -13,20 +13,6 @@
 
 namespace Eigen { 
 
-/** \class Transpose
-  * \ingroup Core_Module
-  *
-  * \brief Expression of the transpose of a matrix
-  *
-  * \param MatrixType the type of the object of which we are taking the transpose
-  *
-  * This class represents an expression of the transpose of a matrix.
-  * It is the return type of MatrixBase::transpose() and MatrixBase::adjoint()
-  * and most of the time this is the only way it is used.
-  *
-  * \sa MatrixBase::transpose(), MatrixBase::adjoint()
-  */
-
 namespace internal {
 template<typename MatrixType>
 struct traits<Transpose<MatrixType> > : public traits<MatrixType>
@@ -39,7 +25,7 @@ struct traits<Transpose<MatrixType> > : public traits<MatrixType>
     MaxRowsAtCompileTime = MatrixType::MaxColsAtCompileTime,
     MaxColsAtCompileTime = MatrixType::MaxRowsAtCompileTime,
     FlagsLvalueBit = is_lvalue<MatrixType>::value ? LvalueBit : 0,
-    Flags0 = MatrixTypeNestedPlain::Flags & ~(LvalueBit | NestByRefBit),
+    Flags0 = traits<MatrixTypeNestedPlain>::Flags & ~(LvalueBit | NestByRefBit),
     Flags1 = Flags0 | FlagsLvalueBit,
     Flags = Flags1 ^ RowMajorBit,
     InnerStrideAtCompileTime = inner_stride_at_compile_time<MatrixType>::ret,
@@ -50,10 +36,25 @@ struct traits<Transpose<MatrixType> > : public traits<MatrixType>
 
 template<typename MatrixType, typename StorageKind> class TransposeImpl;
 
+/** \class Transpose
+  * \ingroup Core_Module
+  *
+  * \brief Expression of the transpose of a matrix
+  *
+  * \tparam MatrixType the type of the object of which we are taking the transpose
+  *
+  * This class represents an expression of the transpose of a matrix.
+  * It is the return type of MatrixBase::transpose() and MatrixBase::adjoint()
+  * and most of the time this is the only way it is used.
+  *
+  * \sa MatrixBase::transpose(), MatrixBase::adjoint()
+  */
 template<typename MatrixType> class Transpose
   : public TransposeImpl<MatrixType,typename internal::traits<MatrixType>::StorageKind>
 {
   public:
+
+    typedef typename internal::ref_selector<MatrixType>::non_const_type MatrixTypeNested;
 
     typedef typename TransposeImpl<MatrixType,typename internal::traits<MatrixType>::StorageKind>::Base Base;
     EIGEN_GENERIC_PUBLIC_INTERFACE(Transpose)
@@ -69,16 +70,21 @@ template<typename MatrixType> class Transpose
 
     /** \returns the nested expression */
     EIGEN_DEVICE_FUNC
-    const typename internal::remove_all<typename MatrixType::Nested>::type&
+    const typename internal::remove_all<MatrixTypeNested>::type&
     nestedExpression() const { return m_matrix; }
 
     /** \returns the nested expression */
     EIGEN_DEVICE_FUNC
-    typename internal::remove_all<typename MatrixType::Nested>::type&
-    nestedExpression() { return m_matrix.const_cast_derived(); }
+    typename internal::remove_reference<MatrixTypeNested>::type&
+    nestedExpression() { return m_matrix; }
+
+    /** \internal */
+    void resize(Index nrows, Index ncols) {
+      m_matrix.resize(ncols,nrows);
+    }
 
   protected:
-    typename MatrixType::Nested m_matrix;
+    typename internal::ref_selector<MatrixType>::non_const_type m_matrix;
 };
 
 namespace internal {
@@ -140,6 +146,8 @@ template<typename MatrixType> class TransposeImpl<MatrixType,Dense>
     {
       return derived().nestedExpression().coeffRef(index);
     }
+  protected:
+    EIGEN_DEFAULT_EMPTY_CONSTRUCTOR_AND_DESTRUCTOR(TransposeImpl)
 };
 
 /** \returns an expression of the transpose of *this.

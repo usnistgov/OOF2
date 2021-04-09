@@ -14,6 +14,7 @@
 #include <utility>		// for std::pair
 #include <vector>
 
+#include "common/cdebug.h"
 #include "common/cleverptr.h"
 #include "common/doublevec.h"
 #include "common/lock.h"
@@ -594,11 +595,12 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   const
 {
   double time = linearsystem->time();
+  memusage("Start of make_linear_system (C)");
+  linearsystem->allocateDoublets();
 
   DefiniteProgress *progress =
     dynamic_cast<DefiniteProgress*>(getProgress("Building linear system",
 						DEFINITE));
-  
   // TODO TDEP: The first thing we want to do for each element is
   // determine the integration order, so we know how many gausspoints
   // there are, and then signal to all the elements, so they can
@@ -607,6 +609,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   // TODO TDEP: Order of integration is implicit in the element
   // gausspoints, which have been set (along with any gpdofs) by the
   // mesh.
+
 
 #ifdef _OPENMP
   // extract elements for this subproblem. Because OpenMP for loop 
@@ -681,15 +684,36 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 
 #else // _OPENMP
 
+  // TOOD MEMORY MANAGEMENT:
+  // If we want to pre-allocate the triplet vectors in the linearized
+  // system, this is more or less our last chance.  Candidate
+  // estimate: # of nodes x connectivity of the nodes x # of DOFs in
+  // the problem.  Can get nodes from funcode_iterator().size().
+  // There is an n_active_field attribute, but it does not have
+  // field dimensions.  There's an "ndof" function, which returns
+  // the # of degrees of freedom, but includes both static and
+  // time-derivative values, which is more than we want here.
+
+  int counter = 0; 
+  memusage("Start ElementIterator for loop (C)");
+
   for(ElementIterator ei=element_iterator(); !ei.end() && !progress->stopped();
       ++ei)
   {
+     if(counter % 1000 == 0) {
+	memusage("ElementIterator for loop % 1000 step (C)");
+        }
+
     ei.element()->make_linear_system( this, time, nlsolver, *linearsystem );
     progress->setFraction( float(ei.count()+1)/float(ei.size()) );
     progress->setMessage(to_string(ei.count()+1) + "/" + to_string(ei.size())
   		   + " elements");
+     counter++;
+
   }
 #endif // _OPENMP
+
+  memusage("endif _OPENMP (C)");
 
   //Interface branch
   //TODO: Write an InterfaceElementIterator for the subproblem.
@@ -707,11 +731,16 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   if(progress->stopped()) {
     throw ErrInterrupted();
   }
+  memusage("Before Consolidate Linear system (C)");
 
-  linearsystem->consolidate();
+  // The argument to consolidate tells it whether or not to preserve
+  // the temp space that it uses when building the matrices.  If the
+  // problem is nonlinear, the space will be needed again.
+  linearsystem->consolidate(nlsolver->nonlinear());
 
   //std::cerr << "CSubProblem::make_linear_system exiting." << std::endl;
   //linearsystem->dumpAll("junk.out",time,"MLS exit");
+  memusage("End of make_linear_system");
 } // end of 'CSubProblem::make_linear_system'
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

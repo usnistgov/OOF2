@@ -406,6 +406,18 @@ settingsmenu.addItem(oofmenu.OOFMenuItem(
         params=[parameter.IntParameter('seed', 17)]
         ))
 
+################################
+
+def _annotatelogmenucallback(menutiem, message):
+    reporter.report(message)
+
+_annotatelogmenu = _filemenu.addItem(OOFMenuItem(
+    'Annotate_Log',
+    help="Write a message to the log file",
+    discussion="<para>Write info directly to the log file.</para>",
+    callback = _annotatelogmenucallback,
+    params=[parameter.StringParameter(name="message"),]
+    ))
 
 ##################################
 
@@ -539,8 +551,27 @@ if debug.debug():
         accel='d',
         threadable=oofmenu.UNTHREADABLE))
         
+####
 
+def _startMemMonitor(menuitem, filename):
+    utils.startMemoryMonitor(filename)
 
+def _stopMemMonitor(menuitem):
+    utils.stopMemoryMonitor()
+
+memmenu = debugmenu.addItem(OOFMenuItem('Memory_Monitor'))
+
+memmenu.addItem(OOFMenuItem(
+    'Start',
+    callback=_startMemMonitor,
+    params=[filenameparam.WriteFileNameParameter("filename")],
+    ))
+
+memmenu.addItem(OOFMenuItem(
+    'Stop',
+    callback=_stopMemMonitor))
+
+####
 
 def setWarnPopups(menuitem, value):
     reporter.messagemanager.set_warning_pop_up(value)

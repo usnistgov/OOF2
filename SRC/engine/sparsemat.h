@@ -23,8 +23,29 @@ enum class Precond;
 template<typename Derived> class IterativeSolver;
 template<typename Derived> class DirectSolver;
 
-typedef Eigen::Triplet<double> Triplet;
 typedef Eigen::SparseMatrix<double, Eigen::ColMajor> ESMat;
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Doublet contains a row index and matrix element.  It's used when
+// constructing the SparseMat.  It's basically the same as
+// Eigen::Triplet<double>, but allows the value to be altered and
+// doesn't contain the column index.
+
+class Doublet {
+private:
+  int row_;
+  double val_;
+public:
+  Doublet(int r, double x) : row_(r), val_(x) {}
+  double value() const { return val_; }
+  double &value() { return val_; }
+  int row() const { return row_; }
+};
+
+std::ostream &operator<<(std::ostream& os, const Doublet& t);
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 /* SparseMat class wraps Eigen's SparseMatrix */
 
@@ -44,7 +65,8 @@ public:
   SparseMat& operator=(SparseMat&&) = default; // move assignment
   ~SparseMat() = default;
   SparseMat clone() const { return *this; }
-  void set_from_triplets(std::vector<Triplet>&);
+  void set_from_doublets(std::vector<std::vector<Doublet>>&); // efficient way
+  void set_from_triplets(std::vector<Eigen::Triplet<double>>&); // old way
 
   // TODO(lizhong): inline possible methods
 

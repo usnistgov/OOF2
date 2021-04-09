@@ -21,7 +21,6 @@ namespace internal {
 template<> struct is_arithmetic<float4>  { enum { value = true }; };
 template<> struct is_arithmetic<double2> { enum { value = true }; };
 
-
 template<> struct packet_traits<float> : default_packet_traits
 {
   typedef float4 type;
@@ -39,6 +38,15 @@ template<> struct packet_traits<float> : default_packet_traits
     HasExp  = 1,
     HasSqrt = 1,
     HasRsqrt = 1,
+    HasLGamma = 1,
+    HasDiGamma = 1,
+    HasZeta = 1,
+    HasPolygamma = 1,
+    HasErf = 1,
+    HasErfc = 1,
+    HasIGamma = 1,
+    HasIGammac = 1,
+    HasBetaInc = 1,
 
     HasBlend = 0,
   };
@@ -59,6 +67,15 @@ template<> struct packet_traits<double> : default_packet_traits
     HasExp  = 1,
     HasSqrt = 1,
     HasRsqrt = 1,
+    HasLGamma = 1,
+    HasDiGamma = 1,
+    HasZeta = 1,
+    HasPolygamma = 1,
+    HasErf = 1,
+    HasErfc = 1,
+    HasIGamma = 1,
+    HasIGammac = 1,
+    HasBetaInc = 1,
 
     HasBlend = 0,
   };
@@ -177,25 +194,39 @@ template<> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void pstoreu<double>(double* to
   to[1] = from.y;
 }
 
-#ifdef __CUDA_ARCH__
 template<>
 EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE float4 ploadt_ro<float4, Aligned>(const float* from) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 350
   return __ldg((const float4*)from);
+#else
+  return make_float4(from[0], from[1], from[2], from[3]);
+#endif
 }
 template<>
 EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE double2 ploadt_ro<double2, Aligned>(const double* from) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 350
   return __ldg((const double2*)from);
+#else
+  return make_double2(from[0], from[1]);
+#endif
 }
 
 template<>
 EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE float4 ploadt_ro<float4, Unaligned>(const float* from) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 350
   return make_float4(__ldg(from+0), __ldg(from+1), __ldg(from+2), __ldg(from+3));
+#else
+  return make_float4(from[0], from[1], from[2], from[3]);
+#endif
 }
 template<>
 EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE double2 ploadt_ro<double2, Unaligned>(const double* from) {
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 350
   return make_double2(__ldg(from+0), __ldg(from+1));
-}
+#else
+  return make_double2(from[0], from[1]);
 #endif
+}
 
 template<> EIGEN_DEVICE_FUNC inline float4 pgather<float, float4>(const float* from, Index stride) {
   return make_float4(from[0*stride], from[1*stride], from[2*stride], from[3*stride]);
@@ -258,10 +289,9 @@ template<> EIGEN_DEVICE_FUNC inline double2 pabs<double2>(const double2& a) {
   return make_double2(fabs(a.x), fabs(a.y));
 }
 
-
 EIGEN_DEVICE_FUNC inline void
 ptranspose(PacketBlock<float4,4>& kernel) {
-  double tmp = kernel.packet[0].y;
+  float tmp = kernel.packet[0].y;
   kernel.packet[0].y = kernel.packet[1].x;
   kernel.packet[1].x = tmp;
 

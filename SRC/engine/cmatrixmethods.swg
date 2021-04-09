@@ -20,9 +20,11 @@
 typedef CG<Precond::Uncond> CG_Unpre;
 typedef CG<Precond::Diag> CG_Diag;
 typedef CG<Precond::ILUT> CG_ILUT;
+typedef CG<Precond::IC> CG_IC;
 typedef BiCGStab<Precond::Uncond> BiCGStab_Unpre;
 typedef BiCGStab<Precond::Diag> BiCGStab_Diag;
 typedef BiCGStab<Precond::ILUT> BiCGStab_ILUT;
+typedef BiCGStab<Precond::IC> BiCGStab_IC;
 %}
 
 enum Info {
@@ -58,10 +60,23 @@ public:
   double error() const;
 };
 
-class CG_ILUT{
+class CG_ILUT {
 public:
   CG_ILUT();
   ~CG_ILUT();
+  int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
+  void set_max_iterations(int iters);
+  int max_iterations() const;
+  void set_tolerance(double tol);
+  double tolerance() const;
+  int iterations() const;
+  double error() const;
+};
+
+class CG_IC {
+public:
+  CG_IC();
+  ~CG_IC();
   int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
   void set_max_iterations(int iters);
   int max_iterations() const;
@@ -110,6 +125,19 @@ public:
   double error() const;
 };
 
+class BiCGStab_IC {
+public:
+  BiCGStab_IC();
+  ~BiCGStab_IC();
+  int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
+  void set_max_iterations(int iters);
+  int max_iterations() const;
+  void set_tolerance(double tol);
+  double tolerance() const;
+  int iterations() const;
+  double error() const;
+};
+
 class SimplicialLLT {
 public:
   SimplicialLLT();
@@ -137,6 +165,8 @@ public:
   ~SparseQR();
   int solve(const SparseMat& m, const DoubleVec& rhs, DoubleVec& x);
 };
+
+// TODO: Are these typemaps used?  Leftover from the pre-Eigen days?
 
 %typemap(python, argout) int INOUT {
   // typemap(python, argout) int INOUT

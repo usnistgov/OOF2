@@ -138,6 +138,8 @@ class DenseCoeffsBase<Derived,ReadOnlyAccessors> : public EigenBase<Derived>
     EIGEN_STRONG_INLINE CoeffReturnType
     coeff(Index index) const
     {
+      EIGEN_STATIC_ASSERT(internal::evaluator<Derived>::Flags & LinearAccessBit,
+                          THIS_COEFFICIENT_ACCESSOR_TAKING_ONE_ACCESS_IS_ONLY_FOR_EXPRESSIONS_ALLOWING_LINEAR_ACCESS)
       eigen_internal_assert(index >= 0 && index < size());
       return internal::evaluator<Derived>(derived()).coeff(index);
     }
@@ -189,19 +191,31 @@ class DenseCoeffsBase<Derived,ReadOnlyAccessors> : public EigenBase<Derived>
 
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE CoeffReturnType
-    y() const { return (*this)[1]; }
+    y() const
+    {
+      EIGEN_STATIC_ASSERT(Derived::SizeAtCompileTime==-1 || Derived::SizeAtCompileTime>=2, OUT_OF_RANGE_ACCESS);
+      return (*this)[1];
+    }
 
     /** equivalent to operator[](2).  */
 
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE CoeffReturnType
-    z() const { return (*this)[2]; }
+    z() const
+    {
+      EIGEN_STATIC_ASSERT(Derived::SizeAtCompileTime==-1 || Derived::SizeAtCompileTime>=3, OUT_OF_RANGE_ACCESS);
+      return (*this)[2];
+    }
 
     /** equivalent to operator[](3).  */
 
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE CoeffReturnType
-    w() const { return (*this)[3]; }
+    w() const
+    {
+      EIGEN_STATIC_ASSERT(Derived::SizeAtCompileTime==-1 || Derived::SizeAtCompileTime>=4, OUT_OF_RANGE_ACCESS);
+      return (*this)[3];
+    }
 
     /** \internal
       * \returns the packet of coefficients starting at the given row and column. It is your responsibility
@@ -243,6 +257,8 @@ class DenseCoeffsBase<Derived,ReadOnlyAccessors> : public EigenBase<Derived>
     template<int LoadMode>
     EIGEN_STRONG_INLINE PacketReturnType packet(Index index) const
     {
+      EIGEN_STATIC_ASSERT(internal::evaluator<Derived>::Flags & LinearAccessBit,
+                          THIS_COEFFICIENT_ACCESSOR_TAKING_ONE_ACCESS_IS_ONLY_FOR_EXPRESSIONS_ALLOWING_LINEAR_ACCESS)
       typedef typename internal::packet_traits<Scalar>::type DefaultPacketType;
       eigen_internal_assert(index >= 0 && index < size());
       return internal::evaluator<Derived>(derived()).template packet<LoadMode,DefaultPacketType>(index);
@@ -370,6 +386,8 @@ class DenseCoeffsBase<Derived, WriteAccessors> : public DenseCoeffsBase<Derived,
     EIGEN_STRONG_INLINE Scalar&
     coeffRef(Index index)
     {
+      EIGEN_STATIC_ASSERT(internal::evaluator<Derived>::Flags & LinearAccessBit,
+                          THIS_COEFFICIENT_ACCESSOR_TAKING_ONE_ACCESS_IS_ONLY_FOR_EXPRESSIONS_ALLOWING_LINEAR_ACCESS)
       eigen_internal_assert(index >= 0 && index < size());
       return internal::evaluator<Derived>(derived()).coeffRef(index);
     }
@@ -418,19 +436,31 @@ class DenseCoeffsBase<Derived, WriteAccessors> : public DenseCoeffsBase<Derived,
 
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE Scalar&
-    y() { return (*this)[1]; }
+    y()
+    {
+      EIGEN_STATIC_ASSERT(Derived::SizeAtCompileTime==-1 || Derived::SizeAtCompileTime>=2, OUT_OF_RANGE_ACCESS);
+      return (*this)[1];
+    }
 
     /** equivalent to operator[](2).  */
 
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE Scalar&
-    z() { return (*this)[2]; }
+    z()
+    {
+      EIGEN_STATIC_ASSERT(Derived::SizeAtCompileTime==-1 || Derived::SizeAtCompileTime>=3, OUT_OF_RANGE_ACCESS);
+      return (*this)[2];
+    }
 
     /** equivalent to operator[](3).  */
 
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE Scalar&
-    w() { return (*this)[3]; }
+    w()
+    {
+      EIGEN_STATIC_ASSERT(Derived::SizeAtCompileTime==-1 || Derived::SizeAtCompileTime>=4, OUT_OF_RANGE_ACCESS);
+      return (*this)[3];
+    }
 };
 
 /** \brief Base class providing direct read-only coefficient access to matrices and arrays.
@@ -442,7 +472,7 @@ class DenseCoeffsBase<Derived, WriteAccessors> : public DenseCoeffsBase<Derived,
   * inherits DenseCoeffsBase<Derived, ReadOnlyAccessors> which defines functions to access entries read-only using
   * \c operator() .
   *
-  * \sa \ref TopicClassHierarchy
+  * \sa \blank \ref TopicClassHierarchy
   */
 template<typename Derived>
 class DenseCoeffsBase<Derived, DirectAccessors> : public DenseCoeffsBase<Derived, ReadOnlyAccessors>
@@ -515,7 +545,7 @@ class DenseCoeffsBase<Derived, DirectAccessors> : public DenseCoeffsBase<Derived
   * inherits DenseCoeffsBase<Derived, WriteAccessors> which defines functions to access entries read/write using
   * \c operator().
   *
-  * \sa \ref TopicClassHierarchy
+  * \sa \blank \ref TopicClassHierarchy
   */
 template<typename Derived>
 class DenseCoeffsBase<Derived, DirectWriteAccessors>
@@ -594,7 +624,7 @@ struct first_aligned_impl<Alignment, Derived, false>
 {
   static inline Index run(const Derived& m)
   {
-    return internal::first_aligned<Alignment>(&m.const_cast_derived().coeffRef(0,0), m.size());
+    return internal::first_aligned<Alignment>(m.data(), m.size());
   }
 };
 

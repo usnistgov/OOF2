@@ -20,7 +20,12 @@ from UTILS.file_utils import reference_file
 # the Modify tests.  Should be false unless you really know what
 # you're doing.  New reference files won't be generated unless the old
 # one is removed first, though.
-generate = True
+generate = False
+
+## TODO: Most tolerances had to be increased from 1e-12 after
+## upgrading to Eigen 3.3.9 and switching preconditioners from ILU to
+## IC.  Probably the reference files should be recomputed and the
+## tolerances set back as low as they can go.
 
 class OOF_BCTest(unittest.TestCase):
     def setUp(self):
@@ -38,7 +43,7 @@ class OOF_BCTest(unittest.TestCase):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
@@ -56,7 +61,7 @@ class OOF_BCTest(unittest.TestCase):
         from ooflib.engine import mesh
         saved = mesh.meshes["saved_data:skeleton:mesh"]
         damned = mesh.meshes["bc_test:skeleton:mesh"]
-        self.assertEqual(saved.compare(damned, 1.0e-13), 0)
+        self.assertEqual(saved.compare(damned, 1.0e-7), 0)
 
     # periodic in one direction
     @memorycheck.check("periodic_1", "bc_test")
@@ -72,7 +77,7 @@ class OOF_BCTest(unittest.TestCase):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
@@ -92,7 +97,8 @@ class OOF_BCTest(unittest.TestCase):
         from ooflib.engine import mesh
         saved = mesh.meshes["periodic_1:skeleton:mesh"]
         damned = mesh.meshes["bc_test:skeleton:mesh"]
-        self.assertEqual(saved.compare(damned, 1.0e-13), 0)
+        # Tolerance increased from 1.e-13 when new version of Eigen installed.
+        self.assertEqual(saved.compare(damned, 1.0e-7), 0)
 
 
     # periodic in two directions
@@ -114,7 +120,7 @@ class OOF_BCTest(unittest.TestCase):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
@@ -134,7 +140,8 @@ class OOF_BCTest(unittest.TestCase):
         from ooflib.engine import mesh
         saved = mesh.meshes["periodic_2:skeleton:mesh"]
         damned = mesh.meshes["bc_test:skeleton:mesh"]
-        self.assertEqual(saved.compare(damned, 1.0e-13), 0)
+        # Tolerance increased from 1.e-13 when new version of Eigen installed.
+        self.assertEqual(saved.compare(damned, 1.0e-7), 0)
 
 
     # float intersecting float
@@ -159,7 +166,7 @@ class OOF_BCTest(unittest.TestCase):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
@@ -179,7 +186,7 @@ class OOF_BCTest(unittest.TestCase):
         from ooflib.engine import mesh
         saved = mesh.meshes["twofloats:skeleton:mesh"]
         damned = mesh.meshes["bc_test:skeleton:mesh"]
-        self.assertEqual(saved.compare(damned, 1.0e-13), 0)
+        self.assertEqual(saved.compare(damned, 1.0e-6), 0)
 
 
     # loop of floats
@@ -216,7 +223,7 @@ class OOF_BCTest(unittest.TestCase):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
@@ -238,7 +245,7 @@ class OOF_BCTest(unittest.TestCase):
         damned = mesh.meshes["bc_test:skeleton:mesh"]
 
         # TODO: Fails on 1.0e-13 tolerance, but didn't always -- why?
-        self.assertEqual(saved.compare(damned, 1.0e-12), 0)
+        self.assertEqual(saved.compare(damned, 1.0e-6), 0)
 
 
     # inconsistent loop of floats
@@ -250,7 +257,7 @@ class OOF_BCTest(unittest.TestCase):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
 
@@ -297,7 +304,7 @@ class OOF_BCTest(unittest.TestCase):
         from ooflib.engine import mesh
         saved = mesh.meshes["twofloats:skeleton:mesh"]
         damned = mesh.meshes["bc_test:skeleton:mesh"]
-        self.assertEqual(saved.compare(damned, 1.0e-13), 0)
+        self.assertEqual(saved.compare(damned, 1.0e-6), 0)
 
         # now re-enable the boundary conditions and make sure that
         # attempting to solve raises the error again
@@ -333,7 +340,7 @@ class OOF_BCTest(unittest.TestCase):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
@@ -370,7 +377,7 @@ class OOF_BCTest(unittest.TestCase):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
@@ -419,7 +426,7 @@ class OOF_BCTest(unittest.TestCase):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
@@ -439,7 +446,7 @@ class OOF_BCTest(unittest.TestCase):
         from ooflib.engine import mesh
         saved = mesh.meshes["fixedfloatloop:skeleton:mesh"]
         damned = mesh.meshes["bc_test:skeleton:mesh"]
-        self.assertEqual(saved.compare(damned, 1.0e-13), 0)
+        self.assertEqual(saved.compare(damned, 1.0e-7), 0)
 
     # loop of floats, with nontrivial but nonconsequential offsets
     @memorycheck.check("fixedfloatloop", "bc_test")
@@ -476,7 +483,7 @@ class OOF_BCTest(unittest.TestCase):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
@@ -486,7 +493,7 @@ class OOF_BCTest(unittest.TestCase):
         from ooflib.engine import mesh
         saved = mesh.meshes["fixedfloatloop:skeleton:mesh"]
         damned = mesh.meshes["bc_test:skeleton:mesh"]
-        self.assertEqual(saved.compare(damned, 1.0e-13), 0)
+        self.assertEqual(saved.compare(damned, 1.0e-7), 0)
 
 
     # fixed intersecting fixed
@@ -514,7 +521,7 @@ class OOF_BCTest(unittest.TestCase):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
         OOF.Mesh.Solve(mesh='bc_test:skeleton:mesh',
@@ -525,7 +532,6 @@ class OOF_BCTest(unittest.TestCase):
         from ooflib.engine import mesh
         saved = mesh.meshes["twofixed:skeleton:mesh"]
         damned = mesh.meshes["bc_test:skeleton:mesh"]
-        # TODO: Reduced tolerance needed here, too, was 1.0e-13.
         self.assertEqual(saved.compare(damned, 1.0e-12), 0)
 
     # Two conflicting Dirichlet boundary conditions on different
@@ -557,7 +563,7 @@ class OOF_BCTest(unittest.TestCase):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
         from ooflib.SWIG.common import ooferror
@@ -593,7 +599,7 @@ class OOF_BCTest(unittest.TestCase):
                 nonlinear_solver=NoNonlinearSolver(),
                 time_stepper=StaticDriver(),
                 symmetric_solver=ConjugateGradient(
-                    preconditioner=ILUPreconditioner(),
+                    preconditioner=ICPreconditioner(),
                     tolerance=1e-13,
                     max_iterations=1000)))
         from ooflib.SWIG.common import ooferror
@@ -643,7 +649,7 @@ def run_tests():
         OOF_BCTest("Periodic2"),
         OOF_BCTest("TwoFloats"),
         OOF_BCTest("FloatLoop"),
-        OOF_BCTest("InconsistentFloatLoop"),
+        OOF_BCTest("InconsistentFloatLoop"), 
         OOF_BCTest("FloatAndFixed"),
         OOF_BCTest("FloatAndFixed2"),
         OOF_BCTest("FloatAndFixedLoop"),

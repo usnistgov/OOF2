@@ -1,7 +1,7 @@
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra.
 //
-// Copyright (C) 2009-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
+// Copyright (C) 2009-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
 //
 // This Source Code Form is subject to the terms of the Mozilla
 // Public License v. 2.0. If a copy of the MPL was not distributed
@@ -39,7 +39,7 @@ struct product_evaluator<Product<Lhs, Rhs, DefaultProduct>, ProductTag, Diagonal
   : public sparse_diagonal_product_evaluator<Rhs, typename Lhs::DiagonalVectorType, Rhs::Flags&RowMajorBit?SDP_AsScalarProduct:SDP_AsCwiseProduct>
 {
   typedef Product<Lhs, Rhs, DefaultProduct> XprType;
-  enum { CoeffReadCost = Dynamic, Flags = Rhs::Flags&RowMajorBit, Alignment = 0 }; // FIXME CoeffReadCost & Flags
+  enum { CoeffReadCost = HugeCost, Flags = Rhs::Flags&RowMajorBit, Alignment = 0 }; // FIXME CoeffReadCost & Flags
   
   typedef sparse_diagonal_product_evaluator<Rhs, typename Lhs::DiagonalVectorType, Rhs::Flags&RowMajorBit?SDP_AsScalarProduct:SDP_AsCwiseProduct> Base;
   explicit product_evaluator(const XprType& xpr) : Base(xpr.rhs(), xpr.lhs().diagonal()) {}
@@ -50,7 +50,7 @@ struct product_evaluator<Product<Lhs, Rhs, DefaultProduct>, ProductTag, SparseSh
   : public sparse_diagonal_product_evaluator<Lhs, Transpose<const typename Rhs::DiagonalVectorType>, Lhs::Flags&RowMajorBit?SDP_AsCwiseProduct:SDP_AsScalarProduct>
 {
   typedef Product<Lhs, Rhs, DefaultProduct> XprType;
-  enum { CoeffReadCost = Dynamic, Flags = Lhs::Flags&RowMajorBit, Alignment = 0 }; // FIXME CoeffReadCost & Flags
+  enum { CoeffReadCost = HugeCost, Flags = Lhs::Flags&RowMajorBit, Alignment = 0 }; // FIXME CoeffReadCost & Flags
   
   typedef sparse_diagonal_product_evaluator<Lhs, Transpose<const typename Rhs::DiagonalVectorType>, Lhs::Flags&RowMajorBit?SDP_AsCwiseProduct:SDP_AsScalarProduct> Base;
   explicit product_evaluator(const XprType& xpr) : Base(xpr.lhs(), xpr.rhs().diagonal().transpose()) {}
@@ -80,6 +80,8 @@ public:
   sparse_diagonal_product_evaluator(const SparseXprType &sparseXpr, const DiagonalCoeffType &diagCoeff)
     : m_sparseXprImpl(sparseXpr), m_diagCoeffImpl(diagCoeff)
   {}
+
+  Index nonZerosEstimate() const { return m_sparseXprImpl.nonZerosEstimate(); }
     
 protected:
   evaluator<SparseXprType> m_sparseXprImpl;
@@ -121,6 +123,8 @@ struct sparse_diagonal_product_evaluator<SparseXprType, DiagCoeffType, SDP_AsCwi
   sparse_diagonal_product_evaluator(const SparseXprType &sparseXpr, const DiagCoeffType &diagCoeff)
     : m_sparseXprEval(sparseXpr), m_diagCoeffNested(diagCoeff)
   {}
+
+  Index nonZerosEstimate() const { return m_sparseXprEval.nonZerosEstimate(); }
     
 protected:
   evaluator<SparseXprType> m_sparseXprEval;

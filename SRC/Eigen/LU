@@ -1,3 +1,10 @@
+// This file is part of Eigen, a lightweight C++ template library
+// for linear algebra.
+//
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #ifndef EIGEN_LU_MODULE_H
 #define EIGEN_LU_MODULE_H
 
@@ -21,7 +28,12 @@
 #include "src/LU/FullPivLU.h"
 #include "src/LU/PartialPivLU.h"
 #ifdef EIGEN_USE_LAPACKE
-#include "src/LU/PartialPivLU_MKL.h"
+#ifdef EIGEN_USE_MKL
+#include "mkl_lapacke.h"
+#else
+#include "src/misc/lapacke.h"
+#endif
+#include "src/LU/PartialPivLU_LAPACKE.h"
 #endif
 #include "src/LU/Determinant.h"
 #include "src/LU/InverseImpl.h"

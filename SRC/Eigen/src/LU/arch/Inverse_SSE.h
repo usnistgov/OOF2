@@ -44,7 +44,7 @@ struct compute_inverse_size4<Architecture::SSE, float, MatrixType, ResultType>
   static void run(const MatrixType& mat, ResultType& result)
   {
     ActualMatrixType matrix(mat);
-    EIGEN_ALIGN16 const unsigned int _Sign_PNNP[4] = { 0x00000000, 0x80000000, 0x80000000, 0x00000000 };
+    const Packet4f p4f_sign_PNNP = _mm_castsi128_ps(_mm_set_epi32(0x00000000, 0x80000000, 0x80000000, 0x00000000));
 
     // Load the full matrix into registers
     __m128 _L1 = matrix.template packet<MatrixAlignment>( 0);
@@ -139,7 +139,7 @@ struct compute_inverse_size4<Architecture::SSE, float, MatrixType, ResultType>
     iC = _mm_sub_ps(iC, _mm_mul_ps(_mm_shuffle_ps(A,A,0xB1), _mm_shuffle_ps(DC,DC,0x66)));
 
     rd = _mm_shuffle_ps(rd,rd,0);
-    rd = _mm_xor_ps(rd, _mm_load_ps((float*)_Sign_PNNP));
+    rd = _mm_xor_ps(rd, p4f_sign_PNNP);
 
     //  iB = C*|B| - D*B#*A
     iB = _mm_sub_ps(_mm_mul_ps(C,_mm_shuffle_ps(dB,dB,0)), iB);
@@ -153,10 +153,12 @@ struct compute_inverse_size4<Architecture::SSE, float, MatrixType, ResultType>
     iC = _mm_mul_ps(rd,iC);
     iD = _mm_mul_ps(rd,iD);
 
-    result.template writePacket<ResultAlignment>( 0, _mm_shuffle_ps(iA,iB,0x77));
-    result.template writePacket<ResultAlignment>( 4, _mm_shuffle_ps(iA,iB,0x22));
-    result.template writePacket<ResultAlignment>( 8, _mm_shuffle_ps(iC,iD,0x77));
-    result.template writePacket<ResultAlignment>(12, _mm_shuffle_ps(iC,iD,0x22));
+    Index res_stride = result.outerStride();
+    float* res = result.data();
+    pstoret<float, Packet4f, ResultAlignment>(res+0,            _mm_shuffle_ps(iA,iB,0x77));
+    pstoret<float, Packet4f, ResultAlignment>(res+res_stride,   _mm_shuffle_ps(iA,iB,0x22));
+    pstoret<float, Packet4f, ResultAlignment>(res+2*res_stride, _mm_shuffle_ps(iC,iD,0x77));
+    pstoret<float, Packet4f, ResultAlignment>(res+3*res_stride, _mm_shuffle_ps(iC,iD,0x22));
   }
 
 };
@@ -316,14 +318,16 @@ struct compute_inverse_size4<Architecture::SSE, double, MatrixType, ResultType>
     iC1 = _mm_sub_pd(_mm_mul_pd(B1, dC), iC1);
     iC2 = _mm_sub_pd(_mm_mul_pd(B2, dC), iC2);
 
-    result.template writePacket<ResultAlignment>( 0, _mm_mul_pd(_mm_shuffle_pd(iA2, iA1, 3), d1));     // iA# / det
-    result.template writePacket<ResultAlignment>( 4, _mm_mul_pd(_mm_shuffle_pd(iA2, iA1, 0), d2));
-    result.template writePacket<ResultAlignment>( 2, _mm_mul_pd(_mm_shuffle_pd(iB2, iB1, 3), d1));     // iB# / det
-    result.template writePacket<ResultAlignment>( 6, _mm_mul_pd(_mm_shuffle_pd(iB2, iB1, 0), d2));
-    result.template writePacket<ResultAlignment>( 8, _mm_mul_pd(_mm_shuffle_pd(iC2, iC1, 3), d1));     // iC# / det
-    result.template writePacket<ResultAlignment>(12, _mm_mul_pd(_mm_shuffle_pd(iC2, iC1, 0), d2));
-    result.template writePacket<ResultAlignment>(10, _mm_mul_pd(_mm_shuffle_pd(iD2, iD1, 3), d1));     // iD# / det
-    result.template writePacket<ResultAlignment>(14, _mm_mul_pd(_mm_shuffle_pd(iD2, iD1, 0), d2));
+    Index res_stride = result.outerStride();
+    double* res = result.data();
+    pstoret<double, Packet2d, ResultAlignment>(res+0,             _mm_mul_pd(_mm_shuffle_pd(iA2, iA1, 3), d1));
+    pstoret<double, Packet2d, ResultAlignment>(res+res_stride,    _mm_mul_pd(_mm_shuffle_pd(iA2, iA1, 0), d2));
+    pstoret<double, Packet2d, ResultAlignment>(res+2,             _mm_mul_pd(_mm_shuffle_pd(iB2, iB1, 3), d1));
+    pstoret<double, Packet2d, ResultAlignment>(res+res_stride+2,  _mm_mul_pd(_mm_shuffle_pd(iB2, iB1, 0), d2));
+    pstoret<double, Packet2d, ResultAlignment>(res+2*res_stride,  _mm_mul_pd(_mm_shuffle_pd(iC2, iC1, 3), d1));
+    pstoret<double, Packet2d, ResultAlignment>(res+3*res_stride,  _mm_mul_pd(_mm_shuffle_pd(iC2, iC1, 0), d2));
+    pstoret<double, Packet2d, ResultAlignment>(res+2*res_stride+2,_mm_mul_pd(_mm_shuffle_pd(iD2, iD1, 3), d1));
+    pstoret<double, Packet2d, ResultAlignment>(res+3*res_stride+2,_mm_mul_pd(_mm_shuffle_pd(iD2, iD1, 0), d2));
   }
 };
 
