@@ -387,9 +387,6 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
         layermenu = self.menu.Layer
         # layermenu.New doesn't need a GUI callback.
-        ## TODO GTK3: but it could use a better title.  The default
-        ## title for a ParameterDialog is the menuitem name,
-        ## which in this case is just "New".
         layermenu.Edit.add_gui_callback(self.editLayer_gui)
         layermenu.Delete.add_gui_callback(self.deleteLayer_gui)
         layermenu.Hide.add_gui_callback(self.hideLayer_gui)

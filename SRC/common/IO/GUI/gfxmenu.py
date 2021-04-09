@@ -19,7 +19,7 @@ from gi.repository import Gdk
 from gi.repository import Gtk
 
 def gtkOOFMenu(menu, accelgroup=None, parentwindow=None):
-    # Function to turn an OOFMenu into GTK+.  The leading GtkMenuItem
+    # Function to turn an OOFMenu into Gtk.  The leading GtkMenuItem
     # is returned.
     debug.mainthreadTest()
     base = Gtk.MenuItem(utils.underscore2space(menu.name))
@@ -43,7 +43,7 @@ def gtkOOFMenu(menu, accelgroup=None, parentwindow=None):
 
 
 def gtkOOFMenuBar(menu, bar=None, accelgroup=None, parentwindow=None):
-    # Function to turn an OOFMenu into a GTK+ MenuBar.  Reuse the
+    # Function to turn an OOFMenu into a Gtk3 MenuBar.  Reuse the
     # given GtkMenuBar, if one is provided.
     debug.mainthreadTest()
     menu.parentwindow = parentwindow
@@ -82,7 +82,7 @@ class MenuCallBackWrapper(object):
             if self.menuitem.nargs() > 0:
                 # Ask for args in a standard dialog box.
                 if parameterwidgets.getParameters(
-                        title=self.menuitem.name,
+                        title=self.menuitem.gui_title or self.menuitem.name,
                         data={'menuitem':self.menuitem},
                         parentwindow=self.findParentWindow(),
                         *self.menuitem.params):

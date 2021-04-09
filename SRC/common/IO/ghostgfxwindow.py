@@ -351,6 +351,7 @@ class GhostGfxWindow:
             callback=self.newLayerCB,
             accel='n',
             ellipsis=True,
+            gui_title="New Graphics Layer", # used in the dialog box
             params=[
                 whoville.WhoClassParameter("category"),
                 whoville.AnyWhoParameter(

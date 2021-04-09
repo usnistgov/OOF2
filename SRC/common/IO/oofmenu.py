@@ -71,6 +71,11 @@ gui_callback: The function to be called when the menu item is chosen
               then a simple dialog box is created allowing the params to
               be set. [default value = None]
 
+gui_title:    The title to be given to the GUI dialog box which will
+              be constructed if gui_callback is None and the menu item
+              has params.  If gui_title is None, then the menu item's name
+              will be used. [default value = None]
+
 accel:	      A string describing the keyboard accelerator to be used
               in GUI mode.  The string must be a key symbol defined in
               GDK.py.  For example, accel='d' makes Alt-D the
@@ -441,6 +446,7 @@ class OOFMenuItem:
     def __init__(self, name,
                  callback=None,         # callback for CLI 
                  gui_callback=None,     # callback for GUI (defaults to CLI cb)
+                 gui_title=None,        # title for GUI dialog (default is name)
                  accel=None,            # GUI accelerator
                  secret=0,              # not listed in parent
                  ellipsis=0,            # append '...' to displayed names?
@@ -468,6 +474,7 @@ class OOFMenuItem:
         self.callback = callback
         self.help_menu = help_menu
         self.gui_callback = gui_callback
+        self.gui_title = gui_title
         self.helpstr = help
         self.discussion = discussion
         self.ordering = ordering
