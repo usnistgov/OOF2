@@ -30,10 +30,6 @@ from gi.repository import Gtk
 import string
 import weakref
 
-# TODO GTK3: gui logging for arrow keys in the Property tree. up,
-# down, shift-left, and shift-right do interesting things.
-
-
 class GfxLabelTree:
     allGfxLabelTrees = weakref.WeakValueDictionary()
     @staticmethod
