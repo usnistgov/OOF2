@@ -20,7 +20,7 @@
 
 ## TODO GTK3: This isn't quitting on EOF on Linux.
 
-## TODO GTK3: If log lines all ended with a comment indicating their
+## TODO: If log lines all ended with a comment indicating their
 ## origin, the postprocessing done here could be more specific.  For
 ## example, it could act only on resize events for certain types of
 ## widgets.

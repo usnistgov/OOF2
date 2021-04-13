@@ -12,6 +12,7 @@
 ## file should have to be explicitly called by users.
 
 from gi.repository import Gtk
+import atexit
 import os
 import string
 import subprocess
@@ -23,6 +24,7 @@ import loggers
 import logutils
 
 _allexceptions = [Exception]
+_process = None
 
 def start(filename, debugLevel=2, suppress_motion_events=True,
           comment_gui=True):
@@ -39,14 +41,15 @@ def start(filename, debugLevel=2, suppress_motion_events=True,
             # places.
             from GUI import loggergui
             guifile = os.path.abspath(loggergui.__file__)
-            process = subprocess.Popen(
+            global _process
+            _process = subprocess.Popen(
                 ["python",
                  "-u",          # unbuffered stdin on the subprocess
                  guifile, filename
                  ],
                 bufsize=1, # 0 means unbuffered, 1 means line buffered
                 stdin=subprocess.PIPE)
-            logutils.set_logfile(process.stdin)
+            logutils.set_logfile(_process.stdin)
         elif type(filename) is types.StringType:
             logutils.set_logfile(open(filename, "w"))
         else:                   # filename is assumed to be a file
@@ -59,9 +62,14 @@ def stop():
     if logutils.recording():
         try:
             logutils.logfile().close()
+            global _process
+            if _process is not None:
+                _process.terminate()
+                _process = None
         finally:
             logutils.set_logfile(None)
 
+atexit.register(stop)
 
 # Utility functions to turn on motion-event recording on or off.  If
 # the widget argument is not None, the call applies to the given
