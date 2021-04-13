@@ -6,7 +6,7 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
 import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
@@ -77,36 +77,36 @@ checkpoint OOF.Graphics_1.Layer.New
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findWidget('OOF2:Image Page:Pane:OK').clicked()
 checkpoint contourmap info updated for Graphics_1
-assert tests.sensitization1()
 checkpoint OOF.Image.Modify.Gray
+assert tests.sensitization1()
 findWidget('OOF2:Image Page:Pane:Undo').clicked()
 checkpoint contourmap info updated for Graphics_1
-assert tests.sensitization2()
 checkpoint OOF.Image.Undo
+assert tests.sensitization2()
 event(Gdk.EventType.BUTTON_PRESS,x= 6.3000000000000e+01,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Image Page:Pane:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Flip']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('OOF2:Image Page:Pane:OK').clicked()
 checkpoint contourmap info updated for Graphics_1
-assert tests.sensitization3()
 checkpoint OOF.Image.Modify.Flip
+assert tests.sensitization3()
 event(Gdk.EventType.BUTTON_PRESS,x= 5.8000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Image Page:Pane:Method:Flip:axis').get_window())
 checkpoint toplevel widget mapped chooserPopup-axis
 findMenu(findWidget('chooserPopup-axis'), ['y']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-axis') # MenuItemLogger
 findWidget('OOF2:Image Page:Pane:OK').clicked()
 checkpoint contourmap info updated for Graphics_1
-assert tests.sensitization3()
 checkpoint OOF.Image.Modify.Flip
+assert tests.sensitization3()
 findWidget('OOF2:Image Page:Pane:Undo').clicked()
 checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Image.Undo
 assert tests.sensitization4()
-checkpoint OOF.Image.Undo
 findWidget('OOF2:Image Page:Pane:Undo').clicked()
 checkpoint contourmap info updated for Graphics_1
-assert tests.sensitization5()
 checkpoint OOF.Image.Undo
+assert tests.sensitization5()
 findWidget('OOF2:Image Page:Copy').clicked()
 checkpoint toplevel widget mapped Dialog-Copy Image
 findWidget('Dialog-Copy Image').resize(317, 134)
@@ -148,13 +148,13 @@ checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint microstructure page sensitized
-assert tests.sensitization5()
-assert tests.chooserCheck('OOF2:Image Page:Image', ['serendipity.png', 'copy'])
-assert tests.chooserStateCheck('OOF2:Image Page:Image', 'serendipity.png')
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Image.Delete
+assert tests.sensitization5()
+assert tests.chooserCheck('OOF2:Image Page:Image', ['serendipity.png', 'copy'])
+assert tests.chooserStateCheck('OOF2:Image Page:Image', 'serendipity.png')
 findWidget('OOF2:Image Page:Group').clicked()
 checkpoint toplevel widget mapped Dialog-AutoGroup
 findWidget('Dialog-AutoGroup').resize(207, 92)
@@ -171,10 +171,10 @@ checkpoint microstructure page sensitized
 checkpoint OOF.Image.AutoGroup
 findWidget('OOF2:Navigation:Prev').clicked()
 checkpoint page installed Microstructure
-assert tests.micro_sensitization()
-
 checkpoint meshable button set
 checkpoint microstructure page sensitized
+assert tests.micro_sensitization()
+
 findWidget('OOF2:Navigation:Next').clicked()
 checkpoint page installed Image
 event(Gdk.EventType.BUTTON_PRESS,x= 4.7000000000000e+01,y= 8.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Image Page:Pane:Method:RCFChooser').get_window())
@@ -391,8 +391,6 @@ findWidget('Questioner:Yes').clicked()
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint selection info updated Element
-assert tests.sensitization6()
-assert tests.chooserCheck('OOF2:Image Page:Image', [])
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
@@ -402,6 +400,9 @@ checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Image.Delete
+assert tests.sensitization6()
+assert tests.chooserCheck('OOF2:Image Page:Image', [])
+
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()
 checkpoint toplevel widget mapped Dialog-Python_Log
 findWidget('Dialog-Python_Log').resize(192, 122)
