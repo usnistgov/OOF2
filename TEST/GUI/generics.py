@@ -37,19 +37,23 @@ intpattern = re.compile("[0-9]+$")
 # character-wise.
 
 def fp_string_compare(str1, str2, tolerance):
-    if not tolerance:
-        return str1 == str2
+    try:
+        if not tolerance:
+            return str1 == str2
 
-    s1_items = floatpattern.split(str1)
-    s2_items = floatpattern.split(str2)
-    
-    if len(s1_items) != len(s2_items):
-        return False
+        s1_items = floatpattern.split(str1)
+        s2_items = floatpattern.split(str2)
 
-    for s1, s2 in zip(s1_items, s2_items):
-        if not fp_substring_compare(s1, s2, tolerance):
+        if len(s1_items) != len(s2_items):
             return False
-    return True
+
+        for s1, s2 in zip(s1_items, s2_items):
+            if not fp_substring_compare(s1, s2, tolerance):
+                return False
+        return True
+    except:
+        print >> sys.stderr, "fp_string_compare failed:", str1, str2, tolerance
+        raise
 
 def fp_substring_compare(s1, s2, tolerance):
     if intpattern.match(s1) and intpattern.match(s2):
@@ -61,8 +65,8 @@ def fp_substring_compare(s1, s2, tolerance):
         x1 = float(s1)
         x2 = float(s2)
         diff = abs(x1 - x2)
-        reltol = min(abs(x1), abs(x2))*tolerance
-        if diff > reltol or diff > tolerance:
+        reltol = 0.5*(abs(x1) + abs(x2))*tolerance 
+        if diff > reltol and diff > tolerance:
             print >> sys.stderr, "fp_substring_compare: float mismatch", \
                 s1, s2, "diff=%s" % diff
             return False
@@ -285,8 +289,9 @@ def gtkMultiTextCompare(widgetdict, widgetbase=None, tolerance=None):
             return False
     return True
 
-## TODO: This is redundant, now that gtkMultiTextCompare uses
-## fp_string_compare.
+# gtkMultiFloatCompare is like gtkMultiTextCompare, but it only
+# compares floats, and the values in widgetdict must be numbers, not
+# strings.
 def gtkMultiFloatCompare(widgetdict, widgetbase=None, tolerance=1.e-6):
     for (wname, val) in widgetdict.items():
         if widgetbase:
@@ -397,29 +402,37 @@ def chooserListStateCheckN(widgetpath, choices):
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def checkLabelledSlider(widgetpath, value, tolerance=None):
+    # value should be a float
+    
     # print >> sys.stderr, "checkLabelledSlider: widgetpath=", widgetpath
     # print >> sys.stderr, "checkLabelledSlider: widgets=", gtklogger.findAllWidgets(widgetpath)
     slider = gtklogger.findWidget(widgetpath + ':slider')
     sliderval = slider.get_value()
     diff = abs(sliderval - value)
     if tolerance:
-        reltol = min(abs(sliderval), abs(value))*tolerance
-        sliderok =  diff < reltol and diff < tolerance
+        reltol = 0.5*(abs(sliderval) + abs(value))*tolerance
+        sliderok = diff <= reltol or diff <= tolerance
     else:
         sliderok = diff == 0
     entry = gtklogger.findWidget(widgetpath + ':entry')
-    entryval = string.strip(entry.get_text())
-    entryok = fp_string_compare(value, float(entryval), tolerance)
+    entryval = float(string.strip(entry.get_text()))
+    diff = abs(entryval - value)
+    if tolerance:
+        reltol = 0.5*(abs(entryval) + abs(value))*tolerance
+        entryok = diff <= reltol or diff <= tolerance
+    else:
+        entryok = diff == 0
+
     if entryok and sliderok:
         return True
-    #print "checkLabelledSlider:", sliderval, type(sliderval), entryval, type(entryval), value, type(value)
     print >> sys.stderr, \
-        "Labelled slider check failed. Got %g (%s). Expected %g." % \
-        (sliderval, entryval, value)
+        "Labelled slider check failed. Slider=%.8g, text='%s'. Expected %g. tolerance=%s" % \
+        (sliderval, entryval, value, tolerance)
 
-def checkSliders(widgetpath, **params):
+def checkSliders(widgetpath, tolerance=None, **params):
     for pname, val in params.items():
-        if not checkLabelledSlider(widgetpath+':'+pname, val):
+        if not checkLabelledSlider(widgetpath+':'+pname, val,
+                                   tolerance=tolerance):
             return False
     return True
 
@@ -564,7 +577,7 @@ def msgTextTail(text):
 # It might be cleaner if ParameterWidgets knew how to check
 # themselves.
 
-def checkOrientationWidget(widgetpath, orClass, tolerance=1.e-6, **orParams):
+def checkOrientationWidget(widgetpath, orClass, tolerance=1.e-5, **orParams):
     if not chooserStateCheck(widgetpath + ':RCFChooser',
                              orClass):
         print >> sys.stderr, "Orientation chooser check failed."
@@ -572,18 +585,20 @@ def checkOrientationWidget(widgetpath, orClass, tolerance=1.e-6, **orParams):
     # Orientation subclasses that only use LabelledSliders in their
     # widgets:
     if orClass in("Abg", "X", "XYZ", "Bunge"):
-        return checkSliders(widgetpath + ':Abg', **orParams)
+        return checkSliders(widgetpath + ':' + orClass, tolerance=tolerance,
+                            **orParams)
     # Orientation subclasses that only use GtkEntries
     if orClass in ("Quaternion", "Rodrigues"):
-        return gtkMultiTextCompare(orParams, widgetpath + ':' + orClass,
-                                   tolerance)
+        return gtkMultiFloatCompare(orParams, widgetpath + ':' + orClass,
+                                    tolerance)
     if orClass == "Axis":
         xyz = orParams.copy()
         del xyz['angle']
         return (
-            checkLabelledSlider(widgetpath+':Axis:angle', orParams['angle'])
+            checkLabelledSlider(widgetpath+':Axis:angle', orParams['angle'],
+                                tolerance=tolerance)
             and
-            gtkMultiTextCompare(xyz, widgetpath+':Axis', tolerance))
+            gtkMultiFloatCompare(xyz, widgetpath+':Axis', tolerance))
     print >> sys.stderr, "checkOrientationWidget: unknown class", orClass
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

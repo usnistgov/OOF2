@@ -22,10 +22,6 @@ from ooflib.orientationmap import pixelinfoplugin
 from gi.repository import Gtk
 import math
 
-## TODO GTK3: GUI test for switching from one Orientation subclass to
-## another.  Changing Abg(45, 105, 0) to XYZ fails.  This fails in
-## 2.1.19 too.
-
 class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
     ordering = 4
     nrows = 1
