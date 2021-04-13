@@ -416,9 +416,6 @@ class RegisteredClassFactory(RCFBase):
                 return reg
 
     def get_value(self):
-##        if self.currentOption is not None and self.paramWidget is None:
-##            print "currentOption=", self.currentOption
-##            assert 0
         if self.currentOption is None:
             return None
         self.paramWidget.get_values()
@@ -501,6 +498,9 @@ class ConvertibleRegisteredClassFactory(RegisteredClassFactory):
 
     def setParams(self, old):
         self.currentOption.setParamsFromBase(old)
+        # The checkpoint here allows gui tests to check that
+        # ConvertibleRegisteredClassFactory is converting correctly.
+        gtklogger.checkpoint("convertible RCF")
         
     # In the convertible case, the widget constructor will take another
     # argument, the "base_value" which is the original value of the
