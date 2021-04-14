@@ -273,8 +273,10 @@ class LogProcessor(object):
 
 def start(filename):
     logproc = LogProcessor(filename)
-    Gtk.main()
-    logproc.writeLog()
+    try:
+        Gtk.main()
+    finally:
+        logproc.writeLog()
     
 if __name__ == "__main__":
     # The one argument is the name of the log file to be created.

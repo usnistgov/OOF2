@@ -62,10 +62,19 @@ def stop():
     if logutils.recording():
         try:
             logutils.logfile().close()
-            global _process
-            if _process is not None:
-                _process.terminate()
-                _process = None
+            ## On Linux, the loggergui process doesn't quit properly
+            ## when it's input pipe is closed, and it needs to be
+            ## terminated here. But on macOS, terminating it here
+            ## kills the process before it writes any data.  Since I
+            ## don't know the correct solution, I've just commented
+            ## out the termination, on the theory that making the user
+            ## close the loggergui window manually on Linux is better
+            ## than not creating a log file on macOS.
+            ## TODO: Fix this, somehow.
+            # global _process
+            # if _process is not None:
+            #     _process.terminate()
+            #     _process = None
         finally:
             logutils.set_logfile(None)
 
