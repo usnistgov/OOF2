@@ -42,7 +42,7 @@ retrydelay = 100
 
 # maxtries limits the number of times a line that raises a
 # GtkLoggerTopFailure exception will be retried.
-maxtries = 100
+maxtries = 10
 
 ## See the README file for a description of the arguments to replay().
 
@@ -274,17 +274,15 @@ class GUILogLineRunner(object):
                         self.logrunner.stop()
                     return result
                 except logutils.GtkLoggerTopFailure:
-                    # It's possible that the previous log line tried
-                    # to open a window, but the window hasn't actually
-                    # appeared yet.  In that case, our line will have
-                    # failed with a GtkLoggerTopFailure exception.  We
-                    # just want to keep trying (within reason) until
-                    # the window appears.  Using checkpoints to wait
-                    # until the window is mapped makes this problem
-                    # less frequent, but doesn't make it go away
-                    # entirely.
-                    ## TODO GTK3: See if this is really still required
-                    ## by setting maxtries to 1.
+                    # GtkLoggerTopFailures occur when a previous log
+                    # line tried to open a window, but the window
+                    # hasn't appeared by the time that a subsequent
+                    # log line tries to access the window.  A properly
+                    # placed checkpoint can ensure that the subsequent
+                    # line doesn't execute too soon.  In case that
+                    # doesn't work, or if the checkpoint is missing, a
+                    # GtkLoggerTopFailure is ignored unless it is
+                    # repeated multiple (maxtries) times.
                     self.ntries += 1
                     if self.ntries == maxtries:
                         if logutils.debugLevel() >= 1:
