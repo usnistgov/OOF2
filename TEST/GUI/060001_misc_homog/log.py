@@ -61,9 +61,8 @@ checkpoint toplevel widget mapped Dialog-Skeleton_Edges
 findWidget('Dialog-Skeleton_Edges').resize(281, 242)
 findWidget('Dialog-Skeleton_Edges:color:TranslucentGray:gray:entry').set_text('0.')
 findWidget('Dialog-Skeleton_Edges:color:TranslucentGray:gray:entry').set_text('0.7')
-widget_0=findWidget('Dialog-Skeleton_Edges:color:TranslucentGray:gray:entry')
-if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
-del widget_0
+widget_0=weakRef(findWidget('Dialog-Skeleton_Edges:color:TranslucentGray:gray:entry'))
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 findWidget('Dialog-Skeleton_Edges:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.Settings.Graphics_Defaults.Skeletons.Skeleton_Edges
 

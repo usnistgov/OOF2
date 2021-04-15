@@ -676,9 +676,8 @@ assert tests.sensitization7()
 # Try that again with a nontrivial result
 findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementAction:Select by Shape Energy:threshold:entry').set_text('0.')
 findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementAction:Select by Shape Energy:threshold:entry').set_text('0.2')
-widget_0=findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementAction:Select by Shape Energy:threshold:entry')
-if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
-del widget_0
+widget_0=weakRef(findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementAction:Select by Shape Energy:threshold:entry'))
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 findWidget('OOF2:Skeleton Selection Page:Pane:Selection:ElementHistory:OK').clicked()
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element

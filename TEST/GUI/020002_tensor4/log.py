@@ -57,100 +57,76 @@ checkpoint property selected
 checkpoint HexagonalCijklWidget updated
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal').resize(528, 292)
-widget_0=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,0')
-if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
+widget_0=weakRef(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,0'))
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_0
-widget_1=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,0')
-if widget_1: wevent(widget_1, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1.get_window())
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_1
 assert tests.anisoCij("Hexagonal", c11=1.0, c12=0.5, c13=0.5, c22=1.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=0.25)
 assert tests.sensitiveAnisoCij("Hexagonal", c11=1, c12=1, c13=1, c33=1, c44=1, c66=1)
 
 # Change C_11
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,0').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,0').set_text('2')
-widget_2=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,0')
-if widget_2: wevent(widget_2, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2.get_window())
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_2
-widget_3=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,0')
-if widget_3: wevent(widget_3, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_3.get_window())
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_3
 assert tests.anisoCij("Hexagonal", c11=2.0, c12=0.5, c13=0.5, c22=2.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=0.75)
 
 # Change C_12
-widget_4=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,0')
-if widget_4: wevent(widget_4, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_4.get_window())
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_4
 
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,1').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,1').set_text('3')
-widget_5=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,1')
-if widget_5: wevent(widget_5, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_5.get_window())
+widget_5=weakRef(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,1'))
+if widget_5(): wevent(widget_5(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_5().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_5
-widget_6=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,2')
-if widget_6: wevent(widget_6, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_6.get_window())
+widget_6=weakRef(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,2'))
+if widget_6(): wevent(widget_6(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_6().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_6
-widget_7=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,2')
-if widget_7: wevent(widget_7, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_7.get_window())
+if widget_6(): wevent(widget_6(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_6().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_7
 assert tests.anisoCij("Hexagonal", c11=2.0, c12=3.0, c13=0.5, c22=2.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=-0.5)
-#assert tests.anisoCij("Hexagonal", c11=2.0, c12=3.0, c13=0.5, c22=2.0, c23=0.5, c33=1.0, c44=0.25, c55=0.25, c66=0.75)
 
 # Change C_13
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,2').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,2').set_text('4')
-widget_8=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,2')
-if widget_8: wevent(widget_8, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_8.get_window())
+if widget_6(): wevent(widget_6(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_6().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_8
-widget_9=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:0,2')
-if widget_9: wevent(widget_9, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_9.get_window())
+if widget_6(): wevent(widget_6(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_6().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_9
 assert tests.anisoCij("Hexagonal", c11=2.0, c12=3.0, c13=4.0, c22=2.0, c23=4.0, c33=1.0, c44=0.25, c55=0.25, c66=-0.5)
 
 # Change C_44
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:3,3').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:3,3').set_text('2')
-widget_10=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:3,3')
-if widget_10: wevent(widget_10, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_10.get_window())
+widget_10=weakRef(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:3,3'))
+if widget_10(): wevent(widget_10(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_10().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_10
-widget_11=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:5,5')
-if widget_11: wevent(widget_11, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_11.get_window())
+widget_11=weakRef(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:5,5'))
+if widget_11(): wevent(widget_11(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_11().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_11
-widget_12=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:5,5')
-if widget_12: wevent(widget_12, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_12.get_window())
+if widget_11(): wevent(widget_11(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_11().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_12
 assert tests.anisoCij("Hexagonal", c11=2.0, c12=3.0, c13=4.0, c22=2.0, c23=4.0, c33=1.0, c44=2.0 , c55=2.0, c66=-0.5)
 
 # Change C_66
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:5,5').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:5,5').set_text('-')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:5,5').set_text('-1')
-widget_13=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:5,5')
-if widget_13: wevent(widget_13, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_13.get_window())
+if widget_11(): wevent(widget_11(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_11().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_13
-widget_14=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:3,3')
-if widget_14: wevent(widget_14, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_14.get_window())
+if widget_10(): wevent(widget_10(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_10().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_14
-widget_15=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:3,3')
-if widget_15: wevent(widget_15, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_15.get_window())
+if widget_10(): wevent(widget_10(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_10().get_window())
 checkpoint HexagonalCijklWidget updated
-del widget_15
 assert tests.anisoCij("Hexagonal", c11=2.0, c12=4.0, c13=4.0, c22=2.0, c23=4.0, c33=1.0, c44=2.0 , c55=2.0, c66=-1.0)
+
+## TODO?: Convert the rest of this file to the new form that uses
+## weakRef for all the widget_xx variables.  There are a lot of
+## instances and not much to be gained from converting them.
 
 # Add property to material
 widget_16=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Hexagonal:3,3')

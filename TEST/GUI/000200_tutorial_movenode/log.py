@@ -202,9 +202,8 @@ findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Ave
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:entry').set_text('1')
 checkpoint skeleton page sensitized
 checkpoint skeleton page sensitized
-widget_0=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:entry')
-if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
-del widget_0
+widget_0=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Snap Nodes:criterion:Average Energy:alpha:entry'))
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized
 checkpoint skeleton selection page selection sensitized Element
@@ -251,9 +250,8 @@ findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set
 checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set_text('0.')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set_text('0.5')
-widget_1=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry')
-if widget_1: wevent(widget_1, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1.get_window())
-del widget_1
+widget_1=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry'))
+if widget_1(): wevent(widget_1(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1().get_window())
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized
 checkpoint skeleton selection page selection sensitized Element
@@ -832,9 +830,8 @@ checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha:entry').set_text('0.')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha:entry').set_text('0.9')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha:entry').set_text('0.95')
-widget_2=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha:entry')
-if widget_2: wevent(widget_2, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2.get_window())
-del widget_2
+widget_2=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha:entry'))
+if widget_2(): wevent(widget_2(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2().get_window())
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:iteration:Fixed Iterations:iterations').set_text('50')
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized
@@ -1802,9 +1799,8 @@ deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('OOF2:Skeleton Page:Pane').set_position(437)
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha:entry').set_text('0.')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha:entry').set_text('0.7')
-widget_3=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha:entry')
-if widget_3: wevent(widget_3, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_3.get_window())
-del widget_3
+widget_3=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha:entry'))
+if widget_3(): wevent(widget_3(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_3().get_window())
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:iteration:Fixed Iterations:iterations').set_text('')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:iteration:Fixed Iterations:iterations').set_text('4')
 checkpoint skeleton page sensitized
@@ -2032,9 +2028,8 @@ checkpoint OOF.Skeleton.Undo
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha:entry').set_text('0.')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha:entry').set_text('0.9')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha:entry').set_text('0.95')
-widget_4=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha:entry')
-if widget_4: wevent(widget_4, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_4.get_window())
-del widget_4
+widget_4=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Anneal:criterion:Average Energy:alpha:entry'))
+if widget_4(): wevent(widget_4(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_4().get_window())
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized
 checkpoint skeleton selection page selection sensitized Element

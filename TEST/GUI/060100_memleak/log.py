@@ -802,9 +802,8 @@ deactivatePopup('chooserPopup-category') # MenuItemLogger
 findWidget('Dialog-New Graphics Layer').resize(467, 532)
 findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:entry').set_text('0.')
 findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:entry').set_text('0.5')
-widget_0=findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:entry')
-if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
-del widget_0
+widget_0=weakRef(findWidget('Dialog-New Graphics Layer:how:Element Edges:color:TranslucentGray:gray:entry'))
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 findWidget('Dialog-New Graphics Layer:how:Element Edges:width:slider').get_adjustment().set_value( 7.3825503355705e-01)
 findWidget('Dialog-New Graphics Layer:how:Element Edges:width:slider').get_adjustment().set_value( 1.2080536912752e+00)
 findWidget('Dialog-New Graphics Layer:how:Element Edges:width:slider').get_adjustment().set_value( 2.3489932885906e+00)

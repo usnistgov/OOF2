@@ -583,9 +583,8 @@ checkpoint toplevel widget mapped Dialog-Parametrize Color
 findWidget('Dialog-Parametrize Color').resize(279, 206)
 findWidget('Dialog-Parametrize Color:color:TranslucentGray:gray:entry').set_text('0.')
 findWidget('Dialog-Parametrize Color:color:TranslucentGray:gray:entry').set_text('0.5')
-widget_0=findWidget('Dialog-Parametrize Color:color:TranslucentGray:gray:entry')
-if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
-del widget_0
+widget_0=weakRef(findWidget('Dialog-Parametrize Color:color:TranslucentGray:gray:entry'))
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 findWidget('Dialog-Parametrize Color:widget_GTK_RESPONSE_OK').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Property.Parametrize.Color

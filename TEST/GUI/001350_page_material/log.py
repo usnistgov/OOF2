@@ -221,9 +221,8 @@ findWidget('Dialog-Parametrize Thermal;Conductivity;Anisotropic;Cubic:kappa:0,0'
 findWidget('Dialog-Parametrize Thermal;Conductivity;Anisotropic;Cubic:kappa:0,0').set_text('1')
 findWidget('Dialog-Parametrize Thermal;Conductivity;Anisotropic;Cubic:kappa:0,0').set_text('12')
 findWidget('Dialog-Parametrize Thermal;Conductivity;Anisotropic;Cubic:kappa:0,0').set_text('123')
-widget_0=findWidget('Dialog-Parametrize Thermal;Conductivity;Anisotropic;Cubic:kappa:0,0')
-if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
-del widget_0
+widget_0=weakRef(findWidget('Dialog-Parametrize Thermal;Conductivity;Anisotropic;Cubic:kappa:0,0'))
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 findWidget('Dialog-Parametrize Thermal;Conductivity;Anisotropic;Cubic:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.Property.Parametrize.Thermal.Conductivity.Anisotropic.Cubic
 
@@ -380,9 +379,8 @@ checkpoint Materials page updated
 checkpoint property selected
 checkpoint toplevel widget mapped Dialog-Parametrize Thermal;Conductivity;Anisotropic;Cubic
 findWidget('Dialog-Parametrize Thermal;Conductivity;Anisotropic;Cubic').resize(313, 184)
-widget_1=findWidget('Dialog-Parametrize Thermal;Conductivity;Anisotropic;Cubic:kappa:0,0')
-if widget_1: wevent(widget_1, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1.get_window())
-del widget_1
+widget_1=weakRef(findWidget('Dialog-Parametrize Thermal;Conductivity;Anisotropic;Cubic:kappa:0,0'))
+if widget_1(): wevent(widget_1(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1().get_window())
 findWidget('Dialog-Parametrize Thermal;Conductivity;Anisotropic;Cubic:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.Property.Parametrize.Thermal.Conductivity.Anisotropic.Cubic
 

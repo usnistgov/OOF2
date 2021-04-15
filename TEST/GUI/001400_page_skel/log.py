@@ -194,9 +194,8 @@ findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:targets:Heterogen
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set_text('0.')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set_text('0.7')
 findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry').set_text('0.75')
-widget_0=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry')
-if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
-del widget_0
+widget_0=weakRef(findWidget('OOF2:Skeleton Page:Pane:Modification:Method:Refine:alpha:entry'))
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 findWidget('OOF2:Skeleton Page:Pane:Modification:OK').clicked()
 checkpoint skeleton page sensitized
 checkpoint skeleton selection page selection sensitized Element

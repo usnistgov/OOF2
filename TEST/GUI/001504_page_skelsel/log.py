@@ -497,9 +497,8 @@ assert tests.selectionSizeCheck(8)
 findWidget('OOF2:Skeleton Selection Page:Pane:Selection:SegmentAction:Select by Homogeneity:threshold:entry').set_text('0.')
 findWidget('OOF2:Skeleton Selection Page:Pane:Selection:SegmentAction:Select by Homogeneity:threshold:entry').set_text('0.7')
 findWidget('OOF2:Skeleton Selection Page:Pane:Selection:SegmentAction:Select by Homogeneity:threshold:entry').set_text('0.75')
-widget_0=findWidget('OOF2:Skeleton Selection Page:Pane:Selection:SegmentAction:Select by Homogeneity:threshold:entry')
-if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
-del widget_0
+widget_0=weakRef(findWidget('OOF2:Skeleton Selection Page:Pane:Selection:SegmentAction:Select by Homogeneity:threshold:entry'))
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 findWidget('OOF2:Skeleton Selection Page:Pane:Selection:SegmentHistory:OK').clicked()
 checkpoint skeleton selection page selection sensitized Segment
 checkpoint skeleton selection page groups sensitized Segment

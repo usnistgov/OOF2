@@ -70,19 +70,15 @@ assert tests.sensitiveConvCij("Anisotropic;Cubic;instance", c11=1, c12=1, c44=1)
 # Change c11
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Cij:0,0').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Cij:0,0').set_text('2')
-widget_0=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Cij:0,0')
-if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
-del widget_0
+widget_0=weakRef(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Cij:0,0'))
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 checkpoint CijCubicCijklWidget updated
 
 # Click on C_12 and check that other C_ij update correctly
-widget_1=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Cij:0,0')
-if widget_1: wevent(widget_1, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1.get_window())
-del widget_1
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 checkpoint CijCubicCijklWidget updated
-widget_2=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Cij:0,1')
-if widget_2: wevent(widget_2, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2.get_window())
-del widget_2
+widget_2=weakRef(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Cij:0,1'))
+if widget_2(): wevent(widget_2(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2().get_window())
 checkpoint CijCubicCijklWidget updated
 assert tests.convertibleCij("Anisotropic;Cubic;instance", c11=2.0, c12=0.5, c13=0.5, c22=2.0, c23=0.5, c33=2.0, c44=0.25, c55=0.25, c66=0.25)
 
@@ -91,9 +87,7 @@ wevent(findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;in
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Lame']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-widget_3=findWidget('Dialog-Parametrize Mechanical;Elasticity;Anisotropic;Cubic;instance:cijkl:Cij:0,1')
-if widget_3: wevent(widget_3, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_3.get_window())
-del widget_3
+if widget_2(): wevent(widget_2(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2().get_window())
 assert tests.other("Anisotropic;Cubic;instance", "Lame", lmbda=0.5, mu=0.75, aniso=1./3.)
 
 # Switch to E and nu

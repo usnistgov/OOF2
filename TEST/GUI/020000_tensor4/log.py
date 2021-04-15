@@ -88,9 +88,8 @@ assert tests.convertibleCij("Isotropic;instance", c11=1.0, c12=0.5, c13=0.5, c22
 # Change c11
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Cij:0,0').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Cij:0,0').set_text('2')
-widget_0=findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Cij:0,0')
-if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
-del widget_0
+widget_0=weakRef(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Cij:0,0'))
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 # Check that other input fields changed accordingly
 assert tests.convertibleCij("Isotropic;instance", c11=2.0, c12=0.5, c13=0.5, c22=2.0, c23=0.5, c33=2.0, c44=0.75, c55=0.75, c66=0.75)
 
@@ -103,9 +102,8 @@ wevent(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:c
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Lame']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-widget_2=findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Cij:0,0')
-if widget_2: wevent(widget_2, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2.get_window())
-del widget_2
+widget_2=weakRef(findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;instance:cijkl:Cij:0,0'))
+if widget_2(): wevent(widget_2(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2().get_window())
 assert tests.other('Isotropic;instance', 'Lame', lmbda=0.5, mu=0.75)
 
 # Switch to E & nu

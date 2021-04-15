@@ -115,9 +115,8 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Bu
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:local_flammability:entry').set_text('0.1428')
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:local_flammability:entry').set_text('0.14285')
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:local_flammability:entry').set_text('0.142857')
-widget_0=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:local_flammability:entry')
-if widget_0: wevent(widget_0, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0.get_window())
-del widget_0
+widget_0=weakRef(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:local_flammability:entry'))
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:global_flammability:entry').set_text('0.')
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:global_flammability:entry').set_text('0.1')
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:global_flammability:entry').set_text('0.14')
@@ -131,9 +130,8 @@ checkpoint microstructure page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint pixel page updated
 checkpoint selection info updated Pixel Selection
-widget_1=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:global_flammability:entry')
-if widget_1: wevent(widget_1, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1.get_window())
-del widget_1
+widget_1=weakRef(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:global_flammability:entry'))
+if widget_1(): wevent(widget_1(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_1().get_window())
 checkpoint pixel page sensitized
 checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
@@ -183,9 +181,8 @@ findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Despeckl
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Despeckle:neighbors:entry').set_text('6')
 checkpoint pixel page sensitized
 checkpoint pixel page sensitized
-widget_2=findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Despeckle:neighbors:entry')
-if widget_2: wevent(widget_2, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2.get_window())
-del widget_2
+widget_2=weakRef(findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Despeckle:neighbors:entry'))
+if widget_2(): wevent(widget_2(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2().get_window())
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:OK').clicked()
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
@@ -199,9 +196,7 @@ findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Despeckl
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Despeckle:neighbors:entry').set_text('5')
 checkpoint pixel page sensitized
 checkpoint pixel page sensitized
-widget_3=findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:Method:Despeckle:neighbors:entry')
-if widget_3: wevent(widget_3, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_3.get_window())
-del widget_3
+if widget_2(): wevent(widget_2(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_2().get_window())
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:OK').clicked()
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
@@ -245,9 +240,7 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Bu
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:local_flammability:entry').set_text('0.')
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:local_flammability:entry').set_text('0.0')
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:local_flammability:entry').set_text('0.04')
-widget_4=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:local_flammability:entry')
-if widget_4: wevent(widget_4, Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_4.get_window())
-del widget_4
+if widget_0(): wevent(widget_0(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=widget_0().get_window())
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:global_flammability:entry').set_text('0.')
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:global_flammability:entry').set_text('0.0')
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pixel Selection:Method:Burn:global_flammability:entry').set_text('0.04')
