@@ -16,6 +16,12 @@ import logutils
 import sys
 import string
 
+# When recording, _wdict[obj] is the name of a variable which, when
+# replaying, will be storing a weak reference to obj.  All the
+# references are weak so that storing them will not have side effects.
+import weakref
+_wdict = weakref.WeakKeyDictionary()
+
 class WidgetLogger(loggers.GtkLogger):
     classes = (Gtk.Widget,)
 
@@ -110,13 +116,23 @@ class WidgetLogger(loggers.GtkLogger):
         # necessary to check that the widget still exists before
         # issuing the signal.
         if signal == 'focus_out_event':
-            ## TODO GTK3: Keep a weak ref to the previous wvar and
-            ## re-use the old one if the current one is the same.
-            wvar = loggers.localvar('widget')
-            return [
-                "%s=%s" % (wvar, self.location(obj, *args)),
-                "if %(w)s: wevent(%(w)s, Gdk.EventType.FOCUS_CHANGE, in_=0, window=%(w)s.get_window())" % dict(w=wvar),
-                "del %s" % wvar
+            try:
+                wvar = _wdict[obj]
+                lines = []
+            except KeyError:
+                wvar = loggers.localvar('widget')
+                _wdict[obj] = wvar
+                # weakRef returns a weak reference to its argument,
+                # which is a widget.  If the widget no longer exists,
+                # the argument will be None, and weakRef returns a
+                # function that returns None, so that the "if..." in
+                # the following line will not be satisfied.  This
+                # prevents the creation of strong reference to the
+                # widget in a local variable, which could have side
+                # effects.
+                lines = ["%s=weakRef(%s)" % (wvar,self.location(obj,*args))]
+            return lines + [
+                "if %(w)s(): wevent(%(w)s(), Gdk.EventType.FOCUS_CHANGE, in_=0, window=%(w)s().get_window())" % dict(w=wvar),
                 ]
 
         if signal in ('enter-notify-event', 'leave-notify-event'):
@@ -126,7 +142,6 @@ class WidgetLogger(loggers.GtkLogger):
                 etype = "ENTER_NOTIFY"
             else:
                 etype = "LEAVE_NOTIFY"
-            wvar = loggers.localvar('widget')
             return [
                 "event(Gdk.EventType.%(etype)s, window=%(widget)s.get_window())" % dict(etype=etype, widget=self.location(obj, *args))
             ]
@@ -134,16 +149,16 @@ class WidgetLogger(loggers.GtkLogger):
         if signal == 'destroy':
             return ['%s.destroy()' % self.location(obj, *args)]
 
-        ## TODO GTK3: We should catch and log allocation events on top
-        ## level windows only.  Currently we don't catch any
-        ## size-allocate signals except within the OOFCanvas, and it
-        ## doesn't use gtklogger.
         if signal == 'size-allocate':
-            alloc = obj.get_allocation()
-            parent = obj.get_parent()
-            return ["%s.size_allocate(Gdk.Rectangle(%d, %d, %d, %d))" \
-                   % (self.location(obj, *args),
-                      alloc.x, alloc.y, alloc.width, alloc.height)]
+            # Allocation events should be logged on top level widgets
+            # only.  I think.  Gtk will figure out the sizes of
+            # everything else.
+            if logutils.isTopLevelWidget(obj):
+                alloc = obj.get_allocation()
+                parent = obj.get_parent()
+                return ["%s.size_allocate(Gdk.Rectangle(%d, %d, %d, %d))" \
+                       % (self.location(obj, *args),
+                          alloc.x, alloc.y, alloc.width, alloc.height)]
         return super(WidgetLogger, self).record(obj, signal, *args)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

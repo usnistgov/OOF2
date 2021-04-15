@@ -77,9 +77,12 @@ class ListStoreLogger(adopteelogger.AdopteeLogger):
     classes = (Gtk.ListStore,)
     insertrow = None                      # destination for row drag'n'drop
     def record(self, obj, signal, *args):
-        ## Logging the row-inserted and row-deleted signals has not
-        ## been tested because drag and drop isn't working in OOF2
-        ## yet.
+        ## TODO: Logging the row-inserted and row-deleted signals has
+        ## not been tested because drag and drop isn't working in OOF2
+        ## (yet).  When this is implemented, if the local variables
+        ## dvar and lvar are still needed they should be handled the
+        ## same way as wvar in the focus_out_event handler in
+        ## WidgetLogger.record in widgetlogger.py.
         
         # Drag-and-drop of a line within a ListStore creates a pair of
         # row-inserted and row-deleted signals, with row-inserted

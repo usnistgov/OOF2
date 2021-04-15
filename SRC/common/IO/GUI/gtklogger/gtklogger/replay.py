@@ -14,6 +14,7 @@ from gi.repository import GObject
 from gi.repository import Gdk
 from gi.repository import Gtk
 import sys
+import weakref
 
 import core
 import checkpoint
@@ -540,7 +541,23 @@ def deactivatePopup(name):
     except logutils.GtkLoggerTopFailure:
         return
     menu.deactivate()
-        
+
+# weakRef returns a weak reference to its argument, or if the argument
+# is None, it returns a function that returns None.  This way, a log
+# file can contain lines like this:
+#   widget = weakRef(findWidget(...))
+#   if widget(): ...
+# even if findWidget(...) might return None.  This also makes it easy to
+# avoid using strong references in log files, which might have side effects.
+
+def weakRef(obj):
+    if obj is None:
+        return noneFunc
+    return weakref.ref(obj)
+
+def noneFunc():
+    return None
+
 ####################
 
 ## replayDefine adds an object to the namespace used while replaying
@@ -552,3 +569,4 @@ def deactivatePopup(name):
 def replayDefine(obj, name=None):
     nm = name or obj.__name__
     sys.modules[__name__].__dict__[nm] = obj
+
