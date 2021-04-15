@@ -109,18 +109,17 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
 ############################
 
 # loggererror is installed as the gtklogger handler for exceptions
-# that occur during playback.  It's not possible to use the standard
-# oof2 exception handling mechanism directly, because it doesn't
-# handle the gtk thread locks properly in this case.
-## TODO GTK3: Is that still true?  We don't have gtk thread locks
-## anymore.
+# that occur during playback.  Currently commented out because it
+# doesn't seem to be necessary.  Pre-gtk3, we had locks that
+# interfered with normal exception handling and required a special
+# handler during gui playback.
 
-def loggererror(exc, line):
-    from ooflib.common.IO.GUI import reporter_GUI
-    type, value, tb = sys.exc_info()
-    tblist = traceback.extract_tb(tb)
-    reporter_GUI.gui_printTraceBack(type, value, tblist)
-    return True
+# def loggererror(exc, line):
+#     from ooflib.common.IO.GUI import reporter_GUI
+#     type, value, tb = sys.exc_info()
+#     tblist = traceback.extract_tb(tb)
+#     reporter_GUI.gui_printTraceBack(type, value, tblist)
+#     return True
 
 ####
 
@@ -151,7 +150,7 @@ def loadLog(menuitem, filename, checkpoints):
         finishCB=logFinished,
         debugLevel=dblevel,
         threaded=thread_enable.query(),
-        exceptHook=loggererror,
+        #exceptHook=loggererror,
         checkpoints=checkpoints)
 
 guidebugmenu.addItem(oofmenu.OOFMenuItem(
@@ -202,7 +201,7 @@ def rerecordLog(menuitem, filename, checkpoints, use_gui):
         finishCB=logFinished,
         debugLevel=dblevel,
         threaded=thread_enable.query(),
-        exceptHook=loggererror,
+        #exceptHook=loggererror,
         rerecord=filename,
         checkpoints=checkpoints,
         comment_gui=use_gui)

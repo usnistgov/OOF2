@@ -740,6 +740,13 @@ errmenu.addItem(OOFMenuItem('SegFault', callback=_segfault,
                                                   tip="Delay time.")],
                              help='For external use only.  Slippery when wet.'))
 
+def _divzero(menuitem):
+    x = 0
+    y = 1/x
+
+errmenu.addItem(OOFMenuItem('DivideByZero', callback=_divzero,
+                            help="Not recommended"))
+
 def _pyerror(menuitem):
     raise RuntimeError("Oops!")
 

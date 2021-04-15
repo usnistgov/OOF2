@@ -150,10 +150,7 @@ arguments to gtklogger.replay are:
               The function should return True if it has
               handled the exception, and False if the exception
               should be propagated further.  In either case, no
-              more lines will be executed from the log file.  Note
-              that the function will be called from within a
-              gtk.threads_enter(), gtk.threads_leave() pair if
-              threaded==True.
+              more lines will be executed from the log file.
   rerecord:   See below
   checkpoints: Boolean, indicating if checkpoints should be respected
                (default is True).

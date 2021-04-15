@@ -312,6 +312,8 @@ class GUILogLineRunner(object):
                     if self.logrunner.exceptHook:
                         if not self.logrunner.exceptHook(exc, self.srcline):
                             raise exc
+                    else:
+                        raise exc
             finally:
                 Gdk.flush()
 
