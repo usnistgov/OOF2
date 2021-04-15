@@ -28,7 +28,7 @@ from gi.repository import Pango
 # The button text needs to be provided with labelstr, if desired.
 # gtk2 provided it automatically.
 
-## TODO GTK3: Many of the icons come in two flavors, "xxx" and
+## TODO?: Many of the icons come in two flavors, "xxx" and
 ## "xxx-symbolic".  We could make using the symbolic versions an
 ## option. StockButton could check for the existence of the preferred
 ## version and fall back to the other version if the preferred one was
