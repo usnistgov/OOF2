@@ -35,7 +35,9 @@ import types
 class MatrixInputBase(parameterwidgets.ParameterWidget,
                       widgetscope.WidgetScope):
     def __init__(self, rows, cols, paramtype, paramargs={},
-                 value=None, scope=None, name=None, **kwargs):
+                 value=None, scope=None, name=None,
+                 subwidgetalign=Gtk.Align.FILL, # alignment w/in grid cells
+                 **kwargs):
         debug.mainthreadTest()
         quargs = kwargs.copy()
         quargs.setdefault('hexpand', True)
@@ -67,7 +69,7 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
                 # a dummy to the widget.
                 dummyparam = paramtype(name="%d,%d"%(r,c), **paramargs)
                 newwidget = dummyparam.makeWidget(scope=self, compact=True,
-                                                  halign=Gtk.Align.FILL,
+                                                  halign=subwidgetalign,
                                                   hexpand=True)
                 self.sbcallbacks.append(
                     switchboard.requestCallbackMain(newwidget,
@@ -100,7 +102,9 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
 # but is otherwise similar.
 class SymmetricMatrixInputBase(MatrixInputBase):
     def __init__(self, rows, cols, paramtype, paramargs={},
-                 value=None, scope=None, name=None, **kwargs):
+                 value=None, scope=None, name=None,
+                 subwidgetalign=Gtk.Align.FILL, # alignment w/in grid cells
+                 **kwargs):
         debug.mainthreadTest()
         frame = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         quargs = kwargs.copy()
@@ -131,7 +135,7 @@ class SymmetricMatrixInputBase(MatrixInputBase):
             for c in range(r,self.cols):
                 dummyparam = paramtype(name="%d,%d"%(r,c), **paramargs)
                 newwidget = dummyparam.makeWidget(scope=self, compact=True,
-                                                  halign=Gtk.Align.FILL,
+                                                  halign=subwidgetalign,
                                                   hexpand=True)
                 self.sbcallbacks.append(
                     switchboard.requestCallbackMain(newwidget,
@@ -173,16 +177,14 @@ class SymmetricMatrixInput(SymmetricMatrixInputBase):
 ## valid situation.  Maybe the underlying Parameter should indicate if
 ## all False is a valid value.
 
-## TODO GTK3: The checkboxes are not centered in the columns, but the
-## column labels are, which is bad when the widget has expanded to
-## fill extra space.  
-
 class MatrixBoolInput(SymmetricMatrixInputBase):
     def __init__(self, rows, cols, value=None, scope=None, name=None, **kwargs):
         MatrixInputBase.__init__(self, rows=rows, cols=cols,
                                  paramtype=parameter.BooleanParameter,
                                  paramargs=dict(value=False),
-                                 value=value, scope=scope, name=name, **kwargs)
+                                 value=value, scope=scope, name=name,
+                                 subwidgetalign=Gtk.Align.CENTER,
+                                 **kwargs)
 
 class SymmetricMatrixBoolInput(SymmetricMatrixInputBase):
     def __init__(self, rows, cols, value=None, scope=None, name=None, **kwargs):
@@ -190,5 +192,6 @@ class SymmetricMatrixBoolInput(SymmetricMatrixInputBase):
                                           paramtype=parameter.BooleanParameter,
                                           paramargs=dict(value=False),
                                           value=value, scope=scope, name=name,
+                                          subwidgetalign=Gtk.Align.CENTER,
                                           **kwargs)
         
