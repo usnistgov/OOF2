@@ -112,7 +112,7 @@ class MeshPage(oofGUI.MainPage):
                               wide_handle=True)
         gtklogger.setWidgetName(mainpane, 'Pane')
         mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
-        # TODO? Figure this out. The notify::position signals for
+        # TODO GTK3: Figure this out. The notify::position signals for
         # mainpane and leftpane generate gui log lines when the
         # program starts.  I haven't been able to discover why.  Other
         # pages contain Gtk.Paneds connected to notify::position

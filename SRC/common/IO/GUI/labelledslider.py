@@ -64,6 +64,7 @@ class LabelledSlider:
         self.immediate = immediate
 
         self.gtk = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL, **kwargs)
+        gtklogger.connect_passive(self.gtk, 'notify::position')
         if value is None:
             value = vmin
         self.clipperclass = clipperclass or DefaultClipper

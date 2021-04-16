@@ -19,9 +19,6 @@
 ## might need to force switchboard notifications to be emitted
 ## immediately.
 
-## TODO GTK3: Check that all Gtk.Paned's have
-## connect_passive('notify::position')
-
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import guitop
 from ooflib.common import debug

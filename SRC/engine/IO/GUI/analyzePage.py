@@ -190,6 +190,8 @@ class AnalyzePage(BaseAnalysisPage):
                               wide_handle=True,
                               margin_start=2, margin_end=2)
         mainbox.pack_start(mainvpane, expand=True, fill=True, padding=0)
+        gtklogger.setWidgetName(mainvpane, 'mainpane')
+        gtklogger.connect_passive(mainvpane, 'notify::position')
         self.topPane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
                                  wide_handle=True)
         gtklogger.setWidgetName(self.topPane, 'top')
@@ -204,6 +206,10 @@ class AnalyzePage(BaseAnalysisPage):
         # Since Paneds don't have a dedicated signal indicating that
         # their dividers have been moved, we have to use the the
         # generic 'notify' signal.
+        ## TODO GTK3: Synchronization isn't working when a gui script
+        ## that moves the panes is replayed.  Is that a gtklogger
+        ## problem or an OOF2 problem? If it's just an OOF2 problem we
+        ## may not care about it.
         self.paneSignals = {
             self.topPane : gtklogger.connect(self.topPane,
                                              'notify::position', 

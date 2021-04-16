@@ -23,11 +23,6 @@
 # ParameterWidget, and must do the work of that class by itself.
 # Perhaps this is a symptom of bad design.
 
-## TODO GTK3?  WhoWidgets don't need tooltips, and can use
-## GtkComboBox.  Just use GtkComboBox directly, instead of using
-## Chooser.  Or would that be ugly, since ChooserWidgets and
-## GtkComboBoxes don't look exactly alike?
-
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import labeltree
