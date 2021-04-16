@@ -442,6 +442,25 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             self.menu.Layer.Raise.To_Top(
                 n=self.layerID(self.selectedLayer))
 
+    def raiseBy_gui(self, menuitem):
+        if self.selectedLayer is None:
+            guitop.top().message_out('No layer is selected!\n')
+        else:
+            if parameterwidgets.getParameters(menuitem.get_arg('howfar'),
+                                              title="Raise Layer",
+                                              parentwindow=self.gtk):
+                menuitem.callWithDefaults(n=self.layerID(self.selectedLayer))
+
+    def lowerBy_gui(self, menuitem):
+        if self.selectedLayer is None:
+            guitop.top().message_out('No layer is selected!\n')
+        else:
+            if parameterwidgets.getParameters(menuitem.get_arg('howfar'),
+                                              title="Lower Layer",
+                                              parentwindow=self.gtk):
+                menuitem.callWithDefaults(n=self.layerID(self.selectedLayer))
+
+
     def lowerLayer_gui(self, menuitem):
         if self.selectedLayer is None:
             guitop.top().message_out('No layer is selected!\n')

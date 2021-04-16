@@ -395,8 +395,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         layermenu.Unfreeze.add_gui_callback(self.unfreezeLayer_gui)
         layermenu.Raise.One_Level.add_gui_callback(self.raiseLayer_gui)
         layermenu.Raise.To_Top.add_gui_callback(self.raiseToTop_gui)
+        layermenu.Raise.By.add_gui_callback(self.raiseBy_gui)
         layermenu.Lower.One_Level.add_gui_callback(self.lowerLayer_gui)
         layermenu.Lower.To_Bottom.add_gui_callback(self.lowerToBottom_gui)
+        layermenu.Lower.By.add_gui_callback(self.lowerBy_gui)
         settingmenu = self.menu.Settings
         toolboxmenu = self.menu.Toolbox
 
