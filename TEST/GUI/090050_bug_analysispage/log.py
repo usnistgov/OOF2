@@ -29,7 +29,7 @@ checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Analysis']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Analysis
-findWidget('OOF2:Analysis Page:bottom').set_position(320)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(320)
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Quit']).activate()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(336, 86)

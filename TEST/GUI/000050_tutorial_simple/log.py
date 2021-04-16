@@ -1037,6 +1037,19 @@ checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Edit
+
+findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'Reorder_All']).activate()
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.8000000000000e+01)
+checkpoint Graphics_1 Pixel Info updated
+checkpoint selection info updated Pixel Selection
+checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
+checkpoint selection info updated Node
+checkpoint selection info updated Segment
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Graphics_1.Layer.Reorder_All
+
 findWidget('A Simple Example:Next').clicked()
 findWidget('A Simple Example:Close').clicked()
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()

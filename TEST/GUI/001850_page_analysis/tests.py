@@ -19,12 +19,12 @@ def goSensitive(sensitive):
     return is_sensitive('OOF2:Analysis Page:Go') == sensitive
 
 def samplingOptions(*opts):
-    return chooserCheck('OOF2:Analysis Page:bottom:Sampling:Sampling:RCFChooser', opts)
+    return chooserCheck('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:RCFChooser', opts)
 
 def samplingParams(sampling, paramnames):
     widgetnames = gtklogger.findAllWidgets(
-        'OOF2:Analysis Page:bottom:Sampling:Sampling:%s' % sampling)
-    if not chooserStateCheck('OOF2:Analysis Page:bottom:Sampling:Sampling:RCFChooser',
+        'OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:%s' % sampling)
+    if not chooserStateCheck('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:RCFChooser',
                              sampling):
         return False
     # The first item in the list is the sampling type, not a param, so
@@ -62,7 +62,7 @@ def msgTextValue(*vals, **kwargs):
     
 def csWidgetCheck(names, new, copy, edit, rename, remove):
     if not chooserCheck(
-        'OOF2:Analysis Page:top:Domain:DomainRCF:Cross Section:cross_section:List',
+        'OOF2:Analysis Page:mainpane:top:Domain:DomainRCF:Cross Section:cross_section:List',
         names):
         print >> sys.stderr, "CS names don't agree"
         return False
@@ -72,7 +72,7 @@ def csWidgetCheck(names, new, copy, edit, rename, remove):
          'Edit':edit,
          'Rename':rename,
          'Remove':remove},
-        base="OOF2:Analysis Page:top:Domain:DomainRCF:Cross Section:cross_section"):
+        base="OOF2:Analysis Page:mainpane:top:Domain:DomainRCF:Cross Section:cross_section"):
         return False
     return True
 

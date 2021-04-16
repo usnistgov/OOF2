@@ -737,7 +737,16 @@ TutorialClass(
     Click BOLD(OK) and go back to the Graphics Window to observe the
     result.  The map on the right edge of the window indicates how
     colors correspond to actual values.
-    """
+
+    Notice that the contour graphics layer is hiding the Skeleton
+    element edges, and is above the Skeleton edge layer in the layer
+    list. This is because you edited the Mesh edge layer to turn it
+    into a contour layer, and the Mesh edges were displayed above the
+    Skeleton edges.  If instead you had created a new layer, it would
+    have appeared in its default position, below the Skeleton edge
+    layer in the list.  Using the BOLD(Layer) menu you can lower the
+    contour layer below the edges, or choose BOLD(Reorder All) to put
+    the contour layer in its default position.  """
     ),
         
         TutoringItem(

@@ -163,20 +163,20 @@ checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Analysis']).activate() # MenuItemLogger
 checkpoint page installed Analysis
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(320)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(320)
 assert tests.goSensitive(1)
 assert tests.samplingOptions('Grid Points', 'Spaced Grid Points', 'Pixels')
 assert tests.samplingParams('Grid Points', ['x_points', 'y_points', 'show_x', 'show_y'])
 
-findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:Grid Points:x_points').set_text('')
-findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:Grid Points:x_points').set_text('3')
-findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:Grid Points:y_points').set_text('')
-findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:Grid Points:y_points').set_text('3')
+findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:Grid Points:x_points').set_text('')
+findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:Grid Points:x_points').set_text('3')
+findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:Grid Points:y_points').set_text('')
+findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:Grid Points:y_points').set_text('3')
 findWidget('OOF2:Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Analyze.Direct_Output
 assert tests.msgTextTail('10.0, 10.0, 0.0')
 
-event(Gdk.EventType.BUTTON_PRESS,x= 1.6000000000000e+02,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Domain:DomainRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.6000000000000e+02,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Domain:DomainRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Pixel Group']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
@@ -184,7 +184,7 @@ assert tests.goSensitive(1)
 assert tests.samplingOptions('Grid Points', 'Spaced Grid Points', 'Pixels')
 assert tests.samplingParams('Grid Points', ['x_points', 'y_points', 'show_x', 'show_y'])
 
-event(Gdk.EventType.BUTTON_PRESS,x= 1.0500000000000e+02,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Domain:DomainRCF:Pixel Group:pixels').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.0500000000000e+02,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Domain:DomainRCF:Pixel Group:pixels').get_window())
 checkpoint toplevel widget mapped chooserPopup-pixels
 findMenu(findWidget('chooserPopup-pixels'), ['green']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-pixels') # MenuItemLogger
@@ -196,7 +196,7 @@ findWidget('OOF2:Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Analyze.Direct_Output
 assert tests.msgTextTail('0.0, 10.0, 0.0')
 
-event(Gdk.EventType.BUTTON_PRESS,x= 1.3400000000000e+02,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Domain:DomainRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.3400000000000e+02,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Domain:DomainRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Entire Mesh']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
@@ -204,31 +204,31 @@ assert tests.goSensitive(1)
 assert tests.samplingOptions('Grid Points', 'Spaced Grid Points', 'Pixels')
 assert tests.samplingParams('Grid Points', ['x_points', 'y_points', 'show_x', 'show_y'])
 
-event(Gdk.EventType.BUTTON_PRESS,x= 1.1900000000000e+02,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Domain:DomainRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.1900000000000e+02,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Domain:DomainRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Cross Section']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:top').set_position(297)
-findWidget('OOF2:Analysis Page:bottom').set_position(287)
+findWidget('OOF2:Analysis Page:mainpane:top').set_position(297)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(287)
 assert tests.goSensitive(0)
 assert tests.samplingOptions('Line Points', 'Element Segments')
 assert tests.samplingParams('Line Points', ['n_points', 'show_distance', 'show_fraction', 'show_x', 'show_y'])
 assert tests.csWidgetCheck0()
 
-event(Gdk.EventType.BUTTON_PRESS,x= 4.0000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 4.0000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Element Segments']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(224)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(224)
 assert tests.goSensitive(0)
 assert tests.samplingOptions('Line Points', 'Element Segments')
 assert tests.samplingParams('Element Segments', ['n_points', 'show_segment', 'show_distance', 'show_fraction', 'show_x', 'show_y'])
 
-event(Gdk.EventType.BUTTON_PRESS,x= 8.8000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Domain:DomainRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 8.8000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Domain:DomainRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Element Group']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(320)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(320)
 assert tests.goSensitive(1)
 assert tests.samplingOptions('Grid Points', 'Spaced Grid Points')
 assert tests.samplingParams('Grid Points', ['x_points', 'y_points', 'show_x', 'show_y'])
@@ -237,71 +237,71 @@ findWidget('OOF2:Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Analyze.Direct_Output
 assert tests.msgTextTail("OOF.Mesh.Analyze.Direct_Output(mesh='el_shape.png:skeleton:mesh', time=latest, data=getOutput('Field:Component',component='x',field=Displacement), domain=ElementGroup(elements=selection), sampling=GridSampleSet(x_points=3,y_points=3,show_x=True,show_y=True), destination=MessageWindowStream())")
 
-event(Gdk.EventType.BUTTON_PRESS,x= 1.0900000000000e+02,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Domain:DomainRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.0900000000000e+02,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Domain:DomainRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Entire Mesh']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-event(Gdk.EventType.BUTTON_PRESS,x= 1.1100000000000e+02,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Operation:OperationRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.1100000000000e+02,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Operation:OperationRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Average']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(278)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(278)
 assert tests.goSensitive(1)
 assert tests.samplingOptions('Element Set', 'Grid Points', 'Spaced Grid Points', 'Pixels')
 assert tests.samplingParams('Grid Points', ['x_points', 'y_points'])
 
-event(Gdk.EventType.BUTTON_PRESS,x= 1.4400000000000e+02,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Operation:OperationRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.4400000000000e+02,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Operation:OperationRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Direct Output']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(320)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(320)
 assert tests.goSensitive(1)
 assert tests.samplingOptions('Grid Points', 'Spaced Grid Points', 'Pixels')
 assert tests.samplingParams('Grid Points', ['x_points', 'y_points', 'show_x', 'show_y'])
 
-event(Gdk.EventType.BUTTON_PRESS,x= 1.4900000000000e+02,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Operation:OperationRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.4900000000000e+02,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Operation:OperationRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Standard Deviation']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(362)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(362)
 assert tests.goSensitive(1)
 assert tests.samplingOptions('Element Set', 'Grid Points', 'Spaced Grid Points', 'Pixels')
 assert tests.samplingParams('Grid Points', ['x_points', 'y_points'])
 
-event(Gdk.EventType.BUTTON_PRESS,x= 8.3000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 8.3000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Spaced Grid Points']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(369)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(369)
 assert tests.goSensitive(1)
 assert tests.samplingParams('Spaced Grid Points', ['delta_x', 'delta_y'])
 
-event(Gdk.EventType.BUTTON_PRESS,x= 2.0000000000000e+02,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Operation:OperationRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 2.0000000000000e+02,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Operation:OperationRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Direct Output']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(324)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(324)
 assert tests.goSensitive(1)
 assert tests.samplingParams('Spaced Grid Points', ['delta_x', 'delta_y', 'show_x', 'show_y'])
 
-event(Gdk.EventType.BUTTON_PRESS,x= 1.5600000000000e+02,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.5600000000000e+02,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Grid Points']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(320)
-event(Gdk.EventType.BUTTON_PRESS,x= 1.4400000000000e+02,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Operation:OperationRCF:RCFChooser').get_window())
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(320)
+event(Gdk.EventType.BUTTON_PRESS,x= 1.4400000000000e+02,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Operation:OperationRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Standard Deviation']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(362)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(362)
 assert tests.goSensitive(1)
 assert tests.samplingParams('Grid Points', ['x_points', 'y_points'])
 
-event(Gdk.EventType.BUTTON_PRESS,x= 1.2500000000000e+02,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.2500000000000e+02,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Pixels']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(489)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(489)
 assert tests.goSensitive(1)
 assert tests.samplingParams('Pixels', [])
 
@@ -317,14 +317,14 @@ findWidget('Dialog-Add a data destination:filename').set_text('msg.da')
 findWidget('Dialog-Add a data destination:filename').set_text('msg.dat')
 findWidget('Dialog-Add a data destination:filename').set_text('msg.data')
 findWidget('Dialog-Add a data destination:widget_GTK_RESPONSE_OK').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 1.9900000000000e+02,y= 2.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Operation:OperationRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.9900000000000e+02,y= 2.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Operation:OperationRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Direct Output']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 from ooflib.common.IO.GUI import gtklogger
 print >> sys.stderr, gtklogger.findAllWidgets('OOF2:Analysis Page:Destination')
 assert tests.chooserCheck('OOF2:Analysis Page:Destination:TextDestChooser', ['<Message Window>', 'msg.data'])
-findWidget('OOF2:Analysis Page:bottom').set_position(346)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(346)
 findWidget('OOF2:Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Analyze.Direct_Output
 assert tests.filediff('msg.data')
@@ -332,11 +332,11 @@ assert tests.filediff('msg.data')
 findWidget('OOF2:Analysis Page:Destination:Clear').clicked()
 assert tests.chooserCheck('OOF2:Analysis Page:Destination:TextDestChooser', ['<Message Window>'])
 
-event(Gdk.EventType.BUTTON_PRESS,x= 1.9000000000000e+02,y= 1.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Operation:OperationRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.9000000000000e+02,y= 1.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Operation:OperationRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Average']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(405)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(405)
 assert tests.samplingParams('Pixels', [])
 
 findWidget('OOF2:Analysis Page:Go').clicked()
@@ -481,22 +481,22 @@ assert tests.goSensitive(1)
 assert tests.samplingParams('Pixels', [])
 
 # Set the Domain to Cross Section
-event(Gdk.EventType.BUTTON_PRESS,x= 1.5600000000000e+02,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Domain:DomainRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.5600000000000e+02,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Domain:DomainRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Cross Section']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:top').set_position(297)
+findWidget('OOF2:Analysis Page:mainpane:top').set_position(297)
 assert tests.goSensitive(1)
 assert tests.samplingParams('Line Points', ['n_points'])
 assert tests.samplingOptions('Line Points', 'Element Segments')
 
 # Set Sampling to Element Segments
-event(Gdk.EventType.BUTTON_PRESS,x= 7.5000000000000e+01,y= 7.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 7.5000000000000e+01,y= 7.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Element Segments']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 # Set Operation to Direct Output
-event(Gdk.EventType.BUTTON_PRESS,x= 1.2300000000000e+02,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Operation:OperationRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.2300000000000e+02,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Operation:OperationRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Direct Output']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
@@ -504,7 +504,7 @@ assert tests.goSensitive(1)
 assert tests.samplingOptions('Line Points', 'Element Segments')
 assert tests.samplingParams('Element Segments', ['n_points', 'show_segment', 'show_distance', 'show_fraction', 'show_x', 'show_y'])
 
-event(Gdk.EventType.BUTTON_PRESS,x= 5.2000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 5.2000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Line Points']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
@@ -627,11 +627,11 @@ checkpoint OOF.ElementSelection.Clear
 findWidget('OOF2:Navigation:PrevHist').clicked()
 checkpoint page installed Analysis
 # Use the element group as the output domain
-event(Gdk.EventType.BUTTON_PRESS,x= 6.7000000000000e+01,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Domain:DomainRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 6.7000000000000e+01,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Domain:DomainRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Element Group']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-event(Gdk.EventType.BUTTON_PRESS,x= 1.0400000000000e+02,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Domain:DomainRCF:Element Group:elements').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.0400000000000e+02,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Domain:DomainRCF:Element Group:elements').get_window())
 checkpoint toplevel widget mapped chooserPopup-elements
 findMenu(findWidget('chooserPopup-elements'), ['green elements']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-elements') # MenuItemLogger
@@ -640,7 +640,7 @@ assert tests.samplingOptions('Grid Points', 'Spaced Grid Points')
 assert tests.samplingParams('Grid Points',                             ['x_points', 'y_points', 'show_x', 'show_y'])
 
 # Set operation to average
-event(Gdk.EventType.BUTTON_PRESS,x= 1.6100000000000e+02,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Operation:OperationRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.6100000000000e+02,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Operation:OperationRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Average']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
@@ -648,12 +648,12 @@ assert tests.goSensitive(1)
 assert tests.samplingOptions('Element Set', 'Grid Points', 'Spaced Grid Points')
 assert tests.samplingParams('Grid Points', ['x_points', 'y_points'])
 
-findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:Grid Points:x_points').set_text('')
-findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:Grid Points:x_points').set_text('1')
-findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:Grid Points:x_points').set_text('10')
-findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:Grid Points:y_points').set_text('')
-findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:Grid Points:y_points').set_text('1')
-findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:Grid Points:y_points').set_text('10')
+findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:Grid Points:x_points').set_text('')
+findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:Grid Points:x_points').set_text('1')
+findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:Grid Points:x_points').set_text('10')
+findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:Grid Points:y_points').set_text('')
+findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:Grid Points:y_points').set_text('1')
+findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:Grid Points:y_points').set_text('10')
 # Set destination back to Message Window
 event(Gdk.EventType.BUTTON_PRESS,x= 8.5000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:Destination:TextDestChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-TextDestChooser

@@ -172,47 +172,47 @@ checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Analysis']).activate() # MenuItemLogger
 checkpoint page installed Analysis
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(320)
-findWidget('OOF2:Analysis Page:top:Output:AggregateMode').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 1.3700000000000e+02,y= 8.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Output:Aggregate:Aggregate_0').get_window())
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(320)
+findWidget('OOF2:Analysis Page:mainpane:top:Output:AggregateMode').clicked()
+event(Gdk.EventType.BUTTON_PRESS,x= 1.3700000000000e+02,y= 8.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Output:Aggregate:Aggregate_0').get_window())
 checkpoint toplevel widget mapped chooserPopup-Aggregate_0
 findMenu(findWidget('chooserPopup-Aggregate_0'), ['Flux']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Aggregate_0') # MenuItemLogger
-event(Gdk.EventType.BUTTON_PRESS,x= 1.4600000000000e+02,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Operation:OperationRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.4600000000000e+02,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Operation:OperationRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Average and Deviation']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(403)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(403)
 findWidget('OOF2:Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Analyze.Average_and_Deviation
 findWidget('OOF2 Messages 1').resize(649, 196)
 assert tests.gtkTextviewTail('OOF2 Messages 1:Text', "0.0, 0.128205128213, 0.044862449681, 1.94794604925e-11, 1.06882558947e-09, 0.0384615384699, 0.0134587350299, 0.0, 0.0, 0.0, 0.0, -4.53952110882e-11, 4.21110743392e-10\n")
 findWidget('OOF2 Messages 1').resize(649, 196)
 findWidget('Postprocessing:Next').clicked()
-findWidget('OOF2:Analysis Page:top:Output:ScalarMode').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 1.0600000000000e+02,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Output:Scalar:Scalar_1').get_window())
+findWidget('OOF2:Analysis Page:mainpane:top:Output:ScalarMode').clicked()
+event(Gdk.EventType.BUTTON_PRESS,x= 1.0600000000000e+02,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Output:Scalar:Scalar_1').get_window())
 checkpoint toplevel widget mapped chooserPopup-Scalar_1
 findMenu(findWidget('chooserPopup-Scalar_1'), ['Derivative']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Scalar_1') # MenuItemLogger
 findWidget('OOF2').resize(794, 592)
-findWidget('OOF2:Analysis Page:bottom').set_position(410)
-findWidget('OOF2:Analysis Page:top').set_position(416)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(410)
+findWidget('OOF2:Analysis Page:mainpane:top').set_position(416)
 findWidget('OOF2').resize(807, 685)
-findWidget('OOF2:Analysis Page:bottom').set_position(417)
-findWidget('OOF2:Analysis Page:top').set_position(424)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(417)
+findWidget('OOF2:Analysis Page:mainpane:top').set_position(424)
 findWidget('OOF2').resize(816, 737)
-findWidget('OOF2:Analysis Page:bottom').set_position(421)
-findWidget('OOF2:Analysis Page:top').set_position(426)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(421)
+findWidget('OOF2:Analysis Page:mainpane:top').set_position(426)
 findWidget('OOF2').resize(816, 738)
-event(Gdk.EventType.BUTTON_PRESS,x= 1.8000000000000e+02,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Operation:OperationRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.8000000000000e+02,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Operation:OperationRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Direct Output']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(334)
-findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:Grid Points:x_points').set_text('')
-findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:Grid Points:x_points').set_text('5')
-findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:Grid Points:y_points').set_text('')
-findWidget('OOF2:Analysis Page:bottom:Sampling:Sampling:Grid Points:y_points').set_text('5')
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(334)
+findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:Grid Points:x_points').set_text('')
+findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:Grid Points:x_points').set_text('5')
+findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:Grid Points:y_points').set_text('')
+findWidget('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:Grid Points:y_points').set_text('5')
 findWidget('OOF2:Analysis Page:Destination:New').clicked()
 checkpoint toplevel widget mapped Dialog-Add a data destination
 findWidget('Dialog-Add a data destination').resize(192, 122)
@@ -234,7 +234,7 @@ findWidget('OOF2:Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Analyze.Direct_Output
 assert tests.filediff('datafile.dat', reference='datafile0.dat', tolerance=1.e-6)
 findWidget('Postprocessing:Next').clicked()
-event(Gdk.EventType.BUTTON_PRESS,x= 4.2000000000000e+01,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Output:Scalar:Parameters:component').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 4.2000000000000e+01,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Output:Scalar:Parameters:component').get_window())
 checkpoint toplevel widget mapped chooserPopup-component
 findMenu(findWidget('chooserPopup-component'), ['y']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-component') # MenuItemLogger
@@ -243,11 +243,11 @@ checkpoint OOF.Mesh.Analyze.Direct_Output
 assert tests.filediff('datafile.dat', reference='datafile1.dat', tolerance=1.e-6)
 findWidget('OOF2:Analysis Page:Destination:Rewind').clicked()
 checkpoint OOF.Mesh.Analyze.Rewind
-event(Gdk.EventType.BUTTON_PRESS,x= 1.2400000000000e+02,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Output:Scalar:Scalar_2').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.2400000000000e+02,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Output:Scalar:Scalar_2').get_window())
 checkpoint toplevel widget mapped chooserPopup-Scalar_2
 findMenu(findWidget('chooserPopup-Scalar_2'), ['Invariant']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Scalar_2') # MenuItemLogger
-event(Gdk.EventType.BUTTON_PRESS,x= 8.0000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Output:Scalar:Parameters:derivative').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 8.0000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Output:Scalar:Parameters:derivative').get_window())
 checkpoint toplevel widget mapped chooserPopup-derivative
 findWidget('chooserPopup-derivative').deactivate() # MenuLogger
 event(Gdk.EventType.BUTTON_PRESS,x= 1.3200000000000e+02,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:Destination:TextDestChooser').get_window())

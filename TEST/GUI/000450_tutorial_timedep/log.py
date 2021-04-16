@@ -415,17 +415,17 @@ checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Analysis']).activate() # MenuItemLogger
 checkpoint page installed Analysis
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(320)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(320)
 findWidget('OOF2').resize(782, 601)
-event(Gdk.EventType.BUTTON_PRESS,x= 6.5000000000000e+01,y= 7.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:top:Output:Scalar:Parameters:component').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 6.5000000000000e+01,y= 7.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:top:Output:Scalar:Parameters:component').get_window())
 checkpoint toplevel widget mapped chooserPopup-component
 findMenu(findWidget('chooserPopup-component'), ['y']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-component') # MenuItemLogger
-event(Gdk.EventType.BUTTON_PRESS,x= 1.5800000000000e+02,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:bottom:Operation:OperationRCF:RCFChooser').get_window())
+event(Gdk.EventType.BUTTON_PRESS,x= 1.5800000000000e+02,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Analysis Page:mainpane:bottom:Operation:OperationRCF:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Average']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-findWidget('OOF2:Analysis Page:bottom').set_position(296)
+findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(296)
 findWidget('OOF2:Analysis Page:Name:New').clicked()
 checkpoint toplevel widget mapped Dialog-Name an analysis operation
 findWidget('Dialog-Name an analysis operation').resize(192, 92)

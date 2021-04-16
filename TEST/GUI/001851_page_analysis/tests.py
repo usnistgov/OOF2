@@ -11,8 +11,8 @@
 from generics import *
 
 def samplingOptions(*opts):
-    return chooserCheck('OOF2:Analysis Page:bottom:Sampling:Sampling:RCFChooser', opts)
+    return chooserCheck('OOF2:Analysis Page:mainpane:bottom:Sampling:Sampling:RCFChooser', opts)
 
 def operationOptions(*opts):
     return chooserCheck(
-        'OOF2:Analysis Page:bottom:Operation:OperationRCF:RCFChooser', opts)
+        'OOF2:Analysis Page:mainpane:bottom:Operation:OperationRCF:RCFChooser', opts)

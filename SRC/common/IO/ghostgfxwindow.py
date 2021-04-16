@@ -80,7 +80,6 @@ class GfxSettings:
     margin = 0.05
     longlayernames = False      # Use long form of layer reprs.
     listall = False             # are all layers to be listed?
-    autoreorder = True          # automatically reorder layers?
     antialias = True
     aspectratio = 5             # Aspect ratio of the contourmap.
     contourmap_markersize = 2   # Size in pixels of contourmap marker.
@@ -511,7 +510,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         lowermenu.addItem(OOFMenuItem(
             'By',
             callback=self.lowerBy,
-            # cli_only = 1,
             params=[
                 IntParameter('n', 0, tip="Layer index."),
                 IntParameter('howfar', 1, tip="How far to lower the layer.")
@@ -568,14 +566,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             help= "Use the long form of layer names in the layer list.",
             discussion=xmlmenudump.loadFile(
                     'DISCUSSIONS/common/menu/longlayers.xml')
-        ))
-        settingmenu.addItem(CheckOOFMenuItem(
-            'Auto_Reorder',
-            callback=self.toggleAutoReorder,
-            value=self.settings.autoreorder,
-            help="Automatically reorder layers when new layers are created.",
-            discussion=xmlmenudump.loadFile(
-                    'DISCUSSIONS/common/menu/autoreorder.xml')
         ))
         settingmenu.addItem(OOFMenuItem(
             'Time',
@@ -1105,11 +1095,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         # Redefined in GfxWindowBase class.
         pass
 
-    def toggleAutoReorder(self, menuitem, autoreorder):
-        self.acquireGfxLock()
-        self.settings.autoreorder = autoreorder
-        self.releaseGfxLock()
-
     def toggleLongLayerNames(self, menuitem, longlayernames):
         self.settings.longlayernames = longlayernames
         
@@ -1265,16 +1250,13 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         if new_contourmap_method != self.current_contourmap_method:
             self.current_contourmap_method = new_contourmap_method
             switchboard.notify((self, "new contourmap layer"))
+
+        # Sync layer order in the canvas the the order in self.layers
+        self.oofcanvas.reorderLayers(
+            [l.canvaslayer for l in self.layers])
+        
         self.draw()
         self.sensitize_menus()  # must be called last
-
-    ## TODO GTK3: If there are multiple contour layers, editing one of
-    ## them can change which one is visible.  Is sortLayers too
-    ## aggressive?  Being called too often?
-
-    ## TODO GTK3: If there is no selected layer and autoreorder=False,
-    ## a new layer should be inserted at the lowest level such that it
-    ## would normally sort below all of the layers above it.
 
     def incorporateLayer(self, layer, who, autoselect=True, lock=True):
         if lock:
@@ -1299,8 +1281,23 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 layer.setWho(who)
                 oldlayer.destroy()
             else:
-                # There's no selected layer. Add the new layer.
-                self.layers.append(layer)
+                # There's no selected layer. Add the new layer.  Add
+                # the new layer at the lowest position such that its
+                # sorting order is below all the layers above it.
+                # That is, the layer won't be hidden by the layers
+                # above it, and if possible it won't hide layers
+                # below.
+                if not self.layers:
+                    self.layers.append(layer)
+                else:
+                    for i in reversed(range(len(self.layers))):
+                        if display.layercomparator(layer, self.layers[i]) >= 0:
+                            # The new layer belongs above layer i.
+                            self.layers[i+1:i+1] = [layer]
+                            break
+                    else:
+                        self.layers[0:0] = [layer]
+                            
                 layer.build(self)
                 layer.setWho(who)
                 if autoselect:
@@ -1308,16 +1305,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         finally:
             if lock:
                 self.releaseGfxLock()
-        if self.settings.autoreorder:
-            self.sortLayers()
         self.layersHaveChanged()
-
-    def sortLayers(self):
-        # Called by incorporateLayer and reorderLayers.  Calling
-        # routine should call layersHaveChanged.
-        self.layers.sort(display.layercomparator)
-        # Reorder the layers in the OOFCanvas too.
-        self.oofcanvas.reorderLayers([l.canvaslayer for l in self.layers])
 
     def sortedLayers(self):
         # Are the layers in a canonical order?
@@ -1399,7 +1387,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 for i in range(howfar):
                     self.layers[n+i] = self.layers[n+i+1]
                 self.layers[n+howfar] = thislayer
-                thislayer.raise_layer(howfar) # raises it in OOFCanvas
+                thislayer.raise_layer(howfar)
             else:
                 return
         finally:
@@ -1441,7 +1429,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.lowerLayerBy(n, howfar)
 
     def reorderLayers(self, menuitem):
-        self.sortLayers()
+        self.layers.sort(display.layercomparator)
         self.layersHaveChanged()
 
     def listedLayers(self):             # for testing
