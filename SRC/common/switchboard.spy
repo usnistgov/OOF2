@@ -134,7 +134,7 @@ def useMessageStackCB(menuitem, flag):
 
 # This sets the default behavior.  It should be False for efficiency,
 # and True for debugging.
-useMessageStack(True)
+useMessageStack(False)
 
 # Turn off switchboard stack tracking at shutdown, because it doesn't
 # work once threads have been turned off.

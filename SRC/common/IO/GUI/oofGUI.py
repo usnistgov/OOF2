@@ -180,17 +180,24 @@ class oofGUI(widgetscope.WidgetScope):
         # Called as an idle callback by the start() function at the
         # bottom of this file.
         debug.mainthreadTest()
-        for page in allPages.values():
-            page.show()
-
         # don't use self.gtk.show_all(), since there may be page
         # components that shouldn't yet be shown.
         self.menubar.show_all()
         self.pageChooserFrame.show_all()
         self.pageframe.show()
         self.pageStack.show()
+
+        # When recording a script for gui testing, there are GtkPaned
+        # notify::position signals recorded for the first page shown.
+        # If the order in which the pages are shown were to change,
+        # gui tests would break.  So here we just insist that the
+        # Introduction page is shown first.
+        firstPage = "Introduction"
+        allPages[firstPage].show()
+        
         for page in allPages.values():
-            page.show() 
+            if page.name != firstPage:
+                page.show() 
         self.mainbox.show()
         self.gtk.show()
 

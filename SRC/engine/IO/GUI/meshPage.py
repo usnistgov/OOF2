@@ -112,14 +112,6 @@ class MeshPage(oofGUI.MainPage):
                               wide_handle=True)
         gtklogger.setWidgetName(mainpane, 'Pane')
         mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
-        # TODO GTK3: Figure this out. The notify::position signals for
-        # mainpane and leftpane generate gui log lines when the
-        # program starts.  I haven't been able to discover why.  Other
-        # pages contain Gtk.Paneds connected to notify::position
-        # signals, but those signals aren't emitted at start up time.
-        # I don't know what's different about the Gtk.Paneds here.  In
-        # any case the problem is harmless, although it does generate
-        # an extra line in gui log files.
         gtklogger.connect_passive(mainpane, 'notify::position')
         leftpane = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL,
                              wide_handle=True)
