@@ -201,12 +201,9 @@ def sensitization7():
 def stackStateTest(mode, *args):
     stack = gtklogger.findWidget(
         'OOF2:Microstructure Page:Pane:PixelGroups:Stack')
-    print >> sys.stderr, "stackStateTest: stack=", stack
     if mode == "message":
         label = gtklogger.findWidget(
             'OOF2:Microstructure Page:Pane:PixelGroups:Stack:Message')
-        print >> sys.stderr, "visible child=", stack.get_visible_child()
-        print >> sys.stderr, "label=", label
         return (stack.get_visible_child() is label
                 and label.get_text() == args[0])
     elif mode == "list":
