@@ -324,10 +324,7 @@ void testcancel() {
 // threading_enabled is used by the swig "except" directive (defined
 // in typemaps.swg).  It controls whether
 // PyEval_SaveThread/PyEval_RestoreThread pairs surround swigged C++
-// function calls.  For reasons that aren't completely understood, if
-// those functions are used in unthreaded mode, we get seg faults from
-// gtk.
-// TODO GTK3: Is this still true?
+// function calls. 
 
 bool threading_enabled=true;
 
