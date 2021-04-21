@@ -6,15 +6,16 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
 import tests
 tbox = 'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pin Nodes'
 
-findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
-findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
+findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
+findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 511)
 
 findMenu(findWidget('OOF2:MenuBar'), ['Settings', 'Graphics_Defaults', 'New_Layer_Policy']).activate()
@@ -31,19 +32,18 @@ findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
+checkpoint toplevel widget mapped OOF2 Graphics 1
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Windows.Graphics.New
 findWidget('OOF2 Graphics 1:Pane0').set_position(360)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
-checkpoint toplevel widget mapped OOF2 Graphics 1
-findWidget('OOF2 Graphics 1').resize(800, 492)
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Windows.Graphics.New
 findWidget('OOF2 Graphics 1').resize(800, 492)
 wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-TBChooser
 findMenu(findWidget('chooserPopup-TBChooser'), ['Pin Nodes']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 checkpoint Graphics_1 Pin Nodes updated
+deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(230)
 checkpoint_count("Pin Nodes toolbox move event")
 
@@ -86,8 +86,8 @@ findWidget('Dialog-Data:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
-checkpoint active area status updated
 checkpoint pixel page sensitized
+checkpoint active area status updated
 checkpoint mesh bdy page updated
 checkpoint Field page sensitized
 checkpoint Materials page updated
@@ -96,9 +96,9 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -109,13 +109,11 @@ checkpoint selection info updated Segment
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint microstructure page sensitized
+checkpoint microstructure page sensitized
 checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
-checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
@@ -128,9 +126,9 @@ checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint Move Node toolbox writable changed
 checkpoint Move Node toolbox info updated
@@ -151,18 +149,18 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page selection sensitized Element
-checkpoint Solver page sensitized
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
+checkpoint Solver page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -175,8 +173,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -338,6 +336,7 @@ checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 37.05, 48.95, 1, False, False)
 checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 37.05, 48.95, 1, False, False)
+checkpoint Pin Nodes toolbox move event
 
 # Arrived at next node.
 assert tests.gtkMultiTextCompare({'Mouse X':'37.05','Mouse Y':'48.95','Node X':'37.5','Node Y':'50'},tbox)
@@ -358,7 +357,6 @@ assert findWidget(tbox+":Status").get_text()=='2 nodes pinned.'
 assert tests.sensitizationCheck({'Undo':True,'Invert':True,'Redo':False,'UnPinAll':True},tbox)
 
 # Move to center node and pin it
-checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 49.65, 100.4, 1, False, False)
 checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 50.7, 94.1, 1, False, False)
@@ -394,6 +392,7 @@ checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 50.35, 50.35, 1, False, False)
 checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 50, 50.35, 1, False, False)
+checkpoint Pin Nodes toolbox move event
 
 # Arrived at third node.
 assert tests.gtkMultiTextCompare({'Mouse X':'50','Mouse Y':'50.35','Node X':'50','Node Y':'50'},tbox)
@@ -404,6 +403,7 @@ findGfxWindow('Graphics_1').simulateMouse('down', 50, 50.35, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 50, 50.35, 1, False, False)
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
+checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pin_Nodes.Pin
 # Pinned it.
 assert tests.gtkMultiTextCompare({'Mouse X':'50','Mouse Y':'50.35','Node X':'50','Node Y':'50'},tbox)
@@ -411,13 +411,11 @@ assert findWidget(tbox+":Pin Label").get_text()=='pinned'
 assert findWidget(tbox+":Status").get_text()=='3 nodes pinned.'
 assert tests.sensitizationCheck({'Undo':True,'Invert':True,'Redo':False,'UnPinAll':True},tbox)
 
-checkpoint contourmap info updated for Graphics_1
-checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 50, 50.35, 1, False, False)
+checkpoint Pin Nodes toolbox move event
 
 
 # Move to and pin a fourth node, on the right edge of the triangle at y=50
-checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 65.05, 4.5, 1, False, False)
 checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 59.45, 18.5, 1, False, False)
@@ -506,6 +504,7 @@ checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 71.35, 48.95, 1, False, False)
 checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 71.35, 48.95, 1, False, False)
+checkpoint Pin Nodes toolbox move event
 
 # Arrived at fourth node.
 assert tests.gtkMultiTextCompare({'Mouse X':'71.35','Mouse Y':'48.95','Node X':'72','Node Y':'50'},tbox)
@@ -516,8 +515,8 @@ findGfxWindow('Graphics_1').simulateMouse('down', 71.35, 48.95, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 71.35, 48.95, 1, False, False)
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Graphics_1.Toolbox.Pin_Nodes.Pin
 checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Graphics_1.Toolbox.Pin_Nodes.Pin
 
 # Pinned it.
 assert tests.gtkMultiTextCompare({'Mouse X':'71.35','Mouse Y':'48.95','Node X':'72','Node Y':'50'},tbox)
@@ -529,8 +528,8 @@ assert tests.sensitizationCheck({'Undo':True,'Invert':True,'Redo':False,'UnPinAl
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pin Nodes:Undo').clicked()
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Graphics_1.Toolbox.Pin_Nodes.Undo
 checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Graphics_1.Toolbox.Pin_Nodes.Undo
 assert tests.gtkMultiTextCompare({'Mouse X':'71.35','Mouse Y':'48.95','Node X':'72','Node Y':'50'},tbox)
 assert findWidget(tbox+":Pin Label").get_text()=='pinned'
 assert findWidget(tbox+":Status").get_text()=='3 nodes pinned.'
@@ -559,7 +558,6 @@ assert findWidget(tbox+":Status").get_text()=='3 nodes pinned.'
 assert tests.sensitizationCheck({'Undo':True,'Invert':True,'Redo':True,'UnPinAll':True},tbox)
 
 # Move to the node at (50,50) and control-click to toggle it.
-checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 25.15, 2.75, 1, False, False)
 checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 25.5, 19.2, 1, False, False)
@@ -585,6 +583,7 @@ checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 50.35, 51.05, 1, False, False)
 checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 50, 51.05, 1, False, False)
+checkpoint Pin Nodes toolbox move event
 
 # Arrived at another node.
 assert tests.gtkMultiTextCompare({'Mouse X':'50','Mouse Y':'51.05','Node X':'50','Node Y':'50'},tbox)
@@ -597,8 +596,8 @@ findGfxWindow('Graphics_1').simulateMouse('down', 50, 51.05, 1, False, True)
 findGfxWindow('Graphics_1').simulateMouse('up', 50, 51.05, 1, False, True)
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Graphics_1.Toolbox.Pin_Nodes.TogglePin
 checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Graphics_1.Toolbox.Pin_Nodes.TogglePin
 
 assert tests.gtkMultiTextCompare({'Mouse X':'50','Mouse Y':'51.05','Node X':'50','Node Y':'50'},tbox)
 assert findWidget(tbox+":Pin Label").get_text()=='unpinned'
@@ -606,7 +605,6 @@ assert findWidget(tbox+":Status").get_text()=='2 nodes pinned.'
 assert tests.sensitizationCheck({'Undo':True,'Invert':True,'Redo':False,'UnPinAll':True},tbox)
 
 # Move to the node at (50,50) and toggle it off.
-checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 54.55, 2.75, 1, False, False)
 checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 54.9, 8, 1, False, False)
@@ -658,6 +656,7 @@ checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 51.05, 49.3, 1, False, False)
 checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 50.7, 49.65, 1, False, False)
+checkpoint Pin Nodes toolbox move event
 # Arrived at the node
 assert tests.gtkMultiTextCompare({'Mouse X':'50.7','Mouse Y':'49.65','Node X':'50','Node Y':'50'},tbox)
 assert findWidget(tbox+":Pin Label").get_text()=='unpinned'
@@ -677,7 +676,6 @@ assert findWidget(tbox+":Status").get_text()=='3 nodes pinned.'
 assert tests.sensitizationCheck({'Undo':True,'Invert':True,'Redo':False,'UnPinAll':True},tbox)
 
 # Move to the second pinned node (37.5, 50) and unpin it with shift-click
-checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 32.15, -0.05, 1, False, False)
 checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 32.85, 10.45, 1, False, False)
@@ -693,6 +691,7 @@ checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 37.4, 50.35, 1, False, False)
 checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 37.4, 51.05, 1, False, False)
+checkpoint Pin Nodes toolbox move event
 # Arrived at another node.
 assert tests.gtkMultiTextCompare({'Mouse X':'37.4','Mouse Y':'51.05','Node X':'37.5','Node Y':'50'},tbox)
 assert findWidget(tbox+":Pin Label").get_text()=='pinned'
@@ -724,7 +723,6 @@ assert findWidget(tbox+":Status").get_text()=='2 nodes pinned.'
 assert tests.sensitizationCheck({'Undo':True,'Invert':True,'Redo':False,'UnPinAll':True},tbox)
 
 # Invert
-checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 37.05, 53.15, 1, False, False)
 checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 26.2, 50.7, 1, False, False)
@@ -734,11 +732,12 @@ checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', -18.95, 30.4, 1, False, False)
 checkpoint Pin Nodes toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', -22.1, 26.9, 1, False, False)
+checkpoint Pin Nodes toolbox move event
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Pin Nodes:Invert').clicked()
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Graphics_1.Toolbox.Pin_Nodes.Invert
 checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Graphics_1.Toolbox.Pin_Nodes.Invert
 assert tests.gtkMultiTextCompare({'Mouse X':'-22.1','Mouse Y':'26.9','Node X':'0','Node Y':'25'},tbox)
 assert findWidget(tbox+":Pin Label").get_text()=='unpinned'
 assert findWidget(tbox+":Status").get_text()=='73 nodes pinned.'
@@ -761,20 +760,20 @@ checkpoint toplevel widget mapped PopUp-0
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path(Gtk.TreePath([10]))
 checkpoint OOF.Graphics_1.Layer.Select
 findMenu(findWidget('PopUp-0'), ['Delete']).activate() # MenuItemLogger
-deactivatePopup('PopUp-0') # MenuItemLogger
 checkpoint Move Node toolbox writable changed
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint Graphics_1 Pin Nodes updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Delete
+deactivatePopup('PopUp-0') # MenuItemLogger
 assert tests.gtkMultiTextCompare({'Mouse X':'-22.1','Mouse Y':'26.9','Node X':'0','Node Y':'25'},tbox)
 assert findWidget(tbox+":Pin Label").get_text()=='unpinned'
 assert findWidget(tbox+":Status").get_text()=='0 nodes pinned.'

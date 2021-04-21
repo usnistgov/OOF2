@@ -653,7 +653,6 @@ checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.New
 checkpoint microstructure page sensitized
-checkpoint meshable button set
 assert tests.chooserListStateCheck("OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList", ['white (0 pixels, meshable)'])
 findWidget('OOF2:Microstructure Page:Pane').set_position(235)
 findWidget('Microstructure:Next').clicked()
@@ -898,7 +897,6 @@ findWidget('Dialog-Create new pixel group:name').insert_text('a', 2)
 findWidget('Dialog-Create new pixel group:name').insert_text('c', 3)
 findWidget('Dialog-Create new pixel group:name').insert_text('k', 4)
 findWidget('Dialog-Create new pixel group:widget_GTK_RESPONSE_OK').clicked()
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element

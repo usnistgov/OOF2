@@ -6,13 +6,14 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
+import tests
 
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
 checkpoint toplevel widget mapped OOF2 Activity Viewer
-import tests
+
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 545)
@@ -48,7 +49,7 @@ findMenu(findWidget('chooserPopup-PageMenu'), ['Microstructure']).activate() # M
 checkpoint page installed Microstructure
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Microstructure Page:Pane').set_position(235)
-checkpoint meshable button set
+# checkpoint meshable button set
 checkpoint microstructure page sensitized
 findWidget('OOF2:Microstructure Page:Pane').set_position(184)
 findWidget('OOF2:Microstructure Page:NewFromFile').clicked()
@@ -80,7 +81,7 @@ findWidget('Dialog-Load Image and create Microstructure:filename').set_text('exa
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/el_shape.pn')
 findWidget('Dialog-Load Image and create Microstructure:filename').set_text('examples/el_shape.png')
 findWidget('Dialog-Load Image and create Microstructure:widget_GTK_RESPONSE_OK').clicked()
-checkpoint meshable button set
+# checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
 checkpoint active area status updated
@@ -120,13 +121,13 @@ checkpoint toplevel widget mapped Dialog-AutoGroup
 findWidget('Dialog-AutoGroup').resize(207, 92)
 findWidget('Dialog-AutoGroup:widget_GTK_RESPONSE_OK').clicked()
 checkpoint contourmap info updated for Graphics_1
-checkpoint meshable button set
-checkpoint meshable button set
+# checkpoint meshable button set
+# checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint meshable button set
+# checkpoint meshable button set
+# checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint OOF.Image.AutoGroup
 event(Gdk.EventType.BUTTON_PRESS,x= 8.2000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
@@ -135,7 +136,7 @@ findMenu(findWidget('chooserPopup-PageMenu'), ['Microstructure']).activate() # M
 checkpoint page installed Microstructure
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Microstructure Page:Pane').set_position(235)
-checkpoint meshable button set
+# checkpoint meshable button set
 checkpoint microstructure page sensitized
 findWidget('Nonrectangular Domain:Next').clicked()
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Rename').clicked()
@@ -149,11 +150,11 @@ findWidget('Dialog-Rename pixelgroup #00ff00:new_name').set_text('gree')
 findWidget('Dialog-Rename pixelgroup #00ff00:new_name').set_text('green')
 findWidget('Dialog-Rename pixelgroup #00ff00').resize(192, 92)
 findWidget('Dialog-Rename pixelgroup #00ff00:widget_GTK_RESPONSE_OK').clicked()
-checkpoint meshable button set
+# checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint OOF.PixelGroup.Rename
 checkpoint microstructure page sensitized
-checkpoint meshable button set
+# checkpoint meshable button set
 findWidget('Nonrectangular Domain:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 6.4000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu

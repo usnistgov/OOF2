@@ -6,7 +6,7 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
 ## This file tests for the absence of a bug that was causing KeyErrors
 ## when switching to the Boundary Condition page after editing a
@@ -22,9 +22,10 @@ findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 511)
 findWidget('OOF2:Navigation:Next').clicked()
-checkpoint page installed Microstructure
 checkpoint meshable button set
 checkpoint microstructure page sensitized
+checkpoint page installed Microstructure
+# checkpoint meshable button set
 findWidget('OOF2:Microstructure Page:Pane').set_position(184)
 findWidget('OOF2:Microstructure Page:NewFromFile').clicked()
 checkpoint toplevel widget mapped Dialog-Load Image and create Microstructure
@@ -55,7 +56,6 @@ checkpoint pixel page updated
 checkpoint pixel page sensitized
 checkpoint active area status updated
 checkpoint mesh bdy page updated
-findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint Field page sensitized
 checkpoint Materials page updated
 checkpoint mesh page subproblems sensitized
@@ -63,12 +63,14 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint Solver page sensitized
 checkpoint microstructure page sensitized
 checkpoint OOF.Microstructure.Create_From_ImageFile
+# checkpoint meshable button set
+findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 findWidget('OOF2:Navigation:Next').clicked()
 checkpoint page installed Image
 findWidget('OOF2:Image Page:Pane').set_position(546)
@@ -76,23 +78,22 @@ findWidget('OOF2:Image Page:Group').clicked()
 checkpoint toplevel widget mapped Dialog-AutoGroup
 findWidget('Dialog-AutoGroup').resize(207, 92)
 findWidget('Dialog-AutoGroup:widget_GTK_RESPONSE_OK').clicked()
+checkpoint microstructure page sensitized
 checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
-checkpoint microstructure page sensitized
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint OOF.Image.AutoGroup
 event(Gdk.EventType.BUTTON_PRESS,x= 7.4000000000000e+01,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuItemLogger
+checkpoint skeleton page sensitized
+checkpoint skeleton page sensitized
 checkpoint page installed Skeleton
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:Pane').set_position(417)
-checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-New skeleton
 findWidget('Dialog-New skeleton').resize(346, 254)
@@ -106,9 +107,9 @@ findWidget('Dialog-New skeleton:widget_GTK_RESPONSE_OK').clicked()
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton page sensitized
 checkpoint mesh bdy page updated
 checkpoint Field page sensitized
@@ -116,15 +117,15 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
-checkpoint skeleton selection page grouplist Element
 checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
 checkpoint Solver page sensitized
 checkpoint OOF.Skeleton.New
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton page info updated
-checkpoint skeleton selection page updated
-checkpoint skeleton page sensitized
 event(Gdk.EventType.BUTTON_PRESS,x= 2.4000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['FE Mesh']).activate() # MenuItemLogger
@@ -316,8 +317,8 @@ checkpoint OOF.Subproblem.Edit
 event(Gdk.EventType.BUTTON_PRESS,x= 1.1000000000000e+02,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Conditions']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Boundary Conditions
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()
 checkpoint toplevel widget mapped Dialog-Python_Log
 findWidget('Dialog-Python_Log').resize(192, 122)

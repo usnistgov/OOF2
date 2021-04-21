@@ -90,7 +90,6 @@ checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint microstructure page sensitized
 checkpoint meshable button set
-checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint OOF.Image.AutoGroup
 findWidget('OOF2:Navigation:PrevHist').clicked()

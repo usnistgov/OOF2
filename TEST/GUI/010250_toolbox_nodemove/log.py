@@ -17,17 +17,16 @@ findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 511)
 findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
-findWidget('OOF2').resize(782, 545)
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint toplevel widget mapped OOF2 Graphics 1
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Windows.Graphics.New
+findWidget('OOF2').resize(782, 545)
 findWidget('OOF2 Graphics 1:Pane0').set_position(360)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
-findWidget('OOF2 Graphics 1').resize(800, 492)
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Windows.Graphics.New
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Settings', 'New_Layer_Policy']).activate()
 checkpoint toplevel widget mapped Dialog-New_Layer_Policy
@@ -81,8 +80,8 @@ findWidget('Dialog-Data:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
-checkpoint active area status updated
 checkpoint pixel page sensitized
+checkpoint active area status updated
 checkpoint mesh bdy page updated
 checkpoint Field page sensitized
 checkpoint Materials page updated
@@ -91,9 +90,9 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -103,13 +102,11 @@ checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint microstructure page sensitized
+checkpoint microstructure page sensitized
 checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
-checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
@@ -122,9 +119,9 @@ checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint Move Node toolbox writable changed
 checkpoint Move Node toolbox info updated
@@ -144,18 +141,18 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
-checkpoint Solver page sensitized
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
+checkpoint Solver page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -167,8 +164,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -227,9 +224,9 @@ findGfxWindow('Graphics_1').simulateMouse('move', 89.2, 85.7, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 89.2, 85.7, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 89.2, 85.35, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 89.2, 85.35, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 89.2, 85.35, 1, False, False)
@@ -251,27 +248,27 @@ findGfxWindow('Graphics_1').simulateMouse('move', 90.25, 83.95, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 90.25, 83.95, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 90.25, 83.6, 1, False, False)
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 90.25, 83.6, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 90.25, 83.6, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 90.25, 83.6, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 90.6, 83.6, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 90.6, 83.6, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
-findGfxWindow('Graphics_1').simulateMouse('move', 90.6, 83.6, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 90.6, 83.6, 1, False, False)
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
 checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint skeleton selection page groups sensitized Element
@@ -280,8 +277,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -289,8 +286,8 @@ checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint boundary page updated
 checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
@@ -317,24 +314,24 @@ findGfxWindow('Graphics_1').simulateMouse('move', 74.85, 87.45, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 74.85, 87.1, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 74.85, 86.4, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 74.85, 86.05, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 74.85, 85.7, 1, False, False)
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 74.85, 85.7, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 74.85, 85.7, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 74.85, 85.7, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 75.2, 85.7, 1, False, False)
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 75.55, 85.35, 1, False, False)
@@ -356,15 +353,15 @@ findGfxWindow('Graphics_1').simulateMouse('move', 76.95, 84.65, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 76.95, 84.3, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 76.95, 84.3, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 76.95, 83.95, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 76.95, 83.6, 1, False, False)
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 77.3, 83.6, 1, False, False)
@@ -377,15 +374,6 @@ findGfxWindow('Graphics_1').simulateMouse('move', 77.65, 83.25, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 77.65, 83.25, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 77.65, 83.25, 1, False, False)
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
-findGfxWindow('Graphics_1').simulateMouse('move', 77.65, 83.25, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 77.65, 83.25, 1, False, False)
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 77.65, 83.25, 1, False, False)
@@ -395,24 +383,33 @@ findGfxWindow('Graphics_1').simulateMouse('move', 77.65, 83.25, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 77.65, 83.25, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 78, 82.9, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 78, 82.9, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 77.65, 83.25, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 77.65, 83.25, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 77.65, 83.25, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 78, 82.9, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 78, 82.9, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 78, 82.9, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 78, 82.55, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
-findGfxWindow('Graphics_1').simulateMouse('move', 78, 82.55, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('move', 78, 82.55, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 78, 82.55, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 78, 82.55, 1, False, False)
@@ -428,12 +425,12 @@ findGfxWindow('Graphics_1').simulateMouse('move', 78.35, 82.2, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 78.35, 82.2, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('up', 78.35, 82.2, 1, False, False)
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
 checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint skeleton selection page groups sensitized Element
@@ -442,8 +439,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -451,8 +448,8 @@ checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint boundary page updated
 checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
@@ -469,8 +466,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint boundary page updated
@@ -489,8 +486,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint boundary page updated
@@ -509,8 +506,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint boundary page updated
@@ -531,8 +528,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint boundary page updated
@@ -551,8 +548,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint boundary page updated
@@ -571,8 +568,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint boundary page updated
@@ -609,8 +606,8 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Move Nodes:x').set_text('
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Move Nodes:Move').clicked()
 checkpoint Move Node toolbox info updated
 checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint skeleton selection page groups sensitized Element
@@ -619,8 +616,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -628,8 +625,8 @@ checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint boundary page updated
 checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
@@ -645,8 +642,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint boundary page updated
@@ -674,8 +671,8 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Move Nodes:y').set_text('
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Move Nodes:Move').clicked()
 checkpoint Move Node toolbox info updated
 checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint skeleton selection page groups sensitized Element
@@ -684,8 +681,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -693,8 +690,8 @@ checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint boundary page updated
 checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
@@ -719,8 +716,8 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Move Nodes:y').set_text('
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Move Nodes:Move').clicked()
 checkpoint Move Node toolbox info updated
 checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint skeleton selection page groups sensitized Element
@@ -729,8 +726,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -738,8 +735,8 @@ checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint boundary page updated
 checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
@@ -757,8 +754,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint boundary page updated
@@ -803,9 +800,9 @@ checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 assert tests.messageCompare("")
 findGfxWindow('Graphics_1').simulateMouse('move', 20.95, 79.4, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 21.65, 77.65, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 21.65, 77.65, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 assert tests.messageCompare("Illegal node position!")
@@ -814,9 +811,9 @@ checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 assert tests.messageCompare("Illegal node position!")
 findGfxWindow('Graphics_1').simulateMouse('move', 22, 75.9, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 22, 75.55, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 22, 75.55, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 assert tests.messageCompare("Illegal node position!")
@@ -827,9 +824,9 @@ findGfxWindow('Graphics_1').simulateMouse('move', 22, 74.15, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 22.35, 72.4, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 22.35, 72.05, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 22.35, 72.05, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 22.35, 71.7, 1, False, False)
@@ -837,18 +834,18 @@ checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 assert tests.messageCompare("Illegal node position!")
 findGfxWindow('Graphics_1').simulateMouse('move', 22.35, 71, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 22.35, 70.65, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 22.35, 70.65, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 22.35, 70.65, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 22.35, 69.95, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 22.7, 69.6, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 22.7, 69.6, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 22.7, 69.25, 1, False, False)
@@ -858,9 +855,9 @@ findGfxWindow('Graphics_1').simulateMouse('move', 22.7, 68.9, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 22.7, 68.9, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 22.7, 68.9, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 22.7, 68.9, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 22.7, 68.9, 1, False, False)
@@ -872,8 +869,8 @@ checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('up', 22.7, 68.9, 1, False, False)
 checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint skeleton selection page groups sensitized Element
@@ -882,8 +879,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -891,8 +888,8 @@ checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint boundary page updated
 checkpoint skeleton page sensitized
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
 checkpoint contourmap info updated for Graphics_1
@@ -911,8 +908,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint boundary page updated
@@ -970,9 +967,9 @@ findGfxWindow('Graphics_1').simulateMouse('move', 47.55, 15, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 45.8, 13.6, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 42.65, 11.15, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 42.65, 11.15, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 assert tests.messageCompare("Illegal node position!")
@@ -983,18 +980,12 @@ findGfxWindow('Graphics_1').simulateMouse('move', 39.15, 5.2, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 38.8, 3.8, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 38.8, 3.8, 1, False, False)
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 38.8, 3.8, 1, False, False)
-findGfxWindow('Graphics_1').simulateMouse('move', 38.45, 3.45, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
-findGfxWindow('Graphics_1').simulateMouse('move', 38.45, 3.45, 1, False, False)
+findGfxWindow('Graphics_1').simulateMouse('move', 38.8, 3.8, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 38.45, 3.45, 1, False, False)
@@ -1004,9 +995,15 @@ findGfxWindow('Graphics_1').simulateMouse('move', 38.45, 3.45, 1, False, False)
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 38.45, 3.45, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 38.45, 3.45, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
+findGfxWindow('Graphics_1').simulateMouse('move', 38.45, 3.45, 1, False, False)
+checkpoint Move Node toolbox info updated
+checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 38.45, 3.1, 1, False, False)
-checkpoint Move Node toolbox info updated
-checkpoint Move Node toolbox move event
 checkpoint Move Node toolbox info updated
 checkpoint Move Node toolbox move event
 findGfxWindow('Graphics_1').simulateMouse('move', 38.45, 3.1, 1, False, False)
@@ -1040,7 +1037,6 @@ checkpoint toplevel widget mapped PopUp-0
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path(Gtk.TreePath([10]))
 checkpoint OOF.Graphics_1.Layer.Select
 findMenu(findWidget('PopUp-0'), ['Delete']).activate() # MenuItemLogger
-deactivatePopup('PopUp-0') # MenuItemLogger
 checkpoint Move Node toolbox writable changed
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Move Nodes sensitized
@@ -1053,6 +1049,7 @@ checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Delete
+deactivatePopup('PopUp-0') # MenuItemLogger
 assert tests.sensitivityCheck0()
 assert tests.textCompare('---', '---', '---', '---')
 assert tests.messageCompare("")

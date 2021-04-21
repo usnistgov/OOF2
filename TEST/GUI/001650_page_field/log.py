@@ -1,3 +1,6 @@
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
 # -*- python -*-
 
 # This software was produced by NIST, an agency of the U.S. government,
@@ -6,22 +9,20 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
 import tests
 
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
-checkpoint toplevel widget mapped OOF2
-checkpoint page installed Introduction
 findWidget('OOF2').resize(782, 511)
 event(Gdk.EventType.BUTTON_PRESS,x= 4.5000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Fields & Equations']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint page installed Fields & Equations
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Fields & Equations Page:HPane').set_position(470)
 findWidget('OOF2').resize(782, 545)
 assert tests.sensitization0()
@@ -35,8 +36,8 @@ findWidget('Dialog-Data:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
-checkpoint active area status updated
 checkpoint pixel page sensitized
+checkpoint active area status updated
 checkpoint mesh bdy page updated
 checkpoint Field page sensitized
 checkpoint Materials page updated
@@ -45,26 +46,22 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint Solver page sensitized
 checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint meshable button set
 checkpoint microstructure page sensitized
-checkpoint skeleton selection page groups sensitized Element
-checkpoint microstructure page sensitized
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint meshable button set
-checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint skeleton selection page groups sensitized Element
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
@@ -76,12 +73,12 @@ checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint meshable button set
 checkpoint microstructure page sensitized
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint mesh bdy page updated
 checkpoint Field page sensitized
 checkpoint mesh page subproblems sensitized
@@ -89,23 +86,23 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
 checkpoint Solver page sensitized
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
 checkpoint mesh bdy page updated
 checkpoint boundary page updated
@@ -239,11 +236,11 @@ assert tests.sensitization2()
 event(Gdk.EventType.BUTTON_PRESS,x= 4.5000000000000e+01,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['FE Mesh']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint page installed FE Mesh
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:FE Mesh Page:Pane:leftpane:Subproblems:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create a new subproblem
 findWidget('Dialog-Create a new subproblem').resize(206, 133)
@@ -261,16 +258,16 @@ assert tests.sensitization2()
 event(Gdk.EventType.BUTTON_PRESS,x= 4.2000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Fields & Equations Page:SubProblem').get_window())
 checkpoint toplevel widget mapped chooserPopup-SubProblem
 findMenu(findWidget('chooserPopup-SubProblem'), ['subproblem']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-SubProblem') # MenuItemLogger
 checkpoint Field page sensitized
+deactivatePopup('chooserPopup-SubProblem') # MenuItemLogger
 assert tests.sensitization1()
 assert tests.fieldButtonCheck(0, 0, 0)
 
 event(Gdk.EventType.BUTTON_PRESS,x= 5.2000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Fields & Equations Page:SubProblem').get_window())
 checkpoint toplevel widget mapped chooserPopup-SubProblem
 findMenu(findWidget('chooserPopup-SubProblem'), ['default']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-SubProblem') # MenuItemLogger
 checkpoint Field page sensitized
+deactivatePopup('chooserPopup-SubProblem') # MenuItemLogger
 assert tests.sensitization2()
 assert tests.fieldButtonCheck(1, 0, 0)
 
@@ -296,8 +293,8 @@ assert tests.fieldButtonCheck(1, 0, 0)
 event(Gdk.EventType.BUTTON_PRESS,x= 7.0000000000000e+01,y= 8.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Fields & Equations Page:SubProblem').get_window())
 checkpoint toplevel widget mapped chooserPopup-SubProblem
 findMenu(findWidget('chooserPopup-SubProblem'), ['subproblem']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-SubProblem') # MenuItemLogger
 checkpoint Field page sensitized
+deactivatePopup('chooserPopup-SubProblem') # MenuItemLogger
 assert tests.sensitization2()
 assert tests.fieldButtonCheck(1, 0, 0)
 assert tests.eqnButtonCheck(0)
@@ -319,15 +316,15 @@ assert tests.eqnButtonCheck(1)
 event(Gdk.EventType.BUTTON_PRESS,x= 6.2000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Fields & Equations Page:SubProblem').get_window())
 checkpoint toplevel widget mapped chooserPopup-SubProblem
 findMenu(findWidget('chooserPopup-SubProblem'), ['default']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-SubProblem') # MenuItemLogger
 checkpoint Field page sensitized
+deactivatePopup('chooserPopup-SubProblem') # MenuItemLogger
 assert tests.eqnButtonCheck(0)
 
 event(Gdk.EventType.BUTTON_PRESS,x= 6.7000000000000e+01,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('OOF2:Fields & Equations Page:SubProblem').get_window())
 checkpoint toplevel widget mapped chooserPopup-SubProblem
 findMenu(findWidget('chooserPopup-SubProblem'), ['subproblem']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-SubProblem') # MenuItemLogger
 checkpoint Field page sensitized
+deactivatePopup('chooserPopup-SubProblem') # MenuItemLogger
 assert tests.eqnButtonCheck(1)
 
 # Copy equation state
@@ -352,8 +349,8 @@ assert tests.eqnButtonCheck(1)
 event(Gdk.EventType.BUTTON_PRESS,x= 4.8000000000000e+01,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Fields & Equations Page:SubProblem').get_window())
 checkpoint toplevel widget mapped chooserPopup-SubProblem
 findMenu(findWidget('chooserPopup-SubProblem'), ['default']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-SubProblem') # MenuItemLogger
 checkpoint Field page sensitized
+deactivatePopup('chooserPopup-SubProblem') # MenuItemLogger
 assert tests.eqnButtonCheck(1)
 
 # Create a new Mesh, and switch back and forth between meshes checking
@@ -392,8 +389,8 @@ assert tests.eqnButtonCheck(1)
 event(Gdk.EventType.BUTTON_PRESS,x= 6.4000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Fields & Equations Page:Mesh').get_window())
 checkpoint toplevel widget mapped chooserPopup-Mesh
 findMenu(findWidget('chooserPopup-Mesh'), ['mesh<2>']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 checkpoint Field page sensitized
+deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 assert tests.sensitization1()
 assert tests.fieldButtonCheck(0, 0, 0)
 assert tests.eqnButtonCheck(0)
@@ -401,8 +398,8 @@ assert tests.eqnButtonCheck(0)
 event(Gdk.EventType.BUTTON_PRESS,x= 6.4000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Fields & Equations Page:Mesh').get_window())
 checkpoint toplevel widget mapped chooserPopup-Mesh
 findMenu(findWidget('chooserPopup-Mesh'), ['mesh']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 checkpoint Field page sensitized
+deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 assert tests.sensitization2()
 assert tests.fieldButtonCheck(1, 0, 0)
 assert tests.eqnButtonCheck(1)
@@ -427,8 +424,8 @@ assert tests.eqnButtonCheck(1)
 event(Gdk.EventType.BUTTON_PRESS,x= 2.6000000000000e+01,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Fields & Equations Page:Mesh').get_window())
 checkpoint toplevel widget mapped chooserPopup-Mesh
 findMenu(findWidget('chooserPopup-Mesh'), ['mesh<2>']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 checkpoint Field page sensitized
+deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 assert tests.sensitization2()
 assert tests.fieldButtonCheck(1, 0, 0)
 assert tests.eqnButtonCheck(0)
@@ -436,8 +433,8 @@ assert tests.eqnButtonCheck(0)
 event(Gdk.EventType.BUTTON_PRESS,x= 4.6000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Fields & Equations Page:Mesh').get_window())
 checkpoint toplevel widget mapped chooserPopup-Mesh
 findMenu(findWidget('chooserPopup-Mesh'), ['mesh']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 checkpoint Field page sensitized
+deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 assert tests.sensitization2()
 assert tests.fieldButtonCheck(1, 0, 0)
 assert tests.eqnButtonCheck(1)
@@ -463,8 +460,8 @@ assert tests.eqnButtonCheck(1)
 event(Gdk.EventType.BUTTON_PRESS,x= 7.3000000000000e+01,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Fields & Equations Page:Mesh').get_window())
 checkpoint toplevel widget mapped chooserPopup-Mesh
 findMenu(findWidget('chooserPopup-Mesh'), ['mesh<2>']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 checkpoint Field page sensitized
+deactivatePopup('chooserPopup-Mesh') # MenuItemLogger
 assert tests.sensitization2()
 assert tests.fieldButtonCheck(1, 0, 0)
 assert tests.eqnButtonCheck(1)

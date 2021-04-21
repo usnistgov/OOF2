@@ -6,23 +6,24 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
 import tests
 
-findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
-findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
+
+findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
+findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 511)
 event(Gdk.EventType.BUTTON_PRESS,x= 6.7000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Microstructure']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-checkpoint page installed Microstructure
-findWidget('OOF2:Microstructure Page:Pane').set_position(235)
 checkpoint meshable button set
 checkpoint microstructure page sensitized
+checkpoint page installed Microstructure
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Microstructure Page:Pane').set_position(184)
 # No Microstructure defined
 assert tests.sensitization0()
@@ -40,9 +41,8 @@ findWidget('Dialog-Create Microstructure:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
-checkpoint active area status updated
-findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint pixel page sensitized
+checkpoint active area status updated
 checkpoint mesh bdy page updated
 checkpoint Field page sensitized
 checkpoint Materials page updated
@@ -51,11 +51,12 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint Solver page sensitized
 checkpoint OOF.Microstructure.New
+findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 # Microstructure defined, but no groups
 assert tests.sensitization1()
 assert tests.meshableButtonState(0)
@@ -66,13 +67,12 @@ findWidget('Dialog-Create new pixel group').resize(192, 92)
 findWidget('Dialog-Create new pixel group:name').delete_text(0, 11)
 findWidget('Dialog-Create new pixel group:name').insert_text('a', 11)
 findWidget('Dialog-Create new pixel group:widget_GTK_RESPONSE_OK').clicked()
+checkpoint microstructure page sensitized
 checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.New
-checkpoint microstructure page sensitized
-checkpoint meshable button set
 # Microstructure with one group
 assert tests.sensitization2()
 assert tests.meshableButtonState(1)
@@ -86,7 +86,6 @@ findWidget('Dialog-Create new pixel group').resize(192, 92)
 findWidget('Dialog-Create new pixel group:name').delete_text(0, 1)
 findWidget('Dialog-Create new pixel group:name').insert_text('b', 11)
 findWidget('Dialog-Create new pixel group:widget_GTK_RESPONSE_OK').clicked()
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
@@ -103,7 +102,6 @@ findWidget('Dialog-Create new pixel group').resize(192, 92)
 findWidget('Dialog-Create new pixel group:name').delete_text(0, 1)
 findWidget('Dialog-Create new pixel group:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
-checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.New
@@ -113,7 +111,6 @@ findWidget('OOF2:Microstructure Page:Pane:PixelGroups:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create new pixel group
 findWidget('Dialog-Create new pixel group').resize(192, 92)
 findWidget('Dialog-Create new pixel group:widget_GTK_RESPONSE_OK').clicked()
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
@@ -172,34 +169,34 @@ findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(184, 86)
 findWidget('Questioner:Yes').clicked()
+checkpoint microstructure page sensitized
+checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.Delete
-checkpoint microstructure page sensitized
-checkpoint meshable button set
 # Group deleted. No group selected.
 assert tests.sensitization1()
 assert tests.chooserListCheck('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList', ['a (0 pixels, meshable)', 'pixelgroup (0 pixels, meshable)', 'pixelgroup<2> (0 pixels)'])
 event(Gdk.EventType.BUTTON_PRESS,x= 7.9000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Pixel Selection']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-checkpoint page installed Pixel Selection
-findWidget('OOF2:Pixel Selection Page:Pane').set_position(273)
 checkpoint pixel page updated
 checkpoint pixel page sensitized
+checkpoint page installed Pixel Selection
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
+findWidget('OOF2:Pixel Selection Page:Pane').set_position(273)
 findWidget('OOF2:Pixel Selection Page:Pane:SelectionModification:OK').clicked()
 checkpoint microstructure page sensitized
-checkpoint OOF.PixelSelection.Invert
-checkpoint pixel page updated
 checkpoint pixel page sensitized
+checkpoint pixel page updated
+checkpoint OOF.PixelSelection.Invert
 findWidget('OOF2:Navigation:PrevHist').clicked()
+checkpoint microstructure page sensitized
+checkpoint meshable button set
+checkpoint meshable button set
+checkpoint microstructure page sensitized
 checkpoint page installed Microstructure
-checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint meshable button set
-checkpoint microstructure page sensitized
 assert tests.sensitization1()
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList').get_selection().select_path(Gtk.TreePath([1]))
 checkpoint microstructure page sensitized
@@ -251,13 +248,13 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
-findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint microstructure page sensitized
 checkpoint OOF.Microstructure.Create_From_ImageFile
+findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 assert tests.sensitization6()
 assert tests.stackStateTest("message", "No pixel groups defined!")
 assert tests.chooserCheck('OOF2:Microstructure Page:Microstructure', ['test', 'small.ppm'])
@@ -286,9 +283,9 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint microstructure page sensitized
 checkpoint OOF.Microstructure.Create_From_Image
 assert tests.sensitization6()
@@ -307,9 +304,9 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint Field page sensitized
@@ -325,8 +322,8 @@ checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(184, 86)
 findWidget('Questioner:Yes').clicked()
 checkpoint pixel page updated
-checkpoint active area status updated
 checkpoint pixel page sensitized
+checkpoint active area status updated
 checkpoint mesh bdy page updated
 checkpoint Field page sensitized
 checkpoint Materials page updated
@@ -335,9 +332,9 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint Solver page sensitized
 checkpoint meshable button set
 checkpoint microstructure page sensitized

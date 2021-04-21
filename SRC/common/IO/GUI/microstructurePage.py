@@ -296,7 +296,7 @@ class MicrostructurePage(oofGUI.MainPage):
             switchboard.requestCallback('new pixel group', self.newpixgrp),
             switchboard.requestCallback('destroy pixel group', self.destpixgrp),
             #
-            switchboard.requestCallback('changed pixel group', self.destpixgrp),
+            switchboard.requestCallback('changed pixel group', self.changedgrp),
             switchboard.requestCallback('changed pixel groups', self.chngdgrps),
             switchboard.requestCallback(('new who', 'Microstructure'),
                                         self.newwhoMS),
@@ -317,7 +317,7 @@ class MicrostructurePage(oofGUI.MainPage):
         # about potential deadlocking.
 
     def redisplay_all(self):
-        self.rebuild_grouplist()        # hides either grplist or grpmsg.
+        self.rebuild_grouplist(self.currentGroupName()) 
         self.displayMSInfo()
         self.sensitize()
 
@@ -328,8 +328,8 @@ class MicrostructurePage(oofGUI.MainPage):
         # gtklogging initialization.  If that happens, the recording
         # of checkpoints reached by redisplay_all will depend on race
         # conditions.  So redisplay_all must be called by shown(),
-        # which is guaranteed (less likely?) to be called before gui
-        # initialization is complete.
+        # which is guaranteed not (less likely?) to be called before
+        # gui initialization is complete.
         subthread.execute(self.redisplay_all)
         
     def currentMSName(self):
@@ -358,7 +358,9 @@ class MicrostructurePage(oofGUI.MainPage):
             if ms is not None:
                 return ms.findGroup(name)
 
-    def rebuild_grouplist(self):
+    def rebuild_grouplist(self, selection):
+        # selection is the name of the group that should be selected,
+        # or None.
         debug.subthreadTest()
         mscontext = self.currentMScontext()
         msg = None
@@ -388,6 +390,7 @@ class MicrostructurePage(oofGUI.MainPage):
             mainthread.runBlock(self.set_group_message, (msg,))
         else:
             mainthread.runBlock(self.set_group_list, (grpnames, dispnames))
+            mainthread.runBlock(self.grplist.set_selection, (selection,))
         self.setMeshableButton()
 
     def set_group_message(self, msg):
@@ -573,28 +576,32 @@ class MicrostructurePage(oofGUI.MainPage):
         ## one in the current Microstructure.
         self.grouplock.acquire()
         try:
-            self.rebuild_grouplist()
-            # This makes the newly added pixel group automatically selected.
-            mainthread.runBlock(self.grplist.set_selection, (group.name(),))
-            self.setMeshableButton()
+            self.rebuild_grouplist(selection=group.name())
             self.sensitize()
         finally:
             self.grouplock.release()
 
-    def destpixgrp(self, group, ms_name):
-        # switchboard 'destroy pixel group' or 'changed pixel group'
+    def destpixgrp(self, group, ms_name): # switchboard 'destroy pixel group'
         self.grouplock.acquire()
         try:
             if ms_name==self.currentMSName():
-                self.rebuild_grouplist()
+                self.rebuild_grouplist(selection=None)
                 self.sensitize()
         finally:
             self.grouplock.release()
-    def chngdgrps(self, ms_name):       # 'changed pixel groups'
+    def changedgrp(self, group, ms_name): # switchboard 'changed pixel group' 
         self.grouplock.acquire()
         try:
             if ms_name == self.currentMSName():
-                self.rebuild_grouplist()
+                self.rebuild_grouplist(selection=group.name())
+                self.sensitize()
+        finally:
+            self.grouplock.release()
+    def chngdgrps(self, ms_name): # switchboard 'changed pixel groups'
+        self.grouplock.acquire()
+        try:
+            if ms_name == self.currentMSName():
+                self.rebuild_grouplist(selection=self.currentGroupName())
                 self.sensitize()
         finally:
             self.grouplock.release()
@@ -604,7 +611,7 @@ class MicrostructurePage(oofGUI.MainPage):
         self.grouplock.acquire()
         try:
             mainthread.runBlock(self.mswidget.set_value, (whoname,))
-            self.rebuild_grouplist()
+            self.rebuild_grouplist(selection=self.currentGroupName())
             self.displayMSInfo()
             self.sensitize()
         finally:
@@ -618,7 +625,7 @@ class MicrostructurePage(oofGUI.MainPage):
         if whoclassname == 'Microstructure':
             self.grouplock.acquire()
             try:
-                self.rebuild_grouplist()
+                self.rebuild_grouplist(selection=self.currentGroupName())
                 self.displayMSInfo()
                 self.sensitize()
             finally:
@@ -688,9 +695,7 @@ class MicrostructurePage(oofGUI.MainPage):
                 finally:
                     mscontext.end_reading()
                 if ok:
-                    # Ensure that the new pixel group is selected.
-                    self.rebuild_grouplist()
-                    mainthread.runBlock(self.grplist.set_selection, (newname,))
+                    self.rebuild_grouplist(selection=newname)
                     self.sensitize()
         finally:
             self.grouplock.release()

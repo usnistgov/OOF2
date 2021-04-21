@@ -1,3 +1,25 @@
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint pixel page updated
+checkpoint pixel page sensitized
+checkpoint active area status updated
+checkpoint mesh bdy page updated
+checkpoint Field page sensitized
+checkpoint Materials page updated
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page sensitized
+checkpoint boundary page updated
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
+checkpoint Solver page sensitized
+checkpoint microstructure page sensitized
+checkpoint OOF.Microstructure.Create_From_ImageFile
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
 # -*- python -*-
 
 # This software was produced by NIST, an agency of the U.S. government,
@@ -11,33 +33,12 @@
 import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
-checkpoint toplevel widget mapped OOF2
-checkpoint page installed Introduction
 findWidget('OOF2').resize(782, 511)
-checkpoint meshable button set
-checkpoint microstructure page sensitized
-checkpoint pixel page updated
-checkpoint active area status updated
-checkpoint pixel page sensitized
-checkpoint mesh bdy page updated
-checkpoint Field page sensitized
-checkpoint Materials page updated
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page sensitized
-checkpoint boundary page updated
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Solver page sensitized
-checkpoint microstructure page sensitized
-checkpoint OOF.Microstructure.Create_From_ImageFile
 findWidget('OOF2').resize(782, 545)
 findWidget('OOF2:Navigation:Next').clicked()
-checkpoint page installed Microstructure
 checkpoint meshable button set
 checkpoint microstructure page sensitized
+checkpoint page installed Microstructure
 findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 findWidget('OOF2:Navigation:Next').clicked()
 checkpoint page installed Image
@@ -50,13 +51,13 @@ findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
+checkpoint toplevel widget mapped OOF2 Graphics 1
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Windows.Graphics.New
 findWidget('OOF2 Graphics 1:Pane0').set_position(360)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
-checkpoint toplevel widget mapped OOF2 Graphics 1
 findWidget('OOF2 Graphics 1').resize(800, 492)
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Windows.Graphics.New
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Layer', 'New']).activate()
 checkpoint toplevel widget mapped Dialog-New Graphics Layer
 findWidget('Dialog-New Graphics Layer').resize(395, 532)
@@ -65,7 +66,6 @@ checkpoint toplevel widget mapped chooserPopup-category
 findMenu(findWidget('chooserPopup-category'), ['Image']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-category') # MenuItemLogger
 findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -74,6 +74,7 @@ checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.New
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findWidget('OOF2:Image Page:Pane:OK').clicked()
 checkpoint contourmap info updated for Graphics_1
@@ -138,8 +139,6 @@ findWidget('OOF2:Image Page:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(222, 86)
 findWidget('Questioner:Yes').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -152,6 +151,8 @@ checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Image.Delete
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 assert tests.sensitization5()
 assert tests.chooserCheck('OOF2:Image Page:Image', ['serendipity.png', 'copy'])
 assert tests.chooserStateCheck('OOF2:Image Page:Image', 'serendipity.png')
@@ -160,19 +161,18 @@ checkpoint toplevel widget mapped Dialog-AutoGroup
 findWidget('Dialog-AutoGroup').resize(207, 92)
 findWidget('Dialog-AutoGroup:widget_GTK_RESPONSE_OK').clicked()
 checkpoint contourmap info updated for Graphics_1
+checkpoint microstructure page sensitized
 checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
-checkpoint microstructure page sensitized
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint OOF.Image.AutoGroup
 findWidget('OOF2:Navigation:Prev').clicked()
-checkpoint page installed Microstructure
 checkpoint meshable button set
 checkpoint microstructure page sensitized
+checkpoint page installed Microstructure
 assert tests.micro_sensitization()
 
 findWidget('OOF2:Navigation:Next').clicked()
@@ -288,9 +288,9 @@ findWidget('OOF2:Image Page:Pane:OK').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Image.Modify.ThresholdImage
 findWidget('OOF2:Navigation:Prev').clicked()
-checkpoint page installed Microstructure
 checkpoint meshable button set
 checkpoint microstructure page sensitized
+checkpoint page installed Microstructure
 findWidget('OOF2:Microstructure Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create Microstructure
 findWidget('Dialog-Create Microstructure').resize(210, 236)
@@ -304,9 +304,9 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.Microstructure.New
 findWidget('OOF2:Navigation:Next').clicked()
 checkpoint page installed Image
@@ -324,7 +324,6 @@ assert tests.sensitization6()
 
 event(Gdk.EventType.BUTTON_PRESS,x= 6.0000000000000e+01,y= 9.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Image Page:Microstructure').get_window())
 checkpoint toplevel widget mapped chooserPopup-Microstructure
-findWidget('chooserPopup-Microstructure').deactivate() # MenuLogger
 findMenu(findWidget('chooserPopup-Microstructure'), ['serendipity.png']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Microstructure') # MenuItemLogger
 assert tests.sensitization3()
@@ -371,7 +370,6 @@ findWidget('OOF2:Image Page:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(184, 86)
 findWidget('Questioner:Yes').clicked()
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -384,14 +382,15 @@ checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Image.Delete
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 findWidget('OOF2:Image Page:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(184, 86)
 findWidget('Questioner:Yes').clicked()
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1

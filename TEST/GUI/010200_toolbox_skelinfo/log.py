@@ -6,7 +6,7 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
 import tests
 tbox = "OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info"
@@ -15,23 +15,24 @@ ndbox = tbox+":NodeInformation"
 sgbox = tbox+":SegmentInformation"
 cbox = tbox+":Click"
 
-findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
-findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
+findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
+findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 511)
 findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
+checkpoint toplevel widget mapped OOF2 Graphics 1
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Windows.Graphics.New
 findWidget('OOF2 Graphics 1:Pane0').set_position(360)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
-checkpoint toplevel widget mapped OOF2 Graphics 1
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findWidget('OOF2').resize(782, 545)
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Windows.Graphics.New
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Settings', 'New_Layer_Policy']).activate()
 checkpoint toplevel widget mapped Dialog-New_Layer_Policy
 findWidget('Dialog-New_Layer_Policy').resize(192, 86)
@@ -46,8 +47,8 @@ findWidget('OOF2 Graphics 1').resize(800, 492)
 wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-TBChooser
 findMenu(findWidget('chooserPopup-TBChooser'), ['Skeleton Info']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 checkpoint Graphics_1 Skeleton Info sensitized
+deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(243)
 assert findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
@@ -95,9 +96,9 @@ findWidget('Dialog-Data:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
+checkpoint pixel page sensitized
 checkpoint active area status updated
 checkpoint mesh bdy page updated
-checkpoint pixel page sensitized
 checkpoint Field page sensitized
 checkpoint Materials page updated
 checkpoint mesh page subproblems sensitized
@@ -105,9 +106,9 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
@@ -117,13 +118,11 @@ checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint microstructure page sensitized
+checkpoint microstructure page sensitized
 checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
-checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
@@ -136,9 +135,9 @@ checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint Move Node toolbox writable changed
 checkpoint Move Node toolbox info updated
@@ -158,18 +157,18 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page selection sensitized Element
-checkpoint Solver page sensitized
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
+checkpoint Solver page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -181,8 +180,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -219,11 +218,11 @@ assert tests.chooserListCheck(elbox+":SegmentList",[])
 wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Microstructure']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-checkpoint page installed Microstructure
-findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint meshable button set
 checkpoint microstructure page sensitized
+checkpoint page installed Microstructure
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
+findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Rename').clicked()
 checkpoint toplevel widget mapped Dialog-Rename pixelgroup RGBColor(red=0.000000, green=0.000000, blue=1.000000)
 findWidget('Dialog-Rename pixelgroup RGBColor(red=0.000000, green=0.000000, blue=1.000000)').resize(192, 92)
@@ -233,13 +232,13 @@ findWidget('Dialog-Rename pixelgroup RGBColor(red=0.000000, green=0.000000, blue
 findWidget('Dialog-Rename pixelgroup RGBColor(red=0.000000, green=0.000000, blue=1.000000):new_name').set_text('blu')
 findWidget('Dialog-Rename pixelgroup RGBColor(red=0.000000, green=0.000000, blue=1.000000):new_name').set_text('blue')
 findWidget('Dialog-Rename pixelgroup RGBColor(red=0.000000, green=0.000000, blue=1.000000):widget_GTK_RESPONSE_OK').clicked()
-checkpoint meshable button set
 checkpoint microstructure page sensitized
+checkpoint meshable button set
+checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint OOF.PixelGroup.Rename
-checkpoint meshable button set
 findWidget('OOF2:Microstructure Page:Pane:PixelGroups:Stack:GroupListScroll:GroupList').get_selection().select_path(Gtk.TreePath([0]))
 checkpoint microstructure page sensitized
 checkpoint meshable button set
@@ -254,10 +253,10 @@ findWidget('Dialog-Rename pixelgroup RGBColor(red=1.000000, green=1.000000, blue
 findWidget('Dialog-Rename pixelgroup RGBColor(red=1.000000, green=1.000000, blue=0.752941):new_name').set_text('yello')
 findWidget('Dialog-Rename pixelgroup RGBColor(red=1.000000, green=1.000000, blue=0.752941):new_name').set_text('yellow')
 findWidget('Dialog-Rename pixelgroup RGBColor(red=1.000000, green=1.000000, blue=0.752941):widget_GTK_RESPONSE_OK').clicked()
-checkpoint meshable button set
-checkpoint microstructure page sensitized
 checkpoint microstructure page sensitized
 checkpoint meshable button set
+checkpoint meshable button set
+checkpoint microstructure page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint OOF.PixelGroup.Rename
@@ -430,13 +429,13 @@ findWidget('OOF2 Graphics 1').resize(800, 492)
 wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-TBChooser
 findMenu(findWidget('chooserPopup-TBChooser'), ['Skeleton Selection']).activate() # MenuItemLogger
+checkpoint Graphics_1 Element sensitized
+checkpoint selection info updated Element
+checkpoint Graphics_1 Element sensitized
+checkpoint selection info updated Element
 deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(265)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-checkpoint Graphics_1 Element sensitized
-checkpoint Graphics_1 Element sensitized
-checkpoint selection info updated Element
-checkpoint selection info updated Element
 wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Element:Method:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Element:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['ByDominantPixel']).activate() # MenuItemLogger
@@ -445,8 +444,8 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_v
 findGfxWindow('Graphics_1').simulateMouse('down', 41.10125, 55.95, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 41.10125, 55.95, 1, False, False)
 checkpoint Graphics_1 Element sensitized
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated Element
@@ -457,22 +456,22 @@ checkpoint OOF.Graphics_1.Toolbox.Select_Element.ByDominantPixel
 wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
+checkpoint skeleton page sensitized
+checkpoint skeleton page info updated
+checkpoint skeleton page info updated
+checkpoint skeleton page sensitized
 checkpoint page installed Skeleton
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Skeleton Page:Pane').set_position(417)
-checkpoint skeleton page sensitized
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
 wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton Selection']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint skeleton selection page grouplist Element
-checkpoint page installed Skeleton Selection
-findWidget('OOF2:Skeleton Selection Page:Pane').set_position(474)
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
+checkpoint page installed Skeleton Selection
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
+findWidget('OOF2:Skeleton Selection Page:Pane').set_position(474)
 findWidget('OOF2:Skeleton Selection Page:Pane:Groups:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create a new Element group
 findWidget('Dialog-Create a new Element group').resize(192, 92)
@@ -483,17 +482,17 @@ findWidget('Dialog-Create a new Element group:name').insert_text('s', 2)
 findWidget('Dialog-Create a new Element group:name').insert_text('e', 3)
 findWidget('Dialog-Create a new Element group:name').insert_text('t', 4)
 findWidget('Dialog-Create a new Element group:widget_GTK_RESPONSE_OK').clicked()
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page grouplist Element
 checkpoint OOF.ElementGroup.New_Group
-checkpoint skeleton selection page groups sensitized Element
 findWidget('OOF2:Skeleton Selection Page:Pane:Groups:Add').clicked()
 checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.ElementGroup.Add_to_Group
 # Clear the elemetn selection
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Element:Clear').clicked()
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint Graphics_1 Element sensitized
 checkpoint selection info updated Element
@@ -566,9 +565,9 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Select_Node.Circle
 # Put nodes in a group
 findWidget('OOF2:Skeleton Selection Page:Mode:Node').clicked()
+checkpoint skeleton selection page groups sensitized Node
 checkpoint skeleton selection page grouplist Node
 checkpoint skeleton selection page selection sensitized Node
-checkpoint skeleton selection page groups sensitized Node
 checkpoint skeleton selection page updated
 findWidget('OOF2:Skeleton Selection Page:Pane:Groups:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create a new Node group
@@ -580,20 +579,20 @@ findWidget('Dialog-Create a new Node group:name').insert_text('s', 2)
 findWidget('Dialog-Create a new Node group:name').insert_text('e', 3)
 findWidget('Dialog-Create a new Node group:name').insert_text('t', 4)
 findWidget('Dialog-Create a new Node group:widget_GTK_RESPONSE_OK').clicked()
+checkpoint skeleton selection page groups sensitized Node
 checkpoint skeleton selection page grouplist Node
 checkpoint OOF.NodeGroup.New_Group
-checkpoint skeleton selection page groups sensitized Node
 findWidget('OOF2:Skeleton Selection Page:Pane:Groups:Add').clicked()
 checkpoint skeleton selection page grouplist Node
 checkpoint skeleton selection page groups sensitized Node
 checkpoint OOF.NodeGroup.Add_to_Group
 # Clear node selection
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Node:Clear').clicked()
-checkpoint skeleton selection page selection sensitized Node
 checkpoint skeleton selection page groups sensitized Node
+checkpoint skeleton selection page selection sensitized Node
+checkpoint skeleton selection page updated
 checkpoint Graphics_1 Node sensitized
 checkpoint selection info updated Node
-checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Select_Node.Clear
 # Select segments and put them in a group
@@ -669,37 +668,37 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Select_Segment.Circle
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 1.0000000000000e+00)
 findWidget('OOF2:Skeleton Selection Page:Mode:Segment').clicked()
+checkpoint skeleton selection page groups sensitized Segment
 checkpoint skeleton selection page grouplist Segment
 checkpoint skeleton selection page selection sensitized Segment
-checkpoint skeleton selection page groups sensitized Segment
 checkpoint skeleton selection page updated
 findWidget('OOF2:Skeleton Selection Page:Pane:Groups:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create a new Segment group
 findWidget('Dialog-Create a new Segment group').resize(192, 92)
 findWidget('Dialog-Create a new Segment group:widget_GTK_RESPONSE_OK').clicked()
+checkpoint skeleton selection page groups sensitized Segment
 checkpoint skeleton selection page grouplist Segment
 checkpoint OOF.SegmentGroup.New_Group
-checkpoint skeleton selection page groups sensitized Segment
 findWidget('OOF2:Skeleton Selection Page:Pane:Groups:Add').clicked()
 checkpoint skeleton selection page grouplist Segment
 checkpoint skeleton selection page groups sensitized Segment
 checkpoint OOF.SegmentGroup.Add_to_Group
 # Clear segment selection
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Segment:Clear').clicked()
-checkpoint skeleton selection page selection sensitized Segment
 checkpoint skeleton selection page groups sensitized Segment
+checkpoint skeleton selection page selection sensitized Segment
 checkpoint skeleton selection page updated
-checkpoint selection info updated Segment
 checkpoint Graphics_1 Segment sensitized
+checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Select_Segment.Clear
 # Create a Material and add it to the yellow pixels
 wevent(findWidget('OOF2:Navigation:PageMenu'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Materials']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Materials page updated
 checkpoint page installed Materials
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Materials Page:Pane').set_position(289)
 findWidget('OOF2:Materials Page:Pane:Material:New').clicked()
 checkpoint toplevel widget mapped Dialog-New material
@@ -725,8 +724,8 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().
 wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-TBChooser
 findMenu(findWidget('chooserPopup-TBChooser'), ['Skeleton Info']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 checkpoint Graphics_1 Skeleton Info sensitized
+deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(243)
 findWidget('OOF2 Graphics 1').resize(838, 524)
 findWidget('OOF2 Graphics 1:Pane0').set_position(392)
@@ -814,7 +813,7 @@ assert tests.gtkMultiTextCompare({'Material':'<No material>','Group':'elset','Do
 assert tests.gtkMultiFloatCompare({'Shape':0.418601,'Homog':0.992461,'Area':137.500000},elbox)
 assert tests.sensitizationCheck({'Prev':False,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(elbox+":SegmentList",["Segment 135, nodes (36, 44) (length: 15.4029218)", "Segment 134, nodes (36, 37) (length: 15.5)", "Segment 70, nodes (37, 45) (length: 12.5)", "Segment 128, nodes (44, 45) (length: 6.5)"], tolerance=1.e-6)
-assert tests.chooserListCheck(elbox+":NodeList",['Node 36 at (22.0, 50.0) (angle: 54.2461127456)', 'Node 37 at (37.5, 50.0) (angle: 90.0)', 'Node 45 at (37.5, 62.5) (angle: 90.0)', 'Node 44 at (31.0, 62.5) (angle: 125.753887254)']) 
+assert tests.chooserListCheck(elbox+":NodeList",['Node 36 at (22.0, 50.0) (angle: 54.2461127456)', 'Node 37 at (37.5, 50.0) (angle: 90.0)', 'Node 45 at (37.5, 62.5) (angle: 90.0)', 'Node 44 at (31.0, 62.5) (angle: 125.753887254)'])
 
 # Click on another element
 findGfxWindow('Graphics_1').simulateMouse('down', 42.3, 86.05, 1, False, False)
@@ -874,12 +873,12 @@ assert tests.chooserListCheck(elbox+":NodeList",["Node 46 at (50.0, 62.5) (angle
 
 # Switch to node mode
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Node').clicked()
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
 checkpoint Graphics_1 Skeleton Info showed position
 checkpoint contourmap info updated for Graphics_1
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Skeleton_Info.QueryNode
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 0.0000000000000e+00)
 assert findWidget(tbox+":Click:Node").get_active()
 assert not findWidget(tbox+":Click:Segment").get_active()
 assert tests.gtkMultiFloatCompare({'X Text':51.4,'Y Text':68.17},cbox)
@@ -1108,10 +1107,10 @@ assert tests.chooserListCheck(ndbox+":ElementList",["Element 4","Element 5"])
 
 # Previous button, triggers switch to segment mode
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Prev').clicked()
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Segment').clicked()
 checkpoint Graphics_1 Skeleton Info showed position
 checkpoint contourmap info updated for Graphics_1
 checkpoint Graphics_1 Skeleton Info sensitized
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Segment').clicked()
 assert not findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert findWidget(tbox+":Click:Segment").get_active()
@@ -1156,10 +1155,10 @@ assert tests.chooserListCheck(elbox+":NodeList",["Node 58 at (0.0, 87.5) (angle:
 
 # Previous button, triggers switch to segment mode
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Prev').clicked()
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Segment').clicked()
 checkpoint Graphics_1 Skeleton Info showed position
 checkpoint contourmap info updated for Graphics_1
 checkpoint Graphics_1 Skeleton Info sensitized
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Info:Click:Segment').clicked()
 assert not findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert findWidget(tbox+":Click:Segment").get_active()
@@ -1240,7 +1239,6 @@ checkpoint toplevel widget mapped PopUp-0
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path(Gtk.TreePath([10]))
 checkpoint OOF.Graphics_1.Layer.Select
 findMenu(findWidget('PopUp-0'), ['Delete']).activate() # MenuItemLogger
-deactivatePopup('PopUp-0') # MenuItemLogger
 checkpoint Move Node toolbox writable changed
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Move Nodes sensitized
@@ -1253,6 +1251,7 @@ checkpoint selection info updated Segment
 checkpoint Graphics_1 Element sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Delete
+deactivatePopup('PopUp-0') # MenuItemLogger
 assert findWidget(tbox+":Click:Element").get_active()
 assert not findWidget(tbox+":Click:Node").get_active()
 assert not findWidget(tbox+":Click:Segment").get_active()

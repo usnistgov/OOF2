@@ -6,21 +6,16 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
 # Test the misorientation calculation in the pixel selection toolbox
 
 import tests
-findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
-findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
-checkpoint toplevel widget mapped OOF2
-checkpoint page installed Introduction
-findWidget('OOF2').resize(782, 511)
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
-checkpoint active area status updated
 checkpoint pixel page sensitized
+checkpoint active area status updated
 checkpoint mesh bdy page updated
 checkpoint Field page sensitized
 checkpoint Materials page updated
@@ -29,23 +24,18 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint Solver page sensitized
 checkpoint microstructure page sensitized
 checkpoint OOF.Microstructure.Create_From_ImageFile
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-findWidget('OOF2 Graphics 1:Pane0').set_position(360)
-findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
 checkpoint toplevel widget mapped OOF2 Graphics 1
-findWidget('OOF2 Graphics 1').resize(800, 492)
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -55,35 +45,33 @@ checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.New
 checkpoint microstructure page sensitized
+checkpoint pixel page sensitized
 checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
-checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Burn
+checkpoint microstructure page sensitized
 checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint OOF.PixelGroup.New
-checkpoint microstructure page sensitized
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.PixelGroup.AddSelection
 checkpoint microstructure page sensitized
-checkpoint Graphics_1 Pixel Selection sensitized
-checkpoint pixel page updated
 checkpoint pixel page sensitized
+checkpoint pixel page updated
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Burn
 checkpoint microstructure page sensitized
+checkpoint pixel page sensitized
 checkpoint pixel page updated
 checkpoint Graphics_1 Pixel Selection sensitized
-checkpoint pixel page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Select.Burn
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
@@ -100,7 +88,6 @@ checkpoint Materials page updated
 checkpoint OOF.Material.New
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Material.Assign
-findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([5]), open_all=False)
 checkpoint Materials page updated
 checkpoint property selected
 checkpoint OOF.Property.Copy
@@ -119,6 +106,18 @@ checkpoint Materials page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Material.Add_property
 checkpoint OOF.File.LoadStartUp.Script
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
+findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
+findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
+findWidget('OOF2').resize(782, 511)
+findWidget('OOF2 Graphics 1:Pane0').set_position(360)
+findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
+findWidget('OOF2 Graphics 1').resize(800, 492)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').expand_row(Gtk.TreePath([5]), open_all=False)
 
 findWidget('OOF2 Graphics 1').resize(800, 492)
 wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
@@ -170,7 +169,7 @@ findGfxWindow('Graphics_1').simulateMouse('up', 107.2875, 124.875, 1, False, Fal
 checkpoint Graphics_1 Pixel Info updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
-# Check that nothing has changed. 
+# Check that nothing has changed.
 assert tests.checkInitialState()
 
 # Click on a pixel with an orientation
@@ -227,9 +226,9 @@ findWidget('OOF2 Graphics 1').resize(1259, 646)
 findGfxWindow('Graphics_1').simulateMouse('down', 90.4875, 121.725, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 90.4875, 121.725, 1, False, False)
 checkpoint Graphics_1 Pixel Info updated
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 3.2300000000000e+02)
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Query
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 3.2300000000000e+02)
 assert tests.checkMisorientation("???")
 assert tests.checkOrientation(None)
 assert tests.checkReference(x=46, y=73, oclass="Abg", alpha=45, beta=105, gamma=0)
@@ -272,6 +271,7 @@ findWidget('Dialog-Set lattice symmetry for misorientation calculation').resize(
 wevent(findWidget('Dialog-Set lattice symmetry for misorientation calculation:symmetry:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-Set lattice symmetry for misorientation calculation:symmetry:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Schoenflies']).activate() # MenuItemLogger
+checkpoint convertible RCF
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('Dialog-Set lattice symmetry for misorientation calculation:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.Graphics_1.Toolbox.Pixel_Info.Misorientation.Set_Symmetry
@@ -286,6 +286,7 @@ findWidget('Dialog-Set lattice symmetry for misorientation calculation').resize(
 wevent(findWidget('Dialog-Set lattice symmetry for misorientation calculation:symmetry:RCFChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-Set lattice symmetry for misorientation calculation:symmetry:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['International']).activate() # MenuItemLogger
+checkpoint convertible RCF
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 wevent(findWidget('Dialog-Set lattice symmetry for misorientation calculation:symmetry:International:name'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Dialog-Set lattice symmetry for misorientation calculation:symmetry:International:name').get_window())
 checkpoint toplevel widget mapped chooserPopup-name
@@ -336,25 +337,23 @@ assert tests.checkMisorientation("0.0")
 findWidget('OOF2 Graphics 1').resize(1259, 646)
 wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 findCellRenderer(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), col=0, rend=0).emit('toggled', Gtk.TreePath(13))
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 3.2300000000000e+02)
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Hide
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 3.2300000000000e+02)
 assert tests.checkMisorientation("???")
 
 # Unhide the image
 findWidget('OOF2 Graphics 1').resize(1259, 646)
 wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 findCellRenderer(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), col=0, rend=0).emit('toggled', Gtk.TreePath(13))
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -363,6 +362,8 @@ checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Show
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 3.2400000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 3.6000000000000e+02)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 4.3700000000000e+02)
@@ -373,17 +374,17 @@ findWidget('OOF2 Graphics 1').resize(1259, 646)
 wevent(findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList'), Gdk.EventType.BUTTON_PRESS, button=3, state=0, window=findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_window())
 checkpoint toplevel widget mapped PopUp-0
 findMenu(findWidget('PopUp-0'), ['Delete']).activate() # MenuItemLogger
-deactivatePopup('PopUp-0') # MenuItemLogger
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 3.2300000000000e+02)
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Delete
+deactivatePopup('PopUp-0') # MenuItemLogger
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
+findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_vadjustment().set_value( 3.2300000000000e+02)
 assert tests.checkMisorientation("???")
 
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()

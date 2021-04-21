@@ -8,10 +8,12 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+import tests
+
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
 checkpoint toplevel widget mapped OOF2 Activity Viewer
-import tests
+
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 545)
@@ -46,7 +48,6 @@ findWidget('Dialog-Data:filename').set_text('examples/cyallow.me')
 findWidget('Dialog-Data:filename').set_text('examples/cyallow.mes')
 findWidget('Dialog-Data:filename').set_text('examples/cyallow.mesh')
 findWidget('Dialog-Data:widget_GTK_RESPONSE_OK').clicked()
-checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
 checkpoint active area status updated
@@ -64,19 +65,12 @@ checkpoint skeleton selection page updated
 checkpoint skeleton selection page groups sensitized Element
 checkpoint Solver page sensitized
 checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint meshable button set
-checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
-checkpoint meshable button set
 checkpoint microstructure page sensitized
-checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint Materials page updated
 checkpoint Materials page updated

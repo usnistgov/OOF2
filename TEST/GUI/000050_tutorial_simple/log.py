@@ -1,3 +1,6 @@
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
 # -*- python -*-
 
 # This software was produced by NIST, an agency of the U.S. government,
@@ -6,11 +9,8 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
-checkpoint toplevel widget mapped OOF2
-checkpoint page installed Introduction
-checkpoint toplevel widget mapped OOF2 Activity Viewer
 import tests
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
@@ -82,11 +82,11 @@ checkpoint active area status updated
 checkpoint pixel page sensitized
 checkpoint mesh bdy page updated
 checkpoint Field page sensitized
-findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint Materials page updated
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
+findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page selection sensitized Element
@@ -116,7 +116,6 @@ checkpoint toplevel widget mapped Dialog-AutoGroup
 findWidget('Dialog-AutoGroup').resize(207, 92)
 findWidget('Dialog-AutoGroup:widget_GTK_RESPONSE_OK').clicked()
 checkpoint contourmap info updated for Graphics_1
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
@@ -262,11 +261,13 @@ column = tree.get_column(0)
 tree.row_activated(Gtk.TreePath([1, 0, 0, 0]), column)
 checkpoint Materials page updated
 checkpoint property selected
+checkpoint CijIsoCijklWidget updated
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity').resize(538, 330)
 event(Gdk.EventType.BUTTON_PRESS,x= 1.5500000000000e+02,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity:cijkl:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['E and nu']).activate() # MenuItemLogger
+checkpoint convertible RCF
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity:cijkl:E and nu:young').set_text('')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic;yellow_elasticity:cijkl:E and nu:young').set_text('1')
@@ -379,6 +380,7 @@ findWidget('Dialog-Parametrize Color;yellow').resize(279, 206)
 event(Gdk.EventType.BUTTON_PRESS,x= 4.5000000000000e+01,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('Dialog-Parametrize Color;yellow:color:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['RGBAColor']).activate() # MenuItemLogger
+checkpoint convertible RCF
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('Dialog-Parametrize Color;yellow').resize(280, 274)
 findWidget('Dialog-Parametrize Color;yellow:color:RGBAColor:red:slider').get_adjustment().set_value( 2.7777777777778e-02)
@@ -441,6 +443,7 @@ findWidget('Dialog-Parametrize Color;cyan').resize(279, 206)
 event(Gdk.EventType.BUTTON_PRESS,x= 6.7000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('Dialog-Parametrize Color;cyan:color:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['RGBAColor']).activate() # MenuItemLogger
+checkpoint convertible RCF
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('Dialog-Parametrize Color;cyan').resize(280, 274)
 findWidget('Dialog-Parametrize Color;cyan:color:RGBAColor:green:slider').get_adjustment().set_value( 5.5555555555556e-02)
@@ -517,8 +520,8 @@ findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -530,8 +533,8 @@ findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.4000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Element
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -612,10 +615,10 @@ checkpoint skeleton selection page selection sensitized Element
 checkpoint Solver page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page updated
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 checkpoint skeleton page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.New
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 assert tests.skeletonPageSensitivityCheck1()
 findWidget('A Simple Example:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 3.8000000000000e+01,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
@@ -639,6 +642,7 @@ checkpoint Move Node toolbox writable changed
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
 checkpoint skeleton selection page selection sensitized Element
@@ -679,8 +683,8 @@ checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -949,8 +953,8 @@ findWidget('Dialog-Edit Graphics Layer').resize(483, 613)
 findWidget('Dialog-Edit Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Element
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1

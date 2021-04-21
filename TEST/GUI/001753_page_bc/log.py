@@ -6,233 +6,230 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
 # Test that the On/Off (EnableDisable) button on the boundary
 # condition page works properly.
 # This was test 00179_page_bc before the gtk3 upgrade.
 
 import tests
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint pixel page updated
+checkpoint pixel page sensitized
+checkpoint active area status updated
+checkpoint mesh bdy page updated
+checkpoint Field page sensitized
+checkpoint Materials page updated
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page sensitized
+checkpoint boundary page updated
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
+checkpoint Solver page sensitized
+checkpoint microstructure page sensitized
+checkpoint microstructure page sensitized
+checkpoint meshable button set
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint skeleton selection page groups sensitized Element
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint skeleton selection page groups sensitized Element
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint Materials page updated
+checkpoint Materials page updated
+checkpoint Materials page updated
+checkpoint Materials page updated
+checkpoint Materials page updated
+checkpoint Materials page updated
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
+checkpoint mesh bdy page updated
+checkpoint Field page sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page sensitized
+checkpoint boundary page updated
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
+checkpoint Solver page sensitized
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint boundary page updated
+checkpoint mesh bdy page updated
+checkpoint mesh bdy page updated
+checkpoint Field page sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page sensitized
+checkpoint mesh page sensitized
+checkpoint Solver page sensitized
+checkpoint Field page sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint Solver page sensitized
+checkpoint Field page sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint Field page sensitized
+checkpoint mesh page sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint Field page sensitized
+checkpoint mesh page sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint Field page sensitized
+checkpoint mesh page sensitized
+checkpoint Solver page sensitized
+checkpoint OOF.File.LoadStartUp.Data
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint Materials page updated
+checkpoint microstructure page sensitized
+checkpoint microstructure page sensitized
+checkpoint meshable button set
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint skeleton selection page groups sensitized Element
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint skeleton selection page groups sensitized Element
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint meshable button set
+checkpoint microstructure page sensitized
+checkpoint Materials page updated
+checkpoint Materials page updated
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
+checkpoint skeleton selection page updated
+checkpoint mesh bdy page updated
+checkpoint mesh bdy page updated
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page sensitized
+checkpoint mesh page sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint mesh page sensitized
+checkpoint mesh page subproblems sensitized
+checkpoint mesh page sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint mesh page sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint mesh page sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint mesh page sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint mesh page sensitized
+checkpoint Solver page sensitized
+checkpoint Solver page sensitized
+checkpoint mesh page sensitized
+checkpoint Solver page sensitized
+checkpoint mesh page sensitized
+checkpoint OOF.File.LoadStartUp.Data
+checkpoint toplevel widget mapped OOF2
+checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
 
 # Load a couple of meshes from a data file via command line args. See
 # the args file in the test directory.
 findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
-checkpoint toplevel widget mapped OOF2
-checkpoint page installed Introduction
 findWidget('OOF2').resize(782, 511)
-checkpoint meshable button set
-checkpoint microstructure page sensitized
-checkpoint pixel page updated
-checkpoint active area status updated
-checkpoint pixel page sensitized
-checkpoint mesh bdy page updated
-checkpoint Field page sensitized
-checkpoint Materials page updated
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page sensitized
-checkpoint boundary page updated
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
-checkpoint Solver page sensitized
-checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint meshable button set
-checkpoint microstructure page sensitized
-checkpoint skeleton selection page groups sensitized Element
-checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint meshable button set
-checkpoint meshable button set
-checkpoint microstructure page sensitized
-checkpoint skeleton selection page groups sensitized Element
-checkpoint meshable button set
-checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint microstructure page sensitized
-checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
-checkpoint mesh bdy page updated
-checkpoint Field page sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page sensitized
-checkpoint boundary page updated
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page selection sensitized Element
-checkpoint Solver page sensitized
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint mesh bdy page updated
-checkpoint boundary page updated
-checkpoint mesh bdy page updated
-checkpoint boundary page updated
-checkpoint mesh bdy page updated
-checkpoint boundary page updated
-checkpoint mesh bdy page updated
-checkpoint boundary page updated
-checkpoint mesh bdy page updated
-checkpoint boundary page updated
-checkpoint mesh bdy page updated
-checkpoint boundary page updated
-checkpoint mesh bdy page updated
-checkpoint boundary page updated
-checkpoint mesh bdy page updated
-checkpoint boundary page updated
-checkpoint mesh bdy page updated
-checkpoint mesh bdy page updated
-checkpoint Field page sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint Field page sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint Solver page sensitized
-checkpoint Field page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page sensitized
 findWidget('OOF2').resize(782, 545)
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint Field page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint Field page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint Field page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint OOF.File.LoadStartUp.Data
-checkpoint meshable button set
-checkpoint microstructure page sensitized
-checkpoint Materials page updated
-checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint meshable button set
-checkpoint microstructure page sensitized
-checkpoint skeleton selection page groups sensitized Element
-checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint meshable button set
-checkpoint meshable button set
-checkpoint microstructure page sensitized
-checkpoint skeleton selection page groups sensitized Element
-checkpoint meshable button set
-checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint microstructure page sensitized
-checkpoint Materials page updated
-checkpoint Materials page updated
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton selection page updated
-checkpoint mesh bdy page updated
-checkpoint mesh bdy page updated
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page sensitized
-checkpoint mesh page sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint mesh page sensitized
-checkpoint mesh page subproblems sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint mesh page sensitized
-checkpoint OOF.File.LoadStartUp.Data
 findWidget('OOF2').resize(782, 545)
 
 event(Gdk.EventType.BUTTON_PRESS,x= 1.0600000000000e+02,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Conditions']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Boundary Conditions
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 assert not tests.bcDisabled(0)
 assert not tests.bcDisabled(2)
 
 findCellRenderer(findWidget('OOF2:Boundary Conditions Page:Condition:BCScroll:BCList'), col=0, rend=0).emit('toggled', Gtk.TreePath(2))
-findWidget('OOF2:Boundary Conditions Page:Condition:BCScroll:BCList').get_selection().select_path(Gtk.TreePath([2]))
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Boundary_Conditions.Disable
+findWidget('OOF2:Boundary Conditions Page:Condition:BCScroll:BCList').get_selection().select_path(Gtk.TreePath([2]))
 assert not tests.bcDisabled(0)
 assert tests.bcDisabled(2)
 
@@ -253,12 +250,12 @@ checkpoint toplevel widget mapped chooserPopup-Microstructure
 findMenu(findWidget('chooserPopup-Microstructure'), ['cyallow.png']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-Microstructure') # MenuItemLogger
 findCellRenderer(findWidget('OOF2:Boundary Conditions Page:Condition:BCScroll:BCList'), col=0, rend=0).emit('toggled', Gtk.TreePath(2))
-findWidget('OOF2:Boundary Conditions Page:Condition:BCScroll:BCList').get_selection().select_path(Gtk.TreePath([2]))
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Boundary_Conditions.Enable
+findWidget('OOF2:Boundary Conditions Page:Condition:BCScroll:BCList').get_selection().select_path(Gtk.TreePath([2]))
 assert not tests.bcDisabled(0)
 assert not tests.bcDisabled(2)
 

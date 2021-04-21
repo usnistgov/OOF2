@@ -6,14 +6,15 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
 import tests
 
-findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
-findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
+findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
+findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 511)
 
 # Open a graphics window
@@ -21,14 +22,14 @@ findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
+checkpoint toplevel widget mapped OOF2 Graphics 1
+checkpoint contourmap info updated for Graphics_1
+checkpoint OOF.Windows.Graphics.New
 findWidget('OOF2 Graphics 1:Pane0').set_position(360)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
-checkpoint toplevel widget mapped OOF2 Graphics 1
 findWidget('OOF2 Graphics 1').resize(800, 492)
 findWidget('OOF2').resize(782, 545)
-checkpoint contourmap info updated for Graphics_1
-checkpoint OOF.Windows.Graphics.New
 findMenu(findWidget('OOF2 Graphics 1:MenuBar'), ['Settings', 'New_Layer_Policy']).activate()
 checkpoint toplevel widget mapped Dialog-New_Layer_Policy
 findWidget('Dialog-New_Layer_Policy').resize(192, 86)
@@ -43,8 +44,8 @@ findWidget('OOF2 Graphics 1').resize(800, 492)
 wevent(findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-TBChooser
 findMenu(findWidget('chooserPopup-TBChooser'), ['Mesh Info']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 checkpoint Graphics_1 Mesh Info sensitized
+deactivatePopup('chooserPopup-TBChooser') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(227)
 # Open a Data viewer
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Info:NewDataViewer').clicked()
@@ -86,10 +87,10 @@ findWidget('Dialog-Data:filename').set_text('TEST_DATA/meshinfotbox.mesh')
 findWidget('Dialog-Data:widget_GTK_RESPONSE_OK').clicked()
 checkpoint meshable button set
 checkpoint microstructure page sensitized
-checkpoint active area status updated
 checkpoint pixel page updated
-checkpoint mesh bdy page updated
 checkpoint pixel page sensitized
+checkpoint active area status updated
+checkpoint mesh bdy page updated
 checkpoint Field page sensitized
 checkpoint Materials page updated
 checkpoint mesh page subproblems sensitized
@@ -97,18 +98,16 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint Solver page sensitized
 checkpoint Mesh_Data_1 data updated
+checkpoint microstructure page sensitized
 checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
-checkpoint microstructure page sensitized
-checkpoint meshable button set
-checkpoint meshable button set
 checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint skeleton selection page groups sensitized Element
@@ -131,9 +130,9 @@ checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
+checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
-checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint Move Node toolbox writable changed
 checkpoint Move Node toolbox info updated
@@ -146,8 +145,8 @@ checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint Mesh_Data_1 time updated
-checkpoint Mesh_Data_1 mesh updated
 checkpoint Mesh_Data_1 data updated
+checkpoint Mesh_Data_1 mesh updated
 checkpoint Mesh_Data_1 data updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint mesh bdy page updated
@@ -157,18 +156,18 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page selection sensitized Element
-checkpoint Solver page sensitized
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
+checkpoint Solver page sensitized
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -180,8 +179,8 @@ checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint contourmap info updated for Graphics_1
@@ -220,9 +219,9 @@ checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint Mesh_Data_1 time updated
+checkpoint Mesh_Data_1 data updated
+checkpoint Mesh_Data_1 data updated
 checkpoint Mesh_Data_1 mesh updated
-checkpoint Mesh_Data_1 data updated
-checkpoint Mesh_Data_1 data updated
 checkpoint Mesh_Data_1 data updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint mesh bdy page updated
@@ -291,16 +290,16 @@ checkpoint OOF.File.Load.Data
 wevent(findWidget('Mesh Data 1:ViewSource:output:output_0'), Gdk.EventType.BUTTON_PRESS, button=1, state=0, window=findWidget('Mesh Data 1:ViewSource:output:output_0').get_window())
 checkpoint toplevel widget mapped chooserPopup-output_0
 findMenu(findWidget('chooserPopup-output_0'), ['Flux']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-output_0') # MenuItemLogger
 checkpoint Mesh_Data_1 data updated
+deactivatePopup('chooserPopup-output_0') # MenuItemLogger
 # Click on an element
 findGfxWindow('Graphics_1').simulateMouse('down', 44.56549, 95.846481, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 44.56549, 95.846481, 1, False, False)
 checkpoint Graphics_1 Mesh Info showed position
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info updated
-checkpoint Mesh_Data_1 position updated
+checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Mesh_Data_1 data updated
+checkpoint Mesh_Data_1 position updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Mesh_Info.QueryElement
 findWidget('Mesh Data 1').resize(543, 492)
@@ -327,10 +326,10 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().
 findGfxWindow('Graphics_1').simulateMouse('down', 67.4177, 44.1224, 1, False, False)
 findGfxWindow('Graphics_1').simulateMouse('up', 67.4177, 44.1224, 1, False, False)
 checkpoint Graphics_1 Mesh Info showed position
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info updated
-checkpoint Mesh_Data_1 position updated
+checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Mesh_Data_1 data updated
+checkpoint Mesh_Data_1 position updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Toolbox.Mesh_Info.QueryElement
 # New query, data changed, source still contracted.
