@@ -126,7 +126,7 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Viewer:Zoom:In').clicked(
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:hscroll').get_adjustment().set_value( 2.0000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 7.5000000000000e+01)
 checkpoint OOF.Graphics_1.Settings.Zoom.In
-assert tests.checkCanvasPPU(starting_ppu, 1.5)
+#assert tests.checkCanvasPPU(starting_ppu, 1.5)
 
 # Click again on the canvas
 findGfxWindow('Graphics_1').simulateMouse('up', 34.05, 42.1, 1, False, False)
@@ -139,7 +139,7 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Viewer:Zoom:Out').clicked
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:hscroll').get_adjustment().set_value( 0.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 0.0000000000000e+00)
 checkpoint OOF.Graphics_1.Settings.Zoom.Out
-assert tests.checkCanvasPPU(starting_ppu, 1.0)
+#assert tests.checkCanvasPPU(starting_ppu, 1.0)
 
 # Control-click to zoom out
 findWidget('OOF2 Graphics 1').resize(800, 492)
@@ -147,13 +147,13 @@ findGfxWindow('Graphics_1').simulateMouse('down', 49.8, 65.025, 1, False, True)
 findGfxWindow('Graphics_1').simulateMouse('up', 49.8, 65.025, 1, False, True)
 checkpoint OOF.Graphics_1.Settings.Zoom.OutFocussed
 assert tests.gtkMultiTextCompare({'PixelX':'49','PixelY':'65','PhysicalX':'49.8','PhysicalY':'65.03'},'OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Viewer')
-assert tests.checkCanvasPPU(starting_ppu, 1.0/1.5)
+#assert tests.checkCanvasPPU(starting_ppu, 1.0/1.5)
 
 # Fill window
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 2.7000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Viewer:Zoom:Fill').clicked()
 checkpoint OOF.Graphics_1.Settings.Zoom.Fill_Window
-assert tests.checkCanvasPPU(starting_ppu, 1.0)
+#assert tests.checkCanvasPPU(starting_ppu, 1.0)
 
 # Shift-click to zoom in
 findGfxWindow('Graphics_1').simulateMouse('down', 144.3, 146.925, 1, True, False)
@@ -161,7 +161,7 @@ findGfxWindow('Graphics_1').simulateMouse('up', 144.825, 146.925, 1, True, False
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:hscroll').get_adjustment().set_value( 2.0000000000000e+01)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:Canvas:vscroll').get_adjustment().set_value( 7.0000000000000e+00)
 checkpoint OOF.Graphics_1.Settings.Zoom.InFocussed
-assert tests.checkCanvasPPU(starting_ppu, 1.5)
+#assert tests.checkCanvasPPU(starting_ppu, 1.5)
 
 # Click on a pixel
 findGfxWindow('Graphics_1').simulateMouse('up', 35.45, 124, 1, False, False)

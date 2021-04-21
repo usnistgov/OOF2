@@ -18,9 +18,9 @@ def checkCanvasPPU(initial_ppu, factor, tol=1.0e-6):
     gw = gfxmanager.gfxManager.windows[-1]
     res = gw.oofcanvas.getPixelsPerUnit()
     check = math.fabs(res-ppu)
+    print >> sys.stderr, "checkCanvasPPU: initial=%f, current=%f, factor=%f, diff=%f, tol=%f" % (initial_ppu, res, factor, check, tol)
     if not check<tol:
-        # print >> sys.stderr, "Canvas PPU failed, %f !< %f." % (check, tol)
-        print >> sys.stderr, "checkCanvasPPU failed.  initial=%f, current=%f, factor=%f, diff=%f, tol=%f" % (initial_ppu, res, factor, check, tol)
+        print >> sys.stderr, "Canvas PPU failed, %f !< %f." % (check, tol)
         return False
     return True
     
