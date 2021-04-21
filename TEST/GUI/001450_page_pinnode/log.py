@@ -8,8 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-## TODO GTK3: Why are some assert statements commented out?
-
 import tests
 
 checkpoint toplevel widget mapped OOF2
@@ -148,7 +146,7 @@ findMenu(findWidget('chooserPopup-PageMenu'), ['Pin Nodes']).activate() # MenuIt
 checkpoint page installed Pin Nodes
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Pin Nodes Page:Pane').set_position(549)
-# assert tests.sensitization1()
+assert tests.sensitization1()
 
 # Open a graphics window
 findMenu(findWidget('OOF2:MenuBar'), ['Settings', 'Graphics_Defaults', 'New_Layer_Policy']).activate()
@@ -173,40 +171,40 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path(Gtk.TreePath([10]))
 findWidget('OOF2 Graphics 1').resize(800, 492)
-# assert tests.pinnedNodesCheck(0)
+assert tests.pinnedNodesCheck(0)
 
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:Invert').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.Invert
-# assert tests.pinnedNodesCheck(617)
+assert tests.pinnedNodesCheck(617)
 assert tests.sensitization2()
 
 # Unpin all nodes
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:Unpin All').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.UnpinAll
-# assert tests.pinnedNodesCheck(0)
+assert tests.pinnedNodesCheck(0)
 assert tests.sensitization3()
 
 # Undo
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:Undo').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.Undo
-# assert tests.pinnedNodesCheck(617)
+assert tests.pinnedNodesCheck(617)
 assert tests.sensitization4()
 
 # Undo again
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:Undo').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.Undo
-# assert tests.pinnedNodesCheck(0)
+assert tests.pinnedNodesCheck(0)
 assert tests.sensitization5()
 
 # Redo
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:Redo').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.Redo
-# assert tests.pinnedNodesCheck(617)
+assert tests.pinnedNodesCheck(617)
 assert tests.sensitization4()
 
 # Pin internal boundary nodes
@@ -218,28 +216,28 @@ findWidget('OOF2:Pin Nodes Page:Pane').set_position(508)
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:OK').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.Pin_Internal_Boundary_Nodes
-# assert tests.pinnedNodesCheck(617)
+assert tests.pinnedNodesCheck(617)
 
 # Unpin all, *then* pin internal boundary nodes.
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:Unpin All').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.UnpinAll
-# assert tests.pinnedNodesCheck(0)
+assert tests.pinnedNodesCheck(0)
 
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:OK').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.Pin_Internal_Boundary_Nodes
-# assert tests.pinnedNodesCheck(106)
+assert tests.pinnedNodesCheck(106)
 
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:Undo').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.Undo
-# assert tests.pinnedNodesCheck(0)
+assert tests.pinnedNodesCheck(0)
 
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:Redo').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.Redo
-# assert tests.pinnedNodesCheck(106)
+assert tests.pinnedNodesCheck(106)
 
 # Select some nodes, then unpin them.
 event(Gdk.EventType.BUTTON_PRESS,x= 1.1600000000000e+02,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Pin Nodes Page:Pane:Modify:Method:RCFChooser').get_window())
@@ -323,7 +321,7 @@ checkpoint OOF.Graphics_1.Toolbox.Select_Node.Rectangle
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:OK').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.UnPin_Node_Selection
-# assert tests.pinnedNodesCheck(71)
+assert tests.pinnedNodesCheck(71)
 
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Node:Clear').clicked()
 checkpoint Graphics_1 Node sensitized
@@ -345,7 +343,7 @@ findWidget('OOF2:Pin Nodes Page:Pane').set_position(549)
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:OK').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.Pin_Node_Selection
-# assert tests.pinnedNodesCheck(212)
+assert tests.pinnedNodesCheck(212)
 
 # Clear the node selection
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Node:Clear').clicked()
@@ -357,7 +355,7 @@ checkpoint OOF.Graphics_1.Toolbox.Select_Node.Clear
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:Unpin All').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.UnpinAll
-# assert tests.pinnedNodesCheck(0)
+assert tests.pinnedNodesCheck(0)
 
 # Select a single segment
 findGfxWindow('Graphics_1').simulateMouse('down', 36.875, 91.3, 1, False, False)
@@ -389,7 +387,7 @@ findWidget('OOF2:Pin Nodes Page:Pane').set_position(537)
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:OK').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.Pin_Selected_Segments
-# assert tests.pinnedNodesCheck(2)
+assert tests.pinnedNodesCheck(2)
 
 # Select an element
 findWidget('OOF2 Graphics 1').resize(800, 492)
@@ -420,12 +418,12 @@ findWidget('OOF2:Pin Nodes Page:Pane').set_position(541)
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:OK').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.Pin_Selected_Elements
-# assert tests.pinnedNodesCheck(6)
+assert tests.pinnedNodesCheck(6)
 
 findWidget('OOF2:Pin Nodes Page:Pane:Modify:Invert').clicked()
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.PinNodes.Invert
-# assert tests.pinnedNodesCheck(611)
+assert tests.pinnedNodesCheck(611)
 
 # delete the skeleton
 event(Gdk.EventType.BUTTON_PRESS,x= 8.9000000000000e+01,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
