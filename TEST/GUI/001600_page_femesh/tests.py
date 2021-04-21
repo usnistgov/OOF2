@@ -11,7 +11,6 @@
 from generics import *
 
 def sensitization0():
-    print >> sys.stderr, "Mesh page widgets:", gtklogger.findAllWidgets("OOF2:FE Mesh Page")
     return (sensitizationCheck({"New" : 0,
                                 "Rename" : 0,
                                 "Copy" : 0,
