@@ -66,6 +66,12 @@ class NewLayerPolicy(enum.EnumClass(
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+class OutputImageFormat(enum.EnumClass(
+        "pdf", "png")):
+    pass
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 class GfxSettings:
     # Stores all the settable parameters for a graphics
     # window. Variables defined at the class level are the default
@@ -204,7 +210,10 @@ class GhostGfxWindow:
             params=[
                 filenameparam.WriteFileNameParameter(
                     'filename', ident='gfxwindow',
-                    tip="Name for the pdf image file."),
+                    tip="Name for the image file."),
+                enum.EnumParameter(
+                    "format", OutputImageFormat,
+                    value="pdf", tip="Format for the image file"),
                 filenameparam.OverwriteParameter(
                     'overwrite',
                     tip="Overwrite an existing file?"),
@@ -228,6 +237,9 @@ class GhostGfxWindow:
                 filenameparam.WriteFileNameParameter(
                     'filename', ident='gfxwindow',
                     tip='Name for the pdf image file.'),
+                enum.EnumParameter(
+                    "format", OutputImageFormat,
+                    value="pdf", tip="Format for the image file"),
                 filenameparam.OverwriteParameter(
                     'overwrite',
                     tip="Overwrite an existing file?"),
@@ -256,6 +268,9 @@ class GhostGfxWindow:
                 filenameparam.WriteFileNameParameter(
                     'filename', ident='gfxwindow',
                     tip="Name for the image file."),
+                enum.EnumParameter(
+                    "format", OutputImageFormat,
+                    value="pdf", tip="Format for the image file"),
                 filenameparam.OverwriteParameter(
                     'overwrite', tip="Overwrite an existing file?"),
                 parameter.IntParameter(
@@ -1158,44 +1173,33 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         finally:
             self.releaseGfxLock()
 
-    ## TODO GTK3: Have a CRegisteredClass for image output file
-    ## formats, and set the format with a parameter, not from the file
-    ## extension?  That would get rid of the ifs in saveCanvas and
-    ## saveCanvasRegion.  The C parts of the registered classes would
-    ## create the appropriate SurfaceCreator subclass before calling
-    ## Canvas::saveRegion.  
-
-    def saveCanvas(self, menuitem, filename, overwrite, pixels, background):
-        if not filename.endswith((".png", ".pdf")):
-            raise ooferror.ErrUserError("File name must end with .png or .pdf")
+    def saveCanvas(self, menuitem, filename, format, overwrite,
+                   pixels, background):
         if overwrite or not os.path.exists(filename):
             self.drawLayers()
             assert not self.oofcanvas.empty()
-            if filename.endswith(".pdf"):
+            if format == "pdf":
                 if not self.oofcanvas.saveAsPDF(filename, pixels, background):
                     raise ooferror.ErrUserError("Cannot save canvas!")
-            if filename.endswith(".png"):
+            elif format == "png":
                 if not self.oofcanvas.saveAsPNG(filename, pixels, background):
                     raise ooferror.ErrUserError("Cannot save canvas!")
 
-    def saveCanvasRegion(self, menuitem, filename, overwrite,
+    def saveCanvasRegion(self, menuitem, filename, format, overwrite,
                          pixels, background, lowerleft, upperright):
-        if not filename.endswith((".png", ".pdf")):
-            raise ooferror.ErrUserError("File name must end with .png or .pdf")
         if overwrite or not os.path.exists(filename):
             self.drawLayers()
             assert not self.oofcanvas.empty()
-            if filename.endswith(".pdf"):
+            if format == "pdf":
                 if not self.oofcanvas.saveRegionAsPDF(
                         filename, pixels, background, lowerleft, upperright):
                     raise ooferror.ErrUserError("Cannot save canvas region!")
-            if filename.endswith(".png"):
+            elif format == "png":
                 if not self.oofcanvas.saveRegionAsPNG(
                         filename, pixels, background, lowerleft, upperright):
                     raise ooferror.ErrUserError("Cannot save canvas region!")
 
-    def saveContourmap(self, menuitem, filename, overwrite, pixels):
-        ## TODO GTK3: Allow different file types
+    def saveContourmap(self, menuitem, filename, format, overwrite, pixels):
         assert self.current_contourmap_method is not None
         if overwrite or not os.path.exists(filename):
             # In text mode, the contourmap canvas might not exist
@@ -1206,9 +1210,16 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 self.drawLayers() # draws contour plot
                 self.current_contourmap_method.draw_contourmap(
                     self, self.contourmapdata.canvas_mainlayer)
-                
-            if not self.contourmapdata.canvas.saveAsPDF(filename,pixels,False):
-                raise ooferror.ErrUserError("Cannot save canvas contour map!")
+            if format == "pdf":
+                if not self.contourmapdata.canvas.saveAsPDF(
+                        filename, pixels, False):
+                    raise ooferror.ErrUserError(
+                        "Cannot save canvas contour map!")
+            elif format == "png":
+                if not self.contourmapdata.canvas.saveAsPNG(
+                    filename, pixels, False):
+                    raise ooferror.ErrUserError(
+                        "Cannot save canvas contour map!")
 
     ###############################
 
