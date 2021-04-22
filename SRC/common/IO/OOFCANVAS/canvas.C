@@ -542,28 +542,18 @@ namespace OOFCanvas {
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-  // Save the whole canvas or a region of it as a pdf.  The saveAs
-  // methods return true if they were successful.
+  // Save the whole canvas or a region of it in various formats.  The
+  // saveAs methods return true if they were successful.
   
-  // TODO: Add saveAsPNG, saveRegionAsPNG.  If ImageMagick is being
-  // used, we could save in other formats as well, presumably.
-
-  bool OffScreenCanvas::saveAsPDF(const std::string &filename,
-				  int maxpix, bool drawBG)
-  {
-    // Saving the whole image requires that we compute the ppu as if
-    // we're zooming to fill.
-    double newppu = getFilledPPU(nVisibleItems(), maxpix, maxpix); // margin?
-    Rectangle bb = findBoundingBox(newppu);
-    return saveRegionAsPDF(filename, maxpix, drawBG,
-			   bb.lowerLeft(), bb.upperRight());
-  }
-
-  bool OffScreenCanvas::saveRegionAsPDF(
-				const std::string &filename,
-				int maxpix, // no. of pixels in max(w, h)
-				bool drawBG,
-				const Coord &pt0, const Coord &pt1)
+  // SurfaceCreator objects are passed in to saveRegion() so that it
+  // can make the correct type of Surface for the desired output.  If
+  // the size were known ahead of time, a Surface could be passed in
+  // instead, but it's not.
+  
+  bool OffScreenCanvas::saveRegion(SurfaceCreator &createSurface,
+				   int maxpix, // no. of pixels in max(w, h)
+				   bool drawBG,
+				   const Coord &pt0, const Coord &pt1)
   {
     if(nVisibleItems() == 0) {
       return false;
@@ -577,14 +567,17 @@ namespace OOFCanvas {
     Coord psize = peepeeyou*imgsize;
     ICoord pxlsize(ceil(psize.x), ceil(psize.y));
     
-    auto surface = Cairo::PdfSurface::create(filename, pxlsize.x, pxlsize.y);
+    auto surface = createSurface.create(pxlsize.x, pxlsize.y);
     cairo_t *ct = cairo_create(surface->cobj());
-    auto pdfctxt = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(ct, true));
-    pdfctxt->set_antialias(antialiasing);
+    auto outctxt = Cairo::RefPtr<Cairo::Context>(new Cairo::Context(ct, true));
+    outctxt->set_antialias(antialiasing);
 
     if(drawBG)
-      drawBackground(pdfctxt);
+      drawBackground(outctxt);
 
+    // Create a surface and context to draw each layer to before it's
+    // copied to the final surface.  The surface can be re-used for
+    // each layer.
     auto layersurf = Cairo::Surface::create(surface,
 					    Cairo::CONTENT_COLOR_ALPHA,
 					    pxlsize.x, pxlsize.y);
@@ -600,31 +593,105 @@ namespace OOFCanvas {
 
     for(CanvasLayer *layer : layers) {
       if(!layer->empty() && layer->visible) {
+	// Clear the re-used surface for the layer.
 	lctxt->save();
 	lctxt->set_operator(Cairo::OPERATOR_CLEAR);
 	lctxt->paint();
 	lctxt->restore();
 
+	// Draw the layer.
 	layer->redrawToContext(lctxt);
 
-	pdfctxt->set_source(layersurf, 0, 0);
-	pdfctxt->paint_with_alpha(layer->alpha);
+	// Copy the layer to the final surface.
+	outctxt->set_source(layersurf, 0, 0);
+	outctxt->paint_with_alpha(layer->alpha);
       }
     }
-    // Not sure if these are needed.
-    // pdfctxt->show_page();
-    // surface->finish();
+    outctxt->show_page();
     return true;
+  } // OffScreenCanvas::saveRegion
+
+
+  // saveAsPDF, saveAsPNG, etc, make an appropriate SurfaceCreator and
+  // call saveRegion.
+  
+  bool OffScreenCanvas::saveAsPDF(const std::string &filename,
+				  int maxpix, bool drawBG)
+  {
+    // Saving the whole image requires that we compute the ppu as if
+    // we're zooming to fill.
+    double newppu = getFilledPPU(nVisibleItems(), maxpix, maxpix); // margin?
+    Rectangle bb = findBoundingBox(newppu);
+    return saveRegionAsPDF(filename, maxpix, drawBG,
+			   bb.lowerLeft(), bb.upperRight());
   }
 
-  bool OffScreenCanvas::saveRegionAsPDF(
-				const std::string &filename,
-				int maxpix, bool drawBG,
-				const Coord *pt0, const Coord *pt1)
+  bool OffScreenCanvas::saveAsPNG(const std::string &filename,
+				  int maxpix, bool drawBG)
+  {
+    // Saving the whole image requires that we compute the ppu as if
+    // we're zooming to fill.
+    double newppu = getFilledPPU(nVisibleItems(), maxpix, maxpix);
+    Rectangle bb = findBoundingBox(newppu);
+    return saveRegionAsPNG(filename, maxpix, drawBG,
+			   bb.lowerLeft(), bb.upperRight());
+  }
+
+  bool OffScreenCanvas::saveRegionAsPDF(const std::string &filename,
+					int maxpix, bool drawBG,
+					const Coord &pt0, const Coord &pt1)
+  {
+    auto pdfsc = PDFSurfaceCreator(filename);
+    return saveRegion(pdfsc, maxpix, drawBG, pt0, pt1);
+  }
+
+  bool OffScreenCanvas::saveRegionAsPDF(const std::string &filename,
+					int maxpix, bool drawBG,
+					const Coord *pt0, const Coord *pt1)
   {
     return saveRegionAsPDF(filename, maxpix, drawBG, *pt0, *pt1);
   }
-    
+
+  bool OffScreenCanvas::saveRegionAsPNG(const std::string &filename,
+					int maxpix, bool drawBG,
+					const Coord &pt0, const Coord &pt1)
+  {
+    auto isc = ImageSurfaceCreator();
+    bool ok = saveRegion(isc, maxpix, drawBG, pt0, pt1);
+    if(ok) {
+      isc.saveAsPNG(filename);
+    }
+    return ok;
+  }
+
+  bool OffScreenCanvas::saveRegionAsPNG(const std::string &filename,
+					int maxpix, bool drawBG,
+					const Coord *pt0, const Coord *pt1)
+  {
+    return saveRegionAsPNG(filename, maxpix, drawBG, *pt0, *pt1);
+  }
+
+  // SurfaceCreators, used by OffScreenCanvas::saveRegion
+  
+  SurfaceCreator::~SurfaceCreator() {
+    surface->finish();
+  }
+  
+  Cairo::RefPtr<Cairo::Surface> PDFSurfaceCreator::create(int x, int y) {
+    surface = Cairo::PdfSurface::create(filename, x, y);
+    return surface;
+  }
+  
+  Cairo::RefPtr<Cairo::Surface> ImageSurfaceCreator::create(int x, int y) {
+    surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, x, y);
+    return surface;
+  }
+
+  void ImageSurfaceCreator::saveAsPNG(const std::string &filename) {
+    surface->write_to_png(filename);
+  }
+  
+
 };				// namespace OOFCanvas
 
 

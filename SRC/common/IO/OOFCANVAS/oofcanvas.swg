@@ -395,7 +395,9 @@ public:
   %name(clickedItems) %new CanvasItemList* clickedItems_new(double, double);
   %name(allItems) %new CanvasItemList* allItems_new();
   bool saveAsPDF(char*, int, bool);
+  bool saveAsPNG(char*, int, bool);
   bool saveRegionAsPDF(char*, int, bool, Coord*, Coord*);
+  bool saveRegionAsPNG(char*, int, bool, Coord*, Coord*);
 
   %new Coord *pixel2user(double, double);
 };

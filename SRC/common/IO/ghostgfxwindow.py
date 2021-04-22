@@ -1158,23 +1158,41 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         finally:
             self.releaseGfxLock()
 
+    ## TODO GTK3: Have a CRegisteredClass for image output file
+    ## formats, and set the format with a parameter, not from the file
+    ## extension?  That would get rid of the ifs in saveCanvas and
+    ## saveCanvasRegion.  The C parts of the registered classes would
+    ## create the appropriate SurfaceCreator subclass before calling
+    ## Canvas::saveRegion.  
+
     def saveCanvas(self, menuitem, filename, overwrite, pixels, background):
-        ## TODO GTK3: Allow different file types
+        if not filename.endswith((".png", ".pdf")):
+            raise ooferror.ErrUserError("File name must end with .png or .pdf")
         if overwrite or not os.path.exists(filename):
             self.drawLayers()
             assert not self.oofcanvas.empty()
-            if not self.oofcanvas.saveAsPDF(filename, pixels, background):
-                raise ooferror.ErrUserError("Cannot save canvas!")
+            if filename.endswith(".pdf"):
+                if not self.oofcanvas.saveAsPDF(filename, pixels, background):
+                    raise ooferror.ErrUserError("Cannot save canvas!")
+            if filename.endswith(".png"):
+                if not self.oofcanvas.saveAsPNG(filename, pixels, background):
+                    raise ooferror.ErrUserError("Cannot save canvas!")
 
     def saveCanvasRegion(self, menuitem, filename, overwrite,
                          pixels, background, lowerleft, upperright):
-        ## TODO GTK3: Allow different file types
+        if not filename.endswith((".png", ".pdf")):
+            raise ooferror.ErrUserError("File name must end with .png or .pdf")
         if overwrite or not os.path.exists(filename):
             self.drawLayers()
             assert not self.oofcanvas.empty()
-            if not self.oofcanvas.saveRegionAsPDF(filename, pixels, background,
-                                                  lowerleft, upperright):
-                raise ooferror.ErrUserError("Cannot save canvas region!")
+            if filename.endswith(".pdf"):
+                if not self.oofcanvas.saveRegionAsPDF(
+                        filename, pixels, background, lowerleft, upperright):
+                    raise ooferror.ErrUserError("Cannot save canvas region!")
+            if filename.endswith(".png"):
+                if not self.oofcanvas.saveRegionAsPNG(
+                        filename, pixels, background, lowerleft, upperright):
+                    raise ooferror.ErrUserError("Cannot save canvas region!")
 
     def saveContourmap(self, menuitem, filename, overwrite, pixels):
         ## TODO GTK3: Allow different file types

@@ -28,6 +28,7 @@ namespace OOFCanvas {
 
   class CanvasLayer;
   class CanvasItem;
+  class SurfaceCreator;
 
   // OffScreenCanvas is the base class for GUICanvasBase, which is the
   // base class for PythonCanvas and Canvas.  OffScreenCanvas can be
@@ -64,6 +65,8 @@ namespace OOFCanvas {
     int layerNumber(const CanvasLayer*) const;
     void drawBackground(Cairo::RefPtr<Cairo::Context>) const;
     bool initialized;
+
+    bool saveRegion(SurfaceCreator&, int, bool, const Coord&, const Coord&);
 
   public:
     OffScreenCanvas(double ppu);
@@ -117,6 +120,11 @@ namespace OOFCanvas {
 			 const Coord&, const Coord&);
     bool saveRegionAsPDF(const std::string &filename, int, bool,
 			 const Coord*, const Coord*);
+    bool saveAsPNG(const std::string &filename, int, bool);
+    bool saveRegionAsPNG(const std::string &filename, int, bool,
+			 const Coord&, const Coord&);
+    bool saveRegionAsPNG(const std::string &filename, int, bool,
+			 const Coord*, const Coord*);
 
     std::vector<CanvasItem*> clickedItems(double, double) const;
     std::vector<CanvasItem*> allItems() const;
@@ -129,6 +137,33 @@ namespace OOFCanvas {
     friend class CanvasItem;
   };				// OffScreenCanvas
 
+  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+  // Utility classes used by OffScreenCanvas::saveRegion()
+  
+  class SurfaceCreator {
+  protected:
+    Cairo::RefPtr<Cairo::Surface> surface;
+  public:
+    virtual ~SurfaceCreator();
+    virtual Cairo::RefPtr<Cairo::Surface> create(int, int) = 0;
+  };
+
+  class PDFSurfaceCreator : public SurfaceCreator {
+  private:
+    const std::string filename;
+  public:
+    PDFSurfaceCreator(const std::string &fname) : filename(fname) {}
+    virtual Cairo::RefPtr<Cairo::Surface> create(int, int);
+  };
+
+  class ImageSurfaceCreator : public SurfaceCreator{
+  public:
+    ImageSurfaceCreator() {}
+    virtual Cairo::RefPtr<Cairo::Surface> create(int, int);
+    void saveAsPNG(const std::string&);
+  };
+  
 };				// namespace OOFCanvas
 
 
