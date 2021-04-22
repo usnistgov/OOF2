@@ -25,7 +25,7 @@ pyfiles = [
     'display.py', 'genericselecttoolbox.py', 'gfxmanager.py',
     'ghostgfxwindow.py', 'mainmenu.py', 'menudump.py',
     'menuparser.py', 'microstructureIO.py', 'microstructuremenu.py',
-    'oofmenu.py', 'parameter.py', 'pdfoutput.py', 'pixelgroupmenu.py',
+    'oofmenu.py', 'parameter.py', 'pixelgroupmenu.py',
     'pixelgroupparam.py', 'pixelinfo.py', 'pixelinfodisplay.py',
     'pixelselectionmenu.py', 'pixelselectiontoolbox.py',
     'placeholder.py', 'progressbar_delay.py', 'questioner.py',
