@@ -45,6 +45,7 @@ class LabelledSliderSet(object):
                 value=self.min[i], vmin=self.min[i], vmax=self.max[i],
                 step=(self.max[i]-self.min[i])/100.0,
                 callback=self.slider_callback, name=label[i],
+                logpaned=(i==0), # only log the GtkPaned position for one slider
                 hexpand=True, halign=Gtk.Align.FILL
             )
             
@@ -55,10 +56,6 @@ class LabelledSliderSet(object):
         # keep the Paneds in the LabelledSliders in sync.  This is an
         # abuse because we're not actually using a ParameterTable
         # here.
-        ## TODO GTK3: When recording with gtklogger, only one of the
-        ## synchronized Paneds should be recording.  Putting all of
-        ## them in the log file breaks the loggergui's mechanism for
-        ## removing redundant lines.
         for slider in self.sliders:
             slider.parameterTableXRef(self, self.sliders)
 

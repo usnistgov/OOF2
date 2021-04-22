@@ -55,16 +55,23 @@ class DefaultClipper(object):
 class LabelledSlider:
     def __init__(self, value=None, vmin=0, vmax=1, step=0.01, callback=None,
                  clipperclass=None,
-                 name=None, immediate=True, **kwargs):
+                 name=None, immediate=True, logPaned=True,
+                 **kwargs):
         # "callback" is called when the user moves the slider.  If
         # immediate==True, then the callback will be called when any
         # character is typed in the Entry.  If it's false, the
         # callback won't be called until the entry loses focus.
+
+        # If logPaned is True, gtklogger will log changes in the
+        # position of the GtkPaned that separates the slider from the
+        # text area.  If multiple sliders' panes are synchronized,
+        # logPaned should be True for just one of them.
         debug.mainthreadTest()
         self.immediate = immediate
 
         self.gtk = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL, **kwargs)
-        gtklogger.connect_passive(self.gtk, 'notify::position')
+        if logPaned:
+            gtklogger.connect_passive(self.gtk, 'notify::position')
         if value is None:
             value = vmin
         self.clipperclass = clipperclass or DefaultClipper
