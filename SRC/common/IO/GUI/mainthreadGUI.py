@@ -36,7 +36,7 @@ class OOFIdleCallback:
 def run_gui(func, args=(), kwargs={}):
      # Unlike runBlock_gui(), below, this function should *not* check
      # thread_enable.query() or mainthread.mainthread().  This
-     # function is used to by common.oof.front_end() and
+     # function is used by common.oof.front_end() and
      # common.IO.GUI.oofGUI.start() to install idle callbacks that
      # must be installed before the GUI starts and executed
      # afterwards, so the installation must succeed even if threads
