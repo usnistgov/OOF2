@@ -637,6 +637,12 @@ namespace OOFCanvas {
 			   bb.lowerLeft(), bb.upperRight());
   }
 
+  // TODO?  In principle, we could save the canvas in more image
+  // formats.  In practice, it doesn't seem like it's worth the
+  // effort.  There are lots of tools that users can use to convert
+  // from pdf or png to whatever format they like.  Supporting other
+  // formats that aren't supported by Cairo would be a pain.
+
   bool OffScreenCanvas::saveRegionAsPDF(const std::string &filename,
 					int maxpix, bool drawBG,
 					const Coord &pt0, const Coord &pt1)
