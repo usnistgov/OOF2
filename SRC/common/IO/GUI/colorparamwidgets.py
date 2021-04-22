@@ -45,7 +45,7 @@ class LabelledSliderSet(object):
                 value=self.min[i], vmin=self.min[i], vmax=self.max[i],
                 step=(self.max[i]-self.min[i])/100.0,
                 callback=self.slider_callback, name=label[i],
-                logpaned=(i==0), # only log the GtkPaned position for one slider
+                logPaned=(i==0), # only log the GtkPaned position for one slider
                 hexpand=True, halign=Gtk.Align.FILL
             )
             
