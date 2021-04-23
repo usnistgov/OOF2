@@ -40,9 +40,6 @@ from gi.repository import Gtk
 # selected.
 noCS = '<None>'
 
-## TODO GTK3: Make the Source panel a text view or somehow more
-## visible.  It needs a different background, like other info panels.
-
 class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
                              mousehandler.MouseHandler):
     def __init__(self, toolbox):
@@ -53,26 +50,22 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
                           margin=2)
         self.gtk.add(mainbox)
 
-        sourceframe = Gtk.Frame(label="Source", shadow_type=Gtk.ShadowType.IN)
+        sourceframe = Gtk.Frame(label="Source", shadow_type=Gtk.ShadowType.IN,
+                                margin_start=2, margin_end=2,
+                                margin_top=2, margin_bottom=2)
         mainbox.pack_start(sourceframe, fill=False, expand=False, padding=0)
-        sourcescroll = Gtk.ScrolledWindow(margin=2)
+        sourcescroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN,
+                                          margin=2)
         gtklogger.logScrollBars(sourcescroll, "Source")
         sourceframe.add(sourcescroll)
         sourcescroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.NEVER)
-        datatable = Gtk.Grid()
-        sourcescroll.add(datatable)
-        
-        meshlabel = Gtk.Label("mesh = ", halign=Gtk.Align.END)
-        self.meshname = Gtk.Label(halign=Gtk.Align.START)
-        gtklogger.setWidgetName(self.meshname, "meshname")
-        datatable.attach(meshlabel, 0,0, 1,1)
-        datatable.attach(self.meshname, 1,0, 1,1)
 
-        layerlabel = Gtk.Label("output = ", halign=Gtk.Align.END)
-        self.layername = Gtk.Label(halign=Gtk.Align.START)
-        gtklogger.setWidgetName(self.layername,"layername")
-        datatable.attach(layerlabel, 0,1, 1,1)
-        datatable.attach(self.layername, 1,1, 1,1)
+        self.sourceText = Gtk.TextView(name="fixedfont", editable=False,
+                                       wrap_mode=Gtk.WrapMode.WORD,
+                                       cursor_visible=False,
+                                       left_margin=2, right_margin=2,
+                                       top_margin=2, bottom_margin=2)
+        sourcescroll.add(self.sourceText)
 
         csframe = Gtk.Frame(label="Cross Section",
                             shadow_type=Gtk.ShadowType.IN)
@@ -227,13 +220,20 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         debug.mainthreadTest()
         self.meshobj = self.toolbox.current_mesh
         meshok = self.meshobj is not None
-        if meshok:
-            text = mesh.meshes.getPath(self.meshobj)
-        else:
-            text = "No Mesh Displayed!"
-        self.meshname.set_text(text)
 
-        csok = 0
+        if meshok:
+            meshtext = "  mesh = " + mesh.meshes.getPath(self.meshobj)
+        else:
+            meshtext = "No Mesh Displayed!"
+        self.outputobj = self.toolbox.current_layer
+        if self.outputobj is None:
+            outputtext = ""
+        else:
+            outputtext = "output = " + self.outputobj.what.shortrepr()
+
+        self.sourceText.get_buffer().set_text("\n".join([meshtext, outputtext]))
+
+        csok = False
         if meshok:
             csname = self.meshobj.selectedCSName()
             csnames = self.meshobj.allCrossSectionNames()
@@ -251,13 +251,6 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         self.editbutton.set_sensitive(csok)
         self.copybutton.set_sensitive(csok)
                 
-        self.outputobj = self.toolbox.current_layer
-        if self.outputobj is None:
-            text =""
-        else:
-            text = self.outputobj.what.shortrepr()
-        self.layername.set_text(text)
-
         self.gobutton.set_sensitive(self.outputobj is not None
                                     and meshok and csok
                                     and self.destwidget.isValid())
