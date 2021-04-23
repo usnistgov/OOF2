@@ -199,8 +199,6 @@ def imageNameResolver(param, startname):
     msname = labeltree.makePath(param.group['microstructure'].value)[0]
     return whoville.getClass('Image').uniqueName([msname, imagename])
 
-## TODO GTK3: Fix copyImage. It calls write_pause() when not writing
-## if copying to a new microstructure.
 def copyImage(menuitem, image, microstructure, name):
     sourceimage = oofimage.getImage(image)
     immidge = sourceimage.clone(name)
