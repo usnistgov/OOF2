@@ -268,7 +268,7 @@ checkpoint Graphics_1 Mesh Info sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.File.Load.Data
 findWidget('OOF2 Activity Viewer').resize(400, 300)
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':''},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text","mesh = microstructure:skeleton:mesh")
 assert tests.chooserStateCheck(tbox+":csList","<None>")
 assert tests.chooserCheck(tbox+":csList",["<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -337,7 +337,7 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(697)
 findWidget('OOF2 Graphics 1').resize(826, 530)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(698)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(282)
-assert tests.gtkMultiTextCompare({'meshname':'No Mesh Displayed!','layername':''},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "No Mesh Displayed!")
 assert tests.chooserStateCheck(tbox+":csList","<None>")
 assert tests.chooserCheck(tbox+":csList",["<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -388,7 +388,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.New
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 4.6000000000000e+01)
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"Magnitude(Displacement)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
 assert tests.chooserStateCheck(tbox+":csList","<None>")
 assert tests.chooserCheck(tbox+":csList",["<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -412,7 +412,7 @@ checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Cross Section sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.Cross_Section.New
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"Magnitude(Displacement)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
 assert tests.chooserStateCheck(tbox+":csList","cs")
 assert tests.chooserCheck(tbox+":csList",["cs","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -468,7 +468,7 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_v
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Cross Section:Go').clicked()
 checkpoint OOF.Mesh.Analyze.Direct_Output
 # Output written to message window.
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"Magnitude(Displacement)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
 assert tests.chooserStateCheck(tbox+":csList","cs")
 assert tests.chooserCheck(tbox+":csList",["cs","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -499,7 +499,7 @@ checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Cross Section sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.Cross_Section.New
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"Magnitude(Displacement)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
 assert tests.chooserStateCheck(tbox+":csList","cs<2>")
 assert tests.chooserCheck(tbox+":csList",["cs","cs<2>","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -528,7 +528,7 @@ findWidget('Dialog-Add a data destination:filename').set_text('test.o')
 findWidget('Dialog-Add a data destination:filename').set_text('test.ou')
 findWidget('Dialog-Add a data destination:filename').set_text('test.out')
 findWidget('Dialog-Add a data destination:widget_GTK_RESPONSE_OK').clicked()
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"Magnitude(Displacement)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
 assert tests.chooserStateCheck(tbox+":csList","cs<2>")
 assert tests.chooserCheck(tbox+":csList",["cs","cs<2>","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -550,7 +550,7 @@ findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Mesh Cross Section:Go').c
 checkpoint OOF.Mesh.Analyze.Direct_Output
 assert tests.filediff('test.out')
 
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"Magnitude(Displacement)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
 assert tests.chooserStateCheck(tbox+":csList","cs<2>")
 assert tests.chooserCheck(tbox+":csList",["cs","cs<2>","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -583,7 +583,7 @@ checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Cross Section sensitized
 checkpoint OOF.Mesh.Cross_Section.Copy
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"Magnitude(Displacement)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
 assert tests.chooserStateCheck(tbox+":csList","cs_copy")
 assert tests.chooserCheck(tbox+":csList",["cs","cs<2>","cs_copy","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -616,7 +616,7 @@ checkpoint OOF.Mesh.Analyze.Direct_Output
 assert tests.filediff('copy_test.out')
 os.remove('copy_test.out')
 
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"Magnitude(Displacement)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
 assert tests.chooserStateCheck(tbox+":csList","cs_copy")
 assert tests.chooserCheck(tbox+":csList",["cs","cs<2>","cs_copy","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -659,7 +659,7 @@ checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Cross Section sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.Cross_Section.Edit
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"Magnitude(Displacement)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
 assert tests.chooserStateCheck(tbox+":csList","cs")
 assert tests.chooserCheck(tbox+":csList",["cs","cs<2>","cs_copy","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -688,7 +688,7 @@ findWidget('Dialog-Add a data destination:filename').set_text('ed_test.out')
 findWidget('Dialog-Add a data destination:filename').set_text('edi_test.out')
 findWidget('Dialog-Add a data destination:filename').set_text('edit_test.out')
 findWidget('Dialog-Add a data destination:widget_GTK_RESPONSE_OK').clicked()
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"Magnitude(Displacement)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
 assert tests.chooserStateCheck(tbox+":csList","cs")
 assert tests.chooserCheck(tbox+":csList",["cs","cs<2>","cs_copy","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -711,7 +711,7 @@ checkpoint OOF.Mesh.Analyze.Direct_Output
 assert tests.filediff('edit_test.out')
 os.remove('edit_test.out')
 
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"Magnitude(Displacement)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
 assert tests.chooserStateCheck(tbox+":csList","cs")
 assert tests.chooserCheck(tbox+":csList",["cs","cs<2>","cs_copy","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -744,7 +744,7 @@ checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Cross Section sensitized
 checkpoint OOF.Mesh.Cross_Section.Rename
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"Magnitude(Displacement)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
 assert tests.chooserStateCheck(tbox+":csList","renamed_cs")
 assert tests.chooserCheck(tbox+":csList",["renamed_cs","cs<2>","cs_copy","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -780,7 +780,7 @@ checkpoint OOF.Mesh.Analyze.Direct_Output
 assert tests.filediff('rename_test.out')
 os.remove('rename_test.out')
 
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"Magnitude(Displacement)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
 assert tests.chooserStateCheck(tbox+":csList","renamed_cs")
 assert tests.chooserCheck(tbox+":csList",["renamed_cs","cs<2>","cs_copy","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -825,7 +825,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.New
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 6.8000000000000e+01)
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"SecondInvariant(Stress)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = SecondInvariant(Stress)")
 assert tests.chooserStateCheck(tbox+":csList","renamed_cs")
 assert tests.chooserCheck(tbox+":csList",["renamed_cs","cs<2>","cs_copy","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Line Points')
@@ -870,7 +870,7 @@ checkpoint OOF.Mesh.Analyze.Direct_Output
 assert tests.filediff('newlayer_test.out')
 os.remove('newlayer_test.out')
 
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"SecondInvariant(Stress)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = SecondInvariant(Stress)")
 assert tests.chooserStateCheck(tbox+":csList","renamed_cs")
 assert tests.chooserCheck(tbox+":csList",["renamed_cs","cs<2>","cs_copy","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Element Segments')
@@ -898,7 +898,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.Cross_Section.Select
 deactivatePopup('chooserPopup-csList') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll').get_hadjustment().set_value( 4.9000000000000e+01)
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"SecondInvariant(Stress)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = SecondInvariant(Stress)")
 assert tests.chooserStateCheck(tbox+":csList","cs<2>")
 assert tests.chooserCheck(tbox+":csList",["renamed_cs","cs<2>","cs_copy","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Element Segments')
@@ -921,7 +921,7 @@ checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Cross Section sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.Cross_Section.Remove
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"SecondInvariant(Stress)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = SecondInvariant(Stress)")
 assert tests.chooserStateCheck(tbox+":csList","cs_copy")
 assert tests.chooserCheck(tbox+":csList",["renamed_cs","cs_copy","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Element Segments')
@@ -947,7 +947,7 @@ checkpoint Graphics_1 Mesh Cross Section sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.Cross_Section.Select
 deactivatePopup('chooserPopup-csList') # MenuItemLogger
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"SecondInvariant(Stress)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = SecondInvariant(Stress)")
 assert tests.chooserStateCheck(tbox+":csList","renamed_cs")
 assert tests.chooserCheck(tbox+":csList",["renamed_cs","cs_copy","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Element Segments')
@@ -977,7 +977,7 @@ checkpoint Graphics_1 Mesh Cross Section sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Delete
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 1.8000000000000e+01)
-assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','layername':"Magnitude(Displacement)"},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "mesh = microstructure:skeleton:mesh\noutput = Magnitude(Displacement)")
 assert tests.chooserStateCheck(tbox+":csList","renamed_cs")
 assert tests.chooserCheck(tbox+":csList",["renamed_cs","cs_copy","<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Element Segments')
@@ -1015,7 +1015,7 @@ checkpoint OOF.Graphics_1.Layer.Delete
 deactivatePopup('PopUp-0') # MenuItemLogger
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 
-assert tests.gtkMultiTextCompare({'meshname':'No Mesh Displayed!','layername':""},tbox+":Source")
+assert tests.gtkTextviewTail(tbox+":Source:text", "No Mesh Displayed!")
 assert tests.chooserStateCheck(tbox+":csList","<None>")
 assert tests.chooserCheck(tbox+":csList",["<None>"])
 assert tests.chooserStateCheck(tbox+':Sampling:RCFChooser','Element Segments')

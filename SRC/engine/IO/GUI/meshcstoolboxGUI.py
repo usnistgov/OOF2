@@ -65,6 +65,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
                                        cursor_visible=False,
                                        left_margin=2, right_margin=2,
                                        top_margin=2, bottom_margin=2)
+        gtklogger.setWidgetName(self.sourceText, "text")
         sourcescroll.add(self.sourceText)
 
         csframe = Gtk.Frame(label="Cross Section",
@@ -222,16 +223,14 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         meshok = self.meshobj is not None
 
         if meshok:
-            meshtext = "  mesh = " + mesh.meshes.getPath(self.meshobj)
+            srctext = "  mesh = " + mesh.meshes.getPath(self.meshobj)
         else:
-            meshtext = "No Mesh Displayed!"
+            srctext = "No Mesh Displayed!"
         self.outputobj = self.toolbox.current_layer
-        if self.outputobj is None:
-            outputtext = ""
-        else:
-            outputtext = "output = " + self.outputobj.what.shortrepr()
+        if self.outputobj is not None:
+            srctext += "\noutput = " + self.outputobj.what.shortrepr()
 
-        self.sourceText.get_buffer().set_text("\n".join([meshtext, outputtext]))
+        self.sourceText.get_buffer().set_text(srctext)
 
         csok = False
         if meshok:
