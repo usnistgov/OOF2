@@ -33,7 +33,6 @@ import ooflib.engine.mesh
 from gi.repository import Gdk
 from gi.repository import Gtk
 
-
 # A page on which various aspects of the solved mesh can be queried --
 # cross-section and statistical outputs will live here, with the
 # ability to be put into files, and so forth. 
@@ -206,10 +205,6 @@ class AnalyzePage(BaseAnalysisPage):
         # Since Paneds don't have a dedicated signal indicating that
         # their dividers have been moved, we have to use the the
         # generic 'notify' signal.
-        ## TODO GTK3: Synchronization isn't working when a gui script
-        ## that moves the panes is replayed.  Is that a gtklogger
-        ## problem or an OOF2 problem? If it's just an OOF2 problem we
-        ## may not care about it.
         self.paneSignals = {
             self.topPane : gtklogger.connect(self.topPane,
                                              'notify::position', 
@@ -219,7 +214,7 @@ class AnalyzePage(BaseAnalysisPage):
                                              'notify::position',
                                              self.paneMovedCB,
                                              self.topPane)
-            }
+        }
 
         self.outputframe = Gtk.Frame(
             label="Output", shadow_type=Gtk.ShadowType.IN,
@@ -388,20 +383,22 @@ class AnalyzePage(BaseAnalysisPage):
         self.sensitize_widgets()
 
     # Synchronize the top and bottom panes
-    synccount = 0               # suppresses recursion 
     def paneMovedCB(self, pane, gparamspec, otherpane):
-        self.synccount += 1
-        if self.synccount == 1:
-            pos = pane.get_position()
-            # Try to move the other pane to the position of the one
-            # that just moved and triggered this callback.
-            self.paneSignals[otherpane].block()
-            try:
-                otherpane.set_position(pos)
-            finally:
-                self.paneSignals[otherpane].unblock()
-        elif self.synccount > 1:
-            self.synccount = 0
+        # If a pane is moved to a point where the other pane can't
+        # follow, then this callback is called for *both* panes, even
+        # though the signal is blocked.  Probably gtk is trying to
+        # move the pane to an impossible position while the signal is
+        # blocked, and then moving it back to its legal position after
+        # the signal is unblocked.
+        
+        pos = pane.get_position()
+        # Try to move the other pane to the position of the one
+        # that just moved and triggered this callback.
+        self.paneSignals[otherpane].block()
+        try:
+            otherpane.set_position(pos)
+        finally:
+            self.paneSignals[otherpane].unblock()
 
     def currentMeshContext(self):
         meshname = self.meshwidget.get_value()
