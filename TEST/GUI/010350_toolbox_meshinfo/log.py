@@ -233,32 +233,25 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.File.Load.Data
 assert findWidget(tbox+":Click:Element").get_active()
@@ -609,7 +602,6 @@ assert tests.gtkMultiTextCompare({'meshname':'microstructure:skeleton:mesh','x':
 assert tests.gtkMultiTextCompare({'x':'0.489024','y':'6.15665'},'Mesh Data 1:Data',tolerance=1.e-6)
 assert findWidget('Mesh Data 1:Freeze:Space').get_active()
 assert tests.is_sensitive('Mesh Data 1:Close')
-checkpoint_count("Graphics_1 Mesh Info showed position")
 
 # Unfreeze the first data viewer
 findWidget('Mesh Data 1:Freeze:Space').clicked()
@@ -642,7 +634,6 @@ checkpoint Mesh_Data_1 data updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Delete
 deactivatePopup('PopUp-0') # MenuItemLogger
-# checkpoint_count("Graphics_1 Mesh Info showed position")
 assert not findWidget(tbox+":Click:Element").get_active()
 assert findWidget(tbox+':Click:Node').get_active()
 assert tests.gtkMultiTextCompare({'X':'','Y':''},tbox+":Click")

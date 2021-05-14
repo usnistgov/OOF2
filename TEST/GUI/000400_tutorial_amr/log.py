@@ -184,7 +184,6 @@ checkpoint mesh bdy page updated
 checkpoint boundary page updated
 checkpoint Graphics_1 Mesh Info cleared position
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -211,9 +210,7 @@ checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
@@ -225,45 +222,35 @@ checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
@@ -501,7 +488,6 @@ checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
@@ -530,33 +516,6 @@ checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Mesh.Solve
-#checkpoint Solver page sensitized
-# checkpoint Field page sensitized
-# checkpoint mesh page sensitized
-# checkpoint Solver page sensitized
-# checkpoint Solver page sensitized
-# checkpoint OOF.Mesh.Solve
-# checkpoint toplevel widget mapped Error
-# findWidget('Error').resize(266, 150)
-# findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
-# findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList').get_selection().select_path(Gtk.TreePath([0]))
-# checkpoint Solver page sensitized
-# tree=findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList')
-# column = tree.get_column(3)
-# tree.row_activated(Gtk.TreePath([0]), column)
-# checkpoint toplevel widget mapped Dialog-Specify Solver
-# findWidget('Dialog-Specify Solver').resize(475, 490)
-# event(Gdk.EventType.BUTTON_PRESS,x= 1.0500000000000e+02,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('Dialog-Specify Solver:solver_mode:Advanced:symmetric_solver:RCFChooser').get_window())
-# checkpoint toplevel widget mapped chooserPopup-RCFChooser
-# findMenu(findWidget('chooserPopup-RCFChooser'), ['BiCG']).activate() # MenuItemLogger
-# deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
-# findWidget('Dialog-Specify Solver:widget_GTK_RESPONSE_OK').clicked()
-# checkpoint Solver page sensitized
-# checkpoint Field page sensitized
-# checkpoint mesh page sensitized
-# checkpoint Solver page sensitized
-# checkpoint OOF.Subproblem.Set_Solver
-# findWidget('OOF2:Solver Page:solve').clicked()
 findWidget('Adaptive Mesh Refinement:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 9.2000000000000e+01,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
@@ -630,7 +589,6 @@ checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint Field page sensitized

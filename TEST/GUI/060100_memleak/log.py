@@ -474,7 +474,6 @@ checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Material.Assign
 

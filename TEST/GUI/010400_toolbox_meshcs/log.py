@@ -204,7 +204,6 @@ checkpoint mesh bdy page updated
 checkpoint boundary page updated
 checkpoint Graphics_1 Mesh Info cleared position
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
 checkpoint Graphics_1 Pixel Selection sensitized
@@ -232,34 +231,27 @@ checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
@@ -374,7 +366,6 @@ deactivatePopup('chooserPopup-what_1') # MenuItemLogger
 findWidget('Dialog-New Graphics Layer').resize(483, 624)
 findWidget('Dialog-New Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Graphics_1 Mesh Info cleared position
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection

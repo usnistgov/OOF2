@@ -523,8 +523,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         if self.meshcontext is meshcontext:
             self.buildInfoGUI(self.modeclass)
             self.mainbox.show_all()
-            self.updateQuery()
-            self.sensitize()
+            self.updateQuery() # calls sensitize()
     def meshDataChanged(self, meshcontext):
         debug.mainthreadTest()
         if self.meshcontext is meshcontext:
@@ -533,9 +532,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.meshChanged(subpcontext.getParent())
 
     def sensitize(self):
-        ## TODO GTK3: This is called a lot.  Adding a boundary
-        ## condition leads to six calls.  Editing leads to 10. Can
-        ## some be eliminated?
+        # TODO: This is called a lot. Can some calls be eliminated?
         debug.mainthreadTest()
         self.clear.set_sensitive(self.clearable())
         self.prev.set_sensitive(self.prev_able())

@@ -243,7 +243,6 @@ checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Mesh_Data_1 data updated
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
@@ -251,10 +250,8 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Mesh_Data_1 data updated
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Mesh_Data_1 data updated
 checkpoint Field page sensitized
@@ -262,10 +259,8 @@ checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Mesh_Data_1 data updated
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Mesh_Data_1 data updated
 checkpoint Field page sensitized
@@ -273,10 +268,8 @@ checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Mesh_Data_1 data updated
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Mesh_Data_1 data updated
 checkpoint Field page sensitized

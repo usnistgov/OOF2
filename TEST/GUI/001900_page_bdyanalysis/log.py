@@ -6,15 +6,18 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
 # Tests for the Boundary Analysis page
 
 import tests
-findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
-findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
+
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
+checkpoint toplevel widget mapped OOF2 Activity Viewer
+
+findWidget('OOF2:FE Mesh Page:Pane').set_position(557)
+findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(106)
 findWidget('OOF2').resize(782, 545)
 
 # Create a Microstructure
@@ -31,19 +34,19 @@ checkpoint meshable button set
 checkpoint microstructure page sensitized
 checkpoint pixel page updated
 checkpoint active area status updated
-findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint pixel page sensitized
 checkpoint mesh bdy page updated
 checkpoint Field page sensitized
 checkpoint Materials page updated
+findWidget('OOF2:Microstructure Page:Pane').set_position(189)
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
 checkpoint skeleton selection page grouplist Element
 checkpoint skeleton selection page selection sensitized Element
-checkpoint skeleton selection page updated
 checkpoint skeleton selection page groups sensitized Element
+checkpoint skeleton selection page updated
 checkpoint Solver page sensitized
 checkpoint OOF.Microstructure.New
 
@@ -51,9 +54,9 @@ checkpoint OOF.Microstructure.New
 event(Gdk.EventType.BUTTON_PRESS,x= 9.7000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Materials']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Materials page updated
 checkpoint page installed Materials
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Materials Page:Pane').set_position(289)
 findWidget('OOF2:Materials Page:Pane:Material:New').clicked()
 checkpoint toplevel widget mapped Dialog-New material
@@ -90,10 +93,10 @@ checkpoint OOF.Material.Assign
 event(Gdk.EventType.BUTTON_PRESS,x= 8.0000000000000e+01,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Skeleton']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Skeleton
-findWidget('OOF2:Skeleton Page:Pane').set_position(417)
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint skeleton page sensitized
+findWidget('OOF2:Skeleton Page:Pane').set_position(417)
 checkpoint skeleton page sensitized
 findWidget('OOF2:Skeleton Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-New skeleton
@@ -118,13 +121,13 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint boundary page updated
-checkpoint skeleton selection page grouplist Element
-checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton page info updated
+checkpoint skeleton selection page grouplist Element
+checkpoint skeleton page info updated
+checkpoint skeleton selection page selection sensitized Element
 checkpoint Solver page sensitized
 checkpoint OOF.Skeleton.New
 checkpoint skeleton selection page groups sensitized Element
-checkpoint skeleton page info updated
 checkpoint skeleton selection page updated
 checkpoint skeleton page sensitized
 
@@ -132,12 +135,12 @@ checkpoint skeleton page sensitized
 event(Gdk.EventType.BUTTON_PRESS,x= 8.4000000000000e+01,y= 2.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['FE Mesh']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint page installed FE Mesh
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:FE Mesh Page:Pane:leftpane').set_position(130)
 findWidget('OOF2:FE Mesh Page:New').clicked()
 checkpoint toplevel widget mapped Dialog-Create a new mesh
@@ -167,9 +170,9 @@ checkpoint OOF.Mesh.New
 event(Gdk.EventType.BUTTON_PRESS,x= 5.8000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Analysis']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint mesh bdy page updated
 checkpoint page installed Boundary Analysis
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Boundary Analysis Page:Pane').set_position(256)
 assert tests.goSensitive(0)
 assert tests.bdyList("top", "bottom", "right", "left")
@@ -178,10 +181,10 @@ assert tests.bdyList("top", "bottom", "right", "left")
 event(Gdk.EventType.BUTTON_PRESS,x= 7.0000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Fields & Equations']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint page installed Fields & Equations
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Fields & Equations Page:HPane').set_position(470)
 findWidget('OOF2:Fields & Equations Page:HPane:Fields:Temperature defined').clicked()
 checkpoint Field page sensitized
@@ -210,9 +213,9 @@ checkpoint OOF.Subproblem.Field.Define
 event(Gdk.EventType.BUTTON_PRESS,x= 6.5000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Solver']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Solver page sensitized
 checkpoint page installed Solver
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Solver Page:VPane').set_position(170)
 findWidget('OOF2:Solver Page:VPane:FieldInit:Scroll:Initializers').get_selection().select_path(Gtk.TreePath([0]))
 checkpoint Solver page sensitized
@@ -245,9 +248,9 @@ checkpoint OOF.Mesh.Apply_Field_Initializers
 event(Gdk.EventType.BUTTON_PRESS,x= 8.1000000000000e+01,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Analysis']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint mesh bdy page updated
 checkpoint page installed Boundary Analysis
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Boundary Analysis Page:Pane').set_position(211)
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([0]))
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().unselect_all()
@@ -308,10 +311,10 @@ assert tests.msgFloat(0, 0, 0)
 event(Gdk.EventType.BUTTON_PRESS,x= 7.6000000000000e+01,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Fields & Equations']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint page installed Fields & Equations
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Fields & Equations Page:HPane:Fields:Displacement active').clicked()
 checkpoint Field page sensitized
 checkpoint Field page sensitized
@@ -334,9 +337,9 @@ checkpoint OOF.Mesh.Field.In_Plane
 event(Gdk.EventType.BUTTON_PRESS,x= 9.0000000000000e+01,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Analysis']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint mesh bdy page updated
 checkpoint page installed Boundary Analysis
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 assert tests.goSensitive(1)
 
 # findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([0]))
@@ -370,10 +373,10 @@ assert tests.goSensitive(0)
 event(Gdk.EventType.BUTTON_PRESS,x= 7.4000000000000e+01,y= 2.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Fields & Equations']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint page installed Fields & Equations
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Fields & Equations Page:HPane:Equations:Force_Balance active').clicked()
 checkpoint Field page sensitized
 checkpoint Field page sensitized
@@ -388,9 +391,9 @@ checkpoint OOF.Subproblem.Equation.Activate
 event(Gdk.EventType.BUTTON_PRESS,x= 8.2000000000000e+01,y= 2.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Analysis']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint mesh bdy page updated
 checkpoint page installed Boundary Analysis
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Boundary Analysis Page:Pane').set_position(250)
 assert tests.goSensitive(1)
 
@@ -419,8 +422,8 @@ assert tests.msgFloat(0, 0, 0)
 event(Gdk.EventType.BUTTON_PRESS,x= 4.1000000000000e+01,y= 1.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Conditions']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Boundary Conditions
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Boundary Conditions Page:Condition:New').clicked()
 checkpoint toplevel widget mapped Dialog-New Boundary Condition
 findWidget('Dialog-New Boundary Condition').resize(353, 346)
@@ -501,9 +504,9 @@ checkpoint OOF.Mesh.Boundary_Conditions.New
 event(Gdk.EventType.BUTTON_PRESS,x= 7.9000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Solver']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Solver page sensitized
 checkpoint page installed Solver
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList').get_selection().select_path(Gtk.TreePath([0]))
 checkpoint Solver page sensitized
 tree=findWidget('OOF2:Solver Page:VPane:Subproblems:SubproblemScroll:SubproblemList')
@@ -526,10 +529,10 @@ checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
-findWidget('OOF2:Solver Page:end').set_text('0.0')
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Solve
+findWidget('OOF2:Solver Page:end').set_text('0.0')
 findMenu(findWidget('OOF2:MenuBar'), ['Settings', 'Graphics_Defaults', 'New_Layer_Policy']).activate()
 checkpoint toplevel widget mapped Dialog-New_Layer_Policy
 findWidget('Dialog-New_Layer_Policy').resize(192, 86)
@@ -543,12 +546,13 @@ findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
 checkpoint Move Node toolbox info updated
 checkpoint Graphics_1 Skeleton Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
+checkpoint toplevel widget mapped OOF2 Graphics 1
+checkpoint OOF.Graphics_1.Layer.Select
+
 findWidget('OOF2 Graphics 1:Pane0').set_position(360)
 findWidget('OOF2 Graphics 1:Pane0:Pane1').set_position(672)
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2').set_position(212)
-checkpoint toplevel widget mapped OOF2 Graphics 1
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll:LayerList').get_selection().select_path(Gtk.TreePath([10]))
-checkpoint OOF.Graphics_1.Layer.Select
 findWidget('OOF2 Graphics 1').resize(800, 492)
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Windows.Graphics.New
@@ -558,8 +562,8 @@ findWidget('OOF2 Graphics 1').resize(800, 492)
 event(Gdk.EventType.BUTTON_PRESS,x= 5.1000000000000e+01,y= 1.6000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Conditions']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint page installed Boundary Conditions
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Boundary Conditions Page:Condition:BCScroll:BCList').get_selection().select_path(Gtk.TreePath([0]))
 tree=findWidget('OOF2:Boundary Conditions Page:Condition:BCScroll:BCList')
 column = tree.get_column(3)
@@ -571,57 +575,57 @@ findWidget('Dialog-Edit Boundary Condition:condition:Dirichlet:profile:Continuum
 findWidget('Dialog-Edit Boundary Condition:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
+checkpoint Field page sensitized
+checkpoint mesh page sensitized
+checkpoint Solver page sensitized
+
+checkpoint Solver page sensitized
+
+checkpoint Graphics_1 Mesh Info sensitized
+
+findWidget('OOF2:Boundary Conditions Page:Condition:BCScroll:BCList').get_selection().select_path(Gtk.TreePath([1]))
+checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-findWidget('OOF2:Boundary Conditions Page:Condition:BCScroll:BCList').get_selection().select_path(Gtk.TreePath([1]))
-checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
+checkpoint OOF.Mesh.Boundary_Conditions.Edit
+
+
 tree=findWidget('OOF2:Boundary Conditions Page:Condition:BCScroll:BCList')
 column = tree.get_column(3)
 tree.row_activated(Gtk.TreePath([1]), column)
 checkpoint toplevel widget mapped Dialog-Edit Boundary Condition
 findWidget('Dialog-Edit Boundary Condition').resize(407, 398)
-checkpoint Field page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint OOF.Mesh.Boundary_Conditions.Edit
 findWidget('Dialog-Edit Boundary Condition:condition:Dirichlet:profile:Continuum Profile:function').set_text('')
 findWidget('Dialog-Edit Boundary Condition:condition:Dirichlet:profile:Continuum Profile:function').set_text('0')
 findWidget('Dialog-Edit Boundary Condition:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
+checkpoint Field page sensitized
+checkpoint mesh page sensitized
+checkpoint Solver page sensitized
+
+
+checkpoint Solver page sensitized
+
+checkpoint Graphics_1 Mesh Info sensitized
+checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Field page sensitized
-checkpoint mesh page sensitized
-checkpoint Solver page sensitized
-checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint OOF.Mesh.Boundary_Conditions.Edit
+
+
 findWidget('OOF2:Boundary Conditions Page:Condition:BCScroll:BCList').get_selection().select_path(Gtk.TreePath([2]))
 tree=findWidget('OOF2:Boundary Conditions Page:Condition:BCScroll:BCList')
 column = tree.get_column(3)
@@ -633,40 +637,41 @@ findWidget('Dialog-Edit Boundary Condition:condition:Dirichlet:profile:Continuum
 findWidget('Dialog-Edit Boundary Condition:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
+
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
+
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
+
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint OOF.Mesh.Boundary_Conditions.Edit
+
+
 
 # Re-solve
 event(Gdk.EventType.BUTTON_PRESS,x= 1.1800000000000e+02,y= 1.7000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Solver']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Solver page sensitized
 checkpoint page installed Solver
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Solver Page:solve').clicked()
 checkpoint Solver page sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
+
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
@@ -682,9 +687,9 @@ checkpoint OOF.Graphics_1.Settings.Zoom.Fill_Window
 event(Gdk.EventType.BUTTON_PRESS,x= 8.0000000000000e+01,y= 1.4000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Analysis']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint mesh bdy page updated
 checkpoint page installed Boundary Analysis
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([0]))
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
@@ -707,29 +712,29 @@ assert tests.msgFloat(0.0, -0.0878255288986, 0.0)
 event(Gdk.EventType.BUTTON_PRESS,x= 9.0000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Materials']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Materials page updated
 checkpoint page installed Materials
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 event(Gdk.EventType.BUTTON_RELEASE,x= 1.0400000000000e+02,y= 6.2000000000000e+01,button=1,state=256,window=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree').get_window())
 tree=findWidget('OOF2:Materials Page:Pane:Property:PropertyScroll:PropertyTree')
 column = tree.get_column(0)
 tree.row_activated(Gtk.TreePath([1, 0, 0]), column)
 checkpoint Materials page updated
 checkpoint property selected
+checkpoint CijIsoCijklWidget updated
 checkpoint toplevel widget mapped Dialog-Parametrize Mechanical;Elasticity;Isotropic
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic').resize(538, 330)
 event(Gdk.EventType.BUTTON_PRESS,x= 1.1900000000000e+02,y= 1.1000000000000e+01,button=1,state=0,window=findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic:cijkl:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['E and nu']).activate() # MenuItemLogger
+checkpoint convertible RCF
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic:cijkl:E and nu:poisson').set_text('0.')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic:cijkl:E and nu:poisson').set_text('0.0')
 findWidget('Dialog-Parametrize Mechanical;Elasticity;Isotropic:widget_GTK_RESPONSE_OK').clicked()
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
@@ -738,18 +743,22 @@ checkpoint Graphics_1 Mesh Info sensitized
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Property.Parametrize.Mechanical.Elasticity.Isotropic
 
+
+
+
 # Solve again
 event(Gdk.EventType.BUTTON_PRESS,x= 7.1000000000000e+01,y= 8.0000000000000e+00,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Solver']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Solver page sensitized
 checkpoint page installed Solver
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Solver Page:solve').clicked()
 checkpoint Solver page sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
+
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
@@ -763,9 +772,9 @@ checkpoint OOF.Mesh.Solve
 event(Gdk.EventType.BUTTON_PRESS,x= 7.5000000000000e+01,y= 1.8000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Analysis']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint mesh bdy page updated
 checkpoint page installed Boundary Analysis
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([0]))
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
@@ -790,22 +799,22 @@ assert tests.msgFloat(0, 0, 0)
 event(Gdk.EventType.BUTTON_PRESS,x= 5.2000000000000e+01,y= 2.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Fields & Equations']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint page installed Fields & Equations
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Fields & Equations Page:HPane:Fields:Temperature defined').clicked()
 checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
+
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
+
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint contourmap info updated for Graphics_1
@@ -815,13 +824,13 @@ checkpoint Field page sensitized
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint Graphics_1 Mesh Info sensitized
-checkpoint Graphics_1 Mesh Info sensitized
+
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
+
 checkpoint Field page sensitized
 checkpoint Solver page sensitized
 checkpoint contourmap info updated for Graphics_1
@@ -829,9 +838,9 @@ checkpoint OOF.Subproblem.Field.Undefine
 event(Gdk.EventType.BUTTON_PRESS,x= 6.9000000000000e+01,y= 1.9000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Analysis']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint mesh bdy page updated
 checkpoint page installed Boundary Analysis
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 assert tests.goSensitive(1)
 
 # Deactivate the equation
@@ -845,15 +854,15 @@ checkpoint Field page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
+
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Solver page sensitized
-checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Field page sensitized
 checkpoint mesh page sensitized
 checkpoint Solver page sensitized
 checkpoint OOF.Subproblem.Equation.Deactivate
+
 findWidget('OOF2:Navigation:NextHist').clicked()
 checkpoint mesh bdy page updated
 checkpoint page installed Boundary Analysis
@@ -864,11 +873,11 @@ assert tests.goSensitive(0)
 event(Gdk.EventType.BUTTON_PRESS,x= 1.0200000000000e+02,y= 2.0000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
 findMenu(findWidget('chooserPopup-PageMenu'), ['FE Mesh']).activate() # MenuItemLogger
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 checkpoint mesh page sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint mesh page sensitized
 checkpoint page installed FE Mesh
+deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:FE Mesh Page:Delete').clicked()
 checkpoint toplevel widget mapped Questioner
 findWidget('Questioner').resize(277, 86)
@@ -877,8 +886,8 @@ findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 2.0000000000000e+01)
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint selection info updated Element
 checkpoint Graphics_1 Pixel Selection sensitized
+checkpoint selection info updated Element
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -887,13 +896,14 @@ checkpoint mesh page subproblems sensitized
 checkpoint mesh page subproblems sensitized
 checkpoint Solver page sensitized
 checkpoint Solver page sensitized
-findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 checkpoint Graphics_1 Mesh Info cleared position
 checkpoint Graphics_1 Mesh Info sensitized
 checkpoint Graphics_1 Pixel Info updated
 checkpoint selection info updated Pixel Selection
-checkpoint Graphics_1 Pixel Selection sensitized
+findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)
 checkpoint selection info updated Element
+
+checkpoint Graphics_1 Pixel Selection sensitized
 checkpoint selection info updated Node
 checkpoint selection info updated Segment
 checkpoint contourmap info updated for Graphics_1
@@ -908,8 +918,8 @@ checkpoint Solver page sensitized
 checkpoint OOF.Mesh.Delete
 
 findWidget('OOF2:Navigation:PrevHist').clicked()
-checkpoint page installed Boundary Analysis
 checkpoint mesh bdy page updated
+checkpoint page installed Boundary Analysis
 assert tests.bdyList()
 assert tests.goSensitive(0)
 
