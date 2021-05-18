@@ -315,11 +315,10 @@ namespace OOFCanvas {
     // upper left corner of the widget, and is properly clipped."
     // (https://developer.gnome.org/gtk3/stable/ch26s02.html)
 
-    // static int iii = 0;
-    // std::cerr << "GUICanvasBase::drawHandler " << iii++
-    // 	      << " rb=" << rubberBand
-    // 	      << " rb active=" << (rubberBand && rubberBand->active())
-    // 	      << std::endl;
+    static int iii = 0;
+    std::cerr << "GUICanvasBase::drawHandler " << iii++
+	      << " rb=" << rubberBand
+	      << std::endl;
 
     double hadj, vadj;
     getEffectiveAdjustments(hadj, vadj);
@@ -342,7 +341,7 @@ namespace OOFCanvas {
     // date, copy the layers to the rubberband buffer and then copy it
     // and the rubberband to the device.
 
-    if(rubberBand && rubberBand->active()) {
+    if(rubberBand) { // && rubberBand->active()) {
 
       if(nonRubberBandBufferFilled) {
 	// Are any non-rubberband layers dirty?
@@ -431,7 +430,7 @@ namespace OOFCanvas {
   // the rubberband, and get rid of Canvas::setRubberBand.  Doing that
   // would require different types of callbacks for different events,
   // because it would make no sense for a mouse-up or mouse-move
-  // callback to return a rubberband pointer.
+  // callback to return a rubberband pointer. 
   
   bool GUICanvasBase::mouseButtonHandler(GdkEventButton *event) {
     if(empty())
@@ -447,23 +446,37 @@ namespace OOFCanvas {
     else {
       eventtype = "up";
       buttonDown = false;
-      if(rubberBand && rubberBand->active()) {
+      if(rubberBand) { //  && rubberBand->active()) {
 	rubberBand->stop();
+	// The canvas doesn't own the rubberband, so it shouldn't
+	// delete it. 
+	rubberBand = nullptr; 
       }
     }
     lastButton = event->button;
-    doCallback(eventtype, userpt, lastButton,
-	       event->state & GDK_SHIFT_MASK,   
-	       event->state & GDK_CONTROL_MASK);
-    // The callback may have installed a rubberband.
-    if(eventtype == "down" && rubberBand) {
+    RubberBand *rb = doCallback(eventtype, userpt, lastButton,
+				event->state & GDK_SHIFT_MASK,   
+				event->state & GDK_CONTROL_MASK);
+    std::cerr << "GUICanvasBase::mouseButtonHandler: rb=" << rb
+	      << std::endl;
+    if(rb != nullptr) {
+      // The callback installed a rubberband.
       rubberBandLayer.removeAllItems();
-      if(!rubberBand->active()) {
-	nonRubberBandBufferFilled = false;
-	rubberBand->start(&rubberBandLayer, mouseDownPt.x, mouseDownPt.y);
-      }
+      nonRubberBandBufferFilled = false;
+      rubberBand = rb;
+      rubberBand->start(&rubberBandLayer, mouseDownPt.x, mouseDownPt.y);
       rubberBand->draw(userpt.x, userpt.y);
-      }
+    }
+    draw();
+    
+    // if(eventtype == "down" && rubberBand) {
+    //   rubberBandLayer.removeAllItems();
+    //   if(!rubberBand->active()) {
+    // 	nonRubberBandBufferFilled = false;
+    // 	rubberBand->start(&rubberBandLayer, mouseDownPt.x, mouseDownPt.y);
+    //   }
+    //   rubberBand->draw(userpt.x, userpt.y);
+    // }
     return false;
   }
 
@@ -481,12 +494,15 @@ namespace OOFCanvas {
 	ICoord pixel(event->x, event->y);
 	Coord userpt(pixel2user(pixel));
 	if(rubberBand) {
+	  std::cerr << "GUICanvasBase::mouseMotionHandler: redrawing rubberBand"
+		    << std::endl;
 	  rubberBandLayer.removeAllItems();
 	  rubberBand->draw(userpt.x, userpt.y);
 	}
-	doCallback("move", userpt, lastButton,
-		   event->state & GDK_SHIFT_MASK,
-		   event->state & GDK_CONTROL_MASK);
+	(void) doCallback("move", userpt, lastButton,
+			   event->state & GDK_SHIFT_MASK,
+			   event->state & GDK_CONTROL_MASK);
+	draw();
 	return false;
       }
     // Returning "true" means that this handler has processed the
@@ -518,9 +534,9 @@ namespace OOFCanvas {
       // TODO: Do we want to use a different callback here?  Is there
       // any point in transmitting the event location as well as the
       // delta?
-      doCallback("scroll", delta, lastButton,
-		 event->state & GDK_SHIFT_MASK,
-		 event->state & GDK_CONTROL_MASK);
+      (void) doCallback("scroll", delta, lastButton,
+			 event->state & GDK_SHIFT_MASK,
+			 event->state & GDK_CONTROL_MASK);
 
     }
     return false;
@@ -571,14 +587,20 @@ namespace OOFCanvas {
     mouseCallbackData = data;
   }
 
-  void Canvas::doCallback(const std::string &eventtype, const Coord &userpt,
-			  int button, bool shift, bool ctrl)
+  RubberBand *Canvas::doCallback(const std::string &eventtype,
+				 const Coord &userpt,
+				 int button, bool shift, bool ctrl)
   {
     if(mouseCallback != nullptr) {
       // TODO: pass mouseCallbackData!
-      (*mouseCallback)(eventtype, userpt.x, userpt.y, button, shift, ctrl);
+      RubberBand *rb = (*mouseCallback)(eventtype, userpt.x, userpt.y,
+					button, shift, ctrl);
+      // TODO: Why draw here? Caller should draw in case RB needs to
+      // be installed first.
       draw();
+      return rb;
     }
+    return nullptr;
   }
 
   void Canvas::resizeHandler() {
@@ -665,10 +687,11 @@ namespace OOFCanvas {
     PyGILState_Release(pystate);
   }
 
-  void PythonCanvas::doCallback(const std::string &eventtype,
-				const Coord &userpt,
-				int button, bool shift, bool ctrl)
+  RubberBand *PythonCanvas::doCallback(const std::string &eventtype,
+				       const Coord &userpt,
+				       int button, bool shift, bool ctrl)
   {
+    RubberBand *rb = nullptr;
     if(mouseCallback != nullptr) {
       PyGILState_STATE pystate = PyGILState_Ensure();
       try {
@@ -681,6 +704,13 @@ namespace OOFCanvas {
 	  PyErr_Print();
 	  PyErr_Clear();
 	}
+	// Get RubberBand from result.
+
+	// TODO GTK3: This assumes that users are using the same
+	// version of swig that we are, which is almost certainly not
+	// true.  Should all of PythonCanvas be moved out of OOFCanvas
+	// and into OOF2?
+	SWIG_GetPtrObj(result, (void**)&rb, "_RubberBand_p");
 	Py_XDECREF(args);
 	Py_XDECREF(result);
       }
@@ -689,9 +719,9 @@ namespace OOFCanvas {
 	throw;
       }
       PyGILState_Release(pystate);
-      draw();
+      // draw();
     }
-
+    return rb;
   }
   
   void PythonCanvas::setMouseCallback(PyObject *pymcb, PyObject *pydata) {

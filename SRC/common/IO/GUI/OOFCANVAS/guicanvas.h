@@ -53,7 +53,7 @@ namespace OOFCanvas {
     bool mouseButtonHandler(GdkEventButton*);
     static bool motionCB(GtkWidget*, GdkEventMotion*, gpointer);
     bool mouseMotionHandler(GdkEventMotion*);
-    virtual void doCallback(const std::string&, const Coord&,
+    virtual RubberBand *doCallback(const std::string&, const Coord&,
 			    int, bool, bool) = 0;
     // Scrollwheel
     static bool scrollCB(GtkWidget*, GdkEventScroll*, gpointer);
@@ -118,7 +118,7 @@ namespace OOFCanvas {
 
   // In C++, the OOFCanvas constructor creates the gtk Layout.
 
-  typedef void (*MouseCallback)(const std::string&, double, double,
+  typedef RubberBand* (*MouseCallback)(const std::string&, double, double,
 				int, bool, bool);
   typedef void (*ResizeCallback)(void*);
 
@@ -128,7 +128,8 @@ namespace OOFCanvas {
     // button, state (GdkModifierType)
     MouseCallback mouseCallback;
     void *mouseCallbackData;
-    virtual void doCallback(const std::string&, const Coord&, int, bool, bool);
+    virtual RubberBand *doCallback(const std::string&,
+				   const Coord&, int, bool, bool);
     ResizeCallback resizeCallback;
     void *resizeCallbackData;
     virtual void resizeHandler();
@@ -162,7 +163,8 @@ namespace OOFCanvas {
     PyObject *mouseCallbackData;
     PyObject *resizeCallback;
     PyObject *resizeCallbackData;
-    virtual void doCallback(const std::string&, const Coord&, int, bool, bool);
+    virtual RubberBand *doCallback(const std::string&,
+				   const Coord&, int, bool, bool);
     virtual void resizeHandler();
   public:
     PythonCanvas(PyObject*, double);

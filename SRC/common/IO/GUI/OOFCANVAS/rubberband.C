@@ -21,7 +21,7 @@
 namespace OOFCanvas {
 
   RubberBand::RubberBand()
-    : active_(false),
+    : //active_(false),
       layer(nullptr),
       lineWidth(1),
       color(black),
@@ -33,10 +33,11 @@ namespace OOFCanvas {
   RubberBand::~RubberBand() {}
 
   void RubberBand::start(CanvasLayer *lyr, double x, double y) {
+    // Called by GUICanvasBase::mouseButtonHandler()
     layer = lyr;
     startPt = Coord(x, y);
     currentPt = startPt;
-    active_ = true;
+    // active_ = true;
   }
 
   void RubberBand::draw(double x, double y) {
@@ -45,7 +46,7 @@ namespace OOFCanvas {
 
   void RubberBand::stop() {
     layer->clear();
-    active_ = false;
+    // active_ = false;
   }
 
   void RubberBand::setDashColor(Color c) {
@@ -146,6 +147,8 @@ namespace OOFCanvas {
 
   void SpiderRubberBand::draw(double x, double y) {
     assert(layer != nullptr);	// RubberBand::start() has not been called!
+    std::cerr << "SpiderRubberBand::draw: " << this << " "
+	      << x << " " << y << " npts=" << points.size() << std::endl;
     RubberBand::draw(x, y);
     CanvasSegments *segs = new CanvasSegments();
     segs->setLineWidthInPixels();

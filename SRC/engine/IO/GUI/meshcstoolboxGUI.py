@@ -181,7 +181,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         self.gfxwindow().setMouseHandler(self)
         self.motionFlag = self.gfxwindow().allowMotionEvents(
             oofcanvasgui.MOTION_MOUSEDOWN)
-        self.gfxwindow().setRubberBand(oofcanvasgui.LineRubberBand())
+        # self.gfxwindow().setRubberBand(oofcanvasgui.LineRubberBand())
         self.sb_callbacks = [
             switchboard.requestCallbackMain( (self.gfxwindow(),
                                               "layers changed"),
@@ -201,7 +201,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         debug.mainthreadTest()
         ## TODO: Should this call GfxToolbox.deactivate(self)?
         self.gfxwindow().removeMouseHandler()
-        self.gfxwindow().setRubberBand(None)
+        # self.gfxwindow().setRubberBand(None)
         self.gfxwindow().allowMotionEvents(self.motionFlag)
         for s in self.sb_callbacks:
             switchboard.removeCallback(s)

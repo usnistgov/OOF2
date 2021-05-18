@@ -36,7 +36,11 @@ import types
 ## position and x and y are computed at new position.  New position is
 ## not exactly the node position.  But change in shape energy and
 ## homogeneity aren't computed and displayed until after first move
-## event.
+## event.  ??? Actually, it's just the opposite.  Rubberband isn't
+## drawn on mouse down, but energy and homogeneity are updated. ???
+
+# After mouse down & RubberBand::start, RubberBand::draw is being
+# called before rubberband is active, and npts=0.  Is ok if unthreaded.
 
 
 class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
@@ -316,6 +320,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
     def showPosition(self, point, dummy1=None, dummy2=None):
         debug.mainthreadTest()
+        # debug.fmsg("xsignal=", self.xsignal)
         self.xsignal.block()
         self.ysignal.block()
         try:
@@ -349,8 +354,9 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.rb.setColor(oofcanvas.black)
         self.rb.setDashColor(oofcanvas.white)
         self.rb.setDashLength(7)
-        self.gfxwindow().setRubberBand(self.rb)
+        # self.gfxwindow().setRubberBand(self.rb)
         subthread.execute(self.down_subthread, (x,y,button,shift,ctrl))
+        return self.rb
 
     def down_subthread(self, x, y, button, shift, ctrl):
         debug.subthreadTest()
@@ -452,7 +458,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         # unilaterally changing the node position.
         self.downed = 0
         self.rb = None
-        self.gfxwindow().setRubberBand(None)
+        # self.gfxwindow().setRubberBand(None)
         subthread.execute(self.up_subthread, (x, y, button, shift, ctrl))
 
     def up_subthread(self, x, y, button, shift, ctrl):
@@ -488,7 +494,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                                 origin=self.downpt,
                                 destination=point)
                         finally:
-                            self.gfxwindow().setRubberBand(None)
+                            # self.gfxwindow().setRubberBand(None)
                             self.nbrnodes = []
 
             elif self.mode == "Keyboard":

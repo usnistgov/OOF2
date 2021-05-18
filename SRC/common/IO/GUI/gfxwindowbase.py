@@ -508,8 +508,6 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         # Canvas::setMouseCallback() when this method was installed as
         # the callback, in GfxWindow.newCanvas.
         debug.mainthreadTest()
-        global _during_callback
-        _during_callback = 1
 
         # Convert from 0,1, to False,True. If log files have a mix of
         # different boolean formats, test scripts that compare log
@@ -540,16 +538,18 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             # mouse button state is reproduced correctly.
             self.logMouseEvent(eventtype, x, y, button, shift, ctrl)
 
+        status = None
+        
         if self.mouseHandler.acceptEvent(eventtype):
             # Call the appropriate handler.
             if eventtype == 'up' and not ignoreUp:
-                self.mouseHandler.up(x,y, button, shift, ctrl, data)
+                status = self.mouseHandler.up(x,y, button, shift, ctrl, data)
             elif eventtype == 'down':
-                self.mouseHandler.down(x,y, button, shift, ctrl, data)
+                status = self.mouseHandler.down(x,y, button, shift, ctrl, data)
             elif eventtype == 'move':
-                self.mouseHandler.move(x,y, button, shift, ctrl, data)
+                status = self.mouseHandler.move(x,y, button, shift, ctrl, data)
             elif eventtype == 'scroll':
-                self.mouseHandler.scroll(x,y, button, shift, ctrl, data)
+                status = self.mouseHandler.scroll(x,y, button, shift, ctrl,data)
         elif eventtype == "scroll":
             # If we're here, then the current mousehandler doesn't
             # anything special for scrolling.  Don't ignore the event.
@@ -558,8 +558,8 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             self.hScrollbar.get_adjustment().set_value(sx + x)
             sy = self.vScrollbar.get_adjustment().get_value()
             self.vScrollbar.get_adjustment().set_value(sy + y)
-            
-        _during_callback = 0
+
+        return status
 
     #=--=##=--=##=--=##=--=##=--=#
     

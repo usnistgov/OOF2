@@ -9,6 +9,10 @@
  * oof_manager@nist.gov. 
  */
 
+// TODO GTK3: This assumes that users are using the same version of
+// swig that we are, which is almost certainly not true.  Should all
+// of PythonCanvas be moved out of OOFCanvas and into OOF2?  
+
 #ifndef OOFCANVAS_SWG
 #define OOFCANVAS_SWG
 
@@ -17,7 +21,6 @@
 %pragma(python) include="oofcanvas.spy"
 
 %{
-#define SWIG_FILE_WITH_INIT
 #include "oofcanvas.h"
 using namespace OOFCanvas;
 using namespace std;

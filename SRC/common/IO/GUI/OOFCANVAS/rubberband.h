@@ -25,7 +25,7 @@ namespace OOFCanvas {
 
   class RubberBand {
   protected:
-    bool active_;
+    // bool active_; // set to true between calls to start() and stop()
     Coord startPt;
     Coord currentPt;
     CanvasLayer *layer;
@@ -41,7 +41,7 @@ namespace OOFCanvas {
     virtual void start(CanvasLayer*, double x, double y);
     virtual void draw(double x, double y) = 0;
     virtual void stop();
-    bool active() const { return active_; }
+    // bool active() const { return active_; }
 
     void setLineWidth(double w) { lineWidth = w; }
     void setColor(Color c) { color = c; }

@@ -43,14 +43,6 @@ from gi.repository import GObject
 from gi.repository import Gtk
 import threading
 
-# during_callback() is called (by CanvasOutput.show()) only in
-# non-threaded mode, so we don't worry about the thread-safety of a
-# global variable here.
-_during_callback = 0
-def during_callback():
-    return _during_callback
-
-
 # TODO: Merge GfxWindow and GfxWindowBase.  There's no need for two
 # classes if OOF2 and OOF3D don't share code.
 
@@ -460,8 +452,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # handles the events *and* the gui logging.
         canvas.setMouseCallback(self.mouseCB, None)
 
-        if self.rubberband:
-            canvas.setRubberBand(self.rubberband)
+        # if self.rubberband:
+        #     canvas.setRubberBand(self.rubberband)
         return canvas
         
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -931,15 +923,15 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-    # Rubber Band
+    # # Rubber Band
 
-    def setRubberBand(self, rubberband):
-        self.rubberband = rubberband
-        if self.oofcanvas is not None:
-            if rubberband is not None:
-                self.oofcanvas.setRubberBand(rubberband)
-            else:
-                self.oofcanvas.removeRubberBand()
+    # def setRubberBand(self, rubberband):
+    #     self.rubberband = rubberband
+    #     if self.oofcanvas is not None:
+    #         if rubberband is not None:
+    #             self.oofcanvas.setRubberBand(rubberband)
+    #         else:
+    #             self.oofcanvas.removeRubberBand()
 
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

@@ -209,7 +209,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
             oofcanvasgui.MOTION_MOUSEDOWN)
 
     def deactivate(self):
-        self.gfxwindow().setRubberBand(None)
+        # self.gfxwindow().setRubberBand(None)
         toolboxGUI.GfxToolbox.deactivate(self)
         self.gfxwindow().allowMotionEvents(self.motionFlag)
 
@@ -467,9 +467,11 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
             self.rb.setColor(oofcanvas.black)
             self.rb.setDashColor(oofcanvas.white)
             self.rb.setDashLength(7)
-        self.gfxwindow().setRubberBand(self.rb)
+        # self.gfxwindow().setRubberBand(self.rb)
         # Start collecting points
         self.points = [primitives.Point(x,y)]
+        debug.fmsg("returning rb=", self.rb)
+        return self.rb
 
     def move(self, x, y, button, shift, ctrl, data):  # mouse move
         # Continue the collection of points, if it's been started...
@@ -478,7 +480,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
 
     def up(self, x, y, button, shift, ctrl, data):    # mouse up
         debug.mainthreadTest()
-        self.gfxwindow().setRubberBand(None)
+        # self.gfxwindow().setRubberBand(None)
         self.rb = None
         # Finish the collection of points. If the mouse up position is
         # the same as the last move event position, don't duplicate it.
@@ -502,6 +504,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
                 # we have a mouse-up event, a set of points,
                 # a selection method, and a who.
                 # Child classes know what to do next.
+                debug.fmsg("ptlist=", ptlist, "selmeth=", self.selmeth)
                 self.finish_up(ptlist, shift, ctrl, self.selmeth)
                 
             self.points = []            # get ready for next event
