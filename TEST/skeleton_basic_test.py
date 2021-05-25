@@ -605,7 +605,8 @@ def build_mod_args():
             "method" : SpecificRationalization(
         rationalizers=[RemoveShortSide(ratio=5.0),
                        QuadSplit(angle=150),
-                       RemoveBadTriangle(acute_angle=30,obtuse_angle=130)])
+                       RemoveBadTriangle(acute_angle=30,obtuse_angle=130)]),
+            "iterations" : 3
             }
            )
           ],

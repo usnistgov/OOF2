@@ -55,8 +55,8 @@ class Rationalizer(registeredclass.RegisteredClass):
         count = 0
         done = 0  # No. of rationalized elements
         nel = len(elements)  # No. of elements to be considered
-        while elements:
-            element = elements.pop()
+        nelf = float(nel)    # probably completely meaningless optimization
+        for element in elements:
             count += 1  # No. of elements that have been considered
             if element not in processed and element.active(skel):
                 # fixer is either self.findAndFix or self.fixAll. They
@@ -72,28 +72,13 @@ class Rationalizer(registeredclass.RegisteredClass):
                     for elephant in bestchange.removed:
                         processed.add(elephant)
                     for oldel, newel in bestchange.substitutions:
-                        # If an unprocessed element has been replaced,
-                        # its replacement still has to be processed.
-                        # The element being replaced should *not* be
-                        # processed, in any case, since it's no longer
-                        # in the skeleton.
-                        # If the criterion is "Unconditional" or
-                        # "Limited Unconditional", it doesn't add subs to
-                        # the list.
-                        if oldel not in processed:
-                            processed.add(oldel)
-                            nel += 1
-                        elements.append(newel)
-                    for newel in bestchange.inserted:
-                        elements.append(newel)
-                        nel += 1
-
+                        processed.add(oldel)
             if prog.stopped():
                 break
             else:
-                prog.setFraction(float(count)/nel)
+                prog.setFraction(count/nelf)
                 prog.setMessage(executed_action + " %d/%d" % (count, nel))
-        skel.cleanUp()
+            skel.cleanUp()
         
         reporter.report("%d elements rationalized : %s."
                         % (done, self.getRegistration().name()))
@@ -134,17 +119,18 @@ class RationalizeMethod(registeredclass.RegisteredClass):
 ## angles, etc), unlike the Specified RationalizeMethod.
 
 class AutomaticRationalization(RationalizeMethod):
-    def rationalize(self, skel, context, targets, criterion):
+    def rationalize(self, skel, context, targets, criterion, iterations):
         prog = progress.getProgress("Rationalize", progress.DEFINITE)
         try:
-            for ratreg in Rationalizer.registry:
-                # Create a Rationalizer from a Registration.  Since fixAll
-                # doesn't use the Rationalizer's parameters, just use the
-                # default values.
-                ratmethod = ratreg()
-                ratmethod(skel, context, targets, criterion, ratmethod.fixAll)
-                if prog.stopped():
-                    break
+            for it in range(iterations):
+                for ratreg in Rationalizer.registry:
+                    # Create a Rationalizer from a Registration.  Since fixAll
+                    # doesn't use the Rationalizer's parameters, just use the
+                    # default values.
+                    ratmethod = ratreg()
+                    ratmethod(skel, context, targets, criterion, ratmethod.fixAll)
+                    if prog.stopped():
+                        return
         finally:
             prog.finish()
     
@@ -157,14 +143,15 @@ registeredclass.Registration(
 class SpecificRationalization(RationalizeMethod):
     def __init__(self, rationalizers):
         self.rationalizers = rationalizers
-    def rationalize(self, skel, context, targets, criterion):
+    def rationalize(self, skel, context, targets, criterion, iterations):
         prog = progress.getProgress("Rationalize", progress.DEFINITE)
         try:
-            for rationalizer in self.rationalizers:
-                rationalizer(skel, context, targets, criterion,
-                             rationalizer.findAndFix)
-                if prog.stopped(): 
-                    break
+            for it in range(iterations):
+                for rationalizer in self.rationalizers:
+                    rationalizer(skel, context, targets, criterion,
+                                 rationalizer.findAndFix)
+                    if prog.stopped(): 
+                        return
         finally:
             prog.finish()
 
@@ -182,15 +169,16 @@ registeredclass.Registration(
 ################################################################
 
 class Rationalize(skeletonmodifier.SkeletonModifier):
-    def __init__(self, targets, criterion, method):
+    def __init__(self, targets, criterion, method, iterations=1):
         self.targets = targets          # all or selected
         self.criterion = criterion      # unconditional or conditional
         self.method = method            # automatic or specified
+        self.iterations = iterations
 
     def apply(self, oldskeleton, context):
         skel = oldskeleton.properCopy(skeletonpath=context.path())
-        self.method.rationalize(skel, context, self.targets, self.criterion)
-        skel.cleanUp()
+        self.method.rationalize(skel, context, self.targets, self.criterion,
+                                self.iterations)
         return skel
 
 #########################
@@ -200,14 +188,17 @@ registeredclass.Registration(
     Rationalize,
     ordering=5,
     params=[
-    parameter.RegisteredParameter('targets', skeletonmodifier.SkelModTargets,
-                                  tip = 'Which elements to modify.'),
-    parameter.RegisteredParameter('criterion',
-                                  skeletonmodifier.SkelModCriterion,
-                                  tip = 'Acceptance criterion'),
-    parameter.RegisteredParameter('method',
-                                  RationalizeMethod,
-                                  tip = 'Methods for rationalization.')
+        parameter.RegisteredParameter('targets',
+                                      skeletonmodifier.SkelModTargets,
+                                      tip = 'Which elements to modify.'),
+        parameter.RegisteredParameter('criterion',
+                                      skeletonmodifier.SkelModCriterion,
+                                      tip = 'Acceptance criterion'),
+        parameter.RegisteredParameter('method',
+                                      RationalizeMethod,
+                                      tip = 'Methods for rationalization.'),
+        parameter.PositiveIntParameter('iterations', value=1,
+                                       tip="Repeat this many times.")
     ],
     tip = 'Fix badly shaped elements in a Skeleton.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/rationalize.xml'))

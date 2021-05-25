@@ -281,7 +281,7 @@ class AverageEnergy(SkelModCriterion):
         for change in changes:
             if not (change is None or change.illegal(skel)):
                 diff = change.deltaE(skel, self.alpha)  # energy difference
-                if diff <= bestE:
+                if diff < bestE:
                     bestchange = change
                     bestE = diff
                     
@@ -353,7 +353,7 @@ class Unconditional(SkelModCriterion):
                     bestE = change.deltaE(skel, self.alpha)
                 else:
                     diff = change.deltaE(skel, self.alpha)
-                    if diff <= bestE:
+                    if diff < bestE:
                         bestchange = change
                         bestE = diff
         for change in changes:
@@ -383,7 +383,7 @@ class LimitedAverageEnergy(LimitedSkelModCriterion):
             if not (change is None or change.illegal(skel)) and \
                self.withinTheLimit(change, skel):
                 diff = change.deltaE(skel, self.alpha)  # energy difference
-                if diff <= bestE:
+                if diff < bestE:
                     bestchange = change
                     bestE = diff
 
@@ -429,7 +429,7 @@ class LimitedUnconditional(LimitedSkelModCriterion):
                     bestE = change.deltaE(skel, self.alpha)
                 else:
                     diff = change.deltaE(skel, self.alpha)
-                    if diff <= bestE:
+                    if diff < bestE:
                         bestchange = change
                         bestE = diff
 
