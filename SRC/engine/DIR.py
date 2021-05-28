@@ -141,12 +141,12 @@ if DIM_3:
 
 
 def set_clib_flags(clib):
-    if not DIM_3:
-        clib.externalLibs.append('oof2common')
-    else:
-        clib.externalLibs.append('oof3dcommon')
-
-
+    import oof2setuputils
+    addOOFlibs(clib, 'oof2common')
+    oof2setuputils.pkg_check("cairomm-1.0", CAIROMM_VERSION, clib)
+    oof2setuputils.pkg_check("pango", PANGO_VERSION, clib)
+    oof2setuputils.pkg_check("pangocairo", PANGOCAIRO_VERSION, clib)
+    
 if HAVE_MPI:
     cfiles.extend(['cfiddlenodesbaseParallel.C'])
     swigfiles.extend(['cfiddlenodesbaseParallel.swg'])
