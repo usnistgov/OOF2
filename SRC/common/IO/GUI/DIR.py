@@ -120,9 +120,8 @@ def set_clib_flags(clib):
     #                            "/sw/lib/pango-ft219/lib/pkgconfig",
     #                            "/sw/lib/freetype219/lib/pkgconfig/")
 
-    oof2setuputils.pkg_check("gtk+-3.0", GTK_VERSION, clib)
     addOOFlibs(clib, 'oof2common')
-     oof2setuputils.pkg_check("gtk+-2.0", GTK_VERSION, clib)
+    oof2setuputils.pkg_check("gtk+-2.0", GTK_VERSION, clib)
     oof2setuputils.pkg_check("libgnomecanvas-2.0", GNOMECANVAS_VERSION, clib)
     oof2setuputils.pkg_check("pygtk-2.0", PYGTK_VERSION, clib)
     oof2setuputils.pkg_check("pygobject-2.0", PYGOBJECT_VERSION)
