@@ -129,7 +129,7 @@ hfiles = [
 
 def set_clib_flags(clib):
     import oof2setuputils
-    clib.externalLibs.append('oof2common')
+    addOOFlibs(clib, 'oof2common')
     oof2setuputils.pkg_check("cairomm-1.0", CAIROMM_VERSION, clib)
     oof2setuputils.pkg_check("pango", PANGO_VERSION, clib)
     oof2setuputils.pkg_check("pangocairo", PANGOCAIRO_VERSION, clib)

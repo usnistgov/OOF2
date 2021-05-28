@@ -87,4 +87,3 @@ def set_clib_flags(clib):
     oof2setuputils.pkg_check("gtk+-3.0", GTK_VERSION, clib)
     clib.externalLibs.append('oof2common')
 
-
