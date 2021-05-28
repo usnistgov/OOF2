@@ -85,5 +85,5 @@ def set_clib_flags(clib):
     #                            "/sw/lib/freetype219/lib/pkgconfig/")
 
     oof2setuputils.pkg_check("gtk+-3.0", GTK_VERSION, clib)
-    clib.externalLibs.append('oof2common')
+    addOOFlibs(clib, 'oof2common')
 
