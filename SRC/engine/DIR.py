@@ -128,8 +128,8 @@ hfiles = [
 
 
 def set_clib_flags(clib):
-    clib.externalLibs.append('oof2common')
-
+    addOOFlibs(clib, 'oof2common')
+    
 if HAVE_MPI:
     cfiles.extend(['cfiddlenodesbaseParallel.C'])
     swigfiles.extend(['cfiddlenodesbaseParallel.swg'])
