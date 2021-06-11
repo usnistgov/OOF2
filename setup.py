@@ -454,6 +454,9 @@ _sfx = get_config_var("SHLIB_EXT").split('.')[0]
 if _sfx[0] == '"':
     _sfx = _sfx[1:]
 
+if _sfx:
+    print "Library suffix is", _sfx
+
 def fixLibName(libname):
     return libname + _sfx
 
