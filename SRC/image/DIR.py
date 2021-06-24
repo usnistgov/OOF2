@@ -54,7 +54,3 @@ def set_clib_flags(c_lib):
     #     print "Can't find Magick++-config!  Your ImageMagick installation may be defective."
     oof2setuputils.pkg_check("Magick++", MAGICK_VERSION, c_lib)
     addOOFlibs(c_lib, 'oof2common')
-        
-
-
-
