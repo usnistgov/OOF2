@@ -29,4 +29,4 @@ swigpyfiles = ['segmenter.spy', 'diffusionRHS.spy', 'fixborders.spy', 'threshold
 pyfiles = ['initialize.py']                            
 
 def set_clib_flags(clib):
-    clib.externalLibs.append('oof2engine')
+    addOOFlibs(clib, 'oof2engine')
