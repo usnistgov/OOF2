@@ -17,7 +17,7 @@ pdf_compare = file_utils.pdf_compare
 reference_file = file_utils.reference_file
 # Flag that says whether to generate missing reference data files.
 # Should be false unless you really know what you're doing.
-file_utils.generate = True
+file_utils.generate = False
 
 ## TODO: Add tests for all different domain and sampling types.
 ## Include non-rectangular pixel groups and selections.
@@ -62,7 +62,8 @@ class OOF_Output(unittest.TestCase):
                 no_material=TranslucentGray(value=0.0,alpha=1.0),
                 no_color=RGBAColor(red=0.0,green=0.0,blue=1.0,alpha=1.0)))
         OOF.Graphics_1.File.Save_Canvas(
-            filename='test.pdf', overwrite=False, pixels=400, background=True)
+            filename='test.pdf', format='pdf', overwrite=True,
+            pixels=400, background=True)
 
         self.assert_(pdf_compare(
             'test.pdf', os.path.join('output_data', 'posmesh.pdf')))
