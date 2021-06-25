@@ -453,8 +453,8 @@ FluxNormal *SymmetricTensorFlux::BCCallback(const Coord &pos,
     releasePyLock(pystate);
     pythonErrorRelay();
   }
-  releasePyLock(pystate);
   Py_XDECREF(result);
+  releasePyLock(pystate);
   return new SymTensorFluxNormal(cres(0),cres(1));
 }
 
