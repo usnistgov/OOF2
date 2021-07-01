@@ -51,6 +51,9 @@ oofname = "oof2"
 import sys, string, os, subprocess, glob
 
 pyversion = string.join(map(str, sys.version_info[:2]),".")
+executablename = os.path.split(sys.executable)[-1]
+if executablename == 'python':
+    executablename = None
 
 # Pop the first two arguments, which are the program name and the
 # build type.
@@ -173,11 +176,10 @@ if not installdir:
     installdir = os.getenv("HOME")
 
 stowdir = os.path.join(installdir, 'stow')
-
-builddir =  dashjoin("builddir", branchtag, cocoa, build_type, mp)
-
-stowsubdir = dashjoin(
-    "oof2", branchtag, localdir, cocoa, build_type, pyversion, mp)
+builddir =  dashjoin("builddir", branchtag, build_type, cocoa,
+                     executablename, pyversion, mp)
+stowsubdir = dashjoin("oof2", branchtag, localdir, build_type, cocoa,
+                      executablename, pyversion, mp)
 
 laststowfile = os.path.join(stowdir, '.last_oof_install')
 try:
