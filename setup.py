@@ -35,17 +35,6 @@ PANGO_VERSION = "1.40"
 PANGOCAIRO_VERSION = "1.40"
 PYGOBJECT_VERSION = "3.28"
 
-# If on a 64-bit system with Python 2.5 or later, make sure that
-# pygobject is at least version 2.12.
-try:
-    import ctypes                       # only in 2.5 and later
-    if ctypes.sizeof(ctypes.c_long) == 8:
-        PYGOBJECT_VERSION = "2.12"
-    else:
-        PYGOBJECT_VERSION = "2.6"
-except ImportError:
-    PYGOBJECT_VERSION = "2.6"
-
 # The make_dist script edits the following line when a distribution is
 # built.  Don't change it by hand.  On the git master branch,
 # "(unreleased)" is replaced by the version number.
