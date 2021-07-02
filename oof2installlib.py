@@ -10,6 +10,9 @@
 
 # Modify the "install_lib" command so that it runs "install_name_tool" on Macs.
 
+# This doesn't seem to be necessary.  Search for oof2installlib in
+# setup.py to see if it's really used.
+
 from distutils.command import install_lib
 from distutils import log
 from distutils.sysconfig import get_config_var

@@ -66,7 +66,12 @@ from distutils import log
 from distutils.dir_util import remove_tree
 from distutils.sysconfig import get_config_var
 
-import oof2installlib
+## oof2installlib redefines the distutils install_lib command so that
+## it runs install_name_tool on Macs.  This doesn't seem to be
+## necessary.  If library files can't be found at run time, try
+## reinstating oof2installlib by uncommenting it here and where it's
+## used, below.
+# import oof2installlib
 
 import shlib # adds build_shlib and install_shlib to the distutils command set
 from shlib import build_shlib
@@ -1067,8 +1072,10 @@ class oof_build_py(build_py.build_py):
               platform['extra_compile_args']
         print >> cfgscript, 'include_dirs =', idirs
         print >> cfgscript, 'library_dirs =', [install_shlib.install_dir]
-        oof2installlib.shared_libs = [lib.name for lib in install_shlib.shlibs]
-        print >> cfgscript, 'libraries =', oof2installlib.shared_libs
+        shared_libs = [lib.name for lib in install_shlib.shlibs]
+        print >> cfgscript, 'libraries =', shared_libs
+        ## See comment about oof2installlib above.
+        # oof2installlib.shared_libs = shared_libs
         print >> cfgscript, 'extra_link_args =', platform['extra_link_args']
         print >> cfgscript, "import sys; sys.path.append(root)"
         cfgscript.close()
@@ -1544,7 +1551,8 @@ if __name__ == '__main__':
                     "build_py" : oof_build_py,
                     "build_shlib": oof_build_shlib,
                     "build_scripts" : oof_build_scripts,
-                    "install_lib": oof2installlib.oof_install_lib,
+                    ## See comment about oof2installlib above.
+                    # "install_lib": oof2installlib.oof_install_lib,
                     "clean" : oof_clean},
         packages = pkgs,
         package_dir = {OOFNAME+'.ooflib':'SRC'},
