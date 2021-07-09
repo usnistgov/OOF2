@@ -8,8 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-## TODO: swig needs to be run with -DDEBUG when setup.py is run with --debug.
-
 ## Usage:
 
 #  In the top oof2 directory (the one containing this file) type
@@ -39,8 +37,6 @@ PYGOBJECT_VERSION = "3.26"
 # built.  Don't change it by hand.  On the git master branch,
 # "(unreleased)" is replaced by the version number.
 version_from_make_dist = "(unreleased)"
-
-# will need to add vtk
 
 ###############################
 
@@ -1235,18 +1231,6 @@ def set_platform_values():
         # use gcc which does not has the '-faltivec' option.
         platform['blas_link_args'].extend(['-framework', 'Accelerate'])
         platform['extra_link_args'].append('-headerpad_max_install_names')
-        if os.path.exists('/sw') and DIM_3: # fink
-            platform['incdirs'].append('/sw/include')
-            platform['libdirs'].append('/sw/lib/vtk-5.4')
-            platform['libdirs'].append('/sw/lib/vtk54')
-            # TODO: is there a pkg-config for X11? we need it in
-            # common/io to use gl offscreen
-            platform['incdirs'].append('/usr/X11/include/')
-            platform['incdirs'].append('/usr/X11R6/include/')
-        if os.path.exists('/opt') and DIM_3: # macports
-            platform['incdirs'].append('/opt/local/include')
-            platform['incdirs'].append('/opt/local/include/vtk-5.6')
-            platform['libdirs'].append('/opt/local/lib/vtk-5.6') 
         # If we're using anything later than Python 2.5 with macports,
         # the pkgconfig files for the python modules aren't in the
         # standard location. 
@@ -1278,8 +1262,6 @@ def set_platform_values():
         platform['blas_libs'].extend(['lapack', 'blas', 'm'])
         # add -std=c++11 option to use c++11 standard
         platform['extra_compile_args'].append('-std=c++11')
-        if DIM_3:
-            platform['incdirs'].append('/usr/include/vtk-5.4')
 
     ## Irix and cygwin args haven't been tested in years and are
     ## certainly horribly out of date.
