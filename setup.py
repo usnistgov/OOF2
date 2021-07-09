@@ -33,7 +33,7 @@ MAGICK_VERSION = "6.0"
 CAIROMM_VERSION = "1.12" # Don't know what the earliest acceptable version is.
 PANGO_VERSION = "1.40"
 PANGOCAIRO_VERSION = "1.40"
-PYGOBJECT_VERSION = "3.28"
+PYGOBJECT_VERSION = "3.26"
 
 # The make_dist script edits the following line when a distribution is
 # built.  Don't change it by hand.  On the git master branch,

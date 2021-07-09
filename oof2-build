@@ -51,8 +51,13 @@ oofname = "oof2"
 import sys, string, os, subprocess, glob
 
 pyversion = string.join(map(str, sys.version_info[:2]),".")
+# Get the name of the executable, so that different build directories
+# can be used for python and python-dbg, for instance.  To keep the
+# build diretory name shorter, only embed the executable name in it if
+# the executable is non-standard (ie, not 'python' on Linux or
+# 'Python' on Mac.)
 executablename = os.path.split(sys.executable)[-1]
-if executablename == 'python':
+if executablename in ('python', 'Python'):
     executablename = None
 
 # Pop the first two arguments, which are the program name and the
