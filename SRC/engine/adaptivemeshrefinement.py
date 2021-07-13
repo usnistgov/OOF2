@@ -251,10 +251,6 @@ class AdaptiveMeshRefinement(meshmod.MeshModification):
         finally:
             meshcontext.resume_writing()
 
-        # TODO GTK3: This used to send "boundary conditions changed"
-        # via autoenableBCs, which doesn't send it any more.  Is it
-        # necessary here?
-            
         old_femesh.destroy()
                 
         # time stamp update

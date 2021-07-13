@@ -275,9 +275,7 @@ class Mesh(whoville.Who):
         finally:
             self.resume_writing()
         old_femesh.destroy()
-        # TODO GTK3: This used to send "boundary conditions changed"
-        # via autoenableBCs, which doesn't send it any more.  Is it
-        # necessary here?
+        # end rebuildMesh()
 
 
     # getTimeStamp has a gfxwindow arg so that it can work with
