@@ -172,7 +172,6 @@ class AdaptiveMeshRefinement(meshmod.MeshModification):
             #Enclosing between pause_writing and resume_writing fixes
             #a blocking problem. May not be the final word...
             #This is also done in interfaceplugin.py.
-            #It may also be necessary in revertmesh.py.
             meshcontext.pause_writing()
             meshcontext.newSubProblem(subpstate.new_subp,
                                       subpstate.new_subptype,

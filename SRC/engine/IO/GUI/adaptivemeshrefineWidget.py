@@ -210,8 +210,6 @@ errorestimator.AMRWhoParameter.makeWidget = _AMRWhoParameter_makeWidget
 # def _MeshSkeletonParameter_makeWidget(self, scope=None):
 #     return MeshSkeletonParameterWidget(scope=scope, name=self.name)
 
-# revertmesh.MeshSkeletonParameter.makeWidget = _MeshSkeletonParameter_makeWidget
-
 #########################################
 
 class ZZFluxParameterWidget(meshparamwidgets.SubProblemFluxParameterWidget):
