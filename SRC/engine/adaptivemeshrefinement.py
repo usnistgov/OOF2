@@ -172,7 +172,6 @@ class AdaptiveMeshRefinement(meshmod.MeshModification):
             #Enclosing between pause_writing and resume_writing fixes
             #a blocking problem. May not be the final word...
             #This is also done in interfaceplugin.py.
-            #It may also be necessary in revertmesh.py.
             meshcontext.pause_writing()
             meshcontext.newSubProblem(subpstate.new_subp,
                                       subpstate.new_subptype,
@@ -251,10 +250,6 @@ class AdaptiveMeshRefinement(meshmod.MeshModification):
         finally:
             meshcontext.resume_writing()
 
-        # TODO GTK3: This used to send "boundary conditions changed"
-        # via autoenableBCs, which doesn't send it any more.  Is it
-        # necessary here?
-            
         old_femesh.destroy()
                 
         # time stamp update
