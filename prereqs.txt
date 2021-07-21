@@ -6,3 +6,5 @@ gtk3
 ImageMagick
 pkgconfig
 py27-gobject3
+adwaita-icon-theme (or any other theme?)
+
