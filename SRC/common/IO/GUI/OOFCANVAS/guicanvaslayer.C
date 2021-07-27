@@ -27,7 +27,7 @@ namespace OOFCanvas {
     makeCairoObjs(size_x, size_y);
   }
 
-  void WindowSizeCanvasLayer::redraw() {
+  void WindowSizeCanvasLayer::render() {
     if(dirty) {
       rebuild();
       clear();
@@ -42,13 +42,13 @@ namespace OOFCanvas {
       // The signs for the x and y translations are different because
       // the y axis is flipped.
       context->translate(-hadj/ppu, vadj/ppu);
-      redrawToContext(context);
+      renderToContext(context);
       dirty = false;
     }
   }
 
-  void WindowSizeCanvasLayer::draw(Cairo::RefPtr<Cairo::Context> ctxt,
-				   double, double)
+  void WindowSizeCanvasLayer::copyToCanvas(Cairo::RefPtr<Cairo::Context> ctxt,
+					   double, double)
     const
   {
     // Copy this layer to the given ctxt.  ctxt is the Cairo::Context

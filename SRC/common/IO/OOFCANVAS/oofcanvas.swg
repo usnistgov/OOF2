@@ -176,6 +176,10 @@ CairoLineCap lineCapSquare;
 class CanvasItem {
 private:
   CanvasItem();			// private constructor is not swigged
+  // The destructor is not swigged, so destroying a CanvasItem wrapper
+  // in Python does not destry the C++ object.  C++ CanvasItems are
+  // owned by their CanvasLayer and are destroyed when removed from
+  // the layer.
   ~CanvasItem();
 public:
   void drawBoundingBox(double, Color&);
@@ -335,7 +339,8 @@ public:
   void removeAllItems();
   void rebuild();
   void clear();
-  void redraw();
+  void markDirty();
+  void render();
   void setClickable(bool);
   void setOpacity(double);
   void show();

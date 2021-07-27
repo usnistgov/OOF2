@@ -1073,7 +1073,12 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.acquireGfxLock()
         try:
             for layer in self.layers:
-                layer.canvaslayer.redraw()
+                ## TODO: This redraws the Cairo layers without
+                ## reconstructing them.  Do we want to reconstruct
+                ## them, ie. have the DisplayLayers recompute
+                ## themselves?
+                layer.canvaslayer.markDirty();
+                layer.canvaslayer.render()
         finally:
             self.releaseGfxLock()
         self.draw()

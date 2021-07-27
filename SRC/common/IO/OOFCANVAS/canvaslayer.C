@@ -147,17 +147,17 @@ namespace OOFCanvas {
     canvas->lowerLayerToBottom(canvas->layerNumber(this));
   }
   
-  void CanvasLayer::redraw() {
+  void CanvasLayer::render() {
     if(dirty) {
       rebuild();
       clear();		    // paints background color over everything
-      redrawToContext(context);	// draws all items
+      renderToContext(context);	// draws all items
       dirty = false;
     }
   }
 
   
-  void CanvasLayer::redrawToContext(Cairo::RefPtr<Cairo::Context> ctxt) const {
+  void CanvasLayer::renderToContext(Cairo::RefPtr<Cairo::Context> ctxt) const {
     for(CanvasItem *item : items) {
       item->draw(ctxt);
     }
@@ -168,8 +168,8 @@ namespace OOFCanvas {
   // argument.  The layer's items have already been drawn on its
   // surface.
   
-  void CanvasLayer::draw(Cairo::RefPtr<Cairo::Context> ctxt,
-			 double hadj, double vadj)
+  void CanvasLayer::copyToCanvas(Cairo::RefPtr<Cairo::Context> ctxt,
+				 double hadj, double vadj)
     const
   {
     // hadj and vadj are pixel offsets, from the scroll bars.

@@ -9,8 +9,6 @@
  * oof_manager@nist.gov. 
  */
 
-#include "common/tostring.h"
-#include "common/threadstate.h"
 #include "canvas.h"
 #include "canvasitem.h"
 #include "canvaslayer.h"
@@ -600,7 +598,7 @@ namespace OOFCanvas {
 	lctxt->restore();
 
 	// Draw the layer.
-	layer->redrawToContext(lctxt);
+	layer->renderToContext(lctxt);
 
 	// Copy the layer to the final surface.
 	outctxt->set_source(layersurf, 0, 0);

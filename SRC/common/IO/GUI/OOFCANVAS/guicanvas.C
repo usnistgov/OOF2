@@ -213,7 +213,7 @@ namespace OOFCanvas {
 
   void GUICanvasBase::setRubberBand(RubberBand *rb) {
     rubberBand = rb;
-    rubberBandLayer.dirty = true; 
+    rubberBandLayer.dirty = true;
   }
 
   void GUICanvasBase::removeRubberBand() {
@@ -315,12 +315,6 @@ namespace OOFCanvas {
     // upper left corner of the widget, and is properly clipped."
     // (https://developer.gnome.org/gtk3/stable/ch26s02.html)
 
-    // static int iii = 0;
-    // std::cerr << "GUICanvasBase::drawHandler " << iii++
-    // 	      << " rb=" << rubberBand
-    // 	      << " rb active=" << (rubberBand && rubberBand->active())
-    // 	      << std::endl;
-
     double hadj, vadj;
     getEffectiveAdjustments(hadj, vadj);
 
@@ -365,11 +359,11 @@ namespace OOFCanvas {
 	  context->paint();
 
 	  // rubberband
-	  rubberBandLayer.redraw();
-	  rubberBandLayer.draw(context, 0, 0);
+	  rubberBandLayer.render();
+	  rubberBandLayer.copyToCanvas(context, 0, 0);
 	  return true;
 	}
-      }
+      }	// end if nonRubberBandBufferFilled
 
       // Recreate nonRubberBandBuffer, which contains all the layers
       // *other* than the rubberBandLayer.
@@ -380,24 +374,23 @@ namespace OOFCanvas {
       cairo_t *rbctxt = cairo_create(nonRubberBandBuffer->cobj());
       Cairo::RefPtr<Cairo::Context> nonrbContext =
 	Cairo::RefPtr<Cairo::Context>(new Cairo::Context(rbctxt, true));
-      drawBackground(nonrbContext);
 
       // Draw all other layers to the nonRubberBandBuffer.  They're
       // drawn at their unscrolled positions, because the
       // nonRubberBandBuffer will be shifted when copied to the
       // screen.
       for(CanvasLayer *layer : layers) {
-	layer->redraw();
-	layer->draw(nonrbContext, 0,0); 
+	layer->render();
+	layer->copyToCanvas(nonrbContext, 0,0); 
       }
       nonRubberBandBufferFilled = true;
-      drawBackground(context);
 
+      drawBackground(context);
       context->set_source(nonRubberBandBuffer, -hadj, -vadj);
       context->paint();
 
-      rubberBandLayer.redraw();	
-      rubberBandLayer.draw(context, hadj, vadj);
+      rubberBandLayer.render();
+      rubberBandLayer.copyToCanvas(context, hadj, vadj);
       return true;
     }
 
@@ -411,8 +404,8 @@ namespace OOFCanvas {
     drawBackground(context);
 
     for(CanvasLayer *layer : layers) {
-      layer->redraw();			// only redraws dirty layers
-      layer->draw(context, hadj, vadj); // copies layers to canvas
+      layer->render();		// only redraws dirty layers
+      layer->copyToCanvas(context, hadj, vadj); // copies layers to canvas
     }
     return true;
   } // GUICanvasBase::drawHandler
@@ -424,15 +417,6 @@ namespace OOFCanvas {
     return ((GUICanvasBase*) data)->mouseButtonHandler(event);
   }
 
-  // TODO: There's a possible race condition if the mouse button
-  // callback for a down event creates a rubberband in a subthread,
-  // which might not finish before the callback returns.  We could
-  // prevent this by requiring that the callback return a pointer to
-  // the rubberband, and get rid of Canvas::setRubberBand.  Doing that
-  // would require different types of callbacks for different events,
-  // because it would make no sense for a mouse-up or mouse-move
-  // callback to return a rubberband pointer.
-  
   bool GUICanvasBase::mouseButtonHandler(GdkEventButton *event) {
     if(empty())
       return false;

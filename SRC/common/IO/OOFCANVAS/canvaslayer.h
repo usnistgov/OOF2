@@ -51,15 +51,16 @@ namespace OOFCanvas {
     // surface.  The CanvasLayer takes ownership of the item.
     void addItem(CanvasItem*);
     void removeAllItems();
-    // redraw redraws all items to the local surface if the surface is
+    // render redraws all items to the local surface if the surface is
     // out of date.  It rebuilds the surface if necessary.
-    virtual void redraw();
-    // redrawToContext draws items to the given context,
+    virtual void render();
+    // renderToContext draws items to the given context,
     // unconditionally.
-    void redrawToContext(Cairo::RefPtr<Cairo::Context>) const;
-    // draw() draws the surface to the given context (probably the Canvas)
-    virtual void draw(Cairo::RefPtr<Cairo::Context>, double hadj, double vadj)
-      const;
+    virtual void renderToContext(Cairo::RefPtr<Cairo::Context>) const;
+    // copyToCanvas() draws the surface to the given context (probably
+    // the Canvas)
+    virtual void copyToCanvas(Cairo::RefPtr<Cairo::Context>, double hadj,
+			      double vadj) const;
 
     // Layers can be removed from a Canvas by calling
     // Canvas::deleteLayer or CanvasLayer::destroy.  The effect is the
@@ -68,6 +69,8 @@ namespace OOFCanvas {
 
     void show();
     void hide();
+    bool isDirty() const { return dirty; }
+    void markDirty() { dirty = true; }
 
     // Given the ppu, compute and cache the bounding box. It's not
     // recomputed if the cached value is current. The bool says

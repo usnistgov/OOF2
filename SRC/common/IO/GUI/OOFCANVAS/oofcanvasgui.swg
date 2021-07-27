@@ -93,6 +93,7 @@ public:
   void setColor(Color);
   void setDashLength(double);
   void setDashColor(Color);
+  void draw(double x, double y);
 };
 
 class LineRubberBand : public RubberBand {
