@@ -142,7 +142,7 @@ namespace OOFCanvas {
       if(layer->visible) {
 	n += layer->size();
       }
-    return std::size_t;
+    return n;
   }
   
   void OffScreenCanvas::setBackgroundColor(double r, double g, double b) {
