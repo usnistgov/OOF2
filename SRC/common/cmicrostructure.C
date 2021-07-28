@@ -459,7 +459,9 @@ int CMicrostructure::category(int x, int y) const {
   return res;
 }
 
-const ICoord &CMicrostructure::getRepresentativePixel(int category) const {
+const ICoord &CMicrostructure::getRepresentativePixel(std::size_t category)
+  const
+{
   // std::cerr << "Acquire, getRepPixel." << std::endl;
   category_lock.acquire();
   if(!categorized)

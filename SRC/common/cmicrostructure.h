@@ -70,7 +70,7 @@ public:
   void operator++();
   Coord current() const { return currentTransPoint; }
   bool end() const { return pixel>=pixels->end(); }
-  int numPixels() const { return pixels->size(); }
+  std::size_t numPixels() const { return pixels->size(); }
   int getPrevcat() const { return prevcat; }
   int getNextcat() const { return nextcat; }
   // The first and last points of the segment.
@@ -188,7 +188,7 @@ public:
   int category(int x, int y) const;
   int category(const Coord &where) const; // Arbitrary physical-coord point.
   void recategorize();
-  const ICoord &getRepresentativePixel(int category) const;
+  const ICoord &getRepresentativePixel(std::size_t category) const;
   bool is_categorized() const { return categorized; }
 
   const std::vector<PixelSetBoundary*> &getCategoryBdys() const {

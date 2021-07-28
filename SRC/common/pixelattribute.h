@@ -134,7 +134,7 @@ private:
 public:
   PxlAttributeRegistration(const std::string &name);
   virtual ~PxlAttributeRegistration() {}
-  static int nRegistrations() { return registrations().size(); }
+  static std::size_t nRegistrations() { return registrations().size(); }
   static const PxlAttributeRegistration *getRegistration(int i);
   const std::string &name() const { return name_; }
   // Get the appropriate pixel map from the microstructure.

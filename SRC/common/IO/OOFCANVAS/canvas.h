@@ -62,7 +62,7 @@ namespace OOFCanvas {
     Cairo::Matrix getTransform(double);
     
     virtual void setWidgetSize(int, int) {}
-    int layerNumber(const CanvasLayer*) const;
+    std::size_t layerNumber(const CanvasLayer*) const;
     void drawBackground(Cairo::RefPtr<Cairo::Context>) const;
     bool initialized;
 
@@ -101,8 +101,8 @@ namespace OOFCanvas {
     void deleteLayer(CanvasLayer*);
     CanvasLayer *getLayer(int i) const { return layers[i]; }
     CanvasLayer *getLayer(const std::string&) const;
-    int nLayers() const { return layers.size(); }
-    int nVisibleItems() const;
+    std::size_t nLayers() const { return layers.size(); }
+    std::size_t nVisibleItems() const;
 
     void raiseLayer(int layer, int howfar); 
     void lowerLayer(int layer, int howfar);

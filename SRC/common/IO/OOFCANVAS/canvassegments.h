@@ -32,7 +32,7 @@ namespace OOFCanvas {
     void addSegment(const Coord&, const Coord&);
     void addSegment(const Coord *a, const Coord *b) { addSegment(*a, *b); }
     virtual void pixelExtents(double&, double&, double&, double&) const;
-    int size() const { return segments.size(); }
+    std::size_t size() const { return segments.size(); }
     friend std::ostream &operator<<(std::ostream &, const CanvasSegments&);
     virtual std::string print() const;
   };
@@ -56,7 +56,7 @@ namespace OOFCanvas {
     void addPoint(const Coord *p) { addPoint(*p); }
     void addPoints(const std::vector<Coord>&);
     virtual void pixelExtents(double&, double&, double&, double&) const;
-    int size() const { return points.size(); }
+    std::size_t size() const { return points.size(); }
     friend std::ostream &operator<<(std::ostream&, const CanvasCurve&);
     virtual std::string print() const;
   };
