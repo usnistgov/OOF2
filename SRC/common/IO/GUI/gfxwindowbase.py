@@ -591,6 +591,12 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     # it's just None.  If we ever actually use it, we'll have to do
     # something more sophisticated here.
 
+    # HOWEVER, bypassing the OOFCanvas mouseButtonHandler method like
+    # this means that rubberbands aren't installed or drawn.  Not only
+    # is that part of the GUI not tested, but we need to be sure that
+    # it's not used at all during replay, since it won't be
+    # initialized properly.
+
     def simulateMouse(self, eventtype, x, y, button, shift, ctrl):
         self.mouseCB(eventtype, x, y, button, shift, ctrl, None)
 

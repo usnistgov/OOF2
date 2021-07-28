@@ -65,69 +65,77 @@ namespace OOFCanvas {
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
   void LineRubberBand::draw(double x, double y) {
-    RubberBand::draw(x, y);
-    CanvasSegment *seg = new CanvasSegment(startPt, currentPt);
-    seg->setLineWidthInPixels();
-    seg->setLineWidth(lineWidth);
-    seg->setLineColor(color);
-    doDashes(seg);
-    layer->clear();
-    layer->addItem(seg);
+    if(layer != nullptr) {
+      RubberBand::draw(x, y);
+      CanvasSegment *seg = new CanvasSegment(startPt, currentPt);
+      seg->setLineWidthInPixels();
+      seg->setLineWidth(lineWidth);
+      seg->setLineColor(color);
+      doDashes(seg);
+      layer->clear();
+      layer->addItem(seg);
+    }
   }
 
   void RectangleRubberBand::draw(double x, double y) {
-    RubberBand::draw(x, y);
-    CanvasRectangle *rect = new CanvasRectangle(startPt, currentPt);
-    rect->setLineWidthInPixels();
-    rect->setLineWidth(lineWidth);
-    rect->setLineColor(color);
-    doDashes(rect);
-    layer->clear();
-    layer->addItem(rect);
+    if(layer != nullptr) {
+      RubberBand::draw(x, y);
+      CanvasRectangle *rect = new CanvasRectangle(startPt, currentPt);
+      rect->setLineWidthInPixels();
+      rect->setLineWidth(lineWidth);
+      rect->setLineColor(color);
+      doDashes(rect);
+      layer->clear();
+      layer->addItem(rect);
+    }
   }
 
   void CircleRubberBand::draw(double x, double y) {
-    RubberBand::draw(x, y);
-    double r = sqrt((currentPt - startPt).norm2());
-    CanvasCircle *circle = new CanvasCircle(startPt, r);
-    circle->setLineWidthInPixels();
-    circle->setLineWidth(lineWidth);
-    circle->setLineColor(color);
-    CanvasSegment *seg = new CanvasSegment(startPt, currentPt);
-    seg->setLineWidthInPixels();
-    seg->setLineWidth(lineWidth/2.);
-    seg->setLineColor(color);
-    doDashes(seg);
-    doDashes(circle);
-    layer->clear();
-    layer->addItem(circle);
-    layer->addItem(seg);
+    if(layer != nullptr) {
+      RubberBand::draw(x, y);
+      double r = sqrt((currentPt - startPt).norm2());
+      CanvasCircle *circle = new CanvasCircle(startPt, r);
+      circle->setLineWidthInPixels();
+      circle->setLineWidth(lineWidth);
+      circle->setLineColor(color);
+      CanvasSegment *seg = new CanvasSegment(startPt, currentPt);
+      seg->setLineWidthInPixels();
+      seg->setLineWidth(lineWidth/2.);
+      seg->setLineColor(color);
+      doDashes(seg);
+      doDashes(circle);
+      layer->clear();
+      layer->addItem(circle);
+      layer->addItem(seg);
+    }
   }
 
   void EllipseRubberBand::draw(double x, double y) {
-    RubberBand::draw(x, y);
-    CanvasRectangle *rect = new CanvasRectangle(startPt, currentPt);
-    rect->setLineWidthInPixels();
-    rect->setLineWidth(0.5*lineWidth);
-    rect->setLineColor(color);
+    if(layer != nullptr) {
+      RubberBand::draw(x, y);
+      CanvasRectangle *rect = new CanvasRectangle(startPt, currentPt);
+      rect->setLineWidthInPixels();
+      rect->setLineWidth(0.5*lineWidth);
+      rect->setLineColor(color);
 
-    CanvasEllipse *ellipse = new CanvasEllipse(0.5*(currentPt+startPt),
-					       0.5*(currentPt-startPt),
-					       0.0 /* angle */ );
+      CanvasEllipse *ellipse = new CanvasEllipse(0.5*(currentPt+startPt),
+						 0.5*(currentPt-startPt),
+						 0.0 /* angle */ );
 
-    // TODO: Allow the ellipse to be rotated.  This would require a
-    // more complicated API.
+      // TODO: Allow the ellipse to be rotated.  This would require a
+      // more complicated API.
     
-    ellipse->setLineWidthInPixels();
-    ellipse->setLineWidth(lineWidth);
-    ellipse->setLineColor(color);
+      ellipse->setLineWidthInPixels();
+      ellipse->setLineWidth(lineWidth);
+      ellipse->setLineColor(color);
 
-    doDashes(ellipse);
-    doDashes(rect);
+      doDashes(ellipse);
+      doDashes(rect);
 
-    layer->clear();
-    layer->addItem(rect);
-    layer->addItem(ellipse);
+      layer->clear();
+      layer->addItem(rect);
+      layer->addItem(ellipse);
+    }
   }
 
   SpiderRubberBand::SpiderRubberBand() {
@@ -145,18 +153,19 @@ namespace OOFCanvas {
   }
 
   void SpiderRubberBand::draw(double x, double y) {
-    assert(layer != nullptr);	// RubberBand::start() has not been called!
-    RubberBand::draw(x, y);
-    CanvasSegments *segs = new CanvasSegments();
-    segs->setLineWidthInPixels();
-    segs->setLineWidth(lineWidth);
-    segs->setLineColor(color);
-    for(Coord &pt : points) {
-      segs->addSegment(currentPt, pt);
+    if(layer != nullptr) {
+      RubberBand::draw(x, y);
+      CanvasSegments *segs = new CanvasSegments();
+      segs->setLineWidthInPixels();
+      segs->setLineWidth(lineWidth);
+      segs->setLineColor(color);
+      for(Coord &pt : points) {
+	segs->addSegment(currentPt, pt);
+      }
+      doDashes(segs);
+      layer->clear();
+      layer->addItem(segs);
     }
-    doDashes(segs);
-    layer->clear();
-    layer->addItem(segs);
   }
   
 };				// namespace OOFCanvas
