@@ -10,7 +10,7 @@
 # oof_manager@nist.gov.
 
 
-""" The classes in oofmenu.py describe the menus of commands that
+"""The classes in oofmenu.py describe the menus of commands that
 represent all of the actions that OOF performs.  These menus form the
 API between the guts of the program and the user interfaces, both
 graphical (GUI) and command-line (CLI).  The menus can be used
@@ -332,6 +332,9 @@ The callbacks for the buttons in the GUI now can call the non-GUI callbacks:
 ----------------------------------
 
 CLI Operation:
+
+TODO: FIX THIS OR CHANGE THE DOCS.  CLI WORKS ONLY IF ALL ARGS ARE
+PROVIDED.  IT DOESN'T PROMPT FOR MISSING ARGS.
 
 Assume that root is an OOFRootMenu instance.
 
