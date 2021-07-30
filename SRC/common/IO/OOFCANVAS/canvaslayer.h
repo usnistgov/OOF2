@@ -96,7 +96,7 @@ namespace OOFCanvas {
 
     void allItems(std::vector<CanvasItem*>&) const;
     bool empty() const;
-    int size() const { return items.size(); } 
+    std::size_t size() const { return items.size(); } 
 
     void raiseBy(int) const;
     void lowerBy(int) const;

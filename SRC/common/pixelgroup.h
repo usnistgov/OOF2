@@ -53,8 +53,7 @@ public:
   int id() const { return id_; }
   virtual void set_defunct();		// schedule for destruction
   bool is_defunct() const { return defunct_; }
-  void resize(const ICoord *newgeom);
-  int len() const;
+  std::size_t len() const;
   PixelSet *clone() const { return new PixelSet(*this); }
 
   CMicrostructure *getCMicrostructure() const { return microstructure; }

@@ -73,8 +73,8 @@ namespace OOFCanvas {
     return true;
   }
 
-  int OffScreenCanvas::layerNumber(const CanvasLayer *layer) const {
-    for(int i=0; i<layers.size(); i++)
+  std::size_t OffScreenCanvas::layerNumber(const CanvasLayer *layer) const {
+    for(std::size_t i=0; i<layers.size(); i++)
       if(layers[i] == layer)
 	return i;
     throw "Layer number out of range."; 
@@ -136,8 +136,8 @@ namespace OOFCanvas {
     layers = *neworder;		// vector copy
   }
   
-  int OffScreenCanvas::nVisibleItems() const {
-    int n = 0;
+  std::size_t OffScreenCanvas::nVisibleItems() const {
+    std::size_t n = 0;
     for(CanvasLayer *layer : layers)
       if(layer->visible) {
 	n += layer->size();

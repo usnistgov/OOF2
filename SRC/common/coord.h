@@ -18,6 +18,7 @@ class Position;
 
 #include <oofconfig.h>
 #include <iostream>
+#include <limits>
 using namespace std;
 
 // The Coord and MasterCoord classes used to be both derived from the
@@ -257,6 +258,16 @@ inline bool operator<(const ICoord &a, const ICoord &b) {
   if(a[0] > b[0]) return false;
   if(a[1] < b[1]) return true;
   return false;
+}
+
+// Convenience function for creating an ICoord from args that might be
+// long ints.  Use with care.
+
+template <class TYPE0, class TYPE1>
+ICoord iCoordL(const TYPE0 i, const TYPE1 j) {
+  assert (i <= std::numeric_limits<int>::max() &&
+	  j <= std::numeric_limits<int>::max());
+  return ICoord(int(i), int(j));
 }
 
 #endif // COORD_H

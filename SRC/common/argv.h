@@ -15,10 +15,8 @@
 #define ARGV_H
 #include <vector>
 
-
 void init_argv(std::vector<char*>*);
 const char ** get_argv();
-int get_argc();
-// void stringtest(std::vector<char*>*);
+std::size_t get_argc();
 
 #endif // ARGV_H

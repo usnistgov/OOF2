@@ -27,7 +27,7 @@ namespace OOFCanvas {
     virtual const std::string &classname() const;
     void addPoint(double x, double y);
     void setLineWidth(double);
-    int size() const { return corners.size(); }
+    std::size_t size() const { return corners.size(); }
     virtual void pixelExtents(double&, double&, double&, double&) const;
     friend std::ostream &operator<<(std::ostream&, const CanvasPolygon&);
     virtual std::string print() const;

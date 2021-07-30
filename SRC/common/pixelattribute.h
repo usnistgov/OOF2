@@ -129,12 +129,15 @@ class PxlAttributeRegistration
 private:
   static std::vector<PxlAttributeRegistration*> &registrations();
   const std::string name_;
-  int index_;
+  std::size_t index_;
   friend class CMicrostructure;
 public:
   PxlAttributeRegistration(const std::string &name);
   virtual ~PxlAttributeRegistration() {}
-  static int nRegistrations() { return registrations().size(); }
+  static std::size_t nRegistrations() { return registrations().size(); }
+  // The arg to getRegistration is an int, not a std::size_t, because
+  // it has to be swigged and I don't want to track down the
+  // consequences of passing a long to python.
   static const PxlAttributeRegistration *getRegistration(int i);
   const std::string &name() const { return name_; }
   // Get the appropriate pixel map from the microstructure.
@@ -152,7 +155,7 @@ public:
 
 std::ostream &operator<<(std::ostream&, const PixelAttribute&);
 
-int nAttributes();
+std::size_t nAttributes();
 const PxlAttributeRegistration *getRegistration(int);
 
 #endif	// PIXELATTRIBUTE_H

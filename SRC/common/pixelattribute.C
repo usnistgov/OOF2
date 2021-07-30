@@ -38,7 +38,7 @@ PxlAttributeRegistration::globalData(const CMicrostructure *ms) const {
   return ms->getAttributeGlobalData(index_);
 }
 
-int nAttributes() {
+std::size_t nAttributes() {
   return PxlAttributeRegistration::nRegistrations();
 }
 
@@ -46,7 +46,8 @@ const PxlAttributeRegistration *getRegistration(int i) {
   return PxlAttributeRegistration::getRegistration(i);
 }
 
-const PxlAttributeRegistration *PxlAttributeRegistration::getRegistration(int i)
+const PxlAttributeRegistration *
+PxlAttributeRegistration::getRegistration(int i)
 {				// static
   return registrations()[i];
 }
