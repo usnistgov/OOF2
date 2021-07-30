@@ -47,6 +47,13 @@ public:
   virtual double areaInPixelUnits() const = 0;
 };
 
+// Forward declaration of a class and its friend, so that when the
+// friendship is declared in the class g++ understands that the friend
+// is a template.
+template <class CTYPE, class RTYPE> class PxlBdyLoopBase;
+template <class CTYPE, class RTYPE>
+std::ostream operator<<(std::ostream&,  const PxlBdyLoopBase<CTYPE, RTYPE>&);
+
 template <class CTYPE, class RTYPE>
 class PxlBdyLoopBase : public PBLBase {
 protected:
@@ -72,8 +79,8 @@ public:
   // segments.
   virtual ClippedPixelBdyLoop clip(const Line&) const;
 
-  friend std::ostream operator<<(std::ostream&,
-				 const PxlBdyLoopBase<CTYPE, RTYPE>&);
+  friend std::ostream operator<< <>(std::ostream&,
+				    const PxlBdyLoopBase<CTYPE, RTYPE>&);
 };
 
 // Pixel Boundary Loops with integer coordinates.

@@ -18,6 +18,7 @@ class Position;
 
 #include <oofconfig.h>
 #include <iostream>
+#include <limits>
 using namespace std;
 
 // The Coord and MasterCoord classes used to be both derived from the
