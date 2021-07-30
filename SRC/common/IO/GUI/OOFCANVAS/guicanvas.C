@@ -363,7 +363,7 @@ namespace OOFCanvas {
 	  rubberBandLayer.copyToCanvas(context, 0, 0);
 	  return true;
 	}
-      }	// end if nonRubberBandBufferFilled
+      }	// end of nonRubberBandBufferFilled
 
       // Recreate nonRubberBandBuffer, which contains all the layers
       // *other* than the rubberBandLayer.

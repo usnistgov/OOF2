@@ -32,13 +32,6 @@ import sys
 import types
 
 
-## TODO GTK3: In mouse mode, on mouse down, rubberband is drawn at new
-## position and x and y are computed at new position.  New position is
-## not exactly the node position.  But change in shape energy and
-## homogeneity aren't computed and displayed until after first move
-## event.
-
-
 class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def __init__(self, movenodetoolbox):
         debug.mainthreadTest()
