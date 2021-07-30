@@ -87,27 +87,6 @@ PixelSet::~PixelSet() {}
 
 PixelGroup::~PixelGroup() {}
 
-void PixelSet::resize(const ICoord *newgeom) {
-  member_lock.acquire();
-  if(geometry != *newgeom) {
-    geometry = *newgeom;
-    // Remove all pixels that don't fit in the new geometry.
-    weed();
-    int n = len();
-    int j = 0;			// new index of accepted pixel
-    for(int i=0; i<n; i++) {	// loop over old set of pixels
-      ICoord pxl = members_[i];
-      if(pxl(0) < geometry(0) && pxl(1) < geometry(1)) { // accept this pixel
-	if(j < i)
-	  members_[j] = members_[i];
-	j++;
-      }
-    }
-    members_.resize(j);
-  }
-  member_lock.release();
-}
-
 void PixelSet::set_defunct() {
   defunct_ = true;
 }
@@ -344,10 +323,10 @@ void PixelSet::setFromBitmap(const BitmapOverlay &bitmap) {
 //     members_[i] = otherpts[i];
 // }
 
-int PixelSet::len() const {
+std::size_t PixelSet::len() const {
   member_lock.acquire();
   weed();
-  int res = members_.size();
+  std::size_t res = members_.size();
   member_lock.release();
   return res;
 }
@@ -422,7 +401,8 @@ void GroupList::sort() const {
     if((*i)->is_defunct())
       defunctgroups.push_back(i);
   }
-  for(int j=defunctgroups.size()-1; j>=0; j--) {
+  // Don't use size_t for j!  The j>=0 test will fail if size_t is unsigned.
+  for(int j=int(defunctgroups.size())-1; j>=0; j--) {
     data.erase(defunctgroups[j]);
   }
   // sort the remainder

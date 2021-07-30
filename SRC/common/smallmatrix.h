@@ -39,8 +39,8 @@ public:
   /* Matrix property methods */
 
   void resize(int rows, int cols);
-  int rows() const { return data.rows(); }
-  int cols() const { return data.cols(); }
+  std::size_t rows() const { return data.rows(); }
+  std::size_t cols() const { return data.cols(); }
   void clear() { data.setZero(data.rows(), data.cols()); }
   virtual double& operator()(int row, int col);
   virtual const double& operator()(int row, int col) const;

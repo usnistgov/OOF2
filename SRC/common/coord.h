@@ -259,4 +259,14 @@ inline bool operator<(const ICoord &a, const ICoord &b) {
   return false;
 }
 
+// Convenience function for creating an ICoord from args that might be
+// long ints.  Use with care.
+
+template <class TYPE0, class TYPE1>
+ICoord iCoordL(const TYPE0 i, const TYPE1 j) {
+  assert (i <= std::numeric_limits<int>::max() &&
+	  j <= std::numeric_limits<int>::max());
+  return ICoord(int(i), int(j));
+}
+
 #endif // COORD_H

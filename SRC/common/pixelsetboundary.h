@@ -60,10 +60,10 @@ public:
   PxlBdyLoopBase(PxlBdyLoopBase<CTYPE, RTYPE>&&);
   PxlBdyLoopBase<CTYPE, RTYPE> &operator=(const PxlBdyLoopBase<CTYPE, RTYPE>&);
   virtual ~PxlBdyLoopBase() { delete bounds; }
-  unsigned int size() const { return loop.size(); }
+  std::size_t size() const { return loop.size(); }
   const RTYPE *bbox() const { return bounds; }
   const std::vector<CTYPE> &getLoop() const { return loop; }
-  void reserve(int n) { loop.reserve(n); }
+  void reserve(typename std::vector<CTYPE>::size_type n) { loop.reserve(n); }
   virtual double areaInPixelUnits() const;
   // clip() returns a new loop that includes the points to the left of
   // the line (not just the segment) going from line.first to
@@ -120,7 +120,7 @@ std::ostream& operator<<(std::ostream&, const ClippedPixelBdyLoop&);
 // are far from the element.
 
 // TileNumbers[x] is the index of the tile containing pixel x.
-typedef std::vector<unsigned int> TileNumbers;
+typedef std::vector<std::size_t> TileNumbers;
 
 
 class PSBTile {
@@ -158,17 +158,17 @@ class PSBTiling {
 private:
   std::vector<PSBTile*> tiles;
   const CMicrostructure *microstructure;
-  const unsigned int nxtiles, nytiles;
+  const std::size_t nxtiles, nytiles;
   TileNumbers xTileNumbers;
   TileNumbers yTileNumbers;
-  unsigned int tileIndex(unsigned int, unsigned int) const;
+  std::size_t tileIndex(std::size_t, std::size_t) const;
 public:
-  PSBTiling(const CMicrostructure*, unsigned int nx, unsigned int ny);
+  PSBTiling(const CMicrostructure*, std::size_t nx, std::size_t ny);
   ~PSBTiling();
   void add_pixel(const ICoord&);
   void find_boundary();
   double clippedArea(const LineList&, const CRectangle&, bool) const;
-  ICoord size() const { return ICoord(nxtiles, nytiles); }
+  ICoord size() const { return iCoordL(nxtiles, nytiles); }
   double area() const;
 
   // Used when constructing a tiling from the loops in another tiling.

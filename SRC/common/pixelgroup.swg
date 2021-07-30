@@ -30,7 +30,6 @@ class PixelSet {
 public:
   ~PixelSet();
   int id();
-  void resize(ICoord *iPoint);
   bool is_defunct();
   void set_defunct();
   void add(ICoordVec *iPointList);

@@ -66,7 +66,7 @@ public:
   const PixelSet *getPixelGroup() const { return &pixset; }
   const BitmapOverlay *getBitmap() const { return &bitmap; }
   void setFromGroup(const PixelSet*);
-  int len() const;
+  std::size_t len() const;
 };
 
 

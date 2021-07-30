@@ -168,7 +168,7 @@ public:
   void setCurrentActiveArea(ActiveArea *aa) { activearea = aa; }
   const ActiveArea *getActiveArea() const { return activearea; }
 
-  int nGroups() const;
+  std::size_t nGroups() const;
   PixelGroup *getGroup(const std::string &name, bool *newness);
   PixelGroup *findGroup(const std::string &name) const;
   void removeGroup(const std::string &name);
@@ -176,8 +176,9 @@ public:
   void renameGroupC(const std::string &oldname, const std::string &newname);
   std::vector<std::string> *groupNames() const;
 
-  Array<PixelAttribute*> &getAttributeMap(int attributeID) const;
-  PixelAttributeGlobalData *getAttributeGlobalData(int attributeID) const;
+  Array<PixelAttribute*> &getAttributeMap(std::size_t attributeID) const;
+  PixelAttributeGlobalData *getAttributeGlobalData(std::size_t attributeID)
+    const;
   const Array<int> *getCategoryMap() const; // changes mutable private data
   const Array<int> *getCategoryMapRO() const; // changes no data
 

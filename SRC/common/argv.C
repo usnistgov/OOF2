@@ -21,7 +21,7 @@
 #include <vector>
 #include "argv.h"
 
-static int argc;
+static size_t argc;
 static const char **argv;
 
 void init_argv(std::vector<char*> *argh) {
@@ -45,7 +45,7 @@ const char ** get_argv() {
   return argv;
 }
 
-int get_argc() {
+std::size_t get_argc() {
   return argc;
 }
 

@@ -24,7 +24,7 @@ class LatticeSymmetry {
 protected:
   std::vector<SmallMatrix> matrices_;
 public:
-  int size() const { return matrices_.size(); }
+  std::size_t size() const { return matrices_.size(); }
   void addMatrix(const SmallMatrix *mat) {
     matrices_.push_back(*mat);	// make a copy
   }
