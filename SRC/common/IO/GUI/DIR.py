@@ -41,7 +41,6 @@ pyfiles = [
     'microstructurePage.py',
     'mousehandler.py',
     'oofGUI.py',
-    'oof_mainiteration.py',
     'parameterwidgets.py',
     'pixelPage.py',
     'pixeldifferentiatorwidget.py',

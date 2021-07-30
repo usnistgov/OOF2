@@ -20,7 +20,6 @@ from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO.GUI import gfxmenu
 from ooflib.common.IO.GUI import gtkutils
-from ooflib.common.IO.GUI import oof_mainiteration
 from ooflib.common.IO.GUI import quit
 from ooflib.common.IO.GUI import subWindow
 import code, sys, string
@@ -425,17 +424,18 @@ mainmenu.OOF.Windows.Console.add_gui_callback(make_console)
 
 # Operate the console in "raw" mode -- writes out a prompt, then
 # returns whatever was typed from then until a new line was
-# encountered. 
+# encountered.
+
 def raw_input(prompt):
     global current_console
+    debug.mainthreadTest()
     if current_console:
         current_console.raw=1
         current_console.write(prompt)
         # Newline on input will kick the console out of "raw" mode,
         # that's when we're done.
         while current_console.raw:
-            # gtk.mainiteration()
-            oof_mainiteration.mainiteration()
+            Gtk.main_iteration_do(True) # True means block, wait for something
         result = current_console.raw_result
         current_console.raw_result=None
         return result
