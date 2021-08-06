@@ -427,8 +427,7 @@ class EdgeDisplay:
             poly.setLineWidth(self.width)
             poly.setLineWidthInPixels()
             poly.setLineColor(clr)
-            for pt in polygon:
-                poly.addPoint(pt[0], pt[1])
+            poly.addPoints(polygon)
             self.canvaslayer.addItem(poly)
         
 class MeshEdgeDisplay(EdgeDisplay, MeshDisplayMethod):
@@ -641,8 +640,7 @@ class MaterialDisplay:
                 if clr is not None:
                     poly = oofcanvas.CanvasPolygon()
                     poly.setFillColor(clr)
-                    for pt in polygon:
-                        poly.addPoint(pt[0], pt[1])
+                    poly.addPoints(polygon)
                     self.canvaslayer.addItem(poly)
  
     def getTimeStamp(self, gfxwindow):
@@ -760,8 +758,7 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
                 poly = oofcanvas.CanvasPolygon()
                 poly.setFillColor(
                     color.canvasColor(self.colormap((energy-emin)/deltaE)))
-                for pt in polygon:
-                    poly.addPoint(pt[0], pt[1])
+                poly.addPoints(polygon)
                 self.canvaslayer.addItem(poly)
         finally:
             self.lock.release()

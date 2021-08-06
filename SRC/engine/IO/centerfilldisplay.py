@@ -95,6 +95,7 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
             self.contour_levels.sort()
 
         # Actually draw things.
+
         for polygon, value in zip(polygons, values):
             if value is not None:
                 if self.contour_max == self.contour_min:
@@ -112,8 +113,7 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
                 poly = oofcanvas.CanvasPolygon()
                 poly.setFillColor(
                     color.canvasColor(self.colormap(cmap_value)))
-                for pt in polygon:
-                    poly.addPoint(pt[0], pt[1])
+                poly.addPoints(polygon)
                 self.canvaslayer.addItem(poly)
 
     # These two functions should maybe belong somewhere higher up in

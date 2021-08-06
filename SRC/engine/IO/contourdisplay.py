@@ -208,8 +208,7 @@ class PlainContourDisplay(ContourDisplay):
                             poly.setLineWidth(self.width)
                             poly.setLineWidthInPixels()
                             poly.setLineColor(clr)
-                            for pt in loop:
-                                poly.addPoint(pt.x, pt.y)
+                            poly.addPoints(loop)
                         for curve in cntr.curves:
                             segs = oofcanvas.CanvasSegments()
                             segs.setLineWidth(self.width)
@@ -345,8 +344,7 @@ class FilledContourDisplay(ContourDisplay):
                     mcorners = [[0.0]]*element.ncorners()
                     corners = self.where.evaluate(mesh, edges, mcorners)
                     poly = oofcanvas.CanvasPolygon()
-                    for pt in corners:
-                        poly.addPoint(pt[0], pt[1])
+                    poly.addPoints(corners)
                     poly.setFillColor(baseclr)
                     self.canvaslayer.addItem(poly)
 
@@ -364,8 +362,7 @@ class FilledContourDisplay(ContourDisplay):
                             poly.setFillColor(
                                 color.canvasColor(self.colormap(
                                     offset + cntour.value*factor)))
-                            for pt in points:
-                                poly.addPoint(pt[0], pt[1])
+                            poly.addPoints(points)
                             self.canvaslayer.addItem(poly)
                 ecount += 1
                 prog.setFraction((1.0*ecount)/mesh.nelements())
