@@ -119,7 +119,7 @@ namespace OOFCanvas {
   // In C++, the OOFCanvas constructor creates the gtk Layout.
 
   typedef void (*MouseCallback)(const std::string&, double, double,
-				int, bool, bool);
+				int, bool, bool, void*);
   typedef void (*ResizeCallback)(void*);
 
   class Canvas : public GUICanvasBase {

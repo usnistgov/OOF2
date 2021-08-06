@@ -79,7 +79,7 @@ namespace OOFCanvas {
     std::vector<Coord> points;
   public:
     SpiderRubberBand();
-    void addPoints(const std::vector<double>*);
+    void addPoints(const std::vector<Coord>*);
     virtual void draw(double x, double y);
   };
 

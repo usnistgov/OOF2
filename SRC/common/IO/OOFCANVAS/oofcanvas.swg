@@ -28,6 +28,8 @@ using namespace std;
 typedef std::vector<CanvasItem*> CanvasItemList;
 typedef std::vector<CanvasLayer*> CanvasLayerList;
 typedef std::vector<std::string> OOFCanvasStringVec;
+typedef std::vector<OOFCanvas::Coord> CanvasCoordVec;
+typedef OOFCanvas::Coord CanvasCoord;
 %}
 
 %typemap(python, out) PyObject* {
@@ -71,7 +73,7 @@ typedef std::vector<std::string> OOFCanvasStringVec;
   // typemap(python, in) CanvasLayerList*
   if(!PyList_Check($source)) {
     PyErr_SetString(PyExc_TypeError, "Type error in CanvasLayerList* typemap.  Python list CanvasLayers expected.");
-    return NULL;
+    return nullptr;
   }
   CanvasLayerList::size_type sz =
     Py_SAFE_DOWNCAST(PyList_Size($source),
@@ -82,7 +84,7 @@ typedef std::vector<std::string> OOFCanvasStringVec;
 							      (Py_ssize_t) i),
 					      "this");
     if(!strobj)
-      return NULL;
+      return nullptr;
     char *str = PyString_AsString(strobj);
     Py_XDECREF(strobj);
     CanvasLayer *layer;
@@ -98,13 +100,26 @@ typedef std::vector<std::string> OOFCanvasStringVec;
   delete $source;
 }
 
-// Convert a Python coord (any object with .x and .y attributes) to an
-// OOFCanvas Coord.
+// Convert any Python object that supports __getitem__ 
+// to a OOFCanvas::Coord.  OOFCanvas::Coord itself is not
+// swigged.  TODO: Should it be?
 
-%typemap(python, in) Coord* (Coord pt) {
-  // typemap(python, in) Coord*
-  PyObject *x = PyObject_GetAttrString($source, "x");
-  PyObject *y = PyObject_GetAttrString($source, "y");
+%typemap(python, in) CanvasCoord* (CanvasCoord pt) {
+  // typemap(python, in) CanvasCoord*
+  static PyObject *zero = nullptr;
+  static PyObject *one = nullptr;
+  if(!zero) {
+    zero = PyInt_FromLong(0);
+    one = PyInt_FromLong(1);
+    Py_INCREF(zero);
+    Py_INCREF(one);
+  }
+  PyObject *x = PyObject_GetItem($source, zero);
+  PyObject *y = PyObject_GetItem($source, one);
+  if(x == nullptr || y == nullptr) {
+    PyErr_SetString(PyExc_TypeError, "Type error in CanvasCoord typemap");
+    return nullptr;
+  }
   pt.x = PyFloat_AsDouble(x);
   pt.y = PyFloat_AsDouble(y);
   Py_XDECREF(x);
@@ -112,14 +127,47 @@ typedef std::vector<std::string> OOFCanvasStringVec;
   $target = &pt;
 }
 
-%typemap(python, out) Coord* {
-   // typemap(python, out) Coord*
-   $target = Py_BuildValue("dd", $source->x, $source->y);
- }
+%typemap(python, out) CanvasCoord* {
+  // typemap(python, out) CanvasCoord*
+  // Convert an OOFCanvas::Coord to a tuple
+  $target = Py_BuildValue("dd", $source->x, $source->y);
+}
 
-%typemap(python, newfree) Coord* {
-  // typemap(python, newfree) Coord*
-  delete $source;
+// Create a vector of Coords from any iterable object whose contents
+// have a __getitem__ that returns x (0) and y (1) components.
+
+%typemap(python, in) CanvasCoordVec* (CanvasCoordVec vec) {
+  // typemap(python, in) CanvasCoordVec*
+  if(!PySequence_Check($source)) {
+    PyErr_SetString(PyExc_TypeError,
+    "Type error in CanvasCoordVec typemap.  Python sequence expected.");
+    return nullptr;
+  }
+  static PyObject *zero = nullptr;
+  static PyObject *one = nullptr;
+  if(!zero) {
+    zero = PyInt_FromLong(0);
+    one = PyInt_FromLong(1);
+    Py_INCREF(zero);
+    Py_INCREF(one);
+  }
+  CanvasCoordVec::size_type sz =
+    Py_SAFE_DOWNCAST(PySequence_Size($source), Py_ssize_t,
+		     CanvasCoordVec::size_type);
+  vec.resize(sz);
+  for(CanvasCoordVec::size_type i=0; i<sz; i++) {
+    PyObject *item = PySequence_GetItem($source, (Py_ssize_t) i);
+    PyObject *x = PyObject_GetItem(item, zero);
+    PyObject *y = PyObject_GetItem(item, one);
+    if(x == nullptr || y == nullptr) {
+      return nullptr;
+    }
+    vec[i].x = PyFloat_AsDouble(x);
+    vec[i].y = PyFloat_AsDouble(y);
+    Py_XDECREF(x);
+    Py_XDECREF(y);
+  }
+  $target = &vec;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -226,7 +274,7 @@ class CanvasSegments : public CanvasShape {
 public:
   CanvasSegments();
   void addSegment(double, double, double, double);
-  %name(addSegmentPoints) void addSegment(Coord*, Coord*);
+  %name(addSegmentPoints) void addSegment(CanvasCoord*, CanvasCoord*);
   %addmethods {
     %new const string *__repr__() {
       return self->repr();
@@ -238,7 +286,8 @@ class CanvasCurve : public CanvasShape {
 public:
   CanvasCurve();
   void addPoint(double, double);
-  %name(addCurvePoint) void addPoint(Coord*);
+  %name(addCoord) void addPoint(CanvasCoord*);
+  void addPoints(CanvasCoordVec*);
   %addmethods {
     %new const string *__repr__() {
       return self->repr();
@@ -250,6 +299,8 @@ class CanvasPolygon : public CanvasFillableShape {
 public:
   CanvasPolygon();
   void addPoint(double, double);
+  %name(addCoord) void addPoint(CanvasCoord*);
+  void addPoints(CanvasCoordVec*);
   %addmethods {
     %new const string *__repr__() {
       return self->repr();
@@ -404,10 +455,10 @@ public:
   %name(allItems) %new CanvasItemList* allItems_new();
   bool saveAsPDF(char*, int, bool);
   bool saveAsPNG(char*, int, bool);
-  bool saveRegionAsPDF(char*, int, bool, Coord*, Coord*);
-  bool saveRegionAsPNG(char*, int, bool, Coord*, Coord*);
+  bool saveRegionAsPDF(char*, int, bool, CanvasCoord*, CanvasCoord*);
+  bool saveRegionAsPNG(char*, int, bool, CanvasCoord*, CanvasCoord*);
 
-  %new Coord *pixel2user(double, double);
+  CanvasCoord *pixel2user(double, double);
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -419,5 +470,7 @@ public:
 %typemap(python, out) PyObject*;
 %typemap(python, out) OOFCanvasStringVec*;
 %typemap(python, newfree) OOFCanvasStringVec*;
+// TODO GTK3: Complete this list?
+%typemap(python, out) CanvasItem*;
 
 #endif // OOFCANVAS_SWG

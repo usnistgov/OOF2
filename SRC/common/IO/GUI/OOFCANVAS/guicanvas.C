@@ -559,8 +559,8 @@ namespace OOFCanvas {
 			  int button, bool shift, bool ctrl)
   {
     if(mouseCallback != nullptr) {
-      // TODO: pass mouseCallbackData!
-      (*mouseCallback)(eventtype, userpt.x, userpt.y, button, shift, ctrl);
+      (*mouseCallback)(eventtype, userpt.x, userpt.y, button, shift, ctrl,
+		       mouseCallbackData);
       draw();
     }
   }

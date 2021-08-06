@@ -14,6 +14,7 @@
 
 %module oofcanvasgui
 %include "common/typemaps.swg"
+%extern "common/IO/OOFCANVAS/oofcanvas.swg"
 
 %pragma(python) include="oofcanvasgui.spy"
 
@@ -34,60 +35,12 @@
 #include "common/IO/GUI/OOFCANVAS/guicanvas.h"
 using namespace OOFCanvas;
 typedef std::vector<CanvasItem*> CanvasItemList;
-typedef std::vector<double> OOFCanvasDoubleVec;
+typedef std::vector<OOFCanvas::Coord> CanvasCoordVec;
+typedef OOFCanvas::Coord CanvasCoord;
 %}
 
 %typemap(python, in) PyObject* {
   $target = $source;
-}
-
-// Convert a Python sequence of coords to a list of doubles
-// (x0,y0,x1,y1,...)  The Python coord type must have .x and .y
-// attributes.
-
-%typemap(python, in) OOFCanvasDoubleVec *Coords (OOFCanvasDoubleVec vec) {
-  // typemap(python, in) OOFCanvasDoubleVec *Coords
-  if(!PySequence_Check($source)) {
-    PyErr_SetString(
-	    PyExc_TypeError,
-	    "OOFCanvas: typemap error. Expected a sequence of coordinates.");
-    return 0;
-  }
-  OOFCanvasDoubleVec::size_type sz = Py_SAFE_DOWNCAST(PySequence_Size($source),
-				     Py_ssize_t, OOFCanvasDoubleVec::size_type);
-  if(sz > 0) {
-    vec.resize(2*sz);
-    for(OOFCanvasDoubleVec::size_type i=0; i<sz; i++) {
-      PyObject *coord = PySequence_GetItem($source, (Py_ssize_t) i);
-      PyObject *x = PyObject_GetAttrString(coord, "x");
-      PyObject *y = PyObject_GetAttrString(coord, "y");
-      if(!x || !y) {
-	PyErr_SetString(
-	PyExc_TypeError,
-	"OOFCanvas: typemap error. Expected a sequence of coodinates with x and y attributes.");
-	return 0;
-      }
-      if(PyNumber_Check(x))
-	vec[2*i] = PyFloat_AsDouble(x);
-      else {
-	PyErr_SetString(
-		PyExc_TypeError,
-		"OOFCanvas: typemap error: x coordinate is not a number.");
-	return 0;
-      }
-      if(PyNumber_Check(y))
-	vec[2*i+1] = PyFloat_AsDouble(y);
-      else {
-	PyErr_SetString(
-		PyExc_TypeError,
-		"OOFCanvas: typemap error: y coordinate is not a number.");
-	return 0;
-      }
-      Py_XDECREF(x);
-      Py_XDECREF(y);
-    }
-  }
-  $target = &vec;
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -125,7 +78,7 @@ public:
 class SpiderRubberBand : public RubberBand {
 public:
   SpiderRubberBand();
-  void addPoints(OOFCanvasDoubleVec *Coords);
+  void addPoints(CanvasCoordVec *Coords);
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

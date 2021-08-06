@@ -24,6 +24,16 @@ namespace OOFCanvas {
     corners.reserve(n);
   }
 
+  CanvasPolygon::CanvasPolygon(const std::vector<Coord> &pts)
+    : CanvasFillableShape(Rectangle())
+  {
+    corners.reserve(pts.size());
+    for(const Coord &pt : pts) {
+      corners.push_back(pt);
+      bbox.swallow(pt);
+    }
+  }
+
   const std::string &CanvasPolygon::classname() const {
     static const std::string name("CanvasPolygon");
     return name;
@@ -32,6 +42,19 @@ namespace OOFCanvas {
   void CanvasPolygon::addPoint(double x, double y) {
     corners.emplace_back(x, y);
     bbox.swallow(corners.back());
+    modified();
+  }
+
+  void CanvasPolygon::addPoint(const Coord &pt) {
+    corners.push_back(pt);
+    bbox.swallow(pt);
+    modified();
+  }
+
+  void CanvasPolygon::addPoints(const std::vector<Coord> *pts) {
+    corners.insert(corners.end(), pts->begin(), pts->end());
+    for(const Coord &pt : *pts)
+      bbox.swallow(pt);
     modified();
   }
 

@@ -141,15 +141,8 @@ namespace OOFCanvas {
   SpiderRubberBand::SpiderRubberBand() {
   }
 
-  void SpiderRubberBand::addPoints(const std::vector<double> *pts) {
-    // The input pts contains x0, y0, x1, y1, etc. so that we don't
-    // need an extra copy to convert Python OOF Coords to C++
-    // OOFCanvas Coords.
-    int npts = pts->size()/2;
-    points.reserve(npts + points.size());
-    for(int i=0; i<npts; i++) {
-      points.emplace_back((*pts)[2*i], (*pts)[2*i+1]);
-    }
+  void SpiderRubberBand::addPoints(const std::vector<Coord> *pts) {
+    points.insert(points.end(), pts->begin(), pts->end());
   }
 
   void SpiderRubberBand::draw(double x, double y) {

@@ -121,12 +121,14 @@ namespace OOFCanvas {
   void CanvasCurve::addPoint(const Coord &pt) {
     points.push_back(pt);
     bbox.swallow(pt);
+    modified();
   }
 
-  void CanvasCurve::addPoints(const std::vector<Coord> &pts) {
-    points.insert(points.end(), pts.begin(), pts.end());
-    for(const Coord &pt : pts)
+  void CanvasCurve::addPoints(const std::vector<Coord> *pts) {
+    points.insert(points.end(), pts->begin(), pts->end());
+    for(const Coord &pt : *pts)
       bbox.swallow(pt);
+    modified();
   }
 
   void CanvasCurve::pixelExtents(double &left, double &right,

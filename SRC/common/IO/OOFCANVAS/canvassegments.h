@@ -54,7 +54,7 @@ namespace OOFCanvas {
     void addPoint(double, double);
     void addPoint(const Coord&);
     void addPoint(const Coord *p) { addPoint(*p); }
-    void addPoints(const std::vector<Coord>&);
+    void addPoints(const std::vector<Coord>*);
     virtual void pixelExtents(double&, double&, double&, double&) const;
     std::size_t size() const { return points.size(); }
     friend std::ostream &operator<<(std::ostream&, const CanvasCurve&);

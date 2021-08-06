@@ -64,7 +64,7 @@ namespace OOFCanvas {
     // is called, the spaces between dashes will be in the given
     // color.  If it's not called, the spaces will be blank.
     void setDash(const std::vector<double>&, int);
-    void setDash(double l); // same as setDash(std::vector<double>{l}, false)
+    void setDash(double l); // same as setDash(std::vector<double>{l}, 0)
     void setDashLengthInPixels() { dashLengthInPixels = true; }
     void setDashColor(const Color&);
 
