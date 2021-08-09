@@ -29,7 +29,6 @@ namespace OOFCanvas {
     CanvasSegment(double x0, double y0, double x1, double y1);
     CanvasSegment(const Coord &p0, const Coord &p1);
     virtual const std::string &classname() const;
-    virtual void setLineWidth(double);
     virtual void pixelExtents(double&, double&, double&, double&) const;
     friend class CanvasArrowhead;
     friend std::ostream &operator<<(std::ostream&, const CanvasSegment&);

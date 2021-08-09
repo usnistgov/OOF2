@@ -31,11 +31,6 @@ namespace OOFCanvas {
     return name;
   }
 
-  void CanvasSegment::setLineWidth(double w) {
-    CanvasShape::setLineWidth(w);
-    modified();
-  }
-
   void CanvasSegment::pixelExtents(double &left, double &right,
 				   double &up, double &down)
     const
