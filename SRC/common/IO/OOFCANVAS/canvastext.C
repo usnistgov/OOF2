@@ -104,12 +104,8 @@ namespace OOFCanvas {
     color.set(ctxt);
     PangoLayout *layout = getLayout(ctxt);
     double baseline = pango_layout_get_baseline(layout)/double(PANGO_SCALE);
-    ctxt->move_to(location.x, location.y+baseline);
-
-    // TODO: Rotation seems to be about the upper left corner of the
-    // bbox.  It should be about the intersection of the left side of
-    // the bbox and the baseline.
     ctxt->rotate(angle);
+    ctxt->move_to(location.x, location.y+baseline);
     ctxt->scale(1.0, -1.0); // flip y, because fonts still think y goes down
     pango_layout_context_changed(layout);
     pango_cairo_show_layout(ctxt->cobj(), layout);
@@ -151,14 +147,8 @@ namespace OOFCanvas {
     
       PangoRectangle pango_rect;
       pango_layout_get_extents(layout, nullptr, &pango_rect);
-      // std::cerr << "CanvasText::findBoundingBox: prect x=" << pango_rect.x
-      // 	      << " y=" << pango_rect.y
-      // 	      << " w=" << pango_rect.width
-      // 	      << " h=" << pango_rect.height << std::endl;
       bb = Rectangle(pango_rect);
       bb.scale(1./PANGO_SCALE, 1./PANGO_SCALE);
-      // std::cerr << "CanvasText::findBoundingBox: '" << text
-      //  		<< "' pango bbox=" << bb << std::endl;
     
       if(angle != 0.0) {
 	// Find the Rectangle that contains the rotated bounding box,
@@ -172,9 +162,7 @@ namespace OOFCanvas {
       }
     
       bb.scale(1.0, -1.0);
-      bb.shift(location + Coord(0, baseline));
-      // std::cerr << "CanvasText::findBoundingBox: " << text
-      // 		<< " final bbox=" << bbox << std::endl;
+      bb.shift(location);
     }
     catch (...) {
       g_object_unref(layout);
