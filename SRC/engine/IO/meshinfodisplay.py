@@ -62,8 +62,7 @@ class MeshInfoDisplay(display.DisplayMethod):
             toolbox.meshlayer.displaced_from_undisplaced(toolbox.gfxwindow, x)
             for x in p_list]
         poly = oofcanvas.CanvasPolygon()
-        poly.setLineWidth(1.4*self.element_width)
-        poly.setLineWidthInPixels()
+        poly.setLineWidthInPixels(1.4*self.element_width)
         poly.setLineColor(
             oofcanvas.white.opacity(self.colors[which].getAlpha()))
         for pt in displaced_p_list:
@@ -71,8 +70,7 @@ class MeshInfoDisplay(display.DisplayMethod):
         self.canvaslayer.addItem(poly)
 
         poly = oofcanvas.CanvasPolygon()
-        poly.setLineWidth(self.element_width)
-        poly.setLineWidthInPixels()
+        poly.setLineWidthInPixels(self.element_width)
         poly.setLineColor(color.canvasColor(self.colors[which]))
         for pt in displaced_p_list:
             poly.addPoint(pt.x, pt.y)

@@ -49,23 +49,28 @@ namespace OOFCanvas {
       lineCap(Cairo::LineCap::LINE_CAP_ROUND)
     {}
     virtual ~CanvasShape() {}
-    // Subclasses may need to redefine setLineWidth if it's necessary
-    // to recompute the bounding box whenever the line width changes.
+    // Subclasses may need to redefine setLineWidth() and
+    // setLineWidthInPixels() if it's necessary to recompute the
+    // bounding box whenever the line width changes.
     virtual void setLineWidth(double);
-    void setLineWidthInPixels() { lineWidthInPixels = true; }
+    virtual void setLineWidthInPixels(double);  
     virtual void setLineColor(const Color&);
     void setLineJoin(Cairo::LineJoin lj) { lineJoin = lj; }
     void setLineCap(Cairo::LineCap lc) { lineCap = lc; }
 
-    // Calling setDash makes the lines dashed.  The args are a vector
-    // of dash lengths, and an offset into that vector.  If
-    // setDashLengthInPixels is called, the lengths are interpreted in
-    // pixel units, otherwise they're in user units.  If setDashColor
-    // is called, the spaces between dashes will be in the given
-    // color.  If it's not called, the spaces will be blank.
+    // Calling setDash() makes the lines dashed.  The args are a
+    // vector of dash lengths, and an offset into that vector.
+    // setDashInPixels() is the same, but the dash lengths are
+    // interpreted in pixel units, not physical units.
     void setDash(const std::vector<double>&, int);
+    void setDash(const std::vector<double>*, int); // ptr version for swig
     void setDash(double l); // same as setDash(std::vector<double>{l}, 0)
-    void setDashLengthInPixels() { dashLengthInPixels = true; }
+    void setDashInPixels(const std::vector<double>&, int);
+    void setDashInPixels(const std::vector<double>*, int);
+    void setDashInPixels(double l); // setDashInPixels(std::vector<double>{l},0)
+    // If setDashColor() is called, the spaces between dashes will be
+    // in the given color.  If it's not called, the spaces will be
+    // blank.
     void setDashColor(const Color&);
 
     Color getLineColor() const { return lineColor; }

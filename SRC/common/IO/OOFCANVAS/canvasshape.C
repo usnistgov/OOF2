@@ -15,6 +15,14 @@ namespace OOFCanvas {
 
   void CanvasShape::setLineWidth(double w) {
     lineWidth = w;
+    lineWidthInPixels = false;
+    line = true;
+    modified();
+  }
+
+  void CanvasShape::setLineWidthInPixels(double w) {
+    lineWidth = w;
+    lineWidthInPixels = true;
     line = true;
     modified();
   }
@@ -59,11 +67,33 @@ namespace OOFCanvas {
   void CanvasShape::setDash(const std::vector<double> &d, int offset) {
     dash = d;
     dashOffset = offset;
+    dashLengthInPixels = false;
+  }
+  
+  void CanvasShape::setDash(const std::vector<double> *d, int offset) {
+    setDash(*d, offset);
   }
 
   void CanvasShape::setDash(double d) {
     dash = std::vector<double>({d});
     dashOffset = 0;
+    dashLengthInPixels = false;
+  }
+  
+  void CanvasShape::setDashInPixels(const std::vector<double> &d, int offset) {
+    dash = d;
+    dashOffset = offset;
+    dashLengthInPixels = true;
+  }
+
+  void CanvasShape::setDashInPixels(const std::vector<double> *d, int offset) {
+    setDashInPixels(*d, offset);
+  }
+
+  void CanvasShape::setDashInPixels(double d) {
+    dash = std::vector<double>({d});
+    dashOffset = 0;
+    dashLengthInPixels = true;
   }
 
   void CanvasShape::setDashColor(const Color &clr) {

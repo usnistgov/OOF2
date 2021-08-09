@@ -38,8 +38,7 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
                 segs = oofcanvas.CanvasSegments()
                 segs.setLineColor(
                     oofcanvas.white.opacity(self.color.getAlpha()))
-                segs.setLineWidth(1.4*self.line_width)
-                segs.setLineWidthInPixels()
+                segs.setLineWidthInPixels(1.4*self.line_width)
                 for s in skel.segmentselection.retrieve():
                     pt0 = s.nodes()[0].position()
                     pt1 = s.nodes()[1].position()
@@ -48,8 +47,7 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
                 # Then draw with the given color and width
                 segs = oofcanvas.CanvasSegments()
                 segs.setLineColor(color.canvasColor(self.color))
-                segs.setLineWidth(self.line_width)
-                segs.setLineWidthInPixels()
+                segs.setLineWidthInPixels(self.line_width)
                 for s in skel.segmentselection.retrieve():
                     pt0 = s.nodes()[0].position()
                     pt1 = s.nodes()[1].position()

@@ -59,8 +59,7 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
                     pt0 = nodes[0].position()
                     pt1 = nodes[1].position()
                     seg = oofcanvas.CanvasSegment(pt0.x, pt0.y, pt1.x, pt1.y)
-                    seg.setLineWidth(self.linewidth)
-                    seg.setLineWidthInPixels()
+                    seg.setLineWidthInPixels(self.linewidth)
                     seg.setLineColor(clr)
                     arrow = oofcanvas.CanvasArrowhead(
                         seg, 0.5, 0.7*self.arrowsize, self.arrowsize, False)
@@ -135,8 +134,7 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
             n1 = nodes[1].position()
             seg = oofcanvas.CanvasSegment(n0.x, n0.y, n1.x, n1.y)
             seg.setLineColor(clr)
-            seg.setLineWidth(self.linewidth)
-            seg.setLineWidthInPixels()
+            seg.setLineWidthInPixels(self.linewidth)
             arrow = oofcanvas.CanvasArrowhead(seg, 0.5, 0.7*self.arrowsize,
                                               self.arrowsize, False)
             arrow.setPixelSize()

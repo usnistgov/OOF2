@@ -55,8 +55,7 @@ namespace OOFCanvas {
 
   void RubberBand::doDashes(CanvasShape *shape) {
     if(dashLength > 0) {
-      shape->setDashLengthInPixels();
-      shape->setDash(dashLength);
+      shape->setDashInPixels(dashLength);
       if(coloredDashes)
 	shape->setDashColor(dashColor);
     }
@@ -68,8 +67,7 @@ namespace OOFCanvas {
     if(layer != nullptr) {
       RubberBand::draw(x, y);
       CanvasSegment *seg = new CanvasSegment(startPt, currentPt);
-      seg->setLineWidthInPixels();
-      seg->setLineWidth(lineWidth);
+      seg->setLineWidthInPixels(lineWidth);
       seg->setLineColor(color);
       doDashes(seg);
       layer->clear();
@@ -81,8 +79,7 @@ namespace OOFCanvas {
     if(layer != nullptr) {
       RubberBand::draw(x, y);
       CanvasRectangle *rect = new CanvasRectangle(startPt, currentPt);
-      rect->setLineWidthInPixels();
-      rect->setLineWidth(lineWidth);
+      rect->setLineWidthInPixels(lineWidth);
       rect->setLineColor(color);
       doDashes(rect);
       layer->clear();
@@ -95,12 +92,10 @@ namespace OOFCanvas {
       RubberBand::draw(x, y);
       double r = sqrt((currentPt - startPt).norm2());
       CanvasCircle *circle = new CanvasCircle(startPt, r);
-      circle->setLineWidthInPixels();
-      circle->setLineWidth(lineWidth);
+      circle->setLineWidthInPixels(lineWidth);
       circle->setLineColor(color);
       CanvasSegment *seg = new CanvasSegment(startPt, currentPt);
-      seg->setLineWidthInPixels();
-      seg->setLineWidth(lineWidth/2.);
+      seg->setLineWidthInPixels(lineWidth/2.);
       seg->setLineColor(color);
       doDashes(seg);
       doDashes(circle);
@@ -114,8 +109,7 @@ namespace OOFCanvas {
     if(layer != nullptr) {
       RubberBand::draw(x, y);
       CanvasRectangle *rect = new CanvasRectangle(startPt, currentPt);
-      rect->setLineWidthInPixels();
-      rect->setLineWidth(0.5*lineWidth);
+      rect->setLineWidthInPixels(0.5*lineWidth);
       rect->setLineColor(color);
 
       CanvasEllipse *ellipse = new CanvasEllipse(0.5*(currentPt+startPt),
@@ -125,8 +119,7 @@ namespace OOFCanvas {
       // TODO: Allow the ellipse to be rotated.  This would require a
       // more complicated API.
     
-      ellipse->setLineWidthInPixels();
-      ellipse->setLineWidth(lineWidth);
+      ellipse->setLineWidthInPixels(lineWidth);
       ellipse->setLineColor(color);
 
       doDashes(ellipse);
@@ -149,8 +142,7 @@ namespace OOFCanvas {
     if(layer != nullptr) {
       RubberBand::draw(x, y);
       CanvasSegments *segs = new CanvasSegments();
-      segs->setLineWidthInPixels();
-      segs->setLineWidth(lineWidth);
+      segs->setLineWidthInPixels(lineWidth);
       segs->setLineColor(color);
       for(Coord &pt : points) {
 	segs->addSegment(currentPt, pt);

@@ -71,8 +71,7 @@ class PixelInfoDisplay(display.DisplayMethod):
         n0, n1, n2, n3 = self.getNodes(pixel, microstructure)
         rect = oofcanvas.CanvasRectangle(n0.x, n0.y, n2.x, n2.y)
         rect.setLineColor(color.canvasColor(self.color))
-        rect.setLineWidthInPixels()
-        rect.setLineWidth(self.line_width)
+        rect.setLineWidthInPixels(self.line_width)
         self.canvaslayer.addItem(rect)
         
     def getTimeStamp(self, gfxwindow):

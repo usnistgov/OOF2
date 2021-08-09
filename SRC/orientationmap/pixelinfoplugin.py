@@ -76,8 +76,7 @@ class MisorientationPlugIn(pixelinfo.PixelInfoPlugIn):
             n0, n1, n2, n3 = displaymethod.getNodes(self.referencePoint,
                                                     microstructure)
             segs = oofcanvas.CanvasSegments()
-            segs.setLineWidth(displaymethod.line_width)
-            segs.setLineWidthInPixels()
+            segs.setLineWidthInPixels(displaymethod.line_width)
             segs.setLineColor(color.canvasColor(displaymethod.color))
             segs.addSegmentPoints(n0, n1)
             segs.addSegmentPoints(n1, n2)

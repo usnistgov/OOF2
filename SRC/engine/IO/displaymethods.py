@@ -424,8 +424,7 @@ class EdgeDisplay:
         clr = color.canvasColor(self.color)
         for polygon in polygons:
             poly = oofcanvas.CanvasPolygon()
-            poly.setLineWidth(self.width)
-            poly.setLineWidthInPixels()
+            poly.setLineWidthInPixels(self.width)
             poly.setLineColor(clr)
             poly.addPoints(polygon)
             self.canvaslayer.addItem(poly)
@@ -502,8 +501,7 @@ class PerimeterDisplay(MeshDisplayMethod):
         themesh.restoreCachedData(self.getTime(themesh, gfxwindow))
         try:
             segs = oofcanvas.CanvasSegments()
-            segs.setLineWidthInPixels()
-            segs.setLineWidth(self.width)
+            segs.setLineWidthInPixels(self.width)
             segs.setLineColor(color.canvasColor(self.color))
             for element in femesh.element_iterator():
                 el_edges = element.perimeter()

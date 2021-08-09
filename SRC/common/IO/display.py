@@ -330,9 +330,8 @@ class MicrostructurePerimeterDisplay(DisplayMethod):
     def draw(self, gfxwindow):
         size = self.getWho(gfxwindow).getObject().size()
         rect = oofcanvas.CanvasRectangle(0, 0, size.x, size.y)
-        rect.setLineWidth(self.width)
+        rect.setLineWidthInPixels(self.width)
         rect.setLineColor(color.canvasColor(self.color))
-        rect.setLineWidthInPixels()
         self.canvaslayer.addItem(rect)
         
 

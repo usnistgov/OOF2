@@ -40,10 +40,8 @@ void BrushRubberBand::draw(double x, double y) {
   // TODO: Can we reuse the previous CanvasCurve?
   OOFCanvas::CanvasCurve *curve = new OOFCanvas::CanvasCurve(trail);
   curve->setLineColor(OOFCanvas::white);
-  curve->setLineWidth(lineWidth);
-  curve->setLineWidthInPixels();
-  curve->setDashLengthInPixels();
+  curve->setLineWidthInPixels(lineWidth);
   curve->setDashColor(OOFCanvas::black);
-  curve->setDash(std::vector<double>{dashLength}, 0);
+  curve->setDashInPixels(std::vector<double>{dashLength}, 0);
   layer->addItem(curve);
 }

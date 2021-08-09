@@ -23,8 +23,7 @@ from ooflib.common.IO import xmlmenudump
 
 def draw_elements(canvaslayer, elements, lineWidth, color):
     segs = oofcanvas.CanvasSegments()
-    segs.setLineWidth(lineWidth)
-    segs.setLineWidthInPixels()
+    segs.setLineWidthInPixels(lineWidth)
     segs.setLineColor(color)
     for element in elements:
         for i in range(element.nnodes()):
@@ -70,14 +69,12 @@ class SkeletonInfoDisplay(display.DisplayMethod):
         n1 = segment.nodes()[1].position()
 
         seg = oofcanvas.CanvasSegment(n0.x, n0.y, n1.x, n1.y)
-        seg.setLineWidth(1.4*self.segment_width)
-        seg.setLineWidthInPixels()
+        seg.setLineWidthInPixels(1.4*self.segment_width)
         seg.setLineColor(oofcanvas.white)
         self.canvaslayer.addItem(seg)
 
         seg = oofcanvas.CanvasSegment(n0.x, n0.y, n1.x, n1.y)
-        seg.setLineWidth(self.segment_width)
-        seg.setLineWidthInPixels()
+        seg.setLineWidthInPixels(self.segment_width)
         seg.setLineColor(color.canvasColor(self.colors[which]))
         self.canvaslayer.addItem(seg)
 

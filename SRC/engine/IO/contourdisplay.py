@@ -205,14 +205,12 @@ class PlainContourDisplay(ContourDisplay):
                     for cntr in contours:
                         for loop in cntr.loops:
                             poly = oofcanvas.CanvasPolygon()
-                            poly.setLineWidth(self.width)
-                            poly.setLineWidthInPixels()
+                            poly.setLineWidthInPixels(self.width)
                             poly.setLineColor(clr)
                             poly.addPoints(loop)
                         for curve in cntr.curves:
                             segs = oofcanvas.CanvasSegments()
-                            segs.setLineWidth(self.width)
-                            segs.setLineWidthInPixels()
+                            segs.setLineWidthInPixels(self.width)
                             segs.setLineColor(clr)
                             for edge in curve.edges():
                                 segs.addSegmentPoints(edge.startpt, edge.endpt)
@@ -240,8 +238,7 @@ class PlainContourDisplay(ContourDisplay):
                 width = height/aspect_ratio
 
                 segs = oofcanvas.CanvasSegments()
-                segs.setLineWidthInPixels()
-                segs.setLineWidth(self.width)
+                segs.setLineWidthInPixels(self.width)
                 segs.setLineColor(color.canvasColor(self.color))
 
                 for lvl in self.contour_levels:

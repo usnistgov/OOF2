@@ -29,6 +29,7 @@ typedef std::vector<CanvasItem*> CanvasItemList;
 typedef std::vector<CanvasLayer*> CanvasLayerList;
 typedef std::vector<std::string> OOFCanvasStringVec;
 typedef std::vector<OOFCanvas::Coord> CanvasCoordVec;
+typedef std::vector<double> CanvasDoubleVec;
 typedef OOFCanvas::Coord CanvasCoord;
 %}
 
@@ -94,7 +95,6 @@ typedef OOFCanvas::Coord CanvasCoord;
   $target = &vec;
 }
 
-// Convert a Python list or tuple of doubles to a std::vector<double>
 %typemap(python, newfree) OOFCanvasStringVec *{
   // typemap(python, newfree) OOFCanvasStringVec*
   delete $source;
@@ -170,6 +170,37 @@ typedef OOFCanvas::Coord CanvasCoord;
   $target = &vec;
 }
 
+// Convert a Python sequence of numbers to a C++ vector of floats.
+
+%typemap(python, in) CanvasDoubleVec* (CanvasDoubleVec vec) {
+  // typemap(python, in) DoubleList*
+  if(!PySequence_Check($source)) {
+    PyErr_SetString(PyExc_TypeError,
+		    "Error in CanvasDoubleVec typemap, expected a sequence of numbers.");
+    return nullptr;
+  }
+  CanvasDoubleVec::size_type sz = Py_SAFE_DOWNCAST(PySequence_Size($source),
+						   Py_ssize_t,
+						   CanvasDoubleVec::size_type);
+  if(sz > 0) {
+    vec.resize(sz);
+    for(CanvasDoubleVec::size_type i=0; i<sz; i++) {
+      PyObject *x = PySequence_GetItem($source, (Py_ssize_t) i);
+      if(PyFloat_Check(x))
+	vec[i] = PyFloat_AsDouble(x);
+      else if(PyInt_Check(x))
+	vec[i] = PyInt_AsLong(x);
+      else {
+	PyErr_SetString(PyExc_TypeError,
+			"Error in CanvasDoubleVec typemap.  Expected a sequence of numbers.");
+	return nullptr;
+      }
+      Py_XDECREF(x);
+    }
+  }
+  $target = &vec;
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 class Color {
@@ -239,10 +270,13 @@ public:
 class CanvasShape : public CanvasItem {
 public:
   void setLineWidth(double);
-  void setLineWidthInPixels();
+  void setLineWidthInPixels(double);
   void setLineColor(Color&);
   void setLineJoin(CairoLineJoin);
   void setLineCap(CairoLineCap);
+  void setDash(CanvasDoubleVec*, int); 
+  void setDashInPixels(CanvasDoubleVec*, int);
+  void setDashColor(Color&);
 };
 
 class CanvasFillableShape : public CanvasShape {

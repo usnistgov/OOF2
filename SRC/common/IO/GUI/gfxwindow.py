@@ -599,8 +599,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                     clr = self.settings.contourmap_markercolor
                     polygon.setLineColor(color.canvasColor(
                         self.settings.contourmap_markercolor))
-                    polygon.setLineWidth(self.settings.contourmap_markersize)
-                    polygon.setLineWidthInPixels()
+                    polygon.setLineWidthInPixels(
+                        self.settings.contourmap_markersize)
                     self.contourmapdata.canvas_ticklayer.addItem(polygon)
 
                     self.contourmapdata.mark_value = y

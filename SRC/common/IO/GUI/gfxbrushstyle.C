@@ -20,12 +20,10 @@ void GfxCircleBrush::draw(OOFCanvas::CanvasLayer *layer,
   double dashLength = 7;
   double lineWidth = 2;
   OOFCanvas::CanvasCircle *circle = new OOFCanvas::CanvasCircle(pt, r);
-  circle->setLineWidth(lineWidth);
-  circle->setLineWidthInPixels();
+  circle->setLineWidthInPixels(lineWidth);
   circle->setLineColor(OOFCanvas::white);
   circle->setDashColor(OOFCanvas::black);
-  circle->setDash(dashLength);
-  circle->setDashLengthInPixels();
+  circle->setDashInPixels(dashLength);
   layer->addItem(circle);
 }
 
@@ -39,11 +37,9 @@ void GfxSquareBrush::draw(OOFCanvas::CanvasLayer *layer,
 
   OOFCanvas::CanvasRectangle *rect =
     new OOFCanvas::CanvasRectangle(pt-diag, pt+diag);
-  rect->setLineWidthInPixels();
-  rect->setLineWidth(lineWidth);
+  rect->setLineWidthInPixels(lineWidth);
   rect->setLineColor(OOFCanvas::white);
   rect->setDashColor(OOFCanvas::black);
-  rect->setDash(dashLength);
-  rect->setDashLengthInPixels();
+  rect->setDashInPixels(dashLength);
   layer->addItem(rect);
 }
