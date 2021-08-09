@@ -174,12 +174,6 @@ namespace OOFCanvas {
 
   std::ostream &operator<<(std::ostream&, const Rectangle&);
 
-  class IRectangle {
-  public:
-    int xmin, ymin;
-    int width, height;
-  };
-
   //=\\=//
   
   template <class TYPE>
