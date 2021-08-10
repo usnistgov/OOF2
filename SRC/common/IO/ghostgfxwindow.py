@@ -159,9 +159,8 @@ class GhostGfxWindow:
 
         self.oofcanvas = mainthread.runBlock(self.newCanvas)
         self.oofcanvas.setAntialias(self.settings.antialias)
-        self.oofcanvas.setBackgroundColor(self.settings.bgcolor.getRed(),
-                                          self.settings.bgcolor.getGreen(),
-                                          self.settings.bgcolor.getBlue())
+        self.oofcanvas.setBackgroundColor(
+            color.canvasColor(self.settings.bgcolor))
         self.oofcanvas.setMargin(self.settings.margin)
 
         # Although the contour map, which displays the contour color
@@ -770,9 +769,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             self.contourmapdata.canvas.destroy()
         self.contourmapdata.canvas = self.newContourmapCanvas()
         self.contourmapdata.canvas.setBackgroundColor(
-            self.settings.bgcolor.getRed(),
-            self.settings.bgcolor.getGreen(),
-            self.settings.bgcolor.getBlue())
+            color.canvasColor(self.settings.bgcolor))
         # Create two layers, one for the "main" drawing, and
         # one for the ticks.
         self.contourmapdata.canvas_mainlayer = \

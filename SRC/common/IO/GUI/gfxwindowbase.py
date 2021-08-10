@@ -545,6 +545,10 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             if eventtype == 'up' and not ignoreUp:
                 self.mouseHandler.up(x,y, button, shift, ctrl, data)
             elif eventtype == 'down':
+                ## For testing OOFCanvas.clickedItems
+                # items = self.oofcanvas.clickedItems((x,y))
+                # debug.fmsg("clicked on", len(items), "items")
+                # debug.fmsg("clicked items=", items)
                 self.mouseHandler.down(x,y, button, shift, ctrl, data)
             elif eventtype == 'move':
                 self.mouseHandler.move(x,y, button, shift, ctrl, data)

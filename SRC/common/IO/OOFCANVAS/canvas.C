@@ -145,8 +145,9 @@ namespace OOFCanvas {
     return n;
   }
   
-  void OffScreenCanvas::setBackgroundColor(double r, double g, double b) {
-    bgColor = Color(r, g, b);
+  void OffScreenCanvas::setBackgroundColor(const Color &color) {
+    bgColor = color;
+    bgColor.alpha = 1.0;
   }
 
   void OffScreenCanvas::drawBackground(Cairo::RefPtr<Cairo::Context> ctxt) const
@@ -496,10 +497,9 @@ namespace OOFCanvas {
   // Routines that can be called from a mouse callback to retrieve the
   // CanvasItem(s) at a given user coordinate.
   
-  std::vector<CanvasItem*> OffScreenCanvas::clickedItems(double x, double y)
+  std::vector<CanvasItem*> OffScreenCanvas::clickedItems(const Coord &where)
     const
   {
-    Coord where(x,y);
     std::vector<CanvasItem*> items;
     for(const CanvasLayer *layer : layers) {
       if(layer->clickable) 
@@ -519,15 +519,14 @@ namespace OOFCanvas {
   // results in a new vector, because swig works better that way.  If
   // we instead swig the above versions, without using new, swig will
   // make an extra copy of the vectors.
-  std::vector<CanvasItem*> *OffScreenCanvas::clickedItems_new(double x,
-							      double y)
+  std::vector<CanvasItem*> *OffScreenCanvas::clickedItems_new(
+						      const Coord *where)
     const
   {
-    Coord where(x,y);
     std::vector<CanvasItem*> *items = new std::vector<CanvasItem*>;
     for(const CanvasLayer *layer : layers) 
       if(layer->clickable)
-	layer->clickedItems(where, *items);
+	layer->clickedItems(*where, *items);
     return items;
   }
 

@@ -48,6 +48,20 @@ typedef OOFCanvas::Coord CanvasCoord;
   $target = $source->pythonObject();
 }
 
+// Convert a std::vector<CanvasItem*> to a Python list.
+%typemap(python, out) CanvasItemList* {
+  // typemap(python, out) CanvasItemList*
+  CanvasItemList::size_type sz = $source->size();
+  $target = PyList_New((Py_ssize_t) sz);
+  for(std::vector<CanvasItem*>::size_type i=0; i<sz; i++) {
+    // pythonObject returns a new reference and PyList_SET_ITEM steals it
+    PyObject *item = (*$source)[i]->pythonObject();
+    if(!item)
+      return nullptr;
+    PyList_SET_ITEM($target, (Py_ssize_t) i, item);
+  }
+}
+
 %typemap(python, out) string* {
   // typemap(python, out) string*
   $target = PyString_FromString($source->c_str());
@@ -264,24 +278,24 @@ private:
   // the layer.
   ~CanvasItem();
 public:
-  void drawBoundingBox(double, Color&);
+  void drawBoundingBox(double, Color);
 };
 
 class CanvasShape : public CanvasItem {
 public:
   void setLineWidth(double);
   void setLineWidthInPixels(double);
-  void setLineColor(Color&);
+  void setLineColor(Color);
   void setLineJoin(CairoLineJoin);
   void setLineCap(CairoLineCap);
   void setDash(CanvasDoubleVec*, int); 
   void setDashInPixels(CanvasDoubleVec*, int);
-  void setDashColor(Color&);
+  void setDashColor(Color);
 };
 
 class CanvasFillableShape : public CanvasShape {
 public:
-  void setFillColor(Color&);
+  void setFillColor(Color);
 };
 
 class CanvasRectangle : public CanvasFillableShape {
@@ -445,25 +459,6 @@ public:
   }
 };
 
-class CanvasItemList {
-  // CanvasItemList is just a typedef for std::vector<CanvasItem*>,
-  // but swig doesn't need to know that.
-public:
-  ~CanvasItemList();
-  %addmethods {
-    int __len__() { return self->size(); }
-    %new CanvasItemListIterator *getiter() {
-      return new CanvasItemListIterator(self);
-    }
-  }
-};
-
-class CanvasItemListIterator {
-public:
-  CanvasItem *next_();
-  bool done();
-};
-
 class OffScreenCanvas {
 public:
   OffScreenCanvas(double);
@@ -484,8 +479,8 @@ public:
   double getPixelsPerUnit();
   void setAntialias(bool);
   void setMargin(double);
-  void setBackgroundColor(double, double, double);
-  %name(clickedItems) %new CanvasItemList* clickedItems_new(double, double);
+  void setBackgroundColor(Color);
+  %name(clickedItems) %new CanvasItemList* clickedItems_new(CanvasCoord*);
   %name(allItems) %new CanvasItemList* allItems_new();
   bool saveAsPDF(char*, int, bool);
   bool saveAsPNG(char*, int, bool);

@@ -11,35 +11,8 @@
 # This file is included verbatim into the swig output for
 # oofcanvas.swg.
 
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
 CanvasImage.newBlankImage = staticmethod(CanvasImage_newBlankImage)
 CanvasImage.newFromPNGFile = staticmethod(CanvasImage_newFromPNGFile)
 CanvasImage.newFromImageMagickFile = \
     staticmethod(CanvasImage_newFromImageMagickFile)
 
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-# CanvasItemListIterator.__next__ and CanvasItemList.__iter__ can't
-# quite do all that they need to do in the swigged versions of the
-# underlying C++ methods.
-
-# CanvasItemListIterator needs to be able to raise StopIteration.
-def _CanvasItemListIterator__next__(self):
-    if self.done():
-        raise StopIteration
-    return self.next_();
-
-CanvasItemListIteratorPtr.__next__ =_CanvasItemListIterator__next__ # Python3
-CanvasItemListIteratorPtr.next = _CanvasItemListIterator__next__ # Python2
-
-# CanvasItemList.__iter__ needs to keep a reference to the list in the
-# iterator, so that the C++ std::vector won't be deleted before the
-# iterator is.
-
-def _CanvasItemList__iter__(self):
-    iterator = self.getiter();
-    iterator.listref = self
-    return iterator
-
-CanvasItemListPtr.__iter__ = _CanvasItemList__iter__

@@ -27,7 +27,10 @@ namespace OOFCanvas {
   CanvasItem::~CanvasItem() {}
 
   const std::string &CanvasItem::modulename() const {
-    static const std::string name("oofcanvas");
+    // TODO GTK3: We need to use something other than the OOF2
+    // pythonexportable if OOFCanvas is going to be usable outside of
+    // OOF2.  This module name can't be hard coded.
+    static const std::string name("ooflib.SWIG.common.IO.OOFCANVAS.oofcanvas");
     return name;
   }
 

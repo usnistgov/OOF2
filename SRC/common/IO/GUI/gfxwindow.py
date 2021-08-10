@@ -43,6 +43,11 @@ from gi.repository import GObject
 from gi.repository import Gtk
 import threading
 
+# Import this function separately because it's needed in a function
+# that has an argument named 'color', and the argument name can't be
+# changed easily because it's a menu parameter.
+from ooflib.common.color import canvasColor
+
 # during_callback() is called (by CanvasOutput.show()) only in
 # non-threaded mode, so we don't worry about the thread-safety of a
 # global variable here.
@@ -903,9 +908,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         try:
             ghostgfxwindow.GhostGfxWindow.bgColor(self, menuitem, color)
             self.oofcanvas.setBackgroundColor(
-                color.getRed(), color.getGreen(), color.getBlue())
+                canvasColor(color))
             self.contourmapdata.canvas.setBackgroundColor(
-                color.getRed(), color.getGreen(), color.getBlue())
+                canvasColor(color))
             mainthread.runBlock(self.oofcanvas.draw)
             mainthread.runBlock(self.contourmapdata.canvas.draw)
         finally:

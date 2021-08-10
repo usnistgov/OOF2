@@ -95,7 +95,7 @@ namespace OOFCanvas {
 
     bool empty() const;		// Is anything drawn?
 
-    void setBackgroundColor(double, double, double);
+    void setBackgroundColor(const Color&);
 
     CanvasLayer *newLayer(const std::string&);
     void deleteLayer(CanvasLayer*);
@@ -126,11 +126,11 @@ namespace OOFCanvas {
     bool saveRegionAsPNG(const std::string &filename, int, bool,
 			 const Coord*, const Coord*);
 
-    std::vector<CanvasItem*> clickedItems(double, double) const;
+    std::vector<CanvasItem*> clickedItems(const Coord&) const;
     std::vector<CanvasItem*> allItems() const;
 
-    // Versions for swig return a new instance.
-    std::vector<CanvasItem*> *clickedItems_new(double, double) const;
+    // Versions for swig return a new instance and need a pointer argument.
+    std::vector<CanvasItem*> *clickedItems_new(const Coord*) const;
     std::vector<CanvasItem*> *allItems_new() const;
 
     friend class CanvasLayer;

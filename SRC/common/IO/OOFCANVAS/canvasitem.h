@@ -99,21 +99,7 @@ namespace OOFCanvas {
 
   std::ostream &operator<<(std::ostream&, const CanvasItem&);
 
-  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-  class CanvasItemListIterator {
-  private:
-    std::vector<CanvasItem*>::iterator end;
-    std::vector<CanvasItem*>::iterator iter;
-  public:
-    CanvasItemListIterator(std::vector<CanvasItem*> *list)
-      : end(list->end()),
-	iter(list->begin())
-    {}
-    bool done() { return iter == end; }
-    CanvasItem *next_() { assert(!done()); return *iter++; }
-  };
-};
+};				// namespace OOFCanvas
 
 #endif // OOFCANVASITEM_H
 
