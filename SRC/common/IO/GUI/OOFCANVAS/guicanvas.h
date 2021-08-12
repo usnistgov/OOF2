@@ -139,7 +139,7 @@ namespace OOFCanvas {
     // Second argument to setMouseCallback is extra data to be passed
     // through to the callback function.    
     void setMouseCallback(MouseCallback, void*);
-    void setResizeCallback();
+    void setResizeCallback(ResizeCallback, void*);
 
     // gtk() is not exported to Python, since the GtkWidget* is not a
     // properly wrapped PyGTK object.
@@ -175,7 +175,7 @@ namespace OOFCanvas {
   };
 #endif	// OOFCANVAS_USE_PYTHON
 
-  void initializePyGTK();
+  // void initializePyGTK();
 
 };				// namespace OOFCanvas
 

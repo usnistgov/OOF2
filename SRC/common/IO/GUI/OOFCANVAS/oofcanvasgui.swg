@@ -124,6 +124,6 @@ public:
   void removeRubberBand();
 };
 
-void initializePyGTK();
+//void initializePyGTK();
 
 #endif // OOFGUICANVAS_SWG

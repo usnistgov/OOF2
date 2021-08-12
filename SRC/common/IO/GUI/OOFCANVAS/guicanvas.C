@@ -555,6 +555,11 @@ namespace OOFCanvas {
     mouseCallbackData = data;
   }
 
+  void Canvas::setResizeCallback(ResizeCallback rscb, void *data) {
+    resizeCallback = rscb;
+    resizeCallbackData = data;
+  }
+
   void Canvas::doCallback(const std::string &eventtype, const Coord &userpt,
 			  int button, bool shift, bool ctrl)
   {
@@ -757,23 +762,23 @@ namespace OOFCanvas {
     }
   }
 
-  void initializePyGTK() {
-    static bool initialized = false;
-    if(!initialized) {
-      initialized = true;
-      gtk_init(0, nullptr);
-      PyGILState_STATE pystate = PyGILState_Ensure();
-      try {
-	if(!pygobject_init(-1, -1, -1))
-	  throw "Cannot initialize pygobject!";
-      }
-      catch (...) {
-	PyGILState_Release(pystate);
-	throw;
-      }
-      PyGILState_Release(pystate);
-    }
-  }
+  // void initializePyGTK() {
+  //   static bool initialized = false;
+  //   if(!initialized) {
+  //     initialized = true;
+  //     gtk_init(0, nullptr);
+  //     PyGILState_STATE pystate = PyGILState_Ensure();
+  //     try {
+  // 	if(!pygobject_init(-1, -1, -1))
+  // 	  throw "Cannot initialize pygobject!";
+  //     }
+  //     catch (...) {
+  // 	PyGILState_Release(pystate);
+  // 	throw;
+  //     }
+  //     PyGILState_Release(pystate);
+  //   }
+  // }
 
 #endif // OOFCANVAS_USE_PYTHON
 
