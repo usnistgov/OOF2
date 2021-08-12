@@ -33,7 +33,8 @@ namespace OOFCanvas {
     void findBoundingBox_();
     Rectangle pixelBBox;
   public:
-    CanvasText(double, double, const std::string &text);
+    CanvasText(const Coord&, const std::string &text);
+    CanvasText(const Coord*, const std::string &text);
     ~CanvasText();
     virtual const std::string &classname() const;
     void setFillColor(const Color&);

@@ -213,7 +213,7 @@ class PlainContourDisplay(ContourDisplay):
                             segs.setLineWidthInPixels(self.width)
                             segs.setLineColor(clr)
                             for edge in curve.edges():
-                                segs.addSegmentPoints(edge.startpt, edge.endpt)
+                                segs.addSegment(edge.startpt, edge.endpt)
                             self.canvaslayer.addItem(segs)
                 ecount += 1
                 prog.setFraction((1.*ecount)/mesh.nelements())
@@ -243,8 +243,8 @@ class PlainContourDisplay(ContourDisplay):
 
                 for lvl in self.contour_levels:
                     r_lvl = lvl - self.contour_min
-                    segs.addSegmentPoints(primitives.Point(0.0, r_lvl),
-                                          primitives.Point(width, r_lvl))
+                    segs.addSegment(primitives.Point(0.0, r_lvl),
+                                    primitives.Point(width, r_lvl))
                 cmaplayer.addItem(segs)
         finally:
             self.lock.release()
@@ -393,7 +393,8 @@ class FilledContourDisplay(ContourDisplay):
                     r_low = low-self.contour_min
                     r_high = high-self.contour_min
 
-                    rect = oofcanvas.CanvasRectangle(0, r_low, width, r_high)
+                    rect = oofcanvas.CanvasRectangle((0, r_low),
+                                                     (width, r_high))
                     # In the collapsed case, height can be zero.  This is
                     # not hugely informative, but should be handled without
                     # crashing.

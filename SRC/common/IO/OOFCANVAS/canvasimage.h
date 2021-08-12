@@ -39,7 +39,7 @@ namespace OOFCanvas {
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
     void setUp(Cairo::RefPtr<Cairo::ImageSurface>,
 	       double, double);	// displayed size
-    void setSurface(Cairo::RefPtr<Cairo::ImageSurface>, int);
+    void setSurface(Cairo::RefPtr<Cairo::ImageSurface>, const ICoord&);
   public:
     CanvasImage(const Coord &pos, const Coord &size, const ICoord &npixels);
     virtual const std::string &classname() const;
@@ -48,34 +48,51 @@ namespace OOFCanvas {
 
     virtual void pixelExtents(double&, double&, double&, double&) const;
 
-    static CanvasImage *newBlankImage(double, double, // position
-				 int, int,	 // no. of pixels
-				 double, double, // displayed size
-				 double, double, double, double); //color,alpha
+    static CanvasImage *newBlankImage(
+			      const Coord&, // position
+			      const ICoord&,// no. of pixels
+			      const Coord&, // displayed size
+			      const Color&);
 
-    static CanvasImage *newFromPNGFile(double, double,	   // position
+    static CanvasImage *newFromPNGFile(const Coord&,	   // position
 				       const std::string&, // filename
-				       double, double);	   // displayed size
-#ifdef OOFCANVAS_USE_IMAGEMAGICK
-    static CanvasImage *newFromImageMagickFile(double, double, // position
-					       const std::string&, // filename
-					       double, double);	// disp. size
+				       const Coord&);	   // displayed size
 
-    static CanvasImage *newFromImageMagick(double, double,	// position
+    // versions with pointer args are used from python
+    static CanvasImage *newBlankImage(
+			      const Coord*, // position
+			      const ICoord*,	 // no. of pixels
+			      const Coord*, // displayed size
+			      const Color&);
+
+    static CanvasImage *newFromPNGFile(const Coord*,	   // position
+				       const std::string&, // filename
+				       const Coord*);	   // displayed size
+    
+#ifdef OOFCANVAS_USE_IMAGEMAGICK
+    static CanvasImage *newFromImageMagickFile(const Coord&, // position
+					       const std::string&, // filename
+					       const Coord&); // disp. size
+
+    static CanvasImage *newFromImageMagickFile(const Coord*, // position
+					       const std::string&, // filename
+					       const Coord*); // disp. size
+    
+    static CanvasImage *newFromImageMagick(const Coord&,	// position
 					   Magick::Image,
-					   double, double); // displayed size
+					   const Coord&); // displayed size
 #endif // OOFCANVAS_USE_IMAGEMAGICK
 
-    void setPixelSize(); 
+    void setPixelSize(); 	// TODO GTK3: get rid of this
     void setDrawIndividualPixels() { drawPixelByPixel = true; }
-    void set(int x, int y, double r, double g, double b);
-    void set(int x, int y, double r, double g, double b, double a);
-    void set(int x, int y, unsigned char r, unsigned char g, unsigned char b);
-    void set(int x, int y, unsigned char r, unsigned char g, unsigned char b,
-	     unsigned char a);
+
+    // set the color of a single pixel
+    void set(const ICoord&, const Color&);
+    Color get(const ICoord&) const;
+
+    // overall opacity
     void setOpacity(double alpha) { opacity = alpha; }
 
-    Color get(int x, int y) const;
   };
   
   std::ostream &operator<<(std::ostream&, const CanvasImage&);

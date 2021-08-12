@@ -16,14 +16,14 @@
 
 namespace OOFCanvas {
 
-  CanvasSegment::CanvasSegment(double x0, double y0, double x1, double y1)
-    : CanvasShape(Rectangle(x0, y0, x1, y1)),
-      segment(x0, y0, x1, y1)
-  {}
-
   CanvasSegment::CanvasSegment(const Coord &p0, const Coord &p1)
     : CanvasShape(Rectangle(p0, p1)),
       segment(p0, p1)
+  {}
+
+  CanvasSegment::CanvasSegment(const Coord *p0, const Coord *p1)
+    : CanvasShape(Rectangle(*p0, *p1)),
+      segment(*p0, *p1)
   {}
 
   const std::string &CanvasSegment::classname() const {

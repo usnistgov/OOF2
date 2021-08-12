@@ -28,9 +28,9 @@ namespace OOFCanvas {
   // used unless setFont is called, and setFont computes the actual
   // bounding box.
 
-  CanvasText::CanvasText(double x, double y, const std::string &txt)
+  CanvasText::CanvasText(const Coord &location, const std::string &txt)
     : CanvasItem(Rectangle()),
-      location(x, y),
+      location(location),
       text(txt),
       angle(0),
       color(black),
@@ -38,6 +38,16 @@ namespace OOFCanvas {
       sizeInPixels(false)
   {}
 
+  CanvasText::CanvasText(const Coord *location, const std::string &txt)
+    : CanvasItem(Rectangle()),
+      location(*location),
+      text(txt),
+      angle(0),
+      color(black),
+      fontName(""),
+      sizeInPixels(false)
+  {}
+  
   CanvasText::~CanvasText() {}
     
 
@@ -143,8 +153,6 @@ namespace OOFCanvas {
     // Compute bounding box in the text's coordinates
     PangoLayout *layout = getLayout(ctxt);
     try {
-      double baseline = pango_layout_get_baseline(layout)/double(PANGO_SCALE);
-    
       PangoRectangle pango_rect;
       pango_layout_get_extents(layout, nullptr, &pango_rect);
       bb = Rectangle(pango_rect);

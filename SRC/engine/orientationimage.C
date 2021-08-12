@@ -10,10 +10,10 @@
  */
 
 #include <oofconfig.h>
+#include "common/IO/OOFCANVAS/oofcanvas.h"
 #include "common/array.h"
 #include "common/cmicrostructure.h"
 #include "common/coord.h"
-#include "common/IO/OOFCANVAS/canvasimage.h"
 #include "engine/angle2color.h"
 #include "engine/material.h"
 #include "engine/ooferror.h"
@@ -47,10 +47,10 @@ OOFCanvas::CanvasImage *OrientationImage::makeCanvasImage(const Coord *position,
   const
 {
   OOFCanvas::CanvasImage *img = OOFCanvas::CanvasImage::newBlankImage(
-					 (*position)[0], (*position)[1],
-					 sizeInPixels()[0], sizeInPixels()[1],
-					 (*dispsize)[0], (*dispsize)[1],
-					 0.0, 0.0, 0.0, 1.0);
+					      OOFCANVAS_COORD(*position),
+					      OOFCANVAS_ICOORD(sizeInPixels()),
+					      OOFCANVAS_COORD(*dispsize),
+					      OOFCanvas::Color());
   img->setDrawIndividualPixels();
   const Array<int> &pxls = *microstructure->getCategoryMapRO();
   int ymax = sizeInPixels()[1] - 1;
@@ -71,8 +71,7 @@ OOFCanvas::CanvasImage *OrientationImage::makeCanvasImage(const Coord *position,
     else {			// no material
       color = noOrientation;
     }
-    img->set(where[0], ymax-where[1],
-	     color.getRed(), color.getGreen(), color.getBlue());
+    img->set(OOFCanvas::ICoord(where[0], ymax-where[1]), canvasColor(color));
   }
   return img;
 }

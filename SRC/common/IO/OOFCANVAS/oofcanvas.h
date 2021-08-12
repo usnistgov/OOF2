@@ -25,4 +25,10 @@
 #include "canvassegments.h"
 #include "canvastext.h"
 
+// Handy macros to convert different coordinate classes to OOFCanvas
+// coordinates, when passing arguments to OOFCanvas methods.
+
+#define OOFCANVAS_COORD(obj) OOFCanvas::Coord((obj)[0], (obj)[1])
+#define OOFCANVAS_ICOORD(obj) OOFCanvas::ICoord((obj)[0], (obj)[1])
+
 #endif // ALL_OOFCANVAS_H

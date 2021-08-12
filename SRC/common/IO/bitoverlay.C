@@ -108,18 +108,16 @@ OOFCanvas::CanvasImage *BitmapOverlay::makeCanvasImage(const Coord *position,
 {
   using OOFCanvas::CanvasImage;
   CanvasImage *img = CanvasImage::newBlankImage(
-			       (*position)[0], (*position)[1],
-			       sizeInPixels_[0], sizeInPixels_[1],
-			       (*size)[0], (*size)[1],
-			       bg.getRed(), bg.getGreen(), bg.getBlue(),
-			       0.0 /* bg alpha*/ );
+				OOFCANVAS_COORD(*position),
+				OOFCANVAS_ICOORD(sizeInPixels_),
+				OOFCANVAS_COORD(*size),
+				canvasColor(bg).opacity(0.0));
   img->setDrawIndividualPixels();
   int ymax = sizeInPixels_[1] - 1;
   for(Array<bool>::const_iterator i=data.begin(); i!=data.end(); ++i) {
     if(data[i]) {
       ICoord p(i.coord());
-      img->set(p[0], ymax-p[1],
-	       fg.getRed(), fg.getGreen(), fg.getBlue(), fg.getAlpha());
+      img->set(OOFCanvas::ICoord(p[0], ymax-p[1]), canvasColor(fg));
     }
   }
   return img;

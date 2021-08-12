@@ -23,8 +23,8 @@ namespace OOFCanvas {
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
   public:
-    CanvasCircle(double cx, double cy, double r);
     CanvasCircle(const Coord &c, double r);
+    CanvasCircle(const Coord *c, double r);
     virtual const std::string &classname() const;
     virtual void setLineWidth(double);
     friend std::ostream &operator<<(std::ostream&, const CanvasCircle&);
@@ -45,8 +45,8 @@ namespace OOFCanvas {
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
     void setup();
   public:
-    CanvasEllipse(double cx, double cy, double r0, double r1, double angle);
     CanvasEllipse(const Coord &c, const Coord &r, double angle);
+    CanvasEllipse(const Coord *c, const Coord *r, double angle);
     virtual const std::string &classname() const;
     virtual void setLineWidth(double);
     friend std::ostream &operator<<(std::ostream&, const CanvasEllipse&);
@@ -65,8 +65,8 @@ namespace OOFCanvas {
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
   public:
-    CanvasDot(double cx, double cy, double r);
     CanvasDot(const Coord &c, double r);
+    CanvasDot(const Coord *c, double r);
     virtual const std::string &classname() const;
     friend std::ostream &operator<<(std::ostream&, const CanvasDot&);
     virtual std::string print() const;

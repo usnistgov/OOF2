@@ -42,7 +42,7 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
                 for s in skel.segmentselection.retrieve():
                     pt0 = s.nodes()[0].position()
                     pt1 = s.nodes()[1].position()
-                    segs.addSegment(pt0.x, pt0.y, pt1.x, pt1.y)
+                    segs.addSegment(pt0, pt1)
                 self.canvaslayer.addItem(segs)
                 # Then draw with the given color and width
                 segs = oofcanvas.CanvasSegments()
@@ -51,7 +51,7 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
                 for s in skel.segmentselection.retrieve():
                     pt0 = s.nodes()[0].position()
                     pt1 = s.nodes()[1].position()
-                    segs.addSegment(pt0.x, pt0.y, pt1.x, pt1.y)
+                    segs.addSegment(pt0, pt1)
                 self.canvaslayer.addItem(segs)
 
     def getTimeStamp(self, gfxwindow):

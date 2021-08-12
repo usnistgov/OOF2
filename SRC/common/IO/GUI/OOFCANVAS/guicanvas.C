@@ -182,11 +182,11 @@ namespace OOFCanvas {
 
     draw();
   }
-  
-  void GUICanvasBase::zoomAbout(double x, double y, double factor) {
-    zoomAbout(Coord(x, y), factor);
-  };
 
+  void GUICanvasBase::zoomAbout(const Coord *fixedPt, double factor) {
+    zoomAbout(*fixedPt, factor);
+  }
+  
   void GUICanvasBase::zoom(double factor) {
     int w2 = 0.5*widgetWidth();
     int h2 = 0.5*widgetHeight();

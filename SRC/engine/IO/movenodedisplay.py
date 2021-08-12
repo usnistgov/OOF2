@@ -30,9 +30,7 @@ class MoveNodeDisplay(display.DisplayMethod):
         toolbox = gfxwindow.getToolboxByName("Move_Nodes")
         node = toolbox.selectednode.node()
         if node and toolbox.selectednode.visible:
-            dot = oofcanvas.CanvasDot(node.position().x,
-                                      node.position().y,
-                                      self.size)
+            dot = oofcanvas.CanvasDot(node.position(), self.size)
             dot.setFillColor(color.canvasColor(self.color))
             self.canvaslayer.addItem(dot)
 

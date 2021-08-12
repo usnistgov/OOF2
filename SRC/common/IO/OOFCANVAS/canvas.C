@@ -280,8 +280,10 @@ namespace OOFCanvas {
     return backingLayer.pixel2user(pt);
   }
 
-  Coord *OffScreenCanvas::pixel2user(double px, double py) const {
-    return backingLayer.pixel2user(px, py);
+  // This version is called from python.
+  
+  Coord *OffScreenCanvas::pixel2user(int px, int py) const {
+    return new Coord(backingLayer.pixel2user(ICoord(px, py)));
   }
 
   double OffScreenCanvas::user2pixel(double d) const {

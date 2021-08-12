@@ -139,7 +139,8 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
                     # otherwise, the canvas bounds are wrong.
                     r_low = low-self.contour_min
                     r_high = high-self.contour_min
-                    rect = oofcanvas.CanvasRectangle(0, r_low, width, r_high)
+                    rect = oofcanvas.CanvasRectangle((0, r_low),
+                                                     (width, r_high))
                     # In the collapsed case, height can be zero.  This is
                     # not hugely informative, but should be handled without
                     # crashing.

@@ -16,16 +16,15 @@
 
 namespace OOFCanvas {
 
-  CanvasCircle::CanvasCircle(double cx, double cy, double r)
-    : CanvasFillableShape(Rectangle(cx-r, cy-r, cx+r, cy+r)),
-      center(cx, cy),
-      radius(r)
-  {}
-
-
   CanvasCircle::CanvasCircle(const Coord &c, double r)
     : CanvasFillableShape(Rectangle(c-Coord(r,r), c+Coord(r,r))),
       center(c),
+      radius(r)
+  {}
+
+  CanvasCircle::CanvasCircle(const Coord *c, double r)
+    : CanvasFillableShape(Rectangle(*c-Coord(r,r), *c+Coord(r,r))),
+      center(*c),
       radius(r)
   {}
 
@@ -89,19 +88,19 @@ namespace OOFCanvas {
     return Rectangle(cx-dx, cy-dy, cx+dx, cy+dy);
   }
 
-  CanvasEllipse::CanvasEllipse(double cx, double cy, double r0, double r1,
-			       double angle_degrees)
-    : CanvasFillableShape(ellipseBBox(cx, cy, r0, r1, angle_degrees)),
-      center(cx, cy),
-      r0(r0), r1(r1),
-      angle(M_PI*angle_degrees/180.)
-  {}
-
   CanvasEllipse::CanvasEllipse(const Coord &c, const Coord &r,
 			       double angle_degrees)
     : CanvasFillableShape(ellipseBBox(c.x, c.y, r.x, r.y, angle_degrees)),
       center(c),
       r0(r.x), r1(r.y),
+      angle(M_PI*angle_degrees/180.)
+  {}
+
+  CanvasEllipse::CanvasEllipse(const Coord *c, const Coord *r,
+			       double angle_degrees)
+    : CanvasFillableShape(ellipseBBox(c->x, c->y, r->x, r->y, angle_degrees)),
+      center(*c),
+      r0(r->x), r1(r->y),
       angle(M_PI*angle_degrees/180.)
   {}
 
@@ -203,16 +202,16 @@ namespace OOFCanvas {
 
   // A CanvasDot is a circle that has a fixed size in device units.
   // Its "bare" bounding box is therefore just a point.
-  
-  CanvasDot::CanvasDot(double cx, double cy, double r)
-    : CanvasFillableShape(Rectangle(cx, cy, cx, cy)),
-      center(cx, cy),
-      radius(r)
-  {}
 
   CanvasDot::CanvasDot(const Coord &c, double r)
     : CanvasFillableShape(Rectangle(c,c)),
       center(c),
+      radius(r)
+  {}
+
+  CanvasDot::CanvasDot(const Coord *c, double r)
+    : CanvasFillableShape(Rectangle(*c, *c)),
+      center(*c),
       radius(r)
   {}
 

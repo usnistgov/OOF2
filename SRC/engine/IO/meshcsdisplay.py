@@ -62,8 +62,7 @@ class MeshCrossSectionDisplay(display.DisplayMethod):
             segs.setLineWidthInPixels(self.linewidth)
             segs.setLineColor(color.canvasColor(self.color))
             for seg in segments:
-                segs.addSegment(seg.startpt.x, seg.startpt.y,
-                                seg.endpt.x, seg.endpt.y)
+                segs.addSegment(seg.startpt, seg.endpt)
             self.canvaslayer.addItem(segs)
             
 

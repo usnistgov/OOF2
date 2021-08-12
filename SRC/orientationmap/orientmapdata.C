@@ -11,6 +11,7 @@
 
 #include <oofconfig.h>
 #include "common/IO/OOFCANVAS/canvasimage.h"
+#include "common/IO/OOFCANVAS/oofcanvas.h"
 #include "common/ccolor.h"
 #include "engine/angle2color.h"
 #include "orientationmap/orientmapdata.h"
@@ -86,19 +87,17 @@ OOFCanvas::CanvasImage *OrientMap::makeCanvasImage(
   const
 {
   OOFCanvas::CanvasImage *img = OOFCanvas::CanvasImage::newBlankImage(
-					 (*position)[0], (*position)[1],
-					 sizeInPixels()[0], sizeInPixels()[1],
-					 (*dispsize)[0], (*dispsize)[1],
-					 0.0, 0.0, 0.0, 1.0);
+					      OOFCANVAS_COORD(*position),
+					      OOFCANVAS_ICOORD(sizeInPixels()),
+					      OOFCANVAS_COORD(*dispsize),
+					      OOFCanvas::Color());
   img->setDrawIndividualPixels();
   int ymax = sizeInPixels()[1] - 1;
   for(Array<COrientABG>::const_iterator i=angles.begin(); i!=angles.end(); ++i)
     {
       const CColor color = (*colorscheme)(angles[i]);
       ICoord pt(i.coord());
-      img->set(pt[0], ymax-pt[1],
-	       color.getRed(), color.getGreen(), color.getBlue(),
-	       color.getAlpha());
+      img->set(OOFCanvas::ICoord(pt[0], ymax-pt[1]), canvasColor(color));
     }
   return img;
 }

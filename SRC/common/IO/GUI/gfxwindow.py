@@ -599,8 +599,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                 if level is not None:
                     width=(c_max-c_min)/self.settings.aspectratio
                     polygon = oofcanvas.CanvasRectangle(
-                        0, lvls[level]-c_min,
-                        width, lvls[level+1]-c_min)
+                        (0, lvls[level]-c_min),
+                        (width, lvls[level+1]-c_min))
                     clr = self.settings.contourmap_markercolor
                     polygon.setLineColor(color.canvasColor(
                         self.settings.contourmap_markercolor))
@@ -810,8 +810,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         try:
             if self.oofcanvas and not self.oofcanvas.empty():
                 mainthread.runBlock(self.oofcanvas.zoomAbout,
-                                    (focus.x, focus.y,
-                                     self.settings.zoomfactor))
+                                    (focus, self.settings.zoomfactor))
                 self.zoomed = 1
         finally:
             self.releaseGfxLock()
@@ -831,8 +830,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         try:
             if self.oofcanvas and not self.oofcanvas.empty():
                 mainthread.runBlock(self.oofcanvas.zoomAbout,
-                                    (focus.x, focus.y,
-                                     1./self.settings.zoomfactor))
+                                    (focus, 1./self.settings.zoomfactor))
                 self.zoomed = 1
         finally:
             self.releaseGfxLock()

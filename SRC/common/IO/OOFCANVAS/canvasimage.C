@@ -42,97 +42,31 @@ namespace OOFCanvas {
   // The CanvasImage::set methods set the color and opacity of a
   // single pixel.  They probably don't work correctly unless the
   // Cairo image format is FORMAT_ARGB32.
+
+  void CanvasImage::set(const ICoord &pt, const Color &color) {
+    assert(buffer != nullptr);
+    assert(stride != 0);
+    unsigned char *addr = buffer + pt.y*stride + 4*pt.x;
+    if(littleEndian) {
+      *addr++ = color.blue*255;
+      *addr++ = color.green*255;
+      *addr++ = color.red*255;
+      *addr   = color.alpha*255;
+    }
+    else {
+      *addr++ = color.alpha*255;
+      *addr++ = color.red*255;
+      *addr++ = color.green*255;
+      *addr   = color.blue*255;
+    }
+    imageSurface->mark_dirty();
+    modified();
+  }
   
-  void CanvasImage::set(int x, int y, double r, double g, double b) {
+  Color CanvasImage::get(const ICoord &pt) const {
     assert(buffer != nullptr);
     assert(stride != 0);
-    unsigned char *addr = buffer + y*stride + 4*x;
-    if(littleEndian) {
-      *addr++ = b*255;
-      *addr++ = g*255;
-      *addr++ = r*255;
-      *addr = 255;
-    }
-    else {
-      *addr++ = 255;	// alpha
-      *addr++ = r*255;
-      *addr++ = g*255;
-      *addr   = b*255;
-    }
-    imageSurface->mark_dirty();
-    modified();
-  }
-
-  void CanvasImage::set(int x, int y, double r, double g, double b, double a) {
-    assert(buffer != nullptr);
-    assert(stride != 0);
-    unsigned char *addr = buffer + y*stride + 4*x;
-    if(littleEndian) {
-      *addr++ = b*255;
-      *addr++ = g*255;
-      *addr++ = r*255;
-      *addr   = a*255;
-    }
-    else {
-      *addr++ = a*255;	// alpha
-      *addr++ = r*255;
-      *addr++ = g*255;
-      *addr   = b*255;
-    }
-    imageSurface->mark_dirty();
-    modified();
-  }
-
-
-  void CanvasImage::set(int x, int y,
-			unsigned char r, unsigned char g, unsigned char b)
-  {
-    assert(buffer != nullptr);
-    assert(stride != 0);
-    unsigned char *addr = buffer + y*stride + 4*x;
-    if(littleEndian) {
-      *addr++ = b;
-      *addr++ = g;
-      *addr++ = r;
-      *addr = 255;
-    }
-    else {
-      *addr++ = 255;
-      *addr++ = r;
-      *addr++ = g;
-      *addr   = b;
-    }
-    imageSurface->mark_dirty();
-    modified();
-  }
-
-  void CanvasImage::set(int x, int y,
-			unsigned char r, unsigned char g, unsigned char b,
-			unsigned char a)
-  {
-    assert(buffer != nullptr);
-    assert(stride != 0);
-    unsigned char *addr = buffer + y*stride + 4*x;
-    if(littleEndian) {
-      *addr++ = b;
-      *addr++ = g;
-      *addr++ = r;
-      *addr   = a;
-    }
-    else {
-      *addr++ = a;
-      *addr++ = r;
-      *addr++ = g;
-      *addr   = b;
-    }
-    imageSurface->mark_dirty();
-    modified();
-  }
-
-  Color CanvasImage::get(int x, int y) const {
-    assert(buffer != nullptr);
-    assert(stride != 0);
-    unsigned char *addr = buffer + y*stride + 4*x;
+    unsigned char *addr = buffer + pt.y*stride + 4*pt.x;
     unsigned char r, g, b, a;
     if(littleEndian) {
       b = *addr++;
@@ -227,7 +161,7 @@ namespace OOFCanvas {
 
       for(unsigned int j=0; j<pixels.y; j++) {
 	for(unsigned int i=0; i<pixels.x; i++) {
-	  Color clr = get(i, pixels.y-j-1);
+	  Color clr = get(ICoord(i, pixels.y-j-1));
 	  clr.set(ctxt);
 	  ctxt->move_to(location.x + i*dx, location.y+j*dy);
 	  ctxt->rel_line_to(dx, 0);
@@ -242,6 +176,12 @@ namespace OOFCanvas {
     }
   }
 
+
+  // TODO GTK3: Instead of setting the display size in the
+  // constructor, treat it more like a line width and set it in a
+  // separate method, either setSize(Coord) or setSizeInPixels(Coord)
+  // [which will be confused with setting the image pixels...]
+  
   void CanvasImage::setPixelSize() {
     // Change from user units to pixel units.
     pixelScaling = true;
@@ -295,25 +235,23 @@ namespace OOFCanvas {
   // components, the actual value of that component is inferred from
   // the size in pixels, assuming that pixels are square.
 
-  static Coord imageSize(double width, double height,
-			 double pixWidth, double pixHeight)
-  {
-    if(width <= 0 && height <=0)
-      return Coord(pixWidth, pixHeight); // assume pixels are 1x1 
-    if(height <= 0)
-      return Coord(width, width*pixHeight/pixWidth); // assume square pixels
-    if(width <= 0)
-      return Coord(height*pixWidth/pixHeight, height); // assume square pixels
-    return Coord(width, height);
+  static Coord imageSize(const Coord &size, const ICoord &pixsize) {
+    if(size[0] <= 0 && size[1] <=0)
+      return Coord(pixsize[0], pixsize[1]); // assume pixels are 1x1 
+    if(size[1] <= 0)
+      return Coord(size[0], size[0]*pixsize[1]/pixsize[0]); // assume square
+    if(size[0] <= 0)
+      return Coord(size[1]*pixsize[0]/pixsize[1], size[1]); // assume square
+    return Coord(size[0], size[1]);
   }
 
   void CanvasImage::setSurface(Cairo::RefPtr<Cairo::ImageSurface> surf,
-			       int width)
+			       const ICoord &pixsize)
   {
     imageSurface = surf;
     buffer = surf->get_data();
     stride = Cairo::ImageSurface::format_stride_for_width(surf->get_format(),
-							  width);
+							  pixsize.x);
   }
 
   //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -322,26 +260,31 @@ namespace OOFCanvas {
 
   // static
   CanvasImage *CanvasImage::newBlankImage(
-			  double x, double y, // position
-			  int w, int h,	      // size in pixels of image data
-			  double width, double height, // size in display units
-			  double r, double g, double b, // color
-			  double a)			// opacity
+			  const Coord &position, // user coords
+			  const ICoord &pixsize, // size in pixels
+			  const Coord &size,  // size in user coords
+			  const Color &color)
   {
-    CanvasImage *canvasImage = new CanvasImage(Coord(x, y),
-					       imageSize(width, height, w, h),
-					       ICoord(w, h));
+    CanvasImage *canvasImage = new CanvasImage(position,
+					       imageSize(size, pixsize),
+					       pixsize);
     Cairo::RefPtr<Cairo::ImageSurface> surf =
-      Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
-    canvasImage->setSurface(surf, w);
+      Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, pixsize[0], pixsize[1]);
+    canvasImage->setSurface(surf, pixsize);
+
+    double r = color.red;
+    double g = color.green;
+    double b = color.blue;
+    double a = color.alpha;
 
     int stride = canvasImage->stride;
     unsigned char *buffer = canvasImage->buffer;
     if(littleEndian) {
-      for(int j=0; j<h; j++) {
+      for(int j=0; j<pixsize[1]; j++) {
 	unsigned char *rowaddr = buffer + j*stride;
-	for(int i=0; i<w; i++) {
+	for(int i=0; i<pixsize[0]; i++) {
 	  unsigned char *addr = rowaddr + 4*i;
+	  // byte order is BGRA
 	  *addr++ = b*255;
 	  *addr++ = g*255;
 	  *addr++ = r*255;
@@ -350,10 +293,11 @@ namespace OOFCanvas {
       }
     }
     else {			// big-endian
-      for(int j=0; j<h; j++) {
+      for(int j=0; j<pixsize[1]; j++) {
 	unsigned char *rowaddr = buffer + j*stride;
-	for(int i=0; i<w; i++) {
+	for(int i=0; i<pixsize[0]; i++) {
 	  unsigned char *addr = rowaddr + 4*i;
+	  // byte order is ARGB
 	  *addr++ = a*255;
 	  *addr++ = r*255;
 	  *addr++ = g*255;
@@ -366,50 +310,77 @@ namespace OOFCanvas {
     return canvasImage;
   }
 
+    // static
+  CanvasImage *CanvasImage::newBlankImage(
+			  const Coord *position, // user coords
+			  const ICoord *pixsize, // size in pixels
+			  const Coord *size,  // size in user coords
+			  const Color &color)
+  {
+    return newBlankImage(*position, *pixsize, *size, color);
+  }
+
   // static
-  CanvasImage *CanvasImage::newFromPNGFile(double x, double y,
+  CanvasImage *CanvasImage::newFromPNGFile(const Coord &position, // lowerleft
 					   const std::string &filename,
-					   double width, double height)
+					   const Coord &usersize)
   {
     // Read the file first, to get the size in pixels.
     Cairo::RefPtr<Cairo::ImageSurface> surf =
       Cairo::ImageSurface::create_from_png(filename);
-    int w = surf->get_width();	// pixel sizes
-    int h = surf->get_height();
-    CanvasImage *canvasImage = new CanvasImage(
-				       Coord(x,y),
-				       imageSize(width, height, w, h),
-				       ICoord(w, h));
-    canvasImage->setSurface(surf, w);
+    ICoord pixsize(surf->get_width(), surf->get_height());
+    CanvasImage *canvasImage = new CanvasImage(position,
+					       imageSize(usersize, pixsize),
+					       pixsize);
+    canvasImage->setSurface(surf, pixsize);
     return canvasImage;
+  }
+
+  // static
+  CanvasImage *CanvasImage::newFromPNGFile(const Coord *position, // lowerleft
+					   const std::string &filename,
+					   const Coord *usersize)
+  {
+    return newFromPNGFile(*position, filename, *usersize);
   }
 
 #ifdef OOFCANVAS_USE_IMAGEMAGICK
 
   // static
-  CanvasImage *CanvasImage::newFromImageMagickFile(double x, double y,
+  CanvasImage *CanvasImage::newFromImageMagickFile(const Coord &position,
 						   const std::string &filename,
-						   double width, double height)
+						   const Coord &usersize)
   {
     Magick::Image image;	// reference counted
     image.read(filename);
-    return CanvasImage::newFromImageMagick(x, y, image, width, height);
+    return CanvasImage::newFromImageMagick(position, image, usersize);
   }
 
   // static
-  CanvasImage *CanvasImage::newFromImageMagick(double x, double y,
+  CanvasImage *CanvasImage::newFromImageMagickFile(const Coord *position,
+						   const std::string &filename,
+						   const Coord *usersize)
+  {
+    return newFromImageMagickFile(*position, filename, *usersize);
+    
+  }
+
+  // static
+  CanvasImage *CanvasImage::newFromImageMagick(const Coord &position,
 					       Magick::Image image,
-					       double width, double height)
+					       const Coord &usersize)
   {
     Magick::Geometry sz = image.size();
-    int w = sz.width();
-    int h = sz.height();
-    CanvasImage *canvasImage = new CanvasImage(Coord(x,y),
-					       imageSize(width, height, w, h),
-					       ICoord(w, h));
+    ICoord pixsize(sz.width(), sz.height());
+    CanvasImage *canvasImage = new CanvasImage(position,
+					       imageSize(usersize, pixsize),
+					       pixsize);
+    int w = pixsize[0];
+    int h = pixsize[1];
+    
     Cairo::RefPtr<Cairo::ImageSurface> surf =
       Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
-    canvasImage->setSurface(surf, w);
+    canvasImage->setSurface(surf, pixsize);
 
     // Copy pixel data from ImageMagick to the Cairo buffer.
     // Cairo uses libpixman for image storage.  There is no
@@ -463,7 +434,7 @@ namespace OOFCanvas {
 
     return canvasImage;
   }
-  
+
 #endif // OOFCANVAS_USE_IMAGEMAGICK
   
 };				// namespace OOFCanvas

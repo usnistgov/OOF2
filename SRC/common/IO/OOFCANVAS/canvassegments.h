@@ -28,7 +28,6 @@ namespace OOFCanvas {
     CanvasSegments() : CanvasShape(Rectangle()) {}
     CanvasSegments(int n);
     virtual const std::string &classname() const;
-    void addSegment(double x0, double y0, double x1, double y1);
     void addSegment(const Coord&, const Coord&);
     void addSegment(const Coord *a, const Coord *b) { addSegment(*a, *b); }
     virtual void pixelExtents(double&, double&, double&, double&) const;
@@ -51,7 +50,6 @@ namespace OOFCanvas {
     CanvasCurve(int n);
     CanvasCurve(const std::vector<Coord>&);
     virtual const std::string &classname() const;
-    void addPoint(double, double);
     void addPoint(const Coord&);
     void addPoint(const Coord *p) { addPoint(*p); }
     void addPoints(const std::vector<Coord>*);

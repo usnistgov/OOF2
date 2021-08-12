@@ -39,12 +39,6 @@ namespace OOFCanvas {
     return name;
   }
 
-  void CanvasPolygon::addPoint(double x, double y) {
-    corners.emplace_back(x, y);
-    bbox.swallow(corners.back());
-    modified();
-  }
-
   void CanvasPolygon::addPoint(const Coord &pt) {
     corners.push_back(pt);
     bbox.swallow(pt);

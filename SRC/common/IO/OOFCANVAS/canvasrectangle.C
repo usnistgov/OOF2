@@ -15,17 +15,16 @@
 
 namespace OOFCanvas {
   
-  CanvasRectangle::CanvasRectangle(double xmin, double ymin,
-				   double xmax, double ymax)
-    : CanvasFillableShape(Rectangle(xmin, ymin, xmax, ymax)),
-      xmin(xmin), ymin(ymin),
-      xmax(xmax), ymax(ymax)
-  {}
-
   CanvasRectangle::CanvasRectangle(const Coord &p0, const Coord &p1)
     : CanvasFillableShape(Rectangle(p0, p1)),
       xmin(p0.x), ymin(p0.y),
       xmax(p1.x), ymax(p1.y)
+  {}
+
+  CanvasRectangle::CanvasRectangle(const Coord *p0, const Coord *p1)
+    : CanvasFillableShape(Rectangle(*p0, *p1)),
+      xmin(p0->x), ymin(p0->y),
+      xmax(p1->x), ymax(p1->y)
   {}
 
   const std::string &CanvasRectangle::classname() const {

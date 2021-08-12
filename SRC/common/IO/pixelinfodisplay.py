@@ -69,7 +69,7 @@ class PixelInfoDisplay(display.DisplayMethod):
             
     def drawPixel(self, pixel, microstructure):
         n0, n1, n2, n3 = self.getNodes(pixel, microstructure)
-        rect = oofcanvas.CanvasRectangle(n0.x, n0.y, n2.x, n2.y)
+        rect = oofcanvas.CanvasRectangle(n0, n2)
         rect.setLineColor(color.canvasColor(self.color))
         rect.setLineWidthInPixels(self.line_width)
         self.canvaslayer.addItem(rect)

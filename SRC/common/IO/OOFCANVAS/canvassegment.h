@@ -26,8 +26,8 @@ namespace OOFCanvas {
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
   public:
-    CanvasSegment(double x0, double y0, double x1, double y1);
     CanvasSegment(const Coord &p0, const Coord &p1);
+    CanvasSegment(const Coord *p0, const Coord *p1);
     virtual const std::string &classname() const;
     virtual void pixelExtents(double&, double&, double&, double&) const;
     friend class CanvasArrowhead;
@@ -59,7 +59,7 @@ namespace OOFCanvas {
     CanvasArrowhead(const CanvasSegment*, double position, double w, double l,
 		    bool rev);
     virtual const std::string &classname() const;
-    void setPixelSize();
+    void setPixelSize(); // TODO GTK3 -- replace w/ setSize(double), setSizeInPixels(double)  Remove sizes from ctor.
 
     virtual void pixelExtents(double&, double&, double&, double&) const;
 

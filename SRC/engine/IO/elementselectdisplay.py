@@ -35,9 +35,7 @@ class SkeletonElementSelectionDisplay(display.DisplayMethod):
             try:
                 for e in skel.elementselection.retrieve():
                     poly = oofcanvas.CanvasPolygon()
-                    for n in e.nodes:
-                        pt = n.position()
-                        poly.addPoint(pt.x, pt.y)
+                    poly.addPoints([n.position() for n in e.nodes])
                     poly.setFillColor(clr)
                     self.canvaslayer.addItem(poly)
             finally:

@@ -509,7 +509,7 @@ class PerimeterDisplay(MeshDisplayMethod):
                     if element.exterior(edge.startpt(), edge.endpt()):
                         pt0, pt1 = self.where.evaluate(femesh, [edge],
                                                        [[0.0, 1.0]])
-                        segs.addSegment(pt0[0], pt0[1], pt1[0], pt1[1])
+                        segs.addSegment(pt0, pt1)
             self.canvaslayer.addItem(segs)
         finally:
             themesh.releaseCachedData()
@@ -784,7 +784,7 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
                 for i in range(self.contourmaplevels):
                     low = i*delta
                     high = (i+1)*delta
-                    rect = oofcanvas.CanvasRectangle(0.0, low, width, high)
+                    rect = oofcanvas.CanvasRectangle((0.0, low), (width, high))
                     if height > 0:
                         clr = color.canvasColor(self.colormap(low/height))
                     else:

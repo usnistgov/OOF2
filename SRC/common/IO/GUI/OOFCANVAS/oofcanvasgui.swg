@@ -111,7 +111,7 @@ public:
   int widgetHeight();
   void show();
   void zoom(double);
-  void zoomAbout(double, double, double);
+  void zoomAbout(CanvasCoord*, double);
   void zoomToFill();
   void center();
   Rectangle visibleRegion();

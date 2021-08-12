@@ -80,6 +80,7 @@ namespace OOFCanvas {
     ICoord(int x, int y) : x(x), y(y) {}
     ICoord &operator+=(const ICoord &a) { x += a.x; y+= a.y; return *this; }
     ICoord &operator-=(const ICoord &a) { x -= a.x; y-= a.y; return *this; }
+    int operator[](int i) const { return i == 0 ? x : y; }
     ICoord operator*(int) const;
     Coord operator*(double) const;
     Coord operator/(double) const;

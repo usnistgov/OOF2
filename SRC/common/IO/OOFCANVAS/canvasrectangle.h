@@ -22,8 +22,8 @@ namespace OOFCanvas {
     virtual void drawItem(Cairo::RefPtr<Cairo::Context>) const;
     virtual bool containsPoint(const OffScreenCanvas*, const Coord&) const;
   public:
-    CanvasRectangle(double xmin, double ymin, double xmax, double ymax);
     CanvasRectangle(const Coord&, const Coord&);
+    CanvasRectangle(const Coord*, const Coord*);
     virtual const std::string &classname() const;
     virtual void setLineWidth(double);
     friend std::ostream &operator<<(std::ostream &, const CanvasRectangle&);

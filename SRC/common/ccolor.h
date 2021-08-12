@@ -15,6 +15,7 @@
 #ifndef CCOLOR_H
 #define CCOLOR_H
 
+#include "common/IO/OOFCANVAS/oofcanvas.h"
 #include <iostream>
 
 // Utility class for holding cached conversion values, including a
@@ -125,5 +126,7 @@ double L1dist(const CColor&, const CColor&);
 double L2dist2(const CColor&, const CColor&);
 
 std::ostream &operator<<(std::ostream&, const CColor&);
+
+OOFCanvas::Color canvasColor(const CColor&); 
 
 #endif

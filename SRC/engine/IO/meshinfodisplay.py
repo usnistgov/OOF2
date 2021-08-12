@@ -65,24 +65,22 @@ class MeshInfoDisplay(display.DisplayMethod):
         poly.setLineWidthInPixels(1.4*self.element_width)
         poly.setLineColor(
             oofcanvas.white.opacity(self.colors[which].getAlpha()))
-        for pt in displaced_p_list:
-            poly.addPoint(pt.x, pt.y)
+        poly.addPoints(displaced_p_list)
         self.canvaslayer.addItem(poly)
 
         poly = oofcanvas.CanvasPolygon()
         poly.setLineWidthInPixels(self.element_width)
         poly.setLineColor(color.canvasColor(self.colors[which]))
-        for pt in displaced_p_list:
-            poly.addPoint(pt.x, pt.y)
+        poly.addPoints(displaced_p_list)
         self.canvaslayer.addItem(poly)
 
     def drawNode(self, toolbox, node, which="query"):
         pt = toolbox.meshlayer.displaced_from_undisplaced(
             toolbox.gfxwindow(), node.position())
-        dot = oofcanvas.CanvasDot(pt.x, pt.y, 1.2*self.node_size)
+        dot = oofcanvas.CanvasDot(pt, 1.2*self.node_size)
         dot.setFillColor(oofcanvas.white.opacity(self.colors[which].getAlpha()))
         self.canvaslayer.addItem(dot)
-        dot = oofcanvas.CanvasDot(pt.x, pt.y, self.node_size)
+        dot = oofcanvas.CanvasDot(pt, self.node_size)
         dot.setFillColor(color.canvasColor(self.colors[which]))
         self.canvaslayer.addItem(dot)
 

@@ -31,6 +31,7 @@ typedef std::vector<std::string> OOFCanvasStringVec;
 typedef std::vector<OOFCanvas::Coord> CanvasCoordVec;
 typedef std::vector<double> CanvasDoubleVec;
 typedef OOFCanvas::Coord CanvasCoord;
+typedef OOFCanvas::ICoord CanvasICoord;
 %}
 
 %typemap(python, out) PyObject* {
@@ -145,6 +146,43 @@ typedef OOFCanvas::Coord CanvasCoord;
   // typemap(python, out) CanvasCoord*
   // Convert an OOFCanvas::Coord to a tuple
   $target = Py_BuildValue("dd", $source->x, $source->y);
+}
+
+%typemap(python, newfree) CanvasCoord *{
+  // typemap(python, newfree) CanvasCoord*
+  delete $source;
+}
+
+%typemap(python, in) CanvasICoord* (CanvasICoord pt) {
+  // typemap(python, in) CanvasICoord*
+  static PyObject *zero = nullptr;
+  static PyObject *one = nullptr;
+  if(!zero) {
+    zero = PyInt_FromLong(0);
+    one = PyInt_FromLong(1);
+    Py_INCREF(zero);
+    Py_INCREF(one);
+  }
+  PyObject *x = PyObject_GetItem($source, zero);
+  PyObject *y = PyObject_GetItem($source, one);
+  if(x == nullptr || y == nullptr) {
+    PyErr_SetString(PyExc_TypeError, "Type error in CanvasICoord typemap");
+    return nullptr;
+  }
+  pt.x = PyInt_AsLong(x);
+  pt.y = PyInt_AsLong(y);
+  Py_XDECREF(x);
+  Py_XDECREF(y);
+  $target = &pt;
+}
+
+%typemap(python, out) CanvasICoord* {
+  // typemap(python, out) CanvasICoord*
+  $target = Py_BuildValue("dd", $source->x, $source->y);
+}
+
+%typemap(python, newfree) CanvasICoord* {
+  delete $source;
 }
 
 // Create a vector of Coords from any iterable object whose contents
@@ -300,7 +338,7 @@ public:
 
 class CanvasRectangle : public CanvasFillableShape {
 public:
-  CanvasRectangle(double, double, double, double);
+  CanvasRectangle(CanvasCoord*, CanvasCoord*);
   %addmethods {
     %new const string *__repr__() {
       return self->repr();
@@ -310,7 +348,7 @@ public:
 
 class CanvasSegment : public CanvasShape {
 public:
-  CanvasSegment(double, double, double, double);
+  CanvasSegment(CanvasCoord*, CanvasCoord*);
   %addmethods {
     %new const string *__repr__() {
       return self->repr();
@@ -321,8 +359,7 @@ public:
 class CanvasSegments : public CanvasShape {
 public:
   CanvasSegments();
-  void addSegment(double, double, double, double);
-  %name(addSegmentPoints) void addSegment(CanvasCoord*, CanvasCoord*);
+  void addSegment(CanvasCoord*, CanvasCoord*);
   %addmethods {
     %new const string *__repr__() {
       return self->repr();
@@ -333,8 +370,7 @@ public:
 class CanvasCurve : public CanvasShape {
 public:
   CanvasCurve();
-  void addPoint(double, double);
-  %name(addCoord) void addPoint(CanvasCoord*);
+  void addPoint(CanvasCoord*);
   void addPoints(CanvasCoordVec*);
   %addmethods {
     %new const string *__repr__() {
@@ -346,8 +382,7 @@ public:
 class CanvasPolygon : public CanvasFillableShape {
 public:
   CanvasPolygon();
-  void addPoint(double, double);
-  %name(addCoord) void addPoint(CanvasCoord*);
+  void addPoint(CanvasCoord*);
   void addPoints(CanvasCoordVec*);
   %addmethods {
     %new const string *__repr__() {
@@ -358,7 +393,7 @@ public:
 
 class CanvasCircle : public CanvasFillableShape {
 public:
-  CanvasCircle(double, double, double);
+  CanvasCircle(CanvasCoord*, double);
   %addmethods {
     %new const string *__repr__() {
       return self->repr();
@@ -368,7 +403,7 @@ public:
 
 class CanvasEllipse : public CanvasFillableShape {
 public:
-  CanvasEllipse(double, double, double, double, double);
+  CanvasEllipse(CanvasCoord*, CanvasCoord*, double);
   %addmethods {
     %new const string *__repr__() {
       return self->repr();
@@ -378,7 +413,7 @@ public:
 
 class CanvasDot : public CanvasFillableShape {
 public:
-  CanvasDot(double, double, double);
+  CanvasDot(CanvasCoord*, double);
   %addmethods {
     %new const string *__repr__() {
       return self->repr();
@@ -399,7 +434,7 @@ public:
 
 class CanvasText : public CanvasItem {
 public:
-  CanvasText(double, double, char*);
+  CanvasText(CanvasCoord*, char*);
   void setFillColor(Color);
   void setFont(char*, bool);
   void rotate(double);
@@ -420,13 +455,11 @@ public:
     }
   }
 
-  %new static CanvasImage *newBlankImage(double, double, int, int,
-					 double, double,
-					 double, double, double, double);
-  %new static CanvasImage *newFromPNGFile(double, double, char*,
-					  double, double);
-  %new static CanvasImage *newFromImageMagickFile(double, double, char*,
-						  double, double);
+  %new static CanvasImage *newBlankImage(CanvasCoord*, CanvasICoord*,
+					 CanvasCoord*, Color);
+  %new static CanvasImage *newFromPNGFile(CanvasCoord*, char*, CanvasCoord*);
+  %new static CanvasImage *newFromImageMagickFile(CanvasCoord*, char*,
+						  CanvasCoord*);
 };
 
 
@@ -487,7 +520,7 @@ public:
   bool saveRegionAsPDF(char*, int, bool, CanvasCoord*, CanvasCoord*);
   bool saveRegionAsPNG(char*, int, bool, CanvasCoord*, CanvasCoord*);
 
-  CanvasCoord *pixel2user(double, double);
+  %new CanvasCoord *pixel2user(int, int);
 };
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

@@ -93,8 +93,8 @@ namespace OOFCanvas {
     int widgetHeight() const;
 
     void zoom(double);
-    void zoomAbout(double x, double y, double factor);
     void zoomAbout(const Coord&, double factor);
+    void zoomAbout(const Coord*, double factor); // for python
     void zoomToFill();
     void center();
 

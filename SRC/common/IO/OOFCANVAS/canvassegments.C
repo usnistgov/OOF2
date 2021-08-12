@@ -28,10 +28,6 @@ namespace OOFCanvas {
     return name;
   }
 
-  void CanvasSegments::addSegment(double x0, double y0, double x1, double y1) {
-    addSegment(Coord(x0, y0), Coord(x1, y1));
-  }
-
   void CanvasSegments::addSegment(const Coord &p0, const Coord &p1) {
     segments.emplace_back(p0, p1);
     bbox.swallow(p0);
@@ -110,12 +106,6 @@ namespace OOFCanvas {
   const std::string &CanvasCurve::classname() const {
     static const std::string name("CanvasCurve");
     return name;
-  }
-
-  void CanvasCurve::addPoint(double x, double y) {
-    points.emplace_back(x, y);
-    bbox.swallow(points.back());
-    modified();
   }
 
   void CanvasCurve::addPoint(const Coord &pt) {

@@ -92,10 +92,10 @@ def _makePoleFigure(menuitem, microstructure, pixels, symmetry,
                     clr = color.canvasColor(colormap(offset + val*factor))
                     poly = oofcanvas.CanvasPolygon()
                     poly.setFillColor(clr)
-                    poly.addPoint(i*binSize, j*binSize)
-                    poly.addPoint((i+1)*binSize, j*binSize)
-                    poly.addPoint((i+1)*binSize, (j+1)*binSize)
-                    poly.addPoint(i*binSize, (j+1)*binSize)
+                    poly.addPoint((i*binSize, j*binSize))
+                    poly.addPoint(((i+1)*binSize, j*binSize))
+                    poly.addPoint(((i+1)*binSize, (j+1)*binSize))
+                    poly.addPoint((i*binSize, (j+1)*binSize))
                     layer.addItem(poly)
 
         maxpix = size
