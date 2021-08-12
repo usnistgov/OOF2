@@ -110,9 +110,9 @@ OOFCanvas::CanvasImage *BitmapOverlay::makeCanvasImage(const Coord *position,
   CanvasImage *img = CanvasImage::newBlankImage(
 				OOFCANVAS_COORD(*position),
 				OOFCANVAS_ICOORD(sizeInPixels_),
-				OOFCANVAS_COORD(*size),
 				canvasColor(bg).opacity(0.0));
-  img->setDrawIndividualPixels();
+  img->setDrawIndividualPixels(true);
+  img->setSize(OOFCANVAS_COORD(*size));
   int ymax = sizeInPixels_[1] - 1;
   for(Array<bool>::const_iterator i=data.begin(); i!=data.end(); ++i) {
     if(data[i]) {

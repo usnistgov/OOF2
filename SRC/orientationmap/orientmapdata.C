@@ -89,9 +89,9 @@ OOFCanvas::CanvasImage *OrientMap::makeCanvasImage(
   OOFCanvas::CanvasImage *img = OOFCanvas::CanvasImage::newBlankImage(
 					      OOFCANVAS_COORD(*position),
 					      OOFCANVAS_ICOORD(sizeInPixels()),
-					      OOFCANVAS_COORD(*dispsize),
 					      OOFCanvas::Color());
-  img->setDrawIndividualPixels();
+  img->setDrawIndividualPixels(true);
+  img->setSize(OOFCANVAS_COORD(*dispsize));
   int ymax = sizeInPixels()[1] - 1;
   for(Array<COrientABG>::const_iterator i=angles.begin(); i!=angles.end(); ++i)
     {

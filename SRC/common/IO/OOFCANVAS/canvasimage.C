@@ -22,22 +22,57 @@ namespace OOFCanvas {
 
   static bool littleEndian = getLittleEndian();
 
-  CanvasImage::CanvasImage(const Coord &loc, const Coord &sz, const ICoord &pix)
-    : CanvasItem(Rectangle(loc, loc+sz)),
+  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+  CanvasImage::CanvasImage(const Coord &loc, const ICoord &pix)
+    : CanvasItem(Rectangle(loc, loc)),
       location(loc),	// position of lower left corner in user units
-      size(sz),
+      size(-1, -1),	// illegal, will be reset by setSize or setSizeInPixels
       pixels(pix),
       opacity(1.0),
-      pixelScaling(false),
+      pixelScaling(true),	// will be reset by setSize or setSizeInPixels
       drawPixelByPixel(false),
       buffer(nullptr),
       stride(0)
-  {}
+  {
+  }
 
   const std::string &CanvasImage::classname() const {
     static std::string nm("CanvasImage");
     return nm;
   }
+
+  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+  // If an image's physical (displayed) size has one or more negative
+  // components, the actual value of that component is inferred from
+  // the size in pixels, assuming that pixels are square.
+
+  static Coord imageSize_(const Coord &size, const ICoord &pixsize) {
+    if(size[0] <= 0 && size[1] <=0)
+      return Coord(pixsize[0], pixsize[1]); // assume pixels are 1x1 
+    if(size[1] <= 0)
+      return Coord(size[0], size[0]*pixsize[1]/pixsize[0]); // assume square
+    if(size[0] <= 0)
+      return Coord(size[1]*pixsize[0]/pixsize[1], size[1]); // assume square
+    return Coord(size[0], size[1]);
+  }
+
+  void CanvasImage::setSize(const Coord &sz) {
+    size = imageSize_(sz, pixels);
+    pixelScaling = false;
+    bbox = Rectangle(location, location + size);
+    modified();
+  }
+
+  void CanvasImage::setSizeInPixels(const Coord &sz) {
+    size = imageSize_(sz, pixels);
+    pixelScaling = true;
+    bbox = Rectangle(location, location);
+    modified();
+  }
+
+  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
   // The CanvasImage::set methods set the color and opacity of a
   // single pixel.  They probably don't work correctly unless the
@@ -83,6 +118,8 @@ namespace OOFCanvas {
     return Color(r/255., g/255., b/255., a/255.);
   }
 
+  //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
   void CanvasImage::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
 
     // The native Cairo image drawing method antialiases each pixel --
@@ -106,7 +143,9 @@ namespace OOFCanvas {
 
     // The default behavior of CanvasImage is to use the Cairo
     // rendering and not draw the individual pixels.  To change it,
-    // call CanvasImage::setDrawIndividualPixels().
+    // call CanvasImage::setDrawIndividualPixels(true).
+
+    assert(size.x > 0.0 && size.y > 0.0); // setSize or setSizeInPixels needed
     
     if(!drawPixelByPixel) {
       // Scaling the context to change the image size also changes the
@@ -176,20 +215,6 @@ namespace OOFCanvas {
     }
   }
 
-
-  // TODO GTK3: Instead of setting the display size in the
-  // constructor, treat it more like a line width and set it in a
-  // separate method, either setSize(Coord) or setSizeInPixels(Coord)
-  // [which will be confused with setting the image pixels...]
-  
-  void CanvasImage::setPixelSize() {
-    // Change from user units to pixel units.
-    pixelScaling = true;
-    // The "bare" bounding box is just a point.
-    bbox = Rectangle(location, location);
-    modified();
-  }
-
   void CanvasImage::pixelExtents(double &left, double &right,
 				 double &up, double &down)
     const
@@ -231,20 +256,6 @@ namespace OOFCanvas {
 
   // Utility functions used when creating CanvasImages
 
-  // If an image's physical (displayed) size has one or more negative
-  // components, the actual value of that component is inferred from
-  // the size in pixels, assuming that pixels are square.
-
-  static Coord imageSize(const Coord &size, const ICoord &pixsize) {
-    if(size[0] <= 0 && size[1] <=0)
-      return Coord(pixsize[0], pixsize[1]); // assume pixels are 1x1 
-    if(size[1] <= 0)
-      return Coord(size[0], size[0]*pixsize[1]/pixsize[0]); // assume square
-    if(size[0] <= 0)
-      return Coord(size[1]*pixsize[0]/pixsize[1], size[1]); // assume square
-    return Coord(size[0], size[1]);
-  }
-
   void CanvasImage::setSurface(Cairo::RefPtr<Cairo::ImageSurface> surf,
 			       const ICoord &pixsize)
   {
@@ -262,12 +273,9 @@ namespace OOFCanvas {
   CanvasImage *CanvasImage::newBlankImage(
 			  const Coord &position, // user coords
 			  const ICoord &pixsize, // size in pixels
-			  const Coord &size,  // size in user coords
 			  const Color &color)
   {
-    CanvasImage *canvasImage = new CanvasImage(position,
-					       imageSize(size, pixsize),
-					       pixsize);
+    CanvasImage *canvasImage = new CanvasImage(position, pixsize);
     Cairo::RefPtr<Cairo::ImageSurface> surf =
       Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, pixsize[0], pixsize[1]);
     canvasImage->setSurface(surf, pixsize);
@@ -314,67 +322,57 @@ namespace OOFCanvas {
   CanvasImage *CanvasImage::newBlankImage(
 			  const Coord *position, // user coords
 			  const ICoord *pixsize, // size in pixels
-			  const Coord *size,  // size in user coords
 			  const Color &color)
   {
-    return newBlankImage(*position, *pixsize, *size, color);
+    return newBlankImage(*position, *pixsize, color);
   }
 
   // static
   CanvasImage *CanvasImage::newFromPNGFile(const Coord &position, // lowerleft
-					   const std::string &filename,
-					   const Coord &usersize)
+					   const std::string &filename)
   {
     // Read the file first, to get the size in pixels.
     Cairo::RefPtr<Cairo::ImageSurface> surf =
       Cairo::ImageSurface::create_from_png(filename);
     ICoord pixsize(surf->get_width(), surf->get_height());
-    CanvasImage *canvasImage = new CanvasImage(position,
-					       imageSize(usersize, pixsize),
-					       pixsize);
+    CanvasImage *canvasImage = new CanvasImage(position, pixsize);
     canvasImage->setSurface(surf, pixsize);
     return canvasImage;
   }
 
   // static
   CanvasImage *CanvasImage::newFromPNGFile(const Coord *position, // lowerleft
-					   const std::string &filename,
-					   const Coord *usersize)
+					   const std::string &filename)
   {
-    return newFromPNGFile(*position, filename, *usersize);
+    return newFromPNGFile(*position, filename);
   }
 
 #ifdef OOFCANVAS_USE_IMAGEMAGICK
 
   // static
   CanvasImage *CanvasImage::newFromImageMagickFile(const Coord &position,
-						   const std::string &filename,
-						   const Coord &usersize)
+						   const std::string &filename)
   {
     Magick::Image image;	// reference counted
     image.read(filename);
-    return CanvasImage::newFromImageMagick(position, image, usersize);
+    return CanvasImage::newFromImageMagick(position, image);
   }
 
   // static
   CanvasImage *CanvasImage::newFromImageMagickFile(const Coord *position,
-						   const std::string &filename,
-						   const Coord *usersize)
+						   const std::string &filename)
   {
-    return newFromImageMagickFile(*position, filename, *usersize);
+    return newFromImageMagickFile(*position, filename);
     
   }
 
   // static
   CanvasImage *CanvasImage::newFromImageMagick(const Coord &position,
-					       Magick::Image image,
-					       const Coord &usersize)
+					       Magick::Image image)
   {
     Magick::Geometry sz = image.size();
     ICoord pixsize(sz.width(), sz.height());
-    CanvasImage *canvasImage = new CanvasImage(position,
-					       imageSize(usersize, pixsize),
-					       pixsize);
+    CanvasImage *canvasImage = new CanvasImage(position, pixsize);
     int w = pixsize[0];
     int h = pixsize[1];
     

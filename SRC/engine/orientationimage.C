@@ -49,9 +49,9 @@ OOFCanvas::CanvasImage *OrientationImage::makeCanvasImage(const Coord *position,
   OOFCanvas::CanvasImage *img = OOFCanvas::CanvasImage::newBlankImage(
 					      OOFCANVAS_COORD(*position),
 					      OOFCANVAS_ICOORD(sizeInPixels()),
-					      OOFCANVAS_COORD(*dispsize),
 					      OOFCanvas::Color());
-  img->setDrawIndividualPixels();
+  img->setDrawIndividualPixels(true);
+  img->setSize(OOFCANVAS_COORD(*dispsize));
   const Array<int> &pxls = *microstructure->getCategoryMapRO();
   int ymax = sizeInPixels()[1] - 1;
   for(Array<int>::const_iterator i=pxls.begin(); i!=pxls.end(); ++i) {

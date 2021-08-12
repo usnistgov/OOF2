@@ -900,11 +900,11 @@ OOFCanvas::CanvasImage *MaterialImage::makeCanvasImage(const Coord *position,
   const
 {
   OOFCanvas::CanvasImage *img = OOFCanvas::CanvasImage::newBlankImage(
-		      OOFCanvas::Coord((*position)[0], (*position)[1]),
-		      OOFCanvas::ICoord(sizeInPixels()[0], sizeInPixels()[1]),
-		      OOFCanvas::Coord((*dispsize)[0], (*dispsize)[1]),
-		      OOFCanvas::Color());
-  img->setDrawIndividualPixels();
+					      OOFCANVAS_COORD(*position),
+					      OOFCANVAS_ICOORD(sizeInPixels()),
+					      OOFCanvas::Color());
+  img->setDrawIndividualPixels(true);
+  img->setSize(OOFCANVAS_COORD(*dispsize));
   int ymax = sizeInPixels()[1] - 1;
   const Array<PixelAttribute*> &matMap = matattrreg->map(microstructure);
   for(Array<PixelAttribute*>::const_iterator i=matMap.begin(); i!=matMap.end();

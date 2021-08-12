@@ -219,11 +219,9 @@ OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
   Magick::Image copy = image;
   copy.flip();
   OOFCanvas::CanvasImage *img =
-    OOFCanvas::CanvasImage::newFromImageMagick(
-					       OOFCANVAS_COORD(*pos),
-					       copy,
-					       OOFCANVAS_COORD(*size));
-  img->setDrawIndividualPixels();
+    OOFCanvas::CanvasImage::newFromImageMagick(OOFCANVAS_COORD(*pos), copy);
+  img->setDrawIndividualPixels(true);
+  img->setSize(OOFCANVAS_COORD(*size));
   return img;
 }
 

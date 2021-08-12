@@ -448,18 +448,19 @@ public:
 class CanvasImage : public CanvasItem {
 public:
   void setOpacity(double);
-  void setPixelSize();
+  void setSize(CanvasCoord*);
+  void setSizeInPixels(CanvasCoord*);
+  void setDrawIndividualPixels(bool);
+  
   %addmethods {
     %new const string *__repr__() {
       return self->repr();
     }
   }
 
-  %new static CanvasImage *newBlankImage(CanvasCoord*, CanvasICoord*,
-					 CanvasCoord*, Color);
-  %new static CanvasImage *newFromPNGFile(CanvasCoord*, char*, CanvasCoord*);
-  %new static CanvasImage *newFromImageMagickFile(CanvasCoord*, char*,
-						  CanvasCoord*);
+  %new static CanvasImage *newBlankImage(CanvasCoord*, CanvasICoord*, Color);
+  %new static CanvasImage *newFromPNGFile(CanvasCoord*, char*);
+  %new static CanvasImage *newFromImageMagickFile(CanvasCoord*, char*);
 };
 
 
