@@ -50,6 +50,7 @@ namespace OOFCanvas {
     // addItem adds an item to the list and draws to the local
     // surface.  The CanvasLayer takes ownership of the item.
     void addItem(CanvasItem*);
+    // TODO GTK3? removeItem(CanvasItem*)  Should it delete the item?
     void removeAllItems();
     // render redraws all items to the local surface if the surface is
     // out of date.  It rebuilds the surface if necessary.
