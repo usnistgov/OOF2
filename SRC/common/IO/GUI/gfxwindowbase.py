@@ -503,7 +503,8 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     def removeMouseHandler(self):
         self.mouseHandler = mousehandler.nullHandler
 
-    def mouseCB(self, eventtype, x, y, button, shift, ctrl, data):
+    def mouseCB(self, eventtype, pos, button, shift, ctrl, data):
+        x, y = pos
         # "data" is an object that was passed in to
         # Canvas::setMouseCallback() when this method was installed as
         # the callback, in GfxWindow.newCanvas.
@@ -602,7 +603,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     # initialized properly.
 
     def simulateMouse(self, eventtype, x, y, button, shift, ctrl):
-        self.mouseCB(eventtype, x, y, button, shift, ctrl, None)
+        self.mouseCB(eventtype, (x, y), button, shift, ctrl, None)
 
     def logMouseEvent(self, eventtype, x, y, button, shift, ctrl):
         # This replaces gtklogger.signalLogger for OOFCanvas events.
@@ -613,7 +614,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
 
     # Same for mouse clicks on the contourmap canvas
     def simulateCMapMouse(self, eventtype, x, y, button, shift, ctrl):
-        self.contourmap_mouse(eventtype, x, y, button, shift, ctrl, None)
+        self.contourmap_mouse(eventtype, (x, y), button, shift, ctrl, None)
     def logContourMapMouseEvent(self, eventtype, x, y, button, shift, ctrl):
         if gtklogger.recording() and not gtklogger.replaying():
             gtklogger.writeLine(

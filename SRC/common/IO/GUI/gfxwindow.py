@@ -639,8 +639,9 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
     def contourmap_resize(self, data):
         self.contourmapdata.canvas.zoomToFill()
 
-    def contourmap_mouse(self, event, x, y, button, shift, ctrl, data):
+    def contourmap_mouse(self, event, pos, button, shift, ctrl, data):
         debug.mainthreadTest()
+        x, y = pos
         if event == "up":
             self.logContourMapMouseEvent(event, x, y, button, shift, ctrl)
             self.set_contourmap_marker(y)

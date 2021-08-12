@@ -559,7 +559,7 @@ namespace OOFCanvas {
 			  int button, bool shift, bool ctrl)
   {
     if(mouseCallback != nullptr) {
-      (*mouseCallback)(eventtype, userpt.x, userpt.y, button, shift, ctrl,
+      (*mouseCallback)(eventtype, userpt, button, shift, ctrl,
 		       mouseCallbackData);
       draw();
     }
@@ -656,8 +656,9 @@ namespace OOFCanvas {
     if(mouseCallback != nullptr) {
       PyGILState_STATE pystate = PyGILState_Ensure();
       try {
-	PyObject *args = Py_BuildValue("sddiiiO", eventtype.c_str(),
-				       userpt.x, userpt.y,
+	PyObject *position = Py_BuildValue("dd", userpt.x, userpt.y);
+	PyObject *args = Py_BuildValue("sOiiiO", eventtype.c_str(),
+				       position,
 				       button, shift, ctrl,
 				       mouseCallbackData);
 	PyObject *result = PyObject_CallObject(mouseCallback, args);
@@ -667,6 +668,7 @@ namespace OOFCanvas {
 	}
 	Py_XDECREF(args);
 	Py_XDECREF(result);
+	Py_XDECREF(position);
       }
       catch (...) {
 	PyGILState_Release(pystate);
