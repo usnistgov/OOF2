@@ -42,19 +42,26 @@ explicitly in the discussion below.
 
 ### Coordinate Systems
 
-Objects drawn on the canvas are specified in physical units, which may
-be anything convenient to the user.  The coordinate system is (x,y)
-where x goes from left to right on the screen, and **y goes from
-bottom to top**.   This is not the convention in many graphics
-libraries, but is standard for physics.
+There are two important coordinates systems: user coordinates and
+pixel coordinates.
 
-The conversion from physical to pixel coordinates depends on the size
+*Pixel* coordinates measure distance in pixels, with x increasing from
+left to right and y increasing from top to bottom.  The origin is at
+the upper left corner of the Canvas, which may or may not be visible
+on the screen.
+
+Objects drawn on the canvas are specified in *user* coordinates, which
+may be anything convenient to the user.  x goes from left to right on
+the screen, and **y goes from bottom to top**.  This is not the
+convention in many graphics libraries, but is standard in the real
+world.
+
+The conversion from user to pixel coordinates depends on the size
 of the canvas and the current zoom factor, and determines the ppu
-(pixels per unit).  The user should be able to use physical units and
-not worry about ppu at all.
-
-Some types of canvas items are naturally defined in terms of pixels,
-however. OOFCanvas handles the scaling for these too.
+(pixels per unit).  Almost all objects in OOFCanvas are specified in
+user coordinates, so the user does not need to worry about the pixel
+coordinate system at all.  The one exception is that the *sizes* of
+some objects can be specified in pixels.
 
 
 ## The Canvas Classes
@@ -92,8 +99,8 @@ Opaque items in higher layers obscure the items in lower layers.
 destroyed by calling either `CanvasLayer::destroy()` or
 `OffScreenCanvas::deleteLayer()`.
 
-The size of a layer in pixels is determined by the physical sizes of
-the items being displayed, and the current `ppu`.
+The size of a layer in pixels is determined by the sizes (in user
+coordinates) of the items being displayed, and the current `ppu`.
 
 ## The CanvasItem Classes
 
@@ -104,10 +111,8 @@ should never destroy them explicitly.
 
 Each `CanvasItem` has a bunch of parameters that determine its position,
 shape, color, and transparency.  Position parameters are always given
-in physical units.  Some parameters, such as line widths, can be
-interpreted in either physical or pixel units.  If the `CanvasItem` has
-such a parameter, it will have a `setLineWidthInPixels` method (or the
-equivalent).
+in user coordinates.  Some parameters, such as line widths, can be
+given in either user or pixel units.
 
 Details of each `CanvasItem` subclass are given [somewhere
 below](#canvasitems).
@@ -131,11 +136,9 @@ frame.add(widget)
 CanvasLayer *layer = canvas.newLayer("layername");
 
 // Add items to the layer
-double x=1., y=2., radius=1.4;  // In physical units.
-CanvasCircle *circle = new CanvasCircle(x, y, radius);
-double w=2.;                    // In physical units, unless ...
-circle->setLineWidthInPixels(); // ... setLineWidthInPixels is called.
-circle->setLineWidth(w);
+double x=1., y=2., radius=1.4;  
+CanvasCircle *circle = new CanvasCircle(x, y, radius); // In user coordinates.
+circle->setLineWidthInPixels(1.5); // In pixel units
 Color red(1., 0., 0., 0.5); // r, g, b, a, all in [0.0, 1.0]
 circle.setFillColor(red);
 layer->addItem(circle);
@@ -161,9 +164,7 @@ x = 1.
 y = 2.
 radius = 1.4
 circle = CanvasCircle(x, y, radius)
-circle.setLineWidthInPixels()
-w = 2.
-circle.setLineWidth(w)
+circle.setLineWidthInPixels(1.5)
 red = oofcanvas.Color(1., 0, 0, 0.5)
 circle.setFillColor(red)
 layer.addItem(circle)
@@ -177,10 +178,10 @@ called from the Gtk main loop.
 
 ## Mouse 
 
-Call `GUICanvasBase::setMouseCallback(MouseCallback callback, void *data)` to
-install a mouse event handler.  `callback` will be called whenever a
-mouse button is pressed or the mouse is moved.  The signature of the
-callback function is
+Call `GUICanvasBase::setMouseCallback(MouseCallback callback, void
+*data)` to install a mouse event handler.  `callback` will be called
+whenever a mouse button is pressed, the mouse is moved, or the window
+is scrolled.  The signature of the callback function is
 
 	typedef void (*MouseCallback)(const std::string &event, 
 	                              double x, double y,
@@ -189,10 +190,10 @@ callback function is
 								  void *data)
 
 where `event` is either `up`, `down`, or `move`. `x` and `y` are the
-position of the mouse event in physical coordinates. `button`
-indicates which mouse button was pushed, and `shift` and `ctrl`
-indicate whether the shift and control keys were pressed.  `data` is
-the pointer that was passed to `setMouseCallback`.
+position of the mouse event in user coordinates. `button` indicates
+which mouse button was pushed, and `shift` and `ctrl` indicate whether
+the shift and control keys were pressed.  `data` is the pointer that
+was passed to `setMouseCallback`.
 
 
 To control how the callback is invoked when the mouse is moved, call
@@ -232,12 +233,13 @@ Five classes of `RubberBand` are defined:
 - `EllipseRubberBand` is an ellipse that is fit into a rectangle, as
 	in `RectangleRubberBand`.
 	
-- `SpiderRubberBand` is a set of line segments, starting a given
+- `SpiderRubberBand` is a set of line segments, starting at given
   points and ending at the current mouse position.  The start points
   are specified by calling `SpiderRubberBand::addPoints(list)`, where
-  in C++, `list` is a `std::vector<double>*` containing
-  x0,y0,x1,y1,etc. In Python, it's a list of objects with `x` and `y`
-  attributes.
+  in C++, `list` is a `std::vector<Coord>*`.  In Python, it's a
+  iterable collection of objects where `obj[0]` is the x component of
+  `obj` and `obj[1]` is its y component.
+
 
 OOFCanvas does not handle selection of objects with the mouse, but it
 does provide the position of a mouse click as part of the data passed
@@ -268,26 +270,557 @@ def mouseCB(eventtype, x, y, button, shift, ctrl, data):
 		...
 ```
 
-## OOFCanvas Classes
+
+## Details of the OOFCanvas Classes
 
 This section contains detailed information about all of the externally
-visibile classes in OOFCanvas.
+visible classes in OOFCanvas, starting with the utility classes that
+are used by the rest of the code.
 
-## OffScreenCanvas
+### Utility Types: Color, Coord, etc.
 
-## GUICanvasBase
+These classes are defined in the OOFCanvas namespace and are used for
+some arguments and return values by the main OOFCanvas methods.
 
-## Canvas (C++)
+#### `Coord`
 
-## Canvas (Python)
+`Coord` is a position in user coordinates, the coordinate system in
+which `CanvasItems` are defined.
 
-## CanvasLayer
+The `Coord` class is defined in C++, but not in Python.  Methods that
+return a position to Python simply return a tuple, (x,y).  When an
+OOFCanvas function in Python requires a position argument, any type
+that can be indexed can be used.  That is, if you have a coordinate
+class called `MyCoord`, you can do this:
+
+```python
+pt = MyCoord(x, y)
+circle = oofcanvas.CanvasCircle(pt, 1.0)
+```
+as long as `pt[0]` is x and `pt[1]` is y.  When an OOFCanvas function
+returns a `Coord`, it's really returning a tuple, so you can do this:
+
+```python
+pt = MyCoord( * oofcanvas.someFunctionReturningACoord() )
+```
+
+Whenever a C++ function described below returns a `Coord`, assume that
+the Python version works as described above.
+
+The `Coord` constructors are
+
+* `Coord()`
+
+	creates a point at the origin.
+	
+* `Coord(double x, double y)`
+
+	creates a point at (x,y).
+	
+The components can be accessed via the x and y data members or via
+indexing.  `coord.x == coord[0]`.
+
+Basic arithmetic, assignment, and equality operations are supported.
+
+#### `ICoord`
+
+An `ICoord` is a Coord with integer coefficients, used to identify pixels.
+
+#### `Rectangle`
+
+The `Rectangle` class is not the same as the `CanvasRectangle`.
+`CanvasRectangle` is a `CanvasItem` that can be displayed. `Rectangle`
+is just a region of space.
+
+A `Rectangle` can be constructed in several ways:
+
+* `Rectangle()` creates an empty rectangle at an undefined position.
+* `Rectangle(double x0, double y0, double x1, double y1)` creates a
+  rectangle with diagonally opposite corners at (x0, y0) and (x1,
+  y1).  It doesn't matter which pair of diagonlly opposite corners are
+  given. 
+* `Rectangle(const Coord &pt0, const Coord &pt1)` does the same, with
+  `Coords` instead of `doubles`.
+
+Useful methods are
+
+* `double Rectangle::xmin() const`
+* `double Rectangle::ymin() const`
+* `double Rectangle::xmax() const`
+* `double Rectangle::ymax() const`
+* `Rectangle::swallow(const Coord&)` expands the rectangle to include
+  the given point.
+	  
+	  If the rectangle was uninitialized, this initializes it to an
+      rectangle of size 0 at the given point.  That is,
+	  `Rectangle r; r.swallow(pt);` is the same as `Rectangle r(pt,
+      pt);` for some `Coord pt`.
+
+* `Rectangle::swallow(const Rectangle&)` expands the rectangle include
+  the given `Rectangle`.
+
+#### `Color`
+
+Colors are stored as RGBA values, which are doubles between 0 and 1.
+
+C++ Constructors:
+
+* `Color()`
+
+	Initializes to black.
+
+* `Color(double r, double g, double b)`
+
+	Alpha is 1 (opaque).
+	
+* `Color(double r, double g, double b, double a)`
+
+The only Python constructor is
+
+* `Color(r, g, b)`
+
+To change the opacity of a Python color, use
+
+* `Color Color::opacity(alpha)`
+
+which returns a new `Color` with the given opacity.
+
+Predefined constants are defined for `black`, `white`, `red`, `green`,
+`blue`, `gray`, `yellow`, `magenta`, and `cyan`.
 
 
+### OffScreenCanvas
 
-### Canvas Item Subclasses {#canvasitems}
+`OffScreenCanvas` is the base class for the other Canvas classes.  As
+the name implies, it can't be displayed on the screen, but it can be
+drawn to and the resulting image can be saved to a file.
 
-Here are the `CanvasItem` classes.
+The constructor is
+
+* `OffScreenCanvas(double ppu)`
+
+	`ppu` is the pixels per unit that determines the conversion
+    between user and pixel coordinates.  This is just an initial
+    value.  It can be changed later by zooming, but some initial value
+    is required.
+	
+#### Layer manipulation methods in `OffScreenCanvas`
+
+* `CanvasLayer* OffScreenCanvas::newLayer(const std::string& name)`
+
+	creates a new `CanvasLayer` with the given name.  The name is just
+    for convenience and debugging.   All layers should be created with
+    this method.
+	
+* `void OffScreenCanvas::deleteLayer(CanvasLayer *layer)`
+
+	deletes a canvas layer from the Canvas and destroys it.  Do not
+    simply delete a layer with `delete layer;`
+	
+* `void OffScreenCanvas::clear()`
+
+	deletes all layers.
+	
+* `CanvasLayer* OffScreenCanvas::getLayer(int)` const
+
+	gets a particular layer from the stack.
+	
+* `Canvaslayer* OffScreenCanvas::getLayer(const std::string &name)
+  const`
+  
+	  gets a layer by name.  The Python equivalent is
+      `OffScreenCanvas.getLayerByName(name)`. 
+	  
+* `std::size_t OffScreenCanvas::nLayers() const`
+
+	returns the total number of layers.
+	
+* `std::size_t OffScreenCanvas::nVisibleItems() const`
+
+	returns the total number of visible items drawn on all layers.
+	
+* `void OffScreenCanvas::raiseLayer(int n, int howfar)`
+
+	raises layer `n` by `howfar` places in the layer list.  A higher
+    layer may hide the contents of a lower layer.
+	
+* `void OffScreenCanvas::lowerLayer(int n, int howfar)`
+
+	lowers layer `n` by `howfar` places in the layer list.
+	
+* `void OffScreenCanvas::raiseLayerToTop(int n)`
+
+	moves layer `n` to the top of the layer list.
+	
+* `void OffScreenCanvas::lowerLayerToBottom(int n)`
+
+	moves layer `n` to the bottom of the layer list.
+	
+* `void OffScreenCanvas::reorderLayers(const
+  std::vector<CanvasLayer*>* layerlist)`
+  
+  puts the layers in the order given in `layerlist`.  The list
+  must contain all of the layers currently in the Canvas and no
+  more. In Python the argument is a list `[]` of layers.
+  
+#### Output methods in `OffScreenCanvas`
+
+* `bool OffScreenCanvas::saveAsPDF(const std::string& filename, int maxpix, bool bg)`
+
+	saves the entire contents of the Canvas to a pdf file with the
+    given name. 
+	
+	* Although the output should be independent of the pixel
+      resolution, it's still necessary to pretend that there is a
+      pixel size so that OOFCanvas can compute line thicknesses and
+      other quantities that might be specified in pixel units.
+      `maxpix` is the number of pixels to assume in the largest
+      dimension of the image.
+	  
+	* If `bg` is true the background will be drawn.  Otherwise it will
+      be left blank.
+	  
+	* The return value is true if something was drawn successfully.
+	
+* `bool OffScreenCanvas::saveAsPNG(...)`
+
+	is the same as `saveAsPDF(...)` but writes a PNG file.
+	  
+* `bool OffScreenCanvas::saveRegionAsPDF(const std::string& filename,
+  int maxpix, bool bg, 
+  const Coord& pt0, const Coord& pt1)`
+  
+	  saves the rectangle defined by `pt0` and `pt1` to the given
+      file.  `maxpix` and `bg` are the same as in `saveAsPDF`.  In the
+      Python version, `pt0[0]` is the x coordinate of a corner, and
+      `pt0[1]` is the y coordinate.
+	  
+* `bool OffScreenCanvas::saveRegionAsPNG(...)`
+
+	is the same as `saveRegionAsPDF(...)` but writes a PNG file.
+  
+	
+#### Miscellaneous methods in `OffScreenCanvas`
+
+* `double OffScreenCanvas::getPixelsPerUnit() const`
+
+	returns the current scale factor.
+	
+* `Coord OffScreenCanvas::pixel2user(const ICoord&) const`
+
+	converts a pixel coordinate to a user coordinate.  The Python
+    equivalent is `OffScreenCanvas.pixel2user(x,y)`, which returns a
+    2-tuple. 
+	
+* `void OffScreenCanvas::setAntialias(bool)`
+
+	turns anti-aliasing on and off.  The default value depends on your
+    device.
+	
+* `void OffScreenCanvas::setMargin(double)`
+
+	sets the size of the margin around the items on the canvas.  The
+    size of the canvas is `1+margin` times the width and height of the
+    bounding box of its contents.  The default value is 0.0.
+	
+* `bool OffScreenCanvas::empty() const`
+
+	has anything been drawn?
+	
+* `OffScreenCanvas::setBackgroundColor(const Color&)`
+
+	sets the color of the parts of the canvas where nothing has been
+    drawn.
+	
+* `std::vector<CanvasItem*> OffScreenCanvas::clickedItems(const Coord&)`
+  
+	  returns a list of the `CanvasItems` at the given point, if the
+      items are in clickable `CanvasLayer`. 
+	  
+* `std::vector<CanvasItem*> OffScreenCanvas::allItems() const`
+
+	returns a list all `CanvasItems` on the Canvas, in all
+    `CanvasLayers`.
+	
+
+### GUICanvasBase
+
+`GUICanvasBase` is an intermediate base class, derived from
+`OffScreenCanvas`.  It's the base class for `Canvas` and
+`PythonCanvas`, which are the classes that do screen display from C++
+and Python.
+
+Methods defined in the base class include:
+
+* `void GUICanvasBase::show()`
+
+	calls `gtk_widget_show` on the Canvas's `GtkLayout`.
+	
+* `void GUICanvasBase::draw()`
+	
+	instructs the Canvas to draw all of its `CanvasItems`.
+
+* `int GUICanvasBase::widgetWidth() const`
+
+	returns the width of the space allocated in the GUI for the
+    `GtkLayout`.
+	
+* `int GUICanvasBase::widgetHeight() const`
+
+	returns the height of the space allocated in the GUI for the
+    `GtkLayout`.
+
+* `void GUICanvasBase::zoom(double factor)`
+
+	zooms the canvas by the specified factor, keeping the center point
+    fixed.
+	
+* `void GUICanvasBase::zoomAbout(const Coord& fixedpt, double factor)`
+
+	zooms the canvas by the specified factor, keeping the given point
+    fixed.  The point is specified in user coordinates.
+	
+* `void GUICanvasBase::zoomToFill()`
+
+	zooms the canvas so that all `CanvasItems` are visible and as
+    large as possible.
+	
+* `void GUICanvasBase::center()`
+
+	scrolls the canvas so that the center of bounding box of all
+    `CanvasItems` is centered on the Canvas, without zooming.
+	
+* `Rectangle GUICanvasBase::visibleRegion() const`
+
+	returns a `Rectangle` giving the user space coordinates of the
+    visible part of the Canvas.
+	
+* `GtkAdjustment* GUICanvasBase::getHAdjustment() const`
+
+	returns the `GtkAdjustment` that controls horizontal position of
+    the canvas.  Connecting this object to a `GtkScrollBar` allows the
+    canvas to be scrolled by the user.
+	
+* `GtkAdjustment* GUICanvasBase::getVAdjustment() const`
+
+	is the same, for the vertical position of the canvas.
+	
+* `void GUICanvasBase::removeMouseCallback()`	
+
+	removes the mouse callback function.  See below for assigning a
+    mouse callback function.
+	
+* `void GUICanvasBase::allowMotionEvents(MotionAllowed ma)`
+
+	tells the canvas how to respond when the mouse moves, if a mouse
+    callback function is installed.  The values of `ma` are
+	* `MOTION_NEVER`: don't call the callback when the mouse moves.
+	* `MOTION_ALWAYS`: call the callback whenever the mouse moves.
+	* `MOTION_MOUSEDOWN`: call the callback when the mouse moves only
+      if a mouse button is pressed.
+	  
+* `void GUICanvasBase::setRubberBand(RubberBand*)`
+
+	tells the canvas to install a `RubberBand` object for displaying
+    mouse motions.  This does not actually start the rubberband.  See
+    `RubberBand` for details.
+	
+* `void GUICanvasBase::removeRubberBand()`
+
+	tells the canvas to stop using the rubberband.
+
+### Canvas (C++)
+
+The `Canvas` class is derived from `GUICanvasBase` and is only
+available in C++.  A C++ class called `PythonCanvas` is also derived from
+`GUICanvasBase`, and is described in the next section.  That class is
+accessible from Python under the name `Canvas`, so in effect there is
+a `Canvas` class available in both languages, with slight differences.
+
+This section describes the `Canvas` class in C++.
+
+When a `Canvas` is created, it creates a `GtkLayout`, which can be
+placed into the GUI using standard gtk operations.  The constructor is
+
+```C++
+Canvas::Canvas(double ppu)
+```
+
+The argument is the initial pixels per unit.
+
+Most of the `Canvas` methods are defined in `GUICanvasBase` or
+`OffScreenCanvas`.  The new ones are:
+
+* `void Canvas::destroy()`
+
+	destroys the canvas and its `GtkLayout`.  This is called
+    automatically by the destructor.
+	
+* `void Canvas::setMouseCallback(MouseCallback, void *data)`
+
+	assigns a mouse click callback function, which will be called when
+    the mouse button is pressed or released, the mouse is moved, or
+    the scroll wheel is scrolled.
+	
+	The callback function returns void, and has arguments
+	
+	* `const std:string& eventtype`
+	
+		Either "down" (button was pressed), "up" (button was
+        released), "move" (mouse was moved), or "scroll" (scroll wheel
+        was turned).
+		
+	* `const Coord& position`
+	
+		The position of the mouse event, in user coordinates.
+		
+	* `int button`
+	  
+		  Which mouse button was used.
+		  
+	* `bool shift`
+	
+		Whether or not the shift key was pressed.
+	
+	* `bool ctrl`
+	
+		Whether or not the control key was pressed.
+		
+	* `void *data`
+	
+		The data pointer that was passed to `setMouseCallback`.
+		
+* `void Canvas::setResizeCallback(ResizeCallback, void *data)`
+
+	specifies a function to call when the canvas size changes.  The
+    function must take a single `void*` argument, and return
+    `void`. When called, the given `data` is passed.
+	
+* `GtkWidget* Canvas::gtk() const`
+
+	returns the `GtkLayout` that the `Canvas` is built on.
+
+### Canvas (Python)
+
+This is the `Canvas` class that is exported to Python.  See the
+comments at the of the C++ `Canvas` discussion, above.
+
+The Python `Canvas` creates a `GtkLayout` using Gtk's Python
+interface.  The Gtk widget can be accessed directly via
+'Canvas.layout`.
+
+The constructor is
+
+```python
+Canvas(width, height, ppu, **kwargs)
+```
+
+where `width` and `height` are the desired size of the `GtkLayout`, in
+pixels. `ppu` is the initial pixels per unit value.  Any additional
+keyword arguments in `kwargs` are passed to the `GtkLayout`
+constructor.
+
+As with the C++ `Canvas`, most of the functions are defined in the
+base class.  They are all available in Python.  New methods are
+
+* `Canvas.destroy()`
+
+	destroys the `Canvas.
+	
+* `Canvas.setMouseCallback(callback, data)`
+
+	installs a mouse callback function.  This is identical to the
+    callback function in the C++ version, except 
+	* It's a Python function, not a C++ function.
+	* The `position` argument is a tuple, not a `Coord`.
+	* The `data` is a Python object, not a `void*`.
+	
+* `Canvas.setResizeCallback(callback, data)`
+
+	Again, this is just like the C++ version, except the `callback`
+    function is a Python function and `data` is a Python object.
+	
+### CanvasLayer
+
+`CanvasLayers` hold sets of `CanvasItems`, which are the things that
+are drawn on the Canvas. Layers may be raised, lowered, shown, and
+hidden.
+
+Layers should only be created by a `Canvas` (or `OffScreenCanvas`),
+using its `newLayer()` method.
+
+`CanvasLayer` methods include:
+
+* `void CanvasLayer::clear()`
+
+	removes all objects from the layer and makes it transparent.
+	
+* `void CanvasLayer::clear(const Color&)`
+
+	removes all objects from the layer and fills it with the given
+    `Color`.
+	
+* `void CanvasLayer::addItem(CanvasItem*)`
+
+	adds the given item to the layer.  The layer owns the item.  After
+    it's been added to the layer it should not be deleted except by
+    clearing or destroying the layer.
+	
+* `void CanvasLayer::removeAllItems()`
+
+* `bool CanvasLayer::empty() const`
+
+	returns true if the layer contains no `CanvasItems`.
+
+* `void CanvasLayer::destroy()`
+
+	destroys the layer and removes it from the Canvas.
+	
+* `void CanvasLayer::show()`
+  
+	  makes the layer visible if it was previously hidden.  New layer
+      are initially visible.
+	  
+* `void CanvasLayer::hide()`
+
+	make the layer invisible.
+	
+* `void CanvasLayer::setClickable(bool)`
+
+	If the argument is true, objects in the layer can be listed by
+    `OffScreenCanvas::clickedItems()`.
+	
+* `void CanvasLayer::setOpacity(double)`
+
+	sets the opacity with which the layer will be copied to the
+    Canvas. 0.0 is fully transparent and 1.0 is fully opaque.
+	
+* `void CanvasLayer::raiseBy(int howfar) const`
+
+	raises the layer in the Canvas by the given amount. This is the
+    same as `OffScreenCanvas::raiseLayer(int n, int howfar)` except that you
+    don't need to know the layer number `n`.
+	
+* `void CanvasLayer::lowerBy(int howfar) const`
+
+	is the same as `raiseBy`, but in the other direction.
+	
+* `void CanvasLayer::raiseToTop() const`
+
+	is the same as `OffScreenCanvas::raiseLayerToTop(int n)`.
+	
+* `void CanvasLayer::lowerToBottom() const`
+
+	is the same as `OffScreenCanvas::lowerLayerToBottom(int n)`.
+	
+* `void CanvasLayer::writeToPNG(const std::string& filename)`
+  
+	  saves the contents of the layer to a PNG file.
+
+### CanvasItem
+
+`CanvasItem` is the base class for everything that can be drawn on the
+canvas.
 
 #### Abstract CanvasItem Subclasses
 
@@ -297,10 +830,10 @@ This is an abstract base class for most other `CanvasItem` classes.
 It defines the following methods:
 
 * `void setLineWidth(double)`
-* `void setLineWidthInPixels()`
+* `void setLineWidthInPixels(double)`
 
-	Indicates that line width should be interpreted as pixels,
-	not physical units.
+	`setLineWidth` sets in the width in user
+    units. `setLineWidthInPixels` sets it in pixel units.
 
 * `setLineColor(const Color&)`
 
@@ -308,33 +841,38 @@ It defines the following methods:
 
 * `setLineJoin(Cairo::LineJoin)`
 
-	In C++, the argument is a member of the Cairo::LineJoin class.  In
-	Python, it's `lineJoinMiter`, `1ineJoinRound`, or
+	In C++, the argument is a member of the [`Cairo::LineJoin`]
+	(https://www.cairographics.org/documentation/cairomm/reference/classCairo_1_1Context.html)
+	class.  In Python, it's `lineJoinMiter`, `1ineJoinRound`, or
 	`lineJoinBevel`, which are defined in the OOFCanvas namespace.
 
 * `setLineCap(Cairo::LineCap)`
 
-	In C++, the argument is a member of the `Cairo::LineCap`
+	In C++, the argument is a member of the [`Cairo::LineCap`]
+	(https://www.cairographics.org/documentation/cairomm/reference/classCairo_1_1Context.html)
 	class.  In Python, it's `lineCapButt`, `lineCapRound`, or
-	`lineCapSquare`, which are defined in the OOFCanvas
-	namespace. 
+	`lineCapSquare`, which are defined in the OOFCanvas namespace.
 
 * `setDash(const std::vector<double>&, int offset)`
 
-	The vector contains a pattern of  dash lengths, which are
-	in physical units unless `setDashLengthInPixels()` is
-	called.  The pattern repeats as necessary.  `offset`
+	The vector contains a pattern of dash lengths, which are in
+	user units.  The pattern repeats as necessary.  `offset`
 	indicates where the pattern starts.
+	
+* `setDashInPixels(const std::vector<double>&, int offset)`
+
+	The same as the above `setDash`, but the dash lengths are
+    interpreted in pixel units.
 
 * `setDash(double)`
 
-	Use a single dash length, which is in physical units,
-	unless `setDashLengthInPixels()` is called.
+	Use a single dash length, which is in user units.
 
-* `setDashLengthInPixels()`
+* `setDashInPixels(double)`
 
-	Interpret the lengths in `setDash` in pixel units, not
-	physical units.
+	The same as `setDash(double)`, but the dash lengths are in pixel
+    units.
+
 
 * `setDashColor(const Color&)`
 
@@ -359,30 +897,40 @@ An arrowhead can be placed on a `CanvasSegment`.  The
 `CanvasArrowhead` class is *not* derived from `CanvasShape`.  Its
 constructor is
 	
-* `CanvasArrowHead(const CanvasSegment *segment, double position, double width, double length, bool reversed)`
+* `CanvasArrowHead(const CanvasSegment *segment, double position, bool reversed)`
 		
 	`segment` is the `CanvasSegment` that the arrowhead will be drawn
-	on. `width` and `length` are in physical units unless
-	`CanvasArrowHead::setPixelSize()` is called.
+	on. `
 	
 	`position` ranges from 0.0 to 1.0, and determines where the tip of
 	the arrow will appear on the segment.  A value of 0.0 puts the tip
 	at the first point of the segment, and a value of 1.0 puts it at
 	the second point.  The color of the arrowhead is the same as the
 	line color of the `CanvasSegment`.
+	
+The size of the arrowhead is set by either
+
+* `void CanvasArrowHead::setSize(double width, double length)`
+
+	`width` and `length` are in user units.
+
+or
+
+* `void CanvasArrowHead::setSizeInPixels(double width, double length)`
+
+	`width` and `length` are in pixels.
+	
+Either `setSize()` or `setSizeInPixels()` *must* be called before an
+arrowhead can be drawn.
 
 ##### `CanvasCircle`
 
 Derived from `CanvasFillableShape`.  Its constructor is
 	
-* `CanvasCircle(double centerx, double centery, double radius)`
-	
-	or
-	
 * `CanvasCircle(const Coord &center, double radius)`
 	
-The coordinates of the center and the radius are in physical
-units.  To specify the radius in pixels, use [`CanvasDot`](#`CanvasDot`) instead.
+The coordinates of the center and the radius are in user units.  To
+specify the radius in pixels, use [`CanvasDot`](#`CanvasDot`) instead.
 
 ##### `CanvasCurve`
 
@@ -405,29 +953,16 @@ Its constructors are
 
 	Create a curve with the given points.
 
-Points can be added to a `CanvasCurve` in C++ via
+Points can be added to a `CanvasCurve` via
 
-* `CanvasCurve::addPoint(double x, double y)`
-* `CanvasCurve::addPoint(const Coord&)`
+* `void CanvasCurve::addPoint(const Coord&)`
 
 or 
 
-* `CanvasCurve::addPoints(const std::vector<Coord>*)`
+* `void CanvasCurve::addPoints(const std::vector<Coord>*)`
 
-or in Python via
-
-* `CanvasCurve.addPoint(x, y)` 
-* `CanvasCurve.addCoord(pt)`
-
-	where `pt` is some kind of point object, with `pt[0]` being x and
-    `pt[1]` being y.
-
-or
-
-* `CanvasCurve.addPoints(ptlist)`
-
-	where `ptlist` is a list of point objects `pt`, where `pt[0]` is x and
-    `pt[1]` is y.
+In Python, the argument to `addPoints` is a list of Coord-like (ie,
+indexable) objects.
 
 `int CanvasCurve::size()` returns the number of points in the curve.
 
@@ -437,10 +972,6 @@ Derived from `CanvasFillableShape`, a `CanvasDot` is a circle with a
 fixed size in pixels.  Its line width is also always measured in
 pixels.  The constructor is
 
-* `CanvasDot(double cx, double cy, double radius)`
-
-or
-
 * `CanvasDot(const Coord &center, double radius)`
 
 
@@ -448,16 +979,12 @@ or
 
 Derived from `CanvasFillableShape`.  The constructor is
 
-* `CanvasEllipse(double cx, double cy, double r0, double r1, double angle)`
-
-or
-
 * `CanvasEllipse(const Coord &c, const Coord &r, double angle)`
 
-where `cx` and `cy`, or `c`, give the center in physical units.
-`r0` and `r1`, or the components of `r`, are the radii in physical
-units.  `r0` is the radius in the x direction before rotation.
-The rotation angle in degrees is measured counterclockwise.
+where `c` is the center in user coordinates and the components of `r`
+are the radii in user units.  `r[0]` is the radius in the x direction
+before rotation.  The rotation angle in degrees is measured
+counterclockwise.
 	
 ##### `CanvasImage`
 
@@ -468,68 +995,65 @@ that ImageMagick can read.  To enable ImageMagick, define
 
 The constructor creates an empty image:
 
-* `CanvasImage(const Coord &position, const Coord &size, const ICooord &npixels)`
+* `CanvasImage(const Coord &position, const ICooord &npixels)`
 
 where `position` is the position of the lower left corner of the
-image in physical coordinates, and `size` is its displayed size.
-If `CanvasImage::setPixelSize()` is called, the size is
-interpreted as a size in pixels, otherwise it's in physical units.
+image in user coordinates.
+
+*Confusion Opportunity!*  There are two kinds of pixels.  There are the
+pixels on your computer screen, and there are the pixels in the
+`CanvasImage`.  They don't have to be the same size.  A `CanvasImage`
+may be displayed at a different scale from its natural size, in which
+case one `CanvasImage` pixel will be larger or smaller than one screen
+pixel.
 
 Since an empty image isn't very useful, `CanvasImage` includes some
-static factory methods for creating `CanvasImage` objects.  For all of
-these, `x` and `y` are the position of the lower left corner of the
-image in physical units.  `width` and `height` are the displayed size,
-which is in physical units unless `CanvasImage::setPixelSize()` is
-called on the returned `CanvasImage`.
+static factory methods for creating `CanvasImage` objects. 
 
-* Create a blank image
+* Create a blank image:
 
 	```C++
 	CanvasImage* CanvasImage::newBlankImage(
-           double x, double y,
-           int nx, int ny,
-		   double width, double height,
-		   double red, double green, double blue, double alpha)
+           const Coord& position,
+		   const ICoord& pixelsize,
+		   const Color &color);
    ```
 
-	The image is filled with a single color, so it's not really
-	blank. `nx` and `ny` are size of the image in pixels.  `red`,
-	`green`, `blue`, and `alpha` are all between 0.0 and 1.0 and
-	specify the color and transparency.
+	The image is filled with a single color, `color`, so it's not
+	really blank.  `position` is the user coordinate of the lower left
+	corner of the image. `size` is the size that it will be drawn, in
+	user units. `pixelsize` is the size of the image in pixels.
 
-* Read a png file
+* Read a png file:
 
 	```C+++
 	CanvasImage* CanvasImage::newFromPNGfile(
-		   double x, double y,
-		   const std::string& filename, double width, double height)
+		   const Coord &position,
+		   const std::string& filename)
 	```
 
-	`x` and `y` are the position of the lower left corner of the image
-	in physical coordinates, and `width` and `height` are its
-	displayed size.
+	`position` is the position of the lower left corner of the image
+	in user coordinates, and `size` is its displayed size, in user
+	units. 
    
-* Read any file format that ImageMagick can handle
+* Read any file format that ImageMagick can handle:
 
 	```C++
 	CanvasImage* CanvasImage::newFromImageMagickFile(
-		   double x, double y,
-		   const std::string& filename,
-		   double width, double height)
+		   const Coord& position,
+		   const std::string& filename)
 	```
 
-	`x` and `y` are the position of the lower left corner of the image
-	in physical coordinates, and `width` and `height` are its
-	displayed size.
+	`position` is the position of the lower left corner of the image
+	in user coordinates, and `size` is its displayed size.
 
-* Create a CanvasImage from ImageMagick data
+* Create a CanvasImage from ImageMagick data:
 
-	~~~C++
+	```C++
 	CanvasImage* CanvasImage::newFromImageMagick(
-		double x, double y,
-		Magick::Image imagedata,
-		double width, double height)
-   ~~~
+		const Coord& position,
+		Magick::Image imagedata)
+   ```
 
 	Create a `CanvasImage` from image data that has already been read
 	by [ImageMagick](https://imagemagick.org/index.php).  The data is
@@ -538,43 +1062,44 @@ called on the returned `CanvasImage`.
 
 `CanvasImage` provides the following useful methods:
 
+* Set the displayed size of the image, in user coordinates:
+
+	`void CanvasImage::setSize(const Coord&)`
+	
+	or in pixel (screen) coordinates:
+	
+	`void CanvasImage::setSizeInPixels(const Coord&)`
+	
+	Either `setSize` or `setSizeInPixels` *must* be called before an
+    image can be displayed.
+
 * Set the style for drawing individual pixels
 
-	`CanvasImage::setDrawIndividualPixels()`
+	`CanvasImage::setDrawIndividualPixels(flag)`
 
 	Cairo draws pixels as small fuzzy blobs, which may or may not be
     what you want, especially if you need to zoom in.  When examining
     data on the image pixel level (not the screen pixel level) it can
     be convenient to draw each pixel as a rectangle.  Call
-    `setDrawIndividualPixels()` to switch to this mode.
+    `setDrawIndividualPixels(true)` to switch to this mode, or
+    `setDrawIndividualPixels(false)` to turn it off.
 	
 * Examine individual pixels
 
-	`Color CanvasImage::get(int x, int y) const;`
+	`Color CanvasImage::get(const ICoord &) const;`
 	
-	This returns the color of the pixel at point (x,y) in the image.
+	This returns the color of the pixel at the given point in the image.
+	The `ICoord` is the location of the pixel in the *image*, not the
+    canvas.  As such, it uses standard image coordinates, with x
+    increasing from left to right and y increasing from top to bottom.
 	
 * Modify individual pixels
 
-	```C++
-	CanvasImage::set(
-		int x, int y, 
-		double r, double b, double g);
-	CanvasImage::set(
-		int x, int y,
-		double r, double b, double g, double alpha);
-	CanvasImage::set(
-		int x, int y,
-		unsigned char r, unsigned char g, unsigned char b);
-	CanvasImage::set(
-		int x, int y, 
-		unsigned char r, unsigned char g, unsigned char b, unsigned char alpha);
-	```
+	`void CanvasImage::set(const ICoord&, const Color&)`
 
-	These methods allow you to set the RGBA values of the pixel at
-    x,y.  The first two methods expect the color parameters to be
-    between 0 and 1. If the alpha value is omitted it's assumed to be
-    1.0.  The last two methods expect values between 0 and 255.
+	The `ICoord` is the location of the pixel in the *image*, not the
+    canvas.  As such, it uses standard image coordinates, with x
+    increasing from left to right and y increasing from top to bottom.
 	
 	If you need to make extensive modifications to an image, it's
     better to use some other tools first and then load the modified
@@ -636,29 +1161,19 @@ or
 
 Derived from `CanvasFillableShape`.  The constructor is 
 
-* `CanvasRectangle(double xmin, double xmax, double ymin, double ymax)`
-
-or
-
 * `CanvasRectangle(const Coord&, const Coord&)`
 
-where the `Coord`s are any two opposite corners of the
-rectangle.  The corners are given in physical units.  Only the
-first constructor is available in Python.
+where the `Coord`s are the user coordinates of any two opposite
+corners of the rectangle.
 			
 ##### `CanvasSegment`
 
 A single line segment, derived from `CanvasShape`.  The
 constructor is
 
-* `CanvasSegment(double x0, double y0, double x1, double y1)`
-
-or
-
 * `CanvasSegment(const Coord &point0, const Coord &point1)`
 
-The positions are given in physical units.  Only the first form of
-the constructor is available in Python.
+The positions are given in user coordinates.
 		
 ##### `CanvasSegments`
 
@@ -668,34 +1183,20 @@ unconnected line segments all with the same color and width.
 The constructors are
 
 * `CanvasSegments()`
+
+	creates an empty object.
+	
 * `CanvasSegments(int n)`
 
-	Allocates space for `n` segments, but doesn't create them.  Only
-    available in C++.
+	allocates space for `n` segments, but doesn't create them.  This
+    form is only available in C++.
 	
-To add segments to the object, in C++ use one of 
-
-* `CanvasSegments::addSegment(double x0, double y0, double x1, double y1)`
-  
-	  The segment goes from `(x0, y0)` to `(x1, y1)`.
-or
+To add segments to the object, use
 
 * `CanvasSegments::addSegment(const Coord &pt0, const Coord &p1)`
 
 	The segment goes from `pt0` to `pt1`.
 	
-To add segments in Python, use
-
-* `CanvasSegments.addSegment(x0, y0, x1, y1)`
-  
-	  with four numeric arguments
-  
-or 
-
-* `CanvasSegments.addSegmentPoints(pt0, pt1)`
-
-	where the arguments can be indexed, `pt0[0] = x`, _etc._
-
 ##### `CanvasText`
 
 `CanvasText` displays text at an arbitrary position and orientation.
@@ -704,10 +1205,10 @@ It is derived from `CanvasItem`.  The text is drawn by the
 
 The constructor is
 
-* `CanvasText(double x, double y, const std::string &text)`
+* `CanvasText(const Coord &location, const std::string &text)`
 
-where `(x,y)` is the position of the lower left corner of the text, in
-physical units.
+where `location` is the position of the lower left corner of the text, in
+user coordinates.
 
 `CanvasText` methods include
 
@@ -723,7 +1224,7 @@ physical units.
     to determine the font.  It includes a font family or families,
     style options, and size (for example, `"Times Bold 0.2"`).  The
     size is interpreted in pixels if `inPixels` is true and in
-    physical units otherwise. The names of the installed font families
+    user units otherwise. The names of the installed font families
     are returned by the `list_fonts()` function.
 	
 * `CanvasText::rotate(angle)`
@@ -731,76 +1232,81 @@ physical units.
 	rotates the text by the given angle, in degrees, about the left
     end of the text's baseline.  Positive angles are counterclockwise.
 
-### Utility Types: Color, Coord, etc.
-
-These classes are defined in the OOFCanvas namespace and are used for
-some arguments and return values by the main OOFCanvas methods.
-
-#### `Color`
-
-Colors are stored as RGBA values, which are doubles between 0 and 1.
-
-C++ Constructors:
-
-* `Color()`
-
-	Initializes to black.
-
-* `Color(double r, double g, double b)`
-
-	Alpha is 1 (opaque).
-	
-* `Color(double r, double g, double b, double a)`
-
-The only Python constructor is
-
-* `Color(r, g, b)`
-
-To change the opacity of a Python color, use
-
-* `Color Color::opacity(alpha)`
-
-which returns a new `Color` with the given opacity.
-
-Predefined constants are defined for `black`, `white`, `red`, `green`,
-`blue`, `gray`, `yellow`, `magenta`, and `cyan`.
-
-#### `Coord`
-
-`Coord` is a position in physical space. It's not available in
-Python.  Methods that return a position to Python simply return an
-(x,y) tuple.  Python methods that take a position as an argument
-accept any type that can be indexed: `point[0]` is x and `point[1]` is
-y. 
-
-The constructors are
-
-* `Coord()`
-
-	The origin.
-	
-* `Coord(double x, double y)`
-
-The components can be accessed via the x and y data members or via
-indexing.  `coord.x == coord[0]`.
-
-Basic arithmetic, assignment, and equality operations are supported.
-
-#### `Rectangle`
-
-The `Rectangle` class is not the same as the `CanvasRectangle`.
-`CanvasRectangle` is a `CanvasItem` that can be displayed. `Rectangle`
-is just a region of space. It's used internally, and also returned by
-`GUICanvasBase::visibleRegion()`.   Useful methods are
-
-* `Rectangle::xmin()`
-* `Rectangle::ymin()`
-* `Rectangle::xmax()`
-* `Rectangle::ymax()`
-
-all of which return values in physical units.
+### RubberBand
 
 ## Appendix: Adding new CanvasItem subclasses
+
+New `CanvasItem` subclasses can be derived from `CanvasItem`,
+`CanvasShape`, or `CanvasFillableShape`.  A `CanvasShape`  is a
+`CanvasItem` with predefined methods for setting line drawing
+parameters.  A `CanvasFillableShape` is a `CanvasShape` with
+predefined methods for setting a fill color.
+
+The derived class constructor must invoke the base class constructor,
+passing a `Rectangle` as the argument.  The rectangle is the item's
+bounding box: the smallest rectangle in user space that
+completely encloses the item.  The sides of the rectangle are aligned
+with the x and y axes.  If the bounding box is not known, an
+uninitialized rectangle (`Rectangle()`) can be passed.
+
+A `CanvasItem` must define three virtual methods:
+
+* `void drawItem(Cairo::RefPtr<Cairo::Context> context) const`
+
+	Draw the item to the given `Cairo::Context`, using Cairo
+    functions.
+
+* `bool containsPoint(const OffScreenCanvas*, const Coord&) const`
+
+	Return true if the given point (in user coordinates)
+    is inside the `CanvasItem`.   If the item isn't selectable by
+    clicking, this method can always return false.
+	
+* `std::string print() const`
+
+	Return a descriptive string.  Used for debugging.
+	
+In addition, the `CanvasItem` must provide information about its
+bounding box in one of two ways, depending on whether or not the
+bounding box size is known when the item is first built: 
+
+1. Set `bbox` in the constructor.  `bbox` is a `Rectangle`
+   stored in the `CanvasItem` base class.
+   
+2. Redefine `const Rectangle& findBareBoundingBox() const` in the
+   derived class.  This returns the `Rectangle` that the item would
+   occupy in user coordinates if the pixel size were zero (i.e, if
+   the `ppu` were infinite).
+   
+   Also, redefine `void pixelExtents(double& left, double& right,
+   double& up, double& down) const` in the derived class.  The four
+   arguments must be set to the distances, in pixel units, that the
+   item extends beyond its bare bounding box. The values will
+   generally be nonzero only if the item has components whose size is
+   specified in pixels instead of user units. If all sizes are in
+   physcial units, then the bare bounding box is the actual bounding
+   box, and all pixel extents are zero.  In that case, `pixelExtents`
+   does not have to be redefined in the derived class.
+   
+Any operation that changes an item's size after it's been added to a
+`CanvasLayer` should call 'void CanvasItem::modified()`.
+
+### `CanvasShape`
+
+`CanvasShape` is an intermediate base class for `CanvasItems` that
+draw lines.  All of the lines must have the same color, width, and
+other characteristics.  `CanvasShape` does not store the lines -- it
+only provides the machinery for setting their style parameters.  The
+subclass's `drawItem` method should set up a Cairo path and then call
+`CanvasShape::stroke(context)` to draw it, where `context` is the
+`CairoContext` that was passsed to `drawItem()`.
+
+### `CanvasFillableShape`
+
+`CanvasFillableShape` is another intermediate base class for
+`CanvasItems`.  It extends `CanvasShape` by adding a method for
+setting a fill color.  When `CanvasFillableShape::stroke(context)` is
+called, it draws lines and fill shapes with the current settings.
 
 ## Appendix: Internal Order of Operations
 
@@ -810,7 +1316,7 @@ OOFCanvas.  It's here to help development.
 Each `CanvasLayer` contains a `Cairo::ImageSurface` which contains a
 bitmap of what's been drawn in the layer, a `Cairo::Context` which
 controls drawing to surface, and a `Rectangle` which is the bounding box
-(in physical coordinates) of all of the layer's `CanvasItems`. 
+(in user coordinates) of all of the layer's `CanvasItems`. 
 
 When a `CanvasItem` is added to a `CanvasLayer`, the layer is marked
 "dirty" and the item is stored in the layer.  No drawing is done at
@@ -829,12 +1335,12 @@ position determined by the scroll bars (if the image is larger than
 the window).
 
 Next, drawHandler calls `Canvas::setTransform()`, which computes the
-matrix that converts from physical coordinates to bitmap coordinates
+matrix that converts from user coordinates to bitmap coordinates
 within the layer, given the ppu.  The `GtkLayout` is resized if
 necessary so that it is large enough to accomodate the bounding boxes
 of all of the layers, plus an optional margin (set by
 `OffScreenCanvas::setMargin()`).  Note that a layer's bounding box, in
-physical units, can depend on the ppu if the layer contains items with
+user units, can depend on the ppu if the layer contains items with
 sizes given in pixels.
 
 What happens next depends on whether or not a rubberband is being
@@ -850,9 +1356,11 @@ If there is an active rubberband, on the first call to `drawHandler`
 after the mouse button was  pressed all of the `CanvasLayer`s other
 than the rubberband's layer are rendered to a separate
 `Cairo::ImageSurface` called the `nonRubberBandBuffer`.  Then this
-buffer is copied to the `GtkLayout` with the rubberband drawn on top
-of it each time the rubberband changes.  The `nonRubberBandBuffer` is
-updated first if any other layers have changed.
+buffer is copied to the `GtkLayout` and the rubberband is drawn on top
+of it.  On subsequent calls to `drawHandler`, the
+`nonRubberBandBuffer` is copied and the rubberband is drawn, but the
+`nonRubberBandBuffer` is not rebuilt unless the layers have changed.
+
 
 
 
