@@ -80,10 +80,6 @@ namespace OOFCanvas {
   // value of 1 puts it on the second point.  Intermediate values put
   // it somewhere in the middle.
 
-  // The size of the arrowhead is determined by the width and length
-  // passed to the constructor.  If setPixelSize() is called, the size
-  // is taken to be in pixel units.  Otherwise it's in user units.
-
   // If setReversed() is called, the arrow will point in the direction
   // of the CanvasSegment's first point.  Otherwise it points toward
   // the second point.
@@ -99,6 +95,7 @@ namespace OOFCanvas {
   //   shaped mask for the segment, if the mask could be applied only
   //   to the ends of the segment somehow.
 
+  // static
   Rectangle CanvasArrowhead::arrowheadBBox(
 		  const CanvasSegment *seg, double position,
 		  double width, double length, bool reversed)
@@ -135,12 +132,12 @@ namespace OOFCanvas {
   
 
   CanvasArrowhead::CanvasArrowhead(const CanvasSegment *seg,
-				   double pos, double w, double l,
+				   double pos,
 				   bool reversed)
-    : CanvasItem(arrowheadBBox(seg, pos, w, l, reversed)),
+    : CanvasItem(Rectangle()),
       segment(seg),
-      width(w),	       // width of arrowhead, perpendicular to segment
-      length(l),       // length of arrowhead along segment
+      width(0),	       // width of arrowhead, perpendicular to segment
+      length(0),       // length of arrowhead along segment
       position(pos),   // relative position along segment, in the range 0->1.
       pixelScaling(false),
       reversed(false)	    
@@ -151,15 +148,28 @@ namespace OOFCanvas {
     return name;
   }
 
-  void CanvasArrowhead::setPixelSize() {
-    pixelScaling = true;
-    pixelBBox = bbox;
-    Coord loc = segment->segment.interpolate(position);
-    bbox = Rectangle(loc, loc);
+  void CanvasArrowhead::setSize(double w, double l) {
+    length = l;
+    width = w;
+    pixelScaling = false;
+    bbox = arrowheadBBox(segment, position, w, l, reversed);
     modified();
   }
 
+  void CanvasArrowhead::setSizeInPixels(double w, double l) {
+    length = l;
+    width = w;
+    pixelScaling = true;
+    Coord loc = segment->segment.interpolate(position);
+    // compute unscaled sized of arrowhead, and save for use in pixelExtents
+    pixelBBox = arrowheadBBox(segment, position, w, l, reversed);
+    bbox = Rectangle(loc, loc);
+    modified();
+  }
+  
   void CanvasArrowhead::drawItem(Cairo::RefPtr<Cairo::Context> ctxt) const {
+    assert(bbox.initialized());	// need to call setSize or setSizeInPixels
+    
     Coord loc = segment->segment.interpolate(position);
     ctxt->translate(loc.x, loc.y);
 
@@ -186,11 +196,6 @@ namespace OOFCanvas {
 				     double &up, double &down)
     const
   {
-    // pixelBBox was computed to be the bounding box in user
-    // coordinates when it was thought that the arrowhead size was in
-    // user coordinates.  If we're here, then setPixelSize() has been
-    // called and the size is really in pixels.  The numerical
-    // dimensions of the saved bbox are the pixel extents.
     Coord loc(segment->segment.interpolate(position));
     left = loc.x - pixelBBox.xmin();
     right = pixelBBox.xmax() - loc.x;

@@ -56,11 +56,13 @@ namespace OOFCanvas {
     static Rectangle arrowheadBBox(const CanvasSegment*, double, double,
 				   double, bool);
   public:
-    CanvasArrowhead(const CanvasSegment*, double position, double w, double l,
-		    bool rev);
+    CanvasArrowhead(const CanvasSegment*, double position, bool rev);
     virtual const std::string &classname() const;
-    void setPixelSize(); // TODO GTK3 -- replace w/ setSize(double), setSizeInPixels(double)  Remove sizes from ctor.
 
+    void setSize(double, double);
+    void setSizeInPixels(double, double);
+
+    // Why is pixelExtents public?
     virtual void pixelExtents(double&, double&, double&, double&) const;
 
     friend std::ostream &operator<<(std::ostream&, const CanvasArrowhead&);

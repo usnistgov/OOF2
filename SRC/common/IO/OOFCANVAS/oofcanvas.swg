@@ -423,8 +423,9 @@ public:
 
 class CanvasArrowhead : public CanvasItem {
 public:
-  CanvasArrowhead(CanvasSegment*, double, double, double, bool);
-  void setPixelSize();
+  CanvasArrowhead(CanvasSegment*, double, bool);
+  void setSize(double, double);
+  void setSizeInPixels(double, double);
   %addmethods {
     %new const string *__repr__() {
       return self->repr();

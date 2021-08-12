@@ -61,8 +61,8 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
                     seg = oofcanvas.CanvasSegment(pt0, pt1)
                     seg.setLineWidthInPixels(self.linewidth)
                     seg.setLineColor(clr)
-                    arrow = oofcanvas.CanvasArrowhead(
-                        seg, 0.5, 0.7*self.arrowsize, self.arrowsize, False)
+                    arrow = oofcanvas.CanvasArrowhead(seg, 0.5, False)
+                    arrow.setSizeInPixels(0.7*self.arrowsize, self.arrowsize)
                     self.canvaslayer.addItem(seg)
                     self.canvaslayer.addItem(arrow)
 
@@ -134,9 +134,8 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
             seg = oofcanvas.CanvasSegment(n0, n1)
             seg.setLineColor(clr)
             seg.setLineWidthInPixels(self.linewidth)
-            arrow = oofcanvas.CanvasArrowhead(seg, 0.5, 0.7*self.arrowsize,
-                                              self.arrowsize, False)
-            arrow.setPixelSize()
+            arrow = oofcanvas.CanvasArrowhead(seg, 0.5, False)
+            arrow.setSizeInPixels(0.7*self.arrowsize, self.arrowsize)
             self.canvaslayer.addItem(seg)
             self.canvaslayer.addItem(arrow)
 
