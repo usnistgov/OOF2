@@ -72,6 +72,7 @@ namespace OOFCanvas {
     // in the given color.  If it's not called, the spaces will be
     // blank.
     void setDashColor(const Color&);
+    void unsetDashes();
 
     Color getLineColor() const { return lineColor; }
   };

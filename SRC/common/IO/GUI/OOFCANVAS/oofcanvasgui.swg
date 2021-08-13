@@ -50,6 +50,7 @@ public:
   ~RubberBand();
   void setLineWidth(double);
   void setColor(Color);
+  void setDashed(bool);
   void setDashLength(double);
   void setDashColor(Color);
   void draw(double x, double y);

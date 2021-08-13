@@ -33,6 +33,7 @@ namespace OOFCanvas {
     Color color;
     Color dashColor;
     double dashLength;		// length==0 means no dashes
+    bool dashed;
     bool coloredDashes;
     void doDashes(CanvasShape*);
   public:
@@ -44,9 +45,10 @@ namespace OOFCanvas {
     bool active() const { return active_; }
 
     void setLineWidth(double w) { lineWidth = w; }
-    void setColor(Color c) { color = c; }
+    void setColor(const Color &c) { color = c; }
 
-    void setDashColor(Color);
+    void setDashed(bool d) { dashed = d; }
+    void setDashColor(const Color&);
     void setDashLength(double l) { dashLength = l; }
   };
 

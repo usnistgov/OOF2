@@ -86,6 +86,10 @@ namespace OOFCanvas {
     dashLengthInPixels = true;
   }
 
+  void CanvasShape::unsetDashes() {
+    dash.clear();
+  }
+
   void CanvasShape::setDashInPixels(const std::vector<double> *d, int offset) {
     setDashInPixels(*d, offset);
   }

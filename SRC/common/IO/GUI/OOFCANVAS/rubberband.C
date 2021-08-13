@@ -27,6 +27,7 @@ namespace OOFCanvas {
       color(black),
       dashColor(white),
       dashLength(0),
+      dashed(true),
       coloredDashes(false)
   {}
 
@@ -48,13 +49,13 @@ namespace OOFCanvas {
     active_ = false;
   }
 
-  void RubberBand::setDashColor(Color c) {
+  void RubberBand::setDashColor(const Color &c) {
     dashColor = c;
     coloredDashes = true;
   }
 
   void RubberBand::doDashes(CanvasShape *shape) {
-    if(dashLength > 0) {
+    if(dashed && dashLength > 0) {
       shape->setDashInPixels(dashLength);
       if(coloredDashes)
 	shape->setDashColor(dashColor);

@@ -329,6 +329,7 @@ public:
   void setDash(CanvasDoubleVec*, int); 
   void setDashInPixels(CanvasDoubleVec*, int);
   void setDashColor(Color);
+  void unsetDashes();
 };
 
 class CanvasFillableShape : public CanvasShape {
