@@ -178,39 +178,24 @@ called from the Gtk main loop.
 
 ## Mouse 
 
+The Canvas's `setMouseCallback` method installs a mouse event handler,
+which will be called whenever a mouse button is pressed or released,
+the mouse is moved, or the scroll wheel is turned.
+
+
 Call `GUICanvasBase::setMouseCallback(MouseCallback callback, void
 *data)` to install a mouse event handler.  `callback` will be called
 whenever a mouse button is pressed, the mouse is moved, or the window
-is scrolled.  The signature of the callback function is
-
-	typedef void (*MouseCallback)(const std::string &event, 
-	                              double x, double y,
-								  int button,
-								  bool shift, bool ctrl,
-								  void *data)
-
-where `event` is either `up`, `down`, or `move`. `x` and `y` are the
-position of the mouse event in user coordinates. `button` indicates
-which mouse button was pushed, and `shift` and `ctrl` indicate whether
-the shift and control keys were pressed.  `data` is the pointer that
-was passed to `setMouseCallback`.
-
-
-To control how the callback is invoked when the mouse is moved, call
-`Canvas::allowMotionEvents(value)`.  In C++, `value` is a
-`MotionAllowed` enum, with the the choices 
-
-* `MOTION_ALWAYS` (call the callback whenever the mouse moves), 
-* `MOTION_MOUSEDOWN` (call the
-callback only if a mouse button is pressed), or 
-* `MOTION_NEVER` (don't call the callback for motion events).
-
-In Python, `MOTION_ALWAYS` et al. are variables defined in the
-OOFCanvas namespace.  The default is `MOTION_NEVER`.
+is scrolled. 
 
 To install a rubberband that will be displayed when the mouse is
 moving, call `GUICanvasBase::setRubberBand(RubberBand*)` from the
-callback for the mouse-down event.  The current position of the mouse
+callback for the mouse-down event.  The various types of `RubberBand`
+and details of how to use them are described in the section on the
+`RubberBand` class, below.  To stop displaying the `RubberBand`, pass
+a null pointer (in C++) or `None` in (in Python) to `setRubberBand()`.
+
+The current position of the mouse
 will be passed to the rubberband's `draw()` method whenever the mouse
 is moved.  Various kinds of rubberbands are defined in `rubberband.h`.
 To stop displaying the rubberband, pass `nullptr` (in C++) or `None`
@@ -219,33 +204,12 @@ of the rubberband object.  The calling code must delete it when done
 with it in C++ (if necessary) and make sure to retain a reference to
 it in Python (when necessary).
 
-Five classes of `RubberBand` are defined:
-
-- `LineRubberBand` is a straight line from the mouse-down position to
-  the current position.
-  
-- `RectangleRubberBand` is rectangle with one corner at the mouse-down
-  position and the diagonally opposite corner at the current position.
-  
-- `CircleRubberBand` is a circle centered on the mouse-down position
-  and passing through the current position.
-  
-- `EllipseRubberBand` is an ellipse that is fit into a rectangle, as
-	in `RectangleRubberBand`.
-	
-- `SpiderRubberBand` is a set of line segments, starting at given
-  points and ending at the current mouse position.  The start points
-  are specified by calling `SpiderRubberBand::addPoints(list)`, where
-  in C++, `list` is a `std::vector<Coord>*`.  In Python, it's a
-  iterable collection of objects where `obj[0]` is the x component of
-  `obj` and `obj[1]` is its y component.
-
 
 OOFCanvas does not handle selection of objects with the mouse, but it
 does provide the position of a mouse click as part of the data passed
 to the callback function.  Additionally, it is possible to get a list
-of all `CanvasItem`s at a point with
-`OffScreenCanvas::clickedItems(x,y)`, where `x` and `y` are doubles.
+of all `CanvasItems` at a point with
+`OffScreenCanvas::clickedItems(const Coord&)`.
 
 ## Scrolling
 
@@ -614,16 +578,20 @@ Methods defined in the base class include:
 
 	tells the canvas how to respond when the mouse moves, if a mouse
     callback function is installed.  The values of `ma` are
+	
 	* `MOTION_NEVER`: don't call the callback when the mouse moves.
 	* `MOTION_ALWAYS`: call the callback whenever the mouse moves.
 	* `MOTION_MOUSEDOWN`: call the callback when the mouse moves only
       if a mouse button is pressed.
+
+	In C++, these values are members of the `MotionAllowed` enum.  In
+	Python, they're constants defined in the OOFCanvas namespace.  The
+	default value is `MOTION_NEVER`.
 	  
 * `void GUICanvasBase::setRubberBand(RubberBand*)`
 
-	tells the canvas to install a `RubberBand` object for displaying
-    mouse motions.  This does not actually start the rubberband.  See
-    `RubberBand` for details.
+	tells the canvas to start using the `RubberBand` object for
+    displaying mouse motions.  See `RubberBand` for details.
 	
 * `void GUICanvasBase::removeRubberBand()`
 
@@ -632,15 +600,15 @@ Methods defined in the base class include:
 ### Canvas (C++)
 
 The `Canvas` class is derived from `GUICanvasBase` and is only
-available in C++.  A C++ class called `PythonCanvas` is also derived from
-`GUICanvasBase`, and is described in the next section.  That class is
-accessible from Python under the name `Canvas`, so in effect there is
-a `Canvas` class available in both languages, with slight differences.
+available in C++.  A C++ class called `PythonCanvas` is also derived
+from `GUICanvasBase`, and is described in the next section.  That
+class is accessible from Python under the name `Canvas`, so in effect
+there is a `Canvas` class available in both languages, with only
+slight differences.
 
 This section describes the `Canvas` class in C++.
 
-When a `Canvas` is created, it creates a `GtkLayout`, which can be
-placed into the GUI using standard gtk operations.  The constructor is
+The constructor is
 
 ```C++
 Canvas::Canvas(double ppu)
@@ -651,24 +619,37 @@ The argument is the initial pixels per unit.
 Most of the `Canvas` methods are defined in `GUICanvasBase` or
 `OffScreenCanvas`.  The new ones are:
 
-* `void Canvas::destroy()`
+* `GtkWidget* Canvas::gtk() const`
 
-	destroys the canvas and its `GtkLayout`.  This is called
-    automatically by the destructor.
-	
+	returns the `GtkLayout` that the `Canvas` is built on.  This
+    object is created by the `Canvas` constructor and should be placed
+    in the GUI using the usual Gtk operations.
+
 * `void Canvas::setMouseCallback(MouseCallback, void *data)`
 
 	assigns a mouse click callback function, which will be called when
     the mouse button is pressed or released, the mouse is moved, or
-    the scroll wheel is scrolled.
+    the scroll wheel is scrolled.  To limit the proliferation of
+    motion events, see the `GUICanvasBase::BaseallowMotionEvents`
+    function.
 	
-	The callback function returns void, and has arguments
+	The signature of the callback function is
+	
+		```C++
+		typedef void (*MouseCallback)(const std::string &event, 
+	                              const Coord &position,
+								  int button,
+								  bool shift, bool ctrl,
+								  void *data);
+		```
+	
+	The following arguments are passed to the callback:
 	
 	* `const std:string& eventtype`
 	
-		Either "down" (button was pressed), "up" (button was
-        released), "move" (mouse was moved), or "scroll" (scroll wheel
-        was turned).
+		The types are "down" (button was pressed), "up" (button was
+        released), "move" (mouse was moved), and "scroll" (scroll
+        wheel was turned).
 		
 	* `const Coord& position`
 	
@@ -696,10 +677,6 @@ Most of the `Canvas` methods are defined in `GUICanvasBase` or
     function must take a single `void*` argument, and return
     `void`. When called, the given `data` is passed.
 	
-* `GtkWidget* Canvas::gtk() const`
-
-	returns the `GtkLayout` that the `Canvas` is built on.
-
 ### Canvas (Python)
 
 This is the `Canvas` class that is exported to Python.  See the
@@ -829,55 +806,59 @@ canvas.
 This is an abstract base class for most other `CanvasItem` classes.
 It defines the following methods:
 
-* `void setLineWidth(double)`
-* `void setLineWidthInPixels(double)`
+* `void CanvasShape::setLineWidth(double)`
+* `void CanvasShape::setLineWidthInPixels(double)`
 
 	`setLineWidth` sets in the width in user
     units. `setLineWidthInPixels` sets it in pixel units.
 
-* `setLineColor(const Color&)`
+* `void CanvasShape::setLineColor(const Color&)`
 
 	See `Color`, below.
 
-* `setLineJoin(Cairo::LineJoin)`
+* `void CanvasShape::setLineJoin(Cairo::LineJoin)`
 
 	In C++, the argument is a member of the [`Cairo::LineJoin`]
 	(https://www.cairographics.org/documentation/cairomm/reference/classCairo_1_1Context.html)
 	class.  In Python, it's `lineJoinMiter`, `1ineJoinRound`, or
 	`lineJoinBevel`, which are defined in the OOFCanvas namespace.
 
-* `setLineCap(Cairo::LineCap)`
+* `void CanvasShape::setLineCap(Cairo::LineCap)`
 
 	In C++, the argument is a member of the [`Cairo::LineCap`]
 	(https://www.cairographics.org/documentation/cairomm/reference/classCairo_1_1Context.html)
 	class.  In Python, it's `lineCapButt`, `lineCapRound`, or
 	`lineCapSquare`, which are defined in the OOFCanvas namespace.
 
-* `setDash(const std::vector<double>&, int offset)`
+* `void CanvasShape::setDash(const std::vector<double>&, int offset)`
 
 	The vector contains a pattern of dash lengths, which are in
 	user units.  The pattern repeats as necessary.  `offset`
 	indicates where the pattern starts.
 	
-* `setDashInPixels(const std::vector<double>&, int offset)`
+* `void CanvasShape::setDashInPixels(const std::vector<double>&, int offset)`
 
 	The same as the above `setDash`, but the dash lengths are
     interpreted in pixel units.
 
-* `setDash(double)`
+* `void CanvasShape::setDash(double)`
 
 	Use a single dash length, which is in user units.
 
-* `setDashInPixels(double)`
+* `void CanvasShape::setDashInPixels(double)`
 
 	The same as `setDash(double)`, but the dash lengths are in pixel
     units.
 
 
-* `setDashColor(const Color&)`
+* `void CanvasShape::setDashColor(const Color&)`
 
 	Fill the spaces between dashes with the given color,
 	instead of leaving them blank.
+	
+* `void CanvasShape::unsetDashes()`
+
+	Turn off dashes. Draw solid lines.
 			
 ##### `CanvasFillableShape`
 
@@ -885,7 +866,7 @@ This abstract class in derived from `CanvasShape` and is used for
 closed shapes that can be filled with a color.  It provides one
 method:
 
-* `setFillColor(const Color&)`
+* `void CanvasFillableShape::setFillColor(const Color&)`
 
 	Fill the shape with the given color.
 
@@ -1234,6 +1215,60 @@ user coordinates.
 
 ### RubberBand
 
+Rubberbands are dashed lines drawn on top of the rest of the Canvas to
+indicate mouse movements while a mouse button is pressed.  The
+rubberband will be drawn while the mouse is down if a mouse callback
+calls `GUICanvasBase::setRubberBand(RubberBand*)`.  Drawing will cease
+after `GUICanvasBase::removeRubberBand()` is called.
+
+Five subclasses of `RubberBand` are defined:
+
+* `LineRubberBand` is a straight line from the mouse-down position to
+  the current position.
+  
+* `RectangleRubberBand` is rectangle with one corner at the mouse-down
+  position and the diagonally opposite corner at the current position.
+  
+* `CircleRubberBand` is a circle centered on the mouse-down position
+  and passing through the current position.
+  
+* `EllipseRubberBand` is an ellipse that is fit into a rectangle, as
+	in `RectangleRubberBand`.
+	
+* `SpiderRubberBand` is a set of line segments, starting at given
+  points and ending at the current mouse position.  The start points
+  are specified by calling `SpiderRubberBand::addPoints(list)`, where
+  in C++, `list` is a `std::vector<Coord>*`.  In Python, it's a
+  iterable collection of objects where `obj[0]` is the x component of
+  `obj` and `obj[1]` is its y component.
+  
+The appearance of the rubberband is controlled by these functions in
+the `RubberBand` base class:
+
+* `void RubberBand::setLineWidth(double width)`
+
+	width is the line width in pixel units.
+	
+* `void RubberBand::setColor(const Color& color)`
+
+	sets the color of the dashed line.
+	
+* `void RubberBand::setDashLength(double length)`
+
+	sets the length of the dashes in pixels.
+	
+* `void RubberBand::setDashColor(const Color &color)`
+
+	sets the color of the line *between* the dashes.  If this function
+    is not called, the spaces between the dashes are not filled.
+	
+* `void RubberBand::setDashed(bool)`
+
+	turns the dashes on and off.  Undashed rubberbands drawn with
+    solid lines may be hard to see on some backgrounds.  The default
+    is to draw dashes.
+
+
 ## Appendix: Adding new CanvasItem subclasses
 
 New `CanvasItem` subclasses can be derived from `CanvasItem`,
@@ -1248,6 +1283,8 @@ bounding box: the smallest rectangle in user space that
 completely encloses the item.  The sides of the rectangle are aligned
 with the x and y axes.  If the bounding box is not known, an
 uninitialized rectangle (`Rectangle()`) can be passed.
+
+### `CanvasItem`
 
 A `CanvasItem` must define three virtual methods:
 
