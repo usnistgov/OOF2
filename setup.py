@@ -234,17 +234,13 @@ class CLibInfo:
         if self.extensionObjs is None:
             self.extensionObjs = []
             for swigfile in self.dirdata['swigfiles']:
-                # The [6:] in the following strips the "./SRC/" from
-                # the beginning of the file names.  splitext(file)[0]
-                # is the path to a file with the extension stripped.
-                basename = os.path.splitext(swigfile)[0][6:]
+                # The file name is of the form "./SRC/dirs/something.swg"
+                # Strip the "./SRC/" and the suffix.
+                basename = os.path.splitext(
+                    os.path.relpath(swigfile, './SRC'))[0]
 
-                # swig 1.1 version
                 modulename = os.path.splitext(basename + SWIGCFILEEXT)[0]
                 sourcename = os.path.join(swigroot, basename+SWIGCFILEEXT)
-                # swig 1.3 version                
-##                modulename = '_' + basename
-##                sourcename = os.path.join(swigroot, basename+'_wrap.cxx')
                 
                 extension = distutils.core.Extension(
                     name = os.path.join(OOFNAME,"ooflib", SWIGINSTALLDIR,
@@ -680,8 +676,10 @@ typedef int Py_ssize_t;
             depdict.setdefault(pyfile, []).append(phile)
         # Add in the implicit dependencies on the .spy files.
         for underpyfile in allFiles('swigpyfiles'):
-            base = os.path.splitext(underpyfile)[0] # drop .spy
-            pyfile = os.path.normpath(os.path.join(swigroot,base[6:]+'.py'))
+            relpath = os.path.relpath(underpyfile, './SRC')
+            relocated = os.path.normpath(os.path.join(swigroot, relpath))
+            # Replace .spy with .py
+            pyfile = os.path.splitext(relocated)[0] + ".py"
             depdict.setdefault(pyfile, []).append(underpyfile)
 
         return depdict
