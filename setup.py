@@ -48,7 +48,7 @@ from distutils.command import clean
 from distutils.command import build_scripts
 from distutils import errors
 from distutils import log
-from distutils.dir_util import remove_tree
+from distutils.dir_util import remove_tree, mkpath
 from distutils.sysconfig import get_config_var
 
 ## oof2installlib redefines the distutils install_lib command so that
@@ -291,8 +291,10 @@ class CLibInfo:
         # Convert it to a list of dirs relative to the swigroot
         swigpkgs = []
         for pkg in pkgs:
-            pkgdir = os.path.join(swigroot, pkg[6:]) # eg, SRC/SWIG/common
-            pkgname = OOFNAME + '.' + pkgdir[4:].replace('/', '.') # oof2.ooflib.SWIG.common
+            relpath = os.path.relpath(pkg, './SRC')
+            relocated = os.path.normpath(
+                os.path.join(OOFNAME, SWIGDIR, relpath))
+            pkgname = relocated.replace('/', '.')
             swigpkgs.append(pkgname)
         return swigpkgs
 
@@ -726,6 +728,7 @@ typedef int Py_ssize_t;
             else:
                 depdict = self.find_dependencies()
                 print "Saving dependencies in", depfilename
+                mkpath(self.build_temp)
                 depfile = open(depfilename, "w")
                 print >> depfile, "depdict=", depdict
                 depfile.close()
