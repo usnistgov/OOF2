@@ -16,7 +16,7 @@
 %include "common/typemaps.swg"
 %{
 #include <oofconfig.h>
-#include "common/IO/OOFCANVAS/canvasimage.h"
+#include "oofcanvas/canvasimage.h"
 #include "common/boolarray.h"
 #include "common/doublearray.h"
 #include "common/ooferror.h"
@@ -30,7 +30,7 @@ typedef OOFCanvas::CanvasImage CanvasImage;
 %extern "common/timestamp.swg"
 %extern "common/ooferror.swg"
 %extern "common/abstractimage.swg"
-%extern "common/IO/OOFCANVAS/oofcanvas.swg"
+   //%extern "common/IO/OOFCANVAS/oofcanvas.swg"
 
 %extern "common/doublearray.swg"
 %pragma(python) code="from ooflib.SWIG.common.doublearray import DoubleArrayPtr"
@@ -108,7 +108,7 @@ public:
   ImageMagickError(char *m);
   ~ImageMagickError();
   %addmethods {
-    const string *__repr__() {
+    %new const string *__repr__() {
       return self->summary();
     }
   }

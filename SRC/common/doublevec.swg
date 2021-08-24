@@ -13,9 +13,10 @@
 #define DOUBLEVEC_SWG
 
 %module doublevec
+%include "common/typemaps.swg"
 
 %{
-#include <cstring>
+#include <string>
 #include "common/doublevec.h"
 %}
 
@@ -41,8 +42,8 @@ public:
 };
 
 %addmethods DoubleVec {
-  const char* __repr__() {
-    return (*self).str().c_str();
+  %new const string* __repr__() {
+     return new std::string((*self).str());
   }
 
   void copy_inplace(DoubleVec *x) {
