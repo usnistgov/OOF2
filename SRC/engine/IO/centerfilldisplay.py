@@ -14,7 +14,6 @@
 ## TOOD GTK3: Is this working properly when levels are specified & not
 ## automatic?
 
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import primitives
@@ -31,6 +30,8 @@ from ooflib.engine.IO import output
 from ooflib.engine.IO import outputDefs
 from types import *
 import sys
+
+import oofcanvas
 
 MeshDisplayMethod = displaymethods.MeshDisplayMethod
 

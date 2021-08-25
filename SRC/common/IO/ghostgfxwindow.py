@@ -17,7 +17,6 @@ from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import timestamp
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import enum
@@ -42,6 +41,8 @@ import copy
 import os.path
 import string
 import sys
+
+import oofcanvas
 
 FloatParameter = parameter.FloatParameter
 IntParameter = parameter.IntParameter

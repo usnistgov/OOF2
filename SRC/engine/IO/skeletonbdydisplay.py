@@ -8,7 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.SWIG.common import config
 from ooflib.common import color
 from ooflib.common import debug
@@ -24,6 +23,8 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.engine import skeletonboundary
 import math
 import string
+
+import oofcanvas
 
 # Special parameter class for skeleton boundaries.  Returns a
 # list of strings corresponding to the names of boundaries in a

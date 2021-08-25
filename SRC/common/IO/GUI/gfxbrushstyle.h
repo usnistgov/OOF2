@@ -14,7 +14,7 @@
 
 #include <oofconfig.h>
 
-#include "common/IO/OOFCANVAS/oofcanvas.h"
+#include "oofcanvas/oofcanvas.h"
 #include "common/brushstyle.h"
 
 // Each BrushStyle subclass defined in common/brushstyle.h should have

@@ -11,7 +11,7 @@
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import progress
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
+from ooflib.SWIG.common import threadstate
 from ooflib.SWIG.engine.IO import contour
 from ooflib.common import color
 from ooflib.common import debug
@@ -30,10 +30,10 @@ from ooflib.common.IO import automatic
 from ooflib.engine.IO import displaymethods
 from ooflib.engine.IO import output
 from ooflib.engine.IO import outputDefs
+
+import oofcanvas
+
 from types import *
-
-from ooflib.SWIG.common import threadstate
-
 import sys
 
 RegisteredParameter = parameter.RegisteredParameter

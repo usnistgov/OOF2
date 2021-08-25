@@ -33,8 +33,13 @@ typedef OOFCanvas::CanvasImage CanvasImage;
 %extern "engine/femesh.swg"
 %extern "common/abstractimage.swg"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
-%extern "common/IO/OOFCANVAS/oofcanvas.swg"
-%pragma(python) code="from ooflib.SWIG.common.IO.OOFCANVAS.oofcanvas import CanvasImagePtr"
+   
+%pragma(python) code="from oofcanvas import CanvasImagePtr"
+
+   // TODO GTK3: Some replacement for this extern is needed to handle
+   // the return value from makeCanvasImage.
+   //%extern "common/IO/OOFCANVAS/oofcanvas.swg"
+   
 
 %typemap(python, out) Property* {
   // typemap(python, out) Property*

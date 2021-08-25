@@ -10,7 +10,6 @@
 # oof_manager@nist.gov.
 
 from ooflib.SWIG.common import config
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import primitives
@@ -21,6 +20,8 @@ from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
+
+import oofcanvas
 
 
 class PixelInfoDisplay(display.DisplayMethod):

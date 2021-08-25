@@ -8,7 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import primitives
 from ooflib.common import registeredclass
@@ -19,6 +18,8 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 import types
+
+import oofcanvas
 
 class MoveNodeDisplay(display.DisplayMethod):
     def __init__(self, color, size):

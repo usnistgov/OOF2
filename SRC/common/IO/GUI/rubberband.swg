@@ -18,9 +18,32 @@
 #include "common/IO/GUI/rubberband.h"
 using namespace OOFCanvas;
 %}
-%extern "common/IO/GUI/OOFCANVAS/oofcanvasgui.swg"
+%{
+  typedef OOFCanvas::Color CanvasColor;
+%}
 
-%pragma(python) code="from ooflib.SWIG.common.IO.GUI.OOFCANVAS.oofcanvasgui import RubberBandPtr"
+
+// TODO GTK3: Do we need this %extern? It's not available now that oofcanvas
+// is separate.
+//%extern "common/IO/GUI/OOFCANVAS/oofcanvasgui.swg"
+
+// This declaration was copied from
+// OOFCANVAS/oofcanvas/oofcanvasgui/oofcanvasgui.swg, changing Color
+// to CanvasColor and adding the typedef above.
+class RubberBand {
+public:
+  ~RubberBand();
+  void setLineWidth(double);
+  void setColor(CanvasColor);
+  void setDashed(bool);
+  void setDashLength(double);
+  void setDashColor(Color);
+  void draw(double x, double y);
+};
+
+
+
+%pragma(python) code="from oofcanvas.oofcanvasgui import RubberBandPtr"
 
 class BrushRubberBand : public RubberBand {
 public:

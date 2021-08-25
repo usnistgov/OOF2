@@ -10,7 +10,6 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import utils
@@ -21,6 +20,8 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
 from ooflib.engine.IO import pinnodes
+
+from oofcanvas import oofcanvasgui
 
 from gi.repository import Gtk
 

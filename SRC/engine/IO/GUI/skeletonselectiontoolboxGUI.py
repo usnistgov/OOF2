@@ -10,7 +10,6 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
 from ooflib.common import debug
 from ooflib.common.IO.GUI import genericselectGUI
 from ooflib.common.IO.GUI import gtklogger
@@ -20,6 +19,7 @@ from ooflib.engine import skeletonselectionmethod
 from ooflib.engine import skeletonselmodebase
 
 from gi.repository import Gtk
+from oofcanvas import oofcanvasgui
 
 # The SkeletonSelectionToolbox GUI is a ToolboxGUI that contains other
 # ToolboxGUI's.  The inner GUI's are instances of

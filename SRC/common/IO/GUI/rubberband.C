@@ -15,7 +15,7 @@
 #include "common/IO/GUI/gfxbrushstyle.h"
 
 // Definitions of RubberBand subclass(es) that aren't defined in
-// OOFCANVAS for some reason.
+// oofcanvas for some reason.
 
 // The BrushRubberBand draws a curve along the centerline of the brush
 // stroke and also outlines the brush.

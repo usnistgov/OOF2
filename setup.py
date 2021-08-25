@@ -176,6 +176,15 @@ class CLibInfo:
         # list. This is called after all of the DIR.py files have been
         # read, so that self.pkgs contains all of the third party
         # packages that will be used.
+
+        ## TODO GTK3: THIS IS A HACK inserted because oofcanvas is
+        ## currently installed only in my home directory. The correct
+        ## thing is to create and install an oofcanvas.pc file when
+        ## building oofcanvas, and have the user adjust
+        ## PKG_CONFIG_PATH if necessary.
+        self.includeDirs.append(os.path.expanduser("~/include"))
+        self.externalLibDirs.append(os.path.expanduser("~/lib"))
+        
         if not self.pkgs:
             return
         # Run pkg-config --cflags.

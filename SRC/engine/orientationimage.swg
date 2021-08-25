@@ -24,8 +24,11 @@ typedef OOFCanvas::CanvasImage CanvasImage;
 %extern "engine/angle2color.swg"
 %extern "common/abstractimage.swg"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
-%pragma(python) code="from ooflib.SWIG.common.IO.OOFCANVAS.oofcanvas import CanvasImagePtr"
-%extern "common/IO/OOFCANVAS/oofcanvas.swg"
+%pragma(python) code="from oofcanvas import CanvasImagePtr"
+
+   // TODO GTK3: Find a replacement for this extern.  It's needed for
+   // the return value from makeCanvasImage,
+   //%extern "common/IO/OOFCANVAS/oofcanvas.swg"
 
 class CMicrostructure;
 

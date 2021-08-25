@@ -8,7 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import registeredclass
@@ -18,6 +17,8 @@ from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
+
+import oofcanvas
 
 class PinnedNodesDisplay(display.DisplayMethod):
     def __init__(self, color, size):

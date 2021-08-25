@@ -13,8 +13,6 @@ from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
-from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import primitives
@@ -27,10 +25,12 @@ from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
 from ooflib.engine.IO import movenode
 
+import oofcanvas
+from oofcanvas import oofcanvasgui
+
 from gi.repository import Gtk
 import sys
 import types
-
 
 class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def __init__(self, movenodetoolbox):

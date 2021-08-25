@@ -10,11 +10,12 @@
 
 import math, types
 from ooflib.SWIG.common import config
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import debug
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
+
+import oofcanvas
 
 FloatParameter = parameter.FloatParameter
 FloatRangeParameter = parameter.FloatRangeParameter

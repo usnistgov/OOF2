@@ -30,6 +30,9 @@ typedef OOFCanvas::CanvasImage CanvasImage;
 %extern "common/timestamp.swg"
 %extern "common/ooferror.swg"
 %extern "common/abstractimage.swg"
+
+   // TODO GTK3: We need a replacement for this extern to handle the
+   // return value from makeCanvasImage.
    //%extern "common/IO/OOFCANVAS/oofcanvas.swg"
 
 %extern "common/doublearray.swg"
@@ -41,7 +44,7 @@ typedef OOFCanvas::CanvasImage CanvasImage;
 %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 %pragma(python) code="from ooflib.SWIG.common.ooferror import ErrErrorPtr"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
-%pragma(python) code="from ooflib.SWIG.common.IO.OOFCANVAS.oofcanvas import CanvasImagePtr"
+%pragma(python) code="from oofcanvas import CanvasImagePtr"
 
 class OOFImage : public AbstractImage {
 public:

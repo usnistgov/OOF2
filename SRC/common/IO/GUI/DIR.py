@@ -11,7 +11,6 @@
 dirname = 'GUI'
 clib = 'oof2commonGUI'
 clib_order = 100
-subdirs = ['OOFCANVAS']
 
 pyfiles = [
     'activeareaPage.py',
@@ -85,4 +84,9 @@ def set_clib_flags(clib):
 
     oof2setuputils.pkg_check("gtk+-3.0", GTK_VERSION, clib)
     addOOFlibs(clib, 'oof2common')
+    clib.externalLibs.append('oofcanvasGUI')
+
+    ## TODO GTK3: This is here to add the cairomm include path.  It
+    ## should instead come from running pkg_check on oofcanvas.
+    oof2setuputils.pkg_check("cairomm-1.0", CAIROMM_VERSION, clib)
 

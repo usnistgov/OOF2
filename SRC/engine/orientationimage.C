@@ -10,7 +10,6 @@
  */
 
 #include <oofconfig.h>
-#include "common/IO/OOFCANVAS/oofcanvas.h"
 #include "common/array.h"
 #include "common/cmicrostructure.h"
 #include "common/coord.h"
@@ -19,6 +18,8 @@
 #include "engine/ooferror.h"
 #include "engine/orientationimage.h"
 #include "engine/property/orientation/orientation.h"
+
+#include "oofcanvas/oofcanvas.h"
 
 OrientationImage::OrientationImage(CMicrostructure *microstructure,
 				   const Angle2Color *colorscheme,

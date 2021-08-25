@@ -10,7 +10,6 @@
 
 from ooflib.SWIG.common import direction
 from ooflib.SWIG.common import ooferror
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.SWIG.engine import crystalsymmetry
 from ooflib.common import color
 from ooflib.common import debug
@@ -27,6 +26,8 @@ from ooflib.common.IO import whoville
 from ooflib.orientationmap import orientmapmenu
 import ooflib.common.microstructure
 import os.path
+
+import oofcanvas
 
 def _makePoleFigure(menuitem, microstructure, pixels, symmetry,
                     pole, nBins,

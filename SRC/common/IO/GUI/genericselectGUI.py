@@ -15,8 +15,6 @@ from ooflib.SWIG.common import config
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import ooferror
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
-from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import subthread
@@ -27,6 +25,9 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import historian
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
+
+import oofcanvas
+from oofcanvas import oofcanvasgui
 
 import sys
 from gi.repository import Gtk

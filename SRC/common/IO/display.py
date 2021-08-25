@@ -16,6 +16,7 @@ from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import timestamp
+from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import registeredclass
@@ -24,6 +25,9 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import placeholder
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
+
+import oofcanvas
+
 import string
 import types
 import weakref
@@ -317,9 +321,6 @@ DisplayMethod.discussion = xmlmenudump.loadFile(
     'DISCUSSIONS/common/reg/displaymethod.xml', _addMethodList)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
-from ooflib.common import color
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 
 class MicrostructurePerimeterDisplay(DisplayMethod):
     def __init__(self, color, width):

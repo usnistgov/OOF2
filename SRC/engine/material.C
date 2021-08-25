@@ -20,7 +20,6 @@
 #include "common/tostring.h"
 #include "common/trace.h"
 #include "common/printvec.h"
-#include "common/IO/OOFCANVAS/canvasimage.h"
 #include "engine/cnonlinearsolver.h"
 #include "engine/csubproblem.h"
 #include "engine/elementnodeiterator.h"
@@ -35,6 +34,9 @@
 #include "engine/material.h"
 #include "engine/equation.h"
 #include "engine/smallsystem.h"
+
+#include "oofcanvas/canvasimage.h"
+
 #include <iostream>
 #include <vector>
 #include <map>

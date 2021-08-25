@@ -10,7 +10,6 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import ooferror
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import primitives
@@ -25,6 +24,8 @@ from ooflib.common.IO import placeholder
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine.IO import meshcsparams
 import types
+
+import oofcanvas
 
 # Layer for showing the mesh cross-sections.
 class MeshCrossSectionDisplay(display.DisplayMethod):

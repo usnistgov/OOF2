@@ -14,13 +14,14 @@
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common.IO.GUI import rubberband
-from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
 from ooflib.common import debug
 from ooflib.common import pixelselectionmethod
 from ooflib.common import primitives
 from ooflib.common.IO import pixelselectiontoolbox
 from ooflib.common.IO.GUI import genericselectGUI
 from ooflib.common.IO.GUI import regclassfactory
+
+from oofcanvas import oofcanvasgui
 
 from gi.repository import Gtk
 

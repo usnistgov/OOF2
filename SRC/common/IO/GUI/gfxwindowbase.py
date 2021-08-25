@@ -339,7 +339,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
 
     def allowMotionEvents(self, mode):
         # mode is one of the MotionAllowed objects defined in
-        # OOFCANVAS/oofcanvasgui.swg.
+        # oofcanvas/oofcanvasgui
         if self.oofcanvas is not None:
             if mode is None:
                 mode = oofcanvasgui.MOTION_NEVER

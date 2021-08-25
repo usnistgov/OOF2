@@ -12,7 +12,6 @@
 # clicks, draws paths, etc.
 
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import utils
@@ -33,6 +32,8 @@ from ooflib.engine.IO import meshmenu
 from ooflib.engine.IO import outputdestination
 from ooflib.engine.IO.GUI import outputdestinationwidget
 from ooflib.engine.IO.GUI import sampleregclassfactory
+
+from oofcanvas import oofcanvasgui
 
 from gi.repository import Gtk
 

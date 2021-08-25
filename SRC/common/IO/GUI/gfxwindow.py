@@ -15,8 +15,6 @@ from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import progress
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.IO.GUI.OOFCANVAS import oofcanvasgui
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import mainthread
@@ -38,6 +36,9 @@ from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import quit
 from ooflib.common.IO.GUI import subWindow
+
+import oofcanvas
+from oofcanvas import oofcanvasgui
 
 from gi.repository import GObject
 from gi.repository import Gtk

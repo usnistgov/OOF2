@@ -19,7 +19,6 @@ from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import smallmatrix
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import threadstate
-from ooflib.SWIG.common.IO.OOFCANVAS import oofcanvas
 from ooflib.SWIG.engine import mastercoord
 from ooflib.common import color
 from ooflib.common import debug
@@ -49,6 +48,8 @@ import ooflib.SWIG.engine.material
 from ooflib.common.IO import placeholder
 from ooflib.engine.IO import meshparameters
 from ooflib.engine.IO import materialparameter
+
+import oofcanvas
 
 if parallel_enable.enabled():
     from ooflib.SWIG.common import mpitools

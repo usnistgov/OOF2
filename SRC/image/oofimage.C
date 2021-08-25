@@ -18,11 +18,12 @@
 #include "common/ooferror.h"
 #include "common/boolarray.h"
 #include "common/doublearray.h"
-#include "common/IO/OOFCANVAS/canvasimage.h"
 #include "image/oofimage.h"
 #include <math.h>
 #include <set>
 #include <iostream>
+
+#include "oofcanvas/oofcanvas.h"
 
 OOFImage::OOFImage(const std::string &name, const std::string &filename)
   : name_(name)
