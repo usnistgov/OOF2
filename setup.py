@@ -32,6 +32,7 @@ CAIROMM_VERSION = "1.12" # Don't know what the earliest acceptable version is.
 PANGO_VERSION = "1.40"
 PANGOCAIRO_VERSION = "1.40"
 PYGOBJECT_VERSION = "3.26"
+OOFCANVAS_VERSION = "0.0.0"
 
 # The make_dist script edits the following line when a distribution is
 # built.  Don't change it by hand.  On the git master branch,
@@ -177,14 +178,6 @@ class CLibInfo:
         # read, so that self.pkgs contains all of the third party
         # packages that will be used.
 
-        ## TODO GTK3: THIS IS A HACK inserted because oofcanvas is
-        ## currently installed only in my home directory. The correct
-        ## thing is to create and install an oofcanvas.pc file when
-        ## building oofcanvas, and have the user adjust
-        ## PKG_CONFIG_PATH if necessary.
-        self.includeDirs.append(os.path.expanduser("~/include"))
-        self.externalLibDirs.append(os.path.expanduser("~/lib"))
-        
         if not self.pkgs:
             return
         # Run pkg-config --cflags.
@@ -1545,6 +1538,7 @@ if __name__ == '__main__':
     # 'options' is a valid keyword arg in python 2.6 and above, and in
     # python 2.6 and above we need to use it to set the 'plat_name'
     # argument to the 'build' command.
+    ## TODO: Do we really need it? 
     if sys.hexversion >= 0x020600F0: 
         options = dict(build = dict(plat_name = distutils.util.get_platform()))
         setupargs['options'] = options

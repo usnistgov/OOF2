@@ -14,26 +14,20 @@
 
 %module bitoverlay
 %include "common/typemaps.swg"
+%include "common/canvasimage.swg"
 
 %{
 #include "common/IO/bitoverlay.h"
 #include "oofcanvas/canvasimage.h"
-typedef OOFCanvas::CanvasImage CanvasImage;
 %}
 %extern "common/coord.swg"
 %extern "common/timestamp.swg"
 %extern "common/ccolor.swg"
 %extern "common/abstractimage.swg"
 
- // TODO GTK3: This line is required for CanvasImages to be returned
- // to python correctly from makeCanvasImage(), but swig can't find
- // the file here.
- //%extern "oofcanvas/oofcanvas.swg"
-
 %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 %pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
-%pragma(python) code="from oofcanvas import CanvasImagePtr"
    
 %pragma(python) include="bitoverlay.spy"
 
@@ -53,7 +47,7 @@ public:
   void setColor(CColor*);
   CColor getBG();
   CColor getFG();
-  %new CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
   
   Coord size();
   ICoord sizeInPixels();

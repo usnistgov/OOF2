@@ -14,6 +14,8 @@
 %module oofimage
 
 %include "common/typemaps.swg"
+%include "common/canvasimage.swg"
+
 %{
 #include <oofconfig.h>
 #include "oofcanvas/canvasimage.h"
@@ -21,7 +23,6 @@
 #include "common/doublearray.h"
 #include "common/ooferror.h"
 #include "image/oofimage.h"
-typedef OOFCanvas::CanvasImage CanvasImage;
 %}
 
 %pragma(python) include="oofimage.spy"
@@ -30,10 +31,6 @@ typedef OOFCanvas::CanvasImage CanvasImage;
 %extern "common/timestamp.swg"
 %extern "common/ooferror.swg"
 %extern "common/abstractimage.swg"
-
-   // TODO GTK3: We need a replacement for this extern to handle the
-   // return value from makeCanvasImage.
-   //%extern "common/IO/OOFCANVAS/oofcanvas.swg"
 
 %extern "common/doublearray.swg"
 %pragma(python) code="from ooflib.SWIG.common.doublearray import DoubleArrayPtr"
@@ -44,7 +41,6 @@ typedef OOFCanvas::CanvasImage CanvasImage;
 %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 %pragma(python) code="from ooflib.SWIG.common.ooferror import ErrErrorPtr"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
-%pragma(python) code="from oofcanvas import CanvasImagePtr"
 
 class OOFImage : public AbstractImage {
 public:
@@ -85,7 +81,7 @@ public:
   void evenly_illuminate(int);
   
   bool compare(OOFImage&, double);
-  %new CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 
   // getTimeStamp is redefined in oofimage.spy so that it can have optional args
   %name(_getTimeStamp) TimeStamp *getTimeStamp();

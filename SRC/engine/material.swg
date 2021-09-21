@@ -14,6 +14,7 @@
 
 %module material
 %include "engine/typemaps.swg"
+%include "common/canvasimage.swg"
 %{
 #include "engine/csubproblem.h"
 #include "engine/element.h"
@@ -22,7 +23,6 @@
 #include "common/pixelgroup.h"
 #include "common/ccolor.h"
 typedef const std::string MaterialType;
-typedef OOFCanvas::CanvasImage CanvasImage;
 %}
 
 %pragma(python) include="engine/material.spy"
@@ -34,13 +34,6 @@ typedef OOFCanvas::CanvasImage CanvasImage;
 %extern "common/abstractimage.swg"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
    
-%pragma(python) code="from oofcanvas import CanvasImagePtr"
-
-   // TODO GTK3: Some replacement for this extern is needed to handle
-   // the return value from makeCanvasImage.
-   //%extern "common/IO/OOFCANVAS/oofcanvas.swg"
-   
-
 %typemap(python, out) Property* {
   // typemap(python, out) Property*
   $target = $source->pythonObject();
@@ -123,7 +116,7 @@ TimeStamp getMaterialTimeStamp(CMicrostructure*);
 class MaterialImage : public AbstractImage {
 public:
   MaterialImage(CMicrostructure*, CColor*, CColor*);
-  %new CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 
 %typemap(python,out) Property*;

@@ -14,9 +14,9 @@
 
 %module orientmapdata
 %include "common/typemaps.swg"
+%include "common/canvasimage.swg"
 %{
 #include "orientationmap/orientmapdata.h"
-typedef OOFCanvas::CanvasImage CanvasImage;
 %}
 
 %pragma(python) include="orientmapdata.spy"
@@ -55,7 +55,7 @@ class OrientMapImage : public AbstractImage {
 public:
   OrientMapImage(OrientMap*, Angle2Color*);
   ~OrientMapImage();
-  %new CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 
 void registerOrientMap(char*, OrientMap*);

@@ -47,9 +47,4 @@ if HAVE_MPI:
 def set_clib_flags(clib):
     import oof2setuputils
     oof2setuputils.pkg_check("gtk+-3.0", GTK_VERSION, clib)
-    clib.externalLibs.append('oofcanvas')
-
-    ## TODO GTK3:  This should really be
-    ##  oof2setuputils.pkg_check("oofcanvas", 1.0, clib)
-    ## which will add the compile and link flags for cairomm and others.
-    oof2setuputils.pkg_check("cairomm-1.0", CAIROMM_VERSION, clib)
+    oof2setuputils.pkg_check("oofcanvas", OOFCANVAS_VERSION, clib)
