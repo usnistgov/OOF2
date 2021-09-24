@@ -18,30 +18,17 @@
 #include "common/IO/GUI/rubberband.h"
 using namespace OOFCanvas;
 %}
-%{
-  typedef OOFCanvas::Color CanvasColor;
-%}
 
-
-// TODO GTK3: Do we need this %extern? It's not available now that oofcanvas
-// is separate.
-//%extern "common/IO/GUI/OOFCANVAS/oofcanvasgui.swg"
-
-// This declaration was copied from
-// OOFCANVAS/oofcanvas/oofcanvasgui/oofcanvasgui.swg, changing Color
-// to CanvasColor and adding the typedef above.
 class RubberBand {
 public:
   ~RubberBand();
   void setLineWidth(double);
-  void setColor(CanvasColor);
+  void setColor(Color);
   void setDashed(bool);
   void setDashLength(double);
   void setDashColor(Color);
   void draw(double x, double y);
 };
-
-
 
 %pragma(python) code="from oofcanvas.oofcanvasgui import RubberBandPtr"
 

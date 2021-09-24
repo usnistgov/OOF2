@@ -14,28 +14,23 @@
 
 %module orientationimage
 %include "engine/typemaps.swg"
+%include "common/canvasimage.swg"
 
 %{
 #include "engine/orientationimage.h"
 #include "common/ccolor.h"
-typedef OOFCanvas::CanvasImage CanvasImage;
 %}
 
 %extern "engine/angle2color.swg"
 %extern "common/abstractimage.swg"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
-%pragma(python) code="from oofcanvas import CanvasImagePtr"
-
-   // TODO GTK3: Find a replacement for this extern.  It's needed for
-   // the return value from makeCanvasImage,
-   //%extern "common/IO/OOFCANVAS/oofcanvas.swg"
 
 class CMicrostructure;
 
 class OrientationImage : public AbstractImage {
 public:
   OrientationImage(CMicrostructure*, Angle2Color*, CColor*, CColor*);
-  %new CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 
 #endif // ORIENTATIONIMAGE_SWG
