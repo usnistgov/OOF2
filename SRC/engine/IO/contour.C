@@ -543,7 +543,6 @@ public:
 class Contour_StartAlongEdge : public ContourState {
 private:
   ContourCell &cell;
-  const ContourCellSet &cells;	// TODO: Not used?
   int endno;
 public:
   Contour_StartAlongEdge(ContourCell &cell, const ContourCellSet &cells,
@@ -649,7 +648,7 @@ ContourState *Contour_StartOnEdge::next() const {
 Contour_StartAlongEdge::Contour_StartAlongEdge(ContourCell &cell,
 					       const ContourCellSet &cells,
 					       CContour &contour, bool close)
-  : cell(cell), cells(cells)
+  : cell(cell) //, cells(cells)
 {
   // First, check to see if we can really start here.  We know a
   // priori that exactly two of the cells corners are at the contour

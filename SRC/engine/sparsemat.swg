@@ -17,7 +17,6 @@
 %include "engine/typemaps.swg"
 
 %{
-#define SWIG_FILE_WITH_INIT
 #include "engine/sparsemat.h"
 #include "engine/dofmap.h"
 #include <string>

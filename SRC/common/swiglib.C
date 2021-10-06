@@ -436,6 +436,8 @@ SWIG_GetPtr(const char *c, void **ptr, const char *t)
     sp++;
     start++;
   }
+  if(c)
+    std::cerr << "SWIG_GetPtr: failed to find " << c << std::endl;
   return c;
 } 
 
