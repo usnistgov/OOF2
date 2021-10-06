@@ -19,18 +19,9 @@
 using namespace OOFCanvas;
 %}
 
-class RubberBand {
-public:
-  ~RubberBand();
-  void setLineWidth(double);
-  void setColor(Color);
-  void setDashed(bool);
-  void setDashLength(double);
-  void setDashColor(Color);
-  void draw(double x, double y);
-};
-
 %pragma(python) code="from oofcanvas.oofcanvasgui import RubberBandPtr"
+
+extern class RubberBand;
 
 class BrushRubberBand : public RubberBand {
 public:
