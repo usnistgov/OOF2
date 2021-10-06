@@ -190,7 +190,7 @@ private:
   // The index of the residual vector is a subproblem eqn index.
   DoubleVec residual;
 
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
   // Variables for parallel matrix construction (or make-linear-system).
   // Each thread has its own triplets of matrix coefficient and copies of
   // linear system vectors; All the triplets and vectors of different
@@ -375,7 +375,7 @@ public:
   void applyFloatBC(int, int, int, int, int, int);
   void cleanmaps();
 
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
   // Make copies of matrices and vectors for each thread.
   // It is called at the beginning of make_linear_system
   // (CSubProblem::make_linear_system).

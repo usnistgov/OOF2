@@ -30,7 +30,7 @@
 #include "engine/node.h"
 #include "engine/sparsemat.h"
 
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
 #include <omp.h>
 #endif
 
@@ -47,7 +47,7 @@ LinearizedSystem::LinearizedSystem(CSubProblem *subp, double time)
   : subproblem( subp ),
     tdDirichlet(false),
     time_(time)
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
     , mkl_parallel(false)
 #endif
 {
@@ -126,7 +126,7 @@ LinearizedSystem::LinearizedSystem(const LinearizedSystem &other)
 
     dofstates_(other.dofstates_),
     dependenteqns_(other.dependenteqns_)
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
     , mkl_parallel(false)
 #endif
 {
@@ -275,7 +275,7 @@ void LinearizedSystem::insertDoublet(std::vector<std::vector<Doublet>> &arr,
   //   int i = subproblem->mesh2subpEqnMap[row];
   //   int j = subproblem->mesh2subpDoFMap[col];
   //   assert(i > -1 && j > -1);
-  // #ifdef _OPENMP 
+  // #ifdef HAVE_OPENMP 
   //   if (mkl_parallel)
   //     CTri_mtd[omp_get_thread_num()].emplace_back(i, j, x);
   //   else
@@ -350,7 +350,7 @@ void LinearizedSystem::allocateDoublets() {
 void LinearizedSystem::insert_force_bndy_rhs(int row, double val) {
   assert(subproblem->mesh2subpEqnMap[row] != -1);
 
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
   if (mkl_parallel) {
     DoubleVec& fbndy = force_bndy_mtd[omp_get_thread_num()];
     fbndy[subproblem->mesh2subpEqnMap[row]] += val;
@@ -365,7 +365,7 @@ void LinearizedSystem::insert_force_bndy_rhs(int row, double val) {
 
 void LinearizedSystem::insert_body_rhs(int row, double val) {
   assert(subproblem->mesh2subpEqnMap[row] != -1);
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
   if (mkl_parallel) {
     DoubleVec& body = body_mtd[omp_get_thread_num()];
     body[subproblem->mesh2subpEqnMap[row]] += val;
@@ -380,7 +380,7 @@ void LinearizedSystem::insert_body_rhs(int row, double val) {
 
 void LinearizedSystem::insert_static_residual(int row, double val) {
   assert(subproblem->mesh2subpEqnMap[row] != -1);
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
   if (mkl_parallel) {
     DoubleVec& res = residual_mtd[omp_get_thread_num()];
     res[subproblem->mesh2subpEqnMap[row]] += val;
@@ -394,7 +394,7 @@ void LinearizedSystem::insert_static_residual(int row, double val) {
 
 }
 
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
 void LinearizedSystem::init_parallel_env(bool needJacobian,
                                          bool needResidual) {
   int ntds = omp_get_max_threads();
@@ -493,7 +493,7 @@ void LinearizedSystem::tear_down_parallel_env() {
 
   mkl_parallel = false;
 }
-#endif // _OPENMP
+#endif // HAVE_OPENMP
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
