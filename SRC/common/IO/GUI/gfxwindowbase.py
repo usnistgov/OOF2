@@ -291,6 +291,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
     def destroyCB(self, *args):
         # See comment in GhostGfxWindow.close about the order of operations.
         self.oofcanvas = None # break ref. loops so that canvas is destroyed
+        self.contourmapdata.canvas = None
         if self.gtk:
             for tbgui in self.toolboxGUIs:
                 if tbgui.active:
