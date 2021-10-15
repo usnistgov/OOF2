@@ -14,6 +14,7 @@
 
 #include <oofconfig.h>
 
+#include "oofcanvas/oofcanvas.h"
 #include "oofcanvas/rubberband.h"
 #include <vector>
 
@@ -22,10 +23,11 @@ class GfxBrushStyle;
 class BrushRubberBand : public OOFCanvas::RubberBand {
 private:
   GfxBrushStyle *style;
-  std::vector<OOFCanvas::Coord> trail;
+  OOFCanvas::CanvasCurve *trail;
 public:
   BrushRubberBand(GfxBrushStyle*);
   virtual void start(OOFCanvas::CanvasLayer*, double, double);
+  virtual void stop();
   virtual void draw(double, double);
 };
 

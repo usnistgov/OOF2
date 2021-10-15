@@ -343,11 +343,6 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.rb.setDashColor(oofcanvas.white)
         self.rb.setDashLength(7)
         self.gfxwindow().setRubberBand(self.rb)
-
-        ## TODO: This needs to add points to the rubberband before
-        ## returning, because GUICanvasBase::mouseButtonHandler will
-        ## install and start the rb as soon as this callback returns.
-
         subthread.execute(self.down_subthread, (x,y,button,shift,ctrl))
 
     def down_subthread(self, x, y, button, shift, ctrl):

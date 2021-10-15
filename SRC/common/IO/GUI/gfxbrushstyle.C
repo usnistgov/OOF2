@@ -13,13 +13,14 @@
 
 #include "gfxbrushstyle.h"
 
-void GfxCircleBrush::draw(OOFCanvas::CanvasLayer *layer,
-			  const OOFCanvas::Coord &pt)
-  const
+void GfxCircleBrush::start(OOFCanvas::CanvasLayer *layer,
+			   const OOFCanvas::Coord &pt)
 {
+  // TODO GTK3: Get dashlength, linewidth, and colors from parameters
+  // in genericSelectGUI.py
   double dashLength = 7;
   double lineWidth = 2;
-  OOFCanvas::CanvasCircle *circle = new OOFCanvas::CanvasCircle(pt, r);
+  circle = new OOFCanvas::CanvasCircle(pt, r);
   circle->setLineWidthInPixels(lineWidth);
   circle->setLineColor(OOFCanvas::white);
   circle->setDashColor(OOFCanvas::black);
@@ -27,19 +28,36 @@ void GfxCircleBrush::draw(OOFCanvas::CanvasLayer *layer,
   layer->addItem(circle);
 }
 
-void GfxSquareBrush::draw(OOFCanvas::CanvasLayer *layer,
-			  const OOFCanvas::Coord &pt)
-  const
+void GfxCircleBrush::update(const OOFCanvas::Coord &pt) {
+  circle->setCenter(pt);
+}
+
+void GfxCircleBrush::stop() {
+  circle = nullptr;
+}
+
+void GfxSquareBrush::start(OOFCanvas::CanvasLayer *layer,
+			   const OOFCanvas::Coord &pt)
 {
+  // TODO GTK3: Get dashlength, linewidth, and colors from parameters
+  // in genericSelectGUI.py
   double dashLength = 7;
   double lineWidth = 2;
-  OOFCanvas::Coord diag(size, size);
 
-  OOFCanvas::CanvasRectangle *rect =
-    new OOFCanvas::CanvasRectangle(pt-diag, pt+diag);
-  rect->setLineWidthInPixels(lineWidth);
-  rect->setLineColor(OOFCanvas::white);
-  rect->setDashColor(OOFCanvas::black);
-  rect->setDashInPixels(dashLength);
-  layer->addItem(rect);
+  OOFCanvas::Coord diag(size, size);
+  rectangle = new OOFCanvas::CanvasRectangle(pt-diag, pt+diag);
+  rectangle->setLineWidthInPixels(lineWidth);
+  rectangle->setLineColor(OOFCanvas::white);
+  rectangle->setDashColor(OOFCanvas::black);
+  rectangle->setDashInPixels(dashLength);
+  layer->addItem(rectangle);
+}
+
+void GfxSquareBrush::update(const OOFCanvas::Coord &pt) {
+  OOFCanvas::Coord diag(size, size);
+  rectangle->update(pt-diag, pt+diag);
+}
+
+void GfxSquareBrush::stop() {
+  rectangle = nullptr;
 }
