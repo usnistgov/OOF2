@@ -183,7 +183,7 @@ And Ctrl-click to toggle.""")
         toolboxGUI.GfxToolbox.activate(self)
         self.gfxwindow().setMouseHandler(self)
         self.oldMotionFlag = self.gfxwindow().allowMotionEvents(
-            oofcanvasgui.MOTION_ALWAYS)
+            oofcanvasgui.motionAlways)
         self.sbcallbacks = [
             switchboard.requestCallbackMain(('who changed', 'Skeleton'),
                                             self.skelChanged),
