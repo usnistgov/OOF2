@@ -27,10 +27,12 @@ BrushRubberBand::BrushRubberBand(GfxBrushStyle *brush)
     trail(nullptr)
 {}
 
-void BrushRubberBand::start(OOFCanvas::CanvasLayer *lyr, double x, double y) {
-  RubberBand::start(lyr, x, y);
+void BrushRubberBand::start(OOFCanvas::CanvasLayer *lyr,
+			    const OOFCanvas::Coord &pt)
+{
+  RubberBand::start(lyr, pt);
   trail = new OOFCanvas::CanvasCurve();
-  trail->addPoint(OOFCanvas::Coord(x, y));
+  trail->addPoint(pt);
   trail->setLineColor(color);
   trail->setLineWidthInPixels(lineWidth);
   doDashes(trail);
@@ -44,8 +46,8 @@ void BrushRubberBand::stop() {
   trail = nullptr;
 }
 
-void BrushRubberBand::draw(double x, double y) {
-  RubberBand::draw(x, y);
+void BrushRubberBand::update(const OOFCanvas::Coord &pt) {
+  RubberBand::update(pt);
   trail->addPoint(currentPt);
   style->update(currentPt);
 }

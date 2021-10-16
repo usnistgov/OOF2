@@ -26,9 +26,9 @@ private:
   OOFCanvas::CanvasCurve *trail;
 public:
   BrushRubberBand(GfxBrushStyle*);
-  virtual void start(OOFCanvas::CanvasLayer*, double, double);
+  virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&);
   virtual void stop();
-  virtual void draw(double, double);
+  virtual void update(const OOFCanvas::Coord&);
 };
 
 #endif // RUBBERBAND_H
