@@ -19,7 +19,7 @@
 #include <oofconfig.h>
 #include <Python.h>
 #include <iostream>
-#include "trace.h"
+#include "common/ooferror.h"
 #define SWIG_GLOBAL 1
 
 // ------------ SWIG generated code starts here ---------
@@ -436,8 +436,13 @@ SWIG_GetPtr(const char *c, void **ptr, const char *t)
     sp++;
     start++;
   }
-  if(c)
-    std::cerr << "SWIG_GetPtr: failed to find " << c << std::endl;
+#ifdef DEBUG
+  if(c) {
+    std::cerr << "SWIG_GetPtr: failed!  c=" << c << ", t=" << t << "."
+	      << std::endl;
+    throw ErrProgrammingError("SWIG_GetPtr failed", __FILE__, __LINE__);
+  }
+#endif // DEBUG
   return c;
 } 
 
