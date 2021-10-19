@@ -351,7 +351,6 @@ SWIG_GetPtr(const char *c, void **ptr, const char *t)
 {
   unsigned long p;
   char temp_type[256];
-  const char *name;
   int  i, len, start, end;
   SwigPtrType *sp,*tp;
   SwigCacheType *cache;
@@ -409,7 +408,6 @@ SWIG_GetPtr(const char *c, void **ptr, const char *t)
   /* Try to find a match */
   while (start <= end) {
     if (strncmp(t,sp->name,sp->len) == 0) {
-      name = sp->name;
       len = sp->len;
       tp = sp->next;
       /* Try to find entry for our given datatype */
