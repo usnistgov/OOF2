@@ -178,8 +178,8 @@ try:
         print >> sys.stderr, "Merging master branch into", tag
         proc = subprocess.Popen(['git', 'merge', '--no-edit', 'master'],
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print >> sys.stderr, stdoutdata
         stdoutdata, stderrdata = proc.communicate()
+        print >> sys.stderr, stdoutdata
         if proc.returncode != 0:
             print >> sys.stderr, stderrdata
             print >> sys.stderr, "Failed to merge master into", tag
@@ -238,7 +238,7 @@ try:
     # all the git manipulations are complete.
         
     # Make a timestamp file for the distribution.
-    timefile = file("package_date", "w")
+    timefile = open("package_date", "w")
     print >> timefile, time.ctime()
     timefile.close()
     
@@ -246,6 +246,7 @@ try:
     # directory.  Moving up to the temp directory means that the path
     # names in the file will all start with "oof{2,3d}-version/",
     # which is nice and modular.
+    print >> sys.stderr, "Changing directory to", tempdir
     os.chdir(tempdir)
 
     # We aren't using distutils to automatically create a MANIFEST
@@ -255,8 +256,6 @@ try:
 
     import localexclusions
 
-    print >> sys.stderr, "Changing directory to", tempdir
-    
     globalExcludeDirs = [
         ".git"
     ] + localexclusions.globalExcludeDirs
