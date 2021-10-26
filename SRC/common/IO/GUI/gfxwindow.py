@@ -628,7 +628,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             mainthread.runBlock(
                 self.contourlevel_max.set_text, ('',) )
 
-        self.contourmapdata.canvas.show()
+        mainthread.runBlock(self.contourmapdata.canvas.show)
 
         # Don't put a checkpoint here... there are too many of them
         # b/c this is called by show_contourmap_info.  That function
@@ -911,8 +911,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                 canvasColor(color))
             self.contourmapdata.canvas.setBackgroundColor(
                 canvasColor(color))
-            mainthread.runBlock(self.oofcanvas.draw)
-            mainthread.runBlock(self.contourmapdata.canvas.draw)
+            self.oofcanvas.draw()
+            self.contourmapdata.canvas.draw()
         finally:
             self.releaseGfxLock()
 
