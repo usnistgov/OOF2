@@ -17,6 +17,7 @@
 #include "common/oofomp.h"
 #include "common/printvec.h"
 #include "common/threadstate.h"
+#include "oofcanvas/oofcanvas.h"
 #include <iostream>
 #include <pthread.h>
 #include <string>
@@ -272,6 +273,8 @@ void initThreadState() {
   // Create a ThreadState object for the main thread.  This is created
   // when the oof module is loaded by Python.
   mainthreadstate = new ThreadState();
+
+  OOFCanvas::set_mainthread(pthread_self()); // for debugging oofcanvas
 }
 
 // // Reassign the mainthreadstate variable -- used to set a new main
