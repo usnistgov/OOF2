@@ -537,7 +537,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         if not self.gtk:
             return
         wasempty = self.contourmapdata.canvas.empty()
-        self.contourmapdata.canvas_mainlayer.clear()
+        mainthread.runBlock(self.contourmapdata.canvas_mainlayer.clear)
         self.contourmapdata.canvas_mainlayer.removeAllItems()
         
         # Copy self.current_contourmap_method to a local variable to
@@ -547,7 +547,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         if current_contourmethod:
             current_contourmethod.draw_contourmap(
                 self, self.contourmapdata.canvas_mainlayer)
-            self.contourmapdata.canvas.zoomToFill()
+            mainthread.runBlock(self.contourmapdata.canvas.zoomToFill)
             (c_min, c_max, lvls) = current_contourmethod.get_contourmap_info()
         else:
             # A newly empty contourmap canvas has to be drawn to erase
@@ -638,7 +638,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
     # Callback for size changes of the pane containing the contourmap.
     def contourmap_resize(self, data):
-        self.contourmapdata.canvas.zoomToFill()
+        mainthread.runBlock(self.contourmapdata.canvas.zoomToFill)
 
     def contourmap_mouse(self, event, pos, button, shift, ctrl, data):
         debug.mainthreadTest()
@@ -846,9 +846,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
     def zoom_bbox(self):
         debug.mainthreadTest()
-        self.oofcanvas.zoomToFill()
+        mainthread.runBlock(self.oofcanvas.zoomToFill)
 
     def saveCanvasRegion_gui(self, menuitem):
+        debug.mainthreadTest()
         if self.oofcanvas.empty():
             reporter.warn("Canvas is empty! Not saving anything.")
             return

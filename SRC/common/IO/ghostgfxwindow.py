@@ -1070,16 +1070,18 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     def redraw(self, menuitem):
         self.acquireGfxLock()
         try:
-            for layer in self.layers:
-                ## TODO: This redraws the Cairo layers without
-                ## reconstructing them.  Do we want to reconstruct
-                ## them, ie. have the DisplayLayers recompute
-                ## themselves?
-                layer.canvaslayer.markDirty();
-                layer.canvaslayer.render()
+            mainthread.runBlock(self.redraw_mainthread)
         finally:
             self.releaseGfxLock()
         self.draw()
+
+    def redraw_mainthread():
+        for layer in self.layers:
+            ## TODO: This redraws the Cairo layers without
+            ## reconstructing them.  Do we want to reconstruct them,
+            ## ie. have the DisplayLayers recompute themselves?
+            layer.canvaslayer.markDirty();
+            layer.canvaslayer.render()
 
     def setTimeCB(self, menuitem, time):
         self.setDisplayTime(time)
