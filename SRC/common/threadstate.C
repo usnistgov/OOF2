@@ -274,7 +274,7 @@ void initThreadState() {
   // when the oof module is loaded by Python.
   mainthreadstate = new ThreadState();
 
-  OOFCanvas::set_mainthread(pthread_self()); // for debugging oofcanvas
+  OOFCanvas::set_mainthread(); // for debugging oofcanvas
 }
 
 // // Reassign the mainthreadstate variable -- used to set a new main
