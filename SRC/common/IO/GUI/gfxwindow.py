@@ -553,7 +553,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             # A newly empty contourmap canvas has to be drawn to erase
             # its old contents.
             if not wasempty:
-                self.contourmapdata.canvas.draw()
+                mainthread.runBlock(self.contourmapdata.canvas.draw)
             c_min = c_max = None
         
         if c_min is None:
@@ -628,8 +628,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
             mainthread.runBlock(
                 self.contourlevel_max.set_text, ('',) )
 
-        self.contourmapdata.canvas.show()
-
+        mainthread.runBlock(self.contourmapdata.canvas.show)
+        
         # Don't put a checkpoint here... there are too many of them
         # b/c this is called by show_contourmap_info.  That function
         # ends with a checkpoint.  If this function is never called
@@ -677,6 +677,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
 
         # Copy the OOFCanvas::CanvasLayers to the OOFCanvas::Canvas
         # (actually just tells gtk to queue up a draw event).
+        #mainthread.runBlock(self.oofcanvas.draw)
         self.oofcanvas.draw()
         
         # Update the contourmap info, now that the appropriate layer
@@ -912,8 +913,10 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                 canvasColor(color))
             self.contourmapdata.canvas.setBackgroundColor(
                 canvasColor(color))
-            mainthread.runBlock(self.oofcanvas.draw)
-            mainthread.runBlock(self.contourmapdata.canvas.draw)
+            # mainthread.runBlock(self.oofcanvas.draw)
+            # mainthread.runBlock(self.contourmapdata.canvas.draw)
+            self.oofcanvas.draw()
+            self.contourmapdata.canvas.draw()
         finally:
             self.releaseGfxLock()
 
