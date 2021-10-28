@@ -170,11 +170,11 @@ COrientAxis COrientation::weightedAverage(double w0, double w1,
   
   const std::vector<SmallMatrix> &latticerotations(lattice.matrices());
   double minangle = std::numeric_limits<double>::max();
-  int closest = -1;
-  for(int i=0; i<latticerotations.size(); i++) {
+  std::vector<SmallMatrix>::size_type closest = 0;
+  for(std::vector<SmallMatrix>::size_type i=0; i<latticerotations.size(); i++) {
     COrientAxis axisrot(latticerotations[i]*diff); // L * O1 * O0^T
     double angle = fabs(axisrot.angle());
-    if(angle < minangle) {
+    if(angle < minangle || i==0) {
       minangle = angle;
       closest = i;
     }
