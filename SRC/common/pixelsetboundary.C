@@ -159,7 +159,7 @@ Coord intersection(const ICoord &a0, const ICoord &a1,
 
 // Utility function used by PSBTiling constructor
 
-static void getTileIndices(int mssize, std::size_t ntiles,
+static void getTileIndices(unsigned int mssize, std::size_t ntiles,
 			   TileNumbers &tileNumbers,
 			   std::vector<std::size_t> &maxes)
 {
