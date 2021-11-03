@@ -21,3 +21,6 @@ surface_mode = False
 useFakeFileSelector = 'sometimes' # use only in gui test mode
 
 geometry="550x350"
+
+def getGeometry():
+    return map(int, geometry.split('x'))

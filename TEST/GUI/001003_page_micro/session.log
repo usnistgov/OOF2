@@ -1,0 +1,6 @@
+OOF.Microstructure.Create_From_ImageFile(filename='examples/K1_small.pgm', microstructure_name='K1_small.pgm', height=automatic, width=automatic)
+OOF.Microstructure.Create_From_ImageFile(filename='examples/cyallow.png', microstructure_name='cyallow.png', height=automatic, width=automatic)
+OOF.File.Load.Image(filename='examples/K1_small.pgm', microstructure='K1_small.pgm', height=automatic, width=automatic)
+OOF.PixelGroup.AutoGroup(grouper=ColorGrouper(image='cyallow.png:cyallow.png',sigma0=0.002), delta=2.0, gamma=2.0, minsize=10, contiguous=True, name_template='group_%n', clear=True)
+OOF.PixelGroup.AutoGroup(grouper=ColorGrouper(image='K1_small.pgm:K1_small.pgm<2>',sigma0=0.002), delta=2.0, gamma=2.0, minsize=40, contiguous=True, name_template='group_%n', clear=True)
+OOF.PixelGroup.AutoGroup(grouper=ColorGrouper(image='K1_small.pgm:K1_small.pgm',sigma0=0.002), delta=2.0, gamma=2.0, minsize=40, contiguous=True, name_template='group_%n', clear=True)

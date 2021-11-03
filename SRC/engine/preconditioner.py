@@ -37,6 +37,9 @@ class ILUTPreconditioner(PreconditionerBase):
 class ILUPreconditioner(PreconditionerBase):
     name = "ILU"
 
+class ICPreconditioner(PreconditionerBase):
+    name = "IC"
+
 registeredclass.Registration(
     "Null",
     PreconditionerBase,
@@ -54,10 +57,10 @@ registeredclass.Registration(
     tip="A light-weight preconditioner, that simply inverts the diagonal part of the matrix.")
 
 registeredclass.Registration(
-    "IncompleteLUT",
+    "Incomplete LUT",
     PreconditionerBase,
     ILUTPreconditioner,
-    ordering=100,
+    ordering=101,
     params=[],
     tip="Incomplete LU-factorization with dual thresholding.")
 
@@ -67,4 +70,13 @@ registeredclass.Registration(
     ILUPreconditioner,
     ordering=101,
     params=[],
+    secret=True,
     tip="ILU is not supported. It points to IncompleteLUT instead.") 
+
+registeredclass.Registration(
+    "Incomplete Cholesky",
+    PreconditionerBase,
+    ICPreconditioner,
+    ordering=100,
+    params=[],
+    tip="Incomplete Cholesky factorization with dual thresholding.") 

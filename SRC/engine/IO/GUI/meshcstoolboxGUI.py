@@ -12,7 +12,6 @@
 # clicks, draws paths, etc.
 
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.IO.GUI import rubberband
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import utils
@@ -23,7 +22,6 @@ from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
 from ooflib.common.IO.GUI import toolboxGUI
-from ooflib.common.IO.GUI import tooltips
 from ooflib.engine import analysisdomain
 from ooflib.engine import analysissample
 from ooflib.engine import mesh
@@ -34,7 +32,10 @@ from ooflib.engine.IO import meshmenu
 from ooflib.engine.IO import outputdestination
 from ooflib.engine.IO.GUI import outputdestinationwidget
 from ooflib.engine.IO.GUI import sampleregclassfactory
-import gtk
+
+from oofcanvas import oofcanvasgui
+
+from gi.repository import Gtk
 
 # String displayed in the cross section chooser to mean that no cs is
 # selected.
@@ -46,122 +47,113 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         toolboxGUI.GfxToolbox.__init__(
             self, utils.underscore2space(toolbox.name()), toolbox)
 
-        mainbox = gtk.VBox()
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                          margin=2)
         self.gtk.add(mainbox)
 
-        sourceframe = gtk.Frame("Source")
-        sourceframe.set_shadow_type(gtk.SHADOW_IN)
-        mainbox.pack_start(sourceframe, fill=0, expand=0)
-        sourcescroll = gtk.ScrolledWindow()
+        sourceframe = Gtk.Frame(label="Source", shadow_type=Gtk.ShadowType.IN,
+                                margin_start=2, margin_end=2,
+                                margin_top=2, margin_bottom=2)
+        mainbox.pack_start(sourceframe, fill=False, expand=False, padding=0)
+        sourcescroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN,
+                                          margin=2)
         gtklogger.logScrollBars(sourcescroll, "Source")
         sourceframe.add(sourcescroll)
-        sourcescroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_NEVER)
-        datatable = gtk.Table(rows=2,columns=2)
-        sourcescroll.add_with_viewport(datatable)
-        
-        meshlabel = gtk.Label("mesh = ")
-        meshlabel.set_alignment(1.0, 0.5)
-        self.meshname = gtk.Label()
-        gtklogger.setWidgetName(self.meshname,"meshname")
-        self.meshname.set_alignment(0.0, 0.5)
+        sourcescroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.NEVER)
 
-        datatable.attach(meshlabel, 0, 1, 0, 1)
-        datatable.attach(self.meshname, 1, 2, 0, 1)
+        self.sourceText = Gtk.TextView(name="fixedfont", editable=False,
+                                       wrap_mode=Gtk.WrapMode.WORD,
+                                       cursor_visible=False,
+                                       left_margin=2, right_margin=2,
+                                       top_margin=2, bottom_margin=2)
+        gtklogger.setWidgetName(self.sourceText, "text")
+        sourcescroll.add(self.sourceText)
 
-        layerlabel = gtk.Label("output = ")
-        layerlabel.set_alignment(1.0, 0.5)
-        self.layername = gtk.Label()
-        gtklogger.setWidgetName(self.layername,"layername")
-        self.layername.set_alignment(0.0, 0.5)
-
-        datatable.attach(layerlabel, 0, 1, 1, 2)
-        datatable.attach(self.layername, 1, 2, 1, 2)
-
-
-        csframe = gtk.Frame("Cross Section")
-        csframe.set_shadow_type(gtk.SHADOW_IN)
-        mainbox.pack_start(csframe, expand=0, fill=0)
-        csbox = gtk.VBox()
+        csframe = Gtk.Frame(label="Cross Section",
+                            shadow_type=Gtk.ShadowType.IN)
+        mainbox.pack_start(csframe, expand=False, fill=False, padding=0)
+        csbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                        margin=2)
         csframe.add(csbox)
 
         # Table contains the "current" and "points" widgets
-        table = gtk.Table(rows=2, columns=2)
-        csbox.pack_start(table, expand=0, fill=0)
+        table = Gtk.Grid()
+        csbox.pack_start(table, expand=False, fill=False, padding=0)
 
         # Widget which shows the name of the current cross-section.
-        label = gtk.Label("current: ")
-        label.set_alignment(1.0, 0.5)
-        table.attach(label, 0,1, 0,1, xoptions=0)
-        self.csChooser = chooser.ChooserWidget([], callback=self.csChooserCB,
-                                               name='csList')
-        table.attach(self.csChooser.gtk, 1,2, 0,1,
-                     xoptions=gtk.EXPAND|gtk.FILL, yoptions=0)
+        label = Gtk.Label("current: ", halign=Gtk.Align.END, hexpand=False)
+        table.attach(label, 0,0, 1,1)
+        self.csChooser = chooser.ChooserWidget(
+            [], callback=self.csChooserCB, name='csList',
+            hexpand=True, halign=Gtk.Align.FILL)
+        table.attach(self.csChooser.gtk, 1,0,1,1)
 
         # Widget for how to sample the cross-section.
-        label = gtk.Label("points: ")
-        label.set_alignment(1.0, 0.5)
-        table.attach(label, 0,1, 1,2, xoptions=0)
+        label = Gtk.Label("points: ", halign=Gtk.Align.END, hexpand=False)
+        table.attach(label, 0,1, 1,2)
 
         self.cs_sample_widget = sampleregclassfactory.SampleRCF(
             name="Sampling", 
             domainClass=analysisdomain.CrossSectionDomain,
-            operationClass=analyze.DirectOutput)
-        table.attach(self.cs_sample_widget.gtk, 1,2, 1,2,
-                     xoptions=gtk.EXPAND|gtk.FILL, yoptions=0)
+            operationClass=analyze.DirectOutput,
+            halign=Gtk.Align.FILL, hexpand=True)
+        table.attach(self.cs_sample_widget.gtk, 1,1, 1,1)
         self.cs_sample_widget.update(analysissample.SampleSet.registry)
         self.int_valid_swcb = switchboard.requestCallbackMain(
             ('validity', self.cs_sample_widget), self.validCB)
 
-        hbox = gtk.HBox()
-        csbox.pack_start(hbox, expand=0, fill=0, padding=1)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       homogeneous=False,
+                       margin_start=2, margin_end=2)
+        csbox.pack_start(hbox, expand=False, fill=False, padding=0)
         # Rename button.
-        self.renamebutton = gtk.Button("Rename")
+        self.renamebutton = Gtk.Button("Rename")
         gtklogger.setWidgetName(self.renamebutton, 'Rename')
         gtklogger.connect(self.renamebutton, 'clicked', self.csrenameCB)
-        tooltips.set_tooltip_text(self.renamebutton,
-                             "Rename the current cross-section.")
-        hbox.pack_start(self.renamebutton,fill=1,expand=1, padding=1)
+        self.renamebutton.set_tooltip_text("Rename the current cross-section.")
+        hbox.pack_start(self.renamebutton,fill=True,expand=True, padding=0)
         # Edit button
-        self.editbutton = gtkutils.StockButton(gtk.STOCK_EDIT, "Edit...")
+        self.editbutton = gtkutils.StockButton('document-edit-symbolic',
+                                               "Edit...")
         gtklogger.setWidgetName(self.editbutton, 'Edit')
         gtklogger.connect(self.editbutton, 'clicked', self.cseditCB)
-        tooltips.set_tooltip_text(self.editbutton,"Edit the current cross-section.")
-        hbox.pack_start(self.editbutton, fill=1, expand=1, padding=1)
+        self.editbutton.set_tooltip_text("Edit the current cross-section.")
+        hbox.pack_start(self.editbutton, fill=True, expand=True, padding=0)
         # Copy button
-        self.copybutton = gtkutils.StockButton(gtk.STOCK_COPY, "Copy...")
+        self.copybutton = gtkutils.StockButton("edit-copy-symbolic", "Copy...")
         gtklogger.setWidgetName(self.copybutton, 'Copy')
         gtklogger.connect(self.copybutton, 'clicked', self.cscopyCB)
-        tooltips.set_tooltip_text(self.copybutton,"Copy the current cross-section.")
-        hbox.pack_start(self.copybutton, fill=1, expand=1, padding=1)
+        self.copybutton.set_tooltip_text("Copy the current cross-section.")
+        hbox.pack_start(self.copybutton, fill=True, expand=True, padding=0)
         # Delete button.
-        self.csdeletebutton = gtkutils.StockButton(gtk.STOCK_DELETE, "Remove")
+        self.csdeletebutton = gtkutils.StockButton("edit-delete-symbolic",
+                                                   "Remove")
         gtklogger.setWidgetName(self.csdeletebutton, 'Remove')
         gtklogger.connect(self.csdeletebutton, "clicked", self.csdeleteCB)
-        tooltips.set_tooltip_text(self.csdeletebutton,
-                             "Remove the current cross-section.")
-        hbox.pack_start(self.csdeletebutton,fill=1,expand=1, padding=1)
+        self.csdeletebutton.set_tooltip_text(
+            "Remove the current cross-section.")
+        hbox.pack_start(self.csdeletebutton,fill=True,expand=True, padding=0)
 
-        goframe = gtk.Frame("Output")
-        goframe.set_shadow_type(gtk.SHADOW_IN)
-        mainbox.pack_start(goframe,expand=0,fill=0)
-        self.gobox = gtk.VBox()
-        goframe.add(self.gobox)
-
-        hbox = gtk.HBox()
-        self.gobox.pack_start(hbox, expand=0, fill=0)
-        label = gtk.Label("Destination: ")
-        label.set_alignment(1.0, 0.5)
-        hbox.pack_start(label, expand=0, fill=0)
+        goframe = Gtk.Frame(label="Output", shadow_type=Gtk.ShadowType.IN)
+        mainbox.pack_start(goframe, expand=False, fill=False, padding=0)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
+        goframe.add(vbox)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       margin=2)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=0)
+        
+        label = Gtk.Label("Destination: ", halign=Gtk.Align.END)
+        hbox.pack_start(label, expand=False, fill=False, padding=0)
         self.destwidget = outputdestinationwidget.TextDestinationWidget(
-            name="Destination")
+            name="Destination", hexpand=True, halign=Gtk.Align.FILL)
         self.dw_valid_swcb = switchboard.requestCallbackMain(
-            ('validity', self.destwidget), self.validCB )
-        hbox.pack_start(self.destwidget.gtk, expand=1, fill=1, padding=2)
-        self.gobutton = gtkutils.StockButton(gtk.STOCK_EXECUTE, "Go!")
+            ('validity', self.destwidget), self.validCB)
+        hbox.pack_start(self.destwidget.gtk, expand=True, fill=True, padding=0)
+        self.gobutton = gtkutils.StockButton("system-run-symbolic", "Go!")
         gtklogger.setWidgetName(self.gobutton, 'Go')
-        hbox.pack_start(self.gobutton,expand=1,fill=1, padding=2)
-        tooltips.set_tooltip_text(self.gobutton,
-            "Send the output to the destination.")
+        vbox.pack_start(self.gobutton,expand=True, fill=True, padding=5)
+        self.gobutton.set_tooltip_text("Send the output to the destination.")
         gtklogger.connect(self.gobutton, "clicked", self.goCB)
         
         self.startpoint = None
@@ -188,7 +180,9 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         ## TODO: Is this correct?  Why not GfxToolbox.activate(self)?
         self.toolbox.activate()
         self.gfxwindow().setMouseHandler(self)
-        self.gfxwindow().setRubberband(rubberband.LineRubberBand())
+        self.motionFlag = self.gfxwindow().allowMotionEvents(
+            oofcanvasgui.MOTION_MOUSEDOWN)
+        self.gfxwindow().setRubberBand(oofcanvasgui.LineRubberBand())
         self.sb_callbacks = [
             switchboard.requestCallbackMain( (self.gfxwindow(),
                                               "layers changed"),
@@ -208,7 +202,8 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         debug.mainthreadTest()
         ## TODO: Should this call GfxToolbox.deactivate(self)?
         self.gfxwindow().removeMouseHandler()
-        self.gfxwindow().setRubberband(rubberband.NoRubberBand())
+        self.gfxwindow().setRubberBand(None)
+        self.gfxwindow().allowMotionEvents(self.motionFlag)
         for s in self.sb_callbacks:
             switchboard.removeCallback(s)
         self.sb_callbacks = []
@@ -216,7 +211,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
     def validCB(self, valid):
         self.show_data()
 
-    def csChooserCB(self, gtkmenuitem, csname):
+    def csChooserCB(self, csname):
         if csname == noCS:
             self.toolbox.deselectCS()
         else:
@@ -227,13 +222,18 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         debug.mainthreadTest()
         self.meshobj = self.toolbox.current_mesh
         meshok = self.meshobj is not None
-        if meshok:
-            text = mesh.meshes.getPath(self.meshobj)
-        else:
-            text = "No Mesh Displayed!"
-        self.meshname.set_text(text)
 
-        csok = 0
+        if meshok:
+            srctext = "  mesh = " + mesh.meshes.getPath(self.meshobj)
+        else:
+            srctext = "No Mesh Displayed!"
+        self.outputobj = self.toolbox.current_layer
+        if self.outputobj is not None:
+            srctext += "\noutput = " + self.outputobj.what.shortrepr()
+
+        self.sourceText.get_buffer().set_text(srctext)
+
+        csok = False
         if meshok:
             csname = self.meshobj.selectedCSName()
             csnames = self.meshobj.allCrossSectionNames()
@@ -251,13 +251,6 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         self.editbutton.set_sensitive(csok)
         self.copybutton.set_sensitive(csok)
                 
-        self.outputobj = self.toolbox.current_layer
-        if self.outputobj is None:
-            text =""
-        else:
-            text = self.outputobj.what.shortrepr()
-        self.layername.set_text(text)
-
         self.gobutton.set_sensitive(self.outputobj is not None
                                     and meshok and csok
                                     and self.destwidget.isValid())
@@ -285,7 +278,9 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         newnameparam = menuitem.get_arg('name')
         newnameparam.value = csname
         if parameterwidgets.getParameterValues(
-            newnameparam, title="Rename cross section " + csname):
+                newnameparam,
+                parentwindow=self.gtk.get_toplevel(),
+                title="Rename cross section " + csname):
             menuitem.callWithDefaults(mesh=meshobj.path(), cross_section=csname)
 
     def cseditCB(self, gtkobj):
@@ -295,8 +290,9 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         csparam = menuitem.get_arg('cross_section')
         csparam.value = meshobj.selectedCS()
         if parameterwidgets.getParameterValues(
-            csparam,
-            title='Edit cross section ' + csname):
+                csparam,
+                parentwindow=self.gtk.get_toplevel(),
+                title='Edit cross section ' + csname):
             menuitem.callWithDefaults(mesh=meshobj.path(), name=csname)
             
     def cscopyCB(self, gtkobj):
@@ -307,9 +303,11 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         targetmeshparam.value = meshobj.path()
         targetnameparam = menuitem.get_arg('name')
         targetnameparam.value = csname
-        if parameterwidgets.getParameters(targetmeshparam,
-                                          targetnameparam,
-                                          title='Copy cross section ' + csname):
+        if parameterwidgets.getParameters(
+                targetmeshparam,
+                targetnameparam,
+                parentwindow=self.gtk.get_toplevel(),
+                title='Copy cross section ' + csname):
             menuitem.callWithDefaults(current=meshobj.path(),
                                       cross_section=csname)
             
@@ -328,9 +326,9 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
     # Mouse-handler stuff.
     def acceptEvent(self, event):
         return event=='up' or event=='down'
-    def down(self,x,y,shift,ctrl):
+    def down(self, x, y, button, shift, ctrl, data):
         self.startpoint = primitives.Point(x,y)
-    def up(self,x,y,shift,ctrl):
+    def up(self, x, y, button, shift, ctrl, data):
         self.endpoint = primitives.Point(x,y)
         self.toolbox.makeCS(self.startpoint, self.endpoint)
 

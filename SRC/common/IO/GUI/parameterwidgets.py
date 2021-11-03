@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -11,7 +10,6 @@
 
 # GTK widgets for inputting Parameter objects.
 
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
@@ -19,18 +17,21 @@ from ooflib.common import enum
 from ooflib.common import primitives
 from ooflib.common import strfunction
 from ooflib.common import utils
+from ooflib.common.IO import automatic
 from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import gtklogger
-from ooflib.common.IO.GUI import tooltips
+from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import widgetscope
 from types import *
-import gtk
+from gi.repository import Gdk
+from gi.repository import Gtk
 import math
 import string
+import sys
 
 ############################
 
-class ParameterWidget:
+class ParameterWidget(object):
     def __init__(self, gtk, scope=None, name=None, expandable=False,
                  compact=False):
         debug.mainthreadTest()
@@ -106,19 +107,31 @@ class ParameterWidget:
     def parameterTableXRef(self, ptable, widgets):
         pass
 
+    # For debugging. Redefine in derived classes to print more useful info.
+    def dumpState(self, comment):
+        print >> sys.stderr, comment, "(%s)" % self.__class__.__name__
+
 # GenericWidget is a base class for several other widgets.  It can
 # also be created as an instance itself, but currently this is not
 # done.
 class GenericWidget(ParameterWidget):
-    def __init__(self, param, scope=None, name=None, compact=False):
+    def __init__(self, param, scope=None, name=None, compact=False,
+                 value=None,    # init. to this instead of param.value
+                 **kwargs):
+        # It's possible that param.value can't be evaluate when the
+        # widget is constructed because its resolution depends on the
+        # state of other widgets that may not exist yet.  In that
+        # case, pass an initial value for the widget in the 'value'
+        # arg, to be used instead of param.value.
         debug.mainthreadTest()
-        widget = gtk.Entry()
-        widget.set_size_request(10*guitop.top().charsize, -1)
+        widget = Gtk.Entry(**kwargs)
+        widget.set_width_chars(10)
         ParameterWidget.__init__(self, widget, scope=scope, name=name,
                                  compact=compact)
         self.signal = gtklogger.connect(widget, 'changed', self.changedCB)
-        self.set_value(param.value)
-        self.widgetChanged(self.validValue(param.value), interactive=0)
+        val = value or param.value
+        self.set_value(val)
+        self.widgetChanged(self.validValue(val), interactive=0)
     def get_value(self):
         debug.mainthreadTest()
         text = self.gtk.get_text().lstrip()
@@ -132,8 +145,10 @@ class GenericWidget(ParameterWidget):
     def set_value(self, newvalue):
         debug.mainthreadTest()
         valuestr = `newvalue`
+        self.signal.block()
         self.gtk.set_text(valuestr)
-        self.gtk.set_position(0)        # makes MSD visible
+        self.signal.unblock()
+        self.gtk.set_position(0) # makes most significant digit visible
     def changedCB(self, gtkobj):
         debug.mainthreadTest()
         self.widgetChanged(self.validValue(self.gtk.get_text()), interactive=1)
@@ -157,7 +172,10 @@ class GenericWidget(ParameterWidget):
     # parameters, which may need control over the emission of the
     # 'changed' signal.  (See matrixparamwidgets.py, for example.)
     # The need for these functions indicates that widgets *shouldn't*
-    # be nested like this.
+    # be nested like this.  OTOH, blocking and unblocking are
+    # cumulative, so a signal that's been blocked twice needs to be
+    # unblocked twice before it's active again, which makes nesting
+    # safe(r).
     def block_signal(self):
         debug.mainthreadTest()
         self.signal.block()
@@ -176,174 +194,244 @@ class StringWidget(GenericWidget):
         return self.gtk.get_text().lstrip()
     def set_value(self, value):
         debug.mainthreadTest()
+        self.block_signal()
         if type(value) == StringType and string.lstrip(value) != "":
             self.gtk.set_text(value)
             self.widgetChanged(1, interactive=0)
         else:
             self.gtk.set_text("")
             self.widgetChanged(0, interactive=0)
+        self.unblock_signal()
 
-def _StringParameter_makeWidget(self, scope=None):
-    return StringWidget(self, scope=scope, name=self.name)
+def _StringParameter_makeWidget(self, scope=None, **kwargs):
+    return StringWidget(self, scope=scope, name=self.name, **kwargs)
 
 parameter.StringParameter.makeWidget = _StringParameter_makeWidget
 
 class RestrictedStringWidget(StringWidget):
-    def __init__(self, param, scope=None, name=None):
-        self.exclude = param.exclude
-        StringWidget.__init__(self, param, scope, name)
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        self.prog = param.prog  # compiled regular expression
+        StringWidget.__init__(self, param, scope, name, **kwargs)
     def validValue(self, value):
-        for x in self.exclude:
-            if x in value:
-                return False
-        return StringWidget.validValue(self, value)
+        if self.prog.match(value):
+            return StringWidget.validValue(self, value)
+        return False
 
-def _RSParam_makeWidget(self, scope=None):
-    return RestrictedStringWidget(self, scope=scope,name=self.name)
+def _RSParam_makeWidget(self, scope=None, **kwargs):
+    return RestrictedStringWidget(self, scope=scope,name=self.name, **kwargs)
 
 parameter.RestrictedStringParameter.makeWidget = _RSParam_makeWidget
         
 #########################
 
-from ooflib.common.IO import automatic
+# If the user doesn't type anything in an AutoWidget, it displays
+# self.autotext and its value is automatic.automatic.  The autotext is
+# displayed in a distinctive style.  When the user types anything, the
+# autotext is deleted and the style is changed back to the normal
+# Gtk.Entry style.  When the user deletes everything in the Entry, the
+# autotext and its style are restored.
 
-# AutoWidget sets up and handles the basic geometry of automatic
-# widgets -- puts in the checkbox, hooks up signals, etc.  Does not
-# talk to the parameter, because AutoNameWidgets have special
-# requirements for these.
-class AutoWidget(ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
-        ParameterWidget.__init__(self, gtk.HBox(), scope=scope, name=name)
-        self.autocheck = gtk.CheckButton()
-        gtklogger.setWidgetName(self.autocheck, 'Auto')
-        self.text = gtk.Entry()
-        gtklogger.setWidgetName(self.text, 'Text')
-        self.gtk.pack_start(self.autocheck, expand=0, fill=0)
-        self.gtk.pack_start(self.text, expand=1, fill=1)
-        gtklogger.connect(self.autocheck, "clicked", self.checkCB)
-        self.textsignal = gtklogger.connect(self.text, 'changed', self.entryCB)
-        
-    def checkCB(self, gtkobj):
-        debug.mainthreadTest()
-        if self.autocheck.get_active():
-            self.textsignal.block()
-            self.text.set_editable(1)
-            self.text.set_sensitive(1)
-            self.text.set_text("")
-            self.textsignal.unblock()
-            self.widgetChanged(0, interactive=1)
+# Style for displaying the autotext.  It should look different from
+# what the user types.  It should *not* set the color unless we first
+# check the theme's background color to make sure that the text is
+# visible.
+gtkutils.addStyle("entry.automatic { font-style: italic; }")
+
+# This changes the text color for automatic widgets with keyboard focus:
+#   gtkutils.addStyle("entry.automatic:focus { color: blue; }")
+# BUT if we want to change the colors, we'd have to base the new colors on
+# the colors for the current theme, which can be retrieved from the
+# widget's StyleContext, eg:
+#   widget.get_style_context().get_color(Gtk.StateFlags.NORMAL)
+#   widget.get_style_context().get_background_color(Gtk.StateFlags.NORMAL)
+# We'd also need to make sure to update the colors if the user changes
+# the theme.  Gtk3 doesn't provide a good way to do this, since
+# changing colors and such violates the spirit of CSS.
+
+# We want to add a handler for the Gtk.Entry's 'insert_text' signal,
+# but there's a bug in Gtk with regard to in/out parameters in python
+# signal handlers, such as the 'position' parameter for the
+# insert_text handler.  This can be avoided by deriving a new class
+# from Gtk.Entry instead of using a handler.  See
+# https://stackoverflow.com/questions/38815694/gtk-3-position-attribute-on-insert-text-signal-from-gtk-entry-is-always-0
+# That site also 'explains' that it's necessary to derive the new
+# class from both Gtk.Entry and Gtk.Editable, even though Gtk.Entry is
+# itself derived from Gtk.Editable.
+
+from ooflib.common.IO.GUI.gtklogger import findLogger, signalLogger
+
+class AutomaticEntry(Gtk.Entry, Gtk.Editable):
+    def __init__(self, *args, **kwargs):
+        Gtk.Entry.__init__(self, *args, **kwargs)
+        # super(AutomaticEntry, self).__init__(args, kwargs)
+    def setAutoWidget(self, autowidget):
+        # autowidget is the ParameterWidget that is using this
+        # AutomaticEntry.
+        self.autowidget = autowidget
+        self.logger = gtklogger.findLogger(self)
+    def do_insert_text(self, new_text, length, position):
+        # If we used gtklogger to connect to the 'insert_text' signal,
+        # it would call signalLogger() like this at about this point
+        # in the proceedings:
+        if isinstance(self.get_toplevel(), Gtk.Window):
+            gtklogger.signalLogger(self, 'insert_text', self.logger,
+                                   new_text, length, position)
+        # Code that would be in the 'insert_text' handler if there
+        # were one:
+        if self.autowidget.automatic:
+            self.autowidget.enterManualMode()
+            self.get_buffer().set_text(new_text, len(new_text))
+            newpos = len(new_text)
         else:
-            self.textsignal.block()
-            self.text.set_editable(0)
-            self.text.set_sensitive(0)
-            self.text.set_text("automatic")
-            self.textsignal.unblock()
-            self.widgetChanged(1, interactive=1)
+            # Code that is presumably in the base class do_insert_text()
+            # method:
+            self.get_buffer().insert_text(position, new_text, length)
+            newpos = length + position
+        # More code that should be in the 'insert_text' handler:
+        self.autowidget.widgetChanged(
+            self.autowidget.validValue(self.get_buffer().get_text()), True)
+        return newpos
 
-    def entryCB(self, entry):
+class AutoWidget(ParameterWidget):
+    def __init__(self, param, scope=None, name=None,
+                 compact=False,
+                 value=None,
+                 autotext=None, # text to display in automatic mode
+                 **kwargs):
         debug.mainthreadTest()
-        self.widgetChanged(self.autocheck.get_active() and
-                           self.validText(self.text.get_text()),
-                           interactive=1)
+        self.autotext = autotext or "<automatic>"
+        self.stylecontext = None
+        widget = AutomaticEntry(**kwargs)
+        widget.setAutoWidget(self)
+        widget.set_width_chars(10)
+        ParameterWidget.__init__(self, widget, scope=scope, name=name,
+                                 compact=compact)
+        # We don't need to connect to the 'changed' signal because
+        # we're handling 'insert_text' (sort of) and 'delete_text'.
+        self.deleteSignal = gtklogger.connect(self.gtk, 'delete_text',
+                                              self.deleteTextCB)
 
-    def validText(self, x):             # override in subclass
-        return x != "" and x is not None
-
-    def get_value(self):
-        debug.mainthreadTest()
-        if not self.autocheck.get_active():
-            return automatic.automatic
-        return self.text.get_text()
+        val = value or param.value
+        # Initialize self.automatic to the wrong value so that
+        # set_value() will switch into the correct mode.
+        self.automatic = val is not automatic.automatic
+        self.set_value(val)
+        self.widgetChanged(self.validValue(val), interactive=False)
 
     def set_value(self, newvalue):
-        debug.mainthreadTest()
-        if newvalue is automatic.automatic:
-            self.autocheck.set_active(0)
-            self.checkCB(self.autocheck)
-            self.widgetChanged(1, interactive=0)
-        elif newvalue is None or newvalue == '':
-            self.autocheck.set_active(1)
-            self.checkCB(self.autocheck)
-            self.text.set_text('')
-            self.widgetChanged(0, interactive=0)
+        # If newvalue is not a string, the derived class might need to
+        # override this method.  The derived class method should call
+        # the base class method, passing a string or
+        # automatic.automatic as newvalue.
+        self.deleteSignal.block()
+        try:
+            if newvalue is automatic.automatic:
+                if not self.automatic:
+                    self.enterAutoMode()
+            else:
+                if self.automatic:
+                    self.enterManualMode()
+                if isinstance(newvalue, StringType):
+                    self.gtk.set_text(newvalue)
+                else:
+                    self.gtk.set_text(`newvalue`)
+        finally:
+            self.deleteSignal.unblock()
+        self.widgetChanged(1, interactive=0)
+        
+
+    def deleteTextCB(self, gtkobj, start_pos, end_pos):
+        # In automatic mode, deletion does nothing.
+        if self.automatic:
+            self.gtk.stop_emission("delete_text")
+            return
+        # In manual mode, deleting the last character switches to
+        # automatic mode.
+        if start_pos == 0 and (end_pos == -1 or
+                               end_pos == self.gtk.get_text_length()):
+            self.deleteSignal.block()
+            try:
+                self.enterAutoMode()
+            finally:
+                self.deleteSignal.unblock()
         else:
-            self.autocheck.set_active(1)
-            self.checkCB(self.autocheck)
-            self.text.set_text(`newvalue`)
-            self.text.set_position(0)
-            self.widgetChanged(1, interactive=0)
-    
+            # Just a normal deletion.
+            self.gtk.get_buffer().delete_text(start_pos, end_pos-start_pos)
+
+        self.gtk.stop_emission("delete_text")
+        self.widgetChanged(self.validValue(self.get_value()),
+                           interactive=True)
+                
+    def get_value(self):
+        if self.automatic:
+            return automatic.automatic
+        return self.gtk.get_text()
+
+    def validValue(self, value):
+        # See comment in GenericWidget.validValue.
+        return (value is automatic.automatic or
+                (isinstance(value, StringType) and string.lstrip(value) != ""))
+
+    def enterAutoMode(self):
+        self.automatic = True
+        self.gtk.get_style_context().add_class("automatic")
+        # Don't use AutomaticEntry.set_text() here, because it will
+        # call AutomaticEntry.do_insert_text() and switch back to
+        # manual mode.
+        self.gtk.get_buffer().set_text(self.autotext, len(self.autotext))
+        self.gtk.set_position(-1)
+        self.gtk.select_region(0, -1)
+
+    def enterManualMode(self):
+        self.automatic = False
+        self.gtk.get_style_context().remove_class("automatic")
+
+
 class AutoNameWidget(AutoWidget):
-    def __init__(self, param, scope=None, name=None):
-        AutoWidget.__init__(self, param, scope=scope, name=name)
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        AutoWidget.__init__(self, param, scope=scope, name=name,
+                            value=automatic.automatic,
+                            **kwargs)
         # Avoid querying param.value here, as it will trigger the
         # autoname resolution process if the parameter is an
-        # AutomaticNameParameter or ContextualNameParameter.
+        # AutomaticNameParameter or ContextualNameParameter, and the
+        # resolution may not be possible if the widget is just now
+        # being constructed and the other widgets that it depends on
+        # don't yet have values.
         if param.automatic():
             self.set_value(automatic.automatic)
             self.widgetChanged(1, interactive=0)
         else:
             self.set_value(param.truevalue)
-            self.widgetChanged(self.validText(param.truevalue), interactive=0)
-        tooltips.set_tooltip_text(self.autocheck,
-            'Switch between typed names and automatically generated names.')
+            self.widgetChanged(self.validValue(param.truevalue), interactive=0)
 
-    # AutoNameWidget's set-value doesn't take the repr of the value,
-    # since it's a string -- just put it in directly.
-    def set_value(self, newvalue):
-        debug.mainthreadTest()
-        ## TODO: When the parameter has been set to an automatic value
-        ## from a script, the widget is subsequently initialized with
-        ## the non-automatic string generated from the automatic
-        ## value, because AutomaticNameParameter.value always returns
-        ## the resolved name.  However, the widget should still be
-        ## initialized to 'automatic' somehow.
-        if newvalue is automatic.automatic:
-            self.autocheck.set_active(0)
-            self.checkCB(self.autocheck)
-            self.widgetChanged(1, interactive=0)
-        elif newvalue is None or newvalue == '':
-            self.autocheck.set_active(1)
-            self.checkCB(self.autocheck)
-            self.text.set_text('')
-            self.widgetChanged(0, interactive=0)
-        else:
-            self.autocheck.set_active(1)
-            self.checkCB(self.autocheck)
-            self.text.set_text(newvalue)
-            self.text.set_position(0)
-            self.widgetChanged(1, interactive=0)
-    
-def _AutoNameParameter_makeWidget(self, scope):
-    return AutoNameWidget(self, scope=scope, name=self.name)
+def _AutoNameParameter_makeWidget(self, scope, **kwargs):
+    return AutoNameWidget(self, scope=scope, name=self.name, **kwargs)
 parameter.AutomaticNameParameter.makeWidget = _AutoNameParameter_makeWidget
 
-class RestrictedAutoNameWidget(AutoNameWidget):
-    def __init__(self, param, scope=None, name=None):
-        self.exclude = param.exclude
-        AutoNameWidget.__init__(self, param, scope, name)
-    def validText(self, x):
-        if not x:
-            return False
-        for c in self.exclude:
-            if c in x:
-                return False
-        return True
 
-def _RestrictedAutoNameParam_makeWidget(self, scope):
-    return RestrictedAutoNameWidget(self, scope=scope, name=self.name)
+class RestrictedAutoNameWidget(AutoNameWidget):
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        self.prog = param.prog  # compiled regular expression
+        AutoNameWidget.__init__(self, param, scope, name)
+    def validValue(self, value):
+        if value is automatic.automatic:
+            return True
+        return (isinstance(value, StringType) and string.strip(value) != ""
+                and self.prog.match(value))
+
+def _RestrictedAutoNameParam_makeWidget(self, scope, **kwargs):
+    return RestrictedAutoNameWidget(self, scope=scope, name=self.name, **kwargs)
 parameter.RestrictedAutomaticNameParameter.makeWidget = \
                                          _RestrictedAutoNameParam_makeWidget
 #########################
 
 # Allows a value of "automatic", or an integer.
 class AutoNumberWidget(AutoWidget):
-    def __init__(self, param, scope=None, name=None):
-        AutoWidget.__init__(self, param, scope=scope, name=name)
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        AutoWidget.__init__(self, param, scope=scope, name=name, **kwargs)
         self.set_value(param.value)
         self.widgetChanged(1, interactive=0)
-        tooltips.set_tooltip_text(self.autocheck,
-            "Switch between automatic and integer.")
 
     # The AutoWidget get_value returns automatic or a string, or none.
     # If we get a string, evaluate it and return the result.
@@ -354,8 +442,8 @@ class AutoNumberWidget(AutoWidget):
         return utils.OOFeval(v)
         
 
-def _AutoNumberWidget_makeWidget(self, scope):
-    return AutoNumberWidget(self, scope=scope, name=self.name)
+def _AutoNumberWidget_makeWidget(self, scope, **kwargs):
+    return AutoNumberWidget(self, scope=scope, name=self.name, **kwargs)
 
 parameter.AutoIntParameter.makeWidget = _AutoNumberWidget_makeWidget
 
@@ -365,24 +453,23 @@ parameter.AutoNumericParameter.makeWidget = _AutoNumberWidget_makeWidget
 #########################
 
 class BooleanWidget(ParameterWidget):
-    def __init__(self, param, scope=None, name=None, compact=False):
+    def __init__(self, param, scope=None, name=None, compact=False, **kwargs):
         debug.mainthreadTest()
+        quargs = kwargs.copy()
         if param.value:
             labelstr = 'true'
         else:
             labelstr = 'false'
-        self.label = gtk.Label(labelstr)
-        ParameterWidget.__init__(self, gtk.Frame(), scope=scope,
-                                 compact=compact)
         if not compact:
-            self.button = gtk.CheckButton()
-            self.button.add(self.label)
-            self.gtk.add(self.button)
+            self.button = Gtk.CheckButton(labelstr)
         else:
-            self.button = gtk.ToggleButton()
-            align = gtk.Alignment(xalign=0.5, xscale=0.0)
-            align.add(self.button)
-            self.gtk.add(align)
+            quargs.setdefault('halign', Gtk.Align.CENTER)
+            quargs.setdefault('hexpand', True)
+            quargs.setdefault('shadow_type', Gtk.ShadowType.NONE)
+            self.button = Gtk.CheckButton()
+        ParameterWidget.__init__(self, Gtk.Frame(**quargs), scope=scope,
+                                 compact=compact)
+        self.gtk.add(self.button)
         # name is assigned to the button, not the frame, because it's
         # the button that gets connected.
         gtklogger.setWidgetName(self.button, name)
@@ -402,10 +489,11 @@ class BooleanWidget(ParameterWidget):
         self.widgetChanged(1, interactive=0)
     def buttonCB(self, obj):
         debug.mainthreadTest()
-        if self.button.get_active():
-            self.label.set_text('true')
-        else:
-            self.label.set_text('false')
+        if not self.compact:
+            if self.button.get_active():
+                self.button.set_label('true')
+            else:
+                self.button.set_label('false')
         self.widgetChanged(1, interactive=1)
     def block_signal(self):
         debug.mainthreadTest()
@@ -414,8 +502,9 @@ class BooleanWidget(ParameterWidget):
         debug.mainthreadTest()
         self.signal.unblock()
 
-def _Boolean_makeWidget(self, scope, compact=False):
-    return BooleanWidget(self, scope=scope, name=self.name, compact=compact)
+def _Boolean_makeWidget(self, scope, compact=False, **kwargs):
+    return BooleanWidget(self, scope=scope, name=self.name, compact=compact,
+                         **kwargs)
 parameter.BooleanParameter.makeWidget = _Boolean_makeWidget
 
 ##########################
@@ -427,47 +516,46 @@ from ooflib.common.IO.GUI import labelledslider
 # parameterTableXRef, but the one in ParameterWidget is just a stub.
 
 class IntRangeWidget(labelledslider.IntLabelledSlider, ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         if param.value is not None:
             val = param.value
         else:
             val = param.range[0]
-        labelledslider.IntLabelledSlider.__init__(self, val,
-                                               vmin=param.range[0],
-                                               vmax=param.range[1],
-                                               step=1,
-                                               callback=self.sliderCB)
+        labelledslider.IntLabelledSlider.__init__(
+            self, val,
+            vmin=param.range[0], vmax=param.range[1], step=1,
+            callback=self.sliderCB, **kwargs)
         ParameterWidget.__init__(self, self.gtk, scope=scope, name=name)
-        self.widgetChanged(1, interactive=0) # always valid
+        self.widgetChanged(self.consistent(), interactive=0)
     def sliderCB(self, slider, val):
         debug.mainthreadTest()
-        self.widgetChanged(1, interactive=1)
+        self.widgetChanged(self.consistent(), interactive=1)
 
-def _IntRange_makeWidget(self, scope):
-    return IntRangeWidget(self, scope=scope, name=self.name)
+def _IntRange_makeWidget(self, scope, **kwargs):
+    return IntRangeWidget(self, scope=scope, name=self.name, **kwargs)
 
 parameter.IntRangeParameter.makeWidget = _IntRange_makeWidget
 
 
 class FloatRangeWidget(labelledslider.FloatLabelledSlider, ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         if param.value is not None:
             val = param.value
         else:
             val = param.range[0]
-        labelledslider.FloatLabelledSlider.__init__(self, val,
-                                               vmin=param.range[0],
-                                               vmax=param.range[1],
-                                               step=param.range[2],
-                                               callback=self.sliderCB)
+        labelledslider.FloatLabelledSlider.__init__(
+            self, val,
+            vmin=param.range[0], vmax=param.range[1], step=param.range[2],
+            callback=self.sliderCB, **kwargs)
         ParameterWidget.__init__(self, self.gtk, scope=scope, name=name)
-        self.widgetChanged(1, interactive=0) # always valid
+        self.widgetChanged(self.consistent(), interactive=0)
     ## FloatRangeWidget uses LabelledSlider's get_value()
     def sliderCB(self, slider, val):
-        self.widgetChanged(1, interactive=1)
+        debug.mainthreadTest()
+        self.widgetChanged(self.consistent(), interactive=1)
 
-def _FloatRange_makeWidget(self, scope=None):
-    return FloatRangeWidget(self, scope=scope, name=self.name)
+def _FloatRange_makeWidget(self, scope=None, **kwargs):
+    return FloatRangeWidget(self, scope=scope, name=self.name, **kwargs)
 parameter.FloatRangeParameter.makeWidget = _FloatRange_makeWidget
 
 ########
@@ -505,7 +593,7 @@ class _ClipperFactory(object):
         return _AngleClipper(vmin, vmax, self.circle)
 
 class AngleRangeWidget(labelledslider.FloatLabelledSlider, ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         if param.value is not None:
             val = param.value
         else:
@@ -516,15 +604,16 @@ class AngleRangeWidget(labelledslider.FloatLabelledSlider, ParameterWidget):
             vmax=param.range[1],
             step=param.range[2],
             callback=self.sliderCB,
-            clipperclass=_ClipperFactory(param.circle))
+            clipperclass=_ClipperFactory(param.circle),
+            **kwargs)
         ParameterWidget.__init__(self, self.gtk, scope=scope, name=name)
         self.widgetChanged(1, interactive=0)
         
     def sliderCB(self, slider, val):
         self.widgetChanged(1, interactive=1)
 
-def _AngleRange_makeWidget(self, scope):
-    return AngleRangeWidget(self, scope=scope, name=self.name)
+def _AngleRange_makeWidget(self, scope, **kwargs):
+    return AngleRangeWidget(self, scope=scope, name=self.name, **kwargs)
 
 parameter.AngleRangeParameter.makeWidget = _AngleRange_makeWidget
         
@@ -532,11 +621,11 @@ parameter.AngleRangeParameter.makeWidget = _AngleRange_makeWidget
 ##############################################
 
 class FloatWidget(GenericWidget):
-    def __init__(self, param, scope=None, name=None, compact=False):
+    def __init__(self, param, scope=None, name=None, compact=False, **kwargs):
         GenericWidget.__init__(self, param=param, scope=scope, name=name,
-                               compact=compact)
+                               compact=compact, **kwargs)
         if compact:
-            self.gtk.set_size_request(8*guitop.top().digitsize, -1)
+            self.gtk.set_width_chars(8)
     def get_value(self):
         x = GenericWidget.get_value(self)
         if x is not None:
@@ -545,8 +634,6 @@ class FloatWidget(GenericWidget):
             return x
         return 0.0
     def validValue(self, val):
-#         # Any string is a potentially valid value
-#         return 1
         try:
             if type(val) is StringType:
                 return type(1.0*utils.OOFeval(val)) is FloatType
@@ -557,8 +644,9 @@ class FloatWidget(GenericWidget):
     def set_value(self, newvalue):
         GenericWidget.set_value(self, 1.0*newvalue)
 
-def _FloatParameter_makeWidget(self, scope=None, compact=False):
-    return FloatWidget(self, scope=scope, name=self.name, compact=compact)
+def _FloatParameter_makeWidget(self, scope=None, compact=False, **kwargs):
+    return FloatWidget(self, scope=scope, name=self.name, compact=compact,
+                       **kwargs)
 parameter.FloatParameter.makeWidget = _FloatParameter_makeWidget
 
 class PositiveFloatWidget(FloatWidget):
@@ -572,8 +660,8 @@ class PositiveFloatWidget(FloatWidget):
         except:
             return False
 
-def _PositiveFloatParameter_makeWidget(self, scope=None):
-    return PositiveFloatWidget(self, scope=scope, name=self.name)
+def _PositiveFloatParameter_makeWidget(self, scope=None, **kwargs):
+    return PositiveFloatWidget(self, scope=scope, name=self.name, **kwargs)
 parameter.PositiveFloatParameter.makeWidget = _PositiveFloatParameter_makeWidget
 
 class ListOfFloatsWidget(GenericWidget):
@@ -586,18 +674,18 @@ class ListOfFloatsWidget(GenericWidget):
     def validValue(self, string):
         return 1
 
-def _ListOfFloatsParameter_makeWidget(self, scope=None):
-    return ListOfFloatsWidget(self, scope=scope, name=self.name)
+def _ListOfFloatsParameter_makeWidget(self, scope=None, **kwargs):
+    return ListOfFloatsWidget(self, scope=scope, name=self.name, **kwargs)
 parameter.ListOfFloatsParameter.makeWidget = _ListOfFloatsParameter_makeWidget
 
 #########################
 
 class IntWidget(GenericWidget):
-    def __init__(self, param, scope=None, name=None, compact=False):
+    def __init__(self, param, scope=None, name=None, compact=False, **kwargs):
         GenericWidget.__init__(self, param=param, scope=scope, name=name,
-                               compact=compact)
+                               compact=compact, **kwargs)
         if compact:
-            self.gtk.set_size_request(8*guitop.top().digitsize, -1)
+            self.gtk.set_width_chars(8)
     # See comments in FloatWidget
     def get_value(self):
         x = GenericWidget.get_value(self)
@@ -612,8 +700,8 @@ class IntWidget(GenericWidget):
                 return isinstance(val, IntType)
         except:
             return False
-def _IntParameter_makeWidget(self, scope=None):
-    return IntWidget(self, scope=scope, name=self.name)
+def _IntParameter_makeWidget(self, scope=None, **kwargs):
+    return IntWidget(self, scope=scope, name=self.name, **kwargs)
 
 parameter.IntParameter.makeWidget = _IntParameter_makeWidget
 
@@ -628,8 +716,8 @@ class PositiveIntWidget(IntWidget):
         except:
             return False
 
-def _PositiveIntParameter_makeWidget(self, scope=None):
-    return PositiveIntWidget(self, scope=scope, name=self.name)
+def _PositiveIntParameter_makeWidget(self, scope=None, **kwargs):
+    return PositiveIntWidget(self, scope=scope, name=self.name, **kwargs)
 parameter.PositiveIntParameter.makeWidget = _PositiveIntParameter_makeWidget
 
 #######################
@@ -640,10 +728,12 @@ class XYStrFunctionWidget(GenericWidget):
         return strfunction.XYStrFunction(self.gtk.get_text().lstrip())
     def set_value(self, newvalue):
         debug.mainthreadTest()
+        self.block_signal()
         if newvalue is not None:
             self.gtk.set_text(newvalue.funcstr)
         else:
             self.gtk.set_text('')
+        self.unblock_signal()
     def validValue(self, value):
         if type(value) is StringType:
             try:
@@ -653,8 +743,8 @@ class XYStrFunctionWidget(GenericWidget):
                 return False
         return isinstance(value, strfunction.XYStrFunction)
             
-def _XYStrFunctionParameter_makeWidget(self, scope=None):
-    return XYStrFunctionWidget(self, scope=scope, name=self.name)
+def _XYStrFunctionParameter_makeWidget(self, scope=None, **kwargs):
+    return XYStrFunctionWidget(self, scope=scope, name=self.name, **kwargs)
         
 strfunction.XYStrFunctionParameter.makeWidget = \
                                               _XYStrFunctionParameter_makeWidget
@@ -665,10 +755,12 @@ class XYTStrFunctionWidget(GenericWidget):
         return strfunction.XYTStrFunction(self.gtk.get_text().lstrip())
     def set_value(self, newvalue):
         debug.mainthreadTest()
+        self.block_signal()
         if newvalue is not None:
             self.gtk.set_text(newvalue.funcstr)
         else:
             self.gtk.set_text('')
+        self.unblock_signal()
     def validValue(self, value):
         if type(value) is StringType:
             try:
@@ -678,8 +770,8 @@ class XYTStrFunctionWidget(GenericWidget):
                 return False
         return isinstance(value, strfunction.XYTStrFunction)
             
-def _XYTStrFunctionParameter_makeWidget(self, scope=None):
-    return XYTStrFunctionWidget(self, scope=scope, name=self.name)
+def _XYTStrFunctionParameter_makeWidget(self, scope=None, **kwargs):
+    return XYTStrFunctionWidget(self, scope=scope, name=self.name, **kwargs)
         
 strfunction.XYTStrFunctionParameter.makeWidget = \
                                            _XYTStrFunctionParameter_makeWidget
@@ -688,16 +780,25 @@ strfunction.XYTStrFunctionParameter.makeWidget = \
 
 class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
     # A table of Parameter Widgets
-    def __init__(self, params, scope=None, name=None, showLabels=True, data={}):
+    def __init__(self, params, scope=None, name=None, showLabels=True, data={},
+                 **kwargs):
         debug.mainthreadTest()
         widgetscope.WidgetScope.__init__(self, scope)
         for key, value in data.items():
             self.setData(key, value)
         self.params = params            # list of Parameters
         if self.params:
-            base = gtk.Table(rows=len(params), columns=2)
+            quargs = kwargs.copy()
+            quargs.setdefault('margin', 2)
+            quargs.setdefault('row_spacing', 2)
+            quargs.setdefault('column_spacing', 2)
+            base = Gtk.Grid(**quargs)
         else:
-            base = gtk.VBox()
+            # There are no parameters.  The 'table' needs to be a
+            # wiget but it should take up no space, so don't pass any
+            # kwargs to it, since they might set margins.
+            base = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, vexpand=False)
+            base.set_size_request(-1, 0) # overkill
         ParameterWidget.__init__(self, base, scope, name)
         self.showLabels = showLabels
         self.labels = []
@@ -706,10 +807,11 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
         self.subscopes = []             # Widgetscopes for ParameterGroups
         self.set_values()
         self.show()
-##        self.base_value = None # Original, pre-selection value, in base form.
 
     def set_values(self):
         self.labels = []
+        for widget in self.widgets:
+            widget.destroy()
         self.widgets = []
         self.validities = [0]*len(self.params)
         self.destroySubScopes()
@@ -739,7 +841,9 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
 
     def makeSingleWidget(self, param, tablepos, scope):
         debug.mainthreadTest()
-        widget = param.makeWidget(scope=scope)
+        
+        widget = param.makeWidget(scope=scope, halign=Gtk.Align.FILL,
+                                  hexpand=True, margin_start=2, margin_end=2)
         self.widgets.append(widget)
 
         self.sbcallbacks += [
@@ -749,21 +853,21 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
             ]
         self.validities[tablepos] = widget.isValid()
         
-        label = gtk.Label(param.name + ' =')
-        label.set_alignment(1.0, 0.5)
+        label = Gtk.Label(param.name + ' =', halign=Gtk.Align.END,
+                          hexpand=False, margin_start=5)
         self.labels.append(label)
         if param.tip:
-            tooltips.set_tooltip_text(label,param.tip)
+            label.set_tooltip_text(param.tip)
         if widget.expandable:
-            yoptions = gtk.EXPAND | gtk.FILL
+            widget.gtk.set_vexpand(True)
+            widget.gtk.set_valign(Gtk.Align.FILL)
+            label.set_vexpand(True)
+            label.set_valign(Gtk.Align.FILL)
             self.expandable = True
-        else:
-            yoptions = 0
         if self.showLabels:
-            self.gtk.attach(label, 0, 1, tablepos, tablepos+1, xpadding=5,
-                            xoptions=gtk.FILL, yoptions=yoptions)
-        self.gtk.attach(widget.gtk, 1, 2, tablepos, tablepos+1, xpadding=5,
-                        xoptions=gtk.EXPAND|gtk.FILL, yoptions=yoptions)
+            self.gtk.attach(label, 0,tablepos, 1,1)
+        self.gtk.attach(widget.gtk, 1,tablepos, 1,1)
+        
     def get_values(self):
         debug.mainthreadTest()
         exceptions = []
@@ -776,6 +880,7 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
             except (Exception, ooferror.ErrError), exception:
                 exceptions.append(exception)
         if exceptions:
+            debug.fmsg("exceptions[0] ->%s<-", exceptions[0])
             raise exceptions[0]
     def vcheck(self, widgetnumber, validity):
         # callback for ('validity', widget).  This just stores the
@@ -795,6 +900,12 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
         debug.fmsg(zip([p.name for p in self.params], self.validities))
     def dumpValues(self):
         debug.fmsg(*["%s=%s" % (p.name, p.value) for p in self.params])
+    def dumpState(self, comment):
+        for widget in self.widgets:
+            try:
+                widget.dumpState("   " + comment)
+            except AttributeError:
+                pass
     def show(self):
         # Don't simply run self.gtk.show_all(), because it might show
         # too much of some child widgets.
@@ -824,9 +935,10 @@ class HierParameterTable(ParameterTable):
     # the hierarchy.  The hierarchical list is just a list of lists of
     # lists of Parameters, with arbitrarily deep nesting.
     ## TODO: Is this necessary, now that ParameterGroups can be nested?
-    def __init__(self, params, scope=None):
+    def __init__(self, params, scope=None, **kwargs):
         self.paramhier = params
-        ParameterTable.__init__(self, utils.flatten_all(params), scope)
+        ParameterTable.__init__(self, utils.flatten_all(params), scope,
+                                **kwargs)
     def makeWidgets(self):
         debug.mainthreadTest()
         tablepos = 0
@@ -847,8 +959,6 @@ class HierParameterTable(ParameterTable):
 # Modal dialog for setting Parameters
 
 class ParameterDialog(widgetscope.WidgetScope):
-    OK = 1
-    CANCEL = 2
     def __init__(self, *parameters, **kwargs):
         debug.mainthreadTest()
         # A title for the dialog box can be specified by a REQUIRED
@@ -856,10 +966,11 @@ class ParameterDialog(widgetscope.WidgetScope):
         # with a 'scope' keyword.  If a parent window is specified
         # with the 'parentwindow' argument, the dialog will be brought
         # up as a transient window for it.
-        try:
-            scope = kwargs['scope']
-        except KeyError:
-            scope = None
+
+        parentwindow = kwargs['parentwindow'] # required!
+        assert isinstance(parentwindow, Gtk.Window)
+
+        scope = kwargs.get('scope', None)
         widgetscope.WidgetScope.__init__(self, scope)
 
         try:
@@ -870,11 +981,6 @@ class ParameterDialog(widgetscope.WidgetScope):
             self.__dict__.update(data_dict)
 
         try:
-            parentwindow = kwargs['parentwindow']
-        except KeyError:
-            parentwindow=None
-
-        try:
             scopedata = kwargs['data']
         except KeyError:
             pass
@@ -883,44 +989,76 @@ class ParameterDialog(widgetscope.WidgetScope):
                 self.setData(key, value)
             
         self.parameters = parameters
-        self.dialog = gtklogger.Dialog(parent=parentwindow,
-                                       flags=gtk.DIALOG_MODAL)
-        self.dialog.set_keep_above(True)
+        self.dialog = gtklogger.Dialog(flags=Gtk.DialogFlags.MODAL,
+                                       parent=parentwindow,
+                                       border_width=3)
+        # Window.set_keep_above is not guaranteed to work, but it won't hurt.
+        # https://developer.gnome.org/gtk3/stable/GtkWindow.html#gtk-window-set-keep-above
+        self.dialog.set_keep_above(True) 
         
         try:
             title = kwargs['title']
         except KeyError:
             raise ooferror.ErrPyProgrammingError("Untitled dialog!")
         gtklogger.newTopLevelWidget(self.dialog, 'Dialog-'+kwargs['title'])
-
         self.dialog.set_title(title)
-        hbox = gtk.HBox()
-        self.dialog.vbox.pack_start(hbox, expand=0, fill=0, padding=5)
-        hbox.pack_start(gtk.Label(title), expand=1, fill=1, padding=10)
 
+        # The gtk2 version had code here that put an hbox containing
+        # the dialog's title at the top of the dialog's content area.
+        # But show_all was never called on it, so it never appeared.
+        # Apparently it wasn't necessary.
+
+        # Create buttons in the action area.  This can be overridden
+        # in derived classes.
         self._button_hook()
 
-        self.table = ParameterTable(parameters, scope=self)
+        self.table = ParameterTable(parameters, scope=self, hexpand=True,
+                                    halign=Gtk.Align.FILL)
         self.sbcallback = switchboard.requestCallbackMain(
             ('validity', self.table),
             self.validityCB)
-        self.dialog.vbox.pack_start(self.table.gtk,
-                                    expand=self.table.expandable,
-                                    fill=True)
+        vbox = self.dialog.get_content_area()
+        vbox.pack_start(self.table.gtk, expand=self.table.expandable,
+                        fill=True, padding=5)
         self.response = None
         self.sensitize()
 
-
-    # Separate draw routine, overridden in subclasses.
+    # _button_hook installs OK and Cancel buttons.  Override in
+    # derived classes if other buttons are needed in the dialog's
+    # action area.
     def _button_hook(self):
         debug.mainthreadTest()
-        okbutton = self.dialog.add_button(gtk.STOCK_OK, self.OK)
-        cancelbutton = self.dialog.add_button(gtk.STOCK_CANCEL, self.CANCEL)
-        self.dialog.set_default_response(self.OK)
+        okbutton = gtkutils.StockButton('gtk-ok', 'OK')
+        self.dialog.add_action_widget(
+            okbutton,
+            Gtk.ResponseType.OK)
+        ## TODO: The following three lines sometimes seem to suffice
+        ## to connect the Enter key with the OK button, as long as
+        ## button.set_receives_default(False) is called for any
+        ## buttons in the content area and the content area contains
+        ## no Gtk.Entrys. Sometimes it generates
+        ##  Gtk-CRITICAL: gtk_widget_grab_default: assertion 'gtk_widget_get_can_default (widget)' failed
+        ## Obviously we don't understand how to do this properly.
+        okbutton.set_can_default(True)
+        okbutton.set_receives_default(True)
+        okbutton.grab_default()
+        
+        self.dialog.add_action_widget(
+            gtkutils.StockButton('gtk-cancel', 'Cancel'),
+            Gtk.ResponseType.CANCEL)
  
     def run(self):
         debug.mainthreadTest()
         self.table.show()
+        # TODO: Dialog.show_all() is unsafe if some of the widgets
+        # have subwidgets that aren't ready to be shown.  We used to
+        # use dialog.get_action_area().show_all(), but get_action_area
+        # is deprecated in Gtk+3.  Maybe we need to keep track of the
+        # widgets in the action area and show them
+        # individually. Probably the better solution is to make sure
+        # that all widgets can tolerate show_all(), by adding and
+        # removing subwidgets instead of showing and hiding them.
+        self.dialog.show_all()
         return self.dialog.run()        # shows dialog & makes it modal
     def close(self):
         debug.mainthreadTest()
@@ -933,7 +1071,8 @@ class ParameterDialog(widgetscope.WidgetScope):
         self.sensitize()
     def sensitize(self):
         debug.mainthreadTest()
-        self.dialog.set_response_sensitive(self.OK, self.table.isValid())
+        self.dialog.set_response_sensitive(Gtk.ResponseType.OK,
+                                           self.table.isValid())
     def hide(self):
         debug.mainthreadTest()
         self.dialog.hide()
@@ -949,9 +1088,9 @@ def getParameters(*params, **kwargs):
 
     result = dialog.run()
     
-    if result in (ParameterDialog.CANCEL,
-                  gtk.RESPONSE_DELETE_EVENT,
-                  gtk.RESPONSE_NONE):
+    if result in (Gtk.ResponseType.CANCEL,
+                  Gtk.ResponseType.DELETE_EVENT,
+                  Gtk.ResponseType.NONE):
         dialog.close()
         return None
     try:
@@ -971,19 +1110,33 @@ def getParameterValues(*params, **kwargs):
 #####################################################################
 
 class PersistentParameterDialog(ParameterDialog):
-    OK = 1
-    APPLY = 2
-    CANCEL = 3
+    # OK = 1
+    # APPLY = 2
+    # CANCEL = 3
     def _button_hook(self):
         debug.mainthreadTest()
-        okbutton = self.dialog.add_button(gtk.STOCK_OK, self.OK)
-        applybutton = self.dialog.add_button(gtk.STOCK_APPLY, self.APPLY)
-        cancelbutton = self.dialog.add_button(gtk.STOCK_CANCEL, self.CANCEL)
-        self.dialog.set_default_response(self.OK)
+        okbutton = gtkutils.StockButton('gtk-ok', 'OK')
+        self.dialog.add_action_widget(
+            okbutton,
+            Gtk.ResponseType.OK)
+        # See comment in ParameterDialog._button_hook
+        okbutton.set_can_default(True)
+        okbutton.set_receives_default(True)
+        okbutton.grab_default()
+
+        self.dialog.add_action_widget(
+            gtkutils.StockButton('gtk-apply', 'Apply'),
+            Gtk.ResponseType.APPLY)
+        self.dialog.add_action_widget(
+            gtkutils.StockButton('gtk-cancel', 'Cancel'),
+            Gtk.ResponseType.CANCEL)
+        self.dialog.set_default_response(Gtk.ResponseType.OK)
+        
     def sensitize(self):
         debug.mainthreadTest()
         ParameterDialog.sensitize(self)
-        self.dialog.set_response_sensitive(self.APPLY, self.table.isValid())
+        self.dialog.set_response_sensitive(Gtk.ResponseType.APPLY,
+                                           self.table.isValid())
 
 # This function passes the params and kwargs on to a persistent
 # parameter dialog box, which it leaves up until it gets OK or some
@@ -991,24 +1144,25 @@ class PersistentParameterDialog(ParameterDialog):
 # passed-in menu item to be run with the provided defaults, via
 # menuitem.callWithDefaults(**defaults).  OK events close the dialog,
 # APPLY events cause the dialog to persist.
-def persistentMenuitemDialog(menuitem, defaults, *params, **kwargs):
+def persistentMenuitemDialog(menuitem, defaults,
+                             *params, **kwargs):
     rerun = True
     count = 0
-    dialog = PersistentParameterDialog(*params,**kwargs)
+    dialog = PersistentParameterDialog(*params, **kwargs)
     while rerun:
         result = dialog.run()
-        if result in (PersistentParameterDialog.CANCEL,
-                      gtk.RESPONSE_DELETE_EVENT,
-                      gtk.RESPONSE_NONE):
+        if result in (Gtk.ResponseType.CANCEL,
+                      Gtk.ResponseType.DELETE_EVENT,
+                      Gtk.ResponseType.NONE):
             rerun = False
-        elif result==PersistentParameterDialog.OK:
+        elif result==Gtk.ResponseType.OK:
             try:
                 dialog.get_values()
             finally:
                 rerun = False
             menuitem.callWithDefaults(**defaults)
             count += 1
-        else: #  result==PersistentParameterDialog.APPLY
+        else: #  result==Gtk.ResponseType.APPLY
             dialog.get_values()
             menuitem.callWithDefaults(**defaults)
             count += 1
@@ -1016,10 +1170,11 @@ def persistentMenuitemDialog(menuitem, defaults, *params, **kwargs):
     
     return count
 
-def transientMenuItemDialog(menuitem, defaults, *params, **kwargs):
-    dialog = ParameterDialog(*params, **kwargs)
+def transientMenuItemDialog(menuitem, defaults, parentwindow,
+                            *params, **kwargs):
+    dialog = ParameterDialog(parentwindow=parentwindow, *params, **kwargs)
     result = dialog.run()
-    if result == ParameterDialog.OK:
+    if result == Gtk.ResponseType.OK:
         dialog.get_values()
         menuitem.callWithDefaults(**defaults)
     dialog.close()
@@ -1030,12 +1185,12 @@ from ooflib.common.IO.GUI import chooser
 
 # Widget base class for subclasses of the Enum class.
 class EnumWidget(ParameterWidget):
-    def __init__(self, enumclass, param, scope=None, name=None):
+    def __init__(self, enumclass, param, scope=None, name=None, **kwargs):
         self.enumclass = enumclass
         nameset = list(self.enumclass.names)
         self.widget = chooser.ChooserWidget(nameset, self.selection,
                                             helpdict=self.enumclass.helpdict,
-                                            name=name)
+                                            name=name, **kwargs)
         if param.value is not None:
             self.set_value(param.value)
         else:
@@ -1047,7 +1202,7 @@ class EnumWidget(ParameterWidget):
     def update(self):
         self.widget.update(list(self.enumclass.names), self.enumclass.helpdict)
         self.widgetChanged(len(self.enumclass.names) > 0, interactive=0)
-    def selection(self, gtkobj, name):
+    def selection(self, name):
         self.value = self.enumclass(name)
         self.widgetChanged(validity=1, interactive=1)
     def get_value(self):
@@ -1059,8 +1214,9 @@ class EnumWidget(ParameterWidget):
         switchboard.removeCallback(self.sbcallback)
         ParameterWidget.cleanUp(self)
     
-def _EnumParameter_makeWidget(self, scope=None):
-    return EnumWidget(self.enumclass, self, scope=scope, name=self.name)
+def _EnumParameter_makeWidget(self, scope=None, **kwargs):
+    return EnumWidget(self.enumclass, self, scope=scope, name=self.name,
+                      **kwargs)
 
 enum.EnumParameter.makeWidget = _EnumParameter_makeWidget
 
@@ -1091,17 +1247,15 @@ class ValueSetParameterWidget(GenericWidget):
             return 1
 
 
-def _makeVSPWidget(self, scope=None):
-    return ValueSetParameterWidget(self, scope=scope, name=self.name)
+def _makeVSPWidget(self, scope=None, **kwargs):
+    return ValueSetParameterWidget(self, scope=scope, name=self.name, **kwargs)
 
 parameter.ValueSetParameter.makeWidget = _makeVSPWidget
 
 class AutomaticValueSetParameterWidget(AutoWidget):
-    def __init__(self, param, scope=None, name=None):
-        AutoWidget.__init__(self, param, scope=scope, name=name)
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        AutoWidget.__init__(self, param, scope=scope, name=name, **kwargs)
         self.set_value(param.value)
-        tooltips.set_tooltip_text(self.autocheck,
-            "Switch between typed level specifications and automatic generation of levels.")
 
     def validValue(self, value):
         if value is None:
@@ -1133,29 +1287,29 @@ class AutomaticValueSetParameterWidget(AutoWidget):
             return v
         return utils.OOFeval(v)
 
-def _makeAVSPWidget(self, scope=None):
-    return AutomaticValueSetParameterWidget(self, scope=scope, name=self.name)
+def _makeAVSPWidget(self, scope=None, **kwargs):
+    return AutomaticValueSetParameterWidget(self, scope=scope, name=self.name,
+                                            **kwargs)
 
 parameter.AutomaticValueSetParameter.makeWidget = _makeAVSPWidget
 
 #######################################################################
 
 class PointWidget(ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
-        hbox = gtk.HBox()
-        xlabel = gtk.Label("x:")
-        xlabel.set_alignment(1.0, 0.5)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                       **kwargs)
+        xlabel = Gtk.Label("x:", halign=Gtk.Align.END)
         self.xwidget = FloatWidget(parameter.FloatParameter('Tweedledum', 0),
                                    name="X")
-        ylabel = gtk.Label("y:")
-        ylabel.set_alignment(1.0, 0.5)
+        ylabel = Gtk.Label("y:", halign=Gtk.Align.END)
         self.ywidget = FloatWidget(parameter.FloatParameter('Tweedledee', 0),
                                    name="Y")
-        hbox.pack_start(xlabel, expand=0, fill=0, padding=2)
-        hbox.pack_start(self.xwidget.gtk, expand=1, fill=1)
-        hbox.pack_start(ylabel, expand=0, fill=0, padding=2)
-        hbox.pack_start(self.ywidget.gtk, expand=1, fill=1)
+        hbox.pack_start(xlabel, expand=False, fill=False, padding=0)
+        hbox.pack_start(self.xwidget.gtk, expand=True, fill=True, padding=0)
+        hbox.pack_start(ylabel, expand=False, fill=False, padding=0)
+        hbox.pack_start(self.ywidget.gtk, expand=True, fill=True, padding=0)
         self.sbcallbacks=[
             switchboard.requestCallbackMain(self.xwidget,
                                             self.widgetChangeCB),
@@ -1179,8 +1333,8 @@ class PointWidget(ParameterWidget):
         map(switchboard.removeCallback, self.sbcallbacks)
         ParameterWidget.cleanUp(self)
 
-def _PointParameter_makeWidget(self, scope=None):
-    return PointWidget(self, scope=scope, name=self.name)
+def _PointParameter_makeWidget(self, scope=None, **kwargs):
+    return PointWidget(self, scope=scope, name=self.name, **kwargs)
 
 primitives.PointParameter.makeWidget = _PointParameter_makeWidget
  

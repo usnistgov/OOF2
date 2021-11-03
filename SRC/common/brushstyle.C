@@ -16,14 +16,29 @@
 #include <math.h>
 #include "printvec.h"
 
+// TODO: Allow brush size to be specified in pixels as well as
+// physical units?
+
 void CircleBrush::getPixels(const CMicrostructure *ms,
 			    const Coord &c, BoolArray &master,
-			    BoolArray &selected, ICoord &offset) {
-  // If r is smaller than max(psize(0)/2, psize(1)/2),
-  //it returns a pixel position of the given mouse point.
-  if (2.0*r<=ms->sizeOfPixels()(0) || 2.0*r<=ms->sizeOfPixels()(1)) {
+			    BoolArray &selected, ICoord &offset)
+{
+  // Called by BrushSelection::start and BrushSelection::advance in
+  // pixelselectioncourier.C.
+  
+  // selected is an array of pixels that are selected by the brush
+  // when the brush is centered at point c.  Because selected will be
+  // iterated over by BrushSelection (in pixelselectioncourier.C),
+  // it's only as big as the brush and its position in the
+  // Microstructure is determined by offset.  The array master keeps
+  // track of all pixels that have been selected by this brush stoke,
+  // to prevent pixels from being selected more than once.  master is
+  // as large as the microstructure.
+  
+  // If the circle is smaller than a pixel, select the pixel
+  // containing the center of the circle.
+  if (2.0*r<=ms->sizeOfPixels()[0] || 2.0*r<=ms->sizeOfPixels()[1]) {
     offset = ms->pixelFromPoint(c);
-//     offset.setCoord(ms->pixelFromPoint(c)(0), ms->pixelFromPoint(c)(1));
     selected.resize(ICoord(1,1));
     if (!master.get(offset)) {
       selected[ICoord(0,0)] = true;
@@ -31,25 +46,24 @@ void CircleBrush::getPixels(const CMicrostructure *ms,
     }
     return;
   }
-  // If r is specified appropriately, it return a list of pixel
-  // positions enclosed in the circle.
+  // If the circle is bigger than a pixel, select the pixels with
+  // centers inside the circle.
   const double cx = c(0);
   const double cy = c(1);
   const double rr = r*r;
   Coord ll = ms->physical2Pixel(Coord(cx-r, cy-r));
   Coord ur = ms->physical2Pixel(Coord(cx+r, cy+r));
-  const int Xmin = int(ll(0)) - 1;
-  const int Xmax = int(ur(0)) + 1;
-  const int Ymin = int(ll(1)) - 1;
-  const int Ymax = int(ur(1)) + 1;
+  const int Xmin = int(ll[0]) - 1;
+  const int Xmax = int(ur[0]) + 1;
+  const int Ymin = int(ll[1]) - 1;
+  const int Ymax = int(ur[1]) + 1;
   selected.resize(ICoord(Xmax-Xmin+1, Ymax-Ymin+1));
   selected.clear(false);
   offset = ICoord(Xmin, Ymin);
-  //   offset.setCoord(Xmin, Ymin);
   for (int i=Xmin; i<=Xmax; i++) {
     for (int j=Ymin; j<=Ymax; j++) {
-      double dx = (i+0.5)*ms->sizeOfPixels()(0) - cx;
-      double dy = (j+0.5)*ms->sizeOfPixels()(1) - cy;
+      double dx = (i+0.5)*ms->sizeOfPixels()[0] - cx;
+      double dy = (j+0.5)*ms->sizeOfPixels()[1] - cy;
       if (dx*dx + dy*dy <= rr) {
 	if (ms->contains(ICoord(i,j)))
 	  if (!master.get(ICoord(i,j))) { 
@@ -59,17 +73,16 @@ void CircleBrush::getPixels(const CMicrostructure *ms,
       }
     }
   }
-  return;
 }
 
 void SquareBrush::getPixels(const CMicrostructure *ms,
 			    const Coord &c, BoolArray &master,
-			    BoolArray &selected, ICoord &offset) {
-  // If a radius is not a positive number, it returns a pixel position of
-  // the given mouse point.
-  if (2.0*size<=ms->sizeOfPixels()(0) || 2.0*size<=ms->sizeOfPixels()(1)) {
+			    BoolArray &selected, ICoord &offset)
+{
+  // If the square is smaller than a pixel, select the pixel
+  // containing the center of the square.
+  if (2.0*size<=ms->sizeOfPixels()[0] || 2.0*size<=ms->sizeOfPixels()[1]) {
     offset = ms->pixelFromPoint(c);
-//     offset.setCoord(ms->pixelFromPoint(c)(0), ms->pixelFromPoint(c)(1));
     selected.resize(ICoord(1,1));
     if (!master.get(offset)) {
       selected[ICoord(0,0)] = true;
@@ -77,33 +90,31 @@ void SquareBrush::getPixels(const CMicrostructure *ms,
     }
     return;
   }
-  // If a r is specified appropriately, it return a list of pixel
-  // positions enclosed in the square.
+
+  // If the square is bigger than a pixel, select all pixels with
+  // centers inside the square.
   double cx = c(0);
   double cy = c(1);
+  // ll and ur are corners of the brush in pixel units
   Coord ll = ms->physical2Pixel(Coord(cx-size, cy-size));
   Coord ur = ms->physical2Pixel(Coord(cx+size, cy+size));
-  CRectangle rect = CRectangle(ll, ur);
-  int Xmin = int(ll(0))-1;
-  int Xmax = int(ur(0))+1;
-  int Ymin = int(ll(1))-1;
-  int Ymax = int(ur(1))+1;
+  // Xmin,etc delimit the pixels whose centers are inside the brush
+  int Xmin = round(ll[0]);
+  int Xmax = round(ur[0]);
+  int Ymin = round(ll[1]);
+  int Ymax = round(ur[1]);
   selected.resize(ICoord(Xmax-Xmin+1, Ymax-Ymin+1));
   selected.clear(false);
-//   offset.setCoord(Xmin, Ymin);
   offset = ICoord(Xmin, Ymin);
-  for (int i=Xmin; i<=Xmax; i++) {
-    for (int j=Ymin; j<=Ymax; j++) {
-      double dx = (i+0.5)*ms->sizeOfPixels()(0);
-      double dy = (j+0.5)*ms->sizeOfPixels()(1);
-      if (rect.contains(Coord(dx, dy)))
-	if (ms->contains(ICoord(i,j)))
-	  if (!master.get(ICoord(i,j))) {
-	    selected[ICoord(i-Xmin, j-Ymin)] = true;
-	    master[ICoord(i,j)] = true;
-	  }
+  for (int i=Xmin; i<Xmax; i++) {
+    for (int j=Ymin; j<Ymax; j++) {
+      if (ms->contains(ICoord(i,j))) {
+	if (!master.get(ICoord(i,j))) {
+	  selected[ICoord(i-Xmin, j-Ymin)] = true;
+	  master[ICoord(i,j)] = true;
+	}
+      }
     }
   }
-  return;
 }
 

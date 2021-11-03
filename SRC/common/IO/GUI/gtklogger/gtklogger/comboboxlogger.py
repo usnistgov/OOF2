@@ -9,11 +9,11 @@
 # oof_manager@nist.gov. 
 
 import widgetlogger
-import gtk
+from gi.repository import Gtk
 import types
 
 class ComboBoxLogger(widgetlogger.WidgetLogger):
-    classes = (gtk.ComboBox,)
+    classes = (Gtk.ComboBox,)
     def record(self, obj, signal, *args):
         if signal == 'changed':
             index = obj.get_active()

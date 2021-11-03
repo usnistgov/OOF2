@@ -36,15 +36,9 @@ hfiles = [
 
 def set_clib_flags(c_lib):
     import oof2setuputils
-    # if oof2setuputils.check_exec('Magick++-config'):
-    #     oof2setuputils.add_third_party_includes('Magick++-config --cppflags',
-    #                                             c_lib)
-    #     oof2setuputils.add_third_party_libs('Magick++-config --ldflags --libs',
-    #                                         c_lib)
-    # else:
-    #     print "Can't find Magick++-config!  Your ImageMagick installation may be defective."
-    oof2setuputils.pkg_check("Magick++", MAGICK_VERSION, c_lib)
+    oof2setuputils.pkg_check("oofcanvas", OOFCANVAS_VERSION, c_lib)
     addOOFlibs(c_lib, 'oof2common')
 
 if not NO_GUI:
     subdirs = ['GUI']
+

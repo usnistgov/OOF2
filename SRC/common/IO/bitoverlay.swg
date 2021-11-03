@@ -14,22 +14,21 @@
 
 %module bitoverlay
 %include "common/typemaps.swg"
+%include "common/canvasimage.swg"
 
 %{
 #include "common/IO/bitoverlay.h"
-#include "common/IO/stringimage.h"
+#include "oofcanvas/canvasimage.h"
 %}
 %extern "common/coord.swg"
 %extern "common/timestamp.swg"
-%extern "common/IO/stringimage.swg"
 %extern "common/ccolor.swg"
 %extern "common/abstractimage.swg"
 
 %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
-%pragma(python) code="from ooflib.SWIG.common.IO.stringimage import StringImagePtr"
-%pragma(python) code="from ooflib.SWIG.common.IO.stringimage import AlphaStringImagePtr"
 %pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
+   
 %pragma(python) include="bitoverlay.spy"
 
 class BitmapOverlay : public AbstractImage {
@@ -46,14 +45,10 @@ public:
   void copy(BitmapOverlay*);
   bool contains(ICoord *iPoint);
   void setColor(CColor*);
-	void setVoxelAlpha(double alpha);
-	void setTintAlpha(double alpha);
   CColor getBG();
   CColor getFG();
-	double getVoxelAlpha();
-	double getTintAlpha();
-  void fillstringimage(StringImage*);
-  void fillalphastringimage(AlphaStringImage*); 
+  NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  
   Coord size();
   ICoord sizeInPixels();
   bool empty();

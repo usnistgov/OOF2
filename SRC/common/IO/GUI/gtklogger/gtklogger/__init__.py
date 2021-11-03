@@ -26,12 +26,12 @@ from logutils import *
 ## pretty.
 from checkpoint import *
 
+from loggers import *
 
 ## The logger classes just need to be imported.  The loggers don't
 ## have to be explicitly present in the gtklogger namespace.  The
 ## GtkLogger metaclass takes care of listing them in the global
 ## directory of loggers.
-import loggers
 import adjustmentlogger
 import adopteelogger
 import buttonlogger

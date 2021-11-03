@@ -73,14 +73,14 @@ If something goes wrong, your system adminstrator may be able to help
 you, or you can contact the oof developers at oof_manager@nist.gov.
 It's diagnostically useful to include all the output from setup.py.
 
-OOF2 has been built and tested on Linux (Debian, CentOS, Ubuntu, and,
-OpenSUSE), and Macintosh OS X.
+OOF2 has been built and tested on Linux (Debian and Ubuntu) and
+Macintosh OS X.
 
 ## Prerequisites
 
-A computer running a variant of the Unix operating system,
-including Linux and Macintosh OS X, and an X11 server. OOF2
-currently does *not* run on Microsoft Windows.
+A computer running a variant of the Unix operating system, including
+Linux and Macintosh OS X. OOF2 currently does *not* run on Microsoft
+Windows.
 
 The following external programs and libraries must be present
 before you can run OOF2.  To compile OOF2 from sources, you will
@@ -88,17 +88,22 @@ also require the header files ("includes") associated with these
 programs and libraries.  These are usually available as part of a
 "development" version of the library software.
 
-- [Python (2.6 or 2.7)](http://www.python.org)
+- [Python 2.7](http://www.python.org)
 - [Magick++](http://www.imagemagick.org/www/Magick++/index.html)
-- [gtk+-2.0 (2.6 or later. Not 3.x)](http://www.gtk.org/download/)   
-- [libgnomecanvas2](http://directory.fsf.org/graphics/misc/libgnomecanvas.html)
-- [pygtk2 (2.6 or later)](http://www.pygtk.org)
+- [gtk3 (3.22 or later)](http://www.gtk.org/download/)
+- [pygobject (3.28 or later)](https://pypi.org/project/PyGObject/)
+- [cairomm (1.12 or later)](https://www.cairographics.org/cairomm/)
+- [pango (1.40 or later)](https://pango.gnome.org/)
+- [pangocairo (1.40 or later)]
 
 Please note that the words "or later" do not include later major
-versions.  OOF2 will not work with Python 3.x or gtk+ 3.x.
+versions.  OOF2 will not work with Python 3.x or gtk 4.x.  It is
+recommended that you use a package manager to install the
+prerequisites, rather than compiling them yourself. 
 
-Macintosh OS X users will need to install an [*X11 server*](
-http://xquartz.macosforge.org/).
+Macintosh users can install either native Quartz or X11 versions of
+gtk3, cairo, and pango.  If using X11, they will have to also install
+an X11 server to run OOF2.
 
 You should also have the ability to run *lapack* and the *"blas"* basic
 linear algebra subroutines.  On Macintosh OS X, they are built in
@@ -106,11 +111,6 @@ to the Accelerate framework in the OS, and no special libraries are
 required.  On Linux and commercial Unix systems, they may have to
 be installed, and you may require headers (sometimes provided as
 part of a "-dev" package).
-
-OOF2 will use the *tcmalloc* library for efficient memory allocation
-if it is available, but it will also work without it (although it
-will be slower).  It can be obtained from 
-https://github.com/gperftools/gperftools and many package managers.
 
 Detailed instructions for installing the OOF2 prerequisites on a
 number of different operating systems can be found at
@@ -220,12 +220,6 @@ these arguments in *both* steps if you provide them in one.
       Macintosh clang compiler does not.  (In OOF2 2.1.12 only the
       matrix construction and pixel autogroup operations are
       parallelized.)
-
-Prior to version 2.1.12, setup.py accepted the arguments
---skip-swig and --with-swig to control swig, which is used to
-generate some of the OOF2 code.  The OOF2 distribution now includes
-its own copy of swig, and those arguments are unnecessary.
-             
 
 ### 3. Install
 

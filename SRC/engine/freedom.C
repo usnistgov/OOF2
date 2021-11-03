@@ -17,7 +17,7 @@
 #include "engine/freedom.h"
 #include <string>
 
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
 #include <omp.h>
 #include <unordered_map>
 #include "engine/csubproblem.h"
@@ -33,7 +33,7 @@ DegreeOfFreedom::DegreeOfFreedom(int ind)
 // #include loops.
 
 double DegreeOfFreedom::value(const FEMesh *mesh) const {
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
   CSubProblem *pSubProb = mesh->getCurrentSubProblem();
   if ( (pSubProb != NULL) && !(pSubProb->dirty_dof_zone.empty()) ) {
     // dirty_dof_zone is used since this function is called 
@@ -58,7 +58,7 @@ double DegreeOfFreedom::value(const FEMesh *mesh) const {
 }
 
 double &DegreeOfFreedom::value(FEMesh *mesh) const {
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
   CSubProblem *pSubProb = mesh->getCurrentSubProblem();
   if ( (pSubProb != NULL) && !(pSubProb->dirty_dof_zone.empty()) ) {
     // dirty_dof_zone is used since this function is called 
@@ -84,7 +84,7 @@ double &DegreeOfFreedom::value(FEMesh *mesh) const {
 
 void DegreeOfFreedom::setValue(const FEMesh *mesh, double newValue)
 {
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
   CSubProblem *pSubProb = mesh->getCurrentSubProblem();
   if ( (pSubProb != NULL) && !(pSubProb->dirty_dof_zone.empty()) ) {
     // dirty_dof_zone is used since this function is called 

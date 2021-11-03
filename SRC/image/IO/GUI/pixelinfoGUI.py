@@ -9,7 +9,6 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 if config.dimension() == 2:
     from ooflib.SWIG.image import oofimage
@@ -19,13 +18,12 @@ from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import pixelinfoGUIplugin
-from ooflib.common.IO.GUI import tooltips
-import gtk
+from gi.repository import Gtk
 
 class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
     ordering = 1
     nrows = 5
-    def __init__(self, toolbox, table, row):
+    def __init__(self, toolbox, grid, row):
         debug.mainthreadTest()
         pixelinfoGUIplugin.PixelInfoGUIPlugIn.__init__(self, toolbox)
 
@@ -35,75 +33,52 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         # switches from RGB to HSV or vice versa.
         self.colorv = None
         
-        label = gtk.Label('image=')
-        label.set_alignment(1.0, 0.5)
-        table.attach(label, 0,1, row,row+1, xpadding=5, xoptions=gtk.FILL)
-        self.imagetext = gtk.Entry()
+        label = Gtk.Label('image=', halign=Gtk.Align.END, hexpand=False)
+        grid.attach(label, 0,row, 1,1)
+        self.imagetext = Gtk.Entry(editable=False, hexpand=True,
+                                   halign=Gtk.Align.FILL)
+        self.imagetext.set_width_chars(12)
         gtklogger.setWidgetName(self.imagetext, "Image")
-        self.imagetext.set_size_request(12*guitop.top().charsize, -1)
-        self.imagetext.set_editable(0)
-        table.attach(self.imagetext, 1,2, row,row+1,
-                     xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
+        grid.attach(self.imagetext, 1,row, 1,1)
 
-        selectorbox = gtk.HBox()
-        self.rgb_selector = gtk.RadioButton(group=None,label="RGB")
-        tooltips.set_tooltip_text(self.rgb_selector,
+        selectorbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                              halign=Gtk.Align.START,
+                              spacing=2)
+        self.rgb_selector = Gtk.RadioButton("RGB")
+        self.rgb_selector.set_tooltip_text(
             "View color values in Red-Green-Blue format.")
         selectorbox.add(self.rgb_selector)
-        self.hsv_selector = gtk.RadioButton(group=self.rgb_selector,
-                                            label="HSV")
-        tooltips.set_tooltip_text(self.hsv_selector,
+        self.hsv_selector = Gtk.RadioButton("HSV", group=self.rgb_selector)
+        self.hsv_selector.set_tooltip_text(
             "View color values in Hue-Saturation-Value format.")
         selectorbox.add(self.hsv_selector)
-        self.rgb_selector.set_active(1) # Default.
-
-        # Because this is a two-element group of radio buttons, only
-        # need to connect to the toggle signal on one of the buttons.
-        # If more buttons get added, this strategy will fail.
+        self.rgb_selector.set_active(True) # Default.
         gtklogger.setWidgetName(self.rgb_selector, "RGB selector")
-        # "toggle" signal is not actually logged.
-        # gtklogger.connect(self.rgb_selector, "toggled", self.selector_cb)
-
         gtklogger.setWidgetName(self.hsv_selector, "HSV selector")
         gtklogger.connect(self.rgb_selector, "clicked", self.selector_cb)
         gtklogger.connect(self.hsv_selector, "clicked", self.selector_cb)
+        grid.attach(selectorbox, 1,row+1, 1,1)
         
-
-        table.attach(selectorbox, 0,2, row+1, row+2,
-                     xoptions=gtk.EXPAND|gtk.FILL)
-        
-        self.label1 = gtk.Label('red=')
-        self.label1.set_alignment(1.0, 0.5)
-        table.attach(self.label1, 0,1, row+2,row+3,
-                     xpadding=5, xoptions=gtk.FILL)
-        self.text1 = gtk.Entry()
+        self.label1 = Gtk.Label('red=', halign=Gtk.Align.END)
+        grid.attach(self.label1, 0,row+2, 1,1)
+        self.text1 = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.text1,'Text 1')
-        self.text1.set_size_request(10*guitop.top().digitsize, -1)
-        self.text1.set_editable(0)
-        table.attach(self.text1, 1,2, row+2,row+3,
-                     xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
+        self.text1.set_width_chars(10)
+        grid.attach(self.text1, 1,row+2, 1,1)
 
-        self.label2 = gtk.Label('green=')
-        self.label2.set_alignment(1.0, 0.5)
-        table.attach(self.label2, 0,1, row+3,row+4,
-                     xpadding=5, xoptions=gtk.FILL)
-        self.text2 = gtk.Entry()
+        self.label2 = Gtk.Label('green=', halign=Gtk.Align.END)
+        grid.attach(self.label2, 0,row+3,1,1)
+        self.text2 = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.text2,'Text 2')
-        self.text2.set_size_request(10*guitop.top().digitsize, -1)
-        self.text2.set_editable(0)
-        table.attach(self.text2, 1,2, row+3,row+4,
-                     xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
+        self.text2.set_width_chars(10)
+        grid.attach(self.text2, 1,row+3, 1,1)
 
-        self.label3 = gtk.Label('blue=')
-        self.label3.set_alignment(1.0, 0.5)
-        table.attach(self.label3, 0,1, row+4,row+5,
-                     xpadding=5, xoptions=gtk.FILL)
-        self.text3 = gtk.Entry()
+        self.label3 = Gtk.Label('blue=', halign=Gtk.Align.END)
+        grid.attach(self.label3, 0,row+4, 1,1)
+        self.text3 = Gtk.Entry(editable=False)
         gtklogger.setWidgetName(self.text3,'Text 3')
-        self.text3.set_size_request(10*guitop.top().digitsize, -1)
-        self.text3.set_editable(0)
-        table.attach(self.text3, 1,2, row+4,row+5,
-                     xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
+        self.text3.set_width_chars(10)
+        grid.attach(self.text3, 1,row+4, 1,1)
 
         self.sbcallbacks = [
             switchboard.requestCallbackMain('modified image',
@@ -136,7 +111,10 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
 
     # GTK callback for selection toggles.
     def selector_cb(self, gtkobj):
-        self.color_display()
+        # activations are always paired with deactivations, so one can
+        # be ignored.
+        if gtkobj.get_active():
+            self.color_display()
 
     def clear(self):
         self.colorv = None

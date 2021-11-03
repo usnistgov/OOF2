@@ -131,14 +131,14 @@ def findNamedBulkAnalysis(operation, data, domain, sampling):
             analysis.domain == domain and
             analysis.sampling == sampling):
             return name
-    return ""
+    return None
 
 def findNamedBdyAnalysis(boundary, analyzer):
     for name, analysis in _namedBdyAnalyses.items():
         if (analysis.boundary == boundary and
             analysis.analyzer == analyzer):
             return name
-    return ""
+    return None
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

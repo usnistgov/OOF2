@@ -16,8 +16,7 @@ from ooflib.SWIG.common import config
 import ooflib.engine.initialize
 
 # Import widgets before GUI page definitions.
-if config.dimension() == 2:
-    import ooflib.engine.IO.GUI.adaptivemeshrefineWidget
+import ooflib.engine.IO.GUI.adaptivemeshrefineWidget
 import ooflib.engine.IO.GUI.bdyinitparamwidget
 import ooflib.engine.IO.GUI.bdymodparamwidget
 import ooflib.engine.IO.GUI.boundarybuilderGUI
@@ -46,8 +45,7 @@ import ooflib.engine.IO.GUI.strainwidget
 import ooflib.engine.IO.GUI.tensorwidgets
 
 # Toolbox definitions
-if config.dimension() == 2:
-    import ooflib.engine.IO.GUI.meshcstoolboxGUI
+import ooflib.engine.IO.GUI.meshcstoolboxGUI
 import ooflib.engine.IO.GUI.meshinfoGUI
 import ooflib.engine.IO.GUI.movenodeGUI
 import ooflib.engine.IO.GUI.pinnodesGUI
@@ -56,18 +54,18 @@ import ooflib.engine.IO.GUI.skeletoninfoGUI
 import ooflib.engine.IO.GUI.skeletonselectiontoolboxGUI
 
 # GUI page definitions.
+
 import ooflib.engine.IO.GUI.analyzePage
 import ooflib.engine.IO.GUI.boundaryAnalysisPage
 import ooflib.engine.IO.GUI.boundarycondPage
 import ooflib.engine.IO.GUI.fieldPage
+import ooflib.engine.IO.GUI.interfacePage #Interface branch
 import ooflib.engine.IO.GUI.materialsPage
 import ooflib.engine.IO.GUI.meshPage
-import ooflib.engine.IO.GUI.outputPage
 import ooflib.engine.IO.GUI.pinnodesPage
+import ooflib.engine.IO.GUI.scheduledOutputPage
 import ooflib.engine.IO.GUI.skeletonBoundaryPage
 import ooflib.engine.IO.GUI.skeletonPage
 import ooflib.engine.IO.GUI.skeletonSelectionPage
 import ooflib.engine.IO.GUI.solverPage
-if config.dimension() == 2:
-    import ooflib.engine.IO.GUI.interfacePage #Interface branch
-
+#import ooflib.engine.IO.GUI.outputPage

@@ -177,7 +177,7 @@ public:
   int GatherNumNodes();
 #endif	// HAVE_MPI
 
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
   // During the make_linear_system of nonlinear solver, the global
   // degree-of-freedom (FEMesh::dofvalues) are temporarily changed
   // by each element. Therefore, it has to be protected from "pollution"

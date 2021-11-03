@@ -131,7 +131,7 @@ TutorialClass(subject="Basics",
     task page.
 
     The menu bar contains four menus, BOLD(File), BOLD(Settings),
-    BOLD(Windows), and BOLD(Help).
+    BOLD(Windows), BOLD(OrientationMap), and BOLD(Help).
 
     The BOLD(File) menu deals with loading and saving files and
     quitting OOF2.
@@ -141,6 +141,9 @@ TutorialClass(subject="Basics",
 
     From the BOLD(Windows) menu, one can open additional OOF2 windows
     and raise existing windows.
+
+    The BOLD(OrientationMap) menu contains commands for manipulating
+    EBSD data files.
 
     The BOLD(Help) menu contains tools to help you use OOF2 and to
     help us debug it."""
@@ -162,8 +165,8 @@ TutorialClass(subject="Basics",
 
     A brief description of each page is displayed when the mouse
     cursor is over the page's entry in the task menu. (These are
-    examples of BOLD(Tooltips).  They can be disabled in the
-    BOLD(Help) menu.)
+    examples of BOLD(Tooltips).  Most GUI elements in OOF2 have
+    tooltips to help you figure out what they're for.
 
     Open the BOLD(Microstructure) page by selecting
     BOLD(Microstructure) in the task menu.
@@ -177,6 +180,8 @@ TutorialClass(subject="Basics",
 
     TutoringItem(
     subject="Task Pages -- continued",
+        ## TODO GTK3: Move discussion of automatic widgets here, from
+        ## simpleexample.py.
     comments=
     """Now, create a microstructure to see what happens to the
     grayed-out buttons on the page.
@@ -186,12 +191,32 @@ TutorialClass(subject="Basics",
 
     Click the BOLD(New from Image File) button.
 
-    From the file selector, navigate to BOLD(small.ppm).  (To
-    navigate, switch directories with the pull-down menu near the top
-    of the window or by double clicking in the "Directories" pane on
-    the left.  Select files by choosing them in the "Files" pane on
-    the right. File and directory names may also be typed into the
-    "Selection" field at the bottom.)  When you're done, click the
+    The file selector will appear. To navigate, switch directories by
+    typing in the BOLD(Directory) box at the top of the window, or by
+    using the pull-down menu to its right, which displays the
+    directory hierarchy.  Directories are also listed in bold in the
+    list of files below the row of buttons.  Double-clicking on a
+    directory name in the list will take you to that directory.
+
+    The BOLD(Back) and BOLD(Next) buttons take you other directories
+    that you've recently visited, and the BOLD(Home) button takes you
+    to your home directory.
+
+    Navigate to the directory containing BOLD(small.ppm) and click its
+    name in the list.
+
+    The three fields labelled BOLD(microstructure_name), BOLD(height),
+    and BOLD(width) are BOLD(automatic) widgets, currently displaying
+    "<automatic>" in italics.  If you don't type anything in the
+    widgets, OOF2 will automatically create an appropriate value for
+    them.  In this case, the microstructure name will be set to the
+    name of the image, "small.ppm", and the height and width will be
+    set to the size of the image, in pixels.  If you type anything in
+    an automatic widget, the its value will be the value that you
+    typed.  If you delete all of the text in an automatic widget, the
+    value will revert to "<automatic>".
+
+    Leave the automatic widgets set to "<automatic>" and click the
     BOLD(OK) button.
 
     You should see that all of the buttons in the upper part of the
@@ -209,12 +234,10 @@ TutorialClass(subject="Basics",
     subject="The Graphics Window",
     comments=
 
-    """The graphics window displays Microstructures, Skeletons, and
-    Meshes and their associated data.  Open a graphics window with the
-    BOLD(Graphics/New) command in the BOLD(Windows) menu.
+    """Open a graphics window with the BOLD(Graphics/New) command in the
+    BOLD(Windows) menu.  The graphics window displays Microstructures,
+    Skeletons, and Meshes and their associated data.
 
-    You should see the Image BOLD(small.ppm) displayed in the window.
-    
     The graphics window is composed of five parts: a menu bar, a
     toolbox area, a canvas, a contour map, and a layer list.  
 
@@ -241,11 +264,47 @@ TutorialClass(subject="Basics",
     displayed in the canvas.
 
     The toolbox, canvas, contour map, and layer list are separated by
-    dividers with a small square(its shape varies depending on system)
-    on them.  Drag these squares with the
-    mouse to change the size of the various panes in the window.
-    """
-        ),
+    dividers that can be dragged with the mouse to change the sizes of
+    the various panes in the window.  Many user interface elements
+    have a minimum size, so you may need to enlarge the entire window
+    before moving some of the dividers.  """
+    ),
+
+    TutoringItem(
+    subject="Adding a Graphics Layer",
+    comments=
+    
+    """The BOLD(canvas) is currently blank, even though a microstructure
+    has been created from an image.
+
+    Everything displayed in a graphics window is part of a
+    BOLD(Layer).  Layers are listed at the bottom of the window.
+    Layers can be shown, hidden, deleted, and reordered by using the
+    BOLD(Layer) menu, or by right-clicking in the layer list.
+
+    To display a layer, select BOLD(New) from the BOLD(Layer) menu in
+    the graphics window.
+
+    Each layer is defined by three parameters, BOLD(category),
+    BOLD(what), and BOLD(how).  BOLD(category) determines what kind of
+    object is displayed in the layer.  Set BOLD(category) to
+    BOLD(Image).
+
+    BOLD(what) determines which object in the selected category will
+    be displayed.  Images are identified by their name and the name of
+    the Microstructure that contains them.  The upper pull-down menu
+    in the BOLD(what) box selects the Microstructure, and the lower
+    one selects the Image.  We have only one Microstructure (named
+    "small.ppm") and it contains only one Image (also named
+    "small.ppm"), so leave both menus set to "small.ppm"
+
+    BOLD(how) determines how the object will be rendered on the
+    canvas.  Leave it set to BOLD(Bitmap) and click BOLD(OK).
+
+    The image now appears on the canvas and its display layer is
+    listed at the bottom of the window.
+
+    """),
 
     TutoringItem(
     subject="Activity Viewer and Progress Bars",
@@ -255,21 +314,18 @@ TutorialClass(subject="Basics",
     you'll be able to monitor the progress of certain activities and
     furthermore you'll be able to stop these activities at will.
 
-    Demonstrate this feature by categorizing the Microstructure
-    BOLD(small.ppm) by pixel colors, that is, create a BOLD(pixel
-    group) for each color of pixel in the Image.
+    The BOLD(Activity Viewer) window appears when OOF2 does something
+    that takes longer than two seconds (the exact time can be adjusted
+    in the window's BOLD(Settings) menu), or when opened explicitly
+    with the main window's BOLD(Windows) menu.
 
-    Open the BOLD(Image) page in the main OOF2 window, and click the
-    BOLD(Group) button.
+    Progress bars in the BOLD(Activity Viewer) window indicate how far
+    a process has progressed.  Each bar has a BOLD(Stop) button that
+    will abort the process.
 
-    The BOLD(Activity Viewer) window will appear.  It features a
-    progress bar that lets you graphically monitor the progress of
-    pixel categorization.
-
-    While the bar is still moving, you can abort the process by
-    clicking on the BOLD(Stop) button.
-
-    Cool, isn't it?
+    Unfortunately, unless you're using a very slow computer it's
+    impossible to demonstrate the progress bars at this point, because
+    there's nothing that we can do that takes longer than two seconds.
     """
     ),
 

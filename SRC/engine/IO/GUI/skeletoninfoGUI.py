@@ -9,7 +9,6 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import pixelgroup
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
@@ -20,14 +19,11 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import toolboxGUI
-from ooflib.common.IO.GUI import tooltips
 from ooflib.engine.IO import skeletoninfo
-import gtk
+
+from gi.repository import Gtk
 import string
 import sys
-
-xpadding = 3
-xoptions = gtk.EXPAND|gtk.FILL
 
 class SkeletonInfoMode:
     # Base class for ElementMode, NodeMode, and SegmentMode.
@@ -37,18 +33,11 @@ class SkeletonInfoMode:
         self.toolbox = toolbox  # SkeletonInfoToolboxGUI
         self.menu = self.toolbox.toolbox.menu  # ie, gfxtoolbox.toolbox.menu
 
-        self.gtk = gtk.Frame(self.targetname + " Information")
-        self.gtk.set_shadow_type(gtk.SHADOW_IN)
-        scroll = gtk.ScrolledWindow()
-        gtklogger.logScrollBars(scroll, self.targetname+"Information")
-        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.gtk.add(scroll)
-        # This vbox just keeps the table from expanding inside the
-        # scrolledwindow.
-        vbox = gtk.VBox()
-        scroll.add_with_viewport(vbox)
-        self.table = gtk.Table()
-        vbox.pack_start(self.table, expand=0, fill=0)
+        self.gtk = Gtk.Frame(label=self.targetname + " Information",
+                             shadow_type=Gtk.ShadowType.IN)
+        gtklogger.setWidgetName(self.gtk, self.targetname + "Information")
+        self.table = Gtk.Grid(row_spacing=1, column_spacing=2, margin=2)
+        self.gtk.add(self.table)
 
         self.sbcallbacks = [
             switchboard.requestCallback("groupset member resized",
@@ -67,20 +56,17 @@ class SkeletonInfoMode:
 
     # Utility routines for constructing GUI components
     
-    def labelmaster(self, column, row, labeltext):
+    def labelmaster(self, column, row, labeltext, width=1, height=1):
         debug.mainthreadTest()
-        label = gtk.Label(labeltext)
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, column[0],column[1], row[0],row[1],
-                          xpadding=xpadding, xoptions=xoptions)
+        label = Gtk.Label(labeltext, halign=Gtk.Align.END, hexpand=False)
+        self.table.attach(label, column, row, width, height)
 
-    def entrymaster(self, column, row, editable=0):
+    def entrymaster(self, column, row, editable=False, width=1, height=1):
         debug.mainthreadTest()
-        entry = gtk.Entry()
-        entry.set_size_request(13*guitop.top().digitsize, -1)
-        entry.set_editable(editable)
-        self.table.attach(entry, column[0],column[1], row[0],row[1],
-                          xpadding=xpadding, xoptions=xoptions)
+        entry = Gtk.Entry(editable=editable,
+                          hexpand=True, halign=Gtk.Align.FILL)
+        entry.set_width_chars(13)
+        self.table.attach(entry, column, row, width, height)
         return entry
 
     # getBlahBlah => double-click callback
@@ -131,23 +117,17 @@ class SkeletonInfoMode:
         chsr = chooser.FramedChooserListWidget(callback=self.showNodeCB,
                                                dbcallback=self.getNodeCB,
                                                autoselect=0,
-                                               name="NodeList")
-        self.table.attach(chsr.gtk, column[0], column[1], row[0], row[1],
-                          xpadding=xpadding, xoptions=xoptions)
+                                               name="NodeList",
+                                               hexpand=True,
+                                               halign=Gtk.Align.FILL)
+        self.table.attach(chsr.gtk, column, row, 1,1)
         return chsr
 
     def updateNodeList(self, chsr, objlist):
         # called only when Skeleton readlock has been obtained.
-        if config.dimension() == 2:
-            namelist = ["Node %d at (%s, %s)" % (obj.index, obj.position().x,
-                                                 obj.position().y)
-                        for obj in objlist]
-        elif config.dimension() == 3:
-            namelist = ["Node %d at (%s, %s, %s)" % (obj.index,
-                                                     obj.position().x,
-                                                     obj.position().y,
-                                                     obj.position().z)
-                        for obj in objlist]
+        namelist = ["Node %d at (%s, %s)" % (obj.index, obj.position().x,
+                                             obj.position().y)
+                    for obj in objlist]
         mainthread.runBlock(chsr.update, (objlist, namelist))
 
     def updateNodeListAngle(self, chsr, element):
@@ -163,10 +143,12 @@ class SkeletonInfoMode:
         chsr = chooser.FramedChooserListWidget(callback=self.showElementCB,
                                                dbcallback=self.getElementCB,
                                                autoselect=0,
-                                               name="ElementList")
-        self.table.attach(chsr.gtk, column[0], column[1], row[0], row[1],
-                          xpadding=xpadding, xoptions=xoptions)
+                                               name="ElementList",
+                                               hexpand=True,
+                                               halign=Gtk.Align.FILL)
+        self.table.attach(chsr.gtk, column, row, 1, 1)
         return chsr
+    
     def updateElementList(self, chsr, objlist):
         # called only when Skeleton readlock has been obtained.
         namelist = ["Element %d" % obj.index for obj in objlist]
@@ -177,15 +159,18 @@ class SkeletonInfoMode:
         mainthread.runBlock(self.group.set_text,
                             (string.join(obj.groups, ', '),))
 
+
     def makeSegmentList(self, column, row):
         debug.mainthreadTest()
         chsr = chooser.FramedChooserListWidget(callback=self.showSegmentCB,
                                                dbcallback=self.getSegmentCB,
                                                autoselect=0,
-                                               name="SegmentList")
-        self.table.attach(chsr.gtk, column[0], column[1], row[0], row[1],
-                          xpadding=xpadding, xoptions=xoptions)
+                                               name="SegmentList",
+                                               hexpand=True,
+                                               halign=Gtk.Align.FILL)
+        self.table.attach(chsr.gtk, column, row, 1, 1)
         return chsr
+    
     def updateSegmentList(self, chsr, objlist):
         # called only when Skeleton readlock has been obtained.        
         namelist = ["Segment %d, nodes (%d, %d) (length: %s)" %
@@ -211,49 +196,44 @@ class ElementMode(SkeletonInfoMode):
         self.built = False
         SkeletonInfoMode.__init__(self, toolbox)
 
-        self.labelmaster((0,1), (0,1), 'index=')
-        self.index = self.entrymaster((1,2), (0,1))
+        self.labelmaster(0, 0, 'index=')
+        self.index = self.entrymaster(1, 0)
         gtklogger.setWidgetName(self.index, "Index")
         
-        self.labelmaster((0,1), (1,2), 'type=')
-        self.type = self.entrymaster((1,2), (1,2))
+        self.labelmaster(0, 1, 'type=')
+        self.type = self.entrymaster(1, 1)
         gtklogger.setWidgetName(self.type, "Type")
 
-        self.labelmaster((0,1), (2,3), 'nodes=')
-        self.nodes = self.makeNodeList((1,2), (2,3))
+        self.labelmaster(0, 2, 'nodes=')
+        self.nodes = self.makeNodeList(1, 2)
 
-        self.labelmaster((0,1), (3,4), 'segments=')
-        self.segs = self.makeSegmentList((1,2), (3,4))
+        self.labelmaster(0, 3, 'segments=')
+        self.segs = self.makeSegmentList(1, 3)
 
-        if config.dimension() == 2:
-            area = "area="
-            Area = "Area"
-        elif config.dimension() == 3:
-            area = "volume="
-            Area = "Volume"
-        self.labelmaster((0,1), (4,5), area)
-        self.area = self.entrymaster((1,2), (4,5))
-        gtklogger.setWidgetName(self.area, Area)
+        self.labelmaster(0, 4, 'area=')
+        self.area = self.entrymaster(1, 4)
+        gtklogger.setWidgetName(self.area, "Area")
 
-        self.labelmaster((0,1), (5,6), 'dominant pixel=')
-        self.domin = self.entrymaster((1,2), (5,6))
+        self.labelmaster(0, 5, 'dominant pixel=')
+        self.domin = self.entrymaster(1, 5)
         gtklogger.setWidgetName(self.domin, "Dom pixel")
 
-        self.labelmaster((0,1), (6,7), 'homogeneity=')
-        self.homog = self.entrymaster((1,2), (6,7))
+        self.labelmaster(0, 6, 'homogeneity=')
+        self.homog = self.entrymaster(1, 6)
         gtklogger.setWidgetName(self.homog, "Homog")
 
-        self.labelmaster((0,1), (7,8), 'shape energy=')
-        self.shape = self.entrymaster((1,2), (7,8))
-        gtklogger.setWidgetName(self.shape,"Shape")
+        self.labelmaster(0, 7, 'shape energy=')
+        self.shape = self.entrymaster(1, 7)
+        gtklogger.setWidgetName(self.shape, "Shape")
 
-        self.labelmaster((0,1), (8,9), 'element groups=')
-        self.group = self.entrymaster((1,2), (8,9))
-        gtklogger.setWidgetName(self.group,"Group")
+        self.labelmaster(0, 8, 'element groups=')
+        self.group = self.entrymaster(1, 8)
+        gtklogger.setWidgetName(self.group, "Group")
 
-        self.labelmaster((0,1), (9,10), 'material=')
-        self.material = self.entrymaster((1,2), (9,10))
-        gtklogger.setWidgetName(self.material,"Material")
+        self.labelmaster(0, 9, 'material=')
+        self.material = self.entrymaster(1, 9)
+        gtklogger.setWidgetName(self.material, "Material")
+
         self.built = True
         
     def querycmd(self):
@@ -278,10 +258,7 @@ class ElementMode(SkeletonInfoMode):
             etype = `element.type()`[1:-1] # strip quotes
             eindex = `element.getIndex()`
 
-            if config.dimension() == 2:
-                self.updateNodeListAngle(self.nodes, element)
-            elif config.dimension() == 3:
-                self.updateNodeList(self.nodes, element.nodes)
+            self.updateNodeListAngle(self.nodes, element)
             # Clear the selection in the list of nodes if there's
             # nothing in the peeker.
             self.syncPeeker(self.nodes, "Node")
@@ -292,10 +269,7 @@ class ElementMode(SkeletonInfoMode):
             # nothing in the peeker.
             self.syncPeeker(self.segs, "Segment")
 
-            if config.dimension() == 2:
-                earea = "%s" % element.area()
-            elif config.dimension() == 3:
-                earea = "%s" % element.volume()
+            earea = "%s" % element.area()
 
             if not element.illegal():
                 domCat = element.dominantPixel(skeleton.MS)
@@ -362,27 +336,27 @@ class NodeMode(SkeletonInfoMode):
         self.built = False
         SkeletonInfoMode.__init__(self, toolbox)
 
-        self.labelmaster((0,1), (0,1), 'index=')
-        self.index = self.entrymaster((1,2), (0,1))
+        self.labelmaster(0, 0, 'index=')
+        self.index = self.entrymaster(1, 0)
         gtklogger.setWidgetName(self.index, "Index")
 
-        self.labelmaster((0,1), (1,2), 'position=')
-        self.pos = self.entrymaster((1,2), (1,2))
+        self.labelmaster(0, 1, 'position=')
+        self.pos = self.entrymaster(1, 1)
         gtklogger.setWidgetName(self.pos, "Position")
 
-        self.labelmaster((0,1), (2,3), 'mobility=')
-        self.mobility = self.entrymaster((1,2), (2,3))
+        self.labelmaster(0, 2, 'mobility=')
+        self.mobility = self.entrymaster(1, 2)
         gtklogger.setWidgetName(self.mobility, "Mobility")
 
-        self.labelmaster((0,1), (3,4), 'elements=')
-        self.elem = self.makeElementList((1,2), (3,4))
+        self.labelmaster(0, 3, 'elements=')
+        self.elem = self.makeElementList(1, 3)
 
-        self.labelmaster((0,1), (4,5), 'node groups=')
-        self.group = self.entrymaster((1,2), (4,5))
+        self.labelmaster(0, 4, 'node groups=')
+        self.group = self.entrymaster(1, 4)
         gtklogger.setWidgetName(self.group, "Group")
 
-        self.labelmaster((0,1), (5,6), 'boundary=')
-        self.bndy = self.entrymaster((1,2), (5,6))
+        self.labelmaster(0, 5, 'boundary=')
+        self.bndy = self.entrymaster(1, 5)
         gtklogger.setWidgetName(self.bndy, "Boundary")
         self.built = True
         
@@ -400,42 +374,18 @@ class NodeMode(SkeletonInfoMode):
         container.context.begin_reading()
         try:
             nindex = `node.getIndex()`
-            if config.dimension() == 2:
-                npos = "(%s, %s)" % (node.position().x, node.position().y)
-            elif config.dimension() == 3:
-                npos = "(%s, %s, %s)" % (node.position().x, 
-                                         node.position().y, node.position().z)
+            npos = "(%s, %s)" % (node.position().x, node.position().y)
             
-            if config.dimension() == 2:
-                if node.movable_x() and node.movable_y():
-                    nmob = "free"
-                elif node.movable_x() and not node.movable_y():
-                    nmob = "x only"
-                elif not node.movable_x() and node.movable_y():
-                    nmob = "y only"
-                elif node.pinned():
-                    nmob = "pinned"
-                else:
-                    nmob = "fixed"
-            elif config.dimension() == 3:
-                if node.movable_x() and node.movable_y() and node.movable_z():
-                    nmob = "free"
-                elif node.movable_x() and node.movable_y() and not node.movable_z():
-                    nmob = "x and y only"
-                elif node.movable_x() and not node.movable_y() and node.movable_z():
-                    nmob = "x and z only"
-                elif not node.movable_x() and node.movable_y() and node.movable_z():
-                    nmob = "y and z only"
-                elif node.movable_x() and not node.movable_y() and not node.movable_z():
-                    nmob = "x only"
-                elif not node.movable_x() and node.movable_y() and not node.movable_z():
-                    nmob = "y only"
-                elif not node.movable_x() and not node.movable_y() and node.movable_z():
-                    nmob = "z only"
-                elif node.pinned():
-                    nmob = "pinned"
-                else:
-                    nmob = "fixed"
+            if node.movable_x() and node.movable_y():
+                nmob = "free"
+            elif node.movable_x() and not node.movable_y():
+                nmob = "x only"
+            elif not node.movable_x() and node.movable_y():
+                nmob = "y only"
+            elif node.pinned():
+                nmob = "pinned"
+            else:
+                nmob = "fixed"
 
             self.updateElementList(self.elem, node.neighborElements())
             self.syncPeeker(self.elem, "Element")
@@ -488,34 +438,34 @@ class SegmentMode(SkeletonInfoMode):
     def __init__(self, toolbox, querier=None):
         self.built = False
         SkeletonInfoMode.__init__(self, toolbox)
-        self.labelmaster((0,1), (0,1), 'index=')
-        self.index = self.entrymaster((1,2), (0,1))
+        self.labelmaster(0, 0, 'index=')
+        self.index = self.entrymaster(1, 0)
         gtklogger.setWidgetName(self.index, "Index")
 
-        self.labelmaster((0,1), (1,2), 'nodes=')
-        self.nodes = self.makeNodeList((1,2), (1,2))
+        self.labelmaster(0, 1, 'nodes=')
+        self.nodes = self.makeNodeList(1, 1)
 
-        self.labelmaster((0,1), (2,3), 'elements=')
-        self.elem = self.makeElementList((1,2), (2,3))
+        self.labelmaster(0, 2, 'elements=')
+        self.elem = self.makeElementList(1, 2)
 
-        self.labelmaster((0,1), (3,4), 'length=')
-        self.length = self.entrymaster((1,2), (3,4))
+        self.labelmaster(0, 3, 'length=')
+        self.length = self.entrymaster(1, 3)
         gtklogger.setWidgetName(self.length, "Length")
 
-        self.labelmaster((0,1), (4,5), 'homogeneity=')
-        self.homog = self.entrymaster((1,2), (4,5))
+        self.labelmaster(0, 4, 'homogeneity=')
+        self.homog = self.entrymaster(1, 4)
         gtklogger.setWidgetName(self.homog, "Homogeneity")
 
-        self.labelmaster((0,1), (5,6), 'segment groups=')
-        self.group = self.entrymaster((1,2), (5,6))
+        self.labelmaster(0, 5, 'segment groups=')
+        self.group = self.entrymaster(1, 5)
         gtklogger.setWidgetName(self.group, "Groups")
 
-        self.labelmaster((0,1), (6,7), 'boundary=')
-        self.bndy = self.entrymaster((1,2), (6,7))
+        self.labelmaster(0, 6, 'boundary=')
+        self.bndy = self.entrymaster(1, 6)
         gtklogger.setWidgetName(self.bndy, "Boundary")
 
-#         self.labelmaster((0,1), (7,8), 'material=')
-#         self.material = self.entrymaster((1,2), (7,8))
+#         self.labelmaster(0, 7, 'material=')
+#         self.material = self.entrymaster(1, 7)
 #         gtklogger.setWidgetName(self.material, "Material")
 
         self.built = True
@@ -595,116 +545,94 @@ modes = [ElementMode, NodeMode, SegmentMode]
 class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def __init__(self, skeletoninfo):
         toolboxGUI.GfxToolbox.__init__(self, "Skeleton Info", skeletoninfo)
-        self.mainbox = gtk.VBox()
+        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(self.mainbox)
 
         self.modeclass = ElementMode
         self.modeobj = None
         self.modeobjdict = {}
 
-        clickframe = gtk.Frame()
-        gtklogger.setWidgetName(clickframe, 'Click')
-        clickframe.set_shadow_type(gtk.SHADOW_IN)
-        self.mainbox.pack_start(clickframe, expand=0, fill=0)
-        clickbox = gtk.VBox()
-        clickframe.add(clickbox)
+        clickbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                           spacing=2, margin=2)
+        gtklogger.setWidgetName(clickbox, 'Click')
+        self.mainbox.pack_start(clickbox, expand=False, fill=False, padding=0)
 
-        hbox = gtk.HBox()
-        clickbox.pack_start(hbox, expand=0, fill=0)
-        hbox.pack_start(gtk.Label("Click on an: "), expand=0, fill=0)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        clickbox.pack_start(hbox, expand=False, fill=False, padding=0)
+        hbox.pack_start(Gtk.Label("Click on an: "),
+                        expand=False, fill=False, padding=0)
 
         self.modebuttons = []
         self.modebuttondict = {}
         for mode in modes:
             if self.modebuttons:
-                button = gtk.RadioButton(label=mode.targetname,
+                button = Gtk.RadioButton(label=mode.targetname,
                                         group=self.modebuttons[0])
             else:
-                button = gtk.RadioButton(label=mode.targetname)
+                button = Gtk.RadioButton(label=mode.targetname)
             gtklogger.setWidgetName(button, mode.targetname)
             self.modebuttons.append(button)
-            tooltips.set_tooltip_text(button,
-                               "Show " + mode.targetname + " Information")
-            hbox.pack_start(button, expand=0, fill=0)
+            button.set_tooltip_text("Show " + mode.targetname + " Information")
+            hbox.pack_start(button, expand=False, fill=False, padding=0)
             button.set_active(self.modeclass is mode)
             gtklogger.connect(button, 'clicked', self.changeModeCB, mode)
             self.modebuttondict[mode.targetname] = button
 
         # Display mouse click coordinates
-        if config.dimension() == 2:
-            table = gtk.Table(columns=2, rows=2) 
-        elif config.dimension() == 3:
-            table = gtk.Table(columns=2, rows=3) 
-        clickbox.pack_start(table, expand=0, fill=0)
+        table = Gtk.Grid(row_spacing=2, column_spacing=2) 
+        clickbox.pack_start(table, expand=False, fill=False, padding=0)
 
-        label = gtk.Label('x=')
-        label.set_alignment(1.0, 0.5)
-        table.attach(label, 0,1, 0,1, xpadding=5, xoptions=gtk.FILL)
-        self.xtext = gtk.Entry()
+        label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)
+        table.attach(label, 0,0, 1,1)
+        self.xtext = Gtk.Entry(editable=False,
+                               hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.xtext,"X Text")
-        self.xtext.set_editable(0)
-        self.xtext.set_size_request(13*guitop.top().digitsize, -1)
-        table.attach(self.xtext, 1,2, 0,1,
-                          xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-        label = gtk.Label('y=')
-        label.set_alignment(1.0, 0.5)
-        table.attach(label, 0,1, 1,2, xpadding=5, xoptions=gtk.FILL)
-        self.ytext = gtk.Entry()
+        self.xtext.set_width_chars(13)
+        table.attach(self.xtext, 1,0, 1,1)
+
+        label = Gtk.Label('y=', halign=Gtk.Align.END, hexpand=False)
+        table.attach(label, 0,1, 1,1)
+        self.ytext = Gtk.Entry(editable=False,
+                               hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.ytext,"Y Text")
-        self.ytext.set_size_request(13*guitop.top().digitsize, -1)        
-        self.ytext.set_editable(0)
-        table.attach(self.ytext, 1,2, 1,2,
-                          xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-        if config.dimension() == 3:
-            label = gtk.Label('z=')
-            label.set_alignment(1.0, 0.5)
-            table.attach(label, 0,1, 2,3, xpadding=5, xoptions=gtk.FILL)
-            self.ztext = gtk.Entry()
-            gtklogger.setWidgetName(self.ztext,"Z Text")
-            self.ztext.set_size_request(13*guitop.top().digitsize, -1)        
-            self.ztext.set_editable(0)
-            table.attach(self.ztext, 1,2, 2,3,
-                         xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-        tooltips.set_tooltip_text(self.xtext,"x coordinate of the mouse click")
-        tooltips.set_tooltip_text(self.ytext,"y coordinate of the mouse click")
-        if config.dimension() == 3:
-            tooltips.set_tooltip_text(self.ztext,"z coordinate of the mouse click")
+        self.ytext.set_width_chars(13)
+        table.attach(self.ytext, 1,1, 1,1),
+        self.xtext.set_tooltip_text("x coordinate of the mouse click")
+        self.ytext.set_tooltip_text("y coordinate of the mouse click")
         # End of clicked point display
 
-        self.infoframe = gtk.Frame()
-        self.infoframe.set_shadow_type(gtk.SHADOW_NONE)
-        self.mainbox.pack_start(self.infoframe, expand=1, fill=1)
+        self.infoframe = Gtk.Frame(shadow_type=Gtk.ShadowType.NONE,
+                                   vexpand=True)
+        self.mainbox.pack_start(self.infoframe, expand=True,
+                                fill=True, padding=0)
         
         self.buildInfoGUI(self.modeclass)
 
         # Buttons at the bottom: Prev, Clear, Next
-        buttonbox = gtk.HBox()
+        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         self.prev = gtkutils.prevButton()
         gtklogger.connect(self.prev, 'clicked', self.prevQuery)
-        tooltips.set_tooltip_text(self.prev,
-                             "Go back to the previous object")
-        buttonbox.pack_start(self.prev, expand=0, fill=0, padding=2)
+        self.prev.set_tooltip_text("Go back to the previous object")
+        buttonbox.pack_start(self.prev, expand=False, fill=False, padding=0)
         
-        self.clear = gtk.Button(stock=gtk.STOCK_CLEAR)
+        self.clear = gtkutils.StockButton('edit-clear-symbolic', 'Clear')
         gtklogger.setWidgetName(self.clear, 'Clear')
         gtklogger.connect(self.clear, 'clicked', self.clearQuery)
-        tooltips.set_tooltip_text(self.clear,"Clear the current query.")
-        buttonbox.pack_start(self.clear, expand=1, fill=1, padding=2)
+        self.clear.set_tooltip_text("Clear the current query.")
+        buttonbox.pack_start(self.clear, expand=True, fill=True, padding=0)
 
         self.next = gtkutils.nextButton()
         gtklogger.connect(self.next, 'clicked', self.nextQuery)
-        tooltips.set_tooltip_text(self.next,"Go on to the next object")
-        buttonbox.pack_start(self.next, expand=0, fill=0, padding=2)
+        self.next.set_tooltip_text("Go on to the next object")
+        buttonbox.pack_start(self.next, expand=False, fill=False, padding=0)
 
-        self.mainbox.pack_start(buttonbox, expand=0, fill=0, padding=2)
+        self.mainbox.pack_start(buttonbox, expand=False, fill=False, padding=0)
 
         self.mainbox.show_all()
         self.sensitize()
         
         self.xposition = None
         self.yposition = None
-        if config.dimension() == 3:
-            self.zposition = None
 
         self.sbcallbacks = [
             switchboard.requestCallback((self.toolbox.gfxwindow(),
@@ -749,7 +677,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         try:
             return self.toolbox.querier.clearable()
         except AttributeError:
-            return 0
+            return False
         
     def prev_able(self):
         return self.toolbox.prev_able()
@@ -764,8 +692,6 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.gfxwindow().setMouseHandler(self)
         self.toolbox.resetRecords()
         self.sensitize()
-        if config.dimension() == 3:
-            self.gfxwindow().toolbar.setSelect()
 
     def deactivate(self):
         toolboxGUI.GfxToolbox.deactivate(self)
@@ -782,7 +708,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def acceptEvent(self, eventtype):
         return eventtype == 'up'
 
-    def up(self, x, y, shift, ctrl):
+    def up(self, x, y, button, shift, ctrl, data):
         pos = self.getPoint(x,y)
         self.modeobj.querycmd()(position=pos)
 
@@ -841,7 +767,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         ## the object index is that it's not very user friendly.
         debug.mainthreadTest()
         self.clearPosition()
-        self.modebuttondict[objtype].set_active(1)
+        self.modebuttondict[objtype].set_active(True)
         self.modeobj.queryIDcmd()(index=object.index)
 
     def showPosition(self, point):
@@ -850,9 +776,6 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.ytext.set_text("%-11.4g" % point[1])
         self.xposition = point[0]
         self.yposition = point[1]
-        if config.dimension() == 3:
-            self.ztext.set_text("%-11.4g" % point[2])
-            self.zposition = point[2]
         gtklogger.checkpoint(self.gfxwindow().name + " " +
                              self._name + " showed position")
 
@@ -875,8 +798,6 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.clearPosition()
         self.xtext.set_text("")
         self.ytext.set_text("")
-        if config.dimension() == 3:
-            self.ztext.set_text("")
         for v in self.modeobjdict.values():
             v.updateNothing()
         self.toolbox.clearQuerier() # clears peeker too
@@ -897,7 +818,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                     self.clearPosition()
                     # Call changeModeCB on main thread
                     mainthread.runBlock(
-                        self.modebuttondict[targetname].set_active, (1,))
+                        self.modebuttondict[targetname].set_active, (True,))
                 break
 
 

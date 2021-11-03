@@ -8,6 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+import itertools
 import math
 import os
 import re
@@ -255,6 +256,92 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
     finally:
         f1.close()
         f2.close()
+
+pdfTimeStamp = r"/CreationDate \(D:[-0-9']*\)"
+pdfProducer = r"/Producer \(cairo [0-9\.]* \(https?://cairographics\.org\)\)"
+
+def pdf_compare(file1, file2, quiet=False):
+    # Compare two files byte by byte, allowing them to differ by a pdf
+    # date stamp of the form
+    #   /CreationDate (D:20201207163212-05'00)
+    # and also a producer stamp, which might have a different version no.
+    #   /Producer (cairo 1.16.0 (https://cairographics.org))
+
+    try:
+        file2 = reference_file(file2)
+        f2 = open(file2, "r")
+    except:
+        if generate:
+            print >> sys.stderr, "\nMoving file %s to %s.\n" % (file1, file2)
+            os.rename(file1,file2)
+            return True
+        else:
+            raise
+
+    f1 = open(file1, "r")
+    chars1 = f1.read()
+    chars2 = f2.read()
+    f1.close()
+    f2.close()
+
+    # Ranges of indices to omit when comparing the characters
+    ranges1 = []
+    ranges2 = []
+
+    timeSearch1 = re.search(pdfTimeStamp, chars1)
+    timeSearch2 = re.search(pdfTimeStamp, chars2)
+    if timeSearch1 is not None or timeSearch2 is not None:
+        if timeSearch1 is None or timeSearch2 is None:
+            # Timestamp was only found in one file. 
+            return False
+        ranges1.append((timeSearch1.start(), timeSearch1.end()))
+        ranges2.append((timeSearch2.start(), timeSearch2.end()))
+    prodSearch1 = re.search(pdfProducer, chars1)
+    prodSearch2 = re.search(pdfProducer, chars2)
+    if prodSearch1 is not None or prodSearch2 is not None:
+        if prodSearch1 is None or prodSearch2 is None:
+            return False
+        ranges1.append((prodSearch1.start(), prodSearch1.end()))
+        ranges2.append((prodSearch2.start(), prodSearch2.end()))
+
+    ranges1.sort()
+    ranges2.sort()
+    if subStrCompare(chars1, ranges1, chars2, ranges2):
+        if not quiet:
+            print >> sys.stderr, "Files", file1, "and", file2, "agree"
+        return True
+    if not quiet:
+        print >> sys.stderr, "File mismatch:", file1, file2
+    return False
+
+def subStrCompare(chars1, ranges1, chars2, ranges2):
+    # Compare the strings chars1 and chars2 while excluding the ranges
+    # given in ranges1 and ranges2, which are lists of (begin,end)
+    # tuples.
+    assert len(ranges1) == len(ranges2)
+    last1 = 0
+    last2 = 0
+    for r1, r2 in zip(ranges1, ranges2):
+        # Check that the substring [last1, r1[0]] in chars1 is the
+        # same as [last2, r2[0]] in chars2.
+        if r1[0]-last1 != r2[0]-last2:
+            print >> sys.stderr, "Substring length mismatch"
+            return False
+        for i in range(r1[0]-last1):
+            if chars1[last1+i] != chars2[last2+i]:
+                print >> sys.stderr, "Substring mismatch"
+                return False
+        last1 = r1[1]
+        last2 = r2[1]
+    # Check the substrings after the last excluded range.
+    if len(chars1)-last1 != len(chars2)-last2:
+        print >> sys.stderr, "Final substring length mismatch"
+        return False
+    for i in range(len(chars1)-last1):
+        if chars1[last1+i] != chars2[last2+i]:
+            print >>sys.stderr, "Final substring mismatch"
+            return False
+    return True
 
 def compare_last(filename, numbers, tolerance=1.e-10):
     # The last line of the given file contains a bunch of numbers

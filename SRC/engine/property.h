@@ -22,7 +22,7 @@ class Property;
 #include <vector>
 #include <map>
 
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
 #include <deque>
 #include <omp.h>
 #endif
@@ -243,7 +243,7 @@ private:
   // and static_flux_value from both being used at once, since they
   // call each other.  recurse must be mutable because flux_matrix and
   // static_flux_value are const functions.
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
   // recurse is shared by multiple threads when make_linear_system is
   // running in parallel. So it has a copy for each thread.
   mutable std::deque<bool> recurse_flags;
@@ -255,7 +255,7 @@ public:
   FluxProperty(const std::string &nm, PyObject *registration)
     : PhysicalProperty(nm,registration)
   {
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
     recurse_flags.resize(omp_get_max_threads(), true);
 #endif
   }

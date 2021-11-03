@@ -15,14 +15,20 @@
 #include "common/mpitools.h"
 #endif ////HAVE_MPI
 #include "common/IO/bitoverlay.h"
-#include "common/IO/stringimage.h"
 #include "common/ooferror.h"
 #include "common/boolarray.h"
 #include "common/doublearray.h"
 #include "image/oofimage.h"
+
 #include <math.h>
 #include <set>
 #include <iostream>
+
+
+// TODO GTK3: OOFCANAVAS_USE_IMAGEMAGICK and OOFCANAVAS_USE_PYTHON
+// need to be defined before importing oofimage.h.  They should come
+// from oofcanvas.pc.
+#include "oofcanvas/oofcanvas.h"
 
 OOFImage::OOFImage(const std::string &name, const std::string &filename)
   : name_(name)
@@ -209,19 +215,20 @@ void OOFImage::imageChanged() {
   image.modifyImage();
 }
 
-void OOFImage::fillstringimage(StringImage *stringimage) const {
-  // Convert image into a string suitable for constructing a gdk pixbuf.
-  Magick::PixelPacket *pixpax =
-    const_cast<OOFImage*>(this)->image.getPixels(0, 0, sizeInPixels_(0),
-						 sizeInPixels_(1));
-  for(int j=0; j<sizeInPixels_(1); j++) {
-    for(int i=0; i<sizeInPixels_(0); i++) {
-      const Magick::PixelPacket *pp = pixpax + i + j*sizeInPixels_(0);
-      CColor color(pp->red*scale, pp->green*scale, pp->blue*scale);
-      ICoord where(i,j);
-      stringimage->set(&where, &color);
-    }
-  }
+OOFCanvas::CanvasImage *OOFImage::makeCanvasImage(const Coord *pos,
+						  const Coord *size)
+  const
+{
+  // The OOFImage constructor flips the image so that OOF can access
+  // pixels easily in a right handed coordinate system with the origin
+  // in the lower left corner of the image.
+  Magick::Image copy = image;
+  copy.flip();
+  OOFCanvas::CanvasImage *img =
+    OOFCanvas::CanvasImage::newFromImageMagick(OOFCANVAS_COORD(*pos), copy);
+  img->setDrawIndividualPixels(true);
+  img->setSize(OOFCANVAS_COORD(*size));
+  return img;
 }
 
 std::vector<unsigned short> *OOFImage::getPixels() {

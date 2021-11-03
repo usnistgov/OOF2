@@ -10,12 +10,15 @@
 
 from ooflib.SWIG.common import latticesystem
 from ooflib.SWIG.common import switchboard
+from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common.IO import pixelinfo
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.engine.IO import orientationmatrix
+
+import oofcanvas
 
 class MisorientationPlugIn(pixelinfo.PixelInfoPlugIn):
     def __init__(self, toolbox):
@@ -51,8 +54,10 @@ class MisorientationPlugIn(pixelinfo.PixelInfoPlugIn):
     def setReference(self, menuitem, point, orientation):
         self.referencePoint = point
         self.referenceOrientation = orientation
+        self.toolbox.timestamp.increment()
         switchboard.notify("set reference orientation",
                            self.toolbox.gfxwindow())
+        switchboard.notify("redraw")
 
     def setSymmetry(self, menuitem, symmetry):
         self.symmetry = symmetry
@@ -66,20 +71,20 @@ class MisorientationPlugIn(pixelinfo.PixelInfoPlugIn):
         # method, which calls this one.
         self.referenceOrientation = None
 
-    def draw(self, displaymethod, device, pixel, microstructure):
+    def draw(self, displaymethod, canvaslayer, pixel, microstructure):
         # Called by PixelInfoDisplay.draw()
         if self.referenceOrientation is not None:
             n0, n1, n2, n3 = displaymethod.getNodes(self.referencePoint,
                                                     microstructure)
-            device.draw_segment(primitives.Segment(n0, n1))
-            device.draw_segment(primitives.Segment(n1, n2))
-            device.draw_segment(primitives.Segment(n2, n3))
-            device.draw_segment(primitives.Segment(n3, n0))
-            device.draw_segment(primitives.Segment(0.25*(3*n0 + n2),
-                                                   0.25*(5*n0 - n2)))
-            device.draw_segment(primitives.Segment(0.25*(3*n2 + n0),
-                                                   0.25*(5*n2 - n0)))
-            device.draw_segment(primitives.Segment(0.25*(3*n1 + n3),
-                                                   0.25*(5*n1 - n3)))
-            device.draw_segment(primitives.Segment(0.25*(3*n3 + n1),
-                                                   0.25*(5*n3 - n1)))
+            segs = oofcanvas.CanvasSegments()
+            segs.setLineWidthInPixels(displaymethod.line_width)
+            segs.setLineColor(color.canvasColor(displaymethod.color))
+            segs.addSegment(n0, n1)
+            segs.addSegment(n1, n2)
+            segs.addSegment(n2, n3)
+            segs.addSegment(n3, n0)
+            segs.addSegment(0.25*(3*n0 + n2), 0.25*(5*n0 - n2))
+            segs.addSegment(0.25*(3*n2 + n0), 0.25*(5*n2 - n0))
+            segs.addSegment(0.25*(3*n1 + n3), 0.25*(5*n1 - n3))
+            segs.addSegment(0.25*(3*n3 + n1), 0.25*(5*n3 - n1))
+            canvaslayer.addItem(segs)

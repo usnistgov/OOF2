@@ -1,0 +1,8 @@
+OOF.Settings.Graphics_Defaults.New_Layer_Policy(policy='Single')
+OOF.Windows.Graphics.New()
+OOF.Microstructure.Create_From_ImageFile(filename='examples/small.ppm', microstructure_name='small.ppm', height=automatic, width=automatic)
+OOF.Graphics_1.Settings.Zoom.In()
+OOF.Graphics_1.Settings.Zoom.Out()
+OOF.Graphics_1.Settings.Zoom.OutFocussed(focus=Point(49.8,65.025))
+OOF.Graphics_1.Settings.Zoom.Fill_Window()
+OOF.Graphics_1.Settings.Zoom.InFocussed(focus=Point(144.825,146.925))

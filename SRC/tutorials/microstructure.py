@@ -30,26 +30,7 @@ TutorialClass(subject="Microstructure",
     assembled into pixel groups.
 
     An OOF2 Microstructure is the data structure that stores this
-    information."""  ),
-
-    TutoringItem(
-    subject="Graphics Window",
-    comments=
-
-    """Open a graphics window with the BOLD(Graphics/New) command in
-    the BOLD(Windows) menu.
-
-    Let us get started by creating a microstructure from an image
-    file.  """
-    ),
-
-    TutoringItem(
-    subject="Locate the Data",
-    comments=
-
-    """Locate the file BOLD(K1_small.pgm) within the
-    share/oof2/examples directory in your OOF2 installation.
-
+    information.
     """
     ),
     
@@ -58,11 +39,9 @@ TutorialClass(subject="Microstructure",
     subject="Creating a Microstructure",
     comments=
 
-    """This tutorial page contains a lot of instructions, but you
-    won't be able to scroll the page after following the first
-    instruction.  So before you do anything else, enlarge this window
-    so that you can see all of the text.
-    
+    """Locate the file BOLD(K1_small.pgm) within the
+    share/oof2/examples directory in your OOF2 installation.
+
     Open the BOLD(Microstructure) page in the main OOF2 window.  Click
     on BOLD(New from Image File).
 
@@ -71,19 +50,41 @@ TutorialClass(subject="Microstructure",
     Look for a parameter named BOLD(microstructure_name) in the middle
     of the window.
 
-    If you want to set the name of the microstructure yourself, click
-    on the check box next to BOLD(microstructure_name) and type in a
-    name.  To use an automatically generated name (which will be the
-    same as the image name), leave the box unchecked.
+    If you want to set the name of the microstructure yourself, type
+    in a name in place of BOLD(<automatic>).  To use an automatically
+    generated name (which will be the same as the image name), leave
+    the box alone.  To return to automatic mode after typing
+    something, delete the contents of the box.
 
     The parameters BOLD(width) and BOLD(height) are the physical size
-    of the microstructure.  Leave these set to BOLD(automatic).  The
+    of the microstructure.  Leave these set to BOLD(<automatic>).  The
     size will be determined by assuming that each pixel is 1 unit
     square.
 
     Click BOLD(OK) to create the Microstructure.""",
 
     signal = ("new who", "Microstructure") ),
+
+    TutoringItem(
+        subject="Display the Image",
+        comments=
+
+        """
+        Open a graphics window.  
+
+        Because we didn't set BOLD(Settings/New Layer Policy) before
+        loading the Image, nothing is shown in the window.
+
+        Create a new Image layer with the BOLD(New) menu item in the
+        BOLD(Layer) menu.  In the dialog box, set BOLD(category) to
+        BOLD(Image).  Leave BOLD(what) set to
+        BOLD(K1_small.pgm/K1_small.pgm) (the Image called
+        "K1_small.pgm" in the Microstructure also called
+        "K1_small.pgm").  Leave BOLD(how) set to BOLD(Bitmap).
+
+        Click BOLD(OK).
+        """
+    ),
 
     TutoringItem(
     subject="A Glance at the Microstructure",
@@ -93,22 +94,18 @@ TutorialClass(subject="Microstructure",
     BOLD('K1_small.ppm') features two distinct materials, one in
     BOLD(black) and the other in BOLD(white).
 
-    The boundaries between two materials are rather blurry and some
-    parts of materials are not as discernable as others.
+    The boundaries between two materials are rather blurry and the
+    black and white regions are really continuous shades of gray.
 
-    At this point, your Microstructure object doesn't contain any
-    useful information other than its size and the micrograph itself.
-
-    The ultimate goal of this tutorial session is to establish two
-    distinct pixel groups that represent the two materials featured in
-    the micrograph.
+    To make a useful Skeleton and Mesh from this image, we need to add
+    information to the Microstructure so that it knows which pixels
+    belong to which material.  We will do this by creating two pixel
+    groups, one for each material.
 
     For any given pixel, you could decide individually whether it
     belongs to BOLD(black) or BOLD(white).  This process would be
     tedious.  OOF2 contains image manipulation tools to make it
-    easier.
-
-    """
+    easier. """
     ),
     
     TutoringItem(
@@ -119,7 +116,7 @@ TutorialClass(subject="Microstructure",
     Open the BOLD(Image) page in the main OOF2 window.
 
     The two pull-down menus at the top of the page, labelled
-    BOLD(Microstructure) and BOLD(Image) comprise the BOLD(Image
+    BOLD(Microstructure) and BOLD(Image) form the BOLD(Image
     Selector).  They let you choose which BOLD(Image) object the page
     operates on. (Most OOF2 main window pages have some sort of
     Selector at the top.) Since we currently have only one
@@ -155,13 +152,12 @@ TutorialClass(subject="Microstructure",
 
     """Select BOLD(Contrast) and apply it BOLD(three) times.
 
-    The darker region gets darker and the brighter region gets
-    brighter, which make materials more distinguishable than
+    The darker regions get darker and the brighter regions get
+    brighter, making the two materials more distinguishable than
     before.
 
-    The two materials are now clearly distinguishable except a
-    questionable spot in the lower-middle part of the image, where a
-    supposedly-white material looks dark.
+    There is, however, questionable spot in the lower-middle part of
+    the image, where a region that ought to be white material is dark.
 
     We'll deal with it later.
     """,
@@ -201,13 +197,25 @@ TutorialClass(subject="Microstructure",
     ),
 
     TutoringItem(
-    subject="Selection Modifiers -- shift",
+    subject="Selection Modifiers",
     comments=
 
     """You can accumulate the selected pixels by holding the
     BOLD(shift) key while clicking the mouse on the image.
 
     Try selecting multiple pixels by using this feature.
+
+    If you use the control key instead of the shift key, the pixel
+    selection will be toggled: clicked pixels that were already
+    selected will be deselected, and pixels that were not already
+    selected will become selected.  This applies to all of the
+    selection methods in the Pixel Selection toolbox. 
+
+    Holding down both control and shift while clicking the mouse,
+    selects only those pixels that are already selected.  It's not
+    very useful when selecting a single pixel, but is convenient when
+    using tools that select multiple pixels.
+
     """,
     signal= "new pixel selection"
     ),
@@ -235,9 +243,10 @@ TutorialClass(subject="Microstructure",
     """If you're having a hard time selecting pixels due to their
     small size on the screen, you can zoom in either with the
     BOLD(Zoom/In) command in the BOLD(Settings) menu, or by typing
-    BOLD(ctrl-.)
+    BOLD(ctrl-.) (ctrl-period).
 
-    You can zoom out with BOLD(ctrl-,) or BOLD(Settings/Zoom/Out).
+    You can zoom out with BOLD(ctrl-,) (ctrl-comma) or
+    BOLD(Settings/Zoom/Out).
 
     Finally, you can resize the image to fit the window with
     BOLD(ctrl-=) or BOLD(Settings/Zoom/Fill Window).
@@ -252,18 +261,17 @@ TutorialClass(subject="Microstructure",
     subject="Geometrical Selectors",
     comments=
 
-    """At this point, if you had a lot of patience, you could select
-    all the pixels from either the BOLD(black) or BOLD(white) material
-    in a pixel-by-pixel fashion and create a pixel group out of them.
-
-    OOF2 provides the geometrical selectors BOLD(Rectangle),
-    BOLD(Circle), and BOLD(Ellipse) for selecting regions of pixels.
+    """Selecting individual pixels is tedious.  OOF2 provides the
+    geometrical selectors BOLD(Rectangle), BOLD(Circle), and
+    BOLD(Ellipse) for selecting regions of pixels.
 
     Choose one of these in the BOLD(Method) pull-down menu in the
     BOLD(Pixel Selection) toolbox and select pixels by clicking and
-    dragging on the Image.
+    dragging on the Image.  Try it with the control and shift keys,
+    separately and together.
     """,
-    signal= "new pixel selection"
+
+        signal= "new pixel selection"
     ),
       
     TutoringItem(
@@ -278,9 +286,12 @@ TutorialClass(subject="Microstructure",
     Two brush BOLD(style)s are available: BOLD(Circle) and
     BOLD(Square).  The size of the brush can be specified.  The units
     are the same as the units used to specify the BOLD(physical) size
-    of the microstructure.
+    of the microstructure.  If you followed instructions when loading
+    the image, a pixel is 1x1 in these units.
 
-    Try using the brush selector.
+    Choose the BOLD(Circle) selector, set BOLD(radius) to 5, and click
+    and drag to select some pixels.
+
     """,
     signal= "new pixel selection"
     ),
@@ -289,10 +300,10 @@ TutorialClass(subject="Microstructure",
     subject="Better Selectors",
     comments=
 
-    """Although the geometrical and brush selectors make it possible
-    to select pixels for each material more efficiently than
-    BOLD(Point) selector, BOLD(Burn) and BOLD(Color) selection methods
-    are more suited for the task.
+    """The point, geometrical, and brush selectors don't use any
+    information from the image, and aren't sensitive to the geometry
+    of the microstructure.  The BOLD(Burn) and BOLD(Color) selection
+    methods can select pixels that are part of features in an image.
 
     Basically, they can select pixels of similar color ranges automatically.
 
@@ -300,7 +311,7 @@ TutorialClass(subject="Microstructure",
     works on the entire microstructure.
 
     BOLD(Clear) the current pixel selection, if any, and move on to
-    the next slide for some real action.
+    the next slide for for information.
     """
     ),
 
@@ -337,13 +348,15 @@ TutorialClass(subject="Microstructure",
     comments=
 
     """The result seems satisfactory except for a region where two black
-    islands are mistakenly connected in the BOLD(lower-middle) of the
+    islands are incorrectly connected in the BOLD(lower-middle) of the
     image.
 
-    If you're unsure of the location of the erroneous region, repeat
-    BOLD(Clear)-BOLD(Undo) to make it more apparent.
+    If you're unsure of the location of the erroneous region,
+    BOLD(Clear) to deselect the whole image, and then the BOLD(Undo)
+    (that is, undo the Clear) switch the view back and forth between
+    the image and the selection.
 
-    If you located the spot, click BOLD(Invert) to invert the selection.
+    Once you have located the spot, click BOLD(Invert) to invert the selection.
     """,
     signal= "new pixel selection"
     ),
@@ -352,10 +365,9 @@ TutorialClass(subject="Microstructure",
     subject="The Brush Selector in Action",
     comments=
 
-    """A gray region should be visible in the lower-middle part of the
-    image.
-
-    These gray pixels belong to the BOLD(white) material.
+    """The white pixels are now all selected, but there is an unselected
+    gray region in the lower-middle part of the image that belongs
+    with the white pixels.
 
     We'll select these pixels and add to the current selection for the
     BOLD(white) material.
@@ -379,12 +391,17 @@ TutorialClass(subject="Microstructure",
     material, it is a good idea to let the microstructure know about
     it.
 
-    Open the BOLD(Microstructure) page, create a new pixel group by
-    clicking BOLD(New...) in the BOLD(Pixel Groups) pane.
+    Open the BOLD(Microstructure) page.  The right hand pane will list
+    the pixel groups, but is currently empty.  The buttons to the left
+    of the pane manipulate the groups as a whole, while the buttons to
+    the right of the pane operate on the contents of the selected
+    group.
 
-    Check the little box next to the parameter BOLD(name) and type in
-    BOLD(white) for its name. (If you want to use a generic name, just
-    skip this part.)
+    Create a new pixel group by clicking BOLD(New...) in the
+    BOLD(Pixel Groups) pane.
+
+    Type in BOLD(white) for its name (or leave the name set to
+    BOLD(<automatic>) if you prefer).
 
     Click BOLD(OK) to create a new pixel group.
 
@@ -397,14 +414,15 @@ TutorialClass(subject="Microstructure",
     subject="Storing Pixels in a Pixel Group",
     comments=
 
-    """ The pixel group you just created doesn't yet contain any
-    pixels.  Click BOLD(Add) in the BOLD(Pixel Groups) pane to add the
-    currently selected pixels to the group.
+    """ The pixel group you just created doesn't yet contain any pixels.
+    Click BOLD(Add) in the BOLD(Pixel Groups) pane (in the buttons on
+    the right) to add the currently selected pixels to the group.
 
     The information for the group will be updated immediately.
 
-    About 2600 pixels should be present in the group, if you did it correctly.
-    """,
+    About 2600 pixels should be present in the group, if you did it
+    correctly.  The exact number will depend on exactly where you
+    clicked on the image.  """,
     signal= "changed pixel group"
     ),
 
@@ -416,8 +434,8 @@ TutorialClass(subject="Microstructure",
     selector but with a major difference -- it only selects
     contiguous pixels.
 
-    BOLD(Clear) the selection (it's okay, it's saved) and select
-    BOLD(Burn) in the BOLD(Pixel Selection) toolbox.
+    BOLD(Clear) the selection (it's okay, it's saved in a group) and
+    select BOLD(Burn) in the BOLD(Pixel Selection) toolbox.
     
     Try clicking on any black pixel.
 
@@ -442,6 +460,9 @@ TutorialClass(subject="Microstructure",
     same size.  This can be useful when different microstructural
     features are easier to observe in different images.
 
+    First, clear the pixel selection so that you can see the whole
+    image.
+
     In the BOLD(Image) page, click BOLD(Copy), and click BOLD(OK) in
     the dialog box.
 
@@ -458,30 +479,25 @@ TutorialClass(subject="Microstructure",
     subject="Displaying the Copied Image",
     comments=
 
-    """In the BOLD(Layer List) at the bottom of the BOLD(Graphics)
-    window, double click on the BOLD(Image) layer, or click once to
-    select it and choose BOLD(Edit) from the BOLD(Layer) menu in the
-    menu bar.
+    """In this step, we'll display a the second image in the graphics
+    window.
 
-    In the BOLD(Displayed Object) pane in the BOLD(Layer Editor)
-    window, notice that there are two pull-down menus next to the
-    BOLD(object) label.  The first menu lists Microstructures and the
-    second menu lists the Images that are stored in the chosen
-    Microstructure.  (If you didn't choose a name for the
-    Microstructure back in step 2, both menus say "K1_small.pgm".)
-    Switch the second menu to "K1_small.pgm<2>".
+    In the graphics window's BOLD(Layer) menu, select BOLD(New).
 
-    The Layer Editor works by composing graphics layers and sending
-    them to a Graphics window.  If an old layer is selected in the
-    recipient window, the old layer is replaced with the new layer
-    from the editor.  In the BOLD(Graphics) window, deselect the Image
-    layer in the Layer List by clicking with BOLD(ctrl) on it once.
+    In the dialog box, set BOLD(category) to BOLD(Image).
 
-    Click BOLD(Send) in the BOLD(Layer Editor) window.  Note that
-    there are now two Image layers in the Layer List (you may have to
-    scroll or enlarge it to see both) and that the copied Image
-    (K1_small.pgm<2>) is drawn and listed on top."""
+    The first pull-down menu in the box marked BOLD(what) sets the
+    BOLD(Microstructure) containing the BOLD(Image) that is to be
+    displayed.  Leave it set to its current value.  The second
+    pull-down menu sets the BOLD(Image) from the images available in
+    the Microstructure.  Set it to BOLD(K1_small.pgm<2>) (or whatever
+    name you gave to the copied image).
 
+    Leave the BOLD(how) menu set to BOLD(Bitmap) and click BOLD(OK).
+
+    Note that there are now two Image layers in the Layer List (you
+    may have to scroll or enlarge it to see both) and that the copied
+    Image (K1_small.pgm<2>) is drawn and listed on top."""
     ),
 
     TutoringItem(
@@ -494,19 +510,20 @@ TutorialClass(subject="Microstructure",
 
     Switch the BOLD(Image Selector) in the BOLD(Image) page in the
     main window to the original Image, "K1_small.pgm", and click
-    BOLD(Undo) four times.  """
-    
+    BOLD(Undo) four times (corresponding to the one Normalize and
+    three Contrast operations that you did earlier).  """
     ),
 
     TutoringItem(
     subject="Switching Layers",
     comments=
     
-    """In the BOLD(Layer List) in the BOLD(Graphics) window, drag
-    the top Image layer (which should be
-    "K1_small.pgm<2>") and drop it below the bottom layer ("K1_small.pgm").
-    This will lower the modified Image layer,
-    letting you see the original Image again.
+    """In the BOLD(Layer List) in the BOLD(Graphics) window, make sure
+    that the top Image layer is selected, and choose BOLD(Lower/One
+    Level) from the BOLD(Layer) menu in the menu bar.  You can also
+    right-click on the line in the Layer list to bring up the menu.
+    This will lower the modified (copied) Image layer, letting you see
+    the original Image again.
 
     Notice that the layers change their order both in the display and
     in the layer list. """
@@ -517,7 +534,7 @@ TutorialClass(subject="Microstructure",
     comments=
 
     """The set of currently selected pixels is a property of a
-    BOLD(Microstructure), not of an BOLD(Image).  It's possible to
+    Microstructure, not of an Image.  It's possible to
     select pixels in one Image, switch Images, and then modify the
     selection.
 
@@ -529,10 +546,10 @@ TutorialClass(subject="Microstructure",
     Image.  Note how many pixels have been selected, in the box at the
     bottom of the BOLD(Pixel Selection) toolbox.
 
-    Using the BOLD(Layer List), switch to the other version of the
-    Image (using drag-and-drop).
-    Notice that the selection hasn't changed, since you
-    haven't changed Microstructures.
+    Using the Layer list and the BOLD(Raise) or BOLD(Lower) commands
+    in the BOLD(Layer) menu, switch to the other version of the Image.
+    Notice that the selection hasn't changed, since you haven't
+    changed Microstructures.
 
     Click on the BOLD(Repeat) button in the toolbox.  This repeats the
     previous mouse click, but this time the selection method will act
@@ -581,8 +598,6 @@ TutorialClass(subject="Microstructure",
     
     """Open the BOLD(Microstructure) page and create a new pixel group
     named BOLD(black).
-
-
     """,
 
     signal= "new pixel group"
@@ -611,10 +626,6 @@ TutorialClass(subject="Microstructure",
     """
     In the main OOF2 window, select BOLD(Save/Microstructure) from the
     BOLD(File) menu.
-
-    (Now click BOLD(Cancel) so that you can finish reading this
-    tutorial entry.  Go back to the BOLD(Save/Microstructure) dialog
-    when you're ready.)
 
     The file selector has a pull-down menu labelled
     BOLD(microstructure) which lets you choose which Microstructure to
@@ -647,7 +658,6 @@ TutorialClass(subject="Microstructure",
     editable.  Binary data files can be loaded into OOF2 with the
     BOLD(Load/Data) command in the BOLD(File) menu.
 
-    Select BOLD(Save/Microstructure) from the BOLD(File) menu again.
     Enter a file name, select a data format and click BOLD(OK).
 
     """
@@ -657,10 +667,10 @@ TutorialClass(subject="Microstructure",
     subject="Homework",
     comments=
 
-    """So far, most of the significant issues involving
-    BOLD(Microstructure)/BOLD(Pixel Selections) have been addressed.
-    Topics not covered in the tutorials are covered in the manual,
-    and, of course, in the tooltips.  Some relevant topics are:
+    """We have addressed most of the significant issues involving
+    BOLD(Microstructures) and BOLD(Pixel Selections).  Topics not
+    covered in the tutorials are covered in the manual, and, of
+    course, in the tooltips.  Some relevant topics are:
 
     BOLD(Active Areas): This is a way of restricting OOF2 operations
     to a given set of pixels in the Microstructure.
@@ -671,6 +681,8 @@ TutorialClass(subject="Microstructure",
     BOLD(Pixel Selection Modification Tools): Techniques for modifying
     the set of currently selected pixels, in the BOLD(Pixel Selection)
     page of the main OOF2 window.
+    
+    This is the end of this tutorial.
     """
     )
     ])

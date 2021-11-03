@@ -18,7 +18,7 @@
 #include <Python.h>
 
 extern "C" {
-  extern void SWIG_MakePtr(char *, void *, const char *);
+  extern void SWIG_MakePtr(char *, const void *, const char *);
   extern void SWIG_RegisterMapping(const char *, const char *,
 				   void *(*)(void *));
   extern const char *SWIG_GetPtr(const char *, void **, const char *);

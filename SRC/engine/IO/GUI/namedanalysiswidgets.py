@@ -46,11 +46,12 @@ class BdyAnalyses(object):
 
 
 class AnalysisNamesWidgetBase(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         names = self.getNames()
         names.sort()
         self.widget = chooser.ScrolledMultiListWidget(names,
-                                                      callback=self.widgetCB)
+                                                      callback=self.widgetCB,
+                                                      **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, self.widget.gtk,
                                                   scope, name=name,
                                                   expandable=True)
@@ -77,8 +78,8 @@ class AnalysisNamesWidgetBase(parameterwidgets.ParameterWidget):
 class AnalysisNamesWidget(AnalysisNamesWidgetBase, AllAnalyses):
     pass
 
-def _AnalysisNamesParam_makeWidget(self, scope=None):
-    return AnalysisNamesWidget(self, scope, name=self.name)
+def _AnalysisNamesParam_makeWidget(self, scope=None, **kwargs):
+    return AnalysisNamesWidget(self, scope, name=self.name, **kwargs)
 
 namedanalysis.AnalysisNamesParameter.makeWidget = _AnalysisNamesParam_makeWidget
 
@@ -86,8 +87,8 @@ namedanalysis.AnalysisNamesParameter.makeWidget = _AnalysisNamesParam_makeWidget
 class BulkAnalysisNamesWidget(AnalysisNamesWidgetBase, BulkAnalyses):
     pass
 
-def _BulkAnalysisNamesParam_makeWidget(self, scope=None):
-    return BulkAnalysisNamesWidget(self, scope, name=self.name)
+def _BulkAnalysisNamesParam_makeWidget(self, scope=None, **kwargs):
+    return BulkAnalysisNamesWidget(self, scope, name=self.name, **kwargs)
 
 namedanalysis.BulkAnalysisNamesParameter.makeWidget = \
     _BulkAnalysisNamesParam_makeWidget
@@ -96,8 +97,8 @@ namedanalysis.BulkAnalysisNamesParameter.makeWidget = \
 class BdyAnalysisNamesWidget(AnalysisNamesWidgetBase, BdyAnalyses):
     pass
 
-def _BdyAnalysisNamesParam_makeWidget(self, scope=None):
-    return BdyAnalysisNamesWidget(self, scope, name=self.name)
+def _BdyAnalysisNamesParam_makeWidget(self, scope=None, **kwargs):
+    return BdyAnalysisNamesWidget(self, scope, name=self.name, **kwargs)
 
 namedanalysis.BdyAnalysisNamesParameter.makeWidget = \
     _BdyAnalysisNamesParam_makeWidget
@@ -105,8 +106,8 @@ namedanalysis.BdyAnalysisNamesParameter.makeWidget = \
 ################
 
 class AnalysisNameWidgetBase(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
-        self.chooser = chooser.ChooserWidget([], name=name)
+    def __init__(self, param, scope=None, name=None, **kwargs):
+        self.chooser = chooser.ChooserWidget([], name=name, **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, self.chooser.gtk, scope)
         self.update()
         if param.value is not None:
@@ -133,8 +134,8 @@ class AnalysisNameWidgetBase(parameterwidgets.ParameterWidget):
 class AnalysisNameWidget(AnalysisNameWidgetBase, AllAnalyses):
     pass
 
-def _AnalysisNameParam_makeWidget(self, scope=None):
-    return AnalysisNameWidget(self, scope, name=self.name)
+def _AnalysisNameParam_makeWidget(self, scope=None, **kwargs):
+    return AnalysisNameWidget(self, scope, name=self.name, **kwargs)
 
 namedanalysis.AnalysisNameParameter.makeWidget = _AnalysisNameParam_makeWidget
 
@@ -142,8 +143,8 @@ namedanalysis.AnalysisNameParameter.makeWidget = _AnalysisNameParam_makeWidget
 class BulkAnalysisNameWidget(AnalysisNameWidgetBase, BulkAnalyses):
     pass
 
-def _BulkAnalysisNameParam_makeWidget(self, scope=None):
-    return BulkAnalysisNameWidget(self, scope, name=self.name)
+def _BulkAnalysisNameParam_makeWidget(self, scope=None, **kwargs):
+    return BulkAnalysisNameWidget(self, scope, name=self.name, **kwargs)
 
 namedanalysis.BulkAnalysisNameParameter.makeWidget = \
     _BulkAnalysisNameParam_makeWidget
@@ -152,8 +153,8 @@ namedanalysis.BulkAnalysisNameParameter.makeWidget = \
 class BdyAnalysisNameWidget(AnalysisNameWidgetBase, BdyAnalyses):
     pass
 
-def _BdyAnalysisNameParam_makeWidget(self, scope=None):
-    return BdyAnalysisNameWidget(self, scope, name=self.name)
+def _BdyAnalysisNameParam_makeWidget(self, scope=None, **kwargs):
+    return BdyAnalysisNameWidget(self, scope, name=self.name, **kwargs)
 
 namedanalysis.BdyAnalysisNameParameter.makeWidget = \
     _BdyAnalysisNameParam_makeWidget

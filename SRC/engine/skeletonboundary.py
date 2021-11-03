@@ -307,8 +307,8 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
                     new_bdy.addEdge(e)
                     n1 = n2 # Reset n1 for next iteration.
                                 
-    def draw(self, display, device, skeleton):  # double dispatch function
-        display.drawEdgeBoundary(self, skeleton, device)
+    def draw(self, display, skeleton):  # double dispatch function
+        display.drawEdgeBoundary(self, skeleton)
     
 
 class ExteriorSkelContextEdgeBoundary(SkelContextEdgeBoundary):
@@ -394,8 +394,8 @@ class SkelContextPointBoundary(SkelContextBoundary):
         for n in new_node_list:
             new_bdy.addNode(n)
 
-    def draw(self, display, device, skeleton):  # double dispatch function
-        display.drawPointBoundary(self, skeleton, device)
+    def draw(self, display, skeleton):  # double dispatch function
+        display.drawPointBoundary(self, skeleton)
     
 
 

@@ -8,7 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import pixelgroup
 from ooflib.SWIG.common import switchboard
@@ -22,7 +21,7 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import pixelinfoGUIplugin
 from ooflib.common.IO.GUI import toolboxGUI
-import gtk
+from gi.repository import Gtk
 import ooflib.common.microstructure
 
 
@@ -30,46 +29,48 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def __init__(self, pixelinfotoolbox):
         debug.mainthreadTest()
         toolboxGUI.GfxToolbox.__init__(self, "Pixel Info", pixelinfotoolbox)
-        mainbox = gtk.VBox()
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                          margin_start=2, margin_end=2)
         self.gtk.add(mainbox)
 
-        self.table = gtk.Table(rows=3, columns=2)
-        mainbox.pack_start(self.table, expand=0, fill=0)
+        self.grid = Gtk.Grid(column_spacing=2, row_spacing=2)
+        mainbox.pack_start(self.grid, expand=False, fill=False, padding=0)
         
-        label = gtk.Label('x=')
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 0,1, 0,1, xpadding=5, xoptions=gtk.FILL)
-        self.xtext = gtk.Entry()
+        label = Gtk.Label('x=', halign=Gtk.Align.END, hexpand=False)
+        self.grid.attach(label, 0,0,1,1)
+        self.xtext = Gtk.Entry(halign=Gtk.Align.FILL, hexpand=True)
         gtklogger.setWidgetName(self.xtext, "X")
-        self.xtext.set_size_request(10*guitop.top().digitsize, -1)
-        self.table.attach(self.xtext, 1,2, 0,1,
-                          xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
-        label = gtk.Label('y=')
-        label.set_alignment(1.0, 0.5)
-        self.table.attach(label, 0,1, 1,2, xpadding=5, xoptions=gtk.FILL)
-        self.ytext = gtk.Entry()
-        gtklogger.setWidgetName(self.ytext, "Y")
-        self.ytext.set_size_request(10*guitop.top().digitsize, -1)
-        self.table.attach(self.ytext, 1,2, 1,2,
-                          xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
+        self.xtext.set_width_chars(10)
+        self.grid.attach(self.xtext, 1,0,1,1)
 
+        label = Gtk.Label('y=', halign=Gtk.Align.END, hexpand=False)
+        self.grid.attach(label, 0,1,1,1)
+        self.ytext = Gtk.Entry(halign=Gtk.Align.FILL, hexpand=True)
+        gtklogger.setWidgetName(self.ytext, "Y")
+        self.ytext.set_width_chars(10)
+        self.grid.attach(self.ytext, 1,1,1,1)
 
         self.xtsignal = gtklogger.connect(self.xtext, 'changed',
                                           self.pointChanged)
         self.ytsignal = gtklogger.connect(self.ytext, 'changed',
                                           self.pointChanged)
 
-        box = gtk.HBox(homogeneous=True, spacing=2)
-        self.updatebutton = gtkutils.StockButton(gtk.STOCK_REFRESH, 'Update')
-        box.pack_start(self.updatebutton, expand=1, fill=1)
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                      homogeneous=True, spacing=2)
+        self.grid.attach(box, 0,2, 2,1) # box spans both grid columns
+        self.updatebutton = gtkutils.StockButton("view-refresh-symbolic",
+                                                 'Update',
+                                                 halign=Gtk.Align.FILL,
+                                                 hexpand=True)
+        box.pack_start(self.updatebutton, expand=True, fill=True, padding=0)
         gtklogger.setWidgetName(self.updatebutton, "Update")
         gtklogger.connect(self.updatebutton, 'clicked', self.updateButtonCB)
-        self.clearbutton = gtkutils.StockButton(gtk.STOCK_CLEAR, 'Clear')
-        box.pack_start(self.clearbutton, expand=1, fill=1)
+        self.clearbutton = gtkutils.StockButton("edit-clear-symbolic", 'Clear',
+                                                halign=Gtk.Align.FILL,
+                                                hexpand=True)
+        box.pack_start(self.clearbutton, expand=True, fill=True, padding=0)
         gtklogger.setWidgetName(self.clearbutton, "Clear")
         gtklogger.connect(self.clearbutton, 'clicked', self.clearButtonCB)
-        self.table.attach(box, 0,2, 2,3,
-                          xpadding=5, xoptions=gtk.EXPAND|gtk.FILL, yoptions=0)
 
         self.updatebutton.set_sensitive(0)
         self.clearbutton.set_sensitive(0)
@@ -86,18 +87,13 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
     def buildGUI(self):
         debug.mainthreadTest()
-        self.table.resize(rows=4, columns=2)
         row = 4
         self.plugins = []
         for pluginclass in pixelinfoGUIplugin.plugInClasses:
-            self.table.resize(row + 1 + pluginclass.nrows, 2)
-            # A gtk or pygtk bug requires xpadding to be set
-            # explicitly if ypadding is set here.
-            self.table.attach(gtk.HSeparator(), 0,2, row,row+1,
-                              xoptions=gtk.EXPAND|gtk.FILL,
-                              xpadding=0, ypadding=3)
-            self.plugins.append(pluginclass(self, self.table, row+1))
-            row += pluginclass.nrows+1
+            hsep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
+            self.grid.attach(hsep, 0,row, 2,1)
+            self.plugins.append(pluginclass(self, self.grid, row+1))
+            row += pluginclass.nrows + 1
 
     def activate(self):
         toolboxGUI.GfxToolbox.activate(self)
@@ -125,7 +121,7 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     # outside the image/microstructure.  In this case, do nothing --
     # the behavior is then the same as if you click outside the drawn
     # area.
-    def up(self, x, y, shift, ctrl):
+    def up(self, x, y, button, shift, ctrl, data):
         msOrImage = self.gfxwindow().topmost('Microstructure', 'Image')
         if msOrImage:
             where = msOrImage.pixelFromPoint(primitives.Point(x,y))

@@ -30,8 +30,7 @@ boundaryconditionmenu.BCNameParameter.makeWidget = _bcNameParameter_makeWidget
 
 class FloatBCInitWidget(regclassfactory.RegisteredClassFactory):
     def __init__(self, obj=None, title=None, callback=None,
-                 fill=0, expand=0, scope=None, name=None,
-                 *args, **kwargs):
+                 scope=None, name=None, **kwargs): 
         meshwidget = scope.findWidget(
             lambda x: isinstance(x, whowidget.WhoWidget)
             and x.whoclass is mesh.meshes)
@@ -41,16 +40,15 @@ class FloatBCInitWidget(regclassfactory.RegisteredClassFactory):
         bc = meshctxt.getBdyCondition(bcwidget.get_value())
         self.time_derivs = (bc.field.time_derivative()
                             in meshctxt.all_initializable_fields())
-        debug.fmsg("time_derivs=", self.time_derivs)
         regclassfactory.RegisteredClassFactory.__init__(
             self, bdycondition.FloatBCInitMethod.registry, obj=obj,
-            title=title, callback=callback, fill=fill, expand=expand,
-            scope=scope, name=name, *args, **kwargs)
+            title=title, callback=callback,
+            scope=scope, name=name, **kwargs)
     def includeRegistration(self, reg):
         return self.time_derivs == reg.time_derivative
 
-def _floatBCInitParam_makeWidget(self, scope=None):
-    return FloatBCInitWidget(self, scope=scope, name=self.name)
+def _floatBCInitParam_makeWidget(self, scope=None, **kwargs):
+    return FloatBCInitWidget(self, scope=scope, name=self.name, **kwargs)
 
 bdycondition.FloatBCInitParameter.makeWidget = _floatBCInitParam_makeWidget
 

@@ -328,7 +328,7 @@ def _newMesh(menuitem, name, masterelems, skeleton):
     meshctxt = ooflib.engine.mesh.meshes.add(
         labeltree.makePath(skeleton)+[name], femesh,
         parent=skeletoncontext.skeletonContexts[skeleton],
-        skeleton=skel, elementdict=edict,
+        elementdict=edict,
         materialfactory=skeletonelement.SkeletonElement.realmaterial)
     meshctxt.createDefaultSubProblem()
 

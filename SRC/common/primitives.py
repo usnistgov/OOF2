@@ -20,10 +20,6 @@ import math
 import struct
 import types
 
-## TODO OPT: It might be better to have two separate classes, Point2
-## and Point3, and set Point to Point2 or Point3 according to the
-## value of config.dimension.  That would reduce the number of "if"s.
-
 class Point:
     """
     Point class represents a point in 2 dimensions.  It is more or
@@ -32,19 +28,16 @@ class Point:
     routines should generally be prepared to receive either Point or
     oofcpp.Coord.
     """
-    def __init__(self, x, y, z=0.):
+    def __init__(self, x, y):
         # This should possibly coerce x and y to floats, since other
         # routines might want to take their ratio.  This *isn't* done
         # here, because it might be slow.
         self.x = x
         self.y = y
-        if config.dimension() == 3:
-            self.z = z
             
     def __getitem__(self, idx):
         if idx==0: return self.x
         if idx==1: return self.y
-        if config.dimension() == 3 and idx==2: return self.z
         raise IndexError
     
     def __setitem__(self, idx, val):
@@ -52,98 +45,60 @@ class Point:
             self.x = val
         elif idx==1:
             self.y = val
-        elif config.dimension() == 3 and idx==2:
-            self.z = val
         else:
             raise IndexError
 
     def __len__(self):
         return config.dimension()
 
-    # TODO 3D: generalize the rest of this class to 3d....
     def enclosing_rectangle(self):
-        if config.dimension() == 2:
-            return Rectangle(self, self)
-        elif config.dimension() == 3:
-            return RectangularPrism(self, self)
+        return Rectangle(self, self)
 
     # Multiply accepts mixed point/ipoint objects for dot products,
     # and preserves i-ness if possible.
     def __mul__(self, other):
-        if config.dimension() == 2:
-            if type(other)==types.InstanceType and \
-               (issubclass(other.__class__, self.__class__) or
-                issubclass(self.__class__, other.__class__) ):
-                return self.x*other.x+self.y*other.y
-            elif type(other)==types.FloatType:
-                return Point(other*self.x, other*self.y)
-            elif type(other)==types.IntType:
-                # Return whatever class you already are.
-                return self.__class__(other*self.x, other*self.y)
-        elif config.dimension() == 3:
-            if type(other)==types.InstanceType and \
-               (issubclass(other.__class__, self.__class__) or
-                issubclass(self.__class__, other.__class__) ):
-                return self.x*other.x+self.y*other.y+self.z*other.z
-            elif type(other)==types.FloatType:
-                return Point(other*self.x, other*self.y, other*self.z)
-            elif type(other)==types.IntType:
-                # Return whatever class you already are.
-                return self.__class__(other*self.x, other*self.y, other*self.z)
+        if type(other)==types.InstanceType and \
+           (issubclass(other.__class__, self.__class__) or
+            issubclass(self.__class__, other.__class__) ):
+            return self.x*other.x+self.y*other.y
+        elif type(other)==types.FloatType:
+            return Point(other*self.x, other*self.y)
+        elif type(other)==types.IntType:
+            # Return whatever class you already are.
+            return self.__class__(other*self.x, other*self.y)
         raise TypeError
 
     def cross(self, other):
-        if config.dimension() == 2:
-            return self.x*other.y - self.y*other.x
-        elif config.dimension() == 3:
-            return Point(self.y*other.z-self.z*other.y,
-                         self.z*other.x-self.x*other.z,
-                         self.x*other.y-self.y*other.x)
+        return self.x*other.y - self.y*other.x
 
     # Power defined only for squaring -- finds the squared magnitude.
     def __pow__(self, other):
         if other!=2:
+            ## TODO: Raise ValueError instead. Better would be not to
+            ## define __pow__ at all.
             print "Power operation only defined for exponent equal to 2."
-        if config.dimension() == 2:
-            return self.x*self.x+self.y*self.y
-        elif config.dimension() == 3:
-            return self.x*self.x+self.y*self.y+self.z*self.z
+        return self.x*self.x+self.y*self.y
 
     def __rmul__(self, other):
         return self.__mul__(other)
 
     def __add__(self, other):
         # other may not be a Point, so used [0] instead of .x
-        if config.dimension() == 2:
-            return self.__class__(self.x + other[0], self.y + other[1])
-        elif config.dimension() == 3:
-            return self.__class__(self.x + other[0], self.y + other[1], self.z + other[2])
+        return self.__class__(self.x + other[0], self.y + other[1])
 
     def __sub__(self, other):
-        if config.dimension() == 2:
-            return self.__class__(self.x - other[0], self.y - other[1])
-        elif config.dimension() == 3:
-            return self.__class__(self.x - other[0], self.y - other[1], self.z - other[2])            
+        return self.__class__(self.x - other[0], self.y - other[1])
 
     def __neg__(self):
-        if config.dimension() == 2:
-            return self.__class__(-self.x, -self.y)
-        elif config.dimension() == 3:
-            return self.__class__(-self.x, -self.y, -self.z)
+        return self.__class__(-self.x, -self.y)
 
     def __div__(self, other):
-        if config.dimension() == 2:
-            return Point(self.x/other, self.y/other)
-        elif config.dimension() == 3:
-            return Point(self.x/other, self.y/other, self.z/other)
+        return Point(self.x/other, self.y/other)
 
     def __hash__(self):
         # Comparison operators are written in terms of __getitem__ so that
         # comparison to Coords and ICoords will work.
-        if config.dimension() == 2:
-            return hash((self.x, self.y))
-        elif config.dimension() == 3:
-            return hash((self.x, self.y, self.z))
+        return hash((self.x, self.y))
 
     def __cmp__(self, other):
         try:
@@ -151,9 +106,6 @@ class Point:
             if self[0] > other[0]: return 1
             if self[1] < other[1]: return -1
             if self[1] > other[1]: return 1
-            if config.dimension() == 3:
-                if self[2] < other[2]: return -1
-                if self[2] > other[2]: return 1
             return 0
         except:
             return 1
@@ -164,9 +116,6 @@ class Point:
             if self[0] > other[0]: return 0
             if self[1] < other[1]: return 1
             if self[1] > other[1]: return 0
-            if config.dimension() == 3:
-                if self[2] < other[2]: return 1
-                if self[2] > other[2]: return 0
         except:
             return 0
 
@@ -176,35 +125,23 @@ class Point:
             if self[0] < other[0]: return 0
             if self[1] > other[1]: return 1
             if self[1] < other[1]: return 0
-            if config.dimension() == 3:
-                if self[2] > other[2]: return 1
-                if self[2] < other[2]: return 0
         except:
             return 1
 
     def __eq__(self, other):
         try:
-            if config.dimension() == 2:
-                return self[0]==other[0] and self[1]==other[1]
-            if config.dimension() == 3:
-                return self[0]==other[0] and self[1]==other[1] and self[2]==other[2]
+            return self[0]==other[0] and self[1]==other[1]
         except:
             return 0
 
     def __ne__(self, other):
         try:
-            if config.dimension() == 2:
-                return self[0]!=other[0] or self[1]!=other[1]
-            if config.dimension() == 3:
-                return self[0]!=other[0] or self[1]!=other[1] or self[2]!=other[2]
+            return self[0]!=other[0] or self[1]!=other[1]
         except:
             return 1
 
     def __repr__(self):
-        if config.dimension() == 2:
-            return "Point(%s,%s)" % (self.x, self.y)
-        elif config.dimension() == 3:
-            return "Point(%s,%s,%s)" % (self.x, self.y, self.z)
+        return "Point(%s,%s)" % (self.x, self.y)
 
 utils.OOFdefine('Point', Point)
 
@@ -248,15 +185,9 @@ class iPoint(Point):
     # Should probably not be derived from Point, for efficiency and so
     # that arithmetic operators don't convert iPoints to Points.
     def __init__(self, x, y, z=0):
-        if config.dimension() == 2:
-            Point.__init__(self, int(math.floor(x)), int(math.floor(y)))
-        elif config.dimension() == 3:
-            Point.__init__(self, int(math.floor(x)), int(math.floor(y)), int(math.floor(z)))
+        Point.__init__(self, int(math.floor(x)), int(math.floor(y)))
     def __repr__(self):
-        if config.dimension() == 2:
-            return "iPoint(%d,%d)" % (self.x, self.y)
-        elif config.dimension() == 3:
-            return "iPoint(%d,%d,%d)" % (self.x, self.y, self.z)
+        return "iPoint(%d,%d)" % (self.x, self.y)
 
 class iPointParameter(parameter.Parameter):
     types = (iPoint,)
@@ -281,23 +212,20 @@ def pontify(ptlist):
     # probably Curve or Polygon, and Stuff is probably MasterCoord or
     # Coord, but it doeesn't really matter.  Points can be faster to
     # use since they don't have any swig overhead.
-    if config.dimension() == 2:
-        if type(ptlist) == types.ListType:
-            return [Point(pt[0], pt[1]) for pt in ptlist]
-        return ptlist.__class__([Point(pt[0], pt[1]) for pt in ptlist])
-    elif config.dimension() == 3:
-        if type(ptlist) == types.ListType:
-            return [Point(pt[0], pt[1], pt[2]) for pt in ptlist]
-        return ptlist.__class__([Point(pt[0], pt[1], pt[2]) for pt in ptlist])
+    if type(ptlist) == types.ListType:
+        return [Point(pt[0], pt[1]) for pt in ptlist]
+    return ptlist.__class__([Point(pt[0], pt[1]) for pt in ptlist])
 
 ## Documentation for Point and iPoint classes
 
 from ooflib.common.IO import xmlmenudump
-xmlmenudump.XMLObjectDoc('iPoint',
-                         xmlmenudump.loadFile('DISCUSSIONS/common/object/ipoint.xml'))
+xmlmenudump.XMLObjectDoc(
+    'iPoint',
+    xmlmenudump.loadFile('DISCUSSIONS/common/object/ipoint.xml'))
 
-xmlmenudump.XMLObjectDoc('Point',
-                         xmlmenudump.loadFile('DISCUSSIONS/common/object/point.xml'))
+xmlmenudump.XMLObjectDoc(
+    'Point',
+    xmlmenudump.loadFile('DISCUSSIONS/common/object/point.xml'))
 
 
 ######################
@@ -358,75 +286,10 @@ class iRectangle(Rectangle):
                 for i in range(self.lowleft.x, self.upright.x+1)
                 for j in range(self.lowleft.y, self.upright.y+1)]
 
+## TODO: Is the iRectangle class ever used?  Apparently it's not,
+## because in the OOF scope 'iRectangle' is defined to be Rectangle.
+## Is this a typo or an undocumented subtlety?
 utils.OOFdefine('iRectangle', Rectangle)
-
-# new classes for 3D - or we could generalize the classes above, but
-# the terminology would be confusing
-class RectangularPrism:
-    """
-    A Rectangular is a pair of 3D points at diagonally opposite corners.
-    """
-    def __init__(self, pt0, pt1):
-        # Don't assume that args pt0 and pt1 have .x and .y data
-        self.lowleftback = Point(min(pt0[0], pt1[0]), min(pt0[1], pt1[1]), min(pt0[2],pt1[2]))
-        self.uprightfront = Point(max(pt0[0], pt1[0]), max(pt0[1], pt1[1]), max(pt0[2],pt1[2]))
-    def enclosing_rectangle(self):
-        return self
-    def xmin(self):
-        return self.lowleftback.x
-    def xmax(self):
-        return self.uprightfront.x
-    def ymin(self):
-        return self.lowleftback.y
-    def ymax(self):
-        return self.uprightfront.y
-    def zmin(self):
-        return self.lowleftback.z
-    def zmax(self):
-        return self.uprightfront.z
-    def lowerleftback(self):
-        return self.lowleftback
-    def upperrightfront(self):
-        return self.uprightfront
-    def swallow(self, obj):
-        """
-        Expand a Rectangle to include the given obj.  The obj must have
-        an enclosing_rectangle() function.
-        """
-        try:
-            encl = obj.enclosing_rectangle()
-        except AttributeError:
-            print obj
-            raise
-        self.lowleftback.x = min(self.lowleftback.x, encl.xmin())
-        self.lowleftback.y = min(self.lowleftback.y, encl.ymin())
-        self.lowleftback.z = min(self.lowleftback.z, encl.zmin())
-        self.uprightfront.x = max(self.uprightfront.x, encl.xmax())
-        self.uprightfront.y = max(self.uprightfront.y, encl.ymax())
-        self.uprightfront.z = max(self.uprightfront.z, encl.zmax())
-    def volume(self):
-        return (self.xmax()-self.xmin())*(self.ymax()-self.ymin())*(self.zmax()-self.zmin())
-    def __repr__(self):
-        return "RectangularPrism(%s,%s)" % (`self.lowleftback`, `self.uprightfront`)
-
-utils.OOFdefine('RectangularPrism', RectangularPrism)
-
-class iRectangularPrism(RectangularPrism):
-    def __init__(self, pt0, pt1):
-        self.lowleftback = iPoint(min(pt0[0], pt1[0]), min(pt0[1], pt1[1]), min(pt0[2],pt1[2]))
-        self.uprightfront = iPoint(max(pt0[0], pt1[0]), max(pt0[1], pt1[1]), max(pt0[2],pt1[2]))
-    def points(self):
-        return [iPoint(i,j,k)
-                for i in range(self.lowleftback.x, self.uprightfront.x)
-                for j in range(self.lowleftback.y, self.uprightfront.y)
-                for k in range(self.lowleftback.z, self.uprightfront.z)]
-    def inclusivePoints(self):
-        return [iPoint(i,j,k)
-                for i in range(self.lowleftback.x, self.uprightfront.x+1)
-                for j in range(self.lowleftback.y, self.uprightfront.y+1)
-                for k in range(self.lowleftback.z, self.uprightfront.z+1)]
-
-utils.OOFdefine('iRectangularPrism', RectangularPrism)
 
 #################################
 

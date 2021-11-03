@@ -8,14 +8,14 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import gtk
+from gi.repository import Gtk
 import widgetlogger
 
 ## To log the changes in a Paned's divider position, connect (with
 ## connect_passive, probably) to its 'notify::position' signal.
 
 class PanedLogger(widgetlogger.WidgetLogger):
-    classes = (gtk.Paned,)
+    classes = (Gtk.Paned,)
     def record(self, obj, signal, *args):
         if signal == 'notify::position':
             return ["%s.set_position(%d)" % (self.location(obj, *args),

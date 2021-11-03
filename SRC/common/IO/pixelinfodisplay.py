@@ -21,6 +21,8 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 
+import oofcanvas
+
 
 class PixelInfoDisplay(display.DisplayMethod):
     def __init__(self, color, line_width=1, opacity=.3):
@@ -29,15 +31,16 @@ class PixelInfoDisplay(display.DisplayMethod):
         self.opacity = opacity
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow):
+        self.canvaslayer.removeAllItems()
         toolbox = gfxwindow.getToolboxByName("Pixel_Info")
         microstructure = toolbox.findMicrostructure()
         if microstructure is not None:
             pixel = toolbox.currentPixel()
             if pixel is not None:
-                self.drawPixel(device, pixel, microstructure)
+                self.drawPixel(pixel, microstructure)
                 for plugIn in toolbox.plugIns:
-                    plugIn.draw(self, device, pixel, microstructure)
+                    plugIn.draw(self, self.canvaslayer, pixel, microstructure)
 
 #      n3_______________n2 ((i+1)*dx, (j+1)*dy)
 #       |               |
@@ -52,6 +55,9 @@ class PixelInfoDisplay(display.DisplayMethod):
 # (i*dx, j*dy)
 
     def getNodes(self, pixel, microstructure):
+        # This returns all four nodes even though PixelInfoDisplay
+        # only needs two of them, because some plug-ins might want all
+        # four.
         dx = microstructure.sizeOfPixels()[0]
         dy = microstructure.sizeOfPixels()[1]
         i = pixel.x
@@ -62,50 +68,36 @@ class PixelInfoDisplay(display.DisplayMethod):
         n3 = primitives.Point(i*dx, (j+1)*dy)
         return n0, n1, n2, n3
             
-    def drawPixel(self, device, pixel, microstructure):
+    def drawPixel(self, pixel, microstructure):
         n0, n1, n2, n3 = self.getNodes(pixel, microstructure)
-        device.set_lineColor(self.color)
-        device.set_lineWidth(self.line_width)
-        device.draw_segment(primitives.Segment(n0, n1))
-        device.draw_segment(primitives.Segment(n1, n2))
-        device.draw_segment(primitives.Segment(n2, n3))
-        device.draw_segment(primitives.Segment(n3, n0))
-
+        rect = oofcanvas.CanvasRectangle(n0, n2)
+        rect.setLineColor(color.canvasColor(self.color))
+        rect.setLineWidthInPixels(self.line_width)
+        self.canvaslayer.addItem(rect)
+        
     def getTimeStamp(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Pixel_Info")
         return max(self.timestamp,
                    toolbox.getTimeStamp())
 
 defaultPixelInfoColor = color.blue
-if config.dimension() == 2:
-    defaultLineWidth = 0
-    widthRange = (0,10)
-# In vtk, line widths of 0 cause errors
-elif config.dimension() == 3:
-    defaultLineWidth = 1
-    widthRange = (1,10)
+defaultLineWidth = 2
+widthRange = (0, 10, 0.2)
 
 def _setDefaultPixelParams(menuitem, color, line_width): #, opacity):
     global defaultPixelInfoColor
     defaultPixelInfoColor = color
     global defaultLineWidth
     defaultLineWidth = line_width
-##     global defaultOpacity
-##     defaultOpacity = opacity
 
-
-## if config.dimension() == 2:
-pixelinfoparams = [color.ColorParameter('color', defaultPixelInfoColor,
-                                        tip="Color for the queried pixel."),
-                   parameter.IntRangeParameter('line_width', widthRange,
-                                               defaultLineWidth,
-                                               tip="Line width.")]
-## elif config.dimension() == 3:
-##     pixelinfoparams = [color.ColorParameter('color', defaultPixelInfoColor,
-##                                             tip="Color for the queried pixel."),
-##                        parameter.FloatRangeParameter('opacity', (0., 1., 0.01),
-##                                                    defaultOpacity,
-##                                                    tip="Tint Opacity.")]
+pixelinfoparams = [
+    color.TranslucentColorParameter(
+        'color', defaultPixelInfoColor,
+        tip="Color for the queried pixel."),
+    parameter.FloatRangeParameter(
+        'line_width', widthRange,
+        defaultLineWidth,
+        tip="Line width in screen pixels.")]
 
 mainmenu.gfxdefaultsmenu.Pixels.addItem(oofmenu.OOFMenuItem(
     "Pixel_Info",
@@ -155,12 +147,8 @@ TopBitmap('<top bitmap>')
 whoville.WhoClass('Top Bitmap', ordering=20000, proxyClasses=['<top bitmap>'])
 
 def predefinedPixelInfoLayer():
-##     if config.dimension() == 2:
     return pixelInfoDisplay(color=defaultPixelInfoColor,
                             line_width=defaultLineWidth)
-##     if config.dimension() == 3:
-##         return pixelInfoDisplay(color=defaultPixelInfoColor,
-##                                 opacity=defaultOpacity)
 
 ghostgfxwindow.PredefinedLayer('Top Bitmap', '<top bitmap>',
                                predefinedPixelInfoLayer)

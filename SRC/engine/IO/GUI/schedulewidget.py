@@ -14,9 +14,8 @@ from ooflib.common.IO.GUI import regclassfactory
 from ooflib.engine import outputschedule
 
 class OutputScheduleWidget(regclassfactory.RegisteredClassFactory):
-    def __init__(self, registry, obj=None, title=None,
-                 callback=None, fill=0, expand=0, scope=None, name=None,
-                 *args, **kwargs):
+    def __init__(self, registry, obj=None, title=None, callback=None,
+                 scope=None, name=None, **kwargs):
 
         self.scheduleTypeWidget = scope.findWidget(
             lambda w: (isinstance(w, regclassfactory.RegisteredClassFactory) and
@@ -24,8 +23,7 @@ class OutputScheduleWidget(regclassfactory.RegisteredClassFactory):
                        
         regclassfactory.RegisteredClassFactory.__init__(
             self, registry, obj=obj, title=title, callback=callback,
-            fill=fill, expand=expand, scope=scope, name=name,
-            *args, **kwargs)
+            scope=scope, name=name, **kwargs)
 
         self.sbcb = switchboard.requestCallbackMain(self.scheduleTypeWidget,
                                                     self.typechanged)
@@ -42,7 +40,7 @@ class OutputScheduleWidget(regclassfactory.RegisteredClassFactory):
         regclassfactory.RegisteredClassFactory.cleanUp(self)
 
 
-def _makeOutputScheduleWidget(self, scope):
+def _makeOutputScheduleWidget(self, scope, **kwargs):
     return OutputScheduleWidget(self.registry, self.value, scope=scope,
-                                 name=self.name)
+                                 name=self.name, **kwargs)
 outputschedule.OutputScheduleParameter.makeWidget = _makeOutputScheduleWidget

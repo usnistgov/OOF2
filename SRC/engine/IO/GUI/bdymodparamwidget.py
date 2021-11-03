@@ -16,25 +16,22 @@ from ooflib.common.IO.GUI import regclassfactory
 from ooflib.engine import boundarymodifier
 
 
-
 class BoundaryModParamWidget(regclassfactory.RegisteredClassFactory):
     def __init__(self, registry, obj=None, title=None,
-                 callback=None, fill=0, expand=0, scope=None, name=None,
-                 *args, **kwargs):
+                 callback=None, scope=None, name=None, **kwargs):
         # scope.parent is the ParameterDialog box in which we live.
         self.modifiertype = scope.parent.modifiertype
         regclassfactory.RegisteredClassFactory.__init__(
             self, registry, obj=obj, title=title, callback=callback,
-            fill=fill, expand=expand, scope=scope, name=name,
-            *args, **kwargs)
-
+            scope=scope, name=name, **kwargs)
 
     def includeRegistration(self, registration):
         return registration.modifiertype == self.modifiertype
 
 
-def _makeBMPWidget(self, scope):
+def _makeBMPWidget(self, scope, **kwargs):
     return BoundaryModParamWidget(self.registry,
-                                  obj=self.value, scope=scope, name=self.name)
+                                  obj=self.value, scope=scope, name=self.name,
+                                  **kwargs)
 
 boundarymodifier.BoundaryModifierParameter.makeWidget = _makeBMPWidget

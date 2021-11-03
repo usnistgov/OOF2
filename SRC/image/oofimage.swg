@@ -12,15 +12,17 @@
 #ifndef OOFIMAGE_SWG
 #define OOFIMAGE_SWG
 %module oofimage
+
 %include "common/typemaps.swg"
+%include "common/canvasimage.swg"
+
 %{
-#include "image/oofimage.h"
-#include "common/ooferror.h"
 #include <oofconfig.h>
-#include "common/doublearray.h"
+#include "oofcanvas/canvasimage.h"
 #include "common/boolarray.h"
-//typedef Array<bool> arraybool;
-// typedef Array<double> arraydouble;
+#include "common/doublearray.h"
+#include "common/ooferror.h"
+#include "image/oofimage.h"
 %}
 
 %pragma(python) include="oofimage.spy"
@@ -29,7 +31,6 @@
 %extern "common/timestamp.swg"
 %extern "common/ooferror.swg"
 %extern "common/abstractimage.swg"
-%extern "common/IO/stringimage.swg"
 
 %extern "common/doublearray.swg"
 %pragma(python) code="from ooflib.SWIG.common.doublearray import DoubleArrayPtr"
@@ -80,7 +81,7 @@ public:
   void evenly_illuminate(int);
   
   bool compare(OOFImage&, double);
-  virtual void fillstringimage(StringImage*) const; 
+  NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 
   // getTimeStamp is redefined in oofimage.spy so that it can have optional args
   %name(_getTimeStamp) TimeStamp *getTimeStamp();
@@ -106,7 +107,7 @@ public:
   ImageMagickError(char *m);
   ~ImageMagickError();
   %addmethods {
-    const string *__repr__() {
+    %new const string *__repr__() {
       return self->summary();
     }
   }

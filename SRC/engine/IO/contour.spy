@@ -44,13 +44,6 @@ class Contour(CContour):
                                                             [loop]))
                       for loop in self.loops]
         
-    def draw(self, device):
-        for curve in self.curves:
-            device.draw_curve(curve)
-        for loop in self.loops:
-            device.draw_polygon(loop)
-
-
     # The swig typemaps used by CContour.getCurves and
     # CContour.getLoops return lists of lists SwigPtr strings, which
     # get converted into MasterCoordPtr objects here:
@@ -76,7 +69,6 @@ def findContours(mesh, element,
                  clevels,               # list of contour levels
                  nbins,                 # number of cells in each direction
                  closecontours):        # close contours at element perimeter?
-##    debug.fmsg(element)
     # Compute the contours crossing an element.
     # This would be an Element method, but it's more convenient to put
     # it here.
@@ -107,13 +99,11 @@ def findContours(mesh, element,
     cells.findIntercepts(clevels)
 
     for contour in contours:
-##        debug.fmsg('contour=', contour.value)
         contour.compute(cells, master, closecontours)
 
     for contour in contours:
         contour.map(mesh, element, posOutput)
 
-##    debug.fmsg('done')
     return (contours, elmin, elmax)
 
 ###################
@@ -137,7 +127,7 @@ class ContourableMesh(whoville.WhoProxyClass):
     def resolve(self, proxy, gfxwindow):
         layer = gfxwindow.topcontourable()
         if layer:
-            return layer.who().resolve(gfxwindow)
+            return layer.who.resolve(gfxwindow)
         else:
             return gfxwindow.topwho( ('Mesh') )
     def getTimeStamp(self, proxy, gfxwindow):

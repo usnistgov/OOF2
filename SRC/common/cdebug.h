@@ -20,6 +20,7 @@
 
 #include <Python.h>
 #include <vector>
+#include <string>
 
 void initDebug(PyObject*);
 void installSignals_();
@@ -40,5 +41,7 @@ void throwPythonException();
 void throwPythonCException();
 
 void spinCycle(int);
+
+void memusage(const std::string&);
 
 #endif // CDEBUG_H

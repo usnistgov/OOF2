@@ -20,7 +20,7 @@ class compute_tensor_flags
   enum {
     is_dynamic_size_storage = 1,
 
-    aligned_bit =
+    is_aligned =
     (
         ((Options&DontAlign)==0) && (
 #if EIGEN_MAX_STATIC_ALIGN_BYTES>0
@@ -28,23 +28,23 @@ class compute_tensor_flags
 #else
             0
 #endif
-            ||
+            |
 #if EIGEN_MAX_ALIGN_BYTES>0
             is_dynamic_size_storage
 #else
             0
 #endif
       )
-    ) ? AlignedBit : 0,
-    packet_access_bit = packet_traits<Scalar>::Vectorizable && aligned_bit ? PacketAccessBit : 0
+     ),
+    packet_access_bit = packet_traits<Scalar>::Vectorizable && is_aligned ? PacketAccessBit : 0
   };
 
   public:
-    enum { ret = packet_access_bit | aligned_bit};
+    enum { ret = packet_access_bit };
 };
 
 
-template<typename Scalar_, std::size_t NumIndices_, int Options_, typename IndexType_>
+template<typename Scalar_, int NumIndices_, int Options_, typename IndexType_>
 struct traits<Tensor<Scalar_, NumIndices_, Options_, IndexType_> >
 {
   typedef Scalar_ Scalar;
@@ -54,7 +54,10 @@ struct traits<Tensor<Scalar_, NumIndices_, Options_, IndexType_> >
   static const int Layout = Options_ & RowMajor ? RowMajor : ColMajor;
   enum {
     Options = Options_,
-    Flags = compute_tensor_flags<Scalar_, Options_>::ret | (is_const<Scalar_>::value ? 0 : LvalueBit),
+    Flags = compute_tensor_flags<Scalar_, Options_>::ret | (is_const<Scalar_>::value ? 0 : LvalueBit)
+  };
+  template <typename T> struct MakePointer {
+    typedef T* Type;
   };
 };
 
@@ -69,13 +72,16 @@ struct traits<TensorFixedSize<Scalar_, Dimensions, Options_, IndexType_> >
   static const int Layout = Options_ & RowMajor ? RowMajor : ColMajor;
   enum {
     Options = Options_,
-    Flags = compute_tensor_flags<Scalar_, Options_>::ret | (is_const<Scalar_>::value ? 0: LvalueBit),
+    Flags = compute_tensor_flags<Scalar_, Options_>::ret | (is_const<Scalar_>::value ? 0: LvalueBit)
+  };
+  template <typename T> struct MakePointer {
+    typedef T* Type;
   };
 };
 
 
-template<typename PlainObjectType, int Options_>
-struct traits<TensorMap<PlainObjectType, Options_> >
+template<typename PlainObjectType, int Options_, template <class> class MakePointer_>
+struct traits<TensorMap<PlainObjectType, Options_, MakePointer_> >
   : public traits<PlainObjectType>
 {
   typedef traits<PlainObjectType> BaseTraits;
@@ -86,7 +92,12 @@ struct traits<TensorMap<PlainObjectType, Options_> >
   static const int Layout = BaseTraits::Layout;
   enum {
     Options = Options_,
-    Flags = (BaseTraits::Flags & ~AlignedBit) | (Options&Aligned ? AlignedBit : 0),
+    Flags = BaseTraits::Flags
+  };
+  template <class T> struct MakePointer {
+    // Intermediate typedef to workaround MSVC issue.
+    typedef MakePointer_<T> MakePointerT;
+    typedef typename MakePointerT::Type Type;
   };
 };
 
@@ -102,18 +113,18 @@ struct traits<TensorRef<PlainObjectType> >
   static const int Layout = BaseTraits::Layout;
   enum {
     Options = BaseTraits::Options,
-    Flags = (BaseTraits::Flags & ~AlignedBit) | (Options&Aligned ? AlignedBit : 0),
+    Flags = BaseTraits::Flags
   };
 };
 
 
-template<typename _Scalar, std::size_t NumIndices_, int Options, typename IndexType_>
+template<typename _Scalar, int NumIndices_, int Options, typename IndexType_>
 struct eval<Tensor<_Scalar, NumIndices_, Options, IndexType_>, Eigen::Dense>
 {
   typedef const Tensor<_Scalar, NumIndices_, Options, IndexType_>& type;
 };
 
-template<typename _Scalar, std::size_t NumIndices_, int Options, typename IndexType_>
+template<typename _Scalar, int NumIndices_, int Options, typename IndexType_>
 struct eval<const Tensor<_Scalar, NumIndices_, Options, IndexType_>, Eigen::Dense>
 {
   typedef const Tensor<_Scalar, NumIndices_, Options, IndexType_>& type;
@@ -131,16 +142,16 @@ struct eval<const TensorFixedSize<Scalar_, Dimensions, Options, IndexType_>, Eig
   typedef const TensorFixedSize<Scalar_, Dimensions, Options, IndexType_>& type;
 };
 
-template<typename PlainObjectType, int Options>
-struct eval<TensorMap<PlainObjectType, Options>, Eigen::Dense>
+template<typename PlainObjectType, int Options, template <class> class MakePointer>
+struct eval<TensorMap<PlainObjectType, Options, MakePointer>, Eigen::Dense>
 {
-  typedef const TensorMap<PlainObjectType, Options>& type;
+  typedef const TensorMap<PlainObjectType, Options, MakePointer>& type;
 };
 
-template<typename PlainObjectType, int Options>
-struct eval<const TensorMap<PlainObjectType, Options>, Eigen::Dense>
+template<typename PlainObjectType, int Options, template <class> class MakePointer>
+struct eval<const TensorMap<PlainObjectType, Options, MakePointer>, Eigen::Dense>
 {
-  typedef const TensorMap<PlainObjectType, Options>& type;
+  typedef const TensorMap<PlainObjectType, Options, MakePointer>& type;
 };
 
 template<typename PlainObjectType>
@@ -161,13 +172,13 @@ template<typename T, int n=1, typename PlainObject = void> struct nested
   typedef typename ref_selector<T>::type type;
 };
 
-template <typename Scalar_, std::size_t NumIndices_, int Options_, typename IndexType_>
+template <typename Scalar_, int NumIndices_, int Options_, typename IndexType_>
 struct nested<Tensor<Scalar_, NumIndices_, Options_, IndexType_> >
 {
   typedef const Tensor<Scalar_, NumIndices_, Options_, IndexType_>& type;
 };
 
-template <typename Scalar_, std::size_t NumIndices_, int Options_, typename IndexType_>
+template <typename Scalar_, int NumIndices_, int Options_, typename IndexType_>
 struct nested<const Tensor<Scalar_, NumIndices_, Options_, IndexType_> >
 {
   typedef const Tensor<Scalar_, NumIndices_, Options_, IndexType_>& type;
@@ -186,16 +197,16 @@ struct nested<const TensorFixedSize<Scalar_, Dimensions, Options, IndexType_> >
 };
 
 
-template <typename PlainObjectType, int Options>
-struct nested<TensorMap<PlainObjectType, Options> >
+template <typename PlainObjectType, int Options, template <class> class MakePointer>
+struct nested<TensorMap<PlainObjectType, Options, MakePointer> >
 {
-  typedef const TensorMap<PlainObjectType, Options>& type;
+  typedef const TensorMap<PlainObjectType, Options, MakePointer>& type;
 };
 
-template <typename PlainObjectType, int Options>
-struct nested<const TensorMap<PlainObjectType, Options> >
+template <typename PlainObjectType, int Options, template <class> class MakePointer>
+struct nested<const TensorMap<PlainObjectType, Options, MakePointer> >
 {
-  typedef const TensorMap<PlainObjectType, Options>& type;
+  typedef const TensorMap<PlainObjectType, Options, MakePointer>& type;
 };
 
 template <typename PlainObjectType>
@@ -253,7 +264,7 @@ struct nested<const TensorRef<PlainObjectType> >
 // Pc=0.
 typedef enum {
   PADDING_VALID = 1,
-  PADDING_SAME = 2,
+  PADDING_SAME = 2
 } PaddingType;
 
 }  // end namespace Eigen

@@ -15,89 +15,269 @@
 ## command line argument.
 
 ## The gui allows comments to be inserted into the log file as the log
-## is recorded, making it easier to instrument it later. 
-import gobject
-import gtk
-import sys
+## is recorded, making it easier to instrument it later.  It also can
+## filter the log file to remove redundant lines.
 
-class GUI:
-    def __init__(self):
-        global logfile, logfilename
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        window.set_title("gtklogger:" + logfilename)
+## TODO GTK3: This isn't quitting on EOF on Linux.
+
+## TODO: If log lines all ended with a comment indicating their
+## origin, the postprocessing done here could be more specific.  For
+## example, it could act only on resize events for certain types of
+## widgets.
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import GObject
+from gi.repository import Gtk
+import sys
+import re
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Filtering
+
+# actions is a list of functions that take a log line and the
+# LogProcessor as arguments, and tell the LogProcessor what to do with
+# the line by calling the appropriate LogProcessor method
+# (replaceLine, addLine, etc).  The actions return True if the line
+# has been handled in some way.  They should return False if they
+# don't know how to handle the line, in which case other actions will
+# get a chance to handle it.  If no actions can handle a line, the
+# line is simply appended to the output.
+
+actions = []
+
+# ReplaceLine constructs an action for the situation in which the
+# previously added line is replaced by the current line. The
+# replacement is done if the current line matches the regular
+# expression in regexp and the previous line matches the one in
+# regexpprev.  If regexpprev is omitted, the replacement is done if
+# both lines match regexp.  groups is a list of pairs of integers.
+# For each (i,j) in the list, the replacement is done only if group i
+# in the current line is identical to group j in the previous line.
+
+# endcomment matches possible comments appended to log lines
+endcomment = r"\s*#?.*$"
+
+class ReplaceLine(object):
+    def __init__(self, regexp, regexpprev=None, groups=[]):
+        self.regexp = re.compile(regexp)
+        if regexpprev is None:
+            self.regexpprev = self.regexp
+        else:
+            self.regexpprev = re.compile(regexpprev)
+        self.groups = groups
+    def __call__(self, line, logProc):
+        lastLine = logProc.lastLine()
+        if lastLine is not None:
+            match = self.regexp.match(line)
+            if match is None:   # not what we're looking for
+                return False
+            lastMatch = self.regexpprev.match(lastLine)
+            if lastMatch is None:
+                return False
+            # line and lastLine fit the pattern.  Are their groups the same?
+            for grp in self.groups:
+                if match.group(grp[0]) != lastMatch.group(grp[1]):
+                    # The lines fit the templates, but their data
+                    # (groups) is different.
+                    logProc.addLine(line)
+                    return True
+            # groups are the same.  Replace the previous line.
+            logProc.replaceLastLine(line)
+            return True         # line was handled successfully.
+        return False            # line was not dealt with.
+
+# Look for pairs of lines like
+#   findWidget('WIDGETNAME').resize(x0, y0)
+#   findWidget('WIDGETNAME').resize(x1, y1)
+# and delete the first one.
+actions.append(
+    ReplaceLine(
+        r"^findWidget\('(.+)'\).resize\([0-9]+, [0-9]+\)" + endcomment,
+        groups=[(1,1)]))
+
+# Look for pairs of lines like
+#    findWidget('MENUNAME').deactivate()
+#    findMenu(findWidget('MENUNAME'), MENUITEM).activate()
+# and delete the first one.  This occurs when an item is selected from
+# a menu.  The menu's deactivate signal is sent before the menu item
+# is activated, but on replay the menu must not be destroyed before
+# its item is activated.  Activating the menu item will deactivate the
+# menu, so explicit deactivation isn't necessary.
+
+# A menuitem in the log is given as a list of strings, matched by this
+# regular expression.  TODO: This isn't quite right, because it can be
+# fooled by mismatched single and double quotation marks, or menuitem
+# names containing quotation marks.
+listofstrings = r"\[\s*['\"][^'\"]+?['\"](?:\s*,\s*['\"][^'\"]+?['\"])*\s*\]"
+
+actions.append(
+    ReplaceLine(
+        r"^findMenu\(findWidget\('(.+)'\), " + listofstrings + "\).activate\(\)" + endcomment ,
+        r"^findWidget\('(.+)'\).deactivate\(\)" + endcomment,
+        groups=[(1,1)]))
+
+# Look for pairs of lines like
+#   findWidget('MENUNAME').deactivate()
+#   findMenu(findWidget('MENUNAME'), MENUITEM).set_active(BOOL)
+# and delete the first one.  This is just like the case above, but for
+# CheckMenuItems and RadioMenuItems.
+actions.append(
+    ReplaceLine(
+        r"^findMenu\(findWidget\('(.+)'\), "+listofstrings+"\).set_active\(0|1|True|False\)" + endcomment,
+        r"^findWidget\('(.+)'\).deactivate\(\)" + endcomment,
+        groups=[(1,1)]))
+    
+# Replace repeated set_position events from Paned widgets
+actions.append(
+    ReplaceLine(
+        r"^findWidget\('(.+)'\).set_position\([0-9]+\)" + endcomment,
+        groups=[(1,1)]))
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# LogProcessor reads lines from stdin, stores them in a list, applies
+# filters, displays the lines, and writes them out to the log file
+# when it's done.  The list of lines is separate from the
+# GtkTextBuffer that displays the lines, because the text buffer has
+# the option of showing the filtered-out lines.
+
+class LogProcessor(object):
+    def __init__(self, logfilename):
+        self.logfilename = logfilename
+        self.inbuf = ""
+        self.lines = []           # The list of lines
+        self.strikeThrough = True # TODO: make this settable in the GUI
+
+        window = Gtk.Window(Gtk.WindowType.TOPLEVEL,
+                            title="gtklogger:" + logfilename)
         window.connect('delete-event', self.quit)
-        box = gtk.VBox()
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, margin=5)
         window.add(box)
 
-        logscroll = gtk.ScrolledWindow()
-        logscroll.set_shadow_type(gtk.SHADOW_IN)
-        box.pack_start(logscroll, expand=True, fill=True)
-        self.logtextview = gtk.TextView()
-        self.logtextview.set_editable(False)
-        self.logtextview.set_cursor_visible(False)
-        self.logtextview.set_wrap_mode(gtk.WRAP_WORD)
+        logscroll = Gtk.ScrolledWindow()
+        logscroll.set_shadow_type(Gtk.ShadowType.IN)
+        box.pack_start(logscroll, expand=True, fill=True, padding=0)
+        self.logtextview = Gtk.TextView(editable=False, cursor_visible=False,
+                                        margin=5)
+        self.logtextview.set_wrap_mode(Gtk.WrapMode.WORD)
         logscroll.add(self.logtextview)
 
-        commentbox = gtk.HBox()
-        box.pack_start(commentbox, expand=False, fill=False)
+        # beginLineMark is a GtkTextMark that is kept at the beginning
+        # of the most recently added line.
+        bfr = self.logtextview.get_buffer()
+        self.beginLineMark = bfr.create_mark("beginLine", bfr.get_end_iter(),
+                                             True)
+
+        commentbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                             spacing=2)
+        box.pack_start(commentbox, expand=False, fill=False, padding=0)
         
-        self.commentText = gtk.Entry()
-        commentbox.pack_start(self.commentText, expand=True, fill=True)
+        self.commentText = Gtk.Entry()
+        commentbox.pack_start(self.commentText,
+                              expand=True, fill=True, padding=0)
         
-        self.commentButton = gtk.Button("Comment")
-        commentbox.pack_start(self.commentButton, expand=False, fill=False)
+        self.commentButton = Gtk.Button("Comment")
+        commentbox.pack_start(self.commentButton, expand=False, fill=False,
+                              padding=0)
         self.commentButton.connect('clicked', self.commentCB)
 
-        self.clearButton = gtk.Button('Clear')
-        commentbox.pack_start(self.clearButton, expand=False, fill=False)
+        self.clearButton = Gtk.Button('Clear')
+        commentbox.pack_start(self.clearButton, expand=False, fill=False,
+                              padding=0)
         self.clearButton.connect('clicked', self.clearCB)
 
+        GObject.io_add_watch(sys.stdin, GObject.IO_IN, self.inputHandler)
+
         window.show_all()
+        
+    def inputHandler(self, source, condition):
+        line = sys.stdin.readline()
+        if not line:
+            self.quit()
+            return False
+        if line[-1] == '\n':
+            fullline = self.inbuf + line
+            self.handleLine(fullline.rstrip())
+            self.inbuf = ""
+        else:
+            self.inbuf += line
+        return True
+
+    def handleLine(self, line):
+        # Decide what to do with this line.  It can be appended to the
+        # existing lines, replace the previous line, or be discarded.
+        for action in actions:
+            if action(line, self):
+                return
+        # No actions applied.  Just append to the output.
+        self.addLine(line)
 
     def addLine(self, line):
-        buffer = self.logtextview.get_buffer()
-        buffer.insert(buffer.get_end_iter(), line)
-        mark = buffer.create_mark(None, buffer.get_end_iter())
+        self.lines.append(line)
+        bfr = self.logtextview.get_buffer()
+        bfr.move_mark(self.beginLineMark, bfr.get_end_iter())
+        bfr.insert(bfr.get_end_iter(), line+"\n")
+        self.scrollToEnd()
+
+    def replaceLastLine(self, line):
+        if self.lines:
+            # Update the display, either by deleting the old last
+            # line, or crossing it out.
+            bfr = self.logtextview.get_buffer()
+            lastLineIter = bfr.get_iter_at_mark(self.beginLineMark)
+            endIter = bfr.get_end_iter()
+            if self.strikeThrough:
+                # If strikeThrough is True, then the deleted line is
+                # still displayed, but crossed out.
+                lastLine = bfr.get_text(lastLineIter, endIter, True).rstrip()
+                bfr.delete(lastLineIter, endIter)
+                markup = ('<span strikethrough="t" strikethrough-color="red">'
+                          + lastLine
+                          + '</span>\n')
+                bfr.insert_markup(bfr.get_end_iter(), markup , -1);
+            else:
+                # strikeThrough is False.  Don't display the deleted line.
+                bfr.delete(lastLineIter, endIter)
+            del self.lines[-1]  # delete previous last line from output
+        self.addLine(line)      # add new last line
+
+
+    def scrollToEnd(self):
+        bfr = self.logtextview.get_buffer()
+        mark = bfr.create_mark(None, bfr.get_end_iter())
         self.logtextview.scroll_mark_onscreen(mark)
-        buffer.delete_mark(mark)
+        bfr.delete_mark(mark)
+
+    def lastLine(self):
+        if self.lines:
+            return self.lines[-1]
     
     def quit(self, *args):
-        gtk.main_quit()
-        logfile.close()
+        Gtk.main_quit()
     
     def clearCB(self, button):
         self.commentText.set_text("")
 
     def commentCB(self, button):
-        global logfile
-        text = '# ' + self.commentText.get_text()
-        print >> logfile, text
-        self.addLine(text+'\n')
+        self.addLine("# " + self.commentText.get_text())
 
-inbuf = ""
-def inputhandler(source, condition):
-    global inbuf
-    line = sys.stdin.readline()
-    if not line:
-        gui.quit()
-        return False
-    if line[-1] == '\n':
-        fullline = inbuf + line
-        gui.addLine(fullline)
-        print >> logfile, fullline,
-        logfile.flush()
-        inbuf = ""
-    else:
-        inbuf += line
-    return True
+    def writeLog(self):
+        logfile = file(self.logfilename, "w")
+        for line in self.lines:
+            print >> logfile, line
+        logfile.close()
 
-def start(name):
-    global logfilename, logfile, gui
-    logfilename = name
-    logfile = file(logfilename, "w")
-    gobject.io_add_watch(sys.stdin, gobject.IO_IN, inputhandler)
-    gui = GUI()
-    gtk.main()
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+def start(filename):
+    logproc = LogProcessor(filename)
+    try:
+        Gtk.main()
+    finally:
+        logproc.writeLog()
     
 if __name__ == "__main__":
+    # The one argument is the name of the log file to be created.
     start(sys.argv[1])

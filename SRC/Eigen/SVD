@@ -1,3 +1,10 @@
+// This file is part of Eigen, a lightweight C++ template library
+// for linear algebra.
+//
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #ifndef EIGEN_SVD_MODULE_H
 #define EIGEN_SVD_MODULE_H
 
@@ -24,12 +31,18 @@
   * \endcode
   */
 
+#include "src/misc/RealSvd2x2.h"
 #include "src/SVD/UpperBidiagonalization.h"
 #include "src/SVD/SVDBase.h"
 #include "src/SVD/JacobiSVD.h"
 #include "src/SVD/BDCSVD.h"
 #if defined(EIGEN_USE_LAPACKE) && !defined(EIGEN_USE_LAPACKE_STRICT)
-#include "src/SVD/JacobiSVD_MKL.h"
+#ifdef EIGEN_USE_MKL
+#include "mkl_lapacke.h"
+#else
+#include "src/misc/lapacke.h"
+#endif
+#include "src/SVD/JacobiSVD_LAPACKE.h"
 #endif
 
 #include "src/Core/util/ReenableStupidWarnings.h"

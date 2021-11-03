@@ -89,7 +89,7 @@ std::vector<std::string>* ActiveAreaList::getNames() const {
 void ActiveAreaList::print(std::ostream& o) const {
   o << "ActiveAreaList(";
   std::list<std::string>::const_iterator i;
-  int count;
+  std::size_t count;
   for(count=areas.size(), i=areas.begin(); i!=areas.end(); --count,++i) {
     o << *i;
     if (count!=1) o << ", ";

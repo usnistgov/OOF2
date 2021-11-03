@@ -14,15 +14,13 @@
 #include "common/IO/bitoverlay.h"
 #include "common/trace.h"
 #include "common/tostring.h"
-#include "common/IO/stringimage.h"
+#include "oofcanvas/oofcanvas.h"
 
 BitmapOverlay::BitmapOverlay(const Coord *size, const ICoord *isize)
-  : fg(CColor(1., 1., 1.)),
-    bg(CColor(0., 0., 0.))
+  : fg(CColor(1., 1., 1., 1.)),
+    bg(CColor(0., 0., 0., 1.))
 {
     resize(size, isize);
-		tintAlpha = 1.0;
-		voxelAlpha = 1.0;
 }
 
 BitmapOverlay::~BitmapOverlay() {}
@@ -90,23 +88,10 @@ void BitmapOverlay::copy(const BitmapOverlay *other) {
   // avoid taking address of temporary
   CColor x(other->getFG());
   setColor(&x);
-  tintAlpha = other->getTintAlpha();
-  voxelAlpha = other->getVoxelAlpha();
 }
 
 void BitmapOverlay::setColor(const CColor *color) {
-  // TODO:  A comment here would be nice.  What is this doing?
   fg = *color;
-  if(fg.getRed() == 0.0) {
-    bg.setRed(1.0);
-    bg.setGreen(1.0);
-    bg.setBlue(1.0);
-  }
-  else {
-    bg.setRed(0.0); 
-    bg.setBlue(0.0);
-    bg.setGreen(0.0);
-  }
 }
 
 CColor BitmapOverlay::getBG() const {
@@ -117,25 +102,24 @@ CColor BitmapOverlay::getFG() const {
   return fg;
 }
 
-// Construct a string representation of the image, for making a gdk
-// pixbuf.
-
-void BitmapOverlay::fillstringimage(StringImage *stringimage) const {
-  for(Array<bool>::const_iterator i=data.begin(); i!=data.end(); ++i) {
-    if(data[i])
-      stringimage->set(&i.coord(), &fg);
-    else
-      stringimage->set(&i.coord(), &bg);
-  }
-}
-
-void BitmapOverlay::fillalphastringimage(AlphaStringImage *stringimage) const
+OOFCanvas::CanvasImage *BitmapOverlay::makeCanvasImage(const Coord *position,
+						       const Coord *size)
+  const
 {
-  CColor black(0., 0., 0.);
+  using OOFCanvas::CanvasImage;
+  CanvasImage *img = CanvasImage::newBlankImage(
+				OOFCANVAS_COORD(*position),
+				OOFCANVAS_ICOORD(sizeInPixels_),
+				canvasColor(bg).opacity(0.0));
+  img->setDrawIndividualPixels(true);
+  img->setSize(OOFCANVAS_COORD(*size));
+  int ymax = sizeInPixels_[1] - 1;
   for(Array<bool>::const_iterator i=data.begin(); i!=data.end(); ++i) {
-    if(data[i])
-      stringimage->set(&i.coord(), &fg, (unsigned char)(255*tintAlpha));
-    else
-      stringimage->set(&i.coord(), &black, 0);
+    if(data[i]) {
+      ICoord p(i.coord());
+      img->set(OOFCanvas::ICoord(p[0], ymax-p[1]), canvasColor(fg));
+    }
   }
+  return img;
 }
+

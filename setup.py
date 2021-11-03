@@ -8,8 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-## TODO: swig needs to be run with -DDEBUG when setup.py is run with --debug.
-
 ## Usage:
 
 #  In the top oof2 directory (the one containing this file) type
@@ -28,28 +26,18 @@
 # aren't used explicitly in this file, but they are used in the DIR.py
 # files that are execfile'd here.
 
-GTK_VERSION = "2.6.0"
-PYGTK_VERSION = "2.6"
-GNOMECANVAS_VERSION = "2.6"
+GTK_VERSION = "3.22.0"
 MAGICK_VERSION = "6.0"
-
-# If on a 64-bit system with Python 2.5 or later, make sure that
-# pygobject is at least version 2.12.
-try:
-    import ctypes                       # only in 2.5 and later
-    if ctypes.sizeof(ctypes.c_long) == 8:
-        PYGOBJECT_VERSION = "2.12"
-    else:
-        PYGOBJECT_VERSION = "2.6"
-except ImportError:
-    PYGOBJECT_VERSION = "2.6"
+CAIROMM_VERSION = "1.12" # Don't know what the earliest acceptable version is.
+PANGO_VERSION = "1.40"
+PANGOCAIRO_VERSION = "1.40"
+PYGOBJECT_VERSION = "3.26"
+OOFCANVAS_VERSION = "0.0.0"
 
 # The make_dist script edits the following line when a distribution is
 # built.  Don't change it by hand.  On the git master branch,
 # "(unreleased)" is replaced by the version number.
 version_from_make_dist = "(unreleased)"
-
-# will need to add vtk
 
 ###############################
 
@@ -61,10 +49,15 @@ from distutils.command import clean
 from distutils.command import build_scripts
 from distutils import errors
 from distutils import log
-from distutils.dir_util import remove_tree
+from distutils.dir_util import remove_tree, mkpath
 from distutils.sysconfig import get_config_var
 
-import oof2installlib
+## oof2installlib redefines the distutils install_lib command so that
+## it runs install_name_tool on Macs.  This doesn't seem to be
+## necessary.  If library files can't be found at run time, try
+## reinstating oof2installlib by uncommenting it here and where it's
+## used, below.
+# import oof2installlib
 
 import shlib # adds build_shlib and install_shlib to the distutils command set
 from shlib import build_shlib
@@ -184,11 +177,12 @@ class CLibInfo:
         # list. This is called after all of the DIR.py files have been
         # read, so that self.pkgs contains all of the third party
         # packages that will be used.
+
         if not self.pkgs:
             return
         # Run pkg-config --cflags.
         cmd = "pkg-config --cflags %s" % string.join(self.pkgs)
-        print self.libname, ":", cmd
+        print "%s: %s" % (self.libname, cmd)
         f = os.popen(cmd, 'r')
         for line in f.readlines():
             for flag in line.split():
@@ -198,7 +192,7 @@ class CLibInfo:
                     self.extra_compile_args.append(flag)
         # Run pkg-config --libs.
         cmd = "pkg-config --libs %s" % string.join(self.pkgs)
-        print self.libname, ":", cmd
+        print "%s: %s" % (self.libname, cmd)
         f = os.popen(cmd, 'r')
         for line in f.readlines():
             for flag in line.split():
@@ -242,17 +236,13 @@ class CLibInfo:
         if self.extensionObjs is None:
             self.extensionObjs = []
             for swigfile in self.dirdata['swigfiles']:
-                # The [6:] in the following strips the "./SRC/" from
-                # the beginning of the file names.  splitext(file)[0]
-                # is the path to a file with the extension stripped.
-                basename = os.path.splitext(swigfile)[0][6:]
+                # The file name is of the form "./SRC/dirs/something.swg"
+                # Strip the "./SRC/" and the suffix.
+                basename = os.path.splitext(
+                    os.path.relpath(swigfile, './SRC'))[0]
 
-                # swig 1.1 version
                 modulename = os.path.splitext(basename + SWIGCFILEEXT)[0]
                 sourcename = os.path.join(swigroot, basename+SWIGCFILEEXT)
-                # swig 1.3 version                
-##                modulename = '_' + basename
-##                sourcename = os.path.join(swigroot, basename+'_wrap.cxx')
                 
                 extension = distutils.core.Extension(
                     name = os.path.join(OOFNAME,"ooflib", SWIGINSTALLDIR,
@@ -299,8 +289,10 @@ class CLibInfo:
         # Convert it to a list of dirs relative to the swigroot
         swigpkgs = []
         for pkg in pkgs:
-            pkgdir = os.path.join(swigroot, pkg[6:]) # eg, SRC/SWIG/common
-            pkgname = OOFNAME + '.' + pkgdir[4:].replace('/', '.') # oof2.ooflib.SWIG.common
+            relpath = os.path.relpath(pkg, './SRC')
+            relocated = os.path.normpath(
+                os.path.join(OOFNAME, SWIGDIR, relpath))
+            pkgname = relocated.replace('/', '.')
             swigpkgs.append(pkgname)
         return swigpkgs
 
@@ -686,8 +678,10 @@ typedef int Py_ssize_t;
             depdict.setdefault(pyfile, []).append(phile)
         # Add in the implicit dependencies on the .spy files.
         for underpyfile in allFiles('swigpyfiles'):
-            base = os.path.splitext(underpyfile)[0] # drop .spy
-            pyfile = os.path.normpath(os.path.join(swigroot,base[6:]+'.py'))
+            relpath = os.path.relpath(underpyfile, './SRC')
+            relocated = os.path.normpath(os.path.join(swigroot, relpath))
+            # Replace .spy with .py
+            pyfile = os.path.splitext(relocated)[0] + ".py"
             depdict.setdefault(pyfile, []).append(underpyfile)
 
         return depdict
@@ -734,6 +728,7 @@ typedef int Py_ssize_t;
             else:
                 depdict = self.find_dependencies()
                 print "Saving dependencies in", depfilename
+                mkpath(self.build_temp)
                 depfile = open(depfilename, "w")
                 print >> depfile, "depdict=", depdict
                 depfile.close()
@@ -1065,8 +1060,10 @@ class oof_build_py(build_py.build_py):
               platform['extra_compile_args']
         print >> cfgscript, 'include_dirs =', idirs
         print >> cfgscript, 'library_dirs =', [install_shlib.install_dir]
-        oof2installlib.shared_libs = [lib.name for lib in install_shlib.shlibs]
-        print >> cfgscript, 'libraries =', oof2installlib.shared_libs
+        shared_libs = [lib.name for lib in install_shlib.shlibs]
+        print >> cfgscript, 'libraries =', shared_libs
+        ## See comment about oof2installlib above.
+        # oof2installlib.shared_libs = shared_libs
         print >> cfgscript, 'extra_link_args =', platform['extra_link_args']
         print >> cfgscript, "import sys; sys.path.append(root)"
         cfgscript.close()
@@ -1237,18 +1234,6 @@ def set_platform_values():
         # use gcc which does not has the '-faltivec' option.
         platform['blas_link_args'].extend(['-framework', 'Accelerate'])
         platform['extra_link_args'].append('-headerpad_max_install_names')
-        if os.path.exists('/sw') and DIM_3: # fink
-            platform['incdirs'].append('/sw/include')
-            platform['libdirs'].append('/sw/lib/vtk-5.4')
-            platform['libdirs'].append('/sw/lib/vtk54')
-            # TODO: is there a pkg-config for X11? we need it in
-            # common/io to use gl offscreen
-            platform['incdirs'].append('/usr/X11/include/')
-            platform['incdirs'].append('/usr/X11R6/include/')
-        if os.path.exists('/opt') and DIM_3: # macports
-            platform['incdirs'].append('/opt/local/include')
-            platform['incdirs'].append('/opt/local/include/vtk-5.6')
-            platform['libdirs'].append('/opt/local/lib/vtk-5.6') 
         # If we're using anything later than Python 2.5 with macports,
         # the pkgconfig files for the python modules aren't in the
         # standard location. 
@@ -1280,11 +1265,9 @@ def set_platform_values():
         platform['blas_libs'].extend(['lapack', 'blas', 'm'])
         # add -std=c++11 option to use c++11 standard
         platform['extra_compile_args'].append('-std=c++11')
-        if DIM_3:
-            platform['incdirs'].append('/usr/include/vtk-5.4')
 
-    ## Irix and cygwin args haven't been tested in years and may be
-    ## horribly out of date.
+    ## Irix and cygwin args haven't been tested in years and are
+    ## certainly horribly out of date.
     elif sys.platform[:4] == 'irix':
         platform['extra_compile_args'].append('-LANG:std')
         platform['extra_link_args'].append('-LANG:std')
@@ -1542,7 +1525,8 @@ if __name__ == '__main__':
                     "build_py" : oof_build_py,
                     "build_shlib": oof_build_shlib,
                     "build_scripts" : oof_build_scripts,
-                    "install_lib": oof2installlib.oof_install_lib,
+                    ## See comment about oof2installlib above.
+                    # "install_lib": oof2installlib.oof_install_lib,
                     "clean" : oof_clean},
         packages = pkgs,
         package_dir = {OOFNAME+'.ooflib':'SRC'},
@@ -1554,6 +1538,7 @@ if __name__ == '__main__':
     # 'options' is a valid keyword arg in python 2.6 and above, and in
     # python 2.6 and above we need to use it to set the 'plat_name'
     # argument to the 'build' command.
+    ## TODO: Do we really need it? 
     if sys.hexversion >= 0x020600F0: 
         options = dict(build = dict(plat_name = distutils.util.get_platform()))
         setupargs['options'] = options

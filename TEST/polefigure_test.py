@@ -12,8 +12,8 @@ import unittest, os
 import memorycheck
 
 from UTILS import file_utils
-fp_file_compare = file_utils.fp_file_compare
 reference_file = file_utils.reference_file
+pdf_compare = file_utils.pdf_compare
 file_utils.generate = False
 
 class OOF_PoleFigureTest(unittest.TestCase):
@@ -72,10 +72,11 @@ class OOF_PoleFigureTest(unittest.TestCase):
             nBins=nBins,
             min=0, max=automatic,
             colormap=colorMap,
-            filename='test.pdf')
-        self.assert_(fp_file_compare(
-                'test.pdf', os.path.join('polefigure_data', prefix+'_0.pdf'),
-                1.e-8, comment='%', pdfmode=True))
+            size=500,
+            filename='test.pdf', overwrite=True)
+        self.assert_(pdf_compare('test.pdf', os.path.join('polefigure_data',
+                                                          prefix+'_0.pdf')))
+        file_utils.remove("test.pdf")
 
         OOF.OrientationMap.Pole_Figure(
             microstructure='microstructure', 
@@ -85,10 +86,11 @@ class OOF_PoleFigureTest(unittest.TestCase):
             nBins=nBins,
             min=0, max=automatic,
             colormap=colorMap,
-            filename='test.pdf')
-        self.assert_(fp_file_compare(
-                'test.pdf', os.path.join('polefigure_data', prefix+'_1.pdf'),
-                1.e-8, comment='%', pdfmode=True))
+            size=500,
+            filename='test.pdf', overwrite=True)
+        self.assert_(pdf_compare('test.pdf', os.path.join('polefigure_data',
+                                                          prefix+'_1.pdf')))
+        file_utils.remove("test.pdf")
 
         OOF.OrientationMap.Pole_Figure(
             microstructure='microstructure', 
@@ -98,11 +100,11 @@ class OOF_PoleFigureTest(unittest.TestCase):
             nBins=nBins,
             min=0, max=automatic,
             colormap=colorMap,
-            filename='test.pdf')
-        self.assert_(fp_file_compare(
-                'test.pdf', os.path.join('polefigure_data', prefix+'_2.pdf'),
-                1.e-8, comment='%', pdfmode=True))
-        file_utils.remove('test.pdf')
+            size=500,
+            filename='test.pdf', overwrite=True)
+        self.assert_(pdf_compare('test.pdf', os.path.join('polefigure_data',
+                                                          prefix+'_2.pdf')))
+        file_utils.remove('test.pdf') 
 
         OOF.OrientationMap.Pole_Figure(
             microstructure='microstructure', 
@@ -112,10 +114,10 @@ class OOF_PoleFigureTest(unittest.TestCase):
             nBins=nBins,
             min=0, max=automatic,
             colormap=colorMap,
-            filename='test.pdf')
-        self.assert_(fp_file_compare(
-                'test.pdf', os.path.join('polefigure_data', prefix+'_3.pdf'),
-                1.e-8, comment='%', pdfmode=True))
+            size=500,
+            filename='test.pdf', overwrite=True)
+        self.assert_(pdf_compare('test.pdf', os.path.join('polefigure_data',
+                                                          prefix+'_3.pdf')))
         file_utils.remove('test.pdf')
         
     @memorycheck.check("microstructure")

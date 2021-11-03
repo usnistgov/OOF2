@@ -1,0 +1,5 @@
+OOF.Windows.Graphics.New()
+OOF.Graphics_1.Settings.New_Layer_Policy(policy='Single')
+OOF.File.Load.Data(filename='TEST_DATA/meshinfotbox.mesh')
+OOF.Graphics_1.Toolbox.Mesh_Info.QueryElement(position=Point(44.56549,95.846481))
+OOF.Graphics_1.Toolbox.Mesh_Info.QueryElement(position=Point(67.4177,44.1224))

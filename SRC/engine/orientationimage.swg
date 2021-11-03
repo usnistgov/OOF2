@@ -14,20 +14,23 @@
 
 %module orientationimage
 %include "engine/typemaps.swg"
-%extern "engine/angle2color.swg"
-%extern "common/abstractimage.swg"
-%pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
+%include "common/canvasimage.swg"
 
 %{
 #include "engine/orientationimage.h"
 #include "common/ccolor.h"
-  %}
+%}
+
+%extern "engine/angle2color.swg"
+%extern "common/abstractimage.swg"
+%pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
 
 class CMicrostructure;
 
 class OrientationImage : public AbstractImage {
 public:
   OrientationImage(CMicrostructure*, Angle2Color*, CColor*, CColor*);
+  NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 
 #endif // ORIENTATIONIMAGE_SWG

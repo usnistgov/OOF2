@@ -798,14 +798,12 @@ class OOF_Mesh_Special(OOF_Mesh_Base):
             skeleton_geometry=QuadSkeleton(left_right_periodicity=False,
                                            top_bottom_periodicity=False))
         OOF.Windows.Graphics.New()
-        OOF.LayerEditor.LayerSet.New(window='Graphics_1')
-        OOF.LayerEditor.LayerSet.DisplayedObject(
-            category='Microstructure', object='microstructure')
-        OOF.LayerEditor.LayerSet.Add_Method(
-            method=MicrostructureMaterialDisplay(
-                no_material=Gray(value=0.0),
-                no_color=RGBColor(red=0.00000,green=0.00000,blue=1.00000)))
-        OOF.LayerEditor.LayerSet.Send(window='Graphics_1')
+        OOF.Graphics_1.Layer.New(
+            category='Microstructure',
+            what='microstructure',
+            how=MicrostructureMaterialDisplay(
+                no_material=TranslucentGray(value=0.0,alpha=1.0),
+                no_color=RGBAColor(red=0.0,green=0.0,blue=1.0,alpha=1.0)))
         OOF.Mesh.New(
             name='mesh', skeleton='microstructure:skeleton',
             element_types=['D2_2', 'T3_3', 'Q4_4'])

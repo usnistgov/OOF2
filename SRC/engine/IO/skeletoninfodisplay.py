@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -21,6 +20,19 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 
+import oofcanvas
+
+def draw_elements(canvaslayer, elements, lineWidth, color):
+    segs = oofcanvas.CanvasSegments()
+    segs.setLineWidthInPixels(lineWidth)
+    segs.setLineColor(color)
+    for element in elements:
+        for i in range(element.nnodes()):
+            n0 = element.nodes[i].position()
+            n1 = element.nodes[(i+1)%element.nnodes()].position()
+            segs.addSegment(n0, n1)
+    canvaslayer.addItem(segs)
+
 class SkeletonInfoDisplay(display.DisplayMethod):
     def __init__(self, query_color, peek_color, node_size,
                  element_width, segment_width):
@@ -35,48 +47,47 @@ class SkeletonInfoDisplay(display.DisplayMethod):
                           "Segment": self.drawSegment,
                           "Node": self.drawNode}
 
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Skeleton_Info")
         # Drawing "queried" item.
         if toolbox.querier and toolbox.querier.object:
-            self.drawFuncs[toolbox.querier.targetname](device,
-                                                       toolbox.querier.object,
+            self.drawFuncs[toolbox.querier.targetname](toolbox.querier.object,
                                                        which="query")
         # Drawing "peeked" item.
         if toolbox.peeker:
             for objtype, obj in toolbox.peeker.objects.items():
                 if obj:
-                    self.drawFuncs[objtype](device, obj, which="peek")
+                    self.drawFuncs[objtype](obj, which="peek")
 
-    def drawElement(self, device, element, which="query"):
-        device.set_lineColor(self.colors[which])
-        device.set_lineWidth(self.element_width)
-        if config.dimension() == 2:
-            for i in range(element.nnodes()):
-                n0 = element.nodes[i]
-                n1 = element.nodes[(i+1)%element.nnodes()]
-                device.draw_segment(primitives.Segment(n0.position(),
-                                                       n1.position()))
-        elif config.dimension() == 3:
-            device.draw_cell(element)
+    def drawElement(self, element, which="query"):
+        draw_elements(self.canvaslayer, [element], 1.4*self.element_width,
+                      oofcanvas.white)
+        draw_elements(self.canvaslayer, [element], self.element_width,
+                      color.canvasColor(self.colors[which]))
+                      
+    def drawSegment(self, segment, which="query"):
+        n0 = segment.nodes()[0].position()
+        n1 = segment.nodes()[1].position()
 
-    def drawSegment(self, device, segment, which="query"):
-        device.set_lineColor(self.colors[which])
-        device.set_lineWidth(self.segment_width)
-        if config.dimension() == 2:
-            device.draw_segment(primitives.Segment(segment.nodes()[0].position(),
-                                                   segment.nodes()[1].position()))
-        elif config.dimension() == 3:
-            # this is a hack, later on when vtk and oof are more
-            # streamlined, we shouldn't have to create a vtkLine
-            # twice.
-            device.draw_cell(segment.getVtkLine())
+        seg = oofcanvas.CanvasSegment(n0, n1)
+        seg.setLineWidthInPixels(1.4*self.segment_width)
+        seg.setLineColor(oofcanvas.white)
+        self.canvaslayer.addItem(seg)
 
-    def drawNode(self, device, node, which="query"):
-        device.set_lineColor(self.colors[which])
-        device.set_lineWidth(self.node_size)
-        device.draw_dot(node.position())
+        seg = oofcanvas.CanvasSegment(n0, n1)
+        seg.setLineWidthInPixels(self.segment_width)
+        seg.setLineColor(color.canvasColor(self.colors[which]))
+        self.canvaslayer.addItem(seg)
 
+    def drawNode(self, node, which="query"):
+        dot = oofcanvas.CanvasDot(node.position(), 1.2*self.node_size)
+        dot.setFillColor(oofcanvas.white)
+        self.canvaslayer.addItem(dot)
+        
+        dot = oofcanvas.CanvasDot(node.position(), self.node_size)
+        dot.setFillColor(color.canvasColor(self.colors[which]))
+        self.canvaslayer.addItem(dot)
+        
     def getTimeStamp(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Skeleton_Info")
         return max(self.timestamp, toolbox.timestamp)
@@ -86,16 +97,12 @@ class SkeletonInfoDisplay(display.DisplayMethod):
 # directly via the initializer, because the registration creation
 # method gives it a timestamp.
 
-defaultSkelInfoQueryColor = color.RGBColor(0.0, 0.5, 1.0)
-defaultSkelInfoPeekColor = color.RGBColor(1.0, 0.5, 0.5)
+defaultSkelInfoQueryColor = color.RGBAColor(0.0, 0.5, 1.0, 1.0)
+defaultSkelInfoPeekColor = color.RGBAColor(1.0, 0.5, 0.5, 1.0)
 defaultSkelInfoNodeSize = 3
 defaultSkelInfoElemWidth = 3
 defaultSkelInfoSgmtWidth = 3
-if config.dimension() == 2:
-    widthRange = (0,10)
-# In vtk, line widths of 0 cause errors
-elif config.dimension() == 3:
-    widthRange = (1,10)
+widthRange = (0, 10, 0.1)
 
 def _setSkelInfoParams(menuitem, query_color, peek_color, node_size,
                        element_width, segment_width):
@@ -111,18 +118,21 @@ def _setSkelInfoParams(menuitem, query_color, peek_color, node_size,
     defaultSkelInfoSgmtWidth = segment_width
 
 skelinfoparams = [
-    color.ColorParameter('query_color', defaultSkelInfoQueryColor,
-                         tip="Color for the queried objects."),
-    color.ColorParameter('peek_color', defaultSkelInfoPeekColor,
-                         tip="Color for the peeked objects."),
-    parameter.IntRangeParameter('node_size', widthRange, defaultSkelInfoNodeSize,
-                                tip="Node size."),
-    parameter.IntRangeParameter('element_width', widthRange,
-                                defaultSkelInfoElemWidth,
-                                tip="Line width for elements."),
-    parameter.IntRangeParameter('segment_width', widthRange,
-                                defaultSkelInfoSgmtWidth,
-                                tip="Line width for segments.")]
+    color.TranslucentColorParameter(
+        'query_color', defaultSkelInfoQueryColor,
+        tip="Color for the queried objects."),
+    color.TranslucentColorParameter(
+        'peek_color', defaultSkelInfoPeekColor,
+        tip="Color for the peeked objects."),
+    parameter.FloatRangeParameter(
+        'node_size', widthRange, defaultSkelInfoNodeSize,
+        tip="Node size."),
+    parameter.FloatRangeParameter(
+        'element_width', widthRange, defaultSkelInfoElemWidth,
+        tip="Line width for elements."),
+    parameter.FloatRangeParameter(
+        'segment_width', widthRange, defaultSkelInfoSgmtWidth,
+        tip="Line width for segments.")]
 
 mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
     'Skeleton_Info',
@@ -150,7 +160,8 @@ skeletonInfoDisplay = registeredclass.Registration(
     layerordering=display.SemiLinear(3),
     whoclasses=('Skeleton',),
     tip="Set parameters for the decorations used by the Skeleton Info toolbox.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/skeletoninfodisplay.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/skeletoninfodisplay.xml')
     )
 
 def defaultSkeletonInfoDisplay():
@@ -170,31 +181,16 @@ class SkeletonIllegalElementDisplay(display.DisplayMethod):
         self.color = color
         self.linewidth = linewidth
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device):
-        skel = self.who().resolve(gfxwindow).getObject()
+    def draw(self, gfxwindow):
+        skel = self.who.resolve(gfxwindow).getObject()
         elements = skel.getIllegalElements()
         if elements:
-            device.set_lineColor(self.color)
-            device.set_lineWidth(self.linewidth)
-            if config.dimension() == 2:
-                for el in elements:
-                    for i in range(el.nnodes()):
-                        n0 = el.nodes[i]
-                        n1 = el.nodes[(i+1)%el.nnodes()]
-                        device.draw_segment(primitives.Segment(n0.position(),
-                                                               n1.position()))
-            elif config.dimension() == 3:
-                if len(elements):
-                    gridPoints = skel.getPoints()
-                    grid = vtk.vtkUnstructuredGrid()
-                    numCells = len(elements)
-                    grid.Allocate(numCells,numCells)
-                    grid.SetPoints(gridPoints)
-                    for el in elements:
-                        grid.InsertNextCell(el.getCellType(), el.getPointIds())
-                        device.draw_unstructuredgrid(grid)
+            draw_elements(self.canvaslayer, elements, 1.4*self.linewidth,
+                          oofcanvas.white)
+            draw_elements(self.canvaslayer, elements, self.linewidth,
+                          color.canvasColor(self.color))
 
-defaultSkelIllegalColor = color.RGBColor(1.0, 0.01, 0.01)
+defaultSkelIllegalColor = color.RGBAColor(1.0, 0.01, 0.01, 1.0)
 defaultSkelIllegalWidth = 4
 
 def _setSkelIllegalParams(menuitem, color, linewidth):
@@ -204,10 +200,11 @@ def _setSkelIllegalParams(menuitem, color, linewidth):
     defaultSkelIllegalWidth = linewidth
 
 skelillegalparams = [
-    color.ColorParameter('color', defaultSkelIllegalColor,
-                         tip="Color for illegal elements."),
-    parameter.IntRangeParameter('linewidth', widthRange, defaultSkelIllegalWidth,
-                                tip="Line width")]
+    color.TranslucentColorParameter('color', defaultSkelIllegalColor,
+                                    tip="Color for illegal elements."),
+    parameter.FloatRangeParameter('linewidth', widthRange,
+                                  defaultSkelIllegalWidth,
+                                  tip="Line width")]
 
 mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
     "Illegal_Elements",
@@ -237,7 +234,8 @@ skeletonIllegalDisplay = registeredclass.Registration(
     layerordering=display.SemiLinear(3.1),
     whoclasses=('Skeleton',),
     tip="Display illegal elements in a Skeleton",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/skeletonillegaldisplay.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/skeletonillegaldisplay.xml')
     )
 
 def defaultSkeletonIllegalDisplay():

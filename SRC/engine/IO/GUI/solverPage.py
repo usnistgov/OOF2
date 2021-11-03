@@ -24,7 +24,6 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import reporter_GUI
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import fieldinit
 from ooflib.engine import meshstatus
@@ -33,8 +32,8 @@ import ooflib.engine.IO.meshmenu
 import ooflib.engine.IO.subproblemmenu
 import ooflib.engine.mesh
 
-import gobject
-import gtk
+from gi.repository import GObject
+from gi.repository import Gtk
 
 ## TODO: The Remove_All button in the Solver pane isn't being
 ## sensitized correctly.
@@ -49,58 +48,60 @@ class SolverPage(oofGUI.MainPage):
             self, name="Solver",
             ordering=240,
             tip="Find solutions for static and time-dependent problems.")
-        mainbox = gtk.VBox(spacing=2)
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        align.add(centerbox)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                            halign=Gtk.Align.CENTER, margin_top=2)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               scope=self)
         switchboard.requestCallbackMain(self.meshwidget, self.meshCB)
-        label = gtk.Label("Microstructure=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[0], expand=0, fill=0)
+        label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[0],
+                             expand=False, fill=False, padding=0)
 
-        label = gtk.Label("Skeleton=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[1], expand=0, fill=0)
+        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END, margin_start=5)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[1], expand=False, fill=False,
+                             padding=0)
 
-        label = gtk.Label("Mesh=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[2], expand=0, fill=0)
+        label = Gtk.Label("Mesh=", halign=Gtk.Align.END, margin_start=5)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[2], expand=False, fill=False,
+                             padding=0)
 
-        mainvpane = gtk.VPaned()
+        mainvpane = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL,
+                              wide_handle=True)
         gtklogger.setWidgetName(mainvpane, 'VPane')
-        mainbox.pack_start(mainvpane, expand=1, fill=1)
+        mainbox.pack_start(mainvpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainvpane, 'notify::position')
 
-        # Subproblem pane
+        # Solvers pane
 
         ## TODO: Make it possible to reorder the subproblems by
         ## drag and drop.
 
-        subprobframe = gtk.Frame('Solvers')
+        subprobframe = Gtk.Frame(
+            label='Solvers', shadow_type=Gtk.ShadowType.IN,
+            margin_start=2, margin_end=2,
+            margin_top=2, margin_bottom=gtkutils.handle_padding)
         gtklogger.setWidgetName(subprobframe, "Subproblems")
-        subprobframe.set_shadow_type(gtk.SHADOW_IN)
-        mainvpane.pack1(subprobframe, resize=1, shrink=0)
-        subpvbox = gtk.VBox()   # contains scrolled list and buttons
-        subpvbox.set_border_width(3)
+        mainvpane.pack1(subprobframe, resize=True, shrink=False)
+        # subpvbox contains scrolled list and buttons
+        subpvbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                           margin=2)
+        #subpvbox.set_border_width(3)
         subprobframe.add(subpvbox)
-        innerframe = gtk.Frame()
-        innerframe.set_shadow_type(gtk.SHADOW_IN)
-        subpvbox.pack_start(innerframe, expand=1, fill=1)
-        self.subpScroll = gtk.ScrolledWindow()
+        self.subpScroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
+        subpvbox.pack_start(self.subpScroll, expand=True, fill=True, padding=0)
         gtklogger.logScrollBars(self.subpScroll, "SubproblemScroll")
-        self.subpScroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        innerframe.add(self.subpScroll)
+        self.subpScroll.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                   Gtk.PolicyType.AUTOMATIC)
 
-        self.subprobList = gtk.ListStore(gobject.TYPE_PYOBJECT)
-        self.subpListView = gtk.TreeView(self.subprobList)
+        self.subprobList = Gtk.ListStore(GObject.TYPE_PYOBJECT)
+        self.subpListView = Gtk.TreeView(self.subprobList)
         gtklogger.setWidgetName(self.subpListView, "SubproblemList")
         self.subpScroll.add(self.subpListView)
         gtklogger.adoptGObject(self.subprobList, self.subpListView,
@@ -116,15 +117,15 @@ class SolverPage(oofGUI.MainPage):
                           self.subpActivateRowCB)
 
         # Order number in the first column
-        ordercell = gtk.CellRendererText()
-        ordercol = gtk.TreeViewColumn("Order")
+        ordercell = Gtk.CellRendererText()
+        ordercol = Gtk.TreeViewColumn("Order")
         ordercol.set_resizable(False)
         ordercol.pack_start(ordercell, expand=False)
         ordercol.set_cell_data_func(ordercell, self.renderSubproblemOrder)
         self.subpListView.append_column(ordercol)
         # Checkbox in the second column
-        solvecell = gtk.CellRendererToggle()
-        solvecol = gtk.TreeViewColumn("Solve?")
+        solvecell = Gtk.CellRendererToggle()
+        solvecol = Gtk.TreeViewColumn("Solve?")
         solvecol.pack_start(solvecell, expand=False)
         solvecol.set_cell_data_func(solvecell, self.renderSolveCell)
         self.subpListView.append_column(solvecol)
@@ -133,122 +134,149 @@ class SolverPage(oofGUI.MainPage):
                                access_kwargs={'col':1, 'rend':0})
         gtklogger.connect(solvecell, 'toggled', self.solvecellCB)
         # Subproblem name in the third column
-        namecell = gtk.CellRendererText()
-        namecol = gtk.TreeViewColumn("Subproblem")
+        namecell = Gtk.CellRendererText()
+        namecol = Gtk.TreeViewColumn("Subproblem")
         namecol.set_resizable(True)
         namecol.pack_start(namecell, expand=True)
         namecol.set_cell_data_func(namecell, self.renderSubproblemName)
         self.subpListView.append_column(namecol)
         # Solver in the fourth column
-        solvercell = gtk.CellRendererText()
-        solvercol = gtk.TreeViewColumn("Solver")
+        solvercell = Gtk.CellRendererText()
+        solvercol = Gtk.TreeViewColumn("Solver")
         solvercol.set_resizable(True)
         solvercol.pack_start(solvercell, expand=True)
         solvercol.set_cell_data_func(solvercell, self.renderSubproblemSolver)
         self.subpListView.append_column(solvercol)
 
         # Buttons at the bottom of the subproblem pane
-        subpbbox = gtk.HBox(homogeneous=True)
-        subpvbox.pack_start(subpbbox, expand=0, fill=0)
+        subpbbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                           spacing=2, homogeneous=True)
+        subpvbox.pack_start(subpbbox, expand=False, fill=False, padding=0)
         # Set Solver
-        self.setSolverButton = gtkutils.StockButton(gtk.STOCK_ADD, "Set...")
+        self.setSolverButton = gtkutils.StockButton("list-add-symbolic",
+                                                    "Set Solver...")
         gtklogger.setWidgetName(self.setSolverButton, "Set")
         gtklogger.connect(self.setSolverButton, 'clicked', self.setSolverCB)
-        subpbbox.pack_start(self.setSolverButton, expand=0, fill=1)
-        tooltips.set_tooltip_text(self.setSolverButton,
+        subpbbox.pack_start(self.setSolverButton,
+                            expand=False, fill=True, padding=0)
+        self.setSolverButton.set_tooltip_text(
             "Assign a solver to the selected subproblem.")
         # Copy Solver
-        self.copySolverButton = gtkutils.StockButton(gtk.STOCK_COPY, "Copy...")
+        self.copySolverButton = gtkutils.StockButton("edit-copy-symbolic",
+                                                     "Copy...")
         gtklogger.setWidgetName(self.copySolverButton, "Copy")
         gtklogger.connect(self.copySolverButton, 'clicked', self.copySolverCB)
-        subpbbox.pack_start(self.copySolverButton, expand=0, fill=1)
-        tooltips.set_tooltip_text(self.copySolverButton,"Copy the selected solver to another subproblem, possibly in another mesh.")
+        subpbbox.pack_start(self.copySolverButton,
+                            expand=False, fill=True, padding=0)
+        self.copySolverButton.set_tooltip_text(
+            "Copy the selected solver to another subproblem,"
+            " possibly in another mesh.")
         # Copy All Solvers
-        self.copyAllSolversButton = gtkutils.StockButton(gtk.STOCK_COPY,
+        self.copyAllSolversButton = gtkutils.StockButton("edit-copy-symbolic",
                                                          "Copy All...")
         gtklogger.setWidgetName(self.copyAllSolversButton, "CopyAll")
         gtklogger.connect(self.copyAllSolversButton, 'clicked',
                           self.copyAllSolversCB)
-        subpbbox.pack_start(self.copyAllSolversButton, expand=0, fill=1)
-        tooltips.set_tooltip_text(self.copyAllSolversButton,"Copy all solvers to identically named subproblems in another mesh.")
+        subpbbox.pack_start(self.copyAllSolversButton,
+                            expand=False, fill=True, padding=0)
+        self.copyAllSolversButton.set_tooltip_text(
+            "Copy all solvers to identically named subproblems in another mesh."
+        )
         # Remove Solver
-        self.removeSolverButton = gtkutils.StockButton(gtk.STOCK_REMOVE,
+        self.removeSolverButton = gtkutils.StockButton("list-remove-symbolic",
                                                        "Remove")
         gtklogger.setWidgetName(self.removeSolverButton, "Remove")
         gtklogger.connect(self.removeSolverButton, 'clicked',
                           self.removeSolverCB)
-        subpbbox.pack_start(self.removeSolverButton, expand=0, fill=1)
-        tooltips.set_tooltip_text(self.removeSolverButton,
+        subpbbox.pack_start(self.removeSolverButton,
+                            expand=False, fill=True, padding=0)
+        self.removeSolverButton.set_tooltip_text(
             "Delete the solver from the selected subproblem.")
         # Remove all solvers
-        self.removeAllSolversButton = gtkutils.StockButton(gtk.STOCK_CLEAR,
-                                                           "Remove All")
+        self.removeAllSolversButton = gtkutils.StockButton(
+            "edit-clear-all-symbolic", "Remove All")
         gtklogger.setWidgetName(self.removeAllSolversButton, "RemoveAll")
         gtklogger.connect(self.removeAllSolversButton, 'clicked',
                           self.removeAllSolversCB)
-        subpbbox.pack_start(self.removeAllSolversButton, expand=0, fill=1)
-        tooltips.set_tooltip_text(self.removeAllSolversButton,
+        subpbbox.pack_start(self.removeAllSolversButton,
+                            expand=False, fill=True, padding=0)
+        self.removeAllSolversButton.set_tooltip_text(
             "Remove the solver from all subproblems.")
         # Second row of buttons at the bottom of the subproblem pane
-        subpbbox = gtk.HBox(homogeneous=True)
-        subpvbox.pack_start(subpbbox, expand=0, fill=0)
+        subpbbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            spacing=2, homogeneous=True)
+        subpvbox.pack_start(subpbbox, expand=False, fill=False, padding=0)
         # Solve this subproblem first
-        self.firstButton = gtkutils.StockButton(gtk.STOCK_GOTO_FIRST, "First",
-                                                align=0.0)
+        self.firstButton = gtkutils.StockButton("go-first-symbolic", "First",
+                                                align=Gtk.Align.START)
         gtklogger.setWidgetName(self.firstButton, "First")
         gtklogger.connect(self.firstButton, 'clicked', self.firstButtonCB)
-        subpbbox.pack_start(self.firstButton, expand=0, fill=1)
-        tooltips.set_tooltip_text(self.firstButton,"Solve the selected subproblem first when iterating over subproblems.")
+        subpbbox.pack_start(self.firstButton,
+                            expand=False, fill=True, padding=0)
+        self.firstButton.set_tooltip_text(
+            "Solve the selected subproblem first when iterating"
+            " over subproblems.")
         # Solve this subproblem earlier
-        self.earlierButton = gtkutils.StockButton(gtk.STOCK_GO_BACK, "Earlier",
-                                                  align=0.0)
+        self.earlierButton = gtkutils.StockButton(
+            "go-previous-symbolic", "Earlier", align=Gtk.Align.START)
         gtklogger.setWidgetName(self.earlierButton, "Earlier")
         gtklogger.connect(self.earlierButton, 'clicked', self.earlierButtonCB)
-        subpbbox.pack_start(self.earlierButton, expand=0, fill=1)
-        tooltips.set_tooltip_text(self.earlierButton,"Solve the selected subproblem before the one above it in the list when iterating over subproblems.")
+        subpbbox.pack_start(self.earlierButton,
+                            expand=False, fill=True, padding=0)
+        self.earlierButton.set_tooltip_text(
+            "Solve the selected subproblem before the one above it"
+            " in the list when iterating over subproblems.")
         # Solve this subproblem later
-        self.laterButton = gtkutils.StockButton(gtk.STOCK_GO_FORWARD, "Later",
-                                                reverse=True, align=1.0)
+        self.laterButton = gtkutils.StockButton(
+            "go-next-symbolic", "Later", reverse=True, align=Gtk.Align.END)
         gtklogger.setWidgetName(self.laterButton, "Later")
         gtklogger.connect(self.laterButton, 'clicked', self.laterButtonCB)
-        subpbbox.pack_start(self.laterButton, expand=0, fill=1)
-        tooltips.set_tooltip_text(self.laterButton,"Solve the selected subproblem after the next one in the list when iterating over subproblems.")
+        subpbbox.pack_start(self.laterButton,
+                            expand=False, fill=True, padding=0)
+        self.laterButton.set_tooltip_text(
+            "Solve the selected subproblem after the next one"
+            " in the list when iterating over subproblems.")
         # Solve this subproblem last
-        self.lastButton = gtkutils.StockButton(gtk.STOCK_GOTO_LAST, "Last",
-                                               reverse=True, align=1.0)
+        self.lastButton = gtkutils.StockButton(
+            "go-last-symbolic", "Last", reverse=True, align=Gtk.Align.END)
         gtklogger.setWidgetName(self.lastButton, "Last")
         gtklogger.connect(self.lastButton, 'clicked', self.lastButtonCB)
-        subpbbox.pack_start(self.lastButton, expand=0, fill=1)
-        tooltips.set_tooltip_text(self.lastButton,"Solve the selected subproblem last when iterating over subproblems.")
+        subpbbox.pack_start(self.lastButton, expand=False, fill=True, padding=0)
+        self.lastButton.set_tooltip_text(
+            "Solve the selected subproblem last when iterating"
+            " over subproblems.")
 
         # Field Initializers
-        initframe = gtk.Frame('Initialization')
+        initframe = Gtk.Frame(
+            label='Initialization', shadow_type=Gtk.ShadowType.IN,
+            margin_start=2, margin_end=2,
+            margin_top=gtkutils.handle_padding, margin_bottom=2)
         gtklogger.setWidgetName(initframe, "FieldInit")
-        initframe.set_shadow_type(gtk.SHADOW_IN)
-        mainvpane.pack2(initframe, resize=1, shrink=0)
-        ivbox = gtk.VBox()
-        ivbox.set_border_width(3)
+        mainvpane.pack2(initframe, resize=True, shrink=False)
+        ivbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                        margin=2)
+        #ivbox.set_border_width(3)
         initframe.add(ivbox)
-        self.initscroll = gtk.ScrolledWindow()
+        self.initscroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN)
         gtklogger.logScrollBars(self.initscroll, "Scroll")
-        self.initscroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.initscroll.set_shadow_type(gtk.SHADOW_IN)
-        ivbox.pack_start(self.initscroll, expand=1, fill=1)
+        self.initscroll.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                   Gtk.PolicyType.AUTOMATIC)
+        ivbox.pack_start(self.initscroll, expand=True, fill=True, padding=0)
         # The ListStore just contains the defined Fields.  The
         # TreeView displays their names and initializers.
-        self.initlist = gtk.ListStore(gobject.TYPE_PYOBJECT)
-        self.initview = gtk.TreeView(self.initlist)
+        self.initlist = Gtk.ListStore(GObject.TYPE_PYOBJECT)
+        self.initview = Gtk.TreeView(self.initlist)
         gtklogger.setWidgetName(self.initview, 'Initializers')
         self.initscroll.add(self.initview)
         self.initview.set_headers_clickable(False)
-        fieldnamecell = gtk.CellRendererText()
-        fieldnamecol = gtk.TreeViewColumn('Field or BC')
+        fieldnamecell = Gtk.CellRendererText()
+        fieldnamecol = Gtk.TreeViewColumn('Field or BC')
         self.initview.append_column(fieldnamecol)
         fieldnamecol.pack_start(fieldnamecell, expand=False)
         fieldnamecol.set_cell_data_func(fieldnamecell, self.renderFieldName)
 
-        fieldinitcell = gtk.CellRendererText()
-        fieldinitcol = gtk.TreeViewColumn('Initializer')
+        fieldinitcell = Gtk.CellRendererText()
+        fieldinitcol = Gtk.TreeViewColumn('Initializer')
         self.initview.append_column(fieldinitcol)
         fieldinitcol.pack_start(fieldinitcell, expand=True)
         fieldinitcol.set_cell_data_func(fieldinitcell, self.renderFieldInit)
@@ -261,120 +289,119 @@ class SolverPage(oofGUI.MainPage):
         gtklogger.connect(self.initview, 'row-activated',
                           self.initActivateRowCB)
 
-        bbox = gtk.HBox(homogeneous=True)
-        ivbox.pack_start(bbox, expand=0, fill=0)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                       homogeneous=True, spacing=2)
+        ivbox.pack_start(bbox, expand=False, fill=False, padding=0)
         # Set button
-        self.fieldinitbutton=gtkutils.StockButton(gtk.STOCK_ADD, 'Set...')
+        self.fieldinitbutton=gtkutils.StockButton("list-add-symbolic", 'Set...')
         gtklogger.setWidgetName(self.fieldinitbutton, "Set")
         gtklogger.connect(self.fieldinitbutton, 'clicked',
                           self.fieldinitbuttonCB)
-        tooltips.set_tooltip_text(self.fieldinitbutton,'Initialized the selected field.')
-        bbox.pack_start(self.fieldinitbutton, expand=0, fill=1)
+        self.fieldinitbutton.set_tooltip_text('Initialized the selected field.')
+        bbox.pack_start(self.fieldinitbutton,
+                        expand=False, fill=True, padding=0)
         # Copy button
-        self.copyinitbutton = gtkutils.StockButton(gtk.STOCK_COPY, "Copy...")
+        self.copyinitbutton = gtkutils.StockButton("edit-copy-symbolic",
+                                                   "Copy...")
         gtklogger.setWidgetName(self.copyinitbutton, 'CopyInit')
         gtklogger.connect(self.copyinitbutton, 'clicked', self.copyinitCB)
-        bbox.pack_start(self.copyinitbutton, expand=0, fill=1)
-        tooltips.set_tooltip_text(self.copyinitbutton,
+        bbox.pack_start(self.copyinitbutton, expand=False, fill=True, padding=0)
+        self.copyinitbutton.set_tooltip_text(
             "Copy field initializers from the current mesh to another mesh.")
         # Clear Initializer button
-        self.clearinitbutton = gtkutils.StockButton(gtk.STOCK_REMOVE, "Clear")
+        self.clearinitbutton = gtkutils.StockButton("list-remove-symbolic",
+                                                    "Clear")
         gtklogger.setWidgetName(self.clearinitbutton, "Clear")
         gtklogger.connect(self.clearinitbutton, 'clicked', self.clearinitCB)
-        bbox.pack_start(self.clearinitbutton, expand=0, fill=1)
-        tooltips.set_tooltip_text(self.clearinitbutton,
+        bbox.pack_start(self.clearinitbutton,
+                        expand=False, fill=True, padding=0)
+        self.clearinitbutton.set_tooltip_text(
             "Remove the selected field initializer from the current mesh.")
         # Clear All Initializers button
-        self.clearallinitsbutton = gtkutils.StockButton(gtk.STOCK_CLEAR,
-                                                        "Clear All")
+        self.clearallinitsbutton = gtkutils.StockButton(
+            "edit-clear-all-symbolic", "Clear All")
         gtklogger.setWidgetName(self.clearallinitsbutton, 'ClearAll')
         gtklogger.connect(self.clearallinitsbutton, 'clicked',
                           self.clearallinitsCB)
-        bbox.pack_start(self.clearallinitsbutton, expand=0, fill=1)
-        tooltips.set_tooltip_text(self.clearallinitsbutton,
+        bbox.pack_start(self.clearallinitsbutton,
+                        expand=False, fill=True, padding=0)
+        self.clearallinitsbutton.set_tooltip_text(
             "Remove the field initializers from the current mesh.")
 
         # Second row of buttons in the Field Initialization pane
-        bbox = gtk.HBox(homogeneous=True)
-        ivbox.pack_start(bbox, expand=0, fill=1)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                        homogeneous=True)
+        ivbox.pack_start(bbox, expand=False, fill=True, padding=0)
         # Apply button
-        self.applyinitbutton = gtkutils.StockButton(gtk.STOCK_APPLY, "Apply")
+        self.applyinitbutton = gtkutils.StockButton("gtk-apply", "Apply")
         gtklogger.setWidgetName(self.applyinitbutton, "Apply")
         gtklogger.connect(self.applyinitbutton, 'clicked', self.applyinitCB)
-        tooltips.set_tooltip_text(self.applyinitbutton,
+        bbox.pack_start(self.applyinitbutton,
+                        expand=False, fill=True, padding=0)
+        self.applyinitbutton.set_tooltip_text(
             "Apply initializers to all fields at the current time.")
-        bbox.pack_start(self.applyinitbutton, expand=0, fill=1)
         # Apply At button
-        self.applyinitattimebutton = gtkutils.StockButton(gtk.STOCK_APPLY,
+        self.applyinitattimebutton = gtkutils.StockButton("gtk-apply",
                                                           "Apply at time...")
         gtklogger.setWidgetName(self.applyinitattimebutton, "ApplyAt")
         gtklogger.connect(self.applyinitattimebutton, 'clicked',
                           self.applyinitatCB)
-        tooltips.set_tooltip_text(self.applyinitattimebutton,
+        bbox.pack_start(self.applyinitattimebutton,
+                        expand=False, fill=True, padding=0)
+        self.applyinitattimebutton.set_tooltip_text(
             "Reset the current time and apply all field initializers.")
-        bbox.pack_start(self.applyinitattimebutton, expand=0, fill=1)
 
         # Table containing status, time entries and Solve button
-        table = gtk.Table(rows=2, columns=4)
-        mainbox.pack_start(table, expand=0, fill=1)
+        table = Gtk.Grid(row_spacing=2, column_spacing=4,
+                         margin_start=2, margin_end=2, margin_bottom=2)
+        mainbox.pack_start(table, expand=False, fill=True, padding=0)
 
         # The start time isn't set directly by the user, except by
         # applying field initializers at a given time.  It's displayed
-        # in a desensitized gtk.Entry.
-        label = gtk.Label('current time=')
-        label.set_alignment(1.0, 0.5)
-        table.attach(label, 0,1, 0,1, xpadding=3, xoptions=~gtk.EXPAND)
-        self.currentTimeEntry = gtk.Entry()
-        self.currentTimeEntry.set_sensitive(False) # never sensitive
-        table.attach(self.currentTimeEntry, 1,2, 0,1, xpadding=3)
+        # in a desensitized Gtk.Entry.
+        label = Gtk.Label('current time=', halign=Gtk.Align.END, hexpand=False)
+        table.attach(label, 0,0, 1,1)
+        self.currentTimeEntry = Gtk.Entry(sensitive=False, hexpand=True,
+                                          halign=Gtk.Align.FILL)
+        table.attach(self.currentTimeEntry, 1,0, 1,1)
         
         # End time is set by the user.
-        label = gtk.Label('end time=')
-        label.set_alignment(1.0, 0.5)
-        table.attach(label, 0,1, 1,2, xpadding=3, xoptions=~gtk.EXPAND)
-        self.endtimeEntry = gtk.Entry()
+        label = Gtk.Label('end time=', halign=Gtk.Align.END, hexpand=False)
+        table.attach(label, 0,1, 1,1)
+        self.endtimeEntry = Gtk.Entry(hexpand=True, halign=Gtk.Align.FILL)
         gtklogger.setWidgetName(self.endtimeEntry, 'end')
         gtklogger.connect(self.endtimeEntry, 'changed', self.timeChangeCB)
-        table.attach(self.endtimeEntry, 1,2, 1,2, xpadding=3)
+        table.attach(self.endtimeEntry, 1,1, 1,1)
 
-        # # Step size is set by the user and changed by the program.
-        # label = gtk.Label('step size=')
-        # label.set_alignment(1.0, 0.5)
-        # table.attach(label, 0,1, 2,3, xpadding=3, xoptions=~gtk.EXPAND)
-        # self.stepsizeEntry = gtk.Entry()
-        # gtklogger.setWidgetName(self.stepsizeEntry, 'stepsize')
-        # self.stepsizeSig = gtklogger.connect(self.stepsizeEntry, 'changed',
-        #                                      self.timeChangeCB)
-        # table.attach(self.stepsizeEntry, 1,2, 2,3, xpadding=3)
-
-        statusFrame = gtk.Frame("Status")
-        statusFrame.set_shadow_type(gtk.SHADOW_IN)
-        vbox = gtk.VBox()
+        statusFrame = Gtk.Frame(label="Status", shadow_type=Gtk.ShadowType.IN)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         statusFrame.add(vbox)
-        self.statusLabel = gtk.Label()
-        self.statusLabel.set_alignment(0.5, 0.5)
-        table.attach(statusFrame, 2,3, 0,3, xpadding=3)
-        vbox.pack_start(self.statusLabel, expand=0, fill=0)
-        align = gtk.Alignment(xalign=0.5)
-        vbox.pack_start(align, expand=0, fill=0, padding=3)
-        self.statusDetailButton = gtk.Button("Details...")
+        self.statusLabel = Gtk.Label(halign=Gtk.Align.CENTER,
+                                     valign=Gtk.Align.CENTER)
+        table.attach(statusFrame, 2,0, 1,2)
+        vbox.pack_start(self.statusLabel, expand=False, fill=False, padding=0)
+        self.statusDetailButton = Gtk.Button("Details...",
+                                             halign=Gtk.Align.CENTER, margin=6)
+        vbox.pack_start(self.statusDetailButton,
+                        expand=False, fill=False, padding=3)
         gtklogger.setWidgetName(self.statusDetailButton, 'status')
         gtklogger.connect(self.statusDetailButton, 'clicked', self.statusCB)
-        align.add(self.statusDetailButton)
 
-        solveFrame0 = gtk.Frame()
-        solveFrame0.set_shadow_type(gtk.SHADOW_OUT)
-        solveFrame1 = gtk.Frame()
-        solveFrame1.set_shadow_type(gtk.SHADOW_IN)
-        solveFrame0.add(solveFrame1)
-        table.attach(solveFrame0, 3,4, 0,3, xpadding=3,
-                     xoptions=~gtk.EXPAND)
-        self.solveButton = gtkutils.StockButton(gtk.STOCK_EXECUTE,
-                                                '<b>Solve</b>', markup=True)
-        self.solveButton.set_border_width(4)
+        # The outer frame around the solver button had shadow_type OUT
+        # in gtk2, but that's not available in gtk3.  Try to make the
+        # frame a little fancier by using two anyway.
+        # solveFrame0 = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
+        # solveFrame1 = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
+        # solveFrame0.add(solveFrame1)
+        # table.attach(solveFrame0, 3,0, 1,2)
+        self.solveButton = gtkutils.StockButton("system-run-symbolic",
+                                                '<b>Solve</b>', markup=True,
+                                                border_width=6,
+                                                valign=Gtk.Align.CENTER)
         gtklogger.setWidgetName(self.solveButton, 'solve')
         gtklogger.connect(self.solveButton, 'clicked', self.solveCB)
-        solveFrame1.add(self.solveButton)
+        table.attach(self.solveButton, 3,0, 1,2)
+        # solveFrame1.add(self.solveButton)
 
         switchboard.requestCallbackMain("field defined", self.defineFldCB)
         switchboard.requestCallbackMain("field initializer set", self.initFldCB)
@@ -426,10 +453,14 @@ class SolverPage(oofGUI.MainPage):
             return ctxt.getObject()
 
     def update(self):
-        self.updateSubproblems()
-        self.updateInitializers()
-        self.updateTime()
-        self.updateStatus()
+        self.suppressSensitization(True)
+        try:
+            self.updateSubproblems()
+            self.updateInitializers()
+            self.updateTime()
+            self.updateStatus()
+        finally:
+            self.suppressSensitization(False)
         self.sensitize()
 
     def reservationCB(self, who): # sb "made/cancelled reservation"
@@ -440,8 +471,8 @@ class SolverPage(oofGUI.MainPage):
         self.update()
 
     def sensitize(self):
-        ## TODO OPT: This is called an awful lot. Can it be reduced?
-        ## Does it matter?
+        if not self.sensitizable():
+            return
         debug.mainthreadTest()
         meshctxt = self.currentMeshContext()
         meshok = (meshctxt is not None and not meshctxt.query_reservation()
@@ -513,7 +544,6 @@ class SolverPage(oofGUI.MainPage):
         ## Time pane sensitization
 
         self.endtimeEntry.set_sensitive(meshok)
-        # self.stepsizeEntry.set_sensitive(meshok)
 
         timesok = (meshok and
                    ((endtime is not None and
@@ -555,24 +585,24 @@ class SolverPage(oofGUI.MainPage):
         return [s[0].name() for s in self.subprobList]
 
     # TreeView callback for displaying the subproblem order.
-    def renderSubproblemOrder(self, column, cell_renderer, model, iter):
+    def renderSubproblemOrder(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         rowno = model.get_path(iter)[0]
         cell_renderer.set_property('text', `rowno`)
 
     # TreeView callback for setting the state of the 'Solve' button
     # for each SubProblem
-    def renderSolveCell(self, column, cell_renderer, model, iter):
+    def renderSolveCell(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         subproblemctxt = model[iter][0]
         cell_renderer.set_active(subproblemctxt.solveFlag)
 
-    def renderSubproblemName(self, column, cell_renderer, model, iter):
+    def renderSubproblemName(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         subpctxt = model[iter][0]
         cell_renderer.set_property('text', subpctxt.name())
 
-    def renderSubproblemSolver(self, column, cell_renderer, model, iter):
+    def renderSubproblemSolver(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         subpctxt = model[iter][0]
         if subpctxt.solver_mode:
@@ -611,6 +641,7 @@ class SolverPage(oofGUI.MainPage):
         targetparam.set(self.currentFullSubProblemName())
         if parameterwidgets.getParameters(
             targetparam,
+                parentwindow=self.gtk.get_toplevel(),
             title="Copy a Solver to a Subproblem"):
             menuitem.callWithDefaults(source=self.currentFullSubProblemName())
 
@@ -619,8 +650,9 @@ class SolverPage(oofGUI.MainPage):
         targetparam = menuitem.get_arg("target")
         targetparam.set(self.currentFullMeshName())
         if parameterwidgets.getParameters(
-            targetparam,
-            title="Copy all Solvers to a Mesh"):
+                targetparam,
+                parentwindow=self.gtk.get_toplevel(),
+                title="Copy all Solvers to a Mesh"):
             menuitem.callWithDefaults(source=self.currentFullMeshName())
 
     def removeSolverCB(self, button): # gtk callback
@@ -706,15 +738,23 @@ class SolverPage(oofGUI.MainPage):
     def subpSolversChangedCB(self, *args):
         # switchboard "subproblem solvers changed".  Note the plural...
         # Called by OOF.Mesh.Remove_All_Solvers.
-        self.updateSubproblems()
-        self.updateInitializers()
+        self.suppressSensitization(True)
+        try:
+            self.updateSubproblems()
+            self.updateInitializers()
+        finally:
+            self.suppressSensitization(False)
         self.sensitize()
 
     def subproblemsChangedCB(self, *args):
         # switchboard "new who", "rename who", etc.
-        self.updateSubproblems()
-        self.updateInitializers()
-        self.updateStatus()
+        self.suppressSensitization(True)
+        try:
+            self.updateSubproblems()
+            self.updateInitializers()
+            self.updateStatus()
+        finally:
+            self.suppressSensitization(False)
         self.sensitize()
 
     ####################
@@ -744,7 +784,8 @@ class SolverPage(oofGUI.MainPage):
             param.value = self.currentMeshContext().get_initializer(fld)
 
             init = parameterwidgets.getParameterValues(
-                param, title = 'Initialize field ' + fld.name(), scope=self)
+                param, title = 'Initialize field ' + fld.name(),
+                scope=self, parentwindow=self.gtk.get_toplevel())
 
             if init is not None:
                 menuitem.callWithDefaults(mesh=self.currentFullMeshName(),
@@ -761,9 +802,10 @@ class SolverPage(oofGUI.MainPage):
             bcwidget = bcparam.makeWidget()
             self.addWidget(bcwidget)
             if parameterwidgets.getParameters(
-                iparam,
-                scope=self,
-                title='Initialize BC ' + bc.name()):
+                    iparam,
+                    scope=self,
+                    parentwindow=self.gtk.get_toplevel(),
+                    title='Initialize BC ' + bc.name()):
                 menuitem.callWithDefaults(mesh=self.currentFullMeshName())
             self.removeWidget(bcwidget)
             bcwidget.destroy()
@@ -786,7 +828,7 @@ class SolverPage(oofGUI.MainPage):
         targetparam = menuitem.get_arg("target")
         targetparam.set(self.currentFullMeshName())
         if parameterwidgets.getParameters(targetparam,
-                                          parentwindow=guitop.top().gtk,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title="Select a target Mesh"):
             menuitem.callWithDefaults(source=self.currentFullMeshName())
 
@@ -812,18 +854,20 @@ class SolverPage(oofGUI.MainPage):
     def applyinitatCB(self, button): # apply all initializers and set time
         menuitem = meshmenu.Apply_Field_Initializers_at_Time
         if parameterwidgets.getParameters(
-            menuitem.get_arg('time'), title="Initialize Fields at Time"):
+                menuitem.get_arg('time'),
+                parentwindow=self.gtk.get_toplevel(),
+                title="Initialize Fields at Time"):
             menuitem.callWithDefaults(mesh=self.currentFullMeshName())
 
     # Functions that the TreeView machinery calls to fill in the
     # cells.  These will never be called for undefined fields, so
     # there's no need to check that the mesh or field exists.
-    def renderFieldName(self, column, cell_renderer, model, iter):
+    def renderFieldName(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         obj = model[iter][0]    # Either a Field or a BC
         cell_renderer.set_property('text', obj.name())
 
-    def renderFieldInit(self, column, cell_renderer, model, iter):
+    def renderFieldInit(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         obj = model[iter][0]    # Either a Field or a BC
         mesh = self.currentMeshContext()
@@ -840,21 +884,28 @@ class SolverPage(oofGUI.MainPage):
             cell_renderer.set_property('text', '')
 
     def updateInitializers(self):
+        ## TODO GTK3: why is this called so often?
+        ## This does not indirectly call self.sensitize(), it seems.
+        #debug.fmsg("switchboard stack:", switchboard.messageStack.current())
         debug.mainthreadTest()
         currentObj = self.selectedObj()
-        self.initlist.clear()
         mesh = self.currentMeshContext()
-        if mesh:
-            for field in mesh.all_initializable_fields():
-                self.initlist.append([field])
-            for name, bc in mesh.allBoundaryConds():
-                if bc.initializable(mesh):
-                    self.initlist.append([bc])
-            if currentObj is not None:
-                for row in range(len(self.initlist)):
-                    if self.initlist[row][0] == currentObj:
-                        self.initview.get_selection().select_path(row)
-                        break
+        self.initselsignal.block()
+        self.initlist.clear()
+        try:
+            if mesh:
+                for field in mesh.all_initializable_fields():
+                    self.initlist.append([field])
+                for name, bc in mesh.allBoundaryConds():
+                    if bc.initializable(mesh):
+                        self.initlist.append([bc])
+                if currentObj is not None:
+                    for row in range(len(self.initlist)):
+                        if self.initlist[row][0] == currentObj:
+                            self.initview.get_selection().select_path(row)
+                            break
+        finally:
+            self.initselsignal.unblock()
 
     def initSelectCB(self, selection):
         # gtk callback. Field init selection changed

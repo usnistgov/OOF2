@@ -9,16 +9,25 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import guitop
+from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
-from ooflib.common.IO.GUI import tooltips
-import gobject
-import gtk
+from gi.repository import GObject
+from gi.repository import Gdk
+from gi.repository import Gtk
+import sys
 import types
 
 # The ChooserWidget creates a pull-down menu containing the given list
-# of names.  The currently selected name is shown when the menu isn't
-# being pulled down.
+# of objects.  The currently selected object is shown when the menu
+# isn't being pulled down.
+
+# The objects are converted to displayed names by str(obj), which must
+# return plain text.  No markup is allowed.  This is because the
+# ChooserWidget uses markup to indicate the current selection, so it
+# has to replace any angle braces in the selection's name with &lt;
+# and &gt;.  If the name contained markup the replacement would
+# destroy it.
 
 # Calls the callback, if specified, with the gtk-selecting object
 # and the name.  Backward compatible with other callbacks that way.
@@ -32,177 +41,259 @@ import types
 # the name.  For historical reasons, the ChooserWidget does not do
 # this, although it could be made to do so easily.
 
-class ChooserWidget:
-    def __init__(self, namelist, callback=None, callbackargs=(),
-                 update_callback=None, update_callback_args=(), helpdict={},
-                 name=None, separator_func=None):
+## Changes for gtk3:
+
+## The callback functions for different kinds of ChooserWidgets
+## used to take different arguments.  Now they all pass the widget's
+## current value, and not the widget.
+
+## The ChooserWidget is a Gtk.Stack with a pop-up menu, instead of a
+## Gtk.ComboBox with a Gtk.ListStore and Gtk.TreeView, because menu
+## items can have tooltips but the cells in a TreeView can't.  The
+## ChooserComboWidget can stay as a Gtk.ComboBox because it lists
+## user-defined entries, which don't need tooltips.
+
+## The separator_func for ChooserWidget is different from the
+## separator_func for the other widgets defined here because
+## ChooserWidget is not based on a Gtk.TreeView. Its separator_func
+## takes a single string argument, and returns True if that string
+## should be replaced by a separator in the pull down menu.
+
+## The values for a ChooserWidget can be any kind of object and don't
+## have to be strings.  str() is used to convert the values to strings
+## for display, but get_value() and set_state() work with the raw
+## objects.
+
+## ChooserWidget.set_state(arg) no longer allows arg to be an integer
+## index.
+
+class ChooserWidget(object):
+    def __init__(self, objlist, callback=None, callbackargs=(),
+                 update_callback=None, update_callback_args=(),
+                 helpdict={}, name=None, separator_func=None,
+                 allowNone=None, homogeneous=False, **kwargs):
         debug.mainthreadTest()
-        assert name is not None
-        
-        # If this is used as a base class for another widget, self.gtk
-        # will be redefined.  So if a ChooserWidget function needs to
-        # refer to the ComboBox gtk widget, it must use
-        # self.combobox instead of self.gtk.
-        liststore = gtk.ListStore(gobject.TYPE_STRING)
-        self.combobox = gtk.ComboBox(liststore)
-        if name:
-            gtklogger.setWidgetName(self.combobox, name)
-        cell = gtk.CellRendererText()
-        self.combobox.pack_start(cell, True)
-        self.combobox.set_cell_data_func(cell, self.cell_layout_data_func)
-        # If separator_func is provided, it must be a function that
-        # takes a gtk.TreeModel and gtk.TreeIter as arguments, and
-        # return True if the row given by model[iter] is to be
-        # represented by a separator in the TreeView.
-        if separator_func:
-            self.combobox.set_row_separator_func(separator_func)
-        self.gtk = self.combobox
+        self.name = name
+        # separator_func takes a string arg and returns true if that
+        # string should be represented by a Gtk.SeparatorMenuItem.
+        self.separator_func = separator_func
         self.current_string = None
         self.callback = callback
         self.callbackargs = callbackargs
-        self.helpdict = {}
-        self.tipmap = {}                # see cell_layout_data_func()
-        self.signal = gtklogger.connect(self.combobox, 'changed',
-                                       self.changedCB)
-        # make sure that the update_callback isn't installed until
-        # after the widget is initialized.
-        self.update_callback = None
-        self.update_callback_args = ()
-        self.update(namelist, helpdict)
         self.update_callback = update_callback
         self.update_callback_args = update_callback_args
+        self.helpdict = {}
+        # Initialize namelist to None instead of [] so that the first
+        # call to update will install self.emptyMarker if appropriate.
+        self.namelist = None
+        # If allowNone is True, then set_state(None) is allowed.  It
+        # will display emptyMarker in the event box.
+        self.allowNone = allowNone
 
-    def cell_layout_data_func(self, cell_view, cell_renderer, model, iter):
-        # This adds tooltips to the menu items.  It's a bit of a hack
-        # and doesn't do a great job: the tips flicker if the mouse is
-        # moved.  Thanks to Phil Dumont on the pygtk mailing list for
-        # this code.  If you figure out how to get rid of the flicker,
-        # please tell Phil.
+        self.gtk = Gtk.EventBox()
+        # The docs say that event boxes should generally be invisible
+        # to avoid rendering artifacts, but then they need to be above
+        # their children to propagate events properly.  HOWEVER,
+        # setting visible=False somehow prevents the window from
+        # opening when replaying a gui log file.  The button press
+        # event is not processed.
+        ##self.gtk.set_visible_window(False)
+        ##self.gtk.set_above_child(True)
+        gtklogger.setWidgetName(self.gtk, name)
+        frame = Gtk.Frame(**kwargs)
+        self.gtk.add(frame)
+        # Using a Stack instead of a simple Label makes it easy to
+        # make sure that the horizontal size of the Chooser doesn't
+        # change when the visible label changes, if homogeneous=True.
+        self.stack = Gtk.Stack(homogeneous=homogeneous)
+        self.stack.set_can_focus(True)
+        self.stack.set_focus_on_click(True)
+        gtklogger.setWidgetName(self.stack, 'stack')
+        frame.add(self.stack)
+        # When a chooser has nothing to display, it looks ugly.
+        # emptyMarker is a placeholder to display when there's nothing
+        # else to display.
+        self.emptyMarker = self.makeSubWidget("---")
+        self.emptyMarker.set_sensitive(False)
+        # Has the user asked for the widget to be sensitive? 
+        self.user_sensitive = True
 
+        self.update(objlist, helpdict)
+
+        gtklogger.connect(self.gtk, "button-press-event", self.buttonpressCB)
+
+        # Catch key press events so that hitting <Return> when the
+        # widget has focus brings up the menu.
+        self.gtk.add_events(Gdk.EventMask.KEY_PRESS_MASK)
+        gtklogger.connect(self.gtk, "key-press-event", self.keyPressCB)
+
+    def makeSubWidget(self, name):
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, margin=2)
+        label = Gtk.Label(name, halign=Gtk.Align.START, hexpand=True, margin=5)
+        image = Gtk.Image.new_from_icon_name('pan-down-symbolic',
+                                             Gtk.IconSize.BUTTON)
+        hbox.pack_start(label, expand=True, fill=True, padding=2)
+        hbox.pack_start(image, expand=False, fill=False, padding=2)
+        hbox.show_all()
+        return hbox
+
+    # update() returns True if something changed.
+    def update(self, objlist, helpdict={}):
         debug.mainthreadTest()
-        idx = model.get_path(iter)[0]
-        item_text = model.get_value(iter, 0)
-        cell_renderer.set_property('text', item_text)
-        try:
-            tip_text = self.helpdict[item_text]
-        except KeyError:
-            pass
-        else:
-            # When navigating using the arrow keys, cell_view is
-            # sometimes a TreeViewColumn instead of a CellView.
-            # TreeViewColumns aren't widgets and don't have
-            # get_parent(), so we just ignore them.
-            try:
-                cv_parent = cell_view.get_parent()
-            except AttributeError:
-                pass
+        self.objlist = objlist[:]
+        namelist = [str(n) for n in self.objlist]
+        if namelist == self.namelist and helpdict == self.helpdict:
+            return False
+        self.namelist = namelist
+        self.helpdict = helpdict
+
+        for child in self.stack.get_children():
+            self.stack.remove(child)
+        self.stack.add(self.emptyMarker)
+        for name in self.namelist:
+            # Separators appear in the pull down menu but don't get a
+            # stack entry.  The gui tests get the Chooser contents
+            # from the stack, not the menu, and ignore separators.
+            if not (self.separator_func and self.separator_func(name)):
+                hbox = self.makeSubWidget(name)
+                self.stack.add_named(hbox, name)
+        if self.current_string not in self.namelist:
+            if self.allowNone:
+                newstr = None
             else:
-                if isinstance(cv_parent, gtk.MenuItem) \
-                       and (cv_parent not in self.tipmap or
-                            self.tipmap[cv_parent] != tip_text):
-                    self.tipmap[cv_parent] = tip_text
-                    tooltips.set_tooltip_text(cv_parent,tip_text)
+                if namelist:
+                    newstr = self.namelist[0]
+                else:
+                    newstr = None
+        else:
+            newstr = self.current_string
+
+        self.set_state(newstr)
+        self.sensitize()
+        return True
+
+    def grab_focus(self):
+        self.stack.grab_focus()
 
     def show(self):
         debug.mainthreadTest()
         self.gtk.show_all()
-
     def hide(self):
         debug.mainthreadTest()
         self.gtk.hide()
-
     def destroy(self):
         debug.mainthreadTest()
         self.gtk.destroy()
 
-    def suppress_signals(self):
-        debug.mainthreadTest()
-        self.signal.block()
-    def allow_signals(self):
-        debug.mainthreadTest()
-        self.signal.unblock()
-
-    def changedCB(self, combobox):
-        debug.mainthreadTest()
-        model = combobox.get_model()
-        index = combobox.get_active()
-        self.current_string = model[index][0]
-        self.set_tooltip()
-        if self.callback:
-            self.callback(* (combobox, self.current_string)+self.callbackargs)
-
-    def update(self, namelist, helpdict={}):
-        debug.mainthreadTest()
-        # Replace the widget's list of names with the given list.  The
-        # original value of self.current_string will be restored if it
-        # still exists in the updated namelist.
-        try:
-            current_index = namelist.index(self.current_string)
-        except ValueError:
-            if len(namelist) > 0:
-                current_index = 0
+    def buildPopUpMenu(self):
+        self.popupMenu = gtklogger.newPopupMenu('chooserPopup-'+self.name)
+        self.popupMenu.set_size_request(self.gtk.get_allocated_width(), -1)
+        for name in self.namelist:
+            if self.separator_func and self.separator_func(name):
+                menuitem = Gtk.SeparatorMenuItem()
             else:
-                current_index = -1      # no selection
-        self.helpdict = helpdict
-        self.suppress_signals()
-        liststore = self.combobox.get_model()
-        liststore.clear()
-        for name in namelist:
-            liststore.append([name])
-        self.combobox.set_active(current_index)
-        if current_index >= 0:
-            self.current_string = liststore[current_index][0]
-        else:
-            self.current_string = None
-        self.allow_signals()
-        self.set_tooltip()
-        if self.update_callback:
-            self.update_callback(*(self.gtk, self.current_string)+
-                                 self.update_callback_args)
-        self.combobox.set_sensitive(len(namelist) > 0)
-
-        # Make the widget wide enough to fit the longest name it
-        # might display, plus some extra space for the arrow
-        # decoration.
-        if namelist:
-            maxlen = max([len(name) for name in namelist])
-            self.combobox.set_size_request(30+maxlen*guitop.top().charsize, -1)
-                                  
-    def set_tooltip(self):
+                # Since there's no point to switching to the current
+                # value, make its entry insensitive, and in italics,
+                # to give the user a clue to the current location in
+                # the list.  It would be nice to just start in the
+                # current location when the menu is popped up, like a
+                # GtkComboBox, but that's not possible with a GtkMenu.
+                # If the GtkComboBox allowed tooltips, we'd use it
+                # instead.
+                if name == self.current_string:
+                    menuitem = Gtk.MenuItem.new_with_label("")
+                    label = menuitem.get_child()
+                    ## TODO: If we want to allow markup in names, then
+                    ## we need to do something smarter here.
+                    nm = name.replace("&", "&amp;").\
+                        replace("<", "&lt;").replace(">", "&gt;")
+                    label.set_markup("<i>" + nm + "</i>")
+                    menuitem.set_sensitive(False)
+                else:
+                    menuitem = Gtk.MenuItem(name)
+                    gtklogger.setWidgetName(menuitem, name)
+                    gtklogger.connect(menuitem, 'activate', self.activateCB,
+                                      name)
+                helpstr = self.helpdict.get(name, None)
+                if helpstr:
+                    menuitem.set_tooltip_text(helpstr)
+            self.popupMenu.append(menuitem)
+        self.popupMenu.show_all()
+        
+    def buttonpressCB(self, gtkobj, event):
         debug.mainthreadTest()
-        tooltips.set_tooltip_text(self.combobox,
-            self.helpdict.get(self.current_string, None))
+        # Rebuild menu each time it's used, so that the current item
+        # is desensitized.
+        self.buildPopUpMenu()
+        self.popupMenu.popup_at_widget(self.stack, Gdk.Gravity.SOUTH_WEST,
+                                       Gdk.Gravity.NORTH_WEST, event)
+        return False
+
+    def keyPressCB(self, eventbox, event):
+        # Hitting <Return> when the widget has keyboard focus is the
+        # same as clicking on it with the mouse.
+        if event.keyval == Gdk.keyval_from_name('Return') and not event.state:
+            self.buttonpressCB(None, event)
+            return True         # this event has been handled
+        return False            # invoke other handlers
+
+    def activateCB(self, menuitem, name):
+        debug.mainthreadTest()
+        self.stack.set_visible_child_name(name)
+        self.current_string = name
+        # After the menu is used, focus returns to it so that it's not
+        # randomly reassigned elsewhere.
+        self.stack.grab_focus()
+        if self.callback:
+            self.callback(*(name,) + self.callbackargs)
 
     def set_state(self, arg):
+        # arg is either an integer position in namelist or a string in
+        # namelist.
         debug.mainthreadTest()
-        self.suppress_signals()
-        model = self.combobox.get_model()
-        if type(arg) == types.IntType:
-            self.combobox.set_active(arg)
-            self.current_string = model[arg][0]
-        elif type(arg) == types.StringType:
-            names = [row[0] for row in model]
-            try:
-                index = names.index(arg)
-            except ValueError:
-                self.combobox.set_active(0)
-                self.current_string = names[0]
-            else:
-                self.combobox.set_active(index)
-                self.current_string = arg
-        self.allow_signals()
-        self.set_tooltip()
-        if self.update_callback:
-            self.update_callback(*(self.gtk, self.current_string)+
-                                 self.update_callback_args)
+        # Before the gtk3 upgrade, the equivalent of this routine
+        # failed silently if arg was not None, a string, or an int, or
+        # if it was a string that wasn't in the list.  It's now an
+        # error.  Also, ints aren't accepted as indices into the
+        # list. They're acepted if they're in objlist.
+        if (self.allowNone and arg is None) or self.nChoices() == 0:
+            self.stack.set_visible_child(self.emptyMarker)
+            newstr = None
+        else:
+            newstr = str(arg)
+            if not newstr in self.namelist:
+                raise ooferror.ErrPyProgrammingError(
+                    "Invalid ChooserWidget argument: %s" % arg)
+            self.stack.set_visible_child_name(newstr)
+
+        if newstr != self.current_string:
+            self.current_string = newstr
+            if self.update_callback:
+                self.update_callback(*(self.current_string,) +
+                                     self.update_callback_args)
+    def set_sensitive(self, sens):
+        self.user_sensitive = sens
+        self.sensitize()
+    def sensitize(self):
+        self.gtk.set_sensitive(self.user_sensitive and self.nChoices() > 0)
             
     def get_value(self):
-        return self.current_string
+        if self.current_string is None:
+            assert self.allowNone or not self.namelist
+            return None
+        which = self.namelist.index(self.current_string)
+        return self.objlist[which]
+
     def nChoices(self):
-        return len(self.combobox.get_model())
+        return len(self.namelist)
     def choices(self):
-        model = self.combobox.get_model()
-        return [x[0] for x in iter(model)]
+        return self.objlist
+            
+    def dumpState(self, comment):
+        print >> sys.stderr, comment, self.current_string
+
+                
+
 
 class FakeChooserWidget:
     # For debugging only.
@@ -219,6 +310,7 @@ class FakeChooserWidget:
         pass
     def update(self, namelist, helpdict={}):
         debug.fmsg(namelist)
+        return False
     def set_state(self, arg):
         pass
     def get_value(self):
@@ -251,12 +343,12 @@ class NewChooserWidget(ChooserWidget):
         self.button_callback_args = button_callback_args
         
         # Wrap the ChooserWidget's gtk in a GtkHBox and make it become self.gtk
-        hbox = gtk.HBox()
-        hbox.pack_start(self.gtk, expand=1, fill=1, padding=2)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        hbox.pack_start(self.gtk, expand=True, fill=True, padding=2)
         self.gtk = hbox
 
-        self.newbutton = gtk.Button(buttontext)
-        hbox.pack_start(self.newbutton, expand=0, fill=0, padding=2)
+        self.newbutton = Gtk.Button(buttontext)
+        hbox.pack_start(self.newbutton, expand=False, fill=False, padding=2)
         gtklogger.connect(self.newbutton, 'clicked', self.newbuttonCB)
     def newbuttonCB(self, button):
         if self.button_callback:
@@ -289,20 +381,20 @@ class ChooserListWidgetBase:
     def __init__(self, objlist=None, displaylist=[], callback=None,
                  dbcallback=None, autoselect=True, helpdict={},
                  comparator=None, markup=False,
-                 name=None, separator_func=None):
+                 name=None, separator_func=None, **kwargs):
         debug.mainthreadTest()
-        self.liststore = gtk.ListStore(gobject.TYPE_STRING,
-                                       gobject.TYPE_PYOBJECT)
-        self.treeview = gtk.TreeView(self.liststore)
+        self.liststore = Gtk.ListStore(GObject.TYPE_STRING,
+                                       GObject.TYPE_PYOBJECT)
+        self.treeview = Gtk.TreeView(self.liststore, **kwargs)
         self.gtk = self.treeview
         self.treeview.set_property("headers-visible", 0)
-        cell = gtk.CellRendererText()
+        cell = Gtk.CellRendererText()
         if markup:
             # Expect to find pango markup in displaylist, which is
             # stored in column 0 of the ListStore.
-            self.tvcol = gtk.TreeViewColumn("", cell, markup=0)
+            self.tvcol = Gtk.TreeViewColumn("", cell, markup=0)
         else:
-            self.tvcol = gtk.TreeViewColumn("", cell)
+            self.tvcol = Gtk.TreeViewColumn("", cell)
         self.treeview.append_column(self.tvcol)
         self.tvcol.add_attribute(cell, 'text', 0)
         self.autoselect = autoselect
@@ -313,7 +405,7 @@ class ChooserListWidgetBase:
                                                self.rowactivatedCB)
 
         # If separator_func is provided, it must be a function that
-        # takes a gtk.TreeModel and gtk.TreeIter as arguments, and
+        # takes a Gtk.TreeModel and Gtk.TreeIter as arguments, and
         # return True if the row given by model[iter] is to be
         # represented by a separator in the TreeView.
         if separator_func:
@@ -406,11 +498,17 @@ class ChooserListWidget(ChooserListWidgetBase):
         self.suppress_signals()
         old_obj = self.get_value()
         self.liststore.clear()
-        for obj, dispname in map(None, objlist, displaylist):
-            if dispname is not None:
-                self.liststore.append([dispname, obj])
-            else:
-                self.liststore.append([obj, obj])
+
+        if not objlist:
+            self.liststore.append(["None", None])
+            self.treeview.set_sensitive(False)
+        else:
+            self.treeview.set_sensitive(True)
+            for obj, dispname in map(None, objlist, displaylist):
+                if dispname is not None:
+                    self.liststore.append([dispname, obj])
+                else:
+                    self.liststore.append([obj, obj])
         try:
             index = self.find_obj_index(old_obj)
         except ValueError:
@@ -431,14 +529,14 @@ class MultiListWidget(ChooserListWidgetBase):
     def __init__(self, objlist, displaylist=[], callback=None,
                  dbcallback=None, autoselect=True, helpdict={},
                  comparator=None, name=None, separator_func=None,
-                 markup=False):
+                 markup=False, **kwargs):
         ChooserListWidgetBase.__init__(self, objlist, displaylist, callback,
                                        dbcallback, autoselect, helpdict,
                                        comparator=comparator, name=name,
                                        separator_func=separator_func,
-                                       markup=markup)
+                                       markup=markup, **kwargs)
         selection = self.treeview.get_selection()
-        selection.set_mode(gtk.SELECTION_MULTIPLE)
+        selection.set_mode(Gtk.SelectionMode.MULTIPLE)
     def get_value(self):
         debug.mainthreadTest()
         selection = self.treeview.get_selection()
@@ -496,14 +594,24 @@ class MultiListWidget(ChooserListWidgetBase):
 ##################################################
 
 class ChooserComboWidget:
-    def __init__(self, namelist, callback=None, name=None):
+    def __init__(self, namelist, callback=None, name=None, **kwargs):
         # If a callback is provided, it's called a *lot* of times.
         # It's called for every keystroke in the entry part of the
         # widget and every time a selection is made in the list part
         # of the widget.
         debug.mainthreadTest()
-        liststore = gtk.ListStore(gobject.TYPE_STRING)
-        self.combobox = gtk.ComboBoxEntry(liststore, 0)
+        liststore = Gtk.ListStore(GObject.TYPE_STRING)
+        # We're not passing kwargs to the ComboBox constructor because
+        # the constructor doesn't accept all the values that are in
+        # kwargs, eg, halign.  This doesn't seem to be a problem in
+        # the few cases in which this widget is used.  kwargs is set
+        # (I think) by ParameterTable.makeSingleWidget().
+        ## TODO GTK3? Don't use Gtk.ComboBox, because it looks
+        ## different from the chooser widget varieties used elsewhere.
+        ## Build a new widget in the style of ChooserWidget.  This
+        ## will be a fair amount of work for a small aesthetic gain.
+        self.combobox = Gtk.ComboBox.new_with_model_and_entry(liststore)
+        self.combobox.set_entry_text_column(0)
         if name:
             gtklogger.setWidgetName(self.combobox, name)
         self.gtk = self.combobox
@@ -529,7 +637,7 @@ class ChooserComboWidget:
 
     def update(self, namelist):
         debug.mainthreadTest()
-        current_string = self.combobox.child.get_text()
+        current_string = self.combobox.get_child().get_text()
         try:
             current_index = namelist.index(current_string)
         except ValueError:
@@ -544,21 +652,21 @@ class ChooserComboWidget:
         self.combobox.set_active(current_index)
 
     def changedCB(self, combobox):
-        self.callback(self)
+        self.callback(self.get_value())
 
     def get_value(self):
         debug.mainthreadTest()
-        val = self.combobox.child.get_text()
+        val = self.combobox.get_child().get_text()
         return val
 
     def set_state(self, arg):
         debug.mainthreadTest()
         if type(arg) == types.IntType:
             liststore = self.combobox.get_model()
-            self.combobox.child.set_text(liststore[arg][0])
+            self.combobox.get_child().set_text(liststore[arg][0])
         elif type(arg) == types.StringType:
-            self.combobox.child.set_text(arg)
-        self.combobox.child.set_position(-1)
+            self.combobox.get_child().set_text(arg)
+        self.combobox.get_child().set_position(-1)
 
 
         
@@ -570,7 +678,7 @@ class ChooserComboWidget:
 class FramedChooserListWidget(ChooserListWidget):
     def __init__(self, objlist=None, displaylist=[],
                  callback=None, dbcallback=None, autoselect=True,
-                 comparator=None, name=None):
+                 comparator=None, name=None, **kwargs):
         ChooserListWidget.__init__(self,
                                    objlist=objlist,
                                    displaylist=displaylist,
@@ -579,14 +687,15 @@ class FramedChooserListWidget(ChooserListWidget):
                                    autoselect=autoselect,
                                    comparator=comparator,
                                    name=name)
-        self.gtk = gtk.Frame()
-        self.gtk.set_shadow_type(gtk.SHADOW_IN)
+        quargs = kwargs.copy()
+        quargs.setdefault("shadow_type", Gtk.ShadowType.IN)
+        self.gtk = Gtk.Frame(**quargs)
         self.gtk.add(self.treeview)
 
 class ScrolledChooserListWidget(ChooserListWidget):
     def __init__(self, objlist=None, displaylist=[], callback=None,
                  dbcallback=None, autoselect=True, comparator=None, name=None,
-                 separator_func=None, markup=False):
+                 separator_func=None, markup=False, **kwargs):
         ChooserListWidget.__init__(self,
                                    objlist=objlist,
                                    displaylist=displaylist,
@@ -597,62 +706,22 @@ class ScrolledChooserListWidget(ChooserListWidget):
                                    name=name,
                                    separator_func=separator_func,
                                    markup=markup)
-        self.gtk = gtk.ScrolledWindow()
+        quargs = kwargs.copy()
+        quargs.setdefault('shadow_type', Gtk.ShadowType.IN)
+        self.gtk = Gtk.ScrolledWindow(**quargs)
         gtklogger.logScrollBars(self.gtk, name=name+"Scroll")
-        self.gtk.set_shadow_type(gtk.SHADOW_IN)
-        self.gtk.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.gtk.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.gtk.add(self.treeview)
 
 
 class ScrolledMultiListWidget(MultiListWidget):
     def __init__(self, objlist=None, displaylist=[], callback=None, name=None,
-                 separator_func=None):
+                 separator_func=None, **kwargs):
         MultiListWidget.__init__(self, objlist, displaylist, callback,
                                  name=name, separator_func=separator_func)
         mlist = self.gtk
-        self.gtk = gtk.ScrolledWindow()
-        self.gtk.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.gtk = Gtk.ScrolledWindow(**kwargs)
+        self.gtk.set_shadow_type(Gtk.ShadowType.IN)
+        self.gtk.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.gtk.add(mlist)
         
-## ### #### ##### ###### ####### ######## ####### ###### ##### #### ### ##
-## ### #### ##### ###### ####### ######## ####### ###### ##### #### ### ##
-        
-## NOT USED?
-
-# class ChooserDialog:
-#     OK = 1
-#     CANCEL = 2
-#     def __init__(self, prompt, names, helpdict={}, parentwindow=None):
-#         debug.mainthreadTest()
-#         parent = parentwindow or guitop.top().gtk
-#         self.dialog = gtklogger.Dialog(title='OOF2: ' + prompt,
-#                                        parent=parent,
-#                                        flags=gtk.DIALOG_MODAL)
-#         self.chooserwidget = ChooserWidget(names, helpdict=helpdict)
-#         hbox = gtk.HBox()
-#         self.dialog.vbox.pack_start(hbox, expand=1, fill=1, padding=5)
-#         hbox.pack_start(gtk.Label(prompt), expand=0, padding=5)
-#         hbox.pack_start(self.chooserwidget.gtk, expand=1, padding=5)
-#         self.dialog.add_button("OK", self.OK)
-#         self.dialog.add_button("Cancel", self.CANCEL)
-#         hbox.show_all()
-#     def run(self):
-#         debug.mainthreadTest()
-#         return self.dialog.run()
-#     def close(self):
-#         debug.mainthreadTest()
-#         self.dialog.destroy()
-#     def get_value(self):
-#         return self.chooserwidget.get_value()
-
-# def chooser(prompt, names, helpdict={}, parentwindow=None):
-#     if names:
-#         dialog = ChooserDialog(prompt, names)
-#         result = dialog.run()
-#         dialog.close()
-#         if result in (ChooserDialog.CANCEL, gtk.RESPONSE_DELETE_EVENT):
-#             return None
-#         return dialog.get_value()
-#     else:
-#         raise "No names!"
-

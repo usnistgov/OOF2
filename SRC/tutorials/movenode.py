@@ -39,12 +39,16 @@ TutorialClass(
 
     TutoringItem(
     subject="Getting Ready",
-    comments="""
-    This tutorial uses four example files, BOLD(green_corner.skeleton)
-    BOLD(composition.skeleton), BOLD(serendipity.skeleton), and
-    BOLD(triangle.skeleton).  Locate them within the
-    share/oof2/examples directory in your OOF2 installation.
-    """
+    comments=
+
+    """First, in the BOLD(Settings/Graphics Default) menu, set BOLD(New
+    Layer Policy) to BOLD(Single) so that you won't have to manipulate
+    graphics layers too often.
+
+    This tutorial uses four example files, BOLD(composition.skeleton),
+    BOLD(serendipity.skeleton), BOLD(triangle.skeleton), and
+    BOLD(green_corner.skeleton).  Locate them within the
+    share/oof2/examples directory in your OOF2 installation."""
     ),
 
     TutoringItem(
@@ -99,11 +103,13 @@ TutorialClass(
     At this stage, continuing to move nodes will yield only a marginal
     improvement.  We need to refine the heterogeneous elements.
 
-    Set the Skeleton Refinement method to BOLD(Refine). Set
-    BOLD(targets) set to BOLD(Heterogeneous Elements) with
+    Set the Skeleton Modification method to BOLD(Refine). Set
+    BOLD(targets) to BOLD(Heterogeneous Elements) with
     BOLD(threshold) = BOLD(1). Set BOLD(criterion) to
     BOLD(Unconditional), and BOLD(degree) to BOLD(Trisection) with
     BOLD(rule_set) = BOLD(conservative).
+
+    Set BOLD(alpha) = BOLD(0.5).
 
     Click BOLD(OK) to refine.
     """,
@@ -119,10 +125,10 @@ TutorialClass(
     be around BOLD(0.9) - BOLD(0.92). Note that the resulting Skeleton
     is BOLD(U-G-L-Y).
 
-    Now, Click BOLD(Undo) from the page repeatedly (actually twice),
-    until you restore the initial skeleton in the graphics window.
+    Now, Click BOLD(Undo) from the page twice to restore the initial
+    skeleton.
 
-    This time, we'll refine first and move nodes later.
+    Next time, we'll refine first and move nodes later.
     """,
 
     signal = ("who changed", "Skeleton")
@@ -173,7 +179,7 @@ TutorialClass(
     order to avoid any potential artifacts caused by the internal node
     (element) ordering of the skeleton.
 
-    Thus, any two identical node move processes can yield different
+    Thus, two identical node move processes can yield different
     outcomes.
 
     Let us load a test skeleton and continue on the subject.
@@ -183,8 +189,8 @@ TutorialClass(
 
     Open the BOLD(Microstructure) page.
     
-    Click BOLD(Delete) to delete the existing Microstructure and
-    Skeleton at the same time.
+    Click BOLD(Delete) in the row of buttons near the top to delete
+    the existing Microstructure and Skeleton at the same time.
 
     As soon as you confirm the deletion, the graphics window will be
     emptied.""",
@@ -199,43 +205,13 @@ TutorialClass(
     """Load the file BOLD(serendipity.skeleton) with the
     BOLD(Load/Data) command in the BOLD(File) menu.
 
-    This time, the graphics window will not show the skeleton
-    automatically.
-
-    Let us make the graphics window display the Skeleton and the Image
-    stored in Microstructure. 
-    """,
-        
-    signal = ("new who", "Skeleton")
-    ),
-
-    TutoringItem(
-    subject="Serendipity -- recontinued",
-    comments=
-
-    """Go to the graphics window and you'll see that the Layer List at
-    the bottom of the window shows two display layers.  (You may have
-    to scroll or resize the list window to see both layers.)
-
-    Double-click on the first one that says BOLD(SkeletonEdgeDisplay).
-    
-    A window named BOLD(OOF2 Graphics Layer Editor) will pop up.
-        
-    In the BOLD(Displayed Object) pane, set BOLD(category) to
-    BOLD(Skeleton).
-
-    Since we have only one skeleton available in the system, it's
-    automatically chosen.
-
-    Click BOLD(Send) to display the skeleton.
-
-    Now, double-click on the second layer, named BOLD(BitmapDisplayMethod).
-
-    On the later editor, set BOLD(category) to BOLD(Image).
-
-    Click BOLD(Send) to display the Image.
-
-    Close the editor."""),
+    (The new Image and Skeleton should appear automatically in the
+    graphics window, because BOLD(New Layer Policy) is BOLD(Single)
+    and there is only one Image and one Skeleton.  If you didn't
+    delete the previous Image and Skeleton, then the new ones won't
+    appear, unless you had set the BOLD(New Layer Policy) to
+    BOLD(Always).)
+    """),
     
     TutoringItem(
     subject="Serendipity -- final",
@@ -278,7 +254,7 @@ TutorialClass(
     undo/redo stack overflowed, in which case you should delete and
     reload the Skeleton).
 
-    Select BOLD(Anneal).
+    Select BOLD(Anneal) as the Skeleton Modification Method.
 
     Set BOLD(targets) to be BOLD(Heterogeneous Elements) with
     BOLD(threshold)=1, meaning that only the nodes of the
@@ -382,30 +358,21 @@ TutorialClass(
     comments=
 
     """Load a Skeleton from the file BOLD(triangle.skeleton) with
-    the BOLD(Load/Data) command in the BOLD(File) menu.  """,
+    the BOLD(Load/Data) command in the BOLD(File) menu. 
+
+    The unfinished skeleton for a blue triangle Microstructure should
+    be displayed in the graphics window. """,
         
     signal = ("new who", "Skeleton")
     ),
 
     TutoringItem(
-    subject="Displaying the New Skeleton",
-    comments=
-
-    """To display the loaded skeleton, either repeat the layer editing
-    procedure you used earlier, or just close the graphics window and
-    open another one. (Graphics layers are created automatically only
-    once per window.)
-        
-    The unfinished skeleton for a blue triangle Microstructure should
-    be displayed in the graphics window.""", ),
-
-    TutoringItem(
     subject="Annealing Revisited -- continued",
     comments=
 
-    """The Skeleton has been treated with BOLD(Snap Nodes) a few times
-    so far and it is obvious that snapping won't help the situation
-    any more. (Go ahead and try, anyway, if you like.)
+    """The Skeleton has been treated with BOLD(Snap Nodes) a few times so
+    far and snapping won't help the situation any more. (Go ahead and
+    try, anyway, if you like.)
 
     The worst problem spot is at the left corner of the triangle.  If
     you look closely, however, you'll see that the mesh alignment at
@@ -489,9 +456,11 @@ TutorialClass(
     quadrilateral (one with an interior angle near 180 degrees).
 
     BOLD(Undo) your modification and try again with BOLD(alpha) in the
-    BOLD(criterion) parameter set to BOLD(0.95), so that shape energy is
-    considered minimally.  The node should move closer to the vertex.
-    But the creation of an ugly element was unavoidable.
+    BOLD(criterion) parameter set to BOLD(0.95), so that shape energy
+    is considered minimally.  The node should move closer to the
+    vertex, but it creates an ugly element (the one to the southwest
+    of the node, with an interior angle that's almost 180 degrees).
+
 
     BOLD(Undo) this modification.""",
 
@@ -611,9 +580,6 @@ TutorialClass(
     BOLD(Microstructure) page and click the BOLD(Delete) button.
 
     Load a skeleton from the file BOLD(green_corner.skeleton).
-
-    Again, you need to display the loaded objects in the graphics
-    window manually, or open a new graphics window.
     """,
     signal = ("new who", "Skeleton")
     ),
@@ -630,7 +596,7 @@ TutorialClass(
 
     In the graphics window, open the BOLD(Move Nodes) toolbox.
 
-    Click on the bad node and drag it to the sweet spot.
+    Click on the bad node and drag it to where it belongs.
     """,
     signal = ("who changed", "Skeleton")
     ),
@@ -639,9 +605,9 @@ TutorialClass(
     subject="Manual Node Motion -- continued",
     comments=
 
-    """It's that simple to move a pain-in-the-butt node.
-
-    The BOLD(keyboard) mode allows more precise node moves.
+    """Unless you have unusual mouse-eye coordination, it's
+    impossible to precisely locate a point in BOLD(mouse) mode.
+    BOLD(Keyboard) mode allows more precise node moves.
 
     BOLD(Undo) the move with the BOLD(Undo) button in the toolbox.
     (The BOLD(Undo) button on the BOLD(Skeleton) page in the main
@@ -650,14 +616,9 @@ TutorialClass(
     Set the BOLD(Move with) button at the top of the toolbox to
     BOLD(Keyboard).
 
-    Now, assume that this problem node has to be absolutely positively
-    at the corner of the boundary.
-    
-    Unless you're blessed with enormous mouse-eye coordination, it's
-    impossible for you to spot the point in BOLD(mouse) mode.
-
-    So, in BOLD(keyboard) mode, all you have to do is to find the
-    position of the corner and type in these numbers.
+    Assuming that the problem node has to be absolutely positively at
+    the corner of the boundary, in BOLD(keyboard) mode all you have to
+    do is to find the position of the corner and type in the numbers.
     """,
     
     signal = ("who changed", "Skeleton")

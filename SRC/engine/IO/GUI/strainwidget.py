@@ -15,14 +15,13 @@ from ooflib.engine.IO.GUI import meshparamwidgets
 class StrainTypeWidget(regclassfactory.RegisteredClassFactory,
                        meshparamwidgets.IndexableWidget,
                        meshparamwidgets.InvariandWidget):
-    def __init__(self, value, scope, name):
+    def __init__(self, value, scope, name, **kwargs):
         regclassfactory.RegisteredClassFactory.__init__(
             self, cstrain.StrainType.registry, obj=value,
-            scope=scope, name=name)
+            scope=scope, name=name, **kwargs)
 
-def _makeStrainParameterWidget(self, scope=None):
-    return StrainTypeWidget(self.value, scope=scope, name=self.name)
+def _makeStrainParameterWidget(self, scope=None, **kwargs):
+    return StrainTypeWidget(self.value, scope=scope, name=self.name, **kwargs)
 
 cstrain.StrainTypeParameter.makeWidget = _makeStrainParameterWidget
 
-#Note: Sometimes "param" is used in place of "self"

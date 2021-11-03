@@ -71,9 +71,7 @@ class GfxWindowManager:
         finally:
             self.lock.release()
         if result is None:
-            raise KeyError(
-                "No such window: " + `name` + ' in ' +
-                [w.name for w in self.windows])
+            raise KeyError("No such window: " + `name`)
         return result
     def getAllWindows(self):
         return self.windows[:]

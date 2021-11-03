@@ -18,8 +18,9 @@ class CMicrostructure;
 class OOFImage;
 
 #include <string>
+#include <vector>
 
-const std::string *autogroup(
+std::vector<std::string> *autogroup(
 	     CMicrostructure*, OOFImage*, const std::string&);
 
 

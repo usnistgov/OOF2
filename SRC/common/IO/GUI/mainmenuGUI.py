@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -9,8 +8,11 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-# This file adds GUI code to the menu items defined in common.IO.mainmenu
+# This file adds GUI code to the menu items defined in
+# common.IO.mainmenu.  It should not be imported by anything except
+# initialize.py.
 
+from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import enum
@@ -20,14 +22,21 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import activityViewer
 from ooflib.common.IO.GUI import fontselector
+from ooflib.common.IO.GUI import gtkutils
+from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
-import gtk
+from gi.repository import Gtk
 import os
 
 ##########################
 
 from ooflib.common.IO.GUI import quit
 mainmenu.OOF.File.Quit.add_gui_callback(quit.queryQuit)
+# All Quit menu items need to set menuitem.data so that their Dialogs
+# appear over the window containing the menu.  It's safe to refer to
+# guitop.top here because the GUI is created when oofGUI is imported.
+assert guitop.top() is not None
+mainmenu.OOF.File.Quit.data = guitop.top().gtk
 
 ############################
 
@@ -47,7 +56,7 @@ mainmenu.OOF.Settings.Fonts.Widgets.add_gui_callback(setFont_gui)
 
 def reallySetFont(fontname):
     debug.mainthreadTest()
-    settings = gtk.settings_get_default()
+    settings = Gtk.Settings.get_default()
     settings.set_property("gtk-font-name", fontname)
     switchboard.notify('gtk font changed')
 
@@ -55,26 +64,19 @@ switchboard.requestCallbackMain('change font', reallySetFont)
 
 ##############################
 
-# The text font is actually set by the widgets that use it. This code
-# here just sets up the callback to get the font, and also stores it
-# where it can be found by new widgets.
+# Any widget that uses a fixed width font should have its CSS name set
+# to "fixedfont".
 
-fixedfont = "Mono 12"
-mainmenu.OOF.Settings.Fonts.Fixed.add_gui_callback(setFont_gui)
+def setFixedFontSize(fontsize):
+    gtkutils.addStyle("#fixedfont { font: %dpx monospace; }" % fontsize)
 
-def setFixedFont(fontname):
-    global fixedfont
-    fixedfont = fontname
+setFixedFontSize(mainmenu.fixedFontSize)
 
-def getFixedFont():
-    global fixedfont
-    return fixedfont
-
-switchboard.requestCallbackMain('change fixed font', setFixedFont)
+switchboard.requestCallbackMain('change fixed font', setFixedFontSize)
 
 ##############################
 
-themedirs = [gtk.rc_get_theme_dir(),
+themedirs = [Gtk.rc_get_theme_dir(),
              os.path.join(os.path.expanduser("~"), ".themes")]
 
 themes = []
@@ -97,6 +99,7 @@ if themes:
 
     def setTheme_gui(menuitem):
         if parameterwidgets.getParameters(themeParam,
+                                          parentwindow=oofGUI.gui.gtk,
                                           title="Choose a Gnome Theme"):
             themename = themeParam.value.name
             menuitem.callWithDefaults(theme=themename)
@@ -105,7 +108,7 @@ if themes:
 
     def reallySetTheme(themename):
         debug.mainthreadTest()
-        settings = gtk.settings_get_default()
+        settings = Gtk.Settings.get_default()
         settings.set_property("gtk-theme-name", themename)
 
     switchboard.requestCallbackMain('change theme', reallySetTheme)

@@ -22,6 +22,11 @@ import string
 import sys
 import types
 
+## TODO: The naming conventions for functions in this file are not at
+## all consistent.
+
+from gi.repository import Gtk
+
 floatpattern = \
     re.compile("([-+]?(?:\d+(?:\.\d*)?|\d*\.\d+)(?:[eE][-+]?\d+)?)")
 intpattern = re.compile("[0-9]+$")
@@ -32,19 +37,23 @@ intpattern = re.compile("[0-9]+$")
 # character-wise.
 
 def fp_string_compare(str1, str2, tolerance):
-    if not tolerance:
-        return str1 == str2
+    try:
+        if not tolerance:
+            return str1 == str2
 
-    s1_items = floatpattern.split(str1)
-    s2_items = floatpattern.split(str2)
-    
-    if len(s1_items) != len(s2_items):
-        return False
+        s1_items = floatpattern.split(str1)
+        s2_items = floatpattern.split(str2)
 
-    for s1, s2 in zip(s1_items, s2_items):
-        if not fp_substring_compare(s1, s2, tolerance):
+        if len(s1_items) != len(s2_items):
             return False
-    return True
+
+        for s1, s2 in zip(s1_items, s2_items):
+            if not fp_substring_compare(s1, s2, tolerance):
+                return False
+        return True
+    except:
+        print >> sys.stderr, "fp_string_compare failed:", str1, str2, tolerance
+        raise
 
 def fp_substring_compare(s1, s2, tolerance):
     if intpattern.match(s1) and intpattern.match(s2):
@@ -56,8 +65,8 @@ def fp_substring_compare(s1, s2, tolerance):
         x1 = float(s1)
         x2 = float(s2)
         diff = abs(x1 - x2)
-        reltol = min(abs(x1), abs(x2))*tolerance
-        if diff > reltol or diff > tolerance:
+        reltol = 0.5*(abs(x1) + abs(x2))*tolerance 
+        if diff > reltol and diff > tolerance:
             print >> sys.stderr, "fp_substring_compare: float mismatch", \
                 s1, s2, "diff=%s" % diff
             return False
@@ -100,6 +109,19 @@ def fp_string_compare_tail(str1, str2, tolerance):
         if not fp_substring_compare(s1, s2, tolerance):
             return False
     return True
+
+# Compare a test file to a reference file, using a tolerance on any
+# floats found.  The test file is assumed to be in the test's working
+# directory, and the reference file to be in the test source
+# directory.  If the name of the reference file isn't given, it's
+# asssumed to be the same as the test file.
+
+def filediff(filename, reference=None, tolerance=1.e-8):
+    if reference is None:
+        reffile = os.path.join(testdir(), filename)
+    else:
+        reffile = os.path.join(testdir(), reference)
+    return file_utils.fp_file_compare(filename, reffile, tolerance)
 
 checkpoint_count = gtklogger.checkpoint_count
 
@@ -147,6 +169,29 @@ def treeViewLength(widgetpath):
     treeview = gtklogger.findWidget(widgetpath)
     return len(treeview.get_model())
 
+def chooserCheck(widgetpath, choices):
+    # chooserCheck works for ChooserWidget, but not ChooserListWidget
+    stack = gtklogger.findWidget(widgetpath + ':stack')
+    # stack is a Gtk.Stack of Gtk.Boxes containing labels and images.
+    # box.get_children()[0] is a Gtk.Label.
+    names = [box.get_children()[0].get_text() for box in stack.get_children()]
+    names.remove("---")         # emptyMarker
+    # stack.get_children doesn't return the children in a predictable
+    # order, so just compare the sorted lists.
+    if sorted(names) != sorted(choices):
+        print >> sys.stderr, "chooserCheck failed!"
+        print >> sys.stderr, "   Expected:", sorted(choices)
+        print >> sys.stderr, "        Got:", sorted(names)
+        return False
+    return True
+
+def chooserListCheck(widgetpath, choices, tolerance=None):
+    if choices:
+        return treeViewColCheck(widgetpath, 0, choices, tolerance)
+    return (treeViewColCheck(widgetpath, 0, ['None']) and
+            not gtklogger.findWidget(widgetpath).get_sensitive())
+    
+
 def treeViewColCheck(widgetpath, col, choices, tolerance=None):
     # Check that the contents of the given column of a TreeView match
     # the given list of choices.  'widgetpath' is the gtklogger path
@@ -164,6 +209,8 @@ def treeViewColCheck(widgetpath, col, choices, tolerance=None):
         if choices[i] != None:
             if not fp_string_compare(x[col], choices[i], tolerance):
                 print >> sys.stderr, x[col], '!=', choices[i]
+                print >> sys.stderr, "expected: ", choices
+                print >> sys.stderr, "     got: ", [x[col] for x in liststore]
                 return False
     return True
 
@@ -171,6 +218,14 @@ def treeViewColValues(widgetpath, col):
     treeview = gtklogger.findWidget(widgetpath)
     liststore = treeview.get_model()
     return [x[col] for  x in iter(liststore)]
+
+def treeViewRowValues(widgetpath, row):
+    # row can be an int or a list of ints, if the tree is nested
+    treeview = gtklogger.findWidget(widgetpath)
+    liststore = treeview.get_model()
+    treepath = Gtk.TreePath(row)
+    model = treeview.get_model()
+    return list(model[treepath])
 
 def treeViewSelectCheck(widgetpath, col):
     # Returns the contents of the given column of a TreeStore in the
@@ -191,18 +246,123 @@ def listViewSelectedRowNo(widgetpath):
         return model.get_path(iter)[0]
     return None                         # nothing selected
 
-def chooserCheck(widgetpath, choices, tolerance=None):
-    return treeViewColCheck(widgetpath, 0, choices, tolerance)
+def gtkTextCompare(widgetpath, targettext, tolerance=None):
+    # Check the contents of a GtkEntry.  For a GtkTextView, use
+    # gtkTextviewCompare.
+    gtktxt = gtklogger.findWidget(widgetpath)
+    if not gtktxt:
+        print >> sys.stderr, "Text widget not found: %s." % widgetpath
+        return False
+    sourcetext = string.strip(gtktxt.get_text())
+    if not fp_string_compare(sourcetext, targettext, tolerance):
+        print >> sys.stderr, ("Text compare failed for path %s, got >%s<, expected >%s<"
+                              % (widgetpath, sourcetext, targettext))
+        return False
+    return True
+
+# Compare the value of text representing the value of a floating point
+# number.
+## TODO: This is redundant, now that gtkTextCompare uses
+## fp_string_compare.
+def gtkFloatCompare(widgetpath, targetval, tolerance=1.e-6):
+    gtktxt = gtklogger.findWidget(widgetpath)
+    if not gtktxt:
+        print >> sys.stderr, "Text widget not found: %s." % widgetpath
+        return False
+    sourceval = float(gtktxt.get_text())
+    if abs(sourceval - targetval) > tolerance:
+        print >> sys.stderr, ("Floating point comparison failed for %s, %g!=%g"
+                              % (widgetpath, sourceval, targetval))
+        return False
+    return True
+
+# Similar to the sensitizationCheck, takes a dictionary of widgets and
+# their target texts.  If tolerance is nonzero, floating point
+# comparison is done on any numbers found in the strings.
+def gtkMultiTextCompare(widgetdict, widgetbase=None, tolerance=None):
+    for (wname, ttext) in widgetdict.items():
+        if widgetbase:
+            w = widgetbase + ":" + wname
+        else:
+            w = wname
+        if not gtkTextCompare(w, ttext, tolerance):
+            return False
+    return True
+
+# gtkMultiFloatCompare is like gtkMultiTextCompare, but it only
+# compares floats, and the values in widgetdict must be numbers, not
+# strings.
+def gtkMultiFloatCompare(widgetdict, widgetbase=None, tolerance=1.e-6):
+    for (wname, val) in widgetdict.items():
+        if widgetbase:
+            w = widgetbase + ":" + wname
+        else:
+            w = wname
+        if not gtkFloatCompare(w, val, tolerance):
+            return False
+    return True
+
+def gtkTextviewCompare(widgetpath, targettext, tolerance=None):
+    widget = gtklogger.findWidget(widgetpath)
+    msgbuffer = gtklogger.findWidget(widgetpath).get_buffer()
+    text = msgbuffer.get_text(msgbuffer.get_start_iter(),
+                              msgbuffer.get_end_iter(), True)
+    if not fp_string_compare(text, targettext, tolerance):
+        print >> sys.stderr, ("Textview compare failed for %s, >%s<!=>%s<."
+                              % (widgetpath, text, targettext))
+        return False
+    return True
+
+def gtkTextviewTail(widgetpath, targettext, tolerance=None):
+    msgbuffer = gtklogger.findWidget(widgetpath).get_buffer()
+    text = msgbuffer.get_text(msgbuffer.get_start_iter(),
+                              msgbuffer.get_end_iter(), True)
+    if not fp_string_compare_tail(text, targettext, tolerance):
+        print >> sys.stderr, (("gtkTextviewTail failed for %s\n"
+                               "expected =>%s<=\ngot =>%s<=")
+                              % (widgetpath, targettext, text))
+        return False
+    return True
+
+def gtkTextviewHead(widgetpath, targettext):
+    msgbuffer = gtklogger.findWidget(widgetpath).get_buffer()
+    text = msgbuffer.get_text(msgbuffer.get_start_iter(),
+                              msgbuffer.get_end_iter(), True)
+    ok = text.startswith(targettext)
+    if not ok:
+        print >> sys.stderr, \
+          ("gtkTextviewHead failed for %s: text =>%s< doesn't start with >%s<"
+           % (widgetpath, text, targettext))
+    return ok
+
+def gtkTextviewGetLines(widgetpath):
+    msgbuffer = gtklogger.findWidget(widgetpath).get_buffer()
+    text = msgbuffer.get_text(msgbuffer.get_start_iter(),
+                              msgbuffer.get_end_iter(), True).split('\n')
+    return text
+    
+def gtkTextviewGetLine(widgetpath, line):
+    return gtkTextviewGetLines(widgetpath)[line]
+
+def gtkTextviewLine(widgetpath, line, targettext):
+    if gtkTextviewGetLine(widgetpath, line) != targettext:
+        print >> sys.stderr, ("gtkTextviewLine failed for %s: text=  >%s<!=>%s<"
+                              % (widgetpath, text, targettext))
+        return False
+    return True
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Chooser checks
 
 def chooserStateCheck(widgetpath, choice):
     # only for ChooserWidget, not ChooserListWidget.  Checks that the
     # currently selected item is 'choice'.
-    combobox = gtklogger.findWidget(widgetpath)
-    index = combobox.get_active()
-    if index == -1:
+    stack = gtklogger.findWidget(widgetpath + ":stack")
+    current = stack.get_visible_child()
+    if current is None:
         return choice is None
-    model = combobox.get_model()
-    return choice == model[index][0]
+    return choice == current.get_children()[0].get_text()
 
 
 def chooserListStateCheck(widgetpath, choices, tolerance=None):
@@ -239,28 +399,60 @@ def chooserListStateCheckN(widgetpath, choices):
     print >> sys.stderr, "Selected rows are", selected
     return False
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+def checkLabelledSlider(widgetpath, value, tolerance=None):
+    # value should be a float
+    
+    # print >> sys.stderr, "checkLabelledSlider: widgetpath=", widgetpath
+    # print >> sys.stderr, "checkLabelledSlider: widgets=", gtklogger.findAllWidgets(widgetpath)
+    slider = gtklogger.findWidget(widgetpath + ':slider')
+    sliderval = slider.get_value()
+    diff = abs(sliderval - value)
+    if tolerance:
+        reltol = 0.5*(abs(sliderval) + abs(value))*tolerance
+        sliderok = diff <= reltol or diff <= tolerance
+    else:
+        sliderok = diff == 0
+    entry = gtklogger.findWidget(widgetpath + ':entry')
+    entryval = float(string.strip(entry.get_text()))
+    diff = abs(entryval - value)
+    if tolerance:
+        reltol = 0.5*(abs(entryval) + abs(value))*tolerance
+        entryok = diff <= reltol or diff <= tolerance
+    else:
+        entryok = diff == 0
+
+    if entryok and sliderok:
+        return True
+    print >> sys.stderr, \
+        "Labelled slider check failed. Slider=%.8g, text='%s'. Expected %g. tolerance=%s" % \
+        (sliderval, entryval, value, tolerance)
+
+def checkSliders(widgetpath, tolerance=None, **params):
+    for pname, val in params.items():
+        if not checkLabelledSlider(widgetpath+':'+pname, val,
+                                   tolerance=tolerance):
+            return False
+    return True
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Sensitization checks
 
 def is_sensitive(widgetpath):
-    return _widget_sensitive(gtklogger.findWidget(widgetpath))
+    return gtklogger.findWidget(widgetpath).is_sensitive()
 
 def menuSensitive(menu, item):
     topmenuwidget = gtklogger.findWidget(menu)
     if not topmenuwidget:
         print >> sys.stderr, "Didn't find widget for", menu
+        raise RuntimeError("Menu sensitization check failed!")
     menuitemwidget = gtklogger.findMenu(topmenuwidget, item)
     if not menuitemwidget:
         print >> sys.stderr, "Didn't find widget for %s:%s" % (menu, item)
-    return _widget_sensitive(menuitemwidget)
-
-def _widget_sensitive(widget):
-    if not widget.get_property('sensitive'):
-        return 0
-    parent = widget.get_parent()
-    while parent:
-        if not parent.get_property('sensitive'):
-            return 0
-        parent = parent.get_parent()
-    return 1
+        raise RuntimeError("Menu sensitization check failed!!")
+    return menuitemwidget.is_sensitive()
 
 def sensitizationCheck(wdict, base=None):
     # Check widget sensitization.  wdict is a dictionary whose keys
@@ -277,64 +469,10 @@ def sensitizationCheck(wdict, base=None):
             return False
     return True
 
-def filediff(filename):
-    return file_utils.fp_file_compare(filename, 
-                                      os.path.join(testdir(), filename),
-                                      tolerance=1.e-8,
-                                      comment=None)
-    # return filecmp.cmp(filename, os.path.join(testdir(), filename))
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Assumes that every line in the files to be compared is either a
-# comment, or a separator-separated list of float-ables, or identical
-# strings.  If there are fields which cannot be converted to floats,
-# they're checked for identicalness, and if they pass, the test just
-# continues.  TODO: Use fp_file_compare instead.
-def floatFileDiff(filename, tolerance=1.0e-8, comment="#", separator=","):
-    class FloatFileDiffFailure:
-        def __init__(self, message):
-            self.message = message
-    reference = file(os.path.join(testdir(),filename))
-    local = file(filename)
-    try:
-        try: # Again.
-            for refline in reference:
-                localline = local.next()
-                if refline[0]==comment:
-                    continue
-                refitems = string.split(refline,separator)
-                localitems = string.split(localline,separator)
-                for(i1,i2) in zip(refitems, localitems):
-                    try:
-                        (f1, f2) = (float(i1), float(i2))
-                    except ValueError:
-                        if i1!=i2:
-                            raise FloatFileDiffFailure(
-                                "Text mismatch, >%s< != >%s<" % (i1,i2))
-                    else:
-                        if abs(f1-f2)>tolerance:
-                            raise FloatFileDiffFailure(
-                                "%f too far from %f" % (f1,f2))
-                        if f1!=0.0 and f2!=0.0 and abs((f1/f2)-1.0)>tolerance:
-                            raise FloatFileDiffFailure(
-                                "%f/%f too far from 1.0" % (f1,f2))
+# Skeleton-specific tests
 
-        except FloatFileDiffFailure, f:
-            print >> sys.stderr, "floatFileDiff failure, ", f.message
-            return False
-        except StopIteration: # Raised by local.next() if EOF is encountered.
-            print >> sys.stderr, "floatFileDiff: File size mismatch."
-            return False
-        else:
-            return True
-    finally:
-        reference.close()
-        local.close()
-    
-# More robust float file diff, using file_utils.py from TEST/UTILS.
-def floatFileDiff2(filename, tolerance=1.e-8):
-    reference = os.path.join(testdir(), filename)
-    return file_utils.fp_file_compare(filename, reference, tolerance)
-    
 def skeletonNodeSelectionCheck(skeleton, nodelist):
     from ooflib.common.IO import whoville
     sc = whoville.getClass('Skeleton')[skeleton]
@@ -380,6 +518,10 @@ def skeletonSelectionTBSizeCheck(windowname, category, n):
     # The line is either "0" or "n (p%)" for some n and p.
     return eval(text.get_text().split()[0]) == n
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Pixel group and selection tests
+
 def pixelSelectionTBSizeCheck(windowname, minpxls, maxpxls=None):
     # Check that the pixel selection size is displayed correctly in
     # the graphics window.  Since different versions of ImageMagick
@@ -407,110 +549,12 @@ def pixelGroupSizeCheck(msname, grpname, n):
     grp = ms.findGroup(grpname)
     return len(grp) == n
 
-def gtkTextCompare(widgetpath, targettext, tolerance=None):
-    gtktxt = gtklogger.findWidget(widgetpath)
-    if not gtktxt:
-        print >> sys.stderr, "Text widget not found: %s." % widgetpath
-        return False
-    sourcetext = string.strip(gtktxt.get_text())
-    if not fp_string_compare(sourcetext, targettext, tolerance):
-        print >> sys.stderr, ("Text compare failed for path %s, >%s< != >%s<"
-                              % (widgetpath, sourcetext, targettext))
-        return False
-    return True
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Compare the value of text representing the value of a floating point
-# number.
-## TODO: This is redundant, now that gtkTextCompare uses
-## fp_string_compare.
-def gtkFloatCompare(widgetpath, targetval, tolerance=1.e-6):
-    gtktxt = gtklogger.findWidget(widgetpath)
-    if not gtktxt:
-        print >> sys.stderr, "Text widget not found: %s." % widgetpath
-        return False
-    sourceval = float(gtktxt.get_text())
-    if abs(sourceval - targetval) > tolerance:
-        print >> sys.stderr, ("Floating point comparison failed for %s, %g!=%g"
-                              % (widgetpath, sourceval, targetval))
-        return False
-    return True
-
-# Similar to the sensitizationCheck, takes a dictionary of widgets and
-# their target texts.  If tolerance is nonzero, floating point
-# comparison is done on any numbers found in the strings.
-def gtkMultiTextCompare(widgetdict, widgetbase=None, tolerance=None):
-    for (wname, ttext) in widgetdict.items():
-        if widgetbase:
-            w = widgetbase + ":" + wname
-        else:
-            w = wname
-        if not gtkTextCompare(w, ttext, tolerance):
-            return False
-    return True
-
-## TODO: This is redundant, now that gtkMultiTextCompare uses
-## fp_string_compare.
-def gtkMultiFloatCompare(widgetdict, widgetbase=None, tolerance=1.e-6):
-    for (wname, val) in widgetdict.items():
-        if widgetbase:
-            w = widgetbase + ":" + wname
-        else:
-            w = wname
-        if not gtkFloatCompare(w, val, tolerance):
-            return False
-    return True
-
-def gtkTextviewCompare(widgetpath, targettext, tolerance=None):
-    widget = gtklogger.findWidget(widgetpath)
-    msgbuffer = gtklogger.findWidget(widgetpath).get_buffer()
-    text = msgbuffer.get_text(msgbuffer.get_start_iter(),
-                              msgbuffer.get_end_iter())
-    if not fp_string_compare(text, targettext, tolerance):
-        print >> sys.stderr, ("Textview compare failed for %s, >%s<!=>%s<."
-                              % (widgetpath, text, targettext))
-        return False
-    return True
-
-def gtkTextviewTail(widgetpath, targettext, tolerance=None):
-    msgbuffer = gtklogger.findWidget(widgetpath).get_buffer()
-    text = msgbuffer.get_text(msgbuffer.get_start_iter(),
-                              msgbuffer.get_end_iter())
-    if not fp_string_compare_tail(text, targettext, tolerance):
-        print >> sys.stderr, (("gtkTextviewTail failed for %s\n"
-                               "expected =>%s<=\ngot =>%s<=")
-                              % (widgetpath, targettext, text))
-        return False
-    return True
-
-def gtkTextviewHead(widgetpath, targettext):
-    msgbuffer = gtklogger.findWidget(widgetpath).get_buffer()
-    text = msgbuffer.get_text(msgbuffer.get_start_iter(),
-                              msgbuffer.get_end_iter())
-    ok = text.startswith(targettext)
-    if not ok:
-        print >> sys.stderr, \
-          ("gtkTextviewHead failed for %s: text =>%s< doesn't start with >%s<"
-           % (widgetpath, text, targettext))
-    return ok
-
-def gtkTextviewGetLines(widgetpath):
-    msgbuffer = gtklogger.findWidget(widgetpath).get_buffer()
-    text = msgbuffer.get_text(msgbuffer.get_start_iter(),
-                              msgbuffer.get_end_iter()).split('\n')
-    return text
-    
-def gtkTextviewGetLine(widgetpath, line):
-    return gtkTextviewGetLines(widgetpath)[line]
-
-def gtkTextviewLine(widgetpath, line, targettext):
-    if gtkTextviewGetLine(widgetpath, line) != targettext:
-        print >> sys.stderr, ("gtkTextviewLine failed for %s: text=  >%s<!=>%s<"
-                              % (widgetpath, text, targettext))
-        return False
-    return True
+# Error message tests
 
 def errorMsg(text):
-    return gtkTextviewTail('Error:ErrorScroll:ErrorText', text+'\n')
+    return gtkTextviewTail('Error:ErrorText', text+'\n')
 
 def syntaxErrorMsg(text):
     # The syntax error message format changed slightly from Python 2.5
@@ -526,7 +570,38 @@ def syntaxErrorMsg(text):
 def msgTextTail(text):
     return gtkTextviewTail('OOF2 Messages 1:Text', text+'\n')
 
-###################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Check the state of an Orientation RCF widget.  Since the form of the
+# RCF subwidgets depends on the Orientation subclass, this is ugly.
+# It might be cleaner if ParameterWidgets knew how to check
+# themselves.
+
+def checkOrientationWidget(widgetpath, orClass, tolerance=1.e-5, **orParams):
+    if not chooserStateCheck(widgetpath + ':RCFChooser',
+                             orClass):
+        print >> sys.stderr, "Orientation chooser check failed."
+        return False
+    # Orientation subclasses that only use LabelledSliders in their
+    # widgets:
+    if orClass in("Abg", "X", "XYZ", "Bunge"):
+        return checkSliders(widgetpath + ':' + orClass, tolerance=tolerance,
+                            **orParams)
+    # Orientation subclasses that only use GtkEntries
+    if orClass in ("Quaternion", "Rodrigues"):
+        return gtkMultiFloatCompare(orParams, widgetpath + ':' + orClass,
+                                    tolerance)
+    if orClass == "Axis":
+        xyz = orParams.copy()
+        del xyz['angle']
+        return (
+            checkLabelledSlider(widgetpath+':Axis:angle', orParams['angle'],
+                                tolerance=tolerance)
+            and
+            gtkMultiFloatCompare(xyz, widgetpath+':Axis', tolerance))
+    print >> sys.stderr, "checkOrientationWidget: unknown class", orClass
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Memory leak checker checks for the presence of allocated and
 # inventoried C++ objects.

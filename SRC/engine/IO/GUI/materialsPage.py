@@ -26,7 +26,6 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import materialmanager
 from ooflib.engine import propertyregistration
@@ -36,19 +35,9 @@ AllProperties = propertyregistration.AllProperties
 #Interface branch
 from ooflib.engine.IO import interfaceparameters
 
-import gtk
-
+from gi.repository import Gtk
 import types, string
 
-if config.dimension()==2:
-    pixstring = "pixel"
-    Pixstring = "Pixel"
-elif config.dimension()==3:
-    pixstring = "voxel"
-    Pixstring = "Voxel"
-
-
-# Define some convenience variables.
 OOF = mainmenu.OOF
 
 class MaterialsPage(oofGUI.MainPage):
@@ -56,14 +45,16 @@ class MaterialsPage(oofGUI.MainPage):
         self.built = False
         oofGUI.MainPage.__init__(self, name="Materials", ordering=100,
                                  tip='Define Materials')
-        pane = gtk.HPaned()              # Properties on left, Materials on R.
+        # Pane has Properties on left, Materials on right.
+        pane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                         wide_handle=True)
         gtklogger.setWidgetName(pane, 'Pane')
         self.gtk.add(pane)
 
         self.propertypane = PropertyPane(self)
         self.materialpane = MaterialPane(self)
-        pane.pack1(self.propertypane.gtk, resize=0, shrink=0)
-        pane.pack2(self.materialpane.gtk, resize=1, shrink=0)
+        pane.pack1(self.propertypane.gtk, resize=False, shrink=False)
+        pane.pack2(self.materialpane.gtk, resize=True, shrink=False)
         gtklogger.connect_passive(pane, 'notify::position')
 
         self.built = True
@@ -87,10 +78,17 @@ class MaterialsPage(oofGUI.MainPage):
         return None
     
     def sensitize(self):
-        self.propertypane.do_sensitize()
-        self.materialpane.do_sensitize()
-        gtklogger.checkpoint("Materials page updated")
-        
+        # When recording, this is called twice after each
+        # TreeSelectionLogger changed signal.  When replaying, it's
+        # called just once.
+        if self.sensitizable():
+            self.propertypane.do_sensitize()
+            self.materialpane.do_sensitize()
+            gtklogger.checkpoint("Materials page updated")
+
+########################################################################
+########################################################################
+
 class PropertyPane:
     def __init__(self, parent):
         debug.mainthreadTest()
@@ -101,65 +99,71 @@ class PropertyPane:
         # GfxLabelTree self.propertytree.
         self.current_property = None
 
-        self.gtk = gtk.Frame('Property')
+        self.gtk = Gtk.Frame(
+            label='Property', shadow_type=Gtk.ShadowType.IN,
+            margin_start=2, margin_end=gtkutils.handle_padding,
+            margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(self.gtk, 'Property')
-        self.gtk.set_shadow_type(gtk.SHADOW_IN)
-        vbox = gtk.VBox(spacing=3)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
         
         self.gtk.add(vbox)
 
         # Button box above the Property Tree
-        buttonbox = gtk.HBox()
-        vbox.pack_start(buttonbox, expand=0, fill=0)
+        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                            margin=2)
+        vbox.pack_start(buttonbox, expand=False, fill=False, padding=0)
 
-        self.copybutton = gtkutils.StockButton(gtk.STOCK_COPY, 'Copy...')
+        self.copybutton = gtkutils.StockButton('edit-copy-symbolic', 'Copy...')
         gtklogger.setWidgetName(self.copybutton, 'Copy')
         gtklogger.connect(self.copybutton, 'clicked', self.on_copy_property)
-        tooltips.set_tooltip_text(self.copybutton,
-                   'Create a named copy of the currently selected property')
-        buttonbox.pack_start(self.copybutton, expand=1, fill=0)
+        self.copybutton.set_tooltip_text(
+            'Create a named copy of the currently selected property')
+        buttonbox.pack_start(self.copybutton,
+                             expand=True, fill=False, padding=0)
 
-        self.parambutton = gtkutils.StockButton(gtk.STOCK_EDIT,
+        self.parambutton = gtkutils.StockButton('document-edit-symbolic',
                                                 'Parametrize...')
         gtklogger.setWidgetName(self.parambutton, 'Parametrize')
         gtklogger.connect(self.parambutton, 'clicked', self.parametrize)
-        tooltips.set_tooltip_text(self.parambutton,
-                     "Set parameters for the currently selected Property.")
-        buttonbox.pack_start(self.parambutton, expand=1, fill=0)
-        
+        self.parambutton.set_tooltip_text(
+            "Set parameters for the currently selected Property.")
+        buttonbox.pack_start(self.parambutton,
+                             expand=True, fill=False, padding=0)
 
-        self.deletebutton = gtkutils.StockButton(gtk.STOCK_DELETE, 'Delete')
+        self.deletebutton = gtkutils.StockButton('edit-delete-symbolic',
+                                                 'Delete')
         gtklogger.setWidgetName(self.deletebutton, 'Delete')
         gtklogger.connect(self.deletebutton, 'clicked', self.GUIdelete)
-        tooltips.set_tooltip_text(self.deletebutton,
-                             "Delete the currently selected Property.")
-        buttonbox.pack_start(self.deletebutton, expand=1, fill=0)
-
+        self.deletebutton.set_tooltip_text(
+            "Delete the currently selected Property.")
+        buttonbox.pack_start(self.deletebutton,
+                             expand=True, fill=False, padding=0)
 
         # Scrolling window containing the Property Tree
-        scroll = gtk.ScrolledWindow()
+        scroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN,
+                                    margin=2)
         gtklogger.logScrollBars(scroll, "PropertyScroll")
-        scroll.set_shadow_type(gtk.SHADOW_IN)
-        vbox.pack_start(scroll, expand=1, fill=1)
-        scroll.set_policy(gtk.POLICY_ALWAYS, gtk.POLICY_ALWAYS)
+        vbox.pack_start(scroll, expand=True, fill=True, padding=0)
+        scroll.set_policy(Gtk.PolicyType.AUTOMATIC,
+                          Gtk.PolicyType.AUTOMATIC)
         self.propertytree = gfxLabelTree.GfxLabelTree(AllProperties.data,
+                                                      "PropertyTree",
                                                       expand=None,
-                                                      callback=self.proptreeCB,
-                                                      name="PropertyTree")
+                                                      callback=self.proptreeCB)
         self.propertytree.setRightClickCB(self.parametrize)
         scroll.add(self.propertytree.gtk)
 
 
-
         # The Load button.
-        self.loadbutton = gtkutils.StockButton(gtk.STOCK_GO_FORWARD,
+        self.loadbutton = gtkutils.StockButton("go-next-symbolic",
                                                "Add Property to Material",
-                                               reverse=True)
+                                               reverse=True,
+                                               halign=Gtk.Align.CENTER,
+                                               margin=3)
         gtklogger.setWidgetName(self.loadbutton, 'Add')
-        align = gtk.Alignment(xalign=0.5)
-        align.add(self.loadbutton)
-        vbox.pack_start(align, expand=0, fill=0, padding=3)
-        tooltips.set_tooltip_text(self.loadbutton,
+        vbox.pack_start(self.loadbutton, expand=False, fill=False, padding=0)
+        self.loadbutton.set_tooltip_text(
             "Load the currently selected property into the current material.")
         gtklogger.connect(self.loadbutton, 'clicked',self.on_prop_load)
 
@@ -200,8 +204,9 @@ class PropertyPane:
                      interfaceparameters.COMPATIBILITY_INTERFACE_ONLY)
         #Check if the currently selected property node and the current
         #material are compatible
-        matpropcompatible=(isBulkMat and isBulkProp) or (isInterfaceMat and isInterfaceProp)
-        self.loadbutton.set_sensitive(sensitivity and matselected and \
+        matpropcompatible = ((isBulkMat and isBulkProp) or
+                             (isInterfaceMat and isInterfaceProp))
+        self.loadbutton.set_sensitive(sensitivity and matselected and
                                       matpropcompatible)
 
         if sensitivity:
@@ -210,8 +215,8 @@ class PropertyPane:
             mainmenu.OOF.File.Save.Property.disable()
         
 
-    # Although the load button is in the Property pane, loading is
-    # a material-menu operation.
+    # Although the "Add Property to Material" button is in the
+    # Property pane, adding a property is a material-menu operation.
     def on_prop_load(self,button):      # gtk callback
         propname = self.current_property[0]
         mat = self.parent.currentMaterial()
@@ -242,29 +247,31 @@ class PropertyPane:
     def deselect_property(self, name):
         debug.mainthreadTest()
         if self.current_property: # and self.propertytree:
-            if self.current_property[0]==name:
-                self.propertytree.blockSignals()
-                self.propertytree.deselect()
-                self.propertytree.unblockSignals()
-                self.current_property = None
-                self.sensitize()
-            else:
-                print "Inconsistent selection state."
+            assert self.current_property[0] == name
+            self.propertytree.blockSignals()
+            self.propertytree.deselect()
+            self.propertytree.unblockSignals()
+            self.current_property = None
+            self.sensitize()
             gtklogger.checkpoint("property deselected")
+        else:
+            raise ooferror.ErrPyProgrammingError("Inconsistent selection state")
         
-
     def proptreeCB(self, signal, treenode): # GfxLabelTree callback
         prop_name = treenode.path()
         if signal == "select":
-            self.select_property(prop_name)
+            # MaterialPane.select_property must be called first, or
+            # else when select_property calls sensitize, the Remove
+            # Property from Material button will be sensitized
+            # incorrectly.
             self.parent.materialpane.select_property(prop_name)
+            self.select_property(prop_name)
         elif signal == "deselect":
-            self.deselect_property(prop_name)
             self.parent.materialpane.deselect_property(prop_name)
+            self.deselect_property(prop_name)
         elif signal == "doubleclick":
             self.select_property(prop_name)
             self.parametrize()
-        
             
     def newPropCB(self, propertyregistration): # switchboard 'new property'
         propname = propertyregistration.name()
@@ -286,8 +293,9 @@ class PropertyPane:
                 # the menu item. 
                 params = [p for p in reg.params if p.name != 'name']
                 if parameterwidgets.getParameters(
-                    title='Parametrize '+self.current_property[0],
-                    *params):
+                        title='Parametrize '+self.current_property[0],
+                        parentwindow=self.parent.gtk.get_toplevel(),
+                        *params):
                     menuitem.callParamList(params)
             else:                       # should never happen
                 reporter.report("Property is not parametrizable.")
@@ -301,14 +309,16 @@ class PropertyPane:
         menuitem = OOF.Property.Copy
         newnameparam = menuitem.get_arg('new_name')
         if parameterwidgets.getParameters(
-            newnameparam,
-            title='Copy property ' + self.current_property[0]):
+                newnameparam,
+                parentwindow=self.parent.gtk.get_toplevel(),
+                title='Copy property ' + self.current_property[0]):
             if newnameparam.nontrivial():
                 menuitem.callWithDefaults(property=self.current_property[0])
 
     def GUIdelete(self, gtk):
         if reporter.query("Delete property %s?" % self.current_property[0],
-                          "OK", "Cancel", default="OK") == "OK":
+                          "OK", "Cancel", default="OK",
+                          parentwindow=self.parent.gtk.get_toplevel()) == "OK":
             OOF.Property.Delete(property=self.current_property[0])
 
 ########################################################################
@@ -319,140 +329,146 @@ class MaterialPane:
         debug.mainthreadTest()
         self.parent = parent
 
-        self.gtk = gtk.Frame('Material')
+        self.gtk = Gtk.Frame(
+            label='Material', shadow_type=Gtk.ShadowType.IN,
+            margin_start=gtkutils.handle_padding, margin_end=2,
+            margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(self.gtk, 'Material')
-        self.gtk.set_shadow_type(gtk.SHADOW_IN)
-        vbox = gtk.VBox()
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
         self.gtk.add(vbox)
 
-        buttonbox = gtk.HBox()
-        vbox.pack_start(buttonbox, expand=0, fill=0)
+        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            spacing=2, margin=2)
+        vbox.pack_start(buttonbox, expand=False, fill=False, padding=0)
 
-        self.newmaterial = gtkutils.StockButton(gtk.STOCK_NEW, 'New...')
+        self.newmaterial = gtkutils.StockButton('document-new-symbolic',
+                                                'New...')
         gtklogger.setWidgetName(self.newmaterial, 'New')
-        buttonbox.pack_start(self.newmaterial, expand=1, fill=0)
-        tooltips.set_tooltip_text(self.newmaterial,'Create a new Material.')
-        gtklogger.connect(self.newmaterial, "clicked",self.on_newmaterial)
+        buttonbox.pack_start(self.newmaterial,
+                             expand=True, fill=False, padding=0)
+        self.newmaterial.set_tooltip_text('Create a new Material.')
+        gtklogger.connect(self.newmaterial, "clicked", self.on_newmaterial)
 
-        self.renamematerial = gtkutils.StockButton(gtk.STOCK_EDIT,
+        self.renamematerial = gtkutils.StockButton('document-edit-symbolic',
                                                    'Rename...')
         gtklogger.setWidgetName(self.renamematerial,'Rename')
-        buttonbox.pack_start(self.renamematerial, expand=1, fill=0)
-        tooltips.set_tooltip_text(self.renamematerial,
-                             'Rename this material.')
+        buttonbox.pack_start(self.renamematerial,
+                             expand=True, fill=False, padding=0)
+        self.renamematerial.set_tooltip_text('Rename this material.')
         gtklogger.connect(self.renamematerial, "clicked", self.on_rename)
         
-        self.copymaterial = gtkutils.StockButton(gtk.STOCK_COPY, 'Copy...')
+        self.copymaterial = gtkutils.StockButton('edit-copy-symbolic',
+                                                 'Copy...')
         gtklogger.setWidgetName(self.copymaterial, 'Copy')
-        buttonbox.pack_start(self.copymaterial, expand=1, fill=0)
-        tooltips.set_tooltip_text(self.copymaterial,
-                             'Create a copy of this material.')
+        buttonbox.pack_start(self.copymaterial,
+                             expand=True, fill=False, padding=0)
+        self.copymaterial.set_tooltip_text('Create a copy of this material.')
         gtklogger.connect(self.copymaterial, "clicked", self.on_copy)
 
-        self.deletebutton = gtkutils.StockButton(gtk.STOCK_DELETE, 'Delete')
+        self.deletebutton = gtkutils.StockButton('edit-delete-symbolic',
+                                                 'Delete')
         gtklogger.setWidgetName(self.deletebutton, 'Delete')
-        buttonbox.pack_start(self.deletebutton, expand=1, fill=0)
-        tooltips.set_tooltip_text(self.deletebutton,'Delete this material.')
+        buttonbox.pack_start(self.deletebutton,
+                             expand=True, fill=False, padding=0)
+        self.deletebutton.set_tooltip_text('Delete this material.')
         gtklogger.connect(self.deletebutton, "clicked", self.on_delete)
 
-        self.savebutton = gtkutils.StockButton(gtk.STOCK_SAVE, 'Save...')
+        self.savebutton = gtkutils.StockButton('document-save-symbolic',
+                                               'Save...')
         gtklogger.setWidgetName(self.savebutton, 'Save')
-        buttonbox.pack_start(self.savebutton, expand=1, fill=0)
-        tooltips.set_tooltip_text(self.savebutton,'Save this material in a file.')
+        buttonbox.pack_start(self.savebutton,
+                             expand=True, fill=False, padding=0)
+        self.savebutton.set_tooltip_text('Save this material in a file.')
         gtklogger.connect(self.savebutton, 'clicked', self.on_save)
 
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=0)
+        
         self.materialName = chooser.ChooserWidget(
             materialmanager.getMaterialNames(),
             callback=self.newMatSelection,
             update_callback=self.newMatSelection,
-            name="MaterialList")
-        self.materialName.gtk.set_border_width(3)
-
-        vbox.pack_start(self.materialName.gtk, expand=0, fill=0)
-        tooltips.set_tooltip_text(self.materialName.gtk,
-                             'Choose a Material to edit.')
+            name="MaterialList",
+            border_width=2)
+        hbox.pack_start(Gtk.Label("Material:"),
+                        expand=False, fill=False, padding=0)
+        hbox.pack_start(self.materialName.gtk,
+                        expand=True, fill=True, padding=0)
+        self.materialName.gtk.set_tooltip_text('Choose a Material to edit.')
 
         # The list of Properties belonging to a Material
         self.matproplist = chooser.ScrolledChooserListWidget(
-            callback=self.matproplistCB, autoselect=False, name="PropertyList")
-        self.matproplist.gtk.set_border_width(3)
-        vbox.pack_start(self.matproplist.gtk, expand=1, fill=1)
+            callback=self.matproplistCB, autoselect=False, name="PropertyList",
+            border_width=2)
+        vbox.pack_start(self.matproplist.gtk, expand=True, fill=True, padding=0)
 
-        self.removebutton = gtk.Button('Remove Property from Material')
+        self.removebutton = Gtk.Button('Remove Property from Material',
+                                       border_width=2)
         gtklogger.setWidgetName(self.removebutton, "RemoveProperty")
-        self.removebutton.set_border_width(3)
-        vbox.pack_start(self.removebutton, expand=0, fill=0, padding=3)
-        tooltips.set_tooltip_text(self.removebutton,
-               'Remove the currently selected property from this material.')
+        vbox.pack_start(self.removebutton, expand=False, fill=False, padding=0)
+        self.removebutton.set_tooltip_text(
+            'Remove the currently selected property from this material.')
         gtklogger.connect(self.removebutton, "clicked", self.on_remove)
 
-        # Assignment of materials to pixels and removal of materials
-        # from pixels may belong in a separate GUI page.  For now,
-        # it's done via the dialog boxes raised by the buttons defined
-        # here.
-        assignframe = gtk.Frame()
-        assignframe.set_shadow_type(gtk.SHADOW_IN)
-        assignframe.set_border_width(3)
-        vbox.pack_start(assignframe, expand=0, fill=0)
+        # The buttons for assigning and removing materials from pixels
+        # are in a Grid because if we ever get around to finishing the
+        # interface materials, the buttons for adding and removing
+        # material from interfaces will appear in the second row of
+        # the grid.
 
-        # NB surface-mode flag is operative here.
-
-        if runtimeflags.surface_mode:
-            inner2vbox_pair=gtk.VBox()
-        align = gtk.Alignment(xalign=0.5)
-        inner2hbox_both=gtk.HBox()
-        inner2vbox = gtk.VBox()
-        if runtimeflags.surface_mode:
-            assignframe.add(inner2hbox_both)
-        else:
-            assignframe.add(align) 
-            align.add(inner2hbox_both) 
-        inner2hbox_both.pack_start(inner2vbox)
-        if runtimeflags.surface_mode:
-            inner2hbox_both.pack_start(inner2vbox_pair) 
+        assigngrid = Gtk.Grid(halign=Gtk.Align.CENTER,
+                              column_homogeneous=True)
+        vbox.pack_start(assigngrid, expand=False, fill=False, padding=0)
         
         # Assign materials to pixels
-        self.assignbutton = gtk.Button('Assign Material to %ss...'%Pixstring)
+        self.assignbutton = Gtk.Button('Assign to Pixels...',
+                                       hexpand=True,
+                                       border_width=2)
         gtklogger.setWidgetName(self.assignbutton, "Assign")
-        self.assignbutton.set_border_width(3)
-        inner2vbox.pack_start(self.assignbutton, expand=0, fill=0)
-        tooltips.set_tooltip_text(self.assignbutton,
-                             'Assign the currently selected Material to %ss in a Microstructure.'%pixstring)
+        self.assignbutton.set_tooltip_text(
+            'Assign the currently selected Material to pixels'
+            ' in a Microstructure.')
         gtklogger.connect(self.assignbutton, 'clicked', self.on_assignment)
+        assigngrid.attach(self.assignbutton, 0,0, 1,1)
         
         # Remove materials from pixels
-        self.removematbutton = gtk.Button('Remove Materials from %ss...'%Pixstring)
+        self.removematbutton = Gtk.Button('Remove from Pixels...',
+                                          hexpand=True,
+                                          border_width=2)
         gtklogger.setWidgetName(self.removematbutton, "RemoveMaterial")
-        self.removematbutton.set_border_width(3)
-        inner2vbox.pack_start(self.removematbutton, expand=0, fill=0)
-        tooltips.set_tooltip_text(self.removematbutton,
-                             'Remove all Materials from %ss in a Microstructure.'%pixstring)
+        self.removematbutton.set_tooltip_text(
+            'Remove all Materials from pixels in a Microstructure.')
         gtklogger.connect(self.removematbutton, 'clicked',
                           self.on_MS_remove_material)
-
+        assigngrid.attach(self.removematbutton, 1,0, 1,1)
 
         if runtimeflags.surface_mode:
-
-            self.assigninterfacebutton = gtk.Button('Assign to interface...')
+            # Assign material to interface
+            self.assigninterfacebutton = Gtk.Button('Assign to interface...',
+                                                    hexpand=True,
+                                                    border_width=2)
             gtklogger.setWidgetName(self.assigninterfacebutton,
                                     "AssignInterface")
-            self.assigninterfacebutton.set_border_width(3)
-            inner2vbox_pair.pack_start(self.assigninterfacebutton,
-                                       expand=0, fill=0)
-            tooltips.set_tooltip_text(self.assigninterfacebutton,
-                                      'Assign the currently selected Material to an interface in a Microstructure.')
-            gtklogger.connect(self.assigninterfacebutton, 'clicked', self.on_interface_assign)
+            self.assigninterfacebutton.set_tooltip_text(
+                'Assign the currently selected Material to an interface'
+                ' in a Microstructure.')
+            gtklogger.connect(self.assigninterfacebutton, 'clicked',
+                              self.on_interface_assign)
         
             # Remove material from interface
-            self.removeinterfacebutton = gtk.Button('Remove from interface...')
+            self.removeinterfacebutton = Gtk.Button('Remove from interface...',
+                                                    hexpand=True,
+                                                    border_width=2)
             gtklogger.setWidgetName(self.removeinterfacebutton,
                                     "RemoveInterface")
-            self.removeinterfacebutton.set_border_width(3)
-            inner2vbox_pair.pack_start(self.removeinterfacebutton, expand=0, fill=0)
-            tooltips.set_tooltip_text(self.removeinterfacebutton,
-                                      'Remove Material from an interface in a Microstructure.')
+            self.removeinterfacebutton.set_tooltip_text(
+                'Remove Material from an interface in a Microstructure.')
             gtklogger.connect(self.removeinterfacebutton, 'clicked',
                               self.on_interface_remove)
+
+            assigngrid.attach(self.assigninterfacebutton, 1,0, 1,1)
+            assigngrid.attach(self.removeinterfacebutton, 1,1, 1,1)
         
         # End of surface-mode block.
 
@@ -461,8 +477,8 @@ class MaterialPane:
         self.gtk.show_all()
 
         # Switchboard callbacks.
-        switchboard.requestCallbackMain("new_material",self.new_mat)
-        switchboard.requestCallbackMain("remove_material",self.del_mat)
+        switchboard.requestCallbackMain("new_material", self.new_mat)
+        switchboard.requestCallbackMain("remove_material", self.del_mat)
         switchboard.requestCallbackMain("prop_added_to_material",
                                         self.prop_added)
         switchboard.requestCallbackMain("prop_removed_from_material",
@@ -510,28 +526,40 @@ class MaterialPane:
 
     def on_newmaterial(self, button):   # gtk callback
         menuitem = OOF.Material.New
-        if parameterwidgets.getParameters(title='New material',
-                                          *menuitem.params):
+        if parameterwidgets.getParameters(
+                title='New material',
+                parentwindow=self.parent.gtk.get_toplevel(),
+                *menuitem.params):
             if menuitem.get_arg('name').nontrivial():
                 menuitem.callWithDefaults()
 
     def on_delete(self, button):        # gtk callback
         name = self.currentMaterialName()
         if name is not None:
-            if reporter.query("Delete material %s?" % name,
-                              'OK', 'Cancel', default='OK') == 'OK':
+            if reporter.query(
+                    "Delete material %s?" % name,
+                    'OK', 'Cancel', default='OK',
+                    parentwindow=self.parent.gtk.get_toplevel()) == 'OK':
                 OOF.Material.Delete(name=name)
             
     def new_mat(self, name):            # switchboard "new_material"
         names = materialmanager.getMaterialNames()
-        self.materialName.update(names)
-        self.materialName.set_state(name)
-        self.updatePropList()
+        self.parent.suppressSensitization(True)
+        try:
+            self.materialName.update(names)
+            self.materialName.set_state(name)
+            self.updatePropList()
+        finally:
+            self.parent.suppressSensitization(False)
         self.sensitize()
 
     def del_mat(self, material):        # switchboard "remove_material"
-        self.materialName.update(materialmanager.getMaterialNames())
-        self.updatePropList()
+        self.parent.suppressSensitization(True)
+        try:
+            self.materialName.update(materialmanager.getMaterialNames())
+            self.updatePropList()
+        finally:
+            self.parent.suppressSensitization(False)
         self.sensitize()
 
     def on_rename(self, button):     # gtk callback
@@ -540,7 +568,9 @@ class MaterialPane:
             menuitem = OOF.Material.Rename
             newnameparam = menuitem.get_arg("name")
             if parameterwidgets.getParameters(
-                newnameparam, title="New name for the material."):
+                    newnameparam,
+                    parentwindow=self.parent.gtk.get_toplevel(),
+                    title="New name for the material."):
                 if newnameparam.nontrivial():
                     menuitem.callWithDefaults(material=oldname)
             
@@ -551,7 +581,9 @@ class MaterialPane:
             menuitem = OOF.Material.Copy
             newnameparam = menuitem.get_arg('new_name')
             if parameterwidgets.getParameters(
-                newnameparam, title="Name for the new material."):
+                    newnameparam,
+                    parentwindow=self.parent.gtk.get_toplevel(),
+                    title="Name for the new material."):
                 if newnameparam.nontrivial():
                     menuitem.callWithDefaults(name=oldname)
 
@@ -567,13 +599,16 @@ class MaterialPane:
         params = filter(lambda x: x.name != 'material', menuitem.params)
         materialname = self.currentMaterialName()
         if parameterwidgets.getParameters(
-            title="Assign material %s to %ss" % (materialname,pixstring), *params):
+                parentwindow=self.parent.gtk.get_toplevel(),
+                title="Assign material %s to pixels" % materialname, *params):
             menuitem.callWithDefaults(material=materialname)
 
     def on_MS_remove_material(self, button): # gtk callback
         menuitem = OOF.Material.Remove
         if parameterwidgets.getParameters(
-            title='Remove the assigned material from %ss'%pixstring, *menuitem.params):
+                parentwindow=self.parent.gtk.get_toplevel(),
+                title='Remove the assigned material from pixels',
+                *menuitem.params):
             menuitem.callWithDefaults()
 
     #Interface branch
@@ -582,12 +617,16 @@ class MaterialPane:
         params = filter(lambda x: x.name != 'material', menuitem.params)
         materialname = self.currentMaterialName()
         if parameterwidgets.getParameters(
-            title="Assign material %s to an interface" % materialname, *params):
+                parentwindow=self.parent.gtk.get_toplevel(),
+                title="Assign material %s to an interface" % materialname,
+                *params):
             menuitem.callWithDefaults(material=materialname)
     def on_interface_remove(self, button):
         menuitem = OOF.Material.Interface.Remove
         if parameterwidgets.getParameters(
-            title='Remove the assigned material from interface', *menuitem.params):
+                parentwindow=self.parent.gtk.get_toplevel(),
+                title='Remove the assigned material from interface',
+                *menuitem.params):
             menuitem.callWithDefaults()
 
     def on_save(self, button):          # gtk callback
@@ -596,9 +635,10 @@ class MaterialPane:
         materialname = self.currentMaterialName()
         params = filter(lambda x: x.name != "materials", menuitem.params)
         if parameterwidgets.getParameters(
-            title='Save Material "%s"' % materialname,
-            ident='SaveMat',
-            *params):
+                parentwindow=self.parent.gtk.get_toplevel(),
+                title='Save Material "%s"' % materialname,
+                ident='SaveMat',
+                *params):
             menuitem.callWithDefaults(materials=[materialname])
         
     #########
@@ -606,15 +646,23 @@ class MaterialPane:
     # switchboard "prop_added_to_material".
     def prop_added(self, material, property):
         if self.currentMaterialName() == material:
-            self.updatePropList()
-            self.select_property(property)
-            self.parent.propertypane.select_property(property)
+            self.parent.suppressSensitization(True)
+            try:
+                self.updatePropList()
+                self.select_property(property)
+                self.parent.propertypane.select_property(property)
+            finally:
+                self.parent.suppressSensitization(False)
         self.sensitize()
 
     # switchboard "prop_removed_from_material"
     def prop_removed(self, material, name, property):
         if self.currentMaterialName() == material.name:
-            self.updatePropList()
+            self.parent.suppressSensitization(True)
+            try:
+                self.updatePropList()
+            finally:
+                self.parent.suppressSensitization(False)
             self.sensitize()
 
     def sensitize(self, *args):
@@ -630,12 +678,11 @@ class MaterialPane:
         nmicros = microstructure.microStructures.nActual()
         self.assignbutton.set_sensitive(
             mat_selected and nmicros > 0 and
-            self.currentMaterial().type()==
-            material.MATERIALTYPE_BULK)
+            self.currentMaterial() is not None and
+            self.currentMaterial().type() == material.MATERIALTYPE_BULK)
         self.removematbutton.set_sensitive(nmicros > 0)
 
-        self.removebutton.set_sensitive(
-            self.currentPropertyName() is not None)
+        self.removebutton.set_sensitive(self.currentPropertyName() is not None)
 
         #Interface branch
 # Commented out while interfaces are unimplemented.
@@ -649,8 +696,12 @@ class MaterialPane:
     ##############
 
     # Callback for the material chooser
-    def newMatSelection(self, gtkobj, name):
-        self.updatePropList()
+    def newMatSelection(self, name):
+        self.parent.suppressSensitization(True)
+        try:
+            self.updatePropList()
+        finally:
+            self.parent.suppressSensitization(False)
         self.sensitize()
 
     # Callback for the property list
@@ -658,7 +709,11 @@ class MaterialPane:
         if self.parent.built:
             if interactive:
                 propname = self.currentPropertyName()
-                self.parent.propertypane.select_property(propname)
+                self.parent.suppressSensitization(True)
+                try:
+                    self.parent.propertypane.select_property(propname)
+                finally:
+                    self.parent.suppressSensitization(False)
             self.sensitize()
         
 
@@ -679,6 +734,7 @@ def _save_prop(menuitem):
         params = filter(lambda x: x.name!="property", menuitem.params)
         if parameterwidgets.getParameters(ident='PropMenu',
                                           title='Save Property',
+                                          parentwindow=oofGUI.gui.gtk,
                                           *params):
             menuitem.callWithDefaults(property=propname)
     else:

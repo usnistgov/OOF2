@@ -22,42 +22,51 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import labelledslider
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
-import gtk
+from gi.repository import Gtk
 import math
 
-# Collection of labelledsliders, passing through the value-changed
-# callback.
-class LabelledSliderSet:
+
+class LabelledSliderSet(object):
     def __init__(self, label=[], min=None, max=None):
         debug.mainthreadTest()
         self.min = min or [0.0]*len(label)
         self.max = max or [1.0]*len(label)
 
-        self.gtk = gtk.Table()
+        self.gtk = Gtk.Grid()
         self.sliders = []
 
         self.callback = None
 
         for i in range(len(label)):
-            newlabel = gtk.Label(label[i])
-            self.gtk.attach(newlabel,0,1,i,i+1)
+            newlabel = Gtk.Label(label[i], halign=Gtk.Align.END)
+            self.gtk.attach(newlabel,0,i, 1,1)
 
             newslider = labelledslider.FloatLabelledSlider(
                 value=self.min[i], vmin=self.min[i], vmax=self.max[i],
                 step=(self.max[i]-self.min[i])/100.0,
-                callback=self.slider_callback, name=label[i] )
+                callback=self.slider_callback, name=label[i],
+                logPaned=(i==0), # only log the GtkPaned position for one slider
+                hexpand=True, halign=Gtk.Align.FILL
+            )
             
-            self.gtk.attach(newslider.gtk, 1,2,i,i+1)
+            self.gtk.attach(newslider.gtk, 1,i, 1,1)
             self.sliders.append(newslider)
 
-    def set_values(self, values):
+        # (Ab)use the widget synchronization for ParameterTables to
+        # keep the Paneds in the LabelledSliders in sync.  This is an
+        # abuse because we're not actually using a ParameterTable
+        # here.
+        for slider in self.sliders:
+            slider.parameterTableXRef(self, self.sliders)
+
+    def set_values(self, *values):
         debug.mainthreadTest()
         for i in range(len(values)):
             self.sliders[i].set_value(values[i])
 
     def get_values(self):
         debug.mainthreadTest()
-        return map( lambda x: x.get_value(), self.sliders)
+        return [x.get_value() for x in self.sliders]
 
     def set_callback(self, func):
         self.callback = func
@@ -68,313 +77,201 @@ class LabelledSliderSet:
     def slider_callback(self, slider, value):
         if self.callback:
             self.callback(slider, value)
-            
 
-# Wrapper class for the color-difference box, containing a
-# gtk.DrawingArea which has two rectangles of different colors.
-class Delta:
-    def __init__(self,xsize=100,ysize=100):
-        debug.mainthreadTest()
-        self.gtk = gtk.DrawingArea()
-        self.gtk.set_size_request(xsize,ysize)
-        self.gtk.connect("configure_event",self.configure)
-        self.gtk.connect("expose_event",self.configure)
-        self.xsize = xsize
-        self.ysize = ysize
-        #
-        self.fg_color = None
-        self.bg_color = None
-    def set_background(self,gdkcol):
-        debug.mainthreadTest()
-        style = self.gtk.get_style().copy()
-        style.bg[0]=gdkcol
-        self.gtk.set_style(style)
-        self.bg_color = gdkcol
-    # Draw the rectangle, using the actual size of the window.
-    def set_foreground(self,gdkcol):
-        debug.mainthreadTest()
-        self.fg_color = gdkcol
-        if self.gtk.window:
-            self.configure(self.gtk,None)
-    def configure(self,gtko,event):
-        debug.mainthreadTest()
-        if self.fg_color:
-            drawable = self.gtk.window
-            xsize, ysize = drawable.get_geometry()[2:4]
-            drawable_gc = drawable.new_gc(foreground=self.fg_color,
-                                          background=self.bg_color,
-                                          fill=gtk.gdk.SOLID)
-            # Should be gtk, not gtko -- want global draw_rectangle routine.
-            drawable.draw_rectangle(drawable_gc, True,
-                                    xsize/2, 0, (xsize/2)+1, ysize)
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# TwoColorBox divides its drawing area into two rectangles.  Initially
+# both rectangles are filled with the color passed to set_color().  If
+# a color is passed to change_color(), only the right hand rectangle
+# is updated with the new color.  Both rectangles are drawn on top of
+# black and white triangles so that the opacity of the colors is
+# apparent.
 
-# Somewhat pathologically, a "Colorbox" is a "Delta" with a
-# different configure routine, which draws the whole box.  This
-# means its "set_background" is a bit strange, since the background
-# is never visible.  
-class ColorBox(Delta):
+class TwoColorBox(object):
     def __init__(self, xsize=100, ysize=100):
-        Delta.__init__(self, xsize, ysize)
-    def configure(self,gtko,event):
         debug.mainthreadTest()
-        if self.fg_color:
-            drawable = self.gtk.window
-            xsize, ysize = drawable.get_geometry()[2:4]
-            drawable_gc = drawable.new_gc(foreground=self.fg_color,
-                                          background=self.bg_color,
-                                          fill=gtk.gdk.SOLID)
-            drawable.draw_rectangle(drawable_gc, True, 0, 0, xsize, ysize)
+        self.gtk = Gtk.DrawingArea()
+        self.gtk.set_size_request(xsize, ysize)
+        self.gtk.connect("draw", self.drawCB)
+    def set_color(self, bg):
+        self.color0 = bg
+        self.color1 = bg
+    def change_color(self, fg):
+        self.color1 = fg
+        self.gtk.queue_draw()
+    def drawCB(self, widget, context):
+        # context is a Cairo::Context
+        width = widget.get_allocated_width()
+        halfwidth = width/2.
+        height = widget.get_allocated_height()
+        # Draw white and black triangles on the background.
+        context.set_source_rgb(0, 0, 0)
+        context.move_to(0, 0)
+        context.line_to(halfwidth, 0)
+        context.line_to(0, height)
+        context.close_path()
+        context.fill()
+        context.move_to(halfwidth, 0)
+        context.line_to(width, 0)
+        context.line_to(halfwidth, height)
+        context.close_path()
+        context.fill()
+        context.set_source_rgb(1, 1, 1)
+        context.move_to(halfwidth, 0)
+        context.line_to(halfwidth, height)
+        context.line_to(0, height)
+        context.close_path()
+        context.fill()
+        context.move_to(width, 0)
+        context.line_to(width, height)
+        context.line_to(halfwidth, height)
+        context.close_path()
+        context.fill()
 
+        # Draw the old color in a rectangle on the left.
+        context.move_to(0, 0)
+        context.line_to(halfwidth, 0)
+        context.line_to(halfwidth, height)
+        context.line_to(0, height)
+        context.close_path()
+        context.set_source_rgba(self.color0.getRed(), self.color0.getGreen(),
+                                self.color0.getBlue(), self.color0.getAlpha())
+        context.fill()
+        # Draw the new color in a rectangle on the right.
+        context.move_to(halfwidth, 0)
+        context.line_to(width, 0)
+        context.line_to(width, height)
+        context.line_to(halfwidth, height)
+        context.close_path()
+        context.set_source_rgba(self.color1.getRed(), self.color1.getGreen(),
+                                self.color1.getBlue(), self.color1.getAlpha())
+        context.fill()
+        return False
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-
-# Params will be a list of floats, in r,g,b order corresponding
-# to the registration parameters for RGBColor.
-class RGBWidget(parameterwidgets.ParameterWidget):
-    def __init__(self,params,old_base,delta_class,scope=None,name=None):
-        debug.mainthreadTest()
-        parameterwidgets.ParameterWidget.__init__(self, gtk.HBox(), scope, name)
-        self.params = params
-        # VBox for the color patch.
-        self.vbox = gtk.VBox()
-        self.delta = delta_class(160,40)
-        #
-        self.gtk.pack_start(self.vbox, expand=0, fill=0)
-        #
-        self.slider = LabelledSliderSet(["Red", "Green", "Blue"])
-        self.vbox.pack_start(self.slider.gtk, expand=1, fill=1)
-        self.vbox.pack_start(self.delta.gtk, expand=0, fill=0)
-        #
-        if old_base:
-            self.gdkcol = self.gtk.get_colormap().alloc_color(
-                int(65535*old_base.getRed()),
-                int(65535*old_base.getGreen()),
-                int(65535*old_base.getBlue()))
-        else:
-            self.gdkcol = self.gtk.get_colormap().alloc_color(0,0,0)
-        #
-        self.delta.set_background(self.gdkcol)
-        #
-        self.set_values() # Copies values from params to the sliders.
-        #
-        self.slider.set_callback(self.newrgb)
-        self.widgetChanged(1, interactive=0)
-
-    def newrgb(self, slider, value):
-        debug.mainthreadTest()
-        self.values = self.slider.get_values()
-        self.gdkcol = self.gtk.get_colormap().alloc_color(
-            int(65535*self.values[0]),
-            int(65535*self.values[1]),
-            int(65535*self.values[2]))
-        self.delta.set_foreground(self.gdkcol)
-        self.widgetChanged(1, interactive=1)
-
-
-    # Set the widget from the parameters.
-    def set_values(self,values=None):
-        debug.mainthreadTest()
-        self.values = values or [p.value for p in self.params]
-        self.slider.set_values(self.values)
-        self.gdkcol = self.gtk.get_colormap().alloc_color(
-            int(65535*self.values[0]),
-            int(65535*self.values[1]),
-            int(65535*self.values[2]))
-        self.delta.set_foreground(self.gdkcol)
-        self.widgetChanged(1, interactive=0)
-        
-    def get_values(self):
-        for p,v in map(None, self.params, self.values):
-            p.value = v
-
-    def destroy(self):
-        debug.mainthreadTest()
-        self.gtk.destroy()
-
-class DiffRGBWidget(RGBWidget):
-    def __init__(self,params,old_base,scope=None, name=None):
-        RGBWidget.__init__(self, params, old_base, Delta, scope, name)
-
-class NewRGBWidget(RGBWidget):
+class ColorWidget(parameterwidgets.ParameterWidget):
     def __init__(self, params, old_base, scope=None, name=None):
-        RGBWidget.__init__(self, params, old_base, ColorBox, scope, name)
-        
-
-regclassfactory.addWidget(color.ColorParameter, color.RGBColor, DiffRGBWidget)
-regclassfactory.addWidget(color.NewColorParameter, color.RGBColor, NewRGBWidget)
-
-# The "oldcolor" is currently passed in as an hsv, which means that
-# within the widget, rgb2hsv is actually never called by anybody.  Yet.
-class HSVWidget(parameterwidgets.ParameterWidget):
-    def __init__(self,params,old_base,delta_class,scope=None,name=None):
         debug.mainthreadTest()
-        parameterwidgets.ParameterWidget.__init__(self, gtk.HBox(), scope, name)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        parameterwidgets.ParameterWidget.__init__(self, vbox, scope, name)
         self.params = params
-        self.vbox = gtk.VBox()
-        self.delta = delta_class(160,40)
-        #
-        self.gtk.pack_start(self.vbox, expand=0, fill=0)
-        #
-        self.slider = LabelledSliderSet(["Hue","Saturation","Value"],
-                                        max=[360.0, 1.0, 1.0])
 
-        self.vbox.pack_start(self.slider.gtk, expand=0, fill=0)
-        self.vbox.pack_start(self.delta.gtk, expand=0, fill=0)
-        #
+        self.sliders = LabelledSliderSet(self.slidernames,
+                                         self.slidermins, self.slidermaxes)
+        self.colorbox = TwoColorBox(160, 40)
+        self.gtk.pack_start(self.sliders.gtk,
+                            expand=True, fill=True, padding=0)
+        self.gtk.pack_start(self.colorbox.gtk,
+                            expand=False, fill=False, padding=0)
         if old_base:
-            self.gdkcol = self.gtk.get_colormap().alloc_color(
-                int(65535*old_base.getRed()),
-                int(65535*old_base.getGreen()),
-                int(65535*old_base.getBlue()))
+            self.color = old_base
         else:
-            self.gdkcol = self.gtk.get_colormap().alloc_color(0,0,0)
-        self.delta.set_background(self.gdkcol)
-        self.set_values()
-        self.slider.set_callback(self.newhsv)
-        self.widgetChanged(1, interactive=0)
+            self.color = color.black
+        self.colorbox.set_color(self.color)
 
-    def newhsv(self, slider, value):
+        self.set_values()       # Copies values from params to the sliders
+        self.sliders.set_callback(self.sliderCB)
+        self.widgetChanged(True, interactive=False)
+
+    def sliderCB(self, slider, value):
+        # Set the ColorBox from the sliders. The first arg is the
+        # slider that changed, but we don't really need to know it.
         debug.mainthreadTest()
-        self.values = self.slider.get_values()
-        rgb = self.hsv2rgb(self.values)
-        self.gdkcol = self.gtk.get_colormap().alloc_color(
-            int(65535*rgb[0]),
-            int(65535*rgb[1]),
-            int(65535*rgb[2]))
-        self.delta.set_foreground(self.gdkcol)
-        self.widgetChanged(1, interactive=1)
+        # A labelled slider can be in an invalid state if its text has
+        # been deleted, in which case get_values() will raise an
+        # exception.
+        try:
+            values = self.sliders.get_values()
+        except:
+            self.widgetChanged(False, interactive=True)
+        else:
+            self.color = self.colorclass(*values)
+            self.colorbox.change_color(self.color)
+            self.widgetChanged(True, interactive=True)
 
-    # Set slider values from the params.
-    def set_values(self,values=None):
+    def set_values(self, values=None):
+        # Set the sliders and the ColorBox from the parameters
         debug.mainthreadTest()
-        self.values = values or [p.value for p in self.params]
-        self.slider.set_values(self.values)
-        rgb = self.hsv2rgb(self.values)
-        self.gdkcol = self.gtk.get_colormap().alloc_color(
-            int(65535*rgb[0]),
-            int(65535*rgb[1]),
-            int(65535*rgb[2]))
-        self.delta.set_foreground(self.gdkcol)
-        self.widgetChanged(1, interactive=0)
-
-    def get_values(self):
-        for p,v in map(None, self.params, self.values):
-            p.value = v
+        vals = values or [p.value for p in self.params]
+        self.sliders.set_values(*vals)
+        self.color = self.colorclass(*vals)
+        self.colorbox.change_color(self.color)
+        self.widgetChanged(True, interactive=False)
 
     def destroy(self):
         debug.mainthreadTest()
         self.gtk.destroy()
 
-
-    def hsv2rgb(self,hsv):
-        (h,s,v) = hsv
-        #
-        if s==0.0:
-            (r,g,b) = (v,v,v)
-        else:
-            h_sector = int(math.floor(h/60.0)) # Pick a sector, 0->5.
-            h_fraction = (h/60.0)-h_sector
-            #
-            p = v*(1.0-s)
-            q = v*(1.0-s*h_fraction)
-            t = v*(1.0-s*(1.0-h_fraction))
-            # If h=360.0, we can get artificial wrap-around -- catch it.
-            if (h_sector == 0) or (h_sector == 6):
-                (r,g,b) = (v,t,p)
-            elif h_sector == 1:
-                (r,g,b) = (q,v,p)
-            elif h_sector == 2:
-                (r,g,b) = (p,v,t)
-            elif h_sector == 3:
-                (r,g,b) = (p,q,v)
-            elif h_sector == 4:
-                (r,g,b) = (t,p,v)
-            else:
-                (r,g,b) = (v,p,q)
-                
-        return (r,g,b)
-
-
-class DiffHSVWidget(HSVWidget):
-    def __init__(self,params,old_base,scope=None,name=None):
-        HSVWidget.__init__(self, params, old_base, Delta, scope, name)
-
-class NewHSVWidget(HSVWidget):
-    def __init__(self,params,old_base,scope=None,name=None):
-        HSVWidget.__init__(self, params, old_base, ColorBox, scope, name)
-
-        
-regclassfactory.addWidget(color.ColorParameter, color.HSVColor, DiffHSVWidget)
-regclassfactory.addWidget(color.NewColorParameter, color.HSVColor, NewHSVWidget)
-
-# Param will be a single Float parameter, corresponding to the
-# registry for GrayColor.
-class GrayWidget(parameterwidgets.ParameterWidget):
-    def __init__(self,params,old_base,delta_class,scope=None,name=None):
-        debug.mainthreadTest()
-        parameterwidgets.ParameterWidget.__init__(self, gtk.HBox(), scope, name)
-        self.params = params
-        self.vbox = gtk.VBox()
-        self.delta = delta_class(160,40)
-        #
-        self.gtk.pack_start(self.vbox, expand=0, fill=0)
-        #
-        self.slider = LabelledSliderSet(["Gray"], min=[0.0],max=[1.0])
-        #
-        self.vbox.pack_start(self.slider.gtk, expand=0, fill=0)
-        self.vbox.pack_start(self.delta.gtk, expand=0, fill=0)
-        #
-        if old_base:
-            self.gdkcol = self.gtk.get_colormap().alloc_color(
-                int(65535*old_base.getRed()),
-                int(65535*old_base.getGreen()),
-                int(65535*old_base.getBlue()))
-        else:
-            self.gdkcol = self.gtk.get_colormap().alloc_color(0,0,0)
-        self.delta.set_background(self.gdkcol)
-        self.set_values()
-        self.slider.set_callback(self.newgray)
-        self.widgetChanged(1, interactive=0)
-
-    def set_values(self,values=None):
-        debug.mainthreadTest()
-        self.values = values or [p.value for p in self.params]
-        self.slider.set_values(self.values)
-        rgb = self.gray2rgb(self.values[0])
-        self.gdkcol = self.gtk.get_colormap().alloc_color(int(65535*rgb[0]),
-                                                          int(65535*rgb[1]),
-                                                          int(65535*rgb[2]))
-        self.delta.set_foreground(self.gdkcol)
-        self.widgetChanged(1, interactive=0)
-        
+class RGBWidget(ColorWidget):
+    colorclass = color.RGBColor
+    slidernames = ["red", "green", "blue"]
+    slidermins = [0.0]*3
+    slidermaxes = [1.0]*3
     def get_values(self):
-        self.params[0].value = self.values[0]
+        self.params[0].value = self.color.red
+        self.params[1].value = self.color.green
+        self.params[2].value = self.color.blue
 
-    def destroy(self):
-        debug.mainthreadTest()
-        self.gtk.destroy()
-        
-    def newgray(self, slider, value):
-        debug.mainthreadTest()
-        self.values = [value]
-        rgb = self.gray2rgb(self.values[0])
-        self.gdkcol = self.gtk.get_colormap().alloc_color(int(65535*rgb[0]),
-                                                          int(65535*rgb[1]),
-                                                          int(65535*rgb[2]))
-        self.delta.set_foreground(self.gdkcol)
-        self.widgetChanged(1, interactive=1)
-        
-    def gray2rgb(self, gray):
-        return (gray, gray, gray)
+class RGBAWidget(ColorWidget):
+    colorclass = color.RGBAColor
+    slidernames = ["red", "green", "blue", "alpha"]
+    slidermins = [0.0]*4
+    slidermaxes = [1.0]*4
+    def get_values(self):
+        self.params[0].value = self.color.red
+        self.params[1].value = self.color.green
+        self.params[2].value = self.color.blue
+        self.params[3].value = self.color.alpha
 
-class DiffGrayWidget(GrayWidget):
-    def __init__(self,params,old_base,scope=None,name=None):
-        GrayWidget.__init__(self, params, old_base, Delta, scope, name)
+class HSVWidget(ColorWidget):
+    colorclass = color.HSVColor
+    slidernames = ["hue", "saturation", "value"]
+    slidermins = [0.0]*3
+    slidermaxes = [360., 1.0, 1.0]
+    def get_values(self):
+        self.params[0].value = self.color.hue
+        self.params[1].value = self.color.saturation
+        self.params[2].value = self.color.value
 
-class NewGrayWidget(GrayWidget):
-    def __init__(self,params,old_base,scope=None,name=None):
-        GrayWidget.__init__(self, params, old_base, ColorBox, scope, name)
+class HSVAWidget(ColorWidget):
+    colorclass = color.HSVAColor
+    slidernames = ["hue", "saturation", "value", "alpha"]
+    slidermins = [0.0]*4
+    slidermaxes = [360., 1.0, 1.0, 1.0]
+    def get_values(self):
+        self.params[0].value = self.color.hue
+        self.params[1].value = self.color.saturation
+        self.params[2].value = self.color.value
+        self.params[3].value = self.color.alpha
 
-regclassfactory.addWidget(color.ColorParameter, color.Gray, DiffGrayWidget)
-regclassfactory.addWidget(color.NewColorParameter, color.Gray, NewGrayWidget)
+class GrayWidget(ColorWidget):
+    colorclass = color.Gray
+    slidernames = ["gray"]
+    slidermins = [0.0]
+    slidermaxes = [1.0]
+    def get_values(self):
+        self.params[0].value = self.color.value
+
+class TransGrayWidget(ColorWidget):
+    colorclass = color.TranslucentGray
+    slidernames = ["gray", "alpha"]
+    slidermins = [0.0, 0.0]
+    slidermaxes = [1.0, 1.0]
+    def get_values(self):
+        self.params[0].value = self.color.value
+        self.params[1].value = self.color.alpha
+
+
+regclassfactory.addWidget(
+    color.OpaqueColorParameter, color.RGBColor, RGBWidget)
+regclassfactory.addWidget(
+    color.TranslucentColorParameter, color.RGBAColor, RGBAWidget)
+regclassfactory.addWidget(
+    color.OpaqueColorParameter, color.HSVColor, HSVWidget)
+regclassfactory.addWidget(
+    color.TranslucentColorParameter, color.HSVAColor, HSVAWidget)
+regclassfactory.addWidget(
+    color.OpaqueColorParameter, color.Gray, GrayWidget)
+regclassfactory.addWidget(
+    color.TranslucentColorParameter, color.TranslucentGray, TransGrayWidget)

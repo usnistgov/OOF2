@@ -8,13 +8,13 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import material
 from ooflib.common import debug
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import pixelinfoGUIplugin
-import gtk
+
+from gi.repository import Gtk
 
 class MaterialPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
     ordering = 3
@@ -23,15 +23,13 @@ class MaterialPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         debug.mainthreadTest()
         pixelinfoGUIplugin.PixelInfoGUIPlugIn.__init__(self, toolbox)
 
-        label=gtk.Label('material=')
-        label.set_alignment(1.0, 0.5)
-        table.attach(label, 0,1, row,row+1, xpadding=5, xoptions=gtk.FILL)
-        self.materialtext = gtk.Entry()
+        label = Gtk.Label('material=', halign=Gtk.Align.END, hexpand=False)
+        table.attach(label, 0,row, 1,1)
+        self.materialtext = Gtk.Entry(editable=False,
+                                      halign=Gtk.Align.FILL, hexpand=True)
         gtklogger.setWidgetName(self.materialtext, 'material')
-        self.materialtext.set_size_request(12*guitop.top().charsize, -1)
-        self.materialtext.set_editable(0)
-        table.attach(self.materialtext, 1,2, row,row+1,
-                     xpadding=5, xoptions=gtk.EXPAND|gtk.FILL)
+        self.materialtext.set_width_chars(12)
+        table.attach(self.materialtext, 1,row, 1,1)
         self.sbcb = switchboard.requestCallbackMain(
             'materials changed in microstructure', self.matchanged)
 

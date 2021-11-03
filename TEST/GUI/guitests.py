@@ -18,6 +18,16 @@
 # python path so that the log file can contain import statements that
 # load tests from other files in the subdirectory.
 
+# Actually, the tests are run in a temporary directory so that any
+# files created by the test don't overwrite anything.  This means that
+# *this* directory (OOF2/TEST/GUI) is also added to the path.  The
+# temp directory also contains a symbolic link to OOF2/TEST/UTILS,
+# which is added to the path. It contains links to
+# OOF2/TEST/GUI/examples and OOF2/TEST/GUI/TEST_DATA, but they're not
+# in the path.
+
+# To temporarily skip a subdirectory, add a file called SKIP to it.
+
 # The subdirectory can contain a file called "args" which contains a
 # single line of arguments to be added to the oof2 command.  It can
 # also contain a file named 'cleanup.py' which will be run after the
@@ -32,6 +42,7 @@
 import getopt
 import os
 import string
+import subprocess
 import sys
 import tempfile
 
@@ -79,48 +90,48 @@ def run_tests(dirs, rerecord, forever):
         # even if everything ran correctly.
         for f in os.listdir(tmpdir):
             os.remove(f)
-            # Remove the temp directory
+        # Remove the temp directory
         os.rmdir(tmpdir)
 
 def really_run_tests(homedir, dirs, rerecord):
     nskipped = 0
     nrun = 0
-    for dir in dirs:
-        originaldir = os.path.join(homedir, dir)
+    for directory in dirs:
+        originaldir = os.path.join(homedir, directory)
         # Check that the directory and log file exist, and that
         # there's no SKIP file, before bothering to make the symlink
         # to the directory.
         if not os.path.isdir(originaldir):
-            print >> sys.stderr, "Can't find directory", dir
+            print >> sys.stderr, "Can't find directory", directory
             return
         if os.path.exists(os.path.join(originaldir, 'SKIP')) and len(dirs) > 1:
-            print >> sys.stderr, " **** Skipping", dir, "****"
+            print >> sys.stderr, " **** Skipping", directory, "****"
             nskipped += 1
             continue
         if not os.path.exists(os.path.join(originaldir, 'log.py')):
-            print >> sys.stderr, " **** Skipping", dir, "(No log file!) ****"
+            print >> sys.stderr, " **** Skipping", directory, "(No log file!) ****"
             nskipped += 1
             continue
 
         # Ok, everything's there.  Get ready to run this test.  Make a
         # symlink to the test directory.
         ## TODO: Is the symlink really necessary? We could provide a
-        ## full path to log.py.  The test directory is already putting
-        ## into PYTHONPATH.
-        testdir = os.path.join(tmpdir, dir)
-        os.symlink(os.path.join(homedir, dir), testdir)
+        ## full path to log.py.  The test directory is already in
+        ## PYTHONPATH.
+        testdir = os.path.join(tmpdir, directory)
+        os.symlink(os.path.join(homedir, directory), testdir)
 
         # Read extra oof2 args from the args file, if it exists.
-        if os.path.exists(os.path.join(dir, 'args')):
-            argfile = open(os.path.join(dir, 'args'))
-            extraargs = argfile.readline().rstrip()
+        if os.path.exists(os.path.join(directory, 'args')):
+            argfile = open(os.path.join(directory, 'args'))
+            extraargs = argfile.readline().rstrip().split()
             argfile.close()
         else:
-            extraargs = ""
+            extraargs = []
         # Read the expected exit status from the exitstatus file, if
         # it exists.
         if os.path.exists(os.path.join(originaldir, 'exitstatus')):
-            exitstatfile = open(os.path.join(dir, 'exitstatus'))
+            exitstatfile = open(os.path.join(directory, 'exitstatus'))
             exitstatus = int(exitstatfile.readline())
             exitstatfile.close()
         else:
@@ -128,38 +139,46 @@ def really_run_tests(homedir, dirs, rerecord):
         
         global delaystr
         if delaystr:
-            extraargs += " --replaydelay=" + delaystr
+            extraargs += ["--replaydelay=", delaystr]
         if debug:
-            extraargs += " --debug"
+            extraargs += ["--debug"]
         if no_checkpoints:
-            extraargs += " --no-checkpoints"
+            extraargs += ["--no-checkpoints"]
         if sync:
-            extraargs += " --gtk=--sync"
+            extraargs += ["--gtk=", "--sync"]
         if unthreaded:
-            extraargs += " --unthreaded"
+            extraargs += ["--unthreaded"]
         if rerecord:
             replayarg = 'rerecord'
         else:
             replayarg = 'replay'
 
-        cmd = ("oof2 --pathdir . --pathdir %(test)s --pathdir %(home)s"
-               " --pathdir UTILS --%(mode)s %(log)s %(extra)s" 
-               % {"test" : dir, 
-                  "home" : homedir,
-                  "mode" : replayarg, 
-                  "log" : os.path.join(dir, "log.py"),
-                  "extra" : extraargs
-                })
-        print >> sys.stderr, "-------------------------"
-        print >> sys.stderr, "--- Running %s" % cmd
-        os.putenv('OOFTESTDIR', dir)
-        result = os.system(cmd)
-        if result != exitstatus*256: # os.system returns status in high byte
-            print "Test", dir, "failed! Status =", result
-            sys.exit(result)
-        print >> sys.stderr, "--- Finished %s" % dir
+        cmd = ["oof2",
+               "--no-rc",       # .oof2rc might affect tests.  Don't use it.
+               "--pathdir", ".",
+               "--pathdir", "%s" % directory,
+               "--pathdir", "%s" % homedir,
+               "--pathdir", "UTILS",
+               "--%s" % replayarg,
+               os.path.join(directory, "log.py")] + extraargs
 
-        cleanupscript = os.path.join(dir, 'cleanup.py')
+        print >> sys.stderr, "-------------------------"
+        print >> sys.stderr, "--- Running %s" % ' '.join(cmd)
+        os.putenv('OOFTESTDIR', directory)
+        result = subprocess.call(cmd)
+        print >> sys.stderr, "--- Return value =", result
+        if result < 0:
+            print >> sys.stderr, "Child was terminated by signal", -result
+            print >> sys.stderr, "Test", directory, "failed!"
+            sys.exit(result)
+
+        if result != exitstatus:
+            print "Test %s failed! Status=%d, expected=%d" \
+                % (directory, result, exitstatus)
+            sys.exit(result)
+        print >> sys.stderr, "--- Finished %s" % directory
+
+        cleanupscript = os.path.join(directory, 'cleanup.py')
         if os.path.exists(cleanupscript):
             execfile(cleanupscript)
 
@@ -177,9 +196,9 @@ def get_dirs():
     files.sort()
     return files
 
-def checkdir(dir, dirs):
-    if dir not in dirs:
-        print >> sys.stderr, "There is no directory named", dir
+def checkdir(directory, dirs):
+    if directory not in dirs:
+        print >> sys.stderr, "There is no directory named", directory
         sys.exit(1)
 
 def removefile(filename):

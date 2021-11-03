@@ -1,7 +1,7 @@
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra.
 //
-// Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
+// Copyright (C) 2008-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
 //
 // This Source Code Form is subject to the terms of the Mozilla
 // Public License v. 2.0. If a copy of the MPL was not distributed
@@ -17,7 +17,9 @@ namespace internal {
 template<typename Lhs, typename Rhs, typename ResultType>
 static void conservative_sparse_sparse_product_impl(const Lhs& lhs, const Rhs& rhs, ResultType& res, bool sortedInsertion = false)
 {
-  typedef typename remove_all<Lhs>::type::Scalar Scalar;
+  typedef typename remove_all<Lhs>::type::Scalar LhsScalar;
+  typedef typename remove_all<Rhs>::type::Scalar RhsScalar;
+  typedef typename remove_all<ResultType>::type::Scalar ResScalar;
 
   // make sure to call innerSize/outerSize since we fake the storage order.
   Index rows = lhs.innerSize();
@@ -25,7 +27,7 @@ static void conservative_sparse_sparse_product_impl(const Lhs& lhs, const Rhs& r
   eigen_assert(lhs.outerSize() == rhs.innerSize());
   
   ei_declare_aligned_stack_constructed_variable(bool,   mask,     rows, 0);
-  ei_declare_aligned_stack_constructed_variable(Scalar, values,   rows, 0);
+  ei_declare_aligned_stack_constructed_variable(ResScalar, values,   rows, 0);
   ei_declare_aligned_stack_constructed_variable(Index,  indices,  rows, 0);
   
   std::memset(mask,0,sizeof(bool)*rows);
@@ -51,12 +53,12 @@ static void conservative_sparse_sparse_product_impl(const Lhs& lhs, const Rhs& r
     Index nnz = 0;
     for (typename evaluator<Rhs>::InnerIterator rhsIt(rhsEval, j); rhsIt; ++rhsIt)
     {
-      Scalar y = rhsIt.value();
+      RhsScalar y = rhsIt.value();
       Index k = rhsIt.index();
       for (typename evaluator<Lhs>::InnerIterator lhsIt(lhsEval, k); lhsIt; ++lhsIt)
       {
         Index i = lhsIt.index();
-        Scalar x = lhsIt.value();
+        LhsScalar x = lhsIt.value();
         if(!mask[i])
         {
           mask[i] = true;
@@ -143,7 +145,7 @@ struct conservative_sparse_sparse_product_selector<Lhs,Rhs,ResultType,ColMajor,C
     // If the result is tall and thin (in the extreme case a column vector)
     // then it is faster to sort the coefficients inplace instead of transposing twice.
     // FIXME, the following heuristic is probably not very good.
-    if(lhs.rows()>=rhs.cols())
+    if(lhs.rows()>rhs.cols())
     {
       ColMajorMatrix resCol(lhs.rows(),rhs.cols());
       // perform sorted insertion
@@ -166,11 +168,12 @@ struct conservative_sparse_sparse_product_selector<Lhs,Rhs,ResultType,RowMajor,C
 {
   static void run(const Lhs& lhs, const Rhs& rhs, ResultType& res)
   {
-     typedef SparseMatrix<typename ResultType::Scalar,RowMajor,typename ResultType::StorageIndex> RowMajorMatrix;
-     RowMajorMatrix rhsRow = rhs;
-     RowMajorMatrix resRow(lhs.rows(), rhs.cols());
-     internal::conservative_sparse_sparse_product_impl<RowMajorMatrix,Lhs,RowMajorMatrix>(rhsRow, lhs, resRow);
-     res = resRow;
+    typedef SparseMatrix<typename Rhs::Scalar,RowMajor,typename ResultType::StorageIndex> RowMajorRhs;
+    typedef SparseMatrix<typename ResultType::Scalar,RowMajor,typename ResultType::StorageIndex> RowMajorRes;
+    RowMajorRhs rhsRow = rhs;
+    RowMajorRes resRow(lhs.rows(), rhs.cols());
+    internal::conservative_sparse_sparse_product_impl<RowMajorRhs,Lhs,RowMajorRes>(rhsRow, lhs, resRow);
+    res = resRow;
   }
 };
 
@@ -179,10 +182,11 @@ struct conservative_sparse_sparse_product_selector<Lhs,Rhs,ResultType,ColMajor,R
 {
   static void run(const Lhs& lhs, const Rhs& rhs, ResultType& res)
   {
-    typedef SparseMatrix<typename ResultType::Scalar,RowMajor,typename ResultType::StorageIndex> RowMajorMatrix;
-    RowMajorMatrix lhsRow = lhs;
-    RowMajorMatrix resRow(lhs.rows(), rhs.cols());
-    internal::conservative_sparse_sparse_product_impl<Rhs,RowMajorMatrix,RowMajorMatrix>(rhs, lhsRow, resRow);
+    typedef SparseMatrix<typename Lhs::Scalar,RowMajor,typename ResultType::StorageIndex> RowMajorLhs;
+    typedef SparseMatrix<typename ResultType::Scalar,RowMajor,typename ResultType::StorageIndex> RowMajorRes;
+    RowMajorLhs lhsRow = lhs;
+    RowMajorRes resRow(lhs.rows(), rhs.cols());
+    internal::conservative_sparse_sparse_product_impl<Rhs,RowMajorLhs,RowMajorRes>(rhs, lhsRow, resRow);
     res = resRow;
   }
 };
@@ -219,10 +223,11 @@ struct conservative_sparse_sparse_product_selector<Lhs,Rhs,ResultType,RowMajor,C
 {
   static void run(const Lhs& lhs, const Rhs& rhs, ResultType& res)
   {
-    typedef SparseMatrix<typename ResultType::Scalar,ColMajor,typename ResultType::StorageIndex> ColMajorMatrix;
-    ColMajorMatrix lhsCol = lhs;
-    ColMajorMatrix resCol(lhs.rows(), rhs.cols());
-    internal::conservative_sparse_sparse_product_impl<ColMajorMatrix,Rhs,ColMajorMatrix>(lhsCol, rhs, resCol);
+    typedef SparseMatrix<typename Lhs::Scalar,ColMajor,typename ResultType::StorageIndex> ColMajorLhs;
+    typedef SparseMatrix<typename ResultType::Scalar,ColMajor,typename ResultType::StorageIndex> ColMajorRes;
+    ColMajorLhs lhsCol = lhs;
+    ColMajorRes resCol(lhs.rows(), rhs.cols());
+    internal::conservative_sparse_sparse_product_impl<ColMajorLhs,Rhs,ColMajorRes>(lhsCol, rhs, resCol);
     res = resCol;
   }
 };
@@ -232,10 +237,11 @@ struct conservative_sparse_sparse_product_selector<Lhs,Rhs,ResultType,ColMajor,R
 {
   static void run(const Lhs& lhs, const Rhs& rhs, ResultType& res)
   {
-    typedef SparseMatrix<typename ResultType::Scalar,ColMajor,typename ResultType::StorageIndex> ColMajorMatrix;
-    ColMajorMatrix rhsCol = rhs;
-    ColMajorMatrix resCol(lhs.rows(), rhs.cols());
-    internal::conservative_sparse_sparse_product_impl<Lhs,ColMajorMatrix,ColMajorMatrix>(lhs, rhsCol, resCol);
+    typedef SparseMatrix<typename Rhs::Scalar,ColMajor,typename ResultType::StorageIndex> ColMajorRhs;
+    typedef SparseMatrix<typename ResultType::Scalar,ColMajor,typename ResultType::StorageIndex> ColMajorRes;
+    ColMajorRhs rhsCol = rhs;
+    ColMajorRes resCol(lhs.rows(), rhs.cols());
+    internal::conservative_sparse_sparse_product_impl<Lhs,ColMajorRhs,ColMajorRes>(lhs, rhsCol, resCol);
     res = resCol;
   }
 };
@@ -254,6 +260,90 @@ struct conservative_sparse_sparse_product_selector<Lhs,Rhs,ResultType,RowMajor,R
     res = resCol;
   }
 };
+
+} // end namespace internal
+
+
+namespace internal {
+
+template<typename Lhs, typename Rhs, typename ResultType>
+static void sparse_sparse_to_dense_product_impl(const Lhs& lhs, const Rhs& rhs, ResultType& res)
+{
+  typedef typename remove_all<Lhs>::type::Scalar LhsScalar;
+  typedef typename remove_all<Rhs>::type::Scalar RhsScalar;
+  Index cols = rhs.outerSize();
+  eigen_assert(lhs.outerSize() == rhs.innerSize());
+
+  evaluator<Lhs> lhsEval(lhs);
+  evaluator<Rhs> rhsEval(rhs);
+
+  for (Index j=0; j<cols; ++j)
+  {
+    for (typename evaluator<Rhs>::InnerIterator rhsIt(rhsEval, j); rhsIt; ++rhsIt)
+    {
+      RhsScalar y = rhsIt.value();
+      Index k = rhsIt.index();
+      for (typename evaluator<Lhs>::InnerIterator lhsIt(lhsEval, k); lhsIt; ++lhsIt)
+      {
+        Index i = lhsIt.index();
+        LhsScalar x = lhsIt.value();
+        res.coeffRef(i,j) += x * y;
+      }
+    }
+  }
+}
+
+
+} // end namespace internal
+
+namespace internal {
+
+template<typename Lhs, typename Rhs, typename ResultType,
+  int LhsStorageOrder = (traits<Lhs>::Flags&RowMajorBit) ? RowMajor : ColMajor,
+  int RhsStorageOrder = (traits<Rhs>::Flags&RowMajorBit) ? RowMajor : ColMajor>
+struct sparse_sparse_to_dense_product_selector;
+
+template<typename Lhs, typename Rhs, typename ResultType>
+struct sparse_sparse_to_dense_product_selector<Lhs,Rhs,ResultType,ColMajor,ColMajor>
+{
+  static void run(const Lhs& lhs, const Rhs& rhs, ResultType& res)
+  {
+    internal::sparse_sparse_to_dense_product_impl<Lhs,Rhs,ResultType>(lhs, rhs, res);
+  }
+};
+
+template<typename Lhs, typename Rhs, typename ResultType>
+struct sparse_sparse_to_dense_product_selector<Lhs,Rhs,ResultType,RowMajor,ColMajor>
+{
+  static void run(const Lhs& lhs, const Rhs& rhs, ResultType& res)
+  {
+    typedef SparseMatrix<typename Lhs::Scalar,ColMajor,typename ResultType::StorageIndex> ColMajorLhs;
+    ColMajorLhs lhsCol(lhs);
+    internal::sparse_sparse_to_dense_product_impl<ColMajorLhs,Rhs,ResultType>(lhsCol, rhs, res);
+  }
+};
+
+template<typename Lhs, typename Rhs, typename ResultType>
+struct sparse_sparse_to_dense_product_selector<Lhs,Rhs,ResultType,ColMajor,RowMajor>
+{
+  static void run(const Lhs& lhs, const Rhs& rhs, ResultType& res)
+  {
+    typedef SparseMatrix<typename Rhs::Scalar,ColMajor,typename ResultType::StorageIndex> ColMajorRhs;
+    ColMajorRhs rhsCol(rhs);
+    internal::sparse_sparse_to_dense_product_impl<Lhs,ColMajorRhs,ResultType>(lhs, rhsCol, res);
+  }
+};
+
+template<typename Lhs, typename Rhs, typename ResultType>
+struct sparse_sparse_to_dense_product_selector<Lhs,Rhs,ResultType,RowMajor,RowMajor>
+{
+  static void run(const Lhs& lhs, const Rhs& rhs, ResultType& res)
+  {
+    Transpose<ResultType> trRes(res);
+    internal::sparse_sparse_to_dense_product_impl<Rhs,Lhs,Transpose<ResultType> >(rhs, lhs, trRes);
+  }
+};
+
 
 } // end namespace internal
 

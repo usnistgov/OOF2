@@ -20,9 +20,7 @@
 #include <math.h>
 
 class CMicrostructure;
-#if DIM==2
 class BrushStyle;
-#endif
 class CSkeletonElement;
 
 // Base class for pixel selection courier ... point, brush, circle,
@@ -59,7 +57,6 @@ public:
   virtual void print(std::ostream &os) const;
 };
 
-#if DIM==2
 // Brush
 class BrushSelection : public PixelSelectionCourier {
 private:
@@ -80,7 +77,6 @@ public:
   virtual void next();
   virtual void print(std::ostream &os) const;
 };
-#endif
 
 // Rectangle
 class RectangleSelection : public PixelSelectionCourier {

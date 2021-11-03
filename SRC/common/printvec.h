@@ -25,7 +25,7 @@ template <class VEC>
 void print(const VEC &vec, std::ostream &os) {
   if(vec.size() == 0) return;
   os << vec[0];
-  for(unsigned int i=1; i<vec.size(); i++) {
+  for(std::size_t i=1; i<vec.size(); i++) {
     os << " " << vec[i];
   }
 }
@@ -33,11 +33,12 @@ void print(const VEC &vec, std::ostream &os) {
 template <class TYPE>
 std::ostream &operator<<(std::ostream &os, const std::vector<TYPE> &vec) {
   if(vec.size() > 0) {
-    int prec = os.precision();
+    std::streamsize prec = os.precision();
     os << std::setprecision(20) << vec[0];
-    for(unsigned int i=1; i<vec.size(); i++)
+    for(std::size_t i=1; i<vec.size(); i++)
       os << " " << vec[i];
-    os << std::setprecision(prec);
+    os.precision(prec);
+    // os << std::setprecision(prec);
   }
   return os;
 }

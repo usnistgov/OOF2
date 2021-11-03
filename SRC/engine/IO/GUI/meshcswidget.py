@@ -21,7 +21,7 @@ from ooflib.engine import mesh
 from ooflib.engine.IO import meshcsparams
 from ooflib.engine.IO import meshmenu
 
-import gtk
+from gi.repository import Gtk
 import string
 
 
@@ -35,15 +35,16 @@ import string
 # assumed that a mesh widget that gives a nontrivial result will
 # always be found.
 class MeshCrossSectionSetParamWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         debug.mainthreadTest()
         # Find the enclosing mesh widget.
         self.meshwidget = scope.findWidget(
             lambda x: isinstance(x, whowidget.WhoWidget)
             and x.whoclass is mesh.meshes)
 
-        self.gtk = gtk.Frame()
-        vbox = gtk.VBox()
+        self.gtk = Gtk.Frame()
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       **kwargs)
         self.gtk.add(vbox)
 
         meshname = self.meshwidget.get_value()
@@ -52,7 +53,7 @@ class MeshCrossSectionSetParamWidget(parameterwidgets.ParameterWidget):
         except KeyError:
             # no mesh!
             self.meshobj = None
-            vbox.add(gtk.Label('No mesh!'))
+            vbox.add(Gtk.Label('No mesh!'))
         else:
             # In the proxy case, the behavior is to set the line
             # width, etc. for all the cross sections in whatever mesh
@@ -63,15 +64,18 @@ class MeshCrossSectionSetParamWidget(parameterwidgets.ParameterWidget):
             # and behave a little differently, since the chooser
             # doesn't get built in that case.
             if isinstance(self.meshobj, whoville.WhoProxy):
-                vbox.add(gtk.Label('Selected'))
+                vbox.add(Gtk.Label('Selected'))
             else:
                 self.chooser = chooser.MultiListWidget(
-                    self.meshobj.allCrossSectionNames(), name="List")
-                self.selected = gtk.CheckButton("Selected")
+                    self.meshobj.allCrossSectionNames(), name="List",
+                    hexpand=True, halign=Gtk.Align.FILL)
+                self.selected = Gtk.CheckButton("Selected")
                 gtklogger.setWidgetName(self.selected, "Selected")
                 gtklogger.connect(self.selected, "clicked", self.selectedCB)
-                vbox.pack_start(self.selected, expand=0, fill=0)
-                vbox.pack_start(self.chooser.gtk, expand=0, fill=0)
+                vbox.pack_start(self.selected,
+                                expand=False, fill=True, padding=0)
+                vbox.pack_start(self.chooser.gtk,
+                                expand=False, fill=True, padding=0)
       
         parameterwidgets.ParameterWidget.__init__(self, self.gtk, scope,
                                                   name=name,
@@ -86,11 +90,11 @@ class MeshCrossSectionSetParamWidget(parameterwidgets.ParameterWidget):
             self.set_value(placeholder.selection)
         else:
             self.chooser.clear()
-            self.chooser.gtk.set_sensitive(1)
+            self.chooser.gtk.set_sensitive(True)
             lcsn=self.meshobj.selectedCSName()
             if lcsn:
                 self.chooser.set_selection([lcsn])
-        self.widgetChanged(1, interactive=1)
+        self.widgetChanged(True, interactive=True)
 
   
     def set_value(self, value):
@@ -98,7 +102,7 @@ class MeshCrossSectionSetParamWidget(parameterwidgets.ParameterWidget):
         if self.meshobj is not None:
             if isinstance(self.meshobj, whoville.WhoProxy):
                 # There is no chooser in the proxy case.
-                self.widgetChanged(1,interactive=0)
+                self.widgetChanged(True,interactive=False)
             else:
                 self.chooser.update(self.meshobj.allCrossSectionNames())
                 self.chooser.clear()
@@ -106,15 +110,15 @@ class MeshCrossSectionSetParamWidget(parameterwidgets.ParameterWidget):
                     lcsn=self.meshobj.selectedCSName()
                     if lcsn:
                         self.chooser.set_selection([lcsn])
-                    self.chooser.gtk.set_sensitive(0)
-                    self.selected.set_active(1)
+                    self.chooser.gtk.set_sensitive(False)
+                    self.selected.set_active(True)
                 else:  # Value is list of names.
-                    self.chooser.gtk.set_sensitive(1)
-                    self.selected.set_active(0)
+                    self.chooser.gtk.set_sensitive(True)
+                    self.selected.set_active(False)
                     self.chooser.set_selection(value)
-                self.widgetChanged(1, interactive=0)
+                self.widgetChanged(True, interactive=False)
         else:
-            self.widgetChanged(0, interactive=0)
+            self.widgetChanged(False, interactive=False)
           
     def get_value(self):
         if self.meshobj is not None:
@@ -130,8 +134,8 @@ class MeshCrossSectionSetParamWidget(parameterwidgets.ParameterWidget):
         self.chooser = None
         parameterwidgets.ParameterWidget.cleanUp(self)
 
-def _make_MCSSPWidget(self, scope):
-    return MeshCrossSectionSetParamWidget(self, scope, name=self.name)
+def _make_MCSSPWidget(self, scope, **kwargs):
+    return MeshCrossSectionSetParamWidget(self, scope, name=self.name, **kwargs)
 
 meshcsparams.MeshCrossSectionSetParameter.makeWidget = _make_MCSSPWidget
 
@@ -142,7 +146,7 @@ meshcsparams.MeshCrossSectionSetParameter.makeWidget = _make_MCSSPWidget
 # defining and editing cross sections.
 
 class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope, name=None):
+    def __init__(self, param, scope, name=None, **kwargs):
         debug.mainthreadTest()
         # Find the enclosing mesh widget.
         self.meshwidget = scope.findWidget(
@@ -158,42 +162,42 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
         else:
             self.meshobj = None
 
-        frame = gtk.Frame()
-        vbox = gtk.VBox()
+        frame = Gtk.Frame(**kwargs)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
         frame.add(vbox)
 
         self.chooser = chooser.ChooserWidget([], callback=self.chooserCB,
                                              name="List")
-        vbox.pack_start(self.chooser.gtk, expand=0, fill=0)
+        vbox.pack_start(self.chooser.gtk, expand=False, fill=False, padding=0)
 
-        bbox = gtk.HBox()
-        bbox.set_spacing(1)
-        vbox.pack_start(bbox, expand=0, fill=0, padding=1)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        vbox.pack_start(bbox, expand=False, fill=False, padding=0)
 
-        self.newbutton = gtk.Button('New')
+        self.newbutton = Gtk.Button('New')
         gtklogger.setWidgetName(self.newbutton, "New")
         gtklogger.connect(self.newbutton, 'clicked', self.newCB)
-        bbox.pack_start(self.newbutton, expand=1, fill=1)
+        bbox.pack_start(self.newbutton, expand=True, fill=True, padding=0)
 
-        self.copybutton = gtk.Button('Copy')
+        self.copybutton = Gtk.Button('Copy')
         gtklogger.setWidgetName(self.copybutton, "Copy")
         gtklogger.connect(self.copybutton, 'clicked', self.copyCB)
-        bbox.pack_start(self.copybutton, expand=1, fill=1)
+        bbox.pack_start(self.copybutton, expand=True, fill=True, padding=0)
 
-        self.editbutton = gtk.Button('Edit')
+        self.editbutton = Gtk.Button('Edit')
         gtklogger.setWidgetName(self.editbutton, "Edit")
         gtklogger.connect(self.editbutton, 'clicked', self.editCB)
-        bbox.pack_start(self.editbutton, expand=1, fill=1)
+        bbox.pack_start(self.editbutton, expand=True, fill=True, padding=0)
 
-        self.renamebutton = gtk.Button('Rename')
+        self.renamebutton = Gtk.Button('Rename')
         gtklogger.setWidgetName(self.renamebutton, "Rename")
         gtklogger.connect(self.renamebutton, 'clicked', self.renameCB)
-        bbox.pack_start(self.renamebutton, expand=1, fill=1)
+        bbox.pack_start(self.renamebutton, expand=True, fill=True, padding=0)
 
-        self.deletebutton = gtk.Button('Remove')
+        self.deletebutton = Gtk.Button('Remove')
         gtklogger.setWidgetName(self.deletebutton, "Remove")
         gtklogger.connect(self.deletebutton, 'clicked', self.deleteCB)
-        bbox.pack_start(self.deletebutton, expand=1, fill=1)
+        bbox.pack_start(self.deletebutton, expand=True, fill=True, padding=0)
 
         parameterwidgets.ParameterWidget.__init__(self, frame, scope, name=name)
 
@@ -209,7 +213,7 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
 
 
 
-        self.update(interactive=0)
+        self.update(interactive=False)
 
         # The parameter could have a non-None value which is not in
         # the list of allowed choices when this widget is created.  In
@@ -223,7 +227,7 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
     def mesh_update(self, interactive):
         self.update(interactive)
     def cs_update(self):
-        self.update(interactive=0)
+        self.update(interactive=False)
         
     def update(self, interactive):
         meshname = self.currentMeshName()
@@ -244,7 +248,7 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
         if meshok:
             ok = self.chooser.get_value() is not None
         else:
-            ok = 0
+            ok = False
         self.newbutton.set_sensitive(meshok)
         self.copybutton.set_sensitive(ok)
         self.editbutton.set_sensitive(ok)
@@ -255,14 +259,15 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
         return self.meshwidget.get_value()
 
     def chooserCB(self, *args):
-        self.widgetChanged(self.chooser.nChoices()>0, interactive=1)
+        self.widgetChanged(self.chooser.nChoices()>0, interactive=True)
 
     def newCB(self, *args):             # gtk callback
         menuitem = meshmenu.csmenu.New
         if parameterwidgets.getParameters(menuitem.get_arg("name"),
                                           menuitem.get_arg("cross_section"),
                                           title="New cross section",
-                                          scope=self.scope):
+                                          scope=self.scope,
+                                          parentwindow=self.gtk.get_toplevel()):
             menuitem.callWithDefaults(mesh=self.meshwidget.get_value())
 
     def deleteCB(self, *args):          # gtk callback
@@ -275,8 +280,10 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
         oldname = self.chooser.get_value()
         namearg = menuitem.get_arg('name')
         namearg.value = oldname
-        if parameterwidgets.getParameters(namearg,
-                                 title='Rename cross section "%s"' % oldname):
+        if parameterwidgets.getParameters(
+                namearg,
+                title='Rename cross section "%s"' % oldname,
+                parentwindow=self.gtk.get_toplevel()):
             menuitem.callWithDefaults(mesh=self.meshwidget.get_value(),
                                       cross_section=oldname)
     def renamedCS(self, oldname, newname): # sb ("cross section renamed", mesh)
@@ -287,21 +294,25 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
         csname = self.chooser.get_value()
         csparam = menuitem.get_arg('cross_section')
         csparam.value = self.meshobj.getCrossSection(csname)
-        if parameterwidgets.getParameters(menuitem.get_arg('cross_section'),
-                                          title="Edit cross section " + csname):
+        if parameterwidgets.getParameters(
+                menuitem.get_arg('cross_section'),
+                title="Edit cross section " + csname,
+                parentwindow=self.gtk.get_toplevel()):
             menuitem.callWithDefaults(mesh=self.meshobj.path(), name=csname)
     def copyCB(self, *args):
         menuitem = meshmenu.csmenu.Copy
         csname = self.chooser.get_value()
-        if parameterwidgets.getParameters(menuitem.get_arg('mesh'),
-                                          menuitem.get_arg('name'),
-                                          title="Copy cross section " + csname):
+        if parameterwidgets.getParameters(
+                menuitem.get_arg('mesh'),
+                menuitem.get_arg('name'),
+                title="Copy cross section " + csname,
+                parentwindow=self.gtk.get_toplevel()):
             menuitem.callWithDefaults(current=self.meshobj.path(),
                                       cross_section=csname)
             
     def set_value(self, value):
         self.chooser.set_state(value)
-        self.widgetChanged(bool(value), interactive=0)
+        self.widgetChanged(bool(value), interactive=False)
 
     def get_value(self):
         return self.chooser.get_value()
@@ -314,7 +325,7 @@ class MeshCrossSectionParamWidget(parameterwidgets.ParameterWidget):
         
 
     
-def _make_MCSPWidget(self, scope):
-    return MeshCrossSectionParamWidget(self, scope, name=self.name)
+def _make_MCSPWidget(self, scope, **kwargs):
+    return MeshCrossSectionParamWidget(self, scope, name=self.name, **kwargs)
 
 meshcsparams.MeshCrossSectionParameter.makeWidget = _make_MCSPWidget

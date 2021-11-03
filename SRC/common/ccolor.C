@@ -109,11 +109,13 @@ void CColor::dim(double factor) {
 
 
 bool CColor::operator<(const CColor &other) const {
-  if ( other.red_ < red_ ) return true;
-  if ( other.red_ > red_ ) return false;
-  if ( other.green_ < green_ ) return true;
-  if ( other.green_ > green_ ) return false;
-  if ( other.blue_ < blue_ ) return true;
+  if(other.red_ < red_) return true;
+  if(other.red_ > red_) return false;
+  if(other.green_ < green_) return true;
+  if(other.green_ > green_) return false;
+  if(other.blue_ < blue_) return true;
+  if(other.blue_ > blue_) return true;
+  if(other.alpha_ < alpha_) return true;
   return false; 
 }
 
@@ -121,6 +123,8 @@ void CColor::operator=(const CColor &other) {
   this->red_ = other.red_;
   this->green_ = other.green_;
   this->blue_ = other.blue_;
+  this->alpha_ = other.alpha_;
+  hsv = other.hsv;
 }
 
 
@@ -236,7 +240,8 @@ std::ostream &operator<<(std::ostream &os, const CColor &c) {
 }
 
 void CColor::print(std::ostream &os) const {
-  os << "CColor(" << getRed() << ", " << getGreen() << ", " << getBlue() << ")";
+  os << "CColor(" << getRed() << ", " << getGreen() << ", " << getBlue()
+     << ", " << getAlpha() << ")";
 }
 
 void CGrayColor::print(std::ostream &os) const {
@@ -275,6 +280,11 @@ CColor CColor::weightedAverage(double w0, double w1, const CColor &color1) const
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+OOFCanvas::Color canvasColor(const CColor &clr) {
+  return OOFCanvas::Color(clr.getRed(), clr.getGreen(), clr.getBlue(),
+			  clr.getAlpha());
+}
 
 
 

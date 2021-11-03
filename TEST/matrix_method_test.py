@@ -166,6 +166,129 @@ class DirectMethods(unittest.TestCase):
         succ = solver.solveMatrix(self.matrix, self.rhs, solution)
         self.assertAlmostEqual(self.ref.norm(), solution.norm(), 9)
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+
+class BCTest(unittest.TestCase):
+    # Tests using a matrix and RHS that made TwoFloats in
+    # boundary_condition_test.py fail after upgrading to Eigen 3.3.9
+    # from 3.2.  Other preconditioned CG solvers failed too.
+    def setUp(self):
+        global doublevec
+        global matrixmethod
+        global preconditioner
+        global sparsemat
+        from ooflib.SWIG.common import doublevec
+        from ooflib.SWIG.engine import sparsemat
+        from ooflib.engine import matrixmethod
+        from ooflib.engine import preconditioner
+        self.tolerance = 1.e-13
+        self.max_iterations = 10000
+
+    def solve(self, solver):
+        matrix = loadMatrix("bctest.mtx")
+        self.assert_(matrix.is_symmetric(1.e-12))
+        rhs = loadVector("bctest.rhs")
+        solution = doublevec.DoubleVec(0)
+        solver.solveMatrix(matrix, rhs, solution)
+        ref = loadVector("bctest.sol")
+        diff = solution - ref
+        self.assertAlmostEqual(diff.norm(), 0.0, 9)
+        resid = matrix*solution - rhs
+        self.assertAlmostEqual(resid.norm(), 0.0, 9)
+    def CG0(self):
+        self.solve(
+            matrixmethod.ConjugateGradient(
+                preconditioner.UnPreconditioner(),
+                self.tolerance, self.max_iterations))
+    # ILU(T) is not guaranteed to work with CG, and doesn't in this
+    # case, using Eigen 3.3.9.  It did work with Eigen 3.2.91.  Also,
+    # Eigen only provides ILUT, not ILU, so OOF2's ILU is the same as
+    # ILUT.
+    # def CG_ILU(self):
+    #     self.solve(
+    #         matrixmethod.ConjugateGradient(
+    #             preconditioner.ILUPreconditioner(),
+    #             self.tolerance, self.max_iterations))
+    # def CG_ILUT(self):
+    #     self.solve(
+    #         matrixmethod.ConjugateGradient(
+    #             preconditioner.ILUTPreconditioner(),
+    #             self.tolerance, self.max_iterations))
+    def CG_Jacobi(self):
+        self.solve(
+            matrixmethod.ConjugateGradient(
+                preconditioner.JacobiPreconditioner(),
+                self.tolerance, self.max_iterations))
+    def CG_IC(self):
+        self.solve(
+            matrixmethod.ConjugateGradient(
+                preconditioner.ICPreconditioner(),
+                self.tolerance, self.max_iterations))
+
+    def BiCG0(self):
+        self.solve(
+            matrixmethod.BiConjugateGradient(
+                preconditioner.UnPreconditioner(),
+                self.tolerance, self.max_iterations))
+    def BiCG_ILU(self):
+        self.solve(
+            matrixmethod.BiConjugateGradient(
+                preconditioner.ILUPreconditioner(),
+                self.tolerance, self.max_iterations))
+    def BiCG_ILUT(self):
+        self.solve(
+            matrixmethod.BiConjugateGradient(
+                preconditioner.ILUTPreconditioner(),
+                self.tolerance, self.max_iterations))
+    def BiCG_Jacobi(self):
+        self.solve(
+            matrixmethod.BiConjugateGradient(
+                preconditioner.JacobiPreconditioner(),
+                self.tolerance, self.max_iterations))
+    def BiCG_IC(self):
+        self.solve(
+            matrixmethod.BiConjugateGradient(
+                preconditioner.ICPreconditioner(),
+                self.tolerance, self.max_iterations))
+        
+    def BiCGStab0(self):
+        self.solve(
+            matrixmethod.StabilizedBiConjugateGradient(
+                preconditioner.UnPreconditioner(),
+                self.tolerance, self.max_iterations))
+    def BiCGStab_ILU(self):
+        self.solve(
+            matrixmethod.StabilizedBiConjugateGradient(
+                preconditioner.ILUPreconditioner(),
+                self.tolerance, self.max_iterations))
+    def BiCGStab_ILUT(self):
+        self.solve(
+            matrixmethod.StabilizedBiConjugateGradient(
+                preconditioner.ILUTPreconditioner(),
+                self.tolerance, self.max_iterations))
+    def BiCGStab_Jacobi(self):
+        self.solve(
+            matrixmethod.StabilizedBiConjugateGradient(
+                preconditioner.JacobiPreconditioner(),
+                self.tolerance, self.max_iterations))
+    def BiCGStab_IC(self):
+        self.solve(
+            matrixmethod.StabilizedBiConjugateGradient(
+                preconditioner.ICPreconditioner(),
+                self.tolerance, self.max_iterations))
+
+    def SimplicialLDLT(self):
+        self.solve(matrixmethod.SimplicialLDLT())
+    def SimplicialLLT(self):
+        self.solve(matrixmethod.SimplicialLLT())
+    def SparseLU(self):
+        self.solve(matrixmethod.SparseLU())
+    def SparseQR(self):
+        self.solve(matrixmethod.SparseQR())
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 def run_tests():
 
     iter_set = [
@@ -188,7 +311,29 @@ def run_tests():
         DirectMethods("SparseLU"),
         DirectMethods("SparseQR"),
     ]
-    test_set = iter_set + direct_set
+    bc_set = [
+        BCTest("CG0"),
+        # BCTest("CG_ILU"), # doesn't converge
+        # BCTest("CG_ILUT"), # doesn't converge
+        BCTest("CG_Jacobi"),
+        BCTest("CG_IC"),
+        BCTest("BiCG0"),      
+        BCTest("BiCG_ILU"), 
+        BCTest("BiCG_ILUT"),
+        BCTest("BiCG_Jacobi"),
+        BCTest("BiCG_IC"),
+        BCTest("BiCGStab0"),      
+        BCTest("BiCGStab_ILU"), 
+        BCTest("BiCGStab_ILUT"),
+        BCTest("BiCGStab_Jacobi"),
+        BCTest("BiCGStab_IC"),
+        BCTest("SimplicialLDLT"),
+        BCTest("SimplicialLLT"),
+        BCTest("SparseLU"),
+        BCTest("SparseQR")
+        ]
+    
+    test_set = iter_set + direct_set + bc_set
 
     logan = unittest.TextTestRunner()
     for t in test_set:

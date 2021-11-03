@@ -1,13 +1,12 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
 from ooflib.SWIG.common import burn
 from ooflib.SWIG.common import config
@@ -79,37 +78,23 @@ sizeparams = parameter.ParameterGroup(
                                    tip= \
                                    "Physical width of image, or 'automatic'."))
 
-if config.dimension() == 3:
-    sizeparams.append(parameter.AutoNumericParameter(
-        'depth',
-        automatic.automatic,
-        tip= \
-        "Physical depth of image, or 'automatic'."))
-                      
-
 ###################################
 
-def loadImage(menuitem, filename, microstructure, height, width, depth=0):
+def loadImage(menuitem, filename, microstructure, height, width):
+    debug.fmsg("filename=", filename)
     if filename:
         # Read file and create an OOFImage object
-        image = autoReadImage(filename, height, width, depth)
+        image = autoReadImage(filename, height, width)
         loadImageIntoMS(image, microstructure)
         switchboard.notify("redraw")
 
-def autoReadImage(filename, height, width, depth=0):
+def autoReadImage(filename, height, width):
     kwargs = {}
     if height is not automatic.automatic:
         kwargs['height'] = height
     if width is not automatic.automatic:
         kwargs['width'] = width
-
-    if config.dimension() == 2:
-        return oofimage.readImage(filename, **kwargs) # OOFImage object
-
-    elif config.dimension() == 3:
-        if depth is not automatic.automatic:
-            kwargs['depth'] = depth
-        return oofimage.readImage(filename, **kwargs)
+    return oofimage.readImage(filename, **kwargs) # OOFImage object
     
         
 def loadImageIntoMS(image, microstructure):
@@ -124,7 +109,9 @@ def loadImageIntoMS(image, microstructure):
         msobj = ooflib.common.microstructure.Microstructure(microstructure,
                                                      image.sizeInPixels(),
                                                      image.size())
-        ms = msclass.add(microstructure, msobj, parent=None)
+        # The Microstructure.__init__ calls WhoClass.add for us, so
+        # the Context is available now.
+        ms = msclass[microstructure]
 
     # Check size of microstructure
     if ms.getObject().sizeInPixels() != image.sizeInPixels():
@@ -132,26 +119,17 @@ def loadImageIntoMS(image, microstructure):
 
     # See if the image name is unique in the Microstructure
     newname = imagecontext.imageContexts.uniqueName([ms.name(), image.name()])
-    image.rename(newname)
+    image.rename(newname)       # harmless if old name == new name
     # Create ImageContext object
     immidgecontext = imagecontext.imageContexts.add([ms.name(),newname], image,
                                               parent=ms)
 
-if config.dimension() == 2:
-    imageparams = parameter.ParameterGroup(
-        filenameparam.ReadFileNameParameter('filename', 'image',
-                                            tip="Name of the image file."),
-        whoville.WhoParameter('microstructure',
-                              whoville.getClass('Microstructure'),
-                              tip=parameter.emptyTipString))
-    
-elif config.dimension() == 3:
-    imageparams = parameter.ParameterGroup(
-        parameter.StringParameter('filename', 'image',
-                                  tip="Pattern for the image files."),
-        whoville.WhoParameter('microstructure',
-                              whoville.getClass('Microstructure'),
-                              tip=parameter.emptyTipString))
+imageparams = parameter.ParameterGroup(
+    filenameparam.ReadFileNameParameter('filename', 'image',
+                                        tip="Name of the image file."),
+    whoville.WhoParameter('microstructure',
+                          whoville.getClass('Microstructure'),
+                          tip=parameter.emptyTipString))
     
 mainmenu.OOF.File.Load.addItem(
     oofmenu.OOFMenuItem(
@@ -361,7 +339,7 @@ def createPixelGroups(menuitem, image, name_template):
     prog.setMessage("Categorizing pixels...")
     mscontext.begin_writing()
     try:
-        newgrpname = autogroupMP.autogroup(ms, immidge, name_template)
+        newgrpnames = autogroupMP.autogroup(ms, immidge, name_template)
     finally:
         prog.finish()
         mscontext.end_writing()
@@ -372,9 +350,11 @@ def createPixelGroups(menuitem, image, name_template):
         # Do this only after releasing the ms write lock!  If the main
         # thread is waiting for the read lock, then switchboard.notify
         # will deadlock here.
-        if newgrpname:
-            # We only have to send the notification for the most
-            # recently created group.
+        if newgrpnames:
+            # We only have to send the notification for one of the
+            # recently created groups.  Don't pick it at random, to
+            # ensure that tests are reproducible.
+            newgrpname = sorted(newgrpnames)[0]
             switchboard.notify("new pixel group", ms.findGroup(newgrpname))
         switchboard.notify("changed pixel groups", ms.name())
 
@@ -457,16 +437,13 @@ microstructuremenu.micromenu.addItem(
 # Load an Image and create a Microstructure from it in one operation.
 
 def createMSFromImageFile(menuitem, filename, microstructure_name,
-                          height, width, depth=0):
-       
+                          height, width):
  
-    if (height!=automatic and height<=0) or \
-           (width!=automatic and width<=0) or \
-           (config.dimension()==3 and depth!=automatic and depth<=0):
+    if (height!=automatic and height<=0) or (width!=automatic and width<=0):
         raise ooferror.ErrUserError(
             "Negative microstructure sizes are not allowed.")
 
-    image = autoReadImage(filename, height, width, depth)
+    image = autoReadImage(filename, height, width)
     ms = ooflib.common.microstructure.Microstructure(microstructure_name,
                                               image.sizeInPixels(),
                                               image.size())
@@ -495,29 +472,19 @@ def msImageFileNameResolver(param, name):
         basename.replace(':','.'))
 
 
-if config.dimension() == 2:
-    imageparams=parameter.ParameterGroup(
-        filenameparam.ReadFileNameParameter('filename',
-                                            tip="Name of the file."),
-        parameter.AutomaticNameParameter('microstructure_name',
+imageparams=parameter.ParameterGroup(
+    filenameparam.ReadFileNameParameter('filename',
+                                        tip="Name of the file."),
+    parameter.AutomaticNameParameter('microstructure_name',
                                      msImageFileNameResolver,
                                      automatic.automatic,
                                      tip= 'Name of the new Microstructure.'))
-
-
-elif config.dimension() == 3:
-    imageparams=parameter.ParameterGroup(
-        parameter.StringParameter('filename',tip="Pattern for the filenames."),
-        parameter.AutomaticNameParameter('microstructure_name',
-                                     msImageFileNameResolver,
-                                     automatic.automatic,
-                                     tip= 'Name of the new Microstructure.'))
-    
 
 microstructuremenu.micromenu.addItem(oofmenu.OOFMenuItem(
     'Create_From_ImageFile',
     callback=createMSFromImageFile,
     params = imageparams + sizeparams,
     help="Load an Image and create a Microstructure from it.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/image/menu/microfromimagefile.xml')
-                        ))
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/image/menu/microfromimagefile.xml')
+))

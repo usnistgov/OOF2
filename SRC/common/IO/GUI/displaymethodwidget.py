@@ -22,7 +22,7 @@ from ooflib.common.IO.GUI import whowidget
 # to which the method applies.
 
 class DisplayMethodParameterWidget(regclassfactory.RegisteredClassFactory):
-    def __init__(self, value, scope, name):
+    def __init__(self, value, scope, name, **kwargs):
         self.whoclasswidget = scope.findWidget(
             lambda w: isinstance(w, whowidget.WhoClassParameterWidget))
 
@@ -32,7 +32,8 @@ class DisplayMethodParameterWidget(regclassfactory.RegisteredClassFactory):
         self.whoclassname = self.whoclasswidget.get_value()
 
         regclassfactory.RegisteredClassFactory.__init__(
-            self, display.DisplayMethod.registry, scope=scope, name=name)
+            self, display.DisplayMethod.registry, scope=scope, name=name,
+            **kwargs)
 
         if value is not None:
             self.set(value, interactive=0)
@@ -50,7 +51,8 @@ class DisplayMethodParameterWidget(regclassfactory.RegisteredClassFactory):
     def includeRegistration(self, registration):
         return self.whoclassname in registration.whoclasses
 
-def _DisplayMethodParameter_makeWidget(self, scope):
-    return DisplayMethodParameterWidget(self.value, scope=scope, name=self.name)
+def _DisplayMethodParameter_makeWidget(self, scope, **kwargs):
+    return DisplayMethodParameterWidget(self.value, scope=scope, name=self.name,
+                                        **kwargs)
 
 display.DisplayMethodParameter.makeWidget = _DisplayMethodParameter_makeWidget

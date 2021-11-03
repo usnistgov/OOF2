@@ -16,16 +16,16 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
-from ooflib.common.IO.GUI import tooltips
 from ooflib.engine.IO import analyzemenu
 from ooflib.engine.IO import outputdestination
 from ooflib.engine.IO import scheduledoutput
-import gtk
+
+from gi.repository import Gtk
 
 
 class OutputDestinationWidget(regclassfactory.RegisteredClassFactory):
     def __init__(self, obj=None, title=None, callback=None,
-                 fill=0, expand=0, scope=None, name=None):
+                 scope=None, name=None, **kwargs):
         self.outputWidget = scope.findWidget(
             lambda w: (isinstance(w, regclassfactory.RegisteredClassFactory) and
                        w.registry is scheduledoutput.ScheduledOutput.registry))
@@ -34,7 +34,7 @@ class OutputDestinationWidget(regclassfactory.RegisteredClassFactory):
         regclassfactory.RegisteredClassFactory.__init__(
             self, registry=outputdestination.OutputDestination.registry,
             obj=obj, title=title, callback=callback, 
-            fill=fill, expand=expand, scope=scope, name=name)
+            scope=scope, name=name, **kwargs)
     def includeRegistration(self, reg):
         return issubclass(
             reg.subclass,
@@ -45,8 +45,9 @@ class OutputDestinationWidget(regclassfactory.RegisteredClassFactory):
         switchboard.removeCallback(self.sbcallback)
         regclassfactory.RegisteredClassFactory.cleanUp(self)
                 
-def _makeOutputDestinationWidget(self, scope):
-    return OutputDestinationWidget(self.value, scope=scope, name=self.name)
+def _makeOutputDestinationWidget(self, scope, **kwargs):
+    return OutputDestinationWidget(self.value, scope=scope, name=self.name,
+                                   **kwargs)
         
 outputdestination.OutputDestinationParameter.makeWidget = \
     _makeOutputDestinationWidget
@@ -80,11 +81,13 @@ outputdestination.OutputDestinationParameter.makeWidget = \
 MSGWINDOW = "<Message Window>"
 
 class TextDestinationWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param=None, scope=None, name=None, framed=True):
+    def __init__(self, param=None, scope=None, name=None, framed=True,
+                 **kwargs):
         debug.mainthreadTest()
-        vbox = gtk.VBox(spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                       margin=2)
         if framed:
-            parameterwidgets.ParameterWidget.__init__(self, gtk.Frame(),
+            parameterwidgets.ParameterWidget.__init__(self, Gtk.Frame(**kwargs),
                                                   scope=scope, name=name)
             self.gtk.add(vbox)
         else:
@@ -92,33 +95,31 @@ class TextDestinationWidget(parameterwidgets.ParameterWidget):
                                                       name=name)
 
         self.chooser = chooser.ChooserWidget([], callback=self.chooserCB,
-                                             name='Chooser')
-        vbox.pack_start(self.chooser.gtk, expand=False, fill=False)
-        bbox = gtk.HBox(spacing=2, homogeneous=True)
-        vbox.pack_start(bbox, expand=0, fill=0)
+                                             name='TextDestChooser')
+        vbox.pack_start(self.chooser.gtk, expand=False, fill=False, padding=0)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                       spacing=2, homogeneous=True)
+        vbox.pack_start(bbox, expand=False, fill=False, padding=0)
 
-        newbutton = gtkutils.StockButton(gtk.STOCK_NEW, "New...")
+        newbutton = gtkutils.StockButton('document-new-symbolic', "New...")
         gtklogger.setWidgetName(newbutton, "New")
-        bbox.pack_start(newbutton, expand=True, fill=True)
+        bbox.pack_start(newbutton, expand=True, fill=True, padding=0)
         gtklogger.connect(newbutton, 'clicked', self.newCB)
-        tooltips.set_tooltip_text(newbutton,
-                                  "Open a new file for output.")
+        newbutton.set_tooltip_text("Open a new file for output.")
 
-        self.rewindbutton = gtkutils.StockButton(gtk.STOCK_MEDIA_REWIND,
+        self.rewindbutton = gtkutils.StockButton("go-first-symbolic",
                                                  "Rewind")
         gtklogger.setWidgetName(self.rewindbutton, "Rewind")
-        bbox.pack_start(self.rewindbutton, expand=True, fill=True)
+        bbox.pack_start(self.rewindbutton, expand=True, fill=True, padding=0)
         gtklogger.connect(self.rewindbutton, 'clicked', self.rewindCB)
-        tooltips.set_tooltip_text(
-            self.rewindbutton,
+        self.rewindbutton.set_tooltip_text(
             "Rewind the selected file.  Data will be lost.")
 
-        self.clearbutton = gtkutils.StockButton(gtk.STOCK_CLEAR, "Clear")
+        self.clearbutton = gtkutils.StockButton("edit-clear-symbolic", "Clear")
         gtklogger.setWidgetName(self.clearbutton, "Clear")
-        bbox.pack_start(self.clearbutton, expand=True, fill=True)
+        bbox.pack_start(self.clearbutton, expand=True, fill=True, padding=0)
         gtklogger.connect(self.clearbutton, 'clicked', self.clearCB)
-        tooltips.set_tooltip_text(
-            self.clearbutton,
+        self.clearbutton.set_tooltip_text(
             "Close all files and remove them from the list.")
 
         self.sbcallback = switchboard.requestCallbackMain(
@@ -144,6 +145,7 @@ class TextDestinationWidget(parameterwidgets.ParameterWidget):
         fileparam = outputdestination.newreg.getParameter('filename')
         modeparam = outputdestination.newreg.getParameter('mode')
         if parameterwidgets.getParameters(fileparam, modeparam,
+                                          parentwindow=self.gtk.get_toplevel(),
                                           title="Add a data destination"):
             newname = fileparam.value
             # Create the OutputDestination object.  This calls

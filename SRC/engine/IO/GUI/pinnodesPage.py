@@ -13,103 +13,119 @@ from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import whoville
-from ooflib.common.IO.GUI import fixedwidthtext
 from ooflib.common.IO.GUI import gtklogger
+from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import pinnodesmodifier
 from ooflib.engine import skeletoncontext
-import gtk
+
+from gi.repository import Gtk
 
 class PinNodesPage(oofGUI.MainPage):
     def __init__(self):
         oofGUI.MainPage.__init__(self, name="Pin Nodes", ordering=120.1,
                                  tip='Pin and unpin nodes')
 
-        mainbox = gtk.VBox(spacing=2)
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        align.add(centerbox)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            halign=Gtk.Align.CENTER, margin_top=2, spacing=2)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.skelwidget = whowidget.WhoWidget(whoville.getClass('Skeleton'),
                                               callback=self.select_skeletonCB)
-        label = gtk.Label('Microstructure=')
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.skelwidget.gtk[0], expand=0, fill=0)
-        label = gtk.Label('Skeleton=')
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.skelwidget.gtk[1], expand=0, fill=0)
+        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.skelwidget.gtk[0],
+                             expand=False, fill=False, padding=0)
+        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END, margin_start=5)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.skelwidget.gtk[1],
+                             expand=False, fill=False, padding=0)
 
-        mainpane = gtk.HPaned()
+        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                              wide_handle=True)
         gtklogger.setWidgetName(mainpane, 'Pane')
-        mainbox.pack_start(mainpane, expand=1, fill=1)
+        mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
 
         # Pinned nodes status in the left half of the main pane
-        pnsframe = gtk.Frame("Pinned Nodes Status")
-        pnsframe.set_shadow_type(gtk.SHADOW_IN)
-        self.datascroll = gtk.ScrolledWindow()
+        pnsframe = Gtk.Frame(
+            label="Pinned Nodes Status",
+            shadow_type=Gtk.ShadowType.IN,
+            margin_start=2, margin_end=gtkutils.handle_padding,
+            margin_top=2, margin_bottom=2)
+        self.datascroll = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN,
+                                             margin=2)
         gtklogger.logScrollBars(self.datascroll, "StatusScroll")
         pnsframe.add(self.datascroll)
-        self.datascroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.psdata = fixedwidthtext.FixedWidthTextView()
-        self.psdata.set_editable(False)
-        self.psdata.set_wrap_mode(gtk.WRAP_WORD)
-        self.psdata.set_cursor_visible(False)
-        self.datascroll.add_with_viewport(self.psdata)
-        mainpane.pack1(pnsframe, resize=1, shrink=0)
+        self.datascroll.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                   Gtk.PolicyType.AUTOMATIC)
+        self.psdata = Gtk.TextView(name="fixedfont", editable=False,
+                                   wrap_mode=Gtk.WrapMode.WORD,
+                                   cursor_visible=False,
+                                   left_margin=5, right_margin=5,
+                                   top_margin=5, bottom_margin=5)
+        self.datascroll.add(self.psdata)
+        mainpane.pack1(pnsframe, resize=True, shrink=False)
         
         # Pin nodes method
-        modframe = gtk.Frame("Pin Nodes Methods")
+        modframe = Gtk.Frame(
+            label="Pin Nodes Methods",
+            shadow_type=Gtk.ShadowType.IN,
+            margin_start=gtkutils.handle_padding, margin_end=2,
+            margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(modframe, 'Modify')
-        modframe.set_shadow_type(gtk.SHADOW_IN)
-        modbox = gtk.VBox()  # will have "methods" and "buttons"
+        # box for "methods" and "buttons"
+        modbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         modframe.add(modbox)
         self.pinModFactory = regclassfactory.RegisteredClassFactory(
             pinnodesmodifier.PinNodesModifier.registry,
-            title="Method:", scope=self, name="Method")
-        modbox.pack_start(self.pinModFactory.gtk, expand=1, fill=1, padding=2)
+            title="Method:", scope=self, name="Method",
+            shadow_type=Gtk.ShadowType.NONE)
+        modbox.pack_start(self.pinModFactory.gtk,
+                          expand=True, fill=True, padding=0)
 
         # buttons
-        hbox1 = gtk.HBox()
-        modbox.pack_start(hbox1, expand=0, fill=0, padding=2)
-        self.okbutton = gtk.Button(stock=gtk.STOCK_OK)
+        hbox1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                        margin_start=2, margin_end=2)
+        modbox.pack_start(hbox1, expand=False, fill=False, padding=0)
+        self.okbutton = gtkutils.StockButton('gtk-ok', 'OK')
         gtklogger.setWidgetName(self.okbutton, 'OK')
         gtklogger.connect(self.okbutton, "clicked", self.okCB)
-        tooltips.set_tooltip_text(self.okbutton,"Pin nodes with the selected method.")
-        self.undobutton = gtk.Button(stock=gtk.STOCK_UNDO)
+        self.okbutton.set_tooltip_text("Pin nodes with the selected method.")
+        self.undobutton = gtkutils.StockButton('edit-undo-symbolic', 'Undo')
         gtklogger.setWidgetName(self.undobutton, 'Undo')
         gtklogger.connect(self.undobutton, "clicked", self.undoCB)
-        tooltips.set_tooltip_text(self.undobutton,"Undo the latest action.")
-        self.redobutton = gtk.Button(stock=gtk.STOCK_REDO)
+        self.undobutton.set_tooltip_text("Undo the latest action.")
+        self.redobutton = gtkutils.StockButton('edit-redo-symbolic', 'Redo')
         gtklogger.setWidgetName(self.redobutton, 'Redo')
         gtklogger.connect(self.redobutton, "clicked", self.redoCB)
-        tooltips.set_tooltip_text(self.redobutton,"Redo the latest undone action.")
-        hbox1.pack_start(self.undobutton, expand=0, fill=1, padding=2)
-        hbox1.pack_start(self.okbutton, expand=1, fill=1, padding=2)
-        hbox1.pack_end(self.redobutton, expand=0, fill=1, padding=2)
+        self.redobutton.set_tooltip_text("Redo the latest undone action.")
+        hbox1.pack_start(self.undobutton, expand=False, fill=True, padding=0)
+        hbox1.pack_start(self.okbutton, expand=True, fill=True, padding=0)
+        hbox1.pack_end(self.redobutton, expand=False, fill=True, padding=0)
 
-        hbox2 = gtk.HBox(homogeneous=1)
-        modbox.pack_start(hbox2, expand=0, fill=0, padding=2)
-        self.unpinallbutton = gtk.Button("Unpin All")
+        hbox2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                        homogeneous=True, spacing=2,
+                        margin_start=2, margin_end=2, margin_bottom=2)
+        modbox.pack_start(hbox2, expand=False, fill=False, padding=0)
+        self.unpinallbutton = Gtk.Button("Unpin All")
         gtklogger.setWidgetName(self.unpinallbutton, 'Unpin All')
         gtklogger.connect(self.unpinallbutton, "clicked", self.unpinallCB)
-        tooltips.set_tooltip_text(self.unpinallbutton,"Unpin all the pinned nodes.")
-        self.invertbutton = gtk.Button("Invert")
+        self.unpinallbutton.set_tooltip_text("Unpin all the pinned nodes.")
+        self.invertbutton = Gtk.Button("Invert")
         gtklogger.setWidgetName(self.invertbutton, 'Invert')
         gtklogger.connect(self.invertbutton, "clicked", self.invertCB)
-        tooltips.set_tooltip_text(self.invertbutton,"Invert - pin the unpinned and unpin the pinned.")
-        hbox2.pack_start(self.unpinallbutton, expand=1, fill=1, padding=2)
-        hbox2.pack_start(self.invertbutton, expand=1, fill=1, padding=2)
+        self.invertbutton.set_tooltip_text(
+            "Invert - pin the unpinned and unpin the pinned.")
+        hbox2.pack_start(self.unpinallbutton, expand=True, fill=True, padding=0)
+        hbox2.pack_start(self.invertbutton, expand=True, fill=True, padding=0)
         
-        mainpane.pack2(modframe, resize=0, shrink=0)
+        mainpane.pack2(modframe, resize=False, shrink=False)
 
         # Switchboard callbacks
         switchboard.requestCallbackMain(('who changed', 'Skeleton'),

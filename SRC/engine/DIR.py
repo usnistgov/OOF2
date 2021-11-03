@@ -128,7 +128,9 @@ hfiles = [
 
 
 def set_clib_flags(clib):
+    import oof2setuputils
     addOOFlibs(clib, 'oof2common')
+    oof2setuputils.pkg_check("oofcanvas", OOFCANVAS_VERSION, clib)
     
 if HAVE_MPI:
     cfiles.extend(['cfiddlenodesbaseParallel.C'])

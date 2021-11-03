@@ -15,18 +15,27 @@ from ooflib.common import microstructure
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import skeletoncontext
 from ooflib.engine import subproblemcontext
 from ooflib.engine.IO import boundaryconditionmenu
 import ooflib.engine.mesh
 
-import gobject
-import gtk
+from gi.repository import GObject
+from gi.repository import Gtk
 
 # TODO MAYBE: Construct names automatically:
 #           bdyname:fieldname:component, or bdyname:fluxname:component
+
+# TODO: It's not possible to create a boundary condition that uses
+# undefined fields or inactive equations, and the New button is
+# desensitized if the current Mesh has no defined fields or active
+# equations.  However, it's still possible to copy a boundary
+# condition from another Mesh whether or not it would be possible to
+# create the same boundary condition in the target Mesh.  This is an
+# inconsistency that should be resolved somehow.  Also, the same
+# inconsistency can arise if fields or equations are undefined after
+# boundary conditions are created.
 
 ## Blocks of code preceded by "if TESTINGPAPER:" are an attempt to
 ## reproduce the bug that motivated gui test 00176.
@@ -34,93 +43,92 @@ TESTINGPAPER = False
 
 class BoundaryCondPage(oofGUI.MainPage):
     def __init__(self):
-        oofGUI.MainPage.__init__(self, name="Boundary Conditions",
-                                 ordering=230,
-                                 tip="Set field and flux boundary conditions on the mesh's boundaries.")
-        mainbox = gtk.VBox(spacing=2)
+        oofGUI.MainPage.__init__(
+            self, name="Boundary Conditions",
+            ordering=230,
+            tip="Set field and flux boundary conditions on the mesh boundaries."
+        )
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3,
+                            halign=Gtk.Align.CENTER, margin_top=2)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        align.add(centerbox)
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               callback=self.meshCB, scope=self)
-        label = gtk.Label("Microstructure=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[0], expand=0, fill=0)
-        label = gtk.Label("Skeleton=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[1], expand=0, fill=0)
-        label = gtk.Label("Mesh=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[2], expand=0, fill=0)
+        label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[0],
+                             expand=False, fill=False, padding=0)
+        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END, margin_start=5)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[1],
+                             expand=False, fill=False, padding=0)
+        label = Gtk.Label("Mesh=", halign=Gtk.Align.END, margin_start=5)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[2],
+                             expand=False, fill=False, padding=0)
         switchboard.requestCallbackMain(self.meshwidget, self.meshwidgetCB)
 
-        bcbuildframe = gtk.Frame("Condition")
+        bcbuildframe = Gtk.Frame(label="Condition", margin=2,
+                                 shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(bcbuildframe, 'Condition')
-        bcbuildframe.set_shadow_type(gtk.SHADOW_IN)
-        mainbox.pack_start(bcbuildframe, expand=1, fill=1)
-        bcbuildbox = gtk.VBox(spacing=2)
+        mainbox.pack_start(bcbuildframe, expand=True, fill=True, padding=0)
+        bcbuildbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         bcbuildframe.add(bcbuildbox)
-
 
         # Buttons for creating, editing and removing boundary conditions
 
-        align = gtk.Alignment(xalign=0.5)
-        bcbuildbox.pack_start(align, expand=0, fill=0, padding=3)
-        bcbuttons = gtk.HBox(homogeneous=1, spacing=3)
-        align.add(bcbuttons)
+        bcbuttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            homogeneous=1, spacing=2, halign=Gtk.Align.CENTER,
+                            margin=2)
+        bcbuildbox.pack_start(bcbuttons, expand=False, fill=False, padding=0)
         
-        self.bcNew = gtk.Button("New...")
+        self.bcNew = Gtk.Button("New...")
         gtklogger.setWidgetName(self.bcNew, 'New')
         gtklogger.connect(self.bcNew, "clicked", self.bcNew_CB)
-        tooltips.set_tooltip_text(self.bcNew,"Create a new boundary condition in the current mesh.")
-        bcbuttons.pack_start(self.bcNew, expand=1, fill=1)
+        self.bcNew.set_tooltip_text(
+            "Create a new boundary condition in the current mesh.")
+        bcbuttons.pack_start(self.bcNew, expand=True, fill=True, padding=0)
 
-        self.bcRename = gtk.Button("Rename...")
+        self.bcRename = Gtk.Button("Rename...")
         gtklogger.setWidgetName(self.bcRename, 'Rename')
         gtklogger.connect(self.bcRename, 'clicked', self.bcRename_CB)
-        tooltips.set_tooltip_text(self.bcRename,
-                             "Rename the selected boundary condition.")
-        bcbuttons.pack_start(self.bcRename, expand=1, fill=1)
+        self.bcRename.set_tooltip_text(
+            "Rename the selected boundary condition.")
+        bcbuttons.pack_start(self.bcRename, expand=True, fill=True, padding=0)
 
-        self.bcEdit = gtk.Button("Edit...")
+        self.bcEdit = Gtk.Button("Edit...")
         gtklogger.setWidgetName(self.bcEdit, 'Edit')
         gtklogger.connect(self.bcEdit, 'clicked', self.bcEdit_CB)
-        tooltips.set_tooltip_text(self.bcEdit,
-                             "Edit the selected boundary condition.")
-        bcbuttons.pack_start(self.bcEdit, expand=1, fill=1)
+        self.bcEdit.set_tooltip_text("Edit the selected boundary condition.")
+        bcbuttons.pack_start(self.bcEdit, expand=True, fill=True, padding=0)
 
-        self.bcCopy = gtk.Button("Copy...")
+        self.bcCopy = Gtk.Button("Copy...")
         gtklogger.setWidgetName(self.bcCopy, 'Copy')
         gtklogger.connect(self.bcCopy, 'clicked', self.bcCopy_CB)
-        tooltips.set_tooltip_text(self.bcCopy,
-                       "Copy the selected boundary condition to another mesh.")
-        bcbuttons.pack_start(self.bcCopy, expand=1, fill=1)
+        self.bcCopy.set_tooltip_text(
+            "Copy the selected boundary condition to another mesh.")
+        bcbuttons.pack_start(self.bcCopy, expand=True, fill=True, padding=0)
 
-        self.bcCopyAll = gtk.Button("Copy All...")
+        self.bcCopyAll = Gtk.Button("Copy All...")
         gtklogger.setWidgetName(self.bcCopyAll, 'CopyAll')
         gtklogger.connect(self.bcCopyAll, 'clicked', self.bcCopyAll_CB)
-        tooltips.set_tooltip_text(self.bcCopyAll,
-                            "Copy all the boundary conditions to another mesh.")
-        bcbuttons.pack_start(self.bcCopyAll, expand=1, fill=1)
+        self.bcCopyAll.set_tooltip_text(
+            "Copy all the boundary conditions to another mesh.")
+        bcbuttons.pack_start(self.bcCopyAll, expand=True, fill=True, padding=0)
         
-        self.bcDel = gtk.Button("Delete")
+        self.bcDel = Gtk.Button("Delete")
         gtklogger.setWidgetName(self.bcDel, 'Delete')
         gtklogger.connect(self.bcDel, "clicked", self.bcDel_CB)
-        tooltips.set_tooltip_text(self.bcDel,
-                             "Remove the selected boundary condition.")
-        bcbuttons.pack_start(self.bcDel, expand=1, fill=1)
+        self.bcDel.set_tooltip_text("Remove the selected boundary condition.")
+        bcbuttons.pack_start(self.bcDel, expand=True, fill=True, padding=0)
         
         # List of boundary conditions
-        bcscroll = gtk.ScrolledWindow()
+        bcscroll = Gtk.ScrolledWindow()
         gtklogger.logScrollBars(bcscroll, "BCScroll")
-        bcbuildbox.pack_start(bcscroll, expand=1, fill=1)
-        bcscroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        bcbuildbox.pack_start(bcscroll, expand=True, fill=True, padding=0)
+        bcscroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.bclist = BCList(self) 
         bcscroll.add(self.bclist.gtk)
 
@@ -207,10 +215,7 @@ class BoundaryCondPage(oofGUI.MainPage):
         self.bcDel.set_sensitive(bclist and meshok)
         self.bcEdit.set_sensitive(bclist and meshsync)
         self.bcCopy.set_sensitive(bclist)
-#         self.bcEnableDisable.set_sensitive(bclist)
-        self.bcCopyAll.set_sensitive(bclist)
         self.bcRename.set_sensitive(bclist and meshok)
-        
         self.bcCopyAll.set_sensitive(len(self.bclist)>0)
         
     def update(self):
@@ -269,7 +274,9 @@ class BoundaryCondPage(oofGUI.MainPage):
         params = [p for p in menuitem.params if p.name != "mesh"]
         defaults={'mesh': self.currentFullMeshName()}
         parameterwidgets.persistentMenuitemDialog(
-            menuitem, defaults, scope=self, title="New Boundary Condition",
+            menuitem, defaults, scope=self,
+            parentwindow=self.gtk.get_toplevel(),
+            title="New Boundary Condition",
             *params)
 
     def bcDel_CB(self, gtkobj):
@@ -300,9 +307,11 @@ class BoundaryCondPage(oofGUI.MainPage):
             boundaryparam.set(bc.boundary)
             meshnameparam = menuitem.get_arg("mesh")
             if parameterwidgets.getParameters(
-                newnameparam, meshnameparam, boundaryparam,
-                title="Choose a name and boundary.", scope=self):
-                menuitem.callWithDefaults(current=currentmesh, bc=bcname, boundary=boundaryparam.value)
+                    newnameparam, meshnameparam, boundaryparam,
+                    parentwindow=self.gtk.get_toplevel(),
+                    title="Choose a name and boundary.", scope=self):
+                menuitem.callWithDefaults(current=currentmesh, bc=bcname,
+                                          boundary=boundaryparam.value)
 
     # Convenience function to copy all the BCs to another mesh.  
     def bcCopyAll_CB(self, gtkobj):
@@ -311,8 +320,9 @@ class BoundaryCondPage(oofGUI.MainPage):
             menuitem = boundaryconditionmenu.bcmenu.Copy_All
             meshnameparam = menuitem.get_arg("mesh")
             if parameterwidgets.getParameters(
-                meshnameparam,
-                title="Choose the target mesh.", scope=self):
+                    meshnameparam,
+                    parentwindow=self.gtk.get_toplevel(),
+                    title="Choose the target mesh.", scope=self):
                 menuitem.callWithDefaults(current=currentmesh)
     
     def bcEdit_CB(self, *args):
@@ -328,8 +338,9 @@ class BoundaryCondPage(oofGUI.MainPage):
             condition_param.set(condition_obj)
 
             if parameterwidgets.getParameters(
-                condition_param, title="Edit Boundary Condition",
-                scope=self):
+                    condition_param, title="Edit Boundary Condition",
+                    parentwindow=self.gtk.get_toplevel(),
+                    scope=self):
                 menuitem.callWithDefaults(name=bcname, mesh=meshname)
                 
     def bcRename_CB(self, gtkobj):
@@ -339,11 +350,14 @@ class BoundaryCondPage(oofGUI.MainPage):
             menuitem = boundaryconditionmenu.bcmenu.Rename
             newnameparam = menuitem.get_arg('name')
             newnameparam.value = bcname
-            if parameterwidgets.getParameters(newnameparam,
-                                              title="Rename the boundary condition '%s'" % bcname):
+            if parameterwidgets.getParameters(
+                    newnameparam,
+                    parentwindow=self.gtk.get_toplevel(),
+                    title="Rename the boundary condition '%s'" % bcname):
                 menuitem.callWithDefaults(mesh=meshname, bc=bcname)
 
-    def newBCs(self, mesh, bc, visible): # sb "boundary conditions changed"
+    def newBCs(self, mesh, bc=None, visible=True):
+        # sb "boundary conditions changed"
         if mesh==self.currentMesh() and visible:
             self.bclist.update(mesh, select=bc)
 
@@ -367,88 +381,86 @@ class BoundaryCondPage(oofGUI.MainPage):
 class BCList:
     sortByNameID = 1
     sortByBdyID = 2
-#     sortByEnableID = 3
 
     def __init__(self, parent, mesh=None):
         debug.mainthreadTest()
         self.parent = parent # Reference to the enclosing BoundaryCondPage.
         self.current_mesh = mesh
         debug.mainthreadTest()
-        self.bcliststore = gtk.ListStore(gobject.TYPE_STRING,
-                                         gobject.TYPE_PYOBJECT)
-        self.sortedlist = gtk.TreeModelSort(self.bcliststore)
-        self.gtk = gtk.TreeView(self.sortedlist)
-        gtklogger.setWidgetName(self.gtk, "BCList")
+        self.bcliststore = Gtk.ListStore(GObject.TYPE_STRING,
+                                         GObject.TYPE_PYOBJECT)
+        self.sortedlist = Gtk.TreeModelSort(self.bcliststore)
+        self.gtk = Gtk.Frame(shadow_type=Gtk.ShadowType.IN, margin=2)
+        self.treeview = Gtk.TreeView(self.sortedlist)
+        self.gtk.add(self.treeview)
+        gtklogger.setWidgetName(self.treeview, "BCList")
 
         # Enable/disable column
-        enablecell = gtk.CellRendererToggle()
-        enablecol = gtk.TreeViewColumn("Enable")
+        enablecell = Gtk.CellRendererToggle()
+        enablecol = Gtk.TreeViewColumn("Enable")
         enablecol.pack_start(enablecell, expand=False)
         enablecol.set_cell_data_func(enablecell, self.renderEnableCell)
-        self.gtk.append_column(enablecol)
-        gtklogger.adoptGObject(enablecell, self.gtk,
+        self.treeview.append_column(enablecol)
+        gtklogger.adoptGObject(enablecell, self.treeview,
                                access_function=gtklogger.findCellRenderer,
                                access_kwargs={'col':0, 'rend':0})
         gtklogger.connect(enablecell, 'toggled', self.enableCellCB)
-        ## Click on the column header to sort by Enabled status.
-        ## Currently commented out because clicking on a toggle cell
-        ## when sorting by Enable may trigger an instant re-sort,
-        ## which moves the clicked cell.
-#         gtklogger.adoptGObject(enablecol, self.gtk,
-#                                access_method=gtk.TreeView.get_column,
-#                                access_args=(0,))
-#         gtklogger.connect_passive(enablecol, 'clicked')
-#         enablecol.set_sort_column_id(self.sortByEnableID)
-#         self.sortedlist.set_sort_func(self.sortByEnableID, self.sortByEnableFn)
+        # Sorting by enabled/disabled status is not supported. It
+        # were, then clicking on the toggle button could move the
+        # object being clicked, which is confusing.
 
         # Boundary condition name column
-        bcnamecell = gtk.CellRendererText()
-        bcnamecol = gtk.TreeViewColumn('Name')
+        bcnamecell = Gtk.CellRendererText()
+        bcnamecol = Gtk.TreeViewColumn('Name')
         bcnamecol.pack_start(bcnamecell, expand=False)
         bcnamecol.set_attributes(bcnamecell, text=0)
-        self.gtk.append_column(bcnamecol)
-        gtklogger.adoptGObject(bcnamecol, self.gtk,
-                               access_method=gtk.TreeView.get_column,
+        bcnamecol.set_resizable(True)
+        self.treeview.append_column(bcnamecol)
+        gtklogger.adoptGObject(bcnamecol, self.treeview,
+                               access_method=Gtk.TreeView.get_column,
                                access_args=(1,))
         gtklogger.connect_passive(bcnamecol, 'clicked')
         bcnamecol.set_sort_column_id(self.sortByNameID)
         self.sortedlist.set_sort_func(self.sortByNameID, self.sortByNameFn)
         
         # Boundary name column
-        bdycell = gtk.CellRendererText()
-        bdycol = gtk.TreeViewColumn('Boundary')
+        bdycell = Gtk.CellRendererText()
+        bdycol = Gtk.TreeViewColumn('Boundary')
         bdycol.pack_start(bdycell, expand=True)
         bdycol.set_cell_data_func(bdycell, self.renderBdy)
-        self.gtk.append_column(bdycol)
-        gtklogger.adoptGObject(bdycol, self.gtk,
-                               access_method=gtk.TreeView.get_column,
+        bdycol.set_resizable(True)
+        self.treeview.append_column(bdycol)
+        gtklogger.adoptGObject(bdycol, self.treeview,
+                               access_method=Gtk.TreeView.get_column,
                                access_args=(2,))
         gtklogger.connect_passive(bdycol, 'clicked')
         bdycol.set_sort_column_id(self.sortByBdyID)
         self.sortedlist.set_sort_func(self.sortByBdyID, self.sortByBdyFn)
 
         # Boundary condition column
-        bccell = gtk.CellRendererText()
-        bccol = gtk.TreeViewColumn('Condition')
+        bccell = Gtk.CellRendererText()
+        bccol = Gtk.TreeViewColumn('Condition')
         bccol.pack_start(bccell, expand=True)
         bccol.set_cell_data_func(bccell, self.renderBC)
-        self.gtk.append_column(bccol)
+        bccol.set_resizable(True)
+        self.treeview.append_column(bccol)
 
-        selection = self.gtk.get_selection()
-        gtklogger.adoptGObject(selection, self.gtk,
-                               access_method=self.gtk.get_selection)
+        selection = self.treeview.get_selection()
+        gtklogger.adoptGObject(selection, self.treeview,
+                               access_method=self.treeview.get_selection)
 
         self.signals = (
             gtklogger.connect(selection, 'changed', self.selectCB),
-            gtklogger.connect(self.gtk, 'row-activated', self.doubleClickCB)
+            gtklogger.connect(self.treeview, 'row-activated',
+                              self.doubleClickCB)
             )
 
         # Set initial sorting method
         self.lastsortcol = bcnamecol
         self.sortedlist.set_sort_column_id(self.sortByNameID, 
-                                           gtk.SORT_ASCENDING)
+                                           Gtk.SortType.ASCENDING)
 
-    def renderEnableCell(self, column, cell_renderer, model, iter):
+    def renderEnableCell(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         bc = model[iter][1]
         cell_renderer.set_active(not bc.explicit_disable)
@@ -461,7 +473,7 @@ class BCList:
         else:
             boundaryconditionmenu.bcmenu.Disable(mesh=meshname, name=bc.name())
 
-    def renderBdy(self, column, cell_renderer, model, iter):
+    def renderBdy(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         bc = model[iter][1]
         try:
@@ -470,20 +482,20 @@ class BCList:
             bdyname = '???'
         cell_renderer.set_property('text', bdyname)
 
-    def renderBC(self, column, cell_renderer, model, iter):
+    def renderBC(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         bc = model[iter][1]
         cell_renderer.set_property('text', bc.display_string())
 
     def getBC(self):
         debug.mainthreadTest()
-        selection = self.gtk.get_selection()
+        selection = self.treeview.get_selection()
         model, iter = selection.get_selected()
         if iter:
             return model[iter][1]
     def getBCName(self):
         debug.mainthreadTest()
-        selection = self.gtk.get_selection()
+        selection = self.treeview.get_selection()
         model, iter = selection.get_selected()
         if iter:
             return model[iter][0]
@@ -508,7 +520,7 @@ class BCList:
                 if currentBC is not None:
                     for row in range(len(self.sortedlist)):
                         if self.sortedlist[row][0] == currentBC:
-                            self.gtk.get_selection().select_path(row)
+                            self.treeview.get_selection().select_path(row)
                             break
         finally:
             for signal in self.signals:
@@ -520,25 +532,10 @@ class BCList:
     def doubleClickCB(self, treeview, path, col):
         self.parent.bcEdit_CB()
 
-    def sortByNameFn(self, model, iter1, iter2):
+    def sortByNameFn(self, model, iter1, iter2, data):
         return cmp(model[iter1][0], model[iter2][0])
 
-#     def sortByEnableFn(self, model, iter1, iter2):
-#         bc1 = model[iter1][1]
-#         bc2 = model[iter2][1]
-#         # I don't understand how bc1 or bc2 can be None, but they
-#         # sometimes are, so we need to check for.  What we do when one
-#         # of them is None doesn't seem to matter.
-#         if bc1 is not None and bc2 is not None:
-#             return cmp(bc1.is_explicitly_disabled(),
-#                        bc2.is_explicitly_disabled())
-#         if bc1 == bc2:          # both None
-#             return 0
-#         if bc1 is None:
-#             return -1
-#         return 1
-
-    def sortByBdyFn(self, model, iter1, iter2):
+    def sortByBdyFn(self, model, iter1, iter2, data):
         bc1 = model[iter1][1]
         bc2 = model[iter2][1]
         # I don't understand how bc1 or bc2 can be None, but they

@@ -44,7 +44,6 @@ import sys
 OOF = mainmenu.OOF
 RegisteredParameter = parameter.RegisteredParameter
 IntParameter = parameter.IntParameter
-AutoIntParameter = parameter.AutoIntParameter
 WhoParameter = whoville.WhoParameter
 microStructures = microstructure.microStructures
 SkeletonModifier = skeletonmodifier.SkeletonModifier

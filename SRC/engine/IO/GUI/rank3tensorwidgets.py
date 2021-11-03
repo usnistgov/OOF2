@@ -28,13 +28,14 @@ MatrixInput = matrixparamwidgets.MatrixInput
 ## settable ij values.  
 
 class Rank3TensorWidget(MatrixInput):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
-        MatrixInput.__init__(self, 3,6, value=None, scope=scope, name=name)
+        MatrixInput.__init__(self, 3,6, value=None, scope=scope, name=name,
+                             **kwargs)
         for (k,f) in self.widgets.items():
             if k not in self.excluded:
-                f.gtk.set_editable(0)
-                f.gtk.set_sensitive(0)
+                f.gtk.set_editable(False)
+                f.gtk.set_sensitive(False)
             else:
                 gtklogger.connect(f.gtk, "activate", self.new_value, None)
                 gtklogger.connect(f.gtk, "focus_out_event", self.new_value)
@@ -47,9 +48,10 @@ class Rank3TensorWidget(MatrixInput):
 class C1Rank3TensorWidget(Rank3TensorWidget):
     # Doesn't use Rank3TensorWidget.__init__ because the "excluded"
     # list is too long.
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
-        MatrixInput.__init__(self, 3,6, value=None, scope=scope, name=name)
+        MatrixInput.__init__(self, 3,6, value=None, scope=scope, name=name,
+                             **kwargs)
             
         for i in range(3):
             for j in range(6):
@@ -115,8 +117,8 @@ class C1Rank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _C1Rank3Tensor_makeWidget(self, scope=None):
-    return C1Rank3TensorWidget(self, scope, name=self.name)
+def _C1Rank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return C1Rank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.C1Rank3TensorParameter.makeWidget = _C1Rank3Tensor_makeWidget
 
@@ -160,8 +162,8 @@ class C2Rank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _C2Rank3Tensor_makeWidget(self, scope=None):
-    return C2Rank3TensorWidget(self, scope, name=self.name)
+def _C2Rank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return C2Rank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.C2Rank3TensorParameter.makeWidget = _C2Rank3Tensor_makeWidget
 
@@ -210,8 +212,8 @@ class CsRank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _CsRank3Tensor_makeWidget(self, scope=None):
-    return CsRank3TensorWidget(self, scope, name=self.name)
+def _CsRank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return CsRank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.CsRank3TensorParameter.makeWidget = _CsRank3Tensor_makeWidget
 
@@ -243,8 +245,8 @@ class D2Rank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _D2Rank3Tensor_makeWidget(self, scope=None):
-    return D2Rank3TensorWidget(self, scope, name=self.name)
+def _D2Rank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return D2Rank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.D2Rank3TensorParameter.makeWidget = _D2Rank3Tensor_makeWidget
 
@@ -279,8 +281,8 @@ class C2vRank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _C2vRank3Tensor_makeWidget(self, scope=None):
-    return C2vRank3TensorWidget(self, scope, name=self.name)
+def _C2vRank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return C2vRank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.C2vRank3TensorParameter.makeWidget = _C2vRank3Tensor_makeWidget
 
@@ -318,8 +320,8 @@ class C4Rank3TensorWidget(Rank3TensorWidget):
                 self.unblock_signals()
         self.gtk.show_all()
 
-def _C4Rank3Tensor_makeWidget(self, scope=None):
-    return C4Rank3TensorWidget(self, scope, name=self.name)
+def _C4Rank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return C4Rank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.C4Rank3TensorParameter.makeWidget = _C4Rank3Tensor_makeWidget
 
@@ -358,8 +360,8 @@ class C4iRank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _C4iRank3Tensor_makeWidget(self, scope=None):
-    return C4iRank3TensorWidget(self, scope, name=self.name)
+def _C4iRank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return C4iRank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.C4iRank3TensorParameter.makeWidget = _C4iRank3Tensor_makeWidget
 
@@ -389,8 +391,8 @@ class D4Rank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _D4Rank3Tensor_makeWidget(self, scope=None):
-    return D4Rank3TensorWidget(self, scope, name=self.name)
+def _D4Rank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return D4Rank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.D4Rank3TensorParameter.makeWidget = _D4Rank3Tensor_makeWidget
 
@@ -423,8 +425,8 @@ class C4vRank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _C4vRank3Tensor_makeWidget(self, scope=None):
-    return C4vRank3TensorWidget(self, scope, name=self.name)
+def _C4vRank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return C4vRank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.C4vRank3TensorParameter.makeWidget = _C4vRank3Tensor_makeWidget
 
@@ -456,8 +458,8 @@ class D2dRank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _D2dRank3Tensor_makeWidget(self, scope=None):
-    return D2dRank3TensorWidget(self, scope, name=self.name)
+def _D2dRank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return D2dRank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.D2dRank3TensorParameter.makeWidget = _D2dRank3Tensor_makeWidget
 
@@ -501,8 +503,8 @@ class C3Rank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _C3Rank3Tensor_makeWidget(self, scope=None):
-    return C3Rank3TensorWidget(self, scope, name=self.name)
+def _C3Rank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return C3Rank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.C3Rank3TensorParameter.makeWidget = _C3Rank3Tensor_makeWidget
 
@@ -534,8 +536,8 @@ class D3Rank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _D3Rank3Tensor_makeWidget(self, scope=None):
-    return D3Rank3TensorWidget(self, scope, name=self.name)
+def _D3Rank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return D3Rank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.D3Rank3TensorParameter.makeWidget = _D3Rank3Tensor_makeWidget
 
@@ -574,8 +576,8 @@ class C3vRank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _C3vRank3Tensor_makeWidget(self, scope=None):
-    return C3vRank3TensorWidget(self, scope, name=self.name)
+def _C3vRank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return C3vRank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.C3vRank3TensorParameter.makeWidget = _C3vRank3Tensor_makeWidget
 
@@ -612,8 +614,8 @@ class C6Rank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _C6Rank3Tensor_makeWidget(self, scope=None):
-    return C6Rank3TensorWidget(self, scope, name=self.name)
+def _C6Rank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return C6Rank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.C6Rank3TensorParameter.makeWidget = _C6Rank3Tensor_makeWidget
 
@@ -649,8 +651,8 @@ class D6iRank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _D6iRank3Tensor_makeWidget(self, scope=None):
-    return D6iRank3TensorWidget(self, scope, name=self.name)
+def _D6iRank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return D6iRank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.D6iRank3TensorParameter.makeWidget = _D6iRank3Tensor_makeWidget
 
@@ -681,8 +683,8 @@ class D6Rank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _D6Rank3Tensor_makeWidget(self, scope=None):
-    return D6Rank3TensorWidget(self, scope, name=self.name)
+def _D6Rank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return D6Rank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.D6Rank3TensorParameter.makeWidget = _D6Rank3Tensor_makeWidget
 
@@ -717,8 +719,8 @@ class C6vRank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _C6vRank3Tensor_makeWidget(self, scope=None):
-    return C6vRank3TensorWidget(self, scope, name=self.name)
+def _C6vRank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return C6vRank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.C6vRank3TensorParameter.makeWidget = _C6vRank3Tensor_makeWidget
 
@@ -750,8 +752,8 @@ class D3hRank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _D3hRank3Tensor_makeWidget(self, scope=None):
-    return D3hRank3TensorWidget(self, scope, name=self.name)
+def _D3hRank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return D3hRank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.D3hRank3TensorParameter.makeWidget = _D3hRank3Tensor_makeWidget
 
@@ -784,8 +786,8 @@ class TdRank3TensorWidget(Rank3TensorWidget):
         finally:
             self.set_values(result)
 
-def _TdRank3Tensor_makeWidget(self, scope=None):
-    return TdRank3TensorWidget(self, scope, name=self.name)
+def _TdRank3Tensor_makeWidget(self, scope=None, **kwargs):
+    return TdRank3TensorWidget(self, scope, name=self.name, **kwargs)
 
 rank3tensor.TdRank3TensorParameter.makeWidget = _TdRank3Tensor_makeWidget
 

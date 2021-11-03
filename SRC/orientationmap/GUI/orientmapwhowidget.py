@@ -22,15 +22,16 @@ def _withOrientationMap(who):
             orientmapdata.getOrientationMap(who.getObject()) is not None)
 
 class MicrostructureWithOrientationMapWidget(whowidget.WhoParameterWidget):
-    def __init__(self, value=None, scope=None, name=None):
+    def __init__(self, value=None, scope=None, name=None, **kwargs):
         whowidget.WhoParameterWidget.__init__(
             self, whoclass=whoville.getClass('Microstructure'),
             value=value, scope=scope, name=name,
-            condition=_withOrientationMap)
+            condition=_withOrientationMap, **kwargs)
 
-def _MicrostructureWithOrientMapParameter_makeWidget(self, scope=None):
+def _MicrostructureWithOrientMapParameter_makeWidget(self, scope=None,
+                                                     **kwargs):
     return MicrostructureWithOrientationMapWidget(self.value, scope=scope,
-                                       name=self.name)
+                                                  name=self.name, **kwargs)
 
 orientmapmenu.MicrostructureWithOrientMapParameter.makeWidget = \
                                  _MicrostructureWithOrientMapParameter_makeWidget
@@ -43,15 +44,16 @@ def _withoutOrientationMap(who):
     return result
 
 class MicrostructureWithoutOrientationMapWidget(whowidget.WhoParameterWidget):
-    def __init__(self, value=None, scope=None, name=None):
+    def __init__(self, value=None, scope=None, name=None, **kwargs):
         whowidget.WhoParameterWidget.__init__(
             self, whoclass=whoville.getClass('Microstructure'),
             value=value, scope=scope, name=name,
-            condition=_withoutOrientationMap)
+            condition=_withoutOrientationMap, **kwargs)
 
-def _MicrostructureWithoutOrientMapParameter_makeWidget(self, scope=None):
+def _MicrostructureWithoutOrientMapParameter_makeWidget(self, scope=None,
+                                                        **kwargs):
     return MicrostructureWithoutOrientationMapWidget(self.value, scope=scope,
-                                       name=self.name)
+                                                     name=self.name, **kwargs)
 
 orientmapmenu.MicrostructureWithoutOrientMapParameter.makeWidget = \
                             _MicrostructureWithoutOrientMapParameter_makeWidget

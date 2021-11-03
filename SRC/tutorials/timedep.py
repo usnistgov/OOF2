@@ -113,25 +113,18 @@ system.  All of the quantities that can be computed by the
 BOLD(Analysis) and BOLD(Boundary Analysis) pages are available to be
 computed during a time evolution.
 
-A Scheduled Output consists of three parts, which are displayed in the
-four columns on the page.
+Each Scheduled Output consists of three parts:
 
-BOLD(0.) The leftmost column contains check boxes that allow Scheduled
-Outputs to be turned on and off easily. 
-
-BOLD(1.) The next column contains the quantity to be
-BOLD(Output). "Quantity" is interpreted loosely here.  It includes
+BOLD(1.) The BOLD(Output), which is the quantity to be
+computed. "Quantity" is interpreted loosely here.  It includes
 quantities from the Analysis and Boundary Analysis pages, as well as
 graphics window updates and mesh data files.
 
-BOLD(2.) The third column contains the BOLD(Schedule), which
-determines when the output operation takes place.
+BOLD(2.) The BOLD(Schedule), which determines when the output
+operation takes place.
 
-BOLD(3.) The fourth column contains the BOLD(Destination), which
-determines where the output is written.
-
-Selecting an item in any of the four lists automatically selects the
-associated items in the other lists.
+BOLD(3.) The BOLD(Destination), which determines where the output is
+written.
 """),
 
         TutoringItem(
@@ -140,10 +133,10 @@ associated items in the other lists.
 We'll first add a Scheduled Output that determines how often the
 BOLD(Graphics Window) will be updated.
 
-Click the BOLD(New) button below the BOLD(Output) column.  A dialog
+Click the BOLD(New) button at the top of the page.  A dialog
 window will open allowing you to choose one of a number of kinds of
 Outputs.  Set the BOLD(output) parameter to BOLD(Update Graphics) and
-leave the BOLD(name) parameter set to "automatic".  Click BOLD(OK).
+leave the BOLD(name) parameter set to "<automatic>".  Click BOLD(OK).
 
 The new Output is listed in the window.  If we had given a value to
 the BOLD(name) parameter in the dialog box, then that name would
@@ -153,14 +146,13 @@ appear in the Output column.  Instead, it contains the generic name,
 
         TutoringItem(
             subject="Schedule Graphics Output, continued",
-            comments="""
-Resize this tutorial window so that you can see all of the text before
-proceeding.
+            comments=
 
-The BOLD(Schedule) column contains "---" because no schedule has been
-assigned to the GraphicsUpdate operation.  Make sure that the "---" is
-selected and click on the BOLD(Set) button at the bottom of the
-BOLD(Schedule) column, or double click on "---".
+""" The BOLD(Schedule) column contains "---" because no schedule has
+been assigned to the GraphicsUpdate operation.  Make sure that the
+"---" is selected and click on the BOLD(Edit) button under the label
+BOLD(Schedule) at the bottom of the page, or double click on "---" in
+the BOLD(Schedule) column.
 
 The dialog box asks you to pick a BOLD(scheduletype) and a
 BOLD(schedule).  The types are BOLD(Absolute) (operations will be
@@ -185,29 +177,27 @@ that's the only destination that makes sense when updating graphics.
 Now we'll define an output operation that stores the average position
 of the top boundary of the mesh in a file. 
 
-Click the BOLD(New) button in the BOLD(Output) column to define a new
-output operation.  This time, in the dialog box set "output" to
-"Boundary Analysis".  For "operation", choose "Average Field" with
-"field" set to "Displacement".  For "boundary", choose "top".  Click
-BOLD(OK).
+Click the BOLD(New) button to define a new output operation.  This
+time, in the dialog box set "output" to "Boundary Analysis".  For
+"operation", choose "Average Field" with "field" set to
+"Displacement".  For "boundary", choose "top".  Click BOLD(OK).
 
-The new Output is now selected in the Output/Schedule/Destination
-lists.  Both its Schedule and Destination show up as "---" because
-they haven't been set.  Unlike GraphicsUpdate, there is no default
-destination for boundary analysis outputs.  We could set the schedule
-the same way we did for GraphicsUpdate, but it's easier to copy the
-GraphicsUpdate schedule.  Click on "GraphicsUpdate" or its schedule to
-select it, then click on the BOLD(Copy) button at the bottom of the
-Schedule column.  In the dialog box, change "target" to "Average
-Displacement on top" and click BOLD(OK).  The two Outputs now have the
-same Schedule.
+The new Output is now selected in the list.  Both its Schedule and
+Destination show up as "---" because they haven't been set.  Unlike
+GraphicsUpdate, there is no default destination for boundary analysis
+outputs.  We could set the schedule the same way we did for
+GraphicsUpdate, but it's easier to copy the GraphicsUpdate schedule.
+Click on "GraphicsUpdate" to select it, then click on
+the BOLD(Copy) button under the label BOLD(Schedule) at the bottom of
+the page.  In the dialog box, change "target" to "Average Displacement
+on top" and click BOLD(OK).  The two Outputs now have the same
+Schedule.
 
 To determine where the output data goes, select the "Average
-Displacement" Output again, and click the BOLD(Set) button in the
+Displacement" Output again, and click the BOLD(Edit) button in the
 BOLD(Destination) column.  There are two choices: "Message Window"
 writes to the OOF2 Message Window, and "Output Stream" writes to a
-file.  Choose "Output Stream" and type a file name into the
-BOLD(filename:) box.  Click BOLD(OK).
+file.  Choose "Output Stream" and enter a file name.  Click BOLD(OK).
 """),
 
         TutoringItem(
@@ -233,7 +223,7 @@ Note that the available options in a given pane on this page can
 depend on what has been selected in another pane.  You have to select
 the"Average" operation before the "Element Set" sampling is available.
 
-To give these settings a name, click the BOLD(Create) button in the
+To give these settings a name, click the BOLD(New) button in the
 BOLD(Named Analysis) box.  Either click BOLD(OK) to accept the default
 name (which is "analysis"), or click the checkbox next to the name and
 type a new name.  Click BOLD(OK) to accept the new name.
@@ -245,7 +235,7 @@ type a new name.  Click BOLD(OK) to accept the new name.
             comments="""
 Go back to the BOLD(Scheduled Output) page.  Click on the BOLD(New)
 button to create a new Output.  This time, leave "name" set to
-"automatic" (uncheck the box if necessary) and set "output" to "Named
+"<automatic>" and set BOLD(output) to "Named
 Analysis".  The name you used appears in a pull down menu for the
 "analysis" parameter.  Click BOLD(OK).  The new Output now appears in
 the lists.  Its name is the name that you assigned to the Named
@@ -255,7 +245,7 @@ Again, copy the Schedule from the other outputs by selecting one of
 them and clicking on the BOLD(Copy) button in the BOLD(Schedule)
 column.
 
-Finally, click the BOLD(Set) button in the BOLD(Destination)
+Finally, click the BOLD(Edit) button in the BOLD(Destination)
 column. (Remember to reselect the new Output first.)  Select "Output
 Stream" and enter the same file name that you chose earlier for the
 Boundary Analysis data.  Both sets of data will go to the same file.
@@ -276,11 +266,11 @@ will be initialized and to apply the initializers.  It also allows an
 initial BOLD(time) to be assigned to the Mesh.
 
 At the bottom of the page are boxes for the time, the BOLD(Solve)
-button itself, and a BOLD(Status) box.  The "current time" box shows
-the Mesh's current time, which is determined by the time evolution.
-It can be reset when Fields are initialized.
+button itself, and a BOLD(Status) box.  The BOLD(current time) box
+shows the Mesh's current time, which is determined by the time
+evolution.  It can be reset when Fields are initialized.
 
-"end time" is the target time for a time-dependent solution.  You
+BOLD(end time) is the target time for a time-dependent solution.  You
 should set it before clicking BOLD(Solve). 
 
 The BOLD(Status) box briefly describes the state of the solution of
@@ -299,9 +289,6 @@ list.
 
 The checkboxes in the BOLD(Solve?) column indicate whether or not OOF2
 should solve each Subproblem.  Make sure that the checkbox is checked.
-
-(Resize this tutorial window so that you can see all the text before
-going on.)
 
 The BOLD(Solver) column shows the solution method that will be used on
 each Subproblem.  If it says "<none>" that Subproblem won't be solved,
@@ -358,7 +345,7 @@ and click on the BOLD(Set) button, or double click on the line.  A
 dialog box appears for setting the initialization method for the
 components of the field.  The components can be initialized to
 constant values, to functions of x and y, or by copying from another
-Mesh.  For this example, choose "XYFunction" and set "fx" to 0.0 and
+Mesh.  For this example, choose "XYTFunction" and set "fx" to 0.0 and
 "fy" to 0.1*x*y.  Click BOLD(OK).
 
 Initialize the time derivative field, Displacement_t, to "Constant"
@@ -371,14 +358,19 @@ with "cx" and "cy" set to 0.0.
             comments="""
 Assigning initializers to the fields doesn't actually initialize the
 fields.  That has to be done in a separate step.  First, open a
-graphics window so that you can see the effect.  The window is
-displaying both a Skeleton and a Mesh, but they're exactly coincident.
-Click the BOLD(Apply) button in the BOLD(Field Initialization) pane.
+graphics window and add a layer that displays the Mesh edges at their
+actual positions (not their original positions!).
+
+Click the BOLD(Apply) button in the BOLD(Field Initialization) pane
+and observe the changes in the graphics window.
 
 Notice that the Mesh nodes have moved because the displacement field
-has been initialized.  To make the display easier to read, either hide
-the Skeleton layer or change its color.  Light gray works well.
-"""),
+has been initialized. 
+
+Optional: Add a display layer that shows either the Skeleton edges or
+the Mesh edges at their original positions.  To make the display
+easier to read, give the edges in the new layer a different color.
+Light gray works well.  """),
 
         TutoringItem(
             subject="Solve",
@@ -454,6 +446,8 @@ Click BOLD(Solve) again to recompute the time evolution with the new
 parameters.
 """),
 
+        ## TODO GTK3: Break this up into smaller pages, now that the
+        ## tutorial window isn't scrollable.
         TutoringItem(
             subject="Undiscussed Topics",
             comments="""

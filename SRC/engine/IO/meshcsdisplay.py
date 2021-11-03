@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -12,6 +11,7 @@
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import ooferror
 from ooflib.common import color
+from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import registeredclass
 from ooflib.common.IO import automatic
@@ -25,6 +25,8 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.engine.IO import meshcsparams
 import types
 
+import oofcanvas
+
 # Layer for showing the mesh cross-sections.
 class MeshCrossSectionDisplay(display.DisplayMethod):
     def __init__(self, cross_sections, color, linewidth):
@@ -36,21 +38,18 @@ class MeshCrossSectionDisplay(display.DisplayMethod):
     # We might need to be redrawn when the mesh's cross-sections have
     # changed.
     def getTimeStamp(self, gfxwindow):
-        mesh = self.who().resolve(gfxwindow)
+        mesh = self.who.resolve(gfxwindow)
         return max(self.timestamp, mesh.cross_sections.timestamp)
 
 
-    def draw(self, gfxwindow, device):
-        mesh = self.who().resolve(gfxwindow)
-        device.set_lineColor(self.color)
-        device.set_lineWidth(self.linewidth)
-
-        if self.cross_sections==placeholder.selection:
+    def draw(self, gfxwindow):
+        mesh = self.who.resolve(gfxwindow)
+        segments = []
+        if self.cross_sections == placeholder.selection:
             cstoolbox = gfxwindow.getToolboxByName('Mesh_Cross_Section')
             cs = mesh.selectedCS()
             if cs:
-                device.draw_segment(primitives.Segment(cs.start, cs.end))
-                
+                segments = [primitives.Segment(cs.start, cs.end)]
         else: # List of cs names.
             for k in self.cross_sections:
                 try:
@@ -58,16 +57,18 @@ class MeshCrossSectionDisplay(display.DisplayMethod):
                 except KeyError:
                     pass
                 else:
-                    device.draw_segment(
-                        primitives.Segment(b.start, b.end) )
+                    segments.append(primitives.Segment(b.start, b.end))
+        if segments:
+            segs = oofcanvas.CanvasSegments()
+            segs.setLineWidthInPixels(self.linewidth)
+            segs.setLineColor(color.canvasColor(self.color))
+            for seg in segments:
+                segs.addSegment(seg.startpt, seg.endpt)
+            self.canvaslayer.addItem(segs)
+            
 
 defaultMeshCSColor = color.gray50
 defaultMeshCSLineWidth = 1
-if config.dimension() == 2:
-    widthRange = (0,10)
-# In vtk, line widths of 0 cause errors
-elif config.dimension() == 3:
-    widthRange = (1,10)
 
 def _setMeshCSDefaults(menuitem, color, linewidth):
     global defaultMeshCSColor
@@ -76,9 +77,9 @@ def _setMeshCSDefaults(menuitem, color, linewidth):
     defaultMeshCSLineWidth = linewidth
 
 meshcsdispparams = [
-    color.ColorParameter('color', value=defaultMeshCSColor,
-                         tip="In which color?"),
-    parameter.IntRangeParameter('linewidth', widthRange, defaultMeshCSLineWidth,
+    color.TranslucentColorParameter('color', value=defaultMeshCSColor,
+                                    tip="In which color?"),
+    parameter.IntRangeParameter('linewidth', (0, 10), defaultMeshCSLineWidth,
                                 tip="Thickness of the line.")]
 
 mainmenu.gfxdefaultsmenu.Meshes.addItem(oofmenu.OOFMenuItem(

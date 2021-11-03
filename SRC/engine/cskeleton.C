@@ -200,6 +200,14 @@ void CSkeletonElement::replaceNode(int which, CSkeletonNode *replacement) {
   nodes[which] = replacement;
 }
 
+std::ostream &operator<<(std::ostream &os, const CSkeletonElement &el) {
+  os << "Element(" << el.nodes[0]->position();
+  for(int i=1; i<el.nnodes(); i++)
+    os << ", " << el.nodes[i]->position();
+  os << ")";
+  return os;
+}
+
 std::vector<Coord> *CSkeletonElement::perimeter() const {
   int n = nnodes();
   std::vector<Coord> *pvec = new std::vector<Coord>(n);

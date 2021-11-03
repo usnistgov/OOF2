@@ -12,6 +12,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@ctcms.nist.gov. 
 
+1.2 Updated for Gtk3.
 	  
 1.1 The logger for gtk.ComboBox now records the string stored in
     current value, if possible.  If underlying model for the ComboBox

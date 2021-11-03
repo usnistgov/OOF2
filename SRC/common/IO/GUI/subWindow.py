@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -16,7 +15,9 @@
 #
 # If you either override or pass in a callback, it should take two
 # arguments.  The first will be "self" and the second will be the
-# window emitting the signal (i.e. top.gtk).
+# window emitting the signal (i.e. top.gtk).  It will be called
+# instead of the default method when the subwindow should be
+# destroyed.
 
 # Construct the menu for the window's menubar.
 
@@ -29,8 +30,33 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO.GUI import gfxmenu
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import quit 
-import gtk
+from gi.repository import Gtk
 import types
+
+## TODO: Menu creation here is clumsy and should be cleaned up.
+## Currently the "menu" arg to the SubWindow constructor is expected
+## to be either an OOFMenuItem or a string.  If it's a string, a menu
+## is created with that name and File/Close and File/Quit are added to
+## it, and the menu is attached to the window's menu bar.  If the
+## "menu" arg is an OOFMenuItem, then it is attached to the menu bar
+## without modification.
+
+## A better scheme would be for the constructor arg to always be an
+## OOFMenuItem, which could be in an existing OOFMenu or not.  The
+## SubWindow constructor would always create File/Close and File/Quit
+## menu items if they didn't already exist.  The subclasses could
+## override the callback methods if necessary.  Having
+## SubWindow.__init__ create the File/Quit would mean that the hack of
+## setting File.Quit.data=self.gtk would be required in far fewer
+## places.
+
+## Subclasses of SubWindow and the menu arg they pass to SubWindow.__init__:
+## GUIConsole (console.py)  passes _console_menu
+## ActivityViewer, passes self.menu
+## GfxWindowBase (uses self.menu from GhostGfxWindow, calls
+##   SubWindow.__init__ from gfxwindow.py) passes self.menu
+## MessageWindow (reporter_GUI.py)   passes self.menu_name
+## TutorialClassGUI (tutorialsGUI.py) passes ""
 
 class SubWindow:
     # Base class for non-modal windows which want to be destroyed when
@@ -38,24 +64,18 @@ class SubWindow:
     # destroyed.
     def __init__(self, title, menu=None, callback=None, guiloggable=True):
         debug.mainthreadTest()
-        self.gtk = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.gtk.set_title(title)
+        self.gtk = Gtk.Window(Gtk.WindowType.TOPLEVEL, title=title)
         if guiloggable:
             gtklogger.newTopLevelWidget(self.gtk, title)
             gtklogger.connect_passive(self.gtk, 'delete-event')
             gtklogger.connect_passive(self.gtk, 'configure-event')
-        self.mainbox = gtk.VBox()
+        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                               spacing=2, margin=5)
         self.gtk.add(self.mainbox)
 
         # Checking the type is clumsy; the idea is that the caller
         # must provide either the name for the auto-generated menu, or
-        # a menu to use instead.  TODO LATER: It would be cleaner for
-        # the Layer Editor and the Activity Viewer if the SubWindow
-        # class could provide the window-specific (i.e "Close" and
-        # "Quit") menu items under "File" (creating it, if necessary,
-        # and prepending it to the passed-in menu) even when a menu is
-        # passed in.  This would prevent duplication of effort by
-        # separate subclasses of subwindow.
+        # a menu to use instead.  See the TODO above.
         if type(menu)==types.StringType:
             # If no menu is provided, then build a non-logging local
             # one with 'Close' and 'Quit'.
@@ -75,6 +95,9 @@ class SubWindow:
                 no_log=1, gui_only=1,
                 help="Quit the OOF application.",
                 accel='q', threadable = oofmenu.UNTHREADABLE))
+            # quit.queryQuit uses menuitem.data to know which window
+            # to use as the base for its dialog box.
+            file_item.Quit.data = self.gtk
                               
             mainmenu.OOF.addItem(self.subwindow_menu)
             self._local_menu = menu
@@ -86,18 +109,20 @@ class SubWindow:
 
         # Build the menu bar and add it to the window.
 ##        self.menu_bar = None
-        self.accel_group = gtk.AccelGroup()
+        self.accel_group = Gtk.AccelGroup()
         self.gtk.add_accel_group(self.accel_group)
         self.menu_bar = gfxmenu.gtkOOFMenuBar(
-            self.subwindow_menu, accelgroup=self.accel_group)
+            self.subwindow_menu, accelgroup=self.accel_group,
+            parentwindow=self.gtk)
         if guiloggable:
             gtklogger.setWidgetName(self.menu_bar, "MenuBar")
 
-        self.mainbox.pack_start(self.menu_bar, fill=0, expand=0)
+        self.mainbox.pack_start(self.menu_bar, fill=False, expand=False,
+                                padding=0)
 
         # Add the "Windows" menu to the bar.
-        self.windows_gtk_menu_item = gfxmenu.gtkOOFMenu(mainmenu.OOF.Windows,
-                                                        self.accel_group)
+        self.windows_gtk_menu_item = gfxmenu.gtkOOFMenu(
+            mainmenu.OOF.Windows, self.accel_group, parentwindow=self.gtk)
         self.menu_bar.append(self.windows_gtk_menu_item)
 
         self.menu_bar.connect("destroy", self.menu_bar_destroyed)
@@ -132,7 +157,7 @@ class SubWindow:
     # This takes arguments so it can be used as a callback.
     def raise_window(self, *args):
         debug.mainthreadTest()
-        self.gtk.window.raise_()
+        self.gtk.present_with_time(Gtk.get_current_event_time())
 
 # used by several of the subwindows for naming window.
 def oofname():

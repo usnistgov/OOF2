@@ -69,8 +69,9 @@ TutorialClass(
     Choose BOLD(Load/Data) from the BOLD(File) menu in the main OOF2
     window.  Open the file BOLD(two_circles.skeleton).
 
-    Open a graphics window, if you haven't yet.
-    """,
+    Open a graphics window, if you haven't yet.  Create new layers for
+    the Image and the Skeleton (displayed by Edges).  """,
+        
     signal = ("new who", "Skeleton")
     ),
 
@@ -93,8 +94,8 @@ TutorialClass(
     (for point boundaries) and segments (for edge boundaries) and
     create a boundary (with a given direction, if needed).
 
-    Inevitably, you'll need to know how to select objects
-    efficiently to minimize the effort involved."""
+    You'll need to know how to select objects efficiently to minimize
+    the effort involved."""
     ),
 
     TutoringItem(
@@ -109,30 +110,33 @@ TutorialClass(
     for the parameter BOLD(Method).
 
     Click on any BOLD(red) pixel to select all the elements inside
-    the circle.""",
+    the circle.
+
+    There should be 105 selected elements (shown at the bottom of
+    the toolbox).
+    
+    (The color change for the selected elements is subtle, because the
+    red for selected elements is too similar to the red in the image.
+    You can temporarily hide the image using the check box in the
+    layer list to make the selection more apparent.  You can also edit
+    the display method for selected elements and change their color,
+    by first selecting BOLD(List All Layers) in the BOLD(Settings)
+    menu.)
+
+    """,
     signal = "changed element selection"
     ),
-
-    TutoringItem(
-    subject="Selected Elements",
-    comments=
-
-    """The selected elements should be displayed as dark red and the
-    size of the selection should be BOLD(105) (shown at the bottom of
-    the toolbox).
-
-    Open the BOLD(Skeleton Boundaries) page in the main OOF2 window."""
-    ),        
 
     TutoringItem(
     subject="Edge Boundary from Selected Elements",
     comments=
 
-    """Click BOLD(New...) in the BOLD(Boundaries) pane on the left
+    """Open the BOLD(Skeleton Boundaries) page in the main OOF2 window.
+
+    Click BOLD(New...) in the BOLD(Boundaries) pane on the left
     side of the page to bring up a boundary builder.
 
-    Check the little box that is next to the parameter BOLD(name) and
-    type in BOLD(red_circle) for the name of the boundary.
+    Type in BOLD(red_circle) for the name of the boundary.
 
     Select BOLD(Edge boundary from elements) and select BOLD(<selection>)
     for the parameter BOLD(group).  Set BOLD(direction) to be
@@ -152,7 +156,9 @@ TutorialClass(
 
     Its details are listed in the right side of the page.
 
-    The new boundary is displayed in the graphics window, too."""  ),
+    The new boundary is displayed in the graphics window with orange arrows.
+    """
+    ),
 
     TutoringItem(
     subject="Second Boundary",
@@ -186,7 +192,7 @@ TutorialClass(
 
     Select BOLD(Nodes) for the BOLD(Selection Mode), and pick
     BOLD(Select from Selected Elements) for the parameter
-    BOLD(Action).  From two available options, turn only
+    BOLD(Method).  From two available options, turn only
     BOLD(boundary) on so that only the nodes along the boundary of the
     selected elements will be selected.
 
@@ -217,8 +223,9 @@ TutorialClass(
     subject="Boundary Displayed",
     comments=
 
-    """You should see the boundary information displayed in the page
-    and its graphical representation displayed in the graphics window.
+    """You should see the boundary information displayed in the page.  If
+    you clear the node selection, you will see the boundary marked
+    with orange dots in the graphics window.
 
     If done correctly, the boundary should contain BOLD(31)
     points(nodes)."""

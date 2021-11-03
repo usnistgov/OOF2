@@ -10,10 +10,6 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
-if config.dimension() == 2:
-    from ooflib.SWIG.common.IO.GUI import rubberband
-elif config.dimension() == 3:
-    from ooflib.common.IO.GUI import rubberband3d as rubberband
 from ooflib.common import debug
 from ooflib.common.IO.GUI import genericselectGUI
 from ooflib.common.IO.GUI import gtklogger
@@ -21,7 +17,9 @@ from ooflib.common.IO.GUI import regclassfactory
 from ooflib.common.IO.GUI import toolboxGUI
 from ooflib.engine import skeletonselectionmethod
 from ooflib.engine import skeletonselmodebase
-import gtk
+
+from gi.repository import Gtk
+from oofcanvas import oofcanvasgui
 
 # The SkeletonSelectionToolbox GUI is a ToolboxGUI that contains other
 # ToolboxGUI's.  The inner GUI's are instances of
@@ -47,9 +45,9 @@ class SkeletonSelectionToolboxModeGUI(genericselectGUI.GenericSelectToolboxGUI):
                                             self.newSelection)
             )
 
-    def methodFactory(self):
+    def methodFactory(self, **kwargs):
         return regclassfactory.RegisteredClassFactory(
-            self.method.registry, title="Method:", name="Method")
+            self.method.registry, title="Method:", name="Method", **kwargs)
                                                           
     def activate(self):
         genericselectGUI.GenericSelectToolboxGUI.activate(self)
@@ -69,15 +67,6 @@ class SkeletonSelectionToolboxModeGUI(genericselectGUI.GenericSelectToolboxGUI):
         return self.gfxwindow().topwho('Skeleton')
 
     def finish_up(self, ptlist, shift, ctrl, selmeth):
-        # we convert the ptlist, which uses the 2d screen
-        # coordinates to 3d coordinates using the canvas
-        if config.dimension() == 3:
-            vxllist = []
-            for pt in ptlist:
-                vxllist.append(
-                    self.gfxwindow().oofcanvas.screenCoordsTo3DCoords(pt[0], pt[1], ))
-            ptlist = vxllist
-
         self.setCoordDisplay(selmeth, ptlist)
         self.selectionMethodFactory.set_defaults()
         menuitem = getattr(self.toolbox.menu, selmeth.name())
@@ -108,25 +97,27 @@ class SkeletonSelectionToolboxGUI(toolboxGUI.GfxToolbox):
         # corresponding to one of the inner toolboxes.  It doesn't
         # matter which one.
         toolboxGUI.GfxToolbox.__init__(self, "Skeleton Selection", toolbox)
-        vbox = gtk.VBox(spacing=2)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(vbox)
-        bbox = gtk.HBox(spacing=2)
+        bbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         gtklogger.setWidgetName(bbox, "Select")
-        vbox.pack_start(bbox, expand=0, fill=0)
-        bbox.pack_start(gtk.Label("Select: "), expand=0, fill=0)
+        vbox.pack_start(bbox, expand=False, fill=False, padding=0)
+        bbox.pack_start(Gtk.Label("Select: "),
+                        expand=False, fill=False, padding=0)
 
-        self.tbbox = gtk.Frame()       # holds SkeletonSelectionToolboxModes
-        vbox.pack_start(self.tbbox, expand=1, fill=1)
+        # self.tbbox = Gtk.Frame()       # holds SkeletonSelectionToolboxModes
+        self.tbbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        vbox.pack_start(self.tbbox, expand=True, fill=True, padding=0)
         
         group = None
         self.tbdict = {}
         for mode in skeletonselmodebase.SkeletonSelectionMode.modes:
             if group:
-                button = gtk.RadioButton(label=mode.name, group=group)
+                button = Gtk.RadioButton(mode.name, group=group)
             else:
-                button = gtk.RadioButton(label=mode.name)
+                button = Gtk.RadioButton(mode.name)
                 group = button
-            bbox.pack_start(button, expand=0, fill=0)
+            bbox.pack_start(button, expand=False, fill=False, padding=0)
             gtklogger.setWidgetName(button, mode.name)
             gtklogger.connect(button, 'clicked', self.switchModeCB, mode.name)
 
@@ -139,7 +130,8 @@ class SkeletonSelectionToolboxGUI(toolboxGUI.GfxToolbox):
         self.currentMode = None
 
     def switchModeCB(self, button, modename):
-        self.setMode(modename)
+        if button.get_active() and self.currentMode != modename:
+            self.setMode(modename)
         
     def setMode(self, modename):
         debug.mainthreadTest()
@@ -182,38 +174,35 @@ skeletonselmodebase.firstMode().tbclass.makeGUI = _makeGUI
 ## the class, and so the function needs a 'self' argument.
 
 def _NoRubberBand(self, reg):
-    debug.mainthreadTest()
-    return rubberband.NoRubberBand()
+    return None
 
 skeletonselectionmethod.SkeletonSelectionRegistration.getRubberBand = \
     _NoRubberBand
 
-if config.dimension() == 2:
+def _RectangleSelectorRB(reg):
+    return oofcanvasgui.RectangleRubberBand()
 
+def _CircleSelectorRB(reg):
+    return oofcanvasgui.CircleRubberBand()
 
-    def _RectangleSelectorRB(reg):
-        return rubberband.RectangleRubberBand()
+def _EllipseSelectorRB(reg):
+    return oofcanvasgui.EllipseRubberBand()
 
-    def _CircleSelectorRB(reg):
-        return rubberband.CircleRubberBand()
-
-    def _EllipseSelectorRB(reg):
-        return rubberband.EllipseRubberBand()
-
-
-
-    skeletonselectionmethod.rectangleNodeSelector.getRubberBand = \
-                                                                _RectangleSelectorRB
-
-    skeletonselectionmethod.circleNodeSelector.getRubberBand = _CircleSelectorRB
-    skeletonselectionmethod.ellipseNodeSelector.getRubberBand = _EllipseSelectorRB
-    skeletonselectionmethod.rectangleSegmentSelector.getRubberBand = \
-                                                               _RectangleSelectorRB
-    skeletonselectionmethod.circleSegmentSelector.getRubberBand = _CircleSelectorRB
-    skeletonselectionmethod.ellipseSegmentSelector.getRubberBand = \
-                                                                 _EllipseSelectorRB
-    skeletonselectionmethod.rectangleElementSelector.getRubberBand = \
-                                                                _RectangleSelectorRB
-    skeletonselectionmethod.circleElementSelector.getRubberBand = _CircleSelectorRB
-    skeletonselectionmethod.ellipseElementSelector.getRubberBand = \
-                                                                 _EllipseSelectorRB
+skeletonselectionmethod.rectangleNodeSelector.getRubberBand = \
+    _RectangleSelectorRB
+skeletonselectionmethod.circleNodeSelector.getRubberBand = \
+    _CircleSelectorRB
+skeletonselectionmethod.ellipseNodeSelector.getRubberBand = \
+    _EllipseSelectorRB
+skeletonselectionmethod.rectangleSegmentSelector.getRubberBand = \
+    _RectangleSelectorRB
+skeletonselectionmethod.circleSegmentSelector.getRubberBand = \
+    _CircleSelectorRB
+skeletonselectionmethod.ellipseSegmentSelector.getRubberBand = \
+    _EllipseSelectorRB
+skeletonselectionmethod.rectangleElementSelector.getRubberBand = \
+    _RectangleSelectorRB
+skeletonselectionmethod.circleElementSelector.getRubberBand = \
+    _CircleSelectorRB
+skeletonselectionmethod.ellipseElementSelector.getRubberBand = \
+    _EllipseSelectorRB

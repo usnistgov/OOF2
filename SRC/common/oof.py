@@ -24,7 +24,7 @@ except AttributeError:
 # imported on any other thread.
 from ooflib.SWIG.common import threadstate
 # switchboard is used for communication between modules
-import ooflib.SWIG.common.switchboard
+from ooflib.SWIG.common import switchboard
 
 # utils must be imported next because it inserts some code into
 # __builtins__.
@@ -142,6 +142,7 @@ data files are loaded in the order that they are specified."""
     debug_options_string = """
 The following options are for debugging:
 --debug                  Turn on debugging mode
+--verbose-switchboard    Print internal communications
 --record=   logfile      Save gui logging data
 --rerecord= logfile      Read and re-record a gui log file 
 --replay=    file        Load a gui log file (may be present more than once)
@@ -177,6 +178,7 @@ version_mode = False
 replaydelay = None
 no_checkpoints = False
 no_rc = False
+recording = replaying = False
 
 def process_inline_options():
     # Defaults for option switches.
@@ -190,13 +192,14 @@ def process_inline_options():
     global version_mode
     global no_checkpoints
     global no_rc
+    global recording, replaying
     option_list = ['text', 'help', 'version', 'quiet', 'batch', 'no-rc',
                    'gtk=', 'unthreaded', 'socket=', 'script=', 'seed=',
                    'data=', 'image=', 'import=', 'debug', 'command=',
                    'record=', 'rerecord=', 'replay=', 'replaydelay=',
                    'pathdir=', 'no-checkpoints', 'autoload', 'geometry=',
                    'no-fakefileselector', 'fakefileselector', 'surface', 
-                   'nobars']
+                   'nobars', 'verbose-switchboard']
     if config.enablempi():
         option_list += ['parallel']
     try:
@@ -205,6 +208,7 @@ def process_inline_options():
         # Malformed arguments have been found.  Exit.
         print message
         state_options_and_quit()
+
     for opt in optlist:
         if opt[0] == '--gtk':
             gtk_options = opt[1]
@@ -243,15 +247,21 @@ def process_inline_options():
         elif opt[0] in ('--debug',):
             debug.set_debug_mode()
             remove_option(opt[0])
+        elif opt[0] in ('--verbose-switchboard',):
+            switchboard.verbose(None, True)
+            remove_option(opt[0])
         elif opt[0] in ('--record',):
             startupfiles.append(StartUpRecord(opt[1]))
             remove_option(opt[0], opt[1])
+            recording = True
         elif opt[0] in ('--rerecord',):
             startupfiles.append(StartUpRerecord(opt[1]))
             remove_option(opt[0], opt[1])
+            recording = True
         elif opt[0] in ('--replay',):
             startupfiles.append(StartUpReplay(opt[1]))
             remove_option(opt[0], opt[1])
+            replaying = True
         elif opt[0] in ('--replaydelay',):
             replaydelay = opt[1]
             remove_option(opt[0], opt[1])
@@ -345,27 +355,19 @@ def front_end(no_interp=None):
     # When loading modules, use utils.OOFexec so that names are
     # imported into the oof environment, not the oof.run environment.
     if not (runtimeflags.text_mode or config.no_gui()):
-	# The gtk import dance described below doesn't work when the program
-        # has been packaged by cx_freeze.
-        # TODO LATER: is checking frozen required for gtk2?
-        frozen = hasattr(sys, 'frozen')
-	if not frozen:
-            import pygtk
-            pygtk.require("2.0")
-            import gtk
-            msg = gtk.check_version(2, 6, 0)
-            if msg:
-                print msg
-                sys.exit(3)
+        import gi
+        gi.require_version("Gtk", "3.0")
+        from gi.repository import Gtk
+        msg = Gtk.check_version(3, 22, 0)
+        if msg:
+            print msg
+            sys.exit(3)
 
         import ooflib.common.IO.GUI.initialize
-        # temporarily disable the engine, tutorials, orientationmap
-        # for 3D development
         import ooflib.engine.IO.GUI.initialize
         import ooflib.image.IO.GUI.initialize
-        if config.dimension() == 2:
-            import ooflib.orientationmap.GUI.initialize
-            import ooflib.tutorials.initialize
+        import ooflib.orientationmap.GUI.initialize
+        import ooflib.tutorials.initialize
         if replaydelay is not None:
             from ooflib.common.IO.GUI import gtklogger
             gtklogger.set_delay(int(replaydelay))
@@ -373,8 +375,7 @@ def front_end(no_interp=None):
         import ooflib.common.initialize
         import ooflib.engine.initialize
         import ooflib.image.initialize
-        if config.dimension() == 2:
-            import ooflib.orientationmap.initialize
+        import ooflib.orientationmap.initialize
     import ooflib.EXTENSIONS.initialize
 
     # The random number generator must be seeded *after* the gui has
@@ -604,6 +605,12 @@ def run(no_interp=None):
     if not no_rc:
         oofrcpath = os.path.join(os.path.expanduser("~"), ".oof2rc")
         if os.path.exists(oofrcpath):
+            if recording or replaying:
+                print >> sys.stderr, """
+******* Warning: Loading .oof2rc can interfere with recording or replaying
+******* a gui script.  Consider starting oof2 with the --no-rc option.
+"""
+
             startupfiles = [StartUpScriptNoLog(oofrcpath)]+startupfiles
 
 

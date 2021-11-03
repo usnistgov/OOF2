@@ -1,0 +1,10 @@
+Prerequisites for building the gtk3 version of OOF2 on Mac
+
+MacPorts packages:
+cairomm
+gtk3
+ImageMagick
+pkgconfig
+py27-gobject3
+adwaita-icon-theme (or any other theme?)
+

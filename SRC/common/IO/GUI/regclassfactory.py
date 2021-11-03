@@ -26,9 +26,9 @@ from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import parameterwidgets
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import widgetscope
-import gtk
+from gi.repository import Gtk
+import sys
 import types
 
 ###################
@@ -85,9 +85,9 @@ class RCFBase(parameterwidgets.ParameterWidget,
 
 class RegisteredClassFactory(RCFBase):
     def __init__(self, registry, obj=None, title=None,
-                 callback=None, fill=0, expand=0, scope=None, name=None,
-                 widgetdict={},
-                 *args, **kwargs):
+                 callback=None, cbargs=(), cbkwargs={},
+                 scope=None, name=None, widgetdict={},
+                 **kwargs):
 
         debug.mainthreadTest()
         self.registry = registry
@@ -96,30 +96,42 @@ class RegisteredClassFactory(RCFBase):
         # registration, plus the extra args and kwargs given to
         # __init__.
         self.callback = callback
-        self.callbackargs = args
-        self.callbackkwargs = kwargs
-
-        self.fill = fill
-        self.expand = expand    
-        # fill & expand option passed in to the add command in
-        # "setByRegistration" routine.
+        self.callbackargs = cbargs
+        self.callbackkwargs = cbkwargs
 
         self.readonly = False
-        RCFBase.__init__(self, gtk.Frame(), scope, widgetdict, name)
-        
-        self.box = gtk.VBox()
+        quargs = kwargs.copy()
+        quargs.setdefault('margin', 2)
+        RCFBase.__init__(self, Gtk.Frame(**quargs),
+                         scope, widgetdict, name)
+
+        # Setting spacing=0 for self.box is important, for small
+        # values of important.  If there are no parameters, instead of
+        # a Gtk.Grid, the parameter table is an empty Gtk.Box, but
+        # it's still packed into self.box below the ChooserWidget.  If
+        # spacing is non-zero, there will be extra space below the
+        # ChooserWidget in that case.
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0,
+                           margin=2)
         self.gtk.add(self.box)
         self.options = chooser.ChooserWidget([], callback=self.optionCB,
                                              update_callback=self.updateCB,
-                                             name='Chooser')
+                                             name='RCFChooser',
+                                             hexpand=True,
+                                             halign=Gtk.Align.FILL)
         if not title:
-            self.box.pack_start(self.options.gtk, expand=0, fill=0)
+            self.box.pack_start(self.options.gtk,
+                                expand=False, fill=False, padding=0)
             self.titlebox = None
         else:
-            self.titlebox=gtk.HBox()
-            self.box.pack_start(self.titlebox, expand=0, fill=0)
-            self.titlebox.pack_start(gtk.Label(title), expand=0, fill=0)
-            self.titlebox.pack_start(self.options.gtk, expand=1, fill=1)
+            self.titlebox=Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                                   spacing=2)
+            self.box.pack_start(self.titlebox,
+                                expand=False, fill=False, padding=0)
+            self.titlebox.pack_start(Gtk.Label(title, halign=Gtk.Align.START),
+                                     expand=False, fill=False, padding=0)
+            self.titlebox.pack_start(self.options.gtk,
+                                     expand=True, fill=True, padding=0)
 
         self.widgetcallback = None
         
@@ -136,6 +148,13 @@ class RegisteredClassFactory(RCFBase):
         self.suppress_updateCB = False
 
         self.update(registry, obj, interactive=0)
+
+    def dumpState(self, comment):
+        print >> sys.stderr, comment, self.__class__.__name__, \
+            (self.currentOption and self.currentOption.name())
+        self.options.dumpState("   " + comment)
+        if self.paramWidget:
+            self.paramWidget.dumpState("   " + comment)
 
     def refresh(self, obj=None):
         self.update(self.registry, obj)
@@ -219,35 +238,58 @@ class RegisteredClassFactory(RCFBase):
 
     def setByRegistration(self, registration, interactive=0):
         debug.mainthreadTest()
-        # setByRegistration() is almost the same as optionCB(), except
-        # that it makes no attempt to set the new parameters from the
-        # old ones, since it's not being used to switch between
-        # convertible classes.  In fact, it may be used to switch to a
-        # new instance of the same class, so it's important to throw
-        # out the old parameter values.
         if self.includeRegistration(registration):
-            if self.paramWidget is not None:
+            # Are we switching to a new subclass or just changing the
+            # parameters in this one?
+            newsubclass = self.currentOption is not registration
+
+            if self.paramWidget is not None and newsubclass:
                 self.paramWidget.destroy()
-                self.options.set_state(registration.name())
                 
             self.getBase(registration)
             self.options.set_state(registration.name())
             self.currentOption = registration
 
-            self.paramWidget = self.makeWidget(registration)
+            if newsubclass:
+                # It's important *not* to call makeWidget if we're not
+                # changing subclasses. Keyboard focus will shift
+                # unexpectedly if widgets are destroyed and rebuilt.
+                self.paramWidget = self.makeWidget(registration)
+                self.box.pack_start(self.paramWidget.gtk,
+                                    expand=True, fill=True, padding=0)
+            else:
+                # This will call makeWidgets for the components of the
+                # ParameterTable, and any subwidget that has keyboard
+                # focus will lose it. Do ParameterTables need to have
+                # a way of setting widgets without rebuilding them?
+                # No. Something had to have happened outside this
+                # widget if its value is being changed by this method,
+                # so this widget *can't* currently have focus, so it
+                # can't lose it.
+                ## TODO: This comment contradicts the previous one.
+                ## Does focus shift unexpectedly or not?  It can, if
+                ## using a widget invokes a menu command that then
+                ## updates the widget, even if the update won't
+                ## actually change the widget.  When the process gets
+                ## to this point, the widget will be rebuilt and will
+                ## lose focus.  HOWEVER, this situation should be
+                ## avoided because it will clutter up the log file
+                ## with menu commands for all intermediate states of
+                ## the widget.  Menu commands should not be called for
+                ## intermediate values of sliders or entries.
+                self.paramWidget.set_values()
+
             if self.readonly:
                 self.makeUneditable()
 
-            ## After the widget has once been set interactively, its
-            ## default value isn't used.
+            # After the widget has once been set interactively, its
+            # default value isn't used.
             self.useDefault = self.useDefault and not interactive
             self.widgetChanged(self.paramWidget.isValid(), interactive)
 
-            self.box.pack_start(self.paramWidget.gtk, fill=self.fill,
-                                expand=self.expand)
             self.show()
             if hasattr(registration, 'tip'):
-                tooltips.set_tooltip_text(self.options.gtk,registration.tip)
+                self.options.gtk.set_tooltip_text(registration.tip)
 
     def cleanUp(self):
         if self.widgetcallback is not None:
@@ -274,16 +316,14 @@ class RegisteredClassFactory(RCFBase):
         debug.mainthreadTest()
         try:
             # Use the special widget from the widgetdict, if there is one
-            widget = self.widgetdict[registration.subclass](registration.params,
-                                                            scope=self,
-                                                            name=registration.name())
+            widget = self.widgetdict[registration.subclass](
+                registration.params, scope=self, name=registration.name())
         except KeyError:
             # Otherwise, just use a parameter table.
             widget = parameterwidgets.ParameterTable(
                 registration.params, scope=self, name=registration.name())
         self.widgetcallback = switchboard.requestCallbackMain(widget,
                                                               self.widgetCB)
-##        self.widgetChanged(widget.isValid(), interactive)
         return widget
 
     def widgetCB(self, interactive):      # switchboard callback
@@ -295,7 +335,7 @@ class RegisteredClassFactory(RCFBase):
     # When called as an event callback for menu selection in the
     # GtkOptionMenu, self.currentOption is either the "outgoing"
     # registration entry, or None.  
-    def optionCB(self, widget, regname):
+    def optionCB(self, regname):
         debug.mainthreadTest()
         oldbase = None
         if self.currentOption is not None:
@@ -343,10 +383,10 @@ class RegisteredClassFactory(RCFBase):
         self.makeUneditable()
     def makeUneditable(self):
         # called by makeReadOnly and when subclass changes
-        entries = gtkutils.findChildren([gtk.Entry], self.paramWidget.gtk)
+        entries = gtkutils.findChildren([Gtk.Entry], self.paramWidget.gtk)
         for entry in entries:
             entry.set_editable(0)
-        sliders = gtkutils.findChildren([gtk.Scale, gtk.Button],
+        sliders = gtkutils.findChildren([Gtk.Scale, Gtk.Button],
                                         self.paramWidget.gtk)
         for slider in sliders:
             slider.set_sensitive(0)
@@ -359,10 +399,11 @@ class RegisteredClassFactory(RCFBase):
             self.makeUneditable()
         self.widgetChanged(self.paramWidget.isValid(), interactive)
         
-        self.box.pack_start(self.paramWidget.gtk, fill=0, expand=0)
+        self.box.pack_start(self.paramWidget.gtk,
+                            fill=False, expand=False, padding=0)
         self.show()
         if hasattr(registration, 'tip'):
-            tooltips.set_tooltip_text(self.options.gtk,registration.tip)
+            self.options.gtk.set_tooltip_text(registration.tip)
 
         self.useDefault = False
         if self.callback:
@@ -375,9 +416,6 @@ class RegisteredClassFactory(RCFBase):
                 return reg
 
     def get_value(self):
-##        if self.currentOption is not None and self.paramWidget is None:
-##            print "currentOption=", self.currentOption
-##            assert 0
         if self.currentOption is None:
             return None
         self.paramWidget.get_values()
@@ -388,10 +426,10 @@ class RegisteredClassFactory(RCFBase):
         if self.currentOption is not None:
             self.paramWidget.get_values()
 
-def _RegisteredClass_makeWidget(self, scope=None):
+def _RegisteredClass_makeWidget(self, scope=None, **kwargs):
     return RegisteredClassFactory(self.registry, self.value, scope=scope,
                                   widgetdict=_getWidgetDict(self),
-                                  name=self.name)
+                                  name=self.name, **kwargs)
 
 parameter.RegisteredParameter.makeWidget = _RegisteredClass_makeWidget
 
@@ -404,20 +442,17 @@ parameter.RegisteredParameter.makeWidget = _RegisteredClass_makeWidget
 # current state data stored in the params.
 class ConvertibleRegisteredClassFactory(RegisteredClassFactory):
     def __init__(self, registry, obj=None, title=None,
-                 callback=None, fill=0, expand=0, scope=None, name=None,
+                 callback=None, cbargs=(), cbkwargs={},
+                 scope=None, name=None,
                  widgetdict={},
-                 *args, **kwargs):
+                 **kwargs):
         debug.mainthreadTest()
         self.base_value = None
-        RegisteredClassFactory.__init__(self, registry, obj,
-                                        title=title,
-                                        callback=callback,
-                                        fill=fill,
-                                        expand=expand,
-                                        scope=scope,
-                                        name=name,
-                                        widgetdict=widgetdict,
-                                        *args, **kwargs)
+        RegisteredClassFactory.__init__(
+            self, registry, obj, title=title,
+            callback=callback, cbargs=cbargs, cbkwargs=cbkwargs,
+            scope=scope, name=name, widgetdict=widgetdict,
+            **kwargs)
         
     # The ConvertibleRCF's optionCB needs to extract the values from
     # the "outgoing" widgets in order to insert them, suitably
@@ -425,7 +460,7 @@ class ConvertibleRegisteredClassFactory(RegisteredClassFactory):
     # parameters have nontrivial ".value" retrievals (e.g. dependent
     # parts of ParameterGroups) should ensure that their resolver
     # does not throw spurious exceptions in this circumstance.
-    def optionCB(self, widget, regname):
+    def optionCB(self, regname):
         if self.currentOption is not None:
             if self.paramWidget is not None:
                 # If there is a current option and a current widget,
@@ -463,6 +498,9 @@ class ConvertibleRegisteredClassFactory(RegisteredClassFactory):
 
     def setParams(self, old):
         self.currentOption.setParamsFromBase(old)
+        # The checkpoint here allows gui tests to check that
+        # ConvertibleRegisteredClassFactory is converting correctly.
+        gtklogger.checkpoint("convertible RCF")
         
     # In the convertible case, the widget constructor will take another
     # argument, the "base_value" which is the original value of the
@@ -484,11 +522,11 @@ class ConvertibleRegisteredClassFactory(RegisteredClassFactory):
 ##        self.widgetChanged(widget.isValid(), interactive)
         return widget
     
-def _ConvertibleRegisteredClass_makeWidget(self, scope=None):
+def _ConvertibleRegisteredClass_makeWidget(self, scope=None, **kwargs):
     return ConvertibleRegisteredClassFactory(self.registry, self.value,
                                              scope=scope,
                                              widgetdict=_getWidgetDict(self),
-                                             name=self.name)
+                                             name=self.name, **kwargs)
 
 parameter.ConvertibleRegisteredParameter.makeWidget = \
                       _ConvertibleRegisteredClass_makeWidget
@@ -498,14 +536,12 @@ parameter.ConvertibleRegisteredParameter.makeWidget = \
 
 # RegisteredClassListFactory
 
-ParameterTable = parameterwidgets.ParameterTable
-
 class RegistrationGUIData:
     def __init__(self, registration, rclfactory):
         debug.mainthreadTest()
         self.registration = registration
         self.rclfactory = rclfactory
-        self._button = gtk.CheckButton()
+        self._button = Gtk.CheckButton()
         gtklogger.setWidgetName(self._button, registration.name()+'Toggle')
         # We could use an Expander instead of a CheckButton here, but
         # it might be confusing.  The check button makes it clear that
@@ -514,28 +550,29 @@ class RegistrationGUIData:
         # Parameters.  Also, the whole RegisteredClassListFactory
         # would have to be redone.
         self._signal = gtklogger.connect(self._button, 'clicked', self.buttonCB)
-        self._box = gtk.VBox()
-        self._label = gtk.Label(registration.name())
-        self._label.set_alignment(0.0, 0.5)
+        self._box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self._label = Gtk.Label(registration.name(), halign=Gtk.Align.START)
         if hasattr(registration, 'tip'):
-            tooltips.set_tooltip_text(self._label,registration.tip)
+            self._label.set_tooltip_text(registration.tip)
         self.sbcallback = None
         self.makeWidget()
     def makeWidget(self):
         debug.mainthreadTest()
         if self.sbcallback:
             switchboard.removeCallback(self.sbcallback)
-        self._box.foreach(gtk.Object.destroy)
+        self._box.foreach(Gtk.Widget.destroy)
         try:
             self._widget = self.rclfactory. \
                            widgetdict[self.registration.subclass] \
                            (registration.params, scope=self.rclfactory,
                             name=self.registration.name())
         except KeyError:                # no special widget defined
-            self._widget = ParameterTable(self.registration.params,
-                                          scope=self.rclfactory,
-                                          name=self.registration.name())
-        self._box.pack_start(self._widget.gtk, expand=0, fill=0)
+            self._widget = parameterwidgets.ParameterTable(
+                self.registration.params,
+                scope=self.rclfactory,
+                name=self.registration.name())
+        self._box.pack_start(self._widget.gtk,
+                             expand=False, fill=False, padding=0)
         self.widgetcallback = switchboard.requestCallbackMain(self._widget,
                                                               self.widgetCB)
     def widgetCB(self, interactive):
@@ -583,21 +620,24 @@ class RegistrationGUIData:
 
 class RegisteredClassListFactory(RCFBase):
     def __init__(self, registry, objlist=None, title=None, callback=None,
-                 fill=0, expand=0, scope=None, name=None, widgetdict={},
+                 # fill=False, expand=False,
+                 scope=None, name=None, widgetdict={},
                  *args, **kwargs):
         debug.mainthreadTest()
+        if kwargs:
+            debug.fmsg("kwargs=", kwargs)
 
         self.registry = registry
         self.callback = callback
         self.callbackargs = args
         self.callbackkwargs = kwargs
         self.title = title
-        self.fill = fill
-        self.expand = expand
+        # self.fill = fill
+        # self.expand = expand
 
-        frame = gtk.Frame()
-        self.table = gtk.Table(rows=1, columns=2)
-        frame.add(self.table)
+        frame = Gtk.Frame(**kwargs)
+        self.grid = Gtk.Grid()
+        frame.add(self.grid)
         RCFBase.__init__(self, frame, scope, widgetdict, name)
         self.parent.addWidget(self)
         self.update(registry, objlist)
@@ -611,31 +651,34 @@ class RegisteredClassListFactory(RCFBase):
         # Called during initialization and whenever the registry changes.
         debug.mainthreadTest()
         self.registry = registry
-        self.table.foreach(gtk.Object.destroy) # clear the table
+        self.grid.foreach(Gtk.Widget.destroy) # clear the grid
         row = 0
         if self.title:
-            self.table.attach(gtk.Label(self.title), 0,2, row,row+1,
-                              yoptions=0, ypadding=5)
+            self.grid.attach(Gtk.Label(self.title), 0,row,1,1)
             row += 1
-            self.table.attach(gtk.HSeparator(), 0,2, row,row+1,
-                              yoptions=0, ypadding=3)
+            self.grid.attach(
+                Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL),
+                0,row, 2,1)
             row += 1
         self.guidata = {}               # RegistrationGUIData, keyed by reg name
         for registration in registry:
             if self.includeRegistration(registration):
                 data = RegistrationGUIData(registration, self)
                 self.guidata[registration.name()] = data
-                self.table.attach(data.button(), 0,1, row,row+1, xoptions=0,
-                                  yoptions=0, xpadding=3, ypadding=3)
-                self.table.attach(data.label(), 1,2, row,row+1,
-                                  xoptions=gtk.EXPAND|gtk.FILL, yoptions=0)
-                self.table.attach(data.box(), 1,2, row+1,row+2,
-                                  xoptions=gtk.EXPAND|gtk.FILL, yoptions=0,
-                                  xpadding=3, ypadding=3)
-                self.table.attach(gtk.HSeparator(), 0,2, row+2, row+3,
-                                  xoptions=gtk.EXPAND|gtk.FILL, yoptions=0)
+                data.button().set_hexpand(False)
+                self.grid.attach(data.button(), 0,row,1,1)
+                data.label().set_hexpand(True)
+                data.label().set_halign(Gtk.Align.FILL)
+                self.grid.attach(data.label(), 1,row,1,1)
+                data.box().set_hexpand(True)
+                data.box().set_halign(Gtk.Align.FILL)
+                self.grid.attach(data.box(), 1, row+1,1,1)
+                self.grid.attach(
+                    Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL,
+                                  halign=Gtk.Align.FILL),
+                    0,row+2, 2,1)
                 row += 3
-        self.table.resize(rows=row-1, columns=2) # remove last gtk.HSeparator
+        self.grid.remove_row(row-1) # remove last Gtk.Separator
         if objlist is not None:
             self.set(*objlist)
         self.widgetCB(interactive=0)
@@ -668,7 +711,7 @@ class RegisteredClassListFactory(RCFBase):
         # Don't use self.gtk.show_all(), since it will show collapsed items.
         for data in self.guidata.values():
             data.show()
-        self.table.show()
+        self.grid.show()
         self.gtk.show()
         
     def get_value(self):
@@ -692,10 +735,10 @@ class RegisteredClassListFactory(RCFBase):
         raise ooferror.ErrPyProgrammingError(
             "Don't use RegisteredClassListFactory.set_defaults()!")
 
-def _RegisteredClassList_makeWidget(self, scope=None):
+def _RegisteredClassList_makeWidget(self, scope=None, **kwargs):
     return RegisteredClassListFactory(self.registry, self.value, scope=scope,
                                       widgetdict=_getWidgetDict(self),
-                                      name=self.name)
+                                      name=self.name, **kwargs)
 
 parameter.RegisteredListParameter.makeWidget = _RegisteredClassList_makeWidget
 
@@ -707,11 +750,11 @@ parameter.RegisteredListParameter.makeWidget = _RegisteredClassList_makeWidget
 # RegisteredClasses, so it's in this file anyway.
 
 class MetaRegisteredParamWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         self.registry = param.registry
         self.reg = param.reg
         self.chooser = chooser.ChooserWidget([], callback=self.chooserCB, 
-                                             name=name)
+                                             name=name, **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, gtk=self.chooser.gtk,
                                                   scope=scope)
         self.update()
@@ -734,6 +777,7 @@ class MetaRegisteredParamWidget(parameterwidgets.ParameterWidget):
         else:
             self.chooser.set_state(val.__name__)
 
-def _MetaRegisteredParam_makeWidget(self, scope=None):
-    return MetaRegisteredParamWidget(self, scope=scope, name=self.name)
+def _MetaRegisteredParam_makeWidget(self, scope=None, **kwargs):
+    return MetaRegisteredParamWidget(self, scope=scope, name=self.name,
+                                     **kwargs)
 parameter.MetaRegisteredParameter.makeWidget = _MetaRegisteredParam_makeWidget

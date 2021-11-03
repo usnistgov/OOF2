@@ -9,8 +9,10 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import ooferror
+from ooflib.SWIG.common import guitop
 from ooflib.common import debug
 from ooflib.common import thread_enable
+from ooflib.common import utils
 from ooflib.common.IO import filenameparam
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
@@ -19,8 +21,7 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import progressbar_delay
 from ooflib.common.IO.GUI import activityViewer
 from ooflib.common.IO.GUI import gtklogger
-import gobject
-import gtk
+from gi.repository import Gtk
 import os
 import sys
 import traceback
@@ -32,10 +33,8 @@ guidebugmenu = mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem("GUI_Logging",
 
 
 # When running under the OOF context, gtklogger should catch OOF
-# errors also.  TODO SWIG1.3 -- after the changeover to SWIG 1.3, OOF
-# exceptions will probably be subclasses of Exception, so this will be
-# redundant.
-gtklogger.allexceptions = (Exception, ooferror.ErrErrorPtr)
+# errors also. 
+gtklogger.add_exception(ooferror.ErrErrorPtr)
 
 ###################################
 
@@ -68,7 +67,7 @@ def logFinished():                      # called by GUILogPlayer when done
 
 ############################
     
-def startLog(menuitem, filename, use_gui):#Passing the use_gui parameter to show the loggergui
+def startLog(menuitem, filename, use_gui): 
     gtklogger.reset_checkpoints()
     menuitem.root().setOption('post_hook', menucheckpoint)
     if debug.debug():
@@ -77,7 +76,7 @@ def startLog(menuitem, filename, use_gui):#Passing the use_gui parameter to show
         dblevel = 0
     global _recording
     _recording = True
-    gtklogger.start(filename, debugLevel=dblevel, logger_comments=use_gui)
+    gtklogger.start(filename, debugLevel=dblevel, comment_gui=use_gui)
 
 guidebugmenu.addItem(oofmenu.OOFMenuItem(
     'Record',
@@ -110,18 +109,17 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
 ############################
 
 # loggererror is installed as the gtklogger handler for exceptions
-# that occur during playback.  It's not possible to use the standard
-# oof2 exception handling mechanism directly, because it doesn't
-# handle the gtk thread locks properly in this case (ie, inside an
-# idle callback on the main thread, but with
-# oof_mainiteration._inside_idle_callback==0).
+# that occur during playback.  Currently commented out because it
+# doesn't seem to be necessary.  Pre-gtk3, we had locks that
+# interfered with normal exception handling and required a special
+# handler during gui playback.
 
-def loggererror(exc, line):
-    from ooflib.common.IO.GUI import reporter_GUI
-    type, value, tb = sys.exc_info()
-    tblist = traceback.extract_tb(tb)
-    reporter_GUI.gui_printTraceBack(type, value, tblist)
-    return True
+# def loggererror(exc, line):
+#     from ooflib.common.IO.GUI import reporter_GUI
+#     type, value, tb = sys.exc_info()
+#     tblist = traceback.extract_tb(tb)
+#     reporter_GUI.gui_printTraceBack(type, value, tblist)
+#     return True
 
 ####
 
@@ -152,7 +150,7 @@ def loadLog(menuitem, filename, checkpoints):
         finishCB=logFinished,
         debugLevel=dblevel,
         threaded=thread_enable.query(),
-        exceptHook=loggererror,
+        #exceptHook=loggererror,
         checkpoints=checkpoints)
 
 guidebugmenu.addItem(oofmenu.OOFMenuItem(
@@ -203,10 +201,10 @@ def rerecordLog(menuitem, filename, checkpoints, use_gui):
         finishCB=logFinished,
         debugLevel=dblevel,
         threaded=thread_enable.query(),
-        exceptHook=loggererror,
+        #exceptHook=loggererror,
         rerecord=filename,
         checkpoints=checkpoints,
-        logger_comments=use_gui) #Passing the logger_comments parameter to show the loggergui
+        comment_gui=use_gui)
 
 guidebugmenu.addItem(oofmenu.OOFMenuItem(
     'Rerecord',
@@ -237,20 +235,20 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
 
 # Selecting 'Pause' from the logger menu when recording will cause the
 # program to pause on playback until the Continue button is pressed.
-# Clicks on the Continue button are *not* recorded, but the menuitem
-# inserts a checkpoint into the log, so execution will pause at the
-# checkpoint until the button is actually pressed.  TODO: Fix this
-# comment.  There is no checkpoint in the log file, just a call to the
-# menu item.
+# Clicks on the Continue button are *not* recorded, so that playback
+# won't proceed without user intervention.
 
 def pauseLog(menuitem):
     pass
 
 def pauseGUI(menuitem):
-    dialog = gtk.Dialog()
+    dialog = Gtk.Dialog(flags=Gtk.DialogFlags.MODAL, parent=guitop.top())
     dialog.set_title("OOF2 Pause")
-    dialog.vbox.pack_start(gtk.Label("Continue?"))
-    dialog.add_button(gtk.STOCK_OK, 0)
+    content = dialog.get_content_area()
+    content.pack_start(Gtk.Label("Continue?"),
+                       expand=True, fill=True, padding=2)
+    dialog.add_action_widget(gtkutils.StockButton("gtk-ok", "OK"),
+                             Gtk.ResponseType.OK)
     dialog.show_all()
     result = dialog.run()
     dialog.destroy()
@@ -262,3 +260,9 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
         gui_callback=pauseGUI,
         help="Stop replaying until the 'Continue' button is pressed."))
 
+############################
+
+# Save some typing in the Console window when debugging.
+
+utils.OOFdefine('findAllWidgets', gtklogger.findAllWidgets)
+utils.OOFdefine('findWidget', gtklogger.findWidget)

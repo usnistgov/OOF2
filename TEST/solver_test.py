@@ -2917,6 +2917,7 @@ class OOF_ThermalElasticTimeSteppers(OOF_ElasticTimeSteppers):
 
 class OOF_OutOfPlanePeriodicBC(SaveableMeshTest):
     def setUp(self):
+        OOF.Settings.Graphics_Defaults.New_Layer_Policy(policy='Single')
         OOF.Microstructure.New(name='microstructure',
                                width=1.0, height=1.0,
                                width_in_pixels=10, height_in_pixels=10)
@@ -2942,15 +2943,12 @@ class OOF_OutOfPlanePeriodicBC(SaveableMeshTest):
             x_elements=4, y_elements=4,
             skeleton_geometry=QuadSkeleton(
             left_right_periodicity=True,top_bottom_periodicity=False))
-        OOF.LayerEditor.LayerSet.New(window='Graphics_1')
-        OOF.LayerEditor.LayerSet.DisplayedObject(
-            category='Microstructure', object='microstructure')
-        OOF.LayerEditor.LayerSet.Add_Method(
-            method=MicrostructureMaterialDisplay(
-            no_material=Gray(value=0.0),no_color=RGBColor(
-            red=0.00000,green=0.00000,blue=1.00000)))
-        OOF.LayerEditor.LayerSet.Send(window='Graphics_1')
-        OOF.LayerEditor.LayerSet.Send(window='Graphics_1')
+        OOF.Graphics_1.Layer.New(
+            category='Microstructure',
+            what='microstructure',
+            how=MicrostructureMaterialDisplay(
+                no_material=TranslucentGray(value=0.0,alpha=1.0),
+                no_color=RGBAColor(red=0.0,green=0.0,blue=1.0,alpha=1.0)))
         OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle(
             source='microstructure',
             points=[Point(-0.0151584,1.01516),

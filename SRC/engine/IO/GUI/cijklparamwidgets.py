@@ -35,11 +35,11 @@ TriclinicRank4TensorCij = anisocijkl.TriclinicRank4TensorCij
 ## rank3tensorwidgets.py.
 
 class CijIsoCijklWidget(SymmetricMatrixInput):
-    def __init__(self, params, base, scope=None, name=None):
+    def __init__(self, params, base, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         self.params = params
         SymmetricMatrixInput.__init__(self, 6,6, value=None, scope=scope,
-                                      name=name)
+                                      name=name, **kwargs)
         # Block the appropriate ones, and hook up callbacks
         # to handle the c11/c12/c44 synchronization.
         for (k,f) in self.widgets.items():
@@ -48,19 +48,25 @@ class CijIsoCijklWidget(SymmetricMatrixInput):
                 f.gtk.set_sensitive(0)
                 
         # Callbacks to cross-connect things so that c44 can be
-        # entered, and gets maintained correctly.
+        # entered, and gets maintained correctly.  "activate" means
+        # that the user pressed return while typing in a GtkEntry.
+        # "focus_out_event" means that the user did something that
+        # transferred keyboard focus elsewhere. In either case, if the
+        # user changed the contents of a GtkEntry has changed, the
+        # signal means that the change is complete and that other
+        # GtkEntries that depend on it might need to be updated.
         gtklogger.connect(self.widgets[(0,0)].gtk, "activate",
-                          self.new_c11_or_c12,None)
+                          self.new_c11_or_c12, None)
         gtklogger.connect(self.widgets[(0,0)].gtk, "focus_out_event",
                           self.new_c11_or_c12)
         #
         gtklogger.connect(self.widgets[(0,1)].gtk, "activate",
-                          self.new_c11_or_c12,None)
+                          self.new_c11_or_c12, None)
         gtklogger.connect(self.widgets[(0,1)].gtk, "focus_out_event",
                           self.new_c11_or_c12)
         #
         gtklogger.connect(self.widgets[(3,3)].gtk, "activate",
-                          self.new_c44,None)
+                          self.new_c44, None)
         gtklogger.connect(self.widgets[(3,3)].gtk, "focus_out_event",
                           self.new_c44)
 
@@ -90,6 +96,8 @@ class CijIsoCijklWidget(SymmetricMatrixInput):
             self.widgets[(5,5)].set_value(c44)
         finally:
             self.unblock_signals()
+
+        gtklogger.checkpoint("CijIsoCijklWidget updated")
         
     # This widget understands its "values" to be c11 and c12,
     # in that order, for both setting and getting.
@@ -101,14 +109,8 @@ class CijIsoCijklWidget(SymmetricMatrixInput):
         for p, v in map(None, self.params, self.values):
             p.value = v
 
-    # Callbacks -- called on return or focus_out.  These must not
-    # throw exceptions, or the GTK's focus book-keeping can get
-    # screwed up, because the error dialog will want the focus, and
-    # the widget whose focus-out-callback this is will not have
-    # released it yet, because it didn't return FALSE, because it
-    # didn't return, because it threw an exception.  But we call
-    # get_value(), which can throw an exception -- do not propagate
-    # it.
+    # Callbacks -- called on return or focus_out.
+
     def new_c11_or_c12(self,gtk,event):
         c11 = self.params[0].value
         c12 = self.params[1].value
@@ -139,11 +141,11 @@ regclassfactory.addWidget(isocijkl.IsotropicCijklParameter,
 ############################################################################
 
 class CijCubicCijklWidget(SymmetricMatrixInput):
-    def __init__(self, params, base, scope=None, name=None):
+    def __init__(self, params, base, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         self.params = params
         SymmetricMatrixInput.__init__(self, 6,6, value=None, scope=scope,
-                                      name=name)
+                                      name=name, **kwargs)
         # Block the appropriate ones, and hook up callbacks
         # to handle the c11/c12/c44 synchronization.
         for (k,f) in self.widgets.items():
@@ -189,6 +191,8 @@ class CijCubicCijklWidget(SymmetricMatrixInput):
             self.widgets[(5,5)].set_value(c44)
         finally:
             self.unblock_signals()
+        gtklogger.checkpoint("CijCubicCijklWidget updated")
+        
     # This widget understands its "values" to be c11, c12, and c44,
     # in that order, for both setting and getting.
     def set_values(self, values=None):
@@ -232,12 +236,12 @@ regclassfactory.addWidget(anisocijkl.CubicCijklParameter,
 # tuples corresponding to inputs, and value'd by strings corresponding
 # to the attribute names in the corresponding Cijkl value class.
 class AnisoWidgetBase(SymmetricMatrixInput):
-    def __init__(self, params, kset, scope=None, name=None):
+    def __init__(self, params, kset, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         self.params = params
         self.kset = kset
         SymmetricMatrixInput.__init__(self, 6,6, value=None, scope=scope,
-                                      name=name)
+                                      name=name, **kwargs)
         #
         # Make default blocks according to the kset dictionary.
         for (k,f) in self.widgets.items():
@@ -291,11 +295,12 @@ class AnisoWidgetBase(SymmetricMatrixInput):
 
 
 class HexagonalCijklWidget(AnisoWidgetBase):
-    def __init__(self, params, scope=None, name=None):
+    def __init__(self, params, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         kset = {(0,0): 'c11', (0,1): 'c12', (0,2): 'c13',
                 (2,2): 'c33', (3,3): 'c44' }
-        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name)
+        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name,
+                                 **kwargs)
         #
         # Base class will have blocked c66, so unblock it.
         self.widgets[(5,5)].gtk.set_editable(1)
@@ -329,6 +334,8 @@ class HexagonalCijklWidget(AnisoWidgetBase):
             self.widgets[(5,5)].set_value(0.5*(var_dict['c11']-var_dict['c12']))
         finally:
             self.unblock_signals()
+        gtklogger.checkpoint("HexagonalCijklWidget updated")
+        
     def new_c66(self,gtk,event):
         v_dict={}
         for v in self.kset.values():
@@ -343,11 +350,11 @@ class HexagonalCijklWidget(AnisoWidgetBase):
             self.draw_values(v_dict)
 
 
-def HexCijklParam_makeWidget(self, scope):
+def HexCijklParam_makeWidget(self, scope, **kwargs):
     # TODO: Why doesn't this (and all the rest of the makeWidget
     # routines here) set the widget name?  Maybe it doesn't need
     # it... Setting the name will probably break the GUI test scripts.
-    return HexagonalCijklWidget(self, scope)
+    return HexagonalCijklWidget(self, scope, **kwargs)
 
 anisocijkl.HexagonalCijklParameter.makeWidget = HexCijklParam_makeWidget
     
@@ -356,10 +363,11 @@ anisocijkl.HexagonalCijklParameter.makeWidget = HexCijklParam_makeWidget
 # Tetragonal.
 
 class TetragonalCijklWidget(AnisoWidgetBase):
-    def __init__(self, params, scope=None, name=None):
+    def __init__(self, params, scope=None, name=None, **kwargs):
         kset = {(0,0): 'c11', (0,1): 'c12', (0,2): 'c13', (0,5): 'c16',
                 (2,2): 'c33', (3,3): 'c44', (5,5): 'c66' }
-        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name)
+        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name,
+                                 **kwargs)
         #
         self.set_values()
 
@@ -386,8 +394,10 @@ class TetragonalCijklWidget(AnisoWidgetBase):
             self.widgets[(1,5)].set_value(-var_dict['c16'])
         finally:
             self.unblock_signals()
-def TetCijklParam_makeWidget(self, scope):
-    return TetragonalCijklWidget(self, scope)
+        gtklogger.checkpoint("TetragonalCijklWidget updated")
+        
+def TetCijklParam_makeWidget(self, scope, **kwargs):
+    return TetragonalCijklWidget(self, scope, **kwargs)
 
 anisocijkl.TetragonalCijklParameter.makeWidget = TetCijklParam_makeWidget
 
@@ -395,11 +405,12 @@ anisocijkl.TetragonalCijklParameter.makeWidget = TetCijklParam_makeWidget
 # Trigonal A
 
 class TrigonalACijklWidget(AnisoWidgetBase):
-    def __init__(self, params, scope=None, name=None):
+    def __init__(self, params, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         kset = {(0,0): 'c11', (0,1): 'c12', (0,2): 'c13',
                 (2,2): 'c33', (3,3): 'c44', (0,3): 'c14', (0,4): 'c15' }
-        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name)
+        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name,
+                                 **kwargs)
         #
         self.widgets[(5,5)].gtk.set_editable(1)
         self.widgets[(5,5)].gtk.set_sensitive(1)
@@ -440,7 +451,8 @@ class TrigonalACijklWidget(AnisoWidgetBase):
             self.widgets[(5,5)].set_value(c66)
         finally:
             self.unblock_signals()
-
+        gtklogger.checkpoint("TrigonalACijklWidget updated")
+        
     def new_c66(self, gtk, event):
         v_dict = {}
         for v in self.kset.values():
@@ -454,8 +466,8 @@ class TrigonalACijklWidget(AnisoWidgetBase):
         finally:
             self.draw_values(v_dict)
    
-def TrigACijklParam_makeWidget(self, scope):
-    return TrigonalACijklWidget(self, scope)
+def TrigACijklParam_makeWidget(self, scope, **kwargs):
+    return TrigonalACijklWidget(self, scope, **kwargs)
 
 anisocijkl.TrigonalACijklParameter.makeWidget = TrigACijklParam_makeWidget
 
@@ -465,11 +477,12 @@ anisocijkl.TrigonalACijklParameter.makeWidget = TrigACijklParam_makeWidget
 # Trigonal B
 
 class TrigonalBCijklWidget(AnisoWidgetBase):
-    def __init__(self, params, scope=None, name=None):
+    def __init__(self, params, scope=None, name=None, **kwargs):
         debug.mainthreadTest()
         kset = {(0,0): 'c11', (0,1): 'c12', (0,2): 'c13',
                 (2,2): 'c33', (3,3): 'c44', (0,3): 'c14' }
-        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name)
+        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name,
+                                 **kwargs)
         #
         self.widgets[(5,5)].gtk.set_editable(1)
         self.widgets[(5,5)].gtk.set_sensitive(1)
@@ -506,6 +519,7 @@ class TrigonalBCijklWidget(AnisoWidgetBase):
             self.widgets[(5,5)].set_value(c66)
         finally:
             self.unblock_signals()
+        gtklogger.checkpoint("TrigonalBCijklWidget updated")
 
     def new_c66(self, gtk, event):
         v_dict = {}
@@ -520,8 +534,8 @@ class TrigonalBCijklWidget(AnisoWidgetBase):
         finally:
             self.draw_values(v_dict)
    
-def TrigBCijklParam_makeWidget(self, scope):
-    return TrigonalBCijklWidget(self, scope)
+def TrigBCijklParam_makeWidget(self, scope, **kwargs):
+    return TrigonalBCijklWidget(self, scope, **kwargs)
 
 anisocijkl.TrigonalBCijklParameter.makeWidget = TrigBCijklParam_makeWidget
 
@@ -531,12 +545,13 @@ anisocijkl.TrigonalBCijklParameter.makeWidget = TrigBCijklParam_makeWidget
 # Orthorhombic
 
 class OrthorhombicCijklWidget(AnisoWidgetBase):
-    def __init__(self, params, scope=None, name=None):
+    def __init__(self, params, scope=None, name=None, **kwargs):
         kset = {(0,0): 'c11', (0,1): 'c12', (0,2): 'c13',
                 (1,1): 'c22', (1,2): 'c23',
                 (2,2): 'c33', (3,3): 'c44', (4,4): 'c55',
                 (5,5): 'c66' }
-        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name)
+        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name,
+                                 **kwargs)
         #
         self.set_values()
 
@@ -555,9 +570,10 @@ class OrthorhombicCijklWidget(AnisoWidgetBase):
                 self.widgets[k].set_value(var_dict[v])
         finally:
             self.unblock_signals()
+        gtklogger.checkpoint("OrthorhombicCijklWidget updated")
 
-def OrthCijklParam_makeWidget(self, scope):
-    return OrthorhombicCijklWidget(self, scope)
+def OrthCijklParam_makeWidget(self, scope, **kwargs):
+    return OrthorhombicCijklWidget(self, scope, **kwargs)
 
 anisocijkl.OrthorhombicCijklParameter.makeWidget = OrthCijklParam_makeWidget
 
@@ -566,12 +582,13 @@ anisocijkl.OrthorhombicCijklParameter.makeWidget = OrthCijklParam_makeWidget
 # Monoclinic
 
 class MonoclinicCijklWidget(AnisoWidgetBase):
-    def __init__(self, params, scope=None, name=None):
+    def __init__(self, params, scope=None, name=None, **kwargs):
         kset = {(0,0): 'c11', (0,1): 'c12', (0,2): 'c13', (0,4): 'c15',
                 (1,1): 'c22', (1,2): 'c23', (1,4): 'c25',
                 (2,2): 'c33', (2,4): 'c35', 
                 (3,3): 'c44', (3,5): 'c46', (4,4): 'c55', (5,5): 'c66' }
-        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name)
+        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name,
+                                 **kwargs)
         #
         self.set_values()
 
@@ -592,9 +609,10 @@ class MonoclinicCijklWidget(AnisoWidgetBase):
                 self.widgets[k].set_value(var_dict[v])
         finally:
             self.unblock_signals()
+        gtklogger.checkpoint("MonoclinicCijklWidget updated")
         
-def MonoCijklParam_makeWidget(self, scope):
-    return MonoclinicCijklWidget(self, scope)
+def MonoCijklParam_makeWidget(self, scope, **kwargs):
+    return MonoclinicCijklWidget(self, scope, **kwargs)
 
 anisocijkl.MonoclinicCijklParameter.makeWidget = MonoCijklParam_makeWidget
 
@@ -603,14 +621,15 @@ anisocijkl.MonoclinicCijklParameter.makeWidget = MonoCijklParam_makeWidget
 # Triclinic, the general case.
 
 class TriclinicCijklWidget(AnisoWidgetBase):
-    def __init__(self, params, scope=None, name=None):
+    def __init__(self, params, scope=None, name=None, **kwargs):
         kset = {(0,0): 'c11', (0,1): 'c12', (0,2): 'c13', (0,3): 'c14',
                 (0,4): 'c15', (0,5): 'c16', (1,1): 'c22', (1,2): 'c23',
                 (1,3): 'c24', (1,4): 'c25', (1,5): 'c26', (2,2): 'c33',
                 (2,3): 'c34', (2,4): 'c35', (2,5): 'c36', (3,3): 'c44',
                 (3,4): 'c45', (3,5): 'c46', (4,4): 'c55', (4,5): 'c56',
                 (5,5): 'c66' }
-        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name)
+        AnisoWidgetBase.__init__(self, params, kset, scope=scope, name=name,
+                                 **kwargs)
         #
         self.set_values()
 
@@ -637,22 +656,23 @@ class TriclinicCijklWidget(AnisoWidgetBase):
                 self.widgets[k].set_value(var_dict[v])
         finally:
             self.unblock_signals()
+        gtklogger.checkpoint("TriclinicCijklWidget updated")
         
-def TriCijklParam_makeWidget(self, scope):
-    return TriclinicCijklWidget(self, scope)
+def TriCijklParam_makeWidget(self, scope, **kwargs):
+    return TriclinicCijklWidget(self, scope, **kwargs)
 
 anisocijkl.TriclinicCijklParameter.makeWidget = TriCijklParam_makeWidget
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# CijklBoolWidget displays a bool for each entry in Cijkl. It's value
+# CijklBoolWidget displays a bool for each entry in Cijkl. Its value
 # is a list of strings, each of which is a pair of Voigt indices in
 # [1,6].
 
 class CijklBoolWidget(matrixparamwidgets.SymmetricMatrixBoolInput):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         matrixparamwidgets.SymmetricMatrixBoolInput.__init__(
-            self, 6, 6, value=None, scope=scope, name=name)
+            self, 6, 6, value=None, scope=scope, name=name, **kwargs)
         self.param = param
         self.set_value()
     def draw_values(self, vvlist):
@@ -678,7 +698,7 @@ class CijklBoolWidget(matrixparamwidgets.SymmetricMatrixBoolInput):
                     vals.append("%d%d" % (r+1, c+1))
         return vals
 
-def VoigtPairListParam_makeWidget(self, scope):
-    return CijklBoolWidget(self, scope=scope, name=self.name)
+def VoigtPairListParam_makeWidget(self, scope, **kwargs):
+    return CijklBoolWidget(self, scope=scope, name=self.name, **kwargs)
 
 outputDefs.VoigtPairListParameter.makeWidget = VoigtPairListParam_makeWidget

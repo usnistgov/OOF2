@@ -9,12 +9,11 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-from ooflib.SWIG.common import guitop
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO.GUI import gtklogger
-from ooflib.common.IO.GUI import tooltips
-import gtk
+from gi.repository import Gtk
+import sys
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -37,6 +36,11 @@ import gtk
 # to be able to reset its range, which requires changing the range of
 # the clipper.
 
+## TODO: When the Gtk.Entry loses focus, should it clip?  Currently
+## one can type an out of bounds value into the entry, and it isn't
+## replaced with the clipped value until the parameterwidget is
+## evaluated.
+
 class DefaultClipper(object):
     def __init__(self, vmin, vmax):
         self.vmin = vmin
@@ -46,49 +50,64 @@ class DefaultClipper(object):
         val = max(val, self.vmin)
         return val
 
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#    
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class LabelledSlider:
     def __init__(self, value=None, vmin=0, vmax=1, step=0.01, callback=None,
                  clipperclass=None,
-                 name=None, immediate=True):
+                 name=None, immediate=True, logPaned=True,
+                 **kwargs):
         # "callback" is called when the user moves the slider.  If
         # immediate==True, then the callback will be called when any
         # character is typed in the Entry.  If it's false, the
         # callback won't be called until the entry loses focus.
+
+        # If logPaned is True, gtklogger will log changes in the
+        # position of the GtkPaned that separates the slider from the
+        # text area.  If multiple sliders' panes are synchronized,
+        # logPaned should be True for just one of them.
         debug.mainthreadTest()
         self.immediate = immediate
 
-        self.gtk = gtk.HPaned()
+        self.gtk = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL, **kwargs)
+        if logPaned:
+            gtklogger.connect_passive(self.gtk, 'notify::position')
         if value is None:
             value = vmin
         self.clipperclass = clipperclass or DefaultClipper
         self.clipper = self.clipperclass(vmin, vmax)
         if name is not None:
             gtklogger.setWidgetName(self.gtk, name)
-        self.adjustment = gtk.Adjustment(value=value,
-                                         lower=vmin, upper=vmax,
-                                         step_incr=step,
-                                         page_incr=step)
-        self.slider = gtk.HScale(self.adjustment)
+        # TODO: Does setting page_size=0 cause problems for some gtk
+        # themes, if the sliding part of the Gtk.Scale gets its size
+        # from page_size?
+        self.adjustment = Gtk.Adjustment(
+            value=value, lower=vmin, upper=vmax,
+            step_incr=step, # arrow keys move this far
+            page_incr=step, # page up and page down keys move this far
+            page_size=0)    # max slider value is upper-page_size
+        self.slider = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL,
+                                adjustment=self.adjustment)
         gtklogger.setWidgetName(self.slider, "slider")
         gtklogger.adoptGObject(self.adjustment, self.slider,
                               access_method=self.slider.get_adjustment)
         self.slider.set_size_request(100, -1)
-        self.gtk.pack1(self.slider, resize=True, shrink=True)
+        self.gtk.pack1(self.slider, resize=True, shrink=False)
         self.slider.set_draw_value(False)   # we'll display the value ourselves
         self.adjustmentsignal = gtklogger.connect(self.adjustment,
                                                   'value-changed',
                                                   self.text_from_slider)
 
-        self.entry = gtk.Entry()
+        self.entry = Gtk.Entry()
+        self.entry.set_margin_start(3)
+        self.entry.set_margin_end(3)
         gtklogger.setWidgetName(self.entry, "entry")
-        self.gtk.pack2(self.entry, resize=True, shrink=True)
+        self.gtk.pack2(self.entry, resize=True, shrink=False)
 
         # Make sure that the Entry is big enough to hold the min and
         # max values, or at least 8 digits.
         width = max(len(`vmin`), len(`vmax`), 8)
-        self.entry.set_size_request(width*guitop.top().digitsize, -1)
+        self.entry.set_width_chars(width)
 
         self.entrysignal = gtklogger.connect(self.entry, 'changed',
                                              self.entry_changed)
@@ -97,8 +116,8 @@ class LabelledSlider:
         self.changed = False
 
         gtklogger.connect(self.entry, 'activate', self.slider_from_text)
-        gtklogger.connect(self.entry, 'focus-out-event', self.entry_lost_focus)
-    
+        gtklogger.connect(self.entry, 'focus_out_event', self.entry_lost_focus)
+
     def set_sensitive(self, sensitivity):
         self.slider.set_sensitive(sensitivity)
         self.entry.set_sensitive(sensitivity)
@@ -112,8 +131,11 @@ class LabelledSlider:
         self.adjustmentsignal.block()
         self.entrysignal.block()
         try:
-            self.adjustment.value = value
+            self.slider.set_value(value)
             self.set_entry(value)
+            self.inconsistent = False
+        except:
+            self.inconsistent = True
         finally:
             self.adjustmentsignal.unblock()
             self.entrysignal.unblock()
@@ -135,12 +157,16 @@ class LabelledSlider:
         try:
             v0 = self.get_value()
         except:
-            # Illegal values will raise an exception, but they
-            # may be incomplete entries.  So don't do anything
-            # about it here.
-            pass
+            # The value in the entry is illegal. Maybe the entry is
+            # empty.  We need to call the callback anyway, in case
+            # someone needs to know that the widget is in an
+            # inconsistent state.
+            if self.callback:
+                self.inconsistent = True
+                self.callback(self, None)
         else:
             self.changed = False
+            self.inconsistent = False
             val = self.clipper.clip(v0)
             self.adjustmentsignal.block()
             try:
@@ -151,8 +177,13 @@ class LabelledSlider:
                 self.callback(self, val)
     def entry_lost_focus(self, obj, event):
         if self.changed:
-            self.slider_from_text(obj)
-    def entry_changed(self, obj):
+            # get_value returns the current value of the entry, which
+            # may be out of bounds if the user is fooling around.
+            # set_value clips the value to the correct bounds and sets
+            # both the entry and the slider.
+            self.set_value(self.get_value())
+            # self.slider_from_text(obj)
+    def entry_changed(self, obj): # gtk callback for self.entry 'changed'
         if self.immediate:
             self.slider_from_text(obj)
         else:
@@ -176,13 +207,13 @@ class LabelledSlider:
                 self.gtk.handler_unblock(signal)
 
     def setBounds(self, minval, maxval):
-        val = self.adjustment.value
-        attop = (val == self.adjustment.upper)
-        atbot = (val == self.adjustment.lower)
+        val = self.adjustment.get_value()
+        attop = (val == self.adjustment.get_upper())
+        atbot = (val == self.adjustment.get_lower())
         self.adjustmentsignal.block()
         try:
-            self.adjustment.lower = minval
-            self.adjustment.upper = maxval
+            self.adjustment.set_lower(minval)
+            self.adjustment.set_upper(maxval)
             self.clipper = self.clipperclass(minval, maxval)
             if attop:
                 self.set_value(maxval)
@@ -192,19 +223,33 @@ class LabelledSlider:
             self.adjustmentsignal.unblock()
 
     def getBounds(self):
-        return (self.adjustment.lower, self.adjustment.upper)
-    
-    def set_policy(self, policy):
-        # Set how often the callback is called in response to slider
-        # motion.  policy should be gtk.UPDATE_CONTINUOUS,
-        # gtk.UPDATE_DELAYED, or gtk.UPDATE_DISCONTINUOUS.
-        self.slider.set_update_policy(policy)
+        return (self.adjustment.get_lower(), self.adjustment.get_upper())
+
+    def consistent(self):
+        # If the text in the entry has been deleted but slider hasn't
+        # moved and no new text has been inserted, the widget is in an
+        # inconsistent state and its value can't be evaluated.
+        return not self.inconsistent
+        
+
+    ## TODO: Is there a Gtk3 version of Range.set_policy?
+    # def set_policy(self, policy):
+    #     # Set how often the callback is called in response to slider
+    #     # motion.  policy should be gtk.UPDATE_CONTINUOUS,
+    #     # gtk.UPDATE_DELAYED, or gtk.UPDATE_DISCONTINUOUS.
+    #     self.slider.set_update_policy(policy)
 
     def set_tooltips(self, slider=None, entry=None):
         if slider:
-            tooltips.set_tooltip_text(self.slider,slider)
+            self.slider.set_tooltip_text(slider)
         if entry:
-            tooltips.set_tooltip_text(self.entry,entry)
+            self.entry.set_tooltip_text(entry)
+
+    def dumpState(self, comment):
+        print >> sys.stderr, comment, self.__class__.__name__, \
+            "text=%s" % self.entry.get_text(), \
+            "val=%s" % self.adjustment.get_value(), \
+            "focus=%s" % self.entry.has_focus()
 
 class FloatLabelledSlider(LabelledSlider):
     def set_digits(self, digits):

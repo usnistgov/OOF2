@@ -66,14 +66,12 @@ class OOF_Subproblem_Extra(unittest.TestCase):
         OOF.Material.Assign(material='material',
                             microstructure='microstructure', pixels=all)
         OOF.Windows.Graphics.New()
-        OOF.LayerEditor.LayerSet.New(window='Graphics_1')
-        OOF.LayerEditor.LayerSet.DisplayedObject(category='Microstructure',
-                                                 object='microstructure')
-        OOF.LayerEditor.LayerSet.Add_Method(
-            method=MicrostructureMaterialDisplay(
-            no_material=Gray(value=0.0),
-            no_color=RGBColor(red=0.0,green=0.0,blue=1.0)))
-        OOF.LayerEditor.LayerSet.Send(window='Graphics_1')
+        OOF.Graphics_1.Layer.New(
+            category='Microstructure',
+            what='microstructure',
+            how=MicrostructureMaterialDisplay(
+                no_material=TranslucentGray(value=0.0,alpha=1.0),
+                no_color=RGBAColor(red=0.0,green=0.0,blue=1.0,alpha=1.0)))
         OOF.Graphics_1.Toolbox.Pixel_Select.Rectangle(
             source='microstructure',
             points=[Point(0.22393,0.990078), Point(0.788911,-0.0200389)],

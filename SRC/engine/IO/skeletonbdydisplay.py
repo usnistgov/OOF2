@@ -24,6 +24,8 @@ from ooflib.engine import skeletonboundary
 import math
 import string
 
+import oofcanvas
+
 # Special parameter class for skeleton boundaries.  Returns a
 # list of strings corresponding to the names of boundaries in a
 # given skeleton.  The custom class is primarily to allow for a
@@ -43,44 +45,28 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
         self.arrowsize = arrowsize
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, device):
-        skel = self.who().resolve(gfxwindow)
+    def draw(self, gfxwindow):
+        skel = self.who.resolve(gfxwindow)
         skelobj = skel.getObject()
-        device.set_lineColor(self.color)
+        clr = color.canvasColor(self.color)
         for k in self.boundaries:
             try:
                 b = skelobj.edgeboundaries[k]
             except KeyError:
                 pass
             else:
-                if config.dimension() == 2:
-                    for e in b.edges:
-                        nodes = e.get_nodes()
-                        device.set_lineWidth(self.linewidth)
-                        device.draw_segment(primitives.Segment(
-                                nodes[0].position(), nodes[1].position()))
-                        # Boundaries are directed from 0 to 1.
-                        center = (nodes[0].position() + nodes[1].position())/2
-                        diff = (nodes[1].position() - nodes[0].position())
-                        # Zero of angles is the y-axis, not the x-axis...
-                        angle = math.atan2(-diff.x, diff.y)
-                        device.set_lineWidth(self.arrowsize)
-                        device.draw_triangle(center, angle)
-                elif config.dimension() == 3:
-                    numedges = len(b.edges)
-                    if numedges:
-                        gridPoints = skelobj.getPoints()
-                        grid = vtk.vtkPolyData()
-                        grid.Allocate(numedges,numedges)
-                        grid.SetPoints(gridPoints)
-                        for e in b.edges:
-                            line = e.getVtkLine()
-                            grid.InsertNextCell(line.GetCellType(), line.GetPointIds())
-                        device.draw_unstructuredgrid(grid)
-                        # TODO 3D: add glyphs
-            
-        device.set_lineWidth(self.dotsize)
-        device.set_fillColor(self.color)
+                for e in b.edges:
+                    nodes = e.get_nodes()
+                    pt0 = nodes[0].position()
+                    pt1 = nodes[1].position()
+                    seg = oofcanvas.CanvasSegment(pt0, pt1)
+                    seg.setLineWidthInPixels(self.linewidth)
+                    seg.setLineColor(clr)
+                    arrow = oofcanvas.CanvasArrowhead(seg, 0.5, False)
+                    arrow.setSizeInPixels(0.7*self.arrowsize, self.arrowsize)
+                    self.canvaslayer.addItem(seg)
+                    self.canvaslayer.addItem(arrow)
+
         for k in self.boundaries:
             try:
                 b = skelobj.pointboundaries[k]
@@ -88,39 +74,37 @@ class SkeletonBoundaryDisplay(display.DisplayMethod):
                 pass
             else:
                 for n in b.nodes:
-                    device.draw_dot(n.position())
+                    dot = oofcanvas.CanvasDot(n.position(), self.dotsize)
+                    dot.setFillColor(clr)
+                    self.canvaslayer.addItem(dot)
 
     def getTimeStamp(self, gfxwindow):
         return max( self.timestamp,
-                    self.who().resolve(gfxwindow).bdytimestamp )
+                    self.who.resolve(gfxwindow).bdytimestamp )
 
-    # Need to override hash, because we contain a list.  For this
-    # class, object identity is a good test of equality.
-
-if config.dimension() == 2:
-    widthRange = (0,10)
-# In vtk, line widths of 0 cause errors
-elif config.dimension() == 3:
-    widthRange = (1,10)
+widthRange = (0,20)
                     
 skeletonBoundaryDisplay = registeredclass.Registration(
     'Boundaries', display.DisplayMethod,
     SkeletonBoundaryDisplay,
-    params=[SkeletonBoundaryListParameter('boundaries', [],
+    params=[
+        SkeletonBoundaryListParameter('boundaries', [],
                                       tip="Boundaries to display."),
-            color.ColorParameter('color', value=color.gray50,
-                                 tip="Color for the displayed boundaries."),
-            parameter.IntRangeParameter('linewidth', widthRange, 4,
-                                        tip="Line width for edge boundaries."),
-            parameter.IntRangeParameter('dotsize', widthRange, 4,
-                                        tip="Dot radius for point boundaries."),
-            parameter.IntRangeParameter('arrowsize', (0, 20), 10,
+        color.TranslucentColorParameter(
+            'color', value=color.gray50,
+            tip="Color for the displayed boundaries."),
+        parameter.IntRangeParameter('linewidth', widthRange, 3,
+                                    tip="Line width for edge boundaries."),
+        parameter.IntRangeParameter('dotsize', widthRange, 4,
+                                    tip="Dot radius for point boundaries."),
+        parameter.IntRangeParameter('arrowsize', (0, 30), 15,
                                         tip="Arrow size for edge boundaries.")],
     ordering=1.0,
     layerordering=display.SemiLinear(2),
     whoclasses=('Skeleton',),
     tip="Display some or all of the boundaries of the Skeleton",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/skeletonbdydisplay.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/skeletonbdydisplay.xml')
     )
 
 # Layer for showing the selected boundary (point and edge) of a skeleton.
@@ -133,70 +117,39 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
         self.arrowsize = arrowsize
         display.DisplayMethod.__init__(self)
         
-    def draw(self, gfxwindow, device):
-        skel = self.who().resolve(gfxwindow)
+    def draw(self, gfxwindow):
+        skel = self.who.resolve(gfxwindow)
         skelobj = skel.getObject()
         bdy = skel.getSelectedBoundary()  # SkelContextBoundary
         if bdy is not None:
             # bdy.draw calls either drawEdgeBoundary or drawPointBoundary
-            bdy.draw(self, device, skelobj)
+            bdy.draw(self, skelobj)
 
-    def drawEdgeBoundary(self, bdy, skelobj, device):
+    def drawEdgeBoundary(self, bdy, skelobj):
         b = bdy.boundary(skelobj)
-        device.set_lineColor(self.color)
-        if config.dimension() == 2:
-            for e in b.edges:
-                nodes = e.get_nodes()
-                n0 = nodes[0].position()
-                n1 = nodes[1].position()
-                device.set_lineWidth(self.linewidth)
-                device.draw_segment(primitives.Segment(n0, n1))
-                # Boundaries are directed from 0 to 1.
-                center = (n0 + n1)/2
-                diff = (n1 - n0)
-                # Zero of angles is the y-axis, not the x-axis...
-                angle = math.atan2(-diff.x, diff.y)
-                device.set_lineWidth(self.arrowsize)
-                device.draw_triangle(center, angle)
-        elif config.dimension() == 3:
-            numedges = len(b.edges)
-            device.set_lineWidth(self.linewidth)
-            device.set_glyphSize(self.arrowsize)
-            if numedges:
-                gridPoints = skelobj.getPoints()
-                grid = vtk.vtkPolyData()
-                grid.Allocate(numedges,numedges)
-                grid.SetPoints(gridPoints)
-                normalarray = vtk.vtkDoubleArray()
-                normalarray.SetNumberOfComponents(3)
-                for e in b.edges:
-                    line = e.getVtkLine()
-                    grid.InsertNextCell(line.GetCellType(), line.GetPointIds())
-                    nodes = e.get_nodes()
-                    n0 = nodes[0].position()
-                    n1 = nodes[1].position()
-                    d = (n1 - n0)
-                    normalarray.InsertNextTuple3(d[0],d[1],d[2])
-                findcenters = vtk.vtkCellCenters()
-                findcenters.SetInput(grid)
-                centers = findcenters.GetOutput()
-                centers.Update()
-                # we must do this *after* we call Update, otherwise
-                # the data will be overwritten
-                centers.GetPointData().SetNormals(normalarray)
-                device.draw_unstructuredgrid(grid)
-                device.draw_cone_glyphs(centers)
-                    
+        clr = color.canvasColor(self.color)
+        for e in b.edges:
+            nodes = e.get_nodes()
+            n0 = nodes[0].position()
+            n1 = nodes[1].position()
+            seg = oofcanvas.CanvasSegment(n0, n1)
+            seg.setLineColor(clr)
+            seg.setLineWidthInPixels(self.linewidth)
+            arrow = oofcanvas.CanvasArrowhead(seg, 0.5, False)
+            arrow.setSizeInPixels(0.7*self.arrowsize, self.arrowsize)
+            self.canvaslayer.addItem(seg)
+            self.canvaslayer.addItem(arrow)
 
-    def drawPointBoundary(self, bdy, skelobj, device):
+    def drawPointBoundary(self, bdy, skelobj):
         b = bdy.boundary(skelobj)
-        device.set_lineWidth(self.dotsize)
-        device.set_lineColor(self.color)
+        clr = color.canvasColor(self.color)
         for n in b.nodes:
-            device.draw_dot(n.position())
+            dot = oofcanvas.CanvasDot(n.position(), self.dotsize)
+            dot.setFillColor(clr)
+            self.canvaslayer.addItem(dot)
     
     def getTimeStamp(self, gfxwindow):
-        skelcontext = self.who().resolve(gfxwindow)
+        skelcontext = self.who.resolve(gfxwindow)
         bdy = skelcontext.getSelectedBoundary()
         if bdy is not None:
             return max(self.timestamp, skelcontext.bdyselected,
@@ -206,16 +159,7 @@ class SelectedSkeletonBoundaryDisplay(display.DisplayMethod):
 defaultSelSkelBdyColor = color.orange
 defaultSelSkelBdyLineWidth = 4
 defaultSelSkelBdyDotSize = 4
-if config.dimension() == 2:
-    defaultSelSkelBdyArrowSize = 10
-    arrowparam = parameter.IntRangeParameter('arrowsize', (0, 20),
-                                             defaultSelSkelBdyArrowSize,
-                                             tip="Arrow size for edge boundaries.")
-elif config.dimension() == 3:
-    defaultSelSkelBdyArrowSize = 1.5
-    arrowparam = parameter.FloatRangeParameter('arrowsize', (0, 10, 0.1),
-                                             defaultSelSkelBdyArrowSize,
-                                             tip="Arrow size for edge boundaries.")
+defaultSelSkelBdyArrowSize = 15
 
 def _setSelSkelBdyParams(menuitem, color, linewidth, dotsize, arrowsize):
     global defaultSelSkelBdyColor
@@ -228,15 +172,19 @@ def _setSelSkelBdyParams(menuitem, color, linewidth, dotsize, arrowsize):
     defaultSelSkelBdyArrowSize = arrowsize
 
 selskelbdyparams = [
-    color.ColorParameter('color', value=defaultSelSkelBdyColor,
-                         tip="Color for the selected boundary."),
-    parameter.IntRangeParameter('linewidth', widthRange,
-                                defaultSelSkelBdyLineWidth,
-                                tip="Line width for edge boundaries."),
-    parameter.IntRangeParameter('dotsize', widthRange,
-                                defaultSelSkelBdyDotSize,
-                                tip="Dot radius for point boundaries."),
-    arrowparam
+    color.TranslucentColorParameter(
+        'color', value=defaultSelSkelBdyColor,
+        tip="Color for the selected boundary."),
+    parameter.IntRangeParameter(
+        'linewidth', widthRange, defaultSelSkelBdyLineWidth,
+        tip="Line width for edge boundaries, in pixels."),
+    parameter.IntRangeParameter(
+        'dotsize', widthRange, defaultSelSkelBdyDotSize,
+        tip="Dot radius for point boundaries, in pixels."),
+    parameter.IntRangeParameter(
+        'arrowsize', (0, 30),
+        defaultSelSkelBdyArrowSize,
+        tip="Arrow size for edge boundaries, in pixels.")
     ]
 
 mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
@@ -264,7 +212,8 @@ selectedSkeletonBoundaryDisplay = registeredclass.Registration(
     layerordering=display.SemiLinear(1),
     whoclasses=('Skeleton',),
     tip="Display the currently selected boundary.",
-    discussion = xmlmenudump.loadFile('DISCUSSIONS/engine/reg/skeletonselbdydisplay.xml')
+    discussion = xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/skeletonselbdydisplay.xml')
     )
 
 def defaultSelectedSkeletonBoundaryDisplay():

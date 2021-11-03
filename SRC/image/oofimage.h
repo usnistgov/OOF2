@@ -27,7 +27,7 @@
 #include <vector>
 
 // Make sure that omp.h is included before Magick++.h
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
 #include <omp.h>
 #endif
 #include <Magick++.h>
@@ -36,9 +36,11 @@ class BitmapOverlay;
 class BoolArray;
 class DoubleArray;
 class CMicrostructure;
-class StringImage;
 class OOFImageIterator;
 class ConstOOFImageIterator;
+namespace OOFCanvas {
+  class CanvasImage;
+};
 
 /*----------*/
 
@@ -62,6 +64,7 @@ public:
   virtual ~OOFImage();
   void save(const std::string &filename);\
   const Magick::Geometry geometry() const { return image.size(); }
+  Magick::Image magickImage() const { return image; }
   const std::string &name() const { return name_; }
   void rename(const std::string &nm) { name_ = nm; }
   void setSize(const Coord*);
@@ -71,7 +74,8 @@ public:
   ICoord pixelFromPoint(const Coord*) const;
   bool pixelInBounds(const ICoord*) const;
   const std::string *comment() const;
-  
+
+  OOFCanvas::CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
 
   void setMicrostructure(CMicrostructure *ms) { microstructure = ms; }
   CMicrostructure *getCMicrostructure() const { return microstructure; }
@@ -109,8 +113,6 @@ public:
   void set(const Array<double> &array, CColor (*f)(double));
   void set(const Array<int> &array, CColor (*f)(int));
   void set(const Array<bool> &array, CColor (*f)(bool));
-
-  virtual void fillstringimage(StringImage*) const; 
 
   OOFImage *clone(const std::string &name) const;
 

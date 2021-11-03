@@ -32,9 +32,9 @@ from ooflib.engine.IO.GUI import interfacewidget
 # allowed options for the Director.  
 
 class DirectorWidget(parameterwidgets.EnumWidget):
-    def __init__(self, enumclass, param, scope=None, name=None):
+    def __init__(self, enumclass, param, scope=None, name=None, **kwargs):
         parameterwidgets.EnumWidget.__init__(self, enumclass, param,
-                                             scope, name)
+                                             scope, name, **kwargs)
         self.skelwidget = scope.findWidget(
             lambda x: isinstance(x, whowidget.WhoWidget)
             and x.whoclass is skeletoncontext.skeletonContexts)
@@ -133,8 +133,9 @@ class DirectorWidget(parameterwidgets.EnumWidget):
                 return 0
             return -1 # Zero-length list is also invalid.
 
-def _DirectorParameter_makeWidget(self, scope=None):
-    return DirectorWidget(self.enumclass, self, scope=scope, name=self.name)
+def _DirectorParameter_makeWidget(self, scope=None, **kwargs):
+    return DirectorWidget(self.enumclass, self, scope=scope, name=self.name,
+                          **kwargs)
 
 director.DirectorParameter.makeWidget = _DirectorParameter_makeWidget
 
@@ -142,9 +143,9 @@ director.DirectorParameter.makeWidget = _DirectorParameter_makeWidget
 #Interface branch
 
 class DirectorInterfacesWidget(parameterwidgets.EnumWidget):
-    def __init__(self, enumclass, param, scope=None, name=None):
+    def __init__(self, enumclass, param, scope=None, name=None, **kwargs):
         parameterwidgets.EnumWidget.__init__(self, enumclass, param,
-                                             scope, name)
+                                             scope, name, **kwargs)
         self.skelwidget = scope.findWidget(
             lambda x: isinstance(x, whowidget.WhoWidget)
             and x.whoclass is skeletoncontext.skeletonContexts)
@@ -255,7 +256,9 @@ class DirectorInterfacesWidget(parameterwidgets.EnumWidget):
                 return 0
             return -1 # Zero-length list is also invalid.
 
-def _DirectorInterfacesParameter_makeWidget(self, scope=None):
-    return DirectorInterfacesWidget(self.enumclass, self, scope=scope, name=self.name)
+def _DirectorInterfacesParameter_makeWidget(self, scope=None, **kwargs):
+    return DirectorInterfacesWidget(self.enumclass, self, scope=scope,
+                                    name=self.name, **kwargs)
 
-director.DirectorInterfacesParameter.makeWidget = _DirectorInterfacesParameter_makeWidget
+director.DirectorInterfacesParameter.makeWidget = \
+    _DirectorInterfacesParameter_makeWidget

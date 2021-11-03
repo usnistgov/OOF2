@@ -23,11 +23,11 @@ from ooflib.common.IO.GUI import historian
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import skeletoncontext
 from ooflib.engine import skeletonselmodebase
-import gtk
+
+from gi.repository import Gtk
 import sys
 
 
@@ -41,7 +41,7 @@ import sys
 # each mode, all of this mode specific data is stored in a ModeData
 # object.
 
-class ModeData:
+class ModeData(object):
     def __init__(self, page, mode):
         self.page = page                # SkeletonSelectionPage
         self.mode = mode                # SkeletonSelectionMode object
@@ -84,33 +84,35 @@ class SkeletonSelectionPage(oofGUI.MainPage):
             ordering = 135,
             tip = "Manipulate selectable skeleton objects.")
 
-        self.mainbox = gtk.VBox(spacing=2)
+        self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(self.mainbox)
 
-        self.skelwidgetbox = gtk.Alignment(xalign=0.5)
-        self.mainbox.pack_start(self.skelwidgetbox, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        self.skelwidgetbox.add(centerbox)
+        self.skelwidgetbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                                     spacing=2, halign=Gtk.Align.CENTER,
+                                     margin_top=2)
+        self.mainbox.pack_start(self.skelwidgetbox,
+                                expand=False, fill=False, padding=0)
         self.skelwidget = whowidget.WhoWidget(skeletoncontext.skeletonContexts,
                                               scope=self)
         self.skelwidget.verbose = True
-        label = gtk.Label('Microstructure=')
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.skelwidget.gtk[0], expand=0, fill=0)
-        label = gtk.Label('Skeleton=')
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.skelwidget.gtk[1], expand=0, fill=0)
+        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        self.skelwidgetbox.pack_start(label,
+                                      expand=False, fill=False, padding=0)
+        self.skelwidgetbox.pack_start(self.skelwidget.gtk[0],
+                                      expand=False, fill=False, padding=0)
+        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END, margin_start=5)
+        self.skelwidgetbox.pack_start(label,
+                                      expand=False, fill=False, padding=0)
+        self.skelwidgetbox.pack_start(self.skelwidget.gtk[1],
+                                      expand=False, fill=False, padding=0)
 
-        self.modebox = gtk.Alignment(xalign=0.5)
+        self.modebox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                               spacing=3, halign=Gtk.Align.CENTER)
         gtklogger.setWidgetName(self.modebox, 'Mode')
-        self.mainbox.pack_start(self.modebox, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        self.modebox.add(centerbox)
-        label = gtk.Label("Selection Mode:")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
+        self.mainbox.pack_start(self.modebox,
+                                expand=False, fill=False, padding=0)
+        label = Gtk.Label("Selection Mode:", halign=Gtk.Align.END)
+        self.modebox.pack_start(label, expand=False, fill=False, padding=0)
 
         # Construct buttons for switching between selection modes, and
         # the ModeData objects that contain the mode-specific data and
@@ -121,15 +123,15 @@ class SkeletonSelectionPage(oofGUI.MainPage):
             name = mode.name
             modedata = self.modedict[name] = ModeData(self, mode)
             if firstbutton:
-                button = gtk.RadioButton(label=name+'s', group=firstbutton)
+                button = Gtk.RadioButton(label=name+'s', group=firstbutton)
             else:
-                button = gtk.RadioButton(label=name+'s')
+                button = Gtk.RadioButton(label=name+'s')
                 firstbutton = button
                 self.activemode = modedata
             gtklogger.setWidgetName(button, name)
             modedata.button = button
-            tooltips.set_tooltip_text(button,"Select " + name + "s")
-            centerbox.pack_start(button, expand=0, fill=0)
+            button.set_tooltip_text("Select " + name + "s")
+            self.modebox.pack_start(button, expand=False, fill=False, padding=0)
             gtklogger.connect(button, 'clicked', self.pickerCB, modedata)
             switchboard.requestCallbackMain(
                 modedata.mode.changedselectionsignal,
@@ -137,33 +139,44 @@ class SkeletonSelectionPage(oofGUI.MainPage):
             switchboard.requestCallbackMain(
                 modedata.mode.modifierappliedsignal,
                 self.modifiedSelection, mode=modedata)
-        firstbutton.set_active(1)
+        firstbutton.set_active(True)
 
-        self.mainpane = gtk.HPaned()
+        self.mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                                  wide_handle=True)
         gtklogger.setWidgetName(self.mainpane, 'Pane')
-        self.mainbox.pack_start(self.mainpane, expand=1, fill=1)
+        self.mainbox.pack_start(self.mainpane,
+                                expand=True, fill=True, padding=0)
         gtklogger.connect_passive(self.mainpane, 'notify::position')
         
         # Status and Group are on the left side of the page.
-        self.leftbox = gtk.VBox(spacing=3)
-        self.mainpane.pack1(self.leftbox, resize=1, shrink=0)
+        self.leftbox = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=5,
+            margin_top=2, margin_bottom=2,
+            margin_start=2, margin_end=gtkutils.handle_padding)
+        self.mainpane.pack1(self.leftbox, resize=True, shrink=False)
 
         # Status box.
-        self.statusframe = gtk.Frame()
-        self.leftbox.pack_start(self.statusframe, expand=0, fill=0)
-        self.statusframe.set_shadow_type(gtk.SHADOW_IN)
-        self.status = gtk.Label()
+        self.statusframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
+        self.leftbox.pack_start(self.statusframe,
+                                expand=False, fill=False, padding=0)
+        sframe2 = Gtk.Frame(margin=2)
+        self.statusframe.add(sframe2)
+        self.status = Gtk.TextView(name="fixedfont", editable=False,
+                                   cursor_visible=False,
+                                   wrap_mode=Gtk.WrapMode.WORD,
+                                   left_margin=10, right_margin=10,
+                                   top_margin=2, bottom_margin=2)
         gtklogger.setWidgetName(self.status, 'status')
-        self.status.set_alignment(0.0, 0.5)
-        self.statusframe.add(self.status)
+        sframe2.add(self.status)
 
         # Group operations.
         self.groupgui = GroupGUI(self)
-        self.leftbox.pack_start(self.groupgui.gtk, expand=1, fill=1)
+        self.leftbox.pack_start(self.groupgui.gtk,
+                                expand=True, fill=True, padding=0)
 
         # Selection operations on the right side of the page.
         self.selectiongui = SelectionGUI(self)
-        self.mainpane.pack2(self.selectiongui.gtk, resize=0, shrink=0)
+        self.mainpane.pack2(self.selectiongui.gtk, resize=False, shrink=False)
 
         switchboard.requestCallbackMain(("new who", "Microstructure"),
                                         self.new_microstructure)
@@ -179,10 +192,8 @@ class SkeletonSelectionPage(oofGUI.MainPage):
     def installed(self):
         if not self.built:
             # initialize, arbitrarily, to the first mode listed
-            self.pickerCB(None,
-                          self.modedict[skeletonselmodebase.firstMode().name])
+            self.set_mode(self.modedict[skeletonselmodebase.firstMode().name])
             self.built = True
-
 
     def getCurrentSkeletonName(self):
         return self.skelwidget.get_value()
@@ -203,8 +214,6 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         except KeyError:
             return None
         
-            
-
     # Must run on a subthread, because of the lock.
     def selectionSize(self):
         debug.subthreadTest()
@@ -213,7 +222,8 @@ class SkeletonSelectionPage(oofGUI.MainPage):
             skelcontext.begin_reading()
             try:
                 if not skelcontext.defunct():
-                    return self.activemode.getSelectionContext(skelcontext).size()
+                    ctxt = self.activemode.getSelectionContext(skelcontext)
+                    return ctxt.size()
             finally:
                 skelcontext.end_reading()
         return 0
@@ -241,24 +251,29 @@ class SkeletonSelectionPage(oofGUI.MainPage):
         if skelcontext:
             n, m = self.selectionSizeAndMax()    # requires subthread
             if m > 0:
-                status_text = " %d %s%s selected (%g%%)." % \
+                status_text = "%d %s%s selected (%g%%)." % \
                     (n, self.activemode.name(), 's'*(n!=1), 100.*n/m)
             else:
-                status_text = " 0 %s%s selected." % \
+                status_text = "0 %s%s selected." % \
                     (self.activemode.name(), 's'*(n!=1))
         else:
             status_text = "No Skeleton selected."
 
-        mainthread.runBlock(self.status.set_text, (status_text,))
+        mainthread.runBlock(self.status.get_buffer().set_text, (status_text,))
         gtklogger.checkpoint("skeleton selection page updated")
-
         
-    def pickerCB(self, gtk, modedata):  # new selection mode chosen
+    def pickerCB(self, radiobutton, modedata):  # new selection mode chosen
+        # This is called for the button that's turned off as well as
+        # the one that's turned on, so check before doing anything.
+        if radiobutton.get_active():
+            self.set_mode(modedata)
+
+    def set_mode(self, modedata):
         self.statusframe.set_label(modedata.name() + ' Selection Status')
         self.activemode = modedata
         self.groupgui.pickerCB(modedata)
         self.selectiongui.pickerCB(modedata)
-        self.update()                   # doesn't set self.activemode anymore
+        self.update()       # doesn't set self.activemode anymore
 
     def skelwidgetCB(self, interactive): # skeleton widget sb callback
         debug.mainthreadTest()
@@ -317,14 +332,14 @@ class SkeletonSelectionPage(oofGUI.MainPage):
 # selected by the mesh widget.  The GroupGUI has a local selection
 # state.
 
-class GroupGUI:
+class GroupGUI(object):
     def __init__(self, parent):
         debug.mainthreadTest()
         self.parent = parent
-        self.gtk = gtk.Frame()
+        self.gtk = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
         gtklogger.setWidgetName(self.gtk, 'Groups')
-        self.gtk.set_shadow_type(gtk.SHADOW_IN)
-        box = gtk.HBox(spacing=2)
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                      margin=2)
         self.gtk.add(box)
         # Set in chooserCB, the widget callback for the chooser list.
         self.current_group_name = None
@@ -335,117 +350,135 @@ class GroupGUI:
         self.groupandselectionbuttons = []
 
         # Left-hand button box.  New/Auto/Rename/Copy/Delete/DeleteAll
-        lbuttons = gtk.VBox(spacing=2)
-        box.pack_start(lbuttons, fill=0, expand=0)
+        lbuttons = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        box.pack_start(lbuttons, fill=False, expand=False, padding=0)
 
-        self.new_button = gtk.Button("New...")
+        self.new_button = Gtk.Button("New...")
         gtklogger.setWidgetName(self.new_button, 'New')
-        lbuttons.pack_start(self.new_button, fill=0, expand=0)
+        lbuttons.pack_start(self.new_button,
+                            fill=False, expand=False, padding=0)
         gtklogger.connect(self.new_button, "clicked", self.newGroupCB)
-        tooltips.set_tooltip_text(self.new_button,"Create a new empty group.")
+        self.new_button.set_tooltip_text("Create a new empty group.")
 
-        self.auto_button = gtk.Button("Auto")
+        self.auto_button = Gtk.Button("Auto")
         gtklogger.setWidgetName(self.auto_button, 'Auto')
-        lbuttons.pack_start(self.auto_button, fill=0, expand=0)
+        lbuttons.pack_start(self.auto_button,
+                            fill=False, expand=False, padding=0)
         gtklogger.connect(self.auto_button, 'clicked', self.autoGroupCB)
-        tooltips.set_tooltip_text(self.auto_button,
+        self.auto_button.set_tooltip_text(
             "Automatically create groups from the current pixel groups.")
         
-        self.rename_button = gtk.Button("Rename...")
+        self.rename_button = Gtk.Button("Rename...")
         gtklogger.setWidgetName(self.rename_button, 'Rename')
-        lbuttons.pack_start(self.rename_button, fill=0, expand=0)
+        lbuttons.pack_start(self.rename_button,
+                            fill=False, expand=False, padding=0)
         self.groupbuttons.append(self.rename_button)
         gtklogger.connect(self.rename_button, "clicked", self.renameGroupCB)
-        tooltips.set_tooltip_text(self.rename_button,"Rename the selected group.")
+        self.rename_button.set_tooltip_text("Rename the selected group.")
 
-        self.copy_button = gtk.Button("Copy...")
+        self.copy_button = Gtk.Button("Copy...")
         gtklogger.setWidgetName(self.copy_button, 'Copy')
-        lbuttons.pack_start(self.copy_button, fill=0, expand=0)
+        lbuttons.pack_start(self.copy_button,
+                            fill=False, expand=False, padding=0)
         self.groupbuttons.append(self.copy_button)
         gtklogger.connect(self.copy_button, "clicked", self.copyGroupCB)
-        tooltips.set_tooltip_text(self.copy_button,"Copy the selected group.")
+        self.copy_button.set_tooltip_text("Copy the selected group.")
 
-        self.delete_button = gtk.Button("Delete")
+        self.delete_button = Gtk.Button("Delete")
         gtklogger.setWidgetName(self.delete_button, 'Delete')
-        lbuttons.pack_start(self.delete_button, fill=0, expand=0)
+        lbuttons.pack_start(self.delete_button,
+                            fill=False, expand=False, padding=0)
         self.groupbuttons.append(self.delete_button)
         gtklogger.connect(self.delete_button, "clicked", self.deleteGroupCB)
-        tooltips.set_tooltip_text(self.delete_button,"Deleted the selected group.")
+        self.delete_button.set_tooltip_text("Deleted the selected group.")
 
-        self.deleteAll_button = gtk.Button("Delete All")
+        self.deleteAll_button = Gtk.Button("Delete All")
         gtklogger.setWidgetName(self.deleteAll_button, 'DeleteAll')
-        lbuttons.pack_start(self.deleteAll_button, fill=0, expand=0)
+        lbuttons.pack_start(self.deleteAll_button,
+                            fill=False, expand=False, padding=0)
         gtklogger.connect(self.deleteAll_button, 'clicked', self.deleteAllCB)
-        tooltips.set_tooltip_text(self.deleteAll_button,"Delete all groups.")
+        self.deleteAll_button.set_tooltip_text("Delete all groups.")
         
         # Groups list.
         self.grouplist = chooser.ScrolledChooserListWidget(
-            callback=self.chooserCB, name="GroupList")
-        box.pack_start(self.grouplist.gtk, fill=1, expand=1)
+            callback=self.chooserCB, name="GroupList",
+            margin_top=2, margin_bottom=2)
+        box.pack_start(self.grouplist.gtk, fill=True, expand=True, padding=0)
         
         # Right-hand button box.  Add/Remove/Clear/ClearAll/Info
-        rbuttons = gtk.VBox(spacing=2)
-        box.pack_start(rbuttons, fill=0, expand=0)
+        rbuttons = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        box.pack_start(rbuttons, fill=False, expand=False, padding=0)
 
-        self.add_button = gtk.Button("Add")
+        self.add_button = Gtk.Button("Add")
         gtklogger.setWidgetName(self.add_button, 'Add')
-        rbuttons.pack_start(self.add_button, fill=0, expand=0)
+        rbuttons.pack_start(self.add_button,
+                            fill=False, expand=False, padding=0)
         self.groupandselectionbuttons.append(self.add_button)
         gtklogger.connect(self.add_button, "clicked", self.addToGroupCB)
-        tooltips.set_tooltip_text(self.add_button,
+        self.add_button.set_tooltip_text(
             "Add the currently selected pixels to the selected group.")
 
-        self.remove_button = gtk.Button("Remove")
+        self.remove_button = Gtk.Button("Remove")
         gtklogger.setWidgetName(self.remove_button, 'Remove')
-        rbuttons.pack_start(self.remove_button, fill=0, expand=0)
+        rbuttons.pack_start(self.remove_button,
+                            fill=False, expand=False, padding=0)
         self.groupandselectionbuttons.append(self.remove_button)
         gtklogger.connect(self.remove_button, "clicked", self.removeFromGroupCB)
-        tooltips.set_tooltip_text(self.remove_button,
-              "Remove the currently selected pixels from the selected group.")
+        self.remove_button.set_tooltip_text(
+            "Remove the currently selected pixels from the selected group.")
         
-        self.clear_button = gtk.Button("Clear")
+        self.clear_button = Gtk.Button("Clear")
         gtklogger.setWidgetName(self.clear_button, 'Clear')
-        rbuttons.pack_start(self.clear_button, fill=0, expand=0)
+        rbuttons.pack_start(self.clear_button,
+                            fill=False, expand=False, padding=0)
         gtklogger.connect(self.clear_button, "clicked", self.clearGroupCB)
-        tooltips.set_tooltip_text(self.clear_button,
+        self.clear_button.set_tooltip_text(
             "Remove all pixels from the selected group.")
 
-        self.clearAll_button = gtk.Button("Clear All")
+        self.clearAll_button = Gtk.Button("Clear All")
         gtklogger.setWidgetName(self.clearAll_button, 'ClearAll')
-        rbuttons.pack_start(self.clearAll_button, fill=0, expand=0)
+        rbuttons.pack_start(self.clearAll_button,
+                            fill=False, expand=False, padding=0)
         gtklogger.connect(self.clearAll_button, "clicked", self.clearAllCB)
-        tooltips.set_tooltip_text(self.clearAll_button,
+        self.clearAll_button.set_tooltip_text(
             "Remove all pixels from all groups.")
 
-        self.info_button = gtk.Button("Info")
+        self.info_button = Gtk.Button("Info")
         gtklogger.setWidgetName(self.info_button, 'Info')
-        rbuttons.pack_start(self.info_button, fill=0, expand=0)
+        rbuttons.pack_start(self.info_button,
+                            fill=False, expand=False, padding=0)
         self.groupbuttons.append(self.info_button)
         gtklogger.connect(self.info_button, "clicked", self.queryGroupCB)
-        tooltips.set_tooltip_text(self.info_button,
-            "Display information about the selected group in the OOF Messages window.")
+        self.info_button.set_tooltip_text(
+            "Display information about the selected group in the"
+            " OOF Messages window.")
         
         ## TODO: Hide this frame when mode.materialsallowed is False.
-        matframe = gtk.Frame("Material")
-#        matframe.set_shadow_type(gtk.SHADOW_IN)
-        rbuttons.pack_start(matframe, expand=0, fill=0, padding=3)
-        matbox = gtk.VBox(spacing=2)
+        matframe = Gtk.Frame(label="Material", shadow_type=Gtk.ShadowType.IN,
+                             valign=Gtk.Align.END)
+        rbuttons.pack_end(matframe, expand=False, fill=False, padding=0)
+        matbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2,
+                         margin_start=2, margin_end=2, margin_bottom=2)
         matframe.add(matbox)
 
-        self.addmaterial_button = gtk.Button("Assign")
+        self.addmaterial_button = Gtk.Button("Assign")
         gtklogger.setWidgetName(self.addmaterial_button, 'AddMaterial')
-        matbox.pack_start(self.addmaterial_button, fill=0, expand=0)
+        matbox.pack_start(self.addmaterial_button,
+                          fill=False, expand=False, padding=0)
         gtklogger.connect(self.addmaterial_button, "clicked",
                           self.addMaterialCB)
-        tooltips.set_tooltip_text(self.addmaterial_button,
-            "Assign a material to the members of the selected group.")
+        self.addmaterial_button.set_tooltip_text(
+            "Assign a material to the members of the selected group."
+            " This overrides any material assigned to the pixels.")
 
-        self.removematerial_button = gtk.Button("Remove")
-        matbox.pack_start(self.removematerial_button, fill=0, expand=0)
+        self.removematerial_button = Gtk.Button("Remove")
+        matbox.pack_start(self.removematerial_button,
+                          fill=False, expand=False, padding=0)
         gtklogger.connect(self.removematerial_button, "clicked",
                           self.removeMaterialCB)
-        tooltips.set_tooltip_text(self.removematerial_button,
-            "Remove an explicitly assigned material from the members of the selected group.")
+        self.removematerial_button.set_tooltip_text(
+            "Remove an explicitly assigned material from the members"
+            " of the selected group.")
         
         # Need to be notified when groupset memberships change.
         switchboard.requestCallback("groupset member added", self.group_added),
@@ -456,7 +489,8 @@ class GroupGUI:
                                     self.group_resized)
         switchboard.requestCallback("new pixel group", self.pxlgroup_added)
         switchboard.requestCallback("destroy pixel group", self.pxlgroup_added)
-      
+
+        self.sensitize()
 
     def show(self):
         debug.mainthreadTest()
@@ -507,11 +541,8 @@ class GroupGUI:
             self.update_grouplist(names, map(gset.displayString, names))
             mainthread.runBlock(self.grouplist.set_selection,
                                     (name,) )
-            self.sensitize_subthread() #  TODO: Remove this line.  May
-                                       #  require re-recording gui
-                                       #  tests.
-
-        self.sensitize_subthread()
+        else:
+            self.sensitize_subthread()
         switchboard.notify("redraw skeletongroups", skelcontext)
 
     def groupset_changed(self, skelcontext, gset):
@@ -524,8 +555,8 @@ class GroupGUI:
             finally:
                 skelcontext.end_reading()
             self.update_grouplist(names, map(gset.displayString, names))
-        # Must sensitize -- if the current group has become empty, the
-        # "clear" button's sensitivity will have changed.
+        # Must sensitize -- if the current group has become empty,
+        # the "clear" button's sensitivity will have changed.
         self.sensitize_subthread()
         switchboard.notify("redraw skeletongroups", skelcontext)    
 
@@ -539,10 +570,8 @@ class GroupGUI:
             finally:
                 skelcontext.end_reading()
             self.update_grouplist(names, map(gset.displayString, names))
-
         # Must sensitize -- if the resize was to or away from size 0,
         # the clear button needs updating.
-        #  mainthread.runBlock(self.sensitize)
         self.sensitize_subthread()
 
     def pxlgroup_added(self, group, *args):
@@ -556,8 +585,9 @@ class GroupGUI:
         menuitem = self.activemode().getGroupMenu().New_Group
         group_param = menuitem.get_arg('name')
         if parameterwidgets.getParameters(
-            group_param,
-            title='Create a new %s group' % self.activemode().name()):
+                group_param,
+                parentwindow=self.gtk.get_toplevel(),
+                title='Create a new %s group' % self.activemode().name()):
             menuitem.callWithDefaults(skeleton=skelpath)
 
     def autoGroupCB(self, gtkobj): # "auto group" button callback
@@ -573,7 +603,9 @@ class GroupGUI:
         new_group_param = menuitem.get_arg('new_name')
         new_group_param.value = current_group
         if parameterwidgets.getParameters(
-            new_group_param, title='Rename group %s' % current_group):
+                new_group_param,
+                parentwindow=self.gtk.get_toplevel(),
+                title='Rename group %s' % current_group):
             menuitem.callWithDefaults(skeleton=skelpath,
                                       group=current_group)
 
@@ -584,8 +616,9 @@ class GroupGUI:
         menuitem = self.activemode().getGroupMenu().Copy_Group
         new_group_param = menuitem.get_arg('new_name')
         if parameterwidgets.getParameters(
-            new_group_param,
-            title='Copy group %s' % current_group):
+                new_group_param,
+                parentwindow=self.gtk.get_toplevel(),
+                title='Copy group %s' % current_group):
             menuitem.callWithDefaults(skeleton=skelpath,
                                       group=current_group)
 
@@ -640,8 +673,9 @@ class GroupGUI:
         current_group = self.grouplist.get_value()
         menuitem = self.activemode().getGroupMenu().Assign_Material
         if parameterwidgets.getParameters(
-            menuitem.get_arg('material'),
-            title="Assign a material to a %s group" % self.activemode().name()):
+                menuitem.get_arg('material'),
+                parentwindow=self.gtk.get_toplevel(),
+                title="Assign a material to a %s group" % self.activemode().name()):
             menuitem.callWithDefaults(skeleton=skelpath, group=current_group)
 
     def removeMaterialCB(self, gtkobj):
@@ -660,7 +694,8 @@ class GroupGUI:
     def pickerCB(self, mode):
         self.gtk.set_label(mode.name() + " group operations")
         self.draw_grouplist()
-        self.sensitize()
+        # Don't call self.sensitize here.  It's already been called
+        # via self.draw_grouplist.
 
     def draw_grouplist(self):
         groupset = self.getGroupSet()
@@ -674,9 +709,12 @@ class GroupGUI:
     def update_grouplist(self, names, objs):
         mainthread.runBlock(self.update_grouplist_thread, (names, objs))
     def update_grouplist_thread(self, names, objs):
-        self.grouplist.update(names, objs)
-        gtklogger.checkpoint("skeleton selection page grouplist")
-            
+        # Updating the chooser calls self.chooserCB, which calls
+        # self.sensisitize, so methods that call update_grouplist
+        # should *not* call sensitize.
+        self.grouplist.update(names, objs) 
+        gtklogger.checkpoint("skeleton selection page grouplist "
+                             + self.activemode().name())
 
     # This little two-step is required because the selectionSize()
     # query locks the selection object, and so can't be on the main
@@ -744,30 +782,38 @@ class GroupGUI:
 
         self.addmaterial_button.set_sensitive(matok)
         self.removematerial_button.set_sensitive(matok)
-        
-        gtklogger.checkpoint("skeleton selection page groups sensitized")
+        gtklogger.checkpoint("skeleton selection page groups sensitized "
+                             + self.activemode().name())
+                             
             
-class SelectionGUI:
+class SelectionGUI(object):
     def __init__(self, parent):
         debug.mainthreadTest()
         self.parent = parent
-        self.gtk = gtk.Frame()
+        self.gtk = Gtk.Frame(
+            shadow_type=Gtk.ShadowType.IN,
+            margin_start=gtkutils.handle_padding, margin_end=2,
+            margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(self.gtk, 'Selection')
-        self.gtk.set_shadow_type(gtk.SHADOW_IN)
-        self.vbox = gtk.VBox()
+        self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(self.vbox)
 
-        self.actionbox = gtk.VBox()
-        self.vbox.pack_start(self.actionbox, expand=1, fill=1)
+        self.actionbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                 spacing=2)
+        self.vbox.pack_start(self.actionbox, expand=True, fill=True, padding=0)
 
-        self.historyline = gtk.VBox()
-        self.vbox.pack_start(self.historyline, expand=0, fill=0, padding=4)
+        self.historyline = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                   spacing=2)
+        self.vbox.pack_start(self.historyline,
+                             expand=False, fill=False, padding=0)
 
         for modeobj in parent.modedict.values():
             modeobj.factory = regclassfactory.RegisteredClassFactory(
                 modeobj.mode.modifierclass.registry,
-                title="Action: ",
-                scope=parent, name=modeobj.name()+"Action")
+                title="Method= ",
+                scope=parent, name=modeobj.name()+"Action",
+                shadow_type=Gtk.ShadowType.NONE
+            )
             modeobj.historybox = HistoryBox(self.setCB, self.okCB)
             gtklogger.setWidgetName(modeobj.historybox.gtk,
                                     modeobj.name()+"History")
@@ -780,51 +826,58 @@ class SelectionGUI:
                                             modeobj.validityChangeCB)
 
         # Slightly misleading name, includes undo, redo and clear.
-        self.undoredoline = gtk.HBox()
+        self.undoredoline = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                                    spacing=2, margin_start=2, margin_end=2,
+                                    margin_bottom=2)
         
-        self.undo_button = gtk.Button(stock=gtk.STOCK_UNDO)
+        self.undo_button = gtkutils.StockButton('edit-undo-symbolic', 'Undo')
         gtklogger.setWidgetName(self.undo_button, 'Undo')
         gtklogger.connect(self.undo_button, "clicked", self.undoCB)
-        tooltips.set_tooltip_text(self.undo_button,
+        self.undo_button.set_tooltip_text(
             "Undo the latest selection operation.")
-        self.undoredoline.pack_start(self.undo_button, expand=1, fill=0)
+        self.undoredoline.pack_start(self.undo_button, expand=True, fill=False,
+                                     padding=0)
 
-        self.redo_button = gtk.Button(stock=gtk.STOCK_REDO)
+        self.redo_button = gtkutils.StockButton('edit-redo-symbolic', 'Redo')
         gtklogger.setWidgetName(self.redo_button, 'Redo')
         gtklogger.connect(self.redo_button, "clicked", self.redoCB)
-        tooltips.set_tooltip_text(self.redo_button,
+        self.redo_button.set_tooltip_text(
             'Redo the latest undone selection operation.')
-        self.undoredoline.pack_start(self.redo_button, expand=1, fill=0)
+        self.undoredoline.pack_start(self.redo_button,
+                                     expand=True, fill=False, padding=0)
 
-        self.clear_button = gtk.Button(stock=gtk.STOCK_CLEAR)
+        self.clear_button = gtkutils.StockButton('edit-clear-symbolic', 'Clear')
         gtklogger.setWidgetName(self.clear_button, 'Clear')
         gtklogger.connect(self.clear_button, "clicked", self.clearCB)
-        tooltips.set_tooltip_text(self.clear_button,
+        self.clear_button.set_tooltip_text(
             'Reset selection by clearing the current selection.')        
-        self.undoredoline.pack_start(self.clear_button, expand=1, fill=0)
+        self.undoredoline.pack_start(self.clear_button,
+                                     expand=True, fill=False, padding=0)
 
-        self.invert_button = gtk.Button("Invert")
+        self.invert_button = Gtk.Button("Invert")
         gtklogger.setWidgetName(self.invert_button, 'Invert')
         gtklogger.connect(self.invert_button, "clicked", self.invertCB)
-        tooltips.set_tooltip_text(self.invert_button,'Toggle the current selection.')
-        self.undoredoline.pack_start(self.invert_button, expand=1, fill=0)
+        self.invert_button.set_tooltip_text('Toggle the current selection.')
+        self.undoredoline.pack_start(self.invert_button,
+                                     expand=True, fill=False, padding=0)
         
-        self.vbox.pack_start(self.undoredoline, expand=0, fill=0, padding=2)
+        self.vbox.pack_start(self.undoredoline,
+                             expand=False, fill=False, padding=0)
 
         # Add all the action and history widgets.  They do not
         # all get shown, see this class's "show" routine for the drill.
         for modeobj in parent.modedict.values():
-            self.actionbox.pack_start(modeobj.factory.gtk, expand=1, fill=1)
+            self.actionbox.pack_start(modeobj.factory.gtk,
+                                      expand=True, fill=True, padding=0)
             self.historyline.pack_start(modeobj.historybox.gtk,
-                                        expand=0, fill=0)
+                                        expand=False, fill=False, padding=0)
 
         self.sensitize()
 
     def activemode(self):
         return self.parent.activemode
     
-    # Check the current index, and show the appropriate factory
-    # and historybox.
+    # Show the appropriate factory and historybox.
     def show(self):
         debug.mainthreadTest()
         self.gtk.show()
@@ -935,36 +988,38 @@ class SelectionGUI:
         self.redo_button.set_sensitive(r and skelok)
         self.activemode().historybox.sensitize()
         self.activemode().ok_sensitize()
-        gtklogger.checkpoint("skeleton selection page selection sensitized")
+        gtklogger.checkpoint("skeleton selection page selection sensitized "
+                             + self.activemode().name())
         
-class HistoryBox:
+class HistoryBox(object):
     def __init__(self, set_callback, ok_callback):
         debug.mainthreadTest()
-        self.gtk = gtk.HBox()
+        self.gtk = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
         self.set_callback = set_callback
-        self.historian = historian.Historian(self.setCB,
-                                             self.sensitize)
+        self.historian = historian.Historian(self.setCB, self.sensitize)
 
         # Buttons:  Previous, OK, and next.
-        self.prevbutton = gtkutils.prevButton()
+        self.prevbutton = gtkutils.prevButton(margin_start=2)
         gtklogger.connect(self.prevbutton, "clicked", self.historian.prevCB)
-        tooltips.set_tooltip_text(self.prevbutton,
+        self.prevbutton.set_tooltip_text(
             "Recall the previous selection modification operation.")
-        self.gtk.pack_start(self.prevbutton, expand=0, fill=0, padding=2)
+        self.gtk.pack_start(self.prevbutton,
+                            expand=False, fill=False, padding=0)
 
-        self.okbutton = gtk.Button(stock=gtk.STOCK_OK)
+        self.okbutton = gtkutils.StockButton('gtk-ok', 'OK')
         gtklogger.setWidgetName(self.okbutton, 'OK')
         gtklogger.connect(self.okbutton, "clicked", ok_callback)
-        self.gtk.pack_start(self.okbutton, expand=1, fill=1, padding=2)
-        tooltips.set_tooltip_text(self.okbutton,
+        self.gtk.pack_start(self.okbutton, expand=True, fill=True, padding=0)
+        self.okbutton.set_tooltip_text(
             "Perform the selection modification operation.")
-        self.okbutton.set_sensitive(0)
+        self.okbutton.set_sensitive(False)
         
-        self.nextbutton = gtkutils.nextButton()
+        self.nextbutton = gtkutils.nextButton(margin_end=2)
         gtklogger.connect(self.nextbutton, "clicked", self.historian.nextCB)
-        tooltips.set_tooltip_text(self.nextbutton,
+        self.nextbutton.set_tooltip_text(
             "Recall the next selection modification operation.")
-        self.gtk.pack_start(self.nextbutton, expand=0, fill=0, padding=2)
+        self.gtk.pack_start(self.nextbutton,
+                            expand=False, fill=False, padding=0)
         
         
     def setCB(self, object):

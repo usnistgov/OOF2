@@ -10,9 +10,11 @@
 
 # Classes and functions for reading and replaying log files.
 
-import gobject
-import gtk
+from gi.repository import GObject
+from gi.repository import Gdk
+from gi.repository import Gtk
 import sys
+import weakref
 
 import core
 import checkpoint
@@ -41,15 +43,17 @@ retrydelay = 100
 
 # maxtries limits the number of times a line that raises a
 # GtkLoggerTopFailure exception will be retried.
-maxtries = 100
+maxtries = 10
 
 ## See the README file for a description of the arguments to replay().
 
 def replay(filename, beginCB=None, finishCB=None, debugLevel=2,
-           threaded=False, exceptHook=None, rerecord=None, checkpoints=True):
+           threaded=False, exceptHook=None, rerecord=None, checkpoints=True,
+           comment_gui=False):
     logutils.set_replaying(True)
-    gobject.idle_add(GUILogPlayer(filename, beginCB, finishCB, debugLevel,
-                                  threaded, exceptHook, rerecord, checkpoints))
+    GObject.idle_add(GUILogPlayer(filename, beginCB, finishCB, debugLevel,
+                                  threaded, exceptHook, rerecord, checkpoints,
+                                  comment_gui))
 
 # A GUILogPlayer reads a log file of saved gui events and simulates them.
 
@@ -57,7 +61,7 @@ class GUILogPlayer(object):
     current = None
     def __init__(self, filename, beginCB=None, finishCB=None, debugLevel=2,
                  threaded=False, exceptHook=None, rerecord=None,
-                 checkpoints=True):
+                 checkpoints=True, comment_gui=False):
         global _threaded
         logutils.set_debugLevel(debugLevel)
         _threaded = threaded
@@ -73,7 +77,7 @@ class GUILogPlayer(object):
         self.linerunners = []
 
         if rerecord:
-            core.start(rerecord)
+            core.start(rerecord, comment_gui=comment_gui)
 
         # More than one execution line can come from a single source
         # line, if, for example, automatic pauses are inserted.  The
@@ -200,7 +204,7 @@ class GUILogLineRunner(object):
             self.status = "installed"
             if logutils.debugLevel() >= 4:
                 print >> sys.stderr, "Installing", self.srcline
-            gobject.idle_add(self, priority=gobject.PRIORITY_LOW)
+            GObject.idle_add(self, priority=GObject.PRIORITY_LOW)
     def nextLine(self):
         line = self.logrunner.getLine(self.lineno+1)
         if line:
@@ -234,7 +238,7 @@ class GUILogLineRunner(object):
         # box, and must be issued even though the previous command
         # hasn't returned.  If the previous line hasn't returned it
         # must have called Dialog.run or started up a new gtk main
-        # loop, so by keeping track of gtk.main_level() and the number
+        # loop, so by keeping track of Gtk.main_level() and the number
         # of open dialogs, we can tell when it's time to execute our
         # line.  (This is why we must redefine the Dialog class.)
         if self.logrunner.aborted:
@@ -255,8 +259,6 @@ class GUILogLineRunner(object):
             if self.status != "repeating" and self.nextLine() is not None:
                 self.nextLine().start()
 
-            if _threaded:
-                gtk.gdk.threads_enter()
             try:
                 if self.status == "installed":
                     self.status = "running"
@@ -273,30 +275,32 @@ class GUILogLineRunner(object):
                         self.logrunner.stop()
                     return result
                 except logutils.GtkLoggerTopFailure:
-                    # It's possible that the previous log line tried
-                    # to open a window, but the window hasn't actually
-                    # appeared yet.  In that case, our line will have
-                    # failed with a GtkLoggerTopFailure exception.  We
-                    # just want to keep trying (within reason) until
-                    # the window appears.  Using checkpoints to wait
-                    # until the window is mapped makes this problem
-                    # less frequent, but doesn't make it go away
-                    # entirely.
-                    self.status = "repeating"
+                    # GtkLoggerTopFailures occur when a previous log
+                    # line tried to open a window, but the window
+                    # hasn't appeared by the time that a subsequent
+                    # log line tries to access the window.  A properly
+                    # placed checkpoint can ensure that the subsequent
+                    # line doesn't execute too soon.  In case that
+                    # doesn't work, or if the checkpoint is missing, a
+                    # GtkLoggerTopFailure is ignored unless it is
+                    # repeated multiple (maxtries) times.
                     self.ntries += 1
                     if self.ntries == maxtries:
                         if logutils.debugLevel() >= 1:
                             print >> sys.stderr, \
                                   "Failed to find top-level widget after", \
                                   self.ntries, "attempts."
-                        raise
+                        self.status = "aborted"
+                        self.logrunner.abort()
+                        return False
                     # Keep trying.  By reinstalling ourself in the
                     # idle callback table and returning False
                     # (meaning, "don't repeat this callback") we move
                     # to the back of the queue.  This allows the
                     # widget we are waiting for to appear, we hope.
-                    gobject.timeout_add(retrydelay, self,
-                                        priority=gobject.PRIORITY_LOW)
+                    self.status = "repeating"
+                    GObject.timeout_add(retrydelay, self,
+                                        priority=GObject.PRIORITY_LOW)
                     return False
 
 
@@ -308,17 +312,19 @@ class GUILogLineRunner(object):
                     if self.logrunner.exceptHook:
                         if not self.logrunner.exceptHook(exc, self.srcline):
                             raise exc
+                    else:
+                        raise exc
             finally:
-                gtk.gdk.flush()
-                if _threaded:
-                    gtk.gdk.threads_leave()
-        # We're still waiting for the previous line to execute. We put
-        # ourself at the back of the execution queue (by reinstalling
-        # and returning False) so that the previous line will run
-        # first.
+                Gdk.flush()
+
+        # We're still waiting for the previous line to execute. It's
+        # probably getting GtkLoggerTopFailure exceptions (see above).
+        # We put ourself at the back of the execution queue (by
+        # reinstalling and returning False) so that the previous line
+        # will run first.
         if logutils.debugLevel() >= 4:
             print >> sys.stderr, "Reinstalling", self.srcline
-        gobject.timeout_add(retrydelay, self, priority=gobject.PRIORITY_LOW)
+        GObject.timeout_add(retrydelay, self, priority=GObject.PRIORITY_LOW)
         return False
 
     def run_postponed(self):
@@ -409,8 +415,8 @@ class PostponedLine(PerformLine):
         return False
     def report(self):
         print >> sys.stderr, "////// %d/%d (postponed) %s" % (self.srcline,
-                                                            self.nlines(),
-                                                            self.line)
+                                                              self.nlines(),
+                                                              self.line)
 
 class CommentLine(GUILogLineRunner):
     def __init__(self, logrunner, srcline, lineno, comment):
@@ -422,9 +428,8 @@ class CommentLine(GUILogLineRunner):
         self.status = "done"
         return False
     def report(self):
-        print >> sys.stderr, "###### %d/%d %s" % (self.srcline,
-                                                            self.nlines(),
-                                                            self.comment)
+        print >> sys.stderr, "###### %d/%d %s" % (self.srcline, self.nlines(),
+                                                  self.comment)
 
 class PauseLine(GUILogLineRunner):
     # Special handler for lines of the form "pause <time>".  Such
@@ -442,8 +447,8 @@ class PauseLine(GUILogLineRunner):
                 if logutils.debugLevel() >= 4:
                     print >> sys.stderr, self.srcline, \
                           "Pausing", self.delaytime, "milliseconds"
-                gobject.timeout_add(self.delaytime, self,
-                                    priority=gobject.PRIORITY_LOW)
+                GObject.timeout_add(self.delaytime, self,
+                                    priority=GObject.PRIORITY_LOW)
             elif self.status == "repeating":
                 if logutils.debugLevel() >= 4:
                     print >> sys.stderr, "Done pausing", self.srcline
@@ -471,7 +476,7 @@ class CheckPointLine(GUILogLineRunner):
             self.status = "repeating"
             if logutils.debugLevel() >= 4:
                 print >> sys.stderr, "Waiting on checkpoint", self.srcline
-            gobject.timeout_add(retrydelay, self, priority=gobject.PRIORITY_LOW)
+            GObject.timeout_add(retrydelay, self, priority=GObject.PRIORITY_LOW)
         return False
     def report(self):
         print >> sys.stderr, "////// %d/%d checkpoint %s" %(self.srcline,
@@ -489,20 +494,72 @@ findMenu = logutils.findMenu
 findCellRenderer = logutils.findCellRenderer
 setComboBox = logutils.setComboBox
 
-# Utility function for creating a gtk.gdk.Event object.  "etype" must
-# be an event type (gtk.gdk.BUTTON_PRESS, for example).  "kwargs" can
-# contain attributes of the event object.  It almost certainly should
-# include the "window" attribute, which must be set to a
-# gtk.gdk.Window.  (For gtk.Widgets, this is just Widget.window.  For
-# adopted GObjects, it's harder to get the correct gdk.Window into the
-# log...)
+# Utility function for creating a Gdk.Event object. "etype" should be
+# a GdkEventType, such as Gdk.EventType.BUTTON_PRESS.  kwargs contains
+# attributes that will be assigned to the event.  It almost certainly
+# should include the "window" attribute, which must be set to a
+# Gdk.Window.  For Gtk.Widgets, this is just Widget.get_window().
 
-def event(etype, **kwargs):
-    ev = gtk.gdk.Event(etype)
+def buildEvent(etype, **kwargs):
+    ev = Gdk.Event.new(etype)
+    if hasattr(ev, 'time'):
+        ev.time = Gtk.get_current_event_time()
+    if hasattr(ev, 'set_device'):
+        disp = Gdk.Display.get_default()
+        ev.set_device(disp.list_devices()[0])
     for arg, val in kwargs.items():
+        if logutils.debugLevel() > 0:
+            if not hasattr(ev, arg):
+                print >> sys.stderr, "Event", etype, "has no attribute", arg
         setattr(ev, arg, val)
     return ev
-        
+
+# event() and wevent() can be used in log files to recreate events.
+# The gtk documentation is vague on how to do this correctly, because
+# apparently it's not a good idea.  wevent() uses GtkWidget.event(),
+# which ensures that the event is associated with the correct widget.
+# However the docs say to use Gtk.main_do_event() instead, so that the
+# event will behave as if it's in the event queue.  However,
+# main_do_event() takes a window and a position as arguments, not a
+# widget, and sometimes the wrong widget responds when replaying a log
+# file.
+
+def event(etype, **kwargs):
+    ev = buildEvent(etype, **kwargs)
+    Gtk.main_do_event(ev)
+
+def wevent(widget, etype, **kwargs):
+    ev = buildEvent(etype, **kwargs)
+    widget.event(ev)
+
+
+# Pop-up menus sometimes need to be explicitly closed, but it's hard
+# to tell when.  deactivatePopup() closes a popup if it can be found,
+# and silently returns if it can't.
+
+def deactivatePopup(name):
+    try:
+        menu = logutils.getTopLevelWidget(name)
+    except logutils.GtkLoggerTopFailure:
+        return
+    menu.deactivate()
+
+# weakRef returns a weak reference to its argument, or if the argument
+# is None, it returns a function that returns None.  This way, a log
+# file can contain lines like this:
+#   widget = weakRef(findWidget(...))
+#   if widget(): ...
+# even if findWidget(...) might return None.  This also makes it easy to
+# avoid using strong references in log files, which might have side effects.
+
+def weakRef(obj):
+    if obj is None:
+        return noneFunc
+    return weakref.ref(obj)
+
+def noneFunc():
+    return None
+
 ####################
 
 ## replayDefine adds an object to the namespace used while replaying
@@ -511,5 +568,7 @@ def event(etype, **kwargs):
 ## module containing it) should be injected into the namespace using
 ## replayDefine.
 
-def replayDefine(obj):
-    sys.modules[__name__].__dict__[obj.__name__] = obj
+def replayDefine(obj, name=None):
+    nm = name or obj.__name__
+    sys.modules[__name__].__dict__[nm] = obj
+

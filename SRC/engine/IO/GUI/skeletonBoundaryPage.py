@@ -14,18 +14,33 @@ from ooflib.common import labeltree
 from ooflib.common import utils
 from ooflib.common.IO import whoville
 from ooflib.common.IO.GUI import chooser
-from ooflib.common.IO.GUI import fixedwidthtext
 from ooflib.common.IO.GUI import gtklogger
+from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import boundarybuilder
 from ooflib.engine import skeletoncontext
 from ooflib.engine.IO import boundarymenu
-import gtk
+
+from gi.repository import Gtk
 
 # TODO: Display interface material, if any.
+
+
+# A separator is inserted in the list of boundary names between
+# the edge boundaries and the point boundaries.  (The separator is
+# a meta-boundary!)  This is done by including a string unlikely
+# to be a boundary name in the list of names sent to the
+# ChooserListWidget, and giving the widget a separator_func that
+# looks for the string.
+    
+separator_proxy = "a string unlikely to be a boundary name"
+    
+def chooserSepFunc(model, iter):
+    return model[iter][0] == separator_proxy
+        
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class SkeletonBoundaryPage(oofGUI.MainPage):
     def __init__(self):
@@ -34,38 +49,41 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
                                  ordering = 150,
                                  tip = "Create and orient boundaries.")
 
-        mainbox = gtk.VBox(spacing=2)
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        align.add(centerbox)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                            halign=Gtk.Align.CENTER, spacing=2, margin_top=2)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         
         self.skelwidget = whowidget.WhoWidget(whoville.getClass('Skeleton'),
                                               scope=self)
         switchboard.requestCallbackMain(self.skelwidget,
                                         self.widgetChanged)
-        label = gtk.Label('Microstructure=')
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.skelwidget.gtk[0], expand=0, fill=0)
-        label = gtk.Label('Skeleton=')
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.skelwidget.gtk[1], expand=0, fill=0)
+        label = Gtk.Label('Microstructure=', halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.skelwidget.gtk[0],
+                             expand=False, fill=False, padding=0)
+        label = Gtk.Label('Skeleton=', halign=Gtk.Align.END, margin_start=5)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.skelwidget.gtk[1],
+                             expand=False, fill=False, padding=0)
 
-        mainpane = gtk.HPaned()
+        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                             wide_handle=True)
         gtklogger.setWidgetName(mainpane, 'Pane')
-        mainbox.pack_start(mainpane, expand=1, fill=1)
+        mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
 
-        boundarylistframe = gtk.Frame("Boundaries")
+        boundarylistframe = Gtk.Frame(
+            label="Boundaries", shadow_type=Gtk.ShadowType.IN,
+            margin_start=2, margin_end=gtkutils.handle_padding,
+            margin_top=2, margin_bottom=2)
         gtklogger.setWidgetName(boundarylistframe, 'Boundaries')
-        boundarylistframe.set_shadow_type(gtk.SHADOW_IN)
-        mainpane.pack1(boundarylistframe, resize=0, shrink=0)
+        mainpane.pack1(boundarylistframe, resize=False, shrink=False)
 
-        boundarylistbox = gtk.VBox()
+        boundarylistbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
+                                  spacing=2)
         boundarylistframe.add(boundarylistbox)
 
         # List of all the boundaries.
@@ -74,40 +92,48 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
             dbcallback=self.modifyBoundaryCB,
             autoselect=0,
             name="BoundaryList",
-            separator_func=self.chooserSepFunc)
-        boundarylistbox.pack_start(self.boundarylist.gtk, expand=1, fill=1)
+            separator_func=chooserSepFunc, margin=2)
+        boundarylistbox.pack_start(self.boundarylist.gtk,
+                                   expand=True, fill=True, padding=0)
 
-        boundarybuttonbox = gtk.HBox(homogeneous=1, spacing=2)
-        boundarylistbox.pack_start(boundarybuttonbox, expand=0, fill=0)
+        boundarybuttonbox = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, homogeneous=True,
+            spacing=2, margin_bottom=2, margin_start=2, margin_end=2)
+        boundarylistbox.pack_start(boundarybuttonbox,
+                                   expand=False, fill=False, padding=0)
 
         # Buttons that actually do stuff.
-        self.newbutton = gtk.Button("New...")
+        self.newbutton = Gtk.Button("New...")
         gtklogger.setWidgetName(self.newbutton, 'New')
         gtklogger.connect(self.newbutton, "clicked", self.newBoundaryCB)
-        tooltips.set_tooltip_text(self.newbutton,
-                             "Construct a new boundary in the skeleton and associated meshes.")
-        boundarybuttonbox.pack_start(self.newbutton, expand=1, fill=1)
+        self.newbutton.set_tooltip_text(
+            "Construct a new boundary in the skeleton and associated meshes.")
+        boundarybuttonbox.pack_start(self.newbutton,
+                                     expand=True, fill=True, padding=0)
 
-        self.editbutton = gtk.Button("Modify...")
+        self.editbutton = Gtk.Button("Modify...")
         gtklogger.setWidgetName(self.editbutton, 'Modify')
         gtklogger.connect(self.editbutton, "clicked", self.modifyBoundaryCB)
-        tooltips.set_tooltip_text(self.editbutton,
-                             "Modify the attributes of the selected boundary.")
-        boundarybuttonbox.pack_start(self.editbutton, expand=1, fill=1)
+        self.editbutton.set_tooltip_text(
+            "Modify the attributes of the selected boundary.")
+        boundarybuttonbox.pack_start(self.editbutton,
+                                     expand=True, fill=True, padding=0)
         
-        self.renamebutton = gtk.Button("Rename...")
+        self.renamebutton = Gtk.Button("Rename...")
         gtklogger.setWidgetName(self.renamebutton, 'Rename')
         gtklogger.connect(self.renamebutton, "clicked", self.renameBoundaryCB)
-        tooltips.set_tooltip_text(self.renamebutton,
-                             "Rename the selected boundary.")
-        boundarybuttonbox.pack_start(self.renamebutton, expand=1, fill=1)
+        self.renamebutton.set_tooltip_text("Rename the selected boundary.")
+        boundarybuttonbox.pack_start(self.renamebutton,
+                                     expand=True, fill=True, padding=0)
 
-        self.deletebutton = gtk.Button("Delete")
+        self.deletebutton = Gtk.Button("Delete")
         gtklogger.setWidgetName(self.deletebutton, 'Delete')
         gtklogger.connect(self.deletebutton, "clicked", self.deleteBoundaryCB)
-        tooltips.set_tooltip_text(self.deletebutton,
-                             "Delete the selected boundary from the skeleton and associated meshes.")
-        boundarybuttonbox.pack_start(self.deletebutton, expand=1, fill=1)
+        self.deletebutton.set_tooltip_text(
+            "Delete the selected boundary from the skeleton"
+            " and associated meshes.")
+        boundarybuttonbox.pack_start(self.deletebutton,
+                                     expand=True, fill=True, padding=0)
         
         # TODO LATER: Copying could be added here -- the scenario is
         # that a user may want to make a copy of a boundary, and then
@@ -116,20 +142,24 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         # visual pointy-clicky boundary editing is added, copying will
         # make sense.
 
-        infoframe = gtk.Frame("Boundary data")
-        infoframe.set_shadow_type(gtk.SHADOW_IN)
-        mainpane.pack2(infoframe, resize=1, shrink=1)
+        infoframe = Gtk.Frame(
+            label="Boundary data", shadow_type=Gtk.ShadowType.IN,
+            margin_start=gtkutils.handle_padding, margin_end=2,
+            margin_top=2, margin_bottom=2)
+        mainpane.pack2(infoframe, resize=True, shrink=True)
 
-        infowindow = gtk.ScrolledWindow()
+        infowindow = Gtk.ScrolledWindow(shadow_type=Gtk.ShadowType.IN,
+                                        margin=2)
         gtklogger.logScrollBars(infowindow, "InfoScroll")
-        infowindow.set_shadow_type(gtk.SHADOW_IN)
         infoframe.add(infowindow)
-        infowindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        infowindow.set_policy(Gtk.PolicyType.AUTOMATIC,
+                              Gtk.PolicyType.AUTOMATIC)
         
-        self.infotext = fixedwidthtext.FixedWidthTextView()
-        self.infotext.set_wrap_mode(gtk.WRAP_WORD)
+        self.infotext = Gtk.TextView(name="fixedfont", editable=False,
+                                     wrap_mode=Gtk.WrapMode.WORD,
+                                     left_margin=5, right_margin=5,
+                                     top_margin=5, bottom_margin=5)
         gtklogger.setWidgetName(self.infotext, 'status')
-        self.infotext.set_editable(False)
         infowindow.add(self.infotext)
 
         self.built = True
@@ -170,19 +200,10 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         self.sensitize()
         gtklogger.checkpoint("boundary page updated")
 
-    # A separator is inserted in the list of boundary names between
-    # the edge boundaries and the point boundaries.  (The separator is
-    # a meta-boundary!)  This is done by including a string unlikely
-    # to be a boundary name in the list of names sent to the
-    # ChooserListWidget, and giving the widget a separator_func that
-    # looks for the string.
-    
-    separator_proxy = "a string unlikely to be a boundary name"
-
     def updateBdyList(self):
         skelctxt = self.currentSkeletonContext()
         if skelctxt:
-            names = skelctxt.edgeboundaries.keys() + [self.separator_proxy] \
+            names = skelctxt.edgeboundaries.keys() + [separator_proxy] \
                     + skelctxt.pointboundaries.keys()
             self.boundarylist.update(names)
             # If we've just switched Skeletons, we need make sure that
@@ -195,10 +216,6 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         else:
             self.boundarylist.update([])
 
-    def chooserSepFunc(self, model, iter):
-        # See comment about separators above.
-        return model[iter][0] == self.separator_proxy
-        
     def sensitize(self):
         debug.mainthreadTest()
         buttons_alive = self.boundarylist.has_selection()
@@ -284,7 +301,9 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         nameparam =  menuitem.get_arg('name')
         builderparam = menuitem.get_arg('constructor')
         if parameterwidgets.getParameters(
-            nameparam, builderparam, title="New Boundary",scope=self):
+                nameparam, builderparam,
+                parentwindow=self.gtk.get_toplevel(),
+                title="New Boundary",scope=self):
             menuitem.callWithDefaults(skeleton=self.skelwidget.get_value())
     
     def modifyBoundaryCB(self, *args): # button callback
@@ -311,8 +330,9 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         
         
         if parameterwidgets.getParameters(
-            modparam, title="Boundary modifier", scope=self,
-            dialog_data=dialog_extra):
+                modparam, title="Boundary modifier", scope=self,
+                parentwindow=self.gtk.get_toplevel(),
+                dialog_data=dialog_extra):
             menuitem.callWithDefaults(skeleton=self.skelwidget.get_value(),
                                       boundary=self.boundarylist.get_value())
 
@@ -322,7 +342,9 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         oldname = self.boundarylist.get_value()
         newname.set(oldname)
         if parameterwidgets.getParameters(
-            newname, title="New name for this boundary"):
+                newname,
+                parentwindow=self.gtk.get_toplevel(),
+                title="New name for this boundary"):
             menuitem.callWithDefaults(
                 skeleton=self.skelwidget.get_value(),
                 boundary=self.boundarylist.get_value())
@@ -332,6 +354,6 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
         menuitem(skeleton=self.skelwidget.get_value(),
                  boundary=self.boundarylist.get_value())
 
-        
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#        
     
 sbp = SkeletonBoundaryPage()

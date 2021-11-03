@@ -13,10 +13,7 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import switchboard
-if config.dimension() == 2:
-    from ooflib.SWIG.common.IO.GUI import rubberband
-elif config.dimension() == 3:
-    from ooflib.common.IO.GUI import rubberband3d as rubberband
+from ooflib.SWIG.common.IO.GUI import rubberband
 from ooflib.common import debug
 from ooflib.common import pixelselectionmethod
 from ooflib.common import primitives
@@ -24,16 +21,23 @@ from ooflib.common.IO import pixelselectiontoolbox
 from ooflib.common.IO.GUI import genericselectGUI
 from ooflib.common.IO.GUI import regclassfactory
 
+from oofcanvas import oofcanvasgui
+
+from gi.repository import Gtk
+
+## TODO: Fix these bugs:
+## * With the Point selector, clicking a single point outside the MS
+##   selects a point on the boundary.
+## * With the Rectangle selector, selecting a rectangle entirely
+##   outside the MS selects points on the boundary.
 
 class PixelSelectionMethodFactory(regclassfactory.RegisteredClassFactory):
-    def __init__(self, registry, obj=None, title=None,
-                 callback=None, fill=0, expand=0, scope=None, name=None,
-                 widgetdict={}, *args, **kwargs):
+    def __init__(self, registry, obj=None, title=None, callback=None,
+                 scope=None, name=None, widgetdict={}, **kwargs):
         self.current_who_class = None
         regclassfactory.RegisteredClassFactory.__init__(
             self, registry, obj=obj, title=title, callback=callback,
-            fill=fill, expand=expand, scope=scope, name=name,
-            widgetdict=widgetdict, *args, **kwargs)
+            scope=scope, name=name, widgetdict=widgetdict, **kwargs)
 
     def set_whoclass_name(self, name):
         self.current_who_class = name
@@ -68,9 +72,9 @@ class PixelSelectToolboxGUI(genericselectGUI.GenericSelectToolboxGUI):
             ])
 
     # In parent class, RCF is assigned to self.selectionMethodFactory
-    def methodFactory(self):
+    def methodFactory(self, **kwargs):
         return PixelSelectionMethodFactory(
-            self.method.registry, title="Method:", name="Method")
+            self.method.registry, title="Method:", name="Method", **kwargs)
     
     def activate(self):
         genericselectGUI.GenericSelectToolboxGUI.activate(self)
@@ -90,17 +94,6 @@ class PixelSelectToolboxGUI(genericselectGUI.GenericSelectToolboxGUI):
     def finish_up(self, ptlist, shift, ctrl, selmeth):
         # copy parameters from widgets to the registration
         self.selectionMethodFactory.set_defaults()
-
-        # we convert the ptlist, which uses the 2d screen
-        # coordinates to 3d coordinates using the canvas
-        if config.dimension() == 3:
-            vxllist = []
-            msOrImage = self.gfxwindow().topmost('Microstructure', 'Image')
-            if msOrImage:
-                for pt in ptlist:
-                    vxllist.append(
-                        self.gfxwindow().oofcanvas.screenCoordsTo3DCoords(pt[0], pt[1]))
-            ptlist = vxllist
         
         # Now invoke the selection method by calling the
         # corresponding toolbox menu item. The arguments are
@@ -139,9 +132,6 @@ class PixelSelectToolboxGUI(genericselectGUI.GenericSelectToolboxGUI):
         self.updateSelectionMethods()
         genericselectGUI.GenericSelectToolboxGUI.layerChangeCB(self)
         
-        
-
-
 
 #######################################
 
@@ -163,35 +153,33 @@ pixelselectiontoolbox.PixelSelectToolbox.makeGUI = _makeGUI
 ## argument.
 
 def _NoRubberBand(self, reg):
-    return rubberband.NoRubberBand()
+    return None
 pixelselectionmethod.PixelSelectionRegistration.getRubberBand = _NoRubberBand
 
 
-if config.dimension() == 2:
+def _BrushSelectorRB(reg):
+    style = reg.getParameter('style').value
+    return rubberband.BrushRubberBand(style) 
 
-    def _BrushSelectorRB(reg):
-        style = reg.getParameter('style').value
-        return rubberband.BrushRubberBand(style)
-
-    pixelselectionmethod.brushSelectorRegistration.getRubberBand = _BrushSelectorRB
+pixelselectionmethod.brushSelectorRegistration.getRubberBand = _BrushSelectorRB
 
 
-    def _RectangleSelectorRB(reg):
-        return rubberband.RectangleRubberBand()
+def _RectangleSelectorRB(reg):
+    return oofcanvasgui.RectangleRubberBand()
 
-    pixelselectionmethod.rectangleSelectorRegistration.getRubberBand = \
-                                                         _RectangleSelectorRB
-
-
-    def _CircleSelectorRB(reg):
-        return rubberband.CircleRubberBand()
-
-    pixelselectionmethod.circleSelectorRegistration.getRubberBand = \
-                                                                  _CircleSelectorRB
+pixelselectionmethod.rectangleSelectorRegistration.getRubberBand = \
+                                                     _RectangleSelectorRB
 
 
-    def _EllipseSelectorRB(reg):
-        return rubberband.EllipseRubberBand()
+def _CircleSelectorRB(reg):
+    return oofcanvasgui.CircleRubberBand()
 
-    pixelselectionmethod.ellipseSelectorRegistration.getRubberBand = \
-                                                                 _EllipseSelectorRB
+pixelselectionmethod.circleSelectorRegistration.getRubberBand = \
+                                                              _CircleSelectorRB
+
+
+def _EllipseSelectorRB(reg):
+    return oofcanvasgui.EllipseRubberBand()
+
+pixelselectionmethod.ellipseSelectorRegistration.getRubberBand = \
+                                                             _EllipseSelectorRB

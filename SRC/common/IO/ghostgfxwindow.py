@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -9,13 +8,13 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-
 # The GhostGfxWindow is the underlying non-GUI representation of a
 # graphics window.  The actual graphics window, GfxWindow, is derived
 # from GhostGfxWindow and overrides some of its functions.
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
+from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import timestamp
 from ooflib.common import color
@@ -33,9 +32,7 @@ from ooflib.common.IO import display
 from ooflib.common.IO import filenameparam
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
-from ooflib.common.IO import outputdevice
 from ooflib.common.IO import parameter
-from ooflib.common.IO import pdfoutput
 from ooflib.common.IO import placeholder
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
@@ -44,6 +41,8 @@ import copy
 import os.path
 import string
 import sys
+
+import oofcanvas
 
 FloatParameter = parameter.FloatParameter
 IntParameter = parameter.IntParameter
@@ -58,13 +57,21 @@ CheckOOFMenuItem = oofmenu.CheckOOFMenuItem
 # can all be turned on and off by setting _debuglocks.
 _debuglocks = False
 
-# TODO 3D: in 3D and in oof 3.0, the division between ghostgfxwindow
-# and the regular gfxwindow will probably not be necessary -- we still
-# need a vtkRenderWindow to save images, even if we don't display it
-# on the screen.  It will also be simplified by not using a pdf device
-# and separate device for the contourmap.
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-#######################################
+class NewLayerPolicy(enum.EnumClass(
+        ("Never", "Don't automatically create any display layers."),
+        ("Single", "Automatically add new graphics layers for Images, Skeletons, and Meshes if the graphics window doesn't contain any similar layers for other objects.  New graphics windows will automatically add layers for pre-existing objects if they are unique."),
+        ("Always", "Automatically add display layers for all newly created Images, Skeletons, and Meshes."))):
+    tip = "How the graphics window reacts when new Images, Skeletons, or Meshes are created."
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+class OutputImageFormat(enum.EnumClass(
+        "pdf", "png")):
+    pass
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class GfxSettings:
     # Stores all the settable parameters for a graphics
@@ -75,27 +82,16 @@ class GfxSettings:
 
     ## TODO: Use Python properties, instead of __setattr__.
 
-    bgcolor = color.white
+    bgcolor = color.white.opaque()
     zoomfactor = 1.5
     margin = 0.05
-    longlayernames = 0                   # Use long form of layer reprs.
-    listall = 0                          # are all layers to be listed?
-    autoreorder = 1                      # automatically reorder layers?
-    # The default value of antialias is 1 because the quartz
-    # canvas doesn't display un-antialiased images.
-    ## TODO: Find out if we're using x11 or quartz, and set
-    ## antialias=1 only if using quartz.  Or upgrade to gtk3/libcairo
-    ## and hope that the problem doesn't occur there.
-    antialias = 1
-    if config.dimension() == 2:
-        aspectratio = 5                      # Aspect ratio of the contourmap.
-        contourmap_markersize = 2            # Size in pixels of contourmap marker.
-        contourmap_markercolor = color.gray50 # Color of contourmap position marker.
-    elif config.dimension() == 3:
-        showcontourpane = 1
-        contourmap_bgcolor = color.white
-        contourmap_textcolor = color.black
-        contourpanewidth = .1
+    longlayernames = False      # Use long form of layer reprs.
+    listall = False             # are all layers to be listed?
+    antialias = True
+    aspectratio = 5             # Aspect ratio of the contourmap.
+    contourmap_markersize = 2   # Size in pixels of contourmap marker.
+    contourmap_markercolor = color.gray50 # Color of contourmap position marker.
+    newlayerpolicy = NewLayerPolicy("Never")
     def __init__(self):
         # Copy all default (class) values into local (instance) variables.
         self.__dict__['timestamps'] = {}
@@ -126,7 +122,20 @@ class GfxSettings:
 def defineGfxSetting(name, val):
     GfxSettings.__dict__[name] = val
 
-#######################################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# ContourMapData class just aggregates data related to the ContourMap
+# display, to keep the code (relatively) tidy.
+
+class ContourMapData:
+    def __init__(self):
+        self.canvas = None      # an OOFCanvas.Canvas
+        self.mouse_down = None
+        self.mark_value = None
+        self.canvas_mainlayer = None
+        self.canvas_ticklayer = None
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class GhostGfxWindow:
     initial_height = 400
@@ -134,25 +143,40 @@ class GhostGfxWindow:
     def __init__(self, name, gfxmanager, clone=0):
         self.name = name
         self.gfxmanager = gfxmanager
-        self.display = display.Display()
-        if not hasattr(self, 'device'): # may have already been set by GfxWindow
-            self.device = outputdevice.NullDevice()
-        if not hasattr(self, 'gfxlock'): # ditto
+        if not hasattr(self, 'gfxlock'):
             self.gfxlock = lock.Lock()
-        self.layerSets = []
+        self.layers = []        # DisplayMethod instances
         self.current_contourmap_method = None
         self.selectedLayer = None
+        self.layerChangeTime = timestamp.TimeStamp()
+        # displayTime is the simulation time of the displayed
+        # mesh. displayTimeChanged is the timestamp indicated when the
+        # simulation time was modified.  They are completely different
+        # sorts of time.
         self.displayTime = 0.0
         self.displayTimeChanged = timestamp.TimeStamp()
         if not hasattr(self, 'settings'):
             self.settings = GfxSettings()
 
+        self.oofcanvas = mainthread.runBlock(self.newCanvas)
+        self.oofcanvas.setAntialias(self.settings.antialias)
+        self.oofcanvas.setBackgroundColor(
+            color.canvasColor(self.settings.bgcolor))
+        self.oofcanvas.setMargin(self.settings.margin)
+
+        # Although the contour map, which displays the contour color
+        # scheme, is only used in GUI mode, the command that saves it
+        # to a file can be invoked in text mode, so the data has to
+        # exist here in GhostGfxWindow.
+        self.contourmapdata = ContourMapData()
+
         self.menu = OOF.addItem(OOFMenuItem(
             self.name,
-            secret=1,
+            secret=True,
             help = "Commands dependent on a particular Graphics window.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/graphics.xml')
-            ))
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/graphics.xml')
+        ))
 
         # Put this window into the Windows/Graphics menu, so that it
         # can be raised in graphics mode.  Since this isn't meaningful
@@ -161,7 +185,8 @@ class GhostGfxWindow:
             self.name,
             help="Raise the window named %s." % name, 
             gui_only=1,
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/graphicsraise.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/graphicsraise.xml')
             ))
         filemenu = self.menu.addItem(OOFMenuItem(
             'File',
@@ -179,36 +204,88 @@ class GhostGfxWindow:
             </para>"""
             ))
         filemenu.addItem(OOFMenuItem(
-            'Save_Image',
-            callback=self.saveImage,
+            'Save_Canvas',
+            callback=self.saveCanvas,
             ellipsis=1,
-            params=[filenameparam.WriteFileNameParameter(
-                        'filename', ident='gfxwindow',
-                        tip="Name for the image file."),
-                    filenameparam.OverwriteParameter(
-                        'overwrite',
-                        tip="Overwrite an existing file?")],
+            params=[
+                filenameparam.WriteFileNameParameter(
+                    'filename', ident='gfxwindow',
+                    tip="Name for the image file."),
+                enum.EnumParameter(
+                    "format", OutputImageFormat,
+                    value="pdf", tip="Format for the image file"),
+                filenameparam.OverwriteParameter(
+                    'overwrite',
+                    tip="Overwrite an existing file?"),
+                parameter.IntParameter(
+                    "pixels", 100,
+                    tip="Size in pixels of the largest dimension of the image."),
+                parameter.BooleanParameter(
+                    "background", True,
+                    tip="Fill the background?")                       
+            ],
             help="Save the contents of the graphics window as a pdf file.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/graphicssave.xml')
+            discussion=xmlmenudump.loadFile(
+                # TODO GTK3: Update this file
+                'DISCUSSIONS/common/menu/graphicssave.xml')
             ))
-        if config.dimension() == 2:
-            filemenu.addItem(OOFMenuItem(
-                'Save_Contourmap',
-                callback=self.saveContourmap,
-                ellipsis=1,
-                params=[filenameparam.WriteFileNameParameter(
-                            'filename', ident='gfxwindow',
-                            tip="Name for the image file."),
-                        filenameparam.OverwriteParameter(
-                            'overwrite', tip="Overwrite an existing file?"
-                            )],
-                help="Save a pdf image of the contour map.",
-                discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/graphicssavecontour.xml')))
+        filemenu.addItem(OOFMenuItem(
+            'Save_Canvas_Region',
+            callback=self.saveCanvasRegion,
+            ellipsis=1,
+            params=[
+                filenameparam.WriteFileNameParameter(
+                    'filename', ident='gfxwindow',
+                    tip='Name for the pdf image file.'),
+                enum.EnumParameter(
+                    "format", OutputImageFormat,
+                    value="pdf", tip="Format for the image file"),
+                filenameparam.OverwriteParameter(
+                    'overwrite',
+                    tip="Overwrite an existing file?"),
+                parameter.IntParameter(
+                    "pixels", 100,
+                    tip="Size of the largest dimension of the image in pixels"),
+                parameter.BooleanParameter(
+                    "background", True,
+                    tip="Fill the background?"),
+                primitives.PointParameter(
+                    "lowerleft",
+                    tip="Lower left corner of the saved region,"
+                    " in physical coordinates."),
+                primitives.PointParameter(
+                    "upperright",
+                    tip="Upper right corner of the saved region,"
+                    " in physical coordinates.")
+                ],
+            help="Save a region of the graphics window as a pdf file."))
+            
+        filemenu.addItem(OOFMenuItem(
+            'Save_Contourmap',
+            callback=self.saveContourmap,
+            ellipsis=1,
+            params=[
+                filenameparam.WriteFileNameParameter(
+                    'filename', ident='gfxwindow',
+                    tip="Name for the image file."),
+                enum.EnumParameter(
+                    "format", OutputImageFormat,
+                    value="pdf", tip="Format for the image file"),
+                filenameparam.OverwriteParameter(
+                    'overwrite', tip="Overwrite an existing file?"),
+                parameter.IntParameter(
+                    'pixels', 100,
+                    tip='Size of the largest dimension of the image in pixels')
+            ],
+            help="Save a pdf image of the contour map.",
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/graphicssavecontour.xml')))
         filemenu.addItem(OOFMenuItem(
             'Clear',
             callback=self.clear,
             help="Remove all user-defined graphics layers.",
-            discussion = xmlmenudump.loadFile('DISCUSSIONS/common/menu/graphicsclear.xml')
+            discussion = xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/graphicsclear.xml')
             ))
         filemenu.addItem(OOFMenuItem(
             'Animate',
@@ -216,23 +293,23 @@ class GhostGfxWindow:
             accel='a',
             params=[
                 placeholder.GfxTimeParameter(
-                        'start',
-                        value=placeholder.earliest,
-                        tip="Start the animation at this time."),
+                    'start',
+                    value=placeholder.earliest,
+                    tip="Start the animation at this time."),
                 placeholder.GfxTimeParameter(
-                        'finish', value=placeholder.latest,
-                        tip="End the animation at this time."),
+                    'finish', value=placeholder.latest,
+                    tip="End the animation at this time."),
                 parameter.RegisteredParameter(
-                        'times',
-                        animationtimes.AnimationTimes,
-                        tip="How to select times between 'start' and 'finish'."),
+                    'times',
+                    animationtimes.AnimationTimes,
+                    tip="How to select times between 'start' and 'finish'."),
                 parameter.FloatParameter(
-                        'frame_rate', 5.0,
-                        tip='Update the display this many times per second.'),
+                    'frame_rate', 5.0,
+                    tip='Update the display this many times per second.'),
                 parameter.RegisteredParameter(
-                        "style",
-                        animationstyle.AnimationStyle,
-                        tip="How to play the animation.")],
+                    "style",
+                    animationstyle.AnimationStyle,
+                    tip="How to play the animation.")],
             help="Animate the Mesh displayed in the graphics window.",
             discussion=xmlmenudump.loadFile(
                     'DISCUSSIONS/common/menu/animate.xml')
@@ -247,9 +324,13 @@ class GhostGfxWindow:
             This should never be necessary.
             </para>"""
             ))
+        if debug.debug():
+            filemenu.addItem(OOFMenuItem(
+                'DumpLayers',
+                callback=self.dumpLayers,
+                params=[parameter.StringParameter('filename')],
+                ))
 
-        ## This had been marked UNTHREADABLE.  Why?  Making it
-        ## unthreaded makes it hang when executed while drawing.
         filemenu.addItem(OOFMenuItem(
             'Close',
             callback=self.close,
@@ -265,11 +346,13 @@ class GhostGfxWindow:
             discussion="""<para>
             See <xref linkend='MenuItem-OOF.File.Quit'/>.
             </para>"""))
+        
         self.toolboxmenu = self.menu.addItem(OOFMenuItem(
             'Toolbox',
             cli_only=1,
             help='Commands for the graphics toolboxes.',
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/toolbox.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/toolbox.xml')
             ))
         layermenu = self.menu.addItem(OOFMenuItem(
             'Layer',
@@ -277,42 +360,59 @@ class GhostGfxWindow:
             discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/layer.xml')
             ))
 
-        # Layer editing is invoked either through the GUI version of
-        # this menu item, or by double clicking on a layer in the
-        # GUI's layer list.  In either case, the scripted command is a
-        # *LayerEditor* command, not a GhostGfxWindow command, so
-        # there's nothing to do here.  This menu item is here just so
-        # that the GfxWindow can hang a gui_callback on it.
         layermenu.addItem(OOFMenuItem(
             'New',
-            gui_only=1,
+            callback=self.newLayerCB,
             accel='n',
-            ellipsis=1,
-            help="Open the graphics layer editor.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/newlayer.xml')
+            ellipsis=True,
+            gui_title="New Graphics Layer", # used in the dialog box
+            params=[
+                whoville.WhoClassParameter("category"),
+                whoville.AnyWhoParameter(
+                    "what", tip="The object to display."),
+                display.DisplayMethodParameter(
+                    "how", tip="How to display the object.")],
+            help="Add a new graphics layer.",
+            discussion=xmlmenudump.loadFile(
+                # TODO GTK3: Fix this manual page.
+                'DISCUSSIONS/common/menu/newlayer.xml')
             ))
         layermenu.addItem(OOFMenuItem(
             'Edit',
-            gui_only=1,
+            callback=self.editLayerCB,
+            params=[IntParameter('n', 0, tip="Layer to edit."),
+                    whoville.WhoClassParameter("category"),
+                    whoville.AnyWhoParameter(
+                        "what", tip="The object to display"),
+                    display.DisplayMethodParameter(
+                        "how", tip="How to display the object")],
             accel='e',
-            ellipsis=1,
-            help= "Open the graphics layer editor, loading the currently selected layer.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/editlayer.xml')
+            ellipsis=True,
+            help= "Edit the currently selected layer.",
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/editlayer.xml')
                                       ))
         layermenu.addItem(OOFMenuItem(
             'Delete',
             callback=self.deleteLayerNumber,
             params=[IntParameter('n', 0, tip="Layer index.")],
             help="Delete the selected graphics layer.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/deletelayer.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/deletelayer.xml')
             ))
         layermenu.addItem(OOFMenuItem(
             'Select',
             callback=self.selectLayerCB,
             cli_only=1,
+            # Running this command on the mainthread avoids a race
+            # condition arising from double clicks on the layer list.
+            # See the comment in GfxWindowBase.layerDoubleClickCB in
+            # SRC/common/IO/GUI/gfxwindowbase.py.
+            threadable=oofmenu.UNTHREADABLE,
             params=[IntParameter('n', 0, tip="Layer index.")],
             help="Select the given graphics layer.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/selectlayer.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/selectlayer.xml')
             ))
         layermenu.addItem(OOFMenuItem(
             'Deselect',
@@ -329,7 +429,8 @@ class GhostGfxWindow:
             accel='h',
             params=[IntParameter('n', 0, tip="Layer index.")],
             help="Hide the selected graphics layer.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/hidelayer.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/hidelayer.xml')
             ))
         layermenu.addItem(OOFMenuItem(
             'Show',
@@ -359,29 +460,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 """
             ))
 
-        if config.dimension() == 2:
-            layermenu.addItem(OOFMenuItem(
-                'Hide_Contour_Map',
-                callback=self.hideLayerContourmap,
-                params=[IntParameter('n',0,tip="Contour map index.")],
-                help="Hide the selected layer's contour map.",
-                discussion=xmlmenudump.loadFile(
-                        'DISCUSSIONS/common/menu/hidecontour.xml')
-                ))
-            layermenu.addItem(OOFMenuItem(
-                'Show_Contour_Map',
-                callback=self.showLayerContourmap,
-                params=[IntParameter('n',0, tip="Contour map index.")],
-                help="Show the selected layer's contour map.",
-                discussion="""<para>
-                See <xref
-                linkend='MenuItem-OOF.Graphics_n.Layer.Hide_Contour_Map'/>.
-                </para>"""
-                ))
         raisemenu = layermenu.addItem(OOFMenuItem(
             'Raise',
             help='Make a layer more visible.',
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/raiselayer.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/raiselayer.xml')
             ))
         raisemenu.addItem(OOFMenuItem(
             'One_Level',
@@ -389,7 +472,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             accel='r',
             params=[IntParameter('n', 0, tip="Layer index.")],
             help="Raise the selected graphics layer.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/raiseone.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/raiseone.xml')
             ))
         raisemenu.addItem(OOFMenuItem(
             'To_Top',
@@ -398,22 +482,27 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             params=[IntParameter('n', 0, tip="Layer index.")],
             help=\
             "Draw the selected graphics layer on top of all other layers.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/raisetop.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/raisetop.xml')
             ))
         raisemenu.addItem(OOFMenuItem(
             'By',
             callback=self.raiseBy,
-            cli_only = 1,
-            params=[IntParameter('n', 0, tip="Layer index."),
-                    IntParameter('howfar', 1, tip="How far to raise the layer.")
-                    ],
-            help="Raise the selected graphics layer over a given number of other layers.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/raiseby.xml')
+            #cli_only = 1,
+            params=[
+                IntParameter('n', 0, tip="Layer index."),
+                IntParameter('howfar', 1, tip="How far to raise the layer.")
+            ],
+            help="Raise the selected graphics layer over a given number"
+            " of other layers.",
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/raiseby.xml')
             ))
         lowermenu = layermenu.addItem(OOFMenuItem(
             'Lower',
             help='Make a layer less visible.',
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/lowerlayer.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/lowerlayer.xml')
             ))
         lowermenu.addItem(OOFMenuItem(
             'One_Level',
@@ -421,7 +510,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             accel='l',
             params=[IntParameter('n', 0, tip="Layer index.")],
             help="Lower the selected graphics layer.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/lowerone.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/lowerone.xml')
             ))
         lowermenu.addItem(OOFMenuItem(
             'To_Bottom',
@@ -429,25 +519,28 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             accel='b',
             params=[IntParameter('n', 0, tip="Layer index.")],
             help="Draw the selected graphics layer below all other layers.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/lowerbtm.xml')
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/lowerbtm.xml')
             ))
         lowermenu.addItem(OOFMenuItem(
             'By',
             callback=self.lowerBy,
-            cli_only = 1,
-            params=[IntParameter('n', 0, tip="Layer index."),
-                    IntParameter('howfar', 1, tip="How far to lower the layer.")
+            params=[
+                IntParameter('n', 0, tip="Layer index."),
+                IntParameter('howfar', 1, tip="How far to lower the layer.")
                     ],
-            help="Lower the selected graphics layer under a given number of other layers.",
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/lowerby.xml')
+            help="Lower the selected graphics layer under"
+            " a given number of other layers.",
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/lowerby.xml')
             ))
         layermenu.addItem(OOFMenuItem(
             'Reorder_All',
             callback=self.reorderLayers,
             help="Put the graphics layers in their default order.",
             discussion=xmlmenudump.loadFile(
-                    'DISCUSSIONS/common/menu/reorderlayers.xml')
-            ))
+                'DISCUSSIONS/common/menu/reorderlayers.xml')
+        ))
         settingmenu = self.menu.addItem(OOFMenuItem(
             'Settings',
             help='Control Graphics window behavior.',
@@ -456,16 +549,22 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             that set parameters that control the behavior of the
             Graphics window.
             </para>"""
-            ))
+        ))
         settingmenu.addItem(CheckOOFMenuItem(
             'Antialias',
             callback=self.toggleAntialias,
             value=self.settings.antialias,
             threadable=oofmenu.THREADABLE,
-            help=
-            "Use antialiased rendering.",
+            help="Use antialiased rendering.",
             discussion=xmlmenudump.loadFile(
                     'DISCUSSIONS/common/menu/antialias.xml')
+        ))
+        settingmenu.addItem(OOFMenuItem(
+            'New_Layer_Policy',
+            callback=self.setNewLayerPolicy,
+            params=[enum.EnumParameter('policy', NewLayerPolicy,
+                                       value=self.settings.newlayerpolicy)],
+            help="When to create new graphics layers."
         ))
         settingmenu.addItem(CheckOOFMenuItem(
             'List_All_Layers',
@@ -474,7 +573,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             help="List all graphics layers, even predefined ones.",
             discussion=xmlmenudump.loadFile(
                     'DISCUSSIONS/common/menu/listall.xml')
-            ))
+        ))
         settingmenu.addItem(CheckOOFMenuItem(
             'Long_Layer_Names',
             callback=self.toggleLongLayerNames,
@@ -482,120 +581,110 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             help= "Use the long form of layer names in the layer list.",
             discussion=xmlmenudump.loadFile(
                     'DISCUSSIONS/common/menu/longlayers.xml')
-            ))
-        settingmenu.addItem(CheckOOFMenuItem(
-            'Auto_Reorder',
-            callback=self.toggleAutoReorder,
-            value=self.settings.autoreorder,
-            help="Automatically reorder layers when new layers are created.",
-            discussion=xmlmenudump.loadFile(
-                    'DISCUSSIONS/common/menu/autoreorder.xml')
-            ))
+        ))
         settingmenu.addItem(OOFMenuItem(
-                'Time',
-                callback=self.setTimeCB,
-                params=[FloatParameter(
-                        'time', 0.0,
-                        tip='The time to use when displaying time-dependent layers.')
-                        ],
-                help='Set the time for display layers.',
-                discussion=xmlmenudump.loadFile(
-                    'DISCUSSIONS/common/menu/settime.xml')
-                ))
-        if config.dimension() == 2:
-            settingmenu.addItem(OOFMenuItem(
-                'Aspect_Ratio',
-                callback=self.aspectRatio,
-                params=[FloatParameter('ratio', 5.0,
-                                       tip="Aspect ratio of the contour map.")],
-                help="Set the aspect ratio of the contour map.",
-                discussion="""<para>
-                Set the aspect ratio (height/width) of the <link
-                linkend='Section-Graphics-ContourMap'>contour map</link>
-                display.
-                </para>"""))
+            'Time',
+            callback=self.setTimeCB,
+            params=[FloatParameter(
+                'time', 0.0,
+                tip='The time to use when displaying time-dependent layers.')
+                    ],
+            help='Set the time for display layers.',
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/settime.xml')
+        ))
+        settingmenu.addItem(OOFMenuItem(
+            'Aspect_Ratio',
+            callback=self.aspectRatio,
+            params=[FloatParameter('ratio', 5.0,
+                                   tip="Aspect ratio of the contour map.")],
+            help="Set the aspect ratio of the contour map.",
+            discussion="""<para>
+            Set the aspect ratio (height/width) of the <link
+            linkend='Section-Graphics-ContourMap'>contour map</link>
+            display.
+            </para>"""))
 
+        settingmenu.addItem(OOFMenuItem(
+            'Contourmap_Marker_Size',
+            callback=self.contourmapMarkSize,
+            ellipsis=1,
+            params=[IntParameter('width',2,
+                                 tip="Contour map marker line width.")],
+            help="Width in pixels of the markers on the contour map.",
+            discussion="""<para>
+            Set the line <varname>width</varname>, in pixels, of the
+            rectangle used to mark a region of the <link
+            linkend='Section-Graphics-ContourMap'>contour map</link>.
+            </para>"""))
 
-            settingmenu.addItem(OOFMenuItem(
-                'Contourmap_Marker_Size',
-                callback=self.contourmapMarkSize,
-                ellipsis=1,
-                params=[IntParameter('width',2,
-                                     tip="Contour map marker line width.")],
-                help="Width in pixels of the markers on the contour map.",
-                discussion="""<para>
-                Set the line <varname>width</varname>, in pixels, of the
-                rectangle used to mark a region of the <link
-                linkend='Section-Graphics-ContourMap'>contour map</link>.
-                </para>"""))
-
-            zoommenu = settingmenu.addItem(OOFMenuItem('Zoom',
-                                        help="Change the scale in the display."))
-            zoommenu.addItem(OOFMenuItem(
-                'In',
-                callback=self.zoomIn,
-                accel='.',
-                help='Magnify the image.',
-                discussion="""<para>
-                Magnify the graphics display by the current <link
-                linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
-                factor</link>, keeping the center of the display fixed.
-                </para>"""))
-            zoommenu.addItem(OOFMenuItem(
-                'InFocussed',
-                callback=self.zoomInFocussed,
-                secret=1,
-                params=[primitives.PointParameter('focus',
-                                                  tip='Point to magnify about.')],
-                help='Magnify the image about a mouse click.',
-                discussion="""<para>
-                Magnify the graphics display by the current <link
-                linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
-                factor</link>, keeping the mouse click position fixed.
-                </para>"""))
-            zoommenu.addItem(OOFMenuItem(
-                'Out',
-                callback=self.zoomOut,
-                accel=',',
-                help='Demagnify by the current zoom factor.',
-                discussion="""<para> 
-                Demagnify the graphics display by the current <link
-                linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
-                factor</link>, keeping the center of the display fixed.
-                </para>"""))
-            zoommenu.addItem(OOFMenuItem(
-                'OutFocussed',
-                callback=self.zoomOutFocussed,
-                secret=1,
-                params=[primitives.PointParameter('focus',
-                                                  tip='Point to demagnify about.')],
-                help='Magnify the image about a mouse click.',
-                discussion="""<para>
-                Demagnify the graphics display by the current <link
-                linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
-                factor</link>, keeping the mouse click position fixed.
-                </para>"""))
-            zoommenu.addItem(OOFMenuItem(
-                'Fill_Window',
-                callback=self.zoomFillWindow,
-                accel='=',
-                help='Fit the image to the window.',
-                discussion="""<para>
-                Zoom the display so that it fills the window.
-                </para>"""))
-            zoommenu.addItem(OOFMenuItem(
-                'Zoom_Factor',
-                callback = self.zoomfactorCB,
-                params=[
-                FloatParameter('factor', self.settings.zoomfactor,
-                               tip="Zoom factor.")],
-                ellipsis=1,
-                help='Set the zoom magnification.',
-                discussion="""<para>
-                The scale of the display changes by
-                <varname>factor</varname> or 1./<varname>factor</varname>
-                when zooming in or out.
-                </para>"""))
+        zoommenu = settingmenu.addItem(OOFMenuItem('Zoom',
+                                    help="Change the scale in the display."))
+        zoommenu.addItem(OOFMenuItem(
+            'In',
+            callback=self.zoomIn,
+            accel='.',
+            help='Magnify the image.',
+            discussion="""<para>
+            Magnify the graphics display by the current <link
+            linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
+            factor</link>, keeping the center of the display fixed.
+            </para>"""))
+        zoommenu.addItem(OOFMenuItem(
+            'InFocussed',
+            callback=self.zoomInFocussed,
+            secret=1,
+            params=[primitives.PointParameter('focus',
+                                              tip='Point to magnify about.')],
+            help='Magnify the image about a mouse click.',
+            discussion="""<para>
+            Magnify the graphics display by the current <link
+            linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
+            factor</link>, keeping the mouse click position fixed.
+            </para>"""))
+        zoommenu.addItem(OOFMenuItem(
+            'Out',
+            callback=self.zoomOut,
+            accel=',',
+            help='Demagnify by the current zoom factor.',
+            discussion="""<para> 
+            Demagnify the graphics display by the current <link
+            linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
+            factor</link>, keeping the center of the display fixed.
+            </para>"""))
+        zoommenu.addItem(OOFMenuItem(
+            'OutFocussed',
+            callback=self.zoomOutFocussed,
+            secret=1,
+            params=[primitives.PointParameter('focus',
+                                              tip='Point to demagnify about.')],
+            help='Magnify the image about a mouse click.',
+            discussion="""<para>
+            Demagnify the graphics display by the current <link
+            linkend='MenuItem-OOF.Graphics_n.Settings.Zoom.Zoom_Factor'>zoom
+            factor</link>, keeping the mouse click position fixed.
+            </para>"""))
+        zoommenu.addItem(OOFMenuItem(
+            'Fill_Window',
+            callback=self.zoomFillWindow,
+            accel='=',
+            help='Fit the image to the window.',
+            discussion="""<para>
+            Zoom the display so that it fills the window.
+            </para>"""))
+        zoommenu.addItem(OOFMenuItem(
+            'Zoom_Factor',
+            callback = self.zoomfactorCB,
+            params=[
+            FloatParameter('factor', self.settings.zoomfactor,
+                           tip="Zoom factor.")],
+            ellipsis=1,
+            help='Set the zoom magnification.',
+            discussion="""<para>
+            The scale of the display changes by
+            <varname>factor</varname> or 1./<varname>factor</varname>
+            when zooming in or out.
+            </para>"""))
         colormenu = settingmenu.addItem(OOFMenuItem(
             'Color',
             help='Set the color of various parts of the display.'
@@ -603,8 +692,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         colormenu.addItem(OOFMenuItem(
             'Background',
             callback=self.bgColor,
-            params=[color.ColorParameter('color', self.settings.bgcolor,
-                                         tip="Color for the background.")],
+            params=[color.OpaqueColorParameter(
+                'color', self.settings.bgcolor,
+                tip="Color for the background.")],
             ellipsis=1,
             help='Change the background color.',
             discussion="""<para>
@@ -613,103 +703,36 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             contour map display.
             
             </para>"""))
-        if config.dimension() == 2:
-            colormenu.addItem(OOFMenuItem(
-                'Contourmap_Marker', 
-                callback=self.contourmapMarkColor,
-                params=[color.ColorParameter('color',
-                                             self.settings.contourmap_markercolor,
-                                             tip="Color for the contour map marker.")],
-                ellipsis=1,
-                help="Change the contour map marker color.",
-                discussion="""<para>
-                Change the color of the position marker on the contourmap pane.
-                </para>"""))
-        elif config.dimension() == 3:
-            colormenu.addItem(OOFMenuItem(
-                'Contourmap_Background', 
-                callback=self.contourmapBGColor,
-                params=[color.ColorParameter('color',
-                                             self.settings.contourmap_bgcolor,
-                                             tip="Color for the contour map background.")],
-                ellipsis=1,
-                help="Change the contour map background color.",
-                discussion="""<para>
-                Change the color of the background of the contourmap pane.
-                </para>"""))
-            colormenu.addItem(OOFMenuItem(
-                'Contourmap_Text', 
-                callback=self.contourmapTextColor,
-                params=[color.ColorParameter('color',
-                                             self.settings.contourmap_textcolor,
-                                             tip="Color for the contour map text.")],
-                ellipsis=1,
-                help="Change the contour map text color.",
-                discussion="""<para>
-                Change the color of the text in the contourmap pane.
-                </para>"""))
 
-            settingmenu.addItem(CheckOOFMenuItem(
-                'Show_Contourmap_Pane',
-                callback=self.toggleContourpane,
-                value=self.settings.showcontourpane,
-                threadable=oofmenu.THREADABLE,
-                help="Show/hide the contourmap pane.",
-                discussion="""<para>Show or hide the contourmap pane.</para>"""
-                ))
-                
+        colormenu.addItem(OOFMenuItem(
+            'Contourmap_Marker', 
+            callback=self.contourmapMarkColor,
+            params=[color.TranslucentColorParameter(
+                'color', self.settings.contourmap_markercolor,
+                tip="Color for the contour map marker.")],
+            ellipsis=1,
+            help="Change the contour map marker color.",
+            discussion="""<para>
+            Change the color of the position marker on the contourmap pane.
+            </para>"""))
 
         settingmenu.addItem(OOFMenuItem(
             'Margin',
             callback=self.marginCB,
-            params=[FloatParameter('fraction', self.settings.margin,
-                                   tip="Margin as a fraction of the image size.")],
+            params=[FloatParameter(
+                'fraction', self.settings.margin,
+                tip="Margin as a fraction of the image size.")],
             ellipsis=1,
-            help=
-  'Set the margin (as a fraction of the image size) when zooming to full size.',
-            discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/margin.xml')
-            ))
-
-        if config.dimension() == 3:
-            settingmenu.addItem(OOFMenuItem(
-                'Contour_Pane_Width',
-                callback=self.contourpanewidthCB,
-                params=[FloatParameter('fraction', self.settings.contourpanewidth,
-                                       tip="Contour pane width as a fraction of the window size.")],
-                ellipsis=1,
-                help=
-      'Set the contour pane width as a fraction of the window size.',
-                # TODO 3D: will have to update the documentation
-                discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/margin.xml')
-                ))
-
-        if config.dimension() == 2:
-            scrollmenu = settingmenu.addItem(OOFMenuItem(
-                'Scroll',
-                cli_only=1,
-                help='Scroll the main display.'))
-            scrollmenu.addItem(OOFMenuItem(
-                'Horizontal',
-                callback=self.hScrollCB,
-                params=[FloatParameter('position', 0.,
-                                       tip="Horizontal scroll position.")],
-                help="Scroll horizontally.",
-                discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/scrollhoriz.xml')
-                ))
-            scrollmenu.addItem(OOFMenuItem(
-                'Vertical',
-                callback=self.vScrollCB,
-                params=[FloatParameter('position', 0.,
-                                       tip="Vertical scroll position.")],
-                help="Scroll vertically.",
-                discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/scrollvert.xml')
-                ))
-
+            help= 'Set the margin (as a fraction of the image size)'
+            ' when zooming to full size.',
+            discussion=xmlmenudump.loadFile(
+                'DISCUSSIONS/common/menu/margin.xml')
+        ))
+        
         # Create toolboxes.
         self.toolboxes = []
         map(self.newToolboxClass, toolbox.toolboxClasses)
 
-        self.defaultLayerCreated = {}
         self.sensitize_menus()
 
         if not clone:
@@ -727,29 +750,51 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             switchboard.requestCallback('redraw', self.draw),
             switchboard.requestCallback('draw at time', self.drawAtTime)
             ]
-        
 
-    def createPredefinedLayers(self):
-        # Create pre-defined layers.  These are in all graphics
-        # windows, regardless of whether or not they are drawable at
-        # the moment.
-        for predeflayer in PredefinedLayer.allPredefinedLayers:
-            self.incorporateLayerSet(predeflayer.createLayerSet(),
-                                     force=1, autoselect=0)
-        
-##        for layerset in display.predefinedLayerSets:
-##            self.incorporateLayerSet(layerset, force=1, autoselect=0)
+    def newCanvas(self):
+        # Create the actual OOFCanvas object.  This method is
+        # overridden in GfxWindow.  If this version is called, the
+        # program is running in text mode. The canvas might be used to
+        # generate image files, but isn't going to be displayed.
+        return oofcanvas.OffScreenCanvas(100) # arg is ppu
 
-        # Create default layers if possible.  One layer is created for
-        # each WhoClass the first time that an instance of that class
-        # is created.
-        self.createDefaultLayers()
+    def newContourmapCanvas(self):
+        # Redefined in GfxWindow, where it returns an on-screen canvas.
+        return oofcanvas.OffScreenCanvas(100) # arg is ppu
 
-    def drawable(self):                 # used when testing the gui
-        return self.display.drawable(self)
+    def new_contourmap_canvas(self):
+        # Called by saveContourmap and, in GUI mode, by
+        # makeContourMapWidgets.  In GUI mode this method is extended
+        # in the derived class.
+        if self.contourmapdata.canvas:
+            self.contourmapdata.canvas.destroy()
+        self.contourmapdata.canvas = self.newContourmapCanvas()
+        self.contourmapdata.canvas.setBackgroundColor(
+            color.canvasColor(self.settings.bgcolor))
+        # Create two layers, one for the "main" drawing, and
+        # one for the ticks.
+        self.contourmapdata.canvas_mainlayer = \
+            self.contourmapdata.canvas.newLayer("main")
+        self.contourmapdata.canvas_ticklayer = \
+            self.contourmapdata.canvas.newLayer("tick")
+
+    def drawable(self):
+        # Can any layer be drawn?  Used when testing the gui.
+        ## TODO: Does this need a lock?  The gtk2 version had a
+        ## separate SLock that controlled access to the list of
+        ## layers, and it was acquired here.  This is called from the
+        ## main thread during gui tests, and can't use self.gfxlock,
+        ## because that's not an SLock.
+        for layer in self.layers:
+            if not layer.incomputable(self):
+                return True
+        return False
         
     def __repr__(self):
         return 'GhostGfxWindow("%s")' % self.name
+
+    def nLayers(self):
+        return len(self.layers)
 
     def acquireGfxLock(self):
         if _debuglocks:
@@ -764,27 +809,93 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             debug.fmsg("------------------------ releasing gfxlock", self.name)
         self.gfxlock.release()
 
-    def createDefaultLayers(self):
+    def createPredefinedLayers(self):
+        # Create pre-defined layers.  These are in all graphics
+        # windows, regardless of whether or not they are drawable at
+        # the moment.
+        for predeflayer in PredefinedLayer.allPredefinedLayers:
+            layer, who = predeflayer.createLayer()
+            self.incorporateLayer(layer, who, autoselect=False, lock=False)
+            
+        # Create default layers if possible.  One layer is created for
+        # each WhoClass the first time that an instance of that class
+        # is created.
+        self.createDefaultLayers()
+
+    def createDefaultLayers(self, whoclassname=None, newwhopath=None):
+        # If whoclassname and newwhopath are given, a new Who object
+        # has just been created.  If they're not given, then this
+        # window has just been created.
+
+        # Do different things depending on newlayerpolicy:
+
+        # newlayerpolicy == "Never":
+        #   Don't do anything.
+        
+        # newlayerpolicy == "Always"
+
+        #   If a new Who object has been created, add all
+        #   DefaultLayers that apply to it.  "Always" only applies
+        #   when a new Who object is created, not when a new gfx
+        #   window is opened.
+
+        # newlayerpolicy == "Single"
+
+        #   If a new Who object has been created, add the relevant
+        #   default layers if no non-proxy layer exists for any other
+        #   Who object in the same class.
+        
+        #   If the window is new, create new layers if there's only
+        #   one member of the relevant WhoClass.
+
+        
+        if self.settings.newlayerpolicy == "Never":
+            return
+
         # Unselect all layers first, so that new layers don't
         # overwrite existing ones.
         selectedLayer = self.selectedLayer
         self.deselectAll()
 
-        # Create a default layer for each WhoClass if this window
-        # hasn't already created a default layer for that class and if
-        # there's only a single member of the class.  (The single
-        # member constraint is enforced in
-        # DefaultLayer.createLayerSet().)
-        for defaultlayer in DefaultLayer.allDefaultLayers:
-            try:
-                layercreated = self.defaultLayerCreated[defaultlayer]
-            except KeyError:
-                self.defaultLayerCreated[defaultlayer] = layercreated = 0
-            if not layercreated:
-                layerset = defaultlayer.createLayerSet()
-                if layerset is not None:
-                    self.incorporateLayerSet(layerset, autoselect=0)
-                    self.defaultLayerCreated[defaultlayer] = 1
+        # Are we adding layers for a new Who object, or is this a new
+        # graphics window?  If it's a new window, create default
+        # layers for all existing who objects, consistent with the
+        # current policy.
+        if whoclassname is not None:
+            # A new Who object may need to be displayed.
+            whoclass = whoville.getClass(whoclassname)
+            newwho = whoclass[newwhopath]
+            assert newwho is not None
+            # Add only the default layers that can display newwho.
+            for defaultlayer in DefaultLayer.allDefaultLayers:
+                # createLayer returns None if the given Who is the
+                # wrong kind of Who (of Whom?).
+                layer, who = defaultlayer.createLayer(newwho)
+                if layer is not None:
+                    if self.settings.newlayerpolicy == "Always":
+                        self.incorporateLayer(layer, who, autoselect=False,
+                                              lock=False)
+                    elif self.settings.newlayerpolicy == "Single":
+                        # See if there's already a layer displaying a
+                        # non-proxy Who object of this type.
+                        for oldlayer in self.layers:
+                            if not isinstance(oldlayer.who, whoville.WhoProxy):
+                                if oldlayer.who.getClassName() == whoclassname:
+                                    break
+                        else:
+                            # No existing layer for this WhoClass
+                            self.incorporateLayer(layer, who, autoselect=False,
+                                                  lock=False)
+        else:
+            # whoclassname is None, so this is a new graphics window.
+            if self.settings.newlayerpolicy == "Single":
+                for defaultlayer in DefaultLayer.allDefaultLayers:
+                    if defaultlayer.whoclass.nActual() == 1:
+                        layer, who = defaultlayer.createLayer(
+                            defaultlayer.whoclass.actualMembers()[0])
+                        if layer is not None:
+                            self.incorporateLayer(layer, who, autoselect=False,
+                                                  lock=False)
 
         # Restore the previous selection state.
         if selectedLayer:
@@ -795,7 +906,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         ## double clicks in the LayerList --- can one thread be inside
         ## sensitize_menus() while another thread is setting
         ## self.selectedLayer to None?  Does there need to be a lock
-        ## on self.selectedLayer?
+        ## on self.selectedLayer? (Not sure if this is still a problem...)
         if self.selectedLayer is not None and \
                (self.selectedLayer.listed or self.settings.listall):
             self.menu.Layer.Delete.enable()
@@ -810,7 +921,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 self.menu.Layer.Lower.disable()
             else:
                 self.menu.Layer.Lower.enable()
-            if self.layerID(self.selectedLayer) == self.display.nlayers()-1:
+            if self.layerID(self.selectedLayer) == self.nLayers()-1:
                 self.menu.Layer.Raise.disable()
             else:
                 self.menu.Layer.Raise.enable()
@@ -821,15 +932,6 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             else:
                 self.menu.Layer.Freeze.enable()
                 self.menu.Layer.Unfreeze.disable()
-
-            if config.dimension() == 2:
-                self.menu.Layer.Show_Contour_Map.disable()
-                self.menu.Layer.Hide_Contour_Map.disable()
-                if self.selectedLayer.contour_capable(self):
-                    if not self.selectedLayer.contourmaphidden:
-                        self.menu.Layer.Hide_Contour_Map.enable()
-                    else:
-                        self.menu.Layer.Show_Contour_Map.enable()
         else:
             self.menu.Layer.Delete.disable()
             self.menu.Layer.Raise.disable()
@@ -839,47 +941,66 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             self.menu.Layer.Freeze.disable()
             self.menu.Layer.Unfreeze.disable()
             self.menu.Layer.Edit.disable()
-            if config.dimension() == 2:
-                self.menu.Layer.Show_Contour_Map.disable()
-                self.menu.Layer.Hide_Contour_Map.disable()
-        if config.dimension() == 2:
-            if len(self.display) == 0:
-                self.menu.Settings.Zoom.disable()
-            else:
-                self.menu.Settings.Zoom.enable()
-        if self.display.sorted:
+        if self.nLayers() == 0:
+            self.menu.Settings.Zoom.disable()
+        else:
+            self.menu.Settings.Zoom.enable()
+
+        if self.sortedLayers():
             self.menu.Layer.Reorder_All.disable()
         else:
             self.menu.Layer.Reorder_All.enable()
 
+        if self.current_contourmap_method is not None:
+            self.menu.File.Save_Contourmap.enable()
+        else:
+            self.menu.File.Save_Contourmap.disable()
+
+        if self.oofcanvas.empty():
+            self.menu.File.Save_Canvas.disable()
+            self.menu.File.Save_Canvas_Region.disable()
+        else:
+            self.menu.File.Save_Canvas.enable()
+            self.menu.File.Save_Canvas_Region.enable()
+
     def getLayerChangeTimeStamp(self):
-        return self.display.getLayerChangeTimeStamp()
+        return self.layerChangeTime
         
     ##############################
 
     # Menu callbacks.
 
-    # Runs on a subthread, even in GUI mode.
+    def newLayerCB(self, menuitem, category, what, how):
+        whoclass = whoville.getClass(category)
+        who = whoclass[what]
+        self.selectedLayer = None
+        self.incorporateLayer(how, who)
+
+    def editLayerCB(self, menuitem, n, category, what, how):
+        whoclass = whoville.getClass(category)
+        who = whoclass[what]
+        # If the edit command is run from a script, self.selectedLayer
+        # might not be the nth layer, which is the one being edited.
+        # So make sure it's selected, then call incorporateLayer,
+        # which will replace it.
+        self.selectedLayer = self.layers[n]
+        self.incorporateLayer(how, who)
+
     def cloneWindow(self, *args):
         self.acquireGfxLock()
         try:
             clone = self.gfxmanager.openWindow(clone=1)
             clone.settings = copy.deepcopy(self.settings)
-            for layerset in self.layerSets:
-                clone.incorporateLayerSet(layerset)
+            for layer in self.layers:
+                clone.incorporateLayer(layer, )
                 clone.deselectLayer(clone.selectedLayerNumber())
             if self.selectedLayer is not None:
                 clone.selectLayer(self.layerID(self.selectedLayer))
-            clone.draw()
             return clone
         finally:
             self.releaseGfxLock()
 
     def close(self, menuitem, *args):
-        # Before acquiring the gfx lock, kill all subthreads, or
-        # this may deadlock!
-        self.device.destroy()
-
         self.acquireGfxLock()
         try:
             self.gfxmanager.closeWindow(self)
@@ -898,9 +1019,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             for toolbox in self.toolboxes:
                 toolbox.close()
 
-            for layerSet in self.layerSets:
-                layerSet.removeAll()
-            del self.layerSets
+            self.layers = []
 
             # cleanup to prevent possible circular references
             ## del self.display
@@ -912,25 +1031,24 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             del self.selectedLayer
             del self.toolboxes
         finally:
-            # Although the window is closing, it's important to
-            # release the lock so that any remaining drawing threads
-            # can finish.  They won't actually try to draw anything,
-            # because of the device.destroy call, above.
             self.releaseGfxLock()
 
     def clear(self, *args, **kwargs):
         # Remove all user specified layers from the display.
         self.acquireGfxLock()
         try:
-            # The layer list is modified as layers are deleted, so we
-            # have to work with a copy.
-            layers = self.display[:]
-            for layer in layers:
+            keptlayers = []
+            for layer in self.layers:
                 if layer.listed:
-                    self.removeLayer(layer)
+                    if layer is self.selectedLayer:
+                        self.selectedLayer = None
+                    layer.destroy()
+                else:
+                    keptlayers.append(layer)
+            self.layers = keptlayers
         finally:
             self.releaseGfxLock()
-        self.draw()
+        self.layersHaveChanged()
 
     def draw(self, *args, **kwargs):
         pass
@@ -952,7 +1070,13 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     def redraw(self, menuitem):
         self.acquireGfxLock()
         try:
-            self.display.clear()  
+            for layer in self.layers:
+                ## TODO: This redraws the Cairo layers without
+                ## reconstructing them.  Do we want to reconstruct
+                ## them, ie. have the DisplayLayers recompute
+                ## themselves?
+                layer.canvaslayer.markDirty();
+                layer.canvaslayer.render()
         finally:
             self.releaseGfxLock()
         self.draw()
@@ -968,6 +1092,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def toggleAntialias(self, menuitem, antialias):
         self.settings.antialias = antialias
+        self.oofcanvas.setAntialias(antialias)
 
     def toggleContourpane(self, menuitem, contourpane):
         self.settings.showcontourpane = contourpane
@@ -977,14 +1102,16 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         try:
             self.settings.listall = listall
             self.sensitize_menus()
-            self.newLayerMembers()
+            self.fillLayerList()
         finally:
             self.releaseGfxLock()
 
-    def toggleAutoReorder(self, menuitem, autoreorder):
-        self.acquireGfxLock()
-        self.settings.autoreorder = autoreorder
-        self.releaseGfxLock()
+    def setNewLayerPolicy(self, menuitem, policy):
+        self.settings.newlayerpolicy = policy
+
+    def fillLayerList(self):
+        # Redefined in GfxWindowBase class.
+        pass
 
     def toggleLongLayerNames(self, menuitem, longlayernames):
         self.settings.longlayernames = longlayernames
@@ -1020,6 +1147,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
     def marginCB(self, menuitem, fraction):
         self.settings.margin = fraction
+        self.draw()
 
     def contourpanewidthCB(self, menuitem, fraction):
         self.settings.contourpanewidth = fraction
@@ -1028,97 +1156,106 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.settings.zoomfactor = factor
         switchboard.notify("zoom factor changed")
 
-    def hScrollCB(self, menuitem, position):
-        self.hscrollvalue = position
+    def drawLayers(self):
+        self.acquireGfxLock()
+        try:
+            for layer in self.layers:
+                reason = layer.incomputable(self)
+                if reason:
+                    layer.clear()
+                else:
+                    try:
+                        # Tell the DisplayLayer to (re)create its
+                        # OOFCanvas::CanvasLayer.
+                        layer.drawIfNecessary(self)
+                    except subthread.StopThread:
+                        return
+                    except (Exception, ooferror.ErrErrorPtr), exc:
+                        debug.fmsg('Exception while drawing!', exc)
+                        raise
+        finally:
+            self.releaseGfxLock()
 
-    def vScrollCB(self, menuitem, position):
-        self.vscrollvalue = position
-
-    if config.dimension() == 2:
-        def saveImage(self, menuitem, filename, overwrite):
-            if overwrite or not os.path.exists(filename):
-                pdevice = pdfoutput.PDFoutput(filename=filename)
-                pdevice.set_background(self.settings.bgcolor)
-                self.display.draw(self, pdevice)
-
-    elif config.dimension() == 3:
-        # TODO 3D: we should probably create a GUI-less oofcanvas3d
-        # which resides in the IO directory then clean this all up so
-        # that we aren't importing from the GUI directory.
-        def saveImage(self, menuitem, filename):
-            if overwrite or not os.path.exists(filename):
-                from ooflib.common.IO.GUI import oofcanvas3d
-                self.oofcanvas = oofcanvas3d.OOFCanvas3D(self.settings.antialias, offscreen=True)
-                self.oofcanvas.set_bgColor(self.settings.bgcolor)
-                from ooflib.common.IO.GUI import canvasoutput
-                from ooflib.common.IO import outputdevice
-                rawdevice = canvasoutput.CanvasOutput(self.oofcanvas)
-                self.device = outputdevice.BufferedOutputDevice(rawdevice)
-                self.display.draw(self, self.device)
-                self.oofcanvas.reset()
-                mainthread.runBlock(self.oofcanvas.saveImageThreaded, (filename,))
-
-    def saveContourmap(self, menuitem, filename, overwrite):
+    def saveCanvas(self, menuitem, filename, format, overwrite,
+                   pixels, background):
         if overwrite or not os.path.exists(filename):
-            pdevice = pdfoutput.PDFoutput(filename=filename)
-            pdevice.set_background(self.settings.bgcolor)
-            self.display.draw_contourmap(self, pdevice)
+            self.drawLayers()
+            assert not self.oofcanvas.empty()
+            if format == "pdf":
+                if not self.oofcanvas.saveAsPDF(filename, pixels, background):
+                    raise ooferror.ErrUserError("Cannot save canvas!")
+            elif format == "png":
+                if not self.oofcanvas.saveAsPNG(filename, pixels, background):
+                    raise ooferror.ErrUserError("Cannot save canvas!")
 
+    def saveCanvasRegion(self, menuitem, filename, format, overwrite,
+                         pixels, background, lowerleft, upperright):
+        if overwrite or not os.path.exists(filename):
+            self.drawLayers()
+            assert not self.oofcanvas.empty()
+            if format == "pdf":
+                if not self.oofcanvas.saveRegionAsPDF(
+                        filename, pixels, background, lowerleft, upperright):
+                    raise ooferror.ErrUserError("Cannot save canvas region!")
+            elif format == "png":
+                if not self.oofcanvas.saveRegionAsPNG(
+                        filename, pixels, background, lowerleft, upperright):
+                    raise ooferror.ErrUserError("Cannot save canvas region!")
 
+    def saveContourmap(self, menuitem, filename, format, overwrite, pixels):
+        assert self.current_contourmap_method is not None
+        if overwrite or not os.path.exists(filename):
+            # In text mode, the contourmap canvas might not exist
+            if self.contourmapdata.canvas is None:
+                mainthread.runBlock(self.new_contourmap_canvas)
+                # Can't draw the contourmap until the contour plot has
+                # been drawn, because the limits aren't known.
+                self.drawLayers() # draws contour plot
+                self.current_contourmap_method.draw_contourmap(
+                    self, self.contourmapdata.canvas_mainlayer)
+            if format == "pdf":
+                if not self.contourmapdata.canvas.saveAsPDF(
+                        filename, pixels, False):
+                    raise ooferror.ErrUserError(
+                        "Cannot save canvas contour map!")
+            elif format == "png":
+                if not self.contourmapdata.canvas.saveAsPNG(
+                    filename, pixels, False):
+                    raise ooferror.ErrUserError(
+                        "Cannot save canvas contour map!")
 
-    # Called as part of the "layers changed" in response to layer
-    # insertion, removal, or reordering.  Sets the current contourable
-    # layer to be the topmost one, unconditionally.
-    def contourmap_newlayers(self):
-        self.current_contourmap_method = \
-                                       self.display.set_contourmap_topmost(self)
-        switchboard.notify( (self, "new contourmap layer") )
-        self.sensitize_menus()
-
-    # Alternate method -- manually set a particular layer to be the
-    # current contourable layer.
-    def set_contourmap_layer(self, method):
-        self.current_contourmap_method.hide_contourmap()
-        self.current_contourmap_method = method
-        self.current_contourmap_method.show_contourmap()
-    
     ###############################
 
     # Returns the index of the layer in the list.
     def layerID(self, layer):
-        return self.display.layerID(layer)
+        try:
+            return self.layers.index(layer)
+        except ValueError:
+            debug.fmsg("Can't find layer", layer)
+            raise
 
     def getLayer(self, layerNumber):
-        return self.display[layerNumber]
+        return self.layers[layerNumber]
 
-    def getLayerSet(self, layerNumber):
-        return self.display[layerNumber].layerset
-    
-    def getSelectedLayerSet(self):
-        if self.selectedLayer:
-            return self.selectedLayer.layerset
-    
     def topwho(self, *whoclasses):
-        nlayers = self.display.nlayers()
-        for i in range(nlayers-1, -1, -1): # top down
-            who = self.display[i].who()
-            classname = who.getClassName()
-            if (not isinstance(who, whoville.WhoProxy)) and \
-                   not self.display[i].hidden and \
-                   classname in whoclasses:
-                return who
+        for layer in reversed(self.layers):
+            if layer.who is not None:
+                classname = layer.who.getClassName()
+                if ((not isinstance(layer.who, whoville.WhoProxy)) and
+                    not layer.hidden and
+                    classname in whoclasses):
+                    return layer.who
 
     # Advanced function, returns a reference to the *layer* object
     # which draws the who object referred to.
     def topwholayer(self, *whoclasses):
-        nlayers = self.display.nlayers()
-        for i in range(nlayers-1, -1, -1): # top down
-            who = self.display[i].who()
-            classname = who.getClassName()
-            if (not isinstance(who, whoville.WhoProxy)) and \
-                   not self.display[i].hidden and \
-                   classname in whoclasses:
-                return self.display[i]
+        for layer in reversed(self.layers):
+            if layer.who is not None:
+                classname = layer.who.getClassName()
+                if ((not isinstance(layer.who, whoville.WhoProxy)) and
+                    not layer.hidden and
+                    classname in whoclasses):
+                    return layer
 
     def topmost(self, *whoclasses):
         # Find the topmost layer whose 'who' belongs to the given
@@ -1128,186 +1265,136 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             return who.getObject(self)
 
     def topMethod(self, *displaymethods):
-        nlayers = self.display.nlayers()
-        for i in range(nlayers-1, -1, -1): # top down
-            for method in displaymethods:
-                if isinstance(self.display[i], method):
-                    return self.display[i]
+        # Is this used?
+        for layer in reversed(self.layers):
+            if isinstance(layer, displaymethods):
+                return layer
 
     #################################
 
-    # Function for doing book-keeping whenever the membership of the
-    # current layer set has changed.  Overridden in gfxwindow.
-    def newLayerMembers(self):
-        self.contourmap_newlayers()
-            
-    def incorporateLayerSet(self, layerset, force=0, autoselect=1):
-        # Called by the LayerEditor when a new LayerSet is being sent
-        # to the graphics window.  If there is a currently selected
-        # layer, then its LayerSet is replaced by the new one.
+    # Function for doing book-keeping whenever the list of layers has
+    # changed.  Overridden in gfxwindow to update the layer list and
+    # the time controls as well.
+    def layersHaveChanged(self):
+        self.layerChangeTime.increment()
+        switchboard.notify((self, 'layers changed'))
+        new_contourmap_method = self.topcontourable()
+        if new_contourmap_method != self.current_contourmap_method:
+            self.current_contourmap_method = new_contourmap_method
+            switchboard.notify((self, "new contourmap layer"))
 
-        # *** See extensive comments about layers and LayerSets in
-        # *** display.py
+        # Sync layer order in the canvas the the order in self.layers
+        self.oofcanvas.reorderLayers(
+            [l.canvaslayer for l in self.layers])
+        
+        self.draw()
+        self.sensitize_menus()  # must be called last
+
+    def incorporateLayer(self, layer, who, autoselect=True, lock=True):
+        if lock:
+            self.acquireGfxLock()
+        try:
+            if self.selectedLayer:
+                if (self.selectedLayer.equivalent(layer) and
+                    who is self.selectedLayer.who):
+                    return
+                # Replace the selected layer with the new layer.
+                which = self.layerID(self.selectedLayer)
+                layer.frozen = self.selectedLayer.frozen
+                oldlayer = self.selectedLayer
+                self.layers[which] = layer
+                # Do not call self.selectLayer here.  It'll try to
+                # call deselectLayer() on the previous selection,
+                # which is no longer in the list.  It also does
+                # too much in the way of switchboard and gui
+                # callbacks.
+                self.selectedLayer = layer
+                layer.build(self) # creates OOFCanvas::CanvasLayer
+                layer.setWho(who)
+                oldlayer.destroy()
+            else:
+                # There's no selected layer. Add the new layer.  Add
+                # the new layer at the lowest position such that its
+                # sorting order is below all the layers above it.
+                # That is, the layer won't be hidden by the layers
+                # above it, and if possible it won't hide layers
+                # below.
+                if not self.layers:
+                    self.layers.append(layer)
+                else:
+                    for i in reversed(range(len(self.layers))):
+                        if display.layercomparator(layer, self.layers[i]) >= 0:
+                            # The new layer belongs above layer i.
+                            self.layers[i+1:i+1] = [layer]
+                            break
+                    else:
+                        self.layers[0:0] = [layer]
+                            
+                layer.build(self)
+                layer.setWho(who)
+                if autoselect:
+                    self.selectLayer(self.layerID(layer))
+        finally:
+            if lock:
+                self.releaseGfxLock()
+        self.layersHaveChanged()
+
+    def sortedLayers(self):
+        # Are the layers in a canonical order?
+        for i in range(1, len(self.layers)):
+            if display.layercomparator(self.layers[i-1], self.layers[i]) > 0:
+                return False
+        return True
+            
+    def deleteLayerNumber(self, menuitem, n):
         self.acquireGfxLock()
         try:
-            if len(layerset) == 0:
-                return
-            selectedLayerSet = self.getSelectedLayerSet()
-            newLayerSet = layerset.clone()
-            if force:
-                newLayerSet.forced = 1
-            if selectedLayerSet is None:
-                # Add a new LayerSet to the existing layers.
-                self.cleanLayerSet(newLayerSet, installed=0)
-                if len(newLayerSet) > 0:    # cleanUp didn't remove all layers
-                    for layer in newLayerSet:
-                        self.newLayer(layer) # overridden in graphics mode
-                        self.display.add_layer(layer)
-                    if autoselect:
-                        self.selectLayer(self.display.layerID(newLayerSet[0]))
-            else:
-                # selectedLayerSet is not None.  Replace it with the
-                # new LayerSet.
-                count = 0                   # loop over layers in the LayerSets
-                for oldlayer,newlayer in map(None,selectedLayerSet,newLayerSet):
-                    if newlayer is None or newlayer is display.emptyLayer:
-                        if self.selectedLayer is oldlayer:
-                            self.selectedLayer = None
-                        if oldlayer is not None:
-                            self.display.remove_layer(oldlayer)
-                            oldlayer.destroy()
-                    elif newlayer.inequivalent(oldlayer):
-                        if oldlayer is not None:
-                            self.display.replace_layer(oldlayer, newlayer)
-                            if self.selectedLayer is oldlayer:
-                                self.selectedLayer = newlayer
-                            oldlayer.destroy()
-                        elif newlayer is not display.emptyLayer:
-                            # oldlayer is None
-                            self.display.add_layer(newlayer)
-                    else:                   # newlayer is equivalent to oldlayer
-                        # Use the old layer, since it's been drawn already.
-                        newLayerSet.replaceMethod(count, oldlayer)
-                    count += 1
-                self.cleanLayerSet(newLayerSet, installed=1)
-                self.layerSets.remove(selectedLayerSet)
-                selectedLayerSet.destroy() #doesn't affect layers, just LayerSet
-            if len(newLayerSet) > 0:
-                self.layerSets.append(newLayerSet)
-
-            if self.settings.autoreorder:
-                self.display.reorderLayers()
-            self.sensitize_menus()
-            self.newLayerMembers()
+            layer = self.layers[n]
+            if layer is self.selectedLayer:
+                self.selectedLayer = None
+            layer.destroy()
+            del self.layers[n]
         finally:
             self.releaseGfxLock()
-        switchboard.notify((self, 'layers changed'))
-
-    def cleanLayerSet(self, layerset, installed):
-        if not layerset.forced:
-            layers = layerset.methods[:]
-            for layer in layers:
-                reason = layer.incomputable(self)
-                if reason:
-                    debug.fmsg('incomputable layer:', layer)
-                    # Empty layers are not added to the graphics window,
-                    # so we can't remove them.
-                    if installed and layer != display.emptyLayer:
-                        self.removeLayer(layer) # calls layerset.removeMethod()
-                    else:
-                        layerset.removeMethod(layer)
-        
-    def deleteLayerNumber(self, menuitem, n):
-        layer = self.display[n]
-        layerset = layer.layerset
-        self.removeLayer(layer)
-        if len(layerset) == 0:
-            self.layerSets.remove(layerset)
-        switchboard.notify((self, 'layers changed'))
-        # This "draw" added so deletions are properly removed from the
-        # graphics windows.
-        self.draw()
-
-    def removeLayer(self, layer):       # extended in gfxwindow.py
-        self.display.remove_layer(layer)
-        if layer is self.selectedLayer:
-            self.selectedLayer = None
-            self.sensitize_menus()
-        layer.destroy()
-        self.newLayerMembers()
-        
-    def replaceLayer(self, count, oldlayer, newlayer):
-        # extended in gfxwindow.py
-        if self.selectedLayer is oldlayer:
-            self.selectedLayer = newlayer
-        self.display.replace_layer(oldlayer, newlayer)
-        layerset = oldlayer.layerset
-        layerset.replaceMethod(count, newlayer)
-        oldlayer.destroy()
+        self.layersHaveChanged()
 
     def newLayer(self, displaylayer):
         pass
 
     def hideLayer(self, menuitem, n):
-        self.display[n].hide()
-        self.draw()
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.contourmap_newlayers()
+        self.layers[n].hide()
+        self.layersHaveChanged()
 
     def showLayer(self, menuitem, n):
-        self.display[n].show()
-        self.draw()
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.contourmap_newlayers()
+        self.layers[n].show()
+        self.layersHaveChanged()
 
     def freezeLayer(self, menuitem, n):
-        self.display[n].freeze(self)
+        self.layers[n].freeze(self)
+        # TODO: This signal is not caught.   Does freezing work?
         switchboard.notify((self, 'layers frozen'))
         self.sensitize_menus()
     def unfreezeLayer(self, menuitem, n):
-        self.display[n].unfreeze(self)
+        self.layers[n].unfreeze(self)
+        # TODO: This signal is not caught.   Does freezing work?
         switchboard.notify((self, 'layers frozen'))
         self.sensitize_menus()
         self.draw()
-
-    # Called at layer-rearrangement time if there is exactly one
-    # contour-capable layer.  The timing on this is such that all it
-    # has to do is mark the appropriate layer, and the drawing will be
-    # correct.
-    # def auto_enable_layer_contourmap(self, layer):
-    #     layer.show_contourmap()
-    #     self.sensitize_menus()
-        
-        
-    # Menu callbacks for layer operations.  Overridden in gfxwindow.
-    def hideLayerContourmap(self, menuitem, n):
-        self.display[n].hide_contourmap()
-        self.current_contourmap_method = None
-        self.sensitize_menus()
-    
-    def showLayerContourmap(self, menuitem, n):
-        # At most one contourmap can be shown at a time, so hide all
-        # the others.
-        for layer in self.display:
-            layer.hide_contourmap()
-        self.current_contourmap_method = self.display[n]
-        self.current_contourmap_method.show_contourmap()
-        self.sensitize_menus()
 
     # Topmost layer on which contours can be drawn -- such a layer
     # must have a mesh as its "who".
     def topcontourable(self):
-        return self.display.topcontourable(self)
-
+        for layer in reversed(self.layers):
+            if layer.contour_capable(self) and not layer.hidden:
+                return layer
+            
     def selectLayer(self, n):
         if n is not None:
-            self.selectedLayer = self.display[n]
+            self.selectedLayer = self.layers[n]
             self.sensitize_menus()
     def deselectLayer(self, n):
-        if self.selectedLayer is not None and \
-           self.layerID(self.selectedLayer)==n:
+        if (self.selectedLayer is not None and 
+            self.layerID(self.selectedLayer) == n):
             self.selectedLayer = None
             self.sensitize_menus()
     def deselectAll(self):
@@ -1323,58 +1410,63 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     def deselectLayerCB(self, menuitem, n):
         self.deselectLayer(n)
 
+    def raiseLayerBy(self, n, howfar):
+        # n is the layer number
+        self.acquireGfxLock()
+        try:
+            if howfar > 0 and 0 <= n < self.nLayers()-howfar:
+                thislayer = self.layers[n]
+                for i in range(howfar):
+                    self.layers[n+i] = self.layers[n+i+1]
+                self.layers[n+howfar] = thislayer
+                thislayer.raise_layer(howfar)
+            else:
+                return
+        finally:
+            self.releaseGfxLock()
+        self.layersHaveChanged()
+
     def raiseLayer(self, menuitem, n):
-        self.display.raise_layer(n)
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.draw()
-        self.newLayerMembers()
+        self.raiseLayerBy(n, 1)
         
     def raiseToTop(self, menuitem, n):
-        self.display.layer_to_top(n)
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.draw()
-        self.newLayerMembers()
+        self.raiseLayerBy(n, self.nLayers()-n-1)
 
     def raiseBy(self, menuitem, n, howfar):
-        self.display.raise_layer_by(n, howfar)
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.draw()
-        self.newLayerMembers()
+        self.raiseLayerBy(n, howfar)
+
+    def lowerLayerBy(self, n, howfar):
+        # n is the layer number
+        self.acquireGfxLock()
+        try:
+            if howfar > 0 and howfar <= n < self.nLayers():
+                thislayer = self.layers[n]
+                for i in range(howfar):
+                    self.layers[n-i] = self.layers[n-i-1]
+                self.layers[n-howfar] = thislayer
+                thislayer.lower_layer(howfar)
+            else:
+                return
+        finally:
+            self.releaseGfxLock()
+        self.layersHaveChanged()
 
     def lowerLayer(self, menuitem, n):
-        self.display.lower_layer(n)
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.draw()
-        self.newLayerMembers()
+        self.lowerLayerBy(n, 1)
         
     def lowerToBottom(self, menuitem, n):
-        self.display.layer_to_bottom(n)
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.draw()
-        self.newLayerMembers()
+        self.lowerLayerBy(n, n)
 
     def lowerBy(self, menuitem, n, howfar):
-        self.display.lower_layer_by(n, howfar)
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.draw()
-        self.newLayerMembers()
+        self.lowerLayerBy(n, howfar)
 
     def reorderLayers(self, menuitem):
-        self.display.reorderLayers()
-        switchboard.notify((self, 'layers changed'))
-        self.sensitize_menus()
-        self.draw()
-        self.newLayerMembers()
+        self.layers.sort(display.layercomparator)
+        self.layersHaveChanged()
 
     def listedLayers(self):             # for testing
         result = []
-        for layer in self.display:
+        for layer in self.layers:
             if layer.listed:
                 result.append(layer)
         return result
@@ -1384,12 +1476,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         # animation, by asking the unfrozen AnimationLayers for their
         # times.
         times = set()
-        layersetsseen = set() # only need to check one layer in each layerset
-        for layer in self.display.layers:
+        for layer in self.layers:
             if (isinstance(layer, display.AnimationLayer) 
-                and layer.animatable(self)
-                and layer.layerset not in layersetsseen):
-                layersetsseen.add(layer.layerset)
+                and layer.animatable(self)):
                 when = layer.getParamValue('when')
                 if when is placeholder.latest:
                     times.update(layer.animationTimes(self))
@@ -1397,21 +1486,28 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         times.sort()
         return times
 
-
     def latestTime(self):
         times = self.findAnimationTimes()
         if times:
             return max(times)
         return None
 
+    def dumpLayers(self, menuitem, filename):
+        for i, layer in enumerate(self.layers):
+            if not layer.empty():
+                fname = filename + '%02d' % i + ".png"
+                print "Saving layer", layer.short_name(), "as", fname
+                layer.canvaslayer.writeToPNG(fname)
+            
+
     #####################################
 
     # switchboard callbacks
 
-    def newWho(self, classname, who):
+    def newWho(self, classname, whopath):
         # A new Who (layer context) has been created.  Display it
         # automatically, if nothing else is displayed.
-        self.createDefaultLayers()
+        self.createDefaultLayers(classname, whopath)
         ## Don't call self.draw() here!  It should only be called when
         ## a menu item issues the "redraw" switchboard signal.
         ## Otherwise it can be called too often (such as when one menu
@@ -1419,22 +1515,25 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         
     def removeWho(self, whoclassname, whoname):
         path = labeltree.makePath(whoname)
-        # In each layer containing the removed Who, replace the Who with Nobody.
-        for layerset in self.layerSets:
-            layerpath = labeltree.makePath(layerset.who.path())
-            if layerpath == path and \
-                   layerset.who.getClass().name()==whoclassname:
-                layerset.changeWho(who=whoville.nobody)
-        # self.draw()                     # update graphics display
+        defunctLayers = []
+        for layer in self.layers:
+            layerpath = labeltree.makePath(layer.who.path())
+            if (layer.who.getClass().name() == whoclassname and
+                layerpath == path):
+                if layer is self.selectedLayer:
+                    self.selectedLayer = None
+                layer.setWho(None)
+                defunctLayers.append(layer)
+        # Don't use layer.getWho() here, because that tries to resolve
+        # proxies in the graphics window.  We are just checking to see
+        # if who was set to None in the loop above.
+        self.layers = [layer for layer in self.layers
+                       if layer.who is not None]
+        for layer in defunctLayers:
+            layer.destroy()
 
-        switchboard.notify((self, 'layers changed'))
-        
-        # There is a race condition between the newLayerMembers
-        # and the redraw, which results (in the unbuffered case) in
-        # the color map not being removed properly if the draw
-        # precedes the newLayerMembers.
-        self.newLayerMembers()
-        self.draw()
+        self.layersHaveChanged()
+
         
     def newToolboxClass(self, tbclass):
         tb = tbclass(self)              # constructs toolbox
@@ -1454,8 +1553,9 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
 
 # An imported module can define a default layer for a graphics window
 # by instantiating the DefaultLayer class.  Default layers are drawn
-# in a new grraphics window if and only if there is exactly one
-# instance of the WhoClass which they display.
+# in a new grraphics window if there is exactly one instance of the
+# WhoClass which they display, or if an object of the appropriate
+# WhoClass is passed in to the createLayer method.
 
 class DefaultLayer:
     allDefaultLayers = []
@@ -1464,11 +1564,11 @@ class DefaultLayer:
         self.whoclass = whoclass
         self.displaymethodfn = displaymethodfn
 
-    def createLayerSet(self):
-        if self.whoclass.nActual() == 1:
-            layerset = display.LayerSet(self.whoclass.actualMembers()[0])
-            layerset.addMethod(self.displaymethodfn())
-            return layerset
+    def createLayer(self, who):
+        assert who is not None # used to be allowed
+        if who.getClass() is self.whoclass:
+            return (self.displaymethodfn(), who)
+        return (None, None)
 
 # Predefined layers are created whenever a graphics window is opened
 # by GhostGfxWindow.createPredefinedLayers(), without checking for the
@@ -1482,12 +1582,10 @@ class PredefinedLayer:
         self.whoclass = whoville.getClass(whoclassname)
         self.path = path
         self.displaymethodfn = displaymethodfn
-    def createLayerSet(self):
-        layerset = display.LayerSet(self.whoclass[self.path])
+    def createLayer(self):
         displaymethod = self.displaymethodfn()
         displaymethod.listed = 0
-        layerset.addMethod(displaymethod)
-        return layerset
+        return displaymethod, self.whoclass[self.path]
 
 ################################################
 
@@ -1512,3 +1610,13 @@ mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
     help="Set the initial size of graphics windows.",
     discussion="<para> Set the initial size of graphics windows. </para>"
     ))
+
+def _setDefaultNewLayerPolicy(menuitem, policy):
+    GfxSettings.newlayerpolicy = policy
+
+mainmenu.gfxdefaultsmenu.addItem(oofmenu.OOFMenuItem(
+    'New_Layer_Policy',
+    callback=_setDefaultNewLayerPolicy,
+    params=[enum.EnumParameter('policy', NewLayerPolicy,
+                               value=GfxSettings.newlayerpolicy)],
+    help = "When to create new graphics layers."))

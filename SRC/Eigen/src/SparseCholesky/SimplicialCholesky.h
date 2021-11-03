@@ -39,18 +39,16 @@ namespace internal {
 } // end namespace internal
 
 /** \ingroup SparseCholesky_Module
-  * \brief A direct sparse Cholesky factorizations
+  * \brief A base class for direct sparse Cholesky factorizations
   *
-  * These classes provide LL^T and LDL^T Cholesky factorizations of sparse matrices that are
-  * selfadjoint and positive definite. The factorization allows for solving A.X = B where
+  * This is a base class for LL^T and LDL^T Cholesky factorizations of sparse matrices that are
+  * selfadjoint and positive definite. These factorizations allow for solving A.X = B where
   * X and B can be either dense or sparse.
   * 
   * In order to reduce the fill-in, a symmetric permutation P is applied prior to the factorization
   * such that the factorized matrix is P A P^-1.
   *
-  * \tparam _MatrixType the type of the sparse matrix A, it must be a SparseMatrix<>
-  * \tparam _UpLo the triangular part that will be used for the computations. It can be Lower
-  *               or Upper. Default is Lower.
+  * \tparam Derived the type of the derived class, that is the actual factorization type.
   *
   */
 template<typename Derived>
@@ -70,6 +68,11 @@ class SimplicialCholeskyBase : public SparseSolverBase<Derived>
     typedef CholMatrixType const * ConstCholMatrixPtr;
     typedef Matrix<Scalar,Dynamic,1> VectorType;
     typedef Matrix<StorageIndex,Dynamic,1> VectorI;
+
+    enum {
+      ColsAtCompileTime = MatrixType::ColsAtCompileTime,
+      MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime
+    };
 
   public:
     
@@ -605,7 +608,7 @@ public:
       }
 
       if(Base::m_diag.size()>0)
-        dest = Base::m_diag.asDiagonal().inverse() * dest;
+        dest = Base::m_diag.real().asDiagonal().inverse() * dest;
 
       if (Base::m_matrix.nonZeros()>0) // otherwise I==I
       {

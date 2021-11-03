@@ -117,7 +117,6 @@ def newMesh(menuitem, name, skeleton, element_types):
             meshctxt = ooflib.engine.mesh.meshes.add(
                 skelpath+[name], femesh,
                 parent=skeletoncontext.skeletonContexts[skelpath],
-                skeleton=skel,
                 elementdict=edict,
                 materialfactory=skeletonelement.SkeletonElement.realmaterial)
             meshctxt.createDefaultSubProblem()
@@ -258,7 +257,7 @@ def copyMesh(menuitem, mesh, name, copy_field, copy_equation, copy_bc):
             skelpath+[copiedmeshname],
             copiedfemesh,
             parent=skeletoncontext.skeletonContexts[skelpath],
-            skeleton=skel, elementdict=edict,
+            elementdict=edict,
             materialfactory=basemesh.materialfactory)
         newmesh.reserve()
         newmesh.begin_writing()
@@ -397,6 +396,9 @@ def _copyFieldState(menuitem, source, target):
             else:
                 target_mesh.set_field_initializer(f, initializer)
                 notifications.append(("field initialized"))
+
+        if target_subp.autoenableBCs():
+            notifications.append(("boundary conditions changed", targetsubp))
     finally:
         source_subp.end_reading()
         target_subp.end_writing()
@@ -405,9 +407,6 @@ def _copyFieldState(menuitem, source, target):
     # Make all the switchboard notifications outside the locked region.
     for n in notifications:
         switchboard.notify(*n)
-
-    # Update BCs
-    target_subp.autoenableBCs()
 
     target_subp.changed("Field state changed.")
     switchboard.notify("redraw")
@@ -494,6 +493,8 @@ def _copyEquationState(menuitem, source, target):
                     target_obj.activate_dynamics(e)
                     notifications.append(
                         ('dynamics activated', target_subp.path(), e.name(), 1))
+        if target_subp.autoenableBCs():
+            notifications.append(("boundary conditions changed", self))
     finally:
         source_subp.end_reading()
         target_subp.end_writing()
@@ -502,7 +503,6 @@ def _copyEquationState(menuitem, source, target):
     for n in notifications:
         switchboard.notify(*n)
 
-    target_subp.autoenableBCs()
     target_subp.changed("Equations changed.")
 
 
@@ -552,12 +552,14 @@ def _defineField(menuitem, mesh, field):
         subpcontext.begin_writing()
         try:
             subpcontext.getObject().define_field(field)
+            bcchanged = subpcontext.autoenableBCs()
         finally:
             subpcontext.end_writing()
             subpcontext.cancel_reservation()
 
         switchboard.notify("field defined", subpcontext.path(), field.name(), 1)
-        subpcontext.autoenableBCs()
+        if bcchanged:
+            switchboard.notify("boundary conditions changed", subpcontext)
         subpcontext.changed("Field defined.")
         meshcontext.setStatus(meshstatus.Unsolved("New fields defined"))
 
@@ -578,11 +580,13 @@ def _undefineField(menuitem, mesh, field):
             # might be slow (especially for a disk cache).  The
             # simpler thing to do is to just delete the whole cache.
             subpcontext.getParent().clearDataCache()
+            bcchanged = subpcontext.autoenableBCs()
         finally:
             subpcontext.end_writing()
             subpcontext.cancel_reservation()
 
-        subpcontext.autoenableBCs()
+        if bcchanged:
+            switchboard.notify("boundary conditions changed", subpcontext)
         subpcontext.changed("Field undefined.")
         switchboard.notify("field defined", subpcontext.path(), field.name(), 0)
         meshcontext.setStatus(meshstatus.Unsolved("New fields defined"))
@@ -632,6 +636,7 @@ def _activateField(menuitem, mesh, field):
             if subp.is_defined_field(field):
                 subp.activate_field(field)
                 activation = True
+                bcchanged = subpcontext.autoenableBCs()
             else:
                 reporter.report(
                     "You must define a Field before you can activate it.")
@@ -640,7 +645,8 @@ def _activateField(menuitem, mesh, field):
             subpcontext.cancel_reservation()
 
         if activation:
-            subpcontext.autoenableBCs()
+            if bcchanged:
+                switchboard.notify("boundary conditions changed", subpcontext)
             switchboard.notify("field activated", subpcontext.path(),
                                field.name(), 1)
             subpcontext.changed("Field activated.")
@@ -660,6 +666,7 @@ def _deactivateField(menuitem, mesh, field):
             if subp.is_active_field(field):
                 subp.deactivate_field(field)
                 deactivation = True
+                bcchanged = subpcontext.autoenableBCs()
             else:
                 reporter.report(
                     "You must define and activate a Field before you can deactivate it.")
@@ -668,7 +675,8 @@ def _deactivateField(menuitem, mesh, field):
             subpcontext.cancel_reservation()
 
         if deactivation:
-            subpcontext.autoenableBCs()
+            if bcchanged:
+                switchboard.notify("boundary conditions changed", subpcontext)
             switchboard.notify("field activated", subpcontext.path(),
                                field.name(), 0)
             subpcontext.changed("Field deactivated.")
@@ -1015,11 +1023,13 @@ def _activateEquation(menuitem, mesh, equation):
         subpcontext.begin_writing()
         try:
             subpcontext.getObject().activate_equation(equation)
+            bcchanged = subpcontext.autoenableBCs()
         finally:
             subpcontext.end_writing()
             subpcontext.cancel_reservation()
 
-        subpcontext.autoenableBCs()
+        if bcchanged:
+            switchboard.notify("boundary conditions changed", subpcontext)
         switchboard.notify('equation activated', subpcontext.path(),
                            equation.name(), 1)
         subpcontext.changed("Equation activated.")
@@ -1034,13 +1044,15 @@ def _deactivateEquation(menuitem, mesh, equation):
         subpcontext.begin_writing()
         try:
             subpcontext.getObject().deactivate_equation(equation)
+            bcchanged = subpcontext.autoenableBCs()
         finally:
             subpcontext.end_writing()
             subpcontext.cancel_reservation()
 
         switchboard.notify('equation activated', subpcontext.path(),
                            equation.name(), 0)
-        subpcontext.autoenableBCs()
+        if bcchanged:
+            switchboard.notify("boundary conditions changed", subpcontext)
         subpcontext.changed("Equation deactivated.")
 
 eqnmenu.addItem(oofmenu.OOFMenuItem(

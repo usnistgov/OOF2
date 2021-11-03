@@ -23,6 +23,8 @@ class TestBase(unittest.TestCase):
         OOF.Microstructure.New(name='microstructure', width=1.0, height=1.0,
                                width_in_pixels=23, height_in_pixels=23)
         OOF.Material.New(name='material')
+        OOF.Settings.Graphics_Defaults.New_Layer_Policy(policy='Single')
+
     def createSkel(self, periodicities):
         OOF.Skeleton.New(name='skeleton', microstructure='microstructure',
                          x_elements=10, y_elements=10,
@@ -54,14 +56,12 @@ class TestBase(unittest.TestCase):
                                     group='pixelgroup')
         OOF.PixelGroup.New(name='circle', microstructure='microstructure')
 
-        OOF.LayerEditor.LayerSet.New(window='Graphics_1')
-        OOF.LayerEditor.LayerSet.DisplayedObject(category='Microstructure',
-                                                 object='microstructure')
-        OOF.LayerEditor.LayerSet.Add_Method(
-            method=MicrostructureMaterialDisplay(
-            no_material=Gray(value=0.0),
-            no_color=RGBColor(red=0.0,green=0.0,blue=1.0)))
-        OOF.LayerEditor.LayerSet.Send(window='Graphics_1')
+        OOF.Graphics_1.Layer.New(
+            category='Microstructure',
+            what='microstructure',
+            how=MicrostructureMaterialDisplay(
+                no_material=TranslucentGray(value=0.0,alpha=1.0),
+                no_color=RGBAColor(red=0.0,green=0.0,blue=1.0,alpha=1.0)))
         OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
             source='microstructure', points=[Point(0.733268,0.258171),
                                              Point(0.857393,0.138327)],

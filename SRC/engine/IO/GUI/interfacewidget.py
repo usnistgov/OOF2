@@ -21,9 +21,10 @@ from ooflib.engine import skeletoncontext
 
 #Listbox
 class ListOfInterfacesWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         self.widget = chooser.ScrolledMultiListWidget([],
-                                                      callback=self.widgetCB)
+                                                      callback=self.widgetCB,
+                                                      **kwargs)
 
         parameterwidgets.ParameterWidget.__init__(self, self.widget.gtk,
                                                   scope=scope, name=name,
@@ -61,17 +62,19 @@ class ListOfInterfacesWidget(parameterwidgets.ParameterWidget):
     def widgetCB(self, list, interactive):
         self.widgetChanged(len(list) > 0, interactive=1)
 
-def _makeListOfInterfacesWidget(self, scope=None):
-    return ListOfInterfacesWidget(self, scope=scope, name=self.name)
+def _makeListOfInterfacesWidget(self, scope=None, **kwargs):
+    return ListOfInterfacesWidget(self, scope=scope, name=self.name, **kwargs)
 
-interfaceparameters.ListOfInterfacesParameter.makeWidget = _makeListOfInterfacesWidget
+interfaceparameters.ListOfInterfacesParameter.makeWidget = \
+    _makeListOfInterfacesWidget
 
 #Listbox. This widget differs from the above widget by having
 #a self.interfacematwidget member
 class ListOfInterfacesWithMaterialWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         self.widget = chooser.ScrolledMultiListWidget([],
-                                                      callback=self.widgetCB)
+                                                      callback=self.widgetCB,
+                                                      **kwargs)
 
         parameterwidgets.ParameterWidget.__init__(self, self.widget.gtk,
                                                   scope=scope, name=name,
@@ -86,7 +89,8 @@ class ListOfInterfacesWithMaterialWidget(parameterwidgets.ParameterWidget):
             self.widget.set_selection(param.value)
         self.sbcallbacks = [
             switchboard.requestCallbackMain(self.mswidget, self.update),
-            switchboard.requestCallbackMain(self.interfacematwidget, self.update)
+            switchboard.requestCallbackMain(self.interfacematwidget,
+                                            self.update)
             ]
     def cleanUp(self):
         map(switchboard.removeCallback, self.sbcallbacks)
@@ -100,7 +104,8 @@ class ListOfInterfacesWithMaterialWidget(parameterwidgets.ParameterWidget):
             ms = ooflib.common.microstructure.microStructures[msname]
             if ms:
                 interfacemsplugin=ms.getObject().getPlugIn("Interfaces")
-                names=interfacemsplugin.getInterfaceNamesWithMaterial(interfacematname)
+                names=interfacemsplugin.getInterfaceNamesWithMaterial(
+                    interfacematname)
                 if names:
                     names.sort()
                     self.widget.update(names)
@@ -115,22 +120,25 @@ class ListOfInterfacesWithMaterialWidget(parameterwidgets.ParameterWidget):
     def widgetCB(self, list, interactive):
         self.widgetChanged(len(list) > 0, interactive=1)
 
-def _makeListOfInterfacesWithMaterialWidget(self, scope=None):
-    return ListOfInterfacesWithMaterialWidget(self, scope=scope, name=self.name)
+def _makeListOfInterfacesWithMaterialWidget(self, scope=None, **kwargs):
+    return ListOfInterfacesWithMaterialWidget(self, scope=scope, name=self.name,
+                                              **kwargs)
 
-interfaceparameters.ListOfInterfacesWithMaterialParameter.makeWidget = _makeListOfInterfacesWithMaterialWidget
+interfaceparameters.ListOfInterfacesWithMaterialParameter.makeWidget = \
+    _makeListOfInterfacesWithMaterialWidget
 
 #Drop-down combobox
 class InterfacesWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         self.widget = chooser.ChooserWidget([],
                                             callback=self.widgetCB,
-                                            name=name)
+                                            name=name, **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, self.widget.gtk,
                                                   scope=scope, name=name)
+        #  TODO: Why is this called mswidget if it's a skeleton widget?
         self.mswidget = self.scope.findWidget(
             lambda w: isinstance(w, whowidget.WhoWidget)
-            and w.whoclass is skeletoncontext.skeletonContexts) #Needs an MS:Skeleton
+            and w.whoclass is skeletoncontext.skeletonContexts)
         self.sbcallbacks = [
             switchboard.requestCallbackMain(self.mswidget, self.update),
             switchboard.requestCallbackMain("new interface created",
@@ -167,8 +175,8 @@ class InterfacesWidget(parameterwidgets.ParameterWidget):
     def widgetCB(self, gtkobj, name):
         self.widgetChanged(validity=self.widget.nChoices()>0, interactive=1)
 
-def _makeInterfacesWidget(self, scope=None):
-    return InterfacesWidget(self, scope=scope, name=self.name)
+def _makeInterfacesWidget(self, scope=None, **kwargs):
+    return InterfacesWidget(self, scope=scope, name=self.name, **kwargs)
 
 interfaceparameters.InterfacesParameter.makeWidget = _makeInterfacesWidget
 
@@ -192,14 +200,17 @@ class ListOfInterfacesSkelBdyWidget(ListOfInterfacesWidget):
         self.widget.update([])
         self.widgetChanged(0, interactive=0)
 
-def _makeListOfInterfacesSkelBdyWidget(self, scope=None):
-    return ListOfInterfacesSkelBdyWidget(self, scope=scope, name=self.name)
+def _makeListOfInterfacesSkelBdyWidget(self, scope=None,**kwargs):
+    return ListOfInterfacesSkelBdyWidget(self, scope=scope, name=self.name,
+                                         **kwargs)
 
-interfaceparameters.ListOfInterfacesSkelBdyParameter.makeWidget = _makeListOfInterfacesSkelBdyWidget
+interfaceparameters.ListOfInterfacesSkelBdyParameter.makeWidget = \
+    _makeListOfInterfacesSkelBdyWidget
 
 #Listbox. This widget differs from the above widget by having
 #a self.interfacematwidget member
-class ListOfInterfacesSkelBdyWithMaterialWidget(ListOfInterfacesWithMaterialWidget):
+class ListOfInterfacesSkelBdyWithMaterialWidget(
+        ListOfInterfacesWithMaterialWidget):
     def update(self, *args, **kwargs):
         msname = self.mswidget.get_value()
         interfacematname = self.interfacematwidget.get_value()
@@ -207,8 +218,10 @@ class ListOfInterfacesSkelBdyWithMaterialWidget(ListOfInterfacesWithMaterialWidg
             ms = ooflib.common.microstructure.microStructures[msname]
             if ms:
                 interfacemsplugin=ms.getObject().getPlugIn("Interfaces")
-                inames=interfacemsplugin.getInterfaceNamesWithMaterial(interfacematname)
-                sbnames=interfacemsplugin.getSkelBdyNamesWithMaterial(interfacematname)
+                inames=interfacemsplugin.getInterfaceNamesWithMaterial(
+                    interfacematname)
+                sbnames=interfacemsplugin.getSkelBdyNamesWithMaterial(
+                    interfacematname)
                 inames.sort()
                 sbnames.sort()
                 names=inames+sbnames
@@ -218,19 +231,22 @@ class ListOfInterfacesSkelBdyWithMaterialWidget(ListOfInterfacesWithMaterialWidg
         self.widget.update([])
         self.widgetChanged(0, interactive=0)
 
-def _makeListOfInterfacesSkelBdyWithMaterialWidget(self, scope=None):
-    return ListOfInterfacesSkelBdyWithMaterialWidget(self, scope=scope, name=self.name)
+def _makeListOfInterfacesSkelBdyWithMaterialWidget(self, scope=None, **kwargs):
+    return ListOfInterfacesSkelBdyWithMaterialWidget(self, scope=scope,
+                                                     name=self.name, **kwargs)
 
-interfaceparameters.ListOfInterfacesSkelBdyWithMaterialParameter.makeWidget = _makeListOfInterfacesSkelBdyWithMaterialWidget
+interfaceparameters.ListOfInterfacesSkelBdyWithMaterialParameter.makeWidget = \
+    _makeListOfInterfacesSkelBdyWithMaterialWidget
 
-###################################################################################
+#############################################################################
 #Drop-down combobox
 #Lists skeleton names plus "<All>"
+
 class SkelAllWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         self.widget = chooser.ChooserWidget([],
                                             callback=self.widgetCB,
-                                            name=name)
+                                            name=name, **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, self.widget.gtk,
                                                   scope=scope, name=name)
         self.mswidget = self.scope.findWidget(
@@ -266,11 +282,11 @@ class SkelAllWidget(parameterwidgets.ParameterWidget):
         return self.widget.get_value()
     def set_value(self, value):
         self.widget.set_state(value)
-    def widgetCB(self, gtkobj, name):
+    def widgetCB(self, name):
         self.widgetChanged(validity=self.widget.nChoices()>0, interactive=1)
 
-def _makeSkelAllWidget(self, scope=None):
-    return SkelAllWidget(self, scope=scope, name=self.name)
+def _makeSkelAllWidget(self, scope=None, **kwargs):
+    return SkelAllWidget(self, scope=scope, name=self.name, **kwargs)
 
 interfaceparameters.SkelAllParameter.makeWidget = _makeSkelAllWidget
 
@@ -280,9 +296,10 @@ interfaceparameters.SkelAllParameter.makeWidget = _makeSkelAllWidget
 #called "<All>" that lists all interface names and all skeleton boundary names
 #that are common to all skeletons in the microstructure.
 class ListOfInterfacesCombinedBdysWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         self.widget = chooser.ScrolledMultiListWidget([],
-                                                      callback=self.widgetCB)
+                                                      callback=self.widgetCB,
+                                                      **kwargs)
 
         parameterwidgets.ParameterWidget.__init__(self, self.widget.gtk,
                                                   scope=scope, name=name,
@@ -312,14 +329,14 @@ class ListOfInterfacesCombinedBdysWidget(parameterwidgets.ParameterWidget):
                 interfacemsplugin=ms.getObject().getPlugIn("Interfaces")
                 names=interfacemsplugin.getInterfaceNames()
                 names.sort()
-                skelname=self.skelallwidget.get_value()
-                if skelname:
-                    if skelname==interfaceparameters.SkelAllParameter.extranames[0]:
+                skel = self.skelallwidget.get_value()
+                if skel:
+                    if skel==interfaceparameters.SkelAllParameter.extranames[0]:
                         commonbdynames=interfacemsplugin.getCommonSkelBdyNames()
                         commonbdynames.sort()
                         names=names+commonbdynames
                     else:
-                        bdynames=interfacemsplugin.getOneSkelBdyNames(skelname)
+                        bdynames=interfacemsplugin.getOneSkelBdyNames(skel)
                         bdynames.sort()
                         names=names+bdynames
                 self.widget.update(names)
@@ -331,10 +348,12 @@ class ListOfInterfacesCombinedBdysWidget(parameterwidgets.ParameterWidget):
         return self.widget.get_value()
     def set_value(self, value):
         self.widget.set_selection(value)
-    def widgetCB(self, list, interactive):
+    def widgetCB(self, interactive):
         self.widgetChanged(len(list) > 0, interactive=1)
 
-def _makeListOfInterfacesCombinedBdysWidget(self, scope=None):
-    return ListOfInterfacesCombinedBdysWidget(self, scope=scope, name=self.name)
+def _makeListOfInterfacesCombinedBdysWidget(self, scope=None, **kwargs):
+    return ListOfInterfacesCombinedBdysWidget(self, scope=scope, name=self.name,
+                                              **kwargs)
 
-interfaceparameters.ListOfInterfacesCombinedBdysParameter.makeWidget = _makeListOfInterfacesCombinedBdysWidget
+interfaceparameters.ListOfInterfacesCombinedBdysParameter.makeWidget = \
+    _makeListOfInterfacesCombinedBdysWidget

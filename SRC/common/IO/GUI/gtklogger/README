@@ -1,8 +1,4 @@
 // -*- text -*-
-// $RCSfile: README,v $
-// $Revision: 1.6 $
-// $Author: langer $
-// $Date: 2014/09/27 21:54:32 $
 
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
@@ -36,13 +32,14 @@ OVERVIEW
 These routines provide GUI logging and replay for PyGTK, at the gtk
 signal level.  The idea is to be able to reproduce the way in which a
 GUI drives its underlying code, without bothering to reproduce the way
-in which X11 drives the GUI.  Recording X11 events would produce large
-unreadable log files, which would break if the GUI were redesigned.
-The philosophy here is to log only those actions that actually have an
-effect (namely, those that produce gtk signals that the program is
-connected to) and to assign those actions to *named* widgets.  If the
-GUI changes, but the names stay the same, there's at least a chance
-that a previously recorded script will still work properly.
+in which X11 (or equivalent) drives the GUI.  Recording X11 events
+would produce large unreadable log files, which would break if the GUI
+were redesigned.  The philosophy here is to log only those actions
+that actually have an effect (namely, those that produce gtk signals
+that the program is connected to) and to assign those actions to
+*named* widgets.  If the GUI changes, but the names stay the same,
+there's at least a chance that a previously recorded script will still
+work properly.
 
 Because it's not possible (yet) to redefine pygtk class methods, it's
 necessary to make a bunch of changes to pygtk code in order to use the
@@ -68,23 +65,49 @@ code should be used instead:
 (The paranoid will use a try/finally block to ensure that
 signal.unblock was called in all circumstances.)
 
-All gtk.Widgets that emit signals that need to be replayed have to
-have names assigned by gtklogger.setWidgetName.  (These names are
-*not* the same as those set by gtk.Widget.set_name.)  All top level
-widgets (eg, gtk.Windows) need to have names set by
-gtklogger.newTopLevelWidget.  Intermediate Widgets, such as gtk.Paneds
-and gtk.Boxes that don't emit signals but contain Widgets that do, can
-have names but aren't required to do so.  The only requirement is that
-the sequence of names, going from a top level widget through
-intermediate widgets to a signalling widget, uniquely specifies the
-signalling widget.
+All gtk.Widgets that emit signals that need to be replayed must have
+names assigned by gtklogger.setWidgetName.  (These names are *not* the
+same as those set by gtk.Widget.set_name.)  All top level widgets (eg,
+gtk.Windows) need to have names set by gtklogger.newTopLevelWidget.
+Intermediate Widgets, such as gtk.Paneds and gtk.Boxes that don't emit
+signals but contain Widgets that do, can have names but aren't
+required to do so.  The only requirement is that the sequence of
+names, going from a top level widget through intermediate widgets to a
+signalling widget, uniquely specifies the signalling widget.
 
-GObjects that aren't Widgets but nonetheless emit signals must be
+ GObjects that aren't Widgets but nonetheless emit signals must be
 "adopted" by an associated Widget, using gtklogger.adoptGObject.  The
 arguments to adoptGObject specify how to extract the GObject from its
 adoptive parent.  The parent must be named by gtklogger.setWidgetName
 or gtklogger.newTopLevelWidget.  See the comments for the adoptGObject
 code, below, for more details.
+
+There are four variants of gtklogger.connect:
+
+gtklogger.connect(object, signal, callback, *args, **kwargs)
+connects the given callback to the given signal from the given
+object. Extra *args are passed to the callback.  The callback is
+called before any other signal handlers.
+
+gtklogger.connect_after(object, signal, callback, *args, **kwargs)
+is identical, but calls the callback after any other signal handlers.
+
+gtklogger.connect_passive(object, signal, *args, **kwargs)
+logs the signal, but doesn't call a callback.  This is useful if, for
+example, you want to log something like a window resize event, but
+don't need to explicitly handle the event in your code.
+
+gtklogger.connect_passive_after(object, signal, *args, **kwargs) is
+like connect_passive, but the signal is handled after other handlers
+have run.  This may not be useful.
+
+All of the connect methods can take an optional "logger" key word
+argument, which specifies an object that will be called to handle the
+event.  It needs to have a "record" function that takes the object
+being logged, the name of signal being logged, and returns a list of
+strings that will be inserted in the log file.  This is useful if, for
+instance, the GtkWidget doesn't have enough information by itself to
+reproduce an event.
 
 Instead of assigning submenus with gtk.MenuItem.set_submenu, use
 gtklogger.set_submenu(menuitem, submenu).  The submenu will behave as
@@ -127,10 +150,7 @@ arguments to gtklogger.replay are:
               The function should return True if it has
               handled the exception, and False if the exception
               should be propagated further.  In either case, no
-              more lines will be executed from the log file.  Note
-              that the function will be called from within a
-              gtk.threads_enter(), gtk.threads_leave() pair if
-              threaded==True.
+              more lines will be executed from the log file.
   rerecord:   See below
   checkpoints: Boolean, indicating if checkpoints should be respected
                (default is True).
@@ -216,4 +236,79 @@ statements might fail since the checkpoints in the old file are
 incorrect.  It may be necessary to manually move the assert statements
 in the new file if they're incorrectly positioned with respect to the
 new checkpoints.
+
+Including Other Things in the Log File
+
+If for some reason you need to add events to the log file that aren't
+handled well by the standard parts of gtklogger, you can use
+gtklogger.writeLine() and gtklogger.replayDefine() in your source
+code.  writeLine(str) takes a string argument and puts that string in
+the log file.  replayDefine(obj, name) takes a Python object and
+inserts it in the namespace in which log files are executed.  "name"
+is an optional argument that can be given if the object's name in the
+replay namespace should be different from it's name in the calling
+namespace.  (If obj is not a class or function, name is required.)
+
+For example, say that you're using a third party widget library and
+don't have access to its internal Gtk widgets.  The library calls a
+callback in your code.  Make your callback available in the gtklogger
+replay namespace with replayDefine().  At the beginning of the
+callback, before it has done anything consequential, call
+writeLine(str) where str is a string that when evaluated calls your
+callback.
+
+You can add comments to a log file by calling gtklogger.comment(),
+which prints all of its arguments after a comment character.  This can
+help you figure out where to add instrumentation to the log.  It's
+safe to call comment() even when not recording a log.
+
+SPECIAL CASES
+
+Handling the "changed" signal emitted by a GtkTreeSelection is tricky.
+First, a GtkTreeSelection is not a GtkWidget, so it must be adopted
+(see above) by its GtkTreeView:
+
+  selection = treeview.get_selection()
+  gtklogger.adoptGObject(selection, treeview,
+                         access_method=treeview.get_selection)
+  gtklogger.connect(selection, "changed", your_selection_callback)
+
+However, the gtk3 documentation warns that the "changed" signal is not
+meant to be taken literally.
+https://developer.gnome.org/gtk3/stable/GtkTreeSelection.html It is
+sometimes emitted when the selection hasn't changed.  It is sometimes
+emitted twice -- once with a null selection and once with a non-null
+selection.  It can behave differently when invoked by an actual mouse
+click or when invoked by a call to Gtk.TreeSelection.select_path(), If
+the callback function contains a gtklogger.checkpoint() call, then
+these inconsistencies mean that a checkpoint placed in the log file
+when recording might not be reached when replaying, and the test will
+fail.
+
+If you need checkpoints in a TreeViewSelection "changed" callback, it
+is better NOT to use the default TreeSelectionLogger.  Instead,
+connect to the signal in the normal, non-gtklogger way:
+
+  selection = treeview.get_selection()
+  selection.connect("changed", your_selection_callback)
+
+In your_selection_callback, first check to see if the selection has
+really changed.  If it has, use gtklogger.writeLine() to add something
+like this to the log
+
+  model, treeiter = selection.get_selected()
+  path = model.get_path(treeiter)
+  gtklogger.writeLine("simulateSelect(%s)" % path)
+
+where simulateSelect() is a function that calls selection.select() and
+has been made available in the replay script's namespace by calling
+
+  gtklogger.replayDefine("simulateSelect").
+
+[TODO: It may be possible to do this generically within gtklogger, and
+not require special attention from the user, although we may need a
+different version for each GtkSelectionMode.]
+
+
+
 

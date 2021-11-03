@@ -29,6 +29,11 @@ if parallel_enable.enabled():
 import ooflib.engine.mesh
 import types
 
+## TODO: It's possible to create a boundary condition that can't be
+## evaluated by defining it and then undefining the fields and
+## equations that it requires.  The boundary condition should
+## automatically disable itself when that happens.
+
 bcmenu = oofmenu.OOFMenuItem(
     'Boundary_Conditions',
     cli_only=1,

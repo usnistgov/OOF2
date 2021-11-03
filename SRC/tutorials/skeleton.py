@@ -33,46 +33,6 @@ TutorialClass(
         
     ),
 
-##        TutoringItem(
-##        subject="Why skeleton?",
-##        comments=
-
-##        """Let us assume that we don't have skeleton, meaning we only
-##        have FE mesh.
-
-##        You spent a considerable amount of time to mesh your
-##        microstructure.
-
-##        What if you chose the wrong element type in the beginning?
-
-##        You need to either start over or write a program to correct
-##        your mistakes, which will not be so easy.
-
-##        With skeleton, you don't need to go through this kind of
-##        hassle.
-
-##        You're always a click away from your FE mesh with customizable
-##        element types.
-
-##        Also, compared to FE mesh, skeleton is extremely
-##        BOLD(lighter), that is, it is easy to be manipulated.
-
-##        Factoring in a highly intensive computation needed in
-##        BOLD(meshing) stage, it is easy to see why we need
-##        BOLD(skeleton).
-
-##        Further information on skeleton can be found in the manual.
-##        """ ),
-
-##     TutoringItem(
-##     subject="Graphics window",
-##     comments=
-    
-##     """Open a graphics window, if none has been opened yet, with
-##     the BOLD(Graphics/New) command in the BOLD(Windows) menu.
-    
-##     """ ),
-
     TutoringItem(
     subject="Creating a Microstructure from an Image File",
     comments=
@@ -103,10 +63,13 @@ TutorialClass(
     correspondence between colors and features is trivial, we can
     group pixels automatically.
 
-    Open the BOLD(Image) page and click the BOLD(Group) button.
+    Open the BOLD(Image) page and click the BOLD(Group) button.  Click
+    BOLD(OK) in the dialog box.
 
     Go back to the BOLD(Microstructure) page and you will see that
     BOLD(8) pixel groups have been created for the microstructure.
+    The group names are the hexadecimal representations of the pixel
+    colors in the groups.
     """ ),
 
     TutoringItem(
@@ -137,8 +100,9 @@ TutorialClass(
 
     """Click BOLD(New...) to create an initial skeleton.
     
-    As in other cases, to give a skeleton a user-defined name, check
-    the little square box and type in a name of your liking.
+    The BOLD(name) field is an automatic widget.  You can type a name,
+    or leave it set to BOLD(<automatic>), in which the name "skeleton"
+    or "skeleton<x>" will be used, for some x.
 
     The number of elements in the initial skeleton can be set with the
     parameters, BOLD(x_elements) and BOLD(y_elements).
@@ -148,7 +112,8 @@ TutorialClass(
 
     For this tutorial, just use the default values for the initial
     skeleton: BOLD(x_elements)=4, BOLD(y_elements)=4, and
-    BOLD(skeleton_geometry)=QuadSkeleton.
+    BOLD(skeleton_geometry)=QuadSkeleton.  Leave the BOLD(periodicity)
+    arguments set to BOLD(false).
 
     Click BOLD(OK) to create the Skeleton.
     """,
@@ -160,8 +125,15 @@ TutorialClass(
     subject="Heterogeneous Elements",
     comments=
     
-    """ Open a BOLD(Graphics) window if you haven't already.  It
-    should be showing the skeleton on top of the micrograph.
+    """In the BOLD(Settings/Graphics Defaults) menu, set BOLD(New Layer
+    Policy) to BOLD(Single).  This will make new unique graphics
+    layers appear automatically in new graphics windows.
+
+    Open a new BOLD(Graphics) window.  It should show the Skeleton on
+    top of the image.  (Note that a graphics window that was opened
+    before you loaded the Image or created the Skeleton won't show
+    them unless you explicitly create a layer with the BOLD(Layer/New)
+    menu item.)
 
     For a Skeleton to be a good representation of a Microstructure,
     the BOLD(Elements) in the Skeleton must not cross boundaries
@@ -198,8 +170,9 @@ TutorialClass(
     largest fraction of an element's area belonging to a single pixel
     type.)
     
-    The second parameter BOLD(criterion) determines whether to accept
-    or reject the resulting refinement.  Select BOLD(Unconditional).
+    The second parameter BOLD(criterion) determines how OOF2 decides
+    to accept or reject a possible refinement.  Select
+    BOLD(Unconditional).
 
     The parameter BOLD(degree) controls the degree of
     subdivision.  It specifies into how many segments each edge of an
@@ -247,7 +220,7 @@ TutorialClass(
     Click BOLD(Undo) and BOLD(Redo), while checking out Homogeneity
     Index.
 
-    The number has been increased from BOLD(0.7305) to BOLD(0.8726).
+    The number has been increased from BOLD(0.7306) to BOLD(0.8726).
     """ ),
     
     TutoringItem(
@@ -317,13 +290,9 @@ TutorialClass(
     Select BOLD(Heterogeneous Elements) for the BOLD(targets)
     parameter and set the BOLD(threshold) to be BOLD(0.9), meaning it
     will attempt to move nodes of elements with homogeneity less than
-    BOLD(0.9).  """ ),
+    BOLD(0.9). 
 
-    TutoringItem(
-    subject="Snapping Nodes -- continued",
-    comments=
-    
-    """For the BOLD(criterion) parameter, select BOLD(Average Energy)
+    For the BOLD(criterion) parameter, select BOLD(Average Energy)
     and set its parameter BOLD(alpha) to be BOLD(1).
 
     The quality of a Skeleton element is quantified by a functional,
@@ -342,8 +311,8 @@ TutorialClass(
     long as doing so makes them more homogeneous. (We'll fix the bad
     shapes next.)
 
-    Click BOLD(OK) to make changes.  The BOLD(Homogeneity Index)
-    increases from 0.957 to 0.989.""",
+    Click BOLD(OK) to make changes.  Notice that the BOLD(Homogeneity
+    Index) increases from 0.957 to 0.989.""",
         
     signal = "Skeleton modified"
     ),
@@ -356,8 +325,7 @@ TutorialClass(
     elements have been badly distorted while adapting themselves to
     the material boundaries.
     
-    Select the BOLD(Skeleton Modification) method to
-    BOLD(Rationalize).
+    Set the BOLD(Skeleton Modification) method to BOLD(Rationalize).
 
     This modification tool automatically removes badly shaped
     elements, provided the changes meet a certain criterion.
@@ -392,16 +360,18 @@ TutorialClass(
     components -- elements, segments, and nodes -- and for
     manipulating groups of them.
 
-    Set BOLD(Selection Mode) to BOLD(Elements).
+    Below the Skeleton selector at the top of the page, set
+    BOLD(Selection Mode) to BOLD(Elements).
 
     From the BOLD(Element Selection Operations) pane in the right side
     of the page, select BOLD(Select By Homogeneity) for the parameter
-    BOLD(Action) and set its BOLD(threshold) to be BOLD(0.9), to
+    BOLD(Method) and set its BOLD(threshold) to be BOLD(0.9), to
     select all elements less than 90% homogeneous.
 
+    Click BOLD(OK) to make a selection.
+
     We will apply the next modification only to the selected elements.
-        
-    Now, click BOLD(OK) to make a selection.""",
+    """,
 
     signal = "changed element selection"
     ),
@@ -604,9 +574,18 @@ TutorialClass(
     Internal Boundary Nodes). Click BOLD(OK).
 
     All the nodes along the boundaries should be selected and
-    displayed as BOLD(yellow) dots.
+    displayed as BOLD(yellow) dots.  These nodes are not going to move
+    at all, until they are unpinned.
 
-    These nodes are not going to move at all, until they are unpinned.
+    If the dots are too large and are obscuring the Skeleton, you can
+    change their radius by editing their graphics layer.  In the
+    graphics window's BOLD(Settings) menu, check BOLD(List All
+    Layers).  Make the window and layer list larger if necessary, and
+    double-click the BOLD(PinnedNodesDisplay) line in the layer list.
+    Reduce the radius by changing the BOLD(size) parameter and click
+    BOLD(OK).  Uncheck BOLD(List All Layers) in the BOLD(Settings)
+    menu.
+
     """,
         
     signal = "new pinned nodes"
@@ -714,8 +693,8 @@ TutorialClass(
     subject="Homework",
     comments=
     
-    """You must like what you see in the graphics window.  Anyway, we
-    have covered most of the issues related to Skeleton modifications.
+    """We have covered most of the issues related to Skeleton
+    modifications.
     
     Related topics not covered in this tutorial include BOLD(Active
     Areas), and the BOLD(Move Node) toolbox.  """ )

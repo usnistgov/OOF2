@@ -18,6 +18,8 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 
+import oofcanvas
+
 # This object should be created via the registration, and not
 # directly via the initializer, becasue the registration creation
 # method gives it a timestamp.
@@ -27,28 +29,31 @@ class SkeletonNodeSelectionDisplay(display.DisplayMethod):
         self.color = color
         self.size = size
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device):
-        skel = self.who().resolve(gfxwindow)
+    def draw(self, gfxwindow):
+        skel = self.who.resolve(gfxwindow)
         if skel is not None:
-            device.set_lineColor(self.color)
-            device.set_lineWidth(self.size)
-            ## debug.fmsg("::before drawing dot")
+            clr = color.canvasColor(self.color)
             retr = skel.nodeselection.retrieve().copy()
             size = len(retr)
             for node in retr:
-                device.draw_dot(node.position())
-##            for n in range(size):
-                ## debug.fmsg("during drawing dot")
-##                device.draw_dot(retr[n].position())
-            ## debug.fmsg("::after drawing dot")
+                pt = node.position()
+
+                dot = oofcanvas.CanvasDot(pt, 1.2*self.size)
+                dot.setFillColor(oofcanvas.white.opacity(self.color.getAlpha()))
+                self.canvaslayer.addItem(dot)
+
+                dot = oofcanvas.CanvasDot(pt, self.size)
+                dot.setFillColor(clr)
+                self.canvaslayer.addItem(dot)
+                
     def getTimeStamp(self, gfxwindow):
         return max(self.timestamp,
-                   self.who().resolve(gfxwindow).nodeselection.timestamp)
+                   self.who.resolve(gfxwindow).nodeselection.timestamp)
 
 
 
-defaultNodeSelColor = color.RGBColor(0.07, 0.09, 0.96)
-defaultNodeSelSize = 2
+defaultNodeSelColor = color.RGBAColor(0.07, 0.09, 0.96, 1.0)
+defaultNodeSelSize = 5
 
 def _setNodeSelParams(menuitem, color, size):
     global defaultNodeSelColor
@@ -57,9 +62,9 @@ def _setNodeSelParams(menuitem, color, size):
     defaultNodeSelSize = size
 
 nodeselparams = [
-    color.ColorParameter('color', defaultNodeSelColor,
-                         tip="Color for the selected nodes."),
-    parameter.IntRangeParameter('size', (0,10), defaultNodeSelSize,
+    color.TranslucentColorParameter('color', defaultNodeSelColor,
+                                    tip="Color for the selected nodes."),
+    parameter.IntRangeParameter('size', (0,20), defaultNodeSelSize,
                                 tip="Node size.")]
 
 mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
@@ -89,7 +94,8 @@ nodeSelectDisplay = registeredclass.Registration(
     layerordering= display.PointLike(3),
     whoclasses=('Skeleton',),
     tip="Display the currently selected nodes.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/nodeselectdisplay.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/nodeselectdisplay.xml')
     )
 
 def defaultNodeSelectDisplay():

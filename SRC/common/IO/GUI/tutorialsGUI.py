@@ -22,10 +22,11 @@ from ooflib.common.IO.GUI import fontselector
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import subWindow
-from ooflib.common.IO.GUI import tooltips
 from ooflib.tutorials import tutorial
-import gtk
-import pango
+
+from gi.repository import Gtk
+from gi.repository import Pango
+
 import re
 import string
 import textwrap
@@ -38,10 +39,6 @@ import textwrap
 ## button is sensitized but before clicking Next.  The sensitivity
 ## probably needs to be saved in the file.
 
-## TODO: After completing a page, clicking Back and then Next
-## desensitizes the Next button, although the completed page is still
-## displayed.
-
 boldtag = "BOLD("
 lenboldtag = len(boldtag)
 delimexpr = re.compile(r'[^\\]\)')      # finds ')' not preceded by '\'
@@ -50,7 +47,8 @@ parasplit = re.compile(r'\n\s*\n')      # finds lines with only white space
 endline = re.compile(r'\s*\n\s*')
 
 
-## This is ugly.  It should be rewritten to take advantage of pango markup.
+## TODO: This is ugly.  It should be rewritten to take advantage of
+## pango markup.
 
 class Comment:
     def __init__(self, comment, font=None):
@@ -160,67 +158,63 @@ class TutorialClassGUI(subWindow.SubWindow):
             no_log=1,
             ordering=-1))
 
-        labelhbox = gtk.HBox()
-        self.subject = gtk.Label()
-        self.slideIndex = gtk.Label()
-        labelhbox.pack_start(self.subject, expand=1, fill=1, padding=2)
-        labelhbox.pack_end(self.slideIndex, expand=0, fill=0, padding=2)
-        self.mainbox.pack_start(labelhbox, expand=0, fill=0, padding=2)
+        labelhbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+        self.subject = Gtk.Label()
+        self.slideIndex = Gtk.Label()
+        labelhbox.pack_start(self.subject, expand=True, fill=True, padding=0)
+        labelhbox.pack_end(self.slideIndex, expand=False, fill=False, padding=0)
+        self.mainbox.pack_start(labelhbox, expand=False, fill=False, padding=0)
 
-        self.msgscroll = gtk.ScrolledWindow()
-        self.scrollsignals = gtklogger.logScrollBars(self.msgscroll,
-                                                     "TutorialScroll")
-        self.msgscroll.set_shadow_type(gtk.SHADOW_IN)
-        self.msgscroll.set_border_width(2)
-        self.msgscroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.mainbox.pack_start(self.msgscroll, expand=1, fill=1)
-        self.textview = gtk.TextView()
+        textframe = Gtk.Frame(shadow_type=Gtk.ShadowType.IN)
+        self.mainbox.pack_start(textframe,
+                                expand=True, fill=True, padding=0)
+        self.textview = Gtk.TextView(wrap_mode=Gtk.WrapMode.WORD_CHAR,
+                                     left_margin=5, right_margin=5,
+                                     top_margin=5, bottom_margin=5)
         self.textview.set_cursor_visible(False)
         self.textview.set_editable(False)
         textattrs = self.textview.get_default_attributes()
         self.boldTag = self.textview.get_buffer().create_tag(
             "bold",
-            weight=pango.WEIGHT_BOLD,  # why doesn't this work?
+            weight=Pango.Weight.BOLD,
             foreground="blue")
-##         self.boldTag = self.textview.get_buffer().create_tag(
-##             "bold",
-##             weight=pango.WEIGHT_HEAVY,  # why doesn't this work?
-##             underline=pango.UNDERLINE_SINGLE)
-        self.textview.set_wrap_mode(gtk.WRAP_WORD_CHAR)
-        self.msgscroll.add(self.textview)        
+        textframe.add(self.textview)
 
-        buttonbox = gtk.HBox(homogeneous=1, spacing=2)
-        self.mainbox.pack_end(buttonbox, expand=0, fill=0, padding=2)
-        self.backbutton = gtkutils.StockButton(gtk.STOCK_GO_BACK, "Back")
+        buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
+                             homogeneous=1, spacing=2)
+        self.mainbox.pack_end(buttonbox, expand=False, fill=False, padding=0)
+        self.backbutton = gtkutils.StockButton("go-previous-symbolic", "Back")
         gtklogger.setWidgetName(self.backbutton, "Back")
         gtklogger.connect(self.backbutton, "clicked", self.backCB)
-        tooltips.set_tooltip_text(self.backbutton,"Move to the previous slide.")
+        self.backbutton.set_tooltip_text("Move to the previous slide.")
 
-        self.nextbutton = gtkutils.StockButton(gtk.STOCK_GO_FORWARD, "Next")
+        self.nextbutton = gtkutils.StockButton("go-next-symbolic", "Next")
         gtklogger.setWidgetName(self.nextbutton, "Next")
         gtklogger.connect(self.nextbutton, "clicked", self.nextCB)
-        tooltips.set_tooltip_text(self.nextbutton,"Move to the next slide.")
+        self.nextbutton.set_tooltip_text("Move to the next slide.")
         
-        self.jumpbutton = gtkutils.StockButton(gtk.STOCK_GOTO_LAST, "Jump")
+        self.jumpbutton = gtkutils.StockButton("go-jump-symbolic", "Jump")
         gtklogger.setWidgetName(self.jumpbutton, "Jump")
         gtklogger.connect(self.jumpbutton, "clicked", self.jumpCB)
-        tooltips.set_tooltip_text(self.jumpbutton,"Jump to the leading slide.")
+        self.jumpbutton.set_tooltip_text("Jump to the leading slide.")
 
-        self.savebutton = gtkutils.StockButton(gtk.STOCK_SAVE, "Save...")
+        self.savebutton = gtkutils.StockButton("document-save-symbolic",
+                                               "Save...")
         gtklogger.setWidgetName(self.savebutton, "Save")
         gtklogger.connect(self.savebutton, "clicked", self.saveCB)
-        tooltips.set_tooltip_text(self.savebutton,"Save your tutorial session.")
+        self.savebutton.set_tooltip_text("Save your tutorial session.")
 
-        self.closebutton = gtkutils.StockButton(gtk.STOCK_CLOSE, "Close")
+        self.closebutton = gtkutils.StockButton("window-close-symbolic",
+                                                "Close")
         gtklogger.setWidgetName(self.closebutton, "Close")
         gtklogger.connect(self.closebutton, "clicked", self.closeCB)
-        tooltips.set_tooltip_text(self.closebutton,"Quit the tutorial.")
+        self.closebutton.set_tooltip_text("Quit the tutorial.")
         
-        buttonbox.pack_start(self.backbutton, expand=1, fill=1, padding=2)
-        buttonbox.pack_start(self.nextbutton, expand=1, fill=1, padding=2)
-        buttonbox.pack_start(self.jumpbutton, expand=1, fill=1, padding=2)
-        buttonbox.pack_start(self.savebutton, expand=1, fill=1, padding=2)
-        buttonbox.pack_end(self.closebutton, expand=1, fill=1, padding=2)
+        buttonbox.pack_start(self.backbutton, expand=True, fill=True, padding=2)
+        buttonbox.pack_start(self.nextbutton, expand=True, fill=True, padding=2)
+        buttonbox.pack_start(self.jumpbutton, expand=True, fill=True, padding=2)
+        buttonbox.pack_start(self.savebutton, expand=True, fill=True, padding=2)
+        buttonbox.pack_end(self.closebutton, expand=True, fill=True, padding=2)
 
         self.gtk.connect('destroy', self.closeCB)
         self.gtk.set_default_size(500, 300)
@@ -228,7 +222,6 @@ class TutorialClassGUI(subWindow.SubWindow):
         self.progress = 0  # How far has the tutorial gone?
                            # It's not affected by "Back" command.
         self.index = 0     # which slide?
-        self.signalReceived = 0  # Received a signal, if any.
         self.tutor = tutor
         self.newLesson()
         self.tutor.lessons[0].activate()
@@ -256,18 +249,17 @@ class TutorialClassGUI(subWindow.SubWindow):
                 bfr.insert_with_tags(bfr.get_end_iter(), comment, self.boldTag)
             else:
                 bfr.insert(bfr.get_end_iter(), comment)
-        for s in self.scrollsignals:
-            s.block()
-        self.msgscroll.get_hadjustment().set_value(0.)
-        self.msgscroll.get_vadjustment().set_value(0.)
-        for s in self.scrollsignals:
-            s.unblock()
+        # for s in self.scrollsignals:
+        #     s.block()
+        # self.msgscroll.get_hadjustment().set_value(0.)
+        # self.msgscroll.get_vadjustment().set_value(0.)
+        # for s in self.scrollsignals:
+        #     s.unblock()
         self.sensitize()
         self.gtk.show_all()
 
     def newLesson(self):
         self.updateGUI()
-        self.signalReceived = 0  # Resetting ...
 
     def sensitize(self):
         debug.mainthreadTest()
@@ -275,18 +267,18 @@ class TutorialClassGUI(subWindow.SubWindow):
         self.backbutton.set_sensitive(self.index != 0)
         self.jumpbutton.set_sensitive(self.index != self.progress)
         # Next
-        self.nextbutton.set_sensitive(1)  # Default
+        self.nextbutton.set_sensitive(True)  # Default
         if self.index == self.progress:
-            if self.lesson.signal and not self.signalReceived \
-                   and not debug.debug():
-                self.nextbutton.set_sensitive(0)
+            if (self.lesson.signal and not self.lesson.done and
+                not debug.debug()):
+                self.nextbutton.set_sensitive(False)
         if self.lesson == self.tutor.lessons[-1]:  # the last one?
-            self.nextbutton.set_sensitive(0)
+            self.nextbutton.set_sensitive(False)
 
     def signalCB(self):
         debug.mainthreadTest()
         if self.lesson != self.tutor.lessons[-1]:
-            self.nextbutton.set_sensitive(1)
+            self.nextbutton.set_sensitive(True)
 
     def destroy(self):
         self.closeCB()
@@ -312,7 +304,8 @@ class TutorialClassGUI(subWindow.SubWindow):
 
     def saveCB(self, *args):
         filename = fileselector.getFile(
-            ident="FileMenu", title="Save Tutorial Session")
+            ident="FileMenu", title="Save Tutorial Session",
+            parentwindow=self.gtk)
         if filename is not None:
             phile = file(filename, "w")
             mainmenu.OOF.saveLog(phile)

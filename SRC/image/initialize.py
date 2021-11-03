@@ -11,10 +11,7 @@
 from ooflib.common import parallel_enable
 from ooflib.common import utils
 from ooflib.SWIG.common import config
-if config.dimension() == 2:
-    import ooflib.SWIG.image.oofimage
-else:
-    import ooflib.SWIG.image.oofimage3d
+import ooflib.SWIG.image.oofimage
 import ooflib.image.IO.defaultLayer
 import ooflib.image.IO.imageIO
 import ooflib.image.IO.imagemenu

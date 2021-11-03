@@ -10,18 +10,14 @@
 
 dirname = 'SRC'
 
-if not DIM_3:
-    subdirs = ['common',
-               'engine',
-               'image', 
-               'orientationmap',
-               'tutorials',
-               'EXTENSIONS']
+subdirs = ['common',
+           'engine',
+           'image', 
+           'orientationmap',
+           'tutorials',
+           'EXTENSIONS'
+           ]
 
-else:
-    subdirs = ['common',
-               'engine',
-               'image']
 
 
 

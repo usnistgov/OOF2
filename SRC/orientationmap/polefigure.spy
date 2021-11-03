@@ -11,6 +11,7 @@
 from ooflib.SWIG.common import direction
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.engine import crystalsymmetry
+from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import primitives
@@ -21,21 +22,26 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import pixelgroupparam
 from ooflib.common.IO import placeholder
-from ooflib.common.IO import pdfoutput
 from ooflib.common.IO import whoville
 from ooflib.orientationmap import orientmapmenu
 import ooflib.common.microstructure
+import os.path
+
+import oofcanvas
 
 def _makePoleFigure(menuitem, microstructure, pixels, symmetry,
                     pole, nBins,
-                    min, max,
-                    colormap, filename):
+                    min, max, colormap, size,
+                    filename, overwrite):
 
     # hemisphere==True means limit the plot to one hemisphere.  This
     # was briefly a settable parameter until we learned that there are
     # different ways of combining the hemispheres.  It's not clear
     # what the best long term strategy is.
-    hemisphere = True           
+    hemisphere = True
+
+    if os.path.exists(filename) and not overwrite:
+        return
 
     mscontext = ooflib.common.microstructure.microStructures[microstructure]
     ms = mscontext.getObject()
@@ -77,22 +83,26 @@ def _makePoleFigure(menuitem, microstructure, pixels, symmetry,
         binSize = pfig.getBinSize()
 
         # Create the plot
-        pdfout = pdfoutput.PDFoutput(filename)
-        pdfout.set_colormap(colormap)
-        layer = pdfout.begin_layer()
+        ppu = size/4.
+        canvas = oofcanvas.OffScreenCanvas(ppu) 
+        layer = canvas.newLayer("polefigure")
         for i in xrange(nBins):
             for j in xrange(nBins):
                 if pfig.inside(i, j):
                     val = pfig.getValue(i, j)
-                    pdfout.set_fillColor(offset + val*factor)
-                    pdfout.fill_polygon(
-                        primitives.Polygon(
-                            [primitives.Point(i*binSize, j*binSize),
-                             primitives.Point((i+1)*binSize, j*binSize),
-                             primitives.Point((i+1)*binSize, (j+1)*binSize),
-                             primitives.Point(i*binSize, (j+1)*binSize)]))
-        pdfout.end_layer()
-        pdfout.show()
+                    clr = color.canvasColor(colormap(offset + val*factor))
+                    poly = oofcanvas.CanvasPolygon()
+                    poly.setFillColor(clr)
+                    poly.addPoint((i*binSize, j*binSize))
+                    poly.addPoint(((i+1)*binSize, j*binSize))
+                    poly.addPoint(((i+1)*binSize, (j+1)*binSize))
+                    poly.addPoint((i*binSize, (j+1)*binSize))
+                    layer.addItem(poly)
+
+        maxpix = size
+        canvas.saveAsPDF(filename, maxpix, False)
+        # pdfout.end_layer()
+        # pdfout.show()
     finally:
         mscontext.end_reading()
 
@@ -115,9 +125,6 @@ orientmapmenu.orientmapmenu.addItem(
             parameter.ConvertibleRegisteredParameter(
                 "pole", direction.Direction, direction.AngleDirection(0, 0),
                 tip="The pole to plot."),
-            # parameter.BooleanParameter(
-            #     "hemisphere", True,
-            #     tip="Limit the plot to one hemisphere?"),
             parameter.IntParameter(
                 "nBins", 30,
                 tip="The number of bins to use in the x and y directions"
@@ -132,9 +139,16 @@ orientmapmenu.orientmapmenu.addItem(
             parameter.RegisteredParameter(
                 "colormap", colormap.ColorMap,
                 tip="How MRD values are converted to colors."),
+            parameter.IntParameter(
+                "size", 500,
+                tip="Size of the plot (number of pixels along an edge)."),
             filenameparam.WriteFileNameParameter(
                 "filename", ident="polefigure",
-                tip="The name of the pdf file to create.")
+                tip="The name of the pdf file to create."),
+            filenameparam.OverwriteParameter(
+                "overwrite",
+                tip="Overwrite an existing file?"),
+            
             ]
         )
     )

@@ -118,7 +118,7 @@ class SkeletonBuffer(ringbuffer.RingBuffer):
 
 class Mesh(whoville.Who):
     def __init__(self, name, classname, femesh, parent,
-                 skeleton=None, elementdict=None,
+                 elementdict=None,
                  materialfactory=None):
         whoville.Who.__init__(self, name, classname, femesh, parent)
         # Share the mesh-level lock with the contained femesh.
@@ -265,10 +265,18 @@ class Mesh(whoville.Who):
             for notification in notifications:
                 switchboard.notify(*notification)
             for subproblem in self.subproblems():
-                subproblem.autoenableBCs()
+                subproblem.reserve()
+                subproblem.begin_writing()
+                try:
+                    subproblem.autoenableBCs()
+                finally:
+                    subproblem.end_writing()
+                    subproblem.cancel_reservation()
         finally:
             self.resume_writing()
         old_femesh.destroy()
+        # end rebuildMesh()
+
 
     # getTimeStamp has a gfxwindow arg so that it can work with
     # WhoProxies.
@@ -796,8 +804,7 @@ class Mesh(whoville.Who):
 
     def checkBdyConditions(self):
         # Check boundary conditions for consistency with other
-        # conditions on the same boundary.  Called by
-        # SubProblemContext.checkSolvability.
+        # conditions on the same boundary. 
         errors = []
         for bdy in self.getObject().boundaries.values():
             errs = bdy.checkConditions()
@@ -1274,9 +1281,12 @@ class Mesh(whoville.Who):
         if self.outOfSync() and not resync:
             return
         self.status = statusobj # a MeshStatus object
-        errors = filter(None, [subproblem.checkSolvability()
-                               for subproblem in self.subproblems()
-                               if  subproblem.time_stepper is not None])
+        errors = filter(None,
+                        [subproblem.checkSolvability()
+                         for subproblem in self.subproblems()
+                         if  subproblem.time_stepper is not None] +
+                        self.checkBdyConditions()
+                        )
         if errors:
             self.status = meshstatus.Unsolvable('\n'.join(errors))
         switchboard.notify("mesh status changed", self)

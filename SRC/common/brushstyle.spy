@@ -27,8 +27,9 @@ circleReg = cregisteredclass.Registration(
     BrushStylePtr,
     CircleBrush,
     ordering=0,
-    params=[parameter.FloatParameter('radius', 0,
-                                     tip='Radius of the brush in physical units.')],
+    params=[parameter.FloatParameter(
+        'radius', 0,
+        tip='Radius of the brush in physical units.')],
     tip="Brush with a circular profile.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/circlebrush.xml')
     )
@@ -38,8 +39,9 @@ squareReg = cregisteredclass.Registration(
     BrushStylePtr,
     SquareBrush,
     ordering=1,
-    params=[parameter.FloatParameter('size', 0,
-                                     tip='Half the side of the brush in physical units.')],
+    params=[parameter.FloatParameter(
+        'size', 0,
+        tip='Half the side of the brush in physical units.')],
     tip="Brush with a square profile.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/squarebrush.xml')
     )

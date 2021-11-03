@@ -19,27 +19,29 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 import types
 
+import oofcanvas
+
 class MoveNodeDisplay(display.DisplayMethod):
     def __init__(self, color, size):
         self.color = color
         self.size = size
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Move_Nodes")
         node = toolbox.selectednode.node()
         if node and toolbox.selectednode.visible:
-            device.set_lineColor(self.color)
-            device.set_lineWidth(self.size)
-            device.draw_dot(node.position())
+            dot = oofcanvas.CanvasDot(node.position(), self.size)
+            dot.setFillColor(color.canvasColor(self.color))
+            self.canvaslayer.addItem(dot)
 
     def getTimeStamp(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Move_Nodes")
         return max(self.timestamp,
                    toolbox.selectednode.getTimeStamp())
 
-defaultMoveNodeColor = color.RGBColor(1.0, 0.5, 0.5)
-defaultMoveNodeSize = 3
+defaultMoveNodeColor = color.RGBAColor(1.0, 0.5, 0.5, 1.0)
+defaultMoveNodeSize = 5
 
 def _setDefaultMoveNodeParams(menuitem, color, size):
     global defaultMoveNodeSize
@@ -47,11 +49,13 @@ def _setDefaultMoveNodeParams(menuitem, color, size):
     defaultMoveNodeColor = color
     defaultMoveNodeSize = size
 
-movenodeparams = [color.ColorParameter('color', defaultMoveNodeColor,
-                                       tip="Color for the to-be-moved node."),
-                  parameter.IntRangeParameter('size', (0,10),
-                                              defaultMoveNodeSize,
-                                              tip="Node size.")]
+movenodeparams = [
+    color.TranslucentColorParameter(
+        'color', defaultMoveNodeColor,
+        tip="Color for the to-be-moved node."),
+    parameter.IntRangeParameter(
+        'size', (0,20), defaultMoveNodeSize,
+        tip="Node size.")]
 
 mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
     'Moving_Nodes',

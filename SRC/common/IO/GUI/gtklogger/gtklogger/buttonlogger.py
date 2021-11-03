@@ -8,18 +8,18 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import gtk
+from gi.repository import Gtk
 import widgetlogger
 
 class ButtonLogger(widgetlogger.WidgetLogger):
-    classes = (gtk.Button,)
+    classes = (Gtk.Button,)
     def record(self, obj, signal, *args):
         if signal == 'clicked':
             return ["%s.clicked()" % self.location(obj, *args)]
         return super(ButtonLogger, self).record(obj, signal, *args)
 
 class RadioButtonLogger(widgetlogger.WidgetLogger):
-    classes = (gtk.RadioButton,)
+    classes = (Gtk.RadioButton,)
     def record(self, obj, signal, *args):
         if signal == 'clicked':
             # When a radio button is pressed, two 'clicked' signals

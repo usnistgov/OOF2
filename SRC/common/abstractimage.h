@@ -16,16 +16,12 @@
 
 class Coord;
 class ICoord;
-class StringImage;
-class AlphaStringImage;
 
 class AbstractImage {
 public:
   virtual ~AbstractImage() {}
   virtual const Coord &size() const = 0;
   virtual const ICoord &sizeInPixels() const = 0;
-  virtual void fillstringimage(StringImage*) const {};
-  virtual void fillalphastringimage(AlphaStringImage*) const {};
 };
 
 #endif // ABSTRACTIMAGE_H

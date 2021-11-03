@@ -19,6 +19,8 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 
+import oofcanvas
+
 # This object should be created via the registration, and not
 # directly via the initializer, because the registration creation
 # method gives it a timestamp.
@@ -28,32 +30,36 @@ class SkeletonSegmentSelectionDisplay(display.DisplayMethod):
         self.color = color
         self.line_width = line_width
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device):
-        skel = self.who().resolve(gfxwindow)
+    def draw(self, gfxwindow):
+        skel = self.who.resolve(gfxwindow)
         if skel is not None:
-            device.set_lineColor(self.color)
-            device.set_lineWidth(self.line_width)
-            if config.dimension() == 2:
+            selection = skel.segmentselection.retrieve()
+            if selection:
+                # First draw a slightly fatter segment in white
+                segs = oofcanvas.CanvasSegments()
+                segs.setLineColor(
+                    oofcanvas.white.opacity(self.color.getAlpha()))
+                segs.setLineWidthInPixels(1.4*self.line_width)
                 for s in skel.segmentselection.retrieve():
-                    device.draw_segment(primitives.Segment(s.nodes()[0].position(),
-                                                           s.nodes()[1].position()))
-            elif config.dimension() == 3:
-                numsegs = len(skel.segmentselection.retrieve())
-                if numsegs:
-                    gridPoints = skel.getObject().getPoints()
-                    grid = vtk.vtkUnstructuredGrid()
-                    grid.Allocate(numsegs,numsegs)
-                    grid.SetPoints(gridPoints)
-                    for s in skel.segmentselection.retrieve():
-                        line = s.getVtkLine()
-                        grid.InsertNextCell(line.GetCellType(), line.GetPointIds())
-                    device.draw_unstructuredgrid(grid)
+                    pt0 = s.nodes()[0].position()
+                    pt1 = s.nodes()[1].position()
+                    segs.addSegment(pt0, pt1)
+                self.canvaslayer.addItem(segs)
+                # Then draw with the given color and width
+                segs = oofcanvas.CanvasSegments()
+                segs.setLineColor(color.canvasColor(self.color))
+                segs.setLineWidthInPixels(self.line_width)
+                for s in skel.segmentselection.retrieve():
+                    pt0 = s.nodes()[0].position()
+                    pt1 = s.nodes()[1].position()
+                    segs.addSegment(pt0, pt1)
+                self.canvaslayer.addItem(segs)
 
     def getTimeStamp(self, gfxwindow):
         return max(self.timestamp,
-                   self.who().resolve(gfxwindow).segmentselection.timestamp)
+                   self.who.resolve(gfxwindow).segmentselection.timestamp)
             
-defaultSegSelColor = color.RGBColor(0.13, 0.93, 0.25)
+defaultSegSelColor = color.RGBAColor(0.13, 0.93, 0.25, 1.0)
 defaultSegSelWidth = 2
 
 def _setSegSelParams(menuitme, color, line_width):
@@ -63,8 +69,8 @@ def _setSegSelParams(menuitme, color, line_width):
     defaultSegSelWidth = line_width
 
 segselparams = [
-    color.ColorParameter('color', defaultSegSelColor,
-                         tip="Color for the selected segments."),
+    color.TranslucentColorParameter('color', defaultSegSelColor,
+                                    tip="Color for the selected segments."),
     parameter.IntRangeParameter('line_width', (0,10), defaultSegSelWidth,
                                 tip="Line width.")]
 
@@ -95,7 +101,8 @@ segmentSelectDisplay = registeredclass.Registration(
     layerordering=display.SemiLinear(4),
     whoclasses=('Skeleton',),
     tip="Display the currently selected segments.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/segmentselectdisplay.xml')
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/segmentselectdisplay.xml')
     )
 
 def defaultSegmentSelectDisplay():

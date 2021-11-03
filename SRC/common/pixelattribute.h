@@ -30,8 +30,8 @@ class CMicrostructure;
 // In principle, the attributes of a pixel may not be definable within
 // the "common" module, where the Microstructure lives.  For example,
 // the Material assigned to a pixel is an attribute, but it's defined
-// in "engine".  Therefore we need a generic way of managing unknown
-// attributes.
+// in "engine", not "common".  Therefore we need a generic way of
+// managing unknown attributes.
 
 // Each type of pixel attribute has two classes associated with it,
 // derived from the base classes PixelAttribute and
@@ -129,12 +129,15 @@ class PxlAttributeRegistration
 private:
   static std::vector<PxlAttributeRegistration*> &registrations();
   const std::string name_;
-  int index_;
+  std::size_t index_;
   friend class CMicrostructure;
 public:
   PxlAttributeRegistration(const std::string &name);
   virtual ~PxlAttributeRegistration() {}
-  static int nRegistrations() { return registrations().size(); }
+  static std::size_t nRegistrations() { return registrations().size(); }
+  // The arg to getRegistration is an int, not a std::size_t, because
+  // it has to be swigged and I don't want to track down the
+  // consequences of passing a long to python.
   static const PxlAttributeRegistration *getRegistration(int i);
   const std::string &name() const { return name_; }
   // Get the appropriate pixel map from the microstructure.
@@ -152,7 +155,7 @@ public:
 
 std::ostream &operator<<(std::ostream&, const PixelAttribute&);
 
-int nAttributes();
+std::size_t nAttributes();
 const PxlAttributeRegistration *getRegistration(int);
 
-#endif
+#endif	// PIXELATTRIBUTE_H

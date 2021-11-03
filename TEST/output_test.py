@@ -13,10 +13,11 @@ import memorycheck
 
 from UTILS import file_utils
 fp_file_compare = file_utils.fp_file_compare
+pdf_compare = file_utils.pdf_compare
 reference_file = file_utils.reference_file
 # Flag that says whether to generate missing reference data files.
 # Should be false unless you really know what you're doing.
-file_utils.generate = True
+file_utils.generate = False
 
 ## TODO: Add tests for all different domain and sampling types.
 ## Include non-rectangular pixel groups and selections.
@@ -41,48 +42,32 @@ class OOF_Output(unittest.TestCase):
         # Load the output mesh, and draw a nice filled contour plot.
         OOF.File.Load.Data(filename=reference_file('output_data',
                                                  'position_mesh'))
+        OOF.Settings.Graphics_Defaults.New_Layer_Policy(policy='Single')
         OOF.Windows.Graphics.New()
-        OOF.LayerEditor.LayerSet.New(window='Graphics_1')
-        OOF.LayerEditor.LayerSet.DisplayedObject(
-            category='Mesh', object='microstructure:skeleton:mesh')
-        OOF.LayerEditor.LayerSet.Add_Method(
-            method=FilledContourDisplay(
-            what=getOutput('Field:Component',
-                           component='x',
-                           field=Displacement),
-            where=getOutput('original'),
-            min=automatic, max=automatic, levels=11,
-            nbins=5, colormap=ThermalMap()))
-        OOF.LayerEditor.LayerSet.DisplayedObject(
-            category='Microstructure', object='microstructure')
-        OOF.LayerEditor.LayerSet.Add_Method(
-            method=MicrostructureMaterialDisplay(
-                no_material=Gray(value=0.0),
-                no_color=RGBColor(red=0.0,green=0.0,blue=1.0)))
-        OOF.LayerEditor.LayerSet.Send(window='Graphics_1')
-        OOF.Graphics_1.File.Save_Image(filename="test.pdf",overwrite=True)
+        OOF.Graphics_1.Layer.New(
+            category='Mesh',
+            what='microstructure:skeleton:mesh',
+            how=FilledContourDisplay(
+                when=latest,
+                what=getOutput(
+                    'Field:Component',component='x',field=Displacement),
+                where=getOutput('original'),
+                min=automatic, max=automatic,
+                levels=11, nbins=5,
+                colormap=ThermalMap()))
+        OOF.Graphics_1.Layer.New(
+            category='Microstructure',
+            what='microstructure',
+            how=MicrostructureMaterialDisplay(
+                no_material=TranslucentGray(value=0.0,alpha=1.0),
+                no_color=RGBAColor(red=0.0,green=0.0,blue=1.0,alpha=1.0)))
+        OOF.Graphics_1.File.Save_Canvas(
+            filename='test.pdf', format='pdf', overwrite=True,
+            pixels=400, background=True)
 
-        # In Python 2.7 and above, the floating point numbers in the
-        # comments in the pdf file have short reprs, (eg, 0.6 instead
-        # of 0.59999999999999998).  That messes up the character
-        # counts later in the file, so we have to use different
-        # reference files for different floating point formats.  Check
-        # float_repr_style instead of the Python version number
-        # because not all platforms support the short reprs.
-        try:
-            shortform = sys.float_repr_style == 'short'
-        except AttributeError:
-            shortform = False
-        if shortform:
-            self.assert_(
-                fp_file_compare(
-                    'test.pdf', os.path.join('output_data','posmesh-short.pdf'),
-                    1.0e-08, comment="%", pdfmode=True) )
-        else:
-            self.assert_(
-                fp_file_compare(
-                    'test.pdf', os.path.join('output_data','posmesh.pdf'),
-                    1.0e-08, comment="%", pdfmode=True) )
+        self.assert_(pdf_compare(
+            'test.pdf', os.path.join('output_data', 'posmesh.pdf')))
+
         file_utils.remove('test.pdf')
             
         OOF.Graphics_1.File.Close()

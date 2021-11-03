@@ -23,9 +23,10 @@ class AsymmetricMatrixMethodFactory(regclassfactory.RegisteredClassFactory):
     def includeRegistration(self, reg):
         return not reg.symmetricOnly
 
-def _makeAsymMtxMethodWidget(self, scope=None):
+def _makeAsymMtxMethodWidget(self, scope=None, **kwargs):
     return AsymmetricMatrixMethodFactory(self.registry, obj=self.value,
-                                         scope=scope, name=self.name)
+                                         scope=scope, name=self.name,
+                                         **kwargs)
 
 matrixmethod.AsymmetricMatrixMethodParam.makeWidget = _makeAsymMtxMethodWidget
 

@@ -241,9 +241,19 @@ class AdaptiveMeshRefinement(meshmod.MeshModification):
         meshcontext.pause_writing()
         try:
             for subproblem in meshcontext.subproblems():
-                subproblem.autoenableBCs()
+                subproblem.reserve()
+                subproblem.begin_writing()
+                try:
+                    subproblem.autoenableBCs()
+                finally:
+                    subproblem.end_writing()
+                    subproblem.cancel_reservation()
         finally:
             meshcontext.resume_writing()
+
+        # TODO GTK3: This used to send "boundary conditions changed"
+        # via autoenableBCs, which doesn't send it any more.  Is it
+        # necessary here?
             
         old_femesh.destroy()
                 

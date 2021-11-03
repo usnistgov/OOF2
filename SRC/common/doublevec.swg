@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -11,9 +13,10 @@
 #define DOUBLEVEC_SWG
 
 %module doublevec
+%include "common/typemaps.swg"
 
 %{
-#include <cstring>
+#include <string>
 #include "common/doublevec.h"
 %}
 
@@ -39,8 +42,8 @@ public:
 };
 
 %addmethods DoubleVec {
-  const char* __repr__() {
-    return (*self).str().c_str();
+  %new const string* __repr__() {
+     return new std::string((*self).str());
   }
 
   void copy_inplace(DoubleVec *x) {

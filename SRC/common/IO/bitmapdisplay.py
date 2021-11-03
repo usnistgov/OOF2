@@ -14,18 +14,16 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.SWIG.common import coord
 from ooflib.SWIG.common import config
 from ooflib.common import registeredclass
-##import weakref
 
 class BitmapDisplayMethod(display.DisplayMethod):
     def __init__(self):
         self.bitmapobject = None
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device):
-        bitmapobj = self.who().getObject(gfxwindow)
-        if config.dimension() == 2:
-            device.draw_image(bitmapobj, coord.Coord(0,0), bitmapobj.size())
-        if config.dimension() == 3:
-            device.draw_image(bitmapobj, coord.Coord(0,0,0), bitmapobj.size())
+    def draw(self, gfxwindow):
+        bitmapobj = self.who.getObject(gfxwindow)
+        image = bitmapobj.makeCanvasImage(coord.Coord(0,0), bitmapobj.size())
+        image.setOpacity(1.0)
+        self.canvaslayer.addItem(image)
 
 bitmapDisplay = registeredclass.Registration(
     'Bitmap',
@@ -36,6 +34,7 @@ bitmapDisplay = registeredclass.Registration(
     params=[],
     whoclasses = ('Image',),
     tip="Display an Image as a bitmap.",
-    discussion = xmlmenudump.loadFile('DISCUSSIONS/common/reg/bitmapdisplay.xml')
+    discussion = xmlmenudump.loadFile(
+        'DISCUSSIONS/common/reg/bitmapdisplay.xml')
     )
 

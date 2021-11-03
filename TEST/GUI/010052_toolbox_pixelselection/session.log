@@ -1,0 +1,8 @@
+OOF.Microstructure.Create_From_ImageFile(filename='examples/K1_small.pgm', microstructure_name='K1_small.pgm', height=automatic, width=automatic)
+OOF.Windows.Graphics.New()
+OOF.Graphics_1.Settings.New_Layer_Policy(policy='Single')
+OOF.Graphics_1.Layer.New(category='Image', what='K1_small.pgm:K1_small.pgm', how=BitmapDisplayMethod())
+OOF.Graphics_1.Layer.New(category='Microstructure', what='K1_small.pgm', how=MicrostructureMaterialDisplay(no_material=TranslucentGray(value=0.356164,alpha=1),no_color=RGBAColor(red=0.0,green=0.0,blue=1.0,alpha=1.0)))
+OOF.Graphics_1.Layer.Hide(n=1)
+OOF.Graphics_1.Toolbox.Pixel_Select.Burn(source='K1_small.pgm:K1_small.pgm', local_flammability=0.1, global_flammability=0.2, color_space_norm='L1', next_nearest=False, points=[Point(22.90875,47.0925)], shift=False, ctrl=False)
+OOF.Graphics_1.Layer.Show(n=1)

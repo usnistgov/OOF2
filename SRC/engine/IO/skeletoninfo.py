@@ -43,7 +43,6 @@ SkeletonNode = skeletonnode.SkeletonNode
 
 class SkeletonQueryContainer:
     def __init__(self, context):
-#         self.timestamp = timestamp.TimeStamp()
         self.context = context
         self.skeleton = context.getObject()
         self.object = None
@@ -55,15 +54,11 @@ class SkeletonQueryContainer:
         self.object = object
         self.targetname = targetname
         self.position = position
-#         self.timestamp.increment()
 
     def reset(self):
         self.set()
         self.context = None
         self.skeleton = None
-
-#     def getTimeStamp(self):
-#         return self.timestamp
 
     def clone(self):
         krusty = SkeletonQueryContainer(self.context)
@@ -71,7 +66,6 @@ class SkeletonQueryContainer:
         krusty.object = self.object
         krusty.targetname = self.targetname
         krusty.position = self.position
-#         krusty.timestamp.increment()
         return krusty
 
     def clearable(self):
@@ -83,7 +77,6 @@ class SkeletonQueryContainer:
 class SkeletonPeekContainer(SkeletonQueryContainer):
     def __init__(self, toolbox, context):
         self.toolbox = toolbox
-#         self.timestamp = timestamp.TimeStamp()
         self.context = context
         self.skeleton = context.getObject()
         # self.objects is used by skeletoninfodisplay.py
@@ -92,21 +85,15 @@ class SkeletonPeekContainer(SkeletonQueryContainer):
     def assignObject(self, object, objtype):
         self.objects[objtype] = object
         self.toolbox.timestamp.increment()
-#         self.timestamp.increment()
 
     def removeObject(self, objtype):
         self.objects[objtype] = None
         self.toolbox.timestamp.increment()
-#         self.timestamp.increment()
 
     def reset(self):
         self.objects = {"Element":None, "Segment":None, "Node":None}
-#         self.timestamp.increment()
         self.context = None
         self.skeleton = None
-
-#     def getTimeStamp(self):
-#         return self.timestamp
 
 ##################################################################
             

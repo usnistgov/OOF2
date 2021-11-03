@@ -17,14 +17,16 @@
 
 class MouseHandler:
     def acceptEvent(self, eventtype):
-        # eventtype is either 'up', 'down', or 'move'.  Return 1 if it
-        # can be handled.
-        return 0
-    def up(self, x, y, shift, ctrl):
+        # eventtype is either 'up', 'down', 'move', or 'scroll'.
+        # Return True if it can be handled.
+        return False
+    def up(self, x, y, button, shift, ctrl, data):
         pass
-    def down(self, x, y, shift, ctrl):
+    def down(self, x, y, button, shift, ctrl, data):
         pass
-    def move(self, x, y, shift, ctrl):
+    def move(self, x, y, button, shift, ctrl, data):
+        pass
+    def scroll(self, x, y, button, shift, ctrl, data):
         pass
 
     

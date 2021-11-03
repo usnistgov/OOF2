@@ -1,0 +1,95 @@
+
+
+TODO:
+
+Is common/garbage.py still needed?
+
+StockButton in gtkutils.py doesn't show images because Gtk.STOCK* is
+deprecated.
+https://developer.gnome.org/gtk3/stable/gtk3-Stock-Items.html
+
+The "table" arg to pixelinfo plug-ins needs to change to a Gtk.Grid.
+
+In Grid, instead of passing xoptions to Grid.attach, use
+  child.set_hexpand(bool)
+  child.set_halign(Gtk.Align)
+  https://lazka.github.io/pgi-docs/Gtk-3.0/enums.html#Gtk.Align
+  Can also use widget.set_margin_left(), ..right(), ...top(),
+  ..bottom()
+
+Table.attach(left, right, top, bottom) is replaced by
+Grid.attach(left, top, width, height)
+
+Get rid of widgetFontSizes(), widgetCharSize(), and widgetDigitSize().
+Use Gtk.Entry.set_width_chars()
+
+Gtk.Separator doesn't seem to be visible in a Gtk.Grid.  Is this a
+theme thing?
+
+Don't use Gtk.Alignment.  Use Widget alignment and margin properties.
+
+We need a way to pass alignment and other properties in through
+Parameter.makeWidget().  Maybe just **kwargs.
+
+Frame shadow types are determined by the theme.  The docs are unclear
+if themes distinguish between different types other than NONE and
+not-NONE.  Use frame.set_shadow_type(Gtk.ShadowType.IN)
+
+Replace window.raise_() with
+window.present_with_time(Gtk.get_current_event_time()). 
+
+Search for gtk.STOCK and replace with named icons.  Button text needs
+to be provided with labelstr.  gtk2 supplied it automatically.
+
+Dialog.add_button(stock_icon, response) needs to be written out explicitly:
+button = Gtk.Button()
+button.add(StockButton('gtk-ok', labelstr='OK', align=Gtk.Align.CENTER))
+dialog.add_action_widget(button, response)
+
+TODO: Figure out how default buttons on dialogs work.  It has
+something to do with
+Widget.set_receives_default()
+Widget.set_can_default()
+Widget.grab_default()
+Entry.set_activates_default()
+See the TODO in parameterwidgets.py:ParameterDialog
+
+pdf output can be done directly by Cairo.  No need for a pdf output
+device.  No need for the whole OutputDevice hierarchy.
+DONE
+
+All AbstractImage subclasses need to use something other than
+StringImage to create CanvasImage items.
+DONE
+
+Gdk.threads_enter() and Gdk.threads_leave() are deprecated.  Make all
+calls from the main thread.
+https://lazka.github.io/pgi-docs/Gdk-3.0/functions.html#Gdk.threads_enter
+Don't need inside_idle_callback.
+DONE
+
+Attempting to drag text from the Console window crashes the program.
+CAN'T REPRODUCE
+
+Simplify the DisplayLayer handling in the Graphics window, like it is
+in OOF3D.
+* Get rid of the LayerEditor window and LayerSets.
+* Merge the Display class into GhostGfxWindow, which will keep a list
+  of layers.
+* Editing a layer entails replacing its CanvasItems,  No need to
+  create a new CanvasLayer.
+* Debug problems with CanvasLayer destruction after this is all set.
+DONE
+
+We are inconsistent about the spacing and format of the labels that
+identify input and output fields.  Sometimes there are colons and
+sometimes there are equals signs.  Sometimes there are spaces at the
+end and sometimes there aren't.  We should probably use Gtk to add the
+space, and not put it in the label text.
+
+Typing illegal input into the LabelledSliders when parametrizing an
+Orientation property doesn't disable the "OK" button. (This isn't a
+gtk3 problem.  The gtk2 version does this too.  Slider values are
+parsed and evaluated only when it's time to use them, so they're not
+checked as they're typed.)
+DONT

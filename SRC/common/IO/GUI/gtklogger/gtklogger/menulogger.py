@@ -8,49 +8,63 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import gtk
+from gi.repository import Gtk
 import widgetlogger
 import logutils
 import loggers
 
-import string
+import string, sys
 
 class MenuItemLogger(widgetlogger.WidgetLogger):
-    classes = (gtk.MenuItem,)
+    classes = (Gtk.MenuItem,)
     def location(self, menuitem, *args):
-        parent, path = self._getMenuPath(menuitem)
+        parent, path = logutils.getMenuPath(menuitem)
         parentcode = loggers.findLogger(parent).location(parent)
-        return "findMenu(%s, '%s')" % (parentcode, string.join(path, ':'))
+        return "findMenu(%s, %s)" % (parentcode, path)
+
     def record(self, obj, signal, *args):
         if signal == "activate":
+            # If the menu is a pop-up menu, we need to deactivate it
+            # after it's used, sometimes.  Apparently menu items that
+            # open dialog boxes don't require the menu to be
+            # explicitly deactivated, but menu items that don't open
+            # dialog boxes do.  This makes no sense at all.  In any
+            # case we don't know whether or not the menu needs to be
+            # deactivated.  deactivatePopup() attempts to deactivate
+            # the pop-up, and ignores the exception that is raised if
+            # it can't find it.
+            parent, path = logutils.getMenuPath(obj)
+            if isinstance(parent, Gtk.Menu):
+                # obj is a pop-up menu.
+                return ["%s.activate() # MenuItemLogger"
+                        % self.location(obj, args),
+                        "deactivatePopup('%s') # MenuItemLogger"
+                        % logutils.getWidgetName(parent)]
+            # Not a pop-up menu.
             return ["%s.activate()" % self.location(obj, args)]
         return super(MenuItemLogger, self).record(obj, signal, *args)
-    
-    # Find a list of menu item names leading to the given
-    # gtk.MenuItem.  This relies on setting gtk.Menu.oofparent in
-    # gtklogger.set_submenu.  The return value is a tuple containing
-    # the parent widget of the top of the menu hierarchy and the list
-    # of menuitem names.
-    def _getMenuPath(self, gtkmenuitem):
-        path = [logutils.getWidgetName(gtkmenuitem)]
-        parent = gtkmenuitem.get_parent()
-        if isinstance(parent, gtk.Menu):
-            try:
-                pp = parent.oofparent
-            except AttributeError:
-                # Parent is a Menu, but doesn't have oofparent set.
-                # It must be a pop-up menu.
-                pass
+
+
+class RadioMenuItemLogger(MenuItemLogger):
+    classes = (Gtk.RadioMenuItem,)
+    def record(self, obj, signal, *args):
+        # The "toggled" signal will be issued for both the
+        # RadioMenuItem that's being activated and the one that's
+        # being deactivated.  One call to set_active() will recreate
+        # both signals.
+        if signal == "toggled":
+            if obj.get_active():
+                return ["%s.set_active(True)" % self.location(obj, args)]
             else:
-                pparent, ppath = self._getMenuPath(pp)
-                return pparent, ppath+path
-        return parent, path
+                return loggers.GtkLogger.ignore
+        return super(RadioMenuItemLogger, self).record(obj, signal, *args)
+    
 
 class MenuLogger(widgetlogger.WidgetLogger):
-    classes = (gtk.MenuShell,)
+    classes = (Gtk.MenuShell,)
     def record(self, obj, signal, *args):
         if signal == 'deactivate':
-            return ["%s.deactivate()" % self.location(obj, args)]
+            return ["%s.deactivate() # MenuLogger" % self.location(obj, args)]
         if signal == 'cancel':
-            return ["%s.cancel()" % self.location(obj, args)]
+            return ["%s.cancel() # MenuLogger" % self.location(obj, args)]
         return super(MenuLogger, self).record(obj, signal, *args)

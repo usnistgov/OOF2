@@ -28,7 +28,8 @@ pyfiles = [
     'skeletongroupwidgets.py', 'skeletoninfoGUI.py', 'outputPage.py',
     'skeletonselectiontoolboxGUI.py', 'solverPage.py', 'strainwidget.py',
     'tensorwidgets.py', 'solverPage.py', 'timestepperwidget.py',
-    'outputdestinationwidget.py', 'outputschedulewidget.py', 'outputwidget.py'
+    'outputdestinationwidget.py', 'outputschedulewidget.py', 'outputwidget.py',
+    'scheduledOutputPage.py'
     ]
 
 

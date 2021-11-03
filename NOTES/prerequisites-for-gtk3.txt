@@ -1,0 +1,16 @@
+MacPorts:
+
+py27-gobject3
+gtk3
+adwaita-icon-theme
+cairomm
+
+Optional +x11 option on gtk3, py27-gobject, cairomm
+
+
+Ubuntu/Debian:
+
+libcairomm-1.0-dev
+libgtk-3-dev
+python-gi-cairo
+python-gi-dev

@@ -1,4 +1,44 @@
-OOF2 2.1.20
+OOF2 2.2.0
+
+* OOF2 uses gtk3 instead of gtk2, and no longer requires
+  libgnomecanvas. 
+
+* The LayerEditor has been removed.  Canvas layers are created
+  directly by menu items in the graphics window.
+
+* OOF.Graphics_1.File.Save_Image is now Save_Canvas.  There is a new
+  OOF.Graphics_1.File.Save_Canvas_Region command that can save a
+  rectangular region.  When invoked from the GUI, its default
+  parameter values will save the visible part of the canvas.
+
+* The graphics window can be scrolled horizontally and vertically with
+  a scroll wheel (or two-finger swipe, or whatever the equivalent is
+  on your system).  The menu commands for scrolling the graphics
+  window (OOF.Graphics_x.Settings.Scroll.Horizontal and Vertical) have
+  been removed. The scrolling state of the graphics window isn't
+  logged.
+
+* Some commands that set colors used to have a separate opacity
+  parameter, which was confusing when the color also had an alpha
+  channel for the opacity.  Now there are no separate opacity
+  parameters, and all colors can be set to be translucent, except in a
+  few cases where it doesn't make sense.
+
+* All widgets that can take an "automatic" value used to have a
+  checkbox that had to be checked before a different value could be
+  entered.  Now they're simple text entry boxes, and the automatic
+  value will be used if the box is empty.  To make it clear what's
+  happening, the box displays "<automatic>" if it's empty.  To use a
+  non-automatic value, just type it in the box.  To change a
+  non-automatic value to an automatic one, delete the contents of the
+  box.
+
+* Whether or not new Images, Skeletons, and Meshes are displayed
+  automatically in a graphics window depends on the setting of the
+  window's "New Layer Policy".  Choices are "Never", "Single", and
+  "Always".
+
+Changes not related to the conversion to gtk3:
 
 * Fixed a bug in Basic solver mode, which was trying to use an old
   solver for asymmetric matrices.
@@ -6,7 +46,19 @@ OOF2 2.1.20
 * Changed the Rationalize Skeleton modifier.  The old version could
   end up in an infinite loop.  Now it takes an "iterations" argument,
   and repeats that many times.  Each iteration is potentially less
-  effective than the old method, but will is sure to finish.
+  effective than the old method, but is sure to finish.
+
+* Upgraded the Eigen library to version 3.3.9.
+
+* Sparse matrices are constructed more efficiently, reducing memory
+  requirements when solving large systems.
+
+* Fixed the square brush in the pixel selection toolbox, which was
+  confused about units and didn't work correctly unless the physical
+  pixel size was 1x1.
+
+* Fixed the brush pixel selector, which was trying too hard to be
+  efficient and could miss points.
 
 OOF2 2.1.19
 
@@ -23,6 +75,9 @@ OOF2 2.1.19
 
 * Skeleton modification routines report the total number of nodes and
   elements after the modification, not just the change.
+
+* Added a "ZStrain" property so users can specify e_zz in
+  plane-strain problems.
 
 OOF2 2.1.18
 

@@ -25,14 +25,15 @@ class OrientationMapDisplay(display.DisplayMethod):
     def __init__(self, colorscheme):
         self.colorscheme = colorscheme
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device):
-        msobj = self.who().getObject(gfxwindow)
+    def draw(self, gfxwindow):
+        msobj = self.who.getObject(gfxwindow)
         data = orientmapdata.getOrientationMap(msobj)
         if data is not None:
             orientimage = orientmapdata.OrientMapImage(data, self.colorscheme)
-            device.draw_image(orientimage, coord.Coord(0,0), msobj.size())
+            self.canvaslayer.draw_image(orientimage, coord.Coord(0,0),
+                                        msobj.size())
     def getTimeStamp(self, gfxwindow):
-        msobj = self.who().getObject(gfxwindow)
+        msobj = self.who.getObject(gfxwindow)
         return max(display.DisplayMethod.getTimeStamp(self, gfxwindow),
                    orientmapdata.getOrientationMapTimestamp(msobj))
 

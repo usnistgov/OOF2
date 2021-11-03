@@ -481,10 +481,10 @@ DirectSampleSetRegistration(
     "Grid Points",
     GridSampleSet,
     20,
-    params=[parameter.IntParameter(
+    params=[parameter.PositiveIntParameter(
             'x_points', 10,
             tip="Total number of points horizontally in the grid."),
-            parameter.IntParameter(
+            parameter.PositiveIntParameter(
             'y_points', 10,
             tip="Total number of points vertically in the grid.")],
     sample_type=GRID,
@@ -589,7 +589,7 @@ DirectSampleSetRegistration(
     "Line Points",
     LineSampleSet,
     30,
-    params=[parameter.IntParameter(
+    params=[parameter.PositiveIntParameter(
             'n_points', 50,
             tip="Number of evenly-spaced points"
             " at which to sample the cross section.")],

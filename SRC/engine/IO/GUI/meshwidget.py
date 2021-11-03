@@ -20,12 +20,12 @@ def _nsync(who):
                                                  and who.outOfSync())
 
 class SyncMeshWidget(whowidget.WhoParameterWidget):
-    def __init__(self, value=None, scope=None, name=None, sort=None):
+    def __init__(self, value=None, scope=None, name=None, sort=None, **kwargs):
         whowidget.WhoParameterWidget.__init__(
             self, mesh.meshes, value=value, scope=scope, name=name, sort=sort,
-            condition=_nsync)
+            condition=_nsync, **kwargs)
 
-def _makeSMW(self, scope=None):
-    return SyncMeshWidget(self.value, scope=scope, name=self.name)
+def _makeSMW(self, scope=None, **kwargs):
+    return SyncMeshWidget(self.value, scope=scope, name=self.name, **kwargs)
 
 mesh.SyncMeshParameter.makeWidget = _makeSMW

@@ -1,5 +1,13 @@
 # -*- python -*-
 
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
 # Some of this stuff might want to live elsewhere, eventually... It's
 # stuff that has been moved out of gtklogger.py to keep the public API
 # file clean.
@@ -8,7 +16,7 @@
 # for them (so they're not really global variables...).  This helps to
 # avoid import loops, because this files doesn't import anything else.
 
-import gtk
+from gi.repository import Gtk
 import string
 import sys
 import weakref
@@ -30,7 +38,7 @@ class GtkLoggerException(Exception):
 # setWidgetName is used to assign the names.
 
 def setWidgetName(widget, name):
-    assert isinstance(widget, gtk.Widget)
+    assert isinstance(widget, Gtk.Widget)
     assert name is not None
     # When saved in the log files, widget names are surrounded by
     # single quotation marks, so we have to make sure to use only
@@ -44,6 +52,51 @@ def setWidgetName(widget, name):
 
 def getWidgetName(widget):
     return getattr(widget, 'oofname', None)
+
+def getWidgetPath(widget):
+    # Get the widget path as a list of strings.  This is the useful
+    # form for everything other than I/O.
+    name = getWidgetName(widget)
+    if not name:
+        raise GtkLoggerException("Unnamed widget!")
+    return _parentWidgetPath(widget) + [name]
+
+def getWidgetPathStr(widget):
+    # Get the widget path as a colon separated string.  This is the
+    # useful form for writing a log file and printing error messages.
+    return ":".join(getWidgetPath(widget))
+
+def _parentWidgetPath(widget):
+    parent = widget.get_parent()
+    while parent is not None and getWidgetName(parent) is None:
+        parent = parent.get_parent()
+    if parent is None:
+        return []
+    return _parentWidgetPath(parent) + [getWidgetName(parent)]
+
+##############################
+
+# Find a list of menu item names leading to the given
+# Gtk.MenuItem.  This relies on setting Gtk.Menu.oofparent in
+# gtklogger.set_submenu.  The return value is a tuple containing
+# the parent widget of the top of the menu hierarchy and the list
+# of menuitem names.
+
+def getMenuPath(gtkmenuitem):
+    path = [getWidgetName(gtkmenuitem)]
+    parent = gtkmenuitem.get_parent()
+    if isinstance(parent, Gtk.Menu):
+        try:
+            pp = parent.oofparent
+        except AttributeError:
+            # Parent is a Menu, but doesn't have oofparent set.
+            # It must be a pop-up menu.
+            pass
+        else:
+            pparent, ppath = getMenuPath(pp)
+            return pparent, ppath+path
+    return parent, path
+
 
 ##############################
 
@@ -59,13 +112,19 @@ def getTopLevelWidget(name):
     except KeyError:
         raise GtkLoggerTopFailure(name)
 
+def getTopLevelWidgetName(widget):
+    # This is just for debugging and doesn't have to be fast
+    for name in topwidgets:
+        if topwidgets[name] is widget:
+            return name
+
 def isTopLevelWidget(obj):
     return obj in topwidgets.values()
 
 def getTopWidgetNames():
     return topwidgets.keys()[:]
 
-# Top-level widgets (mostly gtk.Windows) must have their names
+# Top-level widgets (mostly Gtk.Windows) must have their names
 # assigned by newTopLevelWidget() instead of setWidgetName().
 
 def newTopLevelWidget(widget, name):
@@ -97,7 +156,7 @@ def findWidget(path):
 def _recursiveFindWidget(path, base):
     if not path:
         return base
-    if isinstance(base, gtk.Container):
+    if isinstance(base, Gtk.Container):
         for child in base.get_children():
             childname = getWidgetName(child)
             if childname == path[0]:
@@ -110,13 +169,14 @@ def _recursiveFindWidget(path, base):
                 # looking at other children.
 
 def findMenu(widget, path):
-    # widget is a gtk.MenuShell (container for MenuItems)
-    splitpath = path.split(':', 1)
-    for child in widget.get_children(): # child is a gtk.MenuItem
-        if getWidgetName(child) == splitpath[0]:
-            if len(splitpath) == 1:
+    assert isinstance(widget, Gtk.MenuShell)
+    # widget is a Gtk.MenuShell (container for MenuItems)
+    # path is a list of strings (menu item names)
+    for child in widget.get_children(): # child is a Gtk.MenuItem
+        if getWidgetName(child) == path[0]:
+            if len(path) == 1:
                 return child
-            return findMenu(child.get_submenu(), splitpath[1])
+            return findMenu(child.get_submenu(), path[1:])
 
 def setComboBox(widget, name):
     # Set the state of a ComboBox to a given string.  This assumes
@@ -127,31 +187,43 @@ def setComboBox(widget, name):
     widget.set_active(index)
 
 # findCellRenderer can be used as the access_function argument when
-# adopting a CellRenderer used in a gtk.TreeView.  It takes two
+# adopting a CellRenderer used in a Gtk.TreeView.  It takes two
 # integer arguments, col and rend, that must be passed in via
 # adoptGObject's access_kwargs argument.  col specifies a column of
 # the TreeView, and rend specifies which of the CellRenderers in the
 # column is being logged.
 
 def findCellRenderer(treeview, col, rend):
-    return treeview.get_column(col).get_cell_renderers()[rend]
+    return treeview.get_column(col).get_cells()[rend]
 
 # findAllWidgets returns the paths to all named widgets under (and
 # including) the given widget.  It *won't* find adopted non-widget
 # objects.  It's mostly for debugging.
 
 def findAllWidgets(topname):
+    if isinstance(topname, Gtk.Widget):
+        return _findAllWidgets(topname)
     return _findAllWidgets(findWidget(topname))
 def _findAllWidgets(top):
     topname = getWidgetName(top)
     childpaths = []
-    if isinstance(top, gtk.Container):
+    if isinstance(top, Gtk.Container):
         for child in top.get_children():
             childpaths.extend(_findAllWidgets(child))
     if topname:
         childpaths = [topname] + \
                      [string.join([topname, path], ':') for path in childpaths]
     return childpaths
+
+# dumpAllWidgets prints the paths and widgets of all named widgets
+# under and including the given widget.
+def dumpAllWidgets(topname):
+    aw = findAllWidgets(topname)[:]
+    aw.sort()
+    basepath = ':'.join(topname.split(':')[:-1])
+    for name in aw:
+        print >> sys.stderr, "dumpAllWidgets:", name, findWidget(basepath
+                                                                 + ':' + name)
 
 ##############################
 
@@ -161,7 +233,7 @@ def _findAllWidgets(top):
 
 dialog_level = 0
 def run_level():
-    return gtk.main_level() + dialog_level
+    return Gtk.main_level() + dialog_level
 def increment_dialog_level():
     global dialog_level
     dialog_level += 1
@@ -216,7 +288,7 @@ def set_debugLevel(n):
 ## be turned on or off for all widgets, even those which had been the
 ## arguments of earlier calls to the functions.
 
-## (The argument doesn't actually have to be a gtk.Widget -- if a
+## (The argument doesn't actually have to be a Gtk.Widget -- if a
 ## Logger has been created for some other type of object, it can use
 ## this machinery as well. If the object has a get_parent() method
 ## then turning logging on or off for an object will apply to its
@@ -229,7 +301,12 @@ def set_debugLevel(n):
 ## the default value which applies to all widgets that have *not* been
 ## the argument of log_motion_events() or dont_log_motion_events().
 ## suppress_motion_events() should only be used inside Loggers.
-    
+
+## In practice, if it's necessary to turn motion event logging on and
+## off for a widget, it may be easier to toggle the return value of
+## the event handler.  If the user's event handler runs before
+## gtklogger's handler, returning true from the user's handler will
+## suppress gtklogger's handler.
 
 _suppress_motion_events = True
 _suppression_dict = weakref.WeakKeyDictionary()
@@ -285,3 +362,4 @@ def add_exception(excclass):
 
 def exceptions():
     return tuple(_allexceptions)
+

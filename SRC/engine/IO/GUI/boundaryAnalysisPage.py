@@ -21,7 +21,6 @@ from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import regclassfactory
-from ooflib.common.IO.GUI import tooltips
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import meshbdyanalysis
 from ooflib.engine import namedanalysis
@@ -30,7 +29,8 @@ from ooflib.engine.IO import meshbdymenu
 from ooflib.engine.IO.GUI import analyzePage
 from ooflib.engine.IO.GUI import outputdestinationwidget
 import ooflib.engine.mesh
-import gtk
+
+from gi.repository import Gtk
 
 class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
     def __init__(self):
@@ -41,133 +41,82 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
 
         self.timeparam = placeholder.TimeParameter('time', value=0.0)
 
-        mainbox = gtk.VBox(spacing=2)
+        mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.gtk.add(mainbox)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        align.add(centerbox)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                            halign=Gtk.Align.CENTER, margin_top=2)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.meshwidget = whowidget.WhoWidget(ooflib.engine.mesh.meshes,
                                               callback=self.meshCB,
                                               scope=self)
-        label = gtk.Label("Microstructure=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[0], expand=0, fill=0)
-        label = gtk.Label("Skeleton=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[1], expand=0, fill=0)
-        label = gtk.Label("Mesh=")
-        label.set_alignment(1.0, 0.5)
-        centerbox.pack_start(label, expand=0, fill=0)
-        centerbox.pack_start(self.meshwidget.gtk[2], expand=0, fill=0)
+        label = Gtk.Label("Microstructure=", halign=Gtk.Align.END)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[0],
+                             expand=False, fill=False, padding=0)
+        label = Gtk.Label("Skeleton=", halign=Gtk.Align.END, margin_start=5)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[1],
+                             expand=False, fill=False, padding=0)
+        label = Gtk.Label("Mesh=", halign=Gtk.Align.END, margin_start=5)
+        centerbox.pack_start(label, expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.meshwidget.gtk[2],
+                             expand=False, fill=False, padding=0)
 
-        align = gtk.Alignment(xalign=0.5)
-        mainbox.pack_start(align, expand=0, fill=0)
-        centerbox = gtk.HBox(spacing=3)
-        align.add(centerbox)
+        centerbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2,
+                            halign=Gtk.Align.CENTER)
+        mainbox.pack_start(centerbox, expand=False, fill=False, padding=0)
         self.timeWidget = self.timeparam.makeWidget(scope=self)
-        centerbox.pack_start(gtk.Label("Time:"), expand=0, fill=0)
-        centerbox.pack_start(self.timeWidget.gtk, expand=0, fill=0)
+        centerbox.pack_start(Gtk.Label("Time="),
+                             expand=False, fill=False, padding=0)
+        centerbox.pack_start(self.timeWidget.gtk,
+                             expand=False, fill=False, padding=0)
 
-        mainpane = gtk.HPaned()
+        mainpane = Gtk.Paned(orientation=Gtk.Orientation.HORIZONTAL,
+                             wide_handle=True, margin=2)
         gtklogger.setWidgetName(mainpane, 'Pane')
-        mainbox.pack_start(mainpane, expand=1, fill=1)
+        mainbox.pack_start(mainpane, expand=True, fill=True, padding=0)
         gtklogger.connect_passive(mainpane, 'notify::position')
 
-        leftbox = gtk.VBox()
-        mainpane.pack1(leftbox, resize=1, shrink=0) # ??
+        # leftbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        # mainpane.pack1(leftbox, resize=1, shrink=0) 
 
-        boundarylistframe = gtk.Frame("Boundaries")
+        boundarylistframe = Gtk.Frame(label="Boundaries",
+                                      shadow_type=Gtk.ShadowType.IN,
+                                      margin_end=gtkutils.handle_padding)
         gtklogger.setWidgetName(boundarylistframe, 'frame')
-        boundarylistframe.set_shadow_type(gtk.SHADOW_IN)
-        leftbox.pack_start(boundarylistframe, expand=1, fill=1)
+        mainpane.pack1(boundarylistframe, resize=True, shrink=False)
 
         self.bdylist = chooser.ScrolledChooserListWidget(
             callback=self.boundarylistCB,
             dbcallback=self.doubleclickCB,
             autoselect=1,
-            name="BoundaryList")
+            name="BoundaryList", margin=2)
         boundarylistframe.add(self.bdylist.gtk)
 
-        rightbox = gtk.VBox()
-        mainpane.pack2(rightbox, resize=1, shrink=0) # ??
+        # rightbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        # mainpane.pack2(rightbox, resize=True, shrink=False) 
 
-        analyzerframe = gtk.Frame("Boundary Operation")
-        analyzerframe.set_shadow_type(gtk.SHADOW_IN)
-        rightbox.pack_start(analyzerframe, expand=1, fill=1)
+        analyzerframe = Gtk.Frame(label="Boundary Operation",
+                                  shadow_type=Gtk.ShadowType.IN,
+                                  margin_start=gtkutils.handle_padding)
+        mainpane.pack2(analyzerframe, resize=True, shrink=False)
         self.analysisWidget = regclassfactory.RegisteredClassFactory(
             meshbdyanalysis.MeshBdyAnalyzer.registry,
-            scope=self,
+            scope=self, shadow_type=Gtk.ShadowType.NONE,
             name="BdyAnalyzerRCF")
         analyzerframe.add(self.analysisWidget.gtk)
 
         self.buildBottomRow(mainbox)
-        # hbox2 = gtk.HBox(homogeneous=True)
-        # namebox.pack_start(hbox2, expand=0, fill=0)
-
-        # self.create_button = gtkutils.StockButton(gtk.STOCK_NEW, 'Create...')
-        # hbox2.pack_start(self.create_button, expand=1, fill=1)
-        # gtklogger.setWidgetName(self.create_button, 'Set')
-        # gtklogger.connect(self.create_button, 'clicked', self.createCB)
-        # tooltips.set_tooltip_text(
-        #     self.create_button,
-        #     "Assign a name to the current analysis operation,"
-        #     " so that it can be retrieved later.")
-
-        # self.retrieve_button = gtkutils.StockButton(gtk.STOCK_REFRESH,
-        #                                             'Retrieve...')
-        # hbox2.pack_start(self.retrieve_button, expand=1, fill=1)
-        # gtklogger.connect(self.retrieve_button, 'clicked', self.retrieveCB)
-        # tooltips.set_tooltip_text(self.retrieve_button,
-        #                           'Retrieve a name analysis.')
-
-        # hbox3 = gtk.HBox(homogeneous=True)
-        # namebox.pack_start(hbox3, expand=0, fill=0)
-
-        # self.savenamed_button = gtkutils.StockButton(gtk.STOCK_SAVE_AS,
-        #                                              'Save...')
-        # hbox3.pack_start(self.savenamed_button, expand=1, fill=1)
-        # gtklogger.setWidgetName(self.savenamed_button, 'Save')
-        # gtklogger.connect(self.savenamed_button, 'clicked', self.savenamedCB)
-        # tooltips.set_tooltip_text(self.savenamed_button,
-        #                      'Save definitions of named analyses to a file.')
-        
-        # self.delete_button = gtkutils.StockButton(gtk.STOCK_DELETE, 'Delete...')
-        # hbox3.pack_start(self.delete_button, expand=1, fill=1)
-        # gtklogger.setWidgetName(self.delete_button, 'Delete')
-        # gtklogger.connect(self.delete_button, 'clicked', self.deleteCB)
-        # tooltips.set_tooltip_text(self.delete_button,
-        #                      "Delete a named analysis operation")
-        
-        # # Destination
-        # destframe = gtk.Frame("Destination")
-        # destframe.set_shadow_type(gtk.SHADOW_IN)
-        # hbox.pack_start(destframe, expand=1, fill=1, padding=3)
-        # destbox = gtk.HBox()
-        # destframe.add(destbox)
-        # self.destwidget = outputdestinationwidget.TextDestinationWidget(
-        #     name="Destination", framed=False)
-        # destbox.pack_start(self.destwidget.gtk, expand=1, fill=1, padding=2)
-        
-        # # Go button
-        # self.gobutton = gtkutils.StockButton(gtk.STOCK_EXECUTE, "Go!")
-        # gtklogger.setWidgetName(self.gobutton, 'Go')
-        # gtklogger.connect(self.gobutton, "clicked", self.goCB)
-        # tooltips.set_tooltip_text(self.gobutton,
-        #                           "Send the output to the destination.")
-        # hbox.pack_end(self.gobutton, expand=1, fill=1, padding=2)
-
         self.built = True
 
         switchboard.requestCallbackMain(("new who", "Mesh"), self.newmeshCB)
         switchboard.requestCallbackMain(("new who", "Skeleton"), self.newskelCB)
         switchboard.requestCallbackMain(self.meshwidget, self.meshwidgetCB)
         switchboard.requestCallbackMain("mesh changed", self.meshchangedCB)
-        switchboard.requestCallbackMain(self.analysisWidget,
-                                        self.analysisWidgetCB)
+        self.namedAnalysisSignals = [
+            switchboard.requestCallbackMain(self.analysisWidget,
+                                            self.analysisWidgetCB)]
         switchboard.requestCallbackMain("new boundary created", self.newbdyCB)
         switchboard.requestCallbackMain("boundary removed", self.newbdyCB)
         switchboard.requestCallbackMain("boundary renamed", self.newbdyCB)
@@ -236,10 +185,6 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
         self.go_button.set_sensitive(go_sensitive)
         namedok = len(namedanalysis.bdyAnalysisNames()) > 0
         self.sensitizeBottomRow(go_sensitive, namedok)
-        # self.create_button.set_sensitive(go_sensitive)
-        # self.delete_button.set_sensitive(namedok)
-        # self.retrieve_button.set_sensitive(namedok)
-        # self.savenamed_button.set_sensitive(namedok)
 
     def newmeshCB(self, meshpath):      # switchboard ("new who", "Mesh")
         self.meshwidget.set_value(meshpath)
@@ -290,25 +235,26 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
         self.setNamedAnalysisChooser()
 
     def setNamedAnalysisChooser(self, *args):
-        if self.suppressRetrievalLoop:
-            return
-        self.namedAnalysisChooser.update(['']
-                                         + namedanalysis.bdyAnalysisNames())
+        oldname = self.namedAnalysisChooser.get_value()
+        self.namedAnalysisChooser.update(namedanalysis.bdyAnalysisNames())
         
         try:
             currentname = namedanalysis.findNamedBdyAnalysis(
                 self.bdylist.get_value(),
                 self.analysisWidget.get_value())
-        except Exception, exc:
-            currentname = ""
-        self.namedAnalysisChooser.set_state(currentname)
-        gtklogger.checkpoint("named boundary analysis chooser set")
+        except:
+            currentname = None
+        if currentname != oldname:
+            self.namedAnalysisChooser.set_state(currentname)
+            gtklogger.checkpoint("named boundary analysis chooser set")
 
     def createCB(self, gtkobj): # create a named analysis
         menuitem = meshbdymenu.bdyanalysismenu.Create
-        if parameterwidgets.getParameters(menuitem.get_arg('name'),
-                                          title='Name an analysis operation',
-                                          scope=self):
+        if parameterwidgets.getParameters(
+                menuitem.get_arg('name'),
+                title='Name an analysis operation',
+                parentwindow=self.gtk.get_toplevel(),
+                scope=self):
             menuitem.callWithDefaults(
                 boundary=self.bdylist.get_value(),
                 analyzer=self.analysisWidget.get_value())
@@ -316,12 +262,13 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
     def deleteCB(self, gtkobj):
         menuitem = meshbdymenu.bdyanalysismenu.Delete
         if parameterwidgets.getParameters(
-            menuitem.get_arg('name'),
-            title='Delete a named boundary analysis',
-            scope=self):
+                menuitem.get_arg('name'),
+                title='Delete a named boundary analysis',
+                parentwindow=self.gtk.get_toplevel(),
+                scope=self):
             menuitem.callWithDefaults()
 
-    def retrieveCB(self, gtkobj, name):
+    def retrieveCB(self, name):
         if name:
             menuitem = meshbdymenu.bdyanalysismenu.RetrieveNamedAnalysis
             menuitem.get_arg('name').value = name
@@ -329,12 +276,14 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
 
     def retrieve_analysis(self, name): # sb "retrieve boundary analysis"
         analysis = namedanalysis.getNamedBdyAnalysis(name)
-        self.suppressRetrievalLoop = True
+        for signal in self.namedAnalysisSignals:
+            signal.block()
         try:
             self.bdylist.set_selection(analysis.boundary)
             self.analysisWidget.set(analysis.analyzer, interactive=False)
         finally:
-            self.suppressRetrievalLoop = False
+            for signal in self.namedAnalysisSignals:
+                signal.unblock()
         gtklogger.checkpoint("retrieved named boundary analysis")
         self.setNamedAnalysisChooser()
         
@@ -342,9 +291,10 @@ class BoundaryAnalysisPage(analyzePage.BaseAnalysisPage):
     def savenamedCB(self, gtkobj):
         menuitem = meshbdymenu.bdyanalysismenu.SaveAnalysisDefs
         if parameterwidgets.getParameters(
-            title="Save Boundary Analysis Definitions",
-            ident="SaveAnalysis",
-            *menuitem.params):
+                title="Save Boundary Analysis Definitions",
+                ident="SaveAnalysis",
+                parentwindow=self.gtk.get_toplevel(),
+                *menuitem.params):
             menuitem.callWithDefaults()
 
 boundaryAnalysisPage = BoundaryAnalysisPage()

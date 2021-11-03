@@ -159,9 +159,9 @@ Coord intersection(const ICoord &a0, const ICoord &a1,
 
 // Utility function used by PSBTiling constructor
 
-static void getTileIndices(int mssize, unsigned int ntiles,
+static void getTileIndices(int mssize, std::size_t ntiles,
 			   TileNumbers &tileNumbers,
-			   std::vector<unsigned int> &maxes)
+			   std::vector<std::size_t> &maxes)
 {
   // Get the tile number for each pixel, and the max pixel index for
   // each tile.  The x and y directions are done separately.  This
@@ -170,13 +170,13 @@ static void getTileIndices(int mssize, unsigned int ntiles,
   // TODO: Cache results.  PSBTiles don't need their own copies of the
   // results, and this routine will be called multiple times with the
   // same mssize and ntiles args.
-  unsigned int lasttile = 0;
+  std::size_t lasttile = 0;
   double factor = ntiles/(float) mssize;
   // Do this the dumb way by looping over integer pixel coordinates so
   // we don't have to think about what happens if the Microstructure
   // size isn't an integer multiple of the number of tiles.
-  for(unsigned int pxl=0; pxl<mssize; pxl++) {
-    unsigned int tile = pxl*factor;
+  for(std::size_t pxl=0; pxl<mssize; pxl++) {
+    std::size_t tile = pxl*factor;
     if(tile == ntiles) --tile;
     if(tile > 0 && tile != lasttile) {
       maxes[tile-1] = pxl-1;
@@ -190,7 +190,7 @@ static void getTileIndices(int mssize, unsigned int ntiles,
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 PSBTiling::PSBTiling(const CMicrostructure* ms,
-		     unsigned int nx, unsigned int ny)
+		     std::size_t nx, std::size_t ny)
   : tiles(nx*ny, nullptr),
     microstructure(ms),
     nxtiles(nx), nytiles(ny)
@@ -204,25 +204,25 @@ PSBTiling::PSBTiling(const CMicrostructure* ms,
   // Construct lookup tables that quickly convert pixel coordinates to
   // tile numbers.  At the same time, find the bounding box for each
   // bin. 
-  std::vector<unsigned int> maxx(nxtiles, 0);
-  std::vector<unsigned int> maxy(nytiles, 0);
+  std::vector<std::size_t> maxx(nxtiles, 0);
+  std::vector<std::size_t> maxy(nytiles, 0);
   xTileNumbers.resize(mssize[0], 0);
   yTileNumbers.resize(mssize[1], 0);
   getTileIndices(mssize[0], nx, xTileNumbers, maxx);
   getTileIndices(mssize[1], ny, yTileNumbers, maxy);
   
   // Create the tiles. 
-  for(unsigned int iy=0; iy<nytiles; iy++) {
-    const int ymin = iy == 0 ? 0 : (maxy[iy-1] + 1);
-    const int ymax = maxy[iy];
-    for(unsigned int ix=0; ix<nxtiles; ix++) {
-      const int xmin = ix == 0 ? 0 : (maxx[ix-1] + 1);
-      const int xmax = maxx[ix];
+  for(std::size_t iy=0; iy<nytiles; iy++) {
+    const std::size_t ymin = iy == 0 ? 0 : (maxy[iy-1] + 1);
+    const std::size_t ymax = maxy[iy];
+    for(std::size_t ix=0; ix<nxtiles; ix++) {
+      const std::size_t xmin = ix == 0 ? 0 : (maxx[ix-1] + 1);
+      const std::size_t xmax = maxx[ix];
       // The argument to the PSBTile constructor is the bounding box
       // of the tile.  A pixel is in the tile if its lower left corner
       // is in the bounding box.
-      tiles[tileIndex(ix, iy)] = new PSBTile(ICRectangle(ICoord(xmin, ymin),
-							 ICoord(xmax, ymax)));
+      tiles[tileIndex(ix, iy)] = new PSBTile(ICRectangle(iCoordL(xmin, ymin),
+							 iCoordL(xmax, ymax)));
       // std::cerr << "PSBTiling::ctor:  tile #" << tileIndex(ix, iy)
       // 		<< " " << ix << " " << iy << " " << *tiles[tileIndex(ix, iy)]
       // 		<< std::endl;
@@ -235,7 +235,7 @@ PSBTiling::~PSBTiling() {
     delete tile;
 }
 
-unsigned int PSBTiling::tileIndex(unsigned int ix, unsigned int iy) const {
+std::size_t PSBTiling::tileIndex(std::size_t ix, std::size_t iy) const {
   // When trying to compute the homogeneity of an element that has one
   // or more nodes outside the microstructure, ix or iy can be larger
   // than nxtiles or nytiles.  In that case, the correct thing to do
@@ -247,23 +247,23 @@ unsigned int PSBTiling::tileIndex(unsigned int ix, unsigned int iy) const {
     ix = nxtiles-1;
   if(iy >= nytiles)
     iy = nytiles-1;
-  unsigned int idx = iy*nxtiles + ix;
+  std::size_t idx = iy*nxtiles + ix;
   assert(idx < tiles.size());
   return idx;
 }
 
 void PSBTiling::add_pixel(const ICoord &px) {
   // Find which bin the pixel contributes to.
-  unsigned int ix = xTileNumbers[px[0]];
-  unsigned int iy = yTileNumbers[px[1]];
+  std::size_t ix = xTileNumbers[px[0]];
+  std::size_t iy = yTileNumbers[px[1]];
   // Add to the bin.
   tiles[tileIndex(ix, iy)]->add_pixel(px);
 }
 
 void PSBTiling::add_segments(const std::vector<ICoord> &loop) {
   assert(loop.size() >= 4);	// must be a real loop
-  unsigned int iprev = loop.size() - 1;
-  for(unsigned int i=0; i<loop.size(); i++) {
+  std::size_t iprev = loop.size() - 1;
+  for(std::size_t i=0; i<loop.size(); i++) {
     // End points of this segment
     ICoord p0 = loop[iprev];
     ICoord p1 = loop[i];
@@ -272,39 +272,39 @@ void PSBTiling::add_segments(const std::vector<ICoord> &loop) {
       // Add each unit leg of each segment separately.  TODO: Find
       // where segments cross from one tile to another and add longer
       // segments.
-      for(unsigned int x=p0[0]; x>p1[0]; x--) {
+      for(std::size_t x=p0[0]; x>p1[0]; x--) {
 	// Which tile the segment belongs in is determined by which
 	// pixel is responsible for the segment.  This segment goes to
 	// the left, so the pixel is below and to the left of the
 	// starting point of the segment.
-	unsigned int ix = xTileNumbers[x-1];
-	unsigned int iy = yTileNumbers[p0[1]-1];
-	tiles[tileIndex(ix, iy)]->add_segmentL(ICoord(x, p0[1]));
+	std::size_t ix = xTileNumbers[x-1];
+	std::size_t iy = yTileNumbers[p0[1]-1];
+	tiles[tileIndex(ix, iy)]->add_segmentL(iCoordL(x, p0[1]));
       }
     }
     else if(p0[0] < p1[0]) {	// left to right
-      for(unsigned int x=p0[0]; x<p1[0]; x++) {
+      for(std::size_t x=p0[0]; x<p1[0]; x++) {
 	// The pixel is above and to the right of the segment's start.
-	unsigned int ix = xTileNumbers[x];
-	unsigned int iy = yTileNumbers[p0[1]];
-	tiles[tileIndex(ix, iy)]->add_segmentR(ICoord(x, p0[1]));
+	std::size_t ix = xTileNumbers[x];
+	std::size_t iy = yTileNumbers[p0[1]];
+	tiles[tileIndex(ix, iy)]->add_segmentR(iCoordL(x, p0[1]));
       }
     }
     else if(p0[1] > p1[1]) {	// up to down
-      for(unsigned int y=p0[1]; y>p1[1]; y--) {
+      for(std::size_t y=p0[1]; y>p1[1]; y--) {
 	// The pixel is to the right and below the segment's start.
-	unsigned int ix = xTileNumbers[p0[0]];
-	unsigned int iy = yTileNumbers[y-1];
-	tiles[tileIndex(ix, iy)]->add_segmentD(ICoord(p0[0], y));
+	std::size_t ix = xTileNumbers[p0[0]];
+	std::size_t iy = yTileNumbers[y-1];
+	tiles[tileIndex(ix, iy)]->add_segmentD(iCoordL(p0[0], y));
       }
     }
     else {			// down to up
       assert(p0[1] < p1[1]);
-      for(unsigned int y=p0[1]; y<p1[1]; y++) {
+      for(std::size_t y=p0[1]; y<p1[1]; y++) {
 	// The pixel is to the left and above the segment's start.
-	unsigned int ix = xTileNumbers[p0[0]-1];
-	unsigned int iy = yTileNumbers[y];
-	tiles[tileIndex(ix, iy)]->add_segmentU(ICoord(p0[0], y));
+	std::size_t ix = xTileNumbers[p0[0]-1];
+	std::size_t iy = yTileNumbers[y];
+	tiles[tileIndex(ix, iy)]->add_segmentU(iCoordL(p0[0], y));
       }
     }
 
@@ -358,8 +358,8 @@ double PSBTiling::clippedArea(const LineList &lines, const CRectangle &bbox,
   }
 #endif // DEBUG
   double area = 0.0;
-  for(unsigned int iy=yTileNumbers[ymin]; iy<=yTileNumbers[ymax]; iy++) {
-    for(unsigned int ix=xTileNumbers[xmin]; ix<=xTileNumbers[xmax]; ix++) {
+  for(std::size_t iy=yTileNumbers[ymin]; iy<=yTileNumbers[ymax]; iy++) {
+    for(std::size_t ix=xTileNumbers[xmin]; ix<=xTileNumbers[xmax]; ix++) {
 #ifdef DEBUG
       if(verbose)
 	std::cerr << "PSBTiling::clippedArea: using tile " << ix << " " << iy
@@ -542,7 +542,7 @@ PixelBdyLoop *PSBTile::find_loop(CoordMap &cm) {
     cm.erase(current);
 
     // Look for a segment starting at the end point of this one.
-    int n = cm.count(next);
+    CoordMap::size_type n = cm.count(next);
     if(n == 0)
       done = true;
     else if(n == 1) {
@@ -619,15 +619,15 @@ void PSBTile::add_perimeter(const CMicrostructure *ms, int cat) {
   // one pixel is in the category or if the segment is on the edge
   // of the entire Microstructure, the segment will already have been
   // included as part of a loop in the original tiling.
-  unsigned int ix=0;
-  unsigned int iy=0;
+  int ix=0;
+  int iy=0;
  // Bottom edge of bounding box
   iy = bounds.ymin();
   if(iy > 0) {
     // (ix, iy) is the bottom left corner of the pixel that's in the tile.
     // The pixel inside the tile is (ix, iy).
     // The pixel outside the tile is (ix, iy-1).
-    for(unsigned int ix=bounds.xmin(); ix<=bounds.xmax(); ix++) {
+    for(int ix=bounds.xmin(); ix<=bounds.xmax(); ix++) {
       if(ms->category(ix, iy-1) == cat && ms->category(ix, iy) == cat)
 	add_segmentR(ICoord(ix, iy));
     }
@@ -639,7 +639,7 @@ void PSBTile::add_perimeter(const CMicrostructure *ms, int cat) {
     // the tile.
     // The pixel inside the tile is (ix-1, iy).
     // The pixel outside the tile is (ix, iy).
-    for(unsigned int iy=bounds.ymin(); iy<=bounds.ymax(); iy++) {
+    for(int iy=bounds.ymin(); iy<=bounds.ymax(); iy++) {
       if(ms->category(ix, iy) == cat && ms->category(ix-1, iy) == cat) {
 	add_segmentU(ICoord(ix, iy));
       }
@@ -651,7 +651,7 @@ void PSBTile::add_perimeter(const CMicrostructure *ms, int cat) {
     // (ix, iy) is the top right corner of the pixel that's in the tile.
     // The pixel inside the tile is (ix-1, iy-1).
     // The pixel outside the tile is (ix-1, iy).
-    for(unsigned int ix=bounds.xmax()+1; ix>bounds.xmin(); ix--) {
+    for(int ix=bounds.xmax()+1; ix>bounds.xmin(); ix--) {
       if(ms->category(ix-1, iy) == cat && ms->category(ix-1, iy-1) == cat)
 	add_segmentL(ICoord(ix, iy));
     }
@@ -661,7 +661,7 @@ void PSBTile::add_perimeter(const CMicrostructure *ms, int cat) {
   if(ix > 0) {
     // (ix, iy) is the top left corner of the pixel that's in the tile.
     // The pixel outside the tile is (ix-1, iy-1).
-    for(unsigned int iy=bounds.ymax()+1; iy>bounds.ymin(); iy--) {
+    for(int iy=bounds.ymax()+1; iy>bounds.ymin(); iy--) {
       if(ms->category(ix-1, iy-1) == cat && ms->category(ix, iy-1) == cat)
 	add_segmentD(ICoord(ix, iy));
     }
@@ -724,7 +724,7 @@ double PixelBdyLoop::clippedArea(const LineList &lines, const CRectangle &bbox)
     return 0.0;
   }
   ClippedPixelBdyLoop curloop(clip(lines[0]));
-  for(unsigned int i=1; i<lines.size(); i++) {
+  for(LineList::size_type i=1; i<lines.size(); i++) {
     if(curloop.size() == 0) {
       return 0.0;
     }
@@ -740,7 +740,7 @@ double PxlBdyLoopBase<CTYPE, RTYPE>::areaInPixelUnits() const {
     return 0.0;
   CTYPE pt0 = loop[0];
   double sum = 0.0;
-  for(unsigned int i=2; i<loop.size(); i++) {
+  for(typename std::vector<CTYPE>::size_type i=2; i<loop.size(); i++) {
     sum += cross(loop[i-1]-pt0, loop[i]-pt0);
   }
   return 0.5*sum;
@@ -786,12 +786,13 @@ ClippedPixelBdyLoop PxlBdyLoopBase<CTYPE, RTYPE>::clip(const Line &line)
 
   // The line cuts through the loop's bounding box. Actually clip the
   // loop.
-  unsigned int n = size();
+  std::size_t n = size();
+  assert(n > 0);
   bool keepprev = leftside(loop.back(), line);
-  unsigned int iprev = n - 1;
+  std::size_t iprev = n - 1;
   ClippedPixelBdyLoop newloop;
   newloop.reserve(loop.size());
-  for(unsigned int i=0; i<n; i++) {
+  for(std::size_t i=0; i<n; i++) {
     bool keepthis = leftside(loop[i], line);
     if(keepthis) {
       if(!keepprev) {
@@ -894,7 +895,7 @@ ClippedPixelBdyLoop::ClippedPixelBdyLoop(
 ClippedPixelBdyLoop::ClippedPixelBdyLoop(
 			 const PxlBdyLoopBase<ICoord, ICRectangle> *otherloop) {
   loop.reserve(otherloop->size());
-  for(const ICoord ipt : otherloop->getLoop()) {
+  for(const ICoord &ipt : otherloop->getLoop()) {
     add(ipt);			// converts from ICoord to Coord
   }
 }

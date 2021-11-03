@@ -45,7 +45,7 @@ class TutorialClass:
         return self.subject
 
 class TutoringItem:
-    def __init__(self, subject=None, comments=None, signal=None, done=0):
+    def __init__(self, subject=None, comments=None, signal=None, done=False):
         self.subject = subject
         self.comments = comments
         self.signal = signal
@@ -61,4 +61,5 @@ class TutoringItem:
             switchboard.removeCallback(self.switchboardCB)
             
     def signalCB(self, *args, **kwargs):
+        self.done = True
         switchboard.notify("task finished")

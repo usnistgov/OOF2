@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -13,7 +14,7 @@
 #include <sstream>
 #include <fstream>
 
-DoubleVec DoubleVec::segment(int pos, int n) const {
+DoubleVec DoubleVec::segment(std::size_t pos, std::size_t n) const {
   // Extract the n coeffs in the range [pos : pos+n-1]
   assert((pos+n-1) < data.size()); 
   DoubleVec part;
@@ -21,7 +22,7 @@ DoubleVec DoubleVec::segment(int pos, int n) const {
   return part;
 } 
 
-DoubleVec DoubleVec::subvec(int start, int end) const {
+DoubleVec DoubleVec::subvec(std::size_t start, std::size_t end) const {
   // Extract the n coeffs in the range [start : end-1]
   assert(start<=end && end<=data.size());
   DoubleVec part;
@@ -29,7 +30,7 @@ DoubleVec DoubleVec::subvec(int start, int end) const {
   return part;
 }
 
-void DoubleVec::segment_copy(int toPos, const DoubleVec& other, int pos, int size) {
+void DoubleVec::segment_copy(std::size_t toPos, const DoubleVec& other, std::size_t pos, std::size_t size) {
   // Copy other's [pos, pos+size) to this [toPos, toPos+size)
   assert(pos >= 0 && pos + size <= other.data.size());
   assert(toPos >= 0 && toPos + size <= data.size());
@@ -153,9 +154,9 @@ bool save_vec(const DoubleVec& vec, const std::string& filename) {
   fs.setf(std::ios::scientific, std::ios::floatfield);
   fs.precision(precision);
 
-  int size = vec.size();
+  std::size_t size = vec.size();
   fs << vec.size() << std::endl;
-  for (int i = 0; i < size; i++) {
+  for (std::size_t i = 0; i < size; i++) {
     fs << vec.data[i] << std::endl;
   }
   return true;
@@ -174,7 +175,7 @@ bool load_vec(DoubleVec& vec, const std::string& filename) {
   }
 
   // extract vector size info
-  int size;
+  std::size_t size;
   std::stringstream ss;
   ss << line;
   ss >> size;
@@ -183,7 +184,7 @@ bool load_vec(DoubleVec& vec, const std::string& filename) {
 
   // read vector
   double val;
-  for (int i = 0; i < size; i++) {
+  for (std::size_t i = 0; i < size; i++) {
     fs >> val;
     vec.data[i] = val;
   }

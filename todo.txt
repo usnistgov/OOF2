@@ -17,12 +17,21 @@ Floating periodic boundary conditions.  For example, a system with
 thermal expansion and periodic boundary conditions should be able to
 expand as a whole.
 
+Resolve an inconsistency in boundary condition handling.  It's not
+possible in the GUI to create a BC in a Mesh that has no defined
+fields or active equations, but it *is* possible to copy a BC to the
+Mesh from another Mesh.  It's also possible to create incomputable BCs
+by undefining fields or deactivating equations. See the TODO in
+boundarycondPage.py.
+
 For Adam C.:
 Material property outputs
     Orientation at a point
     C_ijkl in various reference frames (+ other Property parameters)
+    DONE
 Multiple outputs in one file, from Analysis page, not scheduled output.
     eg, x y stress strain orientation, all in one row
+    DONE
 
 PixelGroup buttons on MS page should be desensitized when MS is busy.
 This is an issue now that AutoGroup operations can take a long time.
@@ -37,3 +46,36 @@ Change functions that return pointers so that they return objects, if
 appropriate.
 
 Get rid of the distinction between Scalar and Aggregate Outputs, as in OOF3D. 
+
+Input into the console window should be saved in logs.  User defined
+constants and functions that are use in boundary conditions or
+initializers need to be saved. Also, non-command lines can be read
+from input scripts, and they should be saved too.  When reading from a
+script, should logging be done by the script reader, and not by the
+menu command?  Menu commands are only logged when executed by the gui?
+
+Add a Decoration WhoClass and DisplayMethods that can be used to put
+text or arbitrary shapes on the canvas.  Maybe allow the decorations
+to be moved around with the mouse.  That may be too much like writing
+our own graphics app.
+
+Complete or delete the interface branch.  It's not a git branch.  Most
+of the relevant code is inactive and commented with "Interface
+branch".
+
+Stopping processes via the Activity Viewer doesn't always work well.
+Interrupting Skeleton construction leads to ParamterMismatch errors --
+something else is being passed to a WhoParameter, maybe?
+Interrupting Mesh construction leads to
+"Assertion failed: (not (started_ and not finished_)), function ~Progress"
+
+Add Progress bars inside Eigen iterative solvers, if possible.
+
+
+THINGS TO FIX IN TUTORIALS
+
+The Basics tutorial leaves out a step in the creation of pixel
+groups.  It was written before the name_template parameter was added.
+Also, the example may be too fast to bring up the activity viewer.
+
+Basics/Error Handling -- continued:  Should tell the user to click "OK".

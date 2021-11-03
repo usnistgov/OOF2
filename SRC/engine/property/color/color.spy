@@ -19,10 +19,13 @@ from ooflib.engine.IO import interfaceparameters
 propertyregistration.PropertyRegistration(
     'Color', ColorProp,
     "ooflib.SWIG.engine.property.color.color",0,
-    [color.ColorParameter('color', color.black, tip=parameter.emptyTipString)],
+    [
+        color.TranslucentColorParameter('color', color.black,
+                                        tip=parameter.emptyTipString)
+    ],
     propertyType="Color",
     #Interface branch
     interfaceCompatibility=interfaceparameters.COMPATIBILITY_BULK_INTERFACE,
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/property/color.xml'),
     tip='Assign a decorative color to a material.'
-    )
+)

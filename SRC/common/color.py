@@ -15,17 +15,27 @@ from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 
+import oofcanvas
+
 FloatParameter = parameter.FloatParameter
 FloatRangeParameter = parameter.FloatRangeParameter
 
-# Color is a convertible registered class.  The same color can be
-# parametrized as either rgb or hsv, or gray.
+# Color is a convertible registered class (actually two of them).  The
+# same color can be parametrized as either rgb or hsv, or gray.
+
+# There are six different concrete Color subclasses, RGB, HSV, and
+# Gray, each of which has both Opaque and Translucent versions.  Any
+# Color can be converted into an Opaque or Translucent Color by
+# calling its opaque() or translucent() method.  The OpaqueColor and
+# TranslucentColor classes are in separate ConvertibleRegisteredClass
+# classes, because they are used in different circumstances and have
+# different Parameter types.  However, OpaqueColor is derived from
+# TranslucentColor because opacity is a limiting case of translucence.
 
 ## TODO: Maybe add a version of RGB parametrized by integers 0-255
 ## instead of floats 0-1.
 
 class Color(registeredclass.ConvertibleRegisteredClass):
-    registry = []
     # Generic comparator for colors.  Subclasses must provide
     # getRed(), getGreen() and getBlue() functions, which they need
     # for other reasons anyways.
@@ -59,15 +69,31 @@ class Color(registeredclass.ConvertibleRegisteredClass):
     format in which a color was specified.
     </para>"""
 
-
-# TODO: Separate registries for Colors and Translucent colors...
-
     def rgba(self):
         return (self.getRed(), self.getGreen(), self.getBlue(), self.getAlpha())
-        
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Subclasses of TranslucentColor should define opaque(), which returns
+# the same color in the form of an OpaqueColor (ie, ignoring the alpha
+# channel).  Subclasses of OpaqueColor should define translucent(),
+# which returns the same color as a TranslucentColor, with alpha=1.
+
+class TranslucentColor(Color):
+    registry = []
+    def translucent(self):
+        return self
+
+class OpaqueColor(TranslucentColor):
+    registry = []
+    def opaque(self):
+        return self
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+    
 # Structured type to hold the base values for color parameters, and
 # which can be type-checked.  Also contains the comparator for colors.
-# (TODO: Is there any reason not to just use RGBColor as the base
+# (TODO: Is there any reason not to just use RGBAColor as the base
 # representation?)
 class ColorValueBase:
     def __init__(self,red,green,blue,alpha=1):
@@ -85,7 +111,7 @@ class ColorValueBase:
         return self.alpha
     # Comparator, same semantics as instance comparator, but usable
     # if you don't yet have an instance.  (Does this ever happen?)
-    def __cmp__(self,other):
+    def __cmp__(self, other):
         try:
             if self.red < other.red: return -1
             if self.red > other.red: return 1
@@ -109,12 +135,6 @@ class ColorValueBase:
 # can answer "base" queries (r, g, or b) more efficiently at
 # the instance level, so "to_base" functions are not provided.
 class ColorRegistration(registeredclass.ConvertibleRegistration):
-    def __init__(self, name, subclass, ordering,
-                 from_base, params=[], tip=None, discussion=None, secret=0):
-        registeredclass.ConvertibleRegistration.__init__(
-            self, name, Color, subclass, ordering, from_base=from_base,
-            params=params, tip=tip, discussion=discussion, secret=secret)
-
     # ConvertibleRegistration.to_base is only called by
     # ConvertibleRegistration.getParamValuesAsBase and by
     # ConvertibleRegisteredClass.__eq__, so by redefining
@@ -122,16 +142,12 @@ class ColorRegistration(registeredclass.ConvertibleRegistration):
     # any to_base functions.
     def getParamValuesAsBase(self):
         temp = self()
-        return ColorValueBase(temp.getRed(), temp.getGreen(), temp.getBlue())
+        return ColorValueBase(temp.getRed(), temp.getGreen(), temp.getBlue(),
+                              temp.getAlpha())
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-
-class RGBColor(Color):
-    """
-    Initialize with key word arguments or rgb values:
-      RGBColor(red, green, blue)
-      RGBColor(red=x, green=y, blue=z)
-    """
+class RGBColor(OpaqueColor):
     def __init__(self, red, green, blue):
         self.red = red
         self.green = green
@@ -145,6 +161,8 @@ class RGBColor(Color):
         return self.blue
     def getAlpha(self):
         return 1
+    def translucent(self):
+        return RGBAColor(self.red, self.green, self.blue, 1.0)
 
     # RGBColor needs some extra functions because it is used as a
     # dictionary key when categorizing pixels (see
@@ -191,7 +209,6 @@ class RGBColor(Color):
                                                             self.green,
                                                             self.blue)
 
-
 # RGB conversion functions are nearly trivial.
 def _rgb_from_base(rgb, base):
     if isinstance(base,ColorValueBase):
@@ -205,6 +222,7 @@ def rgb_from_hex(hexstr):
 
 ColorRegistration(
     'RGBColor',
+    OpaqueColor,
     RGBColor,
     1,
     params=[FloatRangeParameter('red', (0., 1., 0.01), 0.0,
@@ -218,29 +236,32 @@ ColorRegistration(
     discussion=xmlmenudump.loadFile("DISCUSSIONS/common/reg/rgbcolor.xml")
     )
 
-class RGBAColor(RGBColor):
-    """
-    Initialize with key word arguments or rgba values:
-      RGBAColor(red, green, blue, alpha)
-      RGBAColor(red=x, green=y, blue=z, alpha=a)
-    """
+class RGBAColor(TranslucentColor):
     def __init__(self, red, green, blue, alpha):
         self.red = red
         self.green = green
         self.blue = blue
         self.alpha = alpha
+    def getRed(self):
+        return self.red
+    def getGreen(self):
+        return self.green
+    def getBlue(self):
+        return self.blue
     def getAlpha(self):
         return self.alpha
     def __hash__(self):
         return hash((self.red, self.green, self.blue, self.alpha))
+    def opaque(self):
+        return RGBColor(self.red, self.green, self.blue)
 
 def _rgba_from_base(rgba, base):
     if isinstance(base,ColorValueBase):
         return [base.red, base.green, base.blue, base.alpha]
 
-
 ColorRegistration(
     'RGBAColor',
+    TranslucentColor,
     RGBAColor,
     4,
     params=[FloatRangeParameter('red', (0., 1., 0.01), 0.0,
@@ -256,11 +277,11 @@ ColorRegistration(
     discussion=xmlmenudump.loadFile("DISCUSSIONS/common/reg/rgbcolor.xml")
     )
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
     
-class Gray(Color):
+class Gray(OpaqueColor):
     def __init__(self, value):
         self.value = value
-        self.alpha = 1
     def getRed(self):
         return self.value
     def getGreen(self):
@@ -268,7 +289,9 @@ class Gray(Color):
     def getBlue(self):
         return self.value
     def getAlpha(self):
-        return self.alpha
+        return 1.0
+    def translucent(self):
+        return TranslucentGray(self.value, 1.0)
 
 # Gray conversion functions.
 def _gray_from_base(gray, base):
@@ -276,9 +299,9 @@ def _gray_from_base(gray, base):
         g = (base.red+base.green+base.blue)/3.0
         return [g]
         
-
 ColorRegistration(
     'Gray',
+    OpaqueColor,
     Gray, 3,
     params=[FloatRangeParameter('value', (0., 1., 0.01), 0.0,
                                 tip="Gray value (0==black, 1==white).")],
@@ -287,10 +310,20 @@ ColorRegistration(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/graycolor.xml')
     )
 
-class TranslucentGray(Gray):
+class TranslucentGray(TranslucentColor):
     def __init__(self, value, alpha):
         self.value = value
         self.alpha = alpha
+    def getRed(self):
+        return self.value
+    def getGreen(self):
+        return self.value
+    def getBlue(self):
+        return self.value
+    def getAlpha(self):
+        return self.alpha
+    def opaque(self):
+        return Gray(self.value)
 
 # Gray conversion functions.
 def _tgray_from_base(gray, base):
@@ -300,6 +333,7 @@ def _tgray_from_base(gray, base):
  
 ColorRegistration(
     'TranslucentGray',
+    TranslucentColor,
     TranslucentGray, 6,
     params=[FloatRangeParameter('value', (0., 1., 0.01), 0.0,
                                 tip="Gray value (0==black, 1==white)."),
@@ -309,9 +343,44 @@ ColorRegistration(
     tip="A gray color with an opacity component.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/graycolor.xml')
     )
-        
 
-class HSVColor(Color):
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# HSV conversion functions are nontrivial.
+def hsv_from_rgb(r, g, b):
+     maxval = max((r,g,b))
+     minval = min((r,g,b))
+     v = maxval
+     delta = maxval-minval
+     if maxval==0.0:
+         (h,s,v) = (0.0, 0.0, 0.0) # If s=0, h and v don't matter.
+     elif delta==0.0:  # It's gray, r=g=b.
+         (h,s,v) = (0.0, 0.0, maxval)
+     else:
+         s = delta/maxval
+         #
+         if r==maxval:
+             h = (g-b)/delta
+         elif g==maxval:
+             h = 2.0+(b-r)/delta
+         else:
+             h = 4.0+(r-g)/delta
+         h *= 60.0
+         if h<0:
+             h+=360.0
+     return (h, s, v)
+
+def _hsv_from_base(hsv, base):
+    if isinstance(base, ColorValueBase):
+        (h, s, v) = hsv_from_rgb(base.red, base.green, base.blue)
+        return [h,s,v]
+
+def _hsva_from_base(hsv, base):
+    if isinstance(base, ColorValueBase):
+        (h, s, v) = hsv_from_rgb(base.red, base.green, base.blue)
+        return [h,s,v, base.alpha]
+
+class HSVBase:
     def __init__(self, hue, saturation, value):
         if hue >= 360 or hue < 0:
             hue = hue % 360
@@ -319,8 +388,6 @@ class HSVColor(Color):
         self.saturation = saturation
         self.value = value
         self._rgb = None                # cache conversion to rgb
-        self.alpha = 1
-
     def findrgb(self):
         ## HSV to RGB algorithm stolen from
         ## http://www.cs.rit.edu/~ncs/color/t_convert.html
@@ -357,45 +424,18 @@ class HSVColor(Color):
     def getBlue(self):
         self.findrgb()
         return self._rgb[2]
+
+class HSVColor(OpaqueColor, HSVBase):
+    def __init__(self, hue, saturation, value):
+        HSVBase.__init__(self, hue, saturation, value)
     def getAlpha(self):
-        return 1
-
-
-
-# HSV conversion functions are nontrivial.
-def hsv_from_rgb(r, g, b):
-     maxval = max((r,g,b))
-     minval = min((r,g,b))
-     #
-     v = maxval
-     #
-     delta = maxval-minval
-     #
-     if maxval==0.0:
-         (h,s,v) = (0.0, 0.0, 0.0) # If s=0, h and v don't matter.
-     elif delta==0.0:  # It's gray, r=g=b.
-         (h,s,v) = (0.0, 0.0, maxval)
-     else:
-         s = delta/maxval
-         #
-         if r==maxval:
-             h = (g-b)/delta
-         elif g==maxval:
-             h = 2.0+(b-r)/delta
-         else:
-             h = 4.0+(r-g)/delta
-         h *= 60.0
-         if h<0:
-             h+=360.0
-     return (h, s, v)
-
-def _hsv_from_base(hsv, base):
-    if isinstance(base, ColorValueBase):
-        (h, s, v) = hsv_from_rgb(base.red, base.green, base.blue)
-        return [h,s,v]
+        return 1.0
+    def translucent(self):
+        return HSVAColor(self.hue, self.saturation, self.value, 1.0)
     
 ColorRegistration(
     'HSVColor',
+    OpaqueColor,
     HSVColor, 2,
     params=[FloatRangeParameter('hue', (0.0, 360.0, 1.), 0.0,
                                 tip="Value of Hue."),
@@ -407,21 +447,19 @@ ColorRegistration(
     tip="Color specified by Hue, Saturation, and Value.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/hsvcolor.xml'))
 
-class HSVAColor(HSVColor):
-    def __init__(self, hue, saturation, value, alpha):
-        HSVColor.__init__(self, hue, saturation, value)
-        self.alpha = alpha
 
+class HSVAColor(TranslucentColor, HSVBase):
+    def __init__(self, hue, saturation, value, alpha):
+        HSVBase.__init__(self, hue, saturation, value)
+        self.alpha = alpha
     def getAlpha(self):
         return self.alpha
-
-def _hsva_from_base(hsv, base):
-    if isinstance(base, ColorValueBase):
-        (h, s, v) = hsv_from_rgb(base.red, base.green, base.blue)
-        return [h,s,v, base.alpha]
+    def opaque(self):
+        return HSVColor(self.hue, self.saturation, self.value)
 
 ColorRegistration(
     'HSVAColor',
+    TranslucentColor,
     HSVAColor, 5,
     params=[FloatRangeParameter('hue', (0.0, 360.0, 1.), 0.0,
                                 tip="Value of Hue."),
@@ -432,52 +470,44 @@ ColorRegistration(
             FloatRangeParameter('alpha', (0., 1., 0.01), 0.0,
                                 tip="Opacity.")],
     from_base=_hsva_from_base,
+    translucent=True,
     tip="Color specified by Hue, Saturation, Value, and Alpha.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/hsvcolor.xml'))
 
 
 #=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#
 
-# ColorParameter and NewColorParameter differ only in the widgets that
-# are assigned to them in graphics mode.  The ColorParameter widget
-# displays both the selected color and the old value.
-# NewColorParameter only displays the selected color.
-
-class ColorParameter(parameter.ConvertibleRegisteredParameter):
+class TranslucentColorParameter(parameter.ConvertibleRegisteredParameter):
     def __init__(self, name, value=None, default=None, tip=None):
-        parameter.ConvertibleRegisteredParameter.__init__(self, name, Color,
-                                                          value, default, tip)
+        parameter.ConvertibleRegisteredParameter.__init__(
+            self, name, TranslucentColor, value, default, tip)
     def clone(self):
         return self.__class__(self.name, self.value, self.default, self.tip)
 
-class NewColorParameter(ColorParameter): pass
+class OpaqueColorParameter(parameter.ConvertibleRegisteredParameter):
+    def __init__(self, name, value=None, default=None, tip=None):
+        parameter.ConvertibleRegisteredParameter.__init__(
+            self, name, OpaqueColor, value, default, tip)
+    def clone(self):
+        return self.__class__(self.name, self.value, self.default, self.tip)
+
 
 #=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#
 
-def alpha(opacity):
-    if opacity == 1.0:
-        return 255
-    return int(opacity*256)
+## The standard colors are defined as TranslucentColors, but with
+## alpha=1.  That is, they can be used where a translucent color is
+## called for, but they happen to be opaque.
 
-#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#
-
-### This is a test of secret registered classes.
-##class Squant(Color): pass
-##ColorRegistration('Squant', Squant, None, 1, secret=1)
-                  
-
-## Standard colors
-
-black =   Gray(0.0)
-white =   Gray(1.0)
-red =     RGBColor(1.0, 0.0, 0.0)
-green =   RGBColor(0.0, 1.0, 0.0)
-blue =    RGBColor(0.0, 0.0, 1.0)
-cyan =    RGBColor(0.0, 1.0, 1.0)
-yellow =  RGBColor(1.0, 1.0, 0.0)
-orange =  RGBColor(1.0, 0.5, 0.0)
-magenta = RGBColor(1.0, 0.0, 1.0)
-gray50 =  Gray(0.5)
+black =   TranslucentGray(0.0, 1.0)
+gray50 =  TranslucentGray(0.5, 1.0)
+white =   TranslucentGray(1.0, 1.0)
+red =     RGBAColor(1.0, 0.0, 0.0, 1.0)
+green =   RGBAColor(0.0, 1.0, 0.0, 1.0)
+blue =    RGBAColor(0.0, 0.0, 1.0, 1.0)
+cyan =    RGBAColor(0.0, 1.0, 1.0, 1.0)
+yellow =  RGBAColor(1.0, 1.0, 0.0, 1.0)
+orange =  RGBAColor(1.0, 0.5, 0.0, 1.0)
+magenta = RGBAColor(1.0, 0.0, 1.0, 1.0)
 
 from ooflib.common import utils
 utils.OOFdefine('black', black)
@@ -490,3 +520,11 @@ utils.OOFdefine('yellow', yellow)
 utils.OOFdefine('orange', orange)
 utils.OOFdefine('magenta', magenta)
 utils.OOFdefine('gray50', gray50)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# Convert to an OOFCanvas color
+
+def canvasColor(color):
+    clr = oofcanvas.Color(color.getRed(), color.getGreen(), color.getBlue())
+    return clr.opacity(color.getAlpha())

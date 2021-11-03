@@ -11,6 +11,8 @@
 
 # Test suite for materials and properties.
 
+## TODO: Use fp_file_compare instead of filecmp
+
 import unittest, os, filecmp
 import memorycheck
 from UTILS.file_utils import reference_file
@@ -102,7 +104,6 @@ class Property(unittest.TestCase):
                         old_values = {}
                         for param in p.object.params:
                             old_values[param.name]=param.value
-
                         thisparammenu.callWithDefaults(**argdict)
                         OOF.Material.Add_property(name="prop_mat",
                                                   property=ppath)
@@ -389,7 +390,7 @@ class MatPropIO(unittest.TestCase):
     def PropSave(self):
         OOF.Property.Copy(property="Color", new_name="bloo")
         OOF.Property.Parametrize.Color.bloo(
-            color=RGBColor(red=0.1,green=0.1,blue=0.9))
+            color=RGBAColor(red=0.1,green=0.1,blue=0.9,alpha=1.0))
         OOF.File.Save.Property(filename="prop_save_test",
                                mode="w", format="ascii",
                                property="Color:bloo")
@@ -411,7 +412,7 @@ class MatPropIO(unittest.TestCase):
         OOF.Material.New(name="save")
         OOF.Property.Copy(property="Color", new_name="check")
         OOF.Property.Parametrize.Color.check(
-            color=RGBColor(red=0.2,green=0.3,blue=0.4))
+            color=RGBAColor(red=0.2,green=0.3,blue=0.4,alpha=1.0))
         OOF.Material.Add_property(name="save",
                                   property="Color:check")
         OOF.File.Save.Materials(filename="mat_save_test",
@@ -445,11 +446,11 @@ def build_parametrize_dict():
     # data file formatting truncated significant digits.
     
     parametrize_dict = {
-        'Color' :  [ { "color" : Gray(value=0.5) },
-                     { "color" : HSVColor(hue=200.0,
-                                          saturation=0.5,
-                                          value=0.6) },
-                     { "color" : RGBColor(red=0.2, green=0.3, blue=0.4) } ],
+        'Color' :  [ { "color" : TranslucentGray(value=0.5, alpha=1.0) },
+                     { "color" : HSVAColor(hue=200.0, saturation=0.5,
+                                           value=0.6, alpha=0.5) },
+                     { "color" : RGBAColor(red=0.2, green=0.3, blue=0.4,
+                                           alpha=1.0) } ],
 
         'Mechanical:Elasticity:Isotropic' :
         [ {"cijkl" : IsotropicRank4TensorCij(c11=1.5,c12=0.7) },

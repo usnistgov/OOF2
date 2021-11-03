@@ -20,63 +20,45 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 
+import oofcanvas
 
 class SkeletonElementSelectionDisplay(display.DisplayMethod):
-    def __init__(self, color, opacity):
+    def __init__(self, color):
         self.color = color
-        self.opacity = opacity
         display.DisplayMethod.__init__(self)
 
-    def draw(self, gfxwindow, device):
-        skel = self.who().resolve(gfxwindow)
+    def draw(self, gfxwindow):
+        skel = self.who.resolve(gfxwindow)
         if skel is not None:
-            device.set_lineColor(self.color)
-            device.set_fillColorAlpha(self.color, color.alpha(self.opacity))
             skel.elementselection.begin_reading()
+            clr = color.canvasColor(self.color)
             try:
-                if config.dimension() == 2:
-                    for e in skel.elementselection.retrieve():
-                        device.fill_polygon(primitives.Polygon([x.position()
-                                                                for x in e.nodes]))
-                elif config.dimension() == 3:
-                    if len(skel.elementselection.retrieve()):
-                        gridPoints = skel.getObject().getPoints()
-                        grid = vtk.vtkUnstructuredGrid()
-                        numCells = len(skel.elementselection.retrieve())
-                        grid.Allocate(numCells,numCells)
-                        grid.SetPoints(gridPoints)
-                        for e in skel.elementselection.retrieve():
-                            grid.InsertNextCell(e.getCellType(), e.getPointIds())
-                        device.draw_filled_unstructuredgrid(grid)
-
-
-                        
+                for e in skel.elementselection.retrieve():
+                    poly = oofcanvas.CanvasPolygon()
+                    poly.addPoints([n.position() for n in e.nodes])
+                    poly.setFillColor(clr)
+                    self.canvaslayer.addItem(poly)
             finally:
                 skel.elementselection.end_reading()
     def getTimeStamp(self, gfxwindow):
         return max(self.timestamp,
-                   self.who().resolve(gfxwindow).elementselection.timestamp)
+                   self.who.resolve(gfxwindow).elementselection.timestamp)
                 
                 
 # This object should be created via the registration, and not
 # directly via the initializer, because the registration creation
 # method gives it a timestamp.
 
-defaultSelectedElementColor = color.RGBColor(0.88, 0.14, 0.07)
-defaultSelectedElementOpacity = 0.6
+defaultSelectedElementColor = color.RGBAColor(0.88, 0.14, 0.07, 0.6)
 
-def _setSelectedElementParams(menuitem, color, opacity):
+def _setSelectedElementParams(menuitem, color):
     global defaultSelectedElementColor
-    global defaultSelectedElementOpacity
     defaultSelectedElementColor = color
-    defaultSelectedElementOpacity = opacity
 
 selectedElementParams = [
-    color.ColorParameter('color', defaultSelectedElementColor,
-                         tip="Color for the selected elements."),
-    parameter.FloatRangeParameter('opacity', (0., 1., 0.01),
-                                  defaultSelectedElementOpacity,
-                                  tip="Opacity of the selected elements.")]
+    color.TranslucentColorParameter('color', defaultSelectedElementColor,
+                                    tip="Color for the selected elements.")
+]
 
 mainmenu.gfxdefaultsmenu.Skeletons.addItem(oofmenu.OOFMenuItem(
     'Selected_Elements',
@@ -105,11 +87,11 @@ elementSelectDisplay = registeredclass.Registration(
     layerordering=display.SemiPlanar,
     whoclasses=('Skeleton',),
     tip="Display the currently selected elements",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/elementselectdisplay.xml'))
-                                                
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/engine/reg/elementselectdisplay.xml')
+)
 
 def predefinedElemSelLayer():
-    return elementSelectDisplay(color=defaultSelectedElementColor,
-                                opacity=defaultSelectedElementOpacity)
+    return elementSelectDisplay(color=defaultSelectedElementColor)
 
 ghostgfxwindow.PredefinedLayer('Skeleton', '<topmost>', predefinedElemSelLayer)

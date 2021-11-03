@@ -13,12 +13,18 @@
 
 namespace Eigen { 
 
+namespace internal {
+
+enum PermPermProduct_t {PermPermProduct};
+
+} // end namespace internal
+
 /** \class PermutationBase
   * \ingroup Core_Module
   *
   * \brief Base class for permutations
   *
-  * \param Derived the derived class
+  * \tparam Derived the derived class
   *
   * This class is the base class for all expressions representing a permutation matrix,
   * internally stored as a vector of integers.
@@ -36,13 +42,6 @@ namespace Eigen {
   *
   * \sa class PermutationMatrix, class PermutationWrapper
   */
-
-namespace internal {
-
-enum PermPermProduct_t {PermPermProduct};
-
-} // end namespace internal
-
 template<typename Derived>
 class PermutationBase : public EigenBase<Derived>
 {
@@ -87,17 +86,6 @@ class PermutationBase : public EigenBase<Derived>
         applyTranspositionOnTheRight(k,tr.coeff(k));
       return derived();
     }
-
-    #ifndef EIGEN_PARSED_BY_DOXYGEN
-    /** This is a special case of the templated operator=. Its purpose is to
-      * prevent a default operator= from hiding the templated operator=.
-      */
-    Derived& operator=(const PermutationBase& other)
-    {
-      indices() = other.indices();
-      return derived();
-    }
-    #endif
 
     /** \returns the number of rows */
     inline Index rows() const { return Index(indices().size()); }
@@ -192,13 +180,13 @@ class PermutationBase : public EigenBase<Derived>
 
     /** \returns the inverse permutation matrix.
       *
-      * \note \note_try_to_help_rvo
+      * \note \blank \note_try_to_help_rvo
       */
     inline InverseReturnType inverse() const
     { return InverseReturnType(derived()); }
     /** \returns the tranpose permutation matrix.
       *
-      * \note \note_try_to_help_rvo
+      * \note \blank \note_try_to_help_rvo
       */
     inline InverseReturnType transpose() const
     { return InverseReturnType(derived()); }
@@ -225,7 +213,7 @@ class PermutationBase : public EigenBase<Derived>
 
     /** \returns the product permutation matrix.
       *
-      * \note \note_try_to_help_rvo
+      * \note \blank \note_try_to_help_rvo
       */
     template<typename Other>
     inline PlainPermutationType operator*(const PermutationBase<Other>& other) const
@@ -233,7 +221,7 @@ class PermutationBase : public EigenBase<Derived>
 
     /** \returns the product of a permutation with another inverse permutation.
       *
-      * \note \note_try_to_help_rvo
+      * \note \blank \note_try_to_help_rvo
       */
     template<typename Other>
     inline PlainPermutationType operator*(const InverseImpl<Other,PermutationStorage>& other) const
@@ -241,7 +229,7 @@ class PermutationBase : public EigenBase<Derived>
 
     /** \returns the product of an inverse permutation with another permutation.
       *
-      * \note \note_try_to_help_rvo
+      * \note \blank \note_try_to_help_rvo
       */
     template<typename Other> friend
     inline PlainPermutationType operator*(const InverseImpl<Other, PermutationStorage>& other, const PermutationBase& perm)
@@ -280,20 +268,6 @@ class PermutationBase : public EigenBase<Derived>
 
 };
 
-/** \class PermutationMatrix
-  * \ingroup Core_Module
-  *
-  * \brief Permutation matrix
-  *
-  * \param SizeAtCompileTime the number of rows/cols, or Dynamic
-  * \param MaxSizeAtCompileTime the maximum number of rows/cols, or Dynamic. This optional parameter defaults to SizeAtCompileTime. Most of the time, you should not have to specify it.
-  * \param StorageIndex the integer type of the indices
-  *
-  * This class represents a permutation matrix, internally stored as a vector of integers.
-  *
-  * \sa class PermutationBase, class PermutationWrapper, class DiagonalMatrix
-  */
-
 namespace internal {
 template<int SizeAtCompileTime, int MaxSizeAtCompileTime, typename _StorageIndex>
 struct traits<PermutationMatrix<SizeAtCompileTime, MaxSizeAtCompileTime, _StorageIndex> >
@@ -306,6 +280,19 @@ struct traits<PermutationMatrix<SizeAtCompileTime, MaxSizeAtCompileTime, _Storag
 };
 }
 
+/** \class PermutationMatrix
+  * \ingroup Core_Module
+  *
+  * \brief Permutation matrix
+  *
+  * \tparam SizeAtCompileTime the number of rows/cols, or Dynamic
+  * \tparam MaxSizeAtCompileTime the maximum number of rows/cols, or Dynamic. This optional parameter defaults to SizeAtCompileTime. Most of the time, you should not have to specify it.
+  * \tparam _StorageIndex the integer type of the indices
+  *
+  * This class represents a permutation matrix, internally stored as a vector of integers.
+  *
+  * \sa class PermutationBase, class PermutationWrapper, class DiagonalMatrix
+  */
 template<int SizeAtCompileTime, int MaxSizeAtCompileTime, typename _StorageIndex>
 class PermutationMatrix : public PermutationBase<PermutationMatrix<SizeAtCompileTime, MaxSizeAtCompileTime, _StorageIndex> >
 {
@@ -334,12 +321,6 @@ class PermutationMatrix : public PermutationBase<PermutationMatrix<SizeAtCompile
     template<typename OtherDerived>
     inline PermutationMatrix(const PermutationBase<OtherDerived>& other)
       : m_indices(other.indices()) {}
-
-    #ifndef EIGEN_PARSED_BY_DOXYGEN
-    /** Standard copy constructor. Defined only to prevent a default copy constructor
-      * from hiding the other templated constructor */
-    inline PermutationMatrix(const PermutationMatrix& other) : m_indices(other.indices()) {}
-    #endif
 
     /** Generic constructor from expression of the indices. The indices
       * array has the meaning that the permutations sends each integer i to indices[i].
@@ -374,17 +355,6 @@ class PermutationMatrix : public PermutationBase<PermutationMatrix<SizeAtCompile
     {
       return Base::operator=(tr.derived());
     }
-
-    #ifndef EIGEN_PARSED_BY_DOXYGEN
-    /** This is a special case of the templated operator=. Its purpose is to
-      * prevent a default operator= from hiding the templated operator=.
-      */
-    PermutationMatrix& operator=(const PermutationMatrix& other)
-    {
-      m_indices = other.m_indices;
-      return *this;
-    }
-    #endif
 
     /** const version of indices(). */
     const IndicesType& indices() const { return m_indices; }
@@ -482,18 +452,6 @@ class Map<PermutationMatrix<SizeAtCompileTime, MaxSizeAtCompileTime, _StorageInd
     IndicesType m_indices;
 };
 
-/** \class PermutationWrapper
-  * \ingroup Core_Module
-  *
-  * \brief Class to view a vector of integers as a permutation matrix
-  *
-  * \param _IndicesType the type of the vector of integer (can be any compatible expression)
-  *
-  * This class allows to view any vector expression of integers as a permutation matrix.
-  *
-  * \sa class PermutationBase, class PermutationMatrix
-  */
-
 template<typename _IndicesType> class TranspositionsWrapper;
 namespace internal {
 template<typename _IndicesType>
@@ -513,6 +471,17 @@ struct traits<PermutationWrapper<_IndicesType> >
 };
 }
 
+/** \class PermutationWrapper
+  * \ingroup Core_Module
+  *
+  * \brief Class to view a vector of integers as a permutation matrix
+  *
+  * \tparam _IndicesType the type of the vector of integer (can be any compatible expression)
+  *
+  * This class allows to view any vector expression of integers as a permutation matrix.
+  *
+  * \sa class PermutationBase, class PermutationMatrix
+  */
 template<typename _IndicesType>
 class PermutationWrapper : public PermutationBase<PermutationWrapper<_IndicesType> >
 {

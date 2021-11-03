@@ -16,7 +16,6 @@
 ## be recorded must correspond to a GtkLogger class which has a
 ## "record" method that can handle the action.
 
-import gtk
 import re
 import sys
 import types
@@ -36,7 +35,9 @@ def findLogger(obj):
             return logger()
     raise NotImplementedError("No GtkLogger for %s" % obj.__class__.__name__)
 
-# localvar generates names for local variables in scripts.
+# localvar generates names for local variables in scripts.  The
+# variables should be deleted after they're used, in case holding a
+# reference to a GUI object has side effects.
 _localvarcount = {}
 
 def localvar(base):
@@ -104,62 +105,43 @@ class GtkLogger(object):
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 ##############################################################    
 
-# This is the gtk signal handler that records everything.
+# This is the gtk signal handler that records everything.  If "logger"
+# is None (the usual case) the logger that is registered for the
+# object's class will be used.
 
-def signalLogger(obj, signal, *args):
+def signalLogger(obj, signal, logger, *args):
     if logutils.recording() and not logutils.replaying():
+        if logger is None:
+            logger = findLogger(obj)
         try:
-            records = findLogger(obj).record(obj, signal, *args)
-        except logutils.GtkLoggerTopFailure, exc:
-            if logutils.debugLevel() >= 3:
-                print >> sys.stderr, "Can't log %s (%s): %s" \
-                      (obj.__class__.__name__, signal, exc)
-        except logutils.GtkLoggerException, exc:
-            if logutils.debugLevel() >= 1:
-                print >> sys.stderr, "Can't log %s (%s): %s" % \
-                      (obj.__class__.__name__, signal, exc)
+            records = logger.record(obj, signal, *args)
+        except (logutils.GtkLoggerTopFailure,
+                logutils.GtkLoggerException), exc:
+            print >> sys.stderr, "Can't log %s (%s): %s" \
+                % (obj.__class__.__name__, signal, exc)
         else:
             if records is GtkLogger.ignore:
                 pass
             elif records is not None:
                 assert type(records) is types.ListType
                 for record in records:
-                    _writeline(record)
+                    writeLine(record)
             else:
                 if logutils.debugLevel() >= 1:
                     print >> sys.stderr, "No record function for", obj, signal
     return False                        # propagate events
 
+# Code that needs to insert something into the log file can just call
+# writeLine.  _writeline is used internally when it's necessary to
+# write without checking, when rerecording a log file for example.
 
-## Some lines are logged too often.  This code eliminates redundant
-## lines, making the log files easier to read and faster to run.
-
-## _redundantlines is a list of regular expression objects that match
-## lines that are redundant when repeated.
-_redundantlines = [
-    # Each time a Window is created, it emits four 'configure-event'
-    # signals, which show up as four 'resize' lines in the log.
-    re.compile(r".*\.resize\([0-9]+, [0-9]+\)$"),
-    # set_position lines for HPaned and VPaned widgets are generated
-    # from their children's 'size-allocate' signals, which are
-    # repeated unnecessarily, as far as we're concerned.
-    re.compile(r".*\.set_position\([0-9]+\)$")
-    ]
-
-def _not_redundant(line):
-    for regexp in _redundantlines:
-        if regexp.match(line) is not None:
-            return False
-    return True
-
-_prevline = None
 def _writeline(line):
-    global _prevline
-    if line != _prevline or _not_redundant(line):
-        print >> logutils.logfile(), line
-        logutils.logfile().flush()
-        if logutils.debugLevel() >= 2 and not logutils.replaying():
-            print >> sys.stderr, "//////", line
-    _prevline = line
-    
+    print >> logutils.logfile(), line
+    logutils.logfile().flush()
+    if logutils.debugLevel() >= 2:
+        print >> sys.stderr, "//////", line
+
+def writeLine(line):
+    if logutils.recording() and not logutils.replaying():
+        _writeline(line)
 

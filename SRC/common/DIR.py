@@ -51,7 +51,7 @@ pyfiles = [
     'pixelselectionmethod.py', 'pixelselectionmod.py', 'primitives.py',
     'quit.py', 'registeredclass.py', 'ringbuffer.py', 'strfunction.py',
     'subthread.py', 'thread_enable.py', 'timer.py', 'toolbox.py',
-    'utils.py', 'version.py', 'worker.py', 'runtimeflags.py'
+    'utils.py', 'version.py', 'worker.py', 'runtimeflags.py', 'atshutdown.py'
 ]
 
 swigpyfiles = [
@@ -75,7 +75,7 @@ hfiles = [
     'removeitem.h', 'sincos.h', 'swiglib.h', 'switchboard.h',
     'threadstate.h', 'timestamp.h', 'tostring.h', 'trace.h',
     'pythonlock.h', 'direction.h', 'doublevec.h', 'smallmatrix.h',
-    'latticesystem.h', 'burn.h', 'statgroups.h'
+    'latticesystem.h', 'burn.h', 'statgroups.h', 'chunkyvector.h'
 ]
 
 
@@ -88,6 +88,8 @@ if HAVE_MPI:
     hfiles.extend(['mpitools.h'])
 
 def set_clib_flags(clib):
+    import oof2setuputils
+    oof2setuputils.pkg_check("Magick++", MAGICK_VERSION, clib)
     if HAVE_MPI:
         clib.externalLibs.append('pmpich++')
         clib.externalLibs.append('mpich')

@@ -41,7 +41,7 @@ registeredclass.Registration(
     ordering=3.14,
     params=[whoville.WhoParameter('image', whoville.getClass('Image'),
                                   tip=parameter.emptyTipString),
-            color.NewColorParameter('reference', tip='Reference color.'),
+            color.OpaqueColorParameter('reference', tip='Reference color.'),
             colordiffparameter.ColorDifferenceParameter('range',
                                  tip='Deviation from the reference color.')
             ],

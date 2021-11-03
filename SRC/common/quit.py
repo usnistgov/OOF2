@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -13,6 +12,7 @@
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import threadstate
+from ooflib.common import atshutdown
 from ooflib.common import debug
 from ooflib.common import excepthook
 from ooflib.common import mainthread
@@ -35,12 +35,13 @@ def quit(*args, **kwargs):
             mainmenu.OOF.File.Save.Python_Log()
             mainmenu.cleanlog()
     cleanup(shutdown, exitstatus)          # doesn't return!
-    
 
 def cleanup(shutdownfn, exitstatus):
     # Turn off logging, so that window closing, etc. won't be logged.
     mainmenu.OOF.haltLog()
 
+    atshutdown.runShutDownFns()
+        
     if parallel_enable.enabled():
         try:
             from ooflib.SWIG.common import mpitools

@@ -21,9 +21,9 @@ from ooflib.engine.IO import materialmenu
 from ooflib.engine.IO import materialparameter
 
 class MaterialWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         self.chooser = chooser.ChooserWidget([], callback=self.chooserCB,
-                                             name=name)
+                                             name=name, **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, self.chooser.gtk, scope)
         self.sbcallbacks = [
             switchboard.requestCallbackMain("new_material", self.update),
@@ -32,7 +32,7 @@ class MaterialWidget(parameterwidgets.ParameterWidget):
         self.update()
         if param.value is not None:
             self.set_value(param.value)
-    def chooserCB(self, gtkobj, name):
+    def chooserCB(self, name):
         self.widgetChanged(validity=self.chooser.nChoices()>0, interactive=1)
     def cleanUp(self):
         map(switchboard.removeCallback, self.sbcallbacks)
@@ -48,8 +48,8 @@ class MaterialWidget(parameterwidgets.ParameterWidget):
         self.chooser.set_state(material)
         self.widgetChanged(validity=(material is not None), interactive=0)
 
-def _MaterialParameter_makeWidget(self, scope=None):
-    return MaterialWidget(self, scope, name=self.name)
+def _MaterialParameter_makeWidget(self, scope=None, **kwargs):
+    return MaterialWidget(self, scope, name=self.name, **kwargs)
 materialparameter.MaterialParameter.makeWidget = _MaterialParameter_makeWidget
 
 #Interface branch
@@ -60,8 +60,8 @@ class InterfaceMaterialWidget(MaterialWidget):
         self.chooser.update(names)
         self.widgetChanged(len(names) > 0, interactive=0)
 
-def _InterfaceMaterialParameter_makeWidget(self, scope=None):
-    return InterfaceMaterialWidget(self, scope, name=self.name)
+def _InterfaceMaterialParameter_makeWidget(self, scope=None, **kwargs):
+    return InterfaceMaterialWidget(self, scope, name=self.name, **kwargs)
 
 materialparameter.InterfaceMaterialParameter.makeWidget = \
     _InterfaceMaterialParameter_makeWidget
@@ -88,17 +88,17 @@ class BulkMaterialWidget(MaterialWidget):
         self.chooser.update(names)
         self.widgetChanged(len(names) > 0, interactive=0)
 
-def _BulkMaterialParameter_makeWidget(self, scope=None):
-    return BulkMaterialWidget(self, scope, name=self.name)
+def _BulkMaterialParameter_makeWidget(self, scope=None, **kwargs):
+    return BulkMaterialWidget(self, scope, name=self.name, **kwargs)
 materialparameter.BulkMaterialParameter.makeWidget = \
     _BulkMaterialParameter_makeWidget
 
 class MeshMaterialWidget(MaterialWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         self.meshwidget = scope.findWidget(
             lambda w: isinstance(w, whowidget.WhoWidget)
             and w.whoclass in (mesh.meshes, subproblemcontext.subproblems))
-        MaterialWidget.__init__(self, param, scope, name)
+        MaterialWidget.__init__(self, param, scope, name, **kwargs)
         self.sbcallbacks.append(
             switchboard.requestCallbackMain(self.meshwidget, self.update))
     def update(self, *args):
@@ -110,8 +110,8 @@ class MeshMaterialWidget(MaterialWidget):
         self.chooser.update(names)
         self.widgetChanged(len(names) > 0, interactive=0)
 
-def _MeshMatParam_makeWidget(self, scope=None):
-    return MeshMaterialWidget(self, scope, name=self.name)
+def _MeshMatParam_makeWidget(self, scope=None, **kwargs):
+    return MeshMaterialWidget(self, scope, name=self.name, **kwargs)
 materialparameter.MeshMaterialParameter.makeWidget = _MeshMatParam_makeWidget
         
 ########################
@@ -124,8 +124,8 @@ class AnyMaterialWidget(MaterialWidget):
                             + names)
         self.widgetChanged(validity=1, interactive=0)
 
-def _AnyMaterialParameter_makeWidget(self, scope=None):
-    return AnyMaterialWidget(self, scope, name=self.name)
+def _AnyMaterialParameter_makeWidget(self, scope=None, **kwargs):
+    return AnyMaterialWidget(self, scope, name=self.name, **kwargs)
 
 materialparameter.AnyMaterialParameter.makeWidget = \
     _AnyMaterialParameter_makeWidget
@@ -139,8 +139,8 @@ class InterfaceAnyMaterialWidget(MaterialWidget):
             materialparameter.InterfaceAnyMaterialParameter.extranames + names)
         self.widgetChanged(validity=1, interactive=0)
 
-def _InterfaceAnyMaterialParameter_makeWidget(self, scope=None):
-    return InterfaceAnyMaterialWidget(self, scope, name=self.name)
+def _InterfaceAnyMaterialParameter_makeWidget(self, scope=None, **kwargs):
+    return InterfaceAnyMaterialWidget(self, scope, name=self.name, **kwargs)
 
 materialparameter.InterfaceAnyMaterialParameter.makeWidget = \
     _InterfaceAnyMaterialParameter_makeWidget
@@ -148,12 +148,12 @@ materialparameter.InterfaceAnyMaterialParameter.makeWidget = \
 ########################
         
 class MaterialsWidget(parameterwidgets.ParameterWidget):
-    def __init__(self, param, scope=None, name=None):
+    def __init__(self, param, scope=None, name=None, **kwargs):
         names = materialmanager.getMaterialNames()
         names.sort()
         self.widget = chooser.ScrolledMultiListWidget(names,
                                                       callback=self.widgetCB,
-                                                      name=name)
+                                                      name=name, **kwargs)
         parameterwidgets.ParameterWidget.__init__(self, self.widget.gtk, scope,
                                                   expandable=True)
         self.widget.set_selection(param.value)
@@ -177,8 +177,8 @@ class MaterialsWidget(parameterwidgets.ParameterWidget):
     def widgetCB(self, list, interactive):
         self.widgetChanged(len(list) > 0, interactive=1)
 
-def _MaterialsWidget_makeWidget(self, scope=None):
-    return MaterialsWidget(self, scope, name=self.name)
+def _MaterialsWidget_makeWidget(self, scope=None, **kwargs):
+    return MaterialsWidget(self, scope, name=self.name, **kwargs)
 
 materialparameter.ListOfMaterialsParameter.makeWidget = \
     _MaterialsWidget_makeWidget

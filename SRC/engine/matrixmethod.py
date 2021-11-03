@@ -62,18 +62,24 @@ solver_map["CG"]["Un"] = cmatrixmethods.CG_Unpre
 solver_map["CG"]["Diag"] = cmatrixmethods.CG_Diag
 solver_map["CG"]["ILUT"] = cmatrixmethods.CG_ILUT
 solver_map["CG"]["ILU"] = cmatrixmethods.CG_ILUT
+solver_map["CG"]["IC"] = cmatrixmethods.CG_IC
 solver_map["BiCGStab"] = {}
 solver_map["BiCGStab"]["Un"] = cmatrixmethods.BiCGStab_Unpre
 solver_map["BiCGStab"]["Diag"] = cmatrixmethods.BiCGStab_Diag
 solver_map["BiCGStab"]["ILUT"] = cmatrixmethods.BiCGStab_ILUT
 solver_map["BiCGStab"]["ILU"] = cmatrixmethods.BiCGStab_ILUT
+solver_map["BiCGStab"]["IC"] = cmatrixmethods.BiCGStab_IC
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 _check_symmetry = False #debug.debug()
 
 ## The routines in cmatrixmethods return the number of iterations and
-## the residual. 
+## the residual.
+
+## TODO: Use Eigen's solveWithGuess() method instead of solve() in
+## cases where we have a previous solution (non-linear solvers?
+## plasticity?)
 
 class ConjugateGradient(PreconditionedMatrixMethod):
     def __init__(self, preconditioner, tolerance, max_iterations):
@@ -86,16 +92,19 @@ class ConjugateGradient(PreconditionedMatrixMethod):
     def solveMatrix(self, matrix, rhs, solution):
         if _check_symmetry:
             import sys
+	    import subprocess, os
             if (matrix.nrows()!=matrix.ncols() or
                 not matrix.is_symmetric(1.e-12)): # can be very slow
                 raise ooferror2.ErrPyProgrammingError(
                     "%dx%d CG matrix is not symmetric!" %
                     (matrix.nrows(), matrix.ncols()))
+	# added to try and debug memory usage
+	#subprocess.check_output(["oof2",'os.getpid()'])
         succ = self.solver.solve(matrix, rhs, solution)
         if succ != cmatrixmethods.SUCCESS: 
             if succ == cmatrixmethods.NOCONVERG:
-                raise ooferror2.ErrPyProgrammingError(
-                    "Iterative procedure did not converge")
+                raise ooferror2.ErrConvergenceFailure(
+                    "CG", self.solver.iterations())
         return self.solver.iterations(), self.solver.error()
 
 registeredclass.Registration(
@@ -146,8 +155,8 @@ class StabilizedBiConjugateGradient(PreconditionedMatrixMethod):
         succ = self.solver.solve(matrix, rhs, solution)
         if succ != cmatrixmethods.SUCCESS: 
             if succ == cmatrixmethods.NOCONVERG:
-                raise ooferror2.ErrPyProgrammingError(
-                    "Iterative procedure did not converge")
+                raise ooferror2.ErrConvergenceFailure(
+                    "StabilizedBiConjugateGradient", self.solver.iterations())
         return self.solver.iterations(), self.solver.error()
 
 registeredclass.Registration(

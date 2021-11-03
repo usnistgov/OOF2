@@ -116,18 +116,21 @@ void CMicrostructure::destroy() {
   attributeGlobalData.resize(0);
 }
 
-Array<PixelAttribute*> &CMicrostructure::getAttributeMap(int which) const {
+Array<PixelAttribute*> &CMicrostructure::getAttributeMap(std::size_t which)
+  const
+{
   groups_attributes_lock.read_acquire();
 #ifdef DEBUG
   assert(which >= 0);
-  assert(which < int(attributeMap.size()) );
+  assert(which < attributeMap.size());
 #endif
   Array<PixelAttribute*> &res = attributeMap[which];
   groups_attributes_lock.read_release();
   return res;
 }
 
-PixelAttributeGlobalData *CMicrostructure::getAttributeGlobalData(int which)
+PixelAttributeGlobalData *
+CMicrostructure::getAttributeGlobalData(std::size_t which)
   const 
 {
   return attributeGlobalData[which];
@@ -141,9 +144,9 @@ const TimeStamp &CMicrostructure::getTimeStamp() const {
   return timestamp;
 }
 
-int CMicrostructure::nGroups() const {
+std::size_t CMicrostructure::nGroups() const {
   groups_attributes_lock.read_acquire();
-  int res = pixelgroups.size();
+  std::size_t res = pixelgroups.size();
   groups_attributes_lock.read_release();
   return res;
 }
@@ -195,8 +198,8 @@ bool CMicrostructure::contains(const ICoord &ip) const {
 std::vector<ICoord> CMicrostructure::shuffledPix() const {
   std::vector<ICoord> pix;
   pix.reserve(pxlsize_(0)*pxlsize_(1));
-  for(unsigned int i=0; i<pxlsize_(0); i++)
-    for(unsigned int j=0; j<pxlsize_(1); j++) {
+  for(int i=0; i<pxlsize_(0); i++)
+    for(int j=0; j<pxlsize_(1); j++) {
       ICoord p(i, j);
       if(activearea->isActive(p))
 	pix.push_back(p);
@@ -307,11 +310,11 @@ void CMicrostructure::renameGroupC(const std::string &oldname,
 static bool ltAttributes(const std::vector<PixelAttribute*> &pavec0,
 			 const std::vector<PixelAttribute*> &pavec1)
 {
-  int n0 = pavec0.size();
-  int n1 = pavec1.size();
-  int n = n0;
+  std::size_t n0 = pavec0.size();
+  std::size_t n1 = pavec1.size();
+  std::size_t n = n0;
   if(n1 < n0) n = n1;
-  for(int i=0; i<n; i++) {
+  for(std::size_t i=0; i<n; i++) {
     if(*pavec0[i] < *pavec1[i]) return true;
     if(*pavec1[i] < *pavec0[i]) return false;
   }
@@ -342,7 +345,7 @@ void CMicrostructure::categorize() const {
   categoryBdys.clear();
 
   ncategories = 0;
-  int nattrs = attributeMap.size();
+  std::size_t nattrs = attributeMap.size();
   // loop over pixels in the microstructure
   for(Array<int>::iterator i=categorymap.begin(); i!=categorymap.end(); ++i) {
 
@@ -459,7 +462,9 @@ int CMicrostructure::category(int x, int y) const {
   return res;
 }
 
-const ICoord &CMicrostructure::getRepresentativePixel(int category) const {
+const ICoord &CMicrostructure::getRepresentativePixel(std::size_t category)
+  const
+{
   // std::cerr << "Acquire, getRepPixel." << std::endl;
   category_lock.acquire();
   if(!categorized)
@@ -483,11 +488,11 @@ const Array<int> *CMicrostructure::getCategoryMap() const {
 static bool strictLessThan_Attributes(const std::vector<PixelAttribute*> &p0,
 				      const std::vector<PixelAttribute*> &p1)
 {
-  int n0 = p0.size();
-  int n1 = p1.size();
-  int n = n0;
+  std::size_t n0 = p0.size();
+  std::size_t n1 = p1.size();
+  std::size_t n = n0;
   if(n1 < n0) n = n1;
-  for(int i=0; i<n; i++) {
+  for(std::size_t i=0; i<n; i++) {
     if(p0[i]->strictLessThan(*p1[i])) return true;
     if(p1[i]->strictLessThan(*p0[i])) return false;
   }
@@ -511,13 +516,13 @@ const Array<int> *CMicrostructure::getCategoryMapRO() const {
 #endif
   CatMap catmap(strictLessThan_Attributes);
   int ncats = 0;
-  int nattrs = attributeMap.size();
+  std::size_t nattrs = attributeMap.size();
   // loop over pixels in the microstructure
   for(Array<int>::iterator i=localmap->begin(); i!=localmap->end(); ++i) {
     const ICoord &where = i.coord();
     // construct a list of the attributes of this pixel
     std::vector<PixelAttribute*> attrs(nattrs);
-    for(int j=0; j<nattrs; j++)
+    for(std::size_t j=0; j<nattrs; j++)
       attrs[j] = attributeMap[j][where];
     // See if this list of attributes has been seen already
     CatMap::iterator cat = catmap.find(attrs);
@@ -949,15 +954,15 @@ bool CMicrostructure::transitionPointClosest(
   // std::cerr << std::endl;
   
   // Now, we need to sort them out to find the closest
-  int tsize = transitions.size();
+  std::size_t tsize = transitions.size();
   if(tsize > 0) { 
     if(tsize == 1) {
       *result = transitions[0];
     }
     else {
-      int theone = 0;
+      std::size_t theone = 0;
       double min = norm2(transitions[0] - c0);
-      for(int i=1; i<tsize; i++) {
+      for(std::size_t i=1; i<tsize; i++) {
 	double dist = norm2(transitions[i] - c0);
 	if(dist < min) {
 	  min = dist;
@@ -1091,7 +1096,8 @@ double CMicrostructure::edgeHomogeneityCat(const Coord &c0, const Coord &c1,
   double max = 0.0;
   for(std::vector<double>::size_type i=0; i<lengths.size(); i++) {
     if(max < lengths[i]) {
-      *cat = i;
+      assert(i < std::numeric_limits<int>::max());
+      *cat = (int) i;
       max = lengths[i];
     }
   }

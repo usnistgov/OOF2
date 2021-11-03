@@ -8,11 +8,11 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import gtk
+from gi.repository import Gtk
 import widgetlogger
 
 class ExpanderLogger(widgetlogger.WidgetLogger):
-    classes = (gtk.Expander,)
+    classes = (Gtk.Expander,)
     def record(self, obj, signal, *args):
         if signal == 'activate':
             return ["%s.set_expanded(%d)" % (self.location(obj, *args),

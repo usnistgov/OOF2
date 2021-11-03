@@ -10,7 +10,6 @@
  */
 
 #include <oofconfig.h>
-#include "common/IO/stringimage.h"
 #include "common/array.h"
 #include "common/cmicrostructure.h"
 #include "common/coord.h"
@@ -19,6 +18,8 @@
 #include "engine/ooferror.h"
 #include "engine/orientationimage.h"
 #include "engine/property/orientation/orientation.h"
+
+#include "oofcanvas/oofcanvas.h"
 
 OrientationImage::OrientationImage(CMicrostructure *microstructure,
 				   const Angle2Color *colorscheme,
@@ -35,7 +36,6 @@ OrientationImage::~OrientationImage() {
 }
 
 const Coord &OrientationImage::size()  const {
-  std::cerr << "OrientationImage::size: size=" << microstructure->size() << std::endl;
   return microstructure->size();
 }
 
@@ -43,25 +43,37 @@ const ICoord &OrientationImage::sizeInPixels() const {
   return microstructure->sizeInPixels();
 }
 
-void OrientationImage::fillstringimage(StringImage *strimg) const {
+OOFCanvas::CanvasImage *OrientationImage::makeCanvasImage(const Coord *position,
+							  const Coord *dispsize)
+  const
+{
+  OOFCanvas::CanvasImage *img = OOFCanvas::CanvasImage::newBlankImage(
+					      OOFCANVAS_COORD(*position),
+					      OOFCANVAS_ICOORD(sizeInPixels()),
+					      OOFCanvas::Color());
+  img->setDrawIndividualPixels(true);
+  img->setSize(OOFCANVAS_COORD(*dispsize));
   const Array<int> &pxls = *microstructure->getCategoryMapRO();
+  int ymax = sizeInPixels()[1] - 1;
   for(Array<int>::const_iterator i=pxls.begin(); i!=pxls.end(); ++i) {
     ICoord where = i.coord();
     const Material *mat = getMaterialFromPoint(microstructure, &where);
+    CColor color;
     if(mat) {
       try {
 	OrientationPropBase *orientprop =
 	  dynamic_cast<OrientationPropBase*>(mat->fetchProperty("Orientation"));
-	CColor color((*colorscheme)
-		     (*orientprop->orientation(microstructure, where)));
-	strimg->set(&where, &color);
+	color = (*colorscheme)(*orientprop->orientation(microstructure, where));
       }
-      catch (ErrNoSuchProperty &exc) {
-	strimg->set(&where, &noOrientation);
+      catch(ErrNoSuchProperty &exc) { // no orientation property
+	color = noOrientation;
       }
     }
     else {			// no material
-      strimg->set(&where, &noMaterial);
+      color = noOrientation;
     }
+    img->set(OOFCanvas::ICoord(where[0], ymax-where[1]), canvasColor(color));
   }
+  return img;
 }
+

@@ -764,7 +764,7 @@ class AnyWhoParameter(parameter.StringParameter):
 class WhoNameParameter(parameter.RestrictedStringParameter):
     def __init__(self, name, value=None, default="", tip=None):
         parameter.RestrictedStringParameter.__init__(
-            self, name, exclude=':',
+            self, name, pattern=r"[^:]*$",
             value=value, default=default, tip=tip)
     def clone(self):
         return self.__class__(self.name, self.value, self.default, self.tip)
@@ -775,7 +775,7 @@ class WhoNameParameter(parameter.RestrictedStringParameter):
 class AutoWhoNameParameter(parameter.RestrictedAutomaticNameParameter):
     def __init__(self, name, resolver, value=None, default=None, tip=None):
         parameter.RestrictedAutomaticNameParameter.__init__(
-            self, name, exclude=':', resolver=resolver,
+            self, name, pattern=r"[^:]*$", resolver=resolver,
             value=value, default=default, tip=tip)
     def clone(self):
         return self.__class__(self.name, self.resolver, self.value,
@@ -800,17 +800,20 @@ class NewWhoParameter(parameter.RestrictedStringParameter):
         else:
             raise ValueError(
                 "WhoParameter requires a WhoClass or Who instance.")
-        parameter.RestrictedStringParameter.__init__(self, name,
-                                                     exclude=':', value=value,
-                                                     default=default, tip=tip)
+        parameter.RestrictedStringParameter.__init__(
+            self, name, pattern=r"[^:]*$", value=value,
+            default=default, tip=tip)
     def valueDesc(self):
         return \
             "The <link linkend='Section-Concepts-Path'>path</link> to an existing or new <classname>%s</classname> object." \
             % self.whoclass.name()
 
 
+# A WhoClassParameter's value is the name of a WhoClass.  The value
+# can't be None.
+
 class WhoClassParameter(parameter.StringParameter):
-    def __init__(self, name, value=None, default=None,
+    def __init__(self, name, value="Microstructure", default=None,
                  condition=noSecretClasses, tip=None):
         self.condition = condition
         parameter.StringParameter.__init__(self, name, value, default, tip)
@@ -823,7 +826,3 @@ class WhoClassParameter(parameter.StringParameter):
     def valueDesc(self):
         return "The name of a class of OOF2 objects (eg, <userinput>'Microstructure'</userinput> or <userinput>'Skeleton'</userinput>)."
         
-##########################
-
-noclass = WhoClass('Nothing', 0)
-nobody = noclass.add('Nobody', None, parent=None)

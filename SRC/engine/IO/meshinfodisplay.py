@@ -20,6 +20,8 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 
+import oofcanvas
+
 class MeshInfoDisplay(display.DisplayMethod):
     def __init__(self, query_color, peek_color, node_size,
                  element_width):
@@ -33,7 +35,7 @@ class MeshInfoDisplay(display.DisplayMethod):
                           "Node": self.drawNode}
 
 
-    def draw(self, gfxwindow, device):
+    def draw(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Mesh_Info")
         mesh = toolbox.meshcontext()
         mesh.begin_reading()
@@ -41,46 +43,47 @@ class MeshInfoDisplay(display.DisplayMethod):
         try:
             # Draw "queried" item.
             if toolbox.querier and toolbox.querier.object:
-                self.drawFuncs[toolbox.querier.targetname](device, toolbox, 
-                                                           toolbox.querier.object,
-                                                           which="query")
+                self.drawFuncs[toolbox.querier.targetname]\
+                    (toolbox, toolbox.querier.object, which="query")
             # Draw "peeked" item.
             if toolbox.peeker and toolbox.peeker.objects.values():
                 for objtype in toolbox.peeker.objects:
                     if toolbox.peeker.objects[objtype]:
-                        self.drawFuncs[objtype](device, toolbox, 
+                        self.drawFuncs[objtype](toolbox, 
                                                 toolbox.peeker.objects[objtype],
                                                 which="peek")
         finally:
             mesh.releaseCachedData()
             mesh.end_reading()
 
-    def drawElement(self, device, toolbox, element, which="query"):
-        device.set_lineColor(self.colors[which])
-        device.set_lineWidth(self.element_width)
-        if config.dimension() == 2:
-            node_iter = element.cornernode_iterator().exteriornode_iterator()
-            p_list = [node.position() for node in node_iter]
-            displaced_p_list = [
-                toolbox.meshlayer.displaced_from_undisplaced(
-                toolbox.gfxwindow, x) for x in p_list]
-            for i in range(len(displaced_p_list)):
-                p0 = displaced_p_list[i]
-                p1 = displaced_p_list[(i+1)%len(displaced_p_list)]
-                device.draw_segment(primitives.Segment(p0, p1))
-        elif config.dimension() == 3:
-            device.draw_cell(element)
+    def drawElement(self, toolbox, element, which="query"):
+        node_iter = element.cornernode_iterator().exteriornode_iterator()
+        p_list = [node.position() for node in node_iter]
+        displaced_p_list = [
+            toolbox.meshlayer.displaced_from_undisplaced(toolbox.gfxwindow, x)
+            for x in p_list]
+        poly = oofcanvas.CanvasPolygon()
+        poly.setLineWidthInPixels(1.4*self.element_width)
+        poly.setLineColor(
+            oofcanvas.white.opacity(self.colors[which].getAlpha()))
+        poly.addPoints(displaced_p_list)
+        self.canvaslayer.addItem(poly)
 
+        poly = oofcanvas.CanvasPolygon()
+        poly.setLineWidthInPixels(self.element_width)
+        poly.setLineColor(color.canvasColor(self.colors[which]))
+        poly.addPoints(displaced_p_list)
+        self.canvaslayer.addItem(poly)
 
-    def drawNode(self, device, toolbox, node, which="query"):
-        device.set_lineColor(self.colors[which])
-        device.set_lineWidth(self.node_size)
-        if config.dimension() == 2:
-            displaced_position = toolbox.meshlayer.displaced_from_undisplaced(
-                toolbox.gfxwindow(), node.position())
-            device.draw_dot(displaced_position)
-        elif config.dimension() == 3:
-            device.draw_dot(node.position())
+    def drawNode(self, toolbox, node, which="query"):
+        pt = toolbox.meshlayer.displaced_from_undisplaced(
+            toolbox.gfxwindow(), node.position())
+        dot = oofcanvas.CanvasDot(pt, 1.2*self.node_size)
+        dot.setFillColor(oofcanvas.white.opacity(self.colors[which].getAlpha()))
+        self.canvaslayer.addItem(dot)
+        dot = oofcanvas.CanvasDot(pt, self.node_size)
+        dot.setFillColor(color.canvasColor(self.colors[which]))
+        self.canvaslayer.addItem(dot)
 
     def getTimeStamp(self, gfxwindow):
         toolbox = gfxwindow.getToolboxByName("Mesh_Info")
@@ -100,15 +103,11 @@ class MeshInfoDisplay(display.DisplayMethod):
 # directly via the initializer, because the registration creation
 # method gives it a timestamp.
 
-defaultQueryColor = color.RGBColor(0.0, 0.5, 1.0)
-defaultPeekColor = color.RGBColor(1.0, 0.5, 0.5)
+defaultQueryColor = color.RGBAColor(0.0, 0.5, 1.0, 1.0)
+defaultPeekColor = color.RGBAColor(1.0, 0.5, 0.5, 1.0)
 defaultNodeSize = 3
 defaultElementWidth = 2
-if config.dimension() == 2:
-    widthRange = (0,10)
-# In vtk, line widths of 0 cause errors
-elif config.dimension() == 3:
-    widthRange = (1,10)
+widthRange = (0, 10, 0.1)
 
 def _setMeshInfoParams(menuitem, query_color, peek_color, node_size,
                        element_width):
@@ -122,15 +121,15 @@ def _setMeshInfoParams(menuitem, query_color, peek_color, node_size,
     defaultElementWidth = element_width
 
 meshinfoparams = [
-    color.ColorParameter('query_color', defaultQueryColor,
-                         tip="Color for the queried object."),
-    color.ColorParameter('peek_color', defaultPeekColor,
-                         tip="Color for the peeked object."),
-    parameter.IntRangeParameter('node_size', widthRange, defaultNodeSize,
-                                tip="Node size."),
-    parameter.IntRangeParameter('element_width', widthRange,
-                                defaultElementWidth,
-                                tip="Line thickness for element edge.")]
+    color.TranslucentColorParameter('query_color', defaultQueryColor,
+                                    tip="Color for the queried object."),
+    color.TranslucentColorParameter('peek_color', defaultPeekColor,
+                                    tip="Color for the peeked object."),
+    parameter.FloatRangeParameter('node_size', widthRange, defaultNodeSize,
+                                  tip="Node size."),
+    parameter.FloatRangeParameter('element_width', widthRange,
+                                  defaultElementWidth,
+                                  tip="Line thickness for element edge.")]
 
 mainmenu.gfxdefaultsmenu.Meshes.addItem(oofmenu.OOFMenuItem(
     "Mesh_Info",

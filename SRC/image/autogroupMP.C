@@ -65,8 +65,8 @@ typedef std::vector<ICoord> PixelList;
 typedef std::unordered_map<const CColor, PixelList,
                            CColorHash, CColorEq> ColorListMap;
 
-const std::string *autogroup(CMicrostructure *ms, OOFImage *image,
-			     const std::string &name_template)
+std::vector<std::string> *autogroup(CMicrostructure *ms, OOFImage *image,
+				    const std::string &name_template)
 {
   ICoord size(ms->sizeInPixels());
   const size_t width = size(0);
@@ -124,7 +124,7 @@ const std::string *autogroup(CMicrostructure *ms, OOFImage *image,
 
   ColorGroupMap colorgroupmap;
   vector<CColor> colors;
-  std::string *newgroupname = new std::string(""); // last new group, if any
+  std::vector<std::string> *groupnames = new std::vector<std::string>;
 
   progress->setMessage("Creating groups");
   progress->setFraction(0.0);
@@ -151,10 +151,9 @@ const std::string *autogroup(CMicrostructure *ms, OOFImage *image,
         grpname = substitute(grpname, "%n", to_string(grpcount++));
         bool newness = false;
         PixelGroup *grp = ms->getGroup(grpname, &newness); // create group
+	groupnames->push_back(grpname);
         colorgroupmap[color] = grp;
         colors.push_back(color);
-        if(newness)
-          *newgroupname = grpname;
       }
       progress->setFraction(++ndone/(double)nlists);
     }
@@ -184,9 +183,5 @@ const std::string *autogroup(CMicrostructure *ms, OOFImage *image,
     }
   }
 
-  // Return the name of the last pixel group created, if any.
-  if(!progress->stopped())
-    return newgroupname;
-  *newgroupname = "";
-  return newgroupname;  // empty string
+  return groupnames;
 } 

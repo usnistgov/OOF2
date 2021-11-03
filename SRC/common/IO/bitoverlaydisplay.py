@@ -24,52 +24,32 @@ from ooflib.common.IO import xmlmenudump
 # drawn as an overlay on the topmost image in the display.  The pixels
 # are drawn with a single color and transparency.
 
-#####
 
 class BitmapOverlayDisplayMethod(display.DisplayMethod):
-    def __init__(self, color, tintOpacity, voxelOpacity=1.0):
+    def __init__(self, color):
         self.color = color
-        self.tintOpacity = tintOpacity
-        self.voxelOpacity = voxelOpacity
         display.DisplayMethod.__init__(self)
-    def draw(self, gfxwindow, device):
-        bitmap = self.who().resolve(gfxwindow).getBitmap()
+    def draw(self, gfxwindow):
+        self.canvaslayer.removeAllItems()
+        bitmap = self.who.resolve(gfxwindow).getBitmap()
         if bitmap is None or bitmap.empty():
             return
         bitmap.setColor(self.color)
-        bitmap.setTintAlpha(self.tintOpacity)
-        if device.has_alpha():
-            if config.dimension() == 2:
-                device.draw_alpha_image(bitmap, coord.Coord(0,0), bitmap.size())
-            elif config.dimension() == 3:
-                bitmap.setVoxelAlpha(self.voxelOpacity)
-                device.draw_alpha_image(bitmap, coord.Coord(0,0,0), bitmap.size())
-                
+        image = bitmap.makeCanvasImage(coord.Coord(0,0), bitmap.size())
+        self.canvaslayer.addItem(image)
 
     def getTimeStamp(self, gfxwindow):
         return self.timestamp
-
-if config.dimension()==2:
-    bitoverlayparams=[color.ColorParameter('color', tip="Bitmap color."),
-            parameter.FloatRangeParameter('tintOpacity', (0., 1., 0.01), 0.6,
-                                          tip="Opacity of the overlay.")]
-elif config.dimension()==3:
-    bitoverlayparams=[color.ColorParameter('color', tip="Bitmap color."),
-            parameter.FloatRangeParameter('tintOpacity', (0., 1., 0.01), 0.0,
-                                          tip="Opacity of the tint."),
-            parameter.FloatRangeParameter('voxelOpacity',
-                                          (0., 1., 0.01), 0.2,
-                                          tip="Opacity of the given region.")]
-    
 
 bitmapOverlay = registeredclass.Registration(
     'BitmapOverlay',
     display.DisplayMethod,
     BitmapOverlayDisplayMethod,
-    params=bitoverlayparams,
+    params=[color.TranslucentColorParameter('color', tip="Bitmap color.")],
     ordering=0,
     layerordering=display.SemiPlanar,
     whoclasses=('Pixel Selection', 'Active Area'),
     tip="Special bitmap display method for overlays.",
-    discussion=xmlmenudump.loadFile('DISCUSSIONS/common/reg/bitoverlaydisplay.xml'))
+    discussion=xmlmenudump.loadFile(
+        'DISCUSSIONS/common/reg/bitoverlaydisplay.xml'))
 

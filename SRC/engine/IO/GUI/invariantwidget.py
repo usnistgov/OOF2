@@ -15,12 +15,13 @@ from ooflib.common.IO.GUI import regclassfactory
 from ooflib.engine.IO.GUI import meshparamwidgets
 
 class InvariantParameterWidget(regclassfactory.RegisteredClassFactory):
-    def __init__(self, value, scope, name):
+    def __init__(self, value, scope, name, **kwargs):
         self.invariandwidget = scope.findWidget(
             lambda w: isinstance(w, meshparamwidgets.InvariandWidget))
         self.findInvariand()
         regclassfactory.RegisteredClassFactory.__init__(
-            self, invariant.InvariantPtr.registry, scope=scope, name=name)
+            self, invariant.InvariantPtr.registry, scope=scope, name=name,
+            **kwargs)
         if value is not None:
             self.set(value, interactive=0)
         self.sbcallback = switchboard.requestCallbackMain(
@@ -43,7 +44,8 @@ class InvariantParameterWidget(regclassfactory.RegisteredClassFactory):
         return invariant.okInvariant(registration, self.invariandclass,
                                      self.invariand)
 
-def _InvariantParameter_makeWidget(self, scope):
-    return InvariantParameterWidget(self.value, scope=scope, name=self.name)
+def _InvariantParameter_makeWidget(self, scope, **kwargs):
+    return InvariantParameterWidget(self.value, scope=scope, name=self.name,
+                                    **kwargs)
 
 invariant.InvariantParameter.makeWidget = _InvariantParameter_makeWidget

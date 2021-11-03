@@ -13,52 +13,33 @@
 
 #include "gfxbrushstyle.h"
 
-void GfxCircleBrush::drawStyle(GnomeCanvasItem *rb, GdkBitmap *stipple,
-			    GdkBitmap *stubble, const guint32 &black,
-			    const guint32 &white, const Coord &current) {
-  // Circle
-  gnome_canvas_item_new(GNOME_CANVAS_GROUP(rb),
- 		      gnome_canvas_ellipse_get_type(),
- 		      "x1", current(0)-r, "y1", (current(1)-r),
- 		      "x2", current(0)+r, "y2", (current(1)+r),
- 		      "outline_color_rgba", black,
- 		      "outline_stipple", stipple,
- 		      "width_pixels", 0,
- 		      NULL);
-  gnome_canvas_item_new(GNOME_CANVAS_GROUP(rb),
- 		      gnome_canvas_ellipse_get_type(),
- 		      "x1", current(0)-r, "y1", (current(1)-r),
- 		      "x2", current(0)+r, "y2", (current(1)+r),
- 		      "outline_color_rgba", white,
- 		      "outline_stipple", stubble,
- 		      "width_pixels", 0,
- 		      NULL);
+void GfxCircleBrush::draw(OOFCanvas::CanvasLayer *layer,
+			  const OOFCanvas::Coord &pt)
+  const
+{
+  double dashLength = 7;
+  double lineWidth = 2;
+  OOFCanvas::CanvasCircle *circle = new OOFCanvas::CanvasCircle(pt, r);
+  circle->setLineWidthInPixels(lineWidth);
+  circle->setLineColor(OOFCanvas::white);
+  circle->setDashColor(OOFCanvas::black);
+  circle->setDashInPixels(dashLength);
+  layer->addItem(circle);
 }
 
-void GfxSquareBrush::drawStyle(GnomeCanvasItem *rb, GdkBitmap *stipple,
-			    GdkBitmap *stubble, const guint32 &black,
-			    const guint32 &white, const Coord &current) {
-  GnomeCanvasPoints *pts = gnome_canvas_points_new(4);
-  pts->coords[0] = current(0) - size;
-  pts->coords[1] = current(1) + size;
-  pts->coords[2] = current(0) - size;
-  pts->coords[3] = current(1) - size;
-  pts->coords[4] = current(0) + size;
-  pts->coords[5] = current(1) - size;
-  pts->coords[6] = current(0) + size;
-  pts->coords[7] = current(1) + size;
-  gnome_canvas_item_new(GNOME_CANVAS_GROUP(rb),
-					  gnome_canvas_polygon_get_type(),
-					  "points", pts,
-					  "outline_color_rgba", black,
-					  "width_pixels", 0,
-					  "outline_stipple", stipple,
-					  NULL);
-  gnome_canvas_item_new(GNOME_CANVAS_GROUP(rb),
-					  gnome_canvas_polygon_get_type(),
-					  "points", pts,
-					  "outline_color_rgba", white,
-					  "width_pixels", 0,
-					  "outline_stipple", stubble,
-					  NULL);
+void GfxSquareBrush::draw(OOFCanvas::CanvasLayer *layer,
+			  const OOFCanvas::Coord &pt)
+  const
+{
+  double dashLength = 7;
+  double lineWidth = 2;
+  OOFCanvas::Coord diag(size, size);
+
+  OOFCanvas::CanvasRectangle *rect =
+    new OOFCanvas::CanvasRectangle(pt-diag, pt+diag);
+  rect->setLineWidthInPixels(lineWidth);
+  rect->setLineColor(OOFCanvas::white);
+  rect->setDashColor(OOFCanvas::black);
+  rect->setDashInPixels(dashLength);
+  layer->addItem(rect);
 }

@@ -70,7 +70,7 @@ public:
   void operator++();
   Coord current() const { return currentTransPoint; }
   bool end() const { return pixel>=pixels->end(); }
-  int numPixels() const { return pixels->size(); }
+  std::size_t numPixels() const { return pixels->size(); }
   int getPrevcat() const { return prevcat; }
   int getNextcat() const { return nextcat; }
   // The first and last points of the segment.
@@ -168,7 +168,7 @@ public:
   void setCurrentActiveArea(ActiveArea *aa) { activearea = aa; }
   const ActiveArea *getActiveArea() const { return activearea; }
 
-  int nGroups() const;
+  std::size_t nGroups() const;
   PixelGroup *getGroup(const std::string &name, bool *newness);
   PixelGroup *findGroup(const std::string &name) const;
   void removeGroup(const std::string &name);
@@ -176,8 +176,9 @@ public:
   void renameGroupC(const std::string &oldname, const std::string &newname);
   std::vector<std::string> *groupNames() const;
 
-  Array<PixelAttribute*> &getAttributeMap(int attributeID) const;
-  PixelAttributeGlobalData *getAttributeGlobalData(int attributeID) const;
+  Array<PixelAttribute*> &getAttributeMap(std::size_t attributeID) const;
+  PixelAttributeGlobalData *getAttributeGlobalData(std::size_t attributeID)
+    const;
   const Array<int> *getCategoryMap() const; // changes mutable private data
   const Array<int> *getCategoryMapRO() const; // changes no data
 
@@ -188,7 +189,7 @@ public:
   int category(int x, int y) const;
   int category(const Coord &where) const; // Arbitrary physical-coord point.
   void recategorize();
-  const ICoord &getRepresentativePixel(int category) const;
+  const ICoord &getRepresentativePixel(std::size_t category) const;
   bool is_categorized() const { return categorized; }
 
   const std::vector<PixelSetBoundary*> &getCategoryBdys() const {

@@ -17,7 +17,6 @@
 %include "engine/typemaps.swg"
 
 %{
-#define SWIG_FILE_WITH_INIT
 #include "engine/sparsemat.h"
 #include "engine/dofmap.h"
 #include <string>
@@ -80,10 +79,11 @@ public:
 
   %addmethods {
     void scale(double a) { *self *= a; }
+
     SparseMat matrixmultiply(SparseMat &m) { return (*self)*m; }
 
-    const char* __repr__() {
-      return (*self).str().c_str();
+    %new const string * __repr__() {
+      return new std::string((*self).str());
     }
 
     bool save(const char *filename) {

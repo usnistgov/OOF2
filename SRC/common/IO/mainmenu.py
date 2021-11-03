@@ -278,7 +278,7 @@ _filemenu.addItem(OOFMenuItem(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/quit.xml'),
     threadable = oofmenu.UNTHREADABLE,
     no_log=1
-    )) 
+    ))
 
 ##################################
 
@@ -306,13 +306,22 @@ fontmenu.addItem(OOFMenuItem(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/widgetfont.xml')
     ))
 
-def setFixedFont(menuitem, fontname):
-    switchboard.notify('change fixed font', fontname)
+# Any Gtk widget that wants a fixed width font should set its CSS name
+# to "fixedfont".
+# The fixed font size is stored as a global here just
+# so that the GUI can retrieve its initial value.
+fixedFontSize = 12
+
+def setFixedFont(menuitem, fontsize):
+    global fixedFontSize
+    fixedFontSize = fontsize
+    switchboard.notify('change fixed font', fontsize)
 
 fontmenu.addItem(OOFMenuItem(
     "Fixed",
     callback=setFixedFont,
-    params=[parameter.StringParameter('fontname', tip='The name of a font.')],
+    params=[parameter.PositiveIntParameter('fontsize', fixedFontSize,
+                                           tip='Font size, in pixels.')],
     help="Set the fixed-width font to use in text displays.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/textfont.xml')
     ))
@@ -528,6 +537,42 @@ debugmenu.addItem(CheckOOFMenuItem(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/verbosesb.xml')
     ))
 
+debugmenu.addItem(CheckOOFMenuItem(
+    'Switchboard_Stack_Tracking',
+    switchboard.useMessageStackFlag,
+    callback=switchboard.useMessageStackCB,
+    help='Keep track of current switchboard calls.'))
+    
+
+if debug.debug():
+    debugmenu.addItem(oofmenu.OOFMenuItem(
+        "Sandbox",
+        callback=None,
+        accel='d',
+        threadable=oofmenu.UNTHREADABLE))
+        
+####
+
+def _startMemMonitor(menuitem, filename):
+    utils.startMemoryMonitor(filename)
+
+def _stopMemMonitor(menuitem):
+    utils.stopMemoryMonitor()
+
+memmenu = debugmenu.addItem(OOFMenuItem('Memory_Monitor'))
+
+memmenu.addItem(OOFMenuItem(
+    'Start',
+    callback=_startMemMonitor,
+    params=[filenameparam.WriteFileNameParameter("filename")],
+    ))
+
+memmenu.addItem(OOFMenuItem(
+    'Stop',
+    callback=_stopMemMonitor))
+
+####
+
 def setWarnPopups(menuitem, value):
     reporter.messagemanager.set_warning_pop_up(value)
 
@@ -694,6 +739,13 @@ errmenu.addItem(OOFMenuItem('SegFault', callback=_segfault,
                              params=[IntParameter('delay', 10,
                                                   tip="Delay time.")],
                              help='For external use only.  Slippery when wet.'))
+
+def _divzero(menuitem):
+    x = 0
+    y = 1/x
+
+errmenu.addItem(OOFMenuItem('DivideByZero', callback=_divzero,
+                            help="Not recommended"))
 
 def _pyerror(menuitem):
     raise RuntimeError("Oops!")

@@ -48,7 +48,10 @@ class PixelSet;
 class Property;
 class PropertyOutput;
 class SmallSystem;
-class StringImage;
+
+namespace OOFCanvas {
+  class CanvasImage;
+};
 
 //-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//
 
@@ -279,11 +282,7 @@ public:
   virtual ~MaterialImage() {}
   virtual const Coord &size() const;
   virtual const ICoord &sizeInPixels() const;
-	//#if DIM == 2
-  virtual void fillstringimage(StringImage*) const;
-#if DIM == 3
-	PyObject* getImageData();
-#endif
+  virtual OOFCanvas::CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
 };
 
 #endif

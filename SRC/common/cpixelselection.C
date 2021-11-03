@@ -219,7 +219,7 @@ const std::vector<ICoord> *CPixelSelection::members() const {
   return pixset.members();
 }
 
-int CPixelSelection::len() const {
+std::size_t CPixelSelection::len() const {
   return pixset.len();
 }
 
