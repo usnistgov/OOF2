@@ -14,9 +14,7 @@
 
 #include <oofconfig.h>
 
-#include "oofcanvas/oofcanvas.h"
 #include "oofcanvas/rubberband.h"
-#include "common/lock.h"
 #include <vector>
 
 class GfxBrushStyle;
@@ -24,13 +22,11 @@ class GfxBrushStyle;
 class BrushRubberBand : public OOFCanvas::RubberBand {
 private:
   GfxBrushStyle *style;
-  OOFCanvas::CanvasCurve *trail;
-  SLock lock;
+  std::vector<OOFCanvas::Coord> trail;
 public:
   BrushRubberBand(GfxBrushStyle*);
-  virtual void start(OOFCanvas::CanvasLayer*, const OOFCanvas::Coord&);
-  virtual void stop();
-  virtual void update(const OOFCanvas::Coord&);
+  virtual void start(OOFCanvas::CanvasLayer*, double, double);
+  virtual void draw(double, double);
 };
 
 #endif // RUBBERBAND_H
