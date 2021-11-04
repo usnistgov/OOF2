@@ -20,15 +20,11 @@
 #include "common/doublearray.h"
 #include "image/oofimage.h"
 
+#include "oofcanvas/oofcanvas.h"
+
 #include <math.h>
 #include <set>
 #include <iostream>
-
-
-// TODO GTK3: OOFCANAVAS_USE_IMAGEMAGICK and OOFCANAVAS_USE_PYTHON
-// need to be defined before importing oofimage.h.  They should come
-// from oofcanvas.pc.
-#include "oofcanvas/oofcanvas.h"
 
 OOFImage::OOFImage(const std::string &name, const std::string &filename)
   : name_(name)

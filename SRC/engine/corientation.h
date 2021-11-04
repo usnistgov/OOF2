@@ -105,14 +105,14 @@ template <class ORIENT>
 class OIndex : virtual public FieldIndex {
 protected:
   const ORIENT *orient;
-  int which;
+  std::vector<std::string>::size_type which;
 public:
   OIndex(const ORIENT *o) : orient(o), which(0) {}
   OIndex(const ORIENT *o, int i) : orient(o), which(i) {}
   OIndex(const ORIENT *o, const std::string &s)
     : orient(o)
   {
-    for(int i=0; i<orient->arguments.size(); i++) {
+    for(std::vector<std::string>::size_type i=0; i<orient->arguments.size(); i++) {
       if(orient->arguments[i] == s) {
 	which = i;
 	return;

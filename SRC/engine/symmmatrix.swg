@@ -98,7 +98,7 @@ public:
 
 %new OutputValue *newSymTensorOutputValue();
 
-class SymmMatrix3PropertyOutputInit : public PropertyOutputInit {
+class SymmMatrix3PropertyOutputInit : public ArithmeticPropertyOutputInit {
 public:
   SymmMatrix3PropertyOutputInit();
 };

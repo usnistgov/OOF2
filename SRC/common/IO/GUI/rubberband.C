@@ -22,28 +22,34 @@
 // The BrushRubberBand draws a curve along the centerline of the brush
 // stroke and also outlines the brush.
 
-BrushRubberBand::BrushRubberBand(GfxBrushStyle *brush) :
-  style(brush)
+BrushRubberBand::BrushRubberBand(GfxBrushStyle *brush)
+  : style(brush),
+    trail(nullptr)
 {}
 
-void BrushRubberBand::start(OOFCanvas::CanvasLayer *lyr, double x, double y) {
-  RubberBand::start(lyr, x, y);
-  trail.emplace_back(x, y);
+void BrushRubberBand::start(OOFCanvas::CanvasLayer *lyr,
+			    const OOFCanvas::Coord &pt)
+{
+  KeyHolder kh(lock);
+  RubberBand::start(lyr, pt);
+  trail = new OOFCanvas::CanvasCurve();
+  trail->addPoint(pt);
+  trail->setLineColor(color);
+  trail->setLineWidthInPixels(lineWidth);
+  doDashes(trail);
+  layer->addItem(trail);
+  style->start(lyr, startPt);	// adds style's CanvasItem to the layer.
 }
 
-void BrushRubberBand::draw(double x, double y) {
-  double lineWidth = 1;
-  double dashLength = 7;
-  RubberBand::draw(x, y);
-  trail.emplace_back(x, y);
-  layer->clear();
-  style->draw(layer, currentPt); // outline of the brush
+void BrushRubberBand::stop() {
+  OOFCanvas::RubberBand::stop();
+  style->stop();
+  trail = nullptr;
+}
 
-  // TODO: Can we reuse the previous CanvasCurve?
-  OOFCanvas::CanvasCurve *curve = new OOFCanvas::CanvasCurve(trail);
-  curve->setLineColor(OOFCanvas::white);
-  curve->setLineWidthInPixels(lineWidth);
-  curve->setDashColor(OOFCanvas::black);
-  curve->setDashInPixels(std::vector<double>{dashLength}, 0);
-  layer->addItem(curve);
+void BrushRubberBand::update(const OOFCanvas::Coord &pt) {
+  KeyHolder kh(lock);
+  RubberBand::update(pt);
+  trail->addPoint(currentPt);
+  style->update(currentPt);
 }

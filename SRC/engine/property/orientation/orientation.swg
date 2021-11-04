@@ -35,7 +35,7 @@
 
 %typemap(python,in) COrientation * {
   PyObject *py_orient = PyObject_GetAttrString($source,"corient");
-  SWIG_GetPtrObj(py_orient, (void **)(&$target), "_COrientation");
+  SWIG_GetPtrObj(py_orient, (void **)(&$target), "_COrientation_p");
 }
 
 class OrientationProp : public Property {

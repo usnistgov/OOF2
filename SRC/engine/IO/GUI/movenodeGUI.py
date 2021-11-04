@@ -287,7 +287,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         toolboxGUI.GfxToolbox.activate(self)
         self.gfxwindow().setMouseHandler(self)
         self.motionFlag = self.gfxwindow().allowMotionEvents(
-            oofcanvasgui.MOTION_MOUSEDOWN)
+            oofcanvasgui.motionMouseDown)
         self.sensitize()
 
     def deactivate(self):
@@ -384,7 +384,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
                     mainthread.runBlock(
                         self.rb.addPoints,
                         ([n.position() for n in self.nbrnodes],))
-                    self.rb.draw(x, y)
+                    self.rb.update((x, y))
                     # Don't do a full GfxWindow.draw.  There's no need
                     # to refresh anything except the rubberband here.
                     mainthread.runBlock(self.gfxwindow().oofcanvas.draw)

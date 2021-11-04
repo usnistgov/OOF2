@@ -213,7 +213,8 @@ class DisplayMethod(registeredclass.RegisteredClass):
             whoobj = self.who.resolve(gfxwindow)
             whoobj.begin_reading()      # acquire lock
             try:
-                self.canvaslayer.rebuild()
+                # make surface and context
+                mainthread.runBlock(self.canvaslayer.rebuild) 
                 self.canvaslayer.removeAllItems()
                 if self.hidden:
                     self.canvaslayer.hide()
