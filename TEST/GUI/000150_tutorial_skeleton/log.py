@@ -855,44 +855,17 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint skeleton page info updated
 checkpoint skeleton page info updated
 checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
 checkpoint skeleton page sensitized
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
-checkpoint contourmap info updated for Graphics_1
+#checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
+checkpoint_count("contourmap into updated for Graphics_1")
+checkpoint_count("skeleton page sensitized")
+checkpoint_count("skeleton page info updated")
+
 findWidget('Skeleton:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 8.7000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
 checkpoint toplevel widget mapped chooserPopup-RCFChooser
