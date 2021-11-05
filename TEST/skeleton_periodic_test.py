@@ -319,12 +319,13 @@ class OOF_Skeleton_MoreExtra(unittest.TestCase):
                                     'rationalizetest.skel'))
         OOF.Skeleton.Modify(
             skeleton='microstructure:skeleton',
-            modifier=Rationalize(targets=AllElements(),
-                                 criterion=AverageEnergy(alpha=0.3),
-                                 method=SpecificRationalization(
-            rationalizers=[RemoveBadTriangle(acute_angle=0,obtuse_angle=160)])
-                                 )
-            )
+            modifier=Rationalize(
+                targets=AllElements(),
+                criterion=AverageEnergy(alpha=0.3),
+                method=SpecificRationalization(
+                    rationalizers=[
+                        RemoveBadTriangle(acute_angle=0,obtuse_angle=160)]),
+                iterations=1))
         skel = skeletoncontext.skeletonContexts[
             "microstructure:skeleton"].getObject()
         self.assert_(skel.sanity_check())
@@ -337,12 +338,13 @@ class OOF_Skeleton_MoreExtra(unittest.TestCase):
                                     'rationalizetestQ.skel'))
         OOF.Skeleton.Modify(
             skeleton='microstructure:skeleton',
-            modifier=Rationalize(targets=AllElements(),
-                                 criterion=AverageEnergy(alpha=0.3),
-                                 method=SpecificRationalization(
-            rationalizers=[RemoveBadTriangle(acute_angle=0,obtuse_angle=160)])
-                                 )
-            )
+            modifier=Rationalize(
+                targets=AllElements(),
+                criterion=AverageEnergy(alpha=0.3),
+                method=SpecificRationalization(
+                    rationalizers=[
+                        RemoveBadTriangle(acute_angle=0,obtuse_angle=160)]),
+                iterations=1))
         skel = skeletoncontext.skeletonContexts[
             "microstructure:skeleton"].getObject()
         self.assert_(skel.sanity_check())
@@ -523,7 +525,8 @@ def build_mod_args():
             "method" : SpecificRationalization(
         rationalizers=[RemoveShortSide(ratio=5.0),
                        QuadSplit(angle=150),
-                       RemoveBadTriangle(acute_angle=30,obtuse_angle=130)])
+                       RemoveBadTriangle(acute_angle=30,obtuse_angle=130)]),
+            "iterations" : 3
             }
            )
           ],
@@ -568,6 +571,7 @@ def build_mod_args():
          )
         ]
         }
+
 
 # Routine to do regression-type testing on the items in this file.
 # Tests must be run in the order they appear in the list.  This
