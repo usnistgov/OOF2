@@ -118,14 +118,17 @@ class install_shlib(Command):
                         l = line.lstrip()
                         if l.startswith("build"): # it's one of ours
                             dylib = l.split()[0] # full path in build dir
-                            dylibname = os.path.split(dylib)[1]
+                            # dylibname = os.path.split(dylib)[1]
                             relpath = os.path.relpath(dylib, self.install_dir)
                             newpath = os.path.join(relinstall_dir, relpath)
+                            log.info("DYLIB=%s", dylib)
+                            log.info("RELPATH=%s", relpath)
+                            log.info("NEWPATH=%s", newpath)
                             cmd = ("install_name_tool", "-change",
                                    dylib,
                                    newpath,
                                    ofile)
-                            log.info("install_shlib debug: " + " ".join(cmd))
+                            log.info(" ".join(cmd))
                             errorcode = subprocess.call(cmd)
                             if errorcode:
                                 raise DistutilsExecError(
