@@ -1457,15 +1457,16 @@ if __name__ == '__main__':
 
     pkgs = [pkg.replace(OOFNAME, OOFNAME+'.ooflib') for pkg in allpkgs]
 
-    # Find example files that have to be installed.
-    examplefiles = []
-    for dirpath, dirnames, filenames in os.walk('examples'):
-        if filenames:
-            examplefiles.append(
-                (os.path.join(datadir, dirpath), # installation dir
-                 [os.path.join(dirpath, phile) for phile in filenames
-                  if not phile.endswith('~') and
-                  os.path.isfile(os.path.join(dirpath, phile))]))
+    # Find example and test files that have to be installed.
+    datafiles = []
+    for topdir  in ("examples", "TEST"):
+        for dirpath, dirnames, filenames in os.walk(topdir):
+            if filenames:
+                datafiles.append(
+                    (os.path.join(datadir, dirpath), # installation dir
+                     [os.path.join(dirpath, phile) for phile in filenames
+                      if not phile.endswith('~') and
+                      os.path.isfile(os.path.join(dirpath, phile))]))
 
     setupargs = dict(
         name = OOFNAME,
@@ -1485,7 +1486,7 @@ if __name__ == '__main__':
         package_dir = {OOFNAME+'.ooflib':'SRC'},
         shlibs = shlibs,
         ext_modules = extensions,
-        data_files = examplefiles
+        data_files = datafiles
         )
 
     # This used to check for python version 2.6 or greater..

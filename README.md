@@ -1,7 +1,7 @@
 This is the README file for OOF2, describing how to build and install
 it with the Python distutils utility.
 
-This README file is for OOF2 version 2.1.12 or later.
+This README file is for OOF2 version 2.2.0 or later.
 
 # What is OOF2
 
@@ -94,7 +94,8 @@ programs and libraries.  These are usually available as part of a
 - [pygobject (3.28 or later)](https://pypi.org/project/PyGObject/)
 - [cairomm (1.12 or later)](https://www.cairographics.org/cairomm/)
 - [pango (1.40 or later)](https://pango.gnome.org/)
-- [pangocairo (1.40 or later)]
+- pangocairo (1.40 or later)
+- [oofcanvas](http://www.ctcms.nist.gov/oof/oofcanvas)
 
 Please note that the words "or later" do not include later major
 versions.  OOF2 will not work with Python 3.x or gtk 4.x.  It is
@@ -118,73 +119,73 @@ http://www.ctcms.nist.gov/oof/oof2/prerequisites.html.
 
 ## Procedure
 
-   (Macintosh OS X users can install OOF2 from either a Terminal or
-   xterm window, or the equivalent.)
+(Macintosh OS X users can install OOF2 from either a Terminal or
+xterm window, or the equivalent.)
 
 ### 1. Unpack
 
-   Unpack the .tar.gz file.  The usual way is to run `tar -xzf` on the
-   file you want to unpack.  This will create a subdirectory named
-   "oof2-<version>" in the directory where you run tar.
+Unpack the .tar.gz file.  The usual way is to run `tar -xzf` on the
+file you want to unpack.  This will create a subdirectory named
+"oof2-<version>" in the directory where you run tar.
 
 ### 2. Build the OOF2 libraries and Python extension modules
 
-   Switch to the newly-created directory, and run
+Switch to the newly-created directory, and run
 
      % python setup.py build
 
-   The build_ext command will create a "build" subdirectory in the top
-   OOF2 directory.  Within "build" it will create a subdirectory with
-   a system-dependent name.
+The build_ext command will create a "build" subdirectory in the top
+OOF2 directory.  Within "build" it will create a subdirectory with a
+system-dependent name.
 
 #### 2.1 Getting more control over the build
 
-   You can ignore this section unless something went wrong when
-   building OOF2 in step 1.  setup.py tries to be intelligent about
-   choosing options, but it's not perfect.
+You can ignore this section unless something went wrong when building
+OOF2 in step 1.  setup.py tries to be intelligent about choosing
+options, but it's not perfect.
 
-   The distutils "build" command actually runs a bunch of separate
-   subcommands, each of which has its own options.  The relevant
-   subcommands are "build_shlib", "build_ext", "build_scripts", and
-   "build_py".  "build_shlib" builds the shared libraries,
-   liboof2common.so, etc, that contain most of the low-level OOF2
-   machinery. "build_ext" builds the OOF2 Python extension modules
-   that provide the interface betweeen C++ and Python.  "build_py"
-   copies the Python files from the source directory to the build
-   directory, and "build_scripts" copies the start-up script into the
-   build directory and makes it executable.  OOF2 installers will
-   probably only have to worry about "build_shlib" and "build_ext".
+The distutils "build" command actually runs a bunch of separate
+subcommands, each of which has its own options.  The relevant
+subcommands are "build_shlib", "build_ext", "build_scripts", and
+"build_py".  "build_shlib" builds the shared libraries,
+liboof2common.so, etc, that contain most of the low-level OOF2
+machinery. "build_ext" builds the OOF2 Python extension modules that
+provide the interface betweeen C++ and Python.  "build_py" copies the
+Python files from the source directory to the build directory, and
+"build_scripts" copies the start-up script into the build directory
+and makes it executable.  OOF2 installers will probably only have to
+worry about "build_shlib" and "build_ext".
 
-   The four commands must be run in order: build_shlib must precede
-   build_ext, and build_ext must precede build_py.
+The four commands must be run in order: build_shlib must precede
+build_ext, and build_ext must precede build_py.
 
-   Each command can be run separately, for example
+Each command can be run separately, for example
 
     % python setup.py build_ext
 
-   or in combination
+or in combination
 
     % python setup.py build_shlib build_ext
 
-   and options can be provided to each one
+and options can be provided to each one
   
     % python setup.py build_shlib --debug build_ext --include_dirs=/sw/include
 
-   You can see the full set of options by running
+You can see the full set of options by running
 
     % python setup.py --help <command name>
 
-   Here are the options most likely to be useful:
+Here are the options most likely to be useful:
 
-   For "build_shlib" or "build":
+For "build_shlib" or "build":
 
-   * --library-dirs   
+   * --library-dirs 
    
       Specify a non-standard location for libraries.  Multiple
       directories should be separated by colons, like this:
       --library-dirs=/strange/spot:/out/of/theway
 
-   * --libraries       
+   * --libraries 
    
       Specify libraries to load. Due to a bug in distutils, it's only
       possible to specify a single library. For example
@@ -197,7 +198,7 @@ http://www.ctcms.nist.gov/oof/oof2/prerequisites.html.
       names should be separated by spaces, like this:
       --blas-libraries="myblas mylapack"
 
-   * --blas-link-args  
+   * --blas-link-args 
         
       Specify additional link arguments required by blas and lapack,
       for example: --blas-link-args="-faltivec -framework vecLib"
@@ -213,7 +214,7 @@ these arguments in *both* steps if you provide them in one.
       When this option is used, it's not necessary to have the gtk,
       pygtk, or libgnomecanvas libraries installed.
 
-   * --enable-openmp   
+   * --enable-openmp 
    
       Turn on OpenMP code in OOF2 for parallel execution.  This will
       only work if your compiler supports OpenMP, which the
@@ -223,18 +224,17 @@ these arguments in *both* steps if you provide them in one.
 
 ### 3. Install
 
-   To install OOF2, run
+To install OOF2, run
 
    ```
    % python setup.py install
    ```
 
-   This will install OOF2 in the standard location for Python
-   extensions on your system.  This is good, because then you won't
-   have to do anything special to get OOF2 to run.  It's also bad,
-   because unless you are the system administrator, you probably don't
-   have permission to install anything in that directory.  You have
-   two options:
+This will install OOF2 in the standard location for Python extensions
+on your system.  This is good, because then you won't have to do
+anything special to get OOF2 to run.  It's also bad, because unless
+you are the system administrator, you probably don't have permission
+to install anything in that directory.  You have two options:
 
    1. Get a system administrator to run the installation step.
 
@@ -249,38 +249,47 @@ these arguments in *both* steps if you provide them in one.
       if you're using the system Python, or */sw* or */opt/local* if you're
       using fink or macports.
 
-      The installation procedure will create an executable script called
-      "oof2" in \<prefix>/bin, a bunch of shared libraries called
-      "liboof2*.so" or "liboof2\*.dylib" in \<prefix>/lib, a directory
-      called "oof2" in \<prefix>/lib/python2.x/site-packages (where 2.x
-      is your python version number), and some example files in
-      \<prefix>/share/oof2/ examples. 
+The installation procedure will create an executable script called
+"oof2" in \<prefix>/bin, a bunch of shared libraries called
+"liboof2*.so" or "liboof2\*.dylib" in \<prefix>/lib, a directory
+called "oof2" in \<prefix>/lib/python2.x/site-packages (where 2.x is
+your python version number), and some example files in
+\<prefix>/share/oof2/ examples.
 
-      (It's possible to use --home=\<home> instead of --prefix when
-      installing oof2.  The only difference is that --home will put the
-      python libraries in \<home>/lib/python instead of
-      \<prefix>/lib/python2.x/site-packages.)
+(It's possible to use --home=\<home> instead of --prefix when
+installing oof2.  The only difference is that --home will put the
+python libraries in \<home>/lib/python instead of
+\<prefix>/lib/python2.x/site-packages.)
 
 #### 3.1. Set environment variables
 
-   If \<prefix>/bin is not in your Unix command path, you'll need to
-   add it to the PATH environment variable, or create a symbolic link
-   from a directory that is in your path (or start OOF2 the hard way
-   by by typing \<prefix>/bin/oof2).  (Typing `echo $path` will print
-   the current value of your path.  The method for setting
-   environment variables depends on which Unix shell you're using.)
+If \<prefix>/bin is not in your Unix command path, you'll need to add
+it to the PATH environment variable, or create a symbolic link from a
+directory that is in your path (or start OOF2 the hard way by by
+typing \<prefix>/bin/oof2).  (Typing `echo $path` will print the
+current value of your path.  The method for setting environment
+variables depends on which Unix shell you're using.)
 
-   If \<prefix>/lib is not in the list of directories that the dynamic
-   linker searches for libraries, you'll have to add it by setting
-   the LD_LIBRARY_PATH environment variable.  This should *not* be
-   necessary on Macintosh OS X.
+If \<prefix>/lib is not in the list of directories that the dynamic
+linker searches for libraries, you'll have to add it by setting the
+LD_LIBRARY_PATH environment variable.  This should *not* be necessary
+on Macintosh OS X.
+    
+If \<prefix>/lib/python2.x/site-packages is not in your Python path,
+you'll have to add it to the PYTHONPATH environment variable. Running
+the following command will print your Python path. `python -c "import
+sys; print sys.path"` will print your Python path.
+   
+### 4. Test 
 
-   If \<prefix>/lib/python2.x/site-packages is not in your Python
-   path, you'll have to add it to the PYTHONPATH environment
-   variable. Running the following command will print your Python
-   path. `python -c "import sys; print sys.path"` will print your
-   Python path.
+If you want to test the installation, go to `<prefix>/share/oof2/TEST`
+and run `python regression.py`.  There is a `README` file in that
+directory with more information. 
 
+To test that the GUI is functioning, go to
+`<prefix>/share/oof2/TEST/GUI` and run `python guitests.py`.  There is
+another `README` file in that directory with useful information and
+cautions.
 
 # Running OOF2
 
