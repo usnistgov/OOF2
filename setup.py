@@ -37,7 +37,7 @@ OOFCANVAS_VERSION = "0.0.0"
 # The make_dist script edits the following line when a distribution is
 # built.  Don't change it by hand.  On the git master branch,
 # "0.0.0" is replaced by the version number.
-version_from_make_dist = "0.0.0"
+version_from_make_dist = "2.2.0"
 
 ###############################
 
