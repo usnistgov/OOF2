@@ -123,7 +123,7 @@ class install_shlib(Command):
                                    dylib,
                                    os.path.join(self.install_dir, dylibname),
                                    ofile)
-                            log.info(" ".join(cmd))
+                            log.info("install_shlib debug: " + " ".join(cmd))
                             errorcode = subprocess.call(cmd)
                             if errorcode:
                                 raise DistutilsExecError(

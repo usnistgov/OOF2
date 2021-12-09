@@ -54,7 +54,7 @@ class oof_install_lib(install_lib.install_lib):
                 if phile.endswith(suffix): # Is it a library?
                     # See which dylibs it links to by running otool -L
                     cmd = ("otool", "-L", phile)
-                    log.info(" ".join(cmd))
+                    log.info("oof_install_lib debug A: " + " ".join(cmd))
                     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                             stderr=subprocess.PIPE)
                     stdoutdata, stderrdata = proc.communicate()
@@ -82,7 +82,7 @@ class oof_install_lib(install_lib.install_lib):
                             if newname != dylib:
                                 cmd = ("install_name_tool", "-change",
                                        dylib, newname, phile)
-                                log.info(" ".join(cmd))
+                                log.info("oof_install_lib debug B: " + " ".join(cmd))
                                 errorcode = subprocess.call(cmd)
                                 if errorcode:
                                     raise DistutilsExecError(
