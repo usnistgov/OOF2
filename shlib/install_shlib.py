@@ -121,6 +121,7 @@ class install_shlib(Command):
                             # dylibname = os.path.split(dylib)[1]
                             relpath = os.path.relpath(dylib, self.install_dir)
                             newpath = os.path.join(relinstall_dir, relpath)
+                            log.info("INSTALL_DIR=%s", self.install_dir)
                             log.info("DYLIB=%s", dylib)
                             log.info("RELPATH=%s", relpath)
                             log.info("NEWPATH=%s", newpath)
