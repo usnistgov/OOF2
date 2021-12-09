@@ -10,59 +10,85 @@
 
 # Modify the "install_lib" command so that it runs "install_name_tool" on Macs.
 
-# This doesn't seem to be necessary.  Search for oof2installlib in
-# setup.py to see if it's really used.
-
 from distutils.command import install_lib
 from distutils import log
 from distutils.sysconfig import get_config_var
+from distutils.errors import DistutilsExecError
 import os
+import subprocess
 import sys
-
-shared_libs = []                # set by setup.py
 
 class oof_install_lib(install_lib.install_lib):
     def install(self):
         outfiles = install_lib.install_lib.install(self)
-        install_shlib = self.get_finalized_command("install_shlib")
+
         if sys.platform == 'darwin':
-            # We get the shared library names and locations from
-            # global variables, because if we import oof2config.py it
-            # will create oof2config.pyc, and will cause a conflict
-            # for people using "stow" to install oof2.
-            shared_lib_dir = install_shlib.install_dir
-            build_dir = self.get_finalized_command('install_shlib').build_dir
-            installed_names = {}        # new name keyed by old name
+            # Find the names of the shared libraries and where they've
+            # been installed (or will be installed).
+            install_shlib = self.get_finalized_command("install_shlib")
+            # install_dir is <root>/<prefix>/lib
+            install_dir = install_shlib.install_dir
+            root = self.get_finalized_command("install").root
+            if root is not None:
+                install_dir = os.path.relpath(install_dir, root)
+                install_dir = os.path.join(os.sep, install_dir) 
+            
+            shared_libs = [lib.name for lib in install_shlib.shlibs]
+            
+            installed_names = {}        # new path keyed by lib name
             for lib in shared_libs:
                 installed_names["lib%s.dylib"%lib] = \
-                              "%s/lib%s.dylib" % (shared_lib_dir, lib)
-            prefix = self.get_finalized_command('install').prefix
+                    os.path.join(install_dir, "lib%s.dylib"%lib)
+
             # The names of the files to be modified end with
             # SHLIB_EXT.
             suffix = get_config_var('SHLIB_EXT')
             if suffix is not None:
                 suffix = suffix[1:-1] # SHLIB has quotation marks.
             else:
-                # Python 2.4 doesn't define SHLIB_EXT.  I don't know
-                # if using SO here is correct, though.
                 suffix = get_config_var('SO')
+                assert suffix is not None
+                
             for phile in outfiles:
-                if phile.endswith(suffix):
-                    # See which dylibs it links to
-                    f = os.popen('otool -L %s' % phile, "r")
-                    for line in f.readlines():
+                # phile is a file in destroot
+                if phile.endswith(suffix): # Is it a library?
+                    # See which dylibs it links to by running otool -L
+                    cmd = ("otool", "-L", phile)
+                    log.info(" ".join(cmd))
+                    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                            stderr=subprocess.PIPE)
+                    stdoutdata, stderrdata = proc.communicate()
+                    if stderrdata:
+                        print >> sys.stderr, stderrdata
+                        raise DistutilsExecError(
+                            "Command failed: " + " ".join(cmd))
+
+                    # Loop over output lines from otool -L
+                    for line in stdoutdata.splitlines():
                         l = line.lstrip()
+                        # dylib is the uninstalled path to a library
+                        # that phile links to, but it needs to refer
+                        # to the installed path.
                         dylib = l.split()[0]
-                        for k in installed_names.keys():
-                            if dylib.endswith(k) and dylib!=installed_names[k]:
-                                cmd = 'install_name_tool -change %s %s %s' % (
-                                    dylib, installed_names[k], phile)
-                                log.info(cmd)
-                                errorcode = os.system(cmd)
+                        libname = os.path.split(dylib)[1]
+                        try:
+                            # Look for the installed path
+                            newname = installed_names[libname]
+                        except KeyError:
+                            # It's not a library we know about.
+                            pass
+                        else:
+                            # Fix the name, if it needs fixing.
+                            if newname != dylib:
+                                cmd = ("install_name_tool", "-change",
+                                       dylib, newname, phile)
+                                log.info(" ".join(cmd))
+                                errorcode = subprocess.call(cmd)
                                 if errorcode:
-                                    raise errors.DistutilsExecError(
-                                        "command failed: %s" % cmd)
-                                break
+                                    raise DistutilsExecError(
+                                        "Command failed:" + " ".join(cmd))
+                                    
+                        
         return outfiles
         
 

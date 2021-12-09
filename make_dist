@@ -36,6 +36,9 @@ import sys
 import tempfile
 import time
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+## Utilities
 
 def osCall(*args):
     print >> sys.stderr, "--->", ' '.join(args)
@@ -45,6 +48,29 @@ def osCall(*args):
         print >> sys.stderr, "Aborting!"
         sys.exit(status)
         
+def run_sed(sedcmd, srcdir, srcfile):
+    # Process the given file with the given sed command, and
+    # replace the file with the result.
+
+    # Don't create a temp file with mkstemp, because it uses overly
+    # strict permissions, and others need to be able to read the file.
+    # Use a temp directory instead.
+    tmpdir = tempfile.mkdtemp()
+    destpath = os.path.join(tmpdir, srcfile)
+    dest = open(destpath, "w")
+    srcpath = os.path.join(srcdir, srcfile)
+    proc = subprocess.Popen(["sed", sedcmd, srcpath], stdout=dest,
+                            stderr=subprocess.PIPE)
+    stdoutdata, stderrdata = proc.communicate()
+    if proc.returncode != 0:
+        print >> sys.stderr, "sed command failed:", stderrdata
+        sys.exit(proc.returncode)
+    dest.close()
+    os.rename(destpath, srcpath)
+    os.rmdir(tmpdir)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 options = ['version=', 'comment=', 'dryrun', 'help', 'noclean', 'branch=']
 
 def state_options_and_quit():
@@ -114,7 +140,8 @@ try:
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdoutdata, stderrdata = proc.communicate()
     if stderrdata:
-        print "*** Failed to get git repository!", stderrdata.strip()
+        print >> sys.stderr, "*** Failed to get git repository!", \
+            stderrdata.strip()
         sys.exit(1)
     giturl = stdoutdata.strip()
 
@@ -125,8 +152,6 @@ try:
     # Clone the git repository into a directory whose name is given by
     # the oof version number: oof2-version or oof3d-version
     distdir = distname.distname + "-" + version
-    # # Use --quiet so that stderr is empty if the command succeeds.
-    # cmd = ['git', 'clone', '--quiet', giturl, distdir]
     if branch is None:
         cmd = ['git', 'clone', giturl, distdir]
     else:
@@ -190,21 +215,10 @@ try:
     # "version_from_make_dist" and replaces everything after the
     # equals sign with a string containing the version number.
     sedcmd = '/^version_from_make_dist/s/=.*/= \\\"%s\\\"/' % version
-    tmpfile, tmpfilename = tempfile.mkstemp(dir=tempdir)
-    if subprocess.call(["sed", sedcmd, "setup.py"], stdout=tmpfile) != 0:
-        sys.exit(proc.returncode)
-    os.close(tmpfile)
-    print >> sys.stderr, "Moving", tmpfilename, "to setup.py"
-    os.rename(tmpfilename, 'setup.py')
+    run_sed(sedcmd, "", "setup.py")
+    run_sed(sedcmd, "SRC/common", "oofversion.py")
 
-    tmpfile, tmpfilename = tempfile.mkstemp(dir=tempdir)
-    if subprocess.call(['sed', sedcmd, 'SRC/common/oofversion.py'],
-                       stdout=tmpfile) != 0:
-        sys.exit(proc.returncode)
-    os.close(tmpfile)
-    print >> sys.stderr, "Moving", tmpfilename, "to SRC/common/oofversion.py"
-    os.rename(tmpfilename, 'SRC/common/oofversion.py')
-
+    
     # Check all the modifications into git, and tag with the version
     # number.  It's necessary to go back to the distribution directory
     # to use git.
@@ -212,13 +226,15 @@ try:
 
     cmd = ['git', 'commit', '--allow-empty', '-m', commit_msg]
     print >> sys.stderr, '--->', ' '.join(cmd)
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdoutdata, stderrdata = proc.communicate()
-    if proc.returncode != 0:
-        print >> sys.stderr, "Back from commit, status=", proc.returncode
-        print >> sys.stderr, "stdoutdata=", stdoutdata
-        print >> sys.stderr, "stderrdata=", stderrdata
-        sys.exit(0)
+    if not dryrun:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+        stdoutdata, stderrdata = proc.communicate()
+        if proc.returncode != 0:
+            print >> sys.stderr, "Back from commit, status=", proc.returncode
+            print >> sys.stderr, "stdoutdata=", stdoutdata
+            print >> sys.stderr, "stderrdata=", stderrdata
+            sys.exit(0)
 
     if not newbranch:
         cmd = ['git', 'push', 'origin', tag]

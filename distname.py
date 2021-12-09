@@ -10,7 +10,7 @@
 
 # Until we merge the 2D and 3D branches, we need a way to set the name
 # of the distribution file that make_dist creates.  This file just
-# contains that name.  Putting hte name here, instead of in make_dist,
+# contains that name.  Putting the name here, instead of in make_dist,
 # allows both versions to use the same make_dist script.
 
 distname = 'oof2'

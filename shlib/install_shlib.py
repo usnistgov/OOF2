@@ -17,6 +17,7 @@
 ## running setup_shlib.py.
 
 import os
+import subprocess
 import sys
 from distutils.core import Command
 from distutils.util import convert_path
@@ -58,39 +59,75 @@ class install_shlib(Command):
 
     def install(self):
         if os.path.isdir(self.build_dir):
+            # outfiles contains the paths to the shared library files.
+            # They're of the form <root>/<prefix>/lib/libXXXXXX.dylib
+            # (or .so).  <root> is the value of the install command's
+            # --root arg, and is expected to be DESTDIR
+            # (https://www.gnu.org/prep/standards/html_node/DESTDIR.html).
+            # BUT the files will be eventually installed into
+            # <prefix>/lib/libXXXXXX.dylib so the shared library ID
+            # stored in the file on Macs needs to be corrected.
+
             outfiles = self.copy_tree(self.build_dir, self.install_dir)
-            ## On OS X, we have to run install_name_tool here, since
-            ## dylibs contain info about their own location and the
-            ## locations of the libraries they link to.  The
-            ## alternative is to force users to set DYLD_LIBRARY_PATH.
-            ## Neither should be necessary if the installation is in a
-            ## standard location.
+
+            # On macOS, we have to run install_name_tool here, since
+            # dylibs contain info about their own location and the
+            # locations of the libraries they link to.  The
+            # alternative is to force users to set DYLD_LIBRARY_PATH.
             if sys.platform == "darwin":
+                prefix = os.path.expanduser(
+                    self.get_finalized_command("install").prefix)
+                
+                root = self.get_finalized_command("install").root
+                if root:
+                    relinstall_dir = os.path.join(
+                        os.sep, # needs initial /
+                        os.path.relpath(self.install_dir, root))
+                else:
+                    relinstall_dir = self.install_dir
+            
                 for ofile in outfiles:
-                    name = os.path.split(ofile)[1]
-                    cmd = "install_name_tool -id %(of)s %(of)s" % dict(of=ofile)
-                    log.info(cmd)
-                    errorcode = os.system(cmd)
+                    # self.install_dir should be <root>/<prefix>/lib,
+                    # but using relpath() like this means we don't
+                    # have to assume that the last part is just "lib".
+                    relpath = os.path.relpath(ofile, self.install_dir)
+                    newpath = os.path.join(relinstall_dir, relpath)
+                    # cmd = "install_name_tool -id %(np)s %(of)s" \
+                    #     % dict(np=newpath, of=ofile)
+                    cmd = ("install_name_tool", "-id", newpath, ofile)
+                    log.info(" ".join(cmd))
+                    errorcode = subprocess.call(cmd)
                     if errorcode:
-                        raise DistutilsExecError("command failed: %s" % cmd)
+                        raise DistutilsExecError("command failed: "  +
+                                                 " ".join(cmd))
+
                     # See what other dylibs it links to.  If they're
                     # ours, then we have to make sure they link to the
                     # final location.
-                    f = os.popen('otool -L %s' % ofile)
-                    for line in f.readlines():
+                    
+                    cmd = ("otool", "-L", ofile)
+                    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                            stderr=subprocess.PIPE)
+                    stdoutdata, stderrdata = proc.communicate()
+                    if stderrdata:
+                        print >> sys.stderr, stderrdata
+                        raise DistutilsExecError(
+                            "Command failed: " + " ".join(cmd))
+                    
+                    for line in stdoutdata.splitlines():
                         l = line.lstrip()
                         if l.startswith("build"): # it's one of ours
                             dylib = l.split()[0] # full path in build dir
                             dylibname = os.path.split(dylib)[1]
-                            cmd = 'install_name_tool -change %s %s %s' % (
-                                dylib,
-                                os.path.join(self.install_dir, dylibname),
-                                ofile)
-                            log.info(cmd)
-                            errorcode = os.system(cmd)
+                            cmd = ("install_name_tool", "-change",
+                                   dylib,
+                                   os.path.join(self.install_dir, dylibname),
+                                   ofile)
+                            log.info(" ".join(cmd))
+                            errorcode = subprocess.call(cmd)
                             if errorcode:
-                                raise DistutilsExecError("command failed: %s"
-                                                         % cmd)
+                                raise DistutilsExecError(
+                                    "Command failed: " + " ".join(cmd))
         else:
             self.warn("'%s' does not exist! no shared libraries to install"
                       % self.build_dir)
@@ -99,6 +136,10 @@ class install_shlib(Command):
 
     def get_outputs(self):
         # List of files that would be installed if this command were run.
+
+        ## TODO: This hasn't been tested or updated. I'm not sure
+        ## which names it should be returning -- the files as created
+        ## by install, or the files as created by destroot?
         if not self.distribution.has_shared_libraries():
             return []
         build_cmd = self.get_finalized_command('build_shlib')

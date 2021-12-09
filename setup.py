@@ -36,8 +36,8 @@ OOFCANVAS_VERSION = "0.0.0"
 
 # The make_dist script edits the following line when a distribution is
 # built.  Don't change it by hand.  On the git master branch,
-# "(unreleased)" is replaced by the version number.
-version_from_make_dist = "(unreleased)"
+# "0.0.0" is replaced by the version number.
+version_from_make_dist = "0.0.0"
 
 ###############################
 
@@ -52,18 +52,16 @@ from distutils import log
 from distutils.dir_util import remove_tree, mkpath
 from distutils.sysconfig import get_config_var
 
+log.set_verbosity(2)
+
 ## oof2installlib redefines the distutils install_lib command so that
-## it runs install_name_tool on Macs.  This doesn't seem to be
-## necessary.  If library files can't be found at run time, try
-## reinstating oof2installlib by uncommenting it here and where it's
-## used, below.
-# import oof2installlib
+## it runs install_name_tool on Macs. 
+import oof2installlib
 
 import shlib # adds build_shlib and install_shlib to the distutils command set
 from shlib import build_shlib
 
 from oof2setuputils import run_swig, find_file, extend_path
-#from oof2setuputils import get_third_party_libs
 
 import os
 import shlex
@@ -78,16 +76,6 @@ from types import *
 # Tell distutils that .C is a C++ file suffix.
 from distutils.ccompiler import CCompiler
 CCompiler.language_map['.C'] = 'c++'
-
-# py2app stuff is commented out because, in python 2.3 at least,
-# py2app installs itself in a way that's inconsistent with
-# build_shlib, and build_shlib is more important for us.
-##try:
-##    import py2app                       # for creating a frozen Mac app.
-##except ImportError:
-##    have_py2app = False
-##else:
-##    have_py2app = True
 
 DIRFILE = "DIR.py"                      # oof subdirectory manifest files
 SWIGCFILEEXT = 'cmodule.C'              # suffix for swig output files
@@ -137,9 +125,6 @@ SWIGINSTALLDIR = "SWIG"
 # subdirs: a list of subdirectories that should be processed.  Each
 # subdirectory must have its own DIR.py file.
 
-# TODO: ensure that typemaps.swg files are included in the source
-# distribution!
-
 allCLibs = {}
 purepyfiles = []
 
@@ -182,7 +167,7 @@ class CLibInfo:
             return
         # Run pkg-config --cflags.
         cmd = "pkg-config --cflags %s" % string.join(self.pkgs)
-        print "%s: %s" % (self.libname, cmd)
+        log.info("%s: %s", self.libname, cmd)
         f = os.popen(cmd, 'r')
         for line in f.readlines():
             for flag in line.split():
@@ -192,7 +177,7 @@ class CLibInfo:
                     self.extra_compile_args.append(flag)
         # Run pkg-config --libs.
         cmd = "pkg-config --libs %s" % string.join(self.pkgs)
-        print "%s: %s" % (self.libname, cmd)
+        log.info("%s: %s", self.libname, cmd)
         f = os.popen(cmd, 'r')
         for line in f.readlines():
             for flag in line.split():
@@ -319,7 +304,7 @@ def allFiles(key):
 def readDIRs(srcdir):
     dirfile = os.path.join(srcdir, DIRFILE)
     if os.path.exists(dirfile):
-#         print >> sys.stderr, "LOADING", dirfile
+        log.info("loading %s", dirfile)
         # dirfile defines variables whose names are the same as the
         # ModuleInfo.dirdata keys.  The variables contain lists of
         # file names.
@@ -359,8 +344,8 @@ def readDIRs(srcdir):
         else:
             # At this point, all args in localdict should have been processed.
             if len(localdict) > 0:
-                print "WARNING: unrecognized values", localdict.keys(), \
-                      "in", dirfile
+                log.warn("WARNING: unrecognized values %s in %s",
+                         localdict.keys(), dirfile)
             for subdir in subdirs:
                 readDIRs(os.path.join(srcdir, subdir))
 
@@ -398,7 +383,7 @@ def swig_clibs(dry_run, force, debug, build_temp, with_swig=None):
             os.mkdir(swigbuilddir)
         swigexec = os.path.join(swigbuilddir, 'bin', 'swig')
         if not os.path.exists(swigexec):
-            print "Building swig"
+            log.info("Building swig")
             status = os.system(
                 'cd %s && ./configure --prefix=%s && make && make install' 
                 % (swigsrcdir, swigbuilddir))
@@ -447,7 +432,7 @@ if _sfx[0] == '"':
     _sfx = _sfx[1:]
 
 if _sfx:
-    print "Library suffix is", _sfx
+    log.debug("Library suffix is %s", _sfx)
 
 def fixLibName(libname):
     return libname + _sfx
@@ -467,16 +452,17 @@ def addOOFlibs(clib, *libnames):
 _dependencies_checked = 0
 class oof_build_xxxx:
     def make_oofconfig(self):
-        cfgfilename = os.path.normpath(os.path.join(self.build_temp,
-                                                    'SRC/oofconfig.h'))
+        cfgfilename = os.path.normpath(
+            os.path.join(self.build_temp, 'SRC', 'oofconfig.h'))
         includedir = os.path.join('include', OOFNAME)
         self.distribution.data_files.append((includedir, [cfgfilename]))
         # If oofconfig.h already exists, don't recreate it unless
         # forced to.  It would require everything that depends on it
         # to be recompiled unnecessarily.
         if self.force or not os.path.exists(cfgfilename):
-            print "creating", cfgfilename
+            log.info("creating %s", cfgfilename)
             if not self.dry_run:
+                ## TODO: Use subprocess
                 os.system('mkdir -p %s' % os.path.join(self.build_temp, 'SRC'))
                 cfgfile = open(cfgfilename, "w")
                 print >> cfgfile, """\
@@ -526,7 +512,7 @@ typedef int Py_ssize_t;
 
     def check_header(self, headername):
         # Check that a c++ header file exists on the system.
-        print "Testing for", headername
+        log.info("Testing for %s", headername)
         tmpfiled, tmpfilename = tempfile.mkstemp(suffix='.C')
         tmpfile = os.fdopen(tmpfiled, 'w')
         print >> tmpfile, """\
@@ -538,8 +524,7 @@ typedef int Py_ssize_t;
             try:
                 ofiles = self.compiler.compile(
                     [tmpfilename],
-                    extra_postargs=platform['extra_compile_args'] +
-                                   platform['prelink_suppression_arg']
+                    extra_postargs=platform['extra_compile_args']
                     )
             except errors.CompileError:
                 return 0
@@ -575,7 +560,7 @@ typedef int Py_ssize_t;
         # relative to the build directory, so we have to use the -MT
         # flag to specify the target.  That means that we can't
         # process more than one C++ file at a time.
-        print "Finding dependencies for C++ files."
+        log.info("Finding dependencies for C++ files.")
         for phile in allFiles('cfiles'):
             ## Hack Alert.  We don't know the full paths to some of
             ## the system header files at this point.  The -MM flag is
@@ -585,6 +570,7 @@ typedef int Py_ssize_t;
             ## tells gcc to add missing headers to the dependency
             ## list, and then we weed them out later.  At least this
             ## way, the "missing" headers don't cause errors.
+
             cmd = 'g++ -std=c++11 -MM -MG -MT %(target)s -ISRC -I%(builddir)s -I%(buildsrc)s %(file)s' \
               % {'file' : phile,
                  'target': os.path.splitext(phile)[0] + ".o",
@@ -595,11 +581,11 @@ typedef int Py_ssize_t;
                                     bufsize=4096)
             stdoutdata, stderrdata = proc.communicate()
             if stderrdata:
-                print >> sys.stderr, "Command failed:", cmd
-                print >> sys.stderr, stderrdata
+                log.error("Command failed: %s", cmd)
+                log.error("%s", stderrdata)
                 sys.exit(1)
             if not stdoutdata:
-                print >> sys.stderr, "Command failed, no data received:", cmd
+                log.error("Command failed, no data received: %s", cmd)
                 sys.exit(1)
             # stdoutdata is a multiline string.  The first substring
             # is the name of the target file, followed by a colon.
@@ -622,7 +608,7 @@ typedef int Py_ssize_t;
 
         # .C and.py files in the SWIG directory depend on those in the
         # SRC directory.  Run gcc -MM on the swig source files.
-        print "Finding dependencies for .swg files."
+        log.info("Finding dependencies for .swg files.")
         for phile in allFiles('swigfiles'):
             cmd = 'g++ -std=c++11 -MM -MG -MT %(target)s -x c++ -I. -ISRC -I%(builddir)s %(file)s'\
               % {'file' : phile,
@@ -633,12 +619,10 @@ typedef int Py_ssize_t;
                                     stdout=subprocess.PIPE, bufsize=4096)
             stdoutdata, stderrdata = proc.communicate()
             if stderrdata:
-                print >> sys.stderr, "Command failed:", cmd
-                print >> sys.stderr, stderrdata
+                log.error("Command failed: %s", cmd)
+                log.error(stderrdata)
                 sys.exit(1)
             files = [f for f in stdoutdata.split() if f != "\\"]
-            # print "---\nstdoutdata=", stdoutdata
-            # print "files=", files
             target = files[0][:-1]
             targetbase = os.path.splitext(target)[0]
             # On some systems, target begins with "SRC/".  On
@@ -707,7 +691,9 @@ typedef int Py_ssize_t;
                     sourcetime = max([modification_time(x) for x in sources])
                     if sourcetime > targettime:
                         os.remove(target)
-                        print "clean_targets: Removed out-of-date target", target
+                        log.info(
+                            "clean_targets: Removed out-of-date target %s",
+                            target)
                         outofdate = True
                 else:
                     outofdate = True
@@ -725,12 +711,12 @@ typedef int Py_ssize_t;
             depfilename = os.path.join(self.build_temp, 'depend')
             if not MAKEDEPEND and os.path.exists(depfilename):
                 locals = {}
-                print "Loading dependencies from", depfilename
+                log.info("Loading dependencies from %s", depfilename)
                 execfile(depfilename, globals(), locals)
                 depdict = locals['depdict']
             else:
                 depdict = self.find_dependencies()
-                print "Saving dependencies in", depfilename
+                log.info("Saving dependencies in %s", depfilename)
                 mkpath(self.build_temp)
                 depfile = open(depfilename, "w")
                 print >> depfile, "depdict=", depdict
@@ -748,9 +734,7 @@ class oof_build_ext(build_ext.build_ext, oof_build_xxxx):
         self.with_swig = None
         build_ext.build_ext.initialize_options(self)
     def finalize_options(self):
-        self.set_undefined_options('build',
-                                   ('with_swig', 'with_swig'))
-        ## TODO: Add extra libraries (python2.x) for cygwin?
+        self.set_undefined_options('build', ('with_swig', 'with_swig'))
         build_ext.build_ext.finalize_options(self)
     # build_extensions is called by build_ext.run().
     def build_extensions(self):
@@ -804,7 +788,7 @@ class oof_build_shlib(build_shlib.build_shlib, oof_build_xxxx):
         # The blas libs and arguments weren't actually put into the
         # SharedLibrary objects when they were created, because we
         # didn't know until now whether or not the user had provided
-        # alternates.  It's time to either use the predefined values
+        # alternates.  It's time either to use the predefined values
         # from "platform" or to use the command line arguments.
 
         if self.blas_libraries is not None:
@@ -827,7 +811,6 @@ class oof_build_shlib(build_shlib.build_shlib, oof_build_xxxx):
             # library.libraries.extend(tcmalloclibs)
             # library.library_dirs.extend(tcmallocdirs)
 
-        ## TODO: Add extra libraries (python2.x) for cygwin?
         build_shlib.build_shlib.build_libraries(self, libraries)
 
     def check_extra_blaslibs(self, blaslibs, linkargs):
@@ -838,7 +821,7 @@ class oof_build_shlib(build_shlib.build_shlib, oof_build_xxxx):
         # because different Linux distributions seem to build their
         # blas libraries differently, and we can't tell which
         # distribution we're using.)
-        print "Testing if blas links correctly"
+        log.info("Testing if blas links correctly")
         # First create a temp directory to play in.
         tmpdir = tempfile.mkdtemp(dir=os.getcwd())
         tmpdirname = os.path.split(tmpdir)[1]
@@ -862,9 +845,7 @@ class oof_build_shlib(build_shlib.build_shlib, oof_build_xxxx):
             try:
                 ofiles=self.compiler.compile(
                     [tmpfilename],
-                    extra_postargs=(platform['extra_compile_args'] +
-                                    platform['prelink_suppression_arg']),
-                    )
+                    extra_postargs=platform['extra_compile_args'])
             except errors.CompileError:
                 raise errors.DistutilsExecError("can't compile blas test")
             # Try linking without extra args
@@ -952,8 +933,7 @@ class oof_build_shlib(build_shlib.build_shlib, oof_build_xxxx):
     #         try:
     #             ofiles = self.compiler.compile(
     #                 [tmpfilename],
-    #                 extra_postargs=(platform['extra_compile_args'] +
-    #                                 platform['prelink_suppression_arg']),
+    #                 extra_postargs=platform['extra_compile_args'],
     #             )
     #         except errors.CompileError:
     #             raise errors.DistutilsExecError("can't compile tcmalloc test")
@@ -1036,6 +1016,10 @@ class oof_build(build.build):
 
 class oof_build_py(build_py.build_py):
     def run(self):
+        # Tell oof2installlib which shared libraries to process.
+        install_shlib = self.get_finalized_command('install_shlib')
+        shared_libs = [lib.name for lib in install_shlib.shlibs]
+        oof2installlib.shared_libs = shared_libs
         self.make_oof2config()
         self.make_toplevel_init()
         build_py.build_py.run(self) #this is where swigroot is copied
@@ -1065,8 +1049,6 @@ class oof_build_py(build_py.build_py):
         print >> cfgscript, 'library_dirs =', [install_shlib.install_dir]
         shared_libs = [lib.name for lib in install_shlib.shlibs]
         print >> cfgscript, 'libraries =', shared_libs
-        ## See comment about oof2installlib above.
-        # oof2installlib.shared_libs = shared_libs
         print >> cfgscript, 'extra_link_args =', platform['extra_link_args']
         print >> cfgscript, "import sys; sys.path.append(root)"
         cfgscript.close()
@@ -1082,25 +1064,18 @@ class oof_build_py(build_py.build_py):
         # Now put the module source file into the "build" area -- this is
         # easy, we just copy it somewhere under self.build_lib (the build
         # directory for Python source).
+        # [Comment from distutils, not oof2]
         outfile = self.get_module_outfile(self.build_lib, package, module)
-        outfile = outfile.replace(SWIGDIR, SWIGINSTALLDIR)
+
+        # The next line is the only one that is different from the
+        # original distutils.
+        outfile = os.path.normpath(outfile.replace(SWIGDIR, SWIGINSTALLDIR))
+        
         dir = os.path.dirname(outfile)
-        #dir = dir.replace(SWIGDIR,SWIGINSTALLDIR)
         self.mkpath(dir)
         return self.copy_file(module_file, outfile, preserve_mode=0)
 
 
-
-###################################################
-
-# Modify "build_scripts" so that it copies only oof2 or oof3d, but not
-# both.  Both are in the scripts list so that they're both
-# distributed, but only one should be installed.
-
-class oof_build_scripts(build_scripts.build_scripts):
-    def finalize_options(self):
-        build_scripts.build_scripts.finalize_options(self)
-        self.scripts = [OOFNAME]
 
 ###################################################
 
@@ -1125,7 +1100,7 @@ class oof_clean(clean.clean):
         if self.swig and os.path.exists(swigroot):
             remove_tree(swigroot, dry_run=self.dry_run)
             swigsrcdir = os.path.abspath('OOFSWIG')
-            print "Cleaning swig"
+            log.info("Cleaning swig")
             status = os.system('cd %s && make clean' % swigsrcdir)
             if status:
                 sys.exit(status)
@@ -1158,7 +1133,7 @@ def get_global_args():
     # hasn't been called yet.
 
     global HAVE_MPI, HAVE_OPENMP, HAVE_PETSC, DEVEL, NO_GUI, \
-        ENABLE_SEGMENTATION, MAKEDEPEND, \
+        ENABLE_SEGMENTATION, MAKEDEPEND, PORTDIR, \
         DIM_3, DATADIR, DOCDIR, OOFNAME, SWIGDIR, NANOHUB #, NO_TCMALLOC
     HAVE_MPI = _get_oof_arg('--enable-mpi')
     HAVE_PETSC = _get_oof_arg('--enable-petsc')
@@ -1169,6 +1144,7 @@ def get_global_args():
     MAKEDEPEND = _get_oof_arg('--makedepend')
     NANOHUB = _get_oof_arg('--nanoHUB')
     HAVE_OPENMP = _get_oof_arg('--enable-openmp')
+    PORTDIR = _get_oof_arg('--port-dir', '/opt/local')
     # NO_TCMALLOC = _get_oof_arg('--disable-tcmalloc')
 
     # The following determine some secondary installation directories.
@@ -1187,7 +1163,7 @@ def get_global_args():
         SWIGDIR = "SWIG3D"           # root dir for swig output, inside SRC
 
 
-def _get_oof_arg(arg):
+def _get_oof_arg(arg, default=None):
     # Search for an argument which begins like "arg" -- if found,
     # return the trailing portion if any, or 1 if none, and remove the
     # argument from sys.argv.
@@ -1198,7 +1174,7 @@ def _get_oof_arg(arg):
             if len(splits) > 1:         # found an =
                 return splits[1]
             return 1                    # just a plain arg
-    return 0                            # didn't find arg
+    return default                      # didn't find arg
         
 platform = {}
 
@@ -1213,7 +1189,6 @@ def set_platform_values():
     platform['libdirs'] = []
     platform['incdirs'] = [get_config_var('INCLUDEPY')]
     platform['extra_link_args'] = []
-    platform['prelink_suppression_arg'] = []
     platform['extra_swig_args'] = []
 
     if os.path.exists('/usr/local/lib'):
@@ -1223,30 +1198,21 @@ def set_platform_values():
     if os.path.exists('/usr/site/include'):
         platform['incdirs'].append('/usr/site/include')
 
-    # The prelink-suppression argument is used when running the compiler
-    # to test for libraries.  Such builds need to be reasonably clean in
-    # terms of not creating a lot of auxiliary files, and it's OK if
-    # they're a bit slow.  Currently this is only set on SGIs, and it
-    # prevents the creation of the "ii_files" subdirectory for the
-    # library-check compilations.
-    platform['prelink_suppression_arg'] = []
-
     if sys.platform == 'darwin':
-        # TODO: '-faltivec' option is removed from the following
-        # platform['blas_link_args'].extend([..]) for now, in order to
-        # use gcc which does not has the '-faltivec' option.
         platform['blas_link_args'].extend(['-framework', 'Accelerate'])
         platform['extra_link_args'].append('-headerpad_max_install_names')
-        # If we're using anything later than Python 2.5 with macports,
-        # the pkgconfig files for the python modules aren't in the
-        # standard location. 
-        if (os.path.exists('/opt') and
-            sys.version_info[0] >= 2 and sys.version_info[1] > 5):
+        # If we're using macports, the pkgconfig files for the python
+        # modules aren't in the standard location.
+        
+        ## TODO: Don't explicitly refer to /opt/local/. Use PORTDIR,
+        ## as in oofcanvas.
+        global PORTDIR
+        if os.path.exists(PORTDIR):
             ## TODO: Having to encode such a long path here seems
             ## wrong.  If and when pkgconfig acquires a more robust
             ## way of finding its files, use it.
-            pkgpath = "/opt/local/Library/Frameworks/Python.framework/Versions/%d.%d/lib/pkgconfig/" % (sys.version_info[0], sys.version_info[1])
-            print >> sys.stderr, "Adding", pkgpath
+            pkgpath = os.path.join(PORTDIR, "Library/Frameworks/Python.framework/Versions/%d.%d/lib/pkgconfig/" % (sys.version_info[0], sys.version_info[1]))
+            log.info("Adding %s to PKG_CONFIG_PATH", pkgpath)
             extend_path("PKG_CONFIG_PATH", pkgpath)
         # Enable C++11
         platform['extra_compile_args'].append('-Wno-c++11-extensions')
@@ -1269,22 +1235,21 @@ def set_platform_values():
         # add -std=c++11 option to use c++11 standard
         platform['extra_compile_args'].append('-std=c++11')
 
-    ## Irix and cygwin args haven't been tested in years and are
-    ## certainly horribly out of date.
-    elif sys.platform[:4] == 'irix':
-        platform['extra_compile_args'].append('-LANG:std')
-        platform['extra_link_args'].append('-LANG:std')
-        platform['prelink_suppression_arg'].append('-no_prelink')
-        platform['blas_libs'].extend(['lapack', 'blas', 'ftn', 'm'])
-    elif sys.platform == 'cygwin':
-        platform['blas_libs'].extend(['blas', 'lapack', 'm'])
-        platform['libdirs'].append('/bin')
+    # ## Irix and cygwin args haven't been tested in years and are
+    # ## certainly horribly out of date.
+    # elif sys.platform[:4] == 'irix':
+    #     platform['extra_compile_args'].append('-LANG:std')
+    #     platform['extra_link_args'].append('-LANG:std')
+    #     platform['blas_libs'].extend(['lapack', 'blas', 'ftn', 'm'])
+    # elif sys.platform == 'cygwin':
+    #     platform['blas_libs'].extend(['blas', 'lapack', 'm'])
+    #     platform['libdirs'].append('/bin')
 
-    ## TODO: netbsd options may be out of date.  C++11 should be
-    ## enabled.
-    elif sys.platform[:6] == 'netbsd':
-        platform['blas_libs'].extend(['lapack', 'blas', 'm'])
-        platform['libdirs'].append('/usr/pkg/lib')
+    # ## TODO: netbsd options may be out of date.  C++11 should be
+    # ## enabled.
+    # elif sys.platform[:6] == 'netbsd':
+    #     platform['blas_libs'].extend(['lapack', 'blas', 'm'])
+    #     platform['libdirs'].append('/usr/pkg/lib')
 
     if HAVE_OPENMP:
         platform['extra_compile_args'].append('-fopenmp')
@@ -1298,7 +1263,7 @@ def set_platform_values():
                    for mdir in mpisubdirs]
         incdir = find_file('mpi.h', mpidirs)
         if not incdir:
-            print "Warning! Can't locate mpi.h!"
+            log.warn("Warning! Can't locate mpi.h!")
         else:
             if incdir not in platform['incdirs']:
                 platform['incdirs'].append(incdir)
@@ -1309,7 +1274,7 @@ def set_platform_values():
                    for mdir in mpisubdirs]
         incdir = find_file('mpi++.h', mpidirs)
         if not incdir:
-            print "Warning! Can't locate mpi++.h!"
+            log.warn("Warning! Can't locate mpi++.h!")
         else:
             if incdir not in platform['incdirs']:
                 platform['incdirs'].append(incdir)
@@ -1327,7 +1292,7 @@ def set_platform_values():
                        for mdir in mpisubdirs]
             libdir = find_file('libpmpich++.a', mpidirs)
             if not libdir:
-                print "Warning! Can't locate libpmpich++.a!"
+                log.warn("Warning! Can't locate libpmpich++.a!")
             else:
                 if libdir not in platform['libdirs']:
                     platform['libdirs'].append(libdir)
@@ -1343,96 +1308,95 @@ def set_platform_values():
 # recompile all of them.  Here we monkeypatch the relevant method from
 # the Python 2.5 distutils.
 
-if sys.hexversion > 0x02060000:
-    from distutils.dep_util import newer_pairwise, newer_group
-    from distutils.ccompiler import gen_preprocess_options
-    def _setup_compile(self, outdir, macros, incdirs, sources, depends,
-                       extra):
-        """Process arguments and decide which source files to compile.
+from distutils.dep_util import newer_pairwise, newer_group
+from distutils.ccompiler import gen_preprocess_options
+def _setup_compile(self, outdir, macros, incdirs, sources, depends,
+                   extra):
+    """Process arguments and decide which source files to compile.
 
-        Merges _fix_compile_args() and _prep_compile().
-        """
-        if outdir is None:
-            outdir = self.output_dir
-        elif type(outdir) is not StringType:
-            raise TypeError, "'output_dir' must be a string or None"
+    Merges _fix_compile_args() and _prep_compile().
+    """
+    if outdir is None:
+        outdir = self.output_dir
+    elif type(outdir) is not StringType:
+        raise TypeError, "'output_dir' must be a string or None"
 
-        if macros is None:
-            macros = self.macros
-        elif type(macros) is ListType:
-            macros = macros + (self.macros or [])
-        else:
-            raise TypeError, "'macros' (if supplied) must be a list of tuples"
+    if macros is None:
+        macros = self.macros
+    elif type(macros) is ListType:
+        macros = macros + (self.macros or [])
+    else:
+        raise TypeError, "'macros' (if supplied) must be a list of tuples"
 
-        if incdirs is None:
-            incdirs = self.include_dirs
-        elif type(incdirs) in (ListType, TupleType):
-            incdirs = list(incdirs) + (self.include_dirs or [])
-        else:
-            raise TypeError, \
-                  "'include_dirs' (if supplied) must be a list of strings"
+    if incdirs is None:
+        incdirs = self.include_dirs
+    elif type(incdirs) in (ListType, TupleType):
+        incdirs = list(incdirs) + (self.include_dirs or [])
+    else:
+        raise TypeError, \
+              "'include_dirs' (if supplied) must be a list of strings"
 
-        if extra is None:
-            extra = []
+    if extra is None:
+        extra = []
 
-        # Get the list of expected output (object) files
-        objects = self.object_filenames(sources,
-                                        strip_dir=0,
-                                        output_dir=outdir)
-        assert len(objects) == len(sources)
+    # Get the list of expected output (object) files
+    objects = self.object_filenames(sources,
+                                    strip_dir=0,
+                                    output_dir=outdir)
+    assert len(objects) == len(sources)
 
-        # XXX should redo this code to eliminate skip_source entirely.
-        # XXX instead create build and issue skip messages inline
+    # XXX should redo this code to eliminate skip_source entirely.
+    # XXX instead create build and issue skip messages inline
 
-        if self.force:
-            skip_source = {}            # rebuild everything
-            for source in sources:
+    if self.force:
+        skip_source = {}            # rebuild everything
+        for source in sources:
+            skip_source[source] = 0
+    elif depends is None:
+        # If depends is None, figure out which source files we
+        # have to recompile according to a simplistic check. We
+        # just compare the source and object file, no deep
+        # dependency checking involving header files.
+        skip_source = {}            # rebuild everything
+        for source in sources:      # no wait, rebuild nothing
+            skip_source[source] = 1
+
+        n_sources, n_objects = newer_pairwise(sources, objects)
+        for source in n_sources:    # no really, only rebuild what's
+            skip_source[source] = 0 # out-of-date
+    else:
+        # If depends is a list of files, then do a different
+        # simplistic check.  Assume that each object depends on
+        # its source and all files in the depends list.
+        skip_source = {}
+        # L contains all the depends plus a spot at the end for a
+        # particular source file
+        L = depends[:] + [None]
+        for i in range(len(objects)):
+            source = sources[i]
+            L[-1] = source
+            if newer_group(L, objects[i]):
                 skip_source[source] = 0
-        elif depends is None:
-            # If depends is None, figure out which source files we
-            # have to recompile according to a simplistic check. We
-            # just compare the source and object file, no deep
-            # dependency checking involving header files.
-            skip_source = {}            # rebuild everything
-            for source in sources:      # no wait, rebuild nothing
+            else:
                 skip_source[source] = 1
 
-            n_sources, n_objects = newer_pairwise(sources, objects)
-            for source in n_sources:    # no really, only rebuild what's
-                skip_source[source] = 0 # out-of-date
+    pp_opts = gen_preprocess_options(macros, incdirs)
+
+    build = {}
+    for i in range(len(sources)):
+        src = sources[i]
+        obj = objects[i]
+        ext = os.path.splitext(src)[1]
+        self.mkpath(os.path.dirname(obj))
+        if skip_source[src]:
+            log.debug("skipping %s (%s up-to-date)", src, obj)
         else:
-            # If depends is a list of files, then do a different
-            # simplistic check.  Assume that each object depends on
-            # its source and all files in the depends list.
-            skip_source = {}
-            # L contains all the depends plus a spot at the end for a
-            # particular source file
-            L = depends[:] + [None]
-            for i in range(len(objects)):
-                source = sources[i]
-                L[-1] = source
-                if newer_group(L, objects[i]):
-                    skip_source[source] = 0
-                else:
-                    skip_source[source] = 1
+            build[obj] = src, ext
 
-        pp_opts = gen_preprocess_options(macros, incdirs)
+    return macros, objects, extra, pp_opts, build
+CCompiler._setup_compile = _setup_compile
 
-        build = {}
-        for i in range(len(sources)):
-            src = sources[i]
-            obj = objects[i]
-            ext = os.path.splitext(src)[1]
-            self.mkpath(os.path.dirname(obj))
-            if skip_source[src]:
-                log.debug("skipping %s (%s up-to-date)", src, obj)
-            else:
-                build[obj] = src, ext
-
-        return macros, objects, extra, pp_opts, build
-    CCompiler._setup_compile = _setup_compile
-
-    # End of monkeypatch 
+# End of monkeypatch 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -1503,17 +1467,6 @@ if __name__ == '__main__':
                   if not phile.endswith('~') and
                   os.path.isfile(os.path.join(dirpath, phile))]))
 
-    # If this script is being used to create a frozen executable, the
-    # Python path has to be set the same way it is during actual
-    # execution.
-    py2app_options = dict(argv_emulation=True)
-    sys.path.append('SRC')                  # so that py2app can find imports
-    try:
-        import pygtk
-        pygtk.require("2.0")
-    except:
-        pass
-    
     setupargs = dict(
         name = OOFNAME,
         version = version_from_make_dist,
@@ -1521,15 +1474,12 @@ if __name__ == '__main__':
         author = 'The NIST OOF Team',
         author_email = 'oof_manager@nist.gov',
         url = "http://www.ctcms.nist.gov/oof/oof2/",
-        # If more scripts are added here, change oof_build_scripts too.
-        scripts = ['oof2', 'oof3d'],
+        scripts = ['oof2'],
         cmdclass = {"build" : oof_build,
                     "build_ext" : oof_build_ext,
                     "build_py" : oof_build_py,
                     "build_shlib": oof_build_shlib,
-                    "build_scripts" : oof_build_scripts,
-                    ## See comment about oof2installlib above.
-                    # "install_lib": oof2installlib.oof_install_lib,
+                    "install_lib": oof2installlib.oof_install_lib,
                     "clean" : oof_clean},
         packages = pkgs,
         package_dir = {OOFNAME+'.ooflib':'SRC'},
@@ -1538,18 +1488,11 @@ if __name__ == '__main__':
         data_files = examplefiles
         )
 
-    # 'options' is a valid keyword arg in python 2.6 and above, and in
-    # python 2.6 and above we need to use it to set the 'plat_name'
-    # argument to the 'build' command.
-    ## TODO: Do we really need it? 
-    if sys.hexversion >= 0x020600F0: 
-        options = dict(build = dict(plat_name = distutils.util.get_platform()))
-        setupargs['options'] = options
+    # This used to check for python version 2.6 or greater..
+    ## TODO: OOFCanvas doesn't set plat_name.  Why is it needed here?
+    options = dict(build = dict(plat_name = distutils.util.get_platform()))
+    setupargs['options'] = options
 
-
-##    if have_py2app:
-##        setupargs['app'] = ['SRC/common/oof.py']
-##        setupargs['options'] = {'py2app': py2app_options}
 
     distutils.core.setup(**setupargs)
 
