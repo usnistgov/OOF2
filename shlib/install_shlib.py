@@ -118,11 +118,13 @@ class install_shlib(Command):
                         l = line.lstrip()
                         if l.startswith("build"): # it's one of ours
                             dylib = l.split()[0] # full path in build dir
-                            # dylibname = os.path.split(dylib)[1]
+                            dylibname = os.path.split(dylib)[1]
                             relpath = os.path.relpath(dylib, self.install_dir)
-                            newpath = os.path.join(relinstall_dir, relpath)
+                            newpath = os.path.join(relinstall_dir, dylibname)
+                            log.infor("RELINSTALL_DIR=%s", relinstall_dir)
                             log.info("INSTALL_DIR=%s", self.install_dir)
                             log.info("DYLIB=%s", dylib)
+                            log.info("DYLIBNAME=%s", dylibname)
                             log.info("RELPATH=%s", relpath)
                             log.info("NEWPATH=%s", newpath)
                             cmd = ("install_name_tool", "-change",
