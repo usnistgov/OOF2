@@ -162,8 +162,6 @@ public:
 
   std::vector<ICoord> shuffledPix() const;
 
-  std::pair<int, int> *getPSBbins() const;
-
   void setCurrentActiveArea(ActiveArea *aa) { activearea = aa; }
   const ActiveArea *getActiveArea() const { return activearea; }
 
