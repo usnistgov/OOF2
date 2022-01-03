@@ -1,4 +1,0 @@
-OOF.Microstructure.Create_From_ImageFile(filename='examples/small.ppm', microstructure_name='small.ppm', height=automatic, width=automatic)
-OOF.Windows.Tutorial()
-OOF.Windows.Graphics.New()
-OOF.Graphics_1.Layer.Select(n=0)
