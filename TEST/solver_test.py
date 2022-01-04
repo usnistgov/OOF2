@@ -3278,38 +3278,3 @@ test_set = (static_set
             + make_dynamic_set(suffix="-short", shortening=0.1)
             + oop_periodic_set)
 
-
-# This used to be in the run_tests() function:
-    # # There are short and long versions of all of the time-dependent
-    # # tests.  Originally, the short versions were only run manually,
-    # # when debugging the testing procedure.  But then interesting
-    # # roundoff errors began to occur during the short tests, but not
-    # # during the long tests, so the short tests have been incorporated
-    # # into the official test suite.  The tests are first run with
-    # # shortening=0.1 and suffix="-short", and then run with
-    # # shortening=1.0 and suffix="".
-    # global shortening
-
-    # shortening = 0.1
-    # suffix = "-short"
-    # for t in dynamic_set:
-    #     print >> sys.stderr,  "\n *** Running test: %s (short)\n" % t.id()
-    #     res = logan.run(t)
-    #     if not res.wasSuccessful():
-    #         return 0
-
-    # shortening = 1.0
-    # suffix=""
-    # for t in dynamic_set:
-    #     print >> sys.stderr,  "\n *** Running test: %s (long)\n" % t.id()
-    #     res = logan.run(t)
-    #     if not res.wasSuccessful():
-    #         return 0
-
-    # for t in oop_periodic_set:
-    #     print >> sys.stderr, "\n *** Running test: %s\n" % t.id()
-    #     res = logan.run(t)
-    #     if not res.wasSuccessful():
-    #         return 0
-        
-    # return 1
