@@ -74,12 +74,12 @@ you, or you can contact the oof developers at oof_manager@nist.gov.
 It's diagnostically useful to include all the output from setup.py.
 
 OOF2 has been built and tested on Linux (Debian and Ubuntu) and
-Macintosh OS X.
+macOS 11 (Big Sur).
 
 ## Prerequisites
 
 A computer running a variant of the Unix operating system, including
-Linux and Macintosh OS X. OOF2 currently does *not* run on Microsoft
+Linux and Macintosh. OOF2 currently does *not* run on Microsoft
 Windows.
 
 The following external programs and libraries must be present
@@ -94,7 +94,7 @@ programs and libraries.  These are usually available as part of a
 - [pygobject (3.28 or later)](https://pypi.org/project/PyGObject/)
 - [cairomm (1.12 or later)](https://www.cairographics.org/cairomm/)
 - [pango (1.40 or later)](https://pango.gnome.org/)
-- pangocairo (1.40 or later)
+- [pangocairo (1.40 or later)](https://gnome.pages.gitlab.gnome.org/pango/PangoCairo/) 
 - [oofcanvas](http://www.ctcms.nist.gov/oof/oofcanvas)
 
 Please note that the words "or later" do not include later major
