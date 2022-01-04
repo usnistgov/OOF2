@@ -702,124 +702,86 @@ class Combination_Tests(TestBase):
         
         
         
-def run_tests():
-    element_tests = [
-        Element_Selection_Test("ElementTypeA"),
-        Element_Selection_Test("ElementTypeX"),
-        Element_Selection_Test("ElementTypeY"),
-        Element_Selection_Test("ElementTypeXY"),
-        Element_Selection_Test("MaterialA"),
-        Element_Selection_Test("MaterialX"),
-        Element_Selection_Test("MaterialY"),
-        Element_Selection_Test("MaterialXY"),
-        Element_Selection_Test("HomogeneityA"),
-        Element_Selection_Test("HomogeneityX"),
-        Element_Selection_Test("HomogeneityY"),
-        Element_Selection_Test("HomogeneityXY"),
-        Element_Selection_Test("ShapeEnergyA"),
-        Element_Selection_Test("ShapeEnergyX"),
-        Element_Selection_Test("ShapeEnergyY"),        
-        Element_Selection_Test("ShapeEnergyXY"),
-        Element_Selection_Test("IllegalA"),
-        Element_Selection_Test("IllegalX"),        
-        Element_Selection_Test("IllegalY"),
-        Element_Selection_Test("IllegalXY"),
-        Element_Selection_Test("ExpandA"),
-        Element_Selection_Test("ExpandX"),
-        Element_Selection_Test("ExpandY"),
-        Element_Selection_Test("ExpandXY"),
-        Element_Selection_Test("SelectGroup")
-        ]
+element_tests = [
+    Element_Selection_Test("ElementTypeA"),
+    Element_Selection_Test("ElementTypeX"),
+    Element_Selection_Test("ElementTypeY"),
+    Element_Selection_Test("ElementTypeXY"),
+    Element_Selection_Test("MaterialA"),
+    Element_Selection_Test("MaterialX"),
+    Element_Selection_Test("MaterialY"),
+    Element_Selection_Test("MaterialXY"),
+    Element_Selection_Test("HomogeneityA"),
+    Element_Selection_Test("HomogeneityX"),
+    Element_Selection_Test("HomogeneityY"),
+    Element_Selection_Test("HomogeneityXY"),
+    Element_Selection_Test("ShapeEnergyA"),
+    Element_Selection_Test("ShapeEnergyX"),
+    Element_Selection_Test("ShapeEnergyY"),        
+    Element_Selection_Test("ShapeEnergyXY"),
+    Element_Selection_Test("IllegalA"),
+    Element_Selection_Test("IllegalX"),        
+    Element_Selection_Test("IllegalY"),
+    Element_Selection_Test("IllegalXY"),
+    Element_Selection_Test("ExpandA"),
+    Element_Selection_Test("ExpandX"),
+    Element_Selection_Test("ExpandY"),
+    Element_Selection_Test("ExpandXY"),
+    Element_Selection_Test("SelectGroup")
+]
 
-    node_tests = [
-        Node_Selection_Test("InternalA"),
-        Node_Selection_Test("InternalX"),
-        Node_Selection_Test("InternalY"),
-        Node_Selection_Test("InternalXY"),
-        Node_Selection_Test("ExpandA"),
-        Node_Selection_Test("ExpandX"),
-        Node_Selection_Test("ExpandY"),
-        Node_Selection_Test("ExpandXY"),
-        Node_Selection_Test("SelectGroup"),
-        Node_Selection_Test("BoundaryA"),
-        Node_Selection_Test("BoundaryX"),
-        Node_Selection_Test("BoundaryY"),
-        Node_Selection_Test("BoundaryXY"),
-        Node_Selection_Test("PeriodicPartnersA"),
-        Node_Selection_Test("PeriodicPartnersX"),
-        Node_Selection_Test("PeriodicPartnersY"),
-        Node_Selection_Test("PeriodicPartnersXY"),
-        ]
-    
-    segment_tests = [
-        Segment_Selection_Test("InternalA"),
-        Segment_Selection_Test("InternalX"),
-        Segment_Selection_Test("InternalY"),
-        Segment_Selection_Test("InternalXY"),
-        Segment_Selection_Test("HomogeneityA"),
-        Segment_Selection_Test("HomogeneityX"),
-        Segment_Selection_Test("SelectGroup"),
-        Segment_Selection_Test("BoundaryA"),
-        Segment_Selection_Test("BoundaryX"),
-        Segment_Selection_Test("BoundaryY"),
-        Segment_Selection_Test("BoundaryXY"),
-        Segment_Selection_Test("PeriodicPartnersA"),
-        Segment_Selection_Test("PeriodicPartnersX"),
-        Segment_Selection_Test("PeriodicPartnersY"),
-        Segment_Selection_Test("PeriodicPartnersXY"),
-        ]
+node_tests = [
+    Node_Selection_Test("InternalA"),
+    Node_Selection_Test("InternalX"),
+    Node_Selection_Test("InternalY"),
+    Node_Selection_Test("InternalXY"),
+    Node_Selection_Test("ExpandA"),
+    Node_Selection_Test("ExpandX"),
+    Node_Selection_Test("ExpandY"),
+    Node_Selection_Test("ExpandXY"),
+    Node_Selection_Test("SelectGroup"),
+    Node_Selection_Test("BoundaryA"),
+    Node_Selection_Test("BoundaryX"),
+    Node_Selection_Test("BoundaryY"),
+    Node_Selection_Test("BoundaryXY"),
+    Node_Selection_Test("PeriodicPartnersA"),
+    Node_Selection_Test("PeriodicPartnersX"),
+    Node_Selection_Test("PeriodicPartnersY"),
+    Node_Selection_Test("PeriodicPartnersXY"),
+]
 
-    combined_tests = [
-        Combination_Tests("ElementsFromOtherA"),
-        Combination_Tests("ElementsFromOtherX"),
-        Combination_Tests("ElementsFromOtherY"),
-        Combination_Tests("ElementsFromOtherXY"),
-        Combination_Tests("NodesFromOtherA"),
-        Combination_Tests("NodesFromOtherX"),
-        Combination_Tests("NodesFromOtherY"),
-        Combination_Tests("NodesFromOtherXY"),
-        Combination_Tests("SegmentsFromOtherA"),
-        Combination_Tests("SegmentsFromOtherX"),
-        Combination_Tests("SegmentsFromOtherY"),
-        Combination_Tests("SegmentsFromOtherXY")
-        ]
+segment_tests = [
+    Segment_Selection_Test("InternalA"),
+    Segment_Selection_Test("InternalX"),
+    Segment_Selection_Test("InternalY"),
+    Segment_Selection_Test("InternalXY"),
+    Segment_Selection_Test("HomogeneityA"),
+    Segment_Selection_Test("HomogeneityX"),
+    Segment_Selection_Test("SelectGroup"),
+    Segment_Selection_Test("BoundaryA"),
+    Segment_Selection_Test("BoundaryX"),
+    Segment_Selection_Test("BoundaryY"),
+    Segment_Selection_Test("BoundaryXY"),
+    Segment_Selection_Test("PeriodicPartnersA"),
+    Segment_Selection_Test("PeriodicPartnersX"),
+    Segment_Selection_Test("PeriodicPartnersY"),
+    Segment_Selection_Test("PeriodicPartnersXY"),
+]
 
-    test_set = element_tests + node_tests + segment_tests + combined_tests
-    #test_set = combined_tests
+combined_tests = [
+    Combination_Tests("ElementsFromOtherA"),
+    Combination_Tests("ElementsFromOtherX"),
+    Combination_Tests("ElementsFromOtherY"),
+    Combination_Tests("ElementsFromOtherXY"),
+    Combination_Tests("NodesFromOtherA"),
+    Combination_Tests("NodesFromOtherX"),
+    Combination_Tests("NodesFromOtherY"),
+    Combination_Tests("NodesFromOtherXY"),
+    Combination_Tests("SegmentsFromOtherA"),
+    Combination_Tests("SegmentsFromOtherX"),
+    Combination_Tests("SegmentsFromOtherY"),
+    Combination_Tests("SegmentsFromOtherXY")
+]
 
-    logan = unittest.TextTestRunner()
-    for t in test_set:
-        print >> sys.stderr,  "\n *** Running test: %s\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
-    return 1
-    
-###################################################################
-# The code below this line should be common to all testing files. #
-###################################################################
-
-if __name__=="__main__":
-    # If directly run, then start oof, and run the local tests, then quit.
-    import sys
-    try:
-        import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
-        from ooflib.common import oof
-    except ImportError:
-        print "OOF is not correctly installed on this system."
-        sys.exit(4)
-    sys.argv.append("--text")
-    sys.argv.append("--quiet")
-    sys.argv.append("--seed=17")
-    oof.run(no_interp=1)
-    
-    success = run_tests()
-
-    OOF.File.Quit()
-    
-    if success:
-        print "All tests passed."
-    else:
-        print "Test failure."
-
+test_set = element_tests + node_tests + segment_tests + combined_tests
+#test_set = combined_tests

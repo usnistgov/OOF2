@@ -726,85 +726,41 @@ class Selection_Modify(unittest.TestCase):
     
 
     
-# Routine to do regression-type testing on the items in this file.
-# Tests must be run in the order they appear in the list.  This
-# routine will stop after the first failure.
-def run_tests():
-    test_set = [
-        Graphics_Ops("New"),
-        Graphics_Ops("Close"),
-        Direct_Pixel_Selection("Circle"),
-        Direct_Pixel_Selection("Clear"),
-        Direct_Pixel_Selection("Point"),
-        Direct_Pixel_Selection("Brush"),
-        Direct_Pixel_Selection("Rectangle"),
-        Direct_Pixel_Selection("Ellipse"),
-        Direct_Pixel_Selection("Color"),
-        Direct_Pixel_Selection("Burn"),
-        Direct_Pixel_Selection("Undo"),
-        Direct_Pixel_Selection("Redo"),
-        Direct_Pixel_Selection("Clear"),
-        Direct_Pixel_Selection("Invert"),
-        Pixel_Groups("AutoGroup"),
-        Pixel_Groups("New"),
-        Pixel_Groups("Delete"),
-        Pixel_Groups("AddSelection"),
-        Pixel_Groups("RemoveSelection"),
-        Pixel_Groups("Copy"),
-        Pixel_Groups("Rename"),
-        Selection_Modify("Undo"),
-        Selection_Modify("Redo"),
-        Selection_Modify("Clear"),
-        Selection_Modify("Invert"),
-        Selection_Modify("Copy"),
-        Selection_Modify("Select_Group"),
-        Selection_Modify("Add_Group"),
-        Selection_Modify("Unselect_Group"),
-        Selection_Modify("Intersect_Group"),
-        Selection_Modify("Despeckle"),
-        Selection_Modify("Elkcepsed"),
-        Selection_Modify("Expand"),
-        Selection_Modify("Shrink"),
-        Selection_Modify("Color_Range"),
-        Selection_Modify("Rich_MS_Copy")
-        ]
-    
-
-
-    logan = unittest.TextTestRunner()
-    for t in test_set:
-        print >> sys.stderr,  "\n *** Running test: %s\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
-    return 1
-
-
-
-###################################################################
-# The code below this line should be common to all testing files. #
-###################################################################
-
-if __name__=="__main__":
-    # If directly run, then start oof, and run the local tests, then quit.
-    import sys
-    try:
-        import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
-        from ooflib.common import oof
-    except ImportError:
-        print "OOF is not correctly installed on this system."
-        sys.exit(4)
-    sys.argv.append("--text")
-    sys.argv.append("--quiet")
-    sys.argv.append("--seed=17")
-    oof.run(no_interp=1)
-    
-    success = run_tests()
-
-    OOF.File.Quit()
-    
-    if success:
-        print "All tests passed."
-    else:
-        print "Test failure."
+test_set = [
+    Graphics_Ops("New"),
+    Graphics_Ops("Close"),
+    Direct_Pixel_Selection("Circle"),
+    Direct_Pixel_Selection("Clear"),
+    Direct_Pixel_Selection("Point"),
+    Direct_Pixel_Selection("Brush"),
+    Direct_Pixel_Selection("Rectangle"),
+    Direct_Pixel_Selection("Ellipse"),
+    Direct_Pixel_Selection("Color"),
+    Direct_Pixel_Selection("Burn"),
+    Direct_Pixel_Selection("Undo"),
+    Direct_Pixel_Selection("Redo"),
+    Direct_Pixel_Selection("Clear"),
+    Direct_Pixel_Selection("Invert"),
+    Pixel_Groups("AutoGroup"),
+    Pixel_Groups("New"),
+    Pixel_Groups("Delete"),
+    Pixel_Groups("AddSelection"),
+    Pixel_Groups("RemoveSelection"),
+    Pixel_Groups("Copy"),
+    Pixel_Groups("Rename"),
+    Selection_Modify("Undo"),
+    Selection_Modify("Redo"),
+    Selection_Modify("Clear"),
+    Selection_Modify("Invert"),
+    Selection_Modify("Copy"),
+    Selection_Modify("Select_Group"),
+    Selection_Modify("Add_Group"),
+    Selection_Modify("Unselect_Group"),
+    Selection_Modify("Intersect_Group"),
+    Selection_Modify("Despeckle"),
+    Selection_Modify("Elkcepsed"),
+    Selection_Modify("Expand"),
+    Selection_Modify("Shrink"),
+    Selection_Modify("Color_Range"),
+    Selection_Modify("Rich_MS_Copy")
+]

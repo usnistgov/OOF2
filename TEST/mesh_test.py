@@ -916,113 +916,75 @@ def countMaterials(meshctxt):
 
 ###############################
 
-def run_tests():
-    basic_set = [
-        OOF_Mesh("New"),
-        OOF_Mesh("Delete"),
-        OOF_Mesh("Copy"),
-        OOF_Mesh("Rename")
-        ]
-    
-
-    field_equation_set = [
-        OOF_Mesh_FieldEquation("DefineField"),
-        OOF_Mesh_FieldEquation("UndefineField"),
-        OOF_Mesh_FieldEquation("ActivateField"),
-        OOF_Mesh_FieldEquation("DeactivateField"),
-        OOF_Mesh_FieldEquation("In_PlaneField"),
-        OOF_Mesh_FieldEquation("Out_of_PlaneField"),
-        OOF_Mesh_FieldEquation("ActivateEquation"),
-        OOF_Mesh_FieldEquation("DeactivateEquation")
-        ]
-
-    extra_set = [
-        OOF_Mesh_Extra("Copy_Field_State"),
-        OOF_Mesh_Extra("Copy_Equation_State"),
-        OOF_Mesh_Extra("Initialize")
-        ]
-
-    crosssection_set = [
-        OOF_Mesh_CrossSection("New"),
-        OOF_Mesh_CrossSection("Remove"),
-        OOF_Mesh_CrossSection("Copy"),
-        OOF_Mesh_CrossSection("Select"),
-        OOF_Mesh_CrossSection("Deselect"),
-        OOF_Mesh_CrossSection("Rename"),
-        OOF_Mesh_CrossSection("Edit")
-        ]
-
-    profile_bc_set = [
-#         OOF_Mesh_ProfileBC("NewProfile"),
-#         OOF_Mesh_ProfileBC("DeleteProfile"),
-#         OOF_Mesh_ProfileBC("RenameProfile"),
-#         OOF_Mesh_ProfileBC("CopyProfile"),
-#         OOF_Mesh_ProfileBC("EditProfile"),
-        OOF_Mesh_ProfileBC("NewBC"),
-        OOF_Mesh_ProfileBC("DeleteBC"),
-        OOF_Mesh_ProfileBC("RenameBC"),
-        OOF_Mesh_ProfileBC("CopyBC"),
-        OOF_Mesh_ProfileBC("Copy_AllBC"),
-        OOF_Mesh_ProfileBC("EditBC")
-        ]
-
-    file_set = [
-#         OOF_Mesh_SaveLoad("ProfileSave"),
-#         OOF_Mesh_SaveLoad("ProfileLoad"),
-        OOF_Mesh_SaveLoad("Save"),
-        OOF_Mesh_SaveLoad("Load")
-        ]
-
-    bc_extra_set = [
-        OOF_Mesh_BC_Extra("NeumannBCNewEdit")
-        ]
-
-    special_set = [
-        OOF_Mesh_Special("Skeleton_Delete"),
-        OOF_Mesh_Special("Skel_Mod_Mesh_Delete"),
-        OOF_Mesh_Special("Skel_Mod_Mesh_Delete2"),
-        OOF_Mesh_Special("Rebuild"),
-        OOF_Mesh_Special("AbaqusFormat")
-        ]
-    
-    test_set = basic_set + field_equation_set + extra_set + \
-               crosssection_set + profile_bc_set + file_set + bc_extra_set + \
-               special_set
+basic_set = [
+    OOF_Mesh("New"),
+    OOF_Mesh("Delete"),
+    OOF_Mesh("Copy"),
+    OOF_Mesh("Rename")
+]
 
 
-    logan = unittest.TextTestRunner()
-    for t in test_set:
-        print >> sys.stderr,  "\n *** Running test: %s\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
-    return 1
+field_equation_set = [
+    OOF_Mesh_FieldEquation("DefineField"),
+    OOF_Mesh_FieldEquation("UndefineField"),
+    OOF_Mesh_FieldEquation("ActivateField"),
+    OOF_Mesh_FieldEquation("DeactivateField"),
+    OOF_Mesh_FieldEquation("In_PlaneField"),
+    OOF_Mesh_FieldEquation("Out_of_PlaneField"),
+    OOF_Mesh_FieldEquation("ActivateEquation"),
+    OOF_Mesh_FieldEquation("DeactivateEquation")
+]
 
+extra_set = [
+    OOF_Mesh_Extra("Copy_Field_State"),
+    OOF_Mesh_Extra("Copy_Equation_State"),
+    OOF_Mesh_Extra("Initialize")
+]
 
-###################################################################
-# The code below this line should be common to all testing files. #
-###################################################################
+crosssection_set = [
+    OOF_Mesh_CrossSection("New"),
+    OOF_Mesh_CrossSection("Remove"),
+    OOF_Mesh_CrossSection("Copy"),
+    OOF_Mesh_CrossSection("Select"),
+    OOF_Mesh_CrossSection("Deselect"),
+    OOF_Mesh_CrossSection("Rename"),
+    OOF_Mesh_CrossSection("Edit")
+]
 
-if __name__=="__main__":
-    # If directly run, then start oof, and run the local tests, then quit.
-    import sys
-    try:
-        import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
-        from ooflib.common import oof
-    except ImportError:
-        print "OOF is not correctly installed on this system."
-        sys.exit(4)
-    sys.argv.append("--text")
-    sys.argv.append("--quiet")
-    sys.argv.append("--seed=17")
-    oof.run(no_interp=1)
+profile_bc_set = [
+    #         OOF_Mesh_ProfileBC("NewProfile"),
+    #         OOF_Mesh_ProfileBC("DeleteProfile"),
+    #         OOF_Mesh_ProfileBC("RenameProfile"),
+    #         OOF_Mesh_ProfileBC("CopyProfile"),
+    #         OOF_Mesh_ProfileBC("EditProfile"),
+    OOF_Mesh_ProfileBC("NewBC"),
+    OOF_Mesh_ProfileBC("DeleteBC"),
+    OOF_Mesh_ProfileBC("RenameBC"),
+    OOF_Mesh_ProfileBC("CopyBC"),
+    OOF_Mesh_ProfileBC("Copy_AllBC"),
+    OOF_Mesh_ProfileBC("EditBC")
+]
 
-    success = run_tests()
+file_set = [
+    #         OOF_Mesh_SaveLoad("ProfileSave"),
+    #         OOF_Mesh_SaveLoad("ProfileLoad"),
+    OOF_Mesh_SaveLoad("Save"),
+    OOF_Mesh_SaveLoad("Load")
+]
 
-    OOF.File.Quit()
-    
-    if success:
-        print "All tests passed."
-    else:
-        print "Test failure."
+bc_extra_set = [
+    OOF_Mesh_BC_Extra("NeumannBCNewEdit")
+]
+
+special_set = [
+    OOF_Mesh_Special("Skeleton_Delete"),
+    OOF_Mesh_Special("Skel_Mod_Mesh_Delete"),
+    OOF_Mesh_Special("Skel_Mod_Mesh_Delete2"),
+    OOF_Mesh_Special("Rebuild"),
+    OOF_Mesh_Special("AbaqusFormat")
+]
+
+test_set = basic_set + field_equation_set + extra_set + \
+    crosssection_set + profile_bc_set + file_set + bc_extra_set + \
+    special_set
+

@@ -520,83 +520,32 @@ class NonlinearTimedependentTest(unittest.TestCase):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Routine to do regression-type testing on the items in this file.
-# Tests will be run in the order they appear in the list.  This
-# routine will stop after the first failure.
+test_set = [
+    NonlinearTimedependentTest("unif189BEnewton"),
+    NonlinearTimedependentTest("unif189BEnewtonQS"),
+    NonlinearTimedependentTest("unif189BEpicard"),
+    NonlinearTimedependentTest("unif189CNnewton"),
+    NonlinearTimedependentTest("unif189CNnewton2"),
+    NonlinearTimedependentTest("unif189CNpicard"),
+    NonlinearTimedependentTest("unif189SSnewton"),
+    NonlinearTimedependentTest("unif189SSpicard"),
 
-def run_tests():
-    test_set = [
-        NonlinearTimedependentTest("unif189BEnewton"),
-        NonlinearTimedependentTest("unif189BEnewtonQS"),
-        NonlinearTimedependentTest("unif189BEpicard"),
-        NonlinearTimedependentTest("unif189CNnewton"),
-        NonlinearTimedependentTest("unif189CNnewton2"),
-        NonlinearTimedependentTest("unif189CNpicard"),
-        NonlinearTimedependentTest("unif189SSnewton"),
-        NonlinearTimedependentTest("unif189SSpicard"),
+    NonlinearTimedependentTest("unif189FEnewton"),
+    NonlinearTimedependentTest("unif189FElinear"),
 
-        NonlinearTimedependentTest("unif189FEnewton"),
-        NonlinearTimedependentTest("unif189FElinear"),
+    NonlinearTimedependentTest("combo189SSpicardSSpicard"),
+    NonlinearTimedependentTest("combo189SSpicardSSnewton"),
+    NonlinearTimedependentTest("combo189SSnewtonSSnewton"),
+    NonlinearTimedependentTest("combo189CNpicardCNpicard"),
+    NonlinearTimedependentTest("combo189CNnewtonCNnewton"),
+    NonlinearTimedependentTest("combo189CNnewtonSSnewton"),
+    NonlinearTimedependentTest("combo189SSnewtonCNnewton"),
 
-        NonlinearTimedependentTest("combo189SSpicardSSpicard"),
-        NonlinearTimedependentTest("combo189SSpicardSSnewton"),
-        NonlinearTimedependentTest("combo189SSnewtonSSnewton"),
-        NonlinearTimedependentTest("combo189CNpicardCNpicard"),
-        NonlinearTimedependentTest("combo189CNnewtonCNnewton"),
-        NonlinearTimedependentTest("combo189CNnewtonSSnewton"),
-        NonlinearTimedependentTest("combo189SSnewtonCNnewton"),
-
-        NonlinearTimedependentTest("adapt189BEnewton"),
-        NonlinearTimedependentTest("adapt189CNnewton"),
-        NonlinearTimedependentTest("adapt189BEpicard"),
-        NonlinearTimedependentTest("adapt189CNpicard"),
-        NonlinearTimedependentTest("adapt189SSpicard"),
-        NonlinearTimedependentTest("adapt189SSnewton"),
-        NonlinearTimedependentTest("adapt189SSnewton2"),
-        ]
-
-    # test_set = [
-    #     NonlinearTimedependentTest("unif189FEnewton"),
-    #     NonlinearTimedependentTest("unif189FElinear")
-    #     ]
-    # test_set = [NonlinearTimedependentTest("adapt189CNnewton")]
-        
-
-    logan = unittest.TextTestRunner()
-    for t in test_set:
-        print >> sys.stderr,  "\n *** Running test: %s\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
-    return 1
-
-
-###################################################################
-# The code below this line should be common to all testing files. #
-###################################################################
-
-if __name__=="__main__":
-    # If directly run, then start oof, and run the local tests, then quit.
-    import sys
-    try:
-        import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
-        from ooflib.common import oof
-        from math import *
-    except ImportError:
-        print "OOF is not correctly installed on this system."
-        sys.exit(4)
-    sys.argv.append("--text")
-    sys.argv.append("--quiet")
-    sys.argv.append("--seed=17")
-    oof.run(no_interp=1)
-
-    success = run_tests()
-
-    OOF.File.Quit()
-
-    if success:
-        print "All tests passed."
-    else:
-        print "Test failure."
-
+    NonlinearTimedependentTest("adapt189BEnewton"),
+    NonlinearTimedependentTest("adapt189CNnewton"),
+    NonlinearTimedependentTest("adapt189BEpicard"),
+    NonlinearTimedependentTest("adapt189CNpicard"),
+    NonlinearTimedependentTest("adapt189SSpicard"),
+    NonlinearTimedependentTest("adapt189SSnewton"),
+    NonlinearTimedependentTest("adapt189SSnewton2"),
+    ]

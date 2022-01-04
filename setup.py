@@ -1457,9 +1457,9 @@ if __name__ == '__main__':
 
     pkgs = [pkg.replace(OOFNAME, OOFNAME+'.ooflib') for pkg in allpkgs]
 
-    # Find example and test files that have to be installed.
+    # Find example files that have to be installed.
     datafiles = []
-    for topdir  in ("examples", "TEST"):
+    for topdir  in ("examples",): #, "TEST"):
         for dirpath, dirnames, filenames in os.walk(topdir):
             if filenames:
                 datafiles.append(
@@ -1468,6 +1468,22 @@ if __name__ == '__main__':
                       if not phile.endswith('~') and
                       os.path.isfile(os.path.join(dirpath, phile))]))
 
+    # Add the testing files. 
+    pkgs.extend([OOFNAME+'.TEST',
+                 OOFNAME+'.TEST.UTILS',
+                 OOFNAME+'.TEST.GUI'])
+    pkg_data = {}
+    pkg_data[OOFNAME+".TEST"] = []
+    pkg_data[OOFNAME+".TEST.GUI"] = []
+    # Include all subdirs of TEST and TEST/GUI that *aren't* packages.
+    for dirpath in ('TEST', 'TEST/GUI'):
+        pkgpath = dirpath.replace("/", ".")
+        for f in os.listdir(dirpath):
+            fullpath = os.path.join(dirpath, f)
+            if os.path.isdir(fullpath):
+                if not os.path.exists(os.path.join(fullpath, '__init__.py')):
+                    pkg_data[OOFNAME+"."+pkgpath].append(os.path.join(f, "*"))
+
     setupargs = dict(
         name = OOFNAME,
         version = version_from_make_dist,
@@ -1475,7 +1491,7 @@ if __name__ == '__main__':
         author = 'The NIST OOF Team',
         author_email = 'oof_manager@nist.gov',
         url = "http://www.ctcms.nist.gov/oof/oof2/",
-        scripts = ['oof2'],
+        scripts = ['oof2', 'oof2test'],
         cmdclass = {"build" : oof_build,
                     "build_ext" : oof_build_ext,
                     "build_py" : oof_build_py,
@@ -1483,7 +1499,10 @@ if __name__ == '__main__':
                     "install_lib": oof2installlib.oof_install_lib,
                     "clean" : oof_clean},
         packages = pkgs,
-        package_dir = {OOFNAME+'.ooflib':'SRC'},
+        package_dir = {OOFNAME+'.ooflib':'SRC',
+                       OOFNAME+'.TEST':'TEST',
+                       OOFNAME+'.TEST.GUI':'TEST/GUI'},
+        package_data = pkg_data,
         shlibs = shlibs,
         ext_modules = extensions,
         data_files = datafiles

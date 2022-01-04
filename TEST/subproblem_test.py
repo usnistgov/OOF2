@@ -654,86 +654,43 @@ class OOF_Material_Symmetry(unittest.TestCase):
             material='material',
             symmetric=False)
     
-# Routine to do regression-type testing on the items in this file.
-# Tests must be run in the order they appear in the list.  This
-# routine will stop after the first failure.
+basic_set = [
+    OOF_Subproblem("New"),
+    OOF_Subproblem("Delete"),
+    OOF_Subproblem("Copy"),
+    OOF_Subproblem("Rename"),
+    OOF_Subproblem("Edit")
+    ]
 
-def run_tests():
-    basic_set = [
-        OOF_Subproblem("New"),
-        OOF_Subproblem("Delete"),
-        OOF_Subproblem("Copy"),
-        OOF_Subproblem("Rename"),
-        OOF_Subproblem("Edit")
-        ]
+variety_set = [
+    OOF_Subproblem_Varieties("Material"),
+    OOF_Subproblem_Varieties("PixelGroup"),
+    OOF_Subproblem_Varieties("Union"),
+    OOF_Subproblem_Varieties("Intersection"),
+    OOF_Subproblem_Varieties("Xor"),
+    OOF_Subproblem_Varieties("Complement"),
+    OOF_Subproblem_Varieties("Entire")
+    ]
 
-    variety_set = [
-        OOF_Subproblem_Varieties("Material"),
-        OOF_Subproblem_Varieties("PixelGroup"),
-        OOF_Subproblem_Varieties("Union"),
-        OOF_Subproblem_Varieties("Intersection"),
-        OOF_Subproblem_Varieties("Xor"),
-        OOF_Subproblem_Varieties("Complement"),
-        OOF_Subproblem_Varieties("Entire")
-        ]
+field_equation_set = [
+    OOF_Subproblem_FieldEquation("DefineField"),
+    OOF_Subproblem_FieldEquation("UndefineField"),
+    OOF_Subproblem_FieldEquation("ActivateField"),
+    OOF_Subproblem_FieldEquation("In_PlaneField"),
+    OOF_Subproblem_FieldEquation("ActivateEquation")
+    ]
 
-    field_equation_set = [
-        OOF_Subproblem_FieldEquation("DefineField"),
-        OOF_Subproblem_FieldEquation("UndefineField"),
-        OOF_Subproblem_FieldEquation("ActivateField"),
-        OOF_Subproblem_FieldEquation("In_PlaneField"),
-        OOF_Subproblem_FieldEquation("ActivateEquation")
-        ]
+extra_set = [
+    OOF_Subproblem_Extra("Copy_Field_State"),
+    OOF_Subproblem_Extra("Copy_Equation_State")
+    ]
 
-    extra_set = [
-        OOF_Subproblem_Extra("Copy_Field_State"),
-        OOF_Subproblem_Extra("Copy_Equation_State")
-        ]
+symmetry_set = [
+    OOF_Material_Symmetry("Basic"),
+    OOF_Material_Symmetry("ThermalExpansion"),
+    OOF_Material_Symmetry("PiezoElectricity"),
+    OOF_Material_Symmetry("PyroElectricity")
+    ]
 
-    symmetry_set = [
-        OOF_Material_Symmetry("Basic"),
-        OOF_Material_Symmetry("ThermalExpansion"),
-        OOF_Material_Symmetry("PiezoElectricity"),
-        OOF_Material_Symmetry("PyroElectricity")
-        ]
-    
-    test_set = basic_set + variety_set + field_equation_set + \
-               extra_set + symmetry_set
-    
-
-    logan = unittest.TextTestRunner()
-    for t in test_set:
-        print >> sys.stderr,  "\n *** Running test: %s\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
-    return 1
-
-
-###################################################################
-# The code below this line should be common to all testing files. #
-###################################################################
-
-if __name__=="__main__":
-    # If directly run, then start oof, and run the local tests, then quit.
-    import sys
-    try:
-        import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
-        from ooflib.common import oof
-    except ImportError:
-        print "OOF is not correctly installed on this system."
-        sys.exit(4)
-    sys.argv.append("--text")
-    sys.argv.append("--quiet")
-    sys.argv.append("--seed=17")
-    oof.run(no_interp=1)
-
-    success = run_tests()
-
-    OOF.File.Quit()
-    
-    if success:
-        print "All tests passed."
-    else:
-        print "Test failure."
+test_set = basic_set + variety_set + field_equation_set + \
+           extra_set + symmetry_set

@@ -45,45 +45,7 @@ class OOF_Misorientation(unittest.TestCase):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=
 
-def run_tests():
-    tests = [
-        OOF_Misorientation("Oh")
-        ]
+test_set = [
+    OOF_Misorientation("Oh")
+]
 
-    test_set = tests
-
-    logan = unittest.TextTestRunner()
-    for t in test_set:
-        print >> sys.stderr, "\n *** Running test: %s\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
-
-    return 1
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=
-
-if __name__ == "__main__":
-    import sys
-    try:
-        import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
-        from ooflib.common import oof
-    except ImportError:
-        print "OOF is not correctly installed on this system."
-        sys.exit(4)
-    sys.argv.append("--text")
-    sys.argv.append("--quiet")
-    sys.argv.append("--seed=17")
-    oof.run(no_interp=1)
-
-    success = run_tests()
-
-    OOF.File.Quit()
-
-    if success:
-        print "All tests passed."
-    else:
-        print "Test failure."
-    

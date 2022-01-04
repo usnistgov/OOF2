@@ -289,79 +289,49 @@ class BCTest(unittest.TestCase):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def run_tests():
+iter_set = [
+    IterativeMethods("CG"),
+    IterativeMethods("CG_ILU"),
+    IterativeMethods("CG_ILUT"),
+    IterativeMethods("CG_Jacobi"),
+    IterativeMethods("BiCG"),
+    IterativeMethods("BiCG_ILU"),
+    IterativeMethods("BiCG_ILUT"),
+    IterativeMethods("BiCG_Jacobi"),
+    IterativeMethods("BiCGStab"),
+    IterativeMethods("BiCGStab_ILU"),
+    IterativeMethods("BiCGStab_ILUT"),
+    IterativeMethods("BiCGStab_Jacobi"),
+]
 
-    iter_set = [
-        IterativeMethods("CG"),
-        IterativeMethods("CG_ILU"),
-        IterativeMethods("CG_ILUT"),
-        IterativeMethods("CG_Jacobi"),
-        IterativeMethods("BiCG"),
-        IterativeMethods("BiCG_ILU"),
-        IterativeMethods("BiCG_ILUT"),
-        IterativeMethods("BiCG_Jacobi"),
-        IterativeMethods("BiCGStab"),
-        IterativeMethods("BiCGStab_ILU"),
-        IterativeMethods("BiCGStab_ILUT"),
-        IterativeMethods("BiCGStab_Jacobi"),
-    ]
-    direct_set = [
-        DirectMethods("SimplicialLLT"),
-        DirectMethods("SimplicialLDLT"),
-        DirectMethods("SparseLU"),
-        DirectMethods("SparseQR"),
-    ]
-    bc_set = [
-        BCTest("CG0"),
-        # BCTest("CG_ILU"), # doesn't converge
-        # BCTest("CG_ILUT"), # doesn't converge
+direct_set = [
+    DirectMethods("SimplicialLLT"),
+    DirectMethods("SimplicialLDLT"),
+    DirectMethods("SparseLU"),
+    DirectMethods("SparseQR"),
+]
+
+bc_set = [
+    BCTest("CG0"),
+    # BCTest("CG_ILU"), # doesn't converge
+    # BCTest("CG_ILUT"), # doesn't converge
         BCTest("CG_Jacobi"),
-        BCTest("CG_IC"),
-        BCTest("BiCG0"),      
-        BCTest("BiCG_ILU"), 
-        BCTest("BiCG_ILUT"),
-        BCTest("BiCG_Jacobi"),
-        BCTest("BiCG_IC"),
-        BCTest("BiCGStab0"),      
-        BCTest("BiCGStab_ILU"), 
-        BCTest("BiCGStab_ILUT"),
-        BCTest("BiCGStab_Jacobi"),
-        BCTest("BiCGStab_IC"),
-        BCTest("SimplicialLDLT"),
-        BCTest("SimplicialLLT"),
-        BCTest("SparseLU"),
-        BCTest("SparseQR")
-        ]
-    
-    test_set = iter_set + direct_set + bc_set
+    BCTest("CG_IC"),
+    BCTest("BiCG0"),      
+    BCTest("BiCG_ILU"), 
+    BCTest("BiCG_ILUT"),
+    BCTest("BiCG_Jacobi"),
+    BCTest("BiCG_IC"),
+    BCTest("BiCGStab0"),      
+    BCTest("BiCGStab_ILU"), 
+    BCTest("BiCGStab_ILUT"),
+    BCTest("BiCGStab_Jacobi"),
+    BCTest("BiCGStab_IC"),
+    BCTest("SimplicialLDLT"),
+    BCTest("SimplicialLLT"),
+    BCTest("SparseLU"),
+    BCTest("SparseQR")
+]
 
-    logan = unittest.TextTestRunner()
-    for t in test_set:
-        print >> sys.stderr, "\n *** Running test: %s\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
-    return 1
-
-if __name__ == "__main__":
-    import sys
-    try:
-        import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
-        from ooflib.common import oof
-    except ImportError:
-        print "OOF is not correctly installed on this system."
-        sys.exit(4)
-    sys.argv.append("--text")
-    sys.argv.append("--quiet")
-    sys.argv.append("--seed=17")
-    oof.run(no_interp=1)
-
-    success = run_tests()
-    OOF.File.Quit()
-
-    if success:
-        print "All tests passed."
-    else:
-        print "Test failure."
+test_set = iter_set + direct_set + bc_set
 

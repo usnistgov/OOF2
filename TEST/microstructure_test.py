@@ -208,53 +208,13 @@ class OOF_Microstructure(unittest.TestCase):
         pass
 
 
-# Routine to do regression-type testing on the items in this file.
-# Tests must be run in the order they appear in the list.  This
-# routine will stop after the first failure.
-def run_tests():
-    test_set = [
-        OOF_Microstructure("New"),
-        OOF_Microstructure("Delete"),
-        OOF_Microstructure("Create_From_ImageFile"),
-        OOF_Microstructure("Create_From_Image"),
-        OOF_Microstructure("Copy"),
-        OOF_Microstructure("Rename"),
-        OOF_Microstructure("Save"),
-        OOF_Microstructure("Load")
-        ]
-
-    logan = unittest.TextTestRunner()
-    for t in test_set:
-        print >> sys.stderr,  "\n *** Running test: %s\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
-    return 1
-
-
-###################################################################
-# The code below this line should be common to all testing files. #
-###################################################################
-
-if __name__=="__main__":
-    # If directly run, then start oof, and run the local tests, then quit.
-    import sys
-    try:
-        import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
-        from ooflib.common import oof
-    except ImportError:
-        print >> sys.stderr, "OOF is not correctly installed on this system."
-        sys.exit(4)
-    sys.argv.append("--text")
-    sys.argv.append("--quiet")
-    sys.argv.append("--seed=17")
-    oof.run(no_interp=1)
-    success = run_tests()
-
-    OOF.File.Quit()
-    
-    if success:
-        print "All tests passed."
-    else:
-        print "Test failure."
+test_set = [
+    OOF_Microstructure("New"),
+    OOF_Microstructure("Delete"),
+    OOF_Microstructure("Create_From_ImageFile"),
+    OOF_Microstructure("Create_From_Image"),
+    OOF_Microstructure("Copy"),
+    OOF_Microstructure("Rename"),
+    OOF_Microstructure("Save"),
+    OOF_Microstructure("Load")
+]
