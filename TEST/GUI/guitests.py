@@ -11,9 +11,10 @@
 # This file looks for all subdirectories of the current directory and
 # runs the gui test contained in each one.  The tests are run in
 # alphabetical order of the subdirectory name.  It is assumed that
-# each subdirectory contains a file named "log.py".  The test is run by
+# each subdirectory contains a file named TESTFILE (defined below to
+# "test.log", nee "log.py").  The test is run by
 # executing
-#         oof2 --pathdir <subdirectory> --replay <subdirectory>/log.py
+#         oof2 --pathdir <subdirectory> --replay <subdirectory>/TESTFILE
 # and testing its return value. The subdirectory is added to the
 # python path so that the log file can contain import statements that
 # load tests from other files in the subdirectory.
@@ -38,6 +39,8 @@
 # a failure.  If a test is *supposed* to return a non-zero status,
 # that status should be put in a file called 'exitstatus' in the
 # test subdirectory.
+
+TESTFILE = "test.log"
 
 import getopt
 import os
@@ -108,7 +111,7 @@ def really_run_tests(homedir, dirs, rerecord):
             print >> sys.stderr, " **** Skipping", directory, "****"
             nskipped += 1
             continue
-        if not os.path.exists(os.path.join(originaldir, 'log.py')):
+        if not os.path.exists(os.path.join(originaldir, TESTFILE)):
             print >> sys.stderr, " **** Skipping", directory, "(No log file!) ****"
             nskipped += 1
             continue
@@ -116,7 +119,7 @@ def really_run_tests(homedir, dirs, rerecord):
         # Ok, everything's there.  Get ready to run this test.  Make a
         # symlink to the test directory.
         ## TODO: Is the symlink really necessary? We could provide a
-        ## full path to log.py.  The test directory is already in
+        ## full path to TESTFILE.  The test directory is already in
         ## PYTHONPATH.
         testdir = os.path.join(tmpdir, directory)
         os.symlink(os.path.join(homedir, directory), testdir)
@@ -160,7 +163,7 @@ def really_run_tests(homedir, dirs, rerecord):
                "--pathdir", "%s" % homedir,
                "--pathdir", "UTILS",
                "--%s" % replayarg,
-               os.path.join(directory, "log.py")] + extraargs
+               os.path.join(directory, TESTFILE)] + extraargs
 
         print >> sys.stderr, "-------------------------"
         print >> sys.stderr, "--- Running %s" % ' '.join(cmd)
