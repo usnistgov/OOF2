@@ -285,7 +285,8 @@ try:
         "SRC/common/EXTRA",
         "SRC/engine/EXTRA",
         "SRC/engine/PETSc",
-        "SRC/image/GRAINBDY", "SRC/image/imagemanip"
+        "SRC/image/GRAINBDY", "SRC/image/imagemanip",
+        "TEST/BENCHMARK"
     ] + localexclusions.excludeDirs
 
     globalExcludeFiles = [
