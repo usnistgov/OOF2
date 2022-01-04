@@ -9,6 +9,10 @@
 # oof_manager@nist.gov.
 
 
+## TODO: This test doesn't work and isn't included in regression.py.
+## Fix it.
+
+
 import unittest, os
 import memorycheck
 from math import *
@@ -473,8 +477,7 @@ class NonlinearPropertyTest(unittest.TestCase):
 # Tests will be run in the order they appear in the list.  This
 # routine will stop after the first failure.
 
-def run_tests():
-
+def initialize():
     try:
         import oofextensions.nonlinear_heat_conductivity_example_SWIG.nonlinear_heat_conductivity_example
         import oofextensions.nonlinear_heat_source_example_SWIG.nonlinear_heat_source_example
@@ -486,48 +489,10 @@ def run_tests():
         print "OOFEXTENSIONS are not correctly installed on this system."
         sys.exit(4)
 
-    test_set = [
-        NonlinearPropertyTest("NonlinearHeatSource"),
-        NonlinearPropertyTest("NonlinearHeatConductivity"),
-        NonlinearPropertyTest("NonlinearForceDensity"),
-        NonlinearPropertyTest("NonlinearElasticity")
-        ]
-
-    logan = unittest.TextTestRunner()
-    for t in test_set:
-        print >> sys.stderr,  "\n *** Running test: %s\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
-    return 1
-
-
-###################################################################
-# The code below this line should be common to all testing files. #
-###################################################################
-
-if __name__=="__main__":
-    # If directly run, then start oof, and run the local tests, then quit.
-    import sys
-    try:
-        import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
-        from ooflib.common import oof
-        from math import *
-    except ImportError:
-        print "OOF is not correctly installed on this system."
-        sys.exit(4)
-    sys.argv.append("--text")
-    sys.argv.append("--quiet")
-    sys.argv.append("--seed=17")
-    oof.run(no_interp=1)
-
-    success = run_tests()
-
-    OOF.File.Quit()
-
-    if success:
-        print "All tests passed."
-    else:
-        print "Test failure."
+test_set = [
+    NonlinearPropertyTest("NonlinearHeatSource"),
+    NonlinearPropertyTest("NonlinearHeatConductivity"),
+    NonlinearPropertyTest("NonlinearForceDensity"),
+    NonlinearPropertyTest("NonlinearElasticity")
+]
 

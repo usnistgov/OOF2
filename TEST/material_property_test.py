@@ -778,79 +778,35 @@ def build_parametrize_dict():
            'coefficient_type' : 'Constant stress'}]
         }
 
-
-def run_tests():
-    global parametrize_dict
-
-    prop_set = [
-        Property("Copy"),
-        Property("Delete")
-        ]
-
-    mat_set = [
-        MaterialBasic("New"),
-        MaterialBasic("Delete"),
-        MaterialBasic("Add_property"),
-        MaterialBasic("Remove_property"),
-        MaterialOps("Copy"),
-        MaterialOps("Rename"),
-        MaterialOps("AssignAll"),
-        MaterialOps("AssignGroup"),
-        MaterialOps("Remove"),
-        MaterialOps("Delete2")
-        ]
-
-    extra_set = [
-        Property("Parametrize"),
-        MatPropIO("PropSave"),
-        MatPropIO("PropLoad"),
-        MatPropIO("MatSave"),
-        MatPropIO("MatLoad")
-        ]
-
-    test_set = prop_set + mat_set + extra_set
-        
+def initialize():
     build_parametrize_dict()
-    
-    logan = unittest.TextTestRunner()
-    for t in test_set:
-        print >> sys.stderr,  "\n *** Running test: %s\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
 
-    # Empty the dictionary locally, otherwise you get weird errors at
-    # shut-down time.
-    parametrize_dict={}
-    
-    return 1
+prop_set = [
+    Property("Copy"),
+    Property("Delete")
+]
 
+mat_set = [
+    MaterialBasic("New"),
+    MaterialBasic("Delete"),
+    MaterialBasic("Add_property"),
+    MaterialBasic("Remove_property"),
+    MaterialOps("Copy"),
+    MaterialOps("Rename"),
+    MaterialOps("AssignAll"),
+    MaterialOps("AssignGroup"),
+    MaterialOps("Remove"),
+    MaterialOps("Delete2")
+]
 
+extra_set = [
+    Property("Parametrize"),
+    MatPropIO("PropSave"),
+    MatPropIO("PropLoad"),
+    MatPropIO("MatSave"),
+    MatPropIO("MatLoad")
+]
 
-###################################################################
-# The code below this line should be common to all testing files. #
-###################################################################
+test_set = prop_set + mat_set + extra_set
 
-if __name__=="__main__":
-    # If directly run, then start oof, and run the local tests, then quit.
-    import sys
-    try:
-        import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
-        from ooflib.common import oof
-    except ImportError:
-        print "OOF is not correctly installed on this system."
-        sys.exit(4)
-    sys.argv.append("--text")
-    sys.argv.append("--quiet")
-    sys.argv.append("--seed=17")
-    oof.run(no_interp=1)
-    
-    success = run_tests()
-
-    OOF.File.Quit()
-    
-    if success:
-        print "All tests passed."
-    else:
-        print "Test failure."
+        

@@ -573,71 +573,31 @@ def build_mod_args():
         }
 
 
-# Routine to do regression-type testing on the items in this file.
-# Tests must be run in the order they appear in the list.  This
-# routine will stop after the first failure.
-def run_tests():
+def initialize():
     # Modfiy arguments make use of classes which are not in the
     # namespace until after oof.run() has been called, so they can't
     # be used at import-time.
     build_mod_args()
 
-    skel_set = [
-        OOF_Skeleton("New"),
-        OOF_Skeleton("Delete"),
-        OOF_Skeleton("Simple"),
-        OOF_Skeleton("Copy"),
-        OOF_Skeleton("Rename"),
-        OOF_Skeleton("Save"),
-        OOF_Skeleton("Load"),
-        OOF_Skeleton("Modify"),
-        OOF_Skeleton("Undo"),
-        OOF_Skeleton("Redo")
-        ]
+skel_set = [
+    OOF_Skeleton("New"),
+    OOF_Skeleton("Delete"),
+    OOF_Skeleton("Simple"),
+    OOF_Skeleton("Copy"),
+    OOF_Skeleton("Rename"),
+    OOF_Skeleton("Save"),
+    OOF_Skeleton("Load"),
+    OOF_Skeleton("Modify"),
+    OOF_Skeleton("Undo"),
+    OOF_Skeleton("Redo")
+    ]
 
-    special_set = [
-        OOF_Skeleton_Special("MS_Delete"),
-        OOF_Skeleton_MoreExtra("TriTriRationalize"),
-        OOF_Skeleton_MoreExtra("TriQuadRationalize"),
-        OOF_Skeleton_MoreExtra("TriQuadRemove"),
-        OOF_Skeleton_MoreExtra("TriTriRemove")
-        ]
+special_set = [
+    OOF_Skeleton_Special("MS_Delete"),
+    OOF_Skeleton_MoreExtra("TriTriRationalize"),
+    OOF_Skeleton_MoreExtra("TriQuadRationalize"),
+    OOF_Skeleton_MoreExtra("TriQuadRemove"),
+    OOF_Skeleton_MoreExtra("TriTriRemove")
+    ]
 
-    test_set = skel_set + special_set
-
-    logan = unittest.TextTestRunner()
-    for t in test_set:
-        print >> sys.stderr,  "\n *** Running test: %s\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
-    return 1
-
-
-###################################################################
-# The code below this line should be common to all testing files. #
-###################################################################
-
-if __name__=="__main__":
-    # If directly run, then start oof, and run the local tests, then quit.
-    import sys
-    try:
-        import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
-        from ooflib.common import oof
-    except ImportError:
-        print "OOF is not correctly installed on this system."
-        sys.exit(4)
-    sys.argv.append("--text")
-    sys.argv.append("--quiet")
-    sys.argv.append("--seed=17")
-    oof.run(no_interp=1)
-    
-    success = run_tests()
-
-    OOF.File.Quit()
-    
-    if success:
-        print "All tests passed."
-    else:
-        print "Test failure."
+test_set = skel_set + special_set

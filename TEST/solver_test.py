@@ -15,11 +15,14 @@ from UTILS import file_utils
 reference_file = file_utils.reference_file
 file_utils.generate = False
 
+# shortening = 1.0
+# suffix = ""
+
 class SaveableMeshTest(unittest.TestCase):
     # This routine uses the global 'suffix' variable.
     def saveAndLoad(self, filename):
         # Save the mesh in ascii format, and compare with a reference file.
-        asciifilename = filename + suffix + "-ascii.dat"
+        asciifilename = filename + self.suffix + "-ascii.dat"
         OOF.File.Save.Mesh(
             filename=asciifilename, mode='w', format='ascii',
             mesh = 'microstructure:skeleton:mesh')
@@ -47,7 +50,7 @@ class SaveableMeshTest(unittest.TestCase):
 
         # Save the mesh in binary format, reload it, and compare with the
         # original.
-        binaryfilename = filename + suffix + "-binary.dat"
+        binaryfilename = filename + self.suffix + "-binary.dat"
         OOF.File.Save.Mesh(
             filename=binaryfilename, mode='w', format='binary',
             mesh='microstructure:skeleton:mesh')
@@ -668,7 +671,7 @@ class OOF_Solver_SimplePiezo(SaveableMeshTest):
         self.assert_(
             file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'piezopolar'+suffix+'.dat'),
+                os.path.join('mesh_data', 'piezopolar'+self.suffix+'.dat'),
                 1.e-10))
         file_utils.remove('test.dat')
         OOF.Mesh.Analyze.Average(
@@ -682,7 +685,7 @@ class OOF_Solver_SimplePiezo(SaveableMeshTest):
         self.assert_(
             file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'piezovoltage'+suffix+'.dat'),
+                os.path.join('mesh_data', 'piezovoltage'+self.suffix+'.dat'),
                 1.e-10))
         file_utils.remove('test.dat')
         # Switch to in-plane polarization.
@@ -706,7 +709,7 @@ class OOF_Solver_SimplePiezo(SaveableMeshTest):
         self.assert_(
             file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'piezoplanepolar'+suffix+'.dat'),
+                os.path.join('mesh_data', 'piezoplanepolar'+self.suffix+'.dat'),
                 1.e-10))
         file_utils.remove('test.dat')
         OOF.Mesh.Analyze.Average(
@@ -720,7 +723,7 @@ class OOF_Solver_SimplePiezo(SaveableMeshTest):
         self.assert_(
             file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'piezoplanevoltage'+suffix+'.dat'),
+                os.path.join('mesh_data', 'piezoplanevoltage'+self.suffix+'.dat'),
                 1.e-10))
         file_utils.remove('test.dat')
         OOF.Mesh.Analyze.Average(
@@ -734,7 +737,7 @@ class OOF_Solver_SimplePiezo(SaveableMeshTest):
         self.assert_(
             file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'piezoplanevoltageZ'+suffix+'.dat'),
+                os.path.join('mesh_data', 'piezoplanevoltageZ'+self.suffix+'.dat'),
                 1.e-10))
         file_utils.remove('test.dat')
     def tearDown(self):
@@ -813,7 +816,7 @@ class OOF_1x1ElasticDynamic(SaveableMeshTest):
             mesh='microstructure:skeleton:mesh',
             output=AutomaticName('Average Displacement on right'),
             scheduletype=AbsoluteOutputSchedule(),
-            schedule=Periodic(delay=0.0,interval=0.01*shortening))
+            schedule=Periodic(delay=0.0,interval=0.01*self.shortening))
         OOF.Mesh.Scheduled_Output.Destination.Set(
             mesh='microstructure:skeleton:mesh',
             output=AutomaticName('Average Displacement on right'),
@@ -842,11 +845,11 @@ class OOF_1x1ElasticDynamic(SaveableMeshTest):
             mesh='microstructure:skeleton:mesh', time=0.0)
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=3.6275987284684357*shortening)
+            endtime=3.6275987284684357*self.shortening)
 
         self.assert_(file_utils.fp_file_compare(
                 'springtest.out',
-                os.path.join('mesh_data', 'springtest'+suffix+'.exact'),
+                os.path.join('mesh_data', 'springtest'+self.suffix+'.exact'),
                 1.e-4))
         file_utils.remove('springtest.out')
     def tearDown(self):
@@ -924,7 +927,7 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
             mesh='microstructure:skeleton:mesh',
             output=AutomaticName('Average Temperature on top'),
             scheduletype=AbsoluteOutputSchedule(),
-            schedule=Periodic(delay=0.0,interval=0.05*shortening))
+            schedule=Periodic(delay=0.0,interval=0.05*self.shortening))
         OOF.Mesh.Scheduled_Output.Destination.Set(
             mesh='microstructure:skeleton:mesh',
             output=AutomaticName('Average Temperature on top'),
@@ -948,10 +951,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_inplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_inplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -979,10 +982,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_inplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_inplane'+self.suffix+'.dat'),
                 1.e-5))
         file_utils.remove('test.dat')
 
@@ -1004,10 +1007,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_inplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_inplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1033,10 +1036,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_inplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_inplane'+self.suffix+'.dat'),
                 1.e-6))
         file_utils.remove('test.dat')
 
@@ -1058,10 +1061,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_inplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_inplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1089,10 +1092,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_inplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_inplane'+self.suffix+'.dat'),
                 1.e-3))
 
         # Repeat, because there seems to be some problem with repeated
@@ -1105,10 +1108,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
 
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_inplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_inplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1136,10 +1139,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_inplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_inplane'+self.suffix+'.dat'),
                 1.e-6))
         file_utils.remove('test.dat')
 
@@ -1167,13 +1170,13 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
         # Get there in two stages.
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.25*shortening)
+            endtime=0.25*self.shortening)
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_inplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_inplane'+self.suffix+'.dat'),
                 1.e-6))
         file_utils.remove('test.dat')
 
@@ -1200,10 +1203,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_inplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_inplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1230,10 +1233,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_inplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_inplane'+self.suffix+'.dat'),
                 1.e-6))
         file_utils.remove('test.dat')
 
@@ -1260,10 +1263,10 @@ class OOF_ThermalDiffusionTimeSteppers(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_inplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_inplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1361,7 +1364,7 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
             mesh='microstructure:skeleton:mesh',
             output=AutomaticName('Average Temperature on top'),
             scheduletype=AbsoluteOutputSchedule(),
-            schedule=Periodic(delay=0.0,interval=0.05*shortening))
+            schedule=Periodic(delay=0.0,interval=0.05*self.shortening))
         OOF.Mesh.Scheduled_Output.Destination.Set(
             mesh='microstructure:skeleton:mesh',
             output=AutomaticName('Average Temperature on top'),
@@ -1385,10 +1388,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_outofplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_outofplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1410,10 +1413,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_outofplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_outofplane'+self.suffix+'.dat'),
                 1.e-5))
         file_utils.remove('test.dat')
 
@@ -1435,10 +1438,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_outofplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_outofplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1464,10 +1467,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_outofplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_outofplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1489,10 +1492,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_outofplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_outofplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1520,10 +1523,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_outofplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_outofplane'+self.suffix+'.dat'),
                 1.e-3))
 
         # Repeat, because there seems to be some problem with repeated
@@ -1536,10 +1539,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
 
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_outofplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_outofplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1566,10 +1569,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_outofplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_outofplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1599,13 +1602,13 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
         # Get there in two stages.
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.25*shortening)
+            endtime=0.25*self.shortening)
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_outofplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_outofplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1632,10 +1635,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_outofplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_outofplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1662,10 +1665,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_outofplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_outofplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1692,10 +1695,10 @@ class OOF_ThermalDiffusionTSPlaneFlux(SaveableMeshTest):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgtemp_outofplane'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgtemp_outofplane'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
 
@@ -1890,7 +1893,7 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             mesh='microstructure:skeleton:mesh',
             output='right',
             scheduletype=AbsoluteOutputSchedule(),
-            schedule=Periodic(delay=0.0,interval=0.1*shortening))
+            schedule=Periodic(delay=0.0,interval=0.1*self.shortening))
         OOF.Mesh.Scheduled_Output.Destination.Set(
             mesh='microstructure:skeleton:mesh',
             output='right',
@@ -1953,14 +1956,14 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=3.0*shortening)
+            endtime=3.0*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgdisp_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgdisp_planestrain'+self.suffix+'.dat'),
                 1.e-6))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
-                os.path.join('mesh_data', 'stress_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'stress_planestrain'+self.suffix+'.dat'),
                 1.e-6))
         file_utils.remove('test.dat')
         file_utils.remove('testz.dat')
@@ -1989,14 +1992,14 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=3.0*shortening)
+            endtime=3.0*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgdisp_planestress'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgdisp_planestress'+self.suffix+'.dat'),
                 1.e-6))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
-                os.path.join('mesh_data', 'stress_planestress'+suffix+'.dat'),
+                os.path.join('mesh_data', 'stress_planestress'+self.suffix+'.dat'),
                 1.e-6))
         file_utils.remove('test.dat')
         file_utils.remove('testz.dat')
@@ -2027,7 +2030,7 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=3.0*shortening)
+            endtime=3.0*self.shortening)
 
         OOF.Mesh.Field.In_Plane(
             mesh='microstructure:skeleton:mesh', field=Displacement)
@@ -2041,14 +2044,14 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             mesh='microstructure:skeleton:mesh')
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=3.0*shortening)
+            endtime=3.0*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgdisp_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgdisp_planestrain'+self.suffix+'.dat'),
                 1.e-3))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
-                os.path.join('mesh_data', 'stress_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'stress_planestrain'+self.suffix+'.dat'),
                 1.e-6))
         file_utils.remove('test.dat')
         file_utils.remove('testz.dat')
@@ -2081,14 +2084,14 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=3.0*shortening)
+            endtime=3.0*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgdisp_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgdisp_planestrain'+self.suffix+'.dat'),
                 1.e-6))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
-                os.path.join('mesh_data', 'stress_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'stress_planestrain'+self.suffix+'.dat'),
                 1.e-6))
         file_utils.remove('test.dat')
         file_utils.remove('testz.dat')
@@ -2123,14 +2126,14 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=3.0*shortening)
+            endtime=3.0*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgdisp_planestress'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgdisp_planestress'+self.suffix+'.dat'),
                 1.e-3))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
-                os.path.join('mesh_data', 'stress_planestress'+suffix+'.dat'),
+                os.path.join('mesh_data', 'stress_planestress'+self.suffix+'.dat'),
                 1.e-3))
         file_utils.remove('test.dat')
         file_utils.remove('testz.dat')
@@ -2165,16 +2168,16 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=1.0*shortening)
+            endtime=1.0*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgdisp_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgdisp_planestrain'+self.suffix+'.dat'),
                 1.e-4,
                 nlines=17
                 ))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
-                os.path.join('mesh_data', 'stress_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'stress_planestrain'+self.suffix+'.dat'),
                 1.e-4,
                 nlines=23
                 ))
@@ -2209,16 +2212,16 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=1.0*shortening)
+            endtime=1.0*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgdisp_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgdisp_planestrain'+self.suffix+'.dat'),
                 1.e-4,
                 nlines=17
                 ))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
-                os.path.join('mesh_data', 'stress_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'stress_planestrain'+self.suffix+'.dat'),
                 1.e-4,
                 nlines=23
                 ))
@@ -2254,16 +2257,16 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=1.0*shortening)
+            endtime=1.0*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgdisp_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgdisp_planestrain'+self.suffix+'.dat'),
                 1.e-3,
                 nlines=17
                 ))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
-                os.path.join('mesh_data', 'stress_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'stress_planestrain'+self.suffix+'.dat'),
                 1.e-3,
                 nlines=23
                 ))
@@ -2300,16 +2303,16 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgdisp_planestress'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgdisp_planestress'+self.suffix+'.dat'),
                 1.e-3,
                 nlines=12
                 ))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
-                os.path.join('mesh_data', 'stress_planestress'+suffix+'.dat'),
+                os.path.join('mesh_data', 'stress_planestress'+self.suffix+'.dat'),
                 1.e-3,
                 nlines=18
                 ))
@@ -2344,16 +2347,16 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=1.0*shortening)
+            endtime=1.0*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgdisp_planestress'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgdisp_planestress'+self.suffix+'.dat'),
                 1.e-4,
                 nlines=17
                 ))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
-                os.path.join('mesh_data', 'stress_planestress'+suffix+'.dat'),
+                os.path.join('mesh_data', 'stress_planestress'+self.suffix+'.dat'),
                 1.e-4,
                 nlines=23))
         file_utils.remove('test.dat')
@@ -2389,16 +2392,16 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=1.0*shortening)
+            endtime=1.0*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgdisp_planestress'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgdisp_planestress'+self.suffix+'.dat'),
                 1.e-2,
                 nlines=17
                 ))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
-                os.path.join('mesh_data', 'stress_planestress'+suffix+'.dat'),
+                os.path.join('mesh_data', 'stress_planestress'+self.suffix+'.dat'),
                 1.e-2,
                 nlines=23))
         file_utils.remove('test.dat')
@@ -2433,16 +2436,16 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=1.0*shortening)
+            endtime=1.0*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgdisp_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgdisp_planestrain'+self.suffix+'.dat'),
                 1.e-3,
                 nlines=17
                 ))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
-                os.path.join('mesh_data', 'stress_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'stress_planestrain'+self.suffix+'.dat'),
                 1.e-3,
                 nlines=23
                 ))
@@ -2479,16 +2482,16 @@ class OOF_ElasticTimeSteppers(OOF_ElasticPlaneStressPlaneStrainExact):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=0.5*shortening)
+            endtime=0.5*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgdisp_planestress'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgdisp_planestress'+self.suffix+'.dat'),
                 1.e-3,
                 nlines=12
                 ))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
-                os.path.join('mesh_data', 'stress_planestress'+suffix+'.dat'),
+                os.path.join('mesh_data', 'stress_planestress'+self.suffix+'.dat'),
                 1.e-3,
                 nlines=18
                 ))
@@ -2548,16 +2551,16 @@ class OOF_AnisoElasticDynamic(OOF_ElasticTimeSteppers):
             mesh='microstructure:skeleton:mesh', field=Displacement)
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=1.0*shortening)
+            endtime=1.0*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data',
-                             'avgdisp_anisoplanestrain'+suffix+'.dat'),
+                             'avgdisp_anisoplanestrain'+self.suffix+'.dat'),
                 1.e-6))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
                 os.path.join('mesh_data',
-                             'stress_anisoplanestrain'+suffix+'.dat'),
+                             'stress_anisoplanestrain'+self.suffix+'.dat'),
                 1.e-6))
         file_utils.remove('test.dat')
         file_utils.remove('testz.dat')
@@ -2568,16 +2571,16 @@ class OOF_AnisoElasticDynamic(OOF_ElasticTimeSteppers):
             equation=Plane_Stress)
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=1.0*shortening)
+            endtime=1.0*self.shortening)
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data',
-                             'avgdisp_anisoplanestress'+suffix+'.dat'),
+                             'avgdisp_anisoplanestress'+self.suffix+'.dat'),
                 1.e-6))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
                 os.path.join('mesh_data',
-                             'stress_anisoplanestress'+suffix+'.dat'),
+                             'stress_anisoplanestress'+self.suffix+'.dat'),
                 1.e-6))
         file_utils.remove('test.dat')
         file_utils.remove('testz.dat')
@@ -2630,7 +2633,7 @@ class OOF_StaticAndDynamic(OOF_ElasticTimeSteppers):
             mesh='microstructure:skeleton:mesh',
             output='tempo',
             scheduletype=AbsoluteOutputSchedule(),
-            schedule=Periodic(delay=0.0, interval=0.1*shortening))
+            schedule=Periodic(delay=0.0, interval=0.1*self.shortening))
         OOF.Mesh.Scheduled_Output.Destination.Set(
             mesh='microstructure:skeleton:mesh',
             output='tempo',
@@ -2713,15 +2716,15 @@ class OOF_StaticAndDynamic(OOF_ElasticTimeSteppers):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=3.0*shortening)
+            endtime=3.0*self.shortening)
 
         self.assert_(file_utils.fp_file_compare(
                 'test.dat',
-                os.path.join('mesh_data', 'avgdisp_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'avgdisp_planestrain'+self.suffix+'.dat'),
                 1.e-6))
         self.assert_(file_utils.fp_file_compare(
                 'testz.dat',
-                os.path.join('mesh_data', 'stress_planestrain'+suffix+'.dat'),
+                os.path.join('mesh_data', 'stress_planestrain'+self.suffix+'.dat'),
                 1.e-6))
         self.timetest()
         file_utils.remove('test.dat')
@@ -2787,7 +2790,7 @@ class OOF_ThermalElasticTimeSteppers(OOF_ElasticTimeSteppers):
             mesh='microstructure:skeleton:mesh',
             output=AutomaticName('Average Temperature on top'),
             scheduletype=AbsoluteOutputSchedule(),
-            schedule=Periodic(delay=0.0,interval=0.05*shortening))
+            schedule=Periodic(delay=0.0,interval=0.05*self.shortening))
         OOF.Mesh.Scheduled_Output.Destination.Set(
             mesh='microstructure:skeleton:mesh',
             output=AutomaticName('Average Temperature on top'),
@@ -2827,18 +2830,18 @@ class OOF_ThermalElasticTimeSteppers(OOF_ElasticTimeSteppers):
             )
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=3.0*shortening)
+            endtime=3.0*self.shortening)
         self.assert_(file_utils.fp_file_compare(
             'testT.dat',
             os.path.join('mesh_data',
-                         'avgtemp_inplane_uncoupled'+suffix+'.dat'),
+                         'avgtemp_inplane_uncoupled'+self.suffix+'.dat'),
             1.e-6))
         file_utils.remove('testT.dat')
 
     def solveAndCheck(self):
         OOF.Mesh.Solve(
             mesh='microstructure:skeleton:mesh',
-            endtime=3.0*shortening)
+            endtime=3.0*self.shortening)
         # This is the same elastic problem used in
         # OOF_ElasticTimeSteppers, so we can compare to its output
         # files.  The numerical error will be different, so we have to
@@ -2846,17 +2849,17 @@ class OOF_ThermalElasticTimeSteppers(OOF_ElasticTimeSteppers):
         self.assert_(file_utils.fp_file_compare(
             'test.dat',
             os.path.join('mesh_data',
-                         'avgdisp_planestrain'+suffix+'.dat'),
+                         'avgdisp_planestrain'+self.suffix+'.dat'),
             1.e-5))
         self.assert_(file_utils.fp_file_compare(
             'testz.dat',
             os.path.join('mesh_data',
-                         'stress_planestrain'+suffix+'.dat'),
+                         'stress_planestrain'+self.suffix+'.dat'),
             1.e-5))
         self.assert_(file_utils.fp_file_compare(
             'testT.dat',
             os.path.join('mesh_data',
-                         'avgtemp_inplane_uncoupled'+suffix+'.dat'),
+                         'avgtemp_inplane_uncoupled'+self.suffix+'.dat'),
             1.e-5))
         file_utils.remove('test.dat')
         file_utils.remove('testz.dat')
@@ -3184,26 +3187,21 @@ class ThermalExpansionTest(unittest.TestCase):
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 
-# Routine to do regression-type testing on the items in this file.
-# Tests will be run in the order they appear in the list.  This
-# routine will stop after the first failure.
+static_set = [
+    OOF_StaticIsoElastic("Null"),
+    OOF_StaticIsoElastic("Solve"),
+    OOF_NonrectMixedBCStaticElastic("Solve"),
+    OOF_NewBCNonrectMixedEtc("Solve"),
+    OOF_AnisoRotation("Solve"),
+    OOF_1x1ElasticDynamic("Static"),
+    OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStrain"),
+    OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStress"),
+    ThermalExpansionTest("Basic"),
+    ThermalExpansionTest("Advanced")
+]
 
-def run_tests():
-
-    static_set = [
-        OOF_StaticIsoElastic("Null"),
-        OOF_StaticIsoElastic("Solve"),
-        OOF_NonrectMixedBCStaticElastic("Solve"),
-        OOF_NewBCNonrectMixedEtc("Solve"),
-        OOF_AnisoRotation("Solve"),
-        OOF_1x1ElasticDynamic("Static"),
-        OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStrain"),
-        OOF_ElasticPlaneStressPlaneStrainExact("StaticPlaneStress"),
-        ThermalExpansionTest("Basic"),
-        ThermalExpansionTest("Advanced")
-        ]
-
-    dynamic_set = [
+def make_dynamic_set(suffix, shortening):
+    tests = [
         OOF_1x1ElasticDynamic("Dynamic"),
         OOF_NonstaticThenStatic("Solve"),
 
@@ -3264,95 +3262,54 @@ def run_tests():
         ## TODO: Figure out why OOF_StaticAndDynamic fails
         ## intermittently on OS X.
         OOF_StaticAndDynamic("SS22PlaneStrain")
-        ]
+    ]
+    for t in tests:
+        t.shortening = shortening
+        t.suffix = suffix
+    return tests
 
-    oop_periodic_set = [
-        OOF_OutOfPlanePeriodicBC('Static')
-        ]
 
-    # static_set = [ThermalExpansionTest("Basic"),
-    #               ThermalExpansionTest("Advanced")]
-    # oop_periodic_set = []
-    # dynamic_set = []
-    # #dynamic_set = [OOF_ElasticTimeSteppers("SS22PlaneStrain")]
-    # #dynamic_set = [OOF_StaticAndDynamic("SS22PlaneStrain")]
-    # dynamic_set = [OOF_ThermalDiffusionTSPlaneFlux("CNdirect")]
-    # dynamic_set = [OOF_ThermalDiffusionTSPlaneFlux("RK4direct"),
-    #                OOF_ThermalDiffusionTimeSteppers("RK4direct")]
-    
-    logan = unittest.TextTestRunner()
+oop_periodic_set = [
+    OOF_OutOfPlanePeriodicBC('Static')
+]
 
-    # Used in the SaveableMeshTest's 'saveAndLoad' routine.  Not
-    # generally used by static tests, but should be available to them.
-    global suffix
-    suffix = ""
-    
-    for t in static_set:
-        print >> sys.stderr,  "\n *** Running test: %s\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
+test_set = (static_set
+            + make_dynamic_set(suffix="", shortening=1)
+            + make_dynamic_set(suffix="-short", shortening=0.1)
+            + oop_periodic_set)
 
-    # There are short and long versions of all of the time-dependent
-    # tests.  Originally, the short versions were only run manually,
-    # when debugging the testing procedure.  But then interesting
-    # roundoff errors began to occur during the short tests, but not
-    # during the long tests, so the short tests have been incorporated
-    # into the official test suite.  The tests are first run with
-    # shortening=0.1 and suffix="-short", and then run with
-    # shortening=1.0 and suffix="".
-    global shortening
 
-    shortening = 0.1
-    suffix = "-short"
-    for t in dynamic_set:
-        print >> sys.stderr,  "\n *** Running test: %s (short)\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
+# This used to be in the run_tests() function:
+    # # There are short and long versions of all of the time-dependent
+    # # tests.  Originally, the short versions were only run manually,
+    # # when debugging the testing procedure.  But then interesting
+    # # roundoff errors began to occur during the short tests, but not
+    # # during the long tests, so the short tests have been incorporated
+    # # into the official test suite.  The tests are first run with
+    # # shortening=0.1 and suffix="-short", and then run with
+    # # shortening=1.0 and suffix="".
+    # global shortening
 
-    shortening = 1.0
-    suffix=""
-    for t in dynamic_set:
-        print >> sys.stderr,  "\n *** Running test: %s (long)\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
+    # shortening = 0.1
+    # suffix = "-short"
+    # for t in dynamic_set:
+    #     print >> sys.stderr,  "\n *** Running test: %s (short)\n" % t.id()
+    #     res = logan.run(t)
+    #     if not res.wasSuccessful():
+    #         return 0
 
-    for t in oop_periodic_set:
-        print >> sys.stderr, "\n *** Running test: %s\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
+    # shortening = 1.0
+    # suffix=""
+    # for t in dynamic_set:
+    #     print >> sys.stderr,  "\n *** Running test: %s (long)\n" % t.id()
+    #     res = logan.run(t)
+    #     if not res.wasSuccessful():
+    #         return 0
+
+    # for t in oop_periodic_set:
+    #     print >> sys.stderr, "\n *** Running test: %s\n" % t.id()
+    #     res = logan.run(t)
+    #     if not res.wasSuccessful():
+    #         return 0
         
-    return 1
-
-
-###################################################################
-# The code below this line should be common to all testing files. #
-###################################################################
-
-if __name__=="__main__":
-    # If directly run, then start oof, and run the local tests, then quit.
-    import sys
-    try:
-        import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
-        from ooflib.common import oof
-    except ImportError:
-        print "OOF is not correctly installed on this system."
-        sys.exit(4)
-    sys.argv.append("--text")
-    sys.argv.append("--quiet")
-    sys.argv.append("--seed=17")
-    oof.run(no_interp=1)
-
-    success = run_tests()
-
-    OOF.File.Quit()
-
-    if success:
-        print "All tests passed."
-    else:
-        print "Test failure."
-
+    # return 1

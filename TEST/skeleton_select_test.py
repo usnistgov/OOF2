@@ -1167,139 +1167,98 @@ class Skeleton_Node_Group(Direct_Node_Selection):
             self.assert_(not self.n_groups.isGroup(name))
 
 
-# Routine to do regression-type testing on the items in this file.
-# Tests must be run in the order they appear in the list.  This
-# routine will stop after the first failure.
-def run_tests():
-    element_set = [
-        Direct_Element_Selection("SingleElement"),
-        Direct_Element_Selection("Rectangle"),
-        Direct_Element_Selection("Circle"),
-        Direct_Element_Selection("Ellipse"),
-        Direct_Element_Selection("ByDominantPixel"),
-        Direct_Element_Selection("Invert"),
-        Direct_Element_Selection("Undo"),
-        Direct_Element_Selection("Redo"),
-        Direct_Element_Selection("Clear")
-        ]
+element_set = [
+    Direct_Element_Selection("SingleElement"),
+    Direct_Element_Selection("Rectangle"),
+    Direct_Element_Selection("Circle"),
+    Direct_Element_Selection("Ellipse"),
+    Direct_Element_Selection("ByDominantPixel"),
+    Direct_Element_Selection("Invert"),
+    Direct_Element_Selection("Undo"),
+    Direct_Element_Selection("Redo"),
+    Direct_Element_Selection("Clear")
+]
 
-    segment_set = [
-        Direct_Segment_Selection("SingleSegment"),
-        Direct_Segment_Selection("Rectangle"),
-        Direct_Segment_Selection("Circle"),
-        Direct_Segment_Selection("Ellipse"),
-        Direct_Segment_Selection("Invert"),
-        Direct_Segment_Selection("Undo"),
-        Direct_Segment_Selection("Redo"),
-        Direct_Segment_Selection("Clear")
-        ]
-    
-    node_set = [
-        Direct_Node_Selection("SingleNode"),
-        Direct_Node_Selection("Rectangle"),
-        Direct_Node_Selection("Circle"),
-        Direct_Node_Selection("Ellipse"),
-        Direct_Node_Selection("Invert"),
-        Direct_Node_Selection("Undo"),
-        Direct_Node_Selection("Redo"),
-        Direct_Node_Selection("Clear")
-        ]
+segment_set = [
+    Direct_Segment_Selection("SingleSegment"),
+    Direct_Segment_Selection("Rectangle"),
+    Direct_Segment_Selection("Circle"),
+    Direct_Segment_Selection("Ellipse"),
+    Direct_Segment_Selection("Invert"),
+    Direct_Segment_Selection("Undo"),
+    Direct_Segment_Selection("Redo"),
+    Direct_Segment_Selection("Clear")
+]
 
-    direct_pin_set = [
-        Direct_Pin_Nodes("Pin"),
-        Direct_Pin_Nodes("UnPin"),
-        Direct_Pin_Nodes("TogglePin"),
-        Direct_Pin_Nodes("Undo"),
-        Direct_Pin_Nodes("Redo"),
-        Direct_Pin_Nodes("Invert")
-        ]
-    
-    page_pin_set = [
-        Skeleton_PinNodes("Pin_Node_Selection"),
-        Skeleton_PinNodes("UnPin_Node_Selection"),
-        Skeleton_PinNodes("Pin_Internal_Boundary_Nodes"),
-        Skeleton_PinNodes("Pin_Selected_Segments"),
-        Skeleton_PinNodes("Pin_Selected_Elements"),
-        Skeleton_PinNodes("Undo"), 
-        Skeleton_PinNodes("Redo"), 
-        Skeleton_PinNodes("Invert") 
-        ]
-    
-    element_group = [
-        Skeleton_Element_Group("New_Group"),
-        Skeleton_Element_Group("Add_to_Group"),
-        Skeleton_Element_Group("Remove_from_Group"),
-        Skeleton_Element_Group("Copy_Group"),
-        Skeleton_Element_Group("Delete_Group"),
-        Skeleton_Element_Group("Rename_Group"),
-        Skeleton_Element_Group("Clear_Group"),
-        Skeleton_Element_Group("Query_Group"),
-        Skeleton_Element_Group("Material_Group"),
-        Skeleton_Element_Group("Auto_Group")
-        ]
+node_set = [
+    Direct_Node_Selection("SingleNode"),
+    Direct_Node_Selection("Rectangle"),
+    Direct_Node_Selection("Circle"),
+    Direct_Node_Selection("Ellipse"),
+    Direct_Node_Selection("Invert"),
+    Direct_Node_Selection("Undo"),
+    Direct_Node_Selection("Redo"),
+    Direct_Node_Selection("Clear")
+]
 
-    segment_group = [
-        Skeleton_Segment_Group("New_Group"),
-        Skeleton_Segment_Group("Add_to_Group"),
-        Skeleton_Segment_Group("Remove_from_Group"),
-        Skeleton_Segment_Group("Copy_Group"),
-        Skeleton_Segment_Group("Delete_Group"),
-        Skeleton_Segment_Group("Rename_Group"),
-        Skeleton_Segment_Group("Clear_Group"),
-        Skeleton_Segment_Group("Query_Group"),
-        Skeleton_Segment_Group("Auto_Group")
-        ]
+direct_pin_set = [
+    Direct_Pin_Nodes("Pin"),
+    Direct_Pin_Nodes("UnPin"),
+    Direct_Pin_Nodes("TogglePin"),
+    Direct_Pin_Nodes("Undo"),
+    Direct_Pin_Nodes("Redo"),
+    Direct_Pin_Nodes("Invert")
+]
 
-    node_group = [
-        Skeleton_Node_Group("New_Group"),
-        Skeleton_Node_Group("Add_to_Group"),
-        Skeleton_Node_Group("Remove_from_Group"),
-        Skeleton_Node_Group("Copy_Group"),
-        Skeleton_Node_Group("Delete_Group"),
-        Skeleton_Node_Group("Rename_Group"),
-        Skeleton_Node_Group("Clear_Group"),
-        Skeleton_Node_Group("Query_Group"),
-        Skeleton_Node_Group("Auto_Group")        
-        ]
+page_pin_set = [
+    Skeleton_PinNodes("Pin_Node_Selection"),
+    Skeleton_PinNodes("UnPin_Node_Selection"),
+    Skeleton_PinNodes("Pin_Internal_Boundary_Nodes"),
+    Skeleton_PinNodes("Pin_Selected_Segments"),
+    Skeleton_PinNodes("Pin_Selected_Elements"),
+    Skeleton_PinNodes("Undo"), 
+    Skeleton_PinNodes("Redo"), 
+    Skeleton_PinNodes("Invert") 
+]
+
+element_group = [
+    Skeleton_Element_Group("New_Group"),
+    Skeleton_Element_Group("Add_to_Group"),
+    Skeleton_Element_Group("Remove_from_Group"),
+    Skeleton_Element_Group("Copy_Group"),
+    Skeleton_Element_Group("Delete_Group"),
+    Skeleton_Element_Group("Rename_Group"),
+    Skeleton_Element_Group("Clear_Group"),
+    Skeleton_Element_Group("Query_Group"),
+    Skeleton_Element_Group("Material_Group"),
+    Skeleton_Element_Group("Auto_Group")
+]
+
+segment_group = [
+    Skeleton_Segment_Group("New_Group"),
+    Skeleton_Segment_Group("Add_to_Group"),
+    Skeleton_Segment_Group("Remove_from_Group"),
+    Skeleton_Segment_Group("Copy_Group"),
+    Skeleton_Segment_Group("Delete_Group"),
+    Skeleton_Segment_Group("Rename_Group"),
+    Skeleton_Segment_Group("Clear_Group"),
+    Skeleton_Segment_Group("Query_Group"),
+    Skeleton_Segment_Group("Auto_Group")
+]
+
+node_group = [
+    Skeleton_Node_Group("New_Group"),
+    Skeleton_Node_Group("Add_to_Group"),
+    Skeleton_Node_Group("Remove_from_Group"),
+    Skeleton_Node_Group("Copy_Group"),
+    Skeleton_Node_Group("Delete_Group"),
+    Skeleton_Node_Group("Rename_Group"),
+    Skeleton_Node_Group("Clear_Group"),
+    Skeleton_Node_Group("Query_Group"),
+    Skeleton_Node_Group("Auto_Group")        
+]
 
 
-    test_set = element_set + segment_set + node_set + \
-               direct_pin_set + page_pin_set + element_group + \
-               segment_group + node_group
-
-    logan = unittest.TextTestRunner()
-    for t in test_set:
-        print >> sys.stderr,  "\n *** Running test: %s\n" % t.id() 
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
-    return 1
-
-
-###################################################################
-# The code below this line should be common to all testing files. #
-###################################################################
-
-if __name__=="__main__":
-    # If directly run, then start oof, and run the local tests, then quit.
-    import sys
-    try:
-        import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
-        from ooflib.common import oof
-    except ImportError:
-        print "OOF is not correctly installed on this system."
-        sys.exit(4)
-    sys.argv.append("--text")
-    sys.argv.append("--quiet")
-    sys.argv.append("--seed=17")
-    oof.run(no_interp=1)
-    
-    success = run_tests()
-
-    OOF.File.Quit()
-    
-    if success:
-        print "All tests passed."
-    else:
-        print "Test failure."
+test_set = (element_set + segment_set + node_set + 
+            direct_pin_set + page_pin_set + element_group + 
+            segment_group + node_group)

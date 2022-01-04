@@ -14,13 +14,7 @@
 # all the test suites in this directory, and what order to run them in
 # in order to get a proper regression test.
 
-import sys, imp, os, getopt, copy
-
-# The startup sequence for regression.py has to imitate the executable
-# oof2 script. That one imports the contents of the math module into
-# the main oof namespace, so we have to do it here too.  Not importing
-# math here will make some tests fail.
-from math import *
+import sys, imp, os, getopt, copy, unittest
 
 test_module_names = [
     "fundamental_test",
@@ -65,12 +59,23 @@ test_module_names = [
     # "interface_test"
     ]
 
+
+
+# The startup sequence for regression.py has to imitate the executable
+# oof2 script. That one imports the contents of the math module into
+# the main oof namespace, so we have to do it here too.  Not importing
+# math here will make some tests fail.
+from math import *
+
 def stripdotpy(name):
     if name.endswith(".py"):
         return name[:-3]
     return name
 
+testcount = 1
+
 def run_modules(test_module_names, oofglobals, backwards):
+    logan = unittest.TextTestRunner()
     if backwards:
         test_module_names.reverse()
     for m in test_module_names:
@@ -82,12 +87,23 @@ def run_modules(test_module_names, oofglobals, backwards):
             print "Running test module %s." % m
             # Make sure all the goodies in the OOF namespace are available.
             test_module.__dict__.update(oofglobals)
-            res = test_module.run_tests()
-            if res==0: # failure.
-                return False
+            if hasattr(test_module, "initialize"):
+                test_module.initialize()
+            for t in test_module.test_set:
+                global testcount
+                print >> sys.stderr, "\n *** Running test %d: %s ***\n" % \
+                    (testcount, t.id())
+                testcount += 1
+                res = logan.run(t)
+                if not res.wasSuccessful():
+                    return False
+            # res = test_module.run_tests()
+            # if res==0: # failure.
+            #     return False
     return True
 
-if __name__=="__main__":
+def run(homedir):
+    global test_module_names
     try:
         opts,args = getopt.getopt(sys.argv[1:],"f:a:t:o:",
                                   ["from=", "after=", "to=", "oofargs=",
@@ -169,7 +185,6 @@ if __name__=="__main__":
     # during the tests won't clobber or be clobbered by files written
     # by another test being run in the same file system.
     import tempfile
-    homedir = os.path.realpath(sys.path[0]) # where we are now.
     sys.path[0] = os.path.realpath(sys.path[0])
     tmpdir = tempfile.mkdtemp(prefix='oof2temp_')
     print >> sys.stderr, "Using temp dir", tmpdir
@@ -197,9 +212,17 @@ if __name__=="__main__":
                     "iteration%s"%("s"*(count>1)), "*******"
         else:
             ok = run_modules(test_module_names, oofglobals, backwards)
-        OOF.File.Quit()
     finally:
         if ok:
+            print >> sys.stderr, "All tests completed successfully!"
             os.rmdir(tmpdir)
         else:
-            print >> sys.stderr, "Temp dir", tmpdir, "was not removed."
+            print >> sys.stderr, "Test failed. Temp dir", tmpdir, "was not removed."
+
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+if __name__=="__main__":
+    homedir = os.path.realpath(sys.path[0])
+    run(homedir)
+    OOF.File.Quit()

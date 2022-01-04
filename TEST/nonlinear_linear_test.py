@@ -765,67 +765,20 @@ class OOF_NLPlaneStress2(unittest.TestCase):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Routine to do regression-type testing on the items in this file.
-# Tests will be run in the order they appear in the list.  This
-# routine will stop after the first failure.
+test_set = [
+    ## RKLinear just generates the reference files for the rest of
+    ## the LinearDiffusion tests.  It should come first.
+    OOF_LinearDiffusion("RKlinear"),
+    OOF_LinearDiffusion("CN"),
+    OOF_LinearDiffusion("SS22"),
+    OOF_LinearDiffusion("RK4"),
+    OOF_LinearDiffusion("FE"),
+    OOF_LinearDiffusion("BEpicard"),
+    OOF_LinearDiffusion("BEnewton"),
 
-def run_tests():
-    test_set = [
-        ## RKLinear just generates the reference files for the rest of
-        ## the LinearDiffusion tests.  It should come first.
-        OOF_LinearDiffusion("RKlinear"),
-        OOF_LinearDiffusion("CN"),
-        OOF_LinearDiffusion("SS22"),
-        OOF_LinearDiffusion("RK4"),
-        OOF_LinearDiffusion("FE"),
-        OOF_LinearDiffusion("BEpicard"),
-        OOF_LinearDiffusion("BEnewton"),
-
-        OOF_NLPlaneStress("Small"),
-        OOF_NLPlaneStress2("LinearCN"),
-        OOF_NLPlaneStress2("LinearSS22"),
-        OOF_NLPlaneStress2("NonlinearCN"),
-        OOF_NLPlaneStress2("NonlinearSS22")
-        ]
-    
-    #test_set = [OOF_NLPlaneStress2("LinearCN")]
-    # test_set = [OOF_NLPlaneStress("Small")]
-
-    logan = unittest.TextTestRunner()
-    for t in test_set:
-        print >> sys.stderr,  "\n *** Running test: %s\n" % t.id()
-        res = logan.run(t)
-        if not res.wasSuccessful():
-            return 0
-    return 1
-
-
-###################################################################
-# The code below this line should be common to all testing files. #
-###################################################################
-
-if __name__=="__main__":
-    # If directly run, then start oof, and run the local tests, then quit.
-    import sys
-    try:
-        import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
-        from ooflib.common import oof
-        from math import *
-    except ImportError:
-        print "OOF is not correctly installed on this system."
-        sys.exit(4)
-    sys.argv.append("--text")
-    sys.argv.append("--quiet")
-    sys.argv.append("--seed=17")
-    oof.run(no_interp=1)
-
-    success = run_tests()
-
-    OOF.File.Quit()
-    
-    if success:
-        print "All tests passed."
-    else:
-        print "Test failure."
-
+    OOF_NLPlaneStress("Small"),
+    OOF_NLPlaneStress2("LinearCN"),
+    OOF_NLPlaneStress2("LinearSS22"),
+    OOF_NLPlaneStress2("NonlinearCN"),
+    OOF_NLPlaneStress2("NonlinearSS22")
+]
