@@ -200,7 +200,8 @@ def run(homedir):
     # want those modifications to affect later test scripts.
     # Therefore we create a pristine copy of globals now, and use it
     # instead of globals() later.
-    oofglobals = copy.copy(globals())
+    from ooflib.common import utils
+    oofglobals = copy.copy(utils.OOFglobals())
     ok = False
     try:
         if forever:
