@@ -219,13 +219,14 @@ def run(homedir):
     from UTILS import file_utils
     file_utils.set_reference_dir(homedir)
 
-    # globals() contains OOF namespace objects that we will be making
-    # available to each test script.  If test scripts modify globals
-    # (eg, by using utils.OOFdefine or the scriptloader), we don't
-    # want those modifications to affect later test scripts.
+    # utils.OOFglobals() returns OOF namespace objects that we will be
+    # making available to each test script.  If test scripts modify
+    # globals (eg, by using utils.OOFdefine or the scriptloader), we
+    # don't want those modifications to affect later test scripts.
     # Therefore we create a pristine copy of globals now, and use it
-    # instead of globals() later.
-    oofglobals = copy.copy(globals())
+    # instead of utils.OOFglobals() later.
+    from ooflib.common import utils
+    oofglobals = copy.copy(utils.OOFglobals())
     ok = False
     try:
         if forever:

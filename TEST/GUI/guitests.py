@@ -255,6 +255,7 @@ def run(homedir):
                                        'forever', 'help'])
     except getopt.error, message:
         print message
+        printhelp()
         sys.exit(1)
     fromdir = None
     afterdir = None
