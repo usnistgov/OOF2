@@ -10,11 +10,10 @@
 # oof_manager@nist.gov. 
 
 # This is the start up script for the oof2 regression test suite.  It
-# just wraps regression.py.  There's no difference between running
+# just wraps TEST/regression.py.  There's no difference between running
 # this script and running "python regression.py" in the TEST
 # directory except that with this script the user doesn't have to know
-# how to find regression.py.  (Hint: TEST3D is installed as 'ooftests'
-# in the oof3d directory in site-packages, whereever that might be.)
+# how to find regression.py. 
 
 import sys
 import os

@@ -102,16 +102,35 @@ def run_modules(test_module_names, oofglobals, backwards):
             #     return False
     return True
 
+def printhelp():
+    print >> sys.stderr, "Usage : %s [options] [test names]" % os.path.split(sys.argv[0])[1]
+    print >> sys.stderr, \
+"""Options are:
+   --list             List test names in order, but don't run any of them.
+   --from=  testname  Start with the given test.
+   --after= testname  Start after the given test.
+   --to=    testname  Stop at the given test.
+   --forever          Repeat tests until they fail.
+   --backwards        Run tests in reverse order.
+   --oofargs=args     Pass arguments to oof2.
+   --debug            Run oof2 in debug mode.
+   --help             Print this message.
+The options --from, --after, and --to cannot be used if test names are 
+explicitly listed after the options.
+"""
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 def run(homedir):
     global test_module_names
     try:
         opts,args = getopt.getopt(sys.argv[1:],"f:a:t:o:",
                                   ["from=", "after=", "to=", "oofargs=",
-                                   "forever", "debug", "backwards"])
+                                   "forever", "debug", "backwards",
+                                   "help", "list"])
     except getopt.GetoptError, err:
         print str(err)
-        print "Usage: regression.py [--from <starttest> | --after <starttest>] [--to <endtest>] [--forever] [--oofargs <oofargs>] [--debug] [--backwards] [tests]"
-        print "       Don't use --from or --to if tests are listed explicitly."
+        printhelp()
         sys.exit(2)
 
     oofargs = []
@@ -153,6 +172,12 @@ def run(homedir):
             debug = True
         elif o == "--backwards":
             backwards = True
+        elif o == "--list":
+            print "\n".join(test_module_names)
+            sys.exit(0)
+        elif o == "--help":
+            printhelp()
+            sys.exit(0)
 
     if fromtogiven:
         if args:
