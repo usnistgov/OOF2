@@ -93,3 +93,13 @@ gtk3 problem.  The gtk2 version does this too.  Slider values are
 parsed and evaluated only when it's time to use them, so they're not
 checked as they're typed.)
 DONT
+
+
+-----------
+
+MacPorts distribution
+
+Install
+  py27-gobject3, gtk3.
+Run
+  sudo port load dbus

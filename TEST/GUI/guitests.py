@@ -11,9 +11,10 @@
 # This file looks for all subdirectories of the current directory and
 # runs the gui test contained in each one.  The tests are run in
 # alphabetical order of the subdirectory name.  It is assumed that
-# each subdirectory contains a file named "log.py".  The test is run by
+# each subdirectory contains a file named TESTFILE (defined below to
+# "test.log", nee "log.py").  The test is run by
 # executing
-#         oof2 --pathdir <subdirectory> --replay <subdirectory>/log.py
+#         oof2 --pathdir <subdirectory> --replay <subdirectory>/TESTFILE
 # and testing its return value. The subdirectory is added to the
 # python path so that the log file can contain import statements that
 # load tests from other files in the subdirectory.
@@ -39,6 +40,8 @@
 # that status should be put in a file called 'exitstatus' in the
 # test subdirectory.
 
+TESTFILE = "test.log"
+
 import getopt
 import os
 import string
@@ -51,14 +54,12 @@ debug = False
 no_checkpoints = False
 sync = False
 unthreaded = False
-forever = False
+#forever = False
 
 global tmpdir
 tmpdir = None
 
-def linkfile(homedir, filename):
-    os.symlink(os.path.join(homedir, filename),
-               os.path.join(tmpdir, filename))
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def run_tests(dirs, rerecord, forever):
     homedir = os.getcwd()
@@ -93,6 +94,8 @@ def run_tests(dirs, rerecord, forever):
         # Remove the temp directory
         os.rmdir(tmpdir)
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 def really_run_tests(homedir, dirs, rerecord):
     nskipped = 0
     nrun = 0
@@ -108,7 +111,7 @@ def really_run_tests(homedir, dirs, rerecord):
             print >> sys.stderr, " **** Skipping", directory, "****"
             nskipped += 1
             continue
-        if not os.path.exists(os.path.join(originaldir, 'log.py')):
+        if not os.path.exists(os.path.join(originaldir, TESTFILE)):
             print >> sys.stderr, " **** Skipping", directory, "(No log file!) ****"
             nskipped += 1
             continue
@@ -116,7 +119,7 @@ def really_run_tests(homedir, dirs, rerecord):
         # Ok, everything's there.  Get ready to run this test.  Make a
         # symlink to the test directory.
         ## TODO: Is the symlink really necessary? We could provide a
-        ## full path to log.py.  The test directory is already in
+        ## full path to TESTFILE.  The test directory is already in
         ## PYTHONPATH.
         testdir = os.path.join(tmpdir, directory)
         os.symlink(os.path.join(homedir, directory), testdir)
@@ -160,7 +163,7 @@ def really_run_tests(homedir, dirs, rerecord):
                "--pathdir", "%s" % homedir,
                "--pathdir", "UTILS",
                "--%s" % replayarg,
-               os.path.join(directory, "log.py")] + extraargs
+               os.path.join(directory, TESTFILE)] + extraargs
 
         print >> sys.stderr, "-------------------------"
         print >> sys.stderr, "--- Running %s" % ' '.join(cmd)
@@ -190,6 +193,8 @@ def really_run_tests(homedir, dirs, rerecord):
 
 excluded = ['CVS','TEST_DATA', 'examples']
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 def get_dirs():
     files = [f for f in os.listdir('.')
              if os.path.isdir(f) and f not in excluded]
@@ -201,27 +206,63 @@ def checkdir(directory, dirs):
         print >> sys.stderr, "There is no directory named", directory
         sys.exit(1)
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 def removefile(filename):
     fullname = os.path.normpath(os.path.join(tmpdir, filename))
     print >> sys.stderr, "Removing file", fullname
     if os.path.exists(fullname):
         os.remove(fullname)
-    
-if __name__ == '__main__':
+
+def linkfile(homedir, filename):
+    os.symlink(os.path.join(homedir, filename),
+               os.path.join(tmpdir, filename))
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+def printhelp():
+    print >> sys.stderr, \
+"""
+Usage:  python guitests.py [options] [test directories]
+
+Options are:
+   --list       List test names in order, but don't run any of them.
+   --from=dir   Start tests at directory dir.
+   --after=dir  Start tests at the first one following dir.
+   --to=dir     End tests at directory dir.
+   --delay=ms   Specify delay (in milliseconds) between lines of each test.
+   --debug      Run tests in debug mode.
+   --unthreaded Run tests in unthreaded mode.
+   --sync       Run tests in X11 sync mode (very slow over a network!).
+   --rerecord   Re-record log files, and ignore 'assert' statements in them.
+                This is useful if new checkpoints have been added.
+   --no-checkpoints Ignore checkpoints in log files (not very useful).
+   --forever    Repeat tests until they fail.
+   --help       Print this message.
+"""
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+def run(homedir):
+    os.chdir(homedir)
     try:
         optlist, args = getopt.getopt(sys.argv[1:], '', 
                                       ['delay=', 'debug',
+                                       'list',
                                        'from=', 'after=', 'to=',
                                        'rerecord', 'no-checkpoints',
                                        'sync', 'unthreaded',
                                        'forever', 'help'])
     except getopt.error, message:
         print message
+        printhelp()
         sys.exit(1)
     fromdir = None
     afterdir = None
     todir = None
     rerecord = False
+    forever = False
+    listtests = False
     for opt in optlist:
         if opt[0] == "--debug":
             debug = True
@@ -247,27 +288,16 @@ if __name__ == '__main__':
             sync = True
         elif opt[0] == '--forever':
             forever = True
+        elif opt[0] == '--list':
+            listtests = True
         elif opt[0] == '--help':
-            print >> sys.stderr, \
-"""
-Usage:  python guitests.py [options] [test directories]
-
-Options are:
-   --from=dir   Start tests at directory dir.
-   --after=dir  Start tests at the first one following dir.
-   --to=dir     End tests at directory dir.
-   --delay=ms   Specify delay (in milliseconds) between lines of each test.
-   --debug      Run tests in debug mode.
-   --unthreaded Run tests in unthreaded mode.
-   --sync       Run tests in X11 sync mode (very slow over a network!).
-   --rerecord   Re-record log files, and ignore 'assert' statements in them.
-                This is useful if new checkpoints have been added.
-   --no-checkpoints Ignore checkpoints in log files (not very useful).
-   --forever    Repeat tests until they fail.
-   --help       Print this message.
-"""
+            printhelp()
             sys.exit(0)
-            
+
+    if listtests:
+        dirs = get_dirs()
+        print "\n".join(dirs)
+        sys.exit(0)
 
     if args:         # test directories were explicitly listed on command line
         run_tests([os.path.normpath(a) for a in args], rerecord, forever)
@@ -297,3 +327,9 @@ Options are:
         else:                           # use all test directories
             run_tests(dirs, rerecord, forever)
                          
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+if __name__ == "__main__":
+    homedir = os.path.realpath(sys.path[0])
+    run(homedir)
+    
