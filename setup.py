@@ -1483,6 +1483,13 @@ if __name__ == '__main__':
             if os.path.isdir(fullpath):
                 if not os.path.exists(os.path.join(fullpath, '__init__.py')):
                     pkg_data[OOFNAME+"."+pkgpath].append(os.path.join(f, "*"))
+                    # Include any subdirectories
+                    for dpath, dirnames, filenames in os.walk(fullpath):
+                        for d in dirnames:
+                            pkg_data[OOFNAME+"."+pkgpath].append(
+                                os.path.join(
+                                    os.path.relpath(dpath, dirpath),
+                                    d, "*"))
 
     setupargs = dict(
         name = OOFNAME,
@@ -1491,7 +1498,7 @@ if __name__ == '__main__':
         author = 'The NIST OOF Team',
         author_email = 'oof_manager@nist.gov',
         url = "http://www.ctcms.nist.gov/oof/oof2/",
-        scripts = ['oof2', 'oof2test'],
+        scripts = ['oof2', 'oof2-test', 'oof2-guitest'],
         cmdclass = {"build" : oof_build,
                     "build_ext" : oof_build_ext,
                     "build_py" : oof_build_py,
