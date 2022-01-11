@@ -36,7 +36,8 @@ pyfiles = ['initialize.py', 'pixelselectionmethod.py',
 
 def set_clib_flags(c_lib):
     import oof2setuputils
-    oof2setuputils.pkg_check("Magick++", MAGICK_VERSION, c_lib)
+    #oof2setuputils.pkg_check("Magick++", MAGICK_VERSION, c_lib)
+    oof2setuputils.pkg_check("ImageMagick++", GRAPHICSMAGICK_VERSION, c_lib)
     oof2setuputils.pkg_check("oofcanvas", OOFCANVAS_VERSION, c_lib)
     addOOFlibs(c_lib, 'oof2common')
 

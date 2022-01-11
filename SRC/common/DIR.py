@@ -89,7 +89,8 @@ if HAVE_MPI:
 
 def set_clib_flags(clib):
     import oof2setuputils
-    oof2setuputils.pkg_check("Magick++", MAGICK_VERSION, clib)
+    #oof2setuputils.pkg_check("Magick++", MAGICK_VERSION, clib)
+    oof2setuputils.pkg_check("ImageMagick++", GRAPHICSMAGICK_VERSION, clib)    
     if HAVE_MPI:
         clib.externalLibs.append('pmpich++')
         clib.externalLibs.append('mpich')

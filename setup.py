@@ -28,6 +28,7 @@
 
 GTK_VERSION = "3.22.0"
 MAGICK_VERSION = "6.0"
+GRAPHICSMAGICK_VERSION = "1.3.35" # optional, substitute for ImageMagick
 CAIROMM_VERSION = "1.12" # Don't know what the earliest acceptable version is.
 PANGO_VERSION = "1.40"
 PANGOCAIRO_VERSION = "1.40"
