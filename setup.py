@@ -188,8 +188,8 @@ class CLibInfo:
         # what the flags are or what the problems might be.
 
         pkgs = self.pkgs.copy()
-        if not (NO_TCMALLOC or
-                subprocess.call(["pkg-config", "--exists", "libtcmalloc"])):
+        if (USE_TCMALLOC and
+            subprocess.call(["pkg-config", "--exists", "libtcmalloc"])):
             pkgs.add("libtcmalloc")
         
         # Run pkg-config --cflags.
@@ -1092,7 +1092,7 @@ def get_global_args():
 
     global HAVE_MPI, HAVE_OPENMP, HAVE_PETSC, DEVEL, NO_GUI, \
         ENABLE_SEGMENTATION, MAKEDEPEND, PORTDIR, \
-        DIM_3, DATADIR, DOCDIR, OOFNAME, SWIGDIR, NANOHUB, NO_TCMALLOC
+        DIM_3, DATADIR, DOCDIR, OOFNAME, SWIGDIR, NANOHUB, USE_TCMALLOC
     HAVE_MPI = _get_oof_arg('--enable-mpi')
     HAVE_PETSC = _get_oof_arg('--enable-petsc')
     DEVEL = _get_oof_arg('--enable-devel')
@@ -1103,7 +1103,7 @@ def get_global_args():
     NANOHUB = _get_oof_arg('--nanoHUB')
     HAVE_OPENMP = _get_oof_arg('--enable-openmp')
     PORTDIR = _get_oof_arg('--port-dir', '/opt/local')
-    NO_TCMALLOC = _get_oof_arg('--disable-tcmalloc')
+    USE_TCMALLOC = _get_oof_arg('--enable-tcmalloc')
 
     # The following determine some secondary installation directories.
     # They will be created within the main installation directory
