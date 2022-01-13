@@ -803,13 +803,9 @@ class oof_build_shlib(build_shlib.build_shlib, oof_build_xxxx):
         blaslibs.extend(extrablaslibs)
 
         
-        # tcmallocdirs, tcmalloclibs = self.check_tcmalloc()
-
         for library in libraries:
             library.libraries.extend(blaslibs)
             library.extra_link_args.extend(blasargs)
-            # library.libraries.extend(tcmalloclibs)
-            # library.library_dirs.extend(tcmallocdirs)
 
         build_shlib.build_shlib.build_libraries(self, libraries)
 
@@ -883,77 +879,7 @@ class oof_build_shlib(build_shlib.build_shlib, oof_build_xxxx):
             remove_tree(tmpdirname)
         raise errors.DistutilsExecError("can't link blas!")
 
-    # def check_tcmalloc(self):
-
-    #     # TODO: We should be modifying the compiler args as well as
-    #     # the link args when using tcmalloc with gcc.  From tcmalloc's
-    #     # github page:
-    #     ## NOTE: When compiling with programs with gcc, that you plan
-    #     ## to link with libtcmalloc, it's safest to pass in the flags
-    #     ## -fno-builtin-malloc -fno-builtin-calloc
-    #     ## -fno-builtin-realloc -fno-builtin-free when compiling.  gcc
-    #     ## makes some optimizations assuming it is using its own,
-    #     ## built-in malloc; that assumption obviously isn't true with
-    #     ## tcmalloc.  In practice, we haven't seen any problems with
-    #     ## this, but the expected risk is highest for users who
-    #     ## register their own malloc hooks with tcmalloc (using
-    #     ## gperftools/malloc_hook.h). The risk is lowest for folks who
-    #     ## use tcmalloc_minimal (or, of course, who pass in the above
-    #     ## flags :-) ).
-        
-    #     if NO_TCMALLOC:
-    #         return ([], [])
-    #     # Check to see if tcmalloc is available.
-    #     print "Looking for tcmalloc..."
-    #     # First, try pkg-config.  Not all distros include a .pc file
-    #     # for tcmalloc, so a negative result isn't reliable.
-    #     libdirs, libs = get_third_party_libs('pkg-config --libs libtcmalloc')
-    #     if libs:
-    #         print "Found tcmalloc via pkg-config."
-    #         return libdirs, libs
-
-    #     # Do it the hard way, by seeing if we can link to it.  This
-    #     # will work if it's in a standard location.
-    #     libs = ['tcmalloc']
-    #     libdirs = []
-        
-    #     tmpdir = tempfile.mkdtemp(dir=os.getcwd())
-    #     tmpdirname = os.path.split(tmpdir)[1]
-    #     tmpfilename = os.path.join(tmpdirname, "tcmalloctest.C")
-    #     tmpfile = open(tmpfilename, "w")
-    #     print >> tmpfile, """\
-    #     int main(int, char**) {
-    #     double *x = new double[100];
-    #     for(int i=0; i<100; i++) x[i]=0.0;
-    #     return 0;
-    #     }
-    #     """
-    #     tmpfile.close()
-    #     try:
-    #         try:
-    #             ofiles = self.compiler.compile(
-    #                 [tmpfilename],
-    #                 extra_postargs=platform['extra_compile_args'],
-    #             )
-    #         except errors.CompileError:
-    #             raise errors.DistutilsExecError("can't compile tcmalloc test")
-    #         try:
-    #             self.compiler.link(
-    #                 target_desc=self.compiler.EXECUTABLE,
-    #                 objects=ofiles,
-    #                 output_filename=tmpfilename[:-2],
-    #                 library_dirs=platform['libdirs'] + libdirs,
-    #                 libraries=libs,
-    #                 target_lang='c++')
-    #         except errors.LinkError:
-    #             print "Can't find tcmalloc!  OOF may run slowly."
-    #             return ([], [])
-    #         else:
-    #             print "Found tcmalloc."
-    #         return (libdirs, libs)
-    #     finally:
-    #         remove_tree(tmpdirname)
-
+    
 class oof_build(build.build):
     sep_by = " (separated by '%s')" % os.pathsep
     user_options = build.build.user_options + [
@@ -1134,7 +1060,7 @@ def get_global_args():
 
     global HAVE_MPI, HAVE_OPENMP, HAVE_PETSC, DEVEL, NO_GUI, \
         ENABLE_SEGMENTATION, MAKEDEPEND, PORTDIR, \
-        DIM_3, DATADIR, DOCDIR, OOFNAME, SWIGDIR, NANOHUB #, NO_TCMALLOC
+        DIM_3, DATADIR, DOCDIR, OOFNAME, SWIGDIR, NANOHUB
     HAVE_MPI = _get_oof_arg('--enable-mpi')
     HAVE_PETSC = _get_oof_arg('--enable-petsc')
     DEVEL = _get_oof_arg('--enable-devel')
@@ -1145,7 +1071,6 @@ def get_global_args():
     NANOHUB = _get_oof_arg('--nanoHUB')
     HAVE_OPENMP = _get_oof_arg('--enable-openmp')
     PORTDIR = _get_oof_arg('--port-dir', '/opt/local')
-    # NO_TCMALLOC = _get_oof_arg('--disable-tcmalloc')
 
     # The following determine some secondary installation directories.
     # They will be created within the main installation directory
