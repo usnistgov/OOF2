@@ -165,8 +165,8 @@ class CLibInfo:
 
         if not self.pkgs:
             return
-        # Add tcmalloc if desired and available.
         
+        # Add tcmalloc if desired and available.
         # TODO? Should we be modifying the compiler args as well as
         # the link args when using tcmalloc with gcc?  The github page
         # for an older version of gperftools said:
@@ -831,14 +831,9 @@ class oof_build_shlib(build_shlib.build_shlib, oof_build_xxxx):
         extrablaslibs = self.check_extra_blaslibs(blaslibs, blasargs)
         blaslibs.extend(extrablaslibs)
 
-        
-        # tcmallocdirs, tcmalloclibs = self.check_tcmalloc()
-
         for library in libraries:
             library.libraries.extend(blaslibs)
             library.extra_link_args.extend(blasargs)
-            # library.libraries.extend(tcmalloclibs)
-            # library.library_dirs.extend(tcmallocdirs)
 
         build_shlib.build_shlib.build_libraries(self, libraries)
 
