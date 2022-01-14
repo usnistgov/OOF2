@@ -193,30 +193,27 @@ class CLibInfo:
             pkgs.add("libtcmalloc")
         
         # Run pkg-config --cflags.
-        ## TODO: Use subprocess instead of os.popen
         cmd = "pkg-config --cflags %s" % string.join(pkgs)
         log.info("%s: %s", self.libname, cmd)
-        f = os.popen(cmd, 'r')
-        for line in f.readlines():
-            for flag in line.split():
-                if flag[:2] == '-I':
-                    self.includeDirs.append(flag[2:])
-                else:
-                    self.extra_compile_args.append(flag)
+        flags = subprocess.check_output(shlex.split(cmd))
+        for flag in flags.split():
+            if flag[:2] == "-I":
+                self.includeDirs.append(flag[2:])
+            else:
+                self.extra_compile_args.append(flag)
+
         # Run pkg-config --libs.
-        ## TODO: Use subprocess instead of os.popen                
         cmd = "pkg-config --libs %s" % string.join(pkgs)
         log.info("%s: %s", self.libname, cmd)
-        f = os.popen(cmd, 'r')
-        for line in f.readlines():
-            for flag in line.split():
-                if flag[:2] == '-l':
-                    self.externalLibs.append(flag[2:])
-                elif flag[:2] == '-L':
-                    self.externalLibDirs.append(flag[2:])
-                else:
-                    self.extra_link_args.append(flag)
-
+        flags = subprocess.check_output(shlex.split(cmd))
+        for flag in flags.split():
+            if flag[:2] == "-l":
+                self.externalLibs.append(flag[2:])
+            elif flag[:2] == '-L':
+                self.externalLibDirs.append(flag[2:])
+            else:
+                self.extra_link_args.append(flag)
+        
     # Parse the file lists in a DIR.py file.  The file has been read
     # already, and its key,list pairs are in dirdict.  Only the data
     # relevant to CLibInfo is dealt with here.  The rest is handled
@@ -413,11 +410,26 @@ def swig_clibs(dry_run, force, debug, build_temp, with_swig=None):
         swigexec = os.path.join(swigbuilddir, 'bin', 'swig')
         if not os.path.exists(swigexec):
             log.info("Building swig")
-            status = os.system(
-                'cd %s && ./configure --prefix=%s && make && make install' 
-                % (swigsrcdir, swigbuilddir))
-            if status:
-                sys.exit(status)
+            cwd = os.getcwd()
+            try:
+                os.chdir(swigsrcdir)
+                cmd = "./configure --prefix=%s" % swigbuilddir
+                log.info(cmd)
+                if subprocess.call(shlex.split(cmd)):
+                    log.error("Failed to configure swig.")
+                    sys.exit(1)
+                cmd = ["make"]
+                log.info(cmd)
+                if subprocess.call(cmd):
+                    log.error("Failed to build swig")
+                    sys.exit(1)
+                cmd = ["make", "install"]
+                log.info(cmd)
+                if subprocess.call(cmd):
+                    log.error("Failed to install swig")
+                    sys.exit(1)
+            finally:
+                os.chdir(cwd)
     else:
         swigexec = with_swig
     srcdir = os.path.abspath('SRC')
@@ -491,8 +503,11 @@ class oof_build_xxxx:
         if self.force or not os.path.exists(cfgfilename):
             log.info("creating %s", cfgfilename)
             if not self.dry_run:
-                ## TODO: Use subprocess
-                os.system('mkdir -p %s' % os.path.join(self.build_temp, 'SRC'))
+                cmd = 'mkdir -p %s' % os.path.join(self.build_temp, 'SRC')
+                log.info(cmd)
+                if subprocess.call(shlex.split(cmd)):
+                    log.error("Failed to make directory for %s" % cfgfilename)
+                    sys.exit(1)
                 cfgfile = open(cfgfilename, "w")
                 print >> cfgfile, """\
 // This file was created automatically by the oof2 setup script.
@@ -1055,9 +1070,15 @@ class oof_clean(clean.clean):
             remove_tree(swigroot, dry_run=self.dry_run)
             swigsrcdir = os.path.abspath('OOFSWIG')
             log.info("Cleaning swig")
-            status = os.system('cd %s && make clean' % swigsrcdir)
-            if status:
-                sys.exit(status)
+            cwd = os.getcwd()
+            try:
+                os.chdir(swigsrcdir)
+                if subprocess.call(["make", "clean"]):
+                    log.error("Failed to 'make clean' in swig directory.")
+                    sys.exit(1)
+            finally:
+                os.chdir(cwd)
+
         clean.clean.run(self)
     
 ###################################################
