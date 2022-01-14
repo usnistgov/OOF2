@@ -18,10 +18,6 @@
 #  The flags --3D, --enable-mpi, --enable-petsc, and --enable-devel
 #  can occur anywhere after 'setup.py' in the command line.
 
-## TODO: Copy the TEST directory into share/oof2/TEST when installing.
-## This will make it easier to run tests on nanoHUB and maybe
-## elsewhere.
-
 # Required version numbers of required external libraries.  These
 # aren't used explicitly in this file, but they are used in the DIR.py
 # files that are execfile'd here.
@@ -1179,8 +1175,6 @@ def set_platform_values():
         # If we're using macports, the pkgconfig files for the python
         # modules aren't in the standard location.
         
-        ## TODO: Don't explicitly refer to /opt/local/. Use PORTDIR,
-        ## as in oofcanvas.
         global PORTDIR
         if os.path.exists(PORTDIR):
             ## TODO: Having to encode such a long path here seems
