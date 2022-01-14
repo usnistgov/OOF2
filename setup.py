@@ -1066,7 +1066,7 @@ class oof_clean(clean.clean):
                     remove_tree(d,dry_run=self.dry_run)
                 else:
                     log.warn("'%s' does not exist -- can't clean it.", d)
-        if self.swig and os.path.exists(swigroot):
+        if (self.swig or self.all) and os.path.exists(swigroot):
             remove_tree(swigroot, dry_run=self.dry_run)
             swigsrcdir = os.path.abspath('OOFSWIG')
             log.info("Cleaning swig")
