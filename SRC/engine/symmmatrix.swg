@@ -98,6 +98,9 @@ public:
 
 %new OutputValue *newSymTensorOutputValue();
 
+// TODO: swig complains that ArithmeticPropertyOutputInit is undefined
+// (ignored).  Do we care?
+
 class SymmMatrix3PropertyOutputInit : public ArithmeticPropertyOutputInit {
 public:
   SymmMatrix3PropertyOutputInit();
