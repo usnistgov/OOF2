@@ -215,7 +215,7 @@ class CLibInfo:
     # relevant to CLibInfo is dealt with here.  The rest is handled
     # by readDIRs().
     def extractData(self, srcdir, dirdict):
-        for key in self.dirdata.keys():
+        for key in list(self.dirdata.keys()):
             try:
                 value = dirdict[key]
                 del dirdict[key]
@@ -316,7 +316,7 @@ def moduleSort(moduleA, moduleB):
         return cmp(moduleA.name, moduleB.name)
 
 def allFiles(key):
-    hierlist = [lib.dirdata[key] for lib in allCLibs.values()]
+    hierlist = [lib.dirdata[key] for lib in list(allCLibs.values())]
     flatlist = []
     for sublist in hierlist:
         flatlist.extend(sublist)
@@ -331,7 +331,7 @@ def readDIRs(srcdir):
         # ModuleInfo.dirdata keys.  The variables contain lists of
         # file names.
         localdict = {}
-        execfile(dirfile, globals(), localdict)
+        exec(compile(open(dirfile, "rb").read(), dirfile, 'exec'), globals(), localdict)
         # Now the variables and functions defined in dirfile are in localdict.
         try:
             dirname = localdict['dirname']
@@ -367,7 +367,7 @@ def readDIRs(srcdir):
             # At this point, all args in localdict should have been processed.
             if len(localdict) > 0:
                 log.warn("WARNING: unrecognized values %s in %s",
-                         localdict.keys(), dirfile)
+                         list(localdict.keys()), dirfile)
             for subdir in subdirs:
                 readDIRs(os.path.join(srcdir, subdir))
 
@@ -432,7 +432,7 @@ def swig_clibs(dry_run, force, debug, build_temp, with_swig=None):
     extra_args = platform['extra_swig_args']
     if debug:
         extra_args.append('-DDEBUG')
-    for clib in allCLibs.values():
+    for clib in list(allCLibs.values()):
         for swigfile in clib.dirdata['swigfiles']:
             # run_swig requires a src dir and an input file path
             # relative to it.  The '+1' in the following line strips
@@ -505,49 +505,49 @@ class oof_build_xxxx:
                     log.error("Failed to make directory for %s" % cfgfilename)
                     sys.exit(1)
                 cfgfile = open(cfgfilename, "w")
-                print >> cfgfile, """\
+                print("""\
 // This file was created automatically by the oof2 setup script.
 // Do not edit it.
 // Re-run setup.py to change the options.
 #ifndef OOFCONFIG_H
 #define OOFCONFIG_H
-                """
+                """, file=cfgfile)
                 if HAVE_PETSC:
-                    print >> cfgfile, '#define HAVE_PETSC 1'
+                    print('#define HAVE_PETSC 1', file=cfgfile)
                 if HAVE_MPI:
-                    print >> cfgfile, '#define HAVE_MPI 1'
+                    print('#define HAVE_MPI 1', file=cfgfile)
                 if HAVE_OPENMP:
                     # HAVE_OPENMP allows us to override OpenMP flags,
                     # which may have been set in the c++ options of
                     # our dependencies.
-                    print >> cfgfile, '#define HAVE_OPENMP'
+                    print('#define HAVE_OPENMP', file=cfgfile)
                 if DEVEL:
-                    print >> cfgfile, '#define DEVEL ', DEVEL
+                    print('#define DEVEL ', DEVEL, file=cfgfile)
                 if NO_GUI:
-                    print >> cfgfile, '#define NO_GUI 1'
+                    print('#define NO_GUI 1', file=cfgfile)
                 if ENABLE_SEGMENTATION:
-                    print >> cfgfile, '#define ENABLE_SEGMENTATION'
+                    print('#define ENABLE_SEGMENTATION', file=cfgfile)
                 if NANOHUB:
-                    print >> cfgfile, '#define NANOHUB'
+                    print('#define NANOHUB', file=cfgfile)
                 if DIM_3:
-                    print >> cfgfile, '#define DIM 3'
-                    print >> cfgfile, '#define DIM_3'
+                    print('#define DIM 3', file=cfgfile)
+                    print('#define DIM_3', file=cfgfile)
                 else: # for good measure
-                    print >> cfgfile, '#define DIM 2'
+                    print('#define DIM 2', file=cfgfile)
                 if self.check_header('<sstream>'):
-                    print >> cfgfile, '#define HAVE_SSTREAM'
+                    print('#define HAVE_SSTREAM', file=cfgfile)
                 else:
-                    print >> cfgfile, '// #define HAVE_SSTREAM'
+                    print('// #define HAVE_SSTREAM', file=cfgfile)
                 # Python pre-2.5 compatibility
-                print >> cfgfile, """\
+                print("""\
 #include <Python.h>
 #if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
 typedef int Py_ssize_t;
 #define PY_SSIZE_T_MAX INT_MAX
 #define PY_SSIZE_T_MIN INT_MIN
 #endif /* PY_VERSION_HEX check */
-"""
-                print >> cfgfile, "#endif"
+""", file=cfgfile)
+                print("#endif", file=cfgfile)
                 cfgfile.close()
 
     def check_header(self, headername):
@@ -555,10 +555,10 @@ typedef int Py_ssize_t;
         log.info("Testing for %s", headername)
         tmpfiled, tmpfilename = tempfile.mkstemp(suffix='.C')
         tmpfile = os.fdopen(tmpfiled, 'w')
-        print >> tmpfile, """\
+        print("""\
         #include %s
         int main(int, char**) { return 1; }
-        """ % headername
+        """ % headername, file=tmpfile)
         tmpfile.flush()
         try:
             try:
@@ -725,7 +725,7 @@ typedef int Py_ssize_t;
     def clean_targets(self, depdict):
         outofdate = False
         if not self.dry_run:
-            for target, sources in depdict.items():
+            for target, sources in list(depdict.items()):
                 if os.path.exists(target):
                     targettime = modification_time(target)
                     sourcetime = max([modification_time(x) for x in sources])
@@ -752,14 +752,14 @@ typedef int Py_ssize_t;
             if not MAKEDEPEND and os.path.exists(depfilename):
                 locals = {}
                 log.info("Loading dependencies from %s", depfilename)
-                execfile(depfilename, globals(), locals)
+                exec(compile(open(depfilename, "rb").read(), depfilename, 'exec'), globals(), locals)
                 depdict = locals['depdict']
             else:
                 depdict = self.find_dependencies()
                 log.info("Saving dependencies in %s", depfilename)
                 mkpath(self.build_temp)
                 depfile = open(depfilename, "w")
-                print >> depfile, "depdict=", depdict
+                print("depdict=", depdict, file=depfile)
                 depfile.close()
             self.clean_targets(depdict)
             _dependencies_checked = True
@@ -863,7 +863,7 @@ class oof_build_shlib(build_shlib.build_shlib, oof_build_xxxx):
         # Create a file with dummy blas code in it.
         tmpfilename = os.path.join(tmpdirname, "blastest.C")
         tmpfile = open(tmpfilename, "w")
-        print >> tmpfile, """\
+        print("""\
         extern "C" {void dgemv_(char*, int*, int*, double*, double*, int*,
         double*, double*, double*, double*, int*);}
         int main(int argc, char **argv) {
@@ -873,7 +873,7 @@ class oof_build_shlib(build_shlib.build_shlib, oof_build_xxxx):
         dgemv_(&c, &i, &i, &x, &x, &i, &x, &x, &x, &x, &i);
         return 0;
         }
-        """
+        """, file=tmpfile)
         tmpfile.close()
         try:
             # Compile the dummy code.
@@ -1000,22 +1000,22 @@ class oof_build_py(build_py.build_py):
         build_shlib = self.get_finalized_command('build_shlib')
         install_shlib = self.get_finalized_command('install_shlib')
       
-        print >> cfgscript, 'root = "%s"' % os.path.abspath('.')
-        print >> cfgscript, 'version = "%s"' % self.distribution.get_version()
-        print >> cfgscript, 'prefix = "%s"' % install.prefix
+        print('root = "%s"' % os.path.abspath('.'), file=cfgscript)
+        print('version = "%s"' % self.distribution.get_version(), file=cfgscript)
+        print('prefix = "%s"' % install.prefix, file=cfgscript)
         idirs = build_shlib.include_dirs + [
             os.path.abspath('SRC'),
             os.path.join(install.prefix, 'include', OOFNAME)
             ] + platform['incdirs']
-        print >> cfgscript, 'swig_include = ', [os.path.abspath('SRC')]
-        print >> cfgscript, 'extra_compile_args =', \
-              platform['extra_compile_args']
-        print >> cfgscript, 'include_dirs =', idirs
-        print >> cfgscript, 'library_dirs =', [install_shlib.install_dir]
+        print('swig_include = ', [os.path.abspath('SRC')], file=cfgscript)
+        print('extra_compile_args =', \
+              platform['extra_compile_args'], file=cfgscript)
+        print('include_dirs =', idirs, file=cfgscript)
+        print('library_dirs =', [install_shlib.install_dir], file=cfgscript)
         shared_libs = [lib.name for lib in install_shlib.shlibs]
-        print >> cfgscript, 'libraries =', shared_libs
-        print >> cfgscript, 'extra_link_args =', platform['extra_link_args']
-        print >> cfgscript, "import sys; sys.path.append(root)"
+        print('libraries =', shared_libs, file=cfgscript)
+        print('extra_link_args =', platform['extra_link_args'], file=cfgscript)
+        print("import sys; sys.path.append(root)", file=cfgscript)
         cfgscript.close()
 
 
@@ -1023,8 +1023,7 @@ class oof_build_py(build_py.build_py):
         if type(package) is StringType:
             package = string.split(package, '.')
         elif type(package) not in (ListType, TupleType):
-            raise TypeError, \
-                  "'package' must be a string (dot-separated), list, or tuple"
+            raise TypeError("'package' must be a string (dot-separated), list, or tuple")
 
         # Now put the module source file into the "build" area -- this is
         # easy, we just copy it somewhere under self.build_lib (the build
@@ -1172,9 +1171,15 @@ def set_platform_values():
     if sys.platform == 'darwin':
         platform['blas_link_args'].extend(['-framework', 'Accelerate'])
         platform['extra_link_args'].append('-headerpad_max_install_names')
-        # If we're using macports, the pkgconfig files for the python
-        # modules aren't in the standard location.
-        
+
+        # If we're using macports to build the dependencies, the
+        # pkgconfig files for dependencies built by python aren't with
+        # the other .pc files.  If we're *not* building oof2 in
+        # macports, those .pc files won't be found unless we add their
+        # location to PKG_CONFIG_PATH.  But in fact we don't have any
+        # such packages other than oofcanvas, so using PORTDIR to set
+        # PKG_CONFIG_PATH could be avoided if we build either both or
+        # neither of oof2 and oofcanvas via macports.
         global PORTDIR
         if os.path.exists(PORTDIR):
             ## TODO: Having to encode such a long path here seems
@@ -1183,6 +1188,7 @@ def set_platform_values():
             pkgpath = os.path.join(PORTDIR, "Library/Frameworks/Python.framework/Versions/%d.%d/lib/pkgconfig/" % (sys.version_info[0], sys.version_info[1]))
             log.info("Adding %s to PKG_CONFIG_PATH", pkgpath)
             extend_path("PKG_CONFIG_PATH", pkgpath)
+
         # Enable C++11
         platform['extra_compile_args'].append('-Wno-c++11-extensions')
         platform['extra_compile_args'].append('-std=c++11')
@@ -1288,22 +1294,21 @@ def _setup_compile(self, outdir, macros, incdirs, sources, depends,
     if outdir is None:
         outdir = self.output_dir
     elif type(outdir) is not StringType:
-        raise TypeError, "'output_dir' must be a string or None"
+        raise TypeError("'output_dir' must be a string or None")
 
     if macros is None:
         macros = self.macros
     elif type(macros) is ListType:
         macros = macros + (self.macros or [])
     else:
-        raise TypeError, "'macros' (if supplied) must be a list of tuples"
+        raise TypeError("'macros' (if supplied) must be a list of tuples")
 
     if incdirs is None:
         incdirs = self.include_dirs
     elif type(incdirs) in (ListType, TupleType):
         incdirs = list(incdirs) + (self.include_dirs or [])
     else:
-        raise TypeError, \
-              "'include_dirs' (if supplied) must be a list of strings"
+        raise TypeError("'include_dirs' (if supplied) must be a list of strings")
 
     if extra is None:
         extra = []
@@ -1377,7 +1382,7 @@ if __name__ == '__main__':
     readDIRs('.')                       # Gather data from the DIR.py files.
 
     # Get the data to build the C++ extension modules.
-    clibraries = allCLibs.values()
+    clibraries = list(allCLibs.values())
     clibraries.sort(moduleSort)
     extensions = []
     shlibs = []
@@ -1403,7 +1408,7 @@ if __name__ == '__main__':
 
     # Ask each CLibInfo object for the swigged python modules it
     # creates. 
-    for clib in allCLibs.values():
+    for clib in list(allCLibs.values()):
         pkg_list.update(clib.find_swig_pkgs())
 
     # Make sure that intermediate directories are in the package list.
