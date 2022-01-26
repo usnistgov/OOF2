@@ -546,7 +546,7 @@ extern  void  emit_hex(FILE *);
 extern  void  emit_set_get(char *, char *, DataType *);
 extern  void  emit_banner(FILE *);
 extern  void  emit_ptr_equivalence(FILE *);
-extern  int   SWIG_main(int, char **, Language *, Documentation *);
+extern  int   SWIG_main(int, char **, Language *);
 extern  void  make_wrap_name(char *);
 
 // Some functions for emitting some C++ helper code

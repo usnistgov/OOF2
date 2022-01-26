@@ -26,10 +26,6 @@
 #include "python.h"
 // #include "pythoncom.h"
 #include "debug.h"
-#include "ascii.h"
-#include "latex.h"
-#include "html.h"
-#include "nodoc.h"
 #include <ctype.h>
 
 static const char  *usage = "\
@@ -39,20 +35,6 @@ Target Language Options:\n\
      -debug          - Parser debugging module.\n";
 
 
-#ifdef MACSWIG     
-static char *macmessage = "\
-SWIG version 1.0 (build 883) is Copyright (c) 1995-1997\n\
-University of Utah and the Regents of the University of California\n\n\
-Enter SWIG processing options and filename below. For example :\n\
-\n\
-      -python -c++ interface.i\n\
-\n\
--help displays a list of all available options.\n\
-\n\
-Note : Macintosh filenames should be enclosed in quotes if they contain whitespace.\n\
-\n";
-
-#endif
 
 //-----------------------------------------------------------------
 // main()
@@ -60,18 +42,12 @@ Note : Macintosh filenames should be enclosed in quotes if they contain whitespa
 // Main program.    Initializes the files and starts the parser.
 //-----------------------------------------------------------------
 
-#ifndef MACSWIG
 int main(int argc, char **argv) {
-#else
-int Mac_main(int argc, char **argv) {
-#endif
 
   int i;
 
-//  Language *dl = new SWIG_LANG;
   Language *dl;
-  Documentation *dd = new SWIG_DOC;
-  extern int SWIG_main(int, char **, Language *, Documentation *);
+  extern int SWIG_main(int, char **, Language *);
   init_args(argc,argv);
   
   // Get options
@@ -89,62 +65,8 @@ int Mac_main(int argc, char **argv) {
 	  }
       }
   }
-  SWIG_main(argc,argv,dl,dd);
+  SWIG_main(argc,argv,dl);
 
   return 0;
 }
 
-#ifdef MACSWIG
-int MacMainEntry(char *options) {
-	static char *_argv[256];
-	int i,argc;
-	char *c,*s,*t;
-
-	swig_log = fopen("swig_log","w");
-	fprintf(swig_log,"SWIG 1.1\n");
-	fprintf(swig_log,"Options : %s\n", options);
-	fprintf(swig_log,"-----------------------------------------------------\n");
-
-	// Tokenize the user input
-	
-	_argv[0] = "swig";
-	i=1;
-	c = options;
-	while (*c) {
-	    while(isspace(*c)) c++;
-	    if (*c) {
-	      s = c;             // Starting character
-	      while(isgraph(*c)) {
-		if (*c == '\"') {
-		  c++;
-		  while ((*c) && (*c != '\"'))
-		    c++;
-		  c++;
-		} else {
-		  c++;
-		}
-	      }
-	      // Found some whitespace 
-	      if (*c) {
-		*c = 0;
-		c++;
-	      }
-	      _argv[i] = copy_string(s);
-	      // Go through and remove quotes (if necessary)
-	      
-	      t = _argv[i];
-	      while(*s) {
-		if (*s != '\"') 
-		  *(t++) = *s;
-		s++;
-	      }
-	      *t = 0;
-	      i++;
-	    }
-	}
-	argc = i;
-	_argv[i] = 0;
-	return Mac_main(argc,_argv);
-}
-	
-#endif	
