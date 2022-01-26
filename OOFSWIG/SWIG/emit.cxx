@@ -59,7 +59,7 @@ void emit_banner(FILE *f) {
  * \n\
  * Do not make changes to this file--changes will be lost!\n\
  *\n\
- */\n\n", fn_header, SWIG_MAJOR_VERSION, SWIG_MINOR_VERSION, SWIG_SPIN);
+ */\n\n", fn_header.c_str(), SWIG_MAJOR_VERSION, SWIG_MINOR_VERSION, SWIG_SPIN);
 
   fprintf(f,"\n#define SWIGCODE\n");
 
