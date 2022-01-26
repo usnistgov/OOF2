@@ -136,8 +136,8 @@ int add_iname(const char *name) {
 //
 // -----------------------------------------------------------------------------
 
-void check_suffix(char *name) {
-  char *c;
+void check_suffix(const char *name) {
+  const char *c;
 
   if (!name) return;
   if (strlen(name) == 0) return;

@@ -21,6 +21,14 @@
  *
  ***********************************************************************/
 
+// TODO: Stupid calls to std::string::c_str() are because all of the
+// std::strings in here used to be char[256], and not everything has
+// been modified to use the std::strings.  If the c_str() is being
+// passed to a function that might modify the string, it may have to
+// be fixed.  (Leaving the strings as char[256] causes problems with
+// very long file paths, such as are generated when building OOF2 with
+// MacPorts).
+
 #define WRAP
 
 #include "internal.h"
@@ -32,6 +40,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+
+#include <string>
 
 class SwigException {};
 
@@ -68,7 +78,7 @@ General Options\n\
 // Main program.    Initializes the files and starts the parser.
 //-----------------------------------------------------------------
 
-char  infilename[256];
+std::string  infilename;
 char  filename[256];
 char  fn_header[256];
 char  fn_wrapper[256];
@@ -89,7 +99,7 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
   extern  void   add_directory(char *);
   extern  char   *get_time();
   char    temp[512];
-  char    infile[512];
+  std::string    infile;
 
   char   *outfile_name = 0;
   extern  int add_iname(const char *);
@@ -100,7 +110,7 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
   char   *typemap_file = 0;
   char   *includefiles[256];
   int     includecount = 0;
-  extern  void check_suffix(char *);
+  extern  void check_suffix(const char *);
   extern  void scanner_file(FILE *);
 
 #ifdef MACSWIG
@@ -303,9 +313,9 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
 
   // Create names of temporary files that are created
 
-  sprintf(infilename,"%s", argv[argc-1]);
-  input_file = new char[strlen(infilename)+1];
-  strcpy(input_file, infilename);
+  infilename = std::string(argv[argc-1]);
+  input_file = new char[infilename.size()+1];
+  strcpy(input_file, infilename.c_str());
 
   // If the user has requested to check out a file, handle that
 
@@ -346,23 +356,30 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
     // Check the suffix for a .c file.  If so, we're going to 
     // declare everything we see as "extern"
     
-    check_suffix(infilename);
+    check_suffix(infilename.c_str());
     
     // Strip off suffix 
-    
-    c = infilename + strlen(infilename);
-    while (c != infilename) {
-      if (*c == '.') {
-	*c = 0;
+
+    for(int i=infilename.size()-1; i>0; i--) {
+      if(infilename[i] == '.') {
+	infilename.resize(i);
 	break;
-      } else {
-	c--;
       }
     }
+    // c = infilename + strlen(infilename);
+    // while (c != infilename) {
+    //   if (*c == '.') {
+    // 	*c = 0;
+    // 	break;
+    //   } else {
+    // 	c--;
+    //   }
+    // }
 
     if (!outfile_name) {
-      sprintf(fn_header,"%s_wrap.c",infilename);
-      strcpy(infile,infilename);
+      sprintf(fn_header,"%s_wrap.c",infilename.c_str());
+      infile = infilename;
+      // strcpy(infile,infilename.c_str());
       strcpy(output_dir,"");
     } else {
       sprintf(fn_header,"%s",outfile_name);
@@ -386,26 +403,31 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
       }
       *dd = 0;
       // Patch up the input filename
-      cc = infilename + strlen(infilename);
-      while (cc != infilename) {
-#ifdef MACSWIG
-	if (*cc == ':') {
-	  cc++;
+      // SAL: Set infile to everything up to the last slash in infilename
+      // cc = infilename + strlen(infilename);
+      // while (cc != infilename) {
+      // 	if (*cc == '/') {
+      // 	  cc++;
+      // 	  break;
+      // 	}
+      // 	cc--;
+      // }
+      // strcpy(infile,cc);
+      std::string infile(infilename);
+      auto iter = infile.end();
+      --iter;
+      for(; iter>infile.begin(); --iter) {
+	if(*iter == '/') {
+	  infile.erase(iter, infile.end());
+	  std::cerr << "**** SWIG ****: " << infilename << " -> " << infile
+		    << std::endl;
 	  break;
 	}
-#else
-	if (*cc == '/') {
-	  cc++;
-	  break;
-	}
-#endif
-	cc--;
       }
-      strcpy(infile,cc);
     }
 
-    sprintf(fn_wrapper,"%s%s_wrap.wrap",output_dir,infile);
-    sprintf(fn_init,"%s%s_wrap.init",output_dir,infile);
+    sprintf(fn_wrapper,"%s%s_wrap.wrap",output_dir,infile.c_str());
+    sprintf(fn_init,"%s%s_wrap.init",output_dir,infile.c_str());
     
     sprintf(title,"%s", fn_header);
     
@@ -431,7 +453,7 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
     
     // Add to the include list
     
-    add_iname(infilename);
+    add_iname(infilename.c_str());
 
     // Initialize the scanner
     
@@ -457,13 +479,13 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
     
     // Open up documentation
     
-    if (doc_file) {
-      doc->init(doc_file);
-    } else {
-      doc_file = new char[strlen(infile)+strlen(output_dir)+8];
-      sprintf(doc_file,"%s%s_wrap",output_dir,infile);
-      doc->init(doc_file);
-    }
+    // if (doc_file) {
+    //   doc->init(doc_file);
+    // } else {
+    //   doc_file = new char[strlen(infile)+strlen(output_dir)+8];
+    //   sprintf(doc_file,"%s%s_wrap",output_dir,infile);
+    //   doc->init(doc_file);
+    // }
     
     // Set up the typemap for handling new return strings
     {
