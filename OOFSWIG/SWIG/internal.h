@@ -132,7 +132,7 @@ extern    int            doc_stack_top;           // Top of stack
 extern    Language      *lang;
 extern    Documentation *doc;
 extern    CommentHandler *comment_handler;      // Comment handling system
-extern    void          swig_append(char *, FILE *);
+extern    void          swig_append(const char *, FILE *);
 extern    int           Stat_func, Stat_var, Stat_const;
 extern    int           IgnoreDoc;
 extern    int           ForceExtern;
