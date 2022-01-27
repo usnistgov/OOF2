@@ -451,6 +451,6 @@ findWidget('Dialog-Python_Log:filename').set_text('session.l')
 findWidget('Dialog-Python_Log:filename').set_text('session.lo')
 findWidget('Dialog-Python_Log:filename').set_text('session.log')
 findWidget('Dialog-Python_Log:widget_GTK_RESPONSE_OK').clicked()
-assert tests.filediff("session.log")
 checkpoint OOF.File.Save.Python_Log
+assert tests.filediff("session.log")
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Quit']).activate()
