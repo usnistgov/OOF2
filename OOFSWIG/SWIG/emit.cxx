@@ -37,12 +37,10 @@
 // Side Effects : None
 // -----------------------------------------------------------------------------
 
-#include <string>
-
 void emit_banner(FILE *f) {
 
   extern char *get_time();
-  extern std::string fn_header;
+  extern char fn_header[];
 
   fprintf(f,
 "/*\n\
