@@ -37,10 +37,12 @@
 // Side Effects : None
 // -----------------------------------------------------------------------------
 
+#include <string>
+
 void emit_banner(FILE *f) {
 
   extern char *get_time();
-  extern char fn_header[];
+  extern std::string fn_header;
 
   fprintf(f,
 "/*\n\
@@ -57,7 +59,7 @@ void emit_banner(FILE *f) {
  * \n\
  * Do not make changes to this file--changes will be lost!\n\
  *\n\
- */\n\n", fn_header, SWIG_MAJOR_VERSION, SWIG_MINOR_VERSION, SWIG_SPIN);
+ */\n\n", fn_header.c_str(), SWIG_MAJOR_VERSION, SWIG_MINOR_VERSION, SWIG_SPIN);
 
   fprintf(f,"\n#define SWIGCODE\n");
 
