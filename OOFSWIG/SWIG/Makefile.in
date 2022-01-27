@@ -57,15 +57,15 @@ AR      = @AR@
 # Normally, you shouldn't have to change anything below this point     #
 ########################################################################
 
-LIBOBJS = main.o scanner.o symbol.o include.o types.o parms.o emit.o \
-        cplus.o lang.o hash.o sstring.o wrapfunc.o getopt.o comment.o \
-        typemap.o naming.o
+LIBOBJS = main.o scanner.o symbol.o include.o types.o parms.o emit.o newdoc.o ascii.o \
+          html.o latex.o cplus.o lang.o hash.o sstring.o wrapfunc.o getopt.o comment.o \
+          typemap.o naming.o
 
 LIBSRCS = main.cxx scanner.cxx symbol.cxx include.cxx types.cxx parms.cxx emit.cxx \
-          cplus.cxx lang.cxx hash.cxx \
+	  newdoc.cxx ascii.cxx html.cxx latex.cxx cplus.cxx lang.cxx hash.cxx \
           sstring.cxx wrapfunc.cxx getopt.cxx comment.cxx typemap.cxx naming.cxx
 
-LIBHEADERS = internal.h ../Include/swig.h 
+LIBHEADERS = internal.h ../Include/swig.h latex.h ascii.h html.h nodoc.h
 LIB      = ../libswig.a
 PARSER   = parser.y
 INCLUDE  = -I../Include

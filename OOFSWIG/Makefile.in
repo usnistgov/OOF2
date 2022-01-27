@@ -67,7 +67,7 @@ WITH=
 #
 # Rules for creation of a .o file from .cxx
 
-all:		swig.x 
+all:		swig.x #doc ##Not to build documentation 
 		@echo "Compilation complete."
 		@echo "Type 'make runtime' to build run-time libraries."
 		@echo "Type 'make install' to install."	

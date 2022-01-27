@@ -33,6 +33,10 @@
 #define WRAP
 
 #include "internal.h"
+#include "ascii.h"
+#include "latex.h"
+#include "html.h"
+#include "nodoc.h"
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -43,13 +47,22 @@
 class SwigException {};
 
 static const char *usage = "\
-\nGeneral Options\n\
+\nDocumentation Options\n\
+     -dascii         - ASCII documentation.\n\
+     -dhtml          - HTML documentation.\n\
+     -dlatex         - LaTeX documentation.\n\
+     -dnone          - No documentation.\n\n\
+General Options\n\
      -c              - Produce raw wrapper code (omit support code)\n\
      -c++            - Enable C++ processing\n\
+     -ci             - Check a file into the SWIG library\n\
+     -co             - Check a file out of the SWIG library\n\
+     -d docfile      - Set name of the documentation file.\n\
      -Dsymbol        - Define a symbol (for conditional compilation)\n\
      -I<dir>         - Look for SWIG files in <dir>\n\
      -l<ifile>       - Include SWIG library file.\n\
      -make_default   - Create default constructors/destructors\n\
+     -nocomment      - Ignore all comments (for documentation).\n\
      -o outfile      - Set name of the output file.\n\
      -objc           - Enable Objective C processing\n\
      -stat           - Print statistics\n\
@@ -74,7 +87,7 @@ std::string  output_dir;
 
 char *SwigLib;
 
-int SWIG_main(int argc, char *argv[], Language *l) {
+int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
 
   int    i;
   char   *c;
@@ -101,9 +114,11 @@ int SWIG_main(int argc, char *argv[], Language *l) {
   f_header = 0;
 
   lang = l;
+  doc = d;
   Status = 0;
   TypeStrict = 2;                   // Very strict type checking
   Verbose = 0;
+  // char    *doc_file = 0;
   
   DataType::init_typedef();         // Initialize the type handler
 
@@ -156,8 +171,22 @@ int SWIG_main(int argc, char *argv[], Language *l) {
 	  } else if ((strcmp(argv[i],"-verbose") == 0) || (strcmp(argv[i],"-v") == 0)) {
 	      Verbose = 1;
 	      mark_arg(i);
-	  }
-	  else if (strcmp(argv[i],"-stat") == 0) {
+	  } else if (strcmp(argv[i],"-dascii") == 0) {
+	      doc = new ASCII;
+	      mark_arg(i);
+	  } else if (strcmp(argv[i],"-dnone") == 0) {
+	      doc = new NODOC;
+	      mark_arg(i);
+	  } else if (strcmp(argv[i],"-dhtml") == 0) {
+	      doc = new HTML;
+	      mark_arg(i);
+	  } else if (strcmp(argv[i],"-dlatex") == 0) {
+	      doc = new LATEX;
+	      mark_arg(i);
+	  } else if (strcmp(argv[i],"-nocomment") == 0) {
+	      ignorecomments = 1;
+	      mark_arg(i);
+	  } else if (strcmp(argv[i],"-stat") == 0) {
 	      Stats=1;
 	      mark_arg(i);
 	  } else if (strcmp(argv[i],"-c++") == 0) {
@@ -184,8 +213,17 @@ int SWIG_main(int argc, char *argv[], Language *l) {
 	      } else {
 		arg_error();
 	      }
-	  }
-	  else if (strcmp(argv[i],"-t") == 0) {
+	  } // else if (strcmp(argv[i],"-d") == 0) {
+	    //   mark_arg(i);
+	    //   if (argv[i+1]) {
+	    // 	doc_file = copy_string(argv[i+1]);
+	    // 	mark_arg(i+1);
+	    // 	i++;
+	    //   } else {
+	    // 	arg_error();
+	    //   }
+	    // }
+      else if (strcmp(argv[i],"-t") == 0) {
 	      mark_arg(i);
 	      if (argv[i+1]) {
 		typemap_file = copy_string(argv[i+1]);
@@ -200,7 +238,7 @@ int SWIG_main(int argc, char *argv[], Language *l) {
 	      fprintf(stderr,"SWIG version 1.1 (Build 883) is Copyright (c) 1995-98\n");
 	      fprintf(stderr,"University of Utah and the Regents of the University of California\n");
 	      fprintf(stderr,"\nCompiled with %s\n", SWIG_CC);
-	      fprintf(stderr, "Heavily modified and visciously abridged for OOF at NIST\n");
+	      fprintf(stderr, "Heavily modified and visciously abridged by OOF at NIST\n");
 	      SWIG_exit(0);
 	  } else if (strncmp(argv[i],"-l",2) == 0) {
 	    // Add a new directory search path 
@@ -226,13 +264,25 @@ int SWIG_main(int argc, char *argv[], Language *l) {
     add_directory(includefiles[--includecount]);
   }
     
+  // Create a new documentation handler
+
+  if (doc == 0) doc = new ASCII;  
+
   // Open up a comment handler
-  // [Most of the rest of the documentation machinery has been removed,
-  // but deleting CommentHandler causes problems in parser.y, and I
-  // don't know anything about yacc and don't want to mess with that
-  // file. -- SAL]
+
   comment_handler = new CommentHandler();
-  comment_handler->style("ignore", 0);
+  comment_handler->parse_args(argc,argv);
+  if (ignorecomments) comment_handler->style("ignore",0);
+
+  // // Create a new documentation entry
+
+  // doctitle = new DocTitle("",0);
+  // doctitle->parse_args(argc,argv);
+  // doc_entry = doctitle;
+
+  // // Handle documentation module options
+
+  // doc->parse_args(argc,argv);
 
   // Parse language dependent options
 
@@ -252,7 +302,44 @@ int SWIG_main(int argc, char *argv[], Language *l) {
   input_file = new char[infilename.size()+1];
   strcpy(input_file, infilename.c_str());
 
-  /* There used to be an if clause here */ {
+  // If the user has requested to check out a file, handle that
+
+  // if (checkout) {
+  //   int stat;
+  //   char *outfile = input_file;
+  //   if (outfile_name)
+  //     outfile = outfile_name.c_str();
+  //   stat = checkout_file(input_file,outfile);
+  //   if (!stat) {
+  //     fprintf(stderr,"%s checked out from the SWIG library\n",input_file);
+  //   } else {
+  //     FILE * f = fopen(input_file,"r");
+  //     if (f) {
+  // 	fprintf(stderr,"Unable to check-out %s. File already exists.\n", input_file);
+  // 	fclose(f);
+  //     } else {
+  // 	fprintf(stderr,"Unable to check-out %s\n", input_file);
+  //     }
+  //   }
+  // }
+  // else if (checkin) {
+  //   // Try to check-in a file to the SWIG library
+  //   int stat;
+  //   char *outname = input_file;
+  //   if (outfile_name)
+  //     outname = outfile_name;
+  //   stat = checkin_file(SwigLib, LibDir, input_file, outname);
+  //   if (!stat) {
+  //     fprintf(stderr,"%s checked-in to %s/%s/%s\n", input_file, SwigLib, LibDir, outname);
+  //   } else {
+  //     fprintf(stderr,"Unable to check-in %s to %s/%s\n", input_file, SwigLib, LibDir);
+  //   }
+  // } else
+    {
+    // doctitle->file = copy_string(input_file);
+    // doctitle->line_number = -1000;
+    // doctitle->end_line = -1000;
+    
     // Check the suffix for a .c file.  If so, we're going to 
     // declare everything we see as "extern"
     
@@ -266,6 +353,15 @@ int SWIG_main(int argc, char *argv[], Language *l) {
 	break;
       }
     }
+    // c = infilename + strlen(infilename);
+    // while (c != infilename) {
+    //   if (*c == '.') {
+    // 	*c = 0;
+    // 	break;
+    //   } else {
+    // 	c--;
+    //   }
+    // }
 
     if (outfile_name.size() == 0) {
       fn_header = infilename + "_wrap.c";
@@ -334,6 +430,16 @@ int SWIG_main(int argc, char *argv[], Language *l) {
       exit(0);
     }
     
+    // Open up documentation
+    
+    // if (doc_file) {
+    //   doc->init(doc_file);
+    // } else {
+    //   doc_file = new char[strlen(infile)+strlen(output_dir)+8];
+    //   sprintf(doc_file,"%s%s_wrap",output_dir,infile);
+    //   doc->init(doc_file);
+    // }
+    
     // Set up the typemap for handling new return strings
     {
       DataType *temp_t = new DataType(T_CHAR);
@@ -360,7 +466,17 @@ int SWIG_main(int argc, char *argv[], Language *l) {
       }
     }
 
-    // If in Objective-C mode.  Load in a configuration file [Deleted]
+    // If in Objective-C mode.  Load in a configuration file
+
+    if (ObjC) {
+      // Add the 'id' object type as a void *
+      /*      DataType *t = new DataType(T_VOID);
+      t->is_pointer = 1;
+      t->implicit_ptr = 0;
+      t->typedef_add("id");
+      delete t;
+      */
+    }
 
     // Pass control over to the specific language interpreter    
 
@@ -374,10 +490,25 @@ int SWIG_main(int argc, char *argv[], Language *l) {
     
     fclose(f_header);
     
+    // Print out documentation.  Due to tree-like nature of documentation,
+    // printing out the title prints out everything.
+    
+    // while(doctitle) {
+    //   doctitle->output(doc);
+    //   doctitle = doctitle->next;
+    // }
+    
+    // doc->close();
+    
     // Remove temporary files
     
     remove(fn_wrapper.c_str());
     remove(fn_init.c_str());
+
+    // If only producing documentation, remove the wrapper file as well
+
+    // if (DocOnly) 
+    //   remove(fn_header);
 
     // Check for undefined types that were used.
 
