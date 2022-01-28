@@ -30,9 +30,9 @@
 /* Delimeter used in accessing files and directories */
 
 #ifdef MACSWIG
-#define  DELIMETER  ':'
+#define  DELIMITER  ':'
 #else
-#define  DELIMETER  '/'
+#define  DELIMITER  '/'
 #endif
 
 /* Linked list containing search directories */
@@ -55,7 +55,7 @@ struct  Inode {
 Inode  *include_list = 0;
 
 // -----------------------------------------------------------------------------
-// void add_directory(char *dirname)
+// void add_directory(const char *dirname)
 //
 // Adds a directory to the SWIG search path.
 // 
@@ -66,7 +66,7 @@ Inode  *include_list = 0;
 // Side Effects : Adds dirname to linked list of pathnames.
 // -----------------------------------------------------------------------------
 
-void add_directory(char *dirname) {
+void add_directory(const char *dirname) {
   Dnode  *d;
 
   if (!include_init) {
@@ -181,7 +181,7 @@ void check_suffix(const char *name) {
 int include_file(char *name) {
 
   FILE  *f;
-  char   filename[256];
+  std::string filename;
   int    found = 0;
   Dnode  *d;
   extern void scanner_file(FILE *);
@@ -210,21 +210,21 @@ int include_file(char *name) {
   d = ihead.next;               // Start of search list
   while (d != &iz) {
     // Look for the wrap file in language directory
-    sprintf(filename,"%s%c%s%c%s", d->dirname,DELIMETER,LibDir,DELIMETER,name);
-    if (Verbose) fprintf(stderr,"Looking for %s\n", filename);
-    if((f = fopen(filename,"r")) != NULL) {
+    filename = std::string(d->dirname) + DELIMITER + LibDir + DELIMITER + name;
+    if (Verbose) fprintf(stderr,"Looking for %s\n", filename.c_str());
+    if((f = fopen(filename.c_str(),"r")) != NULL) {
       found = 1;
     } else {
-      sprintf(filename,"%s%c%s", d->dirname, DELIMETER,name);
-      if (Verbose) fprintf(stderr,"Looking for %s\n", filename);
-      if ((f = fopen(filename,"r")) != NULL) {
+      filename = std::string(d->dirname) + DELIMITER + name;
+      if (Verbose) fprintf(stderr,"Looking for %s\n", filename.c_str());
+      if ((f = fopen(filename.c_str(),"r")) != NULL) {
 	found = 1;
       }
     }
     if (found) {
       // Found it, open it up for input
-      input_file = new char[strlen(filename)+1];
-      strcpy(input_file,filename);
+      input_file = new char[filename.size()+1];
+      strcpy(input_file,filename.c_str());
       scanner_file(f);
       check_suffix(name);
       return 0;
@@ -298,7 +298,7 @@ void copy_data(FILE *f1, String &s2) {
 int insert_file(const char *name, FILE *f_out) {
 
   FILE  *f;
-  char   filename[256];
+  std::string filename;
   int    found = 0;
   Dnode  *d;
 
@@ -319,14 +319,14 @@ int insert_file(const char *name, FILE *f_out) {
   d = ihead.next;               // Start of search list
   while (d != &iz) {
     // Look for the wrap file in language directory
-    sprintf(filename,"%s%c%s%c%s", d->dirname,DELIMETER,LibDir,DELIMETER,name);
-    if (Verbose) fprintf(stderr,"Looking for %s\n", filename);
-    if((f = fopen(filename,"r")) != NULL) {
+    filename = std::string(d->dirname) + DELIMITER + LibDir + DELIMITER + name;
+    if (Verbose) fprintf(stderr,"Looking for %s\n", filename.c_str());
+    if((f = fopen(filename.c_str(),"r")) != NULL) {
       found = 1;
     } else {
-      sprintf(filename,"%s%c%s", d->dirname, DELIMETER, name);
-      if (Verbose) fprintf(stderr,"Looking for %s\n", filename);
-      if ((f = fopen(filename,"r")) != NULL) {
+      filename = std::string(d->dirname) + DELIMITER + name;
+      if (Verbose) fprintf(stderr,"Looking for %s\n", filename.c_str());
+      if ((f = fopen(filename.c_str(),"r")) != NULL) {
 	found = 1;
       }
     }
@@ -387,7 +387,7 @@ void swig_append(const char *filename, FILE *f) {
 int get_file(const char *name, String &str) {
 
   FILE  *f;
-  char   filename[256];
+  std::string filename;
   int    found = 0;
   Dnode  *d;
 
@@ -404,14 +404,14 @@ int get_file(const char *name, String &str) {
   d = ihead.next;               // Start of search list
   while (d != &iz) {
     // Look for the wrap file in language directory
-    sprintf(filename,"%s%c%s%c%s", d->dirname,DELIMETER,LibDir,DELIMETER,name);
-    if (Verbose) fprintf(stderr,"Looking for %s\n", filename);
-    if((f = fopen(filename,"r")) != NULL) {
+    filename = std::string(d->dirname) + DELIMITER + LibDir + DELIMITER + name;
+    if (Verbose) fprintf(stderr,"Looking for %s\n", filename.c_str());
+    if((f = fopen(filename.c_str(),"r")) != NULL) {
       found = 1;
     } else {
-      sprintf(filename,"%s%c%s", d->dirname, DELIMETER, name);
-      if (Verbose) fprintf(stderr,"Looking for %s\n", filename);
-      if ((f = fopen(filename,"r")) != NULL) {
+      filename = std::string(d->dirname) + DELIMITER + name;
+      if (Verbose) fprintf(stderr,"Looking for %s\n", filename.c_str());
+      if ((f = fopen(filename.c_str(),"r")) != NULL) {
 	found = 1;
       }
     }

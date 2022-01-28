@@ -92,9 +92,8 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
   int    i;
   char   *c;
   extern  FILE   *LEX_in;
-  extern  void   add_directory(char *);
+  extern  void   add_directory(const char *);
   extern  char   *get_time();
-  char    temp[512];
   std::string    infile;
 
   std::string outfile_name;
@@ -139,8 +138,8 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
   }
   
   SwigLib = copy_string(LibDir);        // Make a copy of the real library location
-  sprintf(temp,"%s/config", LibDir);
-  add_directory(temp);
+  std::string temp = std::string(LibDir) + "/config";
+  add_directory(temp.c_str());
   add_directory((char*)"./swig_lib/config");
   add_directory(LibDir);
   add_directory((char*)"./swig_lib");
@@ -214,7 +213,7 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
 		arg_error();
 	      }
 	  } 
-      else if (strcmp(argv[i],"-t") == 0) {
+	  else if (strcmp(argv[i],"-t") == 0) {
 	      mark_arg(i);
 	      if (argv[i+1]) {
 		typemap_file = copy_string(argv[i+1]);
@@ -296,11 +295,11 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
       output_dir = "";
     } else {
       fn_header = outfile_name;
-
+      
       // Try to identify the output directory
       output_dir = std::string(outfile_name.begin(),
 			       outfile_name.begin() + outfile_name.rfind("/"));
-      
+
       // Patch up the input filename
       // That is, set infile to everything after the last slash in infilename.
       infile = std::string(infilename.begin() + infilename.rfind("/")+1,
@@ -309,7 +308,7 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
 
     fn_wrapper = output_dir + infile + "_wrap.wrap";
     fn_init = output_dir + infile + "_wrap.init";
-      
+    
     // Open up files
     
     if ((f_input = fopen(input_file,"r")) == 0) {

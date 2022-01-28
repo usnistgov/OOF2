@@ -16,6 +16,7 @@
 #include "internal.h"
 
 #include <limits.h>
+#include <string>
 
 // ------------------------------------------------------------------------
 // $Header: /users/langer/FE/CVSoof/OOF2/OOFSWIG/SWIG/typemap.cxx,v 1.2 2014/06/26 16:05:06 lck Exp $
@@ -139,7 +140,7 @@ struct TmMethod {
   char *name;          // Typemap name;
   DataType *type;      // Typemap type
   TmMethod *next;      // Next method
-  TmMethod(char *n, DataType *t, TmMethod *m = 0) {
+  TmMethod(const char *n, DataType *t, TmMethod *m = 0) {
     if (n) name = copy_string(n);
     else name = 0;
     if (t) {
@@ -164,19 +165,19 @@ static Hash application_hash;
 
 void typemap_apply(DataType *tm_type, char *tm_name, DataType *type,const char *pname) {
   TmMethod *m,*m1;
-  char temp[512];
+  std::string temp;
 
   // Form the application name
   if (!pname) pname = "";
-  sprintf(temp,"%s$%s",type->print_type(),pname);
+  temp = std::string(type->print_type()) + "$" + pname;
 
   // See if there is a method already defined
 
-  m = (TmMethod *) application_hash.lookup(temp);
+  m = (TmMethod *) application_hash.lookup(temp.c_str());
   
   if (!m) {
-    m = new TmMethod(temp,type,0);
-    application_hash.add(temp,m);
+    m = new TmMethod(temp.c_str(),type,0);
+    application_hash.add(temp.c_str(),m);
   }
 
   // Check to see if an array typemap has been applied to a non-array type
@@ -220,10 +221,9 @@ void typemap_apply(DataType *tm_type, char *tm_name, DataType *type,const char *
 // ------------------------------------------------------------------------
 
 void typemap_clear_apply(DataType *type,const char *pname) {
-  char temp[512];
   if (!pname) pname = "";
-  sprintf(temp,"%s$%s", type->print_type(), pname);
-  application_hash.remove(temp);
+  std::string temp = std::string(type->print_type()) + "$" + pname;
+  application_hash.remove(temp.c_str());
 }
 
 // ------------------------------------------------------------------------
@@ -262,7 +262,7 @@ void typemap_register(const char *op,const char *lang, DataType *type,const char
   
   char     *key;
   TypeMap  *tm,*tm_old;
-  char     temp[256];
+  std::string temp;
   int      is_default = 0;
 
   // printf("Registering : %s %s %s %s\n%s\n", op, lang, type->print_type(), pname, getcode);
@@ -288,8 +288,8 @@ void typemap_register(const char *op,const char *lang, DataType *type,const char
     // active.
 
     if (type_id < tm_old->last) {
-      sprintf(temp,"$%s",op);
-      tm->code.replace(temp,tm_old->code);
+      temp = std::string("$") + op;
+      tm->code.replace(temp.c_str(),tm_old->code);
     }
 
     // If found, we need to attach the old version to the new one
@@ -416,7 +416,7 @@ TypeMap *typemap_search_array(const char *op,const char *lang, DataType *type,co
   char      *key;
   int       ndim,i,j,k,n;
   TypeMap   *tm;
-  char      temp[10];
+  char      temp[40];
 
   if (!type->arraystr) return 0;
 
@@ -537,7 +537,7 @@ static void typemap_locals(DataType *t,const char *pname, String &s, ParmList *l
   // it's array dimensions
 
   if (t->arraystr) {
-    char temp[10];
+    char temp[40];
     for (int i = 0; i < t->array_dimensions(); i++) {
       sprintf(temp,"$dim%d",i);
       f.locals.replace(temp,t->get_dimension(i));
@@ -665,7 +665,7 @@ char *typemap_lookup_internal(const char *op,const char *lang, DataType *type,co
 char *typemap_lookup(const char *op, const char *lang, DataType *type,const char *pname,const char *source,
                      const char *target, WrapperFunction *f) {
   TmMethod *m;
-  char temp[512];
+  std::string temp;
   char *result;
   const char *ppname;
   char *tstr;
@@ -691,12 +691,12 @@ char *typemap_lookup(const char *op, const char *lang, DataType *type,const char
     while (drop_pointer <= (type->is_pointer - type->implicit_ptr)) {
       type->is_pointer -= drop_pointer;
       tstr = type->print_type();
-      sprintf(temp,"%s$%s",tstr,ppname);
+      temp = std::string(tstr) + "$" + ppname;
       // No mapping was found.  See if the name has been mapped with %apply
-      m = (TmMethod *) application_hash.lookup(temp);
+      m = (TmMethod *) application_hash.lookup(temp.c_str());
       if (!m) {
-	sprintf(temp,"%s$",tstr);
-	m = (TmMethod *) application_hash.lookup(temp);
+	temp = std::string(tstr) + "$";
+	m = (TmMethod *) application_hash.lookup(temp.c_str());
       }
       if (m) {
 	m = m->next;
@@ -828,7 +828,7 @@ char *typemap_check_internal(const char *op,const char *lang, DataType *type,con
 
 char *typemap_check(const char *op,const char *lang, DataType *type,const char *pname) {
   TmMethod *m;
-  char temp[512];
+  std::string temp;
   char *result;
   const char *ppname;
   char *tstr;
@@ -847,12 +847,12 @@ char *typemap_check(const char *op,const char *lang, DataType *type,const char *
     while (drop_pointer <= (type->is_pointer - type->implicit_ptr)) {
       type->is_pointer -= drop_pointer;
       tstr = type->print_type();
-      sprintf(temp,"%s$%s",tstr,ppname);
+      temp = std::string(tstr) + "$" + ppname;
       // No mapping was found.  See if the name has been mapped with %apply
-      m = (TmMethod *) application_hash.lookup(temp);
+      m = (TmMethod *) application_hash.lookup(temp.c_str());
       if (!m) {
-	sprintf(temp,"%s$",tstr);
-	m = (TmMethod *) application_hash.lookup(temp);
+	temp = std::string(tstr) + "$";
+	m = (TmMethod *) application_hash.lookup(temp.c_str());
       }
       if (m) {
 	m = m->next;
@@ -1004,7 +1004,7 @@ void fragment_register(const char *op,const char *lang, char *code) {
   
   char     *key;
   TypeMap  *tm,*tm_old;
-  char      temp[256];
+  std::string temp;
   
   tm = new TypeMap(lang,code);
   key = fragment_string(op,lang);
@@ -1017,9 +1017,9 @@ void fragment_register(const char *op,const char *lang, char *code) {
 
     // Perform a chaining operation 
 
-    sprintf(temp,"$%s",op);
+    temp = std::string("$") + op;
     if (type_id < tm_old->last)
-      tm->code.replace(temp,tm_old->code);
+      tm->code.replace(temp.c_str(),tm_old->code);
 
     tm->next = tm_old;
     tm_old->last = type_id;
@@ -1030,8 +1030,8 @@ void fragment_register(const char *op,const char *lang, char *code) {
   }
   
   // Perform a default chaining operation if needed (defaults to nothing)
-  sprintf(temp,"$%s",op);
-  tm->code.replace(temp,"");
+  temp = std::string("$") + op;
+  tm->code.replace(temp.c_str(),"");
 
   // Add new typemap to the hash table
   typemap_hash.add(key,(void *) tm);
