@@ -18,10 +18,6 @@
 #  The flags --3D, --enable-mpi, --enable-petsc, and --enable-devel
 #  can occur anywhere after 'setup.py' in the command line.
 
-## TODO: Copy the TEST directory into share/oof2/TEST when installing.
-## This will make it easier to run tests on nanoHUB and maybe
-## elsewhere.
-
 # Required version numbers of required external libraries.  These
 # aren't used explicitly in this file, but they are used in the DIR.py
 # files that are execfile'd here.
@@ -31,8 +27,8 @@ MAGICK_VERSION = "6.0"
 CAIROMM_VERSION = "1.12" # Don't know what the earliest acceptable version is.
 PANGO_VERSION = "1.40"
 PANGOCAIRO_VERSION = "1.40"
-PYGOBJECT_VERSION = "3.26"
-OOFCANVAS_VERSION = "0.0.0"
+PYGOBJECT_VERSION = "3.22"
+OOFCANVAS_VERSION = "1.0"
 
 # The make_dist script edits the following line when a distribution is
 # built.  Don't change it by hand.  On the git master branch,
@@ -165,29 +161,55 @@ class CLibInfo:
 
         if not self.pkgs:
             return
-        # Run pkg-config --cflags.
-        cmd = "pkg-config --cflags %s" % string.join(self.pkgs)
-        log.info("%s: %s", self.libname, cmd)
-        f = os.popen(cmd, 'r')
-        for line in f.readlines():
-            for flag in line.split():
-                if flag[:2] == '-I':
-                    self.includeDirs.append(flag[2:])
-                else:
-                    self.extra_compile_args.append(flag)
-        # Run pkg-config --libs.
-        cmd = "pkg-config --libs %s" % string.join(self.pkgs)
-        log.info("%s: %s", self.libname, cmd)
-        f = os.popen(cmd, 'r')
-        for line in f.readlines():
-            for flag in line.split():
-                if flag[:2] == '-l':
-                    self.externalLibs.append(flag[2:])
-                elif flag[:2] == '-L':
-                    self.externalLibDirs.append(flag[2:])
-                else:
-                    self.extra_link_args.append(flag)
+        
+        # Add tcmalloc if desired and available.
+        # TODO? Should we be modifying the compiler args as well as
+        # the link args when using tcmalloc with gcc?  The github page
+        # for an older version of gperftools said:
+        ## NOTE: When compiling with programs with gcc, that you plan
+        ## to link with libtcmalloc, it's safest to pass in the flags
+        ## -fno-builtin-malloc -fno-builtin-calloc
+        ## -fno-builtin-realloc -fno-builtin-free when compiling.  gcc
+        ## makes some optimizations assuming it is using its own,
+        ## built-in malloc; that assumption obviously isn't true with
+        ## tcmalloc.  In practice, we haven't seen any problems with
+        ## this, but the expected risk is highest for users who
+        ## register their own malloc hooks with tcmalloc (using
+        ## gperftools/malloc_hook.h). The risk is lowest for folks who
+        ## use tcmalloc_minimal (or, of course, who pass in the above
+        ## flags :-) ).
+        # The gperftools README file (as of 01-11-2022) contains only
+        # the second half of that paragraph ("gcc makes some
+        # assumption..." to "the above flags") but never actually says
+        # what the flags are or what the problems might be.
 
+        pkgs = self.pkgs.copy()
+        if (USE_TCMALLOC and
+            subprocess.call(["pkg-config", "--exists", "libtcmalloc"])):
+            pkgs.add("libtcmalloc")
+        
+        # Run pkg-config --cflags.
+        cmd = "pkg-config --cflags %s" % string.join(pkgs)
+        log.info("%s: %s", self.libname, cmd)
+        flags = subprocess.check_output(shlex.split(cmd))
+        for flag in flags.split():
+            if flag[:2] == "-I":
+                self.includeDirs.append(flag[2:])
+            else:
+                self.extra_compile_args.append(flag)
+
+        # Run pkg-config --libs.
+        cmd = "pkg-config --libs %s" % string.join(pkgs)
+        log.info("%s: %s", self.libname, cmd)
+        flags = subprocess.check_output(shlex.split(cmd))
+        for flag in flags.split():
+            if flag[:2] == "-l":
+                self.externalLibs.append(flag[2:])
+            elif flag[:2] == '-L':
+                self.externalLibDirs.append(flag[2:])
+            else:
+                self.extra_link_args.append(flag)
+        
     # Parse the file lists in a DIR.py file.  The file has been read
     # already, and its key,list pairs are in dirdict.  Only the data
     # relevant to CLibInfo is dealt with here.  The rest is handled
@@ -384,11 +406,26 @@ def swig_clibs(dry_run, force, debug, build_temp, with_swig=None):
         swigexec = os.path.join(swigbuilddir, 'bin', 'swig')
         if not os.path.exists(swigexec):
             log.info("Building swig")
-            status = os.system(
-                'cd %s && ./configure --prefix=%s && make && make install' 
-                % (swigsrcdir, swigbuilddir))
-            if status:
-                sys.exit(status)
+            cwd = os.getcwd()
+            try:
+                os.chdir(swigsrcdir)
+                cmd = "./configure --prefix=%s" % swigbuilddir
+                log.info(cmd)
+                if subprocess.call(shlex.split(cmd)):
+                    log.error("Failed to configure swig.")
+                    sys.exit(1)
+                cmd = ["make"]
+                log.info(cmd)
+                if subprocess.call(cmd):
+                    log.error("Failed to build swig")
+                    sys.exit(1)
+                cmd = ["make", "install"]
+                log.info(cmd)
+                if subprocess.call(cmd):
+                    log.error("Failed to install swig")
+                    sys.exit(1)
+            finally:
+                os.chdir(cwd)
     else:
         swigexec = with_swig
     srcdir = os.path.abspath('SRC')
@@ -462,8 +499,11 @@ class oof_build_xxxx:
         if self.force or not os.path.exists(cfgfilename):
             log.info("creating %s", cfgfilename)
             if not self.dry_run:
-                ## TODO: Use subprocess
-                os.system('mkdir -p %s' % os.path.join(self.build_temp, 'SRC'))
+                cmd = 'mkdir -p %s' % os.path.join(self.build_temp, 'SRC')
+                log.info(cmd)
+                if subprocess.call(shlex.split(cmd)):
+                    log.error("Failed to make directory for %s" % cfgfilename)
+                    sys.exit(1)
                 cfgfile = open(cfgfilename, "w")
                 print >> cfgfile, """\
 // This file was created automatically by the oof2 setup script.
@@ -802,14 +842,9 @@ class oof_build_shlib(build_shlib.build_shlib, oof_build_xxxx):
         extrablaslibs = self.check_extra_blaslibs(blaslibs, blasargs)
         blaslibs.extend(extrablaslibs)
 
-        
-        # tcmallocdirs, tcmalloclibs = self.check_tcmalloc()
-
         for library in libraries:
             library.libraries.extend(blaslibs)
             library.extra_link_args.extend(blasargs)
-            # library.libraries.extend(tcmalloclibs)
-            # library.library_dirs.extend(tcmallocdirs)
 
         build_shlib.build_shlib.build_libraries(self, libraries)
 
@@ -883,76 +918,6 @@ class oof_build_shlib(build_shlib.build_shlib, oof_build_xxxx):
             remove_tree(tmpdirname)
         raise errors.DistutilsExecError("can't link blas!")
 
-    # def check_tcmalloc(self):
-
-    #     # TODO: We should be modifying the compiler args as well as
-    #     # the link args when using tcmalloc with gcc.  From tcmalloc's
-    #     # github page:
-    #     ## NOTE: When compiling with programs with gcc, that you plan
-    #     ## to link with libtcmalloc, it's safest to pass in the flags
-    #     ## -fno-builtin-malloc -fno-builtin-calloc
-    #     ## -fno-builtin-realloc -fno-builtin-free when compiling.  gcc
-    #     ## makes some optimizations assuming it is using its own,
-    #     ## built-in malloc; that assumption obviously isn't true with
-    #     ## tcmalloc.  In practice, we haven't seen any problems with
-    #     ## this, but the expected risk is highest for users who
-    #     ## register their own malloc hooks with tcmalloc (using
-    #     ## gperftools/malloc_hook.h). The risk is lowest for folks who
-    #     ## use tcmalloc_minimal (or, of course, who pass in the above
-    #     ## flags :-) ).
-        
-    #     if NO_TCMALLOC:
-    #         return ([], [])
-    #     # Check to see if tcmalloc is available.
-    #     print "Looking for tcmalloc..."
-    #     # First, try pkg-config.  Not all distros include a .pc file
-    #     # for tcmalloc, so a negative result isn't reliable.
-    #     libdirs, libs = get_third_party_libs('pkg-config --libs libtcmalloc')
-    #     if libs:
-    #         print "Found tcmalloc via pkg-config."
-    #         return libdirs, libs
-
-    #     # Do it the hard way, by seeing if we can link to it.  This
-    #     # will work if it's in a standard location.
-    #     libs = ['tcmalloc']
-    #     libdirs = []
-        
-    #     tmpdir = tempfile.mkdtemp(dir=os.getcwd())
-    #     tmpdirname = os.path.split(tmpdir)[1]
-    #     tmpfilename = os.path.join(tmpdirname, "tcmalloctest.C")
-    #     tmpfile = open(tmpfilename, "w")
-    #     print >> tmpfile, """\
-    #     int main(int, char**) {
-    #     double *x = new double[100];
-    #     for(int i=0; i<100; i++) x[i]=0.0;
-    #     return 0;
-    #     }
-    #     """
-    #     tmpfile.close()
-    #     try:
-    #         try:
-    #             ofiles = self.compiler.compile(
-    #                 [tmpfilename],
-    #                 extra_postargs=platform['extra_compile_args'],
-    #             )
-    #         except errors.CompileError:
-    #             raise errors.DistutilsExecError("can't compile tcmalloc test")
-    #         try:
-    #             self.compiler.link(
-    #                 target_desc=self.compiler.EXECUTABLE,
-    #                 objects=ofiles,
-    #                 output_filename=tmpfilename[:-2],
-    #                 library_dirs=platform['libdirs'] + libdirs,
-    #                 libraries=libs,
-    #                 target_lang='c++')
-    #         except errors.LinkError:
-    #             print "Can't find tcmalloc!  OOF may run slowly."
-    #             return ([], [])
-    #         else:
-    #             print "Found tcmalloc."
-    #         return (libdirs, libs)
-    #     finally:
-    #         remove_tree(tmpdirname)
 
 class oof_build(build.build):
     sep_by = " (separated by '%s')" % os.pathsep
@@ -1097,13 +1062,19 @@ class oof_clean(clean.clean):
                     remove_tree(d,dry_run=self.dry_run)
                 else:
                     log.warn("'%s' does not exist -- can't clean it.", d)
-        if self.swig and os.path.exists(swigroot):
+        if (self.swig or self.all) and os.path.exists(swigroot):
             remove_tree(swigroot, dry_run=self.dry_run)
             swigsrcdir = os.path.abspath('OOFSWIG')
             log.info("Cleaning swig")
-            status = os.system('cd %s && make clean' % swigsrcdir)
-            if status:
-                sys.exit(status)
+            cwd = os.getcwd()
+            try:
+                os.chdir(swigsrcdir)
+                if subprocess.call(["make", "clean"]):
+                    log.error("Failed to 'make clean' in swig directory.")
+                    sys.exit(1)
+            finally:
+                os.chdir(cwd)
+
         clean.clean.run(self)
     
 ###################################################
@@ -1134,7 +1105,7 @@ def get_global_args():
 
     global HAVE_MPI, HAVE_OPENMP, HAVE_PETSC, DEVEL, NO_GUI, \
         ENABLE_SEGMENTATION, MAKEDEPEND, PORTDIR, \
-        DIM_3, DATADIR, DOCDIR, OOFNAME, SWIGDIR, NANOHUB #, NO_TCMALLOC
+        DIM_3, DATADIR, DOCDIR, OOFNAME, SWIGDIR, NANOHUB, USE_TCMALLOC
     HAVE_MPI = _get_oof_arg('--enable-mpi')
     HAVE_PETSC = _get_oof_arg('--enable-petsc')
     DEVEL = _get_oof_arg('--enable-devel')
@@ -1145,7 +1116,7 @@ def get_global_args():
     NANOHUB = _get_oof_arg('--nanoHUB')
     HAVE_OPENMP = _get_oof_arg('--enable-openmp')
     PORTDIR = _get_oof_arg('--port-dir', '/opt/local')
-    # NO_TCMALLOC = _get_oof_arg('--disable-tcmalloc')
+    USE_TCMALLOC = _get_oof_arg('--enable-tcmalloc')
 
     # The following determine some secondary installation directories.
     # They will be created within the main installation directory
@@ -1201,11 +1172,11 @@ def set_platform_values():
     if sys.platform == 'darwin':
         platform['blas_link_args'].extend(['-framework', 'Accelerate'])
         platform['extra_link_args'].append('-headerpad_max_install_names')
-        # If we're using macports, the pkgconfig files for the python
-        # modules aren't in the standard location.
-        
-        ## TODO: Don't explicitly refer to /opt/local/. Use PORTDIR,
-        ## as in oofcanvas.
+
+        # If MacPorts was used to install dependencies, but we're not
+        # actually building with MacPorts now, then the pkg-config
+        # files for python-installed dependencies may not be in the
+        # pkg-config search path.
         global PORTDIR
         if os.path.exists(PORTDIR):
             ## TODO: Having to encode such a long path here seems
@@ -1214,6 +1185,7 @@ def set_platform_values():
             pkgpath = os.path.join(PORTDIR, "Library/Frameworks/Python.framework/Versions/%d.%d/lib/pkgconfig/" % (sys.version_info[0], sys.version_info[1]))
             log.info("Adding %s to PKG_CONFIG_PATH", pkgpath)
             extend_path("PKG_CONFIG_PATH", pkgpath)
+
         # Enable C++11
         platform['extra_compile_args'].append('-Wno-c++11-extensions')
         platform['extra_compile_args'].append('-std=c++11')

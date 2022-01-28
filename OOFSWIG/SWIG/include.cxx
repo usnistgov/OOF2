@@ -136,8 +136,8 @@ int add_iname(const char *name) {
 //
 // -----------------------------------------------------------------------------
 
-void check_suffix(char *name) {
-  char *c;
+void check_suffix(const char *name) {
+  const char *c;
 
   if (!name) return;
   if (strlen(name) == 0) return;
@@ -342,7 +342,7 @@ int insert_file(const char *name, FILE *f_out) {
 }
 
 // -----------------------------------------------------------------------------
-// void swig_append(char *filename, FILE *f)
+// void swig_append(const char *filename, FILE *f)
 // 
 // Appends the contents of filename to stream f.
 //
@@ -355,7 +355,7 @@ int insert_file(const char *name, FILE *f_out) {
 // Side Effects : None
 // -----------------------------------------------------------------------------
 
-void swig_append(char *filename, FILE *f) {
+void swig_append(const char *filename, FILE *f) {
 
   FILE *in_file;
 

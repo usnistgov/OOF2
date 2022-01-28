@@ -69,7 +69,7 @@ LIBHEADERS = internal.h ../Include/swig.h latex.h ascii.h html.h nodoc.h
 LIB      = ../libswig.a
 PARSER   = parser.y
 INCLUDE  = -I../Include
-CFLAGS   = @CFLAGS@ -DSWIG_LIB='"$(SWIG_LIB)"' -DSWIG_CC='"$(CC)"' @DEFS@
+CFLAGS   = -std=c++11 @CFLAGS@ -DSWIG_LIB='"$(SWIG_LIB)"' -DSWIG_CC='"$(CC)"' @DEFS@
 SHELL  = /bin/sh
 
 #
