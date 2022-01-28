@@ -1,3 +1,7 @@
+OOF2 2.2.1
+
+ * Fixed build errors that only showed up on MacPorts.
+ 
 OOF2 2.2.0
 
 * OOF2 uses gtk3 instead of gtk2, and no longer requires
