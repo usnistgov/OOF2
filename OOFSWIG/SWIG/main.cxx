@@ -213,16 +213,7 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
 	      } else {
 		arg_error();
 	      }
-	  } // else if (strcmp(argv[i],"-d") == 0) {
-	    //   mark_arg(i);
-	    //   if (argv[i+1]) {
-	    // 	doc_file = copy_string(argv[i+1]);
-	    // 	mark_arg(i+1);
-	    // 	i++;
-	    //   } else {
-	    // 	arg_error();
-	    //   }
-	    // }
+	  } 
       else if (strcmp(argv[i],"-t") == 0) {
 	      mark_arg(i);
 	      if (argv[i+1]) {
@@ -245,13 +236,6 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
 	    library_add(argv[i]+2);
 	    mark_arg(i);
           }
-      // else if (strcmp(argv[i],"-co") == 0) {
-      // 	    checkout = 1;
-      // 	    mark_arg(i);
-      // 	  } else if (strcmp(argv[i],"-ci") == 0) {
-      // 	    checkin = 1;
-      // 	    mark_arg(i);
-      // 	  }
       else if (strcmp(argv[i],"-help") == 0) {
 	    fputs(usage,stderr);
 	    mark_arg(i);
@@ -274,16 +258,6 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
   comment_handler->parse_args(argc,argv);
   if (ignorecomments) comment_handler->style("ignore",0);
 
-  // // Create a new documentation entry
-
-  // doctitle = new DocTitle("",0);
-  // doctitle->parse_args(argc,argv);
-  // doc_entry = doctitle;
-
-  // // Handle documentation module options
-
-  // doc->parse_args(argc,argv);
-
   // Parse language dependent options
 
   lang->parse_args(argc,argv);
@@ -298,70 +272,23 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
 
   // Create names of temporary files that are created
 
+  // input_file could be a std::string too.
   infilename = std::string(argv[argc-1]);
   input_file = new char[infilename.size()+1];
   strcpy(input_file, infilename.c_str());
 
-  // If the user has requested to check out a file, handle that
-
-  // if (checkout) {
-  //   int stat;
-  //   char *outfile = input_file;
-  //   if (outfile_name)
-  //     outfile = outfile_name.c_str();
-  //   stat = checkout_file(input_file,outfile);
-  //   if (!stat) {
-  //     fprintf(stderr,"%s checked out from the SWIG library\n",input_file);
-  //   } else {
-  //     FILE * f = fopen(input_file,"r");
-  //     if (f) {
-  // 	fprintf(stderr,"Unable to check-out %s. File already exists.\n", input_file);
-  // 	fclose(f);
-  //     } else {
-  // 	fprintf(stderr,"Unable to check-out %s\n", input_file);
-  //     }
-  //   }
-  // }
-  // else if (checkin) {
-  //   // Try to check-in a file to the SWIG library
-  //   int stat;
-  //   char *outname = input_file;
-  //   if (outfile_name)
-  //     outname = outfile_name;
-  //   stat = checkin_file(SwigLib, LibDir, input_file, outname);
-  //   if (!stat) {
-  //     fprintf(stderr,"%s checked-in to %s/%s/%s\n", input_file, SwigLib, LibDir, outname);
-  //   } else {
-  //     fprintf(stderr,"Unable to check-in %s to %s/%s\n", input_file, SwigLib, LibDir);
-  //   }
-  // } else
-    {
-    // doctitle->file = copy_string(input_file);
-    // doctitle->line_number = -1000;
-    // doctitle->end_line = -1000;
-    
+  {	    // useless vestigial bracket
     // Check the suffix for a .c file.  If so, we're going to 
     // declare everything we see as "extern"
     
     check_suffix(infilename.c_str());
     
-    // Strip off suffix 
+    // Strip off suffix
 
-    for(int i=infilename.size()-1; i>0; i--) {
-      if(infilename[i] == '.') {
-	infilename.resize(i);
-	break;
-      }
+    auto sfx = infilename.rfind(".");
+    if(sfx != std::string::npos) {
+      infilename.erase(sfx);
     }
-    // c = infilename + strlen(infilename);
-    // while (c != infilename) {
-    //   if (*c == '.') {
-    // 	*c = 0;
-    // 	break;
-    //   } else {
-    // 	c--;
-    //   }
-    // }
 
     if (outfile_name.size() == 0) {
       fn_header = infilename + "_wrap.c";
@@ -375,8 +302,7 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
 			       outfile_name.begin() + outfile_name.rfind("/"));
       
       // Patch up the input filename
-      // That is, set infile to everything after the last slash in
-      // infilename.
+      // That is, set infile to everything after the last slash in infilename.
       infile = std::string(infilename.begin() + infilename.rfind("/")+1,
 			   infilename.end());
     }
@@ -430,16 +356,6 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
       exit(0);
     }
     
-    // Open up documentation
-    
-    // if (doc_file) {
-    //   doc->init(doc_file);
-    // } else {
-    //   doc_file = new char[strlen(infile)+strlen(output_dir)+8];
-    //   sprintf(doc_file,"%s%s_wrap",output_dir,infile);
-    //   doc->init(doc_file);
-    // }
-    
     // Set up the typemap for handling new return strings
     {
       DataType *temp_t = new DataType(T_CHAR);
@@ -466,18 +382,6 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
       }
     }
 
-    // If in Objective-C mode.  Load in a configuration file
-
-    if (ObjC) {
-      // Add the 'id' object type as a void *
-      /*      DataType *t = new DataType(T_VOID);
-      t->is_pointer = 1;
-      t->implicit_ptr = 0;
-      t->typedef_add("id");
-      delete t;
-      */
-    }
-
     // Pass control over to the specific language interpreter    
 
     lang->parse();
@@ -490,25 +394,10 @@ int SWIG_main(int argc, char *argv[], Language *l, Documentation *d) {
     
     fclose(f_header);
     
-    // Print out documentation.  Due to tree-like nature of documentation,
-    // printing out the title prints out everything.
-    
-    // while(doctitle) {
-    //   doctitle->output(doc);
-    //   doctitle = doctitle->next;
-    // }
-    
-    // doc->close();
-    
     // Remove temporary files
     
     remove(fn_wrapper.c_str());
     remove(fn_init.c_str());
-
-    // If only producing documentation, remove the wrapper file as well
-
-    // if (DocOnly) 
-    //   remove(fn_header);
 
     // Check for undefined types that were used.
 
