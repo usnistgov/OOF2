@@ -577,7 +577,7 @@ extern void cplus_support_doc(String &f);
 
 /* Function for building search directories */
 
-extern  void  add_directory(char *dirname);
+extern  void  add_directory(const char *dirname);
 extern  int   insert_file(const char *, FILE *);
 extern  int   get_file(const char *filename, String &str);
 extern  int   checkout_file(char *filename, char *dest);
