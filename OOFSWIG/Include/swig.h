@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <string>
 
 #include "swigver.h"
 
@@ -62,7 +63,7 @@ extern  int       NoInclude;                        // NoInclude flag
 extern  char     *typemap_lang;                     // Current language name
 extern  int       error_count;
 extern  char     *copy_string(const char *);
-extern  char      output_dir[512];                  // Output directory
+extern  std::string      output_dir;                  // Output directory
 
 #define FatalError()   if ((error_count++) > 20) { fprintf(stderr,"Confused by earlier errors. Bailing out\n"); SWIG_exit(1); }
 
@@ -576,7 +577,7 @@ extern void cplus_support_doc(String &f);
 
 /* Function for building search directories */
 
-extern  void  add_directory(char *dirname);
+extern  void  add_directory(const char *dirname);
 extern  int   insert_file(const char *, FILE *);
 extern  int   get_file(const char *filename, String &str);
 extern  int   checkout_file(char *filename, char *dest);

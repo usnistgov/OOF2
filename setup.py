@@ -1172,14 +1172,10 @@ def set_platform_values():
         platform['blas_link_args'].extend(['-framework', 'Accelerate'])
         platform['extra_link_args'].append('-headerpad_max_install_names')
 
-        # If we're using macports to build the dependencies, the
-        # pkgconfig files for dependencies built by python aren't with
-        # the other .pc files.  If we're *not* building oof2 in
-        # macports, those .pc files won't be found unless we add their
-        # location to PKG_CONFIG_PATH.  But in fact we don't have any
-        # such packages other than oofcanvas, so using PORTDIR to set
-        # PKG_CONFIG_PATH could be avoided if we build either both or
-        # neither of oof2 and oofcanvas via macports.
+        # If MacPorts was used to install dependencies, but we're not
+        # actually building with MacPorts now, then the pkg-config
+        # files for python-installed dependencies may not be in the
+        # pkg-config search path.
         global PORTDIR
         if os.path.exists(PORTDIR):
             ## TODO: Having to encode such a long path here seems

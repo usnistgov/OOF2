@@ -330,9 +330,9 @@ void PYTHON::initialize(void)
   initialize_cmodule();
   /* Create a shadow file (if enabled).*/
   if (shadow) {
-    sprintf(filen,"%s%s.py", output_dir, oldmodule);
+    sprintf(filen,"%s/%s.py", output_dir.c_str(), oldmodule);
     if ((f_shadow = fopen(filen,"w")) == 0) {
-      fprintf(stderr,"Unable to open %s\n", filen);
+      fprintf(stderr,"PYTHON::initialize: Unable to open %s\n", filen);
       SWIG_exit(0);
     }
     fprintf(f_shadow,"# This file was created automatically by SWIG.\n");
