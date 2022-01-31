@@ -10,7 +10,7 @@
 # oof_manager@nist.gov. 
 
 dirname = 'common'
-subdirs = ['IO', 'EXTRA']
+subdirs = ['IO']
 clib = 'oof2common'
 clib_order = 0
 

@@ -17,7 +17,7 @@ class AClassPtr :
     def __getattr__(self,name):
         if name == "a" : 
             return swigc.AClass_a_get(self.this)
-        raise AttributeError,name
+        raise AttributeError(name)
     def __repr__(self):
         return "<C AClass instance>"
 class AClass(AClassPtr):

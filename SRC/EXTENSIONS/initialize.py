@@ -44,10 +44,10 @@ if autoload.autoload:
             fullname = os.path.join(extensionsdir, phile)
             if os.path.isdir(fullname):
                 if os.path.exists(os.path.join(fullname, '__init__.py')):
-                    exec 'import ' + extmodname + '.' + phile
+                    exec('import ' + extmodname + '.' + phile)
             else:
                 if phile.endswith('.py'):
-                    exec 'import ' + extmodname + '.' + phile[:-3]
+                    exec('import ' + extmodname + '.' + phile[:-3])
 
 
 
