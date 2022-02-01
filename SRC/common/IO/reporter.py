@@ -90,14 +90,14 @@ class MessageManager:
             MessageManager.outlock.acquire()
             try:
                 if not self.bar_text:
-                    print msg
+                    print(msg)
                     sys.stdout.flush()
                 else: 
                     # This is the "smart" case -- erase the bar, write
                     # the message, then redraw the bar.
                     # erase bar
                     sys.stdout.write('\r' + len(self.bar_text)*' ' + '\r')
-                    print msg
+                    print(msg)
                     sys.stdout.write(self.bar_text)
                     sys.stdout.flush()
             finally:
@@ -110,7 +110,7 @@ class MessageManager:
             try:
                 if newbars:
                     # Use '|' to separate progress bars from the same thread
-                    txt = " | ".join(filter(None, newbars))
+                    txt = " | ".join([_f for _f in newbars if _f])
                     self.thread_bars[threadstate.findThreadNumber()] = txt
                 
                 # Erase old bar display
@@ -121,7 +121,7 @@ class MessageManager:
                 # Redisplay all bars from all threads.  Use '||' to
                 # separate progress bars from different threads.
                 self.bar_text = ' || '.join(txt
-                                          for txt in self.thread_bars.values()
+                                            for txt in self.thread_bars.values()
                                             if txt)
 
                 sys.stdout.write(self.bar_text)
@@ -149,7 +149,7 @@ class MessageManager:
         MessageManager.lock.acquire()
         try:
             if debug.debug() and type!="Log" and guitop.top():
-                print message
+                print(message)
             self.message_list.append( (message, type) )
             if self.flag_dict[type]:
                 self._write(message)

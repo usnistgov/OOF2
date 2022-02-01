@@ -203,7 +203,7 @@ class ScriptLoader(code.InteractiveInterpreter):
         msg, (dummy_filename, lineno, offset, line) = value
         value = (msg, (self.filename, lineno, offset, line))
         self.error = (etype, value, None)
-        raise etype, value, None
+        raise etype(value).with_traceback(None)
 
     def progress(self, current, total): # May be redefined in subclasses
         pass

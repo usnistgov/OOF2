@@ -42,7 +42,7 @@ import os.path
 import string
 import sys
 
-import oofcanvas
+from . import oofcanvas
 
 FloatParameter = parameter.FloatParameter
 IntParameter = parameter.IntParameter
@@ -101,7 +101,7 @@ class GfxSettings:
             # the methods via the dictionary, they're not recognized
             # as methods, and we have to check for FunctionType
             # instead of MethodType or UnboundMethodType.
-            if key[0] != '_' and type(val) is not FunctionType:
+            if key[0] != '_' and not isinstance(val, FunctionType):
                 self.__dict__[key] = val
                 self.timestamps[key] = timestamp.TimeStamp()
     def __setattr__(self, attr, val):
@@ -731,7 +731,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         
         # Create toolboxes.
         self.toolboxes = []
-        map(self.newToolboxClass, toolbox.toolboxClasses)
+        for tbc in toolbox.toolboxClasses:
+            self.newToolboxClass(tbc)
 
         self.sensitize_menus()
 
@@ -1172,7 +1173,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                         layer.drawIfNecessary(self)
                     except subthread.StopThread:
                         return
-                    except (Exception, ooferror.ErrErrorPtr), exc:
+                    except (Exception, ooferror.ErrErrorPtr) as exc:
                         debug.fmsg('Exception while drawing!', exc)
                         raise
         finally:
@@ -1484,8 +1485,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                 when = layer.getParamValue('when')
                 if when is placeholder.latest:
                     times.update(layer.animationTimes(self))
-        times = list(times)
-        times.sort()
+        times = sorted(times)
         return times
 
     def latestTime(self):
@@ -1498,7 +1498,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         for i, layer in enumerate(self.layers):
             if not layer.empty():
                 fname = filename + '%02d' % i + ".png"
-                print "Saving layer", layer.short_name(), "as", fname
+                print("Saving layer", layer.short_name(), "as", fname)
                 layer.canvaslayer.writeToPNG(fname)
             
 

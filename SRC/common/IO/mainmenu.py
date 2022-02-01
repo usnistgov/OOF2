@@ -73,7 +73,7 @@ tmplogfile = os.fdopen(fd, 'w')
 
 def _tmplog(s):
     if tmplogfile:
-        print >> tmplogfile, s
+        print(s, file=tmplogfile)
         tmplogfile.flush()
     
 OOF.addLogger(oofmenu.MenuLogger(_tmplog))
@@ -443,7 +443,7 @@ _windowmenu.addItem(OOFMenuItem(
 # The Console is a no-op in text mode.
 
 def consolation(menuitem):
-    print "There, there, I'm sure everything will be fine."
+    print("There, there, I'm sure everything will be fine.")
 
 _windowmenu.addItem(OOFMenuItem(
     'Console',
@@ -774,7 +774,7 @@ errmenu.addItem(OOFMenuItem("CPyCError", callback=_cpycerror,
 
 
 def loop(menuitem):
-    while 1:
+    while True:
         pass
     debug.fmsg("What am I doing here?")
 
@@ -800,17 +800,17 @@ lockmenu = debugmenu.addItem(OOFMenuItem("LockTest", no_doc=True,
 def _py_read(menuitem, seconds):
     global rw
     rw.read_acquire()
-    print "Got read permission for %d seconds." % seconds
+    print("Got read permission for %d seconds." % seconds)
     time.sleep(seconds)
-    print "Releasing read."
+    print("Releasing read.")
     rw.read_release()
 
 def _py_write(menuitem, seconds):
     global rw
     rw.write_acquire()
-    print "Got write permission for %d seconds." % seconds
+    print("Got write permission for %d seconds." % seconds)
     time.sleep(seconds)
-    print "Releasing write."
+    print("Releasing write.")
     rw.write_release()
 
 lockmenu.addItem(OOFMenuItem('RWLock_read', callback=_py_read,
@@ -840,7 +840,7 @@ lockmenu.addItem(OOFMenuItem('Wait', callback=_wait,
 
 
 def _random(menuitem, n):
-    print >> sys.stderr, [crandom.irndm() for i in range(n)]
+    print([crandom.irndm() for i in range(n)], file=sys.stderr)
 
 debugmenu.addItem(OOFMenuItem(
         'Random',

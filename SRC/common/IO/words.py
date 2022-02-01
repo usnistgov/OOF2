@@ -67,8 +67,8 @@ tcmalloc: tcmalloc is part of the Google Performance Tools which can be found at
 def _fancyprint(menuitem):
 #    width = utils.screenwidth()
     width = 80
-    print >> sys.stderr, string.join(utils.format(words[menuitem.data], width),
-                                     "\n")
+    print(string.join(utils.format(words[menuitem.data], width),
+                                     "\n"), file=sys.stderr)
 
 def xmlify(text):
     lines = text.split('\n')

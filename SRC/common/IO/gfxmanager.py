@@ -33,7 +33,7 @@ class GfxWindowManager:
         try:
             self.count += 1
             count = self.count
-            name = 'Graphics_' + `count`
+            name = 'Graphics_' + repr(count)
             w = self._newWindow(name, **kwargs) # opens real or ghost gfx window
             self.windows.append(w)
         finally:
@@ -71,7 +71,7 @@ class GfxWindowManager:
         finally:
             self.lock.release()
         if result is None:
-            raise KeyError("No such window: " + `name`)
+            raise KeyError("No such window: " + repr(name))
         return result
     def getAllWindows(self):
         return self.windows[:]

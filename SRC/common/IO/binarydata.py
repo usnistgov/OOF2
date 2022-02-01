@@ -135,7 +135,7 @@ class BinaryDataFile:
             self.startCmd(OOF.LoadData.ObjKey)
             if obj is None:
                 self.argument('obj', 'None')
-            elif type(obj) is types.ClassType:
+            elif isinstance(obj, type):
                 self.argument('obj', obj.__name__)
             else:
                 try:

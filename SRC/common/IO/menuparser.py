@@ -296,7 +296,7 @@ class AsciiMenuParser(MenuParserMode):
     def processQuote(self):
         quotechar = self.buffer[self.bufpos]
         quote = ""
-        while 1:
+        while True:
             # look for closing quote
             end = self.bufpos + 1
             while end < self.buflen and self.buffer[end] != quotechar:
@@ -353,7 +353,7 @@ class AsciiMenuParser(MenuParserMode):
         kwargs = {}
         if self.state is not AsciiMenuParser.state_arg:
             return args, kwargs
-        while 1:
+        while True:
             token0 = self.nextToken()
             if token0 is None:
                 raise ooferror.ErrDataFileError("Premature EOF in data file?")

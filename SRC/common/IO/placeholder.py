@@ -49,9 +49,8 @@ class PlaceHolderMetaClass(type):
             utils.OOFdefine(idname, singleton)
             globals()[idname] = singleton
 
-class PlaceHolder(object):
-    __metaclass__ = PlaceHolderMetaClass
-    # An empty idtag string keeps this class from being instantiated.
+class PlaceHolder(object, metaclass=PlaceHolderMetaClass):
+    # An empty idtag keeps this class from being instantiated.
     idtag = ''                  
     def __repr__(self):
         return self.idtag
@@ -143,7 +142,7 @@ class PlaceHolderParameter(parameter.Parameter):
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class TimeParameter(PlaceHolderParameter):
-    types = (types.IntType, types.FloatType, earliest, latest)
+    types = (int, float, earliest, latest)
     def valueDesc(self):
         return "A floating point number, or the earliest or latest time."
 

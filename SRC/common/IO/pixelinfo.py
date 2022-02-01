@@ -39,8 +39,7 @@ class PixelInfoPlugInMetaClass(type):
         plugInClasses.append(cls)
         switchboard.notify("new pixel info plugin", cls)
 
-class PixelInfoPlugIn(object):
-    __metaclass__ = PixelInfoPlugInMetaClass
+class PixelInfoPlugIn(object, metaclass=PixelInfoPlugInMetaClass):
     def __init__(self, toolbox):
         self.toolbox = toolbox
     def makeMenu(self, menu):
@@ -107,7 +106,8 @@ class PixelInfoToolbox(toolbox.Toolbox):
             plugin.makeMenu(menu)
 
     def close(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        for cb in self.sbcallbacks:
+            switchboard.removeCallback(cb)
         toolbox.Toolbox.close(self)
 
     def newPlugIn(self, pluginClass):

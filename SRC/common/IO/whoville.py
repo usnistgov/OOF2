@@ -148,12 +148,12 @@ class Who(object):
     def requestCallback(self, *args):
         self.switchboardCallbacks.append(switchboard.requestCallback(*args))
     def remove(self):
-        ## TODO LATER: PARALLELIZE THIS FUNCTION
         self._obj = None
         # This can't set parent=None, because self should be locked
         # when this function is called.  If we set parent=None here,
         # then the parent won't be unlocked when self is unlocked.
-        map(switchboard.removeCallback, self.switchboardCallbacks)
+        for cb in self.switchboardCallbacks:
+            switchboard.removeCallback(cb)
         self.switchboardCallbacks = [] # removes possible circular references 
     def defunct(self):
         return self._obj is None
@@ -334,7 +334,7 @@ class WhoDoUndo(Who):                   # that you do so well
     def redoModification(self):
         try:
             old = self._obj
-            self._obj = self.undobuffer.next()
+            self._obj = next(self.undobuffer)
         except IndexError:
             pass
         else:
@@ -602,7 +602,7 @@ class WhoClass:
     def __getitem__(self, which):
         obj = self.members[which].object
         if obj is None:
-            raise KeyError, "There is no %s named %s!" % (self.name(), which)
+            raise KeyError("There is no %s named %s!" % (self.name(), which))
         return obj
 
     # Return a list of all the names currently known, beginning at
@@ -725,14 +725,14 @@ class WhoParameter(parameter.Parameter):
     def checker(self, x):
         # x must be the name of a Who instance of the correct
         # WhoClass.
-        if not (type(x) == StringType and 
+        if not (isinstance(x, StringType) and 
                 labeltree.makePath(x) in self.whoclass.keys()):
             debug.fmsg("Unexpected WhoParameter value:", x, type(x))
             raise TypeError("Expected the name of a %s instance."
                             % self.whoclass)
     def __repr__(self):
         return 'WhoParameter(%s, %s, %s, %s)' % (self.name, self.whoclass,
-                                                 `self.value`, self.tip)
+                                                 repr(self.value), self.tip)
     def clone(self):
         return self.__class__(self.name, self.whoclass, value=self.value,
                               default=self.default, tip=self.tip)
@@ -790,7 +790,7 @@ class AutoWhoNameParameter(parameter.RestrictedAutomaticNameParameter):
 # place to type in a new name.
 class NewWhoParameter(parameter.RestrictedStringParameter):
     def __init__(self, name, whoclass, value=None, default=None, tip=None):
-        if type(whoclass)!=InstanceType:
+        if not isinstance(whoclass, InstanceType):
             raise ValueError(
                 "WhoParameter requires a WhoClass or Who instance.")
         if isinstance(whoclass, Who):
@@ -822,7 +822,7 @@ class WhoClassParameter(parameter.StringParameter):
                                  self.condition, self.tip)
     def checker(self, x):
         if x and getClass(x) is None:
-            raise TypeError("Expected a WhoClass name. Got %s" % `x`)
+            raise TypeError("Expected a WhoClass name. Got %s" % repr(x))
     def valueDesc(self):
         return "The name of a class of OOF2 objects (eg, <userinput>'Microstructure'</userinput> or <userinput>'Skeleton'</userinput>)."
         

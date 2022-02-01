@@ -53,7 +53,7 @@ structIntSize = struct.calcsize(structIntFmt)
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def raiseTypeError(got, expected):
-    raise TypeError('Bad type!\nExpected %s\nGot %s' % (`expected`, `got`))
+    raise TypeError('Bad type!\nExpected %s\nGot %s' % (repr(expected), repr(got)))
 
 class TypeChecker:
     def __init__(self, *types):
@@ -82,7 +82,7 @@ class TypeChecker:
                     raiseTypeError(x.types, self.types)
             for ox in x.objects:
                 for o in self.objects:
-                    if type(o) == type(ox) and o == x:
+                    if isinstance(o, type(ox)) and o == x:
                         break
                 raiseTypeError(x.types, self.types)
             return
@@ -92,7 +92,7 @@ class TypeChecker:
         for c in self.objects:
             # Checking types before checking equality protects us
             # against poorly written __eq__ methods.
-            if type(c) is type(x) and x == c:
+            if isinstance(c, type(x)) and x == c:
                 return
         raiseTypeError(type(x), self.types)
     def __repr__(self):
@@ -216,7 +216,7 @@ class Parameter(object):
         if value is not None:
             try:
                 self.checker(value)
-            except TypeError, msg:
+            except TypeError as msg:
                 raise ParameterMismatch(str(msg) + '\nfor Parameter: '
                                         + self.name)
         self._value = self.converter(value)
@@ -301,7 +301,7 @@ class BooleanParameter(Parameter):
     def set(self, value):
         if value is not None:
             if value not in (True, False):
-                raise ParameterMismatch('Got ' + `value` + ' for Parameter '
+                raise ParameterMismatch('Got ' + repr(value) + ' for Parameter '
                                         + self.name)
         self._value = bool(value) # converts 0,1 to True,False
         self.timestamp.increment()
@@ -326,7 +326,7 @@ class _RangeParameter(Parameter):
     def set(self, value):
         if value is not None:
             if type(value) not in self.types:
-                raise ParameterMismatch('Got ' + `value` + ' for Parameter '
+                raise ParameterMismatch('Got ' + repr(value) + ' for Parameter '
                                         + self.name)
             if self.range[0] <= value <= self.range[1]:
                 self._value = value
@@ -393,7 +393,7 @@ class AngleRangeParameter(FloatRangeParameter):
     def set(self, value):
         if value is not None:
             if type(value) not in self.types:
-                raise ParameterMismatch('Got ' + `value` + ' for Parameter '
+                raise ParameterMismatch('Got ' + repr(value) + ' for Parameter '
                                         + self.name)
             if self.range[0] > value:
                 old = value
@@ -452,7 +452,7 @@ class AutoIntParameter(Parameter):
 class ValueSetParameter(Parameter):
     types = (IntType, ListType, TupleType)
     def converter(self, value):
-        if type(value) is ListType:
+        if isinstance(value, ListType):
             return tuple(value)
         return value
     def valueRepr(self):
@@ -497,7 +497,7 @@ class RestrictedStringParameter(StringParameter):
         Parameter.__init__(self, name, value=value, default=default, tip=tip)
     def set(self, value):
         if value is not None:
-            if type(value) is not StringType:
+            if not isinstance(value, StringType):
                 raise ParameterMismatch(
                     "Expected a character string for Parameter: " + self.name)
             match = self.prog.match(value)
@@ -522,10 +522,10 @@ class ListOfStringsParameter(Parameter):
     def __init__(self, name, value=None, default=[], tip=None):
         Parameter.__init__(self, name, value, default, tip)
     def checker(self, x):
-        if type(x) is not ListType:
+        if not isinstance(x, ListType):
             raiseTypeError(type(x), "list of strings")
         for s in x:
-            if type(s) is not StringType:
+            if not isinstance(s, StringType):
                 raiseTypeError("list of %s" % typename(type(s)),
                                "list of strings")
     def binaryRepr(self, datafile, value):
@@ -559,7 +559,7 @@ class FloatParameter(Parameter):
         return val
     def __repr__(self):
         return "FloatParameter(%s, value=%s, default=%s)" \
-               % (`self.name`, `self.value`, `self.default`)
+               % (repr(self.name), repr(self.value), repr(self.default))
     def valueDesc(self):
         return "A real number."
 
@@ -579,7 +579,7 @@ class IntParameter(Parameter):
         (val,) = struct.unpack(structIntFmt, b)
         return val
     def __repr__(self):
-        return "IntParameter(%s,%s)" % (`self.name`, `self.value`)
+        return "IntParameter(%s,%s)" % (repr(self.name), repr(self.value))
     def valueDesc(self):
         return "Integer."
 
@@ -587,7 +587,7 @@ class PositiveIntParameter(Parameter):
     def __init__(self, name, value=None, default=1, tip=None):
         Parameter.__init__(self, name, value=value, default=default, tip=tip)
     def checker(self, x):
-        if type(x) is not IntType or x <= 0:
+        if not isinstance(x, IntType) or x <= 0:
             raiseTypeError(x, "a positive integer")
     def binaryRepr(self, datafile, value):
         return struct.pack(structIntFmt, value)
@@ -596,7 +596,7 @@ class PositiveIntParameter(Parameter):
         (val,) = struct.unpack(structIntFmt, b)
         return val
     def __repr__(self):
-        return "PositiveIntParameter(%s,%s)" % (`self.name`, `self.value`)
+        return "PositiveIntParameter(%s,%s)" % (repr(self.name), repr(self.value))
     def valueDesc(self):
         return "Positive integer."
 
@@ -604,10 +604,10 @@ class ListOfIntsParameter(Parameter):
     def __init__(self, name, value=None, default=[], tip=None):
         Parameter.__init__(self, name, value, default, tip)
     def checker(self, x):
-        if type(x) is not ListType:
+        if not isinstance(x, ListType):
             raiseTypeError(type(x), "list of Ints")
         for y in x:
-            if type(y) is not IntType:
+            if not isinstance(y, IntType):
                 raiseTypeError("list of %s" % type(y), "list of Ints")
     def binaryRepr(self, datafile, value):
         lengthstr = struct.pack(structIntFmt, len(value))
@@ -628,7 +628,7 @@ class ListOfFloatsParameter(Parameter):
     def __init__(self, name, value=None, default=[], tip=None):
         Parameter.__init__(self, name, value, default, tip)
     def checker(self, x):
-        if type(x) is not ListType:
+        if not isinstance(x, ListType):
             raiseTypeError(type(x), "list of Floats")
         for y in x:
             if type(y) not in (FloatType, IntType):
@@ -655,10 +655,10 @@ class TupleOfIntsParameter(Parameter):
         Parameter.__init__(self, name, value=value, default=default, tip=tip)
     def checker(self, x):
         if x is not None:
-            if type(x) is not TupleType:
+            if not isinstance(x, TupleType):
                 raiseTypeError(type(x), TupleType)
             for i in x:
-                if type(i) is not IntType:
+                if not isinstance(i, IntType):
                     raisetypeError(
                         "Tuple of %s" % type(i), "Tuple of Ints.")
     def valueDesc(self):
@@ -669,10 +669,10 @@ class ListOfUnsignedShortsParameter(Parameter):
     def __init__(self, name, value=None, default=[], tip=None):
         Parameter.__init__(self, name, value, default, tip)
     def checker(self, x):
-        if type(x) is not ListType:
+        if not isinstance(x, ListType):
             raiseTypeError(type(x), "list of unsigned shorts")
         for y in x:
-            if type(y) is not IntType:
+            if not isinstance(y, IntType):
                 raiseTypeError("list of %s" % type(y),
                                "list of unsigned shorts")
     def binaryRepr(self, datafile, value):
@@ -694,14 +694,14 @@ class ListOfTuplesOfIntsParameter(Parameter):
     def __init__(self, name, value=None, default=[], tip=None):
         Parameter.__init__(self, name, value, default, tip)
     def checker(self, x):
-        if type(x) is not ListType:
+        if not isinstance(x, ListType):
             raise TypeError("Expected a List of Tuples of Ints!")
         # Type-check doesn't take much longer than assignment.
         for t in x:
-            if type(t) is not TupleType:
+            if not isinstance(t, TupleType):
                 raise TypeError("Expected a List of Tuples of Ints!")
             for o in t:
-                if type(o) is not IntType:
+                if not isinstance(o, IntType):
                     raise TypeError("Expected a List of Tuples of Ints!")
     def binaryRepr(self, datafile, value):
         length = struct.pack(structIntFmt, len(value))
@@ -731,12 +731,12 @@ class ListOfTuplesOfIntsParameter(Parameter):
 
 class ListOfStringIntTuplesParameter(Parameter):
     def checker(self, x):
-        if type(x) is not ListType:
+        if not isinstance(x, ListType):
             raise TypeError("Expected a List of (String,Int) tuples!")
         for t in x:
-            if (type(t) is not TupleType or len(t) != 2 or
-                type(t[0]) is not StringType or
-                type(t[1]) is not IntType):
+            if (not isinstance(t, TupleType) or len(t) != 2 or
+                not isinstance(t[0], StringType) or
+                not isinstance(t[1], IntType)):
                 raise TypeError("Expected a List of (String,Int) tuples!")
     def valueRepr(self):
         return "List of (String, Int) tuples"
@@ -750,13 +750,13 @@ class ListOfListOfIntsParameter(Parameter):
     def __init__(self, name, value=None, default=[], tip=None):
         Parameter.__init__(self, name, value, default, tip)
     def checker(self, x):
-        if type(x) is not ListType:
+        if not isinstance(x, ListType):
             raise TypeError("Expected a List of Lists of Ints")
         for t in x:
-            if type(t) is not ListType or len(t) != len(x[0]):
+            if not isinstance(t, ListType) or len(t) != len(x[0]):
                 raise TypeError("Expected a List of uniform Lists of Ints")
             for o in t:
-                if type(o) is not IntType:
+                if not isinstance(o, IntType):
                     raise TypeError("Expected a List of Lists of Ints")
     def binaryRepr(self, datafile, value):
         h = len(value)
@@ -787,10 +787,10 @@ class ListOfListOfFloatsParameter(Parameter):
     def __init__(self, name, value=None, default=[], tip=None):
         Parameter.__init__(self, name, value, default, tip)
     def checker(self, x):
-        if type(x) is not ListType:
+        if not isinstance(x, ListType):
             raise TypeError("Expected a List of Lists of Ints")
         for t in x:
-            if type(t) is not ListType or len(t) != len(x[0]):
+            if not isinstance(t, ListType) or len(t) != len(x[0]):
                 raise TypeError("Expected a List of uniform Lists of Ints")
             for o in t:
                 if type(o) not in (FloatType, IntType):
@@ -822,11 +822,11 @@ class ListOfTuplesOfFloatsParameter(Parameter):
     def __init__(self, name, value=None, default=[], tip=None):
         Parameter.__init__(self, name, value, default, tip)
     def checker(self, x):
-        if type(x) is not ListType:
+        if not isinstance(x, ListType):
             raise TypeError("Expected a List of Tuples of Floats!")
         # Type-check doesn't take much longer than assignment.
         for t in x:
-            if type(t) is not TupleType:
+            if not isinstance(t, TupleType):
                 raise TypeError("Expected a List of Tuples of Floats!")
             for o in t:
                 if type(o) not in (FloatType, IntType):
@@ -861,13 +861,13 @@ class ListOfTuplesOfIntFloatsParameter(Parameter):
     def __init__(self, name, value=None, default=[], tip=None):
         Parameter.__init__(self, name, value=value, default=default, tip=tip)
     def checker(self, x):
-        if type(x) is not ListType:
+        if not isinstance(x, ListType):
             raise TypeError("Expected a List of Tuples!")
         # Type-check doesn't take much longer than assignment.
         for t in x:
-            if type(t) is not TupleType:
+            if not isinstance(t, TupleType):
                 raise TypeError("Expected Tuples in the List!")
-            if type(t[0]) is not IntType:
+            if not isinstance(t[0], IntType):
                 raise TypeError("Expected Int for the first slot in Tuple!")
             for o in t[1:]:
                 if type(o) not in (FloatType, IntType):
@@ -905,16 +905,16 @@ class ListOfListOfListOfIntsParameter(Parameter):
     def __init__(self, name, value=None, default=[], tip=None):
         Parameter.__init__(self, name, value, default, tip)
     def checker(self, x):
-        if type(x) is not ListType:
+        if not isinstance(x, ListType):
             raise TypeError("Expected a List of Lists of Lists of Ints")
         for t in x:
-            if type(t) is not ListType or len(t) != len(x[0]):
+            if not isinstance(t, ListType) or len(t) != len(x[0]):
                 raise TypeError("Expected a List of Lists of Lists of Ints")
             for o in t:
-                if type(o) is not ListType or len(o) != len(t[0]):
+                if not isinstance(o, ListType) or len(o) != len(t[0]):
                     raise TypeError("Expected a List of Lists of Lists of Ints")
                 for p in o:
-                    if type(p) is not IntType:
+                    if not isinstance(p, IntType):
                          raise TypeError("Expected a List of Lists of Lists of Ints")
     def binaryRepr(self, datafile, value):
         h = len(value)
@@ -953,7 +953,7 @@ class RegisteredParameter(Parameter):
             if isinstance(x, registration.subclass):
                 return
         # Type check failed. Compose a useful error message.
-        if type(x) is InstanceType:
+        if isinstance(x, InstanceType):
             gotname = x.__class__.__name__
         else:
             gotname = type(x)
@@ -976,7 +976,7 @@ class RegisteredParameter(Parameter):
     def __repr__(self):
         return '%s(%s, %s, %s, %s)' %\
                (self.__class__.__name__, self.name, self.regname(),
-                `self.value`, self.tip)
+                repr(self.value), self.tip)
 
     # For registered class objects, the object itself has enough
     # information to write itself in binary, so the Parameter doesn't
@@ -1016,7 +1016,7 @@ class RegisteredListParameter(RegisteredParameter):
         # "value"s default value is different in RegisteredParameter.
         RegisteredParameter.__init__(self, name, reg, value, default, tip)
     def checker(self, x):
-        if not (type(x)==ListType or type(x)==TupleType):
+        if not (isinstance(x, ListType) or isinstance(x, TupleType)):
             raise TypeError('Type of RegisteredListParameter must be a List')
         for p in x:
             RegisteredParameter.checker(self, p)
@@ -1135,7 +1135,7 @@ class AutomaticNameParameter(Parameter):
         if value is not None:
             try:
                 self.checker(value)
-            except TypeError, msg:
+            except TypeError as msg:
                 raise ParameterMismatch(
                     str(msg) + "\nfor AutomaticNameParameter: " + self.name)
         self.truevalue=value
@@ -1193,7 +1193,7 @@ class RestrictedAutomaticNameParameter(AutomaticNameParameter):
             self.truevalue = None
     def set(self, value):
         if value is not None and value is not automatic.automatic:
-            if type(value) is not StringType:
+            if not isinstance(value, StringType):
                 raise ParameterMismatch(
                     "Expected a character string for Parameter: " + self.name)
             match = self.prog.match(value)
@@ -1265,7 +1265,7 @@ class ParameterGroup(object):
         return ParameterGroup(*[p.clone() for p in self.params])
 
     def __repr__(self):
-        return "ParameterGroup(%s)" % ','.join([`p` for p in self.params])
+        return "ParameterGroup(%s)" % ','.join([repr(p) for p in self.params])
 
     def set_group(self, group):
         self.group = group
@@ -1298,7 +1298,7 @@ class ParameterGroup(object):
 
     # Hierarchical lookup by parameter name.
     def __getitem__(self, name):
-        assert type(name) is StringType # ints used to be allowed.
+        assert isinstance(name, StringType) # ints used to be allowed.
         try:
             # Look in self and child groups.
             return self._lookdown(name)
@@ -1336,7 +1336,7 @@ class Comparable:
         if other is None:
             return 0
 
-        if type(other) != InstanceType or self.__class__ != other.__class__:
+        if not isinstance(other, InstanceType) or self.__class__ != other.__class__:
             return 0
 
         ## TODO: use getattr and dir instead of __dict__
@@ -1370,7 +1370,7 @@ class ObjParameter:
 # about a missing tip.
 
 class EmptyTip:
-    def __nonzero__(self):
+    def __bool__(self):
         return 0
     def read(self, *args):              # for xmlmenudump.getHelp()
         return ""

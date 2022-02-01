@@ -14,14 +14,14 @@ import types
 
 reversetypedir = {}
 
-for name, tipe in types.__dict__.items():
-    if type(tipe) is types.TypeType:
+for name, tipe in list(types.__dict__.items()):
+    if isinstance(tipe, type):
         reversetypedir[tipe] = name
 
 
 def typename(tipe):
-    if type(tipe) is types.ClassType:
+    if isinstance(tipe, type):
         return tipe.__name__
-    if type(tipe) is types.InstanceType:
-        return tipe.__class__.__name__
+    # if isinstance(tipe, types.InstanceType):
+    #     return tipe.__class__.__name__
     return reversetypedir[tipe]

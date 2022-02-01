@@ -24,7 +24,7 @@ def questionerCLI(question, *answers, **kwargs):
             responses = answers + (default,)
     result = None
     while not result:
-        inp = raw_input('%s %s: %s' % (question, responses, defaultstr))
+        inp = input('%s %s: %s' % (question, responses, defaultstr))
 #         print '-->%s<--' % inp
         if inp:
             if inp in responses:

@@ -116,7 +116,7 @@ class AsciiDataFile:
     def argument(self, name, value):
         if self.nargs > 0:
             self.buffer += ", "
-        self.buffer += "%s=%s" % (name, `value`)
+        self.buffer += "%s=%s" % (name, repr(value))
         self.nargs += 1
     def comment(self, remark):
         self.file.write("# %s\n" % remark)
@@ -134,7 +134,7 @@ def writeDataFile(filename, mode, format):
     else:
         versioncmd = "FileVersion"
     file.write("# OOF version %s\n%s(number=%s, format=%s)\n"
-               % (version.version, versioncmd, datafileversion, `format`))
+               % (version.version, versioncmd, datafileversion, repr(format)))
     if format != BINARY:
         return AsciiDataFile(file, format)
     from ooflib.common.IO import binarydata    # avoid import loop

@@ -26,7 +26,7 @@ from ooflib.common.IO import placeholder
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
 
-import oofcanvas
+from . import oofcanvas
 
 import string
 import types
@@ -297,8 +297,7 @@ def _addMethodList(text, obj):
             except KeyError:
                 regdict[whoclass] = classlist = []
             classlist.append(reg)
-    whoclasses = regdict.keys()
-    whoclasses.sort()
+    whoclasses = sorted(list(regdict.keys()))
     lines = ["""
     <para>Here is a list of the types of displayable objects and the
     DisplayMethods that apply to them:
