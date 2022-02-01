@@ -126,7 +126,7 @@ class WhoWidgetBase:
                     condition=lambda x:
                             self.condition(x) and whoville.excludeProxies(x),
                     sort=self.sort)
-            except KeyError, exc:
+            except KeyError as exc:
                 names = []
             else:
                 names = [p[0] for p in paths]
@@ -195,7 +195,8 @@ class WhoWidgetBase:
             gtkwid.destroy()
         
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        for cb in self.sbcallbacks:
+            switchboard.removeCallback(cb)
         self.sbcallbacks = []
         self.gtk = []
         self.widgets = []

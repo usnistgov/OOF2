@@ -413,7 +413,8 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
         # created before any of their gui versions.  Some gui
         # toolboxes need to know about more than one non-gui toolbox.
         
-        map(self.makeToolboxGUI, self.toolboxes)
+        for tb in self.toolboxes:
+            self.makeToolboxGUI(tb)
         if self.toolboxGUIs:
             self.selectToolbox(self.toolboxGUIs[0].name())
             self.toolboxchooser.set_state(self.toolboxGUIs[0].name())
@@ -745,12 +746,12 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                 self._escapement.clear()
 
                 try:
-                    time = timegen.next()
+                    time = next(timegen)
                 except StopIteration:
                     self._stopAnimation = True
                 else:
                     # Update the progress bar and actually do the drawing.
-                    prog.setMessage(`time`)
+                    prog.setMessage(repr(time))
                     prog.setFraction((time-time0)/(time1-time0))
                     self.drawAtTime(time)
 

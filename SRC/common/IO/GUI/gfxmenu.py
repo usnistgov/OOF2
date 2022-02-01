@@ -253,11 +253,13 @@ def _addItem_thread(self, item):
     self.enable_parent_gui()
     
     try:
-        map(lambda x: x.show_all(), self.gtkmenu)
+        for x in self.gtkmenu:
+            x.show_all()
     except AttributeError:
         pass
     try:
-        map(lambda x: x.show_all(), self.gtkitem)
+        for x in self.gtkitem:
+            x.show_all()
     except AttributeError:
         pass
     return item

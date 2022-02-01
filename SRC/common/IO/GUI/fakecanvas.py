@@ -44,7 +44,7 @@ class FakeCanvas:
         return FakeCanvasLayer()
     def is_empty(self):
         return 0
-    def __nonzero__(self):
+    def __bool__(self):
         return 1
 
 class FakeCanvasLayer:

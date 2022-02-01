@@ -104,7 +104,8 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.gfxwindow().removeMouseHandler()
 
     def close(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        for sb in self.sbcallbacks:
+            switchboard.removeCallback(sb)
         for plugin in self.plugins:
             plugin.close()
         self.plugins = []
@@ -153,8 +154,8 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
 
             msOrImage = self.gfxwindow().topmost('Microstructure', 'Image')
             if where is not None and msOrImage is not None:
-                self.xtext.set_text(`where.x`)
-                self.ytext.set_text(`where.y`)
+                self.xtext.set_text(repr(where.x))
+                self.ytext.set_text(repr(where.y))
                 size = msOrImage.sizeInPixels() # might be ICoord or iPoint
                 if 0 <= where.x < size[0] and 0 <= where.y < size[1]:
                     for plugin in self.plugins:

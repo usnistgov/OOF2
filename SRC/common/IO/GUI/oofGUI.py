@@ -67,7 +67,8 @@ class oofGUI(widgetscope.WidgetScope):
         self.gtk.connect("destroy", self.destroyCB)
         guitop.setTop(self)
         
-        map(self.addStyle, gtkutils.styleStrings)
+        for sty in gtkutils.styleStrings:
+            self.addStyle(sty)
         
         self.mainbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
                                spacing=2, margin=5)

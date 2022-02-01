@@ -85,7 +85,8 @@ class PixelSelectToolboxGUI(genericselectGUI.GenericSelectToolboxGUI):
 
     def deactivate(self):
         genericselectGUI.GenericSelectToolboxGUI.deactivate(self)
-        map(switchboard.removeCallback, self.activecallbacks)
+        for cb in self.activecallbacks:
+            switchboard.removeCallback(cb)
         self.activecallbacks = []
 
     def getSource(self):

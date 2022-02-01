@@ -290,7 +290,7 @@ class ChooserWidget(object):
         return self.objlist
             
     def dumpState(self, comment):
-        print >> sys.stderr, comment, self.current_string
+        print(comment, self.current_string, file=sys.stderr)
 
                 
 
@@ -504,7 +504,7 @@ class ChooserListWidget(ChooserListWidgetBase):
             self.treeview.set_sensitive(False)
         else:
             self.treeview.set_sensitive(True)
-            for obj, dispname in map(None, objlist, displaylist):
+            for obj, dispname in zip(objlist, displaylist):
                 if dispname is not None:
                     self.liststore.append([dispname, obj])
                 else:
@@ -552,7 +552,7 @@ class MultiListWidget(ChooserListWidgetBase):
         self.suppress_signals()
         old_objs = self.get_value()
         self.liststore.clear()
-        for obj, dispname in map(None, objlist, displaylist):
+        for obj, dispname in zip(objlist, displaylist):
             if dispname is not None:
                 self.liststore.append([dispname, obj])
             else:
@@ -661,10 +661,10 @@ class ChooserComboWidget:
 
     def set_state(self, arg):
         debug.mainthreadTest()
-        if type(arg) == types.IntType:
+        if type(arg) == int:
             liststore = self.combobox.get_model()
             self.combobox.get_child().set_text(liststore[arg][0])
-        elif type(arg) == types.StringType:
+        elif type(arg) == bytes:
             self.combobox.get_child().set_text(arg)
         self.combobox.get_child().set_position(-1)
 

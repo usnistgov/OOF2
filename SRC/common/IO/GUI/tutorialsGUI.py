@@ -337,8 +337,8 @@ class TutorialClassGUI(subWindow.SubWindow):
         for lesson in self.tutor.lessons:
             comments = Comment(lesson.comments)
             pageno += 1
-            print >> file, pageno, lesson.subject
-            print >> file               # blank line
+            print(pageno, lesson.subject, file=file)
+            print(file=file)               # blank line
 
             # comments acts like a list of strings, where each string
             # might be formatted differently when displayed in the
@@ -351,6 +351,6 @@ class TutorialClassGUI(subWindow.SubWindow):
             paragraphs = fulltext.split('\n\n')
             # Now print out each paragraph, wrapping to 70 character lines. 
             for paragraph in paragraphs:
-                print >> file, textwrap.fill(paragraph)
-                print >> file           # blank line
+                print(textwrap.fill(paragraph), file=file)
+                print(file=file)           # blank line
         file.close()

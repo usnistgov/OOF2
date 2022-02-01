@@ -126,7 +126,7 @@ class Historian:
             mainthread.runBlock(self.sensitizeCB)
 
     def nextCB(self, *args):            # go to the next history item
-        self.historyBuffer.next()
+        next(self.historyBuffer)
         self.inhibit = 1
         self.setCB(self.historyBuffer.current(), **self.setCBkwargs)
         self.inhibit = 0 

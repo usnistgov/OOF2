@@ -106,7 +106,7 @@ class LabelledSlider:
 
         # Make sure that the Entry is big enough to hold the min and
         # max values, or at least 8 digits.
-        width = max(len(`vmin`), len(`vmax`), 8)
+        width = max(len(repr(vmin)), len(repr(vmax)), 8)
         self.entry.set_width_chars(width)
 
         self.entrysignal = gtklogger.connect(self.entry, 'changed',
@@ -246,10 +246,10 @@ class LabelledSlider:
             self.entry.set_tooltip_text(entry)
 
     def dumpState(self, comment):
-        print >> sys.stderr, comment, self.__class__.__name__, \
+        print(comment, self.__class__.__name__, \
             "text=%s" % self.entry.get_text(), \
             "val=%s" % self.adjustment.get_value(), \
-            "focus=%s" % self.entry.has_focus()
+            "focus=%s" % self.entry.has_focus(), file=sys.stderr)
 
 class FloatLabelledSlider(LabelledSlider):
     def set_digits(self, digits):

@@ -140,7 +140,8 @@ class MessageWindow(subWindow.SubWindow):
         global _message_window_auto_open
         allMessageWindows.remove(self)
         _message_window_auto_open = False
-        map(switchboard.removeCallback, self.sbcbs)
+        for sb in self.sbcbs:
+            switchboard.removeCallback(sb)
         OOF.Windows.Messages.removeItem(self.windows_menu_name)
 
     def draw(self):

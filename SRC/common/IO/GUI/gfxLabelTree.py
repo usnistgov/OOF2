@@ -258,7 +258,8 @@ class GfxLabelTree:
 
     def destroyCB(self, *args):         # gtk callback
         debug.mainthreadTest()
-        map(switchboard.removeCallback, self.sbcallbacks)
+        for sb in self.sbcallbacks:
+            switchboard.removeCallback(sb)
         # clean up possible circular references
         self.tree = None                
         del self.treestore

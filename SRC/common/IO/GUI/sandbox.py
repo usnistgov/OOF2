@@ -126,10 +126,10 @@ class SandBox(subWindow.SubWindow):
         menu.append(item)
         return item
     def buttonmenuCB(self, menuitem, name):
-        print "buttonmenuCB:", name
+        print("buttonmenuCB:", name)
         dialog = Gtk.Dialog()
         button = dialog.add_button("Push", 0)
         response = dialog.run()
-        print "response=", response
+        print("response=", response)
         dialog.close()
         

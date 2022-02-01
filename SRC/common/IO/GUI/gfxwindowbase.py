@@ -168,7 +168,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
         debug.mainthreadTest()
         layer = model[iter][0]
         if self.settings.longlayernames:
-            cell_renderer.set_property('text', `layer`)
+            cell_renderer.set_property('text', repr(layer))
         else:
             cell_renderer.set_property('text', layer.short_name())
                                    

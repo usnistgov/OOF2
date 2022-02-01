@@ -109,7 +109,7 @@ class ParameterWidget(object):
 
     # For debugging. Redefine in derived classes to print more useful info.
     def dumpState(self, comment):
-        print >> sys.stderr, comment, "(%s)" % self.__class__.__name__
+        print(comment, "(%s)" % self.__class__.__name__, file=sys.stderr)
 
 # GenericWidget is a base class for several other widgets.  It can
 # also be created as an instance itself, but currently this is not
@@ -144,7 +144,7 @@ class GenericWidget(ParameterWidget):
         return None
     def set_value(self, newvalue):
         debug.mainthreadTest()
-        valuestr = `newvalue`
+        valuestr = repr(newvalue)
         self.signal.block()
         self.gtk.set_text(valuestr)
         self.signal.unblock()
@@ -195,7 +195,7 @@ class StringWidget(GenericWidget):
     def set_value(self, value):
         debug.mainthreadTest()
         self.block_signal()
-        if type(value) == StringType and string.lstrip(value) != "":
+        if isinstance(value, StringType) and string.lstrip(value) != "":
             self.gtk.set_text(value)
             self.widgetChanged(1, interactive=0)
         else:
@@ -334,7 +334,7 @@ class AutoWidget(ParameterWidget):
                 if isinstance(newvalue, StringType):
                     self.gtk.set_text(newvalue)
                 else:
-                    self.gtk.set_text(`newvalue`)
+                    self.gtk.set_text(repr(newvalue))
         finally:
             self.deleteSignal.unblock()
         self.widgetChanged(1, interactive=0)
@@ -581,8 +581,8 @@ class _AngleClipper(object):
             n = math.ceil((val - self.vmax)/self.circle)
             val -= n*self.circle
         if val < self.vmin or val > self.vmax:
-            raise ValueError("Parameter value out of range: val=" + `val`
-                             + " range=[" + `self.vmin` + ", " + `self.vmax`
+            raise ValueError("Parameter value out of range: val=" + repr(val)
+                             + " range=[" + repr(self.vmin) + ", " + repr(self.vmax)
                              + "]")
         return val
 
@@ -635,8 +635,8 @@ class FloatWidget(GenericWidget):
         return 0.0
     def validValue(self, val):
         try:
-            if type(val) is StringType:
-                return type(1.0*utils.OOFeval(val)) is FloatType
+            if isinstance(val, StringType):
+                return isinstance(1.0*utils.OOFeval(val), FloatType)
             else:
                 return isinstance(val, (FloatType, IntType))
         except:
@@ -652,9 +652,9 @@ parameter.FloatParameter.makeWidget = _FloatParameter_makeWidget
 class PositiveFloatWidget(FloatWidget):
     def validValue(self, val):
         try:
-            if type(val) is StringType:
+            if isinstance(val, StringType):
                 fval = 1.0*utils.OOFeval(val)
-                return type(fval) is FloatType and fval > 0.0
+                return isinstance(fval, FloatType) and fval > 0.0
             else:
                 return isinstance(val, (FloatType, IntType)) and val > 0.0
         except:
@@ -694,8 +694,8 @@ class IntWidget(GenericWidget):
         return 0
     def validValue(self, val):
         try:
-            if type(val) is StringType:
-                return type(utils.OOFeval(val)) is IntType
+            if isinstance(val, StringType):
+                return isinstance(utils.OOFeval(val), IntType)
             else:
                 return isinstance(val, IntType)
         except:
@@ -708,9 +708,9 @@ parameter.IntParameter.makeWidget = _IntParameter_makeWidget
 class PositiveIntWidget(IntWidget):
     def validValue(self, val):
         try:
-            if type(val) is StringType:
+            if isinstance(val, StringType):
                 ival = utils.OOFeval(val)
-                return type(ival) is IntType and ival > 0
+                return isinstance(ival, IntType) and ival > 0
             else:
                 return isinstance(val, IntType) and val > 0
         except:
@@ -735,7 +735,7 @@ class XYStrFunctionWidget(GenericWidget):
             self.gtk.set_text('')
         self.unblock_signal()
     def validValue(self, value):
-        if type(value) is StringType:
+        if isinstance(value, StringType):
             try:
                 fn = strfunction.XYStrFunction(value)
                 return True
@@ -762,7 +762,7 @@ class XYTStrFunctionWidget(GenericWidget):
             self.gtk.set_text('')
         self.unblock_signal()
     def validValue(self, value):
-        if type(value) is StringType:
+        if isinstance(value, StringType):
             try:
                 fn = strfunction.XYTStrFunction(value)
                 return True
@@ -877,7 +877,7 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
             try:
                 val = widget.get_value()
                 param.value = val
-            except (Exception, ooferror.ErrError), exception:
+            except (Exception, ooferror.ErrError) as exception:
                 exceptions.append(exception)
         if exceptions:
             debug.fmsg("exceptions[0] ->%s<-", exceptions[0])
@@ -897,7 +897,7 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
                 return
         self.widgetChanged(True, interactive)
     def dumpValidity(self):
-        debug.fmsg(zip([p.name for p in self.params], self.validities))
+        debug.fmsg(list(zip([p.name for p in self.params], self.validities)))
     def dumpValues(self):
         debug.fmsg(*["%s=%s" % (p.name, p.value) for p in self.params])
     def dumpState(self, comment):
@@ -917,7 +917,8 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
         self.gtk.show()
     def cleanUp(self):
         # Make sure we don't have any circular references...
-        map(switchboard.removeCallback, self.sbcallbacks)
+        for sb in self.sbcallbacks:
+            switchboard.removeCallback(sb)
         self.params = []
         self.widgets = []
         ParameterWidget.cleanUp(self)
@@ -1230,15 +1231,15 @@ class ValueSetParameterWidget(GenericWidget):
     def validValue(self, value):
         if value is None:
             return 0
-        if type(value) is StringType:
+        if isinstance(value, StringType):
             if string.lstrip(value)=="":
                 return 0
             return 1 # Nontrival strings are OK.
         
-        if type(value) is IntType and value>0:
+        if isinstance(value, IntType) and value>0:
             return 1 # Ints greater than zero are OK.
 
-        if type(value) is TupleType:
+        if isinstance(value, TupleType):
             for v in value:
                 try:
                     x = float(v)
@@ -1260,18 +1261,18 @@ class AutomaticValueSetParameterWidget(AutoWidget):
     def validValue(self, value):
         if value is None:
             return 0
-        if type(value) is StringType:
+        if isinstance(value, StringType):
             if string.lstrip(value)=="":
                 return 0
             return 1
         
-        if type(value) is IntType and value>0:
+        if isinstance(value, IntType) and value>0:
             return 1
 
         if value == automatic.automatic:
             return 1
 
-        if type(value) is TupleType:
+        if isinstance(value, TupleType):
             for v in value:
                 try:
                     x = float(v)
@@ -1330,7 +1331,8 @@ class PointWidget(ParameterWidget):
         self.widgetChanged(self.xwidget.isValid() and self.ywidget.isValid(),
                            interactive)
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        for sb in self.sbcallbacks:
+            switchboard.removeCallback(sb)
         ParameterWidget.cleanUp(self)
 
 def _PointParameter_makeWidget(self, scope=None, **kwargs):

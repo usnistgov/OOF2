@@ -150,8 +150,8 @@ class RegisteredClassFactory(RCFBase):
         self.update(registry, obj, interactive=0)
 
     def dumpState(self, comment):
-        print >> sys.stderr, comment, self.__class__.__name__, \
-            (self.currentOption and self.currentOption.name())
+        print(comment, self.__class__.__name__, \
+            (self.currentOption and self.currentOption.name()), file=sys.stderr)
         self.options.dumpState("   " + comment)
         if self.paramWidget:
             self.paramWidget.dumpState("   " + comment)
@@ -202,7 +202,7 @@ class RegisteredClassFactory(RCFBase):
         if obj is not None:
             # If obj is a string, look for a registration with that
             # name.
-            if type(obj)==types.StringType:
+            if isinstance(obj, bytes):
                 for reg in registry:
                     if self.includeRegistration(reg) and reg.name()==obj:
                         self.setByRegistration(reg, interactive)
@@ -471,7 +471,7 @@ class ConvertibleRegisteredClassFactory(RegisteredClassFactory):
             try:
                 old = self.getParamValues()
                 got_old = True
-            except ValueError, exc:
+            except ValueError as exc:
                 reporter.warn(exc)
                 got_old = False
             
@@ -490,7 +490,7 @@ class ConvertibleRegisteredClassFactory(RegisteredClassFactory):
         # and store it so you can pass it to widgets for other representations.
         try:
             self.base_value = registration.getParamValuesAsBase()
-        except ValueError, exc:
+        except ValueError as exc:
             reporter.warn(exc)
 
     def getParamValues(self):

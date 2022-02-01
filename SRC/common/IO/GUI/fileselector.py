@@ -278,7 +278,7 @@ class FileSelectorWidget(parameterwidgets.ParameterWidget):
         self.switchDir(self.dirHistory.prev())
 
     def nextCB(self, button):
-        self.switchDir(self.dirHistory.next())
+        self.switchDir(next(self.dirHistory))
 
     def homeCB(self, button):
         directory = os.path.expanduser("~")
@@ -501,7 +501,7 @@ def endSlash(dirname):
 def getDirectoryHierarchy(directory):
     # Return a list of all directories in the hierarchy from root
     # to the given directory, eg. ["/", "/Users/", "/Users/oofuser/"]
-    names = filter(None, os.path.abspath(directory).split(os.sep))
+    names = [_f for _f in os.path.abspath(directory).split(os.sep) if _f]
     if names:
         return [os.sep] + [os.sep + os.path.join(*names[:n]) + os.sep
                            for n in range(1,len(names)+1)]

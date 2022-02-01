@@ -60,7 +60,7 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
             lbl = Gtk.Label(' %d ' % (r+1), halign=Gtk.Align.END)
             self.table.attach(lbl, 0, r+1, 1, 1)
         for c in range(self.cols):
-            lbl = Gtk.Label(`c+1`)
+            lbl = Gtk.Label(repr(c+1))
             self.table.attach(lbl, c+1, 0, 1, 1)
 
         for r in range(self.rows):
@@ -82,7 +82,8 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
     def floatChangeCB(self, interactive):
         self.widgetChanged(1, interactive)
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        for sb in self.sbcallbacks:
+            switchboard.removeCallback(sb)
         parameterwidgets.ParameterWidget.cleanUp(self)
 
     # Turn the Gtk.Entry 'changed' signal on and off.  Used to
@@ -127,7 +128,7 @@ class SymmetricMatrixInputBase(MatrixInputBase):
             lbl = Gtk.Label(' %d ' % (r+1), halign=Gtk.Align.END)
             self.table.attach(lbl, 0, r+1, 1, 1)
         for c in range(self.cols):
-            lbl = Gtk.Label(`c+1`)
+            lbl = Gtk.Label(repr(c+1))
             self.table.attach(lbl, c+1, 0, 1, 1)
 
         # Now put the actual widgets in.

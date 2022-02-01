@@ -215,7 +215,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.gfxwindow().allowMotionEvents(self.motionFlag)
 
     def close(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        list(map(switchboard.removeCallback, self.sbcallbacks))
         toolboxGUI.GfxToolbox.close(self)
 
     def getSourceName(self):
@@ -381,7 +381,8 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
                             utils.OOFeval(self.yupentry.get_text()),
                             utils.OOFeval(self.zupentry.get_text()))                      
             except:        # Shouldn't happen, if sensitization is working
-                raise "Can't evaluate coordinates!"
+                raise ooferror.ErrProgrammingError(
+                    "Can't evaluate coordinates!")
             actual_who = self.getSource()
             if actual_who:
                 self.selectionMethodFactory.set_defaults()
