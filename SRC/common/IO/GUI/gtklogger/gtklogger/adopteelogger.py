@@ -8,7 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import loggers
+from . import loggers
 import string
 
 class AdopteeLogger(loggers.GtkLogger):
@@ -16,8 +16,8 @@ class AdopteeLogger(loggers.GtkLogger):
     def location(self, obj, *args):
         parent = getattr(obj, 'oofparent')
         parentcode = loggers.findLogger(parent).location(parent)
-        strargs = [`x` for x in obj.oofparent_access_args] + \
-                  ["%s=%s" % (name, `val`)
+        strargs = [repr(x) for x in obj.oofparent_access_args] + \
+                  ["%s=%s" % (name, repr(val))
                    for name, val in obj.oofparent_access_kwargs.items()]
         if hasattr(obj, 'oofparent_access_method'):
             return '%s.%s(%s)' % (parentcode, obj.oofparent_access_method,

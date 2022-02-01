@@ -21,7 +21,7 @@ import string
 import sys
 import weakref
 
-import checkpoint
+from . import checkpoint
 
 
 class GtkLoggerException(Exception):
@@ -122,7 +122,8 @@ def isTopLevelWidget(obj):
     return obj in topwidgets.values()
 
 def getTopWidgetNames():
-    return topwidgets.keys()[:]
+    ## TODO PYTHON3: Do we need to return a copy of the list? Is [:] needed?
+    return list(topwidgets.keys())[:]
 
 # Top-level widgets (mostly Gtk.Windows) must have their names
 # assigned by newTopLevelWidget() instead of setWidgetName().
@@ -218,12 +219,11 @@ def _findAllWidgets(top):
 # dumpAllWidgets prints the paths and widgets of all named widgets
 # under and including the given widget.
 def dumpAllWidgets(topname):
-    aw = findAllWidgets(topname)[:]
-    aw.sort()
+    aw = sorted(findAllWidgets(topname)[:]) ## TODO PYTHON3: Do we need [:] ?
     basepath = ':'.join(topname.split(':')[:-1])
     for name in aw:
-        print >> sys.stderr, "dumpAllWidgets:", name, findWidget(basepath
-                                                                 + ':' + name)
+        print("dumpAllWidgets:", name, findWidget(basepath
+                                                                 + ':' + name), file=sys.stderr)
 
 ##############################
 

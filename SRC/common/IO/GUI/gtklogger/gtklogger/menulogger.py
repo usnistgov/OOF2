@@ -9,9 +9,9 @@
 # oof_manager@nist.gov. 
 
 from gi.repository import Gtk
-import widgetlogger
-import logutils
-import loggers
+from . import widgetlogger
+from . import logutils
+from . import loggers
 
 import string, sys
 

@@ -10,4 +10,4 @@
 
 
 
-from loggergui import *
+from .loggergui import *

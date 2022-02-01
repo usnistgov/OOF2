@@ -16,10 +16,10 @@ from gi.repository import Gtk
 import sys
 import weakref
 
-import core
-import checkpoint
-import loggers
-import logutils
+from . import core
+from . import checkpoint
+from . import loggers
+from . import logutils
 
 ## log files being played back are executed in this namespace, so
 ## functions used in log files have to be defined here.
@@ -203,7 +203,7 @@ class GUILogLineRunner(object):
         if self.status == "initialized":
             self.status = "installed"
             if logutils.debugLevel() >= 4:
-                print >> sys.stderr, "Installing", self.srcline
+                print("Installing", self.srcline, file=sys.stderr)
             GObject.idle_add(self, priority=GObject.PRIORITY_LOW)
     def nextLine(self):
         line = self.logrunner.getLine(self.lineno+1)
@@ -287,9 +287,8 @@ class GUILogLineRunner(object):
                     self.ntries += 1
                     if self.ntries == maxtries:
                         if logutils.debugLevel() >= 1:
-                            print >> sys.stderr, \
-                                  "Failed to find top-level widget after", \
-                                  self.ntries, "attempts."
+                            print("Failed to find top-level widget after", \
+                                  self.ntries, "attempts.", file=sys.stderr)
                         self.status = "aborted"
                         self.logrunner.abort()
                         return False
@@ -304,7 +303,7 @@ class GUILogLineRunner(object):
                     return False
 
 
-                except logutils.exceptions(), exc:
+                except logutils.exceptions() as exc:
                     # Any type of exception other than GtkLoggerTopFailure
                     # is fatal.
                     self.status = "aborted"
@@ -323,7 +322,7 @@ class GUILogLineRunner(object):
         # reinstalling and returning False) so that the previous line
         # will run first.
         if logutils.debugLevel() >= 4:
-            print >> sys.stderr, "Reinstalling", self.srcline
+            print("Reinstalling", self.srcline, file=sys.stderr)
         GObject.timeout_add(retrydelay, self, priority=GObject.PRIORITY_LOW)
         return False
 
@@ -346,8 +345,8 @@ class PerformLine(GUILogLineRunner):
         GUILogLineRunner.__init__(self, logrunner, srcline, lineno)
         self.line = line
     def report(self):
-        print >> sys.stderr, "////// %d/%d %s" %(self.srcline, self.nlines(),
-                                                 self.line)
+        print("////// %d/%d %s" %(self.srcline, self.nlines(),
+                                                 self.line), file=sys.stderr)
     def playback(self):
         if logutils.recording():
             ## Hack opportunity: if it's necessary to modify some
@@ -358,14 +357,14 @@ class PerformLine(GUILogLineRunner):
             loggers._writeline(self.line)
                 
         if logutils.debugLevel() >= 4:
-            print >> sys.stderr, "Executing", self.srcline, self.line
+            print("Executing", self.srcline, self.line, file=sys.stderr)
         # Exec'ing the line with an explicitly provided dictionary
         # allows variables created on one line to be available on a
         # later line.  Otherwise, the variable's scope would just be
         # this function call, which wouldn't be very useful.
         exec(self.line, sys.modules[__name__].__dict__)
         if logutils.debugLevel() >= 4:
-            print >> sys.stderr, "Finished", self.srcline, self.line
+            print("Finished", self.srcline, self.line, file=sys.stderr)
         self.status = "done"
         return False
 
@@ -383,9 +382,9 @@ class PostponeLine(GUILogLineRunner):
         self.status = "done"
         return False
     def report(self):
-        print >> sys.stderr, "////// %d/%d postponing %s" % (self.srcline,
+        print("////// %d/%d postponing %s" % (self.srcline,
                                                              self.nlines(),
-                                                             self.line)
+                                                             self.line), file=sys.stderr)
 
 class PostponedLine(PerformLine):
     def __init__(self, ppl):
@@ -404,19 +403,19 @@ class PostponedLine(PerformLine):
         # the line when rerecording, because PostponeLine has already
         # echoed it.
         if logutils.debugLevel() >= 4:
-            print >> sys.stderr, "Executing", self.srcline, self.line
+            print("Executing", self.srcline, self.line, file=sys.stderr)
         exec(self.line, sys.modules[__name__].__dict__)
         if logutils.debugLevel() >= 4:
-            print >> sys.stderr, "Finished", self.srcline, self.line
+            print("Finished", self.srcline, self.line, file=sys.stderr)
         self.status = "done"
         return False
     def run_postponed(self):
         # Postponed lines never wait for other postponed lines.
         return False
     def report(self):
-        print >> sys.stderr, "////// %d/%d (postponed) %s" % (self.srcline,
+        print("////// %d/%d (postponed) %s" % (self.srcline,
                                                               self.nlines(),
-                                                              self.line)
+                                                              self.line), file=sys.stderr)
 
 class CommentLine(GUILogLineRunner):
     def __init__(self, logrunner, srcline, lineno, comment):
@@ -428,8 +427,8 @@ class CommentLine(GUILogLineRunner):
         self.status = "done"
         return False
     def report(self):
-        print >> sys.stderr, "###### %d/%d %s" % (self.srcline, self.nlines(),
-                                                  self.comment)
+        print("###### %d/%d %s" % (self.srcline, self.nlines(),
+                                                  self.comment), file=sys.stderr)
 
 class PauseLine(GUILogLineRunner):
     # Special handler for lines of the form "pause <time>".  Such
@@ -445,13 +444,13 @@ class PauseLine(GUILogLineRunner):
             if self.status == "running":
                 self.status = "repeating"
                 if logutils.debugLevel() >= 4:
-                    print >> sys.stderr, self.srcline, \
-                          "Pausing", self.delaytime, "milliseconds"
+                    print(self.srcline, \
+                          "Pausing", self.delaytime, "milliseconds", file=sys.stderr)
                 GObject.timeout_add(self.delaytime, self,
                                     priority=GObject.PRIORITY_LOW)
             elif self.status == "repeating":
                 if logutils.debugLevel() >= 4:
-                    print >> sys.stderr, "Done pausing", self.srcline
+                    print("Done pausing", self.srcline, file=sys.stderr)
                 self.status = "done"
         else:
             # not threaded, no need to wait for background tasks
@@ -470,18 +469,18 @@ class CheckPointLine(GUILogLineRunner):
         # code.
         if checkpoint.check_checkpoint(self.comment):
             if logutils.debugLevel() >= 4:
-                print >> sys.stderr, "Reached checkpoint", self.srcline
+                print("Reached checkpoint", self.srcline, file=sys.stderr)
             self.status = "done"
         else:
             self.status = "repeating"
             if logutils.debugLevel() >= 4:
-                print >> sys.stderr, "Waiting on checkpoint", self.srcline
+                print("Waiting on checkpoint", self.srcline, file=sys.stderr)
             GObject.timeout_add(retrydelay, self, priority=GObject.PRIORITY_LOW)
         return False
     def report(self):
-        print >> sys.stderr, "////// %d/%d checkpoint %s" %(self.srcline,
+        print("////// %d/%d checkpoint %s" %(self.srcline,
                                                             self.nlines(),
-                                                            self.comment)
+                                                            self.comment), file=sys.stderr)
 ####################
 
 ## Functions used within log files.
@@ -510,7 +509,7 @@ def buildEvent(etype, **kwargs):
     for arg, val in kwargs.items():
         if logutils.debugLevel() > 0:
             if not hasattr(ev, arg):
-                print >> sys.stderr, "Event", etype, "has no attribute", arg
+                print("Event", etype, "has no attribute", arg, file=sys.stderr)
         setattr(ev, arg, val)
     return ev
 

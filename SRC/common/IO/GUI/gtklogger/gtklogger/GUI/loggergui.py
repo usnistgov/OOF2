@@ -266,7 +266,7 @@ class LogProcessor(object):
     def writeLog(self):
         logfile = file(self.logfilename, "w")
         for line in self.lines:
-            print >> logfile, line
+            print(line, file=logfile)
         logfile.close()
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

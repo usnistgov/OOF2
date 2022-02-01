@@ -20,8 +20,8 @@ import sys
 import types
 import weakref
 
-import loggers
-import logutils
+from . import loggers
+from . import logutils
 
 _allexceptions = [Exception]
 _process = None
@@ -39,7 +39,7 @@ def start(filename, debugLevel=2, suppress_motion_events=True,
             # comments into the output stream.  The pipe is
             # line-buffered so that comments appear in the right
             # places.
-            from GUI import loggergui
+            from .GUI import loggergui
             guifile = os.path.abspath(loggergui.__file__)
             global _process
             _process = subprocess.Popen(
@@ -50,7 +50,7 @@ def start(filename, debugLevel=2, suppress_motion_events=True,
                 bufsize=1, # 0 means unbuffered, 1 means line buffered
                 stdin=subprocess.PIPE)
             logutils.set_logfile(_process.stdin)
-        elif type(filename) is types.StringType:
+        elif isinstance(filename, bytes):
             logutils.set_logfile(open(filename, "w"))
         else:                   # filename is assumed to be a file
             logutils.set_logfile(filename)
@@ -238,13 +238,16 @@ class GUISignals:
             widget.connect('destroy', self.destroyCB)
     def block(self):
         if self.alive:
-            map(self.widget().handler_block, self.signals)
+            for s in self.signals:
+                self.widget().handler_block(s)
     def unblock(self):
         if self.alive:
-            map(self.widget().handler_unblock, self.signals)
+            for s in self.signals:
+                self.widget().handler_unblock(s)
     def disconnect(self):
         if self.alive:
-            map(self.widget().disconnect, self.signals)
+            for s in self.signals:
+                self.widget.disconnect(s)
         self.signals = ()
     def destroyCB(self, *args):
         self.alive = False
@@ -271,7 +274,7 @@ class Dialog(Gtk.Dialog):
         # Just to be nice to the programmer, turn on logging for the
         # buttons automatically.  Perhaps this should be optional.
         button = super(Dialog, self).add_button(name, response_id)
-        assert type(name) is types.StringType
+        assert isinstance(name, bytes)
         setWidgetName(button, name)
         connect_passive(button, 'clicked')
         return button
@@ -304,7 +307,7 @@ def newPopupMenu(name=None, **kwargs):
     if name:
         pname = name
     else:
-        pname = 'PopUp-'+`popupCount`
+        pname = 'PopUp-'+repr(popupCount)
         popupCount += 1
     newTopLevelWidget(menu, pname)
     # When recording a gui log file, it's necessary to log the
@@ -364,6 +367,6 @@ def comprehensive_sanity_check():
 # Insert a comment in the log file.
 def comment(*args):
     if logutils.recording():
-        print >> logutils.logfile(), ' '.join(map(str, ("#",) + args))
+        print(' '.join(map(str, ("#",) + args)), file=logutils.logfile())
         if logutils.debugLevel() >= 2:
-            print >> sys.stderr, ' '.join(map(str, ("#",) + args))
+            print(' '.join(map(str, ("#",) + args)), file=sys.stderr)

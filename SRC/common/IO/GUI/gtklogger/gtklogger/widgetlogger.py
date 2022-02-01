@@ -8,10 +8,10 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import loggers
+from . import loggers
 from gi.repository import Gdk
 from gi.repository import Gtk
-import logutils
+from . import logutils
 
 import sys
 import string
@@ -172,7 +172,7 @@ modifiernames = ["Shift_L", "Shift_R",
                  "Control_L", "Control_R",
                  "Meta_L", "Meta_R",
                  "Alt_L", "Alt_R"]
-modifierkeyvals = map(Gdk.keyval_from_name, modifiernames)
+modifierkeyvals = list(map(Gdk.keyval_from_name, modifiernames))
 
 def is_modifier(keyval):
     return keyval in modifierkeyvals

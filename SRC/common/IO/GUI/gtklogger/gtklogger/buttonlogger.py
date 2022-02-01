@@ -9,7 +9,7 @@
 # oof_manager@nist.gov. 
 
 from gi.repository import Gtk
-import widgetlogger
+from . import widgetlogger
 
 class ButtonLogger(widgetlogger.WidgetLogger):
     classes = (Gtk.Button,)

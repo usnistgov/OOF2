@@ -9,9 +9,9 @@
 # oof_manager@nist.gov. 
 
 from gi.repository import Gtk
-import adopteelogger
-import loggers
-import widgetlogger
+from . import adopteelogger
+from . import loggers
+from . import widgetlogger
 
 # Loggers for various components of a TreeView.
 

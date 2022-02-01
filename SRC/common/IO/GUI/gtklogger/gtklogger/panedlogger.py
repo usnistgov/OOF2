@@ -9,7 +9,7 @@
 # oof_manager@nist.gov. 
 
 from gi.repository import Gtk
-import widgetlogger
+from . import widgetlogger
 
 ## To log the changes in a Paned's divider position, connect (with
 ## connect_passive, probably) to its 'notify::position' signal.

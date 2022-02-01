@@ -16,31 +16,31 @@
 
 ## core contains the basic functions to call when instrumenting a
 ## program, and to start and stop recording.
-from core import *
+from .core import *
 ## replay contains functions and classes used when replaying a log
 ## file.
-from replay import replay, set_delay, replayDefine
-from logutils import *
+from .replay import replay, set_delay, replayDefine
+from .logutils import *
 ## The checkpoint import must come *after* the previous 'import *'s,
 ## because they will otherwise overwrite 'checkpoint'.  This is not
 ## pretty.
-from checkpoint import *
+from .checkpoint import *
 
-from loggers import *
+from .loggers import *
 
 ## The logger classes just need to be imported.  The loggers don't
 ## have to be explicitly present in the gtklogger namespace.  The
 ## GtkLogger metaclass takes care of listing them in the global
 ## directory of loggers.
-import adjustmentlogger
-import adopteelogger
-import buttonlogger
-import comboboxlogger
-import entrylogger
-import expanderlogger
-import filechooserlogger
-import menulogger
-import treeviewlogger
-import widgetlogger
-import panedlogger
-import windowlogger
+from . import adjustmentlogger
+from . import adopteelogger
+from . import buttonlogger
+from . import comboboxlogger
+from . import entrylogger
+from . import expanderlogger
+from . import filechooserlogger
+from . import menulogger
+from . import treeviewlogger
+from . import widgetlogger
+from . import panedlogger
+from . import windowlogger
