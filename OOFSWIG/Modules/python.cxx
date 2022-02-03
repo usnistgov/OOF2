@@ -307,8 +307,6 @@ void PYTHON::headers(void)
 
 void PYTHON::initialize(void)
 {
-
-  char  filen[256];
   char  *temp;
   const char  *oldmodule = 0;
 
@@ -330,9 +328,9 @@ void PYTHON::initialize(void)
   initialize_cmodule();
   /* Create a shadow file (if enabled).*/
   if (shadow) {
-    sprintf(filen,"%s/%s.py", output_dir.c_str(), oldmodule);
-    if ((f_shadow = fopen(filen,"w")) == 0) {
-      fprintf(stderr,"PYTHON::initialize: Unable to open %s\n", filen);
+    std::string filen(output_dir + "/" + oldmodule + ".py");
+    if ((f_shadow = fopen(filen.c_str(),"w")) == 0) {
+      fprintf(stderr,"PYTHON::initialize: Unable to open %s\n", filen.c_str());
       SWIG_exit(0);
     }
     fprintf(f_shadow,"# This file was created automatically by SWIG.\n");
