@@ -101,11 +101,11 @@ utils.OOFdefine('StrFunction', StrFunction)
 
 
 class XYStrFunctionParameter(parameter.Parameter):
-    types = (types.StringType, XYStrFunction)
+    types = (bytes, XYStrFunction)
     def __init__(self, name, value=None, default='0.0', tip=None):
         parameter.Parameter.__init__(self, name, value, default, tip)
     def set(self, value):
-        if type(value) is types.StringType:
+        if isinstance(value, bytes):
             self._value = XYStrFunction(value)
         elif isinstance(value, XYStrFunction):
             self._value = value
@@ -113,7 +113,7 @@ class XYStrFunctionParameter(parameter.Parameter):
             self._value = None
         else:
             raise parameter.ParameterMismatch(
-                'Got ' + `value` + ' for Parameter ' + self.name)
+                'Got ' + repr(value) + ' for Parameter ' + self.name)
         self.timestamp.increment()
     def valueDesc(self):
         if config.dimension() == 2:
@@ -129,11 +129,11 @@ class XYStrFunctionParameter(parameter.Parameter):
         return XYStrFunction(parser.getBytes(length))
 
 class XYTStrFunctionParameter(parameter.Parameter):
-    types = (types.StringType, XYStrFunction)
+    types = (bytes, XYStrFunction)
     def __init__(self, name, value=None, default='0.0', tip=None):
         parameter.Parameter.__init__(self, name, value, default, tip)
     def set(self, value):
-        if type(value) is types.StringType:
+        if isinstance(value, bytes):
             self._value = XYTStrFunction(value)
         elif isinstance(value, XYTStrFunction):
             self._value = value
@@ -141,7 +141,7 @@ class XYTStrFunctionParameter(parameter.Parameter):
             self._value = None
         else:
             raise parameter.ParameterMismatch(
-                'Got ' + `value` + ' for Parameter ' + self.name)
+                'Got ' + repr(value) + ' for Parameter ' + self.name)
         self.timestamp.increment()
     def valueDesc(self):
         if config.dimension() == 2:

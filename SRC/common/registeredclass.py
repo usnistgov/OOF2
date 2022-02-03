@@ -127,10 +127,10 @@ class Registration(object):
     def setDefaultParams(self, values):
         # Given a list or dictionary of values, set the values of the
         # Parameters.
-        if type(values) == type([]):
+        if isinstance(values, type([])):
             for param, value in zip(self.params, values):
                 param.value = value
-        elif type(values) == type({}):
+        elif isinstance(values, type({})):
             for param in self.params:
                 param.value = values[param.name]
 
@@ -158,7 +158,7 @@ class Registration(object):
     def __call__(self,**kwargs):
         # Check for extra arguments
         paramnames = [p.name for p in self.params]
-        for argname in kwargs.keys():
+        for argname in list(kwargs.keys()):
             if argname not in paramnames:
                 raise ooferror.ErrUserError(
                     "Unexpected argument '%s' in %s constructor"
@@ -186,7 +186,7 @@ class Registration(object):
         return "%s('%s', subclass=%s, ordering=%s, params=%s)" % \
                (self.__class__.__name__,
                 self.name(), self.subclass.__name__,
-                `self.ordering`, `self.params`)
+                repr(self.ordering), repr(self.params))
 
 class ConvertibleRegistration(Registration):
     def __init__(self, name, registeredclasses, subclass, ordering,
@@ -215,7 +215,7 @@ class ConvertibleRegistration(Registration):
         t = "%s('%s', subclass=%s, ordering=%s, params=%s)"
         return t % (self.__class__.__name__,
                     self.name(), self.subclass.__name__,
-                    `self.ordering`, `self.params`)
+                    repr(self.ordering), repr(self.params))
                
     
 class RegisteredClass(object):
@@ -292,7 +292,7 @@ class RegisteredClass(object):
     def paramrepr(self):
         values = self.getParamValues()
         names = [p.name for p in self.getRegistration().params]
-        return string.join(['%s=%s' % (name, `value`)
+        return string.join(['%s=%s' % (name, repr(value))
                            for (name, value) in zip(names, values)], ',')
 
     def shortparamrepr(self):
@@ -303,7 +303,7 @@ class RegisteredClass(object):
             try:
                 valreprs.append(val.shortrepr())
             except AttributeError:
-                valreprs.append(`val`)
+                valreprs.append(repr(val))
         return ','.join(['%s=%s' % (name, valrepr)
                          for (name, valrepr) in zip(names, valreprs)])
 

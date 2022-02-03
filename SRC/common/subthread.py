@@ -57,7 +57,7 @@ class MiniThread(threading.Thread):
                 return
             # TODO SWIG1.3: After conversion to SWIG 1.3, OOF
             # exceptions will probably be subclasses of Exception.
-            except (Exception, ooferror.ErrErrorPtr), exception:
+            except (Exception, ooferror.ErrErrorPtr) as exception:
                 from ooflib.common.IO import reporter
                 reporter.error(exception)
                 sys.excepthook(*sys.exc_info())

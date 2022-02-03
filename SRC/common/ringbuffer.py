@@ -166,7 +166,7 @@ class RingBuffer:
         if self.currentpos == self.bottom or self.ndata == 0:
             return None
         return self.data[(self.currentpos - 1) % len(self.data)]
-    def next(self):
+    def __next__(self):
         if self.ndata == 0 or self.currentpos == (self.top - 1)%len(self.data):
             raise IndexError
         self.currentpos = (self.currentpos + 1) % len(self.data)
@@ -198,7 +198,12 @@ class RingBuffer:
             return []
         # Special case when current position is at the bottom of the stack. 
         if self.currentpos == self.bottom:
-            return map(self.__getitem__, range(self.ndata))
+            return [self.__getitem__(x) for x in range(self.ndata)]
+            # python2 version of the previous line was
+            #   return map(self.__getitem__, range(self.ndata))
+            # which 2to3 replaced with
+            #   return list(map(self.__getitem__, list(range(self.ndata))))
+        
         # General case
         i = self.currentpos
         rlist = []
@@ -229,11 +234,11 @@ class RingBuffer:
     def __len__(self):
         return self.ndata
     def __repr__(self):
-        repr =  'RingBuffer(' + `len(self.data)`
+        repr =  'RingBuffer(' + repr(len(self.data))
         if self.overwrite:
             repr += ', overwritefunc=' + self.overwrite.__name__
         if self.ndata > 0:
-            repr += ', data=[' + string.join([`obj` for obj in self], ',')+']'
+            repr += ', data=[' + string.join([repr(obj) for obj in self], ',')+']'
         repr += ')'
         return repr
 
@@ -286,43 +291,43 @@ class RingBuffer:
         
 if __name__ == '__main__':
     def f(obj):
-        print 'removing', obj
+        print('removing', obj)
     c = RingBuffer(5, overwritefunc=f, data=['a', 'b'])
-    print 'initial', c, c.data
+    print('initial', c, c.data)
     c.clear()
-    print 'clear() ndata=', c.ndata, c.data
+    print('clear() ndata=', c.ndata, c.data)
     c.clear()
-    print 'clear() ndata=', c.ndata, c.data
+    print('clear() ndata=', c.ndata, c.data)
     c.push(1)
     c.push(2)
     c.push(3)
     c.push(4)
     c.push(5)
-    print c.ndata, c.data, 'current=', c.current()
+    print(c.ndata, c.data, 'current=', c.current())
     c.push(6)
-    print c.ndata, c.data, 'current=', c.current()
-    print '--- prev(), prev() ---'
+    print(c.ndata, c.data, 'current=', c.current())
+    print('--- prev(), prev() ---')
     c.prev()
     c.prev()
-    print c.ndata, c.data, 'current=', c.current()
-    print '--- resize(3) ---'
+    print(c.ndata, c.data, 'current=', c.current())
+    print('--- resize(3) ---')
     c.resize(3)
-    print c.ndata, c.data, 'current=', c.current(), 'top=', c.atTop(), 'bottom=', c.atBottom()
-    print '--- resize(5) ---'
+    print(c.ndata, c.data, 'current=', c.current(), 'top=', c.atTop(), 'bottom=', c.atBottom())
+    print('--- resize(5) ---')
     c.resize(5)
-    print c.ndata, c.data, 'current=', c.current(), 'top=', c.atTop(), 'bottom=', c.atBottom()
-    print '--- push(6), push(7) ---'
+    print(c.ndata, c.data, 'current=', c.current(), 'top=', c.atTop(), 'bottom=', c.atBottom())
+    print('--- push(6), push(7) ---')
     c.push(6)
     c.push(7)
-    print c.ndata, c.data, 'current=', c.current()
-    print '--- push(8), push(9) ---'
+    print(c.ndata, c.data, 'current=', c.current())
+    print('--- push(8), push(9) ---')
     c.push(8)
     c.push(9)
-    print c.ndata, c.data, 'current=', c.current()
-    print '--- prev(), prev() ---'
+    print(c.ndata, c.data, 'current=', c.current())
+    print('--- prev(), prev() ---')
     c.prev()
     c.prev()
-    print c.ndata, c.data, 'current=', c.current()
-    print "--- resize(2) ---"
+    print(c.ndata, c.data, 'current=', c.current())
+    print("--- resize(2) ---")
     c.resize(2)
-    print c.ndata, c.data, 'current=', c.current(), 'top=', c.atTop(), 'bottom=', c.atBottom()
+    print(c.ndata, c.data, 'current=', c.current(), 'top=', c.atTop(), 'bottom=', c.atBottom())

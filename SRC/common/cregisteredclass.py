@@ -70,7 +70,7 @@ def registerCClass(klass):
         def paramrepr(self):
             values = self.getParamValues()
             names = [p.name for p in self.getRegistration().params]
-            return string.join(['%s=%s' % (name, `value`)
+            return string.join(['%s=%s' % (name, repr(value))
                                 for (name, value) in zip(names, values)], ',')
         klass.paramrepr = paramrepr
 

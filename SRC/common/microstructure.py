@@ -121,7 +121,8 @@ class Microstructure(cmicrostructure.CMicrostructure):
     def destroy(self):
         for plugin in self.plugins.values():
             plugin.destroy()
-        map(switchboard.removeCallback, self.sbcallbacks)
+        for cb in self.sbcallbacks:
+            switchboard.removeCallback(cb)
         # sbcallbacks must be explicitly cleared because
         # CMicrostructure has a swigged destructor.  That is,
         # sbcallbacks contains a SwitchboardCallback object which
@@ -303,7 +304,7 @@ class Microstructure(cmicrostructure.CMicrostructure):
     # Microstructures are fairly complex objects, hard to construct,
     # but easy to retrieve, so the repr is a "retriever".
     def __repr__(self):
-        return "getMicrostructure(%s)" % `self.name()`
+        return "getMicrostructure(%s)" % repr(self.name())
 
     def transitionPointWithPoints(self, c0, c1):
         okay, point = cmicrostructure.CMicrostructurePtr.transitionPointWithPoints(self, c0, c1)

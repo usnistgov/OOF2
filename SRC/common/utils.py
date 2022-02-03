@@ -17,6 +17,7 @@ import string
 import subprocess
 import sys
 import types
+from functools import reduce
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
@@ -88,7 +89,7 @@ def flatten(lols):
 def flatten_all(lols):
     result = []
     for l in lols:
-        if type(l) is types.ListType or type(l) is types.TupleType:
+        if isinstance(l, list) or isinstance(l, tuple):
             result += flatten_all(l)
         else:
             result.append(l)
@@ -106,7 +107,7 @@ def unflatten(template, datalist):
 def _do_unflatten(template, datalist, which):
     result = []
     for obj in template:
-        if type(obj) == types.ListType or type(obj) == types.TupleType:
+        if isinstance(obj, list) or isinstance(obj, tuple):
             sublist, which = _do_unflatten(obj, datalist, which)
             result.append(sublist)
         else:
@@ -136,7 +137,7 @@ def flatten1(lols):
 # returned.
 
 def degenerate(liszt):
-    if type(liszt) is types.GeneratorType:
+    if isinstance(liszt, types.GeneratorType):
         return [x for x in liszt]
     return liszt
 
@@ -146,9 +147,9 @@ def degenerate(liszt):
 # for debugging.
 
 def classes(c):
-    if type(c) == types.InstanceType: # only for old-style classes
+    if isinstance(c, types.InstanceType): # only for old-style classes
         return classes(c.__class__)
-    if type(c) == types.ClassType: # only for old-style classes
+    if isinstance(c, type): # only for old-style classes
         if not c.__bases__:
             return [c]
         return [c] +  flatten(map(classes, c.__bases__))
@@ -160,7 +161,7 @@ def classes(c):
             return []
     except:
         pass
-    if type(c) == types.TypeType:
+    if isinstance(c, type):
         if c.__bases__ == (object,):
             return [c]
         return [c] + flatten(map(classes, c.__bases__))
@@ -227,7 +228,7 @@ def OOFeval(expr):
     return eval(expr, mainmodule.__dict__)
 
 def OOFexecfile(file):
-    execfile(file, mainmodule.__dict__)
+    exec(compile(open(file, "rb").read(), file, 'exec'), mainmodule.__dict__)
 
 # Run a function as if it were defined in the main namespace.
 def OOFrun(func, *args, **kwargs):
@@ -235,17 +236,17 @@ def OOFrun(func, *args, **kwargs):
     # from main namespace.  The function's original dict is loaded
     # *after* the main namespace, so that it can override main space
     # definitions if necessary.
-    fg = func.func_globals.copy()
-    func.func_globals.clear()
-    func.func_globals.update(mainmodule.__dict__)
-    func.func_globals.update(fg)
+    fg = func.__globals__.copy()
+    func.__globals__.clear()
+    func.__globals__.update(mainmodule.__dict__)
+    func.__globals__.update(fg)
     
     func(*args, **kwargs)
 
     # Restore the original globals dict, so that future calls aren't
     # messed up.
-    func.func_globals.clear()
-    func.func_globals.update(fg)
+    func.__globals__.clear()
+    func.__globals__.update(fg)
 
 # Define an existing object in the main oof namespace.
 def OOFdefine(name, obj):
@@ -455,7 +456,7 @@ class OrderedSet:
     def __contains__(self, item):
         return item in self.data
     def __iter__(self):
-        return self.data.iterkeys()
+        return iter(self.data.keys())
     def add(self, item):
         self.data[item] = 1
     def remove(self, item):
@@ -470,7 +471,7 @@ class OrderedSet:
     def clear(self):
         self.data = OrderedDict()
     def union(self, other):
-        result = OrderedSet(self.data.keys())
+        result = OrderedSet(list(self.data.keys()))
         for item in other:
             result.add(item)
         return result
@@ -479,7 +480,7 @@ class OrderedSet:
             return NotImplemented
         return self.union(other)
     def intersection(self, other):
-        common = itertools.ifilter(other.data.has_key, self)
+        common = filter(other.data.has_key, self)
         return self.__class__(common)
     def __and__(self, other):
         if not isinstance(other, OrderedSet):
@@ -488,7 +489,7 @@ class OrderedSet:
     def copy(self):
         return OrderedSet(self)
     def __repr__(self):
-        return '%s(%r)' % (self.__class__.__name__, self.data.keys())
+        return '%s(%r)' % (self.__class__.__name__, list(self.data.keys()))
     def __eq__(self, other):
         return self.data == other.data
     def __ne__(self, other):
@@ -514,7 +515,7 @@ class ReservableList:
     def __len__(self):
         return self._length
     def __getitem__(self, i):
-        if type(i) is types.SliceType:
+        if isinstance(i, slice):
             start, stop, step = i.indices(self._length)
             # No need to check bounds on slices.
             return self._list[start:stop:step]
@@ -553,7 +554,7 @@ class ReservableList:
         self._length += 1
     def __delitem__(self, i):
         oldsize = len(self._list)
-        if type(i) is types.IntType and i >= self._length or i<-self._length+1:
+        if isinstance(i, int) and i >= self._length or i<-self._length+1:
             raise IndexError(i, "is out of range")
         del self._list[i]
         self._length -= oldsize - len(self._list)
@@ -670,7 +671,7 @@ def stopMemoryMonitor():
 def get_memusage_str():
     pid = os.getpid()
     if sys.platform == 'darwin':
-        vmmap = subprocess.check_output(["vmmap", "-summary", `pid`])
+        vmmap = subprocess.check_output(["vmmap", "-summary", repr(pid)])
         lines = vmmap.split('\n')
         # The trouble here is that the output from vmmap requires some
         # parsing, and I don't know if whatever is done here will be
@@ -690,7 +691,7 @@ def get_memusage_str():
         # there's only one contribution.
 
     elif sys.platform == 'linux2':
-        pmap = subprocess.check_output(["pmap", `pid`])
+        pmap = subprocess.check_output(["pmap", repr(pid)])
         # pmap contains a long string with embedded newlines. It ends with
         # "\n total XXXXXK\n" where XXXXX is the number we want.
         mem = pmap.rsplit('\n')[-2].split()[1][:-1]
@@ -702,7 +703,7 @@ def get_memusage():
     
 def memusage(comment):
     if memfile:
-        print >> memfile, get_memusage_str(), '#', comment
+        print(get_memusage_str(), '#', comment, file=memfile)
         memfile.flush()
 
 # Make memusage available in OOF scripts
@@ -715,4 +716,4 @@ OOFdefine('get_memusage', get_memusage)
 if __name__=='__main__':
     l0 = [0, [1,2],[3,[4]], 5]
     l1 = ['zero', 'one', 'two', 'three', 'four', 'five']
-    print unflatten(l0, l1)
+    print(unflatten(l0, l1))

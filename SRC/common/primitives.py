@@ -57,13 +57,13 @@ class Point:
     # Multiply accepts mixed point/ipoint objects for dot products,
     # and preserves i-ness if possible.
     def __mul__(self, other):
-        if type(other)==types.InstanceType and \
+        if isinstance(other, types.InstanceType) and \
            (issubclass(other.__class__, self.__class__) or
             issubclass(self.__class__, other.__class__) ):
             return self.x*other.x+self.y*other.y
-        elif type(other)==types.FloatType:
+        elif isinstance(other, float):
             return Point(other*self.x, other*self.y)
-        elif type(other)==types.IntType:
+        elif isinstance(other, int):
             # Return whatever class you already are.
             return self.__class__(other*self.x, other*self.y)
         raise TypeError
@@ -76,7 +76,7 @@ class Point:
         if other!=2:
             ## TODO: Raise ValueError instead. Better would be not to
             ## define __pow__ at all.
-            print "Power operation only defined for exponent equal to 2."
+            print("Power operation only defined for exponent equal to 2.")
         return self.x*self.x+self.y*self.y
 
     def __rmul__(self, other):
@@ -170,7 +170,7 @@ class ListOfPointsParameter(parameter.Parameter):
         parameter.Parameter.__init__(self, name, value, default, tip)
 
     def checker(self, x):
-        if type(x) is not types.ListType:
+        if not isinstance(x, list):
             parameter.raiseTypeError(type(x), "list of Points")
         for y in x:
             if not isinstance(y, Point):
@@ -212,7 +212,7 @@ def pontify(ptlist):
     # probably Curve or Polygon, and Stuff is probably MasterCoord or
     # Coord, but it doeesn't really matter.  Points can be faster to
     # use since they don't have any swig overhead.
-    if type(ptlist) == types.ListType:
+    if isinstance(ptlist, list):
         return [Point(pt[0], pt[1]) for pt in ptlist]
     return ptlist.__class__([Point(pt[0], pt[1]) for pt in ptlist])
 
@@ -260,7 +260,7 @@ class Rectangle:
         try:
             encl = obj.enclosing_rectangle()
         except AttributeError:
-            print obj
+            print(obj)
             raise
         self.lowleft.x = min(self.lowleft.x, encl.xmin())
         self.lowleft.y = min(self.lowleft.y, encl.ymin())
@@ -269,7 +269,7 @@ class Rectangle:
     def area(self):
         return (self.xmax()-self.xmin())*(self.ymax()-self.ymin())
     def __repr__(self):
-        return "Rectangle(%s,%s)" % (`self.lowleft`, `self.upright`)
+        return "Rectangle(%s,%s)" % (repr(self.lowleft), repr(self.upright))
 
 utils.OOFdefine('Rectangle', Rectangle)
 
@@ -396,7 +396,7 @@ class Segment:
     def enclosing_rectangle(self):
         return Rectangle(self.startpt, self.endpt)
     def __repr__(self):
-        return "Segment(%s, %s)" % (`self.startpt`, `self.endpt`)
+        return "Segment(%s, %s)" % (repr(self.startpt), repr(self.endpt))
     def __cmp__(self, other):
         try:
             if self.startpt < other.startpt: return -1
@@ -450,7 +450,7 @@ class Curve:
     Segments, too.
     """
     def __init__(self, ptlist):
-        if type(ptlist) == type(()):
+        if isinstance(ptlist, type(())):
             self.pts = list(ptlist)
         elif isinstance(ptlist, Curve):
             self.pts = ptlist.pts
@@ -507,7 +507,7 @@ class Curve:
 ##            rect.swallow(pt)
 ##        return rect
     def __repr__(self):
-        return "Curve(%s)" % `self.pts`
+        return "Curve(%s)" % repr(self.pts)
 
 utils.OOFdefine('Curve', Curve)
 
@@ -573,7 +573,7 @@ class Polygon(Curve):
     def edges(self):
         return Polygon.PolygonEdges(self)
     def __repr__(self):
-        return "Polygon(%s)" % `self.pts`
+        return "Polygon(%s)" % repr(self.pts)
 
 # Function for taking a list of polygons representing the boundary of
 # a non-simply-connected polygon and returning a degenerate but
@@ -597,18 +597,18 @@ if __name__ == '__main__':
 
     poly = Polygon([p1,p2,p3,p4])
     curve = Curve([p1,p2,p3,p4])
-    print "Points"
+    print("Points")
     for point in poly.points():
-        print point
-    print "Curve Edges"
+        print(point)
+    print("Curve Edges")
     for edge in curve.edges():
-        print edge
-    print "Polygon Edges"
+        print(edge)
+    print("Polygon Edges")
     for edge in poly.edges():
-        print edge
+        print(edge)
 
-    print "p1=",p1
-    print "poly=", poly
-    print "curve=", curve
-    print "curve.enclosing_rectangle=", curve.enclosing_rectangle()
+    print("p1=",p1)
+    print("poly=", poly)
+    print("curve=", curve)
+    print("curve.enclosing_rectangle=", curve.enclosing_rectangle())
         

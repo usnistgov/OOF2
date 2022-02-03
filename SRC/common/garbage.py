@@ -13,6 +13,8 @@
 # automatic garbage collection, and run gc.collect() manually when
 # we're sure we're on the main thread.
 
+## TODO PYTHON3: Is this still needed?
+
 from ooflib.common import thread_enable
 from ooflib.common import mainthread
 

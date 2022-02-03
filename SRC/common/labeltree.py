@@ -54,6 +54,7 @@ from ooflib.common.IO import oofmenu
 from types import *
 import string
 import sys
+from functools import reduce
 
 # Data class for holding arguments to the menu within the
 # Labeltree object.  Separates the position argument tuple
@@ -70,9 +71,9 @@ def makePath(name):
     # turn a name into a path, which is a list of strings
     if name is None:                    # special case
         return None
-    if type(name)==ListType and type(name[0])==StringType: # it's already a path
+    if isinstance(name, ListType) and isinstance(name[0], StringType): # it's already a path
         return name[:]                  # return a copy
-    elif type(name)==StringType:
+    elif isinstance(name, StringType):
         path = name.split(':')          # separate colon delimited substrings
 ##        while path and not path[-1]:
 ##            path = path[:-1]

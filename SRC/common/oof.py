@@ -153,15 +153,15 @@ The following options are for debugging:
 --no-fakefileselector    Don't use the fake file selector in gui tests.
 --fakefileselector       Use the fake file selector even outside of gui tests.
 """
-    print main_options_string,
+    print(main_options_string, end=' ')
     if config.devel()>=1:
-        print devel_options_string,
-    print data_options_string
-    print debug_options_string
+        print(devel_options_string, end=' ')
+    print(data_options_string)
+    print(debug_options_string)
     sys.exit(1)
 
 def state_version_and_quit():
-    print "This is oof2 version %s." % oofversion.version
+    print("This is oof2 version %s." % oofversion.version)
     sys.exit(1)
 
 ##
@@ -204,9 +204,9 @@ def process_inline_options():
         option_list += ['parallel']
     try:
         (optlist, args) = getopt.getopt(sys.argv[1:], '', option_list)
-    except getopt.error, message:
+    except getopt.error as message:
         # Malformed arguments have been found.  Exit.
-        print message
+        print(message)
         state_options_and_quit()
 
     for opt in optlist:
@@ -314,7 +314,7 @@ def process_inline_options():
             sys.argv.extend(gtk_options.split())
             ## gtk commands are eaten upon importing module
         else:
-            print "gtk options are ignored in text mode"
+            print("gtk options are ignored in text mode")
     else:
         import ooflib.SWIG.common.argv
         ooflib.SWIG.common.argv.init_argv(sys.argv[1:])
@@ -360,7 +360,7 @@ def front_end(no_interp=None):
         from gi.repository import Gtk
         msg = Gtk.check_version(3, 22, 0)
         if msg:
-            print msg
+            print(msg)
             sys.exit(3)
 
         import ooflib.common.IO.GUI.initialize
@@ -412,7 +412,7 @@ def front_end(no_interp=None):
         if not no_interp: # Default case, run on local thread.
             from ooflib.common.IO.GUI import oofGUI
             oofGUI.start()      # This call never returns.
-            print "This line should never be printed.  rank =", _rank
+            print("This line should never be printed.  rank =", _rank)
         else:
             # TODO LATER: The gui and no_interp combination is
             # thinkable, but has problems.  You have to run the GUI on
@@ -421,7 +421,7 @@ def front_end(no_interp=None):
             # raised them, causing a loss of control.  Also, the
             # current threading scheme requires that all gtk activity
             # happen on the main thread.
-            print "GUI no_interp mode not implemented.  Sorry."
+            print("GUI no_interp mode not implemented.  Sorry.")
             raise NotImplementedError("GUI no_interp mode")
             
     else:                               # text mode
@@ -606,10 +606,10 @@ def run(no_interp=None):
         oofrcpath = os.path.join(os.path.expanduser("~"), ".oof2rc")
         if os.path.exists(oofrcpath):
             if recording or replaying:
-                print >> sys.stderr, """
+                print("""
 ******* Warning: Loading .oof2rc can interfere with recording or replaying
 ******* a gui script.  Consider starting oof2 with the --no-rc option.
-"""
+""", file=sys.stderr)
 
             startupfiles = [StartUpScriptNoLog(oofrcpath)]+startupfiles
 
@@ -624,17 +624,17 @@ def run(no_interp=None):
         if parallel_enable.enabled():
             from ooflib.SWIG.common import mpitools
             _size = mpitools.Size()
-            mpitools.Isend_Bool(thread_enable.enabled(), range(1,_size))
+            mpitools.Isend_Bool(thread_enable.enabled(), list(range(1,_size)))
             
         if parallel_enable.enabled():
             from ooflib.common.IO import socket2me
 
         if config.petsc():
-            print "Going to InitPETSc"
+            print("Going to InitPETSc")
             from ooflib.SWIG.engine.PETSc.petsc_solverdriver import InitPETSc
             InitPETSc(sys.argv)
             for s in sys.argv:
-                print s
+                print(s)
 
         start_sockets_Front_End()
         # Import mainmenu only *after* processing command line options, so
@@ -656,11 +656,11 @@ def run(no_interp=None):
             from ooflib.common.IO import socket2me
 
         if config.petsc():
-            print "Going to InitPETSc"
+            print("Going to InitPETSc")
             from ooflib.SWIG.engine.PETSc.petsc_solverdriver import InitPETSc
             InitPETSc(sys.argv)
             for s in sys.argv:
-                print s
+                print(s)
 
         debug.set_debug_mode()  # set for debugging parallel mode
         from ooflib.common import quit
