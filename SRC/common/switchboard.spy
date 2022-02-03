@@ -387,6 +387,10 @@ def notify(msgname, *args, **kwargs):
 def removeCallback(action):
     switchboard.removeCallback(action)
 
+def removeCallbacks(actions):
+    for action in actions:
+        switchboard.removeCallback(action)
+
 def requestCallbackMain(msgname, func, *args, **kwargs):
     caller = debug.callerID()
     return switchboard.requestCallbackMain(msgname, func, caller,

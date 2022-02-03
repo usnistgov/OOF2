@@ -195,8 +195,7 @@ class WhoWidgetBase:
             gtkwid.destroy()
         
     def cleanUp(self):
-        for cb in self.sbcallbacks:
-            switchboard.removeCallback(cb)
+        switchboard.removeCallback(self.sbcallbacks)
         self.sbcallbacks = []
         self.gtk = []
         self.widgets = []

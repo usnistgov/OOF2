@@ -82,8 +82,7 @@ class MatrixInputBase(parameterwidgets.ParameterWidget,
     def floatChangeCB(self, interactive):
         self.widgetChanged(1, interactive)
     def cleanUp(self):
-        for sb in self.sbcallbacks:
-            switchboard.removeCallback(sb)
+        switchboard.removeCallbacks(self.sbcallbacks)
         parameterwidgets.ParameterWidget.cleanUp(self)
 
     # Turn the Gtk.Entry 'changed' signal on and off.  Used to

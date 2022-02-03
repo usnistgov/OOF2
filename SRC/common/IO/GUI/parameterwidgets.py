@@ -917,8 +917,7 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
         self.gtk.show()
     def cleanUp(self):
         # Make sure we don't have any circular references...
-        for sb in self.sbcallbacks:
-            switchboard.removeCallback(sb)
+        switchboard.removeCallbacks(self.sbcallbacks)
         self.params = []
         self.widgets = []
         ParameterWidget.cleanUp(self)
@@ -1331,8 +1330,7 @@ class PointWidget(ParameterWidget):
         self.widgetChanged(self.xwidget.isValid() and self.ywidget.isValid(),
                            interactive)
     def cleanUp(self):
-        for sb in self.sbcallbacks:
-            switchboard.removeCallback(sb)
+        switchboard.removeCallbacks(self.sbcallbacks)
         ParameterWidget.cleanUp(self)
 
 def _PointParameter_makeWidget(self, scope=None, **kwargs):

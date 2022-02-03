@@ -106,8 +106,7 @@ class PixelInfoToolbox(toolbox.Toolbox):
             plugin.makeMenu(menu)
 
     def close(self):
-        for cb in self.sbcallbacks:
-            switchboard.removeCallback(cb)
+        switchboard.removeCallbacks(self.sbcallbacks)
         toolbox.Toolbox.close(self)
 
     def newPlugIn(self, pluginClass):

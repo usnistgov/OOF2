@@ -121,8 +121,7 @@ class Microstructure(cmicrostructure.CMicrostructure):
     def destroy(self):
         for plugin in self.plugins.values():
             plugin.destroy()
-        for cb in self.sbcallbacks:
-            switchboard.removeCallback(cb)
+        switchboard.removeCallback(self.sbcallbacks)
         # sbcallbacks must be explicitly cleared because
         # CMicrostructure has a swigged destructor.  That is,
         # sbcallbacks contains a SwitchboardCallback object which

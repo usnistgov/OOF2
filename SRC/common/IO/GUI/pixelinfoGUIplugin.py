@@ -103,8 +103,7 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
         self.update(None)
 
     def close(self):
-        for sb in self.sbcallbacks:
-            switchboard.removeCallback(sb)
+        switchboard.removeCallbacks(self.sbcallbacks()
         PixelInfoGUIPlugIn.close(self)
 
     def clear(self):

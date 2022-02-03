@@ -104,8 +104,7 @@ class PixelInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.gfxwindow().removeMouseHandler()
 
     def close(self):
-        for sb in self.sbcallbacks:
-            switchboard.removeCallback(sb)
+        switchboard.removeCallbacks(self.sbcallbacks)
         for plugin in self.plugins:
             plugin.close()
         self.plugins = []
