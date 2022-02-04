@@ -39,7 +39,7 @@ class ListOfInterfacesWidget(parameterwidgets.ParameterWidget):
             switchboard.requestCallbackMain(self.mswidget, self.update)
             ]
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         self.mswidget = None
         parameterwidgets.ParameterWidget.cleanUp(self)
     def update(self, *args, **kwargs):
@@ -48,8 +48,7 @@ class ListOfInterfacesWidget(parameterwidgets.ParameterWidget):
             ms = ooflib.common.microstructure.microStructures[msname]
             if ms:
                 interfacemsplugin=ms.getObject().getPlugIn("Interfaces")
-                names=interfacemsplugin.getInterfaceNames()
-                names.sort()
+                names=sorted(interfacemsplugin.getInterfaceNames())
                 self.widget.update(names)
                 self.widgetChanged(len(names) > 0, interactive=0)
                 return
@@ -93,7 +92,7 @@ class ListOfInterfacesWithMaterialWidget(parameterwidgets.ParameterWidget):
                                             self.update)
             ]
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         self.mswidget = None
         self.interfacematwidget = None
         parameterwidgets.ParameterWidget.cleanUp(self)
@@ -152,7 +151,7 @@ class InterfacesWidget(parameterwidgets.ParameterWidget):
         if param.value is not None and self.widget.nChoices()>0:
             self.set_value(param.value)
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         self.mswidget = None
         parameterwidgets.ParameterWidget.cleanUp(self)
     def update(self, *args, **kwargs):
@@ -161,8 +160,7 @@ class InterfacesWidget(parameterwidgets.ParameterWidget):
             ms = ooflib.common.microstructure.microStructures[msname]
             if ms:
                 interfacemsplugin=ms.getObject().getPlugIn("Interfaces")
-                names=interfacemsplugin.getInterfaceNames()
-                names.sort()
+                names=sorted(interfacemsplugin.getInterfaceNames())
                 self.widget.update(names)
                 self.widgetChanged(len(names) > 0, interactive=0)
                 return
@@ -259,7 +257,7 @@ class SkelAllWidget(parameterwidgets.ParameterWidget):
         if param.value is not None and self.widget.nChoices()>0:
             self.set_value(param.value)
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         self.mswidget = None
         parameterwidgets.ParameterWidget.cleanUp(self)
     def update(self, *args, **kwargs):
@@ -317,7 +315,7 @@ class ListOfInterfacesCombinedBdysWidget(parameterwidgets.ParameterWidget):
             switchboard.requestCallbackMain(self.skelallwidget, self.update)
             ]
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         self.skelallwidget = None
         self.mswidget = None
         parameterwidgets.ParameterWidget.cleanUp(self)
@@ -327,17 +325,14 @@ class ListOfInterfacesCombinedBdysWidget(parameterwidgets.ParameterWidget):
             ms = ooflib.common.microstructure.microStructures[msname]
             if ms:
                 interfacemsplugin=ms.getObject().getPlugIn("Interfaces")
-                names=interfacemsplugin.getInterfaceNames()
-                names.sort()
+                names=sorted(interfacemsplugin.getInterfaceNames())
                 skel = self.skelallwidget.get_value()
                 if skel:
                     if skel==interfaceparameters.SkelAllParameter.extranames[0]:
-                        commonbdynames=interfacemsplugin.getCommonSkelBdyNames()
-                        commonbdynames.sort()
+                        commonbdynames=sorted(interfacemsplugin.getCommonSkelBdyNames())
                         names=names+commonbdynames
                     else:
-                        bdynames=interfacemsplugin.getOneSkelBdyNames(skel)
-                        bdynames.sort()
+                        bdynames=sorted(interfacemsplugin.getOneSkelBdyNames(skel))
                         names=names+bdynames
                 self.widget.update(names)
                 self.widgetChanged(len(names) > 0, interactive=0)

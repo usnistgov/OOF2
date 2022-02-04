@@ -375,8 +375,7 @@ class MeshPage(oofGUI.MainPage):
             textlines.append("No. of Elements:\t%d" % (themesh.nelements() +
                                                        themesh.nedgements()))
             masterelementenums = masterelement.getMasterElementEnums()
-            corners = masterelementenums.keys() # list of element geometries
-            corners.sort()
+            corners = sorted(list(masterelementenums.keys())) # list of element geometries
             counts = [0]*(max(corners)+1)
             for elem in skel.element_iterator():
                 counts[elem.nnodes()] += 1
@@ -429,7 +428,7 @@ class MeshPage(oofGUI.MainPage):
 
     def newCB(self, *args):             # gtk button callback
         menuitem = mainmenu.OOF.Mesh.New
-        params = filter(lambda x: x.name !='skeleton', menuitem.params)
+        params = [x for x in menuitem.params if x.name !='skeleton']
         if parameterwidgets.getParameters(title='Create a new mesh',
                                           parentwindow=self.gtk.get_toplevel(),
                                           scope=self, *params):
@@ -471,7 +470,7 @@ class MeshPage(oofGUI.MainPage):
     def saveCB(self, *args):
         menuitem = mainmenu.OOF.File.Save.Mesh
         meshname = self.meshwidget.get_value()
-        params = filter(lambda x: x.name!="mesh", menuitem.params)
+        params = [x for x in menuitem.params if x.name!="mesh"]
         if parameterwidgets.getParameters(ident='SaveMeshFromPage',
                                           parentwindow=self.gtk.get_toplevel(),
                                           title='Save Mesh "%s"' % meshname,
@@ -513,7 +512,7 @@ class MeshPage(oofGUI.MainPage):
 
     def subprobNewCB(self, gtkobj):
         menuitem = mainmenu.OOF.Subproblem.New
-        params = filter(lambda x: x.name != 'mesh', menuitem.params)
+        params = [x for x in menuitem.params if x.name != 'mesh']
         if parameterwidgets.getParameters(title='Create a new subproblem',
                                           parentwindow=self.gtk.get_toplevel(),
                                           scope=self, *params):
@@ -525,7 +524,7 @@ class MeshPage(oofGUI.MainPage):
         # copied to the current mesh, but not always.
         meshparam = menuitem.get_arg('mesh')
         meshparam.value = self.currentFullMeshName()
-        params = filter(lambda x: x.name != 'subproblem', menuitem.params)
+        params = [x for x in menuitem.params if x.name != 'subproblem']
         if parameterwidgets.getParameters(title='Copy a subproblem',
                                           parentwindow=self.gtk.get_toplevel(),
                                           scope=self, *params):

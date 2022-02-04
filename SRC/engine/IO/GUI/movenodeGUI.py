@@ -296,7 +296,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.gfxwindow().allowMotionEvents(self.motionFlag)
 
     def close(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         toolboxGUI.GfxToolbox.close(self)
 
     def move_info(self, point, homogtext, shapetext, labeltext):

@@ -132,7 +132,7 @@ class ElementMode(MeshInfoMode):
         coord = container.mesh_position
         
         self.type.set_text(element.masterelement().name())
-        self.index.set_text(`element.get_index()`)
+        self.index.set_text(repr(element.get_index()))
 
         ## We can't just pass element.node_iterator() in to
         ## updateNodeList() because the iterator doesn't quite act
@@ -218,7 +218,7 @@ class NodeMode(MeshInfoMode):
         node = container.object
         femesh = container.context.femesh()
         
-        self.index.set_text(`node.index()`)
+        self.index.set_text(repr(node.index()))
         self.type.set_text(node.classname())
         self.pos.set_text("(%s, %s)" % (node.position().x, node.position().y))
 
@@ -292,7 +292,7 @@ class NodeMode(MeshInfoMode):
                                               1, 1)
                     # self.table.attach(e, 2,3, row,row+1,
                     #                   xoptions=gtk.EXPAND|gtk.FILL)
-                    fcomp.next()
+                    next(fcomp)
 
                 sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
                 self.table.attach_next_to(sep, flabel, Gtk.PositionType.BOTTOM,
@@ -309,7 +309,7 @@ class NodeMode(MeshInfoMode):
             while not fcomp.end():
                 e = self.fieldvalEntries[(fld, fcomp.integer())]
                 e.set_text("%-13.6g"%fld.value(femesh, node, fcomp.integer()))
-                fcomp.next()
+                next(fcomp)
             
 
     def updateNothing(self):
@@ -423,10 +423,10 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.clear.set_tooltip_text("Clear the current query.")
         buttonbox.pack_start(self.clear, expand=True, fill=True, padding=0)
 
-        self.next = gtkutils.nextButton()
-        self.next.set_tooltip_text("Go to the next object.")
-        gtklogger.connect(self.next, 'clicked', self.nextQuery)
-        buttonbox.pack_start(self.next, expand=False, fill=False, padding=0)
+        self.nextb = gtkutils.nextButton()
+        self.nextb.set_tooltip_text("Go to the next object.")
+        gtklogger.connect(self.nextb, 'clicked', self.nextQuery)
+        buttonbox.pack_start(self.nextb, expand=False, fill=False, padding=0)
 
         self.mainbox.show_all()
         self.sensitize()
@@ -536,7 +536,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         debug.mainthreadTest()
         self.clear.set_sensitive(self.clearable())
         self.prev.set_sensitive(self.prev_able())
-        self.next.set_sensitive(self.next_able())
+        self.nextb.set_sensitive(self.next_able())
 
         gtklogger.checkpoint(self.gfxwindow().name + " " +
                              self._name + " sensitized")
@@ -562,7 +562,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
     def close(self):
         if self.modeobj:
             self.modeobj.destroy()
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         toolboxGUI.GfxToolbox.close(self)
 
     def acceptEvent(self, eventtype):

@@ -435,8 +435,7 @@ class SkeletonPage(oofGUI.MainPage):
         gtklogger.checkpoint("skeleton page info updated")
 
     def new_skeleton_CB(self, gtkobj): # gtk callback for "New..." button
-        paramset = filter(lambda x: x.name!='microstructure',
-                          skeletonmenu.New.params)
+        paramset = [x for x in skeletonmenu.New.params if x.name!='microstructure']
         if parameterwidgets.getParameters(title='New skeleton',
                                           parentwindow=self.gtk.get_toplevel(),
                                           *paramset):
@@ -444,16 +443,14 @@ class SkeletonPage(oofGUI.MainPage):
                 microstructure=self.currentMSName())
 
     def simple_skeleton_CB(self, gtkobj): # gtk callback for "Simple..." button
-        paramset = filter(lambda x: x.name!='microstructure',
-                          skeletonmenu.Simple.params)
+        paramset = [x for x in skeletonmenu.Simple.params if x.name!='microstructure']
         if parameterwidgets.getParameters(title='Simple skeleton',
                                           parentwindow=self.gtk.get_toplevel(),
                                           *paramset):
             skeletonmenu.Simple.callWithDefaults(
                 microstructure=self.currentMSName())
     def autoCB(self, gtkobj):           # gtk callback for "Auto..." button
-        paramset = filter(lambda x: x.name!='microstructure',
-                          skeletonmenu.Auto.params)
+        paramset = [x for x in skeletonmenu.Auto.params if x.name!='microstructure']
         if parameterwidgets.getParameters(title='Automatic skeleton',
                                           parentwindow=self.gtk.get_toplevel(),
                                           *paramset):
@@ -581,7 +578,7 @@ class SkeletonPage(oofGUI.MainPage):
     def save_skeletonCB(self, button):
         menuitem = mainmenu.OOF.File.Save.Skeleton
         skelname = self.skelwidget.get_value()
-        params = filter(lambda x: x.name!="skeleton", menuitem.params)
+        params = [x for x in menuitem.params if x.name!="skeleton"]
         if parameterwidgets.getParameters(parentwindow=self.gtk.get_toplevel(),
                                           title='Save Skeleton "%s"' % skelname,
                                           *params):

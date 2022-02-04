@@ -90,7 +90,7 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
             row = 2
             self.classwidgets = []
             for geometry, elclass in zip(elgeometries, elclasses):
-                label = Gtk.Label(`geometry`+'-cornered element:',
+                label = Gtk.Label(repr(geometry)+'-cornered element:',
                                   halign=Gtk.Align.END)
                 label.set_tooltip_text(
                         'Type of finite element to use for %d cornered'
@@ -113,13 +113,12 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
                 el = masterelement.getMasterElementFromEnum(elclass(elname))
                 maporderdict[el.map_order()] = 1
                 funorderdict[el.fun_order()] = 1
-        maporders = maporderdict.keys()
-        maporders.sort()
-        funorders = funorderdict.keys()
+        maporders = sorted(list(maporderdict.keys()))
+        funorders = list(funorderdict.keys())
         funorders.sort()
         # List the orders in the widgets
-        self.mapchooser.update([`order` for order in maporders])
-        self.funchooser.update([`order` for order in funorders])
+        self.mapchooser.update([repr(order) for order in maporders])
+        self.funchooser.update([repr(order) for order in funorders])
         try:
             current_map = int(self.mapchooser.get_value())
             current_fun = int(self.funchooser.get_value())
@@ -150,8 +149,8 @@ class MasterElementTypesWidget(parameterwidgets.ParameterWidget):
         # and funchooser accordingly.  This assumes that all enums in
         # value correspond to elements with the same orders.
         el = masterelement.getMasterElementFromEnum(value[0])
-        self.mapchooser.set_state(`el.map_order()`)
-        self.funchooser.set_state(`el.fun_order()`)
+        self.mapchooser.set_state(repr(el.map_order()))
+        self.funchooser.set_state(repr(el.fun_order()))
         self.build(interactive=0)
         for val, (elclass, ewidget) in zip(value, self.classwidgets):
             ewidget.set_state(val.name)

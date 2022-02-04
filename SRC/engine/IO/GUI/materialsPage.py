@@ -596,7 +596,7 @@ class MaterialPane:
 
     def on_assignment(self, button):    # gtk callback
         menuitem = OOF.Material.Assign
-        params = filter(lambda x: x.name != 'material', menuitem.params)
+        params = [x for x in menuitem.params if x.name != 'material']
         materialname = self.currentMaterialName()
         if parameterwidgets.getParameters(
                 parentwindow=self.parent.gtk.get_toplevel(),
@@ -614,7 +614,7 @@ class MaterialPane:
     #Interface branch
     def on_interface_assign(self, button):
         menuitem=OOF.Material.Interface.Assign
-        params = filter(lambda x: x.name != 'material', menuitem.params)
+        params = [x for x in menuitem.params if x.name != 'material']
         materialname = self.currentMaterialName()
         if parameterwidgets.getParameters(
                 parentwindow=self.parent.gtk.get_toplevel(),
@@ -633,7 +633,7 @@ class MaterialPane:
         # Save a single material
         menuitem = OOF.File.Save.Materials
         materialname = self.currentMaterialName()
-        params = filter(lambda x: x.name != "materials", menuitem.params)
+        params = [x for x in menuitem.params if x.name != "materials"]
         if parameterwidgets.getParameters(
                 parentwindow=self.parent.gtk.get_toplevel(),
                 title='Save Material "%s"' % materialname,
@@ -731,7 +731,7 @@ def _save_prop(menuitem):
     global materialspage
     propname = materialspage.current_property_name()
     if propname:
-        params = filter(lambda x: x.name!="property", menuitem.params)
+        params = [x for x in menuitem.params if x.name!="property"]
         if parameterwidgets.getParameters(ident='PropMenu',
                                           title='Save Property',
                                           parentwindow=oofGUI.gui.gtk,

@@ -15,7 +15,7 @@ clib_order = 1
 subdirs = ['property', 'elements', 'IO']
 
 if HAVE_PETSC:
-    print "PETSC subdirectory appended"
+    print("PETSC subdirectory appended")
     subdirs.append('PETSc')
 
 cfiles = [

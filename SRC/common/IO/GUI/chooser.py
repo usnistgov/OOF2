@@ -140,7 +140,7 @@ class ChooserWidget(object):
     # update() returns True if something changed.
     def update(self, objlist, helpdict={}):
         debug.mainthreadTest()
-        self.objlist = objlist[:]
+        self.objlist = list(objlist) # objlist might be an iterator
         namelist = [str(n) for n in self.objlist]
         if namelist == self.namelist and helpdict == self.helpdict:
             return False

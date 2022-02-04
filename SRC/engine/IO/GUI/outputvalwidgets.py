@@ -31,13 +31,16 @@ from gi.repository import Gtk
 ## shortrepr().  The problem is that the widget is created by the
 ## OutputVal, not the Output.
 
+## TODO PYTHON3: Check that 2to3 was correct in changing
+## iterator.next() to next(iterator) a bunch of places in this file.
+
 class GenericOVWidget:
     def __init__(self, val, **kwargs):
         debug.mainthreadTest()
         if val is not None:
             self.gtk = Gtk.Entry(editable=False, **kwargs)
             gtklogger.setWidgetName(self.gtk, 'generic')
-            self.gtk.set_text(`val`)
+            self.gtk.set_text(repr(val))
         else:
             self.gtk = Gtk.Label("No data")
             self.gtk.set_sensitive(False)
@@ -67,7 +70,7 @@ class VectorWidget:
                 entry.set_text("%-13.6g" % val[iterator])
                 self.gtk.attach(entry, 1,row, 1,1)
                 row += 1
-                iterator.next()
+                next(iterator)
         else:
             self.gtk = Gtk.Label("No data", **kwargs)
             self.gtk.set_sensitive(False)
@@ -120,7 +123,7 @@ class SymmMatrix3Widget:
             gtklogger.setWidgetName(entry, rowlabels[row]+collabels[col])
             self.gtk.attach(entry, col+1,row+1, 1,1)
             entry.set_text("%-13.6g" % val[iterator])
-            iterator.next()
+            next(iterator)
             
     def show(self):
         debug.mainthreadTest()
@@ -157,7 +160,7 @@ class ConcatenatedOutputsWidget:
             self.sbcallbacks.append(
                 switchboard.requestCallbackMain(w.gtk, self.subWidgetChanged))
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
     def show(self):
         debug.mainthreadTest()
         self.gtk.show_all()

@@ -106,7 +106,7 @@ class CijIsoCijklWidget(SymmetricMatrixInput):
         self.draw_values(self.values[0], self.values[1])
         
     def get_values(self):
-        for p, v in map(None, self.params, self.values):
+        for p, v in zip(self.params, self.values):
             p.value = v
 
     # Callbacks -- called on return or focus_out.
@@ -200,7 +200,7 @@ class CijCubicCijklWidget(SymmetricMatrixInput):
         self.draw_values(self.values[0], self.values[1], self.values[2])
         
     def get_values(self):
-        for p, v in map(None, self.params, self.values):
+        for p, v in zip(self.params, self.values):
             p.value = v
 
     # Callbacks.  Called on return or focus_out.

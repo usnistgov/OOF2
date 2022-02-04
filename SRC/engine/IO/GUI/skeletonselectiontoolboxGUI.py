@@ -60,7 +60,7 @@ class SkeletonSelectionToolboxModeGUI(genericselectGUI.GenericSelectToolboxGUI):
             ]
     def deactivate(self):
         genericselectGUI.GenericSelectToolboxGUI.deactivate(self)
-        map(switchboard.removeCallback, self.activecallbacks)
+        switchboard.removeCallbacks(self.activecallbacks)
         self.activecallbacks = []
 
     def getSource(self):

@@ -59,7 +59,7 @@ class MeshParamWidgetBase(parameterwidgets.ParameterWidget):
         assert self.meshwidget is not None
         if self.meshwidget is None:
             raise ooferror.ErrPyProgrammingError("Can't find WhoWidget for %s"
-                                                 % `whoclass`)
+                                                 % repr(whoclass))
         self.sbcallbacks = [
             switchboard.requestCallbackMain(self.meshwidget, self.update),
             switchboard.requestCallbackMain("mesh changed", self.meshChangeCB),
@@ -118,7 +118,7 @@ class MeshParamWidgetBase(parameterwidgets.ParameterWidget):
     def cleanUp(self):
         debug.mainthreadTest()
         self.meshwidget = None
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         parameterwidgets.ParameterWidget.cleanUp(self)
 
 class MeshParamWidget(MeshParamWidgetBase):
@@ -333,7 +333,7 @@ class FieldIndexParameterWidget(parameterwidgets.ParameterWidget):
                 it = iterator.cloneIndex()
                 itrepr = it.shortrepr()
                 itlist.append(itrepr)
-                iterator.next()
+                next(iterator)
         self.chooser.update(itlist)
 
         # The __init__ used to put both the chooser and the "Not

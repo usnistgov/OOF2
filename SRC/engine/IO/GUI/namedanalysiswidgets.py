@@ -47,8 +47,7 @@ class BdyAnalyses(object):
 
 class AnalysisNamesWidgetBase(parameterwidgets.ParameterWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
-        names = self.getNames()
-        names.sort()
+        names = sorted(self.getNames())
         self.widget = chooser.ScrolledMultiListWidget(names,
                                                       callback=self.widgetCB,
                                                       **kwargs)
@@ -60,7 +59,7 @@ class AnalysisNamesWidgetBase(parameterwidgets.ParameterWidget):
         self.sbcallbacks = self.signals()
         self.widgetChanged(len(self.get_value()) > 0, interactive=False)
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         parameterwidgets.ParameterWidget.cleanUp(self)
     def get_value(self):
         return self.widget.get_value()
@@ -69,8 +68,7 @@ class AnalysisNamesWidgetBase(parameterwidgets.ParameterWidget):
     def widgetCB(self, list, interactive):
         self.widgetChanged(len(list) > 0, interactive=True)
     def update(self, *args):
-        names = self.getNames()
-        names.sort()
+        names = sorted(self.getNames())
         self.widget.update(names)
         self.widgetChanged(len(self.get_value()) > 0, interactive=False)
 
@@ -117,7 +115,7 @@ class AnalysisNameWidgetBase(parameterwidgets.ParameterWidget):
                                             self.update)
             ]
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         parameterwidgets.ParameterWidget.cleanUp(self)
     def set_value(self, name):
         self.chooser.set_state(name)
@@ -125,8 +123,7 @@ class AnalysisNameWidgetBase(parameterwidgets.ParameterWidget):
     def get_value(self):
         return self.chooser.get_value()
     def update(self, *args):
-        names = self.getNames()
-        names.sort()
+        names = sorted(self.getNames())
         self.chooser.update(names)
         self.widgetChanged(len(names) > 0, interactive=False)
 

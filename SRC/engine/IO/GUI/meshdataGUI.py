@@ -306,7 +306,7 @@ class MeshDataGUI(widgetscope.WidgetScope):
         self.updateMesh()               # calls updateData if needed
 
     def setupSwitchboard(self):
-        map(switchboard.removeCallback, self.gsbcallbacks)
+        switchboard.removeCallbacks(self.gsbcallbacks)
         window = self.currentGfxWindow()
         if window is not None:
             self.gsbcallbacks = [
@@ -330,8 +330,8 @@ class MeshDataGUI(widgetscope.WidgetScope):
 
     def destroyCB(self, *args):         # gtk callback
         mainmenu.OOF.Windows.Mesh_Data.removeItem(self._name)
-        map(switchboard.removeCallback, self.sbcallbacks)
-        map(switchboard.removeCallback, self.gsbcallbacks)
+        switchboard.removeCallback(self.sbcallbacks)
+        switchboard.removeCallback(self.gsbcallbacks)
         allMeshDataWindows.remove(self)
 
     ##############

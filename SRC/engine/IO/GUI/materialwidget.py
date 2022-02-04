@@ -35,11 +35,10 @@ class MaterialWidget(parameterwidgets.ParameterWidget):
     def chooserCB(self, name):
         self.widgetChanged(validity=self.chooser.nChoices()>0, interactive=1)
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         parameterwidgets.ParameterWidget.cleanUp(self)
     def update(self, *args):
-        names = materialmanager.getMaterialNames()
-        names.sort()
+        names = sorted(materialmanager.getMaterialNames())
         self.chooser.update(names)
         self.widgetChanged(len(names) > 0, interactive=0)
     def get_value(self):
@@ -55,8 +54,7 @@ materialparameter.MaterialParameter.makeWidget = _MaterialParameter_makeWidget
 #Interface branch
 class InterfaceMaterialWidget(MaterialWidget):
     def update(self, *args):
-        names = materialmanager.getInterfaceMaterialNames()
-        names.sort()
+        names = sorted(materialmanager.getInterfaceMaterialNames())
         self.chooser.update(names)
         self.widgetChanged(len(names) > 0, interactive=0)
 
@@ -69,8 +67,7 @@ materialparameter.InterfaceMaterialParameter.makeWidget = \
 #Interface branch
 class BulkMaterialWidgetExtra(MaterialWidget):
     def update(self, *args):
-        names = materialmanager.getBulkMaterialNames()
-        names.sort()
+        names = sorted(materialmanager.getBulkMaterialNames())
         self.chooser.update(
             materialparameter.BulkMaterialParameterExtra.extranames + names)
         self.widgetChanged(len(names) > 0, interactive=0)
@@ -83,8 +80,7 @@ materialparameter.BulkMaterialParameterExtra.makeWidget = \
 #Interface branch
 class BulkMaterialWidget(MaterialWidget):
     def update(self, *args):
-        names = materialmanager.getBulkMaterialNames()
-        names.sort()
+        names = sorted(materialmanager.getBulkMaterialNames())
         self.chooser.update(names)
         self.widgetChanged(len(names) > 0, interactive=0)
 
@@ -105,8 +101,7 @@ class MeshMaterialWidget(MaterialWidget):
         meshname = self.meshwidget.get_value(depth=3)
         meshctxt = mesh.meshes[meshname]
         matls = meshctxt.getObject().getAllMaterials()
-        names = [m.name() for m in matls]
-        names.sort()
+        names = sorted([m.name() for m in matls])
         self.chooser.update(names)
         self.widgetChanged(len(names) > 0, interactive=0)
 
@@ -118,8 +113,7 @@ materialparameter.MeshMaterialParameter.makeWidget = _MeshMatParam_makeWidget
 
 class AnyMaterialWidget(MaterialWidget):
     def update(self, *args):
-        names = materialmanager.getMaterialNames()
-        names.sort()
+        names = sorted(materialmanager.getMaterialNames())
         self.chooser.update(materialparameter.AnyMaterialParameter.extranames
                             + names)
         self.widgetChanged(validity=1, interactive=0)
@@ -133,8 +127,7 @@ materialparameter.AnyMaterialParameter.makeWidget = \
 #Interface branch
 class InterfaceAnyMaterialWidget(MaterialWidget):
     def update(self, *args):
-        names = materialmanager.getInterfaceMaterialNames()
-        names.sort()
+        names = sorted(materialmanager.getInterfaceMaterialNames())
         self.chooser.update(
             materialparameter.InterfaceAnyMaterialParameter.extranames + names)
         self.widgetChanged(validity=1, interactive=0)
@@ -149,8 +142,7 @@ materialparameter.InterfaceAnyMaterialParameter.makeWidget = \
         
 class MaterialsWidget(parameterwidgets.ParameterWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
-        names = materialmanager.getMaterialNames()
-        names.sort()
+        names = sorted(materialmanager.getMaterialNames())
         self.widget = chooser.ScrolledMultiListWidget(names,
                                                       callback=self.widgetCB,
                                                       name=name, **kwargs)
@@ -164,11 +156,10 @@ class MaterialsWidget(parameterwidgets.ParameterWidget):
             ]
         self.widgetChanged((param.value is not None), interactive=0) 
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         parameterwidgets.ParameterWidget.cleanUp(self)
     def newMaterial(self, *args):
-        names = materialmanager.getMaterialNames()
-        names.sort()
+        names = sorted(materialmanager.getMaterialNames())
         self.widget.update(names)
     def get_value(self):
         return self.widget.get_value()

@@ -204,7 +204,7 @@ And Ctrl-click to toggle.""")
         toolboxGUI.GfxToolbox.deactivate(self)
         self.gfxwindow().removeMouseHandler()
         self.gfxwindow().allowMotionEvents(self.oldMotionFlag)
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
 
     def showPosition(self, point):
         debug.mainthreadTest()

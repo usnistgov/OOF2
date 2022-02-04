@@ -191,7 +191,7 @@ class InterfacePage(oofGUI.MainPage):
         #e.g. "msname:skelname". Pass depth=1 to get "msname"
         msname=self.skelwidget.get_value(depth=1)
         menuitem=mainmenu.OOF.Microstructure.Interface.New
-        params = filter(lambda x: x.name != 'microstructure', menuitem.params)
+        params = [x for x in menuitem.params if x.name != 'microstructure']
         if parameterwidgets.getParameters(
                 title="Create interface in microstructure %s" % msname,
                 parentwindow=self.gtk.get_toplevel(),

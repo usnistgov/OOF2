@@ -203,8 +203,8 @@ class SkeletonBoundaryPage(oofGUI.MainPage):
     def updateBdyList(self):
         skelctxt = self.currentSkeletonContext()
         if skelctxt:
-            names = skelctxt.edgeboundaries.keys() + [separator_proxy] \
-                    + skelctxt.pointboundaries.keys()
+            names = list(skelctxt.edgeboundaries.keys()) + [separator_proxy] \
+                    + list(skelctxt.pointboundaries.keys())
             self.boundarylist.update(names)
             # If we've just switched Skeletons, we need make sure that
             # the selected bdy in our list is the same as the one

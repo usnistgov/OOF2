@@ -45,7 +45,7 @@ class SkeletonInfoMode:
         
     def destroy(self):
         self.built = False
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         mainthread.runBlock(self.gtk.destroy)
         self.toolbox = None  # break circular references
 
@@ -255,8 +255,8 @@ class ElementMode(SkeletonInfoMode):
 
         container.context.begin_reading()
         try:
-            etype = `element.type()`[1:-1] # strip quotes
-            eindex = `element.getIndex()`
+            etype = repr(element.type())[1:-1] # strip quotes
+            eindex = repr(element.getIndex())
 
             self.updateNodeListAngle(self.nodes, element)
             # Clear the selection in the list of nodes if there's
@@ -373,7 +373,7 @@ class NodeMode(SkeletonInfoMode):
         skeleton = container.skeleton
         container.context.begin_reading()
         try:
-            nindex = `node.getIndex()`
+            nindex = repr(node.getIndex())
             npos = "(%s, %s)" % (node.position().x, node.position().y)
             
             if node.movable_x() and node.movable_y():
@@ -483,17 +483,17 @@ class SegmentMode(SkeletonInfoMode):
         skeleton = container.skeleton
         container.context.begin_reading()
         try:
-            sindex = `segment.getIndex()`
+            sindex = repr(segment.getIndex())
             self.updateNodeList(self.nodes, list(segment.get_nodes()))
             self.syncPeeker(self.nodes, "Node")
             self.updateElementList(self.elem, segment.getElements())
             self.syncPeeker(self.elem, "Element")
-            length = `segment.length()`
+            length = repr(segment.length())
             homogval = segment.homogeneity(skeleton.MS)
             if 0.9999 < homogval < 1.0:
                 homog = "1 - (%e)" % (1.0-homogval)
             else:
-                homog = `homogval`
+                homog = repr(homogval)
             self.updateGroup(segment)
 
             bdynames = ','.join(
@@ -621,10 +621,10 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         self.clear.set_tooltip_text("Clear the current query.")
         buttonbox.pack_start(self.clear, expand=True, fill=True, padding=0)
 
-        self.next = gtkutils.nextButton()
-        gtklogger.connect(self.next, 'clicked', self.nextQuery)
-        self.next.set_tooltip_text("Go on to the next object")
-        buttonbox.pack_start(self.next, expand=False, fill=False, padding=0)
+        self.nextb = gtkutils.nextButton()
+        gtklogger.connect(self.nextb, 'clicked', self.nextQuery)
+        self.nextb.set_tooltip_text("Go on to the next object")
+        buttonbox.pack_start(self.nextb, expand=False, fill=False, padding=0)
 
         self.mainbox.pack_start(buttonbox, expand=False, fill=False, padding=0)
 
@@ -669,7 +669,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         debug.mainthreadTest()
         self.clear.set_sensitive(self.clearable())
         self.prev.set_sensitive(self.prev_able())
-        self.next.set_sensitive(self.next_able())
+        self.nextb.set_sensitive(self.next_able())
         gtklogger.checkpoint(self.gfxwindow().name + " " +
                              self._name + " sensitized")
 
@@ -701,7 +701,7 @@ class SkeletonInfoToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         debug.mainthreadTest()
         if self.modeobj:
             self.modeobj.destroy()
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         self.sbcallbacks = []
         toolboxGUI.GfxToolbox.close(self)
 

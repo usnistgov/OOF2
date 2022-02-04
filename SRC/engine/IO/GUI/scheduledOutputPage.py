@@ -487,7 +487,7 @@ class OutputPage(oofGUI.MainPage):
     def newOutputCB(self, gtkbutton):
         # Create a new scheduled output
         menuitem = outputmenu.New
-        params = filter(lambda a: a.name != 'mesh', menuitem.params)
+        params = [a for a in menuitem.params if a.name != 'mesh']
         if parameterwidgets.getParameters(title='Define a new Output',
                                           scope=self,
                                           parentwindow=self.gtk.get_toplevel(),
@@ -509,8 +509,7 @@ class OutputPage(oofGUI.MainPage):
         output = self.currentOutput()
         newoutputparam = menuitem.get_arg('new_output')
         newoutputparam.set(output)
-        params = filter(lambda a: a.name not in ('mesh', 'output'), 
-                        menuitem.params)
+        params = [a for a in menuitem.params if a.name not in ('mesh', 'output')]
         if parameterwidgets.getParameters(title='Redefine an Output',
                                           scope=self,
                                           parentwindow=self.gtk.get_toplevel(),

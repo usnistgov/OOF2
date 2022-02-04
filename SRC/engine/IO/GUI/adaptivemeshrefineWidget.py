@@ -74,7 +74,7 @@ class AMRWhoParameterWidget(whowidget.WhoParameterWidget):
         self.widgetCB(False)
 
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         whowidget.WhoParameterWidgetBase.cleanUp(self)
                         
 def _AMRWhoParameter_makeWidget(self, scope=None, **kwargs):

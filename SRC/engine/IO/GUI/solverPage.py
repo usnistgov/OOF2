@@ -588,7 +588,7 @@ class SolverPage(oofGUI.MainPage):
     def renderSubproblemOrder(self, column, cell_renderer, model, iter, data):
         debug.mainthreadTest()
         rowno = model.get_path(iter)[0]
-        cell_renderer.set_property('text', `rowno`)
+        cell_renderer.set_property('text', repr(rowno))
 
     # TreeView callback for setting the state of the 'Solve' button
     # for each SubProblem
@@ -706,8 +706,7 @@ class SolverPage(oofGUI.MainPage):
             meshctxt = self.currentMeshContext()
             if meshctxt is None:
                 return
-            subprobs = [(s.solveOrder,s) for s in meshctxt.subproblems()]
-            subprobs.sort()
+            subprobs = sorted([(s.solveOrder,s) for s in meshctxt.subproblems()])
             for order, subprob in subprobs:
                 it = self.subprobList.append([subprob])
                 if subprob is currentSub:
@@ -940,7 +939,7 @@ class SolverPage(oofGUI.MainPage):
         meshctxt = self.currentMeshContext()
         if meshctxt:
             time = meshctxt.getObject().getCurrentTime()
-            self.currentTimeEntry.set_text(`time`)
+            self.currentTimeEntry.set_text(repr(time))
         else:
             self.currentTimeEntry.set_text("")
 
@@ -949,7 +948,7 @@ class SolverPage(oofGUI.MainPage):
         meshctxt = self.currentMeshContext()
         if meshctxt and meshctxt.timeDiff is not None:
             time = meshctxt.getObject().getCurrentTime()
-            self.endtimeEntry.set_text(`time + meshctxt.timeDiff`)
+            self.endtimeEntry.set_text(repr(time + meshctxt.timeDiff))
         else:
             self.endtimeEntry.set_text("")
 
@@ -993,7 +992,7 @@ class SolverPage(oofGUI.MainPage):
     def meshTimeChangedCB(self, mesh): # sb "time changed"
         debug.mainthreadTest()
         if mesh is self.currentMeshContext():
-            self.currentTimeEntry.set_text(`mesh.getObject().getCurrentTime()`)
+            self.currentTimeEntry.set_text(repr(mesh.getObject().getCurrentTime()))
 
     def statusChangedCB(self, mesh): # sb "mesh status changed"
         if mesh is self.currentMeshContext():

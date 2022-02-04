@@ -96,7 +96,7 @@ class MeshTimeWidgetBase(parameterwidgets.ParameterWidget):
             signal.unblock()
 
     def cleanUp(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         parameterwidgets.ParameterWidget.cleanUp(self)
                 
     def sensitize(self):
@@ -136,7 +136,7 @@ class MeshTimeWidgetBase(parameterwidgets.ParameterWidget):
             self.mode = placeholder.earliest
             ok = True
         else:
-            self.text.set_text(`value`)
+            self.text.set_text(repr(value))
             self.mode = None
             ok = True
         self.sensitize()
@@ -201,7 +201,7 @@ class MeshTimeWidgetBase(parameterwidgets.ParameterWidget):
                     break
         self.mode = None
         self.blockSignals()
-        self.text.set_text(`time`)
+        self.text.set_text(repr(time))
         self.unblockSignals()
         self.sensitize()
         self.widgetChanged(True, interactive=True)
@@ -221,7 +221,7 @@ class MeshTimeWidgetBase(parameterwidgets.ParameterWidget):
                     break
         self.mode = None
         self.blockSignals()
-        self.text.set_text(`time`)
+        self.text.set_text(repr(time))
         self.unblockSignals()
         self.sensitize()
         self.widgetChanged(True, interactive=True)
