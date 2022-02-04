@@ -37,7 +37,7 @@ class AnyMaterialParameter(parameter.StringParameter):
 
 class ListOfMaterialsParameter(parameter.ListOfStringsParameter):
     def checker(self, x):
-        if type(x) is not types.ListType:
+        if not isinstance(x, list):
             raise TypeError("Expected a list of Material names!")
         names = materialmanager.getMaterialNames()
         for n in x:

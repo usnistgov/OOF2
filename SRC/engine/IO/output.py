@@ -141,7 +141,7 @@ class Output(object):
         self.otype = otype
         if isinstance(otype, parameter.TypeChecker):
             self.otype = otype
-        elif type(otype) in (types.ListType, types.TupleType):
+        elif type(otype) in (list, tuple):
             self.otype = parameter.TypeChecker(*otype)
         else:
             self.otype = otype
@@ -240,7 +240,7 @@ class Output(object):
         return self.defaultRepr()
     def defaultRepr(self):
         params = self.getSettableParams() # dictionary keyed by alias
-        args = ["'%s'" % self.getPath()] + ['%s=%s' % (alias, `p.value`)
+        args = ["'%s'" % self.getPath()] + ['%s=%s' % (alias, repr(p.value))
                                             for alias, p in params.items()]
         return string.join(args, ',')
 
@@ -304,12 +304,12 @@ class Output(object):
             # connect() calls might not be in order! Make sure that
             # inputs stay in the right order.  They have to be ordered
             # correctly or listAllParameterPaths won't work properly.
-            self.inputs.reorder(self.iparms.keys())
+            self.inputs.reorder(list(self.iparms.keys()))
 
     # Return all parameter paths, as lists of lists of names ([input,
     # input, ..., parameter]), unaliased.
-    def listAllParameterPaths(self, filter=lambda x: True):
-        plist = [[n] for n,p in self.params.items() if filter(p)]
+    def listAllParameterPaths(self, fltr=lambda x: True):
+        plist = [[n] for n,p in self.params.items() if fltr(p)]
         for inputname, input in self.inputs.items():
             plist.extend([[inputname]+path
                           for path in input.listAllParameterPaths(filter)])
@@ -387,7 +387,7 @@ class Output(object):
     def convertNameHierarchy(self, pnames):
         hier = []
         for p in pnames:
-            if type(p) is types.ListType:
+            if isinstance(p, list):
                 hier.append(self.convertNameHierarchy(p))
             else:
                 param = self.findParam(p)
@@ -549,7 +549,7 @@ class Output(object):
 # to each.
 def prependHierarchyName(name, hier):
     for i in range(len(hier)):
-        if type(hier[i]) is types.ListType:
+        if isinstance(hier[i], list):
             hier[i] = prependHierarchyName(name, hier[i])
         else:
             hier[i] = string.join([name, hier[i]], ':')

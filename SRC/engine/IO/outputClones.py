@@ -29,6 +29,7 @@ from types import *
 import itertools
 import math
 import sys
+from functools import reduce
 
 # Examples of Outputs
 
@@ -91,7 +92,7 @@ elif config.dimension() == 3:
 
 def _field(mesh, elements, coords, field):
     return utils.flatten1([element.outputFields(mesh, field, ecoords)
-           for element, ecoords in itertools.izip(elements, coords)])
+           for element, ecoords in zip(elements, coords)])
 
 def _field_instancefn(self):
     field = self.resolveAlias('field').value
@@ -111,7 +112,10 @@ def _field_column_names(self):
     it = field.iterator(planarity.ALL_INDICES)
     while not it.end():
         names.append("%s[%s]" % (field.name(), it.shortstring()))
-        it.next()
+        ## TODO PYTHON3: This only works if FieldIterators are real
+        ## iterators.  It used to be it.next().  Ditto for other
+        ## instances below.
+        next(it)
     return names
 
 FieldOutput = output.Output(
@@ -140,7 +144,7 @@ FieldOutput = output.Output(
 def _fieldderiv(mesh, elements, coords, field, derivative):
     return utils.flatten1(
         [element.outputFieldDerivs(mesh, field, derivative, ecoords)
-         for element, ecoords in itertools.izip(elements, coords)])
+         for element, ecoords in zip(elements, coords)])
 
 def _fieldderiv_shortrepr(self):
     field = self.resolveAlias('field').value
@@ -157,7 +161,7 @@ def _fieldderiv_column_names(self):
     while not it.end():
         names.append("d(%s[%s])/d%s" % (field.name(), it.shortstring(),
                                         derivative.string()))
-        it.next()
+        next(it)
     return names
 
 FieldDerivOutput = output.Output(
@@ -187,7 +191,7 @@ def _flux(mesh, elements, coords, flux):
     nel = len(elist)
     try:
         ecount = 0
-        for element, ecoords in itertools.izip(elist, coords):
+        for element, ecoords in zip(elist, coords):
             mesh.begin_all_subproblems(element)
     ##        element.begin_material_computation(mesh)
             ans.append(element.outputFluxes(mesh, flux, ecoords))
@@ -219,7 +223,7 @@ def _flux_column_names(self):
     names = []
     while not it.end():
         names.append("%s[%s]" % (flux.name(), it.shortstring()))
-        it.next()
+        next(it)
     return names
 
 FluxOutput = output.Output(
@@ -331,8 +335,7 @@ FluxCompOutput.aliasParam('field:flux', 'flux')
 ###############
 
 def _invariant(mesh, elements, coords, field, invariant):
-    ## TODO: Use imap instead of map.  See comment at top of file.
-    return map(outputval.ScalarOutputVal, itertools.imap(invariant, field))
+    return list(map(outputval.ScalarOutputVal, map(invariant, field)))
 
 def _invariant_shortrepr(self):
     field = self.findInput('field').shortrepr()
@@ -383,8 +386,8 @@ def _scalarFunctionOutput(mesh, elements, coords, f):
     prog = progress.getProgress("Function evaluation", progress.DEFINITE)
     ecount = 0 
     nel = mesh.nelements()
-    for element, coordlist in itertools.izip(elements, coords):
-        realcoords = itertools.imap(element.from_master, coordlist)
+    for element, coordlist in zip(elements, coords):
+        realcoords = map(element.from_master, coordlist)
         ans.extend(outputval.ScalarOutputVal(f(coord, t)) for coord in realcoords)
         ecount += 1
         prog.setFraction((1.*ecount)/nel)
@@ -417,18 +420,17 @@ ScalarFunctionOutput = output.Output(
 
 def _vectorFunctionOutput(mesh, elements, coords, fx=None, fy=None, fz=None):
     ans = []
-    for element, coordlist in itertools.izip(elements, coords):
-        realcoords = map(element.from_master, coordlist)
-        for coord in realcoords:
+    for element, coordlist in zip(elements, coords):
+        for coord in map(element.from_master, coordlist):
             val = outputval.VectorOutputVal(config.dimension())
             it = val.getIterator()
             # Although f has three components, the third one won't be
             # used if we're not in three dimensions.
             f = iter([fx, fy, fz])
             while not it.end(): # use size of val, not f!
-                fi = f.next()   # python iterator
+                fi = next(f)   # python iterator
                 val[it] = fi(coord)
-                it.next()       # oof IteratorP from fieldindex.py
+                next(it)       # oof IteratorP from fieldindex.py
             ans.append(val)
         ## TODO: That was a real mess.  If OutputVal.getIterator
         ## returned a real Python iterator object, this could be
@@ -483,7 +485,7 @@ VectorFunctionOutput = output.Output(
 #=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#
 
 def _pointSum(mesh, elements, coords, point1, point2, a, b):
-    ans = [a*f+b*s for f,s in itertools.izip(point1, point2)]
+    ans = [a*f+b*s for f,s in zip(point1, point2)]
     return ans
 
 PointSumOutput = output.Output(
@@ -502,7 +504,7 @@ PointSumOutput = output.Output(
 def _difference(mesh, elements, coords, minuend, subtrahend):
     minuends = minuend.evaluate(mesh, elements, coords)
     subtrahends = subtrahend.evaluate(mesh, elements, coords)
-    return [x-y for x,y in itertools.izip(minuends, subtrahends)]
+    return [x-y for x,y in zip(minuends, subtrahends)]
 
 def _difference_shortrepr(self):
     return "(%s-%s)" % (self.resolveAlias('minuend').value.shortrepr(),
@@ -550,7 +552,7 @@ def _aggdiff_column_names(self):
     names = []
     while not it.end():
         names.append("%s[%s]" % (sr, it.shortstring()))
-        it.next()
+        next(it)
     return names
 
 AggregateDifferenceOutput = output.Output(
@@ -647,7 +649,7 @@ def _concatenate(mesh, elements, coords, first, second):
     firsts = first.evaluate(mesh, elements, coords)
     seconds = second.evaluate(mesh, elements, coords)
     return [ConcatenatedOutputVal(f, s)
-            for f,s in itertools.izip(firsts, seconds)]
+            for f,s in zip(firsts, seconds)]
 
 def _concatenate_shortrepr(self):
     return "%s and %s" % (self.resolveAlias('first').value.shortrepr(),
@@ -703,7 +705,7 @@ def _rescaleOutput(mesh, elements, coords, minimum, maximum, inputdata):
             return 0.5*(tmin + tmax)    # arbitrary
         return tmin + (tmax-tmin)*(x-mn)/(mx-mn)
     ## TODO: Use imap instead of map.  See comment at top of file.
-    return map(rescale, inputdata)
+    return list(map(rescale, inputdata))
 
 def _rescale_instancefn(self):
     return self.findInput("inputdata").instancefn()

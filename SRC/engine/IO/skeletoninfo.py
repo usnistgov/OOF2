@@ -117,7 +117,7 @@ class SkeletonInfoToolbox(toolbox.Toolbox):
             ]
 
     def close(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         self.sbcallbacks = []
 
     def getSkeletonContext(self):

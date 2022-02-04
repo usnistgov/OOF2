@@ -88,10 +88,10 @@ class OneLineDataOperation(DataOperation):
 
     def printResults(self, time, results, destination):
         if formatchars.showTime():
-            print >> destination, time, 
+            print(time, end=' ', file=destination) 
         for x in results:
-            print >> destination, x,
-        print >> destination
+            print(x, end=' ', file=destination)
+        print(file=destination)
 
     def colNames(self, output):
         raise ooferror.ErrPyProgrammingError(
@@ -121,23 +121,23 @@ class DirectOutput(DataOperation):
         header = sampling.get_col_names()
 
         if formatchars.showTime():
-            destination.comment("time:", `time`)
+            destination.comment("time:", repr(time))
             
         for (s,v) in olist:
             tags = s.columnData(header)
             if len(tags)==1:
                 for t in tags[0]: # tags[0] is a list of strings
-                    print >> destination, t,
+                    print(t, end=' ', file=destination)
                 for x in v.value_list():
-                    print >> destination, x,
-                print >> destination
+                    print(x, end=' ', file=destination)
+                print(file=destination)
             else: # Multiple values -- do above for each tag-val pair.
                 for (tag, val) in zip(tags, v):
                     for t in tag:
-                        print >> destination, t,
+                        print(t, end=' ', file=destination)
                     for x in val.value_list():
-                        print >> destination, x,
-                    print >> destination
+                        print(x, end=' ', file=destination)
+                    print(file=destination)
 
 # "Direct Output" is special, in that the corresponding auto-generated
 # menu item is used directly in the meshcstoolboxGUI code -- if the
@@ -164,7 +164,10 @@ def _getMoments(sampling, domain, output, exponents):
         # work hard to initialize the sum to the right kind of zero
         # (eg, 0 or OutputVal.zero()).
         integraliter = iter(integrals)
-        sample, sum = integraliter.next()
+        ## TODO PYTHON3: Check this.  Old version as
+        ## integraliter.next(). Is integraliter a real python3
+        ## iterator?
+        sample, sum = next(integraliter)
         for sample, value in integraliter:
             sum += value
 

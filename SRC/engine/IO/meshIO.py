@@ -79,8 +79,7 @@ def getNodeSets(femesh):
     # Make sure that Fields are always listed in the same order, to
     # facilitate testing.  Since fieldSetIDs are integers, we just
     # sort the set of IDs.
-    ids = nodesets.keys()
-    ids.sort()
+    ids = sorted(list(nodesets.keys()))
     return ids, nodesets
 
 def writeFields(dfile, meshcontext):
@@ -117,8 +116,7 @@ def writeFields(dfile, meshcontext):
     ids, nodesets = getNodeSets(femesh)
     for fieldsetID in ids:
         nodelist= nodesets[fieldsetID]
-        fieldnames = femesh.getFieldSetByID(fieldsetID)
-        fieldnames.sort()
+        fieldnames = sorted(femesh.getFieldSetByID(fieldsetID))
         fields = [getFieldObj(name) for name in fieldnames]
         values = []
         for node in nodelist:
@@ -157,7 +155,7 @@ def writeMesh(dfile, meshcontext, includeFields=True):
     # Create mesh.
     dfile.startCmd(meshmenu.New)
     dfile.argument('name', meshcontext.name())
-    masterelems = [`ename` for ename in meshcontext.elementdict.values()]
+    masterelems = [repr(ename) for ename in list(meshcontext.elementdict.values())]
     dfile.argument('masterelems', masterelems)
     dfile.argument('skeleton', skelpath)
     dfile.endCmd()
@@ -229,8 +227,7 @@ def writeMesh(dfile, meshcontext, includeFields=True):
             dfile.endCmd()
 
     # Boundary conditions
-    bcnames = meshcontext.allBndyCondNames()
-    bcnames.sort()
+    bcnames = sorted(meshcontext.allBndyCondNames())
     for bcname in bcnames:
         bc = meshcontext.getBdyCondition(bcname)
         # bc's that are invisible in the gui are generally created by
@@ -848,7 +845,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
     buffer.append("** Boundary Conditions:\n")
     for bcname in meshcontext.allBndyCondNames():
         bc=meshcontext.getBdyCondition(bcname)
-        buffer.append("**   %s: %s\n" % (bcname,`bc`))
+        buffer.append("**   %s: %s\n" % (bcname,repr(bc)))
 
     buffer.append("""** Notes:
 **   The set of nodes and elements may be different from the set
@@ -880,7 +877,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
 ** and may have to be modified by the user to be meaningful.
 *ELEMENT, TYPE=CPS%d
 """
-% (`ename`,masterElementDict[ename.name()].nnodes())]
+% (repr(ename),masterElementDict[ename.name()].nnodes())]
             # Trivia: C stands for Continuum, PS for Plane Stress (PE
             # - Plane strain)
             for el in femesh.element_iterator():

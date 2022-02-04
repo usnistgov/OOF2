@@ -453,8 +453,7 @@ def writeMaterials(dfile, materials, excludeProps={}):
         for prop in material.properties():
             props[prop.registration().name()] = prop
     # Sort the properties by name.
-    paths = props.keys()
-    paths.sort()
+    paths = sorted(list(props.keys()))
     # Write the properties.
     for path in paths:
         if path not in excludeProps:

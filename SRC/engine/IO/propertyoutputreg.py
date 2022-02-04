@@ -117,7 +117,7 @@ def _symmmatrix3_column_names(self):
     it = self.outputInstance().getIterator()
     while not it.end():
         names.append("%s[%s]" % (sr, it.shortstring()))
-        it.next()
+        next(it)                # TODO PYTHON3: check iterator behavior
     return names
 
 class SymmMatrix3PropertyOutputRegistration(

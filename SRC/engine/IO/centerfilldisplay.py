@@ -48,8 +48,8 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
         polygons = self.polygons(gfxwindow, meshctxt)
         elements = tuple(themesh.element_iterator())
         evaluationpoints = [[el.center()] for el in elements]
-        values = map(float,
-                     self.what.evaluate(themesh, elements, evaluationpoints))
+        values = list(map(float,
+                     self.what.evaluate(themesh, elements, evaluationpoints)))
         max_value = max(values)
         min_value = min(values)
 
@@ -57,9 +57,9 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
         # end of this, contour_levels, contour_max, and contour_min
         # must be set from self.min, self.max, and self.levels,
         # provided by the user.
-        if type(self.levels)==TupleType:
+        if isinstance(self.levels, TupleType):
             self.contour_levels = list(self.levels).sort()
-        elif type(self.levels)==ListType: 
+        elif isinstance(self.levels, ListType): 
             self.contour_levels = self.levels[:].sort()
 
 
@@ -75,7 +75,7 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
             self.contour_max = float(self.max)
             
         # If levels is an int, then make that many evenly-spaced levels.
-        if type(self.levels)==IntType:
+        if isinstance(self.levels, IntType):
             if self.levels == 1:
                 self.contour_levels = [0.5*(self.contour_max
                                             + self.contour_min)]

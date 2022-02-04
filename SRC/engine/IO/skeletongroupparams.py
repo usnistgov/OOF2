@@ -56,7 +56,7 @@ class SkeletonPointBoundaryParameter(parameter.StringParameter):
 # again for the purpose of having special widgets.
 
 class SkelGroupSelParameter(placeholder.PlaceHolderParameter):
-    types = (types.StringType, placeholder.selection)
+    types = (bytes, placeholder.selection)
 
 class NodeAggregateParameter(SkelGroupSelParameter):
     def valueDesc(self):

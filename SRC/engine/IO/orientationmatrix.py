@@ -44,8 +44,7 @@ AngleRangeParameter = parameter.AngleRangeParameter
 # Base class.  Should be able to answer questions about its values
 # in different representations, using the member *instance*'s to_base
 # functions.  
-class Orientation(registeredclass.ConvertibleRegisteredClass):
-    __metaclass__ = utils.PrintableClass
+class Orientation(registeredclass.ConvertibleRegisteredClass, metaclass=utils.PrintableClass):
     registry = []
     # Orientation needs a special equality checker, because
     # it's value is not a composite Python object, as assumed by
@@ -130,14 +129,14 @@ class OrientationRegistration(registeredclass.ConvertibleRegistration):
 
 def corient_to_base(corient):
     abg = corient.abg()
-    return Abg(*map(math.degrees, (abg.alpha(), abg.beta(), abg.gamma())))
+    return Abg(*list(map(math.degrees, (abg.alpha(), abg.beta(), abg.gamma()))))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 class Abg(Orientation):
     def __init__(self, alpha, beta, gamma):
         self.corient = corientation.COrientABG(
-            *map(math.radians, (alpha, beta, gamma)))
+            *list(map(math.radians, (alpha, beta, gamma))))
         # Set the parameters in the registration object.  This is
         # redundant (but harmless) when the object is instanced from
         # the registration.
@@ -146,7 +145,7 @@ class Abg(Orientation):
         self.gamma = gamma
     @staticmethod
     def radians2Degrees(alpha, beta, gamma):
-        return map(math.degrees, (alpha, beta, gamma))
+        return list(map(math.degrees, (alpha, beta, gamma)))
     def rotateXY(self, angle):
         return Abg(self.alpha, self.beta, self.gamma+angle)
 
@@ -183,20 +182,20 @@ class X(Orientation):
         self.theta = theta
         self.psi = psi
         self.corient = corientation.COrientX(
-            *map(math.radians, (phi, theta, psi)))
+            *list(map(math.radians, (phi, theta, psi))))
     @staticmethod
     def radians2Degrees(phi, theta, psi):
-        return map(math.degrees, (phi, theta, psi))
+        return list(map(math.degrees, (phi, theta, psi)))
 
 # vlist should again be an indexable with vlist[0]=phi,
 # vlist[1]=theta, vlist[2]=psi.  Converts by way of the matrix.
 def _x_to_base(x_reg, vlist=None):
     args = vlist or x_reg.getParamValues()  # (phi, theta, psi)
-    return corient_to_base(corientation.COrientX(*map(math.radians, args)))
+    return corient_to_base(corientation.COrientX(*list(map(math.radians, args))))
 
 def _x_from_base(x_reg, base):
     x = base.corient.X()
-    return map(math.degrees, (x.phi(), x.theta(), x.psi()))
+    return list(map(math.degrees, (x.phi(), x.theta(), x.psi())))
 
 OrientationRegistration(
     'X',
@@ -225,20 +224,20 @@ class XYZ(Orientation):
         self.theta = theta
         self.psi = psi
         self.corient = corientation.COrientXYZ(
-            *map(math.radians, (phi, theta, psi)))
+            *list(map(math.radians, (phi, theta, psi))))
     @staticmethod
     def radians2Degrees(phi, theta, psi):
-        return map(math.degrees, (phi, theta, psi))
+        return list(map(math.degrees, (phi, theta, psi)))
 
 # vlist should again be an indexable with vlist[0]=phi, vlist[1]=theta,
 # vlist[2]=phi.  Converts by way of the matrix.
 def _xyz_to_base(xyz_reg, vlist=None):
     args = vlist or xyz_reg.getParamValues() # (phi, theta, psi)
-    return corient_to_base(corientation.COrientXYZ(*map(math.radians, args)))
+    return corient_to_base(corientation.COrientXYZ(*list(map(math.radians, args))))
 
 def _xyz_from_base(xyz_reg, base):
     xyz = base.corient.XYZ()
-    return map(math.degrees, (xyz.phi(), xyz.theta(), xyz.psi()))
+    return list(map(math.degrees, (xyz.phi(), xyz.theta(), xyz.psi())))
 
 OrientationRegistration(
     'XYZ', XYZ, 3,
@@ -408,21 +407,21 @@ class Bunge(Orientation):
         self.theta = theta
         self.phi2 = phi2
         self.corient = corientation.COrientBunge(
-            *map(math.radians, (phi1, theta, phi2)))
+            *list(map(math.radians, (phi1, theta, phi2))))
     def rotateXY(self, angle):
         return Bunge(self.phi1 - angle, self.theta, self.phi2)
     @staticmethod
     def radians2Degrees(phi1, theta, phi2):
-        return map(math.degrees, (phi1, theta, phi2))
+        return list(map(math.degrees, (phi1, theta, phi2)))
 
 def _bunge_to_base(bunge_reg, vlist=None):
     args = vlist or bunge_reg.getParamValues() # (phi1, theta, phi2)
     return corient_to_base(
-        corientation.COrientBunge(*map(math.radians, args)))
+        corientation.COrientBunge(*list(map(math.radians, args))))
 
 def _bunge_from_base(bunge_reg, base):
     bunge = base.corient.bunge()
-    return map(math.degrees, (bunge.phi1(), bunge.theta(), bunge.phi2()))
+    return list(map(math.degrees, (bunge.phi1(), bunge.theta(), bunge.phi2())))
 
 OrientationRegistration(
     'Bunge', Bunge, 7,

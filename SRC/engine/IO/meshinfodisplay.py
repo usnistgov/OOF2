@@ -46,7 +46,10 @@ class MeshInfoDisplay(display.DisplayMethod):
                 self.drawFuncs[toolbox.querier.targetname]\
                     (toolbox, toolbox.querier.object, which="query")
             # Draw "peeked" item.
-            if toolbox.peeker and toolbox.peeker.objects.values():
+            ## TODO PYTHON3: 2to3 inserted the "list" in the following
+            ## line. It certainly isn't really what is meant here.
+            ## Should the conditional simply be "if toolbox.peeker" ?
+            if toolbox.peeker and list(toolbox.peeker.objects.values()):
                 for objtype in toolbox.peeker.objects:
                     if toolbox.peeker.objects[objtype]:
                         self.drawFuncs[objtype](toolbox, 

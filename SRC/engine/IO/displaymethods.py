@@ -314,7 +314,9 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
                 distance2 = (self.where.evaluate(
                     femesh, [el],[[el.center()]])[0] - pos)**2
                 ellist.append( (distance2, el) )
-            ei.next()
+            ## TODO PYTHON3: Check that ei is a real python3
+            ## iterator. This line used to be ei.next().
+            next(ei)
         ellist.sort()
 
         smallestdist = None
@@ -671,7 +673,7 @@ class MeshMaterialDisplay(MaterialDisplay, MeshDisplayMethod):
         allmats = [element.material()
                    for element in themesh.element_iterator()]
         if gfxwindow.settings.hideEmptyElements:
-            return filter(None, allmats)
+            return [_f for _f in allmats if _f]
         return allmats
     def getTimeStamp(self, gfxwindow):
         return max(MaterialDisplay.getTimeStamp(self, gfxwindow),

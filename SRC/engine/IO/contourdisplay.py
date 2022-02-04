@@ -110,7 +110,7 @@ class ContourDisplay(ZDisplay):
 ##            # Not implemented yet.
 ##            # Should print an apology here.
 ##            return [], []
-        if type(nlevels) == ListType or type(nlevels) == TupleType:
+        if isinstance(nlevels, ListType) or isinstance(nlevels, TupleType):
             clevels = nlevels
             nlevels = len(clevels)
             

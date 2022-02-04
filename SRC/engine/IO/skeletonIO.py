@@ -515,9 +515,7 @@ def writeSkeleton(datafile, skelcontext):
 
         # Point boundaries
         # sort keys to print in a consistent order
-        sortedKeys = skeleton.pointboundaries.keys()
-        sortedKeys.sort()
-        #for pbname, pbdy in skeleton.pointboundaries.items():
+        sortedKeys = sorted(skeleton.pointboundaries.keys())
         for pbname in sortedKeys:
             pbdy = skeleton.pointboundaries[pbname]
             datafile.startCmd(skelmenu.PointBoundary)
@@ -532,9 +530,7 @@ def writeSkeleton(datafile, skelcontext):
 
         # Edge boundaries
         # sort keys to print in a consistent order
-        sortedKeys = skeleton.edgeboundaries.keys()
-        sortedKeys.sort()
-        # for ebname, ebdy in skeleton.edgeboundaries.items():
+        sortedKeys = sorted(skeleton.edgeboundaries.keys())
         for ebname in sortedKeys:
             ebdy = skeleton.edgeboundaries[ebname]
             datafile.startCmd(skelmenu.EdgeBoundary)

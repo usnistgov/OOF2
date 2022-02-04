@@ -29,6 +29,7 @@ import ooflib.engine.mesh
 import string
 from ooflib.common import primitives
 from ooflib.common import debug
+from functools import reduce
 
 StringParameter = parameter.StringParameter
 
@@ -733,7 +734,7 @@ def parallel_mesh_info_query(menuitem, targetname, position, mesh):
                     reportsubpfields.append(8*" "+subpctxt.name())
                     for field in subpctxt.all_compound_fields():
                         if subp.is_active_field(field):
-                            reportsubpfields.append(12*" "+`field`)
+                            reportsubpfields.append(12*" "+repr(field))
                             #The hasField check is redundant because of containsNode above.
                             if fnode.hasField(field):
                                 for i in range(field.ndof()):
@@ -806,12 +807,12 @@ def parallel_mesh_info_query(menuitem, targetname, position, mesh):
                     reportsubpfields.append(8*" "+subpctxt.name())
                     for field in subpctxt.all_compound_fields():
                         if subp.is_active_field(field):
-                            reportsubpfields.append(12*" "+`field`)
+                            reportsubpfields.append(12*" "+repr(field))
                             masterpos=felem.to_master(position)
                             o=felem.outputField(field,masterpos)
                             valuelist=o.valuePtr().value_list()
                             for val in valuelist:
-                                reportsubpfields.append(16*" "+`val`)
+                                reportsubpfields.append(16*" "+repr(val))
                 reportstring+=string.join(reportsubpfields,"\n")
 
         if _rank==0:

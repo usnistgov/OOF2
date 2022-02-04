@@ -37,6 +37,7 @@ from ooflib.SWIG.common import switchboard
 from ooflib.common import labeltree
 from ooflib.SWIG.common import pixelgroup
 import string
+from functools import reduce
 
 WhoParameter = whoville.WhoParameter
 microStructures = microstructure.microStructures
@@ -666,13 +667,13 @@ def parallel_skel_info_query(menuitem, targetname, position, skeleton):
             distance2=(-1,-1)
             if sgmt:
                 distance2=segdistance(position,sgmt)
-                sindex = `sgmt.getIndex()`
-                length = `sgmt.length()`
+                sindex = repr(sgmt.getIndex())
+                length = repr(sgmt.length())
                 homogval = sgmt.homogeneity(skelobj.MS)
                 if 0.9999 < homogval < 1.0:
                     homog = "1 - (%e)" % (1.0-homogval)
                 else:
-                    homog = `homogval`
+                    homog = repr(homogval)
 
                 reportstring="""
     index=%s
@@ -730,8 +731,8 @@ def parallel_skel_info_query(menuitem, targetname, position, skeleton):
             distance2=-1
             if elem:
                 distance2=(elem.center()-position)**2
-                etype = `elem.type()`[1:-1] # strip quotes
-                eindex = `elem.getIndex()`
+                etype = repr(elem.type())[1:-1] # strip quotes
+                eindex = repr(elem.getIndex())
                 earea = "%g" % elem.area()
 
                 if not elem.illegal():

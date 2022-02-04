@@ -286,8 +286,8 @@ class StepStatistics(ScheduledOutput):
             if dev2 < 0.0:      # roundoff
                 dev2 = 0.0
             self.destination.printHeadersIfNeeded(self)
-            print >> self.destination, avgstep, math.sqrt(dev2), \
-                self.minstep, self.maxstep, self.nsteps
+            print(avgstep, math.sqrt(dev2), \
+                self.minstep, self.maxstep, self.nsteps, file=self.destination)
         ScheduledOutput.finish(self, meshcontext)
     def printHeaders(self, destination):
         destination.comment(

@@ -39,13 +39,14 @@ import string
 # Although Displacement is a Field, it's convenient to treat it as a
 # Point so that it can be added to a position.
 
+## TODO PYTHON3: check that this works with real iterators
 Displacement = field.getField("Displacement")
 if config.dimension() == 2:
     iter = Displacement.iterator(planarity.IN_PLANE)
 elif config.dimension() == 3:
     iter = Displacement.iterator(planarity.ALL_INDICES)
 disp0 = iter.cloneIndex()
-iter.next()
+next(iter)
 disp1 = iter.cloneIndex()
 
 displacementFieldOutput = outputClones.FieldOutput.clone(

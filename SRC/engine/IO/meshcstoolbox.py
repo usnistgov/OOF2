@@ -69,7 +69,7 @@ class CrossSectionToolbox(toolbox.Toolbox):
             self.current_mesh = layer.who.resolve(self.gfxwindow())
         else:
             self.current_layer = None
-            self.current_mesh = apply(self.gfxwindow().topwho, self.whoset)
+            self.current_mesh = self.gfxwindow().topwho(*self.whoset)
 
     # Given the indicated start and end point, make a CS and add it
     # to the mesh.  Eventually there will be more of these.  Call
