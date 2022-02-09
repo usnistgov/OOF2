@@ -27,15 +27,15 @@ import os, sys, string, stat
 def pkg_check(package, version, clib=None):
     if check_exec('pkg-config'):
         if os.system("pkg-config --atleast-version=%s %s" % (version, package)):
-            print "Can't find %s! Version %s or later required" % (package,
-                                                                   version)
+            print("Can't find %s! Version %s or later required" % (package,
+                                                                   version))
             sys.exit()
         if clib:
             # This will cause pkg-config --cflags and pkg-config
             # --libs to be called later on for this package.
             clib.add_pkg(package)
     else:
-        print "Can't find pkg-config!"
+        print("Can't find pkg-config!")
         sys.exit()
     
 
@@ -58,7 +58,7 @@ def check_exec(xfile):          # is xfile an executable file in the path?
             pass
     if sys.platform == 'cygwin' and not xfile.endswith('.exe'):
         return check_exec(xfile + '.exe')
-    print "Warning!", xfile, "not found!"
+    print("Warning!", xfile, "not found!")
 
 # See if a given file exists in a list of directories.  Return the
 # directory containing the file, or None if the file can't be found.
@@ -159,7 +159,7 @@ def run_swig(srcdir, swigfile, destdir, cext="_.C", include_dirs=[],
                   'module' : basename,
                   'cfile' : cfile,
                   'infile' : infile}
-        print cmd
+        print(cmd)
         if not dry_run:
             os.system(cmd)
 
@@ -173,7 +173,7 @@ def run_swig(srcdir, swigfile, destdir, cext="_.C", include_dirs=[],
 def addInitPy(subdir):
     initpy = os.path.join(subdir, '__init__.py')
     if not os.path.exists(initpy):
-        print >> sys.stderr, "Creating", initpy
+        print("Creating", initpy, file=sys.stderr)
         initfile = open(initpy, 'w')
-        print >> initfile, "# This file no verb"
+        print("# This file no verb", file=initfile)
         initfile.close()

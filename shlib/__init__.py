@@ -1,1 +1,1 @@
-import setup_shlib
+from . import setup_shlib
