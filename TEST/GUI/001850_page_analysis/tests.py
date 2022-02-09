@@ -35,15 +35,14 @@ def samplingParams(sampling, paramnames):
     wnamedict = {}
     for wname in widgetnames[1:]:
         wnamedict[wname.split(':')[1]] = 1
-    wnames = wnamedict.keys()
     
-    if len(paramnames) != len(wnames):
-        print >> sys.stderr, "Wrong number of parameter names!"
-        print >> sys.stderr, "  widgetnames=", widgetnames
+    if len(paramnames) != len(wnamedict):
+        print("Wrong number of parameter names!", file=sys.stderr)
+        print("  widgetnames=", widgetnames, file=sys.stderr)
         return False
-    for widgetname in wnames:
+    for widgetname in wnamedict.keys():
         if widgetname not in paramnames:
-            print >> sys.stderr, "Unexpected parameter named %s" % widgetname
+            print("Unexpected parameter named %s" % widgetname, file=sys.stderr)
             return False
     return True
 
@@ -53,7 +52,7 @@ def msgTextValue(*vals, **kwargs):
     lines = msgbuffer.get_text(msgbuffer.get_start_iter(),
                                msgbuffer.get_end_iter(), False).split('\n')
     textvals = eval(lines[-2])
-    if type(textvals) is not types.TupleType:
+    if not isinstance(textvals, tuple):
         textvals = (textvals,)
     for textval, val in zip(textvals, vals):
         if abs(textval - val) > tolerance:
@@ -64,7 +63,7 @@ def csWidgetCheck(names, new, copy, edit, rename, remove):
     if not chooserCheck(
         'OOF2:Analysis Page:mainpane:top:Domain:DomainRCF:Cross Section:cross_section:List',
         names):
-        print >> sys.stderr, "CS names don't agree"
+        print("CS names don't agree", file=sys.stderr)
         return False
     if not sensitizationCheck(
         {'New':new,

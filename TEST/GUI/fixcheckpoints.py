@@ -36,7 +36,7 @@ def fixfile(filename):
             if not os.path.exists(trialname):
                 backupname = trialname
             count += 1
-    print "Saving original file", filename, "as", backupname
+    print("Saving original file", filename, "as", backupname)
     os.rename(filename, backupname)
 
     output = file(filename, "w")
@@ -52,7 +52,7 @@ def fixfile(filename):
             if assertions:
                 assertions.append(line)
             else:
-                print >> output, line
+                print(line, file=output)
         elif line.startswith("assert"):
             # Assertions are not written to the output immediately.
             # They're kept in a list and only written after the
@@ -63,17 +63,17 @@ def fixfile(filename):
             # directly to the output, but only after any stored
             # assertions are written.
             for assertion in assertions:
-                print >> output, assertion
+                print(assertion, file=output)
             assertions = []
-            print >> output, line
+            print(line, file=output)
         else:
             # Checkpoints are copied directly to the output, thereby
             # putting them above the preceding assertions, if any.
             if assertions:
                 count += 1
-            print >> output, line
+            print(line, file=output)
     output.close()
-    print >> sys.stderr, "Moved", count, "checkpoints."
+    print("Moved", count, "checkpoints.", file=sys.stderr)
 
 if __name__ == '__main__':
     fixfile(sys.argv[1])

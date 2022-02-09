@@ -29,6 +29,6 @@ def checkInitializees(*names):
     displayed = [d.name() for d in treeViewColValues(path, 0)]
     ok = (displayed == list(names))
     if not ok:
-        print >> sys.stderr, "Expected", names
-        print >> sys.stderr, "Got", displayed
+        print("Expected", names, file=sys.stderr)
+        print("Got", displayed, file=sys.stderr)
     return ok

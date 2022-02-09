@@ -102,8 +102,8 @@ def messageCompare(msg):
     text = gtklogger.findWidget(tbox+":Status").get_text()
     ok = text == msg
     if not ok:
-        print >> sys.stderr, "Expected:", msg
-        print >> sys.stderr, "     Got:", text
+        print("Expected:", msg, file=sys.stderr)
+        print("     Got:", text, file=sys.stderr)
     return ok
 
 def mouseMode():

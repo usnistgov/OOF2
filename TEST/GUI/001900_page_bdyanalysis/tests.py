@@ -27,15 +27,14 @@ def msgFloat(*expectedvals, **kwargs):
                               msgbuffer.get_end_iter(), False)
     lastline = text.split('\n')[-2]
     actualvals = eval(lastline)
-    if type(actualvals) is not types.TupleType:
+    if not isinstance(actualvals, tuple):
         actualvals = (actualvals,)
     if len(actualvals) != len(expectedvals):
-        print >> sys.stderr, \
-            "Expected %d values, but found $d" % (len(expectedvals), 
-                                                  len(actualvals))
+        print("Expected %d values, but found $d" % (len(expectedvals), 
+                                                  len(actualvals)), file=sys.stderr)
     for actual, expected in zip(actualvals, expectedvals):
         if abs(actual - expected) > tolerance:
-            print >> sys.stderr, "Expected %g, got %g" % (expected, actual)
+            print("Expected %g, got %g" % (expected, actual), file=sys.stderr)
             return False
     return True
 

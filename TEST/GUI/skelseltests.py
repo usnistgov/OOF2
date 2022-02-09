@@ -11,7 +11,7 @@
 ## Test functions used in the Skeleton Selection Page tests.
 
 from ooflib.common.IO.GUI import gtklogger
-import generics
+from . import generics
 
 def _statusText():
     bfr = gtklogger.findWidget(

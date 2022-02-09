@@ -130,7 +130,7 @@ def propertyTreeCheck(proppath):
     labeltreenode = model[iter][1]
     result = labeltreenode.path() == proppath
     if not result:
-        print >> sys.stderr, "found", labeltreenode.path(), "expected", proppath
+        print("found", labeltreenode.path(), "expected", proppath, file=sys.stderr)
     return result
 
 def materialListCheck(*names):

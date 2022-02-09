@@ -41,14 +41,14 @@ def floatTextTail(widgetpath, text, tolerance=1.0e-6,
                 (f1, f2) = (float(i1), float(i2))
             except ValueError:
                 if i1!=i2:
-                    print >> sys.stderr, "Text mismatch, >%s< != >%s<." % (i1,i2)
+                    print("Text mismatch, >%s< != >%s<." % (i1,i2), file=sys.stderr)
                     return False
             else:
                 if abs(f1-f2)>tolerance:
-                    print >> sys.stderr,  "Float difference, %f too far from %f." % (f1,f2)
+                    print("Float difference, %f too far from %f." % (f1,f2), file=sys.stderr)
                     return False
                 if f1!=0.0 and f2!=0.0 and abs((f1/f2)-1.0)>tolerance:
-                    print >> sys.stderr, "Float difference, %f/%f too far from 1.0" % (f1,f2)
+                    print("Float difference, %f/%f too far from 1.0" % (f1,f2), file=sys.stderr)
                     return False
 
     # If everything worked, it's a win.

@@ -21,7 +21,7 @@ def checkNames(vars):
     # check, per se.
     for var in vars.keys():
         if var[0] != 'd' or var[1] not in '123' or var[2] not in '123456':
-            print >> sys.stderr, "Unexpected var name:", var
+            print("Unexpected var name:", var, file=sys.stderr)
             return 0
     return 1
 
@@ -45,8 +45,8 @@ def sensitiveDij(widgetname, **aijs):
                 fullwname = base+";"+widgetname+":dijk:"+wijname
                 actual = is_sensitive(fullwname)
                 if actual != nominal:
-                    print >> sys.stderr, "Sensitization test failed for", \
-                          fullwname
+                    print("Sensitization test failed for", \
+                          fullwname, file=sys.stderr)
                     return 0
         return 1
 
