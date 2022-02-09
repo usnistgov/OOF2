@@ -49,7 +49,7 @@ def _doublevec___mul__(self, factor):
     # invocation below will fail when the rhs is a matrix.  When that
     # happens, python falls back to __mul__, which is this function,
     # which will call __imul__ and so on ad infinitum.
-    if type(factor) is types.FloatType or type(factor) is types.IntType:
+    if isinstance(factor, float) or isinstance(factor, int):
         result = self.clone()
         result *= factor
         return result
@@ -57,7 +57,7 @@ def _doublevec___mul__(self, factor):
 DoubleVecPtr.__mul__ = _doublevec___mul__
 
 def _doublevec___rmul__(self, factor):
-    if type(factor) is types.FloatType or type(factor) is types.IntType:
+    if isinstance(factor, float) or isinstance(factor, int):
         result = self.clone()
         result *= factor
         return result
@@ -71,14 +71,14 @@ def _doublevec___div__(self, factor):
 DoubleVecPtr.__div__ = _doublevec___div__
 
 def _doublevec___imul__(self, factor):
-    if type(factor) is types.FloatType or type(factor) is types.IntType:
+    if isinstance(factor, float) or isinstance(factor, int):
         self.scale(factor)
         return self
     return NotImplemented
 DoubleVecPtr.__imul__ = _doublevec___imul__
 
 def _doublevec___idiv__(self, factor):
-    if type(factor) is types.FloatType or type(factor) is types.IntType:
+    if isinstance(factor, float) or isinstance(factor, int):
         self.scale(1./factor)
         return self
     return NotImplemented

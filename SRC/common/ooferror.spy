@@ -19,7 +19,7 @@ from ooflib.common import debug
 def pyErrorCallback(str):
     try:
         errorstring = "raise " + str
-        exec errorstring
+        exec(errorstring)
     except TypeError:
         debug.fmsg("Error while raising exception! str=", errorstring,
                    type(errorstring))

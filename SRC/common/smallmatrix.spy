@@ -28,7 +28,7 @@ SmallMatrixPtr.__setitem__ = _SmallMatrixPtr___setitem__
 
 
 def _SmallMatrix___mul__(self, other):
-    if type(other)==types.FloatType:
+    if isinstance(other, float):
         cpy = self.copy()
         cpy.scale(other)
         return cpy

@@ -161,7 +161,7 @@ class _SwitchboardCallbackBase(object):
     def perform(self, *args, **kwargs):
         pass
     def __repr__(self):
-        return 'SwitchboardCallbackBase(%s, %s)' % (`self.msgname`, `self.func`)
+        return 'SwitchboardCallbackBase(%s, %s)' % (repr(self.msgname), repr(self.func))
 
 
 # Transfer control to the main thread.  
@@ -181,7 +181,7 @@ class _SwitchboardCallback (_SwitchboardCallbackBase):
                 messageStack.pop()
             
     def __repr__(self):
-        return 'SwitchboardCallback(%s, %s)' % (`self.msgname`, `self.func`)
+        return 'SwitchboardCallback(%s, %s)' % (repr(self.msgname), repr(self.func))
 
 
 # Do the callback immediately on the local thread, unless the local
@@ -206,8 +206,8 @@ class _SwitchboardCallbackThread (_SwitchboardCallbackBase):
                 messageStack.pop()
             
     def __repr__(self):
-        return 'SwitchboardCallbackThread(%s, %s)' % (`self.msgname`,
-                                                      `self.func`)
+        return 'SwitchboardCallbackThread(%s, %s)' % (repr(self.msgname),
+                                                      repr(self.func))
 
 class _SwitchboardTaskList(object):
     def __init__(self, msgname):
@@ -301,7 +301,7 @@ class _Switchboard(object):
         # Messages passed from C++ may be either simple strings or
         # OOFMessage instances. The OOFMessage class has swigged
         # methods that make it act like a list of PyObjects.
-        if type(oofmessage)==types.StringType:
+        if isinstance(oofmessage, bytes):
             self.notify(oofmessage)
         else:
             # Convert OOFMessage object into arglist

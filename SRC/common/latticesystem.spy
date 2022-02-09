@@ -800,8 +800,8 @@ for (spaceGrp, (ptgrp, schoen)) in space2PointDict.items():
         schoen2SpaceDict[schoen] = spaceGrp
         schoen2InternationalDict[schoen] = ptgrp
 
-internationalGroupNames = international2SpaceDict.keys()
-schoenfliesSymbols = schoen2SpaceDict.keys()
+internationalGroupNames = list(international2SpaceDict.keys())
+schoenfliesSymbols = list(schoen2SpaceDict.keys())
 
 # print "internationalGroupNames=", internationalGroupNames
 # print "schoenfliesSymbols=", schoenfliesSymbols
