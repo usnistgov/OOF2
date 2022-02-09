@@ -9,7 +9,7 @@
 # oof_manager@nist.gov. 
 
 import unittest, os
-from UTILS.file_utils import reference_file
+from .UTILS.file_utils import reference_file
 
 class OOF_Fundamental(unittest.TestCase):
     def setUp(self):
@@ -39,8 +39,8 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertEqual([x for x in os1], [1,3,2,4])
         os1.add(1)
         self.assertEqual([x for x in os1], [1,3,2,4])
-        self.assert_(3 in os1)
-        self.assert_(5 not in os1)
+        self.assertTrue(3 in os1)
+        self.assertTrue(5 not in os1)
         os1.discard(3)
         self.assertEqual([x for x in os1], [1,2,4])
         os1.discard(3)
@@ -140,8 +140,8 @@ class OOF_Fundamental(unittest.TestCase):
                           OOF.File.Load.Script,
                           filename=reference_file("fundamental_data",
                                                   "nestederror.py"))
-        self.assert_(utils.OOFeval('teststring')=="ok" and
-                     utils.OOFeval('anothertest')=="ok")
+        self.assertTrue(utils.OOFeval('teststring')=="ok" and
+                        utils.OOFeval('anothertest')=="ok")
 
     def ScriptSyntaxErr0(self):
         self.assertRaises(SyntaxError,

@@ -19,8 +19,8 @@
 # circumstances than the initial test.
 
 import unittest, os
-import memorycheck
-import UTILS.file_utils
+from . import memorycheck
+from . import UTILS.file_utils
 reference_file = UTILS.file_utils.reference_file
 fp_file_compare = UTILS.file_utils.fp_file_compare
 UTILS.file_utils.generate = False
@@ -154,7 +154,7 @@ class OOF_Skeleton_Extra(unittest.TestCase):
         OOF.File.Save.Skeleton(filename="skeleton_rich_save",
                                mode="w", format="ascii",
                                skeleton="skelcomp:skelextra")
-        self.assert_(fp_file_compare(
+        self.assertTrue(fp_file_compare(
                 'skeleton_rich_save',
                 os.path.join('skeleton_data', 'rich_skeleton'),
                 1.e-10))
@@ -162,7 +162,7 @@ class OOF_Skeleton_Extra(unittest.TestCase):
         OOF.File.Save.Skeleton(filename="skeleton_abaqus_save",
                                mode="w", format="abaqus",
                                skeleton="skelcomp:skelextra")
-        self.assert_(fp_file_compare(
+        self.assertTrue(fp_file_compare(
             "skeleton_abaqus_save",
             os.path.join("skeleton_data", "abaqus_skeleton"),
             tolerance=1.e-10, ignoretime=True))
@@ -364,7 +364,7 @@ class OOF_Skeleton_SmallBuffer(unittest.TestCase):
                                mode='w', 
                                format='ascii', 
                                skeleton='triangle:skeleton')
-        self.assert_(
+        self.assertTrue(
             fp_file_compare(
                 "skeleton_bufferbug_test",
                 os.path.join("skeleton_data", "skeleton_bufferbug_ref"),
@@ -423,7 +423,7 @@ class OOF_Skeleton_CyclicBoundary(unittest.TestCase):
         import os,filecmp
         OOF.File.Save.Skeleton(filename="skeleton_save",mode="w",
                                format="ascii",skeleton="skelextra:cycletest")
-        self.assert_(filecmp.cmp(reference_file("skeleton_data",
+        self.assertTrue(filecmp.cmp(reference_file("skeleton_data",
                                                   "cycletest"),
                                    "skeleton_save"))
         os.remove("skeleton_save")

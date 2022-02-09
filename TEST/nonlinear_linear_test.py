@@ -12,9 +12,9 @@
 # Tests of the nonlinear solvers on linear problems.
 
 import unittest, os
-import memorycheck
+from . import memorycheck
 import math
-from UTILS import file_utils
+from .UTILS import file_utils
 # file_utils.generate = True
 
 class OOF_LinearDiffusion(unittest.TestCase):
@@ -139,12 +139,12 @@ class OOF_LinearDiffusion(unittest.TestCase):
             mesh='microstructure:skeleton:mesh',
             endtime=2.0)
 
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'nldiff.dat'),
                 tolerance=1.e-6))
         file_utils.remove('test.dat')
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'tempout.dat',
                 os.path.join('mesh_data', 'tempout.dat'),
                 tolerance=1.e-5))
@@ -173,12 +173,12 @@ class OOF_LinearDiffusion(unittest.TestCase):
             mesh='microstructure:skeleton:mesh',
             endtime=2.0)
 
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'nldiff.dat'),
                 tolerance=1.e-6))
         file_utils.remove('test.dat')
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'tempout.dat',
                 os.path.join('mesh_data', 'tempout.dat'),
                 tolerance=1.e-5))
@@ -212,12 +212,12 @@ class OOF_LinearDiffusion(unittest.TestCase):
             mesh='microstructure:skeleton:mesh',
             endtime=2.0)
 
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'nldiff.dat'),
                 tolerance=1.e-4))
         file_utils.remove('test.dat')
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'tempout.dat',
                 os.path.join('mesh_data', 'tempout.dat'),
                 tolerance=1.e-4))
@@ -246,12 +246,12 @@ class OOF_LinearDiffusion(unittest.TestCase):
             mesh='microstructure:skeleton:mesh',
             endtime=2.0)
 
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'nldiff.dat'),
                 tolerance=1.e-6))
         file_utils.remove('test.dat')
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'tempout.dat',
                 os.path.join('mesh_data', 'tempout.dat'),
                 tolerance=1.e-5))
@@ -283,13 +283,13 @@ class OOF_LinearDiffusion(unittest.TestCase):
             mesh='microstructure:skeleton:mesh',
             endtime=1.0)
 
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'nldiff.dat'),
                 tolerance=1.e-4,
                 nlines=16))
         file_utils.remove('test.dat')
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'tempout.dat',
                 os.path.join('mesh_data', 'tempout.dat'),
                 tolerance=1.e-3,
@@ -319,13 +319,13 @@ class OOF_LinearDiffusion(unittest.TestCase):
             mesh='microstructure:skeleton:mesh',
             endtime=1.0)
 
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'nldiff.dat'),
                 tolerance=1.e-3,
                 nlines=16))
         file_utils.remove('test.dat')
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'tempout.dat',
                 os.path.join('mesh_data', 'tempout.dat'),
                 tolerance=1.e-3,
@@ -355,13 +355,13 @@ class OOF_LinearDiffusion(unittest.TestCase):
             mesh='microstructure:skeleton:mesh',
             endtime=1.0)
 
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'nldiff.dat'),
                 tolerance=1.e-3,
                 nlines=16))
         file_utils.remove('test.dat')
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'tempout.dat',
                 os.path.join('mesh_data', 'tempout.dat'),
                 tolerance=1.e-3,
@@ -493,7 +493,7 @@ class OOF_NLPlaneStress(unittest.TestCase):
             domain=EntireMesh(),
             sampling=ElementSampleSet(order=automatic),
             destination=OutputStream(filename='test.dat', mode='w'))
-        self.assert_(file_utils.compare_last(
+        self.assertTrue(file_utils.compare_last(
                 'test.dat',
                 (0.0, 0.075, 0.025, 0.0, 0.0, 0.0, 0.0)))
         file_utils.remove('test.dat')
@@ -508,7 +508,7 @@ class OOF_NLPlaneStress(unittest.TestCase):
         dispz = field.getField("Displacement_z")
         for node in msh_obj.funcnode_iterator():
             vals = [dispz.value(msh_obj, node, i) for i in range(3)]
-            self.assert_(vals[0] == 0.0 and vals[1] == 0 and
+            self.assertTrue(vals[0] == 0.0 and vals[1] == 0 and
                          math.fabs(vals[2]+0.05) < 1.e-13)
 
     def tearDown(self):
@@ -639,12 +639,12 @@ class OOF_NLPlaneStress2(unittest.TestCase):
             mesh='microstructure:skeleton:mesh',
             time=0.0)
     def check(self):
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'riiight.out',
                 os.path.join('mesh_data', 'riiight.out'),
                 tolerance=1.e-4))
         file_utils.remove('riiight.out')
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'stress_nl2.out',
                 os.path.join('mesh_data', 'stress_nl2.out'),
                 tolerance=1.e-4))

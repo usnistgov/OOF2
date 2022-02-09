@@ -71,7 +71,7 @@ def check(*_microstructures):
             # The main thread still exists, but all subthreads should
             # have finished.
             self.assertEqual(threadstate.nThreadStates(), 1)
-            print >> sys.stderr, "Memory leak check passed."
+            print("Memory leak check passed.", file=sys.stderr)
             return val
         return checktest
     return decorator

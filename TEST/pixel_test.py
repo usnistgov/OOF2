@@ -18,8 +18,8 @@
 
 
 import unittest, os
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 # Prerequisite for making toolbox selections is the existence of a
 # graphics window.  These tests just open and close a graphics window.
@@ -36,8 +36,8 @@ class Graphics_Ops(unittest.TestCase):
                           OOF.Windows.__getattr__,
                           attr="Graphics_1")
         OOF.Windows.Graphics.New()
-        self.assert_(hasattr(OOF.Windows.Graphics, "Graphics_1"))
-        self.assert_(hasattr(OOF, "Graphics_1"))
+        self.assertTrue(hasattr(OOF.Windows.Graphics, "Graphics_1"))
+        self.assertTrue(hasattr(OOF, "Graphics_1"))
         self.assertEqual(len(gfxmanager.gfxManager.windows), 1)
 
     # "Close" Assumes that a graphics window is open.  The "Close"
@@ -45,17 +45,17 @@ class Graphics_Ops(unittest.TestCase):
     @memorycheck.check()
     def Close(self):
         # Find the graphics window.
-        self.assert_(len(OOF.Windows.Graphics.items)==2)
+        self.assertTrue(len(OOF.Windows.Graphics.items)==2)
         for item in OOF.Windows.Graphics.items:
             if item.name[:8]=="Graphics":
                 item_name=item.name
                 break
-        self.assert_(item_name is not None)
+        self.assertTrue(item_name is not None)
         # Get the corresponding item from the OOF menu.
         gw_item = OOF.__getattr__(item_name)
         gw_item.File.Close()
-        self.assert_(len(OOF.Windows.Graphics.items)==1)
-        self.assert_(not hasattr(OOF.Windows.Graphics, item_name))
+        self.assertTrue(len(OOF.Windows.Graphics.items)==1)
+        self.assertTrue(not hasattr(OOF.Windows.Graphics, item_name))
 
     def tearDown(self):
         pass
@@ -192,13 +192,13 @@ class Direct_Pixel_Selection(unittest.TestCase):
     def Undo(self):
         ps = pixelselection.pixelselectionWhoClass['image_test.ppm']
         self.assertEqual(ps.getObject().len(), 0)
-        self.assert_(not ps.undoable())
+        self.assertTrue(not ps.undoable())
         ps_0_id = id(ps.getObject())
         OOF.Graphics_1.Toolbox.Pixel_Select.Circle(
             source="image_test.ppm:image_test.ppm",
             points=[Point(66.0,55.0), Point(87.6,41.8)],
             shift=0, ctrl=0)
-        self.assert_(ps.undoable())
+        self.assertTrue(ps.undoable())
         ps_1_id = id(ps.getObject())
         self.assertNotEqual(ps_0_id, ps_1_id)
         OOF.Graphics_1.Toolbox.Pixel_Select.Undo(
@@ -218,11 +218,11 @@ class Direct_Pixel_Selection(unittest.TestCase):
          ps_1_id = id(ps.getObject())
          OOF.Graphics_1.Toolbox.Pixel_Select.Undo(
              source="image_test.ppm:image_test.ppm")
-         self.assert_(ps.redoable())
+         self.assertTrue(ps.redoable())
          OOF.Graphics_1.Toolbox.Pixel_Select.Redo(
              source="image_test.ppm:image_test.ppm")
          self.assertEqual(id(ps.getObject()), ps_1_id)
-         self.assert_(not ps.redoable())
+         self.assertTrue(not ps.redoable())
 
     @memorycheck.check("image_test.ppm")
     def Clear(self):
@@ -286,7 +286,7 @@ class Pixel_Groups(unittest.TestCase):
         ms = microstructure.getMicrostructure("small.ppm")
         groups = ms.groupNames()
         self.assertEqual(len(groups),1)
-        self.assert_("test" in groups)
+        self.assertTrue("test" in groups)
 
     @memorycheck.check("small.ppm")
     def Delete(self):
@@ -376,7 +376,7 @@ class Pixel_Groups(unittest.TestCase):
         self.assertEqual(len(group), initial_group_size)
         # Still only one group.
         self.assertEqual(ms.nGroups(), 1)
-        self.assert_( not "test" in ms.groupNames())
+        self.assertTrue( not "test" in ms.groupNames())
         
     @memorycheck.check("small.ppm")
     def AutoGroup(self):
@@ -474,7 +474,7 @@ class Selection_Modify(unittest.TestCase):
         OOF.PixelSelection.Undo(microstructure="small.ppm")
         OOF.PixelSelection.Redo(microstructure="small.ppm")
         ps_2_id = id(ps.getObject())
-        self.assert_(not ps.redoable())
+        self.assertTrue(not ps.redoable())
         self.assertEqual(ps_2_id, ps_1_id)
         self.assertNotEqual(ps_2_id, ps_0_id)
 

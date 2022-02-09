@@ -11,8 +11,8 @@
 import os
 import unittest
 
-import memorycheck
-from UTILS import file_utils
+from . import memorycheck
+from .UTILS import file_utils
 #file_utils.generate = True
 
 # A trivial linear thermal diffusion problem, with T=1 fixed on the
@@ -182,19 +182,19 @@ class OOF_SimpleFloat(unittest.TestCase):
             mesh='microstructure:skeleton:mesh', time=0.0)
 
     def check(self, tolerance):
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'center.out',
                 os.path.join('mesh_data', 'simplecenter.out'),
                 tolerance))
         file_utils.remove('center.out')
 
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'middle.out',
                 os.path.join('mesh_data', 'simplemiddle.out'),
                 tolerance))
         file_utils.remove('middle.out')
                              
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'right.out',
                 os.path.join('mesh_data', 'simpleright.out'),
                 tolerance))
@@ -418,7 +418,7 @@ class OOF_FloatBC1(unittest.TestCase):
             mesh='microstructure:skeleton:mesh', endtime=4.0)
 
     def check(self, tolerance):
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'temptop.out',
                 os.path.join('mesh_data', 'temptop.out'),
                 tolerance))

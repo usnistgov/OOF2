@@ -12,7 +12,7 @@
 # Test for a particular, pernicious bug.
 
 import unittest, os
-import memorycheck
+from . import memorycheck
 
 
 class R3TensorRotationBug(unittest.TestCase):

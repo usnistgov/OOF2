@@ -9,10 +9,10 @@
 # oof_manager@nist.gov.
 
 import unittest, os
-import memorycheck
+from . import memorycheck
 from math import *
-from UTILS import file_utils
-from exact_solns import *
+from .UTILS import file_utils
+from .exact_solns import *
 
 
 class NonlinearPlaneFluxTest(unittest.TestCase):
@@ -397,16 +397,16 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
 
         L2_error = computeScalarErrorL2( soln_func, mesh_obj, field_ptr,
                                          self.numX, self.numY, time=self.time )
-        print "Temperature L2 error: ", L2_error
-        self.assert_( L2_error < 1.e-2 )
+        print("Temperature L2 error: ", L2_error)
+        self.assertTrue( L2_error < 1.e-2 )
 
         # now compute the numerical error in the computed temperature_z field
         field_ptr = field.getField( "Temperature_z" )
 
         L2_error = computeScalarErrorL2( z_soln_func, mesh_obj, field_ptr,
                                          self.numX, self.numY, time=self.time )
-        print "Temperture_z L2 error: ", L2_error
-        self.assert_( L2_error < 1.e-2 )
+        print("Temperture_z L2 error: ", L2_error)
+        self.assertTrue( L2_error < 1.e-2 )
 
 
     @memorycheck.check("microstructure")
@@ -725,17 +725,17 @@ class NonlinearPlaneFluxTest(unittest.TestCase):
 
         L2_error = computeVector2DErrorL2( soln_func, mesh_obj, field_ptr,
                                            self.numX, self.numY, time=self.time )
-        print "Displacement L2 error: ", L2_error
+        print("Displacement L2 error: ", L2_error)
 
-        self.assert_( L2_error < 6.e-2 )
+        self.assertTrue( L2_error < 6.e-2 )
 
         field_ptr = field.getField( "Displacement_z" )
 
         L2_error = computeVector3DErrorL2( z_soln_func, mesh_obj, field_ptr,
                                            self.numX, self.numY, time=self.time )
-        print "Displacement_z L2 error: ", L2_error
+        print("Displacement_z L2 error: ", L2_error)
 
-        self.assert_( L2_error < 1.1e-1 )
+        self.assertTrue( L2_error < 1.1e-1 )
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

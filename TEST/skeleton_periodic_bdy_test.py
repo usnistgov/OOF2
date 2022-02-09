@@ -13,8 +13,8 @@
 # groups.  This test should follow the more basic skeleton_test tests.
 
 import unittest, os
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 class Skeleton_Boundary(unittest.TestCase):
     def setUp(self):
@@ -52,18 +52,16 @@ class Skeleton_Boundary(unittest.TestCase):
     # exterior, check that indices are as expected, etc.
     @memorycheck.check("skeltest")
     def Defaults(self):
-        edge_bdy_names = self.sk_context.edgeboundaries.keys()
         default_edges = ["top", "bottom", "left", "right"]
-        self.assertEqual(len(edge_bdy_names), 4)
-        for e in edge_bdy_names:
-            self.assert_(e in default_edges)
+        self.assertEqual(len(self.sk_context.edgeboundaries), 4)
+        for e in self.sk_context.edgeboundaries.keys():
+            self.assertTrue(e in default_edges)
             default_edges.remove(e)
             
-        point_bdy_names = self.sk_context.pointboundaries.keys()
         default_points = ["topleft", "topright", "bottomleft", "bottomright"]
-        self.assertEqual(len(point_bdy_names), 4)
-        for p in point_bdy_names:
-            self.assert_(p in default_points)
+        self.assertEqual(len(self.sk_context.pointboundaries), 4)
+        for p in self.sk_context.pointboundaries.keys():
+            self.assertTrue(p in default_points)
             default_points.remove(p)
 
         for e in self.sk_context.edgeboundaries.values():
@@ -87,7 +85,7 @@ class Skeleton_Boundary(unittest.TestCase):
             skeleton="skeltest:bdytest", name="test",
             constructor=EdgeFromElements(group=selection,
                                          direction="Clockwise"))
-        self.assert_("test" in self.sk_context.edgeboundaries.keys())
+        self.assertTrue("test" in self.sk_context.edgeboundaries.keys())
         test_bdy = self.sk_context.edgeboundaries["test"]
         self.assertEqual(test_bdy.current_size(), 8)
 
@@ -145,7 +143,7 @@ class Skeleton_Boundary(unittest.TestCase):
             skeleton="skeltest:bdytest", name="test",
             constructor=EdgeFromSegments(group=selection,
                                          direction="Clockwise"))
-        self.assert_("test" in self.sk_context.edgeboundaries.keys())
+        self.assertTrue("test" in self.sk_context.edgeboundaries.keys())
         test_bdy = self.sk_context.edgeboundaries["test"]
         self.assertEqual(test_bdy.current_size(), 8)
 
@@ -171,7 +169,7 @@ class Skeleton_Boundary(unittest.TestCase):
             skeleton="skeltest:bdytest", name="test",
             constructor=EdgeFromNodes(group=selection,
                                       direction="Clockwise"))
-        self.assert_("test" in self.sk_context.edgeboundaries.keys())
+        self.assertTrue("test" in self.sk_context.edgeboundaries.keys())
         test_bdy = self.sk_context.edgeboundaries["test"]
         self.assertEqual(test_bdy.current_size(), 8)
 
@@ -214,7 +212,7 @@ class Skeleton_Boundary(unittest.TestCase):
             skeleton="skeltest:bdytest", name="test",
             constructor=EdgeFromSegments(group=selection,
                                       direction="Left to right"))
-        self.assert_("test" in self.sk_context.edgeboundaries.keys())
+        self.assertTrue("test" in self.sk_context.edgeboundaries.keys())
         test_bdy = self.sk_context.edgeboundaries["test"]
         self.assertEqual(test_bdy.current_size(), 8)
 

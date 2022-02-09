@@ -11,8 +11,8 @@
 # Test suite for the menu commands under OOF.Subproblem.
 
 import unittest, os
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 # Basic subproblem operations
 
@@ -239,19 +239,19 @@ class OOF_Subproblem_Varieties(unittest.TestCase):
                             pixels='spot1')
         OOF.Subproblem.New(name='matspot1', mesh='small.ppm:skeleton:mesh',
                            subproblem=MaterialSubProblem(material='material'))
-        self.assert_(self.get_subproblem('matspot1').nelements() == 114)
-        self.assert_(self.get_subproblem('matspot1').nnodes() == 138)
+        self.assertTrue(self.get_subproblem('matspot1').nelements() == 114)
+        self.assertTrue(self.get_subproblem('matspot1').nnodes() == 138)
         OOF.Material.Assign(material='material', microstructure='small.ppm',
                             pixels='spot2')
-        self.assert_(self.get_subproblem('matspot1').nelements() == 178)
-        self.assert_(self.get_subproblem('matspot1').nnodes() == 208)
+        self.assertTrue(self.get_subproblem('matspot1').nelements() == 178)
+        self.assertTrue(self.get_subproblem('matspot1').nnodes() == 208)
         OOF.Material.Delete(name="material")
 
     @memorycheck.check('small.ppm')
     def PixelGroup(self):
         OOF.Subproblem.New(name='spot1', mesh='small.ppm:skeleton:mesh',
                            subproblem=PixelGroupSubProblem(group='spot1'))
-        self.assert_(self.get_subproblem('spot1').nelements() == 114)
+        self.assertTrue(self.get_subproblem('spot1').nelements() == 114)
 
     @memorycheck.check('small.ppm')
     def Union(self):
@@ -263,7 +263,7 @@ class OOF_Subproblem_Varieties(unittest.TestCase):
             name='union', mesh='small.ppm:skeleton:mesh',
             subproblem=UnionSubProblem(one='small.ppm:skeleton:mesh:spot1',
                                        another='small.ppm:skeleton:mesh:spot2'))
-        self.assert_(self.get_subproblem('union').nelements() == 178)
+        self.assertTrue(self.get_subproblem('union').nelements() == 178)
         # Check that modifying a pixelgroup changes both the
         # pixelgroup subproblem and the union subproblem.
         OOF.Windows.Graphics.New()
@@ -274,10 +274,10 @@ class OOF_Subproblem_Varieties(unittest.TestCase):
         OOF.Graphics_1.File.Close()
         OOF.PixelGroup.RemoveSelection(microstructure='small.ppm',
                                        group='spot1')
-        self.assert_(self.get_subproblem('spot1').nelements() == 68)
-        self.assert_(self.get_subproblem('spot1').nnodes() == 97)
-        self.assert_(self.get_subproblem('union').nelements() == 132)
-        self.assert_(self.get_subproblem('union').nnodes() == 167)
+        self.assertTrue(self.get_subproblem('spot1').nelements() == 68)
+        self.assertTrue(self.get_subproblem('spot1').nnodes() == 97)
+        self.assertTrue(self.get_subproblem('union').nelements() == 132)
+        self.assertTrue(self.get_subproblem('union').nnodes() == 167)
         # Check that dependent subproblems are removed when their
         # dependencies are removed.
         OOF.Subproblem.Delete(subproblem='small.ppm:skeleton:mesh:spot1')
@@ -299,7 +299,7 @@ class OOF_Subproblem_Varieties(unittest.TestCase):
             subproblem=IntersectionSubProblem(
             one='small.ppm:skeleton:mesh:spot1',
             another='small.ppm:skeleton:mesh:spot2'))
-        self.assert_(self.get_subproblem('intersection').nelements() == 42)
+        self.assertTrue(self.get_subproblem('intersection').nelements() == 42)
 
     @memorycheck.check('small.ppm')
     def Xor(self):
@@ -312,7 +312,7 @@ class OOF_Subproblem_Varieties(unittest.TestCase):
             subproblem=XorSubProblem(
             one='small.ppm:skeleton:mesh:spot1',
             another='small.ppm:skeleton:mesh:spot2'))
-        self.assert_(self.get_subproblem('xor').nelements() == 136)
+        self.assertTrue(self.get_subproblem('xor').nelements() == 136)
 
     @memorycheck.check('small.ppm')
     def Complement(self):
@@ -322,15 +322,15 @@ class OOF_Subproblem_Varieties(unittest.TestCase):
             name='comp', mesh='small.ppm:skeleton:mesh',
             subproblem=ComplementSubProblem(
             complement_of='small.ppm:skeleton:mesh:spot1'))
-        self.assert_(self.get_subproblem('comp').nelements() == 286)
-        self.assert_(self.get_subproblem('comp').nnodes() == 342)
+        self.assertTrue(self.get_subproblem('comp').nelements() == 286)
+        self.assertTrue(self.get_subproblem('comp').nnodes() == 342)
         # Check that adding more pixels to the pixel group changes the
         # complement subproblem.
         OOF.PixelSelection.Select_Group(microstructure='small.ppm',
                                         group='spot2')
         OOF.PixelGroup.AddSelection(microstructure='small.ppm', group='spot1')
-        self.assert_(self.get_subproblem('comp').nelements() == 222)
-        self.assert_(self.get_subproblem('comp').nnodes() == 284)
+        self.assertTrue(self.get_subproblem('comp').nelements() == 222)
+        self.assertTrue(self.get_subproblem('comp').nnodes() == 284)
         
         # Check that dependent subproblems are removed when their
         # dependencies are removed.
@@ -346,7 +346,7 @@ class OOF_Subproblem_Varieties(unittest.TestCase):
     def Entire(self):
         OOF.Subproblem.New(name='entire', mesh='small.ppm:skeleton:mesh',
                            subproblem=EntireMeshSubProblem())
-        self.assert_(self.get_subproblem("entire").nelements() == 400)
+        self.assertTrue(self.get_subproblem("entire").nelements() == 400)
 
 class OOF_Subproblem_FieldEquation(OOF_Subproblem):
     def setUp(self):
@@ -366,15 +366,15 @@ class OOF_Subproblem_FieldEquation(OOF_Subproblem):
  
     @memorycheck.check('subptest')
     def DefineField(self):
-        self.assert_(not Temperature.is_defined(self.subp0) and
+        self.assertTrue(not Temperature.is_defined(self.subp0) and
                      not Temperature.is_defined(self.subp1))
         OOF.Subproblem.Field.Define(subproblem='subptest:skeleton:mesh:sub',
                                     field=Temperature)
         OOF.Subproblem.Field.Define(subproblem='subptest:skeleton:mesh:default',
                                     field=Displacement)
-        self.assert_(Temperature.is_defined(self.subp1) and
+        self.assertTrue(Temperature.is_defined(self.subp1) and
                      not Temperature.is_defined(self.subp0))
-        self.assert_(Displacement.is_defined(self.subp0) and
+        self.assertTrue(Displacement.is_defined(self.subp0) and
                      not Displacement.is_defined(self.subp1))
         del self.subp0
         del self.subp1
@@ -387,11 +387,11 @@ class OOF_Subproblem_FieldEquation(OOF_Subproblem):
                                     field=Displacement)
         OOF.Subproblem.Field.Undefine(
             subproblem='subptest:skeleton:mesh:sub', field=Temperature)
-        self.assert_(not Temperature.is_defined(self.subp1))
-        self.assert_(Displacement.is_defined(self.subp0))
+        self.assertTrue(not Temperature.is_defined(self.subp1))
+        self.assertTrue(Displacement.is_defined(self.subp0))
         OOF.Subproblem.Field.Undefine(
             subproblem='subptest:skeleton:mesh:default', field=Displacement)
-        self.assert_(not Displacement.is_defined(self.subp0))
+        self.assertTrue(not Displacement.is_defined(self.subp0))
         del self.subp0
         del self.subp1
 
@@ -401,26 +401,26 @@ class OOF_Subproblem_FieldEquation(OOF_Subproblem):
                                     field=Temperature)
         OOF.Subproblem.Field.Define(subproblem='subptest:skeleton:mesh:default',
                                     field=Displacement)
-        self.assert_(not Temperature.is_active(self.subp0))
-        self.assert_(not Displacement.is_active(self.subp0))
-        self.assert_(not Temperature.is_active(self.subp1))
-        self.assert_(not Displacement.is_active(self.subp1))
+        self.assertTrue(not Temperature.is_active(self.subp0))
+        self.assertTrue(not Displacement.is_active(self.subp0))
+        self.assertTrue(not Temperature.is_active(self.subp1))
+        self.assertTrue(not Displacement.is_active(self.subp1))
         OOF.Subproblem.Field.Activate(subproblem='subptest:skeleton:mesh:sub',
                                       field=Temperature)
         OOF.Subproblem.Field.Activate(
             subproblem='subptest:skeleton:mesh:default', field=Displacement)
-        self.assert_(not Temperature.is_active(self.subp0))
-        self.assert_(Displacement.is_active(self.subp0))
-        self.assert_(Temperature.is_active(self.subp1))
-        self.assert_(not Displacement.is_active(self.subp1))
+        self.assertTrue(not Temperature.is_active(self.subp0))
+        self.assertTrue(Displacement.is_active(self.subp0))
+        self.assertTrue(Temperature.is_active(self.subp1))
+        self.assertTrue(not Displacement.is_active(self.subp1))
         OOF.Subproblem.Field.Deactivate(subproblem='subptest:skeleton:mesh:sub',
                                       field=Temperature)
         OOF.Subproblem.Field.Deactivate(
             subproblem='subptest:skeleton:mesh:default', field=Displacement)
-        self.assert_(not Temperature.is_active(self.subp0))
-        self.assert_(not Displacement.is_active(self.subp0))
-        self.assert_(not Temperature.is_active(self.subp1))
-        self.assert_(not Displacement.is_active(self.subp1))
+        self.assertTrue(not Temperature.is_active(self.subp0))
+        self.assertTrue(not Displacement.is_active(self.subp0))
+        self.assertTrue(not Temperature.is_active(self.subp1))
+        self.assertTrue(not Displacement.is_active(self.subp1))
         del self.subp0
         del self.subp1
 
@@ -433,35 +433,35 @@ class OOF_Subproblem_FieldEquation(OOF_Subproblem):
         OOF.Subproblem.Field.Define(subproblem='subptest:skeleton:mesh:default',
                                     field=Displacement)
         fmsh = mesh.meshes['subptest:skeleton:mesh'].getObject()
-        self.assert_(not fmsh.in_plane(Temperature))
-        self.assert_(not fmsh.in_plane(Displacement))
+        self.assertTrue(not fmsh.in_plane(Temperature))
+        self.assertTrue(not fmsh.in_plane(Displacement))
         OOF.Mesh.Field.In_Plane(mesh="subptest:skeleton:mesh",
                                      field=Displacement)
         OOF.Mesh.Field.In_Plane(mesh="subptest:skeleton:mesh",
                                      field=Temperature)
-        self.assert_(fmsh.in_plane(Temperature))
-        self.assert_(fmsh.in_plane(Displacement))
+        self.assertTrue(fmsh.in_plane(Temperature))
+        self.assertTrue(fmsh.in_plane(Displacement))
         OOF.Mesh.Field.Out_of_Plane(mesh="subptest:skeleton:mesh",
                                      field=Displacement)
         OOF.Mesh.Field.Out_of_Plane(mesh="subptest:skeleton:mesh",
                                      field=Temperature)
-        self.assert_(not fmsh.in_plane(Temperature))
-        self.assert_(not fmsh.in_plane(Displacement))
+        self.assertTrue(not fmsh.in_plane(Temperature))
+        self.assertTrue(not fmsh.in_plane(Displacement))
         del self.subp0
         del self.subp1
 
     @memorycheck.check('subptest')
     def ActivateEquation(self):
-        self.assert_(not self.subp0.is_active_equation(Heat_Eqn))
-        self.assert_(not self.subp1.is_active_equation(Heat_Eqn))
+        self.assertTrue(not self.subp0.is_active_equation(Heat_Eqn))
+        self.assertTrue(not self.subp1.is_active_equation(Heat_Eqn))
         OOF.Subproblem.Equation.Activate(
             subproblem="subptest:skeleton:mesh:sub", equation=Heat_Eqn)
-        self.assert_(self.subp1.is_active_equation(Heat_Eqn))
-        self.assert_(not self.subp0.is_active_equation(Heat_Eqn))
+        self.assertTrue(self.subp1.is_active_equation(Heat_Eqn))
+        self.assertTrue(not self.subp0.is_active_equation(Heat_Eqn))
         OOF.Subproblem.Equation.Deactivate(
             subproblem="subptest:skeleton:mesh:sub", equation=Heat_Eqn)
-        self.assert_(not self.subp0.is_active_equation(Heat_Eqn))
-        self.assert_(not self.subp1.is_active_equation(Heat_Eqn))
+        self.assertTrue(not self.subp0.is_active_equation(Heat_Eqn))
+        self.assertTrue(not self.subp1.is_active_equation(Heat_Eqn))
         del self.subp0
         del self.subp1
 
@@ -479,15 +479,15 @@ class OOF_Subproblem_Extra(OOF_Subproblem_FieldEquation):
                            subproblem=MaterialSubProblem(material='salami'))
         subp = subproblemcontext.subproblems[
             'subptest:skeleton:mesh:nautilus'].getObject()
-        self.assert_(not Temperature.is_defined(subp))
-        self.assert_(not Temperature.is_active(subp))
-        self.assert_(not Displacement.is_defined(subp))
+        self.assertTrue(not Temperature.is_defined(subp))
+        self.assertTrue(not Temperature.is_active(subp))
+        self.assertTrue(not Displacement.is_defined(subp))
         OOF.Subproblem.Copy_Field_State(
             source="subptest:skeleton:mesh:sub",
             target="subptest:skeleton:mesh:nautilus")
-        self.assert_(Temperature.is_defined(subp))
-        self.assert_(Temperature.is_active(subp))
-        self.assert_(Displacement.is_defined(subp))
+        self.assertTrue(Temperature.is_defined(subp))
+        self.assertTrue(Temperature.is_active(subp))
+        self.assertTrue(Displacement.is_defined(subp))
         # copy to a new subproblem in a different mesh
         OOF.Mesh.New(name="mush", skeleton="subptest:skeleton",
                      element_types=['T3_3', 'Q4_4'])
@@ -496,9 +496,9 @@ class OOF_Subproblem_Extra(OOF_Subproblem_FieldEquation):
         OOF.Subproblem.Copy_Field_State(
             source="subptest:skeleton:mesh:sub",
             target="subptest:skeleton:mush:default")
-        self.assert_(Temperature.is_defined(subp))
-        self.assert_(Temperature.is_active(subp))
-        self.assert_(Displacement.is_defined(subp))
+        self.assertTrue(Temperature.is_defined(subp))
+        self.assertTrue(Temperature.is_active(subp))
+        self.assertTrue(Displacement.is_defined(subp))
         OOF.Mesh.Delete(mesh='subptest:skeleton:mush')
         del self.subp0
         del self.subp1
@@ -512,12 +512,12 @@ class OOF_Subproblem_Extra(OOF_Subproblem_FieldEquation):
                            subproblem=MaterialSubProblem(material='salami'))
         subp = subproblemcontext.subproblems[
             'subptest:skeleton:mesh:nautilus'].getObject()
-        self.assert_(not subp.is_active_equation(Heat_Eqn))
+        self.assertTrue(not subp.is_active_equation(Heat_Eqn))
         OOF.Subproblem.Copy_Equation_State(
             source="subptest:skeleton:mesh:sub",
             target="subptest:skeleton:mesh:nautilus")
-        self.assert_(subp.is_active_equation(Heat_Eqn))
-        self.assert_(not subp.is_active_equation(Force_Balance))
+        self.assertTrue(subp.is_active_equation(Heat_Eqn))
+        self.assertTrue(not subp.is_active_equation(Force_Balance))
         # copy to a new subproblem in a different mesh
         OOF.Mesh.New(name="mush", skeleton="subptest:skeleton",
                      element_types=['T3_3', 'Q4_4'])
@@ -526,8 +526,8 @@ class OOF_Subproblem_Extra(OOF_Subproblem_FieldEquation):
         OOF.Subproblem.Copy_Equation_State(
             source="subptest:skeleton:mesh:sub",
             target="subptest:skeleton:mush:default")
-        self.assert_(subp.is_active_equation(Heat_Eqn))
-        self.assert_(not subp.is_active_equation(Force_Balance))
+        self.assertTrue(subp.is_active_equation(Heat_Eqn))
+        self.assertTrue(not subp.is_active_equation(Force_Balance))
         del self.subp0
         del self.subp1
 

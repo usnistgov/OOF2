@@ -93,8 +93,8 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                      element_types=['D2_2', 'T3_3', 'Q4_4'])
         meshctxt=mesh.meshes["cyallow.png:skeleton:mesh"]
 
-        self.assert_(meshctxt.nnodes()==30)
-        self.assert_(meshctxt.nedgements()==20)
+        self.assertTrue(meshctxt.nnodes()==30)
+        self.assertTrue(meshctxt.nedgements()==20)
         
         OOF.Subproblem.Field.Define(
             subproblem='cyallow.png:skeleton:mesh:default',
@@ -198,8 +198,8 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
         OOF.Microstructure.Interface.Delete(microstructure='cyallow.png',
                                             interface='interface<2>')
         
-        self.assert_(meshctxt.nnodes()==30)
-        self.assert_(meshctxt.nedgements()==20)
+        self.assertTrue(meshctxt.nnodes()==30)
+        self.assertTrue(meshctxt.nedgements()==20)
 
 
         OOF.Mesh.Solve(mesh='cyallow.png:skeleton:mesh', endtime=0.0,
@@ -233,8 +233,8 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                                       interfaces=['interface<2>'])
 
         #Check again
-        self.assert_(meshctxt.nnodes()==30)
-        self.assert_(meshctxt.nedgements()==20)
+        self.assertTrue(meshctxt.nnodes()==30)
+        self.assertTrue(meshctxt.nedgements()==20)
 
         OOF.Solver.Solve(
             subproblem='cyallow.png:skeleton:mesh:default',
@@ -275,8 +275,8 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
         OOF.Microstructure.Interface.Delete(microstructure='cyallow.png',
                                             interface='interface')
 
-        self.assert_(meshctxt.nnodes()==30)
-        self.assert_(meshctxt.nedgements()==20)
+        self.assertTrue(meshctxt.nnodes()==30)
+        self.assertTrue(meshctxt.nedgements()==20)
 
         OOF.Solver.Solve(
             subproblem='cyallow.png:skeleton:mesh:default',
@@ -308,8 +308,8 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                      element_types=['D3_3', 'T6_6', 'Q8_8'])
         meshctxt=mesh.meshes["cyallow.png:skeleton:mesh"]
 
-        self.assert_(meshctxt.nnodes()==74)
-        self.assert_(meshctxt.nedgements()==20)
+        self.assertTrue(meshctxt.nnodes()==74)
+        self.assertTrue(meshctxt.nedgements()==20)
         
         OOF.Subproblem.Field.Define(
             subproblem='cyallow.png:skeleton:mesh:default',
@@ -365,7 +365,7 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                 self.assertAlmostEqual(delta.y, 10.0, 6)
             else:
                 self.assertAlmostEqual(delta.y, 0.0, 6)
-        self.assert_(numup==37)
+        self.assertTrue(numup==37)
 
         #Create a skeleton boundary from an interface definition, and
         #apply the same jump condition across it.
@@ -399,8 +399,8 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                                 tolerance=1e-13,
                                 preconditioner=ILUPreconditioner())))
 
-        self.assert_(meshctxt.nnodes()==74)
-        self.assert_(meshctxt.nedgements()==20)
+        self.assertTrue(meshctxt.nnodes()==74)
+        self.assertTrue(meshctxt.nedgements()==20)
 
         meshobj=meshctxt.getObject()
         numup=0
@@ -413,7 +413,7 @@ class OOF_SimpleInterfaceTest(unittest.TestCase):
                 self.assertAlmostEqual(delta.y, 10.0, 6)
             else:
                 self.assertAlmostEqual(delta.y, 0.0, 6)
-        self.assert_(numup==37)
+        self.assertTrue(numup==37)
 
     #Mr. Gorbachev...
     def tearDown(self):
@@ -528,8 +528,8 @@ class OOF_InterfaceTest2(unittest.TestCase):
             element_types=['D2_2', 'T3_3', 'Q4_4'])
 
         meshctxt=mesh.meshes["serendipity.png:skeleton:mesh"]
-        self.assert_(meshctxt.nnodes()==219)
-        self.assert_(meshctxt.nedgements()==45)
+        self.assertTrue(meshctxt.nnodes()==219)
+        self.assertTrue(meshctxt.nedgements()==45)
 
         OOF.Subproblem.Field.Define(
             subproblem='serendipity.png:skeleton:mesh:default',
@@ -600,7 +600,7 @@ class OOF_InterfaceTest2(unittest.TestCase):
                     self.assertAlmostEqual(delta**2, 100.0, 6)
                     numjumps+=1
                 ei.increment()
-        self.assert_(numjumps==11)
+        self.assertTrue(numjumps==11)
 
     def tearDown(self):
         OOF.Microstructure.Delete(microstructure="serendipity.png")
@@ -688,8 +688,8 @@ class OOF_InterfaceTest3(unittest.TestCase):
         OOF.Mesh.New(name='mesh', skeleton='cyallow.png:skeleton',
                      element_types=['D2_2', 'T3_3', 'Q4_4'])
         meshctxt=mesh.meshes["cyallow.png:skeleton:mesh"]
-        self.assert_(meshctxt.nnodes()==25)
-        self.assert_(meshctxt.nedgements()==16)
+        self.assertTrue(meshctxt.nnodes()==25)
+        self.assertTrue(meshctxt.nedgements()==16)
 
         #For the second microstructure, define an interface
         OOF.Microstructure.Interface.New(
@@ -700,8 +700,8 @@ class OOF_InterfaceTest3(unittest.TestCase):
         OOF.Mesh.New(name='mesh', skeleton='cyallow.png.Copy:skeleton', 
                      element_types=['D2_2', 'T3_3', 'Q4_4'])
         meshctxt2=mesh.meshes["cyallow.png.Copy:skeleton:mesh"]
-        self.assert_(meshctxt2.nnodes()==30)
-        self.assert_(meshctxt2.nedgements()==20)
+        self.assertTrue(meshctxt2.nnodes()==30)
+        self.assertTrue(meshctxt2.nedgements()==20)
 
         #Plane strain case
         OOF.Subproblem.Field.Define(
@@ -869,8 +869,8 @@ class OOF_InterfaceTest3(unittest.TestCase):
         OOF.Mesh.New(name='mesh', skeleton='cyallow.png:skeleton', 
                      element_types=['D2_2', 'T3_3', 'Q4_4'])
         meshctxt=mesh.meshes["cyallow.png:skeleton:mesh"]
-        self.assert_(meshctxt.nnodes()==25)
-        self.assert_(meshctxt.nedgements()==16)
+        self.assertTrue(meshctxt.nnodes()==25)
+        self.assertTrue(meshctxt.nedgements()==16)
 
         #For the second microstructure, define an interface
         OOF.Microstructure.Interface.New(
@@ -881,8 +881,8 @@ class OOF_InterfaceTest3(unittest.TestCase):
         OOF.Mesh.New(name='mesh', skeleton='cyallow.png.Copy:skeleton', 
                      element_types=['D2_2', 'T3_3', 'Q4_4'])
         meshctxt2=mesh.meshes["cyallow.png.Copy:skeleton:mesh"]
-        self.assert_(meshctxt2.nnodes()==30)
-        self.assert_(meshctxt2.nedgements()==20)
+        self.assertTrue(meshctxt2.nnodes()==30)
+        self.assertTrue(meshctxt2.nedgements()==20)
 
         #in-plane
         OOF.Subproblem.Field.Define(

@@ -14,10 +14,10 @@
 
 
 import unittest, os
-import memorycheck
+from . import memorycheck
 from math import *
-from UTILS import file_utils
-from exact_solns import *
+from .UTILS import file_utils
+from .exact_solns import *
 
 
 class NonlinearPropertyTest(unittest.TestCase):
@@ -282,9 +282,9 @@ class NonlinearPropertyTest(unittest.TestCase):
 
         L2_error = computeScalarErrorL2( soln_func, mesh_obj, field_ptr,
                                          self.numX, self.numY, time=self.time )
-        print "L2 error: ", L2_error
+        print("L2 error: ", L2_error)
 
-        self.assert_( L2_error < 4.e-2 )
+        self.assertTrue( L2_error < 4.e-2 )
 
 
     @memorycheck.check("microstructure")
@@ -466,9 +466,9 @@ class NonlinearPropertyTest(unittest.TestCase):
 
         L2_error = computeVector2DErrorL2( soln_func, mesh_obj, field_ptr,
                                            self.numX, self.numY, time=self.time )
-        print "L2 error: ", L2_error
+        print("L2 error: ", L2_error)
 
-        self.assert_( L2_error < 1.e-2 )
+        self.assertTrue( L2_error < 1.e-2 )
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -486,7 +486,7 @@ def initialize():
         import oofextensions.nonlinear_force_density_example_SWIG.nonlinear_force_density_example
         import oofextensions.nonconstant_force_density_example_SWIG.nonconstant_force_density_example
     except ImportError:
-        print "OOFEXTENSIONS are not correctly installed on this system."
+        print("OOFEXTENSIONS are not correctly installed on this system.")
         sys.exit(4)
 
 test_set = [

@@ -9,9 +9,9 @@
 # oof_manager@nist.gov. 
 
 import unittest, os
-import memorycheck
+from . import memorycheck
 
-from UTILS import file_utils
+from .UTILS import file_utils
 reference_file = file_utils.reference_file
 pdf_compare = file_utils.pdf_compare
 file_utils.generate = False
@@ -74,7 +74,7 @@ class OOF_PoleFigureTest(unittest.TestCase):
             colormap=colorMap,
             size=500,
             filename='test.pdf', overwrite=True)
-        self.assert_(pdf_compare('test.pdf', os.path.join('polefigure_data',
+        self.assertTrue(pdf_compare('test.pdf', os.path.join('polefigure_data',
                                                           prefix+'_0.pdf')))
         file_utils.remove("test.pdf")
 
@@ -88,7 +88,7 @@ class OOF_PoleFigureTest(unittest.TestCase):
             colormap=colorMap,
             size=500,
             filename='test.pdf', overwrite=True)
-        self.assert_(pdf_compare('test.pdf', os.path.join('polefigure_data',
+        self.assertTrue(pdf_compare('test.pdf', os.path.join('polefigure_data',
                                                           prefix+'_1.pdf')))
         file_utils.remove("test.pdf")
 
@@ -102,7 +102,7 @@ class OOF_PoleFigureTest(unittest.TestCase):
             colormap=colorMap,
             size=500,
             filename='test.pdf', overwrite=True)
-        self.assert_(pdf_compare('test.pdf', os.path.join('polefigure_data',
+        self.assertTrue(pdf_compare('test.pdf', os.path.join('polefigure_data',
                                                           prefix+'_2.pdf')))
         file_utils.remove('test.pdf') 
 
@@ -116,7 +116,7 @@ class OOF_PoleFigureTest(unittest.TestCase):
             colormap=colorMap,
             size=500,
             filename='test.pdf', overwrite=True)
-        self.assert_(pdf_compare('test.pdf', os.path.join('polefigure_data',
+        self.assertTrue(pdf_compare('test.pdf', os.path.join('polefigure_data',
                                                           prefix+'_3.pdf')))
         file_utils.remove('test.pdf')
         

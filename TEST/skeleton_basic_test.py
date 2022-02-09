@@ -19,8 +19,8 @@
 # menu items have all been tested and work.
 
 import unittest, os
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -77,7 +77,7 @@ class OOF_Skeleton(unittest.TestCase):
         skel = skelctxt.getObject()
         self.assertEqual(skel.nnodes(), 81)
         self.assertEqual(skel.nelements(), 64)
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
         
     @memorycheck.check("skeltest")
     def NewTri(self):
@@ -93,7 +93,7 @@ class OOF_Skeleton(unittest.TestCase):
         skel = skelctxt.getObject()
         self.assertEqual(skel.nnodes(), 81)
         self.assertEqual(skel.nelements(), 128)
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
 
     @memorycheck.check("skeltest")
     def Delete(self):
@@ -150,7 +150,7 @@ class OOF_Skeleton(unittest.TestCase):
         skel = skelctxt.getObject()
         self.assertEqual(skel.nnodes(), 81)
         self.assertEqual(skel.nelements(), 64)
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
         OOF.Skeleton.Delete(skeleton="skeltest:copy")
 
     @memorycheck.check("skeltest")
@@ -167,7 +167,7 @@ class OOF_Skeleton(unittest.TestCase):
         skel = skelctxt.getObject()
         self.assertEqual(skel.nnodes(), 81)
         self.assertEqual(skel.nelements(), 64)
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
 
     @memorycheck.check("skeltest")
     def Save(self):
@@ -180,7 +180,7 @@ class OOF_Skeleton(unittest.TestCase):
         OOF.File.Save.Skeleton(filename="skeleton_save",
                                mode="w", format="ascii",
                                skeleton="skeltest:savetest")
-        self.assert_(filecmp.cmp(reference_file("skeleton_data",
+        self.assertTrue(filecmp.cmp(reference_file("skeleton_data",
                                               "savetest"),
                                  "skeleton_save"))
         os.remove("skeleton_save")
@@ -190,13 +190,13 @@ class OOF_Skeleton(unittest.TestCase):
         OOF.File.Load.Data(filename=reference_file("skeleton_data",
                                                  "savetest"))
         self.assertEqual(skeletoncontext.skeletonContexts.nActual(), 1)
-        self.assert_( ["skeltest", "savetest"] in
-                      skeletoncontext.skeletonContexts.keys())
+        self.assertTrue( ["skeltest", "savetest"] in
+                         skeletoncontext.skeletonContexts.keys())
         skelctxt = skeletoncontext.skeletonContexts["skeltest:savetest"]
         skel = skelctxt.getObject()
         self.assertEqual(skel.nnodes(), 81)
         self.assertEqual(skel.nelements(), 64)
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
 
     @memorycheck.check("skeltest")
     def Homogeneity(self):
@@ -219,11 +219,11 @@ class OOF_Skeleton(unittest.TestCase):
                     x_elements=skelsize, y_elements=skelsize,
                     skeleton_geometry=geometry)
                 h0 = getHomogIndex("skeltest", "htest", bins=1)
-                print >> sys.stderr, "   bins=0, h=", h0
+                print("   bins=0, h=", h0, file=sys.stderr)
                 for nbins in ntiles:
                     h = getHomogIndex("skeltest", "htest", bins=nbins)
-                    print >> sys.stderr, "   bins=", nbins, "h=", h, "delta=", \
-                        h-h0
+                    print("   bins=", nbins, "h=", h, "delta=", \
+                        h-h0, file=sys.stderr)
                     self.assertAlmostEqual(h, h0, 10)
                 OOF.Skeleton.Delete(skeleton="skeltest:htest")
     #     self.testHomogeneityUniform(
@@ -259,7 +259,7 @@ class OOF_Skeleton(unittest.TestCase):
         crandom.rndmseed(17)
         OOF.Skeleton.Modify(skeleton="skeltest:modtest", modifier=mod)
         skelc = skeletoncontext.skeletonContexts["skeltest:modtest"]
-        self.assert_(skelc.getObject().sanity_check())
+        self.assertTrue(skelc.getObject().sanity_check())
         # Saving and reloading the Skeleton guarantees that node
         # indices match up with the reference skeleton.  Nodes are
         # re-indexed when a skeleton is saved.
@@ -297,9 +297,9 @@ class OOF_Skeleton(unittest.TestCase):
             try:
                 mods = skel_modify_args[r.name()]
             except KeyError:
-                print >> sys.stderr,  "No data for skeleton modifier %s." % r.name()
+                print("No data for skeleton modifier %s." % r.name(), file=sys.stderr)
             else:
-                print >> sys.stderr, "Testing", r.name()
+                print("Testing", r.name(), file=sys.stderr)
                 for (startfile, compfile, kwargs) in mods:
                     self.doModify(r, startfile, compfile, kwargs)
 
@@ -313,14 +313,14 @@ class OOF_Skeleton(unittest.TestCase):
                                            left_right_periodicity=False))
         sk_context = skeletoncontext.skeletonContexts["skeltest:undotest"]
         sk_0 = sk_context.getObject()
-        self.assert_(not sk_context.undoable())
+        self.assertTrue(not sk_context.undoable())
         OOF.Skeleton.Modify(skeleton="skeltest:undotest",
                             modifier=Refine(
             targets=CheckHomogeneity(threshold=0.9),
             criterion=Unconditionally(),
             degree=Trisection(rule_set="conservative")))
         sk_1 = sk_context.getObject()
-        self.assert_(sk_context.undoable())
+        self.assertTrue(sk_context.undoable())
         self.assertNotEqual(id(sk_0),id(sk_1))
         OOF.Skeleton.Undo(skeleton="skeltest:undotest")
         sk_2 = sk_context.getObject()
@@ -347,7 +347,7 @@ class OOF_Skeleton(unittest.TestCase):
         sk_2 = sk_context.getObject()
         OOF.Skeleton.Redo(skeleton="skeltest:redotest")
         self.assertEqual(id(sk_1),id(sk_context.getObject()))
-        self.assert_(not sk_context.redoable())
+        self.assertTrue(not sk_context.redoable())
 
     def tearDown(self):
          pass
@@ -412,11 +412,11 @@ class OOF_Skeleton_Special(unittest.TestCase):
         skel = skelctxt.getObject()
         #  Node 512 on the top boundary should be able to move in x only.
         node = skel.getNode(512)
-        print >> sys.stderr,  "x:", node.movable_x(), "y:", node.movable_y()
-        self.assert_(node.movable_x() and not node.movable_y())
+        print("x:", node.movable_x(), "y:", node.movable_y(), file=sys.stderr)
+        self.assertTrue(node.movable_x() and not node.movable_y())
         # Node 367 on the right boundary should be able to move in y only.
         node = skel.getNode(367)
-        self.assert_(node.movable_y() and not node.movable_x())
+        self.assertTrue(node.movable_y() and not node.movable_x())
 
     @memorycheck.check("checkerboard.pgm")
     def CheckerBoard(self):
@@ -452,7 +452,7 @@ class OOF_Skeleton_Special(unittest.TestCase):
         h0 = getHomogIndex("mess", "skeleton", bins=1)
         for nt in ntiles:
             h = getHomogIndex("mess", "skeleton", bins=nt)
-            print >> sys.stderr, "  nt=", nt, "h=", h, "delta=", h-h0
+            print("  nt=", nt, "h=", h, "delta=", h-h0, file=sys.stderr)
             self.assertAlmostEqual(h0, h, 2)
         # Check with automatic, hierarchical tiling
         factors = (0.1, 0.5, 0.7, 0.9)
@@ -461,8 +461,8 @@ class OOF_Skeleton_Special(unittest.TestCase):
             for factor in factors:
                 h = getHomogIndex("mess", "skeleton", factor=factor,
                                   minimumTileSize=minTile, bins=0)
-                print >> sys.stderr, "  factor=", factor, "minTile=", minTile, \
-                    "h=", h, "delta=", h-h0
+                print("  factor=", factor, "minTile=", minTile, \
+                    "h=", h, "delta=", h-h0, file=sys.stderr)
                 self.assertAlmostEqual(h0, h, 2)
 
         

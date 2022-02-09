@@ -26,8 +26,8 @@
 ## the check for illegal elements in categoryAreas is uncommented.
 
 import unittest, os
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 # Flag that says whether to generate missing reference data files for
 # the Modify tests.  Should be false unless you really know what
@@ -141,7 +141,7 @@ class OOF_Skeleton(unittest.TestCase):
         OOF.File.Save.Skeleton(filename="skeleton_save",
                                mode="w", format="ascii",
                                skeleton="skeltest:savetest")
-        self.assert_(filecmp.cmp(reference_file("skeleton_data",
+        self.assertTrue(filecmp.cmp(reference_file("skeleton_data",
                                                 "periodic_savetest"),
                                  "skeleton_save"))
         os.remove("skeleton_save")
@@ -151,8 +151,8 @@ class OOF_Skeleton(unittest.TestCase):
         OOF.File.Load.Data(filename=reference_file("skeleton_data",
                                                    "periodic_savetest"))
         self.assertEqual(skeletoncontext.skeletonContexts.nActual(), 1)
-        self.assert_( ["skeltest", "savetest"] in
-                      skeletoncontext.skeletonContexts.keys())
+        self.assertTrue( ["skeltest", "savetest"] in
+                         skeletoncontext.skeletonContexts.keys())
         skelctxt = skeletoncontext.skeletonContexts["skeltest:savetest"]
         skel = skelctxt.getObject()
         self.assertEqual(skel.nnodes(), 81)
@@ -171,7 +171,7 @@ class OOF_Skeleton(unittest.TestCase):
         crandom.rndmseed(17)
         OOF.Skeleton.Modify(skeleton="skeltest:modtest", modifier=mod)
         sk0 = skeletoncontext.skeletonContexts["skeltest:modtest"].getObject()
-        self.assert_(sk0.sanity_check())
+        self.assertTrue(sk0.sanity_check())
         fname = reference_file("skeleton_data", "periodic_mods", compfile)
         if generate and not os.path.exists(fname):
             # Save the new Skeleton under a different name
@@ -217,7 +217,7 @@ class OOF_Skeleton(unittest.TestCase):
             try:
                 mods = skel_modify_args[r.name()]
             except KeyError:
-                print >> sys.stderr,  "No data for skeleton modifier %s." % r.name()
+                print("No data for skeleton modifier %s." % r.name(), file=sys.stderr)
             else:
                 # Saved skeleton must be named "modtest".
                 for (startfile, compfile, kwargs) in mods:
@@ -234,14 +234,14 @@ class OOF_Skeleton(unittest.TestCase):
                                            top_bottom_periodicity=True))
         sk_context = skeletoncontext.skeletonContexts["skeltest:undotest"]
         sk_0 = sk_context.getObject()
-        self.assert_(not sk_context.undoable())
+        self.assertTrue(not sk_context.undoable())
         OOF.Skeleton.Modify(skeleton="skeltest:undotest",
                             modifier=Refine(
             targets=CheckHomogeneity(threshold=0.9),
             criterion=Unconditionally(),
             degree=Trisection(rule_set="conservative")))
         sk_1 = sk_context.getObject()
-        self.assert_(sk_context.undoable())
+        self.assertTrue(sk_context.undoable())
         self.assertNotEqual(id(sk_0),id(sk_1))
         OOF.Skeleton.Undo(skeleton="skeltest:undotest")
         sk_2 = sk_context.getObject()
@@ -268,7 +268,7 @@ class OOF_Skeleton(unittest.TestCase):
         sk_2 = sk_context.getObject()
         OOF.Skeleton.Redo(skeleton="skeltest:redotest")
         self.assertEqual(id(sk_1),id(sk_context.getObject()))
-        self.assert_(not sk_context.redoable())
+        self.assertTrue(not sk_context.redoable())
 
 
 # Extra test -- now that skeletons are known to work, we can test if
@@ -328,7 +328,7 @@ class OOF_Skeleton_MoreExtra(unittest.TestCase):
                 iterations=1))
         skel = skeletoncontext.skeletonContexts[
             "microstructure:skeleton"].getObject()
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
     @memorycheck.check("microstructure")
     def TriQuadRationalize(self):
         # This is just like the skeleton used in TriTriRationalize,
@@ -347,7 +347,7 @@ class OOF_Skeleton_MoreExtra(unittest.TestCase):
                 iterations=1))
         skel = skeletoncontext.skeletonContexts[
             "microstructure:skeleton"].getObject()
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
     @memorycheck.check("microstructure")
     def TriQuadRemove(self):
         # Load a skeleton containing a skeleton with a small acute
@@ -367,7 +367,7 @@ class OOF_Skeleton_MoreExtra(unittest.TestCase):
             )
         skel = skeletoncontext.skeletonContexts[
             "microstructure:skeleton"].getObject()
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
     @memorycheck.check("microstructure")
     def TriTriRemove(self):
         # Load a skeleton containing a skeleton with a small acute
@@ -387,7 +387,7 @@ class OOF_Skeleton_MoreExtra(unittest.TestCase):
             )
         skel = skeletoncontext.skeletonContexts[
             "microstructure:skeleton"].getObject()
-        self.assert_(skel.sanity_check())
+        self.assertTrue(skel.sanity_check())
         
 
 # Data for the skeleton modifier tests.  This is a dictionary indexed

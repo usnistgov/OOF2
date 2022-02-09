@@ -9,8 +9,8 @@
 # oof_manager@nist.gov. 
 
 import unittest, os, string
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 # Subproblem operations that rely on stuff tested in solver_test.py.
 
@@ -41,8 +41,8 @@ def compare_mesh(meshpath, filename, tolerance):
         result = mesh1.compare(mesh2, tolerance)
         OOF.Microstructure.Delete(microstructure="reference")
         if result != 0:
-            print >> sys.stderr, ("Mesh comparison failed.  Saving mesh as"
-                                  " subproblem_test_extra_failed.mesh")
+            print(("Mesh comparison failed.  Saving mesh as"
+                                  " subproblem_test_extra_failed.mesh"), file=sys.stderr)
             OOF.File.Save.Mesh(filename='subproblem_test_extra_failed.mesh',
                                mode="w", format='ascii', mesh=meshpath)
         return result

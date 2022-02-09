@@ -8,11 +8,11 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import memorycheck
+from . import memorycheck
 import unittest
 import os
 
-from UTILS.file_utils import reference_file
+from .UTILS.file_utils import reference_file
 
 class OOF_AMR(unittest.TestCase):
     def setUp(self):
@@ -56,10 +56,10 @@ class OOF_AMR(unittest.TestCase):
         # predictable.  This just checks that it's greater the
         # pre-refinement count.
         newNel = len(skelctxt.getObject().elements)
-        self.assert_(newNel > 400)
+        self.assertTrue(newNel > 400)
         self.assertEqual(meshctxt.nelements(), 400)
         self.assertEqual(meshctxt.nnodes(), 1281)
-        self.assert_(meshctxt.outOfSync())
+        self.assertTrue(meshctxt.outOfSync())
 
         OOF.Mesh.Modify(mesh='el_shape.png:skeleton:mesh',
                         modifier=RebuildMesh())
@@ -69,16 +69,16 @@ class OOF_AMR(unittest.TestCase):
         # number of Mesh nodes is not equal to the new number of
         # Skeleton nodes. We don't bother checking the number, since
         # it's also subject to roundoff error.
-        self.assert_(not meshctxt.outOfSync())
+        self.assertTrue(not meshctxt.outOfSync())
 
         OOF.Skeleton.Undo(skeleton='el_shape.png:skeleton')
         self.assertEqual(meshctxt.nelements(), newNel)
         self.assertEqual(len(skelctxt.getObject().elements), 400)
-        self.assert_(meshctxt.outOfSync())
+        self.assertTrue(meshctxt.outOfSync())
 
         OOF.Mesh.Modify(mesh='el_shape.png:skeleton:mesh',
                         modifier=RebuildMesh())
-        self.assert_(not meshctxt.outOfSync())
+        self.assertTrue(not meshctxt.outOfSync())
         self.assertEqual(meshctxt.nelements(), 400)
         self.assertEqual(len(skelctxt.getObject().elements), 400)
         self.assertEqual(meshctxt.nnodes(), 1281)
@@ -133,7 +133,7 @@ class OOF_AMR(unittest.TestCase):
                             alpha=0.29999999999999999))
         self.assertEqual(meshctxt.nelements(), 400)
         newNel = len(skelctxt.getObject().elements)
-        self.assert_(newNel > 400)
+        self.assertTrue(newNel > 400)
 
         OOF.Mesh.Modify(mesh='el_shape.png:skeleton:mesh',
                         modifier=RebuildMesh())

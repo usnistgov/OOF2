@@ -9,7 +9,7 @@
 # tests also work.
 
 import unittest, os
-import memorycheck
+from . import memorycheck
 
 aperiodic = dict(left_right_periodicity=False, top_bottom_periodicity=False)
 xperiodic = dict(left_right_periodicity=True, top_bottom_periodicity=False)

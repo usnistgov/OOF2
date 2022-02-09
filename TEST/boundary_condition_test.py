@@ -13,8 +13,8 @@
 # boundary conditions.
 
 import unittest, os
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 # Flag that says whether to generate missing reference data files for
 # the Modify tests.  Should be false unless you really know what

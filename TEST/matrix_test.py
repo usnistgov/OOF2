@@ -9,7 +9,7 @@
 
 import unittest, os
 
-from UTILS import file_utils
+from .UTILS import file_utils
 fp_file_compare = file_utils.fp_file_compare
 reference_file = file_utils.reference_file
 
@@ -46,7 +46,7 @@ class Matrix_Ops(unittest.TestCase):
     def readwrite(self, infile, compfile):
         matrix = loadMatrix(infile)
         saveMatrix(matrix, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, compfile),
                                      1.e-8))
         file_utils.remove('matrix.out')
@@ -67,30 +67,30 @@ class Matrix_Ops(unittest.TestCase):
 
     def Basics(self):
         mat = sparsemat.SparseMat(1000, 1000) 
-        self.assert_(mat.nrows() == 1000)
-        self.assert_(mat.ncols() == 1000)
-        self.assert_(mat.nnonzeros() == 0)
-        self.assert_(mat.empty())
+        self.assertTrue(mat.nrows() == 1000)
+        self.assertTrue(mat.ncols() == 1000)
+        self.assertTrue(mat.nnonzeros() == 0)
+        self.assertTrue(mat.empty())
 
         mat.insert(5, 10, 0.5)
         mat.insert(600, 20, 0.6)
         mat.insert(800, 800, 0.8)
-        self.assert_(not mat.empty())
-        self.assert_(mat.nnonzeros() == 3)
-        self.assert_(not mat.is_symmetric(1e-10))
+        self.assertTrue(not mat.empty())
+        self.assertTrue(mat.nnonzeros() == 3)
+        self.assertTrue(not mat.is_symmetric(1e-10))
         
         mat.insert(10, 5, 0.5)
         mat.insert(20, 600, 0.6)
-        self.assert_(mat.is_symmetric(1e-10))
+        self.assertTrue(mat.is_symmetric(1e-10))
 
         mat.resize(900, 900)
-        self.assert_(mat.nnonzeros() == 0)
+        self.assertTrue(mat.nnonzeros() == 0)
 
     def Transpose(self):
         matrix1 = loadMatrix('matrix1')
         mat = matrix1.transpose()
         saveMatrix(mat, "matrix.out")
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'transpose.mtx'),
                                      1.e-8))
         file_utils.remove('matrix.out')
@@ -100,12 +100,12 @@ class Matrix_Ops(unittest.TestCase):
         matrix2 = loadMatrix('matrix2')
         s = matrix1 + matrix2
         saveMatrix(s, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'sum.mat'),
                                      1.e-8))
         diff = matrix1 - matrix2
         saveMatrix(diff, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'diff.mat'),
                                      1.e-8))
         file_utils.remove('matrix.out')
@@ -114,42 +114,42 @@ class Matrix_Ops(unittest.TestCase):
         matrix1 = loadMatrix('matrix1')
         matrix2 = loadMatrix('matrix2')
         m = matrix1.clone()
-        self.assert_(matrix1.nnonzeros() == m.nnonzeros())
+        self.assertTrue(matrix1.nnonzeros() == m.nnonzeros())
         m.add(1.0, matrix2)
         saveMatrix(m, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'sum.mat'),
                                      1.e-8))
         # matrix2 should not have changed.
         saveMatrix(matrix2, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'matrix2.out'),
                                      1.e-8))
         # matrix1 should not have changed either
         saveMatrix(matrix1, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'matrix1.out'),
                                      1.e-8))
         m = matrix1.clone()
         m += matrix2
         saveMatrix(m, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'sum.mat'),
                                      1.e-8))
         saveMatrix(matrix2, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'matrix2.out'),
                                      1.e-8))
         m = matrix1.clone()
         m.add(-1.0, matrix2)
         saveMatrix(m, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'diff.mat'),
                                      1.e-8))
         m = matrix1.clone()
         m -= matrix2
         saveMatrix(m, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'diff.mat'),
                                      1.e-8))
         file_utils.remove('matrix.out')
@@ -158,29 +158,29 @@ class Matrix_Ops(unittest.TestCase):
         matrix = loadMatrix('matrix1')
         prod = matrix*2.0
         saveMatrix(prod, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                      os.path.join(datadir, 'prod.out'),
                      1.e-8))
         prod = 2.0*matrix
         saveMatrix(prod, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                      os.path.join(datadir, 'prod.out'),
                      1.e-8))
         prod = matrix/0.5
         saveMatrix(prod, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                      os.path.join(datadir, 'prod.out'),
                      1.e-8))
         matrix2 = matrix.clone()
         matrix2 *= 2.0
         saveMatrix(matrix2, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                      os.path.join(datadir, 'prod.out'),
                      1.e-8))
         matrix2 = matrix.clone()
         matrix2 /= 0.5
         saveMatrix(matrix2, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'prod.out'),
                                      1.e-8))
         file_utils.remove('matrix.out')
@@ -191,22 +191,22 @@ class Matrix_Ops(unittest.TestCase):
         matrix2 = loadMatrix('matrix2')
         prod = ident*matrix1
         saveMatrix(prod, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'prod1.out'),
                                      1.e-8))
         prod = matrix1*ident
         saveMatrix(prod, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'prod1.out'),
                                      1.e-8))
         prod = matrix1*matrix2
         saveMatrix(prod, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'prod2.out'),
                                      1.e-8))
         prod = matrix2*matrix1
         saveMatrix(prod, 'matrix.out')
-        self.assert_(fp_file_compare('matrix.out',
+        self.assertTrue(fp_file_compare('matrix.out',
                                      os.path.join(datadir, 'prod3.out'),
                                      1.e-8))
         file_utils.remove('matrix.out')
@@ -222,7 +222,7 @@ class Vector_Ops(unittest.TestCase):
     def VectorIO(self):
         vector = loadVector("vector0")
         saveVector(vector, "vector.out")
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'vector0.out'),
                                      1.e-8))
         file_utils.remove('vector.out')
@@ -230,26 +230,26 @@ class Vector_Ops(unittest.TestCase):
     def Basics(self):
         vec = doublevec.DoubleVec(10)
         saveVector(vec, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'vec_zero'),
                                      1.e-8))
 
         vec = doublevec.DoubleVec(10, 0.5)
         saveVector(vec, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'vec_init'),
                                      1.e-8))
         
         vec.unit()
         saveVector(vec, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'vec_unit'),
                                      1.e-8))
 
-        self.assert_(vec.size() == 10)
+        self.assertTrue(vec.size() == 10)
 
         vec.resize(5)
-        self.assert_(vec.size() == 5)
+        self.assertTrue(vec.size() == 5)
 
     def Add(self):
         vector0 = loadVector('vector0')
@@ -258,30 +258,30 @@ class Vector_Ops(unittest.TestCase):
         self.assertEqual(vector1.size(), 4)
         sum = vector0 + vector1
         saveVector(sum, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'vecsum.out'),
                                      1.e-8))
         vec = vector0.clone()
         vec.axpy(2.0, vector1)
         saveVector(vec, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'vecsum2.out'),
                                      1.e-8))
         vec = vector0.clone()
         vec += vector1
         saveVector(vec, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'vecsum.out'),
                                      1.e-8))
         diff = vector0 - vector1
         saveVector(diff, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'vecdiff.out'),
                                      1.e-8))
         vec = vector0.clone()
         vec -= vector1
         saveVector(vec, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'vecdiff.out'),
                                      1e-08))
         file_utils.remove('vector.out')
@@ -291,29 +291,29 @@ class Vector_Ops(unittest.TestCase):
         vector1 = loadVector('vector1')
         vec = 2*vector0
         saveVector(vec, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'vecprod.out'),
                                      1.e-8))
         vec = vector0*2.0
         saveVector(vec, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'vecprod.out'),
                                      1.e-8))
         vec = vector0/0.5
         saveVector(vec, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'vecprod.out'),
                                      1.e-8))
         vec = vector0.clone()
         vec *= 2.0
         saveVector(vec, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'vecprod.out'),
                                      1.e-8))
         vec = vector0.clone()
         vec /= 0.5
         saveVector(vec, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'vecprod.out'),
                                      1.e-8))
         dot = vector0 * vector1
@@ -334,12 +334,12 @@ class Matrix_Vector_Ops(unittest.TestCase):
         vector = loadVector('vector0')
         vec = matrix*vector
         saveVector(vec, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'matvec.out'),
                                      1.e-8))
         vec = vector*matrix
         saveVector(vec, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'matvec2.out'),
                                      1.e-8))
         file_utils.remove('vector.out')
@@ -353,14 +353,14 @@ class Matrix_Vector_Ops(unittest.TestCase):
         rhs = loadVector('rhs0')
         lower.solve_lower_triangle_unitd(rhs, result)
         saveVector(result, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'solve0.out'),
                                      1.e-8))
 
         rhs = loadVector('rhs1')
         lower.solve_lower_triangle_unitd(rhs, result)
         saveVector(result, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'solve1.out'),
                                      1.e-8))
 
@@ -369,7 +369,7 @@ class Matrix_Vector_Ops(unittest.TestCase):
         rhs = loadVector('rhs0')
         upper.solve_upper_triangle(rhs, result)
         saveVector(result, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'solve2.out'),
                                      1.e-8))
         resid = upper*result - rhs
@@ -378,7 +378,7 @@ class Matrix_Vector_Ops(unittest.TestCase):
         rhs = loadVector('rhs1')
         upper.solve_upper_triangle(rhs, result)
         saveVector(result, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'solve3.out'),
                                      1.e-8))
         resid = upper*result - rhs
@@ -388,7 +388,7 @@ class Matrix_Vector_Ops(unittest.TestCase):
         rhs = loadVector('rhs0')
         upper.solve_upper_triangle_trans(rhs, result)
         saveVector(result, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'solve4.out'),
                                      1.e-8))
         resid = upper.transpose()*result - rhs
@@ -397,7 +397,7 @@ class Matrix_Vector_Ops(unittest.TestCase):
         rhs = loadVector('rhs1')
         upper.solve_upper_triangle_trans(rhs, result)
         saveVector(result, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'solve5.out'),
                                      1.e-8))
         resid = upper.transpose()*result - rhs
@@ -410,7 +410,7 @@ class Matrix_Vector_Ops(unittest.TestCase):
         rhs = loadVector('rhs0')
         lower.solve_lower_triangle_trans(rhs, result)
         saveVector(result, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'solve6.out'),
                                      1.e-8))
         resid = lower.transpose()*result - rhs
@@ -419,7 +419,7 @@ class Matrix_Vector_Ops(unittest.TestCase):
         rhs = loadVector('rhs1')
         lower.solve_lower_triangle_trans(rhs, result)
         saveVector(result, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'solve7.out'),
                                      1.e-8))
         resid = lower.transpose()*result - rhs
@@ -429,7 +429,7 @@ class Matrix_Vector_Ops(unittest.TestCase):
         rhs = loadVector('rhs0')
         lower.solve_lower_triangle(rhs, result)
         saveVector(result, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'solve8.out'),
                                      1.e-8))
         resid = lower*result - rhs
@@ -438,7 +438,7 @@ class Matrix_Vector_Ops(unittest.TestCase):
         rhs = loadVector('rhs1')
         lower.solve_lower_triangle(rhs, result)
         saveVector(result, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'solve9.out'),
                                      1.e-8))
         resid = lower*result - rhs
@@ -451,7 +451,7 @@ class Matrix_Vector_Ops(unittest.TestCase):
         rhs = loadVector('rhs0')
         lower.solve_lower_triangle_trans_unitd(rhs, result)
         saveVector(result, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'solve10.out'),
                                      1.e-8))
         resid = lowerunit.transpose()*result - rhs
@@ -460,7 +460,7 @@ class Matrix_Vector_Ops(unittest.TestCase):
         rhs = loadVector('rhs1')
         lower.solve_lower_triangle_trans_unitd(rhs, result)
         saveVector(result, 'vector.out')
-        self.assert_(fp_file_compare('vector.out',
+        self.assertTrue(fp_file_compare('vector.out',
                                      os.path.join(datadir, 'solve11.out'),
                                      1.e-8))
         resid = lowerunit.transpose()*result - rhs

@@ -14,8 +14,8 @@
 ## TODO: Use fp_file_compare instead of filecmp
 
 import unittest, os, filecmp
-import memorycheck
-from UTILS.file_utils import reference_file
+from . import memorycheck
+from .UTILS.file_utils import reference_file
 
 # Property menu has Copy, Delete, and Parametrize.  Parametrize is the
 # head of a tree of menus replicating the properties known to the
@@ -71,7 +71,7 @@ class Property(unittest.TestCase):
                 OOF.Property.Delete(property=p.path())
         new_proplist = self.labeltree2list(self.allprops.data)
         for p in new_proplist:
-            self.assert_(p in proplist)
+            self.assertTrue(p in proplist)
             self.assertNotEqual(
                 p.object.name().split(':')[-1], "copy_test")
             
@@ -93,7 +93,7 @@ class Property(unittest.TestCase):
                 try:
                     argset = parametrize_dict[ppath]
                 except KeyError:
-                    print >> sys.stderr,  "No parametrization test for property ", p.path()
+                    print("No parametrization test for property ", p.path(), file=sys.stderr)
                     OOF.Material.Add_property(name="prop_mat",
                                               property=p.path())
                     OOF.Material.Remove_property(name="prop_mat",
@@ -198,7 +198,7 @@ class MaterialBasic(unittest.TestCase):
     def New(self):
         if len(self.mat_manager.materials) > 0:
             for mat in self.mat_manager.materials:
-                print >> sys.stderr, "*** Extra Material:", mat, "***"
+                print("*** Extra Material:", mat, "***", file=sys.stderr)
         self.assertEqual(len(self.mat_manager.materials), 0)
         OOF.Material.New(name="new_mat");
         self.assertEqual(len(self.mat_manager.materials), 1)
@@ -228,7 +228,7 @@ class MaterialBasic(unittest.TestCase):
         self.assertEqual(len(self.mat_manager.materials),1)
         mat = self.mat_manager["new_mat"]
         self.assertEqual(len(mat.data),1)
-        (key, val) = mat.data.items()[0]
+        (key, val) = list(mat.data.items())[0]
         self.assertEqual(key, "Mechanical:Elasticity:Isotropic")
         self.assertEqual(val,
                          propertyregistration.AllProperties[
@@ -394,7 +394,7 @@ class MatPropIO(unittest.TestCase):
         OOF.File.Save.Property(filename="prop_save_test",
                                mode="w", format="ascii",
                                property="Color:bloo")
-        self.assert_(filecmp.cmp(reference_file("matprop_data","propsave"),
+        self.assertTrue(filecmp.cmp(reference_file("matprop_data","propsave"),
                                  "prop_save_test"))
         os.remove("prop_save_test")
         OOF.Property.Delete(property="Color:bloo")
@@ -418,7 +418,7 @@ class MatPropIO(unittest.TestCase):
         OOF.File.Save.Materials(filename="mat_save_test",
                                 mode="w", format="ascii",
                                 materials=["save"])
-        self.assert_(filecmp.cmp(reference_file("matprop_data","matsave"),
+        self.assertTrue(filecmp.cmp(reference_file("matprop_data","matsave"),
                                  "mat_save_test"))
         os.remove("mat_save_test")
         OOF.Material.Delete(name="save")

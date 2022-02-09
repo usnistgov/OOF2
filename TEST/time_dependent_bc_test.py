@@ -12,8 +12,8 @@
 # time-dependent boundary conditions, in time-dependent problems.
 
 import unittest, os
-import memorycheck
-from UTILS import file_utils
+from . import memorycheck
+from .UTILS import file_utils
 reference_file = file_utils.reference_file
 file_utils.generate = True
 
@@ -179,7 +179,7 @@ class OOF_TimeDependentDirichlet(unittest.TestCase):
         self.topleftOutput(interval=0.1, filename='test.dat')
         self.shearTopEdge()
         OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=1.0)
-        self.assert_(
+        self.assertTrue(
             file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'td_dirichlet.dat'),
@@ -193,7 +193,7 @@ class OOF_TimeDependentDirichlet(unittest.TestCase):
         self.topleftOutput(interval=0.1, filename='test.dat')
         self.shearTopEdge()
         OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=1.0)
-        self.assert_(
+        self.assertTrue(
             file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'td_dirichlet.dat'),
@@ -207,7 +207,7 @@ class OOF_TimeDependentDirichlet(unittest.TestCase):
         self.topleftOutput(interval=0.1, filename='test.dat')
         self.shearTopPoints()
         OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=1.0)
-        self.assert_(
+        self.assertTrue(
             file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'td_dirichlet.dat'),
@@ -221,7 +221,7 @@ class OOF_TimeDependentDirichlet(unittest.TestCase):
         self.topleftOutput(interval=0.1, filename='test.dat')
         self.shearTopPoints()
         OOF.Mesh.Solve(mesh='microstructure:skeleton:mesh', endtime=1.0)
-        self.assert_(
+        self.assertTrue(
             file_utils.fp_file_compare(
                 'test.dat',
                 os.path.join('mesh_data', 'td_dirichlet.dat'),
@@ -395,12 +395,12 @@ class OOF_TimeDependentFloat(unittest.TestCase):
         OOF.Material.Delete(name='material')
     
     def compareFiles(self, topfile, leftfile):
-        self.assert_(
+        self.assertTrue(
             file_utils.fp_file_compare(
                 'temptop.dat',
                 os.path.join('mesh_data', topfile),
                 1.e-10))
-        self.assert_(
+        self.assertTrue(
             file_utils.fp_file_compare(
                 'templeft.dat',
                 os.path.join('mesh_data', leftfile),

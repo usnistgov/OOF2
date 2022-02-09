@@ -9,9 +9,9 @@
 # oof_manager@nist.gov. 
 
 import unittest, os, string, sys
-import memorycheck
+from . import memorycheck
 
-from UTILS import file_utils
+from .UTILS import file_utils
 fp_file_compare = file_utils.fp_file_compare
 pdf_compare = file_utils.pdf_compare
 reference_file = file_utils.reference_file
@@ -65,7 +65,7 @@ class OOF_Output(unittest.TestCase):
             filename='test.pdf', format='pdf', overwrite=True,
             pixels=400, background=True)
 
-        self.assert_(pdf_compare(
+        self.assertTrue(pdf_compare(
             'test.pdf', os.path.join('output_data', 'posmesh.pdf')))
 
         file_utils.remove('test.pdf')
@@ -92,7 +92,7 @@ class OOF_Output(unittest.TestCase):
             try:
                 (param_args, results) = position_output_args[name]
             except KeyError:
-                print >> sys.stderr,  "No test data for PositionOutput %s." % name
+                print("No test data for PositionOutput %s." % name, file=sys.stderr)
             else:
                 outputobj = tree[name].object
                 paramhier = outputobj.listAllParametersHierarchically(
@@ -111,6 +111,7 @@ class OOF_Output(unittest.TestCase):
 
                 elset = meshobj.element_iterator()
                 reslist = []
+                ## TODO PYTHON3: Use a real iterator
                 while not elset.end():
                     lmnt = elset.element()
                     reslist += outputclone.evaluate(
@@ -118,7 +119,7 @@ class OOF_Output(unittest.TestCase):
                         [[mastercoord.MasterCoord(0.0,0.0)]])
                     elset.next()
                 for (r1,r2) in zip(reslist, results):
-                    self.assert_( (r1-r2)**2 < tolerance )
+                    self.assertTrue( (r1-r2)**2 < tolerance )
         del meshobj
         OOF.Material.Delete(name='material')
                 
@@ -156,16 +157,15 @@ class OOF_Output(unittest.TestCase):
             try:
                 testlist = args[name]
             except KeyError:
-                print >> sys.stderr, "No test data for %s %s." % (treename,
-                                                                  name)
+                print("No test data for %s %s." % (treename,
+                                                                  name), file=sys.stderr)
             else:
                 outputobj = tree[name].object
                 paramhier = outputobj.listAllParametersHierarchically(
                     onlySettable=1)
                 output_params = utils.flatten_all(paramhier)
 
-                print >> sys.stderr, \
-                      "Running test for %s %s." % (treename, name)
+                print("Running test for %s %s." % (treename, name), file=sys.stderr)
                 
                 for test in testlist:
                     meshname = test[0]
@@ -191,9 +191,9 @@ class OOF_Output(unittest.TestCase):
                     outputdestination.forgetTextOutputStreams()
 
                     # Compare test.dat with the right comparison file.
-                    print >> sys.stderr,  "Comparing test.dat to", \
-                          reference_file('output_data', comp_file)
-                    self.assert_(
+                    print("Comparing test.dat to", \
+                          reference_file('output_data', comp_file), file=sys.stderr)
+                    self.assertTrue(
                         fp_file_compare('test.dat',
                                         os.path.join('output_data', comp_file),
                                         tolerance ) )
@@ -216,7 +216,7 @@ class OOF_Output(unittest.TestCase):
                         )
                         outputdestination.forgetTextOutputStreams()
 
-                        self.assert_(
+                        self.assertTrue(
                             fp_file_compare(
                                 'test.dat',
                                 os.path.join('output_data', 'avg_'+comp_file),
@@ -1063,7 +1063,7 @@ class OOF_PlaneFluxRHS(unittest.TestCase):
 
         outputdestination.forgetTextOutputStreams()
 
-        self.assert_(fp_file_compare(
+        self.assertTrue(fp_file_compare(
             'plane_stress_rhs.out',
             os.path.join('output_data','plane_stress_ref.dat'),
             1.0e-08)
@@ -1176,7 +1176,7 @@ class OOF_AnisoPlaneStress(unittest.TestCase):
             domain=EntireMesh(),
             sampling=ElementSampleSet(order=automatic),
             destination=OutputStream(filename='test.dat',mode='w'))
-        self.assert_(
+        self.assertTrue(
             fp_file_compare(
                 'test.dat',
                 os.path.join('output_data', 'aniso_planestress.dat'),
@@ -1302,7 +1302,7 @@ class OOF_MiscOutput(OOF_Output):
                 x_points=10,y_points=10,
                 show_x=True,show_y=True),
             destination=OutputStream(filename='test.dat', mode='w'))
-        self.assert_(
+        self.assertTrue(
             fp_file_compare(
                 'test.dat',
                 os.path.join('output_data', 'range.dat'),

@@ -26,7 +26,7 @@ def generate():
         try:
             mods = skel_modify_args[r.name()]
         except KeyError:
-            print "No data for skeleton modifier %s." % r.name()
+            print("No data for skeleton modifier %s." % r.name())
         else:
             # Saved skeleton must be named "modtest".
             for (startfile, destfile, kwargs) in mods:
@@ -213,7 +213,7 @@ if __name__=="__main__":
         sys.path.append(os.path.dirname(oof2.__file__))
         from ooflib.common import oof
     except ImportError:
-        print "OOF is not correctly installed on this system."
+        print("OOF is not correctly installed on this system.")
         sys.exit(4)
     sys.argv.append("--text")
     sys.argv.append("--quiet")

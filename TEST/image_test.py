@@ -15,9 +15,9 @@
 # then this one.
 
 import unittest, os
-import memorycheck
+from . import memorycheck
 
-from UTILS.file_utils import reference_file
+from .UTILS.file_utils import reference_file
 
 class OOF_Image(unittest.TestCase):
     def setUp(self):
@@ -52,7 +52,7 @@ class OOF_Image(unittest.TestCase):
         ms_0 = getMicrostructure("rectangle.ppm")
         ms_1 = getMicrostructure("other")
         self.assertEqual(len(ms_1.imageNames()),1)
-        self.assert_("rectangle.ppm" in ms_1.imageNames())
+        self.assertTrue("rectangle.ppm" in ms_1.imageNames())
         # Ensure they're separate objects.
         self.assertNotEqual(id(ms_0.getImageContexts()[0]),
                             id(ms_1.getImageContexts()[0]))
@@ -70,7 +70,7 @@ class OOF_Image(unittest.TestCase):
         ms_0 = getMicrostructure("rectangle.ppm")
         image_id = id(ms_0.getImageContexts()[0])
         self.assertEqual(len(ms_0.imageNames()),1)
-        self.assert_("newname" in ms_0.imageNames())
+        self.assertTrue("newname" in ms_0.imageNames())
         self.assertEqual(image_id, id(ms_0.getImageContexts()[0]))
 
     # This test just checks that the groups are created and add up to
@@ -103,7 +103,7 @@ class OOF_Image(unittest.TestCase):
             height=automatic, width=automatic)
         OOF.File.Save.Image(filename="image_save_test",
                             image="save_test:rectangle.ppm")
-        self.assert_(filecmp.cmp("image_save_test",
+        self.assertTrue(filecmp.cmp("image_save_test",
                                  reference_file("image_data",
                                               "saved_rectangle")))
         os.remove("image_save_test")
@@ -121,7 +121,7 @@ class OOF_Image(unittest.TestCase):
         ms = getMicrostructure("load_test")
         ms_images = ms.imageNames()
         self.assertEqual(len(ms_images),1)
-        self.assert_("rectangle.ppm" in ms_images)
+        self.assertTrue("rectangle.ppm" in ms_images)
         
     @memorycheck.check()
     def Modify(self):
@@ -134,7 +134,7 @@ class OOF_Image(unittest.TestCase):
             try:
                 test_list = image_modify_args[m.name]
             except KeyError:
-                print >> sys.stderr, "No test data for image modifier ", m.name
+                print("No test data for image modifier ", m.name, file=sys.stderr)
             else:
                 for (datafilename, argdict) in test_list:
                     argdict['image']="imagemod_test:image_test.ppm"
@@ -156,7 +156,7 @@ class OOF_Image(unittest.TestCase):
                         "comparison:"+datafilename].getObject()
                     # Tolerance is 1./65535., which is the level of
                     # "quantization noise" for 16-bit color channels.
-                    self.assert_(im1.compare(im2, 1./65535.))
+                    self.assertTrue(im1.compare(im2, 1./65535.))
                     
                     OOF.Microstructure.Delete(
                         microstructure="comparison")
@@ -174,11 +174,11 @@ class OOF_Image(unittest.TestCase):
             height=automatic, width=automatic)
         image_context = imagecontext.imageContexts["undo_test:image_test.ppm"]
         im_0 = image_context.getObject()
-        self.assert_(not oofimage.undoable("undo_test:image_test.ppm"))
+        self.assertTrue(not oofimage.undoable("undo_test:image_test.ppm"))
         OOF.Image.Modify.Gray(image="undo_test:image_test.ppm")
         im_1 = image_context.getObject()
         self.assertNotEqual(id(im_0), id(im_1))
-        self.assert_(oofimage.undoable("undo_test:image_test.ppm"))
+        self.assertTrue(oofimage.undoable("undo_test:image_test.ppm"))
         OOF.Image.Undo(image="undo_test:image_test.ppm")
         im_2 = image_context.getObject()
         self.assertNotEqual(id(im_2), id(im_1))

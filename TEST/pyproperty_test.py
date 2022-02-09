@@ -9,8 +9,8 @@
 # oof_manager@nist.gov. 
 
 import unittest, os
-import memorycheck
-from UTILS import file_utils
+from . import memorycheck
+from .UTILS import file_utils
 #file_utils.generate = True
 
 
@@ -119,7 +119,7 @@ class OOF_PyProperties(unittest.TestCase):
                 x_points=10,y_points=10,show_x=True,show_y=True),
             destination=OutputStream(filename='pyprop.out',mode='w'))
         outputdestination.forgetTextOutputStreams()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'pyprop.out',
                 os.path.join('mesh_data', 'pyheatcond.out'),
                 1.e-6))
@@ -199,7 +199,7 @@ class OOF_PyProperties(unittest.TestCase):
                 x_points=10,y_points=10,show_x=True,show_y=True),
             destination=OutputStream(filename='pyprop.out',mode='w'))
         outputdestination.forgetTextOutputStreams()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'pyprop.out',
                 os.path.join('mesh_data', 'pyelasticity.out'),
                 1.e-6))
@@ -274,7 +274,7 @@ class OOF_PyProperties(unittest.TestCase):
                 x_points=10,y_points=10,show_x=True,show_y=True),
             destination=OutputStream(filename='pyprop.out',mode='w'))
         outputdestination.forgetTextOutputStreams()
-        self.assert_(file_utils.fp_file_compare(
+        self.assertTrue(file_utils.fp_file_compare(
                 'pyprop.out',
                 os.path.join('mesh_data', 'pystressfreestrain.out'),
                 1.e-6))
