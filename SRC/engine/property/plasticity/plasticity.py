@@ -81,6 +81,7 @@ class TestPlasticityProp(pypropertywrapper.PyFluxProperty):
         # general be a bad assumption.
         modulus = self.elasticity.cijkl(mesh, element, masterpos)
         ij = fieldindex.SymTensorIterator()
+        ## TODO PYTHON3: Use a real iterator
         while (not ij.end()):
             offset = 0.0
             kl = ep_val.getIterator()
@@ -143,6 +144,7 @@ class TestPlasticityProp(pypropertywrapper.PyFluxProperty):
             
         modulus = self.elasticity.cijkl(mesh, element, masterpos)
         ij = fieldindex.SymTensorIterator()
+        ## TODO PYTHON3: Use a real iterator
         while (not ij.end()):
             stressij = 0.0
             kl = ep_val.getIterator()
@@ -176,7 +178,7 @@ class TestPlasticityProp(pypropertywrapper.PyFluxProperty):
         for (p, e, ep, sigma, cijkl) in zip(pointset, total_strain,
                                             plastic_strain, stress, modulus):
             yld = self.yield_func(sigma)
-            print "Yield function gives ", yld
+            print("Yield function gives ", yld)
             if yld > 0.0:
 
                 # "Initial guess" for plastic increment amounts.
@@ -287,18 +289,18 @@ class TestPlasticityProp(pypropertywrapper.PyFluxProperty):
 
                 # Exit the convergence while loop.
                 if iteration_count==1:
-                    print "Exiting while loop after 1 iteration." 
+                    print("Exiting while loop after 1 iteration.") 
                 else:
-                    print "Exiting while loop after %d iterations." %\
-                          iteration_count
-                print "Yield, resid are ", yld, r_norm
+                    print("Exiting while loop after %d iterations." %\
+                          iteration_count)
+                print("Yield, resid are ", yld, r_norm)
                 
                 for ij in SymTensorIndex(0,0):
                     ijr = ij.row()
                     ijc = ij.col()
                     ep[ijr,ijc] += delta_ep[ijr,ijc]
 
-                print "Plastic strain modified."
+                print("Plastic strain modified.")
 
     # The yield function, which for perfect plasticity is only
     # a function of the stress.

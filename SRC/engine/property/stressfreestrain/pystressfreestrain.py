@@ -28,6 +28,7 @@ class PyStressFreeStrain(pypropertywrapper.PyFluxProperty):
         cijkl = self.elasticity.cijkl(mesh, element, point)
         strain0 = symmmatrix.SymmMatrix3(0.1, 0.1, 0.1, 0, 0, 0)
         ij = problem.Stress.iterator(planarity.ALL_INDICES)
+        ## TODO PYTHON3: use real iterators
         while not ij.end():
             kl = fieldindex.SymTensorIterator()
             while not kl.end():

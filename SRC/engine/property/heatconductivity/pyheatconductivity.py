@@ -32,6 +32,7 @@ class PyHeatConductivity(pypropertywrapper.PyFluxProperty):
         dsf1 = nodeiterator.dshapefunction(1, point)
         cond = symmmatrix.SymmMatrix3(1., 1., 1., 0., 0., 0.)
         fluxiterator = problem.Heat_Flux.iterator(planarity.ALL_INDICES)
+        ## TODO PYTHON3: Use real iterators
         while not fluxiterator.end():
             fluxdata.add_stiffness_matrix_element(
                 fluxiterator,

@@ -63,6 +63,7 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
         dsf1 = nodeiterator.dshapefunction(1, point)
         cijkl = self.modulus()
         ij = problem.Stress.iterator(planarity.ALL_INDICES)
+        ## TODO PYTHON3: Use a real iterator for these loops
         while not ij.end():
             ell = problem.Displacement.iterator(planarity.ALL_INDICES)
             while not ell.end():
