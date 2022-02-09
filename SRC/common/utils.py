@@ -399,6 +399,9 @@ def format(line, width):
 # The optional constructor argument is a list (not a dict!) of (key,
 # value) pairs, in the order in which they should appear in the OrderedDict.
 
+## TODO PYTHON3: Add real iterator support.  keys(), values(), and
+## items() should return iterators.
+
 class OrderedDict(dict):
     def __init__(self, items=None):
         dict.__init__(self)
@@ -434,8 +437,6 @@ class OrderedDict(dict):
         return (isinstance(other, OrderedDict)
                 and self._keys == other._keys
                 and super(OrderedDict, self).__eq__(other))
-    def iterkeys(self):
-        return iter(self._keys)
     def replace(self, oldkey, newkey, newval):
         i = self._keys.index(oldkey)
         self._keys[i] = newkey
