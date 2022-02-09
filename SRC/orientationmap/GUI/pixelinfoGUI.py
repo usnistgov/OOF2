@@ -69,7 +69,7 @@ class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         return self.stack.get_visible_child_name()
                                                               
     def close(self):
-        map(switchboard.removeCallback, self.sbcbs)
+        switchboard.removeCallbacks(self.sbcbs)
         pixelinfoGUIplugin.PixelInfoGUIPlugIn.close(self)
 
     def materialchanged(self, *args, **kwargs):
@@ -283,7 +283,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         return self.getNonGUIToolbox().menu.Misorientation
 
     def close(self):
-        map(switchboard.removeCallback, self.sbcbs)
+        switchboard.removeCallbacks(self.sbcbs)
         pixelinfoGUIplugin.PixelInfoGUIPlugIn.close(self)
 
     def clear(self):
@@ -324,8 +324,8 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         self.refOrient = plugin.referenceOrientation
         self.refPoint = plugin.referencePoint
         self.refWidget.set(self.refOrient, interactive=False)
-        self.xtext.set_text(`self.refPoint.x`)
-        self.ytext.set_text(`self.refPoint.y`)
+        self.xtext.set_text(repr(self.refPoint.x))
+        self.ytext.set_text(repr(self.refPoint.y))
         self.stack.set_visible_child_name("refwidget")
         assert self.refOrient is not None
         self.updateMisorientation()
@@ -338,7 +338,7 @@ class MisorientationPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         else:
             misorientation = orient.misorientation(self.refOrient,
                                                    symmetry.schoenflies())
-            self.misorientationText.set_text(`misorientation`)
+            self.misorientationText.set_text(repr(misorientation))
         self.sensitize()
 
     def getOrientPlugInData(self):

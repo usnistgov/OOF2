@@ -25,17 +25,17 @@ class HKLreader(orientmapdata.OrientMapReader):
     def read(self, filename):
         hklfile = file(filename, "r")
         lineiter = iter(hklfile)
-        line = lineiter.next()
+        line = next(lineiter)
         while not line.startswith('XCells'):
-            line = lineiter.next()
+            line = next(lineiter)
         xcells = string.atoi(string.split(line)[1])
-        line = lineiter.next()
+        line = next(lineiter)
         ycells = string.atoi(string.split(line)[1])
-        line = lineiter.next()
+        line = next(lineiter)
         xstep = string.atof(string.split(line)[1])
-        line = lineiter.next()
+        line = next(lineiter)
         ystep = string.atof(string.split(line)[1])
-        line = lineiter.next()
+        line = next(lineiter)
 
 
         od = orientmapdata.OrientMap(
@@ -43,7 +43,7 @@ class HKLreader(orientmapdata.OrientMapReader):
             primitives.Point(xcells*xstep, ycells*ystep))
         
         while not string.split(line)[0] == 'Phase':
-            line = lineiter.next()
+            line = next(lineiter)
         prog = progress.getProgress(os.path.basename(filename),
                                     progress.DEFINITE)
         try:
@@ -54,7 +54,7 @@ class HKLreader(orientmapdata.OrientMapReader):
                 phase = vals[0]
                 x = string.atof(vals[1])
                 y = string.atof(vals[2])
-                angles = map(string.atof, vals[5:8])
+                angles = list(map(string.atof, vals[5:8]))
                 mad = string.atof(vals[8])  # mean angular deviation
                 ij = primitives.iPoint(
                     int(round(x/xstep)),
@@ -65,7 +65,7 @@ class HKLreader(orientmapdata.OrientMapReader):
                     self.phaselists[phase] = [ij]
                 self.set_angle(
                     od, ij, 
-                    corientation.COrientBunge(*map(math.radians, angles)))
+                    corientation.COrientBunge(*list(map(math.radians, angles))))
                 prog.setFraction(float(count)/npts)
                 prog.setMessage("%d/%d orientations" % (count, npts))
                 count += 1
@@ -78,8 +78,7 @@ class HKLreader(orientmapdata.OrientMapReader):
     ## postProcess is called after the orientation data has been
     ## assigned to a Microstructure.
     def postProcess(self, microstructure):
-        phasenames = self.phaselists.keys()
-        phasenames.sort()
+        phasenames = sorted(list(self.phaselists.keys()))
         for phasename in phasenames:
             orientmapdata.addPixelsToGroup(microstructure, 'Phase_' + phasename,
                                            self.phaselists[phasename])

@@ -156,8 +156,7 @@ class TSLreaderBase(orientmapdata.OrientMapReader):
     ## postProcess is called after the orientation data has been
     ## assigned to a Microstructure.
     def postProcess(self, microstructure):
-        phasenames = self.phaselists.keys()
-        phasenames.sort()
+        phasenames = sorted(list(self.phaselists.keys()))
         for phasename in phasenames:
             orientmapdata.addPixelsToGroup(microstructure, phasename,
                                            self.phaselists[phasename])
@@ -186,13 +185,13 @@ class TSLreader(TSLreaderBase):
                     raise ooferror.ErrUserError(
                         "Too few numbers in line %d of %s" 
                         % (count, tslfile.name))
-                values = map(float, substrings[:5])
+                values = list(map(float, substrings[:5]))
                 if angletype == "radians":
                     angles = values[:3]
                     angles[0] = angles[0] - math.radians(self.angle_offset)
                 elif angletype == "degrees":
                     angles[0] = angles[0] - self.angle_offset
-                    angles = map(math.radians, values[:3])
+                    angles = list(map(math.radians, values[:3]))
                 else:
                     raise ooferror.ErrDataFileError(
                         "Angle type not specified in TSL data file")
@@ -245,7 +244,7 @@ class TSLreader2(TSLreaderBase):
                     phase = substrings[7]
                 else:
                     phase = 'phase0'
-                values = map(float, substrings[:5])
+                values = list(map(float, substrings[:5]))
                 position = primitives.Point(values[3], values[4])
                 angles = values[:3]
                 angles[0] = angles[0] - math.radians(self.angle_offset)

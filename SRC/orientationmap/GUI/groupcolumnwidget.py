@@ -57,10 +57,10 @@ class GCWidgetRow(object):
     def set_value(self, val):
         self.suppress()
         self.nameEntry.set_text(val[0])
-        if type(val[1]) is types.StringType:
+        if isinstance(val[1], bytes):
             self.colEntry.set_text(val[1])
         else:
-            self.colEntry.set_text(`val[1]`)
+            self.colEntry.set_text(repr(val[1]))
         self.unsuppress()
     def checkValue(self):
         try:
