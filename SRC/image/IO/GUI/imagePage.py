@@ -345,7 +345,7 @@ class ImagePage(oofGUI.MainPage):
             
     def saveCB(self,button):
         menuitem = mainmenu.OOF.File.Save.Image
-        params = filter(lambda x: x.name!="image", menuitem.params)
+        params = [x for x in menuitem.params if x.name!="image"]
         if parameterwidgets.getParameters(
                 parentwindow=self.gtk.get_toplevel(), title='Save Image',
                 *params):

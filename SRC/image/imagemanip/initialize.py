@@ -8,9 +8,9 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-import gray
-import gabor
-import bw
-import close
-import skeletonize
-import connect
+from . import gray
+from . import gabor
+from . import bw
+from . import close
+from . import skeletonize
+from . import connect

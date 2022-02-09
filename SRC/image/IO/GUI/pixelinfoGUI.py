@@ -86,7 +86,7 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
             ]
 
     def close(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks))
 
     def update(self, where):
         debug.mainthreadTest()
@@ -142,9 +142,9 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
                           self.colorv.getBlue())
             if not self.rgb_selector.get_active():
                 (c1,c2,c3) = color.hsv_from_rgb(c1,c2,c3)
-            self.text1.set_text(`c1`)
-            self.text2.set_text(`c2`)
-            self.text3.set_text(`c3`)
+            self.text1.set_text(repr(c1))
+            self.text2.set_text(repr(c2))
+            self.text3.set_text(repr(c3))
             
         else:
             self.text1.set_text("")
