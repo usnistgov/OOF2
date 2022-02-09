@@ -238,13 +238,13 @@ if config.dimension() == 2:
 # xmldump generates the manual page for the built-in physics.
 
 def xmldump(phile):
-    print >> phile, "<section id='Section-Builtin'>"
-    print >> phile, " <title>Built-In Physics: Fields, Fluxes, Equations, and Properties</title>"
-    print >> phile, """<para>
+    print("<section id='Section-Builtin'>", file=phile)
+    print(" <title>Built-In Physics: Fields, Fluxes, Equations, and Properties</title>", file=phile)
+    print("""<para>
     &oof2; is designed to be extendible, so it is easy to add new
     &properties;, &fields;, &fluxes;, and &equations;.  That means
     that the following lists of <emphasis>built-in</emphasis>
-    objects may not be complete.  </para>"""
+    objects may not be complete.  </para>""", file=phile)
 
     # Property documentation.  propdict is a dictionary listing the
     # Properties that contribute to each Equation and Flux, or use
@@ -252,154 +252,154 @@ def xmldump(phile):
     propdict = propertyregistration.xmldocs(phile)
 
     # Fields
-    print >> phile, "<section id='Section-Fields'>"
-    print >> phile, "<title>Fields</title>"
-    print >> phile, """<para>
+    print("<section id='Section-Fields'>", file=phile)
+    print("<title>Fields</title>", file=phile)
+    print("""<para>
 
 This list contains all of the predefined &fields; in &oof2;.  Click on
 a &field; to see a brief description and a list of all &properties;
 that use the &field;.
 
-</para>"""
-    print >> phile, "<itemizedlist>"
+</para>""", file=phile)
+    print("<itemizedlist>", file=phile)
     # List of Fields.
     for fld in field.allCompoundFields.values():
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "<link linkend='Field-%s'><varname>%s</varname></link>"\
-            % (fld.name(), fld.name())
-        print >> phile, "</simpara></listitem>"
-    print >> phile, "</itemizedlist>"
+        print("<listitem><simpara>", file=phile)
+        print("<link linkend='Field-%s'><varname>%s</varname></link>"\
+            % (fld.name(), fld.name()), file=phile)
+        print("</simpara></listitem>", file=phile)
+    print("</itemizedlist>", file=phile)
     # Reference page for each Field.
-    for fld in field.allCompoundFields.values():
+    for fld in list(field.allCompoundFields.values()):
         name = fld.name()
         xmlmenudump.xmlIndexEntry(name, 'Field', 'Field-%s' % name)
-        print >> phile, "<refentry xreflabel='%s' id='Field-%s'>" % (name, name)
-        print >> phile, " <refnamediv>"
-        print >> phile, "  <refname>%s</refname>" % name
-        print >> phile, "  <refpurpose></refpurpose>"
-        print >> phile, " </refnamediv>"
-        print >> phile, " <refsect1>"
-        print >> phile, "  <title>Details</title>"
-        print >> phile, "  <itemizedlist>"
-        print >> phile, "   <listitem><simpara>"
-        print >> phile, "     Class: <classname>%s</classname>" % fld.__class__.__name__
-        print >> phile, "   </simpara></listitem>"
-        print >> phile, "   <listitem><simpara>"
-        print >> phile, "     Dimension: ", fld.ndof()
-        print >> phile, "   </simpara></listitem>"
+        print("<refentry xreflabel='%s' id='Field-%s'>" % (name, name), file=phile)
+        print(" <refnamediv>", file=phile)
+        print("  <refname>%s</refname>" % name, file=phile)
+        print("  <refpurpose></refpurpose>", file=phile)
+        print(" </refnamediv>", file=phile)
+        print(" <refsect1>", file=phile)
+        print("  <title>Details</title>", file=phile)
+        print("  <itemizedlist>", file=phile)
+        print("   <listitem><simpara>", file=phile)
+        print("     Class: <classname>%s</classname>" % fld.__class__.__name__, file=phile)
+        print("   </simpara></listitem>", file=phile)
+        print("   <listitem><simpara>", file=phile)
+        print("     Dimension: ", fld.ndof(), file=phile)
+        print("   </simpara></listitem>", file=phile)
 
         try:
             properties = propdict[fld]
         except KeyError:
             pass
         else:
-            print >> phile, "<listitem><para>"
-            print >> phile, "<varname>%s</varname> is used by the following &properties;:" % name
-            print >> phile, "<itemizedlist>"
+            print("<listitem><para>", file=phile)
+            print("<varname>%s</varname> is used by the following &properties;:" % name, file=phile)
+            print("<itemizedlist>", file=phile)
             for prop in properties:
-                print >> phile, "<listitem><simpara>"
-                print >> phile, "<xref linkend='Property-%s'/>" % (
-                    prop.name().replace(':', '-'))
-                print >> phile, "</simpara></listitem>"
-            print >> phile, "</itemizedlist>"
-            print >> phile, "</para></listitem>"
+                print("<listitem><simpara>", file=phile)
+                print("<xref linkend='Property-%s'/>" % (
+                    prop.name().replace(':', '-')), file=phile)
+                print("</simpara></listitem>", file=phile)
+            print("</itemizedlist>", file=phile)
+            print("</para></listitem>", file=phile)
             
-        print >> phile, "  </itemizedlist>"
-        print >> phile, "</refsect1> <!-- Details -->"
+        print("  </itemizedlist>", file=phile)
+        print("</refsect1> <!-- Details -->", file=phile)
 
-        print >> phile, "<refsect1>"
-        print >> phile, "<title>Description</title>"
+        print("<refsect1>", file=phile)
+        print("<title>Description</title>", file=phile)
         try:
             src = file("DISCUSSIONS/engine/builtin/field-%s.xml" % name, "r")
         except IOError:
-            print >> phile, "<para>MISSING DISCUSSION for %s</para>" % name
+            print("<para>MISSING DISCUSSION for %s</para>" % name, file=phile)
         else:
-            print >> phile, src.read()
+            print(src.read(), file=phile)
             src.close()
-        print >> phile, "</refsect1>"
-        print >> phile, "</refentry> <!-- %s -->" % fld.name()
-    print >> phile, "</section> <!-- Fields -->"
+        print("</refsect1>", file=phile)
+        print("</refentry> <!-- %s -->" % fld.name(), file=phile)
+    print("</section> <!-- Fields -->", file=phile)
 
     # Fluxes
-    print >> phile, "<section id='Section-Fluxes'>"
-    print >> phile, "<title>Fluxes</title>"
-    print >> phile, """<para>
+    print("<section id='Section-Fluxes'>", file=phile)
+    print("<title>Fluxes</title>", file=phile)
+    print("""<para>
 This list contains all of the predefined &fluxes; in &oof2;.  Click on
 a &flux; to see a brief description and a list of all &properties;
 that contribute to the &flux;.
-</para>"""
+</para>""", file=phile)
     # List of Fluxes
-    print >> phile, "<itemizedlist>"
+    print("<itemizedlist>", file=phile)
     for flx in flux.allFluxes:
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "<link linkend='Flux-%s'><varname>%s</varname></link>"\
-            % (flx.name(), flx.name())
-        print >> phile, "</simpara></listitem>"
-    print >> phile, "</itemizedlist>"
+        print("<listitem><simpara>", file=phile)
+        print("<link linkend='Flux-%s'><varname>%s</varname></link>"\
+            % (flx.name(), flx.name()), file=phile)
+        print("</simpara></listitem>", file=phile)
+    print("</itemizedlist>", file=phile)
     # Reference page for each Flux
     for flx in flux.allFluxes:
         name = flx.name()
         xmlmenudump.xmlIndexEntry(name, 'Flux', 'Flux-%s' % name)
-        print >> phile, "<refentry xreflabel='%s' id='Flux-%s'>" % (name, name)
-        print >> phile, "<refnamediv>"
-        print >> phile, "<refname>%s</refname>" % name
-        print >> phile, "<refpurpose></refpurpose>"
-        print >> phile, "</refnamediv>"
-        print >> phile, "<refsect1>"
-        print >> phile, "<title>Details</title>"
-        print >> phile, "<itemizedlist>"
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "Class: <classname>%s</classname>" % (
-            flx.__class__.__name__[:-3]) # strip 'Ptr'
-        print >> phile, "</simpara></listitem>"
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "Dimension: ", flx.ndof()
-        print >> phile, "</simpara></listitem>"
+        print("<refentry xreflabel='%s' id='Flux-%s'>" % (name, name), file=phile)
+        print("<refnamediv>", file=phile)
+        print("<refname>%s</refname>" % name, file=phile)
+        print("<refpurpose></refpurpose>", file=phile)
+        print("</refnamediv>", file=phile)
+        print("<refsect1>", file=phile)
+        print("<title>Details</title>", file=phile)
+        print("<itemizedlist>", file=phile)
+        print("<listitem><simpara>", file=phile)
+        print("Class: <classname>%s</classname>" % (
+            flx.__class__.__name__[:-3]), file=phile) # strip 'Ptr'
+        print("</simpara></listitem>", file=phile)
+        print("<listitem><simpara>", file=phile)
+        print("Dimension: ", flx.ndof(), file=phile)
+        print("</simpara></listitem>", file=phile)
         try:
             properties = propdict[flx]
         except KeyError:
             pass
         else:
-            print >> phile, "<listitem><simpara>"
-            print >> phile, "The following &properties; contribute to <varname>%s</varname>:" % name
-            print >> phile, "<itemizedlist>"
+            print("<listitem><simpara>", file=phile)
+            print("The following &properties; contribute to <varname>%s</varname>:" % name, file=phile)
+            print("<itemizedlist>", file=phile)
             for prop in properties:
-                print >> phile, "<listitem><simpara>"
-                print >> phile, "<xref linkend='Property-%s'/>" % (
-                    prop.name().replace(':', '-'))
-                print >> phile, "</simpara></listitem>"
-            print >> phile, "</itemizedlist>"
-            print >> phile, "</simpara></listitem>"
+                print("<listitem><simpara>", file=phile)
+                print("<xref linkend='Property-%s'/>" % (
+                    prop.name().replace(':', '-')), file=phile)
+                print("</simpara></listitem>", file=phile)
+            print("</itemizedlist>", file=phile)
+            print("</simpara></listitem>", file=phile)
 
-        print >> phile, "</itemizedlist>"
-        print >> phile, "</refsect1> <!-- Details -->"
-        print >> phile, "<refsect1>"
-        print >> phile, "<title>Description</title>"
+        print("</itemizedlist>", file=phile)
+        print("</refsect1> <!-- Details -->", file=phile)
+        print("<refsect1>", file=phile)
+        print("<title>Description</title>", file=phile)
         try:
             src = file('DISCUSSIONS/engine/builtin/flux-%s.xml' % name, "r")
         except IOError:
-            print >> phile, "<para>MISSING DISSCUSSION FOR %s</para>" % name
+            print("<para>MISSING DISSCUSSION FOR %s</para>" % name, file=phile)
         else:
-            print >> phile, src.read()
+            print(src.read(), file=phile)
             src.close()
-        print >> phile, "</refsect1> <!--Description-->"
-        print >> phile, "</refentry>"
-    print >> phile, "</section> <!-- Fluxes -->"
+        print("</refsect1> <!--Description-->", file=phile)
+        print("</refentry>", file=phile)
+    print("</section> <!-- Fluxes -->", file=phile)
 
-    print >> phile, "<section id='Section-Equations'>"
-    print >> phile, "<title>Equations</title>"
-    print >> phile, """<para>
+    print("<section id='Section-Equations'>", file=phile)
+    print("<title>Equations</title>", file=phile)
+    print("""<para>
 This is a list of all of the predefined &equations; in &oof2;.  Click
 on an &equation; to see a description and a list of all &properties;
 that contribute to the &equation;.
-</para>"""
+</para>""", file=phile)
     # List of Equations
-    print >> phile, "<itemizedlist>"
+    print("<itemizedlist>", file=phile)
     for eqn in equation.allEquations:
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "<link linkend='Equation-%s'><varname>%s</varname></link>" % (eqn.name(), eqn.name())
-        print >> phile, "</simpara></listitem>"
-    print >> phile, "</itemizedlist>"
+        print("<listitem><simpara>", file=phile)
+        print("<link linkend='Equation-%s'><varname>%s</varname></link>" % (eqn.name(), eqn.name()), file=phile)
+        print("</simpara></listitem>", file=phile)
+    print("</itemizedlist>", file=phile)
     # Reference page for each Equation
     links = {'PlaneFluxEquation' : 'Section-Concepts-Mesh-Equation-PlaneFlux',
              'DivergenceEquation' : 'Section-Concepts-Mesh-Equation-Divergence'}
@@ -407,58 +407,58 @@ that contribute to the &equation;.
         name = eqn.name()
         xmlmenudump.xmlIndexEntry(name, 'Equation', 'Equation-%s' % name)
         classname = eqn.__class__.__name__[:-3] # strip off 'Ptr'
-        print >> phile, "<refentry xreflabel='%s' id='Equation-%s'>" % (
-            name, name)
-        print >> phile, "<refnamediv>"
-        print >> phile, "<refname>%s</refname>" % name
-        print >> phile, "<refpurpose></refpurpose>"
-        print >> phile, "</refnamediv>"
-        print >> phile, "<refsect1>"
-        print >> phile, "<title>Details</title>"
-        print >> phile, "<itemizedlist>"
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "Type: <link linkend='%s'><classname>%s</classname></link>" % (links[classname], classname)
-        print >> phile, "</simpara></listitem>"
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "Flux: <link linkend='Flux-%s'><varname>%s</varname></link>" % (eqn.fluxname(), eqn.fluxname())
-        print >> phile, "</simpara></listitem>"
-        print >> phile, "<listitem><simpara>"
-        print >> phile, "Dimension:", eqn.ndof()
-        print >> phile, "</simpara></listitem>"
+        print("<refentry xreflabel='%s' id='Equation-%s'>" % (
+            name, name), file=phile)
+        print("<refnamediv>", file=phile)
+        print("<refname>%s</refname>" % name, file=phile)
+        print("<refpurpose></refpurpose>", file=phile)
+        print("</refnamediv>", file=phile)
+        print("<refsect1>", file=phile)
+        print("<title>Details</title>", file=phile)
+        print("<itemizedlist>", file=phile)
+        print("<listitem><simpara>", file=phile)
+        print("Type: <link linkend='%s'><classname>%s</classname></link>" % (links[classname], classname), file=phile)
+        print("</simpara></listitem>", file=phile)
+        print("<listitem><simpara>", file=phile)
+        print("Flux: <link linkend='Flux-%s'><varname>%s</varname></link>" % (eqn.fluxname(), eqn.fluxname()), file=phile)
+        print("</simpara></listitem>", file=phile)
+        print("<listitem><simpara>", file=phile)
+        print("Dimension:", eqn.ndof(), file=phile)
+        print("</simpara></listitem>", file=phile)
         try:
             properties = propdict[eqn]
         except KeyError:
             pass
         else:
-            print >> phile, "<listitem><simpara>"
-            print >> phile, "The following &properties; make direct contributions to this &equation;:"
-            print >> phile, "<itemizedlist>"
+            print("<listitem><simpara>", file=phile)
+            print("The following &properties; make direct contributions to this &equation;:", file=phile)
+            print("<itemizedlist>", file=phile)
             for prop in properties:
-                print >> phile, "<listitem><simpara>"
-                print >> phile, "<xref linkend='Property-%s'/>" % (
-                    prop.name().replace(':','-'))
-                print >> phile, "</simpara></listitem>"
-            print >> phile, "</itemizedlist>"
-            print >> phile, "Other &properties; make indirect contributions to the &equation; through the <link linkend='Flux-%s'><classname>%s</classname></link>." % (eqn.fluxname(), eqn.fluxname())
-            print >> phile, "</simpara></listitem>"
-        print >> phile, "</itemizedlist>"
-        print >> phile, "</refsect1> <!-- Details -->"
-        print >> phile, "<refsect1>"
-        print >> phile, "<title>Description</title>"
+                print("<listitem><simpara>", file=phile)
+                print("<xref linkend='Property-%s'/>" % (
+                    prop.name().replace(':','-')), file=phile)
+                print("</simpara></listitem>", file=phile)
+            print("</itemizedlist>", file=phile)
+            print("Other &properties; make indirect contributions to the &equation; through the <link linkend='Flux-%s'><classname>%s</classname></link>." % (eqn.fluxname(), eqn.fluxname()), file=phile)
+            print("</simpara></listitem>", file=phile)
+        print("</itemizedlist>", file=phile)
+        print("</refsect1> <!-- Details -->", file=phile)
+        print("<refsect1>", file=phile)
+        print("<title>Description</title>", file=phile)
         try:
             src = file("DISCUSSIONS/engine/builtin/eqn-%s.xml" % name, "r")
         except IOError:
-            print >> phile, "<para>MISSING DISCUSSION FOR %s</para>" % name
+            print("<para>MISSING DISCUSSION FOR %s</para>" % name, file=phile)
         else:
-            print >> phile, src.read()
+            print(src.read(), file=phile)
             src.close()
-        print >> phile, "</refsect1> <!-- Description-->"
+        print("</refsect1> <!-- Description-->", file=phile)
         
-        print >> phile, "</refentry>"
+        print("</refentry>", file=phile)
         
-    print >> phile, "</section> <!-- Equations -->"
+    print("</section> <!-- Equations -->", file=phile)
 
-    print >> phile, "</section> <!-- Built-In Physics -->"
+    print("</section> <!-- Built-In Physics -->", file=phile)
     
 
 xmlmenudump.addSection(xmldump, 5)

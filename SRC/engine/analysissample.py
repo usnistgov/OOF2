@@ -48,6 +48,7 @@ from ooflib.SWIG.engine import outputval
 import math
 import string
 import types
+from functools import reduce
 
 # Sample objects should have a "columnNames" attribute, which is a
 # list of strings which identify the columns of data which are
@@ -147,7 +148,7 @@ class PointSample(Sample):
     # def identifier(self):
     #     return self.point
     def outputData(self):
-        return [`self.point.x`, `self.point.y`]
+        return [repr(self.point.x), repr(self.point.y)]
 
 
 
@@ -163,8 +164,8 @@ class LineSample(PointSample):
     # def identifier(self):
     #     return (self.point, self.fraction, self.distance)
     def outputData(self):
-        return [`self.distance`, `self.fraction`,
-                `self.point.x`, `self.point.y`] 
+        return [repr(self.distance), repr(self.fraction),
+                repr(self.point.x), repr(self.point.y)] 
 
 
 # A portion of a line contained within one element.  "Segment" is a
@@ -212,8 +213,8 @@ class ElementLineSample(Sample):
             dx = df = dd = 0
         for i in range(self.n_points):
             lab_pt = start+i*dx
-            outputData = [`self.segment`, `self.distances[0]+i*dd`,
-                          `self.fractions[0]+i*df`, `lab_pt[0]`, `lab_pt[1]`]
+            outputData = [repr(self.segment), repr(self.distances[0]+i*dd),
+                          repr(self.fractions[0]+i*df), repr(lab_pt[0]), repr(lab_pt[1])]
             out_list.append( [ outputData[self.columnNames.index(x)]
                               for x in header] )
         return out_list
@@ -233,7 +234,7 @@ class PixelSample(Sample):
     #     return self.pixel
     def outputData(self):
         return [ "(%d %d)" % (self.pixel[0], self.pixel[1]),
-                 `self.point[0]`, `self.point[1]` ]
+                 repr(self.point[0]), repr(self.point[1]) ]
     # For integration and direct output, pixels are treated as points
     # at their centers.  It may be desirable, at some point, to take
     # the integration operation more seriously.
@@ -334,7 +335,7 @@ class ElementSampleSet(SampleSet):
             order = self.order
         vals = [x.integrate(domain, output, order, power)
                 for x in self.sample_list]
-        return zip(self.sample_list, vals)
+        return list(zip(self.sample_list, vals))
     def get_col_names(self):    # see comment in SampleSet.
         return []
 
@@ -511,7 +512,7 @@ class SpacedGridSampleSet(PointSampleSet):
             bxmax = box.xmax()
             bymax = box.ymax()
             (x,y)=(bxmin,bymin)
-            while 1:
+            while True:
                 pt = primitives.Point(x,y)
                 if domain.contains(pt):
                     self.sample_list.append(PointSample(pt))
@@ -653,7 +654,7 @@ class ElementSegmentSampleSet(SampleSet):
                     rval += (vals[i]+vals[i+1])*dx/2.0
                 result.append(rval)
 
-        return zip(self.sample_list, result)
+        return list(zip(self.sample_list, result))
 
             
 DirectSampleSetRegistration(
@@ -690,7 +691,7 @@ class PixelSampleSet(SampleSet):
     def integrate(self, domain, output, power=1):
         vals = [x.integrate(domain, output, power) 
                 for x in self.sample_list]
-        return zip(self.sample_list, vals)
+        return list(zip(self.sample_list, vals))
     
 
 DirectSampleSetRegistration(

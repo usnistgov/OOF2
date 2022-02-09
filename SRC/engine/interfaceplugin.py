@@ -49,7 +49,7 @@ class AdjacentElements:
     def __init__(self,left=None,right=None):
         self.left = left
         self.right = right
-    def __nonzero__(self):
+    def __bool__(self):
         # If either element is not None, then we're "true".  Can't do
         # the obvious "return self.left or self.right", because this
         # can be None, but the allowed return values are True, False,
@@ -164,7 +164,7 @@ class InterfaceMSPlugIn(microstructure.MicrostructurePlugIn):
         switchboard.notify("interface renamed",self.microstructure)
 
     def destroy(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         microstructure.MicrostructurePlugIn.destroy(self)
 
     def interfaceInfo(self,interfacename):
@@ -174,7 +174,7 @@ class InterfaceMSPlugIn(microstructure.MicrostructurePlugIn):
             return ""
 
     def getInterfaceNames(self):
-        return self.namedinterfaces.keys()[:]
+        return list(self.namedinterfaces.keys())[:]
 
     #Returns strings of the form "skeleton:bdkey"
     def getSkelBdyNames(self):
@@ -261,7 +261,7 @@ class InterfaceMSPlugIn(microstructure.MicrostructurePlugIn):
                 bdyctxt=skelctxt.getBoundary(bname)
                 if bdyctxt._interfacematerial is not None:
                     matdict[bdyctxt._interfacematerial]=1
-        return matdict.keys()
+        return list(matdict.keys())
 
     def addInterface(self,name,interfacedef):
         self.namedinterfaces[name]=interfacedef
@@ -314,7 +314,7 @@ class InterfaceMSPlugIn(microstructure.MicrostructurePlugIn):
         reservednamedict['topright']=1
         reservednamedict['bottomleft']=1
         reservednamedict['bottomright']=1
-        return reservednamedict.keys()
+        return list(reservednamedict.keys())
 
     def renameInterface(self,oldname,newname):
         if oldname==newname:
@@ -1016,7 +1016,7 @@ class UnionInterface(InterfaceDef):
                 return 1
         return 0
     def renameInterface(self,oldname,newname):
-        interfacenames=self.namedinterfaces.keys()[:]
+        interfacenames=list(self.namedinterfaces.keys())[:]
         for name in interfacenames:
             obj=self.namedinterfaces[name]
             obj.renameInterface(oldname,newname)
@@ -1077,7 +1077,7 @@ def writeInterface(datafile, mscontext):
 ##        datafile.startCmd(OOF.LoadData.MaterialandType)
 ##        datafile.argument('name',matname)
 ##        matobj=materialmanager.getMaterial(matname)
-##        datafile.argument('properties', [prop.registration().name()
+##        datafile.argument('properties', [prop.reistration().name()
 ##                                         for prop in matobj.properties()])
 ##        datafile.argument('materialtype',matobj.type())
 ##        datafile.endCmd()

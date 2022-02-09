@@ -293,7 +293,7 @@ _uniqueNameLock = lock.SLock()
 
 def uniqueName(name, othernames, exclude=None):
     _uniqueNameLock.acquire()
-    others = othernames[:]
+    others = list(othernames)   # othernames might be an iterator
     try:
         if exclude is not None:
             try:
@@ -506,6 +506,8 @@ class OrderedSet:
 # have to be reallocated all the time.  It doesn't support all of the
 # slice operations that a real list would. (__del__ and __setitem__
 # aren't provided for slices.  __getitem__ is.)
+
+## TODO PYTHON3: Make ReservableList iterable.
 
 
 class ReservableList:

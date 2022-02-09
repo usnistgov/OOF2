@@ -95,8 +95,7 @@ class SkeletonElementBase:
                (1.-alpha)*self.energyShape()
 
     def getPositionHash(self):
-        sortedpositions = [n.position() for n in self.nodes]
-        sortedpositions.sort()
+        sortedpositions = sorted([n.position() for n in self.nodes])
         hashable = []
         for pos in sortedpositions:
             for i in range(2):
@@ -229,6 +228,7 @@ class SkeletonElement(SkeletonElementBase,
         return self.nnodes()
 
     def segment_node_iterator(self):
+        ## TODO PYTHON3: Make this a real iterator?
         segment_nodes = []
         for i in range(self.nnodes()):
             n0 = self.nodes[i]
@@ -237,6 +237,7 @@ class SkeletonElement(SkeletonElementBase,
         return segment_nodes
 
     def segment_iterator(self, skel):
+        ## TODO PYTHON3: Make this a real iterator?        
         segments = []
         for i in range(self.nnodes()):
             n0 = self.nodes[i]
@@ -608,15 +609,15 @@ class SkeletonQuad(SkeletonElement, cskeleton.CSkeletonQuad):
         short_side = None
         for i in range(4):
             if lengths[i] >= lengths[(i+1)%4]:
-                long = i
-                short = (i+1)%4
+                longi = i
+                shorti = (i+1)%4
             else:
-                long = (i+1)%4
-                short = i
-            ratio = lengths[long]/lengths[short]
+                longi = (i+1)%4
+                shorti = i
+            ratio = lengths[longi]/lengths[shorti]
             if ratio >= max_ratio:
                 max_ratio = ratio
-                long_side = long
+                long_side = longi
                 short_side = short
         opposite = (short_side+2)%4
         return max(lengths[opposite], lengths[long_side])/\
@@ -639,14 +640,15 @@ class SkeletonQuad(SkeletonElement, cskeleton.CSkeletonQuad):
         ## cases in which one edge is much longer than the other
         ## three.
         segs = []
-        lengths = map(self.edgeLength, (0,1,2,3))
-        sortlengths = lengths[:]
-        sortlengths.sort()
+        lengths = sorted([self.edgeLength(i) for i in range(4)])
+        sortlengths = sorted(lengths[:])
         if sortlengths[2] > sortlengths[1]*threshold:
             # find longest edges
             l0 = sortlengths[2]
             l1 = sortlengths[3]
             i0 = i1 = None
+            ## TODO PYTHON3: I'm not sure this does what it's supposed
+            ## to do if two edges have the same length.
             for i in (0,1,2,3):
                 leng = lengths[i]
                 if leng == l0:
@@ -656,7 +658,7 @@ class SkeletonQuad(SkeletonElement, cskeleton.CSkeletonQuad):
             idiff = i0 - i1
             if idiff == 2 or idiff == -2:
                 segs.append(skeleton.findSegment(self.nodes[i0],
-                                                self.nodes[(i0+1)%4]))
+                                                 self.nodes[(i0+1)%4]))
                 segs.append(skeleton.findSegment(self.nodes[i1],
                                                  self.nodes[(i1+1)%4]))
         return segs
@@ -687,8 +689,7 @@ class SkeletonTriangle(SkeletonElement, cskeleton.CSkeletonTriangle):
         return new
 
     def aspectRatio(self):
-        lengths = [self.edgeLength(i) for i in range(3)]
-        lengths.sort()
+        lengths = sorted([self.edgeLength(i) for i in range(3)])
         ## This returns the ratio of the *middle* length to the
         ## *shortest* length, which might seem odd. It's a more
         ## conservative definition than using lengths[2]/lengths[0].
@@ -715,8 +716,7 @@ class SkeletonTriangle(SkeletonElement, cskeleton.CSkeletonTriangle):
         # return segments that should be refined by CheckAspectRatio.
         # See comment in aspectRatio(), above.
         
-        lengths = [(self.edgeLength(i), i) for i in range(3)]
-        lengths.sort()
+        lengths = sorted([(self.edgeLength(i), i) for i in range(3)])
         if lengths[1][0] > lengths[0][0] * threshold:
             n0 = lengths[2][1]
             n1 = lengths[1][1]

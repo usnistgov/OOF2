@@ -266,6 +266,11 @@ class SubProblemContext(whoville.Who):
 
     def area(self):
         a = 0.0
+        ## TODO PYTHON3: element_iterator() returns a swigged
+        ## ElementIterator.  If it returned a real iterator, this
+        ## would be easier, eg:
+        ## for element in self.element_iterator():
+        ##    a += element.area()
         iter = self.getObject().element_iterator()
         while not iter.end():
             a += iter.element().area()

@@ -73,7 +73,7 @@ class GenericGroupSet:
             ]
 
     def destroy(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         # Break circular references
         del self.groups 
         del self.objects
@@ -279,8 +279,7 @@ class GenericMaterialGroupSet(GenericGroupSet):
     def getAllMaterials(self):
         # Returns a list of (groupname, materialname) tuples in the
         # order in which the materials were assigned.
-        stuff = [(t, (g, m)) for (g, (m,t)) in self.materials.items()]
-        stuff.sort()            # sorts by timestamp t
+        stuff = sorted([(t, (g, m)) for (g, (m,t)) in self.materials.items()])
         return [x[1] for x in stuff]
 
 
@@ -372,7 +371,7 @@ class SegmentGroupSet(GenericGroupSet):
 
     def new_objects(self, context):
         if context == self.skeletoncontext:
-            self.objects = self.skeletoncontext.getObject().segments.values()
+            self.objects = list(self.skeletoncontext.getObject().segments.values())
             self.relay()
 
     def get_selection(self):

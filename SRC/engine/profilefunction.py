@@ -64,7 +64,7 @@ class ProfileFunctionParameterBase(parameter.Parameter):
                                          value=value,
                                          default=default, tip=tip)
     def set(self, value):
-        if type(value) is types.StringType:
+        if isinstance(value, bytes):
             self._value = self.profileClass(value)
         elif isinstance(value, self.profileClass):
             self._value = value
@@ -72,7 +72,7 @@ class ProfileFunctionParameterBase(parameter.Parameter):
             self._value = None
         else:
             raise parameter.ParameterMismatch(
-                'Got ' + `value` + ' for Parameter ' + self.name)
+                'Got ' + repr(value) + ' for Parameter ' + self.name)
         self.timestamp.increment()
     def binaryRepr(self, datafile, value):
         length = len(value.funcstr)

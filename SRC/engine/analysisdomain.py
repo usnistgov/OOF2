@@ -113,7 +113,7 @@ class EntireMesh(Domain):
         iter = self.femesh.element_iterator()
         while not iter.end():
             el_list.append(iter.element())
-            iter.next()
+            next(iter)          # TODO PYTHON3: Check iterator behaviorx
         return el_list
         
 
@@ -315,7 +315,7 @@ class CrossSectionDomain(Domain):
             (isec, new_el) = \
                    skeleton.get_intersection_and_next_element(
                        local_segment, last_el, None, None)
-        except ooferror.ErrPyProgrammingError, e:
+        except ooferror.ErrPyProgrammingError as e:
             if e.summary()=="Segment exits element multiple times.":
                 (isec, new_el) = \
                        skeleton.get_intersection_and_next_element(

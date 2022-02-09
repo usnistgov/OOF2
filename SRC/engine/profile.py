@@ -42,7 +42,7 @@ class Location:
                   'distance', 'fraction', 'time']:
             val = getattr(self, s)
             if val is not None:
-                attrlist.append("%s=%s" % (s, `val`) )
+                attrlist.append("%s=%s" % (s, repr(val)) )
         result += string.join(attrlist, ", ") + ")"
         return result
                                 
@@ -138,7 +138,7 @@ class _ContinuumProfileX(Profile):
         return self.function(*self.funcargs(location))
     # Output.
     def description(self):
-        return `self.function`
+        return repr(self.function)
     def equiv(self,other):
         return (other.__class__==self.__class__ and
                 self.function == other.function)
@@ -279,10 +279,10 @@ class ConstantProfile(Profile, ProfileX, ProfileXT, ProfileXTd):
         return 0
     
     def description(self):
-        return `self.value`
+        return repr(self.value)
     
     def __repr__(self):
-        return "ConstantProfile(value=%s)" % `self.value`
+        return "ConstantProfile(value=%s)" % repr(self.value)
 
 
 registeredclass.Registration(
@@ -315,7 +315,7 @@ class LinearProfile(Profile, ProfileX, ProfileXT, ProfileXTd):
         return 0
 
     def description(self):
-        return "[%s->%s]" % (`self.start`, `self.end`)
+        return "[%s->%s]" % (repr(self.start), repr(self.end))
 ##    def __repr__(self):
 ##        return "LinearProfile(start=%s, end=%s)" % (`self.start`, `self.end`)
         
@@ -376,9 +376,9 @@ class FluxProfileSet:
         # single Profile, so there's no need to write out
         # 'FluxProfileSet([<profiles>])'
         if len(self) == 1:
-            return `self.data[0]`
+            return repr(self.data[0])
         else:
-            return `self.data`
+            return repr(self.data)
 
 utils.OOFdefine('FluxProfileSet', FluxProfileSet)
 
@@ -388,7 +388,7 @@ class FluxProfileSetParameter(parameter.Parameter):
         if isinstance(x, ProfileXT) or isinstance(x, FluxProfileSet):
             return
         # A list or tuple of Profiles is allowed
-        if type(x) in (types.ListType, types.TupleType):
+        if type(x) in (list, tuple):
             for y in x:
                 if not isinstance(y, ProfileXT):
                     parameter.raiseTypeError('List or tuple of '+ type(y),
@@ -398,13 +398,13 @@ class FluxProfileSetParameter(parameter.Parameter):
     def set(self, value):
         if isinstance(value, FluxProfileSet):
             self._value = value
-        elif type(value) in (types.ListType, types.TupleType):
+        elif type(value) in (list, tuple):
             self._value = FluxProfileSet(value)
         elif isinstance(value, Profile):
             self._value = FluxProfileSet([value])
         else:
             raise parameter.ParameterMismatch(
-                'Got ' + `value` + ' for Parameter ' + self.name)
+                'Got ' + repr(value) + ' for Parameter ' + self.name)
 
     def binaryRepr(self, datafile, value):
         n = len(value)

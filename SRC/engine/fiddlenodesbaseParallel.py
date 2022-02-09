@@ -33,6 +33,7 @@ import random
 import string
 import sys
 import time
+from functools import reduce
 
 cfiddler = cfiddlenodesbaseParallel
 _rank = mpitools.Rank()
@@ -73,7 +74,7 @@ def _postProcess(self, context):
                 pBar.set_failure()
                 pBar.set_message("Failed")
                 # Sending a break signal
-                mpitools.Isend_Bool(False, range(1,_size))
+                mpitools.Isend_Bool(False, list(range(1,_size)))
                 break
             else:
                 if self.pbar_type == "continuous":
@@ -82,7 +83,7 @@ def _postProcess(self, context):
                     pBar.set_message("%s%d/%d"
                                  % (self.header, self.count, n))
                     # Sending a continue signal
-                    mpitools.Isend_Bool(True, range(1,_size))
+                    mpitools.Isend_Bool(True, list(range(1,_size)))
         else:
             if not mpitools.Recv_Bool(0):
                 break
@@ -93,10 +94,10 @@ def _postProcess(self, context):
         if pBar.query_stop():  # or pBar.get_success() <0:
             pBar.set_failure()
             pBar.set_message("Failed")
-            mpitools.Isend_Bool(False, range(1,_size))
+            mpitools.Isend_Bool(False, list(range(1,_size)))
             return
         else:
-            mpitools.Isend_Bool(True, range(1,_size))
+            mpitools.Isend_Bool(True, list(range(1,_size)))
     else:
         if not mpitools.Recv_Bool(0):
             return
@@ -201,7 +202,7 @@ def REPORT(*args):
     global report_id
     report_id += 1
     values =["###"]+[_rank]+["("]+[report_id]+[")"]+[":"]+list(args)
-    print string.join(map(str, values), ' ')
+    print(" ".join(map(str, values)))
     sys.stdout.flush()
 
 #################################################################
@@ -466,7 +467,7 @@ class FiddleNodesParallel:
         
         # Get the nodes & shuffle them
         activeNodes = self.targets(self.context)
-        activeNodes = filter(self.ownNode, activeNodes)
+        activeNodes = list(filter(self.ownNode, activeNodes))
         random.shuffle(activeNodes)
 
         self.createWorkOrder(activeNodes)

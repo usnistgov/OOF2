@@ -243,7 +243,8 @@ def segments_from_el_aggregate(skelcontext, group):
     # now post process to see if any remaining segments coincide
     # on the periodic boundaries.
     # perhaps partnered segments would be useful for this?
-    for s in seg_set.keys():    # NOT 'for s in seg_set'.  seg_set changes.
+    # (seg_set changes, so make copy of keys before looping.)
+    for s in list(seg_set.keys()):
         nodes = s.get_nodes()
         partners = nodes[0].getPartnerPair(nodes[1])
         if partners is not None:
@@ -252,7 +253,7 @@ def segments_from_el_aggregate(skelcontext, group):
                 del seg_set[ps]
                 del seg_set[s]
 
-    return seg_set.keys()
+    return list(seg_set.keys())
 
 if config.dimension() == 2:                
     class EdgeFromElements(BoundaryConstructor):
@@ -492,15 +493,14 @@ def _right_traverse_step(segment, node, node_dict):
 class IncompletePath(Exception): pass
 
 def _right_traverse(node, segment, node_dict):
-    nodelist = node_dict.keys()[:] # TODO: Is [:] needed?  keys()
-                                   # returns an independent list.
+    nodelist = list(node_dict.keys())
     nodelist.remove(node)
     for partner in node.getPartners():
         nodelist.remove(partner)
     seglist = []
     trailing_node = segment.get_other_node(node)
     
-    while 1:
+    while True:
         seglist.append(segment)
         try:
             nodelist.remove(trailing_node)
@@ -713,8 +713,10 @@ class PointFromSegments(BoundaryConstructor):
         for s in segments:
             nodes[s.nodes()[0]]=s
             nodes[s.nodes()[1]]=s
-                
-        skelcontext.createPointBoundary(name, nodes.keys() )
+
+        # createPointBoundary needs a list, not an iterator.
+        ## TODO PYTHON3: Fix that?
+        skelcontext.createPointBoundary(name, list(nodes.keys()))
 
 registeredclass.Registration(
     "Point boundary from segments",

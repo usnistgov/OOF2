@@ -59,6 +59,8 @@
 import string
 from ooflib.common import debug
 
+## TODO PYTHON3: Make RingBuffer a true iterable object
+
 class RingBuffer:
     """
     A finite stack which accepts an unlimited number of items. If the

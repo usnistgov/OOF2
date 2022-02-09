@@ -23,6 +23,7 @@ from ooflib.engine import fiddlenodesbase
 from ooflib.engine import skeletonmodifier
 import random
 import types
+from functools import reduce
 
 
 FiddleNodes = fiddlenodesbase.FiddleNodes

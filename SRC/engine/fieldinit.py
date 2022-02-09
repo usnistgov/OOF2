@@ -41,7 +41,7 @@ class FieldInit:
                     for i in range(field.ndof()): # field component
                         field.setvalue(femesh, node, i,
                                        self.func(position, time, i))
-                fniter.next()
+                next(fniter)    # TODO PYTHON3: Check iterator behavior
         else:
             fniter = femesh.funcnode_iterator()
             while not fniter.end():
@@ -51,7 +51,7 @@ class FieldInit:
                     for i in range(field.ndof()): # field component
                         field.setvalue(femesh, node, i,
                                        self.func(position, time, i))
-                fniter.next()
+                next(fniter)    # TODO PYTHON3: Check iterator behavior
 
 # The FieldInitParameter is not a simple RegisteredParameter because
 # it has to handle more than one RegisteredClass, for different

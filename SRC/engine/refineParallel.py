@@ -17,6 +17,7 @@ from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.engine import refine
 from ooflib.engine.IO import skeletonIPC
+from functools import reduce
 
 _rank = mpitools.Rank()
 _size = mpitools.Size()
@@ -230,7 +231,7 @@ def _refinement(self, skeleton, newSkeleton, context):
             for newElement in newElements:
                 for segment in newElement.getSegments(newSkeleton):
                     # Only look at each segment once.
-                    if not segmentdict.has_key(segment):
+                    if segment not in segmentdict:
                         segmentdict[segment] = 1
                         pseg = refine.findParentSegment(skeleton, newElement,
                                                         segment, edgenodes)
@@ -248,12 +249,12 @@ def _refinement(self, skeleton, newSkeleton, context):
             if pBar.query_stop():
                 pBar.set_failure()
                 pBar.set_message("Failed")
-                mpitools.Isend_Bool(False, range(1,_size))
+                mpitools.Isend_Bool(False, list(range(1,_size)))
                 return None
             else:
                 pBar.set_progress(1.0*(nelem)/ntotal)
                 pBar.set_message("refining skeleton: %d/%d" % (nelem, ntotal))
-                mpitools.Isend_Bool(True, range(1,_size))
+                mpitools.Isend_Bool(True, list(range(1,_size)))
         else:
             if not mpitools.Recv_Bool(0):
                 return

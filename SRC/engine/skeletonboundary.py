@@ -459,7 +459,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
                 endnodes.append(e.get_nodes()[1])
             else:
                 raise skeletonsegment.SequenceError(
-                    "Cannot sequence boundary %s" % `self._name`)
+                    "Cannot sequence boundary %s" % repr(self._name))
 
         # At this point, you have a list of start nodes, a list of end
         # nodes, and a dictionary of edges keyed by start node.
@@ -483,7 +483,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
             sequence_node = self.edges[0].get_nodes()[0]
         else:
             raise skeletonsegment.SequenceError(
-                "Topology problem with boundary %s, unable to sequence." % `self._name`)
+                "Topology problem with boundary %s, unable to sequence." % repr(self._name))
 
         # Now, finally, we have a starting node.  Chain the edges
         # together from this node.  Proceed until dictionary retrieval
@@ -492,7 +492,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
         # This really wants to be a "do...while" loop, but Python
         # doesn't offer this construction.
         newedgelist = []
-        while 1:
+        while True:
             try:
                 edge = ndict[sequence_node]
             except KeyError:
@@ -506,7 +506,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
         else:
             # This can occur if the boundary is made up of disjoint loops.
             raise skeletonsegment.SequenceError(
-                "Sequenced boundary %s did not use all edges." % `self._name`)
+                "Sequenced boundary %s did not use all edges." % repr(self._name))
         
     def reverse(self):
         self.edges.reverse()            # reverses list in place
@@ -829,13 +829,13 @@ def edgesFromSegs(edge, target_segs, direction):
                 "Malformed segment sequence -- node counterpart not found.")
     
     target_list = []
-    for (s, n)  in map(None, seg_list, node_list[:-1]):
-        # if the node_list constitutes a loop, it will be longer than
-        # needed, producing an extra item in the list returned by map.
-        # We can ignore the extra item in this case.
-        if s is None:
-            pass
-        elif s.nodes()[0]==n:
+    # If the node_list constitutes a loop, it will be longer than
+    # needed by one item, which can be ignored.
+    if len(node_list) > len(seg_list):
+        node_list.pop()
+        assert len(node_list) == len(seg_list)
+    for (s, n)  in zip(seg_list, node_list):
+        if s.nodes()[0]==n:
             target_list.append(skeletonsegment.SkeletonEdge(s,direction=1))
         else:
             target_list.append(skeletonsegment.SkeletonEdge(s,direction=-1))

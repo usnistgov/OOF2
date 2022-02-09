@@ -26,10 +26,10 @@ class MeshBdyAnalyzer(registeredclass.RegisteredClass):
         result = self.do_analysis(femesh, edgeset) # defined in subclasses
 
         if formatchars.showTime():
-            print >> destination, time,
+            print(time, end=' ', file=destination)
         for x in result.valuePtr().value_list():
-            print >> destination, x,
-        print >> destination
+            print(x, end=' ', file=destination)
+        print(file=destination)
 
         destination.flush()
 
@@ -69,7 +69,7 @@ class IntegrateBdyFlux(MeshBdyAnalyzer):
         while not it.end():
             names.append("normal(%s)[%s]" 
                          % (self.flux.name(), it.shortstring()))
-            it.next()
+            next(it)            # TODO PYTHON3: Check iterator
         return names
 
 
@@ -99,7 +99,7 @@ class AverageField(MeshBdyAnalyzer):
         it = self.field.iterator(planarity.ALL_INDICES)
         while not it.end():
             names.append("%s[%s]" % (self.field.name(), it.shortstring()))
-            it.next()
+            next(it)            # TODO PYTHON3: Check iterator
         return names
 
 registeredclass.Registration(

@@ -28,9 +28,9 @@
 // Constructors for these classes aren't swigged because the objects
 // should only be created by calling FEMesh::node_iterator, etc.
 
-// TODO: Make these into real Python iterators.  next() must return
-// the object being pointed to, and they must have an __iter__
-// function that returns self.
+// TODO PYTHON3: Make these into real Python iterators.  __next__()
+// must return the object being pointed to or raise StopIteration, and
+// they must have an __iter__ function that returns self.
 
 class NodeIterator {
 public:

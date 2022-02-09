@@ -134,7 +134,7 @@ class Once(UnconditionalSchedule):
         UnconditionalSchedule.__init__(self)
     def reset(self, continuing):
         self.done = False
-    def next(self):
+    def __next__(self):         # TODO PYTHON3: Check iterator
         if self.done:
             raise StopIteration
         self.done = True
@@ -159,7 +159,7 @@ class Periodic(UnconditionalSchedule):
         UnconditionalSchedule.__init__(self)
     def reset(self, continuing):
         self.count = 0
-    def next(self):
+    def __next__(self):         # TODO PYTHON3: Check iterator
         t = self.time0 + self.delay + self.count*self.interval
         self.count += 1
         return t
@@ -189,7 +189,7 @@ class Geometric(UnconditionalSchedule):
         if not continuing:
             self.nextstep = self.timestep
             self.lasttime = None
-    def next(self):
+    def __next__(self):         # TODO PYTHON3: Check iterator
         ## TODO: This doesn't quite do the right thing on the first
         ## step of a continued computation, if the previous step was
         ## truncated to hit the end time exactly.  For example, with
@@ -229,7 +229,7 @@ class SpecifiedTimes(UnconditionalSchedule):
     def reset(self, continuing):
         if not continuing:
             self.count = 0
-    def next(self):
+    def __next__(self):         # TODO PYTHON3: Check iterator
         if self.count == len(self.times):
             raise StopIteration
         t = self.times[self.count] + self.time0
@@ -373,13 +373,14 @@ class OutputSchedule(object):
                     self.conditionalOutputs.add(output)
                 else:
                     try:
-                        t = roundOffCheck(output.schedule.next(), time0)
+                        # TODO PYTHON3: Check iterator
+                        t = roundOffCheck(next(output.schedule), time0)
                         if continuing:
                             while t <= time0:
-                                t = output.schedule.next()
+                                t = next(output.schedule)
                         else:
                             while t < time0:
-                                t = output.schedule.next()
+                                t = next(output.schedule)
                     except StopIteration:
                         # The schedule has no times in it later than time0.
                         # Just ignore it.
@@ -406,7 +407,8 @@ class OutputSchedule(object):
             for output in self.nextoutputs:
                 try:
                     self.nexttimes[output] = roundOffCheck(
-                        output.schedule.next(), endtime)
+                        # TODO PYTHON3: Check iterator
+                        next(output.schedule), endtime)
                 except StopIteration:
                     del self.nexttimes[output]
                     self.finished.add(output)

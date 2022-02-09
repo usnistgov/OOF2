@@ -351,7 +351,7 @@ class SelectableMap:
         self.target = target or []
     def __repr__(self):
         return "SelectableMap(source=%s, target=%s)" % \
-               (`self.source`, `self.target`)
+               (repr(self.source), repr(self.target))
         
 
 
@@ -581,7 +581,7 @@ class SelectionBase:
             ]
 
     def destroy(self):
-        map(switchboard.removeCallback, self.sbcallbacks)
+        switchboard.removeCallbacks(self.sbcallbacks)
         self.stack.clear()      # break circular references
         
     # "Start" should be called prior to operations which are
@@ -825,7 +825,7 @@ class ElementSelection(Selection):
 
 class SegmentSelection(Selection):
     def all_objects(self):
-        return self.skeletoncontext.getObject().segments.values()
+        return list(self.skeletoncontext.getObject().segments.values())
     def mode(self):
         return skeletonselmodebase.getMode("Segment")
     def maxSize(self):

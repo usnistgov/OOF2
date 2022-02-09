@@ -36,6 +36,7 @@ from ooflib.engine import skeletoncontext
 from ooflib.engine import bdycondition
 
 import math, sys
+from functools import reduce
 
 # TODO OPT: Move switchboard.notify calls out of this file and put
 # them in menu items, or other appropriate places. 
@@ -605,12 +606,12 @@ class Mesh(whoville.Who):
 
         # Periodic boundary conditions apply to two mesh boundaries
         periodic_names = []
-        for i in xrange(len(names)):
+        for i in range(len(names)):
             edgeInfo0 = self.getBoundary(names[i]).whichPeriodicEdge(self)
             if edgeInfo0:
                 # search rest of list for the opposite boundary with
                 # opposite direction
-                for j in xrange(i+1,len(names)):
+                for j in range(i+1,len(names)):
                     edgeInfo1 = self.getBoundary(names[j]).whichPeriodicEdge(
                         self)
                     if (edgeInfo1 and edgeInfo0[0]==edgeInfo1[0] and
@@ -697,7 +698,7 @@ class Mesh(whoville.Who):
             nodes1 = boundary_obj1.edgeset.nodes()[:]
             nodes1.reverse()
             self.periodicPointBoundaries[name] = []
-            for i in xrange(len(nodes0)):
+            for i in range(len(nodes0)):
                 ## TODO: Can this be done without using a tolerance?
                 ## Using topological information from Skeleton and
                 ## MasterElement instead?
@@ -850,10 +851,10 @@ class Mesh(whoville.Who):
         self.bdys_changed()
 
     def allBoundaryConds(self):
-        return self.bdyconditions.items()
+        return list(self.bdyconditions.items())
 
     def allBndyCondNames(self):
-        return self.bdyconditions.keys()
+        return list(self.bdyconditions.keys())
 
     def getBdyCondition(self, name):
         return self.bdyconditions[name]
@@ -1002,8 +1003,8 @@ class Mesh(whoville.Who):
             if (mynode.position() - othernode.position())**2 > tol2:
                 return "Node outside of tolerance, %s" % \
                        mynode.position() - othernode.position()
-            mynodes.next()
-            othernodes.next()
+            next(mynodes)       # TODO PYTHON3: Check iterator behavior
+            next(othernodes)
         if not (mynodes.end() and othernodes.end()):
             return "Wrong number of nodes"
 
@@ -1033,8 +1034,8 @@ class Mesh(whoville.Who):
         othertimes = set(other.cachedTimes())
         othertimes.add(othertime)
         if times != othertimes:
-            print >> sys.stderr, "times=", times
-            print >> sys.stderr, "othertimes=", othertimes
+            print("times=", times, file=sys.stderr)
+            print("othertimes=", othertimes, file=sys.stderr)
             return "Cached times differ"
 
 
@@ -1083,10 +1084,10 @@ class Mesh(whoville.Who):
                         othernodes = []
                         while not mynodeiter.end():
                             mynodes.append(mynodeiter.node())
-                            mynodeiter.next()
+                            next(mynodeiter) # TODO PYTHON3: Check iterator
                         while not othernodeiter.end():
                             othernodes.append(othernodeiter.node())
-                            othernodeiter.next()
+                            next(othernodeiter) # TODO PYTHON3: Check iterator
                         mynodes.sort(_nodesorter)
                         othernodes.sort(_nodesorter)
 
@@ -1096,13 +1097,13 @@ class Mesh(whoville.Who):
                                 != osubp.is_active_field(field)):
                                 return ("Field activity differs for %s"
                                         " on subproblem %s" % 
-                                        (`field`, subpname))
+                                        (repr(field), subpname))
                             if config.dimension() == 2:
                                 if (mymesh.in_plane(field)
                                     != othermesh.in_plane(field)):
                                     return (
                                         "Field planarity differs for %s on"
-                                        " subproblem %s" % (`field`, subpname))
+                                        " subproblem %s" % (repr(field), subpname))
                                 oop = (not mymesh.in_plane(field) and
                                        field.out_of_plane())
 
@@ -1131,14 +1132,14 @@ class Mesh(whoville.Who):
                                                 for i in range(field.ndof())])
                                     return ("%s values differ for"
                                             " subproblem %s" %
-                                            (`field`, subpname))
+                                            (repr(field), subpname))
                                 if config.dimension() == 2:
                                     if (oop and (_fielddiff(oop, mymesh, mynode,
                                                            othermesh, othernode)
                                                  > tol2)):
                                         return ("Out-of-plane %s values"
                                                 " differ for subproblem %s",
-                                                (`field`, subpname))
+                                                (repr(field), subpname))
 
 
                 finally:
@@ -1281,12 +1282,10 @@ class Mesh(whoville.Who):
         if self.outOfSync() and not resync:
             return
         self.status = statusobj # a MeshStatus object
-        errors = filter(None,
-                        [subproblem.checkSolvability()
+        errors = [_f for _f in [subproblem.checkSolvability()
                          for subproblem in self.subproblems()
                          if  subproblem.time_stepper is not None] +
-                        self.checkBdyConditions()
-                        )
+                        self.checkBdyConditions() if _f]
         if errors:
             self.status = meshstatus.Unsolvable('\n'.join(errors))
         switchboard.notify("mesh status changed", self)

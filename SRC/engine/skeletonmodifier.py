@@ -237,11 +237,10 @@ class LimitedSkelModCriterion(SkelModCriterion):
         # In parallel-mode, changes from other processes also need
         # to be considered.
         if parallel_enable.enabled():
-            for i, h0,h1, s0,s1 in zip(range(len(change.parallelHomog0)),
-                                       change.parallelHomog0,
-                                       change.parallelHomog1,
-                                       change.parallelShape0,
-                                       change.parallelShape1):
+            for i, h0,h1, s0,s1 in enumerate(zip(change.parallelHomog0,
+                                                 change.parallelHomog1,
+                                                 change.parallelShape0,
+                                                 change.parallelShape1)):
                 homog_before[i] = h0
                 homog_after[i] = h1
                 shape_before[i] = s0

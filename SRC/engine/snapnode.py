@@ -24,6 +24,7 @@ from ooflib.engine import skeletonnode
 
 import random
 import time
+from functools import reduce
 
 ##################
 
@@ -236,11 +237,7 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
                     # With a small Skeleton, this takes more time due to
                     # additional book-keeping stuff.
                     transitionpts = []
-                    for n, nodes in zip(range(element.getNumberOfEdges()), 
-                                              element.segment_node_iterator()):
-                        #for n in range(nnodes):
-                        #key = skeletonnode.canonical_order(
-                        #    element.nodes[n], element.nodes[(n+1)%nnodes])
+                    for n, nodes in enumerate(element.segment_node_iterator()):
                         key = skeletonnode.canonical_order(nodes[0], nodes[1])
                         try:
                             transitionpts.append(stored_tps[key])
@@ -263,8 +260,7 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
             
             # Perform node motions in random order within their
             # priority classes
-            priorities = movelists.keys()
-            priorities.sort()
+            priorities = sorted(list(movelists.keys()))
             # A set to keep track of moved nodes & use them to assist
             # movers that are associated with these nodes.
             movednodes = set()
@@ -339,7 +335,7 @@ def findSignature(transitionpoints):
         # other code neater.
         edges = [pt is not None for pt in transitionpoints]
         sig = []
-        for i in xrange(len(edges)):
+        for i in range(len(edges)):
             if edges[i]:
                 sig.append(i)
         return tuple(sig)

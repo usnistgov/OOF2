@@ -322,6 +322,9 @@ class Refine(skeletonmodifier.SkeletonModifier):
             marks = markedEdges.getMarks(oldElement)
             signature_info = findSignature(marks)
             # Create new nodes along the subdivided element edges
+            ## TODO: Why not use
+            ## for (i, nodes) in enumerate(oldElement.segment_node_iterator())
+            ## in the following?
             edgenodes = [
                 self.getNewEdgeNodes(nodes[0], nodes[1], 
                                      marks[i], newSkeleton, skeleton)
@@ -445,7 +448,7 @@ class Refine(skeletonmodifier.SkeletonModifier):
                     
                 for i in range(ndivs):
                     pt = nodes[i].position()
-                    for c,v in partnerdict.iteritems():
+                    for c,v in partnerdict.items():
                         pt[c]=v
                     newnodepartner = newSkeleton.newNodeFromPoint(pt)
                     nodes[i].addPartner(newnodepartner)

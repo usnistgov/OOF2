@@ -672,10 +672,13 @@ class SkeletonContext(whoville.WhoDoUndo):
     # ## ### #### ##### ###### ####### ####### ###### ##### #### ### ## #
 
     def allEdgeBoundaryNames(self):
-        return self.edgeboundaries.keys()
+        return self.edgeboundaries.keys() # returns an iterator!
     
     def allBoundaryNames(self):
-        return self.edgeboundaries.keys() + self.pointboundaries.keys()
+        ## TODO PYTHON3: Make this return an iterator.  Check that
+        ## it's ok in all situations.
+        return (list(self.edgeboundaries.keys()) +
+                list(self.pointboundaries.keys()))
 
     #Interface branch
     def allInterfaceNames(self):
@@ -742,11 +745,15 @@ class SkeletonContext(whoville.WhoDoUndo):
 
     # Copy over the group data from another skeletoncontext.
     def groupCopy(self, other):
-        mygroups = [self.nodegroups, self.segmentgroups, self.elementgroups]
-        othergroups = [other.nodegroups, other.segmentgroups,
-                       other.elementgroups] 
-        for (g, og) in map(None, mygroups, othergroups):
-            g.nameCopy(og)
+        # mygroups = [self.nodegroups, self.segmentgroups, self.elementgroups]
+        # othergroups = [other.nodegroups, other.segmentgroups,
+        #                other.elementgroups] 
+        # for (g, og) in zip(None, mygroups, othergroups):
+        #     g.nameCopy(og)
+        ## TODO PYTHON3: Check this
+        self.nodegroups.nameCopy(other.nodegroups)
+        self.segmentgroups.nameCopy(other.segmentgroups)
+        self.elementgroups.nameCopy(other.elementgroups)
 
     # ## ### #### ##### ###### ####### ####### ###### ##### #### ### ## #
 

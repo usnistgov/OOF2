@@ -78,7 +78,7 @@ class NodeFromSelectedSegments(NodeSelectionModifier):
             nodes[segment.nodes()[1]] = None
         selection.start()
         selection.clear()
-        selection.select(nodes.keys())
+        selection.select(nodes.keys()) # ok to pass iterator
 
 registeredclass.Registration('Select from Selected Segments',
                              NodeSelectionModifier,
@@ -430,7 +430,7 @@ class NodeIntersectGroup(NodeSelectionModifier):
         self.group = group
     def __call__(self, skeleton, selection):
         nlist = skeleton.nodegroups.get_group(self.group)
-        ilist = filter(lambda x: x.selected, nlist)
+        ilist = [x for x in nlist if x.selected]
         selection.start()
         selection.clear()
         selection.select(ilist)
@@ -789,7 +789,7 @@ class SegmentIntersectGroup(SegmentSelectionModifier):
         self.group = group
     def __call__(self, skeleton, selection):
         slist = skeleton.segmentgroups.get_group(self.group)
-        ilist = filter(lambda x: x.selected, slist)
+        ilist = [x for x in slist if x.selected]
         selection.start()
         selection.clear()
         selection.select(ilist)
@@ -1135,7 +1135,7 @@ class ElementIntersectGroup(ElementSelectionModifier):
         self.group = group
     def __call__(self, skeleton, selection):
         elist = skeleton.elementgroups.get_group(self.group)
-        ilist = filter(lambda x: x.selected, elist)
+        ilist = [x for x in elist if x.selected]
         selection.start()
         selection.clear()
         selection.select(ilist)

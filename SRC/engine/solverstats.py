@@ -27,8 +27,8 @@ class SolverStats(object):
     def stepTaken(self, timestep, truncated):
         self.stepperStats.add(timestep, truncated)
     def report(self, title, out):
-        print >> out, title
-        mstats = self.matrixStats.values()
+        print(title, file=out)
+        mstats = list(self.matrixStats.values())
         mstats.sort(key=MatrixStats.size)
         for ms in mstats:
             ms.report(out)
@@ -54,10 +54,10 @@ class IterationStats(object):
         self.residuals.add(residual)
     def report(self, out):
         if self.ncalls > 0:
-            print >> out, self.name(), "statistics"
-            print >> out, " # of solutions:", self.ncalls
-            print >> out, "     iterations:", self.iters
-            print >> out, "       residual:", self.residuals
+            print(self.name(), "statistics", file=out)
+            print(" # of solutions:", self.ncalls, file=out)
+            print("     iterations:", self.iters, file=out)
+            print("       residual:", self.residuals, file=out)
 
 class MatrixStats(IterationStats):
     name = "Matrix solution"
@@ -94,12 +94,12 @@ class StepperStats(object):
                 self.untruncatedstepstats.add(timestep)
     def report(self, out):
         if self.nsteps > 0:
-            print >> out, "Time step statistics"
-            print >> out, "           all steps: n=%d"%self.nsteps,\
-                self.stepstats
+            print("Time step statistics", file=out)
+            print("           all steps: n=%d"%self.nsteps,\
+                self.stepstats, file=out)
             if self.ntruncated > 0:
-                print >> out, " non-truncated steps: n=%d" \
-                    % (self.nsteps-self.ntruncated), self.untruncatedstepstats
+                print(" non-truncated steps: n=%d" \
+                    % (self.nsteps-self.ntruncated), self.untruncatedstepstats, file=out)
 
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -136,5 +136,5 @@ class StatKeeper(object):
         if self.n > 1:
             return "average=%s, min=%s, max=%s" % (self.average(), self.min,
                                                    self.max)
-        return `self.sum`
+        return repr(self.sum)
 

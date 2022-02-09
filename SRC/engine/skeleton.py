@@ -48,6 +48,7 @@ import time
 import types
 import weakref
 import sys
+from functools import reduce
 
 Registration = registeredclass.Registration
 
@@ -576,7 +577,7 @@ class SkeletonBase:
             entry_segs = isec_set[entry]
             if ((prior_element is None) or
                 (len(entry_segs)==1) or
-                (len(isec_set.keys())>1)):
+                (len(isec_set)>1)): # was len(isec_set.keys()) > 1
                 del isec_set[entry]
             else:
                 # If *none* of the segments have the prior element,
@@ -625,8 +626,8 @@ class SkeletonBase:
             raise ooferror.ErrPyProgrammingError(
                 "Segment exits element multiple times.")
             
-        isec_point = isec_set.keys()[0]
-        isec_segs = isec_set.values()[0]
+        # Get the first and only item in isec_set
+        isec_point, isec_segs = next(iter(isec_set.items()))
 
         # Now get the *segments* corresponding to the exit point.
         # If there's one, then this is the generic case.
@@ -995,7 +996,11 @@ class Skeleton(SkeletonBase):
         return 'Skeleton(%d)' % id(self)
     
     def disconnect(self):
-        for s in self.nodes + self.segments.values() + self.elements:
+        for s in self.nodes:
+            s.disconnect()
+        for s in self.segments.values():
+            s.disconnect()
+        for s in self.elements:
             s.disconnect()
 
     def getTimeStamp(self):
@@ -1041,14 +1046,18 @@ class Skeleton(SkeletonBase):
 
     def element_iterator(self):         # for compatiblity w/ Element output
         self.cleanUp()
+        ## TODO PYTHON3: Should this return an iterator?  elements is
+        ## a ReservableList.
         return self.elements
 
     def node_iterator(self):
         self.cleanUp()
+        ## TODO PYTHON3: Should this return an iterator?
         return self.nodes
 
     def segment_iterator(self):
         self.cleanUp()
+        # This really does return an iterator.
         return self.segments.values()
 
     # This returns the position in the skeleton's node list
@@ -1174,9 +1183,8 @@ class Skeleton(SkeletonBase):
             
     def cleanUp(self):
         if self.washMe:
-            self.elements = filter(lambda e: not hasattr(e, 'defunct'),
-                                   self.elements)
-            self.nodes = filter(lambda n: not hasattr(n, 'defunct'), self.nodes)
+            self.elements = [e for e in self.elements if not hasattr(e, 'defunct')]
+            self.nodes = [n for n in self.nodes if not hasattr(n, 'defunct')]
             self.washMe = 0
 
     def getElement(self, index):
@@ -1284,8 +1292,8 @@ class Skeleton(SkeletonBase):
         for (n1,n2) in zip(self.nodes, other.nodes):
             if (n1.position()-n2.position())**2 > tol2:
                 return "Node outside of tolerance, %s-%s=%s" % \
-                       (`n1.position()`, `n2.position()`,
-                       `n1.position()-n2.position()`)
+                       (repr(n1.position()), repr(n2.position()),
+                       repr(n1.position()-n2.position()))
 
         if len(self.edgeboundaries)!=len(other.edgeboundaries):
             return "Edge boundary count mismatch"
@@ -1956,7 +1964,7 @@ class Skeleton(SkeletonBase):
                 bdy = self.edgeboundaries[bdyname]
                 try:
                     bdy.sequence()
-                except skeletonsegment.SequenceError, err:
+                except skeletonsegment.SequenceError as err:
                     reporter.report(err)
                     reporter.report("boundary", bdyname, "cannot be sequenced")
                     sane = False
@@ -1984,7 +1992,7 @@ class Skeleton(SkeletonBase):
         # edict[n] is the n-sided master element.  Find the
         # interpolation order of the elements.  They all have the same
         # order, so just pick one.
-        order = edict.values()[0].fun_order()
+        order = next(iter(edict.values())).fun_order()
 
         # set_materials is a function that will be called to assign
         # materials to elements.
@@ -2036,8 +2044,11 @@ class Skeleton(SkeletonBase):
             nfuncnodes += nels[n]*masterelem.ninteriorfuncnodes()
         realmesh.reserveFuncNodes(nfuncnodes)
 
-        masterel = edict[edict.keys()[0]]
+        # Get the number of map nodes per side.  It's the same for all
+        # element shapes, so just look at the first one.
+        masterel = next(iter(edict.values()))
         n_map_per_side = masterel.nexteriormapnodes_only()/masterel.nsides()
+        
         nmapnodes = len(self.segments)*n_map_per_side
         for n, masterelem in edict.items():
             nmapnodes += nels[n]*masterelem.ninteriormapnodes_only()
@@ -2046,7 +2057,7 @@ class Skeleton(SkeletonBase):
         # Make the real nodes at the corners of the elements.  These
         # nodes are always both mapping and function nodes.
         mnodecount = self.nnodes()
-        for i in xrange(mnodecount):
+        for i in range(mnodecount):
             cur = self.nodes[i]
             if split_interface:
                 splitcount=self.countInterfaceZonesAtNode(cur,
@@ -2077,7 +2088,7 @@ class Skeleton(SkeletonBase):
         # Loop over elements.
         numelements = self.nelements()
         realmesh.reserveElements(numelements)
-        for mesh_idx in xrange(numelements):
+        for mesh_idx in range(numelements):
             el = self.elements[mesh_idx]
             local_fe_node={}
             if split_interface:
@@ -2521,7 +2532,7 @@ class Skeleton(SkeletonBase):
         while len(interfacesegments)>0:
             #Now starting at startsegment, get the 'fan' of adjacent elements
             #until we encounter the next interface segment.
-            while 1:
+            while True:
                 if skelelem==startelement:
                     return numzones-1
                 nextsegment=startelement.getOppositeSegment(skelnode,
@@ -2667,7 +2678,7 @@ class Skeleton(SkeletonBase):
                                                     matname, seg_dict):
         skelbdy.sequence() #Should have been sequenced by this point
         bdylength=len(skelbdy.edges)
-        for i in xrange(0,bdylength):
+        for i in range(bdylength):
             skeledge=skelbdy.edges[i]
             # NOTE: skeledge.get_nodes() returns the nodes in the
             # order indicated by skeledge.direction.
@@ -2729,10 +2740,7 @@ class Skeleton(SkeletonBase):
         # edict[n] is the n-sided master element.  Find the
         # interpolation order of the elements.  They all have the same
         # order, so just pick one.
-        
-        #order = edict[edict.keys()[0]].fun_order()
-        #This should do the same thing
-        order = edict.values()[0].fun_order()
+        order = next(iter(edict.values())).fun_order()
 
         # set_materials is a function that will be called to assign
         # materials to elements.
@@ -2763,7 +2771,7 @@ class Skeleton(SkeletonBase):
             nfuncnodes += nels[n]*masterelem.ninteriorfuncnodes()
         realmesh.reserveFuncNodes(nfuncnodes)
 
-        masterel = edict[edict.keys()[0]]
+        masterel = next(iter(edict.values())) 
         n_map_per_side = masterel.nexteriormapnodes_only()/masterel.nsides()
         nmapnodes = len(self.segments)*n_map_per_side
         for n, masterelem in edict.items():
@@ -2914,15 +2922,15 @@ class ProvisionalChanges:
     def __repr__(self):
         s = self.__class__.__name__ + "("
         if self.removed:
-            s += "\n    removed=" + `self.removed`
+            s += "\n    removed=" + repr(self.removed)
         if self.inserted:
-            s += "\n    inserted=" + `self.inserted`
+            s += "\n    inserted=" + repr(self.inserted)
         if self.substitutions:
-            s += "\n    substitutions=" + `self.substitutions`
+            s += "\n    substitutions=" + repr(self.substitutions)
         if self.seg_subs:
-            s += "\n    seg_subs=" + `self.seg_subs`
+            s += "\n    seg_subs=" + repr(self.seg_subs)
         if self.movednodes:
-            s += "\n    movednodes=" + `self.movednodes`
+            s += "\n    movednodes=" + repr(self.movednodes)
         s += ")"
         return s
     

@@ -172,7 +172,7 @@ class PropertyManager:
                 if (p1.name != p2.name) or (p1.value != p2.value):
                     raise KeyError(
                         "Assignment collision in PropertyManager, key %s."
-                        % `key`)
+                        % repr(key))
 
 
     # Make a named instance of the given property.  Called by
@@ -330,7 +330,7 @@ class _PSInfo:
         self._fields[field] = _PropertyFieldInfo(time_derivs, nonlinear, 
                                                  time_dependent)
     def fields(self):
-        return self._fields.keys()
+        return list(self._fields.keys())
     def fields_of_order(self, order):
         return [f for f in self._fields
                 if (f is not None and
@@ -399,7 +399,7 @@ class _PropertyStructureInfo:
                 pass
         return list(flds)
     def all(self):
-        return self._dict.keys()
+        return list(self._dict.keys())
     def nonlinear(self, fields):
         for key,pinfo in self._dict.items():
             if pinfo.nonlinear(fields):
@@ -520,7 +520,7 @@ class PropertyRegistration(PropertyRegistrationParent):
                  time_dependent=False):
         for flux in fluxes:
             for field in fields:
-                nl = ((isinstance(nonlinear, (types.ListType, types.TupleType))
+                nl = ((isinstance(nonlinear, (list, tuple))
                        and field in nonlinear)
                       or nonlinear)
                 self._fluxes.add(flux, field, time_derivs, nl, time_dependent)
@@ -533,7 +533,7 @@ class PropertyRegistration(PropertyRegistrationParent):
         # no contributions.
         for eqn in equations:
             for field in fields:
-                nl = ((isinstance(nonlinear, (types.ListType, types.TupleType))
+                nl = ((isinstance(nonlinear, (list, tuple))
                        and field in nonlinear)
                       or nonlinear)
                 self._equations.add(eqn, field, time_derivs, nl, time_dependent)
@@ -627,7 +627,7 @@ class PropertyRegistration(PropertyRegistrationParent):
                 except KeyError:
                     pass
         # "m" is a MaterialProps object, "o" is the old property instance.
-        for (m, o) in self.materials.values():
+        for (m, o) in list(self.materials.values()):
             newcopy = self() # Run the registration to get the prop.
             m.new_params(o, newcopy)
             self.materials[m.name]=(m, newcopy)
@@ -645,8 +645,8 @@ class PropertyRegistration(PropertyRegistrationParent):
 
     def __repr__(self):
         return "PropertyRegistration(%s, %s, %s)" % \
-               (self.subclass.__name__, `self.ordering`,
-                `self.params`)
+               (self.subclass.__name__, repr(self.ordering),
+                repr(self.params))
 
     def writeData(self, datafile):
         datafile.startCmd(
@@ -742,8 +742,8 @@ class NamedPropertyRegistration(PropertyRegistration):
 
     def __repr__(self):
         return "NamedPropertyRegistration(%s, %s, %s, %s)" % \
-               (`self.moniker`, self.subclass.__name__, `self.ordering`,
-                `self.params`)
+               (repr(self.moniker), self.subclass.__name__, repr(self.ordering),
+                repr(self.params))
 
     def writeData(self, datafile):
         datafile.startCmd(
@@ -932,28 +932,27 @@ def xmldocs(phile):
                 propdict[field] = [reg]
 
 
-    print >> phile, "<section id='Section-Properties'>"
-    print >> phile, "<title>Material Properties</title>"
-    print >> phile, """
+    print("<section id='Section-Properties'>", file=phile)
+    print("<title>Material Properties</title>", file=phile)
+    print("""
 <para>
 This is a listing of &properties; by category.  Each &material; may
 have at most one &property; from each category.  Follow the links for
 more detail about each &property;, including which &fields; it
 requires and which &fluxes; and/or &equations; it contributes to.
-</para>"""
-    print >> phile, "<itemizedlist>"
-    ptypes = ptypedict.keys()
-    ptypes.sort()
+</para>""", file=phile)
+    print("<itemizedlist>", file=phile)
+    ptypes = sorted(list(ptypedict.keys()))
     for ptype in ptypes:
-        print >> phile, '<listitem id="PropertyType-%s">' % ptype
-        print >> phile, '<para>', ptype
-        print >> phile, '<itemizedlist>'
+        print('<listitem id="PropertyType-%s">' % ptype, file=phile)
+        print('<para>', ptype, file=phile)
+        print('<itemizedlist>', file=phile)
         for reg in ptypedict[ptype]:
-            print >> phile, '<listitem><simpara><link linkend="Property-%s">%s</link></simpara></listitem>' % (reg.name().replace(':', '-'), reg.name())
-        print >> phile, '</itemizedlist>'
-        print >> phile, '</para>'
-        print >> phile, '</listitem>'
-    print >> phile, '</itemizedlist>'
+            print('<listitem><simpara><link linkend="Property-%s">%s</link></simpara></listitem>' % (reg.name().replace(':', '-'), reg.name()), file=phile)
+        print('</itemizedlist>', file=phile)
+        print('</para>', file=phile)
+        print('</listitem>', file=phile)
+    print('</itemizedlist>', file=phile)
 
     # Create a refentry page for each Property
     for reg in AllProperties.data.getObjects():
@@ -963,66 +962,66 @@ requires and which &fluxes; and/or &equations; it contributes to.
         idname = name.replace(':', '-')
         ptype = reg.propertyType()
         xmlmenudump.xmlIndexEntry(name, ptype+" Property", "Property-"+idname)
-        print >> phile, '<refentry xreflabel="%s" id="Property-%s" role="Property">' \
-            % (name, idname)
-        print >> phile, '<refnamediv>'
-        print >> phile, '<refname>%s</refname>' % name
+        print('<refentry xreflabel="%s" id="Property-%s" role="Property">' \
+            % (name, idname), file=phile)
+        print('<refnamediv>', file=phile)
+        print('<refname>%s</refname>' % name, file=phile)
         if reg.tip is not parameter.emptyTipString:
             tip = reg.tip or "MISSING PROPERTY TIP STRING for %s" % name
         else:
             tip = ""
-        print >> phile, '<refpurpose>%s</refpurpose>' % tip
-        print >> phile, '</refnamediv>'
-        print >> phile, '<refsect1>'
-        print >> phile, '<title>Details</title>'
-        print >> phile, '<itemizedlist>'
+        print('<refpurpose>%s</refpurpose>' % tip, file=phile)
+        print('</refnamediv>', file=phile)
+        print('<refsect1>', file=phile)
+        print('<title>Details</title>', file=phile)
+        print('<itemizedlist>', file=phile)
         # Category
-        print >> phile, '<listitem><simpara>'
-        print >> phile, 'Property Category: <link linkend="PropertyType-%(t)s">%(t)s</link>' % dict(t=ptype)
-        print >> phile, '</simpara></listitem>'
+        print('<listitem><simpara>', file=phile)
+        print('Property Category: <link linkend="PropertyType-%(t)s">%(t)s</link>' % dict(t=ptype), file=phile)
+        print('</simpara></listitem>', file=phile)
         # Parameters
-        print >> phile, '<listitem>'
-        print >> phile, '<para>Parameters:'
-        print >> phile, '<variablelist>'
+        print('<listitem>', file=phile)
+        print('<para>Parameters:', file=phile)
+        print('<variablelist>', file=phile)
         for param in reg.params:
-            print >> phile, '<varlistentry>'
-            print >> phile, '<term><varname>%s</varname></term>' % param.name
-            print >> phile, '<listitem>'
+            print('<varlistentry>', file=phile)
+            print('<term><varname>%s</varname></term>' % param.name, file=phile)
+            print('<listitem>', file=phile)
             if param.tip is not parameter.emptyTipString:
                 tip = param.tip or "MISSING PROPERTY PARAMETER TIP for %s"%name
             else:
                 tip = ""
-            print >> phile, '<simpara>%s <emphasis>Type</emphasis>: %s </simpara>'\
-                % (tip, param.valueDesc())
-            print >> phile, '</listitem>'
-            print >> phile, '</varlistentry>'
-        print >> phile, '</variablelist>'
-        print >> phile, '</para></listitem> <!-- Parameters -->'
+            print('<simpara>%s <emphasis>Type</emphasis>: %s </simpara>'\
+                % (tip, param.valueDesc()), file=phile)
+            print('</listitem>', file=phile)
+            print('</varlistentry>', file=phile)
+        print('</variablelist>', file=phile)
+        print('</para></listitem> <!-- Parameters -->', file=phile)
 
         for classname, plural, objlist in [('Field', 'Fields', reg.fields()),
                                  ('Flux', 'Fluxes', reg.fluxes()),
                                  ('Equation', 'Equations', reg.equations())]:
             if objlist:
-                print >> phile, '<listitem><simpara>'
+                print('<listitem><simpara>', file=phile)
                 text = ["<link linkend='%s-%s'><varname>%s</varname></link>"
                         % (classname, obj.name(), obj.name())
                         for obj in objlist]
-                print >> phile, "%s: %s" % (plural, ", ".join(text))
-                print >> phile, '</simpara></listitem>'
+                print("%s: %s" % (plural, ", ".join(text)), file=phile)
+                print('</simpara></listitem>', file=phile)
 
-        print >> phile, '</itemizedlist>'
-        print >> phile, '</refsect1> <!-- Details -->'
+        print('</itemizedlist>', file=phile)
+        print('</refsect1> <!-- Details -->', file=phile)
 
-        print >> phile, '<refsect1>'
-        print >> phile, '<title>Discussion</title>'
+        print('<refsect1>', file=phile)
+        print('<title>Discussion</title>', file=phile)
         try:
-            print >> phile, xmlmenudump.getDiscussion(reg)
+            print(xmlmenudump.getDiscussion(reg), file=phile)
         except AttributeError:
-            print >> phile, "<para>MISSING PROPERTY DISCUSSION: %s</para>" % name
-        print >> phile, '</refsect1> <!-- Discussion -->'
-        print >> phile, '</refentry>'
+            print("<para>MISSING PROPERTY DISCUSSION: %s</para>" % name, file=phile)
+        print('</refsect1> <!-- Discussion -->', file=phile)
+        print('</refentry>', file=phile)
 
-    print >> phile, "</section> <!-- Properties -->"
+    print("</section> <!-- Properties -->", file=phile)
 
     return propdict
 

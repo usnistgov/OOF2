@@ -132,7 +132,7 @@ class PinSelectedSegments(PinNodesModifier):
             nodes[segment.nodes()[0]] = None
             nodes[segment.nodes()[1]] = None
         pinnednodes.start()
-        pinnednodes.pin(nodes.keys())
+        pinnednodes.pin(nodes.keys()) # TODO PYTHON3: Check iterator
         pinnednodes.signal()
 
 registeredclass.Registration(
@@ -158,7 +158,7 @@ class PinSelectedElements(PinNodesModifier):
         for element in context.elementselection.retrieve():
             for nd in element.nodes:
                 nodes[nd] = None
-        return nodes.keys()
+        return list(nodes.keys())
 
     def getBoundaryNodes(self, context):
         bound = {}
@@ -175,7 +175,7 @@ class PinSelectedElements(PinNodesModifier):
                 if n == 1:
                     bound[n0] = None
                     bound[n1] = None
-        return bound.keys()
+        return list(bound.keys())
 
     def getInternalNodes(self, context, allnodes):
         bound = self.getBoundaryNodes(context)

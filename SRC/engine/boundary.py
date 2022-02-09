@@ -114,12 +114,12 @@ class Boundary:
         del self.allConditions[condition.name()]
 
     def createAuxiliaryBCs(self):
-        allconds = self.allConditions.values()[:]
+        allconds = list(self.allConditions.values())[:]
         for bc in allconds:
             bc.create_auxiliary_BCs()
 
     def removeAuxiliaryBCs(self):
-        allconds = self.allConditions.values()[:]
+        allconds = list(self.allConditions.values())[:]
         for bc in allconds:
             bc.remove_auxiliary_BCs()
 
@@ -318,7 +318,7 @@ class EdgeBoundary(Boundary):
                 direction = -1
             else:
                 return 0
-            for i in xrange(2,len(nodes)):
+            for i in range(2,len(nodes)):
                 if not nodes[i].position().x == nodes[i-1].position().x:
                     return 0
             return ('x',nodes[0].position().x,direction)
@@ -332,7 +332,7 @@ class EdgeBoundary(Boundary):
                 direction = -1
             else:
                 return 0
-            for i in xrange(2,len(nodes)):
+            for i in range(2,len(nodes)):
                 if not nodes[i].position().y == nodes[i-1].position().y:
                     return 0
             return ('y',nodes[0].position().y,direction)

@@ -59,7 +59,7 @@ class FixIllegal(skeletonmodifier.SkeletonModifier):
     def smoothIllegalElements(self, skel, illegalset, suckers):
         for element in suckers:
             if element in illegalset:
-                node_indices = range(element.nnodes())
+                node_indices = list(range(element.nnodes()))
                 random.shuffle(node_indices)
                 for i in node_indices:
                     node = element.nodes[i]

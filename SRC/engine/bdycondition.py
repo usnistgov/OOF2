@@ -399,8 +399,8 @@ class DirichletBC(BC):
 
     def display(self):
         return "Dirichlet / %s[%s] / %s[%s]" % (
-            `self.field`, self.field_component,
-            `self.equation`, self.eqn_component)
+            repr(self.field), self.field_component,
+            repr(self.equation), self.eqn_component)
     
 registeredclass.Registration(
     "Dirichlet",
@@ -478,7 +478,7 @@ class ForceBC(BC):
         except ooferror2.ErrNoSuchField: # eqn not active at that node
             pass
     def display(self):
-        return "Force / %s" % `self.equation`
+        return "Force / %s" % repr(self.equation)
 
 
 registeredclass.Registration(
@@ -855,9 +855,9 @@ class FloatBCBase(BC):
 
     def display(self):
         # Exclamations, because it shouldn't ever be displayed.
-        return "FloatBCBase!!! / %s[%s] / %s[%s]" % (`self.field`,
+        return "FloatBCBase!!! / %s[%s] / %s[%s]" % (repr(self.field),
                                                      self.field_component,
-                                                     `self.equation`,
+                                                     repr(self.equation),
                                                      self.eqn_component)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -874,9 +874,9 @@ class FloatBC(FloatBCBase):
         return self.field.time_derivative()
 
     def display(self):
-        return "Float / %s[%s] / %s[%s]" % (`self.field`,
+        return "Float / %s[%s] / %s[%s]" % (repr(self.field),
                                             self.field_component,
-                                            `self.equation`,
+                                            repr(self.equation),
                                             self.eqn_component)
     def preinitialize(self):
         self.initialized = False
@@ -1165,7 +1165,7 @@ def _build_oops(field, eqn, boundary):
                 else:
                     raise ooferror2.ErrSetupError(
                         "Equation %s has multiple plane-flux equations." % \
-                        `eqn`)
+                        repr(eqn))
             
     if not oop_eqn:
         # If no plane-flux equation can be found, silently fail.
@@ -1179,8 +1179,8 @@ def _build_oops(field, eqn, boundary):
                                oop_eqn, eqn_itr.shortstring(),
                                boundary)
         res.append(new_oop)
-        field_itr.next()
-        eqn_itr.next()
+        next(field_itr)         # TODO PYTHON3: Check iterators
+        next(eqn_itr)
 
     return res
 
@@ -1206,9 +1206,9 @@ class OutOfPlaneBC(FloatBCBase):
 
     def display(self):
         # Exclamation marks again, because this should never be displayed.
-        return "OutOfPlaneBC!!!! / %s[%s] %s[%s]" %  (`self.field`,
+        return "OutOfPlaneBC!!!! / %s[%s] %s[%s]" %  (repr(self.field),
                                                       self.field_component,
-                                                      `self.equation`,
+                                                      repr(self.equation),
                                                       self.eqn_component)
     
     # OutOfPlaneBC objects don't have registrations, because there's
@@ -1367,8 +1367,8 @@ class PeriodicBC(BC):
                 newbc.add_to_mesh(aux_bc_name, self.mesh)
                 self.floatBCs.append(newbc)
                 
-                field_comp_itr.next()
-                eqn_comp_itr.next()
+                next(field_comp_itr) # TODO PYTHON3: Check iterators
+                next(eqn_comp_itr)
 
                 
             # Add the out-of-plane BCs, via the handy helper function.
@@ -1445,7 +1445,7 @@ class PeriodicBC(BC):
                subproblem.is_active_equation(self.equation)
 
     def display(self):
-        return "Periodic / %s / %s" % (`self.field`,`self.equation`)
+        return "Periodic / %s / %s" % (repr(self.field),repr(self.equation))
 
       
 registeredclass.Registration(
@@ -1554,7 +1554,7 @@ class NeumannBC(BC):
             raise ooferror2.ErrSetupError(
                 'Attempt to invoke NeumannBC on inactive flux: %s ' % self.flux)
     def display(self):
-        return "Neumann / %s" % `self.flux`
+        return "Neumann / %s" % repr(self.flux)
 
 # NeumannBC doesn't make sense to apply point-wise, use the ForceBC for
 # that.  ForceBC's are specified in terms of equations and components,
@@ -1631,7 +1631,7 @@ class JumpBC(BC):
 ##            pass
     def display(self):
         return ("JumpBC / %s[%s] / jumpvalue=%s / independent=%s" 
-                % (`self.field`,
+                % (repr(self.field),
                    self.field_component,
                    self.jump_value,
                    self.independent))

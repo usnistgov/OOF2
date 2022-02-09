@@ -21,6 +21,8 @@ from ooflib.engine.IO import analyze
 from ooflib.engine.IO import scheduledoutput
 from ooflib.engine.IO import outputdestination
 
+import itertools
+
 _namedAnalyses = {}
 _namedBdyAnalyses = {}
 namelock = lock.SLock()
@@ -35,8 +37,9 @@ class _nameResolver(object):
             basename = self.defaultname
         else:
             basename = name
-        return utils.uniqueName(basename, 
-                                _namedAnalyses.keys()+_namedBdyAnalyses.keys())
+        return utils.uniqueName(
+            basename,
+            itertools.chain(_namedAnalyses.keys(), _namedBdyAnalyses.keys()))
 
 nameResolver = _nameResolver('analysis')
 bdynameResolver = _nameResolver('bdy_analysis')
@@ -117,10 +120,10 @@ def getNamedAnalysis(name):
         return _namedBdyAnalyses[name]
 
 def bulkAnalysisNames():
-    return _namedAnalyses.keys()
+    return list(_namedAnalyses.keys())
 
 def bdyAnalysisNames():
-    return _namedBdyAnalyses.keys()
+    return list(_namedBdyAnalyses.keys())
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

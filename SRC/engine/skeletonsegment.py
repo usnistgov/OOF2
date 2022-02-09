@@ -142,7 +142,7 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
             return skeleton.findSegment(pnodes[0], pnodes[1])
 
     def __repr__(self):
-        return "SkeletonSegment(%s, %s)" % ( `self._nodes[0]`, `self._nodes[1]`)
+        return "SkeletonSegment(%s, %s)" % ( repr(self._nodes[0]), repr(self._nodes[1]))
 
     def get_ownership(self):
         return self._rank
@@ -278,7 +278,7 @@ def segSequence(seglist, startnode=None):
                     "Start node not found in sequence loop.")
                 
         else:
-            begin_node = adjacency.keys()[0]  # Again, arbitrary.
+            begin_node = next(iter(adjacency.keys())) # Again, arbitrary.
     else:
         # We reach this point if the number of nodes with only one
         # corresponding segment in the passed-in set is not 0 or 2.

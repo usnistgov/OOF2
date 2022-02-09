@@ -19,6 +19,7 @@ from ooflib.common.IO import reporter
 from ooflib.common import runtimeflags
 from ooflib.common.microstructure import microStructures
 from ooflib.engine.propertyregistration import AllProperties
+import itertools
 import string
 import sys
 
@@ -120,7 +121,8 @@ class MaterialManager:
     # "Deletion" means it's been deleted from the property manager,
     # and all instances need to go. 
     def delete_prop(self,name):
-        for m in self.materials.values()+self.secretmaterials.values():
+        for m in itertools.chain(self.materials.values(),
+                                 self.secretmaterials.values()):
             m.delete_prop(name)
             
     # Add a property to the named material.

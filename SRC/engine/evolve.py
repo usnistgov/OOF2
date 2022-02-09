@@ -61,9 +61,8 @@ def evolve(meshctxt, endtime):
     try:
         # Get an ordered list of subproblems to be solved.  First,
         # create tuples containing a subproblem and its solveOrder.
-        subprobctxts = [(s.solveOrder, s) for s in meshctxt.subproblems()
-                       if s.time_stepper is not None and s.solveFlag]
-        subprobctxts.sort()     # sort by solveOrder
+        subprobctxts = sorted([(s.solveOrder, s) for s in meshctxt.subproblems()
+                       if s.time_stepper is not None and s.solveFlag])
         subprobctxts = [s[1] for s in subprobctxts] # strip solveOrder
 
         # Initialize statistics.
@@ -83,11 +82,11 @@ def evolve(meshctxt, endtime):
                 _do_output(meshctxt, starttime)
             except ooferror2.ErrInterrupted:
                 raise
-            except ooferror2.ErrError, exc:
+            except ooferror2.ErrError as exc:
                 meshctxt.setStatus(meshstatus.Failed(exc.summary()))
                 raise
-            except Exception, exc:
-                meshctxt.setStatus(meshstatus.Failed(`exc`))
+            except Exception as exc:
+                meshctxt.setStatus(meshstatus.Failed(repr(exc)))
                 raise
 
         if staticProblem:
@@ -430,11 +429,11 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
         debug.fmsg("Interrupted!")
         meshctxt.setStatus(meshstatus.Failed("Solution interrupted."))
         raise
-    except ooferror2.ErrErrorPtr, err:
+    except ooferror2.ErrErrorPtr as err:
         debug.fmsg("Caught an ErrError")
         meshctxt.setStatus(meshstatus.Failed(err.summary()))
         raise
-    except Exception, exc:
+    except Exception as exc:
         debug.fmsg("Caught an Exception")
         meshctxt.setStatus(meshstatus.Failed(exc.message))
         raise
@@ -488,9 +487,9 @@ def _do_output(meshctxt, time):
 
 def dumpLinSysRefererrers():
     global linsys
-    print >> sys.stderr, "---- dumpLinSysRefererrers ----"
-    for lsys in linsys.values():
-        print >> sys.stderr, "Referrers for LinearizedSystem", id(lsys)
+    print("---- dumpLinSysRefererrers ----", file=sys.stderr)
+    for lsys in list(linsys.values()):
+        print("Referrers for LinearizedSystem", id(lsys), file=sys.stderr)
         debug.dumpReferrers(lsys, 2)
 
 
