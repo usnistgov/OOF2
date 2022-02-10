@@ -291,7 +291,7 @@ def _PyPropertyWrapper_data_to_element(self, element, name, data):
 
 # Sensible display string for element data.
 def _PyPropertyElementData___repr__(self):
-    return "PyPropertyElementData(%s,%s)" % (self.name(), `self.data()`)
+    return "PyPropertyElementData(%s,%s)" % (self.name(), repr(self.data()))
 
 PyPropertyElementDataPtr.__repr__ = _PyPropertyElementData___repr__
 

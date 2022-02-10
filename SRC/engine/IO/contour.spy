@@ -20,7 +20,7 @@ swig_ContourCellSet_getCorners = ContourCellSetPtr.getCorners
 
 def _ContourCellSet_getCorners(self):
     strlist= swig_ContourCellSet_getCorners(self)
-    return map(ContourCoordPtr, strlist)
+    return list(map(ContourCoordPtr, strlist))
 ContourCellSetPtr.getCorners = _ContourCellSet_getCorners
 
 
@@ -50,11 +50,11 @@ class Contour(CContour):
     
     def getCurves(self):
         swigCurves = CContour.getCurves(self)
-        return map(lambda x : map(MasterCoordPtr, x), swigCurves)
+        return [list(map(MasterCoordPtr, x)) for x in swigCurves]
 
     def getLoops(self):
         swigLoops = CContour.getLoops(self)
-        return map(lambda x : map(MasterCoordPtr, x), swigLoops)
+        return [list(map(MasterCoordPtr, x)) for x in swigLoops]
 
     def __repr__(self):
         return "Contour(value=%f, curves=%s, loops=%s)" % (self.value,

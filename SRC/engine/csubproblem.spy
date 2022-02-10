@@ -169,6 +169,7 @@ CSubProblemPtr.create_elem_bdynodemap=_CSubProblemPtr_create_elem_bdynodemap
 def _CSubProblemPtr_create_bdy_node_map(self, skel):
     # Initializing
     nd_iter = self.node_iterator()
+    ## TODO PYTHON3: Use a real iterator
     while not nd_iter.end():
         node = nd_iter.node()
         self.bdy_node_map[node.index()] = 0

@@ -120,14 +120,14 @@ def _Material_cross_reference(self):
     for prop in self.properties():
         try:
             prop.bookkeeping(self)
-        except ooferror2.ErrRedundantProperty, exc:
+        except ooferror2.ErrRedundantProperty as exc:
             self.consistency_state.append(
                 "Property '%s' is a redundant property of type '%s'."
                 % (prop.name(), exc.get_tag()))
     for prop in self.properties():
         try:
             prop.c_cross_reference(self)
-        except ooferror2.ErrNoSuchProperty, exc:
+        except ooferror2.ErrNoSuchProperty as exc:
             self.consistency_state.append(exc.summary())
     self.set_consistency(self.self_consistent()) # sets C++ flag
             
@@ -249,7 +249,7 @@ MaterialPtr.__hash__ = _Material__hash__
 def _Material___repr_(self):
     out = ["Material('" + self.name() + "'"]
     for prop in self.properties():
-        out.append(`prop`)
+        out.append(repr(prop))
     out = string.join(out, ",\n\t")
     return out + ")"
 

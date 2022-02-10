@@ -57,7 +57,7 @@ def getField(name):
     return _allFields[name]
 
 def allFields():
-    return _allFields.values()
+    return list(_allFields.values())
 
 from ooflib.SWIG.engine.freedom import DegreeOfFreedomPtr
 

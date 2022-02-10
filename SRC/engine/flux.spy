@@ -31,11 +31,11 @@ FluxPtr.__cmp__ = _Flux___cmp__
 
 class _AllFluxes:
     def __getitem__(self, indx):
-        if type(indx) == types.IntType:
+        if isinstance(indx, int):
             if indx >= countFluxes():
                 raise IndexError("Bad flux index: " + str(indx))
             return getFluxByIndex(indx)
-        elif type(indx) == types.StringType:
+        elif isinstance(indx, bytes):
             try:
                 flx = utils.OOFeval(indx)
             except NameError:

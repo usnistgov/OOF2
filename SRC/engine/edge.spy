@@ -13,7 +13,7 @@
 # edges are handled in element.spy, where there is also another
 # example of a Coord wrapper.
 def _EdgePtr__position(self, locations):
-    val = map(CoordPtr, self.position_(locations))
+    val = list(map(CoordPtr, self.position_(locations)))
     for v in val:
         v.thisown = 1
     return val

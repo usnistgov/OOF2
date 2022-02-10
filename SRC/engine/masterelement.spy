@@ -67,8 +67,7 @@ def getMasterElementEnums():
     return _masterElementEnumDict
 
 def getMasterElementGeometries():
-    keys = getMasterElementEnums().keys()
-    keys.sort()
+    keys = sorted(list(getMasterElementEnums().keys()))
     return keys
 
 def getMasterElementEnumClasses():

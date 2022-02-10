@@ -37,11 +37,11 @@ from ooflib.SWIG.engine.nodalequation import NodalEquationPtr
 # AllEquations acts like a list of Equations
 class _AllEquations:
     def __getitem__(self, indx):
-        if type(indx) == types.IntType:
+        if isinstance(indx, int):
             if indx >= countEquations() or indx < 0:
                 raise IndexError("Bad equation index: " + str(indx))
             return getEquationByIndex(indx)
-        elif type(indx) == types.StringType:
+        elif isinstance(indx, bytes):
             return getEquationByName(indx)
     def __len__(self):
         return countEquations()

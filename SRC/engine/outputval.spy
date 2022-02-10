@@ -23,7 +23,7 @@ def _VectorOutputValPtr_label_list(self):
     if s <= len(_labels):
         return _labels[:s]
     else:
-        return [`x`+'-component' for x in range(1,s+1)]
+        return [repr(x)+'-component' for x in range(1,s+1)]
 
 VectorOutputValPtr.label_list = _VectorOutputValPtr_label_list
 
@@ -146,7 +146,7 @@ ScalarOutputValPtr.initRange = _ScalarOutputValPtr_initRange
 ##############################
 
 def _OutputValue___repr__(self):
-    return `self.valuePtr()`
+    return repr(self.valuePtr())
 
 OutputValuePtr.__repr__ = _OutputValue___repr__
 

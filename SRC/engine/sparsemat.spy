@@ -65,7 +65,7 @@ SparseMatPtr.__rmul__ = _sparsemat___rmul__
 
 def _sparsemat___imul__(self, x):
     import types
-    if type(x) is types.FloatType or type(x) is types.IntType:
+    if isinstance(x, float) or isinstance(x, int):
         self.scale(x)
         return self
     return NotImplemented
@@ -73,7 +73,7 @@ SparseMatPtr.__imul__ = _sparsemat___imul__
 
 def _sparsemat___idiv__(self, x):
     import types
-    if type(x) is types.FloatType or type(x) is types.IntType:
+    if isinstance(x, float) or isinstance(x, int):
         self.scale(1./x)
         return self
     return NotImplemented

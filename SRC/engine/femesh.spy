@@ -25,7 +25,7 @@ from ooflib.engine import profile
 from ooflib.engine import conjugate
 
 def _FEMeshPtr_getNodes(self):
-    nodes = range(self.nnodes()); # This should pre-allocate the space
+    nodes = list(range(self.nnodes())); # This should pre-allocate the space
     for index in nodes:
         nodes[index] = self.getNode(index)
     return nodes
@@ -556,7 +556,7 @@ def _fix_float_bcs(self, subproblem, linearsystem, time):
     # about how they'll be added together.
 
     nodefixedfloatdict = {}
-    blist = self.boundaries.values() # list of Boundary objects
+    blist = list(self.boundaries.values()) # list of Boundary objects
     for y in blist:                  # y is a Boundary object
         yfloat = y.getFloatGeometry(subproblem, time)
         # yfloat is a dictionary keyed by nodes.  The values are lists
@@ -679,6 +679,7 @@ def _getConjugatePairs(meshctxt):
     equations=meshctxt.all_subproblem_equations_bc()
     # equations=meshctxt.all_subproblem_equations() #includes plane stress equations
     conjugatepairs=[]
+    ## TODO PYTHON3: Use real iterators
     for fld in fields:
         flditer=fld.iterator_all()
         while not flditer.end():
@@ -950,16 +951,16 @@ def _constructRealMeshEdgeBoundaries(self,bdkey,edgebndy):
     else:
         for i in range(numleftsections):
             if leftdistinct[i]:
-                bdyname=bdkey+"_left_"+`i+1`
+                bdyname=bdkey+"_left_"+repr(i+1)
             else:
-                bdyname=bdkey+"_"+`i+1`
+                bdyname=bdkey+"_"+repr(i+1)
             realbndy = self.newEdgeBoundary(bdyname)
             for bedge in leftboundaries[i]:
                 realbndy.addEdge(bedge)
         for i in range(numrightsections):
             if rightdistinct[i]:
                 #The other case is already included by leftboundaries
-                bdyname=bdkey+"_right_"+`i+1`
+                bdyname=bdkey+"_right_"+repr(i+1)
                 realbndy = self.newEdgeBoundary(bdyname)
                 for bedge in rightboundaries[i]:
                     realbndy.addEdge(bedge)
@@ -979,6 +980,9 @@ FEMeshPtr.enclosingElement = _enclosingElement
 
 ## Defining Iterator.__getitem__ allows constructions like
 ## "for node in mesh.iterator():"
+
+## TODO PYTHON3: Use real iterators.  Does just defining __getitem__
+## work in python3?
 
 def _FuncNodeIteratorPtr___getitem__(self,idx):
     if self.end():

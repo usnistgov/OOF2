@@ -9,7 +9,7 @@
 # oof_manager@nist.gov.
 
 def _Element__position(self, coords):
-    return map(self.from_master, coords)
+    return list(map(self.from_master, coords))
 
 ElementPtr.position = _Element__position
 
