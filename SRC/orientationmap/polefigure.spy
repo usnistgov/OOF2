@@ -86,8 +86,8 @@ def _makePoleFigure(menuitem, microstructure, pixels, symmetry,
         ppu = size/4.
         canvas = oofcanvas.OffScreenCanvas(ppu) 
         layer = canvas.newLayer("polefigure")
-        for i in xrange(nBins):
-            for j in xrange(nBins):
+        for i in range(nBins):
+            for j in range(nBins):
                 if pfig.inside(i, j):
                     val = pfig.getValue(i, j)
                     clr = color.canvasColor(colormap(offset + val*factor))
