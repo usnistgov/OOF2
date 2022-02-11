@@ -143,33 +143,14 @@ def degenerate(liszt):
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
-# Get a list of the classes to which an object or class belongs.  Just
-# for debugging.
+# Get a list of the classes to which an object or class belongs. 
 
 def classes(c):
-    if isinstance(c, types.InstanceType): # only for old-style classes
-        return classes(c.__class__)
-    if isinstance(c, type): # only for old-style classes
-        if not c.__bases__:
+    if isinstance(c, type):
+        if not c.__bases__ or c.__bases__ == (object,):
             return [c]
         return [c] +  flatten(map(classes, c.__bases__))
-    # Might be a new style class
-    try:
-        # TODO: Is this test needed?  It's in a try/except block
-        # because it may blow up if c has operator== defined.
-        if c == object:
-            return []
-    except:
-        pass
-    if isinstance(c, type):
-        if c.__bases__ == (object,):
-            return [c]
-        return [c] + flatten(map(classes, c.__bases__))
-    try:
-        cls = c.__class__
-    except AttributeError:
-        return []              # not a class or an instance of a class
-    return classes(cls)
+    return classes(c.__class__)
 
 # Get the *names* of the classes to which an object or class belongs.
 # This loses namespace information, so it's not as robust as using
@@ -181,14 +162,14 @@ def classnames(c):
 
 # Using PrintableClass as a metaclass allows a class (not the
 # instances of the class!) to be printed cleanly. Instead of 
-# class A(object):
+# class A:
 #   pass
-# print A
+# print(A)
 # ---->  <class '__main__.module.classname'> 
 # use
-# class A(object):
-#   __metaclass__ = PrintableClass
-# print A
+# class A(metaclass=PrintableClass):
+#   pass
+# print(A)
 # ---->  A
 
 class PrintableClass(type):

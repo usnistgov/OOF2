@@ -34,6 +34,7 @@
 
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
+from ooflib.common import utils
 from ooflib.common.IO import parameter
 import struct
 import types
@@ -68,24 +69,22 @@ def EnumClass(*args):
         
         def __repr__(self):
             return repr(self.name)
-        def __cmp__(self, other):
-            if isinstance(other, types.InstanceType):
-                # Comparison between objects in a class hierarchy is allowed.
-                if not (issubclass(other.__class__,self.__class__) or
-                        issubclass(self.__class__,other.__class__)):
-                    # classes aren't related, so the objects can't be equal
-                    if self.__class__ < other.__class__: return -1
-                    if self.__class__ > other.__class__: return 1
-                # Classes are identical or related by inheritance. 
-                if self.name < other.name: return -1
-                if self.name > other.name: return 1
-                return 0
-            # See comment above about comparison with strings.
-            elif isinstance(other, bytes):
-                if self.name < other: return -1
-                if self.name > other: return 1
-                return 0
-            return 1
+        def __eq__(self, other):
+            if isinstance(other, str):
+                return self.name == other
+            if isinstance(other, EnumBase):
+                # If one enum class is an extension of another enum
+                # class, then it's possible to compare an object in
+                # one class with an object the another.  Checking that
+                # they're in the same class is insufficient.
+                ## TODO: We should really check that they don't share
+                ## a common base class (other than EnumBase).
+                if (issubclass(self.__class__, other.__class__) or
+                    issubclass(other.__class__, self.__class__)):
+                    return self.name == other.name
+            return False
+        def __ne__(self, other):
+            return not self.__eq__(other)
         def string(self):
             return self.name
         def index(self):
