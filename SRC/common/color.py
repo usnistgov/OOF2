@@ -36,41 +36,26 @@ FloatRangeParameter = parameter.FloatRangeParameter
 ## instead of floats 0-1.
 
 class Color(registeredclass.ConvertibleRegisteredClass):
-    # # Generic comparator for colors.  Subclasses must provide
-    # # getRed(), getGreen() and getBlue() functions, which they need
-    # # for other reasons anyways.
-    # def __cmp__(self,other):
-    #     try:
-    #         if self.getRed() < other.getRed(): return -1
-    #         if self.getRed() > other.getRed(): return 1
-    #         if self.getGreen() < other.getGreen(): return -1
-    #         if self.getGreen() > other.getGreen(): return 1
-    #         if self.getBlue() < other.getBlue(): return -1
-    #         if self.getBlue() > other.getBlue(): return 1
-    #         if self.getAlpha() < other.getAlpha(): return -1
-    #         if self.getAlpha() > other.getAlpha(): return 1
-    #     except AttributeError:
-    #         return 1
-    #     return 0
-    def keyfn(self):
-        return (self.getRed(), self.getGreen(), self.getBlue())
-    # Also need to over-ride RegisteredClass's __eq__ and __ne__ functions.
+    def keyfn(self):    # For sorting.  Do we need it?
+        return (self.getRed(), self.getGreen(), self.getBlue(), self.getAlpha())
     def __eq__(self,other):
-        return self.keyfn() == other.keyfn()
-        # return self.__cmp__(other)==0
-    def __ne__(self,other):
-        return self.keyfn() != other.keyfn()
-        # return self.__cmp__(other)!=0
-    def __lt__(self, other):
         if isinstance(other, Color):
-            return (self.red < other.red or
-                    (self.red == other.red and
-                     (self.green < other.green or
-                      (self.green == other.green and
-                       self.blue < other.blue))))
-        return NotImplemented
-    def rgb(self):
+            return (self.getRed() == other.getRed() and
+                    self.getGreen() == other.getGreen() and
+                    self.getBlue() == other.getBlue() and
+                    self.getAlpha() == other.getAlpha())
+        return False
+    def __ne__(self,other):
+        if isinstance(other, Color):
+            return (self.getRed() != other.getRed() or
+                    self.getGreen() != other.getGreen() or
+                    self.getBlue() != other.getBlue() or
+                    self.getAlpha() != other.getAlpha())
+        return True
+    def rgb(self):              # TODO: Is this used?
         return (self.getRed(), self.getGreen(), self.getBlue())
+    def rgba(self):             # TODO: Is this used?
+        return (self.getRed(), self.getGreen(), self.getBlue(), self.getAlpha())
 
     tip = "Various ways of describing a color."
     discussion = """<para>
@@ -79,9 +64,6 @@ class Color(registeredclass.ConvertibleRegisteredClass):
     convenience.  The behavior of the program never depends on the
     format in which a color was specified.
     </para>"""
-
-    def rgba(self):
-        return (self.getRed(), self.getGreen(), self.getBlue(), self.getAlpha())
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -102,49 +84,13 @@ class OpaqueColor(TranslucentColor):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
     
-# Structured type to hold the base values for color parameters, and
-# which can be type-checked.  Also contains the comparator for colors.
-# (TODO: Is there any reason not to just use RGBAColor as the base
-# representation?)
-class ColorValueBase:
-    def __init__(self,red,green,blue,alpha=1):
-        self.red = red
-        self.green = green
-        self.blue = blue
-        self.alpha = alpha
-    def getRed(self):
-        return self.red
-    def getGreen(self):
-        return self.green
-    def getBlue(self):
-        return self.blue
-    def getAlpha(self):
-        return self.alpha
-    # # Comparator, same semantics as instance comparator, but usable
-    # # if you don't yet have an instance.  (Does this ever happen?)
-    # def __cmp__(self, other):
-    #     try:
-    #         if self.red < other.red: return -1
-    #         if self.red > other.red: return 1
-    #         if self.green < other.green: return -1
-    #         if self.green > other.green: return 1
-    #         if self.blue < other.blue: return -1
-    #         if self.blue > other.blue: return 1
-    #         if self.alpha < other.alpha: return -1
-    #         if self.alpha > other.alpha: return 1
-    #     except AttributeError:
-    #         return 1                    # 'other' is (probably) not a CVB.
-    #     return 0
-    def __repr__(self):
-        return "ColorValueBase(red=%.5f, green=%.5f, blue=%.5f, alpha=%.5f)" % \
-               (self.red, self.green, self.blue, self.alpha)
-    
 # Registration assigns the conversion routines, which make
 # Color into a nontrivial convertible class.  "to_base" and
 # "from_base" arguments are required at this level, in general.
 # For the particular case of Color, however, all of the instances
 # can answer "base" queries (r, g, or b) more efficiently at
 # the instance level, so "to_base" functions are not provided.
+
 class ColorRegistration(registeredclass.ConvertibleRegistration):
     # ConvertibleRegistration.to_base is only called by
     # ConvertibleRegistration.getParamValuesAsBase and by
@@ -153,8 +99,8 @@ class ColorRegistration(registeredclass.ConvertibleRegistration):
     # any to_base functions.
     def getParamValuesAsBase(self):
         temp = self()
-        return ColorValueBase(temp.getRed(), temp.getGreen(), temp.getBlue(),
-                              temp.getAlpha())
+        return RGBAColor(temp.getRed(), temp.getGreen(), temp.getBlue(),
+                         temp.getAlpha())
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -189,45 +135,37 @@ class RGBColor(OpaqueColor):
                     self.green == other.green and
                     self.blue == other.blue)
         return Color.__eq__(self, other)
-        ## WTF was the point of this?
-        # try:
-        #     if self.red < other.red or self.red > other.red or \
-        #            self.green < other.green or self.green > other.green or \
-        #            self.blue < other.blue or self.blue > other.blue or \
-        #            self.alpha < other.alpha or self.alpha > other.alpha:
-        #         return 0
-        # except AttributeError:
-        #     return Color.__eq__(self, other)
-        # return 1
     def __ne__(self, other):
         if isinstance(other, RGBColor):
             return (self.red != other.red or
                     self.green != other.green or
                     self.blue != other.blue)
         return Color.__ne__(self, other)
-        # return 1 - self.__eq__(other)
-    ## TODO PYTHON3: Do we need __lt__?  Do we need other comparison ops?
-    def __lt__(self, other):
-        if isinstance(other, RGBColor):
-            return (self.red < other.red or
-                    (self.red == other.red and
-                     (self.green < other.green or
-                      (self.green == other.green and
-                       self.blue < other.blue))))
-        return Color.__lt__(self, other)
-    # def __cmp__(self, other):
-    #     try:
-    #         if self.red < other.red: return -1
-    #         if self.red > other.red: return 1
-    #         if self.green < other.green: return -1
-    #         if self.green > other.green: return 1
-    #         if self.blue < other.blue: return -1
-    #         if self.blue > other.blue: return 1
-    #         if self.alpha < other.alpha: return -1
-    #         if self.alpha > other.alpha: return 1
-    #     except AttributeError:
-    #         return Color.__cmp__(self, other)
-    #     return 0
+
+    # ## TODO PYTHON3: Do we need __lt__? 
+    # def __lt__(self, other):
+    #     if isinstance(other, RGBColor):
+    #         for att in ("red", "green", "blue", "alpha"):
+    #             s = getattr(self, att)
+    #             o = getattr(other, att)
+    #             if s < o:
+    #                 return True
+    #             if s > o:
+    #                 return False
+    #         return False
+    #     return Color.__lt__(self, other)
+
+    ## Maybe uglier but maybe faster version of __lt__.
+    # def __lt__(self, other):
+    #     if isinstance(other, RGBColor):
+    #         return (self.red < other.red or
+    #                 (self.red == other.red and
+    #                  (self.green < other.green or
+    #                   (self.green == other.green and
+    #                    (self.blue < other.blue or
+    #                     (self.blue == other.blue and
+    #                      self.alpha < other.alpha))))))
+    #     return Color.__lt__(self, other)
 
     # RGBColor overrides the default repr defined in RegisteredClass,
     # because the default one writes too many digits. The repr is used
@@ -242,7 +180,7 @@ class RGBColor(OpaqueColor):
 
 # RGB conversion functions are nearly trivial.
 def _rgb_from_base(base):
-    if isinstance(base,ColorValueBase):
+    if isinstance(base, RGBAColor):
         return [base.red, base.green, base.blue]
 
 def rgb_from_hex(hexstr):
@@ -287,7 +225,7 @@ class RGBAColor(TranslucentColor):
         return RGBColor(self.red, self.green, self.blue)
 
 def _rgba_from_base(base):
-    if isinstance(base,ColorValueBase):
+    if isinstance(base, RGBAColor):
         return [base.red, base.green, base.blue, base.alpha]
 
 ColorRegistration(
@@ -326,7 +264,7 @@ class Gray(OpaqueColor):
 
 # Gray conversion functions.
 def _gray_from_base(base):
-    if isinstance(base,ColorValueBase):
+    if isinstance(base, RGBAColor):
         g = (base.red+base.green+base.blue)/3.0
         return [g]
         
@@ -358,7 +296,7 @@ class TranslucentGray(TranslucentColor):
 
 # Gray conversion functions.
 def _tgray_from_base(base):
-    if isinstance(base,ColorValueBase):
+    if isinstance(base, RGBAColor):
         g = (base.red+base.green+base.blue)/3.0
         return [g,base.alpha]
  
@@ -402,12 +340,12 @@ def hsv_from_rgb(r, g, b):
      return (h, s, v)
 
 def _hsv_from_base(base):
-    if isinstance(base, ColorValueBase):
+    if isinstance(base, RGBAColor):
         (h, s, v) = hsv_from_rgb(base.red, base.green, base.blue)
         return [h,s,v]
 
 def _hsva_from_base(base):
-    if isinstance(base, ColorValueBase):
+    if isinstance(base, RGBAColor):
         (h, s, v) = hsv_from_rgb(base.red, base.green, base.blue)
         return [h,s,v, base.alpha]
 
