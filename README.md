@@ -134,7 +134,12 @@ Switch to the newly-created directory, and run
 
      % python setup.py build
 
-The build_ext command will create a "build" subdirectory in the top
+If you have multiple versions of python installed, be sure that you
+run this command (and all python commands below) with python 2.7.x.
+You may need to type `python2.7` or `python2` to get the right
+version.  You can type `python --version` to check the version number.
+
+The build command will create a "build" subdirectory in the top
 OOF2 directory.  Within "build" it will create a subdirectory with a
 system-dependent name.
 
