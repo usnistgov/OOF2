@@ -142,8 +142,8 @@ class ColorRegistration(registeredclass.ConvertibleRegistration):
     # any to_base functions.
     def getParamValuesAsBase(self):
         temp = self()
-        return ColorValueBase(temp.getRed(), temp.getGreen(), temp.getBlue(),
-                              temp.getAlpha())
+        return RGBAColor(temp.getRed(), temp.getGreen(), temp.getBlue(),
+                         temp.getAlpha())
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -209,7 +209,7 @@ class RGBColor(OpaqueColor):
 
 # RGB conversion functions are nearly trivial.
 def _rgb_from_base(base):
-    if isinstance(base,ColorValueBase):
+    if isinstance(base, RGBAColor): ## TODO: Do we need to check?
         return [base.red, base.green, base.blue]
 
 def rgb_from_hex(hexstr):
@@ -254,7 +254,7 @@ class RGBAColor(TranslucentColor):
         return RGBColor(self.red, self.green, self.blue)
 
 def _rgba_from_base(base):
-    if isinstance(base,ColorValueBase):
+    if isinstance(base, RGBAColor):
         return [base.red, base.green, base.blue, base.alpha]
 
 ColorRegistration(
@@ -293,7 +293,7 @@ class Gray(OpaqueColor):
 
 # Gray conversion functions.
 def _gray_from_base(base):
-    if isinstance(base,ColorValueBase):
+    if isinstance(base, RGBAColor):
         g = (base.red+base.green+base.blue)/3.0
         return [g]
         
@@ -325,7 +325,7 @@ class TranslucentGray(TranslucentColor):
 
 # Gray conversion functions.
 def _tgray_from_base(base):
-    if isinstance(base,ColorValueBase):
+    if isinstance(base,RGBAColor):
         g = (base.red+base.green+base.blue)/3.0
         return [g,base.alpha]
  
@@ -369,12 +369,12 @@ def hsv_from_rgb(r, g, b):
      return (h, s, v)
 
 def _hsv_from_base(base):
-    if isinstance(base, ColorValueBase):
+    if isinstance(base, RGBAColor):
         (h, s, v) = hsv_from_rgb(base.red, base.green, base.blue)
         return [h,s,v]
 
 def _hsva_from_base(base):
-    if isinstance(base, ColorValueBase):
+    if isinstance(base, RGBAColor):
         (h, s, v) = hsv_from_rgb(base.red, base.green, base.blue)
         return [h,s,v, base.alpha]
 
