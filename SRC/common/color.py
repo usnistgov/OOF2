@@ -39,24 +39,29 @@ class Color(registeredclass.ConvertibleRegisteredClass):
     # Generic comparator for colors.  Subclasses must provide
     # getRed(), getGreen() and getBlue() functions, which they need
     # for other reasons anyways.
-    def __cmp__(self,other):
-        try:
-            if self.getRed() < other.getRed(): return -1
-            if self.getRed() > other.getRed(): return 1
-            if self.getGreen() < other.getGreen(): return -1
-            if self.getGreen() > other.getGreen(): return 1
-            if self.getBlue() < other.getBlue(): return -1
-            if self.getBlue() > other.getBlue(): return 1
-            if self.getAlpha() < other.getAlpha(): return -1
-            if self.getAlpha() > other.getAlpha(): return 1
-        except AttributeError:
-            return 1
-        return 0
+    # def __cmp__(self,other):
+    #     try:
+    #         if self.getRed() < other.getRed(): return -1
+    #         if self.getRed() > other.getRed(): return 1
+    #         if self.getGreen() < other.getGreen(): return -1
+    #         if self.getGreen() > other.getGreen(): return 1
+    #         if self.getBlue() < other.getBlue(): return -1
+    #         if self.getBlue() > other.getBlue(): return 1
+    #         if self.getAlpha() < other.getAlpha(): return -1
+    #         if self.getAlpha() > other.getAlpha(): return 1
+    #     except AttributeError:
+    #         return 1
+    #     return 0
     # Also need to over-ride RegisteredClass's __eq__ and __ne__ functions.
     def __eq__(self,other):
-        return self.__cmp__(other)==0
+        if isinstance(other, Color):
+            return (self.getRed() == other.getRed() and
+                    self.getGreen() == other.getGreen() and
+                    self.getBlue() == other.getBlue() and
+                    self.getAlpha() == other.getAlpha())
+        return False
     def __ne__(self,other):
-        return self.__cmp__(other)!=0
+        return not self.__eq__(other)
     
     def rgb(self):
         return (self.getRed(), self.getGreen(), self.getBlue())
@@ -109,21 +114,16 @@ class ColorValueBase:
         return self.blue
     def getAlpha(self):
         return self.alpha
-    # Comparator, same semantics as instance comparator, but usable
-    # if you don't yet have an instance.  (Does this ever happen?)
-    def __cmp__(self, other):
-        try:
-            if self.red < other.red: return -1
-            if self.red > other.red: return 1
-            if self.green < other.green: return -1
-            if self.green > other.green: return 1
-            if self.blue < other.blue: return -1
-            if self.blue > other.blue: return 1
-            if self.alpha < other.alpha: return -1
-            if self.alpha > other.alpha: return 1
-        except AttributeError:
-            return 1                    # 'other' is (probably) not a CVB.
-        return 0
+    # def __lt__(self, other):
+    #     if isinstance(other, RGBColor):
+    #         for att in ("red", "green", "blue", "alpha"):
+    #             s = getattr(self, att)
+    #             o = getattr(other, att)
+    #             if s < o:
+    #                 return True
+    #             if s > o:
+    #                 return False
+    #         return False
     def __repr__(self):
         return "ColorValueBase(red=%.5f, green=%.5f, blue=%.5f, alpha=%.5f)" % \
                (self.red, self.green, self.blue, self.alpha)
@@ -184,19 +184,17 @@ class RGBColor(OpaqueColor):
         return 1
     def __ne__(self, other):
         return 1 - self.__eq__(other)
-    def __cmp__(self, other):
-        try:
-            if self.red < other.red: return -1
-            if self.red > other.red: return 1
-            if self.green < other.green: return -1
-            if self.green > other.green: return 1
-            if self.blue < other.blue: return -1
-            if self.blue > other.blue: return 1
-            if self.alpha < other.alpha: return -1
-            if self.alpha > other.alpha: return 1
-        except AttributeError:
-            return Color.__cmp__(self, other)
-        return 0
+    # def __lt__(self, other):
+    #     if isinstance(other, RGBColor):
+    #         for att in ("red", "green", "blue", "alpha"):
+    #             s = getattr(self, att)
+    #             o = getattr(other, att)
+    #             if s < o:
+    #                 return True
+    #             if s > o:
+    #                 return False
+    #         return False
+    #     return Color.__lt__(self, other)
 
     # RGBColor overrides the default repr defined in RegisteredClass,
     # because the default one writes too many digits. The repr is used
