@@ -101,7 +101,7 @@ def _cij_to_base(cijkl_reg, values=None):
     vset = values or cijkl_reg.getParamValues() # This case is trivial.
     return CubicCijklValueBase(c11=vset[0], c12=vset[1], c44=vset[2])
 
-def _cij_from_base(cijkl_reg, base):
+def _cij_from_base(base):
     if isinstance(base, CubicCijklValueBase):
         return [base.c11,base.c12,base.c44]
 
@@ -140,7 +140,7 @@ def _lame_to_base(lame_reg, values=None):
     c44 = 0.5*(c11-c12)*aniso
     return CubicCijklValueBase(c11=c11, c12=c12, c44=c44)
 
-def _lame_from_base(lame_reg, base):
+def _lame_from_base(base):
     if isinstance(base, CubicCijklValueBase):
         lmbda = base.c12
         mu = (base.c11-base.c12)/2.0
@@ -182,7 +182,7 @@ def _enu_to_base(enu_reg, values=None):
     c44 = 0.5*(c11-c12)*aniso
     return CubicCijklValueBase(c11=c11, c12=c12, c44=c44)
 
-def _enu_from_base(enu_reg, base):
+def _enu_from_base(base):
     if isinstance(base, CubicCijklValueBase):
         c11 = base.c11
         c12 = base.c12
@@ -220,7 +220,7 @@ def _bs_to_base(bs_reg, values=None):
     c44 = 0.5*(c11-c12)*aniso
     return CubicCijklValueBase(c11=c11, c12=c12, c44=c44)
 
-def _bs_from_base(bs_reg, base):
+def _bs_from_base(base):
     if isinstance(base, CubicCijklValueBase):
         bulk = (1.0/3.0)*(base.c11+2.0*base.c12)
         shear = (base.c11-base.c12)/2.0

@@ -91,10 +91,10 @@ class OpaqueColor(TranslucentColor):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
     
-# Structured type to hold the base values for color parameters, and
-# which can be type-checked.  Also contains the comparator for colors.
-# (TODO: Is there any reason not to just use RGBAColor as the base
-# representation?)
+# # Structured type to hold the base values for color parameters, and
+# # which can be type-checked.  Also contains the comparator for colors.
+# # (TODO: Is there any reason not to just use RGBAColor as the base
+# # representation?)
 class ColorValueBase:
     def __init__(self,red,green,blue,alpha=1):
         self.red = red
@@ -210,7 +210,7 @@ class RGBColor(OpaqueColor):
                                                             self.blue)
 
 # RGB conversion functions are nearly trivial.
-def _rgb_from_base(rgb, base):
+def _rgb_from_base(base):
     if isinstance(base,ColorValueBase):
         return [base.red, base.green, base.blue]
 
@@ -255,7 +255,7 @@ class RGBAColor(TranslucentColor):
     def opaque(self):
         return RGBColor(self.red, self.green, self.blue)
 
-def _rgba_from_base(rgba, base):
+def _rgba_from_base(base):
     if isinstance(base,ColorValueBase):
         return [base.red, base.green, base.blue, base.alpha]
 
@@ -294,7 +294,7 @@ class Gray(OpaqueColor):
         return TranslucentGray(self.value, 1.0)
 
 # Gray conversion functions.
-def _gray_from_base(gray, base):
+def _gray_from_base(base):
     if isinstance(base,ColorValueBase):
         g = (base.red+base.green+base.blue)/3.0
         return [g]
@@ -326,7 +326,7 @@ class TranslucentGray(TranslucentColor):
         return Gray(self.value)
 
 # Gray conversion functions.
-def _tgray_from_base(gray, base):
+def _tgray_from_base(base):
     if isinstance(base,ColorValueBase):
         g = (base.red+base.green+base.blue)/3.0
         return [g,base.alpha]
@@ -370,12 +370,12 @@ def hsv_from_rgb(r, g, b):
              h+=360.0
      return (h, s, v)
 
-def _hsv_from_base(hsv, base):
+def _hsv_from_base(base):
     if isinstance(base, ColorValueBase):
         (h, s, v) = hsv_from_rgb(base.red, base.green, base.blue)
         return [h,s,v]
 
-def _hsva_from_base(hsv, base):
+def _hsva_from_base(base):
     if isinstance(base, ColorValueBase):
         (h, s, v) = hsv_from_rgb(base.red, base.green, base.blue)
         return [h,s,v, base.alpha]
