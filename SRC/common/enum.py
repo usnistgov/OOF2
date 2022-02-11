@@ -68,24 +68,15 @@ def EnumClass(*args):
         
         def __repr__(self):
             return `self.name`
-        def __cmp__(self, other):
-            if type(other) == types.InstanceType:
-                # Comparison between objects in a class hierarchy is allowed.
-                if not (issubclass(other.__class__,self.__class__) or
-                        issubclass(self.__class__,other.__class__)):
-                    # classes aren't related, so the objects can't be equal
-                    if self.__class__ < other.__class__: return -1
-                    if self.__class__ > other.__class__: return 1
-                # Classes are identical or related by inheritance. 
-                if self.name < other.name: return -1
-                if self.name > other.name: return 1
-                return 0
-            # See comment above about comparison with strings.
-            elif type(other) == types.StringType:
-                if self.name < other: return -1
-                if self.name > other: return 1
-                return 0
-            return 1
+        def __eq__(self, other):
+            if isinstance(other, EnumBase):
+                return (self.__class__ == other.__class__ and
+                        self.name == other.name)
+            if isinstance(other, str):
+                return self.name == other
+            return False
+        def __ne__(self, other):
+            return not self.__eq__(other)
         def string(self):
             return self.name
         def index(self):
