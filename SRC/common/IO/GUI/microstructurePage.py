@@ -788,8 +788,8 @@ class MicrostructurePageInfoPlugIn:
         self.callback = callback
     def __call__(self, ms):
         return self.callback(ms)
-    def __cmp__(self, other):
-        return cmp(self.ordering, other.ordering)
+    def __lt__(self, other):
+        return self.ordering < other.ordering
     def update(self):
         mp.displayMSInfo()
 

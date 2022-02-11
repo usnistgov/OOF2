@@ -35,8 +35,8 @@ class GfxToolbox(widgetscope.WidgetScope):
         self.active = 0
     def gfxwindow(self):
         return self.toolbox.gfxwindow()
-    def __cmp__(self, other):           # for sorting in gfxwindow's list
-        return cmp(self.toolbox.ordering, other.toolbox.ordering)
+    def __lt__(self, other):           # for sorting in gfxwindow's list
+        return self.toolbox.ordering < other.toolbox.ordering
     # convenience function to get a point object from mouseclick coordinates
     def getPoint(self, x, y):
         return primitives.Point(x,y)
