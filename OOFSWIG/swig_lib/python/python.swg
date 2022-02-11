@@ -129,9 +129,9 @@ swig_varlink_setattr(swig_varlinkobject *v, char *n, PyObject *p)
   return 1;
 }
 
-statichere PyTypeObject varlinktype = {
+static PyTypeObject varlinktype = {
 /*  PyObject_HEAD_INIT(&PyType_Type)  Note : This doesn't work on some machines */
-  PyObject_HEAD_INIT(0)              
+  PyVarObject_HEAD_INIT(NULL, 0)              
   0,
   "varlink",                          /* Type name    */
   sizeof(swig_varlinkobject),         /* Basic size   */
