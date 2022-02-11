@@ -42,7 +42,7 @@ import os.path
 import string
 import sys
 
-from . import oofcanvas
+import oofcanvas
 
 FloatParameter = parameter.FloatParameter
 IntParameter = parameter.IntParameter

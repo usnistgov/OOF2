@@ -33,7 +33,7 @@ from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common import utils
 import os
-import stat
+import stat                     # TODO PYTHON3: use os.stat
 import sys
 
 class MenuParser:
