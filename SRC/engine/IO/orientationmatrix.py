@@ -90,7 +90,7 @@ class Orientation(registeredclass.ConvertibleRegisteredClass, metaclass=utils.Pr
                                  (abg.alpha(), abg.beta(), abg.gamma()))
         newabg = Abg(alpha, beta, gamma+angle)
         reg = self.getRegistration()
-        args = reg.from_base(reg, newabg)
+        args = reg.from_base(newabg)
         reg.setDefaultParams(args)
         return reg()
 
@@ -120,7 +120,7 @@ class OrientationRegistration(registeredclass.ConvertibleRegistration):
         abg = Abg(0., 0., 0.)
         if self.subclass is Abg:
             return abg
-        return self.subclass(*self.from_base(self, abg))
+        return self.subclass(*self.from_base(abg))
 
 ## The base representation for the ConvertibleRegisteredClass
 ## mechanism (which is not the same thing as the base class) is the
@@ -153,7 +153,7 @@ def _abg_to_base(reg, vlist = None):
     vset = vlist or reg.getParamValues()
     return Abg(*vset)
 
-def _abg_from_base(reg, base):
+def _abg_from_base(base):
     return [base.alpha, base.beta, base.gamma]
 
 OrientationRegistration(
@@ -193,7 +193,7 @@ def _x_to_base(x_reg, vlist=None):
     args = vlist or x_reg.getParamValues()  # (phi, theta, psi)
     return corient_to_base(corientation.COrientX(*list(map(math.radians, args))))
 
-def _x_from_base(x_reg, base):
+def _x_from_base(base):
     x = base.corient.X()
     return list(map(math.degrees, (x.phi(), x.theta(), x.psi())))
 
@@ -235,7 +235,7 @@ def _xyz_to_base(xyz_reg, vlist=None):
     args = vlist or xyz_reg.getParamValues() # (phi, theta, psi)
     return corient_to_base(corientation.COrientXYZ(*list(map(math.radians, args))))
 
-def _xyz_from_base(xyz_reg, base):
+def _xyz_from_base(base):
     xyz = base.corient.XYZ()
     return list(map(math.degrees, (xyz.phi(), xyz.theta(), xyz.psi())))
 
@@ -289,7 +289,7 @@ def _quaternion_to_base(quat_reg, vlist=None):
     args = vlist or quat_reg.getParamValues() #(e0, e1, e2, e3) 
     return corient_to_base(corientation.COrientQuaternion(*args))
 
-def _quaternion_from_base(quat_reg, base):
+def _quaternion_from_base(base):
     quat = base.corient.quaternion()
     return [quat.e0(), quat.e1(), quat.e2(), quat.e3()]
     
@@ -335,7 +335,7 @@ def _axis_to_base(axis_reg, vlist=None):
     return corient_to_base(
         corientation.COrientAxis(math.radians(angle), x, y, z))
 
-def _axis_from_base(axis_reg, base):
+def _axis_from_base(base):
     axis = base.corient.axis()
     return [math.degrees(axis.angle()), axis.x(), axis.y(), axis.z()]
 
@@ -373,7 +373,7 @@ def _rodrigues_to_base(r_reg, vlist=None):
     (r1, r2, r3) = vlist or r_reg.getParamValues()
     return corient_to_base(corientation.COrientRodrigues(r1, r2, r3))
 
-def _rodrigues_from_base(r_reg, base):
+def _rodrigues_from_base(base):
     rod = base.corient.rodrigues()
     return [rod.r1(), rod.r2(), rod.r3()]
 
@@ -419,7 +419,7 @@ def _bunge_to_base(bunge_reg, vlist=None):
     return corient_to_base(
         corientation.COrientBunge(*list(map(math.radians, args))))
 
-def _bunge_from_base(bunge_reg, base):
+def _bunge_from_base(base):
     bunge = base.corient.bunge()
     return list(map(math.degrees, (bunge.phi1(), bunge.theta(), bunge.phi2())))
 

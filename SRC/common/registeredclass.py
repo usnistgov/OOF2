@@ -209,7 +209,7 @@ class ConvertibleRegistration(Registration):
         ## TODO: Remove the 1st arg from from_base?
         # 'base' is an instance of the base subclass of the
         # ConvertibleRegisteredClass.
-        self.setDefaultParams(self.from_base(self, base))
+        self.setDefaultParams(self.from_base(base))
             
     def __repr__(self):
         t = "%s('%s', subclass=%s, ordering=%s, params=%s)"

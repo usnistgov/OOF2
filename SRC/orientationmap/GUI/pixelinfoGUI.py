@@ -103,7 +103,7 @@ class OrientMapPixelInfoPlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
                 base = orientationmatrix.Abg(
                     *[a*180./math.pi for a in (abg.alpha(), abg.beta(),
                                                abg.gamma())])
-                newvalue = klass(*reg.from_base(None, base))
+                newvalue = klass(*reg.from_base(base))
                 self.param.value = newvalue
                 self.widget.set(newvalue, interactive=False)
                 self.set_mode("widget")
