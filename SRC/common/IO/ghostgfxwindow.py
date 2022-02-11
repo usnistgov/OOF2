@@ -1326,7 +1326,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                     self.layers.append(layer)
                 else:
                     for i in reversed(range(len(self.layers))):
-                        if display.layercomparator(layer, self.layers[i]) >= 0:
+                        if (layer.layerordering() >=
+                            self.layers[i].layerordering()):
                             # The new layer belongs above layer i.
                             self.layers[i+1:i+1] = [layer]
                             break
@@ -1345,7 +1346,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
     def sortedLayers(self):
         # Are the layers in a canonical order?
         for i in range(1, len(self.layers)):
-            if display.layercomparator(self.layers[i-1], self.layers[i]) > 0:
+            if (self.layers[i-1].layerordering() >
+                self.layers[i].layerordering()):
                 return False
         return True
             
@@ -1464,7 +1466,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
         self.lowerLayerBy(n, howfar)
 
     def reorderLayers(self, menuitem):
-        self.layers.sort(display.layercomparator)
+        self.layers.sort(key=lambda x: x.layerordering())
         self.layersHaveChanged()
 
     def listedLayers(self):             # for testing

@@ -43,19 +43,18 @@ class LayerOrdering:
     def __init__(self, order, suborder=0.):
         self.order = order
         self.suborder = suborder
-    def __cmp__(self, other):
-        if self.order < other.order: return -1
-        if self.order > other.order: return 1
-        if self.suborder < other.suborder: return -1
-        if self.suborder > other.suborder: return 1
-        return 0
+    def __lt__(self, other):
+        return (self.order < other.order or
+                (self.order == other.order and self.suborder < other.suborder))
+    def __ge__(self, other):
+        return not self.__lt__(other)
+    def __gt__(self, other):
+        return (self.order > other.order or
+                self.order == other.order and self.suborder > other.suborder))
+    def __le__(self, other):
+        return not self.__gt__(other)
     def __call__(self, suborder):
         return LayerOrdering(self.order, suborder)
-
-def layercomparator(a, b):
-    aordering = a.layerordering()
-    bordering = b.layerordering()
-    return aordering.__cmp__(bordering)
 
 Abysmal = LayerOrdering(-1000)          # shouldn't ever appear
 Planar = LayerOrdering(0.)              # filled meshes, or images
