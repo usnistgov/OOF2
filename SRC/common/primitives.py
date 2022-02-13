@@ -74,9 +74,8 @@ class Point:
     # Power defined only for squaring -- finds the squared magnitude.
     def __pow__(self, other):
         if other!=2:
-            ## TODO: Raise ValueError instead. Better would be not to
-            ## define __pow__ at all.
-            print("Power operation only defined for exponent equal to 2.")
+            raise ValueError(
+                "Power operation only defined for exponent equal to 2.")
         return self.x*self.x+self.y*self.y
 
     def __rmul__(self, other):
@@ -100,45 +99,41 @@ class Point:
         # comparison to Coords and ICoords will work.
         return hash((self.x, self.y))
 
-    def __cmp__(self, other):
-        try:
-            if self[0] < other[0]: return -1
-            if self[0] > other[0]: return 1
-            if self[1] < other[1]: return -1
-            if self[1] > other[1]: return 1
-            return 0
-        except:
-            return 1
-
     def __lt__(self, other):
         try:
-            if self[0] < other[0]: return 1
-            if self[0] > other[0]: return 0
-            if self[1] < other[1]: return 1
-            if self[1] > other[1]: return 0
+            if self.x < other[0]: return True
+            if self.x > other[0]: return False
+            if self.y < other[1]: return True
+            if self.y > other[1]: return False
         except:
-            return 0
+            return NotImplemented
 
     def __gt__(self, other):
         try:
-            if self[0] > other[0]: return 1
-            if self[0] < other[0]: return 0
-            if self[1] > other[1]: return 1
-            if self[1] < other[1]: return 0
+            if self.x > other[0]: return True
+            if self.x < other[0]: return False
+            if self.y > other[1]: return True
+            if self.y < other[1]: return False
         except:
-            return 1
+            return NotImplemented
+
+    def __le__(self, other):
+        return not self.__gt__(other)
+
+    def __ge__(self, other):
+        return not self.__lt__(other)
 
     def __eq__(self, other):
         try:
-            return self[0]==other[0] and self[1]==other[1]
+            return self.x==other[0] and self.y==other[1]
         except:
-            return 0
+            return NotImplemented
 
     def __ne__(self, other):
         try:
-            return self[0]!=other[0] or self[1]!=other[1]
+            return self.x!=other[0] or self.y!=other[1]
         except:
-            return 1
+            return NotImplemented
 
     def __repr__(self):
         return "Point(%s,%s)" % (self.x, self.y)
@@ -397,41 +392,32 @@ class Segment:
         return Rectangle(self.startpt, self.endpt)
     def __repr__(self):
         return "Segment(%s, %s)" % (repr(self.startpt), repr(self.endpt))
-    def __cmp__(self, other):
-        try:
-            if self.startpt < other.startpt: return -1
-            if self.startpt > other.startpt: return 1
-            if self.endpt < other.endpt: return -1
-            if self.endpt > other.endpt: return 1
-            return 0
-        except AttributeError:
-            return 1
     def __lt__(self, other):
         try:
-            if self.startpt < other.startpt: return 1
-            if self.startpt > other.startpt: return 0
-            if self.endpt < other.endpt: return 1
-            return 0
+            if self.startpt < other.startpt: return True
+            if self.startpt > other.startpt: return False
+            if self.endpt < other.endpt: return True
+            return False
         except AttributeError:
-            return 0
+            return NotImplemented
     def __gt__(self, other):
         try:
-            if self.startpt > other.startpt: return 1
-            if self.startpt < other.startpt: return 0
-            if self.endpt > other.endpt: return 1
-            return 0
+            if self.startpt > other.startpt: return True
+            if self.startpt < other.startpt: return False
+            if self.endpt > other.endpt: return True
+            return False
         except AttributeError:
-            return 0
+            return NotImplemented
     def __eq__(self, other):
         try:
             return self.startpt == other.startpt and self.endpt == other.endpt
         except AttributeError:
-            return 0
+            return NotImplemented
     def __ne__(self, other):
         try:
             return self.startpt != other.startpt or self.endpt != other.endpt
         except AttributeError:
-            return 1
+            return NotImplemented
     
     def __hash__(self):
         return hash((self.startpt, self.endpt))
