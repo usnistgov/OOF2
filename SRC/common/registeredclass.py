@@ -143,15 +143,14 @@ class Registration(object):
     def getParamValues(self):
         # Return a list of the values of the parameters.
         return [ p.value for p in self.params ]
-            
-    def __cmp__(self, other):
-        if isinstance(other, Registration):
-            if self.ordering < other.ordering: return -1
-            if self.ordering > other.ordering: return 1
-            if self._name < other._name: return -1
-            if self._name > other._name: return 1
-            return 0
-        return -1
+
+    def __lt__(self, other):
+        try:
+            return (self.ordering < other.ordering or
+                    (self.ordering == other.ordering and
+                     self._name < other._name))
+        except:
+            return NotImplemented
     
     # Set any parameters that you can from the keyword arguments,
     # and then create an instance of the RegisteredClass.
