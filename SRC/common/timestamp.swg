@@ -34,16 +34,14 @@ public:
     void increment() {
       ++(*self);
     }
-    int __cmp__(TimeStamp &other) {
-      if (*self < other) return -1;
-      if (*self > other) return 1;
-      return 0;
-    }
     %new const string *__repr__() {
       return new std::string(to_string(*self));
     }
   }
 };
+
+bool operator<(const TimeStamp&, const TimeStamp&);
+bool operator>(const TimeStamp&, const TimeStamp&);
 
 //double cputime();
 
