@@ -12,13 +12,8 @@ from ooflib.SWIG.common import config
 from ooflib.common.IO import parameter
 from ooflib.common import primitives
 
-if config.dimension() == 2:
-    CoordPtr.__repr__ = lambda self:"Coord(%s,%s)" % (self[0],self[1])
-    ICoordPtr.__repr__ = lambda self: "ICoord(%d,%d)" % (self[0], self[1])
-elif config.dimension() == 3:
-    CoordPtr.__repr__ = lambda self:"Coord(%s,%s,%s)" % (self[0],self[1],self[2])
-    ICoordPtr.__repr__ = lambda self: "ICoord(%d,%d,%d)" % (self[0], self[1],self[2])
-    
+CoordPtr.__repr__ = lambda self:"Coord(%s,%s)" % (self[0],self[1])
+ICoordPtr.__repr__ = lambda self: "ICoord(%d,%d)" % (self[0], self[1])
 
 # Add argument checking to the swigged getitem method.
 def _Coord___getitem__(self, indx):
@@ -32,6 +27,8 @@ def _Coord___lt__(self, other):
     try:
         return (self[0] < other[0] or
                 (self[0] == other[0] and self[1] < other[1]))
+    except:
+        return NotImplemented
 
 CoordPtr.__lt__ = _Coord___lt__
 
