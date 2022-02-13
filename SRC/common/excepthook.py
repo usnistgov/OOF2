@@ -56,8 +56,14 @@ class OOFexceptHook(object):
         # which this isn't the right thing to do, but those circumstances
         # should probably assign a new excepthook function.
         sys.exc_clear()
-    def __cmp__(self, other):
-        return cmp(id(self), id(other))
+
+    ## Not sure why __cmp__ was defined.  OOFexceptHook seems to work
+    ## properly without it in python2, and it's not used in python3.
+    ## I'm leaving it in here so that if weird things happen we can
+    ## remember that it used to be defined, in which case adding
+    ## __eq__ and __ne__ are possibly appropriate.
+    # def __cmp__(self, other):
+    #     return cmp(id(self), id(other))
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
