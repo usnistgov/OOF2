@@ -47,14 +47,10 @@ class Toolbox:
     def close(self):
         # Called when the graphics window is closing
         pass
-    def __cmp__(self, other):           # used for sorting in ui
-        return cmp(self.ordering, other.ordering)
     def __hash__(self):
         ## required because toolboxes are sometimes used as
         ## switchboard messages, which means they're stored in the
-        ## switchboard's dictionary, and because objects with __cmp__
-        ## methods also need __hash__ methods if they're to be used as
-        ## dictionary keys.
+        ## switchboard's dictionary.
         return hash((self._name, self._gfxwindow))
 
 toolboxClasses = []

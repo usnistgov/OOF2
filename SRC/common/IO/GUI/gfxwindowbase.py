@@ -335,7 +335,7 @@ class GfxWindowBase(subWindow.SubWindow, ghostgfxwindow.GhostGfxWindow):
             self.updateToolboxChooser()
                
     def updateToolboxChooser(self):
-        self.toolboxGUIs.sort()
+        self.toolboxGUIs.sort(key=lambda tb: tb.ordering)
         self.toolboxchooser.update([tb.name() for tb in self.toolboxGUIs])
 
     def allowMotionEvents(self, mode):
