@@ -28,20 +28,12 @@ def _Coord___getitem__(self, indx):
 
 CoordPtr.__getitem__ = _Coord___getitem__
 
+def _Coord___lt__(self, other):
+    try:
+        return (self[0] < other[0] or
+                (self[0] == other[0] and self[1] < other[1]))
 
-
-def _Coord___cmp__(self, other):
-    if not isinstance(other, CoordPtr): return -1
-    if self[0] < other[0]: return -1
-    if self[0] > other[0]: return 1
-    if self[1] < other[1]: return -1
-    if self[1] > other[1]: return 1
-    if config.dimension == 3:
-        if self[2] < other[2]: return -1
-        if self[2] > other[2]: return 1
-    return 0
-
-CoordPtr.__cmp__ = _Coord___cmp__
+CoordPtr.__lt__ = _Coord___lt__
 
 def _Coord___hash__(self):
     return hash((self[0], self[1]))
