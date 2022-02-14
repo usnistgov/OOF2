@@ -59,21 +59,17 @@ class SkeletonSelectable:
     # child objects can be messed up if equal-index objects compare
     # equally.  You want an __eq__ operator in general so that
     # equality comparisons will be fast -- so, compare object IDs.
-    # The __lt__ and __cmp__ operators are different, they are used
-    # for ordering objects in uniquelists, in particular in the
-    # "group" objects.  In this case, you *do* want to order by index,
-    # because you want the ordering to be repeatable over different
-    # runs or architectures.  So, in that case, use index comparison.
-    # The pathology here is that you could have two selectables A and
-    # B, with the properties that A is not less than B, B is not less
-    # than A, and A is not equal to B.  This case doesn't arise.
+    # The __lt__ operator is different. It is used for ordering
+    # objects in uniquelists, in particular in the "group" objects.
+    # In this case, you *do* want to order by index, because you want
+    # the ordering to be repeatable over different runs or
+    # architectures.  So, in that case, use index comparison.  The
+    # pathology here is that you could have two selectables A and B
+    # with the same index but different ids, so A is not less than B,
+    # B is not less than A, and A is not equal to B.  This case
+    # doesn't arise.
     def __eq__(self, other):
         return id(self)==id(other)
-
-    def __cmp__(self, other):
-        if not isinstance(other, self.__class__):
-            return -1
-        return cmp(self.index, other.index)
 
     def __lt__(self, other):
         if not isinstance(other, self.__class__):
