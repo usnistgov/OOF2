@@ -29,14 +29,12 @@ class DataPoint:
         return self.angle.abg()
     def __repr__(self):
         return "(%s, %s)" % (self.position[0], self.position[1])
-    def __cmp__(self, other):
-        sy = self.position[1]
-        oy = other.position[1]
-        if sy < oy:
-            return -1
-        if sy > oy:
-            return 1
-        return cmp(self.position[0], other.position[0])
+    def __lt__(self, other):
+        if not isinstance(other, DataPoint):
+            return NotImplemented
+        return (self.position[1] < other.position[1]
+                or (self.position[1] == other.position[1] and
+                    self.position[0] < other.position[0]))
 
 ## getrows() splits a list of DataPoints into lists in which x is
 ## monotonically increasing.
