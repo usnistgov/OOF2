@@ -59,7 +59,7 @@ actions = []
 # endcomment matches possible comments appended to log lines
 endcomment = r"\s*#?.*$"
 
-class ReplaceLine(object):
+class ReplaceLine:
     def __init__(self, regexp, regexpprev=None, groups=[]):
         self.regexp = re.compile(regexp)
         if regexpprev is None:
@@ -143,7 +143,7 @@ actions.append(
 # GtkTextBuffer that displays the lines, because the text buffer has
 # the option of showing the filtered-out lines.
 
-class LogProcessor(object):
+class LogProcessor:
     def __init__(self, logfilename):
         self.logfilename = logfilename
         self.inbuf = ""

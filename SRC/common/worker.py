@@ -73,7 +73,7 @@ import weakref
 allWorkers = weakref.WeakKeyDictionary()
 allWorkerCores = weakref.WeakKeyDictionary()
 
-class Worker(object):
+class Worker:
     def __init__(self):
         allWorkers[self] = 1
         # toplevel is true if this worker wasn't started either
@@ -89,7 +89,7 @@ class Worker(object):
 # runs menu commands.  WorkerCore always runs on the same thread as
 # the menu command.
 
-class WorkerCore(object):
+class WorkerCore:
     def __init__(self, menuitem, args, kwargs):
         self.menuitem = menuitem
         self.args = args

@@ -16,7 +16,7 @@ from ooflib.orientationmap import genericreader
 from gi.repository import Gtk
 import types
 
-class GCWidgetRow(object):
+class GCWidgetRow:
     def __init__(self, table, row, parent):
         self.deleteButton = Gtk.Button('-', halign=Gtk.Align.FILL)
         table.attach(self.deleteButton, 0,row+1, 1,1)

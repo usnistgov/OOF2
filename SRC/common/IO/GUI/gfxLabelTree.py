@@ -332,9 +332,9 @@ class LabelTreeChooserWidget:
         debug.mainthreadTest()
         self.gtk.show_all()
 
-    def set_value(self, object):
+    def set_value(self, obj):
         debug.mainthreadTest()
-        path = labeltree.makePath(self.tree.objpath(object))
+        path = labeltree.makePath(self.tree.objpath(obj))
         depth = len(path)
         for widget in self.widgets:
             widget.destroy()

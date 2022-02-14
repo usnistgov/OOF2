@@ -92,14 +92,14 @@ def ltordering(node):   # LabelTreeOrdering function, passed to sort()
 # tree has been constructed.
 
 class LabelTreeNode:
-    def __init__(self, name="", parent=None, object=None, ordering=0):
+    def __init__(self, name="", parent=None, obj=None, ordering=0):
         self.name = name
         self.parent = parent
         if parent:
             self.root = parent.root
         else:
             self.root = self
-        self.object = object
+        self.object = obj
         self.ordering = ordering
         self.nodes = []
         self.menus = {}
@@ -194,7 +194,7 @@ class LabelTreeNode:
             # At the end of the path.  Create a leaf.  Object finally
             # gets assigned.
             leaf = LabelTreeNode(name=path[0], parent=self,
-                                 object=obj, ordering=ordering)
+                                 obj=obj, ordering=ordering)
             # Add the new leaf to the reverse dictionary.
             self.root.reverse_dict[obj]=leaf
             # Add the menu(s)
@@ -257,7 +257,7 @@ class LabelTreeNode:
             # Didn't find an existing subtree.  Make one, but don't
             # assign the object.
             newnode = LabelTreeNode(name=path[0], parent=self,
-                                    object=None, ordering=ordering)
+                                    obj=None, ordering=ordering)
             # Add intermediate-level menu
             for (k, menu) in self.menus.items():
                 menuargs = self.get_menu_args(k)
@@ -408,10 +408,10 @@ class LabelTreeNode:
     
 # Special object for the root of a labeltree.
 class LabelTree(LabelTreeNode):
-    def __init__(self, name="", object=None, ordering=0):
+    def __init__(self, name="", obj=None, ordering=0):
         self.reverse_dict = {}
         LabelTreeNode.__init__(self, name=name, parent=None,
-                               object=object, ordering=ordering)
+                               obj=obj, ordering=ordering)
         self.menuargs = {} # Set at menu-time.
         # Dictionary keyed by the .object objects, with corresponding
         # LabelTreeNode objects as values.  Maintained in __setitem__.
@@ -443,7 +443,7 @@ class LabelTree(LabelTreeNode):
     
 
     # Given an object stored in the tree, return its path.  That is,
-    #     tree[tree.objpath(object)] is object.
+    #     tree[tree.objpath(obj)] is obj.
     def objpath(self, obj):
         return self.reverse_dict[obj].path()
 

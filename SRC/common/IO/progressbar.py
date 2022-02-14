@@ -12,7 +12,7 @@ from ooflib.SWIG.common import progress
 
 _suppressBars = False
 
-class ProgressBar(object):
+class ProgressBar:
     def __init__(self, progress):
         self.progress = progress # a Progress object
     def halted(self):

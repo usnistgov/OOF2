@@ -595,7 +595,7 @@ output.defineAggregateOutput('Difference', AggregateDifferenceOutput,
 ## ValueOutputParameter's widget needs to find an EnumWidget for
 ## Scalar/Aggregate.
 
-class ConcatenatedOutputVal(object):
+class ConcatenatedOutputVal:
     def __init__(self, *args):
         # args is a tuple of OutputVals
         self.args = args

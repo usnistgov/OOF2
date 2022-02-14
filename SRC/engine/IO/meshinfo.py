@@ -37,9 +37,9 @@ class MeshQueryContainer:
         self.mesh_position = None
         self.targetname = None
 
-    def set(self, object=None, targetname=None, mouse_position=None,
+    def set(self, obj=None, targetname=None, mouse_position=None,
             mesh_position=None):
-        self.object = object
+        self.object = obj
         self.mouse_position = mouse_position
         self.mesh_position = mesh_position
         self.targetname = targetname
@@ -262,7 +262,7 @@ class MeshInfoToolbox(toolbox.Toolbox):
         #     return
 
         self.last_position = mouse_pos
-        self.querier.set(object=object, targetname=targetname,
+        self.querier.set(obj=obj, targetname=targetname,
                          mouse_position=mouse_pos,
                          mesh_position=mesh_pos)
         self.records.push(self.querier.clone())

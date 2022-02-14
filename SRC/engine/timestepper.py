@@ -178,7 +178,7 @@ class NonLinearStepper(TimeStepper):
 # NonLinearStepper subclasses can use this class, derive from it, or
 # define their own data container if necessary.
 
-class NLData(object):
+class NLData:
     def __init__(self, subproblem, linsys, time):
         # The LinearizedSystem that's passed in as the linsys argument
         # will only be used in NonLinearStepper.precomputeNL to
@@ -203,7 +203,7 @@ class NLData(object):
 ## it to the LinearizedSystem, which would use it to return the
 ## correct submatrices and subvectors.
 
-class NonStaticStepper(object):
+class NonStaticStepper:
     def rhs_ind_part(self, part, linsys):
         return linsys.rhs_ind_part(part)
 
@@ -289,7 +289,7 @@ class QCTimeStepper(registeredclass.RegisteredClass):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class StepResult(object):
+class StepResult:
     def __init__(self, endTime=None, endValues=None, nextStep=None,
                  errorEstimate=None, linsys=None):
         self.endTime = endTime

@@ -41,7 +41,7 @@ import sys
 ## replaced with the clipped value until the parameterwidget is
 ## evaluated.
 
-class DefaultClipper(object):
+class DefaultClipper:
     def __init__(self, vmin, vmax):
         self.vmin = vmin
         self.vmax = vmax

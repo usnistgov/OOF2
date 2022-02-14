@@ -1110,7 +1110,7 @@ class SubProblemContext(whoville.Who):
 
 ## TODO TDEP: Should this be derived from timestepper.NLData?
 
-class StaticNLFuncs(object):
+class StaticNLFuncs:
     def __init__(self, unknowns):
         self.unknowns = unknowns
 
@@ -1180,7 +1180,7 @@ consistencyTolerance = 1.e-6
 # can use the MatrixMethod classes independently of the
 # SubProblemContext if necessary.
 
-class MatrixSolverWrapper(object):
+class MatrixSolverWrapper:
     def __init__(self, subproblemcontext, solver):
         self.subprobctxt = subproblemcontext
         self.solver = solver

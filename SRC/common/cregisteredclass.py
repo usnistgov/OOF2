@@ -187,16 +187,6 @@ class Registration(registeredclass.Registration):
             except KeyError:
                 pass
         argvals = [p.value for p in self.params]
-        object = self.subclass(*argvals)
-        
-        # # Keep an extra reference to the arguments to ensure that the
-        # # Python garbage collector won't destroy them before the
-        # # registered class object itself is destroyed.  Also, this
-        # # allows getParamValues to return the original Python form of
-        # # the arguments.  If getParamValues goes into C++ to return
-        # # the arguments, it will return the Ptr form, which will
-        # # confuse the RegisteredClass type checking.
-        # object._keepargs = argvals
-
-        object.timestamp = timestamp.TimeStamp()
-        return object
+        obj = self.subclass(*argvals)
+        obj.timestamp = timestamp.TimeStamp()
+        return obj

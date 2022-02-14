@@ -94,14 +94,14 @@ class Profile(registeredclass.RegisteredClass):
 
 #  Space-dependent profiles.
 
-class ProfileX(object):
+class ProfileX:
     tip="Space-dependent boundary condition profiles."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/profilex.xml')
     registry = []
 
 # Space- and time-dependent profiles.
 
-class ProfileXT(object):
+class ProfileXT:
     tip="Space- and time-dependent boundary condition profiles."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/profilext.xml')
     registry = []
@@ -109,7 +109,7 @@ class ProfileXT(object):
 # Space- and time-dependent profiles, for which time derivative
 # information is provided.
 
-class ProfileXTd(object):
+class ProfileXTd:
     tip="Space- and time-dependent boundary condition profiles, with derivatives."
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/profilextd.xml')
     registry = []

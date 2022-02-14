@@ -11,7 +11,7 @@
 from ooflib.common import debug
 import math
 
-class SolverStats(object):
+class SolverStats:
     def __init__(self):
         self.matrixStats = {}
         self.nonlinearStats = NonlinearStats()
@@ -41,7 +41,7 @@ class SolverStats(object):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class IterationStats(object):
+class IterationStats:
     def __init__(self):
         self.reset()
     def reset(self):
@@ -75,7 +75,7 @@ class NonlinearStats(IterationStats):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class StepperStats(object):
+class StepperStats:
     def __init__(self):
         self.reset()
     def reset(self):
@@ -104,7 +104,7 @@ class StepperStats(object):
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class StatKeeper(object):
+class StatKeeper:
     def __init__(self, val=None):
         self.reset()
         if val is not None:

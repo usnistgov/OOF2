@@ -19,7 +19,7 @@ SYMMETRIC="Symmetric"
 ASYMMETRIC="Asymmetric"
 INCONSISTENT="Symmetry unknown"
 
-class SymState(object):
+class SymState:
     def __init__(self, tag=INCONSISTENT):
         self.tag = tag
     def __repr__(self):

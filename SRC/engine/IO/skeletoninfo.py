@@ -49,9 +49,9 @@ class SkeletonQueryContainer:
         self.position = None
         self.targetname = None
 
-    def set(self, context=None, object=None, targetname=None, position=None):
+    def set(self, context=None, obj=None, targetname=None, position=None):
         self.context = context
-        self.object = object
+        self.object = obj
         self.targetname = targetname
         self.position = position
 
@@ -314,13 +314,13 @@ class SkeletonInfoToolbox(toolbox.Toolbox):
                 if n.index == index:
                     self.finishQuery(context, n, "Node", n.repr_position())
 
-    def finishQuery(self, context, object, targetname, position):
+    def finishQuery(self, context, obj, targetname, position):
         if self.querier:
-            self.querier.set(context=context, object=object,
+            self.querier.set(context=context, obj=obj,
                              targetname=targetname, position=position)
         else:
             self.querier = SkeletonQueryContainer(context)
-            self.querier.set(context=context, object=object,
+            self.querier.set(context=context, obj=obj,
                              targetname=targetname, position=position)
         self.records.push(self.querier.clone())
         if self.peeker is None:

@@ -169,7 +169,7 @@ class ParameterMismatch(TypeError): pass
 ## displayed value can be retrieved from 'default'.  For an example,
 ## see the Output class in common/IO/output.py.
 
-class Parameter(object):
+class Parameter:
     def __init__(self, name, value=None, default=None, tip=None):
         self.name = name
         self.tip = tip
@@ -1245,7 +1245,7 @@ class ConvertibleRegisteredParameter(RegisteredParameter):
 # compatible with the hierarchical modifications, so the most of the
 # list-like API was deleted.
 
-class ParameterGroup(object):
+class ParameterGroup:
     def __init__(self, *params):
         self.params = list(params[:])
         self.group = None       # in case this group is nested.

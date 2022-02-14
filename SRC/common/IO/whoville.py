@@ -65,7 +65,7 @@ whoClasses = []
 # can all be turned on and off by setting _debuglocks.
 _debuglocks = False
 
-class Who(object):
+class Who:
     ## A Who is a wrapper/container to administer objects of the
     ## same type. Subclasses and instances of this class are
     ## referred to as <something>Context or <something>Who.
@@ -607,7 +607,7 @@ class WhoClass:
 
     # Return a list of all the names currently known, beginning at
     # "base" in the LabelTree.  Names of Who objects for which
-    # condition(object) is false are omitted.
+    # condition(obj) is false are omitted.
     def keys(self, base=None, condition=lambda x:1, sort=None):
         if not base:
             klist = self.members.leafpaths(condition)

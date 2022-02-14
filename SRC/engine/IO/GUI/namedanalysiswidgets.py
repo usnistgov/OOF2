@@ -14,7 +14,7 @@ from ooflib.common.IO.GUI import chooser
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.engine import namedanalysis
 
-class AllAnalyses(object):
+class AllAnalyses:
     def getNames(self):
         return (namedanalysis.bulkAnalysisNames() + 
                 namedanalysis.bdyAnalysisNames())
@@ -26,7 +26,7 @@ class AllAnalyses(object):
                                             self.update)
             ]
 
-class BulkAnalyses(object):
+class BulkAnalyses:
     def getNames(self):
         return namedanalysis.bulkAnalysisNames()
     def signals(self):
@@ -35,7 +35,7 @@ class BulkAnalyses(object):
                                             self.update)
             ]
 
-class BdyAnalyses(object):
+class BdyAnalyses:
     def getNames(self):
         return namedanalysis.bdyAnalysisNames()
     def signals(self):

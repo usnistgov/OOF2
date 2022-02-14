@@ -269,7 +269,7 @@ registeredclass.Registration(
 
 ## TODO: can nextoutputs just be a list?  Why an OrderedSet?
 
-class OutputSchedule(object):
+class OutputSchedule:
     def __init__(self, meshcontext):
         # outputs is a set of ScheduledOutput objects.  nexttimes is
         # a dictionary, keyed by ScheduledOutput objects, giving the

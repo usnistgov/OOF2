@@ -214,7 +214,7 @@ def connect_passive_after(obj, signal, *args, **kwargs):
         )
 
 
-class CallBackWrapper(object):
+class CallBackWrapper:
     def __init__(self, signal, callback=None, logger=None):
         self.callback = callback
         self.signal = signal

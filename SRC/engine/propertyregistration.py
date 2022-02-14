@@ -101,11 +101,11 @@ class PropertyManager:
         self.parametrizekey = parametrizeKey
         self.loadkey = loadKey
 
-        def paramcopy(object):
+        def paramcopy(obj):
             # This routine is a callback function passed to
             # LabelTree.makeOOFMenu. makeOOFMenu uses it to get the
             # list of parameters for each menuitem that it creates.
-            # The 'object' argument is the PropertyRegistration for
+            # The 'obj' argument is the PropertyRegistration for
             # which the menu item is being built.
 
             # It's tempting to simply return the
@@ -116,12 +116,12 @@ class PropertyManager:
             # shared, then loading a named Property from a data file
             # will change the settings of an already parametrized
             # unnamed Property.
-            if object:
-                return [ p.clone() for p in object.getDefaultParams() ]
+            if obj:
+                return [ p.clone() for p in obj.getDefaultParams() ]
             return []
         
-        def kwarg_func(object):         # Extra kwargs for OOFMenuItem ctor.
-            if object and object.secret():
+        def kwarg_func(obj):    # Extra kwargs for OOFMenuItem ctor.
+            if obj and obj.secret():
                 return {'secret':1, 'no_doc':1}
             return {}
 
@@ -237,13 +237,13 @@ class PropertyManager:
     # initialization.  It is not placed in PropertyManager.__init__
     # because OOF.LoadData.IPC.Property has not been added yet.
     def set_parallel_parametrizercallback(self):
-        def paramcopy(object):
-            if object:
-                return [ p.clone() for p in object.getDefaultParams() ]
+        def paramcopy(obj):
+            if obj:
+                return [ p.clone() for p in obj.getDefaultParams() ]
             return []
 
-        def kwarg_func(object):         # Extra kwargs for OOFMenuItem ctor.
-            if object and object.secret():
+        def kwarg_func(obj):         # Extra kwargs for OOFMenuItem ctor.
+            if obj and obj.secret():
                 return {'secret':1, 'no_doc':1}
             return {}
 

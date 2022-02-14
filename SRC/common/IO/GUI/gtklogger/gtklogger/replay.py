@@ -57,7 +57,7 @@ def replay(filename, beginCB=None, finishCB=None, debugLevel=2,
 
 # A GUILogPlayer reads a log file of saved gui events and simulates them.
 
-class GUILogPlayer(object):
+class GUILogPlayer:
     current = None
     def __init__(self, filename, beginCB=None, finishCB=None, debugLevel=2,
                  threaded=False, exceptHook=None, rerecord=None,
@@ -184,7 +184,7 @@ class GUILogPlayer(object):
 # A GUILogLineRunner is in charge of executing a single line of the
 # gui log file.
 
-class GUILogLineRunner(object):
+class GUILogLineRunner:
     def __init__(self, logrunner, srcline, lineno):
         self.lineno = lineno            # line number (not counting comments)
         self.srcline = srcline          # line number in source file

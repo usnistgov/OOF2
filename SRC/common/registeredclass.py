@@ -68,7 +68,7 @@ from types import *
 import string
 import struct
 
-class Registration(object):
+class Registration:
     def __init__(self, name, registeredclass, subclass, ordering,
                  params=[], secret=0, tip=None, discussion=None, **kwargs):
 
@@ -170,16 +170,16 @@ class Registration(object):
                 pass
             pdict[p.name] = p.value
         try:
-            object = self.subclass(**pdict)
+            obj = self.subclass(**pdict)
         except TypeError:
             debug.fmsg("Error creating", self.subclass)
             debug.fmsg("got arguments=", pdict)
             debug.fmsg("expected arguments=", self.params)
             raise
         
-        if not hasattr(object, 'timestamp'):
-            object.timestamp = timestamp.TimeStamp()
-        return object
+        if not hasattr(obj, 'timestamp'):
+            obj.timestamp = timestamp.TimeStamp()
+        return obj
 
     def __repr__(self):
         return "%s('%s', subclass=%s, ordering=%s, params=%s)" % \
@@ -217,7 +217,7 @@ class ConvertibleRegistration(Registration):
                     repr(self.ordering), repr(self.params))
                
     
-class RegisteredClass(object):
+class RegisteredClass:
 #     def getRegistrationIndex(self):
 #         # Return the position of this object's subclass in the list of
 #         # all subclasses (ie in the registry).

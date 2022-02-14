@@ -227,7 +227,7 @@ reporter.messagemanager.gui_mode = True
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-class WarningPopUp(object):
+class WarningPopUp:
     # Argument "message" is a single string for the second GtkLabel.
     def __init__(self, message):
         debug.mainthreadTest()
@@ -278,7 +278,7 @@ switchboard.requestCallbackMain("messagemanager warning", _warning_pop_up)
 # The error pop up optionally allows you to view the traceback,
 # and save it to a file.  The file is automatically named.
 
-class ErrorPopUp(object):
+class ErrorPopUp:
     def __init__(self, e_type, value, tbacklist):
         debug.mainthreadTest()
         

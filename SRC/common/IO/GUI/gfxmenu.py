@@ -72,7 +72,7 @@ def gtkOOFMenuBar(menu, bar=None, accelgroup=None, parentwindow=None):
 
 #######################
 
-class MenuCallBackWrapper(object):
+class MenuCallBackWrapper:
     def __init__(self, menuitem, popup=False):
         self.menuitem = menuitem # An OOFMenuItem, not a GtkMenuItem
         self.popup = popup

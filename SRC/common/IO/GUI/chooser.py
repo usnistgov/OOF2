@@ -67,7 +67,7 @@ import types
 ## ChooserWidget.set_state(arg) no longer allows arg to be an integer
 ## index.
 
-class ChooserWidget(object):
+class ChooserWidget:
     def __init__(self, objlist, callback=None, callbackargs=(),
                  update_callback=None, update_callback_args=(),
                  helpdict={}, name=None, separator_func=None,

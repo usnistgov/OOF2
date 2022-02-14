@@ -370,8 +370,8 @@ class SelectableMap:
 class SelectionTrackerBase:
     def __init__(self):
         self.data = set()  # set of SkeletonSelectables
-    def add(self, object):
-        self.data.add(object)
+    def add(self, obj):
+        self.data.add(obj)
     def clone(self):
         shakes = self.__class__()
         shakes.data = self.data.copy()

@@ -316,10 +316,10 @@ class GroupTracker:
         for e in elist:
             e.remove_group_from_local(oldname)
             e.add_group_to_local(newname)
-    def add(self, name, object):
-        self.data[name].add(object)
-    def remove(self, name, object):
-        self.data[name].remove(object)
+    def add(self, name, obj):
+        self.data[name].add(obj)
+    def remove(self, name, obj):
+        self.data[name].remove(obj)
     def addDown(self, group, selectable, clist):
         selectable.addDown(group, clist)
     def addUp(self, group, selectable, plist):

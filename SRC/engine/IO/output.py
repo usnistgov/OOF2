@@ -35,7 +35,7 @@ class OutputType(enum.EnumClass('Scalar', 'Aggregate')):
 ## eventually users will be able to construct new Output operations at
 ## run-time by assembling predefined Outputs into new Output chains.
 
-class Output(object):
+class Output:
     def __init__(self, name, otype, callback, inputs=[], params=[],
                  tip=parameter.emptyTipString,
                  discussion=parameter.emptyTipString,

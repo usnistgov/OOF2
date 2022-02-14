@@ -27,7 +27,7 @@ _namedAnalyses = {}
 _namedBdyAnalyses = {}
 namelock = lock.SLock()
 
-class _nameResolver(object):
+class _nameResolver:
     # Callable object for creating a unique name for a bulk or
     # boundary analysis.  
     def __init__(self, defaultname):
@@ -44,7 +44,7 @@ class _nameResolver(object):
 nameResolver = _nameResolver('analysis')
 bdynameResolver = _nameResolver('bdy_analysis')
 
-class NamedBulkAnalysis(object):
+class NamedBulkAnalysis:
     def __init__(self, name, operation, data, domain, sampling):
         self.name = name
         self.operation = operation
@@ -82,7 +82,7 @@ class NamedBulkAnalysis(object):
         finally:
             namelock.release()
 
-class NamedBdyAnalysis(object):
+class NamedBdyAnalysis:
     def __init__(self, name, boundary, analyzer):
         self.name = name
         self.boundary = boundary

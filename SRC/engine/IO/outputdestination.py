@@ -63,7 +63,7 @@ registeredclass.Registration(
 _allStreams = utils.OrderedDict() # All BaseOutputStreams, keyed by filename
 _streamsLock = lock.SLock()       # Controls access to _allStreams
 
-class BaseOutputStream(object):
+class BaseOutputStream:
     def __init__(self, filename, mode, openfile):
         self.filename = filename
         self.file = None

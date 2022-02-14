@@ -31,7 +31,7 @@ import sys
 
 ############################
 
-class ParameterWidget(object):
+class ParameterWidget:
     def __init__(self, gtk, scope=None, name=None, expandable=False,
                  compact=False):
         debug.mainthreadTest()
@@ -568,7 +568,7 @@ parameter.FloatRangeParameter.makeWidget = _FloatRange_makeWidget
 # LabelledSlider needs to know if the range is given in degrees or
 # radians, so we need an extra class to store the units.
 
-class _AngleClipper(object):
+class _AngleClipper:
     def __init__(self, vmin, vmax, circle):
         self.vmin = vmin
         self.vmax = vmax
@@ -586,7 +586,7 @@ class _AngleClipper(object):
                              + "]")
         return val
 
-class _ClipperFactory(object):
+class _ClipperFactory:
     def __init__(self, circle):
         self.circle = circle    # either 360 or 2*pi
     def __call__(self, vmin, vmax):

@@ -23,7 +23,7 @@ from ooflib.engine.IO import orientationmatrix
 import math
 import os.path
 
-class DataPoint(object):
+class DataPoint:
     def __init__(self, position, angletuple, groups):
         self.position = position
         self.angletuple = angletuple

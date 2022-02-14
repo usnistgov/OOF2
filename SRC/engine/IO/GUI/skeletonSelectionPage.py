@@ -41,7 +41,7 @@ import sys
 # each mode, all of this mode specific data is stored in a ModeData
 # object.
 
-class ModeData(object):
+class ModeData:
     def __init__(self, page, mode):
         self.page = page                # SkeletonSelectionPage
         self.mode = mode                # SkeletonSelectionMode object
@@ -332,7 +332,7 @@ class SkeletonSelectionPage(oofGUI.MainPage):
 # selected by the mesh widget.  The GroupGUI has a local selection
 # state.
 
-class GroupGUI(object):
+class GroupGUI:
     def __init__(self, parent):
         debug.mainthreadTest()
         self.parent = parent
@@ -786,7 +786,7 @@ class GroupGUI(object):
                              + self.activemode().name())
                              
             
-class SelectionGUI(object):
+class SelectionGUI:
     def __init__(self, parent):
         debug.mainthreadTest()
         self.parent = parent
@@ -991,7 +991,7 @@ class SelectionGUI(object):
         gtklogger.checkpoint("skeleton selection page selection sensitized "
                              + self.activemode().name())
         
-class HistoryBox(object):
+class HistoryBox:
     def __init__(self, set_callback, ok_callback):
         debug.mainthreadTest()
         self.gtk = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
@@ -1022,9 +1022,9 @@ class HistoryBox(object):
                             expand=False, fill=False, padding=0)
         
         
-    def setCB(self, object):
+    def setCB(self, obj):
         if self.set_callback:
-            self.set_callback(object)
+            self.set_callback(obj)
 
             
     def sensitize(self):

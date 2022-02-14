@@ -43,7 +43,7 @@ displayTraceBack = printTraceBack
 # function so that the getTraceBackList method can be overridden in
 # derived classes.  See scriptloader.py.
 
-class OOFexceptHook(object):
+class OOFexceptHook:
     def getTraceBackList(self, tback): # may be redefined in derived classes
         return traceback.extract_tb(tback)
     def __call__(self, e_type, e_value, tback):
