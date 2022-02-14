@@ -1015,10 +1015,8 @@ class Mesh(whoville.Who):
             return "Wrong number of subproblems"
         # subproblem order may be different.  Check names before
         # comparing subproblems.
-        subpnames = [s.name() for s in mysubprobs]
-        osubpnames = [s.name() for s in othersubprobs]
-        subpnames.sort()
-        osubpnames.sort()
+        subpnames = sorted([s.name() for s in mysubprobs])
+        osubpnames = sorted([s.name() for s in othersubprobs])
         if subpnames != osubpnames:
             return "Subproblem names don't match: %s!=%s" % (subpnames,
                                                              osubpnames)
@@ -1060,10 +1058,8 @@ class Mesh(whoville.Who):
                         osubp = osubpctxt.getObject()
                         # Check that the same Fields are defined on
                         # the subproblems
-                        fields = subpctxt.all_compound_fields()
-                        ofields = osubpctxt.all_compound_fields()
-                        fields.sort()
-                        ofields.sort()
+                        fields = sorted(subpctxt.all_compound_fields())
+                        ofields = sorted(osubpctxt.all_compound_fields())
                         if fields != ofields:
                             return ("Fields don't match in subproblem "
                                 + subpname)
@@ -1088,8 +1084,8 @@ class Mesh(whoville.Who):
                         while not othernodeiter.end():
                             othernodes.append(othernodeiter.node())
                             next(othernodeiter) # TODO PYTHON3: Check iterator
-                        mynodes.sort(_nodesorter)
-                        othernodes.sort(_nodesorter)
+                        mynodes.sort(key=_nodekey)
+                        othernodes.sort(key=_nodekey)
 
                         for field in fields:
                             # Check field state
@@ -1323,8 +1319,8 @@ def _fielddiff(field, meshA, nodeA, meshB, nodeB):
     diffs = [x-y for x,y in zip(fieldA, fieldB)]
     sqdiffs = reduce(lambda x,y: x+y*y, diffs, 0.0)/len(diffs)
     return sqdiffs
-def _nodesorter(nodeA, nodeB):
-    return cmp(nodeA.position(), nodeB.position())
+def _nodekey(node):
+    return node.position()
 
 ##################
 defaultSubProblemName = "default"

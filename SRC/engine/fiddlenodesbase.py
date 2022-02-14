@@ -436,8 +436,6 @@ class FiddleElementsInGroup(FiddleNodesTargets):
         self.group = group
         self.nodes = None
     def __call__(self, context):
-        def sortcmp(x,y):
-            return cmp(x.index, y.index)
         if self.nodes is None:
             nodedict = {}
             for element in context.elementgroups.get_group(self.group):

@@ -532,17 +532,33 @@ class BCList:
     def doubleClickCB(self, treeview, path, col):
         self.parent.bcEdit_CB()
 
+    # sortByNameFn and sortByBdyFn are passed to
+    # Gtk.TreeModelSort.set_sort_func(), and return -1, 0, or 1
+    # depending on whether iter1 is less than, equal to, or greater
+    # than iter2, like the lost lamented cmp() function.
     def sortByNameFn(self, model, iter1, iter2, data):
-        return cmp(model[iter1][0], model[iter2][0])
+        m1 = model[iter1][0]
+        m2 = model[iter2][0]
+        if m1 < m2:
+            return -1
+        if m1 > m2:
+            return 1
+        return 0
 
     def sortByBdyFn(self, model, iter1, iter2, data):
         bc1 = model[iter1][1]
         bc2 = model[iter2][1]
         # I don't understand how bc1 or bc2 can be None, but they
-        # sometimes are, so we need to check for.  What we do when one
-        # of them is None doesn't seem to matter.
+        # sometimes are, so we need to check for it.  What we do when
+        # one of them is None doesn't seem to matter.
         if bc1 is not None and bc2 is not None:
-            return cmp(bc1.bdy_string(), bc2.bdy_string())
+            s1 = bc1.bdy_string()
+            s2 = bc2.bdy_string()
+            if s1 < s2:
+                return -1
+            if s1 > s2:
+                return 1
+            return 0
         if bc1 == bc2:          # both None
             return 0
         if bc1 is None:
