@@ -21,13 +21,11 @@ def _Flux___hash__(self):
 
 FluxPtr.__hash__ = _Flux___hash__
 
-def _Flux___cmp__(self, other):
-    if not isinstance(other, FluxPtr): return -1
-    if self.objectid() < other.objectid(): return -1
-    if self.objectid() > other.objectid(): return 1
-    return 0
-
-FluxPtr.__cmp__ = _Flux___cmp__
+def _Flux___lt__(self, other):
+    try:
+        return self.objectid() < other.objectid()
+    except:
+        return NotImplemented
 
 class _AllFluxes:
     def __getitem__(self, indx):

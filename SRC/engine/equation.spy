@@ -17,13 +17,18 @@ def _Equation___hash_(self):
 
 EquationPtr.__hash__ = _Equation___hash_
 
-def _Equation___cmp__(self, other):
-    if not isinstance(other, EquationPtr): return -1
-    if self.objectid() < other.objectid(): return -1
-    if self.objectid() > other.objectid(): return 1
-    return 0
+def _Equation___lt__(self, other):
+    try:
+        return self.objectid() < other.objectid()
+    except:
+        return NotImplemented
 
-EquationPtr.__cmp__ = _Equation___cmp__
+EquationPtr.__lt__ = _Equation___lt__
+
+def _Equation___hash__(self):
+    return self.objectid()
+
+EquationPtr.__hash__ = _Equation___hash__
 
 EquationPtr.__repr__ = EquationPtr.name
 

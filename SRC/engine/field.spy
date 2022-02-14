@@ -23,13 +23,13 @@ SymmetricTensorFieldPtr.__repr__ = SymmetricTensorFieldPtr.name
 
 #-----------------
 
-def _Field___cmp__(self, other):
-    if not isinstance(other, FieldPtr): return -1
-    if self.objectid() < other.objectid(): return -1
-    if self.objectid() > other.objectid(): return 1
-    return 0
+def _Field___lt__(self, other):
+    try:
+        return self.objectid() < other.objectid()
+    except:
+        return NotImplemented
 
-FieldPtr.__cmp__ = _Field___cmp__
+FieldPtr.__lt__ = _Field___lt__
 
 def _Field___hash__(self):
     return self.objectid()
@@ -55,6 +55,8 @@ def newCompoundField(fld):
 
 def getField(name):
     return _allFields[name]
+
+utils.OOFdefine('getField', getField)
 
 def allFields():
     return list(_allFields.values())
