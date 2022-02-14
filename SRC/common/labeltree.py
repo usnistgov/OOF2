@@ -80,6 +80,9 @@ def makePath(name):
     else:
         raise TypeError('Bad argument to labeltree.makePath: %s' % name)
 
+def ltordering(node):
+    return node.ordering
+
 # LabelTree is the root class of an ordered set of objects, all of
 # which (except the root itself) are LabelTreeNode objects.
 # This tree is almost homogeneous, and dynamic, in that the
@@ -232,7 +235,7 @@ class LabelTreeNode:
                 
             # 
             self.nodes.append(leaf)
-            self.nodes.sort() # SORT
+            self.nodes.sort(key=ltordering) # SORT
             #
             # Notify the switchboard, passing the parent of the
             # tree.
@@ -246,7 +249,7 @@ class LabelTreeNode:
                     if node.ordering > ordering:
                         node.ordering = ordering
                         if self.parent:
-                            self.parent.nodes.sort() # SORT using __cmp__ 
+                            self.parent.nodes.sort(key=ltordering)
                     # Descend into existing subtree.  Pass the ordering.
                     node.__setitem__(path[1:], obj, ordering)
                     return
@@ -261,7 +264,7 @@ class LabelTreeNode:
                     newnode.makeOOFMenu(newnode.name, k, menuargs.paramfunc,
                                         *menuargs.args, **menuargs.kwargs))
             self.nodes.append(newnode)
-            self.nodes.sort()  # SORT.
+            self.nodes.sort(key=ltordering)  # SORT.
             switchboard.notify((self.root, "insert"), self, newnode)
             # Recursive call to __setitem__.  Propagate the ordering.
             newnode.__setitem__(path[1:], obj, ordering)
@@ -402,9 +405,9 @@ class LabelTreeNode:
     def getOOFMenu(self, key):
         return self.menus[key]
     
-    # Comparison routine for sorting on orderings.
-    def __cmp__(self,other):
-        return cmp(self.ordering, other.ordering)
+    # # Comparison routine for sorting on orderings.
+    # def __cmp__(self,other):
+    #     return cmp(self.ordering, other.ordering)
 
 # Special object for the root of a labeltree.
 class LabelTree(LabelTreeNode):
