@@ -21,6 +21,9 @@ def _Flux___hash__(self):
 
 FluxPtr.__hash__ = _Flux___hash__
 
+# Fluxes are sometimes stored in an OrderedSet and need to have __lt__
+# defined.
+
 def _Flux___lt__(self, other):
     try:
         return self.objectid() < other.objectid()

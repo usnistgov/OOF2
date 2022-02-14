@@ -23,6 +23,9 @@ SymmetricTensorFieldPtr.__repr__ = SymmetricTensorFieldPtr.name
 
 #-----------------
 
+# Fields are sometimes stored in an OrderedSet and so need to have
+# __lt__ defined.
+
 def _Field___lt__(self, other):
     try:
         return self.objectid() < other.objectid()

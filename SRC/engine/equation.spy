@@ -17,6 +17,9 @@ def _Equation___hash_(self):
 
 EquationPtr.__hash__ = _Equation___hash_
 
+# Euqations are sometimes stored in an OrderedSet and need to have
+# __lt__ defined.
+
 def _Equation___lt__(self, other):
     try:
         return self.objectid() < other.objectid()
