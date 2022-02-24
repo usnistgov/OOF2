@@ -69,11 +69,18 @@ def EnumClass(*args):
         def __repr__(self):
             return `self.name`
         def __eq__(self, other):
-            if isinstance(other, EnumBase):
-                return (self.__class__ == other.__class__ and
-                        self.name == other.name)
             if isinstance(other, str):
                 return self.name == other
+            if isinstance(other, EnumBase):
+                # If one enum class is an extension of another enum
+                # class, then it's possible to compare an object in
+                # one class with an object the another.  Checking that
+                # they're in the same class is insufficient.
+                ## TODO: We should really check that they don't share
+                ## a common base class (other than EnumBase).
+                if (issubclass(self.__class__, other.__class__) or
+                    issubclass(other.__class__, self.__class__)):
+                    return self.name == other.name
             return False
         def __ne__(self, other):
             return not self.__eq__(other)
