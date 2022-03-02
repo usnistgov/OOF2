@@ -12,6 +12,10 @@
 #ifndef OOFERROR_SWG
 #define OOFERROR_SWG
 
+// TODO PYTHON3: Python exceptions must derive from Exception or
+// BaseException.  It's not clear how to to that.  Maybe SWIG4 knows
+// how?
+
 %module ooferror
 
 %include "common/typemaps.swg"
