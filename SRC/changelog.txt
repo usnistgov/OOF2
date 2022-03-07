@@ -1,5 +1,4 @@
-
-2.3.0
+OOF2 2.3.0
 
 * Upgrade to Python3 from Python2.  Python 3.8 or later is required.
 
@@ -68,7 +67,7 @@
 * The Snap Anneal skeleton modifier has been removed. It was mostly
   redundant with Snap Nodes.
 
-2.2.3
+OOF2 2.2.3
 
 * Meshes are drawn by default at their actual position.  The default
   behavior can be changed in the settings menu.
@@ -84,10 +83,10 @@
   was causing the program to hang on some systems when a graphics
   window was used while loading a script.
 
-2.2.1/2
+OOF2 2.2.1 and 2.2.2
 
-* Fixes to the build systems to get it to work with MacPorts.
-
+ * Fixed build errors that only showed up on MacPorts.
+ 
 OOF2 2.2.0
 
 * OOF2 uses gtk3 instead of gtk2, and no longer requires
