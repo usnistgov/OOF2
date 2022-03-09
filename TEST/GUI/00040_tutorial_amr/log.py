@@ -573,7 +573,6 @@ findWidget('Adaptive Mesh Refinement:Next').clicked()
 setComboBox(findWidget('OOF2:Navigation:PageMenu'), 'Solver')
 checkpoint Solver page sensitized
 checkpoint page installed Solver
-deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
 findWidget('OOF2:Solver Page:VPane').set_position(273)
 findWidget('OOF2:Solver Page:solve').clicked()
 #checkpoint Solver page sensitized
