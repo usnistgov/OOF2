@@ -55,7 +55,7 @@ TutorialClass(
     (New!) The graphics window doesn't automatically display objects
     unless you add a new graphics layer.  It can be told to
     automatically add layers, though.  In the Settings menu, select
-    BOLD(New Layer Policy), and in the dialog box set BOlD(policy) to
+    BOLD(New Layer Policy), and in the dialog box set BOLD(policy) to
     BOLD(Single).  Click BOLD(OK).  This makes the window
     automatically display new Images, Meshes, and Skeletons if only one
     such object exists."""
