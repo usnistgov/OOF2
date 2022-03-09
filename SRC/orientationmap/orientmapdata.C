@@ -146,7 +146,7 @@ void OrientMapImage::fillstringimage(StringImage *strimg) const {
 // OrientMapImage.  The OrientMapImage is just a display method, but
 // createImage makes an OOFImage Who object and adds it to the
 // Microstructure's list of Images.
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
 #include <omp.h>
 #endif
 #include <Magick++.h>

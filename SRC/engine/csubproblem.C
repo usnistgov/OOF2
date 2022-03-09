@@ -38,7 +38,7 @@
 #include "engine/nodalfluxes.h"
 #include "engine/nodalscpatches.h"
 
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
 #include <omp.h>
 #include <sstream>
 #include <tuple>
@@ -608,7 +608,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
   // gausspoints, which have been set (along with any gpdofs) by the
   // mesh.
 
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
   // extract elements for this subproblem. Because OpenMP for loop 
   // parallel directive can only work on for loops with forms
   // like: for (int i = val; i < n; i++)
@@ -679,7 +679,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
      + to_string(elements.size()) + " elements");
   }
 
-#else // _OPENMP
+#else // HAVE_OPENMP
 
   for(ElementIterator ei=element_iterator(); !ei.end() && !progress->stopped();
       ++ei)
@@ -689,7 +689,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
     progress->setMessage(to_string(ei.count()+1) + "/" + to_string(ei.size())
   		   + " elements");
   }
-#endif // _OPENMP
+#endif // HAVE_OPENMP
 
   //Interface branch
   //TODO: Write an InterfaceElementIterator for the subproblem.

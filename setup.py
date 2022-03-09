@@ -439,7 +439,10 @@ class oof_build_xxxx:
                     print >> cfgfile, '#define HAVE_PETSC 1'
                 if HAVE_MPI:
                     print >> cfgfile, '#define HAVE_MPI 1'
-                if HAVE_OPENMP: # TODO: is this necessary? _OPENMP is predefined
+                if HAVE_OPENMP:
+                    # HAVE_OPENMP allows us to override OpenMP flags,
+                    # which may have been set in the c++ options of
+                    # our dependencies.
                     print >> cfgfile, '#define HAVE_OPENMP'
                 if DEVEL:
                     print >> cfgfile, '#define DEVEL ', DEVEL
