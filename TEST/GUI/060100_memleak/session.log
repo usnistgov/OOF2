@@ -27,6 +27,6 @@ OOF.Skeleton.New(name='skeleton<2>', microstructure='microstructure', x_elements
 OOF.Mesh.New(name='mesh', skeleton='microstructure:skeleton<2>', element_types=['D2_2', 'T3_3', 'Q4_4'])
 OOF.Mesh.New(name='mesh<2>', skeleton='microstructure:skeleton<2>', element_types=['D2_2', 'T3_3', 'Q4_4'])
 OOF.Windows.Graphics.New()
-OOF.Graphics_1.Layer.New(category='Mesh', what='microstructure:skeleton<2>:mesh<2>', how=MeshEdgeDisplay(when=latest,where=getOutput('original'),color=TranslucentGray(value=0.5,alpha=1),width=3.8255))
-OOF.Graphics_1.Layer.New(category='Mesh', what='microstructure:skeleton<2>:mesh<2>', how=MeshEdgeDisplay(when=latest,where=getOutput('original'),color=TranslucentGray(value=0,alpha=1),width=0.872483))
+OOF.Graphics_1.Layer.New(category='Mesh', what='microstructure:skeleton<2>:mesh<2>', how=MeshEdgeDisplay(when=latest,where=getOutput('actual'),color=TranslucentGray(value=0.5,alpha=1),width=3.8255))
+OOF.Graphics_1.Layer.New(category='Mesh', what='microstructure:skeleton<2>:mesh<2>', how=MeshEdgeDisplay(when=latest,where=getOutput('actual'),color=TranslucentGray(value=0,alpha=1),width=0.872483))
 OOF.Microstructure.Delete(microstructure='microstructure')

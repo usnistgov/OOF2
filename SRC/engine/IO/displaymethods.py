@@ -82,21 +82,6 @@ ghostgfxwindow.defineGfxSetting('hideEmptyElements', True)
 
 ##################
 
-# Common mesh display parameters.
-
-meshdispparams = [
-    placeholder.TimeParameter(
-        'when',
-        value=placeholder.latest,
-        tip='Time at which to plot'),
-    output.PositionOutputParameter(
-        'where', outputDefs.originalPosition,
-        tip="Plot at displaced or original position?")
-]
-
-
-##################
-
 # Skeleton and Mesh display methods are very similar, except for how
 # they get some of their data.  These two base classes encapsulate the
 # *differences* between Skeletons and Meshes, as far as displaying is
@@ -364,6 +349,7 @@ defaultMeshWidth = 0.5
 widthRange = (0, 10, 0.1)
 defaultSkeletonColor = color.black
 defaultMeshColor = color.black
+defaultMeshPosition = outputDefs.actualPosition
 
 def _setDefaultSkeletonEdgeParams(menuitem, color, width):
     global defaultSkeletonColor
@@ -415,6 +401,34 @@ mainmenu.gfxdefaultsmenu.Meshes.addItem(oofmenu.OOFMenuItem(
     for all &oof2; sessions.
 
     </para>"""))
+
+def _setDefaultMeshPosition(menuitem, where):
+    global defaultMeshPosition
+    defaultMeshPosition = where
+
+mainmenu.gfxdefaultsmenu.Meshes.addItem(oofmenu.OOFMenuItem(
+    'Mesh_Position',
+    callback=_setDefaultMeshPosition,
+    ordering=1.1,
+    params=[output.PositionOutputParameter(
+        'where', value=defaultMeshPosition,
+        tip='Plot at displaced or original position?')]
+    ))
+
+##################
+
+# Common mesh display parameters.
+
+meshdispparams = [
+    placeholder.TimeParameter(
+        'when',
+        value=placeholder.latest,
+        tip='Time at which to plot'),
+    output.PositionOutputParameter(
+        'where', value=defaultMeshPosition,
+        tip="Plot at displaced or original position?")
+]
+
 
 ####
 
@@ -828,7 +842,7 @@ ghostgfxwindow.DefaultLayer(skeletoncontext.skeletonContexts,
 
 def defaultMeshEdgeDisplay():
     return MeshEdgeDisplay(when=placeholder.latest,
-                           where=outputDefs.actualPosition,
+                           where=defaultMeshPosition,
                            color=defaultMeshColor,
                            width=defaultMeshWidth)
 

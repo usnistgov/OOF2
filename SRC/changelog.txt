@@ -1,3 +1,12 @@
+2.2.3
+
+* Meshes are drawn by default at their actual position.  The default
+  behavior can be changed in the settings menu.
+
+2.2.1/2
+
+* Fixes to the build systems to get it to work with MacPorts.
+
 OOF2 2.2.0
 
 * OOF2 uses gtk3 instead of gtk2, and no longer requires
