@@ -12,20 +12,18 @@
 # Script for building a distribution of OOF2 or OOF3D.  Takes care of
 # git stuff, and sets the version number in the packaged source code.
 
-# This script assumes that the version to be packaged is the HEAD of
-# the master branch on github.  The previous cvs versions of this
-# script allowed a release to be built from any cvs branch.  If we
-# want the oof version number to be stored in the committed versions
-# of setup.py and oofversion.py, however, then we can only set the oof
-# version number on one branch.  If we released from different branch,
-# we'd get a conflict if and when the branch was later merged into
-# master.  This wasn't so much of a problem in cvs, because the
-# repository was private, and so it didn't matter if the branch number
-# was never set in the committed files.
+# The script creates a git branch for the release, and edits the
+# version number in setup.py and oofversion.py on the branch.  The
+# automatically created release branches should never be merged back
+# into master, because the modified version numbers will create
+# conflicts.  There should be no need to merge them anyway.
 
 # The options are:
 #    --version     a string of nonpunctuation characters and dots (required)
 #    --comment     a string containing no dots (optional)
+#    --branch      Use the given branch, instead of master. (optional)
+#                  The branch is still retrieved from github, so it must
+#                  be committed and pushed. 
 
 import getopt
 import os
@@ -56,15 +54,14 @@ def state_options_and_quit():
 Debugging options are:
 --noclean              Don't remove temp directory
 --dryrun               Don't actually commit, tag, or push in git
---branch=<branchname>  Use branch, not master.  Implies --dryrun and --noclean
-                       Real distributions are always made without --branch.
+--branch=<branchname>  Use the given branch, not master. 
 --help                 Print this
 """
     sys.exit()
 
 version = None
 comment = None
-branch = None
+branch = "master"
 dryrun = False
 noclean = False
 dimension = 2
@@ -86,8 +83,6 @@ for opt in optlist:
         dryrun = True
     elif opt[0] == '--branch':
         branch = opt[1]
-        dryrun = True
-        noclean = True
     elif opt[0] == '--help':
         state_options_and_quit()
 
@@ -125,8 +120,6 @@ try:
     # Clone the git repository into a directory whose name is given by
     # the oof version number: oof2-version or oof3d-version
     distdir = distname.distname + "-" + version
-    # # Use --quiet so that stderr is empty if the command succeeds.
-    # cmd = ['git', 'clone', '--quiet', giturl, distdir]
     if branch is None:
         cmd = ['git', 'clone', giturl, distdir]
     else:
@@ -171,18 +164,18 @@ try:
         osCall('git', 'checkout', '-b', tag)
     else:
         # The branch already exists.  Check it out, and merge the
-        # current master into it.  There *should* be no conflicts in
+        # current base branch into it.  There *should* be no conflicts in
         # the merge, since nobod [y finished writing this comment!]
         newbranch = False
         osCall('git', 'checkout', tag)
-        print >> sys.stderr, "Merging master branch into", tag
-        proc = subprocess.Popen(['git', 'merge', '--no-edit', 'master'],
+        print >> sys.stderr, "Merging", branch, "into", tag
+        proc = subprocess.Popen(['git', 'merge', '--no-edit', branch],
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print >> sys.stderr, stdoutdata
         stdoutdata, stderrdata = proc.communicate()
         if proc.returncode != 0:
             print >> sys.stderr, stderrdata
-            print >> sys.stderr, "Failed to merge master into", tag
+            print >> sys.stderr, "Failed to merge", branch, "into", tag
             sys.exit(1)
 
     # Set the version number in setup.py and SRC/common/oofversion.py.
