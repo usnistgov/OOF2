@@ -136,6 +136,9 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
     floatpattern = re.compile(
         "[-+]?(?:\d+(?:\.\d*)?|\d*\.\d+)(?:[eE][-+]?\d+)?")
 
+    ## TODO: Delete pdfmode?  It's not used, and pdf_compare(), below,
+    ## is better when comparing pdf files created by cairo.
+    ##
     # Pattern for detecting PDF date strings, which should not be
     # compared.  This looks for a non-digit or beginning of a line,
     # followed by exactly 14 digits, followed by 'Z'.
