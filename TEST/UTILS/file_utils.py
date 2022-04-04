@@ -257,14 +257,20 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
         f1.close()
         f2.close()
 
-pdfTimeStamp = r"/CreationDate \(D:[-0-9']*\)"
+pdfTimeStamp = r"/CreationDate \(D:[-0-9TZ']*\)"
 pdfProducer = r"/Producer \(cairo [0-9\.]* \(https?://cairographics\.org\)\)"
 
 def pdf_compare(file1, file2, quiet=False):
     # Compare two files byte by byte, allowing them to differ by a pdf
     # date stamp of the form
     #   /CreationDate (D:20201207163212-05'00)
-    # and also a producer stamp, which might have a different version no.
+    # or
+    #   /CreationDate (D:20220404180201Z)
+    # Dates sometimes include a 'T' separating the date and time.  The
+    # regex defined above doesn't check for valid dates but is good
+    # enough for our purposes.
+    #
+    # Also ignore a producer stamp, which might have a different version no.
     #   /Producer (cairo 1.16.0 (https://cairographics.org))
 
     try:
