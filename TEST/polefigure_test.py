@@ -74,6 +74,9 @@ class OOF_PoleFigureTest(unittest.TestCase):
             colormap=colorMap,
             size=500,
             filename='test.pdf', overwrite=True)
+        # If pdf_compare fails after generating new reference pdf
+        # files, make sure that the time zone is set to "Etc/UTC"
+        # before generating them.  See the comment in regression.py.
         self.assert_(pdf_compare('test.pdf', os.path.join('polefigure_data',
                                                           prefix+'_0.pdf')))
         file_utils.remove("test.pdf")

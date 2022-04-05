@@ -65,6 +65,9 @@ class OOF_Output(unittest.TestCase):
             filename='test.pdf', format='pdf', overwrite=True,
             pixels=400, background=True)
 
+        # If pdf_compare fails after generating new reference pdf
+        # files, make sure that the time zone is set to "Etc/UTC"
+        # before generating them.  See the comment in regression.py.
         self.assert_(pdf_compare(
             'test.pdf', os.path.join('output_data', 'posmesh.pdf')))
 
