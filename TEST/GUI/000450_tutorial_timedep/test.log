@@ -643,7 +643,7 @@ checkpoint toplevel widget mapped Dialog-Edit Graphics Layer
 findWidget('Dialog-Edit Graphics Layer').resize(467, 484)
 event(Gdk.EventType.BUTTON_PRESS,x= 7.7000000000000e+01,y= 1.2000000000000e+01,button=1,state=0,window=findWidget('Dialog-Edit Graphics Layer:how:Element Edges:where:where_0').get_window())
 checkpoint toplevel widget mapped chooserPopup-where_0
-findMenu(findWidget('chooserPopup-where_0'), ['actual']).activate() # MenuItemLogger
+findMenu(findWidget('chooserPopup-where_0'), ['original']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-where_0') # MenuItemLogger
 findWidget('Dialog-Edit Graphics Layer:widget_GTK_RESPONSE_OK').clicked()
 findWidget('OOF2 Graphics 1:Pane0:LayerScroll').get_vadjustment().set_value( 0.0000000000000e+00)

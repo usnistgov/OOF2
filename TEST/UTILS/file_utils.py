@@ -135,6 +135,9 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
     floatpattern = re.compile(
         "[-+]?(?:\d+(?:\.\d*)?|\d*\.\d+)(?:[eE][-+]?\d+)?")
 
+    ## TODO: Delete pdfmode?  It's not used, and pdf_compare(), below,
+    ## is better when comparing pdf files created by cairo.
+    ##
     # Pattern for detecting PDF date strings, which should not be
     # compared.  This looks for a non-digit or beginning of a line,
     # followed by exactly 14 digits, followed by 'Z'.
@@ -256,14 +259,20 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
         f1.close()
         f2.close()
 
-pdfTimeStamp = r"/CreationDate \(D:[-0-9']*\)"
+pdfTimeStamp = r"/CreationDate \(D:[0-9]*Z\)"
 pdfProducer = r"/Producer \(cairo [0-9\.]* \(https?://cairographics\.org\)\)"
 
 def pdf_compare(file1, file2, quiet=False):
     # Compare two files byte by byte, allowing them to differ by a pdf
     # date stamp of the form
-    #   /CreationDate (D:20201207163212-05'00)
-    # and also a producer stamp, which might have a different version no.
+    #   /CreationDate (D:20220405184305Z)
+    # IMPORTANT: To guarantee that the date is of this form, set the TZ
+    # environment variable to "Etc/UTC" before generating the
+    # reference files.  regression.py sets TZ before running the
+    # tests.
+    #
+    # Also ignore a producer stamp, which will look like this,
+    # possibly with a different version number:
     #   /Producer (cairo 1.16.0 (https://cairographics.org))
 
     try:
@@ -291,7 +300,9 @@ def pdf_compare(file1, file2, quiet=False):
     timeSearch2 = re.search(pdfTimeStamp, chars2)
     if timeSearch1 is not None or timeSearch2 is not None:
         if timeSearch1 is None or timeSearch2 is None:
-            # Timestamp was only found in one file. 
+            # Timestamp was only found in one file.
+            if not quiet:
+                print "File mismatch:", file1, file2
             return False
         ranges1.append((timeSearch1.start(), timeSearch1.end()))
         ranges2.append((timeSearch2.start(), timeSearch2.end()))
@@ -299,6 +310,8 @@ def pdf_compare(file1, file2, quiet=False):
     prodSearch2 = re.search(pdfProducer, chars2)
     if prodSearch1 is not None or prodSearch2 is not None:
         if prodSearch1 is None or prodSearch2 is None:
+            if not quiet:
+                print "File mismatch:", file1, file2
             return False
         ranges1.append((prodSearch1.start(), prodSearch1.end()))
         ranges2.append((prodSearch2.start(), prodSearch2.end()))

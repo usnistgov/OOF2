@@ -201,6 +201,15 @@ def run(homedir):
     if debug:
         sys.argv.append("--debug")
 
+    # Set the time zone here so that pdf files generated in the tests
+    # are in the same zone as the reference files.  The pdf files
+    # created by Cairo include a creation time, which is ignored
+    # during comparison, but they also include a file length, which
+    # changes if the time format changes.  Setting TZ here means that
+    # the creation time will always include time zone information, and
+    # will always use the same number of characters.
+    os.putenv("TZ", "Etc/UTC")
+
     oof.run(no_interp=1)
 
     # Make a temp directory and cd to it, but put the current
