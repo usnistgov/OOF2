@@ -1,41 +1,72 @@
 cmake_minimum_required(VERSION 3.20)
 project(oof2 VERSION 2.3.0)
 
-if(NOT CMAKE_BUILD_TYPE)
-  # copied blindly and naively from mathgl. 
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the build type, options are:
-None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release." FORCE)
-endif(NOT CMAKE_BUILD_TYPE)
+# if(NOT CMAKE_BUILD_TYPE)
+#   # copied blindly and naively from mathgl. 
+#   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the build type, options are:
+# None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release." FORCE)
+# endif(NOT CMAKE_BUILD_TYPE)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+# set(oof_build_types Debug Release)
+# set(oof_build_type CACHE STRING "Debug or release?")
+# set_property(CACHE oof_build_type STRINGS ${oof_build_types})
+
+if(oof_build_type STREQUAL "Debug")
   set(DEBUG True)
-endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+endif(oof_build_type STREQUAL "Debug")
   
 
 # Set C++ version
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_EXTENSIONS False)	# use -std=c++11 instead of -gnu++11
+set(CMAKE_CXX_EXTENSIONS False)	# use -std=c++11 instead of -std=gnu++11
 set(CMAKE_CXX_STANDARD_REQUIRED True) # don't fall back to an earlier standard
 
 set(BUILD_SHARED_LIBS ON)
 
 set(CMAKE_FIND_FRAMEWORK LAST)	# Prefers MacPorts over system python
 
-## TODO: Allow user to choose python version
+#option("PythonVersion" "Python2 or Python3" Python3)
+set(PythonVersions Python2 Python3)
+set(PythonVersion Python3 CACHE STRING "Which Python to use")
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${PythonVersions})
+
+## TODO: Allow user to choose python sub version
 #find_package(Python3 3.9 COMPONENTS Interpreter Development)
-find_package(Python2 2.7 COMPONENTS Interpreter Development)
+if(PythonVersion STREQUAL "Python2")
+  message("looking for Python2")
+  find_package(Python2 2.7 COMPONENTS Interpreter Development)
+endif()
+if(PythonVersion STREQUAL "Python3")
+  message("looking for Python3")
+  find_package(Python3 3.9 COMPONENTS Interpreter Development)
+endif()
 #message("PythonX is ${Python2_EXECUTABLE}")
 #message("PythonX_INCLUDE_DIRS is ${Python2_INCLUDE_DIRS}")
 #message("PythonX_LIBRARIES is ${Python2_LIBRARIES}")
 
+
+
+ 
 include(FindSWIG)
 include(UseSWIG)
 find_package(SWIG 4.0 COMPONENTS python)
 
+# Use pkg-config to get info about dependencies
 include(FindPkgConfig)
+# MacPorts puts some pkg-config files in the python library
+cmake_path(APPEND "PKG_CONFIG_PATH"
+  "${${PythonVersion}_LIBRARY_DIRS}/pkgconfig")
+
 pkg_check_modules(OOFCANVAS REQUIRED oofcanvas>=1.0.1)
 pkg_check_modules(MAGICK REQUIRED Magick\+\+>=6.0 Magick\+\+<7.0)
 pkg_check_modules(GTK3 REQUIRED gtk+-3.0>=3.22)
+
+## Dump all variables
+# get_cmake_property(_variableNames VARIABLES)
+# list (SORT _variableNames)
+# foreach (_variableName ${_variableNames})
+#     message(STATUS "${_variableName}=${${_variableName}}")
+# endforeach()
 
 include(TestForSSTREAM)		# sets CMAKE_NO_ANSI_STRING_STREAM
 ## TODO: Is there a non-stupid way of setting HAVE_SSTREAM?
@@ -66,15 +97,18 @@ foreach(ooflib ${ooflibs})
     ## TODO: Don't add all include dirs here. Use only as required by
     ## setting property INCLUDE_DIRECTORIES on source files
     "${Python2_INCLUDE_DIRS}"
-    #"${Python2_INCLUDE_DIRS}"
+    #"${Python3_INCLUDE_DIRS}"
     "${OOFCANVAS_INCLUDE_DIRS}"
     "${MAGICK_INCLUDE_DIRS}"
     "${GTK3_INCLUDE_DIRS}"
     )
   target_link_libraries(${ooflib}
     ${Python2_LIBRARIES}
+    ${OOFCANVAS_LINK_LIBRARIES}
     )
 endforeach()
 
   
 add_subdirectory(SRC)
+
+install(TARGETS oof2common DESTINATION lib)

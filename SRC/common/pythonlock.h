@@ -14,6 +14,8 @@
 #ifndef PYTHONLOCK_H
 #define PYTHONLOCK_H
 
+#include <Python.h>
+
 PyGILState_STATE acquirePyLock();
 void releasePyLock(PyGILState_STATE);
 
