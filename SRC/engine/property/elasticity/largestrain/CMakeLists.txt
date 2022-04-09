@@ -7,7 +7,7 @@
 # oof_manager@nist.gov. 
 
 target_sources(oof2engine
-  PUBLIC
+  PRIVATE
   largestrain.C
   largestrain.h
   )

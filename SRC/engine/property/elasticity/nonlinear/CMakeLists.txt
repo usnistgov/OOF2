@@ -7,7 +7,7 @@
 # oof_manager@nist.gov. 
 
 target_sources(oof2engine
-  PUBLIC
+  PRIVATE
   general_nonlinear_elasticity.C
   general_nonlinear_elasticity.h
   )

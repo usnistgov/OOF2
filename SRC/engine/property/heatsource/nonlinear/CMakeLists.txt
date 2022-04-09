@@ -7,7 +7,7 @@
 # oof_manager@nist.gov. 
 
 target_sources(oof2engine
-  PUBLIC
+  PRIVATE
   nonlinear_heat_source.C
   nonlinear_heat_source.h
   )

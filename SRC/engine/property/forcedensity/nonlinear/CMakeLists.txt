@@ -7,7 +7,7 @@
 # oof_manager@nist.gov. 
 
 target_sources(oof2engine
-  PUBLIC
+  PRIVATE
   nonlinear_force_density.C
   nonlinear_force_density.h
   )

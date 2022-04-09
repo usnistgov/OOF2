@@ -10,7 +10,7 @@ add_subdirectory(nonlinear)
 add_subdirectory(nonconstant)
 
 target_sources(oof2engine
-  PUBLIC
+  PRIVATE
   forcedensity.C
   forcedensity.h
   )

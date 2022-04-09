@@ -1,3 +1,11 @@
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modifed
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.
+
 cmake_minimum_required(VERSION 3.20)
 project(oof2 VERSION 2.2.3)
 
@@ -75,13 +83,13 @@ endif()
 add_library(oof2common SHARED)
 add_library(oof2commonGUI SHARED)
 add_library(oof2engine SHARED)
-#add_library(oof2image SHARED)
-#add_library(oof2orientationmap SHARED)
+add_library(oof2image SHARED)
+add_library(oof2orientationmap SHARED)
 
 configure_file(
   ${PROJECT_SOURCE_DIR}/oofconfig.h.in
   ${PROJECT_BINARY_DIR}/oofconfig.h
-  @ONLY	# only expand variables for the form @VAR@, not ${VAR}
+  @ONLY
   )
 
 set(ooflibs
@@ -89,7 +97,7 @@ set(ooflibs
   oof2commonGUI
   oof2engine
   oof2image
-  # oof2orientationmap
+  oof2orientationmap
   )
 
 foreach(ooflib ${ooflibs})
@@ -109,26 +117,56 @@ foreach(ooflib ${ooflibs})
   target_compile_options(${ooflib} PRIVATE -Wno-deprecated-register)
 endforeach()
 
+target_compile_options(oof2image PRIVATE ${MAGICK_CFLAGS} ${OOFCANVAS_CFLAGS})
+target_compile_options(oof2orientationmap PRIVATE ${MAGICK_CFLAGS})
+
 target_link_libraries(oof2common
+  PRIVATE
   ${${PythonVersion}_LIBRARIES}
   ${OOFCANVAS_LINK_LIBRARIES}
   ${BLAS_LIBRARIES}
   )
 
 target_link_libraries(oof2commonGUI
+  PRIVATE
   ${${PythonVersion}_LIBRARIES}
   ${OOFCANVAS_LINK_LIBRARIES}
   oof2common
   )
 
 target_link_libraries(oof2engine
+  PRIVATE
+  ${${PythonVersion}_LIBRARIES}
+  ${OOFCANVAS_LINK_LIBRARIES}
+  ${BLAS_LIBRARIES}
+  oof2common
+  )
+
+target_link_libraries(oof2image
+  PRIVATE
   ${${PythonVersion}_LIBRARIES}
   ${OOFCANVAS_LINK_LIBRARIES}
   oof2common
+  ${MAGICK_LINK_LIBRARIES}
+  )
+
+target_link_libraries(oof2orientationmap
+  PRIVATE
+  ${${PythonVersion}_LIBRARIES}
+  ${OOFCANVAS_LINK_LIBRARIES}
+  oof2common
+  oof2engine
+  oof2image
+  ${MAGICK_LINK_LIBRARIES}
   )
   
 add_subdirectory(SRC)
 
 install(
-  TARGETS oof2common oof2commonGUI oof2engine
+  TARGETS
+  oof2common
+  oof2commonGUI
+  oof2engine
+  oof2image
+  oof2orientationmap
   DESTINATION lib)

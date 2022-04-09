@@ -1,7 +1,7 @@
 add_subdirectory(IO)
 
 target_sources(oof2common
-  PUBLIC
+  PRIVATE
   abstractimage.h
   activearea.C
   activearea.h

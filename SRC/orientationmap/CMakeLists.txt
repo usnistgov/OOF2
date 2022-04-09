@@ -6,7 +6,18 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-add_subdirectory(common)
-add_subdirectory(engine)
-add_subdirectory(image)
-add_subdirectory(orientationmap)
+target_sources(oof2orientationmap
+  PRIVATE
+  orientmapdata.C
+  orientmapdata.h
+  orientmapproperty.C
+  orientmapproperty.h
+  polefigure.C
+  polefigure.h
+  pixelselectioncouriero.C
+  pixelselectioncouriero.h
+  pixeldifferentiator.C
+  pixeldifferentiator.h
+  )
+
+add_subdirectory(GUI)

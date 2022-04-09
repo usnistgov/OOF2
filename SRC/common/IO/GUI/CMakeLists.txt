@@ -1,5 +1,5 @@
 target_sources(oof2commonGUI
-  PUBLIC
+  PRIVATE
   progressGUI.C
   progressGUI.h
   rubberband.C

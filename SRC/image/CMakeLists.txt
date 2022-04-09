@@ -2,21 +2,21 @@
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
 # with its operation, modification and maintenance. However, to
-# facilitate maintenance we ask that before distributing modified
+# facilitate maintenance we ask that before distributing modifed
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
-target_sources(oof2engine
+target_sources(oof2image
   PRIVATE
-  cijkl.C
-  cijkl.h
-  elasticity.C
-  elasticity.h
+  oofimage.C
+  oofimage.h
+  evenlyilluminate.C
+  pixelselectioncourieri.C
+  pixelselectioncourieri.h
+  autogroupMP.C
+  autogroupMP.h
+  pixeldifferentiator.C
+  pixeldifferentiator.h
   )
 
-add_subdirectory(aniso)
-add_subdirectory(iso)
-add_subdirectory(thermo)
-add_subdirectory(visco)
-add_subdirectory(nonlinear)
-add_subdirectory(largestrain)
+add_subdirectory(IO)
