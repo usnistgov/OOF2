@@ -14,7 +14,7 @@
 #include "common/latticesystem.h"
 #include "common/tostring.h"
 #include "orientationmap/orientmapdata.h"
-#include "orientationmap/pixeldifferentiator.h"
+#include "orientationmap/pixeldifferentiatoro.h"
 
 #include <math.h>
 

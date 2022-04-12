@@ -12,20 +12,20 @@
 #ifndef PIXELDIFFORIENT_SWG
 #define PIXELDIFFORIENT_SWG
 
-%module pixeldifforient
+%module pixeldifforiento
 %include "common/typemaps.swg"
 
 %{
 #include "common/burn.h"
 #include "orientationmap/orientmapdata.h"
-#include "orientationmap/pixeldifferentiator.h"
+#include "orientationmap/pixeldifferentiatoro.h"
 %}
 
 %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
 %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator2Ptr"   
 %pragma(python) code="from ooflib.SWIG.common.statgroups import PixelDistributionFactoryPtr"
 
-%pragma(python) include="orientationmap/pixeldifferentiator.spy"
+%pragma(python) include="orientationmap/pixeldifferentiatoro.spy"
 %extern "common/burn.swg"
 %extern "common/statgroups.swg"
    

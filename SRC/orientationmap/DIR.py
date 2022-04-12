@@ -15,11 +15,11 @@ clib_order = 10
 
 cfiles = [
     'orientmapdata.C', 'orientmapproperty.C', 'polefigure.C',
-    'pixelselectioncouriero.C', 'pixeldifferentiator.C']
+    'pixelselectioncouriero.C', 'pixeldifferentiatoro.C']
 
 swigfiles = [
     'orientmapdata.swg', 'orientmapproperty.swg', 'polefigure.swg',
-    'pixelselectioncouriero.swg', 'pixeldifferentiator.swg']
+    'pixelselectioncouriero.swg', 'pixeldifferentiatoro.swg']
 
 pyfiles = [
     'hkl.py', 'tsl.py', 'genericreader.py',
@@ -28,11 +28,11 @@ pyfiles = [
 
 swigpyfiles = [
     'orientmapdata.spy', 'orientmapproperty.spy', 'polefigure.spy',
-    'pixeldifferentiator.spy']
+    'pixeldifferentiatoro.spy']
 
 hfiles = [
     'orientmapdata.h', 'orientmapproperty.h', 'polefigure.h',
-    'pixelselectioncouriero.h', 'pixeldifferentiator.h']
+    'pixelselectioncouriero.h', 'pixeldifferentiatoro.h']
 
 def set_clib_flags(c_lib):
     import oof2setuputils

@@ -6,18 +6,4 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-target_sources(oof2orientationmap
-  PRIVATE
-  orientmapdata.C
-  orientmapdata.h
-  orientmapproperty.C
-  orientmapproperty.h
-  polefigure.C
-  polefigure.h
-  pixelselectioncouriero.C
-  pixelselectioncouriero.h
-  pixeldifferentiatoro.C
-  pixeldifferentiatoro.h
-  )
-
-add_subdirectory(GUI)
+add_subdirectory(diffusion)

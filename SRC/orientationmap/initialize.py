@@ -21,7 +21,7 @@ import ooflib.orientationmap.hkl
 import ooflib.orientationmap.tsl
 import ooflib.orientationmap.genericreader
 
-import ooflib.SWIG.orientationmap.pixeldifferentiator
+import ooflib.SWIG.orientationmap.pixeldifferentiatoro
 import ooflib.SWIG.orientationmap.polefigure
 
 import ooflib.orientationmap.pixelinfoplugin

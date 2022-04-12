@@ -6,10 +6,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. add_subdirectory(GUI)
 
-add_subdirectory(IO)
-add_subdirectory(property)
-add_subdirectory(elements)
-
 target_sources(oof2engine
   PRIVATE
   angle2color.C
@@ -133,3 +129,8 @@ target_sources(oof2engine
   symeig3.h
   symmmatrix.h
 )
+
+add_subdirectory(IO)
+add_subdirectory(property)
+add_subdirectory(elements)
+

@@ -8,31 +8,6 @@
 
 target_sources(oof2engine
   PRIVATE
-  edge2.C
-  edge2shapefunction.C
-  edge2shapefunction.h
-  edge3.C
-  edge3shapefunction.C
-  edge3shapefunction.h
-  edge3sub.C
-  edge3super.C
-  quad4.C
-  quad4_8.C
-  quad4shapefunction.C
-  quad4shapefunction.h
-  quad8.C
-  quad8_4.C
-  quad8shapefunction.C
-  quad8shapefunction.h
-  quad9.C
-  quad9shapefunction.C
-  quad9shapefunction.h
-  tri3.C
-  tri3_6.C
-  tri3shapefunction.C
-  tri3shapefunction.h
-  tri6.C
-  tri6_3.C
-  tri6shapefunction.C
-  tri6shapefunction.h
+  simpletension.C
+  simpletension.h
   )
