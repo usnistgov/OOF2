@@ -387,11 +387,11 @@ class GUIConsole(code.InteractiveConsole, subWindow.SubWindow):
     def tell(self):
         debug.mainthreadTest()
         # In a Python file object, tell() returns "an integer giving
-        # the file object’s current position in the file, measured in
+        # the file object's current position in the file, measured in
         # bytes from the beginning of the file".  However,
         # get_char_count() gets "the number of characters in the
         # buffer; note that characters and bytes are not the same, you
-        # can’t e.g. expect the contents of the buffer in string form
+        # can't e.g. expect the contents of the buffer in string form
         # to be this many bytes long".
         
         # This method will probably never be called, so it doesn't
