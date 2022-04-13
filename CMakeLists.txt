@@ -277,23 +277,37 @@ install(
 set(swigsrcroot "${PROJECT_SOURCE_DIR}/SRC/SWIG2D")
 
 function(buildswiglibs)
+  set(multiValueArgs LIBS CFLAGS)
+  cmake_parse_arguments(PARSE_ARGV 0 BSL "" "" "${multiValueArgs}")
+
+  # If LIBS wasn't specified, then use the old calling sequence -- all
+  # args are libs and none are cflags.
+  if("${BSL_LIBS}" STREQUAL "")
+    set(BSL_LIBS ${ARGV})
+  endif()
+
   # Get list of all python files in the current directory
   file(GLOB swigpyfiles
     LIST_DIRECTORIES false
     CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR} *.py)
+  
+  # Create build and link commands for the C++ wrappers
   foreach(pfile ${swigpyfiles})
     get_filename_component(fname ${pfile} NAME_WE) # name w/out extension or dir
     if(NOT (${fname} STREQUAL __init__))
-      #message("Building swig lib for ${fname}")
       get_filename_component(dname ${pfile} DIRECTORY) # full directory path
       set(libname ${fname}cmodule)
       cmake_path(RELATIVE_PATH dname BASE_DIRECTORY ${swigsrcroot})
       add_library(${libname} MODULE ${libname}.C)
       # Delete the "lib" prefix, because swig 1.1 doesn't use it
       set_target_properties(${libname} PROPERTIES PREFIX "")
-      target_link_libraries(${fname}cmodule PRIVATE ${ARGV})
+      target_link_libraries(${fname}cmodule PRIVATE ${BSL_LIBS})
       target_compile_options(${fname}cmodule PRIVATE -Wno-deprecated-register)
+      if( NOT ("${BSL_CFLAGS}" STREQUAL ""))
+	target_compile_options(${fname}cmodule PRIVATE ${BSL_CFLAGS})
+      endif()
+
       install(TARGETS ${fname}cmodule
 	DESTINATION ${PYDEST}/ooflib/SWIG/${dname})
     endif()

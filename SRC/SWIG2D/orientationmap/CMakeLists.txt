@@ -1,4 +1,7 @@
 buildswiglibs(
+  CFLAGS
+  ${MAGICK_CFLAGS}
+  LIBS
   oof2common
   oof2engine
   oof2orientationmap
