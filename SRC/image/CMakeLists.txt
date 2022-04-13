@@ -19,4 +19,12 @@ target_sources(oof2image
   pixeldifferentiator.h
   )
 
+# Anything that links to oofimage.h has to be compiled with the
+# ImageMagick flags.
+set_source_files_properties(
+  oofimage.h
+  DIRECTORY ${PROJECT_SOURCE_DIR}
+  PROPERTIES
+  COMPILE_OPTIONS ${MAGICK_CFLAGS})
+
 add_subdirectory(IO)
