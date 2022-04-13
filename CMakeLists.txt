@@ -72,14 +72,14 @@ set_property(CACHE PythonVersion PROPERTY STRINGS ${PythonVersions})
 # it easier while we're converting to Python3.
 ## TODO: Allow user to choose python sub version
 if(PythonVersion STREQUAL "Python2")
-  message("looking for Python2")
+#  message("looking for Python2")
   find_package(Python2 2.7 COMPONENTS Interpreter Development)
   set(PYVERSION ${Python2_VERSION_MAJOR}.${Python2_VERSION_MINOR})
   set(PYEXEC ${Python2_EXECUTABLE})
 endif()
 
 if(PythonVersion STREQUAL "Python3")
-  message("looking for Python3")
+#  message("looking for Python3")
   find_package(Python3 3.9 COMPONENTS Interpreter Development)
   set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
   set(PYEXEC ${Python3_EXECUTABLE})
@@ -242,7 +242,6 @@ configure_file(
   COPYONLY
   )
 
-message("PYDEST is ${PYDEST}")
 configure_file(
   ${PROJECT_SOURCE_DIR}/SRC/__init__.py
   ${PYDEST}/ooflib/__init__.py
