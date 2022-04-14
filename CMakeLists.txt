@@ -105,9 +105,6 @@ include(FindPkgConfig)
 # MacPorts puts some pkg-config files in the python library
 set(ENV{PKG_CONFIG_PATH}
   "$ENV{PKG_CONFIG_PATH}:${${PythonVersion}_LIBRARY_DIRS}/pkgconfig")
-# Not sure why cmake_path(APPEND...) doesn't work.
-#cmake_path(APPEND $ENV{PKG_CONFIG_PATH}
-#  "${${PythonVersion}_LIBRARY_DIRS}/pkgconfig")
 
 pkg_check_modules(OOFCANVAS REQUIRED oofcanvas>=1.0.1)
 pkg_check_modules(MAGICK REQUIRED Magick\+\+>=6.0 Magick\+\+<7.0)
@@ -126,8 +123,7 @@ if(NOT CMAKE_NO_ANSI_STRING_STREAM)
   set(HAVE_SSTREAM True)
 endif()
 
-## TODO: These need to be SHARED, but the swig generated libs need to
-## be MODULE.  Maybe.
+# These are SHARED, but the swig generated libs are MODULE.
 add_library(oof2common SHARED)
 add_library(oof2commonGUI SHARED)
 add_library(oof2engine SHARED)
@@ -233,21 +229,24 @@ foreach(pydir ${oofdirs})
     )
 endforeach()
 
-# Install the top level __init__.py. I don't know if using
-# configure_file is the preferred way to do this, but it works.
+# Create and install the top level __init__.py files. 
 
-configure_file(
-  ${PROJECT_SOURCE_DIR}/SRC/__init__.py
-  ${PYDEST}/__init__.py
-  COPYONLY
+file(TOUCH ${PROJECT_BINARY_DIR}/__init__.py)
+
+install(
+  FILES
+  ${PROJECT_BINARY_DIR}/__init__.py
+  DESTINATION
+  ${PYDEST}
   )
 
-configure_file(
-  ${PROJECT_SOURCE_DIR}/SRC/__init__.py
-  ${PYDEST}/ooflib/__init__.py
-  COPYONLY
+install(
+  FILES
+  ${PROJECT_BINARY_DIR}/__init__.py
+  DESTINATION
+  ${PYDEST}/ooflib
   )
-
+  
 # Install the start up and test wrapper scripts
 
 install(
@@ -298,6 +297,8 @@ function(buildswiglibs)
     if(NOT (${fname} STREQUAL __init__))
       get_filename_component(dname ${pfile} DIRECTORY) # full directory path
       set(libname ${fname}cmodule)
+      # Argh.  cmake_path requires 3.20.  Ubuntu 20.04 has 3.16.
+      # Don't use cmake_path in the final version.
       cmake_path(RELATIVE_PATH dname BASE_DIRECTORY ${swigsrcroot})
       add_library(${libname} MODULE ${libname}.C)
       # Delete the "lib" prefix, because swig 1.1 doesn't use it
