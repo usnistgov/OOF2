@@ -84,12 +84,13 @@ if(PythonVersion STREQUAL "Python3")
   set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
   set(PYEXEC ${Python3_EXECUTABLE})
 endif()
-#message("PythonX is ${Python2_EXECUTABLE}")
-#message("PythonX_INCLUDE_DIRS is ${Python2_INCLUDE_DIRS}")
-#message("PythonX_LIBRARIES is ${Python2_LIBRARIES}")
+# message("Python3 is ${Python3_EXECUTABLE}")
+# message("Python3_INCLUDE_DIRS is ${Python3_INCLUDE_DIRS}")
+# message("Python3_LIBRARIES is ${Python3_LIBRARIES}")
 
 # Use a relative path so that DESTDIR mechanism works
 set(PYDEST lib/python${PYVERSION}/site-packages/${CMAKE_PROJECT_NAME})
+# message("PYDEST is ${PYDEST}")
 
 include(FindBLAS)
  
@@ -152,8 +153,8 @@ foreach(olib ${ooflibs})
     "${PROJECT_SOURCE_DIR}/SRC"
     ## TODO: Don't add all include dirs here. Use only as required by
     ## setting property INCLUDE_DIRECTORIES on source files
-    "${Python2_INCLUDE_DIRS}"
-    #"${Python3_INCLUDE_DIRS}"
+    #"${Python2_INCLUDE_DIRS}"
+    "${Python3_INCLUDE_DIRS}"
     "${OOFCANVAS_INCLUDE_DIRS}"
     "${MAGICK_INCLUDE_DIRS}"
     "${GTK3_INCLUDE_DIRS}"

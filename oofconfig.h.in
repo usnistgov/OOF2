@@ -4,6 +4,7 @@
 #ifndef OOFCONFIG_H
 #define OOFCONFIG_H
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
 #cmakedefine DEBUG
