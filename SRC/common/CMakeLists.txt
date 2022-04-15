@@ -75,8 +75,8 @@ target_sources(oof2common
   smallmatrix.h
   statgroups.C
   statgroups.h
-  swiglib.C
-  swiglib.h
+  # swiglib.C
+  # swiglib.h
   switchboard.C
   switchboard.h
   threadstate.C
