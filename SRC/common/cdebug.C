@@ -38,9 +38,7 @@ static void handler(int sig) {
     msg = "Interrupted";
   
   PyGILState_STATE pystate = acquirePyLock();
-  PyObject *args = Py_BuildValue((char*) "(s)", msg.c_str());
-  PyObject *result = PyEval_CallObject(python_dumper, args);
-  Py_DECREF(args);
+  PyObject *result = PyObject_CallFunction(python_dumper, "(s)", msg.c_str());
   Py_DECREF(result);
   releasePyLock(pystate);
   std::cerr << "cdebug.C: " << msg << ": aborting" << std::endl;
@@ -149,8 +147,7 @@ void throwPythonCException() {
 					     "ooflib.SWIG.common.cdebug");
     PyObject *func = PyObject_GetAttrString(module, (char*) "throwException");
     Py_XDECREF(module);
-    PyObject *args = Py_BuildValue((char*) "()");
-    PyObject *result = PyEval_CallObject(func, args);
+    PyObject *result = PyObject_CallFunction(func, NULL);
     Py_XDECREF(args);
     if(!result)
       pythonErrorRelay();

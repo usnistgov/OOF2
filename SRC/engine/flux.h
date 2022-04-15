@@ -242,6 +242,8 @@ public:
   // Ideally, all arguments here would be const, but the first
   // PyObject* gets passed to PyEval_CallObject, which itself does
   // not have const arguments.
+  // TODO PYTHON3: Is that true for PyObject_CallFunction, which is
+  // now used instead of PyEval_CallObject?  Try using const args.
   virtual FluxNormal *BCCallback(const Coord&,
 				 double,
 				 const Coord&,

@@ -421,15 +421,12 @@ FluxNormal *SymmetricTensorFlux::BCCallback(const Coord &pos,
 					    const PyObject *pyfunction)
   const {
 
-  PyObject *args;
-  PyObject *result;
   Coord cres;
 
   PyGILState_STATE pystate = acquirePyLock();
-  args = Py_BuildValue((char*) "(Oddddddd)", pyfunction, pos(0), pos(1), time,
-		       nrm(0), nrm(1), distance, fraction);
-  result = PyEval_CallObject(wrapper, args);
-  Py_DECREF(args);
+  PyObject *result = PyObject_CallFunction(wrapper,  "(Oddddddd)",
+					   pyfunction, pos(0), pos(1), time,
+					   nrm(0), nrm(1), distance, fraction);
   if(result) {
     if(PyTuple_Check(result)) {
       if(PyTuple_Size(result) == (Py_ssize_t) 2) {
@@ -449,7 +446,7 @@ FluxNormal *SymmetricTensorFlux::BCCallback(const Coord &pos,
       throw ErrSetupError("SymmetricTensorFlux::BCCallback: Expected a tuple.");
     }
   }
-  else {			// !result.  PyEval_CallObject failed.
+  else {		    // !result.  PyObject_CallFunction failed.
     releasePyLock(pystate);
     pythonErrorRelay();
   }
@@ -544,16 +541,11 @@ FluxNormal *VectorFlux::BCCallback(const Coord &pos,
 				   const double fraction,
 				   PyObject *wrapper,
 				   const PyObject *pyfunction) const {
-  PyObject *args;
-  PyObject *result;
   double dres = 0.0;
 
-  PyGILState_STATE pystate = acquirePyLock();
-  args = Py_BuildValue((char*) "(Oddddddd)",pyfunction, pos(0), pos(1), time,
-		       nrm(0), nrm(1), distance, fraction);
-  result = PyEval_CallObject(wrapper, args);
-  Py_DECREF(args);
-
+  PyObject *result = PyObject_CallFunction(wrapper, "(Oddddddd)",
+					   pyfunction, pos(0), pos(1), time,
+					   nrm(0), nrm(1), distance, fraction);
   if(result) {
     if(PyTuple_Check(result)) {
       if(PyTuple_Size(result)==1) {
@@ -570,6 +562,10 @@ FluxNormal *VectorFlux::BCCallback(const Coord &pos,
       releasePyLock(pystate);
       throw ErrSetupError("VectorFlux::BCCallback: Expected a tuple.");
     }
+  }
+  else {		    // !result.  PyObject_CallFunction failed.
+    releasePyLock(pystate);
+    pythonErrorRelay();
   }
 
   Py_XDECREF(result);
