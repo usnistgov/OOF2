@@ -13,9 +13,10 @@
 // We define our own copies of the SWIG library functions to work
 // around differences between SWIG versions.
 
-#include <oofconfig.h>
+#ifndef SWIGLIB_H
+#define SWIGLIB_H
 
-#include <Python.h>
+#include <oofconfig.h>
 
 extern "C" {
   extern void SWIG_MakePtr(char *, const void *, const char *);
@@ -27,3 +28,5 @@ extern "C" {
 			      int (*)(PyObject *));
   extern PyObject *SWIG_newvarlink(void);
 }
+
+#endif // SWIGLIB_H

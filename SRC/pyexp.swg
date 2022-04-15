@@ -15,16 +15,16 @@
 
 // It is a modified version of the SWIG-supplied pyexp.swg file.  The
 // only^H^H^H^Hfirst modification is the first include line, which
-// includes Python.h before anything else -- this gets inserted before
-// the rest of any SWIG-generated C code, and prevents _POSIX_C_SOURCE
-// redefinition warnings.
+// includes Python.h (via oofconfig.h) before anything else -- this
+// gets inserted before the rest of any SWIG-generated C code, and
+// prevents _POSIX_C_SOURCE redefinition warnings.
 
 // This works because SWIG follows a rigid search path for this
 // file, and putting the modified one in the SRC directory pre-empts
 // the stock as-distributed one.
 
+#include <oofconfig.h>
 
-#include <Python.h>
 #include <string.h>
 #include <stdlib.h>
 /* Definitions for Windows/Unix exporting */

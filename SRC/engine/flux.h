@@ -9,10 +9,10 @@
  * oof_manager@nist.gov.
  */
 
-#include <oofconfig.h>
-
 #ifndef FLUX_H
 #define FLUX_H
+
+#include <oofconfig.h>
 
 class Flux;
 
@@ -21,7 +21,6 @@ class Flux;
 #include "engine/fieldindex.h"
 #include <vector>
 #include <string>
-#include <Python.h>
 
 class BoundaryEdge;
 class CSubProblem;

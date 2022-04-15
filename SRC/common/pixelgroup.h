@@ -9,12 +9,11 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef PIXELGROUP_H
 #define PIXELGROUP_H
 
-#include <Python.h>
+#include <oofconfig.h>
+
 #include "common/boolarray.h"
 #include "common/coord.h"
 #include "common/lock.h"

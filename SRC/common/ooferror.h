@@ -12,9 +12,10 @@
 #ifndef OOFERROR_H
 #define OOFERROR_H
 
+#include <oofconfig.h>
+
 #include <iostream>
 #include <string>
-#include <Python.h>
 
 // Error namespace causes too many problems for SWIG.  Instead,
 // use a customizing prefix for error names.

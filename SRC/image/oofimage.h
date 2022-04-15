@@ -10,12 +10,11 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef OOFIMAGE_H
 #define OOFIMAGE_H
 
-#include <Python.h>
+#include <oofconfig.h>
+
 #include "common/abstractimage.h"
 #include "common/array.h"
 #include "common/ccolor.h"

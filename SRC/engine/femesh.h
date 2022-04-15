@@ -10,14 +10,12 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef FEMESH_H
 #define FEMESH_H
 
-class FEMesh;
+#include <oofconfig.h>
 
-#include <Python.h>
+class FEMesh;
 
 #include "engine/equation.h"
 #include "engine/field.h"

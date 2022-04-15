@@ -9,12 +9,11 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef CMICROSTRUCTURE_H
 #define CMICROSTRUCTURE_H
 
-#include <Python.h>
+#include <oofconfig.h>
+
 #include <vector>
 #include <map>
 

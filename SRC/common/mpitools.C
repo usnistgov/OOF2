@@ -10,8 +10,8 @@
  */
 
 #include <oofconfig.h>
+
 #include <string>
-#include <Python.h>
 #include <iostream>
 #include "mpitools.h"
 #include "ooferror.h"

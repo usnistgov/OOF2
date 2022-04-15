@@ -9,12 +9,10 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef PROPERTYOUTPUT_H
 #define PROPERTYOUTPUT_H
 
-#include <Python.h>
+#include <oofconfig.h>
 
 class PropertyOutput;
 class PropertyOutputValInit;

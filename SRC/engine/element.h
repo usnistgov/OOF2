@@ -12,9 +12,10 @@
 #ifndef ELEMENT_H
 #define ELEMENT_H
 
+#include <oofconfig.h>
+
 class Element;
 class MasterElement;
-#include <Python.h>
 
 #include "common/coord.h"
 #include "common/pythonexportable.h"

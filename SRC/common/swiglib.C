@@ -17,7 +17,6 @@
 // with -c.
 
 #include <oofconfig.h>
-#include <Python.h>
 #include <iostream>
 #include "common/ooferror.h"
 #define SWIG_GLOBAL 1

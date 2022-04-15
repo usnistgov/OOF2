@@ -10,7 +10,6 @@
  */
 
 #include <oofconfig.h>
-#include <Python.h>
 
 #include "common/lock.h"
 #include "common/ooferror.h"

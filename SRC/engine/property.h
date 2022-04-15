@@ -15,7 +15,7 @@
 // forward declarations
 class Property;
 
-#include <Python.h>
+#include <oofconfig.h>
 #include "common/identification.h" // for ltidobject
 #include "common/pythonexportable.h"
 #include <string>

@@ -9,16 +9,15 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
-#ifndef PYPROPERTYWRAPPER_H
-#define PYPROPERTYWRAPPER_H
-
 // Structure to wrap a pure-Python property, and make it available by
 // way of the usual interface to the stiffness-matrix construction
 // process.
 
-#include <Python.h>
+#ifndef PYPROPERTYWRAPPER_H
+#define PYPROPERTYWRAPPER_H
+
+#include <oofconfig.h>
+
 #include "engine/element.h"
 #include "property.h"
 #include "common/pythonexportable.h"

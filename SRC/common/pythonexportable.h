@@ -9,8 +9,6 @@
  * oof_manager@nist.gov. 
  */
 
-#include <oofconfig.h>
-
 #ifndef PYTHONEXPORTABLE_H
 #define PYTHONEXPORTABLE_H
 
@@ -107,7 +105,8 @@
 // you don't use PythonNative, but there may be a small performance
 // penalty.
 
-#include <Python.h>
+#include <oofconfig.h>
+
 #include <string>
 #include <iostream>
 #include <stdexcept>

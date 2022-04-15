@@ -15,7 +15,6 @@
 // Routines used to catch C++ signals and dump the current Python
 // stack before bailing out.
 
-#include <Python.h>
 #include <string>
 #include <signal.h>
 #include <pthread.h>

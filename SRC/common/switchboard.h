@@ -13,7 +13,6 @@
 #define SWITCHBOARD_H
 
 #include <oofconfig.h>
-#include <Python.h>
 #include <string>
 #include <vector>
 #include <iostream>

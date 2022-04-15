@@ -13,10 +13,7 @@
 #define GENERAL_NONLINEAR_ELASTICITY_H
 
 #include <oofconfig.h>
-
 #include "engine/property.h"
-
-#include <Python.h>
 #include <string>
 
 class CSubProblem;

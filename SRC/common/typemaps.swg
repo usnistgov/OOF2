@@ -89,7 +89,6 @@
 #include "common/ooferror.h"
 #include "common/pythonlock.h"
 #include "common/threadstate.h"
-#include <Python.h>	
 #include <string>
 #include <vector>
 typedef std::vector<Coord*> CoordVec;

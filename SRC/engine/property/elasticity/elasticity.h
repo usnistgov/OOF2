@@ -14,7 +14,7 @@
 #define ELASTICITY_H
 
 #include <oofconfig.h>
-#include <Python.h>
+
 #include "engine/property.h"
 #include "cijkl.h"
 #include <string>

@@ -11,7 +11,6 @@
 
 #include <oofconfig.h>
 
-#include <Python.h>
 #include "common/coord.h"
 #include "common/pythonlock.h"
 #include "common/swiglib.h"
