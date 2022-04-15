@@ -6,9 +6,17 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-add_subdirectory(common)
-add_subdirectory(engine)
-add_subdirectory(image)
-add_subdirectory(orientationmap)
-add_subdirectory(tutorials)
-add_subdirectory(EXTENSIONS)
+target_sources(oof2image
+  PRIVATE
+  oofimage.C
+  oofimage.h
+  evenlyilluminate.C
+  pixelselectioncourieri.C
+  pixelselectioncourieri.h
+  autogroupMP.C
+  autogroupMP.h
+  pixeldifferentiator.C
+  pixeldifferentiator.h
+  )
+
+add_subdirectory(IO)

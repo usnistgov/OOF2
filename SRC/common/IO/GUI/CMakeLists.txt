@@ -1,0 +1,9 @@
+target_sources(oof2commonGUI
+  PRIVATE
+  progressGUI.C
+  progressGUI.h
+  rubberband.C
+  rubberband.h
+  gfxbrushstyle.C
+  gfxbrushstyle.h
+  )

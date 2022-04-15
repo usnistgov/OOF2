@@ -1,5 +1,7 @@
 target_sources(oof2common
-  PUBLIC
+  PRIVATE
   bitoverlay.C
   bitoverlay.h
   )
+
+add_subdirectory(GUI)

@@ -4,6 +4,8 @@
 #ifndef OOFCONFIG_H
 #define OOFCONFIG_H
 
+#include <Python.h>
+
 #cmakedefine DEBUG
 #define DIM 2
 

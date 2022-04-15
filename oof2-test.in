@@ -1,0 +1,28 @@
+#!@PYEXEC@
+# -*- python -*-
+
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modified
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov. 
+
+# This is the start up script for the oof2 regression test suite.  It
+# just wraps TEST/regression.py.  There's no difference between running
+# this script and running "python regression.py" in the TEST
+# directory except that with this script the user doesn't have to know
+# how to find regression.py. 
+
+import sys
+import os
+from math import *
+
+import oof2
+sys.path.append(os.path.dirname(oof2.__file__))
+import TEST
+from TEST import regression
+homedir = os.path.dirname(regression.__file__)
+regression.run(homedir)
+

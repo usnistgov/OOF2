@@ -2,13 +2,12 @@
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
 # with its operation, modification and maintenance. However, to
-# facilitate maintenance we ask that before distributing modifed
+# facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov.
+# oof_manager@nist.gov. 
 
-add_subdirectory(common)
-add_subdirectory(engine)
-add_subdirectory(image)
-add_subdirectory(orientationmap)
-add_subdirectory(tutorials)
-add_subdirectory(EXTENSIONS)
+target_sources(oof2engine
+  PRIVATE
+  permittivity.C
+  permittivity.h
+  )
