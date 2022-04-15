@@ -318,7 +318,7 @@ endfunction()
 
 # TODO: The CMakeLists files in the SWIG2D subdirectories won't be
 # needed when we're using swig properly.
-add_subdirectory(SRC/SWIG2D)
+##add_subdirectory(SRC/SWIG2D)
 
 # Copy the python files from the SWIG2D directory
 install(
