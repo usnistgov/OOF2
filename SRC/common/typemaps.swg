@@ -23,64 +23,25 @@
 
 // In these comments, "[x]" means a Python list of objects of type x
 
-// Unnamed typemaps defined in this file:
+// out:     std::string*   -> PyUnicode
+// newfree: std::string*
+// out:     std::string&   -> PyUnicode
+// out:     std::string    -> PyUnicode  ** do not use, makes extra copy **
+// in:      PyUnicode -> std::string&
+// in:      PyUnicode -> std::string*
+// in:      PyUnicode -> std::string
 
-// in		CColor		Color -> CColor*
-// in		CoordVec*	[Coord] -> std::vector<Coord*>*
-// in		DoubleList*	[Float] -> std::vector<double>*
-// in		IntVec*		[Int] -> std::vector<int>*
-// in		ShortVec*	[Int] -> std::vector<unsigned short>*
-// in		PyObject *
-// in		StringVec*	[Python string]->std::vector<std::string>
-// newfree	DoubleList*
-// newfree	ICoordVec*	frees std::vector<ICoord>* when tagged by %new
-// newfree	IntVec*
-// newfree	PointVec*
-// newfree	ShortVec*
-// newfree	StringVec*
-// newfree      string*
-// out		CColor		CColor -> RGBColor
-// out		Coord		Coord -> Point
-// out		Coord&		Coord* -> Point
-// out		Coord*		Coord& -> Point
-// out		CoordVec*	std::vector<Coord*>* -> [Coord]
-// newfree      CoordVec*
-// out		DoubleList*	std::vector<double>* -> [Float]
-// out		ICoord		ICoord -> iPoint
-// out		ICoordVec*	std::vector<ICoord>* -> [iPoint]
-// out		IntVec*		std::vector<int>* -> [Int]
-// out          IntPair        std::pair<int, int> -> (int, int)
-// out		ShortVec*	std::vector<unsigned short>* -> [Int]
-// out		PointVec*	std::vector<Coord>* -> [Point]
-// out          Progress*       Progress* -> derived classes
-// out		PyObject*	
-// out		StringVec*	std::vector<std::string>->[Python string]
-// out		string*		C++ string pointer -> Python string
-// out          string&         C++ string reference -> Python string.
-// out          string          Forbidden!  It creates memory leaks.
+// in:      RGBAColor (or similar) -> CColor
+// out:     CColor -> RGBAColor
 
-// Named typemaps defined in this file:
+// in: [double] -> std::vector<double>&
+// in: [double] -> std::vector<double>*
+// out: std::vector<double>& -> [double]
 
-// in		PyObject *pythonCallable
-// in		PointVec* PointList	[Point] -> std::vector<Coord>*
-// in		ICoordVec *iPointList   [iPoint] -> std::vector<ICoord>*	
-// in		ICoordVec *iTupleList   [(Int, Int)] -> std::vector<ICoord>*
-// in		ICoord *iPoint		iPoint -> ICoord*
-// in		Coord *Point		Point -> Coord*
-// in		Coord *Sequence		(Float,Float) or [Float,Float] -> Coord*
-// in		ICoord *Sequence	(Int,Int) or [Int,Int] -> ICoord*
-// in		CharPtrVec *argv		[string] -> std::vector<char*>
+// NAMED TYPEMAPS
 
-// Typemaps are also used to convert C++ base class pointers to Python
-// derived types, by the mechanism described in pythonexportable.h.
-
-// out		Node*
-// out		Property*
-// out          cskel_OutPoint
-
-// Useful typemaps for extracting std::string return values and members.
-//typedef char *string;
-
+// in:  PyObject *PythonCallable: PyObject* -> PyObject*  no translation
+// in:  std::vector<double> &iterable: <iterable> -> std::vector<double>
 
 %{
 #include <oofconfig.h>
@@ -91,6 +52,8 @@
 #include "common/threadstate.h"
 #include <string>
 #include <vector>
+  // TODO: We shouldn't still need all these typedefs. SWIG
+  // understands templates.
 typedef std::vector<Coord*> CoordVec;
 typedef std::vector<Coord> PointVec;
 typedef std::vector<ICoord> ICoordVec;
@@ -100,61 +63,92 @@ typedef std::vector<int> IntVec;
 typedef std::vector<std::string> StringVec;
 typedef std::vector<unsigned short> ShortVec;
 typedef std::pair<int, int> IntPair;
-using std::string;
+
+// Useful function for debugging by printing Python objects from C++.
+// TODO: Move this someplace else.
+ std::string repr(PyObject *obj) {
+    PyObject *repr = PyObject_Repr(obj);
+    assert(obj != 0);
+    PyObject *ustr = PyUnicode_AsEncodedString(repr, "UTF-8", "strict");
+    assert(ustr != 0);
+    std::string r(PyBytes_AsString(ustr));
+    Py_DECREF(repr);
+    Py_DECREF(ustr);
+    return r;
+  }
+
 %}
 
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
+%typemap(out) std::string* {
+  // typemap(out) std::string*
+  $result = PyUnicode_FromString($1->c_str());
+ }
 
+%typemap(newfree) std::string* {
+  // typemap(newfree) std::string*
+  delete $1;
+ }
+  
+%typemap(out) std::string& {
+  // typemap(out) std::string&
+  $result = PyUnicode_FromString($1->c_str());
+ }
 
-%typemap(python,out) string& {
-  // typemap(python, out) string&
-  $target = PyString_FromString($source->c_str());
+%typemap(out, warning="900: This typemap makes an extra copy of its input")
+std::string {
+  // typemap(out) std::string --- This makes an extra copy!
+  // If optimal="1" were specified, then it wouldn't make the extra
+  // copy, but that doesn't work with the exception typemap.
+  const std::string &str = $1;
+  $result = PyUnicode_FromString(str.c_str());
+ }
+
+%typemap(in) std::string& (std::string str) {
+  // typemap(in) std::string&
+  PyObject *ustr = PyUnicode_AsEncodedString($input, "UTF-8", "strict");
+  str.assign(PyBytes_AsString(ustr));
+  $1 = &str;
+  Py_DECREF(ustr);
 }
 
-%typemap(python,out) string {
-  // typemap(python, out) string
-  // This typemap should not be used, since swig will use "new string"
-  // to copy the output, and won't delete it.  Perhaps this is because
-  // we're using an ancient version of swig.
-
-  //$target = PyString_FromString($source->c_str());
-  $target = DONT_USE_THIS_TYPEMAP();
+%typemap(in) std::string* (std::string str) {
+  // typemap(in) std::string*
+  PyObject *ustr = PyUnicode_AsEncodedString($input, "UTF-8", "strict");
+  str.assign(PyBytes_AsString(ustr));
+  $1 = &str;
+  Py_DECREF(ustr);
 }
 
-%typemap(python, newfree) string* {
-  // typemap(python, newfree) string*
-  delete $source;
-}
+%typemap(in) std::string {
+  // typemap(in) std::string
+  PyObject *ustr = PyUnicode_AsEncodedString($input, "UTF-8", "strict");
+  $1 = PyBytes_AsString(ustr);
+  Py_DECREF(ustr);
+ }
 
-// Useful typemap for passing a python callable
-%typemap(python,in) PyObject *pythonCallable {
-  if(!PyCallable_Check($source)) {
-    PyErr_SetString(PyExc_TypeError,"Need a callable object!");
-    return NULL;
-  }
-  $target = $source;
-}
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
+%typemap(check) PyObject *pythonCallable {
+  if(!PyCallable_Check($1))
+    SWIG_exception(SWIG_ValueError, "Expected a callable python object.");
+ }
 
-// typemap for passing "self" into a PythonExportable/PythonNative
-// constructor.  It would seem that this shouldn't be necessary, but
-// without it SWIG doesn't do the right thing.
-%typemap(python,in) PyObject * {
-  // typemap(python, in) PyObject*
-  $target = $source;
-}
+%typemap(int) PyObject *pythonCallable {
+  $result = $1;
+ }
 
-%typemap(python, out) PyObject * {
-  // typemap(python, out) PyObject*
-  $target = $source;
-}
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
 // TODO LATER:  Investigate whether all colors should be SWIG'd CColors.
-%typemap(python, in) CColor* (CColor clr) {
-  PyObject *red = PyObject_CallMethod($source, (char*)"getRed", NULL);
-  PyObject *grn = PyObject_CallMethod($source, (char*)"getGreen", NULL);
-  PyObject *blu = PyObject_CallMethod($source, (char*)"getBlue", NULL);
-  PyObject *alf = PyObject_CallMethod($source, (char*)"getAlpha", NULL); // alien life form
+
+%typemap(in) CColor* (CColor clr) {
+  // typemap(in) CColor*  -- converts Python color to C++ CColor
+  PyObject *red = PyObject_CallMethod($input, "getRed", NULL);
+  PyObject *grn = PyObject_CallMethod($input, "getGreen", NULL);
+  PyObject *blu = PyObject_CallMethod($input, "getBlue", NULL);
+  PyObject *alf = PyObject_CallMethod($input, "getAlpha", NULL);
   clr.setRed(PyFloat_AsDouble(red));
   clr.setGreen(PyFloat_AsDouble(grn));
   clr.setBlue(PyFloat_AsDouble(blu));
@@ -163,11 +157,11 @@ using std::string;
   Py_XDECREF(grn);
   Py_XDECREF(blu);
   Py_XDECREF(alf);
-  $target = &clr;
+  $1 = &clr;
 }
 
-
-%typemap(python, out) CColor {
+%typemap(out) CColor {
+  // typemap(out) CColor -- converts C++ CColor to Python RGBAColor
   static PyObject *RGBAColorClass = 0;
   if(!RGBAColorClass) {
     PyObject *module = PyImport_ImportModule("ooflib.common.color");
@@ -175,53 +169,187 @@ using std::string;
     Py_XDECREF(module);
     if(!RGBAColorClass) return 0;
   }
-  PyObject *rgbaargs = Py_BuildValue("dddd", $source->getRed(),
-				    $source->getGreen(),
-				    $source->getBlue(),
-				    $source->getAlpha());
-  delete $source;
-  $target = PyObject_CallObject(RGBAColorClass, rgbaargs);
-  Py_XDECREF(rgbaargs);
+  $result = PyObject_CallFunction(RGBAColorClass, "dddd",
+				  $1->getRed(), $1->getGreen(),
+				  $1->getBlue(), $1->getAlpha()):
+  
 }
 
-%typemap(python,in) DoubleList* (DoubleList vec) {
-  if(!PySequence_Check($source)) {
-    PyErr_SetString(PyExc_TypeError,"Error in vector<double>* typemap. Expected a sequence of numbers!");
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+// const std::vector<double> <==> [double]
+
+// The "in" typemaps use a const vector. C++ will only see a copy of
+// the python data, so it can't change it and shouldn't try. 
+
+%typemap(in) const std::vector<double>& (std::vector<double> vec) {
+  // typemap(in) std::vector<double>&
+  if(!PySequence_Check($input)) {
+    PyErr_SetString(
+      PyExc_TypeError,
+      "Error in vector<double>* typemap. Expected a sequence of numbers!");
     return 0;
   }
-  DoubleList::size_type sz = Py_SAFE_DOWNCAST(PySequence_Size($source),
-					     Py_ssize_t, DoubleList::size_type);
+  std::vector<double>::size_type sz = PySequence_Size($input);
   if(sz > 0) {
     vec.resize(sz);
-    for(DoubleList::size_type i=0; i<sz; i++) {
-      PyObject *x = PySequence_GetItem($source, (Py_ssize_t) i);
+    for(auto i=0; i<sz; i++) {
+      PyObject *x = PySequence_GetItem($input, (Py_ssize_t) i);
       if(PyFloat_Check(x))
 	vec[i] = PyFloat_AsDouble(x);
-      else if(PyInt_Check(x))
-	vec[i] = (double) PyInt_AsLong(x);
+      else if(PyLong_Check(x))
+	vec[i] = (double) PyLong_AsLong(x);
       else {
-	PyErr_SetString(PyExc_TypeError, "Error in vector<double>* typemap.  Expected a sequence of numbers.");
-	return 0;
+	PyErr_SetString(PyExc_TypeError,
+			"Error in std::vector<double> typemap.  Expected a sequence of numbers.");
+	SWIG_fail;
       }
       Py_XDECREF(x);
     }
   }
-  $target = &vec;
+  $1 = &vec;
 }
 
-%typemap(python, out) DoubleList* {
-  // typemap(python, out) DoubleList*
-  DoubleList::size_type sz = $source->size();
-  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
-  $target = PyList_New((Py_ssize_t) sz);
-  for(DoubleList::size_type i=0; i<sz; i++)
-    PyList_SET_ITEM($target, (Py_ssize_t) i, PyFloat_FromDouble((*$source)[i]));
+// This converts a Python iterable object, containing ints or floats,
+// to a std::vector of doubles.  TODO: Converting to a C++ iterator
+// might be useful.  The C++ iterator would have to keep a reference
+// to the Python iterator and call PyIter_Next.  An advantage would be
+// that no vector would need to be made.
+
+%typemap(in) const std::vector<double> &iterable (std::vector<double> vec) {
+  // typemap(int) std::vector<double> &iterable
+  PyObject *iter  = PyObject_GetIter($input);
+  if(!iter)
+    SWIG_fail;
+  while(PyObject *item = PyIter_Next(iter)) {
+    if(PyFloat_Check(item))
+      vec.push_back(PyFloat_AsDouble(item));
+    else if(PyLong_Check(item))
+      vec.push_back((double) PyLong_AsLong(item));
+    else {
+      PyErr_SetString(PyExc_TypeError,
+		      "Error in std::vector<double> typemap.  Expected an iterable container of numbers.");
+      SWIG_fail;
+    }
+    Py_DECREF(item);
+  }
+  $1 = &vec;
+ }
+
+// Because of the way swig converts references to pointers, the same
+// typemaps works for both.
+%typemap(in) const std::vector<double>* = const std::vector<double>&;
+%typemap(in) const std::vector<double> *iterable = const std::vector<double> &iterable;
+
+
+
+// Convert a std::vector<double>& to a list of doubles.
+// TODO: convert a std::vector<double> to a python iterator?
+
+%typemap(out) std::vector<double>* {
+  // typemap(out) std::vector<double>*
+  std::vector<double>::size_type sz = $1->size();
+  $result = PyList_New((Py_ssize_t) sz);
+  for(std::vector<double>::size_type i=0; i<sz; i++) {
+    PyList_SET_ITEM($result, i, PyFloat_FromDouble((*$1)[i]));
+  }
+ }
+
+// %typemap(newfree) std::vector<double>* {
+//   // typemap(newfree) std::vector<double>*
+//   delete $source;
+//  }
+
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+// std::vector<int> <==> [long]
+
+%typemap(in) std::vector<int>& (std::vector<int> vec) {
+  // typemap(in) std::vector<double>&
+  if(!PySequence_Check($input)) {
+    PyErr_SetString(
+      PyExc_TypeError,
+      "Error in vector<double>* typemap. Expected a sequence of integers!");
+    return 0;
+  }
+  std::vector<int>::size_type sz = PySequence_Size($input);
+  if(sz > 0) {
+    vec.resize(sz);
+    for(auto i=0; i<sz; i++) {
+      PyObject *x = PySequence_GetItem($input, (Py_ssize_t) i);
+      if(PyLong_Check(x))
+	vec[i] = PyLong_AsLong(x);
+      else {
+	PyErr_SetString(PyExc_TypeError,
+			"Error in std::vector<double> typemap.  Expected a sequence of integers.");
+	SWIG_fail;
+      }
+      Py_XDECREF(x);
+    }
+  }
+  $1 = &vec;
 }
 
-%typemap(python, newfree) DoubleList* {
-  // typemap(python, newfree) DoubleList*
-  delete $source;
-}
+// This converts a Python iterable object, containing ints,
+// to a std::vector of ints.  TODO: Converting to a C++ iterator
+// might be useful.  The C++ iterator would have to keep a reference
+// to the Python iterator and call PyIter_Next.  An advantage would be
+// that no vector would need to be made.
+
+%typemap(in) std::vector<int> &iterable (std::vector<int> vec) {
+  // typemap(int) std::vector<double> &iterable
+  PyObject *iter  = PyObject_GetIter($input);
+  if(!iter)
+    SWIG_fail;
+  while(PyObject *item = PyIter_Next(iter)) {
+     if(PyLong_Check(item))
+      vec.push_back((double) PyLong_AsLong(item));
+    else {
+      PyErr_SetString(PyExc_TypeError,
+		      "Error in std::vector<double> typemap.  Expected an iterable container of integers.");
+      SWIG_fail;
+    }
+    Py_DECREF(item);
+  }
+  $1 = &vec;
+ }
+
+// Convert a std::vector<int>& to a list of doubles
+// TODO: convert a std::vector<int> to a python iterator?
+
+%typemap(out) std::vector<int>* {
+  // typemap(out) std::vector<int>*
+  std::vector<double>::size_type sz = $1->size();
+  $result = PyList_New((Py_ssize_t) sz);
+  for(std::vector<double>::size_type i=0; i<sz; i++) {
+    PyList_SET_ITEM($result, i, PyLong_FromLong((*$1)[i]));
+  }
+ }
+
+// %typemap(newfree) std::vector<double>* {
+//   // typemap(newfree) std::vector<double>*
+//   delete $source;
+//  }
+
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+// OLD BELOW HERE
+
+// TODO: Do we need these?
+//
+// // typemap for passing "self" into a PythonExportable/PythonNative
+// // constructor.  It would seem that this shouldn't be necessary, but
+// // without it SWIG doesn't do the right thing.
+// %typemap(python,in) PyObject * {
+//   // typemap(python, in) PyObject*
+//   $target = $source;
+// }
+
+// %typemap(python, out) PyObject * {
+//   // typemap(python, out) PyObject*
+//   $target = $source;
+// }
+
 
 %typemap(python, in) IntVec* (IntVec vec) {
   if(!PySequence_Check($source)) {
