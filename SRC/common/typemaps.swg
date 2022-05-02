@@ -15,13 +15,18 @@
 // TODO: Change the xxxxxVec* "in" typemaps so that they accept any
 // Python iterator, not just lists and tuples.
 
+// TODO: Are the IntPair typemaps from the Python2 code used?  I've
+// omitted them.
+
+// TODO: use SWIG_exception_fail instead of calling PyErr_SetString
+// and SWIG_fail.
+
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// GENERIC TYPEMAPS
-
-// DON'T ADD TYPEMAPS TO THIS FILE WITHOUT ADDING THEM TO THIS LIST
-
 // In these comments, "[x]" means a Python list of objects of type x
+
+// GENERIC TYPEMAPS
 
 // out:     std::string*   -> PyUnicode
 // newfree: std::string*
@@ -34,14 +39,33 @@
 // in:      RGBAColor (or similar) -> CColor
 // out:     CColor -> RGBAColor
 
-// in: [double] -> std::vector<double>&
-// in: [double] -> std::vector<double>*
+// in: [double] -> const std::vector<double>&
+// in: [double] -> const std::vector<double>*
 // out: std::vector<double>& -> [double]
+// out: std::vector<double>* -> [double]
+// out: std::vector<double>  -> [double]
+
+// in: [long] -> const std::vector<INT>&     for INT = int, unsigned char
+// in: [long] -> const std::vector<INT>*
+// out: std::vector<INT>& -> [long]
+// out: std::vector<INT>* -> [long]
+// out: std::vector<INT>  -> [long]
+
+// out: std::vector<Coord*>* -> [Coord]  (transfers ownership)
+// out: CoordRefVec (aka std::vector<Coord*>*) -> [Coord] (no transfer)
+// in: [Coord] -> std::vector<Coord*>*
+// out: std::vector<ICoord>* -> [iPoint]
+// in: [string] -> std::vector<std::string>*
+// out: std::vector<std::string>* -> [string]
 
 // NAMED TYPEMAPS
 
 // in:  PyObject *PythonCallable: PyObject* -> PyObject*  no translation
-// in:  std::vector<double> &iterable: <iterable> -> std::vector<double>
+// in:  std::vector<double> &iterable: <iterable> -> const std::vector<double>&
+// in:  std::vector<double> *iterable: <iterable> -> const std::vector<double>*
+// in:  std::vector<char*> *argv:  [string] -> std::vector<char*>*
+// in:  std::vector<Coord>* PointList: [Point] -> std::vector<Coord*>
+// in: std::vector<ICoord> *iPointList [iPoint] -> std::vector<ICoord>*
 
 %{
 #include <oofconfig.h>
@@ -52,8 +76,9 @@
 #include "common/threadstate.h"
 #include <string>
 #include <vector>
-  // TODO: We shouldn't still need all these typedefs. SWIG
-  // understands templates.
+  // TODO PYTHON3: We shouldn't still need all these typedefs. SWIG
+  // understands templates.  Check that they're not used in other swig
+  // files, then delete them.
 typedef std::vector<Coord*> CoordVec;
 typedef std::vector<Coord> PointVec;
 typedef std::vector<ICoord> ICoordVec;
@@ -69,11 +94,11 @@ typedef std::pair<int, int> IntPair;
  std::string repr(PyObject *obj) {
     PyObject *repr = PyObject_Repr(obj);
     assert(obj != 0);
-    PyObject *ustr = PyUnicode_AsEncodedString(repr, "UTF-8", "strict");
+    PyObject *ustr = PyUnicode_AsEncodedString(repr, "UTF-8", "replace");
     assert(ustr != 0);
     std::string r(PyBytes_AsString(ustr));
-    Py_DECREF(repr);
-    Py_DECREF(ustr);
+    Py_XDECREF(repr);
+    Py_XDECREF(ustr);
     return r;
   }
 
@@ -107,23 +132,23 @@ std::string {
 
 %typemap(in) std::string& (std::string str) {
   // typemap(in) std::string&
-  PyObject *ustr = PyUnicode_AsEncodedString($input, "UTF-8", "strict");
+  PyObject *ustr = PyUnicode_AsEncodedString($input, "UTF-8", "replace");
   str.assign(PyBytes_AsString(ustr));
   $1 = &str;
-  Py_DECREF(ustr);
+  Py_XDECREF(ustr);
 }
 
 %typemap(in) std::string* (std::string str) {
   // typemap(in) std::string*
-  PyObject *ustr = PyUnicode_AsEncodedString($input, "UTF-8", "strict");
+  PyObject *ustr = PyUnicode_AsEncodedString($input, "UTF-8", "replace");
   str.assign(PyBytes_AsString(ustr));
   $1 = &str;
-  Py_DECREF(ustr);
+  Py_XDECREF(ustr);
 }
 
 %typemap(in) std::string {
   // typemap(in) std::string
-  PyObject *ustr = PyUnicode_AsEncodedString($input, "UTF-8", "strict");
+  PyObject *ustr = PyUnicode_AsEncodedString($input, "UTF-8", "replace");
   $1 = PyBytes_AsString(ustr);
   Py_DECREF(ustr);
  }
@@ -167,7 +192,8 @@ std::string {
     PyObject *module = PyImport_ImportModule("ooflib.common.color");
     RGBAColorClass = PyObject_GetAttrString(module, "RGBAColor");
     Py_XDECREF(module);
-    if(!RGBAColorClass) return 0;
+    if(!RGBAColorClass)
+      SWIG_fail;
   }
   $result = PyObject_CallFunction(RGBAColorClass, "dddd",
 				  $1->getRed(), $1->getGreen(),
@@ -177,18 +203,18 @@ std::string {
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
-// const std::vector<double> <==> [double]
+// std::vector<double> <--> [double]
 
 // The "in" typemaps use a const vector. C++ will only see a copy of
-// the python data, so it can't change it and shouldn't try. 
+// the python data, so it can't change it and shouldn't try.
+
+// TODO: Do we need typemap(in) std::vector<double> (no * or &)?
 
 %typemap(in) const std::vector<double>& (std::vector<double> vec) {
   // typemap(in) std::vector<double>&
   if(!PySequence_Check($input)) {
-    PyErr_SetString(
-      PyExc_TypeError,
-      "Error in vector<double>* typemap. Expected a sequence of numbers!");
-    return 0;
+    SWIG_exception_fail(PyExc_TypeError,
+			"in '$symname', expected a list of doubles");
   }
   std::vector<double>::size_type sz = PySequence_Size($input);
   if(sz > 0) {
@@ -200,15 +226,19 @@ std::string {
       else if(PyLong_Check(x))
 	vec[i] = (double) PyLong_AsLong(x);
       else {
-	PyErr_SetString(PyExc_TypeError,
-			"Error in std::vector<double> typemap.  Expected a sequence of numbers.");
-	SWIG_fail;
+	SWIG_exception_fail(PyExc_TypeError,
+			    "in '$symname', expected a list of doubles");
       }
       Py_XDECREF(x);
     }
   }
   $1 = &vec;
 }
+
+// Because of the way swig converts references to pointers, the same
+// typemaps works for both.
+%typemap(in) const std::vector<double>* = const std::vector<double>&;
+
 
 // This converts a Python iterable object, containing ints or floats,
 // to a std::vector of doubles.  TODO: Converting to a C++ iterator
@@ -227,21 +257,16 @@ std::string {
     else if(PyLong_Check(item))
       vec.push_back((double) PyLong_AsLong(item));
     else {
-      PyErr_SetString(PyExc_TypeError,
-		      "Error in std::vector<double> typemap.  Expected an iterable container of numbers.");
-      SWIG_fail;
+      SWIG_exception_fail(
+		  PyExc_TypeError,
+		  "in '$symname', expected an iterable container of numbers");
     }
     Py_DECREF(item);
   }
   $1 = &vec;
  }
 
-// Because of the way swig converts references to pointers, the same
-// typemaps works for both.
-%typemap(in) const std::vector<double>* = const std::vector<double>&;
 %typemap(in) const std::vector<double> *iterable = const std::vector<double> &iterable;
-
-
 
 // Convert a std::vector<double>& to a list of doubles.
 // TODO: convert a std::vector<double> to a python iterator?
@@ -255,24 +280,39 @@ std::string {
   }
  }
 
-// %typemap(newfree) std::vector<double>* {
-//   // typemap(newfree) std::vector<double>*
-//   delete $source;
-//  }
+%typemap(out) std::vector<double>& = std::vector<double>*;
+
+%typemap(out) std::vector<double> {
+  std::vector<double>::size_type sz = $1.size();
+  $result = PyList_New((Py_ssize_t) sz);
+  for(std::vector<double>::size_type i=0; i<sz; i++) {
+    PyList_SET_ITEM($result, i, PyFloat_FromDouble($1[i]));
+  }
+ }
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
-// std::vector<int> <==> [long]
+// std::vector<int> <--> [long]
+// std::vector<unsigned short> <--> [long]
 
-%typemap(in) std::vector<int>& (std::vector<int> vec) {
-  // typemap(in) std::vector<double>&
+// The "in" typemaps use a const vector. C++ will only see a copy of
+// the python data, so it can't change it and shouldn't try.
+
+// TODO: Do we need typemap(in) std::vector<int> (no * or &)?
+
+// Define a swig macro to create the typemaps, so that we can easily
+// generate them for both different varieties of int.  On the Python
+// side, all ints are longs.
+
+%define MAKE_INTVEC_TYPEMAPS(TYPE)
+
+%typemap(in) std::vector<TYPE>& (std::vector<TYPE> vec) {
+  // typemap(in) std::vector<TYPE>&  (via MAKE_INTVEC_TYPEMAPS)
   if(!PySequence_Check($input)) {
-    PyErr_SetString(
-      PyExc_TypeError,
-      "Error in vector<double>* typemap. Expected a sequence of integers!");
-    return 0;
+    SWIG_exception_fail(PyExc_TypeError,
+			"in '$symname', expected a sequence.")
   }
-  std::vector<int>::size_type sz = PySequence_Size($input);
+  std::vector<TYPE>::size_type sz = PySequence_Size($input);
   if(sz > 0) {
     vec.resize(sz);
     for(auto i=0; i<sz; i++) {
@@ -280,9 +320,8 @@ std::string {
       if(PyLong_Check(x))
 	vec[i] = PyLong_AsLong(x);
       else {
-	PyErr_SetString(PyExc_TypeError,
-			"Error in std::vector<double> typemap.  Expected a sequence of integers.");
-	SWIG_fail;
+	SWIG_exception_fail(PyExc_TypeError,
+			    "in '$symname', expected a TYPE sequence.");
       }
       Py_XDECREF(x);
     }
@@ -290,48 +329,315 @@ std::string {
   $1 = &vec;
 }
 
+%typemap(in) const std::vector<TYPE>* = const std::vector<TYPE>&;
+
 // This converts a Python iterable object, containing ints,
 // to a std::vector of ints.  TODO: Converting to a C++ iterator
 // might be useful.  The C++ iterator would have to keep a reference
 // to the Python iterator and call PyIter_Next.  An advantage would be
 // that no vector would need to be made.
 
-%typemap(in) std::vector<int> &iterable (std::vector<int> vec) {
-  // typemap(int) std::vector<double> &iterable
-  PyObject *iter  = PyObject_GetIter($input);
+%typemap(in) std::vector<TYPE> &iterable (std::vector<TYPE> vec) {
+  // typemap(in) std::vector<TYPE> &iterable (via MAKE_INTVEC_TYPEMAPS)
+  PyObject *iter = PyObject_GetIter($input);
   if(!iter)
     SWIG_fail;
   while(PyObject *item = PyIter_Next(iter)) {
      if(PyLong_Check(item))
-      vec.push_back((double) PyLong_AsLong(item));
+      vec.push_back((TYPE) PyLong_AsLong(item));
     else {
-      PyErr_SetString(PyExc_TypeError,
-		      "Error in std::vector<double> typemap.  Expected an iterable container of integers.");
-      SWIG_fail;
+      SWIG_exception_fail(
+		  PyExc_TypeError,
+		  "in '$symname, expected an iterable container of TYPE.");
     }
     Py_DECREF(item);
   }
   $1 = &vec;
  }
 
-// Convert a std::vector<int>& to a list of doubles
+%typemap(in) const std::vector<TYPE> *iterable = const std::vector<TYPE> &iterable;
+
+// Convert a std::vector<int>& to a list of longs.
 // TODO: convert a std::vector<int> to a python iterator?
 
-%typemap(out) std::vector<int>* {
-  // typemap(out) std::vector<int>*
-  std::vector<double>::size_type sz = $1->size();
+%typemap(out) std::vector<TYPE>* {
+  // typemap(out) std::vector<TYPE>*  (via MAKE_INTVEC_TYPEMAPS)
+  std::vector<TYPE>::size_type sz = $1->size();
   $result = PyList_New((Py_ssize_t) sz);
-  for(std::vector<double>::size_type i=0; i<sz; i++) {
+  for(std::vector<TYPE>::size_type i=0; i<sz; i++) {
     PyList_SET_ITEM($result, i, PyLong_FromLong((*$1)[i]));
   }
  }
 
-// %typemap(newfree) std::vector<double>* {
-//   // typemap(newfree) std::vector<double>*
-//   delete $source;
-//  }
+%typemap(out) std::vector<TYPE>& = std::vector<TYPE>*;
+
+%typemap(out) std::vector<TYPE> {
+  // typemap(out) std::vector<TYPE>  (via MAKE_INTVEC_TYPEMAPS)
+  std::vector<TYPE>::size_type sz = $1.size();
+  $result = PyList_New((Py_ssize_t) sz);
+  for(std::vector<TYPE>::size_type i=0; i<sz; i++) {
+    PyList_SET_ITEM($result, i, PyLong_FromLong($1[i]));
+  }
+ }
+
+%enddef // MAKE_INTVEC_TYPEMAPS
+
+MAKE_INTVEC_TYPEMAPS(int)
+MAKE_INTVEC_TYPEMAPS(unsigned short)
+
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+ // [string] -> std::vector<char*>*
+
+%{
+  typedef std::vector<char*> CharPtrVec;
+%}
+
+%typemap(in) const CharPtrVec *argv (CharPtrVec argh,
+				     std::vector<PyObject*> ustrs)
+{
+  // typemap(in) CharPtrVec *argv
+  if(!PySequence_Check($input)) {
+    SWIG_exception_fail(PyExc_TypeError,
+			"in '$symname', expected a list of strings.");
+  }
+  CharPtrVec::size_type sz = PySequence_Size($input);
+  argh.resize(sz);
+  for(CharPtrVec::size_type i=0; i<sz; i++) {
+    PyObject *str = PySequence_GetItem($input, (Py_ssize_t) i);
+    // TODO PYTHON3: Is this really the best way to convert Python
+    // strings to char*?
+    PyObject *ustr = PyUnicode_AsEncodedString(str, "UTF-8", "replace");
+    argh[i] = PyBytes_AsString(ustr);
+    // argh stores pointers to data that will be deleted as soon as
+    // ustr is decreffed.  Store ustr and don't decref it until the
+    // called function returns.
+    ustrs.push_back(ustr);
+    Py_XDECREF(str);
+  }
+  $1 = &argh;
+}
+
+%typemap(freearg) const CharPtrVec *argv {
+  // typemap(freearg) CharPtrVec *argv
+  for(PyObject *ustr: ustrs$argnum)
+    Py_XDECREF(ustr);
+}
+
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+// std::vector<TYPE*>  <--> [TYPE]
+
+// MAKE_LISTVEC_TYPEMAPS defines unnamed in and out typemaps for
+// converting between a C++ std::vector* of TYPE*s and a list of
+// swigged TYPEs.  It does not copy the objects -- the swigged
+// pointers point to the original C++ objects.
+
+// Three typemaps are defined:
+// out: TYPEVec *     (transfers ownership of TYPE objects to python)
+// out: TYPERefVec *  (does not transfer ownership to python)
+// in:  TYPEVec*
+
+// If you use std::vector<TYPE*>* as the return type of a function ,
+// it will be interpreted as TYPEVec, and Python will take ownership
+// of the objects.  You need to explicitly use TYPERefVec* (eg,
+// CoordRefVec if TYPE is Coord) as a return type if you don't want
+// ownership of the objects to be transferred to Python.
+
+
+%define MAKE_LISTVEC_TYPEMAPS(TYPE)
+
+%{
+   typedef std::vector<TYPE*> TYPE##Vec;
+   typedef std::vector<TYPE*> TYPE##RefVec;
+%}
+
+%typemap(out) TYPE##Vec* {
+  // typemap(out) TYPE##Vec* via MAKE_LISTVEC_TYPEMAPS for TYPE
+  TYPE##Vec::size_type sz = $1->size();
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <=PY_SSIZE_T_MAX);
+  $result = PyList_New((Py_ssize_t) sz);
+  for(TYPE##Vec::size_type i=0; i<sz; i++) {
+    PyObject *tmp = SWIG_NewPointerObj(SWIG_as_voidptr((*$1)[i]),
+				       $descriptor(TYPE*),
+				       SWIG_POINTER_OWN|0);
+    PyList_SET_ITEM($result, (Py_ssize_t) i, tmp);
+  }
+}
+
+%typemap(out) TYPE##RefVec* {
+  // typemap(out) TYPE##RefVec* via MAKE_LISTVEC_TYPEMAPS for TYPE
+  TYPE##RefVec::size_type sz = $1->size();
+  $result = PyList_New((Py_ssize_t) sz);
+  for(TYPE##RefVec::size_type i=0; i<sz; i++) {
+    PyObject *tmp = SWIG_NewPointerObj(SWIG_as_voidptr((*$1)[i]),
+				       $descriptor(TYPE*),
+				       0); // don't take ownership
+    PyList_SET_ITEM($result, (Py_ssize_t) i, tmp);
+  }
+ }
+
+%typemap(in) TYPE##Vec* (TYPE##Vec v) {
+  // typemap(in) TYPE##Vec* via MAKE_LISTVEC_TYPEMAPS for TYPE
+  if(!PyList_Check($input)) {
+    SWIG_exception_fail(PyExc_TypeError,
+			"in '$symname', expected a list of TYPE.");
+  }
+  TYPE##Vec::size_type sz = PyList_Size($input);
+  v.resize(sz);
+  for(TYPE##Vec::size_type i=0; i<sz; i++) {
+    void *itemptr = 0;
+    int res = SWIG_ConvertPtr(PyList_GET_ITEM($input, i), &itemptr,
+			      $descriptor(TYPE*), 0);
+    if(!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_TypeError,
+			  "in method '$symname', expecting list of TYPEs");
+    }
+    v[i] = reinterpret_cast<TYPE*>(itemptr);
+  }
+    $1 = &v;
+ }
+
+%enddef // MAKE_LISTVEC_TYPEMAPS
+
+MAKE_LISTVEC_TYPEMAPS(Coord);
+
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+// std::vector<Coord>*  <-->  [Point]
+
+%typemap(in) std::vector<Coord> *PointList (std::vector<Coord> v) {
+  // typemap(in) std::vector<Coord>*
+  if(!PyList_Check($input))
+    SWIG_exception_fail(SWIG_TypeError,
+			"in method '$symname', expecting list of Points.");
+  std::vector<Coord>::size_type sz = PyList_Size($input);
+  v.resize(sz);
+  for(std::vector<Coord>::size_type i=0; i<sz; i++) {
+    PyObject *point = PyList_GET_ITEM($input, (Py_ssize_t) i);
+    if(!point)
+      SWIG_fail;
+    PyObject *px = PyObject_GetAttrString(point, "x");
+    if(!px)
+      SWIG_fail;
+    v[i][0] = PyFloat_AsDouble(px);
+    Py_XDECREF(px);
+    PyObject *py = PyObject_GetAttrString(point, "y");
+    if(!py)
+      return NULL;
+    v[i](1) = PyFloat_AsDouble(py);
+    Py_XDECREF(py);
+  }
+  $1 = &v;
+ }
+
+%typemap(out) std::vector<Coord>* {
+  // typemap(out) std::vector<Coord>*
+  std::vector<Coord>::size_type sz = $1->size();
+  static PyObject *PointClass = 0;
+  if(!PointClass) {
+    PyObject *module = PyImport_ImportModule("ooflib.common.primitives");
+    PointClass = PyObject_GetAttrString(module, "Point");
+    Py_XDECREF(module);
+    if(!PointClass)
+      SWIG_fail;
+  }
+  $result = PyList_New((Py_ssize_t) sz);
+  for(std::vector<Coord>::size_type i=0; i<sz; i++) {
+    const Coord &c = (*$input)[i];
+    PyObject *point = PyObject_CallFunction(PointClass, "dd", c(0), c(1));
+    PyList_SET_ITEM($result, (Py_ssize_t) i, point); // Steals reference.
+  }
+ }
+
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+// std::vector<ICoord>*  <-->  [iPoint] 
+
+%typemap(in) std::vector<Coord> *iPointList (std::vector<ICoord> v) {
+  // typemap(in) std::vector<ICoord>* iPointList
+  if(!PyList_Check($input))
+    SWIG_exception_fail(SWIG_TypeError,
+			"in method '$symname', expecting list of iPoints.");
+  std::vector<ICoord>::size_type sz = PyList_Size($input);
+  v.resize(sz);
+  for(std::vector<ICoord>::size_type i=0; i<sz; i++) {
+    PyObject *point = PyList_GET_ITEM($input, (Py_ssize_t) i);
+    if(!point)
+      SWIG_fail;
+    PyObject *px = PyObject_GetAttrString(point, "x");
+    if(!px)
+      SWIG_fail;
+    v[i][0] = PyLong_AsLong(px);
+    Py_XDECREF(px);
+    PyObject *py = PyObject_GetAttrString(point, "y");
+    if(!py)
+      return NULL;
+    v[i](1) = PyLong_AsLong(py);
+    Py_XDECREF(py);
+  }
+  $1 = &v;
+ }
+
+%typemap(out) std::vector<ICoord>* {
+  // typemap(out) std::vector<ICoord>*
+  std::vector<ICoord>::size_type sz = $1->size();
+  static PyObject *iPointClass = 0;
+  if(!iPointClass) {
+    PyObject *module = PyImport_ImportModule("ooflib.common.primitives");
+    iPointClass = PyObject_GetAttrString(module, "iPoint");
+    Py_XDECREF(module);
+    if(!iPointClass)
+      SWIG_fail;
+  }
+  $result = PyList_New((Py_ssize_t) sz);
+  for(std::vector<ICoord>::size_type i=0; i<sz; i++) {
+    const ICoord &c = (*$input)[i];
+    PyObject *ipoint = PyObject_CallFunction(PointClass, "dd", c(0), c(1));
+    PyList_SET_ITEM($result, (Py_ssize_t) i, ipoint); // Steals reference.
+  }
+ }
+
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+// std::vector<std::string>  <-->  [string]
+
+%typemap(in) std::vector<std::string>* (std::vector<std::string> svec) {
+  // typemap(in) std::vector<std::string>*
+  if!(PySequence_Check($input)) {
+      SWIG_exception_fail(SWIG_TypeError,
+			  "in method '$symname', expecting a list of strings");
+    }
+  int sz = PySequence_Length($input);
+  if(sz > 0) {
+    svec.resize(sz);
+    for(int i=0; i<sz; i++) {
+      PyObject *x = PySequence_GetItem($input, i);
+      PyObject *ustr = PyUnicode_AsEncodedString(x, "UTF-8", "replace");
+      svec[i] = std::string(PyBytes_AsString(ustr));
+      Py_XDECREF(ustr);
+      Py_XDECREF(x);
+    }
+  }
+  $target = &vec;
+ }
+
+%typemap(out) std::vector<std::string>* {
+  // typemap(out) std::vector<std::string>*
+  std::vector<std::string>::size_type sz = $1->size();
+  $result = PyList_New((Py_ssize_t) sz);
+  for(std::vector<std::string>::size_type i=0; i<sz; i++) {
+    PyList_SET_ITEM($result, (Py_ssize_t) i,
+		    PyUnicode_FromString((*$1)[i].c_str()));
+  }
+ }
+
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
 // OLD BELOW HERE
 
@@ -350,335 +656,6 @@ std::string {
 //   $target = $source;
 // }
 
-
-%typemap(python, in) IntVec* (IntVec vec) {
-  if(!PySequence_Check($source)) {
-    PyErr_SetString(PyExc_TypeError, "Type error in vector<int>* typemap. Python sequence of Ints required.");
-    return 0;
-  }
-  IntVec::size_type sz = Py_SAFE_DOWNCAST(PySequence_Length($source),
-					  Py_ssize_t, IntVec::size_type);
-  if(sz > 0) {
-    vec.resize(sz);
-    for(IntVec::size_type i=0; i<sz; i++) {
-      PyObject *x = PySequence_GetItem($source, (Py_ssize_t) i);
-      vec[i] = PyInt_AsLong(x);
-      Py_XDECREF(x);
-    }
-  }
-  $target = &vec;
-}
-
-%typemap(python, out) IntVec* {
-  // typemap(python, out) IntVec*
-  IntVec::size_type sz = $source->size();
-  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
-  $target = PyList_New((Py_ssize_t) sz);
-  for(IntVec::size_type i=0; i<sz; i++)
-    PyList_SET_ITEM($target, (Py_ssize_t) i, PyInt_FromLong((*$source)[i]));
-}
-
-%typemap(python, newfree) IntVec* {
-  delete $source;
-}
-
-%typemap(python, in) ShortVec* (ShortVec vec) {
-  if(!PySequence_Check($source)) {
-    PyErr_SetString(PyExc_TypeError, "Type error in vector<unsigned char>* typemap.  Python sequence of Ints required.");
-    return 0;
-  }
-  ShortVec::size_type sz = Py_SAFE_DOWNCAST(PySequence_Length($source),
-					    Py_ssize_t, ShortVec::size_type);
-  if(sz > 0) {
-    vec.resize(sz);
-    for(ShortVec::size_type i=0; i<sz; i++) {
-      PyObject *x = PySequence_GetItem($source, (Py_ssize_t) i);
-      vec[i] = (unsigned short) PyInt_AsLong(x);
-      Py_XDECREF(x);
-    }
-  }
-  $target = &vec;
-}
-
-%typemap(python, out) ShortVec* {
-  // typemap(python, out) ShortVec*
-  ShortVec::size_type sz = $source->size();
-  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
-  $target = PyList_New((Py_ssize_t) sz);
-  for(ShortVec::size_type i=0; i<sz; i++) {
-    PyList_SET_ITEM($target, (Py_ssize_t) i, PyInt_FromLong((*$source)[i]));
-  }
-}
-
-%typemap(python, newfree) ShortVec* {
-  delete $source;
-}
-
-
-%typemap(python, in) CharPtrVec *argv (CharPtrVec argh) {
-  if(!PySequence_Check($source)) {
-    PyErr_SetString(PyExc_TypeError, "Type error in argv typemap.  Expected list of strings.");
-    return 0;
-  }
-  CharPtrVec::size_type sz = 
-    Py_SAFE_DOWNCAST(PySequence_Length($source),
-		     Py_ssize_t, CharPtrVec::size_type);
-  argh.resize(sz);
-  for(CharPtrVec::size_type i=0; i<sz; i++) {
-    PyObject *str = PySequence_GetItem($source, (Py_ssize_t) i);
-    argh[i] = PyString_AsString(str);
-    Py_XDECREF(str);
-  }
-  $target = &argh;
-}
-
-%typemap(python, out) IntPair* {
-  // typemap(python, out) IntPair
-  $target = Py_BuildValue("ii", $source->first, $source->second);
-}
-
-%typemap(python, newfree) IntPair* {
-  // typemap(python, newfree) IntPair*
-  delete $source;
- }
-
-// This is an example of the Right Way To Do Copy-Out Typemaps:
-// The wrapped function should return a pointer to a vector of 
-// pointers to the things being passed out.  Ownership of the
-// objects will pass to Python, and the vector itself will be
-// freed by the newfree typmap which follows.
-// See also the perimeter typemap in element.swg. 
-
-%typemap(python,out) CoordVec* {
-  CoordVec::size_type sz = $source->size();
-  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <=PY_SSIZE_T_MAX);
-  $target = PyList_New((Py_ssize_t) sz);
-  char _ptemp[128];
-  for(std::vector<Coord*>::size_type i=0; i<$source->size();i++) {
-    SWIG_MakePtr(_ptemp, (char*)(*$source)[i], "_Coord_p");
-    PyList_SET_ITEM($target, (Py_ssize_t) i, Py_BuildValue("s",_ptemp));
-  }
-}
-
-%typemap(python, newfree) CoordVec* {
-  delete $source;
-}
-
-// Convert a list of swigged Coords to a std::vector of Coord*s.
-// Using a vector of Coord*s instead of Coords eliminates a copy,
-// since the Coords already exist in C++, and SWIG has just stored
-// pointers to them.
-%typemap(python,in) CoordVec* (CoordVec v) {
-  if(!PyList_Check($source)) {
-    PyErr_SetString(PyExc_TypeError, "Type error in CoordVec* typemap. Python list required.");
-    return NULL;
-  }
-  CoordVec::size_type sz = Py_SAFE_DOWNCAST(PyList_Size($source),
-					    Py_ssize_t, CoordVec::size_type);
-  v.resize(sz);
-  for(CoordVec::size_type i=0; i<sz; i++) {
-    PyObject *strobj = PyObject_GetAttrString(PyList_GET_ITEM($source,
-							      (Py_ssize_t) i),
-					      "this");
-    if(!strobj)
-      return NULL;
-    char *str = PyString_AsString(strobj);
-    Py_XDECREF(strobj);
-    Coord *c;
-    SWIG_GetPtr(str, (void**) &c, "_Coord_p");
-    v[i] = c;
-  }
-  $target = &v;
-}
-
-// Convert a list of Python Points to a std::vector of Coords.
-%typemap(python, in) PointVec *PointList (PointVec v) {
-  if(!PyList_Check($source)) {
-    PyErr_SetString(PyExc_TypeError,
-		    "Type error in PointVec typemap.  Python List required.");
-    return NULL;
-  }
-  PointVec::size_type sz = Py_SAFE_DOWNCAST(PyList_Size($source),
-					     Py_ssize_t, PointVec::size_type);
-  v.resize(sz);
-  for(PointVec::size_type i=0; i<sz; i++) {
-    PyObject *point = PyList_GET_ITEM($source, (Py_ssize_t) i);
-    if(!point)
-      return 0;
-    PyObject *px = PyObject_GetAttrString(point, "x");
-    if(!px)
-      return NULL;
-    v[i](0) = PyFloat_AsDouble(px);
-    Py_XDECREF(px);
-    PyObject *py = PyObject_GetAttrString(point, "y");
-    if(!py)
-      return NULL;
-    v[i](1) = PyFloat_AsDouble(py);
-    Py_XDECREF(py);
-#ifdef DIM_3
-    PyObject *pz = PyObject_GetAttrString(point, "z");
-    if(!pz)
-      return NULL;
-    v[i](2) = PyFloat_AsDouble(pz);
-    Py_XDECREF(pz);
-#endif
-  }
-  $target = &v;
-}
-
-// Convert a std::vector<Coord>* to a Python list of Points.
-%typemap(python, out) PointVec* {
-  // typemap(python, out) PointVec*
-  PointVec::size_type sz = $source->size();
-  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz < PY_SSIZE_T_MAX);
-  $target = PyList_New((Py_ssize_t) sz);
-  static PyObject *PointClass = 0;
-  if(!PointClass) {
-    PyObject *module = PyImport_ImportModule("ooflib.common.primitives");
-    PointClass = PyObject_GetAttrString(module, "Point");
-    Py_XDECREF(module);
-    if(!PointClass) return 0;
-  }
-  for(PointVec::size_type i=0; i<sz; i++) {
-    Coord &c = (*$source)[i];
-#ifndef DIM_3
-    PyObject *xyargs = Py_BuildValue("dd", c(0), c(1));
-#else
-    PyObject *xyargs = Py_BuildValue("ddd", c(0), c(1), c(2));
-#endif
-    PyObject *point = PyObject_CallObject(PointClass, xyargs);
-    PyList_SET_ITEM($target, (Py_ssize_t) i, point); // Steals reference.
-    Py_XDECREF(xyargs);
-  }
-}
-
-%typemap(python, newfree) PointVec* {
-  delete $source;
-}
-
-// Convert a list of Python iPoints to a std::vector of ICoords.
-%typemap(python, in) ICoordVec *iPointList (ICoordVec v) {
-  if(!PyList_Check($source)) {
-    PyErr_SetString(PyExc_TypeError,
-		    "Type error in ICoordVec typemap. Python list required.");
-    return NULL;
-  }
-  ICoordVec::size_type sz = Py_SAFE_DOWNCAST(PyList_Size($source),
-					     Py_ssize_t, ICoordVec::size_type);
-  v.resize(sz);
-  for(ICoordVec::size_type i=0; i<sz; i++) {
-    PyObject *ipoint = PyList_GET_ITEM($source, (Py_ssize_t) i);
-    if(!ipoint)
-      return 0;
-    PyObject *px = PyObject_GetAttrString(ipoint, "x");
-    if(!px) return NULL;
-    v[i](0) = PyInt_AsLong(px);
-    Py_XDECREF(px);
-    PyObject *py = PyObject_GetAttrString(ipoint, "y");
-    if(!py) return NULL;
-    v[i](1) = PyInt_AsLong(py);
-    Py_XDECREF(py);
-#ifdef DIM_3
-    PyObject *pz = PyObject_GetAttrString(ipoint, "z");
-    if(!pz) return NULL;
-    v[i](2) = PyInt_AsLong(pz);
-    Py_XDECREF(pz);
-#endif
-  }
-  $target = &v;
-}
-
-// Convert a std::vector* of ICoords to a List of iPoints.
-%typemap(python, out) ICoordVec* {
-  // typemap(python, out) ICoordVec*
-  ICoordVec::size_type sz = $source->size();
-  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
-  $target = PyList_New((Py_ssize_t) sz);
-  static PyObject *iPointClass = 0;
-  if(!iPointClass) {
-    PyObject *module = PyImport_ImportModule("ooflib.common.primitives");
-    iPointClass = PyObject_GetAttrString(module, "iPoint");
-    Py_XDECREF(module);
-    if(!iPointClass) return 0;
-  }
-  for(ICoordVec::size_type i=0; i<sz; i++) {
-    ICoord &ic = (*$source)[i];
-#ifndef DIM_3
-    PyObject *xyargs = Py_BuildValue("ii", ic(0), ic(1));
-#else
-    PyObject *xyargs = Py_BuildValue("iii", ic(0), ic(1), ic(2));
-#endif
-    PyObject *ipoint = PyObject_CallObject(iPointClass, xyargs);
-    PyList_SET_ITEM($target, (Py_ssize_t) i, ipoint);
-    // PyList_SET_ITEM steals a reference. Don't DECREF ipoint!
-    Py_XDECREF(xyargs);
-  }
-}
-
-%typemap(python, in) ICoordVec *iTupleList (ICoordVec v) {
-  // typemap(python, in) ICoordVec *iTupleList
-  if(!PyList_Check($source)) {
-    PyErr_SetString(PyExc_TypeError,
-		    "Type error in ICoordVec typemap.  Python list of tuples required");
-    return NULL;
-  }
-  ICoordVec::size_type sz = Py_SAFE_DOWNCAST(PyList_Size($source),
-					     Py_ssize_t, ICoordVec::size_type);
-  v.resize(sz);
-  for(ICoordVec::size_type i=0; i<sz; i++) {
-    PyObject *tuple = PyList_GET_ITEM($source, (Py_ssize_t) i);
-    if(!tuple)
-      return 0;
-    PyObject *px = PyTuple_GET_ITEM(tuple, (Py_ssize_t) 0); // borrowed ref
-    PyObject *py = PyTuple_GET_ITEM(tuple, (Py_ssize_t) 1);
-    v[i](0) = PyInt_AsLong(px);
-    v[i](1) = PyInt_AsLong(py);
-#ifdef DIM_3
-    PyObject *pz = PyTuple_GET_ITEM(tuple, (Py_ssize_t) 2);
-    v[i](2) = PyInt_AsLong(pz);
-#endif
-  }
-  $target = &v;
-}
-
-%typemap(python, newfree) ICoordVec* {
-  delete $source;
-}
-
-%typemap(python, in) StringVec* (StringVec vec) {
-  // typemap(python, in) StringVec*
-  if(!PySequence_Check($source)) {
-    PyErr_SetString(PyExc_TypeError, "Type error in vector<string>* typemap. Python sequence of Strings required.");
-    return 0;
-  }
-  int sz = PySequence_Length($source);
-  if(sz > 0) {
-    vec.resize(sz);
-    for(int i=0; i<sz; i++) {
-      PyObject *x = PySequence_GetItem($source, i);
-	  vec[i] = PyString_AsString(x);
-	  Py_XDECREF(x);
-	}
-  }
-  $target = &vec;
-}
-
-// Convert a std::vector* of std::strings to a list of Python strings
-%typemap(python, out) StringVec* {
-  // typemap(python, out) StringVec*
-  StringVec::size_type sz = $source->size();
-  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
-  $target = PyList_New((Py_ssize_t) sz);
-  for(StringVec::size_type i=0; i<sz; i++) {
-    PyObject *str = PyString_FromString((*$source)[i].c_str());
-    PyList_SET_ITEM($target, (Py_ssize_t) i, str); // Steals reference.
-  }
-}
-
-%typemap(python, newfree) StringVec *{
-  // typemap(python, newfree) StringVec*
-  delete $source;
-}
 
 // Convert an ICoord (C++) to an iPoint (Python).
 
