@@ -58,14 +58,25 @@
 // in: [string] -> std::vector<std::string>*
 // out: std::vector<std::string>* -> [string]
 
+// Passing objects out as objects rather than pointers or references
+// forces them to be copied an extra time, and maybe should be
+// avoided.
+// out: ICoord -> iPoint
+// out: Coord -> Point
+
 // NAMED TYPEMAPS
 
-// in:  PyObject *PythonCallable: PyObject* -> PyObject*  no translation
-// in:  std::vector<double> &iterable: <iterable> -> const std::vector<double>&
-// in:  std::vector<double> *iterable: <iterable> -> const std::vector<double>*
-// in:  std::vector<char*> *argv:  [string] -> std::vector<char*>*
-// in:  std::vector<Coord>* PointList: [Point] -> std::vector<Coord*>
+// in: PyObject *PythonCallable: PyObject* -> PyObject*  no translation
+// in: std::vector<double> &iterable: <iterable> -> const std::vector<double>&
+// in: std::vector<double> *iterable: <iterable> -> const std::vector<double>*
+// in: std::vector<char*> *argv:  [string] -> std::vector<char*>*
+// in: std::vector<Coord>* PointList: [Point] -> std::vector<Coord*>
 // in: std::vector<ICoord> *iPointList [iPoint] -> std::vector<ICoord>*
+// in: Coord *Point:  Point -> Coord
+// in: ICoord *iPoint: iPoint -> ICoord
+// in: ICoord *Sequence:  PySequence of length 2 -> ICoord
+// in: Coord *Sequence:   PySequence of length 2 -> Coord
+
 
 %{
 #include <oofconfig.h>
@@ -103,6 +114,24 @@ typedef std::pair<int, int> IntPair;
   }
 
 %}
+
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+// FETCH_CLASS imports the class named CLASS from the module named
+// MODULE.  It creates a static variable by appending "Class" to the
+// given CLASS and stores a pointer to the the PyObject in it.  Don't
+// use quotation marks around the arguments when calling FETCH_CLASS.
+
+%define FETCH_CLASS(MODULE, CLASS)
+  static PyObject *CLASS##Class = 0;
+  if(!CLASS##Class) {
+    PyObject *module = PyImport_ImportModule("MODULE");
+    CLASS##Class = PyObject_GetAttrString(module, "CLASS");
+    Py_XDECREF(module);
+    if(!CLASS##Class)
+      SWIG_fail;
+  }
+%enddef // FETCH_CLASS
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
@@ -187,14 +216,7 @@ std::string {
 
 %typemap(out) CColor {
   // typemap(out) CColor -- converts C++ CColor to Python RGBAColor
-  static PyObject *RGBAColorClass = 0;
-  if(!RGBAColorClass) {
-    PyObject *module = PyImport_ImportModule("ooflib.common.color");
-    RGBAColorClass = PyObject_GetAttrString(module, "RGBAColor");
-    Py_XDECREF(module);
-    if(!RGBAColorClass)
-      SWIG_fail;
-  }
+  FETCH_CLASS(ooflib.common.color, RGBAColor);
   $result = PyObject_CallFunction(RGBAColorClass, "dddd",
 				  $1->getRed(), $1->getGreen(),
 				  $1->getBlue(), $1->getAlpha()):
@@ -535,14 +557,7 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 %typemap(out) std::vector<Coord>* {
   // typemap(out) std::vector<Coord>*
   std::vector<Coord>::size_type sz = $1->size();
-  static PyObject *PointClass = 0;
-  if(!PointClass) {
-    PyObject *module = PyImport_ImportModule("ooflib.common.primitives");
-    PointClass = PyObject_GetAttrString(module, "Point");
-    Py_XDECREF(module);
-    if(!PointClass)
-      SWIG_fail;
-  }
+  FETCH_CLASS(ooflib.common.primitives, Point)
   $result = PyList_New((Py_ssize_t) sz);
   for(std::vector<Coord>::size_type i=0; i<sz; i++) {
     const Coord &c = (*$input)[i];
@@ -583,18 +598,11 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 %typemap(out) std::vector<ICoord>* {
   // typemap(out) std::vector<ICoord>*
   std::vector<ICoord>::size_type sz = $1->size();
-  static PyObject *iPointClass = 0;
-  if(!iPointClass) {
-    PyObject *module = PyImport_ImportModule("ooflib.common.primitives");
-    iPointClass = PyObject_GetAttrString(module, "iPoint");
-    Py_XDECREF(module);
-    if(!iPointClass)
-      SWIG_fail;
-  }
+  FETCH_CLASS(ooflib.common.primitives, iPoint);
   $result = PyList_New((Py_ssize_t) sz);
   for(std::vector<ICoord>::size_type i=0; i<sz; i++) {
     const ICoord &c = (*$input)[i];
-    PyObject *ipoint = PyObject_CallFunction(PointClass, "dd", c(0), c(1));
+    PyObject *ipoint = PyObject_CallFunction(PointClass, "ii", c(0), c(1));
     PyList_SET_ITEM($result, (Py_ssize_t) i, ipoint); // Steals reference.
   }
  }
@@ -634,6 +642,149 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
  }
 
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+// C++ ICoord --> Python iPoint
+// C++ Coord  --> Python Point
+
+// TODO: Are these typemap necessary?  We can handle Coords directly
+// in Python, and do so in lots of places in the code.  Including this
+// typemap means that we're mixing Coords and Points in a mostly
+// uncontrolled fashion.  For example, 2*coord.Coord(1.,2.) returns a
+// Point, not a Coord, because this typemap is applied to the result
+// of Coord.__rmul__()
+
+// Also, these typemaps make an extra copy of the object they're
+// wrapping.  If possible, returning a const reference is preferable.
+
+%typemap(out) ICoord {
+  // typemap(out) ICoord
+  FETCH_CLASS(ooflib.common.primitives, iPoint);
+  $result = PyObject_CallFunction(iPointClass, "ii", (*$1)(0), (*$1)(1));
+ }
+
+%typemap(out) Coord {
+  // typemap(out) Coord
+  FETCH_CLASS(ooflib.common.primitives, Point);
+  $result = PyObject_CallFunction(PointClass, "dd", (*$1)(0), (*$1)(1));
+ }
+
+// Python iPoint --> C++ ICoord*
+// Python  Point --> C++ Coord*
+
+%typemap(in) ICoord *iPoint (ICoord ic) {
+  PyObject *x = PyObject_GetAttrString($input, "x");
+  if(!x)
+    SWIG_exception_fail(PyExc_TypeError,
+			"in '$symname', expected an iPoint.");
+  PyObject *y = PyObject_GetAttrString($input, "y");
+  if(!y)
+    SWIG_exception_fail(PyExc_TypeError,
+			"in '$symname', expected an iPoint.");
+  ic(0) = PyLong_AsLong(x);
+  ic(1) = PyLong_AsLong(y);
+  Py_XDECREF(x);
+  Py_XDECREF(y);
+  $1 = &ic;
+ }
+
+%typemap(in) Coord *Point (Coord c) {
+  PyObject *x = PyObject_GetAttrString($input, "x");
+  if(!x)
+    SWIG_exception_fail(PyExc_TypeError,
+			"in '$symname', expected a Point.");
+  PyObject *y = PyObject_GetAttrString($input, "y");
+  if(!y)
+    SWIG_exception_fail(PyExc_TypeError,
+			"in '$symname', expected a Point.");
+  ic(0) = PyFloat_AsDouble(x);
+  ic(1) = PyFloat_AsDouble(y);
+  Py_XDECREF(x);
+  Py_XDECREF(y);
+  $1 = &ic;
+ }
+
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+// Coord *Sequence: Python 2-tuple --> C++ Coord
+// ICoord *Sequence: Python 2-tuple --> C++ ICoord
+
+// TODO: Change the name of the typemaps. "Sequence" is too vague
+
+%typemap(in) Coord *Sequence (Coord c) {
+  // typemap(in) Coord *Sequence
+  if(!(PySequence_Check($input) && PySequence_Length($input) == 2))
+    SWIG_exception_fail(PyExc_TypeError,
+			"in '$symname', expected sequence of length 2.");
+  PyObject *x = PySequence_GetItem($input, (Py_ssize_t) 0);
+  PyObject *y = PySequence_GetItem($input, (Py_ssize_t) 1);
+  c(0) = PyFloat_AsDouble(x);
+  c(1) = PyFloat_AsDouble(y);
+  Py_XDECREF(x);
+  Py_XDECREF(y);
+  $1 = &c;
+ }
+
+%typemap(in) ICoord *Sequence (ICoord ic) {
+  // typemap(in) Coord *Sequence
+  if(!(PySequence_Check($input) && PySequence_Length($input) == 2))
+    SWIG_exception_fail(PyExc_TypeError,
+			"in '$symname', expected sequence of length 2.");
+  PyObject *x = PySequence_GetItem($input, (Py_ssize_t) 0);
+  PyObject *y = PySequence_GetItem($input, (Py_ssize_t) 1);
+  ic(0) = PyLong_AsLong(x);
+  ic(1) = PyLong_AsLong(y);
+  Py_XDECREF(x);
+  Py_XDECREF(y);
+  $1 = &ic;
+ }
+
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+// OOF's global exception typemap, for taking exceptions out of C++
+// and throwing the corresponding exceptions in Python.  See the
+// comment in threadstate.C about threading_enabled.
+
+// TODO PYTHON3: With swig 1.1 we had to include code here to acquire
+// and release the Ptyhon interpreter lock when using threads.  Swig 4
+// does that for us, if %module statement includes '"threads"=1'.  But
+// that is a compile-time setting.  Copy the swig 4 code here, add
+// run-time switches to it, and don't use '"threads"=1'.
+
+%exception {
+  try {
+    installSignals;
+    Python_Thread_Allow allow_threads;
+    //=\\=//
+    $action;
+    //=\\=//
+    allow_threads.end();
+  }
+  catch (PythonError &p) {
+    // In this case, the Python error indicator is already set.
+    restoreSignals;
+    SWIG_fail;
+  }
+  catch (ErrError &e) {
+    restoreSignals;
+    // pyconverter is common.ooferror.pyErrorCallback.  It raises the
+    // python version of the exception.
+    PyObject_CallFunction(e.pyconverter, "s", e.pythonequiv().c_str());
+    SWIG_fail;
+  }
+  catch (...) {
+    // Caught a C++ exception that wasn't already handled and
+    // converted into an ErrError. This means that something is really
+    // wrong.
+    restoreSignals;
+    PyObject_CallFunction(
+	  ErrError::pyconverter, "s",
+	  "ErrPyProgrammingError('Caught an unexpected C++ exception!')");
+    SWIG_fail;
+  }
+  restoreSignals;
+ }
+
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
@@ -655,254 +806,6 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 //   // typemap(python, out) PyObject*
 //   $target = $source;
 // }
-
-
-// Convert an ICoord (C++) to an iPoint (Python).
-
-// TODO: Is this typemap necessary?  See comments below for the
-// equivalent Coord typemap.
-%typemap(python, out) ICoord {
-  // typemap(python, out) ICoord
-  static PyObject *iPointClass = 0;
-  if(!iPointClass) {
-    PyObject *module = PyImport_ImportModule("ooflib.common.primitives");
-    iPointClass = PyObject_GetAttrString(module, "iPoint");
-    Py_XDECREF(module);
-    if(!iPointClass) return 0;
-  }
-#ifndef DIM_3
-  PyObject *xyargs = Py_BuildValue("ii", (*$source)(0), (*$source)(1));
-#else
-  PyObject *xyargs = Py_BuildValue("iii", (*$source)(0), (*$source)(1), (*$source)(2));
-#endif
-  delete $source;
-  $target = PyObject_CallObject(iPointClass, xyargs);
-  Py_XDECREF(xyargs);
-}
-
-// Convert a Coord (C++) to a Point (Python).
-
-// TODO: Is this typemap necessary?  We can handle Coords directly
-// in Python, and do so in lots of places in the code.  Including this
-// typemap means that we're mixing Coords and Points in a mostly
-// uncontrolled fashion.  For example, 2*coord.Coord(1.,2.) returns a
-// Point, not a Coord, because this typemap is applied to the result
-// of Coord.__rmul__()
-%typemap(python, out) Coord {
-  // typemap(python, out) Coord
-  static PyObject *PointClass = 0;
-  if(!PointClass) {
-    PyObject *module = PyImport_ImportModule("ooflib.common.primitives");
-    PointClass = PyObject_GetAttrString(module, "Point");
-    Py_XDECREF(module);
-    if(!PointClass) return 0;
-  }
-#ifndef DIM_3
-  PyObject *xyargs = Py_BuildValue("dd", (*$source)(0), (*$source)(1));
-#else
-  PyObject *xyargs = Py_BuildValue("ddd", (*$source)(0), (*$source)(1),
-				   (*$source)(2));
-#endif
-  delete $source;
-  $target = PyObject_CallObject(PointClass, xyargs);
-  Py_XDECREF(xyargs);
-}
-
-// %typemap(python, out) const Coord& {
-//   // typemap(python, out) const Coord&
-//   static PyObject *PointClass = 0;
-//   if(!PointClass) {
-//     PyObject *module = PyImport_ImportModule("ooflib.common.primitives");
-//     PointClass = PyObject_GetAttrString(module, "Point");
-//     Py_XDECREF(module);
-//     if(!PointClass) return 0;
-//   }
-// #ifndef DIM_3
-//   PyObject *xyargs = Py_BuildValue("dd", (*$source)(0), (*$source)(1));
-// #else
-//   PyObject *xyargs = Py_BuildValue("ddd", (*$source)(0), (*$source)(1),
-// 				   (*$source)(2));
-// #endif
-//   $target = PyObject_CallObject(PointClass, xyargs);
-//   Py_XDECREF(xyargs);
-// }
-
-// %typemap(python, out) const Coord* {
-//   // typemap(python, out) const Coord*
-//   static PyObject *PointClass = 0;
-//   if(!PointClass) {
-//     PyObject *module = PyImport_ImportModule("ooflib.common.primitives");
-//     PointClass = PyObject_GetAttrString(module, "Point");
-//     Py_XDECREF(module);
-//     if(!PointClass) return 0;
-//   }
-// #ifndef DIM_3
-//   PyObject *xyargs = Py_BuildValue("dd", (*$source)(0), (*$source)(1));
-// #else
-//   PyObject *xyargs = Py_BuildValue("ddd", (*$source)(0), (*$source)(1),
-// 				   (*$source)(2));
-// #endif
-//   $target = PyObject_CallObject(PointClass, xyargs);
-//   Py_XDECREF(xyargs);
-// }
-
-// Convert an iPoint (Python) to an ICoord* (C++)
-%typemap(python, in) ICoord *iPoint (ICoord ic) {
-  PyObject *xobj = PyObject_GetAttrString($source, "x");
-  if(!xobj) return NULL;
-  PyObject *yobj = PyObject_GetAttrString($source, "y");
-  if(!yobj) return NULL;
-#ifdef DIM_3
-  PyObject *zobj = PyObject_GetAttrString($source, "z");
-  if(!zobj) return NULL;
-#endif
-  ic(0) = PyInt_AsLong(xobj);
-  Py_XDECREF(xobj);
-  ic(1) = PyInt_AsLong(yobj);
-  Py_XDECREF(yobj);
-#ifdef DIM_3
-  ic(2) = PyInt_AsLong(zobj);
-  Py_XDECREF(zobj);
-#endif
-  $target = &ic;
-}
-
-// Convert a Point (Python) to a Coord* (C++)
-%typemap(python, in) Coord *Point (Coord c) {
-  // typemap(python, in) Coord *Point (Coord c)
-  PyObject *xobj = PySequence_GetItem($source, 0);
-  PyObject *yobj = PySequence_GetItem($source, 1);
-#ifdef DIM_3
-  PyObject *zobj = PySequence_GetItem($source, 2);
-  if(!xobj || !yobj || !zobj) {
-    PyErr_SetString(PyExc_TypeError, "Type error in Coord *Point typemap.  Argument must have 0, 1, and 2 components.");
-    return NULL;
-  }
-#else
-  if(!xobj || !yobj) {
-    PyErr_SetString(PyExc_TypeError, "Type error in Coord *Point typemap.  Argument must have 0 and 1 components.");
-    return NULL;
-  }
-#endif
-  c(0) = PyFloat_AsDouble(xobj);
-  Py_XDECREF(xobj);
-  c(1) = PyFloat_AsDouble(yobj);
-  Py_XDECREF(yobj);
-#ifdef DIM_3
-  c(2) = PyFloat_AsDouble(zobj);
-  Py_XDECREF(zobj);
-#endif
-  $target = &c;
-}
-
-%typemap(python, in) Coord *Sequence (Coord c) {
-  // typemap(python, in) Coord *Sequence (Coord c)
-#ifndef DIM_3
-  if(!(PySequence_Check($source) && PySequence_Length($source)==2)) {
-    PyErr_SetString(PyExc_TypeError, "Type error in Coord *Sequence typemap.  Expected sequence of length 2.");
-    return NULL;
-  }
-#else
-  if(!(PySequence_Check($source) && PySequence_Length($source)==3)) {
-    PyErr_SetString(PyExc_TypeError, "Type error in Coord *Sequence typemap.  Expected sequence of length 3.");
-    return NULL;
-  }
-#endif
-  PyObject *xobj = PySequence_GetItem($source, (Py_ssize_t) 0);
-  c(0) = PyFloat_AsDouble(xobj);
-  Py_XDECREF(xobj);
-	PyObject *yobj = PySequence_GetItem($source, (Py_ssize_t) 1);
-  c(1) = PyFloat_AsDouble(yobj);
-	Py_XDECREF(yobj);
-#ifdef DIM_3
-	PyObject *zobj = PySequence_GetItem($source, (Py_ssize_t) 2);
-  c(2) = PyFloat_AsDouble(zobj);
-	Py_XDECREF(zobj);
-#endif
-  $target = &c;
-}
-
-%typemap(python, in) ICoord *Sequence (ICoord ic) {
-  // typemap(python, in) ICoord *Sequence (ICoord ic)
-#ifndef DIM_3
-  if(!(PySequence_Check($source) && PySequence_Length($source)==2)) {
-    PyErr_SetString(PyExc_TypeError, "Type error in ICoord *Sequence typemap. Expected sequence of length 2.");
-    return NULL;
-  }
-#else
-  if(!(PySequence_Check($source) && PySequence_Length($source)==3)) {
-    PyErr_SetString(PyExc_TypeError, "Type error in Coord *Sequence typemap.  Expected sequence of length 3.");
-    return NULL;
-  }
-#endif
-  PyObject *xobj = PySequence_GetItem($source, (Py_ssize_t) 0);
-  ic(0) = PyInt_AsLong(xobj);
-  Py_XDECREF(xobj);
-  PyObject *yobj = PySequence_GetItem($source, (Py_ssize_t) 1);
-  ic(1) = PyInt_AsLong(yobj);
-  Py_XDECREF(yobj);
-#ifdef DIM_3
-  PyObject *zobj = PySequence_GetItem($source, (Py_ssize_t) 2);
-  ic(2) = PyInt_AsLong(zobj);
-  Py_XDECREF(zobj);
-#endif
-  $target = &ic;
-}
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// OOF's global exception typemap, for taking exceptions out of C++
-// and throwing the corresponding exceptions in Python.  See the
-// comment in threadstate.C about threading_enabled.
-
-%except(python) {
-  // %except(python)
-  PyThreadState *pythread = 0;
-  try {
-    installSignals;
-    if(threading_enabled)
-      pythread = PyEval_SaveThread(); // release the Python GIL.
-    //=\\=//
-    $function;
-    //=\\=//
-  }
-  catch (PythonError &p) {
-    // In this case, the Python error indicator is already set.
-    if(pythread)		// Check pythread instead of
-				// threading_enabled!
-				// threading_enabled may have changed.
-      PyEval_RestoreThread(pythread); // restore the Python GIL.
-    restoreSignals;
-    return 0;
-  }
-  catch (ErrError &e) {
-    // Convert a C++ ErrError instance to a Python exception.
-    if(pythread)
-      PyEval_RestoreThread(pythread);
-    restoreSignals;
-    PyObject *args = Py_BuildValue("(s)",e.pythonequiv().c_str() );
-    PyEval_CallObject((PyObject *)e.pyconverter, args);
-    Py_DECREF(args);
-    return 0;
-  }
-  catch (...) {
-    // Caught a C++ exception that wasn't already handled and
-    // converted into an ErrError. This means that something is really
-    // wrong.
-    if(pythread)
-      PyEval_RestoreThread(pythread);
-    restoreSignals;
-    PyObject *args = Py_BuildValue(
-       "(s)", "ErrPyProgrammingError('Caught an unexpected C++ exception!')");
-    PyEval_CallObject((PyObject*) ErrError::pyconverter, args);
-    Py_DECREF(args);
-    return 0;
-  }
-
-  if(pythread)
-    PyEval_RestoreThread(pythread); // restore the Python GIL.
-  restoreSignals;
-}
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
