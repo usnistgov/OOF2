@@ -784,13 +784,73 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
   restoreSignals;
  }
 
-//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Typemap used by the transitionPoint functions to pass out both its
+// status and the transition point, if valid.
+
+// This scheme for handling argout parameters by concatenating tuples
+// is from https://www.swig.org/Doc4.0/Python.html#Python_nn61.
+
+// TODO PYTHON3: Change the name of this typemap.  Names should
+// indicate what a typemap does, not the context in which it does it.
+
+%typemap(argout) Coord *cskel_OutPoint {
+  // typemap(argout) Coord *cskel_OutPoint
+  // Get the Point class
+  FETCH_CLASS(ooflib.common.primitives, Point);
+  // Create a Point object from the Coord ($source)
+  PyObject *point = PyObject_Function(PointClass, "dd",
+				      (*$1)(0), (*$1)(1));
+  if(!$result || $result == Py_None) {
+    // Nothing else is being returned (yet).
+    $result = point;
+  }
+  else {
+    // Something else is already being returned.
+    if(!PyTuple_Check($result)) {
+      // The previously returned object is not a tuple.  Create a
+      // tuple and put the old result into it.
+      PyObject *oldtuple = $result;
+      $result = PyTuple_New(1);
+      PyTuple_SET_ITEM($result, 0, other); // steals a reference
+    }
+    // Add the new output to the tuple, by concatenating tuples.
+    PyObject *temptuple = PyTuple_New(1);
+    PyTuple_SET_ITEM(temptuple, 0, point); // steals a reference
+    PyObject *oldresult = $result;
+    $result = PySequence_Concat(oldresult, temptuple);
+    Py_XDECREF(temptuple);
+    Py_XDECREF(oldresult);
+  }
+ }
+
+%typemap(in, numinputs=0) Coord *cskel_OutPoint (Coord tmp) {
+  // typemap(in, numinputs=0) Coord *cskel_OutPoint
+  $1 = &tmp;
+ }
+
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
-// OLD BELOW HERE
+// TODO PYTHON3: Why isn't this the usual PythonConvertible typemap?
+%typemap(out) Progress* {
+  // typemap(out) Progress*
+  if($1) {
+    $result = $1->pythonObject();
+    if(!$result)
+      SWIG_fail;
+  }
+  else {
+    Py_INCREF(Py_None);
+    $result = Py_None;
+  }
+ }
+
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
 // TODO: Do we need these?
 //
@@ -806,74 +866,6 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 //   // typemap(python, out) PyObject*
 //   $target = $source;
 // }
-
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-
-/* Special typemaps used by the transitionPoint function to pass
-   out both its status and the transition point, if valid.  To
-   prevent confusion with other typemaps, the variables have
-   module-specific names. */
-
-%typemap(python, argout) Coord *cskel_OutPoint {
-  // typemap(python, argout) Coord *cskel_OutPoint
-  // Get the Point class
-  static PyObject *PointClass = 0;
-  if(!PointClass) {
-    PyObject *module = PyImport_ImportModule("ooflib.common.primitives");
-    PointClass = PyObject_GetAttrString(module, "Point");
-    if(!PointClass) return 0;
-    Py_XDECREF(module);
-  }
-  // Create a Point object from the Coord ($source)
-#ifndef DIM_3
-  PyObject *xyargs = Py_BuildValue("dd", (*$source)(0), (*$source)(1));
-#else
-  PyObject *xyargs = Py_BuildValue("ddd", (*$source)(0), (*$source)(1), (*$source)(2));
-#endif
-  PyObject *point = PyObject_CallObject(PointClass, xyargs);
-
-  Py_XDECREF(xyargs);
-  if(!$target) {
-    // Nothing else is being returned. Just return the Point.
-    $target = point;
-  }
-  else if($target == Py_None) {
-    Py_DECREF(Py_None);
-    $target = point;
-  }
-  else {
-    // The Point isn't the only thing being returned.  Return a list of stuff.
-    if(!PyList_Check($target)) {
-      // Other returned values aren't in a list yet.
-      PyObject *other = $target;
-      $target = PyList_New((Py_ssize_t) 0);
-      PyList_Append($target, other);
-      Py_XDECREF(other);
-    }
-    // Append the point to the list.
-    PyList_Append($target, point);
-    Py_XDECREF(point);
-  }
-}
-
-%typemap(python, ignore) Coord *cskel_OutPoint (Coord temp) {
-  $target = &temp;
-}
-
-%typemap(python,out) Progress* {
-  // typemap(python, out) Progress*
-  if($source) {
-    $target = $source->pythonObject();
-    if(!$target)
-      return 0;
-  }
-  else {
-    Py_INCREF(Py_None);
-    $target = Py_None;
-  }
- }
-
 
 
 
