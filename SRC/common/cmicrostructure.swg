@@ -91,6 +91,7 @@ typedef Array<int> ArrayInt;
 
 
 //For SnapRefine.
+ // TODO PYTHON3: Change the name of this typemap
 %typemap(python,ignore) int *cskel_edgecat (int tmp) {
   $target = &tmp;
 }
