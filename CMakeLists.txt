@@ -45,6 +45,77 @@ set(oofscripts
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
+# Call runswig in the CMakeLists.txt files in all subdirectories
+# that contain swig files.
+#  runswig(
+#        SWIGFILES  a b      # .swg suffix is assumed
+#        LIBRARIES  <names of libraries to link to, must be cmake targets>
+#        CFLAGS <additional compiler options>)
+ 
+function(runswig)
+  set(multiValueArgs SWIGFILES LIBRARIES CFLAGS INCLUDE_DIRECTORIES)
+  cmake_parse_arguments(PARSE_ARGV 0 SL "" "" "${multiValueArgs}")
+
+  message("--- ${CMAKE_CURRENT_SOURCE_DIR}")
+  message("SWIGFILES: ${SL_SWIGFILES}")
+  message("LIBRARIES: ${SL_LIBRARIES}")
+  message("CFLAGS   : ${SL_CFLAGS}")
+  message("INCLUDE_DIRS : ${SL_INCLUDE_DIRECTORIES}")
+
+  foreach(swigfile ${SL_SWIGFILES})
+    set_property(
+      SOURCE ${swigfile}.swg
+      PROPERTY CPLUSPLUS ON)
+    set(incdirs
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${Python3_INCLUDE_DIRS}
+      ${SL_INCLUDE_DIRECTORIES})
+    set_property(
+      SOURCE ${swigfile}.swg
+      PROPERTY INCLUDE_DIRECTORIES "${incdirs}")
+    swig_add_library(
+      ${swigfile}
+      TYPE MODULE
+      LANGUAGE PYTHON
+      SOURCES ${swigfile}.swg)
+    set(alllibs ${Python3_LIBRARIES} ${SL_LIBRARIES})
+    swig_link_libraries(
+      ${swigfile}
+      PUBLIC
+      ${alllibs})
+    # Get the path from the top of the source directory hierarchy to
+    # the current directory.  This is the path from the top of the
+    # installation directory hierarchy to the installation directory
+    # for the compiled swig output and python file.
+
+    # file(RELATIVE_PATH ...) has been superseded by cmake_path(...)
+    # in cmake 3.20, but 3.20 isn't available on Ubuntu 20.04.
+    if(${CMAKE_VERSION} VERSION_LESS "3.20")
+      file(
+	RELATIVE_PATH relpath
+	${PROJECT_SOURCE_DIR}/src
+	${CMAKE_CURRENT_SOURCE_DIR})
+    else()
+      set(relpath ${CMAKE_CURRENT_SOURCE_DIR})
+      cmake_path(
+	RELATIVE_PATH
+	relpath
+	BASE_DIRECTORY ${PROJECT_SOURCE_DIR}/src)
+    endif()
+    # Install the swig-generated and compiled library
+    install(
+      TARGETS ${swigfile}
+      DESTINATION ${PYDEST}/${relpath})
+    # Install the swig-generated python file
+    install(
+      FILES ${CMAKE_CURRENT_BINARY_DIR}/${swigfile}.py
+      DESTINATION ${PYDEST}/${relpath})
+  endforeach()
+
+endfunction()
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 set(oof_build_types Debug Release)
 set(CMAKE_BUILD_TYPE Release)
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${oof_build_types})
@@ -63,27 +134,12 @@ set(BUILD_SHARED_LIBS ON)
 
 set(CMAKE_FIND_FRAMEWORK LAST)	# Prefers MacPorts over system python
 
-set(PythonVersions Python2 Python3)
-set(PythonVersion Python2 CACHE STRING "Which Python to use")
-set_property(CACHE PythonVersion PROPERTY STRINGS ${PythonVersions})
-
-# Find Python. Set some variables so that the rest of the script
-# doesn't need to know if we're using Python2 or Python3, just to make
-# it easier while we're converting to Python3.
+# Find Python3.
 ## TODO: Allow user to choose python sub version
-if(PythonVersion STREQUAL "Python2")
-#  message("looking for Python2")
-  find_package(Python2 2.7 COMPONENTS Interpreter Development)
-  set(PYVERSION ${Python2_VERSION_MAJOR}.${Python2_VERSION_MINOR})
-  set(PYEXEC ${Python2_EXECUTABLE})
-endif()
+find_package(Python3 3.9 COMPONENTS Interpreter Development)
+set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
+set(PYEXEC ${Python3_EXECUTABLE})
 
-if(PythonVersion STREQUAL "Python3")
-#  message("looking for Python3")
-  find_package(Python3 3.9 COMPONENTS Interpreter Development)
-  set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
-  set(PYEXEC ${Python3_EXECUTABLE})
-endif()
 # message("Python3 is ${Python3_EXECUTABLE}")
 # message("Python3_INCLUDE_DIRS is ${Python3_INCLUDE_DIRS}")
 # message("Python3_LIBRARIES is ${Python3_LIBRARIES}")
@@ -94,9 +150,9 @@ set(PYDEST lib/python${PYVERSION}/site-packages/${CMAKE_PROJECT_NAME})
 
 include(FindBLAS)
  
-#include(FindSWIG)
-#include(UseSWIG)
-#find_package(SWIG 4.0 COMPONENTS python)
+include(FindSWIG)
+include(UseSWIG)
+find_package(SWIG 4.0 COMPONENTS python)
 ## UseSWIG can generate dependencies only for cmake >= 3.20 ? See
 ## https://cmake.org/cmake/help/latest/release/3.20.html
 
@@ -268,58 +324,60 @@ install(
   # PATTERN "*.dat"
   )
 
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-# Compile and install the already swigged files in SRC/SWIG2D.  This
-# will change when we actually use call swig from cmake, but there's
-# no point in learning how to do that with swig1.1.
+# # Compile and install the already swigged files in SRC/SWIG2D.  This
+# # will change when we actually use call swig from cmake, but there's
+# # no point in learning how to do that with swig1.1.
 
-set(swigsrcroot "${PROJECT_SOURCE_DIR}/SRC/SWIG2D")
+# set(swigsrcroot "${PROJECT_SOURCE_DIR}/SRC/SWIG2D")
 
-function(buildswiglibs)
-  set(multiValueArgs LIBS CFLAGS)
-  cmake_parse_arguments(PARSE_ARGV 0 BSL "" "" "${multiValueArgs}")
+# function(buildswiglibs)
+#   set(multiValueArgs LIBS CFLAGS)
+#   cmake_parse_arguments(PARSE_ARGV 0 BSL "" "" "${multiValueArgs}")
 
-  # If LIBS wasn't specified, then use the old calling sequence -- all
-  # args are libs and none are cflags.
-  if("${BSL_LIBS}" STREQUAL "")
-    set(BSL_LIBS ${ARGV})
-  endif()
+#   # If LIBS wasn't specified, then use the old calling sequence -- all
+#   # args are libs and none are cflags.
+#   if("${BSL_LIBS}" STREQUAL "")
+#     set(BSL_LIBS ${ARGV})
+#   endif()
 
-  # Get list of all python files in the current directory
-  file(GLOB swigpyfiles
-    LIST_DIRECTORIES false
-    CONFIGURE_DEPENDS
-    ${CMAKE_CURRENT_SOURCE_DIR} *.py)
+#   # Get list of all python files in the current directory
+#   file(GLOB swigpyfiles
+#     LIST_DIRECTORIES false
+#     CONFIGURE_DEPENDS
+#     ${CMAKE_CURRENT_SOURCE_DIR} *.py)
   
-  # Create build and link commands for the C++ wrappers
-  foreach(pfile ${swigpyfiles})
-    get_filename_component(fname ${pfile} NAME_WE) # name w/out extension or dir
-    if(NOT (${fname} STREQUAL __init__))
-      get_filename_component(dname ${pfile} DIRECTORY) # full directory path
-      set(libname ${fname}cmodule)
-      # Argh.  cmake_path requires 3.20.  Ubuntu 20.04 has 3.16.
-      # Don't use cmake_path in the final version.
-      cmake_path(RELATIVE_PATH dname BASE_DIRECTORY ${swigsrcroot})
-      add_library(${libname} MODULE ${libname}.C)
-      # Delete the "lib" prefix, because swig 1.1 doesn't use it
-      set_target_properties(${libname} PROPERTIES PREFIX "")
-      target_link_libraries(${fname}cmodule PRIVATE ${BSL_LIBS})
-      target_compile_options(${fname}cmodule PRIVATE -Wno-deprecated-register)
-      if( NOT ("${BSL_CFLAGS}" STREQUAL ""))
-	target_compile_options(${fname}cmodule PRIVATE ${BSL_CFLAGS})
-      endif()
+#   # Create build and link commands for the C++ wrappers
+#   foreach(pfile ${swigpyfiles})
+#     get_filename_component(fname ${pfile} NAME_WE) # name w/out extension or dir
+#     if(NOT (${fname} STREQUAL __init__))
+#       get_filename_component(dname ${pfile} DIRECTORY) # full directory path
+#       set(libname ${fname}cmodule)
+#       # Argh.  cmake_path requires 3.20.  Ubuntu 20.04 has 3.16.
+#       # Don't use cmake_path in the final version.
+#       cmake_path(RELATIVE_PATH dname BASE_DIRECTORY ${swigsrcroot})
+#       add_library(${libname} MODULE ${libname}.C)
+#       # Delete the "lib" prefix, because swig 1.1 doesn't use it
+#       set_target_properties(${libname} PROPERTIES PREFIX "")
+#       target_link_libraries(${fname}cmodule PRIVATE ${BSL_LIBS})
+#       target_compile_options(${fname}cmodule PRIVATE -Wno-deprecated-register)
+#       if( NOT ("${BSL_CFLAGS}" STREQUAL ""))
+# 	target_compile_options(${fname}cmodule PRIVATE ${BSL_CFLAGS})
+#       endif()
 
-      install(TARGETS ${fname}cmodule
-	DESTINATION ${PYDEST}/ooflib/SWIG/${dname})
-    endif()
+#       install(TARGETS ${fname}cmodule
+# 	DESTINATION ${PYDEST}/ooflib/SWIG/${dname})
+#     endif()
 
-  endforeach()
-endfunction()
+#   endforeach()
+# endfunction()
 
-# TODO: The CMakeLists files in the SWIG2D subdirectories won't be
-# needed when we're using swig properly.
-##add_subdirectory(SRC/SWIG2D)
+# # TODO: The CMakeLists files in the SWIG2D subdirectories won't be
+# # needed when we're using swig properly.
+# ##add_subdirectory(SRC/SWIG2D)
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
 
 # Copy the python files from the SWIG2D directory
 install(
