@@ -277,8 +277,7 @@ on Macintosh OS X.
     
 If \<prefix>/lib/python2.x/site-packages is not in your Python path,
 you'll have to add it to the PYTHONPATH environment variable. Running
-the following command will print your Python path. `python -c "import
-sys; print sys.path"` will print your Python path.
+`python -c "import sys; print sys.path"` will print your Python path.
    
 ### 4. Test 
 
@@ -290,6 +289,10 @@ To test that the GUI is functioning, go to
 `<prefix>/share/oof2/TEST/GUI` and run `python guitests.py`.  There is
 another `README` file in that directory with useful information and
 cautions.
+
+As of version 2.2.2, you can run the tests with the commands
+`oof2-test` and `oof2-guitest`, from any location.  But it will still
+be helpful to read the `README` files in the test directories.
 
 # Running OOF2
 
