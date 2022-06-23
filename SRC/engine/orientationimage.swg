@@ -30,6 +30,7 @@ class CMicrostructure;
 class OrientationImage : public AbstractImage {
 public:
   OrientationImage(CMicrostructure*, Angle2Color*, CColor*, CColor*);
+  %newobject makeCanvasImage;
   NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 

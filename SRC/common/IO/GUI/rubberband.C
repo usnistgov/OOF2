@@ -14,8 +14,6 @@
 #include "common/IO/GUI/rubberband.h"
 #include "common/IO/GUI/gfxbrushstyle.h"
 
-#include "oofcanvas/oofcanvas.h"
-
 // Definitions of RubberBand subclass(es) that aren't defined in
 // oofcanvas for some reason.
 

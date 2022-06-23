@@ -47,7 +47,8 @@ public:
   void setColor(CColor*);
   CColor getBG();
   CColor getFG();
-  NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  %newobject makeCanvasImage;
+  CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
   
   Coord size();
   ICoord sizeInPixels();

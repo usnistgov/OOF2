@@ -39,6 +39,9 @@ import textwrap
 ## button is sensitized but before clicking Next.  The sensitivity
 ## probably needs to be saved in the file.
 
+## TODO PYTHON3: Get rid of the signals and just make the Next button
+## always sensitive.
+
 boldtag = "BOLD("
 lenboldtag = len(boldtag)
 delimexpr = re.compile(r'[^\\]\)')      # finds ')' not preceded by '\'

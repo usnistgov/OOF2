@@ -14,9 +14,9 @@
 
 #include <oofconfig.h>
 
-#include "oofcanvas/oofcanvas.h"
 #include "oofcanvas/rubberband.h"
 #include "common/lock.h"
+#include <oofcanvas.h>
 #include <vector>
 
 class GfxBrushStyle;

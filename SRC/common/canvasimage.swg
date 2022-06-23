@@ -24,46 +24,53 @@
 // oofcanvas.h in all swig C++ output files.
 
 %{
-  #include "oofcanvas/oofcanvas.h"
+  #include <oofcanvas.h>
   typedef OOFCanvas::CanvasImage CanvasImage;
   typedef OOFCanvas::CanvasImage NewCanvasImage;
 %}
 
 %typemap(python, out) CanvasImage* {
    // typemap(python, out) CanvasImage*
-   static PyObject *canvasImageClass = 0;
-   if(!canvasImageClass) {
-     PyObject *module = PyImport_ImportModule("oofcanvas");
-     canvasImageClass = PyObject_GetAttrString(module, "CanvasImage");
-     Py_XDECREF(module);
-     if(!canvasImageClass) return 0;
-   }
-   char _ptmp[128];
-   SWIG_MakePtr(_ptmp, (char*) $source, "_CanvasImage_p");
-   PyObject *swigthis = Py_BuildValue("(s)", _ptmp);
-   PyObject *ci = PyObject_CallObject(canvasImageClass, swigthis);
-   Py_XDECREF(swigthis);
-   $target = ci;
+  $result = $1->pythonObject();
+
+  // TODO PYTHON3: Why was calling pythonObject() not sufficient before?
+  
+   // static PyObject *canvasImageClass = 0;
+   // if(!canvasImageClass) {
+   //   PyObject *module = PyImport_ImportModule("oofcanvas");
+   //   canvasImageClass = PyObject_GetAttrString(module, "CanvasImage");
+   //   Py_XDECREF(module);
+   //   if(!canvasImageClass) return 0;
+   // }
+   // char _ptmp[128];
+   // SWIG_MakePtr(_ptmp, (char*) $source, "_CanvasImage_p");
+   // PyObject *swigthis = Py_BuildValue("(s)", _ptmp);
+   // PyObject *ci = PyObject_CallObject(canvasImageClass, swigthis);
+   // Py_XDECREF(swigthis);
+   // $target = ci;
 }
+
+// TODO PYTHON3: Do we need this?  Why not just use %newobject?
 
 %typemap(python, out) NewCanvasImage* {
    // typemap(python, out) CanvasImage*
-   static PyObject *canvasImageClass = 0;
-   static PyObject *pyOne;
-   if(!canvasImageClass) {
-     PyObject *module = PyImport_ImportModule("oofcanvas");
-     canvasImageClass = PyObject_GetAttrString(module, "CanvasImage");
-     Py_XDECREF(module);
-     if(!canvasImageClass) return 0;
-     pyOne = PyInt_FromLong(1);
-   }
-   char _ptmp[128];
-   SWIG_MakePtr(_ptmp, (char*) $source, "_CanvasImage_p");
-   PyObject *swigthis = Py_BuildValue("(s)", _ptmp);
-   $target = PyObject_CallObject(canvasImageClass, swigthis);
-   Py_XDECREF(swigthis);
-   // Take ownership
-   PyObject_SetAttrString($target, "thisown", pyOne);
+  $result = $1->pythonObject();
+   // static PyObject *canvasImageClass = 0;
+   // static PyObject *pyOne;
+   // if(!canvasImageClass) {
+   //   PyObject *module = PyImport_ImportModule("oofcanvas");
+   //   canvasImageClass = PyObject_GetAttrString(module, "CanvasImage");
+   //   Py_XDECREF(module);
+   //   if(!canvasImageClass) return 0;
+   //   pyOne = PyInt_FromLong(1);
+   // }
+   // char _ptmp[128];
+   // SWIG_MakePtr(_ptmp, (char*) $source, "_CanvasImage_p");
+   // PyObject *swigthis = Py_BuildValue("(s)", _ptmp);
+   // $target = PyObject_CallObject(canvasImageClass, swigthis);
+   // Py_XDECREF(swigthis);
+   // // Take ownership
+   // PyObject_SetAttrString($target, "thisown", pyOne);
 }
 
 

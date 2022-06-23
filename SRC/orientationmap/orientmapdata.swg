@@ -55,7 +55,8 @@ class OrientMapImage : public AbstractImage {
 public:
   OrientMapImage(OrientMap*, Angle2Color*);
   ~OrientMapImage();
-  NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  %newobject makeCanvasImage;
+  CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 
 void registerOrientMap(char*, OrientMap*);

@@ -64,6 +64,8 @@
 // out: ICoord -> iPoint
 // out: Coord -> Point
 
+// out: PythonExportable*   Converts to the derived class. See below.
+
 // NAMED TYPEMAPS
 
 // in: PyObject *PythonCallable: PyObject* -> PyObject*  no translation
@@ -79,6 +81,7 @@
 
 
 %{
+#define SWIG_FILE_WITH_INIT
 #include <oofconfig.h>
 #include "common/cdebug.h"
 #include "common/geometry.h"
@@ -132,6 +135,23 @@ typedef std::pair<int, int> IntPair;
       SWIG_fail;
   }
 %enddef // FETCH_CLASS
+
+//==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
+// TODO PYTHON3:  Change to ADD_REPR.  See oofcanvas.
+
+// Place WRAP_REPR() inside a class definition in a swig file to
+// generate the repr.  The C++ class must define std::string *crepr()
+// const, which must return a new std::string.
+
+%define WRAP_REPR()
+%newobject crepr;
+  std::string *crepr();
+%pythoncode %{
+  def __repr__(self):
+    return self.crepr()
+%}
+%enddef // WRAP_REPR
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
@@ -411,10 +431,6 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
  // [string] -> std::vector<char*>*
-
-%{
-  typedef std::vector<char*> CharPtrVec;
-%}
 
 %typemap(in) const CharPtrVec *argv (CharPtrVec argh,
 				     std::vector<PyObject*> ustrs)

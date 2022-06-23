@@ -16,7 +16,7 @@
 #include "common/oofomp.h"
 #include "common/printvec.h"
 #include "common/threadstate.h"
-#include "oofcanvas/oofcanvas.h"
+#include <oofcanvas.h>
 #include <iostream>
 #include <pthread.h>
 #include <string>

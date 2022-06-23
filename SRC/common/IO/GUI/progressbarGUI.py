@@ -155,6 +155,7 @@ class GUIProgressBar(progressbar.ProgressBar):
             label = gtkutils.findChild(Gtk.Label, self.stopbutton)
             label.set_text("Dismiss")
             image = gtkutils.findChild(Gtk.Image, self.stopbutton)
+            # TODO PYTHON3: Use new_from_icon_name
             image.set_from_stock("gtk-cancel", Gtk.IconSize.BUTTON)
             self.dismissable = True
             activityViewer.sensitize()

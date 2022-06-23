@@ -116,7 +116,8 @@ TimeStamp getMaterialTimeStamp(CMicrostructure*);
 class MaterialImage : public AbstractImage {
 public:
   MaterialImage(CMicrostructure*, CColor*, CColor*);
-  NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  %newobject makeCanvasImage;
+  CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 
 %typemap(python,out) Property*;

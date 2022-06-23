@@ -20,7 +20,7 @@
 #include "common/doublearray.h"
 #include "image/oofimage.h"
 
-#include "oofcanvas/oofcanvas.h"
+#include <oofcanvas.h>
 
 #include <math.h>
 #include <set>

@@ -21,7 +21,7 @@
 #include "common/timestamp.h"
 #include <string>
 #include <vector>
-#include "oofcanvas/oofcanvas.h"
+#include <oofcanvas.h>
 
 class BitmapOverlay : public AbstractImage {
 private:

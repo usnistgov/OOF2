@@ -1076,7 +1076,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             self.releaseGfxLock()
         self.draw()
 
-    def redraw_mainthread():
+    def redraw_mainthread(self):
         for layer in self.layers:
             ## TODO: This redraws the Cairo layers without
             ## reconstructing them.  Do we want to reconstruct them,
