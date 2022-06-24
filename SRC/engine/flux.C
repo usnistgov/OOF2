@@ -543,6 +543,7 @@ FluxNormal *VectorFlux::BCCallback(const Coord &pos,
 				   const PyObject *pyfunction) const {
   double dres = 0.0;
 
+  PyGILState_STATE pystate = acquirePyLock();
   PyObject *result = PyObject_CallFunction(wrapper, "(Oddddddd)",
 					   pyfunction, pos(0), pos(1), time,
 					   nrm(0), nrm(1), distance, fraction);
