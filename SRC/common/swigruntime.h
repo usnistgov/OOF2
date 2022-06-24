@@ -13,6 +13,8 @@
  *  declarations/attributes, and other compiler dependent labels.
  * ----------------------------------------------------------------------------- */
 
+#ifndef SWIGRUNTIME_H
+#define SWIGRUNTIME_H
 
 /* template workaround for compilers that cannot correctly implement the C++ standard */
 #ifndef SWIGTEMPLATEDISAMBIGUATOR
@@ -2649,3 +2651,5 @@ SWIG_MangledTypeQuery(const char *name) {
 }
 
 #endif
+
+#endif // SWIGRUNTIME_H
