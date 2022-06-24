@@ -23,10 +23,7 @@
 #include "engine/pypropertywrapper.h"
 #include "engine/smallsystem.h"
 
-// TODO PYTHON3: Replace all Py_BuildValue/PyEval_CallObject instances
-// with PyObject_CallFunction.
-
-PYPROPERTYMETHODS::PyPropertyMethods(PyObject *referent)
+PyPropertyMethods::PyPropertyMethods(PyObject *referent)
   : referent_(referent)
 {
   PyGILState_STATE pystate = acquirePyLock();
@@ -58,10 +55,8 @@ void PyPropertyMethods::py_precompute(PyObject *referent, Property *prop,
       PyObject *func = PyObject_GetAttrString(referent,
 					      (char*) "precompute_wrap");
       SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
-      PyObject *args = Py_BuildValue((char*) "(s)", _mesh_temp);
-      PyObject *k_result = PyEval_CallObject(func, args);
+      PyObject *k_result = PyObject_CallFunction(func, "(s)", _mesh_temp)
       Py_XDECREF(func);
-      Py_XDECREF(args);
       if(k_result==NULL)
 	pythonErrorRelay();
       Py_XDECREF(k_result);
@@ -89,10 +84,8 @@ void PyPropertyMethods::py_cross_reference(PyObject *referent, Property *prop,
       PyObject *func = PyObject_GetAttrString(referent,
 					      (char*) "cross_reference_wrap");
       SWIG_MakePtr(_material_temp, (char *)mat, "_Material_p");
-      PyObject *args = Py_BuildValue((char*) "(s)",_material_temp);
-      PyObject *k_result = PyEval_CallObject(func, args);
+      PyObject *k_result = PyObject_CallFunction(func, "(s)", _material_temp);
       Py_XDECREF(func);
-      Py_XDECREF(args);
       if(k_result==NULL) {
 	pythonErrorRelay();
       }
@@ -124,9 +117,8 @@ void PyPropertyMethods::py_begin_element(PyObject *referent, Property *prop,
 					      (char*) "begin_element_wrap");
       SWIG_MakePtr(_mesh_temp, (char *)m, "_CSubProblem_p");
       SWIG_MakePtr(_element_temp, (char *)el, "_Element_p");
-      PyObject *args = Py_BuildValue((char*) "(ss)", _mesh_temp, _element_temp);
-      PyObject *k_result = PyEval_CallObject(func, args);
-      Py_XDECREF(args);
+      PyObject *k_result = PyObject_CallFunction(func, "(ss)",
+					       _mesh_temp, _element_temp);
       Py_XDECREF(func);
       if(k_result==NULL) {
 	pythonErrorRelay();
@@ -156,9 +148,7 @@ void PyPropertyMethods::py_end_element(PyObject *referent, Property *prop,
 					      (char*) "end_element_wrap");
       SWIG_MakePtr(_mesh_temp, (char *)m, "_CSubProblem_p");
       SWIG_MakePtr(_element_temp, (char *)el, "_Element_p");
-      PyObject *args = Py_BuildValue((char*) "(ss)", _mesh_temp, _element_temp);
-      PyObject *k_result = PyEval_CallObject(func, args);
-      Py_XDECREF(args);
+      PyObject *k_result = PyObject_CallFunction(func, "(ss)", _mesh_temp, _element_temp);
       Py_XDECREF(func);
       if(k_result==NULL) {
 	pythonErrorRelay();
@@ -195,10 +185,9 @@ void PyFluxProperty::begin_point(const FEMesh *m, const Element *el,
       SWIG_MakePtr(_element_temp, (char *) el, "_Element_p");
       SWIG_MakePtr(_flx_temp, (char *)flx, "_Flux_p");
       SWIG_MakePtr(_mpos_temp, (char *)(&mpos), "_MasterPosition_P");
-      PyObject *args = Py_BuildValue((char*) "(ssss)", _mesh_temp,
-				     _element_temp, _flx_temp, _mpos_temp);
-      PyObject *k_result = PyEval_CallObject(func, args);
-      Py_XDECREF(args);
+      PyObject *k_result = PyObject_CallFunction(func, "(ssss)",
+						 _mesh_temp, _element_temp,
+						 _flx_temp, _mpos_temp);
       Py_XDECREF(func);
       if(k_result==NULL) {
 	pythonErrorRelay();
@@ -233,10 +222,9 @@ void PyFluxProperty::end_point(const FEMesh *m, const Element *el,
       SWIG_MakePtr(_element_temp, (char *) el, "_Element_p");
       SWIG_MakePtr(_flx_temp, (char *)flx, "_Flux_p");
       SWIG_MakePtr(_mpos_temp, (char *)(&mpos), "_MasterPosition_P");
-      PyObject *args = Py_BuildValue((char*) "(ssss)", _mesh_temp,
-				     _element_temp, _flx_temp, _mpos_temp);
-      PyObject *k_result = PyEval_CallObject(func, args);
-      Py_XDECREF(args);
+      PyObject *k_result = PyObject_CallFunction(func, "(ssss)",
+						 _mesh_temp, _element_temp,
+						 _flx_temp, _mpos_temp);
       Py_XDECREF(func);
       if(k_result==NULL) {
 	pythonErrorRelay();
@@ -270,9 +258,8 @@ void PyPropertyMethods::py_post_process(PyObject *referent,
 					      (char*) "post_process_wrap");
       SWIG_MakePtr(_subp_temp, (char *)m, "_CSubProblem_p");
       SWIG_MakePtr(_element_temp, (char *)el, "_Element_p");
-      PyObject *args = Py_BuildValue((char*) "(ss)", _subp_temp, _element_temp);
-      PyObject *result = PyEval_CallObject(func, args);
-      Py_XDECREF(args);
+      PyObject *result = PyObject_CallFunction(func, "(ss)",
+					       _subp_temp, _element_temp);
       Py_XDECREF(func);
       if(result==NULL) {
 	pythonErrorRelay();
@@ -319,11 +306,10 @@ void PyPropertyMethods::py_output(PyObject *referent, Property *prop,
       SWIG_MakePtr(_element_temp, (char*) el, "_Element_p");
       SWIG_MakePtr(_propout_temp, (char*) propout, "_PropertyOutput_p");
       SWIG_MakePtr(_pos_temp, (char *) (&pos), "_MasterPosition_p");
-      PyObject *args = Py_BuildValue((char*) "(ssss)", _mesh_temp,
-				     _element_temp, _propout_temp, _pos_temp);
-      PyObject *pyresult = PyEval_CallObject(func, args);
+      PyObject *pyobject = PyObject_CallFunction(
+		       func, "(ssss)",
+		       _mesh_temp, _element_temp, _propout_temp, _pos_temp);
       Py_XDECREF(func);
-      Py_XDECREF(args);
 
       if(pyresult == NULL)
 	pythonErrorRelay();
@@ -368,10 +354,8 @@ bool PyPropertyMethods::py_constant_in_space(PyObject *referent,
     }
     PyObject *func = PyObject_GetAttrString(referent,
 					    (char*) "constant_in_space_wrap");
-    PyObject *args = Py_BuildValue((char*) "()");
-    PyObject *k_result = PyEval_CallObject(func, args);
+    PyObject *k_result = PyObject_CallFunction(func, "()");
     Py_XDECREF(func);
-    Py_XDECREF(args);
     if(k_result == NULL) {
       pythonErrorRelay();
     }
@@ -403,10 +387,8 @@ bool PyPropertyMethods::is_symmetric_K(PyObject *referent, const Property *prop,
     PyObject *func = PyObject_GetAttrString(referent,
 					    (char*) "is_symmetric_K_wrap");
     SWIG_MakePtr(_subp_temp, (char*) subp, "_CSubProblem_p");
-    PyObject *args = Py_BuildValue((char*) "(s)", _subp_temp);
-    PyObject *k_result = PyEval_CallObject(func, args);
+    PyObject *k_result = PyObject_CallFunction(func, "(s)", _subp_temp);
     Py_XDECREF(func);
-    Py_XDECREF(args);
     if(k_result == NULL) {
       pythonErrorRelay();
     }
@@ -436,10 +418,8 @@ bool PyPropertyMethods::is_symmetric_C(PyObject *referent, const Property *prop,
     PyObject *func = PyObject_GetAttrString(referent,
 					    (char*) "is_symmetric_C_wrap");
     SWIG_MakePtr(_subp_temp, (char*) subp, "_CSubProblem_p");
-    PyObject *args = Py_BuildValue((char*) "(s)", _subp_temp);
-    PyObject *k_result = PyEval_CallObject(func, args);
+    PyObject *k_result = PyObject_CallFunction(func, "(s)", _subp_temp);
     Py_XDECREF(func);
-    Py_XDECREF(args);
     if(k_result == NULL) {
       pythonErrorRelay();
     }
@@ -469,10 +449,8 @@ bool PyPropertyMethods::is_symmetric_M(PyObject *referent, const Property *prop,
     PyObject *func = PyObject_GetAttrString(referent,
 					    (char*) "is_symmetric_M_wrap");
     SWIG_MakePtr(_subp_temp, (char*) subp, "_CSubProblem_p");
-    PyObject *args = Py_BuildValue((char*) "(s)", _subp_temp);
-    PyObject *k_result = PyEval_CallObject(func, args);
+    PyObject *k_result = PyObject_CallFunction(func, "(s)", _subp_temp);
     Py_XDECREF(func);
-    Py_XDECREF(args);
     if(k_result == NULL) {
       pythonErrorRelay();
     }
@@ -510,10 +488,9 @@ int PyPhysicalPropertyMethods::py_integration_order(
 					    (char*) "integration_order_wrap");
     SWIG_MakePtr(_subp_temp, (char*) subp, "_CSubProblem_p");
     SWIG_MakePtr(_element_temp, (char*) el, "_Element_p");
-    PyObject *args = Py_BuildValue((char*) "(ss)", _subp_temp, _element_temp);
-    PyObject *k_result = PyEval_CallObject(func, args);
+    PyObject *k_result = PyObject_CallFunction(func, "(ss)",
+					       _subp_temp, _element_temp);
     Py_XDECREF(func);
-    Py_XDECREF(args);
     if(k_result==NULL) {
       pythonErrorRelay();
     }
@@ -580,13 +557,10 @@ void PyFluxProperty::flux_matrix(const FEMesh *mesh,
       SWIG_MakePtr(_flux_temp, (char *)flux, "_Flux_p");
       SWIG_MakePtr(_fluxdata_temp, (char *)fluxdata, "_SmallSystem_p");
       SWIG_MakePtr(_mp_temp, (char *)(&gpt), "_MasterPosition_p");
-      PyObject *args = Py_BuildValue((char*) "(sssssds)",
-				     _mesh_temp, _element_temp,
-				     _efni_temp, _flux_temp, _mp_temp, 
-				     time,
-				     _fluxdata_temp);
-      PyObject *result = PyEval_CallObject(func, args);
-      Py_XDECREF(args);
+      PyObject *result = PyObject_CallFunction(func, "(sssssds)",
+					       _mesh_temp, _element_temp,
+					       _efni_temp, _flux_temp,
+					       _mp_temp, time, _fluxdata_temp);
       Py_XDECREF(func);
       if(result==NULL) {
 	pythonErrorRelay();
@@ -630,11 +604,9 @@ void PyFluxProperty::flux_value(const FEMesh *mesh,
       SWIG_MakePtr(_flux_temp, (char *) flux, "_Flux_p");
       SWIG_MakePtr(_mp_temp, (char *)(&pt), "_MasterPosition_p");
       SWIG_MakePtr(_fluxdata_temp, (char *) fluxdata, "_SmallSystem_p");
-      PyObject *args = Py_BuildValue((char*) "(ssssds)",
+      PyObject *result = PyObject_CallFunction(func, "(ssssds)",
 				     _mesh_temp, _element_temp, _flux_temp,
 				     _mp_temp, time, _fluxdata_temp);
-      PyObject *result = PyEval_CallObject(func, args);
-      Py_XDECREF(args);
       Py_XDECREF(func);
       if(result == NULL) {
 	pythonErrorRelay();
@@ -679,11 +651,10 @@ void PyFluxProperty::static_flux_value(const FEMesh *mesh,
       SWIG_MakePtr(_flux_temp, (char *) flux, "_Flux_p");
       SWIG_MakePtr(_mp_temp, (char *)(&pt), "_MasterPosition_p");
       SWIG_MakePtr(_fluxdata_temp, (char *) fluxdata, "_SmallSystem_p");
-      PyObject *args = Py_BuildValue((char*) "(ssssds)",
-				     _mesh_temp, _element_temp, _flux_temp,
-				     _mp_temp, time, _fluxdata_temp);
-      PyObject *result = PyEval_CallObject(func, args);
-      Py_XDECREF(args);
+      PyObject *result = PyObject_CallFunction(func,  "(ssssds)",
+					       _mesh_temp, _element_temp,
+					       _flux_temp, _mp_temp, time,
+					       _fluxdata_temp);
       Py_XDECREF(func);
       if(result == NULL) {
 	pythonErrorRelay();
@@ -726,12 +697,10 @@ void PyFluxProperty::flux_offset(const FEMesh *mesh, const Element *el,
       SWIG_MakePtr(_flux_temp, (char *)flux, "_Flux_p");
       SWIG_MakePtr(_fluxdata_temp, (char *)fluxdata, "_SmallSystem_p");
       SWIG_MakePtr(_mp_temp, (char *)(&gpt), "_MasterPosition_p");
-      PyObject *args = Py_BuildValue((char*) "(ssssds)",
-				     _mesh_temp, _element_temp,
-				     _flux_temp, _mp_temp, time, 
-				     _fluxdata_temp);
-      PyObject *result = PyEval_CallObject(func, args);
-      Py_XDECREF(args);
+      PyObject *result = PyObject_CallFunction(func, "(ssssds)",
+					       _mesh_temp, _element_temp,
+					       _flux_temp, _mp_temp, time, 
+					       _fluxdata_temp);
       Py_XDECREF(func);
       if(result==NULL) {
 	pythonErrorRelay();
@@ -790,16 +759,10 @@ void PyEqnProperty::force_deriv_matrix(const FEMesh *mesh,
       SWIG_MakePtr(_efni_temp, (char*)(&efi), "_ElementFuncNodeIterator_p");
       SWIG_MakePtr(_mp_temp, (char*)(&pt), "_MasterPosition_p");
       SWIG_MakePtr(_eqndata_tmp, (char*) eqndata, "_SmallSystem_p");
-      PyObject *args = Py_BuildValue((char*) "(sssssds)",
-				     _mesh_temp,
-				     _element_temp,
-				     _eqn_temp,
-				     _efni_temp,
-				     _mp_temp,
-				     time,
-				     _eqndata_tmp);
-      PyObject *result = PyEval_CallObject(func, args);
-      Py_XDECREF(args);
+      PyObject *result = PyObject_CallFunction(func, "(sssssds)",
+					       _mesh_temp, _element_temp,
+					       _eqn_temp, _efni_temp,
+					       _mp_temp, time, _eqndata_tmp);
       Py_XDECREF(func);
       if(result == NULL)
 	pythonErrorRelay();
@@ -842,15 +805,10 @@ void PyEqnProperty::force_value(const FEMesh *mesh,
       SWIG_MakePtr(_eqn_temp, (char*) eqn, "_Equation_p");
       SWIG_MakePtr(_mp_temp, (char*)(&pt), "_MasterPosition_p");
       SWIG_MakePtr(_eqndata_tmp, (char*) eqndata, "_SmallSystem_p");
-      PyObject *args = Py_BuildValue((char*) "(ssssds)",
-				     _mesh_temp,
-				     _element_temp,
-				     _eqn_temp,
-				     _mp_temp,
-				     time,
-				     _eqndata_tmp);
-      PyObject *result = PyEval_CallObject(func, args);
-      Py_XDECREF(args);
+      PyObject *result = PyObject_CallFunction(func, "(ssssds)",
+					       _mesh_temp, _element_temp,
+					       _eqn_temp, _mp_temp,
+					       time, _eqndata_tmp);
       Py_XDECREF(func);
       if(result == NULL)
 	pythonErrorRelay();
@@ -896,16 +854,10 @@ void PyEqnProperty::first_time_deriv_matrix(const FEMesh *mesh,
       SWIG_MakePtr(_efni_temp, (char*)(&efi), "_ElementFuncNodeIterator_p");
       SWIG_MakePtr(_mp_temp, (char*)(&pt), "_MasterPosition_p");
       SWIG_MakePtr(_eqndata_tmp, (char*)(&eqndata), "_SmallSystem_p");
-      PyObject *args = Py_BuildValue((char*) "(sssssds)",
-				     _mesh_temp,
-				     _element_temp,
-				     _eqn_temp,
-				     _efni_temp,
-				     _mp_temp,
-				     time,
-				     _eqndata_tmp);
-      PyObject *result = PyEval_CallObject(func, args);
-      Py_XDECREF(args);
+      PyObject *result = PyObject_CallFunction(func, "(sssssds)",
+					       _mesh_temp, _element_temp,
+					       _eqn_temp, _efni_temp,
+					       _mp_temp, time, _eqndata_tmp);
       Py_XDECREF(func);
       if(result == NULL)
 	pythonErrorRelay();
@@ -952,16 +904,10 @@ void PyEqnProperty::second_time_deriv_matrix(const FEMesh *mesh,
       SWIG_MakePtr(_efni_temp, (char*)(&efi), "_ElementFuncNodeIterator_p");
       SWIG_MakePtr(_mp_temp, (char*)(&pt), "_MasterPosition_p");
       SWIG_MakePtr(_eqndata_tmp, (char*)(&eqndata), "_SmallSystem_p");
-      PyObject *args = Py_BuildValue((char*) "(sssssds)",
-				     _mesh_temp,
-				     _element_temp,
-				     _eqn_temp,
-				     _efni_temp,
-				     _mp_temp,
-				     time,
-				     _eqndata_tmp);
-      PyObject *result = PyEval_CallObject(func, args);
-      Py_XDECREF(args);
+      PyObject *result = PyObject_CallFunction(func, "(sssssds)",
+					       _mesh_temp, _element_temp,
+					       _eqn_temp, _efni_temp,
+					       _mp_temp, time, _eqndata_tmp);
       Py_XDECREF(func);
       if(result == NULL)
 	pythonErrorRelay();
