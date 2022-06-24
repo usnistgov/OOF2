@@ -205,8 +205,6 @@ pkg_check_modules(
 # foreach (_variableName ${_variableNames})
 #     message(STATUS "${_variableName}=${${_variableName}}")
 # endforeach()
-message("OOFCanvas version is ${OOFCANVAS_VERSION}")
-message("OOFCanvas include dir is ${OOFCANVAS_INCLUDE_DIRS}")
 
 pkg_check_modules(
   MAGICK REQUIRED
@@ -249,7 +247,6 @@ endforeach()
 foreach(olib ${ooflibs})
   target_include_directories(${olib}
     PUBLIC
-    #  TODO: Quotes around args aren't really required here, I don't think.
     ${PROJECT_BINARY_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/SRC
@@ -261,11 +258,22 @@ foreach(olib ${ooflibs})
     ${MAGICK_INCLUDE_DIRS}
     ${GTK3_INCLUDE_DIRS}
     )
-  target_compile_options(${olib} PRIVATE -Wno-deprecated-register)
+  # It's necessary to include OOFCANVAS_CFLAGS for all files that
+  # include oofcanvas.h, because oofcanvas.h indirectly includes
+  # ImageMagick headers, and ImageMagick complains bitterly if
+  # MAGICKCORE_QUANTUM_DEPTH isn't defined.  OOFCANVAS_CFLAGS includes
+  # the ImageMagick preprocessor definitions that it used.  This
+  # results in the ImageMagick definitions being used in far more
+  # places than actually necessary, which is messy but probably
+  # harmless.
+  target_compile_options(${olib}
+    PRIVATE
+    -Wno-deprecated-register
+    ${OOFCANVAS_CFLAGS})
 endforeach()
 
-target_compile_options(oof2image PRIVATE ${MAGICK_CFLAGS} ${OOFCANVAS_CFLAGS})
-target_compile_options(oof2orientationmap PRIVATE ${MAGICK_CFLAGS})
+# target_compile_options(oof2image PRIVATE ${MAGICK_CFLAGS} ${OOFCANVAS_CFLAGS})
+# target_compile_options(oof2orientationmap PRIVATE ${MAGICK_CFLAGS})
 
 target_link_libraries(oof2common
   PRIVATE
