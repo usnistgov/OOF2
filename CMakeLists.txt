@@ -277,21 +277,21 @@ endforeach()
 
 target_link_libraries(oof2common
   PRIVATE
-  ${${PythonVersion}_LIBRARIES}
+  ${Python3_LIBRARIES}
   ${OOFCANVAS_LINK_LIBRARIES}
   ${BLAS_LIBRARIES}
   )
 
 target_link_libraries(oof2commonGUI
   PRIVATE
-  ${${PythonVersion}_LIBRARIES}
+  ${Python3_LIBRARIES}
   ${OOFCANVAS_LINK_LIBRARIES}
   oof2common
   )
 
 target_link_libraries(oof2engine
   PRIVATE
-  ${${PythonVersion}_LIBRARIES}
+  ${Python3_LIBRARIES}
   ${OOFCANVAS_LINK_LIBRARIES}
   ${BLAS_LIBRARIES}
   oof2common
@@ -299,7 +299,7 @@ target_link_libraries(oof2engine
 
 target_link_libraries(oof2image
   PRIVATE
-  ${${PythonVersion}_LIBRARIES}
+  ${Python3_LIBRARIES}
   ${OOFCANVAS_LINK_LIBRARIES}
   oof2common
   ${MAGICK_LINK_LIBRARIES}
@@ -307,7 +307,7 @@ target_link_libraries(oof2image
 
 target_link_libraries(oof2orientationmap
   PRIVATE
-  ${${PythonVersion}_LIBRARIES}
+  ${Python3_LIBRARIES}
   ${OOFCANVAS_LINK_LIBRARIES}
   oof2common
   oof2engine
