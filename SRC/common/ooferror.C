@@ -13,8 +13,8 @@
 #include <iostream>
 #include "common/ooferror.h"
 #include "common/pythonlock.h"
-#include "common/swiglib.h"
 #include "common/tostring.h"
+#include "common/swigruntime.h"
 
 
 // Some trivial constructors are here instead of in ooferror.h so that
@@ -132,7 +132,9 @@ void pythonErrorRelay() {
 	// ours.  Extract the C++ object and raise it as a new
 	// exception.
 	const ErrError *ee;
-	SWIG_GetPtrObj(pvalue, (void**) &ee, "_ErrError_p");
+	SWIG_ConvertPtr(pvalue, (void**) &ee,
+			((SwigPyObject*) pvalue)->ty, 0);
+	// SWIG_GetPtrObj(pvalue, (void**) &ee, "_ErrError_p");
 	Py_XDECREF(ptraceback);
 	Py_XDECREF(ptype);
 	// Don't decref pvalue! It will destroy *ee.

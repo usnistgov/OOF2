@@ -30,13 +30,11 @@ void init_switchboard_api(PyObject *pyNotify) {
 void switchboard_notify(const std::string &msg) {
   if(notifier != 0) {
     PyGILState_STATE pystate = acquirePyLock();
-    PyObject *arg = Py_BuildValue((char*) "(s)", msg.c_str());
-    PyObject *result = PyObject_CallObject(notifier, arg);
+    PyObject *result = PyObject_CallFunction(notifier, "(s)", msg.c_str());
     if(!result) {
       releasePyLock(pystate);
       pythonErrorRelay();
     }
-    Py_XDECREF(arg);
     Py_XDECREF(result);
     releasePyLock(pystate);
     /*
@@ -58,7 +56,7 @@ void switchboard_notify(const OOFMessage &msg) {
     if(!pmsg)
       pythonErrorRelay();
     PyGILState_STATE pystate = acquirePyLock();
-    PyObject *result = PyObject_CallFunction(notifier, (char*) "O", pmsg);
+    PyObject *result = PyObject_CallFunction(notifier, "O", pmsg);
     if(!result) {
       releasePyLock(pystate);
       pythonErrorRelay();
@@ -93,7 +91,7 @@ void OOFMessage::addarg(const PythonExportableBase &arggh) {
 }
 
 void OOFMessage::addarg(const std::string &strng) {
-  args.push_back(PyString_FromString(strng.c_str()));
+  args.push_back(PyUnicode_FromString(strng.c_str()));
 }
 
 void OOFMessage::addarg(int val) {
