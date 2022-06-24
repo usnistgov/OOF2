@@ -13,7 +13,7 @@
 
 #include "common/coord.h"
 #include "common/pythonlock.h"
-#include "common/swiglib.h"
+#include "common/swigruntime.h"
 #include "engine/element.h"
 #include "engine/elementnodeiterator.h"
 #include "engine/field.h"
@@ -23,7 +23,10 @@
 #include "engine/pypropertywrapper.h"
 #include "engine/smallsystem.h"
 
-PyPropertyMethods::PyPropertyMethods(PyObject *referent)
+// TODO PYTHON3: Replace all Py_BuildValue/PyEval_CallObject instances
+// with PyObject_CallFunction.
+
+PYPROPERTYMETHODS::PyPropertyMethods(PyObject *referent)
   : referent_(referent)
 {
   PyGILState_STATE pystate = acquirePyLock();
@@ -330,11 +333,13 @@ void PyPropertyMethods::py_output(PyObject *referent, Property *prop,
       if(pyresult != Py_None) {
 	// Convert result to a C++ object
 	OutputVal *cresult;
-	if(SWIG_GetPtrObj(pyresult, (void**)&cresult, "_OutputVal_p")) {
-	  throw ErrProgrammingError(
-			    "Python output() does not return an OutputVal",
-			    __FILE__, __LINE__);
-	}
+	if(!SWIG_isOK(SWIG_ConvertPtr(pyresult, (void**) &cresult,
+				      ((SwigPyObject*) pyresult)->ty, 0)))
+	  {
+	    throw ErrProgrammingError(
+			      "Python output() does not return an OutputVal",
+			      __FILE__, __LINE__);
+	  }
 	*oval = *cresult;
       }
       Py_XDECREF(pyresult);

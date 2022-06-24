@@ -15,7 +15,7 @@
 #include "common/ooferror.h"
 #include "common/printvec.h"
 #include "common/pythonlock.h"
-#include "common/swiglib.h"
+#include "common/swigruntime.h"
 #include "common/tostring.h"
 #include "common/trace.h"
 #include "engine/cnonlinearsolver.h"
@@ -64,7 +64,9 @@ Element::Element(PyObject *skelel, const MasterElement &me,
   PyGILState_STATE pystate = acquirePyLock();
   if(skeleton_element!=Py_None)
     {
-      SWIG_GetPtrObj(skeleton_element, (void **)&cskeleton_element, "_CSkeletonElement_p");
+      // SWIG_GetPtrObj(skeleton_element, (void **)&cskeleton_element, "_CSkeletonElement_p");
+      SWIG_ConvertPtr(skeleton_element, (void**) &cskeleton_element,
+		      ((SwigPyObject*) skeleton_element)->ty, 0);
       Py_XINCREF(skeleton_element);
     }
   releasePyLock(pystate);
@@ -125,7 +127,8 @@ void Element::refreshMaterial(PyObject *skeletoncontext) {
     }
     else {
       // Extract the C++ Material* from the Python object.
-      SWIG_GetPtrObj(pymat, (void**)(&matl), "_Material_p");
+      SWIG_ConvertPtr(pymat, (void**) &matl,
+		      ((SwigPyObject*) pymat)->ty, 0);
       Py_XDECREF(pymat);
     }
   }
@@ -1011,7 +1014,8 @@ InterfaceElement::InterfaceElement(PyObject *leftskelel,
   PyGILState_STATE pystate = acquirePyLock();
   if(rightskelel!=Py_None)
     {
-      SWIG_GetPtrObj(rightskelel, (void **)&cskeleton_element2, "_CSkeletonElement_p");
+      SWIG_ConvertPtr(rightskelel, (void**) &cskeleton_element2,
+		      ((SwigPyObject*) rightskelel)->ty, 0);
       Py_XINCREF(skeleton_element2);
     }
   releasePyLock(pystate);
@@ -1064,8 +1068,9 @@ void InterfaceElement::refreshInterfaceMaterial(PyObject *skeletoncontext)
 	{
 	  // Extract the C++ Material* from the Python object.
 	  const Material* tmp;
-	  //SWIG_GetPtrObj(pymat, (void**)(&matl), "_Material_p");
-	  SWIG_GetPtrObj(pymat, (void**)(&tmp), "_Material_p");
+	  //	  SWIG_GetPtrObj(pymat, (void**)(&tmp), "_Material_p");
+	  SWIG_ConvertPtr(pymat, (void**) &tmp,
+			  ((SwigPyObject*) pymat)->ty, 0);
 	  setMaterial(tmp);
 	  Py_XDECREF(pymat);
 	}

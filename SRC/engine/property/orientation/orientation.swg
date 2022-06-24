@@ -16,7 +16,7 @@
 %module orientation
 %include "common/typemaps.swg"
 %{
-#include "common/swiglib.h"
+#include "common/swigruntime.h"
 #include "engine/corientation.h"
 #include "engine/property/orientation/orientation.h"
 %}
@@ -33,9 +33,11 @@
 // already a C++ object, and a pointer to it is stored in the
 // Orientation object.
 
-%typemap(python,in) COrientation * {
-  PyObject *py_orient = PyObject_GetAttrString($source,"corient");
-  SWIG_GetPtrObj(py_orient, (void **)(&$target), "_COrientation_p");
+%typemap(in) COrientation * {
+  PyObject *py_orient = PyObject_GetAttrString($input,"corient");
+  //  SWIG_GetPtrObj(py_orient, (void **)(&$target), "_COrientation_p");
+  // TODO PYTHON3: Check this!
+  SWIG_ConvertPtr(py_orient, (void**) &$1, $1_descriptor, 0);
 }
 
 class OrientationProp : public Property {

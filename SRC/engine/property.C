@@ -14,7 +14,7 @@
 #include "common/doublevec.h"
 #include "common/printvec.h"
 #include "common/pythonlock.h"
-#include "common/swiglib.h"
+#include "common/swigruntime.h"
 #include "common/trace.h"
 #include "engine/IO/propertyoutput.h"
 #include "engine/cnonlinearsolver.h"
