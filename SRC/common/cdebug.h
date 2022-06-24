@@ -16,7 +16,7 @@
 
 // Routines used to catch C++ signals and dump the current Python
 // stack before bailing out.  These are not used except when OOF2 is
-// built with --debug.
+// built with --debug.  Plus some other handy debugging methods.
 
 #include <vector>
 #include <string>
@@ -42,5 +42,7 @@ void throwPythonCException();
 void spinCycle(int);
 
 void memusage(const std::string&);
+
+std::string repr(PyObject*);
 
 #endif // CDEBUG_H

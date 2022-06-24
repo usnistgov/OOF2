@@ -103,18 +103,6 @@ typedef std::vector<std::string> StringVec;
 typedef std::vector<unsigned short> ShortVec;
 typedef std::pair<int, int> IntPair;
 
-// Useful function for debugging by printing Python objects from C++.
-// TODO: Move this someplace else.
- std::string repr(PyObject *obj) {
-    PyObject *repr = PyObject_Repr(obj);
-    assert(obj != 0);
-    PyObject *ustr = PyUnicode_AsEncodedString(repr, "UTF-8", "replace");
-    assert(ustr != 0);
-    std::string r(PyBytes_AsString(ustr));
-    Py_XDECREF(repr);
-    Py_XDECREF(ustr);
-    return r;
-  }
 
 %}
 
@@ -138,20 +126,50 @@ typedef std::pair<int, int> IntPair;
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
-// TODO PYTHON3:  Change to ADD_REPR.  See oofcanvas.
+// ADD_REPR(class, func) adds a __repr__ to the swigged class.  The
+// new __repr__ will call the given C++ func, which must return a new
+// std::string*.  The func must be swigged if using -builtin, and
+// declared with %newobject.  ADD_REPR must appear *before* the class
+// declaration in the swig file.
 
-// Place WRAP_REPR() inside a class definition in a swig file to
-// generate the repr.  The C++ class must define std::string *crepr()
-// const, which must return a new std::string.
+// If not using -builtin, ADD_REPR can appear after the declaration
+// and the function does not need to be swigged. TODO PYTHON3: Check
+// that.
 
-%define WRAP_REPR()
-%newobject crepr;
-  std::string *crepr();
-%pythoncode %{
-  def __repr__(self):
-    return self.crepr()
-%}
-%enddef // WRAP_REPR
+class std::string;
+
+#ifdef SWIGPYTHON_BUILTIN
+%define ADD_REPR(CLASS, FUNC)
+  %feature("python:slot", "tp_repr", functype="reprfunc") CLASS::FUNC
+%enddef
+%define ADD_STR(CLASS, FUNC)
+  %feature("python:slot", "tp_str", functype="reprfunc") CLASS::FUNC
+%enddef
+  
+#else  // not SWIGPYTHON_BUILTIN
+%define ADD_REPR(CLASS, FUNC)  
+%extend CLASS {
+  %newobject __repr__;
+    const std::string *__repr__() { // ADD_REPR
+      return self->FUNC();
+    }
+  };
+%enddef
+%define ADD_STR(CLASS, FUNC)  
+%extend CLASS {
+  %newobject __str__;
+    const std::string *__str__() { // ADD_STR
+      return self->FUNC();
+    }
+ };
+%enddef
+#endif	// SWIGPYTHON_BUILTIN
+
+
+%typemap(newfree) const std::string* {
+  // typemap(newfree) const std::string*
+  delete $1;
+ }
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 

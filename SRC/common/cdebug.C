@@ -147,7 +147,6 @@ void throwPythonCException() {
     PyObject *func = PyObject_GetAttrString(module, (char*) "throwException");
     Py_XDECREF(module);
     PyObject *result = PyObject_CallFunction(func, NULL);
-    Py_XDECREF(args);
     if(!result)
       pythonErrorRelay();
     Py_XDECREF(result);
@@ -184,7 +183,6 @@ void spinCycle(int nCycles) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-
 // Call out to the python utils.memusage() method
 
 void memusage(const std::string &comment) {
@@ -210,4 +208,16 @@ void memusage(const std::string &comment) {
   releasePyLock(pystate);
 }
 
-					
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// Useful function for debugging by printing Python objects from C++.
+std::string repr(PyObject *obj) {
+  PyObject *repr = PyObject_Repr(obj);
+  assert(obj != 0);
+  PyObject *ustr = PyUnicode_AsEncodedString(repr, "UTF-8", "replace");
+  assert(ustr != 0);
+  std::string r(PyBytes_AsString(ustr));
+  Py_XDECREF(repr);
+  Py_XDECREF(ustr);
+  return r;
+}
