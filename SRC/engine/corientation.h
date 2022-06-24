@@ -25,6 +25,7 @@ class COrientRodrigues;
 
 // NO, I don't know why outputval.h is in engine but propertyoutput.h
 // is in engine/IO.
+#include "common/ooferror.h"
 #include "engine/IO/propertyoutput.h"
 #include "engine/outputval.h"
 
