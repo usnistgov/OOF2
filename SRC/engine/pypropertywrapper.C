@@ -23,18 +23,18 @@
 #include "engine/pypropertywrapper.h"
 #include "engine/smallsystem.h"
 
+// TODO PYTHON3: Fix all SWIG_MakePtr calls
+
 PyPropertyMethods::PyPropertyMethods(PyObject *referent)
   : referent_(referent)
 {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_INCREF(referent_);
-  releasePyLock(pystate);
 }
 
 PyPropertyMethods::~PyPropertyMethods() {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_DECREF(referent_);
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//
@@ -43,30 +43,24 @@ void PyPropertyMethods::py_precompute(PyObject *referent, Property *prop,
 				      FEMesh *mesh)
 {
   char _mesh_temp[128];
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent, (char*) "precompute")) {
-      // The function isn't defined in the derived class.  Call the
-      // base class method instead.
-      PyErr_Clear();
-      prop->Property::precompute(mesh);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(referent,
-					      (char*) "precompute_wrap");
-      SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
-      PyObject *k_result = PyObject_CallFunction(func, "(s)", _mesh_temp)
-      Py_XDECREF(func);
-      if(k_result==NULL)
-	pythonErrorRelay();
-      Py_XDECREF(k_result);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent, (char*) "precompute")) {
+    // The function isn't defined in the derived class.  Call the
+    // base class method instead.
+    PyErr_Clear();
+    prop->Property::precompute(mesh);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(referent,
+					    (char*) "precompute_wrap");
+    // SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
+    char _mesh_temp = SWIG_NewPointerObj(mesh, SWIG_Python_TypeQuery("FEMesh"), 0);
+    PyObject *k_result = PyObject_CallFunction(func, "(s)", _mesh_temp);
+    Py_XDECREF(func);
+    if(k_result==NULL)
+      pythonErrorRelay();
+    Py_XDECREF(k_result);
   }
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//
@@ -75,28 +69,21 @@ void PyPropertyMethods::py_cross_reference(PyObject *referent, Property *prop,
 					   Material *mat)
 {
   char _material_temp[128];
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent, (char*) "cross_reference")) {
-      prop->Property::cross_reference(mat);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(referent,
-					      (char*) "cross_reference_wrap");
-      SWIG_MakePtr(_material_temp, (char *)mat, "_Material_p");
-      PyObject *k_result = PyObject_CallFunction(func, "(s)", _material_temp);
-      Py_XDECREF(func);
-      if(k_result==NULL) {
-	pythonErrorRelay();
-      }
-      Py_XDECREF(k_result);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent, (char*) "cross_reference")) {
+    prop->Property::cross_reference(mat);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(referent,
+					    (char*) "cross_reference_wrap");
+    SWIG_MakePtr(_material_temp, (char *)mat, "_Material_p");
+    PyObject *k_result = PyObject_CallFunction(func, "(s)", _material_temp);
+    Py_XDECREF(func);
+    if(k_result==NULL) {
+      pythonErrorRelay();
+    }
+    Py_XDECREF(k_result);
   }
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//
@@ -107,30 +94,23 @@ void PyPropertyMethods::py_begin_element(PyObject *referent, Property *prop,
 {
   char _element_temp[128];
   char _mesh_temp[128];
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent, (char*) "begin_element")) {
-      prop->Property::begin_element(m, el);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(referent,
-					      (char*) "begin_element_wrap");
-      SWIG_MakePtr(_mesh_temp, (char *)m, "_CSubProblem_p");
-      SWIG_MakePtr(_element_temp, (char *)el, "_Element_p");
-      PyObject *k_result = PyObject_CallFunction(func, "(ss)",
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent, (char*) "begin_element")) {
+    prop->Property::begin_element(m, el);
+  }
+  else {
+    PyObject *func = PyObject_GetAttrString(referent,
+					    (char*) "begin_element_wrap");
+    SWIG_MakePtr(_mesh_temp, (char *)m, "_CSubProblem_p");
+    SWIG_MakePtr(_element_temp, (char *)el, "_Element_p");
+    PyObject *k_result = PyObject_CallFunction(func, "(ss)",
 					       _mesh_temp, _element_temp);
-      Py_XDECREF(func);
-      if(k_result==NULL) {
-	pythonErrorRelay();
-      }
-      Py_XDECREF(k_result);
+    Py_XDECREF(func);
+    if(k_result==NULL) {
+      pythonErrorRelay();
     }
+    Py_XDECREF(k_result);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
-  }
-  releasePyLock(pystate);
 }
 
 void PyPropertyMethods::py_end_element(PyObject *referent, Property *prop,
@@ -138,29 +118,23 @@ void PyPropertyMethods::py_end_element(PyObject *referent, Property *prop,
 {
   char _element_temp[128];
   char _mesh_temp[128];
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent, "end_element")) {
-      prop->Property::end_element(m, el);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(referent,
-					      (char*) "end_element_wrap");
-      SWIG_MakePtr(_mesh_temp, (char *)m, "_CSubProblem_p");
-      SWIG_MakePtr(_element_temp, (char *)el, "_Element_p");
-      PyObject *k_result = PyObject_CallFunction(func, "(ss)", _mesh_temp, _element_temp);
-      Py_XDECREF(func);
-      if(k_result==NULL) {
-	pythonErrorRelay();
-      }
-      Py_XDECREF(k_result);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent, "end_element")) {
+    prop->Property::end_element(m, el);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(referent,
+					    (char*) "end_element_wrap");
+    SWIG_MakePtr(_mesh_temp, (char *)m, "_CSubProblem_p");
+    SWIG_MakePtr(_element_temp, (char *)el, "_Element_p");
+    PyObject *k_result = PyObject_CallFunction(
+			       func, "(ss)", _mesh_temp, _element_temp);
+    Py_XDECREF(func);
+    if(k_result==NULL) {
+      pythonErrorRelay();
+    }
+    Py_XDECREF(k_result);
   }
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//
@@ -173,33 +147,26 @@ void PyFluxProperty::begin_point(const FEMesh *m, const Element *el,
   char _flx_temp[128];
   char _mpos_temp[128];
 
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent_, "begin_point")) {
-      this->FluxProperty::begin_point(m, el, flx, mpos);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(referent_,
-					      (char*) "begin_point_wrap");
-      SWIG_MakePtr(_mesh_temp, (char *) m, "_FEMesh_p");
-      SWIG_MakePtr(_element_temp, (char *) el, "_Element_p");
-      SWIG_MakePtr(_flx_temp, (char *)flx, "_Flux_p");
-      SWIG_MakePtr(_mpos_temp, (char *)(&mpos), "_MasterPosition_P");
-      PyObject *k_result = PyObject_CallFunction(func, "(ssss)",
-						 _mesh_temp, _element_temp,
-						 _flx_temp, _mpos_temp);
-      Py_XDECREF(func);
-      if(k_result==NULL) {
-	pythonErrorRelay();
-      }
-      Py_XDECREF(k_result);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent_, "begin_point")) {
+    this->FluxProperty::begin_point(m, el, flx, mpos);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(referent_,
+					    (char*) "begin_point_wrap");
+    SWIG_MakePtr(_mesh_temp, (char *) m, "_FEMesh_p");
+    SWIG_MakePtr(_element_temp, (char *) el, "_Element_p");
+    SWIG_MakePtr(_flx_temp, (char *)flx, "_Flux_p");
+    SWIG_MakePtr(_mpos_temp, (char *)(&mpos), "_MasterPosition_P");
+    PyObject *k_result = PyObject_CallFunction(func, "(ssss)",
+					       _mesh_temp, _element_temp,
+					       _flx_temp, _mpos_temp);
+    Py_XDECREF(func);
+    if(k_result==NULL) {
+      pythonErrorRelay();
+    }
+    Py_XDECREF(k_result);
   }
-  releasePyLock(pystate);
 }
 
 void PyFluxProperty::end_point(const FEMesh *m, const Element *el,
@@ -210,33 +177,26 @@ void PyFluxProperty::end_point(const FEMesh *m, const Element *el,
   char _flx_temp[128];
   char _mpos_temp[128];
 
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent_, (char*) "end_point")) {
-      this->FluxProperty::end_point(m, el, flx, mpos);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(referent_,
-					      (char*) "end_point_wrap");
-      SWIG_MakePtr(_mesh_temp, (char *) m, "_FEMesh_p");
-      SWIG_MakePtr(_element_temp, (char *) el, "_Element_p");
-      SWIG_MakePtr(_flx_temp, (char *)flx, "_Flux_p");
-      SWIG_MakePtr(_mpos_temp, (char *)(&mpos), "_MasterPosition_P");
-      PyObject *k_result = PyObject_CallFunction(func, "(ssss)",
-						 _mesh_temp, _element_temp,
-						 _flx_temp, _mpos_temp);
-      Py_XDECREF(func);
-      if(k_result==NULL) {
-	pythonErrorRelay();
-      }
-      Py_XDECREF(k_result);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent_, (char*) "end_point")) {
+    this->FluxProperty::end_point(m, el, flx, mpos);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(referent_,
+					    (char*) "end_point_wrap");
+    SWIG_MakePtr(_mesh_temp, (char *) m, "_FEMesh_p");
+    SWIG_MakePtr(_element_temp, (char *) el, "_Element_p");
+    SWIG_MakePtr(_flx_temp, (char *)flx, "_Flux_p");
+    SWIG_MakePtr(_mpos_temp, (char *)(&mpos), "_MasterPosition_P");
+    PyObject *k_result = PyObject_CallFunction(func, "(ssss)",
+					       _mesh_temp, _element_temp,
+					       _flx_temp, _mpos_temp);
+    Py_XDECREF(func);
+    if(k_result==NULL) {
+      pythonErrorRelay();
+    }
+    Py_XDECREF(k_result);
   }
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//
@@ -248,30 +208,23 @@ void PyPropertyMethods::py_post_process(PyObject *referent,
 {
   char _subp_temp[128];
   char _element_temp[128];
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent, (char*) "post_process")) {
-      prop->Property::post_process(m, el);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(referent,
-					      (char*) "post_process_wrap");
-      SWIG_MakePtr(_subp_temp, (char *)m, "_CSubProblem_p");
-      SWIG_MakePtr(_element_temp, (char *)el, "_Element_p");
-      PyObject *result = PyObject_CallFunction(func, "(ss)",
-					       _subp_temp, _element_temp);
-      Py_XDECREF(func);
-      if(result==NULL) {
-	pythonErrorRelay();
-      }
-      Py_XDECREF(result);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent, (char*) "post_process")) {
+    prop->Property::post_process(m, el);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(referent,
+					    (char*) "post_process_wrap");
+    SWIG_MakePtr(_subp_temp, (char *)m, "_CSubProblem_p");
+    SWIG_MakePtr(_element_temp, (char *)el, "_Element_p");
+    PyObject *result = PyObject_CallFunction(func, "(ss)",
+					     _subp_temp, _element_temp);
+    Py_XDECREF(func);
+    if(result==NULL) {
+      pythonErrorRelay();
+    }
+    Py_XDECREF(result);
   }
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//
@@ -294,48 +247,41 @@ void PyPropertyMethods::py_output(PyObject *referent, Property *prop,
   char _element_temp[128];
   char _propout_temp[128];
   char _pos_temp[128];
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent, (char*) "output")) {
-      prop->Property::output(mesh, el, propout, pos, oval);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(referent,
-					      (char*) "output_wrap");
-      SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
-      SWIG_MakePtr(_element_temp, (char*) el, "_Element_p");
-      SWIG_MakePtr(_propout_temp, (char*) propout, "_PropertyOutput_p");
-      SWIG_MakePtr(_pos_temp, (char *) (&pos), "_MasterPosition_p");
-      PyObject *pyobject = PyObject_CallFunction(
-		       func, "(ssss)",
-		       _mesh_temp, _element_temp, _propout_temp, _pos_temp);
-      Py_XDECREF(func);
-
-      if(pyresult == NULL)
-	pythonErrorRelay();
-
-      // Check for None.  PyProperty.output_wrap() returns None if
-      // the derived class doesn't define PyProperty.output().
-      if(pyresult != Py_None) {
-	// Convert result to a C++ object
-	OutputVal *cresult;
-	if(!SWIG_isOK(SWIG_ConvertPtr(pyresult, (void**) &cresult,
-				      ((SwigPyObject*) pyresult)->ty, 0)))
-	  {
-	    throw ErrProgrammingError(
-			      "Python output() does not return an OutputVal",
-			      __FILE__, __LINE__);
-	  }
-	*oval = *cresult;
-      }
-      Py_XDECREF(pyresult);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent, (char*) "output")) {
+    prop->Property::output(mesh, el, propout, pos, oval);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(referent,
+					    (char*) "output_wrap");
+    SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
+    SWIG_MakePtr(_element_temp, (char*) el, "_Element_p");
+    SWIG_MakePtr(_propout_temp, (char*) propout, "_PropertyOutput_p");
+    SWIG_MakePtr(_pos_temp, (char *) (&pos), "_MasterPosition_p");
+    PyObject *pyobject = PyObject_CallFunction(
+					       func, "(ssss)",
+					       _mesh_temp, _element_temp, _propout_temp, _pos_temp);
+    Py_XDECREF(func);
+
+    if(pyresult == NULL)
+      pythonErrorRelay();
+
+    // Check for None.  PyProperty.output_wrap() returns None if
+    // the derived class doesn't define PyProperty.output().
+    if(pyresult != Py_None) {
+      // Convert result to a C++ object
+      OutputVal *cresult;
+      if(!SWIG_isOK(SWIG_ConvertPtr(pyresult, (void**) &cresult,
+				    ((SwigPyObject*) pyresult)->ty, 0)))
+	{
+	  throw ErrProgrammingError(
+				    "Python output() does not return an OutputVal",
+				    __FILE__, __LINE__);
+	}
+      *oval = *cresult;
+    }
+    Py_XDECREF(pyresult);
   }
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//
@@ -345,28 +291,20 @@ bool PyPropertyMethods::py_constant_in_space(PyObject *referent,
   const
 {
   bool c_result;
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent, (char*) "constant_in_space")) {
-      releasePyLock(pystate);
-      throw ErrUserError("constant_in_space method is missing from Property "
-			 + prop->name());
-    }
-    PyObject *func = PyObject_GetAttrString(referent,
-					    (char*) "constant_in_space_wrap");
-    PyObject *k_result = PyObject_CallFunction(func, "()");
-    Py_XDECREF(func);
-    if(k_result == NULL) {
-      pythonErrorRelay();
-    }
-    c_result = PyObject_IsTrue(k_result);
-    Py_XDECREF(k_result);
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent, (char*) "constant_in_space")) {
+    throw ErrUserError("constant_in_space method is missing from Property "
+		       + prop->name());
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  PyObject *func = PyObject_GetAttrString(referent,
+					  (char*) "constant_in_space_wrap");
+  PyObject *k_result = PyObject_CallFunction(func, "()");
+  Py_XDECREF(func);
+  if(k_result == NULL) {
+    pythonErrorRelay();
   }
-  releasePyLock(pystate);
+  c_result = PyObject_IsTrue(k_result);
+  Py_XDECREF(k_result);
   return c_result;
 }
 
@@ -376,30 +314,21 @@ bool PyPropertyMethods::is_symmetric_K(PyObject *referent, const Property *prop,
 				       const CSubProblem *subp)
   const
 {
-  bool c_result;
   char _subp_temp[128];
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent, (char*) "is_symmetric_K")) {
-      releasePyLock(pystate);
-      return prop->Property::is_symmetric_K(subp);
-    }
-    PyObject *func = PyObject_GetAttrString(referent,
-					    (char*) "is_symmetric_K_wrap");
-    SWIG_MakePtr(_subp_temp, (char*) subp, "_CSubProblem_p");
-    PyObject *k_result = PyObject_CallFunction(func, "(s)", _subp_temp);
-    Py_XDECREF(func);
-    if(k_result == NULL) {
-      pythonErrorRelay();
-    }
-    c_result = PyObject_IsTrue(k_result);
-    Py_XDECREF(k_result);
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent, (char*) "is_symmetric_K")) {
+    return prop->Property::is_symmetric_K(subp);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  PyObject *func = PyObject_GetAttrString(referent,
+					  (char*) "is_symmetric_K_wrap");
+  SWIG_MakePtr(_subp_temp, (char*) subp, "_CSubProblem_p");
+  PyObject *k_result = PyObject_CallFunction(func, "(s)", _subp_temp);
+  Py_XDECREF(func);
+  if(k_result == NULL) {
+    pythonErrorRelay();
   }
-  releasePyLock(pystate);
+  bool c_result = PyObject_IsTrue(k_result);
+  Py_XDECREF(k_result);
   return c_result;
 }
 
@@ -407,30 +336,21 @@ bool PyPropertyMethods::is_symmetric_C(PyObject *referent, const Property *prop,
 				       const CSubProblem *subp)
   const
 {
-  bool c_result;
   char _subp_temp[128];
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent, (char*) "is_symmetric_C")) {
-      releasePyLock(pystate);
-      return prop->Property::is_symmetric_C(subp);
-    }
-    PyObject *func = PyObject_GetAttrString(referent,
-					    (char*) "is_symmetric_C_wrap");
-    SWIG_MakePtr(_subp_temp, (char*) subp, "_CSubProblem_p");
-    PyObject *k_result = PyObject_CallFunction(func, "(s)", _subp_temp);
-    Py_XDECREF(func);
-    if(k_result == NULL) {
-      pythonErrorRelay();
-    }
-    c_result = PyObject_IsTrue(k_result);
-    Py_XDECREF(k_result);
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent, (char*) "is_symmetric_C")) {
+    return prop->Property::is_symmetric_C(subp);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  PyObject *func = PyObject_GetAttrString(referent,
+					  (char*) "is_symmetric_C_wrap");
+  SWIG_MakePtr(_subp_temp, (char*) subp, "_CSubProblem_p");
+  PyObject *k_result = PyObject_CallFunction(func, "(s)", _subp_temp);
+  Py_XDECREF(func);
+  if(k_result == NULL) {
+    pythonErrorRelay();
   }
-  releasePyLock(pystate);
+  bool c_result = PyObject_IsTrue(k_result);
+  Py_XDECREF(k_result);
   return c_result;
 }
 
@@ -438,30 +358,21 @@ bool PyPropertyMethods::is_symmetric_M(PyObject *referent, const Property *prop,
 				       const CSubProblem *subp)
   const
 {
-  bool c_result;
   char _subp_temp[128];
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent, (char*) "is_symmetric_M")) {
-      releasePyLock(pystate);
-      return prop->Property::is_symmetric_M(subp);
-    }
-    PyObject *func = PyObject_GetAttrString(referent,
-					    (char*) "is_symmetric_M_wrap");
-    SWIG_MakePtr(_subp_temp, (char*) subp, "_CSubProblem_p");
-    PyObject *k_result = PyObject_CallFunction(func, "(s)", _subp_temp);
-    Py_XDECREF(func);
-    if(k_result == NULL) {
-      pythonErrorRelay();
-    }
-    c_result = PyObject_IsTrue(k_result);
-    Py_XDECREF(k_result);
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent, (char*) "is_symmetric_M")) {
+    return prop->Property::is_symmetric_M(subp);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  PyObject *func = PyObject_GetAttrString(referent,
+					  (char*) "is_symmetric_M_wrap");
+  SWIG_MakePtr(_subp_temp, (char*) subp, "_CSubProblem_p");
+  PyObject *k_result = PyObject_CallFunction(func, "(s)", _subp_temp);
+  Py_XDECREF(func);
+  if(k_result == NULL) {
+    pythonErrorRelay();
   }
-  releasePyLock(pystate);
+  bool c_result = PyObject_IsTrue(k_result);
+  Py_XDECREF(k_result);
   return c_result;
 }
 
@@ -476,33 +387,24 @@ int PyPhysicalPropertyMethods::py_integration_order(
 {
   char _element_temp[128];
   char _subp_temp[128];
-  int c_result;
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent, (char*) "integration_order")) {
-      releasePyLock(pystate);
-      throw ErrUserError("integration_order method is missing from Property " 
-			 + prop->name());
-    }
-    PyObject *func = PyObject_GetAttrString(referent,
-					    (char*) "integration_order_wrap");
-    SWIG_MakePtr(_subp_temp, (char*) subp, "_CSubProblem_p");
-    SWIG_MakePtr(_element_temp, (char*) el, "_Element_p");
-    PyObject *k_result = PyObject_CallFunction(func, "(ss)",
-					       _subp_temp, _element_temp);
-    Py_XDECREF(func);
-    if(k_result==NULL) {
-      pythonErrorRelay();
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent, (char*) "integration_order")) {
+    throw ErrUserError("integration_order method is missing from Property " 
+		       + prop->name());
+  }
+  PyObject *func = PyObject_GetAttrString(referent,
+					  (char*) "integration_order_wrap");
+  SWIG_MakePtr(_subp_temp, (char*) subp, "_CSubProblem_p");
+  SWIG_MakePtr(_element_temp, (char*) el, "_Element_p");
+  PyObject *k_result = PyObject_CallFunction(func, "(ss)",
+					     _subp_temp, _element_temp);
+  Py_XDECREF(func);
+  if(k_result==NULL) {
+    pythonErrorRelay();
+  }
 
-    c_result = PyInt_AsLong(k_result);
-    Py_XDECREF(k_result);
-  }
-  catch (...) {
-    releasePyLock(pystate);
-    throw;
-  }
-  releasePyLock(pystate);
+  int c_result = PyInt_AsLong(k_result);
+  Py_XDECREF(k_result);
   return c_result;
 }
 
@@ -542,37 +444,30 @@ void PyFluxProperty::flux_matrix(const FEMesh *mesh,
   char _flux_temp[128];
   char _fluxdata_temp[128];
   char _mp_temp[128];
-    
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent_, (char*) "flux_matrix")) {
-      this->FluxProperty::flux_matrix(mesh, el, efi, flux, gpt, time, fluxdata);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(referent_,
-					      (char*) "flux_matrix_wrap");
-      SWIG_MakePtr(_mesh_temp, (char *)mesh, "_FEMesh_p");
-      SWIG_MakePtr(_element_temp, (char *)el, "_Element_p");
-      SWIG_MakePtr(_efni_temp, (char *)(&efi), "_ElementFuncNodeIterator_p");
-      SWIG_MakePtr(_flux_temp, (char *)flux, "_Flux_p");
-      SWIG_MakePtr(_fluxdata_temp, (char *)fluxdata, "_SmallSystem_p");
-      SWIG_MakePtr(_mp_temp, (char *)(&gpt), "_MasterPosition_p");
-      PyObject *result = PyObject_CallFunction(func, "(sssssds)",
-					       _mesh_temp, _element_temp,
-					       _efni_temp, _flux_temp,
-					       _mp_temp, time, _fluxdata_temp);
-      Py_XDECREF(func);
-      if(result==NULL) {
-	pythonErrorRelay();
-      }
-      Py_XDECREF(result);
-    }
+
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent_, (char*) "flux_matrix")) {
+    this->FluxProperty::flux_matrix(mesh, el, efi, flux, gpt, time, fluxdata);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(referent_,
+					    (char*) "flux_matrix_wrap");
+    SWIG_MakePtr(_mesh_temp, (char *)mesh, "_FEMesh_p");
+    SWIG_MakePtr(_element_temp, (char *)el, "_Element_p");
+    SWIG_MakePtr(_efni_temp, (char *)(&efi), "_ElementFuncNodeIterator_p");
+    SWIG_MakePtr(_flux_temp, (char *)flux, "_Flux_p");
+    SWIG_MakePtr(_fluxdata_temp, (char *)fluxdata, "_SmallSystem_p");
+    SWIG_MakePtr(_mp_temp, (char *)(&gpt), "_MasterPosition_p");
+    PyObject *result = PyObject_CallFunction(func, "(sssssds)",
+					     _mesh_temp, _element_temp,
+					     _efni_temp, _flux_temp,
+					     _mp_temp, time, _fluxdata_temp);
+    Py_XDECREF(func);
+    if(result==NULL) {
+      pythonErrorRelay();
+    }
+    Py_XDECREF(result);
   }
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//
@@ -591,34 +486,27 @@ void PyFluxProperty::flux_value(const FEMesh *mesh,
   char _mp_temp[128];
   char _fluxdata_temp[128];
 
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent_, (char*) "flux_value")) {
-      this->FluxProperty::flux_value(mesh, element, flux, pt, time, fluxdata);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(referent_,
-					      (char*) "flux_value_wrap");
-      SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
-      SWIG_MakePtr(_element_temp, (char *) element, "_Element_p");
-      SWIG_MakePtr(_flux_temp, (char *) flux, "_Flux_p");
-      SWIG_MakePtr(_mp_temp, (char *)(&pt), "_MasterPosition_p");
-      SWIG_MakePtr(_fluxdata_temp, (char *) fluxdata, "_SmallSystem_p");
-      PyObject *result = PyObject_CallFunction(func, "(ssssds)",
-				     _mesh_temp, _element_temp, _flux_temp,
-				     _mp_temp, time, _fluxdata_temp);
-      Py_XDECREF(func);
-      if(result == NULL) {
-	pythonErrorRelay();
-      }
-      Py_XDECREF(result);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent_, (char*) "flux_value")) {
+    this->FluxProperty::flux_value(mesh, element, flux, pt, time, fluxdata);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(referent_,
+					    (char*) "flux_value_wrap");
+    SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
+    SWIG_MakePtr(_element_temp, (char *) element, "_Element_p");
+    SWIG_MakePtr(_flux_temp, (char *) flux, "_Flux_p");
+    SWIG_MakePtr(_mp_temp, (char *)(&pt), "_MasterPosition_p");
+    SWIG_MakePtr(_fluxdata_temp, (char *) fluxdata, "_SmallSystem_p");
+    PyObject *result = PyObject_CallFunction(func, "(ssssds)",
+					     _mesh_temp, _element_temp, _flux_temp,
+					     _mp_temp, time, _fluxdata_temp);
+    Py_XDECREF(func);
+    if(result == NULL) {
+      pythonErrorRelay();
+    }
+    Py_XDECREF(result);
   }
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//
@@ -637,36 +525,29 @@ void PyFluxProperty::static_flux_value(const FEMesh *mesh,
   char _mp_temp[128];
   char _fluxdata_temp[128];
 
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent_, (char*) "static_flux_value")) {
-      this->FluxProperty::static_flux_value(mesh, element, flux, pt, time,
-					fluxdata);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(referent_,
-					      (char*) "static_flux_value_wrap");
-      SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
-      SWIG_MakePtr(_element_temp, (char *) element, "_Element_p");
-      SWIG_MakePtr(_flux_temp, (char *) flux, "_Flux_p");
-      SWIG_MakePtr(_mp_temp, (char *)(&pt), "_MasterPosition_p");
-      SWIG_MakePtr(_fluxdata_temp, (char *) fluxdata, "_SmallSystem_p");
-      PyObject *result = PyObject_CallFunction(func,  "(ssssds)",
-					       _mesh_temp, _element_temp,
-					       _flux_temp, _mp_temp, time,
-					       _fluxdata_temp);
-      Py_XDECREF(func);
-      if(result == NULL) {
-	pythonErrorRelay();
-      }
-      Py_XDECREF(result);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent_, (char*) "static_flux_value")) {
+    this->FluxProperty::static_flux_value(mesh, element, flux, pt, time,
+					  fluxdata);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(referent_,
+					    (char*) "static_flux_value_wrap");
+    SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
+    SWIG_MakePtr(_element_temp, (char *) element, "_Element_p");
+    SWIG_MakePtr(_flux_temp, (char *) flux, "_Flux_p");
+    SWIG_MakePtr(_mp_temp, (char *)(&pt), "_MasterPosition_p");
+    SWIG_MakePtr(_fluxdata_temp, (char *) fluxdata, "_SmallSystem_p");
+    PyObject *result = PyObject_CallFunction(func,  "(ssssds)",
+					     _mesh_temp, _element_temp,
+					     _flux_temp, _mp_temp, time,
+					     _fluxdata_temp);
+    Py_XDECREF(func);
+    if(result == NULL) {
+      pythonErrorRelay();
+    }
+    Py_XDECREF(result);
   }
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//
@@ -684,35 +565,24 @@ void PyFluxProperty::flux_offset(const FEMesh *mesh, const Element *el,
   char _fluxdata_temp[128];
   char _mp_temp[128];
   
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent_, (char*) "flux_offset")) {
-      this->FluxProperty::flux_offset(mesh, el, flux, gpt, time, fluxdata);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(referent_,
-					      (char*) "flux_offset_wrap");
-      SWIG_MakePtr(_mesh_temp, (char *)mesh, "_FEMesh_p");
-      SWIG_MakePtr(_element_temp, (char *)el, "_Element_p");
-      SWIG_MakePtr(_flux_temp, (char *)flux, "_Flux_p");
-      SWIG_MakePtr(_fluxdata_temp, (char *)fluxdata, "_SmallSystem_p");
-      SWIG_MakePtr(_mp_temp, (char *)(&gpt), "_MasterPosition_p");
-      PyObject *result = PyObject_CallFunction(func, "(ssssds)",
-					       _mesh_temp, _element_temp,
-					       _flux_temp, _mp_temp, time, 
-					       _fluxdata_temp);
-      Py_XDECREF(func);
-      if(result==NULL) {
-	pythonErrorRelay();
-      }
-      Py_XDECREF(result);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent_, (char*) "flux_offset")) {
+    this->FluxProperty::flux_offset(mesh, el, flux, gpt, time, fluxdata);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(referent_,
+					    (char*) "flux_offset_wrap");
+    SWIG_MakePtr(_mesh_temp, (char *)mesh, "_FEMesh_p");
+    SWIG_MakePtr(_element_temp, (char *)el, "_Element_p");
+    SWIG_MakePtr(_flux_temp, (char *)flux, "_Flux_p");
+    SWIG_MakePtr(_fluxdata_temp, (char *)fluxdata, "_SmallSystem_p");
+    SWIG_MakePtr(_mp_temp, (char *)(&gpt), "_MasterPosition_p");
+    PyObject *result = PyObject_CallFunction(func, "(ssssds)",
+					     _mesh_temp, _element_temp,
+					     _flux_temp, _mp_temp, time, 
+					     _fluxdata_temp);
+    Py_XDECREF(func);
   }
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -744,36 +614,29 @@ void PyEqnProperty::force_deriv_matrix(const FEMesh *mesh,
   char _mp_temp[128];
   char _eqndata_tmp[128];
   
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent_, (char*) "force_deriv_matrix")) {
-      this->EqnProperty::force_deriv_matrix(mesh, element, eqn, efi, pt, time,
-					    eqndata);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(
-			      referent_, (char*) "force_deriv_matrix_wrap");
-      SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
-      SWIG_MakePtr(_element_temp, (char*) element, "_Element_p");
-      SWIG_MakePtr(_eqn_temp, (char*) eqn, "_Equation_p");
-      SWIG_MakePtr(_efni_temp, (char*)(&efi), "_ElementFuncNodeIterator_p");
-      SWIG_MakePtr(_mp_temp, (char*)(&pt), "_MasterPosition_p");
-      SWIG_MakePtr(_eqndata_tmp, (char*) eqndata, "_SmallSystem_p");
-      PyObject *result = PyObject_CallFunction(func, "(sssssds)",
-					       _mesh_temp, _element_temp,
-					       _eqn_temp, _efni_temp,
-					       _mp_temp, time, _eqndata_tmp);
-      Py_XDECREF(func);
-      if(result == NULL)
-	pythonErrorRelay();
-      Py_XDECREF(result);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent_, (char*) "force_deriv_matrix")) {
+    this->EqnProperty::force_deriv_matrix(mesh, element, eqn, efi, pt, time,
+					  eqndata);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(
+			    referent_, (char*) "force_deriv_matrix_wrap");
+    SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
+    SWIG_MakePtr(_element_temp, (char*) element, "_Element_p");
+    SWIG_MakePtr(_eqn_temp, (char*) eqn, "_Equation_p");
+    SWIG_MakePtr(_efni_temp, (char*)(&efi), "_ElementFuncNodeIterator_p");
+    SWIG_MakePtr(_mp_temp, (char*)(&pt), "_MasterPosition_p");
+    SWIG_MakePtr(_eqndata_tmp, (char*) eqndata, "_SmallSystem_p");
+    PyObject *result = PyObject_CallFunction(func, "(sssssds)",
+					     _mesh_temp, _element_temp,
+					     _eqn_temp, _efni_temp,
+					     _mp_temp, time, _eqndata_tmp);
+    Py_XDECREF(func);
+    if(result == NULL)
+      pythonErrorRelay();
+    Py_XDECREF(result);
   }
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//
@@ -792,34 +655,27 @@ void PyEqnProperty::force_value(const FEMesh *mesh,
   char _mp_temp[128];
   char _eqndata_tmp[128];
   
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent_, (char*) "force_value")) {
-      this->EqnProperty::force_value(mesh, element, eqn, pt, time, eqndata);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(referent_,
-					      (char*) "force_value_wrap");
-      SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
-      SWIG_MakePtr(_element_temp, (char*) element, "_Element_p");
-      SWIG_MakePtr(_eqn_temp, (char*) eqn, "_Equation_p");
-      SWIG_MakePtr(_mp_temp, (char*)(&pt), "_MasterPosition_p");
-      SWIG_MakePtr(_eqndata_tmp, (char*) eqndata, "_SmallSystem_p");
-      PyObject *result = PyObject_CallFunction(func, "(ssssds)",
-					       _mesh_temp, _element_temp,
-					       _eqn_temp, _mp_temp,
-					       time, _eqndata_tmp);
-      Py_XDECREF(func);
-      if(result == NULL)
-	pythonErrorRelay();
-      Py_XDECREF(result);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent_, (char*) "force_value")) {
+    this->EqnProperty::force_value(mesh, element, eqn, pt, time, eqndata);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(referent_,
+					    (char*) "force_value_wrap");
+    SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
+    SWIG_MakePtr(_element_temp, (char*) element, "_Element_p");
+    SWIG_MakePtr(_eqn_temp, (char*) eqn, "_Equation_p");
+    SWIG_MakePtr(_mp_temp, (char*)(&pt), "_MasterPosition_p");
+    SWIG_MakePtr(_eqndata_tmp, (char*) eqndata, "_SmallSystem_p");
+    PyObject *result = PyObject_CallFunction(func, "(ssssds)",
+					     _mesh_temp, _element_temp,
+					     _eqn_temp, _mp_temp,
+					     time, _eqndata_tmp);
+    Py_XDECREF(func);
+    if(result == NULL)
+      pythonErrorRelay();
+    Py_XDECREF(result);
   }
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//
@@ -839,36 +695,29 @@ void PyEqnProperty::first_time_deriv_matrix(const FEMesh *mesh,
   char _mp_temp[128];
   char _eqndata_tmp[128];
   
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent_, (char*) "first_time_deriv_matrix")) {
-      this->EqnProperty::first_time_deriv_matrix(mesh, element, eqn, efi, pt,
-						 time, eqndata);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(
-		      referent_, (char*) "first_time_deriv_matrix_wrap");
-      SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
-      SWIG_MakePtr(_element_temp, (char*) element, "_Element_p");
-      SWIG_MakePtr(_eqn_temp, (char*) eqn, "_Equation_p");
-      SWIG_MakePtr(_efni_temp, (char*)(&efi), "_ElementFuncNodeIterator_p");
-      SWIG_MakePtr(_mp_temp, (char*)(&pt), "_MasterPosition_p");
-      SWIG_MakePtr(_eqndata_tmp, (char*)(&eqndata), "_SmallSystem_p");
-      PyObject *result = PyObject_CallFunction(func, "(sssssds)",
-					       _mesh_temp, _element_temp,
-					       _eqn_temp, _efni_temp,
-					       _mp_temp, time, _eqndata_tmp);
-      Py_XDECREF(func);
-      if(result == NULL)
-	pythonErrorRelay();
-      Py_XDECREF(result);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent_, (char*) "first_time_deriv_matrix")) {
+    this->EqnProperty::first_time_deriv_matrix(mesh, element, eqn, efi, pt,
+					       time, eqndata);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(
+			    referent_, (char*) "first_time_deriv_matrix_wrap");
+    SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
+    SWIG_MakePtr(_element_temp, (char*) element, "_Element_p");
+    SWIG_MakePtr(_eqn_temp, (char*) eqn, "_Equation_p");
+    SWIG_MakePtr(_efni_temp, (char*)(&efi), "_ElementFuncNodeIterator_p");
+    SWIG_MakePtr(_mp_temp, (char*)(&pt), "_MasterPosition_p");
+    SWIG_MakePtr(_eqndata_tmp, (char*)(&eqndata), "_SmallSystem_p");
+    PyObject *result = PyObject_CallFunction(func, "(sssssds)",
+					     _mesh_temp, _element_temp,
+					     _eqn_temp, _efni_temp,
+					     _mp_temp, time, _eqndata_tmp);
+    Py_XDECREF(func);
+    if(result == NULL)
+      pythonErrorRelay();
+    Py_XDECREF(result);
   }
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//
@@ -889,36 +738,29 @@ void PyEqnProperty::second_time_deriv_matrix(const FEMesh *mesh,
   char _mp_temp[128];
   char _eqndata_tmp[128];
   
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    if(!PyObject_HasAttrString(referent_, (char*) "second_time_deriv_matrix")) {
-      this->EqnProperty::second_time_deriv_matrix(mesh, element, eqn, efi, pt,
-						  time, eqndata);
-    }
-    else {
-      PyObject *func = PyObject_GetAttrString(
-		      referent_, (char*) "second_time_deriv_matrix_wrap");
-      SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
-      SWIG_MakePtr(_element_temp, (char*) element, "_Element_p");
-      SWIG_MakePtr(_eqn_temp, (char*) eqn, "_Equation_p");
-      SWIG_MakePtr(_efni_temp, (char*)(&efi), "_ElementFuncNodeIterator_p");
-      SWIG_MakePtr(_mp_temp, (char*)(&pt), "_MasterPosition_p");
-      SWIG_MakePtr(_eqndata_tmp, (char*)(&eqndata), "_SmallSystem_p");
-      PyObject *result = PyObject_CallFunction(func, "(sssssds)",
-					       _mesh_temp, _element_temp,
-					       _eqn_temp, _efni_temp,
-					       _mp_temp, time, _eqndata_tmp);
-      Py_XDECREF(func);
-      if(result == NULL)
-	pythonErrorRelay();
-      Py_XDECREF(result);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  if(!PyObject_HasAttrString(referent_, (char*) "second_time_deriv_matrix")) {
+    this->EqnProperty::second_time_deriv_matrix(mesh, element, eqn, efi, pt,
+						time, eqndata);
   }
-  catch(...) {
-    releasePyLock(pystate);
-    throw;
+  else {
+    PyObject *func = PyObject_GetAttrString(
+		    referent_, (char*) "second_time_deriv_matrix_wrap");
+    SWIG_MakePtr(_mesh_temp, (char*) mesh, "_FEMesh_p");
+    SWIG_MakePtr(_element_temp, (char*) element, "_Element_p");
+    SWIG_MakePtr(_eqn_temp, (char*) eqn, "_Equation_p");
+    SWIG_MakePtr(_efni_temp, (char*)(&efi), "_ElementFuncNodeIterator_p");
+    SWIG_MakePtr(_mp_temp, (char*)(&pt), "_MasterPosition_p");
+    SWIG_MakePtr(_eqndata_tmp, (char*)(&eqndata), "_SmallSystem_p");
+    PyObject *result = PyObject_CallFunction(func, "(sssssds)",
+					     _mesh_temp, _element_temp,
+					     _eqn_temp, _efni_temp,
+					     _mp_temp, time, _eqndata_tmp);
+    Py_XDECREF(func);
+    if(result == NULL)
+      pythonErrorRelay();
+    Py_XDECREF(result);
   }
-  releasePyLock(pystate);
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -931,30 +773,29 @@ PyPropertyElementData::PyPropertyElementData(const std::string & name,
 					     PyObject *dat) 
   : ElementData(name), _data(dat) 
 {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_INCREF(_data);
-  releasePyLock(pystate);
 }
 
 // For the particular case of PyObject *'s, simple member 
 // retrieval through SWIG doesn't appear to work -- you have to 
 // override SWIG's conversion-to-pointer-string to get the actual
 // Python object out.  This function has the appropriate typemap
-// defined in pypropertywrapper.swg.
+// defined in pypropertywrapper.swg. // TODO PYTHON3: Check this.
 PyObject *PyPropertyElementData::data() {
-  // Hacky extra incref.
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
+  // Hacky extra incref.  TODO PYTHON3: Check this too.
   Py_INCREF(_data);
-  releasePyLock(pystate);
   return _data;
 }
 
 PyPropertyElementData::~PyPropertyElementData() {
+  PYTHON_THREAD_BEGIN_BLOCK;
   // It's an error if this refcount is already zero -- avoid XDECREF.
-  PyGILState_STATE pystate = acquirePyLock();
+  // TODO: Why would it already be zero?
   Py_DECREF(_data);
-  releasePyLock(pystate);
 }
+
 // PyPropertyElementData-handling functions.  Simple wrappers, mostly.
 // These are here partially because Element doesn't have a convenient
 // SWIG file, and partially because of the need to do the dynamic

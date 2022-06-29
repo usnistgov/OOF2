@@ -50,7 +50,7 @@ inline double max(double x, double y)
 Property::Property(const std::string &nm, PyObject *registration)
   : name_(nm), fields_reqd(0), registration_(registration)
 {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   // registry.classobj.__name__, viewed through C++...
   classname_ = PyString_AsString(
 		 PyObject_GetAttrString(
@@ -61,7 +61,6 @@ Property::Property(const std::string &nm, PyObject *registration)
 							 (char*) "modulename"));
 
   Py_INCREF(registration_);
-  releasePyLock(pystate);
 }
 
 // Note: There appears to be some kind of bug somewhere involving
@@ -84,9 +83,8 @@ Property::Property(const std::string &nm, PyObject *registration)
 // the bug has never occurred in Python 2.2.
 Property::~Property()
 {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_DECREF(registration_);
-  releasePyLock(pystate);
 }
 
 // Additional note on the mystery bug mentioned above: It can be
@@ -94,9 +92,8 @@ Property::~Property()
 // registration retrieval block in MaterialManager.new_material.  One,
 // three, or four calls are OK -- that's as many as I tried.
 PyObject *Property::registration() const {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_INCREF(registration_);
-  releasePyLock(pystate);
   return registration_;
 }
 

@@ -14,11 +14,6 @@
 #ifndef PYTHONLOCK_H
 #define PYTHONLOCK_H
 
-// OLD WAY
-// TODO PYTHON3: Just use the new way everywhere.
-PyGILState_STATE acquirePyLock();
-void releasePyLock(PyGILState_STATE);
-
 // Classes for handling the python global interpreter lock and thread
 // state.
 
@@ -36,17 +31,18 @@ void releasePyLock(PyGILState_STATE);
 //
 // but we might need to use it like this:
 //
-//    Python_Thread_Allow allow_thread;
+//    Python_Thread_Allow allow_thread(false); // false means "don't start".
 //    if(something)
 //       allow_thread.start();
 //    function_call();
 //    if(something)
 //      allow_thread.end()
 //
-// Python_Thread_Allow.start() releases the global interpreter lock,
-// and should be called when a python thread is going to do something
-// in C++ that takes a long time.  The swig %exception typemap uses it
-// to wrap all calls to C++.
+// Python_Thread_Allow.start() allows *other* threads to run.  It
+// releases the global interpreter lock, and should be called when a
+// python thread is going to do something in C++ that takes a long
+// time.  The swig %exception typemap uses it to wrap all calls to
+// C++.
 //
 // Python_Thread_Block.start() acquires the lock, and should be called
 // when C++ needs to make calls to the Python API.

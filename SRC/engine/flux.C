@@ -423,7 +423,7 @@ FluxNormal *SymmetricTensorFlux::BCCallback(const Coord &pos,
 
   Coord cres;
 
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   PyObject *result = PyObject_CallFunction(wrapper,  "(Oddddddd)",
 					   pyfunction, pos(0), pos(1), time,
 					   nrm(0), nrm(1), distance, fraction);
@@ -434,24 +434,19 @@ FluxNormal *SymmetricTensorFlux::BCCallback(const Coord &pos,
 	cres(1) = PyFloat_AsDouble(PyTuple_GetItem(result, (Py_ssize_t) 1));
       }
       else {
-	// Only one "release" per possible control-flow path.
-	releasePyLock(pystate);
 	throw
 	  ErrSetupError(
 		       "SymmetricTensorFlux::BCCallback: Wrong size of tuple.");
       }
     }
     else {
-      releasePyLock(pystate);
       throw ErrSetupError("SymmetricTensorFlux::BCCallback: Expected a tuple.");
     }
   }
   else {		    // !result.  PyObject_CallFunction failed.
-    releasePyLock(pystate);
     pythonErrorRelay();
   }
   Py_XDECREF(result);
-  releasePyLock(pystate);
   return new SymTensorFluxNormal(cres(0),cres(1));
 }
 
@@ -543,7 +538,7 @@ FluxNormal *VectorFlux::BCCallback(const Coord &pos,
 				   const PyObject *pyfunction) const {
   double dres = 0.0;
 
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   PyObject *result = PyObject_CallFunction(wrapper, "(Oddddddd)",
 					   pyfunction, pos(0), pos(1), time,
 					   nrm(0), nrm(1), distance, fraction);
@@ -554,23 +549,18 @@ FluxNormal *VectorFlux::BCCallback(const Coord &pos,
       }
       else {
 	// Only one "release" per possible control-flow path.
-	releasePyLock(pystate);
 	throw
 	  ErrSetupError("VectorFlux::BCCallback: Wrong size of tuple.");
       }
     }
     else {
-      releasePyLock(pystate);
       throw ErrSetupError("VectorFlux::BCCallback: Expected a tuple.");
     }
   }
   else {		    // !result.  PyObject_CallFunction failed.
-    releasePyLock(pystate);
     pythonErrorRelay();
   }
 
   Py_XDECREF(result);
-  releasePyLock(pystate);
-
   return new VectorFluxNormal(dres);
 }

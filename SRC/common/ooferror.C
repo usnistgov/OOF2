@@ -109,65 +109,56 @@ std::basic_string<char> escapostrophe(const std::string &in) {
 // exception typemap.
 
 void pythonErrorRelay() {
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    PyObject *ptype;
-    PyObject *pvalue;
-    PyObject *ptraceback;
-    // PyErr_Fetch returns new references to its arguments.  It also
-    // clears the Python error state.
-    PyErr_Fetch(&ptype, &pvalue, &ptraceback);
-    if(ptype) {
-      // Get the swigged ErrError class, so that we can compare error
-      // types on the Python side.
-      static PyObject *pyErrError = 0;
-      if(!pyErrError) {
-	PyObject *module = PyImport_ImportModule((char*) 
-						 "ooflib.SWIG.common.ooferror");
-	pyErrError = PyObject_GetAttrString(module, (char*) "ErrErrorPtr");
-	Py_XDECREF(module);
-      }
-      if(PyErr_GivenExceptionMatches(ptype, pyErrError)) {
-	// The Python exception is a swigged ErrError -- ie, it's one of
-	// ours.  Extract the C++ object and raise it as a new
-	// exception.
-	const ErrError *ee;
-	SWIG_ConvertPtr(pvalue, (void**) &ee,
-			((SwigPyObject*) pvalue)->ty, 0);
-	// SWIG_GetPtrObj(pvalue, (void**) &ee, "_ErrError_p");
-	Py_XDECREF(ptraceback);
-	Py_XDECREF(ptype);
-	// Don't decref pvalue! It will destroy *ee.
-	ee->throw_self();
-      }
-      else {
-	// The error is a native Python exception.  Since PyErr_Fetch
-	// cleared the error state, we have to call PyErr_Restore.
-	// The error will be caught again when C++ returns to Python,
-	// at which point the swig exception typemap will handle it.
-	// PyErr_Restore steals references to its arguments, so we
-	// don't have to decref here.
+  PYTHON_THREAD_BEGIN_BLOCK;
+  PyObject *ptype;
+  PyObject *pvalue;
+  PyObject *ptraceback;
+  // PyErr_Fetch returns new references to its arguments.  It also
+  // clears the Python error state.
+  PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+  if(ptype) {
+    // Get the swigged ErrError class, so that we can compare error
+    // types on the Python side.
+    static PyObject *pyErrError = 0;
+    if(!pyErrError) {
+      PyObject *module = PyImport_ImportModule((char*) 
+					       "ooflib.SWIG.common.ooferror");
+      pyErrError = PyObject_GetAttrString(module, (char*) "ErrErrorPtr");
+      Py_XDECREF(module);
+    }
+    if(PyErr_GivenExceptionMatches(ptype, pyErrError)) {
+      // The Python exception is a swigged ErrError -- ie, it's one of
+      // ours.  Extract the C++ object and raise it as a new
+      // exception.
+      const ErrError *ee;
+      SWIG_ConvertPtr(pvalue, (void**) &ee,
+		      ((SwigPyObject*) pvalue)->ty, 0);
+      // SWIG_GetPtrObj(pvalue, (void**) &ee, "_ErrError_p");
+      Py_XDECREF(ptraceback);
+      Py_XDECREF(ptype);
+      // Don't decref pvalue! It will destroy *ee.
+      ee->throw_self();
+    }
+    else {
+      // The error is a native Python exception.  Since PyErr_Fetch
+      // cleared the error state, we have to call PyErr_Restore.  The
+      // error will be caught again when C++ returns to Python, at
+      // which point the swig exception typemap will handle it.
+      // PyErr_Restore steals references to its arguments, so we don't
+      // have to decref here.
 
-	// Mysterious crashes are sometimes due to python errors that
-	// don't propagate properly, perhaps because they're occuring
-	// within the thread handling machinery.  Uncommenting these
-	// lines can help to debug them:
-	// std::cerr << "pythonErrorRelay: " <<
-	//   PyString_AsString(PyObject_Repr(ptype)) << std::endl;
-	// std::cerr << "pythonErrorRelay: " <<
-	//   PyString_AsString(PyObject_Repr(pvalue)) << std::endl;
+      // Mysterious crashes are sometimes due to python errors that
+      // don't propagate properly, perhaps because they're occuring
+      // within the thread handling machinery.  Uncommenting these
+      // lines can help to debug them:
+      // std::cerr << "pythonErrorRelay: " << repr(ptype) << std::endl;
+      // std::cerr << "pythonErrorRelay: " << repr(pvalue) << std::endl;
 
-	PyErr_Restore(ptype, pvalue, ptraceback);
+      PyErr_Restore(ptype, pvalue, ptraceback);
 
-	throw PythonError();
-      }
-    } // end if ptype
-  }
-  catch (...) {
-    releasePyLock(pystate);
-    throw;
-  }
-  releasePyLock(pystate);
+      throw PythonError();
+    }
+  } // end if ptype
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -182,6 +173,7 @@ PyObject *ErrError::pyconverter(0);
 // time.  Errors which occur prior to this import will not be handled
 // correctly.
 void pyErrorInit(PyObject *converter) {
+  PYTHON_THREAD_BEGIN_BLOCK;	// TODO PYTHON3: Is this line required?
   Py_XINCREF(converter);
   ErrError::pyconverter = converter;
 }

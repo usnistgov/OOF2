@@ -40,11 +40,10 @@ public:
      }
      PyObject *__getitem__(int which) const {
        if(which >= self->nargs() || which < 0) {
-	 PyGILState_STATE pystate = acquirePyLock();
+	 PYTHON_THREAD_BEGIN_BLOCK;
 	 PyErr_SetString(PyExc_IndexError,
  			"Not that many arguments in OOFMessage");
-	 releasePyLock(pystate);
- 	return 0;
+	 return 0;
        }
        return self->getarg(which);
      }

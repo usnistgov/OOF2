@@ -778,16 +778,10 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 // and throwing the corresponding exceptions in Python.  See the
 // comment in threadstate.C about threading_enabled.
 
-// TODO PYTHON3: With swig 1.1 we had to include code here to acquire
-// and release the Ptyhon interpreter lock when using threads.  Swig 4
-// does that for us, if %module statement includes '"threads"=1'.  But
-// that is a compile-time setting.  Copy the swig 4 code here, add
-// run-time switches to it, and don't use '"threads"=1'.
-
 %exception {
   try {
     installSignals;
-    Python_Thread_Allow allow_threads;
+    Python_Thread_Allow allow_threads(true);
     //=\\=//
     $action;
     //=\\=//

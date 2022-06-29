@@ -47,21 +47,14 @@
 // pyDisconnect() to finish.
 
 static void pyDisconnect(PyObject *progressbar) {
-  PyGILState_STATE gilstate = acquirePyLock();
-  try {
-    PyObject *result = PyObject_CallMethod(progressbar, (char*)"disconnect", 0);
-    if(!result) {
-      pythonErrorRelay();
-    }
-    // This Py_XDECREF matches the Py_XINCREF in
-    // Progress::setProgressBar().
-    Py_XDECREF(progressbar);
+  PYTHON_THREAD_BEGIN_BLOCK;
+  PyObject *result = PyObject_CallMethod(progressbar, (char*)"disconnect", 0);
+  if(!result) {
+    pythonErrorRelay();
   }
-  catch (...) {
-    releasePyLock(gilstate);
-    throw;
-  }
-  releasePyLock(gilstate);
+  // This Py_XDECREF matches the Py_XINCREF in
+  // Progress::setProgressBar().
+  Py_XDECREF(progressbar);
 }
 
 

@@ -21,32 +21,19 @@ static PyObject *notifier = 0;
 
 void init_switchboard_api(PyObject *pyNotify) {
   // Called just once, passing switchboard.cnotify.
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_XINCREF(pyNotify);
-  releasePyLock(pystate);
   notifier = pyNotify;
 }
 
 void switchboard_notify(const std::string &msg) {
   if(notifier != 0) {
-    PyGILState_STATE pystate = acquirePyLock();
+    PYTHON_THREAD_BEGIN_BLOCK;
     PyObject *result = PyObject_CallFunction(notifier, "(s)", msg.c_str());
     if(!result) {
-      releasePyLock(pystate);
-      pythonErrorRelay();
+      pythonErrorRelay();	// raises an exception
     }
     Py_XDECREF(result);
-    releasePyLock(pystate);
-    /*
-      READ THIS: There is a risk that Acquire/Release locks the main
-      thread if this switchboard_notify attempts to execute a callback
-      in this child thread (the calling thread), if the callback takes
-      a significant amount of time.
-    */
-    // I think that the above comment is misleading.  The GUI can
-    // appear to be stalled while some switchboard callback is
-    // executing.  This isn't the same thing as being
-    // deadlocked. --SAL
   }
 }
 
@@ -55,19 +42,13 @@ void switchboard_notify(const OOFMessage &msg) {
     PyObject *pmsg = msg.pythonObject();
     if(!pmsg)
       pythonErrorRelay();
-    PyGILState_STATE pystate = acquirePyLock();
+    PYTHON_THREAD_BEGIN_BLOCK;
     PyObject *result = PyObject_CallFunction(notifier, "O", pmsg);
     if(!result) {
-      releasePyLock(pystate);
-      pythonErrorRelay();
+      pythonErrorRelay();	// raises an exception
     }
     Py_XDECREF(pmsg);
     Py_XDECREF(result);
-    releasePyLock(pystate);
-  
-    /*
-      READ ABOVE.
-    */
   }
 }
 

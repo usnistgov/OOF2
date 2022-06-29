@@ -61,7 +61,7 @@ Element::Element(PyObject *skelel, const MasterElement &me,
 //   for(int i=0; i<nn; i++) {
 //     nodelist[i] = (*nl)[i];
 //   }
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   if(skeleton_element!=Py_None)
     {
       // SWIG_GetPtrObj(skeleton_element, (void **)&cskeleton_element, "_CSkeletonElement_p");
@@ -69,17 +69,14 @@ Element::Element(PyObject *skelel, const MasterElement &me,
 		      ((SwigPyObject*) skeleton_element)->ty, 0);
       Py_XINCREF(skeleton_element);
     }
-  releasePyLock(pystate);
 }
 
 Element::~Element() {
   for(unsigned int i=0; i<edgeset.size(); i++)
     delete edgeset[i];
-
   delete exterior_edges;
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_XDECREF(skeleton_element);
-  releasePyLock(pystate);
 }
 
 const std::string *Element::repr() const {
@@ -114,29 +111,22 @@ int Element::nexteriorfuncnodes() const { return master.nexteriorfuncnodes(); }
 // need to ask their SkeletonElements for the new Material.
 
 void Element::refreshMaterial(PyObject *skeletoncontext) {
-  PyGILState_STATE pystate = acquirePyLock();
-  try {
-    // Call skeletonelement.material(skeletoncontext)
-    PyObject *pymat = PyObject_CallMethod(skeleton_element, (char*) "material",
-					  (char*) "O", skeletoncontext);
-    if(!pymat) {
-      pythonErrorRelay();
-    }
-    if(pymat == Py_None) {
-      matl = 0;
-    }
-    else {
-      // Extract the C++ Material* from the Python object.
-      SWIG_ConvertPtr(pymat, (void**) &matl,
-		      ((SwigPyObject*) pymat)->ty, 0);
-      Py_XDECREF(pymat);
-    }
+  PYTHON_THREAD_BEGIN_BLOCK;
+  // Call skeletonelement.material(skeletoncontext)
+  PyObject *pymat = PyObject_CallMethod(skeleton_element, (char*) "material",
+					(char*) "O", skeletoncontext);
+  if(!pymat) {
+    pythonErrorRelay();
   }
-  catch (...) {
-    releasePyLock(pystate);
-    throw;
+  if(pymat == Py_None) {
+    matl = 0;
   }
-  releasePyLock(pystate);
+  else {
+    // Extract the C++ Material* from the Python object.
+    SWIG_ConvertPtr(pymat, (void**) &matl,
+		    ((SwigPyObject*) pymat)->ty, 0);
+    Py_XDECREF(pymat);
+  }
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -1011,21 +1001,19 @@ InterfaceElement::InterfaceElement(PyObject *leftskelel,
     _interfacenames(*pInterfacenames),
     current_side(LEFT)
 {
-  PyGILState_STATE pystate = acquirePyLock();
   if(rightskelel!=Py_None)
     {
+      PYTHON_THREAD_BEGIN_BLOCK;
       SWIG_ConvertPtr(rightskelel, (void**) &cskeleton_element2,
 		      ((SwigPyObject*) rightskelel)->ty, 0);
       Py_XINCREF(skeleton_element2);
     }
-  releasePyLock(pystate);
 }
 
 InterfaceElement::~InterfaceElement()
 {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_XDECREF(skeleton_element2);
-  releasePyLock(pystate);
 }
 
 
@@ -1045,42 +1033,29 @@ std::vector<std::string>* InterfaceElement::namelist() const
   return ptmp;
 }
 
-//Called by FEMesh::refreshInterfaceMaterials, which is called by
-//mesh.py->refreshMaterials
+// Called by FEMesh::refreshInterfaceMaterials, which is called by
+// mesh.py->refreshMaterials
 void InterfaceElement::refreshInterfaceMaterial(PyObject *skeletoncontext)
 {
-  PyGILState_STATE pystate = acquirePyLock();
-  try
-    {
-      // Call skeleton.getInterfaceMaterial(skeleton_element, segmentordernumber)
-      PyObject *pymat;
-      pymat=PyObject_CallMethod(skeletoncontext, (char*) "getInterfaceMaterial",
-				(char*) "s", name().c_str());
-      if(!pymat)
-	{
-	  pythonErrorRelay();
-	}
-      if(pymat == Py_None)
-	{
-	  setMaterial(0);
-	}
-      else
-	{
-	  // Extract the C++ Material* from the Python object.
-	  const Material* tmp;
-	  //	  SWIG_GetPtrObj(pymat, (void**)(&tmp), "_Material_p");
-	  SWIG_ConvertPtr(pymat, (void**) &tmp,
-			  ((SwigPyObject*) pymat)->ty, 0);
-	  setMaterial(tmp);
-	  Py_XDECREF(pymat);
-	}
-    }
-  catch (...)
-    {
-      releasePyLock(pystate);
-      throw;
-    }
-  releasePyLock(pystate);
+  PYTHON_THREAD_BEGIN_BLOCK;
+  // Call skeleton.getInterfaceMaterial(skeleton_element, segmentordernumber)
+  PyObject *pymat;
+  pymat = PyObject_CallMethod(skeletoncontext, "getInterfaceMaterial",
+			      "s", name().c_str());
+  if(!pymat) {
+    pythonErrorRelay();
+  }
+  if(pymat == Py_None) {
+    setMaterial(0);
+  }
+  else {
+    // Extract the C++ Material* from the Python object.
+    const Material* tmp;
+    //	  SWIG_GetPtrObj(pymat, (void**)(&tmp), "_Material_p");
+    SWIG_ConvertPtr(pymat, (void**) &tmp, ((SwigPyObject*) pymat)->ty, 0);
+    setMaterial(tmp);
+    Py_XDECREF(pymat);
+  }
 }
 
 bool InterfaceElement::isSubProblemInterfaceElement(const CSubProblem* pSubProblem) const

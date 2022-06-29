@@ -208,10 +208,9 @@ void (*Progress::disconnect_hook)(PyObject*) = 0;
 // the GUI is running.
 
 void Progress::setProgressBar(PyObject *bar) {
-  PyGILState_STATE pystate = acquirePyLock();
+  PYTHON_THREAD_BEGIN_BLOCK;
   progressbar = bar;
   Py_XINCREF(progressbar);
-  releasePyLock(pystate);
 }
 
 bool Progress::hasProgressBar() const {

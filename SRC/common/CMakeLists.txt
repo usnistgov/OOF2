@@ -64,7 +64,6 @@ target_sources(oof2common
   progress.C
   progress.h
   pythonexportable.h
-  pythonlock.C
   pythonlock.h
   random.C
   random.h
