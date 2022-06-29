@@ -36,37 +36,9 @@ typedef double (*INITFUNC)(const Coord &position, int dof, void *clientdata);
 %extern "engine/outputval.swg"
 %pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValuePtr"
 
-// %{
-// static double fieldInitCallback(const Coord &pos, int dof, void *clientdata) {
-//   PyObject *func, *arglist;
-//   PyObject *result;
-//   double dres = 0;
-
-//   PyGILState_STATE pystate = acquirePyLock();
-//   try {
-//     func = (PyObject *)clientdata;
-//     arglist = Py_BuildValue("(ddi)",pos(0),pos(1),dof);
-//     result = PyEval_CallObject(func,arglist);
-//     Py_DECREF(arglist);
-//     if(result) {
-//       dres = PyFloat_AsDouble(result);
-//     }
-//     else {			// result == 0
-//       releasePyLock(pystate);
-//       return 0;
-//     }
-//     Py_XDECREF(result);
-//   }
-//   catch (...) {
-//     releasePyLock(pystate);
-//     throw;
-//   }
-//   return dres;
-// }
-// %}
-
 // This fails because of the complicated Field virtual inheritance scheme.
-// %typemap(python, out) Field* {
+// TODO PYTHON3? Try again with swig4, maybe.  Do we need this?
+// %typemap(out) Field* {
 //   $target = $source->pythonObject();
 //   if(!$target)
 //      return 0;
@@ -97,12 +69,6 @@ class Field {
   void setValueFromOutputValue(FEMesh*, PointData&, OutputValue*);
 
   %addmethods {
-    // void init(CSubProblem *subproblem, PyObject *pythonCallable)
-    // {
-    //   self->initialize(subproblem, fieldInitCallback, (void*) pythonCallable);
-    // }
-    // Uses PyObject *pythonCallable global typemap from typemaps.swg.
-    
     // TODO LATER: Get rid of setvalue, if possible.  Use
     // setValueFromOutputValue instead, since it sets all components.
     // setvalue is used in _loadFieldValues in meshIO.py, and also in

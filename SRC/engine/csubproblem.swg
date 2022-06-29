@@ -67,6 +67,7 @@ typedef std::vector<CConjugatePair*> CConjugateVec;
     PyObject *stg = PyObject_GetAttrString(PyList_GET_ITEM($source,
 							   (Py_ssize_t) i),
 					   "this");
+    // TODO PYTHON3: Update for python3 and swig4
     char *str = PyString_AsString(stg);
     SWIG_GetPtr(str, (void**) &pair, "_CConjugatePair_p");
     cv[i] = pair;

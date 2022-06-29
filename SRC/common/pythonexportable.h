@@ -130,15 +130,6 @@
     virtual const std::string &classname() const = 0;
     
     virtual PyObject *pythonObject() const {
-      // For a class named "TYPE", SWIG creates a Python object by
-      // passing the string "_TYPE_p" to SWIG_MakePtr, to create a
-      // string representation of the pointer to the object.  Then it
-      // passes that string to the Python function TYPEPtr, to create an
-      // instance of the Ptr version of the Python shadow class.  Here,
-      // we do the same thing, but we use the virtual C++ classname()
-      // function to get the name of the derived class, and use that
-      // instead.
-
       PyGILState_STATE pystate = PyGILState_Ensure();
       try {
 	// Because C++ classes use PythonExportable as a *virtual* base
@@ -164,13 +155,9 @@
 	// TODO: SWIG_NewPointerObj requires PyObject *self to be defined
 	// when using -builtin.  What do we set it to?
 	PyObject *self = 0;	// This incorrect. 
-	std::cerr << "PythonExportable: calling SWIG_NewPointerObj"
-		  << std::endl;
 	PyObject *result = SWIG_NewPointerObj(SWIG_as_voidptr(derived_addr),
 					      SWIG_TypeQuery(pname.c_str()), 
 					      SWIG_BUILTIN_INIT|0);
-	std::cerr << "PythonExportable: back from SWIG_NewPointerObj"
-		  << std::endl;
 #else  // Not using -builtin. 
 	PyObject *result = SWIG_NewPointerObj(SWIG_as_voidptr(derived_addr),
 					      SWIG_TypeQuery(pname.c_str()), 0);
