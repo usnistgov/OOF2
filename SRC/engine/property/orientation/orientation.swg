@@ -16,7 +16,7 @@
 %module orientation
 %include "common/typemaps.swg"
 %{
-#include "common/swigruntime.h"
+  //#include "common/oofswigruntime.h" // TODO PYTHON3: Is this necessary?
 #include "engine/corientation.h"
 #include "engine/property/orientation/orientation.h"
 %}

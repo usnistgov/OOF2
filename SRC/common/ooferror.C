@@ -14,7 +14,7 @@
 #include "common/ooferror.h"
 #include "common/pythonlock.h"
 #include "common/tostring.h"
-#include "common/swigruntime.h"
+#include "common/oofswigruntime.h"
 
 
 // Some trivial constructors are here instead of in ooferror.h so that

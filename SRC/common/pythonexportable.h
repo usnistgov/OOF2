@@ -105,17 +105,14 @@
 #include <iostream>
 
 // When this is included in swig-generated code we *don't* want to
-// include swigruntime.h, as it will repeat definitions already
+// include (oof)swigruntime.h, as it will repeat definitions already
 // present.  We only want to include it when building our C++
 // libraries that define the swigged classes and functions.
 
-#ifndef SWIG_FILE_WITH_INIT
 #include <Python.h>
-#include "swigruntime.h"
-#define SWIG_as_voidptr(a) const_cast< void * >(static_cast< const void * >(a)) 
-#endif // SWIG_FILE_WITH_INIT
+#include "common/oofswigruntime.h"
 
-  class PythonExportableBase {
+class PythonExportableBase {
   public:
     virtual PyObject *pythonObject() const = 0; 
     virtual ~PythonExportableBase() {}

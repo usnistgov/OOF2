@@ -52,6 +52,7 @@ target_sources(oof2common
   ooferror.C
   ooferror.h
   oofomp.h
+  oofswigruntime.h
   pixelattribute.C
   pixelattribute.h
   pixelgroup.C
