@@ -18,8 +18,9 @@
 // TODO: Are the IntPair typemaps from the Python2 code used?  I've
 // omitted them.
 
-// TODO: use SWIG_exception_fail instead of calling PyErr_SetString
-// and SWIG_fail.
+// TODO? use SWIG_exception_fail instead of calling PyErr_SetString
+// and SWIG_fail.  NO!  Then we're restricted to swig's list of
+// exception types.
 
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -227,7 +228,7 @@ std::string {
     SWIG_exception(SWIG_ValueError, "Expected a callable python object.");
  }
 
-%typemap(int) PyObject *pythonCallable {
+%typemap(in) PyObject *pythonCallable {
   $result = $1;
  }
 
@@ -273,8 +274,9 @@ std::string {
 %typemap(in) const std::vector<double>& (std::vector<double> vec) {
   // typemap(in) std::vector<double>&
   if(!PySequence_Check($input)) {
-    SWIG_exception_fail(PyExc_TypeError,
-			"in '$symname', expected a list of doubles");
+    PyErr_SetString(PyExc_TypeError,
+		    "in '$symname', expected a list of doubles");
+    SWIG_fail;
   }
   std::vector<double>::size_type sz = PySequence_Size($input);
   if(sz > 0) {
@@ -286,8 +288,9 @@ std::string {
       else if(PyLong_Check(x))
 	vec[i] = (double) PyLong_AsLong(x);
       else {
-	SWIG_exception_fail(PyExc_TypeError,
+	PyErr_SetString(PyExc_TypeError,
 			    "in '$symname', expected a list of doubles");
+	SWIG_fail;
       }
       Py_XDECREF(x);
     }
@@ -317,9 +320,9 @@ std::string {
     else if(PyLong_Check(item))
       vec.push_back((double) PyLong_AsLong(item));
     else {
-      SWIG_exception_fail(
-		  PyExc_TypeError,
+      PyErr_SetString(Pyexc_TypeError,
 		  "in '$symname', expected an iterable container of numbers");
+      SWIG_fail;
     }
     Py_DECREF(item);
   }
@@ -369,8 +372,9 @@ std::string {
 %typemap(in) std::vector<TYPE>& (std::vector<TYPE> vec) {
   // typemap(in) std::vector<TYPE>&  (via MAKE_INTVEC_TYPEMAPS)
   if(!PySequence_Check($input)) {
-    SWIG_exception_fail(PyExc_TypeError,
-			"in '$symname', expected a sequence.")
+    PyErr_SetString(PyExc_TypeError,
+		    "in '$symname', expected a sequence.");
+    SWIG_fail;
   }
   std::vector<TYPE>::size_type sz = PySequence_Size($input);
   if(sz > 0) {
@@ -380,8 +384,9 @@ std::string {
       if(PyLong_Check(x))
 	vec[i] = PyLong_AsLong(x);
       else {
-	SWIG_exception_fail(PyExc_TypeError,
-			    "in '$symname', expected a TYPE sequence.");
+	PyErr_SetString(PyExc_TypeError,
+			"in '$symname', expected a TYPE sequence.");
+	SWIG_fail;
       }
       Py_XDECREF(x);
     }
@@ -389,7 +394,26 @@ std::string {
   $1 = &vec;
 }
 
-%typemap(in) const std::vector<TYPE>* = const std::vector<TYPE>&;
+%typemap(in) const std::vector<TYPE>* (std::vector<TYPE> vec) {
+  // typemap(in) const std::vector<TYPE>* (via MAKE_INTVEC_TYPEMAPS)
+  if(!PySequence_Check($input)) {
+    PyErr_SetString(PyExc_TypeError, "in '$symname', expected a sequence.");
+    SWIG_fail;
+  }
+  std::vector<TYPE>::size_type sz = PySequence_Size($input);
+  vec.resize(sz);
+  for(auto i=0; i<sz; i++) {
+    PyObject *x = PySequence_GetItem($input, (Py_ssize_t) i);
+    if(PyLong_Check(x))
+      vec[i] = PyLong_AsLong(x);
+    else
+      PyErr_SetString(PyExc_TypeError,
+		      "in '$symname', expected a TYPE sequence.");
+    SWIG_fail;
+    Py_XDECREF(x);
+  }
+  $1 = &vec;
+ }
 
 // This converts a Python iterable object, containing ints,
 // to a std::vector of ints.  TODO: Converting to a C++ iterator
@@ -406,16 +430,33 @@ std::string {
      if(PyLong_Check(item))
       vec.push_back((TYPE) PyLong_AsLong(item));
     else {
-      SWIG_exception_fail(
-		  PyExc_TypeError,
+      PyErr_SetString(PyExc_TypeError,
 		  "in '$symname, expected an iterable container of TYPE.");
+      SWIG_fail;
     }
     Py_DECREF(item);
   }
   $1 = &vec;
  }
 
-%typemap(in) const std::vector<TYPE> *iterable = const std::vector<TYPE> &iterable;
+%typemap(in) std::vector<TYPE> &iterable (std::vector<TYPE> vec) {
+  // typemap(in) std::vector<TYPE> &iterable (via MAKE_INTVEC_TYPEMAPS)
+  PyObject *iter = PyObject_GetIter($input);
+  if(!iter)
+    SWIG_fail;
+  while(PyObject *item = PyIter_Next(iter)) {
+     if(PyLong_Check(item))
+      vec.push_back((TYPE) PyLong_AsLong(item));
+    else {
+      PyErr_SetString(PyExc_TypeError,
+		  "in '$symname, expected an iterable container of TYPE.");
+      SWIG_fail;
+    }
+    Py_DECREF(item);
+  }
+  $1 = &vec;
+ }
+//%typemap(in) const std::vector<TYPE> *iterable = const std::vector<TYPE> &iterable;
 
 // Convert a std::vector<int>& to a list of longs.
 // TODO: convert a std::vector<int> to a python iterator?
@@ -455,8 +496,9 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 {
   // typemap(in) CharPtrVec *argv
   if(!PySequence_Check($input)) {
-    SWIG_exception_fail(PyExc_TypeError,
-			"in '$symname', expected a list of strings.");
+    PyErr_SetString(PyExc_TypeError,
+		    "in '$symname', expected a list of strings.");
+    SWIG_fail;
   }
   CharPtrVec::size_type sz = PySequence_Size($input);
   argh.resize(sz);
@@ -537,8 +579,8 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 %typemap(in) TYPE##Vec* (TYPE##Vec v) {
   // typemap(in) TYPE##Vec* via MAKE_LISTVEC_TYPEMAPS for TYPE
   if(!PyList_Check($input)) {
-    SWIG_exception_fail(PyExc_TypeError,
-			"in '$symname', expected a list of TYPE.");
+    PyErr_SetString(PyExc_TypeError, "in '$symname', expected a list of TYPE.");
+    SWIG_fail;
   }
   TYPE##Vec::size_type sz = PyList_Size($input);
   v.resize(sz);
@@ -547,8 +589,9 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
     int res = SWIG_ConvertPtr(PyList_GET_ITEM($input, i), &itemptr,
 			      $descriptor(TYPE*), 0);
     if(!SWIG_IsOK(res)) {
-      SWIG_exception_fail(SWIG_TypeError,
-			  "in method '$symname', expecting list of TYPEs");
+      PyErr_SetString(SWIG_TypeError,
+		      "in method '$symname', expecting list of TYPEs");
+      SWIG_fail;
     }
     v[i] = reinterpret_cast<TYPE*>(itemptr);
   }
@@ -565,9 +608,11 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 
 %typemap(in) std::vector<Coord> *PointList (std::vector<Coord> v) {
   // typemap(in) std::vector<Coord>*
-  if(!PyList_Check($input))
-    SWIG_exception_fail(SWIG_TypeError,
-			"in method '$symname', expecting list of Points.");
+  if(!PyList_Check($input)) {
+    PyErr_SetString(PyExc_TypeError,
+		    "in method '$symname', expecting list of Points.");
+    SWIG_fail;
+  }
   std::vector<Coord>::size_type sz = PyList_Size($input);
   v.resize(sz);
   for(std::vector<Coord>::size_type i=0; i<sz; i++) {
@@ -606,9 +651,11 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 
 %typemap(in) std::vector<Coord> *iPointList (std::vector<ICoord> v) {
   // typemap(in) std::vector<ICoord>* iPointList
-  if(!PyList_Check($input))
-    SWIG_exception_fail(SWIG_TypeError,
-			"in method '$symname', expecting list of iPoints.");
+  if(!PyList_Check($input)) {
+    PyErr_SetString(PyExc_TypeError,
+		    "in method '$symname', expecting list of iPoints.");
+    SWIG_fail;
+  }
   std::vector<ICoord>::size_type sz = PyList_Size($input);
   v.resize(sz);
   for(std::vector<ICoord>::size_type i=0; i<sz; i++) {
@@ -648,8 +695,9 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 %typemap(in) std::vector<std::string>* (std::vector<std::string> svec) {
   // typemap(in) std::vector<std::string>*
   if!(PySequence_Check($input)) {
-      SWIG_exception_fail(SWIG_TypeError,
-			  "in method '$symname', expecting a list of strings");
+      PyErr_SetString(PyExc_TypeError,
+		      "in method '$symname', expecting a list of strings");
+      SWIG_fail;
     }
   int sz = PySequence_Length($input);
   if(sz > 0) {
@@ -662,7 +710,7 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
       Py_XDECREF(x);
     }
   }
-  $target = &vec;
+  $1 = &vec;
  }
 
 %typemap(out) std::vector<std::string>* {
@@ -707,13 +755,15 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 
 %typemap(in) ICoord *iPoint (ICoord ic) {
   PyObject *x = PyObject_GetAttrString($input, "x");
-  if(!x)
-    SWIG_exception_fail(PyExc_TypeError,
-			"in '$symname', expected an iPoint.");
+  if(!x) {
+    PyErr_SetString(PyExc_TypeError, "in '$symname', expected an iPoint.");
+    SWIG_fail;
+  }
   PyObject *y = PyObject_GetAttrString($input, "y");
-  if(!y)
-    SWIG_exception_fail(PyExc_TypeError,
-			"in '$symname', expected an iPoint.");
+  if(!y) {
+    PyErr_SetString(PyExc_TypeError, "in '$symname', expected an iPoint.");
+    SWIG_fail;
+  }
   ic(0) = PyLong_AsLong(x);
   ic(1) = PyLong_AsLong(y);
   Py_XDECREF(x);
@@ -723,13 +773,15 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 
 %typemap(in) Coord *Point (Coord c) {
   PyObject *x = PyObject_GetAttrString($input, "x");
-  if(!x)
-    SWIG_exception_fail(PyExc_TypeError,
-			"in '$symname', expected a Point.");
+  if(!x) {
+    PyErr_SetString(PyExc_TypeError, "in '$symname', expected a Point.");
+    SWIG_fail;
+  }
   PyObject *y = PyObject_GetAttrString($input, "y");
-  if(!y)
-    SWIG_exception_fail(PyExc_TypeError,
-			"in '$symname', expected a Point.");
+  if(!y) {
+    PyErr_SetString(PyExc_TypeError, "in '$symname', expected a Point.");
+    SWIG_fail;
+  }
   ic(0) = PyFloat_AsDouble(x);
   ic(1) = PyFloat_AsDouble(y);
   Py_XDECREF(x);
@@ -746,9 +798,11 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 
 %typemap(in) Coord *Sequence (Coord c) {
   // typemap(in) Coord *Sequence
-  if(!(PySequence_Check($input) && PySequence_Length($input) == 2))
-    SWIG_exception_fail(PyExc_TypeError,
-			"in '$symname', expected sequence of length 2.");
+  if(!(PySequence_Check($input) && PySequence_Length($input) == 2)) {
+    PyErr_SetString(PyExc_TypeError,
+		    "in '$symname', expected sequence of length 2.");
+    SWIG_fail;
+  }
   PyObject *x = PySequence_GetItem($input, (Py_ssize_t) 0);
   PyObject *y = PySequence_GetItem($input, (Py_ssize_t) 1);
   c(0) = PyFloat_AsDouble(x);
@@ -760,9 +814,11 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 
 %typemap(in) ICoord *Sequence (ICoord ic) {
   // typemap(in) Coord *Sequence
-  if(!(PySequence_Check($input) && PySequence_Length($input) == 2))
-    SWIG_exception_fail(PyExc_TypeError,
-			"in '$symname', expected sequence of length 2.");
+  if(!(PySequence_Check($input) && PySequence_Length($input) == 2)) {
+    PyErr_SetString(PyExc_TypeError,
+		    "in '$symname', expected sequence of length 2.");
+    SWIG_fail;
+  }
   PyObject *x = PySequence_GetItem($input, (Py_ssize_t) 0);
   PyObject *y = PySequence_GetItem($input, (Py_ssize_t) 1);
   ic(0) = PyLong_AsLong(x);
@@ -827,7 +883,7 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
   // typemap(argout) Coord *cskel_OutPoint
   // Get the Point class
   FETCH_CLASS(ooflib.common.primitives, Point);
-  // Create a Point object from the Coord ($source)
+  // Create a Point object from the Coord
   PyObject *point = PyObject_Function(PointClass, "dd",
 				      (*$1)(0), (*$1)(1));
   if(!$result || $result == Py_None) {

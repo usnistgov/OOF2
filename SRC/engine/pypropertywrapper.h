@@ -212,12 +212,10 @@ class PyPropertyElementData : public ElementData {
 private:
   PyObject *_data;
   static std::string classname_;
-  static std::string modulename_;
 public:
   PyPropertyElementData(const std::string &name, PyObject *dat);
   virtual ~PyPropertyElementData();
   virtual const std::string &classname() const { return classname_; }
-  virtual const std::string &modulename() const { return modulename_; }
   PyObject *data();
 };
 

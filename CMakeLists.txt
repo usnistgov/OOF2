@@ -81,7 +81,7 @@ function(swig_sources)
       SOURCE ${swigfile}.swg
       PROPERTY INCLUDE_DIRECTORIES
       ${CMAKE_CURRENT_SOURCE_DIR}
-      ${PROJECT_SOURCE_DIR}/SRC/common
+      ${PROJECT_SOURCE_DIR}/SRC
       ${SS_INCLUDE_DIRECTORIES})
     # Set include directories for the compiler
     set_property(
@@ -164,7 +164,7 @@ set(CMAKE_FIND_FRAMEWORK LAST)	# Prefers MacPorts over system python
 
 # Find Python3.
 ## TODO: Allow user to choose python sub version
-find_package(Python3 3.9 EXACT COMPONENTS Interpreter Development)
+find_package(Python3 3.8 EXACT COMPONENTS Interpreter Development)
 set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
 set(PYEXEC ${Python3_EXECUTABLE})
 
