@@ -320,7 +320,7 @@ std::string {
     else if(PyLong_Check(item))
       vec.push_back((double) PyLong_AsLong(item));
     else {
-      PyErr_SetString(Pyexc_TypeError,
+      PyErr_SetString(PyExc_TypeError,
 		  "in '$symname', expected an iterable container of numbers");
       SWIG_fail;
     }
