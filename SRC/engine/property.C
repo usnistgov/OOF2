@@ -12,9 +12,9 @@
 #include <oofconfig.h>
 #include "common/cleverptr.h"
 #include "common/doublevec.h"
+#include "common/oofswigruntime.h"
 #include "common/printvec.h"
 #include "common/pythonlock.h"
-#include "common/swigruntime.h"
 #include "common/trace.h"
 #include "engine/IO/propertyoutput.h"
 #include "engine/cnonlinearsolver.h"
