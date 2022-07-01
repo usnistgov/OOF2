@@ -21,8 +21,6 @@
 #include "engine/contourcell.h"
 %}
 
-%pragma(python) include="engine/contourcell.spy"
-
 class ContourCellCoord {
 public:
   double x, y;
@@ -41,5 +39,7 @@ public:
   int __len__() { return 3; }
   }
 };
+
+%pythoncode "engine/contourcell.spy"
 
 #endif // CONTOURCELL_SWG

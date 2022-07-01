@@ -18,7 +18,6 @@
 %{
 #include "engine/mastercoord.h"
 %}
-%pragma(python) include="mastercoord.spy"
 
 class MasterPosition {
 public:
@@ -52,6 +51,7 @@ public:
   }
 };
 
+%pythoncode "mastercoord.spy"
 
 #endif // MASTERCOORD_SWG
 

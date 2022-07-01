@@ -23,7 +23,6 @@
 #include "engine/equation.h"
 %}
 
-%pragma(python) include="equation.spy"
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
 
@@ -92,5 +91,7 @@ Equation *getEquationByName(char *);
     return Equation::getEquation(name);
   }
 %}
+
+%pythoncode "equation.spy"
 
 #endif // EQUATION_SWG

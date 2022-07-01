@@ -25,7 +25,6 @@
 %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator2Ptr"
 %pragma(python) code="from ooflib.SWIG.common.statgroups import PixelDistributionFactoryPtr"
 
-%pragma(python) include="image/pixeldifferentiator.spy"
 %import "common/burn.swg"
 %import "common/statgroups.swg"
 
@@ -43,5 +42,7 @@ class ColorPixelDistFactory : public PixelDistributionFactory {
 public:
   ColorPixelDistFactory(OOFImage*, double);
 };
+
+%pythoncode "image/pixeldifferentiator.spy"
 
 #endif // PIXELDIFFERENTIATORI_SWG

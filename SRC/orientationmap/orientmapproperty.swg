@@ -19,11 +19,11 @@
 #include "orientationmap/orientmapproperty.h"
 %}
 
-%pragma(python) include="orientationmap/orientmapproperty.spy"
-
 class OrientationMapProp : public Property {
 public:
   OrientationMapProp(PyObject *registry, char *name);
 };
+
+%pythoncode "orientationmap/orientmapproperty.spy"
 
 #endif // ORIENTMAPPROPERTY_SWG

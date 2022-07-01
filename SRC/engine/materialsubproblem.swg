@@ -17,7 +17,6 @@
 %include "engine/typemaps.swg"
 %import "engine/csubproblem.swg"
 %import "engine/material.swg"
-%pragma(python) include="engine/materialsubproblem.spy"
 %pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"
 %pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
 
@@ -30,5 +29,7 @@ class CMaterialSubProblem : public CSubProblem {
 public:
   CMaterialSubProblem(Material*);
 };
+
+%pythoncode "engine/materialsubproblem.spy"
 
 #endif // MATERIALSUBPROBLEM_SWG

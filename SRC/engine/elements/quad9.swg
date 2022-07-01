@@ -19,6 +19,6 @@
 %}
 void quad9init();
 
-%pragma(python) include="quad9.spy"
+%pythoncode "quad9.spy"
 
 #endif // QUAD9_SWIG

@@ -20,7 +20,6 @@
 #include "common/cmicrostructure.h"
 #include "common/ooferror.h"
 %}
-%pragma(python) include="pixelgroup.spy"
 %import "common/cmicrostructure.swg"
 %import "common/pixelattribute.swg"
 
@@ -68,5 +67,7 @@ public:
   PixelGroupAttributeRegistration();
   ~PixelGroupAttributeRegistration();
 };
+
+%pythoncode "pixelgroup.spy"
 
 #endif // PIXELGROUP_SWG

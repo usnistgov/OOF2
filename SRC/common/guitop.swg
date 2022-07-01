@@ -18,9 +18,10 @@
 #include <oofconfig.h>
 #include "common/guitop.h"
 %}
-%pragma(python) include="common/guitop.spy"
 
 void setMainLoop(bool);
 bool getMainLoop();
+
+%pythoncode "common/guitop.spy"
 
 #endif // GUITOP

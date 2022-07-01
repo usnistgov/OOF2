@@ -9,6 +9,9 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef ELASTICITY_VISCO_SWG
+#define ELASTICITY_VISCO_SWG
+
 %module iso
 
 %{
@@ -59,7 +62,9 @@ public:
 };
 
 
-%pragma(python) include="visco.spy"
+%pythoncode "visco.spy"
 
 %typemap(python,in) Cijkl* {}
 %typemap(Python,freearg) Cijkl* {}
+
+#endif // ELASTICITY_VISCO_SWG

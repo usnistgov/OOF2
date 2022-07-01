@@ -20,7 +20,6 @@
 #include "common/mpitools.h"
 using std::string;
 %}
-%pragma(python) include="mpitools.spy"
 %pragma(python) code="from ooflib.SWIG.common.ooferror import ErrErrorPtr"
 %import "common/ooferror.swg"
 
@@ -99,6 +98,8 @@ public:
     }
   }
 };
+
+%pythoncode "mpitools.spy"
 
 #endif // MPITOOLS_SWG
 

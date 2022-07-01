@@ -30,7 +30,7 @@ public:
   const double alpha();
 };
 
-%pragma(python) include="skeletonrelaxationrate.spy"
+%pythoncode "skeletonrelaxationrate.spy"
 
 // %typemap(python,in) SymmMatrix * {}
 

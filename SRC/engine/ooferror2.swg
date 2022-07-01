@@ -31,7 +31,6 @@
 %}
 
 %pragma(python) code="from ooflib.SWIG.common.ooferror import *"
-%pragma(python) include="ooferror2.spy"
 
 class ErrNoSuchField : public ErrError {
 public:
@@ -133,5 +132,7 @@ public:
     }
   }
 };
+
+%pythoncode "ooferror2.spy"
 
 #endif // ENGINE_OOFERROR_SWG

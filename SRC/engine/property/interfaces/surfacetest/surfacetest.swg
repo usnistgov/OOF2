@@ -9,6 +9,9 @@
  * oof_manager@nist.gov. 
  */
 
+#ifndef SURFACETEST_SWG
+#define SURFACETEST_SWG
+
 %module surfacetest
 
 %{
@@ -30,4 +33,6 @@ public:
   FluxSurfaceTest(PyObject *self, char*, double);
 };
 
-%pragma(python) include="surfacetest.spy"
+%pythoncode "surfacetest.spy"
+
+#endif // SURFACETEST_SWG

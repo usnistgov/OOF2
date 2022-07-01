@@ -18,8 +18,6 @@
 %import "engine/csubproblem.swg"
 %pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"
 %pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
-%pragma(python) include="engine/entiremeshsubproblem.spy"
-
 
 %{
 #include "engine/entiremeshsubproblem.h"
@@ -31,5 +29,6 @@ public:
   ~CEntireMeshSubProblem();
 };
 
-#endif // ENTIREMESHSUBPROBLEM_SWG
+%pythoncode "engine/entiremeshsubproblem.spy"
 
+#endif // ENTIREMESHSUBPROBLEM_SWG

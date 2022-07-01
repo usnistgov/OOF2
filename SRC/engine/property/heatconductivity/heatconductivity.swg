@@ -9,6 +9,9 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef HEATCONDUCTIVITY_SWG
+#define HEATCONDUCTIVITY_SWG
+
 %module heatconductivity
 
 %{
@@ -19,8 +22,6 @@
 %include "engine/propertyhdr.swg"
 %import "engine/symmmatrix.swg"
 
-%pragma(python) include="heatconductivity.spy"
-
 class IsoHeatConductivity : public Property {
 public:
   IsoHeatConductivity(PyObject *reg, char *name, double kappa);
@@ -30,3 +31,7 @@ class AnisoHeatConductivity : public Property {
 public:
   AnisoHeatConductivity(PyObject *reg, char *name, SymmMatrix3 *k);
 };
+
+%pythoncode "heatconductivity.spy"
+
+#endif // HEATCONDUCTIVITY_SWG

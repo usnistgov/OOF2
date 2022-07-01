@@ -19,8 +19,6 @@
 #include "common/brushstyle.h"
 %}
 
-%pragma(python) include="brushstyle.spy"
-
 class BrushStyle {};
 
 class CircleBrush: public BrushStyle {
@@ -35,4 +33,7 @@ public:
   ~SquareBrush();
 };
 
+%pythoncode "brushstyle.spy"
+
 #endif // BRUSHSTYLE_SWG
+

@@ -13,8 +13,6 @@
 #define MASTERELEMENT_SWG
 
 %include "engine/typemaps.swg"
-
-%pragma(python) include="engine/masterelement.spy"
 %import "engine/element.swg"
 %import "engine/mastercoord.swg"
 
@@ -124,5 +122,7 @@ int integration_reduction;
 %typemap(python,newfree) MasterElementList*;
 // %typemap(python,out) ContourCellVec*;
 // %typemap(python,newfree) ContourCellVec*;
+
+%pythoncode "engine/masterelement.spy"
 
 #endif // MASTERELEMENT_SWG

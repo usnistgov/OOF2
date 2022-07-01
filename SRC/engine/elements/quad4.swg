@@ -19,6 +19,6 @@
 %}
 void quad4init();
 
-%pragma(python) include="quad4.spy"
+%pythoncode "quad4.spy"
 
 #endif // QUAD4_SWIG

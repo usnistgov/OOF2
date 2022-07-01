@@ -19,6 +19,6 @@
 %}
 void tri6init();
 
-%pragma(python) include="tri6.spy"
+%pythoncode "tri6.spy"
 
 #endif // TRI6_SWIG

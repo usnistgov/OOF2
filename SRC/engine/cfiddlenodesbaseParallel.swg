@@ -14,7 +14,6 @@
 #define CFIDDLENODESBASEPARALLEL_SWG
 
 %module cfiddlenodesbaseParallel
-%pragma(python) include="cfiddlenodesbaseParallel.spy"
 
 %include "common/typemaps.swg"
 
@@ -62,4 +61,5 @@ void _Send_MoveData(CFNMoveDataVec*, IntVec*, int);
 void _Isend_MoveData(CFNMoveDataVec*, IntVec*, int);
 CFiddleNodesMoveData _Recv_MoveData(int, int);
 
+%pythoncode "cfiddlenodesbaseParallel.spy"
 #endif // CFIDDLENODEBASEPARALLEL_SWG

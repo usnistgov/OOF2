@@ -29,7 +29,6 @@
   int countFields();
 typedef double (*INITFUNC)(const Coord &position, int dof, void *clientdata);
 %}
-%pragma(python) include="engine/field.spy"
 %import "engine/fieldindex.swg"
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
@@ -140,5 +139,7 @@ public:
   SymmetricTensorField(char *name);
   const string &classname();
 }
+
+%pythoncode "engine/field.spy"
 
 #endif // FIELD_SWG

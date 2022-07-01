@@ -21,8 +21,6 @@
 #include "orientationmap/polefigure.h"
 %}
 
-%pragma(python) include = "polefigure.spy"
-
 class PoleFigure {
 public:
   PoleFigure(CMicrostructure*, PixelSet*, AnisoCrystalSymmetry*,
@@ -35,6 +33,8 @@ public:
   double minValue();
   double maxValue();
 };
+
+%pythoncode "polefigure.spy"
 
 #endif // POLEFIGURE_SWG
 

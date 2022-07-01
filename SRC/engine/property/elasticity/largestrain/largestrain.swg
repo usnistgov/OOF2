@@ -40,6 +40,6 @@ public:
 };
 
 
-%pragma(python) include="largestrain.spy"
+%pythoncode "largestrain.spy"
 
 #endif // LARGESTRAIN_SWG

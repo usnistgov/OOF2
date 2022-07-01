@@ -15,7 +15,6 @@
 %module pypropertywrapper
 
 %include "engine/typemaps.swg"
-%pragma(python) include="pypropertywrapper.spy"
 %{
 #include "engine/pypropertywrapper.h"
 %}
@@ -60,5 +59,7 @@ public:
   // ~PyPropertyElementData();
   PyObject *data();
 };
+
+%pythoncode "pypropertywrapper.spy"
 
 #endif // PYPROPERTYWRAPPER_SWG

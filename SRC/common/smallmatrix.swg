@@ -20,8 +20,6 @@
 #include "common/smallmatrix.h"
 %}
 
-%pragma(python) include="common/smallmatrix.spy"
-
 class SmallMatrix {
 public:
   SmallMatrix(int, int);
@@ -61,5 +59,7 @@ public:
     }
   }
 };
+
+%pythoncode "common/smallmatrix.spy"
 
 #endif

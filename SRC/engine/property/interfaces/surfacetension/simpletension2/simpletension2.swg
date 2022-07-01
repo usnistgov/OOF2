@@ -9,6 +9,9 @@
  * oof_manager@nist.gov. 
  */
 
+#ifndef SIMPLETENSION2_SWG
+#define SIMPLETENSION2_SWG
+
 %module simpletension2
 
 %{
@@ -23,4 +26,6 @@ public:
   SimpleTension2(PyObject *self, char *, double, double, double, double);
 };
 
-%pragma(python) include="simpletension2.spy"
+%pythoncode "simpletension2.spy"
+
+#endif // SIMPLETENSION2_SWG

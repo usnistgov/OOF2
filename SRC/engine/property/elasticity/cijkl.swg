@@ -9,13 +9,15 @@
  * oof_manager@nist.gov. 
  */
 
+#ifndef CIJKL_SWG
+#define CIJKL_SWG
+
 %module cijkl
 
 %{
 #include "engine/property/elasticity/cijkl.h"
 %}
 %include "common/typemaps.swg"
-%pragma(python) include="cijkl.spy"
 %import "engine/symmmatrix.swg"
 %pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
 
@@ -41,3 +43,7 @@ public:
     }
   }
 };
+
+%pythoncode "cijkl.spy"
+
+#endif // CIJKL_SWIG

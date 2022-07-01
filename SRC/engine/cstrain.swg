@@ -23,8 +23,6 @@
 %pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import PropertyOutputValInitPtr"
   
 
-%pragma(python) include="cstrain.spy"
-
 class POInitGeometricStrain : public PropertyOutputValInit {
 public:
   POInitGeometricStrain();
@@ -61,5 +59,7 @@ void findGeometricStrain(FEMesh*, Element*, MasterPosition&, SymmMatrix3 *OUT,
 
 %typemap(python,argout) SymmMatrix3 *OUT {}
 %typemap(python,ignore) SymmMatrix3 *OUT {}
+
+%pythoncode "cstrain.spy"
 
 #endif // CSTRAIN_SWG

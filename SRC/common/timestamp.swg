@@ -19,7 +19,6 @@
 #include "common/timestamp.h"
 #include "common/tostring.h"
 %}
-%pragma(python) include="timestamp.spy"
 
 class TimeStamp {
 public:
@@ -47,5 +46,7 @@ bool operator>(const TimeStamp&, const TimeStamp&);
 
 %readonly
 TimeStamp timeZero;
+
+%pythoncode "timestamp.spy"
 
 #endif // TIMESTAMP_SWG

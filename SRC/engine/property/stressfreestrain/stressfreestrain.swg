@@ -9,6 +9,9 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef STRESSFREESTRAIN_SWG
+#define STRESSFREESTRAIN_SWG
+
 %module stressfreestrain
 
 %{
@@ -31,6 +34,8 @@ public:
   AnisotropicStressFreeStrain(PyObject *reg, char *naem, SymmMatrix3 *e);
 };
 
-%pragma(python) include="stressfreestrain.spy"
+%pythoncode "stressfreestrain.spy"
 
 %typemap(python, in) SymmMatrix * {}
+
+#endif // STRESSFREESTRAIN_SWG

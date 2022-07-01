@@ -10,6 +10,9 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef PIEZOELECTRICITY_SWG
+#define PIEZOELECTRICITY_SWG
+
 %module piezoelectricity
 
 %{
@@ -39,7 +42,6 @@ public:
   Rank3Tensor dijk();
 };
 
-%pragma(python) include="piezoelectricity.spy"
+%pythoncode "piezoelectricity.spy"
 
-
-
+#endif // PIEZOELECTRICITY

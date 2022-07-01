@@ -14,7 +14,6 @@
 
 %module crystalsymmetry
 
-%pragma(python) include="engine/crystalsymmetry.spy"
 %{
 #include "engine/crystalsymmetry.h"
 %}
@@ -44,5 +43,7 @@
     sym = TRICLINIC;
   $target = &sym;
 };
+
+%pythoncode "engine/crystalsymmetry.spy"
 
 #endif // CRYSTALSYMMETRY_SWG

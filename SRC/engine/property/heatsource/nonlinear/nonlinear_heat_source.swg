@@ -9,6 +9,9 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef NONLINEAR_HEAT_SOURCE_SWG
+#define NONLINEAR_HEAT_SOURCE_SWG
+
 %module heatsource
 
 %{
@@ -18,8 +21,6 @@
 %include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
 %import "engine/symmmatrix.swg"
-
-%pragma(python) include="nonlinear_heat_source.spy"
 
 class NonlinearHeatSourceNoDeriv : public Property {
 };
@@ -36,3 +37,7 @@ class TestNonlinearHeatSource : public NonlinearHeatSource {
 public:
   TestNonlinearHeatSource(PyObject *reg, char *name, int testno);
 };
+
+%pythoncode "nonlinear_heat_source.spy"
+
+#endif // NONLINEAR_HEAT_SOURCE_SWG

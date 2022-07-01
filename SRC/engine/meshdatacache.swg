@@ -16,8 +16,6 @@
 
 %include "engine/typemaps.swg"
 
-%pragma(python) include="meshdatacache.spy"
-
 %{
 #include "engine/meshdatacache.h"
 %}
@@ -50,5 +48,7 @@ public:
   DiskDataCache(FEMesh*);
   ~DiskDataCache();
 };
+
+%pythoncode "meshdatacache.spy"
 
 #endif

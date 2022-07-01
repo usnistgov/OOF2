@@ -9,6 +9,9 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef NONLINEAR_FORCE_DENSITY_SWG
+#define NONLINEAR_FORCE_DENSITY_SWG
+
 %module forcedensity
 
 %{
@@ -16,8 +19,6 @@
 %}
 %include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
-
-%pragma(python) include="nonlinear_force_density.spy"
 
 class NonlinearForceDensityNoDeriv : public Property {
 };
@@ -34,3 +35,7 @@ class TestNonlinearForceDensity : public NonlinearForceDensity {
 public:
   TestNonlinearForceDensity(PyObject *reg, char *name, int testno);
 };
+
+%pythoncode "nonlinear_force_density.spy"
+
+#endif // NONLINEAR_FORCE_DENSITY_SWG

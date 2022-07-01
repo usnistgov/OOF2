@@ -38,8 +38,6 @@
 %pragma(python) code="from ooflib.SWIG.engine.meshiterator import NodeIteratorPtr"
 %pragma(python) code="from ooflib.SWIG.engine.nodalequation import NodalEquationPtr"
 
-%pragma(python) include="csubproblem.spy"
-
 %{
 #include "common/doublevec.h"
 #include "engine/cconjugate.h"
@@ -172,5 +170,6 @@ public:
 
 long get_globalCSubProblemCount();
 
+%pythoncode "csubproblem.spy"
 
 #endif // SUBPROBLEM_SWG

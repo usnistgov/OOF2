@@ -9,6 +9,9 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef GENERAL_NONLINEAR_ELASTICITY_SWG
+#define GENERAL_NONLINEAR_ELASTICITY_SWG
+
 %module nonlinear
 
 %{
@@ -17,7 +20,7 @@
 
 %include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
-%pragma(python) include="general_nonlinear_elasticity.spy"
+%pythoncode "general_nonlinear_elasticity.spy"
 
 class GeneralNonlinearElasticityNoDeriv : public Property {
 };
@@ -34,3 +37,5 @@ class TestGeneralNonlinearElasticity : public GeneralNonlinearElasticity {
 public:
   TestGeneralNonlinearElasticity(PyObject *reg, char *name, int testno);
 };
+
+#endif // GENERAL_NONLINEAR_ELASTICITY_SWG

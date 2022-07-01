@@ -19,8 +19,6 @@
 #include "engine/rank3tensor.h"
 %}
 
-%pragma(python) include="engine/rank3tensor.spy"
-
 class Rank3Tensor {
 public:
   Rank3Tensor();
@@ -43,5 +41,7 @@ public:
     }
   } 
 };
+
+%pythoncode "engine/rank3tensor.spy"
 
 #endif // RANK3TENSOR_SWG

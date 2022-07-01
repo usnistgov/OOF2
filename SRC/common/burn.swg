@@ -19,9 +19,10 @@
 #include "common/burn.h"
 #include "common/cmicrostructure.h"
 %}
-%pragma(python) include="common/burn.spy"
 
 class CPixelDifferentiator3 {};
 class CPixelDifferentiator2 {};
+
+%pythoncode "common/burn.spy"
 
 #endif // BURNCOMMON_SWG

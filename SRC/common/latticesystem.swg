@@ -19,7 +19,6 @@
 #include <oofconfig.h>
 #include "common/latticesystem.h"
 %}
-%pragma(python) include="latticesystem.spy"
 
 class LatticeSymmetry {
 };
@@ -40,6 +39,8 @@ class LatticeSymmetry {
 }
 
 void addLatticeSymmetryMatrix(char*, SmallMatrix *ThreeByThreeFloats);
+
+%pythoncode "latticesystem.spy"
 
 #endif // LATTICESYSTEM_SWG
 

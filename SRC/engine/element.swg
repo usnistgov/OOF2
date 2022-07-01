@@ -24,8 +24,6 @@
 %import "engine/outputval.swg"
 %pragma(python) code="from ooflib.SWIG.engine.outputval import OutputValuePtr"
 
-%pragma(python) include="element.spy"
-
 %{
 #include "engine/element.h"
 #include "engine/cskeleton.h"
@@ -170,5 +168,7 @@ public:
 %typemap(python,out) EdgeVec*;
 %typemap(python,freearg) EdgeVec*;
 %typemap(python,out) ElementData*;
+
+%pythoncode "element.spy"
 
 #endif // ELEMENTS_SWG

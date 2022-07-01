@@ -9,6 +9,9 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef HEATSOURCE_SWG
+#define HEATSOURCE_SWG
+
 %module heatsource
 
 %{
@@ -19,9 +22,11 @@
 %include "engine/propertyhdr.swg"
 %import "engine/symmmatrix.swg"
 
-%pragma(python) include="heatsource.spy"
-
 class HeatSourceProp : public Property {
 public:
   HeatSourceProp(PyObject *reg, char *name, double qdot);
 };
+
+%pythoncode "heatsource.spy"
+
+#endif	// HEATSOURCE_SWG

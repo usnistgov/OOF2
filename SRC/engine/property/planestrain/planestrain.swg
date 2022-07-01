@@ -9,6 +9,9 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef PLANESTRAIN_SWG
+#define PLANESTRAIN_SWG
+
 %module planestrain
 
 %{
@@ -23,5 +26,6 @@ public:
   PlaneStrain(PyObject *reg, char *name, double e);
 };
 
-%pragma(python) include="planestrain.spy"
+%pythoncode "planestrain.spy"
 
+#endif // PLANESTRAIN_SWG

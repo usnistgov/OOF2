@@ -25,7 +25,6 @@
 #include "image/oofimage.h"
 %}
 
-%pragma(python) include="oofimage.spy"
 %import "common/IO/bitoverlay.swg"
 %import "common/ccolor.swg"
 %import "common/timestamp.swg"
@@ -116,5 +115,7 @@ public:
 
 DoubleArray grayify(const OOFImage& image);
 void setFromBool(OOFImage&, const BoolArray&);
+
+%pythoncode "oofimage.spy"
 
 #endif // OOFIMAGE_SWG

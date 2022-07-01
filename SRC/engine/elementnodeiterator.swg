@@ -17,7 +17,6 @@
 %}
 
 %include "engine/typemaps.swg"
-%pragma(python) include="engine/elementnodeiterator.spy"
 
 %pragma(python) code="from ooflib.SWIG.engine.node import *"
 %import "engine/node.swg"
@@ -98,5 +97,7 @@ public:
     }
   }
 };
+
+%pythoncode "engine/elementnodeiterator.spy"
 
 #endif // ELEMENTNODEITERATOR_SWG

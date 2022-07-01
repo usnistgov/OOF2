@@ -32,6 +32,6 @@ public:
   ~CIsoElasticityProp();
 };
 
-%pragma(python) include="iso.spy"
+%pythoncode "iso.spy"
 
 #endif // ISO_SWG

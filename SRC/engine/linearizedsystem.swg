@@ -26,8 +26,6 @@
 %pragma(python) code="from ooflib.SWIG.engine.sparsemat import SparseMatPtr"
 %pragma(python) code="from ooflib.SWIG.common.doublevec import DoubleVecPtr"
 
-%pragma(python) include="linearizedsystem.spy"
-
 class LinearizedSystem {
 public:
   ~LinearizedSystem();
@@ -136,5 +134,7 @@ public:
 };
 
 int get_globalLinSysCount();
+
+%pythoncode "linearizedsystem.spy"
 
 #endif // LINEARIZEDSYSTEM_SWG

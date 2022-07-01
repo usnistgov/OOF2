@@ -21,8 +21,6 @@
 typedef Array<int> ArrayInt;
 %}
 
-%pragma(python) include="cmicrostructure.spy"
-
 %include "common/typemaps.swg"
 
 %import "common/pixelgroup.swg"
@@ -155,5 +153,7 @@ long get_globalMicrostructureCount();
 //For SnapRefine.
 %typemap(python, argout) int *cskel_edgecat {}
 %typemap(python, ignore) int *cskel_edgecat {}
+
+%pythoncode "cmicrostructure.spy"
 
 #endif // CMICROSTRUCTURE_SWG

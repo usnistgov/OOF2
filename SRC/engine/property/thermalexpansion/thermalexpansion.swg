@@ -9,6 +9,9 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef THERMALEXPANSION_SWG
+#define THERMALEXPANSION_SWG
+
 %module thermalexpansion
 
 %{
@@ -34,7 +37,8 @@ public:
   AnisotropicThermalExpansion(PyObject *registry, char *name, SymmMatrix3 *alpha, double t0);
 };
 
-%pragma(python) include="thermalexpansion.spy"
+%pythoncode "thermalexpansion.spy"
 
 %typemap(python,in) SymmMatrix * {}
 
+#endif // THERMALEXPANSION_SWG

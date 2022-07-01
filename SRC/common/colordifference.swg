@@ -18,8 +18,6 @@
 #include "common/colordifference.h"
 %}
 
-%pragma(python) include="colordifference.spy"
-
 class ColorDifference {}
 
 class DeltaRGB: public ColorDifference {
@@ -42,5 +40,7 @@ public:
   ~DeltaHSV();
   bool contains(const CColor &c1, const CColor &c2) const;
 };
+
+%pythoncode "colordifference.spy"
 
 #endif // COLORDIFFERENCE_SWG

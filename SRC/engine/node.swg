@@ -22,7 +22,6 @@
 %{
 #include "engine/node.h"
 %}
-%pragma(python) include="engine/node.spy"
 
 class Node
 {
@@ -49,5 +48,7 @@ class FuncNode : public Node, public PointData {
 public:
   Coord displaced_position(FEMesh*);
 };
+
+%pythoncode "engine/node.spy"
 
 #endif // NODE_SWG

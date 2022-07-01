@@ -19,7 +19,7 @@
 %}
 
 %import "common/brushstyle.swg"
-%pragma(python) include="gfxbrushstyle.spy"
+%pythoncode "gfxbrushstyle.spy"
 %pragma(python) code="from ooflib.SWIG.common.brushstyle import CircleBrushPtr"
 %pragma(python) code="from ooflib.SWIG.common.brushstyle import SquareBrushPtr"
 

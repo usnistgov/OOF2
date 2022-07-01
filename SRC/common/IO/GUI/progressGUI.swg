@@ -18,7 +18,7 @@
 %{
 #include "common/IO/GUI/progressGUI.h"
 %}
-%pragma(python) include="common/IO/GUI/progressGUI.spy"
+%pythoncode "common/IO/GUI/progressGUI.spy"
 
 void initialize();
 

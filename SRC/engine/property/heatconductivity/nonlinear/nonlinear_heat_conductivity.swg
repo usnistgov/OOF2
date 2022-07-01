@@ -9,6 +9,9 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef NONLINEAR_HEAT_CONDUCTIVITY_SWG
+#define NONLINEAR_HEAT_CONDUCTIVITY_SWG
+
 %module heatconductivity
 
 %{
@@ -18,8 +21,6 @@
 %include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
 %import "engine/symmmatrix.swg"
-
-%pragma(python) include="nonlinear_heat_conductivity.spy"
 
 class NonlinearHeatConductivityNoDeriv : public Property {
 };
@@ -36,3 +37,7 @@ class TestNonlinearHeatConductivity : public NonlinearHeatConductivity {
 public:
   TestNonlinearHeatConductivity(PyObject *reg, char *name, int testno);
 };
+
+%pythoncode "nonlinear_heat_conductivity.spy"
+
+#endif // NONLINEAR_HEAT_CONDUCTIVITY_SWG

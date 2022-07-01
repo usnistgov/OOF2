@@ -15,8 +15,6 @@
 %module property
 %include "engine/typemaps.swg"
 
-%pragma(python) include="engine/property.spy"
-
 %typemap(python,out) PyObject * {
   $target = $source;
 }
@@ -105,5 +103,7 @@ public:
 double deriv_eps;
 
 %typemap(python,out) PyObject *;
+
+%pythoncode "engine/property.spy"
 
 #endif // PROPERTIES_SWG

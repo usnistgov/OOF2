@@ -9,6 +9,12 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef NONCONSTANT_HEAT_SOURCE_SWG
+#define NONCONSTANT_HEAT_SOURCE_SWG
+
+// TODO PYTHON3: Can two swig files contribute to the same module?
+// The module line in heatsource.swg is the same as this one.  Or does
+// that module have a different path?
 %module heatsource
 
 %{
@@ -19,8 +25,6 @@
 %include "engine/propertyhdr.swg"
 %import "engine/symmmatrix.swg"
 
-%pragma(python) include="nonconstant_heat_source.spy"
-
 class NonconstantHeatSource : public Property {
 };
 
@@ -29,3 +33,7 @@ class TestNonconstantHeatSource : public NonconstantHeatSource {
 public:
   TestNonconstantHeatSource(PyObject *reg, char *name, int testno);
 };
+
+%pythoncode "nonconstant_heat_source.spy"
+
+#endif // NONCONSTANT_HEAT_SOURCE_SWG

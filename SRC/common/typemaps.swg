@@ -26,11 +26,11 @@
 // correct.  Should they be %import instead?  %import gathers type
 // information but doesn't generate wrappers.
 
-// TODO PYTHON3: Change "%pragma(python) include=" to "%pythoncode"
-// everywhere.
-
 // TODO PYTHON3: Change "pragma(python) code=" to "%pythoncode", or
 // delete if not needed.
+
+// TODO PYTHON3: Examine all .spy files. Many can probably be replaced
+// with %extend directives in the .swg files.
 
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//

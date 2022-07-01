@@ -25,7 +25,6 @@
 %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator2Ptr"   
 %pragma(python) code="from ooflib.SWIG.common.statgroups import PixelDistributionFactoryPtr"
 
-%pragma(python) include="orientationmap/pixeldifferentiator.spy"
 %import "common/burn.swg"
 %import "common/statgroups.swg"
    
@@ -44,5 +43,6 @@ public:
   OrientationPixelDistFactory(OrientMap*, double, char*);
 };
 
+%pythoncode "orientationmap/pixeldifferentiator.spy"
 
 #endif // PIXELDIFFORIENT_SWG

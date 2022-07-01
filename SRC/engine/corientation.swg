@@ -22,7 +22,6 @@
 #include "common/tostring.h"
 %}
 
-%pragma(python) include="corientation.spy"
 %pragma(python) code="from ooflib.SWIG.engine.outputval import NonArithmeticOutputValPtr"
 %pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import NonArithmeticPropertyOutputInitPtr"
 
@@ -159,6 +158,6 @@ public:
   OrientationPropertyOutputInit();
 };
 
-
+%pythoncode "corientation.spy"
 
 #endif	// CORIENTATION_SWG

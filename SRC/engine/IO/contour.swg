@@ -19,7 +19,6 @@
 %import "engine/mastercoord.swg"
 
 %pragma(python) code="from ooflib.SWIG.engine.mastercoord import MasterCoordPtr"
-%pragma(python) include="contour.spy"
 
 %{
 #include "engine/IO/contour.h"
@@ -88,5 +87,7 @@ ContourCellSet *contourCellCache(MasterElement*, int);
 void clearCache();
 
 int nContourStates, nCreated, nDeleted;	// DEBUGGING
+
+%pythoncode "contour.spy"
 
 #endif // CONTOUR_SWG

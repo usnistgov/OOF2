@@ -20,7 +20,6 @@
 #include "engine/symmmatrix.h"
 %}
 
-%pragma(python) include="engine/symmmatrix.spy"
 %import "engine/outputval.swg"
 %pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValPtr"
 %pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValuePtr"
@@ -106,6 +105,6 @@ public:
   SymmMatrix3PropertyOutputInit();
 };
 
-
+%pythoncode "engine/symmmatrix.spy"
 
 #endif // SYMMMATRIX_SWG

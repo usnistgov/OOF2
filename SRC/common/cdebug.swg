@@ -21,7 +21,6 @@
 #include "common/pixelsetboundary.h"
   void segfault();
 %}
-%pragma(python) include="cdebug.spy"
 
 void initDebug(PyObject*);
 void segfault(int);
@@ -32,5 +31,7 @@ void throwPythonCException();
 void spinCycle(int);
 
 int countleft;			// in pixelsetboundary.h
+
+%pythoncode "cdebug.spy"
 
 #endif // CDEBUG_SWG

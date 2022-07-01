@@ -17,7 +17,6 @@
 
 %include "engine/typemaps.swg"
 
-%pragma(python) include="engine/edgeset.spy"
 %import "femesh.swg"
 %import "edge.swg"
 
@@ -82,5 +81,7 @@ public:
 }
 
 %typemap(python,out) vecdist *;
+
+%pythoncode "engine/edgeset.spy"
 
 #endif // EDGESET_SWG

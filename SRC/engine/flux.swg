@@ -19,7 +19,6 @@
 #include "engine/flux.h"
 %}
 
-%pragma(python) include="engine/flux.spy"
 %import "engine/fieldindex.swg"
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
@@ -61,5 +60,7 @@ public:
 
 Flux *getFluxByIndex(int);
 int countFluxes();
+
+%pythoncode "engine/flux.spy"
 
 #endif // FLUX_SWG

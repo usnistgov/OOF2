@@ -9,6 +9,9 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef PERMITTIVITY_SWG
+#define PERMITTIVITY_SWG
+
 %module permittivity
 
 %{
@@ -20,8 +23,6 @@
 
 %pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrixPtr"
 %import "engine/symmmatrix.swg"
-
-%pragma(python) include="permittivity.spy"
 
 class IsoDielectricPermittivity : public Property {
 public:
@@ -38,3 +39,7 @@ public:
   ChargeDensity(PyObject *reg, char *name, double qdot);
   double rho();
 };
+
+%pythoncode "permittivity.spy"
+
+#endif // PERMITTIVITY_SWG

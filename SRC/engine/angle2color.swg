@@ -17,7 +17,6 @@
 %{
 #include "engine/angle2color.h"
 %}
-%pragma(python) include="angle2color.spy"
 
 class Angle2Color {};
 
@@ -40,5 +39,7 @@ class Axis2HSV : public Angle2Color {
 public:
   Axis2HSV();
 };
+
+%pythoncode "angle2color.spy"
 
 #endif // ANGLE2COLOR_SWG

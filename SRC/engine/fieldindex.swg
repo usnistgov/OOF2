@@ -26,8 +26,6 @@
 #endif // HAVE_SSTREAM
 %}
 
-%pragma(python) include="engine/fieldindex.spy"
-
 class FieldIndex {
 public:
   ~FieldIndex();
@@ -208,5 +206,7 @@ public:
 };
 
 %new IteratorP *getSymTensorIterator(Planarity);
+
+%pythoncode "engine/fieldindex.spy"
 
 #endif // FIELDINDEX_SWG

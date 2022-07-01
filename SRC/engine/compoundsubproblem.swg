@@ -16,7 +16,6 @@
 
 %include "engine/typemaps.swg"
 %import "engine/csubproblem.swg"
-%pragma(python) include="engine/compoundsubproblem.spy"
 %pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"
 %pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
 
@@ -57,5 +56,7 @@ public:
   Lock precomputeLock;
   bool precomputeRequired;
 };
+
+%pythoncode "engine/compoundsubproblem.spy"
 
 #endif // COMPOUNDSUBPROBLEM_SWG

@@ -9,6 +9,9 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef FORCEDENSITY_SWG
+#define FORCEDENSITY_SWG
+
 %module forcedensity
 
 %{
@@ -16,8 +19,6 @@
 %}
 %include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
-
-%pragma(python) include="forcedensity.spy"
 
 class ForceDensity : public Property {
 public:
@@ -33,3 +34,6 @@ public:
 #endif
 };
 
+%pythoncode "forcedensity.spy"
+
+#endif // FORCEDENSITY_SWG

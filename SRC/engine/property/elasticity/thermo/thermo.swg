@@ -9,6 +9,9 @@
  * oof_manager@nist.gov. 
  */
 
+#ifndef ELASTICITY_THERMO_SWG
+#define ELASTICITY_THERMO_SWG
+
 %module thermo
 
 %{
@@ -61,7 +64,9 @@ public:
 };
 
 
-%pragma(python) include="thermo.spy"
+%pythoncode "thermo.spy"
 
 %typemap(python,in) Cijkl* {}
 %typemap(Python,freearg) Cijkl *{}
+
+#endif // ELASTICITY_THERMO_SWG

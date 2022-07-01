@@ -9,7 +9,10 @@
  * oof_manager@nist.gov.
  */
 
-%module piezoelectricity
+#ifdnef PYROELECTRICITY_SWG
+#define PYROELECTRICITY_SWG
+
+%module pyroelectricity
 
 %{
 #include "engine/property/pyroelectricity/pyroelectricity.h"
@@ -55,7 +58,6 @@ public:
 
 %typemap(python, in) std::string *coefficient_type {}
 
-%pragma(python) include="pyroelectricity.spy"
+%pythoncode "pyroelectricity.spy"
 
-
-
+#endif // PYROELECTRICITY_SWG

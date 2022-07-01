@@ -17,8 +17,6 @@
 %include "engine/typemaps.swg"
 %import "engine/fieldindex.swg"
 
-%pragma(python) include="outputval.spy"
-
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
 
@@ -183,5 +181,7 @@ public:
      }
   }
 };
+
+%pythoncode "outputval.spy"
 
 #endif // OUTPUTVAL_SWG

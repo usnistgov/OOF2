@@ -26,6 +26,6 @@ public:
   IsotropicDampingProp(PyObject*, char*, double);
 };
 
-%pragma(python) include="damping.spy"
+%pythoncode "damping.spy"
 
 #endif // DAMPING_SWG

@@ -24,8 +24,6 @@
 #include "common/ooferror.h"
 %}
 
-%pragma(python) include="ooferror.spy"
-
 void pyErrorInit(PyObject *pythonCallable);
 
 /* Swigged for automatic synchronization with C++ classes.
@@ -144,5 +142,7 @@ public:
     }
   }
 };
+
+%pythoncode "ooferror.spy"
 
 #endif // OOFERROR_SWG

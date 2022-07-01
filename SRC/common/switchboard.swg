@@ -19,8 +19,6 @@
 #include "common/pythonlock.h"
 %}
 
-%pragma(python) include="switchboard.spy"
-
 %include "common/typemaps.swg"
 
 
@@ -51,5 +49,7 @@ public:
 };
 
 %typemap(python, out) PyObject*;
+
+%pythoncode "switchboard.spy"
 
 #endif // SWITCHBOARD_SWG

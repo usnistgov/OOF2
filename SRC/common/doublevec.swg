@@ -20,8 +20,6 @@
 #include "common/doublevec.h"
 %}
 
-%pragma(python) include="doublevec.spy"
-
 class DoubleVec {
 public:
   DoubleVec(int size, double val=0);
@@ -68,5 +66,7 @@ public:
     load_vec(*self, std::string(filename));
   }
 }
+
+%pythoncode "doublevec.spy"
 
 #endif // DOUBLEVEC_SWG

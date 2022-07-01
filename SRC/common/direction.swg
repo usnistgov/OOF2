@@ -18,8 +18,6 @@
 #include "common/direction.h"
 %}
 
-%pragma(python) include="direction.spy"
-
 class CDirection {
 public:
   ~CDirection();
@@ -40,6 +38,8 @@ class CAngleDirection : public CDirection {
 public:
   CAngleDirection(double, double);
 };
+
+%pythoncode "direction.spy"
 
 #endif // DIRECTION_SWG
 

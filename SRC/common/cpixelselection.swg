@@ -31,8 +31,6 @@
 %pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelSetPtr"
 %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 
-%pragma(python) include="cpixelselection.spy"
-
 class CPixelSelection {
 public:
   CPixelSelection(ICoord *iPoint, Coord *Point, CMicrostructure*);
@@ -72,5 +70,7 @@ public:
     return self->len();
   }
 }
+
+%pythoncode "cpixelselection.spy"
 
 #endif // CPIXELSELECTION_SWG

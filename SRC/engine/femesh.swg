@@ -39,10 +39,6 @@
 #include "engine/csubproblem.h"
 %}
 
-%pragma(python) include="femesh.spy"
-
-
-
 class FEMesh {
 public:
   FEMesh(CMicrostructure*);
@@ -106,5 +102,7 @@ public:
 };				// class FEMesh
 
 long get_globalFEMeshCount();
+
+%pythoncode "femesh.spy"
 
 #endif // FEMESH_SWG

@@ -17,7 +17,6 @@
 %{
 #include "common/lock.h"
 %}
-%pragma(python) include="lock.spy"
 
 class Lock {
 public:
@@ -61,5 +60,7 @@ public:
 
 void enable_all();
 bool disable_all();
+
+%pythoncode "lock.spy"
 
 #endif // LOCK_SWG

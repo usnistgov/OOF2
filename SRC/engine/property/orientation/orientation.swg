@@ -24,7 +24,6 @@
 %import "engine/corientation.swg"
 
 
-%pragma(python) include="engine/property/orientation/orientation.spy"
 %pragma(python) code="from ooflib.SWIG.engine.corientation import COrientationPtr"
 
 
@@ -49,5 +48,7 @@ public:
 // // Clean up.
 %typemap(python,in) COrientation * {}
 // %typemap(python,freearg) COrientation * {}
+
+%pythoncode "engine/property/orientation/orientation.spy"
 
 #endif // ORIENTATION_SWG

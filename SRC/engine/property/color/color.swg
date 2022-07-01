@@ -45,4 +45,4 @@ public:
   CColor color();
 };
 
-%pragma(python) include="engine/property/color/color.spy"
+%pythoncode "engine/property/color/color.spy"

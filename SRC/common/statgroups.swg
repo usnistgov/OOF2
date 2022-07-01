@@ -20,8 +20,6 @@
 #include "common/cmicrostructure.h"
 %}
 
-%pragma(python) include="common/statgroups.spy"
-
 class PixelDistributionFactory {};
 
 const string *statgroups(CMicrostructure*,
@@ -29,6 +27,8 @@ const string *statgroups(CMicrostructure*,
 			 double, double,
 			 int, bool,
 			 char*, bool);
+
+%pythoncode "common/statgroups.spy"
 
 #endif // STATGROUPS_SWG
 

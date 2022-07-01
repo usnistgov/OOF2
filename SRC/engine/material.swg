@@ -25,7 +25,6 @@
 typedef const std::string MaterialType;
 %}
 
-%pragma(python) include="engine/material.spy"
 %import "common/pixelattribute.swg"
 %pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
 %import "common/timestamp.swg"
@@ -121,5 +120,7 @@ public:
 };
 
 %typemap(python,out) Property*;
+
+%pythoncode "engine/material.spy"
 
 #endif // MATERIAL_SWG

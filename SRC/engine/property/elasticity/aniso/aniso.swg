@@ -37,6 +37,6 @@ public:
   const Cijkl crystal_cijkl();
 };
 
-%pragma(python) include="aniso.spy"
+%pythoncode "aniso.spy"
 
 #endif // ANISO_SWG

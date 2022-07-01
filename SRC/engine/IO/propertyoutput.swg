@@ -30,8 +30,6 @@
   $target = $source->pythonObject();
 }
 
-%pragma(python) include="engine/IO/propertyoutput.spy"
-
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // OutputVal initializers
@@ -96,5 +94,7 @@ public:
   %new PropertyOutput *instantiateArithmetic(char*, PyObject*);
   %new PropertyOutput *instantiateNonArithmetic(char*, PyObject*);
 };
+
+%pythoncode "engine/IO/propertyoutput.spy"
 
 #endif	// PROPERTYOUTPUT_SWG

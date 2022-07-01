@@ -19,7 +19,6 @@
 #include "orientationmap/orientmapdata.h"
 %}
 
-%pragma(python) include="orientmapdata.spy"
 %import "common/abstractimage.swg"
 %import "common/coord.swg"
 %import "engine/angle2color.swg"
@@ -61,5 +60,7 @@ public:
 
 void registerOrientMap(char*, OrientMap*);
 void removeOrientMap(char*);
+
+%pythoncode "orientmapdata.spy"
 
 #endif // ORIENTMAPDATA_SWG

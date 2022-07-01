@@ -29,8 +29,6 @@
 %pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
    
-%pragma(python) include="bitoverlay.spy"
-
 class BitmapOverlay : public AbstractImage {
 public:
   BitmapOverlay(Coord *Point, ICoord *iPoint);
@@ -56,5 +54,7 @@ public:
   %new ICoordVec *pixels(int v);	// all pixels whose value==v
   TimeStamp &getTimeStamp();
 };
+
+%pythoncode "bitoverlay.spy"
 
 #endif // BITOVERLAY_SWG

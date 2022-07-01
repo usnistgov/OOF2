@@ -19,8 +19,6 @@
 %include "engine/propertyhdr.swg"
 %import "engine/symmmatrix.swg"
 
-%pragma(python) include="charge.spy"
-
 class IsoCurrent : public Property {
 public:
   IsoCurrent(PyObject *reg, char *name, double kappa);
@@ -30,4 +28,6 @@ class AnisoCurrent : public Property {
 public:
   AnisoCurrent(PyObject *reg, char *name, SymmMatrix3 *k);
 };
+
+%pythoncode "charge.spy"
 

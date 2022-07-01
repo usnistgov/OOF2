@@ -17,21 +17,20 @@
 %{
 #include "common/pixelattribute.h"
 %}
-%pragma(python) include="pixelattribute.spy"
 
 class PxlAttributeRegistration {
 public:
   const string &name();
 };
 
-%typemap(python, out) PxlAttributeRegistration* {
-  // typemap(python, out) PxlAttributeRegistration*
-  $target = $source->pythonObject();
-  if(!$target)
-    return 0;
+%typemap(out) PxlAttributeRegistration* {
+  // typemap(out) PxlAttributeRegistration*
+  $result = $1->pythonObject();
 }
 
 int nAttributes();
 PxlAttributeRegistration *getRegistration(int);
+
+%pythoncode "pixelattribute.spy"
 
 #endif // PIXELATTRIBUTE_SWG

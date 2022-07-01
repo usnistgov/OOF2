@@ -14,7 +14,6 @@
 
 %module edge
 %include "engine/typemaps.swg"
-%pragma(python) include="edge.spy"
 %import "engine/field.swg"
 // %import "engine/csubproblem.swg"
 %import "engine/node.swg"
@@ -46,5 +45,7 @@ public:
   Node *startnode();
   Node *endnode();
 };
+
+%pythoncode "edge.spy"
 
 #endif // EDGE_SWG

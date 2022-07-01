@@ -23,8 +23,6 @@
 #include <cstring>
 %} 
 
-%pragma(python) include="engine/sparsemat.spy"
-
 class SparseMat {
 public:
   SparseMat(int nr, int nc);
@@ -95,5 +93,7 @@ public:
     }
   }
 };
+
+%pythoncode "engine/sparsemat.spy"
 
 #endif // SPARSEMAT_SWG

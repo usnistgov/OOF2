@@ -9,6 +9,9 @@
  * oof_manager@nist.gov.
  */
 
+#ifndef NONCONSTANT_FORCE_DENSITY_SWG
+#define NONCONSTANT_FORCE_DENSITY_SWG
+
 %module forcedensity
 
 %{
@@ -17,7 +20,6 @@
 %include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
 
-%pragma(python) include="nonconstant_force_density.spy"
 
 class NonconstantForceDensity : public Property {
 };
@@ -27,3 +29,7 @@ class TestNonconstantForceDensity : public Property {
 public:
   TestNonconstantForceDensity(PyObject *reg, char *name, int testno);
 };
+
+%pythoncode "nonconstant_force_density.spy"
+
+#endif // NONCONSTANT_FORCE_DENSITY_SWG

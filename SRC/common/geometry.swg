@@ -19,7 +19,6 @@
 #include "common/geometry.h"
 typedef class CPolygon<double, Coord> CPolygonCoord;
 %}
-%pragma(python) include="geometry.spy"
 %include "common/typemaps.swg"
 
 
@@ -37,41 +36,6 @@ public:
   void expand(double factor);
 };
 
-#ifdef DIM_3
-
-class CRectangularPrism : public CPolygonCoord {
-public:
-  CRectangularPrism(const Coord&, const Coord&);
-  double xmin();
-  double xmax();
-  double ymin();
-  double ymax();
-  double zmin();
-  double zmax();
-  double height();
-  double width();
-  double depth();
-  void expand(double factor);
-};
-
-#endif
-
-// class CQuadrilateral : public CPolygonCoord {
-// public:
-//   CQuadrilateral(Coord *Point, Coord *Point, Coord *Point, Coord *Point);
-//   bool contains(Coord *Point);
-//   double area();
-// };
-
-// class CTriangle : public CPolygonCoord {
-// public:
-//   CTriangle(Coord *Point, Coord *Point, Coord *Point);
-//   bool contains(Coord *Point);
-//   double area();
-// };
-
-//double triangleArea(Coord *Point, Coord *Point, Coord *Point);
-
-//double pixelIntersection(CPolygonCoord, ICoord *iPoint, double, double);
+%pythoncode "geometry.spy"
 
 #endif // GEOMETRY_SWG
