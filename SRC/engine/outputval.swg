@@ -15,7 +15,7 @@
 
 %module outputval
 %include "engine/typemaps.swg"
-%extern "engine/fieldindex.swg"
+%import "engine/fieldindex.swg"
 
 %pragma(python) include="outputval.spy"
 

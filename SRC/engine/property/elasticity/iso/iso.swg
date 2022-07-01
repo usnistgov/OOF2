@@ -20,10 +20,10 @@
 
 %include "engine/typemaps.swg"
 %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
-%extern "engine/property/elasticity/elasticity.swg"
+%import "engine/property/elasticity/elasticity.swg"
 
 %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
-%extern "engine/property/elasticity/cijkl.swg"
+%import "engine/property/elasticity/cijkl.swg"
 
 
 class CIsoElasticityProp : public Elasticity {

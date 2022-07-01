@@ -16,7 +16,7 @@
 %}
 %include "common/typemaps.swg"
 %pragma(python) include="cijkl.spy"
-%extern "engine/symmmatrix.swg"
+%import "engine/symmmatrix.swg"
 %pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
 
 class Cijkl {

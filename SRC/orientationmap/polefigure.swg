@@ -14,8 +14,8 @@
 
 %module polefigure
 %include "common/typemaps.swg"
-%extern "engine/crystalsymmetry.swg"
-%extern "common/direction.swg"
+%import "engine/crystalsymmetry.swg"
+%import "common/direction.swg"
 
 %{
 #include "orientationmap/polefigure.h"

@@ -15,7 +15,7 @@
 %module contourcell
 %include "engine/typemaps.swg"
 
-%extern "mastercoord.swg"
+%import "mastercoord.swg"
 
 %{
 #include "engine/contourcell.h"

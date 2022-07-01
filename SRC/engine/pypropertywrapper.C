@@ -289,7 +289,9 @@ bool PyPropertyMethods::py_constant_in_space(PyObject *referent,
 		       + prop->name());
   }
   PyObject *func = PyObject_GetAttrString(referent, "constant_in_space_wrap");
-  PyObject *k_result = PyObject_CallNoArgs(func);
+  // PyObject_CallNoArgs is only available in Python 3.9 and later.
+  //  PyObject *k_result = PyObject_CallNoArgs(func);
+  PyObject *k_result = PyObject_CallFunctionObjArgs(func, NULL);
   Py_XDECREF(func);
   if(k_result == NULL) {
     pythonErrorRelay();

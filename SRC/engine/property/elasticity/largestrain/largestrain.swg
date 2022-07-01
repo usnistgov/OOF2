@@ -21,11 +21,11 @@
 %include "engine/typemaps.swg"
 %include "engine/propertyhdr.swg"
 %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
-%extern "engine/property/elasticity/cijkl.swg"
+%import "engine/property/elasticity/cijkl.swg"
 
 
 %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
-%extern "engine/property/elasticity/elasticity.swg"
+%import "engine/property/elasticity/elasticity.swg"
 
 class CIsoLargeStrainElasticity : public Elasticity {
 public:

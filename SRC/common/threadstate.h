@@ -24,6 +24,7 @@
 #include "common/progress.h"
 
 #include <pthread.h>
+#include <string>
 #include <vector>
 
 class ThreadID {
@@ -32,6 +33,7 @@ private:
 public:
   ThreadID();
   const pthread_t & get_ID() const { return _ID; }
+  std::string *get_IDstr() const;
 };
 
 std::ostream &operator<<(std::ostream&, const ThreadID&);

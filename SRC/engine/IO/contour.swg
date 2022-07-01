@@ -15,8 +15,8 @@
 
 %module contour
 %include "engine/typemaps.swg"
-%extern "engine/masterelement.swg"
-%extern "engine/mastercoord.swg"
+%import "engine/masterelement.swg"
+%import "engine/mastercoord.swg"
 
 %pragma(python) code="from ooflib.SWIG.engine.mastercoord import MasterCoordPtr"
 %pragma(python) include="contour.spy"

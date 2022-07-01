@@ -16,11 +16,11 @@
 
 %include "engine/typemaps.swg"
 %include "common/typemaps.swg"
-%extern "common/coord.swg"
-%extern "common/timestamp.swg"
+%import "common/coord.swg"
+%import "common/timestamp.swg"
 %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
-%extern "common/cmicrostructure.swg"
-%extern "common/coord.swg"
+%import "common/cmicrostructure.swg"
+%import "common/coord.swg"
 %pragma(python) code="from ooflib.SWIG.common.coord import CoordPtr"
 
 

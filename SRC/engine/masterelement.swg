@@ -15,8 +15,8 @@
 %include "engine/typemaps.swg"
 
 %pragma(python) include="engine/masterelement.spy"
-%extern "engine/element.swg"
-%extern "engine/mastercoord.swg"
+%import "engine/element.swg"
+%import "engine/mastercoord.swg"
 
 %{
 #include "engine/masterelement.h"

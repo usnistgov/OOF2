@@ -19,7 +19,7 @@
 #include "engine/IO/propertyoutput.h"
 %}
 
-%extern "engine/IO/propertyoutput.swg"
+%import "engine/IO/propertyoutput.swg"
 %pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import PropertyOutputValInitPtr"
   
 

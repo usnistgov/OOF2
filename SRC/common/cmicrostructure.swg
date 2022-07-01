@@ -25,10 +25,10 @@ typedef Array<int> ArrayInt;
 
 %include "common/typemaps.swg"
 
-%extern "common/pixelgroup.swg"
+%import "common/pixelgroup.swg"
 %pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelGroupPtr"
 
-%extern "common/timestamp.swg"
+%import "common/timestamp.swg"
 %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 
 %typemap(python, out) ArrayInt* {
@@ -87,7 +87,7 @@ typedef Array<int> ArrayInt;
   PyList_Append($target, res);
 }
 
-%extern "common/coord.swg"
+%import "common/coord.swg"
 
 
 //For SnapRefine.
@@ -134,7 +134,7 @@ public:
   ICoord getRepresentativePixel(int category);
   bool transitionPointWithPoints(Coord *Point, Coord *Point,
 				 Coord *cskel_OutPoint);
-//   %addmethods {
+//   %extend {
 //     Coord transitionPointWithPoints(Coord *Point c0, Coord *Point c1) {
 //       Coord *point;
 //       self->transitionPointClosest(*c0, *c1, point);

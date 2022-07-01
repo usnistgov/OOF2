@@ -22,7 +22,7 @@ using std::string;
 %}
 %pragma(python) include="mpitools.spy"
 %pragma(python) code="from ooflib.SWIG.common.ooferror import ErrErrorPtr"
-%extern "common/ooferror.swg"
+%import "common/ooferror.swg"
 
 void _Initialize(CharPtrVec *argv);
 int Initialized();

@@ -20,10 +20,10 @@
 %}
 
 %pragma(python) include="engine/flux.spy"
-%extern "engine/fieldindex.swg"
+%import "engine/fieldindex.swg"
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
-%extern "engine/outputval.swg"
+%import "engine/outputval.swg"
 %pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValuePtr"
 
 

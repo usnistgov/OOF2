@@ -15,7 +15,7 @@
 %module fieldindex
 
 %include "engine/typemaps.swg"
-%extern "engine/planarity.swg"
+%import "engine/planarity.swg"
 %{
 #include "engine/fieldindex.h"
 #include "common/tostring.h"

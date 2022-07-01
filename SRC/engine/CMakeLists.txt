@@ -128,7 +128,67 @@ target_sources(oof2engine
   steperrorscaling.h
   symeig3.h
   symmmatrix.h
-)
+  )
+
+swig_sources(
+  SWIGFILES
+  angle2color
+  bdyanalysis
+  boundarycond
+  cconjugate
+  cfiddlenodesbaseParallel
+  cmatrixmethods
+  cnonlinearsolver
+  compoundsubproblem
+  contourcell
+  corientation
+  crystalsymmetry
+  cskeleton
+  cstrain
+  csubproblem
+  dofmap
+  edge
+  edgeset
+  element
+  elementlocator
+  elementnodeiterator
+  entiremeshsubproblem
+  equation
+  femesh
+  field
+  fieldindex
+  flux
+  freedom
+  gausspoint
+  invariant
+  linearizedsystem
+  mastercoord
+  masterelement
+  material
+  materialsubproblem
+  meshdatacache
+  meshiterator
+  nodalequation
+  node
+  ooferror2
+  orientationimage
+  outputval
+  pixelgroupsubproblem
+  pixelselectioncouriere
+  planarity
+  pointdata
+  properties
+  propertyhdr
+  pypropertywrapper
+  rank3tensor
+  smallsystem
+  sparsemat
+  steperrorscaling
+  symmmatrix
+  LIBRARIES
+  oof2common
+  oof2engine
+  )
 
 add_subdirectory(IO)
 add_subdirectory(property)

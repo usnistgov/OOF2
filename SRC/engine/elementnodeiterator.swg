@@ -20,7 +20,7 @@
 %pragma(python) include="engine/elementnodeiterator.spy"
 
 %pragma(python) code="from ooflib.SWIG.engine.node import *"
-%extern "engine/node.swg"
+%import "engine/node.swg"
 
 class ElementNodeIterator {
 public:

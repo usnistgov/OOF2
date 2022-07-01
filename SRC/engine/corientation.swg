@@ -14,8 +14,8 @@
 
 %module corientation
 %include "common/typemaps.swg"
-%extern "engine/outputval.swg"
-%extern "engine/IO/propertyoutput.swg"
+%import "engine/outputval.swg"
+%import "engine/IO/propertyoutput.swg"
 
 %{
 #include "engine/corientation.h"

@@ -19,7 +19,7 @@
 %include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
 %pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
-%extern "common/ccolor.swg"
+%import "common/ccolor.swg"
 
 // // Converts color from common.IO.color object into a CColor object.
 // %typemap(python, in) CColor * {

@@ -17,9 +17,7 @@
 
 %include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
-%extern "engine/symmmatrix.swg"
-
-%pragma(python) include="diffusion.spy"
+%import "engine/symmmatrix.swg"
 
 class IsoDiffusion : public Property {
 public:
@@ -42,3 +40,5 @@ class AtomFluxJumpTest : public Property
 public:
   AtomFluxJumpTest(PyObject *self, char*, double);
 };
+
+%pythoncode "diffusion.spy"

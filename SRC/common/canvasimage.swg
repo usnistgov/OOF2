@@ -12,6 +12,8 @@
 #ifndef CANVASIMAGE_SWG
 #define CANVASIMAGE_SWG
 
+// TODO PYTHON3: How much of this is necessary?
+
 // The CanvasImage and NewCanvasImage typemaps are for returning an
 // OOFCanvas::CanvasImage from C++ to Python.  This requires some
 // extra work because we can't use %extern "oofcanvas/oofcanvas.swg",

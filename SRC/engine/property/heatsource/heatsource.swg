@@ -17,7 +17,7 @@
 
 %include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
-%extern "engine/symmmatrix.swg"
+%import "engine/symmmatrix.swg"
 
 %pragma(python) include="heatsource.spy"
 

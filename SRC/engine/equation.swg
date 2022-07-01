@@ -14,10 +14,10 @@
 
 %module equation
 %include "engine/typemaps.swg"
-%extern "engine/nodalequation.swg"
-%extern "engine/planarity.swg"
-%extern "engine/flux.swg"
-%extern "engine/csubproblem.swg"
+%import "engine/nodalequation.swg"
+%import "engine/planarity.swg"
+%import "engine/flux.swg"
+%import "engine/csubproblem.swg"
 
 %{
 #include "engine/equation.h"

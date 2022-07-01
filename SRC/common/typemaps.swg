@@ -22,6 +22,16 @@
 // and SWIG_fail.  NO!  Then we're restricted to swig's list of
 // exception types.
 
+// TODO PYTHON3: Check that all %include's in all .swg files are
+// correct.  Should they be %import instead?  %import gathers type
+// information but doesn't generate wrappers.
+
+// TODO PYTHON3: Change "%pragma(python) include=" to "%pythoncode"
+// everywhere.
+
+// TODO PYTHON3: Change "pragma(python) code=" to "%pythoncode", or
+// delete if not needed.
+
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -741,13 +751,13 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 %typemap(out) ICoord {
   // typemap(out) ICoord
   FETCH_CLASS(ooflib.common.primitives, iPoint);
-  $result = PyObject_CallFunction(iPointClass, "ii", (*$1)(0), (*$1)(1));
+  $result = PyObject_CallFunction(iPointClass, "ii", ($1)(0), ($1)(1));
  }
 
 %typemap(out) Coord {
   // typemap(out) Coord
   FETCH_CLASS(ooflib.common.primitives, Point);
-  $result = PyObject_CallFunction(PointClass, "dd", (*$1)(0), (*$1)(1));
+  $result = PyObject_CallFunction(PointClass, "dd", ($1)(0), ($1)(1));
  }
 
 // Python iPoint --> C++ ICoord*

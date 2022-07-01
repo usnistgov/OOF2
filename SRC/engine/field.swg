@@ -15,10 +15,10 @@
 %module field
 
 %include "engine/typemaps.swg"
-%extern "engine/freedom.swg"
-%extern "engine/csubproblem.swg"
-%extern "engine/femesh.swg"
-%extern "engine/pointdata.swg"
+%import "engine/freedom.swg"
+%import "engine/csubproblem.swg"
+%import "engine/femesh.swg"
+%import "engine/pointdata.swg"
 
 %{
 #include "common/coord.h"
@@ -30,10 +30,10 @@
 typedef double (*INITFUNC)(const Coord &position, int dof, void *clientdata);
 %}
 %pragma(python) include="engine/field.spy"
-%extern "engine/fieldindex.swg"
+%import "engine/fieldindex.swg"
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
-%extern "engine/outputval.swg"
+%import "engine/outputval.swg"
 %pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValuePtr"
 
 // This fails because of the complicated Field virtual inheritance scheme.

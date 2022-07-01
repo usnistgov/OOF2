@@ -14,9 +14,9 @@
 
 %module node
 %include "engine/typemaps.swg"
-%extern "common/coord.swg"
-%extern "engine/field.swg"
-%extern "engine/pointdata.swg"
+%import "common/coord.swg"
+%import "engine/field.swg"
+%import "engine/pointdata.swg"
 %pragma(python) code="from ooflib.SWIG.engine.pointdata import PointDataPtr"
 
 %{

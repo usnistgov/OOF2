@@ -18,8 +18,8 @@
 %include "engine/typemaps.swg"
 
 %pragma(python) include="engine/edgeset.spy"
-%extern "femesh.swg"
-%extern "edge.swg"
+%import "femesh.swg"
+%import "edge.swg"
 
 %{
 #include "engine/edgeset.h"

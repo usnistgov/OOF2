@@ -25,7 +25,7 @@
 
 
 %include "common/typemaps.swg"
-%extern "common/ooferror.swg"
+%import "common/ooferror.swg"
 %{
 #include "engine/ooferror.h"
 %}

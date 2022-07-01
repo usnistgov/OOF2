@@ -20,10 +20,10 @@
 #include "common/activearea.h"
 #include "common/ooferror.h"
 %}
-%pragma(python) include="activearea.spy"
-%extern "common/cmicrostructure.swg"
-%extern "common/cpixelselection.swg"
-%extern "common/pixelattribute.swg"
+
+%import "common/cmicrostructure.swg"
+%import "common/cpixelselection.swg"
+%import "common/pixelattribute.swg"
    
 %pragma(python) code="from ooflib.SWIG.common.cpixelselection import CPixelSelectionPtr"
 %pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
@@ -32,7 +32,8 @@ class ActiveArea : public CPixelSelection {
 public:
   ActiveArea(ICoord *iPoint, Coord *Point, CMicrostructure*);
   ~ActiveArea();
-  %new ActiveArea *clone();
+  %newobject clone;
+  ActiveArea *clone();
   bool isActive(ICoord *iPoint);
   void override(bool);
   bool getOverride();
@@ -50,9 +51,12 @@ class ActiveAreaList {
 public:
   void add(char *);
   void remove(char *);
-  %new StringVec *getNames() const;
+  %newobject getNames;
+  StringVec *getNames() const;
 };
 
 ActiveAreaList *areaListFromPixel(CMicrostructure*, ICoord *iPoint);
+
+%pythoncode "activearea.spy"
 
 #endif // ACTIVEAREA_SWG

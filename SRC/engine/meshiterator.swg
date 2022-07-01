@@ -15,9 +15,9 @@
 %module meshiterator
 %include "engine/typemaps.swg"
 
-%extern "engine/element.swg"
+%import "engine/element.swg"
 %pragma(python) code="from ooflib.SWIG.engine.element import ElementPtr"
-%extern "engine/node.swg"
+%import "engine/node.swg"
 %pragma(python) code="from ooflib.SWIG.engine.node import NodePtr"
 %pragma(python) code="from ooflib.SWIG.engine.node import FuncNodePtr"
 

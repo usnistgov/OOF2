@@ -15,7 +15,7 @@
 %module compoundsubproblem
 
 %include "engine/typemaps.swg"
-%extern "engine/csubproblem.swg"
+%import "engine/csubproblem.swg"
 %pragma(python) include="engine/compoundsubproblem.spy"
 %pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"
 %pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"

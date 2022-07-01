@@ -15,10 +15,10 @@
 %module edge
 %include "engine/typemaps.swg"
 %pragma(python) include="edge.spy"
-%extern "engine/field.swg"
-// %extern "engine/csubproblem.swg"
-%extern "engine/node.swg"
-%extern "engine/element.swg"
+%import "engine/field.swg"
+// %import "engine/csubproblem.swg"
+%import "engine/node.swg"
+%import "engine/element.swg"
 
 %{
 #include "engine/edge.h"

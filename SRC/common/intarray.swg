@@ -14,8 +14,8 @@
 
 %module intarray
 %include "common/typemaps.swg"
-%extern "common/coord.swg"
- //%pragma(python) code="from ooflib.SWIG.common.intarray import IntArrayPtr"
+%import "common/coord.swg"
+%pragma(python) code="from ooflib.SWIG.common.intarray import IntArrayPtr"
 
 %{
 #include "common/intarray.h"

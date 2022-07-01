@@ -12,4 +12,10 @@ target_sources(oof2common
   bitoverlay.h
   )
 
+swig_sources(
+  SWIGFILES
+  bitoverlay
+  LIBRARIES
+  oof2common)
+
 add_subdirectory(GUI)

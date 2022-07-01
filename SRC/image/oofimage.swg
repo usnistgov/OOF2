@@ -26,15 +26,15 @@
 %}
 
 %pragma(python) include="oofimage.spy"
-%extern "common/IO/bitoverlay.swg"
-%extern "common/ccolor.swg"
-%extern "common/timestamp.swg"
-%extern "common/ooferror.swg"
-%extern "common/abstractimage.swg"
+%import "common/IO/bitoverlay.swg"
+%import "common/ccolor.swg"
+%import "common/timestamp.swg"
+%import "common/ooferror.swg"
+%import "common/abstractimage.swg"
 
-%extern "common/doublearray.swg"
+%import "common/doublearray.swg"
 %pragma(python) code="from ooflib.SWIG.common.doublearray import DoubleArrayPtr"
-%extern "common/boolarray.swg"
+%import "common/boolarray.swg"
 %pragma(python) code="from ooflib.SWIG.common.boolarray import BoolArrayPtr"
 %pragma(python) code="from ooflib.SWIG.common.boolarray import BoolArrayPtr"
 %pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"

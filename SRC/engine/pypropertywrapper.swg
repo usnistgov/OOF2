@@ -20,11 +20,11 @@
 #include "engine/pypropertywrapper.h"
 %}
 
-%extern "engine/properties.swg"
+%import "engine/properties.swg"
 %pragma(python) code="from ooflib.SWIG.engine.properties import FluxPropertyPtr"
 %pragma(python) code="from ooflib.SWIG.engine.properties import EqnPropertyPtr"
 
-%extern "engine/element.swg"
+%import "engine/element.swg"
 %pragma(python) code="from ooflib.SWIG.engine.element import ElementDataPtr"
 
 // Not much has to be done here.  The Python functions which are

@@ -21,6 +21,8 @@
 #include "common/coord.h"
 %}
 
+%nodefaultctor AbstractImage;
+
 class AbstractImage {
 public:
   Coord size();

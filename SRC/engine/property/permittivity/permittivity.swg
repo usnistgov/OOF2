@@ -19,7 +19,7 @@
 %include "engine/propertyhdr.swg"
 
 %pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrixPtr"
-%extern "engine/symmmatrix.swg"
+%import "engine/symmmatrix.swg"
 
 %pragma(python) include="permittivity.spy"
 

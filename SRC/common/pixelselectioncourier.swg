@@ -15,7 +15,7 @@
 %module pixelselectioncourier
 
 %include "common/typemaps.swg"
-%extern "common/coord.swg"
+%import "common/coord.swg"
 
 %{
 #include "common/pixelselectioncourier.h"

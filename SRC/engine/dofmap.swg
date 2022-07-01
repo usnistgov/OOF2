@@ -14,7 +14,7 @@
 
 %module dofmap
 %include "engine/typemaps.swg"
-%extern "common/doublevec.swg"
+%import "common/doublevec.swg"
 %{
 #include "common/doublevec.h"
 #include "common/tostring.h"

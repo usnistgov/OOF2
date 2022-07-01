@@ -21,7 +21,7 @@
 #include "engine/bdyanalysis.h"
 %}
 
-%extern "engine/outputval.swg"
+%import "engine/outputval.swg"
 %pragma(python) code="from ooflib.SWIG.engine.outputval import OutputValuePtr"
 
 OutputValue integrateFlux(FEMesh*, Flux*, EdgeSet*);

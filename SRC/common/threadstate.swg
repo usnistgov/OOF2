@@ -14,8 +14,7 @@
 
 %module threadstate
 %include "common/typemaps.swg"
-%extern "common/progress.swg"
-%pragma(python) include="common/threadstate.spy"
+ //%import "common/progress.swg"
 
 %{
 #include "common/threadstate.h"
@@ -23,15 +22,14 @@
 #include "common/tostring.h"
 %}
 
+ADD_REPR(ThreadID, get_IDstr);
+
 class ThreadID {
 public:
   ThreadID();
-  %addmethods {
+  %extend {
     bool __eq__(ThreadID &right) {
       return operator==(*self,right);
-    }
-    %new const string *__repr__() {
-      return new std::string(to_string(self->get_ID()));
     }
   }
 };
@@ -42,13 +40,14 @@ class ThreadState {
   ~ThreadState();
   const ThreadID & get_thread_ID();
   int id();
-  %new StringVec *getProgressNames();
+  %newobject getProgressNames;
+  StringVec *getProgressNames();
   Progress *getProgress(char*, ProgressType);
   Progress *findProgress(char*);
   void impedeProgress();
   void acquireProgressLock();
   void releaseProgressLock();
-  %addmethods {
+  %extend {
     int __eq__(ThreadState &right) {
       return operator==(*self,right);
     }
@@ -75,6 +74,7 @@ void testcancel();
 
 Progress *getProgress(char *name, ProgressType);
 
+%pythoncode "common/threadstate.spy"
 
 #endif // THREADSTATE_SWG
 

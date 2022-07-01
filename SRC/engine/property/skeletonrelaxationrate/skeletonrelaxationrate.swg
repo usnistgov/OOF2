@@ -21,7 +21,7 @@
 %include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
 // %pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
-// %extern "engine/symmmatrix.swg"
+// %import "engine/symmmatrix.swg"
 
 
 class SkeletonRelaxationRate : public Property {

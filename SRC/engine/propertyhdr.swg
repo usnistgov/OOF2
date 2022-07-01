@@ -26,7 +26,12 @@
 // add the code to import the name we need for the Property base
 // class.
 
+ // TODO PYTHON3: This comment doesn't make sense anymore.  I changed
+ // %extern to %import because %extern is obsolete.  Is %import
+ // sufficient now?  What is correct here?
+
 %pragma(python) code="from ooflib.SWIG.engine.properties import PropertyPtr"
-%extern "engine/properties.swg"
+   //%extern "engine/properties.swg"
+%import "engine/properties.swg"
 
 #endif // PROPERTYHDR_SWG

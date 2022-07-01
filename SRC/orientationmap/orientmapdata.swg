@@ -20,11 +20,11 @@
 %}
 
 %pragma(python) include="orientmapdata.spy"
-%extern "common/abstractimage.swg"
-%extern "common/coord.swg"
-%extern "engine/angle2color.swg"
-%extern "engine/corientation.swg"
-%extern "image/oofimage.swg"
+%import "common/abstractimage.swg"
+%import "common/coord.swg"
+%import "engine/angle2color.swg"
+%import "engine/corientation.swg"
+%import "image/oofimage.swg"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
 %pragma(python) code="from ooflib.SWIG.common.coord import CoordPtr"
 %pragma(python) code="from ooflib.SWIG.common.coord import ICoordPtr"

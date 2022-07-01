@@ -13,7 +13,7 @@
 #define POINTDATA_SWG
 
 %include "engine/typemaps.swg"
-%extern "engine/field.swg"
+%import "engine/field.swg"
 
 %{
 #include "engine/pointdata.h"

@@ -26,8 +26,8 @@
 %pragma(python) code="from ooflib.SWIG.common.statgroups import PixelDistributionFactoryPtr"
 
 %pragma(python) include="image/pixeldifferentiator.spy"
-%extern "common/burn.swg"
-%extern "common/statgroups.swg"
+%import "common/burn.swg"
+%import "common/statgroups.swg"
 
 class CColorDifferentiator3 : public CPixelDifferentiator3 {
 public:

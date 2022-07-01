@@ -18,7 +18,7 @@
 %include "engine/typemaps.swg"
 %include "engine/propertyhdr.swg"
 %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
-%extern "engine/property/elasticity/cijkl.swg"
+%import "engine/property/elasticity/cijkl.swg"
 
 
 // Typemap for conversion between the parameter type
@@ -52,7 +52,7 @@
 
 %include "common/typemaps.swg"
 %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
-%extern "engine/property/elasticity/elasticity.swg"
+%import "engine/property/elasticity/elasticity.swg"
 
 class ThermoElasticityProp : public Elasticity {
 public:

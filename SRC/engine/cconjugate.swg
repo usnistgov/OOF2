@@ -16,9 +16,9 @@
 
 %module cconjugate
 %include "engine/typemaps.swg"
-%extern "engine/equation.swg"
-%extern "engine/field.swg"
-%extern "engine/fieldindex.swg"
+%import "engine/equation.swg"
+%import "engine/field.swg"
+%import "engine/fieldindex.swg"
 
 %{
 #include "engine/cconjugate.h"

@@ -20,10 +20,10 @@
 #include "common/IO/bitoverlay.h"
 #include "oofcanvas/canvasimage.h"
 %}
-%extern "common/coord.swg"
-%extern "common/timestamp.swg"
-%extern "common/ccolor.swg"
-%extern "common/abstractimage.swg"
+%import "common/coord.swg"
+%import "common/timestamp.swg"
+%import "common/ccolor.swg"
+%import "common/abstractimage.swg"
 
 %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 %pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"

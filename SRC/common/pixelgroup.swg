@@ -21,8 +21,8 @@
 #include "common/ooferror.h"
 %}
 %pragma(python) include="pixelgroup.spy"
-%extern "common/cmicrostructure.swg"
-%extern "common/pixelattribute.swg"
+%import "common/cmicrostructure.swg"
+%import "common/pixelattribute.swg"
 
 %pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
 

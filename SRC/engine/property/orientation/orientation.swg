@@ -21,7 +21,7 @@
 #include "engine/property/orientation/orientation.h"
 %}
 %include "engine/propertyhdr.swg"
-%extern "engine/corientation.swg"
+%import "engine/corientation.swg"
 
 
 %pragma(python) include="engine/property/orientation/orientation.spy"

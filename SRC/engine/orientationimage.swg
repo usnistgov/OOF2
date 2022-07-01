@@ -21,8 +21,8 @@
 #include "common/ccolor.h"
 %}
 
-%extern "engine/angle2color.swg"
-%extern "common/abstractimage.swg"
+%import "engine/angle2color.swg"
+%import "common/abstractimage.swg"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
 
 class CMicrostructure;

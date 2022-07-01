@@ -14,8 +14,8 @@
 
 %module linearizedsystem
 %include "engine/typemaps.swg"
-%extern "engine/sparsemat.swg"
-%extern "common/doublevec.swg"
+%import "engine/sparsemat.swg"
+%import "common/doublevec.swg"
 
 %{
 #include "common/doublevec.h"

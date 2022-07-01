@@ -26,12 +26,12 @@ typedef const std::string MaterialType;
 %}
 
 %pragma(python) include="engine/material.spy"
-%extern "common/pixelattribute.swg"
+%import "common/pixelattribute.swg"
 %pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
-%extern "common/timestamp.swg"
+%import "common/timestamp.swg"
 %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr;"
-%extern "engine/femesh.swg"
-%extern "common/abstractimage.swg"
+%import "engine/femesh.swg"
+%import "common/abstractimage.swg"
 %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
    
 %typemap(python, out) Property* {

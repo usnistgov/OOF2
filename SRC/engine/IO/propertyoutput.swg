@@ -15,7 +15,7 @@
 %module propertyoutput
 
 %include "engine/typemaps.swg"
-%extern "engine/properties.swg"
+%import "engine/properties.swg"
 %{
 #include "engine/IO/propertyoutput.h"
 %}

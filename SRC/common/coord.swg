@@ -18,7 +18,6 @@
 #include <oofconfig.h>
 #include "common/coord.h"
 %}
-%pragma(python) include="common/coord.spy"
 
 
 class Position {
@@ -30,7 +29,7 @@ public:
   ~Coord();
 };
 
-%addmethods Coord {
+%extend Coord {
   // This function is 'getitem', not '__getitem__', because
   // __getitem__ is defined in terms of getitem in the .spy file.
   // __getitem__ raises a Python exception if the argument is out of
@@ -54,7 +53,7 @@ public:
   ICoord(int x, int y);
 };
 
-%addmethods ICoord {
+%extend ICoord {
   int __getitem__(int i) {
     return (*self)(i);
   }
@@ -68,5 +67,7 @@ public:
     return (*self)*x;
   }
 }
+
+%pythoncode "common/coord.spy"
 
 #endif // COORD_SWG

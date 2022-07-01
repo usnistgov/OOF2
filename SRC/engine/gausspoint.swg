@@ -22,8 +22,8 @@
 %pragma(python) code="from ooflib.SWIG.common.coord import PositionPtr"
 
 %include "engine/typemaps.swg"
-%extern "engine/mastercoord.swg"
-%extern "common/coord.swg"
+%import "engine/mastercoord.swg"
+%import "common/coord.swg"
 
 class GaussPoint : public Position, public MasterPosition {
 public:

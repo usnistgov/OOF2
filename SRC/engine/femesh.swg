@@ -15,13 +15,13 @@
 %module femesh
 
 %include "engine/typemaps.swg"
-%extern "common/cmicrostructure.swg"
-%extern "common/lock.swg"
-%extern "common/timestamp.swg"
-%extern "engine/element.swg"
-%extern "engine/field.swg"
-%extern "engine/node.swg"
-%extern "engine/meshiterator.swg"
+%import "common/cmicrostructure.swg"
+%import "common/lock.swg"
+%import "common/timestamp.swg"
+%import "engine/element.swg"
+%import "engine/field.swg"
+%import "engine/node.swg"
+%import "engine/meshiterator.swg"
 
 %pragma(python) code="from ooflib.SWIG.engine.field import FieldPtr"
 %pragma(python) code="from ooflib.SWIG.common.lock import RWLockPtr"

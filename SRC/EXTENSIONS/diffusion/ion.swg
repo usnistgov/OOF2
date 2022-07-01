@@ -17,13 +17,13 @@
 
 %include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
-%extern "engine/symmmatrix.swg"
+%import "engine/symmmatrix.swg"
 
-%pragma(python) include="ion.spy"
    
 class IonDiffusion : public Property {
 public:
   IonDiffusion(PyObject *reg, char *name, double z);
 };
 
+%pythoncode "ion.spy"
 

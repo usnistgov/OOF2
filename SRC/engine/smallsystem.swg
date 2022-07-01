@@ -20,7 +20,7 @@
 #include "engine/smallsystem.h"
 %}
 
-%extern "engine/fieldindex.swg"
+%import "engine/fieldindex.swg"
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
 %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
 %pragma(python) code="from ooflib.SWIG.engine.flux import FluxPtr"

@@ -13,7 +13,7 @@
 #define FREEDOM_SWG
 
 %include "engine/typemaps.swg"
-%extern "engine/femesh.swg"
+%import "engine/femesh.swg"
 
 %{
 #include "engine/freedom.h"

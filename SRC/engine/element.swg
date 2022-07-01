@@ -15,13 +15,13 @@
 
 %module element
 %include "engine/typemaps.swg"
-%extern "common/coord.swg"
-%extern "engine/csubproblem.swg"
-%extern "engine/edge.swg"
-%extern "engine/femesh.swg"
-%extern "engine/field.swg"
-%extern "engine/mastercoord.swg"
-%extern "engine/outputval.swg"
+%import "common/coord.swg"
+%import "engine/csubproblem.swg"
+%import "engine/edge.swg"
+%import "engine/femesh.swg"
+%import "engine/field.swg"
+%import "engine/mastercoord.swg"
+%import "engine/outputval.swg"
 %pragma(python) code="from ooflib.SWIG.engine.outputval import OutputValuePtr"
 
 %pragma(python) include="element.spy"
@@ -60,7 +60,7 @@
 
 %pragma(python) code="from ooflib.SWIG.engine.elementnodeiterator import *"
 %pragma(python) code="from ooflib.SWIG.engine.gausspoint import GaussPointPtr"
-%extern "engine/elementnodeiterator.swg"
+%import "engine/elementnodeiterator.swg"
 
 class Material;
 class ElementNodeIterator;
