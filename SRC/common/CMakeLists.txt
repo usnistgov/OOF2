@@ -1,4 +1,10 @@
-add_subdirectory(IO)
+# This software was produced by NIST, an agency of the U.S. government,
+# and by statute is not subject to copyright in the United States.
+# Recipients of this software assume all responsibilities associated
+# with its operation, modification and maintenance. However, to
+# facilitate maintenance we ask that before distributing modifed
+# versions of this software, you first contact the authors at
+# oof_manager@nist.gov.
 
 target_sources(oof2common
   PRIVATE
@@ -89,7 +95,44 @@ target_sources(oof2common
 
 swig_sources(
   SWIGFILES
+  abstractimage
+  activearea
   argv
+  boolarray
+  brushstyle
+  burn
+  canvasimage
+  ccolor
+  cdebug
+  cmicrostructure
+  colordifference
+  config
+  coord
+  cpixelselection
+  crandom
+  direction
+  doublearray
+  doublevec
+  geometry
+  guitop
+  identification
+  intarray
+  latticesystem
+  lock
+  mpitools
+  ooferror
+  pixelattribute
+  pixelgroup
+  pixelselectioncourier
+  pixelsetboundary
+  progress
+  smallmatrix
+  statgroups
+  switchboard
+  threadstate
+  timestamp
+  trace
   LIBRARIES
-  oof2common
-  )
+  oof2common)
+
+add_subdirectory(IO)
