@@ -19,6 +19,7 @@
 #include "common/brushstyle.h"
 %}
 
+%nodefaultctor BrushStyle;
 class BrushStyle {};
 
 class CircleBrush: public BrushStyle {

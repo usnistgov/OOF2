@@ -23,7 +23,7 @@
 %import "common/cmicrostructure.swg"
 %import "common/pixelattribute.swg"
 
-%pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
+ %pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
 
 class PixelSet {
 public:
@@ -34,21 +34,23 @@ public:
   void add(ICoordVec *iPointList);
   void addWithoutCheck(ICoordVec *iPointList);
   void remove(ICoordVec *iPointList);
-  %new PixelSet *clone();
+  %newobject clone;
+  PixelSet *clone();
   void clear();
   ICoordVec *members();
-  %addmethods {
-    int __len__() {
-      return self->len();
-    }
-    const ICoord __getitem__(int i) {
-      if(i < 0 || i >= self->len()) {
-	throw ErrBadIndex(i, __FILE__, __LINE__);
-      }
-      return (*self)[i];
-    }
-  }
 };
+
+%extend PixelSet {
+  int __len__() {
+    return self->len();
+  }
+  const ICoord __getitem__(int i) {
+    if(i < 0 || i >= self->len()) {
+      throw ErrBadIndex(i, __FILE__, __LINE__);
+    }
+    return (*self)[i];
+  }
+ };
 
 class PixelGroup : public PixelSet {
 public:
@@ -60,7 +62,8 @@ public:
   const string &name();
 };
 
-%new StringVec *pixelGroupNames(CMicrostructure*, ICoord *iPoint);
+%newobject pixelGroupNames;
+StringVec *pixelGroupNames(CMicrostructure*, ICoord *iPoint);
 
 class PixelGroupAttributeRegistration : public PxlAttributeRegistration {
 public:

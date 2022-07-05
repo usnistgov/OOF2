@@ -14,7 +14,7 @@
 
 %module bitoverlay
 %include "common/typemaps.swg"
-%include "common/canvasimage.swg"
+%import "common/canvasimage.swg"
 
 %{
 #include "common/IO/bitoverlay.h"
@@ -25,9 +25,9 @@
 %import "common/ccolor.swg"
 %import "common/abstractimage.swg"
 
-%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
-%pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
-%pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
+// %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
+// %pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
+// %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
    
 class BitmapOverlay : public AbstractImage {
 public:
@@ -51,10 +51,16 @@ public:
   Coord size();
   ICoord sizeInPixels();
   bool empty();
-  %new ICoordVec *pixels(int v);	// all pixels whose value==v
+  %newobject pixels;
+  ICoordVec *pixels(int v);	// all pixels whose value==v
   TimeStamp &getTimeStamp();
 };
 
-%pythoncode "bitoverlay.spy"
+// Use the full path to bitoverlay.spy.  When this file is %imported
+// by other swig files, this directory may not be in the swig search
+// path.  When this file is %imported, nothing is actually included
+// from bitoverlay.spy, but swig for some reason (a bug?) still
+// complains when it fails to find the file.
+%pythoncode "common/IO/bitoverlay.spy"
 
 #endif // BITOVERLAY_SWG

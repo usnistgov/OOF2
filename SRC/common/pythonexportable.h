@@ -104,11 +104,6 @@
 
 #include <iostream>
 
-// When this is included in swig-generated code we *don't* want to
-// include (oof)swigruntime.h, as it will repeat definitions already
-// present.  We only want to include it when building our C++
-// libraries that define the swigged classes and functions.
-
 #include <Python.h>
 #include "common/oofswigruntime.h"
 

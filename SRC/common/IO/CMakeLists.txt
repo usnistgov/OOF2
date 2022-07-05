@@ -9,8 +9,7 @@
 target_sources(oof2common
   PRIVATE
   bitoverlay.C
-  bitoverlay.h
-  )
+  bitoverlay.h)
 
 swig_sources(
   SWIGFILES

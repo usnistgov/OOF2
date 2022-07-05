@@ -138,14 +138,19 @@ typedef std::pair<int, int> IntPair;
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
 // ADD_REPR(class, func) adds a __repr__ to the swigged class.  The
-// new __repr__ will call the given C++ func, which must return a new
-// std::string*.  The func must be swigged if using -builtin, and
-// declared with %newobject.  ADD_REPR must appear *before* the class
-// declaration in the swig file.
+// new __repr__ will call the given C++ class method, which must
+// return a new std::string*.  The func must be swigged if using
+// -builtin, and declared with %newobject.  ADD_REPR must appear
+// *before* the class declaration in the swig file.
 
 // If not using -builtin, ADD_REPR can appear after the declaration
 // and the function does not need to be swigged. TODO PYTHON3: Check
 // that.
+
+// ADD_REPR_GENERIC uses the to_string template (from
+// common/tostring.h, not std::to_string) instead of a class method,
+// so it's useful as long as the class has defined operator<<.
+// TODO: Implement it for -builtin.
 
 class std::string;
 
@@ -158,6 +163,7 @@ class std::string;
 %enddef
   
 #else  // not SWIGPYTHON_BUILTIN
+
 %define ADD_REPR(CLASS, FUNC)  
 %extend CLASS {
   %newobject __repr__;
@@ -166,6 +172,16 @@ class std::string;
     }
   };
 %enddef
+
+%define ADD_REPR_GENERIC(CLASS)
+%extend CLASS {
+  %newobject __repr__;
+   const std::string *__repr__() { // ADD_REPR_GENERIC
+     return new std::string(to_string(*self));
+   }
+};
+%enddef
+
 %define ADD_STR(CLASS, FUNC)  
 %extend CLASS {
   %newobject __str__;
@@ -738,7 +754,7 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 // C++ ICoord --> Python iPoint
 // C++ Coord  --> Python Point
 
-// TODO: Are these typemap necessary?  We can handle Coords directly
+// TODO: Are these typemaps necessary?  We can handle Coords directly
 // in Python, and do so in lots of places in the code.  Including this
 // typemap means that we're mixing Coords and Points in a mostly
 // uncontrolled fashion.  For example, 2*coord.Coord(1.,2.) returns a
@@ -747,6 +763,14 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 
 // Also, these typemaps make an extra copy of the object they're
 // wrapping.  If possible, returning a const reference is preferable.
+
+// Coord and ICoord don't have a swigged default constructor, so swig
+// thinks it has to use the SwigValueWrapper mechanism when a function
+// returns a Coord or ICoord by value.  The classes *do* have default
+// constructors in C++, so tell swig not to use SwigValueWrapper.
+// Using SwigValueWrapper messes up the typemaps.
+%feature("novaluewrapper") Coord;
+%feature("novaluewrapper") ICoord;
 
 %typemap(out) ICoord {
   // typemap(out) ICoord
@@ -764,6 +788,7 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 // Python  Point --> C++ Coord*
 
 %typemap(in) ICoord *iPoint (ICoord ic) {
+  // typemap(in) ICoord *iPoint
   PyObject *x = PyObject_GetAttrString($input, "x");
   if(!x) {
     PyErr_SetString(PyExc_TypeError, "in '$symname', expected an iPoint.");
@@ -782,6 +807,7 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
  }
 
 %typemap(in) Coord *Point (Coord c) {
+  // typemap(in) Coord *Point
   PyObject *x = PyObject_GetAttrString($input, "x");
   if(!x) {
     PyErr_SetString(PyExc_TypeError, "in '$symname', expected a Point.");
@@ -792,11 +818,11 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
     PyErr_SetString(PyExc_TypeError, "in '$symname', expected a Point.");
     SWIG_fail;
   }
-  ic(0) = PyFloat_AsDouble(x);
-  ic(1) = PyFloat_AsDouble(y);
+  c(0) = PyFloat_AsDouble(x);
+  c(1) = PyFloat_AsDouble(y);
   Py_XDECREF(x);
   Py_XDECREF(y);
-  $1 = &ic;
+  $1 = &c;
  }
 
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
@@ -894,8 +920,8 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
   // Get the Point class
   FETCH_CLASS(ooflib.common.primitives, Point);
   // Create a Point object from the Coord
-  PyObject *point = PyObject_Function(PointClass, "dd",
-				      (*$1)(0), (*$1)(1));
+  PyObject *point = PyObject_CallFunction(PointClass, "dd",
+					  (*$1)(0), (*$1)(1));
   if(!$result || $result == Py_None) {
     // Nothing else is being returned (yet).
     $result = point;
@@ -905,7 +931,7 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
     if(!PyTuple_Check($result)) {
       // The previously returned object is not a tuple.  Create a
       // tuple and put the old result into it.
-      PyObject *oldtuple = $result;
+      PyObject *other = $result;
       $result = PyTuple_New(1);
       PyTuple_SET_ITEM($result, 0, other); // steals a reference
     }

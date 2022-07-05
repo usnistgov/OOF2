@@ -25,8 +25,8 @@
 %import "common/cpixelselection.swg"
 %import "common/pixelattribute.swg"
    
-%pragma(python) code="from ooflib.SWIG.common.cpixelselection import CPixelSelectionPtr"
-%pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
+// %pragma(python) code="from ooflib.SWIG.common.cpixelselection import CPixelSelectionPtr"
+// %pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
 
 class ActiveArea : public CPixelSelection {
 public:

@@ -12,6 +12,8 @@
 #ifndef CANVASIMAGE_SWG
 #define CANVASIMAGE_SWG
 
+%module canvasimage
+
 // TODO PYTHON3: How much of this is necessary?
 
 // The CanvasImage and NewCanvasImage typemaps are for returning an
@@ -31,8 +33,8 @@
   typedef OOFCanvas::CanvasImage NewCanvasImage;
 %}
 
-%typemap(python, out) CanvasImage* {
-   // typemap(python, out) CanvasImage*
+%typemap(out) CanvasImage* {
+   // typemap(out) CanvasImage*
   $result = $1->pythonObject();
 
   // TODO PYTHON3: Why was calling pythonObject() not sufficient before?
@@ -54,8 +56,8 @@
 
 // TODO PYTHON3: Do we need this?  Why not just use %newobject?
 
-%typemap(python, out) NewCanvasImage* {
-   // typemap(python, out) CanvasImage*
+%typemap(out) NewCanvasImage* {
+   // typemap(out) CanvasImage*
   $result = $1->pythonObject();
    // static PyObject *canvasImageClass = 0;
    // static PyObject *pyOne;

@@ -39,13 +39,13 @@ public:
 class CGrayColor: public CColor {
 public:
   void setGray(double);
-}
+};
 
 class CHSVColor: public CColor {
 public:
   void setHue(double);
   void setSaturation(double);
   void setValue(double);
-}
+};
 
 #endif // CCOLOR_SWG

@@ -20,6 +20,8 @@
 #include "common/cmicrostructure.h"
 %}
 
+%nodefaultctor CPixelDifferentiator2;
+%nodefaultctor CPixelDifferentiator3;
 class CPixelDifferentiator3 {};
 class CPixelDifferentiator2 {};
 

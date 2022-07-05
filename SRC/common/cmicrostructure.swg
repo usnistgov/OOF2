@@ -24,52 +24,34 @@ typedef Array<int> ArrayInt;
 %include "common/typemaps.swg"
 
 %import "common/pixelgroup.swg"
-%pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelGroupPtr"
+ //%pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelGroupPtr"
 
 %import "common/timestamp.swg"
-%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
+ //%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 
-%typemap(python, out) ArrayInt* {
-   // typemap(python, out) ArrayInt*
-  int h = $source->height();
-  int w = $source->width();
+%typemap(out) ArrayInt* {
+   // typemap(out) ArrayInt*
+  int h = $1->height();
+  int w = $1->width();
   // assert(h >= PY_SSIZE_T_MIN && h <= PY_SSIZE_T_MAX);
   // assert(w >= PY_SSIZE_T_MIN && w <= PY_SSIZE_T_MAX);
-  $target = PyList_New((Py_ssize_t) h);
-#ifndef DIM_3
+  $result = PyList_New((Py_ssize_t) h);
   for(int j=0; j<h; j++) {
     PyObject *row = PyList_New((Py_ssize_t) w);
-    PyList_SET_ITEM($target, (Py_ssize_t) j, row);
+    PyList_SET_ITEM($result, (Py_ssize_t) j, row);
     for(int i=0; i<w; i++) {
-      PyList_SET_ITEM(row, (Py_ssize_t) i,
-		      PyInt_FromLong((*$source)[ICoord(i,j)]));
+      PyList_SET_ITEM(row, (Py_ssize_t) i, PyInt_FromLong((*$1)[ICoord(i,j)]));
     }
   }
-#else
-  int d = $source->depth();
-  // assert(d >= PY_SSIZE_T_MIN && d <= PY_SSIZE_T_MAX);
-  $target = PyList_New((Py_ssize_t) h);
-  for(int k=0; k<h; k++) {
-    PyObject *slice = PyList_New((Py_ssize_t) w);
-    PyList_SET_ITEM($target, (Py_ssize_t) k, slice);
-		for(int j=0; j<w; j++) {
-			PyObject *row = PyList_New((Py_ssize_t) d);
-			PyList_SET_ITEM(slice, (Py_ssize_t) j, row);
-			for(int i=0; i<d; i++) {
-				PyList_SET_ITEM(row, (Py_ssize_t) i, PyInt_FromLong((*$source)[ICoord(i,j,k)]));
-			}
-		}
-	}
-#endif
 }
 
-%typemap(python,ignore) bool *newness (bool tmp) {
-  // typemap(python, ignore) bool *newness
-  $target = &tmp;
-}
+// %typemap(ignore) bool *newness (bool tmp) {
+//   // typemap(ignore) bool *newness
+//   $target = &tmp;
+// }
 
-%typemap(python,argout) bool *newness {
-  // typemap(python, argout) bool *newness
+%typemap(argout) bool *newness {
+  // typemap(argout) bool *newness
   PyObject *res;
   if (*$source) 
     res = Py_True;
@@ -90,11 +72,11 @@ typedef Array<int> ArrayInt;
 
 //For SnapRefine.
  // TODO PYTHON3: Change the name of this typemap
-%typemap(python,ignore) int *cskel_edgecat (int tmp) {
-  $target = &tmp;
-}
+// %typemap(ignore) int *cskel_edgecat (int tmp) {
+//   $target = &tmp;
+// }
 
-%typemap(python,argout) int *cskel_edgecat {
+%typemap(argout) int *cskel_edgecat {
   PyObject *res=PyInt_FromLong(*$source);
   if (!PyList_Check($target)) {
     PyObject *retval = $target;
@@ -122,13 +104,15 @@ public:
   void removeGroup(char *name);
   void removeAllGroups();
   void renameGroupC(char *oldname, char *newname);
-  %new StringVec *groupNames() const;
+  %newobject groupNames;
+  StringVec *groupNames() const;
   int nCategories();
   int category(ICoord *iPoint);
   void recategorize();
   bool is_categorized();
   ArrayInt *getCategoryMap();
-  %new ArrayInt *getCategoryMapRO();
+  %newobject getCategoryMapRO;
+  ArrayInt *getCategoryMapRO();
   ICoord getRepresentativePixel(int category);
   bool transitionPointWithPoints(Coord *Point, Coord *Point,
 				 Coord *cskel_OutPoint);
@@ -151,8 +135,8 @@ public:
 long get_globalMicrostructureCount();
 
 //For SnapRefine.
-%typemap(python, argout) int *cskel_edgecat {}
-%typemap(python, ignore) int *cskel_edgecat {}
+%typemap(argout) int *cskel_edgecat {}
+// %typemap(ignore) int *cskel_edgecat {}
 
 %pythoncode "cmicrostructure.spy"
 

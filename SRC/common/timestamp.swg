@@ -29,23 +29,22 @@ public:
   unsigned long epoch();	// for debugging
   TimeStamp clone();
   TimeStamp cloneAndIncrement();
-  %addmethods {
-    void increment() {
-      ++(*self);
-    }
-    %new const string *__repr__() {
-      return new std::string(to_string(*self));
-    }
+};
+
+%extend TimeStamp {
+  void increment() {
+    ++(*self);
   }
 };
+
+ADD_REPR_GENERIC(TimeStamp);
 
 bool operator<(const TimeStamp&, const TimeStamp&);
 bool operator>(const TimeStamp&, const TimeStamp&);
 
 //double cputime();
 
-%readonly
-TimeStamp timeZero;
+const TimeStamp timeZero;
 
 %pythoncode "timestamp.spy"
 
