@@ -21,7 +21,7 @@ typedef class CPolygon<double, Coord> CPolygonCoord;
 %}
 %include "common/typemaps.swg"
 
-
+%nodefaultctor CPolygonCoord;
 class CPolygonCoord {};
 
 class CRectangle : public CPolygonCoord {

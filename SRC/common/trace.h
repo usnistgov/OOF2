@@ -11,18 +11,15 @@
 
 #include <oofconfig.h>
 
-
 // Declare a Trace object at the entry point to a function, and the
 // given string will be printed when the function is called.
 
 #ifndef TRACE_H
 #define TRACE_H
 
-#include <string>
+#ifdef DEBUG
 
-// Trace_t is not meant to be used if DEBUG is not defined, but we
-// can't define it within the #ifdef DEBUG block because then the
-// swigged code for trace_enable() in trace.swg won't compile.
+#include <string>
 
 class Trace_t {
 private:
@@ -35,8 +32,6 @@ public:
   static void disable() { enabled = false; }
   static void enable() { enabled = true; }
 };
-
-#ifdef DEBUG
 
 #define Trace(x) Trace_t trace_var_name_that_ought_to_be_unique(x)
 #define TraceMsg(str) trace_var_name_that_ought_to_be_unique.msg(str)

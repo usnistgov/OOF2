@@ -46,7 +46,7 @@ public:
   CColor getBG();
   CColor getFG();
   %newobject makeCanvasImage;
-  CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  OOFCanvas::CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
   
   Coord size();
   ICoord sizeInPixels();

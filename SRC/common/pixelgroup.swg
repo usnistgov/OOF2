@@ -23,7 +23,9 @@
 %import "common/cmicrostructure.swg"
 %import "common/pixelattribute.swg"
 
- %pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
+ //%pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
+
+%nodefaultctor PixelSet;
 
 class PixelSet {
 public:

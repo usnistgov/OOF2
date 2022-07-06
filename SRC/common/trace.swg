@@ -11,18 +11,33 @@
 
 #ifndef TRACE_SWG
 #define TRACE_SWG
+
+%module trace
 %include "common/typemaps.swg"
+
+#ifdef DEBUG
 
 %{
 #include "common/trace.h"
 %}
 
-%inline void trace_enable() {
-  Trace_t::enable();
-}
+%inline %{
+  void trace_enable() {
+    Trace_t::enable();
+  }
 
-%inline void trace_disable() {
-  Trace_t::disable();
-}
+  void trace_disable() {
+    Trace_t::disable();
+  }
+%}
+
+#else // !DEBUG
+
+%pythoncode %{
+def trace_enable(): pass
+def trace_disable(): pass
+%}
+
+#endif // !DEBUG
 
 #endif // TRACE_SWG

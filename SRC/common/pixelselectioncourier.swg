@@ -22,14 +22,11 @@
 #include "common/tostring.h"
 %}
 
-class PixelSelectionCourier {
-public:
-  %addmethods {
-    %new const string *repr() {	// for debugging
-      return new std::string(to_string(*self));
-    }
-  }
-};
+%nodefaultctor PixelSelectionCourier;
+
+class PixelSelectionCourier {};
+
+ADD_REPR_GENERIC(PixelSelectionCourier);
 
 class PointSelection : public PixelSelectionCourier {
 public:

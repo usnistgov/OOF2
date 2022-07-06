@@ -20,6 +20,8 @@
 #include "common/cmicrostructure.h"
 %}
 
+%nodefaultctor PixelDistributionFactory;
+
 class PixelDistributionFactory {};
 
 const string *statgroups(CMicrostructure*,

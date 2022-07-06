@@ -18,7 +18,8 @@
 #include "common/colordifference.h"
 %}
 
-class ColorDifference {}
+%nodefaultctor ColorDifference;
+class ColorDifference {};
 
 class DeltaRGB: public ColorDifference {
 public:

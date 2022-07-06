@@ -21,6 +21,7 @@
 
 class DoubleArray {
 public:
+  DoubleArray(int, int);
   ~DoubleArray();
   ICoord size();
 };

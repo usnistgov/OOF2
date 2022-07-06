@@ -18,6 +18,8 @@
 #include "common/pixelattribute.h"
 %}
 
+%nodefaultctor PxlAttributeRegistration;
+
 class PxlAttributeRegistration {
 public:
   const string &name();

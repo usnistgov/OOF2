@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 
 /* This software was produced by NIST, an agency of the U.S. government,
@@ -19,11 +20,7 @@
 class DoubleArray : public Array<double> {
 public:
 //  DoubleArray() {}
-#if DIM == 2
   DoubleArray(int w, int h) : Array<double>(w,h) {}
-#elif DIM == 3
-  DoubleArray(int w, int h, int d) : Array<double>(w,h,d) {}
-#endif
   DoubleArray(const ICoord &size, double x=0.0) : Array<double>(size, x) {}
   DoubleArray(const ICoord &size, ArrayData<double> *dptr)
     : Array<double>(size, dptr)

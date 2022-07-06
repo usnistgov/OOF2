@@ -25,30 +25,26 @@
 void init_switchboard_api(PyObject *pythonCallable); // call this once
 
 
-%typemap(python, out) PyObject* {
-  $target = $source;
-};
-
 class OOFMessage {
 public:
+  OOFMessage(const std::string&);
   const string &name();
-  %addmethods {
-     int __len__() const {
-       return self->nargs();
-     }
-     PyObject *__getitem__(int which) const {
-       if(which >= self->nargs() || which < 0) {
-	 PYTHON_THREAD_BEGIN_BLOCK;
-	 PyErr_SetString(PyExc_IndexError,
- 			"Not that many arguments in OOFMessage");
-	 return 0;
-       }
-       return self->getarg(which);
-     }
-   }
 };
 
-%typemap(python, out) PyObject*;
+%extend OOFMessage {
+  int __len__() const {
+    return self->nargs();
+  }
+  PyObject *__getitem__(int which) const {
+    if(which >= self->nargs() || which < 0) {
+      PYTHON_THREAD_BEGIN_BLOCK;
+      PyErr_SetString(PyExc_IndexError,
+		      "Not that many arguments in OOFMessage");
+      return 0;
+    }
+    return self->getarg(which);
+  }
+};
 
 %pythoncode "switchboard.spy"
 

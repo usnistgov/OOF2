@@ -32,6 +32,9 @@
 // TODO PYTHON3: Examine all .spy files. Many can probably be replaced
 // with %extend directives in the .swg files.
 
+// TODO PYTHON3: Remove all super-cautious destructors?  Do a
+// case-insensitive search for "super-cautious".
+
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -250,8 +253,11 @@ std::string {
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
 %typemap(check) PyObject *pythonCallable {
-  if(!PyCallable_Check($1))
-    SWIG_exception(SWIG_ValueError, "Expected a callable python object.");
+  if(!PyCallable_Check($1)) {
+    PyErr_SetString(PyExc_TypeError,
+		    "in '$symname', expected a callback python object");
+    SWIG_fail;
+  }
  }
 
 %typemap(in) PyObject *pythonCallable {
@@ -283,8 +289,8 @@ std::string {
   // typemap(out) CColor -- converts C++ CColor to Python RGBAColor
   FETCH_CLASS(ooflib.common.color, RGBAColor);
   $result = PyObject_CallFunction(RGBAColorClass, "dddd",
-				  $1->getRed(), $1->getGreen(),
-				  $1->getBlue(), $1->getAlpha()):
+				  $1.getRed(), $1.getGreen(),
+				  $1.getBlue(), $1.getAlpha());
   
 }
 
@@ -767,8 +773,8 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 // Coord and ICoord don't have a swigged default constructor, so swig
 // thinks it has to use the SwigValueWrapper mechanism when a function
 // returns a Coord or ICoord by value.  The classes *do* have default
-// constructors in C++, so tell swig not to use SwigValueWrapper.
-// Using SwigValueWrapper messes up the typemaps.
+// constructors in C++, so we need to tell swig not to use
+// SwigValueWrapper.  Using SwigValueWrapper messes up the typemaps.
 %feature("novaluewrapper") Coord;
 %feature("novaluewrapper") ICoord;
 

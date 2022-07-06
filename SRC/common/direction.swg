@@ -18,6 +18,8 @@
 #include "common/direction.h"
 %}
 
+%nodefaultctor CDirection;
+
 class CDirection {
 public:
   ~CDirection();

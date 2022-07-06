@@ -15,7 +15,7 @@
 %module intarray
 %include "common/typemaps.swg"
 %import "common/coord.swg"
-%pragma(python) code="from ooflib.SWIG.common.intarray import IntArrayPtr"
+ //%pragma(python) code="from ooflib.SWIG.common.intarray import IntArrayPtr"
 
 %{
 #include "common/intarray.h"
@@ -23,10 +23,10 @@
 
 class IntArray {
 public:
-//  IntArray(ICoord*,int);
+  IntArray(int, int);
   ~IntArray();
   ICoord size();
 };
 
-%new IntArray makeIntArray(ICoord *iPoint,int);
+IntArray makeIntArray(ICoord *iPoint,int);
 #endif // INTARRAY_SWG

@@ -20,8 +20,8 @@
 %}
 
 
-class Position {
-};
+%nodefaultctor Position;
+class Position {};
   
 class Coord : public Position {
 public:

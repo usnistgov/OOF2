@@ -36,6 +36,8 @@ void pyErrorInit(PyObject *pythonCallable);
 /* NB the pythonequiv method only needs to be visible from C++. */
  
 
+%nodefaultctor ErrError;
+
 class ErrError {
 public:
   %new string *summary();
@@ -55,93 +57,68 @@ public:
   int lineno();
   ErrProgrammingError(char *, char *, int);
   ~ErrProgrammingError();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ErrProgrammingError, summary);
 
 
 class ErrResourceShortage : public ErrError {
 public:
   ErrResourceShortage(char *m);
   ~ErrResourceShortage();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ErrResourceShortage, summary);
 
 class ErrBoundsError : public ErrError {
 public:
   ErrBoundsError(char *m);
   ~ErrBoundsError();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ErrBoundsError, summary);
 
 
 class ErrBadIndex : public ErrError {
 public:
   ErrBadIndex(int, char *, int);
   ~ErrBadIndex();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ErrBadIndex, summary);
 
 
 class ErrUserError : public ErrError {
 public:
   ErrUserError(char *);
   ~ErrUserError();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ErrUserError, summary);
 
 class ErrSetupError : public ErrError {
 public:
   ErrSetupError(char * m);
   ~ErrSetupError();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ErrSetupError, summary);
 
 class ErrInterrupted : public ErrError {
 public:
   ErrInterrupted();
   ~ErrInterrupted();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ErrInterrupted, summary);
 
 class ErrNoProgress : public ErrError {
 public:
   ErrNoProgress();
   ~ErrNoProgress();
-  %addmethods {
-    const string *__repr__() {
-      static const std::string s("Progress object not found");
-      return &s;
-    }
-  }
 };
+
+ADD_REPR(ErrNoProgress, summary);
 
 %pythoncode "ooferror.spy"
 
