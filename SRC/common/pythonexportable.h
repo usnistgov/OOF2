@@ -109,7 +109,7 @@
 
 class PythonExportableBase {
   public:
-    virtual PyObject *pythonObject() const = 0; 
+    virtual PyObject *pythonObject(bool own=false) const = 0; 
     virtual ~PythonExportableBase() {}
   };
 
@@ -121,8 +121,9 @@ class PythonExportableBase {
     // classname() must return the name of the *derived* class. 
     virtual const std::string &classname() const = 0;
     
-    virtual PyObject *pythonObject() const {
+    virtual PyObject *pythonObject(bool own=false) const {
       PyGILState_STATE pystate = PyGILState_Ensure();
+      int iown = (own? SWIG_POINTER_OWN : 0);
       try {
 	// Because C++ classes use PythonExportable as a *virtual* base
 	// class, the value of "this" in this function is not necessarily
@@ -149,10 +150,11 @@ class PythonExportableBase {
 	PyObject *self = 0;	// This incorrect. 
 	PyObject *result = SWIG_NewPointerObj(SWIG_as_voidptr(derived_addr),
 					      SWIG_TypeQuery(pname.c_str()), 
-					      SWIG_BUILTIN_INIT|0);
+					      SWIG_BUILTIN_INIT|iown);
 #else  // Not using -builtin. 
 	PyObject *result = SWIG_NewPointerObj(SWIG_as_voidptr(derived_addr),
-					      SWIG_TypeQuery(pname.c_str()), 0);
+					      SWIG_TypeQuery(pname.c_str()),
+					      iown);
 #endif
 	if(!result) {
 	  std::cerr << "pythonexportable: Failed to instantiate python object"
@@ -195,7 +197,7 @@ class PythonExportableBase {
       Py_XDECREF(self);
       PyGILState_Release(pystate);
     }
-    virtual PyObject *pythonObject() const {
+    virtual PyObject *pythonObject(bool own=false) const {
       PyGILState_STATE pystate = PyGILState_Ensure();
       Py_XINCREF(self);
       PyGILState_Release(pystate);
