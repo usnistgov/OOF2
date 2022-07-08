@@ -13,7 +13,7 @@
 #define CNONLINEARSOLVER_SWG
 
 %module cnonlinearsolver
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 
 %{
 #include "engine/cnonlinearsolver.h"

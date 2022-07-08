@@ -13,7 +13,7 @@
 #define EQUATION_SWG
 
 %module equation
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %import "engine/nodalequation.swg"
 %import "engine/planarity.swg"
 %import "engine/flux.swg"
@@ -21,19 +21,41 @@
 
 %{
 #include "engine/equation.h"
+#include <vector>
+typedef std::vector<Equation*> EquationVec;
 %}
 
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.flux import FluxPtr"
 
-%pragma(python) code="from ooflib.SWIG.engine.flux import FluxPtr"
-
-%typemap(python, out) Equation* {
-   // typemap(python, out) Equation*
-   $target = $source->pythonObject();
+%typemap(out) Equation* {
+   // typemap(out) Equation*
+   $result = $source->pythonObject();
    if(!$target)
-     return 0;
+     SWIG_fail;
 }
+
+%typemap(out) EquationVec * {
+  // typemap(out) EquationVec*
+  EquationVec::size_type sz = $1->size();
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  $result = PyList_New((Py_ssize_t) sz);
+  for(std::vector<Equation*>::size_type i=0; i<sz; i++) {
+    // pythonObject() returns a new reference and PyList_SET_ITEM steals it.
+    PyObject *eqn = (*$1)[i]->pythonObject();
+    if(!eqn)
+      SWIG_fail;
+    PyList_SET_ITEM($result, (Py_ssize_t) i, eqn);
+  }
+}
+
+%typemap(newfree) EquationVec * {
+  // typemap(newfree) EquationVec*
+  delete $1;
+}
+
+%nodefaultctor Equation;
 
 class Equation {
 public:
@@ -41,23 +63,22 @@ public:
   int objectid();
   int dim();
   int ndof();			// same as dim()
-  // string fluxname();
-  // Flux *flux();
   NodalEquation *nodaleqn(const FuncNode&, int);
   IteratorP iterator();
-  %addmethods{
-    // iterator_all is used in situations in which it's not known if
-    // we're iterating over a Field, Flux, or Equation.
-    // Field::iterator and Flux::iterator take an argument, but
-    // iterator_all doesn't.
-    IteratorP iterator_all() {
-      return self->iterator();
-    }
-  }
   IndexP componenttype();
   IndexP getIndex(char*);
   int is_active(const CSubProblem*);
   bool allow_boundary_conditions();
+};
+
+%extend Equation {
+  // iterator_all is used in situations in which it's not known if
+  // we're iterating over a Field, Flux, or Equation.
+  // Field::iterator and Flux::iterator take an argument, but
+  // iterator_all doesn't.
+  IteratorP iterator_all() {
+    return self->iterator();
+  }
 };
 
 class FluxEquation : public Equation {
@@ -84,14 +105,13 @@ public:
 
 int countEquations();
 Equation *getEquationByIndex(int);
-Equation *getEquationByName(char *);
 
-%{
+%inline %{
   Equation *getEquationByName(const std::string &name) {
     return Equation::getEquation(name);
   }
 %}
 
-%pythoncode "equation.spy"
+%pythoncode "engine/equation.spy"
 
 #endif // EQUATION_SWG

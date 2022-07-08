@@ -44,6 +44,6 @@ public:
   }
 };
 
-%pythoncode "cijkl.spy"
+%pythoncode "engine/property/elasticity/cijkl.spy"
 
 #endif // CIJKL_SWIG

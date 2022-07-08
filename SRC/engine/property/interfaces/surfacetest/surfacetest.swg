@@ -33,6 +33,6 @@ public:
   FluxSurfaceTest(PyObject *self, char*, double);
 };
 
-%pythoncode "surfacetest.spy"
+%pythoncode "engine/property/interfaces/surfacetest/surfacetest.spy"
 
 #endif // SURFACETEST_SWG

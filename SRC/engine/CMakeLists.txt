@@ -136,7 +136,7 @@ swig_sources(
   bdyanalysis
   boundarycond
   cconjugate
-  cfiddlenodesbaseParallel
+  # cfiddlenodesbaseParallel
   cmatrixmethods
   cnonlinearsolver
   compoundsubproblem
@@ -150,7 +150,6 @@ swig_sources(
   edge
   edgeset
   element
-  elementlocator
   elementnodeiterator
   entiremeshsubproblem
   equation

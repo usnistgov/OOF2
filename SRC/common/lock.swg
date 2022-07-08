@@ -61,6 +61,6 @@ public:
 void enable_all();
 bool disable_all();
 
-%pythoncode "lock.spy"
+%pythoncode "common/lock.spy"
 
 #endif // LOCK_SWG

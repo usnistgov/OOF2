@@ -38,6 +38,6 @@ public:
   TestNonlinearHeatSource(PyObject *reg, char *name, int testno);
 };
 
-%pythoncode "nonlinear_heat_source.spy"
+%pythoncode "engine/property/heatsource/nonlinear/nonlinear_heat_source.spy"
 
 #endif // NONLINEAR_HEAT_SOURCE_SWG

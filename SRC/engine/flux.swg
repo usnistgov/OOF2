@@ -14,18 +14,46 @@
 
 %module flux
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
+%import "engine/fieldindex.swg"
+%import "engine/outputval.swg"
+
 %{
 #include "engine/flux.h"
+#include <vector>
+typedef std::vector<Flux*> FluxVec;
 %}
 
-%import "engine/fieldindex.swg"
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
-%import "engine/outputval.swg"
-%pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValuePtr"
+// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValuePtr"
 
+%typemap(out) Flux* {
+  // typemap(out) Flux*
+  $result = $1->pythonObject();
+  if(!$result)
+    SWIG_fail;
+}
 
+%typemap(out) FluxVec * {
+  // typemap(out) FluxVec*
+  FluxVec::size_type sz = $1->size();
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  $result = PyList_New((Py_ssize_t) sz);
+  for(FluxVec::size_type i=0; i<sz; i++) {
+    PyObject *flux = (*$1)[i]->pythonObject();
+    if(!flux)
+      SWIG_fail;
+    PyList_SET_ITEM($result, (Py_ssize_t) i, flux);
+  }
+}
+
+%typemap(newfree) FluxVec * {
+  // typemap(newfree) FluxVec*
+  delete $1;
+}
+
+%nodefaultctor Flux;
 
 class Flux {
 public:
@@ -36,16 +64,17 @@ public:
 
   IteratorP iterator(Planarity p);
   IteratorP divergence_iterator();
-  %addmethods {
-    // iterator_all is used in situations in which it's not known if
-    // we're iterating over a Field, Flux, or Equation.
-    // Equation::iterator doesn't take an argument.
-    IteratorP iterator_all() {
-      return self->iterator(ALL_INDICES);
-    }
-  }
   IndexP componenttype();
   ArithmeticOutputValue newOutputValue();
+};
+
+%extend Flux {
+  // iterator_all is used in situations in which it's not known if
+  // we're iterating over a Field, Flux, or Equation.
+  // Equation::iterator doesn't take an argument.
+  IteratorP iterator_all() {
+    return self->iterator(ALL_INDICES);
+  }
 };
   
 class VectorFlux : public Flux {

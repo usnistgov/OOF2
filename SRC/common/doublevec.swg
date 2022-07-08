@@ -39,8 +39,9 @@ public:
   const std::string str() const;
 };
 
-%addmethods DoubleVec {
-  %new const string* __repr__() {
+%extend DoubleVec {
+  %newobject __repr__;
+  const string* __repr__() {
      return new std::string((*self).str());
   }
 
@@ -48,7 +49,9 @@ public:
     *self = *x;
   }
 
-  %new DoubleVec *clone() {
+  %newobject clone;
+  // TODO PYTHON3: Check that allocated vector is cleaned up properly.
+  DoubleVec *clone() {
     return new DoubleVec(*self);
   }
 
@@ -65,8 +68,8 @@ public:
   void load(const char *filename) {
     load_vec(*self, std::string(filename));
   }
-}
+};
 
-%pythoncode "doublevec.spy"
+%pythoncode "common/doublevec.spy"
 
 #endif // DOUBLEVEC_SWG

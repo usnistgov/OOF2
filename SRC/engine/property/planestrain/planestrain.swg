@@ -26,6 +26,6 @@ public:
   PlaneStrain(PyObject *reg, char *name, double e);
 };
 
-%pythoncode "planestrain.spy"
+%pythoncode "engine/property/planestrain/planestrain.spy"
 
 #endif // PLANESTRAIN_SWG

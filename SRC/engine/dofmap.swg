@@ -13,7 +13,7 @@
 #define DOFMAP_SWG
 
 %module dofmap
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %import "common/doublevec.swg"
 %{
 #include "common/doublevec.h"

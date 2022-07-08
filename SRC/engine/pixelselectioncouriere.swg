@@ -14,7 +14,7 @@
 
 %module pixelselectioncouriere
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %import "common/pixelselectioncourier.swg"
 
 %{

@@ -42,6 +42,6 @@ public:
   Rank3Tensor dijk();
 };
 
-%pythoncode "piezoelectricity.spy"
+%pythoncode "engine/property/piezoelectricity/piezoelectricity.spy"
 
 #endif // PIEZOELECTRICITY

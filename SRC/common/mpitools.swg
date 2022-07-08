@@ -99,7 +99,7 @@ public:
   }
 };
 
-%pythoncode "mpitools.spy"
+%pythoncode "common/mpitools.spy"
 
 #endif // MPITOOLS_SWG
 

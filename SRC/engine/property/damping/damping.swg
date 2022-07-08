@@ -18,7 +18,7 @@
 #include "engine/property/damping/damping.h"
 %}
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
 
 class IsotropicDampingProp : public Property {
@@ -26,6 +26,6 @@ public:
   IsotropicDampingProp(PyObject*, char*, double);
 };
 
-%pythoncode "damping.spy"
+%pythoncode "engine/property/damping/damping.spy"
 
 #endif // DAMPING_SWG

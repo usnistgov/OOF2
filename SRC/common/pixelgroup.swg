@@ -33,13 +33,13 @@ public:
   int id();
   bool is_defunct();
   void set_defunct();
-  void add(ICoordVec *iPointList);
-  void addWithoutCheck(ICoordVec *iPointList);
-  void remove(ICoordVec *iPointList);
+  void add(std::vector<ICoord> *iPointList);
+  void addWithoutCheck(std::vector<ICoord> *iPointList);
+  void remove(std::vector<ICoord> *iPointList);
   %newobject clone;
   PixelSet *clone();
   void clear();
-  ICoordVec *members();
+  std::vector<ICoord> *members();
 };
 
 %extend PixelSet {
@@ -73,6 +73,6 @@ public:
   ~PixelGroupAttributeRegistration();
 };
 
-%pythoncode "pixelgroup.spy"
+%pythoncode "common/pixelgroup.spy"
 
 #endif // PIXELGROUP_SWG

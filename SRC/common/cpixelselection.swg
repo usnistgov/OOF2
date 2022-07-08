@@ -23,19 +23,20 @@
 %import "common/pixelgroup.swg"
 %import "common/IO/bitoverlay.swg"
 %import "common/coord.swg"
-%pragma(python) code="from ooflib.SWIG.common.IO.bitoverlay import BitmapOverlayPtr"
-%pragma(python) code="from ooflib.SWIG.common.cmicrostructure import CMicrostructurePtr"
-%pragma(python) code="from ooflib.SWIG.common.coord import CoordPtr"
-%pragma(python) code="from ooflib.SWIG.common.coord import ICoordPtr"
-%pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelGroupPtr"
-%pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelSetPtr"
-%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
+// %pragma(python) code="from ooflib.SWIG.common.IO.bitoverlay import BitmapOverlayPtr"
+// %pragma(python) code="from ooflib.SWIG.common.cmicrostructure import CMicrostructurePtr"
+// %pragma(python) code="from ooflib.SWIG.common.coord import CoordPtr"
+// %pragma(python) code="from ooflib.SWIG.common.coord import ICoordPtr"
+// %pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelGroupPtr"
+// %pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelSetPtr"
+// %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 
 class CPixelSelection {
 public:
   CPixelSelection(ICoord *iPoint, Coord *Point, CMicrostructure*);
   ~CPixelSelection();
-  %new CPixelSelection *clone();
+  %newobject clone;
+  CPixelSelection *clone();
   const Coord size();
   const ICoord sizeInPixels();
   bool checkpixel(ICoord *iPoint);
@@ -59,7 +60,7 @@ public:
   bool isSelected(ICoord *iPoint);
   void setFromGroup(PixelSet*);
   TimeStamp *getTimeStamp();
-  ICoordVec *members();
+  std::vector<ICoord> *members();
   PixelSet *getPixelGroup();
   BitmapOverlay *getBitmap();
   int len();
@@ -71,6 +72,6 @@ public:
   }
 }
 
-%pythoncode "cpixelselection.spy"
+%pythoncode "common/cpixelselection.spy"
 
 #endif // CPIXELSELECTION_SWG

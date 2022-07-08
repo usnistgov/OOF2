@@ -56,6 +56,11 @@ class _AllEquations:
 
 allEquations = _AllEquations()
 
+## TODO PYTHON3: With swig4, it may be possible to simplify
+## getEquation().  It currently calls getEquationByName(), which is an
+## inline function defined in equation.swg, which in turn calls
+## Equation::getEquation(), which is a static method in the C++
+## Equation class.  Can we just swig that method and rename it?
 def getEquation(name):
     return getEquationByName(name)
 

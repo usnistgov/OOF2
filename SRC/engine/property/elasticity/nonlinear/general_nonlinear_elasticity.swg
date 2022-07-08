@@ -20,7 +20,6 @@
 
 %include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
-%pythoncode "general_nonlinear_elasticity.spy"
 
 class GeneralNonlinearElasticityNoDeriv : public Property {
 };
@@ -37,5 +36,7 @@ class TestGeneralNonlinearElasticity : public GeneralNonlinearElasticity {
 public:
   TestGeneralNonlinearElasticity(PyObject *reg, char *name, int testno);
 };
+
+%pythoncode "engine/property/elasticity/nonlinear/general_nonlinear_elasticity.spy"
 
 #endif // GENERAL_NONLINEAR_ELASTICITY_SWG

@@ -26,6 +26,6 @@ public:
   SimpleTension2(PyObject *self, char *, double, double, double, double);
 };
 
-%pythoncode "simpletension2.spy"
+%pythoncode "engine/property/interfaces/surfacetension/simpletension2/simpletension2.spy"
 
 #endif // SIMPLETENSION2_SWG

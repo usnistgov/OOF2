@@ -29,7 +29,7 @@ public:
   OOFMessage(const std::string &msgname);
   const std::string &name() const;
   virtual const std::string &classname() const { return classname_; }
-  virtual const std::string &modulename() const { return modulename_; }
+  //virtual const std::string &modulename() const { return modulename_; }
   void addarg(const PythonExportableBase&);
   void addarg(const std::string &);
   void addarg(int);

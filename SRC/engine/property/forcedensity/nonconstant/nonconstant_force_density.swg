@@ -30,6 +30,6 @@ public:
   TestNonconstantForceDensity(PyObject *reg, char *name, int testno);
 };
 
-%pythoncode "nonconstant_force_density.spy"
+%pythoncode "engine/property/forcedensity/nonconstant/nonconstant_force_density.spy"
 
 #endif // NONCONSTANT_FORCE_DENSITY_SWG

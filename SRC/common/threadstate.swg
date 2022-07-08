@@ -14,7 +14,7 @@
 
 %module threadstate
 %include "common/typemaps.swg"
- //%import "common/progress.swg"
+%import "common/progress.swg"
 
 %{
 #include "common/threadstate.h"
@@ -27,10 +27,11 @@ ADD_REPR(ThreadID, get_IDstr);
 class ThreadID {
 public:
   ThreadID();
-  %extend {
-    bool __eq__(ThreadID &right) {
-      return operator==(*self,right);
-    }
+};
+
+%extend ThreadID {
+  bool __eq__(ThreadID &right) {
+    return operator==(*self,right);
   }
 };
 
@@ -47,10 +48,11 @@ class ThreadState {
   void impedeProgress();
   void acquireProgressLock();
   void releaseProgressLock();
-  %extend {
-    int __eq__(ThreadState &right) {
-      return operator==(*self,right);
-    }
+};
+
+%extend ThreadState {
+  int __eq__(ThreadState &right) {
+    return operator==(*self,right);
   }
 };
 

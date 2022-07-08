@@ -14,7 +14,7 @@
 
 %module invariant
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %{
 #include "engine/invariant.h"
 #include "common/ooferror.h"

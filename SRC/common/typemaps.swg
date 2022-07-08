@@ -41,6 +41,7 @@
 // In these comments, "[x]" means a Python list of objects of type x
 
 // GENERIC TYPEMAPS
+// TODO PYTHON3: Update these lists
 
 // out:     std::string*   -> PyUnicode
 // newfree: std::string*
@@ -109,15 +110,11 @@
   // files, then delete them.
 typedef std::vector<Coord*> CoordVec;
 typedef std::vector<Coord> PointVec;
-typedef std::vector<ICoord> ICoordVec;
 typedef std::vector<char*> CharPtrVec;
 typedef std::vector<double> DoubleList;
 typedef std::vector<int> IntVec;
 typedef std::vector<std::string> StringVec;
 typedef std::vector<unsigned short> ShortVec;
-typedef std::pair<int, int> IntPair;
-
-
 %}
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
@@ -211,7 +208,7 @@ class std::string;
 %typemap(newfree) std::string* {
   // typemap(newfree) std::string*
   delete $1;
- }
+}
   
 %typemap(out) std::string& {
   // typemap(out) std::string&
@@ -249,6 +246,44 @@ std::string {
   $1 = PyBytes_AsString(ustr);
   Py_DECREF(ustr);
  }
+
+// Out typemaps for std::vectors of std::strings. (Not vectors of
+// std::string*s!)   Use
+//   NewStringVec *func_returning_a_new_vector_of_strings();
+// instead of
+//    %newobject func_returning_a_new_vector_of_strings;
+//    std::vector<std::string> *func_returning_a_new_vector_of_strings();
+// because the typemap interferes with %newobject.  (%newobject means
+// "this object should be deleted when python is done with it", not
+// "this object should be deleted when the typemap is finished
+// converting it").  The second meaning is the one that we want.
+
+%{
+  typedef std::vector<std::string> NewStringVec;
+%}
+
+%typemap(out) std::vector<std::string> {
+  // typemap(out) std::vector<std::string>
+  auto sz = $1.size();
+  $result = PyList_New((Py_ssize_t) sz);
+  for(std::vector<std::string>::size_type i=0; i<sz; i++) {
+    PyList_SET_ITEM($result, i, PyUnicode_FromString($1[i].c_str()));
+  }
+}
+
+%typemap(out) std::vector<std::string>* {
+  // typemap(out) std::vector<std::string>
+  auto sz = $1->size();
+  $result = PyList_New((Py_ssize_t) sz);
+  for(std::vector<std::string>::size_type i=0; i<sz; i++) {
+    PyList_SET_ITEM($result, i, PyUnicode_FromString((*$1)[i].c_str()));
+  }
+}
+
+%typemap(newfree) std::vector<std::string>* {
+  // typemap(newfree) std::vector<std::string>*
+  delete $1;
+}  
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
@@ -500,7 +535,12 @@ std::string {
   for(std::vector<TYPE>::size_type i=0; i<sz; i++) {
     PyList_SET_ITEM($result, i, PyLong_FromLong((*$1)[i]));
   }
- }
+}
+
+%typemap(newfree) std::vector<TYPE>* {
+  // typemap(newfree) std::vector<TYPE>* (via MAKE_INTVEC_TYPEMAPS)
+  delete $1;
+}
 
 %typemap(out) std::vector<TYPE>& = std::vector<TYPE>*;
 
@@ -511,7 +551,7 @@ std::string {
   for(std::vector<TYPE>::size_type i=0; i<sz; i++) {
     PyList_SET_ITEM($result, i, PyLong_FromLong($1[i]));
   }
- }
+}
 
 %enddef // MAKE_INTVEC_TYPEMAPS
 
@@ -559,14 +599,13 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 
 // std::vector<TYPE*>  <--> [TYPE]
 
-// MAKE_LISTVEC_TYPEMAPS defines unnamed in and out typemaps for
-// converting between a C++ std::vector* of TYPE*s and a list of
+// MAKE_LISTVEC_TYPEMAPS defines unnamed in, out, and newfree typemaps
+// for converting between a C++ std::vector* of TYPE*s and a list of
 // swigged TYPEs.  It does not copy the objects -- the swigged
 // pointers point to the original C++ objects.
 
-// Three typemaps are defined:
-// out: TYPEVec *     (transfers ownership of TYPE objects to python)
-// out: TYPERefVec *  (does not transfer ownership to python)
+// out: TYPEVec *      (transfers ownership of TYPE objects to python)
+// out: TYPERefVec *   (does not transfer ownership to python)
 // in:  TYPEVec*
 
 // If you use std::vector<TYPE*>* as the return type of a function ,
@@ -579,8 +618,8 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 %define MAKE_LISTVEC_TYPEMAPS(TYPE)
 
 %{
-   typedef std::vector<TYPE*> TYPE##Vec;
-   typedef std::vector<TYPE*> TYPE##RefVec;
+  typedef std::vector<TYPE*> TYPE##Vec;
+  typedef std::vector<TYPE*> TYPE##RefVec;
 %}
 
 %typemap(out) TYPE##Vec* {
@@ -591,7 +630,7 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   for(TYPE##Vec::size_type i=0; i<sz; i++) {
     PyObject *tmp = SWIG_NewPointerObj(SWIG_as_voidptr((*$1)[i]),
 				       $descriptor(TYPE*),
-				       SWIG_POINTER_OWN|0);
+				       SWIG_POINTER_OWN);
     PyList_SET_ITEM($result, (Py_ssize_t) i, tmp);
   }
 }
@@ -607,6 +646,16 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
     PyList_SET_ITEM($result, (Py_ssize_t) i, tmp);
   }
  }
+
+%typemap(newfree) TYPE##Vec* {
+  // typemap(newfree) TYPE##Vec* via MAKE_LISTVEC_TYPEMAPS for TYPE
+  delete $1;
+}
+
+%typemap(newfree) TYPE##RefVec* {
+  // typemap(newfree) TYPE##RefVec* via MAKE_LISTVEC_TYPEMAPS for TYPE
+  delete $1;
+}
 
 %typemap(in) TYPE##Vec* (TYPE##Vec v) {
   // typemap(in) TYPE##Vec* via MAKE_LISTVEC_TYPEMAPS for TYPE
@@ -631,8 +680,6 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
  }
 
 %enddef // MAKE_LISTVEC_TYPEMAPS
-
-MAKE_LISTVEC_TYPEMAPS(Coord);
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
@@ -663,25 +710,29 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
     Py_XDECREF(py);
   }
   $1 = &v;
- }
+}
 
 %typemap(out) std::vector<Coord>* {
   // typemap(out) std::vector<Coord>*
   std::vector<Coord>::size_type sz = $1->size();
-  FETCH_CLASS(ooflib.common.primitives, Point)
+  FETCH_CLASS(ooflib.common.primitives, Point);
   $result = PyList_New((Py_ssize_t) sz);
   for(std::vector<Coord>::size_type i=0; i<sz; i++) {
-    const Coord &c = (*$input)[i];
+    const Coord &c = (*$1)[i];
     PyObject *point = PyObject_CallFunction(PointClass, "dd", c(0), c(1));
     PyList_SET_ITEM($result, (Py_ssize_t) i, point); // Steals reference.
   }
- }
+}
+
+%typemap(newfree) std::vector<Coord>* {
+  delete $1;
+}
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
 // std::vector<ICoord>*  <-->  [iPoint] 
 
-%typemap(in) std::vector<Coord> *iPointList (std::vector<ICoord> v) {
+%typemap(in) std::vector<ICoord> *iPointList (std::vector<ICoord> v) {
   // typemap(in) std::vector<ICoord>* iPointList
   if(!PyList_Check($input)) {
     PyErr_SetString(PyExc_TypeError,
@@ -714,11 +765,16 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
   FETCH_CLASS(ooflib.common.primitives, iPoint);
   $result = PyList_New((Py_ssize_t) sz);
   for(std::vector<ICoord>::size_type i=0; i<sz; i++) {
-    const ICoord &c = (*$input)[i];
-    PyObject *ipoint = PyObject_CallFunction(PointClass, "ii", c(0), c(1));
+    const ICoord &c = (*$1)[i];
+    PyObject *ipoint = PyObject_CallFunction(iPointClass, "ii", c(0), c(1));
     PyList_SET_ITEM($result, (Py_ssize_t) i, ipoint); // Steals reference.
   }
  }
+
+%typemap(newfree) std::vector<ICoord>* {
+  // typemap(newfree) std::vector<ICoord>*
+  delete $1;
+}
 
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
@@ -977,23 +1033,5 @@ MAKE_LISTVEC_TYPEMAPS(Coord);
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-
-// TODO: Do we need these?
-//
-// // typemap for passing "self" into a PythonExportable/PythonNative
-// // constructor.  It would seem that this shouldn't be necessary, but
-// // without it SWIG doesn't do the right thing.
-// %typemap(python,in) PyObject * {
-//   // typemap(python, in) PyObject*
-//   $target = $source;
-// }
-
-// %typemap(python, out) PyObject * {
-//   // typemap(python, out) PyObject*
-//   $target = $source;
-// }
-
-
-
 
 #endif // COMMONTYPEMAPS_SWG

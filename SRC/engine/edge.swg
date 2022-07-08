@@ -13,9 +13,9 @@
 #define EDGE_SWG
 
 %module edge
-%include "engine/typemaps.swg"
+
+%include "common/typemaps.swg"
 %import "engine/field.swg"
-// %import "engine/csubproblem.swg"
 %import "engine/node.swg"
 %import "engine/element.swg"
 
@@ -28,9 +28,11 @@ class Edge {
 public:
   Edge(const Element *, const FuncNode*, const FuncNode*);
   ~Edge();
-  %new CoordVec* position_(DoubleList*);
-  %new ArithmeticOutputValueVec *outputFields(const FEMesh*, const Field&,
-					      DoubleList*);
+  %newobject position_;
+  CoordVec* position_(DoubleList*);
+  %newobject outputFields;
+  ArithmeticOutputValueVec *outputFields(const FEMesh*, const Field&,
+					 DoubleList*);
   int order();
   MasterCoord startpt();
   MasterCoord endpt();
@@ -46,6 +48,6 @@ public:
   Node *endnode();
 };
 
-%pythoncode "edge.spy"
+%pythoncode "engine/edge.spy"
 
 #endif // EDGE_SWG

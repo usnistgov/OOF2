@@ -40,6 +40,6 @@ public:
   double rho();
 };
 
-%pythoncode "permittivity.spy"
+%pythoncode "engine/property/permittivity/permittivity.spy"
 
 #endif // PERMITTIVITY_SWG

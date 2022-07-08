@@ -26,6 +26,7 @@ class BoundaryEdge;
 class CSubProblem;
 class CSubProblem;
 class Coord;
+class DoubleVec;
 class EdgeGaussPoint;
 class EdgeNodeIterator;
 class Element;

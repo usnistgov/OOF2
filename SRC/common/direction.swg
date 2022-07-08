@@ -41,7 +41,7 @@ public:
   CAngleDirection(double, double);
 };
 
-%pythoncode "direction.spy"
+%pythoncode "common/direction.spy"
 
 #endif // DIRECTION_SWG
 

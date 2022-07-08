@@ -13,7 +13,7 @@
 #define NODE_SWG
 
 %module node
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %import "common/coord.swg"
 %import "engine/field.swg"
 %import "engine/pointdata.swg"
@@ -23,6 +23,15 @@
 #include "engine/node.h"
 %}
 
+%typemap(out) Node* {
+  // typemap(out) Node*
+  $result = $1->pythonObject();
+  if(!$result)
+    SWIG_fail;
+}
+
+%nodefaultctor Node;
+
 class Node
 {
 public:
@@ -30,19 +39,23 @@ public:
 
   Coord position();
 
-  %new const string *ctor();
+  %newobject ctor;
+  const string *ctor();
   const string &classname();
   // int ndof();
   // int neqn();
 
-  %new StringVec *fieldNames();
+  %newobject fieldNames;
+  StringVec *fieldNames();
+};
 
-  %addmethods {
-    double __getitem__(int i) {
-      return self->position()(i);
-    }
+%extend Node {
+  double __getitem__(int i) {
+    return self->position()(i);
   }
 };
+
+%nodefaultctor FuncNode;
 
 class FuncNode : public Node, public PointData {
 public:

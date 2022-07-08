@@ -27,6 +27,6 @@ public:
   HeatSourceProp(PyObject *reg, char *name, double qdot);
 };
 
-%pythoncode "heatsource.spy"
+%pythoncode "engine/property/heatsource/heatsource.spy"
 
 #endif	// HEATSOURCE_SWG

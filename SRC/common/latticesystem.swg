@@ -40,7 +40,7 @@ class LatticeSymmetry {
 
 void addLatticeSymmetryMatrix(char*, SmallMatrix *ThreeByThreeFloats);
 
-%pythoncode "latticesystem.spy"
+%pythoncode "common/latticesystem.spy"
 
 #endif // LATTICESYSTEM_SWG
 

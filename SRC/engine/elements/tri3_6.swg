@@ -13,12 +13,12 @@
 #define TRI3_6_SWIG
 
 %module tri3_6
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %{
   extern void tri3_6init();
 %}
 void tri3_6init();
 
-%pythoncode "tri3_6.spy"
+%pythoncode "engine/elements/tri3_6.spy"
 
 #endif // TRI3_6_SWIG

@@ -26,6 +26,6 @@ public:
   HeatCapacityProp(PyObject *self, char *, double);
 };
 
-%pythoncode "heatcapacity.spy"
+%pythoncode "engine/property/heatcapacity/heatcapacity.spy"
 
 #endif // HEATCAPACITY_SWG

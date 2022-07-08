@@ -68,6 +68,9 @@ public:
   }
 }
 
+MAKE_LISTVEC_TYPEMAPS(Coord);
+MAKE_LISTVEC_TYPEMAPS(ICoord);
+
 %pythoncode "common/coord.spy"
 
 #endif // COORD_SWG

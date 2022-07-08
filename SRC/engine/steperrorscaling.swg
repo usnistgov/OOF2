@@ -14,7 +14,7 @@
 
 %module steperrorscaling
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %{
 #include "common/doublevec.h"
 #include "engine/steperrorscaling.h"
@@ -52,6 +52,6 @@ public:
   GlobalErrorScaling();
 };
 
-%pythoncode "steperrorscaling.spy"
+%pythoncode "engine/steperrorscaling.spy"
 
 #endif // STEPERRORSCALING_SWG

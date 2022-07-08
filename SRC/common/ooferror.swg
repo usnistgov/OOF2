@@ -40,8 +40,10 @@ void pyErrorInit(PyObject *pythonCallable);
 
 class ErrError {
 public:
-  %new string *summary();
-  %new string *details();
+  %newobject summary;
+  std::string *summary();
+  %newobject details;
+  std::string *details();
 };
 
 // NOTE: inheritance layout here is different than ooferror.h. 
@@ -53,7 +55,7 @@ public:
 /* Args are: Message, filename, line-number. */
 class ErrProgrammingError : public ErrError {
 public:
-  const string &filename();
+  const std::string &filename();
   int lineno();
   ErrProgrammingError(char *, char *, int);
   ~ErrProgrammingError();
@@ -120,6 +122,6 @@ public:
 
 ADD_REPR(ErrNoProgress, summary);
 
-%pythoncode "ooferror.spy"
+%pythoncode "common/ooferror.spy"
 
 #endif // OOFERROR_SWG

@@ -37,7 +37,7 @@ public:
   bool isActive(ICoord *iPoint);
   void override(bool);
   bool getOverride();
-  void add_pixels(ICoordVec *iPointList);
+  void add_pixels(std::vector<ICoord> *iPointList);
 };
 
 class ActiveAreasAttributeRegistration : public PxlAttributeRegistration {
@@ -57,6 +57,6 @@ public:
 
 ActiveAreaList *areaListFromPixel(CMicrostructure*, ICoord *iPoint);
 
-%pythoncode "activearea.spy"
+%pythoncode "common/activearea.spy"
 
 #endif // ACTIVEAREA_SWG

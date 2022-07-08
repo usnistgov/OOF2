@@ -18,8 +18,9 @@
 %{
 #include "common/IO/GUI/progressGUI.h"
 %}
-%pythoncode "common/IO/GUI/progressGUI.spy"
 
 void initialize();
+
+%pythoncode "common/IO/GUI/progressGUI.spy"
 
 #endif // PROGRESSGUI_SWG

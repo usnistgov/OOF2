@@ -62,7 +62,7 @@ public:
 };
 
 
-%pythoncode "visco.spy"
+%pythoncode "engine/property/elasticity/visco/visco.spy"
 
 %typemap(python,in) Cijkl* {}
 %typemap(Python,freearg) Cijkl* {}

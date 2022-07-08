@@ -14,7 +14,7 @@
 
 %module sparsemat
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 
 %{
 #include "engine/sparsemat.h"
@@ -74,23 +74,24 @@ public:
   bool is_symmetric(double tolerance) const;
 
   const std::string str() const;
+};
 
-  %addmethods {
-    void scale(double a) { *self *= a; }
+%extend SparseMat {
+  void scale(double a) { *self *= a; }
 
-    SparseMat matrixmultiply(SparseMat &m) { return (*self)*m; }
+  SparseMat matrixmultiply(SparseMat &m) { return (*self)*m; }
 
-    %new const string * __repr__() {
-      return new std::string((*self).str());
-    }
+  %newobject __repr__;
+  const string * __repr__() {
+    return new std::string((*self).str());
+  }
 
-    bool save(const char *filename) {
-      return save_mat(*self, std::string(filename));
-    }
+  bool save(const char *filename) {
+    return save_mat(*self, std::string(filename));
+  }
  
-    bool load(const char *filename) {
-      return load_mat(*self, std::string(filename));
-    }
+  bool load(const char *filename) {
+    return load_mat(*self, std::string(filename));
   }
 };
 

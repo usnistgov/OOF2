@@ -14,21 +14,22 @@
 
 %module femesh
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %import "common/cmicrostructure.swg"
 %import "common/lock.swg"
 %import "common/timestamp.swg"
 %import "engine/element.swg"
 %import "engine/field.swg"
 %import "engine/node.swg"
+%import "engine/material.swg"
 %import "engine/meshiterator.swg"
 
-%pragma(python) code="from ooflib.SWIG.engine.field import FieldPtr"
-%pragma(python) code="from ooflib.SWIG.common.lock import RWLockPtr"
-%pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
-%pragma(python) code="from ooflib.SWIG.engine.meshiterator import NodeIteratorPtr"
-%pragma(python) code="from ooflib.SWIG.engine.meshiterator import FuncNodeIteratorPtr"
-%pragma(python) code="from ooflib.SWIG.engine.meshiterator import ElementIteratorPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.field import FieldPtr"
+// %pragma(python) code="from ooflib.SWIG.common.lock import RWLockPtr"
+// %pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.meshiterator import NodeIteratorPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.meshiterator import FuncNodeIteratorPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.meshiterator import ElementIteratorPtr"
 
 %{
 #include "engine/femesh.h"
@@ -44,12 +45,12 @@ public:
   FEMesh(CMicrostructure*);
   ~FEMesh();
 
-
   void refreshMaterials(PyObject *skeletoncontext);
   void refreshInterfaceMaterials(PyObject *skeletoncontext);
   void addMaterial(Material*);
   void removeMaterial(Material*);
-  %new MaterialSet *getAllMaterials();
+  %newobject getAllMaterials;
+  MaterialSet *getAllMaterials();
 
   Node *newMapNode(Coord&);
   FuncNode *newFuncNode(Coord&);
@@ -58,11 +59,7 @@ public:
 #endif
   Node *getNode(int i);
   FuncNode *getFuncNode(int);
-#ifdef DIM_3
-  Node *closestNode(double x, double y, double z);
-#else
   Node *closestNode(double x, double y);
-#endif
   void reserveFuncNodes(int);
   void reserveMapNodes(int);
 
@@ -98,11 +95,12 @@ public:
   double get_dofvalue(int);
   void dumpDoFs(char*);		// for debugging
 
-  %new StringVec *getFieldSetByID(int);
+  %newobject getFieldSetByID;
+  StringVec *getFieldSetByID(int);
 };				// class FEMesh
 
 long get_globalFEMeshCount();
 
-%pythoncode "femesh.spy"
+%pythoncode "engine/femesh.spy"
 
 #endif // FEMESH_SWG

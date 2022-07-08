@@ -36,6 +36,6 @@ public:
   TestNonlinearForceDensity(PyObject *reg, char *name, int testno);
 };
 
-%pythoncode "nonlinear_force_density.spy"
+%pythoncode "engine/property/forcedensity/nonlinear/nonlinear_force_density.spy"
 
 #endif // NONLINEAR_FORCE_DENSITY_SWG

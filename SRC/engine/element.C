@@ -870,7 +870,6 @@ void Element::add_b_edge(BoundaryEdge *ed_in) {
   edgeset.push_back(ed_in);
 }
 
-#if DIM==2
 std::vector<Edge*> *Element::perimeter() const {
   std::vector<Edge*> *brim = new std::vector<Edge*>(master.nedges());
   for(ElementCornerNodeIterator it=cornernode_iterator(); !it.end(); ++it) {
@@ -879,7 +878,6 @@ std::vector<Edge*> *Element::perimeter() const {
   }
   return brim;
 }
-#endif
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 

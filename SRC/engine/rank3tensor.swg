@@ -13,7 +13,7 @@
 #define RANK3TENSOR_SWG
 
 %module rank3tensor
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 
 %{
 #include "engine/rank3tensor.h"

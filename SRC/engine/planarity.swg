@@ -14,7 +14,7 @@
 
 %module planarity
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 
 %{
 #include "engine/planarity.h"

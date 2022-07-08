@@ -14,7 +14,7 @@
 
 %module meshdatacache
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 
 %{
 #include "engine/meshdatacache.h"
@@ -49,6 +49,6 @@ public:
   ~DiskDataCache();
 };
 
-%pythoncode "meshdatacache.spy"
+%pythoncode "engine/meshdatacache.spy"
 
 #endif

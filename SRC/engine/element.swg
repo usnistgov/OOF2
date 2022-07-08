@@ -14,15 +14,22 @@
 #define ELEMENTS_SWG
 
 %module element
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %import "common/coord.swg"
 %import "engine/csubproblem.swg"
 %import "engine/edge.swg"
+%import "engine/elementnodeiterator.swg"
 %import "engine/femesh.swg"
 %import "engine/field.swg"
+%import "engine/indextypes.swg"
 %import "engine/mastercoord.swg"
+%import "engine/material.swg"
 %import "engine/outputval.swg"
-%pragma(python) code="from ooflib.SWIG.engine.outputval import OutputValuePtr"
+
+// %pragma(python) code="from ooflib.SWIG.engine.outputval import OutputValuePtr"
+// %pragma(python) code="from ooflib.SWIG.engine.elementnodeiterator import *"
+// %pragma(python) code="from ooflib.SWIG.engine.gausspoint import GaussPointPtr"
+
 
 %{
 #include "engine/element.h"
@@ -30,35 +37,20 @@
 #include "engine/material.h"
 %}
 
-#ifdef DIM_3
-%{
-#include "vtk-5.0/vtkPythonUtil.h"
-#include "vtk-5.0/vtkCell3D.h"
-%}
-#endif
-
-// VecVec and MasterCoordVec are typedef'd in engine/typemaps.swg
-// Likewise GaussPointVec and EdgeVec.
-
-
 // PythonExportable typemap for ElementData*-returning functions.
 // Has the extra-special feature of noticing null-pointer returns
 // and translating them to "None".
 
-%typemap(python, out) ElementData* {
-  // typemap(python, out) ElementData*
-  if ($source != 0) {
-    $target = $source->pythonObject();
-    if(!$target)
-      return 0;
+%typemap(out) ElementData* {
+  // typemap(out) ElementData*
+  if($1 != 0) {
+    $result = $source->pythonObject();
+    if(!$result)
+      SWIG_fail;
   }
   else
-    $target = Py_None;
+    $result = Py_None;
 }
-
-%pragma(python) code="from ooflib.SWIG.engine.elementnodeiterator import *"
-%pragma(python) code="from ooflib.SWIG.engine.gausspoint import GaussPointPtr"
-%import "engine/elementnodeiterator.swg"
 
 class Material;
 class ElementNodeIterator;
@@ -74,28 +66,34 @@ public:
   const string &name();
 };
 
+MAKE_LISTVEC_TYPEMAPS(GaussPoint);
+MAKE_LISTVEC_TYPEMAPS(Edge);
+
+%typemap(newfree) GaussPointVec* {
+  delete $1;
+ }
+
 class Element {
 public:
   Material *material();
   const MasterElement &masterelement();
   double area();
   BoundaryEdge *getBndyEdge(const FuncNode *, const FuncNode *);
-#ifndef DIM_3
-  %new EdgeVec* perimeter();
-#endif
+  %newobject perimeter;
+  EdgeVec* perimeter();
 
-  %new GaussPointVec* integration_points(int);
+  %newobject integration_points;
+  GaussPointVec* integration_points(int);
+
   MasterCoord center();
   int ncorners();
   ElementNodeIterator node_iterator();
   ElementMapNodeIterator mapnode_iterator();
   ElementFuncNodeIterator *funcnode_iterator();
   ElementCornerNodeIterator cornernode_iterator();
-#ifndef DIM_3
   bool exterior(MasterCoord&, MasterCoord&);
   void set_exterior(Node&, Node&);
   void dump_exterior(); // debugging
-#endif
 
   void set_index(int);
   const int get_index() const;
@@ -114,61 +112,29 @@ public:
   //Interface branch
   Node* getCornerNode(int i) const;
   const string &name();
-  %new StringVec* namelist();
+  %newobject namelist;
+  StringVec* namelist();
 
   void refreshMaterial(PyObject *skeletoncontext);
 
   OutputValue outputField(FEMesh*, Field&, MasterPosition&);
-  %new ArithmeticOutputValueVec *outputFields(FEMesh*, Field&, MasterCoordVec*);
-  %new ArithmeticOutputValueVec *outputFieldDerivs(FEMesh*, Field&, SpaceIndex*,
-					 MasterCoordVec*);
-  // OutputValue outputFlux(FEMesh*, Flux&, MasterPosition&);
-  %new ArithmeticOutputValueVec *outputFluxes(FEMesh*, Flux&, MasterCoordVec*);
+  %newobject outputFields;
+  ArithmeticOutputValueVec *outputFields(FEMesh*, Field&, MasterCoordVec*);
+  %newobject outputFieldDerivs;
+  ArithmeticOutputValueVec *outputFieldDerivs(FEMesh*, Field&, SpaceIndex*,
+					      MasterCoordVec*);
+  %newobject outputFluxes;
+  ArithmeticOutputValueVec *outputFluxes(FEMesh*, Flux&, MasterCoordVec*);
 
 //   void begin_material_computation(FEMesh*);
 //   void end_material_computation(FEMesh*);
 
   Coord from_master(MasterCoord *Point);
   MasterCoord to_master(Coord *Point);
-
-  %addmethods {
-#ifdef DIM_3
-  // methods needed to access vtk objects so that we can draw the 3D
-  // mesh TODO 3D: we should probably be able to eliminate these
-  // when meshes use vtk more effectively -- currently only working
-  // for linear elements
-
-    int getNumberOfEdges() {
-      return self->get_skeleton_element()->getNumberOfEdges();
-    }
-
-    PyObject* getEdge(int i) {
-      return vtkPythonGetObjectFromPointer( self->get_skeleton_element()->getEdge(i) );
-    }
-
-    PyObject* getPointIds() {
-      return vtkPythonGetObjectFromPointer( self->get_skeleton_element()->getPointIds() );
-    }
-
-    int GetCellType() {
-      return self->get_skeleton_element()->getCellType();
-    }
-
-    PyObject* GetPoints() {
-      return vtkPythonGetObjectFromPointer( self->get_skeleton_element()->getPoints() );
-    }
-#endif
-
-    %new const string *__repr__() {
-      return self->repr();
-    }
-  } // addmethods
 };
 
-%typemap(python,out) EdgeVec*;
-%typemap(python,freearg) EdgeVec*;
-%typemap(python,out) ElementData*;
+ADD_REPR(Element, repr);
 
-%pythoncode "element.spy"
+%pythoncode "engine/element.spy"
 
 #endif // ELEMENTS_SWG

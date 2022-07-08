@@ -15,17 +15,20 @@
 #define CCONJUGATE_SWG
 
 %module cconjugate
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %import "engine/equation.swg"
 %import "engine/field.swg"
 %import "engine/fieldindex.swg"
 
 %{
 #include "engine/cconjugate.h"
+#include "engine/equation.h"
+#include "engine/field.h"
 %}
-%pragma(python) code="from ooflib.SWIG.engine.equation import EquationPtr"
-%pragma(python) code="from ooflib.SWIG.engine.field import FieldPtr"
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import FieldIndexPtr"
+
+// %pragma(python) code="from ooflib.SWIG.engine.equation import EquationPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.field import FieldPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import FieldIndexPtr"
 
 class CConjugatePair {
 public:
@@ -35,10 +38,11 @@ public:
   FieldIndex *get_field_component();
   Equation *get_equation();
   FieldIndex *get_equation_component();
-  %addmethods {
-    bool __eq__(CConjugatePair *other) {
-      return *self == *other;
-    }
+};
+
+%extend CConjugatePair {
+  bool __eq__(CConjugatePair *other) {
+    return *self == *other;
   }
 };
 

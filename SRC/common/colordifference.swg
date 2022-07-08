@@ -42,6 +42,6 @@ public:
   bool contains(const CColor &c1, const CColor &c2) const;
 };
 
-%pythoncode "colordifference.spy"
+%pythoncode "common/colordifference.spy"
 
 #endif // COLORDIFFERENCE_SWG

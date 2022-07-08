@@ -34,7 +34,7 @@ public:
   ~SquareBrush();
 };
 
-%pythoncode "brushstyle.spy"
+%pythoncode "common/brushstyle.spy"
 
 #endif // BRUSHSTYLE_SWG
 

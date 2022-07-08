@@ -61,6 +61,6 @@ public:
 void registerOrientMap(char*, OrientMap*);
 void removeOrientMap(char*);
 
-%pythoncode "orientmapdata.spy"
+%pythoncode "orientationmap/orientmapdata.spy"
 
 #endif // ORIENTMAPDATA_SWG

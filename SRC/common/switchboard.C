@@ -55,7 +55,7 @@ void switchboard_notify(const OOFMessage &msg) {
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 const std::string OOFMessage::classname_("OOFMessage");
-const std::string OOFMessage::modulename_("ooflib.SWIG.common.switchboard");
+//const std::string OOFMessage::modulename_("ooflib.SWIG.common.switchboard");
 
 OOFMessage::OOFMessage(const std::string &msgname)
   : msgname(msgname)

@@ -16,10 +16,12 @@
 #include "engine/elementnodeiterator.h"
 %}
 
-%include "engine/typemaps.swg"
-
-%pragma(python) code="from ooflib.SWIG.engine.node import *"
+%include "common/typemaps.swg"
 %import "engine/node.swg"
+
+// %pragma(python) code="from ooflib.SWIG.engine.node import *"
+
+%nodefaultctor ElementNodeIterator;
 
 class ElementNodeIterator {
 public:
@@ -29,18 +31,21 @@ public:
   Node *leftnode();
   Node *rightnode();
   void set_start();
-  %addmethods {
-    void increment() {
-      ++*self;
-    }
-    ElementNodeIterator next() {
-      return *self + 1;
-    }
-    ElementNodeIterator __add__(int i) {
-      return *self + i;
-    }
+};
+
+%extend ElementNodeIterator {
+  void increment() {
+    ++*self;
+  }
+  ElementNodeIterator next() {
+    return *self + 1;
+  }
+  ElementNodeIterator __add__(int i) {
+    return *self + i;
   }
 };
+
+%nodefaultctor ElementShapeFuncIterator;
 
 class ElementShapeFuncIterator : public ElementNodeIterator {
 public:
@@ -48,53 +53,62 @@ public:
   double dshapefunction(int, MasterPosition&);
 };
 
-class ElementMapNodeIterator : public ElementShapeFuncIterator {
-  %addmethods {
-    ElementMapNodeIterator next() {
-      return *self + 1;
-    }
-    ElementMapNodeIterator __add__(int i) {
-      return *self + i;
-    }
+%nodefaultctor ElementMapNodeIterator;
+
+class ElementMapNodeIterator : public ElementShapeFuncIterator {};
+
+%extend ElementMapNodeIterator {
+  ElementMapNodeIterator next() {
+    return *self + 1;
+  }
+  ElementMapNodeIterator __add__(int i) {
+    return *self + i;
   }
 };
+
+%nodefaultctor ElementFuncNodeIterator;
 
 class ElementFuncNodeIterator : public ElementShapeFuncIterator {
 public:
   FuncNode *funcnode();
-  %addmethods {
-    ElementFuncNodeIterator next() {
-      return *self + 1;
-    }
-    ElementFuncNodeIterator __add__(int i) {
-      return *self + i;
-    }
+};
+
+%extend ElementFuncNodeIterator {
+  ElementFuncNodeIterator next() {
+    return *self + 1;
+  }
+  ElementFuncNodeIterator __add__(int i) {
+    return *self + i;
   }
 };
+
+%nodefaultctor ElementCornerNodeIterator;
 
 class ElementCornerNodeIterator : public ElementNodeIterator {
 public:
   ElementFuncNodeIterator funcnode_iterator();
   ElementExteriorNodeIterator exteriornode_iterator();
-  %addmethods {
-    ElementCornerNodeIterator next() {
-      return *self + 1;
-    }
-    ElementCornerNodeIterator __add__(int i) {
-      return *self + i;
-    }
+};
+
+%extend ElementCornerNodeIterator {
+  ElementCornerNodeIterator next() {
+    return *self + 1;
+  }
+  ElementCornerNodeIterator __add__(int i) {
+    return *self + i;
   }
 };
 
-class ElementExteriorNodeIterator : public ElementFuncNodeIterator {
-public:
-  %addmethods {
-    ElementExteriorNodeIterator next() {
-      return *self + 1;
-    }
-    ElementExteriorNodeIterator __add__(int i) {
-      return *self + 1;
-    }
+%nodefaultctor ElementExteriorNodeIterator;
+
+class ElementExteriorNodeIterator : public ElementFuncNodeIterator {};
+
+%extend ElementExteriorNodeIterator {
+  ElementExteriorNodeIterator next() {
+    return *self + 1;
+  }
+  ElementExteriorNodeIterator __add__(int i) {
+    return *self + 1;
   }
 };
 

@@ -13,7 +13,7 @@
 #define CMATRIXMETHODS_SWG
 
 %module cmatrixmethods
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 
 %{
 #include "engine/cmatrixmethods.h"

@@ -11,7 +11,7 @@
 
 #ifndef PROPERTYHDR_SWG
 #define PROPERTYHDR_SWG
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 
 // This file should be %include'd in all .swg files for properties
 // derived directly from the Property base class.

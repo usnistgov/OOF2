@@ -13,7 +13,7 @@
 #define ORIENTATIONIMAGE_SWG
 
 %module orientationimage
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %include "common/canvasimage.swg"
 
 %{
@@ -30,7 +30,6 @@ class CMicrostructure;
 class OrientationImage : public AbstractImage {
 public:
   OrientationImage(CMicrostructure*, Angle2Color*, CColor*, CColor*);
-  %newobject makeCanvasImage;
   NewCanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 

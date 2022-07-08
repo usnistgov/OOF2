@@ -34,7 +34,7 @@ public:
   AnisotropicStressFreeStrain(PyObject *reg, char *naem, SymmMatrix3 *e);
 };
 
-%pythoncode "stressfreestrain.spy"
+%pythoncode "engine/property/stressfreestrain/stressfreestrain.spy"
 
 %typemap(python, in) SymmMatrix * {}
 

@@ -14,7 +14,7 @@
 
 %module materialsubproblem
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
 %import "engine/material.swg"
 %pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"

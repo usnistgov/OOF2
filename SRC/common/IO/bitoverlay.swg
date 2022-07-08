@@ -52,15 +52,10 @@ public:
   ICoord sizeInPixels();
   bool empty();
   %newobject pixels;
-  ICoordVec *pixels(int v);	// all pixels whose value==v
+  std::vector<ICoord> *pixels(int v);	// all pixels whose value==v
   TimeStamp &getTimeStamp();
 };
 
-// Use the full path to bitoverlay.spy.  When this file is %imported
-// by other swig files, this directory may not be in the swig search
-// path.  When this file is %imported, nothing is actually included
-// from bitoverlay.spy, but swig for some reason (a bug?) still
-// complains when it fails to find the file.
 %pythoncode "common/IO/bitoverlay.spy"
 
 #endif // BITOVERLAY_SWG

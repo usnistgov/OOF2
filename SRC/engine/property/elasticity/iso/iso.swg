@@ -18,7 +18,7 @@
 #include "engine/property/elasticity/iso/iso.h"
 %}
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
 %import "engine/property/elasticity/elasticity.swg"
 
@@ -32,6 +32,6 @@ public:
   ~CIsoElasticityProp();
 };
 
-%pythoncode "iso.spy"
+%pythoncode "engine/property/elasticity/iso/iso.spy"
 
 #endif // ISO_SWG

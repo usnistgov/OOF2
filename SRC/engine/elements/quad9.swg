@@ -13,12 +13,12 @@
 #define QUAD9_SWIG
 
 %module quad9
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %{
   extern void quad9init();
 %}
 void quad9init();
 
-%pythoncode "quad9.spy"
+%pythoncode "engine/elements/quad9.spy"
 
 #endif // QUAD9_SWIG

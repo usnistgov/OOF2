@@ -37,7 +37,7 @@ public:
   AnisotropicThermalExpansion(PyObject *registry, char *name, SymmMatrix3 *alpha, double t0);
 };
 
-%pythoncode "thermalexpansion.spy"
+%pythoncode "engine/property/thermalexpansion/thermalexpansion.spy"
 
 %typemap(python,in) SymmMatrix * {}
 

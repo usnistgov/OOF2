@@ -13,11 +13,7 @@
 #define PROPERTIES_SWG
 
 %module property
-%include "engine/typemaps.swg"
-
-%typemap(python,out) PyObject * {
-  $target = $source;
-}
+%include "common/typemaps.swg"
 
 %{
 #include "engine/property.h"
@@ -42,16 +38,30 @@ public:
   // under different names, so that Python won't call the wrapper
   // function recursively if the method is *not* redefined in a
   // derived Python Property class.
-  %name(c_cross_reference) void cross_reference(Material*);
-  %name(c_precompute) void precompute(FEMesh*);
-  %name(c_is_symmetric_K) bool is_symmetric_K(const CSubProblem*);
-  %name(c_is_symmetric_C) bool is_symmetric_C(const CSubProblem*);
-  %name(c_is_symmetric_M) bool is_symmetric_M(const CSubProblem*);
-  %name(c_constant_in_space) bool constant_in_space();
-  %name(c_begin_element) void begin_element(CSubProblem*, Element*);
-  %name(c_end_element) void end_element(CSubProblem*, Element*);
-  %name(c_post_process) void post_process(CSubProblem*, Element*);
-  %name(c_output) void output(const FEMesh*, Element*, PropertyOutput*,
+
+  // TODO PYTHON3: Check that using rename like this works, and if it
+  // does apply it to the other classes below.
+  %rename("c_%s") ""; 
+  //%name(c_cross_reference)
+  void cross_reference(Material*);
+  //%name(c_precompute)
+  void precompute(FEMesh*);
+  //%name(c_is_symmetric_K)
+  bool is_symmetric_K(const CSubProblem*);
+  //%name(c_is_symmetric_C)
+  bool is_symmetric_C(const CSubProblem*);
+  //%name(c_is_symmetric_M)
+  bool is_symmetric_M(const CSubProblem*);
+  //%name(c_constant_in_space)
+  bool constant_in_space();
+  //%name(c_begin_element)
+  void begin_element(CSubProblem*, Element*);
+  //%name(c_end_element)
+  void end_element(CSubProblem*, Element*);
+  //%name(c_post_process)
+  void post_process(CSubProblem*, Element*);
+  //%name(c_output)
+  void output(const FEMesh*, Element*, PropertyOutput*,
 			      MasterPosition&, OutputVal*);
 
 };
@@ -101,8 +111,6 @@ public:
 };
 
 double deriv_eps;
-
-%typemap(python,out) PyObject *;
 
 %pythoncode "engine/property.spy"
 

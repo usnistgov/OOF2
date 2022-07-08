@@ -13,13 +13,14 @@
 #define MESHITERATOR_SWG
 
 %module meshiterator
-%include "engine/typemaps.swg"
 
+%include "common/typemaps.swg"
 %import "engine/element.swg"
-%pragma(python) code="from ooflib.SWIG.engine.element import ElementPtr"
 %import "engine/node.swg"
-%pragma(python) code="from ooflib.SWIG.engine.node import NodePtr"
-%pragma(python) code="from ooflib.SWIG.engine.node import FuncNodePtr"
+
+// %pragma(python) code="from ooflib.SWIG.engine.element import ElementPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.node import NodePtr"
+// %pragma(python) code="from ooflib.SWIG.engine.node import FuncNodePtr"
 
 %{
 #include "engine/meshiterator.h"
@@ -32,6 +33,9 @@
 // must return the object being pointed to or raise StopIteration, and
 // they must have an __iter__ function that returns self.
 
+
+%nodefaultctor NodeIterator;
+
 class NodeIterator {
 public:
   // NodeIterator();		// DON'T SWIG THE CONSTRUCTOR
@@ -39,12 +43,15 @@ public:
   bool end();
   int size();
   Node *node();
-  %addmethods {
-    void next() {
-      ++(*self);
-    }
+};
+
+%extend NodeIterator {
+  void next() {
+    ++(*self);
   }
 };
+
+%nodefaultctor FuncNodeIterator;
 
 class FuncNodeIterator {
 public:
@@ -53,12 +60,15 @@ public:
   bool end();
   int size();
   FuncNode *node();
-  %addmethods {
-    void next() {
-      ++(*self);
-    }
+};
+
+%extend FuncNodeIterator {
+  void next() {
+    ++(*self);
   }
 };
+
+%nodefaultctor ElementIterator;
 
 class ElementIterator {
 public:
@@ -68,10 +78,11 @@ public:
   int size();
   int count();
   Element *element();
-  %addmethods {
-    void next() {
-      ++(*self);
-    }
+};
+
+%extend ElementIterator {
+  void next() {
+    ++(*self);
   }
 };
 

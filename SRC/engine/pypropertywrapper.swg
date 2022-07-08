@@ -14,7 +14,7 @@
 
 %module pypropertywrapper
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %{
 #include "engine/pypropertywrapper.h"
 %}
@@ -60,6 +60,6 @@ public:
   PyObject *data();
 };
 
-%pythoncode "pypropertywrapper.spy"
+%pythoncode "engine/pypropertywrapper.spy"
 
 #endif // PYPROPERTYWRAPPER_SWG

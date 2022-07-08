@@ -38,6 +38,6 @@ public:
   TestNonlinearHeatConductivity(PyObject *reg, char *name, int testno);
 };
 
-%pythoncode "nonlinear_heat_conductivity.spy"
+%pythoncode "engine/property/heatconductivity/nonlinear/nonlinear_heat_conductivity.spy"
 
 #endif // NONLINEAR_HEAT_CONDUCTIVITY_SWG

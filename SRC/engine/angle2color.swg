@@ -18,6 +18,8 @@
 #include "engine/angle2color.h"
 %}
 
+%nodefaultctor Angle2Color;
+
 class Angle2Color {};
 
 class Bunge2RGB : public Angle2Color {
@@ -40,6 +42,6 @@ public:
   Axis2HSV();
 };
 
-%pythoncode "angle2color.spy"
+%pythoncode "engine/angle2color.spy"
 
 #endif // ANGLE2COLOR_SWG

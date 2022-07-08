@@ -36,6 +36,6 @@ public:
   void expand(double factor);
 };
 
-%pythoncode "geometry.spy"
+%pythoncode "common/geometry.spy"
 
 #endif // GEOMETRY_SWG

@@ -19,6 +19,7 @@
 #include "common/cmicrostructure.h"
 #include "common/array.h"
 typedef Array<int> ArrayInt;
+typedef Array<int> NewArrayInt;
 %}
 
 %include "common/typemaps.swg"
@@ -43,6 +44,23 @@ typedef Array<int> ArrayInt;
       PyList_SET_ITEM(row, (Py_ssize_t) i, PyInt_FromLong((*$1)[ICoord(i,j)]));
     }
   }
+}
+
+%typemap(out) NewArrayInt* {
+   // typemap(out) ArrayInt*
+  int h = $1->height();
+  int w = $1->width();
+  // assert(h >= PY_SSIZE_T_MIN && h <= PY_SSIZE_T_MAX);
+  // assert(w >= PY_SSIZE_T_MIN && w <= PY_SSIZE_T_MAX);
+  $result = PyList_New((Py_ssize_t) h);
+  for(int j=0; j<h; j++) {
+    PyObject *row = PyList_New((Py_ssize_t) w);
+    PyList_SET_ITEM($result, (Py_ssize_t) j, row);
+    for(int i=0; i<w; i++) {
+      PyList_SET_ITEM(row, (Py_ssize_t) i, PyInt_FromLong((*$1)[ICoord(i,j)]));
+    }
+  }
+  delete $1;
 }
 
 // %typemap(ignore) bool *newness (bool tmp) {
@@ -104,15 +122,13 @@ public:
   void removeGroup(char *name);
   void removeAllGroups();
   void renameGroupC(char *oldname, char *newname);
-  %newobject groupNames;
-  StringVec *groupNames() const;
+  NewStringVec *groupNames() const;
   int nCategories();
   int category(ICoord *iPoint);
   void recategorize();
   bool is_categorized();
   ArrayInt *getCategoryMap();
-  %newobject getCategoryMapRO;
-  ArrayInt *getCategoryMapRO();
+  NewArrayInt *getCategoryMapRO();
   ICoord getRepresentativePixel(int category);
   bool transitionPointWithPoints(Coord *Point, Coord *Point,
 				 Coord *cskel_OutPoint);
@@ -138,6 +154,6 @@ long get_globalMicrostructureCount();
 %typemap(argout) int *cskel_edgecat {}
 // %typemap(ignore) int *cskel_edgecat {}
 
-%pythoncode "cmicrostructure.spy"
+%pythoncode "common/cmicrostructure.spy"
 
 #endif // CMICROSTRUCTURE_SWG

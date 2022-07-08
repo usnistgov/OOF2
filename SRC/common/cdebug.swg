@@ -32,6 +32,6 @@ void spinCycle(int);
 
 int countleft;			// in pixelsetboundary.h
 
-%pythoncode "cdebug.spy"
+%pythoncode "common/cdebug.spy"
 
 #endif // CDEBUG_SWG

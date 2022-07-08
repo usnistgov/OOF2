@@ -25,6 +25,6 @@ public:
   MassDensityProp(PyObject *self, char *, double);
 };
 
-%pythoncode "massdensity.spy"
+%pythoncode "engine/property/massdensity/massdensity.spy"
 
 #endif // MASSDENSITY_SWG

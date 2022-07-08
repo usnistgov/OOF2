@@ -19,7 +19,7 @@
 using namespace OOFCanvas;
 %}
 
-%pragma(python) code="from oofcanvas.oofcanvasgui import RubberBandPtr"
+//%pragma(python) code="from oofcanvas.oofcanvasgui import RubberBandPtr"
 
 extern class RubberBand;
 

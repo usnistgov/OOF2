@@ -14,10 +14,10 @@
 
 %module entiremeshsubproblem
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
-%pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"
-%pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"
+// %pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
 
 %{
 #include "engine/entiremeshsubproblem.h"

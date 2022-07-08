@@ -33,6 +33,6 @@ public:
 int nAttributes();
 PxlAttributeRegistration *getRegistration(int);
 
-%pythoncode "pixelattribute.spy"
+%pythoncode "common/pixelattribute.spy"
 
 #endif // PIXELATTRIBUTE_SWG

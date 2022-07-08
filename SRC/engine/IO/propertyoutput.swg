@@ -14,7 +14,8 @@
 
 %module propertyoutput
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
+%import "engine/mastercoord.swg"
 %import "engine/properties.swg"
 %{
 #include "engine/IO/propertyoutput.h"

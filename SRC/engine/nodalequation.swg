@@ -13,7 +13,7 @@
 #define NODALEQUATION_SWG
 
 %module nodalequation
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 
 %{
 #include "engine/nodalequation.h"

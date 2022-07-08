@@ -13,38 +13,43 @@
 #define CSTRAIN_SWG
 
 %module cstrain
-%include "engine/typemaps.swg"
+
+%include "common/typemaps.swg"
+%import "engine/IO/propertyoutput.swg"
+
+ // %pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import PropertyOutputValInitPtr"
+  
 %{
 #include "engine/cstrain.h"
 #include "engine/IO/propertyoutput.h"
 %}
 
-%import "engine/IO/propertyoutput.swg"
-%pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import PropertyOutputValInitPtr"
-  
 
 class POInitGeometricStrain : public PropertyOutputValInit {
 public:
   POInitGeometricStrain();
 };
 
-%typemap(python,ignore) SymmMatrix3 *OUT (SymmMatrix3 *tmp) {
-  // typemap(python, ignore) SymmMatrix3 *OUT
-    tmp = new SymmMatrix3();
-    $target = tmp;
+%typemap(in, numinputs=0) SymmMatrix3 *OUT (SymmMatrix3 *tmp) {
+  // typemap(in, numinputs=0) SymmMatrix3 *OUT
+  // TODO PYTHON3: Why use new?  Just make tmp a SymmMatrix3, not a
+  // pointer, and set $1 = &tmp.
+  tmp = new SymmMatrix3();
+  $1 = tmp;
 }
 
 %typemap(python,argout) SymmMatrix3 *OUT {
   // typemap(python, argout) SymmMatrix3 *OUT
-  static PyObject *symmMatrix3Class = 0;
-  static PyObject *pyOne;
-  if(!symmMatrix3Class) {
-    PyObject *module = PyImport_ImportModule("ooflib.SWIG.engine.symmmatrix");
-    symmMatrix3Class = PyObject_GetAttrString(module, "SymmMatrix3Ptr");
-    Py_XDECREF(module);
-    if(!symmMatrix3Class) return 0;
-    pyOne = PyInt_FromLong(1);
-  }
+  FETCH_CLASS(ooflib.SWIG.engine.symmatrix, SymmMatrix3);
+  // static PyObject *symmMatrix3Class = 0;
+  // static PyObject *pyOne;
+  // if(!symmMatrix3Class) {
+  //   PyObject *module = PyImport_ImportModule("ooflib.SWIG.engine.symmmatrix");
+  //   symmMatrix3Class = PyObject_GetAttrString(module, "SymmMatrix3Ptr");
+  //   Py_XDECREF(module);
+  //   if(!symmMatrix3Class) return 0;
+  //   pyOne = PyInt_FromLong(1);
+  // }
   char _stemp[128];
   SWIG_MakePtr(_stemp, (char*)($source), "_SymmMatrix3_p");
   PyObject *swigthis = Py_BuildValue("(s)", _stemp);
@@ -57,9 +62,6 @@ public:
 void findGeometricStrain(FEMesh*, Element*, MasterPosition&, SymmMatrix3 *OUT,
 			 bool);
 
-%typemap(python,argout) SymmMatrix3 *OUT {}
-%typemap(python,ignore) SymmMatrix3 *OUT {}
-
-%pythoncode "cstrain.spy"
+%pythoncode "engine/cstrain.spy"
 
 #endif // CSTRAIN_SWG

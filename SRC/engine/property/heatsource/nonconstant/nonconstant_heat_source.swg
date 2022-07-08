@@ -34,6 +34,6 @@ public:
   TestNonconstantHeatSource(PyObject *reg, char *name, int testno);
 };
 
-%pythoncode "nonconstant_heat_source.spy"
+%pythoncode "engine/property/heatsource/nonconstant/nonconstant_heat_source.spy"
 
 #endif // NONCONSTANT_HEAT_SOURCE_SWG

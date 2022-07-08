@@ -18,11 +18,10 @@
 
 // The CanvasImage and NewCanvasImage typemaps are for returning an
 // OOFCanvas::CanvasImage from C++ to Python.  This requires some
-// extra work because we can't use %extern "oofcanvas/oofcanvas.swg",
+// extra work because we can't use %import "oofcanvas/oofcanvas.swg",
 // since that file isn't part of OOF2.  So these typemaps explicitly
 // do what would have been done if swig had known about the
-// OOFCanvas::CanvasImage class.  The NewCanvasImage* typemap is
-// equivalent to %new CanvasImage*.
+// OOFCanvas::CanvasImage class.
 
 // These aren't in common/typemaps.swg in order to avoid including
 // oofcanvas.h in all swig C++ output files.
@@ -35,47 +34,12 @@
 
 %typemap(out) CanvasImage* {
    // typemap(out) CanvasImage*
-  $result = $1->pythonObject();
-
-  // TODO PYTHON3: Why was calling pythonObject() not sufficient before?
-  
-   // static PyObject *canvasImageClass = 0;
-   // if(!canvasImageClass) {
-   //   PyObject *module = PyImport_ImportModule("oofcanvas");
-   //   canvasImageClass = PyObject_GetAttrString(module, "CanvasImage");
-   //   Py_XDECREF(module);
-   //   if(!canvasImageClass) return 0;
-   // }
-   // char _ptmp[128];
-   // SWIG_MakePtr(_ptmp, (char*) $source, "_CanvasImage_p");
-   // PyObject *swigthis = Py_BuildValue("(s)", _ptmp);
-   // PyObject *ci = PyObject_CallObject(canvasImageClass, swigthis);
-   // Py_XDECREF(swigthis);
-   // $target = ci;
+  $result = $1->pythonObject(false);
 }
-
-// TODO PYTHON3: Do we need this?  Why not just use %newobject?
 
 %typemap(out) NewCanvasImage* {
    // typemap(out) CanvasImage*
-  $result = $1->pythonObject();
-   // static PyObject *canvasImageClass = 0;
-   // static PyObject *pyOne;
-   // if(!canvasImageClass) {
-   //   PyObject *module = PyImport_ImportModule("oofcanvas");
-   //   canvasImageClass = PyObject_GetAttrString(module, "CanvasImage");
-   //   Py_XDECREF(module);
-   //   if(!canvasImageClass) return 0;
-   //   pyOne = PyInt_FromLong(1);
-   // }
-   // char _ptmp[128];
-   // SWIG_MakePtr(_ptmp, (char*) $source, "_CanvasImage_p");
-   // PyObject *swigthis = Py_BuildValue("(s)", _ptmp);
-   // $target = PyObject_CallObject(canvasImageClass, swigthis);
-   // Py_XDECREF(swigthis);
-   // // Take ownership
-   // PyObject_SetAttrString($target, "thisown", pyOne);
+  $result = $1->pythonObject(true);
 }
-
 
 #endif // CANVASIMAGE_SWG

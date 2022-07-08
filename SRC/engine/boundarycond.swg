@@ -13,7 +13,7 @@
 #define BOUNDARYCOND_SWG
 
 %module boundarycond
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 
 %{
 #include "engine/boundarycond.h"

@@ -254,7 +254,6 @@ public:
 //   void begin_material_computation(FEMesh*) const;
 //   void end_material_computation(FEMesh*) const;
 
-#if DIM==2
   // Identify the edge between the two given nodes as an exterior edge.
   void set_exterior(const Node&, const Node&);
 
@@ -263,7 +262,7 @@ public:
   // to a boundary where boundary conditions apply).
   bool exterior(const MasterCoord &, const MasterCoord&) const;
   void dump_exterior() const; // debugging
-#endif
+
   // Edge machinery below this line.
 
   // Retrieve an edge from the edgelist if present, or create
@@ -287,9 +286,7 @@ public:
 
   // A routine which returns Edge objects corresponding to all of the
   // edges of the element -- used to draw the element.
-#if DIM==2
   std::vector<Edge*> *perimeter() const;
-#endif
 
   friend std::ostream &operator<<(std::ostream&, const Element&);
 

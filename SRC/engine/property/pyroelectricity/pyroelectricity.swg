@@ -27,23 +27,29 @@
  // code could probably be generalized, if it turned out that there
  // were other C registered objects that needed enum parameters.
 
-%typemap(python,in) std::string *coefficient_type (std::string s) {
-  static PyObject *EnumBaseClass = 0;
-  if(!EnumBaseClass) {
-    PyObject *module = PyImport_ImportModule("ooflib.common.enum");
-    EnumBaseClass = PyObject_GetAttrString(module, "EnumBase");
-    Py_XDECREF(module);
-    if(!EnumBaseClass) return 0;
-  }
-  if(PyObject_IsInstance($source, EnumBaseClass)) {
-    PyObject *enum_name = PyObject_GetAttrString($source, "name");
-    s = PyString_AsString(enum_name);
-    Py_XDECREF(enum_name);
-    $target = &s;
+%typemap(in) std::string *coefficient_type (std::string s) {
+  // static PyObject *EnumBaseClass = 0;
+  // if(!EnumBaseClass) {
+  //   PyObject *module = PyImport_ImportModule("ooflib.common.enum");
+  //   EnumBaseClass = PyObject_GetAttrString(module, "EnumBase");
+  //   Py_XDECREF(module);
+  //   if(!EnumBaseClass)
+  //     SWIG_fail;
+  // }
+  FETCH_CLASS(ooflib.common.enum, EnumBase);
+  if(PyObject_IsInstance($input, EnumBaseClass)) {
+    // TODO PYTHON3: I'm not at all sure that this is correct.
+    PyObject *enum_name = PyObject_GetAttrString($input, "name");
+    PyObject *ustr = PyUnicode_AsEncodedString(enum_name, "UTF-8", "replace");
+    s.assign(PyBytes_AsString(ustr));
+    $1 = &s;
   }
   else {
-    PyErr_SetString(PyExc_TypeError, "Type error in std::string *coefficient_type typemap, argument was not an enum.");
-    return NULL;
+    PyErr_SetString(
+	    PyExc_TypeError,
+	    "Type error in std::string *coefficient_type typemap,"
+	    " argument was not an enum.");
+    SWIG_fail;
   }
 }
 
@@ -58,6 +64,6 @@ public:
 
 %typemap(python, in) std::string *coefficient_type {}
 
-%pythoncode "pyroelectricity.spy"
+%pythoncode "engine/property/pyroelectricity/pyroelectricity.spy"
 
 #endif // PYROELECTRICITY_SWG

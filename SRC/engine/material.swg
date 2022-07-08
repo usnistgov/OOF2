@@ -13,8 +13,13 @@
 #define MATERIAL_SWG
 
 %module material
-%include "engine/typemaps.swg"
-%include "common/canvasimage.swg"
+%include "common/typemaps.swg"
+%import "common/abstractimage.swg"
+%import "common/canvasimage.swg"
+%import "common/pixelattribute.swg"
+%import "common/timestamp.swg"
+%import "engine/femesh.swg"
+
 %{
 #include "engine/csubproblem.h"
 #include "engine/element.h"
@@ -25,35 +30,126 @@
 typedef const std::string MaterialType;
 %}
 
-%import "common/pixelattribute.swg"
-%pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
-%import "common/timestamp.swg"
-%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr;"
-%import "engine/femesh.swg"
-%import "common/abstractimage.swg"
-%pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
+// %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
+// %pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
+// %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr;"
+
+// When a Material* is returned from C++ to Python, the MaterialPtr
+// that's returned isn't the same Python object as the Material that
+// was created initially.  This typemap uses the Material's name and
+// the MaterialManager to fetch the original Material object.
+
+%typemap(out) Material* {
+  // typemap(out) Material*
+  static PyObject *getMaterial = 0;
+  if(!getMaterial) {
+    PyObject *module = PyImport_ImportModule("ooflib.engine.materialmanager");
+    getMaterial = PyObject_GetAttrString(module, "getMaterial");
+    Py_XDECREF(module);
+    if(!getMaterial) return 0;
+    Py_XINCREF(getMaterial);
+  }
+  if($1) {
+    // call getMaterial()
+    $result = PyObject_CallFunction(getMaterial, "(s)", $1->name().c_str());
+    // If the material manager can't find the Material, then we're
+    // still in the process of building it.  getMaterial will have
+    // raised a KeyError, which we clear, and return the unmodified
+    // Material object.
+    if(!$result) {
+      // TODO PYTHON3: Check that there is actually an exception by
+      // callding PyErr_Occurred() before PyErr_ExceptionMatches().
+      if(PyErr_ExceptionMatches(PyExc_KeyError)) { // we got a KeyError
+	PyErr_Clear();
+	$result = SWIG_NewPointerObj(SWIG_as_voidptr($1),
+				     $descriptor(Material*),
+				     0);
+      }
+      else {			// we got some other error
+	$result = 0;
+      }
+    }
+  }
+  else {
+    Py_INCREF(Py_None);
+    $result = Py_None;
+  }
+}
+
+%{
+  typedef std::vector<const Material*> MaterialVec;
+%}
+
+%typemap(out) MaterialVec* {
+   // typemap(out) MaterialVec*
+  static PyObject *getMaterial = 0;
+  if(!getMaterial) {
+    PyObject *module = PyImport_ImportModule("ooflib.engine.materialmanager");
+    getMaterial = PyObject_GetAttrString(module, "getMaterial");
+    Py_XDECREF(module);
+    if(!getMaterial)
+      SWIG_fail;
+    Py_XINCREF(getMaterial);
+  }
+  MaterialVec::size_type sz = $1->size();
+  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
+  $result = PyList_New((Py_ssize_t) sz);
+  for(std::vector<const Material*>::size_type i=0; i<$1->size(); i++) {
+    PyList_SET_ITEM(
+       $result, (Py_ssize_t) i,
+       PyObject_CallFunction(getMaterial, "(s)", (*$1)[i]->name().c_str()));
+  }
+}
+
+%typemap(newfree) MaterialVec* {
+  // typemap(newfree) MaterialVec*
+  delete $1;
+}
+
+%{
+#include "engine/materialset.h"
+#include "engine/material.h"
+%}
+
+%typemap(out) MaterialSet* {
+   // typemap(out) MaterialSet*
+  static PyObject *getMaterial = 0;
+  if(!getMaterial) {
+    PyObject *module = PyImport_ImportModule("ooflib.engine.materialmanager");
+    getMaterial = PyObject_GetAttrString(module, "getMaterial");
+    Py_XDECREF(module);
+    if(!getMaterial)
+      SWIG_fail;
+    Py_XINCREF(getMaterial);
+  }
+  $result = PySet_New(NULL);
+  for(auto i=$1->begin(); i!=$1->end(); ++i) {
+    PyObject *matl = PyObject_CallFunction(getMaterial, "(s)",
+					   (*i)->name().c_str());
+    if(!matl)
+      SWIG_fail;
+    if(!PySet_Add($result, matl))
+      SWIG_fail;
+  }
+}
+
+%typemap(newfree) MaterialSet* {
+  // typemap(newfree) MaterialSet*
+  delete $1;
+}
    
-%typemap(python, out) Property* {
-  // typemap(python, out) Property*
-  $target = $source->pythonObject();
-  if(!$target)
-    return 0;
+%typemap(out) Property* {
+  // typemap(out) Property*
+  $result = $source->pythonObject();
+  if(!$result)
+    SWIG_fail;
 }
 
 // Convert a std::string& to a MaterialType Enum
-%typemap(python, out) MaterialType {
-  // typemap(python, out) MaterialType*
-  static PyObject *MaterialTypeEnum = 0;
-  if(!MaterialTypeEnum) {
-    PyObject *module = PyImport_ImportModule("ooflib.SWIG.engine.material");
-    MaterialTypeEnum = PyObject_GetAttrString(module, "MaterialType");
-    Py_XDECREF(module);
-    if(!MaterialTypeEnum) return 0;
-    Py_XINCREF(MaterialTypeEnum);
-  }
-  PyObject *arglist = Py_BuildValue("(s)", $source->c_str());
-  $target = PyEval_CallObject(MaterialTypeEnum, arglist);
-  Py_XDECREF(arglist);
+%typemap(out) MaterialType {
+  // typemap(out) MaterialType*
+  FETCH_CLASS(ooflib.SWIG.engine.material, MaterialType)
+  $result = PyObject_CallFunction(MaterialTypeClass, "(s)", $1->c_str());
 }
 
 class CMicrostructure;
@@ -105,7 +201,8 @@ public:
   MaterialAttributeRegistration();
 };
 
-%new MaterialVec *getMaterials(CMicrostructure*);
+%newobject getMaterials;
+MaterialVec *getMaterials(CMicrostructure*);
 Material *getMaterialFromCategory(CMicrostructure*, int);
 Material *getMaterialFromPoint(CMicrostructure*, ICoord *iPoint);
 void removeMaterialFromPixels(CMicrostructure*, PixelSet*);
@@ -118,8 +215,6 @@ public:
   %newobject makeCanvasImage;
   CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
-
-%typemap(python,out) Property*;
 
 %pythoncode "engine/material.spy"
 

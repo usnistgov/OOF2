@@ -14,10 +14,13 @@
 
 %module boolarray
 %include "common/typemaps.swg"
+%import "common/coord.swg"
 
 %{
 #include "common/boolarray.h"
 %}
+
+%nodefaultctor BoolArray;
 
 class BoolArray {
 public:
@@ -28,8 +31,8 @@ public:
   bool get(ICoord *iPoint);
   void toggle(ICoord *iPoint);
   void invert();
-  %new ICoordVec *pixels(bool);
+  %newobject pixels;
+  std::vector<ICoord> *pixels(bool);
 };
-
 
 #endif // BOOLARRAY_SWG

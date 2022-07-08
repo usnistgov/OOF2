@@ -22,18 +22,11 @@
 
 class ForceDensity : public Property {
 public:
-#ifndef DIM_3
   ForceDensity(PyObject *self, char *, double, double);
-#else
-  ForceDensity(PyObject *self, char *, double, double, double);
-#endif
   double fdensity_x();
   double fdensity_y();
-#ifdef DIM_3
-  double fdensity_z();
-#endif
 };
 
-%pythoncode "forcedensity.spy"
+%pythoncode "engine/property/forcedensity/forcedensity.spy"
 
 #endif // FORCEDENSITY_SWG

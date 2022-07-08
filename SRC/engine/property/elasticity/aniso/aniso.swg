@@ -19,7 +19,7 @@
 #include "engine/property/elasticity/cijkl.h"
 %}
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
 %import "engine/property/elasticity/elasticity.swg"
 
@@ -37,6 +37,6 @@ public:
   const Cijkl crystal_cijkl();
 };
 
-%pythoncode "aniso.spy"
+%pythoncode "engine/property/elasticity/aniso/aniso.spy"
 
 #endif // ANISO_SWG

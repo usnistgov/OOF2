@@ -46,6 +46,6 @@ public:
   }
 };
 
-%pythoncode "switchboard.spy"
+%pythoncode "common/switchboard.spy"
 
 #endif // SWITCHBOARD_SWG

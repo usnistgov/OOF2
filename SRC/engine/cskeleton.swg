@@ -14,20 +14,20 @@
 
 %module cskeleton
 
-%include "engine/typemaps.swg"
 %include "common/typemaps.swg"
-%import "common/coord.swg"
-%import "common/timestamp.swg"
-%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 %import "common/cmicrostructure.swg"
 %import "common/coord.swg"
-%pragma(python) code="from ooflib.SWIG.common.coord import CoordPtr"
+%import "common/timestamp.swg"
+%import "engine/mastercoord.swg"
 
+// %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
+// %pragma(python) code="from ooflib.SWIG.common.coord import CoordPtr"
 
 %{
 #include <oofconfig.h>
 #include "engine/cskeleton.h"
-  %}
+#include "engine/mastercoord.h"
+%}
 
 class CSkeletonNode {
 public:
@@ -56,12 +56,15 @@ public:
   ~HomogeneityData();
 };
 
+%nodefaultctor CSkeletonElement;
+
 class CSkeletonElement {
 public:
   ~CSkeletonElement();
   int nnodes();
   void replaceNode(int, CSkeletonNode*);
-  %new PointVec *perimeter();
+  %newobject perimeter;
+  std::vector<Coord> *perimeter();
   double perimeterLength();
   double edgeLength(int);
   double cosCornerAngle(int);
@@ -72,17 +75,18 @@ public:
   Coord size();
   bool illegal();
   bool interior(Coord *Point);
-  %new ICoordVec *underlying_pixels(CMicrostructure);
-  double homogeneity(CMicrostructure, bool);
-  int dominantPixel(CMicrostructure);
-  void copyHomogeneity(CSkeletonElement);
+  %newobject underlying_pixels;
+  std::vector<ICoord> *underlying_pixels(CMicrostructure&);
+  double homogeneity(CMicrostructure&, bool);
+  int dominantPixel(CMicrostructure&);
+  void copyHomogeneity(CSkeletonElement&);
   double energyHomogeneity(CMicrostructure&);
   void findHomogeneityAndDominantPixel(CMicrostructure&, bool);
   void revertHomogeneity();
   HomogeneityData getHomogeneityData();
-  void setHomogeneityData(HomogeneityData);
+  void setHomogeneityData(HomogeneityData&);
   void setHomogeneous(int);
-  bool transitionPoint(CMicrostructure, int, Coord *cskel_OutPoint);
+  bool transitionPoint(CMicrostructure&, int, Coord *cskel_OutPoint);
 };
 
 class CSkeletonTriangle : public CSkeletonElement {
@@ -100,8 +104,5 @@ public:
 
 long get_globalNodeCount();
 long get_globalElementCount();
-
-//%typemap(python, argout) Coord *cskel_OutPoint {}
-//%typemap(python, ignore) Coord *cskel_OutPoint {}
 
 #endif // CSKELETON_SWG

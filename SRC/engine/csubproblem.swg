@@ -14,7 +14,7 @@
 
 %module subproblem
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %import "common/cmicrostructure.swg"
 %import "common/doublevec.swg"
 %import "common/lock.swg"
@@ -22,21 +22,23 @@
 %import "engine/equation.swg"
 %import "engine/femesh.swg"
 %import "engine/field.swg"
+%import "engine/flux.swg"
 %import "engine/linearizedsystem.swg"
+%import "engine/material.swg"
 %import "engine/meshiterator.swg"
 %import "engine/node.swg"
 
-%pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
-%pragma(python) code="from ooflib.SWIG.common.lock import RWLockPtr"
-%pragma(python) code="from ooflib.SWIG.common.doublevec import DoubleVecPtr"
-%pragma(python) code="from ooflib.SWIG.engine.equation import EquationPtr"
-%pragma(python) code="from ooflib.SWIG.engine.femesh import FEMeshPtr"
-%pragma(python) code="from ooflib.SWIG.engine.field import FieldPtr"
-%pragma(python) code="from ooflib.SWIG.engine.linearizedsystem import LinearizedSystemPtr"
-%pragma(python) code="from ooflib.SWIG.engine.meshiterator import ElementIteratorPtr"
-%pragma(python) code="from ooflib.SWIG.engine.meshiterator import FuncNodeIteratorPtr"
-%pragma(python) code="from ooflib.SWIG.engine.meshiterator import NodeIteratorPtr"
-%pragma(python) code="from ooflib.SWIG.engine.nodalequation import NodalEquationPtr"
+// %pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
+// %pragma(python) code="from ooflib.SWIG.common.lock import RWLockPtr"
+// %pragma(python) code="from ooflib.SWIG.common.doublevec import DoubleVecPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.equation import EquationPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.femesh import FEMeshPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.field import FieldPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.linearizedsystem import LinearizedSystemPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.meshiterator import ElementIteratorPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.meshiterator import FuncNodeIteratorPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.meshiterator import NodeIteratorPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.nodalequation import NodalEquationPtr"
 
 %{
 #include "common/doublevec.h"
@@ -47,36 +49,14 @@
 #include "engine/meshiterator.h"
 #include "engine/sparsemat.h"
 #include <vector>
-typedef std::vector<CConjugatePair*> CConjugateVec;
 %}
 
-%typemap(python, in) CConjugateVec * (CConjugateVec cv) {
-  if(!PyList_Check($source)) {
-    PyErr_SetString(PyExc_TypeError,
-		 "Type Error in CConjugateVec typemap.  Python list required.");
-    return NULL;
-  }
-  CConjugateVec::size_type sz = Py_SAFE_DOWNCAST(PyList_Size($source),
-						 Py_ssize_t,
-						 CConjugateVec::size_type);
-  cv.resize(sz);
-  for(CConjugateVec::size_type i=0; i<sz; i++) {
-    CConjugatePair *pair;
-    PyObject *stg = PyObject_GetAttrString(PyList_GET_ITEM($source,
-							   (Py_ssize_t) i),
-					   "this");
-    // TODO PYTHON3: Update for python3 and swig4
-    char *str = PyString_AsString(stg);
-    SWIG_GetPtr(str, (void**) &pair, "_CConjugatePair_p");
-    cv[i] = pair;
-  }
-  $target = &cv;
-}
+MAKE_LISTVEC_TYPEMAPS(CConjugatePair);
 
+%nodefaultctor CSubProblem; // only derived classes can be constructed
 
 class CSubProblem {
 public:
-//   CSubProblem(FEMesh*);	// only derived classes can be constructed
   ~CSubProblem();
 
   void set_rwlock(RWLock *rw);
@@ -91,7 +71,6 @@ public:
   bool containsNode(Node*);
 
   Lock precomputeLock;
-//%readwrite
   bool precomputeRequired;
   void requirePrecompute();
   void redefined();
@@ -100,14 +79,19 @@ public:
   NodeIterator node_iterator();
   FuncNodeIterator funcnode_iterator();
 
-  %new LinearizedSystem *new_linear_system(double);
+  %newobject new_linear_system;
+  LinearizedSystem *new_linear_system(double);
   void make_linear_system(LinearizedSystem *, CNonlinearSolver*);
 
-  %new CompoundFieldVec *all_compound_fields();
-  %new EquationVec *all_equations();
-  %new FluxVec *all_fluxes();
+  %newobject all_compound_fields;
+  CompoundFieldVec *all_compound_fields();
+  %newobject all_equations;
+  EquationVec *all_equations();
+  %newobject all_fluxes;
+  FluxVec *all_fluxes();
 
-  %new MaterialSet *getMaterials();
+  %newobject getMaterials;
+  MaterialSet *getMaterials();
 
 
   bool define_field(Field&);
@@ -131,7 +115,8 @@ public:
 
   void mapFields();
   bool set_meshdofs(DoubleVec*);
-  %new DoubleVec *get_meshdofs();
+  %newobject get_meshdofs;
+  DoubleVec *get_meshdofs();
 
   void set_slaveDoF(int);
   void clear_slaveDoFs();
@@ -140,7 +125,7 @@ public:
 
   // for symmetrizing the stiffness matrix, if at all possible
 //   void set_trivial_equation_mapping();
-  void set_equation_mapping(CConjugateVec*);
+  void set_equation_mapping(CConjugatePairVec*);
 
 #ifdef HAVE_MPI
   int GatherNumNodes();
@@ -151,25 +136,27 @@ public:
   // SCPatch stuff, which should be encapsulated elsewhere eventually
   void init_scpatches(IntVec*);
   void add_scpatch(int, Material*, int, IntVec*, IntVec*, int);
-  %new IntVec *get_elements_from_patch(int, Material*);
-  %new IntVec *get_nodes_from_patch(int, Material*);
+  %newobject get_elements_from_patch;
+  IntVec *get_elements_from_patch(int, Material*);
+  %newobject get_nodes_from_patch;
+  IntVec *get_nodes_from_patch(int, Material*);
   void init_nodalfluxes();
   void recover_fluxes();
   void report_recovered_fluxes(Element*, Coord *Point);
   double zz_L2_estimate(Element*, Flux*);
-  %new DoubleList *zz_L2_weights(Flux*, double, double);
+  %newobject zz_L2_weights;
+  DoubleList *zz_L2_weights(Flux*, double, double);
   bool contains(Element*);
-
-  %addmethods {
-    int __hash__() {
-      return self->objectid();
-    }
-  }
-
 };				// class CSubProblem
+
+%extend CSubProblem {
+  int __hash__() {
+    return self->objectid();
+  }
+};
 
 long get_globalCSubProblemCount();
 
-%pythoncode "csubproblem.spy"
+%pythoncode "engine/csubproblem.spy"
 
 #endif // SUBPROBLEM_SWG

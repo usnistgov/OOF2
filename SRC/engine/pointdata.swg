@@ -12,7 +12,7 @@
 #ifndef POINTDATA_SWG
 #define POINTDATA_SWG
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %import "engine/field.swg"
 
 %{

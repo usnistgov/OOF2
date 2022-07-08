@@ -18,7 +18,7 @@
 #include "engine/property/elasticity/largestrain/largestrain.h"
 %}
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
 %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
 %import "engine/property/elasticity/cijkl.swg"
@@ -40,6 +40,6 @@ public:
 };
 
 
-%pythoncode "largestrain.spy"
+%pythoncode "engine/property/elasticity/largestrain/largestrain.spy"
 
 #endif // LARGESTRAIN_SWG

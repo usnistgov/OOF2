@@ -32,6 +32,6 @@ public:
   AnisoHeatConductivity(PyObject *reg, char *name, SymmMatrix3 *k);
 };
 
-%pythoncode "heatconductivity.spy"
+%pythoncode "engine/property/heatconductivity/heatconductivity.spy"
 
 #endif // HEATCONDUCTIVITY_SWG

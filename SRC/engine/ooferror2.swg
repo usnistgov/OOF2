@@ -133,6 +133,6 @@ public:
   }
 };
 
-%pythoncode "ooferror2.spy"
+%pythoncode "engine/ooferror2.spy"
 
 #endif // ENGINE_OOFERROR_SWG

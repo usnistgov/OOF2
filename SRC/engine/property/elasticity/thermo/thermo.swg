@@ -18,7 +18,7 @@
 #include "engine/property/elasticity/thermo/thermo.h"
 %}
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %include "engine/propertyhdr.swg"
 %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
 %import "engine/property/elasticity/cijkl.swg"
@@ -64,7 +64,7 @@ public:
 };
 
 
-%pythoncode "thermo.spy"
+%pythoncode "engine/property/elasticity/thermo/thermo.spy"
 
 %typemap(python,in) Cijkl* {}
 %typemap(Python,freearg) Cijkl *{}

@@ -34,7 +34,7 @@ public:
   double maxValue();
 };
 
-%pythoncode "polefigure.spy"
+%pythoncode "orientationmap/polefigure.spy"
 
 #endif // POLEFIGURE_SWG
 

@@ -14,7 +14,7 @@
 #define CONTOUR_SWG
 
 %module contour
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %import "engine/masterelement.swg"
 %import "engine/mastercoord.swg"
 
@@ -88,6 +88,6 @@ void clearCache();
 
 int nContourStates, nCreated, nDeleted;	// DEBUGGING
 
-%pythoncode "contour.spy"
+%pythoncode "engine/IO/contour.spy"
 
 #endif // CONTOUR_SWG

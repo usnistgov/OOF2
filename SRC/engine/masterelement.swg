@@ -12,13 +12,15 @@
 #ifndef MASTERELEMENT_SWG
 #define MASTERELEMENT_SWG
 
-%include "engine/typemaps.swg"
+%include "common/typemaps.swg"
 %import "engine/element.swg"
 %import "engine/mastercoord.swg"
+%import "engine/material.swg"
 
 %{
 #include "engine/masterelement.h"
 #include "engine/element.h"
+#include "engine/node.h"
 #include "common/tostring.h"
 typedef std::vector<MasterElement*> MasterElementList;
 // typedef std::vector<ContourCellSkeleton*> ContourCellVec;
@@ -49,6 +51,8 @@ public:
 %typemap(python,newfree) MasterElementList* {
   delete $source;
 }
+
+MAKE_LISTVEC_TYPEMAPS(Node);	// creates NodeVec* typemap
 
 // %typemap(python,out) ContourCellVec* {
 //   MasterElementList::size_type sz = $source->size();
@@ -83,8 +87,6 @@ public:
   const string &description();
   int ncorners();
   double outOfBounds(const MasterCoord&);
-#ifndef DIM_3
-  // %new ContourCellVec* contourcells(int n);
   bool onBoundary(const MasterCoord&);
   bool onBoundary2(const MasterCoord&, const MasterCoord&);
 
@@ -94,8 +96,6 @@ public:
 					  NodeVec*, NodeVec*,
 					  bool,bool,
 					  StringVec*);
-#endif
-  
   int map_order();
   int fun_order();
 
@@ -120,8 +120,6 @@ int integration_reduction;
 
 %typemap(python,out) MasterElementList*;
 %typemap(python,newfree) MasterElementList*;
-// %typemap(python,out) ContourCellVec*;
-// %typemap(python,newfree) ContourCellVec*;
 
 %pythoncode "engine/masterelement.spy"
 

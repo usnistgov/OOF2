@@ -19,9 +19,10 @@
 %}
 
 %import "common/brushstyle.swg"
-%pythoncode "gfxbrushstyle.spy"
-%pragma(python) code="from ooflib.SWIG.common.brushstyle import CircleBrushPtr"
-%pragma(python) code="from ooflib.SWIG.common.brushstyle import SquareBrushPtr"
+//%pragma(python) code="from ooflib.SWIG.common.brushstyle import CircleBrushPtr"
+// %pragma(python) code="from ooflib.SWIG.common.brushstyle import SquareBrushPtr"
+
+%nodefaultctor GfxBrushStyle;
 
 class GfxBrushStyle {
 public:
@@ -37,5 +38,8 @@ class GfxSquareBrush : public GfxBrushStyle, public SquareBrush {
 public:
   GfxSquareBrush(double);
 };
+
+%pythoncode "common/IO/GUI/gfxbrushstyle.spy"
+
 
 #endif // GFXBRUSHSTYLE_SWG

@@ -122,6 +122,8 @@ class PythonExportableBase {
     virtual const std::string &classname() const = 0;
     
     virtual PyObject *pythonObject(bool own=false) const {
+      // If called with own=true, Python will assume ownershop of the
+      // exported object.
       PyGILState_STATE pystate = PyGILState_Ensure();
       int iown = (own? SWIG_POINTER_OWN : 0);
       try {
