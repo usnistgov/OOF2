@@ -24,9 +24,7 @@ Pointer members (char* only, or all types) of a struct are assumed to
 be dynamically allocated and old value will be deallocated when
 changed. Use typemaps for different behavior.
 
-
 Null C++ pointers are None in python
-
 
 Swig can handle overloaded function definitions -- no need to create
 new fn names to wrap.  But is there an efficiency cost?  Resolution is
@@ -111,6 +109,41 @@ macro.
 
 Instead of %typemap(ignore), use %typemap(in, numinputs=0).
 
+
+--------------------
+
+When swig %imports a swig file B.swg into A.swg, it generates entries 
+for all of the types defined in B in the type info tables in A.cxx,
+which then requires that A.cxx also #includes the C++ headers for
+those types.  That is fine, if A actually uses the types.  The
+trouble is that when B is %imported, the files that B %imports are
+also imported, ad nauseum.  There can be a lot of irrelevant types
+imported into A.
+
+Because %import does not copy code from %{ ... %} blocks in the 
+imported file, header files listed in B wil not be automatically
+included in A.cxx.  Using %include instead of %import isn't an 
+option because then swig would generate code in A.cxx for all of 
+the classes in B.swg, which we don't want.  We also don't want A.cxx
+to include irrelevant header files, because that will slow down
+recompilation.
+
+The solution (at least I think it's a solution) is to ensure that
+second-order %imports don't occur.  The %import statements in a
+swig file should be enclose in
+  #ifndef NOSECONDIMPORTS
+  #define NOSECONDIMPORTS
+    // %import statements here
+  #endif 
+This is *not* the usual #ifndef that prevents header files from
+being loaded twice, because the string "NOSECONDIMPORTS" is the 
+same in all swig files.
+
+If a swig file really does need a file that would have been picked up
+by a second order %import, it will have to list it explicitly instead.
+When compiling A.cxx produces an error that some irrelevant type
+isn't defined, make sure that all of the %imported swig files are
+using NOSECONDIMPORTS.
 
 --------------------
 
