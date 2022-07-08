@@ -101,7 +101,7 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
             if etype in ("Total", "Elastic"):
                 mod = self.modulus()
                 # strain is a SymmMatrix3.  modulus is a cijkl.Cijkl
-                strain = cstrain.findGeometricStrain(mesh, element, pos, False)
+                strain = cstrain.getGeometricStrain(mesh, element, pos, False)
                 stress = mod*strain # another SymmMatrix3.
                 return outputval.ScalarOutputVal(0.5*stress.contract(strain))
                 # TODO INDEXING: It would be good to be able to write

@@ -140,7 +140,7 @@ typedef const std::string MaterialType;
    
 %typemap(out) Property* {
   // typemap(out) Property*
-  $result = $source->pythonObject();
+  $result = $1->pythonObject();
   if(!$result)
     SWIG_fail;
 }

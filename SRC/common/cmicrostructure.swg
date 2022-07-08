@@ -23,11 +23,10 @@ typedef Array<int> NewArrayInt;
 %}
 
 %include "common/typemaps.swg"
-
 %import "common/pixelgroup.swg"
- //%pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelGroupPtr"
-
 %import "common/timestamp.swg"
+
+ //%pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelGroupPtr"
  //%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 
 %typemap(out) ArrayInt* {
@@ -63,26 +62,24 @@ typedef Array<int> NewArrayInt;
   delete $1;
 }
 
-// %typemap(ignore) bool *newness (bool tmp) {
-//   // typemap(ignore) bool *newness
-//   $target = &tmp;
-// }
+%typemap(in, numinputs=0) bool *newness (bool tmp) {
+  // typemap(in, numinputs=0) bool *newness
+  $1 = &tmp;
+}
 
 %typemap(argout) bool *newness {
   // typemap(argout) bool *newness
-  PyObject *res;
-  if (*$source) 
-    res = Py_True;
-  else
-    res = Py_False;
+  PyObject *newval = (*$1? Py_True : Py_False);
 
-  if (!PyList_Check($target)) {
-    PyObject *retval = $target;
-    $target = PyList_New((Py_ssize_t) 0);
-    PyList_Append($target,retval);
-    Py_XDECREF(retval);
+  if (!PyList_Check($result)) {
+    // There's already an object in $result, but it's not a list.
+    // Change $result to a list containing the pre-existing object.
+    PyObject *oldval = $result;
+    $result = PyList_New((Py_ssize_t) 0);
+    PyList_Append($result, oldval);
+    Py_XDECREF(oldval);
   }
-  PyList_Append($target, res);
+  PyList_Append($result, newval);
 }
 
 %import "common/coord.swg"
@@ -90,20 +87,22 @@ typedef Array<int> NewArrayInt;
 
 //For SnapRefine.
  // TODO PYTHON3: Change the name of this typemap
-// %typemap(ignore) int *cskel_edgecat (int tmp) {
-//   $target = &tmp;
-// }
+%typemap(in, numinputs=0) int *cskel_edgecat (int tmp) {
+  // typemap(in, numinputs=0) int *cskel_edgecat
+  $1 = &tmp;
+}
 
 %typemap(argout) int *cskel_edgecat {
-  PyObject *res=PyInt_FromLong(*$source);
-  if (!PyList_Check($target)) {
-    PyObject *retval = $target;
-    $target = PyList_New((Py_ssize_t) 0);
-    PyList_Append($target,retval);
-    Py_XDECREF(retval);
+  // typemap(argout) int *cskel_edgecat
+  PyObject *newval = PyLong_FromLong(*$1);
+  if (!PyList_Check($result)) {
+    PyObject *oldval = $result;
+    $result = PyList_New((Py_ssize_t) 0);
+    PyList_Append($result ,oldval);
+    Py_XDECREF(oldval);
   }
-  PyList_Append($target, res);
-  Py_XDECREF(res);
+  PyList_Append($result, newval);
+  Py_XDECREF(newval);
 }
 
 class CMicrostructure {
@@ -132,14 +131,6 @@ public:
   ICoord getRepresentativePixel(int category);
   bool transitionPointWithPoints(Coord *Point, Coord *Point,
 				 Coord *cskel_OutPoint);
-//   %extend {
-//     Coord transitionPointWithPoints(Coord *Point c0, Coord *Point c1) {
-//       Coord *point;
-//       self->transitionPointClosest(*c0, *c1, point);
-//       return *point;
-//     }
-//   };
-  
   double edgeHomogeneity(Coord Point, Coord Point);
   double edgeHomogeneityCat(Coord Point, Coord Point,
 			    int* cskel_edgecat);
@@ -149,10 +140,6 @@ public:
 };
 
 long get_globalMicrostructureCount();
-
-//For SnapRefine.
-%typemap(argout) int *cskel_edgecat {}
-// %typemap(ignore) int *cskel_edgecat {}
 
 %pythoncode "common/cmicrostructure.spy"
 

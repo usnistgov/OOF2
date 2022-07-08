@@ -14,9 +14,12 @@
 
 %module meshiterator
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/element.swg"
 %import "engine/node.swg"
+#endif // NOSECONDIMPORTS
 
 // %pragma(python) code="from ooflib.SWIG.engine.element import ElementPtr"
 // %pragma(python) code="from ooflib.SWIG.engine.node import NodePtr"

@@ -14,8 +14,20 @@
 
 %module subproblem
 
+// Because CSubProblem has methods that return these iterators (which
+// are lightweight objects) by value and they don't have default
+// constructors, we have to make sure that swig uses the value wrapper
+// mechanism.  It's supposed to realized that automatically, but
+// somehow isn't.  These lines apparently must precede the importation
+// of the class definitions.
+%feature("valuewrapper") ElementIterator;
+%feature("valuewrapper") NodeIterator;
+%feature("valuewrapper") FuncNodeIterator;
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "common/cmicrostructure.swg"
+ //%import "common/cmicrostructure.swg"
 %import "common/doublevec.swg"
 %import "common/lock.swg"
 %import "engine/element.swg"
@@ -27,6 +39,7 @@
 %import "engine/material.swg"
 %import "engine/meshiterator.swg"
 %import "engine/node.swg"
+#endif // NOSECONDIMPORTS
 
 // %pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
 // %pragma(python) code="from ooflib.SWIG.common.lock import RWLockPtr"
@@ -45,6 +58,7 @@
 #include "engine/cconjugate.h"
 #include "engine/csubproblem.h"
 #include "engine/femesh.h"
+#include "engine/flux.h"
 #include "engine/material.h"
 #include "engine/meshiterator.h"
 #include "engine/sparsemat.h"
@@ -52,6 +66,10 @@
 %}
 
 MAKE_LISTVEC_TYPEMAPS(CConjugatePair);
+MAKE_LISTVEC_TYPEMAPS(CompoundField);
+MAKE_LISTVEC_TYPEMAPS(Equation);
+MAKE_LISTVEC_TYPEMAPS(Field);
+MAKE_LISTVEC_TYPEMAPS(Flux);
 
 %nodefaultctor CSubProblem; // only derived classes can be constructed
 

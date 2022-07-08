@@ -12,6 +12,26 @@
 #ifndef COMMONTYPEMAPS_SWG
 #define COMMONTYPEMAPS_SWG
 
+// This file must be %included in every other swig file.
+
+// TODO PYTHON3: This file should contain only generic typemaps and
+// typemap-generating macros.  It should *not* contain anything that
+// generates code directly (such as %{ ... %} blocks), except for what
+// is needed by the %exception typemap.
+//
+// Move all of the class-specific typemaps into the .swg files that
+// define the types.  The swig files that needs those typemaps will
+// also need the class definitions, so they can %import the files
+// containing the typemaps.  When %importing the files, prevent
+// chaining of %imports by using
+//   #ifndef NOSECONDIMPORTS
+//   #define NOSECONDIMPORTS
+//   %import ...
+//   #endif
+// That will prevent unrelated types from being defined in the
+// swig-generated C++ code, which requires unrelated C++ headers to be
+// loaded.
+
 // TODO: Change the xxxxxVec* "in" typemaps so that they accept any
 // Python iterator, not just lists and tuples.
 
@@ -670,7 +690,7 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
     int res = SWIG_ConvertPtr(PyList_GET_ITEM($input, i), &itemptr,
 			      $descriptor(TYPE*), 0);
     if(!SWIG_IsOK(res)) {
-      PyErr_SetString(SWIG_TypeError,
+      PyErr_SetString(PyExc_TypeError,
 		      "in method '$symname', expecting list of TYPEs");
       SWIG_fail;
     }

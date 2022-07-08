@@ -22,6 +22,7 @@
 %{
 #include "engine/cstrain.h"
 #include "engine/IO/propertyoutput.h"
+ #include "engine/symmmatrix.h"
 %}
 
 
@@ -30,37 +31,17 @@ public:
   POInitGeometricStrain();
 };
 
-%typemap(in, numinputs=0) SymmMatrix3 *OUT (SymmMatrix3 *tmp) {
-  // typemap(in, numinputs=0) SymmMatrix3 *OUT
-  // TODO PYTHON3: Why use new?  Just make tmp a SymmMatrix3, not a
-  // pointer, and set $1 = &tmp.
-  tmp = new SymmMatrix3();
-  $1 = tmp;
-}
+%newobject getGeometricStrain;
 
-%typemap(python,argout) SymmMatrix3 *OUT {
-  // typemap(python, argout) SymmMatrix3 *OUT
-  FETCH_CLASS(ooflib.SWIG.engine.symmatrix, SymmMatrix3);
-  // static PyObject *symmMatrix3Class = 0;
-  // static PyObject *pyOne;
-  // if(!symmMatrix3Class) {
-  //   PyObject *module = PyImport_ImportModule("ooflib.SWIG.engine.symmmatrix");
-  //   symmMatrix3Class = PyObject_GetAttrString(module, "SymmMatrix3Ptr");
-  //   Py_XDECREF(module);
-  //   if(!symmMatrix3Class) return 0;
-  //   pyOne = PyInt_FromLong(1);
-  // }
-  char _stemp[128];
-  SWIG_MakePtr(_stemp, (char*)($source), "_SymmMatrix3_p");
-  PyObject *swigthis = Py_BuildValue("(s)", _stemp);
-  PyObject *mtx = PyObject_CallObject(symmMatrix3Class, swigthis);
-  Py_XDECREF(swigthis);
-  PyObject_SetAttrString(mtx, "thisown", pyOne);
-  $target = mtx;
-}
-
-void findGeometricStrain(FEMesh*, Element*, MasterPosition&, SymmMatrix3 *OUT,
-			 bool);
+%inline %{
+  SymmMatrix3 *getGeometricStrain(const FEMesh *mesh, const Element *el,
+				  const MasterPosition &pos, bool nonlinear)
+  {
+    SymmMatrix3 *strain = new SymmMatrix3();
+    findGeometricStrain(mesh, el, pos, strain, nonlinear);
+    return strain;
+  }
+%}
 
 %pythoncode "engine/cstrain.spy"
 

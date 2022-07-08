@@ -14,6 +14,12 @@
 
 %module femesh
 
+%feature("valuewrapper") ElementIterator;
+%feature("valuewrapper") NodeIterator;
+%feature("valuewrapper") FuncNodeIterator;
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/cmicrostructure.swg"
 %import "common/lock.swg"
@@ -23,6 +29,7 @@
 %import "engine/node.swg"
 %import "engine/material.swg"
 %import "engine/meshiterator.swg"
+#endif // NOSECONDIMPORTS
 
 // %pragma(python) code="from ooflib.SWIG.engine.field import FieldPtr"
 // %pragma(python) code="from ooflib.SWIG.common.lock import RWLockPtr"
@@ -32,12 +39,13 @@
 // %pragma(python) code="from ooflib.SWIG.engine.meshiterator import ElementIteratorPtr"
 
 %{
-#include "engine/femesh.h"
-#include "engine/node.h"
-#include "engine/field.h"
-#include "engine/nodalequation.h"
-#include "engine/meshiterator.h"
 #include "engine/csubproblem.h"
+#include "engine/femesh.h"
+#include "engine/field.h"
+#include "engine/material.h"
+#include "engine/meshiterator.h"
+#include "engine/nodalequation.h"
+#include "engine/node.h"
 %}
 
 class FEMesh {

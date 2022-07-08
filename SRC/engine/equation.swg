@@ -13,14 +13,24 @@
 #define EQUATION_SWG
 
 %module equation
+
+%feature("valuewrapper") IteratorP;
+%feature("valuewrapper") IndexP;
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "engine/csubproblem.swg"
+%import "engine/fieldindex.swg"
+%import "engine/flux.swg"
 %import "engine/nodalequation.swg"
 %import "engine/planarity.swg"
-%import "engine/flux.swg"
-%import "engine/csubproblem.swg"
+#endif NOSECONDIMPORTS
 
 %{
 #include "engine/equation.h"
+#include "engine/fieldindex.h"
+#include "engine/flux.h"
 #include <vector>
 typedef std::vector<Equation*> EquationVec;
 %}
@@ -32,7 +42,7 @@ typedef std::vector<Equation*> EquationVec;
 %typemap(out) Equation* {
    // typemap(out) Equation*
    $result = $source->pythonObject();
-   if(!$target)
+   if(!$result)
      SWIG_fail;
 }
 
@@ -80,6 +90,8 @@ public:
     return self->iterator();
   }
 };
+
+%nodefaultctor FluxEquation;
 
 class FluxEquation : public Equation {
 public:

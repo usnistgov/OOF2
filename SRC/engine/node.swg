@@ -13,11 +13,16 @@
 #define NODE_SWG
 
 %module node
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/coord.swg"
 %import "engine/field.swg"
 %import "engine/pointdata.swg"
-%pragma(python) code="from ooflib.SWIG.engine.pointdata import PointDataPtr"
+#endif	// NOSECONDIMPORTS
+
+ //%pragma(python) code="from ooflib.SWIG.engine.pointdata import PointDataPtr"
 
 %{
 #include "engine/node.h"

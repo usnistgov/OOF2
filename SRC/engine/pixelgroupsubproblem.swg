@@ -14,10 +14,14 @@
 
 %module pixelgroupsubproblem
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
-%pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"
-%pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
+#endif // NOSECONDIMPORTS
+
+// %pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"
+// %pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
 
 %{
 #include "engine/pixelgroupsubproblem.h"

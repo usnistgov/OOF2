@@ -12,8 +12,13 @@
 #ifndef POINTDATA_SWG
 #define POINTDATA_SWG
 
+%module pointdata
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/field.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/pointdata.h"

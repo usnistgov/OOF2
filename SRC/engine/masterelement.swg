@@ -12,10 +12,13 @@
 #ifndef MASTERELEMENT_SWG
 #define MASTERELEMENT_SWG
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/element.swg"
 %import "engine/mastercoord.swg"
 %import "engine/material.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/masterelement.h"

@@ -14,6 +14,7 @@
 
 
 %module outputval
+
 %include "common/typemaps.swg"
 %import "engine/fieldindex.swg"
 
@@ -25,8 +26,6 @@
 #include "common/tostring.h"
 #include <vector>
 typedef OutputVal NewOutputVal;
-typedef std::vector<ArithmeticOutputValue> ArithmeticOutputValueVec;
-typedef std::vector<NonArithmeticOutputValue> NonArithmeticOutputValueVec;
 %}
 
 // The OutputValueVec typemap converts a std::vector of OutputValues
@@ -82,7 +81,7 @@ typedef std::vector<NonArithmeticOutputValue> NonArithmeticOutputValueVec;
 
 %typemap(out) OutputVal* {
   // typemap(out) OutputVal*
-  $result = $source->pythonObject();
+  $result = $1->pythonObject();
   if(!$result)
     SWIG_fail;
 }
@@ -93,7 +92,9 @@ typedef std::vector<NonArithmeticOutputValue> NonArithmeticOutputValueVec;
 
 %typemap(out) NewOutputVal* {
   // typemap(out) NewOutputVal*
-  $target = $source->pythonObject(true);
+  $result = $1->pythonObject(true);
+  if(!$result)
+    SWIG_fail;
 }
 
 %nodefaultctor OutputVal;

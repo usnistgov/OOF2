@@ -385,6 +385,11 @@ ArithmeticOutputValue operator-(const ArithmeticOutputValue &a,
 
 std::ostream &operator<<(std::ostream&, const OutputValue&);
 
+
+// Typedefs used in the swig-generated code.
+typedef std::vector<ArithmeticOutputValue> ArithmeticOutputValueVec;
+typedef std::vector<NonArithmeticOutputValue> NonArithmeticOutputValueVec;
+
 // TODO: Energies should not be calculated by using the properties
 // (each property contributing its part).  Instead, the Fluxes should
 // be used.  e += Flux*Grad Field.  Need a better abstract way of

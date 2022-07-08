@@ -14,6 +14,8 @@
 
 %module field
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/csubproblem.swg"
 %import "engine/femesh.swg"
@@ -21,12 +23,12 @@
 %import "engine/freedom.swg"
 %import "engine/outputval.swg"
 %import "engine/pointdata.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "common/coord.h"
-#include "common/ooferror.h"
-#include "common/pythonlock.h"
 #include "engine/field.h"
+#include "engine/outputval.h"
 #include "engine/pointdata.h"
 int countFields();
 typedef std::vector<CompoundField*> CompoundFieldVec;
@@ -81,6 +83,7 @@ typedef std::vector<CompoundField*> CompoundFieldVec;
 ////////////////////////////
 
 %nodefaultctor Field;
+%nodefaultdtor Field;
 
 class Field {
 public:
@@ -131,6 +134,7 @@ public:
 };
 
 %nodefaultctor CompoundField;
+%nodefaultdtor CompoundField;
 
 class CompoundField : public Field {
 public:

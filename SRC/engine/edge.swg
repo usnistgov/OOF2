@@ -14,13 +14,19 @@
 
 %module edge
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/field.swg"
 %import "engine/node.swg"
 %import "engine/element.swg"
+%import "engine/mastercoord.swg"
+%import "engine/outputval.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/edge.h"
+#include "engine/outputval.h"
 %}
 
 

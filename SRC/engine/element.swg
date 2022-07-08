@@ -14,6 +14,18 @@
 #define ELEMENTS_SWG
 
 %module element
+
+// Because Element has methods that return these iterators by value
+// and they don't have default constructors, we have to make sure that
+// swig uses the value wrapper mechanism.  It's supposed to realized
+// that automatically, but somehow isn't.  These lines apparently must
+// precede the importation of the class definitions.
+%feature("valuewrapper") ElementNodeIterator;
+%feature("valuewrapper") ElementMapNodeIterator;
+%feature("valuewrapper") ElementCornerNodeIterator;
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/coord.swg"
 %import "engine/csubproblem.swg"
@@ -25,17 +37,22 @@
 %import "engine/mastercoord.swg"
 %import "engine/material.swg"
 %import "engine/outputval.swg"
+#endif // NOSECONDIMPORTS
 
 // %pragma(python) code="from ooflib.SWIG.engine.outputval import OutputValuePtr"
 // %pragma(python) code="from ooflib.SWIG.engine.elementnodeiterator import *"
 // %pragma(python) code="from ooflib.SWIG.engine.gausspoint import GaussPointPtr"
 
-
 %{
 #include "engine/element.h"
+#include "engine/elementnodeiterator.h"
 #include "engine/cskeleton.h"
 #include "engine/material.h"
+#include "engine/outputval.h"
+#include "engine/mastercoord.h"
 %}
+
+MAKE_LISTVEC_TYPEMAPS(MasterCoord);
 
 // PythonExportable typemap for ElementData*-returning functions.
 // Has the extra-special feature of noticing null-pointer returns
@@ -44,7 +61,7 @@
 %typemap(out) ElementData* {
   // typemap(out) ElementData*
   if($1 != 0) {
-    $result = $source->pythonObject();
+    $result = $1->pythonObject();
     if(!$result)
       SWIG_fail;
   }
@@ -61,6 +78,7 @@ class MasterPosition;
 class CSkeletonElement;
 
 // Base class for data objects stored in the element.
+%nodefaultctor ElementData;
 class ElementData {
 public:
   const string &name();
@@ -72,6 +90,8 @@ MAKE_LISTVEC_TYPEMAPS(Edge);
 %typemap(newfree) GaussPointVec* {
   delete $1;
  }
+
+%nodefaultctor Element;
 
 class Element {
 public:

@@ -16,12 +16,20 @@
 #include "engine/elementnodeiterator.h"
 %}
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/node.swg"
+#endif // NOSECONDIMPORTS
 
 // %pragma(python) code="from ooflib.SWIG.engine.node import *"
 
 %nodefaultctor ElementNodeIterator;
+%feature("valuewrapper") ElementNodeIterator;
+%feature("valuewrapper") ElementMapNodeIterator;
+%feature("valuewrapper") ElementFuncNodeIterator;
+%feature("valuewrapper") ElementCornerNodeIterator;
+%feature("valuewrapper") ElementExteriorNodeIterator;
 
 class ElementNodeIterator {
 public:

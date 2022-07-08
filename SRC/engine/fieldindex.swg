@@ -14,8 +14,12 @@
 
 %module fieldindex
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/planarity.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/fieldindex.h"
 #include "common/tostring.h"
@@ -25,6 +29,8 @@
 #include <sstream>	
 #endif // HAVE_SSTREAM
 %}
+
+%nodefaultctor FieldIndex;
 
 class FieldIndex {
 public:
@@ -137,7 +143,8 @@ class OutOfPlaneSymTensorIterator:
 // Python, because it leads to arguments over whose job it is to
 // delete the enclosed FieldIndex or FieldIterator object.
 
-%nodefaultctor FieldIndex;
+%nodefaultctor IndexP;
+%feature("valuewrapper") IndexP;
 
 class IndexP {
 public:
@@ -154,6 +161,7 @@ public:
 ADD_REPR_GENERIC(IndexP);
 
 %nodefaultctor IteratorP;
+%feature("valuewrapper") IteratorP;
 
 class IteratorP: public IndexP {
 public:

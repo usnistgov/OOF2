@@ -15,10 +15,12 @@
 
 %module edgeset
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-
-%import "femesh.swg"
-%import "edge.swg"
+%import "engine/femesh.swg"
+%import "engine/edge.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/edgeset.h"
@@ -33,7 +35,8 @@ public:
   ~EdgeSet();
   void addEdge_(BoundaryEdge *); // Should make the nlistcache stale.
 
-  NewEdgeNodeDistanceVec *ndlist();
+  %newobject ndlist;
+  EdgeNodeDistanceVec *ndlist();
   int size();
   // EdgeSetIterator edge_iterator();
 };
