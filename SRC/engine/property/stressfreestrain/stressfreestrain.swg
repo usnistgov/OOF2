@@ -14,15 +14,18 @@
 
 %module stressfreestrain
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%import "engine/properties.swg"
+%import "engine/symmmatrix.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/stressfreestrain/stressfreestrain.h"
 %}
 
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
-%import "engine/symmmatrix.swg"
-
+ //%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
 
 class IsotropicStressFreeStrain : public Property {
 public:
@@ -31,11 +34,9 @@ public:
 
 class AnisotropicStressFreeStrain : public Property {
 public:
-  AnisotropicStressFreeStrain(PyObject *reg, char *naem, SymmMatrix3 *e);
+  AnisotropicStressFreeStrain(PyObject *reg, char *name, SymmMatrix3 *e);
 };
 
 %pythoncode "engine/property/stressfreestrain/stressfreestrain.spy"
-
-%typemap(python, in) SymmMatrix * {}
 
 #endif // STRESSFREESTRAIN_SWG

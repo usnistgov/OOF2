@@ -14,12 +14,17 @@
 
 %module skeletonrelaxationrate
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%import "engine/properties.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/skeletonrelaxationrate/skeletonrelaxationrate.h"
 %}
 
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
+ //%include "engine/propertyhdr.swg"
 // %pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
 // %import "engine/symmmatrix.swg"
 
@@ -31,7 +36,5 @@ public:
 };
 
 %pythoncode "engine/property/skeletonrelaxationrate/skeletonrelaxationrate.spy"
-
-// %typemap(python,in) SymmMatrix * {}
 
 #endif // SKELETONRELAXATIONRATE_SWG

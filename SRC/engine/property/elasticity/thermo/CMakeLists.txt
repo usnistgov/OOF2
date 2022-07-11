@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   thermo.C
-  thermo.h
-  )
+  thermo.h)
+
+swig_sources(
+  SWIGFILES
+  thermo
+  LIBRARIES
+  oof2common
+  oof2engine)

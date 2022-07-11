@@ -37,6 +37,8 @@
   $1 = &mc;
 }
 
+%nodefaultctor MasterPosition;
+
 class MasterPosition {
 public:
   MasterCoord mastercoord();

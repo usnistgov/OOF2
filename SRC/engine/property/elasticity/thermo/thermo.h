@@ -27,7 +27,7 @@ private:
   double dmudt_;   // Change in mu per unit change in T.
 public:
   ThermoElasticityProp(PyObject *registry, const std::string &name, 
-		       Cijkl *c, double tzero, double dmudt);
+		       Cijkl &c, double tzero, double dmudt);
   virtual ~ThermoElasticityProp() {}
   const Cijkl cijkl(const FEMesh*, const Element*, const MasterPosition&) const;
 

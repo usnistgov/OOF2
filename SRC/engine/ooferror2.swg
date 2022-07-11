@@ -23,115 +23,91 @@
 // When adding Error subclasses here, add them to engine/ooferror.spy
 // as well.
 
-
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/ooferror.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/ooferror.h"
 %}
 
-%pragma(python) code="from ooflib.SWIG.common.ooferror import *"
+//%pragma(python) code="from ooflib.SWIG.common.ooferror import *"
 
 class ErrNoSuchField : public ErrError {
 public:
   ErrNoSuchField(char *m);
   ~ErrNoSuchField();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ErrNoSuchField, summary);
 
 class ErrDuplicateField : public ErrError {
 public:
   ErrDuplicateField(char*, char*, char*);
   ~ErrDuplicateField();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ErrDuplicateField, summary);
 
 class ErrNoSuchProperty : public ErrError {
 public:
   ErrNoSuchProperty(char*, char*);
   ~ErrNoSuchProperty();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ErrNoSuchProperty, summary);
 
 class ErrPropertyMissing : public ErrError {
 public:
   ErrPropertyMissing(char*, char*, char*);
   ~ErrPropertyMissing();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ErrPropertyMissing, summary);
 
 class ErrBadMaterial : public ErrError {
 public:
   ErrBadMaterial(char*);
   ~ErrBadMaterial();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
   const string &materialName();
 };
+
+ADD_REPR(ErrBadMaterial, summary);
 
 class ErrRedundantProperty : public ErrError {
 public:
   ErrRedundantProperty(char*);
   ~ErrRedundantProperty();
   const string &get_tag();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ErrRedundantProperty, summary);
 
 class ErrConvergenceFailure : public ErrError {
 public:
   ErrConvergenceFailure(char*, int);
   ~ErrConvergenceFailure();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ErrConvergenceFailure, summary);
 
 class ErrTimeStepTooSmall : public ErrError {
 public:
   ErrTimeStepTooSmall(double);
   ~ErrTimeStepTooSmall();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
-}
+};
+
+ADD_REPR(ErrTimeStepTooSmall, summary);
 
 class ErrInvalidDestination : public ErrError {
 public:
   ErrInvalidDestination();
   ~ErrInvalidDestination();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ErrInvalidDestination, summary);
 
 %pythoncode "engine/ooferror2.spy"
 

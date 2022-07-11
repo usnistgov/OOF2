@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   skeletonrelaxationrate.C
-  skeletonrelaxationrate.h
-  )
+  skeletonrelaxationrate.h)
+
+swig_sources(
+  SWIGFILES
+  skeletonrelaxationrate
+  LIBRARIES
+  oof2common
+  oof2engine)

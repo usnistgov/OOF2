@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   iso.C
-  iso.h
-  )
+  iso.h)
+
+swig_sources(
+  SWIGFILES
+  iso
+  LIBRARIES
+  oof2common
+  oof2engine)

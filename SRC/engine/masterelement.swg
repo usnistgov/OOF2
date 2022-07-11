@@ -25,9 +25,9 @@
 #include "engine/element.h"
 #include "engine/node.h"
 #include "common/tostring.h"
-typedef std::vector<MasterElement*> MasterElementList;
-// typedef std::vector<ContourCellSkeleton*> ContourCellVec;
 %}
+
+%nodefaultctor ProtoNode;
 
 class ProtoNode {
 public:
@@ -38,43 +38,18 @@ public:
   int nedges();
   int getedge(int i);
   const MasterCoord &mastercoord();
-}; 
+};
 
-%typemap(python,out) MasterElementList* {
-  MasterElementList::size_type sz = $source->size();
-  // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
-  $target = PyList_New((Py_ssize_t) sz);
-  char _ptemp[128];
-  for(std::vector<MasterElement*>::size_type i=0; i<sz; i++) {
-    SWIG_MakePtr(_ptemp, (char *)(*$source)[i], "_MasterElement_p");
-    PyList_SET_ITEM($target, (Py_ssize_t) i, Py_BuildValue("s",_ptemp));
-  }
-}
+// Create the MasterElementVec typemap and typedef.
+MAKE_LISTVEC_TYPEMAPS(MasterElement);
+// Create the NodeVec typemap and typedef.
+MAKE_LISTVEC_TYPEMAPS(Node);
 
-%typemap(python,newfree) MasterElementList* {
-  delete $source;
-}
+// Do *not* use %newobject here. C++ retains ownership of the list,
+// which is static inside the function.
+MasterElementVec* masterElementList();
 
-MAKE_LISTVEC_TYPEMAPS(Node);	// creates NodeVec* typemap
-
-// %typemap(python,out) ContourCellVec* {
-//   MasterElementList::size_type sz = $source->size();
-//   assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
-//   $target = PyList_New((Py_ssize_t) sz);
-//   char _ptemp[128];
-//   for(std::vector<ContourCellSkeleton*>::size_type i=0; i<sz; i++) {
-//     SWIG_MakePtr(_ptemp, (char *)(*$source)[i], "_ContourCellSkeleton_p");
-//     PyList_SET_ITEM($target, (Py_ssize_t) i, Py_BuildValue("s",_ptemp));
-//   }
-// }
-
-// %typemap(python,newfree) ContourCellVec {
-//   delete $source;
-// }
-
-// In this case, this should *not* be "%new", C++ retains ownership
-// of the list, which is static inside the function.
-MasterElementList* masterElementList();
+%nodefaultctor MasterElement;
 
 class MasterElement {
 public:
@@ -104,20 +79,18 @@ public:
 
   Element *build(PyObject*, Material*, NodeVec*);
   
-  %addmethods {
-    const ProtoNode *get_protonode(int n) {
-      return self->protonode(n);
-    }
-    %new const string *__repr__() {
-      return new std::string(to_string(*self));
-    }
-  }
-
   // Superconvergent patch recovery
   int nSCpoints();
   MasterCoord getSCpoint(int);
-
 };
+
+%extend MasterElement {
+  const ProtoNode *get_protonode(int n) {
+    return self->protonode(n);
+  }
+}
+
+ADD_REPR_GENERIC(MasterElement);
 
 int integration_reduction;
 

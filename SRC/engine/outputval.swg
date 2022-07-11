@@ -111,9 +111,13 @@ public:
   DoubleList *value_list();
 };
 
+%nodefaultctor NonArithmeticOutputVal;
+
 class NonArithmeticOutputVal : public OutputVal {
 public:
 };
+
+%nodefaultctor ArithmeticOutputVal;
 
 class ArithmeticOutputVal : public OutputVal {
 public:

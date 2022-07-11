@@ -14,18 +14,22 @@
 
 %module largestrain
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+ //%import "engine/propertyhdr.swg"
+%import "engine/properties.swg"
+%import "engine/property/elasticity/cijkl.swg"
+%import "engine/property/elasticity/elasticity.swg"
+#endif // NOSECONDIMPORTS
+
+// %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
+
 %{
 #include "engine/property/elasticity/largestrain/largestrain.h"
 %}
 
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
-%import "engine/property/elasticity/cijkl.swg"
-
-
-%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
-%import "engine/property/elasticity/elasticity.swg"
 
 class CIsoLargeStrainElasticity : public Elasticity {
 public:

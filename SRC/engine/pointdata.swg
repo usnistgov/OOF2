@@ -24,6 +24,8 @@
 #include "engine/pointdata.h"
 %}
 
+%nodefaultctor PointData;
+
 class PointData {
 public:
   bool hasField(const Field&);

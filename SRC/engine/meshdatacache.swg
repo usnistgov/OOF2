@@ -20,6 +20,8 @@
 #include "engine/meshdatacache.h"
 %}
 
+%nodefaultctor MeshDataCache;
+
 class MeshDataCache {
 public:
   void setMesh(FEMesh*);

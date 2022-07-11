@@ -28,17 +28,21 @@
 
 %{
   #include <oofcanvas.h>
-  typedef OOFCanvas::CanvasImage CanvasImage;
   typedef OOFCanvas::CanvasImage NewCanvasImage;
 %}
 
-%typemap(out) CanvasImage* {
-   // typemap(out) CanvasImage*
+%typemap(out) OOFCanvas::CanvasImage* {
+   // typemap(out) OOFCanvas::CanvasImage*
   $result = $1->pythonObject(false);
 }
 
-%typemap(out) NewCanvasImage* {
-   // typemap(out) CanvasImage*
+%typemap(newfree) OOFCanvas::CanvasImage* {
+  // typemap(newfree) OOFCanvas::CanvasImage*
+  delete $1;
+ }
+
+%typemap(out) NewOOFCanvasImage* {
+   // typemap(out) NewOOFCanvasImage*
   $result = $1->pythonObject(true);
 }
 

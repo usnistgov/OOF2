@@ -15,10 +15,17 @@
 #include "engine/property/elasticity/elasticity.h"
 %}
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
+ //%include "engine/propertyhdr.swg"
+%import "engine/properties.swg"
 %import "engine/property/elasticity/cijkl.swg"
-%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
+#endif // NOSECONDIMPORTS
+
+ //%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
+
+%nodefaultctor Elasticity;
 
 class Elasticity : public Property {
 public:

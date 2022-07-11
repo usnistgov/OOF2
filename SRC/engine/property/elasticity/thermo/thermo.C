@@ -23,10 +23,10 @@
 // complex, of course.
 ThermoElasticityProp::ThermoElasticityProp(PyObject *registry,
 					   const std::string &nm, 
-					   Cijkl *cijkl,
+					   Cijkl &cijkl,
 					   double t0, double alpha)
   : Elasticity(nm, registry),
-    cijkl_(*cijkl),
+    cijkl_(cijkl),
     tzero_(t0),
     dmudt_(alpha)
 {

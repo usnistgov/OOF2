@@ -19,6 +19,9 @@
 #include "engine/nodalequation.h"
 %}
 
+%nodefaultctor NodalEquation;
+%nodefaultdtor NodalEquation;
+
 class NodalEquation {
 public:
   int ndq_index();

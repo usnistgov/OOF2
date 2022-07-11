@@ -14,8 +14,11 @@
 
 %module pixelselectioncouriere
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/pixelselectioncourier.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "common/coord.h"
@@ -38,7 +41,9 @@ public:
   ~SegmentSelection() {}
 };
 
-class MaterialSelectionBase : public PixelSelectionCourier {}
+%nodefaultctor MaterialSelectionBase;
+
+class MaterialSelectionBase : public PixelSelectionCourier {};
 
 class MaterialSelection : public MaterialSelectionBase {
 public:

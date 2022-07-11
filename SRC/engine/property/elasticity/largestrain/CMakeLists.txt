@@ -11,3 +11,10 @@ target_sources(oof2engine
   largestrain.C
   largestrain.h
   )
+
+swig_sources(
+  SWIGFILES
+  largestrain
+  LIBRARIES
+  oof2common
+  oof2engine)

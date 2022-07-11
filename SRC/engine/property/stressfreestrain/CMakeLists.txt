@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   stressfreestrain.C
-  stressfreestrain.h
-  )
+  stressfreestrain.h)
+
+swig_sources(
+  SWIGFILES
+  stressfreestrain
+  LIBRARIES
+  oof2common
+  oof2engine)

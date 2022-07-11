@@ -20,17 +20,20 @@
 #include "engine/steperrorscaling.h"
 %}
 
+%nodefaultctor StepErrorScaling;
+
 class StepErrorScaling {
 public:
   bool globalscaling();
-  %addmethods {
-    double __call__(double deltat, DoubleVec &start,
-		    DoubleVec &end0, DoubleVec &end1)
-    {
-      return (*self)(deltat, start, end0, end1);
-    }
-  }
 };
+
+%extend StepErrorScaling {
+  double __call__(double deltat, DoubleVec &start,
+		  DoubleVec &end0, DoubleVec &end1)
+  {
+    return (*self)(deltat, start, end0, end1);
+  }
+}
 
 class RelativeErrorScaling : public StepErrorScaling {
 public:

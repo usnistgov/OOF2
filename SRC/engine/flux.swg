@@ -23,6 +23,7 @@
 
 %{
 #include "engine/flux.h"
+#include "engine/outputval.h"
 #include <vector>
 typedef std::vector<Flux*> FluxVec;
 %}

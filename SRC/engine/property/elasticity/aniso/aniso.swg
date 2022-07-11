@@ -19,15 +19,15 @@
 #include "engine/property/elasticity/cijkl.h"
 %}
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
 %import "engine/property/elasticity/elasticity.swg"
-
-// The following fixes the return-type for the SWIG'd crystal_cijkl()
-// routine, and allows the anisoelasticity's repr functions to work.
-%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
 %import "engine/property/elasticity/cijkl.swg"
+#endif // NOSECONDIMPORTS
 
+//%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
+//%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
 
 class CAnisoElasticity : public Elasticity
 {

@@ -14,17 +14,23 @@
 #define ORIENTATION_SWG
 
 %module orientation
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+ //%include "engine/propertyhdr.swg"
+%import "engine/properties.swg"
+%import "engine/corientation.swg"
+#endif // NOSECONDIMPORTS
+
 %{
-  //#include "common/oofswigruntime.h" // TODO PYTHON3: Is this necessary?
+//#include "common/oofswigruntime.h" // TODO PYTHON3: Is this necessary?
 #include "engine/corientation.h"
 #include "engine/property/orientation/orientation.h"
 %}
-%include "engine/propertyhdr.swg"
-%import "engine/corientation.swg"
 
 
-%pragma(python) code="from ooflib.SWIG.engine.corientation import COrientationPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.corientation import COrientationPtr"
 
 
 // Typemap for converting a convertible registered Orientation gizmo
@@ -44,10 +50,6 @@ public:
   OrientationProp(PyObject *registry, char *name, COrientation *orient);
   const COrientation *orientation();
 };
-
-// // Clean up.
-%typemap(python,in) COrientation * {}
-// %typemap(python,freearg) COrientation * {}
 
 %pythoncode "engine/property/orientation/orientation.spy"
 

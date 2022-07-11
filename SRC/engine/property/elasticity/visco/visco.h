@@ -43,7 +43,7 @@ private:
 #endif
   SymmetricTensorFlux *stress_flux;
 public:
-  ViscoElasticityProp(PyObject *registry, const std::string &name, Cijkl* g);
+  ViscoElasticityProp(PyObject *registry, const std::string &name, Cijkl &g);
   virtual ~ViscoElasticityProp() {}
   virtual void flux_matrix(const FEMesh *mesh,
 			   const Element *element,

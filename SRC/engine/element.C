@@ -1148,4 +1148,4 @@ std::ostream &operator<<(std::ostream &os, const InterfaceElement &ed)
 //////////////////////////////////////////////////////////////////////////
 
 std::string CoordElementData::class_("CoordElementData");
-std::string CoordElementData::module_("ooflib.SWIG.engine.element");
+//std::string CoordElementData::module_("ooflib.SWIG.engine.element");

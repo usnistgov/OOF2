@@ -21,9 +21,9 @@
 
 ViscoElasticityProp::ViscoElasticityProp(PyObject *registration,
 				       const std::string &nm,
-				       Cijkl *g)
+				       Cijkl &g)
   : FluxProperty(nm,registration),
-    g_ijkl(*g)
+    g_ijkl(g)
 {
 #if DIM==2
   displacement = dynamic_cast<TwoVectorField*>(Field::getField("Displacement"));

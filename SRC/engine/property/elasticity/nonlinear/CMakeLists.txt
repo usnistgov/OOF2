@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   general_nonlinear_elasticity.C
-  general_nonlinear_elasticity.h
-  )
+  general_nonlinear_elasticity.h)
+
+swig_sources(
+  SWIGFILES
+  general_nonlinear_elasticity
+  LIBRARIES
+  oof2common
+  oof2engine)

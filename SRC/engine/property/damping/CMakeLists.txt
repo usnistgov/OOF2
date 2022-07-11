@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   damping.C
-  damping.h
-  )
+  damping.h)
+
+swig_sources(
+  SWIGFILES
+  damping
+  LIBRARIES
+  oof2common
+  oof2engine)

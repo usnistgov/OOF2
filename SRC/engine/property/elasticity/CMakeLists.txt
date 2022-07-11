@@ -14,6 +14,14 @@ target_sources(oof2engine
   elasticity.h
   )
 
+swig_sources(
+  SWIGFILES
+  cijkl
+  elasticity
+  LIBRARIES
+  oof2common
+  oof2engine)
+
 add_subdirectory(aniso)
 add_subdirectory(iso)
 add_subdirectory(thermo)

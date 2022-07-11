@@ -45,11 +45,11 @@ class Property;
 // all the Properties' output() methods.
 
 class PropertyOutputInit : public PythonExportable<PropertyOutputInit> {
-private:
-  static const std::string modulename_;
+// private:
+//   static const std::string modulename_;
 public:
   virtual ~PropertyOutputInit() {}
-  virtual const std::string &modulename() const { return modulename_; }
+  // virtual const std::string &modulename() const { return modulename_; }
   virtual PropertyOutput *instantiate(const std::string&, PyObject*) const = 0;
 };
 
@@ -104,13 +104,13 @@ protected:
   PyObject* params_;
   const int index_;
   const PropertyOutputValInit *initializer;
-  static const std::string modulename_;
+  // static const std::string modulename_;
 public:
   PropertyOutput(const std::string &name, PyObject *params);
   virtual ~PropertyOutput();
   void setInitializer(const PropertyOutputValInit *init) { initializer = init; }
   const std::string &name() const { return name_; }
-  virtual const std::string &modulename() const { return modulename_; }
+  // virtual const std::string &modulename() const { return modulename_; }
   int index() const { return index_; }
   // The getXXXXParam methods retrieve the values of the Python
   // parameters defined in the PropertyOutputRegistration.  The 'name'

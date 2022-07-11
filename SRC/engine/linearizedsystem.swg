@@ -13,9 +13,13 @@
 #define LINEARIZEDSYSTEM_SWG
 
 %module linearizedsystem
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/doublevec.swg"
 %import "engine/sparsemat.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "common/doublevec.h"
@@ -25,6 +29,8 @@
 
 // %pragma(python) code="from ooflib.SWIG.engine.sparsemat import SparseMatPtr"
 // %pragma(python) code="from ooflib.SWIG.common.doublevec import DoubleVecPtr"
+
+%nodefaultctor LinearizedSystem;
 
 class LinearizedSystem {
 public:

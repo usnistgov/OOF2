@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   heatcapacity.C
-  heatcapacity.h
-  )
+  heatcapacity.h)
+
+swig_sources(
+  SWIGFILES
+  heatcapacity
+  LIBRARIES
+  oof2common
+  oof2engine)

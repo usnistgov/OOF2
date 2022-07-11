@@ -26,7 +26,9 @@
 // %pragma(python) code="from ooflib.SWIG.engine.node import FuncNodePtr"
 
 %{
+#include "engine/element.h"
 #include "engine/meshiterator.h"
+#include "engine/node.h"
 %}
 
 // Constructors for these classes aren't swigged because the objects

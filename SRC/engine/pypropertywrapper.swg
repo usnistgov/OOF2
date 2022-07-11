@@ -14,17 +14,20 @@
 
 %module pypropertywrapper
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "engine/element.swg"
+%import "engine/properties.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/pypropertywrapper.h"
 %}
 
-%import "engine/properties.swg"
-%pragma(python) code="from ooflib.SWIG.engine.properties import FluxPropertyPtr"
-%pragma(python) code="from ooflib.SWIG.engine.properties import EqnPropertyPtr"
-
-%import "engine/element.swg"
-%pragma(python) code="from ooflib.SWIG.engine.element import ElementDataPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.properties import FluxPropertyPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.properties import EqnPropertyPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.element import ElementDataPtr"
 
 // Not much has to be done here.  The Python functions which are
 // called from the C++ side are defined in pypropertywrapper.spy.

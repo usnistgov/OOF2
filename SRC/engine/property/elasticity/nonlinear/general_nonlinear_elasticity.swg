@@ -18,16 +18,26 @@
 #include "engine/property/elasticity/nonlinear/general_nonlinear_elasticity.h"
 %}
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
+%import "engine/properties.swg"
+ //%include "engine/propertyhdr.swg"
+#endif // NOSECONDIMPORTS
+
+%nodefaultctor GeneralNonlinearElasticityNoDeriv;
 
 class GeneralNonlinearElasticityNoDeriv : public Property {
 };
 
+%nodefaultctor GeneralNonlinearElasticity;
+
 class GeneralNonlinearElasticity : public GeneralNonlinearElasticityNoDeriv {
 };
 
-class TestGeneralNonlinearElasticityNoDeriv : public GeneralNonlinearElasticityNoDeriv {
+class TestGeneralNonlinearElasticityNoDeriv
+  : public GeneralNonlinearElasticityNoDeriv
+{
 public:
   TestGeneralNonlinearElasticityNoDeriv(PyObject *reg, char *name, int testno);
 };

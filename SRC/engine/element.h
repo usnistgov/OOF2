@@ -61,7 +61,6 @@ public:
   ElementData(const std::string &nm);
   virtual ~ElementData() {}
   virtual const std::string &classname() const = 0;
-  virtual const std::string &modulename() const = 0;
   const std::string &name() const { return name_; }
 };
 
@@ -369,14 +368,12 @@ class CoordElementData : public ElementData {
 private:
   const Coord coord_;
   static std::string class_;
-  static std::string module_;
 public:
   CoordElementData(const std::string &nm, 
 		   const Coord c) : ElementData(nm),coord_(c) 
   {}
   virtual ~CoordElementData() {}
   virtual const std::string &classname() const { return class_; }
-  virtual const std::string &modulename() const { return module_; }
   const Coord &coord() const { return coord_; }
 };
 

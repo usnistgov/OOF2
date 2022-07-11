@@ -14,26 +14,35 @@
 
 %module propertyoutput
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/mastercoord.swg"
 %import "engine/properties.swg"
+#endif // NOSECONDIMPORTS
+
 %{
+#include "engine/mastercoord.h"
 #include "engine/IO/propertyoutput.h"
 %}
 
-%typemap(python, out) PropertyOutput* {
-  // typemap(python, out) PropertyOutput*
-  $target = $source->pythonObject();
+%typemap(out) PropertyOutput* {
+  // typemap(out) PropertyOutput*
+  $result = $1->pythonObject();
 }
 
-%typemap(python, out) PropertyOutputInit* {
-  // typemap(python, out) PropertyOutputInit*
-  $target = $source->pythonObject();
+%typemap(out) PropertyOutputInit* {
+  // typemap(out) PropertyOutputInit*
+  $result = $1->pythonObject();
 }
+
+MAKE_LISTVEC_TYPEMAPS(MasterCoord);
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // OutputVal initializers
+
+%nodefaultctor PropertyOutputValInit;
 
 class PropertyOutputValInit {
 public:
@@ -47,7 +56,10 @@ public:
 
 // PropertyOutput initializers
 
+%nodefaultctor PropertyOutputInit;
+
 class PropertyOutputInit {};
+
 class ArithmeticPropertyOutputInit : public PropertyOutputInit {
 public:
   ArithmeticPropertyOutputInit();
@@ -60,6 +72,8 @@ public:
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
+%nodefaultctor PropertyOutput;
+
 class PropertyOutput {
 public:
   ~PropertyOutput();
@@ -67,24 +81,30 @@ public:
   double getFloatParam(char*);
   int getIntParam(char*);
   void setInitializer(PropertyOutputValInit*);
-  %new const string *getStringParam(char*);
-  %new const string *getEnumParam(char*);
-  %new const string *getRegisteredParamName(char*);
-  %new StringVec *getListOfStringsParam(char*);
+  %newobject getStringParam;
+  const string *getStringParam(char*);
+  %newobject getEnumParam;
+  const string *getEnumParam(char*);
+  %newobject getRegisteredParamName;
+  const string *getRegisteredParamName(char*);
+  %newobject getListOfStringsParam;
+  StringVec *getListOfStringsParam(char*);
 };
+
+%nodefaultctor ArithmeticPropertyOutput;
 
 class ArithmeticPropertyOutput : public PropertyOutput {
 public:
-  %new ArithmeticOutputValueVec *evaluate(
-				  FEMesh*, Element*,
-				  MasterCoordVec*);
+  %newobject evaluate;
+  ArithmeticOutputValueVec *evaluate(FEMesh*, Element*, MasterCoordVec*);
 };
+
+%nodefaultctor NonArithmeticPropertyOutput;
 
 class NonArithmeticPropertyOutput : public PropertyOutput {
 public:
-  %new NonArithmeticOutputValueVec *evaluate(
-				  FEMesh*, Element*,
-				  MasterCoordVec*);
+  %newobject evaluate;
+  NonArithmeticOutputValueVec *evaluate(FEMesh*, Element*, MasterCoordVec*);
 };
 
 class PropertyOutputRegistration {
@@ -92,8 +112,10 @@ public:
   PropertyOutputRegistration(char*);
   ~PropertyOutputRegistration();
   const string &name();
-  %new PropertyOutput *instantiateArithmetic(char*, PyObject*);
-  %new PropertyOutput *instantiateNonArithmetic(char*, PyObject*);
+  %newobject instantiateArithmetic;
+  PropertyOutput *instantiateArithmetic(char*, PyObject*);
+  %newobject instantiateNonArithmetic;
+  PropertyOutput *instantiateNonArithmetic(char*, PyObject*);
 };
 
 %pythoncode "engine/IO/propertyoutput.spy"

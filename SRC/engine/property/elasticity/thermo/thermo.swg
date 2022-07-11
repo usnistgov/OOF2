@@ -14,59 +14,58 @@
 
 %module thermo
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+ //%include "engine/propertyhdr.swg"
+%import "engine/property/elasticity/cijkl.swg"
+%import "engine/property/elasticity/elasticity.swg"
+#endif // NOSECONDIMPORTS
+
+ //%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
+
 %{
 #include "engine/property/elasticity/thermo/thermo.h"
 %}
 
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
-%import "engine/property/elasticity/cijkl.swg"
+// // Typemap for conversion between the parameter type
+// // (IsotropicModulus) and the internal type, which is the swig'd Cijkl
+// // object from engine/property/elasticity/cijkl.h"
+// /// TODO: Why does this have an explicit typemap?  Elasticity
+// /// doesn't.  This should use the same mechanism as Elasticity.
 
-
-// Typemap for conversion between the parameter type
-// (IsotropicModulus) and the internal type, which is the swig'd Cijkl
-// object from engine/property/elasticity/cijkl.h"
-/// TODO: Why does this have an explicit typemap?  Elasticity
-/// doesn't.  This should use the same mechanism as Elasticity.
-
-%typemap(python,in) Cijkl * {
-  PyObject *basevalue = PyObject_CallMethod($source,(char*)"to_base",NULL);
+// %typemap(python,in) Cijkl * {
+//   PyObject *basevalue = PyObject_CallMethod($source,(char*)"to_base",NULL);
   
-  PyObject *c11_float = PyObject_GetAttrString(basevalue,"c11");
-  PyObject *c12_float = PyObject_GetAttrString(basevalue,"c12");
+//   PyObject *c11_float = PyObject_GetAttrString(basevalue,"c11");
+//   PyObject *c12_float = PyObject_GetAttrString(basevalue,"c12");
 
-  double c11 = PyFloat_AsDouble(c11_float);
-  double c12 = PyFloat_AsDouble(c12_float);
+//   double c11 = PyFloat_AsDouble(c11_float);
+//   double c12 = PyFloat_AsDouble(c12_float);
 
-  Py_DECREF(c11_float);
-  Py_DECREF(c12_float);
+//   Py_DECREF(c11_float);
+//   Py_DECREF(c12_float);
 
-  $target = new Cijkl;
-  (*$target)(0,0) = (*$target)(1,1) = (*$target)(2,2) = c11;
-  (*$target)(0,1) = (*$target)(0,2) = (*$target)(1,2) = c12;
-  (*$target)(3,3) = (*$target)(4,4) = (*$target)(5,5) = 0.5*(c11-c12);
+//   $target = new Cijkl;
+//   (*$target)(0,0) = (*$target)(1,1) = (*$target)(2,2) = c11;
+//   (*$target)(0,1) = (*$target)(0,2) = (*$target)(1,2) = c12;
+//   (*$target)(3,3) = (*$target)(4,4) = (*$target)(5,5) = 0.5*(c11-c12);
 
-}
+// }
 
-%typemap(python,freearg) Cijkl * {
-  delete $source;
-}
+// %typemap(python,freearg) Cijkl * {
+//   delete $source;
+// }
 
-%include "common/typemaps.swg"
-%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
-%import "engine/property/elasticity/elasticity.swg"
+// %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
 
 class ThermoElasticityProp : public Elasticity {
 public:
-  ThermoElasticityProp(PyObject *, char *, Cijkl *cijkl,
+  ThermoElasticityProp(PyObject *, char *, Cijkl &cijkl,
 		       double t0, double dmudt);
 };
 
 
 %pythoncode "engine/property/elasticity/thermo/thermo.spy"
-
-%typemap(python,in) Cijkl* {}
-%typemap(Python,freearg) Cijkl *{}
 
 #endif // ELASTICITY_THERMO_SWG

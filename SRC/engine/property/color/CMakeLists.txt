@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   color.C
-  color.h
-  )
+  color.h)
+
+swig_sources(
+  SWIGFILES
+  color
+  LIBRARIES
+  oof2common
+  oof2engine)

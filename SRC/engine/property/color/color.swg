@@ -16,28 +16,15 @@
 #include "common/ccolor.h"
 %}
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-%pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
+ //%include "engine/propertyhdr.swg"
 %import "common/ccolor.swg"
+%import "engine/properties.swg"
+#endif // NOSECONDIMPORTS
 
-// // Converts color from common.IO.color object into a CColor object.
-// %typemap(python, in) CColor * {
-//   PyObject *rval = PyObject_CallMethod($source,(char*)"getRed",NULL);
-//   PyObject *gval = PyObject_CallMethod($source,(char*)"getGreen",NULL);
-//   PyObject *bval = PyObject_CallMethod($source,(char*)"getBlue",NULL);
-
-//   double red = PyFloat_AsDouble(rval);
-//   double green = PyFloat_AsDouble(gval);
-//   double blue = PyFloat_AsDouble(bval);
-
-//   $target = new CColor(red, green, blue);
-// }
-
-// %typemap(python,freearg) CColor * {
-//   delete $source;
-// }
-
+ //%pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
 
 class ColorProp : public Property {
 public:

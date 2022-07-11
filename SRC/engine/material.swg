@@ -13,22 +13,49 @@
 #define MATERIAL_SWG
 
 %module material
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/abstractimage.swg"
 %import "common/canvasimage.swg"
+%import "common/coord.swg"
 %import "common/pixelattribute.swg"
 %import "common/timestamp.swg"
 %import "engine/femesh.swg"
+#endif // NOSECONDIMPORTS
 
 %{
+#include "common/ccolor.h"
+#include "common/coord.h"
+#include "common/pixelgroup.h"
 #include "engine/csubproblem.h"
 #include "engine/element.h"
 #include "engine/material.h"
 #include "engine/property.h"
-#include "common/pixelgroup.h"
-#include "common/ccolor.h"
-typedef const std::string MaterialType;
+typedef std::string MaterialType;
 %}
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
+
+// get the getMaterial python function
+
+%define GET_GETMATERIAL()
+  static PyObject *getMaterial = 0;
+  if(!getMaterial) {
+    PyObject *module = PyImport_ImportModule("ooflib.engine.materialmanager");
+    getMaterial = PyObject_GetAttrString(module, "getMaterial");
+    Py_XDECREF(module);
+    if(!getMaterial) {
+      PyErr_SetString(PyExc_RuntimeError,
+		      "in '$symname', could not find 'getMaterial'");
+      SWIG_fail;
+    }
+    Py_XINCREF(getMaterial);
+  }
+%enddef
+
+//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
 // %pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
@@ -40,15 +67,8 @@ typedef const std::string MaterialType;
 // the MaterialManager to fetch the original Material object.
 
 %typemap(out) Material* {
-  // typemap(out) Material*
-  static PyObject *getMaterial = 0;
-  if(!getMaterial) {
-    PyObject *module = PyImport_ImportModule("ooflib.engine.materialmanager");
-    getMaterial = PyObject_GetAttrString(module, "getMaterial");
-    Py_XDECREF(module);
-    if(!getMaterial) return 0;
-    Py_XINCREF(getMaterial);
-  }
+    // typemap(out) Material*
+  GET_GETMATERIAL();
   if($1) {
     // call getMaterial()
     $result = PyObject_CallFunction(getMaterial, "(s)", $1->name().c_str());
@@ -82,15 +102,7 @@ typedef const std::string MaterialType;
 
 %typemap(out) MaterialVec* {
    // typemap(out) MaterialVec*
-  static PyObject *getMaterial = 0;
-  if(!getMaterial) {
-    PyObject *module = PyImport_ImportModule("ooflib.engine.materialmanager");
-    getMaterial = PyObject_GetAttrString(module, "getMaterial");
-    Py_XDECREF(module);
-    if(!getMaterial)
-      SWIG_fail;
-    Py_XINCREF(getMaterial);
-  }
+  GET_GETMATERIAL();
   MaterialVec::size_type sz = $1->size();
   // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
   $result = PyList_New((Py_ssize_t) sz);
@@ -113,15 +125,7 @@ typedef const std::string MaterialType;
 
 %typemap(out) MaterialSet* {
    // typemap(out) MaterialSet*
-  static PyObject *getMaterial = 0;
-  if(!getMaterial) {
-    PyObject *module = PyImport_ImportModule("ooflib.engine.materialmanager");
-    getMaterial = PyObject_GetAttrString(module, "getMaterial");
-    Py_XDECREF(module);
-    if(!getMaterial)
-      SWIG_fail;
-    Py_XINCREF(getMaterial);
-  }
+  GET_GETMATERIAL();
   $result = PySet_New(NULL);
   for(auto i=$1->begin(); i!=$1->end(); ++i) {
     PyObject *matl = PyObject_CallFunction(getMaterial, "(s)",
@@ -147,9 +151,9 @@ typedef const std::string MaterialType;
 
 // Convert a std::string& to a MaterialType Enum
 %typemap(out) MaterialType {
-  // typemap(out) MaterialType*
+  // typemap(out) MaterialType
   FETCH_CLASS(ooflib.SWIG.engine.material, MaterialType)
-  $result = PyObject_CallFunction(MaterialTypeClass, "(s)", $1->c_str());
+  $result = PyObject_CallFunction(MaterialTypeClass, "(s)", $1.c_str());
 }
 
 class CMicrostructure;
@@ -190,7 +194,8 @@ public:
   bool cleanAttributes(CMicrostructure*);
   bool replaceAttributes(CMicrostructure*, Material*);
 
-  void assignToPixels(CMicrostructure*, ICoordVec *iPointList);
+  // The IC
+  void assignToPixels(CMicrostructure*, std::vector<ICoord> *iPointList);
   void assignToPixelGroup(CMicrostructure*, PixelSet*);
   void assignToAllPixels(CMicrostructure*);
   int nPixelsInMicrostructure(CMicrostructure*);
@@ -213,7 +218,7 @@ class MaterialImage : public AbstractImage {
 public:
   MaterialImage(CMicrostructure*, CColor*, CColor*);
   %newobject makeCanvasImage;
-  CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  OOFCanvas::CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 
 %pythoncode "engine/material.spy"

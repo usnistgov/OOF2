@@ -13,3 +13,11 @@ target_sources(oof2engine
   propertyoutput.C
   propertyoutput.h
   )
+
+swig_sources(
+  SWIGFILES
+  contour
+  propertyoutput
+  LIBRARIES
+  oof2common
+  oof2engine)

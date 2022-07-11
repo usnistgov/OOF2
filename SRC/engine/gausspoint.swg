@@ -17,13 +17,18 @@
 #include "engine/gausspoint.h"
 %}
 
-%pragma(python) code="from ooflib.SWIG.engine.mastercoord import MasterPositionPtr"
-%pragma(python) code="from ooflib.SWIG.engine.mastercoord import MasterCoordPtr"
-%pragma(python) code="from ooflib.SWIG.common.coord import PositionPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.mastercoord import MasterPositionPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.mastercoord import MasterCoordPtr"
+// %pragma(python) code="from ooflib.SWIG.common.coord import PositionPtr"
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/coord.swg"
 %import "engine/mastercoord.swg"
+#endif // NOSECONDIMPORTS
+
+%nodefaultctor GaussPoint;
 
 class GaussPoint : public Position, public MasterPosition {
 public:

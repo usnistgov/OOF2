@@ -14,35 +14,41 @@
 
 %module cijkl
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%import "engine/symmmatrix.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/elasticity/cijkl.h"
 %}
-%include "common/typemaps.swg"
-%import "engine/symmmatrix.swg"
-%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
+
+// %pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
 
 class Cijkl {
 public:
   Cijkl();
   void clear();
-  %addmethods {
-    double get(int i, int j, int k, int l) {
-      return (*self)(i, j, k, l);
-    }
-    double getvoigt(int i, int j) {
-      return (*self)(i, j);
-    }
-    void set(int i, int j, int k, int l, double val) {
-      (*self)(i, j, k, l) = val;
-    }
-    void setvoigt(int i, int j, double val) {
-      (*self)(i, j) = val;
-    }
-    SymmMatrix3 __mul__(SymmMatrix3 &other) {
-      return (*self)*other;
-    }
-  }
 };
+
+%extend Cijkl {
+  double get(int i, int j, int k, int l) {
+    return (*self)(i, j, k, l);
+  }
+  double getvoigt(int i, int j) {
+    return (*self)(i, j);
+  }
+  void set(int i, int j, int k, int l, double val) {
+    (*self)(i, j, k, l) = val;
+  }
+  void setvoigt(int i, int j, double val) {
+    (*self)(i, j) = val;
+  }
+  SymmMatrix3 __mul__(SymmMatrix3 &other) {
+    return (*self)*other;
+  }
+}
 
 %pythoncode "engine/property/elasticity/cijkl.spy"
 

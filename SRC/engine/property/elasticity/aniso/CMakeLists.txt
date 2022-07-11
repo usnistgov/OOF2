@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   aniso.C
-  aniso.h
-  )
+  aniso.h)
+
+swig_sources(
+  SWIGFILES
+  aniso
+  LIBRARIES
+  oof2common
+  oof2engine)

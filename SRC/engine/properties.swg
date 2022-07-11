@@ -20,6 +20,7 @@
 #include "engine/csubproblem.h"
 %}
 
+%nodefaultctor Property;
 
 class Property {
 public:
@@ -39,75 +40,72 @@ public:
   // function recursively if the method is *not* redefined in a
   // derived Python Property class.
 
-  // TODO PYTHON3: Check that using rename like this works, and if it
-  // does apply it to the other classes below.
-  %rename("c_%s") ""; 
-  //%name(c_cross_reference)
-  void cross_reference(Material*);
-  //%name(c_precompute)
-  void precompute(FEMesh*);
-  //%name(c_is_symmetric_K)
-  bool is_symmetric_K(const CSubProblem*);
-  //%name(c_is_symmetric_C)
-  bool is_symmetric_C(const CSubProblem*);
-  //%name(c_is_symmetric_M)
-  bool is_symmetric_M(const CSubProblem*);
-  //%name(c_constant_in_space)
-  bool constant_in_space();
-  //%name(c_begin_element)
-  void begin_element(CSubProblem*, Element*);
-  //%name(c_end_element)
-  void end_element(CSubProblem*, Element*);
-  //%name(c_post_process)
-  void post_process(CSubProblem*, Element*);
-  //%name(c_output)
-  void output(const FEMesh*, Element*, PropertyOutput*,
-			      MasterPosition&, OutputVal*);
+  // ********* CAUTION *********************************************
+  // The %rename line below applies to all member functions below it
+  // in this *file*, not just the ones in this class.  That's ok, at
+  // the moment, but if other methods that shouldn't be renamed are
+  // added it'll be confusing.  It's supposed to be possible to
+  // restrict the renaming to a particular class by adding
+  // '%$classname="TheClassName"' to the predicates in the command,
+  // but that doesn't seem to work.  When I try it, nothing is
+  // renamed, using swig 4.0.2.
+  // ***************************************************************
+  %rename("c_%s", %$isfunction, %$ismember) "";
+  //  %rename("c_%s", %$isfunction, %$classname="Property") "";
 
+  void cross_reference(Material*);
+  void precompute(FEMesh*);
+  bool is_symmetric_K(const CSubProblem*);
+  bool is_symmetric_C(const CSubProblem*);
+  bool is_symmetric_M(const CSubProblem*);
+  bool constant_in_space();
+  void begin_element(CSubProblem*, Element*);
+  void end_element(CSubProblem*, Element*);
+  void post_process(CSubProblem*, Element*);
+  void output(FEMesh*, Element*, PropertyOutput*, MasterPosition&, OutputVal*);
 };
+
+%nodefaultctor PhysicalProperty;
 
 class PhysicalProperty : public Property {
 public:
-  %name(c_integration_order)
+  // %rename("c_%s", %$isfunction, %$ismember, %$classname="PhysicalProperty") "";
   int integration_order(CSubProblem*, Element*);
 };
 
+%nodefaultctor FluxProperty;
+
 class FluxProperty : public PhysicalProperty {
 public:
-  %name(c_flux_matrix)
+  //%rename("c_%s", %$isfunction, %$ismember, %$classname="FluxProperty") "";
   void flux_matrix(FEMesh*, Element*, ElementFuncNodeIterator&, Flux*,
 		   MasterPosition&, double, SmallSystem*);
-  %name(c_flux_value)
   void flux_value(FEMesh*, Element*, Flux*, MasterPosition&, double,
 		  SmallSystem*);
-  %name(c_static_flux_value)
   void static_flux_value(FEMesh*, Element*, Flux*, MasterPosition&,
 			 double, SmallSystem*);
-  %name(c_flux_offset)
   void flux_offset(FEMesh*, Element*, Flux*, MasterPosition&,
 		   double, SmallSystem*);
-  %name(c_begin_point) void begin_point(FEMesh*, Element*, Flux*,
-					MasterPosition&);
-  %name(c_end_point) void end_point(FEMesh*, Element*, Flux*, MasterPosition&);
+  void begin_point(FEMesh*, Element*, Flux*, MasterPosition&);
+  void end_point(FEMesh*, Element*, Flux*, MasterPosition&);
 };
+
+%nodefaultctor EqnProperty;
 
 class EqnProperty : public PhysicalProperty {
 public:
-  %name(c_force_deriv_matrix)
+  //%rename("c_%s", %$isfunction, %$ismember, %$classname="EqnProperty") "";
   void force_deriv_matrix(FEMesh*, Element*, Equation*,
 			  ElementFuncNodeIterator&, MasterPosition&, double,
 			  SmallSystem*);
-  %name(c_force_value)
   void force_value(FEMesh*, Element*, Equation*, MasterPosition&, double,
 		   SmallSystem*);
-  %name(c_first_time_deriv_matrix)
   void first_time_deriv_matrix(FEMesh*, Element*, Equation*, 
 			       ElementFuncNodeIterator&, MasterPosition&,
 			       double, SmallSystem*);
-  %name(c_second_time_deriv_matrix)
   void second_time_deriv_matrix(FEMesh*, Element*, Equation*, 
-			       ElementFuncNodeIterator&, MasterPosition&,
-			       double, SmallSystem*);
+				ElementFuncNodeIterator&, MasterPosition&,
+				double, SmallSystem*);
 };
 
 double deriv_eps;

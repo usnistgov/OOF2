@@ -34,5 +34,19 @@ target_sources(oof2engine
   tri6.C
   tri6_3.C
   tri6shapefunction.C
-  tri6shapefunction.h
-  )
+  tri6shapefunction.h)
+
+swig_sources(
+  SWIGFILES
+  quad4
+  quad4_8
+  quad8
+  quad8_4
+  quad9
+  tri3
+  tri3_6
+  tri6
+  tri6_3
+  LIBRARIES
+  oof2common
+  oof2engine)

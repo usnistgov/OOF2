@@ -18,13 +18,15 @@
 #include "engine/property/elasticity/iso/iso.h"
 %}
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
 %import "engine/property/elasticity/elasticity.swg"
-
-%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
 %import "engine/property/elasticity/cijkl.swg"
+#endif // NOSECONDIMPORTS
 
+// %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
 
 class CIsoElasticityProp : public Elasticity {
 public:

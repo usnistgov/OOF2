@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   visco.C
-  visco.h
-  )
+  visco.h)
+
+swig_sources(
+  SWIGFILES
+  visco
+  LIBRARIES
+  oof2common
+  oof2engine)
