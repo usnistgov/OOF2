@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   simpletension.C
-  simpletension.h
-  )
+  simpletension.h)
+
+swig_sources(
+  SWIGFILES
+  simpletension
+  LIBRARIES
+  oof2common
+  oof2engine)

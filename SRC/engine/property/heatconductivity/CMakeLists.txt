@@ -12,4 +12,11 @@ target_sources(oof2engine
   heatconductivity.h
   )
 
+swig_sources(
+  SWIGFILES
+  heatconductivity
+  LIBRARIES
+  oof2common
+  oof2engine)
+
 add_subdirectory(nonlinear)

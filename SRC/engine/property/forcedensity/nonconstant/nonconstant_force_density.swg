@@ -14,16 +14,20 @@
 
 %module forcedensity
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%import "engine/properties.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/forcedensity/nonconstant/nonconstant_force_density.h"
 %}
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
 
+%nodefaultctor NonconstantForceDensity;
 
 class NonconstantForceDensity : public Property {
 };
-
 
 class TestNonconstantForceDensity : public Property {
 public:

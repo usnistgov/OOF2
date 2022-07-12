@@ -18,11 +18,14 @@
 #include "engine/property/thermalexpansion/thermalexpansion.h"
 %}
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
+%import "engine/properties.swg"
 %import "engine/symmmatrix.swg"
+#endif // NOSECONDIMPORTS
 
+ //%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
 
 
 

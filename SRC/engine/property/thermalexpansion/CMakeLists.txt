@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   thermalexpansion.C
-  thermalexpansion.h
-  )
+  thermalexpansion.h)
+
+swig_sources(
+  SWIGFILES
+  thermalexpansion
+  LIBRARIES
+  oof2common
+  oof2engine)

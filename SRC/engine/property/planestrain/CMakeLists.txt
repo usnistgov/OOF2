@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   planestrain.C
-  planestrain.h
-  )
+  planestrain.h)
+
+swig_sources(
+  SWIGFILES
+  planestrain
+  LIBRARIES
+  oof2common
+  oof2engine)

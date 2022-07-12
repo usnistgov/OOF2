@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   piezoelectricity.C
-  piezoelectricity.h
-  )
+  piezoelectricity.h)
+
+swig_sources(
+  SWIGFILES
+  piezoelectricity
+  LIBRARIES
+  oof2common
+  oof2engine)

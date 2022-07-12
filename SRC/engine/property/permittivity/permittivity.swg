@@ -18,11 +18,14 @@
 #include "engine/property/permittivity/permittivity.h"
 %}
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-
-%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrixPtr"
+%import "engine/properties.swg"
 %import "engine/symmmatrix.swg"
+#endif // NOSECONDIMPORTS
+
+//%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrixPtr"
 
 class IsoDielectricPermittivity : public Property {
 public:

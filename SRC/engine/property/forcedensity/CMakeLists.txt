@@ -12,5 +12,11 @@ add_subdirectory(nonconstant)
 target_sources(oof2engine
   PRIVATE
   forcedensity.C
-  forcedensity.h
-  )
+  forcedensity.h)
+
+swig_sources(
+  SWIGFILES
+  forcedensity
+  LIBRARIES
+  oof2common
+  oof2engine)

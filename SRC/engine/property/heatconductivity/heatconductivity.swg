@@ -14,13 +14,16 @@
 
 %module heatconductivity
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%import "engine/properties.swg"
+%import "engine/symmmatrix.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/heatconductivity/heatconductivity.h"
 %}
-
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-%import "engine/symmmatrix.swg"
 
 class IsoHeatConductivity : public Property {
 public:

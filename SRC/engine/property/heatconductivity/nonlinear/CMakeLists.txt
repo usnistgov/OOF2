@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   nonlinear_heat_conductivity.C
-  nonlinear_heat_conductivity.h
-  )
+  nonlinear_heat_conductivity.h)
+
+swig_sources(
+  SWIGFILES
+  nonlinear_heat_conductivity
+  LIBRARIES
+  oof2common
+  oof2engine)

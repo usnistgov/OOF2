@@ -14,13 +14,17 @@
 
 %module pixelselectioncourieri
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/burn.swg"
 %import "common/ccolor.swg"
 %import "common/colordifference.swg"
 %import "common/pixelselectioncourier.swg"
-%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
-%pragma(python) code="from ooflib.SWIG.common.pixelselectioncourier import PixelSelectionCourierPtr"
+#endif // NOSECONDIMPORTS
+
+// %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
+// %pragma(python) code="from ooflib.SWIG.common.pixelselectioncourier import PixelSelectionCourierPtr"
 
 %{
 #include "image/pixelselectioncourieri.h"

@@ -14,13 +14,16 @@
 
 %module heatsource
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%import "engine/properties.swg"
+%import "engine/symmmatrix.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/heatsource/heatsource.h"
 %}
-
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-%import "engine/symmmatrix.swg"
 
 class HeatSourceProp : public Property {
 public:

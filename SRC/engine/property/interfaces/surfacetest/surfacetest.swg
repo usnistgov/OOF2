@@ -14,11 +14,15 @@
 
 %module surfacetest
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%import "engine/properties.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/interfaces/surfacetest/surfacetest.h"
 %}
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
 
 class ForceSurfaceTest : public Property
 {

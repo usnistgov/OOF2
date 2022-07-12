@@ -15,18 +15,20 @@
 
 %module piezoelectricity
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%import "engine/properties.swg"
+%import "engine/symmmatrix.swg"
+%import "engine/rank3tensor.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/piezoelectricity/piezoelectricity.h"
 %}
 
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
-%import "engine/symmmatrix.swg"
-%pragma(python) code="from ooflib.SWIG.engine.rank3tensor import Rank3TensorPtr"
-%import "engine/rank3tensor.swg"
-
-
+//%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
+//%pragma(python) code="from ooflib.SWIG.engine.rank3tensor import Rank3TensorPtr"
 
 
 class IsotropicPiezoElectricity : public Property {

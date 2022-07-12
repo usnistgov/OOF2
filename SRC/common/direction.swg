@@ -14,6 +14,8 @@
 
 %module direction
 
+%include "common/typemaps.swg"
+
 %{
 #include "common/direction.h"
 %}

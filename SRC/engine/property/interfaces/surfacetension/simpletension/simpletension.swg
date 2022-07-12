@@ -9,16 +9,20 @@
  * oof_manager@nist.gov. 
  */
 
-#indef SIMPLETENSION_SWG
+#ifndef SIMPLETENSION_SWG
 #define SIMPLETENSION_SWG
 
 %module simpletension
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%import "engine/properties.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/interfaces/surfacetension/simpletension/simpletension.h"
 %}
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
 
 class SimpleTension : public Property
 {
@@ -26,6 +30,6 @@ public:
   SimpleTension(PyObject *self, char *, double, double);
 };
 
-%pythoncode "engine/property/surfacetension/simpletension/simpletension.spy"
+%pythoncode "engine/property/interfaces/surfacetension/simpletension/simpletension.spy"
 
 #endif // SIMPLETENSION_SWG

@@ -14,14 +14,22 @@
 
 %module forcedensity
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%include "engine/properties.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/forcedensity/nonlinear/nonlinear_force_density.h"
 %}
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
+
+%nodefaultctor NonlinearForceDensityNoDeriv;
 
 class NonlinearForceDensityNoDeriv : public Property {
 };
+
+%nodefaultctor NonlinearForceDensity;
 
 class NonlinearForceDensity : public NonlinearForceDensityNoDeriv {
 };

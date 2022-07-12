@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   massdensity.C
-  massdensity.h
-  )
+  massdensity.h)
+
+swig_sources(
+  SWIGFILES
+  massdensity
+  LIBRARIES
+  oof2common
+  oof2engine)

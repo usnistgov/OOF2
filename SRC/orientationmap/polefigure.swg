@@ -13,11 +13,16 @@
 #define POLEFIGURE_SWG
 
 %module polefigure
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/crystalsymmetry.swg"
 %import "common/direction.swg"
+#endif //NOSECONDIMPORTS
 
 %{
+#include "common/direction.h"
 #include "orientationmap/polefigure.h"
 %}
 

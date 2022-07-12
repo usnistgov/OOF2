@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   nonlinear_heat_source.C
-  nonlinear_heat_source.h
-  )
+  nonlinear_heat_source.h)
+
+swig_sources(
+  SWIGFILES
+  nonlinear_heat_source
+  LIBRARIES
+  oof2common
+  oof2engine)

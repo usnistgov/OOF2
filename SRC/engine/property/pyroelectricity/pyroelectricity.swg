@@ -9,7 +9,7 @@
  * oof_manager@nist.gov.
  */
 
-#ifdnef PYROELECTRICITY_SWG
+#ifndef PYROELECTRICITY_SWG
 #define PYROELECTRICITY_SWG
 
 %module pyroelectricity
@@ -18,9 +18,11 @@
 #include "engine/property/pyroelectricity/pyroelectricity.h"
 %}
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-
+%include "engine/properties.swg"
+#endif // NOSECONDIMPORTS
 
  // Typemap to convert the enum value provided by the registered class
  // into a string, which is what the C property is expecting.  This

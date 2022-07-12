@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   nonconstant_force_density.C
-  nonconstant_force_density.h
-  )
+  nonconstant_force_density.h)
+
+swig_sources(
+  SWIGFILES
+  nonconstant_force_density
+  LIBRARIES
+  oof2common
+  oof2engine)

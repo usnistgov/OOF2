@@ -14,16 +14,23 @@
 
 %module heatsource
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%import "engine/properties.swg"
+%import "engine/symmmatrix.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/heatsource/nonlinear/nonlinear_heat_source.h"
 %}
 
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-%import "engine/symmmatrix.swg"
+%nodefaultctor NonlinearHeatSourceNoDeriv;
 
 class NonlinearHeatSourceNoDeriv : public Property {
 };
+
+%nodefaultctor NonlinearHeatSource;
 
 class NonlinearHeatSource : public NonlinearHeatSourceNoDeriv {
 };

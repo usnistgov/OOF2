@@ -14,11 +14,15 @@
 
 %module massdensity
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%import "engine/properties.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/massdensity/massdensity.h"
 %}
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
 
 class MassDensityProp : public Property {
 public:

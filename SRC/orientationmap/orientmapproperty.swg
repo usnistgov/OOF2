@@ -13,8 +13,13 @@
 #define ORIENTMAPPROPERTY_SWG
 
 %module orientationmapproperty
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
+%include "engine/properties.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "orientationmap/orientmapproperty.h"
 %}

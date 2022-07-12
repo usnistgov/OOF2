@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   pyroelectricity.C
-  pyroelectricity.h
-  )
+  pyroelectricity.h)
+
+swig_sources(
+  SWIGFILES
+  pyroelectricity
+  LIBRARIES
+  oof2common
+  oof2engine)

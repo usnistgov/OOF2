@@ -14,16 +14,23 @@
 
 %module heatconductivity
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%import "engine/properties.swg"
+%import "engine/symmmatrix.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/heatconductivity/nonlinear/nonlinear_heat_conductivity.h"
 %}
 
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
-%import "engine/symmmatrix.swg"
+%nodefaultctor NonlinearHeatConductivityNoDeriv;
 
 class NonlinearHeatConductivityNoDeriv : public Property {
 };
+
+%nodefaultctor NonlinearHeatConductivity;
 
 class NonlinearHeatConductivity : public NonlinearHeatConductivityNoDeriv {
 };

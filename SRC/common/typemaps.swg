@@ -172,7 +172,7 @@ typedef std::vector<unsigned short> ShortVec;
 // so it's useful as long as the class has defined operator<<.
 // TODO: Implement it for -builtin.
 
-class std::string;
+		    // class std::string; // Why was this here?
 
 #ifdef SWIGPYTHON_BUILTIN
 %define ADD_REPR(CLASS, FUNC)

@@ -14,10 +14,14 @@
 
 %module pixelselectioncouriero
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "common/pixelselectioncourier.swg"
+%import "common/pixelselectioncourier.swg"
+%import "engine/corientation.swg"
+#endif // NOSECONDIMPORTS
 
-%pragma(python) code="from ooflib.SWIG.common.pixelselectioncourier import PixelSelectionCourierPtr"
+//%pragma(python) code="from ooflib.SWIG.common.pixelselectioncourier import PixelSelectionCourierPtr"
 
 
 %{

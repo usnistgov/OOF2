@@ -16,7 +16,16 @@ target_sources(oof2image
   autogroupMP.C
   autogroupMP.h
   pixeldifferentiator.C
-  pixeldifferentiator.h
-  )
+  pixeldifferentiator.h)
+
+swig_sources(
+  SWIGFILES
+  autogroupMP
+  oofimage
+  pixeldifferentiator
+  pixelselectioncourieri
+  LIBRARIES
+  oof2common
+  oof2image)
 
 add_subdirectory(IO)

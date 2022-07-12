@@ -13,21 +13,24 @@
 #define PIXELDIFFORIENT_SWG
 
 %module pixeldifforient
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "common/burn.swg"
+%import "common/statgroups.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "common/burn.h"
 #include "orientationmap/orientmapdata.h"
-#include "orientationmap/pixeldifferentiator.h"
+#include "orientationmap/pixeldifferentiatoro.h"
 %}
 
-%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
-%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator2Ptr"   
-%pragma(python) code="from ooflib.SWIG.common.statgroups import PixelDistributionFactoryPtr"
+// %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
+// %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator2Ptr"   
+// %pragma(python) code="from ooflib.SWIG.common.statgroups import PixelDistributionFactoryPtr"
 
-%import "common/burn.swg"
-%import "common/statgroups.swg"
-   
 class COrientationDifferentiator3 : public CPixelDifferentiator3 {
 public:
   COrientationDifferentiator3(OrientMap*, double, double, char*);
@@ -43,6 +46,6 @@ public:
   OrientationPixelDistFactory(OrientMap*, double, char*);
 };
 
-%pythoncode "orientationmap/pixeldifferentiator.spy"
+%pythoncode "orientationmap/pixeldifferentiatoro.spy"
 
 #endif // PIXELDIFFORIENT_SWG

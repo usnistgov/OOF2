@@ -9,8 +9,14 @@
 target_sources(oof2engine
   PRIVATE
   heatsource.C
-  heatsource.h
-  )
+  heatsource.h)
+
+swig_sources(
+  SWIGFILES
+  heatsource
+  LIBRARIES
+  oof2common
+  oof2engine)
 
 add_subdirectory(nonlinear)
 add_subdirectory(nonconstant)

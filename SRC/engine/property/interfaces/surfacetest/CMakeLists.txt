@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   surfacetest.C
-  surfacetest.h
-  )
+  surfacetest.h)
+
+swig_sources(
+  SWIGFILES
+  surfacetest
+  LIBRARIES
+  oof2common
+  oof2engine)

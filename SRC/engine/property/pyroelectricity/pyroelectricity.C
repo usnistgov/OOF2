@@ -1,6 +1,5 @@
 // -*- C++ -*-
 
-
 /* This software was produced by NIST, an agency of the U.S. government,
  * and by statute is not subject to copyright in the United States.
  * Recipients of this software assume all responsibilities associated
@@ -11,8 +10,6 @@
  */
 
 #include <oofconfig.h>
-
-
 #include "common/coord.h"
 #include "engine/ooferror.h"
 #include "engine/fieldindex.h"
@@ -34,6 +31,8 @@
 #include "engine/property/piezoelectricity/piezoelectricity.h"
 #include "engine/property/pyroelectricity/pyroelectricity.h"
 #include "engine/smallsystem.h"
+
+// TODO: Use an enum for coefficient_type, instead of a string.
 
 PyroElectricity::PyroElectricity(PyObject *reg,
 				 const std::string &nm,

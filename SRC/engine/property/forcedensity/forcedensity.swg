@@ -14,11 +14,15 @@
 
 %module forcedensity
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%import "engine/properties.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/forcedensity/forcedensity.h"
 %}
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
 
 class ForceDensity : public Property {
 public:

@@ -14,11 +14,15 @@
 
 %module simpletension2
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
+%include "common/typemaps.swg"
+%import "engine/properties.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "engine/property/interfaces/surfacetension/simpletension2/simpletension2.h"
 %}
-%include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
 
 class SimpleTension2 : public Property
 {

@@ -17,7 +17,18 @@ target_sources(oof2orientationmap
   pixelselectioncouriero.C
   pixelselectioncouriero.h
   pixeldifferentiatoro.C
-  pixeldifferentiatoro.h
-  )
+  pixeldifferentiatoro.h)
+
+swig_sources(
+  SWIGFILES
+  orientmapdata
+  orientmapproperty
+  pixeldifferentiatoro
+  pixelselectioncouriero
+  polefigure
+  LIBRARIES
+  oof2common
+  oof2orientationmap
+  oof2engine)
 
 add_subdirectory(GUI)

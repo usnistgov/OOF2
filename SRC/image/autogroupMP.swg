@@ -13,7 +13,13 @@
 #define AUTOGROUPMP_SWG
 
 %module autogroup
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "common/cmicrostructure.swg"
+%import "image/oofimage.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "common/pixelgroup.h"
@@ -22,6 +28,7 @@
 #include "image/oofimage.h"
 %}
 
-%new StringVec *autogroup(CMicrostructure*, OOFImage*, char*);
+%newobject autogroup;
+std::vector<std::string> *autogroup(CMicrostructure*, OOFImage*, std::string&);
 
 #endif // AUTOGROUPMP_SWG

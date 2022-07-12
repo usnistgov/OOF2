@@ -13,7 +13,14 @@
 #define PIXELDIFFERENTIATORI_SWG
 
 %module pixeldifferentiator
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "common/burn.swg"
+%import "common/statgroups.swg"
+%import "image/oofimage.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "common/cmicrostructure.h"
@@ -21,12 +28,9 @@
 #include "image/oofimage.h"
 %}
 
-%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
-%pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator2Ptr"
-%pragma(python) code="from ooflib.SWIG.common.statgroups import PixelDistributionFactoryPtr"
-
-%import "common/burn.swg"
-%import "common/statgroups.swg"
+// %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
+// %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator2Ptr"
+// %pragma(python) code="from ooflib.SWIG.common.statgroups import PixelDistributionFactoryPtr"
 
 class CColorDifferentiator3 : public CPixelDifferentiator3 {
 public:

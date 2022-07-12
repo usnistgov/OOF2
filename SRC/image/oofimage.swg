@@ -13,11 +13,20 @@
 #define OOFIMAGE_SWG
 %module oofimage
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "common/canvasimage.swg"
+%import "common/IO/bitoverlay.swg"
+%import "common/abstractimage.swg"
+%import "common/boolarray.swg"
+%import "common/canvasimage.swg"
+%import "common/ccolor.swg"
+%import "common/doublearray.swg"
+%import "common/ooferror.swg"
+%import "common/timestamp.swg"
+#endif // NOSECONDIMPORTS
 
 %{
-#include <oofconfig.h>
 #include "oofcanvas/canvasimage.h"
 #include "common/boolarray.h"
 #include "common/doublearray.h"
@@ -25,21 +34,13 @@
 #include "image/oofimage.h"
 %}
 
-%import "common/IO/bitoverlay.swg"
-%import "common/ccolor.swg"
-%import "common/timestamp.swg"
-%import "common/ooferror.swg"
-%import "common/abstractimage.swg"
-
-%import "common/doublearray.swg"
-%pragma(python) code="from ooflib.SWIG.common.doublearray import DoubleArrayPtr"
-%import "common/boolarray.swg"
-%pragma(python) code="from ooflib.SWIG.common.boolarray import BoolArrayPtr"
-%pragma(python) code="from ooflib.SWIG.common.boolarray import BoolArrayPtr"
-%pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
-%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
-%pragma(python) code="from ooflib.SWIG.common.ooferror import ErrErrorPtr"
-%pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
+// %pragma(python) code="from ooflib.SWIG.common.doublearray import DoubleArrayPtr"
+// %pragma(python) code="from ooflib.SWIG.common.boolarray import BoolArrayPtr"
+// %pragma(python) code="from ooflib.SWIG.common.boolarray import BoolArrayPtr"
+// %pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
+// %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
+// %pragma(python) code="from ooflib.SWIG.common.ooferror import ErrErrorPtr"
+// %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
 
 class OOFImage : public AbstractImage {
 public:
@@ -48,20 +49,23 @@ public:
   void save(char *filename);
   const string &name();
   void rename(char *);
-  %new string *comment();
+  %newobject comment;
+  string *comment();
   void setSize(Coord *Point);
   
   Coord size();
   ICoord sizeInPixels();
   ICoord pixelFromPoint(Coord *Point);
   bool pixelInBounds(ICoord *iPoint);
-  %new OOFImage *clone(char *name);
+  %newobject clone;
+  OOFImage *clone(char *name);
 
   void setMicrostructure(CMicrostructure*);
   CMicrostructure *getCMicrostructure();
   void removeMicrostructure();
 
-  %new ShortVec *getPixels();
+  %newobject getPixels;
+  ShortVec *getPixels();
   void flip(char *axis);
   void fade(double);
   void dim(double);
@@ -81,23 +85,27 @@ public:
   
   bool compare(OOFImage&, double);
   %newobject makeCanvasImage;
-  CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
+  OOFCanvas::CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 
   // getTimeStamp is redefined in oofimage.spy so that it can have optional args
-  %name(_getTimeStamp) TimeStamp *getTimeStamp();
-  %addmethods {
-    CColor __getitem__(ICoord *iPoint) {
-      return (*self)[iPoint];
-    }
+  %rename(_getTimeStamp) TimeStamp;
+  TimeStamp *getTimeStamp();
+};
+
+%extend OOFImage {
+  CColor __getitem__(ICoord *iPoint) {
+    return (*self)[iPoint];
   }
 };
 
-%new OOFImage *newImageFromData(char *name, ICoord *iPoint, ShortVec*);
+%newobject newImageFromData;
+OOFImage *newImageFromData(char *name, ICoord *iPoint, ShortVec*);
 
 // Parallel image send/recv
 #ifdef HAVE_MPI
 void _Send_Image(OOFImage*, IntVec*, int);
-%new OOFImage *_Recv_Image(int, int);
+%newobject _Recv_Image;
+OOFImage *_Recv_Image(int, int);
 #endif //HAVE_MPI
 
 BoolArray threshold(DoubleArray,double);
@@ -106,16 +114,13 @@ class ImageMagickError : public ErrError {
 public:
   ImageMagickError(char *m);
   ~ImageMagickError();
-  %addmethods {
-    %new const string *__repr__() {
-      return self->summary();
-    }
-  }
 };
+
+ADD_REPR(ImageMagickError, summary);
 
 DoubleArray grayify(const OOFImage& image);
 void setFromBool(OOFImage&, const BoolArray&);
 
-%pythoncode "oofimage.spy"
+%pythoncode "image/oofimage.spy"
 
 #endif // OOFIMAGE_SWG

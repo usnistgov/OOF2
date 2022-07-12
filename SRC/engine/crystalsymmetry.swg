@@ -14,19 +14,23 @@
 
 %module crystalsymmetry
 
+%include "common/typemaps.swg"
+
 %{
 #include "engine/crystalsymmetry.h"
 %}
 
+// The C++ AnisoCrystalSymmetry enum defined in crystalsymmetry.h is
+// *not* swigged.  Instead, a Python Enum class is define in
+// crystalsymmetry.spy and this typemap converts from one to the
+// other.
+// TODO PYTHON3: Is there a better way to do this?
 
-// $source is a Python AnisoCrystalSymmetry instance.
-// AnisoCrystalSymmetry is an Enum subclass defined in
-// crystalsymmetry.spy.
-
-%typemap(python, in) AnisoCrystalSymmetry* (AnisoCrystalSymmetry sym) {
-  // typemap(python, in) AnisoCrystalSymmetry*
-  std::string name = PyString_AsString(
-			       PyObject_CallMethod($source,(char*) "string", NULL));
+%typemap(in) AnisoCrystalSymmetry* (AnisoCrystalSymmetry sym) {
+  // typemap(in) AnisoCrystalSymmetry*
+  PyObject *pname= PyObject_CallMethod($input, "string", NULL);
+  PyObject *ustr = PyUnicode_AsEncodedString(pname, "UTF-8", "replace");
+  std::string name(PyBytes_AsString(ustr));
   if(name == "Tetragonal")
     sym = TETRAGONAL;
   if(name == "Hexagonal")
@@ -41,7 +45,7 @@
     sym = MONOCLINIC;
   if(name == "Triclinic")
     sym = TRICLINIC;
-  $target = &sym;
+  $1 = &sym;
 };
 
 %pythoncode "engine/crystalsymmetry.spy"

@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   nonconstant_heat_source.C
-  nonconstant_heat_source.h
-  )
+  nonconstant_heat_source.h)
+
+swig_sources(
+  SWIGFILES
+  nonconstant_heat_source
+  LIBRARIES
+  oof2common
+  oof2engine)

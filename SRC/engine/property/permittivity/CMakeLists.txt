@@ -9,5 +9,11 @@
 target_sources(oof2engine
   PRIVATE
   permittivity.C
-  permittivity.h
-  )
+  permittivity.h)
+
+swig_sources(
+  SWIGFILES
+  permittivity
+  LIBRARIES
+  oof2common
+  oof2engine)
