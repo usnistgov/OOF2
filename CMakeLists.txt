@@ -116,24 +116,24 @@ function(swig_sources)
     # in cmake 3.20, but 3.20 isn't available on Ubuntu 20.04.
     if(${CMAKE_VERSION} VERSION_LESS "3.20")
       file(
-	RELATIVE_PATH relpath
-	${PROJECT_SOURCE_DIR}/src
-	${CMAKE_CURRENT_SOURCE_DIR})
+	RELATIVE_PATH relpath	     # this is the path ...
+	${PROJECT_SOURCE_DIR}/SRC    # ... from here ...
+	${CMAKE_CURRENT_SOURCE_DIR}) # ... to here
     else()
       set(relpath ${CMAKE_CURRENT_SOURCE_DIR})
       cmake_path(
 	RELATIVE_PATH
-	relpath
-	BASE_DIRECTORY ${PROJECT_SOURCE_DIR}/src)
+	relpath			# Change this path ...
+	BASE_DIRECTORY ${PROJECT_SOURCE_DIR}/SRC) # ... to be relative to this
     endif()
     # Install the swig-generated and compiled library
     install(
       TARGETS ${swigfile}
-      DESTINATION ${PYDEST}/${relpath})
+      DESTINATION ${PYDEST}/ooflib/SWIG/${relpath})
     # Install the swig-generated python file
     install(
       FILES ${CMAKE_CURRENT_BINARY_DIR}/${swigfile}.py
-      DESTINATION ${PYDEST}/${relpath})
+      DESTINATION ${PYDEST}/ooflib/SWIG/${relpath})
   endforeach()
 
 endfunction()
