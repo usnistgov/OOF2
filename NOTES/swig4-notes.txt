@@ -42,6 +42,12 @@ Module import order is important to make sure that base classes are
 initialized before derived classes when using builtin.  Use %import
 "base.swg" in derived.swg to ensure it.
 
+Each swig file must have a %module line that matches the file name,
+unless we do something fancy with cmake.  Swig uses %module to
+determine the name of the python file that it creates, but cmake
+assumes that the name is the same as the swig file name, with .py
+instead of .swg.
+
 Use python slots.  operator+ is much faster than a function call.
 operator+=, operator==, operator<, etc, are automatically converted to
 slot operators.
