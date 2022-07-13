@@ -12,7 +12,7 @@
 #ifndef SUBPROBLEM_SWG
 #define SUBPROBLEM_SWG
 
-%module subproblem
+%module csubproblem
 
 // Because CSubProblem has methods that return these iterators (which
 // are lightweight objects) by value and they don't have default

@@ -12,6 +12,8 @@
 #ifndef MASTERELEMENT_SWG
 #define MASTERELEMENT_SWG
 
+%module masterelement
+
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"

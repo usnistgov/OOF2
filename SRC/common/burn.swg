@@ -12,7 +12,7 @@
 #ifndef BURNCOMMON_SWG
 #define BURNCOMMON_SWG
 
-%module autograin
+%module burn
 %include "common/typemaps.swg"
 
 %{
@@ -22,6 +22,7 @@
 
 %nodefaultctor CPixelDifferentiator2;
 %nodefaultctor CPixelDifferentiator3;
+
 class CPixelDifferentiator3 {};
 class CPixelDifferentiator2 {};
 

@@ -12,6 +12,8 @@
 #ifndef ELEMENTNODEITERATOR_SWG
 #define ELEMENTNODEITERATOR_SWG
 
+%module elementnodeiterator
+
 %{
 #include "engine/elementnodeiterator.h"
 %}

@@ -12,6 +12,8 @@
 #ifndef FREEDOM_SWG
 #define FREEDOM_SWG
 
+%module freedom
+
 %include "common/typemaps.swg"
 %import "engine/femesh.swg"
 
