@@ -12,17 +12,17 @@
 #ifndef NONLINEAR_HEAT_CONDUCTIVITY_SWG
 #define NONLINEAR_HEAT_CONDUCTIVITY_SWG
 
-%module heatconductivity
+%module nonlinear_heat_conductivity
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/heatconductivity/nonlinear/nonlinear_heat_conductivity.h"
+#include "engine/properties/heatconductivity/nonlinear/nonlinear_heat_conductivity.h"
 %}
 
 %nodefaultctor NonlinearHeatConductivityNoDeriv;
@@ -45,6 +45,6 @@ public:
   TestNonlinearHeatConductivity(PyObject *reg, char *name, int testno);
 };
 
-%pythoncode "engine/property/heatconductivity/nonlinear/nonlinear_heat_conductivity.spy"
+%pythoncode "engine/properties/heatconductivity/nonlinear/nonlinear_heat_conductivity.spy"
 
 #endif // NONLINEAR_HEAT_CONDUCTIVITY_SWG

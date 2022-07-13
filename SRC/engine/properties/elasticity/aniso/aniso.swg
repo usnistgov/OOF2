@@ -15,15 +15,15 @@
 %module aniso
 
 %{
-#include "engine/property/elasticity/aniso/aniso.h"
-#include "engine/property/elasticity/cijkl.h"
+#include "engine/properties/elasticity/aniso/aniso.h"
+#include "engine/properties/elasticity/cijkl.h"
 %}
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/property/elasticity/elasticity.swg"
-%import "engine/property/elasticity/cijkl.swg"
+%import "engine/properties/elasticity/elasticity.swg"
+%import "engine/properties/elasticity/cijkl.swg"
 #endif // NOSECONDIMPORTS
 
 //%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
@@ -37,6 +37,6 @@ public:
   const Cijkl crystal_cijkl();
 };
 
-%pythoncode "engine/property/elasticity/aniso/aniso.spy"
+%pythoncode "engine/properties/elasticity/aniso/aniso.spy"
 
 #endif // ANISO_SWG

@@ -12,16 +12,16 @@
 #ifndef GENERAL_NONLINEAR_ELASTICITY_SWG
 #define GENERAL_NONLINEAR_ELASTICITY_SWG
 
-%module nonlinear
+%module general_nonlinear_elasticity
 
 %{
-#include "engine/property/elasticity/nonlinear/general_nonlinear_elasticity.h"
+#include "engine/properties/elasticity/nonlinear/general_nonlinear_elasticity.h"
 %}
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
  //%include "engine/propertyhdr.swg"
 #endif // NOSECONDIMPORTS
 
@@ -47,6 +47,6 @@ public:
   TestGeneralNonlinearElasticity(PyObject *reg, char *name, int testno);
 };
 
-%pythoncode "engine/property/elasticity/nonlinear/general_nonlinear_elasticity.spy"
+%pythoncode "engine/properties/elasticity/nonlinear/general_nonlinear_elasticity.spy"
 
 #endif // GENERAL_NONLINEAR_ELASTICITY_SWG

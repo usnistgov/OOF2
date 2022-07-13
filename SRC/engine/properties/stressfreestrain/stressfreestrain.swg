@@ -17,12 +17,12 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/stressfreestrain/stressfreestrain.h"
+#include "engine/properties/stressfreestrain/stressfreestrain.h"
 %}
 
  //%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
@@ -37,6 +37,6 @@ public:
   AnisotropicStressFreeStrain(PyObject *reg, char *name, SymmMatrix3 *e);
 };
 
-%pythoncode "engine/property/stressfreestrain/stressfreestrain.spy"
+%pythoncode "engine/properties/stressfreestrain/stressfreestrain.spy"
 
 #endif // STRESSFREESTRAIN_SWG

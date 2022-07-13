@@ -12,7 +12,7 @@
 #ifndef PIXELDIFFORIENT_SWG
 #define PIXELDIFFORIENT_SWG
 
-%module pixeldifforient
+%module pixeldifferentiatoro
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

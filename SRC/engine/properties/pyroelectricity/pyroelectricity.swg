@@ -15,13 +15,13 @@
 %module pyroelectricity
 
 %{
-#include "engine/property/pyroelectricity/pyroelectricity.h"
+#include "engine/properties/pyroelectricity/pyroelectricity.h"
 %}
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "engine/properties.swg"
+%include "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
  // Typemap to convert the enum value provided by the registered class
@@ -66,6 +66,6 @@ public:
 
 %typemap(python, in) std::string *coefficient_type {}
 
-%pythoncode "engine/property/pyroelectricity/pyroelectricity.spy"
+%pythoncode "engine/properties/pyroelectricity/pyroelectricity.spy"
 
 #endif // PYROELECTRICITY_SWG

@@ -15,8 +15,8 @@
 #ifndef ISOELASTICITY_H
 #define ISOELASTICITY_H
 
-#include "engine/property/elasticity/elasticity.h"
-#include "engine/property/elasticity/cijkl.h"
+#include "engine/properties/elasticity/elasticity.h"
+#include "engine/properties/elasticity/cijkl.h"
 #include "common/pythonexportable.h"
 #include <string>
 

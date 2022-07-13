@@ -8,19 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##
-##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##
-##                                                                      ##
-##   NOTE: Because this file is imported by properties.swg, not         ##
-##   property.swg (due to an unfortunate historical accident) the       ##
-##   setup.py script doesn't notice if it's been edited.  If you edit   ##
-##   this file, you will have to force setup.py to run swig on          ##
-##   properties.swg.  You can easily do that by removing                ## 
-##   SRC/SWIG2D/engine/properties*.                                     ## 
-##                                                                      ##
-##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##
-##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##
-
 from ooflib.common import debug
 
 # Add class data to the PropertyPtr class.  The "registry" data member

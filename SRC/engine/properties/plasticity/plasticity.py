@@ -22,7 +22,7 @@ from ooflib.SWIG.engine import field
 from ooflib.SWIG.engine import fieldindex
 from ooflib.SWIG.engine import pypropertywrapper 
 from ooflib.SWIG.engine import symmmatrix
-from ooflib.SWIG.engine.property.elasticity import cijkl 
+from ooflib.SWIG.engine.properties.elasticity import cijkl 
 from ooflib.common.IO import parameter
 from ooflib.engine import propertyregistration
 from ooflib.engine import problem
@@ -361,7 +361,7 @@ class TestPlasticityProp(pypropertywrapper.PyFluxProperty):
 if False:
     reg = propertyregistration.PropertyRegistration(
         'Mechanical:Plasticity:TestPlasticity', TestPlasticityProp,
-        "ooflib.engine.property.plasticity.plasticity", 
+        "ooflib.engine.properties.plasticity.plasticity", 
         105,
         params=[parameter.FloatParameter("yield_stress", 1.0,
                                          tip="Yield stress.")],

@@ -25,7 +25,7 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 reg = PropertyRegistration(
     'Mechanical:ZStrain',
     PlaneStrain,
-    "ooflib.SWIG.engine.property.planestrain.planestrain",
+    "ooflib.SWIG.engine.properties.planestrain.planestrain",
     23,
     [parameter.FloatParameter('ezz', 0.0, tip="Out of plane strain")],
     outputs=["Strain"],

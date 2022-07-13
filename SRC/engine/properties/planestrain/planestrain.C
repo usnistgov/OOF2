@@ -17,10 +17,10 @@
 #include "engine/flux.h"
 #include "engine/material.h"
 #include "engine/ooferror.h"
-#include "engine/property/elasticity/cijkl.h"
-#include "engine/property/elasticity/elasticity.h"
-#include "engine/property/orientation/orientation.h"
-#include "engine/property/planestrain/planestrain.h"
+#include "engine/properties/elasticity/cijkl.h"
+#include "engine/properties/elasticity/elasticity.h"
+#include "engine/properties/orientation/orientation.h"
+#include "engine/properties/planestrain/planestrain.h"
 #include "engine/smallsystem.h"
 
 PlaneStrain::PlaneStrain(PyObject *reg,

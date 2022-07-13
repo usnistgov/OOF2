@@ -176,8 +176,8 @@ swig_sources(
   pixelselectioncouriere
   planarity
   pointdata
-  properties
-  propertyhdr
+  property
+#  propertyhdr
   pypropertywrapper
   rank3tensor
   smallsystem
@@ -190,6 +190,6 @@ swig_sources(
   )
 
 add_subdirectory(IO)
-add_subdirectory(property)
+add_subdirectory(properties)
 add_subdirectory(elements)
 

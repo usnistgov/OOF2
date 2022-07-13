@@ -22,7 +22,7 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 
 reg = PropertyRegistration(
     'Thermal:HeatSource:ConstantHeatSource', HeatSourceProp,
-    "ooflib.SWIG.engine.property.heatsource.heatsource",150,
+    "ooflib.SWIG.engine.properties.heatsource.heatsource",150,
     [parameter.FloatParameter('rate', 0.0, tip="Rate of energy increase.")],
     outputs=["Material Constants:Thermal:Heat Source"],
     propertyType="HeatSource",

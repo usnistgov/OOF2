@@ -17,12 +17,12 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/heatconductivity/heatconductivity.h"
+#include "engine/properties/heatconductivity/heatconductivity.h"
 %}
 
 class IsoHeatConductivity : public Property {
@@ -35,6 +35,6 @@ public:
   AnisoHeatConductivity(PyObject *reg, char *name, SymmMatrix3 *k);
 };
 
-%pythoncode "engine/property/heatconductivity/heatconductivity.spy"
+%pythoncode "engine/properties/heatconductivity/heatconductivity.spy"
 
 #endif // HEATCONDUCTIVITY_SWG

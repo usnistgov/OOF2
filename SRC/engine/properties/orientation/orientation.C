@@ -16,7 +16,7 @@
 #include "common/trace.h"
 #include "engine/IO/propertyoutput.h"
 #include "engine/material.h"
-#include "engine/property/orientation/orientation.h"
+#include "engine/properties/orientation/orientation.h"
 #include "engine/symmmatrix.h"
 
 OrientationProp::OrientationProp(PyObject *registry, const std::string &nm,

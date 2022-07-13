@@ -14,7 +14,7 @@
 #include "engine/field.h"
 #include "engine/flux.h"
 #include "engine/material.h"
-#include "engine/property/elasticity/thermo/thermo.h"
+#include "engine/properties/elasticity/thermo/thermo.h"
 #include "engine/element.h"
 
 // Coef's.  The idea is that the shear modulus is going to be 

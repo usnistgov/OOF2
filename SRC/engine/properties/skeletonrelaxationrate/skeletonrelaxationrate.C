@@ -23,9 +23,9 @@
 #include "engine/flux.h"
 #include "engine/material.h"
 #include "engine/ooferror.h"
-#include "engine/property/elasticity/cijkl.h"
-#include "engine/property/elasticity/elasticity.h"
-#include "engine/property/skeletonrelaxationrate/skeletonrelaxationrate.h"
+#include "engine/properties/elasticity/cijkl.h"
+#include "engine/properties/elasticity/elasticity.h"
+#include "engine/properties/skeletonrelaxationrate/skeletonrelaxationrate.h"
 #include "engine/smallsystem.h"
 
 

@@ -13,8 +13,8 @@
 #ifndef ANISOELASTICITY_H
 #define ANISOELASTICITY_H
 
-#include "engine/property/elasticity/elasticity.h"
-#include "engine/property/elasticity/cijkl.h"
+#include "engine/properties/elasticity/elasticity.h"
+#include "engine/properties/elasticity/cijkl.h"
 #include "common/pythonexportable.h"
 #include <string>
 

@@ -17,11 +17,11 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/interfaces/surfacetension/simpletension/simpletension.h"
+#include "engine/properties/interfaces/surfacetension/simpletension/simpletension.h"
 %}
 
 class SimpleTension : public Property
@@ -30,6 +30,6 @@ public:
   SimpleTension(PyObject *self, char *, double, double);
 };
 
-%pythoncode "engine/property/interfaces/surfacetension/simpletension/simpletension.spy"
+%pythoncode "engine/properties/interfaces/surfacetension/simpletension/simpletension.spy"
 
 #endif // SIMPLETENSION_SWG

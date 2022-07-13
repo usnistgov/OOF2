@@ -27,8 +27,8 @@
 #include "engine/material.h"
 #include "engine/nodalequation.h"
 #include "engine/ooferror.h"
-#include "engine/property/orientation/orientation.h"
-#include "engine/property/permittivity/permittivity.h"
+#include "engine/properties/orientation/orientation.h"
+#include "engine/properties/permittivity/permittivity.h"
 
 DielectricPermittivity::DielectricPermittivity(PyObject *registry,
 				   const std::string &nm)

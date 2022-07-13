@@ -23,7 +23,7 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 reg = PropertyRegistration(
     'Mechanical:StressFreeStrain:Isotropic',
     IsotropicStressFreeStrain,
-    "ooflib.SWIG.engine.property.stressfreestrain.stressfreestrain",
+    "ooflib.SWIG.engine.properties.stressfreestrain.stressfreestrain",
     22,
     [parameter.FloatParameter('epsilon0', 0.0, tip="StressFreeStrain")],
     outputs=["Strain", "Energy", "Material Constants:Mechanical:Stress-free Strain epsilon0"],
@@ -39,7 +39,7 @@ reg.fluxInfo(fluxes=[problem.Stress])
 reg = PropertyRegistration(
     'Mechanical:StressFreeStrain:Anisotropic:Cubic',
     AnisotropicStressFreeStrain,
-    "ooflib.SWIG.engine.property.stressfreestrain.stressfreestrain",
+    "ooflib.SWIG.engine.properties.stressfreestrain.stressfreestrain",
     23,
     [symmmatrix.CubicRank2TensorParameter(
             'epsilon0',
@@ -58,7 +58,7 @@ reg.fluxInfo(fluxes=[problem.Stress])
 reg = PropertyRegistration(
     'Mechanical:StressFreeStrain:Anisotropic:Hexagonal',
     AnisotropicStressFreeStrain,
-    "ooflib.SWIG.engine.property.stressfreestrain.stressfreestrain",
+    "ooflib.SWIG.engine.properties.stressfreestrain.stressfreestrain",
     24,
     [symmmatrix.HexagonalRank2TensorParameter(
             'epsilon0',
@@ -77,7 +77,7 @@ reg.fluxInfo(fluxes=[problem.Stress])
 reg = PropertyRegistration(
     'Mechanical:StressFreeStrain:Anisotropic:Trigonal',
     AnisotropicStressFreeStrain,
-    "ooflib.SWIG.engine.property.stressfreestrain.stressfreestrain",
+    "ooflib.SWIG.engine.properties.stressfreestrain.stressfreestrain",
     25,
     [symmmatrix.TrigonalRank2TensorParameter(
             'epsilon0',
@@ -96,7 +96,7 @@ reg.fluxInfo(fluxes=[problem.Stress])
 reg = PropertyRegistration(
     'Mechanical:StressFreeStrain:Anisotropic:Tetragonal',
     AnisotropicStressFreeStrain,
-    "ooflib.SWIG.engine.property.stressfreestrain.stressfreestrain",
+    "ooflib.SWIG.engine.properties.stressfreestrain.stressfreestrain",
     26,
     [symmmatrix.TetragonalRank2TensorParameter(
             'epsilon0',
@@ -115,7 +115,7 @@ reg.fluxInfo(fluxes=[problem.Stress])
 reg = PropertyRegistration(
     'Mechanical:StressFreeStrain:Anisotropic:Orthorhombic',
     AnisotropicStressFreeStrain,
-    "ooflib.SWIG.engine.property.stressfreestrain.stressfreestrain",
+    "ooflib.SWIG.engine.properties.stressfreestrain.stressfreestrain",
     27,
     [symmmatrix.OrthorhombicRank2TensorParameter(
             'epsilon0',
@@ -134,7 +134,7 @@ reg.fluxInfo(fluxes=[problem.Stress])
 reg = PropertyRegistration(
     'Mechanical:StressFreeStrain:Anisotropic:Monoclinic',
     AnisotropicStressFreeStrain,
-    "ooflib.SWIG.engine.property.stressfreestrain.stressfreestrain",
+    "ooflib.SWIG.engine.properties.stressfreestrain.stressfreestrain",
     26,
     [symmmatrix.MonoclinicRank2TensorParameter(
             'epsilon0',
@@ -153,7 +153,7 @@ reg.fluxInfo(fluxes=[problem.Stress])
 reg = PropertyRegistration(
     'Mechanical:StressFreeStrain:Anisotropic:Triclinic',
     AnisotropicStressFreeStrain,
-    "ooflib.SWIG.engine.property.stressfreestrain.stressfreestrain",
+    "ooflib.SWIG.engine.properties.stressfreestrain.stressfreestrain",
     26,
     [symmmatrix.TriclinicRank2TensorParameter(
             'epsilon0',

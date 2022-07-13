@@ -14,7 +14,7 @@
 #include "engine/IO/propertyoutput.h"
 #include "engine/elementnodeiterator.h"
 #include "engine/field.h"
-#include "engine/property/damping/damping.h"
+#include "engine/properties/damping/damping.h"
 #include "engine/smallsystem.h"
 
 IsotropicDampingProp::IsotropicDampingProp(PyObject *registration,

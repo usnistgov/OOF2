@@ -12,17 +12,17 @@
 #ifndef NONLINEAR_HEAT_SOURCE_SWG
 #define NONLINEAR_HEAT_SOURCE_SWG
 
-%module heatsource
+%module nonlinear_heat_source
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/heatsource/nonlinear/nonlinear_heat_source.h"
+#include "engine/properties/heatsource/nonlinear/nonlinear_heat_source.h"
 %}
 
 %nodefaultctor NonlinearHeatSourceNoDeriv;
@@ -45,6 +45,6 @@ public:
   TestNonlinearHeatSource(PyObject *reg, char *name, int testno);
 };
 
-%pythoncode "engine/property/heatsource/nonlinear/nonlinear_heat_source.spy"
+%pythoncode "engine/properties/heatsource/nonlinear/nonlinear_heat_source.spy"
 
 #endif // NONLINEAR_HEAT_SOURCE_SWG

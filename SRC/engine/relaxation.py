@@ -17,8 +17,8 @@ from ooflib.SWIG.engine import equation
 from ooflib.SWIG.engine import field
 from ooflib.SWIG.engine import masterelement
 from ooflib.SWIG.engine import material
-from ooflib.SWIG.engine.property.elasticity.iso import iso
-from ooflib.SWIG.engine.property.skeletonrelaxationrate \
+from ooflib.SWIG.engine.properties.elasticity.iso import iso
+from ooflib.SWIG.engine.properties.skeletonrelaxationrate \
     import skeletonrelaxationrate
 from ooflib.common import debug
 from ooflib.common import primitives

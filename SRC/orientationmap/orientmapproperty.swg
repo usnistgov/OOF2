@@ -12,12 +12,12 @@
 #ifndef ORIENTMAPPROPERTY_SWG
 #define ORIENTMAPPROPERTY_SWG
 
-%module orientationmapproperty
+%module orientmapproperty
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "engine/properties.swg"
+%include "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
 %{

@@ -17,11 +17,11 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/forcedensity/forcedensity.h"
+#include "engine/properties/forcedensity/forcedensity.h"
 %}
 
 class ForceDensity : public Property {
@@ -31,6 +31,6 @@ public:
   double fdensity_y();
 };
 
-%pythoncode "engine/property/forcedensity/forcedensity.spy"
+%pythoncode "engine/properties/forcedensity/forcedensity.spy"
 
 #endif // FORCEDENSITY_SWG

@@ -16,7 +16,6 @@
 // Base class for Thermal Expansion Properties
 
 #include "engine/property.h"
-#include "engine/property.h"
 #include "engine/symmmatrix.h"
 #include <string>
 

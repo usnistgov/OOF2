@@ -13,14 +13,14 @@ target_sources(oof2image
   evenlyilluminate.C
   pixelselectioncourieri.C
   pixelselectioncourieri.h
-  autogroupMP.C
-  autogroupMP.h
+  autogroup.C
+  autogroup.h
   pixeldifferentiator.C
   pixeldifferentiator.h)
 
 swig_sources(
   SWIGFILES
-  autogroupMP
+  autogroup
   oofimage
   pixeldifferentiator
   pixelselectioncourieri

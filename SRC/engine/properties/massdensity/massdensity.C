@@ -13,7 +13,7 @@
 #include "engine/IO/propertyoutput.h"
 #include "engine/elementnodeiterator.h"
 #include "engine/field.h"
-#include "engine/property/massdensity/massdensity.h"
+#include "engine/properties/massdensity/massdensity.h"
 #include "engine/smallsystem.h"
 
 

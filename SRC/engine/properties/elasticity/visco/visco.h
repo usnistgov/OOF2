@@ -16,7 +16,7 @@
 #define ISOELASTICITY_H
 
 #include <oofconfig.h>
-#include "engine/property/elasticity/cijkl.h"
+#include "engine/properties/elasticity/cijkl.h"
 #include "engine/property.h"
 #include <string>
 

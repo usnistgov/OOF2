@@ -20,12 +20,12 @@ from ooflib.engine.IO import interfaceparameters
 import types
 
 #The following string is placed in builtinprops.py
-#import ooflib.SWIG.engine.property.interfaces.surfacetension.simpletension2.simpletension2
+#import ooflib.SWIG.engine.properties.interfaces.surfacetension.simpletension2.simpletension2
 
 if runtimeflags.surface_mode:
     propertyregistration.PropertyRegistration(
         'Mechanical:Interface:SurfaceTension:TemperatureDependent', SimpleTension2,
-        "ooflib.SWIG.engine.property.interfaces.surfacetension.simpletension2.simpletension2",220,
+        "ooflib.SWIG.engine.properties.interfaces.surfacetension.simpletension2.simpletension2",220,
         [
         parameter.FloatParameter('k_left', 1.0, tip="variation of the surface tension with temperature, k(T_c-T)."),
         parameter.FloatParameter('T_c_left', 1.0, tip="critical temperature for the surface tension, k(T_c-T)."),

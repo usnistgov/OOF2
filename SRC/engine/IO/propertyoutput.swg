@@ -18,7 +18,7 @@
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/mastercoord.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
 %{

@@ -3,6 +3,13 @@
 * Meshes are drawn by default at their actual position.  The default
   behavior can be changed in the settings menu.
 
+* Upgrade to Python3 from Python2
+
+* Use cmake for building.
+
+* Moved the SRC/engine/property tree to SRC/engine/properties, and
+  renamed properties.swg to property.swg.
+
 2.2.1/2
 
 * Fixes to the build systems to get it to work with MacPorts.

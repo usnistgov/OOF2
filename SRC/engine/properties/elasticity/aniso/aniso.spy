@@ -10,7 +10,7 @@
 
 # Definitions of anisotropic linear elastic properties
 
-from ooflib.SWIG.engine.property.elasticity import cijkl
+from ooflib.SWIG.engine.properties.elasticity import cijkl
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import problem
@@ -32,7 +32,7 @@ class CubicElasticityProp(AnisoElasticity):
 
 reg = PropertyRegistration(
     'Mechanical:Elasticity:Anisotropic:Cubic', CubicElasticityProp,
-    "ooflib.SWIG.engine.property.elasticity.aniso.aniso",11,
+    "ooflib.SWIG.engine.properties.elasticity.aniso.aniso",11,
     [anisocijkl.CubicCijklParameter('cijkl',
                                     anisocijkl.CubicRank4TensorCij(c11=1.0,
                                                                    c12=0.5,
@@ -56,7 +56,7 @@ class HexagonalElasticityProp(AnisoElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:Anisotropic:Hexagonal',
     HexagonalElasticityProp,
-    "ooflib.SWIG.engine.property.elasticity.aniso.aniso",12,
+    "ooflib.SWIG.engine.properties.elasticity.aniso.aniso",12,
     [anisocijkl.HexagonalCijklParameter(
     'cijkl', anisocijkl.HexagonalRank4TensorCij(c11=1.0,
                                                 c12=0.5, c13=0.5,
@@ -79,7 +79,7 @@ class TetragonalElasticityProp(AnisoElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:Anisotropic:Tetragonal',
     TetragonalElasticityProp,
-    "ooflib.SWIG.engine.property.elasticity.aniso.aniso",
+    "ooflib.SWIG.engine.properties.elasticity.aniso.aniso",
     13,
     [anisocijkl.TetragonalCijklParameter(
             'cijkl', anisocijkl.TetragonalRank4TensorCij(
@@ -103,7 +103,7 @@ class TrigonalAElasticityProp(AnisoElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:Anisotropic:TrigonalA',
     TrigonalAElasticityProp,
-    "ooflib.SWIG.engine.property.elasticity.aniso.aniso",14,
+    "ooflib.SWIG.engine.properties.elasticity.aniso.aniso",14,
     [anisocijkl.TrigonalACijklParameter('cijkl',
                                         anisocijkl.TrigonalARank4TensorCij(
     c11=1.0, c12=0.5, c13=0.5, c33=1.0, c44=0.25, c14=0.0, c15=0.0),
@@ -125,7 +125,7 @@ class TrigonalBElasticityProp(AnisoElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:Anisotropic:TrigonalB',
     TrigonalBElasticityProp,
-    "ooflib.SWIG.engine.property.elasticity.aniso.aniso",15,
+    "ooflib.SWIG.engine.properties.elasticity.aniso.aniso",15,
     [anisocijkl.TrigonalBCijklParameter(
             'cijkl', anisocijkl.TrigonalBRank4TensorCij(
                 c11=1.0, c12=0.5,c13=0.5,c33=1.0,c44=0.25,c14=0.0),
@@ -147,7 +147,7 @@ class OrthorhombicElasticityProp(AnisoElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:Anisotropic:Orthorhombic',
     OrthorhombicElasticityProp,
-    "ooflib.SWIG.engine.property.elasticity.aniso.aniso",16,
+    "ooflib.SWIG.engine.properties.elasticity.aniso.aniso",16,
     [anisocijkl.OrthorhombicCijklParameter(
     'cijkl',
     anisocijkl.OrthorhombicRank4TensorCij(c11=1.0, c12=0.5, c13=0.5,
@@ -171,7 +171,7 @@ class MonoclinicElasticityProp(AnisoElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:Anisotropic:Monoclinic',
     MonoclinicElasticityProp,
-    "ooflib.SWIG.engine.property.elasticity.aniso.aniso",17,
+    "ooflib.SWIG.engine.properties.elasticity.aniso.aniso",17,
     [anisocijkl.MonoclinicCijklParameter(
     'cijkl',
     anisocijkl.MonoclinicRank4TensorCij(c11=1.0, c12=0.5, c13=0.5, c15=0.0,
@@ -196,7 +196,7 @@ class TriclinicElasticityProp(AnisoElasticity):
 reg = PropertyRegistration(
     'Mechanical:Elasticity:Anisotropic:Triclinic',
     TriclinicElasticityProp,
-    "ooflib.SWIG.engine.property.elasticity.aniso.aniso",18,
+    "ooflib.SWIG.engine.properties.elasticity.aniso.aniso",18,
     [anisocijkl.TriclinicCijklParameter(
     'cijkl',
     anisocijkl.TriclinicRank4TensorCij(c11=1.0, c12=0.5, c13=0.5, c14=0.0,

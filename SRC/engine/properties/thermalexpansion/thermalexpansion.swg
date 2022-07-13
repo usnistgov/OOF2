@@ -15,13 +15,13 @@
 %module thermalexpansion
 
 %{
-#include "engine/property/thermalexpansion/thermalexpansion.h"
+#include "engine/properties/thermalexpansion/thermalexpansion.h"
 %}
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 #endif // NOSECONDIMPORTS
 
@@ -40,7 +40,7 @@ public:
   AnisotropicThermalExpansion(PyObject *registry, char *name, SymmMatrix3 *alpha, double t0);
 };
 
-%pythoncode "engine/property/thermalexpansion/thermalexpansion.spy"
+%pythoncode "engine/properties/thermalexpansion/thermalexpansion.spy"
 
 %typemap(python,in) SymmMatrix * {}
 

@@ -13,7 +13,7 @@ from ooflib.SWIG.common import config
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import progress
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.image import autogroupMP
+from ooflib.SWIG.image import autogroup
 from ooflib.SWIG.image import oofimage
 from ooflib.common import debug
 from ooflib.common import labeltree
@@ -339,7 +339,7 @@ def createPixelGroups(menuitem, image, name_template):
     prog.setMessage("Categorizing pixels...")
     mscontext.begin_writing()
     try:
-        newgrpnames = autogroupMP.autogroup(ms, immidge, name_template)
+        newgrpnames = autogroup.autogroup(ms, immidge, name_template)
     finally:
         prog.finish()
         mscontext.end_writing()

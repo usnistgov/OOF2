@@ -17,11 +17,11 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/massdensity/massdensity.h"
+#include "engine/properties/massdensity/massdensity.h"
 %}
 
 class MassDensityProp : public Property {
@@ -29,6 +29,6 @@ public:
   MassDensityProp(PyObject *self, char *, double);
 };
 
-%pythoncode "engine/property/massdensity/massdensity.spy"
+%pythoncode "engine/properties/massdensity/massdensity.spy"
 
 #endif // MASSDENSITY_SWG

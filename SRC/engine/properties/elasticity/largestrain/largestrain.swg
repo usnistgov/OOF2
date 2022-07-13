@@ -18,16 +18,16 @@
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
  //%import "engine/propertyhdr.swg"
-%import "engine/properties.swg"
-%import "engine/property/elasticity/cijkl.swg"
-%import "engine/property/elasticity/elasticity.swg"
+%import "engine/property.swg"
+%import "engine/properties/elasticity/cijkl.swg"
+%import "engine/properties/elasticity/elasticity.swg"
 #endif // NOSECONDIMPORTS
 
 // %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
 // %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
 
 %{
-#include "engine/property/elasticity/largestrain/largestrain.h"
+#include "engine/properties/elasticity/largestrain/largestrain.h"
 %}
 
 
@@ -44,6 +44,6 @@ public:
 };
 
 
-%pythoncode "engine/property/elasticity/largestrain/largestrain.spy"
+%pythoncode "engine/properties/elasticity/largestrain/largestrain.spy"
 
 #endif // LARGESTRAIN_SWG

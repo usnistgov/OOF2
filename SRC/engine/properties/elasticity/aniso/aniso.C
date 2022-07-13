@@ -15,8 +15,8 @@
 #include "common/trace.h"
 #include "engine/material.h"
 #include "engine/ooferror.h"
-#include "engine/property/elasticity/aniso/aniso.h"
-#include "engine/property/orientation/orientation.h"
+#include "engine/properties/elasticity/aniso/aniso.h"
+#include "engine/properties/orientation/orientation.h"
 
 void CAnisoElasticity::cross_reference(Material *mat) {
 //   Trace("CAnisoElasticity::cross_reference");

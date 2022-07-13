@@ -22,7 +22,7 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 reg = PropertyRegistration(
     'Mechanical:ForceDensity:TestNonlinearForceDensityNoDeriv',
     TestNonlinearForceDensityNoDeriv,
-    "ooflib.SWIG.engine.property.forcedensity.nonlinear.nonlinear_force_density", 104,
+    "ooflib.SWIG.engine.properties.forcedensity.nonlinear.nonlinear_force_density", 104,
     [parameter.IntParameter('testno', 1, tip="Test number for the nonlinear force density property.")],
     propertyType="ForceDensity",
     secret=True,
@@ -38,7 +38,7 @@ reg.eqnInfo( equations=[problem.ForceBalanceEquation],
 reg = PropertyRegistration(
     'Mechanical:ForceDensity:TestNonlinearForceDensity',
     TestNonlinearForceDensity,
-    "ooflib.SWIG.engine.property.forcedensity.nonlinear.nonlinear_force_density", 105,
+    "ooflib.SWIG.engine.properties.forcedensity.nonlinear.nonlinear_force_density", 105,
     [parameter.IntParameter('testno', 1, tip="Test number for the nonlinear force density property.")],
     propertyType="ForceDensity",
     secret=True,

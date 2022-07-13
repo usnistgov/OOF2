@@ -9,8 +9,8 @@
  * oof_manager@nist.gov. 
  */
 
-#ifndef AUTOGROUPMP_SWG
-#define AUTOGROUPMP_SWG
+#ifndef AUTOGROUP_SWG
+#define AUTOGROUP_SWG
 
 %module autogroup
 
@@ -24,11 +24,11 @@
 %{
 #include "common/pixelgroup.h"
 #include "common/cmicrostructure.h"
-#include "image/autogroupMP.h"
+#include "image/autogroup.h"
 #include "image/oofimage.h"
 %}
 
 %newobject autogroup;
 std::vector<std::string> *autogroup(CMicrostructure*, OOFImage*, std::string&);
 
-#endif // AUTOGROUPMP_SWG
+#endif // AUTOGROUP_SWG

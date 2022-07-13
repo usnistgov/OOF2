@@ -18,13 +18,13 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 %import "engine/rank3tensor.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/piezoelectricity/piezoelectricity.h"
+#include "engine/properties/piezoelectricity/piezoelectricity.h"
 %}
 
 //%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
@@ -44,6 +44,6 @@ public:
   Rank3Tensor dijk();
 };
 
-%pythoncode "engine/property/piezoelectricity/piezoelectricity.spy"
+%pythoncode "engine/properties/piezoelectricity/piezoelectricity.spy"
 
 #endif // PIEZOELECTRICITY

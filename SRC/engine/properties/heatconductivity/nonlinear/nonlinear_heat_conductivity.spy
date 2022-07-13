@@ -22,7 +22,7 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 reg = PropertyRegistration(
     'Thermal:Conductivity:TestNonlinearHeatConductivityNoDeriv',
     TestNonlinearHeatConductivityNoDeriv,
-    "ooflib.SWIG.engine.property.heatconductivity.nonlinear.nonlinear_heat_conductivity",110,
+    "ooflib.SWIG.engine.properties.heatconductivity.nonlinear.nonlinear_heat_conductivity",110,
     [parameter.IntParameter('testno', 1, tip="Test number for the nonlinear heat conductivity property.")],
     propertyType="ThermalConductivity",
     secret=True,
@@ -38,7 +38,7 @@ reg.fluxInfo(fluxes=[problem.Heat_Flux], fields=[problem.Temperature],
 reg = PropertyRegistration(
     'Thermal:Conductivity:TestNonlinearHeatConductivity',
     TestNonlinearHeatConductivity,
-    "ooflib.SWIG.engine.property.heatconductivity.nonlinear.nonlinear_heat_conductivity",111,
+    "ooflib.SWIG.engine.properties.heatconductivity.nonlinear.nonlinear_heat_conductivity",111,
     [parameter.IntParameter('testno', 1, tip="Test number for the nonlinear heat conductivity property.")],
     propertyType="ThermalConductivity",
     secret=True,

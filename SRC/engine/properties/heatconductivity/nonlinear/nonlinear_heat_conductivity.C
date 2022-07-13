@@ -23,8 +23,8 @@
 #include "engine/flux.h"
 #include "engine/material.h"
 #include "engine/nodalequation.h"
-#include "engine/property/heatconductivity/nonlinear/nonlinear_heat_conductivity.h"
-#include "engine/property/orientation/orientation.h"
+#include "engine/properties/heatconductivity/nonlinear/nonlinear_heat_conductivity.h"
+#include "engine/properties/orientation/orientation.h"
 #include "engine/smallsystem.h"
 #include <iostream>
 #include <fstream>

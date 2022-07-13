@@ -15,13 +15,13 @@
 %module damping
 
 %{
-#include "engine/property/damping/damping.h"
+#include "engine/properties/damping/damping.h"
 %}
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
 class IsotropicDampingProp : public Property {
@@ -29,6 +29,6 @@ public:
   IsotropicDampingProp(PyObject*, char*, double);
 };
 
-%pythoncode "engine/property/damping/damping.spy"
+%pythoncode "engine/properties/damping/damping.spy"
 
 #endif // DAMPING_SWG

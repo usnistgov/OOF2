@@ -24,12 +24,12 @@
 #include "engine/equation.h"
 #include "engine/flux.h"
 #include "engine/material.h"
-#include "engine/property/thermalexpansion/thermalexpansion.h"
-#include "engine/property/elasticity/cijkl.h"
-#include "engine/property/elasticity/elasticity.h"
-#include "engine/property/orientation/orientation.h"
-#include "engine/property/piezoelectricity/piezoelectricity.h"
-#include "engine/property/pyroelectricity/pyroelectricity.h"
+#include "engine/properties/thermalexpansion/thermalexpansion.h"
+#include "engine/properties/elasticity/cijkl.h"
+#include "engine/properties/elasticity/elasticity.h"
+#include "engine/properties/orientation/orientation.h"
+#include "engine/properties/piezoelectricity/piezoelectricity.h"
+#include "engine/properties/pyroelectricity/pyroelectricity.h"
 #include "engine/smallsystem.h"
 
 // TODO: Use an enum for coefficient_type, instead of a string.

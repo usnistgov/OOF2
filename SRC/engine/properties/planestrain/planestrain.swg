@@ -15,13 +15,13 @@
 %module planestrain
 
 %{
-#include "engine/property/planestrain/planestrain.h"
+#include "engine/properties/planestrain/planestrain.h"
 %}
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
 class PlaneStrain : public Property {
@@ -29,6 +29,6 @@ public:
   PlaneStrain(PyObject *reg, char *name, double e);
 };
 
-%pythoncode "engine/property/planestrain/planestrain.spy"
+%pythoncode "engine/properties/planestrain/planestrain.spy"
 
 #endif // PLANESTRAIN_SWG

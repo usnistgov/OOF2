@@ -11,7 +11,7 @@
  */
 
 #include <oofconfig.h>
-#include "engine/property/elasticity/visco/visco.h"
+#include "engine/properties/elasticity/visco/visco.h"
 #include "engine/flux.h"
 #include "engine/field.h"
 #include "engine/elementnodeiterator.h"
@@ -101,7 +101,7 @@ void ViscoElasticityProp::output(FEMesh *mesh,
 				 OutputVal *data)
 {
   // This is copied directly from CIsoElasticityProp::output() in
-  // engine/property/elasticity/iso/iso.C.  If we ever implement
+  // engine/properties/elasticity/iso/iso.C.  If we ever implement
   // anisotropic viscosity, copy the output method from aniso/aniso.C.
   const std::string &outputname = output->name();
   if(outputname == "Material Constants:Mechanical:Viscosity") {

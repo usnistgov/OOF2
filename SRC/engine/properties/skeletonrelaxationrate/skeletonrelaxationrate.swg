@@ -17,11 +17,11 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/skeletonrelaxationrate/skeletonrelaxationrate.h"
+#include "engine/properties/skeletonrelaxationrate/skeletonrelaxationrate.h"
 %}
 
  //%include "engine/propertyhdr.swg"
@@ -35,6 +35,6 @@ public:
   const double alpha();
 };
 
-%pythoncode "engine/property/skeletonrelaxationrate/skeletonrelaxationrate.spy"
+%pythoncode "engine/properties/skeletonrelaxationrate/skeletonrelaxationrate.spy"
 
 #endif // SKELETONRELAXATIONRATE_SWG

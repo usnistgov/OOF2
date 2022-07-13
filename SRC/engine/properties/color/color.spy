@@ -18,7 +18,7 @@ from ooflib.engine.IO import interfaceparameters
 
 propertyregistration.PropertyRegistration(
     'Color', ColorProp,
-    "ooflib.SWIG.engine.property.color.color",0,
+    "ooflib.SWIG.engine.properties.color.color",0,
     [
         color.TranslucentColorParameter('color', color.black,
                                         tip=parameter.emptyTipString)

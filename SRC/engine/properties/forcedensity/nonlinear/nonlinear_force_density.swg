@@ -12,16 +12,16 @@
 #ifndef NONLINEAR_FORCE_DENSITY_SWG
 #define NONLINEAR_FORCE_DENSITY_SWG
 
-%module forcedensity
+%module nonlinear_force_density
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "engine/properties.swg"
+%include "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/forcedensity/nonlinear/nonlinear_force_density.h"
+#include "engine/properties/forcedensity/nonlinear/nonlinear_force_density.h"
 %}
 
 %nodefaultctor NonlinearForceDensityNoDeriv;
@@ -44,6 +44,6 @@ public:
   TestNonlinearForceDensity(PyObject *reg, char *name, int testno);
 };
 
-%pythoncode "engine/property/forcedensity/nonlinear/nonlinear_force_density.spy"
+%pythoncode "engine/properties/forcedensity/nonlinear/nonlinear_force_density.spy"
 
 #endif // NONLINEAR_FORCE_DENSITY_SWG

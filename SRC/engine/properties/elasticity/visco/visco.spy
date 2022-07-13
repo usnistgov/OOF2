@@ -19,7 +19,7 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 # Property class registration code
 reg = ViscoElasticity = PropertyRegistration(
     "Mechanical:Viscosity:Isotropic", ViscoElasticityProp,
-    "ooflib.SWIG.engine.property.elasticity.visco.visco", 1000,
+    "ooflib.SWIG.engine.properties.elasticity.visco.visco", 1000,
     [isocijkl.IsotropicCijklParameter('gijkl',
                           isocijkl.IsotropicRank4TensorCij(c11=1.0, c12=0.5),
                                             tip=parameter.emptyTipString)],

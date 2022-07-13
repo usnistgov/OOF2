@@ -15,13 +15,13 @@
 %module heatcapacity
 
 %{
-#include "engine/property/heatcapacity/heatcapacity.h"
+#include "engine/properties/heatcapacity/heatcapacity.h"
 %}
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
  //%include "engine/propertyhdr.swg"
@@ -31,6 +31,6 @@ public:
   HeatCapacityProp(PyObject *self, char *, double);
 };
 
-%pythoncode "engine/property/heatcapacity/heatcapacity.spy"
+%pythoncode "engine/properties/heatcapacity/heatcapacity.spy"
 
 #endif // HEATCAPACITY_SWG

@@ -22,7 +22,7 @@
 #include "EXTENSIONS/diffusion/charge.h"
 #include "engine/fieldindex.h"
 #include "engine/material.h"
-#include "engine/property/orientation/orientation.h"
+#include "engine/properties/orientation/orientation.h"
 #include "engine/smallsystem.h"
 #include "engine/nodalequation.h"
 #include "engine/outputval.h"

@@ -21,7 +21,7 @@ import types
 if runtimeflags.surface_mode:
     reg = propertyregistration.PropertyRegistration(
         'Mechanical:Interface:ForceTest', ForceSurfaceTest,
-        "ooflib.SWIG.engine.property.interfaces.surfacetest.surfacetest",314,
+        "ooflib.SWIG.engine.properties.interfaces.surfacetest.surfacetest",314,
         [
         parameter.FloatParameter('coef', 0.01, tip="value of the coefficient"),
         ],
@@ -39,7 +39,7 @@ if runtimeflags.surface_mode:
     
     reg = propertyregistration.PropertyRegistration(
         'Mechanical:Interface:FluxTest', FluxSurfaceTest,
-        "ooflib.SWIG.engine.property.interfaces.surfacetest.surfacetest", 315,
+        "ooflib.SWIG.engine.properties.interfaces.surfacetest.surfacetest", 315,
         [
         parameter.FloatParameter('coef', 0.01, tip="value of the coefficient"),
         ],

@@ -21,8 +21,8 @@
 #include "engine/flux.h"
 #include "engine/material.h"
 #include "engine/ooferror.h"
-#include "engine/property/elasticity/largestrain/largestrain.h"
-#include "engine/property/orientation/orientation.h"
+#include "engine/properties/elasticity/largestrain/largestrain.h"
+#include "engine/properties/orientation/orientation.h"
 #include "engine/smallsystem.h"
 #include "engine/symmmatrix.h"
 

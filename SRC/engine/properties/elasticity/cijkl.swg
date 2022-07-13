@@ -21,7 +21,7 @@
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/elasticity/cijkl.h"
+#include "engine/properties/elasticity/cijkl.h"
 %}
 
 // %pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
@@ -50,6 +50,6 @@ public:
   }
 }
 
-%pythoncode "engine/property/elasticity/cijkl.spy"
+%pythoncode "engine/properties/elasticity/cijkl.spy"
 
 #endif // CIJKL_SWIG

@@ -17,7 +17,6 @@
 
 #include <oofconfig.h>
 #include "engine/property.h"
-#include "engine/property.h"
 #include "engine/symmmatrix.h"
 #include "engine/rank3tensor.h"
 #include <string>

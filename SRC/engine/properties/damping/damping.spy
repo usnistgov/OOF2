@@ -16,7 +16,7 @@ from ooflib.engine import propertyregistration
 reg = propertyregistration.PropertyRegistration(
     'Mechanical:Damping:Isotropic',
     IsotropicDampingProp,
-    "ooflib.SWIG.engine.property.damping.damping",
+    "ooflib.SWIG.engine.properties.damping.damping",
     1010,
     [parameter.FloatParameter('damping', 1.0, tip="The damping coefficient.")],
     outputs=["Material Constants:Mechanical:Damping"],

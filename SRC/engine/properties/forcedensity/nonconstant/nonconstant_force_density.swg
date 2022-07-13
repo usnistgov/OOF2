@@ -12,16 +12,16 @@
 #ifndef NONCONSTANT_FORCE_DENSITY_SWG
 #define NONCONSTANT_FORCE_DENSITY_SWG
 
-%module forcedensity
+%module nonconstant_force_density
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/forcedensity/nonconstant/nonconstant_force_density.h"
+#include "engine/properties/forcedensity/nonconstant/nonconstant_force_density.h"
 %}
 
 %nodefaultctor NonconstantForceDensity;
@@ -34,6 +34,6 @@ public:
   TestNonconstantForceDensity(PyObject *reg, char *name, int testno);
 };
 
-%pythoncode "engine/property/forcedensity/nonconstant/nonconstant_force_density.spy"
+%pythoncode "engine/properties/forcedensity/nonconstant/nonconstant_force_density.spy"
 
 #endif // NONCONSTANT_FORCE_DENSITY_SWG

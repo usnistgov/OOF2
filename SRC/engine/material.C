@@ -24,7 +24,7 @@
 #include "engine/csubproblem.h"
 #include "engine/elementnodeiterator.h"
 #include "engine/ooferror.h"
-#include "engine/property/color/color.h"
+#include "engine/properties/color/color.h"
 #include "engine/IO/propertyoutput.h"
 #include "engine/linearizedsystem.h"
 #include "engine/element.h"

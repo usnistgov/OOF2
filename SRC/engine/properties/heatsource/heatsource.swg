@@ -17,12 +17,12 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/heatsource/heatsource.h"
+#include "engine/properties/heatsource/heatsource.h"
 %}
 
 class HeatSourceProp : public Property {
@@ -30,6 +30,6 @@ public:
   HeatSourceProp(PyObject *reg, char *name, double qdot);
 };
 
-%pythoncode "engine/property/heatsource/heatsource.spy"
+%pythoncode "engine/properties/heatsource/heatsource.spy"
 
 #endif	// HEATSOURCE_SWG

@@ -9,10 +9,10 @@
  * oof_manager@nist.gov.
  */
 
-%module colorproperty
+%module color
 
 %{
-#include "engine/property/color/color.h"
+#include "engine/properties/color/color.h"
 #include "common/ccolor.h"
 %}
 
@@ -21,7 +21,7 @@
 %include "common/typemaps.swg"
  //%include "engine/propertyhdr.swg"
 %import "common/ccolor.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
  //%pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
@@ -32,4 +32,4 @@ public:
   CColor color();
 };
 
-%pythoncode "engine/property/color/color.spy"
+%pythoncode "engine/properties/color/color.spy"

@@ -16,7 +16,7 @@ from ooflib.engine.IO import orientationmatrix
 orientationReg = propertyregistration.PropertyRegistration(
     'Orientation',
     OrientationProp,
-    "ooflib.SWIG.engine.property.orientation.orientation",
+    "ooflib.SWIG.engine.properties.orientation.orientation",
     1000,
     [parameter.ConvertibleRegisteredParameter(
        'angles', orientationmatrix.Orientation,

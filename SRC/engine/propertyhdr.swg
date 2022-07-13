@@ -17,7 +17,7 @@
 // derived directly from the Property base class.
 
 // If we didn't have a complicated directory and module/package
-// structure, we could simply use '%import "engine/properties.swg"'
+// structure, we could simply use '%import "engine/property.swg"'
 // here.  But that inserts the line "from properties import *" in the
 // swig-generated .py files in the property subdirectories, which is
 // not what we want.  For one thing, it imports too much.  For
@@ -31,7 +31,7 @@
  // sufficient now?  What is correct here?
 
 %pragma(python) code="from ooflib.SWIG.engine.properties import PropertyPtr"
-// %extern "engine/properties.swg"
-%import "engine/properties.swg"
+// %extern "engine/property.swg"
+%import "engine/property.swg"
 
 #endif // PROPERTYHDR_SWG

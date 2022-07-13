@@ -17,11 +17,11 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/interfaces/surfacetest/surfacetest.h"
+#include "engine/properties/interfaces/surfacetest/surfacetest.h"
 %}
 
 class ForceSurfaceTest : public Property
@@ -37,6 +37,6 @@ public:
   FluxSurfaceTest(PyObject *self, char*, double);
 };
 
-%pythoncode "engine/property/interfaces/surfacetest/surfacetest.spy"
+%pythoncode "engine/properties/interfaces/surfacetest/surfacetest.spy"
 
 #endif // SURFACETEST_SWG

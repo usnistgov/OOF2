@@ -12,20 +12,17 @@
 #ifndef NONCONSTANT_HEAT_SOURCE_SWG
 #define NONCONSTANT_HEAT_SOURCE_SWG
 
-// TODO PYTHON3: Can two swig files contribute to the same module?
-// The module line in heatsource.swg is the same as this one.  Or does
-// that module have a different path?  Same Q for forcedensity.
-%module heatsource
+%module nonconstant_heat_source
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/property/heatsource/nonconstant/nonconstant_heat_source.h"
+#include "engine/properties/heatsource/nonconstant/nonconstant_heat_source.h"
 %}
 
 %nodefaultctor NonconstantHeatSource;
@@ -39,6 +36,6 @@ public:
   TestNonconstantHeatSource(PyObject *reg, char *name, int testno);
 };
 
-%pythoncode "engine/property/heatsource/nonconstant/nonconstant_heat_source.spy"
+%pythoncode "engine/properties/heatsource/nonconstant/nonconstant_heat_source.spy"
 
 #endif // NONCONSTANT_HEAT_SOURCE_SWG

@@ -19,14 +19,14 @@
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
  //%include "engine/propertyhdr.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 %import "engine/corientation.swg"
 #endif // NOSECONDIMPORTS
 
 %{
 //#include "common/oofswigruntime.h" // TODO PYTHON3: Is this necessary?
 #include "engine/corientation.h"
-#include "engine/property/orientation/orientation.h"
+#include "engine/properties/orientation/orientation.h"
 %}
 
 
@@ -51,6 +51,6 @@ public:
   const COrientation *orientation();
 };
 
-%pythoncode "engine/property/orientation/orientation.spy"
+%pythoncode "engine/properties/orientation/orientation.spy"
 
 #endif // ORIENTATION_SWG

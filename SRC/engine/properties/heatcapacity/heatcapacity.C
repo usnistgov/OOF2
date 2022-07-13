@@ -13,7 +13,7 @@
 #include "engine/IO/propertyoutput.h"
 #include "engine/elementnodeiterator.h"
 #include "engine/field.h"
-#include "engine/property/heatcapacity/heatcapacity.h"
+#include "engine/properties/heatcapacity/heatcapacity.h"
 #include "engine/smallsystem.h"
 
 

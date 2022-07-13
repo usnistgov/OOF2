@@ -58,7 +58,7 @@ class PyStressFreeStrain(pypropertywrapper.PyFluxProperty):
 reg = propertyregistration.PropertyRegistration(
     'Mechanical:StressFreeStrain:PyIsotropic',
     PyStressFreeStrain,
-    "ooflib.engine.property.stressfreestrain.pystressfreestrain",
+    "ooflib.engine.properties.stressfreestrain.pystressfreestrain",
     10000,
     propertyType="StressFreeStrain",
     tip = "Isotropic stress-free strain implemented in Python.",

@@ -17,7 +17,7 @@
 #include "engine/fieldindex.h"
 #include "engine/ooferror.h"
 #include "engine/outputval.h"
-#include "engine/property/elasticity/cijkl.h"
+#include "engine/properties/elasticity/cijkl.h"
 #include "engine/rank3tensor.h"
 #include "engine/symeig3.h"
 #include <iomanip>

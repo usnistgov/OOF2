@@ -15,14 +15,14 @@
 %module iso
 
 %{
-#include "engine/property/elasticity/iso/iso.h"
+#include "engine/properties/elasticity/iso/iso.h"
 %}
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/property/elasticity/elasticity.swg"
-%import "engine/property/elasticity/cijkl.swg"
+%import "engine/properties/elasticity/elasticity.swg"
+%import "engine/properties/elasticity/cijkl.swg"
 #endif // NOSECONDIMPORTS
 
 // %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
@@ -34,6 +34,6 @@ public:
   ~CIsoElasticityProp();
 };
 
-%pythoncode "engine/property/elasticity/iso/iso.spy"
+%pythoncode "engine/properties/elasticity/iso/iso.spy"
 
 #endif // ISO_SWG

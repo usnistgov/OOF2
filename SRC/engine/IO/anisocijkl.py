@@ -13,7 +13,7 @@
 # structured types, with the exception of Cubic.
 
 
-from ooflib.SWIG.engine.property.elasticity import cijkl
+from ooflib.SWIG.engine.properties.elasticity import cijkl
 from ooflib.common import registeredclass
 from ooflib.common import utils
 from ooflib.common.IO import parameter

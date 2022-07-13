@@ -14,7 +14,7 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import timestamp
 from ooflib.SWIG.engine import material
 from ooflib.SWIG.orientationmap import orientmapproperty
-from ooflib.SWIG.engine.property.orientation import orientation
+from ooflib.SWIG.engine.properties.orientation import orientation
 from ooflib.SWIG.engine import ooferror2
 from ooflib.common import debug
 from ooflib.common import registeredclass

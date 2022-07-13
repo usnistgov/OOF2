@@ -21,7 +21,7 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 reg = PropertyRegistration(
     'Electric:DielectricPermittivity:Isotropic',
     IsoDielectricPermittivity,
-    "ooflib.SWIG.engine.property.permittivity.permittivity",
+    "ooflib.SWIG.engine.properties.permittivity.permittivity",
     ordering=98,
     params=[parameter.FloatParameter('epsilon',
                                      1.0, tip=parameter.emptyTipString)],
@@ -40,7 +40,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization], fields=[problem.Voltage],
 reg = PropertyRegistration(
     'Electric:DielectricPermittivity:Anisotropic:Triclinic',
     AnisoDielectricPermittivity,
-    "ooflib.SWIG.engine.property.permittivity.permittivity",105,
+    "ooflib.SWIG.engine.properties.permittivity.permittivity",105,
     params=[symmmatrix.TriclinicRank2TensorParameter(
         'epsilon',
         symmmatrix.TriclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
@@ -59,7 +59,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization], fields=[problem.Voltage],
 reg = PropertyRegistration(
     'Electric:DielectricPermittivity:Anisotropic:Monoclinic',
     AnisoDielectricPermittivity,
-    "ooflib.SWIG.engine.property.permittivity.permittivity",104,
+    "ooflib.SWIG.engine.properties.permittivity.permittivity",104,
     params=[symmmatrix.MonoclinicRank2TensorParameter(
         'epsilon',
         symmmatrix.MonoclinicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
@@ -78,7 +78,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization], fields=[problem.Voltage],
 reg = PropertyRegistration(
     'Electric:DielectricPermittivity:Anisotropic:Orthorhombic',
     AnisoDielectricPermittivity,
-    "ooflib.SWIG.engine.property.permittivity.permittivity",103,
+    "ooflib.SWIG.engine.properties.permittivity.permittivity",103,
     params=[symmmatrix.OrthorhombicRank2TensorParameter(
         'epsilon',
         symmmatrix.OrthorhombicRank2Tensor(xx=1.0, yy=1.0, zz=1.0),
@@ -97,7 +97,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization], fields=[problem.Voltage],
 reg = PropertyRegistration(
     'Electric:DielectricPermittivity:Anisotropic:Tetragonal',
     AnisoDielectricPermittivity,
-    "ooflib.SWIG.engine.property.permittivity.permittivity",101,
+    "ooflib.SWIG.engine.properties.permittivity.permittivity",101,
     params=[symmmatrix.TetragonalRank2TensorParameter(
         'epsilon',
         symmmatrix.TetragonalRank2Tensor(xx=1.0, zz=1.0),
@@ -116,7 +116,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization], fields=[problem.Voltage],
 reg = PropertyRegistration(
     'Electric:DielectricPermittivity:Anisotropic:Trigonal',
     AnisoDielectricPermittivity,
-    "ooflib.SWIG.engine.property.permittivity.permittivity",102,
+    "ooflib.SWIG.engine.properties.permittivity.permittivity",102,
     params=[symmmatrix.TrigonalRank2TensorParameter(
         'epsilon',
         symmmatrix.TrigonalRank2Tensor(xx=1.0, zz=0.5),
@@ -135,7 +135,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization], fields=[problem.Voltage],
 reg = PropertyRegistration(
     'Electric:DielectricPermittivity:Anisotropic:Hexagonal',
     AnisoDielectricPermittivity,
-    "ooflib.SWIG.engine.property.permittivity.permittivity",100,
+    "ooflib.SWIG.engine.properties.permittivity.permittivity",100,
     params=[symmmatrix.HexagonalRank2TensorParameter(
         'epsilon',
         symmmatrix.HexagonalRank2Tensor(xx=1.0, zz=0.5),
@@ -154,7 +154,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization], fields=[problem.Voltage],
 reg = PropertyRegistration(
     'Electric:DielectricPermittivity:Anisotropic:Cubic',
     AnisoDielectricPermittivity,
-    "ooflib.SWIG.engine.property.permittivity.permittivity",99,
+    "ooflib.SWIG.engine.properties.permittivity.permittivity",99,
     params=[symmmatrix.CubicRank2TensorParameter(
         'epsilon',
         symmmatrix.CubicRank2Tensor(xx=1.0),
@@ -172,7 +172,7 @@ reg.fluxInfo(fluxes=[problem.Total_Polarization], fields=[problem.Voltage],
 
 reg = PropertyRegistration(
     'Electric:SpaceCharge', ChargeDensity,
-    "ooflib.SWIG.engine.property.permittivity.permittivity",150,
+    "ooflib.SWIG.engine.properties.permittivity.permittivity",150,
     params=[
         parameter.FloatParameter('charge', 0.0, 
                                  tip="electrostatic charge density")],

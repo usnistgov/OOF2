@@ -22,7 +22,7 @@ PropertyRegistration = propertyregistration.PropertyRegistration
 reg = PropertyRegistration(
     'Thermal:HeatSource:TestNonlinearHeatSourceNoDeriv',
     TestNonlinearHeatSourceNoDeriv,
-    "ooflib.SWIG.engine.property.heatsource.nonlinear.nonlinear_heat_source",151,
+    "ooflib.SWIG.engine.properties.heatsource.nonlinear.nonlinear_heat_source",151,
     [parameter.IntParameter('testno', 1, tip="Test number for the nonlinear heat source property.")],
     propertyType="HeatSource",
     secret=True,
@@ -37,7 +37,7 @@ reg.eqnInfo( equations=[problem.HeatBalanceEquation],
 reg = PropertyRegistration(
     'Thermal:HeatSource:TestNonlinearHeatSource',
     TestNonlinearHeatSource,
-    "ooflib.SWIG.engine.property.heatsource.nonlinear.nonlinear_heat_source",152,
+    "ooflib.SWIG.engine.properties.heatsource.nonlinear.nonlinear_heat_source",152,
     [parameter.IntParameter('testno', 1, tip="Test number for the nonlinear heat source property.")],
     propertyType="HeatSource",
     secret=True,

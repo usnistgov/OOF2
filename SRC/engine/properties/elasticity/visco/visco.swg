@@ -12,22 +12,22 @@
 #ifndef ELASTICITY_VISCO_SWG
 #define ELASTICITY_VISCO_SWG
 
-%module iso
+%module visco
 
 %{
-#include "engine/property/elasticity/visco/visco.h"
+#include "engine/properties/elasticity/visco/visco.h"
 %}
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
  //%include "engine/propertyhdr.swg"
 #endif // NOSECONDIMPORTS
 
 // // Typemap for conversion between the parameter type
 // // (IsotropicRank4Tensor) and the internal type, which is the swig'd Cijkl
-// // object from engine/property/elasticity/cijkl.h"
+// // object from engine/properties/elasticity/cijkl.h"
 // /// TODO: Why does this have an explicit typemap?  Elasticity
 // /// doesn't.  This should use the same mechanism as Elasticity.
 // %typemap(python,in) Cijkl* {
@@ -65,6 +65,6 @@ public:
 };
 
 
-%pythoncode "engine/property/elasticity/visco/visco.spy"
+%pythoncode "engine/properties/elasticity/visco/visco.spy"
 
 #endif // ELASTICITY_VISCO_SWG

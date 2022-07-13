@@ -14,7 +14,7 @@
 # various different ways of parametrizing an isotropic fourth-rank
 # index-exchange-symmetric tensor in three dimensions.
 
-from ooflib.SWIG.engine.property.elasticity import cijkl
+from ooflib.SWIG.engine.properties.elasticity import cijkl
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump

@@ -18,19 +18,19 @@
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
  //%include "engine/propertyhdr.swg"
-%import "engine/property/elasticity/cijkl.swg"
-%import "engine/property/elasticity/elasticity.swg"
+%import "engine/properties/elasticity/cijkl.swg"
+%import "engine/properties/elasticity/elasticity.swg"
 #endif // NOSECONDIMPORTS
 
  //%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
 
 %{
-#include "engine/property/elasticity/thermo/thermo.h"
+#include "engine/properties/elasticity/thermo/thermo.h"
 %}
 
 // // Typemap for conversion between the parameter type
 // // (IsotropicModulus) and the internal type, which is the swig'd Cijkl
-// // object from engine/property/elasticity/cijkl.h"
+// // object from engine/properties/elasticity/cijkl.h"
 // /// TODO: Why does this have an explicit typemap?  Elasticity
 // /// doesn't.  This should use the same mechanism as Elasticity.
 
@@ -66,6 +66,6 @@ public:
 };
 
 
-%pythoncode "engine/property/elasticity/thermo/thermo.spy"
+%pythoncode "engine/properties/elasticity/thermo/thermo.spy"
 
 #endif // ELASTICITY_THERMO_SWG

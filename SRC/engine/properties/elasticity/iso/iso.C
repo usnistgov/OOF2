@@ -12,7 +12,7 @@
 
 #include <oofconfig.h>
 #include "engine/mastercoord.h"
-#include "engine/property/elasticity/iso/iso.h"
+#include "engine/properties/elasticity/iso/iso.h"
 
 CIsoElasticityProp::CIsoElasticityProp(PyObject *registration,
 				       PyObject *self,

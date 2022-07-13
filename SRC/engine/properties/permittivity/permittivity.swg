@@ -15,13 +15,13 @@
 %module permittivity
 
 %{
-#include "engine/property/permittivity/permittivity.h"
+#include "engine/properties/permittivity/permittivity.h"
 %}
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%import "engine/properties.swg"
+%import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 #endif // NOSECONDIMPORTS
 
@@ -43,6 +43,6 @@ public:
   double rho();
 };
 
-%pythoncode "engine/property/permittivity/permittivity.spy"
+%pythoncode "engine/properties/permittivity/permittivity.spy"
 
 #endif // PERMITTIVITY_SWG
