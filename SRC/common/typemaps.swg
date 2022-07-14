@@ -307,16 +307,16 @@ std::string {
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
-%typemap(check) PyObject *pythonCallable {
-  if(!PyCallable_Check($1)) {
+%typemap(in) PyObject *pythonCallable {
+  // typemap(in) PyObject *pythonCallable
+  if(!PyCallable_Check($input)) {
+    std::cerr << "pythonCallable typemap: arg = " << repr_nolock($input)
+	      << std::endl;
     PyErr_SetString(PyExc_TypeError,
 		    "in '$symname', expected a callback python object");
     SWIG_fail;
   }
- }
-
-%typemap(in) PyObject *pythonCallable {
-  $result = $1;
+  $1 = $input;
  }
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//

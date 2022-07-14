@@ -11,10 +11,11 @@
 
 #include <oofconfig.h>
 #include <iostream>
+#include "common/cdebug.h"
 #include "common/ooferror.h"
+#include "common/oofswigruntime.h"
 #include "common/pythonlock.h"
 #include "common/tostring.h"
-#include "common/oofswigruntime.h"
 
 
 // Some trivial constructors are here instead of in ooferror.h so that
@@ -173,7 +174,7 @@ PyObject *ErrError::pyconverter(0);
 // time.  Errors which occur prior to this import will not be handled
 // correctly.
 void pyErrorInit(PyObject *converter) {
-  PYTHON_THREAD_BEGIN_BLOCK;	// TODO PYTHON3: Is this line required?
+  PYTHON_THREAD_BEGIN_BLOCK;
   Py_XINCREF(converter);
   ErrError::pyconverter = converter;
 }

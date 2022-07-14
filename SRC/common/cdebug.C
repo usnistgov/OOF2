@@ -189,15 +189,23 @@ void memusage(const std::string &comment) {
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-// Useful function for debugging by printing Python objects from C++.
-std::string repr(PyObject *obj) {
-  PYTHON_THREAD_BEGIN_BLOCK;
-  PyObject *repr = PyObject_Repr(obj);
+// Useful functions for debugging by printing Python objects from C++.
+// Use the nolock version in situations (such as inside typemaps)
+// where the python global interpreter lock does not need to be
+// acquired.
+
+std::string repr_nolock(PyObject *obj) {
   assert(obj != 0);
+  PyObject *repr = PyObject_Repr(obj);
   PyObject *ustr = PyUnicode_AsEncodedString(repr, "UTF-8", "replace");
   assert(ustr != 0);
   std::string r(PyBytes_AsString(ustr));
   Py_XDECREF(repr);
   Py_XDECREF(ustr);
   return r;
+}
+
+std::string repr(PyObject *obj) {
+  PYTHON_THREAD_BEGIN_BLOCK;
+  return repr_nolock(obj);
 }
