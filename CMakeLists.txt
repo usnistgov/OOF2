@@ -185,8 +185,9 @@ include(FindBLAS)
 include(FindSWIG)
 include(UseSWIG)
 find_package(SWIG 4.0 COMPONENTS python)
-## UseSWIG can generate dependencies only for cmake >= 3.20 ? See
-## https://cmake.org/cmake/help/latest/release/3.20.html
+## UseSWIG can generate dependencies only for cmake >= 3.20.  Setting
+## the flag for it is harmless even if it doesn't always work.
+set(SWIG_USE_SWIG_DEPENDENCIES True)
 set(SWIG_SOURCE_FILE_EXTENSIONS ".swg" ".i")
 set(CMAKE_SWIG_FLAGS -py3)
 add_compile_definitions(SWIG_TYPE_TABLE=oof2)
