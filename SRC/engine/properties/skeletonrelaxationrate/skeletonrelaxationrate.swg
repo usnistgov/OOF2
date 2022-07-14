@@ -12,7 +12,7 @@
 #ifndef SKELETONRELAXATIONRATE_SWG
 #define SKELETONRELAXATIONRATE_SWG
 
-%module skeletonrelaxationrate
+%module(package="ooflib.SWIG.engine.properties.skeletonrelaxationrate") skeletonrelaxationrate
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

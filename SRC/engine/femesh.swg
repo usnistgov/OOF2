@@ -12,7 +12,7 @@
 #ifndef FEMESH_SWG
 #define FEMESH_SWG
 
-%module femesh
+%module(package="ooflib.SWIG.engine") femesh
 
 %feature("valuewrapper") ElementIterator;
 %feature("valuewrapper") NodeIterator;

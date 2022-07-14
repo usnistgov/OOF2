@@ -12,9 +12,14 @@
 #ifndef INTARRAY_SWG
 #define INTARRAY_SWG
 
-%module intarray
+%module(package="ooflib.SWIG.common") intarray
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/coord.swg"
+#endif // NOSECONDIMPORTS
+
  //%pragma(python) code="from ooflib.SWIG.common.intarray import IntArrayPtr"
 
 %{

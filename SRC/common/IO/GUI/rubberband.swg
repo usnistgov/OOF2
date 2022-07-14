@@ -12,7 +12,8 @@
 #ifndef RUBBERBAND_SWG
 #define RUBBERBAND_SWG
 
-%module rubberband
+%module(package="ooflib.SWIG.common.IO.GUI") rubberband
+
 %include "common/typemaps.swg"
 %{
 #include "common/IO/GUI/rubberband.h"

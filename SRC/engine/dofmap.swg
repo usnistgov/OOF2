@@ -12,16 +12,21 @@
 #ifndef DOFMAP_SWG
 #define DOFMAP_SWG
 
-%module dofmap
+%module(package="ooflib.SWIG.engine") dofmap
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/doublevec.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "common/doublevec.h"
 #include "common/tostring.h"
 #include "engine/dofmap.h"
 %}
 
-%pragma(python) code="from ooflib.SWIG.common.doublevec import DoubleVecPtr"
+//%pragma(python) code="from ooflib.SWIG.common.doublevec import DoubleVecPtr"
 
 class DoFMap {
 public:

@@ -12,10 +12,13 @@
 #ifndef PIXELSELECTIONCOURIER_SWG
 #define PIXELSELECTIONCOURIER_SWG
 
-%module pixelselectioncourier
+%module(package="ooflib.SWIG.common") pixelselectioncourier
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/coord.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "common/pixelselectioncourier.h"
@@ -34,13 +37,11 @@ public:
   ~PointSelection();
 };
 
-#ifndef DIM_3
 class BrushSelection : public PixelSelectionCourier {
 public:
   BrushSelection(CMicrostructure*, BrushStyle*, PointVec *PointList);
   ~BrushSelection();
 };
-#endif
 
 class RectangleSelection : public PixelSelectionCourier {
 public:
@@ -73,7 +74,6 @@ public:
   ~IntersectSelection();
 };
 
-#ifndef DIM_3
 class DespeckleSelection : public PixelSelectionCourier {
 public:
   DespeckleSelection(CMicrostructure*, PixelSet*, int);
@@ -97,6 +97,5 @@ public:
   ShrinkSelection(CMicrostructure*, PixelSet*, double);
   ~ShrinkSelection();
 };
-#endif // DIM_3
 
 #endif // PIXELSELECTIONCOURIER_SWG

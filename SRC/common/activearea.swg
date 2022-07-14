@@ -12,8 +12,15 @@
 #ifndef ACTIVEAREA_SWG
 #define ACTIVEAREA_SWG
 
-%module activearea
+%module(package="ooflib.SWIG.common") activearea
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "common/cmicrostructure.swg"
+%import "common/cpixelselection.swg"
+%import "common/pixelattribute.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include <oofconfig.h>
@@ -21,10 +28,6 @@
 #include "common/ooferror.h"
 %}
 
-%import "common/cmicrostructure.swg"
-%import "common/cpixelselection.swg"
-%import "common/pixelattribute.swg"
-   
 // %pragma(python) code="from ooflib.SWIG.common.cpixelselection import CPixelSelectionPtr"
 // %pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
 

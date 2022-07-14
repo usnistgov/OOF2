@@ -12,7 +12,7 @@
 #ifndef STEPERRORSCALING_SWG
 #define STEPERRORSCALING_SWG
 
-%module steperrorscaling
+%module(package="ooflib.SWIG.engine") steperrorscaling
 
 %include "common/typemaps.swg"
 %{

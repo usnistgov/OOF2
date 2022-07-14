@@ -12,14 +12,18 @@
 #ifndef CNONLINEARSOLVER_SWG
 #define CNONLINEARSOLVER_SWG
 
-%module cnonlinearsolver
+%module(package="ooflib.SWIG.engine") cnonlinearsolver
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "common/timestamp.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/cnonlinearsolver.h"
 %}
-%import "common/timestamp.swg"
-%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
+ //%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 
 class CNonlinearSolver {
 public:

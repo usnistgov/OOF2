@@ -12,7 +12,7 @@
 #ifndef ISO_SWG
 #define ISO_SWG
 
-%module iso
+%module(package="ooflib.SWIG.engine.properties.elasticity.iso") iso
 
 %{
 #include "engine/properties/elasticity/iso/iso.h"

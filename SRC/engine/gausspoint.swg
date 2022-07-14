@@ -12,7 +12,8 @@
 #ifndef GAUSSPOINT_SWG
 #define GAUSSPOINT_SWG
 
-%module gausspoint
+%module(package="ooflib.SWIG.engine") gausspoint
+
 %{
 #include "engine/gausspoint.h"
 %}

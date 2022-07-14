@@ -12,10 +12,14 @@
 #ifndef CORIENTATION_SWG
 #define CORIENTATION_SWG
 
-%module corientation
+%module(package="ooflib.SWIG.engine") corientation
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/outputval.swg"
 %import "engine/IO/propertyoutput.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/corientation.h"

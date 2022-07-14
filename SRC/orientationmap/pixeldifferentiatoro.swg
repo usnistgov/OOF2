@@ -12,7 +12,7 @@
 #ifndef PIXELDIFFORIENT_SWG
 #define PIXELDIFFORIENT_SWG
 
-%module pixeldifferentiatoro
+%module(package="ooflib.SWIG.orientationmap") pixeldifferentiatoro
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

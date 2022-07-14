@@ -13,14 +13,17 @@
 #ifndef SYMMMATRIX_SWG
 #define SYMMMATRIX_SWG
 
-%module symmmatrix
+%module(package="ooflib.SWIG.engine") symmmatrix
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "engine/outputval.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/symmmatrix.h"
 %}
-
-%import "engine/outputval.swg"
 
 // %pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValPtr"
 // %pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValuePtr"

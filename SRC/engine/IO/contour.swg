@@ -12,7 +12,8 @@
 #ifndef CONTOUR_SWG
 #define CONTOUR_SWG
 
-%module contour
+%module(package="ooflib.SWIG.engine.IO") contour
+
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
@@ -29,18 +30,6 @@
 %}
 
 MAKE_LISTVEC_TYPEMAPS(ContourCoord);
-
-// %typemap(python, out) ContourCoordVec* {
-//   // Convert a vector of ContourCoord*s to a list of swigged ContourCoordPtrs.
-//   ContourCoordVec::size_type sz = $source->size();
-//   // assert((int)sz >= PY_SSIZE_T_MIN && (int)sz <= PY_SSIZE_T_MAX);
-//   $target = PyList_New((Py_ssize_t) sz);
-//   char _ptemp[128];
-//   for(std::vector<ContourCoord*>::size_type i=0; i<sz; i++) {
-//     SWIG_MakePtr(_ptemp, (char*)((*$source)[i]), "_ContourCoord_p");
-//     PyList_SET_ITEM($target, (Py_ssize_t) i, Py_BuildValue("s", _ptemp));
-//   }
-// }
 
 %typemap(out) CurveVec* {
   // Convert a vector of CCurves (which are std::deques of

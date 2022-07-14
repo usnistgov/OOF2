@@ -14,7 +14,7 @@
 #ifndef CCONJUGATE_SWG
 #define CCONJUGATE_SWG
 
-%module cconjugate
+%module(package="ooflib.SWIG.engine") cconjugate
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

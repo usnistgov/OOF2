@@ -12,7 +12,7 @@
 #ifndef AUTOGROUP_SWG
 #define AUTOGROUP_SWG
 
-%module autogroup
+%module(package="ooflib.SWIG.image") autogroup
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

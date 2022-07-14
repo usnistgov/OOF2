@@ -12,7 +12,7 @@
 #ifndef FREEDOM_SWG
 #define FREEDOM_SWG
 
-%module freedom
+%module(package="ooflib.SWIG.engine") freedom
 
 %include "common/typemaps.swg"
 %import "engine/femesh.swg"

@@ -12,7 +12,7 @@
 #ifndef PROPERTIES_SWG
 #define PROPERTIES_SWG
 
-%module property
+%module(package="ooflib.SWIG.engine") property
 %include "common/typemaps.swg"
 
 %{

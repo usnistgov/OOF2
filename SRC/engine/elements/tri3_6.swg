@@ -12,7 +12,8 @@
 #ifndef TRI3_6_SWIG
 #define TRI3_6_SWIG
 
-%module tri3_6
+%module(package="ooflib.SWIG.engine.elements") tri3_6
+
 %include "common/typemaps.swg"
 %{
   extern void tri3_6init();

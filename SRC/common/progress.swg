@@ -12,7 +12,7 @@
 #ifndef PROGRESS_SWG
 #define PROGRESS_SWG
 
-%module progress
+%module(package="ooflib.SWIG.common") progress
 %include "common/typemaps.swg"
 
 %{

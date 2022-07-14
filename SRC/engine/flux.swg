@@ -12,7 +12,7 @@
 #ifndef FLUX_SWG
 #define FLUX_SWG
 
-%module flux
+%module(package="ooflib.SWIG.engine") flux
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

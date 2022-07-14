@@ -12,8 +12,18 @@
 #ifndef BOUNDARYCOND_SWG
 #define BOUNDARYCOND_SWG
 
-%module boundarycond
+%module(package="ooflib.SWIG.engine") boundarycond
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "engine/csubproblem.swg"
+%import "engine/edgeset.swg"
+%import "engine/equation.swg"
+%import "engine/flux.swg"
+%import "engine/linearizedsystem.swg"
+%import "engine/node.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/boundarycond.h"

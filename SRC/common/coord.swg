@@ -12,7 +12,8 @@
 #ifndef COORD_SWG
 #define COORD_SWG
 
-%module coord
+%module(package="ooflib.SWIG.common") coord
+
 %include "common/typemaps.swg"
 %{
 #include <oofconfig.h>

@@ -12,7 +12,7 @@
 #ifndef THERMALEXPANSION_SWG
 #define THERMALEXPANSION_SWG
 
-%module thermalexpansion
+%module(package="ooflib.SWIG.engine.properties.thermalexpansion") thermalexpansion
 
 %{
 #include "engine/properties/thermalexpansion/thermalexpansion.h"
@@ -41,7 +41,5 @@ public:
 };
 
 %pythoncode "engine/properties/thermalexpansion/thermalexpansion.spy"
-
-%typemap(python,in) SymmMatrix * {}
 
 #endif // THERMALEXPANSION_SWG

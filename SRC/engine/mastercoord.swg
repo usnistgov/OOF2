@@ -12,7 +12,8 @@
 #ifndef MASTERCOORD_SWG
 #define MASTERCOORD_SWG
 
-%module mastercoord
+%module(package="ooflib.SWIG.engine") mastercoord
+
 %include "common/typemaps.swg"
 
 %{

@@ -12,7 +12,7 @@
 #ifndef CMICROSTRUCTURE_SWG
 #define CMICROSTRUCTURE_SWG
 
-%module cmicrostructure
+%module(package="ooflib.SWIG.common") cmicrostructure
 
 %{
 #include <oofconfig.h>
@@ -22,9 +22,13 @@ typedef Array<int> ArrayInt;
 typedef Array<int> NewArrayInt;
 %}
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "common/coord.swg"
 %import "common/pixelgroup.swg"
 %import "common/timestamp.swg"
+#endif // NOSECONDIMPORTS
 
  //%pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelGroupPtr"
  //%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
@@ -81,9 +85,6 @@ typedef Array<int> NewArrayInt;
   }
   PyList_Append($result, newval);
 }
-
-%import "common/coord.swg"
-
 
 //For SnapRefine.
  // TODO PYTHON3: Change the name of this typemap

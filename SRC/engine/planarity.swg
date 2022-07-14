@@ -12,7 +12,7 @@
 #ifndef PLANARITY_SWG
 #define PLANARITY_SWG
 
-%module planarity
+%module(package="ooflib.SWIG.engine") planarity
 
 %include "common/typemaps.swg"
 

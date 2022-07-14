@@ -12,129 +12,133 @@
 #ifndef SMALLSYSTEM_SWG
 #define SMALLSYSTEM_SWG
 
-%module smallsystem
+%module(package="ooflib.SWIG.engine") smallsystem
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "engine/fieldindex.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "engine/smallsystem.h"
 %}
 
-%import "engine/fieldindex.swg"
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
-%pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
-%pragma(python) code="from ooflib.SWIG.engine.flux import FluxPtr"
-%pragma(python) code="from ooflib.SWIG.engine.flux import SymmetricTensorFluxPtr"
-%pragma(python) code="from ooflib.SWIG.engine.flux import VectorFluxPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.flux import FluxPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.flux import SymmetricTensorFluxPtr"
+// %pragma(python) code="from ooflib.SWIG.engine.flux import VectorFluxPtr"
 
 
 class SmallSystem {
 public:
   SmallSystem(int, int);
   ~SmallSystem();
-  %addmethods {
-    double get_stiffness_matrix_element(const IndexP &fluxIndex,
-					const Field *field,
-					const IndexP &fieldIndex,
-					const ElementFuncNodeIterator &efi)
-    {
-      return self->stiffness_matrix_element( fluxIndex, field, fieldIndex, efi );
-    }
+};
 
-    void add_stiffness_matrix_element(const IndexP &fluxIndex,
-				      const Field *field,
-				      const IndexP &fieldIndex,
-				      const ElementFuncNodeIterator &efi,
-				      double increment)
-    {
-      self->stiffness_matrix_element( fluxIndex, field, fieldIndex, efi )
-	+= increment;
-    }
-
-    double get_force_deriv_matrix_element(const IndexP &forceIndex,
-					  const Field *field,
-					  const IndexP &fieldIndex,
-					  const ElementFuncNodeIterator &efi)
-    {
-      return self->force_deriv_matrix_element( forceIndex, field, fieldIndex, efi );
-    }
-
-    void add_force_deriv_matrix_element(const IndexP &forceIndex,
-					const Field *field,
-					const IndexP &fieldIndex,
-					const ElementFuncNodeIterator &efi,
-					double increment)
-    {
-      self->force_deriv_matrix_element( forceIndex, field, fieldIndex, efi )
-	+= increment;
-    }
-
-    double get_damping_matrix_element(const IndexP &fluxIndex,
+%extend SmallSystem {
+  double get_stiffness_matrix_element(const IndexP &fluxIndex,
 				      const Field *field,
 				      const IndexP &fieldIndex,
 				      const ElementFuncNodeIterator &efi)
-    {
-      return self->damping_matrix_element( fluxIndex, field, fieldIndex, efi );
-    }
+  {
+    return self->stiffness_matrix_element( fluxIndex, field, fieldIndex, efi );
+  }
 
-    void add_damping_matrix_element(const IndexP &fluxIndex,
+  void add_stiffness_matrix_element(const IndexP &fluxIndex,
 				    const Field *field,
 				    const IndexP &fieldIndex,
 				    const ElementFuncNodeIterator &efi,
 				    double increment)
-    {
-      self->damping_matrix_element( fluxIndex, field, fieldIndex, efi )
-	+= increment;
-    }
+  {
+    self->stiffness_matrix_element( fluxIndex, field, fieldIndex, efi )
+      += increment;
+  }
 
-    double get_mass_matrix_element(const IndexP &fluxIndex,
-				   const Field *field,
-				   const IndexP &fieldIndex,
-				   const ElementFuncNodeIterator &efi)
-    {
-      return self->mass_matrix_element( fluxIndex, field, fieldIndex, efi );
-    }
+  double get_force_deriv_matrix_element(const IndexP &forceIndex,
+					const Field *field,
+					const IndexP &fieldIndex,
+					const ElementFuncNodeIterator &efi)
+  {
+    return self->force_deriv_matrix_element( forceIndex, field, fieldIndex, efi );
+  }
 
-    void add_mass_matrix_element(const IndexP &fluxIndex,
+  void add_force_deriv_matrix_element(const IndexP &forceIndex,
+				      const Field *field,
+				      const IndexP &fieldIndex,
+				      const ElementFuncNodeIterator &efi,
+				      double increment)
+  {
+    self->force_deriv_matrix_element( forceIndex, field, fieldIndex, efi )
+      += increment;
+  }
+
+  double get_damping_matrix_element(const IndexP &fluxIndex,
+				    const Field *field,
+				    const IndexP &fieldIndex,
+				    const ElementFuncNodeIterator &efi)
+  {
+    return self->damping_matrix_element( fluxIndex, field, fieldIndex, efi );
+  }
+
+  void add_damping_matrix_element(const IndexP &fluxIndex,
+				  const Field *field,
+				  const IndexP &fieldIndex,
+				  const ElementFuncNodeIterator &efi,
+				  double increment)
+  {
+    self->damping_matrix_element( fluxIndex, field, fieldIndex, efi )
+      += increment;
+  }
+
+  double get_mass_matrix_element(const IndexP &fluxIndex,
 				 const Field *field,
 				 const IndexP &fieldIndex,
-				 const ElementFuncNodeIterator &efi,
-				 double increment)
-    {
-      self->mass_matrix_element( fluxIndex, field, fieldIndex, efi )
-	+= increment;
-    }
-
-    double get_force_vector_element(const IndexP &forceIndex)
-    {
-      return self->force_vector_element( forceIndex );
-    }
-
-    void add_force_vector_element(const IndexP &forceIndex, double increment)
-    {
-      self->force_vector_element( forceIndex ) += increment;
-    }
-
-    double get_flux_vector_element(const IndexP &fluxIndex)
-    {
-      return self->flux_vector_element( fluxIndex );
-    }
-
-    void add_flux_vector_element(const IndexP &fluxIndex, double increment)
-    {
-      self->flux_vector_element( fluxIndex ) += increment;
-    }
-
-    double get_offset_vector_element(const IndexP &offsetIndex)
-    {
-      return self->offset_vector_element( offsetIndex );
-    }
-
-    void add_offset_vector_element(const IndexP &offsetIndex, double increment)
-    {
-      self->offset_vector_element( offsetIndex ) += increment;
-    }
+				 const ElementFuncNodeIterator &efi)
+  {
+    return self->mass_matrix_element( fluxIndex, field, fieldIndex, efi );
   }
-};
+
+  void add_mass_matrix_element(const IndexP &fluxIndex,
+			       const Field *field,
+			       const IndexP &fieldIndex,
+			       const ElementFuncNodeIterator &efi,
+			       double increment)
+  {
+    self->mass_matrix_element( fluxIndex, field, fieldIndex, efi )
+      += increment;
+  }
+
+  double get_force_vector_element(const IndexP &forceIndex)
+  {
+    return self->force_vector_element( forceIndex );
+  }
+
+  void add_force_vector_element(const IndexP &forceIndex, double increment)
+  {
+    self->force_vector_element( forceIndex ) += increment;
+  }
+
+  double get_flux_vector_element(const IndexP &fluxIndex)
+  {
+    return self->flux_vector_element( fluxIndex );
+  }
+
+  void add_flux_vector_element(const IndexP &fluxIndex, double increment)
+  {
+    self->flux_vector_element( fluxIndex ) += increment;
+  }
+
+  double get_offset_vector_element(const IndexP &offsetIndex)
+  {
+    return self->offset_vector_element( offsetIndex );
+  }
+
+  void add_offset_vector_element(const IndexP &offsetIndex, double increment)
+  {
+    self->offset_vector_element( offsetIndex ) += increment;
+  }
+ };
 
 #endif

@@ -12,7 +12,7 @@
 #ifndef PIXELSELECTIONCOURIERO_SWG
 #define PIXELSELECTIONCOURIERO_SWG
 
-%module pixelselectioncouriero
+%module(package="ooflib.SWIG.orientationmap") pixelselectioncouriero
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

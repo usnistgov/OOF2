@@ -9,7 +9,7 @@
  * oof_manager@nist.gov.
  */
 
-%module elasticity
+%module(package="ooflib.SWIG.engine.properties.elasticity") elasticity
 
 %{
 #include "engine/properties/elasticity/elasticity.h"

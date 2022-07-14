@@ -12,7 +12,7 @@
 #ifndef CRYSTALSYMMETRY_SWG
 #define CRYSTALSYMMETRY_SWG
 
-%module crystalsymmetry
+%module(package="ooflib.SWIG.engine") crystalsymmetry
 
 %include "common/typemaps.swg"
 

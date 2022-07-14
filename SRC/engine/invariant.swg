@@ -12,7 +12,7 @@
 #ifndef INVARIANT_SWG
 #define INVARIANT_SWG
 
-%module invariant
+%module(package="ooflib.SWIG.engine") invariant
 
 %include "common/typemaps.swg"
 

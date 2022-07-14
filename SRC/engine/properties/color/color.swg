@@ -9,7 +9,7 @@
  * oof_manager@nist.gov.
  */
 
-%module color
+%module(package="engine.properties.color") color
 
 %{
 #include "engine/properties/color/color.h"

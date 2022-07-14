@@ -12,7 +12,7 @@
 #ifndef PROPERTYOUTPUT_SWG
 #define PROPERTYOUTPUT_SWG
 
-%module propertyoutput
+%module(package="ooflib.SWIG.engine.IO") propertyoutput
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

@@ -12,7 +12,8 @@
 #ifndef TRACE_SWG
 #define TRACE_SWG
 
-%module trace
+%module(package="ooflib.SWIG.common") trace
+
 %include "common/typemaps.swg"
 
 #ifdef DEBUG

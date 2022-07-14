@@ -9,15 +9,22 @@
  * oof_manager@nist.gov.
  */
 
-%module charge
+#ifndef EXTENSION_CHARGE_SWG
+#define EXTENSION_CHARGE_SWG
+
+// TODO PYTHON3: Check this
+%module(package="ooflib.SWIG.EXTENSIONS.diffusion") charge
 
 %{
 #include "EXTENSIONS/diffusion/charge.h"
 %}
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
+ //%include "engine/propertyhdr.swg"
 %import "engine/symmmatrix.swg"
+#endif // NOSECONDIMPORTS
 
 class IsoCurrent : public Property {
 public:
@@ -31,3 +38,4 @@ public:
 
 %pythoncode "charge.spy"
 
+#endif // EXTENSION_CHARGE_SWG

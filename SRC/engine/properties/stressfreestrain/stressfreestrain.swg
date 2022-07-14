@@ -12,7 +12,7 @@
 #ifndef STRESSFREESTRAIN_SWG
 #define STRESSFREESTRAIN_SWG
 
-%module stressfreestrain
+%module(package="ooflib.SWIG.engine.properties.stressfreestrain") stressfreestrain
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

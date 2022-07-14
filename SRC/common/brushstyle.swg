@@ -12,7 +12,7 @@
 #ifndef BRUSHSTYLE_SWG
 #define BRUSHSTYLE_SWG
 
-%module brushstyle
+%module(package="ooflib.SWIG.common") brushstyle
 
 %include "common/typemaps.swg"
 %{

@@ -12,7 +12,7 @@
 #ifndef CDEBUG_SWG
 #define CDEBUG_SWG
 
-%module cdebug
+%module(package="ooflib.SWIG.common") cdebug
 
 %include "common/typemaps.swg"
 

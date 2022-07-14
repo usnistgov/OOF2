@@ -12,7 +12,7 @@
 #ifndef SWITCHBOARD_SWG
 #define SWITCHBOARD_SWG
 
-%module switchboard
+%module(package="ooflib.SWIG.common") switchboard
 
 %{
 #include "common/switchboard.h"

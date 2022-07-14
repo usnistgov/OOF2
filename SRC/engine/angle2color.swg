@@ -12,8 +12,10 @@
 #ifndef ANGLE2COLOR_SWG
 #define ANGLE2COLOR_SWG
 
-%module angle2color
+%module(package="ooflib.SWIG.engine") angle2color
+
 %include "common/typemaps.swg"
+
 %{
 #include "engine/angle2color.h"
 %}

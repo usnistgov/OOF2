@@ -12,7 +12,7 @@
 #ifndef PLANESTRAIN_SWG
 #define PLANESTRAIN_SWG
 
-%module planestrain
+%module(package="ooflib.SWIG.engine.properties.planestrain") planestrain
 
 %{
 #include "engine/properties/planestrain/planestrain.h"

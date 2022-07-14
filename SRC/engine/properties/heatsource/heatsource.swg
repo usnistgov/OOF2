@@ -12,7 +12,7 @@
 #ifndef HEATSOURCE_SWG
 #define HEATSOURCE_SWG
 
-%module heatsource
+%module(package="ooflib.SWIG.engine.properties.heatsource") heatsource
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

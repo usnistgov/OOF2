@@ -12,7 +12,7 @@
 #ifndef RANK3TENSOR_SWG
 #define RANK3TENSOR_SWG
 
-%module rank3tensor
+%module(package="ooflib.SWIG.engine") rank3tensor
 %include "common/typemaps.swg"
 
 %{

@@ -12,7 +12,7 @@
 #ifndef MATERIALSUBPROBLEM_SWG
 #define MATERIALSUBPROBLEM_SWG
 
-%module materialsubproblem
+%module(package="ooflib.SWIG.engine") materialsubproblem
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

@@ -12,9 +12,13 @@
 #ifndef THREADSTATE_SWG
 #define THREADSTATE_SWG
 
-%module threadstate
+%module(package="ooflib.SWIG.common") threadstate
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/progress.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "common/threadstate.h"

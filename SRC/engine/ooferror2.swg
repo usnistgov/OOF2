@@ -18,7 +18,7 @@
 // SWIG/common/ooferrorcmodule, since that one has already been
 // loaded.
 
-%module ooferror2
+%module(package="ooflib.SWIG.engine") ooferror2
 
 // When adding Error subclasses here, add them to engine/ooferror.spy
 // as well.

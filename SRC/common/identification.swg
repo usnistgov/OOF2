@@ -12,7 +12,7 @@
 #ifndef IDENTIFICATION_SWG
 #define IDENTIFICATION_SWG
 
-%module identification
+%module(package="ooflib.SWIG.common") identification
 
 %include "common/typemaps.swg"
 %{

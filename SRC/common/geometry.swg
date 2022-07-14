@@ -12,13 +12,14 @@
 #ifndef GEOMETRY_SWG
 #define GEOMETRY_SWG
 
-%module geometry
+%module(package="ooflib.SWIG.common") geometry
 
 %{
 #include <oofconfig.h>
 #include "common/geometry.h"
 typedef class CPolygon<double, Coord> CPolygonCoord;
 %}
+
 %include "common/typemaps.swg"
 
 %nodefaultctor CPolygonCoord;

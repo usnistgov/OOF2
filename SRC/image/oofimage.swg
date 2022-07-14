@@ -11,7 +11,8 @@
 
 #ifndef OOFIMAGE_SWG
 #define OOFIMAGE_SWG
-%module oofimage
+
+%module(package="ooflib.SWIG.image") oofimage
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

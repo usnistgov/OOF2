@@ -12,7 +12,8 @@
 #ifndef CONTOURCELL_SWG
 #define CONTOURCELL_SWG
 
-%module contourcell
+%module(package="ooflib.SWIG.engine") contourcell
+
 %include "common/typemaps.swg"
 
 %{

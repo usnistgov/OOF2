@@ -12,7 +12,7 @@
 #ifndef ELASTICITY_VISCO_SWG
 #define ELASTICITY_VISCO_SWG
 
-%module visco
+%module(package="ooflib.SWIG.engine.properties.elasticity.visco") visco
 
 %{
 #include "engine/properties/elasticity/visco/visco.h"

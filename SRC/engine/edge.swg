@@ -12,7 +12,7 @@
 #ifndef EDGE_SWG
 #define EDGE_SWG
 
-%module edge
+%module(package="ooflib.SWIG.engine") edge
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

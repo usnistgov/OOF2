@@ -12,7 +12,7 @@
 #ifndef GENERAL_NONLINEAR_ELASTICITY_SWG
 #define GENERAL_NONLINEAR_ELASTICITY_SWG
 
-%module general_nonlinear_elasticity
+%module(package="ooflib.SWIG.engine.properties.elasticity.nonlinear") general_nonlinear_elasticity
 
 %{
 #include "engine/properties/elasticity/nonlinear/general_nonlinear_elasticity.h"

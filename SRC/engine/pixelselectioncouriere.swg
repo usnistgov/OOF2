@@ -12,7 +12,7 @@
 #ifndef PIXELSELECTIONCOURIERE_SWG
 #define PIXELSELECTIONCOURIERE_SWG
 
-%module pixelselectioncouriere
+%module(package="ooflib.SWIG.engine") pixelselectioncouriere
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

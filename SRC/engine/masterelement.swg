@@ -12,7 +12,7 @@
 #ifndef MASTERELEMENT_SWG
 #define MASTERELEMENT_SWG
 
-%module masterelement
+%module(package="ooflib.SWIG.engine") masterelement
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
@@ -95,9 +95,6 @@ public:
 ADD_REPR_GENERIC(MasterElement);
 
 int integration_reduction;
-
-%typemap(python,out) MasterElementList*;
-%typemap(python,newfree) MasterElementList*;
 
 %pythoncode "engine/masterelement.spy"
 

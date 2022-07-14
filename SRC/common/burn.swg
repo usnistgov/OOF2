@@ -12,7 +12,8 @@
 #ifndef BURNCOMMON_SWG
 #define BURNCOMMON_SWG
 
-%module burn
+%module(package="ooflib.SWIG.common") burn
+
 %include "common/typemaps.swg"
 
 %{

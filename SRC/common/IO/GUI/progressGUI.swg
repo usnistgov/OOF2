@@ -12,7 +12,8 @@
 #ifndef PROGRESSGUI_SWG
 #define PROGRESSGUI_SWG
 
-%module progressGUI
+%module(package="ooflib.SWIG.common.IO.GUI") progressGUI
+
 %include "common/typemaps.swg"
 
 %{

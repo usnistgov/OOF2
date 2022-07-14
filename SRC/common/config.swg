@@ -13,7 +13,7 @@
 #ifndef CONFIG_SWG
 #define CONFIG_SWG
 
-%module config
+%module(package="ooflib.SWIG.common") config
 
 %{
 #include <oofconfig.h>

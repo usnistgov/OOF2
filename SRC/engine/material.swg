@@ -12,7 +12,7 @@
 #ifndef MATERIAL_SWG
 #define MATERIAL_SWG
 
-%module material
+%module(package="ooflib.SWIG.engine") material
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

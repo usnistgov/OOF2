@@ -12,7 +12,7 @@
 #ifndef BDYANALYSIS_SWG
 #define BDYANALYSIS_SWG
 
-%module bdyanalysis
+%module(package="ooflib.SWIG.engine") bdyanalysis
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
@@ -21,6 +21,7 @@
 %import "engine/flux.swg"
 %import "engine/field.swg"
 %import "engine/edgeset.swg"
+%import "engine/femesh.swg"
 #endif // NOSECONDIMPORTS
 
 %{

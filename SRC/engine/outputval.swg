@@ -13,7 +13,7 @@
 #define OUTPUTVAL_SWG
 
 
-%module outputval
+%module(package="ooflib.SWIG.engine") outputval
 
 %include "common/typemaps.swg"
 %import "engine/fieldindex.swg"
@@ -69,12 +69,12 @@ typedef OutputVal NewOutputVal;
 }
 
 %typemap(newfree) ArithmeticOutputValueVec* {
-  // typemap(python, newfree) ArithmeticOutputValueVec*
+  // typemap(newfree) ArithmeticOutputValueVec*
   delete $1;
 }
 
 %typemap(newfree) NonArithmeticOutputValueVec* {
-  // typemap(python, newfree) NonArithmeticOutputValueVec*
+  // typemap(newfree) NonArithmeticOutputValueVec*
   delete $1;
 }
 

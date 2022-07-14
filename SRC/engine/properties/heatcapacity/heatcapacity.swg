@@ -12,7 +12,7 @@
 #ifndef HEATCAPACITY_SWG
 #define HEATCAPACITY_SWG
 
-%module heatcapacity
+%module(package="ooflib.SWIG.engine.properties.heatcapacity") heatcapacity
 
 %{
 #include "engine/properties/heatcapacity/heatcapacity.h"

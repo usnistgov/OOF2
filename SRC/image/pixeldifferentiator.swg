@@ -12,7 +12,7 @@
 #ifndef PIXELDIFFERENTIATORI_SWG
 #define PIXELDIFFERENTIATORI_SWG
 
-%module pixeldifferentiator
+%module(package="ooflib.SWIG.image") pixeldifferentiator
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

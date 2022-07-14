@@ -13,7 +13,7 @@
 #ifndef EDGESET_SWG
 #define EDGESET_SWG
 
-%module edgeset
+%module(package="ooflib.SWIG.engine") edgeset
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

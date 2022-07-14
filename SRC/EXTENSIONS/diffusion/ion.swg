@@ -9,16 +9,19 @@
  * oof_manager@nist.gov.
  */
 
-%module ion
+// TODO PYTHON3: Check this
+%module(package="ooflib.SWIG.EXTENSIONS.diffusion") ion
 
 %{
 #include "EXTENSIONS/diffusion/ion.h"
 %}
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "engine/propertyhdr.swg"
+ //%include "engine/propertyhdr.swg"
 %import "engine/symmmatrix.swg"
-
+#endif // NOSECONDIMPORTS
    
 class IonDiffusion : public Property {
 public:

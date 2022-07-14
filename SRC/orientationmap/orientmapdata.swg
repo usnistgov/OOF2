@@ -12,7 +12,7 @@
 #ifndef ORIENTMAPDATA_SWG
 #define ORIENTMAPDATA_SWG
 
-%module orientmapdata
+%module(package="ooflib.SWIG.orientationmap") orientmapdata
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

@@ -12,14 +12,14 @@
 #ifndef SUBPROBLEM_SWG
 #define SUBPROBLEM_SWG
 
-%module csubproblem
+%module(package="ooflib.SWIG.engine") csubproblem
 
 // Because CSubProblem has methods that return these iterators (which
 // are lightweight objects) by value and they don't have default
 // constructors, we have to make sure that swig uses the value wrapper
-// mechanism.  It's supposed to realized that automatically, but
-// somehow isn't.  These lines apparently must precede the importation
-// of the class definitions.
+// mechanism.  It's supposed to realize that automatically, but
+// somehow isn't.  These lines must precede the importation of the
+// class definitions.
 %feature("valuewrapper") ElementIterator;
 %feature("valuewrapper") NodeIterator;
 %feature("valuewrapper") FuncNodeIterator;
@@ -27,7 +27,6 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
- //%import "common/cmicrostructure.swg"
 %import "common/doublevec.swg"
 %import "common/lock.swg"
 %import "engine/element.swg"

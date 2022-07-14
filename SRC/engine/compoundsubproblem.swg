@@ -12,7 +12,7 @@
 #ifndef COMPOUNDSUBPROBLEM_SWG
 #define COMPOUNDSUBPROBLEM_SWG
 
-%module compoundsubproblem
+%module(package="ooflib.SWIG.engine") compoundsubproblem
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

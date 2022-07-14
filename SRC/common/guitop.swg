@@ -12,7 +12,8 @@
 #ifndef GUITOP_SWG
 #define GUITOP_SWG
 
-%module guitop
+%module(package="ooflib.SWIG.common") guitop
+
 %include "common/typemaps.swg"
 %{
 #include <oofconfig.h>

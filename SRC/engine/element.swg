@@ -13,7 +13,7 @@
 #ifndef ELEMENTS_SWG
 #define ELEMENTS_SWG
 
-%module element
+%module(package="ooflib.SWIG.engine") element
 
 // Because Element has methods that return these iterators by value
 // and they don't have default constructors, we have to make sure that

@@ -12,7 +12,7 @@
 #ifndef CIJKL_SWG
 #define CIJKL_SWG
 
-%module cijkl
+%module(package="ooflib.SWIG.engine.properties.elasticity") cijkl
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

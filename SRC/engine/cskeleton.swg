@@ -12,13 +12,16 @@
 #ifndef CSKELETON_SWG
 #define CSKELETON_SWG
 
-%module cskeleton
+%module(package="ooflib.SWIG.engine") cskeleton
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/cmicrostructure.swg"
 %import "common/coord.swg"
 %import "common/timestamp.swg"
 %import "engine/mastercoord.swg"
+#endif // NOSECONDIMPORTS
 
 // %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 // %pragma(python) code="from ooflib.SWIG.common.coord import CoordPtr"

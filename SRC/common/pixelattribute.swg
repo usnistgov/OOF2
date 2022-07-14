@@ -12,7 +12,8 @@
 #ifndef PIXELATTRIBUTE_SWG
 #define PIXELATTRIBUTE_SWG
 
-%module pixelattribute
+%module(package="ooflib.SWIG.common") pixelattribute
+
 %include "common/typemaps.swg"
 %{
 #include "common/pixelattribute.h"

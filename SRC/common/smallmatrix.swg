@@ -13,7 +13,8 @@
 #ifndef SMALLMATRIX_SWG
 #define SMALLMATRIX_SWG
 
-%module smallmatrix
+%module(package="ooflib.SWIG.common") smallmatrix
+
 %include "common/typemaps.swg"
 
 %{
@@ -29,16 +30,19 @@ public:
   void scale(double);
   void madd(SmallMatrix&);
   void msub(SmallMatrix&);
-  %addmethods {
-    double getitem(int i, int j) {
-      return (*self)(i,j);
-    }
-    void setitem(int i, int j, double v) {
-      (*self)(i,j)=v;
-    }
-    %new SmallMatrix *copy() {
-      return new SmallMatrix(*self);
-    }
+};
+
+%extend SmallMatrix {
+  double getitem(int i, int j) {
+    return (*self)(i,j);
+  }
+  void setitem(int i, int j, double v) {
+    (*self)(i,j)=v;
+  }
+  %newobject copy;
+  SmallMatrix *copy() {
+    return new SmallMatrix(*self);
+  }
     // The rest of the arithmetic operators are defined in
     // smallmatrix.spy.  We used to do them here, like this:
     //     SmallMatrix __add__(const SmallMatrix &x) {
@@ -51,12 +55,16 @@ public:
     // By using copy() (which returns a SmallMatrix*) and swigged
     // in-place arithmetic operations we avoid the extra copy.
 
-    // Matrix multiplication is *not* done the same way, because we
-    // don't have an in-place C++ matrix multiplication operator.
-    %new SmallMatrix *mmult(SmallMatrix &other) {
-      // With luck, C++ will optimize away the copy constructor here.
-      return new SmallMatrix((*self)*other);
-    }
+    // TODO PYTHON3: Check that that is still the case.  Does swig4
+    // have a better way?  Setting the "optimal" option on the out
+    // typemap doesn't work if we have an %exception typemap.
+
+  // Matrix multiplication is *not* done the same way, because we
+  // don't have an in-place C++ matrix multiplication operator.
+  %newobject mmult;
+  SmallMatrix *mmult(SmallMatrix &other) {
+    // With luck, C++ will optimize away the copy constructor here.
+    return new SmallMatrix((*self)*other);
   }
 };
 

@@ -12,7 +12,7 @@
 #ifndef NONLINEAR_FORCE_DENSITY_SWG
 #define NONLINEAR_FORCE_DENSITY_SWG
 
-%module nonlinear_force_density
+%module(package="ooflib.SWIG.engine.properties.forcedensity.nonlinear") nonlinear_force_density
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

@@ -12,7 +12,7 @@
 #ifndef NONCONSTANT_HEAT_SOURCE_SWG
 #define NONCONSTANT_HEAT_SOURCE_SWG
 
-%module nonconstant_heat_source
+%module(package="ooflib.SWIG.engine.properties.heatsource.nonconstant") nonconstant_heat_source
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

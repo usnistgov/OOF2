@@ -12,7 +12,7 @@
 #ifndef ELEMENTNODEITERATOR_SWG
 #define ELEMENTNODEITERATOR_SWG
 
-%module elementnodeiterator
+%module(package="ooflib.SWIG.engine") elementnodeiterator
 
 %{
 #include "engine/elementnodeiterator.h"

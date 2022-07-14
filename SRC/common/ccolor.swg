@@ -12,7 +12,8 @@
 #ifndef CCOLOR_SWG
 #define CCOLOR_SWG
 
-%module ccolor
+%module(package="ooflib.SWIG.common") ccolor
+
 %include "common/typemaps.swg"
 
 %{

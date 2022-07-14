@@ -12,7 +12,7 @@
 #ifndef MESHDATACACHE_SWG
 #define MESHDATACACHE_SWG
 
-%module meshdatacache
+%module(package="ooflib.SWIG.engine") meshdatacache
 
 %include "common/typemaps.swg"
 

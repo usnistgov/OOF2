@@ -12,7 +12,8 @@
 #ifndef LOCK_SWG
 #define LOCK_SWG
 
-%module lock
+%module(package="ooflib.SWIG.common")lock
+
 %include "common/typemaps.swg"
 %{
 #include "common/lock.h"

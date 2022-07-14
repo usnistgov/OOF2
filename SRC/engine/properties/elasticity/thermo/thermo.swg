@@ -12,7 +12,7 @@
 #ifndef ELASTICITY_THERMO_SWG
 #define ELASTICITY_THERMO_SWG
 
-%module thermo
+%module(package="ooflib.SWIG.engine.properties.elasticity.thermo") thermo
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

@@ -48,6 +48,12 @@ determine the name of the python file that it creates, but cmake
 assumes that the name is the same as the swig file name, with .py
 instead of .swg.
 
+The %module line needs to list the installed package too, eg:
+  %module(package="ooflib.SWIG.common") ccolor
+otherwise the proper import paths won't be created in other swig
+files.  Python3 assumes all import paths are absolute (ie, relative to
+some path in PYTHONPATH, not relative to the current directory).
+
 Use python slots.  operator+ is much faster than a function call.
 operator+=, operator==, operator<, etc, are automatically converted to
 slot operators.

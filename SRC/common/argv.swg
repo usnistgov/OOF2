@@ -12,7 +12,7 @@
 #ifndef ARGV_SWG
 #define ARGV_SWG
 
-%module argv
+%module(package="ooflib.SWIG.common") argv
 
 %include "common/typemaps.swg"
 

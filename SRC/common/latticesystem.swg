@@ -12,7 +12,8 @@
 #ifndef LATTICESYSTEM_SWG
 #define LATTICESYSTEM_SWG
 
-%module latticesystem
+%module(package="ooflib.SWIG.common") latticesystem
+
 %include "common/typemaps.swg"
 
 %{
@@ -24,18 +25,18 @@ class LatticeSymmetry {
 };
 
 
-%typemap(python, in) SmallMatrix *ThreeByThreeFloats (SmallMatrix mat) {
-  // typemap(python, in) SmallMatrix *ThreeByThreeFloats
+%typemap(in) SmallMatrix *ThreeByThreeFloats (SmallMatrix mat) {
+  // typemap(in) SmallMatrix *ThreeByThreeFloats
   // Convert [[x00, x01, x02],[x10, x11, x12], [x20, x21, x22]] to SmallMatrix
   mat.resize(3, 3);
   for(unsigned int row=0; row<3; row++)  {
-    PyObject *pyrow = PyList_GET_ITEM($source, (Py_ssize_t) row);
+    PyObject *pyrow = PyList_GET_ITEM($input, (Py_ssize_t) row);
     for(unsigned int col=0; col<3; col++) {
       PyObject *pyval = PyList_GET_ITEM(pyrow, (Py_ssize_t) col);
       mat(row, col) = PyFloat_AsDouble(pyval);
     }
   }
-  $target = &mat;
+  $1 = &mat;
 }
 
 void addLatticeSymmetryMatrix(char*, SmallMatrix *ThreeByThreeFloats);

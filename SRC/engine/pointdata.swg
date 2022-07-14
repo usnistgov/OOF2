@@ -12,7 +12,7 @@
 #ifndef POINTDATA_SWG
 #define POINTDATA_SWG
 
-%module pointdata
+%module(package="ooflib.SWIG.engine") pointdata
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

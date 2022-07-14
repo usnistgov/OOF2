@@ -12,7 +12,7 @@
 #ifndef NODE_SWG
 #define NODE_SWG
 
-%module node
+%module(package="ooflib.SWIG.engine") node
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

@@ -12,16 +12,20 @@
 #ifndef PIXELGROUP_SWG
 #define PIXELGROUP_SWG
 
-%module pixelgroup
+%module(package="ooflib.SWIG.common") pixelgroup
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "common/cmicrostructure.swg"
+%import "common/pixelattribute.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "common/pixelgroup.h"
 #include "common/cmicrostructure.h"
 #include "common/ooferror.h"
 %}
-%import "common/cmicrostructure.swg"
-%import "common/pixelattribute.swg"
 
  //%pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
 

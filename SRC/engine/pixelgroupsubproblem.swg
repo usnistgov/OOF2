@@ -12,7 +12,7 @@
 #ifndef PIXELGROUPSUBPROBLEM_SWG
 #define PIXELGROUPSUBPROBLEM_SWG
 
-%module pixelgroupsubproblem
+%module(package="ooflib.SWIG.engine") pixelgroupsubproblem
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

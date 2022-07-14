@@ -12,7 +12,7 @@
 #ifndef PYPROPERTYWRAPPER_SWG
 #define PYPROPERTYWRAPPER_SWG
 
-%module pypropertywrapper
+%module(package="ooflib.SWIG.engine") pypropertywrapper
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

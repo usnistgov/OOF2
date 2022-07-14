@@ -12,7 +12,7 @@
 #ifndef LARGESTRAIN_SWG
 #define LARGESTRAIN_SWG
 
-%module largestrain
+%module(package="ooflib.SWIG.engine.properties.elasticity.largestrain") largestrain
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

@@ -12,7 +12,7 @@
 #ifndef SIMPLETENSION_SWG
 #define SIMPLETENSION_SWG
 
-%module simpletension
+%module(package="ooflib.SWIG.engine.properties.interfaces.surfacetension.simpletension") simpletension
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

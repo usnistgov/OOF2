@@ -12,7 +12,8 @@
 #ifndef GFXBRUSHSTYLE_SWG
 #define GFXBRUSHSTYLE_SWG
 
-%module gfxbrushstyle
+%module(package="ooflib.SWIG.common.IO.GUI") gfxbrushstyle
+
 %include "common/typemaps.swg"
 %{
 #include "common/IO/GUI/gfxbrushstyle.h"

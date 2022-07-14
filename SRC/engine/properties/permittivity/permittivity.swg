@@ -12,7 +12,7 @@
 #ifndef PERMITTIVITY_SWG
 #define PERMITTIVITY_SWG
 
-%module permittivity
+%module(package="ooflib.SWIG.engine.properties.permittivity") permittivity
 
 %{
 #include "engine/properties/permittivity/permittivity.h"

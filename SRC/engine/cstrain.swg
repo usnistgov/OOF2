@@ -12,17 +12,20 @@
 #ifndef CSTRAIN_SWG
 #define CSTRAIN_SWG
 
-%module cstrain
+%module(package="ooflib.SWIG.engine") cstrain
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/IO/propertyoutput.swg"
+#endif // NOSECONDIMPORTS
 
  // %pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import PropertyOutputValInitPtr"
   
 %{
 #include "engine/cstrain.h"
 #include "engine/IO/propertyoutput.h"
- #include "engine/symmmatrix.h"
+#include "engine/symmmatrix.h"
 %}
 
 

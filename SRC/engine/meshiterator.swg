@@ -12,7 +12,7 @@
 #ifndef MESHITERATOR_SWG
 #define MESHITERATOR_SWG
 
-%module meshiterator
+%module(package="ooflib.SWIG.engine") meshiterator
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

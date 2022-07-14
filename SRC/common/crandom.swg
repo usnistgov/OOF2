@@ -15,7 +15,8 @@
 #ifndef CRANDOM_SWG
 #define CRANDOM_SWG
 
-%module crandom
+%module(package="ooflib.SWIG.common") crandom
+
 %include "common/typemaps.swg"
 %{
 #include "common/random.h"

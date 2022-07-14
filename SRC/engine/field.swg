@@ -12,7 +12,7 @@
 #ifndef FIELD_SWG
 #define FIELD_SWG
 
-%module field
+%module(package="ooflib.SWIG.engine") field
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

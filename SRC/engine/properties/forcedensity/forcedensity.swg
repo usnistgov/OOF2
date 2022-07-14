@@ -12,7 +12,7 @@
 #ifndef FORCEDENSITY_SWG
 #define FORCEDENSITY_SWG
 
-%module forcedensity
+%module(package="ooflib.SWIG.engine.properties.forcedensity") forcedensity
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

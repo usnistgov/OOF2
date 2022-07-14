@@ -12,7 +12,7 @@
 #ifndef HEATCONDUCTIVITY_SWG
 #define HEATCONDUCTIVITY_SWG
 
-%module heatconductivity
+%module(package="ooflib.SWIG.engine.properties.heatconductivity") heatconductivity
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

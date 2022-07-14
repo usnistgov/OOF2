@@ -12,7 +12,7 @@
 #ifndef PYROELECTRICITY_SWG
 #define PYROELECTRICITY_SWG
 
-%module pyroelectricity
+%module(package="ooflib.SWIG.engine.properties.pyroelectricity") pyroelectricity
 
 %{
 #include "engine/properties/pyroelectricity/pyroelectricity.h"
@@ -62,9 +62,6 @@ public:
 		  double px, double py, double pz, double t0,
 		  std::string *coefficient_type);
 };
-
-
-%typemap(python, in) std::string *coefficient_type {}
 
 %pythoncode "engine/properties/pyroelectricity/pyroelectricity.spy"
 

@@ -12,7 +12,8 @@
 #ifndef QUAD84_SWIG
 #define QUAD84_SWIG
 
-%module quad8_4
+%module(package="ooflib.SWIG.engine.elements") quad8_4
+
 %include "common/typemaps.swg"
 %{
   extern void quad8_4init();

@@ -12,7 +12,7 @@
 #ifndef NONLINEAR_HEAT_CONDUCTIVITY_SWG
 #define NONLINEAR_HEAT_CONDUCTIVITY_SWG
 
-%module nonlinear_heat_conductivity
+%module(package="ooflib.SWIG.engine.properties.heatconductivity") nonlinear_heat_conductivity
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

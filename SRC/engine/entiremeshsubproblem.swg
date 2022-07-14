@@ -12,7 +12,7 @@
 #ifndef ENTIREMESHSUBPROBLEM_SWG
 #define ENTIREMESHSUBPROBLEM_SWG
 
-%module entiremeshsubproblem
+%module(package="ooflib.SWIG.engine") entiremeshsubproblem
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

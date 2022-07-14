@@ -12,7 +12,8 @@
 #ifndef DOUBLEVEC_SWG
 #define DOUBLEVEC_SWG
 
-%module doublevec
+%module(package="ooflib.SWIG.common") doublevec
+
 %include "common/typemaps.swg"
 
 %{

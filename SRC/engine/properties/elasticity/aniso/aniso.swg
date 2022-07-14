@@ -12,7 +12,7 @@
 #ifndef ANISO_SWG
 #define ANISO_SWG
 
-%module aniso
+%module(package="ooflib.SWIG.engine.properties.elasticity.aniso") aniso
 
 %{
 #include "engine/properties/elasticity/aniso/aniso.h"

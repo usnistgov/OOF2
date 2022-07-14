@@ -12,7 +12,7 @@
 #ifndef NONCONSTANT_FORCE_DENSITY_SWG
 #define NONCONSTANT_FORCE_DENSITY_SWG
 
-%module nonconstant_force_density
+%module(package="ooflib.SWIG.engine.properties.forcedensity.nonconstant") nonconstant_force_density
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

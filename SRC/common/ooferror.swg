@@ -16,7 +16,7 @@
 // BaseException.  It's not clear how to to that.  Maybe SWIG4 knows
 // how?
 
-%module ooferror
+%module(package="ooflib.SWIG.common") ooferror
 
 %include "common/typemaps.swg"
 

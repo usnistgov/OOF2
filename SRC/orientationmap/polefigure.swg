@@ -12,7 +12,7 @@
 #ifndef POLEFIGURE_SWG
 #define POLEFIGURE_SWG
 
-%module polefigure
+%module(package="ooflib.SWIG.orientationmap") polefigure
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

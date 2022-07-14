@@ -12,7 +12,7 @@
 #ifndef CANVASIMAGE_SWG
 #define CANVASIMAGE_SWG
 
-%module canvasimage
+%module(package="ooflib.SWIG.common") canvasimage
 
 // TODO PYTHON3: How much of this is necessary?
 

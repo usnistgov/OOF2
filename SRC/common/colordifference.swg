@@ -12,7 +12,8 @@
 #ifndef COLORDIFFERENCE_SWG
 #define COLORDIFFERENCE_SWG
 
-%module colordifference
+%module(package="ooflib.SWIG.common") colordifference
+
 %include "common/typemaps.swg"
 %{
 #include "common/colordifference.h"

@@ -13,7 +13,7 @@
 #ifndef ORIENTATION_SWG
 #define ORIENTATION_SWG
 
-%module orientation
+%module(package="ooflib.SWIG.engine.properties.orientation") orientation
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

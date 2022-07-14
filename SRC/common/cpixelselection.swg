@@ -9,20 +9,24 @@
  * oof_manager@nist.gov. 
  */
 
-
 #ifndef CPIXELSELECTION_SWG
 #define CPIXELSELECTION_SWG
 
-%module cpixelselection
+%module(package="ooflib.SWIG.common") cpixelselection
 
 %{
 #include "common/cpixelselection.h"
 %}
+
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/timestamp.swg"
 %import "common/pixelgroup.swg"
 %import "common/IO/bitoverlay.swg"
 %import "common/coord.swg"
+#endif // NOSECONDIMPORTS
+
 // %pragma(python) code="from ooflib.SWIG.common.IO.bitoverlay import BitmapOverlayPtr"
 // %pragma(python) code="from ooflib.SWIG.common.cmicrostructure import CMicrostructurePtr"
 // %pragma(python) code="from ooflib.SWIG.common.coord import CoordPtr"

@@ -12,7 +12,7 @@
 #ifndef ORIENTATIONIMAGE_SWG
 #define ORIENTATIONIMAGE_SWG
 
-%module orientationimage
+%module(package="ooflib.SWIG.engine") orientationimage
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

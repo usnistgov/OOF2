@@ -12,7 +12,7 @@
 #ifndef SPARSEMAT_SWG
 #define SPARSEMAT_SWG
 
-%module sparsemat
+%module(package="ooflib.SWIG.engine") sparsemat
 
 %include "common/typemaps.swg"
 

@@ -13,7 +13,7 @@
 #ifndef PIEZOELECTRICITY_SWG
 #define PIEZOELECTRICITY_SWG
 
-%module piezoelectricity
+%module(package="ooflib.SWIG.engine.properties.piezoelectricity") piezoelectricity
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

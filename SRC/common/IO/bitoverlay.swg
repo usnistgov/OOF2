@@ -12,7 +12,8 @@
 #ifndef BITOVERLAY_SWG
 #define BITOVERLAY_SWG
 
-%module bitoverlay
+%module(package="ooflib.SWIG.common.IO") bitoverlay
+
 %include "common/typemaps.swg"
 %import "common/canvasimage.swg"
 

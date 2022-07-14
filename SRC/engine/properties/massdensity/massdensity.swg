@@ -12,7 +12,7 @@
 #ifndef MASSDENSITY_SWG
 #define MASSDENSITY_SWG
 
-%module massdensity
+%module(package="ooflib.SWIG.engine.properties.massdensity") massdensity
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

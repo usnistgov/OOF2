@@ -12,7 +12,7 @@
 #ifndef LINEARIZEDSYSTEM_SWG
 #define LINEARIZEDSYSTEM_SWG
 
-%module linearizedsystem
+%module(package="ooflib.SWIG.engine") linearizedsystem
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

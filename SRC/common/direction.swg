@@ -12,7 +12,7 @@
 #ifndef DIRECTION_SWG
 #define DIRECTION_SWG
 
-%module direction
+%module(package="ooflib.SWIG.common") direction
 
 %include "common/typemaps.swg"
 

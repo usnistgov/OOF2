@@ -12,7 +12,7 @@
 #ifndef NONLINEAR_HEAT_SOURCE_SWG
 #define NONLINEAR_HEAT_SOURCE_SWG
 
-%module nonlinear_heat_source
+%module(package="ooflib.SWIG.engine.properties.heatsource.nonlinear") nonlinear_heat_source
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

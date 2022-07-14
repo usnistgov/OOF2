@@ -12,7 +12,7 @@
 #ifndef DAMPING_SWG
 #define DAMPING_SWG
 
-%module damping
+%module(package="ooflib.SWIG.engine.properties.damping") damping
 
 %{
 #include "engine/properties/damping/damping.h"

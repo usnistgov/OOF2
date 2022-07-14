@@ -12,7 +12,7 @@
 #ifndef SURFACETEST_SWG
 #define SURFACETEST_SWG
 
-%module surfacetest
+%module(package="ooflib.SWIG.engine.properties.interfaces.surfacetest") surfacetest
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

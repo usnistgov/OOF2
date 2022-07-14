@@ -12,7 +12,7 @@
 #ifndef EQUATION_SWG
 #define EQUATION_SWG
 
-%module equation
+%module(package="ooflib.SWIG.engine") equation
 
 %feature("valuewrapper") IteratorP;
 %feature("valuewrapper") IndexP;

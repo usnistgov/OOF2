@@ -12,7 +12,7 @@
 #ifndef FIELDINDEX_SWG
 #define FIELDINDEX_SWG
 
-%module fieldindex
+%module(package="ooflib.SWIG.engine") fieldindex
 
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS

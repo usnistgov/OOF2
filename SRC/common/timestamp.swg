@@ -12,7 +12,7 @@
 #ifndef TIMESTAMP_SWG
 #define TIMESTAMP_SWG
 
-%module timestamp
+%module(package="ooflib.SWIG.common") timestamp
 %include "common/typemaps.swg"
 
 %{
