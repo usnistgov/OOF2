@@ -26,11 +26,11 @@
 #endif // NOSECONDIMPORTS
 
 %{
-#include "engine/boundarycond.h"
-#include "engine/flux.h"
-#include "engine/fluxnormal.h"
-#include "common/tostring.h"
 #include "common/coord.h"
+#include "common/tostring.h"
+#include "engine/boundarycond.h"
+#include "engine/equation.h"
+#include "engine/flux.h"
 %}
 
 class FloatBCApp {

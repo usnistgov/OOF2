@@ -12,7 +12,7 @@
 #ifndef LOCK_SWG
 #define LOCK_SWG
 
-%module(package="ooflib.SWIG.common")lock
+%module(package="ooflib.SWIG.common") lock
 
 %include "common/typemaps.swg"
 %{
@@ -61,7 +61,5 @@ public:
 
 void enable_all();
 bool disable_all();
-
-%pythoncode "common/lock.spy"
 
 #endif // LOCK_SWG

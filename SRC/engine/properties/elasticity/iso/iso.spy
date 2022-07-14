@@ -38,16 +38,3 @@ reg = IsotropicElasticity = PropertyRegistration(
 reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Displacement],
              time_derivs=[0])
 
-# Super-cautious destructor, to avoid complaints at shut-down time.
-# Code recommended by SWIG authors in mailing list at
-# <http://mailman.cs.uchicago.edu/pipermail/swig/2002-April.txt>,
-# look for message with subject: [Swig] Shadow class as a global
-# This trick needs to be applied to derived classes, and the classes
-# must have a swigged destructor.
-
-def property_ptr_del(self, destruct=isoc.delete_CIsoElasticityProp):
-    if getattr(self, 'thisown', 0):
-        destruct(self)
-
-CIsoElasticityPropPtr.__del__ = property_ptr_del
-

@@ -46,8 +46,4 @@ bool operator>(const TimeStamp&, const TimeStamp&);
 
 const TimeStamp timeZero;
 
-// This only added the super-cautious destructor, which we hope is no
-// longer necessary.
-//%pythoncode "common/timestamp.spy"
-
 #endif // TIMESTAMP_SWG

@@ -31,17 +31,3 @@ reg = ViscoElasticity = PropertyRegistration(
 
 reg.fluxInfo(fluxes=[problem.Stress], fields=[problem.Displacement],
              time_derivs=[1])
-
-# # Super-cautious destructor, to avoid complaints at shut-down time.
-# # Code recommended by SWIG authors in mailing list at
-# # <http://mailman.cs.uchicago.edu/pipermail/swig/2002-April.txt>,
-# # look for message with subject: [Swig] Shadow class as a global
-# # This trick needs to be applied to derived classes, and the classes
-# # must have a swigged destructor.
-
-# def property_ptr_del(self, destruct=viscoc.delete_ViscoElasticityProp):
-#     if getattr(self, 'thisown', 0):
-#         destruct(self)
-
-# ViscoElasticityPropPtr.__del__ = property_ptr_del
-

@@ -77,16 +77,6 @@ def redoable(imagename):
 ooferror.registerErrorClass(ImageMagickError)
 
 
-# # Super-cautious destructor for SWIG'd OOFImage class.
-# # Works around a SWIG bug.
-
-# def oofimage_ptr_del(self, destruct=oofimagec.delete_OOFImage):
-#     if getattr(self, 'thisown', 0):
-#         destruct(self)
-
-# OOFImagePtr.__del__ = oofimage_ptr_del
-
-
 # Parallel image send/recv
 if parallel_enable.enabled():
     def Send_Image(image, destinations, tag=0):

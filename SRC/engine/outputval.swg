@@ -15,8 +15,11 @@
 
 %module(package="ooflib.SWIG.engine") outputval
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/fieldindex.swg"
+#endif // NOSECONDIMPORTS
 
 // %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
 // %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"

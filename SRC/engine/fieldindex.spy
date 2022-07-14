@@ -33,25 +33,3 @@ IteratorPPtr.shortrepr = _shortrepr
 
 #############
 
-# Super-cautious destructors, to avoid complaints at shut-down time.
-# Code recommended by SWIG authors in mailing list at
-# <http://mailman.cs.uchicago.edu/pipermail/swig/2002-April.txt>,
-# look for message with subject: [Swig] Shadow class as a global
-
-def iteratorp_ptr_del(self, destruct=fieldindexc.delete_IteratorP):
-    if getattr(self, 'thisown', 0):
-        destruct(self)
-
-IteratorPPtr.__del__ = iteratorp_ptr_del
-
-def indexp_ptr_del(self, destruct=fieldindexc.delete_IndexP):
-    if getattr(self, 'thisown', 0):
-        destruct(self)
-        
-IndexPPtr.__del__ = indexp_ptr_del
-
-def fieldindex_ptr_del(self, destruct=fieldindexc.delete_FieldIndex):
-    if getattr(self, 'thisown', 0):
-        destruct(self)
-
-FieldIndexPtr.__del__ = fieldindex_ptr_del

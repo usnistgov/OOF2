@@ -21,7 +21,7 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
-%include "engine/property.swg"
+%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
  // Typemap to convert the enum value provided by the registered class

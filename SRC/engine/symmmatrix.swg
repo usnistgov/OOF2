@@ -19,6 +19,7 @@
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/outputval.swg"
+%import "engine/fieldindex.swg"
 #endif // NOSECONDIMPORTS
 
 %{

@@ -18,11 +18,3 @@ def LinearizedSystem_clone(self):
     return bozo
 
 LinearizedSystemPtr.clone = LinearizedSystem_clone
-
-# Super-cautious destructor.  Works around a SWIG bug.
-
-def linsys_ptr_del(self, destruct=linearizedsystemc.delete_LinearizedSystem):
-    if getattr(self, 'thisown', 0):
-        destruct(self)
-
-LinearizedSystemPtr.__del__ = linsys_ptr_del
