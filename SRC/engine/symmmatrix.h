@@ -21,6 +21,8 @@ class SymmMatrix;
 #ifndef SYMMMATRIX_H
 #define SYMMMATRIX_H
 
+// TODO PYTHON3: Do we need these #includes?  Can they just be forward
+// declarations?
 #include "common/smallmatrix.h"
 #include "engine/IO/propertyoutput.h"
 #include "engine/eigenvalues.h"
