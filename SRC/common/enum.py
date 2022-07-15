@@ -99,7 +99,7 @@ def EnumClass(*args):
     Enum.names = []
     Enum.helpdict = {}
     for arg in args:
-        if isinstance(arg, bytes):
+        if isinstance(arg, (str, bytes)):
             Enum.names.append(arg)
         else:
             Enum.names.append(arg[0])
@@ -126,7 +126,7 @@ def subClassEnum(baseclass, *args):
         helpdict = {}
     Enum.helpdict.update(baseclass.helpdict)
     for arg in args:
-        if isinstance(arg, bytes):
+        if isinstance(arg, (str, bytes)):
             Enum.names.append(arg)
         else:
             Enum.names.append(arg[0])
@@ -145,7 +145,7 @@ class EnumParameter(parameter.Parameter):
         if value is None or isinstance(value, self.enumclass):
             self._set(value)
             return
-        if isinstance(value, bytes) and value in self.enumclass.names:
+        if isinstance(value, (str, bytes)) and value in self.enumclass.names:
             self._set(self.enumclass(value))
             return
         raise parameter.ParameterMismatch(
@@ -191,7 +191,7 @@ class ListOfEnumsParameter(parameter.Parameter):
                     'list of objects from' + repr(self.classnames()), value)
             convertedval = []
             for e in value:
-                if isinstance(e, bytes): # string representation of enum
+                if isinstance(e, (str, bytes)): # string representation of enum
                     for ec in self.enumclasses:
                         if e in ec.names:
                             convertedval.append(ec(e))
