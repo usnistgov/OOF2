@@ -1173,7 +1173,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                         layer.drawIfNecessary(self)
                     except subthread.StopThread:
                         return
-                    except (Exception, ooferror.ErrErrorPtr) as exc:
+                    except (Exception, ooferror.ErrError) as exc:
                         debug.fmsg('Exception while drawing!', exc)
                         raise
         finally:

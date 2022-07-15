@@ -34,7 +34,7 @@ guidebugmenu = mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem("GUI_Logging",
 
 # When running under the OOF context, gtklogger should catch OOF
 # errors also. 
-gtklogger.add_exception(ooferror.ErrErrorPtr)
+gtklogger.add_exception(ooferror.ErrError)
 
 ###################################
 

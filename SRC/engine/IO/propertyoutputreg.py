@@ -39,7 +39,7 @@ class ScalarPropertyOutputRegBase(ArithmeticPropertyOutputRegistration):
                  srepr=None, tip=None, discussion=None):
         op = output.Output(name=name,
                            callback=self.opfunc,
-                           otype=outputval.ScalarOutputValPtr,
+                           otype=outputval.ScalarOutputVal,
                            instancefn=self.instancefn,
                            column_names=outputClones.single_column_name,
                            params=parameters,
@@ -80,7 +80,7 @@ class ThreeVectorPropertyOutputRegistration(
                  srepr=None, tip=None, discussion=None):
         op = output.Output(name=name,
                            callback=self.opfunc,
-                           otype=outputval.OutputValPtr,
+                           otype=outputval.OutputVal,
                            instancefn=self.instancefn,
                            params=parameters,
                            srepr=srepr, tip=tip,
@@ -127,7 +127,7 @@ class SymmMatrix3PropertyOutputRegistration(
                  srepr=None, tip=None, discussion=None):
         op = output.Output(name=name,
                            callback=self.opfunc,
-                           otype=outputval.OutputValPtr,
+                           otype=outputval.OutputVal,
                            instancefn=self.instancefn,
                            srepr=srepr,
                            column_names=_symmmatrix3_column_names,
@@ -205,7 +205,7 @@ class OrientationPropertyOutputRegistration(
             tip="How to print the orientation.")
         op = output.Output(name=name,
                            callback=self.opfunc,
-                           otype=corientation.COrientationPtr,
+                           otype=corientation.COrientation,
                            instancefn=self.instancefn,
                            srepr=_orientation_srepr,
                            column_names=_orientation_column_names,
@@ -246,7 +246,7 @@ class ModulusPropertyOutputRegistration(
         self.symbol = symbol
         op = output.Output(name=name,
                            callback=self.opfunc,
-                           otype=outputval.ListOutputValPtr,
+                           otype=outputval.ListOutputVal,
                            instancefn=self.instancefn,
                            srepr=_modulus_srepr,
                            column_names=_modulus_column_names,
@@ -281,7 +281,7 @@ class TwoVectorParamPropertyOutputRegistration(
         self.symbol = symbol
         op = output.Output(name=name,
                            callback=self.opfunc,
-                           otype=outputval.ListOutputValPtr,
+                           otype=outputval.ListOutputVal,
                            instancefn=self.instancefn,
                            srepr=_twovector_srepr,
                            column_names=_twovector_column_names,

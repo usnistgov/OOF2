@@ -399,7 +399,7 @@ def _writeData(self, dfile, microstructure, pixel):
         return 1
     return 0
     
-ooflib.SWIG.engine.material.MaterialAttributeRegistrationPtr.writeData = \
+ooflib.SWIG.engine.material.MaterialAttributeRegistration.writeData = \
     _writeData
 
 def _readMSMaterial(menuitem, microstructure, category, material):
@@ -420,7 +420,7 @@ def _writeGlobalData(self, dfile, microstructure):
     writeMaterials(dfile,
                    ooflib.SWIG.engine.material.getMaterials(microstructure))
 
-ooflib.SWIG.engine.material.MaterialAttributeRegistrationPtr.writeGlobalData = \
+ooflib.SWIG.engine.material.MaterialAttributeRegistration.writeGlobalData = \
                                                               _writeGlobalData
         
 microstructureIO.categorymenu.addItem(OOFMenuItem(

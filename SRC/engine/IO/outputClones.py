@@ -121,7 +121,7 @@ def _field_column_names(self):
 FieldOutput = output.Output(
     name = "field",
     callback = _field,
-    otype = outputval.OutputValPtr,
+    otype = outputval.OutputVal,
     srepr=lambda x: x.resolveAlias('field').value.name(),
     instancefn = _field_instancefn,
     column_names = _field_column_names,
@@ -167,7 +167,7 @@ def _fieldderiv_column_names(self):
 FieldDerivOutput = output.Output(
     name = "field derivative",
     callback = _fieldderiv,
-    otype = outputval.OutputValPtr,
+    otype = outputval.OutputVal,
     instancefn = _field_instancefn,
     params = [meshparameters.FieldParameter("field", outofplane=1,
                                                 tip=parameter.emptyTipString),
@@ -229,7 +229,7 @@ def _flux_column_names(self):
 FluxOutput = output.Output(
     name = "flux",
     callback = _flux,
-    otype = outputval.OutputValPtr,
+    otype = outputval.OutputVal,
     instancefn = _flux_instancefn,
     column_names=_flux_column_names,
     params = [meshparameters.FluxParameter("flux",
@@ -259,7 +259,7 @@ def single_column_name(self):
 ComponentOutput = output.Output(
     name = "component",
     callback = _component,
-    otype = outputval.ScalarOutputValPtr,
+    otype = outputval.ScalarOutputVal,
     instancefn = scalar_instancefn,
     column_names=single_column_name,
     inputs = [outputval.OutputValParameter('field')],
@@ -345,7 +345,7 @@ def _invariant_shortrepr(self):
 InvariantOutput = output.Output(
     name="invariant",
     callback=_invariant,
-    otype=outputval.ScalarOutputValPtr,
+    otype=outputval.ScalarOutputVal,
     srepr=_invariant_shortrepr,
     instancefn = scalar_instancefn,
     column_names=single_column_name,
@@ -406,7 +406,7 @@ def _scalarFunction_shortrepr(self):
 ScalarFunctionOutput = output.Output(
     name="Function",
     callback=_scalarFunctionOutput,
-    otype=outputval.ScalarOutputValPtr,
+    otype=outputval.ScalarOutputVal,
     instancefn=scalar_instancefn,
     srepr=_scalarFunction_shortrepr,
     column_names=single_column_name,
@@ -475,7 +475,7 @@ def vector_instancefn(self):
 VectorFunctionOutput = output.Output(
     name="Vector Function",
     callback=_vectorFunctionOutput,
-    otype=outputval.VectorOutputValPtr,
+    otype=outputval.VectorOutputVal,
     instancefn=vector_instancefn,
     srepr=_vecfunc_shortrepr,
     column_names=_vecfunc_column_names,
@@ -520,7 +520,7 @@ def _difference_instancefn(self):
 ScalarDifferenceOutput = output.Output(
     name="difference",
     callback=_difference,
-    otype=outputval.ScalarOutputValPtr,
+    otype=outputval.ScalarOutputVal,
     instancefn = _difference_instancefn,
     column_names=single_column_name,
     # The minuend and subtrahend are *parameters*, not inputs, so that
@@ -558,7 +558,7 @@ def _aggdiff_column_names(self):
 AggregateDifferenceOutput = output.Output(
     name="difference",
     callback=_difference,
-    otype=outputval.OutputValPtr,
+    otype=outputval.OutputVal,
     srepr=_difference_shortrepr,
     instancefn=_difference_instancefn,
     column_names=_aggdiff_column_names,
@@ -718,7 +718,7 @@ def _rescale_shortrepr(self):
 
 RescaleOutput = output.Output(
     name="rescale",
-    otype=outputval.ScalarOutputValPtr,
+    otype=outputval.ScalarOutputVal,
     callback=_rescaleOutput,
     instancefn=_rescale_instancefn,
     srepr=_rescale_shortrepr,
@@ -742,7 +742,7 @@ def _mult_instancefn(self):
 ScalarMultiplyOutput = output.Output(
     name="scalar multiply",
     callback=_multOutput,
-    otype = outputval.OutputValPtr,
+    otype = outputval.OutputVal,
     instancefn=_mult_instancefn,
     params=[parameter.FloatParameter("factor", default=1.)],
     inputs=[outputval.OutputValParameter('scalee')],

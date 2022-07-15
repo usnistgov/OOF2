@@ -306,13 +306,13 @@ class Microstructure(cmicrostructure.CMicrostructure):
         return "getMicrostructure(%s)" % repr(self.name())
 
     def transitionPointWithPoints(self, c0, c1):
-        okay, point = cmicrostructure.CMicrostructurePtr.transitionPointWithPoints(self, c0, c1)
+        okay, point = cmicrostructure.CMicrostructure.transitionPointWithPoints(self, c0, c1)
         if okay:
             return point
 
     #For SnapRefine
     def transitionPointWithPoints_unbiased(self, c0, c1):
-        okay, point = cmicrostructure.CMicrostructurePtr.transitionPointWithPoints_unbiased(self, c0, c1)
+        okay, point = cmicrostructure.CMicrostructure.transitionPointWithPoints_unbiased(self, c0, c1)
         if okay:
             return point
 

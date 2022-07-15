@@ -141,7 +141,7 @@ class NonThreadedWorker(Worker, WorkerCore):
                     raise
                 # TODO SWIG1.3: After conversion to SWIG 1.3, OOF
                 # exceptions will probably be subclasses of Exception.
-                except (Exception, ooferror.ErrErrorPtr) as exception:
+                except (Exception, ooferror.ErrError) as exception:
                     mainthread.runBlock(self.menuitem.postcall, (False,))
                     if propagate_exceptions or not self.toplevel:
                         excepthook.remove_excepthook(self.excepthook)
@@ -190,7 +190,7 @@ class ThreadedWorkerCore(threading.Thread, WorkerCore):
                     raise
                 # TODO SWIG1.3: After conversion to SWIG 1.3, OOF
                 # exceptions will probably be subclasses of Exception.
-                except (Exception, ooferror.ErrErrorPtr) as exception:
+                except (Exception, ooferror.ErrError) as exception:
                     self.menuitem.postcall(False)
                     if propagate_exceptions or not self.toplevel:
                         self.exception_data = sys.exc_info()

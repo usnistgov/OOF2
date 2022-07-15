@@ -298,7 +298,7 @@ class ErrorPopUp:
                 [line.rstrip() for line in
                  traceback.format_exception_only(e_type, value)])
 
-            if isinstance(value, ooferror.ErrErrorPtr):
+            if isinstance(value, ooferror.ErrError):
                 moreinfo = value.details()
                 if moreinfo:
                     errorstrings.append(moreinfo)

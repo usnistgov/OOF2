@@ -97,7 +97,7 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
         # Image or if the Image is from a different Microstructure.
         image = self.toolbox.gfxwindow().topmost('Image', 'Microstructure')
         if config.dimension() == 2:
-            imagetype = oofimage.OOFImagePtr
+            imagetype = oofimage.OOFImage
         elif config.dimension() == 3:
             imagetype = oofimage.OOFImage3D
         if isinstance(image, imagetype) and where is not None:

@@ -871,7 +871,7 @@ class SolverPage(oofGUI.MainPage):
         obj = model[iter][0]    # Either a Field or a BC
         mesh = self.currentMeshContext()
         if mesh:
-            if isinstance(obj, field.FieldPtr):
+            if isinstance(obj, field.Field):
                 init = mesh.get_initializer(obj)
             else:               # it's a BC
                 init = obj.get_initializer()
@@ -926,7 +926,7 @@ class SolverPage(oofGUI.MainPage):
         obj = self.selectedObj()
         if obj is None:
             return (None, None)
-        if isinstance(obj, field.FieldPtr):
+        if isinstance(obj, field.Field):
             return (obj, None)
         return (None, obj)
 

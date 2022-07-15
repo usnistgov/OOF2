@@ -131,7 +131,7 @@ class Output:
 
         # TODO: This is a hack that will have to be cleaned up.  Most
         # Outputs have an otype that is a single class (most commonly
-        # OutputValPtr).  Some are PosOutputs and have an otype that's
+        # OutputVal).  Some are PosOutputs and have an otype that's
         # a tuple, (Point, Coord).  When Outputs are connected to one
         # another, the parameter.TypeChecker mechanism is used.  When
         # Outputs are used in analyze.py, it only checks the
@@ -600,7 +600,7 @@ def defineScalarOutput(path, output, ordering=0):
 class ScalarOutputParameter(parameter.Parameter):
     def checker(self, x):
         if not (isinstance(x, Output)
-                and issubclass(x.otype, outputval.ScalarOutputValPtr)):
+                and issubclass(x.otype, outputval.ScalarOutputVal)):
             parameter.raiseTypeError(type(x), 'Scalar Output')
     def incomputable(self, context):
         return self.value is None or self.value.incomputable(context)

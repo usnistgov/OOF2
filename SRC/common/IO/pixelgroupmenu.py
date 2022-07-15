@@ -563,7 +563,7 @@ def _writeData(self, dfile, microstructure, pixel):
         return 1
     return 0
 
-pixelgroup.PixelGroupAttributeRegistrationPtr.writeData = _writeData
+pixelgroup.PixelGroupAttributeRegistration.writeData = _writeData
 
 def _readPixelGroups(menuitem, microstructure, category, groups):
     mscontext = ooflib.common.microstructure.microStructures[microstructure]

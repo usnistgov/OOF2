@@ -124,7 +124,7 @@ void pythonErrorRelay() {
     if(!pyErrError) {
       PyObject *module = PyImport_ImportModule((char*) 
 					       "ooflib.SWIG.common.ooferror");
-      pyErrError = PyObject_GetAttrString(module, (char*) "ErrErrorPtr");
+      pyErrError = PyObject_GetAttrString(module, (char*) "ErrError");
       Py_XDECREF(module);
     }
     if(PyErr_GivenExceptionMatches(ptype, pyErrError)) {

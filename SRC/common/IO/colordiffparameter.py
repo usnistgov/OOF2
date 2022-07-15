@@ -17,5 +17,5 @@ class ColorDifferenceParameter(parameter.RegisteredParameter):
     def __init__(self, name, value=colordifference.deltargb(0.0, 0.0, 0.0),
                  default=colordifference.deltargb(0.0, 0.0, 0.0), tip=None):
         parameter.RegisteredParameter.__init__(
-            self, name, colordifference.ColorDifferencePtr, 
+            self, name, colordifference.ColorDifference, 
             value=value, default=default, tip=tip)

@@ -46,6 +46,11 @@ public:
   std::string *details();
 };
 
+%pythoncode %{
+  # Does this work?
+  ErrError.__str__ = ErrError.__repr__
+%}
+
 // NOTE: inheritance layout here is different than ooferror.h. 
 
 // Subclasses require individual __repr__s.  If you provide one in the

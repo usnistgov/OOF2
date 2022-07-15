@@ -13,6 +13,8 @@
 #define PROPERTYHDR_SWG
 %include "common/typemaps.swg"
 
+OBSOLETE
+
 // This file should be %include'd in all .swg files for properties
 // derived directly from the Property base class.
 

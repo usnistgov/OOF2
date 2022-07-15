@@ -44,7 +44,7 @@ class DefiniteTextProgressBar(TextProgressBar):
 def _makeDefTextBar(progobj):
     return DefiniteTextProgressBar(progobj)
 
-progress.DefiniteProgressPtr.makeTextBar = _makeDefTextBar  
+progress.DefiniteProgress.makeTextBar = _makeDefTextBar  
 
 class IndefiniteTextProgressBar(TextProgressBar):
     def __init__(self, progress):
@@ -63,9 +63,10 @@ class IndefiniteTextProgressBar(TextProgressBar):
         return self.bartext
 
 def _makeIndefTextBar(progobj):
+    # progobj is "self" for an IndefiniteProgress object
     return IndefiniteTextProgressBar(progobj)
 
-progress.IndefiniteProgressPtr.makeTextBar = _makeIndefTextBar
+progress.IndefiniteProgress.makeTextBar = _makeIndefTextBar
 
 def suppressProgressBars():
     global _suppressBars

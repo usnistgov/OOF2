@@ -165,7 +165,7 @@ class GUIProgressBar(progressbar.ProgressBar):
 def _makeGUIBar(self):
     return GUIProgressBar(self)
 
-progress.ProgressPtr.makeGUIBar = _makeGUIBar
+progress.Progress.makeGUIBar = _makeGUIBar
 
 def _updateDefiniteBar(self, gtkbar):
     debug.mainthreadTest()
@@ -176,7 +176,7 @@ def _updateDefiniteBar(self, gtkbar):
         frac = 0.0
     gtkbar.set_fraction(frac)
 
-progress.DefiniteProgressPtr.updateGUIBar = _updateDefiniteBar
+progress.DefiniteProgress.updateGUIBar = _updateDefiniteBar
 
 def _updateIndefiniteBar(self, gtkbar):
     debug.mainthreadTest()
@@ -188,4 +188,4 @@ def _updateIndefiniteBar(self, gtkbar):
         self.prevpulse = prevpulse
         gtkbar.pulse()
 
-progress.IndefiniteProgressPtr.updateGUIBar = _updateIndefiniteBar
+progress.IndefiniteProgress.updateGUIBar = _updateIndefiniteBar

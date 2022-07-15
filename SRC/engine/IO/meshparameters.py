@@ -31,10 +31,8 @@ class FieldParameterBase(parameter.ObjParameter, parameter.Parameter):
                               self.outofplane)
     
     def checker(self, x):
-        if not isinstance(x, field.FieldPtr):
+        if not isinstance(x, field.Field):
             parameter.raiseTypeError(x, "Field")
-        # if not self.outofplane and not isinstance(x, field.CompoundFieldPtr):
-        #     parameter.raiseTypeError(x, "CompoundField")
             
     def incomputable(self, context):
         if not context:
@@ -61,16 +59,9 @@ class SubProblemFieldParameter(FieldParameter):
 ##    def incomputable(self, context):
 ##        return 0
 
-# class TwoVectorFieldParameter(FieldParameter): # Not used?
-#     def checker(self, x):
-#         if not isinstance(x, field.TwoVectorFieldPtr):
-#             parameter.raiseTypeError(x, "TwoVectorField")
-#     def valueDesc(self):
-#         return "A two component vector <link linkend='Section-Concepts-Mesh-Field'><classname>Field</classname></link>."
-    
 class FluxParameter(parameter.ObjParameter, parameter.Parameter):
     def checker(self, x):
-        if not isinstance(x, flux.FluxPtr):
+        if not isinstance(x, flux.Flux):
             parameter.raiseTypeError(x, "Flux")
     def valueDesc(self):
         return "A <link linkend='Section-Concepts-Mesh-Flux'><classname>Flux</classname></link> object."
@@ -83,7 +74,7 @@ class SubProblemFluxParameter(FluxParameter):
 
 class EquationParameter(parameter.ObjParameter, parameter.Parameter):
     def checker(self, x):
-        if not isinstance(x, equation.EquationPtr):
+        if not isinstance(x, equation.Equation):
             parameter.raiseTypeError(x, "Equation")
     def valueDesc(self):
         return "An <link linkend='Section-Concepts-Mesh-Equation'><classname>Equation</classname></link> object."
@@ -93,7 +84,7 @@ class SubProblemEquationParameter(EquationParameter):
 
 class EquationBCParameter(parameter.ObjParameter, parameter.Parameter):
     def checker(self, x):
-        if not isinstance(x, equation.EquationPtr) or not x.allow_boundary_conditions():
+        if not isinstance(x, equation.Equation) or not x.allow_boundary_conditions():
             parameter.raiseTypeError(x, "Equation with BC capability")
     def valueDesc(self):
         return "An <link linkend='Section-Concepts-Mesh-Equation'><classname>Equation</classname></link> object which can be used in boundary conditions."

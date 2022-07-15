@@ -61,10 +61,11 @@ typedef std::string MaterialType;
 // %pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
 // %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr;"
 
-// When a Material* is returned from C++ to Python, the MaterialPtr
-// that's returned isn't the same Python object as the Material that
-// was created initially.  This typemap uses the Material's name and
-// the MaterialManager to fetch the original Material object.
+// When a Material* is returned from C++ to Python, the swigged
+// Material that's returned isn't the same Python object as the
+// Material that was created initially.  This typemap uses the
+// Material's name and the MaterialManager to fetch the original
+// Material object.
 
 %typemap(out) Material* {
     // typemap(out) Material*

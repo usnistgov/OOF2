@@ -18,6 +18,9 @@
 # be instances of the Registration class in this file
 # (cregisteredclass.py) rather than the one in registeredclass.py.
 
+## TODO PYTHON3: Check that all of this works.  Changing swig versions
+## could have broken it.
+
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import timestamp
 from ooflib.common import debug
@@ -32,9 +35,7 @@ def registerCClass(klass):
     if not hasattr(klass, 'getRegistration'):
         def getRegistration(self):
             for reg in self.registry:
-                # reg.subclass is the non-Ptr version of the swigged
-                # class, which is derived from the Ptr version.  self
-                # might be either one.
+                ## TODO PYTHON3: Try using "if reg.subclass is self.__class__"
                 if issubclass(reg.subclass, self.__class__):
                     return reg
         klass.getRegistration = getRegistration
@@ -128,6 +129,7 @@ class Registration(registeredclass.Registration):
     def monkeypatch(self, reprname):
         # Redefine the subclass's __init__ so that it keeps a list of
         # its arguments.
+        ## TODO PYTHON3: This isn't going to work if we use swig -builtin.
         self.subclass.oldinit = self.subclass.__init__
         def newinit(ego, *args):
             # Registration.setDefaultParams expects a list, not a
@@ -150,6 +152,8 @@ class Registration(registeredclass.Registration):
         # the 'Ptr' part of the class name, since that name should be
         # hidden from the user, and anyhow there's no way to construct
         # xxxxPtr objects directly from a script.
+        ## TODO: That comment is certainly wrong, although the code
+        ## might work.  Swig4 doesn't have xxxxPtr versions of classes.
         def repr(ego, reprname=reprname):
             return '%s(%s)' % (reprname, ego.paramrepr())
         # Just in case there is more than one base class, check for
@@ -168,12 +172,10 @@ class Registration(registeredclass.Registration):
         # derived class to be substituted for a previously registered
         # C++ class.  The underlying C++ version of the new class must
         # be a subclass of the C++ version of the old class, although
-        # this isn't checked for (since it would be a pain to do.. we
-        # only have the non-Ptr swigged classes here).  Note that the
-        # repr of the class is *not* changed, so scripted commands
-        # still refer to the old class.  This is the correct behavior
-        # when the modification class is just adding graphics
-        # capability.
+        # this isn't checked for.  Note that the repr of the class is
+        # *not* changed, so scripted commands still refer to the old
+        # class.  This is the correct behavior when the modification
+        # class is just adding graphics capability.
         oldclass = self.subclass
         self.subclass = newclass
         self.monkeypatch(reprname=oldclass.__name__)

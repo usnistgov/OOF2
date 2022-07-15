@@ -25,7 +25,6 @@
 %{
 #include "common/mpitools.h"
 %}
-//%pragma(python) code="from ooflib.SWIG.common.ooferror import ErrErrorPtr"
 
 void _Initialize(CharPtrVec *argv);
 int Initialized();

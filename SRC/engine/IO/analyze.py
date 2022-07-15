@@ -187,7 +187,7 @@ def _arithmeticOutputFilter(output):
 # operate component-wise, __mul__ and __div__ take scalar operands,
 # and for which point-wise operations "component_square" and
 # "component_sqrt" are defined.  This is currently true of all
-# OutputValPtr subclasses, including SymmMatrix3.
+# OutputVal subclasses, including SymmMatrix3.
 
 # RangeOutput is registered with direct=True because it doesn't modify
 # the Output values, although it doesn't print them all.
@@ -210,7 +210,7 @@ def _rangeOutputFilter(output):
     # that are either ScalarOutputVals or ConcatenatedOutputVals of
     # ScalarOutputVals.
     op = output.outputInstance()
-    return (isinstance(op, outputval.ScalarOutputValPtr) or
+    return (isinstance(op, outputval.ScalarOutputVal) or
             (isinstance(op, outputClones.ConcatenatedOutputVal) and
              _rangeOutputFilter(output.resolveAlias('first').value) and
              _rangeOutputFilter(output.resolveAlias('second').value)))

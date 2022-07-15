@@ -81,8 +81,8 @@ class SkeletonElementBase:
 
     def transitionPoint(self, skeleton, edgeno):
         ok, point = \
-            cskeleton.CSkeletonElementPtr.transitionPoint(self, skeleton.MS,
-                                                          edgeno)
+            cskeleton.CSkeletonElement.transitionPoint(self, skeleton.MS,
+                                                       edgeno)
         if ok:
             return point
     

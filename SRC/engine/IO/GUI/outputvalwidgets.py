@@ -84,10 +84,10 @@ class VectorWidget:
 def _VectorOutputVal_makeWidget(self, **kwargs):
     return VectorWidget(self, **kwargs)
 
-outputval.VectorOutputValPtr.makeWidget = _VectorOutputVal_makeWidget
+outputval.VectorOutputVal.makeWidget = _VectorOutputVal_makeWidget
 
-outputval.ListOutputValPtr.makeWidget = _VectorOutputVal_makeWidget
-corientation.COrientationPtr.makeWidget = _VectorOutputVal_makeWidget
+outputval.ListOutputVal.makeWidget = _VectorOutputVal_makeWidget
+corientation.COrientation.makeWidget = _VectorOutputVal_makeWidget
 
 ####################
 
@@ -135,7 +135,7 @@ class SymmMatrix3Widget:
 def _SymmMatrix_makeWidget(self, **kwargs):
     return SymmMatrix3Widget(self, **kwargs)
 
-symmmatrix.SymmMatrix3Ptr.makeWidget = _SymmMatrix_makeWidget
+symmmatrix.SymmMatrix3.makeWidget = _SymmMatrix_makeWidget
                 
 
 ####################

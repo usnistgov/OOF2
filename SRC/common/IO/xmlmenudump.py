@@ -16,6 +16,8 @@ from ooflib.common.IO import parameter
 import string
 import types
 
+## TODO PYTHON3: Remove stripPtr() calls. They're now no-ops.
+
 enumdict = {}
 regclassdict = {}
 
@@ -73,6 +75,8 @@ def regclassID(regclass):
 def registrationID(reg):
     return "RegisteredClass-%s" % stripPtr(reg.subclass.__name__)
 def stripPtr(name):
+    ## TODO PYTHON3: Get rid of this function.  It should not be
+    ## necessary with swig4.
     if name[-3:] == "Ptr":
         return name[:-3]
     return name

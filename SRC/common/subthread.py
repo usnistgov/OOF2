@@ -21,13 +21,12 @@ from ooflib.SWIG.common import threadstate
 from ooflib.common import debug
 from ooflib.common import excepthook
 from ooflib.common import thread_enable
-import exceptions
 import sys
 import threading
 
-class StopThread(exceptions.Exception):
+class StopThread(Exception):
     def __init__ (self):
-        exceptions.Exception.__init__(self)
+        Exception.__init__(self)
     
 
 class MiniThread(threading.Thread):
@@ -57,7 +56,7 @@ class MiniThread(threading.Thread):
                 return
             # TODO SWIG1.3: After conversion to SWIG 1.3, OOF
             # exceptions will probably be subclasses of Exception.
-            except (Exception, ooferror.ErrErrorPtr) as exception:
+            except (Exception, ooferror.ErrError) as exception:
                 from ooflib.common.IO import reporter
                 reporter.error(exception)
                 sys.excepthook(*sys.exc_info())

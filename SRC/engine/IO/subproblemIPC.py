@@ -53,7 +53,7 @@ ipcsubproblemmenu.addItem(oofmenu.OOFMenuItem(
     whoville.WhoParameter('mesh', ooflib.engine.mesh.meshes,
                           tip=parameter.emptyTipString),
     parameter.RegisteredParameter('subproblem',
-                                  csubproblem.CSubProblemPtr,
+                                  csubproblem.CSubProblem,
                                   tip=parameter.emptyTipString)
     ]
     ))
@@ -179,7 +179,7 @@ ipcsubproblemmenu.addItem(oofmenu.OOFMenuItem(
     params=
     [
     parameter.StringParameter('name'),
-    parameter.RegisteredParameter('subproblem', csubproblem.CSubProblemPtr,
+    parameter.RegisteredParameter('subproblem', csubproblem.CSubProblem,
                                   tip='The new value of the subproblem.')
     ]
     ))

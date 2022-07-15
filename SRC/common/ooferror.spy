@@ -61,9 +61,3 @@ class ErrDataFileError(ErrUserError):
 class ErrWarning(ErrUserError):
     pass
 
-# At the python level, make all OOF error classes have a __str__ that
-# is the same as the __repr__.
-def _ErrError___repr__(self):
-    return self.__repr__()
-
-ErrErrorPtr.__str__  = _ErrError___repr__

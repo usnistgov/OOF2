@@ -57,11 +57,11 @@ def advertise(obj):
     # This code is ugly, but at least it's compact.  It's not much
     # uglier than the previous version, which required other code to
     # call advertiseField, et al, directly.
-    if isinstance(obj, field.FieldPtr):
+    if isinstance(obj, field.Field):
         return advertiseField(obj)
-    if isinstance(obj, flux.FluxPtr):
+    if isinstance(obj, flux.Flux):
         return advertiseFlux(obj)
-    if isinstance(obj, equation.EquationPtr):
+    if isinstance(obj, equation.Equation):
         return advertiseEquation(obj)
     raise ooferror.ErrPyProgrammingError("Don't know what to do with %s!"% obj)
 
@@ -350,7 +350,7 @@ that contribute to the &flux;.
         print("<itemizedlist>", file=phile)
         print("<listitem><simpara>", file=phile)
         print("Class: <classname>%s</classname>" % (
-            flx.__class__.__name__[:-3]), file=phile) # strip 'Ptr'
+            flx.__class__.__name__), file=phile) 
         print("</simpara></listitem>", file=phile)
         print("<listitem><simpara>", file=phile)
         print("Dimension: ", flx.ndof(), file=phile)
@@ -406,7 +406,7 @@ that contribute to the &equation;.
     for eqn in equation.allEquations:
         name = eqn.name()
         xmlmenudump.xmlIndexEntry(name, 'Equation', 'Equation-%s' % name)
-        classname = eqn.__class__.__name__[:-3] # strip off 'Ptr'
+        classname = eqn.__class__.__name__
         print("<refentry xreflabel='%s' id='Equation-%s'>" % (
             name, name), file=phile)
         print("<refnamediv>", file=phile)

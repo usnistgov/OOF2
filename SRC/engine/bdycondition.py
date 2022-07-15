@@ -1158,7 +1158,7 @@ def _build_oops(field, eqn, boundary):
     # robust.
     dflux = eqn.flux()
     for e in equation.allEquations:
-        if isinstance(e, equation.PlaneFluxEquationPtr):
+        if isinstance(e, equation.PlaneFluxEquation):
             if e.flux()==dflux:
                 if not oop_eqn:
                     oop_eqn = e

@@ -429,7 +429,7 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
         debug.fmsg("Interrupted!")
         meshctxt.setStatus(meshstatus.Failed("Solution interrupted."))
         raise
-    except ooferror2.ErrErrorPtr as err:
+    except ooferror2.ErrError as err:
         debug.fmsg("Caught an ErrError")
         meshctxt.setStatus(meshstatus.Failed(err.summary()))
         raise

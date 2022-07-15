@@ -20,8 +20,6 @@ from ooflib.common import debug
 from ooflib.engine import propertyregistration
 from ooflib.engine import symstate
 
-FieldIndexPtr = fieldindex.FieldIndexPtr
-
 # It is not possible to remove a ConjugatePair object from the list.
 # This is OK, since the conjugate pair objects express simple facts
 # about the relevant fields, equations, and property categories.
@@ -122,9 +120,9 @@ listofconjugatepairs = ListOfConjugatePairs()
 def conjugatePair(name, equation, eqncomp, field, fieldcomp):
     # eqncomp and fieldcomp can either be a single FieldIndex object,
     # or a list of them.  The lists must have the same length.
-    if isinstance(eqncomp, FieldIndexPtr):
+    if isinstance(eqncomp, fieldindex.FieldIndex):
         eqncomp = [eqncomp]
-    if isinstance(fieldcomp, FieldIndexPtr):
+    if isinstance(fieldcomp, fieldindex.FieldIndex):
         fieldcomp = [fieldcomp]
     if len(eqncomp) != len(fieldcomp):
         raise ooferror.ErrPyProgrammingError(

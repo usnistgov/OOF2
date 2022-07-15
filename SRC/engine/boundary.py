@@ -169,7 +169,7 @@ class Boundary:
         bc.fixFloatTree(linsys, val, self.locations(), time)
 
     def expandFloat(self, subproblem, time):
-        # expandFloat() is called by FEMeshPtr.expand_float_bcs()
+        # expandFloat() is called by FEMesh.expand_float_bcs()
         # which is called by SubProblemContext.set_mesh_dofs().  It
         # operates on the FEMesh's dofvalues vector.
         if self.floatConditions:
