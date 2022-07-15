@@ -207,10 +207,10 @@ class ReferenceFrame(enum.EnumClass(
 
 class VoigtPairListParameter(parameter.ListOfStringsParameter):
     def checker(self, x):
-        if not isinstance(x, (ListType, TupleType)):
+        if not isinstance(x, (list, tuple)):
             parameter.raiseTypeError(type(x), "list of Voigt index pairs")
         for s in x:
-            if not (isinstance(s, StringType) and len(s)==2 and
+            if not (isinstance(s, str) and len(s)==2 and
                     s[0] in "123456" and s[1] in "123456"):
                 parameter.raiseTypeError("list of %s" % typename(type(s)),
                                          "list of Voigt index pairs [1-6][1-6]")
@@ -220,10 +220,10 @@ class VoigtPairListParameter(parameter.ListOfStringsParameter):
 
 class SymmIndexPairListParameter(parameter.ListOfStringsParameter):
     def checker(self, x):
-        if not isinstance(x, (ListType, TupleType)):
+        if not isinstance(x, (list, tuple)):
             parameter.raiseTypeError(type(x), "list of index pairs")
         for s in x:
-            if not (isinstance(s, StringType) and len(s)==2 and
+            if not (isinstance(s, str) and len(s)==2 and
                     s[0] in "123" and s[1] in "123"):
                 parameter.raiseTypeError("list of %s" % typename(type(s)),
                                          "list of index pairs [1-3][1-3]")
@@ -236,10 +236,10 @@ class Rank3TensorIndexParameter(parameter.ListOfStringsParameter):
     # This class is poorly named because the name doesn't indicate the
     # symmetry of the tensor (ie, 2nd index is Voigt).
     def checker(self, x):
-        if not isinstance(x, (ListType, TupleType)):
+        if not isinstance(x, (list, tuple)):
             parameter.raiseTypeError(type(x), "list of index pairs")
         for s in x:
-            if not (isinstance(s, StringType) and len(s)==2 and
+            if not (isinstance(s, str) and len(s)==2 and
                     s[0] in "123" and s[1] in "123456"):
                 parameter.raiseTypeError("list of %s" % typename(type(s)),
                                          "list of index pairs [1-3][1-6]")

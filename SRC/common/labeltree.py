@@ -71,9 +71,10 @@ def makePath(name):
     # turn a name into a path, which is a list of strings
     if name is None:                    # special case
         return None
-    if isinstance(name, ListType) and isinstance(name[0], StringType): # it's already a path
+    if isinstance(name, list) and isinstance(name[0], str):
+        # it's already a path
         return name[:]                  # return a copy
-    elif isinstance(name, StringType):
+    elif isinstance(name, str):
         path = name.split(':')          # separate colon delimited substrings
 ##        while path and not path[-1]:
 ##            path = path[:-1]

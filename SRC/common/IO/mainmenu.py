@@ -12,7 +12,7 @@
 #  The main oof menu -- with recording capability and so forth.
 
 # Lots of miscellaneous commands are defined in this file because they
-# don't to merit a file of their own.
+# don't merit a file of their own.
 
 ## TODO: Add a command that resets everything, deletes all
 ## Microstructures, resets the factory settings for Properties, etc.
@@ -35,7 +35,7 @@ from ooflib.common.IO import reporter
 from ooflib.common.IO import scriptloader
 from ooflib.common.IO.gfxmanager import gfxManager
 from ooflib.common.IO import xmlmenudump
-from types import StringType, FloatType, IntType
+
 import code
 import sys
 import tempfile

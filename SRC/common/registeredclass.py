@@ -74,7 +74,7 @@ class Registration:
 
         self._name = name
         self.subclass = subclass
-        if type(registeredclass) in (ListType, TupleType):
+        if isinstance(registeredclass, (list, tuple)):
             self.registeredclasses = tuple(registeredclass[:])
         else:
             self.registeredclasses = (registeredclass,)

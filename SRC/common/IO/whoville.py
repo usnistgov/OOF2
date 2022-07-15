@@ -728,7 +728,7 @@ class WhoParameter(parameter.Parameter):
     def checker(self, x):
         # x must be the name of a Who instance of the correct
         # WhoClass.
-        if not (isinstance(x, StringType) and 
+        if not (isinstance(x, str) and 
                 labeltree.makePath(x) in self.whoclass.keys()):
             debug.fmsg("Unexpected WhoParameter value:", x, type(x))
             raise TypeError("Expected the name of a %s instance."

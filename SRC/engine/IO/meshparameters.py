@@ -137,7 +137,7 @@ class MeshEdgeBdyParameterExtra(placeholder.PlaceHolderParameter):
 # # graphics window.
 
 # class MeshTimeParameter(placeholder.PlaceHolderParameter):
-#     types = (IntType, FloatType, placeholder.earliest, placeholder.latest)
+#     types = (int, float, placeholder.earliest, placeholder.latest)
 #     def valueDesc(self):
 #         return "A floating point number, or the earliest or latest time."
 

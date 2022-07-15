@@ -22,12 +22,21 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import widgetscope
-from types import *
+
 from gi.repository import Gdk
 from gi.repository import Gtk
 import math
 import string
 import sys
+
+# The python2 version of this file used FloatType, IntType, etc, via
+# "from types import *".  Rather than change all of them by hand, we
+# just define the old names here:
+FloatType = float
+IntType = int
+ListType = list
+TupleType = tuple
+StringType = string
 
 ############################
 

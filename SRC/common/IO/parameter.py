@@ -39,7 +39,6 @@ from ooflib.common import registeredclass
 from ooflib.common import utils
 from ooflib.common.IO import automatic
 from ooflib.common.IO.typename import typename
-from types import *
 import math
 import re
 import string
@@ -49,6 +48,15 @@ ErrPyProgrammingError = ooferror.ErrPyProgrammingError
 
 structIntFmt = '>i'
 structIntSize = struct.calcsize(structIntFmt)
+
+# The python2 version of this file used FloatType, IntType, etc, via
+# "from types import *".  Rather than change all of them by hand, we
+# just define the old names here:
+FloatType = float
+IntType = int
+ListType = list
+TupleType = tuple
+StringType = string
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
