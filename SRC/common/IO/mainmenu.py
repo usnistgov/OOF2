@@ -481,16 +481,6 @@ _graphicsmenu.addItem(OOFMenuItem("New",
 _windowmenu.addItem(_graphicsmenu)
 
 _windowmenu.addItem(OOFMenuItem(
-    'Layer_Editor',
-    callback=dummy,
-    help="Open or raise the Layer Editor window.",
-    discussion="""<para>
-Raise the <link linkend='Section-Graphics-LayerEditor'>Layer
-Editor</link> window, if it has already been opened. If not, open it.
-</para>"""
-    ))
-
-_windowmenu.addItem(OOFMenuItem(
     'Activity_Viewer',
     callback=dummy,
     help="Open or raise the Activity Viewer window.",
