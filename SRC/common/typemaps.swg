@@ -583,8 +583,7 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 
  // [string] -> std::vector<char*>*
 
-%typemap(in) const CharPtrVec *argv (CharPtrVec argh,
-				     std::vector<PyObject*> ustrs)
+%typemap(in) CharPtrVec *argv (CharPtrVec argh, std::vector<PyObject*> ustrs)
 {
   // typemap(in) CharPtrVec *argv
   if(!PySequence_Check($input)) {
