@@ -40,7 +40,7 @@ from ooflib.engine import profile
 from ooflib.engine import skeletoncontext
 from ooflib.engine.IO import meshparameters
 import ooflib.engine.mesh
-import string
+
 #Interface branch
 from ooflib.engine.IO import materialparameter
 
@@ -1236,7 +1236,7 @@ class OutOfPlaneBC(FloatBCBase):
 class PeriodicBC(BC):
     def __init__(self, field, equation, boundary, user_enable=True):
         ## TODO: There is a good reason that PeriodicBC is derived
-        ## from BC but doesn't call PeriodicBC's __init__.  If anyone
+        ## from BC but doesn't call BC's __init__.  If anyone
         ## remembers the reason, please add a comment explaining it.
 
         self.field = field
@@ -1245,8 +1245,8 @@ class PeriodicBC(BC):
         self.boundary = boundary
         # Periodic boundary conditions must keep track of exactly two
         # boundaries. The string returned by the widget will be two
-        # names separated by a space
-        self.boundaries = string.splitfields(self.boundary)
+        # names separated by a space.
+        self.boundaries = self.boundary.split()
 
         self.boundary_obj = None
         self._name = None

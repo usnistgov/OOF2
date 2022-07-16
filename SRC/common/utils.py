@@ -358,11 +358,11 @@ def screenwidth():
 # length width.  Returns a list of strings guaranteed to be shorter
 # than width, provided there are some spaces in there somewhere.
 def format(line, width):
-    linelist = [string.strip(ell) for ell in line.split("\n")]
+    linelist = [stringstrip(ell) for ell in line.split("\n")]
     outlist = []
     for str in linelist:
         while len(str) > width:
-            breakpoint = string.rfind(str," ",0,width)
+            breakpoint = stringrfind(str," ",0,width)
             outlist.append(str[0:breakpoint])
             str = str[breakpoint+1:]
         else:
@@ -567,7 +567,7 @@ def matchpattern(pattern, filename):
     # "*" in file pattern matching, in re's it is greedy, so we
     # need to replace it with ".*?".  We also need to escape the
     # string.
-    escaped_pattern = string.replace(re.escape(os.path.basename(pattern)),"\\*",".*?")
+    escaped_pattern = stringreplace(re.escape(os.path.basename(pattern)),"\\*",".*?")
     match = re.match(escaped_pattern, filename)
     if match is None:
         return False
@@ -583,7 +583,7 @@ def matchvtkpattern(pattern, filename):
     # "*" in file pattern matching, in re's it is greedy, so we
     # need to replace it with ".*?".  We also need to escape the
     # string.
-    escaped_pattern = string.replace(re.escape(os.path.basename(pattern)),"\\*","[0-9]*")
+    escaped_pattern = stringreplace(re.escape(os.path.basename(pattern)),"\\*","[0-9]*")
     match = re.match(escaped_pattern, filename)
     if match is None:
         return False
@@ -695,6 +695,41 @@ def memusage(comment):
 OOFdefine('memusage', memusage)
 OOFdefine('get_memusage', get_memusage)
 
+#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
+
+## Hacks to make switching from Python2 easier.
+
+# Functions that used to be in the string module are now just string
+# methods.  Defining these functions here lets us simply delete a "."
+# whereever the old function was used, [eg change string.join(strings,
+# sep) to stringjoin(strings, sep)] which is faster to do and less
+# error-prone.
+
+## TODO? Get rid of these functions and call the string methods directly.
+
+def stringjoin(strngs, sep):
+    return sep.join(strngs)
+
+def stringfind(source, target, *args, **kwargs):
+    return source.find(target, *args, **kwargs)
+
+def stringrfind(source, target, *args, **kwargs):
+    return source.rfind(target, *args, **kwargs)
+
+def stringsplit(source, *args, **kwargs):
+    return source.split(*args, **kwargs)
+
+def stringreplace(strng, old, new, *args, **kwargs):
+    return strng.replace(old, new, *args, **kwargs)
+
+def stringstrip(strng, *args, **kwargs):
+    return strng.strip(*args, **kwargs)
+
+def stringlstrip(strng, *args, **kwargs):
+    return strng.lstrip(*args, **kwargs)
+
+def stringrstrip(strng, *args, **kwargs):
+    return strng.rstrip(*args, **kwargs)
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 

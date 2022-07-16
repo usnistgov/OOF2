@@ -9,7 +9,6 @@
 # oof_manager@nist.gov. 
 
 from . import loggers
-import string
 
 class AdopteeLogger(loggers.GtkLogger):
     #  Handles non-Widgets that were "adopted" by adoptGObject().
@@ -21,8 +20,8 @@ class AdopteeLogger(loggers.GtkLogger):
                    for name, val in obj.oofparent_access_kwargs.items()]
         if hasattr(obj, 'oofparent_access_method'):
             return '%s.%s(%s)' % (parentcode, obj.oofparent_access_method,
-                                  string.join(strargs, ','))
+                                  ','.join(strargs))
         else: # must have oofparent_access_function instead
             return '%s(%s)' % (obj.oofparent_access_function,
-                               string.join([parentcode]+strargs,', ')) 
+                               ','.join([parentcode]+strargs)) 
 

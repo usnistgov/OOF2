@@ -378,7 +378,6 @@ from ooflib.common import debug
 from ooflib.common import garbage
 from ooflib.common import parallel_enable
 from ooflib.common import thread_enable
-from ooflib.common import utils
 from ooflib.common import worker
 from ooflib.common.IO import menuparser
 from ooflib.common.IO import parameter
@@ -386,6 +385,8 @@ from ooflib.common.IO import reporter
 import string
 import types
 import weakref
+
+from ooflib.common.utils import stringjoin, stringsplit
 
 
 #####################################
@@ -631,7 +632,7 @@ class OOFMenuItem:
 
     def descendPath(self, path):
         if isinstance(path, bytes):
-            return self.descendPath(string.split(path, '.'))
+            return self.descendPath(stringsplit(path, '.'))
         if not path:
             return self
         return self.getItem(path[0]).descendPath(path[1:])
@@ -758,8 +759,8 @@ class OOFMenuItem:
         arglist = ["%s=%s" % (name, repr(argdict[name]))
                    for name in [p.name for p in self.params]
                    if argdict[name] is not None]
-        self.log(self.path() +'(' + string.join(arglist, ', ') + ')')
-        self.bar_name = self.path() +'(' + string.join(arglist, ', ') + ')'
+        self.log(self.path() +'(' + stringjoin(arglist, ', ') + ')')
+        self.bar_name = self.path() +'(' + stringjoin(arglist, ', ') + ')'
 
         self.hireWorker(argdict=argdict)
 
@@ -845,7 +846,7 @@ class OOFMenuItem:
     def __len__(self):
         return len(self.items)
     def __repr__(self):
-        return string.join([self.name+":"] + \
+        return stringjoin([self.name+":"] + \
                            [item.name for item in self.items
                             if item.visible_cli()],
                            ' ')
@@ -904,7 +905,7 @@ class OOFMenuItem:
             
     def xmlSynopsis(self, file):        # make the Synopsis section
         print(" <refsynopsisdiv><simpara>", file=file)
-        args = string.join(['<varname>%s</varname>' % p.name
+        args = stringjoin(['<varname>%s</varname>' % p.name
                             for p in self.params], ',')
         print("  <command>%s</command>(%s)" % (self.path(), args), file=file)
         print(" </simpara></refsynopsisdiv>", file=file)

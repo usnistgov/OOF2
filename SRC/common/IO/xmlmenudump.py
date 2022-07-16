@@ -13,8 +13,6 @@ from ooflib.common import enum
 from ooflib.common import labeltree
 from ooflib.common import utils
 from ooflib.common.IO import parameter
-import string
-import types
 
 ## TODO PYTHON3: Remove stripPtr() calls. They're now no-ops.
 
@@ -549,7 +547,7 @@ may be members of more than one
         print("  </refnamediv>", file=file)
 
         print("  <refsynopsisdiv><simpara>", file=file)
-        args = string.join(['<varname>%s</varname>' % p.name
+        args = utils.stringjoin(['<varname>%s</varname>' % p.name
              for p in reg.params], ',')
         print("   <classname>%s</classname>(%s)" % (name, args), file=file)
         print("  </simpara></refsynopsisdiv>", file=file)

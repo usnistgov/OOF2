@@ -21,7 +21,6 @@ from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import labeltree
 from ooflib.common import registeredclass
-from ooflib.common import utils
 from ooflib.common.IO import datafile
 from ooflib.common.IO import filenameparam
 from ooflib.common.IO import mainmenu
@@ -58,6 +57,8 @@ from ooflib.engine.IO import skeletonIO
 
 import ooflib.engine.IO.meshmenu
 import ooflib.engine.IO.boundaryconditionmenu
+
+from ooflib.common.utils import stringjoin
 
 OOFMenuItem = oofmenu.OOFMenuItem
 
@@ -778,7 +779,7 @@ registeredclass.Registration(
 ##########
 
 import datetime
-import string
+
 def writeABAQUSfromMesh(filename, mode, meshcontext):
     femesh=meshcontext.femesh()
 
@@ -895,7 +896,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                             if node.index() not in cornernodelist:
                                 listbuf2.append(
                                     "%d" % (nodedict[node.position()]))
-                        listbuf.append(string.join(listbuf2,", ")+"\n")
+                        listbuf.append(stringjoin(listbuf2,", ")+"\n")
             buffer.extend(listbuf)
         except KeyError:
             ## TODO: Which KeyError are we ignoring here?  Use
@@ -920,7 +921,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                 else:
                     listbuf.append("%d" % (somevalue))
                 i+=1
-        buffer.append(string.join(listbuf,", ")+"\n")
+        buffer.append(stringjoin(listbuf,", ")+"\n")
 
     buffer.append("** Edge boundaries in OOF2\n")
     for ebname in meshcontext.edgeBoundaryNames():
@@ -939,7 +940,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                 else:
                     listbuf.append("%d" % (somevalue))
                 i+=1
-        buffer.append(string.join(listbuf,", ")+"\n")
+        buffer.append(stringjoin(listbuf,", ")+"\n")
 
     for matname in materiallist:
         ## TODO OPT: Use a separate buffer for each material, and only
@@ -955,7 +956,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                     else:
                         listbuf.append("%d" % elementdict[el.get_index()])
                     i+=1
-        buffer.append(string.join(listbuf,", ") +
+        buffer.append(stringjoin(listbuf,", ") +
                       "\n*SOLID SECTION, ELSET=%s, MATERIAL=%s\n" % (matname,
                                                                      matname))
 

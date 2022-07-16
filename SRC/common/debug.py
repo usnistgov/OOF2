@@ -12,11 +12,11 @@ from ooflib.SWIG.common import threadstate
 from ooflib.common import mainthread
 from ooflib.common import parallel_enable
 from ooflib.common import thread_enable
+from ooflib.common.utils import stringjoin, stringsplit
 import ooflib.SWIG.common.lock
 
 import gc
 import os
-import string
 import sys
 import traceback
 import types
@@ -67,7 +67,7 @@ def dumpTrace(start=0, end=-1):
             lines.append('+++%30s:%3d\t%s\t\t%s' % (line[0],line[1],
                                                         line[2],line[3]))
         lines.append('+++-------------- end trace -----------------')
-        print(string.join(lines, '\n'), file=sys.stderr)
+        print(stringjoin(lines, '\n'), file=sys.stderr)
     finally:
         lock.release()
 
@@ -106,7 +106,7 @@ def msg(*args):
             else:
                 rank='--'
             print(('-%04d-%02d-%s'%(depth,thread,rank))+'-'*(depth-1), \
-                  string.join(list(map(str, args)), ' '), file=sys.stderr)
+                  stringjoin(list(map(str, args)), ' '), file=sys.stderr)
         finally:
             lock.release()
 
@@ -123,7 +123,7 @@ def fmsg(*args):
         try:
             stack = traceback.extract_stack()
             depth = len(stack)
-            filename = string.split(stack[-2][0], '/')[-1]
+            filename = stringsplit(stack[-2][0], '/')[-1]
             func = stack[-2][2]
             line = stack[-2][1]
             try:
@@ -137,7 +137,7 @@ def fmsg(*args):
                 rank='--'
             print(('-%04d-%s-%s'%(depth,thread,rank))+'-'*(depth-1), \
                   '%s(%d):%s'%(filename, line, func),\
-                  string.join(list(map(str, args)), ' '), file=sys.stderr)
+                  stringjoin(list(map(str, args)), ' '), file=sys.stderr)
         finally:
             lock.release()
 

@@ -65,8 +65,9 @@ from ooflib.SWIG.common import timestamp
 from ooflib.common import debug
 from ooflib.common import utils
 from types import *
-import string
 import struct
+
+from ooflib.common.utils import stringjoin
 
 class Registration:
     def __init__(self, name, registeredclass, subclass, ordering,
@@ -291,7 +292,7 @@ class RegisteredClass:
     def paramrepr(self):
         values = self.getParamValues()
         names = [p.name for p in self.getRegistration().params]
-        return string.join(['%s=%s' % (name, repr(value))
+        return stringjoin(['%s=%s' % (name, repr(value))
                            for (name, value) in zip(names, values)], ',')
 
     def shortparamrepr(self):
@@ -331,7 +332,7 @@ class RegisteredClass:
 ## unnecessary since Registration.__init__ checks for uniqueness in
 ## the OOF namespace.
 ##        classname = self.__class__.__name__
-##        modulename = string.split(self.__module__, '.')[-1]
+##        modulename = stringsplit(self.__module__, '.')[-1]
 ##        return '%s.%s(%s)' % (modulename, classname, self.paramrepr())
 
     def shortrepr(self):
@@ -352,7 +353,7 @@ class RegisteredClass:
                 repstrings.append(struct.pack('>i', nonekey))
             else:
                 repstrings.append(param.binaryRepr(datafile, value))
-        return string.join(repstrings, '')
+        return stringjoin(repstrings, '')
     def getTimeStamp(self):
         # The timestamp is created by Registration.__call__.
         return self.timestamp

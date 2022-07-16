@@ -56,8 +56,8 @@
 # handle wraparound correctly, so they're not necessarily contiguous
 # sublists of self.data.
 
-import string
 from ooflib.common import debug
+from ooflib.common.utils import stringjoin
 
 ## TODO PYTHON3: Make RingBuffer a true iterable object
 
@@ -240,7 +240,7 @@ class RingBuffer:
         if self.overwrite:
             repr += ', overwritefunc=' + self.overwrite.__name__
         if self.ndata > 0:
-            repr += ', data=[' + string.join([repr(obj) for obj in self], ',')+']'
+            repr += ', data=[' + stringjoin([repr(obj) for obj in self], ',')+']'
         repr += ')'
         return repr
 

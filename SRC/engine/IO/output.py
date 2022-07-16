@@ -17,9 +17,10 @@ from ooflib.common import primitives
 from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
-import string
 import struct
 import types
+
+from ooflib.common.utils import stringjoin
 
 structIntFmt = '>i'
 structIntSize = struct.calcsize(structIntFmt)
@@ -242,7 +243,7 @@ class Output:
         params = self.getSettableParams() # dictionary keyed by alias
         args = ["'%s'" % self.getPath()] + ['%s=%s' % (alias, repr(p.value))
                                             for alias, p in params.items()]
-        return string.join(args, ',')
+        return stringjoin(args, ',')
 
     def outputInstance(self): 
         # outputInstance returns an instance of the OutputVal subclass
@@ -317,7 +318,7 @@ class Output:
 
     # Return all parameter names as colon separated paths, unaliased.
     def listAllParameterNames(self, filter=lambda x: True):
-        return [string.join(path, ':')
+        return [stringjoin(path, ':')
                 for path in self.listAllParameterPaths(filter)]
 
     # Return a dictionary of clones of the settable Parameters, keyed
@@ -451,7 +452,7 @@ class Output:
                 try:
                     # If the parameter belongs to one of our inputs,
                     # our name for it is (input's name):(param's alias)
-                    return string.join([inputname,
+                    return stringjoin([inputname,
                                         input.getAliasForParam(param)], ':')
                 except KeyError:
                     pass
@@ -509,7 +510,7 @@ class Output:
         strings=[pathlengthstr,self.getPath()]
         for pvalue in self.getSettableParams().values():
             strings.append(pvalue.binaryRepr(datafile,pvalue.value))
-        return string.join(strings,'')
+        return stringjoin(strings,'')
 
     # These functions are used when setting GUI widgets
     def isAggregateOutput(self):
@@ -552,7 +553,7 @@ def prependHierarchyName(name, hier):
         if isinstance(hier[i], list):
             hier[i] = prependHierarchyName(name, hier[i])
         else:
-            hier[i] = string.join([name, hier[i]], ':')
+            hier[i] = stringjoin([name, hier[i]], ':')
     return hier
 
 ################################################################

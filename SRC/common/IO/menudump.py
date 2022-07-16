@@ -14,8 +14,6 @@ from ooflib.common import utils
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
-import string
-
 
 indent =  "      "
 indent2 = "           "
@@ -92,7 +90,7 @@ def textmenudump(file):
     rlist = sorted(list(regclassdict.items()))
     for rname, reg in rlist:
         basenames = [regclass.__name__ for regclass in reg.registeredclasses]
-        print(indent, rname, "(%s)"%string.join(basenames,","), file=file)
+        print(indent, rname, "(%s)" % ",".join(basenames), file=file)
         if reg.tip:
             print(indent, "tip:", reg.tip, file=file)
         else:
@@ -123,7 +121,7 @@ def textmenudump(file):
             print(indent2, "tip:", p.tip, file=file)
         else:
             print(indent2, "MISSING TIP STRING", file=file)
-        vlist = string.split(p.valueRepr(), '\n')
+        vlist = p.valueRepr().split('\n')
         for vv in vlist:
             print(indent2, vv, file=file)
         print(file=file)

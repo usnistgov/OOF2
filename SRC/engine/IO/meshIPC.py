@@ -26,10 +26,11 @@ from ooflib.common.IO import whoville
 from ooflib.SWIG.common import switchboard
 from ooflib.common.IO import reporter
 import ooflib.engine.mesh
-import string
 from ooflib.common import primitives
 from ooflib.common import debug
 from functools import reduce
+
+from ooflib.common.utils import stringjoin
 
 StringParameter = parameter.StringParameter
 
@@ -261,7 +262,7 @@ def copyMesh_parallel(menuitem, mesh, name,
         newmesh.begin_writing()
         try:
             copiedmesh = skelpath+[copiedmeshname]
-            copiedmeshfullname = string.join(copiedmesh,":")
+            copiedmeshfullname = stringjoin(copiedmesh,":")
             for subpctxt in basemesh.subproblems():
                 subp = subpctxt.getObject()
                 newsubp = subpctxt.getObject().clone() # CSubProblem object
@@ -739,7 +740,7 @@ def parallel_mesh_info_query(menuitem, targetname, position, mesh):
                             if fnode.hasField(field):
                                 for i in range(field.ndof()):
                                     reportsubpfields.append(16*" "+("%g" % field.value(fnode,i)))
-            reportstring+=string.join(reportsubpfields,"\n")
+            reportstring+=stringjoin(reportsubpfields,"\n")
 
         if _rank==0:
             #Get list of squares of distance of node to the click point
@@ -793,7 +794,7 @@ def parallel_mesh_info_query(menuitem, targetname, position, mesh):
     nodes=%s
     material=%s\n""" % (felem.masterelement().name(),
                         felem.get_index(),
-                        string.join(["%s %d at (%g, %g)" % 
+                        stringjoin(["%s %d at (%g, %g)" % 
                                      (obj.classname(), obj.index(),
                                       obj.position().x, obj.position().y)
                                      for obj in felem.node_iterator()],","),
@@ -813,7 +814,7 @@ def parallel_mesh_info_query(menuitem, targetname, position, mesh):
                             valuelist=o.valuePtr().value_list()
                             for val in valuelist:
                                 reportsubpfields.append(16*" "+repr(val))
-                reportstring+=string.join(reportsubpfields,"\n")
+                reportstring+=stringjoin(reportsubpfields,"\n")
 
         if _rank==0:
             distance2list=[distance2]

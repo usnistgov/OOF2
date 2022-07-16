@@ -28,7 +28,6 @@ from ooflib.engine import skeletongroups
 from ooflib.engine import skeletonnode
 from ooflib.engine import skeletonselectable
 from ooflib.engine.IO import movenode
-import string
 import sys
 
 # When propagating boundaries, Deputies shouldn't be around - since they
@@ -717,7 +716,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         if bdy:
             outlist.append("Size: %i" % bdy.size(self.getObject()))
         
-        return string.join(outlist,"\n")
+        return utils.stringjoin(outlist,"\n")
         
                 
     #Called by C++ edgement function refreshInterfaceMaterial() (element.C)
@@ -810,7 +809,7 @@ def getSkeleton(ms, name):
 
 def extractSkeletonPath(somepath):
     #Calling labeltree.makePath may be a more formal way to do this.
-    pathlist=string.split(somepath,":")
+    pathlist=utils.stringsplit(somepath,":")
     if len(pathlist)<2:
         #Shouldn't happen
         return somepath

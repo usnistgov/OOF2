@@ -23,7 +23,6 @@ from ooflib.common.IO import formatchars
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine.IO import outputClones
 import math
-import string
 import types
 
 ## TODO: For direct output, it would be useful to have separate output
@@ -427,7 +426,7 @@ DataOperationRegistration(
 #             output_header = header + olist[0][1].label_list()
 
 #         #print >> destination, comment_character + \
-#         #      string.join(output_header, sep_string)
+#         #      sep_string.join(output_header)
 #         outputstringlist=[getCommentChar() + sep_string.join(output_header)]
 #         if otype == types.FloatType:
 #             # For floating-point values, iterate over the list, and
@@ -437,14 +436,14 @@ DataOperationRegistration(
 #                 tags = s.columnData(header)
 #                 if len(tags)==1:
 #                     #print >> destination, \
-#                     #      string.join(tags[0]+[`v`], sep_string)
+#                     #      sep_string.join(tags[0]+[`v`])
 #                     outputstringlist.append(
 #                         sep_string.join(tags[0]+[`v`])
 #                         )
 #                 else:
 #                     for (tag, vstring) in zip(tags, [`val` for val in v]):
 #                         #print >> destination, \
-#                         #      string.join(tag+[vstring], sep_string)
+#                         #      sep_string.join(tag+[vstring])
 #                         outputstringlist.append(
 #                             sep_string.join(tag+[vstring])
 #                             )
@@ -456,16 +455,14 @@ DataOperationRegistration(
 #                 if len(tags)==1:
 #                     vlist = v.value_list()
 #                     #print >> destination, \
-#                     #      string.join(tags[0] + [`x` for x in vlist],
-#                     #                  sep_string)
+#                     #      sep_string.join(tags[0] + [`x` for x in vlist])
 #                     outputstringlist.append(
 #                         sep_string.join(tags[0] + [`x` for x in vlist]))
 #                 else: # Multiple values -- do above for each tag-val pair.
 #                     for (tag, val) in zip(tags, v):
 #                         vlist = val.value_list()
 #                         #print >> destination, \
-#                         #      string.join(tag + [`x` for x in vlist],
-#                         #                  sep_string)
+#                         #      sep_string.join(tag + [`x` for x in vlist])
 #                         outputstringlist.append(
 #                             sep_string.join(tag + [`x` for x in vlist]))
 #         #Send output to front end (process/rank 0)

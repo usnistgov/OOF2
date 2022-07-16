@@ -16,7 +16,8 @@ from ooflib.common import debug
 from ooflib.common import primitives
 import math
 import os.path
-import string
+
+from ooflib.common.utils import stringsplit
 
 class HKLreader(orientmapdata.OrientMapReader):
     def __init__(self):
@@ -28,13 +29,13 @@ class HKLreader(orientmapdata.OrientMapReader):
         line = next(lineiter)
         while not line.startswith('XCells'):
             line = next(lineiter)
-        xcells = string.atoi(string.split(line)[1])
+        xcells = int(stringsplit(line)[1])
         line = next(lineiter)
-        ycells = string.atoi(string.split(line)[1])
+        ycells = int(stringsplit(line)[1])
         line = next(lineiter)
-        xstep = string.atof(string.split(line)[1])
+        xstep = float(stringsplit(line)[1])
         line = next(lineiter)
-        ystep = string.atof(string.split(line)[1])
+        ystep = float(stringsplit(line)[1])
         line = next(lineiter)
 
 
@@ -42,7 +43,7 @@ class HKLreader(orientmapdata.OrientMapReader):
             primitives.iPoint(xcells, ycells),
             primitives.Point(xcells*xstep, ycells*ystep))
         
-        while not string.split(line)[0] == 'Phase':
+        while not stringsplit(line)[0] == 'Phase':
             line = next(lineiter)
         prog = progress.getProgress(os.path.basename(filename),
                                     progress.DEFINITE)
@@ -50,12 +51,12 @@ class HKLreader(orientmapdata.OrientMapReader):
             count = 0
             npts = xcells*ycells
             for line in lineiter:
-                vals = string.split(line)
+                vals = stringsplit(line)
                 phase = vals[0]
-                x = string.atof(vals[1])
-                y = string.atof(vals[2])
-                angles = list(map(string.atof, vals[5:8]))
-                mad = string.atof(vals[8])  # mean angular deviation
+                x = float(vals[1])
+                y = float(vals[2])
+                angles = list(map(float, vals[5:8]))
+                mad = float(vals[8])  # mean angular deviation
                 ij = primitives.iPoint(
                     int(round(x/xstep)),
                     ycells-1-int(round(y/ystep)))

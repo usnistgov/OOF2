@@ -6,14 +6,16 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
+
+## TODO: This file may not have been fully upgraded from Python2 to
+## Python3, and certainly hasn't been tested.
 
 import math, sys
 from ooflib.common import debug
 from ooflib.common import microstructure
 from ooflib.common import object_id
 from ooflib.common import primitives
-from ooflib.common import utils
 from ooflib.common.IO import automatic
 from ooflib.common.IO import binarydata
 from ooflib.common.IO import mainmenu
@@ -36,8 +38,10 @@ from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
 from ooflib.common import labeltree
 from ooflib.SWIG.common import pixelgroup
-import string
 from functools import reduce
+
+from ooflib.common.utils import stringjoin
+
 
 WhoParameter = whoville.WhoParameter
 microStructures = microstructure.microStructures
@@ -596,7 +600,7 @@ def parallel_skel_info_query(menuitem, targetname, position, skeleton):
                     nmob = "fixed"
                 nneighborelements="None"
                 if node.neighborElements(skelobj):
-                    nneighborelements=string.join(["Element %d" % obj.index
+                    nneighborelements=stringjoin(["Element %d" % obj.index
                                                    for obj in node.neighborElements(skelobj)],",")
                 reportstring="""
     index=%d
@@ -681,11 +685,11 @@ def parallel_skel_info_query(menuitem, targetname, position, skeleton):
     elements=%s
     length=%s
     homogeneity=%s""" % (sindex,
-                         string.join(["Node %d at (%g, %g)" % (obj.index,
+                         stringjoin(["Node %d at (%g, %g)" % (obj.index,
                                                                obj.position().x,
                                                                obj.position().y)
                                       for obj in sgmt.get_nodes()],","),
-                         string.join(["Element %d" % obj.index for obj in sgmt.getElements()],","),
+                         stringjoin(["Element %d" % obj.index for obj in sgmt.getElements()],","),
                          length,
                          homogval)
 
@@ -739,7 +743,7 @@ def parallel_skel_info_query(menuitem, targetname, position, skeleton):
                     domCat = elem.dominantPixel(skelobj.MS)
                     repPix = skelobj.MS.getRepresentativePixel(domCat)
                     pixGrp = pixelgroup.pixelGroupNames(skelobj.MS, repPix)
-                    pixgrps = string.join(pixGrp, ", ")
+                    pixgrps = stringjoin(pixGrp, ", ")
                     ehom = "%f" % elem.homogeneity(skelobj.MS)
                     eshape = "%f" % elem.energyShape()
 
@@ -765,11 +769,11 @@ def parallel_skel_info_query(menuitem, targetname, position, skeleton):
     shape energy=%s
     material=%s""" % (eindex,
                       etype,
-                      string.join(["Node %d at (%g, %g)" % (obj.index,
+                      stringjoin(["Node %d at (%g, %g)" % (obj.index,
                                                             obj.position().x,
                                                             obj.position().y)
                                    for obj in elem.nodes],","),
-                      string.join(["Segment %d, nodes (%d, %d) (length: %g)" %
+                      stringjoin(["Segment %d, nodes (%d, %d) (length: %g)" %
                                    (obj.index, obj.nodes()[0].index, obj.nodes()[1].index,
                                     obj.length())
                                    for obj in elem.getSegments(skelobj)],","),

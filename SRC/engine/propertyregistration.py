@@ -29,8 +29,9 @@ from ooflib.common.IO import reporter
 from ooflib.common.IO import xmlmenudump
 from ooflib.common import parallel_enable
 from ooflib.common.labeltree import LabelTree, makePath
-import string, types, sys
+import types, sys
 
+from ooflib.common.utils import stringjoin, stringsplit
 
 # Load the convertible registered types used as parameters
 # by the properties.
@@ -161,7 +162,7 @@ class PropertyManager:
             collision = self.data[key]
         except KeyError:
             # Key not found, OK to insert. 
-            propclass = string.split(key,':')[-1]
+            propclass = stringsplit(key,':')[-1]
 
             # Add it to the labeltree.
             self.data.__setitem__(key, value, ordering=value.ordering)
@@ -182,8 +183,8 @@ class PropertyManager:
     def new_prop(self, oldname, newname):
         oldreg = self.data[oldname].object
         if hasattr(oldreg , "parent"):
-            namelist = string.split(oldname, ':')[:-1]
-            fullname = string.join(namelist+[newname], ':')
+            namelist = stringsplit(oldname, ':')[:-1]
+            fullname = stringjoin(namelist+[newname], ':')
         else:
             fullname = oldname+":"+newname
         newreg = oldreg.named_copy(fullname)
@@ -228,7 +229,7 @@ class PropertyManager:
             # Translate the menuitem's path to the tree's path.  The first
             # three words of the path are OOF.Property.Parametrize.
             # We want the remainder.
-            treepath = string.split(menuitem.path(),".")[3:]
+            treepath = stringsplit(menuitem.path(),".")[3:]
             reg = self.data[treepath].object
             reg.new_params(**kwargs)
             switchboard.notify("redraw")
@@ -262,7 +263,7 @@ class PropertyManager:
         # The first five words of menuitem.path() are
         # OOF.LoadData.IPC.Property.Parametrize
         # We want the remainder.
-        treepath = string.split(menuitem.path(),".")[5:]
+        treepath = stringsplit(menuitem.path(),".")[5:]
         reg = self.data[treepath].object
         reg.new_params(**kwargs)
         switchboard.notify("redraw")
@@ -274,7 +275,7 @@ class PropertyManager:
     # PropertyRegistration and NamedPropertyRegistration's writeData
     # methods ensure that "reg" is always a PropertyRegistration.
     def creatorcallback(self, menuitem, **kwargs):
-        treepath = string.split(menuitem.path(),".")[3:]
+        treepath = stringsplit(menuitem.path(),".")[3:]
         reg = self.data[treepath].object
         name = menuitem.params[0].value
 
@@ -304,7 +305,7 @@ class PropertyManager:
             # No collision, we must create a new NamedRegistration.
             # We know it's a NamedRegistration because unnamed
             # property registrations *always* produce a name conflict.
-            fullname = string.join( treepath + [name], ":")
+            fullname = stringjoin( treepath + [name], ":")
             newreg = reg.named_copy(fullname, menuitem.params[1:])
             switchboard.notify("redraw")
 
@@ -694,7 +695,7 @@ class NamedPropertyRegistration(PropertyRegistration):
                                             modulename, ordering, secret)
 
         self._name = name
-        self.moniker = string.split(name,":")[-1]
+        self.moniker = stringsplit(name,":")[-1]
         self.parent = parent
         self.materials = {}
         self.params = params
@@ -831,7 +832,7 @@ def _parametrizeHelp(menuitem):
                    % ('n'*(name[0] in 'aeiouAEOIU'), name)
     splitpath = menuitem.path().split('.')
     proppath = splitpath[3:]            # remove "OOF.Property.Parametrize"
-    return "Set parameters for %s Properties" % string.join(proppath, '.')
+    return "Set parameters for %s Properties" % stringjoin(proppath, '.')
     
 
 def _loadDiscussion(menuitem):
@@ -896,7 +897,7 @@ def _loadHelp(menuitem):
                    % ('n'*(name[0] in 'aeiouAEIOU'), name)
     splitpath = menuitem.path().split('.')
     proppath = splitpath[3:]            # remove "OOF.LoadDataProperty"
-    return "Set parameters for %s Properties.  This menu is used only in data files." % string.join(proppath, '.')
+    return "Set parameters for %s Properties.  This menu is used only in data files." % stringjoin(proppath, '.')
     
 
 def xmldocs(phile):

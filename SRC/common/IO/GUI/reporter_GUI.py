@@ -18,6 +18,7 @@ from ooflib.common import debug
 from ooflib.common import excepthook
 from ooflib.common import mainthread
 from ooflib.common import thread_enable
+from ooflib.common import utils
 from ooflib.common.IO import mainmenu
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import reporter
@@ -322,7 +323,7 @@ class ErrorPopUp:
         vbox = self.gtk.get_content_area()
         vbox.set_spacing(3)
 
-        classname = string.split(str(e_type),'.')[-1]
+        classname = utils.stringsplit(str(e_type),'.')[-1]
         vbox.pack_start(Gtk.Label("ERROR"),
                                  expand=False, fill=False, padding=0)
 

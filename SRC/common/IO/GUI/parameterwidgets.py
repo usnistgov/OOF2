@@ -29,6 +29,8 @@ import math
 import string
 import sys
 
+from ooflib.common.utils import stringlstrip
+
 # The python2 version of this file used FloatType, IntType, etc, via
 # "from types import *".  Rather than change all of them by hand, we
 # just define the old names here:
@@ -175,7 +177,7 @@ class GenericWidget(ParameterWidget):
         # either do the oofeval if it gets a string, or be broken up
         # into "validStringValue" and "validParameterValue" or
         # something similar.
-        return value is not None and string.lstrip(value) != ""
+        return value is not None and stringlstrip(value) != ""
 
     # GenericWidgets are sometimes included in other widgets with fake
     # parameters, which may need control over the emission of the
@@ -204,7 +206,7 @@ class StringWidget(GenericWidget):
     def set_value(self, value):
         debug.mainthreadTest()
         self.block_signal()
-        if isinstance(value, StringType) and string.lstrip(value) != "":
+        if isinstance(value, StringType) and stringlstrip(value) != "":
             self.gtk.set_text(value)
             self.widgetChanged(1, interactive=0)
         else:
@@ -379,7 +381,7 @@ class AutoWidget(ParameterWidget):
     def validValue(self, value):
         # See comment in GenericWidget.validValue.
         return (value is automatic.automatic or
-                (isinstance(value, StringType) and string.lstrip(value) != ""))
+                (isinstance(value, StringType) and stringlstrip(value) != ""))
 
     def enterAutoMode(self):
         self.automatic = True
@@ -426,7 +428,7 @@ class RestrictedAutoNameWidget(AutoNameWidget):
     def validValue(self, value):
         if value is automatic.automatic:
             return True
-        return (isinstance(value, StringType) and string.strip(value) != ""
+        return (isinstance(value, StringType) and stringstrip(value) != ""
                 and self.prog.match(value))
 
 def _RestrictedAutoNameParam_makeWidget(self, scope, **kwargs):
@@ -680,7 +682,7 @@ class ListOfFloatsWidget(GenericWidget):
         if x is not None:
             return x
         return []
-    def validValue(self, string):
+    def validValue(self, *args):
         return 1
 
 def _ListOfFloatsParameter_makeWidget(self, scope=None, **kwargs):
@@ -1240,7 +1242,7 @@ class ValueSetParameterWidget(GenericWidget):
         if value is None:
             return 0
         if isinstance(value, StringType):
-            if string.lstrip(value)=="":
+            if stringlstrip(value)=="":
                 return 0
             return 1 # Nontrival strings are OK.
         
@@ -1270,7 +1272,7 @@ class AutomaticValueSetParameterWidget(AutoWidget):
         if value is None:
             return 0
         if isinstance(value, StringType):
-            if string.lstrip(value)=="":
+            if stringlstrip(value)=="":
                 return 0
             return 1
         

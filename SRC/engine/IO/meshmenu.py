@@ -50,7 +50,6 @@ if parallel_enable.enabled():
     from ooflib.engine.IO import meshIPC
 import ooflib.engine.mesh
 import types
-import string
 
 SyncMeshParameter = ooflib.engine.mesh.SyncMeshParameter
 
@@ -263,7 +262,7 @@ def copyMesh(menuitem, mesh, name, copy_field, copy_equation, copy_bc):
         newmesh.begin_writing()
         try:
             copiedmesh = skelpath+[copiedmeshname]
-            copiedmeshfullname = string.join(copiedmesh,":")
+            copiedmeshfullname = utils.stringjoin(copiedmesh,":")
             for subpctxt in basemesh.subproblems():
                 newsubpctxt = subpctxt.clone(newmesh, copy_field, copy_equation,
                                              notifications)

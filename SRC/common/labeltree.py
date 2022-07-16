@@ -51,8 +51,8 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common.ooferror import ErrUserError
 from ooflib.common import debug
 from ooflib.common.IO import oofmenu
-from types import *
-import string
+from ooflib.common.utils import stringjoin
+#from types import *             #  TODO PYTHON3: DO we need this line?
 import sys
 from functools import reduce
 
@@ -125,7 +125,7 @@ class LabelTreeNode:
                 else:
                     return node.subTree(path[1:])
         raise KeyError("Can't find %s in LabelTree!" %
-                       string.join([self.path(), path[0]], ':'))
+                       stringjoin([self.path(), path[0]], ':'))
     def __getitem__(self, name):
         return self.subTree(name)
 
@@ -336,7 +336,7 @@ class LabelTreeNode:
         else:
             return []
     def path(self):
-        return string.join(self.pathlist(), ':')
+        return stringjoin(self.pathlist(), ':')
 
     # Returns a list of paths to all leaves of the subtree rooted at this node.
     def leafpaths(self, condition=lambda x: 1):
@@ -395,7 +395,7 @@ class LabelTreeNode:
     def __repr__(self):
         repr = ["%s(%s):" % (self.__class__.__name__, self.name)] + \
                [n.name for n in self.nodes]
-        return string.join(repr, ' ')
+        return stringjoin(repr, ' ')
 ##        repr = "%s(%s):\n" % (self.__class__.__name__, self.name)
 ##        for node in self.nodes:
 ##            repr += node.dump('')

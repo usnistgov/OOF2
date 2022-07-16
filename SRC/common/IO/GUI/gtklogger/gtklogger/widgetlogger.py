@@ -14,7 +14,6 @@ from gi.repository import Gtk
 from . import logutils
 
 import sys
-import string
 
 # When recording, _wdict[obj] is the name of a variable which, when
 # replaying, will be storing a weak reference to obj.  All the
@@ -30,9 +29,9 @@ class WidgetLogger(loggers.GtkLogger):
         # list of strings and the colon separated string.
         path = logutils.getWidgetPath(widget)
         if path[0] not in logutils.getTopWidgetNames():
-            raise logutils.GtkLoggerException(string.join(path, ':') + 
+            raise logutils.GtkLoggerException(':'.join(path) + 
                                      " is not contained in a top-level widget")
-        return "findWidget('%s')" % string.join(path, ':')
+        return "findWidget('%s')" % ':'.join(path)
 
     def record(self, obj, signal, *args):
         if signal in ('button-press-event', 'button-release-event'):

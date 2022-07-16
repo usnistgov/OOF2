@@ -40,6 +40,8 @@ if config.dimension() == 2:
 elif config.dimension() == 3:
     import ooflib.engine.skeleton3d as skeleton
 
+from ooflib.common.utils import stringjoin
+
 import sys
 
 OOFMenuItem = oofmenu.OOFMenuItem
@@ -622,8 +624,9 @@ def rearrangeEdges(edges):
 ##########
 # ABAQUS #
 ##########
+
 import datetime
-import string
+
 def writeABAQUSfromSkeleton(filename, mode, skelcontext):
     skelcontext.begin_reading()
     try:
@@ -682,7 +685,7 @@ def writeABAQUSfromSkeleton(filename, mode, skelcontext):
         listbuf=["*NODE\n"]
         for node in skeleton.nodes:
             listbuf.append("%d, %s, %s\n" % (nodedict[node],node.position().x,node.position().y))
-        buffer+=string.join(listbuf,"")
+        buffer+=stringjoin(listbuf,"")
 
         # Only expecting 3 or 4 noded skeleton elements
         for numnodes in [3,4]:
@@ -693,9 +696,9 @@ def writeABAQUSfromSkeleton(filename, mode, skelcontext):
                     listbuf2=["%d" % (elementdict[el])]
                     for node in el.nodes:
                         listbuf2.append("%d" % (nodedict[node]))
-                    listbuf.append(string.join(listbuf2,", ")+"\n")
+                    listbuf.append(stringjoin(listbuf2,", ")+"\n")
             if len(listbuf)>1:
-                buffer+=string.join(listbuf,"")
+                buffer+=stringjoin(listbuf,"")
 
         debug.fmsg("wrote elements")
 
@@ -709,7 +712,7 @@ def writeABAQUSfromSkeleton(filename, mode, skelcontext):
                 else:
                     listbuf.append("%d" % (nodedict[node]))
                 i+=1
-            buffer+=string.join(listbuf,", ")+"\n"
+            buffer+=stringjoin(listbuf,", ")+"\n"
         debug.fmsg("wrote node groups")
         
         for elgroup in skelcontext.elementgroups.groups:
@@ -722,7 +725,7 @@ def writeABAQUSfromSkeleton(filename, mode, skelcontext):
                 else:
                     listbuf.append("%d" % (elementdict[el]))
                 i+=1
-            buffer+=string.join(listbuf,", ")+"\n"
+            buffer+=stringjoin(listbuf,", ")+"\n"
         debug.fmsg("wrote element groups")
 
         buffer+="** Include point and edge boundaries from OOF2.\n"
@@ -736,7 +739,7 @@ def writeABAQUSfromSkeleton(filename, mode, skelcontext):
                 else:
                     listbuf.append("%d" % (nodedict[node]))
                 i+=1
-            buffer+=string.join(listbuf,", ")+"\n"
+            buffer+=stringjoin(listbuf,", ")+"\n"
         debug.fmsg("wrote boundaries")
 
         # Use rearrangeEdges() to chain the edges together, then pick the
@@ -757,7 +760,7 @@ def writeABAQUSfromSkeleton(filename, mode, skelcontext):
                 else:
                     listbuf.append("%d" % (edge[1]))
                 i+=1
-            buffer+=string.join(listbuf,", ")+"\n"
+            buffer+=stringjoin(listbuf,", ")+"\n"
 
         for matname in materiallist:
             buffer+="*ELSET, ELSET=%s\n" % matname
@@ -769,7 +772,7 @@ def writeABAQUSfromSkeleton(filename, mode, skelcontext):
                 else:
                     listbuf.append("%d" % (elindex))
                 i+=1
-            buffer+=string.join(listbuf,", ")+"\n*SOLID SECTION, ELSET=%s, MATERIAL=%s\n" % (matname,matname)
+            buffer+=stringjoin(listbuf,", ")+"\n*SOLID SECTION, ELSET=%s, MATERIAL=%s\n" % (matname,matname)
         debug.fmsg("wrote material elsets")
             
         for matname in materiallist:

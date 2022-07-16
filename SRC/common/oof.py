@@ -7,7 +7,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-import sys, os, types, string, random, code
+import sys, os, types, random, code
 
 # g++ code won't correctly resolve dynamic casts in shared libraries
 # unless RTLD_GLOBAL is set when the library is loaded.  See
@@ -49,6 +49,8 @@ from ooflib.common import thread_enable
 from ooflib.common.IO import automatic
 from ooflib.common.IO import reporter
 from ooflib.common.IO import progressbar
+
+from ooflib.common.utils import stringjoin
             
 ########################################
 
@@ -451,9 +453,9 @@ def front_end(no_interp=None):
             nblanks = (width - len(welcome))/2
             banner = wiggles*nwiggles + "//\n\n" \
                      + " "*nblanks + welcome + "\n" + \
-                     string.join(utils.format(banner1, width),"\n") + \
+                     stringjoin(utils.format(banner1, width),"\n") + \
                      "\n\n" +  wiggles*nwiggles + "//\n" + \
-                     string.join(utils.format(banner2, width), "\n")
+                     stringjoin(utils.format(banner2, width), "\n")
         else:
             banner = ""
             

@@ -41,8 +41,9 @@ from ooflib.common.IO import automatic
 from ooflib.common.IO.typename import typename
 import math
 import re
-import string
 import struct
+
+from ooflib.common.utils import stringjoin
 
 ErrPyProgrammingError = ooferror.ErrPyProgrammingError
 
@@ -107,7 +108,7 @@ class TypeChecker:
     def __repr__(self):
         if len(self.types)==1:
             return typename(self.types[0])
-        return '[' + string.join([typename(t) for t in self.types], ',') + ']'
+        return '[' + stringjoin([typename(t) for t in self.types], ',') + ']'
     def __len__(self):
         return len(self.types)
     def __getitem__(self, i):
@@ -541,7 +542,7 @@ class ListOfStringsParameter(Parameter):
         lengthstr = struct.pack(structIntFmt, len(value))
         strings = [lengthstr] + [struct.pack(structIntFmt, len(s)) + s
                                  for s in value]
-        return string.join(strings, '')
+        return stringjoin(strings, '')
     def binaryRead(self, parser):
         b = parser.getBytes(structIntSize)
         (length,) = struct.unpack(structIntFmt, b)
@@ -721,7 +722,7 @@ class ListOfTuplesOfIntsParameter(Parameter):
             data = struct.pack('>%di'% tlen, *tpl)
             strings.append(lengthstr)
             strings.append(data)
-        return string.join(strings, '')
+        return stringjoin(strings, '')
     def binaryRead(self, parser):
         b = parser.getBytes(structIntSize)
         (length,) = struct.unpack(structIntFmt, b)
@@ -774,7 +775,7 @@ class ListOfListOfIntsParameter(Parameter):
         strings = [size]
         for lst in value:
             strings.append(struct.pack('>%di' % w, *lst))
-        return string.join(strings, '')
+        return stringjoin(strings, '')
     def binaryRead(self, parser):
         b = parser.getBytes(struct.calcsize('>ii'))
         (h, w) = struct.unpack('>ii', b)
@@ -811,7 +812,7 @@ class ListOfListOfFloatsParameter(Parameter):
         strings = [size]
         for lst in value:
             strings.append(struct.pack('>%dd' % w, *lst))
-        return string.join(strings, '')
+        return stringjoin(strings, '')
     def binaryRead(self, parser):
         b = parser.getBytes(struct.calcsize('>ii'))
         (h, w) = struct.unpack('>ii', b)
@@ -849,7 +850,7 @@ class ListOfTuplesOfFloatsParameter(Parameter):
             data = struct.pack('>%dd' % tlen, *tpl)
             strings.append(lengthstr)
             strings.append(data)
-        return string.join(strings, '')
+        return stringjoin(strings, '')
     def binaryRead(self, parser):
         b = parser.getBytes(structIntSize)
         (length,) = struct.unpack(structIntFmt, b)
@@ -890,7 +891,7 @@ class ListOfTuplesOfIntFloatsParameter(Parameter):
             data = struct.pack('>i%dd' % tlen, tpl[0], *(tpl[1:]))
             strings.append(lengthstr)
             strings.append(data)
-        return string.join(strings, '')
+        return stringjoin(strings, '')
     def binaryRead(self, parser):
         b = parser.getBytes(structIntSize)
         (listlength,) = struct.unpack(structIntFmt, b)
@@ -934,7 +935,7 @@ class ListOfListOfListOfIntsParameter(Parameter):
         strings = [size]
         for lst in value:
             strings.append(struct.pack('>%di' % w, *lst))
-        return string.join(strings, '')
+        return stringjoin(strings, '')
     def binaryRead(self, parser):
         b = parser.getBytes(struct.calcsize('>ii'))
         (h, w) = struct.unpack('>ii', b)
@@ -998,7 +999,7 @@ class RegisteredParameter(Parameter):
     def classRepr(self):
         return "%s(%s)" % (self.__class__.__name__, self.regname())
     def valueRepr(self):
-        return string.join([reg.subclass.__name__ for reg in self.registry],
+        return stringjoin([reg.subclass.__name__ for reg in self.registry],
                            '\n')
     def valueDesc(self):
         from ooflib.common.IO import xmlmenudump # delayed to avoid import loops
@@ -1034,7 +1035,7 @@ class RegisteredListParameter(RegisteredParameter):
         strings = [lengthstr]
         for obj in value:
             strings.append(obj.binaryRepr(datafile))
-        return string.join(strings, '')
+        return stringjoin(strings, '')
     def binaryRead(self, parser):
         b = parser.getBytes(structIntSize)
         (length,) = struct.unpack(structIntFmt, b)

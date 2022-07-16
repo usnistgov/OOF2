@@ -32,7 +32,6 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
 from gi.repository import Gtk
-import string
 
 
 class WhoWidgetBase:
@@ -256,7 +255,7 @@ class WhoWidget(WhoWidgetBase):
             return self.currentPath[0]
         if '' in self.currentPath[:depth]:
             return None
-        return string.join(self.currentPath[:depth], ':')
+        return ':'.join(self.currentPath[:depth])
     def isValid(self):
         if self.currentPath[0] in self.proxy_names:
             return True
@@ -284,7 +283,7 @@ class NewWhoWidget(WhoWidgetBase):
         debug.mainthreadTest()
         if self.widgets and self.widgets[-1]:
             self.currentPath[-1] = self.widgets[-1].get_value()
-        return string.join(self.currentPath, ':')
+        return ':'.join(self.currentPath)
     def isValid(self):
         debug.mainthreadTest()
         if self.widgets and self.widgets[-1]:

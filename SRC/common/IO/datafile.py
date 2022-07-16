@@ -19,7 +19,6 @@ from ooflib.common.IO import menuparser
 from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 import os.path
-import string
 import types
 
 ##############################
@@ -102,7 +101,7 @@ class AsciiDataFile:
     def startCmd(self, command):
         path = command.path()
         if self.format == ASCII:
-            path = string.join(path.split('.')[2:], '.')
+            path = '.'.join(path.split('.')[2:])
         self.buffer = path + "("
         self.nargs = 0
     def endCmd(self):

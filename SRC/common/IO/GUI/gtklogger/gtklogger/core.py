@@ -14,7 +14,6 @@
 from gi.repository import Gtk
 import atexit
 import os
-import string
 import subprocess
 import sys
 import types
@@ -350,7 +349,7 @@ def sanity_check(widget, path=[]):
     widgetname = logutils.getWidgetName(widget)
     if widgetname:
         path = path + [widgetname]
-        if logutils.findWidget(string.join(path, ':')) is not widget:
+        if logutils.findWidget(':'.join(path)) is not widget:
             raise ValueError("%s is not a unique widget name" % path)
 #         else:
 #             print "ok:", path, widget.__class__.__name__

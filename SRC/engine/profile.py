@@ -14,8 +14,9 @@ from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import profilefunction
-import string, types, struct
+import types, struct
 
+from ooflib.common.utils import stringjoin
 
 # Object for aggregating location information for boundaries. 
 # All profile __call__ methods take one of these as an argument.
@@ -43,7 +44,7 @@ class Location:
             val = getattr(self, s)
             if val is not None:
                 attrlist.append("%s=%s" % (s, repr(val)) )
-        result += string.join(attrlist, ", ") + ")"
+        result += stringjoin(attrlist, ", ") + ")"
         return result
                                 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -370,7 +371,7 @@ class FluxProfileSet:
                 return True
         return False
     def description(self):
-        return "(%s)" % string.join([x.description() for x in self.data],", ")
+        return "(%s)" % stringjoin([x.description() for x in self.data],", ")
     def __repr__(self):
         # The FluxProfileSetParameter accepts lists of Profiles or a
         # single Profile, so there's no need to write out
@@ -411,7 +412,7 @@ class FluxProfileSetParameter(parameter.Parameter):
         strs = [struct.pack(">i",n)]
         for p in value.get_profiles():
             strs.append(p.binaryRepr(datafile))
-        return string.join(strs, "")
+        return stringjoin(strs, "")
     
     def binaryRead(self, parser):
         b = parser.getBytes(struct.calcsize(">i"))

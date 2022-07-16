@@ -69,7 +69,7 @@ class Comment:
             # Separate paragraph into strings so that each string has
             # a single font, by looking for BOLD(...).
             while para:
-                index_bold = string.find(para, boldtag)
+                index_bold = para.find(boldtag)
                 if index_bold == -1:    # no bold text in remainder of para
                     self.commentList.append(para)
                     self.fontList.append(0)
@@ -347,7 +347,7 @@ class TutorialClassGUI(subWindow.SubWindow):
             # might be formatted differently when displayed in the
             # GUI.  Here we are discarding formatting, so just join
             # all the strings together.
-            fulltext = string.join(comments, "")
+            fulltext = "".join(comments)
             # Now split them up according to paragraphs.
             # Comment.__init__, above, inserted '\n\n' at the ends of
             # paragraphs.

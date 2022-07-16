@@ -17,7 +17,6 @@
 # avoid import loops, because this files doesn't import anything else.
 
 from gi.repository import Gtk
-import string
 import sys
 import weakref
 
@@ -26,7 +25,7 @@ from . import checkpoint
 
 class GtkLoggerException(Exception):
     def __init__(self, *args):
-        self.msg = string.join(args, ' ')
+        self.msg = ' '.join(args)
     def __str__(self):
         return self.msg
 
@@ -213,7 +212,7 @@ def _findAllWidgets(top):
             childpaths.extend(_findAllWidgets(child))
     if topname:
         childpaths = [topname] + \
-                     [string.join([topname, path], ':') for path in childpaths]
+                     [':'.join([topname, path]) for path in childpaths]
     return childpaths
 
 # dumpAllWidgets prints the paths and widgets of all named widgets
