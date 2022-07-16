@@ -12,9 +12,8 @@ from ooflib.SWIG.common import config
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO import parameter
-import types
+import ast
 import struct
-import compiler
 
 class StrFunction:
     def __init__(self, arglist, funcstr):
@@ -51,19 +50,11 @@ class StrFunction:
 
     def dependsOn(self, name):
         # Does the function actually depend on the variable 'name'?
-        nodes = compiler.parse(self.funcstr).getChildNodes()
-        return name in _findNames(nodes)
-
-def _findNames(nodes):
-    # Return the names of all compiler.ast.Name nodes in the given
-    # Abstract Syntax Tree nodes.
-    names = []
-    for node in nodes:
-        if isinstance(node, compiler.ast.Name):
-            names.append(node.name)
-        else:
-            names.extend(_findNames(node.getChildNodes()))
-    return names
+        tree = ast.parse(self.funcstr)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Name) and node.id == name:
+                return True
+        return False
 
 # XYStrFunction is initialized from a string function of x,y or x,y,z,
 # but it takes a single Coord or Point as its argument when it's being
