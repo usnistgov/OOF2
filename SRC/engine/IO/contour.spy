@@ -16,12 +16,12 @@ from ooflib.common.IO import whoville
 # swig address strings, which we have to convert to actual swigged
 # ContourCoords here:
 
-swig_ContourCellSet_getCorners = ContourCellSetPtr.getCorners
+swig_ContourCellSet_getCorners = ContourCellSet.getCorners
 
 def _ContourCellSet_getCorners(self):
     strlist= swig_ContourCellSet_getCorners(self)
-    return list(map(ContourCoordPtr, strlist))
-ContourCellSetPtr.getCorners = _ContourCellSet_getCorners
+    return list(map(ContourCoord, strlist))
+ContourCellSet.getCorners = _ContourCellSet_getCorners
 
 
 class Contour(CContour):
@@ -46,15 +46,16 @@ class Contour(CContour):
         
     # The swig typemaps used by CContour.getCurves and
     # CContour.getLoops return lists of lists SwigPtr strings, which
-    # get converted into MasterCoordPtr objects here:
+    # get converted into MasterCoord objects here:
+    ## TODO PYTHON3: Is that still true?
     
     def getCurves(self):
         swigCurves = CContour.getCurves(self)
-        return [list(map(MasterCoordPtr, x)) for x in swigCurves]
+        return [list(map(MasterCoord, x)) for x in swigCurves]
 
     def getLoops(self):
         swigLoops = CContour.getLoops(self)
-        return [list(map(MasterCoordPtr, x)) for x in swigLoops]
+        return [list(map(MasterCoord, x)) for x in swigLoops]
 
     def __repr__(self):
         return "Contour(value=%f, curves=%s, loops=%s)" % (self.value,
@@ -114,7 +115,7 @@ def _ContourCoord___repr__(self):
     except AttributeError:
         return "ContourCoord(%f, %f)" % (self[0], self[1])
 
-ContourCoordPtr.__repr__ = _ContourCoord___repr__
+ContourCoord.__repr__ = _ContourCoord___repr__
 
 ## ## ##
 

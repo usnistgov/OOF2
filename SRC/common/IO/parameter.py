@@ -56,7 +56,8 @@ FloatType = float
 IntType = int
 ListType = list
 TupleType = tuple
-StringType = string
+StringType = str
+TypeType = type
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -69,7 +70,7 @@ class TypeChecker:
         objects = []
         for t in types:
             tt = type(t)
-            if tt is ClassType or tt is TypeType:
+            if tt is TypeType: # was " if tt is ClassType or tt is TypeType:"
                 classes.append(t)
             else:
                 objects.append(t)
@@ -79,7 +80,7 @@ class TypeChecker:
     def __call__(self, x):               # raise TypeError if x is not allowed
         if x is None: # None is a special case that matches everything
             return
-        if isinstance(x, (ClassType, TypeType)):
+        if isinstance(x, TypeType):
             if issubclass(x, self.classes):
                 return
             raiseTypeError(x, self.types)
@@ -977,7 +978,7 @@ class RegisteredParameter(Parameter):
                        self.__class__.__name__)
             raise
     def regname(self):
-        if isinstance(self.reg, (ClassType, TypeType)):
+        if isinstance(self.reg, TypeType):
             return self.reg.__name__
         # InstanceType.
         return self.reg.__class__

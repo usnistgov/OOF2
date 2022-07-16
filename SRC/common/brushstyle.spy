@@ -13,9 +13,9 @@ from ooflib.common import cregisteredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 
-cregisteredclass.registerCClass(BrushStylePtr)
-BrushStylePtr.tip = "Brush styles for pixel selection."
-BrushStylePtr.discussion = """<para>
+cregisteredclass.registerCClass(BrushStyle)
+BrushStyle.tip = "Brush styles for pixel selection."
+BrushStyle.discussion = """<para>
 Objects of the <classname>BrushStyle</classname> are used as the
 <varname>style</varname> parameter in the <xref
 linkend='MenuItem-OOF.Graphics_n.Toolbox.Pixel_Select.Brush'/> command
@@ -24,7 +24,7 @@ for selecting pixels.
 
 circleReg = cregisteredclass.Registration(
     "Circle",
-    BrushStylePtr,
+    BrushStyle,
     CircleBrush,
     ordering=0,
     params=[parameter.FloatParameter(
@@ -36,7 +36,7 @@ circleReg = cregisteredclass.Registration(
 
 squareReg = cregisteredclass.Registration(
     "Square",
-    BrushStylePtr,
+    BrushStyle,
     SquareBrush,
     ordering=1,
     params=[parameter.FloatParameter(

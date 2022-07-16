@@ -14,12 +14,12 @@ from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.SWIG.engine import fieldindex
 
-FieldPtr.__repr__ = FieldPtr.name
-CompoundFieldPtr.__repr__ = CompoundFieldPtr.name
-ScalarFieldPtr.__repr__ = ScalarFieldPtr.name
-TwoVectorFieldPtr.__repr__ = TwoVectorFieldPtr.name
-ThreeVectorFieldPtr.__repr__ = ThreeVectorFieldPtr.name
-SymmetricTensorFieldPtr.__repr__ = SymmetricTensorFieldPtr.name
+Field.__repr__ = Field.name
+CompoundField.__repr__ = CompoundField.name
+ScalarField.__repr__ = ScalarField.name
+TwoVectorField.__repr__ = TwoVectorField.name
+ThreeVectorField.__repr__ = ThreeVectorField.name
+SymmetricTensorField.__repr__ = SymmetricTensorField.name
 
 #-----------------
 
@@ -32,12 +32,12 @@ def _Field___lt__(self, other):
     except:
         return NotImplemented
 
-FieldPtr.__lt__ = _Field___lt__
+Field.__lt__ = _Field___lt__
 
 def _Field___hash__(self):
     return self.objectid()
 
-FieldPtr.__hash__ = _Field___hash__
+Field.__hash__ = _Field___hash__
 
 ################
 
@@ -64,6 +64,7 @@ utils.OOFdefine('getField', getField)
 def allFields():
     return list(_allFields.values())
 
-from ooflib.SWIG.engine.freedom import DegreeOfFreedomPtr
+## TODO PYTHON3: Do we need this?
+#from ooflib.SWIG.engine.freedom import DegreeOfFreedom
 
 

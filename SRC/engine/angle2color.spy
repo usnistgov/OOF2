@@ -11,14 +11,14 @@
 from ooflib.common import cregisteredclass
 from ooflib.common.IO import xmlmenudump
 
-cregisteredclass.registerCClass(Angle2ColorPtr)
-Angle2ColorPtr.tip = "Ways of converting orientations to colors."
-Angle2ColorPtr.discussion = xmlmenudump.loadFile(
+cregisteredclass.registerCClass(Angle2Color)
+Angle2Color.tip = "Ways of converting orientations to colors."
+Angle2Color.discussion = xmlmenudump.loadFile(
     'DISCUSSIONS/engine/reg/angle2color.xml')
 
 cregisteredclass.Registration(
     "Euler2RGB",
-    Angle2ColorPtr,
+    Angle2Color,
     Euler2RGB,
     ordering=0,
     tip="Map ABG Euler angles to RGB values.",
@@ -26,7 +26,7 @@ cregisteredclass.Registration(
 
 cregisteredclass.Registration(
     "Euler2HSV",
-    Angle2ColorPtr,
+    Angle2Color,
     Euler2HSV,
     ordering=1,
     tip="Map ABG Euler angles to HSV values.",
@@ -34,7 +34,7 @@ cregisteredclass.Registration(
 
 cregisteredclass.Registration(
     "Bunge2RGB",
-    Angle2ColorPtr,
+    Angle2Color,
     Bunge2RGB,
     ordering=2,
     tip="Map Bunge angles to RGB values.",
@@ -42,7 +42,7 @@ cregisteredclass.Registration(
 
 cregisteredclass.Registration(
     "Axis2HSV",
-    Angle2ColorPtr,
+    Angle2Color,
     Axis2HSV,
     ordering=4,
     tip="Map Axis orientations to HSV values.",

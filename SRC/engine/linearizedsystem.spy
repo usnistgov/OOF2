@@ -17,4 +17,4 @@ def LinearizedSystem_clone(self):
     bozo.computed = self.computed.clone() # TimeStamp
     return bozo
 
-LinearizedSystemPtr.clone = LinearizedSystem_clone
+LinearizedSystem.clone = LinearizedSystem_clone

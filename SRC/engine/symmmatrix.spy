@@ -31,7 +31,7 @@ def _SymmMatrix___setitem__(self,idx,val):
     else:
         raise KeyError("Index out of bounds in SymmMatrix")
 
-SymmMatrixPtr.__setitem__ = _SymmMatrix___setitem__
+SymmMatrix.__setitem__ = _SymmMatrix___setitem__
 
 def _SymmMatrix___getitem__(self,idx):
     size = self.size()
@@ -40,7 +40,7 @@ def _SymmMatrix___getitem__(self,idx):
     else:
         raise KeyError("Index out of bounds in SymmMatrix")
 
-SymmMatrixPtr.__getitem__ = _SymmMatrix___getitem__
+SymmMatrix.__getitem__ = _SymmMatrix___getitem__
 
 # TODON'T: Do NOT add __getitem__ for SymmMatrix3!  It gets its
 # __getitem__ from OutputVal.
@@ -55,7 +55,7 @@ def _SymmMatrix___repr__(self):
         rowlist.append("{ " + string.join(collist,", ") + " }")
     return "SymmMatrix { " + string.join(rowlist,", ") + " }"
 
-SymmMatrixPtr.__repr__ = _SymmMatrix___repr__
+SymmMatrix.__repr__ = _SymmMatrix___repr__
 
 ################################################
 ################################################
@@ -77,53 +77,53 @@ voigtNames = ('xx', 'yy', 'zz', 'yz', 'xz', 'xy')
 
 # Arithmetic, similar to other OutputVal objects.
 
-def _SymmMatrix3Ptr___add__(self, other):
+def _SymmMatrix3___add__(self, other):
     res = SymmMatrix3()
     res._add(self)
     res._add(other)
     return res
 
-SymmMatrix3Ptr.__add__ = _SymmMatrix3Ptr___add__
+SymmMatrix3.__add__ = _SymmMatrix3___add__
 
-def _SymmMatrix3Ptr___sub__(self, other):
+def _SymmMatrix3___sub__(self, other):
     res = SymmMatrix3()
     res._add(self)
     res._sub(other)
     return res
 
-SymmMatrix3Ptr.__sub__ = _SymmMatrix3Ptr___sub__
+SymmMatrix3.__sub__ = _SymmMatrix3___sub__
 
-def _SymmMatrix3Ptr___mul__(self, other):
+def _SymmMatrix3___mul__(self, other):
     res = SymmMatrix3()
     res._add(self)
     res._mul(other)
     return res
 
-SymmMatrix3Ptr.__mul__ = _SymmMatrix3Ptr___mul__
-SymmMatrix3Ptr.__rmul__ = _SymmMatrix3Ptr___mul__
+SymmMatrix3.__mul__ = _SymmMatrix3___mul__
+SymmMatrix3.__rmul__ = _SymmMatrix3___mul__
 
-def _SymmMatrix3Ptr___div__(self, other):
+def _SymmMatrix3___div__(self, other):
     res = SymmMatrix3()
     res._add(self)
     res._mul(1.0/other)
     return res
 
-SymmMatrix3Ptr.__div__ = _SymmMatrix3Ptr___div__
+SymmMatrix3.__div__ = _SymmMatrix3___div__
 
 # Override parent class's __imul__ with one that
 # is guaranteed to return the identical "self" object --
 # important for OutputVal objects not to lose ownership
 # of the underlying C object.
-def _SymmMatrix3Ptr___imul__(self, other):
+def _SymmMatrix3___imul__(self, other):
     self._mul(other)
     return self
 
-SymmMatrix3Ptr.__imul__ = _SymmMatrix3Ptr___imul__
+SymmMatrix3.__imul__ = _SymmMatrix3___imul__
 
-def _SymmMatrix3Ptr_label_list(self):
+def _SymmMatrix3_label_list(self):
     return ["XX", "YY", "ZZ", "YZ", "XZ", "XY"]
 
-SymmMatrix3Ptr.label_list = _SymmMatrix3Ptr_label_list
+SymmMatrix3.label_list = _SymmMatrix3_label_list
 
 
 ################################################
@@ -146,7 +146,7 @@ SymmMatrix3.__repr__ = _SymmMatrix3___repr__
 def _SymmMatrix3_component(self, component): # used in Output, below
     # component is a VoigtComponent Enum object
     return self.get(*voigtIndices[component.index()])
-SymmMatrix3Ptr.component = _SymmMatrix3_component
+SymmMatrix3.component = _SymmMatrix3_component
 
 utils.OOFdefine('SymmMatrix3', SymmMatrix3)
 
@@ -170,7 +170,7 @@ xmlmenudump.XMLObjectDoc(
 ############
 
 class SymmMatrix3Parameter(parameter.Parameter):
-    types = (SymmMatrix3Ptr,)
+    types = (SymmMatrix3,)
     structfmt =">6d"
     structsize = struct.calcsize(structfmt)
     def binaryRepr(self, datafile, value):

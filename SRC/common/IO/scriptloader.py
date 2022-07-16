@@ -13,7 +13,6 @@
 # and to halt processing.
 
 import ast
-import sys
 
 class ScriptLoader:
     def __init__(self, filename, locals=None, errhandler=None):

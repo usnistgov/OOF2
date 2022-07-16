@@ -25,4 +25,4 @@ def _ErrBadMaterial_details(self):
     mat = materialmanager.getMaterial(self.materialName())
     return "\n".join(mat.consistency_messages())
 
-ErrBadMaterialPtr.details = _ErrBadMaterial_details
+ErrBadMaterial.details = _ErrBadMaterial_details

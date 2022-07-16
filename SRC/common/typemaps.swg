@@ -169,10 +169,12 @@ typedef std::vector<unsigned short> ShortVec;
 
 // ADD_REPR_GENERIC uses the to_string template (from
 // common/tostring.h, not std::to_string) instead of a class method,
-// so it's useful as long as the class has defined operator<<.
-// TODO: Implement it for -builtin.
+// so it's useful as long as the class has defined operator<<.  It
+// should come before the class declaration in the swig file if the
+// swig file hasn't already #included common/tostring.h.
+// TODO PYTHON3? Implement it for -builtin.
 
-		    // class std::string; // Why was this here?
+// class std::string; // TODO PYTHON3: Why was this here?
 
 #ifdef SWIGPYTHON_BUILTIN
 %define ADD_REPR(CLASS, FUNC)
@@ -194,6 +196,9 @@ typedef std::vector<unsigned short> ShortVec;
 %enddef
 
 %define ADD_REPR_GENERIC(CLASS)
+%{
+#include "common/tostring.h"
+%}
 %extend CLASS {
   %newobject __repr__;
    const std::string *__repr__() { // ADD_REPR_GENERIC
@@ -232,6 +237,11 @@ typedef std::vector<unsigned short> ShortVec;
   
 %typemap(out) std::string& {
   // typemap(out) std::string&
+  $result = PyUnicode_FromString($1->c_str());
+ }
+
+%typemap(out) const std::string& {
+  // typemap(out) const std::string&
   $result = PyUnicode_FromString($1->c_str());
  }
 

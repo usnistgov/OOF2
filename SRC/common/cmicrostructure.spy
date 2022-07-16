@@ -11,8 +11,8 @@
 # Need to over-ride the getGroup function's return, so that it wraps
 # the returned value properly.
 
-def CMicrostructurePtr_getGroup(self, *_args, **_kwargs):
+def CMicrostructure_getGroup(self, *_args, **_kwargs):
     val = cmicrostructurec.CMicrostructure_getGroup(*(self,) + _args, **_kwargs)
-    return [PixelGroupPtr(val[0]), val[1]]
+    return [PixelGroup(val[0]), val[1]]
 
-CMicrostructurePtr.getGroup = CMicrostructurePtr_getGroup
+CMicrostructure.getGroup = CMicrostructure_getGroup

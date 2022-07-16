@@ -26,7 +26,7 @@ def COrientation__getitem__(self, index):
     retrievalfn = getattr(self, component_name)
     return math.degrees(retrievalfn())
 
-COrientationPtr.__getitem__ = COrientation__getitem__
+COrientation.__getitem__ = COrientation__getitem__
 
 # No Quaternion or Rodrigues component is an angle.
 
@@ -35,8 +35,8 @@ def noangles__getitem__(self, index):
     retrievalfn = getattr(self, component_name)
     return retrievalfn()
 
-COrientQuaternionPtr.__getitem__ = noangles__getitem__
-COrientRodriguesPtr.__getitem__ = noangles__getitem__
+COrientQuaternion.__getitem__ = noangles__getitem__
+COrientRodrigues.__getitem__ = noangles__getitem__
 
 # Only the 'angle' component of COrientAxis is an angle.
 
@@ -47,4 +47,4 @@ def COrientAxis__getitem__(self, index):
         return math.degrees(retrievalfn())
     return retrievalfn()
 
-COrientAxisPtr.__getitem__ = COrientAxis__getitem__
+COrientAxis.__getitem__ = COrientAxis__getitem__

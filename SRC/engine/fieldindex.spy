@@ -9,18 +9,14 @@
 # oof_manager@nist.gov. 
 
 from ooflib.common import debug
-#import string
-
-# Defining __repr__ here doesn't work, because the derived classes
-# will override it.
 
 def _shortrepr(self):
     return self.shortstring()
 
 FieldIndex.shortrepr = _shortrepr
 FieldIterator.shortrepr = _shortrepr
-IndexPPtr.shortrepr = _shortrepr
-IteratorPPtr.shortrepr = _shortrepr
+IndexP.shortrepr = _shortrepr
+IteratorP.shortrepr = _shortrepr
 
 #############
 
@@ -29,7 +25,7 @@ IteratorPPtr.shortrepr = _shortrepr
 #         raise StopIteration
 #     self.increment()
 
-# IteratorPPtr.next = IteratorP_next
+# IteratorP.next = IteratorP_next
 
 #############
 

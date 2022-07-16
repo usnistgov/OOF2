@@ -100,7 +100,7 @@ Material.removeProperty = _Material_removeProperty_
 def _Material_properties(self):
     return [self.getProperty(i) for i in range(self.nProperties())]
 
-MaterialPtr.properties = _Material_properties
+Material.properties = _Material_properties
 
 ###########
 
@@ -135,11 +135,11 @@ Material.cross_reference = _Material_cross_reference
 
 def _Material_selfconsistent(self):
     return self.consistency_state == []
-MaterialPtr.self_consistent = _Material_selfconsistent
+Material.self_consistent = _Material_selfconsistent
 
 def _Material_consistency_messages(self):
     return self.consistency_state
-MaterialPtr.consistency_messages = _Material_consistency_messages
+Material.consistency_messages = _Material_consistency_messages
 
 ###########
 
@@ -176,7 +176,7 @@ def _Material_nonlinear(self, subproblem, fields):
                 return True
     return False
 
-MaterialPtr.nonlinear = _Material_nonlinear
+Material.nonlinear = _Material_nonlinear
 
 def _Material_second_order_field(self, subproblem, field, eqns):
     for p in self.properties():
@@ -186,7 +186,7 @@ def _Material_second_order_field(self, subproblem, field, eqns):
                 return True
     return False
 
-MaterialPtr.is_second_order_field = _Material_second_order_field
+Material.is_second_order_field = _Material_second_order_field
 
 
 def _Material_timeDependent(self, subproblem, fields):
@@ -197,7 +197,7 @@ def _Material_timeDependent(self, subproblem, fields):
                 return True
     return False
 
-MaterialPtr.timeDependent = _Material_timeDependent
+Material.timeDependent = _Material_timeDependent
 
 
 def _Material__symmetric(self, subprobctxt, fn):
@@ -212,17 +212,17 @@ Material._is_symmetric = _Material__symmetric
 
 def _Material_symmetric_K(self, subproblem):
     return self._is_symmetric(subproblem,
-                              properties.PropertyPtr.c_is_symmetric_K)
+                              properties.Property.c_is_symmetric_K)
 Material.is_symmetric_K = _Material_symmetric_K
 
 def _Material_symmetric_C(self, subproblem):
     return self._is_symmetric(subproblem, 
-                              properties.PropertyPtr.c_is_symmetric_C)
+                              properties.Property.c_is_symmetric_C)
 Material.is_symmetric_C = _Material_symmetric_C
 
 def _Material_symmetric_M(self, subproblem):
     return self._is_symmetric(subproblem,
-                              properties.PropertyPtr.c_is_symmetric_M)
+                              properties.Property.c_is_symmetric_M)
 Material.is_symmetric_M = _Material_symmetric_M
 
 
@@ -233,16 +233,16 @@ Material.is_symmetric_M = _Material_symmetric_M
 # gets wrapped in different objects each time it's returned.
 
 def _Material__eq__(self, other):
-    return isinstance(other, MaterialPtr) and other.name() == self.name()
-MaterialPtr.__eq__ = _Material__eq__
+    return isinstance(other, Material) and other.name() == self.name()
+Material.__eq__ = _Material__eq__
 
 def _Material__ne__(self, other):
     return not self.__eq__(other)
-MaterialPtr.__ne__ = _Material__ne__
+Material.__ne__ = _Material__ne__
 
 def _Material__hash__(self):
     return hash(self.name())
-MaterialPtr.__hash__ = _Material__hash__
+Material.__hash__ = _Material__hash__
 
 ######
 
@@ -253,7 +253,7 @@ def _Material___repr_(self):
     out = string.join(out, ",\n\t")
     return out + ")"
 
-MaterialPtr.__repr__ = _Material___repr_
+Material.__repr__ = _Material___repr_
 
 def _Material_copy_(self, newname):
     m = Material(newname)
@@ -262,7 +262,7 @@ def _Material_copy_(self, newname):
         
     return m
         
-MaterialPtr.copy = _Material_copy_
+Material.copy = _Material_copy_
 
 ##############################
 
@@ -274,5 +274,5 @@ attributeReg = MaterialAttributeRegistration()
 
 # _old_getMaterials = getMaterials
 # def getMaterials(microstructure):
-#     return map(MaterialPtr, _old_getMaterials(microstructure))
+#     return map(Material, _old_getMaterials(microstructure))
 

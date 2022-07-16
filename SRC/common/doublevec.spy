@@ -12,36 +12,36 @@ import types
 
 def _doublevec___len__(self):
     return self.size()
-DoubleVecPtr.__len__ = _doublevec___len__
+DoubleVec.__len__ = _doublevec___len__
 
 def _doublevec___add__(self, other):
     result = self.clone()
     result += other
     return result
-DoubleVecPtr.__add__ = _doublevec___add__
+DoubleVec.__add__ = _doublevec___add__
 
 def _doublevec___sub__(self, other):
     result = self.clone()
     result -= other
     return result
-DoubleVecPtr.__sub__ = _doublevec___sub__
+DoubleVec.__sub__ = _doublevec___sub__
 
 def _doublevec___iadd__(self, other):
-    if isinstance(other, DoubleVecPtr):
+    if isinstance(other, DoubleVec):
         self.axpy(1.0, other)
         return self
     return NotImplemented
-DoubleVecPtr.__iadd__ = _doublevec___iadd__
+DoubleVec.__iadd__ = _doublevec___iadd__
 
 def _doublevec___isub__(self, other):
-    if isinstance(other, DoubleVecPtr):
+    if isinstance(other, DoubleVec):
         self.axpy(-1.0, other)
         return self
     return NotImplemented
-DoubleVecPtr.__isub__ = _doublevec___isub__
+DoubleVec.__isub__ = _doublevec___isub__
 
 def _doublevec___mul__(self, factor):
-    if isinstance(factor, DoubleVecPtr):
+    if isinstance(factor, DoubleVec):
         return self.dot(factor)
     # The test for float and int has to be done here, or else
     # vector*matrix leads to an infinite loop, trying to find a
@@ -54,7 +54,7 @@ def _doublevec___mul__(self, factor):
         result *= factor
         return result
     return NotImplemented
-DoubleVecPtr.__mul__ = _doublevec___mul__
+DoubleVec.__mul__ = _doublevec___mul__
 
 def _doublevec___rmul__(self, factor):
     if isinstance(factor, float) or isinstance(factor, int):
@@ -62,31 +62,31 @@ def _doublevec___rmul__(self, factor):
         result *= factor
         return result
     return NotImplemented
-DoubleVecPtr.__rmul__ = _doublevec___rmul__
+DoubleVec.__rmul__ = _doublevec___rmul__
 
 def _doublevec___div__(self, factor):
     result = self.clone()
     result /= factor
     return result
-DoubleVecPtr.__div__ = _doublevec___div__
+DoubleVec.__div__ = _doublevec___div__
 
 def _doublevec___imul__(self, factor):
     if isinstance(factor, float) or isinstance(factor, int):
         self.scale(factor)
         return self
     return NotImplemented
-DoubleVecPtr.__imul__ = _doublevec___imul__
+DoubleVec.__imul__ = _doublevec___imul__
 
 def _doublevec___idiv__(self, factor):
     if isinstance(factor, float) or isinstance(factor, int):
         self.scale(1./factor)
         return self
     return NotImplemented
-DoubleVecPtr.__idiv__ = _doublevec___idiv__
+DoubleVec.__idiv__ = _doublevec___idiv__
 
 def _doublevec___neg__(self):
     result = self.clone()
     result *= -1.0
     return result
-DoubleVecPtr.__neg__ = _doublevec___neg__
+DoubleVec.__neg__ = _doublevec___neg__
 

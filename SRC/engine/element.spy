@@ -11,10 +11,11 @@
 def _Element__position(self, coords):
     return list(map(self.from_master, coords))
 
-ElementPtr.position = _Element__position
+Element.position = _Element__position
 
-from ooflib.SWIG.engine.masterelement import MasterElementPtr
-from ooflib.SWIG.common.coord import CoordPtr
-from ooflib.SWIG.engine.mastercoord import MasterCoordPtr
-from ooflib.SWIG.engine.edge import BoundaryEdgePtr
+## TODO PYTHON3: Do we need these?
+# from ooflib.SWIG.engine.masterelement import MasterElementPtr
+# from ooflib.SWIG.common.coord import CoordPtr
+# from ooflib.SWIG.engine.mastercoord import MasterCoordPtr
+# from ooflib.SWIG.engine.edge import BoundaryEdgePtr
 

@@ -25,6 +25,8 @@ typedef class CPolygon<double, Coord> CPolygonCoord;
 %nodefaultctor CPolygonCoord;
 class CPolygonCoord {};
 
+ADD_REPR_GENERIC(CRectangle);
+
 class CRectangle : public CPolygonCoord {
 public:
   CRectangle(const Coord&, const Coord&);
@@ -36,7 +38,5 @@ public:
   double width();
   void expand(double factor);
 };
-
-%pythoncode "common/geometry.spy"
 
 #endif // GEOMETRY_SWG

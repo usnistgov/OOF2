@@ -72,6 +72,8 @@ public:
   ArithmeticOutputValue newOutputValue();
 };
 
+ADD_REPR(Flux, repr);
+
 %extend Flux {
   // iterator_all is used in situations in which it's not known if
   // we're iterating over a Field, Flux, or Equation.
@@ -86,10 +88,14 @@ public:
   VectorFlux(char *name);
 };
 
+ADD_REPR(VectorFlux, repr);
+
 class SymmetricTensorFlux : public Flux {
 public:
   SymmetricTensorFlux(char *name, bool negate);
 };
+
+ADD_REPR(SymmetricTensorFlux, repr);
 
 Flux *getFluxByIndex(int);
 int countFluxes();

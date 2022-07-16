@@ -15,7 +15,7 @@ def _ElementNodeIterator___getitem__(self, idx):
     self.increment()
     return ans
 
-ElementNodeIteratorPtr.__getitem__ = _ElementNodeIterator___getitem__
+ElementNodeIterator.__getitem__ = _ElementNodeIterator___getitem__
 
 
 
@@ -26,7 +26,7 @@ def _ElementFuncNodeIterator___getitem__(self, idx):
     self.increment()
     return ans
 
-ElementFuncNodeIteratorPtr.__getitem__ = _ElementFuncNodeIterator___getitem__
+ElementFuncNodeIterator.__getitem__ = _ElementFuncNodeIterator___getitem__
 
 
 
@@ -37,5 +37,5 @@ def _ElementCornerNodeIterator___getitem__(self, idx):
     self.increment()
     return ans
 
-ElementCornerNodeIteratorPtr.__getitem__ = _ElementCornerNodeIterator___getitem__
+ElementCornerNodeIterator.__getitem__ = _ElementCornerNodeIterator___getitem__
 

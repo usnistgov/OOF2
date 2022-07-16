@@ -26,7 +26,7 @@ from ooflib.common.IO import placeholder
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
 
-from . import oofcanvas
+import oofcanvas
 
 import string
 import types
@@ -50,7 +50,7 @@ class LayerOrdering:
         return not self.__lt__(other)
     def __gt__(self, other):
         return (self.order > other.order or
-                self.order == other.order and self.suborder > other.suborder))
+                (self.order == other.order and self.suborder > other.suborder))
     def __le__(self, other):
         return not self.__gt__(other)
     def __call__(self, suborder):

@@ -12,14 +12,14 @@ import types
 from ooflib.common import debug
 from ooflib.common import utils
 
-FluxPtr.__repr__ = FluxPtr.name
-SymmetricTensorFluxPtr.__repr__ = SymmetricTensorFluxPtr.name
-VectorFluxPtr.__repr__ = VectorFluxPtr.name
+# Flux.__repr__ = Flux.name
+# SymmetricTensorFlux.__repr__ = SymmetricTensorFlux.name
+# VectorFlux.__repr__ = VectorFlux.name
 
 def _Flux___hash__(self):
     return self.objectid()
 
-FluxPtr.__hash__ = _Flux___hash__
+Flux.__hash__ = _Flux___hash__
 
 # Fluxes are sometimes stored in an OrderedSet and need to have __lt__
 # defined.
@@ -41,7 +41,7 @@ class _AllFluxes:
                 flx = utils.OOFeval(indx)
             except NameError:
                 raise IndexError("Bad flux name: " + indx)
-            if not isinstance(flx, FluxPtr):
+            if not isinstance(flx, Flux):
                 raise IndexError("Bad flux name: " + indx)
             return flx
 ##            for i in range(countFluxes()):

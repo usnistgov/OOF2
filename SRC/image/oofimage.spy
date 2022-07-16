@@ -51,7 +51,7 @@ def readImage(filename, **kwargs):
 
 def _getTimeStamp_optional_args(self, *args):
     return self._getTimeStamp()
-OOFImagePtr.getTimeStamp = _getTimeStamp_optional_args
+OOFImage.getTimeStamp = _getTimeStamp_optional_args
 
 def getImage(imagename):
     ## returns the actual image

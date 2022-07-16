@@ -23,7 +23,7 @@
 
 class PxlAttributeRegistration {
 public:
-  const string &name();
+  const std::string &name();
 };
 
 %typemap(out) PxlAttributeRegistration* {

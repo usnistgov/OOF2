@@ -15,7 +15,7 @@ import types
 def _Equation___hash_(self):
     return self.objectid()
 
-EquationPtr.__hash__ = _Equation___hash_
+Equation.__hash__ = _Equation___hash_
 
 # Euqations are sometimes stored in an OrderedSet and need to have
 # __lt__ defined.
@@ -26,21 +26,22 @@ def _Equation___lt__(self, other):
     except:
         return NotImplemented
 
-EquationPtr.__lt__ = _Equation___lt__
+Equation.__lt__ = _Equation___lt__
 
 def _Equation___hash__(self):
     return self.objectid()
 
-EquationPtr.__hash__ = _Equation___hash__
+Equation.__hash__ = _Equation___hash__
 
-EquationPtr.__repr__ = EquationPtr.name
+Equation.__repr__ = Equation.name
 
 
-DivergenceEquationPtr.__repr__ = DivergenceEquationPtr.name
+DivergenceEquation.__repr__ = DivergenceEquation.name
 
-PlaneFluxEquationPtr.__repr__ = PlaneFluxEquationPtr.name
+PlaneFluxEquation.__repr__ = PlaneFluxEquation.name
 
-from ooflib.SWIG.engine.nodalequation import NodalEquationPtr
+## TODO PYTHON3: Do we need this?
+#from ooflib.SWIG.engine.nodalequation import NodalEquation
 
 # AllEquations acts like a list of Equations
 class _AllEquations:

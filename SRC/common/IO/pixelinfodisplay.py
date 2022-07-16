@@ -21,7 +21,7 @@ from ooflib.common.IO import oofmenu
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 
-from . import oofcanvas
+import oofcanvas
 
 
 class PixelInfoDisplay(display.DisplayMethod):

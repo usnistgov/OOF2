@@ -12,6 +12,8 @@ def _ContourCellSkeleton___getitem__(self, idx):
     if idx > 2 or idx < 0: raise IndexError
     return self.getitem(idx)
 
-ContourCellSkeletonPtr.__getitem__ = _ContourCellSkeleton___getitem__
+ContourCellSkeleton.__getitem__ = _ContourCellSkeleton___getitem__
 
-from ooflib.SWIG.engine.mastercoord import MasterCoordPtr
+
+## TODO PYTHON3: Why was this here?
+# from ooflib.SWIG.engine.mastercoord import MasterCoord

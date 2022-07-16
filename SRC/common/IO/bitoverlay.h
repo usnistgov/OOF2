@@ -58,6 +58,7 @@ public:
   OOFCanvas::CanvasImage *makeCanvasImage(const Coord*, const Coord*) const;
   const TimeStamp &getTimeStamp() const { return timestamp; }
   TimeStamp &getTimeStamp() { return timestamp; }
+  std::string *repr() { return new std::string("BitmapOverlay()"); }
 };
 
 

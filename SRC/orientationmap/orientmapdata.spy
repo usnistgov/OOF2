@@ -63,7 +63,7 @@ def orientationmapNotify(ms):
         except ooferror2.ErrNoSuchProperty:
             pass
         else:
-            if isinstance(orient, orientmapproperty.OrientationMapPropPtr):
+            if isinstance(orient, orientmapproperty.OrientationMapProp):
                 switchboard.notify("material changed", matl.name())
     switchboard.notify("OrientationMap changed", ms)
     switchboard.notify("redraw")
@@ -119,7 +119,7 @@ def getOrientationAtPoint(ms, point):
     if mat:
         try:
             orientprop = mat.fetchProperty("Orientation")
-            if isinstance(orientprop, orientation.OrientationPropPtr):
+            if isinstance(orientprop, orientation.OrientationProp):
                 return orientprop.orientation(), "Property"
         except ooferror2.ErrNoSuchProperty:
             pass

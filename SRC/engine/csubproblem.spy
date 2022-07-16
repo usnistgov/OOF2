@@ -15,33 +15,33 @@ from ooflib.engine import scpatch
 def _set_mesh(self, meshctxt):
     # TODO: get rid of self.mesh, which is redundant with
     # CSubProblem.get_mesh(), which is the better thing to
-    # use. (Different CSubProblemPtrs can refer to the same C++
-    # CSubProblem, but mesh and meshctxt will be set in only one of
-    # the CSubProblemPtrs.  This is a issue inside pypropertywrapper
-    # functions.)  The property code below may be useful.  We probably
-    # need to get rid of self.meshcontext as well, which may mean
-    # storing it in C++ as a PyObject*.
+    # use. (Different swig-wrapped CSubProblems can refer to the same
+    # C++ CSubProblem, but mesh and meshctxt will be set in only one
+    # of the wrapped CSubProblems.  This is a issue inside
+    # pypropertywrapper functions.)  The property code below may be
+    # useful.  We probably need to get rid of self.meshcontext as
+    # well, which may mean storing it in C++ as a PyObject*.
     self.meshcontext = meshctxt
     if  meshctxt is not None:
         self.mesh = meshctxt.getObject()
         self.set_femesh(self.mesh)
     else:
         self.mesh = None
-CSubProblemPtr.set_mesh = _set_mesh
+CSubProblem.set_mesh = _set_mesh
 
 ## Code that may be useful when getting rid of self.mesh.
 # def _mesh_setter(self, meshobj):
 #     raise ooferror2.ErrPyProgrammingError("Don't set CSubProblem.mesh!")
 # def _mesh_getter(self):
 #     return self.get_femesh()
-# CSubProblemPtr.mesh = property(_mesh_getter, _mesh_setter)
+# CSubProblem.mesh = property(_mesh_getter, _mesh_setter)
 
 
 # Return the paths to the other subproblems on which this subproblem
 # depends.  This function must be overridden in derived classes.
 def _get_dependencies(self):
     return []
-CSubProblemPtr.get_dependencies = _get_dependencies
+CSubProblem.get_dependencies = _get_dependencies
 
 
 # For every defined flux, check that it is consistently defined.
@@ -53,7 +53,7 @@ def _check_materials(self):
             # check_flux returns a list of bad materials
             badmatls.update(self.check_flux(f))
     return list(badmatls)
-CSubProblemPtr.check_materials = _check_materials
+CSubProblem.check_materials = _check_materials
 
 
 # Check if the passed-in flux is computable on this mesh.  Return a
@@ -66,7 +66,7 @@ def _check_flux(self, flux):
             if not mat.self_consistent():
                 matlist.append(mat)
     return matlist
-CSubProblemPtr.check_flux = _check_flux
+CSubProblem.check_flux = _check_flux
 
 # Run through the list of active equations, and make sure that there
 # is a material which contributes to them.  Returns a list of bad
@@ -85,7 +85,7 @@ def _check_equations(self):
             else:
                 bad_eqns.append(e)
     return bad_eqns
-CSubProblemPtr.check_equations = _check_equations
+CSubProblem.check_equations = _check_equations
 
 def _nEquations(self):
     n = 0
@@ -93,7 +93,7 @@ def _nEquations(self):
         if self.is_active_equation(e):
             n += e.ndof()
     return n
-CSubProblemPtr.nEquations = _nEquations
+CSubProblem.nEquations = _nEquations
 
 def _nDoFs(self):
     n = 0
@@ -103,13 +103,13 @@ def _nDoFs(self):
         if self.is_active_field(f.out_of_plane()):
             n += f.out_of_plane().ndof()
     return n
-CSubProblemPtr.nDoFs = _nDoFs
+CSubProblem.nDoFs = _nDoFs
 
 ###############################################################
 #AMR subproblem
 
 #Add attributes that used to be in femesh
-CSubProblemPtr.bdy_node_map = {}  # node_index: 0 or 1(on boundary)
+CSubProblem.bdy_node_map = {}  # node_index: 0 or 1(on boundary)
 # SCPatch flags
 
 #Interface branch
@@ -117,7 +117,7 @@ CSubProblemPtr.bdy_node_map = {}  # node_index: 0 or 1(on boundary)
 #with indices into internal list irealn0 and irealn1 of the realmesh element realel.
 #Note the difference with getEdgeNodes, which uses a dictionary and does not
 #work when interfaces are defined.
-def _CSubProblemPtr_getRealEdgeNodes(self,realel,
+def _CSubProblem_getRealEdgeNodes(self,realel,
                                      irealn0,realn0,
                                      irealn1,realn1):
     ncorners = realel.ncorners()
@@ -141,7 +141,7 @@ def _CSubProblemPtr_getRealEdgeNodes(self,realel,
                 found=True
     return realedgenodes
 
-CSubProblemPtr.getRealEdgeNodes = _CSubProblemPtr_getRealEdgeNodes
+CSubProblem.getRealEdgeNodes = _CSubProblem_getRealEdgeNodes
 
 # Create a boundary node map, which indicates if a node is on a
 # boundary (either external or material) or not.  The map is a dict
@@ -150,7 +150,7 @@ CSubProblemPtr.getRealEdgeNodes = _CSubProblemPtr_getRealEdgeNodes
 # The map is a dict and not a list because mesh node indices aren't
 # guaranteed to be a set of contiguous integers.
 
-def _CSubProblemPtr_create_elem_bdynodemap(self, e, fe, n0, n1):
+def _CSubProblem_create_elem_bdynodemap(self, e, fe, n0, n1):
     irealn0 = e.getNodeIndexIntoList(n0)
     realn0 = fe.getCornerNode( irealn0 )
     irealn1 = e.getNodeIndexIntoList(n1)
@@ -163,10 +163,10 @@ def _CSubProblemPtr_create_elem_bdynodemap(self, e, fe, n0, n1):
                                         irealn0,realn0,
                                         irealn1,realn1):
             self.bdy_node_map[nd.index()] = 1
-CSubProblemPtr.create_elem_bdynodemap=_CSubProblemPtr_create_elem_bdynodemap
+CSubProblem.create_elem_bdynodemap=_CSubProblem_create_elem_bdynodemap
 
 #Interface branch
-def _CSubProblemPtr_create_bdy_node_map(self, skel):
+def _CSubProblem_create_bdy_node_map(self, skel):
     # Initializing
     nd_iter = self.node_iterator()
     ## TODO PYTHON3: Use a real iterator
@@ -256,10 +256,10 @@ def _CSubProblemPtr_create_bdy_node_map(self, skel):
             elif self.contains(fe1):
                 self.create_elem_bdynodemap(e1,fe1,n0,n1)
 
-CSubProblemPtr.create_bdy_node_map = _CSubProblemPtr_create_bdy_node_map
+CSubProblem.create_bdy_node_map = _CSubProblem_create_bdy_node_map
 
 # Create SC Patch.
-def _CSubProblemPtr_create_scpatch(self, skel):
+def _CSubProblem_create_scpatch(self, skel):
     ## TODO: only call create_scpatch if necessary.  There used to be
     ## a _have_scpatches flag that was checked here and set to True if
     ## the patches were built, but it was neer set to False anywhere,
@@ -285,7 +285,7 @@ def _CSubProblemPtr_create_scpatch(self, skel):
     # buildPatches calls CSubProblem::add_scpatch for each patch.
     patches.buildPatches(skel)
 
-CSubProblemPtr.create_scpatch = _CSubProblemPtr_create_scpatch
+CSubProblem.create_scpatch = _CSubProblem_create_scpatch
 
 # Superconvergent patch flux recovery.
 
@@ -295,7 +295,7 @@ CSubProblemPtr.create_scpatch = _CSubProblemPtr_create_scpatch
 # of the same shape, and seems to be independent of whether the
 # elements are triangular or quad.  (SL: I could not reproduce this
 # before the 2.1 release.)
-def _CSubProblemPtr_flux_recovery(self):
+def _CSubProblem_flux_recovery(self):
     ## TODO: only call recover_fluxes if the solution or mesh has
     ## changed.  There used to be a self._did_recover_fluxes flag that
     ## was checked here, and set to True after recovering the fluxes.
@@ -305,5 +305,5 @@ def _CSubProblemPtr_flux_recovery(self):
     self.init_nodalfluxes()
     self.recover_fluxes()           # C++ CSubProblem will do it.
 
-CSubProblemPtr.flux_recovery = _CSubProblemPtr_flux_recovery
+CSubProblem.flux_recovery = _CSubProblem_flux_recovery
 

@@ -9,7 +9,7 @@
 # oof_manager@nist.gov.
 
 # from ooflib.SWIG.engine import node
-from ooflib.SWIG.engine.node import FuncNodePtr
+from ooflib.SWIG.engine.node import FuncNode
 from ooflib.engine.profile import Location
 
 def _EdgeSet___repr__(self):
@@ -29,7 +29,7 @@ EdgeSet.__repr__ = _EdgeSet___repr__
 # be needed by each boundary condition.
 def _EdgeSet_build_caches_(self):
     raw = self.ndlist()
-    elist = list(map(EdgeNodeDistancePtr, raw))
+    elist = list(map(EdgeNodeDistance, raw))
     self.node_cache = [e.node for e in elist]
     self.location_cache = []
     for e in elist:
@@ -88,9 +88,9 @@ def _EdgeSet_addEdge(self, boundaryedge):
     self.addEdge_(boundaryedge)
 
 
-EdgeSetPtr.addEdge = _EdgeSet_addEdge
+EdgeSet.addEdge = _EdgeSet_addEdge
 
-# Patterned after the FuncNodeIteratorPtr getitem routine in mesh.spy.
+# Patterned after the FuncNodeIterator getitem routine in mesh.spy.
 def _EdgeSetIterator___getitem__(self, idx):
     if self.end():
         raise IndexError
@@ -98,4 +98,4 @@ def _EdgeSetIterator___getitem__(self, idx):
     self.increment()
     return ret
 
-EdgeSetIteratorPtr.__getitem__ = _EdgeSetIterator___getitem__
+EdgeSetIterator.__getitem__ = _EdgeSetIterator___getitem__

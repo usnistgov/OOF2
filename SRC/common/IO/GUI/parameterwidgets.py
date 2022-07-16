@@ -36,7 +36,7 @@ FloatType = float
 IntType = int
 ListType = list
 TupleType = tuple
-StringType = string
+StringType = str
 
 ############################
 

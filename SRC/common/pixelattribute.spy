@@ -11,4 +11,4 @@
 def _writeGlobalData(self, datafile, ms):
     pass
 
-PxlAttributeRegistrationPtr.writeGlobalData = _writeGlobalData
+PxlAttributeRegistration.writeGlobalData = _writeGlobalData

@@ -57,6 +57,6 @@ public:
   TimeStamp &getTimeStamp();
 };
 
-%pythoncode "common/IO/bitoverlay.spy"
+ADD_REPR(BitmapOverlay, repr);
 
 #endif // BITOVERLAY_SWG

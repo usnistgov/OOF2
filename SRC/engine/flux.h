@@ -78,6 +78,7 @@ public:
   void addEquation(Equation*);	// this flux appears in this equation
 
   const std::string &name() const { return name_; }
+  std::string *repr() const { return new std::string(name_); }
 
 
   virtual IteratorP iterator(Planarity) const = 0;

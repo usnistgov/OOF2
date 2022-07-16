@@ -10,17 +10,17 @@
 
 from ooflib.SWIG.common import config
 
-MasterCoordPtr.__repr__ = lambda self:"MasterCoord(%s,%s)" % (self[0],self[1])
+MasterCoord.__repr__ = lambda self:"MasterCoord(%s,%s)" % (self[0],self[1])
 
 def _MasterCoord___lt__(self, other):
-    if not isinstance(other, MasterCoordPtr):
+    if not isinstance(other, MasterCoord):
         return NotImplemented
     return (self[0] < other[0] or
             (self[0] == other[0] and self[1] < other[1]))
 
-MasterCoordPtr.__lt__ = _MasterCoord___lt__
+MasterCoord.__lt__ = _MasterCoord___lt__
 
 def _MasterCoord___hash__(self):
     return hash((self[0], self[1]))
 
-MasterCoordPtr.__hash__ = _MasterCoord___hash__
+MasterCoord.__hash__ = _MasterCoord___hash__
