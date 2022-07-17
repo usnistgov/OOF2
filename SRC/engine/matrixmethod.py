@@ -92,14 +92,14 @@ class ConjugateGradient(PreconditionedMatrixMethod):
     def solveMatrix(self, matrix, rhs, solution):
         if _check_symmetry:
             import sys
-	    import subprocess, os
+            import subprocess, os
             if (matrix.nrows()!=matrix.ncols() or
                 not matrix.is_symmetric(1.e-12)): # can be very slow
                 raise ooferror2.ErrPyProgrammingError(
                     "%dx%d CG matrix is not symmetric!" %
                     (matrix.nrows(), matrix.ncols()))
-	# added to try and debug memory usage
-	#subprocess.check_output(["oof2",'os.getpid()'])
+        # added to try and debug memory usage
+        #subprocess.check_output(["oof2",'os.getpid()'])
         succ = self.solver.solve(matrix, rhs, solution)
         if succ != cmatrixmethods.SUCCESS: 
             if succ == cmatrixmethods.NOCONVERG:
@@ -401,5 +401,4 @@ registeredclass.Registration(
     ordering=1,
     tip='Solve matrix equations with a direct method.  Not recommended for large problems.',
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/basicdirect.xml'))
-                
 

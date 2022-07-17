@@ -241,7 +241,7 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
     starttime = time
     startdelta = delta
     truncated_step = False
-    utils.memusage("evolve_to")
+    # utils.memusage("evolve_to")
 
     try:
         # Main loop.  There is no explicit limit to the number of

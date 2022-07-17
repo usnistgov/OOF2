@@ -20,7 +20,7 @@
 %import "common/abstractimage.swg"
 %import "common/canvasimage.swg"
 %import "common/coord.swg"
-%import "common/pixelgroup.swg"
+%import "common/pixelattribute.swg"
 %import "common/timestamp.swg"
 #endif // NOSECONDIMPORTS
 
