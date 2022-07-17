@@ -91,4 +91,6 @@ public:
   }
 };
 
+%pythoncode "engine/meshiterator.spy"
+
 #endif // MESHITERATOR_SWG
