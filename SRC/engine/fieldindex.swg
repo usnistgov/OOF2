@@ -40,7 +40,7 @@ public:
   void set(IntVec*);
   %newobject components;
   IntVec *components();
-  const string &shortstring();
+  const std::string &shortstring();
 };
 
 ADD_REPR_GENERIC(FieldIndex);
@@ -155,7 +155,7 @@ public:
   void set(IntVec*);
   %newobject components;
   IntVec *components();
-  const string &shortstring();
+  const std::string &shortstring();
 };
 
 ADD_REPR_GENERIC(IndexP);

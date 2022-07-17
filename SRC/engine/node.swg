@@ -45,8 +45,8 @@ public:
   Coord position();
 
   %newobject ctor;
-  const string *ctor();
-  const string &classname();
+  const std::string *ctor();
+  const std::string &classname();
   // int ndof();
   // int neqn();
 

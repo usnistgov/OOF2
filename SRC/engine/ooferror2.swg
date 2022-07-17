@@ -71,7 +71,7 @@ class ErrBadMaterial : public ErrError {
 public:
   ErrBadMaterial(char*);
   ~ErrBadMaterial();
-  const string &materialName();
+  const std::string &materialName();
 };
 
 ADD_REPR(ErrBadMaterial, summary);
@@ -80,7 +80,7 @@ class ErrRedundantProperty : public ErrError {
 public:
   ErrRedundantProperty(char*);
   ~ErrRedundantProperty();
-  const string &get_tag();
+  const std::string &get_tag();
 };
 
 ADD_REPR(ErrRedundantProperty, summary);

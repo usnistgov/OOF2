@@ -99,8 +99,8 @@ std::string recv_bcast_string(int);
 // Args are: Message, filename, line-number, processor
 class MPIException : public ErrError {
 public:
-  string message();
-  string filename();
+  std::string message();
+  std::string filename();
   int lineno();
   MPIException(char *, char *, int, int);
   ~MPIException();

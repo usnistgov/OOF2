@@ -37,7 +37,7 @@ public:
   int range();
   int domain();
   %addmethods {
-    %new const string *__repr__() {
+    %new const std::string *__repr__() {
       return new std::string(to_string(*self));
     }
   }

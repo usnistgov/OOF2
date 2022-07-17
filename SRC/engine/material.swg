@@ -166,7 +166,7 @@ public:
   //Interface branch
   Material(char *name, char* materialtype);
   ~Material();
-  const string &name();
+  const std::string &name();
   void rename(char *newname);
 
   //Interface branch

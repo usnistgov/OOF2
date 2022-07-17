@@ -19,7 +19,6 @@
 %{
 #include "engine/sparsemat.h"
 #include "engine/dofmap.h"
-#include <string>
 #include <cstring>
 %} 
 
@@ -82,7 +81,7 @@ public:
   SparseMat matrixmultiply(SparseMat &m) { return (*self)*m; }
 
   %newobject __repr__;
-  const string * __repr__() {
+  const std::string * __repr__() {
     return new std::string((*self).str());
   }
 

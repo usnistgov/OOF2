@@ -107,6 +107,9 @@ still makes an extra copy of the object, but it's no longer necessary
 to delete the copy manually in the typemap.
 
 Swig now understands namespaces, sort of.
+common/typemaps.swg now includes typemaps for std::string instead of
+string, but that means that all of the other swg files need to also
+use std::string instead of string.
 
 Use %pythoncode %{ ... %} inside a class in the swig file to add a
 python method to the python part of a swigged class (eg, to override

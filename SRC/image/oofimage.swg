@@ -48,10 +48,10 @@ public:
   OOFImage(char *name, char *filename);
   ~OOFImage();
   void save(char *filename);
-  const string &name();
+  const std::string &name();
   void rename(char *);
   %newobject comment;
-  string *comment();
+  std::string *comment();
   void setSize(Coord *Point);
   
   Coord size();

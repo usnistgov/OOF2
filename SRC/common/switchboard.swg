@@ -28,7 +28,7 @@ void init_switchboard_api(PyObject *pythonCallable); // call this once
 class OOFMessage {
 public:
   OOFMessage(const std::string&);
-  const string &name();
+  const std::string &name();
 };
 
 %extend OOFMessage {

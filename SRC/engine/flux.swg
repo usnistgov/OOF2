@@ -24,7 +24,6 @@
 %{
 #include "engine/flux.h"
 #include "engine/outputval.h"
-#include <vector>
 typedef std::vector<Flux*> FluxVec;
 %}
 
@@ -63,7 +62,7 @@ class Flux {
 public:
   int ndof();
   int divergence_dim();
-  const string &name();
+  const std::string &name();
   int objectid();
 
   IteratorP iterator(Planarity p);

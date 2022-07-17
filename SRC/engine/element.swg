@@ -81,7 +81,7 @@ class CSkeletonElement;
 %nodefaultctor ElementData;
 class ElementData {
 public:
-  const string &name();
+  const std::string &name();
 };
 
 MAKE_LISTVEC_TYPEMAPS(GaussPoint);
@@ -131,7 +131,7 @@ public:
 
   //Interface branch
   Node* getCornerNode(int i) const;
-  const string &name();
+  const std::string &name();
   %newobject namelist;
   StringVec* namelist();
 

@@ -65,7 +65,7 @@ public:
   void rename(char*);
   bool is_meshable();
   void set_meshable(bool);
-  const string &name();
+  const std::string &name();
 };
 
 %newobject pixelGroupNames;

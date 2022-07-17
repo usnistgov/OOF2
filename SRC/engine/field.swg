@@ -87,13 +87,13 @@ typedef std::vector<CompoundField*> CompoundFieldVec;
 
 class Field {
 public:
-  const string &name();
+  const std::string &name();
   int objectid();
   int index();
 
   int ndof();
 
-  const string &classname(); 
+  const std::string &classname(); 
 
   Field *time_derivative();
 
@@ -150,32 +150,32 @@ int countCompoundFields();
 class ScalarField : public CompoundField, public Field {
 public:
   ScalarField(char *name);
-  const string &classname();
+  const std::string &classname();
 };
 
 
 class TwoVectorField : public CompoundField, public Field {
 public:
   TwoVectorField(char *name);
-  const string &classname();
+  const std::string &classname();
 };
 
 class ThreeVectorField : public CompoundField, public Field {
 public:
   ThreeVectorField(char *name);
-  const string &classname();
+  const std::string &classname();
 };
 
 class VectorFieldBase : public Field {
 public:
   VectorFieldBase(char *name, int d);
-  const string &classname();
+  const std::string &classname();
 };
 
 class SymmetricTensorField : public Field {
 public:
   SymmetricTensorField(char *name);
-  const string &classname();
+  const std::string &classname();
 };
 
 %pythoncode "engine/field.spy"

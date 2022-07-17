@@ -111,7 +111,7 @@ public:
   CMicrostructure(char *name, ICoord *Sequence, Coord *Sequence);
   ~CMicrostructure();
   void destroy(); 
-  const string &name();
+  const std::string &name();
   void rename(char *name);
   TimeStamp &getTimeStamp();
   void setCurrentActiveArea(ActiveArea*);

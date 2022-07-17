@@ -63,8 +63,8 @@ public:
   int ninteriormapnodes_only();
   int nexteriormapnodes_only();
   int nsides();
-  const string &name();
-  const string &description();
+  const std::string &name();
+  const std::string &description();
   int ncorners();
   double outOfBounds(const MasterCoord&);
   bool onBoundary(const MasterCoord&);

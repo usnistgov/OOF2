@@ -44,7 +44,7 @@ public:
   void setFraction(double);
   %newobject message;
   std::string *message();
-  const string &name();
+  const std::string &name();
   int id();
   void acquireThreadLock();
   void releaseThreadLock();

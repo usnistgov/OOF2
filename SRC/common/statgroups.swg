@@ -29,11 +29,9 @@
 
 class PixelDistributionFactory {};
 
-const string *statgroups(CMicrostructure*,
-			 PixelDistributionFactory*,
-			 double, double,
-			 int, bool,
-			 char*, bool);
+const std::string *statgroups(CMicrostructure*,
+			      PixelDistributionFactory*,
+			      double, double, int, bool, char*, bool);
 
 %pythoncode "common/statgroups.spy"
 

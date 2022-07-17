@@ -77,16 +77,16 @@ public:
 class PropertyOutput {
 public:
   ~PropertyOutput();
-  const string &name();
+  const std::string &name();
   double getFloatParam(char*);
   int getIntParam(char*);
   void setInitializer(PropertyOutputValInit*);
   %newobject getStringParam;
-  const string *getStringParam(char*);
+  const std::string *getStringParam(char*);
   %newobject getEnumParam;
-  const string *getEnumParam(char*);
+  const std::string *getEnumParam(char*);
   %newobject getRegisteredParamName;
-  const string *getRegisteredParamName(char*);
+  const std::string *getRegisteredParamName(char*);
   %newobject getListOfStringsParam;
   StringVec *getListOfStringsParam(char*);
 };
@@ -111,7 +111,7 @@ class PropertyOutputRegistration {
 public:
   PropertyOutputRegistration(char*);
   ~PropertyOutputRegistration();
-  const string &name();
+  const std::string &name();
   %newobject instantiateArithmetic;
   PropertyOutput *instantiateArithmetic(char*, PyObject*);
   %newobject instantiateNonArithmetic;

@@ -17,7 +17,6 @@
 %include "common/typemaps.swg"
 
 %{
-#include <string>
 #include "common/doublevec.h"
 %}
 
@@ -42,7 +41,7 @@ public:
 
 %extend DoubleVec {
   %newobject __repr__;
-  const string* __repr__() {
+  const std::string* __repr__() {
      return new std::string((*self).str());
   }
 

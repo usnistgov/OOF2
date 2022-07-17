@@ -172,7 +172,7 @@ public:
 
 %extend VectorOutputVal {
   %newobject __repr__;
-  const string *__repr__() {
+  const std::string *__repr__() {
     std::string *res = new std::string("[");
     *res += to_string( (*self)[0] );
     for(unsigned int i=1; i<self->size(); i++)

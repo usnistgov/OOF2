@@ -69,7 +69,7 @@ typedef std::vector<Equation*> EquationVec;
 
 class Equation {
 public:
-  const string &name();
+  const std::string &name();
   int objectid();
   int dim();
   int ndof();			// same as dim()
@@ -95,7 +95,7 @@ public:
 
 class FluxEquation : public Equation {
 public:
-  const string &fluxname();
+  const std::string &fluxname();
   Flux *flux();
 };
 
