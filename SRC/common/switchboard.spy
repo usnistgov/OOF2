@@ -301,7 +301,7 @@ class _Switchboard(object):
         # Messages passed from C++ may be either simple strings or
         # OOFMessage instances. The OOFMessage class has swigged
         # methods that make it act like a list of PyObjects.
-        if isinstance(oofmessage, bytes):
+        if isinstance(oofmessage, str):
             self.notify(oofmessage)
         else:
             # Convert OOFMessage object into arglist

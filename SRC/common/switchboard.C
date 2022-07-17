@@ -29,8 +29,13 @@ void init_switchboard_api(PyObject *pyNotify) {
 void switchboard_notify(const std::string &msg) {
   if(notifier != 0) {
     PYTHON_THREAD_BEGIN_BLOCK;
-    PyObject *result = PyObject_CallFunction(notifier, "(s)", msg.c_str());
+    PyObject *result = PyObject_CallFunction(notifier, "s", msg.c_str());
     if(!result) {
+      // std::cerr << "switchboard_notify: notification failed!" << std::endl;
+      // std::cerr << "switchboard_notify: exception type="
+      // 		<< repr_nolock(PyErr_Occurred()) << std::endl;
+      // PyErr_Print();
+      // exit(1);
       pythonErrorRelay();	// raises an exception
     }
     Py_XDECREF(result);
