@@ -32,7 +32,8 @@ from gi.repository import Pango
 tabspacing = 4
 
 # Preprocessing for some string stuff.
-ordinary_printable = string.digits + string.letters + string.punctuation + " "
+ordinary_printable = (string.digits + string.ascii_letters +
+                      string.punctuation + " ")
 KEYVAL_UP = Gdk.keyval_from_name('Up')
 KEYVAL_DOWN = Gdk.keyval_from_name('Down')
 KEYVAL_LEFT = Gdk.keyval_from_name('Left')

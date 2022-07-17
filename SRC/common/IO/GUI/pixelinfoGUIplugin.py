@@ -47,14 +47,9 @@ class PixelInfoGUIPlugIn:
 
 plugInClasses = []
 
-def pluginsorter(a,b):
-    if a.ordering < b.ordering: return -1
-    if a.ordering > b.ordering: return 1
-    return 0
-
 def registerPlugInClass(plugin):
     plugInClasses.append(plugin)
-    plugInClasses.sort(pluginsorter)
+    plugInClasses.sort(key=lambda p: p.ordering)
     switchboard.notify('new pixelinfo GUI plugin')
 
 ####################################
@@ -103,7 +98,7 @@ class MicrostructurePlugIn(PixelInfoGUIPlugIn):
         self.update(None)
 
     def close(self):
-        switchboard.removeCallbacks(self.sbcallbacks()
+        switchboard.removeCallbacks(self.sbcallbacks)
         PixelInfoGUIPlugIn.close(self)
 
     def clear(self):

@@ -25,7 +25,7 @@ from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import timestamp
 from ooflib.common import debug
 from ooflib.common import registeredclass
-import string
+from ooflib.common.utils import stringjoin
 import struct
 import sys
 
@@ -71,7 +71,7 @@ def registerCClass(klass):
         def paramrepr(self):
             values = self.getParamValues()
             names = [p.name for p in self.getRegistration().params]
-            return string.join(['%s=%s' % (name, repr(value))
+            return stringjoin(['%s=%s' % (name, repr(value))
                                 for (name, value) in zip(names, values)], ',')
         klass.paramrepr = paramrepr
 
@@ -107,7 +107,7 @@ def registerCClass(klass):
             repstrings.append(struct.pack('>i', regkey))
             for param,value in zip(registration.params, self.getParamValues()):
                 repstrings.append(param.binaryRepr(datafile, value))
-            return string.join(repstrings, '')
+            return stringjoin(repstrings, '')
         klass.binaryRepr = binaryRepr
 
     if not hasattr(klass, 'tip'):

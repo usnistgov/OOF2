@@ -17,7 +17,7 @@ from ooflib.common import enum
 from ooflib.common import runtimeflags
 from ooflib.common import utils
 from ooflib.common.IO import oofmenu
-import string, copy
+import copy
 
 
 if runtimeflags.surface_mode:
@@ -250,7 +250,7 @@ def _Material___repr_(self):
     out = ["Material('" + self.name() + "'"]
     for prop in self.properties():
         out.append(repr(prop))
-    out = string.join(out, ",\n\t")
+    out = utils.stringjoin(out, ",\n\t")
     return out + ")"
 
 Material.__repr__ = _Material___repr_
