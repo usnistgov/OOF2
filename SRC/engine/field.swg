@@ -22,6 +22,7 @@
 %import "engine/fieldindex.swg"
 %import "engine/freedom.swg"
 %import "engine/outputval.swg"
+%import "engine/planarity.swg"
 %import "engine/pointdata.swg"
 #endif // NOSECONDIMPORTS
 

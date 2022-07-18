@@ -19,7 +19,7 @@
 
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.engine import properties
+from ooflib.SWIG.engine import property
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO import mainmenu
@@ -431,15 +431,17 @@ class PropertyRegistrationParent:
         self.subclass = subclass        # for PythonExportability of Property
         self.modulename = modulename    # ditto
         self.ordering = ordering
-        properties.Property.registry.append(self)
+        # The registry is class-level data inserted into the Property
+        # class in property.spy.
+        property.Property.registry.append(self)
         self._secret = secret
 
     def unregister(self):
-        del properties.Property.registry[self.getIndex()]
+        del property.Property.registry[self.getIndex()]
 
     def getIndex(self):
-        for i in range(len(properties.Property.registry)):
-            if properties.Property.registry[i] is self:
+        for i in range(len(property.Property.registry)):
+            if property.Property.registry[i] is self:
                 return i
     def secret(self):
         return self._secret

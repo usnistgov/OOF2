@@ -1451,10 +1451,10 @@ settingsmenu.addItem(oofmenu.OOFMenuItem(
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 
-from ooflib.SWIG.engine import properties
+from ooflib.SWIG.engine import property
 
 def _numericalDiff(menuitem, epsilon):
-    properties.cvar.deriv_eps = epsilon
+    property.cvar.deriv_eps = epsilon
 
 settingsmenu.addItem(oofmenu.OOFMenuItem(
         "Numerical_Differentiation",
@@ -1462,7 +1462,7 @@ settingsmenu.addItem(oofmenu.OOFMenuItem(
         params=[
             parameter.FloatParameter(
                 "epsilon",
-                properties.cvar.deriv_eps,
+                property.cvar.deriv_eps,
                 tip="Increment for numerical differentiation")],
         help="Set the increment used for approximate derivatives when exact derivatives are not available.",
         discussion=xmlmenudump.loadFile(

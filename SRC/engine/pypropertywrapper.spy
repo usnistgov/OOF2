@@ -28,7 +28,7 @@ from ooflib.SWIG.engine import elementnodeiterator
 from ooflib.SWIG.engine import equation
 from ooflib.SWIG.engine import femesh
 from ooflib.SWIG.engine import flux
-from ooflib.SWIG.engine import properties
+from ooflib.SWIG.engine import property
 from ooflib.SWIG.engine import mastercoord
 from ooflib.SWIG.engine import material
 from ooflib.SWIG.engine import smallsystem
@@ -67,7 +67,7 @@ def _precompute_wrap(self, mesh_p):
     msh = femesh.FEMesh(mesh_p)
     self.precompute(msh)
 
-properties.Property.precompute_wrap = _precompute_wrap
+property.Property.precompute_wrap = _precompute_wrap
 
 #=--=##=--=#
 
@@ -77,7 +77,7 @@ def _constant_in_space_wrap(self):
     raise ooferror.ErrSetupError("Property " + self.name() +
                                  " is missing the constant_in_space function!")
 
-properties.Property.constant_in_space_wrap = _constant_in_space_wrap
+property.Property.constant_in_space_wrap = _constant_in_space_wrap
 
 #=--=##=--=#
 
@@ -85,7 +85,7 @@ def _cross_reference_wrap(self, material_p):
     matl = material.Material(material_p)
     self.cross_reference(matl)
 
-properties.Property.cross_reference_wrap = _cross_reference_wrap
+property.Property.cross_reference_wrap = _cross_reference_wrap
 
 #=--=##=--=#
 
@@ -94,14 +94,14 @@ def _begin_element_wrap(self, subp_p, element_p):
     elmnt = element.Element(element_p)
     self.begin_element(subp, elmnt)
 
-properties.Property.begin_element_wrap = _begin_element_wrap
+property.Property.begin_element_wrap = _begin_element_wrap
 
 def _end_element_wrap(self, subp_p, element_p):
     subp = csubproblem.CSubProblem(subp_p)
     elmnt = element.Element(element_p)
     self.end_element(subp, elmnt)
 
-properties.Property.end_element_wrap = _end_element_wrap
+property.Property.end_element_wrap = _end_element_wrap
 
 #=--=##=--=#
 
@@ -112,7 +112,7 @@ def _begin_point_wrap(self, femesh_p, element_p, flux_p, masterpos_p):
     masterpos = mastercoord.MasterPosition(masterpos_p)
     self.begin_point(mesh, elmnt, flx, masterpos)
 
-properties.Property.begin_point_wrap = _begin_point_wrap
+property.Property.begin_point_wrap = _begin_point_wrap
 
 def _end_point_wrap(self, femesh_p, element_p, flux_p, masterpos_p):
     mesh = femesh.FEMesh(femesh_p)
@@ -121,7 +121,7 @@ def _end_point_wrap(self, femesh_p, element_p, flux_p, masterpos_p):
     masterpos = mastercoord.MasterPosition(masterpos_p)
     self.end_point(mesh, elmnt, flx, masterpos)
 
-properties.Property.end_point_wrap = _end_point_wrap
+property.Property.end_point_wrap = _end_point_wrap
 
 #=--=##=--=#
 
@@ -130,7 +130,7 @@ def _post_process_wrap(self, subp_p, element_p):
     elmnt = element.Element(element_p)
     self.post_process(subp, elmnt)
 
-properties.Property.post_process_wrap = _post_process_wrap
+property.Property.post_process_wrap = _post_process_wrap
 
 #=--=##=--=#
 
@@ -141,7 +141,7 @@ def _output_wrap(self, femesh_p, element_p, propout_p, pos_p):
     position = mastercoord.MasterPosition(pos_p)
     return self.output(mesh, elmnt, propout, position)
 
-properties.Property.output_wrap = _output_wrap
+property.Property.output_wrap = _output_wrap
 
 #=--=##=--=#
 
@@ -149,19 +149,19 @@ def _is_symmetric_K_wrap(self, subp_p):
     subp = csubproblem.CSubProblem(subp_p)
     return self.is_symmetric_K(subp)
 
-properties.Property.is_symmetric_K_wrap = _is_symmetric_K_wrap
+property.Property.is_symmetric_K_wrap = _is_symmetric_K_wrap
 
 def _is_symmetric_C_wrap(self, subp_p):
     subp = csubproblem.CSubProblem(subp_p)
     return self.is_symmetric_C(subp)
 
-properties.Property.is_symmetric_C_wrap = _is_symmetric_C_wrap
+property.Property.is_symmetric_C_wrap = _is_symmetric_C_wrap
 
 def _is_symmetric_M_wrap(self, subp_p):
     subp = csubproblem.CSubProblem(subp_p)
     return self.is_symmetric_M(subp)
 
-properties.Property.is_symmetric_M_wrap = _is_symmetric_M_wrap
+property.Property.is_symmetric_M_wrap = _is_symmetric_M_wrap
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -173,7 +173,7 @@ def _integration_order_wrap(self, subp_p, element_p):
     raise ooferror.ErrSetupError("Property " + self.name() +
                                  " is missing the integration_order function!")
 
-properties.PhysicalProperty.integration_order_wrap = _integration_order_wrap
+property.PhysicalProperty.integration_order_wrap = _integration_order_wrap
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
         
@@ -241,7 +241,11 @@ def _force_deriv_matrix_wrap(self, femesh_p, element_p, equation_p,
     return self.force_deriv_matrix(mesh, elem, eqn, efni, masterpos,
                                    time, eqndata)
 
-EqnProperty.force_deriv_matrix_wrap = _force_deriv_matrix_wrap
+## TODO PYTHON3: Check these... the previous version had
+## EqnPropertyPtr instead of PyEqnProperty in the following line and
+## the ones below.  Shouldn't it have been PyEqnProperty in python2 as
+## well?
+PyEqnProperty.force_deriv_matrix_wrap = _force_deriv_matrix_wrap
 
 #=--=##=--=#
 
@@ -254,7 +258,7 @@ def _force_value_wrap(self, femesh_p, element_p, equation_p, masterpos_p, time,
     eqndata = smallsystem.SmallSystem(eqndata_p)
     return self.force_value(mesh, elem, eqn, masterpos, time, eqndata)
 
-EqnProperty.force_value_wrap = _force_value_wrap
+PyEqnProperty.force_value_wrap = _force_value_wrap
 
 #=--=##=--=#
 
@@ -269,7 +273,7 @@ def _first_time_deriv_matrix_wrap(self, femesh_p, element_p, equation_p,
     return self.first_time_deriv_matrix(mesh, elem, eqn, efni, masterpos,
                                         time, eqndata)
 
-EqnProperty.first_time_deriv_matrix_wrap = _first_time_deriv_matrix_wrap
+PyEqnProperty.first_time_deriv_matrix_wrap = _first_time_deriv_matrix_wrap
 
 #=--=##=--=#
 
@@ -284,7 +288,7 @@ def _second_time_deriv_matrix_wrap(self, femesh_p, element_p, equation_p,
     return self.second_time_deriv_matrix(mesh, elem, eqn, efni, masterpos,
                                         time, eqndata)
 
-EqnProperty.second_time_deriv_matrix_wrap = _second_time_deriv_matrix_wrap
+PyEqnProperty.second_time_deriv_matrix_wrap = _second_time_deriv_matrix_wrap
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
