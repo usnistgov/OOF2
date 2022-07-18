@@ -313,13 +313,13 @@ class Output:
         plist = [[n] for n,p in self.params.items() if fltr(p)]
         for inputname, input in self.inputs.items():
             plist.extend([[inputname]+path
-                          for path in input.listAllParameterPaths(filter)])
+                          for path in input.listAllParameterPaths(fltr)])
         return plist
 
     # Return all parameter names as colon separated paths, unaliased.
-    def listAllParameterNames(self, filter=lambda x: True):
+    def listAllParameterNames(self, fltr=lambda x: True):
         return [stringjoin(path, ':')
-                for path in self.listAllParameterPaths(filter)]
+                for path in self.listAllParameterPaths(fltr)]
 
     # Return a dictionary of clones of the settable Parameters, keyed
     # by their aliases.

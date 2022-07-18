@@ -120,7 +120,7 @@ class GfxSettings:
 # signal.
 
 def defineGfxSetting(name, val):
-    GfxSettings.__dict__[name] = val
+    exec(f"GfxSettings.{name} = val") # what's the right way to do this?
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
