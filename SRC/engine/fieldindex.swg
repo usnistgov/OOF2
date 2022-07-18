@@ -169,12 +169,14 @@ public:
   bool end();
   int size();
   IteratorP cloneIterator();
+  %rename(increment) operator++;
+  void operator++();
 };
 
-// TODO INDEXING: The swigged IteratorP should be a real Python
-// iterator, with next() and __iter__() methods.  next() should raise
-// a StopIteration exception when done.  Fixing this at this late date
-// will be a pain.
+// fieldindex.spy adds __iter__ and __next__ methods to IteratorP,
+// making it into a real python iterator.  The old TODO about doing
+// that said "Fixing this at this late date will be a pain".
+// TODO PTYHON3: Find out what broke.
 
 // TODO INDEXING: Don't swig IteratorP and IndexP.  Make the
 // underlying FieldIndex and FieldIterator classes PythonExportable,
@@ -184,7 +186,7 @@ public:
 // be available.
 
 %extend IteratorP {
-  void next() {
+  void __next__() {
     ++(*self);
   }
 };

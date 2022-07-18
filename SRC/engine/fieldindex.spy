@@ -20,12 +20,21 @@ IteratorP.shortrepr = _shortrepr
 
 #############
 
-# def IteratorP_next(self):
-#     if self.end():
-#         raise StopIteration
-#     self.increment()
+# Make IteratorP into a real python iterator.  It iterates over the
+# values of the IndexP class, not over the components of the thing
+# being indexed.
 
-# IteratorP.next = IteratorP_next
+def IteratorP___iter__(self):
+    return self
 
-#############
+IteratorP.__iter__ = IteratorP___iter__
+
+def IteratorP___next__(self):
+    self.increment()
+    if self.end():
+        raise StopIteration
+    return self
+
+IteratorP.__next__ = IteratorP___next__
+
 
