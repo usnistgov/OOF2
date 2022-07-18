@@ -66,7 +66,7 @@ class oofGUI(widgetscope.WidgetScope):
         gtklogger.connect_passive(self.gtk, "configure-event")
         self.gtk.connect("destroy", self.destroyCB)
         guitop.setTop(self)
-        
+
         for sty in gtkutils.styleStrings:
             self.addStyle(sty)
         
@@ -75,7 +75,8 @@ class oofGUI(widgetscope.WidgetScope):
         self.gtk.add(self.mainbox)
 
         self.menubar = Gtk.MenuBar()
-        self.mainbox.pack_start(self.menubar, expand=False, fill=False, padding=0)
+        self.mainbox.pack_start(self.menubar, expand=False, fill=False,
+                                padding=0)
         accelgrp = Gtk.AccelGroup()
         self.gtk.add_accel_group(accelgrp)
 
@@ -156,13 +157,16 @@ class oofGUI(widgetscope.WidgetScope):
             self.addPage(allPages[pagename])
 
     def addStyle(self, stylestring):
-        styleContext = self.gtk.get_style_context()
-        screen = self.gtk.get_screen()
-        styleProvider = Gtk.CssProvider()
-        styleProvider.load_from_data(stylestring)
-        styleContext.add_provider_for_screen(
-            screen, styleProvider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        debug.fmsg(f"ignoring {stylestring}!")
+        ## TODO PYTHON3: Find out what's wrong with this and fix it.
+        # styleContext = self.gtk.get_style_context()
+        # screen = self.gtk.get_screen()
+        # styleProvider = Gtk.CssProvider()
+        # debug.fmsg(f"stylestring={stylestring}")
+        # styleProvider.load_from_data(stylestring)
+        # styleContext.add_provider_for_screen(
+        #     screen, styleProvider,
+        #     Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
     def installPage(self, pagename):
         debug.mainthreadTest()
