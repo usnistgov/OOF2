@@ -25,7 +25,7 @@ class SymState:
     def __repr__(self):
         return self.tag
     def __eq__(self, other):
-        if isinstance(other, bytes):
+        if isinstance(other, (str, bytes)):
             return self.tag == other
         return self.tag == other.tag
     def reset(self):

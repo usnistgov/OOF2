@@ -64,7 +64,7 @@ class ProfileFunctionParameterBase(parameter.Parameter):
                                          value=value,
                                          default=default, tip=tip)
     def set(self, value):
-        if isinstance(value, bytes):
+        if isinstance(value, (str, bytes)):
             self._value = self.profileClass(value)
         elif isinstance(value, self.profileClass):
             self._value = value

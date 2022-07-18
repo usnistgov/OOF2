@@ -18,7 +18,7 @@ class ComboBoxLogger(widgetlogger.WidgetLogger):
         if signal == 'changed':
             index = obj.get_active()
             val = obj.get_model()[index][0]
-            if isinstance(val, bytes):
+            if isinstance(val, (str, bytes)):
                 return ["setComboBox(%s, '%s')" % 
                         (self.location(obj, args), val)]
             else:

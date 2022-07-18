@@ -202,7 +202,7 @@ class RegisteredClassFactory(RCFBase):
         if obj is not None:
             # If obj is a string, look for a registration with that
             # name.
-            if isinstance(obj, bytes):
+            if isinstance(obj, (str, bytes)):
                 for reg in registry:
                     if self.includeRegistration(reg) and reg.name()==obj:
                         self.setByRegistration(reg, interactive)

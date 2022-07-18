@@ -125,7 +125,7 @@ class MeshEdgeBdyInterfaceParameter(MeshBoundaryParameter):
 
 #Includes "<every>"
 class MeshEdgeBdyParameterExtra(placeholder.PlaceHolderParameter):
-    types = (bytes, placeholder.every)
+    types = (str, bytes, placeholder.every)
     def valueDesc(self):
         return "The name of an edge boundary in a mesh."
     

@@ -36,7 +36,7 @@ class _AllFluxes:
             if indx >= countFluxes():
                 raise IndexError("Bad flux index: " + str(indx))
             return getFluxByIndex(indx)
-        elif isinstance(indx, bytes):
+        elif isinstance(indx, (str, bytes)):
             try:
                 flx = utils.OOFeval(indx)
             except NameError:

@@ -76,7 +76,7 @@ class SubWindow:
         # Checking the type is clumsy; the idea is that the caller
         # must provide either the name for the auto-generated menu, or
         # a menu to use instead.  See the TODO above.
-        if isinstance(menu, bytes):
+        if isinstance(menu, (str, bytes)):
             # If no menu is provided, then build a non-logging local
             # one with 'Close' and 'Quit'.
             self.subwindow_menu = oofmenu.OOFMenuItem(

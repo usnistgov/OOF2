@@ -50,7 +50,7 @@ class _AllEquations:
             if indx >= countEquations() or indx < 0:
                 raise IndexError("Bad equation index: " + str(indx))
             return getEquationByIndex(indx)
-        elif isinstance(indx, bytes):
+        elif isinstance(indx, (str, bytes)):
             return getEquationByName(indx)
     def __len__(self):
         return countEquations()

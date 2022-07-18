@@ -92,11 +92,11 @@ utils.OOFdefine('StrFunction', StrFunction)
 
 
 class XYStrFunctionParameter(parameter.Parameter):
-    types = (bytes, XYStrFunction)
+    types = (str, bytes, XYStrFunction)
     def __init__(self, name, value=None, default='0.0', tip=None):
         parameter.Parameter.__init__(self, name, value, default, tip)
     def set(self, value):
-        if isinstance(value, bytes):
+        if isinstance(value, (str, bytes)):
             self._value = XYStrFunction(value)
         elif isinstance(value, XYStrFunction):
             self._value = value
@@ -120,11 +120,11 @@ class XYStrFunctionParameter(parameter.Parameter):
         return XYStrFunction(parser.getBytes(length))
 
 class XYTStrFunctionParameter(parameter.Parameter):
-    types = (bytes, XYStrFunction)
+    types = (str, bytes, XYStrFunction)
     def __init__(self, name, value=None, default='0.0', tip=None):
         parameter.Parameter.__init__(self, name, value, default, tip)
     def set(self, value):
-        if isinstance(value, bytes):
+        if isinstance(value, (str, bytes)):
             self._value = XYTStrFunction(value)
         elif isinstance(value, XYTStrFunction):
             self._value = value

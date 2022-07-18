@@ -57,7 +57,7 @@ class GCWidgetRow:
     def set_value(self, val):
         self.suppress()
         self.nameEntry.set_text(val[0])
-        if isinstance(val[1], bytes):
+        if isinstance(val[1], (str, bytes)):
             self.colEntry.set_text(val[1])
         else:
             self.colEntry.set_text(repr(val[1]))

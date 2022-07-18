@@ -664,7 +664,7 @@ class ChooserComboWidget:
         if type(arg) == int:
             liststore = self.combobox.get_model()
             self.combobox.get_child().set_text(liststore[arg][0])
-        elif type(arg) == bytes:
+        elif isinstance(arg, (str, bytes)):
             self.combobox.get_child().set_text(arg)
         self.combobox.get_child().set_position(-1)
 

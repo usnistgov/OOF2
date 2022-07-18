@@ -26,7 +26,7 @@ class ProfileFunctionXWidget(parameterwidgets.XYStrFunctionWidget):
         debug.mainthreadTest()
         return profilefunction.ProfileFunctionX(self.gtk.get_text().lstrip())
     def validValue(self, value):
-        if isinstance(value, bytes):
+        if isinstance(value, (str, bytes)):
             try:
                 fn = profilefunction.ProfileFunctionX(value)
                 return True
@@ -44,7 +44,7 @@ class ProfileFunctionXTWidget(parameterwidgets.XYTStrFunctionWidget):
         debug.mainthreadTest()
         return profilefunction.ProfileFunctionXT(self.gtk.get_text().lstrip())
     def validValue(self, value):
-        if isinstance(value, bytes):
+        if isinstance(value, (str, bytes)):
             try:
                 fn = profilefunction.ProfileFunctionXT(value)
                 return True

@@ -120,7 +120,7 @@ class DiscussionFunc:
 def getDiscussion(obj):
     ## Raises AttributeError if the object doesn't have a discussion
     ## or if its discussion isn't either a string or a DiscussionFile.
-    if isinstance(obj.discussion, bytes):
+    if isinstance(obj.discussion, (str, bytes)):
         return obj.discussion
     return obj.discussion.read(obj)
 
@@ -131,7 +131,7 @@ def getHelp(obj):                       # get help, helpstr, or tip
         except AttributeError:
             pass
         else:
-            if isinstance(help, bytes):
+            if isinstance(help, (str, bytes)):
                 return help
             return help.read(obj)
 

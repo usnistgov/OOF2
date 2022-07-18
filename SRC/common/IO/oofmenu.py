@@ -631,7 +631,7 @@ class OOFMenuItem:
         return self.parent.path() + "." + self.name
 
     def descendPath(self, path):
-        if isinstance(path, bytes):
+        if isinstance(path, (str, bytes)):
             return self.descendPath(stringsplit(path, '.'))
         if not path:
             return self
