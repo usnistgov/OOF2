@@ -54,11 +54,12 @@ class MiniThread(threading.Thread):
             except StopThread:
                 excepthook.remove_excepthook(hook)
                 return
-            # TODO SWIG1.3: After conversion to SWIG 1.3, OOF
-            # exceptions will probably be subclasses of Exception.
-            except (Exception, ooferror.ErrError) as exception:
+            except Exception as exception:
                 from ooflib.common.IO import reporter
-                reporter.error(exception)
+                if isinstance(exception, ooferror.OOFPyError):
+                    reporter.error(exception.cerror)
+                else:
+                    reporter.error(exception)
                 sys.excepthook(*sys.exc_info())
         finally:
             miniThreadManager.remove(self)

@@ -888,7 +888,7 @@ class ParameterTable(ParameterWidget, widgetscope.WidgetScope):
             try:
                 val = widget.get_value()
                 param.value = val
-            except (Exception, ooferror.ErrError) as exception:
+            except Exception as exception:
                 exceptions.append(exception)
         if exceptions:
             debug.fmsg("exceptions[0] ->%s<-", exceptions[0])

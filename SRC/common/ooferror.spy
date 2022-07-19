@@ -18,6 +18,8 @@ from ooflib.common import debug
 class OOFPyError(Exception):
     def __init__(self, cerror):
         self.cerror = cerror
+    def __repr__(self):
+        return f"<{self.cerror}>"
     
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#

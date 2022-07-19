@@ -194,7 +194,7 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
 
 #######################
 
-class SequenceError(ooferror.ErrError):
+class SequenceError(Exception):
     def __init__(self, message):
         self.message = message
     def __repr__(self):

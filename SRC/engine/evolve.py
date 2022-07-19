@@ -80,10 +80,9 @@ def evolve(meshctxt, endtime):
                 # Initial output comes *after* solving static fields.
                 # For fully static problems, this is the only output.
                 _do_output(meshctxt, starttime)
-            except ooferror2.ErrInterrupted:
-                raise
-            except ooferror2.ErrError as exc:
-                meshctxt.setStatus(meshstatus.Failed(exc.summary()))
+            except ooferror2.OOFPyError as exc:
+                if not isinstance(exc.cerror, ooferror2.ErrInterrupted):
+                    meshctxt.setStatus(meshstatus.Failed(exc.cerror.summary()))
                 raise
             except Exception as exc:
                 meshctxt.setStatus(meshstatus.Failed(repr(exc)))
@@ -120,12 +119,15 @@ def evolve(meshctxt, endtime):
                         meshctxt, subprobctxts,
                         time=time, endtime=t1, delta=delta, prog=prog,
                         linsysDict=linsys_dict)
-                except ooferror2.ErrInterrupted:
-                    # Interruptions shouldn't raise an error dialog
-                    debug.fmsg("Interrupted!")
-                    meshctxt.setStatus(meshstatus.Failed(
+                except ooferror2.OOFPyError as err:
+                    if isinstance(err.cerror, ooferror2.ErrInterrupted):
+                        # Interruptions shouldn't raise an error dialog
+                        debug.fmsg("Interrupted!")
+                        meshctxt.setStatus(meshstatus.Failed(
                             "Solution interrupted."))
-                    break
+                        break
+                    else:
+                        raise
                 meshctxt.solverDelta = delta
                 if time < t1:
                     meshctxt.setStatus(meshstatus.Failed(
@@ -425,13 +427,13 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
         if prog.stopped():
             raise ooferror2.ErrInterrupted()
 
-    except ooferror2.ErrInterrupted:
-        debug.fmsg("Interrupted!")
-        meshctxt.setStatus(meshstatus.Failed("Solution interrupted."))
-        raise
-    except ooferror2.ErrError as err:
-        debug.fmsg("Caught an ErrError")
-        meshctxt.setStatus(meshstatus.Failed(err.summary()))
+    except ooferror2.OOFPyError as err:
+        if isinstance(err.cerror, ooferror2.ErrInterrupted):
+            debug.fmsg("Interrupted!")
+            meshctxt.setStatus(meshstatus.Failed("Solution interrupted."))
+        else:
+            debug.fmsg("Caught an ErrError")
+            meshctxt.setStatus(meshstatus.Failed(err.cerror.summary()))
         raise
     except Exception as exc:
         debug.fmsg("Caught an Exception")
