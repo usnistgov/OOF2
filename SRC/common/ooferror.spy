@@ -8,33 +8,36 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+from ooflib.common import debug
+
+
+# All Python exceptions must be derived from Exception.  The C++
+# version of that is PyObject *PyExc_Exception, which is not something
+# that can be used as a C++ base class, unfortunately.
+
+class OOFPyError(Exception):
+    def __init__(self, cerror):
+        self.cerror = cerror
+    
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Routine to set up the callback that converts C++ exceptions to
-# Python exceptions.  This gets automatically run when oofcpp is
+# Python exceptions.  This gets automatically run when this module is
 # imported, which guarantees that it will be in place before any
 # high-level calls from "pure Python" happen.
 
-from ooflib.common import debug
-
 def pyErrorCallback(str):
     try:
-        errorstring = "raise " + str
-        exec(errorstring)
+        raise OOFPyError(errorstring)
     except TypeError:
         debug.fmsg("Error while raising exception! str=", errorstring,
                    type(errorstring))
         raise
 
-def registerErrorClass(eclass):
-    "Allow an error class to be raised from the SWIGged wrapper functions."
-    g = globals()
-    g[eclass.__name__] = eclass
-
 pyErrorInit(pyErrorCallback)
 
-registerErrorClass(ErrNoProgress)
-
-##################################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 import traceback
 
@@ -60,4 +63,12 @@ class ErrDataFileError(ErrUserError):
 
 class ErrWarning(ErrUserError):
     pass
+
+
+def registerErrorClass(eclass):
+    "Allow an error class to be raised from the SWIGged wrapper functions."
+    g = globals()
+    g[eclass.__name__] = eclass
+
+registerErrorClass(ErrNoProgress) # Why is this the only one registered here?
 

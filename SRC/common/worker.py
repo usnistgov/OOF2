@@ -139,9 +139,7 @@ class NonThreadedWorker(Worker, WorkerCore):
                     excepthook.remove_excepthook(self.excepthook)
                 except SystemExit:
                     raise
-                # TODO SWIG1.3: After conversion to SWIG 1.3, OOF
-                # exceptions will probably be subclasses of Exception.
-                except (Exception, ooferror.ErrError) as exception:
+                except Exception as exception:
                     mainthread.runBlock(self.menuitem.postcall, (False,))
                     if propagate_exceptions or not self.toplevel:
                         excepthook.remove_excepthook(self.excepthook)
@@ -188,9 +186,7 @@ class ThreadedWorkerCore(threading.Thread, WorkerCore):
                     excepthook.remove_excepthook(self.excepthook)
                 except SystemExit:
                     raise
-                # TODO SWIG1.3: After conversion to SWIG 1.3, OOF
-                # exceptions will probably be subclasses of Exception.
-                except (Exception, ooferror.ErrError) as exception:
+                except Exception as exception:
                     self.menuitem.postcall(False)
                     if propagate_exceptions or not self.toplevel:
                         self.exception_data = sys.exc_info()
@@ -285,13 +281,14 @@ class TextThreadedWorker(ThreadedWorker):
                         prog = ts.findProgress(pname)
                         pbar = prog.makeTextBar()
                         prgrsbars[pname] = pbar
-                    except ooferror.ErrNoProgress as exc:
-                        print(exc)
-                        # Oops, the Progress object vanished already.
-                        pass
-                    except (ooferror.ErrError, Exception):
-                        print("Error when constructing progress bar!")
-                        raise
+                    except Exception as exc:
+                        if (isinstance(exc, ooferror.OOFPyError) and
+                            isinstance(exc.cerror, ooferror.ErrNoProgress)):
+                            # Oops, the Progress object vanished already.
+                            pass
+                        else:
+                            print("Error when constructing progress bar!")
+                            raise
                 else:
                     # Re-use an old ProgressBar.
                     prog = pbar.progress

@@ -105,7 +105,7 @@ std::basic_string<char> escapostrophe(const std::string &in) {
 // pythonErrorRelay() should be called whenever C++ detects that a
 // Python exception has been raised in a Python API call.  It converts
 // the Python exception to a C++ exception if possible (ie, when the
-// Python exception is really a swigged C++ ErrError subclass).
+// Python exception is really a C++ wrapped in a OOFPyError).
 // Otherwise it just throws PythonError, which is caught by the swig
 // exception typemap.
 
@@ -118,25 +118,29 @@ void pythonErrorRelay() {
   // clears the Python error state.
   PyErr_Fetch(&ptype, &pvalue, &ptraceback);
   if(ptype) {
-    // Get the swigged ErrError class, so that we can compare error
+    // Get the OOFPyError class, so that we can compare error
     // types on the Python side.
-    static PyObject *pyErrError = 0;
-    if(!pyErrError) {
+    static PyObject *oofPyError = 0;
+    if(!oofPyError) {
       PyObject *module = PyImport_ImportModule((char*) 
 					       "ooflib.SWIG.common.ooferror");
-      pyErrError = PyObject_GetAttrString(module, (char*) "ErrError");
+      oofPyError = PyObject_GetAttrString(module, (char*) "OOFPyError");
+      assert(oofPyError!= 0);
       Py_XDECREF(module);
     }
-    if(PyErr_GivenExceptionMatches(ptype, pyErrError)) {
-      // The Python exception is a swigged ErrError -- ie, it's one of
+    if(PyErr_GivenExceptionMatches(ptype, oofPyError)) {
+      // The Python exception is an OOFPyError -- ie, it's one of
       // ours.  Extract the C++ object and raise it as a new
       // exception.
       const ErrError *ee;
+      PyObject *cerror = PyObject_GetAttrString(pvalue, "cerror");
+      assert(cerror != 0);
       SWIG_ConvertPtr(pvalue, (void**) &ee,
-		      ((SwigPyObject*) pvalue)->ty, 0);
+		      ((SwigPyObject*) cerror)->ty, 0);
       // SWIG_GetPtrObj(pvalue, (void**) &ee, "_ErrError_p");
       Py_XDECREF(ptraceback);
       Py_XDECREF(ptype);
+      Py_XDECREF(cerror);
       // Don't decref pvalue! It will destroy *ee.
       ee->throw_self();
     }

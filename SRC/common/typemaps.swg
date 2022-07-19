@@ -971,14 +971,15 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
     allow_threads.end();
   }
   catch (PythonError &p) {
-    // In this case, the Python error indicator is already set.
+    // In this case, the Python error indicator is already set.  See
+    // pythonErrorRelay in ooferror.C.
     restoreSignals;
     SWIG_fail;
   }
   catch (ErrError &e) {
     restoreSignals;
-    // pyconverter is common.ooferror.pyErrorCallback.  It raises the
-    // python version of the exception.
+    // pyconverter is common.ooferror.pyErrorCallback.  It raises an
+    // Python OOFPyError exception that wraps the C++ exception.
     PyObject_CallFunction(e.pyconverter, "s", e.pythonequiv().c_str());
     SWIG_fail;
   }
