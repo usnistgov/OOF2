@@ -49,9 +49,10 @@ MAKE_LISTVEC_TYPEMAPS(Node);
 
 // Do *not* use %newobject here. C++ retains ownership of the list,
 // which is static inside the function.
-MasterElementVec* masterElementList();
-
+MasterElementRefVec* masterElementList();
+// MasterElements are never created or destroyed in Python.
 %nodefaultctor MasterElement;
+%nodefaultdtor MasterElement;
 
 class MasterElement {
 public:
