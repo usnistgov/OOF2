@@ -1099,9 +1099,9 @@ class Skeleton(SkeletonBase):
             c = SkeletonNode(x,y, index=self.node_index)
         self.node_index += 1
         if x == 0.0 or x == self.size()[0]:
-            c.setMobilityX(0)
+            c.setMobilityX(False)
         if y == 0.0 or y == self.size()[1]:
-            c.setMobilityY(0)
+            c.setMobilityY(False)
         self.nodes.append(c)
         
         if parallel_enable.enabled():
