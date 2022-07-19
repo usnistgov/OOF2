@@ -311,7 +311,7 @@ class SampleSet(registeredclass.RegisteredClass):
 # an object attribute with the same name.
 
 def _attr_from_colname(colname):
-    return "show_"+string.lower(colname)
+    return "show_"+colname.lower()
 
 
 #=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#=-=#

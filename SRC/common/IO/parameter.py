@@ -1056,7 +1056,7 @@ class MetaRegisteredParameter(Parameter):
     def __init__(self, name, regclass, value=None, default=None, tip=None):
         # MetaRegisteredParameter requires its class to use the
         # PrintableClass metaclass.
-        assert(regclass.__metaclass__ is utils.PrintableClass)
+        assert(isinstance(regclass, utils.PrintableClass))
 
         self.registry = regclass.registry
         self.reg = regclass
@@ -1381,7 +1381,7 @@ class ObjParameter:
 
 class EmptyTip:
     def __bool__(self):
-        return 0
+        return False
     def read(self, *args):              # for xmlmenudump.getHelp()
         return ""
 

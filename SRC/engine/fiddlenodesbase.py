@@ -124,8 +124,8 @@ class ConditionSelector(registeredclass.RegisteredClass):
 
 class ReductionRateCondition:
     def reductionRateFailed(self, delta, total):
-	if delta is None:
-	    return 1
+        if delta is None:
+            return 1
         # delta is negative, if energy is going down
         reduction = -delta/total*100.
         return reduction < self.reduction_rate
@@ -136,8 +136,8 @@ reductionRateParam = parameter.FloatRangeParameter(
 
 class AcceptanceRateCondition:
     def acceptanceRateFailed(self, rate):
-	if rate is None:
-	    return 1
+        if rate is None:
+            return 1
         return rate*100. < self.acceptance_rate
 
 acceptanceRateParam = parameter.FloatRangeParameter(

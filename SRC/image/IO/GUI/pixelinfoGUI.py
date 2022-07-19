@@ -86,7 +86,7 @@ class ImagePlugIn(pixelinfoGUIplugin.PixelInfoGUIPlugIn):
             ]
 
     def close(self):
-        switchboard.removeCallbacks(self.sbcallbacks))
+        switchboard.removeCallbacks(self.sbcallbacks)
 
     def update(self, where):
         debug.mainthreadTest()

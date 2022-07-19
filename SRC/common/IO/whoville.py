@@ -788,14 +788,11 @@ class AutoWhoNameParameter(parameter.RestrictedAutomaticNameParameter):
             self.__class__.__name__,
             self.name, self.resolver, self.truevalue, self.tip)
 
-# A NewWhoParameter can be set to the name an existing Who object, or
-# a new name.  Its widget presents a list of existing objects and a
+# A NewWhoParameter can be set to the name of an existing Who object,
+# or a new name.  Its widget presents a list of existing objects and a
 # place to type in a new name.
 class NewWhoParameter(parameter.RestrictedStringParameter):
     def __init__(self, name, whoclass, value=None, default=None, tip=None):
-        if not isinstance(whoclass, InstanceType):
-            raise ValueError(
-                "WhoParameter requires a WhoClass or Who instance.")
         if isinstance(whoclass, Who):
             self.whoclass = whoclass.getClass()
         elif isinstance(whoclass, WhoClass):

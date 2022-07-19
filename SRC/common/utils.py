@@ -138,7 +138,7 @@ def flatten1(lols):
 
 def degenerate(liszt):
     if isinstance(liszt, types.GeneratorType):
-        return [x for x in liszt]
+        return list(liszt)
     return liszt
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
@@ -174,20 +174,10 @@ def classnames(c):
 # ---->  A
 
 class PrintableClass(type):
-    def __init__(cls, name, bases, dict):
-        super(PrintableClass, cls).__init__(name, bases, dict)
     def __str__(cls):
         return cls.__name__
     def __repr__(cls):
         return cls.__name__
-
-#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
-
-# Replaced by skeletonnode.canonicalorder, which queries indices.
-# def canonicalorder(p0, p1):
-#     if p0 < p1:
-#         return (p0, p1)
-#     return (p1, p0)
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
