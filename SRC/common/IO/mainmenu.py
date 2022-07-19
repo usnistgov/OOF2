@@ -153,19 +153,16 @@ def loadscript(menuitem, filename):
             # batch mode, the shell error status won't be set unless a
             # new exception is raised here.  The old exception has
             # already been handled by the time we get to this point.
-            # interp.error[0] is the class of the exception.
-            # interp.error[1] is its value.
+            # interp.error is the result of sys.exc_info() when the
+            # error occurred.
             errorname = interp.error[0].__name__
             if errorname.lower()[0] in "aeiou":
                 article = "an"
             else:
                 article = "a"
             raise ooferror.ErrUserError(
-                "Script '%s' raised %s %s exception" %
-                (filename, article, interp.error[0].__name__)
-                # "Script '%s' raised %s %s exception: %s" %
-                # (filename, article, interp.error[0].__name__, interp.error[1])
-                )
+                f"Script {filename} raised {article} "
+                f"{interp.error[0].__name__} exception")
         debug.fmsg('finished reading', filename)
 
 _loadmenu.addItem(OOFMenuItem(
