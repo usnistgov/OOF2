@@ -46,6 +46,9 @@ public:
   friend std::ostream &operator<<(std::ostream&, const TimeStamp&);
 };
 
+bool operator<(const TimeStamp&, const TimeStamp&);
+bool operator>(const TimeStamp&, const TimeStamp&);
+
 //double cputime();
 
 extern TimeStamp timeZero;

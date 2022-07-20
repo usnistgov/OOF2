@@ -35,12 +35,20 @@ public:
   void increment() {
     ++(*self);
   }
+
+  bool __lt__(const TimeStamp &other) {
+    return *self < other;
+  }
+
+  bool __gt__(const TimeStamp &other) {
+    return *self > other;
+  }
 };
 
 ADD_REPR_GENERIC(TimeStamp);
 
-bool operator<(const TimeStamp&, const TimeStamp&);
-bool operator>(const TimeStamp&, const TimeStamp&);
+// bool operator<(const TimeStamp&, const TimeStamp&);
+// bool operator>(const TimeStamp&, const TimeStamp&);
 
 //double cputime();
 

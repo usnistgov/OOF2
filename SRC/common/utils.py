@@ -280,7 +280,7 @@ def uniqueName(name, othernames, exclude=None):
         basename = re.split('<[0-9]+>$', name)[0]
         # Find any existing names of the form 'basename<number>'.
         expr = re.compile("^" + re.escape(basename) + "<[0-9]+>$")
-        matches = filter(expr.match, others)
+        matches = list(filter(expr.match, others))
         if matches:
             # Find largest existing "<number>".
             suffixes = [x[len(basename)+1:-1] for x in matches]
@@ -306,7 +306,7 @@ def menUniqueName(name, othernames):
         basename = re.split('_[0-9]+$', name)[0]
         # Find any existing names of the form 'basename_number'.
         expr = re.compile("^" + re.escape(basename) + "_[0-9]+$")
-        matches = filter(expr.match, othernames)
+        matches = list(filter(expr.match, othernames))
         if matches:
             # Find largest existing "number".
             suffixes = [x[len(basename)+1:] for x in matches]
