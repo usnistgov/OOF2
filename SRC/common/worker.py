@@ -190,7 +190,6 @@ class ThreadedWorkerCore(threading.Thread, WorkerCore):
                     self.menuitem.postcall(False)
                     if propagate_exceptions or not self.toplevel:
                         self.exception_data = sys.exc_info()
-                        sys.exc_clear()
                     else:
                         reporter.error(exception)
                         sys.excepthook(*sys.exc_info())

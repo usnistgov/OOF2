@@ -55,7 +55,9 @@ class OOFexceptHook:
         # garbage collection.  TODO: One can imagine circumstances in
         # which this isn't the right thing to do, but those circumstances
         # should probably assign a new excepthook function.
-        sys.exc_clear()
+        ## Python3 has no sys.exc_clear.  Perhaps the exception is
+        ## cleared automatically after the excepthook is called?
+        ##sys.exc_clear()
 
     ## Not sure why __cmp__ was defined.  OOFexceptHook seems to work
     ## properly without it in python2, and it's not used in python3.

@@ -492,15 +492,8 @@ def gui_printTraceBack(e_type, e_value, tbacklist):
             from ooflib.common.IO.GUI import quit
             # The first argument to doQueryQuit is the window that the
             # Quit dialog box will appear in front of.
-            if not mainthread.runBlock(quit.doQueryQuit,
-                                       (guitop.top().gtk,),
-                                       kwargs=dict(exitstatus=1)):
-                sys.exc_clear() # quitting was cancelled
-        else:
-            # Not aborting.  Clear the exception because it can
-            # contain references to objects and prevent garbage
-            # collection.
-            sys.exc_clear()
+            mainthread.runBlock(quit.doQueryQuit,
+                                (guitop.top().gtk,), kwargs=dict(exitstatus=1))
 
 excepthook.displayTraceBack = gui_printTraceBack
 
