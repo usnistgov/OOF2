@@ -46,7 +46,7 @@ public:
       return self->abg() != other->abg();
     }
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };
@@ -63,7 +63,7 @@ public:
       return -(*self);
     }
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };
@@ -77,7 +77,7 @@ public:
   double phi2();
   %addmethods {
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };
@@ -92,7 +92,7 @@ public:
   double e3() const;
   %addmethods {
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };
@@ -106,7 +106,7 @@ public:
   double psi();
   %addmethods {
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };
@@ -120,7 +120,7 @@ public:
   double psi();
   %addmethods {
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };
@@ -135,7 +135,7 @@ public:
   double z();
   %addmethods {
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };
@@ -149,7 +149,7 @@ public:
   double r3();
   %addmethods {
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };

@@ -83,7 +83,7 @@ Element::~Element() {
 const std::string *Element::repr() const {
   std::string *rep =  new std::string(master.name());
   for(int i=0; i<nnodes(); i++)
-    *rep += " " + to_string(*nodelist[i]);
+    *rep += " " + tostring(*nodelist[i]);
   return rep;
 }
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -776,7 +776,7 @@ void Element::localDoFs(const FEMesh *mesh, DoubleVec &doflist) const
 BoundaryEdge *Element::newBndyEdge(const FuncNode *n0, const FuncNode *n1)
   const
 {
-//   Trace("Element::newBndyEdge " + to_string(*n0) + " " + to_string(*n1));
+//   Trace("Element::newBndyEdge " + tostring(*n0) + " " + tostring(*n1));
   // find ElementCornerNodeIterators for each FuncNode
   ElementCornerNodeIterator alpha = cornernode_iterator();
   // It may not be sufficient to compare pointers to Nodes, since the
@@ -840,7 +840,7 @@ BoundaryEdge *Element::newBndyEdge(const FuncNode *n0, const FuncNode *n1)
 BoundaryEdge *Element::getBndyEdge(const FuncNode *n0, const FuncNode *n1) {
   BoundaryEdge *ed;
 
-//   Trace("Element::getBndyEdge " + to_string(*n0) + " " + to_string(*n1));
+//   Trace("Element::getBndyEdge " + tostring(*n0) + " " + tostring(*n1));
   // find_edge will correctly detect nullness of the edgelist.
   if( (ed=find_b_edge(n0,n1))==0 ) {
     ed=newBndyEdge(n0,n1);

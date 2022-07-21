@@ -38,7 +38,7 @@ public:
   const string &shortstring();
   %addmethods {
     %new const string *__repr__() {
-      return new std::string(to_string(*self)); 
+      return new std::string(tostring(*self)); 
     }
   }
 };
@@ -48,7 +48,7 @@ public:
   ScalarFieldIndex();
   %addmethods{
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };
@@ -58,7 +58,7 @@ public:
   VectorFieldIndex(int);
   %addmethods{
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };
@@ -68,7 +68,7 @@ public:
   OutOfPlaneVectorFieldIndex(int);
   %addmethods{
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };
@@ -82,7 +82,7 @@ public:
   bool diagonal();
   %addmethods{
     %new const string *__repr__() { 
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };
@@ -92,7 +92,7 @@ public:
   OutOfPlaneSymTensorIndex(int, int);
   %addmethods{
     %new const string *__repr__() { 
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };
@@ -132,7 +132,7 @@ public:
   SymTensorIterator();
   %addmethods {
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };
@@ -170,7 +170,7 @@ public:
   const string &shortstring();
   %addmethods{
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };
@@ -185,7 +185,7 @@ public:
   %addmethods{
     void next() { ++(*self); }
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
     
 

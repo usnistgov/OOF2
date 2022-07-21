@@ -26,7 +26,7 @@ class PixelSelectionCourier {
 public:
   %addmethods {
     %new const string *repr() {	// for debugging
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };

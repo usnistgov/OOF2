@@ -101,7 +101,7 @@ BoundaryEdge::BoundaryEdge(const Element *elin, int n)
     nfuncnodes(n),
     complete(0)
 { 
-//   Trace("BoundaryEdge::BoundaryEdge, nfuncnodes = " + to_string(n) );
+//   Trace("BoundaryEdge::BoundaryEdge, nfuncnodes = " + tostring(n) );
   nlist.reserve(n);
 } 
 
@@ -123,7 +123,7 @@ bool BoundaryEdge::edge_match(const FuncNode *n0, const FuncNode *n1) {
 // function index.  This is why we pass in an iterator.
 void BoundaryEdge::add_node(const ElementFuncNodeIterator &in) {
   
-//   Trace("BoundaryEdge::add_node: FuncNodeIterator=" + to_string(in));
+//   Trace("BoundaryEdge::add_node: FuncNodeIterator=" + tostring(in));
   // NB Nodes *must* be passed in in order.  Take
   // both FuncNode and shapefunctionindex from the passed-in iterator.
   // Use the size of the array to detect the first and last nodes.

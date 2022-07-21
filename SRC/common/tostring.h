@@ -25,7 +25,7 @@
 
 #include <strstream.h>
 template <class TYPE> 
-std::string to_string(const TYPE &x) {
+std::string tostring(const TYPE &x) {
   std::ostrstream os;
   os << x << std::ends;
   return os.str();
@@ -35,14 +35,14 @@ std::string to_string(const TYPE &x) {
 
 #include <sstream>
 template <class TYPE> 
-std::string to_string(const TYPE &x) {
+std::string tostring(const TYPE &x) {
   std::ostringstream os;
   os << x;
   return os.str();
 }
 
 template <class TYPE> 
-std::string to_string(const TYPE &x, int precision) {
+std::string tostring(const TYPE &x, int precision) {
   std::ostringstream os;
   os << std::setprecision(20) << x;
   return os.str();

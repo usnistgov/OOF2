@@ -73,7 +73,7 @@ std::vector<const EdgeNodeDistance*> *EdgeSet::ndlist() {
   double edge_length = i.total_length();
   int index = 0;
   for(; !i.end(); ++i) {
-    //    Trace("EdgeSet::ndlist edgelist " + to_string(i));
+    //    Trace("EdgeSet::ndlist edgelist " + tostring(i));
     for( EdgeNodeIterator e=i.edge()->node_iterator(); !e.end(); ++e) {
       // Edgeset is guaranteed contiguous, so we can remove duplicates
       // as we go along here.  Push the node on the list only if it's

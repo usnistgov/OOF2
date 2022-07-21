@@ -38,23 +38,23 @@ const std::string ErrNoSuchProperty::pythonequiv() const {
 
 ErrConvergenceFailure::ErrConvergenceFailure(const std::string &op, int n)
   : ErrUserErrorBase<ErrConvergenceFailure>(
-	    op + " failed to converge in " + to_string(n) + " steps"),
+	    op + " failed to converge in " + tostring(n) + " steps"),
       operation(op), nsteps(n)
 {}
 
 const std::string ErrConvergenceFailure::pythonequiv() const {
-  return "ErrConvergenceFailure('" + operation + "'," + to_string(nsteps)+")";
+  return "ErrConvergenceFailure('" + operation + "'," + tostring(nsteps)+")";
 }
 
 ErrTimeStepTooSmall::ErrTimeStepTooSmall(double timestep)
   : ErrUserErrorBase<ErrTimeStepTooSmall>(
-		     "Timestep " + to_string(timestep) + " is too small."
+		     "Timestep " + tostring(timestep) + " is too small."
 					  ),
     timestep(timestep)
 {}
 
 const std::string ErrTimeStepTooSmall::pythonequiv() const {
-  return "ErrTimeStepTooSmall(" + to_string(timestep) + ")";
+  return "ErrTimeStepTooSmall(" + tostring(timestep) + ")";
 }
 
 ErrBadMaterial::ErrBadMaterial(const std::string &name)

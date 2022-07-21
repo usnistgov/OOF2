@@ -660,8 +660,8 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
         if ((cntEle % 8 == 0) && (omp_get_thread_num() == 0)) {
           // progress information
           progress->setFraction(float(cntEle) / float(elements.size()));
-          progress->setMessage(to_string(cntEle) + "/" 
-            + to_string(elements.size()) + " elements");
+          progress->setMessage(tostring(cntEle) + "/" 
+            + tostring(elements.size()) + " elements");
         }
       }
     }
@@ -678,8 +678,8 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 
   if (!progress->stopped()) {
     progress->setFraction(1.0);
-    progress->setMessage(to_string(elements.size()) + "/" 
-     + to_string(elements.size()) + " elements");
+    progress->setMessage(tostring(elements.size()) + "/" 
+     + tostring(elements.size()) + " elements");
   }
 
 #else // HAVE_OPENMP
@@ -706,7 +706,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 
     ei.element()->make_linear_system( this, time, nlsolver, *linearsystem );
     progress->setFraction( float(ei.count()+1)/float(ei.size()) );
-    progress->setMessage(to_string(ei.count()+1) + "/" + to_string(ei.size())
+    progress->setMessage(tostring(ei.count()+1) + "/" + tostring(ei.size())
   		   + " elements");
      counter++;
 
@@ -725,7 +725,7 @@ void CSubProblem::make_linear_system(LinearizedSystem *linearsystem,
 					     *linearsystem );
     }
     progress->setFraction(double(i+1)/n);
-    progress->setMessage(to_string(i+1) + "/" + to_string(n) + " edges");
+    progress->setMessage(tostring(i+1) + "/" + tostring(n) + " edges");
   }
   progress->finish();
   if(progress->stopped()) {
@@ -753,7 +753,7 @@ void CSubProblem::post_process() {
   for(ElementIterator ei=element_iterator(); !ei.end(); ++ei) {
     ei.element()->post_process(this);
     progress->setFraction(float(ei.count()+1)/float(ei.size()));
-    progress->setMessage(to_string(ei.count()+1) + "/" + to_string(ei.size())
+    progress->setMessage(tostring(ei.count()+1) + "/" + tostring(ei.size())
 			 + " elements");
   }
 
@@ -764,7 +764,7 @@ void CSubProblem::post_process() {
     if(mesh->edgement[i]->isSubProblemInterfaceElement(this))
 	  mesh->edgement[i]->post_process(this);
     progress->setFraction(double(i+1)/n);
-    progress->setMessage(to_string(i+1) + "/" + to_string(n) + " edges");
+    progress->setMessage(tostring(i+1) + "/" + tostring(n) + " edges");
   }
   progress->finish();
 }

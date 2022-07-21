@@ -33,7 +33,7 @@ public:
   int domain();
   %addmethods {
     %new const string *__repr__() {
-      return new std::string(to_string(*self));
+      return new std::string(tostring(*self));
     }
   }
 };

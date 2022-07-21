@@ -164,7 +164,7 @@ std::vector<std::string> *autogroup(CMicrostructure *ms, OOFImage *image,
       if(findgrp == colorgroupmap.end()) { // Didn't find it.
         std::string grpname = name_template;
         grpname = substitute(grpname, "%c", color.name());
-        grpname = substitute(grpname, "%n", to_string(grpcount++));
+        grpname = substitute(grpname, "%n", tostring(grpcount++));
         bool newness = false;
         PixelGroup *grp = ms->getGroup(grpname, &newness); // create group
 	groupnames->push_back(grpname);

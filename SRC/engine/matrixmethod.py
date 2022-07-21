@@ -358,21 +358,23 @@ class BasicIterative(BasicMatrixMethod):
             existingSolver.tolerance == self.tolerance and
             existingSolver.max_iterations == self.max_iterations and
             isinstance(existingSolver.preconditioner,
-                       preconditioner.JacobiPreconditioner)):
+                       ## TODO: Should the preconditioner be IC or ILUT?
+                       preconditioner.ICPreconditioner)):
             return existingSolver
         return ConjugateGradient(
-            preconditioner=preconditioner.JacobiPreconditioner(),
+            preconditioner=preconditioner.ILUTPreconditioner(),
             tolerance=self.tolerance,
             max_iterations=self.max_iterations)
     def resolve_asymmetric(self, subproblemcontext, existingSolver):
+        ## TODO: 
         if (isinstance(existingSolver, StabilizedBiConjugateGradient) and
             existingSolver.tolerance == self.tolerance and
             existingSolver.max_iterations == self.max_iterations and
             isinstance(existingSolver.preconditioner,
-                       preconditioner.JacobiPreconditioner)):
+                       preconditioner.ILUTPreconditioner)):
             return existingSolver
         return StabilizedBiConjugateGradient(
-            preconditioner=preconditioner.JacobiPreconditioner(),
+            preconditioner=preconditioner.ILUTPreconditioner(),
             tolerance=self.tolerance,
             max_iterations=self.max_iterations)
     def shortrepr(self):

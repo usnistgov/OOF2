@@ -180,7 +180,7 @@ void spinCycle(int nCycles) {
   double x;
   for(int i=0; i<nCycles && !progress->stopped(); i++) {
     x = cos(x);
-    progress->setMessage(to_string(i) + "/" + to_string(nCycles));
+    progress->setMessage(tostring(i) + "/" + tostring(nCycles));
     progress->setFraction((float) i/nCycles);
   }
   progress->finish();

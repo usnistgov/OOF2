@@ -32,7 +32,7 @@ ErrProgrammingError::ErrProgrammingError(const std::string &m,
 const std::string *ErrBadIndex::summary() const {
   const std::string *sum = ErrProgrammingErrorBase<ErrBadIndex>::summary();
   const std::string *equiv = new std::string(*sum  + " Bad Index: "
-					     + to_string(badindex));
+					     + tostring(badindex));
   delete sum;
   return equiv;
 }
@@ -45,7 +45,7 @@ const std::string *ErrBadIndex::summary() const {
 const std::string ErrProgrammingError::pythonequiv() const {
   return "ErrProgrammingError('" +
     escapostrophe(msg) + "', '" + file + "', " +
-    to_string(line) + ")";
+    tostring(line) + ")";
 }
 
 const std::string ErrResourceShortage::pythonequiv() const {

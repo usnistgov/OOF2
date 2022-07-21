@@ -206,7 +206,7 @@ int MasterElement::ngauss(int order) const {
 const GaussPtTable &MasterElement::gptable(int i) const {
   if(i >= int(gptable_vec().size()))
     throw ErrResourceShortage(
-	  "GaussPtTable: No table for order of integration = " + to_string(i));
+	  "GaussPtTable: No table for order of integration = " + tostring(i));
   i -= integration_reduction;
   if(i < 0) i = 0;
   return gptable_vec()[i];

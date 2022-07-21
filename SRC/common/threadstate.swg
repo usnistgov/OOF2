@@ -31,7 +31,7 @@ public:
       return operator==(*self,right);
     }
     %new const string *__repr__() {
-      return new std::string(to_string(self->get_ID()));
+      return new std::string(tostring(self->get_ID()));
     }
   }
 };

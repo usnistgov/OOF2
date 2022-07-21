@@ -59,8 +59,8 @@ bool operator==(const Node &n1, const Node &n2)
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // void FuncNode::addField(FEMesh *mesh, const Field &field) {
-// //   Trace("FuncNode::addField " + field.name() + " " + to_string(index()) 
-// // 	+ " Pos: " + to_string(pos));
+// //   Trace("FuncNode::addField " + field.name() + " " + tostring(index()) 
+// // 	+ " Pos: " + tostring(pos));
 
 //   if(fieldset.add(&field, mesh)) {
 //     // Field is new to this Node (ie, no other SubProblem has added it)
@@ -81,8 +81,8 @@ bool operator==(const Node &n1, const Node &n2)
 // }
 
 // void FuncNode::removeField(FEMesh *mesh, const Field &field) {
-// //    Trace("FuncNode::removeField " + field.name() + " " + to_string(index())
-// // 	 + " Pos: " + to_string(pos));
+// //    Trace("FuncNode::removeField " + field.name() + " " + tostring(index())
+// // 	 + " Pos: " + tostring(pos));
 
 //   // Remove degrees of freedom from doflist, if no SubProblems are
 //   // using them anymore.
@@ -116,8 +116,8 @@ bool operator==(const Node &n1, const Node &n2)
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // void FuncNode::addEquation(FEMesh *mesh, const Equation &eqn) {
-// //   Trace("FuncNode::addEquation " + eqn.name() + " " + to_string(index())
-// // 	+ " Pos: " + to_string(pos));
+// //   Trace("FuncNode::addEquation " + eqn.name() + " " + tostring(index())
+// // 	+ " Pos: " + tostring(pos));
 //   if(equationset.add(&eqn, mesh)) {
 //     // Equation is new to this Node (ie, no other SubProblem has added it)
 //     eqnlist.reserve(eqnlist.size() + eqn.dim());
@@ -136,8 +136,8 @@ bool operator==(const Node &n1, const Node &n2)
 // }
 
 // void FuncNode::removeEquation(FEMesh *mesh, const Equation &eqn) {
-// //   Trace("FuncNode::removeEquation " + eqn.name() + " " + to_string(index())
-// // 	+ " Pos: " + to_string(pos));
+// //   Trace("FuncNode::removeEquation " + eqn.name() + " " + tostring(index())
+// // 	+ " Pos: " + tostring(pos));
 //   int offset = equationset.offset(&eqn);
 //   if(equationset.remove(&eqn, mesh)) {
 //     std::vector<NodalEquation*>::iterator start = eqnlist.begin() + offset;
@@ -188,11 +188,11 @@ Coord FuncNode::displaced_position(const FEMesh *mesh) const {
 // Representational stuff -- mostly for debugging
 
 // const std::string *Node::repr() const {
-//   return new std::string("Node(" + to_string(position()) + ")");
+//   return new std::string("Node(" + tostring(position()) + ")");
 // }
 
 // const std::string *FuncNode::repr() const {
-//   return new std::string("FuncNode(" + to_string(position()) + ")");
+//   return new std::string("FuncNode(" + tostring(position()) + ")");
 // }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -200,11 +200,11 @@ Coord FuncNode::displaced_position(const FEMesh *mesh) const {
 // Print a string suitable for use in a Python constructor
 
 const std::string *Node::ctor() const {
-  return new std::string("newMapNode(Coord" + to_string(position()) + ")");
+  return new std::string("newMapNode(Coord" + tostring(position()) + ")");
 }
 
 const std::string *FuncNode::ctor() const {
-  return new std::string("newFuncNode(Coord" + to_string(position()) + ")");
+  return new std::string("newFuncNode(Coord" + tostring(position()) + ")");
 }
 
 //-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//-\\-//

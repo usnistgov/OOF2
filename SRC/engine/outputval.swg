@@ -89,7 +89,7 @@ public:
   // them.
   %addmethods {
     %new const string *__repr__() const {
-      return new std::string(to_string( self->value() ));
+      return new std::string(tostring( self->value() ));
     }
     void _add(const ScalarOutputVal &other) {
       (*self) += other;
@@ -113,9 +113,9 @@ public:
   %addmethods {
     %new const string *__repr__() const {
       std::string *res = new std::string("[");
-      *res += to_string( (*self)[0] );
+      *res += tostring( (*self)[0] );
       for(unsigned int i=1; i<self->size(); i++)
-	*res += ", " + to_string( (*self)[i] );
+	*res += ", " + tostring( (*self)[i] );
       *res += "]";
       return res;
     }

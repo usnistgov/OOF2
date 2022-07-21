@@ -95,7 +95,7 @@ ShapeFunction::~ShapeFunction() {
 double ShapeFunction::value(ShapeFunctionIndex n, const MasterPosition &p)
   const
 {
-  //  Trace("ShapeFunction::value p=" + to_string(p.mastercoord()));
+  //  Trace("ShapeFunction::value p=" + tostring(p.mastercoord()));
   return p.shapefunction(*this, n);
 }
 
@@ -103,7 +103,7 @@ double ShapeFunction::masterderiv(ShapeFunctionIndex n, SpaceIndex j,
 		 		  const MasterPosition &p)
   const
 {
-  //  Trace("ShapeFunction::masterderiv sf=" + to_string(n) + " p=" + to_string(p.mastercoord()));
+  //  Trace("ShapeFunction::masterderiv sf=" + tostring(n) + " p=" + tostring(p.mastercoord()));
   return p.mdshapefunction(*this, n, j);
 }
 
@@ -111,7 +111,7 @@ double ShapeFunction::realderiv(const Element *el, ShapeFunctionIndex n,
 				SpaceIndex j, const MasterPosition &p)
   const
 {
-  //  Trace("ShapeFunction::realderiv sf=" + to_string(n) + " p=" + to_string(p.mastercoord()));
+  //  Trace("ShapeFunction::realderiv sf=" + tostring(n) + " p=" + tostring(p.mastercoord()));
   return p.dshapefunction(el, *this, n, j);
 }
 
@@ -127,7 +127,7 @@ double ShapeFunction::value(ShapeFunctionIndex n, const GaussPoint &g)
 double ShapeFunction::masterderiv(ShapeFunctionIndex n, SpaceIndex j,
 			    const GaussPoint &g) const
 {
-  //  Trace("ShapeFunction::masterderiv sf=" + to_string(n) + " gpt=" + to_string(g.mastercoord()));
+  //  Trace("ShapeFunction::masterderiv sf=" + tostring(n) + " gpt=" + tostring(g.mastercoord()));
   return sftable[g.order()]->df_table[g.index()][n][j];
 }
 

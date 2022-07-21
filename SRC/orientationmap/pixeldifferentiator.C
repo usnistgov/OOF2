@@ -186,11 +186,11 @@ double OrientationPixelDistribution::deviation2(const PixelDistribution *othr)
 #ifdef DEBUG
 
 std::string OrientationPixelDistribution::stats() const {
-  return to_string(mean) + " +/- " + to_string(sqrt(variance));
+  return tostring(mean) + " +/- " + tostring(sqrt(variance));
 }
 
 std::string OrientationPixelDistribution::value(const ICoord &pt) const {
-  return to_string(orientmap->angle(pt));
+  return tostring(orientmap->angle(pt));
 }
 
 #endif // DEBUG
