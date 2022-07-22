@@ -8,8 +8,13 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+// Lines modified for OOF are marked commented with "OOF"
+
 #ifndef EIGEN_BICGSTAB_H
 #define EIGEN_BICGSTAB_H
+
+#include "common/progress.h"	// OOF
+#include "common/tostring.h"
 
 namespace Eigen { 
 
@@ -64,7 +69,14 @@ bool bicgstab(const MatrixType& mat, const Rhs& rhs, Dest& x,
   Index i = 0;
   Index restarts = 0;
 
-  while ( r.squaredNorm() > tol2 && i<maxIters )
+  LogDefiniteProgress *progress =	// OOF
+    dynamic_cast<LogDefiniteProgress*>( // OOF
+		       getProgress("matrix solver", LOGDEFINITE)); // OOF
+  progress->setRange(sqrt(r.squaredNorm()), tol); // OOF
+
+  while ( r.squaredNorm() > tol2 && i<maxIters
+	  && !progress->stopped() // OOF
+	  )
   {
     Scalar rho_old = rho;
 
@@ -100,8 +112,14 @@ bool bicgstab(const MatrixType& mat, const Rhs& rhs, Dest& x,
     x += alpha * y + w * z;
     r = s - w * t;
     ++i;
+
+    // remove rhs normalization so that the limit of the progress bar is tol
+    double res = sqrt(r.squaredNorm()/rhs_sqnorm); // OOF
+    progress->setFraction(res);	    // OOF
+    progress->setMessage(tostring(res) + "/" + tostring(tol)); // OOF
   }
-  tol_error = sqrt(r.squaredNorm()/rhs_sqnorm);
+  tol_error = sqrt(r.squaredNorm()/rhs_sqnorm); 
+  progress->finish();		// OOF
   iters = i;
   return true; 
 }

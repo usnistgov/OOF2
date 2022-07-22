@@ -193,8 +193,9 @@ registeredclass.Registration(
     "BiCG",
     MatrixMethod,
     BiConjugateGradient,
-    ordering=2,
+    ordering=2.2,
     symmetricOnly=False,
+    secret=True,
     params=[
         parameter.RegisteredParameter(
             "preconditioner",
@@ -206,7 +207,7 @@ registeredclass.Registration(
         parameter.IntParameter(
             "max_iterations", 1000,
             tip="Maximum number of iterations to perform.")],
-    tip="Bi-conjugate gradient method for iteratively solving non-symmetric matrices.",
+    tip="Actually the same as BiCGStab.  Preserved for backwards compatibility.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/bicg.xml')
 )
 
@@ -359,19 +360,19 @@ class BasicIterative(BasicMatrixMethod):
             existingSolver.max_iterations == self.max_iterations and
             isinstance(existingSolver.preconditioner,
                        ## TODO: Should the preconditioner be IC or ILUT?
-                       preconditioner.ICPreconditioner)):
+                       preconditioner.ILUTPreconditioner)):
             return existingSolver
         return ConjugateGradient(
             preconditioner=preconditioner.ILUTPreconditioner(),
             tolerance=self.tolerance,
             max_iterations=self.max_iterations)
     def resolve_asymmetric(self, subproblemcontext, existingSolver):
-        ## TODO: 
         if (isinstance(existingSolver, StabilizedBiConjugateGradient) and
             existingSolver.tolerance == self.tolerance and
             existingSolver.max_iterations == self.max_iterations and
             isinstance(existingSolver.preconditioner,
-                       preconditioner.ILUTPreconditioner)):
+                       preconditioner.ILUTPreconditioner
+                       )):
             return existingSolver
         return StabilizedBiConjugateGradient(
             preconditioner=preconditioner.ILUTPreconditioner(),

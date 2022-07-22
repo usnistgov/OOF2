@@ -21,7 +21,7 @@ from ooflib.engine import timestepper
 
 class AsymmetricMatrixMethodFactory(regclassfactory.RegisteredClassFactory):
     def includeRegistration(self, reg):
-        return not reg.symmetricOnly
+        return not reg.symmetricOnly and not reg.secret
 
 def _makeAsymMtxMethodWidget(self, scope=None, **kwargs):
     return AsymmetricMatrixMethodFactory(self.registry, obj=self.value,

@@ -3,6 +3,13 @@
 * Meshes are drawn by default at their actual position.  The default
   behavior can be changed in the settings menu.
 
+* The preconditioner used by the basic solver mode is now ILUT, not
+  Jacobi.
+
+* The BiCG solver, which is just an alias to BiCGStab, doesn't appear
+  in the GUI any more.  It's still usable from scripts (I think), for
+  backwards compatibility.  BiCGStab is still there.
+
 2.2.1/2
 
 * Fixes to the build systems to get it to work with MacPorts.
