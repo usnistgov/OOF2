@@ -39,6 +39,7 @@ from ooflib.common import registeredclass
 from ooflib.common import utils
 from ooflib.common.IO import automatic
 from ooflib.common.IO.typename import typename
+import inspect
 import math
 import re
 import struct
@@ -963,13 +964,9 @@ class RegisteredParameter(Parameter):
             if isinstance(x, registration.subclass):
                 return
         # Type check failed. Compose a useful error message.
-        if isinstance(x, InstanceType):
-            gotname = x.__class__.__name__
-        else:
-            gotname = type(x)
-        raise TypeError(
-            'Bad type for RegisteredParameter! Got %s\nExpected one of %s'
-            % (gotname, [reg.subclass.__name__ for reg in self.registry]))
+        names = [reg.subclass.__name__ for reg in self.registry]
+        raise TypeError("Bad type for RegisteredParameter! "
+                        f"Got {type(x)}\nExpected one of {names}.")
     def clone(self):
         try:
             return self.__class__(self.name, self.reg, self.value, self.default,
@@ -979,10 +976,16 @@ class RegisteredParameter(Parameter):
                        self.__class__.__name__)
             raise
     def regname(self):
-        if isinstance(self.reg, TypeType):
+        # TODO PYTHON3: Is this correct?  The old version returned
+        # self.reg.__class__ instead of self.reg.__class__.__name__.
+        # TODO: Why would self.reg be a class and not a registration instance?
+        if inspect.isclass(self.reg):
             return self.reg.__name__
-        # InstanceType.
-        return self.reg.__class__
+        else:
+            return self.reg.__class__.__name__
+        # if isinstance(self.reg, TypeType):
+        #     return self.reg.__name__
+        # return self.reg.__class__
     def __repr__(self):
         return '%s(%s, %s, %s, %s)' %\
                (self.__class__.__name__, self.name, self.regname(),
@@ -1343,19 +1346,16 @@ class ParameterGroup:
 
 class Comparable:
     def __eq__(self,other):
-        if other is None:
-            return 0
-
-        if not isinstance(other, InstanceType) or self.__class__ != other.__class__:
-            return 0
-
+        if not (isinstance(self, type(other)) and
+                isinstance(other, type(self))):
+            return False
         ## TODO: use getattr and dir instead of __dict__
         for (k,v) in self.__dict__.items():
             if v != other.__dict__[k]:
-                return 0
-        return 1
+                return False
+        return True
     def __ne__(self,other):
-        return 1 - self.__eq__(other)
+        return not self.__eq__(other)
 
 #########################
 

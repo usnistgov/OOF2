@@ -172,8 +172,11 @@ def dumpReferrers(obj, levels=0, exclude=[], _level=0):
                     ref.f_code.co_name, ref.f_lineno, file=sys.stderr)
             elif ref is not obj and ref not in exclude:
                 print("-> %2d"%_level, "  "*_level, end=' ', file=sys.stderr)
-                if reftype is types.InstanceType:
-                    print("instance", ref.__class__.__name__, ref, file=sys.stderr)
+                # TODO PYTHON3: I'm not sure this is correct.  It used
+                # to be "if reftype is types.InstanceType:"
+                if not inspect.isclass(reftype):
+                    print("instance", ref.__class__.__name__, ref,
+                          file=sys.stderr)
                 elif reftype is dict:
                     for key,val in list(ref.items()):
                         if key is obj:

@@ -57,9 +57,10 @@ class Point:
     # Multiply accepts mixed point/ipoint objects for dot products,
     # and preserves i-ness if possible.
     def __mul__(self, other):
-        if isinstance(other, types.InstanceType) and \
+        if hasattr(other, "__class__") and \
            (issubclass(other.__class__, self.__class__) or
             issubclass(self.__class__, other.__class__) ):
+            # Dot product
             return self.x*other.x+self.y*other.y
         elif isinstance(other, float):
             return Point(other*self.x, other*self.y)
