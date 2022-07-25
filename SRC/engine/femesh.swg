@@ -104,7 +104,7 @@ public:
   void dumpDoFs(char*);		// for debugging
 
   %newobject getFieldSetByID;
-  StringVec *getFieldSetByID(int);
+  std::vector<std::string> *getFieldSetByID(int);
 };				// class FEMesh
 
 long get_globalFEMeshCount();

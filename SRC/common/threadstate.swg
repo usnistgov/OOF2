@@ -46,7 +46,7 @@ class ThreadState {
   const ThreadID & get_thread_ID();
   int id();
   %newobject getProgressNames;
-  StringVec *getProgressNames();
+  std::vector<std::string> *getProgressNames();
   Progress *getProgress(char*, ProgressType);
   Progress *findProgress(char*);
   void impedeProgress();

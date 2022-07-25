@@ -200,7 +200,7 @@ public:
 
 class ListOutputVal : public NonArithmeticOutputVal {
 public:
-  ListOutputVal(StringVec*);
+  ListOutputVal(std::vector<std::string>*);
   int size();
 };
 

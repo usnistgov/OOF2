@@ -133,7 +133,7 @@ public:
   Node* getCornerNode(int i) const;
   const std::string &name();
   %newobject namelist;
-  StringVec* namelist();
+  std::vector<std::string> *namelist();
 
   void refreshMaterial(PyObject *skeletoncontext);
 

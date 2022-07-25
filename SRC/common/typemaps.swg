@@ -133,7 +133,6 @@ typedef std::vector<Coord> PointVec;
 typedef std::vector<char*> CharPtrVec;
 typedef std::vector<double> DoubleList;
 typedef std::vector<int> IntVec;
-typedef std::vector<std::string> StringVec;
 typedef std::vector<unsigned short> ShortVec;
 %}
 
@@ -278,19 +277,7 @@ std::string {
  }
 
 // Out typemaps for std::vectors of std::strings. (Not vectors of
-// std::string*s!)   Use
-//   NewStringVec *func_returning_a_new_vector_of_strings();
-// instead of
-//    %newobject func_returning_a_new_vector_of_strings;
-//    std::vector<std::string> *func_returning_a_new_vector_of_strings();
-// because the typemap interferes with %newobject.  (%newobject means
-// "this object should be deleted when python is done with it", not
-// "this object should be deleted when the typemap is finished
-// converting it").  The second meaning is the one that we want.
-
-%{
-  typedef std::vector<std::string> NewStringVec;
-%}
+// std::string*s!)
 
 %typemap(out) std::vector<std::string> {
   // typemap(out) std::vector<std::string>
@@ -309,6 +296,30 @@ std::string {
     PyList_SET_ITEM($result, i, PyUnicode_FromString((*$1)[i].c_str()));
   }
 }
+
+%typemap(in) std::vector<std::string>* (std::vector<std::string> svec) {
+  // typemap(in) std::vector<std::string>*
+  if!(PySequence_Check($input)) {
+      PyErr_SetString(PyExc_TypeError,
+		      "in method '$symname', expecting a list of strings");
+      SWIG_fail;
+    }
+  int sz = PySequence_Length($input);
+  if(sz > 0) {
+    svec.resize(sz);
+    for(int i=0; i<sz; i++) {
+      PyObject *x = PySequence_GetItem($input, i);
+      PyObject *ustr = PyUnicode_AsEncodedString(x, "UTF-8", "replace");
+      svec[i] = std::string(PyBytes_AsString(ustr));
+      Py_XDECREF(ustr);
+      Py_XDECREF(x);
+    }
+  }
+  $1 = &vec;
+ }
+
+//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
+
 
 %typemap(newfree) std::vector<std::string>* {
   // typemap(newfree) std::vector<std::string>*
@@ -804,41 +815,6 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   // typemap(newfree) std::vector<ICoord>*
   delete $1;
 }
-
-//==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
-
-// std::vector<std::string>  <-->  [string]
-
-%typemap(in) std::vector<std::string>* (std::vector<std::string> svec) {
-  // typemap(in) std::vector<std::string>*
-  if!(PySequence_Check($input)) {
-      PyErr_SetString(PyExc_TypeError,
-		      "in method '$symname', expecting a list of strings");
-      SWIG_fail;
-    }
-  int sz = PySequence_Length($input);
-  if(sz > 0) {
-    svec.resize(sz);
-    for(int i=0; i<sz; i++) {
-      PyObject *x = PySequence_GetItem($input, i);
-      PyObject *ustr = PyUnicode_AsEncodedString(x, "UTF-8", "replace");
-      svec[i] = std::string(PyBytes_AsString(ustr));
-      Py_XDECREF(ustr);
-      Py_XDECREF(x);
-    }
-  }
-  $1 = &vec;
- }
-
-%typemap(out) std::vector<std::string>* {
-  // typemap(out) std::vector<std::string>*
-  std::vector<std::string>::size_type sz = $1->size();
-  $result = PyList_New((Py_ssize_t) sz);
-  for(std::vector<std::string>::size_type i=0; i<sz; i++) {
-    PyList_SET_ITEM($result, (Py_ssize_t) i,
-		    PyUnicode_FromString((*$1)[i].c_str()));
-  }
- }
 
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 

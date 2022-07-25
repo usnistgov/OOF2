@@ -69,7 +69,7 @@ public:
 };
 
 %newobject pixelGroupNames;
-StringVec *pixelGroupNames(CMicrostructure*, ICoord *iPoint);
+std::vector<std::string> *pixelGroupNames(CMicrostructure*, ICoord *iPoint);
 
 class PixelGroupAttributeRegistration : public PxlAttributeRegistration {
 public:

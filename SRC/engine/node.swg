@@ -51,7 +51,7 @@ public:
   // int neqn();
 
   %newobject fieldNames;
-  StringVec *fieldNames();
+  std::vector<std::string> *fieldNames();
 };
 
 %extend Node {

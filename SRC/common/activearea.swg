@@ -55,7 +55,7 @@ public:
   void add(char *);
   void remove(char *);
   %newobject getNames;
-  StringVec *getNames() const;
+  std::vector<std::string> *getNames() const;
 };
 
 ActiveAreaList *areaListFromPixel(CMicrostructure*, ICoord *iPoint);

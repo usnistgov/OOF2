@@ -76,7 +76,7 @@ public:
 					  Material*,
 					  NodeVec*, NodeVec*,
 					  bool,bool,
-					  StringVec*);
+					  std::vector<std::string>*);
   int map_order();
   int fun_order();
 

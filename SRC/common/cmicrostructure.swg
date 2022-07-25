@@ -122,7 +122,8 @@ public:
   void removeGroup(char *name);
   void removeAllGroups();
   void renameGroupC(char *oldname, char *newname);
-  NewStringVec *groupNames() const;
+  %newobject groupNames;
+  std::vector<std::string> *groupNames() const;
   int nCategories();
   int category(ICoord *iPoint);
   void recategorize();
