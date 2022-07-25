@@ -88,7 +88,7 @@ public:
   %newobject getRegisteredParamName;
   const std::string *getRegisteredParamName(char*);
   %newobject getListOfStringsParam;
-  std::vector<std:string> *getListOfStringsParam(char*);
+  std::vector<std::string> *getListOfStringsParam(char*);
 };
 
 %nodefaultctor ArithmeticPropertyOutput;

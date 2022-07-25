@@ -299,7 +299,7 @@ std::string {
 
 %typemap(in) std::vector<std::string>* (std::vector<std::string> svec) {
   // typemap(in) std::vector<std::string>*
-  if!(PySequence_Check($input)) {
+  if(!PySequence_Check($input)) {
       PyErr_SetString(PyExc_TypeError,
 		      "in method '$symname', expecting a list of strings");
       SWIG_fail;
@@ -315,7 +315,7 @@ std::string {
       Py_XDECREF(x);
     }
   }
-  $1 = &vec;
+  $1 = &svec;
  }
 
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
