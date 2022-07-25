@@ -39,11 +39,11 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import placeholder
 from ooflib.common.IO import whoville
 from ooflib.common.IO import xmlmenudump
-from types import *
 import copy
 import os.path
 import string
 import sys
+import types
 
 import oofcanvas
 
@@ -104,12 +104,12 @@ class GfxSettings:
             # the methods via the dictionary, they're not recognized
             # as methods, and we have to check for FunctionType
             # instead of MethodType or UnboundMethodType.
-            if key[0] != '_' and not isinstance(val, FunctionType):
+            if key[0] != '_' and not isinstance(val, types.FunctionType):
                 self.__dict__[key] = val
                 self.timestamps[key] = timestamp.TimeStamp()
     def __setattr__(self, attr, val):
         self.__dict__[attr] = val       # local value
-        GfxSettings.__dict__[attr] = val # default value
+        setattr(GfxSettings, attr, val) # default value
         self.timestamps[attr].increment()
     def getTimeStamp(self, attr):
         return self.timestamps[attr]
