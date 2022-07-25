@@ -12,6 +12,9 @@
 # graphics window.  The actual graphics window, GfxWindow, is derived
 # from GhostGfxWindow and overrides some of its functions.
 
+## TODO: If the window is empty, write "This window intentionally left
+## blank" w/ instructions on what to do.
+
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
 from ooflib.SWIG.common import ooferror

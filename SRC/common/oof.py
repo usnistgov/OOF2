@@ -448,9 +448,9 @@ def front_end(no_interp=None):
         if not quit.quiet():
             width = utils.screenwidth()
             wiggles = "//=*=\\\\=*="
-            nwiggles = (width-2)/len(wiggles)
+            nwiggles = (width-2)//len(wiggles)
             welcome = "Welcome to OOF2 version %s!" % oofversion.version
-            nblanks = (width - len(welcome))/2
+            nblanks = (width - len(welcome))//2
             banner = wiggles*nwiggles + "//\n\n" \
                      + " "*nblanks + welcome + "\n" + \
                      stringjoin(utils.format(banner1, width),"\n") + \
