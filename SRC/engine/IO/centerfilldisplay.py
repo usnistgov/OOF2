@@ -111,7 +111,7 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
 
                      cmap_value = ((last_v-self.contour_min)/
                                    (self.contour_max-self.contour_min))
-                poly = oofcanvas.CanvasPolygon()
+                poly = oofcanvas.CanvasPolygon.create()
                 poly.setFillColor(
                     color.canvasColor(self.colormap(cmap_value)))
                 poly.addPoints(polygon)
@@ -140,7 +140,7 @@ class CenterFillDisplay(contourdisplay.ZDisplay):
                     # otherwise, the canvas bounds are wrong.
                     r_low = low-self.contour_min
                     r_high = high-self.contour_min
-                    rect = oofcanvas.CanvasRectangle((0, r_low),
+                    rect = oofcanvas.CanvasRectangle.create((0, r_low),
                                                      (width, r_high))
                     # In the collapsed case, height can be zero.  This is
                     # not hugely informative, but should be handled without

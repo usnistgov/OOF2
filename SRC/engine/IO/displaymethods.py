@@ -440,7 +440,7 @@ class EdgeDisplay:
         polygons = self.polygons(gfxwindow, themesh)
         clr = color.canvasColor(self.color)
         for polygon in polygons:
-            poly = oofcanvas.CanvasPolygon()
+            poly = oofcanvas.CanvasPolygon.create()
             poly.setLineWidthInPixels(self.width)
             poly.setLineColor(clr)
             poly.addPoints(polygon)
@@ -517,7 +517,7 @@ class PerimeterDisplay(MeshDisplayMethod):
         femesh = themesh.getObject()
         themesh.restoreCachedData(self.getTime(themesh, gfxwindow))
         try:
-            segs = oofcanvas.CanvasSegments()
+            segs = oofcanvas.CanvasSegments.create()
             segs.setLineWidthInPixels(self.width)
             segs.setLineColor(color.canvasColor(self.color))
             for element in femesh.element_iterator():
@@ -653,7 +653,7 @@ class MaterialDisplay:
                         clr = None
                     colorcache[material] = clr
                 if clr is not None:
-                    poly = oofcanvas.CanvasPolygon()
+                    poly = oofcanvas.CanvasPolygon.create()
                     poly.setFillColor(clr)
                     poly.addPoints(polygon)
                     self.canvaslayer.addItem(poly)
@@ -770,7 +770,7 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
             if deltaE == 0:
                 deltaE = 1.0
             for polygon, energy in polyenergy:
-                poly = oofcanvas.CanvasPolygon()
+                poly = oofcanvas.CanvasPolygon.create()
                 poly.setFillColor(
                     color.canvasColor(self.colormap((energy-emin)/deltaE)))
                 poly.addPoints(polygon)
@@ -801,7 +801,8 @@ class SkeletonQualityDisplay(SkeletonDisplayMethod):
                 for i in range(self.contourmaplevels):
                     low = i*delta
                     high = (i+1)*delta
-                    rect = oofcanvas.CanvasRectangle((0.0, low), (width, high))
+                    rect = oofcanvas.CanvasRectangle.create((0.0, low),
+                                                            (width, high))
                     if height > 0:
                         clr = color.canvasColor(self.colormap(low/height))
                     else:

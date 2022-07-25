@@ -23,7 +23,7 @@ from ooflib.common.IO import xmlmenudump
 import oofcanvas
 
 def draw_elements(canvaslayer, elements, lineWidth, color):
-    segs = oofcanvas.CanvasSegments()
+    segs = oofcanvas.CanvasSegments.create()
     segs.setLineWidthInPixels(lineWidth)
     segs.setLineColor(color)
     for element in elements:
@@ -69,22 +69,22 @@ class SkeletonInfoDisplay(display.DisplayMethod):
         n0 = segment.nodes()[0].position()
         n1 = segment.nodes()[1].position()
 
-        seg = oofcanvas.CanvasSegment(n0, n1)
+        seg = oofcanvas.CanvasSegment.create(n0, n1)
         seg.setLineWidthInPixels(1.4*self.segment_width)
         seg.setLineColor(oofcanvas.white)
         self.canvaslayer.addItem(seg)
 
-        seg = oofcanvas.CanvasSegment(n0, n1)
+        seg = oofcanvas.CanvasSegment.create(n0, n1)
         seg.setLineWidthInPixels(self.segment_width)
         seg.setLineColor(color.canvasColor(self.colors[which]))
         self.canvaslayer.addItem(seg)
 
     def drawNode(self, node, which="query"):
-        dot = oofcanvas.CanvasDot(node.position(), 1.2*self.node_size)
+        dot = oofcanvas.CanvasDot.create(node.position(), 1.2*self.node_size)
         dot.setFillColor(oofcanvas.white)
         self.canvaslayer.addItem(dot)
         
-        dot = oofcanvas.CanvasDot(node.position(), self.node_size)
+        dot = oofcanvas.CanvasDot.create(node.position(), self.node_size)
         dot.setFillColor(color.canvasColor(self.colors[which]))
         self.canvaslayer.addItem(dot)
         

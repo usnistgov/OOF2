@@ -76,7 +76,7 @@ class MisorientationPlugIn(pixelinfo.PixelInfoPlugIn):
         if self.referenceOrientation is not None:
             n0, n1, n2, n3 = displaymethod.getNodes(self.referencePoint,
                                                     microstructure)
-            segs = oofcanvas.CanvasSegments()
+            segs = oofcanvas.CanvasSegments.create()
             segs.setLineWidthInPixels(displaymethod.line_width)
             segs.setLineColor(color.canvasColor(displaymethod.color))
             segs.addSegment(n0, n1)

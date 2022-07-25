@@ -600,7 +600,7 @@ class GfxWindow(gfxwindowbase.GfxWindowBase):
                         break
                 if level is not None:
                     width=(c_max-c_min)/self.settings.aspectratio
-                    polygon = oofcanvas.CanvasRectangle(
+                    polygon = oofcanvas.CanvasRectangle.create(
                         (0, lvls[level]-c_min),
                         (width, lvls[level+1]-c_min))
                     clr = self.settings.contourmap_markercolor

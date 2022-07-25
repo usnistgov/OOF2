@@ -204,12 +204,12 @@ class PlainContourDisplay(ContourDisplay):
                         self.nbins, 0)
                     for cntr in contours:
                         for loop in cntr.loops:
-                            poly = oofcanvas.CanvasPolygon()
+                            poly = oofcanvas.CanvasPolygon.create()
                             poly.setLineWidthInPixels(self.width)
                             poly.setLineColor(clr)
                             poly.addPoints(loop)
                         for curve in cntr.curves:
-                            segs = oofcanvas.CanvasSegments()
+                            segs = oofcanvas.CanvasSegments.create()
                             segs.setLineWidthInPixels(self.width)
                             segs.setLineColor(clr)
                             for edge in curve.edges():
@@ -237,7 +237,7 @@ class PlainContourDisplay(ContourDisplay):
                 height = self.contour_max - self.contour_min
                 width = height/aspect_ratio
 
-                segs = oofcanvas.CanvasSegments()
+                segs = oofcanvas.CanvasSegments.create()
                 segs.setLineWidthInPixels(self.width)
                 segs.setLineColor(color.canvasColor(self.color))
 
@@ -340,7 +340,7 @@ class FilledContourDisplay(ContourDisplay):
                     edges = element.perimeter()
                     mcorners = [[0.0]]*element.ncorners()
                     corners = self.where.evaluate(mesh, edges, mcorners)
-                    poly = oofcanvas.CanvasPolygon()
+                    poly = oofcanvas.CanvasPolygon.create()
                     poly.addPoints(corners)
                     poly.setFillColor(baseclr)
                     self.canvaslayer.addItem(poly)
@@ -355,7 +355,7 @@ class FilledContourDisplay(ContourDisplay):
                             points = primitives.makeCompoundPolygon(
                                 cntour.loops)
                         if points:
-                            poly = oofcanvas.CanvasPolygon()
+                            poly = oofcanvas.CanvasPolygon.create()
                             poly.setFillColor(
                                 color.canvasColor(self.colormap(
                                     offset + cntour.value*factor)))
@@ -393,8 +393,8 @@ class FilledContourDisplay(ContourDisplay):
                     r_low = low-self.contour_min
                     r_high = high-self.contour_min
 
-                    rect = oofcanvas.CanvasRectangle((0, r_low),
-                                                     (width, r_high))
+                    rect = oofcanvas.CanvasRectangle.create((0, r_low),
+                                                            (width, r_high))
                     # In the collapsed case, height can be zero.  This is
                     # not hugely informative, but should be handled without
                     # crashing.
