@@ -181,7 +181,7 @@ class CrossSectionToolboxGUI(toolboxGUI.GfxToolbox,
         self.toolbox.activate()
         self.gfxwindow().setMouseHandler(self)
         self.motionFlag = self.gfxwindow().allowMotionEvents(
-            oofcanvasgui.motionMouseDown)
+            oofcanvasgui.MotionAllowed_MOUSEDOWN)
         self.gfxwindow().setRubberBand(oofcanvasgui.LineRubberBand())
         self.sb_callbacks = [
             switchboard.requestCallbackMain( (self.gfxwindow(),

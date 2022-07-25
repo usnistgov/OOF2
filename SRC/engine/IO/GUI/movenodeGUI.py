@@ -287,7 +287,7 @@ class MoveNodeToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         toolboxGUI.GfxToolbox.activate(self)
         self.gfxwindow().setMouseHandler(self)
         self.motionFlag = self.gfxwindow().allowMotionEvents(
-            oofcanvasgui.motionMouseDown)
+            oofcanvasgui.MotionAllowed_MOUSEDOWN)
         self.sensitize()
 
     def deactivate(self):

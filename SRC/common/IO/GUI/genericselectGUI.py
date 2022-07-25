@@ -207,7 +207,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
         self.setInfo()
         self.gfxwindow().setMouseHandler(self)
         self.motionFlag = self.gfxwindow().allowMotionEvents(
-            oofcanvasgui.motionMouseDown)
+            oofcanvasgui.MotionAllowed_MOUSEDOWN)
 
     def deactivate(self):
         self.gfxwindow().setRubberBand(None)
