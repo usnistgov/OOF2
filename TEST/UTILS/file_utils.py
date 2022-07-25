@@ -302,7 +302,7 @@ def pdf_compare(file1, file2, quiet=False):
         if timeSearch1 is None or timeSearch2 is None:
             # Timestamp was only found in one file.
             if not quiet:
-                print "File mismatch:", file1, file2
+                print(f"File mismatch: {file1} {file2}", file=sys.stderr)
             return False
         ranges1.append((timeSearch1.start(), timeSearch1.end()))
         ranges2.append((timeSearch2.start(), timeSearch2.end()))
@@ -311,7 +311,7 @@ def pdf_compare(file1, file2, quiet=False):
     if prodSearch1 is not None or prodSearch2 is not None:
         if prodSearch1 is None or prodSearch2 is None:
             if not quiet:
-                print "File mismatch:", file1, file2
+                print(f"File mismatch: {file1} {file2}", file=sys.stderr)
             return False
         ranges1.append((prodSearch1.start(), prodSearch1.end()))
         ranges2.append((prodSearch2.start(), prodSearch2.end()))

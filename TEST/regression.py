@@ -8,8 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-
-
 # Top-level regression test file for the OOF application.  Knows about
 # all the test suites in this directory, and what order to run them in
 # in order to get a proper regression test.
@@ -80,9 +78,11 @@ def run_modules(test_module_names, oofglobals, backwards):
         test_module_names.reverse()
     for m in test_module_names:
         try:
-            exec("import " + m + " as test_module")
+            ldict = {}
+            exec(f"from oof2.TEST import {m} as test_module", globals(), ldict)
+            test_module = ldict["test_module"]
         except ImportError:
-            print("Import error.", file=sys.stderr)
+            print(f"Import error: {m}", file=sys.stderr)
         else:
             print("Running test module %s." % m)
             # Make sure all the goodies in the OOF namespace are available.
