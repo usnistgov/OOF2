@@ -453,7 +453,7 @@ class OrderedSet:
             return NotImplemented
         return self.union(other)
     def intersection(self, other):
-        common = filter(other.data.has_key, self)
+        common = filter(lambda x: x in other.data, self)
         return self.__class__(common)
     def __and__(self, other):
         if not isinstance(other, OrderedSet):
