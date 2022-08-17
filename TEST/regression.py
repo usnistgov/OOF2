@@ -191,7 +191,8 @@ def run(homedir):
 
     try:
         import oof2
-        sys.path.append(os.path.dirname(oof2.__file__))
+        if oof2.__file__ not in sys.path:
+            sys.path.append(os.path.dirname(oof2.__file__))
         from ooflib.common import oof
     except ImportError:
         print("OOF is not correctly installed on this system.")
@@ -223,8 +224,9 @@ def run(homedir):
     print("Using temp dir", tmpdir, file=sys.stderr)
     os.chdir(tmpdir)
     # Tell file_utils where the home directory is, since reference
-    # files are named relative to it.
-    from .UTILS import file_utils
+    # files are named relative to it.  See comment in
+    # fundamental_test.py about using the absolute path name here.
+    from oof2.TEST.UTILS import file_utils
     file_utils.set_reference_dir(homedir)
 
     # utils.OOFglobals() returns OOF namespace objects that we will be
