@@ -246,7 +246,10 @@ class ThreadedWorker(Worker):
         # the caller of the menu item.
         if ((propagate_exceptions or not self.toplevel)
             and exception_data is not None):
-            raise exception_data[0](exception_data[1]).with_traceback(exception_data[2])
+            ## TODO PYTHON3: Check this.  I'm not sure why or if the
+            ## old commented-out version worked.
+            raise exception_data[1].with_traceback(exception_data[2])
+            #raise exception_data[0](exception_data[1]).with_traceback(exception_data[2])
 
     def finished(self):
         return self.worker.finished()

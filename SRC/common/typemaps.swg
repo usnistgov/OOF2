@@ -99,8 +99,6 @@
 // out: ICoord -> iPoint
 // out: Coord -> Point
 
-// out: PythonExportable*   Converts to the derived class. See below.
-
 // NAMED TYPEMAPS
 
 // in: PyObject *PythonCallable: PyObject* -> PyObject*  no translation
@@ -173,7 +171,9 @@ typedef std::vector<unsigned short> ShortVec;
 // swig file hasn't already #included common/tostring.h.
 // TODO PYTHON3? Implement it for -builtin.
 
-// class std::string; // TODO PYTHON3: Why was this here?
+// Note that it's not sufficient to add a __repr__ to a base class.
+// Swig will override it with a generic uninformative __repr__ in the
+// derived classes unless a __repr__ is explicitly created for them.
 
 #ifdef SWIGPYTHON_BUILTIN
 %define ADD_REPR(CLASS, FUNC)
@@ -955,8 +955,12 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   catch (ErrError &e) {
     restoreSignals;
     // pyconverter is common.ooferror.pyErrorCallback.  It raises an
-    // Python OOFPyError exception that wraps the C++ exception.
-    PyObject_CallFunction(e.pyconverter, "s", e.pythonequiv().c_str());
+    // Python OOFPyError exception that wraps the C++ exception.  Use
+    // pythonObject from PythonExportable so that a derived class
+    // object is wrapped, and have Python take ownership of a copy.
+    PyObject_CallFunctionObjArgs(e.pyconverter,
+				 e.clone()->pythonObject(true),
+				 NULL);
     SWIG_fail;
   }
   catch (...) {

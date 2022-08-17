@@ -162,9 +162,7 @@ class ImageMagickError : public ErrErrorBase<ImageMagickError> {
   std::string msg;
 public:
   ImageMagickError(const std::string&);
-  virtual const std::string pythonequiv() const {
-    return "ImageMagickError('" + msg + "')";
-  }
+  const std::string &classname() const;
   const std::string *summary() const { return new std::string(msg); }
 };
 

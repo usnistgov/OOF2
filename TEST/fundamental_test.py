@@ -9,7 +9,13 @@
 # oof_manager@nist.gov. 
 
 import unittest, os
-from .UTILS.file_utils import reference_file
+
+# For reasons that I don't completely understand, file_utils needs to
+# be imported with an absolute path name, or else the modules imported
+# here and in regression.py will have different __name__'s.  That
+# means that the second import (this one) will re-run the commands in
+# the file, and reset file_utils.referencedir.
+from oof2.TEST.UTILS.file_utils import reference_file
 
 class OOF_Fundamental(unittest.TestCase):
     def setUp(self):
@@ -83,7 +89,7 @@ class OOF_Fundamental(unittest.TestCase):
         from ooflib.SWIG.common import ooferror
         self.assertEqual(len(allWorkers), 0)
         self.assertEqual(len(allWorkerCores), 0)
-        self.assertRaises(ooferror.ErrProgrammingError,
+        self.assertRaises(ooferror.PyErrProgrammingError,
                           OOF.Help.Debug.Error.CError)
         self.assertEqual(len(allWorkers), 0)
         self.assertEqual(len(allWorkerCores), 0)
@@ -104,7 +110,7 @@ class OOF_Fundamental(unittest.TestCase):
         from ooflib.SWIG.common import ooferror
         self.assertEqual(len(allWorkers), 0)
         self.assertEqual(len(allWorkerCores), 0)
-        self.assertRaises(ooferror.ErrProgrammingError,
+        self.assertRaises(ooferror.PyErrProgrammingError,
                           OOF.Help.Debug.Error.CPyCError)
         self.assertEqual(len(allWorkers), 0)
         self.assertEqual(len(allWorkerCores), 0)
@@ -116,7 +122,7 @@ class OOF_Fundamental(unittest.TestCase):
         # and then sets teststring to "not ok".  If the exception is
         # not handled properly, lines following the error will be
         # read, and teststring will be set to "not ok".
-        self.assertRaises(ooferror.ErrUserError,
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.File.Load.Script,
                           filename = reference_file("fundamental_data",
                                                     "pyerror.py"))

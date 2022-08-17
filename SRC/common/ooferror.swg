@@ -12,9 +12,9 @@
 #ifndef OOFERROR_SWG
 #define OOFERROR_SWG
 
-// TODO PYTHON3: Python exceptions must derive from Exception or
-// BaseException.  It's not clear how to to that.  Maybe SWIG4 knows
-// how?
+// TODO PYTHON3: Change char* args to std::string&, which is what's
+// use in the C++ classes.
+
 
 %module(package="ooflib.SWIG.common") ooferror
 
@@ -25,16 +25,6 @@
 %}
 
 void pyErrorInit(PyObject *pythonCallable);
-
-/* Swigged for automatic synchronization with C++ classes.
-   The error-handling scheme involves error objects being created
-   in the C++ code, then re-created from Python via the 
-   string returned by the pythonequiv method, which must be a 
-   call to the constructor in string form, with literal arguments,
-   e.g. if the constructor takes a string and two integers, the
-   pythonequiv string might look like: "MyError('Doom.', 13, 666)" */
-/* NB the pythonequiv method only needs to be visible from C++. */
- 
 
 %nodefaultctor ErrError;
 
@@ -51,21 +41,62 @@ public:
   ErrError.__str__ = ErrError.__repr__
 %}
 
-// NOTE: inheritance layout here is different than ooferror.h. 
-
 // Subclasses require individual __repr__s.  If you provide one in the
 // base class but don't provide them in the subclasses, SWIG will
 // construct default uninformative __repr__s for the subclasses.
 
-/* Args are: Message, filename, line-number. */
+%pythoncode %{
+pyErrorWrappers = {}
+%}
+
+%define WRAP_OOFERROR_CLASS(ERR)
+
+%pythoncode %{
+  class Py##ERR(Exception, ERR):
+    def __init__(self, *args, **kwargs):
+      self.cexcept = kwargs.get("cexcept", None)
+      if self.cexcept is None:
+        ERR.__init__(self, *args, **kwargs)
+    def __getattr__(self, attr):
+      return getattr(self.cexcept, attr)
+  pyErrorWrappers[ERR] = Py##ERR
+%}
+
+%typemap(in) Py##ERR* {
+  PyObject *cexcept = PyObject_GetAttrString($input, "cexcept");
+  std::cerr << "PyERR typemap: cexcept=" << repr_nolock(cexcept) << std::endl;
+  if(Py_IsNone(cexcept)) {
+    // cexcept is None, so the exception was created in python, and *is*
+    // already a swigged object.
+    int res = SWIG_ConvertPtr($input, &$1, $1_descriptor, 0);
+    if(!SWIG_IsOK(res)) {
+      PyErr_SetString(PyExc_TypeError,
+		      "in method '$symname', expecting a ERR");
+      SWIG_fail;
+    }
+  }
+  else {
+    // cexcept was set -- the incoming exception *contains* a swigged
+    // object.
+    int res = SWIG_ConvertPtr(cexcept, &$1, $1_descriptor, 0);
+    if(!SWIG_IsOK(res)) {
+      PyErr_SetString(PyExc_TypeError,
+		      "in method '$symname', expecting a ERR in self.cexcept");
+      SWIG_fail;
+    }
+  }
+}
+
+%enddef // WRAP_OOFERROR_CLASS
+
 class ErrProgrammingError : public ErrError {
 public:
+  ErrProgrammingError(char *, char *, int);  // Message, filename, line no.
   const std::string &filename();
   int lineno();
-  ErrProgrammingError(char *, char *, int);
   ~ErrProgrammingError();
 };
-
+WRAP_OOFERROR_CLASS(ErrProgrammingError);
 ADD_REPR(ErrProgrammingError, summary);
 
 
@@ -74,7 +105,7 @@ public:
   ErrResourceShortage(char *m);
   ~ErrResourceShortage();
 };
-
+WRAP_OOFERROR_CLASS(ErrResourceShortage);
 ADD_REPR(ErrResourceShortage, summary);
 
 class ErrBoundsError : public ErrError {
@@ -82,7 +113,7 @@ public:
   ErrBoundsError(char *m);
   ~ErrBoundsError();
 };
-
+WRAP_OOFERROR_CLASS(ErrBoundsError);
 ADD_REPR(ErrBoundsError, summary);
 
 
@@ -91,7 +122,7 @@ public:
   ErrBadIndex(int, char *, int);
   ~ErrBadIndex();
 };
-
+WRAP_OOFERROR_CLASS(ErrBadIndex);
 ADD_REPR(ErrBadIndex, summary);
 
 
@@ -100,7 +131,7 @@ public:
   ErrUserError(char *);
   ~ErrUserError();
 };
-
+WRAP_OOFERROR_CLASS(ErrUserError);
 ADD_REPR(ErrUserError, summary);
 
 class ErrSetupError : public ErrError {
@@ -108,7 +139,7 @@ public:
   ErrSetupError(char * m);
   ~ErrSetupError();
 };
-
+WRAP_OOFERROR_CLASS(ErrSetupError);
 ADD_REPR(ErrSetupError, summary);
 
 class ErrInterrupted : public ErrError {
@@ -116,7 +147,7 @@ public:
   ErrInterrupted();
   ~ErrInterrupted();
 };
-
+WRAP_OOFERROR_CLASS(ErrInterrupted);
 ADD_REPR(ErrInterrupted, summary);
 
 class ErrNoProgress : public ErrError {
@@ -124,7 +155,7 @@ public:
   ErrNoProgress();
   ~ErrNoProgress();
 };
-
+WRAP_OOFERROR_CLASS(ErrNoProgress);
 ADD_REPR(ErrNoProgress, summary);
 
 %pythoncode "common/ooferror.spy"

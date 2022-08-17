@@ -38,62 +38,45 @@ const std::string *ErrBadIndex::summary() const {
   return equiv;
 }
 
-//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// Python equivalents 
-
-// Makes the most general assumption about the structure.
-const std::string ErrProgrammingError::pythonequiv() const {
-  return "ErrProgrammingError('" +
-    escapostrophe(msg) + "', '" + file + "', " +
-    to_string(line) + ")";
+const std::string &ErrProgrammingError::classname() const {
+  static std::string s("ErrProgrammingError");
+  return s;
 }
 
-const std::string ErrResourceShortage::pythonequiv() const {
-  return "ErrResourceShortage('" + escapostrophe(msg) + "')";
+const std::string &ErrResourceShortage::classname() const {
+  static std::string s("ErrResourceShortage");
+  return s;
 }
 
-
-const std::string ErrBoundsError::pythonequiv() const {
-  return "ErrBoundsError('" + escapostrophe(msg) + "')";
+const std::string &ErrBoundsError::classname() const {
+  static std::string s("ErrBoundsError");
+  return s;
 }
 
-
-const std::string ErrBadIndex::pythonequiv() const {
-  const std::string *sum = ErrProgrammingErrorBase<ErrBadIndex>::summary();
-  const std::string equiv = "ErrBadIndex('" + *sum + "')";
-  delete sum;
-  return equiv;
+const std::string &ErrBadIndex::classname() const {
+  static std::string s("ErrBadIndex");
+  return s;
 }
 
-const std::string ErrUserError::pythonequiv() const {
-  return "ErrUserError('" + escapostrophe(msg) + "')";
+const std::string &ErrUserError::classname() const {
+  static std::string s("ErrUserError");
+  return s;
 }
 
-const std::string ErrSetupError::pythonequiv() const {
-  return "ErrSetupError('" + escapostrophe(msg) + "')";
+const std::string &ErrSetupError::classname() const {
+  static std::string s("ErrSetupError");
+  return s;
 }
 
-const std::string ErrInterrupted::pythonequiv() const {
-  return "ErrInterrupted()";
+const std::string &ErrInterrupted::classname() const {
+  static std::string s("ErrInterrupted");
+  return s;
 }
 
-
-// Use basic_string functionality, to be all properly C++y, and
-// hopefully ensure that the functionality is robustly retained when
-// we switch over to Unicode.
-std::basic_string<char> escapostrophe(const std::string &in) {
-  // Make sure to work on a copy.
-  std::basic_string<char> out(in);
-
-  std::basic_string<char>::size_type p = out.find("'",0);
-  while(p!=std::basic_string<char>::npos) {
-    out.replace(p,1,"\\'");
-    p = out.find("'",p+2);
-  }
-  return out;
+const std::string &ErrNoProgress::classname() const {
+  static std::string s("ErrNoProgress");
+  return s;
 }
-
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
@@ -104,10 +87,9 @@ std::basic_string<char> escapostrophe(const std::string &in) {
 
 // pythonErrorRelay() should be called whenever C++ detects that a
 // Python exception has been raised in a Python API call.  It converts
-// the Python exception to a C++ exception if possible (ie, when the
-// Python exception is really a C++ wrapped in a OOFPyError).
-// Otherwise it just throws PythonError, which is caught by the swig
-// exception typemap.
+// the Python exception to a C++ exception if possible.  Otherwise it
+// just throws PythonError, which is caught by the swig exception
+// typemap.
 
 void pythonErrorRelay() {
   PYTHON_THREAD_BEGIN_BLOCK;
@@ -118,18 +100,19 @@ void pythonErrorRelay() {
   // clears the Python error state.
   PyErr_Fetch(&ptype, &pvalue, &ptraceback);
   if(ptype) {
-    // Get the OOFPyError class, so that we can compare error
+    // Get the ErrError class, so that we can compare error
     // types on the Python side.
-    static PyObject *oofPyError = 0;
-    if(!oofPyError) {
+    static PyObject *pyErrError = 0;
+    if(!pyErrError) {
       PyObject *module = PyImport_ImportModule((char*) 
 					       "ooflib.SWIG.common.ooferror");
-      oofPyError = PyObject_GetAttrString(module, (char*) "OOFPyError");
-      assert(oofPyError!= 0);
+      pyErrError = PyObject_GetAttrString(module, (char*) "ErrError");
+      assert(pyErrError!= 0);
       Py_XDECREF(module);
     }
-    if(PyErr_GivenExceptionMatches(ptype, oofPyError)) {
-      // The Python exception is an OOFPyError -- ie, it's one of
+    if(PyObject_IsInstance(ptype, pyErrError)) {
+      //       PyErr_GivenExceptionMatches(ptype, pyErrError)) {
+      // The Python exception is a swigged ErrError -- ie, it's one of
       // ours.  Extract the C++ object and raise it as a new
       // exception.
       const ErrError *ee;

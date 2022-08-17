@@ -566,6 +566,11 @@ ImageMagickError::ImageMagickError(const std::string &messg) {
   }
 }
 
+const std::string &ImageMagickError::classname() const {
+  static std::string s("ImageMagickError");
+  return s;
+}
+
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
 // Utility functions moved from imageops.C.

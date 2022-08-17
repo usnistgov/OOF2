@@ -25,8 +25,7 @@ public:
       field(field)
   {}
   virtual ~ErrNoSuchField() {}
-  virtual const std::string pythonequiv() const;
-
+  virtual const std::string &classname() const;
 };
 
 class ErrDuplicateField : public ErrUserErrorBase<ErrDuplicateField> {
@@ -44,8 +43,7 @@ public:
       newtype(newtype)
   {}
   virtual ~ErrDuplicateField() {}
-  virtual const std::string pythonequiv() const;
-
+  virtual const std::string &classname() const;
 };
 
 // Trying to get a property that a Material doesn't have.
@@ -55,7 +53,7 @@ public:
   ErrNoSuchProperty(const std::string &mat, const std::string &prop);
   const std::string material;
   const std::string propname;
-  virtual const std::string pythonequiv() const;
+  virtual const std::string &classname() const;
 };
 
 class ErrPropertyMissing : public ErrUserErrorBase<ErrPropertyMissing> {
@@ -73,10 +71,7 @@ public:
     propname(prop),
     missingprop(miss)
   {}
-  virtual const std::string pythonequiv() const {
-    return "ErrPropertyMissing('"
-      + material + "','" + propname + "','" + missingprop + "')";
-  }
+  virtual const std::string &classname() const;
 };
 
 class ErrRedundantProperty : public ErrUserErrorBase<ErrRedundantProperty> {
@@ -87,9 +82,7 @@ public:
     :  ErrUserErrorBase<ErrRedundantProperty>(""), tag(t)
   {}
   const std::string &get_tag() { return tag; }
-  virtual const std::string pythonequiv() const {
-    return "ErrRedundantProperty('" + tag + "')";
-  }
+  virtual const std::string &classname() const;
 };
 
 class ErrBadMaterial : public ErrUserErrorBase<ErrBadMaterial> {
@@ -97,9 +90,7 @@ private:
   const std::string name;
 public:
   ErrBadMaterial(const std::string &name);
-  virtual const std::string pythonequiv() const {
-    return "ErrBadMaterial('" + name + "')";
-  }
+  virtual const std::string &classname() const;
   const std::string &materialName() const { return name; }
 };
 
@@ -109,7 +100,7 @@ private:
   const int nsteps;
 public:
   ErrConvergenceFailure(const std::string &op, int n);   
-  virtual const std::string pythonequiv() const;
+  virtual const std::string &classname() const;
 };
 
 class ErrTimeStepTooSmall : public ErrUserErrorBase<ErrTimeStepTooSmall> {
@@ -117,7 +108,7 @@ private:
   double timestep;
 public:
   ErrTimeStepTooSmall(double timestep);
-  virtual const std::string pythonequiv() const;
+  virtual const std::string &classname() const;
 };
 
 class ErrInvalidDestination: public ErrUserErrorBase<ErrInvalidDestination> {
@@ -125,9 +116,7 @@ public:
   ErrInvalidDestination() :
     ErrUserErrorBase<ErrInvalidDestination>("")
   {}
-  virtual const std::string pythonequiv() const {
-    return "ErrInvalidDestination()";
-  }
+  virtual const std::string &classname() const;
 };
 
 

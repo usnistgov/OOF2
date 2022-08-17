@@ -299,7 +299,7 @@ class ErrorPopUp:
                 [line.rstrip() for line in
                  traceback.format_exception_only(e_type, value)])
 
-            if isinstance(value, ooferror.OOFPyError):
+            if isinstance(value, ooferror.ErrError):
                 moreinfo = value.cerror.details()
                 if moreinfo:
                     errorstrings.append(moreinfo)
