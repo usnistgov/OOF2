@@ -22,7 +22,6 @@ import weakref
 from . import loggers
 from . import logutils
 
-_allexceptions = [Exception]
 _process = None
 
 def start(filename, debugLevel=2, suppress_motion_events=True,
@@ -94,9 +93,6 @@ def dont_log_motion_events(widget=None):
 
 def suppress_motion_events(widget=None):
     return logutils.suppress_motion_events()
-
-def add_exception(excclass):
-    logutils.add_exception(excclass)
 
 ##################################
 

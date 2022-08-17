@@ -303,7 +303,7 @@ class GUILogLineRunner:
                     return False
 
 
-                except logutils.exceptions() as exc:
+                except Exception as exc:
                     # Any type of exception other than GtkLoggerTopFailure
                     # is fatal.
                     self.status = "aborted"

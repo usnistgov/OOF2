@@ -352,13 +352,3 @@ def _get_parent(widget):
         return  None
 
 
-###
-
-_allexceptions = [Exception]
-
-def add_exception(excclass):
-    _allexceptions.append(excclass)
-
-def exceptions():
-    return tuple(_allexceptions)
-

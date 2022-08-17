@@ -31,11 +31,6 @@ guidebugmenu = mainmenu.debugmenu.addItem(oofmenu.OOFMenuItem("GUI_Logging",
                                                               no_log=True,
                                                               post_hook=None))
 
-
-# When running under the OOF context, gtklogger should catch OOF
-# errors also. 
-gtklogger.add_exception(ooferror.OOFPyError)
-
 ###################################
 
 # menucheckpoint is installed as the main menu's post_hook function.
