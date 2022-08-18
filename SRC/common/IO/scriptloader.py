@@ -14,14 +14,16 @@
 from ooflib.common import debug
 from ooflib.common import excepthook
 import ast
+import sys
 
-class _ScriptExceptHook(excepthook.OOFexceptHook):
-    def __init__(self, scriptloader):
-        self.scriptloader = scriptloader
-    def __call__(self, e_type, e_value, tback):
-        self.scriptloader.error = (e_type, e_value, tback)
-        self.scriptloader.errhandler(*self.scriptloader.error)
-        oldhook = excepthook.remove_excepthook(self)
+# class _ScriptExceptHook(excepthook.OOFexceptHook):
+#     def __init__(self, scriptloader):
+#         self.scriptloader = scriptloader
+#     def __call__(self, e_type, e_value, tback):
+#         self.scriptloader.error = (e_type, e_value, tback)
+#         self.scriptloader.progress.stop()
+#         self.scriptloader.errhandler(*self.scriptloader.error)
+#         oldhook = excepthook.remove_excepthook(self)
         
 
 class ScriptLoader:
@@ -29,6 +31,12 @@ class ScriptLoader:
         self.filename = filename
         self.locals = locals
         self.error = None
+
+        # self.errhandler is set this way, and not via a default
+        # argument, because excepthook.displayTraceBack may change
+        # between class definition and instantiation.
+        self.errhandler = errhandler or excepthook.displayTraceBack
+
         fileobj = open(self.filename)
         try:
             self.tree = ast.parse(fileobj.read()) # get the Abstract Syntax Tree
@@ -44,18 +52,23 @@ class ScriptLoader:
         if self.error is None:
             codebody = self.tree.body
             if len(codebody) > 0:
-                self.excepthook = excepthook.assign_excepthook(
-                    _ScriptExceptHook(self))
-                lastline = codebody[-1].end_lineno
-                for snippet in codebody:
-                    self.tree.body = [snippet]
-                    code = compile(self.tree, self.filename, "exec")
-                    exec(code, globals(), self.locals)
-                    self.progress(snippet.lineno, lastline) 
-                    if self.stop() or self.error:
-                        break
-                excepthook.remove_excepthook(self.excepthook)
-        self.done()
+                try:
+                    # self.excepthook = excepthook.assign_excepthook(
+                    #     _ScriptExceptHook(self))
+                    lastline = codebody[-1].end_lineno
+                    for snippet in codebody:
+                        self.tree.body = [snippet]
+                        code = compile(self.tree, self.filename, "exec")
+                        exec(code, globals(), self.locals)
+                        self.progress(snippet.lineno, lastline) 
+                        if self.stop() or self.error:
+                            break
+                except Exception as exc:
+                    self.error = sys.exc_info()
+                    self.errhandler(*self.error)
+                    # excepthook.remove_excepthook(self.excepthook)
+                finally:
+                    self.done()
 
     def progress(self, current, total): # May be redefined in subclasses
         pass

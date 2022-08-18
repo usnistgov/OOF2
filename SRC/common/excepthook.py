@@ -23,7 +23,7 @@ from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 import sys, traceback
 
-def printTraceBack(e_type, e_value, tblist):
+def printTraceBack(e_type, e_value, tb):
     from ooflib.common.IO import reporter # avoid import loop
     for line in traceback.format_exception_only(e_type, e_value):
         reporter.error(line.rstrip())
@@ -31,8 +31,8 @@ def printTraceBack(e_type, e_value, tblist):
         moreinfo = e_value.details()
         if moreinfo:
             reporter.error(moreinfo)
-    if tblist:
-        for line in traceback.format_list(tblist):
+    if tb:
+        for line in traceback.extract_tb(tb).format():
             reporter.error(line.rstrip())
 
 # displayTraceBack is overridden by reporter_GUI.py, so that in GUI mode
@@ -42,13 +42,13 @@ displayTraceBack = printTraceBack
 # OOFexceptHook is a class with a __call__ method instead of a simple
 # function so that the getTraceBackList method can be overridden in
 # derived classes.  See scriptloader.py.
+## TODO PYTHON3: Is this still necessary?  Does ScriptLoader still need it?
 
 class OOFexceptHook:
     def getTraceBackList(self, tback): # may be redefined in derived classes
         return traceback.extract_tb(tback)
     def __call__(self, e_type, e_value, tback):
-        tblist = self.getTraceBackList(tback)
-        displayTraceBack(e_type, e_value, tblist)
+        displayTraceBack(e_type, e_value, tback)
         # Now that we've handled the exception, clear it.  The system's
         # exception data keeps a reference to the local dictionary of the
         # frame in which the exception occurred, and this can prevent

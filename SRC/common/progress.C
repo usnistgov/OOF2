@@ -42,8 +42,10 @@ Progress::Progress(const std::string &nm, ThreadState *ts)
 }
 
 Progress::~Progress() {
-  // std::cerr << "Progress:dtor: " << name_ << " " << this << std::endl;
-  assert(not (started_ and not finished_));
+  // std::cerr << "Progress:dtor: " << name_ << " " << this
+  // 	    << " finished_=" << finished_ << " started_=" << started_
+  // 	    << std::endl;
+  assert(finished_ or not started_);
   KeyHolder kh(lock, verboseLocks);
   disconnectBar(progressbar);
   KeyHolder key(idlock);

@@ -124,7 +124,7 @@ class PScriptLoader(scriptloader.ScriptLoader):
             self,
             filename=filename,
             locals=sys.modules['__main__'].__dict__,
-            **kwargs)  
+            **kwargs)
     def progress(self, current, total):
         self.prog.setFraction((1.0*current)/total)
         if current <= total:
@@ -160,7 +160,7 @@ def loadscript(menuitem, filename):
                 article = "an"
             else:
                 article = "a"
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 f"Script {filename} raised {article} "
                 f"{interp.error[0].__name__} exception")
         debug.fmsg('finished reading', filename)
