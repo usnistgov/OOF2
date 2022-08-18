@@ -131,7 +131,7 @@ class OOF_Fundamental(unittest.TestCase):
     def ScriptException1(self):
         # This script is the same, but it raises the exception by
         # running a menu command.
-        self.assertRaises(ooferror.ErrUserError,
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.File.Load.Script,
                           filename=reference_file("fundamental_data",
                                                   "errorcmd.py"))
@@ -142,7 +142,7 @@ class OOF_Fundamental(unittest.TestCase):
         # a nested menu command.  teststring and/or another test will
         # not be "ok" if lines following the error are being
         # processed.
-        self.assertRaises(ooferror.ErrUserError,
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.File.Load.Script,
                           filename=reference_file("fundamental_data",
                                                   "nestederror.py"))
@@ -162,7 +162,7 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertRaises(NameError, utils.OOFeval, "borogoves")
 
     def ScriptSyntaxErr1(self):
-        self.assertRaises(ooferror.ErrUserError,
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.File.Load.Script,
                           filename=reference_file("fundamental_data",
                                                   "nestedsyntaxerr.py"))
