@@ -43,6 +43,11 @@ const std::string &ErrProgrammingError::classname() const {
   return s;
 }
 
+const std::string &ErrPyProgrammingError::classname() const {
+  static std::string s("ErrPyProgrammingError");
+  return s;
+}
+
 const std::string &ErrResourceShortage::classname() const {
   static std::string s("ErrResourceShortage");
   return s;
@@ -75,6 +80,16 @@ const std::string &ErrInterrupted::classname() const {
 
 const std::string &ErrNoProgress::classname() const {
   static std::string s("ErrNoProgress");
+  return s;
+}
+
+const std::string &ErrDataFileError::classname() const {
+  static std::string s("ErrDataFileError");
+  return s;
+}
+
+const std::string &ErrWarning::classname() const {
+  static std::string s("ErrWarning");
   return s;
 }
 

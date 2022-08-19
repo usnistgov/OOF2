@@ -38,35 +38,6 @@ pyErrorInit(pyErrorCallback)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-## TODO PYTHON3: These can't be defined this way any more.  If we're
-## sure that they're never passed between Python and C++ it may be
-## sufficient to add Exception as a base class.
-
-class ErrPyProgrammingError(ErrProgrammingError):
-    def __init__(self, message):
-        stack = traceback.extract_stack()
-        # The actual error is two up from us in the stack.
-        (phile, lineno, func, txt) = stack[-2] 
-        ErrProgrammingError.__init__(self, message, phile, lineno)
-    def __repr__(self):
-        return self.summary() 
-        
-
-def _ErrProgrammingError___repr__(self):
-    return self.summary()+"\n("+self.filename()+":"+"%d"%self.lineno() + ")"
-
-ErrProgrammingError.__repr__ = _ErrProgrammingError___repr__
-
-
-
-class ErrDataFileError(ErrUserError):
-    pass
-
-class ErrWarning(ErrUserError):
-    pass
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
-
 def registerErrorClass(eclass):
     # Allow an error class to be raised from the SWIGged wrapper
     # functions.  Only error classes defined outside of this module

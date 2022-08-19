@@ -56,6 +56,24 @@ public:
 WRAP_OOFERROR_CLASS(ErrProgrammingError);
 ADD_REPR(ErrProgrammingError, summary);
 
+class ErrPyProgrammingError : public ErrError {
+public:
+  ErrPyProgrammingError(std::string&, std::string&, int);
+  ~ErrPyProgrammingError();
+};
+WRAP_OOFERROR_CLASS(ErrPyProgrammingError);
+ADD_REPR(ErrPyProgrammingError, summary);
+
+%pythoncode %{
+  # Monkeypatch the __init__ so that line number and file
+  # are inserted automatically.
+  oldinit = PyErrPyProgrammingError.__init__
+  def PyErrPyProgrammingError_init(self, msg):
+    stack = traceback.extract_stack()
+    (phile, lineno, func, txt) = stack[-2]
+    self.oldinit(msg, phile, lineno)
+  PyErrPyProgrammingError.__init__ = PyErrPyProgrammingError_init
+%}
 
 class ErrResourceShortage : public ErrError {
 public:
@@ -114,6 +132,23 @@ public:
 };
 WRAP_OOFERROR_CLASS(ErrNoProgress);
 ADD_REPR(ErrNoProgress, summary);
+
+class ErrDataFileError : public ErrError {
+public:
+  ErrDataFileError(const std::string&);
+  ~ErrDataFileError();
+};
+WRAP_OOFERROR_CLASS(ErrDataFileError);
+ADD_REPR(ErrDataFileError, summary);
+
+class ErrWarning : public ErrError {
+public:
+  ErrWarning(const std::string&);
+  ~ErrWarning();
+};
+WRAP_OOFERROR_CLASS(ErrWarning);
+ADD_REPR(ErrWarning, summary);
+
 
 %pythoncode "common/ooferror.spy"
 

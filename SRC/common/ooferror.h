@@ -14,9 +14,9 @@
 
 #include <oofconfig.h>
 #include "common/pythonexportable.h"
+#include "common/tostring.h"
 
 #include <iostream>
-#include <string>
 
 // Error namespace causes too many problems for SWIG.  Instead,
 // use a customizing prefix for error names.
@@ -79,7 +79,9 @@ public:
     : file(other.file), line(other.line), msg(other.msg)
   {}
   virtual ~ErrProgrammingErrorBase() {}
-  virtual const std::string *summary() const { return new std::string(msg); }
+  virtual const std::string *summary() const {
+    return new std::string(file + ":" + to_string(line) + " " + msg);
+  }
   // filename and lineno are for reading from Python
   const std::string &filename() const { return file; }
   int lineno() const { return line; }  
@@ -91,6 +93,15 @@ class ErrProgrammingError
 public:
   ErrProgrammingError(const std::string &f, int l);
   ErrProgrammingError(const std::string &m, const std::string &f, int l);
+  virtual const std::string &classname() const;
+};
+
+class ErrPyProgrammingError
+  : public ErrProgrammingErrorBase<ErrPyProgrammingError>
+{
+public:
+  ErrPyProgrammingError(const std::string &m, const std::string &f, int l)
+    : ErrProgrammingErrorBase<ErrPyProgrammingError>(m, f, l) {}
   virtual const std::string &classname() const;
 };
 
@@ -174,6 +185,20 @@ public:
 class ErrInterrupted : public ErrUserErrorBase<ErrInterrupted> {
 public:
   ErrInterrupted() : ErrUserErrorBase<ErrInterrupted>("Interrupted!") {}
+  virtual const std::string &classname() const;
+};
+
+class ErrDataFileError : public ErrUserErrorBase<ErrDataFileError> {
+public:
+  ErrDataFileError(const std::string &m)
+    : ErrUserErrorBase<ErrDataFileError>(m) {}
+  virtual const std::string &classname() const;
+};
+
+class ErrWarning : public ErrUserErrorBase<ErrWarning> {
+public:
+  ErrWarning(const std::string &m)
+    : ErrUserErrorBase<ErrWarning>(m) {}
   virtual const std::string &classname() const;
 };
 
