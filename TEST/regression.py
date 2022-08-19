@@ -12,7 +12,7 @@
 # all the test suites in this directory, and what order to run them in
 # in order to get a proper regression test.
 
-import sys, imp, os, getopt, copy, unittest
+import sys, os, getopt, copy, unittest
 
 test_module_names = [
     "fundamental_test",
