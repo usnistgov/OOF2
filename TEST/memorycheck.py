@@ -27,11 +27,6 @@ def check(*_microstructures):
             from ooflib.common.IO.mainmenu import OOF
             for msname in _microstructures:
                 OOF.Microstructure.Delete(microstructure=msname)
-            # Exceptions can hold references to data.  Since this file
-            # tests for exceptions as well as memory leaks, it's
-            # important to clear the exception state before checking
-            # for leaks.
-            sys.exc_clear()
             gc.collect()
 
             from ooflib.common.worker import allWorkers, allWorkerCores

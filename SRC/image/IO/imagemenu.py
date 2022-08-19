@@ -115,7 +115,9 @@ def loadImageIntoMS(image, microstructure):
 
     # Check size of microstructure
     if ms.getObject().sizeInPixels() != image.sizeInPixels():
-        raise ooferror.ErrUserError("Cannot load an image into an existing Microstructure of a different size.")
+        raise ooferror.PyErrUserError(
+            "Cannot load an image into an existing Microstructure"
+            " of a different size.")
 
     # See if the image name is unique in the Microstructure
     newname = imagecontext.imageContexts.uniqueName([ms.name(), image.name()])
@@ -439,8 +441,9 @@ microstructuremenu.micromenu.addItem(
 def createMSFromImageFile(menuitem, filename, microstructure_name,
                           height, width):
  
-    if (height!=automatic and height<=0) or (width!=automatic and width<=0):
-        raise ooferror.ErrUserError(
+    if ((height!=automatic.automatic and height<=0) or
+        (width!=automatic.automatic and width<=0)):
+        raise ooferror.PyErrUserError(
             "Negative microstructure sizes are not allowed.")
 
     image = autoReadImage(filename, height, width)

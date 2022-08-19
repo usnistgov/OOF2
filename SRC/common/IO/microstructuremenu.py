@@ -57,7 +57,7 @@ if config.dimension() == 2:
                           width, height,
                           width_in_pixels, height_in_pixels):
         if width<=0 or height<=0 or width_in_pixels<=0 or height_in_pixels<=0:
-            raise ooferror.ErrUserError("Negative size values are not allowed.")
+            raise ooferror.PyErrUserError("Negative sizes are not allowed.")
 
         if parallel_enable.enabled():
             # For the rear-end guys
@@ -89,7 +89,7 @@ elif config.dimension() == 3:
                       depth_in_pixels):
         if (width<=0 or height<=0 or depth<=0 
             or width_in_pixels<=0 or height_in_pixels<=0 or depth_in_pixels<=0):
-            raise ooferror.ErrUserError("Negative size values are not allowed.")
+            raise ooferror.PyErrUserError("Negative sizes are not allowed.")
 
         if parallel_enable.enabled():
             # For the rear-end guys
@@ -307,7 +307,7 @@ saveFixedSubdivision = None
 
 def setHomogParams(menuitem, factor, minimumTileSize, fixedSubdivision):
     if factor >= 1.0 or factor <= 0.0:
-        raise ooferror.ErrUserError("factor must be strictly between 0 and 1.")
+        raise ooferror.PyErrUserError("factor must be between 0 and 1.")
 
     global saveTilingFactor, saveMinTileScale, saveFixedSubdivision
     saveTilingFactor = pixelsetboundary.cvar.tilingfactor

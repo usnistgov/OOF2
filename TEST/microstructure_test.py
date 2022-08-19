@@ -29,7 +29,7 @@ class OOF_Microstructure(unittest.TestCase):
         from ooflib.common import primitives
         from ooflib.common.IO import parameter
 
-        self.assertRaises(ooferror.ErrUserError,
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.Microstructure.New,
                           name="one", width=-1.0, height=-1.0,
                           width_in_pixels=10,
@@ -84,12 +84,12 @@ class OOF_Microstructure(unittest.TestCase):
         from ooflib.common import primitives
         # from ooflib.SWIG.common.IO import stringimage
         self.assertRaises(
-            oofimage.ImageMagickError, 
+            oofimage.PyImageMagickError, 
             OOF.Microstructure.Create_From_ImageFile,
             filename="nosuchfile", microstructure_name="nosuchfile",
             height=automatic, width=automatic)
         self.assertRaises(
-            ooferror.ErrUserError,
+            ooferror.PyErrUserError,
             OOF.Microstructure.Create_From_ImageFile,
             filename=reference_file("ms_data","small.ppm"),
             microstructure_name="oops",
