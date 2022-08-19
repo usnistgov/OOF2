@@ -10,57 +10,44 @@
 
 from ooflib.common import debug
 
+import traceback
 
-# All Python exceptions must be derived from Exception.  The C++
-# version of that is PyObject *PyExc_Exception, which is not something
-# that can be used as a C++ base class, unfortunately.  It's also not
-# possible to insert Exception into an object's __bases__ tuple,
-# because Exception isn't like other classes.
-
-class OOFPyError(Exception):
-    def __init__(self, cerror):
-        Exception.__init__(self)
-        self.cerror = cerror
-    def __repr__(self):
-        return f"OOFPyError(<{self.cerror}>)"
-    def __getattr__(self, attr):
-        # Make OOFPyError act like cerror.
-        return getattr(self.cerror, attr)
-    
-
-#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Set up the callback that converts C++ exceptions to Python
 # exceptions.  This is done when this module is imported, which
 # guarantees that the callback will be in place before any high-level
 # calls from "pure Python" happen.
 
-## The %exception typemap swigs the C++ error (via pythonexportable)
-## and passes it to pyErrorCallback (aka ErrError::pyconverter).
-## pyErrorCallback raises the Python version of the error, which is a
-## wrapper around the swigged object.  The wrapper class is created
-## automatically from the C++ class by the WRAP_OOFERROR_CLASS swig
-## macro in ooferror.swg.
+# The %exception typemap swigs the C++ error (via pythonexportable)
+# and passes it to pyErrorCallback (aka ErrError::pyconverter).
+# pyErrorCallback raises the Python version of the error, which is a
+# wrapper around the swigged object.  The wrapper class is created
+# automatically from the C++ class by the WRAP_OOFERROR_CLASS swig
+# macro in ooferror.swg.
+
+# The wrapper is required because Python exceptions must be derived
+# from Exception, which cexcept is not.  For each swigged C++
+# exception type, ERR, pyErrorWrappers contains a python class named
+# pyERR derived from Exception, and which contains a swigged C++
+# exception.
 
 def pyErrorCallback(cexcept):
-    ## This needs to return something derived from Exception, which
-    ## cexcept is not.  For each swigged C++ exception type, ERR,
-    ## pyErrorWrappers contains a python class named pyERR derived from
-    ## both it and from Exception
     raise pyErrorWrappers[cexcept.__class__](cexcept=cexcept)
     
 pyErrorInit(pyErrorCallback)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-import traceback
+## TODO PYTHON3: These can't be defined this way any more.  If we're
+## sure that they're never passed between Python and C++ it may be
+## sufficient to add Exception as a base class.
 
 class ErrPyProgrammingError(ErrProgrammingError):
     def __init__(self, message):
         stack = traceback.extract_stack()
         # The actual error is two up from us in the stack.
-        (file, lineno, func, txt) = stack[-2] 
-        ErrProgrammingError.__init__(self, message, file, lineno)
+        (phile, lineno, func, txt) = stack[-2] 
+        ErrProgrammingError.__init__(self, message, phile, lineno)
     def __repr__(self):
         return self.summary() 
         
@@ -78,6 +65,7 @@ class ErrDataFileError(ErrUserError):
 class ErrWarning(ErrUserError):
     pass
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 def registerErrorClass(eclass):
     # Allow an error class to be raised from the SWIGged wrapper

@@ -33,6 +33,8 @@ def printTraceBack(e_type, e_value, tb):
             reporter.error(moreinfo)
     if tb:
         for line in traceback.extract_tb(tb).format():
+            ## TODO PYTHON3: This is truncating some lines at the end
+            ## of the traceback.
             reporter.error(line.rstrip())
 
 # displayTraceBack is overridden by reporter_GUI.py, so that in GUI mode

@@ -955,7 +955,7 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   catch (ErrError &e) {
     restoreSignals;
     // pyconverter is common.ooferror.pyErrorCallback.  It raises an
-    // Python OOFPyError exception that wraps the C++ exception.  Use
+    // Python exception that wraps the C++ exception.  Use
     // pythonObject from PythonExportable so that a derived class
     // object is wrapped, and have Python take ownership of a copy.
     PyObject_CallFunctionObjArgs(e.pyconverter,

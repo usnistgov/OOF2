@@ -283,14 +283,12 @@ class TextThreadedWorker(ThreadedWorker):
                         prog = ts.findProgress(pname)
                         pbar = prog.makeTextBar()
                         prgrsbars[pname] = pbar
+                    except ooferror.PyErrNoProgress:
+                        # Oops, the Progress object vanished already.
+                        pass
                     except Exception as exc:
-                        if (isinstance(exc, ooferror.OOFPyError) and
-                            isinstance(exc.cerror, ooferror.ErrNoProgress)):
-                            # Oops, the Progress object vanished already.
-                            pass
-                        else:
-                            print("Error when constructing progress bar!")
-                            raise
+                        reporter.error("Error when constructing progress bar!")
+                        raise
                 else:
                     # Re-use an old ProgressBar.
                     prog = pbar.progress

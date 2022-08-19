@@ -52,38 +52,27 @@ pyErrorWrappers = {}
 %define WRAP_OOFERROR_CLASS(ERR)
 
 %pythoncode %{
-  class Py##ERR(Exception, ERR):
+  class Py##ERR(Exception):
     def __init__(self, *args, **kwargs):
       self.cexcept = kwargs.get("cexcept", None)
       if self.cexcept is None:
-        ERR.__init__(self, *args, **kwargs)
+        self.cexcept = ERR(*args, **kwargs)
     def __getattr__(self, attr):
       return getattr(self.cexcept, attr)
+    def __repr__(self):
+      return self.cexcept.summary()
+    def __str__(self):
+      return self.cexcept.summary()
   pyErrorWrappers[ERR] = Py##ERR
 %}
 
 %typemap(in) Py##ERR* {
   PyObject *cexcept = PyObject_GetAttrString($input, "cexcept");
-  std::cerr << "PyERR typemap: cexcept=" << repr_nolock(cexcept) << std::endl;
-  if(Py_IsNone(cexcept)) {
-    // cexcept is None, so the exception was created in python, and *is*
-    // already a swigged object.
-    int res = SWIG_ConvertPtr($input, &$1, $1_descriptor, 0);
-    if(!SWIG_IsOK(res)) {
-      PyErr_SetString(PyExc_TypeError,
-		      "in method '$symname', expecting a ERR");
-      SWIG_fail;
-    }
-  }
-  else {
-    // cexcept was set -- the incoming exception *contains* a swigged
-    // object.
-    int res = SWIG_ConvertPtr(cexcept, &$1, $1_descriptor, 0);
-    if(!SWIG_IsOK(res)) {
-      PyErr_SetString(PyExc_TypeError,
-		      "in method '$symname', expecting a ERR in self.cexcept");
-      SWIG_fail;
-    }
+  int res = SWIG_ConvertPtr(cexcept, &$1, $1_descriptor, 0);
+  if(!SWIG_IsOK(res)) {
+    PyErr_SetString(PyExc_TypeError,
+		    "in method '$symname', expecting a ERR in self.cexcept");
+    SWIG_fail;
   }
 }
 
