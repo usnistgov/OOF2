@@ -19,6 +19,7 @@
 %module(package="ooflib.SWIG.common") ooferror
 
 %include "common/typemaps.swg"
+%include "common/ooferrorwrappers.swg"
 
 %{
 #include "common/ooferror.h"
@@ -44,39 +45,6 @@ public:
 // Subclasses require individual __repr__s.  If you provide one in the
 // base class but don't provide them in the subclasses, SWIG will
 // construct default uninformative __repr__s for the subclasses.
-
-%pythoncode %{
-pyErrorWrappers = {}
-%}
-
-%define WRAP_OOFERROR_CLASS(ERR)
-
-%pythoncode %{
-  class Py##ERR(Exception):
-    def __init__(self, *args, **kwargs):
-      self.cexcept = kwargs.get("cexcept", None)
-      if self.cexcept is None:
-        self.cexcept = ERR(*args, **kwargs)
-    def __getattr__(self, attr):
-      return getattr(self.cexcept, attr)
-    def __repr__(self):
-      return self.cexcept.summary()
-    def __str__(self):
-      return self.cexcept.summary()
-  pyErrorWrappers[ERR] = Py##ERR
-%}
-
-%typemap(in) Py##ERR* {
-  PyObject *cexcept = PyObject_GetAttrString($input, "cexcept");
-  int res = SWIG_ConvertPtr(cexcept, &$1, $1_descriptor, 0);
-  if(!SWIG_IsOK(res)) {
-    PyErr_SetString(PyExc_TypeError,
-		    "in method '$symname', expecting a ERR in self.cexcept");
-    SWIG_fail;
-  }
-}
-
-%enddef // WRAP_OOFERROR_CLASS
 
 class ErrProgrammingError : public ErrError {
 public:

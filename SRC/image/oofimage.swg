@@ -17,6 +17,7 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%include "common/ooferrorwrappers.swg"
 %import "common/IO/bitoverlay.swg"
 %import "common/abstractimage.swg"
 %import "common/boolarray.swg"
@@ -116,7 +117,7 @@ public:
   ImageMagickError(char *m);
   ~ImageMagickError();
 };
-
+WRAP_OOFERROR_CLASS(ImageMagickError);
 ADD_REPR(ImageMagickError, summary);
 
 DoubleArray grayify(const OOFImage& image);
