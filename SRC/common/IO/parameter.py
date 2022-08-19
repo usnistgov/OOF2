@@ -46,8 +46,6 @@ import struct
 
 from ooflib.common.utils import stringjoin
 
-ErrPyProgrammingError = ooferror.ErrPyProgrammingError
-
 structIntFmt = '>i'
 structIntSize = struct.calcsize(structIntFmt)
 
@@ -262,12 +260,12 @@ class Parameter:
 
     def makeWidget(self, *args, **kwargs):
         # This function must be overridden in derived classes in GUI mode.
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             'No widget for %s!' % self.__class__.__name__)
 
 
     def binaryRepr(self, datafile, value):
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "Somebody forgot to define %s.binaryRepr()!"
             % self.__class__.__name__)
 

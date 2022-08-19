@@ -12,10 +12,6 @@
 #ifndef OOFERROR_SWG
 #define OOFERROR_SWG
 
-// TODO PYTHON3: Change char* args to std::string&, which is what's
-// use in the C++ classes.
-
-
 %module(package="ooflib.SWIG.common") ooferror
 
 %include "common/typemaps.swg"
@@ -48,7 +44,7 @@ public:
 
 class ErrProgrammingError : public ErrError {
 public:
-  ErrProgrammingError(char *, char *, int);  // Message, filename, line no.
+  ErrProgrammingError(const std::string &msg, const std::string &file, int l);
   const std::string &filename();
   int lineno();
   ~ErrProgrammingError();
@@ -77,7 +73,7 @@ ADD_REPR(ErrPyProgrammingError, summary);
 
 class ErrResourceShortage : public ErrError {
 public:
-  ErrResourceShortage(char *m);
+  ErrResourceShortage(const std::string &m);
   ~ErrResourceShortage();
 };
 WRAP_OOFERROR_CLASS(ErrResourceShortage);
@@ -85,7 +81,7 @@ ADD_REPR(ErrResourceShortage, summary);
 
 class ErrBoundsError : public ErrError {
 public:
-  ErrBoundsError(char *m);
+  ErrBoundsError(const std::string &m);
   ~ErrBoundsError();
 };
 WRAP_OOFERROR_CLASS(ErrBoundsError);
@@ -94,7 +90,7 @@ ADD_REPR(ErrBoundsError, summary);
 
 class ErrBadIndex : public ErrError {
 public:
-  ErrBadIndex(int, char *, int);
+  ErrBadIndex(int, const std::string&, int);
   ~ErrBadIndex();
 };
 WRAP_OOFERROR_CLASS(ErrBadIndex);
@@ -103,7 +99,7 @@ ADD_REPR(ErrBadIndex, summary);
 
 class ErrUserError : public ErrError {
 public:
-  ErrUserError(char *);
+  ErrUserError(const std::string&);
   ~ErrUserError();
 };
 WRAP_OOFERROR_CLASS(ErrUserError);
@@ -111,7 +107,7 @@ ADD_REPR(ErrUserError, summary);
 
 class ErrSetupError : public ErrError {
 public:
-  ErrSetupError(char * m);
+  ErrSetupError(const std::string&);
   ~ErrSetupError();
 };
 WRAP_OOFERROR_CLASS(ErrSetupError);
