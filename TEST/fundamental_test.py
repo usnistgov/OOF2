@@ -122,6 +122,9 @@ class OOF_Fundamental(unittest.TestCase):
         # and then sets teststring to "not ok".  If the exception is
         # not handled properly, lines following the error will be
         # read, and teststring will be set to "not ok".
+        #
+        # The script contains a NameError, but loadscript() in
+        # mainmenu.py converts it into a PyErrUserError.
         self.assertRaises(ooferror.PyErrUserError,
                           OOF.File.Load.Script,
                           filename = reference_file("fundamental_data",
@@ -129,8 +132,9 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertEqual(utils.OOFeval('teststring'), "ok")
 
     def ScriptException1(self):
-        # This script is the same, but it raises the exception by
-        # running a menu command.
+        # This script is similar, but it raises the exception by
+        # running a menu command.  The exception is an
+        # ErrProgrammingError.
         self.assertRaises(ooferror.PyErrUserError,
                           OOF.File.Load.Script,
                           filename=reference_file("fundamental_data",
