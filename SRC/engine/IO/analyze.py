@@ -183,7 +183,7 @@ def _arithmeticOutputFilter(output):
 # There are constraints on the output types of the output objects that
 # can be processed by these functions -- they must either be Floats,
 # or they must be composite objects for which __add__ and __sub__
-# operate component-wise, __mul__ and __div__ take scalar operands,
+# operate component-wise, __mul__ and __truediv__ take scalar operands,
 # and for which point-wise operations "component_square" and
 # "component_sqrt" are defined.  This is currently true of all
 # OutputVal subclasses, including SymmMatrix3.

@@ -71,17 +71,17 @@ def _sparsemat___imul__(self, x):
     return NotImplemented
 SparseMat.__imul__ = _sparsemat___imul__
 
-def _sparsemat___idiv__(self, x):
+def _sparsemat___itruediv__(self, x):
     import types
     if isinstance(x, float) or isinstance(x, int):
         self.scale(1./x)
         return self
     return NotImplemented
-SparseMat.__idiv__ = _sparsemat___idiv__
+SparseMat.__itruediv__ = _sparsemat___itruediv__
 
-def _sparsemat___div__(self, x):
+def _sparsemat___truediv__(self, x):
         result = self.clone()
         result /= x
         return result
-SparseMat.__div__ = _sparsemat___div__
+SparseMat.__truediv__ = _sparsemat___truediv__
 

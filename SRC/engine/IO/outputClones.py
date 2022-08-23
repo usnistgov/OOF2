@@ -623,7 +623,7 @@ class ConcatenatedOutputVal:
         return ConcatenatedOutputVal(*(x-y for x,y, in zip(self.args, o.args)))
     def __pow__(self, x):
         return ConcatenatedOutputVal(*(v**x for v in self.args))
-    def __div__(self, x):
+    def __truediv__(self, x):
         return ConcatenatedOutputVal(*(v/x for v in self.args))
     def clone(self):
         return ConcatenatedOutputVal(*(v.clone() for v in self.args))

@@ -92,7 +92,7 @@ class Point:
     def __neg__(self):
         return self.__class__(-self.x, -self.y)
 
-    def __div__(self, other):
+    def __truediv__(self, other):
         return Point(self.x/other, self.y/other)
 
     def __hash__(self):

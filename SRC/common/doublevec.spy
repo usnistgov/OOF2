@@ -64,11 +64,11 @@ def _doublevec___rmul__(self, factor):
     return NotImplemented
 DoubleVec.__rmul__ = _doublevec___rmul__
 
-def _doublevec___div__(self, factor):
+def _doublevec___truediv__(self, factor):
     result = self.clone()
     result /= factor
     return result
-DoubleVec.__div__ = _doublevec___div__
+DoubleVec.__truediv__ = _doublevec___truediv__
 
 def _doublevec___imul__(self, factor):
     if isinstance(factor, float) or isinstance(factor, int):
@@ -77,12 +77,12 @@ def _doublevec___imul__(self, factor):
     return NotImplemented
 DoubleVec.__imul__ = _doublevec___imul__
 
-def _doublevec___idiv__(self, factor):
+def _doublevec___itruediv__(self, factor):
     if isinstance(factor, float) or isinstance(factor, int):
         self.scale(1./factor)
         return self
     return NotImplemented
-DoubleVec.__idiv__ = _doublevec___idiv__
+DoubleVec.__itruediv__ = _doublevec___itruediv__
 
 def _doublevec___neg__(self):
     result = self.clone()

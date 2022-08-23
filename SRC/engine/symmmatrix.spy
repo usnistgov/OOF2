@@ -103,13 +103,13 @@ def _SymmMatrix3___mul__(self, other):
 SymmMatrix3.__mul__ = _SymmMatrix3___mul__
 SymmMatrix3.__rmul__ = _SymmMatrix3___mul__
 
-def _SymmMatrix3___div__(self, other):
+def _SymmMatrix3___truediv__(self, other):
     res = SymmMatrix3()
     res._add(self)
     res._mul(1.0/other)
     return res
 
-SymmMatrix3.__div__ = _SymmMatrix3___div__
+SymmMatrix3.__truediv__ = _SymmMatrix3___truediv__
 
 # Override parent class's __imul__ with one that
 # is guaranteed to return the identical "self" object --

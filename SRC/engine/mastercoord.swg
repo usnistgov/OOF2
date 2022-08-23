@@ -64,7 +64,7 @@ public:
   MasterCoord __mul__(double a) {
     return a*(*self);
   }
-  MasterCoord __div__(double a) {
+  MasterCoord __truediv__(double a) {
     return *self/a;
   }
 };

@@ -90,12 +90,12 @@ VectorOutputVal.__mul__ = _VectorOutputVal___mul__
 VectorOutputVal.__rmul__ = _VectorOutputVal___mul__
 
 
-def _VectorOutputVal___div__(self, other):
+def _VectorOutputVal___truediv__(self, other):
     res = self.clone()
     res._mul(1.0/other)
     return res
 
-VectorOutputVal.__div__ = _VectorOutputVal___div__
+VectorOutputVal.__truediv__ = _VectorOutputVal___truediv__
 
 
 def _ScalarOutputVal___mul__(self, other):
@@ -107,18 +107,18 @@ ScalarOutputVal.__mul__ = _ScalarOutputVal___mul__
 ScalarOutputVal.__rmul__ = _ScalarOutputVal___mul__
 
 
-def _ScalarOutputVal___div__(self, other):
+def _ScalarOutputVal___truediv__(self, other):
     res = ScalarOutputVal(self.value())
     res._mul(1.0/other)
     return res
 
-ScalarOutputVal.__div__ = _ScalarOutputVal___div__
+ScalarOutputVal.__truediv__ = _ScalarOutputVal___truediv__
 
 # We need rdiv as well as div in order to compute 1/ScalarOutputVal.
-def _ScalarOutputVal__rdiv__(self, other):
+def _ScalarOutputVal__rtruediv__(self, other):
     return other * (1.0/self.value())
 
-ScalarOutputVal.__rdiv__ = _ScalarOutputVal__rdiv__
+ScalarOutputVal.__rtruediv__ = _ScalarOutputVal__rtruediv__
     
 ##############################
 
