@@ -39,7 +39,7 @@ public:
 
 class BrushSelection : public PixelSelectionCourier {
 public:
-  BrushSelection(CMicrostructure*, BrushStyle*, PointVec *PointList);
+  BrushSelection(CMicrostructure*, BrushStyle*, std::vector<Coord> *PointList);
   ~BrushSelection();
 };
 

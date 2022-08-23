@@ -67,7 +67,7 @@ public:
   void removeMicrostructure();
 
   %newobject getPixels;
-  ShortVec *getPixels();
+  std::vector<unsigned short> *getPixels();
   void flip(char *axis);
   void fade(double);
   void dim(double);
@@ -90,7 +90,7 @@ public:
   OOFCanvas::CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 
   // getTimeStamp is redefined in oofimage.spy so that it can have optional args
-  %rename(_getTimeStamp) TimeStamp;
+  %rename(_getTimeStamp) getTimeStamp;
   TimeStamp *getTimeStamp();
 };
 
@@ -101,7 +101,8 @@ public:
 };
 
 %newobject newImageFromData;
-OOFImage *newImageFromData(char *name, ICoord *iPoint, ShortVec*);
+OOFImage *newImageFromData(char *name, ICoord *iPoint,
+			   const std::vector<unsigned short>*);
 
 // Parallel image send/recv
 #ifdef HAVE_MPI

@@ -127,11 +127,9 @@
   // understands templates.  Check that they're not used in other swig
   // files, then delete them.
 typedef std::vector<Coord*> CoordVec;
-typedef std::vector<Coord> PointVec;
 typedef std::vector<char*> CharPtrVec;
 typedef std::vector<double> DoubleList;
 typedef std::vector<int> IntVec;
-typedef std::vector<unsigned short> ShortVec;
 %}
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
@@ -276,7 +274,7 @@ std::string {
   Py_DECREF(ustr);
  }
 
-// Out typemaps for std::vectors of std::strings. (Not vectors of
+// Typemaps for std::vectors of std::strings. (Not vectors of
 // std::string*s!)
 
 %typemap(out) std::vector<std::string> {
@@ -472,8 +470,8 @@ std::string {
 // TODO: Do we need typemap(in) std::vector<int> (no * or &)?
 
 // Define a swig macro to create the typemaps, so that we can easily
-// generate them for both different varieties of int.  On the Python
-// side, all ints are longs.
+// generate them for different varieties of int.  On the Python side,
+// all ints are longs.
 
 %define MAKE_INTVEC_TYPEMAPS(TYPE)
 
@@ -514,10 +512,11 @@ std::string {
     PyObject *x = PySequence_GetItem($input, (Py_ssize_t) i);
     if(PyLong_Check(x))
       vec[i] = PyLong_AsLong(x);
-    else
+    else {
       PyErr_SetString(PyExc_TypeError,
 		      "in '$symname', expected a TYPE sequence.");
-    SWIG_fail;
+      SWIG_fail;
+    }
     Py_XDECREF(x);
   }
   $1 = &vec;
@@ -602,7 +601,7 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
- // [string] -> std::vector<char*>*
+ // [String] -> std::vector<char*>*
 
 %typemap(in) CharPtrVec *argv (CharPtrVec argh, std::vector<PyObject*> ustrs)
 {

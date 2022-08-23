@@ -108,17 +108,17 @@ typedef Array<int> NewArrayInt;
 
 class CMicrostructure {
 public:
-  CMicrostructure(char *name, ICoord *Sequence, Coord *Sequence);
+  CMicrostructure(const std::string &name, ICoord *Sequence, Coord *Sequence);
   ~CMicrostructure();
   void destroy(); 
   const std::string &name();
-  void rename(char *name);
+  void rename(const std::string &name);
   TimeStamp &getTimeStamp();
   void setCurrentActiveArea(ActiveArea*);
   int nGroups();
-  PixelGroup *getGroup(char *name, 
+  PixelGroup *getGroup(const std::string &name, 
 		       bool *newness); //creates new group if necessary
-  PixelGroup *findGroup(char *name); // never creates a new group
+  PixelGroup *findGroup(const std::string &name); // never creates a new group
   void removeGroup(char *name);
   void removeAllGroups();
   void renameGroupC(char *oldname, char *newname);
@@ -142,7 +142,5 @@ public:
 };
 
 long get_globalMicrostructureCount();
-
-%pythoncode "common/cmicrostructure.spy"
 
 #endif // CMICROSTRUCTURE_SWG
