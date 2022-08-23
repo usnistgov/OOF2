@@ -102,7 +102,7 @@ class DiscussionFile:
         self.func = func
     def read(self, obj):
         if self.filename:
-            phile = file(self.filename, 'r')
+            phile = open(self.filename, 'r')
             text = phile.read()
         else:
             text = None

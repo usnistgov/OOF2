@@ -85,7 +85,7 @@ class GenericReader(orientmapdata.OrientMapReader):
         self.groupmembers = {}  # lists of coords for each group
         orientmapdata.OrientMapReader.__init__(self)
     def read(self, filename):
-        datafile = file(filename, "r")
+        datafile = open(filename, "r")
         prog = progress.getProgress(os.path.basename(filename),
                                     progress.DEFINITE)
         try:

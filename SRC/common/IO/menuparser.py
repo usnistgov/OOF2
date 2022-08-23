@@ -192,8 +192,9 @@ def legalname(name):
     a = name[0]
     if not (a.isalpha() or a == "_"):
         return False
-    if not name[1:].isalnum():
-        return False
+    for c in name[1:]:
+        if not (c.isalnum() or c == "_"):
+            return False
     return True
 
 def string2number(strng):

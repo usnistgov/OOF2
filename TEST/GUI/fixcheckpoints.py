@@ -39,11 +39,11 @@ def fixfile(filename):
     print("Saving original file", filename, "as", backupname)
     os.rename(filename, backupname)
 
-    output = file(filename, "w")
+    output = open(filename, "w")
 
     count = 0
     assertions = []
-    for line in file(backupname, "r"):
+    for line in open(backupname, "r"):
         line = line.rstrip()
         if len(line) == 0 or line[0] == '#':
             # Blank lines or comments are copied directly to the

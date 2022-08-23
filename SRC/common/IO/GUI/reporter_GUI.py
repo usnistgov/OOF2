@@ -437,7 +437,7 @@ class ErrorPopUp:
         fname = "traceback_oof."+str(os.getpid())
         errbuf = self.errbox.get_buffer()
         try:
-            fobj = file(fname, "a+")
+            fobj = open(fname, "a+")
             fobj.write("%s\n\n" % self.datestampstring)
             
             tbuf = self.tracepane.get_buffer()

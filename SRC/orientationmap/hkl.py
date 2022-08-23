@@ -24,7 +24,7 @@ class HKLreader(orientmapdata.OrientMapReader):
         self.phaselists = {}
         orientmapdata.OrientMapReader.__init__(self)
     def read(self, filename):
-        hklfile = file(filename, "r")
+        hklfile = open(filename, "r")
         lineiter = iter(hklfile)
         line = next(lineiter)
         while not line.startswith('XCells'):

@@ -108,7 +108,7 @@ class OOF_Microstructure(unittest.TestCase):
         # img = oofimage.getImage("small.ms:small.ppm")
         # strimg = stringimage.StringImage(ms.sizeInPixels(), ms.size())
         # img.fillstringimage(strimg)
-        # outfile = file('hexstringimage.dat','w')
+        # outfile = open('hexstringimage.dat','w')
         # print >> outfile, strimg.hexstringimage()
         # outfile.close()
         # assert filecmp.cmp('hexstringimage.dat',

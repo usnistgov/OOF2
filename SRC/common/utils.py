@@ -634,7 +634,7 @@ memfile = None
 
 def startMemoryMonitor(filename):
     global memfile
-    memfile = file(filename, "w")
+    memfile = open(filename, "w")
     memusage("startMemoryMonitor")
 
 def stopMemoryMonitor():

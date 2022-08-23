@@ -60,7 +60,7 @@ class TSLreaderBase(orientmapdata.OrientMapReader):
         self.phaselists = {}
         orientmapdata.OrientMapReader.__init__(self)
     def read(self, filename):
-        tslfile = file(filename, "r")
+        tslfile = open(filename, "r")
         prog = progress.getProgress(os.path.basename(filename),
                                     progress.DEFINITE)
         try:

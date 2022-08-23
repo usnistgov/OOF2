@@ -310,7 +310,7 @@ class TutorialClassGUI(subWindow.SubWindow):
             ident="FileMenu", title="Save Tutorial Session",
             parentwindow=self.gtk)
         if filename is not None:
-            phile = file(filename, "w")
+            phile = open(filename, "w")
             mainmenu.OOF.saveLog(phile)
             phile.write("OOF.Help.Tutorials.Resume(subject='%s', progress=%d)\n"
                        % (self.tutor.subject, self.progress))

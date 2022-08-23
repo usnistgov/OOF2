@@ -147,7 +147,7 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
 
     try:
         file2 = reference_file(file2)
-        f2 = file(file2, "r")
+        f2 = open(file2, "r")
     except:
         if generate:
             print("\nMoving file %s to %s.\n" % (file1, file2), file=sys.stderr)
@@ -156,7 +156,7 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
         else:
             raise
 
-    f1 = file(file1, "r")
+    f1 = open(file1, "r")
 
     global errorcount, filename1, filename2, silent
     filename1 = file1           # store in globals
@@ -359,7 +359,7 @@ def compare_last(filename, numbers, tolerance=1.e-10):
     # The last line of the given file contains a bunch of numbers
     # separated by commas.  Check that the numbers in the file are
     # within tolerance of the tuple 'numbers'.
-    phile = file(filename, "r")
+    phile = open(filename, "r")
     filenumbers = eval(phile.readlines()[-1])
     if len(numbers) != len(filenumbers):
         print("*** Expected", len(numbers), "numbers.  Got",\

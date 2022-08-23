@@ -310,7 +310,7 @@ that use the &field;.
         print("<refsect1>", file=phile)
         print("<title>Description</title>", file=phile)
         try:
-            src = file("DISCUSSIONS/engine/builtin/field-%s.xml" % name, "r")
+            src = open("DISCUSSIONS/engine/builtin/field-%s.xml" % name, "r")
         except IOError:
             print("<para>MISSING DISCUSSION for %s</para>" % name, file=phile)
         else:
@@ -376,7 +376,7 @@ that contribute to the &flux;.
         print("<refsect1>", file=phile)
         print("<title>Description</title>", file=phile)
         try:
-            src = file('DISCUSSIONS/engine/builtin/flux-%s.xml' % name, "r")
+            src = open('DISCUSSIONS/engine/builtin/flux-%s.xml' % name, "r")
         except IOError:
             print("<para>MISSING DISSCUSSION FOR %s</para>" % name, file=phile)
         else:
@@ -446,7 +446,7 @@ that contribute to the &equation;.
         print("<refsect1>", file=phile)
         print("<title>Description</title>", file=phile)
         try:
-            src = file("DISCUSSIONS/engine/builtin/eqn-%s.xml" % name, "r")
+            src = open("DISCUSSIONS/engine/builtin/eqn-%s.xml" % name, "r")
         except IOError:
             print("<para>MISSING DISCUSSION FOR %s</para>" % name, file=phile)
         else:
