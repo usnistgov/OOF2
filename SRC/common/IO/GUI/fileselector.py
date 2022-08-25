@@ -22,7 +22,6 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import widgetscope
-import cgi
 from gi.repository import Gtk
 import os
 import os.path
@@ -475,10 +474,21 @@ class WriteFileSelectorWidget(FileSelectorWidget):
     
 # Utility functions used by FileSelectorWidget
 
+def _escape(s):
+    # Replace "<", ">", and "&" in s with markup safe equivalents.
+    # The python2 version used cgi.escape(), but that doesn't exist in
+    # python3.  I *think* that this does the same thing.
+    ## TODO: Is this really needed?  Do these characters ever appear
+    ## in file names?  
+    s.replace("&", "&amp;")
+    s.replace("<", "&lt;")
+    s.replace(">", "&gt;")
+    return s;
+
 def _addMarkup(directory, filename):
     if filename and os.path.isdir(os.path.join(directory, filename)):
-        return "<b>" + cgi.escape(filename) + "</b>"
-    return cgi.escape(filename)
+        return "<b>" + _escape(filename) + "</b>"
+    return _escape(filename)
 
 def _filename_cmp(model, column, key, iter, data):
     # Comparisons made while searching in the file list use the raw

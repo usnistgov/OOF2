@@ -723,6 +723,12 @@ def stringrstrip(strng, *args, **kwargs):
 
 #=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
 
+def printAsString(*args, **kwargs):
+    strings = ((a if type(a) is str else a.decode()) for a in args)
+    print(*strings, **kwargs)
+
+#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#=*=#
+
 if __name__=='__main__':
     l0 = [0, [1,2],[3,[4]], 5]
     l1 = ['zero', 'one', 'two', 'three', 'four', 'five']

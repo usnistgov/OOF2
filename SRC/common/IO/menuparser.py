@@ -86,6 +86,15 @@ class InputSource:
     def getBytes(self, n):
         pass
 
+## TODO PYTHON3: There probably should be separate FileInput classes
+## for ascii and binary files.  The binary ones should be opened in
+## 'rb' mode and the ascii ones in 'r' mode.  The binary FileInput
+## will have getBytes() and the ascii one will have getLine().  Maybe.
+## One problem with the current setup is that the lines retrieved by
+## file.readline() are bytes objects, not strings, if the file was
+## opened with the 'b' option.  When they're echoed to the screen in
+## debug mode they look ugly, with an extra 'b' and quotation marks.
+
 class FileInput(InputSource):
     def __init__(self, filename):
         self.filename = filename
