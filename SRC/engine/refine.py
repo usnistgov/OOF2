@@ -1,6 +1,5 @@
 # -*- python -*-
 
-
 # This software was produced by NIST, an agency of the U.S. government,
 # and by statute is not subject to copyright in the United States.
 # Recipients of this software assume all responsibilities associated
@@ -84,23 +83,22 @@ registeredclass.Registration(
     tip="Divide element edges into two.",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/bisection.xml'))
 
-if config.dimension() == 2:
-    class Trisection(RefinementDegree):
-        divisions = 2
-        def __init__(self, rule_set):
-            self.rule_set = rule_set
+class Trisection(RefinementDegree):
+    divisions = 2
+    def __init__(self, rule_set):
+        self.rule_set = rule_set
 
-    registeredclass.Registration(
-        'Trisection',
-        RefinementDegree,
-        Trisection,
-        0,
-        params = [enum.EnumParameter('rule_set', refinemethod.RuleSet,
-                                     refinemethod.conservativeRuleSetEnum(),
-                                     tip='How to subdivide elements')
-                  ],
-        tip="Gallia est omnis divisa in partes tres, as are the edges of the elements.",
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/trisection.xml'))
+registeredclass.Registration(
+    'Trisection',
+    RefinementDegree,
+    Trisection,
+    0,
+    params = [enum.EnumParameter('rule_set', refinemethod.RuleSet,
+                                 refinemethod.conservativeRuleSetEnum(),
+                                 tip='How to subdivide elements')
+              ],
+    tip="Gallia est omnis divisa in partes tres, as are the edges of the elements.",
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/trisection.xml'))
 
 #################################
 
@@ -186,57 +184,31 @@ registeredclass.Registration(
     discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/unconditionally.xml')
     )
 
-if config.dimension() == 2:
-    class MinimumArea(RefinementCriterion):
-        def __init__(self, threshold, units):
-            self.threshold = threshold
-            self.units = units
-        def __call__(self, skeleton, element):
-            if self.units == 'Pixel':
-                return element.area() > self.threshold*skeleton.MS.areaOfPixels()
-            elif self.units == 'Physical':
-                return element.area() > self.threshold
-            elif self.units == 'Fractional':
-                return element.area() > self.threshold*skeleton.MS.area()
+class MinimumArea(RefinementCriterion):
+    def __init__(self, threshold, units):
+        self.threshold = threshold
+        self.units = units
+    def __call__(self, skeleton, element):
+        if self.units == 'Pixel':
+            return element.area() > self.threshold*skeleton.MS.areaOfPixels()
+        elif self.units == 'Physical':
+            return element.area() > self.threshold
+        elif self.units == 'Fractional':
+            return element.area() > self.threshold*skeleton.MS.area()
 
-    registeredclass.Registration(
-        'Minimum Area',
-        RefinementCriterion,
-        MinimumArea,
-        ordering=1,
-        params=[parameter.FloatParameter('threshold', 10,
-                                         tip="Minimum acceptable element area."),
-                enum.EnumParameter('units', units.Units, units.Units('Pixel'),
-                                   tip='Units for the minimum area')],
-        tip='Only refine elements with area greater than the given threshold.',
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/minimumarea.xml')
-        )
+registeredclass.Registration(
+    'Minimum Area',
+    RefinementCriterion,
+    MinimumArea,
+    ordering=1,
+    params=[parameter.FloatParameter('threshold', 10,
+                                     tip="Minimum acceptable element area."),
+            enum.EnumParameter('units', units.Units, units.Units('Pixel'),
+                               tip='Units for the minimum area')],
+    tip='Only refine elements with area greater than the given threshold.',
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/minimumarea.xml')
+    )
 
-elif config.dimension() == 3:
-    class MinimumVolume(RefinementCriterion):
-        def __init__(self, threshold, units):
-            self.threshold = threshold
-            self.units = units
-        def __call__(self, skeleton, element):
-            if self.units == 'Voxel':
-                return element.volume() > self.threshold*skeleton.MS.volumeOfPixels()
-            elif self.units == 'Physical':
-                return element.volume() > self.threshold
-            elif self.units == 'Fractional':
-                return element.area() > self.threshold*skeleton.MS.volume()
-
-    registeredclass.Registration(
-        'Minimum Volume',
-        RefinementCriterion,
-        MinimumVolume,
-        ordering=1,
-        params=[parameter.FloatParameter('threshold', 10,
-                                         tip="Minimum acceptable element volume."),
-                enum.EnumParameter('units', units.Units, units.Units('Voxel'),
-                                   tip='Units for the minimum volume')],
-        tip='Only refine elements with volume greater than the given threshold.',
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/minimumarea.xml')
-        )
 
 ###################################
             
@@ -278,29 +250,12 @@ class Refine(skeletonmodifier.SkeletonModifier):
         self.targets(skeleton, context, self.degree.divisions, markedEdges,
                      self.criterion)
         # Additional marking
-        if config.dimension() == 2:
-            self.degree.markExtras(skeleton, markedEdges)
+        self.degree.markExtras(skeleton, markedEdges)
 
         # Refine elements and segments
         segmentdict = {}                # which segments have been handled
         n = len(skeleton.elements)
-        if config.dimension() == 2:
-            elements = skeleton.elements
-        # for 3d, we reorder the elements so that those with
-        # edgemarkings that can lead to deadlocks are treated first.
-        if config.dimension() == 3:
-            elements = []
-            nondeadlockable = []
-            for ii in range(n):
-                oldElement = skeleton.elements[ii]
-                marks = markedEdges.getMarks(oldElement)
-                signature = findSignature(marks)
-                if signature in refinemethod.deadlockableSignatures:
-                    elements.append(oldElement)
-                else:
-                    nondeadlockable.append(oldElement)
-            random.shuffle(elements)
-            elements.extend(nondeadlockable)
+        elements = skeleton.elements
 
         for ii in range(n):
             oldElement = elements[ii]
@@ -333,8 +288,7 @@ class Refine(skeletonmodifier.SkeletonModifier):
                 ]
 
             # Create new elements
-            if config.dimension() == 2: signature = signature_info[1]
-            elif config.dimension() == 3: signature = signature_info
+            signature = signature_info[1]
             newElements = self.rules[signature].apply(
                 oldElement, signature_info, edgenodes, newSkeleton, self.alpha)
 
@@ -386,17 +340,16 @@ class Refine(skeletonmodifier.SkeletonModifier):
         try:
             #Unlike in snaprefine.py, we don't make a list copy.
             nodes = self.newEdgeNodes[key]
-            if config.dimension() == 2:
-                # Since this is the second time we're using this list
-                # of nodes, we must be looking at them from the other
-                # side, and the nodes should be in the opposite order.
-                # Reversing them in place like this would be wrong if
-                # the list weren't being used immediately, as it is in
-                # Refine.apply() 
-                # don't do this in 3D because for now
-                # we are only doing bisection, and because order
-                # doesn't have the same meaning in 3d.
-                nodes.reverse()
+            # Since this is the second time we're using this list
+            # of nodes, we must be looking at them from the other
+            # side, and the nodes should be in the opposite order.
+            # Reversing them in place like this would be wrong if
+            # the list weren't being used immediately, as it is in
+            # Refine.apply() 
+            # don't do this in 3D because for now
+            # we are only doing bisection, and because order
+            # doesn't have the same meaning in 3d.
+            nodes.reverse()
         except KeyError:
             nodes = [None]*ndivs
             p0 = node0.position()
@@ -438,13 +391,6 @@ class Refine(skeletonmodifier.SkeletonModifier):
                 # Case 4: boundary at top edge or face
                 elif n0pt.y==s[1] and n1pt.y==s[1] and newSkeleton.top_bottom_periodicity:
                     partnerdict[1]=0
-                if config.dimension() == 3:
-                    # Case 5: boundary at back edge or face
-                    if n0pt.z==0 and n1pt.z==0 and newSkeleton.front_back_periodicity:
-                        partnerdict[2]=s[2]
-                    # Case 6: boundary at front edge or face
-                    elif n0pt.z==s[2] and n1pt.z==s[2] and newSkeleton.top_bottom_periodicity:
-                        partnerdict[2]=0
                     
                 for i in range(ndivs):
                     pt = nodes[i].position()
@@ -513,21 +459,12 @@ def findParentSegment(oldSkeleton, element, segment, edgenodes):
             childnode = n0
             freechild = n1
         nodeidx = oldElement.nodes.index(parentnode)
-        if config.dimension() == 2:
-            if freechild in edgenodes[nodeidx]:
-                next = (nodeidx+1)%nnodes
-                return oldSkeleton.findSegment(parentnode, oldElement.nodes[next])
-            prev = (nodeidx - 1 + nnodes) % nnodes
-            if freechild in edgenodes[prev]:
-                return oldSkeleton.findSegment(parentnode, oldElement.nodes[prev])
-        elif config.dimension() == 3:
-            seg_map = oldElement.segToNodeMap()
-            for segidx in range(len(seg_map)):
-                if freechild in edgenodes[segidx]:
-                    if nodeidx == seg_map[segidx][0]:
-                        return oldSkeleton.findSegment(parentnode, oldElement.nodes[seg_map[segidx][1]])
-                    if nodeidx == seg_map[segidx][1]:
-                        return oldSkeleton.findSegment(parentnode, oldElement.nodes[seg_map[segidx][0]])
+        if freechild in edgenodes[nodeidx]:
+            next = (nodeidx+1)%nnodes
+            return oldSkeleton.findSegment(parentnode, oldElement.nodes[next])
+        prev = (nodeidx - 1 + nnodes) % nnodes
+        if freechild in edgenodes[prev]:
+            return oldSkeleton.findSegment(parentnode, oldElement.nodes[prev])
                     
                     
 
@@ -552,32 +489,24 @@ def findParentSegment(oldSkeleton, element, segment, edgenodes):
 ################################
 
 def findSignature(marks):
-    if config.dimension() == 2:
-        # Given a list of subdivisions of sides (marks), rotate a
-        # canonical starting point for the list, so that it can be used as
-        # an index into a table of refinement functions.  For a list
-        # [x,y,z], the canonical order is that which maximizes the number
-        # xyz in base arbitrary_factor.  This will fail if edges are ever
-        # divided into more than arbitrary_factor segments in one
-        # refinement operation.
-        n = len(marks)
-        max = -1
-        imax = None
-        for i in range(n):
-            key = marks[i]
-            for j in range(1, n):
-                key = arbitrary_factor*key + marks[(i+j)%n]
-            if key > max:
-                max = key
-                imax = i
-        return imax, tuple([marks[(i+imax)%n] for i in range(n)])
-    elif config.dimension() == 3:
-        sig = []
-        for i in range(len(marks)):
-            if marks[i]:
-                sig.append(i)
-        return tuple(sig)
-
+    # Given a list of subdivisions of sides (marks), rotate a
+    # canonical starting point for the list, so that it can be used as
+    # an index into a table of refinement functions.  For a list
+    # [x,y,z], the canonical order is that which maximizes the number
+    # xyz in base arbitrary_factor.  This will fail if edges are ever
+    # divided into more than arbitrary_factor segments in one
+    # refinement operation.
+    n = len(marks)
+    max = -1
+    imax = None
+    for i in range(n):
+        key = marks[i]
+        for j in range(1, n):
+            key = arbitrary_factor*key + marks[(i+j)%n]
+        if key > max:
+            max = key
+            imax = i
+    return imax, tuple([marks[(i+imax)%n] for i in range(n)])
 
 ####################
 

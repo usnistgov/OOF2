@@ -10,6 +10,7 @@
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import progress
+from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import registeredclass
 from ooflib.common import utils
@@ -34,15 +35,9 @@ class RefinementTarget(registeredclass.RegisteredClass):
 
     def markElement(self, element, divisions, markedEdges):
         nnodes = element.nnodes()
-        if config.dimension() == 2:
-            for i in range(nnodes):
-                markedEdges.mark(element.nodes[i], element.nodes[(i+1)%nnodes],
-                                 divisions)
-        elif config.dimension() == 3:
-            nsegments = element.getNumberOfEdges()
-            for i in range(nsegments):
-                segnodes = element.getSegmentNodes(i)
-                markedEdges.mark(segnodes[0], segnodes[1], divisions)
+        for i in range(nnodes):
+            markedEdges.mark(element.nodes[i], element.nodes[(i+1)%nnodes],
+                             divisions)
     
 
     tip = "Determine which Skeleton segments will be refined."
@@ -104,14 +99,12 @@ class CheckElementsInGroup(RefinementTarget):
         prog = progress.findProgress("Refine")
         elements = context.elementgroups.get_group(self.group)
         n = len(elements)
-##        for i in range(n):
-##            element = elements[i]
         for i, element in enumerate(elements):
             if element.active(skeleton) and criterion(skeleton, element):
                 self.markElement(element, divisions, markedEdges)
             if prog.stopped() :
                 return
-            prog.setFraction(1.0*(i+1)/n)
+            prog.setFraction((i+1)/n)
             prog.setMessage("checked %d/%d grouped elements" % (i+1, n))
 
 registeredclass.Registration(
@@ -257,7 +250,7 @@ class CheckHeterogeneousEdges(RefinementTarget):
                 self.markSegment(segment, divisions, markedEdges)
             if prog.stopped():
                 return
-            prog.setFraction(1.0*(i+1)/n)
+            prog.setFraction((i+1)/n)
             prog.setMessage("checked %d/%d segments" % (i+1, n))
 
 registeredclass.Registration(
@@ -283,7 +276,7 @@ class CheckSelectedEdges(RefinementTarget):
                 self.markSegment(segment, divisions, markedEdges)
             if prog.stopped():
                 return
-            prog.setFraction(1.0*(i+1)/n)
+            prog.setFraction((i+1)/n)
             prog.setMessage("checked %d/%d segments" % (i+1, n))
 
 registeredclass.Registration(
@@ -308,7 +301,7 @@ class CheckSegmentGroup(RefinementTarget):
                 self.markSegment(segment, divisions, markedEdges)
             if prog.stopped():
                 return
-            prog.setFraction(1.0*(i+1)/n)
+            prog.setFraction((i+1)/n)
             prog.setMessage("checked %d/%d segments" % (i+1, n))
 
 
@@ -348,7 +341,7 @@ if config.dimension() == 2:
                            self.markSegment(segment, divisions, markedEdges)
                if prog.stopped():
                    return
-               prog.setFraction(1.0*(i+1)/n)
+               prog.setFraction((i+1)/n)
                prog.setMessage("checked %d/%d elements" % (i+1, n))
 
 

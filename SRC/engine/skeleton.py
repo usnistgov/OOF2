@@ -118,8 +118,8 @@ class SkeletonGeometry(registeredclass.RegisteredClass):
         toprgt = skel.getPointBoundary('topright', exterior=1)
 
         ## create nodes and selected point boundaries.
-        dx = (skel.MS.size()[0]*1.0)/m   # Promote numerators to floating-point.
-        dy = (skel.MS.size()[1]*1.0)/n
+        dx = skel.MS.size()[0]/m
+        dy = skel.MS.size()[1]/n
         tot_items = (m + 1)*(n + 1)
         for i in range(n+1):
             for j in range(m+1):
@@ -157,7 +157,7 @@ class SkeletonGeometry(registeredclass.RegisteredClass):
                 if prog.stopped():
                     return
                 nn = i*(n+1)+j+1
-                prog.setFraction(1.0*nn/tot_items)
+                prog.setFraction(nn/tot_items)
                 prog.setMessage("Allocated %d/%d nodes" % (nn, tot_items))
                                
 
@@ -265,7 +265,7 @@ class QuadSkeleton(SkeletonGeometry):
                     if prog.stopped():
                         return None
                     rectangle_count = i*m+j+1
-                    prog.setFraction(float(rectangle_count)/tot_items)
+                    prog.setFraction(rectangle_count/tot_items)
                     prog.setMessage("Created %d/%d elements"
                                     % (rectangle_count, tot_items))
             return skel
@@ -387,7 +387,7 @@ class TriSkeleton(SkeletonGeometry):
                     if prog.stopped():
                         return None
                     rectangle_count = i*m+j
-                    prog.setFraction(float(rectangle_count)/tot_items)
+                    prog.setFraction(rectangle_count/tot_items)
                     prog.setMessage("Created %d/%d elements"
                                     % (2*rectangle_count, 2*tot_items))
             return skel
@@ -1016,7 +1016,7 @@ class Skeleton(SkeletonBase):
         if ratio < 1.0:
             ratio = 1.0/ratio
         nndtile = int( 0.5*math.sqrt(nnodes)*ratio )  # no. of nodes per tile
-        ntiles = int( nnodes/nndtile )  # no. of tiles
+        ntiles = nnodes//nndtile                      # no. of tiles
 
         if x_size >= y_size:
             nx = int( math.sqrt(ratio*ntiles) )  # tiles in the x-direction
@@ -1875,7 +1875,7 @@ class Skeleton(SkeletonBase):
                     sane = False
             for i, node in enumerate(self.nodes):
                 prog.setMessage("nodes %d/%d" % (i, self.nnodes()))
-                prog.setFraction(float(i)/self.nnodes())
+                prog.setFraction(i/self.nnodes())
                 if prog.stopped():
                     return False
                 for element in node.aperiodicNeighborElements():
@@ -1932,7 +1932,7 @@ class Skeleton(SkeletonBase):
             nsegs = len(self.segments)
             for i, segment in enumerate(self.segments.values()):
                 prog.setMessage("segments %d/%d" % (i, nsegs))
-                prog.setFraction(float(i)/nsegs)
+                prog.setFraction(i/nsegs)
                 if prog.stopped():
                     return False
                 elements = segment.getElements()
@@ -1958,7 +1958,7 @@ class Skeleton(SkeletonBase):
             nbdys = len(self.edgeboundaries)
             for i, bdyname in enumerate(self.edgeboundaries):
                 prog.setMessage("edge boundaries %d/%d" % (i, nbdys))
-                prog.setFraction(float(i)/nbdys)
+                prog.setFraction(i/nbdys)
                 if prog.stopped():
                     return
                 bdy = self.edgeboundaries[bdyname]
@@ -2082,7 +2082,7 @@ class Skeleton(SkeletonBase):
                 prog.setMessage("Interrupted")
                 return
             else:
-                prog.setFraction(1.0*(i+1)/mnodecount)
+                prog.setFraction((i+1)/mnodecount)
                 prog.setMessage("Allocated %d/%d nodes"%(i+1, mnodecount))
 
         # Loop over elements.
@@ -2113,7 +2113,7 @@ class Skeleton(SkeletonBase):
             if prog.stopped():
                 prog.setMessage("Interrupted")
                 return
-            prog.setFraction(1.0*(mesh_idx+1)/numelements)
+            prog.setFraction((mesh_idx+1)/numelements)
             prog.setMessage("Allocated %d/%d elements"
                             % (mesh_idx+1, numelements))
 
@@ -2144,7 +2144,7 @@ class Skeleton(SkeletonBase):
                     prog.setMessage("Interrupted")
                     return
                 else:
-                    prog.setFraction(1.0*(dict_index+1)/dict_size)
+                    prog.setFraction((dict_index+1)/dict_size)
                     prog.setMessage("Allocating point boundaries: %d/%d" 
                                     % (dict_index+1, dict_size))
             dict_index +=1
@@ -2191,7 +2191,7 @@ class Skeleton(SkeletonBase):
                     prog.setMessage("Interrupted")
                     return
                 else:
-                    prog.setFraction(1.0*(dict_index+1)/dict_size)
+                    prog.setFraction((dict_index+1)/dict_size)
                     prog.setMessage("Allocating edge boundaries: %d/%d"
                                      % (dict_index+1, dict_size))
             dict_index +=1
@@ -2772,7 +2772,7 @@ class Skeleton(SkeletonBase):
         realmesh.reserveFuncNodes(nfuncnodes)
 
         masterel = next(iter(edict.values())) 
-        n_map_per_side = masterel.nexteriormapnodes_only()/masterel.nsides()
+        n_map_per_side = masterel.nexteriormapnodes_only()//masterel.nsides()
         nmapnodes = len(self.segments)*n_map_per_side
         for n, masterelem in edict.items():
             nmapnodes += nels[n]*masterelem.ninteriormapnodes_only()
@@ -2796,7 +2796,7 @@ class Skeleton(SkeletonBase):
             #cur.setMeshIndex(realnode.index())
             if prog.stopped():
                 return
-            prog.setFraction(1.0*(i+1)/mnodecount)
+            prog.setFraction((i+1)/mnodecount)
             prog.setMessage("Allocated %d/%d nodes"%(i+1, mnodecount))
         
         # Loop over elements.
@@ -2815,7 +2815,7 @@ class Skeleton(SkeletonBase):
                 edict, set_materials)
             if prog.stopped():
                 return
-            prog.setFraction(1.0*(mesh_idx+1)/numelements)
+            prog.setFraction((mesh_idx+1)/numelements)
             prog.setMessage("Allocated %d/%d elements"
                             % (mesh_idx+1, numelements))
 
@@ -2832,7 +2832,7 @@ class Skeleton(SkeletonBase):
                 realbndy.addNode(fe_node[node]) # Preserve order of nodes.
                 if prog.stopped():
                     return
-                prog.setFraction(1.0*(dict_index+1)/dict_size)
+                prog.setFraction((dict_index+1)/dict_size)
                 prog.setMessage("Allocated %d/%d point boundaries" 
                                 % (dict_index+1, dict_size))
             dict_index +=1
@@ -2853,7 +2853,7 @@ class Skeleton(SkeletonBase):
                 realbndy.addEdge(realel.getBndyEdge(realn0,realn1))
                 if prog.stopped():
                     return
-                prog.setFraction(1.0*(dict_index+1)/dict_size)
+                prog.setFraction((dict_index+1)/dict_size)
                 prog.setMessage("Allocated %d/%d edge boundaries"
                                 % (dict_index+1, dict_size))
             dict_index +=1

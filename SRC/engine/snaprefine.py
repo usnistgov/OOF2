@@ -29,8 +29,7 @@ from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import refinementtarget
-if config.dimension() == 2:
-    from ooflib.engine import refinequadbisection
+from ooflib.engine import refinequadbisection
 from ooflib.engine import skeletonmodifier
 from ooflib.engine import skeletonsegment
 from ooflib.engine import skeletonnode
@@ -173,8 +172,7 @@ class SnapEdgeMarkings(refine.EdgeMarkings):
                 try:
                     #See if we already created new edge nodes for this edge.
                     transptnodelist = self.newEdgeNodes[key][:] # Make a list copy
-                    if config.dimension() == 2:
-                        transptnodelist.reverse()
+                    transptnodelist.reverse()
                 except KeyError:
                     #print "not already in edge nodes"
                     partners=node0.getPartnerPair(node1)
@@ -320,9 +318,7 @@ class SnapRefine(refine.Refine):
             # signature is the canonical ordering of the marks.
             #rotation, signature = findSignature(marks)
             signature_info = findSignature(marks)
-            if config.dimension() == 2: signature = signature_info[1]
-            elif config.dimension() == 3: signature = signature_info
-            #print numinitmarks, signature
+            signature = signature_info[1]
 
             # Create new elements
             # TODO: It's annoying that we have a separate
@@ -371,7 +367,7 @@ class SnapRefine(refine.Refine):
                             segment.add_parent(pseg)
             if prog.stopped():
                 return None
-            prog.setFraction(1.0*(ii+1)/n)
+            prog.setFraction((ii+1)/n)
             prog.setMessage("%d/%d elements" % (ii+1, n))
        
         newSkeleton.cleanUp()

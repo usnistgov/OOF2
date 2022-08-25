@@ -254,7 +254,7 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
                             movelists[nodemotion.priority] = [nodemotion]
                 if prog.stopped() :
                     return None
-                prog.setFraction(1.0*(i+1)/nel)
+                prog.setFraction((i+1)/nel)
                 prog.setMessage("examined %d/%d elements" % (i+1, nel))
             # end loop over elements
             
@@ -273,7 +273,7 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
                     move.perform(skel, self.criterion, movedict, movednodes)
                     if prog.stopped():
                         return None
-                    prog.setFraction(1.0*(i+1)/nmv)
+                    prog.setFraction((i+1)/nmv)
                     prog.setMessage("Type %d: %d/%d" % (p, i+1, nmv))
             nmoved = len(movednodes)
         finally:  
@@ -315,30 +315,18 @@ registeredclass.Registration(
 # maximized when read as a binary number.
 
 def findSignature(transitionpoints):
-    if config.dimension() == 2:
-        # Returns the rotation and signature.
-        n = len(transitionpoints)
-        sig = [pt is not None for pt in transitionpoints] # 0's and 1's
-        # put in canonical order
-        max = -1
-        rotation = None
-        for i in range(n):
-            key = reduce(lambda x,y: 2*x+y, sig[i:]+sig[:i], 0)
-            if key > max:
-                max = key
-                rotation = i
-        return rotation, tuple(sig[rotation:] + sig[:rotation])
-    elif config.dimension() == 3:
-        # rotations aren't useful in 3D and a list of edge ids is more
-        # convenient TODO MAYBE: If we got rid of rotations in 2D here
-        # and in refine and snaprefine, it would make some of the
-        # other code neater.
-        edges = [pt is not None for pt in transitionpoints]
-        sig = []
-        for i in range(len(edges)):
-            if edges[i]:
-                sig.append(i)
-        return tuple(sig)
+    # Returns the rotation and signature.
+    n = len(transitionpoints)
+    sig = [pt is not None for pt in transitionpoints] # 0's and 1's
+    # put in canonical order
+    max = -1
+    rotation = None
+    for i in range(n):
+        key = reduce(lambda x,y: 2*x+y, sig[i:]+sig[:i], 0)
+        if key > max:
+            max = key
+            rotation = i
+    return rotation, tuple(sig[rotation:] + sig[:rotation])
 
 # Dictionary of NodeSnappers, keyed by signature
 moverRegistry = {}              
@@ -349,10 +337,7 @@ def registerNodeSnapper(moverclass, *signatures):
 
 def getNodeSnapper(element, transitionpoints):
     signature_info = findSignature(transitionpoints)
-    if config.dimension() == 2:
-        sig = signature_info[1]
-    elif config.dimension() == 3:
-        sig = signature_info
+    sig = signature_info[1]
     try:
         moverclass = moverRegistry[sig] # NodeSnapper class
     except KeyError:
@@ -368,10 +353,7 @@ class NodeSnapper:
     # elements.  It should return the *total* number of nodes moved.
     def __init__(self, element, signature_info, transitionpoints):
         self.element = element
-        if config.dimension() == 2:
-            self.rotation = signature_info[0]        # rotation of nodes wrt signature
-        elif config.dimension() == 3:
-            self.signature = signature_info
+        self.rotation = signature_info[0] # rotation of nodes wrt signature
         self.transitionpoints = transitionpoints
 
     def perform(self, skel, criterion, movedict, movednodes):
@@ -408,723 +390,183 @@ def _legalMove(nodemove):
     return True
 
 
-#####################################
-#
-#
-#        BEGIN 2D SNAPPERS
-#
-#####################################
-if config.dimension() == 2:
+class QuadEdgeSnapper(NodeSnapper):
+    priority = 1
 
+    #  3-----T1---2
+    #  |      ....|  T0 and T1 are the transition points.
+    #  |      ....|  Possible sets of moves are (3->T1, 0->T0)
+    #  |     .....|                         and (2->T1, 1->T0)
+    #  |    ......|
+    #  0----T0----1
 
-    class QuadEdgeSnapper(NodeSnapper):
-        priority = 1
+    # Single node moves (besides those where the other node has
+    # already been moved to where we want) are not considered because
+    # we assume that the neighboring elements will take care of them.
+    # We want the case where a whole edge is snapped to have top
+    # priority.
 
-        #  3-----T1---2
-        #  |      ....|  T0 and T1 are the transition points.
-        #  |      ....|  Possible sets of moves are (3->T1, 0->T0)
-        #  |     .....|                         and (2->T1, 1->T0)
-        #  |    ......|
-        #  0----T0----1
-
-        # Single node moves (besides those where the other node has
-        # already been moved to where we want) are not considered because
-        # we assume that the neighboring elements will take care of them.
-        # We want the case where a whole edge is snapped to have top
-        # priority.
-
-        def get_movelist(self, movednodes):
-            nodes = self.rotate(self.element.nodes)
-            points = self.rotate(self.transitionpoints)
-            # How many nodes have already been moved?
-            count = 0
-            moved = []
-            unmoved = []
-            for i in range(4):
-                if nodes[i] in movednodes:
-                    count += 1
-                    moved.append(nodes[i])
-                else:
-                    unmoved.append(i)
-            # Transition points
-            T0 = points[0]
-            T1 = points[2]
-            # Index map for Ts
-            Tmap = {0:T0, 1:T0, 2:T1, 3:T1}
-            # Building movelist
-            default0 = [(nodes[0], T0), (nodes[3], T1)]
-            default1 = [(nodes[1], T0), (nodes[2], T1)]
-            if count == 0:
-                movelist = [default0, default1]
-            elif count == 1:
-                if moved[0] is nodes[0]:
-                    # 1. n0 move to T0 : n3 to T1
-                    # 2. n0 != T0 : n1 to T0 & n2 to T2
-                    if moved[0].position() == T0:
-                        movelist = [[(nodes[3], T1)]]
-                    else:
-                        movelist = [default1]
-                elif moved[0] is nodes[1]:
-                    if moved[0].position() == T0:
-                        movelist = [[(nodes[2], T1)]]
-                    else:
-                        movelist = [default0]
-                elif moved[0] is nodes[2]:
-                    if moved[0].position() == T1:
-                        movelist = [[(nodes[1], T0)]]
-                    else:
-                        movelist = [default0]
-                else:  # nodes[3]
-                    if moved[0].position() == T1:
-                        movelist = [[(nodes[0], T0)]]
-                    else:
-                        movelist = [default1]
-            elif count == 2:
-                if moved[0] is nodes[0] and moved[1] is nodes[3]:
-                    if moved[0].position() == T0 and moved[1].position() == T1:
-                        return []
-                    else:
-                        movelist = [default1]
-                elif moved[0] is nodes[1] and moved[1] is nodes[2]:
-                    if moved[0].position() == T0 and moved[1].position() == T1:
-                        return []
-                    else:
-                        movelist = [default0]
-                else:
-                    movelist = [[(nodes[um], Tmap[um])] for um in unmoved]
-
-            elif count == 3:
-                movelist = [[(nodes[um], Tmap[um])] for um in unmoved]
+    def get_movelist(self, movednodes):
+        nodes = self.rotate(self.element.nodes)
+        points = self.rotate(self.transitionpoints)
+        # How many nodes have already been moved?
+        count = 0
+        moved = []
+        unmoved = []
+        for i in range(4):
+            if nodes[i] in movednodes:
+                count += 1
+                moved.append(nodes[i])
             else:
-                return []
-            return movelist
-
-
-    registerNodeSnapper(QuadEdgeSnapper, (1,0,1,0))
-
-    ###########################
-
-    class TriangleEdgeSnapper(NodeSnapper):
-        priority = 2
-
-        #     0
-        #     |\      T0 and T1 are the transition points
-        #     | \     Move 0->T0 and/or 2->T1
-        #     |  \    OR 1->(T0+T1)/2
-        #     T0  \ 
-        #     |.   \
-        #     |..   \
-        #     |...   \
-        #     1---T1--2
-
-
-        def get_movelist(self, movednodes):
-            moved = []
-            nodes = self.rotate(self.element.nodes)
-            points = self.rotate(self.transitionpoints)
-            # Transition points
-            T0 = points[0]
-            T1 = points[1]
-            # Building movelist
-            movelist = []
-            if nodes[0] not in movednodes:
-                movelist.append([(nodes[0], T0)])
-                if nodes[2] not in movednodes:
-                    movelist.append([(nodes[0], T0), (nodes[2], T1)])
-            if nodes[1] not in movednodes:
-                movelist.append([(nodes[1], (T0+T1)*0.5)])
-                movelist.append([(nodes[1], T0)])
-                movelist.append([(nodes[1], T1)])
-            if nodes[2] not in movednodes:
-                movelist.append([(nodes[2], T1)])
-            return movelist
-
-
-    registerNodeSnapper(TriangleEdgeSnapper, (1,1,0))
-
-    ###########################
-
-    class QuadCornerSnapper(NodeSnapper):
-        priority = 3
-
-        # Move to two transition points on adjacent edges, in cases where
-        # an edge move is impossible.  This can only happen on
-        # quadrilaterals.
-
-        #    2-----T1-----1
-        #    |........    |   T0 and T1 are the transition points.
-        #    |..........  |   
-        #    |............T0  Pick the best of the following moves:  
-        #    |............|      a) 0->T0  1->T1
-        #    |............|      b) 0->T0  2->T1
-        #    |............|      c) 1->T0  2->T1
-        #    3------------0      d-g) the single node moves (4 total)
-        #                        h) 1->(T0+T1)/2
-
-        def get_movelist(self, movednodes):
-            nodes = self.rotate(self.element.nodes)
-            points = self.rotate(self.transitionpoints)
-            # Transition points
-            T0 = points[0]
-            T1 = points[1]
-            # Building movelist
-            moved = [n in movednodes for n in nodes]
-            movelist = []
-            if not moved[0]:
-                movelist.append([(nodes[0], T0)])
-                if not moved[1]:
-                    movelist.append([(nodes[0], T0), (nodes[1], T1)])
-                if not moved[2]:
-                    movelist.append([(nodes[0], T0), (nodes[2], T1)])
-            if not moved[1]:
-                movelist.extend([[(nodes[1], T0)],
-                                 [(nodes[1], T1)],
-                                 [(nodes[1], (T0+T1)*0.5)]])
-                if not moved[2]:
-                    movelist.append([(nodes[1], T0), (nodes[2], T1)])
-            if not moved[2]:
-                movelist.append([(nodes[2], T1)])
-            return movelist
-
-
-    registerNodeSnapper(QuadCornerSnapper, (1,1,0,0))
-
-#########################################
-#
-#
-#       END 2D BEGIN 3D
-#
-#########################################
-
-
-elif config.dimension() == 3:
-
-    class TetFaceSnapper(NodeSnapper):
-        priority = 1
-
-        # This is the case where there are three edges with transition
-        # points which all share a common point.  We can either snap the
-        # opposite face to the transitions points, snap the shared node to
-        # the midpoint of the transition points, or to one of the three
-        # transition points
-
-        def get_movelist(self, movednodes):
-            # all the tet's nodes are involved here, but we want them in a
-            # particular order - 0 is the shared node, 1 is the other node
-            # on the first segment with a transition point, 2 is the other
-            # node on the second segment, etc.
-            nodes = self.element.getSegmentNodes( self.signature[0])
-            segnodes1 = self.element.getSegmentNodes( self.signature[1])
-            segnodes2 = self.element.getSegmentNodes( self.signature[2])
-            if nodes[1] in segnodes1:
-                nodes.reverse()
-            for segnodelist in (segnodes1, segnodes2):
-                for segnode in segnodelist:
-                    if segnode not in nodes:
-                        nodes.append(segnode)
-            T0 = self.transitionpoints[self.signature[0]]
-            T1 = self.transitionpoints[self.signature[1]]
-            T2 = self.transitionpoints[self.signature[2]]
-            movelist = []
-            if nodes[0] not in movednodes:
-                movelist.extend([[(nodes[0], (T0+T1+T2)*(1.0/3.0))],
-                                   [(nodes[0], T0)], [(nodes[0], T1)], 
-                                   [(nodes[0], T2)]])
-            if nodes[1] not in movednodes and nodes[2] not in movednodes and nodes[3] not in movednodes: 
-                movelist.append([(nodes[1], T0), (nodes[2], T1), (nodes[3], T2)])
-            return movelist
-
-    registerNodeSnapper(TetFaceSnapper, (3,4,5), (0,1,4), (0,2,3), (1,2,5))
-
-    ###########################
-
-    class TriangularBaseSnapper(NodeSnapper):
-        priority = 3
-
-        # This class handles the case where there are three edges with
-        # transition points that lie on the same face of the tet.  We
-        # consider the moves where we snap all three nodes, two of the
-        # nodes, or a single node.
-
-        # TODO 3D: Should we consider the midpoints in single/double
-        # node moves too?
-
-        # TODO 3D Eventually: Use information of what the transitions are
-        # between in order to make simpler choices between possible
-        # snaps. Or use assumption that voxel group boundaries form planes
-        # defined by the transition points.
-
-        def get_movelist(self, movednodes):
-            nodes = self.element.getSegmentNodes( self.signature[0])
-            segnodes1 = self.element.getSegmentNodes( self.signature[1])
-            segnodes2 = self.element.getSegmentNodes( self.signature[2])
-            if nodes[0] in segnodes1:
-                nodes.reverse()
-            for segnodelist in (segnodes1, segnodes2):
-                for segnode in segnodelist:
-                    if segnode not in nodes:
-                        nodes.append(segnode)
-            T0 = self.transitionpoints[self.signature[0]]
-            T1 = self.transitionpoints[self.signature[1]]
-            T2 = self.transitionpoints[self.signature[2]]
-            movelist = []
-            if nodes[0] not in movednodes:
-                movelist.extend([[(nodes[0], T0)], [(nodes[0], T2)]])
-                if nodes[1] not in movednodes:
-                    movelist.extend([[(nodes[0], T0), (nodes[1], T1)],
-                                     [(nodes[0], T2), (nodes[1], T0)],
-                                     [(nodes[0], T2), (nodes[1], T1)]])
-                if nodes[2] not in movednodes:
-                    movelist.extend([[(nodes[0], T0), (nodes[2], T2)],
-                                     [(nodes[0], T0), (nodes[2], T1)],
-                                     [(nodes[0], T2), (nodes[2], T1)]])
-                    if nodes[1] not in movednodes:
-                        movelist.extend([[(nodes[0], T0), (nodes[1], T1), (nodes[2], T2)],
-                                         [(nodes[0], T2), (nodes[1], T0), (nodes[2], T1)],
-                                         [(nodes[0], (T0+T2)*0.5), (nodes[1], (T0+T1)*0.5),
-                                          (nodes[2], (T1+T2)*0.5)]])
-            if nodes[1] not in movednodes:
-                movelist.extend([[(nodes[1], T0)], [(nodes[1], T1)]])
-                if nodes[2] not in movednodes: 
-                    movelist.extend([[(nodes[1], T0), (nodes[2], T1)],
-                                     [(nodes[1], T1), (nodes[2], T2)],
-                                     [(nodes[1], T0), (nodes[2], T2)]])
-            if nodes[2] not in movednodes: 
-                movelist.extend([[(nodes[2], T2)], [(nodes[2], T1)]])
-            return movelist
-
-    registerNodeSnapper(TriangularBaseSnapper, (0,3,4), (0,1,2), (2,3,5), (1,4,5))
-
-
-    ###########################
-
-    class TriangleTwoEdgeSnapper(NodeSnapper):
-        priority = 4
-
-        #     0
-        #     |\      T0 and T1 are the transition points
-        #     | \     Move 0->T0 and/or 2->T1
-        #     |  \    OR 1->(T0+T1)/2 or 1->T0 or 1-T2
-        #     T0  \ 
-        #     |.   \
-        #     |..   \
-        #     |...   \
-        #     1---T1--2
-
-        def get_movelist(self, movednodes):
-            moved = []
-            nodes = self.element.getSegmentNodes( self.signature[0])
-            segnodes = self.element.getSegmentNodes( self.signature[1])
-            # put the nodes in order
-            if nodes[0] in segnodes:
-                nodes.reverse()
-            for segnode in segnodes:
-                if segnode not in nodes:
-                    nodes.append(segnode)
-            # Transition points
-            #print "triangleedgesnapper \nnodes:"
-            #for node in nodes:
-            #   print node, node.position
-            #print "transitionpoints: "
-            T0 = self.transitionpoints[self.signature[0]]
-            T1 = self.transitionpoints[self.signature[1]]
-            #print T0, T1
-            # Building movelist
-            movelist = []
-            if nodes[0] not in movednodes: 
-                movelist.append([(nodes[0], T0)])
-                if nodes[2] not in movednodes:
-                    movelist.append([(nodes[0], T0), (nodes[2], T1)])
-            if nodes[1] not in movednodes: 
-                # TODO: add extra single node moves to main branch
-                # (what?) and recreate reference data for tests.
-                movelist.extend([[(nodes[1], (T0+T1)*0.5)], 
-                                 [(nodes[1], T0)],
-                                 [(nodes[1], T1)]])
-            if nodes[2] not in movednodes: 
-                movelist.append([(nodes[2], T1)])
-            #print "moves: "
-            #print movelist
-            return movelist
-
-
-    registerNodeSnapper(TriangleTwoEdgeSnapper, (0,1), (0,2), (0,3), (0,4), (1,2), (1,4), (1,5),
-                        (2,3), (2,5), (3,4), (3,5), (4,5))
-
-    ###########################
-
-    class TetThreeEdgeSnapper(NodeSnapper):
-        priority = 3
-
-        def get_movelist(self, movednodes):
-            # we want the nodes and transition points in a particular
-            # topological order, but the signature gives the affected
-            # segments in numerical order.
-            if self.signature in [(0,2,4),(0,1,3),(1,2,4)]:
-                # the first segment is the middle segment
-                s0 = self.signature[1]
-                s1 = self.signature[0]
-                s2 = self.signature[2]
-            if self.signature in [(0,1,5),(0,2,5),(1,2,3),(0,3,5),(2,3,4),(0,4,5)]:
-                # the second segment is the middle segment
-                s0 = self.signature[0]
-                s1 = self.signature[1]
-                s2 = self.signature[2]
-            if self.signature in [(1,3,4),(1,3,5),(2,4,5)]:
-                # the last segment is the middle segment
-                s0 = self.signature[0]
-                s1 = self.signature[2]
-                s2 = self.signature[1]
-            T0 = self.transitionpoints[s0]
-            T1 = self.transitionpoints[s1]
-            T2 = self.transitionpoints[s2]
-            nodes = self.element.getSegmentNodes( s0)
-            segnodes = self.element.getSegmentNodes( s1)
-            # put the nodes in order
-            if nodes[0] in segnodes:
-                nodes.reverse()
-            segnodes.extend(self.element.getSegmentNodes( s2))
-            for segnode in segnodes:
-                if segnode not in nodes:
-                    nodes.append(segnode)
-            movelist = []
-
-            if nodes[0] not in movednodes:
-                movelist.append([(nodes[0], T0)])
-                if nodes[1] not in movednodes:
-                    movelist.append([(nodes[0], T0), (nodes[1], T1)])
-                    if nodes[2] not in movednodes:
-                        movelist.append([(nodes[0], T0), (nodes[1], T1), (nodes[2], T2)])
-                    if nodes[3] not in movednodes:
-                        movelist.append([(nodes[0], T0), (nodes[1], T1), (nodes[3], T2)])
-                if nodes[2] not in movednodes:
-                    movelist.extend([ [(nodes[0], T0), (nodes[2], T1)], 
-                                      [(nodes[0], T0), (nodes[2], T2)] ])
-                    if nodes[3] not in movednodes:
-                        movelist.append([(nodes[0], T0), (nodes[2], T1), (nodes[3], T2)])
-                if nodes[3] not in movednodes:
-                    movelist.append([(nodes[0], T0), (nodes[3], T2)])
-            if nodes[1] not in movednodes:
-                movelist.extend([ [(nodes[1], T0)], 
-                                  [(nodes[1], T1)] ])
-                if nodes[2] not in movednodes:
-                    movelist.extend([[(nodes[1], T0), (nodes[2], T1)],
-                                     [(nodes[1], T0), (nodes[2], T2)],
-                                     [(nodes[1], T1), (nodes[2], T2)]])
-                if nodes[3] not in movednodes:
-                    movelist.extend([ [(nodes[1], T0), (nodes[3], T2)], 
-                                      [(nodes[1], T1), (nodes[3], T2)] ])
-            if nodes[2] not in movednodes:
-                movelist.extend([ [(nodes[2], T1)], 
-                                  [(nodes[2], T2)] ])
-                if nodes[3] not in movednodes:
-                    movelist.append([(nodes[2], T1), (nodes[3], T2)])
-            if nodes[3] not in movednodes:
-                movelist.append([(nodes[3], T2)])
-
-
-            return movelist
-
-    registerNodeSnapper(TetThreeEdgeSnapper, (0,2,4), (0,1,5), (0,1,3), (1,2,4), (0,2,5),
-                        (1,2,3), (1,3,5), (2,3,4), (0,4,5), (1,3,4), (0,3,5), (2,4,5))
-
-
-    ###########################
-
-    class TetFourEdgeSnapper1(NodeSnapper):
-        priority = 2
-
-        def get_movelist(self, movednodes):
-            # we want the nodes and transition points in a particular
-            # topological order, but the signature gives the affected
-            # segments in numerical order.
-            if self.signature in [(0,1,3,4)]:
-                s0 = self.signature[1]
-                s1 = self.signature[0]
-                s2 = self.signature[2]
-                s3 = self.signature[3]
-            if self.signature in [(0,2,3,4)]:
-                s0 = self.signature[1]
-                s1 = self.signature[0]
-                s2 = self.signature[3]
-                s3 = self.signature[2]
-            if self.signature in [(0,3,4,5)]:
-                s0 = self.signature[3]
-                s1 = self.signature[1]
-                s2 = self.signature[0]
-                s3 = self.signature[2]
-            if self.signature in [(0,1,4,5)]:
-                s0 = self.signature[0]
-                s1 = self.signature[1]
-                s2 = self.signature[3]
-                s3 = self.signature[2]
-            if self.signature in [(1,2,4,5)]:
-                s0 = self.signature[1]
-                s1 = self.signature[0]
-                s2 = self.signature[2]
-                s3 = self.signature[3]
-            if self.signature in [(1,3,4,5)]:
-                s0 = self.signature[1]
-                s1 = self.signature[2]
-                s2 = self.signature[0]
-                s3 = self.signature[3]
-            if self.signature in [(0,2,3,5)]:
-                s0 = self.signature[0]
-                s1 = self.signature[1]
-                s2 = self.signature[3]
-                s3 = self.signature[2]
-            if self.signature in [(1,2,3,5)]:
-                s0 = self.signature[0]
-                s1 = self.signature[1]
-                s2 = self.signature[2]
-                s3 = self.signature[3]
-            if self.signature in [(2,3,4,5)]:
-                s0 = self.signature[2]
-                s1 = self.signature[1]
-                s2 = self.signature[0]
-                s3 = self.signature[3]
-            if self.signature in [(0,1,2,3)]:
-                s0 = self.signature[3]
-                s1 = self.signature[0]
-                s2 = self.signature[1]
-                s3 = self.signature[2]
-            if self.signature in [(0,1,2,4)]:
-                s0 = self.signature[3]
-                s1 = self.signature[0]
-                s2 = self.signature[2]
-                s3 = self.signature[1]
-            if self.signature in [(0,1,2,5)]:
-                s0 = self.signature[3]
-                s1 = self.signature[1]
-                s2 = self.signature[0]
-                s3 = self.signature[2]
-
-            T0 = self.transitionpoints[s0]
-            T1 = self.transitionpoints[s1]
-            T2 = self.transitionpoints[s2]
-            T3 = self.transitionpoints[s3]
-            nodes = self.element.getSegmentNodes( s0)
-            segnodes = self.element.getSegmentNodes( s1)
-            # put the nodes in order
-            if nodes[0] in segnodes:
-                nodes.reverse()
-            segnodes.extend(self.element.getSegmentNodes( s2))
-            for segnode in segnodes:
-                if segnode not in nodes:
-                    nodes.append(segnode)
-            movelist = []          
-
-
-            if nodes[0] not in movednodes:
-                movelist.append([(nodes[0], T0)])
-                if nodes[1] not in movednodes:
-                    movelist.extend([[(nodes[0], T0), (nodes[1], T1)],
-                                     [(nodes[0], T0), (nodes[1], T3)]])
-                    if nodes[2] not in movednodes:
-                        movelist.extend([[(nodes[0], T0), (nodes[1], T1), (nodes[2], T2)],
-                                         [(nodes[0], T0), (nodes[1], T3), (nodes[2], T1)],
-                                         [(nodes[0], T0), (nodes[1], T3), (nodes[2], T2)]])
-                        if nodes[3] not in movednodes:
-                            movelist.append([(nodes[0], T0), (nodes[1], T1), (nodes[2], T2), (nodes[3], T3)])
-                    if nodes[3] not in movednodes:
-                        movelist.extend([[(nodes[0], T0), (nodes[1], T1), (nodes[3], T2)],
-                                         [(nodes[0], T0), (nodes[1], T1), (nodes[3], T3)],
-                                         [(nodes[0], T0), (nodes[1], T3), (nodes[3], T2)]])
-                if nodes[2] not in movednodes:
-                    movelist.extend([[(nodes[0], T0), (nodes[2], T1)], 
-                                     [(nodes[0], T0), (nodes[2], T2)] ])
-                    if nodes[3] not in movednodes:
-                        movelist.extend([[(nodes[0], T0), (nodes[2], T1), (nodes[3], T2)],
-                                         [(nodes[0], T0), (nodes[2], T1), (nodes[3], T3)],
-                                         [(nodes[0], T0), (nodes[2], T2), (nodes[3], T3)]])
-                if nodes[3] not in movednodes:
-                    movelist.extend([[(nodes[0], T0), (nodes[3], T2)],
-                                     [(nodes[0], T0), (nodes[3], T3)]])
-            if nodes[1] not in movednodes:
-                movelist.extend([[(nodes[1], T0)], 
-                                 [(nodes[1], T1)],
-                                 [(nodes[1], T3)]])
-                if nodes[2] not in movednodes:
-                    movelist.extend([[(nodes[1], T0), (nodes[2], T1)],
-                                     [(nodes[1], T0), (nodes[2], T2)],
-                                     [(nodes[1], T1), (nodes[2], T2)],
-                                     [(nodes[1], T3), (nodes[2], T1)],
-                                     [(nodes[1], T3), (nodes[2], T2)]])
-                    if nodes[3] not in movednodes:
-                        movelist.extend([[(nodes[1], T0), (nodes[2], T1), (nodes[3], T2)],
-                                         [(nodes[1], T0), (nodes[2], T1), (nodes[3], T3)],
-                                         [(nodes[1], T0), (nodes[2], T2), (nodes[3], T3)],
-                                         [(nodes[1], T1), (nodes[2], T2), (nodes[3], T3)],
-                                         [(nodes[1], T3), (nodes[2], T1), (nodes[3], T2)]])
-                if nodes[3] not in movednodes:
-                    movelist.extend([[(nodes[1], T0), (nodes[3], T2)],
-                                     [(nodes[1], T0), (nodes[3], T3)],
-                                     [(nodes[1], T1), (nodes[3], T2)],
-                                     [(nodes[1], T1), (nodes[3], T3)],
-                                     [(nodes[1], T2), (nodes[3], T2)]])
-            if nodes[2] not in movednodes:
-                movelist.extend([[(nodes[2], T1)], 
-                                  [(nodes[2], T2)]])
-                if nodes[3] not in movednodes:
-                    movelist.extend([[(nodes[2], T1), (nodes[3], T2)],
-                                     [(nodes[2], T1), (nodes[3], T3)],
-                                     [(nodes[2], T2), (nodes[3], T3)]])
-            if nodes[3] not in movednodes:
-                movelist.extend([[(nodes[3], T2)],
-                                 [(nodes[3], T3)]])
-
-            return movelist
-
-    registerNodeSnapper(TetFourEdgeSnapper1, (0,1,3,4), (0,2,3,4), (0,3,4,5), (0,1,4,5),
-                        (1,2,4,5), (1,3,4,5), (0,2,3,5), (1,2,3,5), (2,3,4,5), (0,1,2,3),
-                        (0,1,2,4), (0,1,2,5))
-
-
-    ###########################
-
-    class TetFourEdgeSnapper2(NodeSnapper):
-        priority = 3
-
-        def get_movelist(self, movednodes):
-            if self.signature in [(0,2,4,5),(0,1,3,5)]:
-                s0 = self.signature[0]
-                s1 = self.signature[1]
-                s2 = self.signature[3]
-                s3 = self.signature[2]
-            if self.signature in [(1,2,3,4)]:
-                s0 = self.signature[0]
-                s1 = self.signature[1]
-                s2 = self.signature[2]
-                s3 = self.signature[3]
-
-            T0 = self.transitionpoints[s0]
-            T1 = self.transitionpoints[s1]
-            T2 = self.transitionpoints[s2]
-            T3 = self.transitionpoints[s3]
-            nodes = self.element.getSegmentNodes( s0)
-            segnodes = self.element.getSegmentNodes( s1)
-            # put the nodes in order
-            if nodes[0] in segnodes:
-                nodes.reverse()
-            segnodes.extend(self.element.getSegmentNodes( s2))
-            for segnode in segnodes:
-                if segnode not in nodes:
-                    nodes.append(segnode)
-            movelist = []        
-
-
-            if nodes[0] not in movednodes:
-                movelist.extend([[(nodes[0], T0)],
-                                 [(nodes[0], T3)]])
-                if nodes[1] not in movednodes:
-                    movelist.extend([[(nodes[0], T0), (nodes[1], T1)],
-                                     [(nodes[0], T3), (nodes[1], T0)],
-                                     [(nodes[0], T3), (nodes[1], T1)]])
-                    if nodes[2] not in movednodes:
-                        movelist.extend([[(nodes[0], T0), (nodes[1], T1), (nodes[2], T2)],
-                                         [(nodes[0], T3), (nodes[1], T0), (nodes[2], T1)],
-                                         [(nodes[0], T3), (nodes[1], T0), (nodes[2], T2)],
-                                         [(nodes[0], T3), (nodes[1], T1), (nodes[2], T2)]])
-                        if nodes[3] not in movednodes:
-                            movelist.extend([[(nodes[0], T0), (nodes[1], T1), (nodes[2], T2), (nodes[3], T3)],
-                                             [(nodes[0], T3), (nodes[1], T0), (nodes[2], T1), (nodes[3], T2)]])
-                    if nodes[3] not in movednodes:
-                        movelist.extend([[(nodes[0], T0), (nodes[1], T1), (nodes[3], T2)],
-                                         [(nodes[0], T0), (nodes[1], T1), (nodes[3], T3)],
-                                         [(nodes[0], T3), (nodes[1], T0), (nodes[3], T2)],
-                                         [(nodes[0], T3), (nodes[1], T1), (nodes[3], T2)]])
-                if nodes[2] not in movednodes:
-                    movelist.extend([[(nodes[0], T0), (nodes[2], T1)], 
-                                     [(nodes[0], T0), (nodes[2], T2)],
-                                     [(nodes[0], T3), (nodes[2], T1)], 
-                                     [(nodes[0], T3), (nodes[2], T2)]])
-                    if nodes[3] not in movednodes:
-                        movelist.extend([[(nodes[0], T0), (nodes[2], T1), (nodes[3], T2)],
-                                         [(nodes[0], T0), (nodes[2], T1), (nodes[3], T3)],
-                                         [(nodes[0], T0), (nodes[2], T2), (nodes[3], T3)],
-                                         [(nodes[0], T3), (nodes[2], T1), (nodes[3], T2)]])
-                if nodes[3] not in movednodes:
-                    movelist.extend([[(nodes[0], T0), (nodes[3], T2)],
-                                     [(nodes[0], T0), (nodes[3], T3)],
-                                     [(nodes[0], T3), (nodes[3], T2)]])
-            if nodes[1] not in movednodes:
-                movelist.extend([[(nodes[1], T0)], 
-                                 [(nodes[1], T1)]])
-                if nodes[2] not in movednodes:
-                    movelist.extend([[(nodes[1], T0), (nodes[2], T1)],
-                                     [(nodes[1], T0), (nodes[2], T2)],
-                                     [(nodes[1], T1), (nodes[2], T2)]])
-                    if nodes[3] not in movednodes:
-                        movelist.extend([[(nodes[1], T0), (nodes[2], T1), (nodes[3], T2)],
-                                         [(nodes[1], T0), (nodes[2], T2), (nodes[3], T3)],
-                                         [(nodes[1], T1), (nodes[2], T2), (nodes[3], T3)]])
-                if nodes[3] not in movednodes:
-                    movelist.extend([[(nodes[1], T0), (nodes[3], T2)],
-                                     [(nodes[1], T0), (nodes[3], T3)],
-                                     [(nodes[1], T1), (nodes[3], T2)],
-                                     [(nodes[1], T1), (nodes[3], T3)]])
-            if nodes[2] not in movednodes:
-                movelist.extend([[(nodes[2], T1)], 
-                                 [(nodes[2], T2)]])
-                if nodes[3] not in movednodes:
-                    movelist.extend([[(nodes[2], T1), (nodes[3], T2)],
-                                     [(nodes[2], T1), (nodes[3], T3)],
-                                     [(nodes[2], T2), (nodes[3], T3)]])
-            if nodes[3] not in movednodes:
-                movelist.extend([[(nodes[3], T2)],
-                                 [(nodes[3], T3)]])  
-
-
-            return movelist
-
-    registerNodeSnapper(TetFourEdgeSnapper2, (1,2,3,4), (0,2,4,5), (0,1,3,5) )
-
-
-    ###########################
-
-    class OppositeTetEdgeSnapper(NodeSnapper):
-        priority = 5
-
-        # This case is for when there are two edges with transition points
-        # on a tetrahedron and the edges are not on the same face.  All
-        # single node moves and pairwise moves are considered.
-
-        def get_movelist(self, movednodes):
-            nodes = self.element.getSegmentNodes( self.signature[0])
-            nodes.extend(self.element.getSegmentNodes( self.signature[1]))
-            T0 = self.transitionpoints[self.signature[0]]
-            T1 = self.transitionpoints[self.signature[1]]
-            movelist = []
-            if nodes[0] not in movednodes: 
-                movelist.append([(nodes[0], T0)])
-                if nodes[2] not in movednodes:
-                    movelist.append([(nodes[0], T0), (nodes[2], T1)])
-                if nodes[3] not in movednodes: 
-                    movelist.append([(nodes[0], T0), (nodes[3], T1)])
-            if nodes[1] not in movednodes: 
-                movelist.append([(nodes[1], T0)])
-                if nodes[2] not in movednodes: 
-                    movelist.append([(nodes[1], T0), (nodes[2], T1)])
-                if nodes[3] not in movednodes: 
-                    movelist.append([(nodes[1], T0), (nodes[3], T1)])
-            if nodes[2] not in movednodes: 
-                movelist.append([(nodes[2], T1)])
-            if nodes[3] not in movednodes:
-                movelist.append([(nodes[3], T1)])
-            return movelist
-
-
-    registerNodeSnapper(OppositeTetEdgeSnapper, (0,5), (1,3), (2,4) )
+                unmoved.append(i)
+        # Transition points
+        T0 = points[0]
+        T1 = points[2]
+        # Index map for Ts
+        Tmap = {0:T0, 1:T0, 2:T1, 3:T1}
+        # Building movelist
+        default0 = [(nodes[0], T0), (nodes[3], T1)]
+        default1 = [(nodes[1], T0), (nodes[2], T1)]
+        if count == 0:
+            movelist = [default0, default1]
+        elif count == 1:
+            if moved[0] is nodes[0]:
+                # 1. n0 move to T0 : n3 to T1
+                # 2. n0 != T0 : n1 to T0 & n2 to T2
+                if moved[0].position() == T0:
+                    movelist = [[(nodes[3], T1)]]
+                else:
+                    movelist = [default1]
+            elif moved[0] is nodes[1]:
+                if moved[0].position() == T0:
+                    movelist = [[(nodes[2], T1)]]
+                else:
+                    movelist = [default0]
+            elif moved[0] is nodes[2]:
+                if moved[0].position() == T1:
+                    movelist = [[(nodes[1], T0)]]
+                else:
+                    movelist = [default0]
+            else:  # nodes[3]
+                if moved[0].position() == T1:
+                    movelist = [[(nodes[0], T0)]]
+                else:
+                    movelist = [default1]
+        elif count == 2:
+            if moved[0] is nodes[0] and moved[1] is nodes[3]:
+                if moved[0].position() == T0 and moved[1].position() == T1:
+                    return []
+                else:
+                    movelist = [default1]
+            elif moved[0] is nodes[1] and moved[1] is nodes[2]:
+                if moved[0].position() == T0 and moved[1].position() == T1:
+                    return []
+                else:
+                    movelist = [default0]
+            else:
+                movelist = [[(nodes[um], Tmap[um])] for um in unmoved]
+
+        elif count == 3:
+            movelist = [[(nodes[um], Tmap[um])] for um in unmoved]
+        else:
+            return []
+        return movelist
+
+
+registerNodeSnapper(QuadEdgeSnapper, (1,0,1,0))
 
 ###########################
 
-# This one is almost the same in 2D and 3D
-                  
+class TriangleEdgeSnapper(NodeSnapper):
+    priority = 2
+
+    #     0
+    #     |\      T0 and T1 are the transition points
+    #     | \     Move 0->T0 and/or 2->T1
+    #     |  \    OR 1->(T0+T1)/2
+    #     T0  \ 
+    #     |.   \
+    #     |..   \
+    #     |...   \
+    #     1---T1--2
+
+
+    def get_movelist(self, movednodes):
+        moved = []
+        nodes = self.rotate(self.element.nodes)
+        points = self.rotate(self.transitionpoints)
+        # Transition points
+        T0 = points[0]
+        T1 = points[1]
+        # Building movelist
+        movelist = []
+        if nodes[0] not in movednodes:
+            movelist.append([(nodes[0], T0)])
+            if nodes[2] not in movednodes:
+                movelist.append([(nodes[0], T0), (nodes[2], T1)])
+        if nodes[1] not in movednodes:
+            movelist.append([(nodes[1], (T0+T1)*0.5)])
+            movelist.append([(nodes[1], T0)])
+            movelist.append([(nodes[1], T1)])
+        if nodes[2] not in movednodes:
+            movelist.append([(nodes[2], T1)])
+        return movelist
+
+
+registerNodeSnapper(TriangleEdgeSnapper, (1,1,0))
+
+###########################
+
+class QuadCornerSnapper(NodeSnapper):
+    priority = 3
+
+    # Move to two transition points on adjacent edges, in cases where
+    # an edge move is impossible.  This can only happen on
+    # quadrilaterals.
+
+    #    2-----T1-----1
+    #    |........    |   T0 and T1 are the transition points.
+    #    |..........  |   
+    #    |............T0  Pick the best of the following moves:  
+    #    |............|      a) 0->T0  1->T1
+    #    |............|      b) 0->T0  2->T1
+    #    |............|      c) 1->T0  2->T1
+    #    3------------0      d-g) the single node moves (4 total)
+    #                        h) 1->(T0+T1)/2
+
+    def get_movelist(self, movednodes):
+        nodes = self.rotate(self.element.nodes)
+        points = self.rotate(self.transitionpoints)
+        # Transition points
+        T0 = points[0]
+        T1 = points[1]
+        # Building movelist
+        moved = [n in movednodes for n in nodes]
+        movelist = []
+        if not moved[0]:
+            movelist.append([(nodes[0], T0)])
+            if not moved[1]:
+                movelist.append([(nodes[0], T0), (nodes[1], T1)])
+            if not moved[2]:
+                movelist.append([(nodes[0], T0), (nodes[2], T1)])
+        if not moved[1]:
+            movelist.extend([[(nodes[1], T0)],
+                             [(nodes[1], T1)],
+                             [(nodes[1], (T0+T1)*0.5)]])
+            if not moved[2]:
+                movelist.append([(nodes[1], T0), (nodes[2], T1)])
+        if not moved[2]:
+            movelist.append([(nodes[2], T1)])
+        return movelist
+
+
+registerNodeSnapper(QuadCornerSnapper, (1,1,0,0))
+
+
+###########################
+
 class SingleNodeSnapper(NodeSnapper):
-    if config.dimension() == 2:
-        priority = 4
-    elif config.dimension() == 3:
-        priority = 5
+    priority = 4
 
     #   ----1
     #       |    Move either 0 or 1 to T.
@@ -1136,12 +578,8 @@ class SingleNodeSnapper(NodeSnapper):
     #   ----0  
 
     def get_movelist(self, movednodes):
-        if config.dimension() == 2:
-            nodes = self.rotate(self.element.nodes)
-            T = self.rotate(self.transitionpoints)[0]
-        elif config.dimension() == 3:
-            nodes = self.element.getSegmentNodes( self.signature[0])
-            T = self.transitionpoints[self.signature[0]]
+        nodes = self.rotate(self.element.nodes)
+        T = self.rotate(self.transitionpoints)[0]
         movelist = []
         if nodes[0] not in movednodes:
             movelist.append([(nodes[0], T)])
@@ -1149,8 +587,5 @@ class SingleNodeSnapper(NodeSnapper):
             movelist.append([(nodes[1], T)])
         return movelist
 
-if config.dimension() == 2:                
-    registerNodeSnapper(SingleNodeSnapper, (1,0,0), (1,0,0,0))
-elif config.dimension() == 3:
-    registerNodeSnapper(SingleNodeSnapper, (0,), (1,), (2,), (3,), (4,), (5,))
+registerNodeSnapper(SingleNodeSnapper, (1,0,0), (1,0,0,0))
 
