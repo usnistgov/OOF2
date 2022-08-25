@@ -133,8 +133,8 @@ public:
   ICoord getRepresentativePixel(int category);
   bool transitionPointWithPoints(Coord *Point, Coord *Point,
 				 Coord *cskel_OutPoint);
-  double edgeHomogeneity(Coord Point, Coord Point);
-  double edgeHomogeneityCat(Coord Point, Coord Point,
+  double edgeHomogeneity(const Coord &Point, const Coord &Point);
+  double edgeHomogeneityCat(const Coord &Point, const Coord &Point,
 			    int* cskel_edgecat);
   bool transitionPointWithPoints_unbiased(Coord *Point, Coord *Point,
 				 Coord *cskel_OutPoint);

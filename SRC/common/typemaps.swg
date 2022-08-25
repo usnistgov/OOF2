@@ -891,6 +891,8 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   $1 = &c;
  }
 
+%typemap(in) const Coord &Point = Coord *Point;
+
 //==||==\\==||=//==||==\\==||==//==||==\\==||==//==||==\\==||==//
 
 // Coord *Sequence: Python 2-tuple --> C++ Coord
