@@ -27,7 +27,6 @@ if config.dimension() == 2:
 from ooflib.engine.IO import materialparameter
 from ooflib.engine.IO import pbcparams
 from ooflib.engine.IO import skeletongroupparams
-import random
 import types
 #Interface branch
 from ooflib.engine.IO import interfaceparameters

@@ -17,6 +17,7 @@
 # each edge is marked.
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import progress
 from ooflib.common import debug
 from ooflib.common import enum
@@ -299,7 +300,7 @@ class Refine(skeletonmodifier.SkeletonModifier):
                     elements.append(oldElement)
                 else:
                     nondeadlockable.append(oldElement)
-            random.shuffle(elements)
+            random.shuffle(elements, crandom.rndm)
             elements.extend(nondeadlockable)
 
         for ii in range(n):

@@ -21,8 +21,11 @@
 #include "common/random.h"
 %}
 
+%pragma(python) include="common/crandom.spy"
+
 void rndmseed(int);
 double rndm();
 int irndm();
+double gasdev();
 
 #endif // CRANDOM_SWG

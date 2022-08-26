@@ -7,7 +7,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov.
 
-import sys, os, types, string, random, code
+import sys, os, types, string, code
 
 # g++ code won't correctly resolve dynamic casts in shared libraries
 # unless RTLD_GLOBAL is set when the library is loaded.  See
@@ -385,7 +385,6 @@ def front_end(no_interp=None):
     if debug.debug() or randomseed is not None:
         if randomseed is None:
             randomseed = 17
-        random.seed(randomseed)
         crandom.rndmseed(randomseed)
 
     for module in startupimports:

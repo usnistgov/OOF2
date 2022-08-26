@@ -10,6 +10,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
 from ooflib.common import parallel_enable
@@ -37,15 +38,15 @@ class AnnealMovePosition(fiddlenodesbase.FiddleNodesMovePosition):
     def __call__(self, skeleton, node):
         if config.dimension() == 2:
             px, py = skeleton.MS.sizeOfPixels()
-            dx = random.gauss(0.0, self.delta*px)
-            dy = random.gauss(0.0, self.delta*py)
+            dx = crandom.gauss(0.0, self.delta*px)
+            dy = crandom.gauss(0.0, self.delta*py)
             return primitives.Point(node.position()[0]+dx,
                                     node.position()[1]+dy)
         elif config.dimension() == 3:
             px, py, pz = skeleton.MS.sizeOfPixels()
-            dx = random.gauss(0.0, self.delta*px)
-            dy = random.gauss(0.0, self.delta*py)
-            dz = random.gauss(0.0, self.delta*pz)
+            dx = crandom.gauss(0.0, self.delta*px)
+            dy = crandom.gauss(0.0, self.delta*py)
+            dz = crandom.gauss(0.0, self.delta*pz)
            
             return primitives.Point(node.position()[0]+dx,
                                     node.position()[1]+dy,
@@ -291,7 +292,7 @@ class SnapAnneal(FiddleNodes, skeletonmodifier.SkeletonModifier):
         self.nok = self.nbad = 0
         self.deltaE = 0.
         activenodes = self.targets(context)
-        random.shuffle(activenodes)
+        random.shuffle(activenodes, crandom.rndm)
         j = 0
         context.begin_writing()
         try:

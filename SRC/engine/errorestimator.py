@@ -24,9 +24,6 @@ import ooflib.engine.mesh
 #AMR subproblem
 import ooflib.engine.subproblemcontext
 
-import random
-
-
 # ErrorEstimator base class
 class ErrorEstimator(registeredclass.RegisteredClass):
     registry = []

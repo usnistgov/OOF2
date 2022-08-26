@@ -8,6 +8,7 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import progress
 from ooflib.common import debug
@@ -562,7 +563,7 @@ class FiddleNodes:
         # TODO: If the Skeleton is periodic and a node and its partner
         # are both active, only one of them should be in activenodes.
         activenodes = self.targets(context)
-        random.shuffle(activenodes)
+        random.shuffle(activenodes, crandom.rndm)
         j = 0
         context.begin_writing()
         try:
@@ -583,7 +584,7 @@ class FiddleNodes:
                       not change.illegal(skeleton) and 
                       not self.criterion.hopeless()):
                     diffE = change.deltaE(skeleton, self.criterion.alpha)
-                    if math.exp(-diffE/self.T) > random.random():
+                    if math.exp(-diffE/self.T) > crandom.rndm():
                         self.nok += 1
                         self.deltaE += diffE
                         change.accept(skeleton)

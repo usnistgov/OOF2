@@ -10,6 +10,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import crandom
 from ooflib.common import debug
 from ooflib.common import registeredclass
 from ooflib.common.IO import parameter
@@ -78,7 +79,7 @@ class SwapEdges(skeletonmodifier.SkeletonModifier):
     def _apply(self, oldskeleton, context, prog):
         skel = oldskeleton.properCopy(skeletonpath=context.path())
         elements = self.targets(skel, context, copy=1)
-        random.shuffle(elements)
+        random.shuffle(elements, crandom.rndm)
         # A dict. keyed by element to prevent considering swapping an
         # element which does not exist any more.
         processed = {}

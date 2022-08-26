@@ -16,7 +16,6 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import skeletoncontext
 from ooflib.engine.IO import skeletongroupparams
-import random
 
 ## TODO: Many functions in this file use dictionaries where they ought
 ## to use sets.

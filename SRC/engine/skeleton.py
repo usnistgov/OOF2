@@ -14,6 +14,7 @@
 # but no intermediate nodes, materials, or shape functions.
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import coord
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import progress
@@ -43,7 +44,6 @@ from ooflib.engine import skeletonselectable
 from ooflib.engine import materialmanager
 
 import math
-import random
 import time
 import types
 import weakref
@@ -325,7 +325,7 @@ class TriSkeleton(SkeletonGeometry):
                     elif self.arrangement == middling:
                         rightdiag = 1-(i+j)%2
                     elif self.arrangement == anarchic:
-                        rightdiag = random.choice([0,1])
+                        rightdiag = 0 if crandom.rndm() < 0.5 else 1
                     else:
                         debug.fmsg('unknown arrangement!', self.arrangement)
 

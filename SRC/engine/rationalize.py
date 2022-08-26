@@ -16,6 +16,7 @@
 ## (rationalize method) that is being executed. 
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import progress
 from ooflib.common import debug
@@ -49,7 +50,7 @@ class Rationalizer(registeredclass.RegisteredClass):
         # rationalizing. This is necessary because rationalizing
         # modifies the Skeleton's element list. 
         elements = targets(skel, context, copy=1)
-        random.shuffle(elements)
+        random.shuffle(elements, crandom.rndm)
         executed_action = self.getRegistration().gerund
         processed = set()
         count = 0
