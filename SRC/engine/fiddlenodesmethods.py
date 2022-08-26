@@ -22,7 +22,6 @@ from ooflib.common.IO import xmlmenudump
 from ooflib.engine import deputy
 from ooflib.engine import fiddlenodesbase
 from ooflib.engine import skeletonmodifier
-import random
 import types
 
 
@@ -292,7 +291,7 @@ class SnapAnneal(FiddleNodes, skeletonmodifier.SkeletonModifier):
         self.nok = self.nbad = 0
         self.deltaE = 0.
         activenodes = self.targets(context)
-        random.shuffle(activenodes, crandom.rndm)
+        crandom.shuffle(activenodes)
         j = 0
         context.begin_writing()
         try:

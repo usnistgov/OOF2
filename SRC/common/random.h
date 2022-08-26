@@ -27,6 +27,7 @@ class OOFRandomNumberGenerator
 public:
   OOFRandomNumberGenerator() {};
   int operator() (int aRange);
+  int __call__(int aRange) { return operator()(aRange); }
 };
 
 // This implementation of std::random_shuffle was copied from

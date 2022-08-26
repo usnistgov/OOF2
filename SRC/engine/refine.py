@@ -33,8 +33,6 @@ from ooflib.engine import skeletonmodifier
 from ooflib.engine import skeletonsegment
 from ooflib.engine import skeletonnode
 
-import random
-
 SkeletonSegment = skeletonsegment.SkeletonSegment
 
 arbitrary_factor = 128          # used by findSignature().  Must be
@@ -300,7 +298,7 @@ class Refine(skeletonmodifier.SkeletonModifier):
                     elements.append(oldElement)
                 else:
                     nondeadlockable.append(oldElement)
-            random.shuffle(elements, crandom.rndm)
+            crandom.shuffle(elements)
             elements.extend(nondeadlockable)
 
         for ii in range(n):

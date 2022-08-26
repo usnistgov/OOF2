@@ -23,7 +23,6 @@ from ooflib.engine import deputy
 from ooflib.engine import skeletonmodifier
 from ooflib.engine import skeletonnode
 
-import random
 import time
 
 ##################
@@ -271,7 +270,7 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
             movednodes = set()
             for p in priorities:
                 movelist = movelists[p]
-                random.shuffle(movelist, crandom.rndm)
+                crandom.shuffle(movelist)
                 nmv = len(movelist)
                 for i in range(nmv):
                     move = movelist[i]

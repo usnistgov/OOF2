@@ -24,7 +24,6 @@ elif config.dimension() == 3:
 from ooflib.engine import skeletonmodifier
 from ooflib.common.IO import reporter
 from ooflib.SWIG.common import progress
-import random
 
 if config.dimension() == 2:
     ProvisionalTriangle = skeletonelement.ProvisionalTriangle
@@ -79,7 +78,7 @@ class SwapEdges(skeletonmodifier.SkeletonModifier):
     def _apply(self, oldskeleton, context, prog):
         skel = oldskeleton.properCopy(skeletonpath=context.path())
         elements = self.targets(skel, context, copy=1)
-        random.shuffle(elements, crandom.rndm)
+        crandom.shuffle(elements)
         # A dict. keyed by element to prevent considering swapping an
         # element which does not exist any more.
         processed = {}

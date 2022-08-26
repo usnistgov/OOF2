@@ -30,7 +30,6 @@ from ooflib.engine.IO import skeletonIPC
 from ooflib.engine.IO import skeletonmenu
 
 import math
-import random
 import string
 import sys
 import time
@@ -468,7 +467,7 @@ class FiddleNodesParallel:
         # Get the nodes & shuffle them
         activeNodes = self.targets(self.context)
         activeNodes = filter(self.ownNode, activeNodes)
-        random.shuffle(activeNodes, crandom.rndm)
+        crandom.shuffle(activeNodes)
 
         self.createWorkOrder(activeNodes)
         mpitools.Barrier()

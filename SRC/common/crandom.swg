@@ -28,4 +28,10 @@ double rndm();
 int irndm();
 double gasdev();
 
+class OOFRandomNumberGenerator {
+public:
+  OOFRandomNumberGenerator();
+  int __call__(int);
+};
+
 #endif // CRANDOM_SWG

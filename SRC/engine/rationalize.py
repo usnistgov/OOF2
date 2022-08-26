@@ -25,7 +25,6 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import skeletonmodifier
-import random
 
 ##################################################
 
@@ -50,7 +49,7 @@ class Rationalizer(registeredclass.RegisteredClass):
         # rationalizing. This is necessary because rationalizing
         # modifies the Skeleton's element list. 
         elements = targets(skel, context, copy=1)
-        random.shuffle(elements, crandom.rndm)
+        crandom.shuffle(elements)
         executed_action = self.getRegistration().gerund
         processed = set()
         count = 0
