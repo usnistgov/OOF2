@@ -17,9 +17,11 @@
 #ifndef TRACE_H
 #define TRACE_H
 
-#ifdef DEBUG
-
 #include <string>
+
+// To keep swig and python happy, the Trace_t class is defined even if
+// it's not used.  The Trace_t class is never instantiated if DEBUG is
+// not defined.
 
 class Trace_t {
 private:
@@ -32,6 +34,8 @@ public:
   static void disable() { enabled = false; }
   static void enable() { enabled = true; }
 };
+
+#ifdef DEBUG
 
 #define Trace(x) Trace_t trace_var_name_that_ought_to_be_unique(x)
 #define TraceMsg(str) trace_var_name_that_ought_to_be_unique.msg(str)
