@@ -10,6 +10,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import progress
 from ooflib.common import debug
@@ -22,7 +23,6 @@ from ooflib.engine import deputy
 from ooflib.engine import skeletonmodifier
 from ooflib.engine import skeletonnode
 
-import random
 import time
 from functools import reduce
 
@@ -266,7 +266,7 @@ class SnapNodes(skeletonmodifier.SkeletonModifier):
             movednodes = set()
             for p in priorities:
                 movelist = movelists[p]
-                random.shuffle(movelist)
+                crandom.shuffle(movelist)
                 nmv = len(movelist)
                 for i in range(nmv):
                     move = movelist[i]

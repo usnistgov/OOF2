@@ -11,6 +11,7 @@
 ## TODO: This file has not been updated to use new (April 2009)
 ## Progress objects.
 
+from ooflib.SWIG.common import crandom
 from ooflib.SWIG.common import mpitools
 from ooflib.SWIG.common import switchboard
 from ooflib.common import debug
@@ -29,7 +30,6 @@ from ooflib.engine.IO import skeletonIPC
 from ooflib.engine.IO import skeletonmenu
 
 import math
-import random
 import string
 import sys
 import time
@@ -386,7 +386,7 @@ class FiddleNodesParallel:
             self.stay(node, bestchange)
         elif self.T > 0. and not self.criterion.hopeless():
             diffE = change.deltaE(self.skeleton, self.alpha)
-            if math.exp(-diffE/self.T) > random.random():
+            if math.exp(-diffE/self.T) > crandom.rndm():
                 self.stay(node, change)
             else:
                 self.moveBack(node)
@@ -421,7 +421,7 @@ class FiddleNodesParallel:
             self.stay(node, bestchange)
         elif self.T > 0. and not self.criterion.hopeless():
             diffE = change.deltaE(self.skeleton, self.alpha)
-            if math.exp(-diffE/self.T) > random.random():
+            if math.exp(-diffE/self.T) > crandom.rndm():
                 self.stay(node, change)
             else:
                 self.moveBack(node)
@@ -468,7 +468,7 @@ class FiddleNodesParallel:
         # Get the nodes & shuffle them
         activeNodes = self.targets(self.context)
         activeNodes = list(filter(self.ownNode, activeNodes))
-        random.shuffle(activeNodes)
+        crandom.shuffle(activeNodes)
 
         self.createWorkOrder(activeNodes)
         mpitools.Barrier()

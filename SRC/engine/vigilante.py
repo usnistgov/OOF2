@@ -9,6 +9,7 @@
 # oof_manager@nist.gov. 
 
 from ooflib.SWIG.common import config
+from ooflib.SWIG.common import crandom
 from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common import registeredclass
@@ -16,7 +17,6 @@ from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
 from ooflib.common.IO import xmlmenudump
 from ooflib.engine import skeletonmodifier
-import random
 
 class FixIllegal(skeletonmodifier.SkeletonModifier):
     def apply(self, oldskeleton, context):
@@ -31,7 +31,7 @@ class FixIllegal(skeletonmodifier.SkeletonModifier):
         # node fixes two elements and breaks one.
         # illegalset = set()
         illegalset = {el for el in suckers}
-        random.shuffle(suckers)
+        crandom.shuffle(suckers)
         nguilty = len(suckers)
 
         # arbitrary number just to keep us out of an infinite loop
@@ -60,7 +60,7 @@ class FixIllegal(skeletonmodifier.SkeletonModifier):
         for element in suckers:
             if element in illegalset:
                 node_indices = list(range(element.nnodes()))
-                random.shuffle(node_indices)
+                crandom.shuffle(node_indices)
                 for i in node_indices:
                     node = element.nodes[i]
                     #if element.getRealAngle(i) < 0.0:  # bad angle

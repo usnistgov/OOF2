@@ -25,5 +25,31 @@
 void rndmseed(int);
 double rndm();
 int irndm();
+double gasdev();
+
+class OOFRandomNumberGenerator {
+public:
+  OOFRandomNumberGenerator();
+  int operator()(int);
+};
+
+%pythoncode %{
+def gauss(mean, dev):
+    return mean + dev*gasdev()
+
+# Python translation of the shuffle algorithm in random.h.  Doing the
+# shuffle in Python is maybe faster than copying a long list to C++
+# and back.
+
+def shuffle(liszt):
+    if len(liszt) > 0:
+        rand = OOFRandomNumberGenerator()
+        for i in range(1, len(liszt)):
+            other = rand(i+1)
+            temp = liszt[i]
+            liszt[i] = liszt[other]
+            liszt[other] = temp
+%}
+
 
 #endif // CRANDOM_SWG

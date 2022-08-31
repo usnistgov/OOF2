@@ -21,8 +21,6 @@ elif config.dimension() == 3:
     from ooflib.engine import skeleton3d as skeleton
 from ooflib.engine.IO import skeletongroupparams
 
-import random
-
 ########################
 
 # The alpha parameter for computing an element's effective energy is

@@ -31,8 +31,6 @@ from ooflib.engine import skeletonmodifier
 from ooflib.engine import skeletonsegment
 from ooflib.engine import skeletonnode
 
-import random
-
 SkeletonSegment = skeletonsegment.SkeletonSegment
 
 arbitrary_factor = 128          # used by findSignature().  Must be
