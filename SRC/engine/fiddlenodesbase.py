@@ -562,7 +562,6 @@ class FiddleNodes:
         j = 0
         context.begin_writing()
         try:
-#             start_time = time.time()
             for node in activenodes:
                 change = deputy.DeputyProvisionalChanges()
                 change.moveNode(node, self.movedPosition(skeleton, node),

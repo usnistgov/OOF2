@@ -60,7 +60,17 @@ set(GTK3_MIN_VERSION 3.22)
 #        SWIGFILES  a b      # .swg suffix is assumed
 #        LIBRARIES  <names of libraries to link to, must be cmake targets>
 #        CFLAGS <additional compiler options>)
- 
+
+set(CMAKE_MACOSX_RPATH True)
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+# if(APPLE)
+#   set(CMAKE_INSTALL_RPATH "@executable_path/../lib")
+# endif()
+message("CMAKE_INSTALL_RPATH = ${CMAKE_INSTALL_RPATH}")
+message("CMAKE_INSTALL_LIBDIR = ${CMAKE_INSTALL_LIBDIR}")
+message("CMAKE_MACOSX_RPATH = ${CMAKE_MACOSX_RPATH}")
+# message("APPLE = ${APPLE}")
+
 function(swig_sources)
   set(multiValueArgs SWIGFILES LIBRARIES CFLAGS INCLUDE_DIRECTORIES)
   cmake_parse_arguments(PARSE_ARGV 0 SS "" "" "${multiValueArgs}")
@@ -102,11 +112,26 @@ function(swig_sources)
       TYPE MODULE
       LANGUAGE PYTHON
       SOURCES ${swigfile}.swg)
-    set(alllibs ${Python3_LIBRARIES} ${SS_LIBRARIES})
-    swig_link_libraries(
+
+    ## OOFCANVAS_LINK_LIBRARIES contains the full paths.  Why isn't
+    ## the library found?
+    target_link_libraries(
       ${swigfile}
       PUBLIC
-      ${alllibs})
+      ${Python3_LIBRARIES})
+    target_link_libraries(
+      ${swigfile}
+      PUBLIC
+      ${SS_LIBRARIES})
+    target_link_libraries(
+      ${swigfile}
+      PUBLIC
+      # -L${OOFCANVAS_LIBDIR}
+      ${OOFCANVAS_LINK_LIBRARIES})
+
+    # get_target_property(PRINTLIBS ${swigfile} LINK_LIBRARIES)
+    # message("${swigfile} LINK_LIBRARIES is ${PRINTLIBS}")
+    
     # Get the path from the top of the source directory hierarchy to
     # the current directory.  This is the path from the top of the
     # installation directory hierarchy to the installation directory
@@ -161,13 +186,10 @@ set(BUILD_SHARED_LIBS ON)
 
 # Find dependencies
 
-# Use pkg-config to get info about dependencies
-include(FindPkgConfig)
-
-set(CMAKE_FIND_FRAMEWORK LAST)	# Prefers MacPorts over system python
-
 # Find Python3.
+set(Python3_ROOT /opt/local) # Use MacPorts if available
 ## TODO: Allow user to choose python sub version
+include(FindPython)
 find_package(Python3 3.8 EXACT COMPONENTS Interpreter Development)
 set(PYVERSION ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR})
 set(PYEXEC ${Python3_EXECUTABLE})
@@ -176,7 +198,6 @@ set(PYEXEC ${Python3_EXECUTABLE})
 # message("Python3_INCLUDE_DIRS is ${Python3_INCLUDE_DIRS}")
 # message("Python3_LIBRARIES is ${Python3_LIBRARIES}")
 
-# Use a relative path so that DESTDIR mechanism works
 set(PYDEST lib/python${PYVERSION}/site-packages/${CMAKE_PROJECT_NAME})
 # message("PYDEST is ${PYDEST}")
 
@@ -188,6 +209,7 @@ find_package(SWIG 4.0 COMPONENTS python)
 ## UseSWIG can generate dependencies only for cmake >= 3.20.  Setting
 ## the flag for it is harmless even if it doesn't always work.
 set(SWIG_USE_SWIG_DEPENDENCIES True)
+set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
 set(SWIG_SOURCE_FILE_EXTENSIONS ".swg" ".i")
 set(CMAKE_SWIG_FLAGS -py3)
 add_compile_definitions(SWIG_TYPE_TABLE=oof2)
@@ -195,10 +217,11 @@ if(${SWIG_USE_BUILTIN})		# wishful thinking
   list(APPEND CMAKE_SWIG_FLAGS -builtin)
 endif()
 
+# Use pkg-config to get info about dependencies
+include(FindPkgConfig)
 # MacPorts puts some pkg-config files in the python library
 set(ENV{PKG_CONFIG_PATH}
   "$ENV{PKG_CONFIG_PATH}:${Python3_LIBRARY_DIRS}/pkgconfig")
-
 #message("PKG_CONFIG_PATH is $ENV(PKG_CONFIG_PATH)")
 
 pkg_check_modules(
