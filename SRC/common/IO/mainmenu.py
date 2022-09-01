@@ -390,11 +390,9 @@ gfxdefaultsmenu.addItem(OOFMenuItem(
 
     </para>"""))
 
-import random
 from ooflib.SWIG.common import crandom
 
 def _randomseed(menuitem, seed):
-    random.seed(seed)
     crandom.rndmseed(seed)
 
 settingsmenu.addItem(oofmenu.OOFMenuItem(

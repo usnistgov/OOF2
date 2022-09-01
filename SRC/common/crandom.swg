@@ -25,5 +25,19 @@
 void rndmseed(int);
 double rndm();
 int irndm();
+double gasdev();
+
+class OOFRandomNumberGenerator {
+public:
+  OOFRandomNumberGenerator();
+  int operator()(int);
+};
+
+%pythoncode %{
+  def gauss(mean, dev):
+    return mean + dev*gasdev()
+
+%}
+
 
 #endif // CRANDOM_SWG
