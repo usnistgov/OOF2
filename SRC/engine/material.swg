@@ -164,7 +164,7 @@ class Property;
 class Material {
 public:
   //Interface branch
-  Material(char *name, char* materialtype);
+  Material(const std::string& , const std::string&);
   ~Material();
   const std::string &name();
   void rename(char *newname);
