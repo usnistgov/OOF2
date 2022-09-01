@@ -61,9 +61,10 @@ if runtimeflags.surface_mode:
     MATERIALTYPE_INTERFACE = MaterialType("interface")
 
 
+oldMaterial__init__ = Material.__init__
+
 def _Material___init__(self, name, materialtype=MATERIALTYPE_BULK):
-    self.this = materialc.new_Material(name, materialtype.string())
-    self.thisown = 1
+    oldMaterial__init__(self, name, materialtype)
     self.consistency_state = [] # empty if material is consistent
 
     # addProperty and removeProperty maintain a Python list of
@@ -73,13 +74,6 @@ def _Material___init__(self, name, materialtype=MATERIALTYPE_BULK):
     self.proplist = []
 
 Material.__init__ = _Material___init__
-
-##_old__del__ = Material.__del__
-##def _Material___del__(self):
-##    switchboard.removeCallback(self.sbcallback)
-##    _old__del__(self)
-
-##Material.__del__ = _Material___del__
 
 def _Material_addProperty(self, prop):
     self.add1Property(prop)
@@ -269,10 +263,4 @@ Material.copy = _Material_copy_
 # Create the singleton material attribute registration object.
 # The (swig'd) constructor adds it to the global list of attributes.
 attributeReg = MaterialAttributeRegistration()
-
-###################
-
-# _old_getMaterials = getMaterials
-# def getMaterials(microstructure):
-#     return map(Material, _old_getMaterials(microstructure))
 
