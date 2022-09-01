@@ -23,7 +23,6 @@ from ooflib.engine import skeletonmodifier
 from ooflib.engine.IO import skeletongroupparams
 from ooflib.engine.IO import skeletonmenu
 import math
-# import time
 import sys
 
 from ooflib.SWIG.common import ooferror
@@ -510,7 +509,6 @@ class FiddleNodes:
     def postProcess(self, context):
         ## global Pcount
         ## Pcount += 1
-        ## random.seed(1)
         skeleton = context.getObject()
         prog = self.makeProgress()
         self.count = 0
@@ -564,7 +562,6 @@ class FiddleNodes:
         j = 0
         context.begin_writing()
         try:
-#             start_time = time.time()
             for node in activenodes:
                 change = deputy.DeputyProvisionalChanges()
                 change.moveNode(node, self.movedPosition(skeleton, node),
