@@ -342,10 +342,8 @@ class OOF_Skeleton_SmallBuffer(unittest.TestCase):
         
     @memorycheck.check("triangle")
     def Bufferbug(self):
-        import os,random
+        import os
         from ooflib.SWIG.common import crandom
-
-        random.seed(17)
         crandom.rndmseed(17)
         
         OOF.Skeleton.Modify(skeleton='triangle:skeleton', 
