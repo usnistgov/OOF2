@@ -61,15 +61,9 @@ set(GTK3_MIN_VERSION 3.22)
 #        LIBRARIES  <names of libraries to link to, must be cmake targets>
 #        CFLAGS <additional compiler options>)
 
-set(CMAKE_MACOSX_RPATH True)
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-# if(APPLE)
-#   set(CMAKE_INSTALL_RPATH "@executable_path/../lib")
-# endif()
-message("CMAKE_INSTALL_RPATH = ${CMAKE_INSTALL_RPATH}")
-message("CMAKE_INSTALL_LIBDIR = ${CMAKE_INSTALL_LIBDIR}")
-message("CMAKE_MACOSX_RPATH = ${CMAKE_MACOSX_RPATH}")
-# message("APPLE = ${APPLE}")
+# message("CMAKE_INSTALL_RPATH = ${CMAKE_INSTALL_RPATH}")
+# message("CMAKE_INSTALL_LIBDIR = ${CMAKE_INSTALL_LIBDIR}")
+# message("CMAKE_MACOSX_RPATH = ${CMAKE_MACOSX_RPATH}")
 
 function(swig_sources)
   set(multiValueArgs SWIGFILES LIBRARIES CFLAGS INCLUDE_DIRECTORIES)
@@ -182,6 +176,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True) # don't fall back to an earlier standard
 
 set(BUILD_SHARED_LIBS ON)
 
+# On macOS 12, we need to set RPATH or libraries installed outside the
+# default locations won't be found.
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
+
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Find dependencies
@@ -220,13 +218,17 @@ endif()
 # Use pkg-config to get info about dependencies
 include(FindPkgConfig)
 # MacPorts puts some pkg-config files in the python library
+if(APPLE)
 set(ENV{PKG_CONFIG_PATH}
   "$ENV{PKG_CONFIG_PATH}:${Python3_LIBRARY_DIRS}/pkgconfig")
 #message("PKG_CONFIG_PATH is $ENV(PKG_CONFIG_PATH)")
+endif()
 
 pkg_check_modules(
   OOFCANVAS REQUIRED
   oofcanvas>=${OOFCANVAS_MIN_VERSION})
+list(APPEND CMAKE_INSTALL_RPATH ${OOFCANVAS_LIBDIR})
+
 ## Dump all variables
 # get_cmake_property(_variableNames VARIABLES)
 # list (SORT _variableNames)
