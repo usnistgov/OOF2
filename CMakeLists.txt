@@ -61,9 +61,6 @@ set(GTK3_MIN_VERSION 3.22)
 #        LIBRARIES  <names of libraries to link to, must be cmake targets>
 #        CFLAGS <additional compiler options>)
 
-# message("CMAKE_INSTALL_RPATH = ${CMAKE_INSTALL_RPATH}")
-# message("CMAKE_INSTALL_LIBDIR = ${CMAKE_INSTALL_LIBDIR}")
-# message("CMAKE_MACOSX_RPATH = ${CMAKE_MACOSX_RPATH}")
 
 function(swig_sources)
   set(multiValueArgs SWIGFILES LIBRARIES CFLAGS INCLUDE_DIRECTORIES)
