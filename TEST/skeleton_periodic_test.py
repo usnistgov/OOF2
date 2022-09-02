@@ -429,7 +429,7 @@ def build_mod_args():
           }
          ),
         ("modgroups","refine_5",
-         {"targets" : CheckAspectRatio(threshold=1.5),
+         {"targets" : CheckAspectRatio(threshold=1.5,only_quads=True),
           "criterion" : Unconditionally(),
           "degree" : Bisection(rule_set="conservative"),
           "alpha" : 0.5
