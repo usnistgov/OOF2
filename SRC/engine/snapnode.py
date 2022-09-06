@@ -206,6 +206,14 @@ registeredclass.Registration(
 # Moves are accepted only if they lower the skeleton's total shape and
 # homogeneity energy.
 
+## TODO: This sometimes does strange things, leaving a node at a new
+## position that is *not* on a pixel boundary.  Is that a result of
+## applying a NodeSnapper to a Skeleton that has already been modified
+## by previous NodeSnappers, so that the Skeleton is not the same as
+## it was when the snapper was created?  For example, create an 8x8
+## quad Skeleton on small.ppm, set the random number seed to 17, and
+## snap all nodes, with average energy alpha=1.0.
+
 class SnapNodes(skeletonmodifier.SkeletonModifier):
     def __init__(self, targets, criterion):
         self.targets = targets  # SnapNodeTargets
