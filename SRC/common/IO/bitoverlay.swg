@@ -46,7 +46,6 @@ public:
   void setColor(CColor*);
   CColor getBG();
   CColor getFG();
-  %newobject makeCanvasImage;
   OOFCanvas::CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
   
   Coord size();

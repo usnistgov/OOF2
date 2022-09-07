@@ -217,7 +217,6 @@ TimeStamp getMaterialTimeStamp(CMicrostructure*);
 class MaterialImage : public AbstractImage {
 public:
   MaterialImage(CMicrostructure*, CColor*, CColor*);
-  %newobject makeCanvasImage;
   OOFCanvas::CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 

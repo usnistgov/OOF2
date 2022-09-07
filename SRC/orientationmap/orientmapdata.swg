@@ -61,7 +61,6 @@ class OrientMapImage : public AbstractImage {
 public:
   OrientMapImage(OrientMap*, Angle2Color*);
   ~OrientMapImage();
-  %newobject makeCanvasImage;
   OOFCanvas::CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 };
 

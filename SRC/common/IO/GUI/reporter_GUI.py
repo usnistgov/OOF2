@@ -281,6 +281,7 @@ switchboard.requestCallbackMain("messagemanager warning", _warning_pop_up)
 
 class ErrorPopUp:
     def __init__(self, e_type, value, tbacklist):
+        # tbacklist is a traceback class object
         debug.mainthreadTest()
         
         errorstrings = []     # list of strings
@@ -305,7 +306,8 @@ class ErrorPopUp:
                     errorstrings.append(moreinfo)
             errorstrings.append("") # blank line
             if tbacklist:
-                self.tracebacks.append(traceback.format_list(tbacklist))
+                self.tracebacks.append(
+                    traceback.format_list(traceback.extract_tb(tbacklist)))
 
         _savedExceptions = []
 

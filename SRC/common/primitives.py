@@ -29,9 +29,6 @@ class Point:
     oofcpp.Coord.
     """
     def __init__(self, x, y):
-        # This should possibly coerce x and y to floats, since other
-        # routines might want to take their ratio.  This *isn't* done
-        # here, because it might be slow.
         self.x = x
         self.y = y
             

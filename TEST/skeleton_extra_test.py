@@ -66,7 +66,7 @@ class OOF_Skeleton_Extra(unittest.TestCase):
     # Run a modifier with pinned nodes.
     @memorycheck.check("skeltest", "skelcomp")
     def PinnedModify(self):
-        import os, random
+        import os
         from ooflib.SWIG.common import crandom
         OOF.Graphics_1.Toolbox.Select_Node.Rectangle(
             skeleton="skeltest:skelextra",
@@ -75,7 +75,6 @@ class OOF_Skeleton_Extra(unittest.TestCase):
         OOF.Skeleton.PinNodes.Pin_Node_Selection(
             skeleton="skeltest:skelextra")
 
-        random.seed(17)
         crandom.rndmseed(17)
         OOF.Skeleton.Modify(
             skeleton="skeltest:skelextra",

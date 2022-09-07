@@ -98,7 +98,10 @@ class DisplayMethod(registeredclass.RegisteredClass):
         self.lastDrawn.backdate() # it hasn't been drawn yet
 
     def build(self, gfxwindow):
-        self.canvaslayer = gfxwindow.oofcanvas.newLayer(self.short_name())
+        # Try to make the layer name unique, but don't try too hard.
+        # It's only used for debugging.
+        self.canvaslayer = gfxwindow.oofcanvas.newLayer(
+            self.short_name()+"_"+str(gfxwindow.oofcanvas.nLayers()))
         if self.hidden:
             self.canvaslayer.hide()
         else:

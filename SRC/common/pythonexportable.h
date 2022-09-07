@@ -122,10 +122,10 @@ class PythonExportableBase {
     virtual const std::string &classname() const = 0;
     
     virtual PyObject *pythonObject(bool own=false) const {
-      // If called with own=true, Python will assume ownershop of the
+      // If called with own=true, Python will assume ownership of the
       // exported object.
       PyGILState_STATE pystate = PyGILState_Ensure();
-      int iown = (own? SWIG_POINTER_OWN : 0);
+      int iown = (own ? SWIG_POINTER_OWN : 0);
       try {
 	// Because C++ classes use PythonExportable as a *virtual* base
 	// class, the value of "this" in this function is not necessarily

@@ -86,7 +86,6 @@ public:
   void evenly_illuminate(int);
   
   bool compare(OOFImage&, double);
-  %newobject makeCanvasImage;
   OOFCanvas::CanvasImage *makeCanvasImage(Coord *Point, Coord *Point);
 
   // getTimeStamp is redefined in oofimage.spy so that it can have optional args
