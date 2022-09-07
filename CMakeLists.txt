@@ -67,12 +67,6 @@ function(swig_sources)
   cmake_parse_arguments(PARSE_ARGV 0 SS "" "" "${multiValueArgs}")
   # "SS" for Swig_Sources
 
-  # message("--- ${CMAKE_CURRENT_SOURCE_DIR}")
-  # message("SWIGFILES: ${SS_SWIGFILES}")
-  # message("LIBRARIES: ${SS_LIBRARIES}")
-  # message("CFLAGS   : ${SS_CFLAGS}")
-  # message("INCLUDE_DIRS : ${SS_INCLUDE_DIRECTORIES}")
-
   foreach(swigfile ${SS_SWIGFILES})
     set_property(
       SOURCE ${swigfile}.swg
@@ -117,12 +111,9 @@ function(swig_sources)
     target_link_libraries(
       ${swigfile}
       PUBLIC
-      # -L${OOFCANVAS_LIBDIR}
-      ${OOFCANVAS_LINK_LIBRARIES})
+      ${OOFCANVAS_LINK_LIBRARIES}
+      )
 
-    # get_target_property(PRINTLIBS ${swigfile} LINK_LIBRARIES)
-    # message("${swigfile} LINK_LIBRARIES is ${PRINTLIBS}")
-    
     # Get the path from the top of the source directory hierarchy to
     # the current directory.  This is the path from the top of the
     # installation directory hierarchy to the installation directory
@@ -293,9 +284,6 @@ foreach(script ${oofscripts})
   @ONLY
   )
 endforeach()
-
-# target_compile_options(oof2image PRIVATE ${MAGICK_CFLAGS} ${OOFCANVAS_CFLAGS})
-# target_compile_options(oof2orientationmap PRIVATE ${MAGICK_CFLAGS})
 
 target_link_libraries(oof2common
   PRIVATE
