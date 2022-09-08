@@ -14,11 +14,13 @@ from ooflib.SWIG.common import pixelgroup
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import material
 from ooflib.common import debug
+from ooflib.common import runtimeflags
 from ooflib.common import utils
 from ooflib.common.IO import reporter
-from ooflib.common import runtimeflags
 from ooflib.common.microstructure import microStructures
+from ooflib.engine import materialtype
 from ooflib.engine.propertyregistration import AllProperties
+
 import itertools
 import string
 import sys
@@ -33,10 +35,10 @@ import sys
 
 class MaterialProps:
     #Interface branch
-    def __init__(self, name, materialtype):
+    def __init__(self, name, mattype):
         self.name = name
         self.data = {}
-        self.actual = material.Material(name, materialtype)
+        self.actual = material.Material(name, mattype)
     def __repr__(self):
         return "MaterialProps('%s')" % self.name
     
@@ -154,11 +156,11 @@ class MaterialManager:
 
     # Add a material.
     #Interface branch
-    def add(self, name, materialtype=material.MATERIALTYPE_BULK):
+    def add(self, name, mattype=materialtype.MATERIALTYPE_BULK):
         try:
             collision = self.materials[name]
         except KeyError:        # material doesn't already exist
-            self.materials[name] = MaterialProps(name, materialtype)
+            self.materials[name] = MaterialProps(name, mattype)
             switchboard.notify("new_material", name) #, self.materials[name])
             return self.materials[name]
         else:
@@ -202,15 +204,12 @@ class MaterialManager:
     # for non-secret Materials.  TODO: If secret Materials are used
     # for other purposes, then add_secret and delete_secret may need
     # to be more thorough.
-    def add_secret(self, name,
-                   materialtype=material.MATERIALTYPE_BULK):
-        try:
-            collision=self.secretmaterials[name]
-        except KeyError:
-            self.secretmaterials[name] = MaterialProps(name, materialtype)
-            return self.secretmaterials[name]
-        else:
-            raise KeyError("Collision in MaterialManager, key %s." % name)
+    def add_secret(self, name, mattype=materialtype.MATERIALTYPE_BULK):
+        if name in self.secretmaterials:
+            raise KeyError(f"Collision in MaterialManager, key {name}")
+        m = MaterialProps(name, mattype)
+        self.secretmaterials[name] = m
+        return m
 
     def delete_secret(self, name):
         del self.secretmaterials[name]
@@ -249,7 +248,7 @@ class MaterialManager:
     # subsequent add_properties calls.  That set of operations is
     # intended for constructing new materials with no properties.
     def new_material(self, name,
-                     materialtype=material.MATERIALTYPE_BULK,
+                     mattype=materialtype.MATERIALTYPE_BULK,
                      *props):
         # If a Material already exists with the same name, just
         # redefine it by deleting its old Properties and adding the
@@ -260,7 +259,7 @@ class MaterialManager:
         try:
             matprop = self.materials[name]
         except KeyError:
-            matprop = MaterialProps(name, materialtype)
+            matprop = MaterialProps(name, mattype)
             self.materials[name] = matprop
         else:
             matprop.delete_all_props()
@@ -317,9 +316,9 @@ utils.OOFdefine("AllMaterials", materialmanager)
 
 def getInterfaceMaterialNames():
     return [matname for matname,mat in materialmanager.materials.items()
-            if material.MATERIALTYPE_INTERFACE == mat.actual.type()]
+            if materialtype.MATERIALTYPE_INTERFACE == mat.actual.type()]
 
 def getBulkMaterialNames():
     return [matname for matname,mat in materialmanager.materials.items()
-            if material.MATERIALTYPE_BULK == mat.actual.type()]
+            if materialtype.MATERIALTYPE_BULK == mat.actual.type()]
 

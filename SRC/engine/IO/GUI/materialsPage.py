@@ -28,6 +28,7 @@ from ooflib.common.IO.GUI import oofGUI
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import whowidget
 from ooflib.engine import materialmanager
+from ooflib.engine import materialtype
 from ooflib.engine import propertyregistration
 
 AllProperties = propertyregistration.AllProperties
@@ -189,8 +190,9 @@ class PropertyPane:
         currentmat=self.parent.currentMaterial()
         
         if runtimeflags.surface_mode:
-            isInterfaceMat=(currentmat is not None and
-                            currentmat.type()==material.MATERIALTYPE_INTERFACE)
+            isInterfaceMat=(
+                currentmat is not None and
+                currentmat.type()==materialtype.MATERIALTYPE_INTERFACE)
         else:
             isInterfaceMat=False
             
@@ -198,7 +200,7 @@ class PropertyPane:
                          self.current_property[1].interfaceCompatibility() != 
                          interfaceparameters.COMPATIBILITY_BULK_ONLY)
         isBulkMat=(currentmat is not None and 
-                   currentmat.type()==material.MATERIALTYPE_BULK)
+                   currentmat.type()==materialtype.MATERIALTYPE_BULK)
         isBulkProp= (sensitivity and 
                      self.current_property[1].interfaceCompatibility() !=
                      interfaceparameters.COMPATIBILITY_INTERFACE_ONLY)
@@ -679,7 +681,7 @@ class MaterialPane:
         self.assignbutton.set_sensitive(
             mat_selected and nmicros > 0 and
             self.currentMaterial() is not None and
-            self.currentMaterial().type() == material.MATERIALTYPE_BULK)
+            self.currentMaterial().type() == materialtype.MATERIALTYPE_BULK)
         self.removematbutton.set_sensitive(nmicros > 0)
 
         self.removebutton.set_sensitive(self.currentPropertyName() is not None)
@@ -690,7 +692,7 @@ class MaterialPane:
 #             mat_selected and
 #             nmicros > 0 and
 #             self.currentMaterial().type()==
-#             material.MATERIALTYPE_INTERFACE)
+#             materialtype.MATERIALTYPE_INTERFACE)
 #         self.removeinterfacebutton.set_sensitive(nmicros > 0)
 
     ##############

@@ -13,58 +13,17 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import ooferror2
 from ooflib.SWIG.engine import properties
 from ooflib.common import debug
-from ooflib.common import enum
-from ooflib.common import runtimeflags
 from ooflib.common import utils
 from ooflib.common.IO import oofmenu
 import copy
 
-
-if runtimeflags.surface_mode:
-    class MaterialType(enum.EnumClass(
-        ('bulk',
-         'A bulk material. Normal bulk properties can be added only to this type of material.'),
-        ('interface', 'An interface material. Interface properties can be added only to this type of material.')
-        )
-                       ):
-        tip = "Types of &oof2; materials."
-        discussion = """<para>
-        
-        Types of &oof2; materials.
-        Certain properties can only be assigned to certain types of materials.
-        Bulk materials can be assigned to bulk elements, while interface materials
-        can be assigned to edge elements.
-        
-        </para>"""
-
-else:
-    # If surface mode is not set, build the enum without the
-    # "interface" member.
-    class MaterialType(enum.EnumClass(
-        ('bulk',
-         'A bulk material. Normal bulk properties can be added only to this type of material.'))):
-        tip = "Types of &oof2; materials."
-        discussion = """<para>
-        
-        Types of &oof2; materials.
-        Certain properties can only be assigned to certain types of materials.
-        Bulk materials can be assigned to bulk elements.
-        
-        </para>"""
-
-
-utils.OOFdefine('MaterialType', MaterialType)
-
-MATERIALTYPE_BULK = MaterialType("bulk")
-
-if runtimeflags.surface_mode:
-    MATERIALTYPE_INTERFACE = MaterialType("interface")
+from ooflib.engine import materialtype
 
 
 oldMaterial__init__ = Material.__init__
 
-def _Material___init__(self, name, materialtype=MATERIALTYPE_BULK):
-    oldMaterial__init__(self, name, materialtype)
+def _Material___init__(self, name, mattype=materialtype.MATERIALTYPE_BULK):
+    oldMaterial__init__(self, name, mattype)
     self.consistency_state = [] # empty if material is consistent
 
     # addProperty and removeProperty maintain a Python list of

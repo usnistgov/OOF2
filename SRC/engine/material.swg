@@ -150,10 +150,22 @@ typedef std::string MaterialType;
 }
 
 // Convert a std::string& to a MaterialType Enum
+// TODO PYTHON3: We should have generic Enum <--> const std::string& typemaps.
 %typemap(out) MaterialType {
   // typemap(out) MaterialType
-  FETCH_CLASS(ooflib.SWIG.engine.material, MaterialType)
+  FETCH_CLASS(ooflib.engine.materialtype, MaterialType)
   $result = PyObject_CallFunction(MaterialTypeClass, "(s)", $1.c_str());
+}
+
+%typemap(in) const std::string &MaterialType (std::string mt)
+{
+  // typemap(in) const std::string &MaterialType
+  PyObject *smt = PyObject_CallMethod($input, "string", NULL);
+  PyObject *ustr = PyUnicode_AsEncodedString(smt, "UTF-8", "replace");
+  mt.assign(PyBytes_AsString(ustr));
+  $1 = &mt;
+  Py_XDECREF(ustr);
+  Py_XDECREF(smt);
 }
 
 class CMicrostructure;
@@ -164,7 +176,7 @@ class Property;
 class Material {
 public:
   //Interface branch
-  Material(const std::string& , const std::string&);
+  Material(const std::string& , const std::string &MaterialType);
   ~Material();
   const std::string &name();
   void rename(char *newname);

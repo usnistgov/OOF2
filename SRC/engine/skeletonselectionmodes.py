@@ -9,11 +9,11 @@
 # oof_manager@nist.gov. 
 
 from ooflib.common.IO import mainmenu
-from ooflib.engine import skeletonselmodebase
+from ooflib.engine import materialtype
 from ooflib.engine import skeletonselectionmethod
 from ooflib.engine import skeletonselectionmod
+from ooflib.engine import skeletonselmodebase
 from ooflib.engine.IO import skeletongroupmenu
-from ooflib.SWIG.engine import material
 
 # Subclasses and singleton instances of SkeletonSelectionMode.  See
 # comments in skeletonselmodebase.py.
@@ -29,7 +29,7 @@ class ElementSelectionMode(skeletonselmodebase.SkeletonSelectionMode):
             newselectionsignal="new element selection",
             changedselectionsignal="changed element selection",
             groupmenu=skeletongroupmenu.elementgroupmenu,
-            materialsallowed = material.MATERIALTYPE_BULK)
+            materialsallowed = materialtype.MATERIALTYPE_BULK)
     def getSelectionContext(self, skeletoncontext):
         ## Called by SkeletonContext.getSelectionContext()
         return skeletoncontext.elementselection
@@ -75,7 +75,7 @@ class SegmentSelectionMode(skeletonselmodebase.SkeletonSelectionMode):
             ## Materials are *not* allowed to be assigned directly to
             ## segments, because segments aren't directed. Materials
             ## are assigned instead to boundaries.
-            # materialsallowed=material.MATERIALTYPE_INTERFACE
+            # materialsallowed=materialtype.MATERIALTYPE_INTERFACE
             )
     def getSelectionContext(self, skeletoncontext):
         return skeletoncontext.segmentselection

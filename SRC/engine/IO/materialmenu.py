@@ -46,12 +46,12 @@ from ooflib.engine.IO import materialparameter
 import ooflib.SWIG.engine.material
 import ooflib.common.microstructure
 
-MATERIALTYPE_BULK = ooflib.SWIG.engine.material.MATERIALTYPE_BULK
+MATERIALTYPE_BULK = ooflib.engine.materialtype.MATERIALTYPE_BULK
 
 if runtimeflags.surface_mode:
-    MATERIALTYPE_INTERFACE = ooflib.SWIG.engine.material.MATERIALTYPE_INTERFACE
+    MATERIALTYPE_INTERFACE = ooflib.engine.materialtype.MATERIALTYPE_INTERFACE
 
-MaterialType = ooflib.SWIG.engine.material.MaterialType
+MaterialType = ooflib.engine.materialtype.MaterialType
 
 #Interface branch
 from ooflib.engine.IO import interfaceparameters
