@@ -640,7 +640,7 @@ class SkeletonQuad(SkeletonElement, cskeleton.CSkeletonQuad):
         ## cases in which one edge is much longer than the other
         ## three.
         segs = []
-        lengths = sorted([self.edgeLength(i) for i in range(4)])
+        lengths = [self.edgeLength(i) for i in range(4)]
         sortlengths = sorted(lengths[:])
         if sortlengths[2] > sortlengths[1]*threshold:
             # find longest edges

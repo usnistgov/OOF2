@@ -320,46 +320,40 @@ registeredclass.Registration(
 
 #####################
 
-if config.dimension() == 2:
-    # So far, this rule only does anything for quads in 2D and since
-    # we only have tets in 3D for now, it's disabled.
+class CheckAspectRatio(RefinementTarget):
+   def __init__(self, threshold, only_quads=True):
+       self.threshold = threshold
+       self.only_quads = only_quads
+   def __call__(self, skeleton, context, divisions, markedEdges, criterion):
+       prog = progress.findProgress("Refine")
+       elements = skeleton.activeElements()
+       n = len(elements)
+       for i, element in enumerate(elements):
+           if (criterion(skeleton, element) and (element.nnodes() == 4 or
+                                                 not self.only_quads)):
+               for segment in element.getAspectRatioSegments(self.threshold,
+                                                             skeleton):
+                   if segment.active(skeleton):
+                       self.markSegment(segment, divisions, markedEdges)
+           if prog.stopped():
+               return
+           prog.setFraction((i+1)/n)
+           prog.setMessage("checked %d/%d elements" % (i+1, n))
 
-    class CheckAspectRatio(RefinementTarget):
-       def __init__(self, threshold, only_quads=True):
-           self.threshold = threshold
-           self.only_quads = only_quads
-       def __call__(self, skeleton, context, divisions, markedEdges, criterion):
-           prog = progress.findProgress("Refine")
-           elements = skeleton.activeElements()
-           n = len(elements)
-           for i, element in enumerate(elements):
-               if (criterion(skeleton, element) and (element.nnodes() == 4 or
-                                                     not self.only_quads)):
-                   for segment in element.getAspectRatioSegments(self.threshold,
-                                                                 skeleton):
-                       if segment.active(skeleton):
-                           self.markSegment(segment, divisions, markedEdges)
-               if prog.stopped():
-                   return
-               prog.setFraction((i+1)/n)
-               prog.setMessage("checked %d/%d elements" % (i+1, n))
+registeredclass.Registration(
+    'Aspect Ratio',
+    RefinementTarget,
+    CheckAspectRatio,
+    ordering=2.5,
+    params=[
+        parameter.FloatParameter(
+            'threshold', value=5.0,
+            tip="Refine the long edges of elements whose aspect ratio is greater than this"),
+        parameter.BooleanParameter(
+            'only_quads', value=True,
+            tip="Restrict the refinement to quadrilaterals?")],
+    tip="Divide elements with extreme aspect ratios.",
+    ## TODO: explain only_quads in the manual!
+    discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/check_aspect.xml'))
 
-
-
-    registeredclass.Registration(
-        'Aspect Ratio',
-        RefinementTarget,
-        CheckAspectRatio,
-        ordering=2.5,
-        params=[
-            parameter.FloatParameter(
-                'threshold', value=5.0,
-                tip="Refine the long edges of elements whose aspect ratio is greater than this"),
-            parameter.BooleanParameter(
-                'only_quads', value=True,
-                tip="Restrict the refinement to quadrilaterals?")],
-        tip="Divide elements with extreme aspect ratios.",
-## TODO: explain only_quads in the manual!
-        discussion=xmlmenudump.loadFile('DISCUSSIONS/engine/reg/check_aspect.xml'))
-
-    ##################################################
+##################################################
