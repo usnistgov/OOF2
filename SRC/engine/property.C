@@ -15,6 +15,7 @@
 #include "common/oofswigruntime.h"
 #include "common/printvec.h"
 #include "common/pythonlock.h"
+#include "common/pyutils.h"
 #include "common/trace.h"
 #include "engine/IO/propertyoutput.h"
 #include "engine/cnonlinearsolver.h"
@@ -45,21 +46,29 @@ inline double max(double x, double y)
   return (x > y ? x : y);
 }
 
-// It appears the PyObject * can't be const, because
+// TODO PYTHON3: Move this to pyutils.C since it might be useful elsewhere.
+static std::string getPyStringData(PyObject *obj, const char *attr) {
+  PyObject *str = PyObject_GetAttrString(obj, attr);
+  if(!str)
+    pythonErrorRelay();
+  std::string result = pyStringAsString(str);
+  Py_DECREF(str);
+  return result;
+}
+
+// It appears the PyObject* can't be const, because
 // PyObject_GetAttrString doesn't take a const argument.
+
 Property::Property(const std::string &nm, PyObject *registration)
   : name_(nm), fields_reqd(0), registration_(registration)
 {
   PYTHON_THREAD_BEGIN_BLOCK;
   // registry.classobj.__name__, viewed through C++...
-  classname_ = PyString_AsString(
-		 PyObject_GetAttrString(
-		    PyObject_GetAttrString(registration, (char*)"subclass"),
-		      (char*) "__name__"));
+  PyObject *psub = PyObject_GetAttrString(registration, (char*) "subclass");
+  classname_ = getPyStringData(psub, "__name__");
+  Py_XDECREF(psub);
   // registry.modulename
-  modulename_ = PyString_AsString(PyObject_GetAttrString(registration,
-							 (char*) "modulename"));
-
+  modulename_ = getPyStringData(registration, "modulename");
   Py_INCREF(registration_);
 }
 

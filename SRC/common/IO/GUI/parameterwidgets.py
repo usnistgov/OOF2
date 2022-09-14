@@ -428,7 +428,7 @@ class RestrictedAutoNameWidget(AutoNameWidget):
     def validValue(self, value):
         if value is automatic.automatic:
             return True
-        return (isinstance(value, StringType) and stringstrip(value) != ""
+        return (isinstance(value, StringType) and utils.stringstrip(value) != ""
                 and self.prog.match(value))
 
 def _RestrictedAutoNameParam_makeWidget(self, scope, **kwargs):

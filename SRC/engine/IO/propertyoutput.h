@@ -118,10 +118,12 @@ public:
   // that's what Python expects to get.
   double getFloatParam(const char *name) const;
   int getIntParam(const char *name) const;
+
   // These getXXXXParam methods return pointers to new strings.  It
   // would be more convenient for them to return std::strings, but
-  // then they can't be swigged.  See the comment in the string
-  // typemap in commmon/typemaps.swg.
+  // then they can't be swigged without making an extra copy.  See the
+  // comment in the string typemap in commmon/typemaps.swg.
+
   const std::string *getStringParam(const char *name) const;
   const std::string *getEnumParam(const char *name) const;
   const std::string *getRegisteredParamName(const char *name) const;

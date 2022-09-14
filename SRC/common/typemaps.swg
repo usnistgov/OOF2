@@ -120,6 +120,7 @@
 #include "common/geometry.h"
 #include "common/ooferror.h"
 #include "common/pythonlock.h"
+#include "common/pyutils.h"
 #include "common/threadstate.h"
 #include <string>
 #include <vector>

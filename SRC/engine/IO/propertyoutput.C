@@ -13,6 +13,7 @@
 
 #include "common/printvec.h"	// for debugging
 #include "common/pythonlock.h"
+#include "common/pyutils.h"
 #include "engine/IO/propertyoutput.h"
 #include "engine/corientation.h"
 #include "engine/element.h"
@@ -220,7 +221,7 @@ PropertyOutput::getListOfStringsParam(const char *name) const {
     PyObject *item = PySequence_GetItem(obj, i);
     if(!item)
       pythonErrorRelay();
-    x->emplace_back(PyString_AsString(item));
+    x->emplace_back(pyStringAsString(item));
     Py_XDECREF(item);
   }
   Py_XDECREF(obj);
@@ -228,20 +229,18 @@ PropertyOutput::getListOfStringsParam(const char *name) const {
 }
 
 const std::string *PropertyOutput::getStringParam(const char *name) const {
-  std::string *x = new std::string;
   PYTHON_THREAD_BEGIN_BLOCK;
   // params_ is a dictionary
   PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
   if(!obj)
     pythonErrorRelay();
-  *x = PyString_AsString(obj);
+  const std::string *x = new std::string(pyStringAsString(obj));
   Py_XDECREF(obj);
   return x;
 }
 
 const std::string *PropertyOutput::getEnumParam(const char *name) const {
-  std::string *x = new std::string;
-  PYTHON_THREAD_BEGIN_BLOCK;
+   PYTHON_THREAD_BEGIN_BLOCK;
   // params_ is a dictionary
   PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
   if(!obj) {
@@ -252,7 +251,7 @@ const std::string *PropertyOutput::getEnumParam(const char *name) const {
     Py_XDECREF(obj);
     pythonErrorRelay();
   }
-  *x = PyString_AsString(str);
+  std::string *x = new std::string(pyStringAsString(str));
   Py_XDECREF(str);
   Py_XDECREF(obj);
   return x;
@@ -261,7 +260,6 @@ const std::string *PropertyOutput::getEnumParam(const char *name) const {
 const std::string *PropertyOutput::getRegisteredParamName(const char *name)
   const
 {
-  std::string *x = new std::string;
   PYTHON_THREAD_BEGIN_BLOCK;
   // Get the parameter out of the dictionary
   PyObject *obj = PyMapping_GetItemString(params_, (char*) name);
@@ -273,7 +271,7 @@ const std::string *PropertyOutput::getRegisteredParamName(const char *name)
     Py_XDECREF(obj);
     pythonErrorRelay();
   }
-  *x = PyString_AsString(str);
+  const std::string *x = new std::string(pyStringAsString(str));
   Py_XDECREF(str);
   Py_XDECREF(obj);
   return x;
