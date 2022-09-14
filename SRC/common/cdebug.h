@@ -43,7 +43,4 @@ void spinCycle(int);
 
 void memusage(const std::string&);
 
-std::string repr(PyObject*);
-std::string repr_nolock(PyObject*);
-
 #endif // CDEBUG_H
