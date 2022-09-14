@@ -83,6 +83,7 @@ def run_modules(test_module_names, oofglobals, backwards):
             test_module = ldict["test_module"]
         except ImportError:
             print(f"Import error: {m}", file=sys.stderr)
+            print(f"path is {sys.path}")
         else:
             print("Running test module %s." % m)
             # Make sure all the goodies in the OOF namespace are available.

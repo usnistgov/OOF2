@@ -255,6 +255,7 @@ def run(homedir):
         print(message)
         printhelp()
         sys.exit(1)
+    global debug
     fromdir = None
     afterdir = None
     todir = None
