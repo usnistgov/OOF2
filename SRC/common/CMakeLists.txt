@@ -72,6 +72,8 @@ target_sources(oof2common
   progress.h
   pythonexportable.h
   pythonlock.h
+  pyutils.C
+  pyutils.h
   random.C
   random.h
   removeitem.h
