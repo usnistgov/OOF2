@@ -3,6 +3,9 @@ OOF2 2.2.3
 * Meshes are drawn by default at their actual position.  The default
   behavior can be changed in the settings menu.
 
+* OOF2 now requires OOFCanvas version 1.0.3, which fixes a bug that
+  was making OOF2 hang in some circumstances.
+
 OOF2 2.2.1 and 2.2.2
 
  * Fixed build errors that only showed up on MacPorts.
