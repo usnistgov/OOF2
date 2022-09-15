@@ -831,20 +831,20 @@ BoundaryEdge *Element::newBndyEdge(const FuncNode *n0, const FuncNode *n1)
 }
 
 BoundaryEdge *Element::getBndyEdge(const FuncNode *n0, const FuncNode *n1) {
-  BoundaryEdge *ed;
-
+  BoundaryEdge *ed = find_b_edge(n0, n1);
 //   Trace("Element::getBndyEdge " + to_string(*n0) + " " + to_string(*n1));
   // find_edge will correctly detect nullness of the edgelist.
-  if( (ed=find_b_edge(n0,n1))==0 ) {
-    ed=newBndyEdge(n0,n1);
-    if(ed!=0) {
+  if(ed == nullptr) {
+    ed = newBndyEdge(n0, n1);
+    if(ed != nullptr) {
       add_b_edge(ed);
       return ed;
     }
-    else
+    else {
+      // Probable cause is that the input nodes are not adjacent
+      // corners in the derived element type.
       throw ErrUserError("Element::getBndyEdge: Unable to make edge.");
-    // Probable cause is that the input nodes are not adjacent
-    // corners in the derived element type.
+    }
   }
   return ed; // Otherwise return the non-null result from find_edge.
 }

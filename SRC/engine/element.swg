@@ -36,6 +36,7 @@
 %import "engine/indextypes.swg"
 %import "engine/mastercoord.swg"
 %import "engine/material.swg"
+%import "engine/node.swg"
 %import "engine/outputval.swg"
 #endif // NOSECONDIMPORTS
 

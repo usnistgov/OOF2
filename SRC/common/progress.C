@@ -45,7 +45,16 @@ Progress::~Progress() {
   // std::cerr << "Progress:dtor: " << name_ << " " << this
   // 	    << " finished_=" << finished_ << " started_=" << started_
   // 	    << std::endl;
+
+  // The failure of this assertion often means that a procedure raised
+  // an exception and that the call to Progress::finish was never
+  // made.  The solution is to ensure that the Progress::finish() is
+  // called inside a finally: block in Python or generic catch block
+  // in C++.  If that's not done, then this assertion might abort the
+  // program before the exception is handled, and the developer will
+  // never see the exception.
   assert(finished_ or not started_);
+  
   KeyHolder kh(lock, verboseLocks);
   disconnectBar(progressbar);
   KeyHolder key(idlock);

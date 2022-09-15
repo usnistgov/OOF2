@@ -396,7 +396,7 @@ def requestCallbackMain(msgname, func, *args, **kwargs):
     return switchboard.requestCallbackMain(msgname, func, caller,
                                            *args, **kwargs)
 
-def verbose(menuitem, flag):
+def verbose(menuitem=None, flag=True):
     old = switchboard.verbose
     switchboard.verbose = flag
     return old

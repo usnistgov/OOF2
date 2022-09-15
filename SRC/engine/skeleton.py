@@ -2013,7 +2013,7 @@ class Skeleton(SkeletonBase):
         # than one interface, it still only appears once in this dict,
         # with a segmentData object with all the interfaces included.
         interface_seg_dict = self.createInterfaceSegmentDict(skelpath)
-
+        
         fe_splitnode={} #{key=skeleton node:
                         #value=list of mesh nodes, one for each zone
                         #around the skeleton node}
@@ -2025,7 +2025,6 @@ class Skeleton(SkeletonBase):
         # SkeletonNode objects.
         fe_node = {}
         
-
         realmesh = femesh.FEMesh(self.MS, order)
         realmesh.skeleton = self
 
@@ -2036,8 +2035,8 @@ class Skeleton(SkeletonBase):
             nels[n] = 0
         for el in self.elements:
             nels[el.nnodes()] += 1
-
-        #TODO: Do a smarter reserve when edgements are involved?
+        
+        # TODO: Do a smarter reserve when edgements are involved?
         nfuncnodes = self.nnodes() + len(self.segments)*(order-1)
         for n, masterelem in edict.items():
             nfuncnodes += nels[n]*masterelem.ninteriorfuncnodes()
@@ -2046,13 +2045,13 @@ class Skeleton(SkeletonBase):
         # Get the number of map nodes per side.  It's the same for all
         # element shapes, so just look at the first one.
         masterel = next(iter(edict.values()))
-        n_map_per_side = masterel.nexteriormapnodes_only()/masterel.nsides()
+        n_map_per_side = masterel.nexteriormapnodes_only()//masterel.nsides()
         
         nmapnodes = len(self.segments)*n_map_per_side
         for n, masterelem in edict.items():
             nmapnodes += nels[n]*masterelem.ninteriormapnodes_only()
         realmesh.reserveMapNodes(nmapnodes)
-
+        
         # Make the real nodes at the corners of the elements.  These
         # nodes are always both mapping and function nodes.
         mnodecount = self.nnodes()
@@ -2153,7 +2152,6 @@ class Skeleton(SkeletonBase):
 
         
         # Edge boundaries.
-        
         for bdkey, edgebndy in self.edgeboundaries.items():
             edgebndy.sequence()
             realbndy = realmesh.newEdgeBoundary(bdkey)
@@ -2184,8 +2182,8 @@ class Skeleton(SkeletonBase):
                 realn1 = realel.getCornerNode(
                     skelel.getNodeIndexIntoList(edge_nodes[1]) )
 
-
                 realbndy.addEdge(realel.getBndyEdge(realn0,realn1))
+                
                 if prog.stopped():
                     prog.setMessage("Interrupted")
                     return
@@ -2214,9 +2212,9 @@ class Skeleton(SkeletonBase):
         else:
             self.createInterfaceElementsFromInterface(interface_seg_dict, 
                                                       realmesh, el2)
-
         prog.finish()
         return realmesh
+    # end Skeleton.femesh()
 
     # Interfaces are fundamentally defined in the microstructure, as
     # existing between different materials, or surrounding certain

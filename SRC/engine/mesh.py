@@ -342,7 +342,7 @@ class Mesh(whoville.Who):
 
     def destroy(self):
         global meshes
-        for bc in self.bdyconditions.values():
+        for bc in list(self.bdyconditions.values()):
             if not bc.subordinate:
                 self.rmBdyCondition(bc)
 #         self.cross_sections.destroy()

@@ -646,6 +646,8 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 
 // out: TYPEVec *      (transfers ownership of TYPE objects to python)
 // out: TYPERefVec *   (does not transfer ownership to python)
+// out: TYPESubClassVec * (uses pythonexportable, transfers ownership)
+// out: TYPESubClassRefVec * (uses pythonexportable, doesn't transfer ownership)
 // in:  TYPEVec*
 
 // If you use std::vector<TYPE*>* as the return type of a function ,
@@ -660,6 +662,8 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 %{
   typedef std::vector<TYPE*> TYPE##Vec;
   typedef std::vector<TYPE*> TYPE##RefVec;
+  typedef std::vector<TYPE*> TYPE##SubClassVec;
+  typedef std::vector<TYPE*> TYPE##SubClassRefVec;
 %}
 
 %typemap(out) TYPE##Vec* {
@@ -683,6 +687,26 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
     PyObject *tmp = SWIG_NewPointerObj(SWIG_as_voidptr((*$1)[i]),
 				       $descriptor(TYPE*),
 				       0); // don't take ownership
+    PyList_SET_ITEM($result, (Py_ssize_t) i, tmp);
+  }
+ }
+
+%typemap(out) TYPE##SubClassVec* {
+  // typemap(out) TYPE##SubClassVec* via MAKE_LISTVEC_TYPEMAPS for TYPE
+  TYPE##SubClassVec::size_type sz = $1->size();
+  $result = PyList_New((Py_ssize_t) sz);
+  for(TYPE##SubClassVec::size_type i=0; i<sz; i++) {
+    PyObject *tmp = (*$1)[i]->pythonObject(true); // take ownership
+    PyList_SET_ITEM($result, (Py_ssize_t) i, tmp);
+  }
+ }
+
+%typemap(out) TYPE##SubClassRefVec* {
+  // typemap(out) TYPE##SubClassRefVec* via MAKE_LISTVEC_TYPEMAPS for TYPE
+  TYPE##SubClassVec::size_type sz = $1->size();
+  $result = PyList_New((Py_ssize_t) sz);
+  for(TYPE##SubClassVec::size_type i=0; i<sz; i++) {
+    PyObject *tmp = (*$1)[i]->pythonObject(false); // don't take ownership
     PyList_SET_ITEM($result, (Py_ssize_t) i, tmp);
   }
  }

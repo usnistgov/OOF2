@@ -101,11 +101,11 @@ public:
   void make_linear_system(LinearizedSystem *, CNonlinearSolver*);
 
   %newobject all_compound_fields;
-  CompoundFieldVec *all_compound_fields();
+  CompoundFieldRefVec *all_compound_fields();
   %newobject all_equations;
-  EquationVec *all_equations();
+  EquationSubClassRefVec *all_equations();
   %newobject all_fluxes;
-  FluxVec *all_fluxes();
+  FluxSubClassRefVec *all_fluxes();
 
   %newobject getMaterials;
   MaterialSet *getMaterials();

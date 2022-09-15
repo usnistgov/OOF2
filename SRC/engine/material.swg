@@ -130,10 +130,14 @@ typedef std::string MaterialType;
   for(auto i=$1->begin(); i!=$1->end(); ++i) {
     PyObject *matl = PyObject_CallFunction(getMaterial, "(s)",
 					   (*i)->name().c_str());
+    // The return value of PyObject_CallFunction is NULL on failure...
     if(!matl)
       SWIG_fail;
-    if(!PySet_Add($result, matl))
+    // ... but the return value of PySet_Add is 0 on *success*.
+    int status = PySet_Add($result, matl);
+    if(status != 0) {
       SWIG_fail;
+    }
   }
 }
 

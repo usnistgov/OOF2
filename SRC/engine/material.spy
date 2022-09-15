@@ -11,7 +11,7 @@
 
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.engine import ooferror2
-from ooflib.SWIG.engine import properties
+from ooflib.SWIG.engine import property
 from ooflib.common import debug
 from ooflib.common import utils
 from ooflib.common.IO import oofmenu
@@ -165,17 +165,17 @@ Material._is_symmetric = _Material__symmetric
 
 def _Material_symmetric_K(self, subproblem):
     return self._is_symmetric(subproblem,
-                              properties.Property.c_is_symmetric_K)
+                              property.Property.c_is_symmetric_K)
 Material.is_symmetric_K = _Material_symmetric_K
 
 def _Material_symmetric_C(self, subproblem):
     return self._is_symmetric(subproblem, 
-                              properties.Property.c_is_symmetric_C)
+                              property.Property.c_is_symmetric_C)
 Material.is_symmetric_C = _Material_symmetric_C
 
 def _Material_symmetric_M(self, subproblem):
     return self._is_symmetric(subproblem,
-                              properties.Property.c_is_symmetric_M)
+                              property.Property.c_is_symmetric_M)
 Material.is_symmetric_M = _Material_symmetric_M
 
 

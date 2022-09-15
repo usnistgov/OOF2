@@ -54,6 +54,9 @@ public:
   // but that doesn't seem to work.  When I try it, nothing is
   // renamed, using swig 4.0.2.
   // ***************************************************************
+  // A problem with using %rename like this is that someone searching
+  // the code for c_cross_reference, c_precompute, c_is_symmetric_K,
+  // etc won't find anything, except possibly in this comment.
   %rename("c_%s", %$isfunction, %$ismember) "";
   //  %rename("c_%s", %$isfunction, %$classname="Property") "";
 

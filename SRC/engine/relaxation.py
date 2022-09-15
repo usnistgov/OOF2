@@ -105,11 +105,8 @@ class Relax(skeletonmodifier.SkeletonModifier):
         ## setup element types
         edict = {}
         # get linear isoparametric master elements
-        if config.dimension() == 2:
-            edict[3] = masterelement.getMasterElementDict()['T3_3']
-            edict[4] = masterelement.getMasterElementDict()['Q4_4']
-        elif config.dimension() == 3:
-            edict[4] = masterelement.getMasterElementDict()['T4_4']
+        edict[3] = masterelement.getMasterElementDict()['T3_3']
+        edict[4] = masterelement.getMasterElementDict()['Q4_4']
         skel = context.getObject()
         ## returns a Mesh (Who) object
         self.meshname = context.path() + ":__internal_mesh__"
@@ -119,7 +116,6 @@ class Relax(skeletonmodifier.SkeletonModifier):
             self.meshname, femesh,
             parent=context, elementdict=edict)
         meshcontext.createDefaultSubProblem()
-
         return meshcontext
 
     def define_fields(self, meshctxt):
@@ -227,16 +223,14 @@ class Relax(skeletonmodifier.SkeletonModifier):
         ## Finally, the (temporary) mesh and the rest  of the temporary
         ## objects are cleaned up.
 
-        ## create progress bar
         prog = progress.getProgress("Relax", progress.DEFINITE)
 
         ## get skeleton and calculate energy
         skeleton = context.getObject()
         before = skeleton.energyTotal(self.alpha)
         self.count = 0
-
+        
         try:
-
             while self.goodToGo(skeleton) and not prog.stopped():
                 # TODO: Why do we create a new mesh for each
                 # iteration?  Can't we update the positions of the
@@ -277,8 +271,6 @@ class Relax(skeletonmodifier.SkeletonModifier):
                 prog.setMessage("%d/%d iterations" %
                                 (self.count, self.iterations))
 
-            prog.finish()
-
             ## calculate total energy improvement, if any.
             after = skeleton.energyTotal(self.alpha)
             if before:
@@ -290,11 +282,11 @@ class Relax(skeletonmodifier.SkeletonModifier):
                             % (diffE, rate))
 
         finally:
-            if config.dimension() == 2:
-                del self.topBoundaryCondition
-                del self.leftBoundaryCondition
-                del self.bottomBoundaryCondition
-                del self.rightBoundaryCondition
+            prog.finish()
+            del self.topBoundaryCondition
+            del self.leftBoundaryCondition
+            del self.bottomBoundaryCondition
+            del self.rightBoundaryCondition
 
             materialmanager.materialmanager.delete_prop(self.stiffness.name())
             materialmanager.materialmanager.delete_prop(self.skelRelRate.name())

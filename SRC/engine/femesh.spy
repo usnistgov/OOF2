@@ -37,11 +37,12 @@ FEMesh.getNodes = _FEMesh_getNodes
 # means that the extra data added by the initializer here can be
 # safely stored in the swig wrapper class.
 
-def _FEMesh___init__(self, microstructure, order):
-    self.this = femeshc.new_FEMesh(microstructure)
-    FEMesh.__init__(self, self.this)
-    self.thisown = 1
+## TODO PYTHON3: Use %pythonappend instead of monkeypatching?
 
+old_FEMesh__init__ = FEMesh.__init__
+
+def new_FEMesh__init__(self, microstructure, order):
+    old_FEMesh__init__(self, microstructure)
     # order of femesh
     self._order = order
     
@@ -72,7 +73,7 @@ def _FEMesh___init__(self, microstructure, order):
     self._interfaceFloatBCs=[] #Float BC objects
     self._interfaceVisibleBCs=[] #BC names
 
-FEMesh.__init__ = _FEMesh___init__
+FEMesh.__init__ = new_FEMesh__init__
 
 #-#=#*#=#-#=#*#=#-#=#*#=#-#=#*#=#-#=#*#=#-#=#*#=#-#=#*#=#-#=#*#=#-#=#*#=#-#
 
