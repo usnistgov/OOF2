@@ -80,9 +80,8 @@ def evolve(meshctxt, endtime):
                 # Initial output comes *after* solving static fields.
                 # For fully static problems, this is the only output.
                 _do_output(meshctxt, starttime)
-            except ooferror2.OOFPyError as exc:
-                if not isinstance(exc.cerror, ooferror2.ErrInterrupted):
-                    meshctxt.setStatus(meshstatus.Failed(exc.cerror.summary()))
+            except ooferror2.PyErrInterrupted as exc:
+                meshctxt.setStatus(meshstatus.Failed(exc.summmary()))
                 raise
             except Exception as exc:
                 meshctxt.setStatus(meshstatus.Failed(repr(exc)))
@@ -114,20 +113,23 @@ def evolve(meshctxt, endtime):
                     delta = min(
                         [subp.time_stepper.initial_stepsize(t1-starttime)
                          for subp in subprobctxts])
+                    
                 try:
                     time, delta, linsys_dict = evolve_to(
                         meshctxt, subprobctxts,
                         time=time, endtime=t1, delta=delta, prog=prog,
                         linsysDict=linsys_dict)
-                except ooferror2.OOFPyError as err:
-                    if isinstance(err.cerror, ooferror2.ErrInterrupted):
-                        # Interruptions shouldn't raise an error dialog
-                        debug.fmsg("Interrupted!")
-                        meshctxt.setStatus(meshstatus.Failed(
-                            "Solution interrupted."))
-                        break
-                    else:
-                        raise
+                ## TODO PYTHON3: The try block in the initialization
+                ## section, above, sets the mesh status if any
+                ## exceptions occur. This does it only for
+                ## interruptions.  Why?
+                except ooferror2.PyErrInterrupted as err:
+                    # Interruptions shouldn't raise an error dialog.
+                    debug.fmsg("Interrupted!")
+                    meshctxt.setStatus(meshstatus.Failed(
+                        "Solution interrupted."))
+                    break
+                
                 meshctxt.solverDelta = delta
                 if time < t1:
                     meshctxt.setStatus(meshstatus.Failed(

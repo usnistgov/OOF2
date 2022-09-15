@@ -31,8 +31,10 @@ import traceback
 # pyERR derived from Exception, and which contains a swigged C++
 # exception.
 
+from ooflib.common import ooferrorwrappers
+
 def pyErrorCallback(cexcept):
-    raise pyErrorWrappers[cexcept.__class__](cexcept=cexcept)
+    raise ooferrorwrappers.pyErrorWrappers[cexcept.__class__](cexcept=cexcept)
     
 pyErrorInit(pyErrorCallback)
 
@@ -42,7 +44,10 @@ def registerErrorClass(eclass):
     # Allow an error class to be raised from the SWIGged wrapper
     # functions.  Only error classes defined outside of this module
     # need to be registered.
-    ## TODO PYTHON3: Is this still necessary?
+    
+    ## TODO PYTHON3: Is this still necessary?  If it's not necessary,
+    ## can everything else in this file be included in ooferror.swg
+    ## via %pythoncode?  We could get rid of this file.
     g = globals()
     g[eclass.__name__] = eclass
 

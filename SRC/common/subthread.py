@@ -21,6 +21,7 @@ from ooflib.SWIG.common import threadstate
 from ooflib.common import debug
 from ooflib.common import excepthook
 from ooflib.common import thread_enable
+from ooflib.common import ooferrorwrappers
 import sys
 import threading
 
@@ -43,23 +44,24 @@ class MiniThread(threading.Thread):
         self.immortal = True
         
     def run(self):
+        from ooflib.common.IO import reporter
         miniThreadManager.add(self)
         try:
             try:
                 self.threadstate = threadstate.ThreadState()
-#                 debug.fmsg("assigning excepthook, function=", self.function)
                 hook = excepthook.assign_excepthook(excepthook.OOFexceptHook())
                 self.function(*self.args, **self.kwargs)
                 excepthook.remove_excepthook(hook)
             except StopThread:
                 excepthook.remove_excepthook(hook)
                 return
+            except ooferrorwrappers.PyOOFError as exception:
+                debug.fmsg("Caught an ErrError!", exception, type(exception))
+                reporter.error(exception.cexcept)
+                sys.excepthook(*sys.exc_info())
             except Exception as exception:
-                from ooflib.common.IO import reporter
-                if isinstance(exception, ooferror.OOFPyError):
-                    reporter.error(exception.cerror)
-                else:
-                    reporter.error(exception)
+                debug.fmsg("Caught something else!")
+                reporter.error(exception)
                 sys.excepthook(*sys.exc_info())
         finally:
             miniThreadManager.remove(self)

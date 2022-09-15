@@ -8,4 +8,13 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
+# Base class for Python exceptions created from C++ exceptions via the
+# WRAP_OOFERROR_CLASS macro in ooferrorwrappers.swg.
+
+class PyOOFError(Exception):
+    pass
+
+# Dictionary that maps C++ exception classes to their Python wrappers.
+
 pyErrorWrappers = {}
+
