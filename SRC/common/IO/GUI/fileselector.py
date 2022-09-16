@@ -277,7 +277,7 @@ class FileSelectorWidget(parameterwidgets.ParameterWidget):
         self.switchDir(self.dirHistory.prev())
 
     def nextCB(self, button):
-        self.switchDir(next(self.dirHistory))
+        self.switchDir(self.dirHistory.next())
 
     def homeCB(self, button):
         directory = os.path.expanduser("~")

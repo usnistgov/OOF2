@@ -334,7 +334,7 @@ class WhoDoUndo(Who):                   # that you do so well
     def redoModification(self):
         try:
             old = self._obj
-            self._obj = next(self.undobuffer)
+            self._obj = self.undobuffer.next()
         except IndexError:
             pass
         else:

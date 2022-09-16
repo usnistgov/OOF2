@@ -168,7 +168,7 @@ class RingBuffer:
         if self.currentpos == self.bottom or self.ndata == 0:
             return None
         return self.data[(self.currentpos - 1) % len(self.data)]
-    def __next__(self):
+    def next(self):
         if self.ndata == 0 or self.currentpos == (self.top - 1)%len(self.data):
             raise IndexError
         self.currentpos = (self.currentpos + 1) % len(self.data)

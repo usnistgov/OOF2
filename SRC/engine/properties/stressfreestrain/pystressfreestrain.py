@@ -41,8 +41,8 @@ class PyStressFreeStrain(pypropertywrapper.PyFluxProperty):
                     fluxdata.add_offset_vector_element(
                         ij,
                         2.0*cijkl[ij.integer(), kl.integer()]*strain_kl)
-                kl.next()
-            ij.next()
+                kl.increment()
+            ij.increment()
         
         ## It would be nice if this could have been written like this:
         # for ij in problem.Stress.iterator(planarity.ALL_INDICES):

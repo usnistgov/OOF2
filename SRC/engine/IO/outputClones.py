@@ -112,10 +112,7 @@ def _field_column_names(self):
     it = field.iterator(planarity.ALL_INDICES)
     while not it.end():
         names.append("%s[%s]" % (field.name(), it.shortstring()))
-        ## TODO PYTHON3: This only works if FieldIterators are real
-        ## iterators.  It used to be it.next().  Ditto for other
-        ## instances below.
-        next(it)
+        it.increment()
     return names
 
 FieldOutput = output.Output(
@@ -161,7 +158,7 @@ def _fieldderiv_column_names(self):
     while not it.end():
         names.append("d(%s[%s])/d%s" % (field.name(), it.shortstring(),
                                         derivative.string()))
-        next(it)
+        it.increment()
     return names
 
 FieldDerivOutput = output.Output(
@@ -223,7 +220,7 @@ def _flux_column_names(self):
     names = []
     while not it.end():
         names.append("%s[%s]" % (flux.name(), it.shortstring()))
-        next(it)
+        it.increment()
     return names
 
 FluxOutput = output.Output(
@@ -428,9 +425,9 @@ def _vectorFunctionOutput(mesh, elements, coords, fx=None, fy=None, fz=None):
             # used if we're not in three dimensions.
             f = iter([fx, fy, fz])
             while not it.end(): # use size of val, not f!
-                fi = next(f)   # python iterator
+                fi = next(f)    # python iterator
                 val[it] = fi(coord)
-                next(it)       # oof IteratorP from fieldindex.py
+                it.increment()  # oof IteratorP from fieldindex.py
             ans.append(val)
         ## TODO: That was a real mess.  If OutputVal.getIterator
         ## returned a real Python iterator object, this could be
@@ -552,7 +549,7 @@ def _aggdiff_column_names(self):
     names = []
     while not it.end():
         names.append("%s[%s]" % (sr, it.shortstring()))
-        next(it)
+        it.increment()
     return names
 
 AggregateDifferenceOutput = output.Output(

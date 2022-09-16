@@ -1179,8 +1179,8 @@ def _build_oops(field, eqn, boundary):
                                oop_eqn, eqn_itr.shortstring(),
                                boundary)
         res.append(new_oop)
-        next(field_itr)         # TODO PYTHON3: Check iterators
-        next(eqn_itr)
+        field_itr.increment()
+        eqn_itr.increment()
 
     return res
 
@@ -1367,8 +1367,8 @@ class PeriodicBC(BC):
                 newbc.add_to_mesh(aux_bc_name, self.mesh)
                 self.floatBCs.append(newbc)
                 
-                next(field_comp_itr) # TODO PYTHON3: Check iterators
-                next(eqn_comp_itr)
+                field_comp_itr.increment()
+                eqn_comp_itr.increment()
 
                 
             # Add the out-of-plane BCs, via the handy helper function.

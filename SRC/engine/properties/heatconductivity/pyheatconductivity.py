@@ -49,7 +49,7 @@ class PyHeatConductivity(pypropertywrapper.PyFluxProperty):
                     nodeiterator,
                     cond.get(fluxiterator.integer(), 2) * sf)
             
-            fluxiterator.next()
+            fluxiterator.increment()
     def integration_order(self, subproblem, element):
         if problem.Temperature.in_plane(subproblem.get_mesh()):
             return element.dshapefun_degree()

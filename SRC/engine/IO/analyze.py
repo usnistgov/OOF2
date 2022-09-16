@@ -163,7 +163,7 @@ def _getMoments(sampling, domain, output, exponents):
         # work hard to initialize the sum to the right kind of zero
         # (eg, 0 or OutputVal.zero()).
         integraliter = iter(integrals)
-        ## TODO PYTHON3: Check this.  Old version as
+        ## TODO PYTHON3: Check this.  Old version was
         ## integraliter.next(). Is integraliter a real python3
         ## iterator?
         sample, sum = next(integraliter)

@@ -1003,8 +1003,8 @@ class Mesh(whoville.Who):
             if (mynode.position() - othernode.position())**2 > tol2:
                 return "Node outside of tolerance, %s" % \
                        mynode.position() - othernode.position()
-            next(mynodes)       # TODO PYTHON3: Check iterator behavior
-            next(othernodes)
+            mynodes.increment()
+            othernodes.increment()
         if not (mynodes.end() and othernodes.end()):
             return "Wrong number of nodes"
 
@@ -1080,10 +1080,10 @@ class Mesh(whoville.Who):
                         othernodes = []
                         while not mynodeiter.end():
                             mynodes.append(mynodeiter.node())
-                            next(mynodeiter) # TODO PYTHON3: Check iterator
+                            mynodeiter.increment()
                         while not othernodeiter.end():
                             othernodes.append(othernodeiter.node())
-                            next(othernodeiter) # TODO PYTHON3: Check iterator
+                            othernodeiter.increment()
                         mynodes.sort(key=_nodekey)
                         othernodes.sort(key=_nodekey)
 

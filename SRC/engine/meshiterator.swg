@@ -43,7 +43,6 @@
 
 class NodeIterator {
 public:
-  // NodeIterator();		// DON'T SWIG THE CONSTRUCTOR
   ~NodeIterator();
   bool end();
   int size();
@@ -51,7 +50,7 @@ public:
 };
 
 %extend NodeIterator {
-  void next() {
+  void increment() {
     ++(*self);
   }
 };
@@ -60,7 +59,6 @@ public:
 
 class FuncNodeIterator {
 public:
-  // FuncNodeIterator();		// DON'T SWIG THE CONSTRUCTOR
   ~FuncNodeIterator();
   bool end();
   int size();
@@ -77,7 +75,6 @@ public:
 
 class ElementIterator {
 public:
-  // ElementIterator(); 		// DON'T SWIG THE CONSTRUCTOR
   ~ElementIterator();
   bool end();
   int size();

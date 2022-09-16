@@ -292,7 +292,7 @@ class NodeMode(MeshInfoMode):
                                               1, 1)
                     # self.table.attach(e, 2,3, row,row+1,
                     #                   xoptions=gtk.EXPAND|gtk.FILL)
-                    next(fcomp)
+                    fcomp.increment()
 
                 sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
                 self.table.attach_next_to(sep, flabel, Gtk.PositionType.BOTTOM,
@@ -309,7 +309,7 @@ class NodeMode(MeshInfoMode):
             while not fcomp.end():
                 e = self.fieldvalEntries[(fld, fcomp.integer())]
                 e.set_text("%-13.6g"%fld.value(femesh, node, fcomp.integer()))
-                next(fcomp)
+                fcomp.increment()
             
 
     def updateNothing(self):

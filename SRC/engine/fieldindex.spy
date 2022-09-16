@@ -20,21 +20,20 @@ IteratorP.shortrepr = _shortrepr
 
 #############
 
-# Make IteratorP into a real python iterator.  It iterates over the
-# values of the IndexP class, not over the components of the thing
-# being indexed.
-
-def IteratorP___iter__(self):
-    return self
-
-IteratorP.__iter__ = IteratorP___iter__
-
-def IteratorP___next__(self):
-    self.increment()
-    if self.end():
-        raise StopIteration
-    return self
-
-IteratorP.__next__ = IteratorP___next__
+# # Make IteratorP into a real python iterator.  It iterates over the
+# # values of the IndexP class, not over the components of the thing
+# # being indexed.
 
 
+# def IteratorP___iter__(self):
+#     return self
+
+# IteratorP.__iter__ = IteratorP___iter__
+
+# def IteratorP___next__(self):
+#     self.increment()
+#     if self.end():
+#         raise StopIteration
+#     return self
+
+# IteratorP.__next__ = IteratorP___next__

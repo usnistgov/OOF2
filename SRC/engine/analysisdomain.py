@@ -113,7 +113,7 @@ class EntireMesh(Domain):
         iter = self.femesh.element_iterator()
         while not iter.end():
             el_list.append(iter.element())
-            next(iter)          # TODO PYTHON3: Check iterator behaviorx
+            iter.increment()
         return el_list
         
 

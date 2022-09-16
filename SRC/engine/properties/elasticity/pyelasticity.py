@@ -77,7 +77,7 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
                     -(cijkl[(ij.integer(), ell0.integer())]*dsf0
                      + cijkl[(ij.integer(), ell1.integer())]*dsf1)
                     )
-                ell.next()
+                ell.increment()
             if not problem.Displacement.in_plane(mesh):
                 oop = problem.Displacement.out_of_plane()
                 kay = oop.iterator(planarity.ALL_INDICES)
@@ -87,8 +87,8 @@ class PyElasticity(pypropertywrapper.PyFluxProperty):
                         ij, oop, kay, nodeiterator,
                         -cijkl[(ij.integer(), kl.integer())]*sf
                         )
-                    kay.next()
-            ij.next()
+                    kay.increment()
+            ij.increment()
 
     def integration_order(self, subproblem, element):
         if problem.Displacement.in_plane(subproblem.get_mesh()):

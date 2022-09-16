@@ -92,9 +92,9 @@ class TestPlasticityProp(pypropertywrapper.PyFluxProperty):
                     offset += cijkl*ep_val[kl]
                 else:
                     offset += 2.0*cijkl*ep_val[kl]
-                kl.next()
+                kl.increment()
             smallsystem.add_offset_element(ij, offset)
-            ij.next()
+            ij.increment()
 
     # Evaluate the constraint equation at a gausspoint.
     def evaluate_constraint(self, mesh, element, eqn, masterpos, smallsystem):
@@ -155,9 +155,9 @@ class TestPlasticityProp(pypropertywrapper.PyFluxProperty):
                     stressij += cijkl*strain[kl]
                 else:
                     stressij += 2.0*cijkl*strain[kl]
-                kl.next()
+                kl.increment()
             # Accumulate the stress somewhere.
-            ij.next()
+            ij.increment()
 
         # Now call the yield function at this gausspoint with the
         # actual stress, and use this as our contribution to the

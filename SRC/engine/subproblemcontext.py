@@ -273,7 +273,7 @@ class SubProblemContext(whoville.Who):
         iter = self.getObject().element_iterator()
         while not iter.end():
             a += iter.element().area()
-            iter.next()
+            iter.increment()
         return a
 
     def solved(self):

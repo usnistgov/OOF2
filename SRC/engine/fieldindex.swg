@@ -176,14 +176,16 @@ public:
 // fieldindex.spy adds __iter__ and __next__ methods to IteratorP,
 // making it into a real python iterator.  The old TODO about doing
 // that said "Fixing this at this late date will be a pain".
-// TODO PTYHON3: Find out what broke.
+// TODO PYTHON3: Find out what broke.
 
 // TODO INDEXING: Don't swig IteratorP and IndexP.  Make the
 // underlying FieldIndex and FieldIterator classes PythonExportable,
 // and swig those.  Operations like SymmMatrix.__getitem__ would
 // expect a FieldIndex of the correct type, not an IndexP, and the
 // index object's special methods, like SymTensorIndex.diagonal, would
-// be available.
+// be available.  The Field, Flux, and Equation classes should be
+// iterable, with __iter__ returning an appropriate FieldIndex.
+
 
 %extend IteratorP {
   void __next__() {

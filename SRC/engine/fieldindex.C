@@ -101,11 +101,9 @@ std::ostream &operator<<(std::ostream &os, const IndexP &ip) {
 }
 
 IteratorP *getSymTensorIterator(Planarity planarity) {
-#if DIM==2
   if(planarity == IN_PLANE)
     return new IteratorP(new SymTensorInPlaneIterator());
   if(planarity == OUT_OF_PLANE)
     return new IteratorP(new SymTensorOutOfPlaneIterator());
-#endif
   return new IteratorP(new SymTensorIterator());
 }

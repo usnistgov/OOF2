@@ -330,10 +330,10 @@ class FieldIndexParameterWidget(parameterwidgets.ParameterWidget):
             iterator = field.iterator_all()
             while not iterator.end():
                 self.nIndices += 1
-                it = iterator.cloneIndex()
+                it = iterator.cloneIndex() # TODO: why?
                 itrepr = it.shortrepr()
                 itlist.append(itrepr)
-                next(iterator)
+                iterator.increment()
         self.chooser.update(itlist)
 
         # The __init__ used to put both the chooser and the "Not
