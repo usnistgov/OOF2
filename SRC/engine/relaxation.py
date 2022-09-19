@@ -42,7 +42,6 @@ from ooflib.engine.IO import isocijkl
 from ooflib.engine.IO import meshmenu
 import ooflib.engine.mesh
 
-
 class Relax(skeletonmodifier.SkeletonModifier):
 
     materialName = '__bone_marrow__'
@@ -124,8 +123,7 @@ class Relax(skeletonmodifier.SkeletonModifier):
         displacement = field.getField('Displacement')
         subp.define_field(displacement)
         subp.activate_field(displacement)
-        if config.dimension() == 2:
-            meshctxt.set_in_plane_field(displacement, True)
+        meshctxt.set_in_plane_field(displacement, True)
 
     def activate_equations(self, meshctxt):
         meshctxt.get_default_subproblem().getObject().activate_equation(
@@ -133,50 +131,49 @@ class Relax(skeletonmodifier.SkeletonModifier):
     def set_boundary_conditions(self, mesh):
         ## here, mesh is a Mesh (Who) object
         displacement = field.getField('Displacement')
-        if config.dimension() == 2:
-            ## left boundary
-            self.leftBoundaryCondition = \
-                 bdycondition.DirichletBC(displacement,
-                                          'x',
-                                          equation.getEquation('Force_Balance'),
-                                          'x',
-                                          profile.ConstantProfile(0),
-                                          'left'
-                                          )
-            self.leftBoundaryCondition.add_to_mesh('left', mesh.path())
+        ## left boundary
+        self.leftBoundaryCondition = \
+             bdycondition.DirichletBC(displacement,
+                                      'x',
+                                      equation.getEquation('Force_Balance'),
+                                      'x',
+                                      profile.ConstantProfile(0),
+                                      'left'
+                                      )
+        self.leftBoundaryCondition.add_to_mesh('left', mesh.path())
 
-            ## right boundary
-            self.rightBoundaryCondition = \
-                 bdycondition.DirichletBC(displacement,
-                                          'x',
-                                          equation.getEquation('Force_Balance'),
-                                          'x',
-                                          profile.ConstantProfile(0),
-                                          'right'
-                                          )
-            self.rightBoundaryCondition.add_to_mesh('right', mesh.path())
+        ## right boundary
+        self.rightBoundaryCondition = \
+             bdycondition.DirichletBC(displacement,
+                                      'x',
+                                      equation.getEquation('Force_Balance'),
+                                      'x',
+                                      profile.ConstantProfile(0),
+                                      'right'
+                                      )
+        self.rightBoundaryCondition.add_to_mesh('right', mesh.path())
 
-            ## top boundary
-            self.topBoundaryCondition = \
-                 bdycondition.DirichletBC(displacement,
-                                          'y',
-                                          equation.getEquation('Force_Balance'),
-                                          'y',
-                                          profile.ConstantProfile(0),
-                                          'top'
-                                          )
-            self.topBoundaryCondition.add_to_mesh('top', mesh.path())
+        ## top boundary
+        self.topBoundaryCondition = \
+             bdycondition.DirichletBC(displacement,
+                                      'y',
+                                      equation.getEquation('Force_Balance'),
+                                      'y',
+                                      profile.ConstantProfile(0),
+                                      'top'
+                                      )
+        self.topBoundaryCondition.add_to_mesh('top', mesh.path())
 
-            ## bottom boundary
-            self.bottomBoundaryCondition = \
-                 bdycondition.DirichletBC(displacement,
-                                          'y',
-                                          equation.getEquation('Force_Balance'),
-                                          'y',
-                                          profile.ConstantProfile(0),
-                                          'bottom'
-                                          )
-            self.bottomBoundaryCondition.add_to_mesh('bottom', mesh.path())
+        ## bottom boundary
+        self.bottomBoundaryCondition = \
+             bdycondition.DirichletBC(displacement,
+                                      'y',
+                                      equation.getEquation('Force_Balance'),
+                                      'y',
+                                      profile.ConstantProfile(0),
+                                      'bottom'
+                                      )
+        self.bottomBoundaryCondition.add_to_mesh('bottom', mesh.path())
 
     def update_node_positions(self, skeleton, mesh):
         skeleton.timestamp.increment()
@@ -195,21 +192,14 @@ class Relax(skeletonmodifier.SkeletonModifier):
 
             dx = displacement.value(femesh, realnode, 0)
             dy = displacement.value(femesh, realnode, 1)
-            if config.dimension() == 2:
-                skeleton.moveNodeBy(node, primitives.Point(dx, dy))
-            elif config.dimension() == 3:
-                dz = displacement.value(femesh, realnode, 2)
-                skeleton.moveNodeBy(node, primitives.Point(dx, dy, dz))
+            skeleton.moveNodeBy(node, primitives.Point(dx, dy))
 
     def apply(self, oldskeleton, context):
         prog = progress.getProgress("Relax", progress.DEFINITE)
         prog.setMessage("Preparing to relax...")
         return oldskeleton.deputyCopy()
     def initialize_fields(self, mesh):
-        if config.dimension() == 2:
-            initializer = fieldinit.ConstTwoVectorFieldInit(cx=0.0,cy=0.0)
-        elif config.dimension() == 3:
-            initializer = fieldinit.ConstTwoVectorFieldInit(cx=0.0,cy=0.0,cz=0.0)
+        initializer = fieldinit.ConstTwoVectorFieldInit(cx=0.0,cy=0.0)
         meshmenu.initField(self, self.meshname, field.getField('Displacement'),
                            initializer)
         meshmenu.applyFieldInits(self, self.meshname)
