@@ -299,9 +299,7 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
                 distance2 = (self.where.evaluate(
                     femesh, [el],[[el.center()]])[0] - pos)**2
                 ellist.append( (distance2, el) )
-            ## TODO PYTHON3: Check that ei is a real python3
-            ## iterator. This line used to be ei.next().
-            next(ei)
+            ei.increment()
         ellist.sort()
 
         smallestdist = None
