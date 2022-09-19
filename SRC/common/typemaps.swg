@@ -127,7 +127,6 @@
   // TODO PYTHON3: We shouldn't still need all these typedefs. SWIG
   // understands templates.  Check that they're not used in other swig
   // files, then delete them.
-typedef std::vector<Coord*> CoordVec;
 typedef std::vector<char*> CharPtrVec;
 typedef std::vector<int> IntVec;
 %}
