@@ -129,7 +129,6 @@
   // files, then delete them.
 typedef std::vector<Coord*> CoordVec;
 typedef std::vector<char*> CharPtrVec;
-typedef std::vector<double> DoubleList;
 typedef std::vector<int> IntVec;
 %}
 

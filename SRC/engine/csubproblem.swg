@@ -162,7 +162,7 @@ public:
   void report_recovered_fluxes(Element*, Coord *Point);
   double zz_L2_estimate(Element*, Flux*);
   %newobject zz_L2_weights;
-  DoubleList *zz_L2_weights(Flux*, double, double);
+  std::vector<double> *zz_L2_weights(Flux*, double, double);
   bool contains(Element*);
 };				// class CSubProblem
 

@@ -51,9 +51,9 @@ void _Send_IntVec(IntVec*, int, int);
 %newobject _Recv_IntVec;
 IntVec* _Recv_IntVec(int, int, int);
 
-void _Send_DoubleVec(DoubleList*, int, int);
+void _Send_DoubleVec(std::vector<double>*, int, int);
 %newobject _Recv_DoubleVec;
-DoubleList* _Recv_DoubleVec(int, int, int);
+std::vector<double>* _Recv_DoubleVec(int, int, int);
 
 void _Isend_Int(int, IntVec*, int);
 void _Isend_Ints(IntVec*, IntVec*, int);
@@ -67,10 +67,10 @@ void _Isend_Strings(char*, IntVec*, IntVec*, int);
 
 void _Isend_IntVecs(IntVec*, IntVec*, IntVec*, int);
 
-void _Isend_DoubleVec(DoubleList*, IntVec*, int);
-void _Isend_DoubleVecs(DoubleList*, IntVec*, IntVec*, int);
+void _Isend_DoubleVec(std::vector<double>*, IntVec*, int);
+void _Isend_DoubleVecs(std::vector<double>*, IntVec*, IntVec*, int);
 %newobject _Irecv_DoubleVecs;
-DoubleList* _Irecv_DoubleVecs(IntVec*, IntVec*, int);
+std::vector<double>* _Irecv_DoubleVecs(IntVec*, IntVec*, int);
 
 bool _Iprobe(int, int);
 
@@ -83,15 +83,15 @@ IntVec* _Allgather_Int(int);
 %newobject _Allgather_IntVec;
 IntVec* _Allgather_IntVec(IntVec*, int);
 %newobject _Allgather_DoubleVec;
-DoubleList* _Allgather_DoubleVec(DoubleList*, int);
+std::vector<double>* _Allgather_DoubleVec(std::vector<double>*, int);
 
 void bcast_ints(IntVec*, int);
 %newobject recv_bcast_ints;
 IntVec* recv_bcast_ints(int);
 
-void bcast_doubles(DoubleList*, int);
+void bcast_doubles(std::vector<double>*, int);
 %newobject recv_bcast_doubles;
-DoubleList* recv_bcast_doubles(int);
+std::vector<double>* recv_bcast_doubles(int);
 
 void bcast_string(char*, int);
 std::string recv_bcast_string(int);

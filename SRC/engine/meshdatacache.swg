@@ -25,7 +25,7 @@
 class MeshDataCache {
 public:
   void setMesh(FEMesh*);
-  DoubleList *times();
+  std::vector<double> *times();
   int size();
   void restore(double);
   void restoreLatest();

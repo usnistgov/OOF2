@@ -111,7 +111,7 @@ public:
   NewOutputVal *clone();
   NewOutputVal *zero();
   %newobject value_list;
-  DoubleList *value_list();
+  std::vector<double> *value_list();
 };
 
 %nodefaultctor NonArithmeticOutputVal;

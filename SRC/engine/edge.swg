@@ -35,10 +35,10 @@ public:
   Edge(const Element *, const FuncNode*, const FuncNode*);
   ~Edge();
   %newobject position_;
-  CoordVec* position_(DoubleList*);
+  CoordVec* position_(std::vector<double>*);
   %newobject outputFields;
   ArithmeticOutputValueVec *outputFields(const FEMesh*, const Field&,
-					 DoubleList*);
+					 const std::vector<double>*);
   int order();
   MasterCoord startpt();
   MasterCoord endpt();

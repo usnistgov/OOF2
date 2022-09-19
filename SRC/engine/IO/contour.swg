@@ -72,7 +72,7 @@ public:
 class ContourCellSet {
 public:
   ContourCoordRefVec *getCorners();
-  void findIntercepts(DoubleList*);
+  void findIntercepts(std::vector<double>*);
 };
 
 ContourCellSet *contourCellCache(MasterElement*, int);
