@@ -81,6 +81,8 @@
 		    "in method '$symname', expecting a ERR in self.cexcept");
     SWIG_fail;
   }
+
+  ADD_REPR(ERR, summary);
 }
 
 %enddef // WRAP_OOFERROR_CLASS

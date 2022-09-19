@@ -50,7 +50,6 @@ public:
   ~ErrProgrammingError();
 };
 WRAP_OOFERROR_CLASS(ErrProgrammingError);
-ADD_REPR(ErrProgrammingError, summary);
 
 class ErrPyProgrammingError : public ErrError {
 public:
@@ -58,7 +57,6 @@ public:
   ~ErrPyProgrammingError();
 };
 WRAP_OOFERROR_CLASS(ErrPyProgrammingError);
-ADD_REPR(ErrPyProgrammingError, summary);
 
 %pythoncode %{
   # Monkeypatch the __init__ so that line number and file
@@ -77,7 +75,6 @@ public:
   ~ErrResourceShortage();
 };
 WRAP_OOFERROR_CLASS(ErrResourceShortage);
-ADD_REPR(ErrResourceShortage, summary);
 
 class ErrBoundsError : public ErrError {
 public:
@@ -85,8 +82,6 @@ public:
   ~ErrBoundsError();
 };
 WRAP_OOFERROR_CLASS(ErrBoundsError);
-ADD_REPR(ErrBoundsError, summary);
-
 
 class ErrBadIndex : public ErrError {
 public:
@@ -94,8 +89,6 @@ public:
   ~ErrBadIndex();
 };
 WRAP_OOFERROR_CLASS(ErrBadIndex);
-ADD_REPR(ErrBadIndex, summary);
-
 
 class ErrUserError : public ErrError {
 public:
@@ -103,7 +96,6 @@ public:
   ~ErrUserError();
 };
 WRAP_OOFERROR_CLASS(ErrUserError);
-ADD_REPR(ErrUserError, summary);
 
 class ErrSetupError : public ErrError {
 public:
@@ -111,7 +103,6 @@ public:
   ~ErrSetupError();
 };
 WRAP_OOFERROR_CLASS(ErrSetupError);
-ADD_REPR(ErrSetupError, summary);
 
 class ErrInterrupted : public ErrError {
 public:
@@ -119,7 +110,6 @@ public:
   ~ErrInterrupted();
 };
 WRAP_OOFERROR_CLASS(ErrInterrupted);
-ADD_REPR(ErrInterrupted, summary);
 
 class ErrNoProgress : public ErrError {
 public:
@@ -127,7 +117,6 @@ public:
   ~ErrNoProgress();
 };
 WRAP_OOFERROR_CLASS(ErrNoProgress);
-ADD_REPR(ErrNoProgress, summary);
 
 class ErrDataFileError : public ErrError {
 public:
@@ -135,7 +124,6 @@ public:
   ~ErrDataFileError();
 };
 WRAP_OOFERROR_CLASS(ErrDataFileError);
-ADD_REPR(ErrDataFileError, summary);
 
 class ErrWarning : public ErrError {
 public:
@@ -143,8 +131,6 @@ public:
   ~ErrWarning();
 };
 WRAP_OOFERROR_CLASS(ErrWarning);
-ADD_REPR(ErrWarning, summary);
-
 
 %pythoncode "common/ooferror.spy"
 
