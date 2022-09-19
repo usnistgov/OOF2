@@ -70,10 +70,8 @@ public:
   double lab_length();
   double master_length() const; 
 
-  // Functions to support output to the GUI. The underscore in the
-  // name is because this is meant to be called by a wrapper
-  // function from Python.  The wrapper gets to be named "position".
-  std::vector<Coord*>* position_(const std::vector<double>*) const;
+  // Functions to support output to the GUI. 
+  std::vector<Coord*>* position(const std::vector<double>*) const;
   // Evaluate a Field at a bunch of positions along the edge.  The
   // positions are doubles between 0 and 1.
   std::vector<ArithmeticOutputValue>* outputFields(

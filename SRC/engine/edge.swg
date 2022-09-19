@@ -17,12 +17,15 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "common/coord.swg"
 %import "engine/field.swg"
 %import "engine/node.swg"
 %import "engine/element.swg"
 %import "engine/mastercoord.swg"
 %import "engine/outputval.swg"
 #endif // NOSECONDIMPORTS
+
+MAKE_LISTVEC_TYPEMAPS(Coord);
 
 %{
 #include "engine/edge.h"
@@ -35,7 +38,7 @@ public:
   Edge(const Element *, const FuncNode*, const FuncNode*);
   ~Edge();
   %newobject position_;
-  CoordVec* position_(std::vector<double>*);
+  CoordVec* position(const std::vector<double>*);
   %newobject outputFields;
   ArithmeticOutputValueVec *outputFields(const FEMesh*, const Field&,
 					 const std::vector<double>*);
@@ -53,7 +56,5 @@ public:
   Node *startnode();
   Node *endnode();
 };
-
-%pythoncode "engine/edge.spy"
 
 #endif // EDGE_SWG
