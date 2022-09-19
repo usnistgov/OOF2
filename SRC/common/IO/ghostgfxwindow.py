@@ -1178,6 +1178,7 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                         return
                     except Exception as exc:
                         debug.fmsg('Exception while drawing!', exc)
+                        debug.fmsg(traceback.print_tb())
                         raise
         finally:
             self.releaseGfxLock()
