@@ -692,8 +692,8 @@ def _getConjugatePairs(meshctxt):
                            pair.get_equation_component().integer()==eqniter.integer():
                             conjugatepairs.append((fld,flditer.shortrepr(),
                                                    eqn,eqniter.shortrepr()))
-                    eqniter.next()
-            flditer.next()
+                    eqniter.increment()
+            flditer.increment()
     return conjugatepairs
 
 def _addInterfaceBC(self,bcname):
