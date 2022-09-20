@@ -300,7 +300,12 @@ class GroupTracker:
     def __init__(self):
         self.data = {}
     def add_group(self, name):
-        self.data[name]=set()
+        # Use an ordered set here so that tests are reproducible.
+        # TODO PYTHON3: After comparisons with the old Python2 version
+        # are no longer needed for quality control, replace the
+        # OrderedSet with a dict, which preserves order in Python3.7
+        # and above.
+        self.data[name] = utils.OrderedSet()
     def clear_group(self, name):
         for e in self.data[name]:
             e.remove_group_from_local(name)

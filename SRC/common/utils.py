@@ -367,12 +367,13 @@ def format(line, width):
 # ensures that the objects are returned in the order in which they
 # were added.
 
+## TODO: As of Python 3.7, the built-in dict preserves order, so we
+## don't need OrderedDict, and OrderedSet can be implemented using the
+## keys of a dict.  We'll need to do something to replace
+## OrderedDict.reorder(), though.
 
 # The optional constructor argument is a list (not a dict!) of (key,
 # value) pairs, in the order in which they should appear in the OrderedDict.
-
-## TODO PYTHON3: Add real iterator support.  keys(), values(), and
-## items() should return iterators.
 
 class OrderedDict(dict):
     def __init__(self, items=None):

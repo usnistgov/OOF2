@@ -15,6 +15,7 @@ from ooflib.common import debug
 from ooflib.common import parallel_enable
 from ooflib.common import primitives
 from ooflib.common import registeredclass
+from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
 from ooflib.common.IO import xmlmenudump
@@ -24,6 +25,7 @@ from ooflib.engine.IO import skeletongroupparams
 from ooflib.engine.IO import skeletonmenu
 import math
 import sys
+import traceback
 
 from ooflib.SWIG.common import ooferror
 
@@ -436,11 +438,18 @@ class FiddleElementsInGroup(FiddleNodesTargets):
         self.nodes = None
     def __call__(self, context):
         if self.nodes is None:
-            nodedict = {}
+            ## TODO PYTHON3: The only reason to use OrderedSet here is
+            ## so that we can compare results with the python2
+            ## version.  The python2 dict doesn't preserve order.  The
+            ## python3 dict would be sufficient if we weren't
+            ## comparing results with python2.  The python3 set would
+            ## work too, but since it doesn't preserve order some
+            ## future version of python might change the results.
+            nodedict = utils.OrderedSet()
             for element in context.elementgroups.get_group(self.group):
                 if element.active(context.getObject()):
                     for nd in element.nodes:
-                        nodedict[nd] = 1
+                        nodedict.add(nd)
             self.nodes = [n for n in nodedict if n.movable()]
         return self.nodes
     def cleanUp(self):
