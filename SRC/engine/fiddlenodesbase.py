@@ -15,6 +15,7 @@ from ooflib.common import debug
 from ooflib.common import parallel_enable
 from ooflib.common import primitives
 from ooflib.common import registeredclass
+from ooflib.common import utils
 from ooflib.common.IO import parameter
 from ooflib.common.IO import reporter
 from ooflib.common.IO import xmlmenudump
@@ -25,6 +26,7 @@ from ooflib.engine.IO import skeletonmenu
 import math
 # import time
 import sys
+import traceback
 
 from ooflib.SWIG.common import ooferror
 
@@ -341,6 +343,7 @@ class NodesInGroup(FiddleNodesTargets):
         self.nodes = None
     def __call__(self, context):
         if self.nodes is None:
+            debug.fmsg("group=", [n.getIndex() for n in context.nodegroups.get_group(self.group)])
             skel = context.getObject()
             self.nodes = [n for n in context.nodegroups.get_group(self.group)
                           if n.movable() and n.active(skel)]
@@ -403,12 +406,12 @@ class FiddleHeterogeneousElements(FiddleNodesTargets):
         # the list of nodes just once.  This one recomputes it each
         # time it's called, so that elements that become homogeneous
         # during the process won't be processed further.
-        nodedict = {}
+        nodedict = utils.OrderedSet()
         skel = context.getObject()
         for element in skel.activeElements():
             if element.homogeneity(skel.MS, False) < self.threshold:
                 for node in element.nodes:
-                    nodedict[node] = 1
+                    nodedict.add(node)
         return [n for n in nodedict if n.movable()]
     def cleanUp(self):
         pass
@@ -439,12 +442,16 @@ class FiddleElementsInGroup(FiddleNodesTargets):
         def sortcmp(x,y):
             return cmp(x.index, y.index)
         if self.nodes is None:
-            nodedict = {}
-            for element in context.elementgroups.get_group(self.group):
-                if element.active(context.getObject()):
-                    for nd in element.nodes:
-                        nodedict[nd] = 1
-            self.nodes = [n for n in nodedict if n.movable()]
+            try:
+                nodedict = utils.OrderedSet()
+                for element in context.elementgroups.get_group(self.group):
+                    if element.active(context.getObject()):
+                        for nd in element.nodes:
+                            nodedict.add(nd)
+                self.nodes = [n for n in nodedict if n.movable()]
+            except:
+                traceback.print_exc()
+                raise
         return self.nodes
     def cleanUp(self):
         self.nodes = None

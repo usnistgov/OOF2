@@ -301,7 +301,7 @@ class GroupTracker:
     def __init__(self):
         self.data = {}
     def add_group(self, name):
-        self.data[name]=set()
+        self.data[name] = utils.OrderedSet()
     def clear_group(self, name):
         for e in self.data[name]:
             e.remove_group_from_local(name)

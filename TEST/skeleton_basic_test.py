@@ -658,17 +658,18 @@ def build_mod_args():
     }
 
     # skel_modify_args = {
-    #     "Relax" :
-    #         [
-    #         ("modbase", "relax",
-    #          { "alpha" : 0.5,
-    #            "gamma" : 0.5,
-    #            "iterations" : 1
-    #            }
-    #          )
-    #         ],
+    #     "Anneal" : [
+    #     ("modgroups", "anneal_3",
+    #      {"targets" : FiddleElementsInGroup(group='elementgroup'),
+    #       "criterion" : AverageEnergy(alpha=0.6),
+    #       "T" : 0.0,
+    #       "delta" : 1.0,
+    #       "iteration" : FixedIteration(iterations=5)            
+    #       }
+    #      ),
+    #     ],
     # }
-
+    
 def initialize():
     build_mod_args()
 
@@ -696,3 +697,5 @@ special_set = [
     ]
 
 test_set = skel_set + special_set
+
+# test_set = [OOF_Skeleton("Modify")]
