@@ -831,10 +831,10 @@ def edgesFromSegs(edge, target_segs, direction):
     target_list = []
     # If the node_list constitutes a loop, it will be longer than
     # needed by one item, which can be ignored.
-    if len(node_list) > len(seg_list):
+    if len(node_list) > len(seg_list)+1:
         node_list.pop()
-        assert len(node_list) == len(seg_list)
-    for (s, n)  in zip(seg_list, node_list):
+        assert len(node_list) == len(seg_list)+1
+    for (s, n)  in zip(seg_list, node_list[:-1]):
         if s.nodes()[0]==n:
             target_list.append(skeletonsegment.SkeletonEdge(s,direction=1))
         else:
