@@ -237,7 +237,7 @@ def segSequence(seglist, startnode=None):
     # remove any grazed corners (nodes added to adjacency dictionary
     # because of partnerships, that are not directly connected to
     # segments in the boundary) before doing the topology check
-    for (n,l) in adjacency.items():
+    for (n,l) in list(adjacency.items()):
         grazedCorner = True
         for seg in l:
             if n in seg.get_nodes():

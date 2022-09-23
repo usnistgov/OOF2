@@ -263,7 +263,9 @@ class GenericMaterialGroupSet(GenericGroupSet):
             mesh.refreshMaterials(self.skeletoncontext)
         switchboard.notify("redraw")
     def removeMatlCB(self, material):
-        for grpname, (matl, ts) in self.materials.items():
+        # Loop over a copy of materials.items() because removeMaterial
+        # will change the dict.
+        for grpname, (matl, ts) in list(self.materials.items()):
             if matl is material.actual:
                 self.removeMaterial(grpname)
     def getMaterialAndTime(self, group):
