@@ -1280,10 +1280,18 @@ class Skeleton(SkeletonBase):
             return "Element node indexing mismatch"
 
         # Make sure segments have the same node indices.  Segments are
-        # stored in a dictionary keyed by node pairs, so there's no
-        # need to worry about segment order.
-        for (s1,s2) in zip(self.segments.values(), other.segments.values()):
-            if [x.index for x in s1.nodes()]!=[x.index for x in s2.nodes()]:
+        # stored in a dictionary keyed by node pairs.  Don't rely on
+        # the order in which objects are returned by segments.keys or
+        # segments.values.  It's not guaranteed to be the same for the
+        # two skeletons.
+        thiskeys = list(self.segments.keys())
+        thiskeys.sort()
+        thatkeys = list(other.segments.keys())
+        thatkeys.sort()
+        for (k1, k2) in zip(thiskeys, thatkeys):
+            s1 = self.segments[k1]
+            s2 = other.segments[k2]
+            if [x.index for x in s1.nodes()] != [x.index for x in s2.nodes()]:
                 return "Segment node indexing mismatch"
 
         # Basic topology is right, now quantitatively check node locations.
@@ -1568,12 +1576,12 @@ class Skeleton(SkeletonBase):
                 return None
 
         # Set of nodes that are moving
-        movingNodes = set([pair[0] for pair in pairs])
+        movingNodes = utils.OrderedSet([pair[0] for pair in pairs])
         # List of segments that will vanish
         doomedSegments = [self.findSegment(*pair) for pair in pairs]
         # Set of all pairs -- this is just the 'pair's argument, but
         # will be extended to include periodic partners.
-        mergingPairs = set(pairs)
+        mergingPairs = utils.OrderedSet(pairs)
 
         # Include periodic partners of the merging nodes.
         for pair in pairs:
@@ -1585,13 +1593,13 @@ class Skeleton(SkeletonBase):
 
         # Find the topologically changing elements.  These are
         # elements that have a doomed segment as a side.
-        topElements = set()
+        topElements = utils.OrderedSet()
         for seg in doomedSegments:
             topElements.update(seg.getElements())
 
         # Find the elements that don't change topology, but do change
         # shape.
-        isoElements = set(
+        isoElements = utils.OrderedSet(
             [elem for node in movingNodes
              for elem in node.aperiodicNeighborElements()])
         isoElements -= topElements
@@ -3065,6 +3073,7 @@ class ProvisionalChanges:
         # ProvisionalChanges object, so that they're available to the
         # calling routine.
         ## TODO: Remove argument and use self.skeleton instead?
+        debug.dump("accepting provisional change", self)
         self.inserted = [element.accept(skeleton) for element in self.inserted]
         for mvnode in self.movednodes:
             mvnode.node.moveTo(mvnode.position)
