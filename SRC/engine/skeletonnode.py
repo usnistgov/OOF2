@@ -193,7 +193,7 @@ class SkeletonNode(skeletonselectable.SkeletonSelectable,
     # DeputyPinnedNodeTracker instead of a PinnedNodeTracker.
 
     def pin(self, clist, plist):
-        self.setPinned(1)
+        self.setPinned(True)
         here = self.position()
         self.pinDown(clist, here)
         self.pinUp(plist, here)
@@ -209,7 +209,7 @@ class SkeletonNode(skeletonselectable.SkeletonSelectable,
                 plist[0].pinUp(self, plist[1:], here)
             
     def unpin(self, clist, plist):
-        self.setPinned(0)
+        self.setPinned(False)
         here = self.position()
         self.unpinDown(clist, here)
         self.unpinUp(plist, here)
@@ -532,7 +532,7 @@ class PinnedNodeSet(skeletonselectable.SelectionSetBase):
     def clearskeletons(self):
         for tracker in self.selected.values():
             for n in tracker.data:
-                n.setPinned(0)
+                n.setPinned(False)
 
     def implied_select(self, oldskel, newskel):
         # Called from SelectionBase.whoChanged0() when a new
@@ -576,16 +576,16 @@ class PinnedNodeTracker(skeletonselectable.SelectionTrackerBase):
         
     def clear(self):
         for n in self.data:
-            n.setPinned(0)
+            n.setPinned(False)
         self.data.clear()
 
     def write(self):
         for n in self.data:
-            n.setPinned(1)
+            n.setPinned(True)
             
     def clearskeleton(self):
         for n in self.data:
-            n.setPinned(0)
+            n.setPinned(False)
 
     def implied_pin(self, oldtracker):
         for n in oldtracker.get():
