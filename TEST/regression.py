@@ -252,7 +252,10 @@ def run(homedir):
     finally:
         if ok:
             print("All tests completed successfully!", file=sys.stderr)
-            os.rmdir(tmpdir)
+            if not debug:
+                os.rmdir(tmpdir)
+            else:
+                print("Temp dir", tmpdir, "was not removed.", file=sys.stderr)
         else:
             print("Test failed. Temp dir", tmpdir, "was not removed.", file=sys.stderr)
 

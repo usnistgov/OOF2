@@ -505,7 +505,7 @@ def build_mod_args():
           }
          ),
         ("modgroups","refine_5",
-         {"targets" : CheckAspectRatio(threshold=1.5),
+         {"targets" : CheckAspectRatio(threshold=1.5, only_quads=True),
           "criterion" : Unconditionally(),
           "degree" : Bisection(rule_set="conservative"),
           "alpha" : 0.5
@@ -658,15 +658,18 @@ def build_mod_args():
     }
 
     # skel_modify_args = {
-    #     "Relax" :
-    #         [
-    #         ("modbase", "relax",
-    #          { "alpha" : 0.5,
-    #            "gamma" : 0.5,
-    #            "iterations" : 1
-    #            }
-    #          )
-    #         ],
+    #     "Rationalize" :
+    #     [ ("modsecond", "rationalize",
+    #        {"targets" : AllElements(),
+    #         "criterion" : AverageEnergy(alpha=0.3),
+    #         "method" : SpecificRationalization(
+    #     rationalizers=[RemoveShortSide(ratio=5.0),
+    #                    QuadSplit(angle=150),
+    #                    RemoveBadTriangle(acute_angle=30,obtuse_angle=130)]),
+    #         "iterations" : 1
+    #         }
+    #        )
+    #       ],
     # }
 
 def initialize():
@@ -696,3 +699,5 @@ special_set = [
     ]
 
 test_set = skel_set + special_set
+
+# test_set = [OOF_Skeleton("Modify")]
