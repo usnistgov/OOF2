@@ -474,6 +474,10 @@ class OrderedSet:
         for item in other:
             result.add(item)
         return result
+    def update(self, *others):
+        for st in others:
+            for obj in st:
+                self.data[obj] = 1
     def __or__(self, other):
         if not isinstance(other, OrderedSet):
             return NotImplemented
@@ -495,6 +499,15 @@ class OrderedSet:
         return self.data != other.data
     def __add__(self, other):
         return self.union(other)
+    def __isub__(self, other):
+        if isinstance(other, OrderedSet):
+            for x in other.data:
+                try:
+                    del self.data[x]
+                except KeyError:
+                    pass
+            return self
+        return NotImplemented
 
     __str__ = __repr__
         

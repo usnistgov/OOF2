@@ -142,7 +142,9 @@ class Point:
 
     def __repr__(self):
         return "Point(%s,%s)" % (self.x, self.y)
+        # return "Point(%.6f,%.6f)" % (self.x, self.y)
 
+    
 utils.OOFdefine('Point', Point)
 
 class PointParameter(parameter.Parameter):

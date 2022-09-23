@@ -200,3 +200,25 @@ def dumpReferrers(obj, levels=0, exclude=[], _level=0):
                                   _level=_level+1)
 
 
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+_dumpFile = None
+
+def openDumpFile(name):
+    if _debug_mode:
+        global _dumpFile
+        if _dumpFile is not None:
+            _dumpFile.close()
+        _dumpFile = open(name, "w")
+
+def closeDumpFile():
+    if _debug_mode:
+        global _dumpFile
+        if _dumpFile is not None:
+            _dumpFile.close()
+            _dumpFile = None
+
+def dump(*args):
+    global _dumpFile
+    if _debug_mode and _dumpFile is not None:
+        print >> _dumpFile, string.join(map(str, args), ' ')

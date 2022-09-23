@@ -1561,12 +1561,12 @@ class Skeleton(SkeletonBase):
                 return None
 
         # Set of nodes that are moving
-        movingNodes = set([pair[0] for pair in pairs])
+        movingNodes = utils.OrderedSet([pair[0] for pair in pairs])
         # List of segments that will vanish
         doomedSegments = [self.findSegment(*pair) for pair in pairs]
         # Set of all pairs -- this is just the 'pair's argument, but
         # will be extended to include periodic partners.
-        mergingPairs = set(pairs)
+        mergingPairs = utils.OrderedSet(pairs)
 
         # Include periodic partners of the merging nodes.
         for pair in pairs:
@@ -1578,13 +1578,13 @@ class Skeleton(SkeletonBase):
 
         # Find the topologically changing elements.  These are
         # elements that have a doomed segment as a side.
-        topElements = set()
+        topElements = utils.OrderedSet()
         for seg in doomedSegments:
             topElements.update(seg.getElements())
 
         # Find the elements that don't change topology, but do change
         # shape.
-        isoElements = set(
+        isoElements = utils.OrderedSet(
             [elem for node in movingNodes
              for elem in node.aperiodicNeighborElements()])
         isoElements -= topElements
