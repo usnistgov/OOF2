@@ -55,7 +55,6 @@ class Rationalizer(registeredclass.RegisteredClass):
         count = 0
         done = 0  # No. of rationalized elements
         nel = len(elements)  # No. of elements to be considered
-        nelf = float(nel)    # probably completely meaningless optimization
         for element in elements:
             count += 1  # No. of elements that have been considered
             if element not in processed and element.active(skel):
@@ -76,7 +75,7 @@ class Rationalizer(registeredclass.RegisteredClass):
             if prog.stopped():
                 break
             else:
-                prog.setFraction(count/nelf)
+                prog.setFraction(count/nel)
                 prog.setMessage(executed_action + " %d/%d" % (count, nel))
             skel.cleanUp()
         
