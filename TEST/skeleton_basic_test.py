@@ -247,15 +247,17 @@ class OOF_Skeleton(unittest.TestCase):
     #             self.assertAlmostEqual(h, h0, 10);
     #         OOF.Skeleton.Delete(skeleton="skeltest:htest")
                     
-        
+
+    ## TODO: doModify loads its own Skeleton and doesn't use the one
+    ## loaded by setUp(), so it should be in a different TestCase
+    ## subclass.
     @memorycheck.check("skeltest")
     def doModify(self, registration, startfile, compfile, kwargs):
-        import os, random
+        import os
         from ooflib.SWIG.common import crandom
         # Loaded skeleton must be named "modtest".
         OOF.File.Load.Data(filename=reference_file("skeleton_data", startfile))
         mod = registration(**kwargs)
-        random.seed(17)
         crandom.rndmseed(17)
         OOF.Skeleton.Modify(skeleton="skeltest:modtest", modifier=mod)
         skelc = skeletoncontext.skeletonContexts["skeltest:modtest"]

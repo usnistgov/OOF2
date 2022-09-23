@@ -159,15 +159,17 @@ class OOF_Skeleton(unittest.TestCase):
         self.assertEqual(skel.nelements(), 64)
         self.assertEqual(self.nPartneredNodes(skel),32)
         
+    ## TODO: doModify loads its own Skeleton and doesn't use the one
+    ## loaded by setUp(), so it should be in a different TestCase
+    ## subclass.
     @memorycheck.check("skeltest")
     def doModify(self, registration, startfile, compfile, kwargs):
-        import os, random
+        import os
         from ooflib.SWIG.common import crandom
         OOF.File.Load.Data(
             filename=reference_file("skeleton_data","periodic_mods", startfile))
         sk0 = skeletoncontext.skeletonContexts["skeltest:modtest"].getObject()
         mod = registration(**kwargs)
-        random.seed(17)
         crandom.rndmseed(17)
         OOF.Skeleton.Modify(skeleton="skeltest:modtest", modifier=mod)
         sk0 = skeletoncontext.skeletonContexts["skeltest:modtest"].getObject()
@@ -572,7 +574,18 @@ def build_mod_args():
         ]
         }
 
-
+    # skel_modify_args = {
+    #     "Snap Refine" :
+    #     [
+    #     ("modbase1x1","snaprefine_1x1",
+    #      { "targets" : CheckHomogeneity(threshold=0.9),
+    #        "criterion" : Unconditionally(),
+    #        "min_distance" : 1.0,
+    #        }
+    #      )
+    #     ]
+    # }
+    
 def initialize():
     # Modfiy arguments make use of classes which are not in the
     # namespace until after oof.run() has been called, so they can't
@@ -601,3 +614,5 @@ special_set = [
     ]
 
 test_set = skel_set + special_set
+
+# test_set = [OOF_Skeleton("Modify")]
