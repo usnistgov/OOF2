@@ -570,7 +570,23 @@ def build_mod_args():
            }
          )
         ]
-        }
+    }
+
+    # skel_modify_args = {
+    #     "Anneal":
+    #     [
+    #     ("modgroups", "anneal_3",
+    #      {"targets" : FiddleElementsInGroup(group='elementgroup'),
+    #       "criterion" : AverageEnergy(alpha=0.6),
+    #       "T" : 0.0,
+    #       "delta" : 1.0,
+    #       "iteration" : FixedIteration(iterations=5)            
+    #       }
+    #      ),
+    #     ]
+    # }
+
+    
 
 
 def initialize():
@@ -601,3 +617,5 @@ special_set = [
     ]
 
 test_set = skel_set + special_set
+
+#test_set = [OOF_Skeleton("Modify")]

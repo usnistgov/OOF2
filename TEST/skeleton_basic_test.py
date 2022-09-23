@@ -658,16 +658,18 @@ def build_mod_args():
     }
 
     # skel_modify_args = {
-    #     "Anneal" : [
-    #     ("modgroups", "anneal_3",
-    #      {"targets" : FiddleElementsInGroup(group='elementgroup'),
-    #       "criterion" : AverageEnergy(alpha=0.6),
-    #       "T" : 0.0,
-    #       "delta" : 1.0,
-    #       "iteration" : FixedIteration(iterations=5)            
-    #       }
-    #      ),
-    #     ],
+    #     "Rationalize" :
+    #     [ ("modsecond", "rationalize",
+    #        {"targets" : AllElements(),
+    #         "criterion" : AverageEnergy(alpha=0.3),
+    #         "method" : SpecificRationalization(
+    #     rationalizers=[RemoveShortSide(ratio=5.0),
+    #                    QuadSplit(angle=150),
+    #                    RemoveBadTriangle(acute_angle=30,obtuse_angle=130)]),
+    #         "iterations" : 1
+    #         }
+    #        )
+    #       ],
     # }
     
 def initialize():
