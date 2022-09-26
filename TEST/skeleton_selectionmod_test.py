@@ -88,7 +88,7 @@ class TestBase(unittest.TestCase):
 class Element_Selection_Test(TestBase):
     @memorycheck.check("microstructure")
     def elementType(self, periodicities, **answers):
-	self.createSkel(periodicities)
+        self.createSkel(periodicities)
         OOF.ElementSelection.Clear(skeleton='microstructure:skeleton')
         self.assertEqual(self.e_selection.size(), 0)
         OOF.ElementSelection.Select_by_Element_Type(
@@ -163,7 +163,7 @@ class Element_Selection_Test(TestBase):
     def ShapeEnergyA(self):
         self.shapeEnergy(aperiodic, thresh25=14, thresh10=18)
     def ShapeEnergyY(self):
-        self.shapeEnergy(yperiodic, thresh25=14, thresh10=18)        
+        self.shapeEnergy(yperiodic, thresh25=14, thresh10=18)
     def ShapeEnergyX(self):
         self.shapeEnergy(xperiodic, thresh25=19, thresh10=24)
     def ShapeEnergyXY(self):
@@ -717,10 +717,10 @@ element_tests = [
     Element_Selection_Test("HomogeneityXY"),
     Element_Selection_Test("ShapeEnergyA"),
     Element_Selection_Test("ShapeEnergyX"),
-    Element_Selection_Test("ShapeEnergyY"),        
+    Element_Selection_Test("ShapeEnergyY"),
     Element_Selection_Test("ShapeEnergyXY"),
     Element_Selection_Test("IllegalA"),
-    Element_Selection_Test("IllegalX"),        
+    Element_Selection_Test("IllegalX"),
     Element_Selection_Test("IllegalY"),
     Element_Selection_Test("IllegalXY"),
     Element_Selection_Test("ExpandA"),

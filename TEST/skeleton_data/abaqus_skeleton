@@ -1,5 +1,5 @@
 *HEADING
-ABAQUS-style file created by OOF2 on 2013-10-21 10:48:32.043736 from a skeleton of the microstructure skelcomp.
+ABAQUS-style file created by OOF2 on 2022-09-26 19:02:38.921500 from a skeleton of the microstructure skelcomp.
 ** Materials defined by OOF2:
 **   material<2>:
 ** Notes:
@@ -155,27 +155,27 @@ ABAQUS-style file created by OOF2 on 2013-10-21 10:48:32.043736 from a skeleton 
 64, 71, 72, 81, 80
 *NSET, NSET=ng
 20
-*ELSET, ELSET=eg
-10
 *ELSET, ELSET=ag
 9, 10, 1, 2
+*ELSET, ELSET=eg
+10
 ** Include point and edge boundaries from OOF2.
-*NSET, NSET=topleft
-73
 *NSET, NSET=bottomleft
 1
-*NSET, NSET=topright
-81
 *NSET, NSET=bottomright
 9
-*NSET, NSET=top
-81, 80, 79, 78, 77, 76, 75, 74, 73
+*NSET, NSET=topleft
+73
+*NSET, NSET=topright
+81
 *NSET, NSET=bottom
 1, 2, 3, 4, 5, 6, 7, 8, 9
-*NSET, NSET=right
-9, 18, 27, 36, 45, 54, 63, 72, 81
 *NSET, NSET=left
 73, 64, 55, 46, 37, 28, 19, 10, 1
+*NSET, NSET=right
+9, 18, 27, 36, 45, 54, 63, 72, 81
+*NSET, NSET=top
+81, 80, 79, 78, 77, 76, 75, 74, 73
 *ELSET, ELSET=material<2>
 1, 2, 9, 10
 *SOLID SECTION, ELSET=material<2>, MATERIAL=material<2>

@@ -20,10 +20,10 @@
 
 import unittest, os
 from . import memorycheck
-from . import UTILS.file_utils
-reference_file = UTILS.file_utils.reference_file
-fp_file_compare = UTILS.file_utils.fp_file_compare
-UTILS.file_utils.generate = False
+from .UTILS import file_utils
+reference_file = file_utils.reference_file
+fp_file_compare = file_utils.fp_file_compare
+file_utils.generate = False
 
 class OOF_Skeleton_Extra(unittest.TestCase):
     def setUp(self):
