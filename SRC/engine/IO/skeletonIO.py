@@ -539,7 +539,7 @@ def writeSkeleton(datafile, skelcontext):
             datafile.argument('skeleton', skelpath)
             datafile.argument('name', ebname)
             #Interface branch
-            if ebdy._sequenceable==1:
+            if ebdy._sequenceable:
                 edgeset = rearrangeEdges([
                     tuple([nodedict[x] for x in edge.get_nodes()])
                     for edge in ebdy.edges
@@ -580,23 +580,39 @@ def rearrangeEdges(edges):
 
     # Construct dictionaries of edges keyed by their starting and end points.
     tails = {}           
-    heads = {}         
-    for edge in edges:
+    heads = {}
+    minedge = 0                 # which edge starts at the min node index
+    for i, edge in enumerate(edges):
         heads[edge[0]] = edge
         tails[edge[1]] = edge
+        if edge[0] < edges[minedge][0]:
+            minedge = i
 
-    newedges = [edges[0]]
+    # Start with the edge with the lowest index at its start point.
+    # This has no effect on the result unless the edges form a loop.
+    # If they do form a loop, differences in the order of the items in
+    # the given edges list will affect the order of the edges in the
+    # saved file, and that can cause the test suite to fail.  The
+    # order of the items in the edges list depends on the order in
+    # which they're retrieved from a Python set, and can vary with the
+    # Python version.
+    newedges = [edges[minedge]]
 
     # Build the list of contiguous edges going backwards from the
-    # start point of edges[0].  This loop exits when either it runs
+    # start point of edges[minedge].  This loop exits when either it runs
     # out of tails and throws a key error, or when it loops back on
     # itself and the conditional fails.
-    lastpt = edges[0][0]
+    lastpt = edges[minedge][0]
     try:
+        ## TODO: This is doing a linear search, since newedges is a
+        ## list.  It would be better to remove items from heads and
+        ## tails as they're used, and stop when a connecting edge
+        ## isn't found.  It's probably not a high priority
+        ## optimization, though.  Boundaries aren't that big.
         while tails[lastpt] not in newedges:
-            next = tails[lastpt]
-            newedges.append(next)
-            lastpt = next[0]
+            nextedge = tails[lastpt]
+            newedges.append(nextedge)
+            lastpt = nextedge[0]
 
     except KeyError:
         pass
@@ -607,12 +623,12 @@ def rearrangeEdges(edges):
     # point of edges[0].  If the previous block found a loop, then
     # this block's while-conditional will fail, and it will do
     # nothing.
-    lastpt = edges[0][1]
+    lastpt = edges[minedge][1]
     try:
         while heads[lastpt] not in newedges:
-            next = heads[lastpt]
-            newedges.append(next)
-            lastpt = next[1]
+            nextedge = heads[lastpt]
+            newedges.append(nextedge)
+            lastpt = nextedge[1]
     except KeyError:
         pass
 
@@ -702,7 +718,10 @@ def writeABAQUSfromSkeleton(filename, mode, skelcontext):
 
         debug.fmsg("wrote elements")
 
-        for group in skelcontext.nodegroups.groups:
+        # Sort groups for reproducibility in tests.
+        grpnames = list(skelcontext.nodegroups.groups)
+        grpnames.sort()
+        for group in grpnames:
             buffer+="*NSET, NSET=%s\n" % (group)
             listbuf=[]
             i=0
@@ -714,8 +733,10 @@ def writeABAQUSfromSkeleton(filename, mode, skelcontext):
                 i+=1
             buffer+=stringjoin(listbuf,", ")+"\n"
         debug.fmsg("wrote node groups")
-        
-        for elgroup in skelcontext.elementgroups.groups:
+
+        grpnames = list(skelcontext.elementgroups.groups)
+        grpnames.sort()
+        for elgroup in grpnames:
             buffer+="*ELSET, ELSET=%s\n" % (elgroup)
             listbuf=[]
             i=0
@@ -728,8 +749,10 @@ def writeABAQUSfromSkeleton(filename, mode, skelcontext):
             buffer+=stringjoin(listbuf,", ")+"\n"
         debug.fmsg("wrote element groups")
 
+        grps = list(skeleton.pointboundaries.items())
+        grps.sort()
         buffer+="** Include point and edge boundaries from OOF2.\n"
-        for pbname, pbdy in skeleton.pointboundaries.items():
+        for pbname, pbdy in grps:
             buffer+="*NSET, NSET=%s\n" % (pbname)
             listbuf=[]
             i=0
@@ -746,7 +769,9 @@ def writeABAQUSfromSkeleton(filename, mode, skelcontext):
         #  unique nodes. It seems the edges can't be selected if they
         #  are empty, so edgeset=[(a,b),(b,c),...] is not checked
         #  for null content
-        for ebname, ebdy in skeleton.edgeboundaries.items():
+        bdys = list(skeleton.edgeboundaries.items())
+        bdys.sort()
+        for ebname, ebdy in bdys:
             edgeset = rearrangeEdges([
                 tuple([nodedict[node] for node in edge.get_nodes()])
                 for edge in ebdy.edges

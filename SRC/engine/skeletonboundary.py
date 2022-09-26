@@ -88,7 +88,7 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
         try:
             return self.boundaryset[skeleton.sheriffSkeleton()]._sequenceable
         except KeyError:
-            return 1
+            return True
 
     # Removal function -- if a skeleton is specified, remove the
     # corresponding SkeletonBoundary from the skeleton.  Otherwise, do
@@ -141,7 +141,7 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
         #Can almost do the same for try_append above, but
         #the segments that are to be added do not carry
         #orientation information.
-        if skelbdy._sequenceable==0:
+        if not skelbdy._sequenceable:
             return 1
         return skelbdy.try_delete(segments)
 
@@ -165,7 +165,7 @@ class SkelContextEdgeBoundary(SkelContextBoundary):
 
         old_bdy = self.boundaryset[skeleton]
         
-        if old_bdy._sequenceable==1: # TODO: use a boolean
+        if old_bdy._sequenceable:
             new_bdy = new_skeleton.makeEdgeBoundary(
                 self.name, exterior=exterior)
         else:
@@ -412,7 +412,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
         self.edges = []
         
         #Interface branch
-        self._sequenceable=1
+        self._sequenceable = True
 
     def size(self):
         return len(self.edges)
@@ -433,7 +433,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
     # sequenced.
     def sequence(self):
         #Interface branch
-        if self._sequenceable==0:
+        if not self._sequenceable:
             return
 
         if len(self.edges)==0 or len(self.edges)==1:
@@ -682,7 +682,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
             old_segments.remove(d)
 
         #Interface branch
-        if self._sequenceable==1:
+        if self._sequenceable:
             (seg_list, node_list, winding) = skeletonsegment.segSequence(old_segments)
 
         # If sequencing worked, then the modified boundary is

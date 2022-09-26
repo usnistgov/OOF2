@@ -169,11 +169,11 @@ def _segset2seglist(seg_set, direction, skel):
 
 # Convert a group name and skeleton context into an actual list of segments.
 def segments_from_seg_aggregate(skelcontext, group):
-  if group == placeholder.selection:
-      seg_set = skelcontext.segmentselection.retrieve()
-  else:
-      seg_set = skelcontext.segmentgroups.get_group(group)
-  return seg_set
+    if group == placeholder.selection:
+        seg_set = skelcontext.segmentselection.retrieve()
+    else:
+        seg_set = skelcontext.segmentgroups.get_group(group)
+    return seg_set
 
 # Build an edge boundary from a segment set.
 class EdgeFromSegments(BoundaryConstructor):

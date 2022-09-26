@@ -1752,7 +1752,7 @@ class Skeleton(SkeletonBase):
                 "Boundary '%s' already exists." % name)
         
         bdy = self.getEdgeBoundary(name, exterior) # Guaranteed to be new.
-        bdy._sequenceable=0
+        bdy._sequenceable = False
 
         if segments is not None:
             for i in range(len(segments)):
