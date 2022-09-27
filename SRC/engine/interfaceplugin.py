@@ -1078,7 +1078,7 @@ def writeInterface(datafile, mscontext):
 ##        datafile.argument('name',matname)
 ##        matobj=materialmanager.getMaterial(matname)
 ##        datafile.argument('properties', [prop.reistration().name()
-##                                         for prop in matobj.properties()])
+##                                         for prop in matobj.properties])
 ##        datafile.argument('materialtype',matobj.type())
 ##        datafile.endCmd()
         datafile.startCmd(OOF.LoadData.Material.Interface.Assign)

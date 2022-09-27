@@ -22,6 +22,7 @@
 %import "common/coord.swg"
 %import "common/pixelattribute.swg"
 %import "common/timestamp.swg"
+ //%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
 %{

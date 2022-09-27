@@ -30,13 +30,13 @@ def _Material___init__(self, name, mattype=materialtype.MATERIALTYPE_BULK):
     # property instances, which ensures that there exists a Python
     # reference to each property in a material.  Reference-count
     # manipulations are not required in the C++ code.
-    self.proplist = []
+    self.properties = []
 
 Material.__init__ = _Material___init__
 
 def _Material_addProperty(self, prop):
     self.add1Property(prop)
-    self.proplist.append(prop)
+    self.properties.append(prop)
     self.cross_reference()
 
 Material.addProperty = _Material_addProperty
@@ -45,15 +45,15 @@ def _Material_removeProperty_(self, *properties):
     for prop in properties:
         # Exception thrown by C++ code if the property is not present.
         self.remove1Property(prop)  # remove from C++ list
-        self.proplist.remove(prop)
+        self.properties.remove(prop)
     self.cross_reference()
 
 Material.removeProperty = _Material_removeProperty_
 
-def _Material_properties(self):
-    return [self.getProperty(i) for i in range(self.nProperties())]
+# def _Material_properties(self):
+#     return [self.getProperty(i) for i in range(self.nProperties())]
 
-Material.properties = _Material_properties
+# Material.properties = _Material_properties
 
 ###########
 
@@ -70,14 +70,14 @@ Material.properties = _Material_properties
 def _Material_cross_reference(self):
     self.clear_xref()
     self.consistency_state = []
-    for prop in self.properties():
+    for prop in self.properties: 
         try:
             prop.bookkeeping(self)
         except ooferror2.PyErrRedundantProperty as exc:
             self.consistency_state.append(
                 "Property '%s' is a redundant property of type '%s'."
                 % (prop.name(), exc.get_tag()))
-    for prop in self.properties():
+    for prop in self.properties: 
         try:
             prop.c_cross_reference(self)
         except ooferror2.PyErrNoSuchProperty as exc:
@@ -98,7 +98,7 @@ Material.consistency_messages = _Material_consistency_messages
 
 def _Material_precompute(self, subproblem, fields):
     # subproblem is a CSubProblem subclass instance, not a SubProblemContext.
-    for prop in self.properties():
+    for prop in self.properties:
         prop.cache_active(subproblem, prop.is_active(subproblem))
         if prop.currently_active(subproblem):
             prop.c_precompute(subproblem.mesh)
@@ -123,7 +123,7 @@ Material.precompute = _Material_precompute
 def _Material_nonlinear(self, subproblem, fields):
     ## TODO: Remove the 'fields' arg.  This is called in
     ## SubProblemContext.nonlinear(), and possibly elsewhere.
-    for p in self.properties():
+    for p in self.properties:
         if p.currently_active(subproblem):
             if p.currently_nonlinear(subproblem):
                 return True
@@ -132,7 +132,7 @@ def _Material_nonlinear(self, subproblem, fields):
 Material.nonlinear = _Material_nonlinear
 
 def _Material_second_order_field(self, subproblem, field, eqns):
-    for p in self.properties():
+    for p in self.properties:
         if p.currently_active(subproblem):
             r = p.registration()
             if field in r.second_order_fields(*eqns):
@@ -143,7 +143,7 @@ Material.is_second_order_field = _Material_second_order_field
 
 
 def _Material_timeDependent(self, subproblem, fields):
-    for p in self.properties():
+    for p in self.properties:
         if p.currently_active(subproblem):
             r = p.registration()
             if r.timeDependent(fields):
@@ -156,7 +156,7 @@ Material.timeDependent = _Material_timeDependent
 def _Material__symmetric(self, subprobctxt, fn):
     subprobctxt.solver_precompute()
     subproblem = subprobctxt.getObject()
-    for p in self.properties():
+    for p in self.properties:
         if p.currently_active(subproblem):
             if not fn(p, subproblem):
                 return False
@@ -201,7 +201,7 @@ Material.__hash__ = _Material__hash__
 
 def _Material___repr_(self):
     out = ["Material('" + self.name() + "'"]
-    for prop in self.properties():
+    for prop in self.properties:
         out.append(repr(prop))
     out = utils.stringjoin(out, ",\n\t")
     return out + ")"
@@ -210,7 +210,7 @@ Material.__repr__ = _Material___repr_
 
 def _Material_copy_(self, newname):
     m = Material(newname)
-    for p in [copy.deepcopy(p) for p in self.properties()]:
+    for p in [copy.deepcopy(p) for p in self.properties]:
         m.addProperty(p)
         
     return m

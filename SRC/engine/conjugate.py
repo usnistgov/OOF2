@@ -137,7 +137,7 @@ def find_relevant_pairs(subpcontext):
     materials = subpcontext.getObject().getMaterials()
     relevant_pairs = set()
     for matter in materials:
-        for property in matter.properties():
+        for property in matter.properties:
             p_reg = property.registration()
             for pair in listofconjugatepairs.pairs:
                 if listofconjugatepairs.relevant_property(p_reg, pair):

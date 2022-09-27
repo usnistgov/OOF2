@@ -496,7 +496,7 @@ def writeSkeleton(datafile, skelcontext):
             # data file, so that they're not written twice.
             excludeProps = {}
             for mat in msmatls:
-                for prop in mat.properties():
+                for prop in mat.properties:
                     excludeProps[prop.registration().name()] = prop
             materialmenu.writeMaterials(datafile, skelmatls, excludeProps)
             # Now assign Materials to Groups.
@@ -690,7 +690,7 @@ def writeABAQUSfromSkeleton(filename, mode, skelcontext):
         buffer+="** Materials defined by OOF2:\n"
         for matname, details in materiallist.items():
             buffer+="**   %s:\n" % (matname)
-            for prop in details.properties():
+            for prop in details.properties:
                 for param in prop.registration().params:
                     buffer+="**     %s: %s\n" % (param.name,param.value)
         debug.fmsg("wrote materials")

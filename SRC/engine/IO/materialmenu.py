@@ -450,7 +450,7 @@ def writeMaterials(dfile, materials, excludeProps={}):
     # whose keys are property paths.
     props = {}           # dictionary of all properties used in the Materials
     for material in materials:
-        for prop in material.properties():
+        for prop in material.properties:
             props[prop.registration().name()] = prop
     # Sort the properties by name.
     paths = sorted(list(props.keys()))
@@ -463,7 +463,7 @@ def writeMaterials(dfile, materials, excludeProps={}):
         dfile.startCmd(mainmenu.OOF.LoadData.MaterialandType)
         dfile.argument('name', material.name())
         dfile.argument('properties', [prop.registration().name()
-                                      for prop in material.properties()])
+                                      for prop in material.properties])
         #Interface branch
         dfile.argument('materialtype',material.type())
         dfile.endCmd()

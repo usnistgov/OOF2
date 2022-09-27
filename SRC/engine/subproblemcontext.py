@@ -497,7 +497,7 @@ class SubProblemContext(whoville.Who):
             if self.is_active_equation(eqn):
                 for mat in self.getObject().getMaterials():
                     order = 0
-                    for prop in mat.properties():
+                    for prop in mat.properties:
                         reg = prop.registration()
                         if reg.second_order_fields(eqn):
                             order = 2

@@ -832,7 +832,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
     buffer.append("** Materials defined by OOF2:\n")
     for matname, details in materiallist.items():
         buffer.append("**   %s:\n" % (matname))
-        for prop in details.properties():
+        for prop in details.properties:
             for param in prop.registration().params:
                 buffer.append("**     %s: %s\n" % (param.name,param.value))
 

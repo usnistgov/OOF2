@@ -119,4 +119,8 @@ double deriv_eps;
 
 %pythoncode "engine/property.spy"
 
+// Cancel the earlier %rename, so that this file can be safely
+// imported into another swig file.
+%rename("%s") "";
+
 #endif // PROPERTIES_SWG
