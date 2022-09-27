@@ -113,11 +113,11 @@ class XYStrFunctionParameter(parameter.Parameter):
             return 'A string defining a function of x, y, and z.'
     def binaryRepr(self, datafile, value):
         length = len(value.funcstr)
-        return struct.pack('>i', length) + value.funcstr
+        return struct.pack('>i', length) + bytes(value.funcstr, "UTF-8")
     def binaryRead(self, parser):
         b = parser.getBytes(struct.calcsize('>i'))
         (length,) = struct.unpack('>i', b)
-        return XYStrFunction(parser.getBytes(length))
+        return XYStrFunction(parser.getBytes(length).decode())
 
 class XYTStrFunctionParameter(parameter.Parameter):
     types = (str, bytes, XYStrFunction)
@@ -141,8 +141,8 @@ class XYTStrFunctionParameter(parameter.Parameter):
             return 'A string defining a function of x, y, z, and t.'
     def binaryRepr(self, datafile, value):
         length = len(value.funcstr)
-        return struct.pack('>i', length) + value.funcstr
+        return struct.pack('>i', length) + bytes(value.funcstr, "UTF-8")
     def binaryRead(self, parser):
         b = parser.getBytes(struct.calcsize('>i'))
         (length,) = struct.unpack('>i', b)
-        return XYTStrFunction(parser.getBytes(length))
+        return XYTStrFunction(parser.getBytes(length).decode())

@@ -157,12 +157,12 @@ class EnumParameter(parameter.Parameter):
     structfmt = '>i'
     structlen = struct.calcsize(structfmt)
     def binaryRepr(self, datafile, value):
-        return  struct.pack(EnumParameter.structfmt, len(value.name)) + \
-               value.name
+        return  (struct.pack(EnumParameter.structfmt, len(value.name))
+                 + bytes(value.name, "UTF-8"))
     def binaryRead(self, parser):
         b = parser.getBytes(EnumParameter.structlen)
         (length,) = struct.unpack(EnumParameter.structfmt, b)
-        return self.enumclass(parser.getBytes(length))
+        return self.enumclass(parser.getBytes(length).decode())
     def classRepr(self):
         return "Enum(%s)" % self.enumclass.__name__
     def valueDesc(self):

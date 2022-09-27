@@ -412,7 +412,7 @@ class FluxProfileSetParameter(parameter.Parameter):
         strs = [struct.pack(">i",n)]
         for p in value.get_profiles():
             strs.append(p.binaryRepr(datafile))
-        return stringjoin(strs, "")
+        return b"".join(strs)
     
     def binaryRead(self, parser):
         b = parser.getBytes(struct.calcsize(">i"))

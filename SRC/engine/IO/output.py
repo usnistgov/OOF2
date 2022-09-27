@@ -504,13 +504,14 @@ class Output:
         return hash((self.name, self.callback, self.parent))
 
     def binaryRepr(self, datafile):
-        #Get the path to the prototype that will be provided to getOutput(name)
-        pathlengthstr=struct.pack(structIntFmt,len(self.getPath()))
+        # Get the path to the prototype that will be provided to getOutput(name)
+        pathlengthstr = struct.pack(structIntFmt,len(self.getPath()))
         #string (e.g. self.getPath()) itself need not be packed
-        strings=[pathlengthstr,self.getPath()]
+        strings=[bytes(pathlengthstr, "UTF-8"),
+                 bytes(self.getPath(), "UTF-8")]
         for pvalue in self.getSettableParams().values():
-            strings.append(pvalue.binaryRepr(datafile,pvalue.value))
-        return stringjoin(strings,'')
+            strings.append(pvalue.binaryRepr(datafile, pvalue.value))
+        return b"".join(strings)
 
     # These functions are used when setting GUI widgets
     def isAggregateOutput(self):
@@ -643,15 +644,15 @@ object whose value is a real number."""
         return value.binaryRepr(datafile)
     def binaryRead(self, parser):
         #First get path to prototype output
-        (pathlengthstr,)=struct.unpack(structIntFmt,parser.getBytes(structIntSize))
+        (pathlengthstr,) = struct.unpack(structIntFmt,
+                                         parser.getBytes(structIntSize))
         pathstr=parser.getBytes(pathlengthstr)
-        prototypeoutput=getOutput(pathstr)
+        prototypeoutput = getOutput(pathstr)
         argdict={}
-        for pname,pvalue in prototypeoutput.getSettableParams().items():
-            pvalueclone=pvalue.clone()
-            #The following line should set the value of pvalueclone
-            pvalueclone=pvalue.binaryRead(parser)
-            argdict[pname]=pvalueclone
+        for pname, pvalue in prototypeoutput.getSettableParams().items():
+            pvalueclone = pvalue.clone()
+            pvalueclone = pvalue.binaryRead(parser)
+            argdict[pname] = pvalueclone
         return prototypeoutput.clone(params=argdict)
 
 def getOutput(name, **kwargs):

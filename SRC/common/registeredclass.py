@@ -353,7 +353,7 @@ class RegisteredClass:
                 repstrings.append(struct.pack('>i', nonekey))
             else:
                 repstrings.append(param.binaryRepr(datafile, value))
-        return stringjoin(repstrings, '')
+        return b''.join(repstrings)
     def getTimeStamp(self):
         # The timestamp is created by Registration.__call__.
         return self.timestamp

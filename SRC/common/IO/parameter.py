@@ -316,11 +316,11 @@ class BooleanParameter(Parameter):
         self.timestamp.increment()
     def binaryRepr(self, datafile, value):
         if value:
-            return "1"
-        return "0"
+            return b"1"
+        return b"0"
     def binaryRead(self, parser):
         v = parser.getBytes(1)
-        return (v == "1")
+        return (v == b"1")
     def valueDesc(self):
         return "Boolean: True or False."
 
@@ -486,16 +486,18 @@ class AutomaticValueSetParameter(ValueSetParameter):
 # containing a string.
 
 class StringParameter(Parameter):
-    types = (StringType,)
+    types = (StringType, bytes)
 ##    def __init__(self, name, value=None, default="", tip=None):
 ##        Parameter.__init__(self, name, value=value, default=default, tip=tip)
     def binaryRepr(self, datafile, value):
+        # TODO PYTHON3: Does this need to check to see if value is
+        # already bytes?
         length = len(value)
-        return struct.pack(structIntFmt, length) + value
+        return struct.pack(structIntFmt, length) + bytes(value, "UTF-8")
     def binaryRead(self, parser):
         b = parser.getBytes(structIntSize)
         (length,) = struct.unpack(structIntFmt, b)
-        return parser.getBytes(length)
+        return parser.getBytes(length).decode()
     def valueDesc(self):
         return "A character string."
 
@@ -539,9 +541,9 @@ class ListOfStringsParameter(Parameter):
                                "list of strings")
     def binaryRepr(self, datafile, value):
         lengthstr = struct.pack(structIntFmt, len(value))
-        strings = [lengthstr] + [struct.pack(structIntFmt, len(s)) + s
-                                 for s in value]
-        return stringjoin(strings, '')
+        strings = [lengthstr] + [struct.pack(structIntFmt, len(s))
+                                 + bytes(s, "UTF-8") for s in value]
+        return b"".join(strings)
     def binaryRead(self, parser):
         b = parser.getBytes(structIntSize)
         (length,) = struct.unpack(structIntFmt, b)
@@ -549,7 +551,7 @@ class ListOfStringsParameter(Parameter):
         for i in range(length):
             b = parser.getBytes(structIntSize)
             (strlen,) = struct.unpack(structIntFmt, b)
-            strings.append(parser.getBytes(strlen))
+            strings.append(parser.getBytes(strlen).decode())
         return strings
     def valueDesc(self):
         return "A list of character strings."
@@ -1099,11 +1101,11 @@ class MetaRegisteredParameter(Parameter):
     def binaryRepr(self, datafile, value):
         nm = self.value.__name__
         length = len(nm)
-        return struct.pack(structIntFmt, length) + nm
+        return struct.pack(structIntFmt, length) + bytes(nm, "UTF-8")
     def binaryRead(self, parser):
         b = parser.getBytes(structIntSize)
         (length,) = struct.unpack(structIntFmt, b)
-        nm = parser.getBytes(length)
+        nm = parser.getBytes(length).decode()
         return utils.OOFeval(nm)
     def valueDesc(self):
         from ooflib.common.IO import xmlmenudump # delayed to avoid import loops
@@ -1179,13 +1181,15 @@ class AutomaticNameParameter(Parameter):
           "A character string, or the variable <constant>automatic</constant>."
 
     def binaryRepr(self, datafile, value):
+        ## TODO PYTHON3: Does this work when value==automatic?
         length = len(value)
-        return struct.pack(structIntFmt, length) + value
+        return struct.pack(structIntFmt, length) + bytes(value, "UTF-8")
     
     def binaryRead(self, parser):
+        ## TODO PYTHON3: Does this work when value==automatic?\
         b = parser.getBytes(structIntSize)
         (length,) = struct.unpack(structIntFmt, b)
-        return parser.getBytes(length)
+        return parser.getBytes(length).decode()
 
 class RestrictedAutomaticNameParameter(AutomaticNameParameter):
     def __init__(self, name, pattern, resolver, value=None, default=None,

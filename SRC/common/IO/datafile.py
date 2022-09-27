@@ -132,11 +132,15 @@ def writeDataFile(filename, mode, format):
         versioncmd = "OOF.LoadData.FileVersion"
     else:
         versioncmd = "FileVersion"
-    file.write("# OOF version %s\n%s(number=%s, format=%s)\n"
-               % (version.version, versioncmd, datafileversion, repr(format)))
+    header = "# OOF version %s\n%s(number=%s, format=%s)\n" \
+               % (version.version, versioncmd, datafileversion, repr(format))
+
     if format != BINARY:
+        file.write(header)
         return AsciiDataFile(file, format)
+
     from ooflib.common.IO import binarydata    # avoid import loop
+    file.write(bytes(header, "UTF-8"))
     return binarydata.BinaryDataFile(file)
 
 def readDataFile(filename, menu):

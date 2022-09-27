@@ -76,11 +76,11 @@ class ProfileFunctionParameterBase(parameter.Parameter):
         self.timestamp.increment()
     def binaryRepr(self, datafile, value):
         length = len(value.funcstr)
-        return struct.pack('>i', length) + value.funcstr
+        return struct.pack('>i', length) + bytes(value.funcstr, "UTF-8")
     def binaryRead(self, parser):
         b = parser.getBytes(struct.calcsize('>i'))
         (length,) = struct.unpack('>i', b)
-        return self.profileClass(parser.getBytes(length))
+        return self.profileClass(parser.getBytes(length).decode())
     def valueDesc(self):
         return ("A <link linkend='Object-ProfileFunction'><classname>" +
                 self.profileClass.__name__ + "</classname></link> object.")

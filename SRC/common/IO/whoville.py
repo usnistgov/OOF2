@@ -743,11 +743,12 @@ class WhoParameter(parameter.Parameter):
     structfmt = '>i'
     structlen = struct.calcsize(structfmt)
     def binaryRepr(self, datafile, value):
-        return struct.pack(WhoParameter.structfmt, len(value)) + value
+        return (struct.pack(WhoParameter.structfmt, len(value))
+                + bytes(value, "UTF-8"))
     def binaryRead(self, parser):
         b = parser.getBytes(WhoParameter.structlen)
         (length,) = struct.unpack(WhoParameter.structfmt, b)
-        return parser.getBytes(length)
+        return parser.getBytes(length).decode()
     def classRepr(self):
         return "%s(%s)" % (self.__class__.__name__, self.whoclass.name())
     def valueDesc(self):
