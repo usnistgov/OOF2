@@ -506,8 +506,7 @@ class MaterialPane:
     def updatePropList(self):
         matl = self.currentMaterial()
         if matl is not None:
-            props = matl.properties()
-            self.matproplist.update([prop.name() for prop in props])
+            self.matproplist.update([prop.name() for prop in matl.proplist])
             self.matproplist.set_selection(self.parent.current_property_name())
         else:
             self.matproplist.update([])
