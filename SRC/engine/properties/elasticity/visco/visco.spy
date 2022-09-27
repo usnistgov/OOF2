@@ -14,12 +14,15 @@ from ooflib.engine import problem
 from ooflib.engine import propertyregistration
 from ooflib.engine.IO import isocijkl
 
-PropertyRegistration = propertyregistration.PropertyRegistration
+class ViscoElasticity(CViscoElasticity):
+    def __init__(self, registration, name, cijkl):
+        CViscoElasticity.__init__(self, registration, name, cijkl.tensorForm())
 
-# Property class registration code
-reg = ViscoElasticity = PropertyRegistration(
-    "Mechanical:Viscosity:Isotropic", ViscoElasticityProp,
-    "ooflib.SWIG.engine.properties.elasticity.visco.visco", 1000,
+reg = propertyregistration.PropertyRegistration(
+    "Mechanical:Viscosity:Isotropic",
+    ViscoElasticity,
+    "ooflib.SWIG.engine.properties.elasticity.visco.visco",
+    1000,
     [isocijkl.IsotropicCijklParameter('gijkl',
                           isocijkl.IsotropicRank4TensorCij(c11=1.0, c12=0.5),
                                             tip=parameter.emptyTipString)],

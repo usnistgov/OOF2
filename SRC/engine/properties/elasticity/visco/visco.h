@@ -33,7 +33,7 @@ class SymmetricTensorFlux;
 
 // TODO: Add all symmetries.
 
-class ViscoElasticityProp : public FluxProperty {
+class CViscoElasticity : public FluxProperty {
 private:
   Cijkl g_ijkl;
 #if DIM==2
@@ -43,8 +43,8 @@ private:
 #endif
   SymmetricTensorFlux *stress_flux;
 public:
-  ViscoElasticityProp(PyObject *registry, const std::string &name, Cijkl &g);
-  virtual ~ViscoElasticityProp() {}
+  CViscoElasticity(PyObject *registry, const std::string &name, Cijkl &g);
+  virtual ~CViscoElasticity() {}
   virtual void flux_matrix(const FEMesh *mesh,
 			   const Element *element,
 			   const ElementFuncNodeIterator &nu,
