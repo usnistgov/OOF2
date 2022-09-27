@@ -66,7 +66,7 @@ public:
 };
 
 %extend FuncNodeIterator {
-  void next() {
+  void increment() {
     ++(*self);
   }
 };
@@ -83,7 +83,7 @@ public:
 };
 
 %extend ElementIterator {
-  void next() {
+  void increment() {
     ++(*self);
   }
 };

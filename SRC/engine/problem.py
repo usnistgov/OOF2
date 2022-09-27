@@ -8,8 +8,6 @@
 # versions of this software, you first contact the authors at
 # oof_manager@nist.gov. 
 
-# TODO 3D: we can get rid of the separation between in plane and out of plane.
-
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import switchboard
@@ -34,9 +32,8 @@ def advertiseField(fld):
     _advertise(fld)
     td = _advertise(fld.time_derivative())
     field.newField(td)
-    if config.dimension() == 2:
-        field.newField(_advertise(fld.out_of_plane()))
-        field.newField(_advertise(fld.out_of_plane_time_derivative()))
+    field.newField(_advertise(fld.out_of_plane()))
+    field.newField(_advertise(fld.out_of_plane_time_derivative()))
     # "new field" is sent here, instead of from the Field constructor,
     # because it must be called *after* the field is defined in the
     # OOF namespace.

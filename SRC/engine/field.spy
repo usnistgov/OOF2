@@ -64,7 +64,4 @@ utils.OOFdefine('getField', getField)
 def allFields():
     return list(_allFields.values())
 
-## TODO PYTHON3: Do we need this?
-#from ooflib.SWIG.engine.freedom import DegreeOfFreedom
-
 

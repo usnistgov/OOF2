@@ -276,9 +276,10 @@ def copyMesh(menuitem, mesh, name, copy_field, copy_equation, copy_bc):
             if copy_field:
                 for field in newmesh.all_subproblem_fields():
                     if basemesh.femesh().in_plane(field):
-                        newmesh.set_in_plane_field(field, 1)
-                        notifications.add(("field inplane",
-                                           copiedmeshfullname, field.name(), 1))
+                        newmesh.set_in_plane_field(field, True)
+                        notifications.add(
+                            ("field inplane", copiedmeshfullname, field.name(),
+                             True))
                     try:
                         initializer = basemesh.initializers[field]
                     except KeyError:
@@ -718,11 +719,12 @@ def _inPlaneField(menuitem, mesh, field):
         meshcontext.reserve()
         meshcontext.begin_writing()
         try:
-            meshcontext.set_in_plane_field(field, 1)
+            meshcontext.set_in_plane_field(field, True)
         finally:
             meshcontext.end_writing()
             meshcontext.cancel_reservation()
-        switchboard.notify("field inplane", meshcontext.path(), field.name(), 1)
+        switchboard.notify("field inplane", meshcontext.path(), field.name(),
+                           True)
         meshcontext.changed("Field planarity changed.")
 #         meshcontext.setStatus(meshstatus.Unsolved("Field planarity changed"))
 
@@ -734,12 +736,12 @@ def _outOfPlaneField(menuitem, mesh, field):
         meshcontext.reserve()
         meshcontext.begin_writing()
         try:
-            meshcontext.set_in_plane_field(field, 0)
+            meshcontext.set_in_plane_field(field, False)
         finally:
             meshcontext.end_writing()
             meshcontext.cancel_reservation()
         switchboard.notify("field inplane", meshcontext.path(),
-                           field.name(), 0)
+                           field.name(), False)
         meshcontext.changed("Field planarity changed.")
 #         meshcontext.setStatus(meshstatus.Unsolved("Field planarity changed"))
 

@@ -65,7 +65,6 @@
 %}
 
 MAKE_LISTVEC_TYPEMAPS(CConjugatePair);
-MAKE_LISTVEC_TYPEMAPS(CompoundField);
 MAKE_LISTVEC_TYPEMAPS(Equation);
 MAKE_LISTVEC_TYPEMAPS(Field);
 MAKE_LISTVEC_TYPEMAPS(Flux);
@@ -101,7 +100,8 @@ public:
   void make_linear_system(LinearizedSystem *, CNonlinearSolver*);
 
   %newobject all_compound_fields;
-  CompoundFieldRefVec *all_compound_fields();
+  // Don't use MAKE_LISTVEC_TYPEMAPS for CompoundField
+  std::vector<CompoundField*> *all_compound_fields();
   %newobject all_equations;
   EquationSubClassRefVec *all_equations();
   %newobject all_fluxes;
