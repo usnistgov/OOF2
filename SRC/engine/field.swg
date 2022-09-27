@@ -48,31 +48,30 @@ typedef std::vector<CompoundField*> CompoundFieldVec;
 //      return 0;
 // }
 
-// The CompoundFieldVec* typemap converts a std::vector of
-// CompoundField*s to a Python list of CompoundFields.  It does *not*
-// use the PythonExportable mechanism because the Field class uses too
-// much virtual inheritance for PythonExportable to work properly.
-// (TODO PYTHON3: Is that still true?)  The typemap instead extracts
-// Field names and calls the Python getField function (defined in
-// field.spy).
+// Typemap to convert a std::vector of CompoundField*s to a Python
+// list of CompoundFields.  It does *not* use the PythonExportable
+// mechanism because the Field class uses too much virtual inheritance
+// for PythonExportable to work properly.  The typemap instead
+// extracts Field names and calls the Python getField function
+// (defined in field.spy).
+// ** Do not use MAKE_LISTVEC_TYPEMAPS for CompoundField! **
 
-%typemap(out) CompoundFieldVec * {
-  // typemap(out) CompoundFieldVec*
+%typemap(out) std::vector<CompoundField*> * {
+  // typemap(out) std::vector<CompoundField*>*
   static PyObject *getField = 0;
   if(!getField) {
     PyObject *module = PyImport_ImportModule("ooflib.SWIG.engine.field");
     getField = PyObject_GetAttrString(module, "getField");
     Py_XDECREF(module);
-    if(!getField) return 0;
+    if(!getField)
+      SWIG_fail;
   }
-  CompoundFieldVec::size_type sz = $1->size();
+  std::vector<CompoundField*>::size_type sz = $1->size();
   $result = PyList_New((Py_ssize_t) sz);
   for(std::vector<CompoundField*>::size_type i=0; i<sz; i++) {
     PyObject *fldobj = PyObject_CallFunction(getField, "(s)",
 					     (*$1)[i]->name().c_str());
-    Py_XDECREF(arg);
-    arg = Py_BuildValue("O", fldobj);
-    PyList_SET_ITEM($result, (Py_ssize_t) i, arg);
+    PyList_SET_ITEM($result, (Py_ssize_t) i, fldobj);
   }
 }
 
