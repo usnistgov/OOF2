@@ -211,7 +211,7 @@ class BinaryMenuParser(menuparser.MenuParserMode):
         # menu arg is not used, since full path is stored in file
         try:
             b = self.getBytes(cmdsize)
-        except ooferror.ErrDataFileError: # no bytes to read
+        except ooferror.PyErrDataFileError: # no bytes to read
             return
         (key,) = struct.unpack(cmdformat, b)
         return self.cmdmap[key]
