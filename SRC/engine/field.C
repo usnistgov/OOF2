@@ -92,9 +92,7 @@ Field *Field::getField(const std::string &nm) {
 Field::Field(const std::string &nm, int dofs)
   : name_(nm),
     index_(all().size()),
-#if DIM==2
     in_plane_(true),
-#endif
     dim(dofs),
     time_derivative_(0)
 {
@@ -184,7 +182,6 @@ double Field::value(const FEMesh *mesh, const ElementFuncNodeIterator &node,
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
 
-#if DIM==2
 CompoundField::CompoundField(const std::string &name, int dim,
 			     Field *outofplane,
 			     Field *timederiv,
@@ -200,23 +197,10 @@ CompoundField::CompoundField(const std::string &name, int dim,
   allcompoundfields().push_back(this);
 }
 
-#elif DIM==3
-CompoundField::CompoundField(const std::string &name, int dim,
-			     Field *timederiv)
-  : Field(name, dim),
-    cfield_indx(allcompoundfields().size())
-{
-  time_derivative_ = timederiv;
-  allcompoundfields().push_back(this);
-}
-#endif	// DIM==3
-
 CompoundField::~CompoundField() {
   remove_item(allcompoundfields(), this);
 }
 
-
-#if DIM==2
 bool CompoundField::in_plane(const FEMesh *mesh) const {
   return mesh->in_plane(*this);
 }
@@ -224,37 +208,28 @@ bool CompoundField::in_plane(const FEMesh *mesh) const {
 bool CompoundField::in_plane(const CSubProblem *subproblem) const {
   return subproblem->mesh->in_plane(*this);
 }
-#endif // DIM==2
 
 void CompoundField::define(CSubProblem *subproblem) const {
   subproblem->do_define_field(*this);
-#if DIM==2
   subproblem->do_define_field(*zfield_);
-#endif // DIM==2
 }
 
 void CompoundField::undefine(CSubProblem *subproblem) const {
   subproblem->do_undefine_field(*this);
-#if DIM==2
   subproblem->do_undefine_field(*zfield_);
   subproblem->do_undefine_field(*zfield_time_derivative_);
-#endif // DIM==2
   subproblem->do_undefine_field(*time_derivative_);
 }
 
 void CompoundField::activate(CSubProblem *subproblem) const {
   subproblem->do_activate_field(*this);
-#if DIM==2
   if(!in_plane(subproblem->mesh))
     subproblem->do_activate_field(*zfield_);
-#endif // DIM==2
 }
 
 void CompoundField::deactivate(CSubProblem *subproblem) const {
   subproblem->do_deactivate_field(*this);
-#if DIM==2
   subproblem->do_deactivate_field(*zfield_);
-#endif // DIM==2
 }
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
@@ -262,14 +237,9 @@ void CompoundField::deactivate(CSubProblem *subproblem) const {
 ScalarField::ScalarField(const std::string &nm)
   : Field(nm, 1),
     ScalarFieldBase(nm),
-#if DIM==2
     CompoundField(nm, 1, new ScalarFieldBase(nm+std::string("_z")),
 		  new ScalarFieldBase(nm+std::string("_t")),
 		  new ScalarFieldBase(nm+std::string("_tz")))
-#elif DIM==3
-    CompoundField(nm, 1,
-		  new ScalarFieldBase(nm+std::string("_t")))
-#endif // DIM==3
 {
 }
 
@@ -360,15 +330,10 @@ const std::string ScalarFieldBase::classname_("ScalarFieldBase");
 TwoVectorField::TwoVectorField(const std::string &nm)
   : Field(nm, 2),
     TwoVectorFieldBase(nm),
-#if DIM==2
     CompoundField(nm, 2, new ThreeVectorField(nm+std::string("_z")),
 		  new TwoVectorFieldBase(nm+std::string("_t")),
 		  new ThreeVectorField(nm+std::string("_tz"))
 		  )
-#elif DIM==3
-    CompoundField(nm, 2,
-		  new TwoVectorFieldBase(nm+std::string("_t")))
-#endif // DIM==3
 {
 }
 
@@ -377,10 +342,6 @@ const std::string TwoVectorField::classname_("TwoVectorField");
 DegreeOfFreedom *TwoVectorFieldBase::operator()(const PointData *node, int comp)
   const
 {
-//   if(comp<0 || comp >= 2) {
-//     std::cerr << "TwoVectorFieldBase::operator(): " << comp << " " << *this
-// 	      << std::endl;
-//   }
   assert(comp >= 0 && comp < 2);
   // offset() will raise ErrNoSuchField if this field isn't defined at the node.
   return node->doflist[node->fieldset.offset(this) + comp];
@@ -570,13 +531,8 @@ void VectorFieldBase::setValueFromOutputValue(FEMesh *mesh,
 // }
 
 IteratorP VectorFieldBase::iterator(Planarity planarity) const {
-#if DIM==2
   int mindim = (planarity == OUT_OF_PLANE ? 2 : 0);
   int maxdim = (planarity == IN_PLANE ? 2 : ndof());
-#elif DIM==3
-  int mindim = 0;
-  int maxdim = 3;
-#endif // DIM==3
   return IteratorP(new VectorFieldIterator(mindim, maxdim));
 }
 
@@ -591,10 +547,6 @@ IndexP VectorFieldBase::getIndex(const std::string &str) const {
 ThreeVectorField::ThreeVectorField(const std::string &nm)
   : Field(nm, 3),
     VectorFieldBase(nm, 3)
-#if DIM==3
-  , CompoundField(nm, 3,
-		  new VectorFieldBase(nm+std::string("_t"), 3))
-#endif // DIM==3
 {
 }
 

@@ -94,9 +94,7 @@ class Field : public IdentifiedObject
 private:
   const std::string name_;
   const unsigned int index_;
-#if DIM==2
   bool in_plane_;
-#endif
 protected:
   const int dim;
   Field *time_derivative_;
@@ -117,11 +115,9 @@ public:
 
   void set_time_derivative(Field *f) { time_derivative_ = f; }
 
-#if DIM==2
   // See comment above about in_plane() and in_plane_part().
   void set_oop() { in_plane_ = false; }
   bool in_plane_part() const { return in_plane_; }
-#endif
   
   virtual void activate(CSubProblem*) const;
   virtual void deactivate(CSubProblem*) const;
@@ -240,24 +236,17 @@ std::ostream &operator<<(std::ostream &, const Field&);
 class CompoundField : public virtual Field {
 private:
   //  Field * const time_derivative_;
-#if DIM==2
   Field * const zfield_;	// the out-of-plane field
   Field * const zfield_time_derivative_;
-#endif
   int cfield_indx;
 protected:
-#if DIM==2
   CompoundField(const std::string &name, int dim, Field *outofplane,
 		Field *timederiv, Field *outofplanetimederiv);
-#elif DIM==3
-  CompoundField(const std::string &name, int dim, Field *timederiv);
-#endif
   virtual ~CompoundField();
 public:
   //  Field *time_derivative() const {
   //   return time_derivative_;
   // }
-#if DIM==2
   Field *out_of_plane() const {
     return zfield_;
   }
@@ -266,7 +255,6 @@ public:
   }
   bool in_plane(const FEMesh*) const;
   bool in_plane(const CSubProblem*) const;
-#endif
   virtual void define(CSubProblem*) const;
   virtual void undefine(CSubProblem*) const;
   virtual void activate(CSubProblem*) const;
@@ -390,11 +378,7 @@ public:
 
 // ThreeVectorField, provided as a separate class so that it can be
 // recognized by the initializer infrastructure.
-class ThreeVectorField : public VectorFieldBase
-#if DIM==3
-		       , public CompoundField
-#endif
-{
+class ThreeVectorField : public VectorFieldBase {
 private:
   static const std::string classname_;
 public:
@@ -446,4 +430,4 @@ CompoundField *getCompoundFieldByIndex(int);
 int countCompoundFields();
 
 
-#endif
+#endif	// FIELD_H

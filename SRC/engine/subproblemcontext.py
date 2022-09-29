@@ -326,10 +326,7 @@ class SubProblemContext(whoville.Who):
 
     def all_fields(self):
         compound_fields = self.all_compound_fields()
-        if config.dimension() == 2:
-            zfields = [fld.out_of_plane() for fld in compound_fields]
-        else:
-            zfields = []
+        zfields = [fld.out_of_plane() for fld in compound_fields]
         tfields = [fld.time_derivative() for fld in compound_fields]
         tfields = [t for t in tfields if self.is_defined_field(t)]
         return compound_fields + zfields + tfields
