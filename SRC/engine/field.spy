@@ -21,7 +21,7 @@ TwoVectorField.__repr__ = TwoVectorField.name
 ThreeVectorField.__repr__ = ThreeVectorField.name
 SymmetricTensorField.__repr__ = SymmetricTensorField.name
 
-#-----------------
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 # Fields are sometimes stored in an OrderedSet and so need to have
 # __lt__ defined.
@@ -39,7 +39,7 @@ def _Field___hash__(self):
 
 Field.__hash__ = _Field___hash__
 
-################
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
 _allFields = {}                 # dict of Fields keyed by name
 
@@ -63,5 +63,24 @@ utils.OOFdefine('getField', getField)
 
 def allFields():
     return list(_allFields.values())
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
+
+# See comment in field.swg about Field::time_derivative.
+
+def _Field_time_derivative(self):
+    return _allFields[self.name() + "_t"]
+
+Field.time_derivative = _Field_time_derivative
+
+def _Field_out_of_plane(self):
+    return _allFields[self.name() + "_z"]
+
+CompoundField.out_of_plane = _Field_out_of_plane
+
+def _Field_out_of_plane_time_derivative(self):
+    return _allFields[self.name() + "_tz"]
+
+CompoundField.out_of_plane_time_derivative = _Field_out_of_plane_time_derivative
 
 

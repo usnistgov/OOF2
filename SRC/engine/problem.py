@@ -23,22 +23,33 @@ from ooflib.engine import propertyregistration
 import sys
 import types
 
-def _advertise(obj):
-    utils.OOFdefine(obj.name(), obj)
-    return obj
+#=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=##=-=#
 
-def advertiseField(fld):
+# Call this for all new CompoundFields.
+
+## TODO PYTHON3: Rationalize the names of the functions here.
+## newField used to be advertiseField, but it really does more than
+## that, so I changed it to newField.  If the "advertise" methods were
+## called from the Field, Flux, and Equation constructors it would
+## make more sense.
+
+def newField(fld):
     field.newCompoundField(fld)
     _advertise(fld)
-    td = _advertise(fld.time_derivative())
-    field.newField(td)
-    field.newField(_advertise(fld.out_of_plane()))
-    field.newField(_advertise(fld.out_of_plane_time_derivative()))
+
+    field.newField(_advertise(fld.c_time_derivative()))
+    field.newField(_advertise(fld.c_out_of_plane()))
+    field.newField(_advertise(fld.c_out_of_plane_time_derivative()))
+
     # "new field" is sent here, instead of from the Field constructor,
     # because it must be called *after* the field is defined in the
     # OOF namespace.
     switchboard.notify("new field")
     return fld
+
+def _advertise(obj):
+    utils.OOFdefine(obj.name(), obj)
+    return obj
 
 def advertiseFlux(flx):
     _advertise(flx)
@@ -51,11 +62,10 @@ def advertiseEquation(eqn):
     return eqn
 
 def advertise(obj):
-    # This code is ugly, but at least it's compact.  It's not much
-    # uglier than the previous version, which required other code to
-    # call advertiseField, et al, directly.
+    # This code is ugly, but at least it's compact.
+    ## TODO PYTHON3: Do this from the Field, Flux, etc. constructors?
     if isinstance(obj, field.Field):
-        return advertiseField(obj)
+        return newField(obj)
     if isinstance(obj, flux.Flux):
         return advertiseFlux(obj)
     if isinstance(obj, equation.Equation):
@@ -76,16 +86,11 @@ HeatBalanceEquation = advertise(equation.DivergenceEquation(
     1
     ))
 
-if config.dimension() == 2:
-    HeatOutOfPlane = advertise(equation.PlaneFluxEquation(
-            'Plane_Heat_Flux', Heat_Flux, 1))
+HeatOutOfPlane = advertise(equation.PlaneFluxEquation(
+    'Plane_Heat_Flux', Heat_Flux, 1))
 
 ## this creates the Displacement, Stress, and Mechanical Equilibrium equations
-if config.dimension() == 2:
-    Displacement = advertise(field.TwoVectorField('Displacement'))
-elif config.dimension() == 3:
-    Displacement = advertise(field.ThreeVectorField('Displacement'))
-
+Displacement = advertise(field.TwoVectorField('Displacement'))
 ## When we started using Eigen's matrix solvers, we learned that we
 ## had been constructing *negative* definite matrices for the force
 ## balance equation.  The previous CG solver worked with them, but
@@ -102,10 +107,8 @@ ForceBalanceEquation = advertise(equation.DivergenceEquation(
     config.dimension()
     ))
 
-if config.dimension() == 2:
-    ForcesOutOfPlane = \
-        advertise(equation.PlaneFluxEquation('Plane_Stress',
-                                             Stress, 3))
+ForcesOutOfPlane = advertise(equation.PlaneFluxEquation('Plane_Stress',
+                                                        Stress, 3))
 
 
 ## Define electrostatic potential
@@ -115,9 +118,8 @@ Total_Polarization = advertise(flux.VectorFlux('Total_Polarization'))
 ## Differential form of Coulomb's Law
 CoulombEquation = advertise(equation.DivergenceEquation(
     'Coulomb_Eqn', Total_Polarization, 1))
-if config.dimension() == 2:
-    PolarizationOutOfPlane = advertise(equation.PlaneFluxEquation(
-            'InPlanePolarization', Total_Polarization, 1))
+PolarizationOutOfPlane = advertise(equation.PlaneFluxEquation(
+    'InPlanePolarization', Total_Polarization, 1))
 
 
 # Plasticity -- start with the yield equation.
@@ -147,38 +149,32 @@ v = fieldindex.VectorFieldIndex(1)
 fx = fieldindex.VectorFieldIndex(0)
 fy = fieldindex.VectorFieldIndex(1)
 
-if config.dimension() == 2:
-    # fx is conjugate to u and fy is conjugate to v for Elasticity
-    conjugate.conjugatePair("Elasticity", ForceBalanceEquation, [fx, fy],
-                        Displacement, [u, v]) 
+# fx is conjugate to u and fy is conjugate to v for Elasticity
+conjugate.conjugatePair("Elasticity", ForceBalanceEquation, [fx, fy],
+                    Displacement, [u, v]) 
 
-    ## out-of-plane compoments
+## out-of-plane compoments
 
-    ## The available out-of-plane components of stress are $\sigma_{zz},
-    ## \sigma_{zy}, \sigma_{zx}$, in *that* order, (0, 1, 2).  The
-    ## out-of-plane displacement is (\frac{\partial u}{\partial z},
-    ## \frac{\partial v}{partial z}, \frac{\partial w}{\partial z}.
+## The available out-of-plane components of stress are $\sigma_{zz},
+## \sigma_{zy}, \sigma_{zx}$, in *that* order, (0, 1, 2).  The
+## out-of-plane displacement is (\frac{\partial u}{\partial z},
+## \frac{\partial v}{partial z}, \frac{\partial w}{\partial z}.
 
-    u_xz = fieldindex.VectorFieldIndex(0)
-    u_yz = fieldindex.VectorFieldIndex(1)
-    u_zz = fieldindex.VectorFieldIndex(2)
-    sigma_xz = fieldindex.OutOfPlaneSymTensorIndex(2,0)
-    sigma_yz = fieldindex.OutOfPlaneSymTensorIndex(2,1)
-    sigma_zz = fieldindex.OutOfPlaneSymTensorIndex(2,2)
+u_xz = fieldindex.VectorFieldIndex(0)
+u_yz = fieldindex.VectorFieldIndex(1)
+u_zz = fieldindex.VectorFieldIndex(2)
+sigma_xz = fieldindex.OutOfPlaneSymTensorIndex(2,0)
+sigma_yz = fieldindex.OutOfPlaneSymTensorIndex(2,1)
+sigma_zz = fieldindex.OutOfPlaneSymTensorIndex(2,2)
 
-    ## \sigma_{zz} is conjugate to \frac{\partial w}{\partial z}
-    ## \sigma_{xz} is conjugate to \frac{\partial u}{\partial z}
-    ## \sigma_{yz} is conjugate to \frac{\partial v}{\partial z}
+## \sigma_{zz} is conjugate to \frac{\partial w}{\partial z}
+## \sigma_{xz} is conjugate to \frac{\partial u}{\partial z}
+## \sigma_{yz} is conjugate to \frac{\partial v}{\partial z}
 
-    conjugate.conjugatePair("Elasticity",
-                            ForcesOutOfPlane, [sigma_zz, sigma_xz, sigma_yz],
-                            Displacement.out_of_plane(), [u_zz, u_xz, u_yz])
+conjugate.conjugatePair("Elasticity",
+                        ForcesOutOfPlane, [sigma_zz, sigma_xz, sigma_yz],
+                        Displacement.out_of_plane(), [u_zz, u_xz, u_yz])
 
-elif config.dimension() == 3:
-    w = fieldindex.VectorFieldIndex(2)
-    fz = fieldindex.VectorFieldIndex(2)
-    conjugate.conjugatePair("Elasticity", ForceBalanceEquation, [fx, fy, fz],
-                            Displacement, [u, v, w])
 
 ###############################################################
 ##
@@ -191,16 +187,15 @@ DivJ = fieldindex.ScalarFieldIndex()
 
 conjugate.conjugatePair("ThermalConductivity", HeatBalanceEquation, DivJ,
                         Temperature, T)
- ## $\nabla \cdot \vec{J}$ is conjugate to T
+## $\nabla \cdot \vec{J}$ is conjugate to T
 
 ## out-of-plane components, $\frac{\partial T}{\partial z}$
-if config.dimension() == 2:
-    T_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
-    J_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+T_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+J_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
 
-    conjugate.conjugatePair("ThermalConductivity", HeatOutOfPlane, J_z,
-                            Temperature.out_of_plane(), T_z)
- ##  $J_{z}$ is conjugate to $\frac{\partial T}{\partial z}$
+conjugate.conjugatePair("ThermalConductivity", HeatOutOfPlane, J_z,
+                        Temperature.out_of_plane(), T_z)
+##  $J_{z}$ is conjugate to $\frac{\partial T}{\partial z}$
 
 ###############################################################
 ##
@@ -217,14 +212,13 @@ conjugate.conjugatePair("DielectricPermittivity",
  ## $\nabla \cdot \vec{D}$ is conjugate to D
 
 ## out-of-plane components, $\frac{\partial D}{\partial z}$
-if config.dimension() == 2:
-    phi_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
-    D_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+phi_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
+D_z = fieldindex.OutOfPlaneVectorFieldIndex(2)
 
-    conjugate.conjugatePair("DielectricPermittivity",
-                            PolarizationOutOfPlane, D_z,
-                            Voltage.out_of_plane(), phi_z)
- ##  $D_{z}$ is conjugate to $\frac{\partial phi}{\partial z}$
+conjugate.conjugatePair("DielectricPermittivity",
+                        PolarizationOutOfPlane, D_z,
+                        Voltage.out_of_plane(), phi_z)
+##  $D_{z}$ is conjugate to $\frac{\partial phi}{\partial z}$
 
 
 

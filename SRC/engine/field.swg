@@ -35,26 +35,17 @@ int countFields();
 typedef std::vector<CompoundField*> CompoundFieldVec;
 %}
 
-
-// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValuePtr"
-
-// This fails because of the complicated Field virtual inheritance scheme.
-// TODO PYTHON3? Try again with swig4, maybe.  Do we need this?
-// %typemap(out) Field* {
-//   $target = $source->pythonObject();
-//   if(!$target)
-//      return 0;
-// }
-
 // Typemap to convert a std::vector of CompoundField*s to a Python
 // list of CompoundFields.  It does *not* use the PythonExportable
 // mechanism because the Field class uses too much virtual inheritance
 // for PythonExportable to work properly.  The typemap instead
-// extracts Field names and calls the Python getField function
-// (defined in field.spy).
+// extracts Field names and call the Python getField function (defined
+// in field.spy).
+
 // ** Do not use MAKE_LISTVEC_TYPEMAPS for CompoundField! **
+
+// There is no typemap for Field*.  Field objects should never be
+// returned from C++ to Python.  Use getField() instead.
 
 %typemap(out) std::vector<CompoundField*> * {
   // typemap(out) std::vector<CompoundField*>*
@@ -93,8 +84,19 @@ public:
 
   int ndof();
 
-  const std::string &classname(); 
+  const std::string &classname();
 
+  // The time_derivative, out_of_plane, and
+  // out_of_plane_time_derivative parts of a Field cannot be returned
+  // from C++ to Python in the usual way, because swig would create a
+  // separate object each time, and we want all the Field objects to
+  // be singletons in Python (one for Temperature, one for
+  // Displacement, etc).  So there are separate Python definitions of
+  // those methods in field.spy that retrieve cached singleton objects
+  // from a dictionary.  To create that dictionary, the newField
+  // function in problem.py calls Field.c_time_derivative, etc.
+  // c_time_derivative should not be used anywhere else.
+  %rename(c_time_derivative) time_derivative;
   Field *time_derivative();
 
   void registerProperty(Property*);
@@ -139,7 +141,11 @@ public:
 class CompoundField : public Field {
 public:
   bool in_plane(FEMesh*);
+
+  // See comment above re Field::time_derivative.
+  %rename(c_out_of_plane) out_of_plane;
   Field *out_of_plane();
+  %rename(c_out_of_plane_time_derivative) out_of_plane_time_derivative;
   Field *out_of_plane_time_derivative(); 
 };
 

@@ -40,18 +40,6 @@
 %import "engine/node.swg"
 #endif // NOSECONDIMPORTS
 
-// %pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
-// %pragma(python) code="from ooflib.SWIG.common.lock import RWLockPtr"
-// %pragma(python) code="from ooflib.SWIG.common.doublevec import DoubleVecPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.equation import EquationPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.femesh import FEMeshPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.field import FieldPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.linearizedsystem import LinearizedSystemPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.meshiterator import ElementIteratorPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.meshiterator import FuncNodeIteratorPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.meshiterator import NodeIteratorPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.nodalequation import NodalEquationPtr"
-
 %{
 #include "common/doublevec.h"
 #include "engine/cconjugate.h"
@@ -64,9 +52,9 @@
 #include <vector>
 %}
 
+// Don't use MAKE_LISTVEC_TYPEMAPS for Field or CompoundField
 MAKE_LISTVEC_TYPEMAPS(CConjugatePair);
 MAKE_LISTVEC_TYPEMAPS(Equation);
-MAKE_LISTVEC_TYPEMAPS(Field);
 MAKE_LISTVEC_TYPEMAPS(Flux);
 
 %nodefaultctor CSubProblem; // only derived classes can be constructed
