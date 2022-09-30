@@ -21,6 +21,7 @@ from ooflib.common import debug
 from ooflib.common import enum
 from ooflib.common import labeltree
 from ooflib.common import registeredclass
+from ooflib.common import utils
 from ooflib.common.IO import datafile
 from ooflib.common.IO import filenameparam
 from ooflib.common.IO import mainmenu
@@ -57,8 +58,6 @@ from ooflib.engine.IO import skeletonIO
 
 import ooflib.engine.IO.meshmenu
 import ooflib.engine.IO.boundaryconditionmenu
-
-from ooflib.common.utils import stringjoin
 
 OOFMenuItem = oofmenu.OOFMenuItem
 
@@ -794,28 +793,24 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
     # nodes don't appear in the abaqus output.  All oof2 nodes at the
     # same position are represented by a single abaqus node.
 
-    nodedict = {}
+    nodedict = utils.OrderedDict()
     i = 1
-    # # use only those nodes that are associated with elements that have
-    # # a material
-    # import time
-    # t0 = time.clock()
+    # use only those nodes that are associated with elements that have
+    # a material
     for el in femesh.element_iterator():
         if el.material():
             for node in el.node_iterator():
                 if nodedict.setdefault(node.position(), i) == i:
                     i += 1
 
-    # debug.fmsg("elapsed time=", time.clock()-t0)
-    
     # same for elements
-    elementdict = {}
+    elementdict = utils.OrderedDict()
     i = 1
     # In the same loop, get the list of materials and masterelements
     # directly from the elements (i.e. straight from the horses'
     # mouths. May be inefficient.)
-    materiallist={}
-    masterElementDict={}
+    materiallist=utils.OrderedDict()
+    masterElementDict=utils.OrderedDict()
     for el in femesh.element_iterator():
         ematerial = el.material()
         emasterelement = el.masterelement()
@@ -896,7 +891,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                             if node.index() not in cornernodelist:
                                 listbuf2.append(
                                     "%d" % (nodedict[node.position()]))
-                        listbuf.append(stringjoin(listbuf2,", ")+"\n")
+                        listbuf.append(utils.stringjoin(listbuf2,", ")+"\n")
             buffer.extend(listbuf)
         except KeyError:
             ## TODO: Which KeyError are we ignoring here?  Use
@@ -905,7 +900,9 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
             pass
 
     buffer.append("** Point boundaries in OOF2\n")
-    for pbname in meshcontext.pointBoundaryNames():
+    pbnames = meshcontext.pointBoundaryNames()
+    pbnames.sort()
+    for pbname in pbnames:
         buffer.append("*NSET, NSET=%s\n" % (pbname))
         listbuf=[]
         i=0
@@ -921,10 +918,12 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                 else:
                     listbuf.append("%d" % (somevalue))
                 i+=1
-        buffer.append(stringjoin(listbuf,", ")+"\n")
+        buffer.append(utils.stringjoin(listbuf,", ")+"\n")
 
     buffer.append("** Edge boundaries in OOF2\n")
-    for ebname in meshcontext.edgeBoundaryNames():
+    ebnames = meshcontext.edgeBoundaryNames()
+    ebnames.sort()
+    for ebname in ebnames:
         buffer+="*NSET, NSET=%s\n" % (ebname)
         listbuf=[]
         i=0
@@ -940,7 +939,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                 else:
                     listbuf.append("%d" % (somevalue))
                 i+=1
-        buffer.append(stringjoin(listbuf,", ")+"\n")
+        buffer.append(utils.stringjoin(listbuf,", ")+"\n")
 
     for matname in materiallist:
         ## TODO OPT: Use a separate buffer for each material, and only
@@ -956,7 +955,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
                     else:
                         listbuf.append("%d" % elementdict[el.get_index()])
                     i+=1
-        buffer.append(stringjoin(listbuf,", ") +
+        buffer.append(utils.stringjoin(listbuf,", ") +
                       "\n*SOLID SECTION, ELSET=%s, MATERIAL=%s\n" % (matname,
                                                                      matname))
 

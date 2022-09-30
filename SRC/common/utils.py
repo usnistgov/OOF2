@@ -386,6 +386,11 @@ class OrderedDict(dict):
         dict.__setitem__(self, key, value)
         if key not in self._keys:
             self._keys.append(key)
+    def setdefault(self, key, default=None):
+        if key in self:
+            return self[key]
+        self[key] = default
+        return default
     def __delitem__(self, key):
         dict.__delitem__(self, key)
         self._keys.remove(key)
@@ -395,9 +400,9 @@ class OrderedDict(dict):
     def keys(self):
         return self._keys
     def values(self):
-        return [dict.__getitem__(self, key) for key in self._keys]
+        return (self[key] for key in self._keys)
     def items(self):
-        return [(key, dict.__getitem__(self, key)) for key in self._keys]
+        return ((key, self[key]) for key in self._keys)
     def reorder(self, keylist):
         # Make sure that our keys are in the order given by keylist.
         # keylist must contain all of our keys, but may contain more.
