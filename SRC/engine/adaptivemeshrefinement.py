@@ -72,7 +72,7 @@ class AdaptiveMeshRefinement(meshmod.MeshModification):
         subproblemobj=subproblemctxt.getObject()
 
         if meshcontext!=subproblemobj.meshcontext:
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "Mismatch between meshcontext and subproblem's meshcontext!")
 
         # refine the skeleton.

@@ -132,7 +132,7 @@ class ElementSample(Sample):
                 return reduce(lambda x,y: x+y[0]*(y[1]**power),
                               zip(wgts, vals),
                               vals[0].zero())
-        raise ooferror.ErrPyProgrammingError("Impossible situation arose")
+        raise ooferror.PyErrPyProgrammingError("Impossible situation arose")
 
     # The ElementSample is actually not used for direct output, but
     # can use this mechanism for debugging purposes.
@@ -611,7 +611,7 @@ class ElementSegmentSampleSet(SampleSet):
     containedClass = ElementLineSample
     def __init__(self, n_points, **kwargs):
         if n_points < 2:
-            raise ooferror.ErrUserError("n_points must be greater than 1!")
+            raise ooferror.PyErrUserError("n_points must be greater than 1!")
         self.n_points = n_points
         SampleSet.__init__(self, **kwargs)
     def make_samples(self, domain):

@@ -579,7 +579,7 @@ class SelectInterfaceSegments(SegmentSelectionModifier):
             interfacedef=interfacemsplugin.namedinterfaces[self.interface]
         except KeyError:
             #Should not happen
-            raise ooferror.ErrPyProgrammingError("Interface not found!")
+            raise ooferror.PyErrPyProgrammingError("Interface not found!")
         seglist = []
         for segment in skel.segments.values():
             yes,side1elem=interfacedef.isInterfaceSegment(segment,skel)

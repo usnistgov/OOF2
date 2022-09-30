@@ -552,7 +552,7 @@ class Polygon(Curve):
         # joinPolygon used to be called "join", which got confused
         # with Curve.join, so the name was changed.  This is here to
         # find out if Polygon.join is called elsewhere.
-        raise ooferror.ErrPyProgrammingError("Polygon.join was called.")
+        raise ooferror.PyErrPyProgrammingError("Polygon.join was called.")
 
     def edges(self):
         return Polygon.PolygonEdges(self)

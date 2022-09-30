@@ -118,7 +118,6 @@ public:
   ~ImageMagickError();
 };
 WRAP_OOFERROR_CLASS(ImageMagickError);
-ADD_REPR(ImageMagickError, summary);
 
 DoubleArray grayify(const OOFImage& image);
 void setFromBool(OOFImage&, const BoolArray&);

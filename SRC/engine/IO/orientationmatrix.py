@@ -272,7 +272,7 @@ class Quaternion(Orientation):
         # Make sure it's normalized.
         norm = math.sqrt(e0*e0 + e1*e1 + e2*e2 + e3*e3)
         if norm == 0.0:
-            raise ooferror.ErrUserError("Quaternion cannot be normalized!")
+            raise ooferror.PyErrUserError("Quaternion cannot be normalized!")
         self.e0 = e0/norm
         self.e1 = e1/norm
         self.e2 = e2/norm

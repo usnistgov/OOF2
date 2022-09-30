@@ -1248,7 +1248,7 @@ class OOF_BadMaterial(unittest.TestCase):
             name='material', 
             property='Orientation')
         self.assertRaises(
-            ooferror2.ErrBadMaterial,
+            ooferror2.PyErrBadMaterial,
             OOF.Mesh.Analyze.Average,
             mesh='microstructure:skeleton:mesh',
             time=latest,

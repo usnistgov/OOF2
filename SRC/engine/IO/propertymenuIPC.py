@@ -24,7 +24,7 @@ ipcpropmenu = parallelmainmenu.ipcmenu.addItem(
 def parallel_copywrapper(menuitem, property, new_name):
     try:
         AllProperties.new_prop(property, new_name)
-    except ErrUserError as e:
+    except PyErrUserError as e:
         print(e)
 
 ipcpropmenu.addItem(oofmenu.OOFMenuItem(
@@ -41,7 +41,7 @@ ipcpropmenu.addItem(oofmenu.OOFMenuItem(
 def parallel_deletewrapper(menuitem, property):
     try:
         AllProperties.delete(property)
-    except ErrUserError as e:
+    except PyErrUserError as e:
         print(e)
 
 ipcpropmenu.addItem(oofmenu.OOFMenuItem(

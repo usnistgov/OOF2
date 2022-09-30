@@ -27,7 +27,7 @@ def printTraceBack(e_type, e_value, tb):
     from ooflib.common.IO import reporter # avoid import loop
     for line in traceback.format_exception_only(e_type, e_value):
         reporter.error(line.rstrip())
-    if isinstance(e_value, ooferror.ErrError):
+    if isinstance(e_value, ooferror.PyOOFError):
         moreinfo = e_value.details()
         if moreinfo:
             reporter.error(moreinfo)

@@ -115,7 +115,7 @@ class ActivityViewer(subWindow.SubWindow):
                     for pname in progressnames:
                         try:
                             prgrss = worker.threadstate.findProgress(pname)
-                        except ooferror.ErrNoProgress:
+                        except ooferror.PyErrNoProgress:
                             # Progress object already finished
                             pass
                         else:

@@ -125,7 +125,7 @@ def conjugatePair(name, equation, eqncomp, field, fieldcomp):
     if isinstance(fieldcomp, fieldindex.FieldIndex):
         fieldcomp = [fieldcomp]
     if len(eqncomp) != len(fieldcomp):
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "Bad index specification in conjugatePair")
     for (ecomp, fcomp) in zip(eqncomp, fieldcomp):
         listofconjugatepairs.add(

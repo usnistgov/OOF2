@@ -120,7 +120,7 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
 
 def loadLog(menuitem, filename, checkpoints):
     if gtklogger.replaying():
-        raise ooferror.ErrUserError(
+        raise ooferror.PyErrUserError(
             "Multiple GUI logs cannot be replayed simultaneously!")
     debug.fmsg("Loading gui script", filename)
     menuitem.root().setOption('post_hook', menucheckpoint)
@@ -162,7 +162,7 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
 
 def rerecordLog(menuitem, filename, checkpoints, use_gui):
     if gtklogger.replaying():
-        raise ooferror.ErrUserError(
+        raise ooferror.PyErrUserError(
             "Multiple GUI logs cannot be replayed simultaneously!")
     menuitem.root().setOption('post_hook', menucheckpoint)
     dblevel = 0

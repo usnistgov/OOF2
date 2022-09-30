@@ -70,7 +70,8 @@ def advertise(obj):
         return advertiseFlux(obj)
     if isinstance(obj, equation.Equation):
         return advertiseEquation(obj)
-    raise ooferror.ErrPyProgrammingError("Don't know what to do with %s!"% obj)
+    raise ooferror.PyErrPyProgrammingError(
+        "Don't know what to do with %s!"% obj)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 

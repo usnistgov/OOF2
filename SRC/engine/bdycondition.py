@@ -355,7 +355,7 @@ class DirichletBC(BC):
             # SubProblems), then Field.dof() will fail.  In that case,
             # there's nothing to do -- the bc can't be applied.
             dof = self.field.dof(node, fldcomp)
-        except ooferror2.ErrNoSuchField:
+        except ooferror2.PyErrNoSuchField:
             return
 
         value = self.profile(location)
@@ -383,7 +383,7 @@ class DirichletBC(BC):
         fldcomp = self.field.getIndex(self.field_component).integer()
         try:
             dof = self.field.dof(node, fldcomp)
-        except ooferror2.ErrNoSuchField:
+        except ooferror2.PyErrNoSuchField:
             return
         value = self.profile(location)
         self.field.setvalue(subproblem.mesh, node, fldcomp, value)
@@ -475,7 +475,7 @@ class ForceBC(BC):
             value = self.profile(location)
             boundarycond.applyForceBC(subproblem, linsys, self.equation,
                                       node, eqnindex, value)
-        except ooferror2.ErrNoSuchField: # eqn not active at that node
+        except ooferror2.PyErrNoSuchField: # eqn not active at that node
             pass
     def display(self):
         return "Force / %s" % repr(self.equation)
@@ -646,7 +646,7 @@ class FloatBCBase(BC):
                     self.root.dofIndex = \
                         self.field.dof(node, fldcomp).dofindex()
                     return
-                except ooferror2.ErrNoSuchField:
+                except ooferror2.PyErrNoSuchField:
                     pass
                     
     #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
@@ -677,7 +677,7 @@ class FloatBCBase(BC):
                 # All other dofs in this FloatBC refer to it.
                 self.root.dofmappingIndex = linearsystem.getSubproblemDoFIndex(
                     node, self.field, fldcomp)
-            except ooferror2.ErrNoSuchField:
+            except ooferror2.PyErrNoSuchField:
                 # Field doesn't exist at this node -- just go on as if
                 # nothing had happened.  *Don't* set
                 # self.root.applicator!  Let some other node be the
@@ -735,7 +735,7 @@ class FloatBCBase(BC):
                                              self.root.eqnmappingIndex,
                                              self.root.derivmappingIndex,
                                              self.root.profileStart)
-            except ooferror2.ErrNoSuchField:
+            except ooferror2.PyErrNoSuchField:
                 # Field or Eqn isn't defined at the node
                 pass
 
@@ -755,7 +755,7 @@ class FloatBCBase(BC):
         for node, location in locations:
             try:
                 dof = self.field.dof(node, fcomp)
-            except ooferror2.ErrNoSuchField:
+            except ooferror2.PyErrNoSuchField:
                 pass
             else:
                 location.set_time(time)
@@ -777,7 +777,7 @@ class FloatBCBase(BC):
         for node, location in locations:
             try:
                 dof = self.field.dof(node, fcomp)
-            except ooferror2.ErrNoSuchField:
+            except ooferror2.PyErrNoSuchField:
                 pass
             else:
                 location.set_time(time)
@@ -910,7 +910,7 @@ class FloatBC(FloatBCBase):
                 fldcomp = self.field.getIndex(self.field_component).integer()
                 try:
                     dof = self.field.dof(node, fldcomp)
-                except ooferror2.ErrNoSuchField:
+                except ooferror2.PyErrNoSuchField:
                     continue
                 location.set_time(time)
                 val = (self.profile(location) +
@@ -943,7 +943,7 @@ class FloatBC(FloatBCBase):
                     if td is not None:
                         self.field.time_derivative().setvalue(
                             self.femesh(), node, fldcomp, td)
-                except ooferror2.ErrNoSuchField:
+                except ooferror2.PyErrNoSuchField:
                     pass
             self.initialized = True
             # Set the values of DoFs in FloatBCs that intersect this
@@ -968,7 +968,7 @@ class FloatBC(FloatBCBase):
                 if td is not None:
                     self.field.time_derivative().setvalue(
                         self.femesh(), node, fldcomp, td)
-            except ooferror2.ErrNoSuchField:
+            except ooferror2.PyErrNoSuchField:
                 pass
         self.initialized = True
         for (bc, offset) in intersections[self]:
@@ -1163,7 +1163,7 @@ def _build_oops(field, eqn, boundary):
                 if not oop_eqn:
                     oop_eqn = e
                 else:
-                    raise ooferror2.ErrSetupError(
+                    raise ooferror2.PyErrSetupError(
                         "Equation %s has multiple plane-flux equations." % \
                         repr(eqn))
             
@@ -1551,7 +1551,7 @@ class NeumannBC(BC):
             applicator.integrate(flux_locator, self.profile,
                                  self.normal, time)
         else:
-            raise ooferror2.ErrSetupError(
+            raise ooferror2.PyErrSetupError(
                 'Attempt to invoke NeumannBC on inactive flux: %s ' % self.flux)
     def display(self):
         return "Neumann / %s" % repr(self.flux)
@@ -1627,7 +1627,7 @@ class JumpBC(BC):
 ##        try:
 ##            boundarycond.applyForceBC(subproblem, self.equation,
 ##                                      node, eqnindex, value)
-##        except ooferror2.ErrNoSuchField: # eqn not active at that node
+##        except ooferror2.PyErrNoSuchField: # eqn not active at that node
 ##            pass
     def display(self):
         return ("JumpBC / %s[%s] / jumpvalue=%s / independent=%s" 

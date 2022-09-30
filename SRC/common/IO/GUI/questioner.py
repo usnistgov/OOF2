@@ -53,7 +53,7 @@ class _Questioner:
         debug.mainthreadTest()
 
         if len(answers)==0:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Questioner must have at least one possible answer.")
 
         parentwindow = kwargs['parentwindow']

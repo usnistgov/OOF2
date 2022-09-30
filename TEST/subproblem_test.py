@@ -97,7 +97,7 @@ class OOF_Subproblem(unittest.TestCase):
         subp = subproblemcontext.subproblems['subptest:skeleton:mesh:default']
         self.assertNotEqual(subp, None)
         # Check that default subproblem can't be deleted.
-        self.assertRaises(ooferror.ErrUserError,
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.Subproblem.Delete,
                           subproblem='subptest:skeleton:mesh:default')
         self.assertEqual(subproblemcontext.subproblems.nActual(), 1)
@@ -162,7 +162,7 @@ class OOF_Subproblem(unittest.TestCase):
         OOF.Mesh.New(name='mesh', skeleton='subptest:skeleton',
                      element_types=['T3_3', 'Q4_4'])
         subp = subproblemcontext.subproblems['subptest:skeleton:mesh:default']
-        self.assertRaises(ooferror.ErrUserError,
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.Subproblem.Rename,
                           subproblem='subptest:skeleton:mesh:default',
                           name='grinder')
@@ -181,7 +181,7 @@ class OOF_Subproblem(unittest.TestCase):
     def Edit(self):
         OOF.Mesh.New(name='mesh', skeleton='subptest:skeleton',
                      element_types=['T3_3', 'Q4_4'])
-        self.assertRaises(ooferror.ErrUserError,
+        self.assertRaises(ooferror.PyErrUserError,
                           OOF.Subproblem.Edit,
                           name='subptest:skeleton:mesh:default',
                           subproblem=MaterialSubProblem(material='salami'))

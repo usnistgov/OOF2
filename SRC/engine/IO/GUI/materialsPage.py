@@ -257,7 +257,8 @@ class PropertyPane:
             self.sensitize()
             gtklogger.checkpoint("property deselected")
         else:
-            raise ooferror.ErrPyProgrammingError("Inconsistent selection state")
+            raise ooferror.PyErrPyProgrammingError(
+                "Inconsistent selection state")
         
     def proptreeCB(self, signal, treenode): # GfxLabelTree callback
         prop_name = treenode.path()

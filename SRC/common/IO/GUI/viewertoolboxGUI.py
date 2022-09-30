@@ -220,7 +220,7 @@ class ViewerToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         try:
             factor = float(txt)
         except ValueError:
-            raise ooferror.ErrUserError("Bad zoom factor! %s" % txt)
+            raise ooferror.PyErrUserError("Bad zoom factor! %s" % txt)
         if factor != self.currentZFactor:
             # Use runBlock to ensure that the new zoom factor is set
             # before being used.

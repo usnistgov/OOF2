@@ -196,7 +196,7 @@ class MeshInfoToolbox(toolbox.Toolbox):
                             self.gfxwindow(), position)
                     finally:
                         context.releaseCachedData()
-                except ooferror.ErrBoundsError:
+                except ooferror.PyErrBoundsError:
                     return
             elif config.dimension() == 3:
                 # skip handling displaced meshes in 3D for now. 
@@ -232,7 +232,7 @@ class MeshInfoToolbox(toolbox.Toolbox):
                             self.gfxwindow(), position)
                     finally:
                         context.releaseCachedData()
-                except ooferror.ErrBoundsError:
+                except ooferror.PyErrBoundsError:
                     return
             elif config.dimension() == 3:
                 # skip handling displaced meshes in 3D for now.  

@@ -223,7 +223,7 @@ def renamePixelGroup(menuitem, microstructure, group, new_name):
                 interfacemsplugin=ms.getPlugIn("Interfaces")
                 interfacemsplugin.renameGroup(group, new_name)
         else:
-            raise ooferror.ErrUserError("There is no pixel group named %s!"
+            raise ooferror.PyErrUserError("There is no pixel group named %s!"
                                         % group)
     finally:
         mscontext.end_writing()
@@ -269,7 +269,7 @@ def copyPixelGroup(menuitem, microstructure, group, name):
                 (newgroup, newness) = ms.getGroup(name)
                 newgroup.addWithoutCheck(oldgroup.members())
             else:
-                raise ooferror.ErrUserError("There is no pixel group named %s!"
+                raise ooferror.PyErrUserError("There is no pixel group named %s!"
                                             % group)
         finally:
             mscontext.end_writing()
@@ -375,7 +375,7 @@ def meshablePixelGroup(menuitem, microstructure, group, meshable):
             grp.set_meshable(meshable)
             ms.recategorize()
         else:
-            raise ooferror.ErrUserError("There is no pixel group named %s!"
+            raise ooferror.PyErrUserError("There is no pixel group named %s!"
                                         % group)
     finally:
         mscontext.end_writing()

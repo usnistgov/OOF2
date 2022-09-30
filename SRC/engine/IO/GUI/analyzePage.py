@@ -559,7 +559,8 @@ class AnalyzePage(BaseAnalysisPage):
             elif analysis.data.isAggregateOutput():
                 self.aggregate_output_button.set_active(1) # sets output_obj
             else:
-                raise ooferror2.ErrPyProgrammingError("Unclassifiable output?")
+                raise ooferror2.PyErrPyProgrammingError(
+                    "Unclassifiable output?")
             self.output_obj.set_value(analysis.data)
             self.domain_obj.set(analysis.domain, interactive=False)
             self.sample_obj.set(analysis.sampling, interactive=False)

@@ -118,7 +118,7 @@ class GenericReader(orientmapdata.OrientMapReader):
         for row in rows:
             count += 1
             if len(row) != nx:
-                raise ooferror.ErrUserError(
+                raise ooferror.PyErrUserError(
                     "Orientation map data appears to be incomplete.\n"
                     "len(row 0)=%d len(row %d)=%d" % (nx, count, len(row)))
             for point in row:

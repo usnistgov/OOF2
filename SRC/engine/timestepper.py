@@ -359,7 +359,7 @@ class AdaptiveDriver(StepDriver):
                 # debug.fmsg("delta delta t=%15g t=%15g dt=%15g not ok" %
                 #            (dt-newstep, time, newstep))
                 if newstep < self.minstep or time + newstep == time:
-                    raise ooferror2.ErrTimeStepTooSmall(newstep)
+                    raise ooferror2.PyErrTimeStepTooSmall(newstep)
                 # If the error is just slightly more than the
                 # tolerance, we'll be making a very small change in
                 # the stepsize, and it may take many iterations to

@@ -253,7 +253,7 @@ class TestPlasticityProp(pypropertywrapper.PyFluxProperty):
                     rcode = mtx.solve(rhs)
 
                     if rcode!=0:
-                        raise ErrUserError(
+                        raise PyErrUserError(
                             "Nonzero return code in matrix solver.")
 
 

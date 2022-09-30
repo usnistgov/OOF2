@@ -58,8 +58,8 @@ class MeshParamWidgetBase(parameterwidgets.ParameterWidget):
             and w.whoclass is whoclass)
         assert self.meshwidget is not None
         if self.meshwidget is None:
-            raise ooferror.ErrPyProgrammingError("Can't find WhoWidget for %s"
-                                                 % repr(whoclass))
+            raise ooferror.PyErrPyProgrammingError("Can't find WhoWidget for %s"
+                                                   % repr(whoclass))
         self.sbcallbacks = [
             switchboard.requestCallbackMain(self.meshwidget, self.update),
             switchboard.requestCallbackMain("mesh changed", self.meshChangeCB),

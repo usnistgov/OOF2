@@ -338,7 +338,7 @@ class SnapRefine(refine.Refine):
                             debug.fmsg([n.position() for n in el.nodes])
                             debug.fmsg("signature=", signature)
                             debug.fmsg("rule=", self.rules[signature])
-                            raise ooferror2.ErrPyProgrammingError(
+                            raise ooferror2.PyErrPyProgrammingError(
                                 "Illegal element created by SnapRefine")
             else:
                 newElements = snaprefinemethod.unrefinedelement(

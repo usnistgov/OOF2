@@ -513,7 +513,7 @@ def sanity_check(menuitem, skeleton, quick):
     else:
         sane = skel.sanity_check()
     if not sane:
-        raise ooferror.ErrPyProgrammingError("Skeleton sanity check failed!")
+        raise ooferror.PyErrPyProgrammingError("Skeleton sanity check failed!")
 
 OOF.Help.Debug.addItem(oofmenu.OOFMenuItem(
     'Sanity_Check',

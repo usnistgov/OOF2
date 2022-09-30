@@ -43,7 +43,7 @@ class StockButton(Gtk.Button):
         if debug.debug():
             it = Gtk.IconTheme()
             if not icon_name in it.list_icons():
-                raise ooferror.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "Bad icon name: " + icon_name)
 
         if align is None:

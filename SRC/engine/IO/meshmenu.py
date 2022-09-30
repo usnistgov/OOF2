@@ -336,7 +336,7 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
 
 def _copyFieldState(menuitem, source, target):
     if source == target:
-        raise ooferror.ErrUserError('Source and target must differ!')
+        raise ooferror.PyErrUserError('Source and target must differ!')
     if parallel_enable.enabled():
         meshIPC.ipcmeshmenu.Copy_Field_State(source=source,target=target)
         return
@@ -448,7 +448,7 @@ meshmenu.addItem(oofmenu.OOFMenuItem(
 
 def _copyEquationState(menuitem, source, target):
     if source == target:
-        raise ooferror.ErrUserError('Source and target must differ!')
+        raise ooferror.PyErrUserError('Source and target must differ!')
     if parallel_enable.enabled():
         meshIPC.ipcmeshmenu.Copy_Equation_State(source=source,target=target)
         return
@@ -1322,7 +1322,7 @@ def saveMesh(menuitem, filename, mode, format, mesh):
     meshcontext.begin_reading()
     try:
         if meshcontext.outOfSync():
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "The Mesh must be rebuilt before it can be saved.")
         meshpath = labeltree.makePath(mesh)
         skelpath = meshpath[:2]
@@ -1563,8 +1563,8 @@ def _solve(menuitem, mesh, endtime):
     meshctxt.begin_writing()
     try:
         if not meshctxt.status.solvable:
-            raise ooferror.ErrUserError('Mesh is not solvable! '
-                                        + meshctxt.status.getDetails())
+            raise ooferror.PyErrUserError('Mesh is not solvable! '
+                                          + meshctxt.status.getDetails())
         # install latest data and prevent data cache from restoring
         # old data.
         meshctxt.restoreLatestData() # a no-op, if nothing has been cached yet

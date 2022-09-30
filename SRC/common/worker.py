@@ -81,7 +81,7 @@ class Worker:
         self.toplevel = self.isTopLevel()
     # Subclasses must redefine start().
     def start(self):
-        raise ooferror.ErrPyProgrammingError("Worker.start must be redefined.")
+        raise ooferror.PyErrPyProgrammingError("Worker.start must be redefined.")
     def stop(self):
         pass
 

@@ -194,7 +194,7 @@ class PropertyManager:
         return self.data[key].object
 
     # Delete the named item.  LabelTree ("self.data") will raise
-    # ErrUserError if the named item is a non-leaf.
+    # PyErrUserError if the named item is a non-leaf.
     def delete(self, name):
         reg = self.data[name].object
         if hasattr(reg, "parent"):
@@ -290,10 +290,10 @@ class PropertyManager:
         if namecollision:               # name is a duplicate
             if parametercollision:      # parameters disagree
                 if name != "":
-                    raise ooferror.ErrSetupError("Named property in datafile conflicts with existing property '%s'" % name)
+                    raise ooferror.PyErrSetupError("Named property in datafile conflicts with existing property '%s'" % name)
                 # reparametrization of unnamed property
                 if reg.materials:
-                    raise ooferror.ErrSetupError("Unnamed property in datafile conflicts with existing property '%s'" % name)
+                    raise ooferror.PyErrSetupError("Unnamed property in datafile conflicts with existing property '%s'" % name)
                 # Unnamed property is being reparametrized, but it's
                 # not used in any materials, so it's ok.
                 reg.new_params(**kwargs)
@@ -485,7 +485,7 @@ class PropertyRegistration(PropertyRegistrationParent):
         self.discussion = discussion  # discussion string or loadFile
         
         if propertyType is None:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Missing propertyType in PropertyRegistration %s" % name)
         self._propertyType=propertyType
 

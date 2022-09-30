@@ -93,7 +93,7 @@ class OneLineDataOperation(DataOperation):
         print(file=destination)
 
     def colNames(self, output):
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "OneLineDataOperation subclass %s forgot to define colNames()" 
             % self.__class__.__name__)
 

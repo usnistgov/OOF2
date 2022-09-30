@@ -830,7 +830,7 @@ class OOFMenuItem:
         if self.getOption('no_log') != 1:
             root = self.root()
             if root is self:
-                raise ooferror.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "OOFMenuItem.log: No root menu?")
             root.log(strng)
 

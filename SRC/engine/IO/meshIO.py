@@ -310,8 +310,8 @@ def getMyMasterElementDict(masterelems):
             master = masterdict[ename]
             edict[master.ncorners()] = master
         except KeyError:
-            raise ooferror.ErrUserError("Element type \"%s\" is unknown."
-                                        % ename)
+            raise ooferror.PyErrUserError("Element type \"%s\" is unknown."
+                                          % ename)
     return edict
 
 def _newMesh(menuitem, name, masterelems, skeleton):

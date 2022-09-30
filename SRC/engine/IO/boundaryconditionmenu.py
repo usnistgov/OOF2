@@ -231,7 +231,7 @@ def _bcedit(menuitem, name, mesh, condition):
 #         oldcond = meshctxt.getBdyCondition(name)
 #         msg = condition.check(mesh, exclude=oldcond)
 #         if msg:
-#             raise ooferror.ErrSetupError(msg)
+#             raise ooferror.PyErrSetupError(msg)
 #         else:
         meshctxt.rmBdyConditionByName(name)
         condition.add_to_mesh(name, mesh)

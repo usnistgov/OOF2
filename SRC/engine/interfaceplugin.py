@@ -320,7 +320,7 @@ class InterfaceMSPlugIn(microstructure.MicrostructurePlugIn):
         if oldname==newname:
             return
         if newname in self.getCurrentReservedNames():
-            raise ooferror.ErrSetupError("Name %s already in use." % newname)
+            raise ooferror.PyErrSetupError("Name %s already in use." % newname)
         try:
             obj=self.namedinterfaces[oldname]
             del self.namedinterfaces[oldname]

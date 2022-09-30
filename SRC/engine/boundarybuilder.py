@@ -77,7 +77,7 @@ class BoundaryConstructor(registeredclass.RegisteredClass):
 def _segset2seglist(seg_set, direction, skel):
 
     if len(seg_set)==0:
-        raise ooferror.ErrUserError(
+        raise ooferror.PyErrUserError(
             "Attempt to sequence null segment set.")
     
     (seg_list, node_list, winding_number) = skeletonsegment.segSequence(seg_set)
@@ -124,7 +124,7 @@ def _segset2seglist(seg_set, direction, skel):
         else:
             # User specified clockwise or counterclockwise for a
             # non-loop segment set.  This is an error.
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "Clockwise or counterclockwise is for closed loops.")
 
     # Use the total area swept out by vectors from the origin to the
@@ -158,7 +158,7 @@ def _segset2seglist(seg_set, direction, skel):
                 seg_list.reverse()
         else:
             # User specified an endpoint orientation on a loop.
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "Closed loops need clockwise or counterclockwise direction.")
 
     return (startnode, seg_list)

@@ -48,7 +48,7 @@
 # be passed to the OOFMenuItem constructor.
 
 from ooflib.SWIG.common import switchboard
-from ooflib.SWIG.common.ooferror import ErrUserError
+from ooflib.SWIG.common.ooferror import PyErrUserError
 from ooflib.common import debug
 from ooflib.common.IO import oofmenu
 from ooflib.common.utils import stringjoin
@@ -281,7 +281,7 @@ class LabelTreeNode:
                 if self.nodes[i].name==path[0]:
                     # Think of the children.
                     if len(self.nodes[i].nodes)!=0:
-                        raise ErrUserError(
+                        raise PyErrUserError(
                             "Attempt to delete non-leaf from labeltree.")
                     else:
                         # Then do the deletion, in the tree and

@@ -80,7 +80,7 @@ class Comment:
                 # look for closing ')'
                 endmatch = delimexpr.search(para)
                 if not endmatch:
-                    raise ooferror.ErrPyProgrammingError(
+                    raise ooferror.PyErrPyProgrammingError(
                         "Missing delimeter for BOLD tag in tutorial!")
                 boldtext = para[:endmatch.start()+1]
                 # replace all occurences of '\)' with ')'

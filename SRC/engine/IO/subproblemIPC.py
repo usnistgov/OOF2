@@ -128,7 +128,7 @@ def parallel_edit_subproblem(menuitem, name, subproblem):
     debug.fmsg()
     oldsubp = ooflib.engine.subproblemcontext.subproblems[name]
     if oldsubp.name() == ooflib.engine.mesh.defaultSubProblemName:
-        raise ooferror.ErrUserError("You can't edit the default Subproblem!")
+        raise ooferror.PyErrUserError("You can't edit the default Subproblem!")
     meshctxt = oldsubp.getParent()
     oldsubp.reserve()
     oldsubp.begin_writing()
@@ -191,7 +191,7 @@ def parallel_rename_subproblem(menuitem, subproblem, name):
     oldpath = labeltree.makePath(subproblem)
     subprob = ooflib.engine.subproblemcontext.subproblems[oldpath]
     if subprob.name() == ooflib.engine.mesh.defaultSubProblemName:
-        raise ooferror.ErrUserError("You can't rename the default Subproblem!")
+        raise ooferror.PyErrUserError("You can't rename the default Subproblem!")
     subprob.reserve()
     subprob.begin_writing()
     try:
@@ -219,7 +219,7 @@ def parallel_delete_subproblem(menuitem, subproblem):
     debug.fmsg()
     subpctxt = ooflib.engine.subproblemcontext.subproblems[subproblem]
     if subpctxt.name() == ooflib.engine.mesh.defaultSubProblemName:
-        raise ooferror.ErrUserError("You can't delete the default Subproblem!")
+        raise ooferror.PyErrUserError("You can't delete the default Subproblem!")
     subpctxt.reserve()
     subpctxt.begin_writing()
     try:
@@ -510,7 +510,7 @@ def parallel_copyFieldState(menuitem, source, target):
     debug.fmsg()
     # Let the front-end/pre-IPC call to check this
     #if source == target:
-    #    raise ooferror.ErrUserError('Source and target must differ!')
+    #    raise ooferror.PyErrUserError('Source and target must differ!')
 
     notifications = []
     source_subp = ooflib.engine.subproblemcontext.subproblems[source]
@@ -610,7 +610,7 @@ def parallel_copyEquationState(menuitem, source, target):
     debug.fmsg()
     # Let the front-end/pre-IPC call to check this
     #if source == target:
-    #    raise ooferror.ErrUserError('Source and target must differ!')
+    #    raise ooferror.PyErrUserError('Source and target must differ!')
 
     notifications = []
     source_subp = ooflib.engine.subproblemcontext.subproblems[source]

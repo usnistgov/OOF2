@@ -551,7 +551,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
     def append(self, new_segments):
 
         if len(self.edges)==0:
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "Cannot append to an empty boundary.")
         
         self.sequence()  # Make sure we're in order, first.  
@@ -610,7 +610,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
                 else:
                     # If there's no place to put the segment, then
                     # something's gone badly wrong.
-                    raise ooferror.ErrPyProgrammingError(
+                    raise ooferror.PyErrPyProgrammingError(
                         "No adjacent node for new segment in boundary!")
 
         # Now check the back.
@@ -629,7 +629,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
                         skeletonsegment.SkeletonEdge(seg,direction=-1))
                     contact_node = nodes[0]
                 else:
-                    raise ooferror.ErrPyProgrammingError(
+                    raise ooferror.PyErrPyProgrammingError(
                         "No adjacent node for new segment in boundary!")
 
         self.sequence() # Clean up.
@@ -711,7 +711,7 @@ class SkeletonEdgeBoundary: # corresponds to a realskeleton's EdgeBoundary
 class ExteriorSkeletonEdgeBoundary(SkeletonEdgeBoundary):
     def addEdge(self, edge):
         if config.dimension() == 2 and edge.segment.nElements() != 1:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Attempt to insert interior segment in exterior boundary.")
         self.edges.append(edge)
     def makeContextBoundary(self, context, name, skeleton):
@@ -825,7 +825,7 @@ def edgesFromSegs(edge, target_segs, direction):
                 return []
 
         else:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Malformed segment sequence -- node counterpart not found.")
     
     target_list = []

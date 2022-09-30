@@ -221,7 +221,7 @@ class SkeletonElement(SkeletonElementBase,
         return 0
 
     def new_child(self,index):
-        raise ooferror2.ErrPyProgrammingError(
+        raise ooferror2.PyErrPyProgrammingError(
             "Attempt to clone element parent class.")
 
     def getNumberOfEdges(self):
@@ -310,7 +310,7 @@ class SkeletonElement(SkeletonElementBase,
         segment = skeleton.findSegment(node0, node1)
         elements = segment.getElements()
 ##        if len(elements) > 2:
-##            raise ooferror2.ErrPyProgrammingError("Too many sisters!")
+##            raise ooferror2.PyErrPyProgrammingError("Too many sisters!")
         for e in elements:
             if e is not self:
                 return e
@@ -373,7 +373,7 @@ class SkeletonElement(SkeletonElementBase,
             self.meshindex = index
         else:
             if index != self.meshindex:
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror2.PyErrPyProgrammingError(
                     "Index mismatch in element construction.")
                 
         nnewnodes = 0
@@ -466,7 +466,7 @@ class SkeletonElement(SkeletonElementBase,
             self.meshindex = index
         else:
             if index != self.meshindex:
-                raise ooferror2.ErrPyProgrammingError(
+                raise ooferror2.PyErrPyProgrammingError(
                     "Index mismatch in element construction.")
                 
         nnewnodes = 0

@@ -32,6 +32,7 @@ import traceback
 # exception.
 
 from ooflib.common import ooferrorwrappers
+PyOOFError = ooferrorwrappers.PyOOFError
 
 def pyErrorCallback(cexcept):
     raise ooferrorwrappers.pyErrorWrappers[cexcept.__class__](cexcept=cexcept)

@@ -732,7 +732,7 @@ class RegisteredClassListFactory(RCFBase):
         # RegisteredClassListFactory, since the menu Parameter is a
         # list of RegisteredClass objects, not the parameters of the
         # objects themselves.  So don't use this, use get_value() instead.
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "Don't use RegisteredClassListFactory.set_defaults()!")
 
 def _RegisteredClassList_makeWidget(self, scope=None, **kwargs):

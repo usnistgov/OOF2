@@ -86,8 +86,8 @@ def remove_option(item, argument=None):
     # This should never happen.  getopt has already checked that the
     # options are well formed, so there should be nothing
     # unrecognizable in the list.
-    raise ooferror.ErrPyProgrammingError("Failed to remove option: %s %s" %
-                                         (item, argument))
+    raise ooferror.PyErrPyProgrammingError("Failed to remove option: %s %s" %
+                                           (item, argument))
 
 def state_options_and_quit():
     if config.dimension()==2:
@@ -564,7 +564,7 @@ def start_sockets_Front_End():
         try:
             from ooflib.SWIG.common import mpitools
         except ImportError:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Parallel option requested, but parallel code not present.")
         from ooflib.common.IO import socket2me
         ## Tell back end what port to listen

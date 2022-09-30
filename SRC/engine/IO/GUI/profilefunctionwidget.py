@@ -100,7 +100,7 @@ class LabelledProfileRCF:
 class FluxProfileSetWidget(parameterwidgets.ParameterWidget):
     def __init__(self, param, scope=None, name=None, **kwargs):
         if scope is None:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "FluxProfileSetWidget instanced with no scope.")
         self.scope=scope
         self.fluxwidget = scope.findWidget(

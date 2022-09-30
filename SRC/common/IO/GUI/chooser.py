@@ -262,7 +262,7 @@ class ChooserWidget:
         else:
             newstr = str(arg)
             if not newstr in self.namelist:
-                raise ooferror.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "Invalid ChooserWidget argument: %s" % arg)
             self.stack.set_visible_child_name(newstr)
 

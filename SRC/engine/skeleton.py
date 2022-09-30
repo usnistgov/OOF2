@@ -622,7 +622,7 @@ class SkeletonBase:
         if len(isec_set) !=1:
             # print >> sys.stderr, "Multiple exits:"
             # print >> sys.stderr, isec_set
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Segment exits element multiple times.")
             
         # Get the first and only item in isec_set
@@ -686,7 +686,7 @@ class SkeletonBase:
                         next_el = e
                         break
                 else:
-                    raise ooferror.ErrPyProgrammingError("get_intersection_and_next_element failed, case 0")
+                    raise ooferror.PyErrPyProgrammingError("get_intersection_and_next_element failed, case 0")
                     
             # If we found exactly one element, then just return it.
             elif len(new_elements)==1:
@@ -705,10 +705,10 @@ class SkeletonBase:
                         next_el = e
                         break
                 else:
-                    raise ooferror.ErrPyProgrammingError("get_intersection_and_next_element failed, case n")
+                    raise ooferror.PyErrPyProgrammingError("get_intersection_and_next_element failed, case n")
         else:
             # Impossible!
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Linear path crosses an element more than twice, or fewer than zero times.")
 
         return (isec_point, next_el)
@@ -754,7 +754,7 @@ class SkeletonBase:
                     el = ell
                     break
             else:               
-                raise ooferror.ErrSetupError("All elements are illegal!")
+                raise ooferror.PyErrSetupError("All elements are illegal!")
                          
             
         center = el.center()
@@ -1120,7 +1120,7 @@ class Skeleton(SkeletonBase):
             el = SkeletonQuad(nodes, self.element_index)
             self.element_index += 1
         else:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Unable to construct %d-noded element." % nnodes)
         self.elements.append(el)
         for parent in parents:
@@ -1702,7 +1702,7 @@ class Skeleton(SkeletonBase):
                          exterior=None):
         if (name in self.edgeboundaries) or \
                (name in self.pointboundaries):
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Boundary '%s' already exists." % name)
         
         bdy = self.getEdgeBoundary(name, exterior) # Guaranteed to be new.
@@ -1715,7 +1715,7 @@ class Skeleton(SkeletonBase):
                 else: # startnode==seg.nodes()[1]:
                     bdy.addEdge(SkeletonEdge(seg, -1))
             else:
-                raise ooferror.ErrPyProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "Singleton segment boundaries require a starting node!")
 
         elif segments: # Length of the segment list is greater than one.
@@ -1748,7 +1748,7 @@ class Skeleton(SkeletonBase):
                                         exterior=None):
         if (name in self.edgeboundaries) or \
                (name in self.pointboundaries):
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Boundary '%s' already exists." % name)
         
         bdy = self.getEdgeBoundary(name, exterior) # Guaranteed to be new.
@@ -1766,7 +1766,7 @@ class Skeleton(SkeletonBase):
     def makePointBoundary(self, name, nodes=None, exterior=None):
         if (name in self.pointboundaries) or \
                (name in self.edgeboundaries):
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Boundary '%s' already exists." % name)
 
         bdy = self.getPointBoundary(name, exterior)
@@ -2261,7 +2261,7 @@ class Skeleton(SkeletonBase):
                     seglist)
                 if len(seg_seq)==0:
                     #Don't expect this to happen
-                    raise ooferror.ErrPyProgrammingError(
+                    raise ooferror.PyErrPyProgrammingError(
                         "Got empty sequenced segment list!")
                 iels = interfacedef.getAdjacentElements(seg_seq[0],skelctxt)
                 if iels:
@@ -2284,7 +2284,7 @@ class Skeleton(SkeletonBase):
                         if iels.right.nodesInOrder(node_seq[0],node_seq[1]):
                             seg_seq.reverse()
                 else:
-                    raise ooferror.ErrPyProgrammingError(
+                    raise ooferror.PyErrPyProgrammingError(
                         "Expecting this segment to be part of the interface!")
             except skeletonsegment.SequenceError:
                 #Non-sequenceable
@@ -2316,7 +2316,7 @@ class Skeleton(SkeletonBase):
                             sn0=seg.get_nodes()[0]
                             sn1=seg.get_nodes()[1]
                 else:
-                    raise ooferror.ErrPyProgrammingError(
+                    raise ooferror.PyErrPyProgrammingError(
                         "Expecting this segment to be part of the interface!")
                 realel = realmesh.getElement(skelel.meshindex)
                 realn0 = realel.getCornerNode(skelel.getNodeIndexIntoList(sn0))
@@ -2560,7 +2560,7 @@ class Skeleton(SkeletonBase):
                     numzones+=1
                     break
         if isExteriorNode:
-            raise ooferror.ErrPyProgrammingError("This shouldn't happen!")
+            raise ooferror.PyErrPyProgrammingError("This shouldn't happen!")
         return numzones-1
 
     def countInterfaceZonesAtNode(self,skelnode,seg_dict):

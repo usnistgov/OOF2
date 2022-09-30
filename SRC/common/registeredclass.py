@@ -160,7 +160,7 @@ class Registration:
         paramnames = [p.name for p in self.params]
         for argname in list(kwargs.keys()):
             if argname not in paramnames:
-                raise ooferror.ErrUserError(
+                raise ooferror.PyErrUserError(
                     "Unexpected argument '%s' in %s constructor"
                     % (argname, self.subclass.__name__))
         pdict = {}

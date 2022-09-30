@@ -270,7 +270,7 @@ class Parameter:
             % self.__class__.__name__)
 
     def binaryRead(self, parser):
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "Somebody forgot to define %s.binaryRead()!" 
             % self.__class__.__name__)
 
@@ -394,7 +394,7 @@ class AngleRangeParameter(FloatRangeParameter):
         elif units == "radians":
             self.circle = 2*math.pi
         else:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Bad units in AngleRangeParameter")
         # range must be a tuple (min, max, step)
         _RangeParameter.__init__(self, name, range, [FloatType, IntType],

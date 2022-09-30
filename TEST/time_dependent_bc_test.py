@@ -494,7 +494,7 @@ class OOF_TimeDependentFloat(unittest.TestCase):
         self.floatLeftEdge()
         self.initializeMin('top', 0.0)
         self.initializeMin('left', 0.0)
-        self.assertRaises(ooferror2.ErrWarning, self.initialize)
+        self.assertRaises(ooferror2.PyErrWarning, self.initialize)
         OOF.Help.No_Warnings(False)
         outputdestination.forgetTextOutputStreams()
 

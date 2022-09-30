@@ -574,7 +574,7 @@ class WriteModeWidget(parameterwidgets.ParameterWidget):
             self.fileSelector = self.scope.findWidget(
                 lambda x: (isinstance(x, WriteFileSelectorWidget)))
         if self.fileSelector is None:
-            raise ooferror.ErrPyProgrammingError("Can't find file selector")
+            raise ooferror.PyErrPyProgrammingError("Can't find file selector")
         self.set_options()
         self.widgetChanged(True, True)
         self.sbcallback = switchboard.requestCallbackMain(self.fileSelector,
@@ -627,7 +627,7 @@ class OverwriteWidget(parameterwidgets.BooleanWidget):
             lambda x: (isinstance(x, (WriteFileSelectorWidget,
                                       FakeFileSelectorWidget))))
         if self.fileSelector is None:
-            raise ooferror.ErrPyProgrammingError("Can't find file selector")
+            raise ooferror.PyErrPyProgrammingError("Can't find file selector")
         self.set_validity()
         self.sbcallback = switchboard.requestCallbackMain(self.fileSelector,
                                                           self.fileSelectorCB)

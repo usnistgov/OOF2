@@ -87,7 +87,7 @@ def _new_group(menuitem, skeleton, name):
     skelc = whoville.getClass('Skeleton')[skeleton]
     groupset = getattr(skelc, menuitem.data)
     if groupset.isGroup(name):
-        raise ooferror.ErrUserError("Group %s already exists." % group)
+        raise ooferror.PyErrUserError("Group %s already exists." % group)
     else:
         groupset.addGroup(name)
 
@@ -127,7 +127,7 @@ def _remove_group(menuitem, skeleton, group):
     skelc = whoville.getClass('Skeleton')[skeleton]
     groupset = getattr(skelc, menuitem.data)
     if not groupset.isGroup(group):
-        raise ooferror.ErrUserError("Group %s does not exist." % group)
+        raise ooferror.PyErrUserError("Group %s does not exist." % group)
     else:
         groupset.removeGroup(group)
 
@@ -142,7 +142,7 @@ def _copy_group(menuitem, skeleton, group, new_name):
     skelc = whoville.getClass('Skeleton')[skeleton]
     groupset = getattr(skelc, menuitem.data)
     if groupset.isGroup(new_name):
-        raise ooferror.ErrUserError("Group %s already exists." % new_name)
+        raise ooferror.PyErrUserError("Group %s already exists." % new_name)
     if groupset.isGroup(group):
         groupset.copyGroup(group, new_name)
 
@@ -175,7 +175,7 @@ def _clear_group(menuitem, skeleton, group):
     skelc = whoville.getClass('Skeleton')[skeleton]
     groupset = getattr(skelc, menuitem.data)
     if not groupset.isGroup(group):
-        raise ooferror.ErrUserError("Group %s does not exist." % group)
+        raise ooferror.PyErrUserError("Group %s does not exist." % group)
     groupset.clearGroup(group)
 
 def _clear_all_groups(menuitem, skeleton):
@@ -187,14 +187,14 @@ def _assign_matl(menuitem, skeleton, group, material):
     skelc = whoville.getClass('Skeleton')[skeleton]
     groupset = getattr(skelc, menuitem.data)
     if not groupset.isGroup(group):
-        raise ooferror.ErrUserError("Group %s does not exist." % group)
+        raise ooferror.PyErrUserError("Group %s does not exist." % group)
     groupset.assignMaterial(group, materialmanager.getMaterial(material))
 
 def _remove_matl(menuitem, skeleton, group):
     skelc = whoville.getClass('Skeleton')[skeleton]
     groupset = getattr(skelc, menuitem.data)
     if not groupset.isGroup(group):
-        raise ooferror.ErrUserError("Group %s does not exist." % group)
+        raise ooferror.PyErrUserError("Group %s does not exist." % group)
     groupset.removeMaterial(group)
 
 #######################################

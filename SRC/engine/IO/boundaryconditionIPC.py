@@ -86,7 +86,7 @@ def parallel_bccopy(menuitem, current, mesh, bc, name, boundary):
     newbc = bndycond.copy(boundary)
     msg = newbc.check(mesh)
     if msg:
-        raise ooferror.ErrSetupError(msg)
+        raise ooferror.PyErrSetupError(msg)
     else:
         newbc.add_to_mesh(name, mesh)
         switchboard.notify("mesh changed", ooflib.engine.mesh.meshes[mesh])
@@ -116,7 +116,7 @@ def parallel_bccopyall(menuitem, current, mesh):
     for (name, cond) in allbcs:
         msg = cond.check(mesh)
         if msg:
-            raise ooferror.ErrSetupError(msg)
+            raise ooferror.PyErrSetupError(msg)
             return
     for (name, cond) in allbcs:
         newbc = cond.copy(cond.boundary)
@@ -140,7 +140,7 @@ def parallel_bcedit(menuitem, name, mesh, condition):
     oldcond = meshctxt.getBdyCondition(name)
     msg = condition.check(mesh, exclude=oldcond)
     if msg:
-        raise ooferror.ErrSetupError(msg)
+        raise ooferror.PyErrSetupError(msg)
     else:
         meshctxt.rmBdyConditionByName(name)
         condition.add_to_mesh(name, mesh)

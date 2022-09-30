@@ -47,7 +47,8 @@ def evolve(meshctxt, endtime):
     targettime = endtime
 
     if starttime > endtime:
-        raise ooferror2.ErrSetupError("End time must not precede current time.")
+        raise ooferror2.PyErrSetupError(
+            "End time must not precede current time.")
 
     meshctxt.solver_precompute(solving=True)
 
@@ -102,7 +103,7 @@ def evolve(meshctxt, endtime):
         # Loop over output times
         for t1 in meshctxt.outputSchedule.times(endtime):
             if t1 == lasttime:
-                raise ooferror2.ErrSetupError("Time step is zero!")
+                raise ooferror2.PyErrSetupError("Time step is zero!")
             # If t1 <= starttime, there's no evolution to be done, and
             # any output at t1==starttime has already been done after
             # static initialization. 
@@ -134,7 +135,7 @@ def evolve(meshctxt, endtime):
                 if time < t1:
                     meshctxt.setStatus(meshstatus.Failed(
                             "Solver failed to reach the target time."))
-                    raise ooferror2.ErrSetupError(
+                    raise ooferror2.PyErrSetupError(
                         "Failed to reach target time. target=%s, actual=%s"
                         % (t1, time))
                 if not meshctxt.outputSchedule.isConditional():
@@ -221,7 +222,7 @@ def initializeStaticFields(subprobctxts, time, prog):
     # end consistency loop
 
     if not prog.stopped() and not consistent:
-        raise ooferror2.ErrConvergenceFailure(
+        raise ooferror2.PyErrConvergenceFailure(
             "Static self-consistency loop", maxconsistencysteps)
     return linsysDict
 
@@ -419,7 +420,7 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
             ## End of consistency loop.
 
             if not stepTaken and not prog.stopped():
-                raise ooferror2.ErrConvergenceFailure(
+                raise ooferror2.PyErrConvergenceFailure(
                     "Self-consistency loop at t=%s" % time, maxconsistencysteps)
             if meshctxt.outputSchedule.isConditional():
                 _do_output(meshctxt, time)
@@ -427,14 +428,14 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
         ## End main loop.
 
         if prog.stopped():
-            raise ooferror2.ErrInterrupted()
+            raise ooferror2.PyErrInterrupted()
 
-    except ooferror2.OOFPyError as err:
-        if isinstance(err.cerror, ooferror2.ErrInterrupted):
+    except ooferror2.PyOOFError as err:
+        if isinstance(err.cerror, ooferror2.PyErrInterrupted):
             debug.fmsg("Interrupted!")
             meshctxt.setStatus(meshstatus.Failed("Solution interrupted."))
         else:
-            debug.fmsg("Caught an ErrError")
+            debug.fmsg("Caught an PyOOFError")
             meshctxt.setStatus(meshstatus.Failed(err.cerror.summary()))
         raise
     except Exception as exc:

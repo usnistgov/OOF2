@@ -462,7 +462,7 @@ class SkeletonContext(whoville.WhoDoUndo):
             self.pointboundaries[name].remove()
             del self.pointboundaries[name]
         else:
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "Cannot remove boundary %s, no such boundary." % name)
         if name == self.selectedBdyName:
             self.unselectBoundary()
@@ -474,12 +474,13 @@ class SkeletonContext(whoville.WhoDoUndo):
             return
 
         if newname in self.allBoundaryNames():
-            raise ooferror.ErrSetupError("Name %s is already in use." % newname)
+            raise ooferror.PyErrSetupError(
+                "Name %s is already in use." % newname)
 
         #Interface branch
         if config.dimension() == 2 and runtimeflags.surface_mode:
             if newname in self.allInterfaceNames():
-                raise ooferror.ErrSetupError(
+                raise ooferror.PyErrSetupError(
                     "Name %s is already in use as an interface name." % newname)
 
         if oldname in self.edgeboundaries:
@@ -487,7 +488,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         elif oldname in self.pointboundaries:
             dict = self.pointboundaries
         else: 
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Boundary name %s not found." % oldname)
 
         dict[newname]=dict[oldname]
@@ -548,7 +549,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         try:
             bdy = self.edgeboundaries[name]
         except KeyError:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Boundary %s is not an edge boundary." % name)
 
         return bdy.try_append(seg_set)
@@ -558,7 +559,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         try:
             bdy = self.edgeboundaries[name]
         except KeyError:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Boundary %s is not an edge boundary." % name)
 
         bdy.append(seg_set)
@@ -572,7 +573,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         try:
             bdy = self.edgeboundaries[name] # SkelContextEdgeBoundary
         except KeyError:
-            raise ooferror.ErrSetupError("Boundary %s is not an edge boundary."
+            raise ooferror.PyErrSetupError("Boundary %s is not an edge boundary."
                                          % name)
         bdy.reverse()
         self.bdyPropagate(name, bdy)
@@ -585,7 +586,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         try:
             bdy = self.pointboundaries[name]
         except KeyError:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Boundary %s is not a point boundary." % name)
 
         bdy.append(node_list)
@@ -600,7 +601,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         try:
             bdy = self.edgeboundaries[name]
         except KeyError:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Boundary %s is not an edge Boundary." % name)
 
         return bdy.try_delete(seg_set)
@@ -610,7 +611,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         try:
             bdy = self.edgeboundaries[name]
         except KeyError:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Boundary %s is not an edge boundary." % name)
 
         bdy.delete(seg_set)
@@ -623,7 +624,7 @@ class SkeletonContext(whoville.WhoDoUndo):
         try:
             bdy = self.pointboundaries[name]
         except KeyError:
-            raise ooferror.ErrSetupError(
+            raise ooferror.PyErrSetupError(
                 "Boundary %s is not a point boundary." % name)
 
         bdy.delete(node_list)

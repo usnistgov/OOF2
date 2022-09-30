@@ -26,7 +26,7 @@ class OrientationSelector(pixelselectionmethod.SelectionMethod):
         ms = immidge.getMicrostructure()
         orientationmap = orientmapdata.getOrientationMap(ms)
         if orientationmap is None:
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "The Microstructure has no orientation map.")
         pt = ms.pixelFromPoint(pointlist[0])
         orientation = orientationmap.angle(pt) # a swigged COrientABG
@@ -75,7 +75,7 @@ class OrientationBurn(pixelselectionmethod.SelectionMethod):
         ms = immidge.getMicrostructure()
         orientationmap = orientmapdata.getOrientationMap(ms)
         if orientationmap is None:
-            raise ooferror.ErrUserError(
+            raise ooferror.PyErrUserError(
                 "The Microstructure has no orientation map.")
         startpt = ms.pixelFromPoint(points[0])
         selectionctxt = ms.pixelselection.getObject()

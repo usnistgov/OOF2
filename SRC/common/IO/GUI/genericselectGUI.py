@@ -381,7 +381,7 @@ class GenericSelectToolboxGUI(toolboxGUI.GfxToolbox,
                             utils.OOFeval(self.yupentry.get_text()),
                             utils.OOFeval(self.zupentry.get_text()))                      
             except:        # Shouldn't happen, if sensitization is working
-                raise ooferror.ErrProgrammingError(
+                raise ooferror.PyErrPyProgrammingError(
                     "Can't evaluate coordinates!")
             actual_who = self.getSource()
             if actual_who:

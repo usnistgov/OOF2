@@ -52,7 +52,7 @@ from ooflib.common import utils
 from ooflib.engine import profile
 import copy
 import ooflib.engine.mesh
-ErrSetupError = ooferror.ErrSetupError
+PyErrSetupError = ooferror.PyErrSetupError
 
 # This class describes the value of a profile (associated with a
 # condition) at a particular node.  It's primarily used for
@@ -69,7 +69,7 @@ class LocatedCondition:
         if self.here:
             return self.condition.profile(self.here)
         else:
-            raise ErrSetupError("No location specified in LocatedCondition.")
+            raise PyErrSetupError("No location specified in LocatedCondition.")
 
 #*=-=*##*=-=*##*=-=*##*=-=#*=-=*##*=-=*##*=-=*##*=-=*##*=-=*##*=-=*##*=-=*#
 
@@ -351,7 +351,7 @@ class EdgeBoundary(Boundary):
         self.fluxConditions.remove(condition);
 
     def addForceCondition(self, condition):
-        raise ErrSetupError("Edge boundaries do not support force conditions.")
+        raise PyErrSetupError("Edge boundaries do not support force conditions.")
 
     def invokeFlux(self, subproblem, linearsystem, time):
         for bc in self.fluxConditions:
@@ -408,10 +408,10 @@ class PointBoundary(Boundary):
         self.forceConditions.remove(condition)
 
     def addFluxCondition(self, condition):
-        raise ErrSetupError("Point boundaries do not support flux BC's.")
+        raise PyErrSetupError("Point boundaries do not support flux BC's.")
 
     def addPeriodicCondition(self, condition):
-        raise ErrSetupError("Point boundaries do not support periodic BC's.")
+        raise PyErrSetupError("Point boundaries do not support periodic BC's.")
 
     def invokeForce(self, subproblem, linearsystem, time):
         if self.forceConditions:

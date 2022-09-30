@@ -167,7 +167,7 @@ class MessageManager:
         
     def warn(self, *args):
         if self._warnings_are_errors:
-            raise ooferror.ErrWarning(' '.join(args))
+            raise ooferror.PyErrWarning(' '.join(args))
         message = self._append("Warning", *args)
         switchboard.notify("messagemanager warning", message)
 

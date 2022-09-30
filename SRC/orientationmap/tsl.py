@@ -92,7 +92,7 @@ class TSLreaderBase(orientmapdata.OrientMapReader):
         for row in rows:
             count += 1
             if len(row) != nx:
-                raise ooferror.ErrUserError(
+                raise ooferror.PyErrUserError(
                     "Orientation map data appears to be incomplete.\n"
                     "len(row 0)=%d len(row %d)=%d" % (nx, count, len(row)))
 
@@ -180,7 +180,7 @@ class TSLreader(TSLreaderBase):
             else:                       # line[0] != '#'
                 substrings = line.split()
                 if len(substrings) < 5:
-                    raise ooferror.ErrUserError(
+                    raise ooferror.PyErrUserError(
                         "Too few numbers in line %d of %s" 
                         % (count, tslfile.name))
                 values = list(map(float, substrings[:5]))
@@ -191,7 +191,7 @@ class TSLreader(TSLreaderBase):
                     angles[0] = angles[0] - self.angle_offset
                     angles = list(map(math.radians, values[:3]))
                 else:
-                    raise ooferror.ErrDataFileError(
+                    raise ooferror.PyErrDataFileError(
                         "Angle type not specified in TSL data file")
                 data.append(DataPoint(
                     primitives.Point(values[3], values[4]), # position
@@ -235,7 +235,7 @@ class TSLreader2(TSLreaderBase):
             else:               # line is not a header line
                 substrings = line.split()
                 if len(substrings) < 5:
-                    raise ooferror.ErrUserError(
+                    raise ooferror.PyErrUserError(
                         "Not enough columns in line %d of %s"
                         % (count, tslfile.name))
                 if len(substrings) >= 8:

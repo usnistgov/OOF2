@@ -258,7 +258,7 @@ def socketWrite(data):
                 _buffer_lock.release()
                 # Buffer is not empty, so leave lock in "released" state.
     else:
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "Non-string data passed to socketWrite.")
 
 

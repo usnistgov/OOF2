@@ -281,7 +281,7 @@ class AnimationLayer:
                 and not self.incomputable(gfxwindow))
     def animationTimes(self, gfxwindow):
         # Return a list of available times.
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "Someone forgot to redefine animationTimes for",
             self.__class__.__name__)
 

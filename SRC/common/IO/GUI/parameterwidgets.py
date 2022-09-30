@@ -1010,7 +1010,7 @@ class ParameterDialog(widgetscope.WidgetScope):
         try:
             title = kwargs['title']
         except KeyError:
-            raise ooferror.ErrPyProgrammingError("Untitled dialog!")
+            raise ooferror.PyErrPyProgrammingError("Untitled dialog!")
         gtklogger.newTopLevelWidget(self.dialog, 'Dialog-'+kwargs['title'])
         self.dialog.set_title(title)
 

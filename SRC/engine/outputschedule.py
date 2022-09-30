@@ -306,7 +306,7 @@ class OutputSchedule:
                 # output. If it is, silently delete it.
                 try:
                     output.setDestination(o.destination)
-                except ooferror2.ErrInvalidDestination:
+                except ooferror2.PyErrInvalidDestination:
                     pass
                 # If the old output was given an automatically
                 # generated name, the name must be updated to reflect

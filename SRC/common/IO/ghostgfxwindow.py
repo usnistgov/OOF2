@@ -1190,10 +1190,10 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             assert not self.oofcanvas.empty()
             if format == "pdf":
                 if not self.oofcanvas.saveAsPDF(filename, pixels, background):
-                    raise ooferror.ErrUserError("Cannot save canvas!")
+                    raise ooferror.PyErrUserError("Cannot save canvas!")
             elif format == "png":
                 if not self.oofcanvas.saveAsPNG(filename, pixels, background):
-                    raise ooferror.ErrUserError("Cannot save canvas!")
+                    raise ooferror.PyErrUserError("Cannot save canvas!")
 
     def saveCanvasRegion(self, menuitem, filename, format, overwrite,
                          pixels, background, lowerleft, upperright):
@@ -1203,11 +1203,11 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             if format == "pdf":
                 if not self.oofcanvas.saveRegionAsPDF(
                         filename, pixels, background, lowerleft, upperright):
-                    raise ooferror.ErrUserError("Cannot save canvas region!")
+                    raise ooferror.PyErrUserError("Cannot save canvas region!")
             elif format == "png":
                 if not self.oofcanvas.saveRegionAsPNG(
                         filename, pixels, background, lowerleft, upperright):
-                    raise ooferror.ErrUserError("Cannot save canvas region!")
+                    raise ooferror.PyErrUserError("Cannot save canvas region!")
 
     def saveContourmap(self, menuitem, filename, format, overwrite, pixels):
         assert self.current_contourmap_method is not None
@@ -1223,12 +1223,12 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
             if format == "pdf":
                 if not self.contourmapdata.canvas.saveAsPDF(
                         filename, pixels, False):
-                    raise ooferror.ErrUserError(
+                    raise ooferror.PyErrUserError(
                         "Cannot save canvas contour map!")
             elif format == "png":
                 if not self.contourmapdata.canvas.saveAsPNG(
                     filename, pixels, False):
-                    raise ooferror.ErrUserError(
+                    raise ooferror.PyErrUserError(
                         "Cannot save canvas contour map!")
 
     ###############################

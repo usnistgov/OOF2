@@ -56,7 +56,7 @@ class MiniThread(threading.Thread):
                 excepthook.remove_excepthook(hook)
                 return
             except ooferrorwrappers.PyOOFError as exception:
-                debug.fmsg("Caught an ErrError!", exception, type(exception))
+                debug.fmsg("Caught a PyOOFError!", exception, type(exception))
                 reporter.error(exception.cexcept)
                 sys.excepthook(*sys.exc_info())
             except Exception as exception:

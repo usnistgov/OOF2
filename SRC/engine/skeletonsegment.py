@@ -77,7 +77,7 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
 
     def addElement(self, element):
         if element in self._elements:
-            raise ooferror.ErrPyProgrammingError("Element already in Segment!")
+            raise ooferror.PyErrPyProgrammingError("Element already in Segment!")
         self._elements.append(element)
 
     def getElements(self):
@@ -119,7 +119,7 @@ class SkeletonSegment(skeletonselectable.SkeletonSelectable):
                               node in self._nodes):
                 return n
         # if we get this far, it's because we've passed an invalid node for this segment.
-        raise ooferror.ErrPyProgrammingError("Cannot determine which node is the 'other node' for this segment!")
+        raise ooferror.PyErrPyProgrammingError("Cannot determine which node is the 'other node' for this segment!")
         
     # New_child is called after new nodes and elements have been
     # created -- it is assumed that the most-recent children are
@@ -470,7 +470,7 @@ class SkeletonEdge:
         elif nodes[0]==n2 and nodes[1]==n1:
             self.direction = -1
         else:
-            raise ooferror.ErrPyProgrammingError(
+            raise ooferror.PyErrPyProgrammingError(
                 "Incorrect node set in SkeletonEdge.")
     def reverse(self):
         self.direction *= -1

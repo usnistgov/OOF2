@@ -32,7 +32,7 @@ def _newInterfaceCB(menuitem,microstructure,name,interface_type):
     interfacemsplugin=msobj.getPlugIn("Interfaces")
     errmsg=interface_type.check()
     if errmsg:
-        raise ooferror.ErrUserError(errmsg)
+        raise ooferror.PyErrUserError(errmsg)
     else:
         interface_type.addToMS(interfacemsplugin,name)
 

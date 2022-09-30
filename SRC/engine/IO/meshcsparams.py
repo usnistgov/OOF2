@@ -25,10 +25,10 @@ class MeshCrossSectionSetParameter(parameter.ListOfStringsParameter):
             return # Success.
         parameter.ListOfStringsParameter.checker(self, x)
     def binaryRepr(self, datafile, value):
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "binaryRepr not implemented for MessCrossSectionParameter.")
     def binaryRead(self, parser):
-        raise ooferror.ErrPyProgrammingError(
+        raise ooferror.PyErrPyProgrammingError(
             "binaryRead not implemented for MessCrossSectionParameter.")
     def valueDesc(self):
         return "The name of a Mesh cross section."

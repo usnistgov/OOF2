@@ -15,11 +15,11 @@ import sys
 
 from ooflib.SWIG.common import config
 from ooflib.SWIG.common import lock
-from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.common import smallmatrix
 from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import threadstate
 from ooflib.SWIG.engine import mastercoord
+from ooflib.SWIG.engine import ooferror2
 from ooflib.common import color
 from ooflib.common import debug
 from ooflib.common import mainthread
@@ -337,7 +337,7 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
             if smallestel:
                 return smallestel.from_master(smallestres)
 
-        raise ooferror.ErrBoundsError("No element found")
+        raise ooferror2.PyErrBoundsError("No element found")
         
 ###########################
 
@@ -647,7 +647,7 @@ class MaterialDisplay:
                     try:
                         colorprop = material.fetchProperty('Color')
                         clr = color.canvasColor(colorprop.color())
-                    except ooferror.ErrNoSuchProperty:
+                    except ooferror2.PyErrNoSuchProperty:
                         clr = None
                     colorcache[material] = clr
                 if clr is not None:
