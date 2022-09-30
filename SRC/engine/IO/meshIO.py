@@ -796,7 +796,7 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
     # nodes don't appear in the abaqus output.  All oof2 nodes at the
     # same position are represented by a single abaqus node.
 
-    nodedict = {}
+    nodedict = utils.OrderedDict()
     i = 1
     # # use only those nodes that are associated with elements that have
     # # a material
@@ -811,13 +811,13 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
     # debug.fmsg("elapsed time=", time.clock()-t0)
     
     # same for elements
-    elementdict = {}
+    elementdict = utils.OrderedDict()
     i = 1
     # In the same loop, get the list of materials and masterelements
     # directly from the elements (i.e. straight from the horses'
     # mouths. May be inefficient.)
-    materiallist={}
-    masterElementDict={}
+    materiallist=utils.OrderedDict()
+    masterElementDict=utils.OrderedDict()
     for el in femesh.element_iterator():
         ematerial = el.material()
         emasterelement = el.masterelement()
@@ -907,7 +907,9 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
             pass
 
     buffer.append("** Point boundaries in OOF2\n")
-    for pbname in meshcontext.pointBoundaryNames():
+    pbnames = meshcontext.pointBoundaryNames()
+    pbnames.sort()
+    for pbname in pbnames:
         buffer.append("*NSET, NSET=%s\n" % (pbname))
         listbuf=[]
         i=0
@@ -926,7 +928,9 @@ def writeABAQUSfromMesh(filename, mode, meshcontext):
         buffer.append(string.join(listbuf,", ")+"\n")
 
     buffer.append("** Edge boundaries in OOF2\n")
-    for ebname in meshcontext.edgeBoundaryNames():
+    ebnames = meshcontext.edgeBoundaryNames()
+    ebnames.sort()
+    for ebname in ebnames:
         buffer+="*NSET, NSET=%s\n" % (ebname)
         listbuf=[]
         i=0

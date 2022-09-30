@@ -933,6 +933,8 @@ class Mesh(whoville.Who):
             pass
 
     def get_initializer(self, field):
+        debug.fmsg("field=", field, field.objectid(), id(field))
+        debug.fmsg("initializers=", [(k, k.objectid(), id(k)) for k in self.initializers])
         return self.initializers.get(field, None)
 
     def initialize_fields(self, time):
