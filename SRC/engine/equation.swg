@@ -89,6 +89,9 @@ public:
   IteratorP iterator_all() {
     return self->iterator();
   }
+  bool __eq__(Equation *other) {
+    return self->objectid() == other->objectid();
+  }
 };
 
 %nodefaultctor FluxEquation;

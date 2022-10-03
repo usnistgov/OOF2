@@ -15,6 +15,7 @@ from ooflib.SWIG.common import switchboard
 from ooflib.SWIG.common import config
 from ooflib.SWIG.engine import cconjugate
 from ooflib.SWIG.engine import material
+from ooflib.SWIG.engine import field
 from ooflib.SWIG.engine import fieldindex
 from ooflib.common import debug
 from ooflib.engine import propertyregistration
@@ -30,12 +31,18 @@ class ConjugatePairObj(cconjugate.CConjugatePair):
         cconjugate.CConjugatePair.__init__(self, eqn, eqncomp, field, fieldcomp)
     def get_name(self):
         return self.name
+    def get_field(self):
+        return field.getField(self.get_field_name())
     def __hash__(self):
         return hash((self.name,
                      self.get_equation(),
                      self.get_equation_component(),
                      self.get_field(),
                      self.get_field_component()))
+    def __repr__(self):
+        return f"ConjugatePairObj({self.name}, " \
+            f"{self.get_equation()}[{self.get_equation_component()}], " \
+            f"{self.get_field()}[{self.get_field_component()}])"
 
 class ListOfConjugatePairs:
     def __init__(self):
@@ -193,7 +200,7 @@ def check_symmetry(subpName, *args):
     meqlist = subp.all_equations()
     for eq in meqlist:
         for p in relevant_pairs:
-            if p.get_equation()==eq:
+            if p.get_equation() == eq:
                 break
         else:
             subpctxt.matrix_symmetry_K.set_asymmetric()

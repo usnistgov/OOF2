@@ -38,7 +38,7 @@ class CConjugatePair {
 public:
   CConjugatePair(const Equation *eqn, const FieldIndex *eqncomp,
 		 const Field *field, const FieldIndex *fieldcomp);
-  Field *get_field();
+  const std::string &get_field_name();
   FieldIndex *get_field_component();
   Equation *get_equation();
   FieldIndex *get_equation_component();
