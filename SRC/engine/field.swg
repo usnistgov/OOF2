@@ -47,6 +47,14 @@ typedef std::vector<CompoundField*> CompoundFieldVec;
 // There is no typemap for Field*.  Field objects should never be
 // returned from C++ to Python.  Use getField() instead.
 
+// TODO PYTHON3: If Field had a swigged __eq__ method that compared
+// objectid()s, would it be safe to return Fields from Python to C++?
+// The reason for not doing that was that two separately swigged
+// instances of the same field don't compare equal, so we ensure than
+// there is only one instance of a given Field in C++.  Is there some
+// subtle reason that just providing __eq__ (and maybe also __hash__
+// and __lt__) doesn't work?
+
 %typemap(out) std::vector<CompoundField*> * {
   // typemap(out) std::vector<CompoundField*>*
   static PyObject *getField = 0;
