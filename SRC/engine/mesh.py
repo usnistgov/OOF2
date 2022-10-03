@@ -489,19 +489,18 @@ class Mesh(whoville.Who):
                 return True
         return False
 
-    if config.dimension() == 2:
-        def set_in_plane_field(self, field, inplane):
-            self.getObject().set_in_plane(field, inplane)
-            ## Activate the out-of-plane field in all subproblems only if
-            ## this field is active and not in-plane.
-            zfield = field.out_of_plane()
-            for s in self.subproblems():
-                subp = s.getObject()
-                if inplane:
-                    subp.deactivate_field(zfield)
-                else:
-                    if subp.is_active_field(field):
-                        subp.activate_field(zfield)
+    def set_in_plane_field(self, field, inplane):
+        self.getObject().set_in_plane(field, inplane)
+        ## Activate the out-of-plane field in all subproblems only if
+        ## this field is active and not in-plane.
+        zfield = field.out_of_plane()
+        for s in self.subproblems():
+            subp = s.getObject()
+            if inplane:
+                subp.deactivate_field(zfield)
+            else:
+                if subp.is_active_field(field):
+                    subp.activate_field(zfield)
 
     def precompute_all_subproblems(self):
         for s in self.subproblems():

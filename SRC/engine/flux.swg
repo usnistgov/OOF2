@@ -19,6 +19,7 @@
 %include "common/typemaps.swg"
 %import "engine/fieldindex.swg"
 %import "engine/outputval.swg"
+%import "engine/planarity.swg"
 #endif // NOSECONDIMPORTS
 
 %{

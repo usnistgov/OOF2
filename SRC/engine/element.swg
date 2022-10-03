@@ -33,6 +33,7 @@
 %import "engine/elementnodeiterator.swg"
 %import "engine/femesh.swg"
 %import "engine/field.swg"
+%import "engine/gausspoint.swg"
 %import "engine/indextypes.swg"
 %import "engine/mastercoord.swg"
 %import "engine/material.swg"

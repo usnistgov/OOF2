@@ -111,6 +111,8 @@ class BC(registeredclass.RegisteredClass):
         return self is other
     def name(self):
         return self._name
+    def __hash__(self):
+        return hash(self._name)
 
     def femesh(self):
         # self.meshctxt is set, when "add_to_mesh" is called.

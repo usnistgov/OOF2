@@ -229,7 +229,7 @@ class OutputStream(TextOutputDestination):
             try:
                 basestream = _allStreams[filename]
             except KeyError:
-                basestream = BaseOutputStream(filename, mode, file)
+                basestream = BaseOutputStream(filename, mode, open)
             else:
                 basestream.mode = mode
         finally:

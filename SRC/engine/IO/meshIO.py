@@ -390,7 +390,7 @@ def _subpFields(menuitem, subproblem, defined, active, inplane):
 
     for fname in inplane:
         field = getFieldObj(fname)
-        meshctxt.set_in_plane_field(field, 1)
+        meshctxt.set_in_plane_field(field, True)
         switchboard.notify("field inplane", meshname, field.name(), 1)
 
     subpctxt.changed("Fields loaded.")
@@ -694,7 +694,7 @@ def _meshFields(menuitem, mesh, defined, active, inplane):
 
     for fname in inplane:
         field = getFieldObj(fname)
-        meshctxt.set_in_plane_field(field, 1)
+        meshctxt.set_in_plane_field(field, True)
         switchboard.notify("field inplane", mesh, field.name(), 1)
 
     switchboard.notify("mesh changed", meshctxt)

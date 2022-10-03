@@ -31,6 +31,8 @@
 
 %nodefaultctor GaussPoint;
 
+ADD_REPR_GENERIC(GaussPoint);
+
 class GaussPoint : public Position, public MasterPosition {
 public:
   double weight();

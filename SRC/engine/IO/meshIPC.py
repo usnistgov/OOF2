@@ -290,7 +290,7 @@ def copyMesh_parallel(menuitem, mesh, name,
             if copy_field:
                 for field in newmesh.all_compound_subproblem_fields():
                     if basemesh.femesh().in_plane(field):
-                        newmesh.set_in_plane_field(field, 1)
+                        newmesh.set_in_plane_field(field, True)
                         notifications.append(("field inplane",
                                               copiedmeshfullname, field.name(),
                                               1))
@@ -455,7 +455,7 @@ def parallel_inPlaneField(menuitem, mesh, field):
     meshcontext.reserve()
     meshcontext.begin_writing()
     try:
-        meshcontext.set_in_plane_field(field, 1)
+        meshcontext.set_in_plane_field(field, True)
     finally:
         meshcontext.end_writing()
         meshcontext.cancel_reservation()
@@ -467,7 +467,7 @@ def parallel_outOfPlaneField(menuitem, mesh, field):
     meshcontext.reserve()
     meshcontext.begin_writing()
     try:
-        meshcontext.set_in_plane_field(field, 0)
+        meshcontext.set_in_plane_field(field, False)
     finally:
         meshcontext.end_writing()
         meshcontext.cancel_reservation()
