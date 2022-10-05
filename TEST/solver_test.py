@@ -3278,3 +3278,7 @@ test_set = (static_set
             + make_dynamic_set(suffix="-short", shortening=0.1)
             + oop_periodic_set)
 
+## Uncomment this to run just a single test when debugging.
+# test_set = [OOF_ElasticTimeSteppers("CNPlaneStrainSaveRestore")]
+# test_set[0].shortening=1
+# test_set[0].suffix=""
