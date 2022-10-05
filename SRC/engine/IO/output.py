@@ -507,8 +507,8 @@ class Output:
         # Get the path to the prototype that will be provided to getOutput(name)
         pathlengthstr = struct.pack(structIntFmt,len(self.getPath()))
         #string (e.g. self.getPath()) itself need not be packed
-        strings=[bytes(pathlengthstr, "UTF-8"),
-                 bytes(self.getPath(), "UTF-8")]
+        strings = [pathlengthstr,
+                   bytes(self.getPath(), "UTF-8")]
         for pvalue in self.getSettableParams().values():
             strings.append(pvalue.binaryRepr(datafile, pvalue.value))
         return b"".join(strings)
@@ -646,7 +646,7 @@ object whose value is a real number."""
         #First get path to prototype output
         (pathlengthstr,) = struct.unpack(structIntFmt,
                                          parser.getBytes(structIntSize))
-        pathstr=parser.getBytes(pathlengthstr)
+        pathstr = parser.getBytes(pathlengthstr).decode()
         prototypeoutput = getOutput(pathstr)
         argdict={}
         for pname, pvalue in prototypeoutput.getSettableParams().items():

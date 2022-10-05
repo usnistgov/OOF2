@@ -107,7 +107,7 @@ def registerCClass(klass):
             repstrings.append(struct.pack('>i', regkey))
             for param,value in zip(registration.params, self.getParamValues()):
                 repstrings.append(param.binaryRepr(datafile, value))
-            return stringjoin(repstrings, '')
+            return b''.join(repstrings)
         klass.binaryRepr = binaryRepr
 
     if not hasattr(klass, 'tip'):

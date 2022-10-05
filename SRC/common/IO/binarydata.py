@@ -219,7 +219,11 @@ class BinaryMenuParser(menuparser.MenuParserMode):
     def getArguments(self, menuitem):
         argdict = {}
         for param in menuitem.params:
-            argdict[param.name] = param.binaryRead(self)
+            val = param.binaryRead(self)
+            if isinstance(val, bytes):
+                argdict[param.name] = val.decode()
+            else:
+                argdict[param.name] = val
         return (), argdict
 
 

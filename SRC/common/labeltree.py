@@ -52,7 +52,6 @@ from ooflib.SWIG.common.ooferror import PyErrUserError
 from ooflib.common import debug
 from ooflib.common.IO import oofmenu
 from ooflib.common.utils import stringjoin
-#from types import *             #  TODO PYTHON3: DO we need this line?
 import sys
 from functools import reduce
 
@@ -75,10 +74,7 @@ def makePath(name):
         # it's already a path
         return name[:]                  # return a copy
     elif isinstance(name, str):
-        path = name.split(':')          # separate colon delimited substrings
-##        while path and not path[-1]:
-##            path = path[:-1]
-        return path
+        return name.split(':')          # separate colon delimited substrings
     else:
         raise TypeError('Bad argument to labeltree.makePath: %s' % name)
 
