@@ -25,8 +25,6 @@
 #include "engine/properties/stressfreestrain/stressfreestrain.h"
 %}
 
- //%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
-
 class IsotropicStressFreeStrain : public Property {
 public:
   IsotropicStressFreeStrain(PyObject *reg, char *name, double e);

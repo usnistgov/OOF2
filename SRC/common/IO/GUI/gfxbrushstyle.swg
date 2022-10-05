@@ -14,14 +14,16 @@
 
 %module(package="ooflib.SWIG.common.IO.GUI") gfxbrushstyle
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "common/brushstyle.swg"
+#endif // NOSECONDIMPORTS
+
 %{
 #include "common/IO/GUI/gfxbrushstyle.h"
 %}
 
-%import "common/brushstyle.swg"
-//%pragma(python) code="from ooflib.SWIG.common.brushstyle import CircleBrushPtr"
-// %pragma(python) code="from ooflib.SWIG.common.brushstyle import SquareBrushPtr"
 
 %nodefaultctor GfxBrushStyle;
 

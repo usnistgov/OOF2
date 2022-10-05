@@ -33,8 +33,6 @@
 #include "engine/outputval.h"
 %}
 
-// %pragma(python) code="from ooflib.SWIG.engine.outputval import OutputValuePtr"
-
 ArithmeticOutputValue integrateFlux(FEMesh*, Flux*, EdgeSet*);
 ArithmeticOutputValue averageField(FEMesh*, Field*, EdgeSet*);
 

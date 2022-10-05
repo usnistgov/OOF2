@@ -30,12 +30,6 @@
 #include "engine/angle2color.h"
 %}
 
-// %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
-// %pragma(python) code="from ooflib.SWIG.common.coord import CoordPtr"
-// %pragma(python) code="from ooflib.SWIG.common.coord import ICoordPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.corientation import COrientABGPtr"
-// %pragma(python) code="from ooflib.SWIG.image.oofimage import OOFImagePtr"
-
 class OrientMap {
 public:
   OrientMap(ICoord *iPoint, Coord *Point);

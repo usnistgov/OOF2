@@ -25,8 +25,6 @@
 %import "engine/symmmatrix.swg"
 #endif // NOSECONDIMPORTS
 
-//%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrixPtr"
-
 class IsoDielectricPermittivity : public Property {
 public:
   IsoDielectricPermittivity(PyObject *reg, char *name, double epsilon);

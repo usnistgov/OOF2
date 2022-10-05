@@ -20,10 +20,6 @@
 %import "engine/csubproblem.swg"
 #endif // NOSECONDIMPORTS
 
-
- // %pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"
-// %pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
-
 %{
 #include "engine/compoundsubproblem.h"
   //#include "engine/flux.h"

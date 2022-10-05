@@ -14,21 +14,21 @@
 
 %module(package="ooflib.SWIG.common.IO") bitoverlay
 
+#ifndef NOSECONDIMPORTS
+#define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "common/canvasimage.swg"
+%import "common/coord.swg"
+%import "common/timestamp.swg"
+%import "common/ccolor.swg"
+%import "common/abstractimage.swg"
+#endif // NOSECONDIMPORTS
 
 %{
 #include "common/IO/bitoverlay.h"
 #include "oofcanvas/canvasimage.h"
 %}
-%import "common/coord.swg"
-%import "common/timestamp.swg"
-%import "common/ccolor.swg"
-%import "common/abstractimage.swg"
 
-// %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
-// %pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
-// %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
    
 class BitmapOverlay : public AbstractImage {
 public:

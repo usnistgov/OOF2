@@ -22,7 +22,6 @@
 %import "common/coord.swg"
 %import "common/pixelattribute.swg"
 %import "common/timestamp.swg"
- //%import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
 %{
@@ -56,10 +55,6 @@ typedef std::string MaterialType;
 %enddef
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
-// %pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
-// %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr;"
 
 // When a Material* is returned from C++ to Python, the swigged
 // Material that's returned isn't the same Python object as the

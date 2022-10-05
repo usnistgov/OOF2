@@ -22,8 +22,6 @@
 %import "engine/pointdata.swg"
 #endif	// NOSECONDIMPORTS
 
- //%pragma(python) code="from ooflib.SWIG.engine.pointdata import PointDataPtr"
-
 %{
 #include "engine/node.h"
 %}

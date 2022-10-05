@@ -23,9 +23,6 @@
 %import "engine/mastercoord.swg"
 #endif // NOSECONDIMPORTS
 
-// %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
-// %pragma(python) code="from ooflib.SWIG.common.coord import CoordPtr"
-
 %{
 #include <oofconfig.h>
 #include "engine/cskeleton.h"

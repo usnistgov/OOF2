@@ -35,10 +35,6 @@
 typedef std::vector<Equation*> EquationVec;
 %}
 
-// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.flux import FluxPtr"
-
 %typemap(out) Equation* {
    // typemap(out) Equation*
    $result = $source->pythonObject();

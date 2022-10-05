@@ -27,10 +27,6 @@
 #include "engine/properties/piezoelectricity/piezoelectricity.h"
 %}
 
-//%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
-//%pragma(python) code="from ooflib.SWIG.engine.rank3tensor import Rank3TensorPtr"
-
-
 class IsotropicPiezoElectricity : public Property {
 public:
   IsotropicPiezoElectricity(PyObject *reg, char *name, double d);

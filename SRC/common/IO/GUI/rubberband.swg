@@ -15,12 +15,11 @@
 %module(package="ooflib.SWIG.common.IO.GUI") rubberband
 
 %include "common/typemaps.swg"
+
 %{
 #include "common/IO/GUI/rubberband.h"
 using namespace OOFCanvas;
 %}
-
-//%pragma(python) code="from oofcanvas.oofcanvasgui import RubberBandPtr"
 
 extern class RubberBand;
 

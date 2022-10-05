@@ -23,9 +23,6 @@
 %import "common/pixelselectioncourier.swg"
 #endif // NOSECONDIMPORTS
 
-// %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
-// %pragma(python) code="from ooflib.SWIG.common.pixelselectioncourier import PixelSelectionCourierPtr"
-
 %{
 #include "image/pixelselectioncourieri.h"
 #include "common/ccolor.h"

@@ -26,13 +26,6 @@
 #include "engine/symmmatrix.h"
 %}
 
-// %pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValuePtr"
-// %import "engine/fieldindex.swg"
-// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import ArithmeticPropertyOutputInit"
-// %pragma(python) code="from ooflib.SWIG.engine.outputval import OutputValuePtr"
-
 class SymmMatrix {
 public:
   SymmMatrix(int);
@@ -106,7 +99,8 @@ public:
 OutputValue *newSymTensorOutputValue();
 
 // TODO: swig complains that ArithmeticPropertyOutputInit is undefined
-// (ignored).  Do we care?
+// (ignored).  Do we care?  (Does it still complain? This is an old
+// comment, predating swig4).
 
 class SymmMatrix3PropertyOutputInit : public ArithmeticPropertyOutputInit {
 public:

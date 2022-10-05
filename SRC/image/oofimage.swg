@@ -36,14 +36,6 @@
 #include "image/oofimage.h"
 %}
 
-// %pragma(python) code="from ooflib.SWIG.common.doublearray import DoubleArrayPtr"
-// %pragma(python) code="from ooflib.SWIG.common.boolarray import BoolArrayPtr"
-// %pragma(python) code="from ooflib.SWIG.common.boolarray import BoolArrayPtr"
-// %pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
-// %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
-// %pragma(python) code="from ooflib.SWIG.common.ooferror import ErrErrorPtr"
-// %pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
-
 class OOFImage : public AbstractImage {
 public:
   OOFImage(char *name, char *filename);

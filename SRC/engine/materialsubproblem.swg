@@ -21,9 +21,6 @@
 %import "engine/material.swg"
 #endif NOSECONDIMPORTS
 
-// %pragma(python) code="from ooflib.SWIG.engine.csubproblem import CSubProblemPtr"
-// %pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
-
 %{
 #include "engine/material.h"
 #include "engine/materialsubproblem.h"

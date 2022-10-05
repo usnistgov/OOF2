@@ -24,8 +24,6 @@
 #include "engine/properties/elasticity/cijkl.h"
 %}
 
-// %pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
-
 class Cijkl {
 public:
   Cijkl();

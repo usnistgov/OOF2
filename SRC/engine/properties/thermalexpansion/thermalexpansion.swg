@@ -25,10 +25,6 @@
 %import "engine/symmmatrix.swg"
 #endif // NOSECONDIMPORTS
 
- //%pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
-
-
-
 class IsotropicThermalExpansion : public Property {
 public:
   IsotropicThermalExpansion(PyObject *reg, char *name, double alpha, double t0);

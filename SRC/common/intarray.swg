@@ -20,8 +20,6 @@
 %import "common/coord.swg"
 #endif // NOSECONDIMPORTS
 
- //%pragma(python) code="from ooflib.SWIG.common.intarray import IntArrayPtr"
-
 %{
 #include "common/intarray.h"
 %}

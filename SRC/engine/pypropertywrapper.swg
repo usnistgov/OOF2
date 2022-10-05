@@ -25,10 +25,6 @@
 #include "engine/pypropertywrapper.h"
 %}
 
-// %pragma(python) code="from ooflib.SWIG.engine.properties import FluxPropertyPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.properties import EqnPropertyPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.element import ElementDataPtr"
-
 // Not much has to be done here.  The Python functions which are
 // called from the C++ side are defined in pypropertywrapper.spy.
 // Authors of extensions should derive new classes from PyFluxProperty

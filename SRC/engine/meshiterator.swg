@@ -21,10 +21,6 @@
 %import "engine/node.swg"
 #endif // NOSECONDIMPORTS
 
-// %pragma(python) code="from ooflib.SWIG.engine.element import ElementPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.node import NodePtr"
-// %pragma(python) code="from ooflib.SWIG.engine.node import FuncNodePtr"
-
 %{
 #include "engine/element.h"
 #include "engine/meshiterator.h"

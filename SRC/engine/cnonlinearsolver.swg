@@ -23,7 +23,6 @@
 %{
 #include "engine/cnonlinearsolver.h"
 %}
- //%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
 
 class CNonlinearSolver {
 public:

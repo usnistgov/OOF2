@@ -19,12 +19,9 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
- //%include "engine/propertyhdr.swg"
 %import "common/ccolor.swg"
 %import "engine/property.swg"
 #endif // NOSECONDIMPORTS
-
- //%pragma(python) code="from ooflib.SWIG.common.ccolor import CColorPtr"
 
 class ColorProp : public Property {
 public:

@@ -22,9 +22,6 @@
 %import "engine/properties/elasticity/elasticity.swg"
 #endif // NOSECONDIMPORTS
 
-// %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
-
 %{
 #include "engine/properties/elasticity/largestrain/largestrain.h"
 %}

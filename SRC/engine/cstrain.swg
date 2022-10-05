@@ -20,8 +20,6 @@
 %import "engine/IO/propertyoutput.swg"
 #endif // NOSECONDIMPORTS
 
- // %pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import PropertyOutputValInitPtr"
-  
 %{
 #include "engine/cstrain.h"
 #include "engine/IO/propertyoutput.h"

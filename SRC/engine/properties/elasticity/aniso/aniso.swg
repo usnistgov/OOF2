@@ -27,11 +27,7 @@
 %import "engine/properties/elasticity/cijkl.swg"
 #endif // NOSECONDIMPORTS
 
-//%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
-//%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
-
-class CAnisoElasticity : public Elasticity
-{
+class CAnisoElasticity : public Elasticity {
 public:
   CAnisoElasticity(PyObject *registry, PyObject *self, char *name, Cijkl &c);
   ~CAnisoElasticity();

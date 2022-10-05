@@ -31,13 +31,6 @@
 %import "engine/meshiterator.swg"
 #endif // NOSECONDIMPORTS
 
-// %pragma(python) code="from ooflib.SWIG.engine.field import FieldPtr"
-// %pragma(python) code="from ooflib.SWIG.common.lock import RWLockPtr"
-// %pragma(python) code="from ooflib.SWIG.common.lock import LockPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.meshiterator import NodeIteratorPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.meshiterator import FuncNodeIteratorPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.meshiterator import ElementIteratorPtr"
-
 %{
 #include "engine/csubproblem.h"
 #include "engine/femesh.h"

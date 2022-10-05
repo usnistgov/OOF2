@@ -27,14 +27,6 @@
 %import "common/coord.swg"
 #endif // NOSECONDIMPORTS
 
-// %pragma(python) code="from ooflib.SWIG.common.IO.bitoverlay import BitmapOverlayPtr"
-// %pragma(python) code="from ooflib.SWIG.common.cmicrostructure import CMicrostructurePtr"
-// %pragma(python) code="from ooflib.SWIG.common.coord import CoordPtr"
-// %pragma(python) code="from ooflib.SWIG.common.coord import ICoordPtr"
-// %pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelGroupPtr"
-// %pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelSetPtr"
-// %pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
-
 class CPixelSelection {
 public:
   CPixelSelection(ICoord *iPoint, Coord *Point, CMicrostructure*);

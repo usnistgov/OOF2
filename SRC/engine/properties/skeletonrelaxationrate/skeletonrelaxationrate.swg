@@ -24,11 +24,6 @@
 #include "engine/properties/skeletonrelaxationrate/skeletonrelaxationrate.h"
 %}
 
- //%include "engine/propertyhdr.swg"
-// %pragma(python) code="from ooflib.SWIG.engine.symmmatrix import SymmMatrix3Ptr"
-// %import "engine/symmmatrix.swg"
-
-
 class SkeletonRelaxationRate : public Property {
 public:
   SkeletonRelaxationRate(PyObject *reg, char *name, double alpha, double beta);

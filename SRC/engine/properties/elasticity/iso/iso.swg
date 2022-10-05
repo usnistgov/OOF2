@@ -26,9 +26,6 @@
 #include "engine/properties/elasticity/iso/iso.h"
 %}
 
-// %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.elasticity import ElasticityPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
-
 class CIsoElasticityProp : public Elasticity {
 public:
   CIsoElasticityProp(PyObject*, PyObject*, char*, Cijkl&);

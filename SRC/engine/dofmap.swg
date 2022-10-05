@@ -26,8 +26,6 @@
 #include "engine/dofmap.h"
 %}
 
-//%pragma(python) code="from ooflib.SWIG.common.doublevec import DoubleVecPtr"
-
 class DoFMap {
 public:
   DoFMap();

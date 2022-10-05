@@ -30,9 +30,6 @@ typedef Array<int> NewArrayInt;
 %import "common/timestamp.swg"
 #endif // NOSECONDIMPORTS
 
- //%pragma(python) code="from ooflib.SWIG.common.pixelgroup import PixelGroupPtr"
- //%pragma(python) code="from ooflib.SWIG.common.timestamp import TimeStampPtr"
-
 %typemap(out) ArrayInt* {
    // typemap(out) ArrayInt*
   int h = $1->height();

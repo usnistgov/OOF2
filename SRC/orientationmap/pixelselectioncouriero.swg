@@ -21,9 +21,6 @@
 %import "engine/corientation.swg"
 #endif // NOSECONDIMPORTS
 
-//%pragma(python) code="from ooflib.SWIG.common.pixelselectioncourier import PixelSelectionCourierPtr"
-
-
 %{
 #include "engine/corientation.h"
 #include "orientationmap/pixelselectioncouriero.h"

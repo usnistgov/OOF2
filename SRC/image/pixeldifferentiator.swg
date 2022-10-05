@@ -28,10 +28,6 @@
 #include "image/oofimage.h"
 %}
 
-// %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
-// %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator2Ptr"
-// %pragma(python) code="from ooflib.SWIG.common.statgroups import PixelDistributionFactoryPtr"
-
 class CColorDifferentiator3 : public CPixelDifferentiator3 {
 public:
   CColorDifferentiator3(OOFImage*, double, double, bool);

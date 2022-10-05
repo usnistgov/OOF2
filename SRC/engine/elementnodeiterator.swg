@@ -24,8 +24,6 @@
 %import "engine/node.swg"
 #endif // NOSECONDIMPORTS
 
-// %pragma(python) code="from ooflib.SWIG.engine.node import *"
-
 %nodefaultctor ElementNodeIterator;
 %feature("valuewrapper") ElementNodeIterator;
 %feature("valuewrapper") ElementMapNodeIterator;

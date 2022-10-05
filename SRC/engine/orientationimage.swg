@@ -28,8 +28,6 @@
 #include "engine/orientationimage.h"
 %}
 
- //%pragma(python) code="from ooflib.SWIG.common.abstractimage import AbstractImagePtr"
-
 class CMicrostructure;
 
 class OrientationImage : public AbstractImage {

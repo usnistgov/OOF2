@@ -26,9 +26,6 @@
 #include "engine/cskeleton.h"
 %}
 
-%pragma(python) code="from ooflib.SWIG.common.pixelselectioncourier import PixelSelectionCourierPtr"
-
-
 class ElementSelection : public PixelSelectionCourier {
 public:
   ElementSelection(CMicrostructure*, CSkeletonElement*);

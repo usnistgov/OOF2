@@ -28,10 +28,6 @@
 typedef std::vector<Flux*> FluxVec;
 %}
 
-// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.outputval import ArithmeticOutputValuePtr"
-
 %typemap(out) Flux* {
   // typemap(out) Flux*
   $result = $1->pythonObject();

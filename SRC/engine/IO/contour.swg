@@ -21,8 +21,6 @@
 %import "engine/mastercoord.swg"
 #endif // NOSECONDIMPORTS
 
- //%pragma(python) code="from ooflib.SWIG.engine.mastercoord import MasterCoordPtr"
-
 %{
 #include "engine/IO/contour.h"
   typedef std::vector<CCurve> CurveVec;

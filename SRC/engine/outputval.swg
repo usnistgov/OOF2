@@ -21,9 +21,6 @@
 %import "engine/fieldindex.swg"
 #endif // NOSECONDIMPORTS
 
-// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
-
 %{
 #include "engine/outputval.h"
 #include "common/tostring.h"

@@ -18,12 +18,9 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
- //%include "engine/propertyhdr.swg"
 %import "engine/property.swg"
 %import "engine/properties/elasticity/cijkl.swg"
 #endif // NOSECONDIMPORTS
-
- //%pragma(python) code="from ooflib.SWIG.engine.property.elasticity.cijkl import CijklPtr"
 
 %nodefaultctor Elasticity;
 

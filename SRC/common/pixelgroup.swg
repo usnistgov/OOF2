@@ -27,8 +27,6 @@
 #include "common/ooferror.h"
 %}
 
- //%pragma(python) code="from ooflib.SWIG.common.pixelattribute import PxlAttributeRegistrationPtr"
-
 %nodefaultctor PixelSet;
 
 class PixelSet {

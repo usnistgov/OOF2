@@ -41,10 +41,6 @@
 %import "engine/outputval.swg"
 #endif // NOSECONDIMPORTS
 
-// %pragma(python) code="from ooflib.SWIG.engine.outputval import OutputValuePtr"
-// %pragma(python) code="from ooflib.SWIG.engine.elementnodeiterator import *"
-// %pragma(python) code="from ooflib.SWIG.engine.gausspoint import GaussPointPtr"
-
 %{
 #include "engine/element.h"
 #include "engine/elementnodeiterator.h"

@@ -18,10 +18,6 @@
 #include "engine/gausspoint.h"
 %}
 
-// %pragma(python) code="from ooflib.SWIG.engine.mastercoord import MasterPositionPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.mastercoord import MasterCoordPtr"
-// %pragma(python) code="from ooflib.SWIG.common.coord import PositionPtr"
-
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"

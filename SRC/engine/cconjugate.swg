@@ -30,10 +30,6 @@
 #include "engine/field.h"
 %}
 
-// %pragma(python) code="from ooflib.SWIG.engine.equation import EquationPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.field import FieldPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import FieldIndexPtr"
-
 class CConjugatePair {
 public:
   CConjugatePair(const Equation *eqn, const FieldIndex *eqncomp,

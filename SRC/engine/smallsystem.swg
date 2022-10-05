@@ -24,13 +24,6 @@
 #include "engine/smallsystem.h"
 %}
 
-// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IteratorPPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.fieldindex import IndexPPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.flux import FluxPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.flux import SymmetricTensorFluxPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.flux import VectorFluxPtr"
-
-
 class SmallSystem {
 public:
   SmallSystem(int, int);

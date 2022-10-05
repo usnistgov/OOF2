@@ -26,9 +26,6 @@
 #include "common/tostring.h"
 %}
 
-// %pragma(python) code="from ooflib.SWIG.engine.outputval import NonArithmeticOutputValPtr"
-// %pragma(python) code="from ooflib.SWIG.engine.IO.propertyoutput import NonArithmeticPropertyOutputInitPtr"
-
 %nodefaultctor COrientation;
 
 class COrientation : public NonArithmeticOutputVal {

@@ -20,9 +20,6 @@
 
 %module(package="ooflib.SWIG.engine") ooferror2
 
-// When adding Error subclasses here, add them to engine/ooferror.spy
-// as well.
-
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
@@ -33,8 +30,6 @@
 %{
 #include "engine/ooferror.h"
 %}
-
-//%pragma(python) code="from ooflib.SWIG.common.ooferror import *"
 
 class ErrNoSuchField : public ErrError {
 public:

@@ -18,19 +18,14 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
- //%include "engine/propertyhdr.swg"
 %import "engine/property.swg"
 %import "engine/corientation.swg"
 #endif // NOSECONDIMPORTS
 
 %{
-//#include "common/oofswigruntime.h" // TODO PYTHON3: Is this necessary?
 #include "engine/corientation.h"
 #include "engine/properties/orientation/orientation.h"
 %}
-
-
-// %pragma(python) code="from ooflib.SWIG.engine.corientation import COrientationPtr"
 
 
 // Typemap for converting a convertible registered Orientation gizmo

@@ -27,9 +27,6 @@
 #include "engine/sparsemat.h"
 %}
 
-// %pragma(python) code="from ooflib.SWIG.engine.sparsemat import SparseMatPtr"
-// %pragma(python) code="from ooflib.SWIG.common.doublevec import DoubleVecPtr"
-
 %nodefaultctor LinearizedSystem;
 
 class LinearizedSystem {

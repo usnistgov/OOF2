@@ -24,8 +24,6 @@
 %import "engine/property.swg"
 #endif // NOSECONDIMPORTS
 
- //%include "engine/propertyhdr.swg"
-
 class HeatCapacityProp : public Property {
 public:
   HeatCapacityProp(PyObject *self, char *, double);

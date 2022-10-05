@@ -22,7 +22,6 @@
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
 %import "engine/property.swg"
- //%include "engine/propertyhdr.swg"
 #endif // NOSECONDIMPORTS
 
 %nodefaultctor GeneralNonlinearElasticityNoDeriv;

@@ -22,7 +22,6 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
- //%include "engine/propertyhdr.swg"
 %import "engine/symmmatrix.swg"
 #endif // NOSECONDIMPORTS
 

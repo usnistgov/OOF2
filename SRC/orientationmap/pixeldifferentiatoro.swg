@@ -27,10 +27,6 @@
 #include "orientationmap/pixeldifferentiatoro.h"
 %}
 
-// %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator3Ptr"
-// %pragma(python) code="from ooflib.SWIG.common.burn import CPixelDifferentiator2Ptr"   
-// %pragma(python) code="from ooflib.SWIG.common.statgroups import PixelDistributionFactoryPtr"
-
 class COrientationDifferentiator3 : public CPixelDifferentiator3 {
 public:
   COrientationDifferentiator3(OrientMap*, double, double, char*);
