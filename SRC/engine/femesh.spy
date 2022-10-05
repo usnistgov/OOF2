@@ -202,7 +202,7 @@ FEMesh.order = _FEMesh_order
 
 def _FEMesh_newEdgeBoundary(self, name, edgeset = None):
     if name in self.boundaries:
-        raise ooferror2.ErrSetupError("Boundary %s already exists." % name)
+        raise ooferror2.PyErrSetupError("Boundary %s already exists." % name)
     b = boundary.EdgeBoundary(name, self, edgeset)
     self.boundaries[name] = b
     self.edgebdynames.append(name)
@@ -215,13 +215,13 @@ def _FEMesh_removeEdgeBoundary(self, name):
         del self.boundaries[name]
         self.edgebdynames.remove(name)
     except KeyError:
-        raise ooferror2.ErrSetupError("Boundary %s does not exist." % name)
+        raise ooferror2.PyErrSetupError("Boundary %s does not exist." % name)
 
 FEMesh.removeEdgeBoundary = _FEMesh_removeEdgeBoundary
 
 def _FEMesh_newPointBoundary(self, name, pointset = None, visible=True):
     if name in self.boundaries:
-        raise ooferror2.ErrSetupError("Boundary %s already exists." % name)
+        raise ooferror2.PyErrSetupError("Boundary %s already exists." % name)
     b = boundary.PointBoundary(name, self, pointset, visible)
     self.boundaries[name] = b
     self.pointbdynames.append(name)
@@ -234,7 +234,7 @@ def _FEMesh_removePointBoundary(self, name):
         del self.boundaries[name]
         self.pointbdynames.remove(name)
     except KeyError:
-        raise ooferror2.ErrSetupError("Boundary %s does not exist." % name)
+        raise ooferror2.PyErrSetupError("Boundary %s does not exist." % name)
 
 FEMesh.removePointBoundary = _FEMesh_removePointBoundary
 
@@ -291,7 +291,7 @@ def _FEMesh_removeBoundary(self, name):
     try:
         del self.boundaries[name]
     except KeyError:
-        raise ooferror2.ErrSetupError("Boundary %s does not exist." % name)
+        raise ooferror2.PyErrSetupError("Boundary %s does not exist." % name)
     try:
         self.edgebdynames.remove(name)
         return
@@ -396,7 +396,7 @@ def _FEMesh_floatBCResolve(self, subproblem, time):
                 # component *xor* the same equation component, because
                 # we know that they don't "intersect" (having the same
                 # field *and* the same equation components).
-                raise ooferror2.ErrSetupError(
+                raise ooferror2.PyErrSetupError(
                     "Intersecting FloatBCs %s and %s are incompatible."
                     % (h.condition.name, t.condition.name))
 
@@ -430,7 +430,7 @@ FEMesh.floatBCResolve = _FEMesh_floatBCResolve
 def _floatBCTreeify(bc):
     # Utility function used by floatBCResolve_ to recursively arrange
     # the BCs into a tree and set the cumulative offset.
-    for otherbc, offset in bc.intersectors.items():
+    for otherbc, offset in list(bc.intersectors.items()):
         try:
             del otherbc.intersectors[bc]
         except KeyError:
@@ -445,7 +445,7 @@ def _floatBCTreeify(bc):
             # tree, and that the offset is compatible.
             assert otherbc.root is bc.root
             if otherbc.profileOffset != bc.profileOffset + offset:
-                raise ooferror2.ErrSetupError(
+                raise ooferror2.PyErrSetupError(
                     "Global consistency failure in FloatBCs.")
 
 # def _checkBCTree(bc, bcs):

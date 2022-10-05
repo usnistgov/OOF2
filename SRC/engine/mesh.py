@@ -950,7 +950,7 @@ class Mesh(whoville.Who):
         # Field definitions have changed in a subproblem.  If a field
         # isn't defined in *any* subproblems, remove its initializer.
         definedfields = self.all_subproblem_fields()
-        for field, initializer in self.initializers.items():
+        for field, initializer in list(self.initializers.items()):
             if field not in definedfields:
                 self.remove_initializer(field)
 
