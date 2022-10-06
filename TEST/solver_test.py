@@ -2680,7 +2680,7 @@ class OOF_StaticAndDynamic(OOF_ElasticTimeSteppers):
 
     def timetest(self):
         # check that testt.dat contains T_avg =  t/2.
-        datafile = file("testt.dat", "r")
+        datafile = open("testt.dat", "r")
         for line in datafile:
             if line[0] == '#':
                 continue
@@ -3279,6 +3279,6 @@ test_set = (static_set
             + oop_periodic_set)
 
 ## Uncomment this to run just a single test when debugging.
-# test_set = [OOF_ElasticTimeSteppers("CNPlaneStrainSaveRestore")]
+# test_set = [OOF_ThermalElasticTimeSteppers("SS22ThermalOnly")]
 # test_set[0].shortening=1
 # test_set[0].suffix=""

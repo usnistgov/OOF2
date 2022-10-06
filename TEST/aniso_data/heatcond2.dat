@@ -1,8 +1,8 @@
 # OOF version 2.0
 FileVersion(number=1.0, format='ascii')
 Microstructure.New(name='microstructure', size=Point(1,1), isize=iPoint(15,15))
-Microstructure.PixelGroup(microstructure='microstructure', group='edges', meshable=1)
-Microstructure.PixelGroup(microstructure='microstructure', group='middle', meshable=1)
+Microstructure.PixelGroup(microstructure='microstructure', group='edges', meshable=True)
+Microstructure.PixelGroup(microstructure='microstructure', group='middle', meshable=True)
 Microstructure.Categories(microstructure='microstructure', categories=[[0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0]])
 Microstructure.DefineCategory.PixelGroups(microstructure='microstructure', category=0, groups=['edges'])
 Microstructure.DefineCategory.PixelGroups(microstructure='microstructure', category=1, groups=['middle'])
