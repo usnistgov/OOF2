@@ -97,7 +97,7 @@ OOFImage *newImageFromData(char *name, ICoord *iPoint,
 
 // Parallel image send/recv
 #ifdef HAVE_MPI
-void _Send_Image(OOFImage*, IntVec*, int);
+void _Send_Image(OOFImage*, const std::vector<int>*, int);
 %newobject _Recv_Image;
 OOFImage *_Recv_Image(int, int);
 #endif //HAVE_MPI

@@ -26,7 +26,7 @@
 #include "common/mpitools.h"
 %}
 
-void _Initialize(CharPtrVec *argv);
+void _Initialize(std::vector<char*> *argv);
 int Initialized();
 void Finalize();
 void Abort();
@@ -47,30 +47,30 @@ double _Recv_Double(int, int);
 void _Send_String(char*, int, int);
 std::string _Recv_String(int, int, int);
 
-void _Send_IntVec(IntVec*, int, int);
+void _Send_IntVec(const std::vector<int>*, int, int);
 %newobject _Recv_IntVec;
-IntVec* _Recv_IntVec(int, int, int);
+std::vector<int>* _Recv_IntVec(int, int, int);
 
 void _Send_DoubleVec(std::vector<double>*, int, int);
 %newobject _Recv_DoubleVec;
 std::vector<double>* _Recv_DoubleVec(int, int, int);
 
-void _Isend_Int(int, IntVec*, int);
-void _Isend_Ints(IntVec*, IntVec*, int);
+void _Isend_Int(int, const std::vector<int>*, int);
+void _Isend_Ints(const std::vector<int>*, const std::vector<int>*, int);
 %newobject _Irecv_Ints;
-IntVec* _Irecv_Ints(IntVec*, int);
+std::vector<int>* _Irecv_Ints(const std::vector<int>*, int);
 
-void _Isend_Double(double, IntVec*, int);
+void _Isend_Double(double, const std::vector<int>*, int);
 
-void _Isend_String(char*, IntVec*, int);
-void _Isend_Strings(char*, IntVec*, IntVec*, int);
+void _Isend_String(char*, const std::vector<int>*, int);
+void _Isend_Strings(char*, const std::vector<int>*, const std::vector<int>*, int);
 
-void _Isend_IntVecs(IntVec*, IntVec*, IntVec*, int);
+void _Isend_IntVecs(const std::vector<int>*, const std::vector<int>*, const std::vector<int>*, int);
 
-void _Isend_DoubleVec(std::vector<double>*, IntVec*, int);
-void _Isend_DoubleVecs(std::vector<double>*, IntVec*, IntVec*, int);
+void _Isend_DoubleVec(std::vector<double>*, const std::vector<int>*, int);
+void _Isend_DoubleVecs(std::vector<double>*, const std::vector<int>*, const std::vector<int>*, int);
 %newobject _Irecv_DoubleVecs;
-std::vector<double>* _Irecv_DoubleVecs(IntVec*, IntVec*, int);
+std::vector<double>* _Irecv_DoubleVecs(const std::vector<int>*, const std::vector<int>*, int);
 
 bool _Iprobe(int, int);
 
@@ -79,15 +79,15 @@ int _Allreduce_IntSum(int);
 double _Allreduce_DoubleSum(double);
 
 %newobject _Allgather_Int;
-IntVec* _Allgather_Int(int);
+std::vector<int>* _Allgather_Int(int);
 %newobject _Allgather_IntVec;
-IntVec* _Allgather_IntVec(IntVec*, int);
+std::vector<int>* _Allgather_IntVec(const std::vector<int>*, int);
 %newobject _Allgather_DoubleVec;
 std::vector<double>* _Allgather_DoubleVec(std::vector<double>*, int);
 
-void bcast_ints(IntVec*, int);
+void bcast_ints(const std::vector<int>*, int);
 %newobject recv_bcast_ints;
-IntVec* recv_bcast_ints(int);
+std::vector<int>* recv_bcast_ints(int);
 
 void bcast_doubles(std::vector<double>*, int);
 %newobject recv_bcast_doubles;

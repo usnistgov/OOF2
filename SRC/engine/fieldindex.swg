@@ -37,9 +37,9 @@ public:
   ~FieldIndex();
   int integer();
   bool in_plane();
-  void set(IntVec*);
+  void set(const std::vector<int>*);
   %newobject components;
-  IntVec *components();
+  std::vector<int> *components();
   const std::string &shortstring();
 };
 
@@ -152,9 +152,9 @@ public:
   int integer();
   bool in_plane();
   IndexP cloneIndex();
-  void set(IntVec*);
+  void set(const std::vector<int>*);
   %newobject components;
-  IntVec *components();
+  std::vector<int> *components();
   const std::string &shortstring();
 };
 

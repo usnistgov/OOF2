@@ -20,6 +20,6 @@
 #include "common/argv.h"
 %}
 
-void init_argv(CharPtrVec *argv);
+void init_argv(std::vector<char*> *argv);
 
 #endif // ARGV_SWG

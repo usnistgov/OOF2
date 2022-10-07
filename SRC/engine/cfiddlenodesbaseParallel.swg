@@ -34,8 +34,8 @@ public:
 
 void tuneFiddle();
 CFiddleNodesMoveData create_movedata(int, int, double, double);
-void _Send_MoveData(CFiddleNodesMoveDataVec*, IntVec*, int);
-void _Isend_MoveData(CFiddleNodesMoveDataVec*, IntVec*, int);
+void _Send_MoveData(CFiddleNodesMoveDataVec*, const std::vector<int>*, int);
+void _Isend_MoveData(CFiddleNodesMoveDataVec*, const std::vector<int>*, int);
 CFiddleNodesMoveData _Recv_MoveData(int, int);
 
 %pythoncode "engine/cfiddlenodesbaseParallel.spy"

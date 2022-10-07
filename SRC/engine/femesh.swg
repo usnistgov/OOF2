@@ -56,7 +56,7 @@ public:
   Node *newMapNode(Coord&);
   FuncNode *newFuncNode(Coord&);
 #ifdef HAVE_MPI
-  FuncNode *newFuncNode_shares(Coord&,IntVec*,IntVec*,int);
+  FuncNode *newFuncNode_shares(Coord&,const std::vector<int>*,const std::vector<int>*,int);
 #endif
   Node *getNode(int i);
   FuncNode *getFuncNode(int);

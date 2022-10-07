@@ -139,12 +139,13 @@ public:
 
   //AMR subproblem
   // SCPatch stuff, which should be encapsulated elsewhere eventually
-  void init_scpatches(IntVec*);
-  void add_scpatch(int, Material*, int, IntVec*, IntVec*, int);
+  void init_scpatches(const std::vector<int>*);
+  void add_scpatch(int, Material*, int, const std::vector<int>*,
+		   const std::vector<int>*, int);
   %newobject get_elements_from_patch;
-  IntVec *get_elements_from_patch(int, Material*);
+  std::vector<int> *get_elements_from_patch(int, Material*);
   %newobject get_nodes_from_patch;
-  IntVec *get_nodes_from_patch(int, Material*);
+  std::vector<int> *get_nodes_from_patch(int, Material*);
   void init_nodalfluxes();
   void recover_fluxes();
   void report_recovered_fluxes(Element*, Coord *Point);

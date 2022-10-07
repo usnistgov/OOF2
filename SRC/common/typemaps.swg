@@ -121,11 +121,6 @@
 #include "common/threadstate.h"
 #include <string>
 #include <vector>
-  // TODO PYTHON3: We shouldn't still need all these typedefs. SWIG
-  // understands templates.  Check that they're not used in other swig
-  // files, then delete them.
-typedef std::vector<char*> CharPtrVec;
-typedef std::vector<int> IntVec;
 %}
 
 //==||==\\==||==//==||==\\==||==//==||==\\==||==//==||==\\==||==//
@@ -599,17 +594,18 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
 
  // [String] -> std::vector<char*>*
 
-%typemap(in) CharPtrVec *argv (CharPtrVec argh, std::vector<PyObject*> ustrs)
+%typemap(in) std::vector<char*> *argv (std::vector<char*> argh,
+				       std::vector<PyObject*> ustrs)
 {
-  // typemap(in) CharPtrVec *argv
+  // typemap(in) std::vector<char*> *argv
   if(!PySequence_Check($input)) {
     PyErr_SetString(PyExc_TypeError,
 		    "in '$symname', expected a list of strings.");
     SWIG_fail;
   }
-  CharPtrVec::size_type sz = PySequence_Size($input);
+  std::vector<char*>::size_type sz = PySequence_Size($input);
   argh.resize(sz);
-  for(CharPtrVec::size_type i=0; i<sz; i++) {
+  for(std::vector<char*>::size_type i=0; i<sz; i++) {
     PyObject *str = PySequence_GetItem($input, (Py_ssize_t) i);
     // TODO PYTHON3: Is this really the best way to convert Python
     // strings to char*?
@@ -624,8 +620,8 @@ MAKE_INTVEC_TYPEMAPS(unsigned short)
   $1 = &argh;
 }
 
-%typemap(freearg) const CharPtrVec *argv {
-  // typemap(freearg) CharPtrVec *argv
+%typemap(freearg) const std::vector<char*> *argv {
+  // typemap(freearg) std::vector<char*> *argv
   for(PyObject *ustr: ustrs$argnum)
     Py_XDECREF(ustr);
 }
