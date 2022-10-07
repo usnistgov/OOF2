@@ -77,6 +77,9 @@ ADD_REPR(Flux, repr);
   IteratorP iterator_all() {
     return self->iterator(ALL_INDICES);
   }
+  bool __eq__(Flux *other) {
+    return self->objectid() == other->objectid();
+  }
 };
   
 class VectorFlux : public Flux {

@@ -1161,7 +1161,7 @@ def _build_oops(field, eqn, boundary):
     dflux = eqn.flux()
     for e in equation.allEquations:
         if isinstance(e, equation.PlaneFluxEquation):
-            if e.flux()==dflux:
+            if e.flux() == dflux:
                 if not oop_eqn:
                     oop_eqn = e
                 else:
@@ -1183,7 +1183,6 @@ def _build_oops(field, eqn, boundary):
         res.append(new_oop)
         field_itr.increment()
         eqn_itr.increment()
-
     return res
 
 
@@ -1223,6 +1222,10 @@ class OutOfPlaneBC(FloatBCBase):
     def __hash__(self):
         return hash((self.compound_field, self.field, self.equation))
 
+    def __repr__(self):
+        return "OutOfPlaneBC(%s, %s, %s, '%s')" % (
+            self.compound_field, self.field, self.field_component,
+            self.boundary)
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
