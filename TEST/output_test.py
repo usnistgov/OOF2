@@ -87,7 +87,7 @@ class OOF_Output(unittest.TestCase):
         from ooflib.SWIG.engine import mastercoord
         tree = output.positionOutputs
         outputpaths = tree.leafpaths()
-        outputnames = [ string.join(x,':') for x in outputpaths ]
+        outputnames = [ ':'.join(x) for x in outputpaths ]
         OOF.File.Load.Data(filename=reference_file('output_data',
                                                  'position_mesh'))
         meshobj = mesh.meshes['microstructure:skeleton:mesh'].getObject()
@@ -134,7 +134,7 @@ class OOF_Output(unittest.TestCase):
         from ooflib.engine.IO import analyze
 
         outputpaths = tree.leafpaths()
-        outputnames = [ string.join(x,':') for x in outputpaths ]
+        outputnames = [ ':'.join(x) for x in outputpaths ]
 
         OOF.File.Load.Data(filename=reference_file(
             'output_data', 'thermoelastic.mesh'))

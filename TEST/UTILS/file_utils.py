@@ -259,8 +259,8 @@ def fp_file_compare(file1, file2, tolerance, comment="#", pdfmode=False,
         f1.close()
         f2.close()
 
-pdfTimeStamp = r"/CreationDate \(D:[0-9]*Z\)"
-pdfProducer = r"/Producer \(cairo [0-9\.]* \(https?://cairographics\.org\)\)"
+pdfTimeStamp = rb"/CreationDate \(D:[0-9]*Z\)"
+pdfProducer = rb"/Producer \(cairo [0-9\.]* \(https?://cairographics\.org\)\)"
 
 def pdf_compare(file1, file2, quiet=False):
     # Compare two files byte by byte, allowing them to differ by a pdf
@@ -277,7 +277,7 @@ def pdf_compare(file1, file2, quiet=False):
 
     try:
         file2 = reference_file(file2)
-        f2 = open(file2, "r")
+        f2 = open(file2, "rb")
     except:
         if generate:
             print("\nMoving file %s to %s.\n" % (file1, file2), file=sys.stderr)
@@ -286,7 +286,7 @@ def pdf_compare(file1, file2, quiet=False):
         else:
             raise
 
-    f1 = open(file1, "r")
+    f1 = open(file1, "rb")
     chars1 = f1.read()
     chars2 = f2.read()
     f1.close()
