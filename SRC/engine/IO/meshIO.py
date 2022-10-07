@@ -255,6 +255,13 @@ def writeMesh(dfile, meshcontext, includeFields=True):
         # Cached data.  Cached data must be stored before the current
         # data, so that when it's reloaded, the current data isn't
         # overwritten.
+
+        ## TODO PYTHON3: The regression test reference files contain
+        ## duplicate information, and presumably other mesh data files
+        ## do too.  For example, mesh_data/subptest0_stripe0.mesh
+        ## contains a Mesh.Load_Field line containing no Fields.
+        ## mesh_data/oop_periodic_static-ascii.dat contains two
+        ## identical lines of field data at time=0.0.
         curtime = meshcontext.getCurrentTime()
         latest = meshcontext.atLatest()
         for time in meshcontext.cachedTimes():

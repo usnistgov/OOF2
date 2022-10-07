@@ -3073,7 +3073,6 @@ class ProvisionalChanges:
         # ProvisionalChanges object, so that they're available to the
         # calling routine.
         ## TODO: Remove argument and use self.skeleton instead?
-        debug.dump("accepting provisional change", self)
         self.inserted = [element.accept(skeleton) for element in self.inserted]
         for mvnode in self.movednodes:
             mvnode.node.moveTo(mvnode.position)
