@@ -201,7 +201,7 @@ class PlainContourDisplay(ContourDisplay):
                     (contours, elmin, elmax)  = contour.findContours(
                         mesh, element, self.where,
                         self.what, clevels,
-                        self.nbins, 0)
+                        self.nbins, False)
                     for cntr in contours:
                         for loop in cntr.loops:
                             poly = oofcanvas.CanvasPolygon.create()
@@ -316,7 +316,7 @@ class FilledContourDisplay(ContourDisplay):
                     (contours, elmin, elmax) = contour.findContours(
                         mesh, element, self.where,
                         self.what, clevels,
-                        self.nbins, 1)
+                        self.nbins, True)
 
                     # Before drawing anything, fill the element with the
                     # largest contour value below its lowest detected value.
