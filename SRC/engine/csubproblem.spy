@@ -173,7 +173,7 @@ def _CSubProblem_create_bdy_node_map(self, skel):
     while not nd_iter.end():
         node = nd_iter.node()
         self.bdy_node_map[node.index()] = 0
-        nd_iter.next()
+        nd_iter.increment()
         
     for seg in skel.segment_iterator():
         n0, n1 = seg.nodes()

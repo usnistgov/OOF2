@@ -35,9 +35,6 @@
 // TODO: Change the xxxxxVec* "in" typemaps so that they accept any
 // Python iterator, not just lists and tuples.
 
-// TODO: Are the IntPair typemaps from the Python2 code used?  I've
-// omitted them.
-
 // TODO? use SWIG_exception_fail instead of calling PyErr_SetString
 // and SWIG_fail.  NO!  Then we're restricted to swig's list of
 // exception types.

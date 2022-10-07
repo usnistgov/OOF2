@@ -43,6 +43,7 @@ import copy
 import os.path
 import string
 import sys
+import traceback
 import types
 
 import oofcanvas
@@ -1178,7 +1179,8 @@ linkend="MenuItem-OOF.Graphics_n.Layer.Freeze"/>.</para>
                         return
                     except Exception as exc:
                         debug.fmsg('Exception while drawing!', exc)
-                        debug.fmsg(traceback.print_tb())
+                        if debug.debug():
+                            traceback.print_exc()
                         raise
         finally:
             self.releaseGfxLock()

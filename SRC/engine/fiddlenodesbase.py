@@ -25,7 +25,6 @@ from ooflib.engine.IO import skeletongroupparams
 from ooflib.engine.IO import skeletonmenu
 import math
 import sys
-import traceback
 
 from ooflib.SWIG.common import ooferror
 

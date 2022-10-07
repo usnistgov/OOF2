@@ -12,18 +12,6 @@ from ooflib.common import debug
 from ooflib.common import primitives
 from ooflib.common.IO import whoville
 
-# The swig typemap for ContourCellSet.getCorners returns a list of
-# swig address strings, which we have to convert to actual swigged
-# ContourCoords here:
-
-swig_ContourCellSet_getCorners = ContourCellSet.getCorners
-
-def _ContourCellSet_getCorners(self):
-    strlist= swig_ContourCellSet_getCorners(self)
-    return list(map(ContourCoord, strlist))
-ContourCellSet.getCorners = _ContourCellSet_getCorners
-
-
 class Contour(CContour):
     # Class representing a single contour of a function.  This class
     # does not figure out which line segments are part of the contour,
@@ -44,19 +32,6 @@ class Contour(CContour):
                                                             [loop]))
                       for loop in self.loops]
         
-    # The swig typemaps used by CContour.getCurves and
-    # CContour.getLoops return lists of lists SwigPtr strings, which
-    # get converted into MasterCoord objects here:
-    ## TODO PYTHON3: Is that still true?
-    
-    def getCurves(self):
-        swigCurves = CContour.getCurves(self)
-        return [list(map(MasterCoord, x)) for x in swigCurves]
-
-    def getLoops(self):
-        swigLoops = CContour.getLoops(self)
-        return [list(map(MasterCoord, x)) for x in swigLoops]
-
     def __repr__(self):
         return "Contour(value=%f, curves=%s, loops=%s)" % (self.value,
                                                            self.getCurves(),
@@ -81,24 +56,18 @@ def findContours(mesh, element,
 
     # Evaluate the output function at the corners of the cells.
     cellcorners = cells.getCorners()
-    cornervalues = map(float,
-                       valueOutput.evaluate(mesh, [element], [cellcorners]))
+    cornervalues = list(map(float, valueOutput.evaluate(mesh, [element],
+                                                        [cellcorners])))
     # Assign values, and find the element maximum and minimum.
-    elmax = None
-    elmin = None
+    elmax = cornervalues[0]
+    elmin = elmax
     for val, corner in zip(cornervalues, cellcorners):
         corner.value = val
         elmax = max(elmax, val)
-        # None is less than every floating-point number, so we
-        # need to check for it explicitly.
-        if elmin is None:
-            elmin = val
-        else:
-            elmin = min(elmin, val)
+        elmin = min(elmin, val)
     
     # Find the contour intercepts on all of the cell edges.
     cells.findIntercepts(clevels)
-
     for contour in contours:
         contour.compute(cells, master, closecontours)
 
