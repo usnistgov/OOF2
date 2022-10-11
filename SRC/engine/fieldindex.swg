@@ -85,17 +85,16 @@ ADD_REPR_GENERIC(SymTensorIndex);
 
 %nodefaultctor FieldIterator;
 
+// This adds an increment method to all FieldIterator subclasses in
+// this file and in any file that %includes or %imports this one.
+%rename(increment) FieldIterator::operator++();
+
 class FieldIterator : public FieldIndex {
 public:
   int size();
   bool end();
   FieldIterator *cloneIterator();
-};
-
-%extend FieldIterator {
-  void next() {
-    ++(*self);
-  }
+  void operator++();
 };
 
 class ScalarFieldIterator: public ScalarFieldIndex, public FieldIterator {
@@ -162,6 +161,7 @@ ADD_REPR_GENERIC(IndexP);
 
 %nodefaultctor IteratorP;
 %feature("valuewrapper") IteratorP;
+%rename(increment) IteratorP::operator++();
 
 class IteratorP: public IndexP {
 public:
@@ -169,7 +169,6 @@ public:
   bool end();
   int size();
   IteratorP cloneIterator();
-  %rename(increment) operator++;
   void operator++();
 };
 

@@ -76,7 +76,6 @@ public:
 
 class PhysicalProperty : public Property {
 public:
-  // %rename("c_%s", %$isfunction, %$ismember, %$classname="PhysicalProperty") "";
   int integration_order(CSubProblem*, Element*);
 };
 
@@ -84,7 +83,6 @@ public:
 
 class FluxProperty : public PhysicalProperty {
 public:
-  //%rename("c_%s", %$isfunction, %$ismember, %$classname="FluxProperty") "";
   void flux_matrix(FEMesh*, Element*, ElementFuncNodeIterator&, Flux*,
 		   MasterPosition&, double, SmallSystem*);
   void flux_value(FEMesh*, Element*, Flux*, MasterPosition&, double,
@@ -101,7 +99,6 @@ public:
 
 class EqnProperty : public PhysicalProperty {
 public:
-  //%rename("c_%s", %$isfunction, %$ismember, %$classname="EqnProperty") "";
   void force_deriv_matrix(FEMesh*, Element*, Equation*,
 			  ElementFuncNodeIterator&, MasterPosition&, double,
 			  SmallSystem*);

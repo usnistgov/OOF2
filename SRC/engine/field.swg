@@ -84,6 +84,8 @@ typedef std::vector<CompoundField*> CompoundFieldVec;
 %nodefaultctor Field;
 %nodefaultdtor Field;
 
+%rename(c_time_derivative) Field::time_derivative;
+
 class Field {
 public:
   const std::string &name();
@@ -104,8 +106,7 @@ public:
   // from a dictionary.  To create that dictionary, the newField
   // function in problem.py calls Field.c_time_derivative, etc.
   // c_time_derivative should not be used anywhere else.
-  %rename(c_time_derivative) time_derivative;
-  Field *time_derivative();
+  Field *time_derivative(); // renamed to c_time_derivative
 
   void registerProperty(Property*);
 
@@ -146,15 +147,16 @@ public:
 %nodefaultctor CompoundField;
 %nodefaultdtor CompoundField;
 
+%rename(c_out_of_plane) CompoundField::out_of_plane();
+%rename(c_out_of_plane_time_derivative) CompoundField::out_of_plane_time_derivative();
+
 class CompoundField : public Field {
 public:
   bool in_plane(FEMesh*);
 
   // See comment above re Field::time_derivative.
-  %rename(c_out_of_plane) out_of_plane;
-  Field *out_of_plane();
-  %rename(c_out_of_plane_time_derivative) out_of_plane_time_derivative;
-  Field *out_of_plane_time_derivative(); 
+  Field *out_of_plane();		 // renamed to c_out_of_plane
+  Field *out_of_plane_time_derivative(); // to c_out_of_plane_time_derivative
 };
 
 int countFields();
