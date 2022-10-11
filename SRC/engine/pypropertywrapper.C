@@ -46,94 +46,92 @@ PyPropertyMethods::~PyPropertyMethods() {
 
 //=\\=//=\\=//
 
-void PyPropertyMethods::py_precompute(PyObject *referent, Property *prop,
-				      FEMesh *mesh)
-{
+void PyPropertyMethods::py_precompute(Property *prop, FEMesh *mesh) {
   PYTHON_THREAD_BEGIN_BLOCK;
-  if(!PyObject_HasAttrString(referent, "precompute")) {
+  if(!PyObject_HasAttrString(referent_, "precompute")) {
     // The function isn't defined in the derived class.  Call the
     // base class method instead.
     PyErr_Clear();
     prop->Property::precompute(mesh);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(referent, "precompute_wrap");
+    PyObject *method = PyUnicode_FromString("precompute");
     PyObject *meshp = NEWSWIGPTR(mesh, "FEMesh");
-    PyObject *k_result = PyObject_CallFunctionObjArgs(func, meshp, NULL);
-    Py_XDECREF(func);
+    PyObject *result = PyObject_CallMethodObjArgs(
+				    referent_, method, meshp, NULL);
     Py_XDECREF(meshp);
-    if(k_result==NULL)
+    if(result==NULL)
       pythonErrorRelay();
-    Py_XDECREF(k_result);
+    Py_XDECREF(result);
   }
 }
 
 //=\\=//=\\=//
 
-void PyPropertyMethods::py_cross_reference(PyObject *referent, Property *prop,
-					   Material *mat)
-{
+void PyPropertyMethods::py_cross_reference(Property *prop, Material *mat) {
   PYTHON_THREAD_BEGIN_BLOCK;
-  if(!PyObject_HasAttrString(referent, (char*) "cross_reference")) {
+  if(!PyObject_HasAttrString(referent_, (char*) "cross_reference")) {
     prop->Property::cross_reference(mat);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(referent, "cross_reference_wrap");
+    PyObject *method = PyUnicode_FromString("cross_reference");
     PyObject *matp = NEWSWIGPTR(mat, "Material");
-    PyObject *k_result = PyObject_CallFunctionObjArgs(func, matp, NULL);
-    Py_XDECREF(func);
+    PyObject *result = PyObject_CallMethodObjArgs(referent_, method, matp,
+						  NULL);
+    Py_XDECREF(method);
     Py_XDECREF(matp);
-    if(k_result==NULL) {
+    if(result==NULL) {
       pythonErrorRelay();
     }
-    Py_XDECREF(k_result);
+    Py_XDECREF(result);
   }
 }
 
 //=\\=//=\\=//
 
-void PyPropertyMethods::py_begin_element(PyObject *referent, Property *prop,
-					 const CSubProblem *m,
+void PyPropertyMethods::py_begin_element(Property *prop, const CSubProblem *m,
 					 const Element *el)
 {
   PYTHON_THREAD_BEGIN_BLOCK;
-  if(!PyObject_HasAttrString(referent, "begin_element")) {
+  if(!PyObject_HasAttrString(referent_, "begin_element")) {
     prop->Property::begin_element(m, el);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(referent, "begin_element_wrap");
+    PyObject *method = PyUnicode_FromString("begin_element");
     PyObject *elp = NEWSWIGPTR(el, "Element");
     PyObject *subp = NEWSWIGPTR(m, "CSubProblem");
-    PyObject *k_result = PyObject_CallFunctionObjArgs(func, subp, elp, NULL);
-    Py_XDECREF(func);
+    PyObject *result = PyObject_CallMethodObjArgs(referent_, method, subp, elp,
+						  NULL);
+    Py_XDECREF(method);
     Py_XDECREF(elp);
     Py_XDECREF(subp);
-    if(k_result==NULL) {
+    if(result==NULL) {
       pythonErrorRelay();
     }
-    Py_XDECREF(k_result);
+    Py_XDECREF(result);
   }
 }
 
-void PyPropertyMethods::py_end_element(PyObject *referent, Property *prop,
-				       const CSubProblem *m, const Element *el)
+void PyPropertyMethods::py_end_element(Property *prop, const CSubProblem *m,
+				       const Element *el)
 {
   PYTHON_THREAD_BEGIN_BLOCK;
-  if(!PyObject_HasAttrString(referent, "end_element")) {
+  if(!PyObject_HasAttrString(referent_, "end_element")) {
     prop->Property::end_element(m, el);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(referent, "end_element_wrap");
+    PyObject *method = PyUnicode_FromString("end_element");
     PyObject *subp = NEWSWIGPTR(m, "CSubProblem");
     PyObject *elp = NEWSWIGPTR(el, "Element");
-    PyObject *k_result = PyObject_CallFunctionObjArgs(func, subp, elp, NULL);
-    Py_XDECREF(func);
+    PyObject *result = PyObject_CallMethodObjArgs(referent_, method, subp, elp,
+						  NULL);
+    Py_XDECREF(method);
     Py_XDECREF(subp);
     Py_XDECREF(elp);
-    if(k_result==NULL) {
+    if(result==NULL) {
       pythonErrorRelay();
     }
-    Py_XDECREF(k_result);
+    Py_XDECREF(result);
   }
 }
 
@@ -147,22 +145,22 @@ void PyFluxProperty::begin_point(const FEMesh *m, const Element *el,
     this->FluxProperty::begin_point(m, el, flx, mpos);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(referent_, "begin_point_wrap");
+    PyObject *method = PyUnicode_FromString("begin_point");
     PyObject *meshp = NEWSWIGPTR(m, "FEMesh");
     PyObject *elp = NEWSWIGPTR(el, "Element");
     PyObject *flxp = NEWSWIGPTR(flx, "Flux");
     PyObject *mpp = NEWSWIGPTR(&mpos, "MasterPosition");
-    PyObject *k_result = PyObject_CallFunctionObjArgs(
-				      func, meshp, elp, flxp, mpp, NULL);
-    Py_XDECREF(func);
+    PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
+						  meshp, elp, flxp, mpp, NULL);
+    Py_XDECREF(method);
     Py_XDECREF(meshp);
     Py_XDECREF(elp);
     Py_XDECREF(flxp);
     Py_XDECREF(mpp);
-    if(k_result==NULL) {
+    if(result==NULL) {
       pythonErrorRelay();
     }
-    Py_XDECREF(k_result);
+    Py_XDECREF(result);
   }
 }
 
@@ -174,46 +172,44 @@ void PyFluxProperty::end_point(const FEMesh *m, const Element *el,
     this->FluxProperty::end_point(m, el, flx, mpos);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(referent_,
-					    (char*) "end_point_wrap");
+    PyObject *method = PyUnicode_FromString("end_point");
     PyObject *meshp = NEWSWIGPTR(m, "FEMesh");
     PyObject *elp = NEWSWIGPTR(el, "Element");
     PyObject *flxp = NEWSWIGPTR(flx, "Flux");
     PyObject *mpp = NEWSWIGPTR(&mpos, "MasterPosition");
-    PyObject *k_result = PyObject_CallFunctionObjArgs(
-				      func, meshp, elp, flxp, mpp, NULL);
-    Py_XDECREF(func);
+    PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
+						  meshp, elp, flxp, mpp, NULL);
+    Py_XDECREF(method);
     Py_XDECREF(meshp);
     Py_XDECREF(elp);
     Py_XDECREF(flxp);
     Py_XDECREF(mpp);
-    if(k_result==NULL) {
+    if(result==NULL) {
       pythonErrorRelay();
     }
-    Py_XDECREF(k_result);
+    Py_XDECREF(result);
   }
 }
 
 //=\\=//=\\=//
 
-void PyPropertyMethods::py_post_process(PyObject *referent,
-					const Property *prop,
-					CSubProblem *m, const Element *el)
+void PyPropertyMethods::py_post_process(const Property *prop, CSubProblem *m,
+					const Element *el)
   const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
-  if(!PyObject_HasAttrString(referent, "post_process")) {
+  if(!PyObject_HasAttrString(referent_, "post_process")) {
     prop->Property::post_process(m, el);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(referent,
-					    (char*) "post_process_wrap");
+    PyObject *method = PyUnicode_FromString("post_process");
     PyObject *subp = NEWSWIGPTR(m, "CSubProblem");
     PyObject *elp = NEWSWIGPTR(el, "Element");
-    PyObject *result = PyObject_CallFunctionObjArgs(func, subp, elp, NULL);
+    PyObject *result = PyObject_CallMethodObjArgs(referent_, method, subp, elp,
+						  NULL);
     Py_XDECREF(subp);
     Py_XDECREF(elp);
-    Py_XDECREF(func);
+    Py_XDECREF(method);
     if(result==NULL) {
       pythonErrorRelay();
     }
@@ -230,41 +226,40 @@ void PyPropertyMethods::py_post_process(PyObject *referent,
 // function, which returns void.  In Python, the OutputVal is
 // returned.
 
-void PyPropertyMethods::py_output(PyObject *referent, Property *prop,
-			       FEMesh *mesh, const Element *el,
-			       const PropertyOutput *propout,
-			       const MasterPosition &pos,
-			       OutputVal *oval)
+void PyPropertyMethods::py_output(Property *prop,
+				  FEMesh *mesh, const Element *el,
+				  const PropertyOutput *propout,
+				  const MasterPosition &pos,
+				  OutputVal *oval)
   const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
-  if(!PyObject_HasAttrString(referent, "output")) {
+  if(!PyObject_HasAttrString(referent_, "output")) {
     prop->Property::output(mesh, el, propout, pos, oval);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(referent, "output_wrap");
+    PyObject *method = PyUnicode_FromString("output");
     PyObject *meshp = NEWSWIGPTR(mesh, "FEMesh");
     PyObject *elp = NEWSWIGPTR(el, "Element");
     PyObject *propp = NEWSWIGPTR(propout, "PropertyOutput");
     PyObject *posp = NEWSWIGPTR(&pos, "MasterPosition");
 
-    PyObject *pyresult = PyObject_CallFunctionObjArgs(
-				      func, meshp, elp, propp, posp, NULL);
-    Py_XDECREF(func);
+    PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
+						  meshp, elp, propp, posp,
+						  NULL);
+    Py_XDECREF(method);
     Py_XDECREF(meshp);
     Py_XDECREF(elp);
     Py_XDECREF(propp);
     Py_XDECREF(posp);
-    if(pyresult == NULL)
+    if(result == NULL)
       pythonErrorRelay();
 
-    // Check for None.  PyProperty.output_wrap() returns None if
-    // the derived class doesn't define PyProperty.output().
-    if(pyresult != Py_None) {
+    if(result != Py_None) {	// TODO PYTHON3: Do we need this check?
       // Convert result to a C++ object
       OutputVal *cresult;
-      if(!SWIG_IsOK(SWIG_ConvertPtr(pyresult, (void**) &cresult,
-				    ((SwigPyObject*) pyresult)->ty, 0)))
+      if(!SWIG_IsOK(SWIG_ConvertPtr(result, (void**) &cresult,
+				    ((SwigPyObject*) result)->ty, 0)))
 	{
 	  throw ErrProgrammingError(
 			    "Python output() does not return an OutputVal",
@@ -272,98 +267,96 @@ void PyPropertyMethods::py_output(PyObject *referent, Property *prop,
 	}
       *oval = *cresult;
     }
-    Py_XDECREF(pyresult);
+    Py_XDECREF(result);
   }
 }
 
 //=\\=//=\\=//
 
-bool PyPropertyMethods::py_constant_in_space(PyObject *referent,
-					     const Property *prop) 
-  const
-{
+bool PyPropertyMethods::py_constant_in_space(const Property *prop) const {
   bool c_result;
   PYTHON_THREAD_BEGIN_BLOCK;
-  if(!PyObject_HasAttrString(referent, "constant_in_space")) {
+  if(!PyObject_HasAttrString(referent_, "constant_in_space")) {
     throw ErrUserError("constant_in_space method is missing from Property "
 		       + prop->name());
   }
-  PyObject *func = PyObject_GetAttrString(referent, "constant_in_space_wrap");
-  // PyObject_CallNoArgs is only available in Python 3.9 and later.
-  //  PyObject *k_result = PyObject_CallNoArgs(func);
-  PyObject *k_result = PyObject_CallFunctionObjArgs(func, NULL);
-  Py_XDECREF(func);
-  if(k_result == NULL) {
+  // TODO: Use PyObject_CallMethodNoArgs in Python 3.9 and later
+  PyObject *method = PyUnicode_FromString("constant_in_space");
+  PyObject *result = PyObject_CallMethodObjArgs(referent_, method, NULL);
+						
+  Py_XDECREF(method);
+  if(result == NULL) {
     pythonErrorRelay();
   }
-  c_result = PyObject_IsTrue(k_result);
-  Py_XDECREF(k_result);
+  c_result = PyObject_IsTrue(result);
+  Py_XDECREF(result);
   return c_result;
 }
 
 //=\\=//=\\=//
 
-bool PyPropertyMethods::is_symmetric_K(PyObject *referent, const Property *prop,
+bool PyPropertyMethods::is_symmetric_K(const Property *prop,
 				       const CSubProblem *subp)
   const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
-  if(!PyObject_HasAttrString(referent, "is_symmetric_K")) {
+  if(!PyObject_HasAttrString(referent_, "is_symmetric_K")) {
     return prop->Property::is_symmetric_K(subp);
   }
-  PyObject *func = PyObject_GetAttrString(referent, "is_symmetric_K_wrap");
+  PyObject *method = PyUnicode_FromString("is_symmetric_K");
   PyObject *subpp = NEWSWIGPTR(subp, "CSubProblem");
-  PyObject *k_result = PyObject_CallFunctionObjArgs(func, subpp, NULL);
-  Py_XDECREF(func);
+  PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
+						subpp, NULL);
+  Py_XDECREF(method);
   Py_XDECREF(subpp);
-  if(k_result == NULL) {
+  if(result == NULL) {
     pythonErrorRelay();
   }
-  bool c_result = PyObject_IsTrue(k_result);
-  Py_XDECREF(k_result);
+  bool c_result = PyObject_IsTrue(result);
+  Py_XDECREF(result);
   return c_result;
 }
 
-bool PyPropertyMethods::is_symmetric_C(PyObject *referent, const Property *prop,
+bool PyPropertyMethods::is_symmetric_C(const Property *prop,
 				       const CSubProblem *subp)
   const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
-  if(!PyObject_HasAttrString(referent, (char*) "is_symmetric_C")) {
+  if(!PyObject_HasAttrString(referent_, (char*) "is_symmetric_C")) {
     return prop->Property::is_symmetric_C(subp);
   }
-  PyObject *func = PyObject_GetAttrString(referent,
-					  (char*) "is_symmetric_C_wrap");
+  PyObject *method = PyUnicode_FromString("is_symmetric_C");
   PyObject *subpp = NEWSWIGPTR(subp, "CSubProblem");
-  PyObject *k_result = PyObject_CallFunctionObjArgs(func, subpp, NULL);
-  Py_XDECREF(func);
+  PyObject *result = PyObject_CallMethodObjArgs(referent_, method, subpp,
+						NULL);
+  Py_XDECREF(method);
   Py_XDECREF(subpp);
-  if(k_result == NULL) {
+  if(result == NULL) {
     pythonErrorRelay();
   }
-  bool c_result = PyObject_IsTrue(k_result);
-  Py_XDECREF(k_result);
+  bool c_result = PyObject_IsTrue(result);
+  Py_XDECREF(result);
   return c_result;
 }
 
-bool PyPropertyMethods::is_symmetric_M(PyObject *referent, const Property *prop,
+bool PyPropertyMethods::is_symmetric_M(const Property *prop,
 				       const CSubProblem *subp)
   const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
-  if(!PyObject_HasAttrString(referent, "is_symmetric_M")) {
+  if(!PyObject_HasAttrString(referent_, "is_symmetric_M")) {
     return prop->Property::is_symmetric_M(subp);
   }
-  PyObject *func = PyObject_GetAttrString(referent, "is_symmetric_M_wrap");
+  PyObject *method = PyUnicode_FromString("is_symmetric_M");
   PyObject *subpp = NEWSWIGPTR(subp, "CSubProblem");
-  PyObject *k_result = PyObject_CallFunctionObjArgs(func, subpp, NULL);
-  Py_XDECREF(func);
+  PyObject *result = PyObject_CallMethodObjArgs(referent_, method, subpp, NULL);
+  Py_XDECREF(method);
   Py_XDECREF(subpp);
-  if(k_result == NULL) {
+  if(result == NULL) {
     pythonErrorRelay();
   }
-  bool c_result = PyObject_IsTrue(k_result);
-  Py_XDECREF(k_result);
+  bool c_result = PyObject_IsTrue(result);
+  Py_XDECREF(result);
   return c_result;
 }
 
@@ -381,17 +374,18 @@ int PyPhysicalPropertyMethods::py_integration_order(
     throw ErrUserError("integration_order method is missing from Property " 
 		       + prop->name());
   }
-  PyObject *func = PyObject_GetAttrString(referent, "integration_order_wrap");
+  PyObject *method = PyUnicode_FromString("integration_order");
   PyObject *subpp = NEWSWIGPTR(subp, "CSubProblem");
   PyObject *elp = NEWSWIGPTR(el, "Element");
-  PyObject *k_result = PyObject_CallFunctionObjArgs(func, subpp, elp, NULL);
-  Py_XDECREF(func);
+  PyObject *result = PyObject_CallMethodObjArgs(referent, method, subpp, elp,
+						NULL);
+  Py_XDECREF(method);
   Py_XDECREF(subpp);
   Py_XDECREF(elp);
-  if(k_result==NULL)
+  if(result==NULL)
     pythonErrorRelay();
-  int c_result = PyInt_AsLong(k_result);
-  Py_XDECREF(k_result);
+  int c_result = PyInt_AsLong(result);
+  Py_XDECREF(result);
   return c_result;
 }
 
@@ -430,21 +424,24 @@ void PyFluxProperty::flux_matrix(const FEMesh *mesh,
     this->FluxProperty::flux_matrix(mesh, el, efni, flux, gpt, time, fluxdata);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(referent_, "flux_matrix_wrap");
+    PyObject *method = PyUnicode_FromString("flux_matrix");
     PyObject *meshp = NEWSWIGPTR(mesh, "FEMesh");
     PyObject *elp = NEWSWIGPTR(el, "Element");
     PyObject *efnip = NEWSWIGPTR(&efni, "ElementFuncNodeIterator");
     PyObject *fluxp = NEWSWIGPTR(flux, "Flux");
     PyObject *mpp = NEWSWIGPTR(&gpt, "MasterPosition");
+    PyObject *timep = PyFloat_FromDouble(time);
     PyObject *fluxdatap = NEWSWIGPTR(fluxdata, "SmallSystem");
-    PyObject *result = PyObject_CallFunctionObjArgs(
-		    func, meshp, elp, efnip, fluxp, mpp, fluxdatap, NULL);
-    Py_XDECREF(func);
+    PyObject *result = PyObject_CallMethodObjArgs(
+	  referent_, method,
+	  meshp, elp, efnip, fluxp, mpp, timep, fluxdatap, NULL);
+    Py_XDECREF(method);
     Py_XDECREF(meshp);
     Py_XDECREF(elp);
     Py_XDECREF(efnip);
     Py_XDECREF(fluxp);
     Py_XDECREF(mpp);
+    Py_XDECREF(timep);
     Py_XDECREF(fluxdatap);
     if(result==NULL) {
       pythonErrorRelay();
@@ -468,15 +465,17 @@ void PyFluxProperty::flux_value(const FEMesh *mesh,
     this->FluxProperty::flux_value(mesh, element, flux, pt, time, fluxdata);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(referent_, "flux_value_wrap");
+    PyObject *method = PyUnicode_FromString("flux_value");
     PyObject *meshp = NEWSWIGPTR(mesh, "FEMesh");
     PyObject *elp = NEWSWIGPTR(element, "Element");
     PyObject *fluxp = NEWSWIGPTR(flux, "Flux");
     PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
+    PyObject *timep = PyFloat_FromDouble(time);
     PyObject *fluxdatap = NEWSWIGPTR(fluxdata, "SmallSystem");
-    PyObject *result = PyObject_CallFunctionObjArgs(
-			    func, meshp, elp, fluxp, mpp, fluxdatap, NULL);
-    Py_XDECREF(func);
+    PyObject *result = PyObject_CallMethodObjArgs(referent_, method,
+						  meshp, elp, fluxp, mpp, timep,
+						  fluxdatap, NULL);
+    Py_XDECREF(method);
     Py_XDECREF(meshp);
     Py_XDECREF(elp);
     Py_XDECREF(fluxp);
@@ -505,20 +504,22 @@ void PyFluxProperty::static_flux_value(const FEMesh *mesh,
 					  fluxdata);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(referent_,
-					    "static_flux_value_wrap");
+    PyObject *method = PyUnicode_FromString("static_flux_value");
     PyObject *meshp = NEWSWIGPTR(mesh, "FEMesh");
     PyObject *elp = NEWSWIGPTR(element, "Element");
     PyObject *fluxp = NEWSWIGPTR(flux, "Flux");
     PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
+    PyObject *timep = PyFloat_FromDouble(time);
     PyObject *fluxdatap = NEWSWIGPTR(fluxdata, "SmallSystem");
-    PyObject *result = PyObject_CallFunction(
-		    func, "OOOOdO", mpp, elp, fluxp, mpp, time, fluxdatap);
-    Py_XDECREF(func);
+    PyObject *result = PyObject_CallMethodObjArgs(
+			  referent_, method,
+			  mpp, elp, fluxp, mpp, timep, fluxdatap, NULL);
+    Py_XDECREF(method);
     Py_XDECREF(meshp);
     Py_XDECREF(elp);
     Py_XDECREF(fluxp);
     Py_XDECREF(mpp);
+    Py_XDECREF(timep);
     Py_XDECREF(fluxdatap);
     if(result == NULL)
       pythonErrorRelay();
@@ -540,20 +541,23 @@ void PyFluxProperty::flux_offset(const FEMesh *mesh, const Element *el,
     this->FluxProperty::flux_offset(mesh, el, flux, gpt, time, fluxdata);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(referent_, "flux_offset_wrap");
+    PyObject *method = PyUnicode_FromString("flux_offset");
     PyObject *meshp = NEWSWIGPTR(mesh, "FEMesh");
     PyObject *elp = NEWSWIGPTR(el, "Element");
     PyObject *fluxp = NEWSWIGPTR(flux, "Flux");
     PyObject *fluxdatap = NEWSWIGPTR(fluxdata, "SmallSystem");
     PyObject *mpp = NEWSWIGPTR(&gpt, "MasterPosition");
-    PyObject *result = PyObject_CallFunction(func, "OOOOdO",
-				     meshp, elp, fluxp, mpp, time, fluxdatap);
-    Py_XDECREF(func);
+    PyObject *timep = PyFloat_FromDouble(time);
+    PyObject *result = PyObject_CallMethodObjArgs(
+			  referent_, method,
+			  meshp, elp, fluxp, mpp, timep, fluxdatap, NULL);
+    Py_XDECREF(method);
     Py_XDECREF(meshp);
     Py_XDECREF(elp);
     Py_XDECREF(fluxp);
-    Py_XDECREF(fluxdatap);
     Py_XDECREF(mpp);
+    Py_XDECREF(timep);
+    Py_XDECREF(fluxdatap);
     if(result == NULL)
       pythonErrorRelay();
     Py_XDECREF(result);
@@ -588,22 +592,24 @@ void PyEqnProperty::force_deriv_matrix(const FEMesh *mesh,
 					  eqndata);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(
-			    referent_, "force_deriv_matrix_wrap");
+    PyObject *method = PyUnicode_FromString("force_deriv_matrix");
     PyObject *meshp = NEWSWIGPTR(mesh, "FEMesh");
     PyObject *elp = NEWSWIGPTR(element, "Element");
     PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
     PyObject *efnip = NEWSWIGPTR(&efni, "ElementFuncNodeIterator");
     PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
+    PyObject *timep = PyFloat_FromDouble(time);
     PyObject *eqndatap = NEWSWIGPTR(eqndata, "SmallSystem");
-    PyObject *result = PyObject_CallFunction(
-	     func, "OOOOOdO", mpp, elp, eqnp, efnip, mpp, time, eqndatap);
-    Py_XDECREF(func);
+    PyObject *result = PyObject_CallMethodObjArgs(
+		  referent_, method,
+		  mpp, elp, eqnp, efnip, mpp, timep, eqndatap, NULL);
+    Py_XDECREF(method);
     Py_XDECREF(meshp);
     Py_XDECREF(elp);
     Py_XDECREF(eqnp);
     Py_XDECREF(efnip);
     Py_XDECREF(mpp);
+    Py_XDECREF(timep);
     Py_XDECREF(eqndatap);
     if(result == NULL)
       pythonErrorRelay();
@@ -626,19 +632,22 @@ void PyEqnProperty::force_value(const FEMesh *mesh,
     this->EqnProperty::force_value(mesh, element, eqn, pt, time, eqndata);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(referent_, "force_value_wrap");
+    PyObject *method = PyUnicode_FromString("force_value");
     PyObject *meshp = NEWSWIGPTR(mesh, "FEMesh");
     PyObject *elp = NEWSWIGPTR(element, "Element");
     PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
     PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
+    PyObject *timep = PyFloat_FromDouble(time);
     PyObject *eqndatap = NEWSWIGPTR(eqndata, "SmallSystem");
-    PyObject *result = PyObject_CallFunction(
-		     func, "OOOOdO", meshp, elp, eqnp, mpp, time, eqndatap);
-    Py_XDECREF(func);
+    PyObject *result = PyObject_CallMethodObjArgs(
+			  referent_, method,
+			  meshp, elp, eqnp, mpp, timep, eqndatap, NULL);
+    Py_XDECREF(method);
     Py_XDECREF(meshp);
     Py_XDECREF(elp);
     Py_XDECREF(eqnp);
     Py_XDECREF(mpp);
+    Py_XDECREF(timep);
     Py_XDECREF(eqndatap);
     if(result == NULL)
       pythonErrorRelay();
@@ -662,22 +671,24 @@ void PyEqnProperty::first_time_deriv_matrix(const FEMesh *mesh,
 					       time, eqndata);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(
-			    referent_, "first_time_deriv_matrix_wrap");
+    PyObject *method = PyUnicode_FromString("first_time_deriv_matrix");
     PyObject *meshp = NEWSWIGPTR(mesh, "FEMesh");
     PyObject *elp = NEWSWIGPTR(element, "Element");
     PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
     PyObject *efnip = NEWSWIGPTR(&efni, "ElementFuncNodeIterator");
     PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
+    PyObject *timep = PyFloat_FromDouble(time);
     PyObject *eqndatap = NEWSWIGPTR(eqndata, "SmallSystem");
-    PyObject *result = PyObject_CallFunction(
-	     func, "OOOOOdO", meshp, elp, eqnp, efnip, mpp, time, eqndatap);
-    Py_XDECREF(func);
+    PyObject *result = PyObject_CallMethodObjArgs(
+			  referent_, method,
+			  meshp, elp, eqnp, efnip, mpp, timep, eqndatap, NULL);
+    Py_XDECREF(method);
     Py_XDECREF(meshp);
     Py_XDECREF(elp);
     Py_XDECREF(eqnp);
     Py_XDECREF(efnip);
     Py_XDECREF(mpp);
+    Py_XDECREF(timep);
     Py_XDECREF(eqndatap);
     if(result == NULL)
       pythonErrorRelay();
@@ -687,13 +698,14 @@ void PyEqnProperty::first_time_deriv_matrix(const FEMesh *mesh,
 
 //=\\=//=\\=//
 
-void PyEqnProperty::second_time_deriv_matrix(const FEMesh *mesh,
-					     const Element *element,
-					     const Equation *eqn,
+void PyEqnProperty::second_time_deriv_matrix(
+				     const FEMesh *mesh,
+				     const Element *element,
+				     const Equation *eqn,
 				     const ElementFuncNodeIterator &efni,
-					     const MasterPosition &pt,
-					     double time,
-					     SmallSystem *eqndata)
+				     const MasterPosition &pt,
+				     double time,
+				     SmallSystem *eqndata)
   const
 {
   PYTHON_THREAD_BEGIN_BLOCK;
@@ -702,22 +714,24 @@ void PyEqnProperty::second_time_deriv_matrix(const FEMesh *mesh,
 						time, eqndata);
   }
   else {
-    PyObject *func = PyObject_GetAttrString(
-		    referent_, "second_time_deriv_matrix_wrap");
+    PyObject *method = PyUnicode_FromString("second_time_deriv_matrix");
     PyObject *meshp = NEWSWIGPTR(mesh, "FEMesh");
     PyObject *elp = NEWSWIGPTR(element, "Element");
     PyObject *eqnp = NEWSWIGPTR(eqn, "Equation");
     PyObject *efnip = NEWSWIGPTR(&efni, "ElementFuncNodeIterator");
     PyObject *mpp = NEWSWIGPTR(&pt, "MasterPosition");
+    PyObject *timep = PyFloat_FromDouble(time);
     PyObject *eqndatap = NEWSWIGPTR(eqndata, "SmallSystem");
-    PyObject *result = PyObject_CallFunction(
-	     func, "OOOOOdO", meshp, elp, eqnp, efnip, mpp, time, eqndatap);
-    Py_XDECREF(func);
+    PyObject *result = PyObject_CallMethodObjArgs(
+			  referent_, method,
+			  meshp, elp, eqnp, efnip, mpp, timep, eqndatap, NULL);
+    Py_XDECREF(method);
     Py_XDECREF(meshp);
     Py_XDECREF(elp);
     Py_XDECREF(eqnp);
     Py_XDECREF(efnip);
     Py_XDECREF(mpp);
+    Py_XDECREF(timep);
     Py_XDECREF(eqndatap);
     if(result == NULL)
       pythonErrorRelay();

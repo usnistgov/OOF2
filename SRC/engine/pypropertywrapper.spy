@@ -16,11 +16,6 @@
 # in the swigged constructors, so all the SWIG'd methods
 # are available in the derived-class routine.
 
-## TODO PYTHON3: Can't this be done much more simply now?  The
-## PyObject*s produced by NEWSWIGPTR in pypropertywrapper.C shouldn't
-## need to be wrapped again.
-
-
 from ooflib.SWIG.common import ooferror
 from ooflib.SWIG.engine import csubproblem
 from ooflib.SWIG.engine import element
@@ -48,247 +43,254 @@ from ooflib.common import debug
 # argument in two ways.
 
 def _PyFluxProperty___init__(self, *args, **kwargs):
-    realargs = (self,)+args
-    self.this = pypropertywrapperc.new_PyFluxProperty(*realargs, **kwargs)
-    self.thisown = 1
+    realargs = (self,) + args
+    _pypropertywrapper.PyFluxProperty_swiginit(
+        self, _pypropertywrapper.new_PyFluxProperty(*realargs, **kwargs))
 
 PyFluxProperty.__init__ = _PyFluxProperty___init__
 
 def _PyEqnProperty___init__(self, *args, **kwargs):
-    realargs = (self,)+args
-    self.this = pypropertywrapperc.new_PyEqnProperty(*realargs, **kwargs)
-    self.thisown = 1
+    realargs = (self,) + args
+    _pypropertywrapper.PyEqnProperty_swiginit(
+        self, _pypropertywrapper.new_PyEqnProperty(*realargs, **kwargs))
 
 PyEqnProperty.__init__ = _PyEqnProperty___init__
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def _precompute_wrap(self, mesh_p):
-    msh = femesh.FEMesh(mesh_p)
-    self.precompute(msh)
+## TODO PYTHON3: Can't all of this be done much more simply now?  The
+## PyObject*s produced by NEWSWIGPTR in pypropertywrapper.C shouldn't
+## need to be wrapped again.  Eg, mesh_p here was created by
+## NEWSWIGPTR in PyPropertyMethods::py_precompute, which then called
+## _precompute_wrap.  py_precompute should call referent.precompute
+## directly, passing mesh_p, instead of calling _precompute_wrap.
 
-property.Property.precompute_wrap = _precompute_wrap
+# def _precompute_wrap(self, mesh_p):
+#     msh = femesh.FEMesh(mesh_p)
+#     self.precompute(msh)
 
-#=--=##=--=#
-
-def _constant_in_space_wrap(self):
-    if hasattr(self, 'constant_in_space'):
-        return self.constant_in_space()
-    raise ooferror.ErrSetupError("Property " + self.name() +
-                                 " is missing the constant_in_space function!")
-
-property.Property.constant_in_space_wrap = _constant_in_space_wrap
+# property.Property.precompute_wrap = _precompute_wrap
 
 #=--=##=--=#
 
-def _cross_reference_wrap(self, material_p):
-    matl = material.Material(material_p)
-    self.cross_reference(matl)
+# def _constant_in_space_wrap(self):
+#     if hasattr(self, 'constant_in_space'):
+#         return self.constant_in_space()
+#     raise ooferror.ErrSetupError("Property " + self.name() +
+#                                  " is missing the constant_in_space function!")
 
-property.Property.cross_reference_wrap = _cross_reference_wrap
-
-#=--=##=--=#
-
-def _begin_element_wrap(self, subp_p, element_p):
-    subp = csubproblem.CSubProblem(subp_p)
-    elmnt = element.Element(element_p)
-    self.begin_element(subp, elmnt)
-
-property.Property.begin_element_wrap = _begin_element_wrap
-
-def _end_element_wrap(self, subp_p, element_p):
-    subp = csubproblem.CSubProblem(subp_p)
-    elmnt = element.Element(element_p)
-    self.end_element(subp, elmnt)
-
-property.Property.end_element_wrap = _end_element_wrap
+# property.Property.constant_in_space_wrap = _constant_in_space_wrap
 
 #=--=##=--=#
 
-def _begin_point_wrap(self, femesh_p, element_p, flux_p, masterpos_p):
-    mesh = femesh.FEMesh(femesh_p)
-    elmnt = element.Element(element_p)
-    flx = flux.Flux(flux_p)
-    masterpos = mastercoord.MasterPosition(masterpos_p)
-    self.begin_point(mesh, elmnt, flx, masterpos)
+# def _cross_reference_wrap(self, material_p):
+#     matl = material.Material(material_p)
+#     self.cross_reference(matl)
 
-property.Property.begin_point_wrap = _begin_point_wrap
-
-def _end_point_wrap(self, femesh_p, element_p, flux_p, masterpos_p):
-    mesh = femesh.FEMesh(femesh_p)
-    elmnt = element.Element(element_p)
-    flx = flux.Flux(flux_p)
-    masterpos = mastercoord.MasterPosition(masterpos_p)
-    self.end_point(mesh, elmnt, flx, masterpos)
-
-property.Property.end_point_wrap = _end_point_wrap
+# property.Property.cross_reference_wrap = _cross_reference_wrap
 
 #=--=##=--=#
 
-def _post_process_wrap(self, subp_p, element_p):
-    subp = csubproblem.CSubProblem(subp_p)
-    elmnt = element.Element(element_p)
-    self.post_process(subp, elmnt)
+# def _begin_element_wrap(self, subp_p, element_p):
+#     # subp = csubproblem.CSubProblem(subp_p)
+#     # elmnt = element.Element(element_p)
+#     self.begin_element(subp_p, element_p)
 
-property.Property.post_process_wrap = _post_process_wrap
+# property.Property.begin_element_wrap = _begin_element_wrap
 
-#=--=##=--=#
+# def _end_element_wrap(self, subp_p, element_p):
+#     # subp = csubproblem.CSubProblem(subp_p)
+#     # elmnt = element.Element(element_p)
+#     self.end_element(subp_p, element_p)
 
-def _output_wrap(self, femesh_p, element_p, propout_p, pos_p):
-    mesh = femesh.FEMesh(femesh_p)
-    elmnt = element.Element(element_p)
-    propout = propertyoutput.PropertyOutput(propout_p)
-    position = mastercoord.MasterPosition(pos_p)
-    return self.output(mesh, elmnt, propout, position)
-
-property.Property.output_wrap = _output_wrap
+# property.Property.end_element_wrap = _end_element_wrap
 
 #=--=##=--=#
 
-def _is_symmetric_K_wrap(self, subp_p):
-    subp = csubproblem.CSubProblem(subp_p)
-    return self.is_symmetric_K(subp)
+# def _begin_point_wrap(self, femesh_p, element_p, flux_p, masterpos_p):
+#     mesh = femesh.FEMesh(femesh_p)
+#     elmnt = element.Element(element_p)
+#     flx = flux.Flux(flux_p)
+#     masterpos = mastercoord.MasterPosition(masterpos_p)
+#     self.begin_point(mesh, elmnt, flx, masterpos)
 
-property.Property.is_symmetric_K_wrap = _is_symmetric_K_wrap
+# property.Property.begin_point_wrap = _begin_point_wrap
 
-def _is_symmetric_C_wrap(self, subp_p):
-    subp = csubproblem.CSubProblem(subp_p)
-    return self.is_symmetric_C(subp)
+# def _end_point_wrap(self, femesh_p, element_p, flux_p, masterpos_p):
+#     mesh = femesh.FEMesh(femesh_p)
+#     elmnt = element.Element(element_p)
+#     flx = flux.Flux(flux_p)
+#     masterpos = mastercoord.MasterPosition(masterpos_p)
+#     self.end_point(mesh, elmnt, flx, masterpos)
 
-property.Property.is_symmetric_C_wrap = _is_symmetric_C_wrap
+# property.Property.end_point_wrap = _end_point_wrap
 
-def _is_symmetric_M_wrap(self, subp_p):
-    subp = csubproblem.CSubProblem(subp_p)
-    return self.is_symmetric_M(subp)
+#=--=##=--=#
 
-property.Property.is_symmetric_M_wrap = _is_symmetric_M_wrap
+# def _post_process_wrap(self, subp_p, element_p):
+#     # subp = csubproblem.CSubProblem(subp_p)
+#     # elmnt = element.Element(element_p)
+#     self.post_process(subp_p, element_p)
+
+# property.Property.post_process_wrap = _post_process_wrap
+
+#=--=##=--=#
+
+# def _output_wrap(self, femesh_p, element_p, propout_p, pos_p):
+#     mesh = femesh.FEMesh(femesh_p)
+#     elmnt = element.Element(element_p)
+#     propout = propertyoutput.PropertyOutput(propout_p)
+#     position = mastercoord.MasterPosition(pos_p)
+#     return self.output(mesh, elmnt, propout, position)
+
+# property.Property.output_wrap = _output_wrap
+
+#=--=##=--=#
+
+# def _is_symmetric_K_wrap(self, subp_p):
+#     # subp = csubproblem.CSubProblem(subp_p)
+#     return self.is_symmetric_K(subp_p)
+
+# property.Property.is_symmetric_K_wrap = _is_symmetric_K_wrap
+
+# def _is_symmetric_C_wrap(self, subp_p):
+#     # subp = csubproblem.CSubProblem(subp_p)
+#     return self.is_symmetric_C(subp_p)
+
+# property.Property.is_symmetric_C_wrap = _is_symmetric_C_wrap
+
+# def _is_symmetric_M_wrap(self, subp_p):
+#     # subp = csubproblem.CSubProblem(subp_p)
+#     return self.is_symmetric_M(subp_p)
+
+# property.Property.is_symmetric_M_wrap = _is_symmetric_M_wrap
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def _integration_order_wrap(self, subp_p, element_p):
-    if hasattr(self, 'integration_order'):
-        subp = csubproblem.CSubProblem(subp_p)
-        elmnt = element.Element(element_p)
-        return self.integration_order(subp, elmnt)
-    raise ooferror.ErrSetupError("Property " + self.name() +
-                                 " is missing the integration_order function!")
+# def _integration_order_wrap(self, subp_p, element_p):
+#     if hasattr(self, 'integration_order'):
+#         # subp = csubproblem.CSubProblem(subp_p)
+#         # elmnt = element.Element(element_p)
+#         return self.integration_order(subp_p, element_p)
+#     raise ooferror.ErrSetupError("Property " + self.name() +
+#                                  " is missing the integration_order function!")
 
-property.PhysicalProperty.integration_order_wrap = _integration_order_wrap
+# property.PhysicalProperty.integration_order_wrap = _integration_order_wrap
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
         
-def _flux_matrix_wrap(self, femesh_p, element_p, efni_p, flux_p,
-                      masterpos_p, time, fluxdata_p):
-    mesh = femesh.FEMesh(femesh_p)
-    elmnt = element.Element(element_p)
-    efni = elementnodeiterator.ElementFuncNodeIterator(efni_p)
-    flx = flux.Flux(flux_p)
-    masterpos = mastercoord.MasterPosition(masterpos_p)
-    fluxdata = smallsystem.SmallSystem(fluxdata_p)
-    self.flux_matrix(mesh, elmnt, efni, flx, masterpos, time, fluxdata)
+# def _flux_matrix_wrap(self, femesh_p, element_p, efni_p, flux_p,
+#                       masterpos_p, time, fluxdata_p):
+#     # mesh = femesh.FEMesh(femesh_p)
+#     # elmnt = element.Element(element_p)
+#     # efni = elementnodeiterator.ElementFuncNodeIterator(efni_p)
+#     # flx = flux.Flux(flux_p)
+#     # masterpos = mastercoord.MasterPosition(masterpos_p)
+#     # fluxdata = smallsystem.SmallSystem(fluxdata_p)
+#     self.flux_matrix(femesh_p, element_p, efni_p, flux_p, masterpos_p, time, fluxdata_p)
 
-PyFluxProperty.flux_matrix_wrap = _flux_matrix_wrap
-
-#=--=##=--=#
-
-def _flux_value_wrap(self, femesh_p, element_p, flux_p, masterpos_p, time,
-                     fluxdata_p):
-    mesh = femesh.FEMesh(femesh_p)
-    elem = element.Element(element_p)
-    flx = flux.Flux(flux_p)
-    masterpos = mastercoord.MasterPosition(masterpos_p)
-    fluxdata = smallsystem.SmallSystem(fluxdata_p)
-    self.flux_value(mesh, elem, flx, masterpos, time, fluxdata)
-
-PyFluxProperty.flux_value_wrap = _flux_value_wrap
+# PyFluxProperty.flux_matrix_wrap = _flux_matrix_wrap
 
 #=--=##=--=#
 
-def _static_flux_value_wrap(self, femesh_p, element_p, flux_p, masterpos_p,
-                            time, fluxdata_p):
-    mesh = femesh.FEMesh(femesh_p)
-    elem = element.Element(element_p)
-    flx = flux.Flux(flux_p)
-    masterpos = mastercoord.MasterPosition(masterpos_p)
-    fluxdata = smallsystem.SmallSystem(fluxdata_p)
-    self.static_flux_value(mesh, elem, flx, masterpos, time, fluxdata)
+# def _flux_value_wrap(self, femesh_p, element_p, flux_p, masterpos_p, time,
+#                      fluxdata_p):
+#     mesh = femesh.FEMesh(femesh_p)
+#     elem = element.Element(element_p)
+#     flx = flux.Flux(flux_p)
+#     masterpos = mastercoord.MasterPosition(masterpos_p)
+#     fluxdata = smallsystem.SmallSystem(fluxdata_p)
+#     self.flux_value(mesh, elem, flx, masterpos, time, fluxdata)
 
-PyFluxProperty.static_flux_value_wrap = _static_flux_value_wrap
+# PyFluxProperty.flux_value_wrap = _flux_value_wrap
 
 #=--=##=--=#
 
-def _flux_offset_wrap(self, femesh_p, element_p, flux_p, masterpos_p, time,
-                     fluxdata_p):
-    mesh = femesh.FEMesh(femesh_p)
-    elem = element.Element(element_p)
-    flx = flux.Flux(flux_p)
-    masterpos = mastercoord.MasterPosition(masterpos_p)
-    fluxdata = smallsystem.SmallSystem(fluxdata_p)
-    self.flux_offset(mesh, elem, flx, masterpos, time, fluxdata)
+# def _static_flux_value_wrap(self, femesh_p, element_p, flux_p, masterpos_p,
+#                             time, fluxdata_p):
+#     mesh = femesh.FEMesh(femesh_p)
+#     elem = element.Element(element_p)
+#     flx = flux.Flux(flux_p)
+#     masterpos = mastercoord.MasterPosition(masterpos_p)
+#     fluxdata = smallsystem.SmallSystem(fluxdata_p)
+#     self.static_flux_value(mesh, elem, flx, masterpos, time, fluxdata)
 
-PyFluxProperty.flux_offset_wrap = _flux_offset_wrap
+# PyFluxProperty.static_flux_value_wrap = _static_flux_value_wrap
+
+#=--=##=--=#
+
+# def _flux_offset_wrap(self, femesh_p, element_p, flux_p, masterpos_p, time,
+#                      fluxdata_p):
+#     mesh = femesh.FEMesh(femesh_p)
+#     elem = element.Element(element_p)
+#     flx = flux.Flux(flux_p)
+#     masterpos = mastercoord.MasterPosition(masterpos_p)
+#     fluxdata = smallsystem.SmallSystem(fluxdata_p)
+#     self.flux_offset(mesh, elem, flx, masterpos, time, fluxdata)
+
+# PyFluxProperty.flux_offset_wrap = _flux_offset_wrap
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
-def _force_deriv_matrix_wrap(self, femesh_p, element_p, equation_p,
-                             elnodeiter_p, masterpos_p, time, eqndata_p):
-    mesh = femesh.FEMesh(femesh_p)
-    element = elem.Element(element_p)
-    eqn = equation.Equation(equation_p)
-    efni = elementfuncnodeiterator.ElementFuncNodeIterator(elnodeiter_p)
-    masterpos = mastercoord.MasterPosition(masterpos_p)
-    eqndata = smallsystem.SmallSystem(eqndata_p)
-    return self.force_deriv_matrix(mesh, elem, eqn, efni, masterpos,
-                                   time, eqndata)
+# def _force_deriv_matrix_wrap(self, femesh_p, element_p, equation_p,
+#                              elnodeiter_p, masterpos_p, time, eqndata_p):
+#     mesh = femesh.FEMesh(femesh_p)
+#     element = elem.Element(element_p)
+#     eqn = equation.Equation(equation_p)
+#     efni = elementfuncnodeiterator.ElementFuncNodeIterator(elnodeiter_p)
+#     masterpos = mastercoord.MasterPosition(masterpos_p)
+#     eqndata = smallsystem.SmallSystem(eqndata_p)
+#     return self.force_deriv_matrix(mesh, elem, eqn, efni, masterpos,
+#                                    time, eqndata)
 
 ## TODO PYTHON3: Check these... the previous version had
 ## EqnPropertyPtr instead of PyEqnProperty in the following line and
 ## the ones below.  Shouldn't it have been PyEqnProperty in python2 as
 ## well?
-PyEqnProperty.force_deriv_matrix_wrap = _force_deriv_matrix_wrap
+# PyEqnProperty.force_deriv_matrix_wrap = _force_deriv_matrix_wrap
 
 #=--=##=--=#
 
-def _force_value_wrap(self, femesh_p, element_p, equation_p, masterpos_p, time,
-                      eqndata_p):
-    mesh = femesh.FEMesh(femesh_p)
-    elem = element.Element(element_p)
-    eqn = equation.Equation(equation_p)
-    masterpos = mastercoord.MasterPosition(masterpos_p)
-    eqndata = smallsystem.SmallSystem(eqndata_p)
-    return self.force_value(mesh, elem, eqn, masterpos, time, eqndata)
+# def _force_value_wrap(self, femesh_p, element_p, equation_p, masterpos_p, time,
+#                       eqndata_p):
+#     mesh = femesh.FEMesh(femesh_p)
+#     elem = element.Element(element_p)
+#     eqn = equation.Equation(equation_p)
+#     masterpos = mastercoord.MasterPosition(masterpos_p)
+#     eqndata = smallsystem.SmallSystem(eqndata_p)
+#     return self.force_value(mesh, elem, eqn, masterpos, time, eqndata)
 
-PyEqnProperty.force_value_wrap = _force_value_wrap
-
-#=--=##=--=#
-
-def _first_time_deriv_matrix_wrap(self, femesh_p, element_p, equation_p,
-                                  elnodeiter_p, masterpos_p, time, eqndata_p):
-    mesh = femesh.FEMesh(femesh_p)
-    elem = element.Element(element_p)
-    eqn = equation.Equation(equation_p)
-    efni = elementfuncnodeiterator.ElementFuncNodeIterator(elnodeiter_p)
-    masterpos = mastercoord.MasterPosition(masterpos_p)
-    eqndata = smallsystem.SmallSystem(eqndata_p)
-    return self.first_time_deriv_matrix(mesh, elem, eqn, efni, masterpos,
-                                        time, eqndata)
-
-PyEqnProperty.first_time_deriv_matrix_wrap = _first_time_deriv_matrix_wrap
+# PyEqnProperty.force_value_wrap = _force_value_wrap
 
 #=--=##=--=#
 
-def _second_time_deriv_matrix_wrap(self, femesh_p, element_p, equation_p,
-                                   elnodeiter_p, masterpos_p, time, eqndata_p):
-    mesh = femesh.FEMesh(femesh_p)
-    elem = element.Element(element_p)
-    eqn = equation.Equation(equation_p)
-    efni = elementfuncnodeiterator.ElementFuncNodeIterator(elnodeiter_p)
-    masterpos = mastercoord.MasterPosition(masterpos_p)
-    eqndata = smallsystem.SmallSystem(eqndata_p)
-    return self.second_time_deriv_matrix(mesh, elem, eqn, efni, masterpos,
-                                        time, eqndata)
+# def _first_time_deriv_matrix_wrap(self, femesh_p, element_p, equation_p,
+#                                   elnodeiter_p, masterpos_p, time, eqndata_p):
+#     mesh = femesh.FEMesh(femesh_p)
+#     elem = element.Element(element_p)
+#     eqn = equation.Equation(equation_p)
+#     efni = elementfuncnodeiterator.ElementFuncNodeIterator(elnodeiter_p)
+#     masterpos = mastercoord.MasterPosition(masterpos_p)
+#     eqndata = smallsystem.SmallSystem(eqndata_p)
+#     return self.first_time_deriv_matrix(mesh, elem, eqn, efni, masterpos,
+#                                         time, eqndata)
 
-PyEqnProperty.second_time_deriv_matrix_wrap = _second_time_deriv_matrix_wrap
+# PyEqnProperty.first_time_deriv_matrix_wrap = _first_time_deriv_matrix_wrap
+
+#=--=##=--=#
+
+# def _second_time_deriv_matrix_wrap(self, femesh_p, element_p, equation_p,
+#                                    elnodeiter_p, masterpos_p, time, eqndata_p):
+#     mesh = femesh.FEMesh(femesh_p)
+#     elem = element.Element(element_p)
+#     eqn = equation.Equation(equation_p)
+#     efni = elementfuncnodeiterator.ElementFuncNodeIterator(elnodeiter_p)
+#     masterpos = mastercoord.MasterPosition(masterpos_p)
+#     eqndata = smallsystem.SmallSystem(eqndata_p)
+#     return self.second_time_deriv_matrix(mesh, elem, eqn, efni, masterpos,
+#                                         time, eqndata)
+
+# PyEqnProperty.second_time_deriv_matrix_wrap = _second_time_deriv_matrix_wrap
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
