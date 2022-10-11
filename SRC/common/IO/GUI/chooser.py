@@ -504,11 +504,13 @@ class ChooserListWidget(ChooserListWidgetBase):
             self.treeview.set_sensitive(False)
         else:
             self.treeview.set_sensitive(True)
-            for obj, dispname in zip(objlist, displaylist):
-                if dispname is not None:
-                    self.liststore.append([dispname, obj])
-                else:
+            for i, obj in enumerate(objlist):
+                try:
+                    dispname = displaylist[i]
+                except IndexError:
                     self.liststore.append([obj, obj])
+                else:
+                    self.liststore.append([dispname, obj])
         try:
             index = self.find_obj_index(old_obj)
         except ValueError:
