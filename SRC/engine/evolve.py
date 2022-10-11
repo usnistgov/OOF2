@@ -430,13 +430,13 @@ def evolve_to(meshctxt, subprobctxts, time, endtime, delta, prog,
         if prog.stopped():
             raise ooferror2.PyErrInterrupted()
 
+    except ooferror2.PyErrInterrupted:
+        debug.fmsg("Interrupted!")
+        meshctxt.setStatus(meshstatus.Failed("Solution interrupted"))
+        raise
     except ooferror2.PyOOFError as err:
-        if isinstance(err.cerror, ooferror2.PyErrInterrupted):
-            debug.fmsg("Interrupted!")
-            meshctxt.setStatus(meshstatus.Failed("Solution interrupted."))
-        else:
-            debug.fmsg("Caught an PyOOFError")
-            meshctxt.setStatus(meshstatus.Failed(err.cerror.summary()))
+        debug.fmsg("Caught an PyOOFError:", err)
+        meshctxt.setStatus(meshstatus.Failed(err.summary()))
         raise
     except Exception as exc:
         debug.fmsg("Caught an Exception")

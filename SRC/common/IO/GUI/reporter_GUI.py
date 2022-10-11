@@ -301,7 +301,7 @@ class ErrorPopUp:
                  traceback.format_exception_only(e_type, value)])
 
             if isinstance(value, ooferror.PyOOFError):
-                moreinfo = value.cerror.details()
+                moreinfo = value.cexcept.details()
                 if moreinfo:
                     errorstrings.append(moreinfo)
             errorstrings.append("") # blank line

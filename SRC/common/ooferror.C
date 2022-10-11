@@ -131,14 +131,14 @@ void pythonErrorRelay() {
       // ours.  Extract the C++ object and raise it as a new
       // exception.
       const ErrError *ee;
-      PyObject *cerror = PyObject_GetAttrString(pvalue, "cerror");
-      assert(cerror != 0);
+      PyObject *cexcept = PyObject_GetAttrString(pvalue, "cexcept");
+      assert(cexcept != 0);
       SWIG_ConvertPtr(pvalue, (void**) &ee,
-		      ((SwigPyObject*) cerror)->ty, 0);
+		      ((SwigPyObject*) cexcept)->ty, 0);
       // SWIG_GetPtrObj(pvalue, (void**) &ee, "_ErrError_p");
       Py_XDECREF(ptraceback);
       Py_XDECREF(ptype);
-      Py_XDECREF(cerror);
+      Py_XDECREF(cexcept);
       // Don't decref pvalue! It will destroy *ee.
       ee->throw_self();
     }
