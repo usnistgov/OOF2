@@ -91,7 +91,7 @@ def _makePoleFigure(menuitem, microstructure, pixels, symmetry,
                 if pfig.inside(i, j):
                     val = pfig.getValue(i, j)
                     clr = color.canvasColor(colormap(offset + val*factor))
-                    poly = oofcanvas.CanvasPolygon()
+                    poly = oofcanvas.CanvasPolygon.create()
                     poly.setFillColor(clr)
                     poly.addPoint((i*binSize, j*binSize))
                     poly.addPoint(((i+1)*binSize, j*binSize))

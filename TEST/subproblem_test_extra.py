@@ -25,7 +25,7 @@ generate = True
 # (to be like a __cmp__ function).
 
 def compare_mesh(meshpath, filename, tolerance):
-    microname, relativemeshpath = string.split(meshpath, ':', 1)
+    microname, relativemeshpath = meshpath.split(':', 1)
     referencemeshpath = "reference:"+relativemeshpath
     datafile = reference_file("mesh_data", filename)
     if generate and not os.path.exists(datafile):
