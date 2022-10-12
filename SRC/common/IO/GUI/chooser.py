@@ -202,6 +202,7 @@ class ChooserWidget:
                 # instead.
                 if name == self.current_string:
                     menuitem = Gtk.MenuItem.new_with_label("")
+                    gtklogger.setWidgetName(menuitem, name)
                     label = menuitem.get_child()
                     ## TODO: If we want to allow markup in names, then
                     ## we need to do something smarter here.
@@ -255,7 +256,7 @@ class ChooserWidget:
         # failed silently if arg was not None, a string, or an int, or
         # if it was a string that wasn't in the list.  It's now an
         # error.  Also, ints aren't accepted as indices into the
-        # list. They're acepted if they're in objlist.
+        # list. They're accepted if they're in objlist.
         if (self.allowNone and arg is None) or self.nChoices() == 0:
             self.stack.set_visible_child(self.emptyMarker)
             newstr = None
