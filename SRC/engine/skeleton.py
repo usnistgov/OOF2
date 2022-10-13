@@ -872,17 +872,30 @@ class Skeleton(SkeletonBase):
         self.MS = microStructure        # Microstructure object, not context
         self._size = self.MS.size()
         self._area = self._size[0]*self._size[1]
+        self.timestamp = timestamp.TimeStamp()
         self.nodemovehistory = skeletondiff.NodeMoveHistory()
         self.elements = utils.ReservableList()
         self._found_element = None      # used in enclosingElement().
         self.nodes = utils.ReservableList()
         self.segments = {}              # Nondirected edges.
+
         self.edgeboundaries = {}
         self.pointboundaries = {}
-        self.timestamp = timestamp.TimeStamp()
         self.left_right_periodicity = left_right_periodicity
         self.top_bottom_periodicity = top_bottom_periodicity
-
+        # The order in which the boundaries are listed in the GUI
+        # depends on the order in which they're added to
+        # edgeboundaries and pointboundaries, so create the default
+        # boundaries here, just to get the order we want.
+        self.getEdgeBoundary("top", exterior=True)
+        self.getEdgeBoundary("bottom", exterior=True)
+        self.getEdgeBoundary("right", exterior=True)
+        self.getEdgeBoundary("left", exterior=True)
+        self.getPointBoundary("topleft", exterior=True)
+        self.getPointBoundary("bottomleft", exterior=True)
+        self.getPointBoundary("topright", exterior=True)
+        self.getPointBoundary("bottomright", exterior=True)
+        
         # When elements and nodes are deleted from the mesh, they
         # aren't immediately removed from the lists in the Skeleton.
         # They're only removed when cleanUp() is called.  washMe
@@ -1700,11 +1713,6 @@ class Skeleton(SkeletonBase):
     # figure out the directions for the edges.
     def makeEdgeBoundary(self, name, segments=None, startnode=None,
                          exterior=None):
-        if (name in self.edgeboundaries) or \
-               (name in self.pointboundaries):
-            raise ooferror.PyErrPyProgrammingError(
-                "Boundary '%s' already exists." % name)
-        
         bdy = self.getEdgeBoundary(name, exterior) # Guaranteed to be new.
         
         if segments and len(segments)==1:
@@ -1746,10 +1754,6 @@ class Skeleton(SkeletonBase):
     def makeNonsequenceableEdgeBoundary(self, name, segments=None,
                                         directions=None,
                                         exterior=None):
-        if (name in self.edgeboundaries) or \
-               (name in self.pointboundaries):
-            raise ooferror.PyErrPyProgrammingError(
-                "Boundary '%s' already exists." % name)
         
         bdy = self.getEdgeBoundary(name, exterior) # Guaranteed to be new.
         bdy._sequenceable = False
@@ -1764,10 +1768,6 @@ class Skeleton(SkeletonBase):
     # Build a new point boundary from the passed-in list of nodes,
     # and return it.  
     def makePointBoundary(self, name, nodes=None, exterior=None):
-        if (name in self.pointboundaries) or \
-               (name in self.edgeboundaries):
-            raise ooferror.PyErrPyProgrammingError(
-                "Boundary '%s' already exists." % name)
 
         bdy = self.getPointBoundary(name, exterior)
 
