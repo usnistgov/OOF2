@@ -65,7 +65,7 @@ WRAP_OOFERROR_CLASS(ErrPyProgrammingError);
   def PyErrPyProgrammingError_init(self, msg):
     stack = traceback.extract_stack()
     (phile, lineno, func, txt) = stack[-2]
-    self.oldinit(msg, phile, lineno)
+    oldinit(self, msg, phile, lineno)
   PyErrPyProgrammingError.__init__ = PyErrPyProgrammingError_init
 %}
 

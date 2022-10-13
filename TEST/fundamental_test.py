@@ -82,6 +82,15 @@ class OOF_Fundamental(unittest.TestCase):
         self.assertRaises(RuntimeError, OOF.Help.Debug.Error.PyError)
         self.assertEqual(len(allWorkers), 0)
         self.assertEqual(len(allWorkerCores), 0)
+
+    def WorkerException00(self):
+        # Check that errors raised in python are handled correctly
+        self.assertEqual(len(allWorkers), 0)
+        self.assertEqual(len(allWorkerCores), 0)
+        self.assertRaises(ooferror.PyErrPyProgrammingError,
+                          OOF.Help.Debug.Error.PyError2)
+        self.assertEqual(len(allWorkers), 0)
+        self.assertEqual(len(allWorkerCores), 0)
         
     def WorkerException1(self):
         # Check that a worker is destroyed if its task raises an
@@ -225,6 +234,7 @@ test_set = [
     OOF_Fundamental("Ordered_Set"),
     OOF_Fundamental("WorkerCleanup"),
     OOF_Fundamental("WorkerException0"),
+    OOF_Fundamental("WorkerException00"),
     OOF_Fundamental("WorkerException1"),
     OOF_Fundamental("WorkerException2"),
     OOF_Fundamental("WorkerException3"),

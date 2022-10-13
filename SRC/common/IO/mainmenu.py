@@ -739,6 +739,13 @@ errmenu.addItem(OOFMenuItem('PyError', callback=_pyerror,
                              threadable=oofmenu.THREADABLE,
                              help='Do not taunt PyError.'))
 
+def _pyerror2(menuitem):
+    raise ooferror.PyErrPyProgrammingError("Do not!")
+
+errmenu.addItem(OOFMenuItem('PyError2', callback=_pyerror2,
+                            threadable=oofmenu.THREADABLE,
+                            help='Do not taunt PyError!'))
+
 def _cerror(menuitem):
     cdebug.throwException()
 
