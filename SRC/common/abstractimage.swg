@@ -13,7 +13,7 @@
 #ifndef ABSTRACTIMAGE_SWG
 #define ABSTRACTIMAGE_SWG
 
-%module(package="ooflib.SWIG.common")abstractimage
+%module(package="ooflib.SWIG.common") abstractimage
 
 %include "common/typemaps.swg"
 
