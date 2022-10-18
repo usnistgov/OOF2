@@ -198,7 +198,7 @@ set(SWIG_USE_SWIG_DEPENDENCIES True)
 set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
 set(SWIG_SOURCE_FILE_EXTENSIONS ".swg" ".i")
 set(CMAKE_SWIG_FLAGS -py3)
-add_compile_definitions(SWIG_TYPE_TABLE=oof2)
+# add_compile_definitions(SWIG_TYPE_TABLE=oof2)
 if(${SWIG_USE_BUILTIN})		# wishful thinking
   list(APPEND CMAKE_SWIG_FLAGS -builtin)
 endif()
