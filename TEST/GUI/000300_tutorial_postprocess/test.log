@@ -191,7 +191,7 @@ findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(403)
 findWidget('OOF2:Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Analyze.Average_and_Deviation
 findWidget('OOF2 Messages 1').resize(649, 196)
-assert tests.gtkTextviewTail('OOF2 Messages 1:Text', "0.0, 0.128205128213, 0.044862449681, 1.94794604925e-11, 1.06882558947e-09, 0.0384615384699, 0.0134587350299, 0.0, 0.0, 0.0, 0.0, -4.53952110882e-11, 4.21110743392e-10\n")
+assert tests.gtkTextviewTail('OOF2 Messages 1:Text', "0.0, 0.128205128213, 0.044862449681, 1.94794604925e-11, 1.06882558947e-09, 0.0384615384699, 0.0134587350299, 0.0, 0.0, 0.0, 0.0, -4.53952110882e-11, 4.21110743392e-10\n", tolerance=1.e-6)
 findWidget('OOF2 Messages 1').resize(649, 196)
 findWidget('Postprocessing:Next').clicked()
 findWidget('OOF2:Analysis Page:mainpane:top:Output:ScalarMode').clicked()
@@ -277,7 +277,7 @@ deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 findWidget('OOF2:Boundary Analysis Page:Pane').set_position(261)
 findWidget('OOF2:Boundary Analysis Page:Go').clicked()
 checkpoint OOF.Mesh.Boundary_Analysis.Analyze
-assert tests.gtkTextviewTail('OOF2 Messages 1:Text', "0.0, 7.6923076853, -1.2726398869e-08\n")
+assert tests.gtkTextviewTail('OOF2 Messages 1:Text', "0.0, 7.6923076853, -1.2726398869e-08\n", tolerance=1.e-6)
 findWidget('Postprocessing:Next').clicked()
 findMenu(findWidget('OOF2:MenuBar'), ['Windows', 'Graphics', 'New']).activate()
 checkpoint Move Node toolbox info updated

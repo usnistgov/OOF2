@@ -6,7 +6,7 @@
 # with its operation, modification and maintenance. However, to
 # facilitate maintenance we ask that before distributing modified
 # versions of this software, you first contact the authors at
-# oof_manager@nist.gov. 
+# oof_manager@nist.gov.
 
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
@@ -669,31 +669,14 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint skeleton page info updated
 checkpoint skeleton page info updated
 checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint contourmap info updated for Graphics_1
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint skeleton page info updated
-checkpoint skeleton page info updated
-checkpoint skeleton page sensitized
-checkpoint skeleton page sensitized
+#checkpoint contourmap info updated for Graphics_1
+# checkpoint skeleton page info updated
+# checkpoint skeleton page sensitized
+
 checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
-checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
 findWidget('Skeleton:Next').clicked()
 findWidget('OOF2:Navigation:PrevHist').clicked()
@@ -740,6 +723,7 @@ checkpoint Move Node toolbox writable changed
 checkpoint skeleton selection page groups sensitized Element
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
+
 findWidget('Skeleton:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 7.5000000000000e+01,y= 2.3000000000000e+01,button=1,state=0,window=findWidget('OOF2:Navigation:PageMenu').get_window())
 checkpoint toplevel widget mapped chooserPopup-PageMenu
@@ -860,11 +844,7 @@ checkpoint skeleton selection page selection sensitized Element
 checkpoint skeleton selection page groups sensitized Element
 checkpoint Graphics_1 Move Nodes sensitized
 checkpoint Move Node toolbox writable changed
-#checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Modify
-checkpoint_count("contourmap into updated for Graphics_1")
-checkpoint_count("skeleton page sensitized")
-checkpoint_count("skeleton page info updated")
 
 findWidget('Skeleton:Next').clicked()
 event(Gdk.EventType.BUTTON_PRESS,x= 8.7000000000000e+01,y= 1.5000000000000e+01,button=1,state=0,window=findWidget('OOF2:Skeleton Page:Pane:Modification:Method:RCFChooser').get_window())
@@ -1349,6 +1329,7 @@ findWidget('Skeleton:Next').clicked()
 findWidget('Skeleton:Next').clicked()
 findMenu(findWidget('OOF2:MenuBar'), ['File', 'Save', 'Python_Log']).activate()
 checkpoint toplevel widget mapped Dialog-Python_Log
+
 findWidget('Dialog-Python_Log').resize(192, 122)
 findWidget('Dialog-Python_Log:filename').set_text('s')
 findWidget('Dialog-Python_Log:filename').set_text('se')

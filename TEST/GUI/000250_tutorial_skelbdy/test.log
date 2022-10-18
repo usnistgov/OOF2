@@ -1,3 +1,5 @@
+from ooflib.engine.IO.GUI.skeletonBoundaryPage import separator_proxy
+
 checkpoint toplevel widget mapped OOF2
 checkpoint page installed Introduction
 checkpoint toplevel widget mapped OOF2 Activity Viewer
@@ -313,7 +315,7 @@ checkpoint boundary page updated
 checkpoint boundary page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Boundary.Construct
-assert tests.chooserListCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['top', 'right', 'bottom', 'left', 'red_circle', None, 'topleft', 'bottomleft', 'topright', 'bottomright'])
+assert tests.chooserListCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['top', 'right', 'bottom', 'left', 'red_circle', separator_proxy, 'topleft', 'bottomleft', 'topright', 'bottomright'])
 assert tests.chooserListStateCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['red_circle'])
 findWidget('Skeleton Boundaries:Next').clicked()
 findWidget('Skeleton Boundaries:Next').clicked()
@@ -396,7 +398,7 @@ checkpoint boundary page updated
 checkpoint boundary page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Boundary.Construct
-assert tests.chooserListCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['top', 'right', 'bottom', 'left', 'red_circle', None, 'topleft', 'bottomleft', 'topright', 'bottomright', 'red_circle<2>'])
+assert tests.chooserListCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['top', 'right', 'bottom', 'left', 'red_circle', separator_proxy, 'topleft', 'bottomleft', 'topright', 'bottomright', 'red_circle<2>'])
 assert tests.chooserListStateCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['red_circle<2>'])
 findWidget('Skeleton Boundaries:Next').clicked()
 findWidget('OOF2 Graphics 1:Pane0:Pane1:Pane2:TBScroll:Skeleton Selection:Select:Node').clicked()
@@ -693,7 +695,7 @@ checkpoint boundary page updated
 checkpoint boundary page updated
 checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Skeleton.Boundary.Construct
-assert tests.chooserListCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['top', 'right', 'bottom', 'left', 'red_circle', 'white_cyan', None, 'topleft', 'bottomleft', 'topright', 'bottomright', 'red_circle<2>'])
+assert tests.chooserListCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['top', 'right', 'bottom', 'left', 'red_circle', 'white_cyan', separator_proxy, 'topleft', 'bottomleft', 'topright', 'bottomright', 'red_circle<2>'])
 assert tests.chooserListStateCheck('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList', ['white_cyan'])
 findWidget('Skeleton Boundaries:Next').clicked()
 findWidget('Skeleton Boundaries:Next').clicked()

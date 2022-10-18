@@ -144,7 +144,7 @@ def materialCheck(materialname, propertypaths):
     from ooflib.engine import materialmanager
     from ooflib.engine import propertyregistration
     matl = materialmanager.getMaterial(materialname)
-    regs = [prop.registration() for prop in matl.properties()]
+    regs = [prop.registration() for prop in matl.properties]
     if len(propertypaths) != len(regs):
         return False
     for path in propertypaths:
