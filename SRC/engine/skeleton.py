@@ -886,10 +886,12 @@ class Skeleton(SkeletonBase):
         # The order in which the boundaries are listed in the GUI
         # depends on the order in which they're added to
         # edgeboundaries and pointboundaries, so create the default
-        # boundaries here, just to get the order we want.
+        # boundaries here, just to get the order we want.  (The order
+        # we want is what it was in the python2 version, so that test
+        # scripts that rely on the order don't break.)
         self.getEdgeBoundary("top", exterior=True)
-        self.getEdgeBoundary("bottom", exterior=True)
         self.getEdgeBoundary("right", exterior=True)
+        self.getEdgeBoundary("bottom", exterior=True)
         self.getEdgeBoundary("left", exterior=True)
         self.getPointBoundary("topleft", exterior=True)
         self.getPointBoundary("bottomleft", exterior=True)
