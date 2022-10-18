@@ -127,7 +127,7 @@ class ElementMode(MeshInfoMode):
             
     def updateSomething(self, container):
         debug.mainthreadTest()
-        element = container.object
+        element = container.obj
         femesh = container.context.femesh()
         coord = container.mesh_position
         
@@ -215,7 +215,7 @@ class NodeMode(MeshInfoMode):
 
     def updateSomething(self, container):
         debug.mainthreadTest()
-        node = container.object
+        node = container.obj
         femesh = container.context.femesh()
         
         self.index.set_text(repr(node.index()))
@@ -475,7 +475,7 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         if not self.toolbox.querier:
             return
         # See if there's anything to update
-        if self.toolbox.querier.object:
+        if self.toolbox.querier.obj:
             # Change mode if needed.
             self.handleMode(self.toolbox.querier.targetname)
             self.showPosition(self.toolbox.querier.mouse_position,
@@ -598,17 +598,17 @@ class MeshToolboxGUI(toolboxGUI.GfxToolbox, mousehandler.MouseHandler):
         if config.dimension() == 3:
             self.mesh_zposition = None
 
-    def changeModeWithObject(self, object, mode):
+    def changeModeWithObject(self, obj, mode):
         # Called from double-click callback on the node list.  Always
         # switches modes, so it always issues a menu command.
         self.blockAutoQuery()
         self.changeModeAndSetButton(mode)
         if mode.targetname == "Element":
             pos = self.toolbox.meshlayer.displaced_from_undisplaced(
-                self.toolbox.gfxwindow(), object.center())
+                self.toolbox.gfxwindow(), obj.center())
         elif mode.targetname == "Node":
             pos = self.toolbox.meshlayer.displaced_from_undisplaced(
-                self.toolbox.gfxwindow(), object.position())
+                self.toolbox.gfxwindow(), obj.position())
         self.modeobj.menucmd()(position=pos)
         
     def showPosition(self, mouse, mesh):

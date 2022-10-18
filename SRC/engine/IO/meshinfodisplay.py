@@ -42,9 +42,9 @@ class MeshInfoDisplay(display.DisplayMethod):
         mesh.restoreCachedData(gfxwindow.displayTime)
         try:
             # Draw "queried" item.
-            if toolbox.querier and toolbox.querier.object:
+            if toolbox.querier and toolbox.querier.obj:
                 self.drawFuncs[toolbox.querier.targetname]\
-                    (toolbox, toolbox.querier.object, which="query")
+                    (toolbox, toolbox.querier.obj, which="query")
             # Draw "peeked" item.
             ## TODO PYTHON3: 2to3 inserted the "list" in the following
             ## line. It certainly isn't really what is meant here.
