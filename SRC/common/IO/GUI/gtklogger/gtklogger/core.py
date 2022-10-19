@@ -11,6 +11,10 @@
 ## This file contains the API for gtk_logger.  Nothing outside of this
 ## file should have to be explicitly called by users.
 
+## TODO PYTHON3: The loggergui appears to be receiving bytes instead
+## of str.  Is that due to the way the pipe is opened?  The way that
+## data is put into the pipe?  The way it's being read? 
+
 from gi.repository import Gtk
 import atexit
 import os
@@ -31,6 +35,7 @@ def start(filename, debugLevel=2, suppress_motion_events=True,
     _suppress_motion_events = suppress_motion_events
     if logutils.recording():
         logutils.logfile().close()
+
     try:
         if comment_gui:
             # Open a pipe to the loggergui process for inserting
@@ -41,14 +46,14 @@ def start(filename, debugLevel=2, suppress_motion_events=True,
             guifile = os.path.abspath(loggergui.__file__)
             global _process
             _process = subprocess.Popen(
-                ["python",
-                 "-u",          # unbuffered stdin on the subprocess
+                [sys.executable, # this version of python
+                 "-u",           # unbuffered stdin on the subprocess
                  guifile, filename
                  ],
                 bufsize=1, # 0 means unbuffered, 1 means line buffered
                 stdin=subprocess.PIPE)
             logutils.set_logfile(_process.stdin)
-        elif isinstance(filename, bytes):
+        elif isinstance(filename, (str, bytes, os.PathLike)):
             logutils.set_logfile(open(filename, "w"))
         else:                   # filename is assumed to be a file
             logutils.set_logfile(filename)

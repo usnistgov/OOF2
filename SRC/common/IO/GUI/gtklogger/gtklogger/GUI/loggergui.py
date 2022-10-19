@@ -178,12 +178,12 @@ class LogProcessor:
         commentbox.pack_start(self.commentText,
                               expand=True, fill=True, padding=0)
         
-        self.commentButton = Gtk.Button("Comment")
+        self.commentButton = Gtk.Button(label="Comment")
         commentbox.pack_start(self.commentButton, expand=False, fill=False,
                               padding=0)
         self.commentButton.connect('clicked', self.commentCB)
 
-        self.clearButton = Gtk.Button('Clear')
+        self.clearButton = Gtk.Button(label='Clear')
         commentbox.pack_start(self.clearButton, expand=False, fill=False,
                               padding=0)
         self.clearButton.connect('clicked', self.clearCB)
@@ -264,7 +264,7 @@ class LogProcessor:
         self.addLine("# " + self.commentText.get_text())
 
     def writeLog(self):
-        logfile = file(self.logfilename, "w")
+        logfile = open(self.logfilename, "w")
         for line in self.lines:
             print(line, file=logfile)
         logfile.close()
