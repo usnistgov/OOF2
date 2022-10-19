@@ -157,9 +157,12 @@ public:
   double __float__() const {
     return self->value(); 
   }
+  %newobject __repr__;
+  const std::string *__repr__() const {
+    return new std::string(to_string(self->value()));
+  }
 };
 
-ADD_REPR_GENERIC(ScalarOutputVal);
 
 class VectorOutputVal : public ArithmeticOutputVal {
 public:

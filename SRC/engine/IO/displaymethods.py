@@ -300,7 +300,7 @@ class MeshDisplayMethod(display.AnimationLayer, display.DisplayMethod):
                     femesh, [el],[[el.center()]])[0] - pos)**2
                 ellist.append( (distance2, el) )
             ei.increment()
-        ellist.sort()
+        ellist.sort(key=lambda x: x[0])
 
         smallestdist = None
         smallestres = None
