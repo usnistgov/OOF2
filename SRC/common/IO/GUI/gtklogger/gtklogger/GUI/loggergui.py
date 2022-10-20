@@ -150,7 +150,7 @@ class LogProcessor:
         self.lines = []           # The list of lines
         self.strikeThrough = True # TODO: make this settable in the GUI
 
-        window = Gtk.Window(Gtk.WindowType.TOPLEVEL,
+        window = Gtk.Window(windowtype=Gtk.WindowType.TOPLEVEL,
                             title="gtklogger:" + logfilename)
         window.connect('delete-event', self.quit)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, margin=5)
