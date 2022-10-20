@@ -525,7 +525,7 @@ checkpoint contourmap info updated for Graphics_1
 checkpoint OOF.Graphics_1.Layer.Edit
 findWidget('OOF2 Messages 1').resize(771, 177)
 findWidget('Nonrectangular Domain:Next').clicked()
-findWidget('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([2]))
+findWidget('OOF2:Skeleton Boundaries Page:Pane:Boundaries:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([1]))
 checkpoint boundary page updated
 checkpoint boundary page updated
 checkpoint contourmap info updated for Graphics_1
