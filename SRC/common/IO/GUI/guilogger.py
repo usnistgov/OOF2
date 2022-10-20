@@ -78,8 +78,10 @@ guidebugmenu.addItem(oofmenu.OOFMenuItem(
     callback=startLog,
     params=[filenameparam.WriteFileNameParameter(
                 'filename', ident='guilog', tip="Name of the file."),
+            ## TODO PYTHON3: Change default value of use_gui to True
+            ## after fixing loggergui.
             parameter.BooleanParameter(
-                'use_gui', True, tip="Use the logger gui to insert comments?")
+                'use_gui', False, tip="Use the logger gui to insert comments?")
             ],
     ellipsis=1,
     help="Save GUI events in a Python script",

@@ -530,8 +530,9 @@ class StartUpReplay(StartUpFile):
 
 class StartUpRecord(StartUpFile):
     def load(self):
+        ## TODO PYTHON3: Change use_gui back to True after fixing loggergui.
         mainmenu.OOF.Help.Debug.GUI_Logging.Record(filename=self.filename,
-                                                   use_gui=True)
+                                                   use_gui=False)
 
 class StartUpRerecord(StartUpFile):
     def load(self):
