@@ -52,7 +52,8 @@ def fp_string_compare(str1, str2, tolerance):
                 return False
         return True
     except:
-        print("fp_string_compare failed:", str1, str2, tolerance, file=sys.stderr)
+        print("fp_string_compare failed:",
+              str1, str2, tolerance, file=sys.stderr)
         raise
 
 def fp_substring_compare(s1, s2, tolerance):
@@ -200,7 +201,7 @@ def treeViewColCheck(widgetpath, col, choices, tolerance=None):
     liststore = treeview.get_model()
     if len(liststore) != len(choices):
         print("length mismatch: %d!=%d" % (len(liststore),
-                                                          len(choices)), file=sys.stderr)
+                                           len(choices)), file=sys.stderr)
         print("expected: ", choices, file=sys.stderr)
         print("     got: ", [x[col] for x in liststore], file=sys.stderr)
         return False
@@ -209,7 +210,8 @@ def treeViewColCheck(widgetpath, col, choices, tolerance=None):
             if not fp_string_compare(x[col], choices[i], tolerance):
                 print(x[col], '!=', choices[i], file=sys.stderr)
                 print("expected: ", choices, file=sys.stderr)
-                print("     got: ", [x[col] for x in liststore], file=sys.stderr)
+                print("     got: ",
+                      [x[col] for x in liststore], file=sys.stderr)
                 return False
     return True
 
@@ -252,10 +254,10 @@ def gtkTextCompare(widgetpath, targettext, tolerance=None):
     if not gtktxt:
         print("Text widget not found: %s." % widgetpath, file=sys.stderr)
         return False
-    sourcetext = string.strip(gtktxt.get_text())
+    sourcetext = gtktxt.get_text().strip()
     if not fp_string_compare(sourcetext, targettext, tolerance):
         print(("Text compare failed for path %s, got >%s<, expected >%s<"
-                              % (widgetpath, sourcetext, targettext)), file=sys.stderr)
+               % (widgetpath, sourcetext, targettext)), file=sys.stderr)
         return False
     return True
 
@@ -271,7 +273,7 @@ def gtkFloatCompare(widgetpath, targetval, tolerance=1.e-6):
     sourceval = float(gtktxt.get_text())
     if abs(sourceval - targetval) > tolerance:
         print(("Floating point comparison failed for %s, %g!=%g"
-                              % (widgetpath, sourceval, targetval)), file=sys.stderr)
+               % (widgetpath, sourceval, targetval)), file=sys.stderr)
         return False
     return True
 
@@ -308,7 +310,7 @@ def gtkTextviewCompare(widgetpath, targettext, tolerance=None):
                               msgbuffer.get_end_iter(), True)
     if not fp_string_compare(text, targettext, tolerance):
         print(("Textview compare failed for %s, >%s<!=>%s<."
-                              % (widgetpath, text, targettext)), file=sys.stderr)
+               % (widgetpath, text, targettext)), file=sys.stderr)
         return False
     return True
 
@@ -318,8 +320,8 @@ def gtkTextviewTail(widgetpath, targettext, tolerance=None):
                               msgbuffer.get_end_iter(), True)
     if not fp_string_compare_tail(text, targettext, tolerance):
         print((("gtkTextviewTail failed for %s\n"
-                               "expected =>%s<=\ngot =>%s<=")
-                              % (widgetpath, targettext, text)), file=sys.stderr)
+                "expected =>%s<=\ngot =>%s<=")
+               % (widgetpath, targettext, text)), file=sys.stderr)
         return False
     return True
 
@@ -329,8 +331,9 @@ def gtkTextviewHead(widgetpath, targettext):
                               msgbuffer.get_end_iter(), True)
     ok = text.startswith(targettext)
     if not ok:
-        print(("gtkTextviewHead failed for %s: text =>%s< doesn't start with >%s<"
-           % (widgetpath, text, targettext)), file=sys.stderr)
+        print((
+            "gtkTextviewHead failed for %s: text =>%s< doesn't start with >%s<"
+            % (widgetpath, text, targettext)), file=sys.stderr)
     return ok
 
 def gtkTextviewGetLines(widgetpath):
@@ -345,7 +348,7 @@ def gtkTextviewGetLine(widgetpath, line):
 def gtkTextviewLine(widgetpath, line, targettext):
     if gtkTextviewGetLine(widgetpath, line) != targettext:
         print(("gtkTextviewLine failed for %s: text=  >%s<!=>%s<"
-                              % (widgetpath, text, targettext)), file=sys.stderr)
+               % (widgetpath, text, targettext)), file=sys.stderr)
         return False
     return True
 
@@ -370,7 +373,8 @@ def chooserListStateCheck(widgetpath, choices, tolerance=None):
     selection = treeview.get_selection()
     model, paths = selection.get_selected_rows()
     if len(paths) != len(choices):
-        print("Wrong number of selections:", len(paths), "!=", len(choices), file=sys.stderr)
+        print("Wrong number of selections:",
+              len(paths), "!=", len(choices), file=sys.stderr)
         return False
     for path in paths:          # loop over actually selected objects
         val = model[path][0]
@@ -389,7 +393,8 @@ def chooserListStateCheckN(widgetpath, choices):
     selection = treeview.get_selection()
     model, paths = selection.get_selected_rows()
     if len(paths) != len(choices):
-        print("Wrong number of selections:", len(paths), "!=", len(choices), file=sys.stderr)
+        print("Wrong number of selections:",
+              len(paths), "!=", len(choices), file=sys.stderr)
         return False
     selected = [p[0] for p in paths]
     if selected == choices:
@@ -413,7 +418,7 @@ def checkLabelledSlider(widgetpath, value, tolerance=None):
     else:
         sliderok = diff == 0
     entry = gtklogger.findWidget(widgetpath + ':entry')
-    entryval = float(string.strip(entry.get_text()))
+    entryval = float(entry.get_text().strip())
     diff = abs(entryval - value)
     if tolerance:
         reltol = 0.5*(abs(entryval) + abs(value))*tolerance
@@ -423,7 +428,8 @@ def checkLabelledSlider(widgetpath, value, tolerance=None):
 
     if entryok and sliderok:
         return True
-    print("Labelled slider check failed. Slider=%.8g, text='%s'. Expected %g. tolerance=%s" % \
+    print(
+        "Labelled slider check failed. Slider=%.8g, text='%s'. Expected %g. tolerance=%s" % \
         (sliderval, entryval, value, tolerance), file=sys.stderr)
 
 def checkSliders(widgetpath, tolerance=None, **params):
@@ -609,6 +615,7 @@ def objectInventory(microstructures=0, nodes=0, elements=0, meshes=0):
               femesh.get_globalFEMeshCount())
     expected = (microstructures, nodes, elements, meshes)
     if counts != expected:
-        print("objectInventory failed. Expected (micro, nodes, elems, meshes) =",\
+        print(
+            "objectInventory failed. Expected (micro, nodes, elems, meshes) =",
             expected, "Got", counts, file=sys.stderr)
     return counts == expected

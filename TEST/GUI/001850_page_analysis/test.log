@@ -319,7 +319,6 @@ checkpoint toplevel widget mapped chooserPopup-RCFChooser
 findMenu(findWidget('chooserPopup-RCFChooser'), ['Direct Output']).activate() # MenuItemLogger
 deactivatePopup('chooserPopup-RCFChooser') # MenuItemLogger
 from ooflib.common.IO.GUI import gtklogger
-print >> sys.stderr, gtklogger.findAllWidgets('OOF2:Analysis Page:Destination')
 assert tests.chooserCheck('OOF2:Analysis Page:Destination:TextDestChooser', ['<Message Window>', 'msg.data'])
 findWidget('OOF2:Analysis Page:mainpane:bottom').set_position(346)
 findWidget('OOF2:Analysis Page:Go').clicked()

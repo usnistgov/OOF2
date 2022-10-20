@@ -271,7 +271,6 @@ assert findWidget(tbox+":Sampling:Line Points:show_fraction").get_active()
 assert findWidget(tbox+":Sampling:Line Points:show_x").get_active()
 assert findWidget(tbox+":Sampling:Line Points:show_y").get_active()
 assert tests.sensitizationCheck({'Rename':False,'Edit':False,'Copy':False,'Remove':False},tbox)
-print findAllWidgets(tbox+":Destination")
 assert tests.chooserStateCheck(tbox+':Destination:TextDestChooser','<Message Window>')
 assert tests.chooserCheck(tbox+':Destination:TextDestChooser',['<Message Window>'])
 assert tests.sensitizationCheck({'New':True,'Clear':True},tbox+":Destination")
@@ -476,11 +475,10 @@ assert tests.sensitizationCheck({'New':True,'Clear':True},tbox+":Destination")
 assert tests.is_sensitive(tbox+":Go")
 
 # Compare output in Message window to expected values
-infile = file(os.path.join('010400_toolbox_meshcs','tail.txt'))
+infile = open(os.path.join('010400_toolbox_meshcs','tail.txt'), "r")
 text = infile.read(-1)
 infile.close()
-assert tests.floatTextTail('OOF2 Messages 1:Text',text)
-assert tests.gtkTextviewTail('OOF2 Messages 1:Text',text)
+assert tests.gtkTextviewTail('OOF2 Messages 1:Text',text, tolerance=1.e-6)
 
 # Create a second cross section
 findGfxWindow('Graphics_1').simulateMouse('down', 15.990483, 55.350614, 1, False, False)

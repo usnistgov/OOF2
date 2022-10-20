@@ -473,7 +473,7 @@ findMenu(findWidget('chooserPopup-Skeleton'), ['skeleton']).activate() # MenuIte
 checkpoint mesh bdy page updated
 checkpoint mesh bdy page updated
 deactivatePopup('chooserPopup-Skeleton') # MenuItemLogger
-assert tests.bdyList('top', 'bottom', 'right', 'left')
+assert tests.bdyList('top', 'right', 'bottom', 'left')
 assert tests.goSensitive(0)
 
 event(Gdk.EventType.BUTTON_PRESS,x= 6.7000000000000e+01,y= 1.3000000000000e+01,button=1,state=0,window=findWidget('OOF2:Boundary Analysis Page:Skeleton').get_window())
@@ -482,11 +482,11 @@ findMenu(findWidget('chooserPopup-Skeleton'), ['skeleton<2>']).activate() # Menu
 checkpoint mesh bdy page updated
 checkpoint mesh bdy page updated
 deactivatePopup('chooserPopup-Skeleton') # MenuItemLogger
-assert tests.bdyList('top', 'bottom', 'right', 'diagonal', 'left')
+assert tests.bdyList('top', 'right', 'bottom', 'left', 'diagonal')
 assert tests.goSensitive(0)
 
 # Select the diagonal bdy
-findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([3]))
+findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([4]))
 assert tests.goSensitive(1)
 
 # Switch to the skeleton with no diagonal bdy
@@ -496,7 +496,7 @@ findMenu(findWidget('chooserPopup-Skeleton'), ['skeleton']).activate() # MenuIte
 checkpoint mesh bdy page updated
 checkpoint mesh bdy page updated
 deactivatePopup('chooserPopup-Skeleton') # MenuItemLogger
-assert tests.bdyList('top', 'bottom', 'right', 'left')
+assert tests.bdyList('top', 'right', 'bottom', 'left')
 assert tests.goSensitive(0)
 
 # Choose the displacement field output
@@ -519,7 +519,7 @@ findWidget('OOF2:Boundary Analysis Page:Pane').set_position(211)
 assert tests.goSensitive(1)
 
 # Select the diagonal boundary
-findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([3]))
+findWidget('OOF2:Boundary Analysis Page:Pane:frame:BoundaryListScroll:BoundaryList').get_selection().select_path(Gtk.TreePath([4]))
 assert tests.goSensitive(1)
 
 # Switch back to the mesh with no diagonal boundary
@@ -567,7 +567,7 @@ findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Analysis']).activate() 
 checkpoint mesh bdy page updated
 checkpoint page installed Boundary Analysis
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-assert tests.bdyList('top', 'bottom', 'right', 'left')
+assert tests.bdyList('top', 'right', 'bottom', 'left')
 assert tests.goSensitive(0)
 
 # Delete the mesh from skeleton<2>
@@ -630,7 +630,7 @@ checkpoint mesh bdy page updated
 checkpoint mesh bdy page updated
 deactivatePopup('chooserPopup-Skeleton') # MenuItemLogger
 findWidget('OOF2:Boundary Analysis Page:Pane').set_position(211)
-assert tests.bdyList('top', 'bottom', 'right', 'left')
+assert tests.bdyList('top', 'right', 'bottom', 'left')
 assert tests.goSensitive(0)
 
 # Switch the display to the other skeleton
@@ -755,7 +755,7 @@ findMenu(findWidget('chooserPopup-PageMenu'), ['Boundary Analysis']).activate() 
 checkpoint mesh bdy page updated
 checkpoint page installed Boundary Analysis
 deactivatePopup('chooserPopup-PageMenu') # MenuItemLogger
-assert tests.bdyList('top', 'bottom', 'right', 'left', 'interior')
+assert tests.bdyList('top', 'right', 'bottom', 'left', 'interior')
 assert tests.goSensitive(0)
 
 findWidget('OOF2').resize(782, 545)

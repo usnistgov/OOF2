@@ -813,7 +813,7 @@ assert tests.gtkMultiTextCompare({'Material':'<No material>','Group':'elset','Do
 assert tests.gtkMultiFloatCompare({'Shape':0.418601,'Homog':0.992461,'Area':137.500000},elbox)
 assert tests.sensitizationCheck({'Prev':False,'Clear':True,'Next':False},tbox)
 assert tests.chooserListCheck(elbox+":SegmentList",["Segment 135, nodes (36, 44) (length: 15.4029218)", "Segment 134, nodes (36, 37) (length: 15.5)", "Segment 70, nodes (37, 45) (length: 12.5)", "Segment 128, nodes (44, 45) (length: 6.5)"], tolerance=1.e-6)
-assert tests.chooserListCheck(elbox+":NodeList",['Node 36 at (22.0, 50.0) (angle: 54.2461127456)', 'Node 37 at (37.5, 50.0) (angle: 90.0)', 'Node 45 at (37.5, 62.5) (angle: 90.0)', 'Node 44 at (31.0, 62.5) (angle: 125.753887254)'])
+assert tests.chooserListCheck(elbox+":NodeList",['Node 36 at (22.0, 50.0) (angle: 54.2461127456)', 'Node 37 at (37.5, 50.0) (angle: 90.0)', 'Node 45 at (37.5, 62.5) (angle: 90.0)', 'Node 44 at (31.0, 62.5) (angle: 125.753887254)'], tolerance=1.e-6)
 
 # Click on another element
 findGfxWindow('Graphics_1').simulateMouse('down', 42.3, 86.05, 1, False, False)
