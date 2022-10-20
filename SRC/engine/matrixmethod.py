@@ -195,6 +195,7 @@ registeredclass.Registration(
     BiConjugateGradient,
     ordering=2,
     symmetricOnly=False,
+    secret=True,
     params=[
         parameter.RegisteredParameter(
             "preconditioner",
