@@ -556,11 +556,13 @@ class MultiListWidget(ChooserListWidgetBase):
         self.suppress_signals()
         old_objs = self.get_value()
         self.liststore.clear()
-        for obj, dispname in zip(objlist, displaylist):
-            if dispname is not None:
-                self.liststore.append([dispname, obj])
-            else:
-                self.liststore.append([obj, obj])
+        displist = list(displaylist)
+        for i, obj in enumerate(objlist):
+            try:
+                dispname = displist[i]
+            except IndexError:
+                dispname = obj
+            self.liststore.append([obj, dispname])
         treeselection = self.treeview.get_selection()
         for obj in old_objs:
             try:
