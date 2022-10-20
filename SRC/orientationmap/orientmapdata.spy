@@ -60,7 +60,7 @@ def orientationmapNotify(ms):
     for matl in matls:
         try:
             orient = matl.fetchProperty("Orientation")
-        except ooferror2.ErrNoSuchProperty:
+        except ooferror2.PyErrNoSuchProperty:
             pass
         else:
             if isinstance(orient, orientmapproperty.OrientationMapProp):
@@ -121,7 +121,7 @@ def getOrientationAtPoint(ms, point):
             orientprop = mat.fetchProperty("Orientation")
             if isinstance(orientprop, orientation.OrientationProp):
                 return orientprop.orientation(), "Property"
-        except ooferror2.ErrNoSuchProperty:
+        except ooferror2.PyErrNoSuchProperty:
             pass
     # Look for an Orientation Map, whether or not there's an
     # OrientationMapProp.

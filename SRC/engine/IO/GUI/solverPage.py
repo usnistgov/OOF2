@@ -706,8 +706,8 @@ class SolverPage(oofGUI.MainPage):
             meshctxt = self.currentMeshContext()
             if meshctxt is None:
                 return
-            subprobs = sorted([(s.solveOrder,s) for s in meshctxt.subproblems()])
-            for order, subprob in subprobs:
+            subprobs = sorted(meshctxt.subproblems(), key=lambda s:s.solveOrder)
+            for subprob in subprobs:
                 it = self.subprobList.append([subprob])
                 if subprob is currentSub:
                     # Reselect previous selection

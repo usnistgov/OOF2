@@ -299,7 +299,7 @@ registeredclass.Registration(
 
 class NegateImage(ImageModifier):
     def __call__(self, image):
-        image.negate(0)                 # 0 => negate all colors, not just gray
+        image.negate(False)    # False => negate all colors, not just gray
         
 registeredclass.Registration(
     'Negate',
