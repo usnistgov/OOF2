@@ -10,6 +10,10 @@
 
 # Message window, and the GUI part of the error reporting machinery.
 
+## TODO PYTHON3? Use a fixed width font, at least when displaying
+## syntax errors so that the caret indicating the error's location
+## appears in the correct spot.
+
 from gi.repository import Gtk
 from ooflib.SWIG.common import guitop
 from ooflib.SWIG.common import ooferror
