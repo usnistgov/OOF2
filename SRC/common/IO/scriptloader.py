@@ -39,7 +39,8 @@ class ScriptLoader:
 
         fileobj = open(self.filename)
         try:
-            self.tree = ast.parse(fileobj.read()) # get the Abstract Syntax Tree
+            # Get the Abstract Syntax Tree
+            self.tree = ast.parse(fileobj.read(), filename=self.filename)
         except SyntaxError:
             self.showsyntaxerror(self.filename)
         fileobj.close()
