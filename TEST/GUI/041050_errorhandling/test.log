@@ -24,7 +24,7 @@ checkpoint OOF.File.LoadStartUp.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(527, 282)
 findWidget('OOF2').resize(782, 545)
-assert tests.syntaxErrorMsg('File "TEST_DATA/syntaxerror.py", line 2\n    \'Twas brillig, and the slithy toves did gyre and gimble in the wabe.\n                                                                       ^\nSyntaxError: EOL while scanning string literal\n\nErrUserError: Script \'TEST_DATA/nestedsyntaxerr.py\' raised a SyntaxError exception')
+assert tests.syntaxErrorMsg(' File "TEST_DATA/syntaxerror.py", line 2\n    \'Twas brillig, and the slithy toves did gyre and gimble in the wabe.\n                                                                       ^\nSyntaxError: EOL while scanning string literal\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception')
 
 findWidget('Error').resize(527, 282)
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
@@ -41,7 +41,7 @@ findWidget('Dialog-Script:widget_GTK_RESPONSE_OK').clicked()
 checkpoint OOF.File.Load.Script
 checkpoint toplevel widget mapped Error
 findWidget('Error').resize(266, 162)
-assert tests.syntaxErrorMsg('File "TEST_DATA/syntaxerror.py", line 2\n    \'Twas brillig, and the slithy toves did gyre and gimble in the wabe.\n                                                                       ^\nSyntaxError: EOL while scanning string literal\n\nErrUserError: Script \'TEST_DATA/nestedsyntaxerr.py\' raised a SyntaxError exception')
+assert tests.syntaxErrorMsg('File "TEST_DATA/syntaxerror.py", line 2\n    \'Twas brillig, and the slithy toves did gyre and gimble in the wabe.\n                                                                       ^\nSyntaxError: EOL while scanning string literal\n\nooflib.SWIG.common.ooferror.PyErrUserError: Script TEST_DATA/nestedsyntaxerr.py raised a SyntaxError exception')
 
 findWidget('Error:widget_GTK_RESPONSE_OK').clicked()
 assert tests.noExecution()
