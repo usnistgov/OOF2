@@ -499,6 +499,7 @@ class ChooserListWidget(ChooserListWidgetBase):
         self.suppress_signals()
         old_obj = self.get_value()
         self.liststore.clear()
+        displist = list(displaylist)
 
         if not objlist:
             self.liststore.append(["None", None])
@@ -507,7 +508,7 @@ class ChooserListWidget(ChooserListWidgetBase):
             self.treeview.set_sensitive(True)
             for i, obj in enumerate(objlist):
                 try:
-                    dispname = displaylist[i]
+                    dispname = displist[i]
                 except IndexError:
                     self.liststore.append([obj, obj])
                 else:
