@@ -335,6 +335,18 @@ class MicrostructureContext(whoville.Who):
             # the Microstructure at the same time.  (An Image can't be
             # locked unless it can obtain its Microstructure's read
             # lock.)
+
+            # Remove Skeletons.  Doing this first ensures that any
+            # redraws triggered by it won't try to redraw partially
+            # destroyed Microstructures. (Although see the above TODO
+            # about not redrawing at all.)
+            skelclass = whoville.getClass('Skeleton')
+            if skelclass is not None: # TODO: Why check?  Can it be None?
+                for skeletonname in skelclass.keys(base=self.name()):
+                    skelcontext = skelclass[[self.name(), skeletonname[0]]]
+                    skelcontext.lockAndDelete()
+                    skelcontext.setParent(None)
+
             for imagename in ms.imageNames():
                 image = whoville.getClass('Image')[[self.name(), imagename]]
                 image.begin_writing()
@@ -358,14 +370,6 @@ class MicrostructureContext(whoville.Who):
                 pixsel.end_writing()
             pixsel.setParent(None)
 
-            # Remove Skeletons
-            skelclass = whoville.getClass('Skeleton')
-            # TODO 3D: Remove this when engine is added to 3d
-            if skelclass is not None:
-                for skeletonname in skelclass.keys(base=self.name()):
-                    skelcontext = skelclass[[self.name(), skeletonname[0]]]
-                    skelcontext.lockAndDelete()
-                    skelcontext.setParent(None)
             self.begin_writing()
             try:
                 microStructures.remove(self.name())
