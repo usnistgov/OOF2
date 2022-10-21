@@ -48,10 +48,8 @@ int IonDiffusion::integration_order(const CSubProblem *subp,
   // Use the concentration field as the main source -- it appears in
   // both terms, whereas the voltage only appears in the
   // atom-flux-contributing term. 
-#if DIM==2
   if(concentration->in_plane(subp))
     return el->dshapefun_degree();
-#endif
   return el->shapefun_degree();
 }
 
@@ -85,13 +83,11 @@ void IonDiffusion::static_flux_value(const FEMesh  *mesh,
 	element->outputFieldDeriv(mesh, *concentration, &i, pt);
       fieldGradient[i] = ov[0];
     }
-#if DIM==2 
     if (!concentration->in_plane(mesh) ) {
       ArithmeticOutputValue ov =
 	element->outputField(mesh, *concentration->out_of_plane(), pt);
       fieldGradient[2] = ov[0];
     }
-#endif
     for(VectorFieldIterator i; !i.end(); ++i) {
       fluxdata->flux_vector_element(i) -= \
 	z_*c*(cndct(i.integer(),0)*fieldGradient[0]+
@@ -106,13 +102,11 @@ void IonDiffusion::static_flux_value(const FEMesh  *mesh,
 	element->outputFieldDeriv(mesh, *voltage, &i, pt);
       fieldGradient[i] = ov[0];
     }
-#if DIM==2 
     if (!voltage->in_plane(mesh) ) {
       ArithmeticOutputValue ov =
 	element->outputField(mesh, *concentration->out_of_plane(), pt);
       fieldGradient[2] = ov[0];
     }
-#endif
     for(VectorFieldIterator i; !i.end(); ++i) {
       fluxdata->flux_vector_element(i) -=		\
 	z_*c*(cndct(i.integer(),0)*fieldGradient[0]+
@@ -127,9 +121,6 @@ void IonDiffusion::static_flux_value(const FEMesh  *mesh,
 } // end of 'IonDiffusion::static_flux_value'
 
 //=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//=\\=//
-
-// TODO: When is the rotation applied to the conductivity tensor?
-// Do we need to rotate it, or did Diffusion do that for us?
 
 void IonDiffusion::flux_matrix(const FEMesh  *mesh,
 			       const Element *el,
@@ -151,9 +142,6 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
   double sf   = j.shapefunction( pt );
   double dsf0 = j.dshapefunction( 0, pt );
   double dsf1 = j.dshapefunction( 1, pt );
-#if DIM==3
-  double dsf2 = j.dshapefunction( 2, pt );
-#endif
 
   // Same preliminaries as the flux-value case, find concentration
   // field value and conductivity tensor.
@@ -170,13 +158,11 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
 	el->outputFieldDeriv(mesh, *concentration, &i, pt);
       fieldGradient[i] = ov[0];
     }
-#if DIM==2 
     if (!concentration->in_plane(mesh) ) {
       ArithmeticOutputValue ov =
 	el->outputField(mesh, *concentration->out_of_plane(), pt);
       fieldGradient[2] = ov[0];
     }
-#endif
 
     // Now we have all the field data and shape functions, build the
     // matrix elements.
@@ -186,15 +172,11 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
       double t1 = z_*c*cndct(i.integer(),0)*dsf0 + 
 	z_*c*cndct(i.integer(),1)*dsf1;
 
-#if DIM==3  // In 3D case, "out of plane" part is like the first two.
-      t1 += z_*c*cndct(i.integer(),2)*dsf2;
-#endif
       
-#if DIM==2  // In 2D case with out-of-plane field, there's another piece.
+      // In 2D case with out-of-plane field, there's another piece.
       if(!concentration->in_plane(mesh)) {
 	t1 += z_*c*cndct(i.integer(),2)*sf;
       }
-#endif
 
       // Second term, derivative wrt concentration field.
       double t2 = z_*(cndct(i.integer(),0)*fieldGradient[0]+
@@ -213,13 +195,11 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
       ArithmeticOutputValue ov = el->outputFieldDeriv(mesh, *voltage, &i, pt);
       fieldGradient[i] = ov[0];
     }
-#if DIM==2 
     if (!voltage->in_plane(mesh) ) {
       ArithmeticOutputValue ov =
 	el->outputField(mesh, *voltage->out_of_plane(), pt);
       fieldGradient[2] = ov[0];
     }
-#endif
 
     // Now (again) we have all the field data and shape functions,
     // build the matrix elements.
@@ -229,15 +209,11 @@ void IonDiffusion::flux_matrix(const FEMesh  *mesh,
       double t1 = z_*c*cndct(i.integer(),0)*dsf0 + 
 	z_*c*cndct(i.integer(),1)*dsf1;
 
-#if DIM==3  // In 3D case, "out of plane" part is like the first two.
-      t1 += z_*c*cndct(i.integer(),2)*dsf2;
-#endif
       
-#if DIM==2  // In 2D case with out-of-plane field, there's another piece.
+      // In 2D case with out-of-plane field, there's another piece.
       if(!voltage->in_plane(mesh)) {
 	t1 += z_*c*cndct(i.integer(),2)*sf;
       }
-#endif
 
       // Second term, derivative wrt concentration field.
       double t2 = z_*(cndct(i.integer(),0)*fieldGradient[0]+

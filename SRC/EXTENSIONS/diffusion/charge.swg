@@ -12,7 +12,6 @@
 #ifndef EXTENSION_CHARGE_SWG
 #define EXTENSION_CHARGE_SWG
 
-// TODO PYTHON3: Check this
 %module(package="ooflib.SWIG.EXTENSIONS.diffusion") charge
 
 %{
@@ -22,6 +21,7 @@
 #ifndef NOSECONDIMPORTS
 #define NOSECONDIMPORTS
 %include "common/typemaps.swg"
+%import "engine/property.swg"
 %import "engine/symmmatrix.swg"
 #endif // NOSECONDIMPORTS
 

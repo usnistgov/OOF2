@@ -9,6 +9,7 @@
 # This file, SRC/EXTENSIONS/CMakeLists.txt, is used when building
 # OOF2.  It shoud list all the subdirectories that contain OOF2 C,
 # C++, or Python code.  Those directories must contain CMakeLists.txt
-# files of their own.
+# files of their own.  For an example, see the file in the diffusion
+# subdirectory.
 
 add_subdirectory(diffusion)
