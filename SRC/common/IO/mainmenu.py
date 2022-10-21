@@ -102,6 +102,7 @@ _filemenu = OOF.addItem(OOFMenuItem(
 
 _loadmenu = _filemenu.addItem(OOFMenuItem(
     'Load',
+    ordering = 0,
     help="Commands for loading datafiles and scripts.",
     discussion="<para>Commands to load datafiles and scripts.</para>"))
 
@@ -242,8 +243,10 @@ def saveLog(menuitem, filename, mode):
     menuitem.root().saveLog(file)
     file.close()
 
-_savemenu = _filemenu.addItem(
-    OOFMenuItem('Save', help='Create data files and scripts.'))
+_savemenu = _filemenu.addItem(OOFMenuItem(
+    'Save',
+    ordering=1,
+    help='Create data files and scripts.'))
 
 _savemenu.addItem(OOFMenuItem(
     'Python_Log',
@@ -271,6 +274,7 @@ _filemenu.addItem(OOFMenuItem(
     'Quit',
     callback=quitCmd,
     accel='q',
+    ordering=10000,
     help="Don't give up so easily!",
     discussion=xmlmenudump.loadFile('DISCUSSIONS/common/menu/quit.xml'),
     threadable = oofmenu.UNTHREADABLE,
@@ -411,6 +415,7 @@ _annotatelogmenu = _filemenu.addItem(OOFMenuItem(
     help="Write a message to the log file",
     discussion="<para>Write info directly to the log file.</para>",
     callback = _annotatelogmenucallback,
+    ordering=200,
     params=[parameter.StringParameter(name="message"),]
     ))
 
