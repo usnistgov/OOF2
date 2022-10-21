@@ -28,6 +28,8 @@
 # in the path.
 
 # To temporarily skip a subdirectory, add a file called SKIP to it.
+# To permanently skip a subdirectory, add it to the skipdirs list,
+# below.
 
 # The subdirectory can contain a file called "args" which contains a
 # single line of arguments to be added to the oof2 command.  It can
@@ -58,6 +60,8 @@ unthreaded = False
 
 global tmpdir
 tmpdir = None
+
+skipdirs = ["__pycache__"]
 
 #=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
 
@@ -104,6 +108,8 @@ def really_run_tests(homedir, dirs, rerecord):
         # Check that the directory and log file exist, and that
         # there's no SKIP file, before bothering to make the symlink
         # to the directory.
+        if directory in skipdirs:
+            continue
         if not os.path.isdir(originaldir):
             print("Can't find directory", directory, file=sys.stderr)
             return
@@ -112,7 +118,8 @@ def really_run_tests(homedir, dirs, rerecord):
             nskipped += 1
             continue
         if not os.path.exists(os.path.join(originaldir, TESTFILE)):
-            print(" **** Skipping", directory, "(No log file!) ****", file=sys.stderr)
+            print(" **** Skipping", directory, "(No log file!) ****",
+                  file=sys.stderr)
             nskipped += 1
             continue
 
