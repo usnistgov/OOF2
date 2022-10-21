@@ -53,7 +53,9 @@ class StockButton(Gtk.Button):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         self.markup = markup
         self.reverse = reverse
+        self.label = None
         if reverse:
+            # text comes before icon
             if labelstr:
                 if markup:
                     self.label = Gtk.Label(halign=align)
@@ -62,7 +64,8 @@ class StockButton(Gtk.Button):
                     self.label = Gtk.Label(labelstr + ' ')
                 hbox.pack_start(self.label, expand=True, fill=True, padding=0)
             hbox.pack_start(image, expand=False, fill=False, padding=0)
-        else:                       # not reverse
+        else:
+            # not reverse, icon comes before text
             hbox.pack_start(image, expand=False, fill=False, padding=0)
             if labelstr:
                 if markup:
@@ -84,7 +87,21 @@ class StockButton(Gtk.Button):
                 self.label.set_text(labelstr + ' ')
             else:
                 self.label.set_text(' ' + labelstr)
-                        
+
+    def replaceIcon(self, icon_name):
+        hbox = self.get_children()[0]
+        oldimage = findChild(Gtk.Image, hbox)
+        hbox.remove(oldimage)
+        newimage = Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
+        if self.label is None:
+            hbox.pack_start(newimage, expand=False, fill=False, padding=0)
+        elif self.reverse:   # image follows label
+            hbox.pack_start(self.label, expand=False, fill=False, padding=0)
+            hbox.pack_start(newimage, expand=False, fill=False, padding=0)
+        else:                   # label follows image
+            hbox.pack_end(newimage, expand=False, fill=False, padding=0)
+            hbox.pack_start(self.label, expand=False, fill=False, padding=0)
+
 def prevButton(**kwargs):
     debug.mainthreadTest()
     button = StockButton('go-previous-symbolic', 'Prev', **kwargs)

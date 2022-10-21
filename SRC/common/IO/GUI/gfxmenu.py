@@ -347,7 +347,7 @@ def _CheckOOFMenuItem___call__(self, active):
 
 def _setactive(gtkitem, handler, active):
     debug.mainthreadTest()
-    for (i,h) in map(None, gtkitem, handler):
+    for (i,h) in zip(gtkitem, handler):
         h.block()
         i.set_active(active)
         h.unblock()
