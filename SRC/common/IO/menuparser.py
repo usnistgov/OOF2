@@ -33,7 +33,6 @@ from ooflib.SWIG.common import ooferror
 from ooflib.common import debug
 from ooflib.common import utils
 import os
-import stat                     # TODO PYTHON3: use os.stat
 import sys
 
 class MenuParser:
@@ -86,25 +85,38 @@ class InputSource:
     def getBytes(self, n):
         pass
 
-## TODO PYTHON3: There probably should be separate FileInput classes
-## for ascii and binary files.  The binary ones should be opened in
-## 'rb' mode and the ascii ones in 'r' mode.  The binary FileInput
-## will have getBytes() and the ascii one will have getLine().  Maybe.
-## One problem with the current setup is that the lines retrieved by
+## TODO PYTHON3? There maybe should be separate FileInput classes for
+## ascii and binary files.  The binary ones should be opened in 'rb'
+## mode and the ascii ones in 'r' mode.  The binary FileInput will
+## have getBytes() and the ascii one will have getLine().  Maybe.  One
+## problem with the current setup is that the lines retrieved by
 ## file.readline() are bytes objects, not strings, if the file was
 ## opened with the 'b' option.  When they're echoed to the screen in
 ## debug mode they look ugly, with an extra 'b' and quotation marks.
+## The trouble with doing this is that we don't know whether a file
+## should be binary or not until after the first line is read.
 
 class FileInput(InputSource):
     def __init__(self, filename):
         self.filename = filename
         self.file = open(filename, 'rb')
         self.bytecount = 0
-        self.totalbytes = os.stat(filename)[stat.ST_SIZE]
+        self.totalbytes = os.stat(filename).st_size
     def getLine(self):
         line = self.file.readline()
         self.bytecount += len(line)
-        debug.msg("%s: %s" %(self.filename, line[:min(len(line)-1, 100)]))
+        if debug.debug():
+            displaylen = 80     # chars to display per line
+            if isinstance(line, bytes):
+                dline = line.decode() # for display in debug mode
+            if len(dline) <= displaylen:
+                shortline = dline
+            else:
+                taillen = 5     # chars to show at end of line
+                dots = "..."
+                j = displaylen - taillen - len(dots)
+                shortline = dline[0:j] + dots + dline[-taillen-1:-1]
+            debug.msg(f"{self.filename}: {shortline}")
         return line
     def getBytes(self, n):
         b = self.file.read(n)
