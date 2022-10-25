@@ -91,7 +91,8 @@ class Profile(registeredclass.RegisteredClass):
 # ProfileX, ProfileXT, or ProfileXTd, as well as from Profile.
 # ProfileX, etc, aren't derived from Profile so that the concrete
 # Profile subclasses can share code without creating messy multiple
-# inheritance relationships.
+# inheritance relationships.  (For example, ConstantProfile is derived
+# from all of Profile, ProfileX, ProfileXT, and ProfileXTd.)
 
 #  Space-dependent profiles.
 

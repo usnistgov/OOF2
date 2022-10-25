@@ -487,13 +487,11 @@ class AutomaticValueSetParameter(ValueSetParameter):
 
 class StringParameter(Parameter):
     types = (StringType, bytes)
-##    def __init__(self, name, value=None, default="", tip=None):
-##        Parameter.__init__(self, name, value=value, default=default, tip=tip)
     def binaryRepr(self, datafile, value):
-        # TODO PYTHON3: Does this need to check to see if value is
-        # already bytes?
+        if isinstance(value, str):
+            value = bytes(value, "UTF-8")
         length = len(value)
-        return struct.pack(structIntFmt, length) + bytes(value, "UTF-8")
+        return struct.pack(structIntFmt, length) + value
     def binaryRead(self, parser):
         b = parser.getBytes(structIntSize)
         (length,) = struct.unpack(structIntFmt, b)
@@ -955,7 +953,16 @@ class ListOfListOfListOfIntsParameter(Parameter):
 # RegisteredParameter stores an instance of a RegisteredClass.
 class RegisteredParameter(Parameter):
     def __init__(self, name, reg, value=None, default=None, tip=None):
-        # reg must be a RegisteredClass class.
+        # reg must be a RegisteredClass class or a CRegisteredClass,
+        # which isn't really a class, or a mix-in for another class
+        # that is derived from RegisteredClass.  See ProfileX in
+        # profile.py for example.
+
+        # This assert is because an earlier version of regname()
+        # checked to see if self.reg was an instance, but it should
+        # never be an instance.
+        assert inspect.isclass(reg)
+        
         self.registry = reg.registry
         self.reg = reg
         Parameter.__init__(self, name, value, default, tip)
@@ -976,16 +983,7 @@ class RegisteredParameter(Parameter):
                        self.__class__.__name__)
             raise
     def regname(self):
-        # TODO PYTHON3: Is this correct?  The old version returned
-        # self.reg.__class__ instead of self.reg.__class__.__name__.
-        # TODO: Why would self.reg be a class and not a registration instance?
-        if inspect.isclass(self.reg):
-            return self.reg.__name__
-        else:
-            return self.reg.__class__.__name__
-        # if isinstance(self.reg, TypeType):
-        #     return self.reg.__name__
-        # return self.reg.__class__
+        return self.reg.__name__
     def __repr__(self):
         return '%s(%s, %s, %s, %s)' %\
                (self.__class__.__name__, self.name, self.regname(),
