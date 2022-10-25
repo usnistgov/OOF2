@@ -10,6 +10,11 @@
 * Moved the SRC/engine/property tree to SRC/engine/properties, and
   renamed properties.swg to property.swg.
 
+* The Next button in the tutorial window is always sensitive.  If you
+  want to go ahead without completing a task, it's up to
+  you. Detecting when the task was complete was error prone and
+  confusing.
+
 2.2.1/2
 
 * Fixes to the build systems to get it to work with MacPorts.

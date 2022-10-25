@@ -45,7 +45,7 @@ BOLD(Microstructure) page and click BOLD(New) to create a
 Microstructure.  Use the default values for the parameters and click
 BOLD(OK).
 """,
-            signal=("new who", "Microstructure")),
+        ),
 
         TutoringItem(
             subject="Define a Material",
@@ -71,7 +71,7 @@ it the same way.
 
 Assign the new Material to all of the pixels in the Microstructure.
 """,
-            signal="materials changed in microstructure"),
+        ),
 
         TutoringItem(
             subject="Create a Skeleton and a Mesh",
@@ -82,7 +82,7 @@ nonperiodic Skeleton.
 Go to the BOLD(FE Mesh) page and create a Mesh, using the default
 parameters.
 """,
-            signal=("new who", "Mesh")),
+        ),
 
         TutoringItem(
             subject="Define Fields and Equations",
@@ -102,7 +102,7 @@ conditions, one Dirichlet condition setting the x component of
 Displacement to 0 on the bottom boundary, and one setting the y
 component to 0.
 """,
-            signal="boundary conditions changed"),
+        ),
 
         TutoringItem(
             subject="Schedule Outputs",
@@ -228,7 +228,7 @@ BOLD(Named Analysis) box.  Either click BOLD(OK) to accept the default
 name (which is "analysis"), or click the checkbox next to the name and
 type a new name.  Click BOLD(OK) to accept the new name.
 """,
-            signal="named analyses changed"),
+        ),
 
         TutoringItem(
             subject="Schedule Data Output, part 3",
@@ -250,7 +250,7 @@ column. (Remember to reselect the new Output first.)  Select "Output
 Stream" and enter the same file name that you chose earlier for the
 Boundary Analysis data.  Both sets of data will go to the same file.
 """,
-            signal="scheduled outputs changed"),
+        ),
         
         TutoringItem(
             subject="The Solver Page",
@@ -326,7 +326,7 @@ asymmetric matrices, so the setting of this parameter is unimportant.
 
 Click BOLD(OK).
 """,
-            signal="subproblem solver changed"),
+        ),
 
         TutoringItem(
             subject="Set Field Initializers",
@@ -351,7 +351,7 @@ Mesh.  For this example, choose "XYTFunction" and set "fx" to 0.0 and
 Initialize the time derivative field, Displacement_t, to "Constant"
 with "cx" and "cy" set to 0.0.
 """,
-            signal="field initializer set"),
+        ),
 
         TutoringItem(
             subject="Initialize Fields",

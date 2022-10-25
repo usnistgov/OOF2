@@ -48,7 +48,6 @@ TutorialClass(
     load the Image and create the Microstructure.
 
     """,
-    signal = ("new who", "Microstructure")
     ),
     
     TutoringItem(
@@ -83,8 +82,7 @@ TutorialClass(
     Don't bother with the other pixel group, since we're not going to
     use it.
     """,
-    
-    signal="renamed pixel group"),
+    ),
 
     TutoringItem(
     subject="Material",
@@ -95,7 +93,6 @@ TutorialClass(
 
     Tgype BOLD(green-material) in the text entry field.  Click
     BOLD(OK).  """,
-    signal="new_material"
     ),
 
     TutoringItem(
@@ -109,8 +106,6 @@ TutorialClass(
     Click BOLD(Copy) and check the box to give it a user-defined name.
 
     Tgype in BOLD(green_elasticity). Click BOLD(OK).""",
-
-    signal = "new property"
     ),
 
     TutoringItem(
@@ -130,7 +125,6 @@ TutorialClass(
 
     Click BOLD(OK) to finish up.
     """,
-    signal = "redraw"
     ),
 
     TutoringItem(
@@ -145,7 +139,6 @@ TutorialClass(
     The addition should immediately appear in the BOLD(Material) pane,
     in the list of Properties below the Material selector.
     """,
-    signal= "prop_added_to_material"
     ),
 
     TutoringItem(
@@ -166,7 +159,6 @@ TutorialClass(
 
     We will NOT do anything for the BOLD(ivory) pixels.
     """,
-    signal = "materials changed in microstructure"
     ),
 
     TutoringItem(
@@ -180,8 +172,6 @@ TutorialClass(
     BOLD(y_elements) = 20, and BOLD(skeleton_geometry)=QuadSkeleton.
     Click BOLD(OK) to create the Skeleton.
     """,
-        
-    signal = ("new who", "Skeleton")
     ),
 
     TutoringItem(
@@ -228,8 +218,6 @@ TutorialClass(
     to unset BOLD(List All Layers) when you're done.)
 
     """,
-        
-    signal = "new boundary configuration"
     ),
 
     TutoringItem(
@@ -249,8 +237,6 @@ TutorialClass(
 
     Now, we're ready to create a Mesh from this Skeleton.
     """,
-        
-    signal = "new boundary configuration"
     ),
     
     TutoringItem(
@@ -278,7 +264,6 @@ TutorialClass(
 
     Now, let us solve a problem using this Mesh.
     """,
-    signal = ("new who", "Mesh")
     ),
 
     TutoringItem(
@@ -292,7 +277,6 @@ TutorialClass(
     Check the BOLD(active) box for the BOLD(Force Balance) equation.
     
     """,
-    signal = "equation activated"
     ),
 
     TutoringItem(
@@ -336,7 +320,6 @@ TutorialClass(
     Choose the BOLD(boundary) to which this condition should
     be applied (BOLD(left)) and click BOLD(OK).
     """,
-    signal = "boundary conditions changed"
     ),
 
     TutoringItem(
@@ -352,7 +335,6 @@ TutorialClass(
     don't actually have to change it, you just have to trick the
     tutorial machinery into thinking you've changed something.)""",
     
-    signal = "boundary conditions changed"
     ),
 
     TutoringItem(

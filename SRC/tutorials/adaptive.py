@@ -45,8 +45,7 @@ TutorialClass(
 
     Use the menu item BOLD(File/Load/Data) in the main OOF2 window to
     load the file.
-    """,
-    signal = ("new who", "Skeleton")
+    """
     ),
     
     TutoringItem(
@@ -99,8 +98,7 @@ TutorialClass(
 
     Move on to the next slide to start the process for adaptive mesh
     refinement.
-    """,
-    signal = "mesh solved"
+    """
     ),
 
     TutoringItem(
@@ -163,7 +161,6 @@ TutorialClass(
 
 #     Leave these options as they are for now and click BOLD(OK).
 #     """,
-    signal = "Skeleton modified"
     ),
 
     TutoringItem(
@@ -184,7 +181,6 @@ TutorialClass(
         to BOLD(Rebuild).  Click BOLD(OK).  Now the Mesh has been
         updated to match the Skeleton.
         """,
-        signal="Mesh modified"
         ),
 
     TutoringItem(
@@ -204,7 +200,6 @@ TutorialClass(
     which seems to work better here, or increase the tolerance of
     BOLD(CG) to 1.e-08.  After you change the Solver, click
     BOLD(Solve) again.  """,
-    signal = "mesh solved"
     ),
 
     TutoringItem(
@@ -227,7 +222,6 @@ TutorialClass(
 
     Thanks for trying out the tutorial.
     """,
-    signal = "mesh changed"
     )
     
     ])

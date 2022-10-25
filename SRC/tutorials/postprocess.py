@@ -39,7 +39,6 @@ TutorialClass(
 
     This is the same simple mesh that you generated if you worked
     through the BOLD(Simple Example) tutorial.""",
-    signal = ("new who" ,"Mesh")
     ),
 
     TutoringItem(
@@ -277,8 +276,7 @@ TutorialClass(
     are displayed in the toolbox.  You may need to scroll the toolbox
     and/or expand the graphics window to see it all.
     """,
-    
-    signal = "redraw" ),
+    ),
         
     TutoringItem(
     subject="Querying element data",
@@ -293,7 +291,7 @@ TutorialClass(
     it in the graphics window.  Double-clicking on a node in the list
     will switch the toolbox back to node mode, with the given node
     selected.""",
-    signal = "redraw" ),
+    ),
 
     TutoringItem(
     subject="Querying data at interior points",

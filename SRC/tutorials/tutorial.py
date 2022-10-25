@@ -45,21 +45,21 @@ class TutorialClass:
         return self.subject
 
 class TutoringItem:
-    def __init__(self, subject=None, comments=None, signal=None, done=False):
+    def __init__(self, subject=None, comments=None): #, signal=None, done=False):
         self.subject = subject
         self.comments = comments
-        self.signal = signal
-        self.done = done
+        # self.signal = signal
+        # self.done = done
 
-    def activate(self):
-        if self.signal:
-            self.switchboardCB = switchboard.requestCallback(self.signal,
-                                                             self.signalCB)
+    # def activate(self):
+    #     if self.signal:
+    #         self.switchboardCB = switchboard.requestCallback(self.signal,
+    #                                                          self.signalCB)
 
-    def deactivate(self):
-        if self.signal:
-            switchboard.removeCallback(self.switchboardCB)
+    # def deactivate(self):
+    #     if self.signal:
+    #         switchboard.removeCallback(self.switchboardCB)
             
-    def signalCB(self, *args, **kwargs):
-        self.done = True
-        switchboard.notify("task finished")
+    # def signalCB(self, *args, **kwargs):
+    #     self.done = True
+    #     switchboard.notify("task finished")

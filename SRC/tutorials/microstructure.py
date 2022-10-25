@@ -62,8 +62,7 @@ TutorialClass(subject="Microstructure",
     square.
 
     Click BOLD(OK) to create the Microstructure.""",
-
-    signal = ("new who", "Microstructure") ),
+    ),
 
     TutoringItem(
         subject="Display the Image",
@@ -142,8 +141,6 @@ TutorialClass(subject="Microstructure",
 
     The gray values in the image now span the full range from black to white.
     """,
-
-    signal= "modified image"
     ),
 
     TutoringItem(
@@ -161,7 +158,6 @@ TutorialClass(subject="Microstructure",
 
     We'll deal with it later.
     """,
-    signal= "modified image"
     ),
 
     TutoringItem(
@@ -193,7 +189,6 @@ TutorialClass(subject="Microstructure",
     Click on a pixel in the Image to select it.  The selected pixel
     will be marked in BOLD(red).
     """,
-    signal= "new pixel selection"
     ),
 
     TutoringItem(
@@ -217,7 +212,6 @@ TutorialClass(subject="Microstructure",
     using tools that select multiple pixels.
 
     """,
-    signal= "new pixel selection"
     ),
 
     TutoringItem(
@@ -270,8 +264,6 @@ TutorialClass(subject="Microstructure",
     dragging on the Image.  Try it with the control and shift keys,
     separately and together.
     """,
-
-        signal= "new pixel selection"
     ),
       
     TutoringItem(
@@ -293,7 +285,6 @@ TutorialClass(subject="Microstructure",
     and drag to select some pixels.
 
     """,
-    signal= "new pixel selection"
     ),
 
     TutoringItem(
@@ -340,7 +331,6 @@ TutorialClass(subject="Microstructure",
     Now, we need to provide a reference color by clicking on a pixel.
     Click on any BOLD(black) pixel.
     """,
-    signal= "new pixel selection"
     ),
 
     TutoringItem(
@@ -358,7 +348,6 @@ TutorialClass(subject="Microstructure",
 
     Once you have located the spot, click BOLD(Invert) to invert the selection.
     """,
-    signal= "new pixel selection"
     ),
 
     TutoringItem(
@@ -380,7 +369,6 @@ TutorialClass(subject="Microstructure",
     If you don't like the result, you can BOLD(Undo) and repeat the
     process until you're satisfied.
     """,
-    signal= "new pixel selection"
     ),
 
     TutoringItem(
@@ -407,7 +395,6 @@ TutorialClass(subject="Microstructure",
 
     The BOLD(Pixel Groups) pane should show the pixel group you just created.
     """,
-    signal= "new pixel group"
     ),
     
     TutoringItem(
@@ -423,7 +410,6 @@ TutorialClass(subject="Microstructure",
     About 2600 pixels should be present in the group, if you did it
     correctly.  The exact number will depend on exactly where you
     clicked on the image.  """,
-    signal= "changed pixel group"
     ),
 
     TutoringItem(
@@ -448,7 +434,6 @@ TutorialClass(subject="Microstructure",
     Hold the shift key as you click on a black region to select
     multiple islands.
     """,
-    signal= "new pixel selection"
     ),
 
     TutoringItem(
@@ -574,7 +559,6 @@ TutorialClass(subject="Microstructure",
 
     Select BOLD(white) for the pixel BOLD(group) and click BOLD(OK).
     """,
-    signal= "new pixel selection"
     ),
 
     TutoringItem(
@@ -589,7 +573,6 @@ TutorialClass(subject="Microstructure",
     BOLD(Method) menu in the BOLD(Pixel Selection) page and click
     BOLD(OK).
     """,
-    signal= "new pixel selection"
     ),
 
     TutoringItem(
@@ -599,8 +582,6 @@ TutorialClass(subject="Microstructure",
     """Open the BOLD(Microstructure) page and create a new pixel group
     named BOLD(black).
     """,
-
-    signal= "new pixel group"
     ),
 
     TutoringItem(
@@ -615,8 +596,6 @@ TutorialClass(subject="Microstructure",
     Materials to the pixels, the pixels have been differentiated by
     virtue of being assigned to different pixel groups.  This is
     sufficient for establishing the Skeleton geometry.""",
-
-    signal= "changed pixel group"
     ),
 
     TutoringItem(

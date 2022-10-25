@@ -29,13 +29,11 @@ TutorialClass(subject="Basics",
     various OOF2 parts.
 
     To go to the next tutorial page, click on the BOLD(Next) button
-    below.  Sometimes the BOLD(Next) button will be grayed out -- this
-    means that you have to perform the action described in the
-    tutorial page before proceeding.
+    below.  
 
     The BOLD(Back) button below will take you to the previous tutorial
     page.  The BOLD(Jump) button takes you to the highest numbered
-    page that you've visited in this session.
+    page that you've visited in this tutorial session.
 
     Use the BOLD(Save) button to save a tutorial session in a file so
     that you can resume it later.  To resume a session, load the saved

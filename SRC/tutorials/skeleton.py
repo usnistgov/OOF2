@@ -50,8 +50,6 @@ TutorialClass(
     
     Click BOLD(OK) to load the Image and create the Microstructure.
     """,
-
-    signal = ("new who", "Microstructure")
     ),
     
     TutoringItem(
@@ -117,8 +115,6 @@ TutorialClass(
 
     Click BOLD(OK) to create the Skeleton.
     """,
-        
-    signal = ("new who", "Skeleton")
     ),
 
     TutoringItem(
@@ -195,8 +191,6 @@ TutorialClass(
     Set BOLD(alpha) to 0.5.
 
     Click BOLD(OK) to refine the Skeleton.  """,
-
-    signal = "Skeleton modified"
     ),
 
     TutoringItem(
@@ -234,8 +228,6 @@ TutorialClass(
     than 90% homogeneous will be refined.
 
     Click BOLD(OK) to start refining.  """,
-        
-    signal = "Skeleton modified",
     ),
 
     TutoringItem(
@@ -313,8 +305,6 @@ TutorialClass(
 
     Click BOLD(OK) to make changes.  Notice that the BOLD(Homogeneity
     Index) increases from 0.957 to 0.989.""",
-        
-    signal = "Skeleton modified"
     ),
 
     TutoringItem(
@@ -347,8 +337,6 @@ TutorialClass(
     The summary for the modification is displayed in the BOLD(OOF
     Messages) window.  Also, in the graphics window, you will notice
     that many of the badly shaped elements are gone.  """,
-
-    signal = "Skeleton modified"
     ),
 
     TutoringItem(
@@ -372,8 +360,6 @@ TutorialClass(
 
     We will apply the next modification only to the selected elements.
     """,
-
-    signal = "changed element selection"
     ),
       
     TutoringItem(
@@ -400,8 +386,6 @@ TutorialClass(
     to BOLD(Geographic).
         
     Click BOLD(OK) to modify the skeleton.""",
-        
-    signal = "Skeleton modified"
     ),
 
     TutoringItem(
@@ -413,8 +397,6 @@ TutorialClass(
 
     Select BOLD(Rationalize) and apply it to the Skeleton with the
     same settings as before.  """,
-        
-    signal = "Skeleton modified"
     ),
 
     TutoringItem(
@@ -426,8 +408,6 @@ TutorialClass(
 
     Notice the reduced number of selected elements.
     """,
-
-    signal = "changed element selection"
     ),
     
     TutoringItem(
@@ -468,8 +448,6 @@ TutorialClass(
 
     Watch the BOLD(Message) and BOLD(Graphics) windows to monitor the
     progress.""",
-        
-    signal = "Skeleton modified"
     ),
 
     TutoringItem(
@@ -482,8 +460,6 @@ TutorialClass(
 
     Select BOLD(Rationalize) for the modification method and click
     BOLD(OK).  """,
-        
-    signal = "Skeleton modified"
     ),
 
     TutoringItem(
@@ -495,8 +471,6 @@ TutorialClass(
 
     You will notice that the number of elements selected is
     significantly reduced.  """,
-        
-    signal = "changed element selection"
     ),
     
     TutoringItem(
@@ -505,8 +479,6 @@ TutorialClass(
     
     """Return to BOLD(Skeleton) page and do the BOLD(Anneal) one more
     time with the same settings as before.  """,
-
-    signal = "Skeleton modified"
     ),
     
     TutoringItem(
@@ -517,8 +489,6 @@ TutorialClass(
     on to the next step.
 
     Use the same settings as before.  """,
-        
-    signal = "Skeleton modified"
     ),        
 
     TutoringItem(
@@ -536,8 +506,6 @@ TutorialClass(
     There should be very few elements selected, meaning that most of the
     elements have been adapted to the material boundaries
     successfully.""",
-        
-    signal = "changed element selection"
     ),        
     
     TutoringItem(
@@ -587,8 +555,6 @@ TutorialClass(
     menu.
 
     """,
-        
-    signal = "new pinned nodes"
     ),
     
     TutoringItem(
@@ -616,8 +582,6 @@ TutorialClass(
 
     Also, it is a good idea to BOLD(Rationalize) the skeleton to remove
     potential bad elements created by the swap.  """,
-        
-    signal = "Skeleton modified"
     ),
 
     TutoringItem(
@@ -642,8 +606,6 @@ TutorialClass(
     Click BOLD(OK) to merge triangles.
 
     Again, use BOLD(Undo)-BOLD(Redo) to see the changes better.  """,
-        
-    signal = "Skeleton modified"
     ),
 
     TutoringItem(
@@ -669,8 +631,6 @@ TutorialClass(
     Click BOLD(OK).
 
     Updates are reported in the same way as in BOLD(Anneal).  """,
-        
-    signal = "Skeleton modified"
     ),
 
     TutoringItem(

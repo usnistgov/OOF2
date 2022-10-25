@@ -65,8 +65,6 @@ TutorialClass(
 
     Choose BOLD(Load/Data) from the BOLD(File) menu in the main OOF2
     window.  Open the file BOLD(composition.skeleton).  """,
-
-    signal = ("new who", "Skeleton")
     ),
     
     TutoringItem(
@@ -87,8 +85,6 @@ TutorialClass(
     BOLD(alpha) to be BOLD(1).
 
     Click BOLD(OK) to snap nodes.""",
-        
-    signal = ("who changed", "Skeleton")
     ),
 
     TutoringItem(
@@ -113,7 +109,6 @@ TutorialClass(
 
     Click BOLD(OK) to refine.
     """,
-    signal = ("who changed", "Skeleton")
     ),
       
     TutoringItem(
@@ -130,8 +125,6 @@ TutorialClass(
 
     Next time, we'll refine first and move nodes later.
     """,
-
-    signal = ("who changed", "Skeleton")
     ),
       
     TutoringItem(
@@ -143,7 +136,6 @@ TutorialClass(
 
     And then, do BOLD(Snap Nodes) with the same options.
     """,
-    signal = ("who changed", "Skeleton")
     ),
 
     TutoringItem(
@@ -194,8 +186,6 @@ TutorialClass(
 
     As soon as you confirm the deletion, the graphics window will be
     emptied.""",
-
-    signal = "remove who"
     ),
 
     TutoringItem(
@@ -233,8 +223,6 @@ TutorialClass(
     You may see a different result this time.
 
     Repeat the BOLD(Undo)-BOLD(OK) dance, you'll see the effect. """,
-
-    signal = ("who changed", "Skeleton")
     ),
 
     TutoringItem(
@@ -276,8 +264,6 @@ TutorialClass(
     
     Bring up the message window to check the progress.
     """,
-
-    signal = ("who changed", "Skeleton")
     ),
 
     TutoringItem(
@@ -295,8 +281,6 @@ TutorialClass(
 
     Let us BOLD(Undo) the change and use BOLD(Snap Nodes) this time.
     """,
-
-    signal = ("who changed", "Skeleton")
     ),
     
     TutoringItem(
@@ -319,8 +303,6 @@ TutorialClass(
     Once you've found one of the two special cases, two or three more BOLD(Snap
     Nodes) will get the job done.  All the nodes moved should be
     exactly BOLD(on) the boundaries.  """,
-
-    signal = ("who changed", "Skeleton")
     ),
 
     TutoringItem(
@@ -349,8 +331,6 @@ TutorialClass(
     """Open the BOLD(Microstructure) page and BOLD(delete) the
     microstructure -- the Skeleton will be deleted at the same time.
     """,
-        
-    signal = "remove who"
     ),
       
     TutoringItem(
@@ -362,8 +342,6 @@ TutorialClass(
 
     The unfinished skeleton for a blue triangle Microstructure should
     be displayed in the graphics window. """,
-        
-    signal = ("new who", "Skeleton")
     ),
 
     TutoringItem(
@@ -396,8 +374,6 @@ TutorialClass(
     If you were lucky, the element edges are well aligned with the
     material boundaries.  However it is likely that you need to do
     some fine tuning.  Set BOLD(delta) to 1 and iterate some more.""",
-        
-    signal = ("who changed", "Skeleton")
     ),
 
     TutoringItem(
@@ -415,8 +391,6 @@ TutorialClass(
     BOLD(Undo) all of the Skeleton modifications to get back to the
     original mesh.  The next few tutorial slides will illustrate
     different ways of annealing efficiently. """,
-
-    signal = ("who changed", "Skeleton")
     ),
 
     TutoringItem(
@@ -433,8 +407,6 @@ TutorialClass(
     the Skeleton (it's the one at the second column from the left and
     third row from the bottom) to select it -- it should appear
     as a blue dot.""",
-
-    signal = "changed node selection"
     ),
 
     TutoringItem(
@@ -463,8 +435,6 @@ TutorialClass(
 
 
     BOLD(Undo) this modification.""",
-
-    signal = ("who changed", "Skeleton")
     ),
 
     TutoringItem(
@@ -490,8 +460,6 @@ TutorialClass(
     The Skeleton should match the Image much better than it did
     before, because with more nodes moving, the annealing process
     could avoid creating badly shaped elements.""",
-
-    signal = ("who changed", "Skeleton")
     ),
 
     TutoringItem(
@@ -518,8 +486,6 @@ TutorialClass(
 
     Shift-click and drag to select a similar circle around the other
     two corners of the triangle.""",
-
-    signal = "pixel selection changed"
     ),
 
     TutoringItem(
@@ -537,8 +503,6 @@ TutorialClass(
     selected pixels.  Go back to the BOLD(Pixel Selection) toolbox and
     press BOLD(Clear).  Try selecting more pixels, and notice that
     only pixels within the active area are selected.""",
-
-    signal = "active area modified"
     ),
 
     TutoringItem(
@@ -550,8 +514,6 @@ TutorialClass(
     press BOLD(OK).
 
     Notice that only the nodes that start within the Active Area move.""",
-
-    signal = ("who changed", "Skeleton")
     ),
 
     TutoringItem(
@@ -581,7 +543,6 @@ TutorialClass(
 
     Load a skeleton from the file BOLD(green_corner.skeleton).
     """,
-    signal = ("new who", "Skeleton")
     ),
 
     TutoringItem(
@@ -598,7 +559,6 @@ TutorialClass(
 
     Click on the bad node and drag it to where it belongs.
     """,
-    signal = ("who changed", "Skeleton")
     ),
 
     TutoringItem(
@@ -620,8 +580,6 @@ TutorialClass(
     the corner of the boundary, in BOLD(keyboard) mode all you have to
     do is to find the position of the corner and type in the numbers.
     """,
-    
-    signal = ("who changed", "Skeleton")
     ),
 
     TutoringItem(
@@ -651,7 +609,6 @@ TutorialClass(
 
     Now, click BOLD(Move) button to move the node.
     """,
-    signal = ("who changed", "Skeleton")
     ),
 
     TutoringItem(

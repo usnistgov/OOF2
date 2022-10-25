@@ -93,7 +93,6 @@ TutorialClass(
     File) command.
     """,
         
-    signal=("new who", "Microstructure")
     ),
 
     TutoringItem(
@@ -118,7 +117,6 @@ TutorialClass(
 
     Go back to the BOLD(Microstructure) page, and notice that two
     pixel groups have been created.""",
-        signal="new pixel group"
     ),
 
     TutoringItem(
@@ -140,7 +138,6 @@ TutorialClass(
 
     Click BOLD(OK) to finalize the change.
     """,
-        signal="renamed pixel group"
     ),
 
     TutoringItem(
@@ -152,7 +149,6 @@ TutorialClass(
 
     Now you're ready to create materials for each pixel group.
     """,
-        signal="renamed pixel group"
     ),        
 
     TutoringItem(
@@ -188,7 +184,6 @@ TutorialClass(
     
     Click BOLD(OK).
     """,
-        signal="new_material"
     ),
 
     TutoringItem(
@@ -196,7 +191,6 @@ TutorialClass(
         comments=
         """Create a second BOLD(New) material with the name
     BOLD(cyan-material).""",
-        signal="new_material"
     ),
 
     TutoringItem(
@@ -224,7 +218,6 @@ TutorialClass(
     Property names must begin with a letter and can only contain
     letters, numerals, and underscores (they must be legal Python
     variable names). """,
-        signal = "new property"
     ),
         
     TutoringItem(
@@ -244,7 +237,6 @@ TutorialClass(
 
     Click BOLD(OK) to finish up.
     """,
-        signal = "redraw"
     ),
 
     TutoringItem(
@@ -265,7 +257,6 @@ TutorialClass(
     The addition should immediately appear in the BOLD(Material) pane,
     in the list of Properties below the Material selector.
     """,
-        signal= "prop_added_to_material"
     ),
 
     TutoringItem(
@@ -273,7 +264,6 @@ TutorialClass(
         comments=
         """Make another BOLD(Copy) of BOLD(Isotropic) and name it
     BOLD(cyan_elasticity).""",
-        signal = "new property"
     ),
 
     TutoringItem(
@@ -281,7 +271,6 @@ TutorialClass(
         comments=
         """BOLD(Parametrize) the property BOLD(cyan_elasticity) with these
     values: BOLD(young)=0.5, BOLD(poisson)=0.3.""",
-        signal = "redraw"
     ),
 
     TutoringItem(
@@ -296,8 +285,6 @@ TutorialClass(
     you move on.  Select a Property in the BOLD(Material) pane and use
     the BOLD(Remove Property from Material) button if you've made a
     mistake.  """,
-        
-    signal= "prop_added_to_material"
     ),
 
     TutoringItem(
@@ -326,7 +313,6 @@ TutorialClass(
     BOLD(cyan-material).  Parametrize it with BOLD(Red)=0,
     BOLD(Green)=0.8, and BOLD(Blue)=1.
     """,
-        signal="prop_added_to_material"
     ),
 
     TutoringItem(
@@ -347,7 +333,6 @@ TutorialClass(
 
     Click BOLD(OK) to finish.
     """,
-        signal = "materials changed in microstructure"
     ),
 
     TutoringItem(
@@ -427,8 +412,6 @@ TutorialClass(
     Make the Microstructure display layer visible in the graphics
     window, and note that the black pixels have turned cyan, since
     they now have a Material assigned to them.""",
-
-    signal = "materials changed in microstructure"
     ),
 
 
@@ -452,8 +435,6 @@ TutorialClass(
 
     To keep things simple, just click BOLD(OK) to create a 4x4 grid of
     quadrilateral skeleton elements.""",
-        
-    signal = ("new who", "Skeleton")
     ),
 
     TutoringItem(
@@ -482,8 +463,6 @@ TutorialClass(
 
     All the elements in the skeleton are now completely homogeneous.
     """,
-
-    signal = "Skeleton modified"
     ),
 
     TutoringItem(
@@ -514,7 +493,6 @@ TutorialClass(
     """,
         ## TODO GTK3: there are supposed to be tooltips for the
         ## element types
-    signal = ("new who", "Mesh")
     ),
 
     TutoringItem(
@@ -612,8 +590,6 @@ TutorialClass(
     next slide.
 
     """,
-        
-    signal = "boundary conditions changed"
     ),
 
     TutoringItem(
@@ -629,8 +605,6 @@ TutorialClass(
 
     This condition's going to be applied to the BOLD(bottom) of the
     mesh. Select BOLD(bottom) and click BOLD(OK) to finish.""",
-
-    signal = "boundary conditions changed"
     ),
 
     TutoringItem(
@@ -650,7 +624,6 @@ TutorialClass(
 
     We've just finished creating all three boundary conditions.
     """,
-        signal = "boundary conditions changed"
     ),
 
     TutoringItem(
@@ -682,16 +655,6 @@ TutorialClass(
     """
     ),
 
-
-    # TutoringItem(
-    #     subject="Solving a Mesh",
-    #     comments="""
-    # We're almost at the end of this tutorial.
-
-    # """,
-    #     signal="mesh solved"
-    # ),
-        
     TutoringItem(
         subject="Solving and Displaying a Mesh",
         comments=
@@ -699,7 +662,6 @@ TutorialClass(
         """ Click BOLD(Solve).
         Bring up the graphics window to examine the deformed mesh.
         """,
-        signal="mesh solved"
     ),
 
     TutoringItem(

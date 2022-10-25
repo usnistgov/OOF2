@@ -31,16 +31,7 @@ import re
 import string
 import textwrap
 
-
 ## TODO: Add a table of contents.
-
-## TODO: The Next button isn't sensitized correctly sometimes when a
-## saved session is loaded, if the user saves the session after the
-## button is sensitized but before clicking Next.  The sensitivity
-## probably needs to be saved in the file.
-
-## TODO PYTHON3: Get rid of the signals and just make the Next button
-## always sensitive.
 
 boldtag = "BOLD("
 lenboldtag = len(boldtag)
@@ -227,10 +218,7 @@ class TutorialClassGUI(subWindow.SubWindow):
         self.index = 0     # which slide?
         self.tutor = tutor
         self.newLesson()
-        self.tutor.lessons[0].activate()
         self.saved = None  # if saved or not
-
-        switchboard.requestCallbackMain("task finished", self.signalCB)
 
     def updateGUI(self):
         debug.mainthreadTest()
@@ -252,12 +240,6 @@ class TutorialClassGUI(subWindow.SubWindow):
                 bfr.insert_with_tags(bfr.get_end_iter(), comment, self.boldTag)
             else:
                 bfr.insert(bfr.get_end_iter(), comment)
-        # for s in self.scrollsignals:
-        #     s.block()
-        # self.msgscroll.get_hadjustment().set_value(0.)
-        # self.msgscroll.get_vadjustment().set_value(0.)
-        # for s in self.scrollsignals:
-        #     s.unblock()
         self.sensitize()
         self.gtk.show_all()
 
@@ -266,22 +248,9 @@ class TutorialClassGUI(subWindow.SubWindow):
 
     def sensitize(self):
         debug.mainthreadTest()
-        # Back, Jump, Done
         self.backbutton.set_sensitive(self.index != 0)
         self.jumpbutton.set_sensitive(self.index != self.progress)
-        # Next
-        self.nextbutton.set_sensitive(True)  # Default
-        if self.index == self.progress:
-            if (self.lesson.signal and not self.lesson.done and
-                not debug.debug()):
-                self.nextbutton.set_sensitive(False)
-        if self.lesson == self.tutor.lessons[-1]:  # the last one?
-            self.nextbutton.set_sensitive(False)
-
-    def signalCB(self):
-        debug.mainthreadTest()
-        if self.lesson != self.tutor.lessons[-1]:
-            self.nextbutton.set_sensitive(True)
+        self.nextbutton.set_sensitive(self.lesson != self.tutor.lessons[-1])
 
     def destroy(self):
         self.closeCB()
@@ -292,9 +261,7 @@ class TutorialClassGUI(subWindow.SubWindow):
 
     def nextCB(self, *args):
         if self.index == self.progress:  # move forward
-            self.tutor.lessons[self.progress].deactivate()
             self.progress += 1
-            self.tutor.lessons[self.progress].activate()
             self.index += 1
             self.newLesson()
         else:
@@ -332,7 +299,6 @@ class TutorialClassGUI(subWindow.SubWindow):
         self.progress = where
         self.index = self.progress
         self.updateGUI()
-        self.tutor.lessons[self.progress].activate()
 
     def savePrintable(self, menuitem, filename, mode):
         file = open(filename, mode.string())

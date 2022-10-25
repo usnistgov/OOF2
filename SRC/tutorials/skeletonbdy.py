@@ -71,8 +71,6 @@ TutorialClass(
 
     Open a graphics window, if you haven't yet.  Create new layers for
     the Image and the Skeleton (displayed by Edges).  """,
-        
-    signal = ("new who", "Skeleton")
     ),
 
     TutoringItem(
@@ -124,7 +122,6 @@ TutorialClass(
     menu.)
 
     """,
-    signal = "changed element selection"
     ),
 
     TutoringItem(
@@ -143,7 +140,6 @@ TutorialClass(
     BOLD(Clockwise).
 
     Click BOLD(OK) to create the boundary.""",
-    signal = "new boundaries for tutorial"
     ),
 
     TutoringItem(
@@ -180,7 +176,6 @@ TutorialClass(
 
     Click on any BOLD(yellow) pixel in the circle.  You should see that
     BOLD(66) elements inside the yellow circle have been selected""",
-    signal = "changed element selection"
     ),
 
     TutoringItem(
@@ -198,7 +193,6 @@ TutorialClass(
 
     Click BOLD(OK) to make a selection.  The selected nodes will be
     displayed as BOLD(blue) dots in the graphics window.""",
-    signal = "changed node selection"
     ),
 
     TutoringItem(
@@ -216,7 +210,6 @@ TutorialClass(
     BOLD(group).
 
     Click BOLD(OK) to create the boundary.""",
-    signal = "new boundaries for tutorial"
     ),
 
     TutoringItem(
@@ -258,8 +251,6 @@ TutorialClass(
     or BOLD(ctrl) (toggle) modifier keys.  It may help to BOLD(Zoom)
     the window, using either the BOLD(Viewer) toolbox or the
     BOLD(Settings/Zoom) menu.""",
-    
-    signal = "changed segment selection"
     ),
 
     TutoringItem(
@@ -272,7 +263,6 @@ TutorialClass(
     for the parameter BOLD(group).
 
     Set the direction to be BOLD(Left to right) and click BOLD(OK).""",
-    signal = "new boundaries for tutorial"
     ),
 
     TutoringItem(
