@@ -33,64 +33,6 @@ import textwrap
 
 ## TODO: Add a table of contents.
 
-boldtag = "BOLD("
-lenboldtag = len(boldtag)
-delimexpr = re.compile(r'[^\\]\)')      # finds ')' not preceded by '\'
-nondelimexpr = re.compile(r'\\\)')      # finds '\)'
-parasplit = re.compile(r'\n\s*\n')      # finds lines with only white space
-endline = re.compile(r'\s*\n\s*')
-
-
-## TODO: This is ugly.  It should be rewritten to take advantage of
-## pango markup.
-
-class Comment:
-    def __init__(self, comment, font=None):
-        self.font = font
-        self.commentList = []
-        self.fontList = []
-        # Split comment into paragraphs at blank lines.
-        paragraphs = parasplit.split(comment)
-
-        for para in paragraphs:
-            # Replace newlines with spaces within paragraphs, and get
-            # rid of excess white space.
-            para = endline.sub(' ', para).strip()
-
-            # Separate paragraph into strings so that each string has
-            # a single font, by looking for BOLD(...).
-            while para:
-                index_bold = para.find(boldtag)
-                if index_bold == -1:    # no bold text in remainder of para
-                    self.commentList.append(para)
-                    self.fontList.append(0)
-                    break
-                self.commentList.append(para[:index_bold])
-                self.fontList.append(0)
-                para = para[index_bold + lenboldtag:]
-                # look for closing ')'
-                endmatch = delimexpr.search(para)
-                if not endmatch:
-                    raise ooferror.PyErrPyProgrammingError(
-                        "Missing delimeter for BOLD tag in tutorial!")
-                boldtext = para[:endmatch.start()+1]
-                # replace all occurences of '\)' with ')'
-                self.commentList.append(nondelimexpr.sub(')', boldtext))
-                self.fontList.append('bold')
-                para = para[endmatch.end():]
-            self.commentList.append('\n\n')
-            self.fontList.append(0)
-
-    def isBold(self, index):
-        return self.fontList[index]
-    def __len__(self):
-        return len(self.commentList)
-    def __getitem__(self, i):
-        return self.commentList[i]
-
-
-####################################            
-
 tutorialInProgress = None
 
 def start_class(tutor, progress=0):
@@ -132,6 +74,8 @@ mainmenu.OOF.Windows.addItem(oofmenu.OOFMenuItem(
     gui_only=1,
     ordering=1000))
 mainmenu.OOF.Windows.Tutorial.disable() # there's no window to raise, yet.
+
+#=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=##=--=#
                                              
 class TutorialClassGUI(subWindow.SubWindow):
     def __init__(self, tutor):
@@ -167,11 +111,6 @@ class TutorialClassGUI(subWindow.SubWindow):
                                      top_margin=5, bottom_margin=5)
         self.textview.set_cursor_visible(False)
         self.textview.set_editable(False)
-        textattrs = self.textview.get_default_attributes()
-        self.boldTag = self.textview.get_buffer().create_tag(
-            "bold",
-            weight=Pango.Weight.BOLD,
-            foreground="blue")
         textframe.add(self.textview)
 
         buttonbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
@@ -232,14 +171,7 @@ class TutorialClassGUI(subWindow.SubWindow):
         
         bfr = self.textview.get_buffer()
         bfr.set_text("")
-        comments = Comment(self.lesson.comments)
-        for i in range(len(comments)):
-            comment = comments[i]
-            font = comments.isBold(i)
-            if font:
-                bfr.insert_with_tags(bfr.get_end_iter(), comment, self.boldTag)
-            else:
-                bfr.insert(bfr.get_end_iter(), comment)
+        bfr.insert_markup(bfr.get_end_iter(), self.lesson.comments, -1)
         self.sensitize()
         self.gtk.show_all()
 
@@ -304,21 +236,12 @@ class TutorialClassGUI(subWindow.SubWindow):
         file = open(filename, mode.string())
         pageno = 0
         for lesson in self.tutor.lessons:
-            comments = Comment(lesson.comments)
             pageno += 1
             print(pageno, lesson.subject, file=file)
             print(file=file)               # blank line
-
-            # comments acts like a list of strings, where each string
-            # might be formatted differently when displayed in the
-            # GUI.  Here we are discarding formatting, so just join
-            # all the strings together.
-            fulltext = "".join(comments)
-            # Now split them up according to paragraphs.
-            # Comment.__init__, above, inserted '\n\n' at the ends of
-            # paragraphs.
-            paragraphs = fulltext.split('\n\n')
-            # Now print out each paragraph, wrapping to 70 character lines. 
+            # Split the text up according to paragraphs.
+            paragraphs = lesson.comments.split('\n\n')
+            # Print out each paragraph, wrapping to 70 character lines. 
             for paragraph in paragraphs:
                 print(textwrap.fill(paragraph), file=file)
                 print(file=file)           # blank line
