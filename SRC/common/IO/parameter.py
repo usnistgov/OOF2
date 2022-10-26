@@ -573,7 +573,9 @@ class FloatParameter(Parameter):
         return "A real number."
 
 class PositiveFloatParameter(FloatParameter):
-    ## TODO: Why doesn't this have type checking?
+    def checker(self, x):
+        if not isinstance(x, (int, float)) or x <= 0.0:
+            raiseTypeError(x, "a positive number")
     def valueDesc(self):
         return "A positive real number."
 
@@ -907,7 +909,6 @@ class ListOfTuplesOfIntFloatsParameter(Parameter):
     def valueDesc(self):
         return "A list of tuples containing one integer followed by a variable number of real numbers."
 
-# 3D versions
 class ListOfListOfListOfIntsParameter(Parameter):
     # The binary repr for this parameter assumes that all the sublists
     # and subsublists are the same length
@@ -930,7 +931,6 @@ class ListOfListOfListOfIntsParameter(Parameter):
         w = len(value[0])
         d = len(value[0][0])
         size = struct.pack('>iii', h, w, d)
-        #TODO 3D: generalize rest of this class for 3D
         strings = [size]
         for lst in value:
             strings.append(struct.pack('>%di' % w, *lst))
@@ -948,7 +948,7 @@ class ListOfListOfListOfIntsParameter(Parameter):
     def valueRepr(self):
         return "List of uniformly sized Lists of Ints"
     def valueDesc(self):
-        return "A list of lists of integers.  The sublists must all have the same size."
+        return "A list of lists of lists of integers.  The sublists must all have the same size."
 
 # RegisteredParameter stores an instance of a RegisteredClass.
 class RegisteredParameter(Parameter):
@@ -1178,6 +1178,8 @@ class AutomaticNameParameter(Parameter):
         return \
           "A character string, or the variable <constant>automatic</constant>."
 
+    ## TODO PYTHON3: Do we even need binaryRepr and binaryRead for
+    ## this parameter?  Is it ever used in data files?  Probably not.
     def binaryRepr(self, datafile, value):
         ## TODO PYTHON3: Does this work when value==automatic?
         length = len(value)
