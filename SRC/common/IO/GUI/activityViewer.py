@@ -29,7 +29,7 @@ from ooflib.common.IO.GUI import gtklogger
 from ooflib.common.IO.GUI import gtkutils
 from ooflib.common.IO.GUI import quit
 from ooflib.common.IO.GUI import subWindow
-from gi.repository import GObject
+from gi.repository import GLib
 from gi.repository import Gtk
 import string
 import sys
@@ -229,39 +229,49 @@ class ActivityViewer(subWindow.SubWindow):
 # which case display the bar immediately.  The delay suppresses
 # short-lived progress bars which wouldn't be very useful anyway.
 
-def delayed_add_ProgressBar(progressid):
-    debug.mainthreadTest()
-    if thread_enable.query():
-        if progressbar_delay.delay < progressbar_delay.period:
-            _updatePBdisplayNow(progressid) # immediate display
-        else:
-            GObject.timeout_add(progressbar_delay.delay,
-                                _updatePBdisplayNow, progressid)
-
-# Time-out callback function invoked by delayed_add_ProgressBar.
-
 # In gtk2, the timeout callback was wrapped in gdk.threads_enter and
 # gdk.threads_leave, which are deprecated in Gtk3.
 
-def _updatePBdisplayNow(progressid):
+# Time-out callback function invoked by delayed_add_ProgressBar.
+
+# Instead of passing in a function and pointers to arguments, pass in
+# a callable object which doesn't need any arguments.  Passing in the
+# arguments separately probably works, but something was going wrong
+# with it (gtk3 documentation is poor) and the callable object method
+# works.
+
+class PBupdater:
+    def __init__(self, progressid):
+        self.progressid = progressid
+    def __call__(self):
+        debug.mainthreadTest()
+        # Don't do anything unless threads are enabled and the gui has
+        # been started.
+        if thread_enable.query() and guitop.top():
+            prog = progress.findProgressByID(self.progressid)
+            if prog is not None and not (prog.finished() or prog.stopped()):
+                # Create just one activity viewer.  If it's been opened
+                # and closed already, don't reopen it automatically.
+                if not _activityViewerOpened:
+                    # The newly created Activity Viewer window
+                    # automatically calls installBar for every existing
+                    # Progress object, including the one identified by the
+                    # argument to this routine.
+                    openActivityViewer()
+                else:
+                    # The Activity Viewer might have been closed, in which
+                    # case activityViewer is None.
+                    if activityViewer is not None:
+                        activityViewer.addGTKBar(prog)
+
+def delayed_add_ProgressBar(progressid):
     debug.mainthreadTest()
-    # Don't do anything unless threads are enabled and the gui has
-    # been started.
-    if thread_enable.query() and guitop.top():
-        prog = progress.findProgressByID(progressid)
-        if prog is not None and not (prog.finished() or prog.stopped()):
-            # Create just one activity viewer.  If it's been opened
-            # and closed already, don't reopen it automatically.
-            if not _activityViewerOpened:
-                # The newly created Activity Viewer window
-                # automatically calls installBar for every existing
-                # Progress object, including the one identified by the
-                # argument to this routine.
-                openActivityViewer()
-            else:
-                # The Activity Viewer might have been closed, in which
-                # case activityViewer is None.
-                if activityViewer is not None:
-                    activityViewer.addGTKBar(prog)
+    if thread_enable.query():
+        pbupdater = PBupdater(progressid)
+        if progressbar_delay.delay < progressbar_delay.period:
+            pbupdater()
+        else:
+            GLib.timeout_add(interval=progressbar_delay.delay,
+                             function=pbupdater)
 
 switchboard.requestCallbackMain("new progress", delayed_add_ProgressBar)

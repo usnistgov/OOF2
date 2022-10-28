@@ -10,9 +10,9 @@
 
 # Classes and functions for reading and replaying log files.
 
-from gi.repository import GObject
 from gi.repository import Gdk
 from gi.repository import Gtk
+from gi.repository import GLib
 import sys
 import weakref
 
@@ -51,9 +51,10 @@ def replay(filename, beginCB=None, finishCB=None, debugLevel=2,
            threaded=False, exceptHook=None, rerecord=None, checkpoints=True,
            comment_gui=False):
     logutils.set_replaying(True)
-    GObject.idle_add(GUILogPlayer(filename, beginCB, finishCB, debugLevel,
-                                  threaded, exceptHook, rerecord, checkpoints,
-                                  comment_gui))
+    GLib.idle_add(
+        function=GUILogPlayer(filename, beginCB, finishCB, debugLevel,
+                              threaded, exceptHook, rerecord, checkpoints,
+                              comment_gui))
 
 # A GUILogPlayer reads a log file of saved gui events and simulates them.
 
@@ -204,7 +205,7 @@ class GUILogLineRunner:
             self.status = "installed"
             if logutils.debugLevel() >= 4:
                 print("Installing", self.srcline, file=sys.stderr)
-            GObject.idle_add(self, priority=GObject.PRIORITY_LOW)
+            GLib.idle_add(function=self, priority=GLib.PRIORITY_LOW)
     def nextLine(self):
         line = self.logrunner.getLine(self.lineno+1)
         if line:
@@ -298,8 +299,8 @@ class GUILogLineRunner:
                     # to the back of the queue.  This allows the
                     # widget we are waiting for to appear, we hope.
                     self.status = "repeating"
-                    GObject.timeout_add(retrydelay, self,
-                                        priority=GObject.PRIORITY_LOW)
+                    GLib.timeout_add(interval=retrydelay, function=self,
+                                     priority=GLib.PRIORITY_LOW)
                     return False
 
 
@@ -323,7 +324,8 @@ class GUILogLineRunner:
         # will run first.
         if logutils.debugLevel() >= 4:
             print("Reinstalling", self.srcline, file=sys.stderr)
-        GObject.timeout_add(retrydelay, self, priority=GObject.PRIORITY_LOW)
+        GLib.timeout_add(interval=retrydelay, function=self,
+                         priority=GLib.PRIORITY_LOW)
         return False
 
     def run_postponed(self):
@@ -446,8 +448,8 @@ class PauseLine(GUILogLineRunner):
                 if logutils.debugLevel() >= 4:
                     print(self.srcline, \
                           "Pausing", self.delaytime, "milliseconds", file=sys.stderr)
-                GObject.timeout_add(self.delaytime, self,
-                                    priority=GObject.PRIORITY_LOW)
+                GLib.timeout_add(interval=self.delaytime, function=self,
+                                 priority=GLib.PRIORITY_LOW)
             elif self.status == "repeating":
                 if logutils.debugLevel() >= 4:
                     print("Done pausing", self.srcline, file=sys.stderr)
@@ -475,7 +477,8 @@ class CheckPointLine(GUILogLineRunner):
             self.status = "repeating"
             if logutils.debugLevel() >= 4:
                 print("Waiting on checkpoint", self.srcline, file=sys.stderr)
-            GObject.timeout_add(retrydelay, self, priority=GObject.PRIORITY_LOW)
+            GLib.timeout_add(interval=retrydelay, function=self,
+                             priority=GLib.PRIORITY_LOW)
         return False
     def report(self):
         print("////// %d/%d checkpoint %s" %(self.srcline,

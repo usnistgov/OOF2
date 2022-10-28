@@ -15,9 +15,9 @@ from ooflib.SWIG.common import threadstate
 from ooflib.common import debug
 from ooflib.common import mainthread
 from ooflib.common import thread_enable
-from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import Gdk
+from gi.repository import GLib
 import threading
 
 class OOFIdleCallback:
@@ -41,7 +41,7 @@ def run_gui(func, args=(), kwargs={}):
      # must be installed before the GUI starts and executed
      # afterwards, so the installation must succeed even if threads
      # aren't available yet.
-     GObject.idle_add(OOFIdleCallback(func, args, kwargs))
+     GLib.idle_add(function=OOFIdleCallback(func, args, kwargs))
 
 ################
 
@@ -72,7 +72,7 @@ def runBlock_gui(func, args=(), kwargs={}):
     if thread_enable.query() and not mainthread.mainthread():
         callbackobj = OOFIdleBlockCallback(func, args, kwargs)
         callbackobj.event.clear()
-        GObject.idle_add(callbackobj, priority=GObject.PRIORITY_LOW)
+        GLib.idle_add(function=callbackobj, priority=GLib.PRIORITY_LOW)
         callbackobj.event.wait()
         return callbackobj.result
     else:
