@@ -262,7 +262,7 @@ def run(homedir):
         print(message)
         printhelp()
         sys.exit(1)
-    global debug
+    global debug, unthreaded, sync, no_checkpoints, delaystr
     fromdir = None
     afterdir = None
     todir = None
