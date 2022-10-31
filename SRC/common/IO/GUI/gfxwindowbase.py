@@ -22,10 +22,6 @@ from ooflib.common.IO.GUI import mousehandler
 from ooflib.common.IO.GUI import parameterwidgets
 from ooflib.common.IO.GUI import subWindow
 
-# import gi
-# gi.require_version("Gdk", "3.0")
-# from gi.repository import Gdk
-
 ## TODO: There's no need anymore for a separate GfxWindowBase base
 ## class.  All of this can be merged into GfxWindow.  GfxWindowBase
 ## was useful when the 2D and 3D graphics windows shared a base class.
