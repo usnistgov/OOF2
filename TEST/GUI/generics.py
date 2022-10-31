@@ -28,7 +28,7 @@ import types
 from gi.repository import Gtk
 
 floatpattern = \
-    re.compile("([-+]?(?:\d+(?:\.\d*)?|\d*\.\d+)(?:[eE][-+]?\d+)?)")
+    re.compile(r"([-+]?(?:\d+(?:\.\d*)?|\d*\.\d+)(?:[eE][-+]?\d+)?)")
 intpattern = re.compile("[0-9]+$")
 
 # fp_string_compare compares two strings.  Any floating point numbers
@@ -555,17 +555,6 @@ def pixelGroupSizeCheck(msname, grpname, n):
 
 def errorMsg(text):
     return gtkTextviewTail('Error:ErrorText', text+'\n')
-
-def syntaxErrorMsg(text):
-    # The syntax error message format changed slightly from Python 2.5
-    # to 2.6.  Grrr.  The syntax format in the argument should be the
-    # *2.6* version.
-    text25 = "single-quoted string"
-    text26 = "string literal"
-    if sys.version_info[1] <= 5:
-        return errorMsg(text.replace(text26, text25))
-    return errorMsg(text)
-    
 
 def msgTextTail(text):
     return gtkTextviewTail('OOF2 Messages 1:Text', text+'\n')
